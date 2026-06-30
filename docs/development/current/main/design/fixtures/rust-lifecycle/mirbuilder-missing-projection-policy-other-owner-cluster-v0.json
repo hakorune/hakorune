@@ -1,0 +1,3172 @@
+{
+  "claims": {
+    "all_other_owner_cluster_items_partitioned_exactly_once": 1,
+    "cluster_size_as_proof": 0,
+    "coverage_percentage_as_proof": 0,
+    "generated_artifact_as_edit_authority": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "input_other_owner_cluster_count": 185,
+    "manual_family_selection": 0,
+    "native_source_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "owner_cluster_field_audit_consumed": 1,
+    "owner_edge_confidence_repair_selected": 1,
+    "route_membership_alone_as_proof": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_report_consumed": 1,
+    "source_selfhost_claim": 0,
+    "subcluster_ids_are_stable": 1,
+    "subcluster_reason_tokens_are_stable": 1
+  },
+  "decision": {
+    "kind": "SelectOwnerEdgeConfidenceRepair",
+    "reason_token": "OtherOwnerClusterRequiresOwnerEdgeConfidenceRepair",
+    "selected_next_card": "MIRBUILDER-MISSING-PROJECTION-POLICY-OTHER-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+    "selected_subcluster_id": null
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "input_other_owner_cluster_count": 185,
+    "owner_cluster_field_audit": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-surface-report-owner-cluster-field-v0.json",
+    "owner_cluster_field_decision": {
+      "kind": "SelectOtherOwnerClusterDecomposition",
+      "reason_token": "OtherOwnerClusterFieldRequiresDecomposition",
+      "selected_cluster": "OtherMissingProjectionPolicyCluster",
+      "selected_next_card": "MIRBUILDER-MISSING-PROJECTION-POLICY-OTHER-OWNER-CLUSTER-001"
+    },
+    "source_report": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-unconverted-surface-report-v0.json"
+  },
+  "kind": "MirBuilderMissingProjectionPolicyOtherOwnerClusterV1",
+  "provenance": {
+    "owner_cluster_field_hash": "667637f6ef5e7ac4f2e82e99617689d176d464a86d09cfabf6be574abb6fff48",
+    "source_report_hash": "08186ed99f676574e43236bfbc3ad26a91bfbc90fc3dd1fd43807d6d728a8ab3"
+  },
+  "schema_version": 0,
+  "subcluster_axes": [
+    "surface_role",
+    "source_module",
+    "shape_signature",
+    "borrow_axis",
+    "type_transport_axis",
+    "return_family",
+    "verifier_or_oracle_state",
+    "public_or_private_surface"
+  ],
+  "subclusters": [
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 6,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "option",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 6,
+      "source_ids": [
+        "src/mir/builder/rewrite/known.rs::try_known_or_unique:L397",
+        "src/mir/builder/rewrite/known.rs::try_known_or_unique_to_dst:L414",
+        "src/mir/builder/rewrite/known.rs::try_known_rewrite:L99",
+        "src/mir/builder/rewrite/known.rs::try_known_rewrite_to_dst:L181",
+        "src/mir/builder/rewrite/known.rs::try_unique_suffix_rewrite:L258",
+        "src/mir/builder/rewrite/known.rs::try_unique_suffix_rewrite_to_dst:L325"
+      ],
+      "source_module": "src/mir/builder/rewrite/known",
+      "subcluster_id": "other_owner_cluster::rewrite_known_surface::src_mir_builder_rewrite_known::unknown_shape::NoBorrow::KnownOptionCarrier::option::Present::public",
+      "surface_role": "rewrite_known_surface",
+      "type_transport_axis": "KnownOptionCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature",
+        "ResultCarrierNeedsVerifier"
+      ],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 5,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "result",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 5,
+      "source_ids": [
+        "src/mir/builder/control_flow/mod.rs::cf_block:L98",
+        "src/mir/builder/control_flow/mod.rs::cf_if:L111",
+        "src/mir/builder/control_flow/mod.rs::cf_loop:L135",
+        "src/mir/builder/control_flow/mod.rs::cf_throw:L201",
+        "src/mir/builder/control_flow/mod.rs::cf_try_catch:L189"
+      ],
+      "source_module": "src/mir/builder/control_flow/mod",
+      "subcluster_id": "other_owner_cluster::control_flow_dispatch_surface::src_mir_builder_control_flow_mod::unknown_shape::NoReturnedBorrowMutableReceiver::ResultCarrierNeedsVerifier::result::Present::public",
+      "surface_role": "control_flow_dispatch_surface",
+      "type_transport_axis": "ResultCarrierNeedsVerifier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature",
+        "MissingTypeTransport"
+      ],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 5,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "custom_carrier",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 5,
+      "source_ids": [
+        "src/mir/builder/utils/local_ssa.rs::local_arg:L14",
+        "src/mir/builder/utils/local_ssa.rs::local_cond:L24",
+        "src/mir/builder/utils/local_ssa.rs::local_field_base:L19",
+        "src/mir/builder/utils/local_ssa.rs::local_recv:L9",
+        "src/mir/builder/utils/local_ssa.rs::local_ssa_ensure:L30"
+      ],
+      "source_module": "src/mir/builder/utils/local_ssa",
+      "subcluster_id": "other_owner_cluster::local_ssa_surface::src_mir_builder_utils_local_ssa::unknown_shape::NoReturnedBorrowMutableReceiver::MissingTypeTransport::custom_carrier::Present::public",
+      "surface_role": "local_ssa_surface",
+      "type_transport_axis": "MissingTypeTransport",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoReturnedBorrowSharedReceiver",
+      "candidate_count": 4,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "option",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 4,
+      "source_ids": [
+        "src/mir/builder/field_facts.rs::declared_field_type_for_value:L10",
+        "src/mir/builder/field_facts.rs::inferred_field_result_class:L22",
+        "src/mir/builder/field_facts.rs::is_weak_field_on_base:L79",
+        "src/mir/builder/field_facts.rs::resolve_property_getter_name:L65"
+      ],
+      "source_module": "src/mir/builder/field_facts",
+      "subcluster_id": "other_owner_cluster::field_fact_surface::src_mir_builder_field_facts::unknown_shape::NoReturnedBorrowSharedReceiver::KnownOptionCarrier::option::Present::public",
+      "surface_role": "field_fact_surface",
+      "type_transport_axis": "KnownOptionCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature",
+        "ResultCarrierNeedsVerifier"
+      ],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 4,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "result",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 4,
+      "source_ids": [
+        "src/mir/builder/utils/weak_ref.rs::emit_barrier_read:L50",
+        "src/mir/builder/utils/weak_ref.rs::emit_barrier_write:L60",
+        "src/mir/builder/utils/weak_ref.rs::emit_weak_load:L34",
+        "src/mir/builder/utils/weak_ref.rs::emit_weak_new:L9"
+      ],
+      "source_module": "src/mir/builder/utils/weak_ref",
+      "subcluster_id": "other_owner_cluster::weak_ref_surface::src_mir_builder_utils_weak_ref::unknown_shape::NoReturnedBorrowMutableReceiver::ResultCarrierNeedsVerifier::result::Present::public",
+      "surface_role": "weak_ref_surface",
+      "type_transport_axis": "ResultCarrierNeedsVerifier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 3,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "unit",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 3,
+      "source_ids": [
+        "src/mir/builder/builder_init.rs::pop_if_merge:L69",
+        "src/mir/builder/builder_init.rs::push_if_merge:L65",
+        "src/mir/builder/builder_init.rs::suppress_next_entry_pin_copy:L75"
+      ],
+      "source_module": "src/mir/builder/builder_init",
+      "subcluster_id": "other_owner_cluster::builder_lifecycle_surface::src_mir_builder_builder_init::unknown_shape::NoReturnedBorrowMutableReceiver::Known::unit::Present::public",
+      "surface_role": "builder_lifecycle_surface",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature",
+        "ResultCarrierNeedsVerifier"
+      ],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 3,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "result",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 3,
+      "source_ids": [
+        "src/mir/builder/exprs_enum_match.rs::build_enum_match_expression:L22",
+        "src/mir/builder/exprs_enum_match.rs::try_build_enum_variant_constructor:L45",
+        "src/mir/builder/exprs_enum_match.rs::try_build_guard_let_scopebox:L5"
+      ],
+      "source_module": "src/mir/builder/exprs_enum_match",
+      "subcluster_id": "other_owner_cluster::expression_lowering_surface::src_mir_builder_exprs_enum_match::unknown_shape::NoReturnedBorrowMutableReceiver::ResultCarrierNeedsVerifier::result::Present::public",
+      "surface_role": "expression_lowering_surface",
+      "type_transport_axis": "ResultCarrierNeedsVerifier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature",
+        "ResultCarrierNeedsVerifier"
+      ],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 3,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "result",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 3,
+      "source_ids": [
+        "src/mir/builder/indexing.rs::build_index_access_from_values:L32",
+        "src/mir/builder/indexing.rs::build_index_assignment:L212",
+        "src/mir/builder/indexing.rs::build_index_expression:L161"
+      ],
+      "source_module": "src/mir/builder/indexing",
+      "subcluster_id": "other_owner_cluster::expression_lowering_surface::src_mir_builder_indexing::unknown_shape::NoReturnedBorrowMutableReceiver::ResultCarrierNeedsVerifier::result::Present::public",
+      "surface_role": "expression_lowering_surface",
+      "type_transport_axis": "ResultCarrierNeedsVerifier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature",
+        "ResultCarrierNeedsVerifier"
+      ],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 3,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "result",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 3,
+      "source_ids": [
+        "src/mir/builder/builder_emit.rs::emit_extern_call:L392",
+        "src/mir/builder/builder_emit.rs::emit_extern_call_with_effects:L373",
+        "src/mir/builder/builder_emit.rs::emit_instruction:L9"
+      ],
+      "source_module": "src/mir/builder/builder_emit",
+      "subcluster_id": "other_owner_cluster::instruction_emission_or_guard_surface::src_mir_builder_builder_emit::unknown_shape::NoReturnedBorrowMutableReceiver::ResultCarrierNeedsVerifier::result::Present::public",
+      "surface_role": "instruction_emission_or_guard_surface",
+      "type_transport_axis": "ResultCarrierNeedsVerifier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 3,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "bool",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 3,
+      "source_ids": [
+        "src/mir/builder/control_flow/generic_loop_canon/step_placement/facts.rs::is_break_else_if_with_increment:L140",
+        "src/mir/builder/control_flow/generic_loop_canon/step_placement/facts.rs::is_continue_if_with_increment:L109",
+        "src/mir/builder/control_flow/generic_loop_canon/step_placement/facts.rs::matches_loop_increment:L92"
+      ],
+      "source_module": "src/mir/builder/control_flow/generic_loop_canon/step_placement/facts",
+      "subcluster_id": "other_owner_cluster::loop_canon_fact_surface::src_mir_builder_control_flow_generic_loop_canon_step_placement_facts::unknown_shape::NoBorrow::Known::bool::Present::public",
+      "surface_role": "loop_canon_fact_surface",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature",
+        "ResultCarrierNeedsVerifier"
+      ],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 3,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "result",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 3,
+      "source_ids": [
+        "src/mir/builder/phi_merge.rs::merge_all_vars:L176",
+        "src/mir/builder/phi_merge.rs::merge_variable:L62",
+        "src/mir/builder/phi_merge.rs::merge_with_dst:L115"
+      ],
+      "source_module": "src/mir/builder/phi_merge",
+      "subcluster_id": "other_owner_cluster::phi_surface::src_mir_builder_phi_merge::unknown_shape::NoReturnedBorrowMutableReceiver::ResultCarrierNeedsVerifier::result::Present::public",
+      "surface_role": "phi_surface",
+      "type_transport_axis": "ResultCarrierNeedsVerifier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 3,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "unit",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 3,
+      "source_ids": [
+        "src/mir/builder/observe/types.rs::origin:L17",
+        "src/mir/builder/observe/types.rs::propagate:L37",
+        "src/mir/builder/observe/types.rs::ty:L27"
+      ],
+      "source_module": "src/mir/builder/observe/types",
+      "subcluster_id": "other_owner_cluster::type_annotation_surface::src_mir_builder_observe_types::unknown_shape::NoBorrow::Known::unit::Present::public",
+      "surface_role": "type_annotation_surface",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 3,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "unit",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 3,
+      "source_ids": [
+        "src/mir/builder/types/array_element.rs::annotate_array_element_result:L63",
+        "src/mir/builder/types/array_element.rs::observe_array_write_call:L24",
+        "src/mir/builder/types/array_element.rs::record_array_literal_elements:L9"
+      ],
+      "source_module": "src/mir/builder/types/array_element",
+      "subcluster_id": "other_owner_cluster::type_annotation_surface::src_mir_builder_types_array_element::unknown_shape::NoBorrow::Known::unit::Present::public",
+      "surface_role": "type_annotation_surface",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature",
+        "ResultCarrierNeedsVerifier"
+      ],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 3,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "result",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 3,
+      "source_ids": [
+        "src/mir/builder/record_helper_args.rs::try_inline_record_helper_call:L33",
+        "src/mir/builder/record_helper_args.rs::try_inline_same_module_helper_setter_call:L63",
+        "src/mir/builder/record_helper_args.rs::try_inline_same_module_helper_setter_call_from_receiver:L130"
+      ],
+      "source_module": "src/mir/builder/record_helper_args",
+      "subcluster_id": "other_owner_cluster::unmapped_other_surface::src_mir_builder_record_helper_args::unknown_shape::NoReturnedBorrowMutableReceiver::ResultCarrierNeedsVerifier::result::Present::public",
+      "surface_role": "unmapped_other_surface",
+      "type_transport_axis": "ResultCarrierNeedsVerifier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature",
+        "MissingTypeTransport"
+      ],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 3,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "custom_carrier",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 3,
+      "source_ids": [
+        "src/mir/builder/utils/id_alloc.rs::alloc_typed:L49",
+        "src/mir/builder/utils/id_alloc.rs::next_block_id:L59",
+        "src/mir/builder/utils/id_alloc.rs::next_value_id:L20"
+      ],
+      "source_module": "src/mir/builder/utils/id_alloc",
+      "subcluster_id": "other_owner_cluster::unmapped_other_surface::src_mir_builder_utils_id_alloc::unknown_shape::NoReturnedBorrowMutableReceiver::MissingTypeTransport::custom_carrier::Present::public",
+      "surface_role": "unmapped_other_surface",
+      "type_transport_axis": "MissingTypeTransport",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoReturnedBorrowSharedReceiver",
+      "candidate_count": 3,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "bool",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 3,
+      "source_ids": [
+        "src/mir/builder/builder_value_kind.rs::is_value_local:L35",
+        "src/mir/builder/builder_value_kind.rs::is_value_loop_carrier:L42",
+        "src/mir/builder/builder_value_kind.rs::is_value_parameter:L28"
+      ],
+      "source_module": "src/mir/builder/builder_value_kind",
+      "subcluster_id": "other_owner_cluster::value_kind_registry_surface::src_mir_builder_builder_value_kind::unknown_shape::NoReturnedBorrowSharedReceiver::Known::bool::Present::public",
+      "surface_role": "value_kind_registry_surface",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 2,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "bool",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/call_resolution.rs::is_builtin_function:L10",
+        "src/mir/builder/call_resolution.rs::is_extern_function:L24"
+      ],
+      "source_module": "src/mir/builder/call_resolution",
+      "subcluster_id": "other_owner_cluster::call_resolution_registry_surface::src_mir_builder_call_resolution::unknown_shape::NoBorrow::Known::bool::Present::public",
+      "surface_role": "call_resolution_registry_surface",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 2,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "bool",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/control_flow/cleanup/policies/cond_prelude_vocab.rs::prelude_has_loop_like_stmt:L59",
+        "src/mir/builder/control_flow/cleanup/policies/cond_prelude_vocab.rs::stmt_has_loop_like_stmt:L40"
+      ],
+      "source_module": "src/mir/builder/control_flow/cleanup/policies/cond_prelude_vocab",
+      "subcluster_id": "other_owner_cluster::control_flow_cleanup_policy_surface::src_mir_builder_control_flow_cleanup_policies_cond_prelude_vocab::unknown_shape::NoBorrow::Known::bool::Present::public",
+      "surface_role": "control_flow_cleanup_policy_surface",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature",
+        "ResultCarrierNeedsVerifier"
+      ],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 2,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "result",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/decls.rs::build_box_declaration:L190",
+        "src/mir/builder/decls.rs::build_static_main_box:L11"
+      ],
+      "source_module": "src/mir/builder/decls",
+      "subcluster_id": "other_owner_cluster::declaration_lowering_surface::src_mir_builder_decls::unknown_shape::NoReturnedBorrowMutableReceiver::ResultCarrierNeedsVerifier::result::Present::public",
+      "surface_role": "declaration_lowering_surface",
+      "type_transport_axis": "ResultCarrierNeedsVerifier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 2,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "unit",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/joinir_id_remapper.rs::set_block:L43",
+        "src/mir/builder/joinir_id_remapper.rs::set_value:L48"
+      ],
+      "source_module": "src/mir/builder/joinir_id_remapper",
+      "subcluster_id": "other_owner_cluster::joinir_id_remapper_surface::src_mir_builder_joinir_id_remapper::unknown_shape::NoReturnedBorrowMutableReceiver::Known::unit::Present::public",
+      "surface_role": "joinir_id_remapper_surface",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoReturnedBorrowSharedReceiver",
+      "candidate_count": 2,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "option",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/joinir_id_remapper.rs::get_block:L31",
+        "src/mir/builder/joinir_id_remapper.rs::get_value:L38"
+      ],
+      "source_module": "src/mir/builder/joinir_id_remapper",
+      "subcluster_id": "other_owner_cluster::joinir_id_remapper_surface::src_mir_builder_joinir_id_remapper::unknown_shape::NoReturnedBorrowSharedReceiver::KnownOptionCarrier::option::Present::public",
+      "surface_role": "joinir_id_remapper_surface",
+      "type_transport_axis": "KnownOptionCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoReturnedBorrowSharedReceiver",
+      "candidate_count": 2,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "vec",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/joinir_id_remapper.rs::collect_values_in_block:L53",
+        "src/mir/builder/joinir_id_remapper.rs::collect_values_in_instruction:L65"
+      ],
+      "source_module": "src/mir/builder/joinir_id_remapper",
+      "subcluster_id": "other_owner_cluster::joinir_id_remapper_surface::src_mir_builder_joinir_id_remapper::unknown_shape::NoReturnedBorrowSharedReceiver::KnownVecCarrier::vec::Present::public",
+      "surface_role": "joinir_id_remapper_surface",
+      "type_transport_axis": "KnownVecCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature",
+        "MissingTypeTransport"
+      ],
+      "borrow_axis": "NoReturnedBorrowSharedReceiver",
+      "candidate_count": 2,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "custom_carrier",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/joinir_id_remapper.rs::remap_instruction:L180",
+        "src/mir/builder/joinir_id_remapper.rs::remap_value:L497"
+      ],
+      "source_module": "src/mir/builder/joinir_id_remapper",
+      "subcluster_id": "other_owner_cluster::joinir_id_remapper_surface::src_mir_builder_joinir_id_remapper::unknown_shape::NoReturnedBorrowSharedReceiver::MissingTypeTransport::custom_carrier::Present::public",
+      "surface_role": "joinir_id_remapper_surface",
+      "type_transport_axis": "MissingTypeTransport",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 2,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "bool",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/control_flow/generic_loop_canon/condition/candidates.rs::collect_candidates_from_condition:L28",
+        "src/mir/builder/control_flow/generic_loop_canon/condition/candidates.rs::is_supported_comparison_operator:L97"
+      ],
+      "source_module": "src/mir/builder/control_flow/generic_loop_canon/condition/candidates",
+      "subcluster_id": "other_owner_cluster::loop_canon_fact_surface::src_mir_builder_control_flow_generic_loop_canon_condition_candidates::unknown_shape::NoBorrow::Known::bool::Present::public",
+      "surface_role": "loop_canon_fact_surface",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 2,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "option",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/control_flow/generic_loop_canon/condition/candidates.rs::collect_candidates_from_top_level_comparison:L3",
+        "src/mir/builder/control_flow/generic_loop_canon/condition/candidates.rs::extract_var_candidate:L73"
+      ],
+      "source_module": "src/mir/builder/control_flow/generic_loop_canon/condition/candidates",
+      "subcluster_id": "other_owner_cluster::loop_canon_fact_surface::src_mir_builder_control_flow_generic_loop_canon_condition_candidates::unknown_shape::NoBorrow::KnownOptionCarrier::option::Present::public",
+      "surface_role": "loop_canon_fact_surface",
+      "type_transport_axis": "KnownOptionCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 2,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "option",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/rewrite/special.rs::try_early_str_like_to_dst:L21",
+        "src/mir/builder/rewrite/special.rs::try_special_equals_to_dst:L70"
+      ],
+      "source_module": "src/mir/builder/rewrite/special",
+      "subcluster_id": "other_owner_cluster::rewrite_known_surface::src_mir_builder_rewrite_special::unknown_shape::NoBorrow::KnownOptionCarrier::option::Present::public",
+      "surface_role": "rewrite_known_surface",
+      "type_transport_axis": "KnownOptionCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 2,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "unit",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/types/annotation.rs::annotate_from_function:L16",
+        "src/mir/builder/types/annotation.rs::set_type:L9"
+      ],
+      "source_module": "src/mir/builder/types/annotation",
+      "subcluster_id": "other_owner_cluster::type_annotation_surface::src_mir_builder_types_annotation::unknown_shape::NoBorrow::Known::unit::Present::public",
+      "surface_role": "type_annotation_surface",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 2,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "option",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/types/annotation.rs::infer_method_return_type:L77",
+        "src/mir/builder/types/annotation.rs::infer_return_type:L22"
+      ],
+      "source_module": "src/mir/builder/types/annotation",
+      "subcluster_id": "other_owner_cluster::type_annotation_surface::src_mir_builder_types_annotation::unknown_shape::NoBorrow::KnownOptionCarrier::option::Present::public",
+      "surface_role": "type_annotation_surface",
+      "type_transport_axis": "KnownOptionCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 2,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "unit",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/types/map_value.rs::annotate_map_get_result:L50",
+        "src/mir/builder/types/map_value.rs::observe_map_write_call:L11"
+      ],
+      "source_module": "src/mir/builder/types/map_value",
+      "subcluster_id": "other_owner_cluster::type_annotation_surface::src_mir_builder_types_map_value::unknown_shape::NoBorrow::Known::unit::Present::public",
+      "surface_role": "type_annotation_surface",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature",
+        "ResultCarrierNeedsVerifier"
+      ],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 2,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "result",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/if_form.rs::lower_if_form:L72",
+        "src/mir/builder/if_form.rs::lower_if_form_with_condition_value:L82"
+      ],
+      "source_module": "src/mir/builder/if_form",
+      "subcluster_id": "other_owner_cluster::unmapped_other_surface::src_mir_builder_if_form::unknown_shape::NoReturnedBorrowMutableReceiver::ResultCarrierNeedsVerifier::result::Present::public",
+      "surface_role": "unmapped_other_surface",
+      "type_transport_axis": "ResultCarrierNeedsVerifier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 2,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "unit",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/metadata/propagate.rs::propagate:L14",
+        "src/mir/builder/metadata/propagate.rs::propagate_with_override:L56"
+      ],
+      "source_module": "src/mir/builder/metadata/propagate",
+      "subcluster_id": "other_owner_cluster::unmapped_other_surface::src_mir_builder_metadata_propagate::unknown_shape::NoBorrow::Known::unit::Present::public",
+      "surface_role": "unmapped_other_surface",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature",
+        "ResultCarrierNeedsVerifier"
+      ],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 2,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "result",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/module_lifecycle.rs::lower_root:L110",
+        "src/mir/builder/module_lifecycle.rs::prepare_module:L64"
+      ],
+      "source_module": "src/mir/builder/module_lifecycle",
+      "subcluster_id": "other_owner_cluster::unmapped_other_surface::src_mir_builder_module_lifecycle::unknown_shape::NoReturnedBorrowMutableReceiver::ResultCarrierNeedsVerifier::result::Present::public",
+      "surface_role": "unmapped_other_surface",
+      "type_transport_axis": "ResultCarrierNeedsVerifier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 2,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "unit",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/observe/resolve.rs::emit_choose:L32",
+        "src/mir/builder/observe/resolve.rs::emit_try:L21"
+      ],
+      "source_module": "src/mir/builder/observe/resolve",
+      "subcluster_id": "other_owner_cluster::unmapped_other_surface::src_mir_builder_observe_resolve::unknown_shape::NoBorrow::Known::unit::Present::public",
+      "surface_role": "unmapped_other_surface",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature",
+        "ResultCarrierNeedsVerifier"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 2,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "result",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/schedule/block.rs::emit_before_call_copy:L162",
+        "src/mir/builder/schedule/block.rs::ensure_after_phis_copy:L92"
+      ],
+      "source_module": "src/mir/builder/schedule/block",
+      "subcluster_id": "other_owner_cluster::unmapped_other_surface::src_mir_builder_schedule_block::unknown_shape::NoBorrow::ResultCarrierNeedsVerifier::result::Present::public",
+      "surface_role": "unmapped_other_surface",
+      "type_transport_axis": "ResultCarrierNeedsVerifier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature",
+        "ResultCarrierNeedsVerifier"
+      ],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 2,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "result",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/utils/block_mgmt.rs::ensure_block_exists:L9",
+        "src/mir/builder/utils/block_mgmt.rs::start_new_block:L22"
+      ],
+      "source_module": "src/mir/builder/utils/block_mgmt",
+      "subcluster_id": "other_owner_cluster::unmapped_other_surface::src_mir_builder_utils_block_mgmt::unknown_shape::NoReturnedBorrowMutableReceiver::ResultCarrierNeedsVerifier::result::Present::public",
+      "surface_role": "unmapped_other_surface",
+      "type_transport_axis": "ResultCarrierNeedsVerifier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature",
+        "ResultCarrierNeedsVerifier"
+      ],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 2,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "result",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/utils/pinning.rs::insert_copy_after_phis:L50",
+        "src/mir/builder/utils/pinning.rs::pin_to_slot:L21"
+      ],
+      "source_module": "src/mir/builder/utils/pinning",
+      "subcluster_id": "other_owner_cluster::unmapped_other_surface::src_mir_builder_utils_pinning::unknown_shape::NoReturnedBorrowMutableReceiver::ResultCarrierNeedsVerifier::result::Present::public",
+      "surface_role": "unmapped_other_surface",
+      "type_transport_axis": "ResultCarrierNeedsVerifier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 2,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "unit",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/region/observer.rs::observe_control_form:L28",
+        "src/mir/region/observer.rs::observe_function_region:L89"
+      ],
+      "source_module": "src/mir/region/observer",
+      "subcluster_id": "other_owner_cluster::unmapped_other_surface::src_mir_region_observer::unknown_shape::NoBorrow::Known::unit::Present::public",
+      "surface_role": "unmapped_other_surface",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "constructor_self",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/builder_init.rs::new:L12"
+      ],
+      "source_module": "src/mir/builder/builder_init",
+      "subcluster_id": "other_owner_cluster::builder_lifecycle_surface::src_mir_builder_builder_init::unknown_shape::NoBorrow::ConstructorCarrier::constructor_self::Present::public",
+      "surface_role": "builder_lifecycle_surface",
+      "type_transport_axis": "ConstructorCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature",
+        "MissingTypeTransport"
+      ],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "custom_carrier",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/builder_init.rs::allocate_binding_id:L102"
+      ],
+      "source_module": "src/mir/builder/builder_init",
+      "subcluster_id": "other_owner_cluster::builder_lifecycle_surface::src_mir_builder_builder_init::unknown_shape::NoReturnedBorrowMutableReceiver::MissingTypeTransport::custom_carrier::Present::public",
+      "surface_role": "builder_lifecycle_surface",
+      "type_transport_axis": "MissingTypeTransport",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "vec",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/builder_method_index.rs::method_candidates:L40"
+      ],
+      "source_module": "src/mir/builder/builder_method_index",
+      "subcluster_id": "other_owner_cluster::call_resolution_registry_surface::src_mir_builder_builder_method_index::unknown_shape::NoReturnedBorrowMutableReceiver::KnownVecCarrier::vec::Present::public",
+      "surface_role": "call_resolution_registry_surface",
+      "type_transport_axis": "KnownVecCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "string",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/call_resolution.rs::suggest_resolution:L30"
+      ],
+      "source_module": "src/mir/builder/call_resolution",
+      "subcluster_id": "other_owner_cluster::call_resolution_registry_surface::src_mir_builder_call_resolution::unknown_shape::NoBorrow::Known::string::Present::public",
+      "surface_role": "call_resolution_registry_surface",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "unit",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/collection_literals.rs::build_map_literal:L68"
+      ],
+      "source_module": "src/mir/builder/collection_literals",
+      "subcluster_id": "other_owner_cluster::collection_literal_surface::src_mir_builder_collection_literals::unknown_shape::NoReturnedBorrowMutableReceiver::Known::unit::Present::public",
+      "surface_role": "collection_literal_surface",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature",
+        "ResultCarrierNeedsVerifier"
+      ],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "result",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/collection_literals.rs::build_array_literal:L9"
+      ],
+      "source_module": "src/mir/builder/collection_literals",
+      "subcluster_id": "other_owner_cluster::collection_literal_surface::src_mir_builder_collection_literals::unknown_shape::NoReturnedBorrowMutableReceiver::ResultCarrierNeedsVerifier::result::Present::public",
+      "surface_role": "collection_literal_surface",
+      "type_transport_axis": "ResultCarrierNeedsVerifier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature",
+        "MissingTypeTransport"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "custom_carrier",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/cleanup/policies/balanced_depth_scan_policy_box.rs::decide:L16"
+      ],
+      "source_module": "src/mir/builder/control_flow/cleanup/policies/balanced_depth_scan_policy_box",
+      "subcluster_id": "other_owner_cluster::control_flow_cleanup_policy_surface::src_mir_builder_control_flow_cleanup_policies_balanced_depth_scan_policy_box::unknown_shape::NoBorrow::MissingTypeTransport::custom_carrier::Present::public",
+      "surface_role": "control_flow_cleanup_policy_surface",
+      "type_transport_axis": "MissingTypeTransport",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "option",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/cleanup/policies/cond_prelude_vocab.rs::classify_cond_prelude_stmt:L25"
+      ],
+      "source_module": "src/mir/builder/control_flow/cleanup/policies/cond_prelude_vocab",
+      "subcluster_id": "other_owner_cluster::control_flow_cleanup_policy_surface::src_mir_builder_control_flow_cleanup_policies_cond_prelude_vocab::unknown_shape::NoBorrow::KnownOptionCarrier::option::Present::public",
+      "surface_role": "control_flow_cleanup_policy_surface",
+      "type_transport_axis": "KnownOptionCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "bool",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/cleanup/policies/loop_simple_while_subset_policy.rs::is_loop_simple_while_step_only_body:L5"
+      ],
+      "source_module": "src/mir/builder/control_flow/cleanup/policies/loop_simple_while_subset_policy",
+      "subcluster_id": "other_owner_cluster::control_flow_cleanup_policy_surface::src_mir_builder_control_flow_cleanup_policies_loop_simple_while_subset_policy::unknown_shape::NoBorrow::Known::bool::Present::public",
+      "surface_role": "control_flow_cleanup_policy_surface",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature",
+        "ResultCarrierNeedsVerifier"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "result",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/exception/throw.rs::cf_throw:L17"
+      ],
+      "source_module": "src/mir/builder/control_flow/exception/throw",
+      "subcluster_id": "other_owner_cluster::control_flow_dispatch_surface::src_mir_builder_control_flow_exception_throw::unknown_shape::NoBorrow::ResultCarrierNeedsVerifier::result::Present::public",
+      "surface_role": "control_flow_dispatch_surface",
+      "type_transport_axis": "ResultCarrierNeedsVerifier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature",
+        "ResultCarrierNeedsVerifier"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "result",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/exception/try_catch.rs::cf_try_catch:L16"
+      ],
+      "source_module": "src/mir/builder/control_flow/exception/try_catch",
+      "subcluster_id": "other_owner_cluster::control_flow_dispatch_surface::src_mir_builder_control_flow_exception_try_catch::unknown_shape::NoBorrow::ResultCarrierNeedsVerifier::result::Present::public",
+      "surface_role": "control_flow_dispatch_surface",
+      "type_transport_axis": "ResultCarrierNeedsVerifier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "bool",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/lower/expectations.rs::should_expect_plan:L6"
+      ],
+      "source_module": "src/mir/builder/control_flow/lower/expectations",
+      "subcluster_id": "other_owner_cluster::control_flow_dispatch_surface::src_mir_builder_control_flow_lower_expectations::unknown_shape::NoBorrow::Known::bool::Present::public",
+      "surface_role": "control_flow_dispatch_surface",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature",
+        "MissingTypeTransport"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "custom_carrier",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/lower/normalize/canonicalize.rs::canonicalize_loop_facts:L21"
+      ],
+      "source_module": "src/mir/builder/control_flow/lower/normalize/canonicalize",
+      "subcluster_id": "other_owner_cluster::control_flow_dispatch_surface::src_mir_builder_control_flow_lower_normalize_canonicalize::unknown_shape::NoBorrow::MissingTypeTransport::custom_carrier::Present::public",
+      "surface_role": "control_flow_dispatch_surface",
+      "type_transport_axis": "MissingTypeTransport",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "bool",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/lower/planner_compat.rs::loop_body_has_nested_loop:L31"
+      ],
+      "source_module": "src/mir/builder/control_flow/lower/planner_compat",
+      "subcluster_id": "other_owner_cluster::control_flow_dispatch_surface::src_mir_builder_control_flow_lower_planner_compat::unknown_shape::NoBorrow::Known::bool::Present::public",
+      "surface_role": "control_flow_dispatch_surface",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "option",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/lower/planner_compat.rs::router_shadow_pre_plan_guard_error:L24"
+      ],
+      "source_module": "src/mir/builder/control_flow/lower/planner_compat",
+      "subcluster_id": "other_owner_cluster::control_flow_dispatch_surface::src_mir_builder_control_flow_lower_planner_compat::unknown_shape::NoBorrow::KnownOptionCarrier::option::Present::public",
+      "surface_role": "control_flow_dispatch_surface",
+      "type_transport_axis": "KnownOptionCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature",
+        "ResultCarrierNeedsVerifier"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "result",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/normalization/execute_box.rs::execute:L32"
+      ],
+      "source_module": "src/mir/builder/control_flow/normalization/execute_box",
+      "subcluster_id": "other_owner_cluster::control_flow_dispatch_surface::src_mir_builder_control_flow_normalization_execute_box::unknown_shape::NoBorrow::ResultCarrierNeedsVerifier::result::Present::public",
+      "surface_role": "control_flow_dispatch_surface",
+      "type_transport_axis": "ResultCarrierNeedsVerifier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "constructor_self",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/normalization/plan.rs::loop_only:L30"
+      ],
+      "source_module": "src/mir/builder/control_flow/normalization/plan",
+      "subcluster_id": "other_owner_cluster::control_flow_dispatch_surface::src_mir_builder_control_flow_normalization_plan::unknown_shape::NoBorrow::ConstructorCarrier::constructor_self::Present::public",
+      "surface_role": "control_flow_dispatch_surface",
+      "type_transport_axis": "ConstructorCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature",
+        "ResultCarrierNeedsVerifier"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "result",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/normalization/plan_box.rs::plan_block_suffix:L32"
+      ],
+      "source_module": "src/mir/builder/control_flow/normalization/plan_box",
+      "subcluster_id": "other_owner_cluster::control_flow_dispatch_surface::src_mir_builder_control_flow_normalization_plan_box::unknown_shape::NoBorrow::ResultCarrierNeedsVerifier::result::Present::public",
+      "surface_role": "control_flow_dispatch_surface",
+      "type_transport_axis": "ResultCarrierNeedsVerifier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature",
+        "ResultCarrierNeedsVerifier"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "result",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/normalization/suffix_router_box.rs::try_lower_loop_suffix:L40"
+      ],
+      "source_module": "src/mir/builder/control_flow/normalization/suffix_router_box",
+      "subcluster_id": "other_owner_cluster::control_flow_dispatch_surface::src_mir_builder_control_flow_normalization_suffix_router_box::unknown_shape::NoBorrow::ResultCarrierNeedsVerifier::result::Present::public",
+      "surface_role": "control_flow_dispatch_surface",
+      "type_transport_axis": "ResultCarrierNeedsVerifier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "bool",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/declaration_indexer.rs::has_main_static:L21"
+      ],
+      "source_module": "src/mir/builder/declaration_indexer",
+      "subcluster_id": "other_owner_cluster::declaration_lowering_surface::src_mir_builder_declaration_indexer::unknown_shape::NoBorrow::Known::bool::Present::public",
+      "surface_role": "declaration_lowering_surface",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "unit",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/declaration_indexer.rs::index_declarations:L54"
+      ],
+      "source_module": "src/mir/builder/declaration_indexer",
+      "subcluster_id": "other_owner_cluster::declaration_lowering_surface::src_mir_builder_declaration_indexer::unknown_shape::NoBorrow::Known::unit::Present::public",
+      "surface_role": "declaration_lowering_surface",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature",
+        "ResultCarrierNeedsVerifier"
+      ],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "result",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/exprs.rs::build_expression_impl:L159"
+      ],
+      "source_module": "src/mir/builder/exprs",
+      "subcluster_id": "other_owner_cluster::expression_lowering_surface::src_mir_builder_exprs::unknown_shape::NoReturnedBorrowMutableReceiver::ResultCarrierNeedsVerifier::result::Present::public",
+      "surface_role": "expression_lowering_surface",
+      "type_transport_axis": "ResultCarrierNeedsVerifier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature",
+        "ResultCarrierNeedsVerifier"
+      ],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "result",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/exprs_call.rs::build_indirect_call_expression:L6"
+      ],
+      "source_module": "src/mir/builder/exprs_call",
+      "subcluster_id": "other_owner_cluster::expression_lowering_surface::src_mir_builder_exprs_call::unknown_shape::NoReturnedBorrowMutableReceiver::ResultCarrierNeedsVerifier::result::Present::public",
+      "surface_role": "expression_lowering_surface",
+      "type_transport_axis": "ResultCarrierNeedsVerifier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature",
+        "ResultCarrierNeedsVerifier"
+      ],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "result",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/exprs_check.rs::build_check_expression:L6"
+      ],
+      "source_module": "src/mir/builder/exprs_check",
+      "subcluster_id": "other_owner_cluster::expression_lowering_surface::src_mir_builder_exprs_check::unknown_shape::NoReturnedBorrowMutableReceiver::ResultCarrierNeedsVerifier::result::Present::public",
+      "surface_role": "expression_lowering_surface",
+      "type_transport_axis": "ResultCarrierNeedsVerifier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature",
+        "ResultCarrierNeedsVerifier"
+      ],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "result",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/exprs_lambda.rs::build_lambda_expression:L6"
+      ],
+      "source_module": "src/mir/builder/exprs_lambda",
+      "subcluster_id": "other_owner_cluster::expression_lowering_surface::src_mir_builder_exprs_lambda::unknown_shape::NoReturnedBorrowMutableReceiver::ResultCarrierNeedsVerifier::result::Present::public",
+      "surface_role": "expression_lowering_surface",
+      "type_transport_axis": "ResultCarrierNeedsVerifier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "unit",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/exprs_peek.rs::build_peek_expression:L6"
+      ],
+      "source_module": "src/mir/builder/exprs_peek",
+      "subcluster_id": "other_owner_cluster::expression_lowering_surface::src_mir_builder_exprs_peek::unknown_shape::NoReturnedBorrowMutableReceiver::Known::unit::Present::public",
+      "surface_role": "expression_lowering_surface",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature",
+        "ResultCarrierNeedsVerifier"
+      ],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "result",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/exprs_qmark.rs::build_qmark_propagate_expression:L6"
+      ],
+      "source_module": "src/mir/builder/exprs_qmark",
+      "subcluster_id": "other_owner_cluster::expression_lowering_surface::src_mir_builder_exprs_qmark::unknown_shape::NoReturnedBorrowMutableReceiver::ResultCarrierNeedsVerifier::result::Present::public",
+      "surface_role": "expression_lowering_surface",
+      "type_transport_axis": "ResultCarrierNeedsVerifier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature",
+        "ResultCarrierNeedsVerifier"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "result",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/fastmem.rs::build_fastmem_region:L15"
+      ],
+      "source_module": "src/mir/builder/fastmem",
+      "subcluster_id": "other_owner_cluster::fastmem_surface::src_mir_builder_fastmem::unknown_shape::NoBorrow::ResultCarrierNeedsVerifier::result::Present::public",
+      "surface_role": "fastmem_surface",
+      "type_transport_axis": "ResultCarrierNeedsVerifier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "unit",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/fastmem_context.rs::push_fastmem_region:L10"
+      ],
+      "source_module": "src/mir/builder/fastmem_context",
+      "subcluster_id": "other_owner_cluster::fastmem_surface::src_mir_builder_fastmem_context::unknown_shape::NoReturnedBorrowMutableReceiver::Known::unit::Present::public",
+      "surface_role": "fastmem_surface",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "option",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/fastmem_context.rs::pop_fastmem_region:L15"
+      ],
+      "source_module": "src/mir/builder/fastmem_context",
+      "subcluster_id": "other_owner_cluster::fastmem_surface::src_mir_builder_fastmem_context::unknown_shape::NoReturnedBorrowMutableReceiver::KnownOptionCarrier::option::Present::public",
+      "surface_role": "fastmem_surface",
+      "type_transport_axis": "KnownOptionCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoReturnedBorrowSharedReceiver",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "option",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/fastmem_context.rs::current_fastmem_region:L5"
+      ],
+      "source_module": "src/mir/builder/fastmem_context",
+      "subcluster_id": "other_owner_cluster::fastmem_surface::src_mir_builder_fastmem_context::unknown_shape::NoReturnedBorrowSharedReceiver::KnownOptionCarrier::option::Present::public",
+      "surface_role": "fastmem_surface",
+      "type_transport_axis": "KnownOptionCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "unit",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/field_facts.rs::publish_field_result_origin:L44"
+      ],
+      "source_module": "src/mir/builder/field_facts",
+      "subcluster_id": "other_owner_cluster::field_fact_surface::src_mir_builder_field_facts::unknown_shape::NoReturnedBorrowMutableReceiver::Known::unit::Present::public",
+      "surface_role": "field_fact_surface",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoReturnedBorrowSharedReceiver",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "bool",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/field_facts.rs::is_weak_field_on_result_class:L95"
+      ],
+      "source_module": "src/mir/builder/field_facts",
+      "subcluster_id": "other_owner_cluster::field_fact_surface::src_mir_builder_field_facts::unknown_shape::NoReturnedBorrowSharedReceiver::Known::bool::Present::public",
+      "surface_role": "field_fact_surface",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature",
+        "ReturnedIteratorNeedsPolicy",
+        "BorrowPolicyNeeded"
+      ],
+      "borrow_axis": "BorrowPolicyNeeded",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "iterator",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/region/function_slot_registry.rs::iter_slots:L81"
+      ],
+      "source_module": "src/mir/region/function_slot_registry",
+      "subcluster_id": "other_owner_cluster::function_slot_registry_surface::src_mir_region_function_slot_registry::unknown_shape::BorrowPolicyNeeded::ReturnedIteratorNeedsPolicy::iterator::Present::public",
+      "surface_role": "function_slot_registry_surface",
+      "type_transport_axis": "ReturnedIteratorNeedsPolicy",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "constructor_self",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/region/function_slot_registry.rs::new:L44"
+      ],
+      "source_module": "src/mir/region/function_slot_registry",
+      "subcluster_id": "other_owner_cluster::function_slot_registry_surface::src_mir_region_function_slot_registry::unknown_shape::NoBorrow::ConstructorCarrier::constructor_self::Present::public",
+      "surface_role": "function_slot_registry_surface",
+      "type_transport_axis": "ConstructorCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "unit",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/region/function_slot_registry.rs::set_ref_kind:L74"
+      ],
+      "source_module": "src/mir/region/function_slot_registry",
+      "subcluster_id": "other_owner_cluster::function_slot_registry_surface::src_mir_region_function_slot_registry::unknown_shape::NoReturnedBorrowMutableReceiver::Known::unit::Present::public",
+      "surface_role": "function_slot_registry_surface",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature",
+        "MissingTypeTransport"
+      ],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "custom_carrier",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/region/function_slot_registry.rs::ensure_slot:L52"
+      ],
+      "source_module": "src/mir/region/function_slot_registry",
+      "subcluster_id": "other_owner_cluster::function_slot_registry_surface::src_mir_region_function_slot_registry::unknown_shape::NoReturnedBorrowMutableReceiver::MissingTypeTransport::custom_carrier::Present::public",
+      "surface_role": "function_slot_registry_surface",
+      "type_transport_axis": "MissingTypeTransport",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoReturnedBorrowSharedReceiver",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "option",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/region/function_slot_registry.rs::get_slot:L86"
+      ],
+      "source_module": "src/mir/region/function_slot_registry",
+      "subcluster_id": "other_owner_cluster::function_slot_registry_surface::src_mir_region_function_slot_registry::unknown_shape::NoReturnedBorrowSharedReceiver::KnownOptionCarrier::option::Present::public",
+      "surface_role": "function_slot_registry_surface",
+      "type_transport_axis": "KnownOptionCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "unit",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/builder_emit.rs::update_phi_instruction:L412"
+      ],
+      "source_module": "src/mir/builder/builder_emit",
+      "subcluster_id": "other_owner_cluster::instruction_emission_or_guard_surface::src_mir_builder_builder_emit::unknown_shape::NoReturnedBorrowMutableReceiver::Known::unit::Present::public",
+      "surface_role": "instruction_emission_or_guard_surface",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "unit",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/emit_guard/mod.rs::verify_after_call:L309"
+      ],
+      "source_module": "src/mir/builder/emit_guard/mod",
+      "subcluster_id": "other_owner_cluster::instruction_emission_or_guard_surface::src_mir_builder_emit_guard_mod::unknown_shape::NoBorrow::Known::unit::Present::public",
+      "surface_role": "instruction_emission_or_guard_surface",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature",
+        "ResultCarrierNeedsVerifier"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "result",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/emit_guard/mod.rs::finalize_call_operands:L274"
+      ],
+      "source_module": "src/mir/builder/emit_guard/mod",
+      "subcluster_id": "other_owner_cluster::instruction_emission_or_guard_surface::src_mir_builder_emit_guard_mod::unknown_shape::NoBorrow::ResultCarrierNeedsVerifier::result::Present::public",
+      "surface_role": "instruction_emission_or_guard_surface",
+      "type_transport_axis": "ResultCarrierNeedsVerifier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "constructor_self",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/joinir_id_remapper.rs::new:L22"
+      ],
+      "source_module": "src/mir/builder/joinir_id_remapper",
+      "subcluster_id": "other_owner_cluster::joinir_id_remapper_surface::src_mir_builder_joinir_id_remapper::unknown_shape::NoBorrow::ConstructorCarrier::constructor_self::Present::public",
+      "surface_role": "joinir_id_remapper_surface",
+      "type_transport_axis": "ConstructorCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "option",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/generic_loop_canon/condition/bound.rs::extract_bound_from_condition:L6"
+      ],
+      "source_module": "src/mir/builder/control_flow/generic_loop_canon/condition/bound",
+      "subcluster_id": "other_owner_cluster::loop_canon_fact_surface::src_mir_builder_control_flow_generic_loop_canon_condition_bound::unknown_shape::NoBorrow::KnownOptionCarrier::option::Present::public",
+      "surface_role": "loop_canon_fact_surface",
+      "type_transport_axis": "KnownOptionCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "option",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/generic_loop_canon/condition/mod.rs::canon_condition_for_generic_loop_v0:L14"
+      ],
+      "source_module": "src/mir/builder/control_flow/generic_loop_canon/condition/mod",
+      "subcluster_id": "other_owner_cluster::loop_canon_fact_surface::src_mir_builder_control_flow_generic_loop_canon_condition_mod::unknown_shape::NoBorrow::KnownOptionCarrier::option::Present::public",
+      "surface_role": "loop_canon_fact_surface",
+      "type_transport_axis": "KnownOptionCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "option",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/generic_loop_canon/step_extract/complex_step.rs::extract_complex_step_increment:L3"
+      ],
+      "source_module": "src/mir/builder/control_flow/generic_loop_canon/step_extract/complex_step",
+      "subcluster_id": "other_owner_cluster::loop_canon_fact_surface::src_mir_builder_control_flow_generic_loop_canon_step_extract_complex_step::unknown_shape::NoBorrow::KnownOptionCarrier::option::Present::public",
+      "surface_role": "loop_canon_fact_surface",
+      "type_transport_axis": "KnownOptionCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "option",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/generic_loop_canon/step_extract/mod.rs::canon_loop_increment_for_var:L14"
+      ],
+      "source_module": "src/mir/builder/control_flow/generic_loop_canon/step_extract/mod",
+      "subcluster_id": "other_owner_cluster::loop_canon_fact_surface::src_mir_builder_control_flow_generic_loop_canon_step_extract_mod::unknown_shape::NoBorrow::KnownOptionCarrier::option::Present::public",
+      "surface_role": "loop_canon_fact_surface",
+      "type_transport_axis": "KnownOptionCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "option",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/generic_loop_canon/step_extract/next_step.rs::extract_next_i_increment:L6"
+      ],
+      "source_module": "src/mir/builder/control_flow/generic_loop_canon/step_extract/next_step",
+      "subcluster_id": "other_owner_cluster::loop_canon_fact_surface::src_mir_builder_control_flow_generic_loop_canon_step_extract_next_step::unknown_shape::NoBorrow::KnownOptionCarrier::option::Present::public",
+      "surface_role": "loop_canon_fact_surface",
+      "type_transport_axis": "KnownOptionCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "bool",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/generic_loop_canon/step_extract/shared.rs::contains_var_name:L47"
+      ],
+      "source_module": "src/mir/builder/control_flow/generic_loop_canon/step_extract/shared",
+      "subcluster_id": "other_owner_cluster::loop_canon_fact_surface::src_mir_builder_control_flow_generic_loop_canon_step_extract_shared::unknown_shape::NoBorrow::Known::bool::Present::public",
+      "surface_role": "loop_canon_fact_surface",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "unit",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/generic_loop_canon/step_extract/shared.rs::collect_assigned_var_names:L4"
+      ],
+      "source_module": "src/mir/builder/control_flow/generic_loop_canon/step_extract/shared",
+      "subcluster_id": "other_owner_cluster::loop_canon_fact_surface::src_mir_builder_control_flow_generic_loop_canon_step_extract_shared::unknown_shape::NoBorrow::Known::unit::Present::public",
+      "surface_role": "loop_canon_fact_surface",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "option",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/generic_loop_canon/step_extract/var_step.rs::extract_var_step_increment:L6"
+      ],
+      "source_module": "src/mir/builder/control_flow/generic_loop_canon/step_extract/var_step",
+      "subcluster_id": "other_owner_cluster::loop_canon_fact_surface::src_mir_builder_control_flow_generic_loop_canon_step_extract_var_step::unknown_shape::NoBorrow::KnownOptionCarrier::option::Present::public",
+      "surface_role": "loop_canon_fact_surface",
+      "type_transport_axis": "KnownOptionCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "vec",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/generic_loop_canon/step_placement/facts.rs::collect_direct_step_indices:L3"
+      ],
+      "source_module": "src/mir/builder/control_flow/generic_loop_canon/step_placement/facts",
+      "subcluster_id": "other_owner_cluster::loop_canon_fact_surface::src_mir_builder_control_flow_generic_loop_canon_step_placement_facts::unknown_shape::NoBorrow::KnownVecCarrier::vec::Present::public",
+      "surface_role": "loop_canon_fact_surface",
+      "type_transport_axis": "KnownVecCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature",
+        "MissingTypeTransport"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "custom_carrier",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/generic_loop_canon/step_placement/facts.rs::collect_conditional_step_indices:L20"
+      ],
+      "source_module": "src/mir/builder/control_flow/generic_loop_canon/step_placement/facts",
+      "subcluster_id": "other_owner_cluster::loop_canon_fact_surface::src_mir_builder_control_flow_generic_loop_canon_step_placement_facts::unknown_shape::NoBorrow::MissingTypeTransport::custom_carrier::Present::public",
+      "surface_role": "loop_canon_fact_surface",
+      "type_transport_axis": "MissingTypeTransport",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature",
+        "MissingTypeTransport"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "custom_carrier",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/generic_loop_canon/step_placement/plan.rs::classify_step_placement:L8"
+      ],
+      "source_module": "src/mir/builder/control_flow/generic_loop_canon/step_placement/plan",
+      "subcluster_id": "other_owner_cluster::loop_canon_fact_surface::src_mir_builder_control_flow_generic_loop_canon_step_placement_plan::unknown_shape::NoBorrow::MissingTypeTransport::custom_carrier::Present::public",
+      "surface_role": "loop_canon_fact_surface",
+      "type_transport_axis": "MissingTypeTransport",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "option",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/generic_loop_canon/update/literal_match.rs::match_update_literal:L5"
+      ],
+      "source_module": "src/mir/builder/control_flow/generic_loop_canon/update/literal_match",
+      "subcluster_id": "other_owner_cluster::loop_canon_fact_surface::src_mir_builder_control_flow_generic_loop_canon_update_literal_match::unknown_shape::NoBorrow::KnownOptionCarrier::option::Present::public",
+      "surface_role": "loop_canon_fact_surface",
+      "type_transport_axis": "KnownOptionCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "option",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/generic_loop_canon/update/literal_step.rs::build_update_canon:L6"
+      ],
+      "source_module": "src/mir/builder/control_flow/generic_loop_canon/update/literal_step",
+      "subcluster_id": "other_owner_cluster::loop_canon_fact_surface::src_mir_builder_control_flow_generic_loop_canon_update_literal_step::unknown_shape::NoBorrow::KnownOptionCarrier::option::Present::public",
+      "surface_role": "loop_canon_fact_surface",
+      "type_transport_axis": "KnownOptionCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "option",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/generic_loop_canon/update/mod.rs::canon_update_for_loop_var:L19"
+      ],
+      "source_module": "src/mir/builder/control_flow/generic_loop_canon/update/mod",
+      "subcluster_id": "other_owner_cluster::loop_canon_fact_surface::src_mir_builder_control_flow_generic_loop_canon_update_mod::unknown_shape::NoBorrow::KnownOptionCarrier::option::Present::public",
+      "surface_role": "loop_canon_fact_surface",
+      "type_transport_axis": "KnownOptionCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "unit",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/origin/phi.rs::propagate_phi_meta:L5"
+      ],
+      "source_module": "src/mir/builder/origin/phi",
+      "subcluster_id": "other_owner_cluster::phi_surface::src_mir_builder_origin_phi::unknown_shape::NoBorrow::Known::unit::Present::public",
+      "surface_role": "phi_surface",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "constructor_self",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/phi_merge.rs::new:L36"
+      ],
+      "source_module": "src/mir/builder/phi_merge",
+      "subcluster_id": "other_owner_cluster::phi_surface::src_mir_builder_phi_merge::unknown_shape::NoBorrow::ConstructorCarrier::constructor_self::Present::public",
+      "surface_role": "phi_surface",
+      "type_transport_axis": "ConstructorCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "option",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/phi_type_inference.rs::infer_return_type_from_phi:L78"
+      ],
+      "source_module": "src/mir/builder/phi_type_inference",
+      "subcluster_id": "other_owner_cluster::phi_surface::src_mir_builder_phi_type_inference::unknown_shape::NoBorrow::KnownOptionCarrier::option::Present::public",
+      "surface_role": "phi_surface",
+      "type_transport_axis": "KnownOptionCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "bool",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/router/catalog.rs::is_core_box:L21"
+      ],
+      "source_module": "src/mir/builder/router/catalog",
+      "subcluster_id": "other_owner_cluster::predicate_helper_surface::src_mir_builder_router_catalog::unknown_shape::NoBorrow::Known::bool::Present::public",
+      "surface_role": "predicate_helper_surface",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "constructor_self",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/properties.rs::new:L49"
+      ],
+      "source_module": "src/mir/builder/properties",
+      "subcluster_id": "other_owner_cluster::property_surface::src_mir_builder_properties::unknown_shape::NoBorrow::ConstructorCarrier::constructor_self::Present::public",
+      "surface_role": "property_surface",
+      "type_transport_axis": "ConstructorCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "option",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/properties.rs::from_getter_method_name:L17"
+      ],
+      "source_module": "src/mir/builder/properties",
+      "subcluster_id": "other_owner_cluster::property_surface::src_mir_builder_properties::unknown_shape::NoBorrow::KnownOptionCarrier::option::Present::public",
+      "surface_role": "property_surface",
+      "type_transport_axis": "KnownOptionCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "bool",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/properties.rs::register_getter_method:L60"
+      ],
+      "source_module": "src/mir/builder/properties",
+      "subcluster_id": "other_owner_cluster::property_surface::src_mir_builder_properties::unknown_shape::NoReturnedBorrowMutableReceiver::Known::bool::Present::public",
+      "surface_role": "property_surface",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoReturnedBorrowSharedReceiver",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "string",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/properties.rs::getter_method_name:L29"
+      ],
+      "source_module": "src/mir/builder/properties",
+      "subcluster_id": "other_owner_cluster::property_surface::src_mir_builder_properties::unknown_shape::NoReturnedBorrowSharedReceiver::Known::string::Present::public",
+      "surface_role": "property_surface",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoReturnedBorrowSharedReceiver",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "option",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/properties.rs::getter_method_name:L53"
+      ],
+      "source_module": "src/mir/builder/properties",
+      "subcluster_id": "other_owner_cluster::property_surface::src_mir_builder_properties::unknown_shape::NoReturnedBorrowSharedReceiver::KnownOptionCarrier::option::Present::public",
+      "surface_role": "property_surface",
+      "type_transport_axis": "KnownOptionCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature",
+        "ResultCarrierNeedsVerifier"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "result",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/joinir_inline_boundary_injector.rs::inject_boundary_copies:L55"
+      ],
+      "source_module": "src/mir/builder/joinir_inline_boundary_injector",
+      "subcluster_id": "other_owner_cluster::unmapped_other_surface::src_mir_builder_joinir_inline_boundary_injector::unknown_shape::NoBorrow::ResultCarrierNeedsVerifier::result::Present::public",
+      "surface_role": "unmapped_other_surface",
+      "type_transport_axis": "ResultCarrierNeedsVerifier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature",
+        "ResultCarrierNeedsVerifier"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "result",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/name_const.rs::make_name_const_result:L6"
+      ],
+      "source_module": "src/mir/builder/name_const",
+      "subcluster_id": "other_owner_cluster::unmapped_other_surface::src_mir_builder_name_const::unknown_shape::NoBorrow::ResultCarrierNeedsVerifier::result::Present::public",
+      "surface_role": "unmapped_other_surface",
+      "type_transport_axis": "ResultCarrierNeedsVerifier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "unit",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/observe/ssa.rs::emit_phi:L5"
+      ],
+      "source_module": "src/mir/builder/observe/ssa",
+      "subcluster_id": "other_owner_cluster::unmapped_other_surface::src_mir_builder_observe_ssa::unknown_shape::NoBorrow::Known::unit::Present::public",
+      "surface_role": "unmapped_other_surface",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "unit",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/origin/infer.rs::annotate_me_origin:L8"
+      ],
+      "source_module": "src/mir/builder/origin/infer",
+      "subcluster_id": "other_owner_cluster::unmapped_other_surface::src_mir_builder_origin_infer::unknown_shape::NoBorrow::Known::unit::Present::public",
+      "surface_role": "unmapped_other_surface",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature",
+        "MissingTypeTransport"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "custom_carrier",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/plugin_sigs.rs::load_plugin_method_sigs:L8"
+      ],
+      "source_module": "src/mir/builder/plugin_sigs",
+      "subcluster_id": "other_owner_cluster::unmapped_other_surface::src_mir_builder_plugin_sigs::unknown_shape::NoBorrow::MissingTypeTransport::custom_carrier::Present::public",
+      "surface_role": "unmapped_other_surface",
+      "type_transport_axis": "MissingTypeTransport",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature",
+        "ResultCarrierNeedsVerifier"
+      ],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "result",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/property_reads.rs::try_lower_property_read:L6"
+      ],
+      "source_module": "src/mir/builder/property_reads",
+      "subcluster_id": "other_owner_cluster::unmapped_other_surface::src_mir_builder_property_reads::unknown_shape::NoReturnedBorrowMutableReceiver::ResultCarrierNeedsVerifier::result::Present::public",
+      "surface_role": "unmapped_other_surface",
+      "type_transport_axis": "ResultCarrierNeedsVerifier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "unit",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/receiver.rs::finalize_method_receiver:L11"
+      ],
+      "source_module": "src/mir/builder/receiver",
+      "subcluster_id": "other_owner_cluster::unmapped_other_surface::src_mir_builder_receiver::unknown_shape::NoBorrow::Known::unit::Present::public",
+      "surface_role": "unmapped_other_surface",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature",
+        "MissingTypeTransport"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "custom_carrier",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/router/policy.rs::choose_route:L19"
+      ],
+      "source_module": "src/mir/builder/router/policy",
+      "subcluster_id": "other_owner_cluster::unmapped_other_surface::src_mir_builder_router_policy::unknown_shape::NoBorrow::MissingTypeTransport::custom_carrier::Present::public",
+      "surface_role": "unmapped_other_surface",
+      "type_transport_axis": "MissingTypeTransport",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "unit",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/schedule/block.rs::verify_order:L236"
+      ],
+      "source_module": "src/mir/builder/schedule/block",
+      "subcluster_id": "other_owner_cluster::unmapped_other_surface::src_mir_builder_schedule_block::unknown_shape::NoBorrow::Known::unit::Present::public",
+      "surface_role": "unmapped_other_surface",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "option",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/static_scalar_facts.rs::infer_static_scalar_method_fact:L23"
+      ],
+      "source_module": "src/mir/builder/static_scalar_facts",
+      "subcluster_id": "other_owner_cluster::unmapped_other_surface::src_mir_builder_static_scalar_facts::unknown_shape::NoBorrow::KnownOptionCarrier::option::Present::public",
+      "surface_role": "unmapped_other_surface",
+      "type_transport_axis": "KnownOptionCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature",
+        "ResultCarrierNeedsVerifier"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "result",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/static_scalar_facts.rs::emit_static_scalar_fact_const:L57"
+      ],
+      "source_module": "src/mir/builder/static_scalar_facts",
+      "subcluster_id": "other_owner_cluster::unmapped_other_surface::src_mir_builder_static_scalar_facts::unknown_shape::NoBorrow::ResultCarrierNeedsVerifier::result::Present::public",
+      "surface_role": "unmapped_other_surface",
+      "type_transport_axis": "ResultCarrierNeedsVerifier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "constructor_self",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/type_facts.rs::new:L30"
+      ],
+      "source_module": "src/mir/builder/type_facts",
+      "subcluster_id": "other_owner_cluster::unmapped_other_surface::src_mir_builder_type_facts::unknown_shape::NoBorrow::ConstructorCarrier::constructor_self::Present::public",
+      "surface_role": "unmapped_other_surface",
+      "type_transport_axis": "ConstructorCarrier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature",
+        "MissingTypeTransport"
+      ],
+      "borrow_axis": "NoReturnedBorrowSharedReceiver",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "custom_carrier",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/type_facts.rs::classify_operand_type:L54"
+      ],
+      "source_module": "src/mir/builder/type_facts",
+      "subcluster_id": "other_owner_cluster::unmapped_other_surface::src_mir_builder_type_facts::unknown_shape::NoReturnedBorrowSharedReceiver::MissingTypeTransport::custom_carrier::Present::public",
+      "surface_role": "unmapped_other_surface",
+      "type_transport_axis": "MissingTypeTransport",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "unit",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/type_hint_providers.rs::annotate_missing_result_types_from_calls_and_await:L33"
+      ],
+      "source_module": "src/mir/builder/type_hint_providers",
+      "subcluster_id": "other_owner_cluster::unmapped_other_surface::src_mir_builder_type_hint_providers::unknown_shape::NoBorrow::Known::unit::Present::public",
+      "surface_role": "unmapped_other_surface",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature",
+        "ResultCarrierNeedsVerifier"
+      ],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "result",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/utils/boxcall_emit.rs::emit_box_or_plugin_call:L95"
+      ],
+      "source_module": "src/mir/builder/utils/boxcall_emit",
+      "subcluster_id": "other_owner_cluster::unmapped_other_surface::src_mir_builder_utils_boxcall_emit::unknown_shape::NoReturnedBorrowMutableReceiver::ResultCarrierNeedsVerifier::result::Present::public",
+      "surface_role": "unmapped_other_surface",
+      "type_transport_axis": "ResultCarrierNeedsVerifier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "unit",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/weak_field_validator.rs::annotate_read_result:L26"
+      ],
+      "source_module": "src/mir/builder/weak_field_validator",
+      "subcluster_id": "other_owner_cluster::unmapped_other_surface::src_mir_builder_weak_field_validator::unknown_shape::NoBorrow::Known::unit::Present::public",
+      "surface_role": "unmapped_other_surface",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature",
+        "ResultCarrierNeedsVerifier"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "result",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/weak_field_validator.rs::validate_assignment:L54"
+      ],
+      "source_module": "src/mir/builder/weak_field_validator",
+      "subcluster_id": "other_owner_cluster::unmapped_other_surface::src_mir_builder_weak_field_validator::unknown_shape::NoBorrow::ResultCarrierNeedsVerifier::result::Present::public",
+      "surface_role": "unmapped_other_surface",
+      "type_transport_axis": "ResultCarrierNeedsVerifier",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature",
+        "MissingTypeTransport"
+      ],
+      "borrow_axis": "NoBorrow",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "custom_carrier",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/region/mod.rs::classify_ref_kind:L62"
+      ],
+      "source_module": "src/mir/region/mod",
+      "subcluster_id": "other_owner_cluster::unmapped_other_surface::src_mir_region_mod::unknown_shape::NoBorrow::MissingTypeTransport::custom_carrier::Present::public",
+      "surface_role": "unmapped_other_surface",
+      "type_transport_axis": "MissingTypeTransport",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "unit",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/builder_value_kind.rs::register_value_kind:L23"
+      ],
+      "source_module": "src/mir/builder/builder_value_kind",
+      "subcluster_id": "other_owner_cluster::value_kind_registry_surface::src_mir_builder_builder_value_kind::unknown_shape::NoReturnedBorrowMutableReceiver::Known::unit::Present::public",
+      "surface_role": "value_kind_registry_surface",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature",
+        "MissingTypeTransport"
+      ],
+      "borrow_axis": "NoReturnedBorrowMutableReceiver",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "custom_carrier",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/builder_value_kind.rs::new_typed_value:L11"
+      ],
+      "source_module": "src/mir/builder/builder_value_kind",
+      "subcluster_id": "other_owner_cluster::value_kind_registry_surface::src_mir_builder_builder_value_kind::unknown_shape::NoReturnedBorrowMutableReceiver::MissingTypeTransport::custom_carrier::Present::public",
+      "surface_role": "value_kind_registry_surface",
+      "type_transport_axis": "MissingTypeTransport",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing",
+        "MissingShapeSignature"
+      ],
+      "borrow_axis": "NoReturnedBorrowSharedReceiver",
+      "candidate_count": 1,
+      "known_owner_edge": "",
+      "owner_edge_confidence": "None",
+      "public_or_private_surface": "public",
+      "reason_token": "OtherOwnerClusterPartitionedForOwnerEdgeRepair",
+      "return_family": "option",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/builder_value_kind.rs::get_value_kind:L18"
+      ],
+      "source_module": "src/mir/builder/builder_value_kind",
+      "subcluster_id": "other_owner_cluster::value_kind_registry_surface::src_mir_builder_builder_value_kind::unknown_shape::NoReturnedBorrowSharedReceiver::KnownOptionCarrier::option::Present::public",
+      "surface_role": "value_kind_registry_surface",
+      "type_transport_axis": "KnownOptionCarrier",
+      "verifier_or_oracle_state": "Present"
+    }
+  ],
+  "summary": {
+    "borrow_axis_counts": {
+      "BorrowPolicyNeeded": 1,
+      "NoBorrow": 96,
+      "NoReturnedBorrowMutableReceiver": 68,
+      "NoReturnedBorrowSharedReceiver": 20
+    },
+    "input_other_owner_cluster_count": 185,
+    "owner_edge_confidence_counts": {
+      "None": 185
+    },
+    "selected_subcluster_id": null,
+    "selection_eligible_subcluster_count": 0,
+    "subcluster_count": 123,
+    "surface_role_counts": {
+      "builder_lifecycle_surface": 5,
+      "call_resolution_registry_surface": 4,
+      "collection_literal_surface": 2,
+      "control_flow_cleanup_policy_surface": 5,
+      "control_flow_dispatch_surface": 15,
+      "declaration_lowering_surface": 4,
+      "expression_lowering_surface": 12,
+      "fastmem_surface": 4,
+      "field_fact_surface": 6,
+      "function_slot_registry_surface": 5,
+      "instruction_emission_or_guard_surface": 6,
+      "joinir_id_remapper_surface": 9,
+      "local_ssa_surface": 5,
+      "loop_canon_fact_surface": 21,
+      "phi_surface": 6,
+      "predicate_helper_surface": 1,
+      "property_surface": 5,
+      "rewrite_known_surface": 8,
+      "type_annotation_surface": 12,
+      "unmapped_other_surface": 40,
+      "value_kind_registry_surface": 6,
+      "weak_ref_surface": 4
+    },
+    "type_transport_axis_counts": {
+      "ConstructorCarrier": 7,
+      "Known": 60,
+      "KnownOptionCarrier": 37,
+      "KnownVecCarrier": 4,
+      "MissingTypeTransport": 21,
+      "ResultCarrierNeedsVerifier": 55,
+      "ReturnedIteratorNeedsPolicy": 1
+    }
+  },
+  "token": "MIRBUILDER-MISSING-PROJECTION-POLICY-OTHER-OWNER-CLUSTER-001"
+}

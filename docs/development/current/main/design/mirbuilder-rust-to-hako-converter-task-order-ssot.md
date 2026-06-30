@@ -381,15 +381,15 @@ history, not in this task-order SSOT.
 
 3. SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
    status=stop-line
-   boundary=owner-cluster fields audited; OtherMissingProjectionPolicyCluster remains
-   semantic_authority=crate-wide owner-cluster field audit fixture
+   boundary=OtherMissingProjectionPolicyCluster split into 123 source-derived subclusters
+   semantic_authority=Other owner-cluster decomposition fixture
    non_authority=manual family selection, cluster size as proof, Source Selfhost claim
 
 next_documented_task =
-  MIRBUILDER-MISSING-PROJECTION-POLICY-OTHER-OWNER-CLUSTER-001
+  MIRBUILDER-MISSING-PROJECTION-POLICY-OTHER-OWNER-EDGE-CONFIDENCE-REPAIR-001
 
 next_after_active_3 =
-  MIRBUILDER-MISSING-PROJECTION-POLICY-OTHER-OWNER-CLUSTER-001
+  MIRBUILDER-MISSING-PROJECTION-POLICY-OTHER-OWNER-EDGE-CONFIDENCE-REPAIR-001
 ```
 
 ## Landed Converter Capability Summary
