@@ -345,7 +345,7 @@ semantic_closure_report =
 
 latest_frontier_card =
   docs/development/current/main/phases/phase-296x/
-  1873-MIRBUILDER-UNCONVERTED-SURFACE-NEXT-OWNER-RESOLVER-TASK-CONTRACT-001.md
+  1874-MIRBUILDER-UNCONVERTED-SURFACE-NEXT-OWNER-RESOLVER-001.md
 
 latest_integration_card =
   docs/development/current/main/phases/phase-296x/

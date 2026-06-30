@@ -1,0 +1,307 @@
+{
+  "candidate_pool": {
+    "candidate_counts_by_priority": {
+      "BorrowSurfaceNeedsPolicy": 113,
+      "CompositeNeedsDecomposition": 0,
+      "CompositeSuspected": 1,
+      "ConvertibleLeaf": 0,
+      "MissingProjectionPolicy": 1396,
+      "MissingRouteOrArtifactEvidence": 0,
+      "MissingVerifierOrOracle": 0,
+      "NativeSeedReady": 0
+    },
+    "selected_priority": "MissingProjectionPolicy",
+    "selected_priority_candidate_count": 1396,
+    "selected_priority_cluster_summary": [
+      {
+        "cluster": "JoinIRRouteVerifyCluster",
+        "count": 213
+      },
+      {
+        "cluster": "OtherMissingProjectionPolicyCluster",
+        "count": 185
+      },
+      {
+        "cluster": "ContextRegistryCluster",
+        "count": 114
+      },
+      {
+        "cluster": "GenericLoopPlanCluster",
+        "count": 89
+      },
+      {
+        "cluster": "CallLoweringCluster",
+        "count": 88
+      },
+      {
+        "cluster": "RecipeTreeMatcherCluster",
+        "count": 74
+      },
+      {
+        "cluster": "PlanPartsAssemblyCluster",
+        "count": 72
+      },
+      {
+        "cluster": "StatementValueConstructionCluster",
+        "count": 59
+      },
+      {
+        "cluster": "LoopBreakPlanCluster",
+        "count": 57
+      },
+      {
+        "cluster": "EmissionSsaPhiCluster",
+        "count": 53
+      },
+      {
+        "cluster": "LoopCondPlanCluster",
+        "count": 42
+      },
+      {
+        "cluster": "PlanFactsCluster",
+        "count": 42
+      },
+      {
+        "cluster": "PlanNormalizerCluster",
+        "count": 39
+      },
+      {
+        "cluster": "JoinIRRouteRegistryCluster",
+        "count": 37
+      },
+      {
+        "cluster": "GenericLoopBodyFeatureCluster",
+        "count": 30
+      },
+      {
+        "cluster": "PhiMaterializerFeatureCluster",
+        "count": 30
+      },
+      {
+        "cluster": "PlanLowererCluster",
+        "count": 30
+      },
+      {
+        "cluster": "FastMemCluster",
+        "count": 19
+      },
+      {
+        "cluster": "OtherJoinIRPlanCluster",
+        "count": 19
+      },
+      {
+        "cluster": "NestedLoopPlanCluster",
+        "count": 14
+      },
+      {
+        "cluster": "CarrierFeatureCluster",
+        "count": 13
+      },
+      {
+        "cluster": "PlannerPolicyCluster",
+        "count": 9
+      },
+      {
+        "cluster": "EdgeCfgStubFeatureCluster",
+        "count": 7
+      },
+      {
+        "cluster": "PlanComposerCluster",
+        "count": 6
+      },
+      {
+        "cluster": "LoopCondReturnInBodyCluster",
+        "count": 5
+      },
+      {
+        "cluster": "LoopCondUtilityCluster",
+        "count": 5
+      },
+      {
+        "cluster": "LoopCondVerifierCluster",
+        "count": 5
+      },
+      {
+        "cluster": "LoopTrueBreakContinueCluster",
+        "count": 4
+      },
+      {
+        "cluster": "OtherPlanFeatureCluster",
+        "count": 4
+      },
+      {
+        "cluster": "LoopCondContinueWithReturnCluster",
+        "count": 3
+      },
+      {
+        "cluster": "ExitIfFeatureCluster",
+        "count": 2
+      },
+      {
+        "cluster": "LoopCondBcBreakOnlyElsePatternCluster",
+        "count": 2
+      },
+      {
+        "cluster": "LoopCondBcGuardBreakElsePatternCluster",
+        "count": 2
+      },
+      {
+        "cluster": "LoopCondBcReturnOnlyElsePatternCluster",
+        "count": 2
+      },
+      {
+        "cluster": "BodyViewFeatureCluster",
+        "count": 1
+      },
+      {
+        "cluster": "LoopCondBcCarrierSyncCluster",
+        "count": 1
+      },
+      {
+        "cluster": "LoopCondBcCleanupApplicationCluster",
+        "count": 1
+      },
+      {
+        "cluster": "LoopCondBcCleanupExitPredicateCluster",
+        "count": 1
+      },
+      {
+        "cluster": "LoopCondBcContinueIfElseCluster",
+        "count": 1
+      },
+      {
+        "cluster": "LoopCondBcItemDispatcherCluster",
+        "count": 1
+      },
+      {
+        "cluster": "LoopCondBcNestedCarrierCluster",
+        "count": 1
+      },
+      {
+        "cluster": "LoopCondBcRootPipelineCluster",
+        "count": 1
+      },
+      {
+        "cluster": "LoopCondBcStatementLoweringCluster",
+        "count": 1
+      },
+      {
+        "cluster": "LoopCondCoAstStatementLoweringCluster",
+        "count": 1
+      },
+      {
+        "cluster": "LoopCondCoBlockLoweringCluster",
+        "count": 1
+      },
+      {
+        "cluster": "LoopCondCoCleanupCluster",
+        "count": 1
+      },
+      {
+        "cluster": "LoopCondCoContinueIfGroupPreludeCluster",
+        "count": 1
+      },
+      {
+        "cluster": "LoopCondCoContinueIfNoElseCluster",
+        "count": 1
+      },
+      {
+        "cluster": "LoopCondCoContinueIfPreludeSpanCluster",
+        "count": 1
+      },
+      {
+        "cluster": "LoopCondCoGroupIfBranchCluster",
+        "count": 1
+      },
+      {
+        "cluster": "LoopCondCoGroupIfNestedLoopCluster",
+        "count": 1
+      },
+      {
+        "cluster": "LoopCondCoHelperCarrierSyncCluster",
+        "count": 1
+      },
+      {
+        "cluster": "LoopCondCoHelperMutationProbeCluster",
+        "count": 1
+      },
+      {
+        "cluster": "LoopCondCoRootPipelineCluster",
+        "count": 1
+      },
+      {
+        "cluster": "LoopCondCoStatementDispatcherCluster",
+        "count": 1
+      }
+    ]
+  },
+  "claims": {
+    "exactly_one_next_owner_selected_if_unambiguous": 1,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "manual_family_selection": 0,
+    "multiple_candidates_keep_stopped": 1,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "report_consumed": 1,
+    "resolver_implemented": 1,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0,
+    "zero_candidates_keep_stopped": 1
+  },
+  "decision": {
+    "kind": "KeepStopped",
+    "reason_token": "AmbiguousNextOwnerCandidates",
+    "selected_next_card": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "selected_source_id": null
+  },
+  "input_authority": {
+    "current_state": "docs/development/current/main/CURRENT_STATE.toml",
+    "resolver_task_contract": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-unconverted-surface-next-owner-resolver-task-contract-v0.json",
+    "unconverted_surface_report": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-unconverted-surface-report-v0.json"
+  },
+  "kind": "MirBuilderUnconvertedSurfaceNextOwnerResolutionV1",
+  "provenance": {
+    "resolver_task_contract_hash": "80a14b9b1676d0af2bb3fb776398dd2083c2a1d4799d243c450e645fd50eb537",
+    "unconverted_surface_report_hash": "c34b487e0acca60682c992aa6eb1a4215aaaf3db6887123f5d333427833f9825"
+  },
+  "recovery": {
+    "do_not": [
+      "manual_family_selection",
+      "coverage_percentage_as_proof",
+      "route_membership_alone_as_proof",
+      "generated_artifact_as_edit_authority",
+      "runtime_fallback"
+    ],
+    "if_ambiguous": "add a narrower machine-derived classification card or rerun after evidence reduces the highest-priority bucket to exactly one",
+    "if_zero_candidates": "keep the wider route-selection design stop active"
+  },
+  "resolver_rules": {
+    "exclusion_rules": [
+      "AlreadyAdopted",
+      "SupportLaneOnly",
+      "TestOnlySurface",
+      "DebugOnlySurface",
+      "BorrowSurfacePolicyKnown"
+    ],
+    "manual_selection_allowed": 0,
+    "priority_rules": [
+      "MissingRouteOrArtifactEvidence",
+      "MissingProjectionPolicy",
+      "BorrowSurfaceNeedsPolicy",
+      "CompositeNeedsDecomposition",
+      "CompositeSuspected",
+      "MissingVerifierOrOracle",
+      "NativeSeedReady",
+      "ConvertibleLeaf"
+    ],
+    "same_priority_multiple_candidates": "KeepStopped",
+    "same_priority_reason_token": "AmbiguousNextOwnerCandidates",
+    "zero_candidates_reason_token": "NoMachineDerivedNextOwner"
+  },
+  "schema_version": 0,
+  "token": "MIRBUILDER-UNCONVERTED-SURFACE-NEXT-OWNER-RESOLVER-001"
+}

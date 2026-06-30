@@ -520,6 +520,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-unconverted-surface-next-owner-resolver-task-contract-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_unconverted_surface_next_owner_resolver_task_contract_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-UNCONVERTED-SURFACE-NEXT-OWNER-RESOLVER-001",
+      "card": "docs/development/current/main/phases/phase-296x/1874-MIRBUILDER-UNCONVERTED-SURFACE-NEXT-OWNER-RESOLVER-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-unconverted-surface-next-owner-resolution-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_unconverted_surface_next_owner_resolver_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {
