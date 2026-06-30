@@ -24,12 +24,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-MISSING-PROJECTION-STABLE-DENY-REASON-REPAIR-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1877-MIRBUILDER-MISSING-PROJECTION-STABLE-DENY-REASON-REPAIR-001.md"
-latest_card_summary = """The latest card adds stable deny reasons for
-MissingProjectionPolicy surfaces: 1211 FixtureMapped candidates become
-UnsupportedDirectShape and 185 Other-cluster candidates remain
-OwnerEdgeConfidenceMissing."""
+latest_card = "MIRBUILDER-CRATE-WIDE-SHAPE-SIGNATURE-INVENTORY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1878-MIRBUILDER-CRATE-WIDE-SHAPE-SIGNATURE-INVENTORY-001.md"
+latest_card_summary = """The latest card derives 54 shape signatures for
+1211 FixtureMapped MissingProjectionPolicy candidates, leaving only 185
+Other-cluster candidates as unknown_shape."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -40,6 +39,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-30: 1878 inventories shape signatures for MissingProjectionPolicy clusters.",
   "2026-06-30: 1877 repairs stable deny reasons for MissingProjectionPolicy surfaces.",
   "2026-06-30: 1876 repairs owner-edge confidence for MissingProjectionPolicy clusters.",
   "2026-06-30: 1875 clusters MissingProjectionPolicy and selects owner-edge confidence repair.",
@@ -47,5 +47,4 @@ landed_tail = [
   "2026-06-30: 1873 fixes the unconverted-surface next-owner resolver task contract.",
   "2026-06-30: 1872 adopts carrier-merge assignment as a narrow HakoAdopted mutation-frame owner.",
   "2026-06-30: 1871 materializes the carrier-merge assignment native Hako source seed.",
-  "2026-06-30: 1870 promotes carrier-merge assignment HakoShadow to HakoMainline.",
 ]

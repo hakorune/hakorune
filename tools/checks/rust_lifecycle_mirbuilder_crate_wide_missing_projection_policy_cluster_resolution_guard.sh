@@ -47,8 +47,8 @@ if summary["input_candidate_count"] != 1396:
     raise SystemExit("input candidate count drift")
 if summary["cluster_count"] != len(fixture["clusters"]):
     raise SystemExit("cluster count mismatch")
-if summary["selection_eligible_cluster_count"] != 0:
-    raise SystemExit("no cluster should be selection eligible")
+if summary["selection_eligible_cluster_count"] != 42:
+    raise SystemExit("selection eligible cluster count drift")
 if summary["owner_edge_confidence_counts"] != {"FixtureMapped": 1211, "None": 185}:
     raise SystemExit("owner edge confidence counts drift")
 if summary["heuristic_or_unmapped_count"] != 185:
@@ -63,12 +63,22 @@ if summary["missing_verifier_or_oracle_count"] != 0:
     raise SystemExit("verifier/oracle count drift")
 if summary["missing_shape_signature_count"] < 1:
     raise SystemExit("missing shape signatures should be visible")
+if summary["mapped_unknown_shape_count"] != 0:
+    raise SystemExit("mapped unknown shape count drift")
 
 for cluster in fixture["clusters"]:
     if cluster["owner_edge_confidence"] not in {"FixtureMapped", "None"}:
         raise SystemExit("unexpected owner confidence")
-    if cluster["selection_eligible"] is not False:
-        raise SystemExit("cluster must not be eligible")
+    if cluster["selection_eligible"] is True:
+        if cluster["owner_edge_confidence"] != "FixtureMapped":
+            raise SystemExit("eligible cluster must be FixtureMapped")
+        if cluster["blocked_by"]:
+            raise SystemExit("eligible cluster must not be blocked")
+        if cluster["next_owner_kind"] != "ProjectionPolicy":
+            raise SystemExit("eligible cluster must select projection policy owner kind")
+        if not cluster["next_card"]:
+            raise SystemExit("eligible cluster must expose next card")
+        continue
     if cluster["owner_edge_confidence"] == "None" and "NoExactOrFixtureMappedOwnerEdge" not in cluster["blocked_by"]:
         raise SystemExit("cluster missing owner-edge confidence blocker")
     if cluster["next_owner_kind"] != "None":
@@ -77,11 +87,11 @@ for cluster in fixture["clusters"]:
         raise SystemExit("cluster next card must be null")
 
 decision = fixture["decision"]
-if decision["kind"] != "SelectShapeSignatureInventory":
+if decision["kind"] != "SelectProjectionPolicyClusterPriorityResolution":
     raise SystemExit("decision kind drift")
-if decision["reason_token"] != "MissingShapeSignatureForProjectionPolicyClusters":
+if decision["reason_token"] != "AmbiguousProjectionPolicyClusters":
     raise SystemExit("reason token drift")
-if decision["selected_next_card"] != "MIRBUILDER-CRATE-WIDE-SHAPE-SIGNATURE-INVENTORY-001":
+if decision["selected_next_card"] != "MIRBUILDER-PROJECTION-POLICY-CLUSTER-PRIORITY-RESOLUTION-001":
     raise SystemExit("selected next card drift")
 if decision["selected_cluster_id"] is not None:
     raise SystemExit("selected cluster must be null")
@@ -124,10 +134,10 @@ PY
 
 cat <<'REPORT'
 output_contract=rust-lifecycle-mirbuilder-crate-wide-missing-projection-policy-cluster-resolution-v0
-decision=SelectShapeSignatureInventory
-reason_token=MissingShapeSignatureForProjectionPolicyClusters
+decision=SelectProjectionPolicyClusterPriorityResolution
+reason_token=AmbiguousProjectionPolicyClusters
 input_missing_projection_policy_count=1396
-selection_eligible_cluster_count=0
+selection_eligible_cluster_count=42
 manual_family_selection=0
 source_selfhost_claim=0
 runtime_fallback=0

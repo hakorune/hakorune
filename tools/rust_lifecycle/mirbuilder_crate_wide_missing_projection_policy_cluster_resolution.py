@@ -86,6 +86,9 @@ def stable_deny_reason(item: dict[str, Any]) -> str:
 
 
 def shape_signature(item: dict[str, Any]) -> str:
+    repaired = item.get("shape_signature")
+    if repaired:
+        return repaired
     return SHAPE_SIGNATURE_BY_CLUSTER.get(cluster_axis(item), "unknown_shape")
 
 
@@ -240,6 +243,11 @@ def build_resolution() -> dict[str, Any]:
 
     clusters.sort(key=lambda item: (-item["candidate_count"], item["cluster_id"]))
     eligible_clusters = [cluster for cluster in clusters if cluster["selection_eligible"]]
+    mapped_unknown_shape_count = sum(
+        1 for item in items
+        if owner_confidence(item) in {"ExactSymbol", "FixtureMapped"}
+        and shape_signature(item) == "unknown_shape"
+    )
 
     exact_or_fixture = owner_confidence_counts.get("ExactSymbol", 0) + owner_confidence_counts.get("FixtureMapped", 0)
     if exact_or_fixture == 0:
@@ -256,6 +264,13 @@ def build_resolution() -> dict[str, Any]:
             "selected_next_card": "MIRBUILDER-MISSING-PROJECTION-STABLE-DENY-REASON-REPAIR-001",
             "reason_token": "MissingStableDenyReasonForMappedProjectionPolicyClusters",
         }
+    elif mapped_unknown_shape_count > 0:
+        decision = {
+            "kind": "SelectShapeSignatureInventory",
+            "selected_cluster_id": None,
+            "selected_next_card": "MIRBUILDER-CRATE-WIDE-SHAPE-SIGNATURE-INVENTORY-001",
+            "reason_token": "MissingShapeSignatureForProjectionPolicyClusters",
+        }
     elif eligible_clusters and len(eligible_clusters) == 1:
         cluster = eligible_clusters[0]
         decision = {
@@ -266,17 +281,10 @@ def build_resolution() -> dict[str, Any]:
         }
     elif eligible_clusters:
         decision = {
-            "kind": "KeepStopped",
+            "kind": "SelectProjectionPolicyClusterPriorityResolution",
             "selected_cluster_id": None,
-            "selected_next_card": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+            "selected_next_card": "MIRBUILDER-PROJECTION-POLICY-CLUSTER-PRIORITY-RESOLUTION-001",
             "reason_token": "AmbiguousProjectionPolicyClusters",
-        }
-    elif shape_signature_counts.get("unknown_shape", 0) > 0:
-        decision = {
-            "kind": "SelectShapeSignatureInventory",
-            "selected_cluster_id": None,
-            "selected_next_card": "MIRBUILDER-CRATE-WIDE-SHAPE-SIGNATURE-INVENTORY-001",
-            "reason_token": "MissingShapeSignatureForProjectionPolicyClusters",
         }
     else:
         decision = {
@@ -322,6 +330,7 @@ def build_resolution() -> dict[str, Any]:
             "exact_owner_confidence_count": owner_confidence_counts.get("ExactSymbol", 0),
             "fixture_mapped_count": owner_confidence_counts.get("FixtureMapped", 0),
             "missing_shape_signature_count": shape_signature_counts.get("unknown_shape", 0),
+            "mapped_unknown_shape_count": mapped_unknown_shape_count,
             "missing_stable_deny_reason_count": stable_deny_reason_counts.get("MissingStableDenyReason", 0),
             "missing_verifier_or_oracle_count": len(items) - verifier_state_counts.get("Present", 0),
             "borrow_policy_needed_count": 0,

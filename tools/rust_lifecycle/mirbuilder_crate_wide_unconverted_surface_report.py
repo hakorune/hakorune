@@ -33,6 +33,7 @@ REFERENCE_PROJECTION = FIXTURES / "variable-context-reference-projection-contrac
 FAMILY_MANIFEST = FIXTURES / "source-selfhost-family-guard-manifest-v0.json"
 OWNER_EDGE_CONFIDENCE_REPAIR = FIXTURES / "mirbuilder-owner-edge-confidence-repair-v0.json"
 STABLE_DENY_REASON_REPAIR = FIXTURES / "mirbuilder-missing-projection-stable-deny-reason-repair-v0.json"
+SHAPE_SIGNATURE_INVENTORY = FIXTURES / "mirbuilder-crate-wide-shape-signature-inventory-v0.json"
 CURRENT_STATE = ROOT / "docs/development/current/main/CURRENT_STATE.toml"
 
 FN_PATTERN = re.compile(
@@ -429,6 +430,58 @@ def apply_stable_deny_reason_repair(items: list[dict[str, Any]]) -> None:
         item["evidence_refs"] = refs
 
 
+def shape_signature_inventory_rules() -> dict[str, str]:
+    if not SHAPE_SIGNATURE_INVENTORY.exists():
+        return {}
+    fixture = read_json(SHAPE_SIGNATURE_INVENTORY)
+    return {
+        item["shape_axis"]: item["shape_signature"]
+        for item in fixture.get("shape_signatures", [])
+        if item.get("selected") is True
+    }
+
+
+def shape_axis_for_item(item: dict[str, Any]) -> str | None:
+    for key in [
+        "loop_cond_co_statement_lowering_subcluster",
+        "loop_cond_co_helper_subcluster",
+        "loop_cond_co_group_if_subcluster",
+        "loop_cond_co_continue_if_subcluster",
+        "loop_cond_co_subcluster",
+        "loop_cond_bc_pipeline_subcluster",
+        "loop_cond_bc_item_lowering_subcluster",
+        "loop_cond_bc_cleanup_subcluster",
+        "loop_cond_bc_else_pattern_subcluster",
+        "loop_cond_bc_subcluster",
+        "loop_cond_feature_subcluster",
+        "plan_feature_subcluster",
+        "joinir_plan_subcluster",
+        "likely_owner_cluster",
+    ]:
+        value = item.get(key)
+        if value:
+            return value
+    return None
+
+
+def apply_shape_signature_inventory(items: list[dict[str, Any]]) -> None:
+    rules = shape_signature_inventory_rules()
+    if not rules:
+        return
+    evidence = rel(SHAPE_SIGNATURE_INVENTORY)
+    for item in items:
+        if item.get("classification") != "MissingProjectionPolicy":
+            continue
+        signature = rules.get(shape_axis_for_item(item) or "")
+        if not signature:
+            continue
+        item["shape_signature"] = signature
+        refs = list(item.get("evidence_refs", []))
+        if evidence not in refs:
+            refs.append(evidence)
+        item["evidence_refs"] = refs
+
+
 def classify(surface: dict[str, Any]) -> dict[str, Any]:
     owner, confidence, evidence = known_owner_for(surface)
     path = surface["source_path"]
@@ -702,6 +755,7 @@ def build_report() -> dict[str, Any]:
             item["loop_cond_co_statement_lowering_subcluster"] = co_statement_lowering_subcluster
     apply_owner_edge_confidence_repair(classified)
     apply_stable_deny_reason_repair(classified)
+    apply_shape_signature_inventory(classified)
     items = [item for item in classified if included_item(item)]
     known_owner_edges = {item["known_owner_edge"] for item in items if item["known_owner_edge"]}
     orphan_evidence_rows = [
@@ -833,6 +887,7 @@ def build_report() -> dict[str, Any]:
             "variable_context_reference_projection_contract_hash": sha256_file(REFERENCE_PROJECTION),
             "owner_edge_confidence_repair_hash": sha256_file(OWNER_EDGE_CONFIDENCE_REPAIR) if OWNER_EDGE_CONFIDENCE_REPAIR.exists() else None,
             "stable_deny_reason_repair_hash": sha256_file(STABLE_DENY_REASON_REPAIR) if STABLE_DENY_REASON_REPAIR.exists() else None,
+            "shape_signature_inventory_hash": sha256_file(SHAPE_SIGNATURE_INVENTORY) if SHAPE_SIGNATURE_INVENTORY.exists() else None,
         },
         "source_inventory": {
             "rust_surface_count": len(all_surfaces),
