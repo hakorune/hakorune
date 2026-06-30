@@ -1,0 +1,293 @@
+{
+  "claims": {
+    "carrier_type_transport_inventory_ready": 1,
+    "cluster_size_as_proof": 0,
+    "coverage_percentage_as_proof": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "manual_carrier_selection": 0,
+    "multi_axis_resolution_consumed": 1,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "other_shape_resolution_consumed": 1,
+    "policy_lane_selected": 0,
+    "route_membership_alone_as_proof": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "SelectStrictConverterEmissionProbe",
+    "reason_token": "CarrierTypeTransportPolicyInventoryRecorded",
+    "selected_next_card": "MIRBUILDER-STRICT-CONVERTER-EMISSION-PROBE-001"
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "multi_axis_diagnostic_cluster_resolution": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-multi-axis-diagnostic-cluster-resolution-v0.json",
+    "other_shape_signature_cluster_resolution": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-policy-other-shape-signature-cluster-resolution-002-v0.json"
+  },
+  "kind": "MirBuilderCarrierTypeTransportPolicyInventoryV1",
+  "policy_lane_candidates": [
+    {
+      "candidate_count": 7,
+      "cluster_count": 1,
+      "lane": "ConstructorCarrierPolicyCandidate",
+      "reason_token": "InventoryOnlyPolicyLaneCandidate",
+      "selection_eligible": false
+    },
+    {
+      "candidate_count": 21,
+      "cluster_count": 1,
+      "lane": "MissingTypeTransportPolicyCandidate",
+      "reason_token": "InventoryOnlyPolicyLaneCandidate",
+      "selection_eligible": false
+    },
+    {
+      "candidate_count": 37,
+      "cluster_count": 1,
+      "lane": "OptionCarrierPolicyCandidate",
+      "reason_token": "InventoryOnlyPolicyLaneCandidate",
+      "selection_eligible": false
+    },
+    {
+      "candidate_count": 55,
+      "cluster_count": 2,
+      "lane": "ResultCarrierVerifierPolicyCandidate",
+      "reason_token": "InventoryOnlyPolicyLaneCandidate",
+      "selection_eligible": false
+    },
+    {
+      "candidate_count": 1,
+      "cluster_count": 1,
+      "lane": "ReturnedIteratorPolicyCandidate",
+      "reason_token": "InventoryOnlyPolicyLaneCandidate",
+      "selection_eligible": false
+    },
+    {
+      "candidate_count": 4,
+      "cluster_count": 1,
+      "lane": "VecCarrierPolicyCandidate",
+      "reason_token": "InventoryOnlyPolicyLaneCandidate",
+      "selection_eligible": false
+    }
+  ],
+  "provenance": {
+    "multi_axis_diagnostic_cluster_resolution_hash": "01376f3055b453fca383bcfe6efdb7cef892716976e111a50a6d6f4c6f36d2fd",
+    "other_shape_signature_cluster_resolution_hash": "31a29882c784c8bd278fad0d4c6f0dc4022a25416944b8bbfc50e88275350528"
+  },
+  "schema_version": 0,
+  "summary": {
+    "carrier_type_transport_candidate_count": 125,
+    "input_shape_cluster_count": 11,
+    "policy_lane_candidate_counts": {
+      "ConstructorCarrierPolicyCandidate": 7,
+      "KnownTypeTransportNoCarrierPolicy": 22,
+      "MissingTypeTransportPolicyCandidate": 21,
+      "NoCarrierTypePolicyNeeded": 38,
+      "OptionCarrierPolicyCandidate": 37,
+      "ResultCarrierVerifierPolicyCandidate": 55,
+      "ReturnedIteratorPolicyCandidate": 1,
+      "VecCarrierPolicyCandidate": 4
+    },
+    "policy_lane_selected_count": 0,
+    "return_family_candidate_counts": {
+      "bool": 20,
+      "constructor_self": 7,
+      "custom_carrier": 21,
+      "iterator": 1,
+      "option": 37,
+      "result": 55,
+      "string": 2,
+      "unit": 38,
+      "vec": 4
+    },
+    "type_transport_axis_candidate_counts": {
+      "ConstructorCarrier": 7,
+      "Known": 60,
+      "KnownOptionCarrier": 37,
+      "KnownVecCarrier": 4,
+      "MissingTypeTransport": 21,
+      "ResultCarrierNeedsVerifier": 55,
+      "ReturnedIteratorNeedsPolicy": 1
+    }
+  },
+  "token": "MIRBUILDER-CARRIER-TYPE-TRANSPORT-POLICY-INVENTORY-001",
+  "transport_rows": [
+    {
+      "blocked_by": [
+        "CarrierPolicyGap"
+      ],
+      "candidate_count": 7,
+      "policy_lane_candidate": "ConstructorCarrierPolicyCandidate",
+      "policy_selected": false,
+      "return_families": [
+        "constructor_self"
+      ],
+      "shape_signature": "shape.other_constructor_surface",
+      "type_transport_axes": [
+        "ConstructorCarrier"
+      ]
+    },
+    {
+      "blocked_by": [
+        "TypeTransportOrVerifierGap",
+        "BorrowOrReceiverPolicyGap",
+        "CarrierPolicyGap"
+      ],
+      "candidate_count": 21,
+      "policy_lane_candidate": "MissingTypeTransportPolicyCandidate",
+      "policy_selected": false,
+      "return_families": [
+        "custom_carrier"
+      ],
+      "shape_signature": "shape.other_custom_carrier_surface",
+      "type_transport_axes": [
+        "MissingTypeTransport"
+      ]
+    },
+    {
+      "blocked_by": [
+        "TypeTransportOrVerifierGap",
+        "BorrowOrReceiverPolicyGap",
+        "CarrierPolicyGap"
+      ],
+      "candidate_count": 1,
+      "policy_lane_candidate": "ReturnedIteratorPolicyCandidate",
+      "policy_selected": false,
+      "return_families": [
+        "iterator"
+      ],
+      "shape_signature": "shape.other_iterator_borrow_surface",
+      "type_transport_axes": [
+        "ReturnedIteratorNeedsPolicy"
+      ]
+    },
+    {
+      "blocked_by": [
+        "TypeTransportOrVerifierGap",
+        "BorrowOrReceiverPolicyGap",
+        "CarrierPolicyGap"
+      ],
+      "candidate_count": 42,
+      "policy_lane_candidate": "ResultCarrierVerifierPolicyCandidate",
+      "policy_selected": false,
+      "return_families": [
+        "result"
+      ],
+      "shape_signature": "shape.other_mutating_result_surface",
+      "type_transport_axes": [
+        "ResultCarrierNeedsVerifier"
+      ]
+    },
+    {
+      "blocked_by": [
+        "BorrowOrReceiverPolicyGap"
+      ],
+      "candidate_count": 12,
+      "policy_lane_candidate": "NoCarrierTypePolicyNeeded",
+      "policy_selected": false,
+      "return_families": [
+        "unit"
+      ],
+      "shape_signature": "shape.other_mutation_unit_surface",
+      "type_transport_axes": [
+        "Known"
+      ]
+    },
+    {
+      "blocked_by": [
+        "BorrowOrReceiverPolicyGap",
+        "CarrierPolicyGap"
+      ],
+      "candidate_count": 37,
+      "policy_lane_candidate": "OptionCarrierPolicyCandidate",
+      "policy_selected": false,
+      "return_families": [
+        "option"
+      ],
+      "shape_signature": "shape.other_optional_read_surface",
+      "type_transport_axes": [
+        "KnownOptionCarrier"
+      ]
+    },
+    {
+      "blocked_by": [
+        "BorrowOrReceiverPolicyGap"
+      ],
+      "candidate_count": 20,
+      "policy_lane_candidate": "KnownTypeTransportNoCarrierPolicy",
+      "policy_selected": false,
+      "return_families": [
+        "bool"
+      ],
+      "shape_signature": "shape.other_predicate_surface",
+      "type_transport_axes": [
+        "Known"
+      ]
+    },
+    {
+      "blocked_by": [
+        "TypeTransportOrVerifierGap",
+        "CarrierPolicyGap"
+      ],
+      "candidate_count": 13,
+      "policy_lane_candidate": "ResultCarrierVerifierPolicyCandidate",
+      "policy_selected": false,
+      "return_families": [
+        "result"
+      ],
+      "shape_signature": "shape.other_result_helper_surface",
+      "type_transport_axes": [
+        "ResultCarrierNeedsVerifier"
+      ]
+    },
+    {
+      "blocked_by": [
+        "BorrowOrReceiverPolicyGap"
+      ],
+      "candidate_count": 2,
+      "policy_lane_candidate": "KnownTypeTransportNoCarrierPolicy",
+      "policy_selected": false,
+      "return_families": [
+        "string"
+      ],
+      "shape_signature": "shape.other_scalar_string_surface",
+      "type_transport_axes": [
+        "Known"
+      ]
+    },
+    {
+      "blocked_by": [
+        "ProjectionPolicyDescriptorAlreadyLanded"
+      ],
+      "candidate_count": 26,
+      "policy_lane_candidate": "NoCarrierTypePolicyNeeded",
+      "policy_selected": false,
+      "return_families": [
+        "unit"
+      ],
+      "shape_signature": "shape.other_unit_observer_surface",
+      "type_transport_axes": [
+        "Known"
+      ]
+    },
+    {
+      "blocked_by": [
+        "BorrowOrReceiverPolicyGap",
+        "CarrierPolicyGap"
+      ],
+      "candidate_count": 4,
+      "policy_lane_candidate": "VecCarrierPolicyCandidate",
+      "policy_selected": false,
+      "return_families": [
+        "vec"
+      ],
+      "shape_signature": "shape.other_vector_snapshot_surface",
+      "type_transport_axes": [
+        "KnownVecCarrier"
+      ]
+    }
+  ]
+}

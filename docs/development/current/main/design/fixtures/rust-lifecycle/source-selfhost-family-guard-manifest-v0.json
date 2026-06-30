@@ -1122,6 +1122,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-multi-axis-diagnostic-cluster-resolution-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_multi_axis_diagnostic_cluster_resolution_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-CARRIER-TYPE-TRANSPORT-POLICY-INVENTORY-001",
+      "card": "docs/development/current/main/phases/phase-296x/1960-MIRBUILDER-CARRIER-TYPE-TRANSPORT-POLICY-INVENTORY-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-transport-policy-inventory-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_carrier_type_transport_policy_inventory_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {

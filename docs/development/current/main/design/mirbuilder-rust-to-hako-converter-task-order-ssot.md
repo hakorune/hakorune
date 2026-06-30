@@ -24,9 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-CARRIER-TYPE-TRANSPORT-POLICY-INVENTORY-001.
-  Inventory Result, Option, Vec, iterator, and carrier transport gaps before
-  strict converter emission.
+  MIRBUILDER-STRICT-CONVERTER-EMISSION-PROBE-001.
+  Measure which descriptor-covered surfaces can produce VerifiedHakoFamilyIR
+  under strict rules without fallback.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  MIRBUILDER-CARRIER-TYPE-TRANSPORT-POLICY-INVENTORY-001
+  MIRBUILDER-STRICT-CONVERTER-EMISSION-PROBE-001
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -245,23 +245,23 @@ history, not in this task-order SSOT.
    semantic_authority=design-stop card, cluster/priority resolver fixtures
    non_authority=manual family selection, runtime fallback, Source Selfhost claim
 
-2. MIRBUILDER-MULTI-AXIS-DIAGNOSTIC-CLUSTER-RESOLUTION-001
+2. MIRBUILDER-CARRIER-TYPE-TRANSPORT-POLICY-INVENTORY-001
    status=green
-   boundary=split multi-axis diagnostic clusters into next machine-derived lane
-   semantic_authority=converter completion inventory and Other decomposition fixtures
-   non_authority=manual axis selection, cluster size as proof, Hako generation
-
-3. MIRBUILDER-CARRIER-TYPE-TRANSPORT-POLICY-INVENTORY-001
-   status=next
    boundary=inventory carrier/type transport gaps before emission
-   semantic_authority=multi-axis resolution fixture and unconverted surface report
+   semantic_authority=multi-axis resolution fixture and Other shape resolution
    non_authority=manual carrier selection, runtime fallback, Hako generation
 
+3. MIRBUILDER-STRICT-CONVERTER-EMISSION-PROBE-001
+   status=next
+   boundary=diagnostic strict emission capability probe only
+   semantic_authority=carrier/type inventory and descriptor fixtures
+   non_authority=rule weakening, fallback Hako, HakoAdopted decision
+
 next_documented_task =
-  MIRBUILDER-CARRIER-TYPE-TRANSPORT-POLICY-INVENTORY-001
+  MIRBUILDER-STRICT-CONVERTER-EMISSION-PROBE-001
 
 next_after_active_3 =
-  MIRBUILDER-STRICT-CONVERTER-EMISSION-PROBE-001
+  MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-003
 ```
 
 ## Landed Converter Capability Summary

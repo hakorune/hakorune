@@ -25,11 +25,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-MULTI-AXIS-DIAGNOSTIC-CLUSTER-RESOLUTION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1959-MIRBUILDER-MULTI-AXIS-DIAGNOSTIC-CLUSTER-RESOLUTION-001.md"
-latest_card_summary = """The latest card resolves the remaining multi-axis
-diagnostic clusters through existing Other decomposition evidence and selects
-carrier/type transport policy inventory next."""
+latest_card = "MIRBUILDER-CARRIER-TYPE-TRANSPORT-POLICY-INVENTORY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1960-MIRBUILDER-CARRIER-TYPE-TRANSPORT-POLICY-INVENTORY-001.md"
+latest_card_summary = """The latest card inventories Result, Option, Vec,
+iterator, constructor, and custom carrier/type transport policy candidates and
+selects strict converter emission probe next."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -40,6 +40,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-01: 1960 inventories carrier/type transport policy candidates and selects strict converter emission probe next.",
   "2026-07-01: 1959 resolves multi-axis diagnostic clusters and selects carrier/type transport policy inventory next.",
   "2026-07-01: 1958 materializes the bounded current_bindings mutation-frame descriptor and selects multi-axis diagnostic cluster resolution next.",
   "2026-07-01: 1957 selects BoundedWithMapOperation for the returned mutable borrow cluster while denying raw alias transport.",
