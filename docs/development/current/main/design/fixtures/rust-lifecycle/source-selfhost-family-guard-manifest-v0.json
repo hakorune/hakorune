@@ -1024,6 +1024,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-policy-other-shape-signature-cluster-resolution-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_missing_projection_policy_other_shape_signature_cluster_resolution_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-OTHER-UNIT-OBSERVER-SURFACE-PROJECTION-POLICY-001",
+      "card": "docs/development/current/main/phases/phase-296x/1946-MIRBUILDER-OTHER-UNIT-OBSERVER-SURFACE-PROJECTION-POLICY-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-other-unit-observer-surface-projection-policy-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_other_unit_observer_surface_projection_policy_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {

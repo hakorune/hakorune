@@ -25,10 +25,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-MISSING-PROJECTION-POLICY-OTHER-SHAPE-SIGNATURE-CLUSTER-RESOLUTION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1945-MIRBUILDER-MISSING-PROJECTION-POLICY-OTHER-SHAPE-SIGNATURE-CLUSTER-RESOLUTION-001.md"
-latest_card_summary = """The latest card resolves repaired Other shape
-clusters and selects the other unit observer surface projection-policy owner."""
+latest_card = "MIRBUILDER-OTHER-UNIT-OBSERVER-SURFACE-PROJECTION-POLICY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1946-MIRBUILDER-OTHER-UNIT-OBSERVER-SURFACE-PROJECTION-POLICY-001.md"
+latest_card_summary = """The latest card materializes the descriptor for
+shape.other_unit_observer_surface and returns to projection-policy priority
+resolution."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -39,6 +40,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-30: 1946 materializes the other unit observer surface projection-policy descriptor.",
   "2026-06-30: 1945 resolves Other shape clusters and selects other unit observer projection policy.",
   "2026-06-30: 1944 assigns 11 diagnostic shape signatures to repaired Other owner rows.",
   "2026-06-30: 1943 reruns OtherMissingProjectionPolicyCluster after owner-edge repair and selects shape-signature inventory.",
