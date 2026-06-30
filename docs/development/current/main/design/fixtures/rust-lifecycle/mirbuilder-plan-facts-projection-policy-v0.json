@@ -1,0 +1,129 @@
+{
+  "claims": {
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "manual_family_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "projection_surface_selected": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "KeepParentOwner",
+    "reason_token": "PlanFactsDoesNotOpenStandaloneProjectionOwner",
+    "selected_next_card": "MIRBUILDER-PROJECTION-POLICY-CLUSTER-PRIORITY-RESOLUTION-001"
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "priority_resolution": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-projection-policy-cluster-priority-resolution-v0.json",
+    "selected_cluster_id": "projection_policy::UnsupportedDirectShape::shape.plan_facts::FixtureMapped::PlanFactsCluster",
+    "source_count": 8,
+    "source_report": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-unconverted-surface-report-v0.json"
+  },
+  "kind": "MirBuilderPlanFactsProjectionPolicyV1",
+  "plan_facts_evidence": [
+    "generic_loop \u5c02\u7528 expr \u5224\u5b9a helpers (SSOT)",
+    "is_supported_value_expr_for_generic_loop",
+    "is_pure_value_expr_for_generic_loop",
+    "is_supported_bool_expr_for_generic_loop",
+    "exit_only_block_ends_with_exit_on_all_paths",
+    "detect_nested_loop",
+    "match_index_of_bound",
+    "Nested-loop body profile (analysis-only, no AST rewrite)",
+    "Emit structured accept log"
+  ],
+  "role_counts": {
+    "debug_accept_log_helper": 1,
+    "exit_only_terminality_fact": 1,
+    "generic_loop_expr_fact_predicate": 3,
+    "nested_loop_body_profile_fact": 1,
+    "nested_loop_presence_fact": 1,
+    "scan_bound_matcher_fact": 1
+  },
+  "schema_version": 0,
+  "selected_policy": {
+    "owner_edge": "mirbuilder::plan_facts",
+    "policy": "KeepParentOwner",
+    "projection_surface_selected": false,
+    "reason_token": "PlanFactsPredicatesAreParentOwned"
+  },
+  "selection_axes": {
+    "borrow_axis": "NoReturnedOrMutableBorrow",
+    "owner_edge_confidence": "FixtureMapped",
+    "shape_signature": "shape.plan_facts",
+    "stable_deny_reason": "UnsupportedDirectShape",
+    "type_transport_axis": "Known",
+    "verifier_or_oracle_state": "Present"
+  },
+  "source_surfaces": [
+    {
+      "return_type": "bool",
+      "role": "exit_only_terminality_fact",
+      "source_id": "src/mir/builder/control_flow/plan/facts/exit_only_block.rs::exit_only_block_ends_with_exit_on_all_paths:L339",
+      "source_path": "src/mir/builder/control_flow/plan/facts/exit_only_block.rs",
+      "symbol": "exit_only_block_ends_with_exit_on_all_paths",
+      "visibility": "pub(in crate::mir::builder)"
+    },
+    {
+      "return_type": "bool",
+      "role": "generic_loop_expr_fact_predicate",
+      "source_id": "src/mir/builder/control_flow/plan/facts/expr_generic_loop.rs::is_pure_value_expr_for_generic_loop:L72",
+      "source_path": "src/mir/builder/control_flow/plan/facts/expr_generic_loop.rs",
+      "symbol": "is_pure_value_expr_for_generic_loop",
+      "visibility": "pub(in crate::mir::builder)"
+    },
+    {
+      "return_type": "bool",
+      "role": "generic_loop_expr_fact_predicate",
+      "source_id": "src/mir/builder/control_flow/plan/facts/expr_generic_loop.rs::is_supported_bool_expr_for_generic_loop:L163",
+      "source_path": "src/mir/builder/control_flow/plan/facts/expr_generic_loop.rs",
+      "symbol": "is_supported_bool_expr_for_generic_loop",
+      "visibility": "pub(in crate::mir::builder)"
+    },
+    {
+      "return_type": "bool",
+      "role": "generic_loop_expr_fact_predicate",
+      "source_id": "src/mir/builder/control_flow/plan/facts/expr_generic_loop.rs::is_supported_value_expr_for_generic_loop:L8",
+      "source_path": "src/mir/builder/control_flow/plan/facts/expr_generic_loop.rs",
+      "symbol": "is_supported_value_expr_for_generic_loop",
+      "visibility": "pub(in crate::mir::builder)"
+    },
+    {
+      "return_type": "bool",
+      "role": "nested_loop_presence_fact",
+      "source_id": "src/mir/builder/control_flow/plan/facts/feature_facts.rs::detect_nested_loop:L82",
+      "source_path": "src/mir/builder/control_flow/plan/facts/feature_facts.rs",
+      "symbol": "detect_nested_loop",
+      "visibility": "pub(in crate::mir::builder)"
+    },
+    {
+      "return_type": "bool",
+      "role": "scan_bound_matcher_fact",
+      "source_id": "src/mir/builder/control_flow/plan/facts/loop_scan_with_init.rs::match_index_of_bound:L354",
+      "source_path": "src/mir/builder/control_flow/plan/facts/loop_scan_with_init.rs",
+      "symbol": "match_index_of_bound",
+      "visibility": "pub(super)"
+    },
+    {
+      "return_type": "bool",
+      "role": "nested_loop_body_profile_fact",
+      "source_id": "src/mir/builder/control_flow/plan/facts/nested_loop_profile.rs::scan_nested_loop_body:L45",
+      "source_path": "src/mir/builder/control_flow/plan/facts/nested_loop_profile.rs",
+      "symbol": "scan_nested_loop_body",
+      "visibility": "pub(in crate::mir::builder)"
+    },
+    {
+      "return_type": "",
+      "role": "debug_accept_log_helper",
+      "source_id": "src/mir/builder/control_flow/plan/facts/reject_reason.rs::log_accept:L328",
+      "source_path": "src/mir/builder/control_flow/plan/facts/reject_reason.rs",
+      "symbol": "log_accept",
+      "visibility": "pub"
+    }
+  ],
+  "token": "MIRBUILDER-PLAN-FACTS-PROJECTION-POLICY-001"
+}

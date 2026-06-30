@@ -5,7 +5,7 @@
     "coverage_percentage_as_proof": 0,
     "deterministic_priority_resolution": 1,
     "eligible_cluster_count": 42,
-    "excluded_existing_decision_cluster_count": 26,
+    "excluded_existing_decision_cluster_count": 28,
     "existing_decision_filter_enabled": 1,
     "family_name_based_policy": 0,
     "generated_artifact_as_edit_authority": 0,
@@ -19,14 +19,14 @@
     "route_membership_alone_as_proof": 0,
     "runner_semantic_owner": 0,
     "runtime_fallback": 0,
-    "selectable_cluster_count": 16,
+    "selectable_cluster_count": 14,
     "source_selfhost_claim": 0
   },
   "decision": {
     "kind": "SelectProjectionPolicyCluster",
     "reason_token": "DeterministicProjectionPolicyClusterPrioritySelected",
-    "selected_cluster_id": "projection_policy::UnsupportedDirectShape::shape.plan_facts::FixtureMapped::PlanFactsCluster",
-    "selected_next_card": "MIRBUILDER-PLAN-FACTS-PROJECTION-POLICY-001"
+    "selected_cluster_id": "projection_policy::UnsupportedDirectShape::shape.plan_parts_assembly::FixtureMapped::PlanPartsAssemblyCluster",
+    "selected_next_card": "MIRBUILDER-PLAN-PARTS-ASSEMBLY-PROJECTION-POLICY-001"
   },
   "excluded_existing_decision_clusters": [
     {
@@ -162,9 +162,21 @@
       "reason_token": "ProjectionPolicyDecisionAlreadyLanded"
     },
     {
+      "candidate_count": 8,
+      "cluster_id": "projection_policy::UnsupportedDirectShape::shape.plan_facts::FixtureMapped::PlanFactsCluster",
+      "next_card": "MIRBUILDER-PLAN-FACTS-PROJECTION-POLICY-001",
+      "reason_token": "ProjectionPolicyDecisionAlreadyLanded"
+    },
+    {
       "candidate_count": 1,
       "cluster_id": "projection_policy::UnsupportedDirectShape::shape.generic_loop_body_feature::FixtureMapped::GenericLoopBodyFeatureCluster",
       "next_card": "MIRBUILDER-GENERIC-LOOP-BODY-FEATURE-PROJECTION-POLICY-001",
+      "reason_token": "ProjectionPolicyDecisionAlreadyLanded"
+    },
+    {
+      "candidate_count": 1,
+      "cluster_id": "projection_policy::UnsupportedDirectShape::shape.plan_facts::FixtureMapped::PlanFactsCluster",
+      "next_card": "MIRBUILDER-PLAN-FACTS-PROJECTION-POLICY-001",
       "reason_token": "ProjectionPolicyDecisionAlreadyLanded"
     },
     {
@@ -188,7 +200,7 @@
   ],
   "existing_decision_filter": {
     "enabled": true,
-    "excluded_cluster_count": 26,
+    "excluded_cluster_count": 28,
     "reason_token": "ProjectionPolicyDecisionAlreadyLanded"
   },
   "input_state": {
@@ -207,31 +219,10 @@
     "cluster_id_lexical_tiebreaker"
   ],
   "provenance": {
-    "cluster_resolution_hash": "330bc526afa16a9e069e4343326fe226b0637d44b653b33e88fc21d1f5389004",
-    "family_manifest_hash": "e709f894167a3e90b16d4ead09cad4d9b308038735bbf0a043f4197a4be2524b"
+    "cluster_resolution_hash": "7f89f7a5b5b4dbe7e2378eefa412623d900daf3781b2b2d9de41d5b2e3158d88",
+    "family_manifest_hash": "8c730580a660aba60322794a856612e766ff6192fd5cf346c51350f8a387de04"
   },
   "ranked_clusters": [
-    {
-      "borrow_axis": "NoBorrow",
-      "candidate_count": 8,
-      "cluster_id": "projection_policy::UnsupportedDirectShape::shape.plan_facts::FixtureMapped::PlanFactsCluster",
-      "control_flow_axis": "StraightLine",
-      "native_seed_or_adoption_proximity": "None",
-      "next_card": "MIRBUILDER-PLAN-FACTS-PROJECTION-POLICY-001",
-      "priority_tuple": [
-        3,
-        0,
-        0,
-        0,
-        0,
-        8,
-        "projection_policy::UnsupportedDirectShape::shape.plan_facts::FixtureMapped::PlanFactsCluster"
-      ],
-      "rank": 1,
-      "shape_signature": "shape.plan_facts",
-      "type_transport_axis": "Known",
-      "verifier_or_oracle_state": "Present"
-    },
     {
       "borrow_axis": "NoBorrow",
       "candidate_count": 10,
@@ -248,7 +239,7 @@
         10,
         "projection_policy::UnsupportedDirectShape::shape.plan_parts_assembly::FixtureMapped::PlanPartsAssemblyCluster"
       ],
-      "rank": 2,
+      "rank": 1,
       "shape_signature": "shape.plan_parts_assembly",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
@@ -269,7 +260,7 @@
         12,
         "projection_policy::UnsupportedDirectShape::shape.call_lowering::FixtureMapped::CallLoweringCluster"
       ],
-      "rank": 3,
+      "rank": 2,
       "shape_signature": "shape.call_lowering",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
@@ -290,7 +281,7 @@
         66,
         "projection_policy::UnsupportedDirectShape::shape.generic_loop_plan::FixtureMapped::GenericLoopPlanCluster"
       ],
-      "rank": 4,
+      "rank": 3,
       "shape_signature": "shape.generic_loop_plan",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
@@ -311,29 +302,8 @@
         1,
         "projection_policy::UnsupportedDirectShape::shape.body_view_feature::FixtureMapped::BodyViewFeatureCluster"
       ],
-      "rank": 5,
+      "rank": 4,
       "shape_signature": "shape.body_view_feature",
-      "type_transport_axis": "Known",
-      "verifier_or_oracle_state": "Present"
-    },
-    {
-      "borrow_axis": "NoReturnedBorrow",
-      "candidate_count": 1,
-      "cluster_id": "projection_policy::UnsupportedDirectShape::shape.plan_facts::FixtureMapped::PlanFactsCluster",
-      "control_flow_axis": "StraightLine",
-      "native_seed_or_adoption_proximity": "None",
-      "next_card": "MIRBUILDER-PLAN-FACTS-PROJECTION-POLICY-001",
-      "priority_tuple": [
-        3,
-        0,
-        1,
-        0,
-        0,
-        1,
-        "projection_policy::UnsupportedDirectShape::shape.plan_facts::FixtureMapped::PlanFactsCluster"
-      ],
-      "rank": 6,
-      "shape_signature": "shape.plan_facts",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
     },
@@ -353,7 +323,7 @@
         3,
         "projection_policy::UnsupportedDirectShape::shape.recipe_tree_matcher::FixtureMapped::RecipeTreeMatcherCluster"
       ],
-      "rank": 7,
+      "rank": 5,
       "shape_signature": "shape.recipe_tree_matcher",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
@@ -374,7 +344,7 @@
         6,
         "projection_policy::UnsupportedDirectShape::shape.plan_parts_assembly::FixtureMapped::PlanPartsAssemblyCluster"
       ],
-      "rank": 8,
+      "rank": 6,
       "shape_signature": "shape.plan_parts_assembly",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
@@ -395,7 +365,7 @@
         7,
         "projection_policy::UnsupportedDirectShape::shape.call_lowering::FixtureMapped::CallLoweringCluster"
       ],
-      "rank": 9,
+      "rank": 7,
       "shape_signature": "shape.call_lowering",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
@@ -416,7 +386,7 @@
         10,
         "projection_policy::UnsupportedDirectShape::shape.statement_value_construction::FixtureMapped::StatementValueConstructionCluster"
       ],
-      "rank": 10,
+      "rank": 8,
       "shape_signature": "shape.statement_value_construction",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
@@ -437,7 +407,7 @@
         1,
         "projection_policy::UnsupportedDirectShape::shape.loop_true_break_continue::FixtureMapped::LoopTrueBreakContinueCluster"
       ],
-      "rank": 11,
+      "rank": 9,
       "shape_signature": "shape.loop_true_break_continue",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
@@ -458,7 +428,7 @@
         6,
         "projection_policy::UnsupportedDirectShape::shape.loop_break_plan::FixtureMapped::LoopBreakPlanCluster"
       ],
-      "rank": 12,
+      "rank": 10,
       "shape_signature": "shape.loop_break_plan",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
@@ -479,7 +449,7 @@
         1,
         "projection_policy::UnsupportedDirectShape::shape.loop_break_plan::FixtureMapped::LoopBreakPlanCluster"
       ],
-      "rank": 13,
+      "rank": 11,
       "shape_signature": "shape.loop_break_plan",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
@@ -500,7 +470,7 @@
         5,
         "projection_policy::UnsupportedDirectShape::shape.emission_ssa_phi::FixtureMapped::EmissionSsaPhiCluster"
       ],
-      "rank": 14,
+      "rank": 12,
       "shape_signature": "shape.emission_ssa_phi",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
@@ -521,7 +491,7 @@
         7,
         "projection_policy::UnsupportedDirectShape::shape.phi_materializer_feature::FixtureMapped::PhiMaterializerFeatureCluster"
       ],
-      "rank": 15,
+      "rank": 13,
       "shape_signature": "shape.phi_materializer_feature",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
@@ -542,7 +512,7 @@
         8,
         "projection_policy::UnsupportedDirectShape::shape.emission_ssa_phi::FixtureMapped::EmissionSsaPhiCluster"
       ],
-      "rank": 16,
+      "rank": 14,
       "shape_signature": "shape.emission_ssa_phi",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
@@ -552,10 +522,10 @@
   "summary": {
     "cluster_size_as_proof": 0,
     "eligible_cluster_count": 42,
-    "excluded_existing_decision_cluster_count": 26,
-    "selectable_cluster_count": 16,
-    "selected_candidate_count": 8,
-    "selected_cluster_id": "projection_policy::UnsupportedDirectShape::shape.plan_facts::FixtureMapped::PlanFactsCluster"
+    "excluded_existing_decision_cluster_count": 28,
+    "selectable_cluster_count": 14,
+    "selected_candidate_count": 10,
+    "selected_cluster_id": "projection_policy::UnsupportedDirectShape::shape.plan_parts_assembly::FixtureMapped::PlanPartsAssemblyCluster"
   },
   "token": "MIRBUILDER-PROJECTION-POLICY-CLUSTER-PRIORITY-RESOLUTION-001"
 }
