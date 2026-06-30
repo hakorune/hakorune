@@ -1,0 +1,104 @@
+{
+  "claims": {
+    "bounded_mutation_frame_selected": 1,
+    "cluster_size_as_proof": 0,
+    "converter_tool_role_semantic_projector": 0,
+    "explicit_mutation_api_selected": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "manual_borrow_policy_selection": 0,
+    "mut_lease_selected": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "raw_mutable_alias_selected": 0,
+    "replace_owned_transfer_selected": 0,
+    "returned_mutable_borrow_allowed": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "selected_cluster_consumed": 1,
+    "source_selfhost_claim": 0,
+    "strict_rules_changed": 0
+  },
+  "decision": {
+    "kind": "SelectReplacementPolicy",
+    "reason_token": "ReturnedMutableBorrowReplacedByBoundedWithMapOperation",
+    "selected_next_card": "MIRBUILDER-LOOP-COND-RETURN-IN-BODY-PHI-MATERIALIZER-CURRENT-BINDINGS-MUTATION-FRAME-001",
+    "selected_policy": "BoundedWithMapOperation"
+  },
+  "input_state": {
+    "cluster_rerun": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-borrow-surface-policy-cluster-rerun-v0.json",
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "selected_cluster_id": "borrow_surface::ReturnedMutableBorrow::mutable_ref::mutable_receiver::loop_cond_return_in_body_phi_materializer::None",
+    "strict_reference": "docs/reference/architecture/rust-to-hako-lifecycle-projection.md",
+    "variable_context_precedent": "docs/development/current/main/design/fixtures/rust-lifecycle/variable-context-reference-projection-contract-v0.json"
+  },
+  "kind": "MirBuilderBorrowSurfaceReturnedMutableBorrowPolicyV1",
+  "provenance": {
+    "cluster_rerun_hash": "be1834572e4af3332f8828b9f3d1f1aef46b75aeb6f9fe57376e411da93b8afd",
+    "phi_materializer_source_hash": "d6854d55ad74b9883491af09a7656631189f4e970518821be84a812526990c79",
+    "pipeline_source_hash": "e575186ef294eaab53d0e72fb37518f076ee4fd18905cabc9b594566d27778fb"
+  },
+  "replacement_policy": {
+    "alias": "BoundedOwnerMutationFrame",
+    "allowed_operations": [
+      "MapGetCopied",
+      "MapSet",
+      "MapRemoveIfExisting",
+      "MapClearOnlyIfSourceEvidenceExists"
+    ],
+    "bounded_callsite": "lower_return_in_body_block",
+    "entry_surface": "current_bindings_mut",
+    "kind": "BoundedWithMapOperation",
+    "mutation_frame": [
+      "current_bindings map is mutable only inside body-lowering frame",
+      "assignment/local-init/method/function lowering may update current_bindings",
+      "no returned alias escapes the replacement operation",
+      "owner remains LoopCondReturnInBodyPhiMaterializer after frame"
+    ],
+    "owned_field": "current_bindings",
+    "owner": "LoopCondReturnInBodyPhiMaterializer",
+    "replacement_id": "LoopCondReturnInBodyPhiMaterializerCurrentBindingsMutationFrameV1",
+    "requires_followup_descriptor": true
+  },
+  "schema_version": 0,
+  "selected_cluster": {
+    "borrow_kind": "ReturnedMutableBorrow",
+    "receiver_axis": "mutable_receiver",
+    "repaired_owner_edge_confidence": "FileScoped",
+    "repaired_owner_edge_id": "mirbuilder::borrow_surface::loop_cond_return_in_body_phi_materializer",
+    "return_shape": "mutable_ref",
+    "signature": "&mut self -> &mut BTreeMap<String, ValueId>",
+    "source_module": "loop_cond_return_in_body_phi_materializer",
+    "source_surface": "src/mir/builder/control_flow/plan/features/loop_cond_return_in_body_phi_materializer.rs::current_bindings_mut:L120"
+  },
+  "source_evidence": {
+    "alias_escape_allowed": false,
+    "bounded_callsite": "src/mir/builder/control_flow/plan/features/loop_cond_return_in_body_pipeline.rs::lower_return_in_body_block:L344",
+    "bounded_callsite_verified": true,
+    "caller_owned_mutable_alias": false,
+    "field_return_verified": true,
+    "mutation_frame_consumers": [
+      "lower_stmt_ast",
+      "lower_assignment_stmt",
+      "lower_local_init_stmt",
+      "lower_method_call_stmt",
+      "lower_function_call_stmt"
+    ],
+    "mutation_frame_consumers_verified": true,
+    "source_signature": "&mut self -> &mut BTreeMap<String, ValueId>",
+    "source_signature_verified": true,
+    "source_surface": "src/mir/builder/control_flow/plan/features/loop_cond_return_in_body_phi_materializer.rs::current_bindings_mut:L120",
+    "source_surface_verified": true,
+    "stored_borrow_allowed": false
+  },
+  "strict_policy": {
+    "converter_emitter_may_choose_representation": false,
+    "deny_reason": "ReturnedMutableBorrow",
+    "raw_mutable_alias_transport": false,
+    "raw_returned_mutable_borrow": "Deny",
+    "rust_lifetime_syntax_transport": false
+  },
+  "token": "MIRBUILDER-BORROW-SURFACE-RETURNED-MUTABLE-BORROW-POLICY-001"
+}

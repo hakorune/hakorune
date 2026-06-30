@@ -24,9 +24,10 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-BORROW-SURFACE-RETURNED-MUTABLE-BORROW-POLICY-001.
-  Select or defer the policy for the highest-risk returned mutable borrow
-  cluster chosen by the post-repair rerun.
+  MIRBUILDER-LOOP-COND-RETURN-IN-BODY-PHI-MATERIALIZER-
+  CURRENT-BINDINGS-MUTATION-FRAME-001.
+  Materialize the bounded owner mutation-frame descriptor selected for the
+  loop_cond_return_in_body_phi_materializer current_bindings surface.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -245,20 +246,20 @@ history, not in this task-order SSOT.
    semantic_authority=design-stop card, cluster/priority resolver fixtures
    non_authority=manual family selection, runtime fallback, Source Selfhost claim
 
-2. MIRBUILDER-BORROW-SURFACE-POLICY-CLUSTER-RERUN-001
+2. MIRBUILDER-BORROW-SURFACE-RETURNED-MUTABLE-BORROW-POLICY-001
    status=green
-   boundary=selected highest-risk returned mutable borrow cluster
-   semantic_authority=borrow policy cluster rerun fixture
-   non_authority=borrow policy selection, MutLease, Hako generation
+   boundary=Deny raw returned mutable borrow and select bounded replacement
+   semantic_authority=borrow policy fixture and Rust-to-Hako lifecycle SSOT
+   non_authority=raw mutable alias transport, MutLease, Hako generation
 
-3. MIRBUILDER-BORROW-SURFACE-RETURNED-MUTABLE-BORROW-POLICY-001
+3. MIRBUILDER-LOOP-COND-RETURN-IN-BODY-PHI-MATERIALIZER-CURRENT-BINDINGS-MUTATION-FRAME-001
    status=next
-   boundary=policy decision for selected returned mutable borrow cluster
-   semantic_authority=borrow policy cluster rerun fixture and borrow projection SSOT
+   boundary=descriptor for bounded current_bindings mutation frame
+   semantic_authority=returned mutable borrow policy fixture and source evidence
    non_authority=raw mutable alias transport, runtime fallback, Hako generation
 
 next_documented_task =
-  MIRBUILDER-BORROW-SURFACE-RETURNED-MUTABLE-BORROW-POLICY-001
+  MIRBUILDER-LOOP-COND-RETURN-IN-BODY-PHI-MATERIALIZER-CURRENT-BINDINGS-MUTATION-FRAME-001
 
 next_after_active_3 =
   MIRBUILDER-MULTI-AXIS-DIAGNOSTIC-CLUSTER-RESOLUTION-001
