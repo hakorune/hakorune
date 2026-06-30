@@ -24,11 +24,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-GENERIC-LOOP-BODY-CHECK-CONTROL-RETURN-EXPR-MATCHERS-PROJECTION-POLICY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1911-MIRBUILDER-GENERIC-LOOP-BODY-CHECK-CONTROL-RETURN-EXPR-MATCHERS-PROJECTION-POLICY-001.md"
-latest_card_summary = """The latest card materializes a source-extracted
-GenericLoop body-check control-return matcher descriptor and selects trim
-condition matcher decomposition next."""
+latest_card = "MIRBUILDER-GENERIC-LOOP-BODY-CHECK-TRIM-CONDITION-MATCHER-DECOMPOSITION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1912-MIRBUILDER-GENERIC-LOOP-BODY-CHECK-TRIM-CONDITION-MATCHER-DECOMPOSITION-001.md"
+latest_card_summary = """The latest card records the GenericLoop trim
+condition matcher as a composition of the compare and call matcher descriptors
+and selects body-check step validation next."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -39,6 +39,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-30: 1912 records the GenericLoop trim-condition matcher as a composite descriptor.",
   "2026-06-30: 1911 materializes the GenericLoop body-check control-return matcher descriptor.",
   "2026-06-30: 1910 materializes the GenericLoop body-check compare matcher descriptor.",
   "2026-06-30: 1909 materializes the GenericLoop body-check call matcher descriptor.",
@@ -64,5 +65,4 @@ landed_tail = [
   "2026-06-30: 1889 keeps PlanLowerer span-formatting helper under its parent owner.",
   "2026-06-30: 1888 keeps ContextRegistry plugin-signature constructor helper under its parent owner.",
   "2026-06-30: 1887 keeps LoopCondPlan shape predicate helpers under their parent owner.",
-  "2026-06-30: 1886 keeps LoopCondUtility direct-exit diagnostic tag helpers under their parent owner.",
 ]

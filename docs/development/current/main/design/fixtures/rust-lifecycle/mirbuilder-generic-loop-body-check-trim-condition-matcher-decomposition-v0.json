@@ -1,0 +1,92 @@
+{
+  "claims": {
+    "composite_descriptor_selected": 1,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "manual_family_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_matcher_semantics_invented": 0,
+    "new_python_semantic_projector": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0,
+    "standalone_projection_selected": 0
+  },
+  "composition_descriptor": {
+    "ast_root": "ASTNode::BinaryOp",
+    "commutative_conjuncts": true,
+    "descriptor_id": "generic_loop_body_check_trim_condition_matcher_v1",
+    "left_or_right_roles": [
+      {
+        "required_matcher": "matches_loop_var_compare",
+        "role": "loop_var_relational_compare",
+        "source_descriptor": "generic_loop_body_check_compare_expr_matchers_v1"
+      },
+      {
+        "required_matcher": "matches_is_space_call",
+        "role": "space_call_with_substring_window",
+        "source_descriptor": "generic_loop_body_check_call_expr_matchers_v1"
+      }
+    ],
+    "operator": "BinaryOperator::And",
+    "source_extraction": "rust_binary_and_composition",
+    "source_markers": [
+      "BinaryOperator::And",
+      "matches_loop_var_compare",
+      "matches_is_space_call",
+      "left.as_ref()",
+      "right.as_ref()"
+    ]
+  },
+  "decision": {
+    "kind": "SelectNextGenericLoopPlanSubcluster",
+    "reason_token": "BodyCheckExpressionMatchersResolved",
+    "selected_next_card": "MIRBUILDER-GENERIC-LOOP-BODY-CHECK-STEP-VALIDATION-PROJECTION-POLICY-001"
+  },
+  "decomposition_policy": {
+    "composite_descriptor_selected": true,
+    "new_matcher_semantics_invented": false,
+    "reason_token": "TrimConditionMatcherIsCompositionOfCompareAndCallDescriptors",
+    "standalone_projection_selected": false,
+    "uses_existing_call_descriptor": true,
+    "uses_existing_compare_descriptor": true
+  },
+  "input_state": {
+    "call_matcher_policy": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-generic-loop-body-check-call-expr-matchers-projection-policy-v0.json",
+    "compare_matcher_policy": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-generic-loop-body-check-compare-expr-matchers-projection-policy-v0.json",
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "expr_matchers_policy": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-generic-loop-body-check-expr-matchers-projection-policy-v0.json",
+    "previous_policy": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-generic-loop-body-check-control-return-expr-matchers-projection-policy-v0.json",
+    "selected_subcluster_id": "CompositeTrimConditionMatcher",
+    "source_count": 1,
+    "source_module": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/mod.rs"
+  },
+  "kind": "MirBuilderGenericLoopBodyCheckTrimConditionMatcherDecompositionV1",
+  "provenance": {
+    "semantic_projection_inference": 0,
+    "tool_role": "FactsAdapterGuardOrchestrator"
+  },
+  "schema_version": 0,
+  "selection_axes": {
+    "borrow_axis": "NoBorrow",
+    "owner_edge_confidence": "FixtureMapped",
+    "shape_signature": "shape.generic_loop_body_check_trim_condition_matcher",
+    "stable_deny_reason": "UnsupportedDirectShape",
+    "type_transport_axis": "Known",
+    "verifier_or_oracle_state": "Present"
+  },
+  "source_surfaces": [
+    {
+      "line": 14,
+      "matcher_role": "composite_binary_and_predicate",
+      "params": "condition: &ASTNode,\n    loop_var: &str,",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/mod.rs::matches_trim_cond_with_methodcall:L14",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/mod.rs",
+      "symbol": "matches_trim_cond_with_methodcall"
+    }
+  ],
+  "token": "MIRBUILDER-GENERIC-LOOP-BODY-CHECK-TRIM-CONDITION-MATCHER-DECOMPOSITION-001"
+}
