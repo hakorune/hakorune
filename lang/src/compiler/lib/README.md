@@ -45,6 +45,8 @@ Scope:
   - `all_functions_phi_materialization_projector.hako`
 - ninth shadow-projector support library:
   - `carrier_merge_assignment_projector.hako`
+- tenth shadow-projector support library:
+  - `box_field_initialization_projector.hako`
 - executable placement guard:
   - `tools/checks/rust_lifecycle_hako_compiler_canonical_json_value_writer_guard.sh`
 - executable inventory guard:

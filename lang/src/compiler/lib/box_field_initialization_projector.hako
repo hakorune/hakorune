@@ -1,0 +1,177 @@
+// box_field_initialization_projector.hako — BoxFieldInitializationHakoProjector
+//
+// Responsibility:
+// - project the StatementValueConstruction box field initialization
+//   mutation-frame contract into typed projection values
+// - package shadow metadata for canonical JSON parity
+//
+// Non-responsibility:
+// - Python oracle generation
+// - Hako artifact emission
+// - TypeBox ABI
+// - host ABI
+// - runtime fallback
+
+using lang.compiler.lib.projection_value as CompilerProjectionValueBox
+using lang.compiler.lib.projector_support as CompilerProjectorSupportBox
+using selfhost.shared.common.box_helpers as BoxHelpers
+using selfhost.shared.common.string_helpers as StringHelpers
+
+static box BoxFieldInitializationHakoProjector {
+  _require_array_text_item(items, index, label, expected, tag) {
+    local actual = items.get(index)
+    return CompilerProjectorSupportBox.require_text(actual, label, expected, tag)
+  }
+
+  _validate_contract(contract, tag) {
+    local err = CompilerProjectorSupportBox.require_map(contract, "contract", tag)
+    if err != null {
+      return err
+    }
+
+    err = CompilerProjectorSupportBox.require_text(BoxHelpers.map_get(contract, "kind"), "contract.kind", "MirBuilderStatementValueConstructionBoxFieldInitializationMutationFrameContractV1", tag)
+    if err != null { return err }
+    err = CompilerProjectorSupportBox.require_text(BoxHelpers.map_get(contract, "token"), "contract.token", "MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-BOX-FIELD-INITIALIZATION-MUTATION-FRAME-CONTRACT-001", tag)
+    if err != null { return err }
+
+    local frame = BoxHelpers.map_get(contract, "mutation_frame_contract")
+    err = CompilerProjectorSupportBox.require_map(frame, "contract.mutation_frame_contract", tag)
+    if err != null { return err }
+
+    local outputs = BoxHelpers.map_get(frame, "state_outputs")
+    err = CompilerProjectorSupportBox.require_array(outputs, "contract.mutation_frame_contract.state_outputs", tag)
+    if err != null { return err }
+    if outputs.length() != 4 {
+      return CompilerProjectorSupportBox.fail(tag, "[contract.mutation_frame_contract.state_outputs] expected 4 entries")
+    }
+    err = me._require_array_text_item(outputs, 0, "contract.mutation_frame_contract.state_outputs[0]", "dst ValueId", tag)
+    if err != null { return err }
+    err = me._require_array_text_item(outputs, 1, "contract.mutation_frame_contract.state_outputs[1]", "object field assignments through build_field_assignment_from_value", tag)
+    if err != null { return err }
+    err = me._require_array_text_item(outputs, 2, "contract.mutation_frame_contract.state_outputs[2]", "MirBuilder.current_function_state", tag)
+    if err != null { return err }
+    err = me._require_array_text_item(outputs, 3, "contract.mutation_frame_contract.state_outputs[3]", "MirBuilder.type_ctx", tag)
+    if err != null { return err }
+
+    local read_only = BoxHelpers.map_get(frame, "read_only_inputs")
+    err = CompilerProjectorSupportBox.require_array(read_only, "contract.mutation_frame_contract.read_only_inputs", tag)
+    if err != null { return err }
+    if read_only.length() != 2 {
+      return CompilerProjectorSupportBox.fail(tag, "[contract.mutation_frame_contract.read_only_inputs] expected 2 entries")
+    }
+    err = me._require_array_text_item(read_only, 0, "contract.mutation_frame_contract.read_only_inputs[0]", "record constructor classifier", tag)
+    if err != null { return err }
+    err = me._require_array_text_item(read_only, 1, "contract.mutation_frame_contract.read_only_inputs[1]", "MirBuilder.comp_ctx.user_defined_boxes", tag)
+    if err != null { return err }
+
+    local local_only = BoxHelpers.map_get(frame, "local_only_state")
+    err = CompilerProjectorSupportBox.require_array(local_only, "contract.mutation_frame_contract.local_only_state", tag)
+    if err != null { return err }
+    if local_only.length() != 1 {
+      return CompilerProjectorSupportBox.fail(tag, "[contract.mutation_frame_contract.local_only_state] expected 1 entry")
+    }
+    err = me._require_array_text_item(local_only, 0, "contract.mutation_frame_contract.local_only_state[0]", "seen initializer field set", tag)
+    if err != null { return err }
+
+    local order = BoxHelpers.map_get(frame, "mutation_order")
+    err = CompilerProjectorSupportBox.require_array(order, "contract.mutation_frame_contract.mutation_order", tag)
+    if err != null { return err }
+    if order.length() != 7 {
+      return CompilerProjectorSupportBox.fail(tag, "[contract.mutation_frame_contract.mutation_order] expected 7 entries")
+    }
+    err = me._require_array_text_item(order, 0, "contract.mutation_frame_contract.mutation_order[0]", "RejectRecordConstructorFieldInitializers", tag)
+    if err != null { return err }
+    err = me._require_array_text_item(order, 1, "contract.mutation_frame_contract.mutation_order[1]", "CreateDestinationBox", tag)
+    if err != null { return err }
+    err = me._require_array_text_item(order, 2, "contract.mutation_frame_contract.mutation_order[2]", "InitializeSeenFieldSet", tag)
+    if err != null { return err }
+    err = me._require_array_text_item(order, 3, "contract.mutation_frame_contract.mutation_order[3]", "RejectDuplicateInitializerField", tag)
+    if err != null { return err }
+    err = me._require_array_text_item(order, 4, "contract.mutation_frame_contract.mutation_order[4]", "ValidateUserDefinedBoxFieldMembership", tag)
+    if err != null { return err }
+    err = me._require_array_text_item(order, 5, "contract.mutation_frame_contract.mutation_order[5]", "DelegateFieldAssignmentForInitializer", tag)
+    if err != null { return err }
+    err = me._require_array_text_item(order, 6, "contract.mutation_frame_contract.mutation_order[6]", "ReturnDestinationValue", tag)
+    if err != null { return err }
+
+    err = CompilerProjectorSupportBox.require_text(BoxHelpers.map_get(frame, "delegated_mutation_owner"), "contract.mutation_frame_contract.delegated_mutation_owner", "build_field_assignment_from_value", tag)
+    if err != null { return err }
+
+    local claims = BoxHelpers.map_get(contract, "claims")
+    err = CompilerProjectorSupportBox.require_map(claims, "contract.claims", tag)
+    if err != null { return err }
+    local keys = claims.keys()
+    if keys == null {
+      return CompilerProjectorSupportBox.fail(tag, "[contract.claims] missing keys")
+    }
+    local i = 0
+    local n = keys.length()
+    loop(i < n) {
+      local key = "" + keys.get(i)
+      if StringHelpers.to_i64(claims.get(key)) != 0 {
+        return CompilerProjectorSupportBox.fail(tag, "[contract.claims] non-zero claim: " + key)
+      }
+      i = i + 1
+    }
+
+    return null
+  }
+
+  _project_shadow_output(hako_shadow) {
+    return CompilerProjectorSupportBox.copy_any(hako_shadow)
+  }
+
+  project_shadow_record(plan, python_oracle, hako_shadow, parity_gate, promotion_token, retirement_token) {
+    local tag = CompilerProjectorSupportBox.tag(null)
+    local err = me._validate_contract(plan, tag)
+    if err != null {
+      return err
+    }
+    err = CompilerProjectorSupportBox.require_present(python_oracle, "python_oracle", tag)
+    if err != null { return err }
+    err = CompilerProjectorSupportBox.require_present(hako_shadow, "hako_shadow", tag)
+    if err != null { return err }
+    err = CompilerProjectorSupportBox.require_present(parity_gate, "parity_gate", tag)
+    if err != null { return err }
+    err = CompilerProjectorSupportBox.require_present(promotion_token, "promotion_token", tag)
+    if err != null { return err }
+    err = CompilerProjectorSupportBox.require_present(retirement_token, "retirement_token", tag)
+    if err != null { return err }
+
+    local input_state = BoxHelpers.map_get(plan, "input_state")
+    local shadow_record = CompilerProjectionValueBox.create_object()
+    CompilerProjectionValueBox.object_set(shadow_record, "schema_version", CompilerProjectionValueBox.create_i64(0))
+    CompilerProjectionValueBox.object_set(shadow_record, "kind", CompilerProjectionValueBox.create_string("BoxFieldInitializationHakoShadowProjectorV1"))
+    CompilerProjectionValueBox.object_set(shadow_record, "family_id", CompilerProjectionValueBox.create_string("hakorune_mir_builder::statement_value_construction_box_field_initialization"))
+    CompilerProjectionValueBox.object_set(shadow_record, "stage_id", CompilerProjectionValueBox.create_string("box_field_initialization"))
+    CompilerProjectionValueBox.object_set(shadow_record, "subject", CompilerProjectionValueBox.create_string("StatementValueConstruction box field initialization mutation frame"))
+    CompilerProjectionValueBox.object_set(shadow_record, "source_authority", CompilerProjectorSupportBox.copy_any(BoxHelpers.map_get(input_state, "source_surfaces")))
+    CompilerProjectionValueBox.object_set(shadow_record, "input_json", CompilerProjectorSupportBox.copy_any(plan))
+    CompilerProjectionValueBox.object_set(shadow_record, "output_json", me._project_shadow_output(hako_shadow))
+    CompilerProjectionValueBox.object_set(shadow_record, "python_oracle", CompilerProjectorSupportBox.copy_any(python_oracle))
+    CompilerProjectionValueBox.object_set(shadow_record, "hako_shadow", CompilerProjectorSupportBox.copy_any(hako_shadow))
+    CompilerProjectionValueBox.object_set(shadow_record, "parity_gate", CompilerProjectorSupportBox.copy_any(parity_gate))
+    CompilerProjectionValueBox.object_set(shadow_record, "promotion_token", CompilerProjectorSupportBox.copy_any(promotion_token))
+    CompilerProjectionValueBox.object_set(shadow_record, "retirement_token", CompilerProjectorSupportBox.copy_any(retirement_token))
+    return CompilerProjectorSupportBox.ok(shadow_record)
+  }
+
+  project_shadow_json(plan, python_oracle, hako_shadow, parity_gate, promotion_token, retirement_token) {
+    local result = me.project_shadow_record(
+      plan,
+      python_oracle,
+      hako_shadow,
+      parity_gate,
+      promotion_token,
+      retirement_token,
+    )
+    if StringHelpers.to_i64(BoxHelpers.map_get(result, "err")) == 1 {
+      return result
+    }
+    return %{
+      "err" => 0,
+      "err_line" => "",
+      "shadow_json" => BoxHelpers.map_get(result, "shadow_json")
+    }
+  }
+}

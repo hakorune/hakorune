@@ -1,0 +1,115 @@
+{
+  "input_authority": {
+    "mutation_frame_contract": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-statement-value-construction-box-field-initialization-mutation-frame-contract-v0.json"
+  },
+  "kind": "MirBuilderStatementValueConstructionBoxFieldInitializationHakoShadowResultV1",
+  "non_claims": {
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "native_seed_materialization": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "result": {
+    "err": 0,
+    "err_line": "",
+    "shadow_json": "{\n  \"available_capabilities\": [\n    \"BoxFieldInitializationMutationFrame\"\n  ],\n  \"family_id\": \"hakorune_mir_builder::statement_value_construction_box_field_initialization\",\n  \"kind\": \"BoxFieldInitializationShadowCandidateV1\",\n  \"mutation_frame_contract\": {\n    \"delegated_mutation_owner\": \"build_field_assignment_from_value\",\n    \"local_only_state\": [\n      \"seen initializer field set\"\n    ],\n    \"mutation_order\": [\n      \"RejectRecordConstructorFieldInitializers\",\n      \"CreateDestinationBox\",\n      \"InitializeSeenFieldSet\",\n      \"RejectDuplicateInitializerField\",\n      \"ValidateUserDefinedBoxFieldMembership\",\n      \"DelegateFieldAssignmentForInitializer\",\n      \"ReturnDestinationValue\"\n    ],\n    \"read_only_inputs\": [\n      \"record constructor classifier\",\n      \"MirBuilder.comp_ctx.user_defined_boxes\"\n    ],\n    \"state_inputs\": [\n      \"class\",\n      \"arguments\",\n      \"field_initializers\",\n      \"MirBuilder.comp_ctx.user_defined_boxes\",\n      \"MirBuilder.current_function_state\",\n      \"MirBuilder.type_ctx\"\n    ],\n    \"state_outputs\": [\n      \"dst ValueId\",\n      \"object field assignments through build_field_assignment_from_value\",\n      \"MirBuilder.current_function_state\",\n      \"MirBuilder.type_ctx\"\n    ]\n  },\n  \"non_claims\": {\n    \"hako_adopted_decision\": 0,\n    \"hako_generation\": 0,\n    \"native_seed_materialization\": 0,\n    \"runtime_fallback\": 0,\n    \"source_selfhost_claim\": 0\n  },\n  \"result_contract\": {\n    \"delegated_mutation_owner\": \"build_field_assignment_from_value\",\n    \"mutation_order\": [\n      \"RejectRecordConstructorFieldInitializers\",\n      \"CreateDestinationBox\",\n      \"InitializeSeenFieldSet\",\n      \"RejectDuplicateInitializerField\",\n      \"ValidateUserDefinedBoxFieldMembership\",\n      \"DelegateFieldAssignmentForInitializer\",\n      \"ReturnDestinationValue\"\n    ],\n    \"read_only_inputs\": [\n      \"record constructor classifier\",\n      \"MirBuilder.comp_ctx.user_defined_boxes\"\n    ],\n    \"state_outputs\": [\n      \"dst ValueId\",\n      \"object field assignments through build_field_assignment_from_value\",\n      \"MirBuilder.current_function_state\",\n      \"MirBuilder.type_ctx\"\n    ]\n  },\n  \"schema_version\": 0,\n  \"source_authority\": [\n    {\n      \"source_id\": \"src/mir/builder/builder_build.rs::build_new_expression_with_field_initializers:L393\",\n      \"source_path\": \"src/mir/builder/builder_build.rs\",\n      \"source_symbol\": \"build_new_expression_with_field_initializers\"\n    },\n    {\n      \"source_id\": \"src/mir/builder/fields.rs::build_box_field_initializers:L42\",\n      \"source_path\": \"src/mir/builder/fields.rs\",\n      \"source_symbol\": \"build_box_field_initializers\"\n    }\n  ],\n  \"stage_id\": \"box_field_initialization\",\n  \"subject\": \"StatementValueConstruction box field initialization mutation frame\"\n}\n",
+    "shadow_record": {
+      "available_capabilities": [
+        "BoxFieldInitializationMutationFrame"
+      ],
+      "family_id": "hakorune_mir_builder::statement_value_construction_box_field_initialization",
+      "kind": "BoxFieldInitializationShadowCandidateV1",
+      "mutation_frame_contract": {
+        "delegated_mutation_owner": "build_field_assignment_from_value",
+        "local_only_state": [
+          "seen initializer field set"
+        ],
+        "mutation_order": [
+          "RejectRecordConstructorFieldInitializers",
+          "CreateDestinationBox",
+          "InitializeSeenFieldSet",
+          "RejectDuplicateInitializerField",
+          "ValidateUserDefinedBoxFieldMembership",
+          "DelegateFieldAssignmentForInitializer",
+          "ReturnDestinationValue"
+        ],
+        "read_only_inputs": [
+          "record constructor classifier",
+          "MirBuilder.comp_ctx.user_defined_boxes"
+        ],
+        "state_inputs": [
+          "class",
+          "arguments",
+          "field_initializers",
+          "MirBuilder.comp_ctx.user_defined_boxes",
+          "MirBuilder.current_function_state",
+          "MirBuilder.type_ctx"
+        ],
+        "state_outputs": [
+          "dst ValueId",
+          "object field assignments through build_field_assignment_from_value",
+          "MirBuilder.current_function_state",
+          "MirBuilder.type_ctx"
+        ]
+      },
+      "non_claims": {
+        "hako_adopted_decision": 0,
+        "hako_generation": 0,
+        "native_seed_materialization": 0,
+        "runtime_fallback": 0,
+        "source_selfhost_claim": 0
+      },
+      "result_contract": {
+        "delegated_mutation_owner": "build_field_assignment_from_value",
+        "mutation_order": [
+          "RejectRecordConstructorFieldInitializers",
+          "CreateDestinationBox",
+          "InitializeSeenFieldSet",
+          "RejectDuplicateInitializerField",
+          "ValidateUserDefinedBoxFieldMembership",
+          "DelegateFieldAssignmentForInitializer",
+          "ReturnDestinationValue"
+        ],
+        "read_only_inputs": [
+          "record constructor classifier",
+          "MirBuilder.comp_ctx.user_defined_boxes"
+        ],
+        "state_outputs": [
+          "dst ValueId",
+          "object field assignments through build_field_assignment_from_value",
+          "MirBuilder.current_function_state",
+          "MirBuilder.type_ctx"
+        ]
+      },
+      "schema_version": 0,
+      "source_authority": [
+        {
+          "source_id": "src/mir/builder/builder_build.rs::build_new_expression_with_field_initializers:L393",
+          "source_path": "src/mir/builder/builder_build.rs",
+          "source_symbol": "build_new_expression_with_field_initializers"
+        },
+        {
+          "source_id": "src/mir/builder/fields.rs::build_box_field_initializers:L42",
+          "source_path": "src/mir/builder/fields.rs",
+          "source_symbol": "build_box_field_initializers"
+        }
+      ],
+      "stage_id": "box_field_initialization",
+      "subject": "StatementValueConstruction box field initialization mutation frame"
+    }
+  },
+  "schema_version": 0,
+  "stage_state": {
+    "family_id": "hakorune_mir_builder::statement_value_construction_box_field_initialization",
+    "hako_shadow": "BoxFieldInitializationHakoProjector",
+    "input_json": "mirbuilder-statement-value-construction-box-field-initialization-mutation-frame-contract-v0.json",
+    "output_json": "BoxFieldInitializationShadowCandidateV1",
+    "parity_gate": "rust_lifecycle_mirbuilder_statement_value_construction_box_field_initialization_hako_shadow_parity_guard.sh",
+    "promotion_token": "BoxFieldInitializationHakoShadowPromotionTokenV1",
+    "python_oracle": "BoxFieldInitializationMutationFrameContractV1",
+    "retirement_token": "BoxFieldInitializationHakoShadowRetirementTokenV1",
+    "stage_id": "box_field_initialization"
+  },
+  "subject": "StatementValueConstruction box field initialization mutation frame"
+}

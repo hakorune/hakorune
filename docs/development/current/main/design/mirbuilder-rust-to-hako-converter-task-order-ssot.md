@@ -342,7 +342,7 @@ semantic_closure_report =
 
 latest_frontier_card =
   docs/development/current/main/phases/phase-296x/
-  1927-MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-BOX-FIELD-INITIALIZATION-MUTATION-FRAME-CONTRACT-001.md
+  1928-MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-BOX-FIELD-INITIALIZATION-HAKO-SHADOW-PARITY-001.md
 
 latest_integration_card =
   docs/development/current/main/phases/phase-296x/
@@ -373,20 +373,20 @@ history, not in this task-order SSOT.
    semantic_authority=design-stop card, cluster/priority resolver fixtures
    non_authority=manual family selection, runtime fallback, Source Selfhost claim
 
-2. MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-BOX-FIELD-INITIALIZATION-MUTATION-FRAME-CONTRACT-001
+2. MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-BOX-FIELD-INITIALIZATION-HAKO-SHADOW-PARITY-001
    status=green
-   boundary=box field initialization mutation-frame contract fixed
-   semantic_authority=statement-value-construction box field initialization mutation-frame fixture
+   boundary=box field initialization HakoShadow parity green
+   semantic_authority=box field initialization shadow result fixture
    non_authority=Hako generation, HakoAdopted decision, Source Selfhost claim
 
-3. MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-BOX-FIELD-INITIALIZATION-HAKO-SHADOW-PARITY-001
+3. MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-BOX-FIELD-INITIALIZATION-HAKO-SHADOW-PROMOTION-DECISION-001
    status=next
-   boundary=prove HakoShadow parity for contracted box field initialization frame
-   semantic_authority=box field initialization mutation-frame contract fixture
+   boundary=decide whether box field initialization HakoShadow can become HakoMainline
+   semantic_authority=box field initialization shadow result and mutation-frame fixtures
    non_authority=manual family selection, HakoAdopted decision, Source Selfhost claim
 
 next_after_active_3 =
-  MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-BOX-FIELD-INITIALIZATION-HAKO-SHADOW-PARITY-001
+  MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-BOX-FIELD-INITIALIZATION-HAKO-SHADOW-PROMOTION-DECISION-001
 ```
 
 ## Landed Converter Capability Summary
