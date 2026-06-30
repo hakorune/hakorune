@@ -345,7 +345,7 @@ semantic_closure_report =
 
 latest_frontier_card =
   docs/development/current/main/phases/phase-296x/
-  1876-MIRBUILDER-OWNER-EDGE-CONFIDENCE-REPAIR-001.md
+  1877-MIRBUILDER-MISSING-PROJECTION-STABLE-DENY-REASON-REPAIR-001.md
 
 latest_integration_card =
   docs/development/current/main/phases/phase-296x/

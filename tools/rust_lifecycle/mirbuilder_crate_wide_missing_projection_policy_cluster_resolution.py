@@ -76,6 +76,9 @@ def owner_confidence(item: dict[str, Any]) -> str:
 
 
 def stable_deny_reason(item: dict[str, Any]) -> str:
+    repaired = item.get("stable_deny_reason")
+    if repaired:
+        return repaired
     reason = item.get("reason_token")
     if reason == "PublicRustSurfaceMissingProjectionPolicy":
         return "MissingStableDenyReason"
@@ -267,6 +270,13 @@ def build_resolution() -> dict[str, Any]:
             "selected_cluster_id": None,
             "selected_next_card": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
             "reason_token": "AmbiguousProjectionPolicyClusters",
+        }
+    elif shape_signature_counts.get("unknown_shape", 0) > 0:
+        decision = {
+            "kind": "SelectShapeSignatureInventory",
+            "selected_cluster_id": None,
+            "selected_next_card": "MIRBUILDER-CRATE-WIDE-SHAPE-SIGNATURE-INVENTORY-001",
+            "reason_token": "MissingShapeSignatureForProjectionPolicyClusters",
         }
     else:
         decision = {

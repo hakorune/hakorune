@@ -32,6 +32,7 @@ NATIVE_SEED_SURVEY = FIXTURES / "mirbuilder-crate-wide-native-owner-seed-capabil
 REFERENCE_PROJECTION = FIXTURES / "variable-context-reference-projection-contract-v0.json"
 FAMILY_MANIFEST = FIXTURES / "source-selfhost-family-guard-manifest-v0.json"
 OWNER_EDGE_CONFIDENCE_REPAIR = FIXTURES / "mirbuilder-owner-edge-confidence-repair-v0.json"
+STABLE_DENY_REASON_REPAIR = FIXTURES / "mirbuilder-missing-projection-stable-deny-reason-repair-v0.json"
 CURRENT_STATE = ROOT / "docs/development/current/main/CURRENT_STATE.toml"
 
 FN_PATTERN = re.compile(
@@ -397,6 +398,37 @@ def apply_owner_edge_confidence_repair(items: list[dict[str, Any]]) -> None:
         item["evidence_refs"] = refs
 
 
+def stable_deny_reason_repair_rules() -> dict[str, str]:
+    if not STABLE_DENY_REASON_REPAIR.exists():
+        return {}
+    fixture = read_json(STABLE_DENY_REASON_REPAIR)
+    rules: dict[str, str] = {}
+    for item in fixture.get("rules", []):
+        confidence = item.get("match", {}).get("owner_edge_confidence")
+        reason = item.get("stable_deny_reason")
+        if confidence and reason:
+            rules[confidence] = reason
+    return rules
+
+
+def apply_stable_deny_reason_repair(items: list[dict[str, Any]]) -> None:
+    rules = stable_deny_reason_repair_rules()
+    if not rules:
+        return
+    evidence = rel(STABLE_DENY_REASON_REPAIR)
+    for item in items:
+        if item.get("classification") != "MissingProjectionPolicy":
+            continue
+        reason = rules.get(item.get("owner_edge_confidence") or "None")
+        if not reason:
+            continue
+        item["stable_deny_reason"] = reason
+        refs = list(item.get("evidence_refs", []))
+        if evidence not in refs:
+            refs.append(evidence)
+        item["evidence_refs"] = refs
+
+
 def classify(surface: dict[str, Any]) -> dict[str, Any]:
     owner, confidence, evidence = known_owner_for(surface)
     path = surface["source_path"]
@@ -669,6 +701,7 @@ def build_report() -> dict[str, Any]:
         if co_statement_lowering_subcluster is not None:
             item["loop_cond_co_statement_lowering_subcluster"] = co_statement_lowering_subcluster
     apply_owner_edge_confidence_repair(classified)
+    apply_stable_deny_reason_repair(classified)
     items = [item for item in classified if included_item(item)]
     known_owner_edges = {item["known_owner_edge"] for item in items if item["known_owner_edge"]}
     orphan_evidence_rows = [
@@ -799,6 +832,7 @@ def build_report() -> dict[str, Any]:
             "source_selfhost_family_guard_manifest_hash": sha256_file(FAMILY_MANIFEST),
             "variable_context_reference_projection_contract_hash": sha256_file(REFERENCE_PROJECTION),
             "owner_edge_confidence_repair_hash": sha256_file(OWNER_EDGE_CONFIDENCE_REPAIR) if OWNER_EDGE_CONFIDENCE_REPAIR.exists() else None,
+            "stable_deny_reason_repair_hash": sha256_file(STABLE_DENY_REASON_REPAIR) if STABLE_DENY_REASON_REPAIR.exists() else None,
         },
         "source_inventory": {
             "rust_surface_count": len(all_surfaces),

@@ -1,0 +1,81 @@
+{
+  "claims": {
+    "cluster_size_as_proof": 0,
+    "coverage_percentage_as_proof": 0,
+    "family_name_based_policy": 0,
+    "generated_artifact_as_edit_authority": 0,
+    "hako_adopted_decision": 0,
+    "hako_emission": 0,
+    "input_missing_projection_policy_count": 1396,
+    "manual_family_selection": 0,
+    "native_source_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "owner_edge_confidence_missing_count_after_repair": 185,
+    "route_membership_alone_as_proof": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0,
+    "stable_deny_reason_repair_defined": 1,
+    "unsupported_direct_shape_count_after_repair": 1211
+  },
+  "decision": {
+    "kind": "ApplyStableDenyReasonRepair",
+    "reason_token": "StableDenyReasonRepairExposesShapeSignatureGap",
+    "selected_next_card": "MIRBUILDER-CRATE-WIDE-SHAPE-SIGNATURE-INVENTORY-001"
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "input_missing_projection_policy_count": 1396,
+    "owner_edge_confidence_repair": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json",
+    "owner_edge_repair_decision": {
+      "kind": "ApplyOwnerEdgeConfidenceRepair",
+      "reason_token": "OwnerEdgeConfidenceRepairProducesFixtureMappedClusters",
+      "selected_next_card": "MIRBUILDER-MISSING-PROJECTION-STABLE-DENY-REASON-REPAIR-001"
+    },
+    "source_report": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-unconverted-surface-report-v0.json"
+  },
+  "kind": "MirBuilderMissingProjectionStableDenyReasonRepairV1",
+  "provenance": {
+    "owner_edge_confidence_counts_hash": "5910bc604f29781cdbaf2a5f84ec1a0eb3afe886a5c26ab4881248b377c157fe",
+    "reason_counts_hash": "318eec8b7f5dbeaaf25a299f0a7357fbf6a0061a6ee1499701703f4d98bb2faf"
+  },
+  "rules": [
+    {
+      "candidate_count": 1211,
+      "match": {
+        "classification": "MissingProjectionPolicy",
+        "owner_edge_confidence": "FixtureMapped"
+      },
+      "reason_token": "FixtureMappedProjectionPolicyStillLacksDirectShapePolicy",
+      "selection_eligible": true,
+      "stable_deny_reason": "UnsupportedDirectShape"
+    },
+    {
+      "candidate_count": 185,
+      "match": {
+        "classification": "MissingProjectionPolicy",
+        "owner_edge_confidence": "None"
+      },
+      "reason_token": "OwnerEdgeConfidenceMissingRemainsUnselectable",
+      "selection_eligible": false,
+      "stable_deny_reason": "OwnerEdgeConfidenceMissing"
+    }
+  ],
+  "schema_version": 0,
+  "summary": {
+    "input_candidate_count": 1396,
+    "owner_edge_confidence_counts": {
+      "FixtureMapped": 1211,
+      "None": 185
+    },
+    "selectable_stable_deny_reason_count": 1211,
+    "stable_deny_reason_counts_after_repair": {
+      "OwnerEdgeConfidenceMissing": 185,
+      "UnsupportedDirectShape": 1211
+    },
+    "unselectable_stable_deny_reason_count": 185
+  },
+  "token": "MIRBUILDER-MISSING-PROJECTION-STABLE-DENY-REASON-REPAIR-001"
+}

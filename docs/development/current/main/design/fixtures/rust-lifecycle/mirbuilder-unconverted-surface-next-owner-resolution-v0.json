@@ -266,7 +266,7 @@
   "kind": "MirBuilderUnconvertedSurfaceNextOwnerResolutionV1",
   "provenance": {
     "resolver_task_contract_hash": "80a14b9b1676d0af2bb3fb776398dd2083c2a1d4799d243c450e645fd50eb537",
-    "unconverted_surface_report_hash": "8792e660c6b1133c758972b82675556019c527258cfe8536a94863ed3a9cca6b"
+    "unconverted_surface_report_hash": "0cb891bcd3372d891a0929923ae156c401840c716bd9300e15bf7bb214cc0f50"
   },
   "recovery": {
     "do_not": [

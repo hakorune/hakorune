@@ -40,7 +40,6 @@
   "clusters": [
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -48,9 +47,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 91,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::JoinIRRouteVerifyCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::JoinIRRouteVerifyCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "MinimalPath",
@@ -83,25 +83,25 @@
         "src/mir/builder/control_flow/facts/loop_cond_continue_with_return.rs",
         "src/mir/builder/control_flow/facts/loop_cond_return_in_body.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
         "NoExactOrFixtureMappedOwnerEdge",
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
-        "MissingVerifier",
         "TypeTransportMissing"
       ],
       "borrow_axis": "NoReturnedBorrow",
       "call_vocabulary_axis": "SomeUnknown",
       "candidate_count": 90,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::None::OtherMissingProjectionPolicyCluster",
+      "cluster_id": "projection_policy::OwnerEdgeConfidenceMissing::unknown_shape::None::OtherMissingProjectionPolicyCluster",
       "control_flow_axis": "StraightLine",
-      "evidence_refs": [],
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json"
+      ],
       "native_seed_or_adoption_proximity": "None",
       "next_card": null,
       "next_owner_kind": "None",
@@ -132,22 +132,22 @@
         "src/mir/builder/fastmem.rs",
         "src/mir/builder/fastmem_context.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "OwnerEdgeConfidenceMissing",
       "type_transport_axis": "Missing",
-      "verifier_or_oracle_state": "MissingVerifier"
+      "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis"
       ],
       "borrow_axis": "NoReturnedBorrow",
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 76,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::ContextRegistryCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::ContextRegistryCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -169,22 +169,22 @@
         "src/mir/builder/scope_context.rs",
         "src/mir/builder/type_registry.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis"
       ],
       "borrow_axis": "NoBorrow",
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 66,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::GenericLoopPlanCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::GenericLoopPlanCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -214,22 +214,22 @@
         "src/mir/builder/control_flow/plan/generic_loop/facts/stmt_classifier/local.rs",
         "src/mir/builder/control_flow/plan/generic_loop/facts/stmt_classifier/utils.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis"
       ],
       "borrow_axis": "NoBorrow",
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 53,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::JoinIRRouteVerifyCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::JoinIRRouteVerifyCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "MinimalPath",
@@ -262,13 +262,12 @@
         "src/mir/builder/control_flow/joinir/merge/rewriter/return_converter_box.rs",
         "src/mir/builder/control_flow/joinir/merge/rewriter/stages/plan/entry_resolver.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -276,9 +275,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 51,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::RecipeTreeMatcherCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::RecipeTreeMatcherCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -310,13 +310,12 @@
         "src/mir/builder/control_flow/plan/recipe_tree/split_scan_builder.rs",
         "src/mir/builder/control_flow/plan/recipe_tree/verified.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -324,9 +323,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 50,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::LoopBreakPlanCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::LoopBreakPlanCluster",
       "control_flow_axis": "StructuredLoop",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -359,13 +359,12 @@
         "src/mir/builder/control_flow/plan/loop_break/facts/step_before_break.rs",
         "src/mir/builder/control_flow/plan/loop_break/facts/trim_whitespace.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -373,9 +372,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 45,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::StatementValueConstructionCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::StatementValueConstructionCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -404,13 +404,12 @@
         "src/mir/builder/stmts/variable_stmt.rs",
         "src/mir/builder/vars/lexical_scope.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -418,9 +417,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 42,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::CallLoweringCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::CallLoweringCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -449,24 +449,24 @@
         "src/mir/builder/calls/utils.rs",
         "src/mir/builder/method_call_handlers.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
         "NoExactOrFixtureMappedOwnerEdge",
-        "MissingStableDenyReason",
-        "MissingShapeSignatureClusterAxis",
-        "MissingVerifier"
+        "MissingShapeSignatureClusterAxis"
       ],
       "borrow_axis": "NoReturnedBorrow",
       "call_vocabulary_axis": "SomeUnknown",
       "candidate_count": 39,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::None::OtherMissingProjectionPolicyCluster",
+      "cluster_id": "projection_policy::OwnerEdgeConfidenceMissing::unknown_shape::None::OtherMissingProjectionPolicyCluster",
       "control_flow_axis": "StraightLine",
-      "evidence_refs": [],
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json"
+      ],
       "native_seed_or_adoption_proximity": "None",
       "next_card": null,
       "next_owner_kind": "None",
@@ -497,13 +497,12 @@
         "src/mir/builder/type_hint_providers.rs",
         "src/mir/builder/types/annotation.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "OwnerEdgeConfidenceMissing",
       "type_transport_axis": "Known",
-      "verifier_or_oracle_state": "MissingVerifier"
+      "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -511,9 +510,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 38,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::PlanPartsAssemblyCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::PlanPartsAssemblyCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -540,13 +540,61 @@
         "src/mir/builder/control_flow/plan/parts/loop_/nested_depth1.rs",
         "src/mir/builder/control_flow/plan/parts/stmt.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
+        "NoExactOrFixtureMappedOwnerEdge",
+        "MissingShapeSignatureClusterAxis",
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoBorrow",
+      "call_vocabulary_axis": "SomeUnknown",
+      "candidate_count": 34,
+      "classification": "MissingProjectionPolicyCluster",
+      "cluster_id": "projection_policy::OwnerEdgeConfidenceMissing::unknown_shape::None::OtherMissingProjectionPolicyCluster",
+      "control_flow_axis": "StraightLine",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json"
+      ],
+      "native_seed_or_adoption_proximity": "None",
+      "next_card": null,
+      "next_owner_kind": "None",
+      "owner_edge_confidence": "None",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_cluster": "OtherMissingProjectionPolicyCluster",
+      "source_module_count": 30,
+      "source_modules": [
+        "src/mir/builder/builder_init.rs",
+        "src/mir/builder/control_flow/cleanup/policies/balanced_depth_scan_policy_box.rs",
+        "src/mir/builder/control_flow/cleanup/policies/cond_prelude_vocab.rs",
+        "src/mir/builder/control_flow/generic_loop_canon/condition/bound.rs",
+        "src/mir/builder/control_flow/generic_loop_canon/condition/candidates.rs",
+        "src/mir/builder/control_flow/generic_loop_canon/condition/mod.rs",
+        "src/mir/builder/control_flow/generic_loop_canon/step_extract/complex_step.rs",
+        "src/mir/builder/control_flow/generic_loop_canon/step_extract/mod.rs",
+        "src/mir/builder/control_flow/generic_loop_canon/step_extract/next_step.rs",
+        "src/mir/builder/control_flow/generic_loop_canon/step_extract/var_step.rs",
+        "src/mir/builder/control_flow/generic_loop_canon/step_placement/facts.rs",
+        "src/mir/builder/control_flow/generic_loop_canon/step_placement/plan.rs",
+        "src/mir/builder/control_flow/generic_loop_canon/update/literal_match.rs",
+        "src/mir/builder/control_flow/generic_loop_canon/update/literal_step.rs",
+        "src/mir/builder/control_flow/generic_loop_canon/update/mod.rs",
+        "src/mir/builder/control_flow/lower/normalize/canonicalize.rs",
+        "src/mir/builder/control_flow/lower/planner_compat.rs",
+        "src/mir/builder/control_flow/normalization/plan.rs",
+        "src/mir/builder/control_flow/normalization/plan_box.rs",
+        "src/mir/builder/joinir_id_remapper.rs"
+      ],
+      "stable_deny_reason": "OwnerEdgeConfidenceMissing",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -554,9 +602,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 34,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::JoinIRRouteVerifyCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::JoinIRRouteVerifyCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "MinimalPath",
@@ -589,62 +638,12 @@
         "src/mir/builder/control_flow/joinir/merge/instruction_rewriter.rs",
         "src/mir/builder/control_flow/joinir/merge/loop_header_phi_builder.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "NoExactOrFixtureMappedOwnerEdge",
-        "MissingStableDenyReason",
-        "MissingShapeSignatureClusterAxis",
-        "MissingVerifier",
-        "TypeTransportMissing"
-      ],
-      "borrow_axis": "NoBorrow",
-      "call_vocabulary_axis": "SomeUnknown",
-      "candidate_count": 34,
-      "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::None::OtherMissingProjectionPolicyCluster",
-      "control_flow_axis": "StraightLine",
-      "evidence_refs": [],
-      "native_seed_or_adoption_proximity": "None",
-      "next_card": null,
-      "next_owner_kind": "None",
-      "owner_edge_confidence": "None",
-      "selection_eligible": false,
-      "shape_signature": "unknown_shape",
-      "source_cluster": "OtherMissingProjectionPolicyCluster",
-      "source_module_count": 30,
-      "source_modules": [
-        "src/mir/builder/builder_init.rs",
-        "src/mir/builder/control_flow/cleanup/policies/balanced_depth_scan_policy_box.rs",
-        "src/mir/builder/control_flow/cleanup/policies/cond_prelude_vocab.rs",
-        "src/mir/builder/control_flow/generic_loop_canon/condition/bound.rs",
-        "src/mir/builder/control_flow/generic_loop_canon/condition/candidates.rs",
-        "src/mir/builder/control_flow/generic_loop_canon/condition/mod.rs",
-        "src/mir/builder/control_flow/generic_loop_canon/step_extract/complex_step.rs",
-        "src/mir/builder/control_flow/generic_loop_canon/step_extract/mod.rs",
-        "src/mir/builder/control_flow/generic_loop_canon/step_extract/next_step.rs",
-        "src/mir/builder/control_flow/generic_loop_canon/step_extract/var_step.rs",
-        "src/mir/builder/control_flow/generic_loop_canon/step_placement/facts.rs",
-        "src/mir/builder/control_flow/generic_loop_canon/step_placement/plan.rs",
-        "src/mir/builder/control_flow/generic_loop_canon/update/literal_match.rs",
-        "src/mir/builder/control_flow/generic_loop_canon/update/literal_step.rs",
-        "src/mir/builder/control_flow/generic_loop_canon/update/mod.rs",
-        "src/mir/builder/control_flow/lower/normalize/canonicalize.rs",
-        "src/mir/builder/control_flow/lower/planner_compat.rs",
-        "src/mir/builder/control_flow/normalization/plan.rs",
-        "src/mir/builder/control_flow/normalization/plan_box.rs",
-        "src/mir/builder/joinir_id_remapper.rs"
-      ],
-      "stable_deny_reason": "MissingStableDenyReason",
-      "type_transport_axis": "Missing",
-      "verifier_or_oracle_state": "MissingVerifier"
-    },
-    {
-      "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -652,9 +651,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 33,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::EmissionSsaPhiCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::EmissionSsaPhiCluster",
       "control_flow_axis": "PhiRequired",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -678,22 +678,22 @@
         "src/mir/builder/ssa/local/finalize.rs",
         "src/mir/builder/ssa/phi_input_materializer.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis"
       ],
       "borrow_axis": "NoReturnedBorrow",
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 32,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::JoinIRRouteVerifyCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::JoinIRRouteVerifyCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "MinimalPath",
@@ -722,13 +722,12 @@
         "src/mir/builder/control_flow/recipes/body.rs",
         "src/mir/builder/control_flow/recipes/loop_cond_break_continue.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -736,9 +735,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 32,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::PlanFactsCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::PlanFactsCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -771,13 +771,12 @@
         "src/mir/builder/control_flow/plan/facts/scan_shapes.rs",
         "src/mir/builder/control_flow/plan/facts/skeleton_facts.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -785,9 +784,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 29,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::ContextRegistryCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::ContextRegistryCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -810,13 +810,12 @@
         "src/mir/builder/scope_context.rs",
         "src/mir/builder/type_registry.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -824,9 +823,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 27,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::CallLoweringCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::CallLoweringCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -850,13 +850,12 @@
         "src/mir/builder/calls/utils.rs",
         "src/mir/builder/method_call_handlers.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -864,9 +863,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 27,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::PlanNormalizerCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::PlanNormalizerCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -893,22 +893,22 @@
         "src/mir/builder/control_flow/plan/normalizer/loop_body_lowering.rs",
         "src/mir/builder/control_flow/plan/normalizer/mod.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis"
       ],
       "borrow_axis": "NoBorrow",
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 24,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::LoopCondPlanCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::LoopCondPlanCluster",
       "control_flow_axis": "StructuredLoop",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "MinimalPath",
@@ -928,13 +928,12 @@
         "src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_prelude.rs",
         "src/mir/builder/control_flow/plan/loop_cond/true_break_continue_helpers.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -942,9 +941,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 22,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::JoinIRRouteRegistryCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::JoinIRRouteRegistryCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "MinimalPath",
@@ -961,24 +961,24 @@
         "src/mir/builder/control_flow/joinir/route_entry/registry/mod.rs",
         "src/mir/builder/control_flow/joinir/route_entry/router.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
         "NoExactOrFixtureMappedOwnerEdge",
-        "MissingStableDenyReason",
-        "MissingShapeSignatureClusterAxis",
-        "MissingVerifier"
+        "MissingShapeSignatureClusterAxis"
       ],
       "borrow_axis": "NoBorrow",
       "call_vocabulary_axis": "SomeUnknown",
       "candidate_count": 21,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::None::OtherMissingProjectionPolicyCluster",
+      "cluster_id": "projection_policy::OwnerEdgeConfidenceMissing::unknown_shape::None::OtherMissingProjectionPolicyCluster",
       "control_flow_axis": "StraightLine",
-      "evidence_refs": [],
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json"
+      ],
       "native_seed_or_adoption_proximity": "None",
       "next_card": null,
       "next_owner_kind": "None",
@@ -1002,13 +1002,12 @@
         "src/mir/builder/observe/types.rs",
         "src/mir/builder/router/catalog.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "OwnerEdgeConfidenceMissing",
       "type_transport_axis": "Known",
-      "verifier_or_oracle_state": "MissingVerifier"
+      "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -1016,9 +1015,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 20,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::GenericLoopPlanCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::GenericLoopPlanCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -1042,13 +1042,12 @@
         "src/mir/builder/control_flow/plan/generic_loop/facts/extract/v1.rs",
         "src/mir/builder/control_flow/plan/generic_loop/facts_helpers.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -1056,9 +1055,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 20,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::PlanLowererCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::PlanLowererCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -1081,13 +1081,12 @@
         "src/mir/builder/control_flow/plan/lowerer/phi_processing.rs",
         "src/mir/builder/control_flow/plan/lowerer/plan_lowering.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -1095,9 +1094,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 20,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::RecipeTreeMatcherCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::RecipeTreeMatcherCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -1124,13 +1124,12 @@
         "src/mir/builder/control_flow/plan/recipe_tree/split_scan_composer.rs",
         "src/mir/builder/control_flow/plan/recipe_tree/verified.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -1138,9 +1137,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 19,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::GenericLoopBodyFeatureCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::GenericLoopBodyFeatureCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -1163,13 +1163,12 @@
         "src/mir/builder/control_flow/plan/features/generic_loop_pipeline.rs",
         "src/mir/builder/control_flow/plan/features/generic_loop_step.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -1177,9 +1176,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 18,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::FastMemCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::FastMemCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -1194,13 +1194,12 @@
         "src/mir/builder/fastmem/calls.rs",
         "src/mir/builder/fastmem/ops.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -1208,9 +1207,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 18,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::PlanPartsAssemblyCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::PlanPartsAssemblyCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -1230,13 +1230,12 @@
         "src/mir/builder/control_flow/plan/parts/verify.rs",
         "src/mir/builder/control_flow/plan/parts/verify_refs.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -1244,9 +1243,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 17,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::PhiMaterializerFeatureCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::PhiMaterializerFeatureCluster",
       "control_flow_axis": "PhiRequired",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -1264,13 +1264,12 @@
         "src/mir/builder/control_flow/plan/features/loop_cond_return_in_body_phi_materializer.rs",
         "src/mir/builder/control_flow/plan/features/loop_true_break_continue_phi_materializer.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -1278,9 +1277,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 15,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::LoopCondPlanCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::LoopCondPlanCluster",
       "control_flow_axis": "StructuredLoop",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "MinimalPath",
@@ -1303,22 +1303,22 @@
         "src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_exit.rs",
         "src/mir/builder/control_flow/plan/loop_cond/true_break_continue.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis"
       ],
       "borrow_axis": "NoBorrow",
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 12,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::CallLoweringCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::CallLoweringCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -1337,13 +1337,12 @@
         "src/mir/builder/calls/method_resolution.rs",
         "src/mir/builder/calls/special_handlers.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -1351,9 +1350,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 10,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::OtherJoinIRPlanCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::OtherJoinIRPlanCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "MinimalPath",
@@ -1374,22 +1374,22 @@
         "src/mir/builder/control_flow/plan/steps/effects.rs",
         "src/mir/builder/control_flow/plan/steps/loop_wiring_standard5.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis"
       ],
       "borrow_axis": "NoBorrow",
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 10,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::PlanPartsAssemblyCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::PlanPartsAssemblyCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -1407,22 +1407,22 @@
         "src/mir/builder/control_flow/plan/parts/stmt_shape.rs",
         "src/mir/builder/control_flow/plan/parts/verify_shape.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis"
       ],
       "borrow_axis": "NoReturnedBorrow",
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 10,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::StatementValueConstructionCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::StatementValueConstructionCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -1440,22 +1440,22 @@
         "src/mir/builder/vars/free_vars.rs",
         "src/mir/builder/vars/lexical_scope.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis"
       ],
       "borrow_axis": "NoBorrow",
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 9,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::JoinIRRouteRegistryCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::JoinIRRouteRegistryCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "MinimalPath",
@@ -1471,13 +1471,12 @@
         "src/mir/builder/control_flow/joinir/route_entry/registry/predicates.rs",
         "src/mir/builder/control_flow/joinir/route_entry/registry/utils.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -1485,9 +1484,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 8,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::ContextRegistryCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::ContextRegistryCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -1508,22 +1508,22 @@
         "src/mir/builder/scope_context.rs",
         "src/mir/builder/type_registry.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis"
       ],
       "borrow_axis": "NoReturnedBorrow",
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 8,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::EmissionSsaPhiCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::EmissionSsaPhiCluster",
       "control_flow_axis": "PhiRequired",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -1538,22 +1538,22 @@
         "src/mir/builder/emission/phi_lifecycle.rs",
         "src/mir/builder/phi.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis"
       ],
       "borrow_axis": "NoBorrow",
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 8,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::GenericLoopBodyFeatureCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::GenericLoopBodyFeatureCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -1569,22 +1569,22 @@
         "src/mir/builder/control_flow/plan/features/generic_loop_body/helpers.rs",
         "src/mir/builder/control_flow/plan/features/generic_loop_body/terminality.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis"
       ],
       "borrow_axis": "NoBorrow",
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 8,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::PlanFactsCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::PlanFactsCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -1603,13 +1603,12 @@
         "src/mir/builder/control_flow/plan/facts/nested_loop_profile.rs",
         "src/mir/builder/control_flow/plan/facts/reject_reason.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -1617,9 +1616,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 8,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::PlanNormalizerCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::PlanNormalizerCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -1638,22 +1638,22 @@
         "src/mir/builder/control_flow/plan/normalizer/helpers_value.rs",
         "src/mir/builder/control_flow/plan/normalizer/stmt_only_prelude_view.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis"
       ],
       "borrow_axis": "NoReturnedBorrow",
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 7,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::CallLoweringCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::CallLoweringCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -1670,13 +1670,12 @@
         "src/mir/builder/calls/guard.rs",
         "src/mir/builder/calls/parameter_setup.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -1684,9 +1683,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 7,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::EdgeCfgStubFeatureCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::EdgeCfgStubFeatureCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -1700,13 +1700,12 @@
       "source_modules": [
         "src/mir/builder/control_flow/plan/features/edgecfg_stubs.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -1714,9 +1713,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 7,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::EmissionSsaPhiCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::EmissionSsaPhiCluster",
       "control_flow_axis": "PhiRequired",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -1732,13 +1732,12 @@
         "src/mir/builder/emission/value_lifecycle.rs",
         "src/mir/builder/ssa/analysis.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -1746,9 +1745,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 7,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::NestedLoopPlanCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::NestedLoopPlanCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -1765,13 +1765,12 @@
         "src/mir/builder/control_flow/plan/nested_loop_depth1/facts_types.rs",
         "src/mir/builder/control_flow/plan/nested_loop_plan_recipe_adoption_policy.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -1779,9 +1778,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 7,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::NestedLoopPlanCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::NestedLoopPlanCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -1800,22 +1800,22 @@
         "src/mir/builder/control_flow/plan/nested_loop_plan_continue_with_return.rs",
         "src/mir/builder/control_flow/plan/nested_loop_plan_recipe_adoption.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis"
       ],
       "borrow_axis": "NoBorrow",
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 7,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::PhiMaterializerFeatureCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::PhiMaterializerFeatureCluster",
       "control_flow_axis": "PhiRequired",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -1834,13 +1834,12 @@
         "src/mir/builder/control_flow/plan/features/loop_cond_return_in_body_phi_materializer.rs",
         "src/mir/builder/control_flow/plan/features/loop_true_break_continue_phi_materializer.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -1848,9 +1847,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 7,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::PlannerPolicyCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::PlannerPolicyCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -1865,13 +1865,12 @@
         "src/mir/builder/control_flow/plan/planner/freeze.rs",
         "src/mir/builder/control_flow/plan/planner/outcome.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -1879,9 +1878,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 6,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::CarrierFeatureCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::CarrierFeatureCluster",
       "control_flow_axis": "PhiRequired",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "AdoptedNeighbor",
@@ -1896,22 +1896,22 @@
         "src/mir/builder/control_flow/plan/features/carriers.rs",
         "src/mir/builder/control_flow/plan/features/carriers/continue_only.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis"
       ],
       "borrow_axis": "NoBorrow",
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 6,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::LoopBreakPlanCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::LoopBreakPlanCluster",
       "control_flow_axis": "StructuredLoop",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -1928,13 +1928,12 @@
         "src/mir/builder/control_flow/plan/loop_break/facts/helpers_loop.rs",
         "src/mir/builder/control_flow/plan/loop_break/facts/trim_whitespace_helpers.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -1942,9 +1941,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 6,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::PhiMaterializerFeatureCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::PhiMaterializerFeatureCluster",
       "control_flow_axis": "PhiRequired",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -1960,22 +1960,22 @@
         "src/mir/builder/control_flow/plan/features/loop_carriers.rs",
         "src/mir/builder/control_flow/plan/features/loop_cond_co_phi_materializer.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis"
       ],
       "borrow_axis": "NoReturnedBorrow",
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 6,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::PlanPartsAssemblyCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::PlanPartsAssemblyCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -1992,13 +1992,12 @@
         "src/mir/builder/control_flow/plan/parts/loop_/vars.rs",
         "src/mir/builder/control_flow/plan/parts/var_map_scope.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -2006,9 +2005,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 5,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::CarrierFeatureCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::CarrierFeatureCluster",
       "control_flow_axis": "PhiRequired",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "AdoptedNeighbor",
@@ -2024,22 +2024,22 @@
         "src/mir/builder/control_flow/plan/features/generic_loop_body/carrier_orchestration.rs",
         "src/mir/builder/control_flow/plan/features/generic_loop_body/carriers.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis"
       ],
       "borrow_axis": "NoBorrow",
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 5,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::EmissionSsaPhiCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::EmissionSsaPhiCluster",
       "control_flow_axis": "PhiRequired",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -2054,13 +2054,12 @@
         "src/mir/builder/ssa/analysis.rs",
         "src/mir/builder/ssa/phi_input_contract.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -2068,9 +2067,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 5,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::LoopCondVerifierCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::LoopCondVerifierCluster",
       "control_flow_axis": "StructuredLoop",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "MinimalPath",
@@ -2088,22 +2088,22 @@
         "src/mir/builder/control_flow/plan/features/loop_cond_return_in_body_verifier.rs",
         "src/mir/builder/control_flow/plan/features/loop_true_break_continue_verifier.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis"
       ],
       "borrow_axis": "NoBorrow",
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 5,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::OtherJoinIRPlanCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::OtherJoinIRPlanCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "MinimalPath",
@@ -2118,13 +2118,12 @@
         "src/mir/builder/control_flow/plan/loop_cond_unified_helpers.rs",
         "src/mir/builder/control_flow/plan/trace.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -2132,9 +2131,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 5,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::PlanLowererCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::PlanLowererCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -2149,13 +2149,12 @@
         "src/mir/builder/control_flow/plan/lowerer/body_processing/helpers.rs",
         "src/mir/builder/control_flow/plan/lowerer/loop_validation.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -2163,9 +2162,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 4,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::JoinIRRouteRegistryCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::JoinIRRouteRegistryCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "MinimalPath",
@@ -2181,13 +2181,12 @@
         "src/mir/builder/control_flow/joinir/route_entry/registry/mod.rs",
         "src/mir/builder/control_flow/joinir/route_entry/router.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -2195,9 +2194,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 4,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::OtherJoinIRPlanCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::OtherJoinIRPlanCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "MinimalPath",
@@ -2214,13 +2214,12 @@
         "src/mir/builder/control_flow/plan/skeletons/loop_true.rs",
         "src/mir/builder/control_flow/plan/steps/join_payload.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -2228,9 +2227,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 4,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::OtherPlanFeatureCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::OtherPlanFeatureCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -2247,22 +2247,22 @@
         "src/mir/builder/control_flow/plan/features/nested_loop_depth1_preheader.rs",
         "src/mir/builder/control_flow/plan/features/nested_loop_depth1_route.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis"
       ],
       "borrow_axis": "NoReturnedBorrow",
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 4,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::PlanLowererCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::PlanLowererCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -2278,13 +2278,12 @@
         "src/mir/builder/control_flow/plan/lowerer/loop_completion.rs",
         "src/mir/builder/control_flow/plan/lowerer/phi_processing.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -2292,9 +2291,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 4,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::StatementValueConstructionCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::StatementValueConstructionCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -2310,13 +2310,12 @@
         "src/mir/builder/ops/mod.rs",
         "src/mir/builder/vars/assignment_resolver.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -2324,9 +2323,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 3,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::JoinIRRouteVerifyCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::JoinIRRouteVerifyCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "MinimalPath",
@@ -2342,13 +2342,12 @@
         "src/mir/builder/control_flow/joinir/merge/boundary_carrier_layout.rs",
         "src/mir/builder/control_flow/verify/observability/flowbox_tags.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -2356,9 +2355,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 3,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::LoopCondContinueWithReturnCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::LoopCondContinueWithReturnCluster",
       "control_flow_axis": "StructuredLoop",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "SeedNeighbor",
@@ -2374,13 +2374,12 @@
         "src/mir/builder/control_flow/plan/features/loop_cond_continue_with_return_cleanup.rs",
         "src/mir/builder/control_flow/plan/features/loop_cond_continue_with_return_pipeline.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -2388,9 +2387,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 3,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::LoopCondUtilityCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::LoopCondUtilityCluster",
       "control_flow_axis": "StructuredLoop",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "MinimalPath",
@@ -2404,13 +2404,12 @@
       "source_modules": [
         "src/mir/builder/control_flow/plan/features/loop_cond_bc_util.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -2418,9 +2417,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 3,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::LoopTrueBreakContinueCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::LoopTrueBreakContinueCluster",
       "control_flow_axis": "StructuredLoop",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -2435,22 +2435,22 @@
         "src/mir/builder/control_flow/plan/features/loop_true_break_continue_cleanup.rs",
         "src/mir/builder/control_flow/plan/features/loop_true_break_continue_pipeline.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis"
       ],
       "borrow_axis": "NoReturnedBorrow",
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 3,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::RecipeTreeMatcherCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::RecipeTreeMatcherCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -2464,22 +2464,22 @@
       "source_modules": [
         "src/mir/builder/control_flow/plan/recipe_tree/verified.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis"
       ],
       "borrow_axis": "NoReturnedBorrow",
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 2,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::CarrierFeatureCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::CarrierFeatureCluster",
       "control_flow_axis": "PhiRequired",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "AdoptedNeighbor",
@@ -2494,13 +2494,12 @@
         "src/mir/builder/control_flow/plan/features/generic_loop_body/carrier_orchestration.rs",
         "src/mir/builder/control_flow/plan/features/generic_loop_body/carriers.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -2508,9 +2507,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 2,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::ExitIfFeatureCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::ExitIfFeatureCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -2524,13 +2524,12 @@
       "source_modules": [
         "src/mir/builder/control_flow/plan/features/exit_if_map.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -2538,9 +2537,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 2,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::GenericLoopBodyFeatureCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::GenericLoopBodyFeatureCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -2555,13 +2555,12 @@
         "src/mir/builder/control_flow/plan/features/generic_loop_body/helpers.rs",
         "src/mir/builder/control_flow/plan/features/generic_loop_body/nested_loop_reject_tail.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -2569,9 +2568,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 2,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::GenericLoopPlanCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::GenericLoopPlanCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -2586,13 +2586,12 @@
         "src/mir/builder/control_flow/plan/generic_loop/body_check/shape_resolution.rs",
         "src/mir/builder/control_flow/plan/generic_loop/body_check/validation_v1.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -2600,9 +2599,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 2,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::LoopCondBcBreakOnlyElsePatternCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::LoopCondBcBreakOnlyElsePatternCluster",
       "control_flow_axis": "StructuredLoop",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "MinimalPath",
@@ -2616,13 +2616,12 @@
       "source_modules": [
         "src/mir/builder/control_flow/plan/features/loop_cond_bc_else_patterns/breaks.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -2630,9 +2629,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 2,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::LoopCondBcGuardBreakElsePatternCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::LoopCondBcGuardBreakElsePatternCluster",
       "control_flow_axis": "StructuredLoop",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "MinimalPath",
@@ -2646,13 +2646,12 @@
       "source_modules": [
         "src/mir/builder/control_flow/plan/features/loop_cond_bc_else_patterns/guard_break.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -2660,9 +2659,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 2,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::LoopCondBcReturnOnlyElsePatternCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::LoopCondBcReturnOnlyElsePatternCluster",
       "control_flow_axis": "StructuredLoop",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "MinimalPath",
@@ -2676,13 +2676,12 @@
       "source_modules": [
         "src/mir/builder/control_flow/plan/features/loop_cond_bc_else_patterns/returns.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -2690,9 +2689,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 2,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::LoopCondPlanCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::LoopCondPlanCluster",
       "control_flow_axis": "StructuredLoop",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "MinimalPath",
@@ -2706,13 +2706,12 @@
       "source_modules": [
         "src/mir/builder/control_flow/plan/loop_cond/break_continue_item.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -2720,9 +2719,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 2,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::LoopCondReturnInBodyCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::LoopCondReturnInBodyCluster",
       "control_flow_axis": "StructuredLoop",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "MinimalPath",
@@ -2737,22 +2737,22 @@
         "src/mir/builder/control_flow/plan/features/loop_cond_return_in_body_join.rs",
         "src/mir/builder/control_flow/plan/features/loop_cond_return_in_body_pipeline.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis"
       ],
       "borrow_axis": "NoBorrow",
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 2,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::LoopCondUtilityCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::LoopCondUtilityCluster",
       "control_flow_axis": "StructuredLoop",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "MinimalPath",
@@ -2766,13 +2766,12 @@
       "source_modules": [
         "src/mir/builder/control_flow/plan/features/loop_cond_bc_util.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -2780,9 +2779,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 2,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::PlanComposerCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::PlanComposerCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -2797,22 +2797,22 @@
         "src/mir/builder/control_flow/plan/composer/branchn_return.rs",
         "src/mir/builder/control_flow/plan/composer/coreloop_v2_nested_minimal.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis"
       ],
       "borrow_axis": "NoBorrow",
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 2,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::PlanComposerCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::PlanComposerCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -2826,13 +2826,12 @@
       "source_modules": [
         "src/mir/builder/control_flow/plan/composer/coreloop_gates.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -2840,9 +2839,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 2,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::PlanComposerCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::PlanComposerCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -2856,22 +2856,22 @@
       "source_modules": [
         "src/mir/builder/control_flow/plan/composer/shadow_adopt.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis"
       ],
       "borrow_axis": "NoBorrow",
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 2,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::PlanNormalizerCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::PlanNormalizerCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -2886,22 +2886,22 @@
         "src/mir/builder/control_flow/plan/normalizer/helpers_layout.rs",
         "src/mir/builder/control_flow/plan/normalizer/helpers_pure_value.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis"
       ],
       "borrow_axis": "NoBorrow",
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 2,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::PlannerPolicyCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::PlannerPolicyCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -2915,22 +2915,52 @@
       "source_modules": [
         "src/mir/builder/control_flow/plan/planner/tags.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
+        "NoExactOrFixtureMappedOwnerEdge",
+        "MissingShapeSignatureClusterAxis",
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "BorrowPolicyNeeded",
+      "call_vocabulary_axis": "SomeUnknown",
+      "candidate_count": 1,
+      "classification": "MissingProjectionPolicyCluster",
+      "cluster_id": "projection_policy::OwnerEdgeConfidenceMissing::unknown_shape::None::OtherMissingProjectionPolicyCluster",
+      "control_flow_axis": "StraightLine",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json"
+      ],
+      "native_seed_or_adoption_proximity": "None",
+      "next_card": null,
+      "next_owner_kind": "None",
+      "owner_edge_confidence": "None",
+      "selection_eligible": false,
+      "shape_signature": "unknown_shape",
+      "source_cluster": "OtherMissingProjectionPolicyCluster",
+      "source_module_count": 1,
+      "source_modules": [
+        "src/mir/region/function_slot_registry.rs"
+      ],
+      "stable_deny_reason": "OwnerEdgeConfidenceMissing",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
         "TypeTransportMissing"
       ],
       "borrow_axis": "NoReturnedBorrow",
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 1,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::control.loop_cond_break_continue_else_continue_if::FixtureMapped::LoopCondBcContinueIfElseCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::control.loop_cond_break_continue_else_continue_if::FixtureMapped::LoopCondBcContinueIfElseCluster",
       "control_flow_axis": "StructuredLoop",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "MinimalPath",
@@ -2944,22 +2974,22 @@
       "source_modules": [
         "src/mir/builder/control_flow/plan/features/loop_cond_bc_continue_if.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "TypeTransportMissing"
       ],
       "borrow_axis": "NoReturnedBorrow",
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 1,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::control.loop_cond_break_continue_item_dispatch::FixtureMapped::LoopCondBcItemDispatcherCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::control.loop_cond_break_continue_item_dispatch::FixtureMapped::LoopCondBcItemDispatcherCluster",
       "control_flow_axis": "StructuredLoop",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "MinimalPath",
@@ -2973,22 +3003,22 @@
       "source_modules": [
         "src/mir/builder/control_flow/plan/features/loop_cond_bc_item.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "TypeTransportMissing"
       ],
       "borrow_axis": "NoReturnedBorrow",
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 1,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::control.loop_cond_break_continue_statement_lowering::FixtureMapped::LoopCondBcStatementLoweringCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::control.loop_cond_break_continue_statement_lowering::FixtureMapped::LoopCondBcStatementLoweringCluster",
       "control_flow_axis": "StructuredLoop",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "MinimalPath",
@@ -3002,22 +3032,22 @@
       "source_modules": [
         "src/mir/builder/control_flow/plan/features/loop_cond_bc_item_stmt.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "TypeTransportMissing"
       ],
       "borrow_axis": "NoReturnedBorrow",
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 1,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::control.loop_cond_continue_only_ast_statement_lowering::FixtureMapped::LoopCondCoAstStatementLoweringCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::control.loop_cond_continue_only_ast_statement_lowering::FixtureMapped::LoopCondCoAstStatementLoweringCluster",
       "control_flow_axis": "StructuredLoop",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "SeedNeighbor",
@@ -3031,22 +3061,22 @@
       "source_modules": [
         "src/mir/builder/control_flow/plan/features/loop_cond_co_stmt.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "TypeTransportMissing"
       ],
       "borrow_axis": "NoReturnedBorrow",
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 1,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::control.loop_cond_continue_only_statement_dispatch::FixtureMapped::LoopCondCoStatementDispatcherCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::control.loop_cond_continue_only_statement_dispatch::FixtureMapped::LoopCondCoStatementDispatcherCluster",
       "control_flow_axis": "StructuredLoop",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "SeedNeighbor",
@@ -3060,22 +3090,22 @@
       "source_modules": [
         "src/mir/builder/control_flow/plan/features/loop_cond_co_stmt.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis"
       ],
       "borrow_axis": "NoReturnedBorrow",
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 1,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::BodyViewFeatureCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::BodyViewFeatureCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -3089,22 +3119,22 @@
       "source_modules": [
         "src/mir/builder/control_flow/plan/features/body_view.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis"
       ],
       "borrow_axis": "NoBorrow",
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 1,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::ContextRegistryCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::ContextRegistryCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -3118,13 +3148,12 @@
       "source_modules": [
         "src/mir/builder/compilation_context.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -3132,9 +3161,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 1,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::FastMemCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::FastMemCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -3148,22 +3178,22 @@
       "source_modules": [
         "src/mir/builder/fastmem/branch.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis"
       ],
       "borrow_axis": "NoReturnedBorrow",
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 1,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::GenericLoopBodyFeatureCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::GenericLoopBodyFeatureCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -3177,13 +3207,12 @@
       "source_modules": [
         "src/mir/builder/control_flow/plan/features/generic_loop_body/helpers.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -3191,9 +3220,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 1,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::GenericLoopPlanCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::GenericLoopPlanCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -3207,22 +3237,22 @@
       "source_modules": [
         "src/mir/builder/control_flow/plan/generic_loop/normalizer.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis"
       ],
       "borrow_axis": "NoReturnedBorrow",
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 1,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::JoinIRRouteRegistryCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::JoinIRRouteRegistryCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "MinimalPath",
@@ -3236,13 +3266,12 @@
       "source_modules": [
         "src/mir/builder/control_flow/joinir/route_entry/registry/legacy_observer.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -3250,9 +3279,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 1,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::JoinIRRouteRegistryCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::JoinIRRouteRegistryCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "MinimalPath",
@@ -3266,22 +3296,22 @@
       "source_modules": [
         "src/mir/builder/control_flow/joinir/route_entry/registry/mod.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis"
       ],
       "borrow_axis": "NoReturnedBorrow",
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 1,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::LoopBreakPlanCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::LoopBreakPlanCluster",
       "control_flow_axis": "StructuredLoop",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -3295,22 +3325,22 @@
       "source_modules": [
         "src/mir/builder/control_flow/plan/loop_break/facts/trim_whitespace_helpers.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis"
       ],
       "borrow_axis": "NoReturnedBorrow",
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 1,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::LoopCondBcCarrierSyncCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::LoopCondBcCarrierSyncCluster",
       "control_flow_axis": "StructuredLoop",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "AdoptedNeighbor",
@@ -3324,13 +3354,12 @@
       "source_modules": [
         "src/mir/builder/control_flow/plan/features/loop_cond_bc.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -3338,9 +3367,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 1,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::LoopCondBcCleanupApplicationCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::LoopCondBcCleanupApplicationCluster",
       "control_flow_axis": "StructuredLoop",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "MinimalPath",
@@ -3354,22 +3384,22 @@
       "source_modules": [
         "src/mir/builder/control_flow/plan/features/loop_cond_bc_cleanup.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis"
       ],
       "borrow_axis": "NoReturnedBorrow",
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 1,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::LoopCondBcCleanupExitPredicateCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::LoopCondBcCleanupExitPredicateCluster",
       "control_flow_axis": "StructuredLoop",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "MinimalPath",
@@ -3383,22 +3413,22 @@
       "source_modules": [
         "src/mir/builder/control_flow/plan/features/loop_cond_bc_cleanup.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis"
       ],
       "borrow_axis": "NoReturnedBorrow",
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 1,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::LoopCondBcNestedCarrierCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::LoopCondBcNestedCarrierCluster",
       "control_flow_axis": "StructuredLoop",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "AdoptedNeighbor",
@@ -3412,13 +3442,12 @@
       "source_modules": [
         "src/mir/builder/control_flow/plan/features/loop_cond_bc_nested_carriers.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -3426,9 +3455,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 1,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::LoopCondBcRootPipelineCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::LoopCondBcRootPipelineCluster",
       "control_flow_axis": "StructuredLoop",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "MinimalPath",
@@ -3442,13 +3472,12 @@
       "source_modules": [
         "src/mir/builder/control_flow/plan/features/loop_cond_bc.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -3456,9 +3485,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 1,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::LoopCondCoBlockLoweringCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::LoopCondCoBlockLoweringCluster",
       "control_flow_axis": "StructuredLoop",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "SeedNeighbor",
@@ -3472,13 +3502,12 @@
       "source_modules": [
         "src/mir/builder/control_flow/plan/features/loop_cond_co_block.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -3486,9 +3515,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 1,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::LoopCondCoCleanupCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::LoopCondCoCleanupCluster",
       "control_flow_axis": "StructuredLoop",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "SeedNeighbor",
@@ -3502,13 +3532,12 @@
       "source_modules": [
         "src/mir/builder/control_flow/plan/features/loop_cond_co_cleanup.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -3516,9 +3545,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 1,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::LoopCondCoContinueIfGroupPreludeCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::LoopCondCoContinueIfGroupPreludeCluster",
       "control_flow_axis": "StructuredLoop",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "SeedNeighbor",
@@ -3532,13 +3562,12 @@
       "source_modules": [
         "src/mir/builder/control_flow/plan/features/loop_cond_co_continue_if.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -3546,9 +3575,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 1,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::LoopCondCoContinueIfNoElseCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::LoopCondCoContinueIfNoElseCluster",
       "control_flow_axis": "StructuredLoop",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "SeedNeighbor",
@@ -3562,13 +3592,12 @@
       "source_modules": [
         "src/mir/builder/control_flow/plan/features/loop_cond_co_continue_if.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -3576,9 +3605,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 1,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::LoopCondCoContinueIfPreludeSpanCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::LoopCondCoContinueIfPreludeSpanCluster",
       "control_flow_axis": "StructuredLoop",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "SeedNeighbor",
@@ -3592,13 +3622,12 @@
       "source_modules": [
         "src/mir/builder/control_flow/plan/features/loop_cond_co_continue_if.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -3606,9 +3635,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 1,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::LoopCondCoGroupIfBranchCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::LoopCondCoGroupIfBranchCluster",
       "control_flow_axis": "StructuredLoop",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "SeedNeighbor",
@@ -3622,13 +3652,12 @@
       "source_modules": [
         "src/mir/builder/control_flow/plan/features/loop_cond_co_group_if.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -3636,9 +3665,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 1,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::LoopCondCoGroupIfNestedLoopCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::LoopCondCoGroupIfNestedLoopCluster",
       "control_flow_axis": "StructuredLoop",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "SeedNeighbor",
@@ -3652,22 +3682,22 @@
       "source_modules": [
         "src/mir/builder/control_flow/plan/features/loop_cond_co_group_if.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis"
       ],
       "borrow_axis": "NoReturnedBorrow",
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 1,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::LoopCondCoHelperCarrierSyncCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::LoopCondCoHelperCarrierSyncCluster",
       "control_flow_axis": "StructuredLoop",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "AdoptedNeighbor",
@@ -3681,22 +3711,22 @@
       "source_modules": [
         "src/mir/builder/control_flow/plan/features/loop_cond_co_helpers.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis"
       ],
       "borrow_axis": "NoBorrow",
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 1,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::LoopCondCoHelperMutationProbeCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::LoopCondCoHelperMutationProbeCluster",
       "control_flow_axis": "StructuredLoop",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "SeedNeighbor",
@@ -3710,13 +3740,12 @@
       "source_modules": [
         "src/mir/builder/control_flow/plan/features/loop_cond_co_helpers.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -3724,9 +3753,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 1,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::LoopCondCoRootPipelineCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::LoopCondCoRootPipelineCluster",
       "control_flow_axis": "StructuredLoop",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "SeedNeighbor",
@@ -3740,22 +3770,22 @@
       "source_modules": [
         "src/mir/builder/control_flow/plan/features/loop_cond_co_pipeline.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis"
       ],
       "borrow_axis": "NoReturnedBorrow",
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 1,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::LoopCondPlanCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::LoopCondPlanCluster",
       "control_flow_axis": "StructuredLoop",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "MinimalPath",
@@ -3769,22 +3799,22 @@
       "source_modules": [
         "src/mir/builder/control_flow/plan/loop_cond/break_continue_helpers.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis"
       ],
       "borrow_axis": "NoReturnedBorrow",
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 1,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::LoopCondReturnInBodyCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::LoopCondReturnInBodyCluster",
       "control_flow_axis": "StructuredLoop",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "MinimalPath",
@@ -3798,22 +3828,22 @@
       "source_modules": [
         "src/mir/builder/control_flow/plan/features/loop_cond_return_in_body_cleanup.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis"
       ],
       "borrow_axis": "NoBorrow",
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 1,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::LoopCondReturnInBodyCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::LoopCondReturnInBodyCluster",
       "control_flow_axis": "StructuredLoop",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "MinimalPath",
@@ -3827,13 +3857,12 @@
       "source_modules": [
         "src/mir/builder/control_flow/plan/features/loop_cond_return_in_body_cleanup.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -3841,9 +3870,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 1,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::LoopCondReturnInBodyCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::LoopCondReturnInBodyCluster",
       "control_flow_axis": "StructuredLoop",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "MinimalPath",
@@ -3857,22 +3887,22 @@
       "source_modules": [
         "src/mir/builder/control_flow/plan/features/loop_cond_return_in_body_join.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis"
       ],
       "borrow_axis": "NoBorrow",
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 1,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::LoopTrueBreakContinueCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::LoopTrueBreakContinueCluster",
       "control_flow_axis": "StructuredLoop",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -3886,22 +3916,22 @@
       "source_modules": [
         "src/mir/builder/control_flow/plan/features/loop_true_break_continue_cleanup.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis"
       ],
       "borrow_axis": "NoReturnedBorrow",
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 1,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::PlanFactsCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::PlanFactsCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -3915,13 +3945,12 @@
       "source_modules": [
         "src/mir/builder/control_flow/plan/facts/exit_only_block.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -3929,9 +3958,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 1,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::PlanFactsCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::PlanFactsCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -3945,22 +3975,22 @@
       "source_modules": [
         "src/mir/builder/control_flow/plan/facts/exit_only_block.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis"
       ],
       "borrow_axis": "NoBorrow",
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 1,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::PlanLowererCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::PlanLowererCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -3974,13 +4004,12 @@
       "source_modules": [
         "src/mir/builder/control_flow/plan/lowerer/span_fmt.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis",
         "TypeTransportMissing"
       ],
@@ -3988,9 +4017,10 @@
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 1,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::PlanNormalizerCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::PlanNormalizerCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -4004,22 +4034,22 @@
       "source_modules": [
         "src/mir/builder/control_flow/plan/normalizer/cond_lowering_freshen/verifier.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Missing",
       "verifier_or_oracle_state": "Present"
     },
     {
       "blocked_by": [
-        "MissingStableDenyReason",
         "MissingShapeSignatureClusterAxis"
       ],
       "borrow_axis": "NoReturnedBorrow",
       "call_vocabulary_axis": "AllKnown",
       "candidate_count": 1,
       "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::FixtureMapped::PlanNormalizerCluster",
+      "cluster_id": "projection_policy::UnsupportedDirectShape::unknown_shape::FixtureMapped::PlanNormalizerCluster",
       "control_flow_axis": "StraightLine",
       "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
         "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
       ],
       "native_seed_or_adoption_proximity": "None",
@@ -4033,46 +4063,16 @@
       "source_modules": [
         "src/mir/builder/control_flow/plan/normalizer/newbox.rs"
       ],
-      "stable_deny_reason": "MissingStableDenyReason",
+      "stable_deny_reason": "UnsupportedDirectShape",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
-    },
-    {
-      "blocked_by": [
-        "NoExactOrFixtureMappedOwnerEdge",
-        "MissingStableDenyReason",
-        "MissingShapeSignatureClusterAxis",
-        "MissingVerifier",
-        "TypeTransportMissing"
-      ],
-      "borrow_axis": "BorrowPolicyNeeded",
-      "call_vocabulary_axis": "SomeUnknown",
-      "candidate_count": 1,
-      "classification": "MissingProjectionPolicyCluster",
-      "cluster_id": "projection_policy::MissingStableDenyReason::unknown_shape::None::OtherMissingProjectionPolicyCluster",
-      "control_flow_axis": "StraightLine",
-      "evidence_refs": [],
-      "native_seed_or_adoption_proximity": "None",
-      "next_card": null,
-      "next_owner_kind": "None",
-      "owner_edge_confidence": "None",
-      "selection_eligible": false,
-      "shape_signature": "unknown_shape",
-      "source_cluster": "OtherMissingProjectionPolicyCluster",
-      "source_module_count": 1,
-      "source_modules": [
-        "src/mir/region/function_slot_registry.rs"
-      ],
-      "stable_deny_reason": "MissingStableDenyReason",
-      "type_transport_axis": "Missing",
-      "verifier_or_oracle_state": "MissingVerifier"
     }
   ],
   "decision": {
-    "kind": "SelectStableDenyReasonRepair",
-    "reason_token": "MissingStableDenyReasonForMappedProjectionPolicyClusters",
+    "kind": "SelectShapeSignatureInventory",
+    "reason_token": "MissingShapeSignatureForProjectionPolicyClusters",
     "selected_cluster_id": null,
-    "selected_next_card": "MIRBUILDER-MISSING-PROJECTION-STABLE-DENY-REASON-REPAIR-001"
+    "selected_next_card": "MIRBUILDER-CRATE-WIDE-SHAPE-SIGNATURE-INVENTORY-001"
   },
   "input_state": {
     "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
@@ -4083,8 +4083,8 @@
   },
   "kind": "MirBuilderCrateWideMissingProjectionPolicyClusterResolutionV1",
   "provenance": {
-    "next_owner_resolution_hash": "46cd61d2b50baefd63cfcb59964b1418f8f5cc2fa85420170450cb5bb30be7d4",
-    "source_report_hash": "8792e660c6b1133c758972b82675556019c527258cfe8536a94863ed3a9cca6b"
+    "next_owner_resolution_hash": "31d81c6795c33be200a96a3a6e169c3e255775a4e0d799ec1b948434e285bf00",
+    "source_report_hash": "0cb891bcd3372d891a0929923ae156c401840c716bd9300e15bf7bb214cc0f50"
   },
   "recovery": {
     "do_not": [
@@ -4110,8 +4110,8 @@
     "heuristic_or_unmapped_count": 185,
     "input_candidate_count": 1396,
     "missing_shape_signature_count": 1391,
-    "missing_stable_deny_reason_count": 1396,
-    "missing_verifier_or_oracle_count": 185,
+    "missing_stable_deny_reason_count": 0,
+    "missing_verifier_or_oracle_count": 0,
     "owner_edge_confidence_counts": {
       "FixtureMapped": 1211,
       "None": 185
@@ -4126,11 +4126,11 @@
       "unknown_shape": 1391
     },
     "stable_deny_reason_counts": {
-      "MissingStableDenyReason": 1396
+      "OwnerEdgeConfidenceMissing": 185,
+      "UnsupportedDirectShape": 1211
     },
     "verifier_or_oracle_state_counts": {
-      "MissingVerifier": 185,
-      "Present": 1211
+      "Present": 1396
     }
   },
   "token": "MIRBUILDER-CRATE-WIDE-MISSING-PROJECTION-POLICY-CLUSTER-RESOLUTION-001"

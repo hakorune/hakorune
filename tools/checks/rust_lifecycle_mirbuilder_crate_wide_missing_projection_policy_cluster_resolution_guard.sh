@@ -57,9 +57,9 @@ if summary["exact_owner_confidence_count"] != 0:
     raise SystemExit("exact owner confidence must be zero")
 if summary["fixture_mapped_count"] != 1211:
     raise SystemExit("fixture mapped count drift")
-if summary["missing_stable_deny_reason_count"] != 1396:
+if summary["missing_stable_deny_reason_count"] != 0:
     raise SystemExit("stable deny reason count drift")
-if summary["missing_verifier_or_oracle_count"] != 185:
+if summary["missing_verifier_or_oracle_count"] != 0:
     raise SystemExit("verifier/oracle count drift")
 if summary["missing_shape_signature_count"] < 1:
     raise SystemExit("missing shape signatures should be visible")
@@ -77,11 +77,11 @@ for cluster in fixture["clusters"]:
         raise SystemExit("cluster next card must be null")
 
 decision = fixture["decision"]
-if decision["kind"] != "SelectStableDenyReasonRepair":
+if decision["kind"] != "SelectShapeSignatureInventory":
     raise SystemExit("decision kind drift")
-if decision["reason_token"] != "MissingStableDenyReasonForMappedProjectionPolicyClusters":
+if decision["reason_token"] != "MissingShapeSignatureForProjectionPolicyClusters":
     raise SystemExit("reason token drift")
-if decision["selected_next_card"] != "MIRBUILDER-MISSING-PROJECTION-STABLE-DENY-REASON-REPAIR-001":
+if decision["selected_next_card"] != "MIRBUILDER-CRATE-WIDE-SHAPE-SIGNATURE-INVENTORY-001":
     raise SystemExit("selected next card drift")
 if decision["selected_cluster_id"] is not None:
     raise SystemExit("selected cluster must be null")
@@ -124,8 +124,8 @@ PY
 
 cat <<'REPORT'
 output_contract=rust-lifecycle-mirbuilder-crate-wide-missing-projection-policy-cluster-resolution-v0
-decision=SelectStableDenyReasonRepair
-reason_token=MissingStableDenyReasonForMappedProjectionPolicyClusters
+decision=SelectShapeSignatureInventory
+reason_token=MissingShapeSignatureForProjectionPolicyClusters
 input_missing_projection_policy_count=1396
 selection_eligible_cluster_count=0
 manual_family_selection=0
