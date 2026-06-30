@@ -24,10 +24,10 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001.
-  The post-emission native-owner seed capability rerun found no machine-derived
-  native seed candidate. Implementation work stops here until the wider route
-  selection basis is updated by design consultation or new machine evidence.
+  MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-001.
+  The bridge policy now allows strict converter emission evidence to be used
+  as `DerivedArtifactSeedDraftInput`, not native edit authority. Next, select
+  exactly one BridgeEligible native seed candidate or keep the design stop.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -63,7 +63,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+  MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-001
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -178,6 +178,7 @@ completed:
   carrier/type transport policy inventory
   strict converter emission probe
   native-owner seed capability rerun 003
+  strict-emission -> native seed bridge policy
 
 latest_rerun_result:
   MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-003
@@ -186,9 +187,9 @@ latest_rerun_result:
   next = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 next_action:
-  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
-  purpose = design consultation / basis update before further implementation
-  output = machine-checkable wider-route basis or remain stopped
+  MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-001
+  purpose = filter 47 VerifiedHakoFamilyIR evidence rows through the bridge policy
+  output = exactly one native seed candidate or KeepStopped with stable reason
 
 forbidden:
   strict rule weakening as executable conversion

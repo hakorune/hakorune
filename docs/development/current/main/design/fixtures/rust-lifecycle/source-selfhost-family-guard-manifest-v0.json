@@ -1143,6 +1143,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-native-owner-seed-capability-survey-rerun-003-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_crate_wide_native_owner_seed_capability_survey_rerun_003_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-STRICT-CONVERTER-EMISSION-TO-NATIVE-SEED-BRIDGE-POLICY-001",
+      "card": "docs/development/current/main/phases/phase-296x/1963-MIRBUILDER-STRICT-CONVERTER-EMISSION-TO-NATIVE-SEED-BRIDGE-POLICY-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-strict-converter-emission-to-native-seed-bridge-policy-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_strict_converter_emission_to_native_seed_bridge_policy_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {
