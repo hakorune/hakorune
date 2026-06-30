@@ -1,0 +1,133 @@
+{
+  "claims": {
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "manual_family_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "projection_surface_selected": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "KeepParentOwner",
+    "reason_token": "JoinIRRouteRegistryDoesNotOpenStandaloneProjectionOwner",
+    "selected_next_card": "MIRBUILDER-PROJECTION-POLICY-CLUSTER-PRIORITY-RESOLUTION-001"
+  },
+  "helper_bucket_summary": {
+    "observer_summary": 1,
+    "predicate": 6,
+    "route_utility": 2
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "priority_resolution": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-projection-policy-cluster-priority-resolution-v0.json",
+    "selected_cluster_id": "projection_policy::UnsupportedDirectShape::shape.join_i_r_route_registry::FixtureMapped::JoinIRRouteRegistryCluster",
+    "source_count": 9,
+    "source_report": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-unconverted-surface-report-v0.json"
+  },
+  "kind": "MirBuilderJoinIRRouteRegistryProjectionPolicyV1",
+  "route_registry_evidence": [
+    "pred_accessor!",
+    "ScanFamilyPresence",
+    "pred_loop_cond_break_continue",
+    "pred_generic_loop_v1",
+    "planner_first_tag_with_label",
+    "loop_break_recipe_needs_flowbox_adopt_tag_in_strict",
+    "LoopRouteDecision",
+    "summary(self)"
+  ],
+  "schema_version": 0,
+  "selected_policy": {
+    "owner_edge": "mirbuilder::join_i_r_route_registry",
+    "policy": "KeepParentOwner",
+    "projection_surface_selected": false,
+    "reason_token": "RouteRegistryPredicatesAndUtilitiesAreParentOwned"
+  },
+  "selection_axes": {
+    "borrow_axis": "NoBorrow",
+    "owner_edge_confidence": "FixtureMapped",
+    "shape_signature": "shape.join_i_r_route_registry",
+    "stable_deny_reason": "UnsupportedDirectShape",
+    "type_transport_axis": "Known",
+    "verifier_or_oracle_state": "Present"
+  },
+  "source_surfaces": [
+    {
+      "helper_bucket": "observer_summary",
+      "return_type": "String",
+      "source_id": "src/mir/builder/control_flow/joinir/route_entry/registry/legacy_observer.rs::summary:L50",
+      "source_path": "src/mir/builder/control_flow/joinir/route_entry/registry/legacy_observer.rs",
+      "symbol": "summary",
+      "visibility": "pub(crate)"
+    },
+    {
+      "helper_bucket": "predicate",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/joinir/route_entry/registry/predicates.rs::pred_generic_loop_v1:L86",
+      "source_path": "src/mir/builder/control_flow/joinir/route_entry/registry/predicates.rs",
+      "symbol": "pred_generic_loop_v1",
+      "visibility": "pub(crate)"
+    },
+    {
+      "helper_bucket": "predicate",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/joinir/route_entry/registry/predicates.rs::pred_loop_cond_break_continue:L54",
+      "source_path": "src/mir/builder/control_flow/joinir/route_entry/registry/predicates.rs",
+      "symbol": "pred_loop_cond_break_continue",
+      "visibility": "pub(crate)"
+    },
+    {
+      "helper_bucket": "predicate",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/joinir/route_entry/registry/predicates.rs::pred_loop_cond_continue_only:L63",
+      "source_path": "src/mir/builder/control_flow/joinir/route_entry/registry/predicates.rs",
+      "symbol": "pred_loop_cond_continue_only",
+      "visibility": "pub(crate)"
+    },
+    {
+      "helper_bucket": "predicate",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/joinir/route_entry/registry/predicates.rs::pred_loop_cond_return_in_body:L70",
+      "source_path": "src/mir/builder/control_flow/joinir/route_entry/registry/predicates.rs",
+      "symbol": "pred_loop_cond_return_in_body",
+      "visibility": "pub(crate)"
+    },
+    {
+      "helper_bucket": "predicate",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/joinir/route_entry/registry/predicates.rs::pred_loop_simple_while:L15",
+      "source_path": "src/mir/builder/control_flow/joinir/route_entry/registry/predicates.rs",
+      "symbol": "pred_loop_simple_while",
+      "visibility": "pub(crate)"
+    },
+    {
+      "helper_bucket": "predicate",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/joinir/route_entry/registry/predicates.rs::pred_loop_true_break_continue:L51",
+      "source_path": "src/mir/builder/control_flow/joinir/route_entry/registry/predicates.rs",
+      "symbol": "pred_loop_true_break_continue",
+      "visibility": "pub(crate)"
+    },
+    {
+      "helper_bucket": "route_utility",
+      "return_type": "",
+      "source_id": "src/mir/builder/control_flow/joinir/route_entry/registry/utils.rs::emit_planner_first:L5",
+      "source_path": "src/mir/builder/control_flow/joinir/route_entry/registry/utils.rs",
+      "symbol": "emit_planner_first",
+      "visibility": "pub(crate)"
+    },
+    {
+      "helper_bucket": "route_utility",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/joinir/route_entry/registry/utils.rs::loop_break_recipe_needs_flowbox_adopt_tag_in_strict:L29",
+      "source_path": "src/mir/builder/control_flow/joinir/route_entry/registry/utils.rs",
+      "symbol": "loop_break_recipe_needs_flowbox_adopt_tag_in_strict",
+      "visibility": "pub(crate)"
+    }
+  ],
+  "token": "MIRBUILDER-JOIN-I-R-ROUTE-REGISTRY-PROJECTION-POLICY-001"
+}

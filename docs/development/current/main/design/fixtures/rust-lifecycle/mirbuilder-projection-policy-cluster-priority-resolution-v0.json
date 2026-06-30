@@ -5,7 +5,7 @@
     "coverage_percentage_as_proof": 0,
     "deterministic_priority_resolution": 1,
     "eligible_cluster_count": 42,
-    "excluded_existing_decision_cluster_count": 7,
+    "excluded_existing_decision_cluster_count": 9,
     "existing_decision_filter_enabled": 1,
     "family_name_based_policy": 0,
     "generated_artifact_as_edit_authority": 0,
@@ -19,14 +19,14 @@
     "route_membership_alone_as_proof": 0,
     "runner_semantic_owner": 0,
     "runtime_fallback": 0,
-    "selectable_cluster_count": 35,
+    "selectable_cluster_count": 33,
     "source_selfhost_claim": 0
   },
   "decision": {
     "kind": "SelectProjectionPolicyCluster",
     "reason_token": "DeterministicProjectionPolicyClusterPrioritySelected",
-    "selected_cluster_id": "projection_policy::UnsupportedDirectShape::shape.join_i_r_route_registry::FixtureMapped::JoinIRRouteRegistryCluster",
-    "selected_next_card": "MIRBUILDER-JOIN-I-R-ROUTE-REGISTRY-PROJECTION-POLICY-001"
+    "selected_cluster_id": "projection_policy::UnsupportedDirectShape::shape.join_i_r_route_verify::FixtureMapped::JoinIRRouteVerifyCluster",
+    "selected_next_card": "MIRBUILDER-JOIN-I-R-ROUTE-VERIFY-PROJECTION-POLICY-001"
   },
   "excluded_existing_decision_clusters": [
     {
@@ -66,6 +66,18 @@
       "reason_token": "ProjectionPolicyDecisionAlreadyLanded"
     },
     {
+      "candidate_count": 9,
+      "cluster_id": "projection_policy::UnsupportedDirectShape::shape.join_i_r_route_registry::FixtureMapped::JoinIRRouteRegistryCluster",
+      "next_card": "MIRBUILDER-JOIN-I-R-ROUTE-REGISTRY-PROJECTION-POLICY-001",
+      "reason_token": "ProjectionPolicyDecisionAlreadyLanded"
+    },
+    {
+      "candidate_count": 1,
+      "cluster_id": "projection_policy::UnsupportedDirectShape::shape.join_i_r_route_registry::FixtureMapped::JoinIRRouteRegistryCluster",
+      "next_card": "MIRBUILDER-JOIN-I-R-ROUTE-REGISTRY-PROJECTION-POLICY-001",
+      "reason_token": "ProjectionPolicyDecisionAlreadyLanded"
+    },
+    {
       "candidate_count": 1,
       "cluster_id": "projection_policy::UnsupportedDirectShape::shape.loop_cond_bc_cleanup_exit_predicate::FixtureMapped::LoopCondBcCleanupExitPredicateCluster",
       "next_card": "MIRBUILDER-LOOP-COND-BC-CLEANUP-EXIT-PREDICATE-PROJECTION-POLICY-001",
@@ -74,7 +86,7 @@
   ],
   "existing_decision_filter": {
     "enabled": true,
-    "excluded_cluster_count": 7,
+    "excluded_cluster_count": 9,
     "reason_token": "ProjectionPolicyDecisionAlreadyLanded"
   },
   "input_state": {
@@ -93,31 +105,10 @@
     "cluster_id_lexical_tiebreaker"
   ],
   "provenance": {
-    "cluster_resolution_hash": "e6697af96a1a3665e03d8cebeb2639073ac63bd460e6e1c2d90e302e8fc4de01",
-    "family_manifest_hash": "6d644dbbe1942bab89637ef44b9d925d285084bcd81e26732d3d74c747d30f06"
+    "cluster_resolution_hash": "11e31518f2d6ca8733612fcc3c7abad8aab00782de0d03ee283385b938f3916c",
+    "family_manifest_hash": "fd401c8eb50ed525e1276b9f73b6359b621bc859df22c1f4aca80b67334b8c46"
   },
   "ranked_clusters": [
-    {
-      "borrow_axis": "NoBorrow",
-      "candidate_count": 9,
-      "cluster_id": "projection_policy::UnsupportedDirectShape::shape.join_i_r_route_registry::FixtureMapped::JoinIRRouteRegistryCluster",
-      "control_flow_axis": "StraightLine",
-      "native_seed_or_adoption_proximity": "MinimalPath",
-      "next_card": "MIRBUILDER-JOIN-I-R-ROUTE-REGISTRY-PROJECTION-POLICY-001",
-      "priority_tuple": [
-        2,
-        0,
-        0,
-        0,
-        0,
-        9,
-        "projection_policy::UnsupportedDirectShape::shape.join_i_r_route_registry::FixtureMapped::JoinIRRouteRegistryCluster"
-      ],
-      "rank": 1,
-      "shape_signature": "shape.join_i_r_route_registry",
-      "type_transport_axis": "Known",
-      "verifier_or_oracle_state": "Present"
-    },
     {
       "borrow_axis": "NoBorrow",
       "candidate_count": 53,
@@ -134,29 +125,8 @@
         53,
         "projection_policy::UnsupportedDirectShape::shape.join_i_r_route_verify::FixtureMapped::JoinIRRouteVerifyCluster"
       ],
-      "rank": 2,
+      "rank": 1,
       "shape_signature": "shape.join_i_r_route_verify",
-      "type_transport_axis": "Known",
-      "verifier_or_oracle_state": "Present"
-    },
-    {
-      "borrow_axis": "NoReturnedBorrow",
-      "candidate_count": 1,
-      "cluster_id": "projection_policy::UnsupportedDirectShape::shape.join_i_r_route_registry::FixtureMapped::JoinIRRouteRegistryCluster",
-      "control_flow_axis": "StraightLine",
-      "native_seed_or_adoption_proximity": "MinimalPath",
-      "next_card": "MIRBUILDER-JOIN-I-R-ROUTE-REGISTRY-PROJECTION-POLICY-001",
-      "priority_tuple": [
-        2,
-        0,
-        1,
-        0,
-        0,
-        1,
-        "projection_policy::UnsupportedDirectShape::shape.join_i_r_route_registry::FixtureMapped::JoinIRRouteRegistryCluster"
-      ],
-      "rank": 3,
-      "shape_signature": "shape.join_i_r_route_registry",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
     },
@@ -176,7 +146,7 @@
         32,
         "projection_policy::UnsupportedDirectShape::shape.join_i_r_route_verify::FixtureMapped::JoinIRRouteVerifyCluster"
       ],
-      "rank": 4,
+      "rank": 2,
       "shape_signature": "shape.join_i_r_route_verify",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
@@ -197,7 +167,7 @@
         1,
         "projection_policy::UnsupportedDirectShape::shape.loop_cond_return_in_body::FixtureMapped::LoopCondReturnInBodyCluster"
       ],
-      "rank": 5,
+      "rank": 3,
       "shape_signature": "shape.loop_cond_return_in_body",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
@@ -218,7 +188,7 @@
         2,
         "projection_policy::UnsupportedDirectShape::shape.loop_cond_utility::FixtureMapped::LoopCondUtilityCluster"
       ],
-      "rank": 6,
+      "rank": 4,
       "shape_signature": "shape.loop_cond_utility",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
@@ -239,7 +209,7 @@
         24,
         "projection_policy::UnsupportedDirectShape::shape.loop_cond_plan::FixtureMapped::LoopCondPlanCluster"
       ],
-      "rank": 7,
+      "rank": 5,
       "shape_signature": "shape.loop_cond_plan",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
@@ -260,7 +230,7 @@
         1,
         "projection_policy::UnsupportedDirectShape::shape.loop_cond_plan::FixtureMapped::LoopCondPlanCluster"
       ],
-      "rank": 8,
+      "rank": 6,
       "shape_signature": "shape.loop_cond_plan",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
@@ -281,7 +251,7 @@
         1,
         "projection_policy::UnsupportedDirectShape::shape.loop_cond_return_in_body::FixtureMapped::LoopCondReturnInBodyCluster"
       ],
-      "rank": 9,
+      "rank": 7,
       "shape_signature": "shape.loop_cond_return_in_body",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
@@ -302,7 +272,7 @@
         1,
         "projection_policy::UnsupportedDirectShape::shape.context_registry::FixtureMapped::ContextRegistryCluster"
       ],
-      "rank": 10,
+      "rank": 8,
       "shape_signature": "shape.context_registry",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
@@ -323,7 +293,7 @@
         1,
         "projection_policy::UnsupportedDirectShape::shape.plan_lowerer::FixtureMapped::PlanLowererCluster"
       ],
-      "rank": 11,
+      "rank": 9,
       "shape_signature": "shape.plan_lowerer",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
@@ -344,7 +314,7 @@
         2,
         "projection_policy::UnsupportedDirectShape::shape.plan_composer::FixtureMapped::PlanComposerCluster"
       ],
-      "rank": 12,
+      "rank": 10,
       "shape_signature": "shape.plan_composer",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
@@ -365,7 +335,7 @@
         2,
         "projection_policy::UnsupportedDirectShape::shape.plan_normalizer::FixtureMapped::PlanNormalizerCluster"
       ],
-      "rank": 13,
+      "rank": 11,
       "shape_signature": "shape.plan_normalizer",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
@@ -386,7 +356,7 @@
         2,
         "projection_policy::UnsupportedDirectShape::shape.planner_policy::FixtureMapped::PlannerPolicyCluster"
       ],
-      "rank": 14,
+      "rank": 12,
       "shape_signature": "shape.planner_policy",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
@@ -407,7 +377,7 @@
         8,
         "projection_policy::UnsupportedDirectShape::shape.generic_loop_body_feature::FixtureMapped::GenericLoopBodyFeatureCluster"
       ],
-      "rank": 15,
+      "rank": 13,
       "shape_signature": "shape.generic_loop_body_feature",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
@@ -428,7 +398,7 @@
         8,
         "projection_policy::UnsupportedDirectShape::shape.plan_facts::FixtureMapped::PlanFactsCluster"
       ],
-      "rank": 16,
+      "rank": 14,
       "shape_signature": "shape.plan_facts",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
@@ -449,7 +419,7 @@
         10,
         "projection_policy::UnsupportedDirectShape::shape.plan_parts_assembly::FixtureMapped::PlanPartsAssemblyCluster"
       ],
-      "rank": 17,
+      "rank": 15,
       "shape_signature": "shape.plan_parts_assembly",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
@@ -470,7 +440,7 @@
         12,
         "projection_policy::UnsupportedDirectShape::shape.call_lowering::FixtureMapped::CallLoweringCluster"
       ],
-      "rank": 18,
+      "rank": 16,
       "shape_signature": "shape.call_lowering",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
@@ -491,7 +461,7 @@
         66,
         "projection_policy::UnsupportedDirectShape::shape.generic_loop_plan::FixtureMapped::GenericLoopPlanCluster"
       ],
-      "rank": 19,
+      "rank": 17,
       "shape_signature": "shape.generic_loop_plan",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
@@ -512,7 +482,7 @@
         1,
         "projection_policy::UnsupportedDirectShape::shape.body_view_feature::FixtureMapped::BodyViewFeatureCluster"
       ],
-      "rank": 20,
+      "rank": 18,
       "shape_signature": "shape.body_view_feature",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
@@ -533,7 +503,7 @@
         1,
         "projection_policy::UnsupportedDirectShape::shape.generic_loop_body_feature::FixtureMapped::GenericLoopBodyFeatureCluster"
       ],
-      "rank": 21,
+      "rank": 19,
       "shape_signature": "shape.generic_loop_body_feature",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
@@ -554,7 +524,7 @@
         1,
         "projection_policy::UnsupportedDirectShape::shape.plan_facts::FixtureMapped::PlanFactsCluster"
       ],
-      "rank": 22,
+      "rank": 20,
       "shape_signature": "shape.plan_facts",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
@@ -575,7 +545,7 @@
         1,
         "projection_policy::UnsupportedDirectShape::shape.plan_normalizer::FixtureMapped::PlanNormalizerCluster"
       ],
-      "rank": 23,
+      "rank": 21,
       "shape_signature": "shape.plan_normalizer",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
@@ -596,7 +566,7 @@
         3,
         "projection_policy::UnsupportedDirectShape::shape.recipe_tree_matcher::FixtureMapped::RecipeTreeMatcherCluster"
       ],
-      "rank": 24,
+      "rank": 22,
       "shape_signature": "shape.recipe_tree_matcher",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
@@ -617,7 +587,7 @@
         4,
         "projection_policy::UnsupportedDirectShape::shape.plan_lowerer::FixtureMapped::PlanLowererCluster"
       ],
-      "rank": 25,
+      "rank": 23,
       "shape_signature": "shape.plan_lowerer",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
@@ -638,7 +608,7 @@
         6,
         "projection_policy::UnsupportedDirectShape::shape.plan_parts_assembly::FixtureMapped::PlanPartsAssemblyCluster"
       ],
-      "rank": 26,
+      "rank": 24,
       "shape_signature": "shape.plan_parts_assembly",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
@@ -659,7 +629,7 @@
         7,
         "projection_policy::UnsupportedDirectShape::shape.call_lowering::FixtureMapped::CallLoweringCluster"
       ],
-      "rank": 27,
+      "rank": 25,
       "shape_signature": "shape.call_lowering",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
@@ -680,7 +650,7 @@
         10,
         "projection_policy::UnsupportedDirectShape::shape.statement_value_construction::FixtureMapped::StatementValueConstructionCluster"
       ],
-      "rank": 28,
+      "rank": 26,
       "shape_signature": "shape.statement_value_construction",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
@@ -701,7 +671,7 @@
         76,
         "projection_policy::UnsupportedDirectShape::shape.context_registry::FixtureMapped::ContextRegistryCluster"
       ],
-      "rank": 29,
+      "rank": 27,
       "shape_signature": "shape.context_registry",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
@@ -722,7 +692,7 @@
         1,
         "projection_policy::UnsupportedDirectShape::shape.loop_true_break_continue::FixtureMapped::LoopTrueBreakContinueCluster"
       ],
-      "rank": 30,
+      "rank": 28,
       "shape_signature": "shape.loop_true_break_continue",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
@@ -743,7 +713,7 @@
         6,
         "projection_policy::UnsupportedDirectShape::shape.loop_break_plan::FixtureMapped::LoopBreakPlanCluster"
       ],
-      "rank": 31,
+      "rank": 29,
       "shape_signature": "shape.loop_break_plan",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
@@ -764,7 +734,7 @@
         1,
         "projection_policy::UnsupportedDirectShape::shape.loop_break_plan::FixtureMapped::LoopBreakPlanCluster"
       ],
-      "rank": 32,
+      "rank": 30,
       "shape_signature": "shape.loop_break_plan",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
@@ -785,7 +755,7 @@
         5,
         "projection_policy::UnsupportedDirectShape::shape.emission_ssa_phi::FixtureMapped::EmissionSsaPhiCluster"
       ],
-      "rank": 33,
+      "rank": 31,
       "shape_signature": "shape.emission_ssa_phi",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
@@ -806,7 +776,7 @@
         7,
         "projection_policy::UnsupportedDirectShape::shape.phi_materializer_feature::FixtureMapped::PhiMaterializerFeatureCluster"
       ],
-      "rank": 34,
+      "rank": 32,
       "shape_signature": "shape.phi_materializer_feature",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
@@ -827,7 +797,7 @@
         8,
         "projection_policy::UnsupportedDirectShape::shape.emission_ssa_phi::FixtureMapped::EmissionSsaPhiCluster"
       ],
-      "rank": 35,
+      "rank": 33,
       "shape_signature": "shape.emission_ssa_phi",
       "type_transport_axis": "Known",
       "verifier_or_oracle_state": "Present"
@@ -837,10 +807,10 @@
   "summary": {
     "cluster_size_as_proof": 0,
     "eligible_cluster_count": 42,
-    "excluded_existing_decision_cluster_count": 7,
-    "selectable_cluster_count": 35,
-    "selected_candidate_count": 9,
-    "selected_cluster_id": "projection_policy::UnsupportedDirectShape::shape.join_i_r_route_registry::FixtureMapped::JoinIRRouteRegistryCluster"
+    "excluded_existing_decision_cluster_count": 9,
+    "selectable_cluster_count": 33,
+    "selected_candidate_count": 53,
+    "selected_cluster_id": "projection_policy::UnsupportedDirectShape::shape.join_i_r_route_verify::FixtureMapped::JoinIRRouteVerifyCluster"
   },
   "token": "MIRBUILDER-PROJECTION-POLICY-CLUSTER-PRIORITY-RESOLUTION-001"
 }
