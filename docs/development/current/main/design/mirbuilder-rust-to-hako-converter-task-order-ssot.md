@@ -24,9 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-STRICT-CONVERTER-EMISSION-PROBE-001.
-  Measure which descriptor-covered surfaces can produce VerifiedHakoFamilyIR
-  under strict rules without fallback.
+  MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-003.
+  Rerun native-owner seed capability after borrow, carrier/type, and emission
+  evidence updates.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  MIRBUILDER-STRICT-CONVERTER-EMISSION-PROBE-001
+  MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-003
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -245,23 +245,23 @@ history, not in this task-order SSOT.
    semantic_authority=design-stop card, cluster/priority resolver fixtures
    non_authority=manual family selection, runtime fallback, Source Selfhost claim
 
-2. MIRBUILDER-CARRIER-TYPE-TRANSPORT-POLICY-INVENTORY-001
+2. MIRBUILDER-STRICT-CONVERTER-EMISSION-PROBE-001
    status=green
-   boundary=inventory carrier/type transport gaps before emission
-   semantic_authority=multi-axis resolution fixture and Other shape resolution
-   non_authority=manual carrier selection, runtime fallback, Hako generation
-
-3. MIRBUILDER-STRICT-CONVERTER-EMISSION-PROBE-001
-   status=next
    boundary=diagnostic strict emission capability probe only
-   semantic_authority=carrier/type inventory and descriptor fixtures
+   semantic_authority=carrier/type inventory and verifier-result fixtures
    non_authority=rule weakening, fallback Hako, HakoAdopted decision
 
+3. MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-003
+   status=next
+   boundary=rerun native-owner seed capability after latest evidence changes
+   semantic_authority=strict emission probe and native-owner seed survey fixtures
+   non_authority=manual owner selection, generated artifact as edit authority
+
 next_documented_task =
-  MIRBUILDER-STRICT-CONVERTER-EMISSION-PROBE-001
+  MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-003
 
 next_after_active_3 =
-  MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-003
+  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 ```
 
 ## Landed Converter Capability Summary
