@@ -863,6 +863,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-unconverted-surface-report-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_unconverted_surface_cfg_test_filter_repair_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-SUBCLUSTER-DECOMPOSITION-001",
+      "card": "docs/development/current/main/phases/phase-296x/1923-MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-SUBCLUSTER-DECOMPOSITION-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-statement-value-construction-subcluster-decomposition-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_statement_value_construction_subcluster_decomposition_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {

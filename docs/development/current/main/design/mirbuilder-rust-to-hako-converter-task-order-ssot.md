@@ -24,9 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-UNCONVERTED-SURFACE-CFG-TEST-FILTER-REPAIR-001.
-  Keep cfg(test) Rust helper methods visible as TestOnlySurface diagnostics
-  while excluding them from projection-policy owner selection.
+  MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-SUBCLUSTER-DECOMPOSITION-001.
+  Split the selected StatementValueConstruction cluster before any projection
+  policy is selected. Whole-cluster projection remains forbidden.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -342,7 +342,7 @@ semantic_closure_report =
 
 latest_frontier_card =
   docs/development/current/main/phases/phase-296x/
-  1922-MIRBUILDER-UNCONVERTED-SURFACE-CFG-TEST-FILTER-REPAIR-001.md
+  1923-MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-SUBCLUSTER-DECOMPOSITION-001.md
 
 latest_integration_card =
   docs/development/current/main/phases/phase-296x/
@@ -373,20 +373,20 @@ history, not in this task-order SSOT.
    semantic_authority=design-stop card, cluster/priority resolver fixtures
    non_authority=manual family selection, runtime fallback, Source Selfhost claim
 
-2. MIRBUILDER-UNCONVERTED-SURFACE-CFG-TEST-FILTER-REPAIR-001
+2. MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-SUBCLUSTER-DECOMPOSITION-001
    status=green
-   boundary=cfg(test) helpers remain diagnostics, not projection policy owners
-   semantic_authority=unconverted surface report, priority resolver fixture
+   boundary=StatementValueConstruction split into six subclusters
+   semantic_authority=statement-value-construction decomposition fixture
    non_authority=Hako generation, HakoAdopted decision, Source Selfhost claim
 
-3. MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-PROJECTION-POLICY-001
+3. MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-DIAGNOSTIC-HELPERS-PROJECTION-POLICY-001
    status=next
-   boundary=selected axis-qualified StatementValueConstruction cluster has 10 known-transport candidates
-   semantic_authority=projection-policy priority resolver fixture
-   non_authority=manual family selection, blocked sibling clusters, Source Selfhost claim
+   boundary=undefined-variable diagnostic message helper remains parent-owned
+   semantic_authority=statement-value-construction decomposition fixture
+   non_authority=manual family selection, mutation subclusters, Source Selfhost claim
 
 next_after_active_3 =
-  MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-PROJECTION-POLICY-001
+  MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-DIAGNOSTIC-HELPERS-PROJECTION-POLICY-001
 ```
 
 ## Landed Converter Capability Summary
