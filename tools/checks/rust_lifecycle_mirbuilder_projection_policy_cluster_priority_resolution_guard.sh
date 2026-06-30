@@ -38,7 +38,7 @@ if summary["selectable_cluster_count"] != 8:
     raise SystemExit("selectable cluster count drift")
 if summary["selected_candidate_count"] != 3:
     raise SystemExit("selected candidate count drift")
-expected_cluster = "projection_policy::UnsupportedDirectShape::shape.recipe_tree_matcher::FixtureMapped::RecipeTreeMatcherCluster"
+expected_cluster = "projection_policy::UnsupportedDirectShape::shape.recipe_tree_matcher::FixtureMapped::RecipeTreeMatcherCluster::borrow=NoReturnedBorrow::control=StraightLine::type=Known::call=AllKnown::verifier=Present"
 if summary["selected_cluster_id"] != expected_cluster:
     raise SystemExit("selected cluster drift")
 if summary["cluster_size_as_proof"] != 0:

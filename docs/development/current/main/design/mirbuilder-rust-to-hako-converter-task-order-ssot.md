@@ -24,12 +24,10 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-NATIVE-OWNER-SEED-PILOT-TARGET-SELECTION-001.
-  Select the first small native source owner seed pilot target. ReturnEmission
-  is selected by stable priority among small HakoMainline support-lane leaves.
-  This does not materialize native source, run HakoAdopted, or claim Source
-  Selfhost.
-  output_contract = rust-lifecycle-mirbuilder-native-owner-seed-pilot-target-selection-v0
+  MIRBUILDER-PROJECTION-POLICY-CLUSTER-ID-AXIS-STABILITY-REPAIR-001.
+  Keep crate-wide projection-policy cluster IDs axis-qualified before opening
+  the next selected RecipeTreeMatcher projection policy. Legacy cluster IDs are
+  retained only for historical decomposition filters.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -345,7 +343,7 @@ semantic_closure_report =
 
 latest_frontier_card =
   docs/development/current/main/phases/phase-296x/
-  1920-MIRBUILDER-BODY-VIEW-FEATURE-PROJECTION-POLICY-001.md
+  1921-MIRBUILDER-PROJECTION-POLICY-CLUSTER-ID-AXIS-STABILITY-REPAIR-001.md
 
 latest_integration_card =
   docs/development/current/main/phases/phase-296x/
@@ -372,24 +370,24 @@ history, not in this task-order SSOT.
 ```text
 1. SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
    status=stop-line
-   boundary=current seed pilot targets are adopted, but Source Selfhost remains unclaimed
-   semantic_authority=design-stop card, ReturnEmission/FunctionRegionStackPop/SlotRegistryRelease adoption fixtures
+   boundary=Source Selfhost remains unclaimed while projection clusters drive narrow work
+   semantic_authority=design-stop card, cluster/priority resolver fixtures
    non_authority=manual family selection, runtime fallback, Source Selfhost claim
 
-2. MIRBUILDER-RETURN-EMISSION-HAKO-ADOPTION-DECISION-001
+2. MIRBUILDER-PROJECTION-POLICY-CLUSTER-ID-AXIS-STABILITY-REPAIR-001
    status=green
-   boundary=narrow ReturnEmission leaf HakoAdopted decision
-   semantic_authority=native source seed fixture, Derived-to-Native artifact model
-   non_authority=Source Selfhost claim, Rust deletion
+   boundary=axis-qualified cluster IDs with legacy ID compatibility
+   semantic_authority=missing-projection cluster fixture, priority resolver fixture
+   non_authority=Hako generation, HakoAdopted decision, Source Selfhost claim
 
-3. MIRBUILDER-NATIVE-OWNER-SEED-PILOT-TARGET-SELECTION-002
-   status=green
-   boundary=select next seed pilot by stable priority after ReturnEmission adoption
-   semantic_authority=seed target selection fixture, adoption decision fixture
-   non_authority=manual family selection, Source Selfhost claim
+3. MIRBUILDER-RECIPE-TREE-MATCHER-PROJECTION-POLICY-001
+   status=next
+   boundary=selected axis-qualified RecipeTreeMatcher cluster has 3 known-transport candidates
+   semantic_authority=projection-policy priority resolver fixture
+   non_authority=manual family selection, blocked sibling clusters, Source Selfhost claim
 
 next_after_active_3 =
-  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+  MIRBUILDER-RECIPE-TREE-MATCHER-PROJECTION-POLICY-001
 ```
 
 ## Landed Converter Capability Summary

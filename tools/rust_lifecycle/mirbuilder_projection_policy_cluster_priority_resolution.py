@@ -82,6 +82,13 @@ def decomposed_cluster_ids(family_manifest: dict[str, Any]) -> set[str]:
     return cluster_ids
 
 
+def cluster_matches_decomposition(cluster: dict[str, Any], decomposed_ids: set[str]) -> bool:
+    return (
+        cluster["cluster_id"] in decomposed_ids
+        or cluster.get("legacy_cluster_id") in decomposed_ids
+    )
+
+
 def priority_tuple(cluster: dict[str, Any]) -> tuple[Any, ...]:
     return (
         PROXIMITY_PRIORITY.get(cluster["native_seed_or_adoption_proximity"], 99),
@@ -111,13 +118,13 @@ def build_resolution() -> dict[str, Any]:
         (cluster, next_card)
         for cluster, next_card in eligible_with_cards
         if next_card in existing_tokens
-        or cluster["cluster_id"] in existing_decomposed_cluster_ids
+        or cluster_matches_decomposition(cluster, existing_decomposed_cluster_ids)
     ]
     selectable = [
         cluster
         for cluster, next_card in eligible_with_cards
         if next_card not in existing_tokens
-        and cluster["cluster_id"] not in existing_decomposed_cluster_ids
+        and not cluster_matches_decomposition(cluster, existing_decomposed_cluster_ids)
     ]
     ranked = sorted(selectable, key=priority_tuple)
     selected = ranked[0] if ranked else None
@@ -180,7 +187,7 @@ def build_resolution() -> dict[str, Any]:
                 "candidate_count": cluster["candidate_count"],
                 "reason_token": (
                     "ProjectionPolicySourceClusterDecompositionAlreadyLanded"
-                    if cluster["cluster_id"] in existing_decomposed_cluster_ids
+                    if cluster_matches_decomposition(cluster, existing_decomposed_cluster_ids)
                     else "ProjectionPolicyDecisionAlreadyLanded"
                 ),
             }

@@ -47,6 +47,10 @@ if summary["input_candidate_count"] != 1396:
     raise SystemExit("input candidate count drift")
 if summary["cluster_count"] != len(fixture["clusters"]):
     raise SystemExit("cluster count mismatch")
+if summary["duplicate_cluster_id_count"] != 0:
+    raise SystemExit("cluster ids must be unique")
+if summary["legacy_cluster_id_collision_count"] < 1:
+    raise SystemExit("legacy cluster id collisions should remain visible")
 if summary["selection_eligible_cluster_count"] != 42:
     raise SystemExit("selection eligible cluster count drift")
 if summary["owner_edge_confidence_counts"] != {"FixtureMapped": 1211, "None": 185}:
@@ -67,6 +71,10 @@ if summary["mapped_unknown_shape_count"] != 0:
     raise SystemExit("mapped unknown shape count drift")
 
 for cluster in fixture["clusters"]:
+    if "legacy_cluster_id" not in cluster:
+        raise SystemExit("cluster missing legacy_cluster_id")
+    if cluster["cluster_id"] == cluster["legacy_cluster_id"]:
+        raise SystemExit("cluster_id must be axis-qualified beyond legacy_cluster_id")
     if cluster["owner_edge_confidence"] not in {"FixtureMapped", "None"}:
         raise SystemExit("unexpected owner confidence")
     if cluster["selection_eligible"] is True:
@@ -102,6 +110,8 @@ if claims["input_missing_projection_policy_count"] != 1396:
 for key in [
     "all_missing_projection_policy_items_clustered_exactly_once",
     "cluster_id_is_stable",
+    "cluster_id_is_unique",
+    "legacy_cluster_id_preserved",
     "owner_edge_confidence_recorded",
     "heuristic_or_none_owner_edge_not_selectable",
     "stable_deny_reason_required",

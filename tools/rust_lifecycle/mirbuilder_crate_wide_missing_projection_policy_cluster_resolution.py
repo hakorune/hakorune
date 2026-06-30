@@ -168,6 +168,44 @@ def blocked_by_for(
     return blocked
 
 
+def legacy_cluster_id(
+    deny_reason: str,
+    shape: str,
+    confidence: str,
+    source_cluster: str,
+) -> str:
+    return "::".join([
+        "projection_policy",
+        deny_reason,
+        shape,
+        confidence,
+        source_cluster,
+    ])
+
+
+def cluster_id_for(
+    deny_reason: str,
+    shape: str,
+    confidence: str,
+    source_cluster: str,
+    borrow: str,
+    control_flow: str,
+    type_axis: str,
+    call_axis: str,
+    verifier_state: str,
+) -> str:
+    # Axis-qualified IDs prevent a landed narrow policy/decomposition from
+    # hiding sibling clusters that still need transport or borrow repair.
+    return "::".join([
+        legacy_cluster_id(deny_reason, shape, confidence, source_cluster),
+        f"borrow={borrow}",
+        f"control={control_flow}",
+        f"type={type_axis}",
+        f"call={call_axis}",
+        f"verifier={verifier_state}",
+    ])
+
+
 def build_resolution() -> dict[str, Any]:
     report = read_json(REPORT)
     next_owner = read_json(NEXT_OWNER_RESOLUTION)
@@ -211,15 +249,21 @@ def build_resolution() -> dict[str, Any]:
         proximity = sorted(proximity_values.items(), key=lambda pair: (-pair[1], pair[0]))[0][0]
         blocked_by = blocked_by_for(confidence, deny_reason, shape, verifier_state, type_axis)
         eligible = not blocked_by
-        cluster_id = "::".join([
-            "projection_policy",
+        legacy_id = legacy_cluster_id(deny_reason, shape, confidence, source_cluster)
+        cluster_id = cluster_id_for(
             deny_reason,
             shape,
             confidence,
             source_cluster,
-        ])
+            borrow,
+            control_flow,
+            type_axis,
+            call_axis,
+            verifier_state,
+        )
         clusters.append({
             "cluster_id": cluster_id,
+            "legacy_cluster_id": legacy_id,
             "classification": "MissingProjectionPolicyCluster",
             "candidate_count": len(bucket),
             "owner_edge_confidence": confidence,
@@ -243,6 +287,8 @@ def build_resolution() -> dict[str, Any]:
 
     clusters.sort(key=lambda item: (-item["candidate_count"], item["cluster_id"]))
     eligible_clusters = [cluster for cluster in clusters if cluster["selection_eligible"]]
+    duplicate_cluster_id_count = len(clusters) - len({cluster["cluster_id"] for cluster in clusters})
+    legacy_cluster_id_collision_count = len(clusters) - len({cluster["legacy_cluster_id"] for cluster in clusters})
     mapped_unknown_shape_count = sum(
         1 for item in items
         if owner_confidence(item) in {"ExactSymbol", "FixtureMapped"}
@@ -325,6 +371,8 @@ def build_resolution() -> dict[str, Any]:
         "summary": {
             "input_candidate_count": len(items),
             "cluster_count": len(clusters),
+            "duplicate_cluster_id_count": duplicate_cluster_id_count,
+            "legacy_cluster_id_collision_count": legacy_cluster_id_collision_count,
             "selection_eligible_cluster_count": len(eligible_clusters),
             "heuristic_or_unmapped_count": owner_confidence_counts.get("Heuristic", 0) + owner_confidence_counts.get("None", 0),
             "exact_owner_confidence_count": owner_confidence_counts.get("ExactSymbol", 0),
@@ -359,6 +407,8 @@ def build_resolution() -> dict[str, Any]:
             "input_missing_projection_policy_count": len(items),
             "all_missing_projection_policy_items_clustered_exactly_once": 1,
             "cluster_id_is_stable": 1,
+            "cluster_id_is_unique": 1,
+            "legacy_cluster_id_preserved": 1,
             "owner_edge_confidence_recorded": 1,
             "heuristic_or_none_owner_edge_not_selectable": 1,
             "stable_deny_reason_required": 1,

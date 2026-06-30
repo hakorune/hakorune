@@ -849,6 +849,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-body-view-feature-projection-policy-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_body_view_feature_projection_policy_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-PROJECTION-POLICY-CLUSTER-ID-AXIS-STABILITY-REPAIR-001",
+      "card": "docs/development/current/main/phases/phase-296x/1921-MIRBUILDER-PROJECTION-POLICY-CLUSTER-ID-AXIS-STABILITY-REPAIR-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-missing-projection-policy-cluster-resolution-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_projection_policy_cluster_id_axis_stability_repair_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {

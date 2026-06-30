@@ -24,11 +24,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-BODY-VIEW-FEATURE-PROJECTION-POLICY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1920-MIRBUILDER-BODY-VIEW-FEATURE-PROJECTION-POLICY-001.md"
-latest_card_summary = """The latest card materializes the BodyView read-only
-length descriptor and returns selection to the projection policy priority
-resolver."""
+latest_card = "MIRBUILDER-PROJECTION-POLICY-CLUSTER-ID-AXIS-STABILITY-REPAIR-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1921-MIRBUILDER-PROJECTION-POLICY-CLUSTER-ID-AXIS-STABILITY-REPAIR-001.md"
+latest_card_summary = """The latest card makes projection-policy cluster IDs
+axis-qualified and unique while preserving legacy cluster IDs for historical
+decomposition filters."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -39,6 +39,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-30: 1921 repairs projection-policy cluster IDs so sibling axis variants cannot hide each other.",
   "2026-06-30: 1920 materializes the BodyView read-only length descriptor.",
   "2026-06-30: 1919 closes the GenericLoop body-check step validation subcluster.",
   "2026-06-30: 1918 materializes the GenericLoop body-check step-kind dispatch resolution.",
