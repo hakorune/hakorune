@@ -345,7 +345,7 @@ semantic_closure_report =
 
 latest_frontier_card =
   docs/development/current/main/phases/phase-296x/
-  1905-MIRBUILDER-CALL-LOWERING-NAME-CANONICALIZATION-PROJECTION-POLICY-001.md
+  1906-MIRBUILDER-PROJECTION-POLICY-CLUSTER-PRIORITY-DECOMPOSED-CLUSTER-FILTER-001.md
 
 latest_integration_card =
   docs/development/current/main/phases/phase-296x/

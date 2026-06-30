@@ -58,6 +58,30 @@ def card_slug(cluster: dict[str, Any]) -> str:
     return f"MIRBUILDER-{shape.replace('_', '-')}-PROJECTION-POLICY-001"
 
 
+def manifest_fixture_paths(family_manifest: dict[str, Any]) -> list[Path]:
+    paths: list[Path] = []
+    for row in family_manifest.get("rows", []):
+        fixture = row.get("fixture") or ""
+        if fixture:
+            paths.append(ROOT / fixture)
+    return paths
+
+
+def decomposed_cluster_ids(family_manifest: dict[str, Any]) -> set[str]:
+    cluster_ids: set[str] = set()
+    for path in manifest_fixture_paths(family_manifest):
+        if not path.exists() or path == OUTPUT:
+            continue
+        try:
+            fixture = read_json(path)
+        except json.JSONDecodeError:
+            continue
+        source_cluster_id = (fixture.get("input_state") or {}).get("source_cluster_id")
+        if source_cluster_id:
+            cluster_ids.add(source_cluster_id)
+    return cluster_ids
+
+
 def priority_tuple(cluster: dict[str, Any]) -> tuple[Any, ...]:
     return (
         PROXIMITY_PRIORITY.get(cluster["native_seed_or_adoption_proximity"], 99),
@@ -74,6 +98,7 @@ def build_resolution() -> dict[str, Any]:
     cluster_resolution = read_json(CLUSTER_RESOLUTION)
     family_manifest = read_json(FAMILY_MANIFEST)
     existing_tokens = {row["token"] for row in family_manifest.get("rows", [])}
+    existing_decomposed_cluster_ids = decomposed_cluster_ids(family_manifest)
     eligible = [
         cluster for cluster in cluster_resolution["clusters"]
         if cluster.get("selection_eligible") is True
@@ -86,11 +111,13 @@ def build_resolution() -> dict[str, Any]:
         (cluster, next_card)
         for cluster, next_card in eligible_with_cards
         if next_card in existing_tokens
+        or cluster["cluster_id"] in existing_decomposed_cluster_ids
     ]
     selectable = [
         cluster
         for cluster, next_card in eligible_with_cards
         if next_card not in existing_tokens
+        and cluster["cluster_id"] not in existing_decomposed_cluster_ids
     ]
     ranked = sorted(selectable, key=priority_tuple)
     selected = ranked[0] if ranked else None
@@ -144,13 +171,18 @@ def build_resolution() -> dict[str, Any]:
             "enabled": True,
             "excluded_cluster_count": len(excluded_existing),
             "reason_token": "ProjectionPolicyDecisionAlreadyLanded",
+            "source_cluster_decomposition_filter_enabled": True,
         },
         "excluded_existing_decision_clusters": [
             {
                 "cluster_id": cluster["cluster_id"],
                 "next_card": next_card,
                 "candidate_count": cluster["candidate_count"],
-                "reason_token": "ProjectionPolicyDecisionAlreadyLanded",
+                "reason_token": (
+                    "ProjectionPolicySourceClusterDecompositionAlreadyLanded"
+                    if cluster["cluster_id"] in existing_decomposed_cluster_ids
+                    else "ProjectionPolicyDecisionAlreadyLanded"
+                ),
             }
             for cluster, next_card in sorted(excluded_existing, key=lambda pair: priority_tuple(pair[0]))
         ],
@@ -176,6 +208,7 @@ def build_resolution() -> dict[str, Any]:
         "claims": {
             "eligible_cluster_count": len(eligible),
             "existing_decision_filter_enabled": 1,
+            "source_cluster_decomposition_filter_enabled": 1,
             "excluded_existing_decision_cluster_count": len(excluded_existing),
             "selectable_cluster_count": len(selectable),
             "deterministic_priority_resolution": 1,
