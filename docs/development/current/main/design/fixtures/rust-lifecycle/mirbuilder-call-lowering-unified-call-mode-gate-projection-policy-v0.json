@@ -1,0 +1,68 @@
+{
+  "claims": {
+    "hako_adopted_decision": 0,
+    "hako_config_gate_selected": 0,
+    "hako_generation": 0,
+    "manual_family_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_env_flag": 0,
+    "new_python_semantic_projector": 0,
+    "projection_surface_selected": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "runtime_or_projection_policy_by_name": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "KeepParentOwner",
+    "reason_token": "ConfigGateDoesNotOpenStandaloneProjectionOwner",
+    "selected_next_card": "MIRBUILDER-CALL-LOWERING-PURE-METHOD-CATALOG-POLICY-001"
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "feature_predicates_policy": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-call-lowering-feature-predicates-projection-policy-v0.json",
+    "selected_feature_subcluster_id": "UnifiedCallModeGate",
+    "source_count": 1
+  },
+  "kind": "MirBuilderCallLoweringUnifiedCallModeGateProjectionPolicyV1",
+  "schema_version": 0,
+  "selected_policy": {
+    "config_authority": "src/config/env/builder_flags.rs::builder_unified_call_mode",
+    "hako_config_gate_selected": false,
+    "new_env_flag_selected": false,
+    "owner_edge": "mirbuilder::call_lowering_unified_call_mode_gate",
+    "policy": "KeepParentConfigGate",
+    "projection_surface_selected": false,
+    "reason_token": "UnifiedCallModeGateIsConfigAuthorityOwned"
+  },
+  "selection_axes": {
+    "borrow_axis": "NoBorrow",
+    "owner_edge_confidence": "FixtureMapped",
+    "shape_signature": "shape.config_gate",
+    "stable_deny_reason": "UnsupportedDirectShape",
+    "type_transport_axis": "Known",
+    "verifier_or_oracle_state": "Present"
+  },
+  "source_surface": {
+    "config_accessor": "builder_unified_call_mode",
+    "config_path": "src/config/env/builder_flags.rs",
+    "env_var": "NYASH_MIR_UNIFIED_CALL",
+    "params": "",
+    "return_type": "bool",
+    "source_id": "src/mir/builder/calls/call_unified.rs::is_unified_call_enabled:L12",
+    "source_markers": [
+      "builder_unified_call_mode",
+      "default ON during development; explicit opt-out supported",
+      "\"0\"",
+      "\"false\"",
+      "\"off\"",
+      "NYASH_MIR_UNIFIED_CALL",
+      "env_string(\"NYASH_MIR_UNIFIED_CALL\")"
+    ],
+    "source_path": "src/mir/builder/calls/call_unified.rs",
+    "symbol": "is_unified_call_enabled"
+  },
+  "token": "MIRBUILDER-CALL-LOWERING-UNIFIED-CALL-MODE-GATE-PROJECTION-POLICY-001"
+}
