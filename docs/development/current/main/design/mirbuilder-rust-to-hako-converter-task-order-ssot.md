@@ -342,7 +342,7 @@ semantic_closure_report =
 
 latest_frontier_card =
   docs/development/current/main/phases/phase-296x/
-  1933-MIRBUILDER-LOOP-BREAK-PLAN-PROJECTION-POLICY-001.md
+  1934-MIRBUILDER-EMISSION-SSA-PHI-PROJECTION-POLICY-001.md
 
 latest_integration_card =
   docs/development/current/main/phases/phase-296x/
@@ -373,20 +373,20 @@ history, not in this task-order SSOT.
    semantic_authority=design-stop card, cluster/priority resolver fixtures
    non_authority=manual family selection, runtime fallback, Source Selfhost claim
 
-2. MIRBUILDER-LOOP-BREAK-PLAN-PROJECTION-POLICY-001
+2. MIRBUILDER-EMISSION-SSA-PHI-PROJECTION-POLICY-001
    status=green
-   boundary=LoopBreakPlan predicate/accumulator descriptor materialized
-   semantic_authority=loop break plan projection-policy fixture
+   boundary=EmissionSsaPhi contract/lifecycle descriptor materialized
+   semantic_authority=emission ssa phi projection-policy fixture
    non_authority=Hako generation, native seed, Source Selfhost claim
 
-3. MIRBUILDER-EMISSION-SSA-PHI-PROJECTION-POLICY-001
+3. MIRBUILDER-PHI-MATERIALIZER-FEATURE-PROJECTION-POLICY-001
    status=next
-   boundary=continue projection-policy priority queue after LoopBreakPlan descriptor
+   boundary=continue projection-policy priority queue after EmissionSsaPhi descriptor
    semantic_authority=projection-policy cluster priority resolver fixture
    non_authority=manual family selection, cluster size as proof, Source Selfhost claim
 
 next_after_active_3 =
-  MIRBUILDER-EMISSION-SSA-PHI-PROJECTION-POLICY-001
+  MIRBUILDER-PHI-MATERIALIZER-FEATURE-PROJECTION-POLICY-001
 ```
 
 ## Landed Converter Capability Summary

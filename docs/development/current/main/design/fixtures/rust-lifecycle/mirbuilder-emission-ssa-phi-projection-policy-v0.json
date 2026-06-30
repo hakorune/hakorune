@@ -1,0 +1,338 @@
+{
+  "claims": {
+    "descriptor_selected": 1,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "hako_projection_selected": 0,
+    "manual_family_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "SelectProjectionPolicyDescriptor",
+    "reason_token": "EmissionSsaPhiContractLifecycleDescriptorMaterialized",
+    "selected_next_card": "MIRBUILDER-PROJECTION-POLICY-CLUSTER-PRIORITY-RESOLUTION-001"
+  },
+  "emission_ssa_phi_descriptor": {
+    "analysis_predicates": [
+      "strict_planner_required",
+      "value_defined_in_current_function",
+      "has_dominated_same_field_set_after_root"
+    ],
+    "contract_validators": [
+      "check_phi_input_contract"
+    ],
+    "descriptor_id": "emission_ssa_phi_contract_lifecycle_v1",
+    "diagnostic_formatters": [
+      "format_value_ids"
+    ],
+    "mutation_entrypoints": [
+      "PhiLifecycle::patch_phi_inputs",
+      "define_phi_final",
+      "define_phi_final_with_type_hint",
+      "define_phi_final_fn",
+      "define_phi_final_fn_with_type_hint_and_tag",
+      "patch_phi_inputs",
+      "MirBuilder::define_current_block_phi_final",
+      "MirBuilder::define_current_block_phi_final_with_type_hint"
+    ],
+    "mutation_frame": [
+      "PHI inputs are sorted/materialized before insertion or patch",
+      "builder/function PHI instruction state may be inserted or updated",
+      "debug metadata may record value origin callers when debug is enabled"
+    ],
+    "return_contract": "Result<(), String> or predicate/diagnostic scalar",
+    "returned_borrow": 0,
+    "role_counts": {
+      "analysis_predicate": 3,
+      "builder_phi_definition": 2,
+      "builder_phi_patch": 1,
+      "contract_validator": 1,
+      "current_block_phi_definition": 2,
+      "diagnostic_formatter": 1,
+      "function_phi_definition": 2,
+      "lifecycle_scope_patch": 1
+    },
+    "source_extraction": "rust_emission_ssa_phi_contract_and_lifecycle_helpers",
+    "source_markers": [
+      {
+        "marker": "define_phi_final_with_type_hint(builder, block, dst, inputs, None, tag)",
+        "source_id": "src/mir/builder/emission/phi_lifecycle.rs::define_phi_final:L246"
+      },
+      {
+        "marker": "\"edgecfg_block_params\"",
+        "source_id": "src/mir/builder/emission/phi_lifecycle.rs::define_phi_final_fn:L423"
+      },
+      {
+        "marker": "insert_phi_at_head_spanned_with_type_hint",
+        "source_id": "src/mir/builder/emission/phi_lifecycle.rs::define_phi_final_fn_with_type_hint_and_tag:L443"
+      },
+      {
+        "marker": "phi_input_materializer::for_pred",
+        "source_id": "src/mir/builder/emission/phi_lifecycle.rs::define_phi_final_with_type_hint:L258"
+      },
+      {
+        "marker": "builder.update_phi_instruction(block, dst, inputs)",
+        "source_id": "src/mir/builder/emission/phi_lifecycle.rs::patch_phi_inputs:L518"
+      },
+      {
+        "marker": "self.pending",
+        "source_id": "src/mir/builder/emission/phi_lifecycle.rs::patch_phi_inputs:L81"
+      },
+      {
+        "marker": "define_phi_final(",
+        "source_id": "src/mir/builder/phi.rs::define_current_block_phi_final:L9"
+      },
+      {
+        "marker": "define_phi_final_with_type_hint(",
+        "source_id": "src/mir/builder/phi.rs::define_current_block_phi_final_with_type_hint:L25"
+      },
+      {
+        "marker": "out.push_str(&v.0.to_string())",
+        "source_id": "src/mir/builder/ssa/analysis.rs::format_value_ids:L36"
+      },
+      {
+        "marker": "compute_dominators(func)",
+        "source_id": "src/mir/builder/ssa/analysis.rs::has_dominated_same_field_set_after_root:L201"
+      },
+      {
+        "marker": "planner_required_enabled()",
+        "source_id": "src/mir/builder/ssa/analysis.rs::strict_planner_required:L5"
+      },
+      {
+        "marker": "func.params.iter().any",
+        "source_id": "src/mir/builder/ssa/analysis.rs::value_defined_in_current_function:L10"
+      },
+      {
+        "marker": "compute_predecessors(func)",
+        "source_id": "src/mir/builder/ssa/phi_input_contract.rs::check_phi_input_contract:L7"
+      }
+    ]
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "priority_resolution": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-projection-policy-cluster-priority-resolution-v0.json",
+    "selected_cluster_id": "projection_policy::UnsupportedDirectShape::shape.emission_ssa_phi::FixtureMapped::EmissionSsaPhiCluster::borrow=NoBorrow::control=PhiRequired::type=Known::call=AllKnown::verifier=Present",
+    "selected_cluster_ids": [
+      "projection_policy::UnsupportedDirectShape::shape.emission_ssa_phi::FixtureMapped::EmissionSsaPhiCluster::borrow=NoBorrow::control=PhiRequired::type=Known::call=AllKnown::verifier=Present",
+      "projection_policy::UnsupportedDirectShape::shape.emission_ssa_phi::FixtureMapped::EmissionSsaPhiCluster::borrow=NoReturnedBorrow::control=PhiRequired::type=Known::call=AllKnown::verifier=Present"
+    ],
+    "source_count": 13,
+    "unconverted_surface_report": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-unconverted-surface-report-v0.json"
+  },
+  "kind": "MirBuilderEmissionSsaPhiProjectionPolicyV1",
+  "provenance": {
+    "semantic_projection_inference": 0,
+    "tool_role": "FactsAdapterGuardOrchestrator"
+  },
+  "schema_version": 0,
+  "selected_policy": {
+    "descriptor_selected": true,
+    "hako_projection_selected": false,
+    "owner_edge": "mirbuilder::emission_ssa_phi",
+    "policy": "EmissionSsaPhiContractLifecycleDescriptor",
+    "reason_token": "EmissionSsaPhiContractLifecycleDescriptorRequiredBeforeHakoProjection"
+  },
+  "selection_axes": {
+    "borrow_axes": [
+      "NoBorrow",
+      "NoReturnedBorrow"
+    ],
+    "control_flow_axis": "PhiRequired",
+    "owner_edge_confidence": "FixtureMapped",
+    "shape_signature": "shape.emission_ssa_phi",
+    "stable_deny_reason": "UnsupportedDirectShape",
+    "type_transport_axis": "Known",
+    "verifier_or_oracle_state": "Present"
+  },
+  "source_surfaces": [
+    {
+      "borrow_axis": "NoReturnedBorrow",
+      "known_owner_edge": "mirbuilder::emission_ssa_phi",
+      "line": 246,
+      "owner_edge_confidence": "FixtureMapped",
+      "params": "builder: &mut MirBuilder, block: BasicBlockId, dst: ValueId, inputs: Vec<(BasicBlockId, ValueId",
+      "receiver": "None",
+      "return_type": "",
+      "role": "builder_phi_definition",
+      "source_id": "src/mir/builder/emission/phi_lifecycle.rs::define_phi_final:L246",
+      "source_path": "src/mir/builder/emission/phi_lifecycle.rs",
+      "symbol": "define_phi_final",
+      "visibility": "pub(in crate::mir::builder)"
+    },
+    {
+      "borrow_axis": "NoReturnedBorrow",
+      "known_owner_edge": "mirbuilder::emission_ssa_phi",
+      "line": 423,
+      "owner_edge_confidence": "FixtureMapped",
+      "params": "function: &mut crate::mir::MirFunction, block: BasicBlockId, dst: ValueId, inputs: Vec<(BasicBlockId, ValueId",
+      "receiver": "None",
+      "return_type": "",
+      "role": "function_phi_definition",
+      "source_id": "src/mir/builder/emission/phi_lifecycle.rs::define_phi_final_fn:L423",
+      "source_path": "src/mir/builder/emission/phi_lifecycle.rs",
+      "symbol": "define_phi_final_fn",
+      "visibility": "pub(in crate::mir::builder)"
+    },
+    {
+      "borrow_axis": "NoReturnedBorrow",
+      "known_owner_edge": "mirbuilder::emission_ssa_phi",
+      "line": 443,
+      "owner_edge_confidence": "FixtureMapped",
+      "params": "function: &mut crate::mir::MirFunction, block: BasicBlockId, dst: ValueId, mut inputs: Vec<(BasicBlockId, ValueId",
+      "receiver": "None",
+      "return_type": "",
+      "role": "function_phi_definition",
+      "source_id": "src/mir/builder/emission/phi_lifecycle.rs::define_phi_final_fn_with_type_hint_and_tag:L443",
+      "source_path": "src/mir/builder/emission/phi_lifecycle.rs",
+      "symbol": "define_phi_final_fn_with_type_hint_and_tag",
+      "visibility": "pub(in crate::mir)"
+    },
+    {
+      "borrow_axis": "NoReturnedBorrow",
+      "known_owner_edge": "mirbuilder::emission_ssa_phi",
+      "line": 258,
+      "owner_edge_confidence": "FixtureMapped",
+      "params": "builder: &mut MirBuilder, block: BasicBlockId, dst: ValueId, mut inputs: Vec<(BasicBlockId, ValueId",
+      "receiver": "None",
+      "return_type": "",
+      "role": "builder_phi_definition",
+      "source_id": "src/mir/builder/emission/phi_lifecycle.rs::define_phi_final_with_type_hint:L258",
+      "source_path": "src/mir/builder/emission/phi_lifecycle.rs",
+      "symbol": "define_phi_final_with_type_hint",
+      "visibility": "pub(in crate::mir::builder)"
+    },
+    {
+      "borrow_axis": "NoReturnedBorrow",
+      "known_owner_edge": "mirbuilder::emission_ssa_phi",
+      "line": 518,
+      "owner_edge_confidence": "FixtureMapped",
+      "params": "builder: &mut MirBuilder, block: BasicBlockId, dst: ValueId, mut inputs: Vec<(BasicBlockId, ValueId",
+      "receiver": "None",
+      "return_type": "",
+      "role": "builder_phi_patch",
+      "source_id": "src/mir/builder/emission/phi_lifecycle.rs::patch_phi_inputs:L518",
+      "source_path": "src/mir/builder/emission/phi_lifecycle.rs",
+      "symbol": "patch_phi_inputs",
+      "visibility": "pub(in crate::mir::builder)"
+    },
+    {
+      "borrow_axis": "NoReturnedBorrow",
+      "known_owner_edge": "mirbuilder::emission_ssa_phi",
+      "line": 81,
+      "owner_edge_confidence": "FixtureMapped",
+      "params": "&mut self, builder: &mut MirBuilder, token: PhiToken, inputs: Vec<(BasicBlockId, ValueId",
+      "receiver": "&mut self",
+      "return_type": "",
+      "role": "lifecycle_scope_patch",
+      "source_id": "src/mir/builder/emission/phi_lifecycle.rs::patch_phi_inputs:L81",
+      "source_path": "src/mir/builder/emission/phi_lifecycle.rs",
+      "symbol": "patch_phi_inputs",
+      "visibility": "pub(in crate::mir::builder)"
+    },
+    {
+      "borrow_axis": "NoReturnedBorrow",
+      "known_owner_edge": "mirbuilder::emission_ssa_phi",
+      "line": 9,
+      "owner_edge_confidence": "FixtureMapped",
+      "params": "&mut self, dst: ValueId, inputs: Vec<(BasicBlockId, ValueId",
+      "receiver": "&mut self",
+      "return_type": "",
+      "role": "current_block_phi_definition",
+      "source_id": "src/mir/builder/phi.rs::define_current_block_phi_final:L9",
+      "source_path": "src/mir/builder/phi.rs",
+      "symbol": "define_current_block_phi_final",
+      "visibility": "pub(crate)"
+    },
+    {
+      "borrow_axis": "NoReturnedBorrow",
+      "known_owner_edge": "mirbuilder::emission_ssa_phi",
+      "line": 25,
+      "owner_edge_confidence": "FixtureMapped",
+      "params": "&mut self, dst: ValueId, inputs: Vec<(BasicBlockId, ValueId",
+      "receiver": "&mut self",
+      "return_type": "",
+      "role": "current_block_phi_definition",
+      "source_id": "src/mir/builder/phi.rs::define_current_block_phi_final_with_type_hint:L25",
+      "source_path": "src/mir/builder/phi.rs",
+      "symbol": "define_current_block_phi_final_with_type_hint",
+      "visibility": "pub(crate)"
+    },
+    {
+      "borrow_axis": "NoBorrow",
+      "known_owner_edge": "mirbuilder::emission_ssa_phi",
+      "line": 36,
+      "owner_edge_confidence": "FixtureMapped",
+      "params": "values: &[ValueId]",
+      "receiver": "None",
+      "return_type": "String",
+      "role": "diagnostic_formatter",
+      "source_id": "src/mir/builder/ssa/analysis.rs::format_value_ids:L36",
+      "source_path": "src/mir/builder/ssa/analysis.rs",
+      "symbol": "format_value_ids",
+      "visibility": "pub(crate)"
+    },
+    {
+      "borrow_axis": "NoBorrow",
+      "known_owner_edge": "mirbuilder::emission_ssa_phi",
+      "line": 201,
+      "owner_edge_confidence": "FixtureMapped",
+      "params": "builder: &MirBuilder, root_block: crate::mir::BasicBlockId, current_block: crate::mir::BasicBlockId, field: &str,",
+      "receiver": "None",
+      "return_type": "bool",
+      "role": "analysis_predicate",
+      "source_id": "src/mir/builder/ssa/analysis.rs::has_dominated_same_field_set_after_root:L201",
+      "source_path": "src/mir/builder/ssa/analysis.rs",
+      "symbol": "has_dominated_same_field_set_after_root",
+      "visibility": "pub(crate)"
+    },
+    {
+      "borrow_axis": "NoBorrow",
+      "known_owner_edge": "mirbuilder::emission_ssa_phi",
+      "line": 5,
+      "owner_edge_confidence": "FixtureMapped",
+      "params": "",
+      "receiver": "None",
+      "return_type": "bool",
+      "role": "analysis_predicate",
+      "source_id": "src/mir/builder/ssa/analysis.rs::strict_planner_required:L5",
+      "source_path": "src/mir/builder/ssa/analysis.rs",
+      "symbol": "strict_planner_required",
+      "visibility": "pub(crate)"
+    },
+    {
+      "borrow_axis": "NoBorrow",
+      "known_owner_edge": "mirbuilder::emission_ssa_phi",
+      "line": 10,
+      "owner_edge_confidence": "FixtureMapped",
+      "params": "builder: &MirBuilder, v: ValueId",
+      "receiver": "None",
+      "return_type": "bool",
+      "role": "analysis_predicate",
+      "source_id": "src/mir/builder/ssa/analysis.rs::value_defined_in_current_function:L10",
+      "source_path": "src/mir/builder/ssa/analysis.rs",
+      "symbol": "value_defined_in_current_function",
+      "visibility": "pub(crate)"
+    },
+    {
+      "borrow_axis": "NoBorrow",
+      "known_owner_edge": "mirbuilder::emission_ssa_phi",
+      "line": 7,
+      "owner_edge_confidence": "FixtureMapped",
+      "params": "func: &MirFunction, use_bb: BasicBlockId, kind_label: &'static str, value: ValueId, phi_def_bb: BasicBlockId, phi_inputs: &[(BasicBlockId, ValueId",
+      "receiver": "None",
+      "return_type": "",
+      "role": "contract_validator",
+      "source_id": "src/mir/builder/ssa/phi_input_contract.rs::check_phi_input_contract:L7",
+      "source_path": "src/mir/builder/ssa/phi_input_contract.rs",
+      "symbol": "check_phi_input_contract",
+      "visibility": "pub(crate)"
+    }
+  ],
+  "token": "MIRBUILDER-EMISSION-SSA-PHI-PROJECTION-POLICY-001"
+}
