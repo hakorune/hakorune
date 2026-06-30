@@ -24,11 +24,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PLAN-NORMALIZER-PROJECTION-POLICY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1891-MIRBUILDER-PLAN-NORMALIZER-PROJECTION-POLICY-001.md"
-latest_card_summary = """The latest card resolves the PlanNormalizer local
-helpers as KeepParentOwner: create_phi_bindings and is_pure_value_expr do not
-open standalone Hako projection surfaces."""
+latest_card = "MIRBUILDER-PLANNER-POLICY-PROJECTION-POLICY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1892-MIRBUILDER-PLANNER-POLICY-PROJECTION-POLICY-001.md"
+latest_card_summary = """The latest card resolves the PlannerPolicy stable tag
+helpers as KeepParentOwner: planner_first_tag and planner_first_tag_with_label
+do not open standalone Hako projection surfaces."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -39,6 +39,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-30: 1892 keeps PlannerPolicy stable tag helper surfaces under their parent owner.",
   "2026-06-30: 1891 keeps PlanNormalizer local helper surfaces under their parent owner.",
   "2026-06-30: 1890 keeps PlanComposer CoreLoop gate predicates under their parent owner.",
   "2026-06-30: 1889 keeps PlanLowerer span-formatting helper under its parent owner.",
@@ -52,5 +53,4 @@ landed_tail = [
   "2026-06-30: 1881 keeps CarrierFeature finalization under its parent owner.",
   "2026-06-30: 1880 filters already-landed projection policy decisions.",
   "2026-06-30: 1879 resolves projection-policy cluster priority.",
-  "2026-06-30: 1878 inventories shape signatures for MissingProjectionPolicy clusters.",
 ]
