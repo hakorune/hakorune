@@ -1,0 +1,104 @@
+// native-source-seed: MIRBUILDER-METADATA-CONTEXT-HAKO-NATIVE-SOURCE-SEED-001
+// source-family: hakorune_mir_builder::metadata_context
+// source-input-state: DerivedArtifactSeedDraftInput
+// surface-collation: FamilySeedSurfaceCollationV1
+// hako-adopted: 0
+// source-selfhost-claim: 0
+
+using apps.lib.collections.value_id_ordered_map as ValueIdOrderedMap
+
+using selfhost.shared.common.box_helpers as BoxHelpers
+
+box MetadataContext {
+    current_span: i64
+    source_file: Option<StringBox>
+    value_origin_callers: ValueIdOrderedMapBox
+
+    birth() {
+        me.current_span = 0
+        me.source_file = Option::None()
+        me.value_origin_callers = ValueIdOrderedMap.create()
+    }
+}
+
+static box MetadataContextApi {
+    create(current_span): MetadataContext {
+        local ctx = new MetadataContext()
+        ctx.current_span = current_span
+        ctx.source_file = Option::None()
+        ctx.value_origin_callers = ValueIdOrderedMap.create()
+        return ctx
+    }
+
+    current_span(ctx): i64 {
+        return ctx.current_span
+    }
+
+    set_current_span(ctx, span): i64 {
+        ctx.current_span = span
+        return 1
+    }
+
+    set_source_file(ctx, source): i64 {
+        ctx.source_file = Option::Some(source)
+        return 1
+    }
+
+    clear_source_file(ctx): i64 {
+        ctx.source_file = Option::None()
+        return 1
+    }
+
+    current_source_file(ctx): Option<StringBox> {
+        return ctx.source_file
+    }
+
+    value_caller(ctx, value_id): Option<StringBox> {
+        if ctx.value_origin_callers.has(value_id) {
+            return Option::Some(ctx.value_origin_callers.get(value_id))
+        }
+        return Option::None()
+    }
+
+    merge_value_origin_callers(source: ValueIdOrderedMapBox, base: ValueIdOrderedMapBox): ValueIdOrderedMapBox {
+        local merged = ValueIdOrderedMap.create()
+        local base_total = base.length()
+        local base_i = 0
+        loop(base_i < base_total) {
+            local base_key = base.key_at(base_i)
+            local base_value = base.value_at(base_i)
+            merged.set(base_key, base_value)
+            base_i = base_i + 1
+        }
+
+        local source_total = source.length()
+        local source_i = 0
+        loop(source_i < source_total) {
+            local source_key = source.key_at(source_i)
+            local source_value = source.value_at(source_i)
+            merged.set(source_key, source_value)
+            source_i = source_i + 1
+        }
+        return merged
+    }
+
+    push_region(current_region_stack: ArrayBox, region_id): i64 {
+        current_region_stack.push(region_id)
+        return 1
+    }
+
+    current_parent_region(current_region_stack: ArrayBox): Option<i64> {
+        local n = current_region_stack.length()
+        if n == 0 {
+            return Option::None()
+        }
+        return Option::Some((BoxHelpers.array_get(current_region_stack, n - 1) + 0))
+    }
+}
+
+static box MetadataContextHarnessApi {
+    prefill_value_caller(ctx, value_id, caller): i64 {
+        ctx.value_origin_callers.set(value_id, caller)
+        return 1
+    }
+}

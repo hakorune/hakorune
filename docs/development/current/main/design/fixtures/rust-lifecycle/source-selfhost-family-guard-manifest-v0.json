@@ -1178,6 +1178,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-native-owner-seed-capability-survey-rerun-004-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_crate_wide_native_owner_seed_capability_survey_rerun_004_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-METADATA-CONTEXT-HAKO-NATIVE-SOURCE-SEED-001",
+      "card": "docs/development/current/main/phases/phase-296x/1968-MIRBUILDER-METADATA-CONTEXT-HAKO-NATIVE-SOURCE-SEED-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-metadata-context-hako-native-source-seed-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_metadata_context_hako_native_source_seed_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {

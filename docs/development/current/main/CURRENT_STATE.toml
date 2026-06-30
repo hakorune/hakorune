@@ -25,11 +25,12 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-004"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1967-MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-004.md"
-latest_card_summary = """The latest card reruns native-owner seed capability
-after core_context adoption and selects metadata_context as the next native
-source seed candidate while keeping Source Selfhost unclaimed."""
+latest_card = "MIRBUILDER-METADATA-CONTEXT-HAKO-NATIVE-SOURCE-SEED-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1968-MIRBUILDER-METADATA-CONTEXT-HAKO-NATIVE-SOURCE-SEED-001.md"
+latest_card_summary = """The latest card materializes the metadata_context
+native source seed using FamilySeedSurfaceCollationV1 for scalar_source_file,
+value_caller, and region_parent while deferring HakoAdopted decision and
+keeping Source Selfhost unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -40,6 +41,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-01: 1968 materializes the metadata_context native source seed from a machine-derived 3-surface BridgeEligible set.",
   "2026-07-01: 1967 reruns native-owner seed capability after core_context adoption and selects metadata_context as the next native seed candidate.",
   "2026-07-01: 1966 adopts core_context as a narrow HakoAdopted native source owner without Source Selfhost claim.",
   "2026-07-01: 1965 materializes the core_context native source seed and defers HakoAdopted decision.",
