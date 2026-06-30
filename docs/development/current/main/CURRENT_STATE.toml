@@ -25,11 +25,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-STRICT-DENY-NEAR-MISS-DIAGNOSTIC-PROBE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1951-MIRBUILDER-STRICT-DENY-NEAR-MISS-DIAGNOSTIC-PROBE-001.md"
-latest_card_summary = """The latest card adds a diagnostic-only near-miss
-classifier over strict-denied MirBuilder Rust surfaces and selects near-miss
-cluster resolution without weakening strict conversion."""
+latest_card = "MIRBUILDER-STRICT-DENY-NEAR-MISS-CLUSTER-RESOLUTION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1952-MIRBUILDER-STRICT-DENY-NEAR-MISS-CLUSTER-RESOLUTION-001.md"
+latest_card_summary = """The latest card resolves diagnostic near-miss
+clusters against the projection descriptor ledger and keeps Source Selfhost
+stopped because no unclosed near-miss projection-policy cluster remains."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -40,6 +40,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-01: 1952 resolves near-miss clusters and finds no unclosed projection-policy cluster.",
   "2026-07-01: 1951 adds a diagnostic-only strict-deny near-miss probe and selects near-miss cluster resolution.",
   "2026-07-01: 1950 reruns native-owner seed capability with a fresh report and finds no machine-derived seed candidate.",
   "2026-07-01: 1949 regenerates the crate-wide unconverted surface report against the current descriptor ledger.",

@@ -1066,6 +1066,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-strict-deny-near-miss-diagnostic-probe-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_strict_deny_near_miss_diagnostic_probe_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-STRICT-DENY-NEAR-MISS-CLUSTER-RESOLUTION-001",
+      "card": "docs/development/current/main/phases/phase-296x/1952-MIRBUILDER-STRICT-DENY-NEAR-MISS-CLUSTER-RESOLUTION-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-strict-deny-near-miss-cluster-resolution-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_strict_deny_near_miss_cluster_resolution_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {

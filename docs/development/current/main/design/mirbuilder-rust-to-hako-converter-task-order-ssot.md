@@ -24,9 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-STRICT-DENY-NEAR-MISS-DIAGNOSTIC-PROBE-001.
-  Keep strict conversion authoritative while adding a diagnostic-only
-  near-miss view over strict-denied Rust surfaces.
+  MIRBUILDER-STRICT-DENY-NEAR-MISS-CLUSTER-RESOLUTION-001.
+  Resolve diagnostic near-miss clusters against the projection descriptor
+  ledger without weakening strict conversion.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  MIRBUILDER-STRICT-DENY-NEAR-MISS-CLUSTER-RESOLUTION-001
+  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -380,13 +380,13 @@ history, not in this task-order SSOT.
    non_authority=Hako generation, relaxed executable conversion, Source Selfhost claim
 
 3. MIRBUILDER-STRICT-DENY-NEAR-MISS-CLUSTER-RESOLUTION-001
-   status=next
-   boundary=select exactly one near-miss cluster by evidence quality, not size
-   semantic_authority=near-miss diagnostic fixture and strict unconverted report
+   status=green
+   boundary=all near-miss projection-policy clusters are covered by existing descriptors
+   semantic_authority=near-miss resolution fixture and descriptor ledger
    non_authority=manual cluster selection, cluster size as proof, Hako generation
 
 next_documented_task =
-  MIRBUILDER-STRICT-DENY-NEAR-MISS-CLUSTER-RESOLUTION-001
+  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 next_after_active_3 =
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
