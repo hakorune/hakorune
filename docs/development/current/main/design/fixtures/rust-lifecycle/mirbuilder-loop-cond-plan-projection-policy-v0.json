@@ -1,0 +1,260 @@
+{
+  "claims": {
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "manual_family_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "projection_surface_selected": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "KeepParentOwner",
+    "reason_token": "LoopCondPlanDoesNotOpenStandaloneProjectionOwner",
+    "selected_next_card": "MIRBUILDER-PROJECTION-POLICY-CLUSTER-PRIORITY-RESOLUTION-001"
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "priority_resolution": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-projection-policy-cluster-priority-resolution-v0.json",
+    "selected_cluster_id": "projection_policy::UnsupportedDirectShape::shape.loop_cond_plan::FixtureMapped::LoopCondPlanCluster",
+    "source_count": 24,
+    "source_report": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-unconverted-surface-report-v0.json"
+  },
+  "kind": "MirBuilderLoopCondPlanProjectionPolicyV1",
+  "plan_evidence": [
+    "loop_cond_break_continue facts extraction",
+    "pattern validators",
+    "is_supported_bool_expr_with_canon",
+    "branch_has_exit_or_loop",
+    "exit_prelude_is_allowed",
+    "return_prelude_is_allowed",
+    "is_exit_if_stmt",
+    "allow_extended",
+    "allow_return",
+    "ASTNode::If",
+    "ASTNode::Break",
+    "ASTNode::Return"
+  ],
+  "role_counts": {
+    "branch_exit_helper": 5,
+    "conditional_update_validator": 1,
+    "else_shape_validator": 5,
+    "exit_shape_validator": 6,
+    "general_if_classifier": 1,
+    "prelude_validator": 6
+  },
+  "schema_version": 0,
+  "selected_policy": {
+    "owner_edge": "mirbuilder::loop_cond_plan",
+    "policy": "KeepParentOwner",
+    "projection_surface_selected": false,
+    "reason_token": "LoopCondPlanShapePredicatesAreParentOwned"
+  },
+  "selection_axes": {
+    "borrow_axis": "NoBorrow",
+    "owner_edge_confidence": "FixtureMapped",
+    "shape_signature": "shape.loop_cond_plan",
+    "stable_deny_reason": "UnsupportedDirectShape",
+    "type_transport_axis": "Known",
+    "verifier_or_oracle_state": "Present"
+  },
+  "source_surfaces": [
+    {
+      "return_type": "bool",
+      "role": "general_if_classifier",
+      "source_id": "src/mir/builder/control_flow/plan/loop_cond/break_continue_classify.rs::is_general_if_stmt:L119",
+      "source_path": "src/mir/builder/control_flow/plan/loop_cond/break_continue_classify.rs",
+      "symbol": "is_general_if_stmt",
+      "visibility": "pub(super)"
+    },
+    {
+      "return_type": "bool",
+      "role": "branch_exit_helper",
+      "source_id": "src/mir/builder/control_flow/plan/loop_cond/break_continue_helpers.rs::body_has_any_exit:L272",
+      "source_path": "src/mir/builder/control_flow/plan/loop_cond/break_continue_helpers.rs",
+      "symbol": "body_has_any_exit",
+      "visibility": "pub(super)"
+    },
+    {
+      "return_type": "bool",
+      "role": "branch_exit_helper",
+      "source_id": "src/mir/builder/control_flow/plan/loop_cond/break_continue_helpers.rs::branch_has_exit_or_loop:L299",
+      "source_path": "src/mir/builder/control_flow/plan/loop_cond/break_continue_helpers.rs",
+      "symbol": "branch_has_exit_or_loop",
+      "visibility": "pub(super)"
+    },
+    {
+      "return_type": "bool",
+      "role": "branch_exit_helper",
+      "source_id": "src/mir/builder/control_flow/plan/loop_cond/break_continue_helpers.rs::is_nested_loop_allowed:L105",
+      "source_path": "src/mir/builder/control_flow/plan/loop_cond/break_continue_helpers.rs",
+      "symbol": "is_nested_loop_allowed",
+      "visibility": "pub(super)"
+    },
+    {
+      "return_type": "bool",
+      "role": "branch_exit_helper",
+      "source_id": "src/mir/builder/control_flow/plan/loop_cond/break_continue_helpers.rs::matches_parse_string2_shape:L308",
+      "source_path": "src/mir/builder/control_flow/plan/loop_cond/break_continue_helpers.rs",
+      "symbol": "matches_parse_string2_shape",
+      "visibility": "pub(super)"
+    },
+    {
+      "return_type": "bool",
+      "role": "conditional_update_validator",
+      "source_id": "src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_cond.rs::is_conditional_update_if:L21",
+      "source_path": "src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_cond.rs",
+      "symbol": "is_conditional_update_if",
+      "visibility": "pub(in super::super)"
+    },
+    {
+      "return_type": "bool",
+      "role": "else_shape_validator",
+      "source_id": "src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_else.rs::is_else_guard_break_if_shape:L166",
+      "source_path": "src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_else.rs",
+      "symbol": "is_else_guard_break_if_shape",
+      "visibility": "pub(in super::super)"
+    },
+    {
+      "return_type": "bool",
+      "role": "else_shape_validator",
+      "source_id": "src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_else.rs::is_else_only_break_if_shape:L113",
+      "source_path": "src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_else.rs",
+      "symbol": "is_else_only_break_if_shape",
+      "visibility": "pub(in super::super)"
+    },
+    {
+      "return_type": "bool",
+      "role": "else_shape_validator",
+      "source_id": "src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_else.rs::is_else_only_return_if_shape:L22",
+      "source_path": "src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_else.rs",
+      "symbol": "is_else_only_return_if_shape",
+      "visibility": "pub(in super::super)"
+    },
+    {
+      "return_type": "bool",
+      "role": "else_shape_validator",
+      "source_id": "src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_else.rs::is_then_only_break_if_shape:L143",
+      "source_path": "src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_else.rs",
+      "symbol": "is_then_only_break_if_shape",
+      "visibility": "pub(in super::super)"
+    },
+    {
+      "return_type": "bool",
+      "role": "else_shape_validator",
+      "source_id": "src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_else.rs::is_then_only_return_if_shape:L67",
+      "source_path": "src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_else.rs",
+      "symbol": "is_then_only_return_if_shape",
+      "visibility": "pub(in super::super)"
+    },
+    {
+      "return_type": "bool",
+      "role": "exit_shape_validator",
+      "source_id": "src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_exit.rs::is_exit_if_stmt:L27",
+      "source_path": "src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_exit.rs",
+      "symbol": "is_exit_if_stmt",
+      "visibility": "pub(in super::super)"
+    },
+    {
+      "return_type": "bool",
+      "role": "exit_shape_validator",
+      "source_id": "src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_exit.rs::is_exit_if_with_nested_exit:L168",
+      "source_path": "src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_exit.rs",
+      "symbol": "is_exit_if_with_nested_exit",
+      "visibility": "pub(in super::super)"
+    },
+    {
+      "return_type": "bool",
+      "role": "exit_shape_validator",
+      "source_id": "src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_exit.rs::is_exit_if_with_prelude:L102",
+      "source_path": "src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_exit.rs",
+      "symbol": "is_exit_if_with_prelude",
+      "visibility": "pub(in super::super)"
+    },
+    {
+      "return_type": "bool",
+      "role": "exit_shape_validator",
+      "source_id": "src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_exit.rs::is_exit_if_with_return_before_continue:L75",
+      "source_path": "src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_exit.rs",
+      "symbol": "is_exit_if_with_return_before_continue",
+      "visibility": "pub(in super::super)"
+    },
+    {
+      "return_type": "bool",
+      "role": "exit_shape_validator",
+      "source_id": "src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_exit.rs::is_return_if_stmt:L140",
+      "source_path": "src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_exit.rs",
+      "symbol": "is_return_if_stmt",
+      "visibility": "pub(in super::super)"
+    },
+    {
+      "return_type": "bool",
+      "role": "exit_shape_validator",
+      "source_id": "src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_exit.rs::returns_only_in_exit_if:L198",
+      "source_path": "src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_exit.rs",
+      "symbol": "returns_only_in_exit_if",
+      "visibility": "pub(in super::super)"
+    },
+    {
+      "return_type": "bool",
+      "role": "prelude_validator",
+      "source_id": "src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_prelude.rs::branch_effects_only:L77",
+      "source_path": "src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_prelude.rs",
+      "symbol": "branch_effects_only",
+      "visibility": "pub(in super::super)"
+    },
+    {
+      "return_type": "bool",
+      "role": "prelude_validator",
+      "source_id": "src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_prelude.rs::branch_effects_only_for_break:L148",
+      "source_path": "src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_prelude.rs",
+      "symbol": "branch_effects_only_for_break",
+      "visibility": "pub(in super::super)"
+    },
+    {
+      "return_type": "bool",
+      "role": "prelude_validator",
+      "source_id": "src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_prelude.rs::exit_prelude_is_allowed:L16",
+      "source_path": "src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_prelude.rs",
+      "symbol": "exit_prelude_is_allowed",
+      "visibility": "pub(in super::super)"
+    },
+    {
+      "return_type": "bool",
+      "role": "prelude_validator",
+      "source_id": "src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_prelude.rs::exit_prelude_is_allowed_for_break:L88",
+      "source_path": "src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_prelude.rs",
+      "symbol": "exit_prelude_is_allowed_for_break",
+      "visibility": "pub(in super::super)"
+    },
+    {
+      "return_type": "bool",
+      "role": "prelude_validator",
+      "source_id": "src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_prelude.rs::return_prelude_is_allowed:L161",
+      "source_path": "src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_prelude.rs",
+      "symbol": "return_prelude_is_allowed",
+      "visibility": "pub(in super::super)"
+    },
+    {
+      "return_type": "bool",
+      "role": "prelude_validator",
+      "source_id": "src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_prelude.rs::then_only_return_prelude_is_allowed_local_then_return_value:L343",
+      "source_path": "src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_prelude.rs",
+      "symbol": "then_only_return_prelude_is_allowed_local_then_return_value",
+      "visibility": "pub(in super::super)"
+    },
+    {
+      "return_type": "bool",
+      "role": "branch_exit_helper",
+      "source_id": "src/mir/builder/control_flow/plan/loop_cond/true_break_continue_helpers.rs::is_supported_nested_loop_condition:L4",
+      "source_path": "src/mir/builder/control_flow/plan/loop_cond/true_break_continue_helpers.rs",
+      "symbol": "is_supported_nested_loop_condition",
+      "visibility": "pub(super)"
+    }
+  ],
+  "token": "MIRBUILDER-LOOP-COND-PLAN-PROJECTION-POLICY-001"
+}

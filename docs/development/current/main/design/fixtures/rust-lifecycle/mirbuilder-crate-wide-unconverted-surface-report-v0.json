@@ -52934,7 +52934,7 @@
     "owner_edge_confidence_repair_hash": "673c386e3615586ecdbd9dad761d787f01f987083e55a089eeb0b6a88b00f610",
     "shape_signature_inventory_hash": "3810dffac3b2c2849e3478ca715f44974a4a867339800402c8cbdb394797c406",
     "source_root_hash": "7a78fe0b1620eed7b9f2a580a852fa3088262e7dcd5017f3466cbdad7e565d52",
-    "source_selfhost_family_guard_manifest_hash": "c20f19c858d0545f919a69b495adc9e2714e729116b6a3c37b2a225100a197b6",
+    "source_selfhost_family_guard_manifest_hash": "2405dfb1ef4314dc674842650198beffa47c3a7515f6b039d70d5713799636e7",
     "stable_deny_reason_repair_hash": "415773a60b02ed604c544da1a638ee2ea2db280248e181b8d919ad633a6fb5bc",
     "tool_version": "regex_source_text_v0",
     "variable_context_reference_projection_contract_hash": "2544f1becb9758c4ed04698ccc69beb0ede33af6efb3edf61b5e5223c41a8cc7"
@@ -52996,7 +52996,7 @@
   },
   "schema_version": 0,
   "source_inventory": {
-    "family_manifest_rows": 86,
+    "family_manifest_rows": 87,
     "public_rust_surface_count": 1556,
     "reported_item_count": 1584,
     "rust_surface_count": 3120,
