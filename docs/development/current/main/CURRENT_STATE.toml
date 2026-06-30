@@ -27,9 +27,9 @@ latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-t
 
 latest_card = "MIRBUILDER-MISSING-PROJECTION-POLICY-JOINIR-PLAN-CLUSTER-001"
 latest_card_path = "docs/development/current/main/phases/phase-296x/1936-MIRBUILDER-MISSING-PROJECTION-POLICY-JOINIR-PLAN-CLUSTER-001.md"
-latest_card_summary = """The latest card documents the next code-facing
-JoinIRPlanCluster decomposition task after the projection-policy priority queue
-was exhausted."""
+latest_card_summary = """The latest card partitions the remaining
+JoinIRPlanCluster MissingProjectionPolicy surface into 120 machine-derived
+subclusters while keeping Source Selfhost unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -40,7 +40,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
-  "2026-06-30: 1936 documents the next JoinIRPlanCluster decomposition task after projection-policy queue exhaustion.",
+  "2026-06-30: 1936 partitions JoinIRPlanCluster MissingProjectionPolicy into 120 subclusters.",
   "2026-06-30: 1935 materializes the PhiMaterializerFeature constructor descriptor and exhausts the current projection-policy queue.",
   "2026-06-30: 1934 materializes the EmissionSsaPhi contract/lifecycle descriptor.",
   "2026-06-30: 1933 materializes the LoopBreakPlan predicate and scoped accumulator helper descriptor.",

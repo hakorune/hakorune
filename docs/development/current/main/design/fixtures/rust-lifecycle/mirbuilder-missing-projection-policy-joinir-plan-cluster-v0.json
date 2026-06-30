@@ -1,0 +1,3145 @@
+{
+  "claims": {
+    "all_joinir_plan_items_partitioned_exactly_once": 1,
+    "cluster_size_as_proof": 0,
+    "coverage_percentage_as_proof": 0,
+    "generated_artifact_as_edit_authority": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "input_joinir_plan_cluster_count": 623,
+    "manual_family_selection": 0,
+    "native_source_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "projection_priority_consumed": 1,
+    "route_membership_alone_as_proof": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_report_consumed": 1,
+    "source_selfhost_claim": 0,
+    "subcluster_ids_are_stable": 1,
+    "subcluster_reason_tokens_are_stable": 1
+  },
+  "decision": {
+    "kind": "KeepStopped",
+    "reason_token": "AmbiguousJoinIRPlanProjectionSubclusters",
+    "selected_next_card": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "selected_subcluster_id": null
+  },
+  "high_level_buckets": [
+    "route_local_plan_descriptor",
+    "recipe_tree_matcher",
+    "plan_feature_helper",
+    "loop_plan_extractor",
+    "joinir_plan_lowering_surface",
+    "diagnostic_or_debug_helper",
+    "test_only_surface",
+    "unknown_or_needs_owner_edge_repair"
+  ],
+  "input_state": {
+    "cluster_resolution": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-missing-projection-policy-cluster-resolution-v0.json",
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "input_joinir_plan_cluster_count": 623,
+    "priority_decision": {
+      "kind": "KeepStopped",
+      "reason_token": "NoEligibleProjectionPolicyCluster",
+      "selected_cluster_id": null,
+      "selected_next_card": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+    },
+    "priority_resolution": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-projection-policy-cluster-priority-resolution-v0.json",
+    "source_report": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-unconverted-surface-report-v0.json"
+  },
+  "kind": "MirBuilderMissingProjectionPolicyJoinIRPlanClusterV1",
+  "provenance": {
+    "cluster_resolution_hash": "ac0059a9dc2bafab00e6d20dda10dc3b7f6468c9508a891f4de69257d779f2bb",
+    "priority_resolution_hash": "e574dbc276f39ca6a7404c9bbc8d6e2c0ce39126dc9d028d1fb93886c57fb3d2",
+    "source_report_hash": "08186ed99f676574e43236bfbc3ad26a91bfbc90fc3dd1fd43807d6d728a8ab3"
+  },
+  "schema_version": 0,
+  "subcluster_axes": [
+    "source_module",
+    "plan_feature_subcluster",
+    "joinir_plan_subcluster",
+    "shape_signature",
+    "borrow_axis",
+    "type_transport_axis",
+    "verifier_or_oracle_state",
+    "public_or_private_surface",
+    "cfg_test_surface"
+  ],
+  "subclusters": [
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoBorrow",
+      "bucket": "loop_plan_extractor",
+      "candidate_count": 45,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "LoopBreakPlanCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.loop_break_plan",
+      "source_id_count": 45,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/loop_break/facts/body_local_facts.rs::try_extract_loop_break_body_local_facts:L21",
+        "src/mir/builder/control_flow/plan/loop_break/facts/body_local_facts_helpers.rs::find_local_init_expr:L82",
+        "src/mir/builder/control_flow/plan/loop_break/facts/body_local_facts_helpers.rs::try_extract_loop_break_body_local_facts_inner:L9",
+        "src/mir/builder/control_flow/plan/loop_break/facts/body_local_facts_shape_matchers.rs::try_match_digit_pos:L19",
+        "src/mir/builder/control_flow/plan/loop_break/facts/body_local_facts_shape_matchers.rs::try_match_trim_seg:L10",
+        "src/mir/builder/control_flow/plan/loop_break/facts/body_local_subset.rs::try_extract_loop_break_body_local_subset:L19",
+        "src/mir/builder/control_flow/plan/loop_break/facts/core.rs::try_extract_loop_break_facts:L32",
+        "src/mir/builder/control_flow/plan/loop_break/facts/helpers_break_if.rs::extract_break_if_parts:L5",
+        "src/mir/builder/control_flow/plan/loop_break/facts/helpers_break_if.rs::find_break_if_parts:L43",
+        "src/mir/builder/control_flow/plan/loop_break/facts/helpers_common.rs::add:L15",
+        "src/mir/builder/control_flow/plan/loop_break/facts/helpers_common.rs::index_of_call:L54",
+        "src/mir/builder/control_flow/plan/loop_break/facts/helpers_common.rs::index_of_call_expr:L67",
+        "src/mir/builder/control_flow/plan/loop_break/facts/helpers_common.rs::length_call:L45",
+        "src/mir/builder/control_flow/plan/loop_break/facts/helpers_common.rs::lit_bool:L31",
+        "src/mir/builder/control_flow/plan/loop_break/facts/helpers_common.rs::lit_int:L24",
+        "src/mir/builder/control_flow/plan/loop_break/facts/helpers_common.rs::lit_str:L38",
+        "src/mir/builder/control_flow/plan/loop_break/facts/helpers_common.rs::substring_call:L79",
+        "src/mir/builder/control_flow/plan/loop_break/facts/helpers_common.rs::var:L8",
+        "src/mir/builder/control_flow/plan/loop_break/facts/helpers_condition.rs::match_acc_update_mul10_plus_d:L37",
+        "src/mir/builder/control_flow/plan/loop_break/facts/helpers_condition.rs::match_break_if_less_than_zero:L5"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/loop_break/facts",
+      "subcluster_id": "joinir_plan::loop_plan_extractor::LoopBreakPlanCluster::shape.loop_break_plan::src_mir_builder_control_flow_plan_loop_break_facts::NoBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoBorrow",
+      "bucket": "loop_plan_extractor",
+      "candidate_count": 38,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "GenericLoopPlanCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.generic_loop_plan",
+      "source_id_count": 38,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/accum.rs::matches_div_by_10_assignment:L137",
+        "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/accum.rs::matches_div_countdown_by10_shape:L98",
+        "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/accum.rs::matches_modulo_by_10_local:L123",
+        "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/accum.rs::matches_while_cap_accum_sum_shape:L10",
+        "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/basic.rs::matches_effect_step_only_shape:L237",
+        "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/basic.rs::matches_itoa_digit_append_assignment:L167",
+        "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/basic.rs::matches_itoa_digit_local:L148",
+        "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/basic.rs::matches_rewriteknown_itoa_complex_step_shape:L110",
+        "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/basic.rs::matches_rewriteknown_trim_and_methodcall_shape:L130",
+        "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/basic.rs::matches_scan_all_boxes_next_i_shape:L59",
+        "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/basic.rs::matches_scan_while_predicate_shape:L204",
+        "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/basic.rs::matches_usingcollector_line_scan_shape:L14",
+        "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/complex_parsers.rs::matches_decode_escapes_loop_shape:L91",
+        "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/complex_parsers.rs::matches_parse_block_expr_shape:L198",
+        "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/complex_parsers.rs::matches_parse_map_shape:L124",
+        "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/complex_parsers.rs::matches_peek_parse_shape:L10",
+        "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/inner_loop.rs::matches_if_else_if_return_literal:L153",
+        "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/inner_loop.rs::matches_inner_loop_if_else_if_return:L125",
+        "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/inner_loop.rs::matches_inner_loop_if_else_return:L70",
+        "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/inner_loop.rs::matches_inner_loop_if_else_return_local:L108"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors",
+      "subcluster_id": "joinir_plan::loop_plan_extractor::GenericLoopPlanCluster::shape.generic_loop_plan::src_mir_builder_control_flow_plan_generic_loop_body_check_shape_detectors::NoBorrow::Known::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoBorrow",
+      "bucket": "recipe_tree_matcher",
+      "candidate_count": 33,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "RecipeTreeMatcherCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.recipe_tree_matcher",
+      "source_id_count": 33,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/recipe_tree/matcher/loop_cond.rs::verify_loop_cond_break_continue_recipe:L67",
+        "src/mir/builder/control_flow/plan/recipe_tree/matcher/loop_cond.rs::verify_loop_cond_continue_only_recipe:L99",
+        "src/mir/builder/control_flow/plan/recipe_tree/matcher/loop_cond.rs::verify_loop_cond_continue_with_return_recipe:L114",
+        "src/mir/builder/control_flow/plan/recipe_tree/matcher/loop_cond.rs::verify_loop_cond_return_in_body_recipe:L129",
+        "src/mir/builder/control_flow/plan/recipe_tree/matcher/loop_cond.rs::verify_loop_true_break_continue_recipe:L6",
+        "src/mir/builder/control_flow/plan/recipe_tree/matcher/mod.rs::try_match_loop:L81",
+        "src/mir/builder/control_flow/plan/recipe_tree/matcher/patterns.rs::verify_accum_const_loop_recipe:L531",
+        "src/mir/builder/control_flow/plan/recipe_tree/matcher/patterns.rs::verify_bool_predicate_scan_recipe:L486",
+        "src/mir/builder/control_flow/plan/recipe_tree/matcher/patterns.rs::verify_generic_loop_v1_recipe:L92",
+        "src/mir/builder/control_flow/plan/recipe_tree/matcher/patterns.rs::verify_if_phi_join_recipe:L115",
+        "src/mir/builder/control_flow/plan/recipe_tree/matcher/patterns.rs::verify_loop_array_join_recipe:L352",
+        "src/mir/builder/control_flow/plan/recipe_tree/matcher/patterns.rs::verify_loop_break_recipe:L39",
+        "src/mir/builder/control_flow/plan/recipe_tree/matcher/patterns.rs::verify_loop_char_map_recipe:L304",
+        "src/mir/builder/control_flow/plan/recipe_tree/matcher/patterns.rs::verify_loop_continue_only_recipe:L160",
+        "src/mir/builder/control_flow/plan/recipe_tree/matcher/patterns.rs::verify_loop_simple_while_recipe:L256",
+        "src/mir/builder/control_flow/plan/recipe_tree/matcher/patterns.rs::verify_loop_true_early_exit_recipe:L209",
+        "src/mir/builder/control_flow/plan/recipe_tree/matcher/patterns.rs::verify_scan_with_init_recipe:L400",
+        "src/mir/builder/control_flow/plan/recipe_tree/matcher/patterns.rs::verify_split_scan_recipe:L443",
+        "src/mir/builder/control_flow/plan/recipe_tree/matcher/utils.rs::build_scan_with_init_loop_condition:L3",
+        "src/mir/builder/control_flow/plan/recipe_tree/matcher/utils.rs::build_split_scan_loop_condition:L499"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/recipe_tree/matcher",
+      "subcluster_id": "joinir_plan::recipe_tree_matcher::RecipeTreeMatcherCluster::shape.recipe_tree_matcher::src_mir_builder_control_flow_plan_recipe_tree_matcher::NoBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 31,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanFactsCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.plan_facts",
+      "source_id_count": 31,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/facts/accum_const_loop_facts.rs::try_extract_accum_const_loop_facts:L23",
+        "src/mir/builder/control_flow/plan/facts/bool_predicate_scan_facts.rs::try_extract_bool_predicate_scan_facts:L22",
+        "src/mir/builder/control_flow/plan/facts/exit_only_block.rs::try_build_exit_allowed_block_recipe:L72",
+        "src/mir/builder/control_flow/plan/facts/exit_only_block.rs::try_build_exit_only_block_recipe:L44",
+        "src/mir/builder/control_flow/plan/facts/feature_facts.rs::try_extract_loop_feature_facts:L47",
+        "src/mir/builder/control_flow/plan/facts/loop_array_join_facts.rs::try_extract_loop_array_join_facts:L27",
+        "src/mir/builder/control_flow/plan/facts/loop_builder.rs::extract_cluster_facts_map:L254",
+        "src/mir/builder/control_flow/plan/facts/loop_builder.rs::try_build_loop_facts_with_ctx:L55",
+        "src/mir/builder/control_flow/plan/facts/loop_char_map_facts.rs::try_extract_loop_char_map_facts:L27",
+        "src/mir/builder/control_flow/plan/facts/loop_condition_shape.rs::match_length_call:L94",
+        "src/mir/builder/control_flow/plan/facts/loop_condition_shape.rs::try_extract_condition_shape:L7",
+        "src/mir/builder/control_flow/plan/facts/loop_continue_only_facts.rs::try_extract_loop_continue_only_facts:L19",
+        "src/mir/builder/control_flow/plan/facts/loop_scan_with_init.rs::try_extract_scan_with_init_facts:L11",
+        "src/mir/builder/control_flow/plan/facts/loop_simple_while_facts.rs::try_extract_loop_simple_while_facts:L19",
+        "src/mir/builder/control_flow/plan/facts/loop_split_scan.rs::try_extract_split_scan_facts:L7",
+        "src/mir/builder/control_flow/plan/facts/loop_step_shape.rs::try_extract_step_shape:L7",
+        "src/mir/builder/control_flow/plan/facts/loop_true_early_exit_facts.rs::try_extract_loop_true_early_exit_facts:L21",
+        "src/mir/builder/control_flow/plan/facts/match_return_facts.rs::try_extract_match_return_facts:L28",
+        "src/mir/builder/control_flow/plan/facts/nested_loop_minimal_facts.rs::try_extract_nested_loop_minimal_facts:L25",
+        "src/mir/builder/control_flow/plan/facts/reject_reason.rs::for_generic_loop:L262"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/facts",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanFactsCluster::shape.plan_facts::src_mir_builder_control_flow_plan_facts::NoBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "route_local_plan_descriptor",
+      "candidate_count": 26,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanPartsAssemblyCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.plan_parts_assembly",
+      "source_id_count": 26,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/parts/conditional_update.rs::lower_conditional_update_if_assume_with_break_phi_args_recipe_first:L144",
+        "src/mir/builder/control_flow/plan/parts/conditional_update.rs::try_lower_conditional_update_if:L36",
+        "src/mir/builder/control_flow/plan/parts/conditional_update.rs::try_lower_conditional_update_if_with_break_phi_args:L61",
+        "src/mir/builder/control_flow/plan/parts/entry.rs::lower_cond_prelude_stmt_as_plan:L29",
+        "src/mir/builder/control_flow/plan/parts/entry.rs::lower_conditional_update_if:L275",
+        "src/mir/builder/control_flow/plan/parts/entry.rs::lower_conditional_update_if_with_break_phi_args:L299",
+        "src/mir/builder/control_flow/plan/parts/entry.rs::lower_exit_allowed_block:L181",
+        "src/mir/builder/control_flow/plan/parts/entry.rs::lower_exit_allowed_block_verified:L160",
+        "src/mir/builder/control_flow/plan/parts/entry.rs::lower_exit_only_block_verified:L105",
+        "src/mir/builder/control_flow/plan/parts/entry.rs::lower_loop_cond_exit_leaf:L253",
+        "src/mir/builder/control_flow/plan/parts/entry.rs::lower_no_exit_block:L223",
+        "src/mir/builder/control_flow/plan/parts/entry.rs::lower_no_exit_block_verified:L202",
+        "src/mir/builder/control_flow/plan/parts/entry.rs::lower_return_with_effects:L244",
+        "src/mir/builder/control_flow/plan/parts/exit.rs::lower_loop_cond_exit_leaf:L15",
+        "src/mir/builder/control_flow/plan/parts/exit.rs::lower_return_stmt_with_effects:L65",
+        "src/mir/builder/control_flow/plan/parts/exit_branch.rs::lower_exit_branch_with_prelude:L60",
+        "src/mir/builder/control_flow/plan/parts/exit_branch.rs::lower_exit_branch_with_prelude_with_break_phi_args:L79",
+        "src/mir/builder/control_flow/plan/parts/if_.rs::lower_loop_cond_exit_if_tree:L13",
+        "src/mir/builder/control_flow/plan/parts/if_exit.rs::lower_if_exit_stmt:L68",
+        "src/mir/builder/control_flow/plan/parts/if_exit.rs::lower_if_exit_stmt_view:L23"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/parts",
+      "subcluster_id": "joinir_plan::route_local_plan_descriptor::PlanPartsAssemblyCluster::shape.plan_parts_assembly::src_mir_builder_control_flow_plan_parts::NoReturnedBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoBorrow",
+      "bucket": "loop_plan_extractor",
+      "candidate_count": 24,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "LoopCondPlanCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.loop_cond_plan",
+      "source_id_count": 24,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/loop_cond/break_continue_classify.rs::is_general_if_stmt:L119",
+        "src/mir/builder/control_flow/plan/loop_cond/break_continue_helpers.rs::body_has_any_exit:L272",
+        "src/mir/builder/control_flow/plan/loop_cond/break_continue_helpers.rs::branch_has_exit_or_loop:L299",
+        "src/mir/builder/control_flow/plan/loop_cond/break_continue_helpers.rs::is_nested_loop_allowed:L105",
+        "src/mir/builder/control_flow/plan/loop_cond/break_continue_helpers.rs::matches_parse_string2_shape:L308",
+        "src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_cond.rs::is_conditional_update_if:L21",
+        "src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_else.rs::is_else_guard_break_if_shape:L166",
+        "src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_else.rs::is_else_only_break_if_shape:L113",
+        "src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_else.rs::is_else_only_return_if_shape:L22",
+        "src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_else.rs::is_then_only_break_if_shape:L143",
+        "src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_else.rs::is_then_only_return_if_shape:L67",
+        "src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_exit.rs::is_exit_if_stmt:L27",
+        "src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_exit.rs::is_exit_if_with_nested_exit:L168",
+        "src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_exit.rs::is_exit_if_with_prelude:L102",
+        "src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_exit.rs::is_exit_if_with_return_before_continue:L75",
+        "src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_exit.rs::is_return_if_stmt:L140",
+        "src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_exit.rs::returns_only_in_exit_if:L198",
+        "src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_prelude.rs::branch_effects_only:L77",
+        "src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_prelude.rs::branch_effects_only_for_break:L148",
+        "src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_prelude.rs::exit_prelude_is_allowed:L16"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/loop_cond",
+      "subcluster_id": "joinir_plan::loop_plan_extractor::LoopCondPlanCluster::shape.loop_cond_plan::src_mir_builder_control_flow_plan_loop_cond::NoBorrow::Known::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 24,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanNormalizerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.plan_normalizer",
+      "source_id_count": 24,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/normalizer/common.rs::negate_bool_cond:L16",
+        "src/mir/builder/control_flow/plan/normalizer/cond_lowering_entry.rs::lower_bool_expr_value_id:L223",
+        "src/mir/builder/control_flow/plan/normalizer/cond_lowering_entry.rs::lower_cond_branch:L24",
+        "src/mir/builder/control_flow/plan/normalizer/cond_lowering_entry.rs::lower_cond_value:L50",
+        "src/mir/builder/control_flow/plan/normalizer/cond_lowering_if_plan.rs::lower_cond_to_if_plans:L18",
+        "src/mir/builder/control_flow/plan/normalizer/cond_lowering_loop_header.rs::lower_loop_header_cond:L36",
+        "src/mir/builder/control_flow/plan/normalizer/cond_lowering_loop_header.rs::preds_to:L25",
+        "src/mir/builder/control_flow/plan/normalizer/cond_lowering_prelude.rs::lower_blockexpr_value_prelude_stmts:L270",
+        "src/mir/builder/control_flow/plan/normalizer/cond_lowering_prelude.rs::lower_cond_prelude_stmts:L255",
+        "src/mir/builder/control_flow/plan/normalizer/cond_lowering_value_expr.rs::lower_cond_to_value_impl:L12",
+        "src/mir/builder/control_flow/plan/normalizer/cond_lowering_value_expr.rs::lower_cond_value_expr:L26",
+        "src/mir/builder/control_flow/plan/normalizer/helpers.rs::lower_binop_ast:L62",
+        "src/mir/builder/control_flow/plan/normalizer/helpers.rs::lower_compare_ast:L13",
+        "src/mir/builder/control_flow/plan/normalizer/helpers_layout.rs::allocate:L21",
+        "src/mir/builder/control_flow/plan/normalizer/helpers_value.rs::lower_value_ast:L71",
+        "src/mir/builder/control_flow/plan/normalizer/loop_body_lowering.rs::lower_assignment_stmt:L13",
+        "src/mir/builder/control_flow/plan/normalizer/loop_body_lowering.rs::lower_assignment_value:L66",
+        "src/mir/builder/control_flow/plan/normalizer/loop_body_lowering.rs::lower_bool_expr:L379",
+        "src/mir/builder/control_flow/plan/normalizer/loop_body_lowering.rs::lower_explicit_extern_call_value:L143",
+        "src/mir/builder/control_flow/plan/normalizer/loop_body_lowering.rs::lower_function_call_stmt:L345"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/normalizer",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanNormalizerCluster::shape.plan_normalizer::src_mir_builder_control_flow_plan_normalizer::NoReturnedBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "recipe_tree_matcher",
+      "candidate_count": 20,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "RecipeTreeMatcherCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.recipe_tree_matcher",
+      "source_id_count": 20,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/recipe_tree/accum_const_loop_composer.rs::compose_accum_const_loop_recipe:L20",
+        "src/mir/builder/control_flow/plan/recipe_tree/block.rs::register:L64",
+        "src/mir/builder/control_flow/plan/recipe_tree/bool_predicate_scan_composer.rs::compose_bool_predicate_scan_recipe:L20",
+        "src/mir/builder/control_flow/plan/recipe_tree/generic_loop_composer.rs::compose_generic_loop_v0_recipe:L17",
+        "src/mir/builder/control_flow/plan/recipe_tree/generic_loop_composer.rs::compose_generic_loop_v1_recipe:L52",
+        "src/mir/builder/control_flow/plan/recipe_tree/if_phi_join_composer.rs::compose_if_phi_join_recipe:L22",
+        "src/mir/builder/control_flow/plan/recipe_tree/loop_break_composer.rs::compose_loop_break_recipe:L48",
+        "src/mir/builder/control_flow/plan/recipe_tree/loop_cond_composer.rs::compose_loop_cond_break_continue_recipe:L14",
+        "src/mir/builder/control_flow/plan/recipe_tree/loop_cond_composer.rs::compose_loop_cond_continue_only_recipe:L54",
+        "src/mir/builder/control_flow/plan/recipe_tree/loop_cond_composer.rs::compose_loop_cond_continue_with_return_recipe:L90",
+        "src/mir/builder/control_flow/plan/recipe_tree/loop_cond_composer.rs::compose_loop_cond_return_in_body_recipe:L130",
+        "src/mir/builder/control_flow/plan/recipe_tree/loop_continue_only_composer.rs::compose_loop_continue_only_recipe:L22",
+        "src/mir/builder/control_flow/plan/recipe_tree/loop_simple_while_composer.rs::compose_loop_array_join_recipe:L179",
+        "src/mir/builder/control_flow/plan/recipe_tree/loop_simple_while_composer.rs::compose_loop_char_map_recipe:L110",
+        "src/mir/builder/control_flow/plan/recipe_tree/loop_simple_while_composer.rs::compose_loop_simple_while_recipe:L26",
+        "src/mir/builder/control_flow/plan/recipe_tree/loop_true_composer.rs::compose_loop_true_break_continue_recipe:L14",
+        "src/mir/builder/control_flow/plan/recipe_tree/loop_true_early_exit_composer.rs::compose_loop_true_early_exit_recipe:L20",
+        "src/mir/builder/control_flow/plan/recipe_tree/scan_with_init_composer.rs::compose_scan_with_init_recipe:L91",
+        "src/mir/builder/control_flow/plan/recipe_tree/split_scan_composer.rs::compose_split_scan_recipe:L61",
+        "src/mir/builder/control_flow/plan/recipe_tree/verified.rs::kind:L101"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/recipe_tree",
+      "subcluster_id": "joinir_plan::recipe_tree_matcher::RecipeTreeMatcherCluster::shape.recipe_tree_matcher::src_mir_builder_control_flow_plan_recipe_tree::NoReturnedBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "joinir_plan_lowering_surface",
+      "candidate_count": 19,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanLowererCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.plan_lowerer",
+      "source_id_count": 19,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/lowerer/body_processing.rs::emit_body_effects:L260",
+        "src/mir/builder/control_flow/plan/lowerer/body_processing.rs::emit_effect_in_loop:L379",
+        "src/mir/builder/control_flow/plan/lowerer/body_processing.rs::emit_effects_with_fallthrough:L81",
+        "src/mir/builder/control_flow/plan/lowerer/body_processing.rs::emit_if_effect:L30",
+        "src/mir/builder/control_flow/plan/lowerer/body_processing.rs::lower_loop_body_plans:L490",
+        "src/mir/builder/control_flow/plan/lowerer/core.rs::lower:L39",
+        "src/mir/builder/control_flow/plan/lowerer/core.rs::lower_with_stack:L49",
+        "src/mir/builder/control_flow/plan/lowerer/effect_emission.rs::emit_effect:L83",
+        "src/mir/builder/control_flow/plan/lowerer/effect_emission.rs::emit_exit_if:L318",
+        "src/mir/builder/control_flow/plan/lowerer/exit_lowering.rs::lower_exit:L22",
+        "src/mir/builder/control_flow/plan/lowerer/loop_completion.rs::emit_loop_frag:L24",
+        "src/mir/builder/control_flow/plan/lowerer/loop_lowering.rs::lower_loop:L43",
+        "src/mir/builder/control_flow/plan/lowerer/loop_preparation.rs::insert_provisional_phis:L121",
+        "src/mir/builder/control_flow/plan/lowerer/loop_preparation.rs::prepare_loop_entry:L26",
+        "src/mir/builder/control_flow/plan/lowerer/phi_processing.rs::merge_deferred_phi_inputs:L72",
+        "src/mir/builder/control_flow/plan/lowerer/phi_processing.rs::patch_all_phis:L160",
+        "src/mir/builder/control_flow/plan/lowerer/plan_lowering.rs::lower_branchn:L228",
+        "src/mir/builder/control_flow/plan/lowerer/plan_lowering.rs::lower_if:L163",
+        "src/mir/builder/control_flow/plan/lowerer/plan_lowering.rs::lower_seq:L153"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/lowerer",
+      "subcluster_id": "joinir_plan::joinir_plan_lowering_surface::PlanLowererCluster::shape.plan_lowerer::src_mir_builder_control_flow_plan_lowerer::NoReturnedBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoBorrow",
+      "bucket": "recipe_tree_matcher",
+      "candidate_count": 18,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "RecipeTreeMatcherCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.recipe_tree_matcher",
+      "source_id_count": 18,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/recipe_tree/accum_const_loop_builder.rs::build_accum_const_loop_recipe:L23",
+        "src/mir/builder/control_flow/plan/recipe_tree/array_join_builder.rs::build_array_join_recipe:L31",
+        "src/mir/builder/control_flow/plan/recipe_tree/block.rs::new:L119",
+        "src/mir/builder/control_flow/plan/recipe_tree/block.rs::new:L60",
+        "src/mir/builder/control_flow/plan/recipe_tree/bool_predicate_scan_builder.rs::build_bool_predicate_scan_recipe:L24",
+        "src/mir/builder/control_flow/plan/recipe_tree/char_map_builder.rs::build_char_map_recipe:L51",
+        "src/mir/builder/control_flow/plan/recipe_tree/if_phi_join_builder.rs::build_if_phi_join_recipe:L30",
+        "src/mir/builder/control_flow/plan/recipe_tree/join_scope.rs::collect_branch_local_vars_from_block_recursive:L9",
+        "src/mir/builder/control_flow/plan/recipe_tree/loop_break_builder.rs::build_loop_break_recipe:L62",
+        "src/mir/builder/control_flow/plan/recipe_tree/loop_continue_only_builder.rs::build_loop_continue_only_recipe:L31",
+        "src/mir/builder/control_flow/plan/recipe_tree/loop_simple_while_builder.rs::build_loop_simple_while_recipe:L45",
+        "src/mir/builder/control_flow/plan/recipe_tree/loop_true_early_exit_builder.rs::build_loop_true_early_exit_recipe:L25",
+        "src/mir/builder/control_flow/plan/recipe_tree/mod.rs::build_stmt_only_block:L62",
+        "src/mir/builder/control_flow/plan/recipe_tree/scan_with_init_builder.rs::build_scan_with_init_recipe:L24",
+        "src/mir/builder/control_flow/plan/recipe_tree/split_scan_builder.rs::build_split_scan_recipe:L24",
+        "src/mir/builder/control_flow/plan/recipe_tree/verified.rs::check_block_contract:L122",
+        "src/mir/builder/control_flow/plan/recipe_tree/verified.rs::exit_ports:L36",
+        "src/mir/builder/control_flow/plan/recipe_tree/verified.rs::verify_port_sig_obligations_if_enabled:L148"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/recipe_tree",
+      "subcluster_id": "joinir_plan::recipe_tree_matcher::RecipeTreeMatcherCluster::shape.recipe_tree_matcher::src_mir_builder_control_flow_plan_recipe_tree::NoBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 17,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanFeatureMaterializerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.phi_materializer_feature",
+      "source_id_count": 17,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/features/coreloop_frame.rs::build_coreloop_frame:L52",
+        "src/mir/builder/control_flow/plan/features/loop_cond_bc_phi_materializer.rs::close:L122",
+        "src/mir/builder/control_flow/plan/features/loop_cond_bc_phi_materializer.rs::continue_target:L118",
+        "src/mir/builder/control_flow/plan/features/loop_cond_bc_phi_materializer.rs::phi_bindings:L114",
+        "src/mir/builder/control_flow/plan/features/loop_cond_bc_phi_materializer.rs::prepare:L46",
+        "src/mir/builder/control_flow/plan/features/loop_cond_continue_with_return_phi_materializer.rs::close:L79",
+        "src/mir/builder/control_flow/plan/features/loop_cond_continue_with_return_phi_materializer.rs::continue_target:L47",
+        "src/mir/builder/control_flow/plan/features/loop_cond_continue_with_return_phi_materializer.rs::continue_target:L75",
+        "src/mir/builder/control_flow/plan/features/loop_cond_continue_with_return_phi_materializer.rs::prepare:L53",
+        "src/mir/builder/control_flow/plan/features/loop_cond_return_in_body_phi_materializer.rs::close:L134",
+        "src/mir/builder/control_flow/plan/features/loop_cond_return_in_body_phi_materializer.rs::continue_exit:L44",
+        "src/mir/builder/control_flow/plan/features/loop_cond_return_in_body_phi_materializer.rs::continue_target:L56",
+        "src/mir/builder/control_flow/plan/features/loop_cond_return_in_body_phi_materializer.rs::prepare:L62",
+        "src/mir/builder/control_flow/plan/features/loop_true_break_continue_phi_materializer.rs::close:L112",
+        "src/mir/builder/control_flow/plan/features/loop_true_break_continue_phi_materializer.rs::phi_bindings:L74",
+        "src/mir/builder/control_flow/plan/features/loop_true_break_continue_phi_materializer.rs::plan_break_after_phis:L78",
+        "src/mir/builder/control_flow/plan/features/loop_true_break_continue_phi_materializer.rs::prepare:L36"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/features",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanFeatureMaterializerCluster::shape.phi_materializer_feature::src_mir_builder_control_flow_plan_features::NoReturnedBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoBorrow",
+      "bucket": "loop_plan_extractor",
+      "candidate_count": 15,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "LoopCondPlanCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.loop_cond_plan",
+      "source_id_count": 15,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/loop_cond/break_continue_accept.rs::determine_accept_kind:L14",
+        "src/mir/builder/control_flow/plan/loop_cond/break_continue_classify.rs::build_continue_if_with_else_recipes:L61",
+        "src/mir/builder/control_flow/plan/loop_cond/break_continue_classify.rs::continue_if_with_else_info:L18",
+        "src/mir/builder/control_flow/plan/loop_cond/break_continue_entry.rs::try_extract_loop_cond_break_continue_facts:L41",
+        "src/mir/builder/control_flow/plan/loop_cond/break_continue_entry.rs::try_extract_loop_cond_break_continue_facts_for_nested:L93",
+        "src/mir/builder/control_flow/plan/loop_cond/break_continue_entry.rs::try_extract_loop_cond_break_continue_facts_with_limit:L66",
+        "src/mir/builder/control_flow/plan/loop_cond/break_continue_facts.rs::try_extract_loop_cond_break_continue_facts_inner:L39",
+        "src/mir/builder/control_flow/plan/loop_cond/break_continue_helpers.rs::collect_continue_branch_sigs:L228",
+        "src/mir/builder/control_flow/plan/loop_cond/break_continue_helpers.rs::detect_handled_guard_break:L167",
+        "src/mir/builder/control_flow/plan/loop_cond/break_continue_tree.rs::build_exit_if_tree_recipe:L18",
+        "src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_cond.rs::build_conditional_update_branch_recipe:L100",
+        "src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_else.rs::build_else_guard_break_body_recipe:L263",
+        "src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_else.rs::build_else_guard_break_recipes:L214",
+        "src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_exit.rs::try_build_else_nested_exit_if_return_exit_allowed_recipe:L327",
+        "src/mir/builder/control_flow/plan/loop_cond/true_break_continue.rs::try_extract_loop_true_break_continue_facts:L31"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/loop_cond",
+      "subcluster_id": "joinir_plan::loop_plan_extractor::LoopCondPlanCluster::shape.loop_cond_plan::src_mir_builder_control_flow_plan_loop_cond::NoBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoBorrow",
+      "bucket": "route_local_plan_descriptor",
+      "candidate_count": 14,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanPartsAssemblyCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.plan_parts_assembly",
+      "source_id_count": 14,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/parts/exit.rs::build_break_exit_plan:L98",
+        "src/mir/builder/control_flow/plan/parts/exit.rs::build_break_with_phi_args:L156",
+        "src/mir/builder/control_flow/plan/parts/exit.rs::build_continue_exit_plan:L103",
+        "src/mir/builder/control_flow/plan/parts/exit.rs::build_continue_with_phi_args:L108",
+        "src/mir/builder/control_flow/plan/parts/exit.rs::build_return_exit_plan:L86",
+        "src/mir/builder/control_flow/plan/parts/exit.rs::build_return_only:L93",
+        "src/mir/builder/control_flow/plan/parts/exit_kind_depth_view.rs::from_recipe_exit_kind:L11",
+        "src/mir/builder/control_flow/plan/parts/join_scope.rs::collect_branch_local_vars_from_body:L51",
+        "src/mir/builder/control_flow/plan/parts/join_scope.rs::collect_branch_local_vars_from_maps:L32",
+        "src/mir/builder/control_flow/plan/parts/join_scope.rs::filter_branch_locals_from_maps:L9",
+        "src/mir/builder/control_flow/plan/parts/verify.rs::verify_block_contract_if_enabled:L24",
+        "src/mir/builder/control_flow/plan/parts/verify.rs::verify_no_exit_block_contract_if_enabled:L41",
+        "src/mir/builder/control_flow/plan/parts/verify.rs::verify_stmt_only_block_contract_if_enabled:L33",
+        "src/mir/builder/control_flow/plan/parts/verify_refs.rs::verify_item_refs_in_range:L10"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/parts",
+      "subcluster_id": "joinir_plan::route_local_plan_descriptor::PlanPartsAssemblyCluster::shape.plan_parts_assembly::src_mir_builder_control_flow_plan_parts::NoBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 13,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanFeatureMaterializerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.generic_loop_body_feature",
+      "source_id_count": 13,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/features/generic_loop_body/branch.rs::try_lower_blockexpr_loop_prelude_value:L14",
+        "src/mir/builder/control_flow/plan/features/generic_loop_body/branch.rs::try_lower_conditional_update_if:L180",
+        "src/mir/builder/control_flow/plan/features/generic_loop_body/cleanup.rs::apply_generic_loop_v1_fallthrough_cleanup:L17",
+        "src/mir/builder/control_flow/plan/features/generic_loop_body/helpers.rs::lower_effect_block:L183",
+        "src/mir/builder/control_flow/plan/features/generic_loop_body/helpers.rs::lower_effect_only_stmt:L123",
+        "src/mir/builder/control_flow/plan/features/generic_loop_body/helpers.rs::lower_exit_from_stmt:L277",
+        "src/mir/builder/control_flow/plan/features/generic_loop_body/helpers.rs::lower_if_effect:L245",
+        "src/mir/builder/control_flow/plan/features/generic_loop_body/helpers.rs::lower_negated_bool_cond:L306",
+        "src/mir/builder/control_flow/plan/features/generic_loop_body/helpers.rs::lower_nested_loop_plan:L61",
+        "src/mir/builder/control_flow/plan/features/generic_loop_body/nested_loop_depth1_handoff.rs::try_lower_generic_nested_loop_depth1_fastpath:L6",
+        "src/mir/builder/control_flow/plan/features/generic_loop_body/nested_loop_recipe_adoption.rs::try_compose_generic_nested_loop_recipe_adoption:L15",
+        "src/mir/builder/control_flow/plan/features/generic_loop_body/v0.rs::lower_generic_loop_v0_body:L20",
+        "src/mir/builder/control_flow/plan/features/generic_loop_body/v1.rs::lower_generic_loop_v1_body:L29"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/features/generic_loop_body",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanFeatureMaterializerCluster::shape.generic_loop_body_feature::src_mir_builder_control_flow_plan_features_generic_loop_body::NoReturnedBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoBorrow",
+      "bucket": "loop_plan_extractor",
+      "candidate_count": 12,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "GenericLoopPlanCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.generic_loop_plan",
+      "source_id_count": 12,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/generic_loop/facts/stmt_classifier/assign.rs::is_simple_assignment:L5",
+        "src/mir/builder/control_flow/plan/generic_loop/facts/stmt_classifier/control.rs::body_has_continue:L306",
+        "src/mir/builder/control_flow/plan/generic_loop/facts/stmt_classifier/control.rs::is_break_else_effect_if:L121",
+        "src/mir/builder/control_flow/plan/generic_loop/facts/stmt_classifier/control.rs::is_conditional_update_if:L174",
+        "src/mir/builder/control_flow/plan/generic_loop/facts/stmt_classifier/control.rs::is_effect_if:L36",
+        "src/mir/builder/control_flow/plan/generic_loop/facts/stmt_classifier/control.rs::is_effect_if_pure:L94",
+        "src/mir/builder/control_flow/plan/generic_loop/facts/stmt_classifier/control.rs::is_effect_stmt:L153",
+        "src/mir/builder/control_flow/plan/generic_loop/facts/stmt_classifier/control.rs::is_exit_if:L13",
+        "src/mir/builder/control_flow/plan/generic_loop/facts/stmt_classifier/control.rs::is_general_if_full:L238",
+        "src/mir/builder/control_flow/plan/generic_loop/facts/stmt_classifier/local.rs::is_local_decl:L17",
+        "src/mir/builder/control_flow/plan/generic_loop/facts/stmt_classifier/local.rs::is_local_init:L5",
+        "src/mir/builder/control_flow/plan/generic_loop/facts/stmt_classifier/utils.rs::stmt_uses_loop_var:L5"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/generic_loop/facts/stmt_classifier",
+      "subcluster_id": "joinir_plan::loop_plan_extractor::GenericLoopPlanCluster::shape.generic_loop_plan::src_mir_builder_control_flow_plan_generic_loop_facts_stmt_classifier::NoBorrow::Known::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoBorrow",
+      "bucket": "loop_plan_extractor",
+      "candidate_count": 11,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "GenericLoopPlanCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.generic_loop_plan",
+      "source_id_count": 11,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/call.rs::matches_is_space_call:L7",
+        "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/call.rs::matches_substring_call_with_loop_var:L25",
+        "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/compare.rs::matches_loop_var_compare:L64",
+        "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/compare.rs::matches_loop_var_equal_literal:L34",
+        "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/compare.rs::matches_loop_var_less_than_literal:L4",
+        "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/control.rs::matches_if_else_return_literal:L105",
+        "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/control.rs::matches_if_else_return_literal_local:L204",
+        "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/control.rs::matches_if_return_literal:L6",
+        "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/control.rs::matches_if_return_local:L72",
+        "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/control.rs::matches_if_return_var:L42",
+        "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/mod.rs::matches_trim_cond_with_methodcall:L14"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers",
+      "subcluster_id": "joinir_plan::loop_plan_extractor::GenericLoopPlanCluster::shape.generic_loop_plan::src_mir_builder_control_flow_plan_generic_loop_body_check_expr_matchers::NoBorrow::Known::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 8,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanFactsCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.plan_facts",
+      "source_id_count": 8,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/facts/exit_only_block.rs::exit_only_block_ends_with_exit_on_all_paths:L339",
+        "src/mir/builder/control_flow/plan/facts/expr_generic_loop.rs::is_pure_value_expr_for_generic_loop:L72",
+        "src/mir/builder/control_flow/plan/facts/expr_generic_loop.rs::is_supported_bool_expr_for_generic_loop:L163",
+        "src/mir/builder/control_flow/plan/facts/expr_generic_loop.rs::is_supported_value_expr_for_generic_loop:L8",
+        "src/mir/builder/control_flow/plan/facts/feature_facts.rs::detect_nested_loop:L82",
+        "src/mir/builder/control_flow/plan/facts/loop_scan_with_init.rs::match_index_of_bound:L354",
+        "src/mir/builder/control_flow/plan/facts/nested_loop_profile.rs::scan_nested_loop_body:L45",
+        "src/mir/builder/control_flow/plan/facts/reject_reason.rs::log_accept:L328"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/facts",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanFactsCluster::shape.plan_facts::src_mir_builder_control_flow_plan_facts::NoBorrow::Known::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 8,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanFeatureMaterializerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.generic_loop_body_feature",
+      "source_id_count": 8,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/features/generic_loop_body/branch.rs::body_has_blockexpr_prelude_loop:L71",
+        "src/mir/builder/control_flow/plan/features/generic_loop_body/branch.rs::can_attempt_conditional_update_branch:L216",
+        "src/mir/builder/control_flow/plan/features/generic_loop_body/branch.rs::expr_has_blockexpr_prelude_loop:L121",
+        "src/mir/builder/control_flow/plan/features/generic_loop_body/branch.rs::has_non_loop_assignment:L252",
+        "src/mir/builder/control_flow/plan/features/generic_loop_body/branch.rs::stmt_has_blockexpr_prelude_loop:L75",
+        "src/mir/builder/control_flow/plan/features/generic_loop_body/helpers.rs::matches_loop_increment:L106",
+        "src/mir/builder/control_flow/plan/features/generic_loop_body/terminality.rs::body_plans_exit_on_all_paths:L9",
+        "src/mir/builder/control_flow/plan/features/generic_loop_body/terminality.rs::plans_require_continue_edge:L13"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/features/generic_loop_body",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanFeatureMaterializerCluster::shape.generic_loop_body_feature::src_mir_builder_control_flow_plan_features_generic_loop_body::NoBorrow::Known::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoBorrow",
+      "bucket": "joinir_plan_lowering_surface",
+      "candidate_count": 7,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlannerPolicyCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.planner_policy",
+      "source_id_count": 7,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/planner/freeze.rs::ambiguous:L24",
+        "src/mir/builder/control_flow/plan/planner/freeze.rs::bug:L48",
+        "src/mir/builder/control_flow/plan/planner/freeze.rs::contract:L16",
+        "src/mir/builder/control_flow/plan/planner/freeze.rs::unstructured:L40",
+        "src/mir/builder/control_flow/plan/planner/freeze.rs::unsupported:L32",
+        "src/mir/builder/control_flow/plan/planner/freeze.rs::with_hint:L56",
+        "src/mir/builder/control_flow/plan/planner/outcome.rs::build_plan_with_facts_ctx:L19"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/planner",
+      "subcluster_id": "joinir_plan::joinir_plan_lowering_surface::PlannerPolicyCluster::shape.planner_policy::src_mir_builder_control_flow_plan_planner::NoBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoBorrow",
+      "bucket": "loop_plan_extractor",
+      "candidate_count": 7,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "GenericLoopPlanCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.generic_loop_plan",
+      "source_id_count": 7,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/generic_loop/body_check/shape_detection.rs::detect_generic_loop_v1_shape:L5",
+        "src/mir/builder/control_flow/plan/generic_loop/body_check/shape_detection.rs::resolve_v1_shape_matches:L150",
+        "src/mir/builder/control_flow/plan/generic_loop/body_check/shape_resolution.rs::detect_generic_loop_v1_shape:L31",
+        "src/mir/builder/control_flow/plan/generic_loop/body_check/step_validation.rs::validate_break_else_if_step:L203",
+        "src/mir/builder/control_flow/plan/generic_loop/body_check/step_validation.rs::validate_continue_if_step:L175",
+        "src/mir/builder/control_flow/plan/generic_loop/body_check/step_validation.rs::validate_in_body_step:L36",
+        "src/mir/builder/control_flow/plan/generic_loop/body_check/step_validation.rs::validate_in_body_step_v1:L111"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/generic_loop/body_check",
+      "subcluster_id": "joinir_plan::loop_plan_extractor::GenericLoopPlanCluster::shape.generic_loop_plan::src_mir_builder_control_flow_plan_generic_loop_body_check::NoBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 7,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanFeatureMaterializerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.phi_materializer_feature",
+      "source_id_count": 7,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/features/loop_carriers.rs::build_loop_bindings:L39",
+        "src/mir/builder/control_flow/plan/features/loop_carriers.rs::build_phi_info:L8",
+        "src/mir/builder/control_flow/plan/features/loop_cond_bc_phi_materializer.rs::new:L29",
+        "src/mir/builder/control_flow/plan/features/loop_cond_co_phi_materializer.rs::new:L19",
+        "src/mir/builder/control_flow/plan/features/loop_cond_continue_with_return_phi_materializer.rs::new:L27",
+        "src/mir/builder/control_flow/plan/features/loop_cond_return_in_body_phi_materializer.rs::new:L30",
+        "src/mir/builder/control_flow/plan/features/loop_true_break_continue_phi_materializer.rs::new:L19"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/features",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanFeatureMaterializerCluster::shape.phi_materializer_feature::src_mir_builder_control_flow_plan_features::NoBorrow::Known::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoBorrow",
+      "bucket": "loop_plan_extractor",
+      "candidate_count": 6,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "LoopBreakPlanCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.loop_break_plan",
+      "source_id_count": 6,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/loop_break/facts/helpers_common.rs::has_continue_statement:L92",
+        "src/mir/builder/control_flow/plan/loop_break/facts/helpers_common.rs::has_return_statement:L99",
+        "src/mir/builder/control_flow/plan/loop_break/facts/helpers_condition.rs::matches_eq_empty_string:L113",
+        "src/mir/builder/control_flow/plan/loop_break/facts/helpers_condition.rs::matches_ge_zero:L90",
+        "src/mir/builder/control_flow/plan/loop_break/facts/helpers_loop.rs::has_assignment_after:L99",
+        "src/mir/builder/control_flow/plan/loop_break/facts/trim_whitespace_helpers.rs::matches_substring_at_loop_var:L489"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/loop_break/facts",
+      "subcluster_id": "joinir_plan::loop_plan_extractor::LoopBreakPlanCluster::shape.loop_break_plan::src_mir_builder_control_flow_plan_loop_break_facts::NoBorrow::Known::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "loop_plan_extractor",
+      "candidate_count": 6,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "NestedLoopPlanCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.nested_loop_plan",
+      "source_id_count": 6,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/nested_loop_plan.rs::lower_nested_loop_plan_with_recipe_first:L27",
+        "src/mir/builder/control_flow/plan/nested_loop_plan.rs::try_compose_loop_cond_continue_with_return_recipe:L11",
+        "src/mir/builder/control_flow/plan/nested_loop_plan_break_continue.rs::try_compose_loop_cond_break_continue_recipe_bridge:L10",
+        "src/mir/builder/control_flow/plan/nested_loop_plan_bridge.rs::lower_nested_loop_plan_with_recipe_first_bridge:L14",
+        "src/mir/builder/control_flow/plan/nested_loop_plan_continue_with_return.rs::try_compose_loop_cond_continue_with_return_recipe_bridge:L10",
+        "src/mir/builder/control_flow/plan/nested_loop_plan_recipe_adoption.rs::try_compose_nested_loop_recipe_adoption:L13"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan",
+      "subcluster_id": "joinir_plan::loop_plan_extractor::NestedLoopPlanCluster::shape.nested_loop_plan::src_mir_builder_control_flow_plan::NoReturnedBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoBorrow",
+      "bucket": "loop_plan_extractor",
+      "candidate_count": 6,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "NestedLoopPlanCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.nested_loop_plan",
+      "source_id_count": 6,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/nested_loop_depth1/facts.rs::try_extract_nested_loop_depth1_facts:L12",
+        "src/mir/builder/control_flow/plan/nested_loop_depth1/facts_helpers.rs::try_extract_break_continue_pure:L9",
+        "src/mir/builder/control_flow/plan/nested_loop_depth1/facts_helpers.rs::try_extract_methodcall:L34",
+        "src/mir/builder/control_flow/plan/nested_loop_depth1/facts_helpers.rs::try_extract_no_break_or_continue:L46",
+        "src/mir/builder/control_flow/plan/nested_loop_depth1/facts_helpers.rs::try_extract_no_break_or_continue_pure:L22",
+        "src/mir/builder/control_flow/plan/nested_loop_depth1/facts_types.rs::profile:L15"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/nested_loop_depth1",
+      "subcluster_id": "joinir_plan::loop_plan_extractor::NestedLoopPlanCluster::shape.nested_loop_plan::src_mir_builder_control_flow_plan_nested_loop_depth1::NoBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 6,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanFeatureMaterializerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.edge_cfg_stub_feature",
+      "source_id_count": 6,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/features/edgecfg_stubs.rs::build_branch_stub:L8",
+        "src/mir/builder/control_flow/plan/features/edgecfg_stubs.rs::build_edge_stub:L34",
+        "src/mir/builder/control_flow/plan/features/edgecfg_stubs.rs::build_loop_back_edge:L70",
+        "src/mir/builder/control_flow/plan/features/edgecfg_stubs.rs::build_loop_back_edge_with_args:L77",
+        "src/mir/builder/control_flow/plan/features/edgecfg_stubs.rs::build_loop_header_branch_with_args:L48",
+        "src/mir/builder/control_flow/plan/features/edgecfg_stubs.rs::build_normal_edge_stub:L26"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/features",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanFeatureMaterializerCluster::shape.edge_cfg_stub_feature::src_mir_builder_control_flow_plan_features::NoBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 6,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanFeatureMaterializerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.generic_loop_body_feature",
+      "source_id_count": 6,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/features/generic_loop_handoff.rs::apply_generic_loop_v0_condition_step_handoff:L16",
+        "src/mir/builder/control_flow/plan/features/generic_loop_handoff.rs::apply_generic_loop_v1_condition_step_handoff:L42",
+        "src/mir/builder/control_flow/plan/features/generic_loop_pipeline.rs::apply_generic_loop_v0_pipeline:L11",
+        "src/mir/builder/control_flow/plan/features/generic_loop_pipeline.rs::apply_generic_loop_v1_pipeline:L42",
+        "src/mir/builder/control_flow/plan/features/generic_loop_step.rs::apply_generic_loop_condition:L13",
+        "src/mir/builder/control_flow/plan/features/generic_loop_step.rs::apply_generic_loop_step:L76"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/features",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanFeatureMaterializerCluster::shape.generic_loop_body_feature::src_mir_builder_control_flow_plan_features::NoReturnedBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 6,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanFeatureMaterializerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.phi_materializer_feature",
+      "source_id_count": 6,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/features/coreloop_frame.rs::build_header_step_phis:L126",
+        "src/mir/builder/control_flow/plan/features/loop_carriers.rs::build_after_merge_phi_info:L68",
+        "src/mir/builder/control_flow/plan/features/loop_carriers.rs::build_loop_phi_info:L22",
+        "src/mir/builder/control_flow/plan/features/loop_carriers.rs::build_preheader_only_phi_info:L57",
+        "src/mir/builder/control_flow/plan/features/loop_carriers.rs::build_step_join_phi_info:L47",
+        "src/mir/builder/control_flow/plan/features/loop_cond_co_phi_materializer.rs::materialize_loop_cond_continue_only_phi_closure:L35"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/features",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanFeatureMaterializerCluster::shape.phi_materializer_feature::src_mir_builder_control_flow_plan_features::NoBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "route_local_plan_descriptor",
+      "candidate_count": 6,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanPartsAssemblyCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.plan_parts_assembly",
+      "source_id_count": 6,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/parts/dispatch/block.rs::lower_exit_allowed_block:L353",
+        "src/mir/builder/control_flow/plan/parts/dispatch/block.rs::lower_exit_allowed_block_verified:L394",
+        "src/mir/builder/control_flow/plan/parts/dispatch/block.rs::lower_exit_only_block:L311",
+        "src/mir/builder/control_flow/plan/parts/dispatch/block.rs::lower_exit_only_block_verified:L332",
+        "src/mir/builder/control_flow/plan/parts/dispatch/block.rs::lower_no_exit_block_verified:L491",
+        "src/mir/builder/control_flow/plan/parts/dispatch/if_exit_only.rs::lower_exit_only_item:L25"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/parts/dispatch",
+      "subcluster_id": "joinir_plan::route_local_plan_descriptor::PlanPartsAssemblyCluster::shape.plan_parts_assembly::src_mir_builder_control_flow_plan_parts_dispatch::NoReturnedBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoBorrow",
+      "bucket": "loop_plan_extractor",
+      "candidate_count": 5,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "GenericLoopPlanCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.generic_loop_plan",
+      "source_id_count": 5,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/generic_loop/facts/extract/collection.rs::collect_increment_loop_var_candidates_from_body:L104",
+        "src/mir/builder/control_flow/plan/generic_loop/facts/extract/collection.rs::collect_loop_var_candidates_from_body:L31",
+        "src/mir/builder/control_flow/plan/generic_loop/facts/extract/v0.rs::try_extract_generic_loop_v0_facts:L26",
+        "src/mir/builder/control_flow/plan/generic_loop/facts/extract/v1.rs::has_generic_loop_v1_recipe_hint:L359",
+        "src/mir/builder/control_flow/plan/generic_loop/facts/extract/v1.rs::try_extract_generic_loop_v1_facts:L60"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/generic_loop/facts/extract",
+      "subcluster_id": "joinir_plan::loop_plan_extractor::GenericLoopPlanCluster::shape.generic_loop_plan::src_mir_builder_control_flow_plan_generic_loop_facts_extract::NoBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoBorrow",
+      "bucket": "loop_plan_extractor",
+      "candidate_count": 5,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "LoopBreakPlanCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.loop_break_plan",
+      "source_id_count": 5,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/loop_break/facts/body_local_facts_shape_matchers/body_local_common.rs::extract_eq_whitespace:L3",
+        "src/mir/builder/control_flow/plan/loop_break/facts/body_local_facts_shape_matchers/body_local_common.rs::extract_indexof_expr:L84",
+        "src/mir/builder/control_flow/plan/loop_break/facts/body_local_facts_shape_matchers/body_local_common.rs::extract_substring_loop_slice:L35",
+        "src/mir/builder/control_flow/plan/loop_break/facts/body_local_facts_shape_matchers/body_local_digit_matcher.rs::try_match_digit_pos:L7",
+        "src/mir/builder/control_flow/plan/loop_break/facts/body_local_facts_shape_matchers/body_local_trim_matcher.rs::try_match_trim_seg:L7"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/loop_break/facts/body_local_facts_shape_matchers",
+      "subcluster_id": "joinir_plan::loop_plan_extractor::LoopBreakPlanCluster::shape.loop_break_plan::src_mir_builder_control_flow_plan_loop_break_facts_body_local_facts_shape_matchers::NoBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 5,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanFeatureMaterializerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.carrier_feature",
+      "source_id_count": 5,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/features/carriers.rs::collect_carrier_vars:L93",
+        "src/mir/builder/control_flow/plan/features/carriers.rs::collect_from_body:L23",
+        "src/mir/builder/control_flow/plan/features/carriers.rs::collect_from_recipe_continue_only:L473",
+        "src/mir/builder/control_flow/plan/features/carriers.rs::collect_from_recipe_continue_with_return:L262",
+        "src/mir/builder/control_flow/plan/features/carriers.rs::collect_outer_from_body:L32"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/features",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanFeatureMaterializerCluster::shape.carrier_feature::src_mir_builder_control_flow_plan_features::NoBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 5,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanFeatureMaterializerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.loop_cond_verifier",
+      "source_id_count": 5,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/features/loop_cond_bc_verifier.rs::verify_loop_cond_break_continue_phi_closure:L12",
+        "src/mir/builder/control_flow/plan/features/loop_cond_co_verifier.rs::verify_loop_cond_continue_only_phi_closure:L11",
+        "src/mir/builder/control_flow/plan/features/loop_cond_continue_with_return_verifier.rs::verify_loop_cond_continue_with_return_phi_closure:L11",
+        "src/mir/builder/control_flow/plan/features/loop_cond_return_in_body_verifier.rs::verify_loop_cond_return_in_body_phi_closure:L11",
+        "src/mir/builder/control_flow/plan/features/loop_true_break_continue_verifier.rs::verify_loop_true_break_continue_phi_closure:L12"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/features",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanFeatureMaterializerCluster::shape.loop_cond_verifier::src_mir_builder_control_flow_plan_features::NoBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoBorrow",
+      "bucket": "route_local_plan_descriptor",
+      "candidate_count": 5,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanPartsAssemblyCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.plan_parts_assembly",
+      "source_id_count": 5,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/parts/stmt_shape.rs::stmt_has_loop_stmt_recursive:L22",
+        "src/mir/builder/control_flow/plan/parts/stmt_shape.rs::tail_is_exit:L8",
+        "src/mir/builder/control_flow/plan/parts/stmt_shape.rs::value_has_blockexpr_prelude_loop:L15",
+        "src/mir/builder/control_flow/plan/parts/verify_shape.rs::is_block_exit_only_item:L10",
+        "src/mir/builder/control_flow/plan/parts/verify_shape.rs::is_exit_only_block:L40"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/parts",
+      "subcluster_id": "joinir_plan::route_local_plan_descriptor::PlanPartsAssemblyCluster::shape.plan_parts_assembly::src_mir_builder_control_flow_plan_parts::NoBorrow::Known::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing",
+        "NeedsOwnerEdgeRepair"
+      ],
+      "borrow_axis": "NoBorrow",
+      "bucket": "unknown_or_needs_owner_edge_repair",
+      "candidate_count": 5,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "OtherJoinIRPlanCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.other_join_i_r_plan",
+      "source_id_count": 5,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/branchn.rs::branchn_to_if_chain:L24",
+        "src/mir/builder/control_flow/plan/loop_cond_unified_helpers.rs::count_control_flow_with_returns:L35",
+        "src/mir/builder/control_flow/plan/plan_build_session.rs::new:L33",
+        "src/mir/builder/control_flow/plan/step_mode.rs::extract_to_step_bb_explicit_step:L11",
+        "src/mir/builder/control_flow/plan/step_mode.rs::inline_in_body_no_explicit_step:L6"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan",
+      "subcluster_id": "joinir_plan::unknown_or_needs_owner_edge_repair::OtherJoinIRPlanCluster::shape.other_join_i_r_plan::src_mir_builder_control_flow_plan::NoBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "joinir_plan_lowering_surface",
+      "candidate_count": 4,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanLowererCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.plan_lowerer",
+      "source_id_count": 4,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/lowerer/block_effect_emission.rs::emit_all_block_effects:L28",
+        "src/mir/builder/control_flow/plan/lowerer/loop_completion.rs::finalize_loop_variables:L90",
+        "src/mir/builder/control_flow/plan/lowerer/phi_processing.rs::validate_no_unpatched_phis:L205",
+        "src/mir/builder/control_flow/plan/lowerer/phi_processing.rs::validate_no_unpatched_phis_after_patch:L262"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/lowerer",
+      "subcluster_id": "joinir_plan::joinir_plan_lowering_surface::PlanLowererCluster::shape.plan_lowerer::src_mir_builder_control_flow_plan_lowerer::NoReturnedBorrow::Known::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoBorrow",
+      "bucket": "loop_plan_extractor",
+      "candidate_count": 4,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "GenericLoopPlanCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.generic_loop_plan",
+      "source_id_count": 4,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/generic_loop/body_check_extractors.rs::collect_next_step_vars:L57",
+        "src/mir/builder/control_flow/plan/generic_loop/body_check_extractors.rs::extract_local_init_var:L161",
+        "src/mir/builder/control_flow/plan/generic_loop/body_check_extractors.rs::extract_next_i_var:L21",
+        "src/mir/builder/control_flow/plan/generic_loop/facts_helpers.rs::reject_or_false:L15"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/generic_loop",
+      "subcluster_id": "joinir_plan::loop_plan_extractor::GenericLoopPlanCluster::shape.generic_loop_plan::src_mir_builder_control_flow_plan_generic_loop::NoBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 4,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanFeatureMaterializerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.other_plan_feature",
+      "source_id_count": 4,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/features/if_join.rs::apply_if_joins:L37",
+        "src/mir/builder/control_flow/plan/features/nested_loop_depth1.rs::lower_nested_loop_depth1_any:L9",
+        "src/mir/builder/control_flow/plan/features/nested_loop_depth1_preheader.rs::apply_nested_loop_preheader_freshness:L10",
+        "src/mir/builder/control_flow/plan/features/nested_loop_depth1_route.rs::dispatch_nested_loop_depth1_any:L22"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/features",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanFeatureMaterializerCluster::shape.other_plan_feature::src_mir_builder_control_flow_plan_features::NoReturnedBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 4,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanNormalizerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.plan_normalizer",
+      "source_id_count": 4,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/normalizer/common.rs::empty_args:L9",
+        "src/mir/builder/control_flow/plan/normalizer/common.rs::lower_me_this_method_effect:L37",
+        "src/mir/builder/control_flow/plan/normalizer/helpers_value.rs::declared_field_type_for_base:L13",
+        "src/mir/builder/control_flow/plan/normalizer/stmt_only_prelude_view.rs::stmt_only_prelude_view:L28"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/normalizer",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanNormalizerCluster::shape.plan_normalizer::src_mir_builder_control_flow_plan_normalizer::NoBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 4,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanNormalizerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.plan_normalizer",
+      "source_id_count": 4,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/normalizer/cond_lowering_freshen/collector.rs::collect_definition_value_ids:L16",
+        "src/mir/builder/control_flow/plan/normalizer/cond_lowering_freshen/utils.rs::remap_value_id:L7",
+        "src/mir/builder/control_flow/plan/normalizer/cond_lowering_freshen/utils.rs::remap_value_ids:L12",
+        "src/mir/builder/control_flow/plan/normalizer/cond_lowering_freshen/verifier.rs::find_remap_mismatch:L16"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/normalizer/cond_lowering_freshen",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanNormalizerCluster::shape.plan_normalizer::src_mir_builder_control_flow_plan_normalizer_cond_lowering_freshen::NoBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "route_local_plan_descriptor",
+      "candidate_count": 4,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanPartsAssemblyCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.plan_parts_assembly",
+      "source_id_count": 4,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/parts/loop_/body_block.rs::lower_loop_with_body_block:L9",
+        "src/mir/builder/control_flow/plan/parts/loop_/loop_v0.rs::lower_loop_v0:L34",
+        "src/mir/builder/control_flow/plan/parts/loop_/nested_depth1.rs::lower_nested_loop_depth1_stmt_only:L44",
+        "src/mir/builder/control_flow/plan/parts/loop_/nested_depth1.rs::try_lower_nested_loop_depth1_stmt_only_fastpath:L87"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/parts/loop_",
+      "subcluster_id": "joinir_plan::route_local_plan_descriptor::PlanPartsAssemblyCluster::shape.plan_parts_assembly::src_mir_builder_control_flow_plan_parts_loop_::NoReturnedBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoBorrow",
+      "bucket": "diagnostic_or_debug_helper",
+      "candidate_count": 3,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "OtherJoinIRPlanCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.other_join_i_r_plan",
+      "source_id_count": 3,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/trace.rs::trace_outcome_path:L36",
+        "src/mir/builder/control_flow/plan/trace.rs::trace_outcome_snapshot:L20",
+        "src/mir/builder/control_flow/plan/trace.rs::trace_try_take_planner:L3"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan",
+      "subcluster_id": "joinir_plan::diagnostic_or_debug_helper::OtherJoinIRPlanCluster::shape.other_join_i_r_plan::src_mir_builder_control_flow_plan::NoBorrow::Known::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "BorrowPolicyNeeded",
+      "bucket": "joinir_plan_lowering_surface",
+      "candidate_count": 3,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanLowererCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.plan_lowerer",
+      "source_id_count": 3,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/lowerer/body_processing/helpers.rs::effect_defined_value:L139",
+        "src/mir/builder/control_flow/plan/lowerer/body_processing/helpers.rs::find_forward_def:L155",
+        "src/mir/builder/control_flow/plan/lowerer/body_processing/helpers.rs::plans_find_def:L232"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/lowerer/body_processing",
+      "subcluster_id": "joinir_plan::joinir_plan_lowering_surface::PlanLowererCluster::shape.plan_lowerer::src_mir_builder_control_flow_plan_lowerer_body_processing::BorrowPolicyNeeded::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 3,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanFeatureMaterializerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.carrier_feature",
+      "source_id_count": 3,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/features/generic_loop_body/carrier_orchestration.rs::orchestrate_generic_loop_v1_carriers:L68",
+        "src/mir/builder/control_flow/plan/features/generic_loop_body/carrier_orchestration.rs::take_body_plans:L25",
+        "src/mir/builder/control_flow/plan/features/generic_loop_body/carriers.rs::prepare_generic_loop_v1_carriers:L23"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/features/generic_loop_body",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanFeatureMaterializerCluster::shape.carrier_feature::src_mir_builder_control_flow_plan_features_generic_loop_body::NoReturnedBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 3,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanFeatureMaterializerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.loop_cond_continue_with_return",
+      "source_id_count": 3,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/features/loop_cond_continue_with_return_body_helpers.rs::lower_continue_with_return_block:L35",
+        "src/mir/builder/control_flow/plan/features/loop_cond_continue_with_return_cleanup.rs::apply_fallthrough_continue_exit:L11",
+        "src/mir/builder/control_flow/plan/features/loop_cond_continue_with_return_pipeline.rs::lower_loop_cond_continue_with_return:L42"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/features",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanFeatureMaterializerCluster::shape.loop_cond_continue_with_return::src_mir_builder_control_flow_plan_features::NoReturnedBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 3,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanFeatureMaterializerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.loop_cond_utility",
+      "source_id_count": 3,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/features/loop_cond_bc_util.rs::lower_simple_effect_stmt:L64",
+        "src/mir/builder/control_flow/plan/features/loop_cond_bc_util.rs::lower_stmt_list_no_direct_exit:L326",
+        "src/mir/builder/control_flow/plan/features/loop_cond_bc_util.rs::lower_stmt_list_no_exit:L290"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/features",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanFeatureMaterializerCluster::shape.loop_cond_utility::src_mir_builder_control_flow_plan_features::NoReturnedBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 3,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanFeatureMaterializerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.loop_true_break_continue",
+      "source_id_count": 3,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/features/loop_true_break_continue_cleanup.rs::apply_fallthrough_continue_exit:L19",
+        "src/mir/builder/control_flow/plan/features/loop_true_break_continue_pipeline.rs::lower_loop_true_break_continue:L37",
+        "src/mir/builder/control_flow/plan/features/loop_true_break_continue_pipeline.rs::lower_loop_true_break_continue_inner:L45"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/features",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanFeatureMaterializerCluster::shape.loop_true_break_continue::src_mir_builder_control_flow_plan_features::NoReturnedBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 3,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanNormalizerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.plan_normalizer",
+      "source_id_count": 3,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/normalizer/cond_lowering_freshen/mod.rs::clone_plans_with_fresh_loops:L23",
+        "src/mir/builder/control_flow/plan/normalizer/cond_lowering_freshen/remapper.rs::remap_plan:L13",
+        "src/mir/builder/control_flow/plan/normalizer/cond_lowering_freshen/utils.rs::map_block_id:L22"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/normalizer/cond_lowering_freshen",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanNormalizerCluster::shape.plan_normalizer::src_mir_builder_control_flow_plan_normalizer_cond_lowering_freshen::NoReturnedBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "route_local_plan_descriptor",
+      "candidate_count": 3,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanPartsAssemblyCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.plan_parts_assembly",
+      "source_id_count": 3,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/parts/var_map_scope.rs::publish_defined_binding:L72",
+        "src/mir/builder/control_flow/plan/parts/var_map_scope.rs::publish_emission_cache:L64",
+        "src/mir/builder/control_flow/plan/parts/var_map_scope.rs::reseal_branch_bindings:L83"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/parts",
+      "subcluster_id": "joinir_plan::route_local_plan_descriptor::PlanPartsAssemblyCluster::shape.plan_parts_assembly::src_mir_builder_control_flow_plan_parts::NoReturnedBorrow::Known::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoBorrow",
+      "bucket": "route_local_plan_descriptor",
+      "candidate_count": 3,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanPartsAssemblyCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.plan_parts_assembly",
+      "source_id_count": 3,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/parts/conditional_update/helpers.rs::has_any_assignment:L191",
+        "src/mir/builder/control_flow/plan/parts/conditional_update/helpers.rs::is_conditional_update_branch_supported:L199",
+        "src/mir/builder/control_flow/plan/parts/conditional_update/helpers.rs::is_pure_value_expr:L241"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/parts/conditional_update",
+      "subcluster_id": "joinir_plan::route_local_plan_descriptor::PlanPartsAssemblyCluster::shape.plan_parts_assembly::src_mir_builder_control_flow_plan_parts_conditional_update::NoBorrow::Known::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "route_local_plan_descriptor",
+      "candidate_count": 3,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanPartsAssemblyCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.plan_parts_assembly",
+      "source_id_count": 3,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/parts/loop_/analysis.rs::collect_defined_values_from_plans:L7",
+        "src/mir/builder/control_flow/plan/parts/loop_/final_values.rs::apply_loop_final_values_to_bindings:L7",
+        "src/mir/builder/control_flow/plan/parts/loop_/vars.rs::collect_assigned_vars:L40"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/parts/loop_",
+      "subcluster_id": "joinir_plan::route_local_plan_descriptor::PlanPartsAssemblyCluster::shape.plan_parts_assembly::src_mir_builder_control_flow_plan_parts_loop_::NoReturnedBorrow::Known::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing",
+        "NeedsOwnerEdgeRepair"
+      ],
+      "borrow_axis": "NoBorrow",
+      "bucket": "unknown_or_needs_owner_edge_repair",
+      "candidate_count": 3,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "OtherJoinIRPlanCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.other_join_i_r_plan",
+      "source_id_count": 3,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/steps/effects.rs::effects_to_plans:L7",
+        "src/mir/builder/control_flow/plan/steps/loop_wiring_standard5.rs::build_standard5_internal_wires:L37",
+        "src/mir/builder/control_flow/plan/steps/loop_wiring_standard5.rs::empty_carriers_args:L16"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/steps",
+      "subcluster_id": "joinir_plan::unknown_or_needs_owner_edge_repair::OtherJoinIRPlanCluster::shape.other_join_i_r_plan::src_mir_builder_control_flow_plan_steps::NoBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoBorrow",
+      "bucket": "joinir_plan_lowering_surface",
+      "candidate_count": 2,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanComposerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.plan_composer",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/composer/coreloop_gates.rs::coreloop_base_gate:L4",
+        "src/mir/builder/control_flow/plan/composer/coreloop_gates.rs::exit_kinds_empty:L8"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/composer",
+      "subcluster_id": "joinir_plan::joinir_plan_lowering_surface::PlanComposerCluster::shape.plan_composer::src_mir_builder_control_flow_plan_composer::NoBorrow::Known::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoBorrow",
+      "bucket": "joinir_plan_lowering_surface",
+      "candidate_count": 2,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanComposerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.plan_composer",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/composer/shadow_adopt.rs::shadow_pre_plan_guard_error:L198",
+        "src/mir/builder/control_flow/plan/composer/shadow_adopt.rs::strict_nested_loop_guard:L12"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/composer",
+      "subcluster_id": "joinir_plan::joinir_plan_lowering_surface::PlanComposerCluster::shape.plan_composer::src_mir_builder_control_flow_plan_composer::NoBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "joinir_plan_lowering_surface",
+      "candidate_count": 2,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanComposerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.plan_composer",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/composer/branchn_return.rs::compose_match_return_branchn:L18",
+        "src/mir/builder/control_flow/plan/composer/coreloop_v2_nested_minimal.rs::try_compose_core_loop_v2_nested_minimal:L22"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/composer",
+      "subcluster_id": "joinir_plan::joinir_plan_lowering_surface::PlanComposerCluster::shape.plan_composer::src_mir_builder_control_flow_plan_composer::NoReturnedBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "BorrowPolicyNeeded",
+      "bucket": "joinir_plan_lowering_surface",
+      "candidate_count": 2,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanLowererCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.plan_lowerer",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/lowerer/loop_validation.rs::effect_defined_value:L47",
+        "src/mir/builder/control_flow/plan/lowerer/loop_validation.rs::find_forward_def:L68"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/lowerer",
+      "subcluster_id": "joinir_plan::joinir_plan_lowering_surface::PlanLowererCluster::shape.plan_lowerer::src_mir_builder_control_flow_plan_lowerer::BorrowPolicyNeeded::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoBorrow",
+      "bucket": "joinir_plan_lowering_surface",
+      "candidate_count": 2,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlannerPolicyCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.planner_policy",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/planner/tags.rs::planner_first_tag:L11",
+        "src/mir/builder/control_flow/plan/planner/tags.rs::planner_first_tag_with_label:L22"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/planner",
+      "subcluster_id": "joinir_plan::joinir_plan_lowering_surface::PlannerPolicyCluster::shape.planner_policy::src_mir_builder_control_flow_plan_planner::NoBorrow::Known::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoBorrow",
+      "bucket": "loop_plan_extractor",
+      "candidate_count": 2,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "GenericLoopPlanCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.generic_loop_plan",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/generic_loop/body_check_extractors.rs::is_loop_var_minus_one:L128",
+        "src/mir/builder/control_flow/plan/generic_loop/body_check_extractors.rs::is_loop_var_plus_one:L94"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/generic_loop",
+      "subcluster_id": "joinir_plan::loop_plan_extractor::GenericLoopPlanCluster::shape.generic_loop_plan::src_mir_builder_control_flow_plan_generic_loop::NoBorrow::Known::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "BorrowPolicyNeeded",
+      "bucket": "loop_plan_extractor",
+      "candidate_count": 2,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "GenericLoopPlanCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.generic_loop_plan",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/generic_loop/body_check/shape_resolution.rs::check_body_generic_v1:L15",
+        "src/mir/builder/control_flow/plan/generic_loop/body_check/validation_v1.rs::check_body_generic_v1:L14"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/generic_loop/body_check",
+      "subcluster_id": "joinir_plan::loop_plan_extractor::GenericLoopPlanCluster::shape.generic_loop_plan::src_mir_builder_control_flow_plan_generic_loop_body_check::BorrowPolicyNeeded::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoBorrow",
+      "bucket": "loop_plan_extractor",
+      "candidate_count": 2,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "GenericLoopPlanCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.generic_loop_plan",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/control.rs::matches_if_else_return_literal_var:L154",
+        "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/literal.rs::matches_local_init_literal:L5"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers",
+      "subcluster_id": "joinir_plan::loop_plan_extractor::GenericLoopPlanCluster::shape.generic_loop_plan::src_mir_builder_control_flow_plan_generic_loop_body_check_expr_matchers::NoBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoBorrow",
+      "bucket": "loop_plan_extractor",
+      "candidate_count": 2,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "GenericLoopPlanCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.generic_loop_plan",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/accum.rs::matches_accum_add_loop_var:L52",
+        "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors/accum.rs::matches_accum_add_var:L59"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/generic_loop/body_check_shape_detectors",
+      "subcluster_id": "joinir_plan::loop_plan_extractor::GenericLoopPlanCluster::shape.generic_loop_plan::src_mir_builder_control_flow_plan_generic_loop_body_check_shape_detectors::NoBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoBorrow",
+      "bucket": "loop_plan_extractor",
+      "candidate_count": 2,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "GenericLoopPlanCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.generic_loop_plan",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/generic_loop/facts/extract/collection.rs::body_has_break_or_continue_stmt:L182",
+        "src/mir/builder/control_flow/plan/generic_loop/facts/extract/collection.rs::body_writes_non_loop_vars:L5"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/generic_loop/facts/extract",
+      "subcluster_id": "joinir_plan::loop_plan_extractor::GenericLoopPlanCluster::shape.generic_loop_plan::src_mir_builder_control_flow_plan_generic_loop_facts_extract::NoBorrow::Known::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "loop_plan_extractor",
+      "candidate_count": 2,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "LoopCondPlanCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.loop_cond_plan",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/loop_cond/break_continue_item.rs::build_loop_cond_break_continue_recipe:L45",
+        "src/mir/builder/control_flow/plan/loop_cond/break_continue_item.rs::build_loop_cond_break_continue_recipe_inner:L72"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/loop_cond",
+      "subcluster_id": "joinir_plan::loop_plan_extractor::LoopCondPlanCluster::shape.loop_cond_plan::src_mir_builder_control_flow_plan_loop_cond::NoReturnedBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 2,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanFeatureMaterializerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.carrier_feature",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/features/carrier_merge.rs::lower_assignment_stmt:L9",
+        "src/mir/builder/control_flow/plan/features/carrier_merge.rs::lower_local_init_stmt:L47"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/features",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanFeatureMaterializerCluster::shape.carrier_feature::src_mir_builder_control_flow_plan_features::NoReturnedBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 2,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanFeatureMaterializerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.carrier_feature",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/features/generic_loop_body/carrier_orchestration.rs::finalize:L29",
+        "src/mir/builder/control_flow/plan/features/generic_loop_body/carriers.rs::finalize_generic_loop_v1_carriers:L65"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/features/generic_loop_body",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanFeatureMaterializerCluster::shape.carrier_feature::src_mir_builder_control_flow_plan_features_generic_loop_body::NoReturnedBorrow::Known::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 2,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanFeatureMaterializerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.exit_if_feature",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/features/exit_if_map.rs::lower_if_exit_stmt:L10",
+        "src/mir/builder/control_flow/plan/features/exit_if_map.rs::lower_if_exit_stmt_with_break_phi_args:L31"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/features",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanFeatureMaterializerCluster::shape.exit_if_feature::src_mir_builder_control_flow_plan_features::NoReturnedBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 2,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanFeatureMaterializerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.generic_loop_body_feature",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/features/generic_loop_body/helpers.rs::collect_loop_carriers:L22",
+        "src/mir/builder/control_flow/plan/features/generic_loop_body/nested_loop_reject_tail.rs::finish_generic_nested_loop_reject_tail:L9"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/features/generic_loop_body",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanFeatureMaterializerCluster::shape.generic_loop_body_feature::src_mir_builder_control_flow_plan_features_generic_loop_body::NoBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 2,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanFeatureMaterializerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.loop_cond_bc_break_only_else_pattern",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/features/loop_cond_bc_else_patterns/breaks.rs::lower_else_only_break_if:L15",
+        "src/mir/builder/control_flow/plan/features/loop_cond_bc_else_patterns/breaks.rs::lower_then_only_break_if:L176"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/features/loop_cond_bc_else_patterns",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanFeatureMaterializerCluster::shape.loop_cond_bc_break_only_else_pattern::src_mir_builder_control_flow_plan_features_loop_cond_bc_else_patterns::NoReturnedBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 2,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanFeatureMaterializerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.loop_cond_bc_guard_break_else_pattern",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/features/loop_cond_bc_else_patterns/guard_break.rs::lower_else_guard_break_body:L107",
+        "src/mir/builder/control_flow/plan/features/loop_cond_bc_else_patterns/guard_break.rs::lower_else_guard_break_if_with_exit_allowed:L13"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/features/loop_cond_bc_else_patterns",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanFeatureMaterializerCluster::shape.loop_cond_bc_guard_break_else_pattern::src_mir_builder_control_flow_plan_features_loop_cond_bc_else_patterns::NoReturnedBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 2,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanFeatureMaterializerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.loop_cond_bc_return_only_else_pattern",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/features/loop_cond_bc_else_patterns/returns.rs::lower_else_only_return_if:L19",
+        "src/mir/builder/control_flow/plan/features/loop_cond_bc_else_patterns/returns.rs::lower_then_only_return_if:L205"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/features/loop_cond_bc_else_patterns",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanFeatureMaterializerCluster::shape.loop_cond_bc_return_only_else_pattern::src_mir_builder_control_flow_plan_features_loop_cond_bc_else_patterns::NoReturnedBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 2,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanFeatureMaterializerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.loop_cond_return_in_body",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/features/loop_cond_return_in_body_join.rs::continue_exit:L20",
+        "src/mir/builder/control_flow/plan/features/loop_cond_return_in_body_pipeline.rs::lower_loop_cond_return_in_body:L43"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/features",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanFeatureMaterializerCluster::shape.loop_cond_return_in_body::src_mir_builder_control_flow_plan_features::NoReturnedBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 2,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanFeatureMaterializerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.loop_cond_utility",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/features/loop_cond_bc_util.rs::direct_exit_reject:L38",
+        "src/mir/builder/control_flow/plan/features/loop_cond_bc_util.rs::is_direct_exit_reject:L48"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/features",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanFeatureMaterializerCluster::shape.loop_cond_utility::src_mir_builder_control_flow_plan_features::NoBorrow::Known::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 2,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanNormalizerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.plan_normalizer",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/normalizer/helpers_layout.rs::create_phi_bindings:L43",
+        "src/mir/builder/control_flow/plan/normalizer/helpers_pure_value.rs::is_pure_value_expr:L1"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/normalizer",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanNormalizerCluster::shape.plan_normalizer::src_mir_builder_control_flow_plan_normalizer::NoBorrow::Known::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoBorrow",
+      "bucket": "route_local_plan_descriptor",
+      "candidate_count": 2,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanPartsAssemblyCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.plan_parts_assembly",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/parts/conditional_update/helpers.rs::attach_phi_args_if_continue_or_break:L8",
+        "src/mir/builder/control_flow/plan/parts/conditional_update/helpers.rs::current_value_for_join:L176"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/parts/conditional_update",
+      "subcluster_id": "joinir_plan::route_local_plan_descriptor::PlanPartsAssemblyCluster::shape.plan_parts_assembly::src_mir_builder_control_flow_plan_parts_conditional_update::NoBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "route_local_plan_descriptor",
+      "candidate_count": 2,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanPartsAssemblyCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.plan_parts_assembly",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/parts/conditional_update/helpers.rs::collect_conditional_update_assignment_or_local:L101",
+        "src/mir/builder/control_flow/plan/parts/conditional_update/helpers.rs::collect_conditional_update_branch:L48"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/parts/conditional_update",
+      "subcluster_id": "joinir_plan::route_local_plan_descriptor::PlanPartsAssemblyCluster::shape.plan_parts_assembly::src_mir_builder_control_flow_plan_parts_conditional_update::NoReturnedBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoBorrow",
+      "bucket": "route_local_plan_descriptor",
+      "candidate_count": 2,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanPartsAssemblyCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.plan_parts_assembly",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/parts/dispatch/block.rs::plans_exit_on_all_paths:L302",
+        "src/mir/builder/control_flow/plan/parts/dispatch/block_exit.rs::plans_exit_on_all_paths:L8"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/parts/dispatch",
+      "subcluster_id": "joinir_plan::route_local_plan_descriptor::PlanPartsAssemblyCluster::shape.plan_parts_assembly::src_mir_builder_control_flow_plan_parts_dispatch::NoBorrow::Known::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoBorrow",
+      "bucket": "route_local_plan_descriptor",
+      "candidate_count": 2,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanPartsAssemblyCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.plan_parts_assembly",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/parts/loop_/vars.rs::collect_carriers_from_condition:L4",
+        "src/mir/builder/control_flow/plan/parts/loop_/vars.rs::condition_vars:L18"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/parts/loop_",
+      "subcluster_id": "joinir_plan::route_local_plan_descriptor::PlanPartsAssemblyCluster::shape.plan_parts_assembly::src_mir_builder_control_flow_plan_parts_loop_::NoBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "NeedsOwnerEdgeRepair"
+      ],
+      "borrow_axis": "NoBorrow",
+      "bucket": "unknown_or_needs_owner_edge_repair",
+      "candidate_count": 2,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "OtherJoinIRPlanCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.other_join_i_r_plan",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/loop_cond_unified_helpers.rs::entry_gate_ok:L14",
+        "src/mir/builder/control_flow/plan/loop_cond_unified_helpers.rs::validate_loop_condition:L27"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan",
+      "subcluster_id": "joinir_plan::unknown_or_needs_owner_edge_repair::OtherJoinIRPlanCluster::shape.other_join_i_r_plan::src_mir_builder_control_flow_plan::NoBorrow::Known::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing",
+        "NeedsOwnerEdgeRepair"
+      ],
+      "borrow_axis": "NoBorrow",
+      "bucket": "unknown_or_needs_owner_edge_repair",
+      "candidate_count": 2,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "OtherJoinIRPlanCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.other_join_i_r_plan",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/single_planner/mod.rs::try_build_outcome:L17",
+        "src/mir/builder/control_flow/plan/single_planner/rules.rs::try_build_outcome:L107"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/single_planner",
+      "subcluster_id": "joinir_plan::unknown_or_needs_owner_edge_repair::OtherJoinIRPlanCluster::shape.other_join_i_r_plan::src_mir_builder_control_flow_plan_single_planner::NoBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing",
+        "NeedsOwnerEdgeRepair"
+      ],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "unknown_or_needs_owner_edge_repair",
+      "candidate_count": 2,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "OtherJoinIRPlanCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.other_join_i_r_plan",
+      "source_id_count": 2,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/skeletons/generic_loop.rs::alloc_generic_loop_v0_skeleton:L24",
+        "src/mir/builder/control_flow/plan/skeletons/loop_true.rs::alloc_loop_true_skeleton:L24"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/skeletons",
+      "subcluster_id": "joinir_plan::unknown_or_needs_owner_edge_repair::OtherJoinIRPlanCluster::shape.other_join_i_r_plan::src_mir_builder_control_flow_plan_skeletons::NoReturnedBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoBorrow",
+      "bucket": "joinir_plan_lowering_surface",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanLowererCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.plan_lowerer",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/lowerer/span_fmt.rs::current_span_location:L3"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/lowerer",
+      "subcluster_id": "joinir_plan::joinir_plan_lowering_surface::PlanLowererCluster::shape.plan_lowerer::src_mir_builder_control_flow_plan_lowerer::NoBorrow::Known::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "joinir_plan_lowering_surface",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanLowererCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.plan_lowerer",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/lowerer/body_processing/helpers.rs::validate_effects_binop_operands:L6"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/lowerer/body_processing",
+      "subcluster_id": "joinir_plan::joinir_plan_lowering_surface::PlanLowererCluster::shape.plan_lowerer::src_mir_builder_control_flow_plan_lowerer_body_processing::NoReturnedBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "loop_plan_extractor",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "GenericLoopPlanCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.generic_loop_plan",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/generic_loop/normalizer.rs::normalize_generic_loop_v1:L10"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/generic_loop",
+      "subcluster_id": "joinir_plan::loop_plan_extractor::GenericLoopPlanCluster::shape.generic_loop_plan::src_mir_builder_control_flow_plan_generic_loop::NoReturnedBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoBorrow",
+      "bucket": "loop_plan_extractor",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "GenericLoopPlanCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.generic_loop_plan",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/generic_loop/body_check/step_validation.rs::has_control_flow_after_step:L17"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/generic_loop/body_check",
+      "subcluster_id": "joinir_plan::loop_plan_extractor::GenericLoopPlanCluster::shape.generic_loop_plan::src_mir_builder_control_flow_plan_generic_loop_body_check::NoBorrow::Known::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "loop_plan_extractor",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "LoopBreakPlanCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.loop_break_plan",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/loop_break/facts/trim_whitespace_helpers.rs::collect_whitespace_terms:L118"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/loop_break/facts",
+      "subcluster_id": "joinir_plan::loop_plan_extractor::LoopBreakPlanCluster::shape.loop_break_plan::src_mir_builder_control_flow_plan_loop_break_facts::NoReturnedBorrow::Known::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "loop_plan_extractor",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "LoopCondPlanCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.loop_cond_plan",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/loop_cond/break_continue_helpers.rs::collect_vars_from_expr:L28"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/loop_cond",
+      "subcluster_id": "joinir_plan::loop_plan_extractor::LoopCondPlanCluster::shape.loop_cond_plan::src_mir_builder_control_flow_plan_loop_cond::NoReturnedBorrow::Known::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoBorrow",
+      "bucket": "loop_plan_extractor",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "NestedLoopPlanCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.nested_loop_plan",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/nested_loop_plan_recipe_adoption_policy.rs::select_nested_loop_recipe_adoption:L11"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan",
+      "subcluster_id": "joinir_plan::loop_plan_extractor::NestedLoopPlanCluster::shape.nested_loop_plan::src_mir_builder_control_flow_plan::NoBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "loop_plan_extractor",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "NestedLoopPlanCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.nested_loop_plan",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/nested_loop_depth1/normalizer.rs::try_lower_nested_loop_depth1:L22"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/nested_loop_depth1",
+      "subcluster_id": "joinir_plan::loop_plan_extractor::NestedLoopPlanCluster::shape.nested_loop_plan::src_mir_builder_control_flow_plan_nested_loop_depth1::NoReturnedBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanFactsCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.plan_facts",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/facts/exit_only_block.rs::ends_with_exit_on_all_paths:L31"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/facts",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanFactsCluster::shape.plan_facts::src_mir_builder_control_flow_plan_facts::NoReturnedBorrow::Known::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanFactsCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.plan_facts",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/facts/exit_only_block.rs::try_build_exit_allowed_block_in_arena:L89"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/facts",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanFactsCluster::shape.plan_facts::src_mir_builder_control_flow_plan_facts::NoReturnedBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanFeatureMaterializerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.body_view_feature",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/features/body_view.rs::len:L13"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/features",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanFeatureMaterializerCluster::shape.body_view_feature::src_mir_builder_control_flow_plan_features::NoReturnedBorrow::Known::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanFeatureMaterializerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.carrier_feature",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/features/carriers/continue_only.rs::collect_from_recipe_continue_only:L9"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/features/carriers",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanFeatureMaterializerCluster::shape.carrier_feature::src_mir_builder_control_flow_plan_features_carriers::NoBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanFeatureMaterializerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.generic_loop_body_feature",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/features/generic_loop_body/helpers.rs::append_effects:L102"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/features/generic_loop_body",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanFeatureMaterializerCluster::shape.generic_loop_body_feature::src_mir_builder_control_flow_plan_features_generic_loop_body::NoReturnedBorrow::Known::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanFeatureMaterializerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.loop_cond_bc_carrier_sync",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/features/loop_cond_bc.rs::sync_carrier_bindings:L317"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/features",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanFeatureMaterializerCluster::shape.loop_cond_bc_carrier_sync::src_mir_builder_control_flow_plan_features::NoReturnedBorrow::Known::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanFeatureMaterializerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.loop_cond_bc_cleanup_application",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/features/loop_cond_bc_cleanup.rs::apply_loop_cond_break_continue_cleanup:L22"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/features",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanFeatureMaterializerCluster::shape.loop_cond_bc_cleanup_application::src_mir_builder_control_flow_plan_features::NoReturnedBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanFeatureMaterializerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.loop_cond_bc_cleanup_exit_predicate",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/features/loop_cond_bc_cleanup.rs::body_exits_all_paths:L17"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/features",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanFeatureMaterializerCluster::shape.loop_cond_bc_cleanup_exit_predicate::src_mir_builder_control_flow_plan_features::NoReturnedBorrow::Known::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanFeatureMaterializerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.loop_cond_bc_continue_if_else",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/features/loop_cond_bc_continue_if.rs::lower_continue_if_with_else:L11"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/features",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanFeatureMaterializerCluster::shape.loop_cond_bc_continue_if_else::src_mir_builder_control_flow_plan_features::NoReturnedBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanFeatureMaterializerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.loop_cond_bc_item_dispatcher",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/features/loop_cond_bc_item.rs::lower_loop_cond_item:L24"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/features",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanFeatureMaterializerCluster::shape.loop_cond_bc_item_dispatcher::src_mir_builder_control_flow_plan_features::NoReturnedBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanFeatureMaterializerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.loop_cond_bc_nested_carrier",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/features/loop_cond_bc_nested_carriers.rs::extend_nested_loop_carriers:L10"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/features",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanFeatureMaterializerCluster::shape.loop_cond_bc_nested_carrier::src_mir_builder_control_flow_plan_features::NoReturnedBorrow::Known::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanFeatureMaterializerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.loop_cond_bc_root_pipeline",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/features/loop_cond_bc.rs::lower_loop_cond_break_continue:L33"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/features",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanFeatureMaterializerCluster::shape.loop_cond_bc_root_pipeline::src_mir_builder_control_flow_plan_features::NoReturnedBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanFeatureMaterializerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.loop_cond_bc_statement_lowering",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/features/loop_cond_bc_item_stmt.rs::lower_loop_cond_stmt:L22"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/features",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanFeatureMaterializerCluster::shape.loop_cond_bc_statement_lowering::src_mir_builder_control_flow_plan_features::NoReturnedBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanFeatureMaterializerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.loop_cond_co_ast_statement_lowering",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/features/loop_cond_co_stmt.rs::lower_stmt_ast:L158"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/features",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanFeatureMaterializerCluster::shape.loop_cond_co_ast_statement_lowering::src_mir_builder_control_flow_plan_features::NoReturnedBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanFeatureMaterializerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.loop_cond_co_block_lowering",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/features/loop_cond_co_block.rs::lower_continue_only_block:L12"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/features",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanFeatureMaterializerCluster::shape.loop_cond_co_block_lowering::src_mir_builder_control_flow_plan_features::NoReturnedBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanFeatureMaterializerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.loop_cond_co_cleanup",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/features/loop_cond_co_cleanup.rs::apply_fallthrough_continue_exit:L11"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/features",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanFeatureMaterializerCluster::shape.loop_cond_co_cleanup::src_mir_builder_control_flow_plan_features::NoReturnedBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanFeatureMaterializerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.loop_cond_co_continue_if_group_prelude",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/features/loop_cond_co_continue_if.rs::lower_continue_if_group_prelude:L109"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/features",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanFeatureMaterializerCluster::shape.loop_cond_co_continue_if_group_prelude::src_mir_builder_control_flow_plan_features::NoReturnedBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanFeatureMaterializerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.loop_cond_co_continue_if_no_else",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/features/loop_cond_co_continue_if.rs::lower_continue_if_no_else:L51"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/features",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanFeatureMaterializerCluster::shape.loop_cond_co_continue_if_no_else::src_mir_builder_control_flow_plan_features::NoReturnedBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanFeatureMaterializerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.loop_cond_co_continue_if_prelude_span",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/features/loop_cond_co_continue_if.rs::lower_continue_if_prelude_span:L20"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/features",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanFeatureMaterializerCluster::shape.loop_cond_co_continue_if_prelude_span::src_mir_builder_control_flow_plan_features::NoReturnedBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanFeatureMaterializerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.loop_cond_co_group_if_branch",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/features/loop_cond_co_group_if.rs::lower_group_if:L23"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/features",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanFeatureMaterializerCluster::shape.loop_cond_co_group_if_branch::src_mir_builder_control_flow_plan_features::NoReturnedBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanFeatureMaterializerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.loop_cond_co_group_if_nested_loop",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/features/loop_cond_co_group_if.rs::lower_continue_if_nested_loop:L128"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/features",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanFeatureMaterializerCluster::shape.loop_cond_co_group_if_nested_loop::src_mir_builder_control_flow_plan_features::NoReturnedBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanFeatureMaterializerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.loop_cond_co_helper_carrier_sync",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/features/loop_cond_co_helpers.rs::sync_carrier_bindings:L55"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/features",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanFeatureMaterializerCluster::shape.loop_cond_co_helper_carrier_sync::src_mir_builder_control_flow_plan_features::NoReturnedBorrow::Known::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanFeatureMaterializerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.loop_cond_co_helper_mutation_probe",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/features/loop_cond_co_helpers.rs::map_mutates_existing_vars:L40"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/features",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanFeatureMaterializerCluster::shape.loop_cond_co_helper_mutation_probe::src_mir_builder_control_flow_plan_features::NoBorrow::Known::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanFeatureMaterializerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.loop_cond_co_root_pipeline",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/features/loop_cond_co_pipeline.rs::lower_loop_cond_continue_only:L28"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/features",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanFeatureMaterializerCluster::shape.loop_cond_co_root_pipeline::src_mir_builder_control_flow_plan_features::NoReturnedBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanFeatureMaterializerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.loop_cond_co_statement_dispatcher",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/features/loop_cond_co_stmt.rs::lower_continue_only_stmt:L27"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/features",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanFeatureMaterializerCluster::shape.loop_cond_co_statement_dispatcher::src_mir_builder_control_flow_plan_features::NoReturnedBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanFeatureMaterializerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.loop_cond_return_in_body",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/features/loop_cond_return_in_body_cleanup.rs::body_exits_all_paths:L10"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/features",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanFeatureMaterializerCluster::shape.loop_cond_return_in_body::src_mir_builder_control_flow_plan_features::NoBorrow::Known::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "NoBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanFeatureMaterializerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.loop_cond_return_in_body",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/features/loop_cond_return_in_body_join.rs::build_loop_cond_return_in_body_join_sig:L35"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/features",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanFeatureMaterializerCluster::shape.loop_cond_return_in_body::src_mir_builder_control_flow_plan_features::NoBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanFeatureMaterializerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.loop_cond_return_in_body",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/features/loop_cond_return_in_body_cleanup.rs::apply_fallthrough_continue_exit:L14"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/features",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanFeatureMaterializerCluster::shape.loop_cond_return_in_body::src_mir_builder_control_flow_plan_features::NoReturnedBorrow::Known::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanFeatureMaterializerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.loop_true_break_continue",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/features/loop_true_break_continue_cleanup.rs::requires_fallthrough_continue:L12"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/features",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanFeatureMaterializerCluster::shape.loop_true_break_continue::src_mir_builder_control_flow_plan_features::NoBorrow::Known::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanNormalizerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.plan_normalizer",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/normalizer/newbox.rs::record_newbox_metadata:L5"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/normalizer",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanNormalizerCluster::shape.plan_normalizer::src_mir_builder_control_flow_plan_normalizer::NoReturnedBorrow::Known::Present::public::non_test",
+      "type_transport_axis": "Known",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing"
+      ],
+      "borrow_axis": "BorrowPolicyNeeded",
+      "bucket": "plan_feature_helper",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "PlanNormalizerCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.plan_normalizer",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/normalizer/cond_lowering_freshen/verifier.rs::find_unremapped_value_id:L8"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/normalizer/cond_lowering_freshen",
+      "subcluster_id": "joinir_plan::plan_feature_helper::PlanNormalizerCluster::shape.plan_normalizer::src_mir_builder_control_flow_plan_normalizer_cond_lowering_freshen::BorrowPolicyNeeded::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing",
+        "NeedsOwnerEdgeRepair"
+      ],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "unknown_or_needs_owner_edge_repair",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "OtherJoinIRPlanCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.other_join_i_r_plan",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/plan_build_session.rs::emit_and_seal:L55"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan",
+      "subcluster_id": "joinir_plan::unknown_or_needs_owner_edge_repair::OtherJoinIRPlanCluster::shape.other_join_i_r_plan::src_mir_builder_control_flow_plan::NoReturnedBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    },
+    {
+      "blocked_by": [
+        "TypeTransportMissing",
+        "NeedsOwnerEdgeRepair"
+      ],
+      "borrow_axis": "NoReturnedBorrow",
+      "bucket": "unknown_or_needs_owner_edge_repair",
+      "candidate_count": 1,
+      "cfg_test_surface": false,
+      "joinir_plan_subcluster": "OtherJoinIRPlanCluster",
+      "public_or_private_surface": "public",
+      "reason_token": "JoinIRPlanClusterPartitionedForFollowUp",
+      "selection_eligible": false,
+      "shape_signature": "shape.other_join_i_r_plan",
+      "source_id_count": 1,
+      "source_ids": [
+        "src/mir/builder/control_flow/plan/steps/join_payload.rs::build_join_payload:L105"
+      ],
+      "source_module": "src/mir/builder/control_flow/plan/steps",
+      "subcluster_id": "joinir_plan::unknown_or_needs_owner_edge_repair::OtherJoinIRPlanCluster::shape.other_join_i_r_plan::src_mir_builder_control_flow_plan_steps::NoReturnedBorrow::Missing::Present::public::non_test",
+      "type_transport_axis": "Missing",
+      "verifier_or_oracle_state": "Present"
+    }
+  ],
+  "summary": {
+    "bucket_counts": {
+      "diagnostic_or_debug_helper": 1,
+      "joinir_plan_lowering_surface": 11,
+      "loop_plan_extractor": 25,
+      "plan_feature_helper": 61,
+      "recipe_tree_matcher": 3,
+      "route_local_plan_descriptor": 12,
+      "unknown_or_needs_owner_edge_repair": 7
+    },
+    "input_joinir_plan_cluster_count": 623,
+    "joinir_plan_subcluster_counts": {
+      "GenericLoopPlanCluster": 89,
+      "LoopBreakPlanCluster": 57,
+      "LoopCondPlanCluster": 42,
+      "NestedLoopPlanCluster": 14,
+      "OtherJoinIRPlanCluster": 19,
+      "PlanComposerCluster": 6,
+      "PlanFactsCluster": 41,
+      "PlanFeatureMaterializerCluster": 134,
+      "PlanLowererCluster": 30,
+      "PlanNormalizerCluster": 39,
+      "PlanPartsAssemblyCluster": 72,
+      "PlannerPolicyCluster": 9,
+      "RecipeTreeMatcherCluster": 71
+    },
+    "selected_subcluster_id": null,
+    "selection_eligible_subcluster_count": 38,
+    "shape_signature_counts": {
+      "shape.body_view_feature": 1,
+      "shape.carrier_feature": 13,
+      "shape.edge_cfg_stub_feature": 6,
+      "shape.exit_if_feature": 2,
+      "shape.generic_loop_body_feature": 30,
+      "shape.generic_loop_plan": 89,
+      "shape.loop_break_plan": 57,
+      "shape.loop_cond_bc_break_only_else_pattern": 2,
+      "shape.loop_cond_bc_carrier_sync": 1,
+      "shape.loop_cond_bc_cleanup_application": 1,
+      "shape.loop_cond_bc_cleanup_exit_predicate": 1,
+      "shape.loop_cond_bc_continue_if_else": 1,
+      "shape.loop_cond_bc_guard_break_else_pattern": 2,
+      "shape.loop_cond_bc_item_dispatcher": 1,
+      "shape.loop_cond_bc_nested_carrier": 1,
+      "shape.loop_cond_bc_return_only_else_pattern": 2,
+      "shape.loop_cond_bc_root_pipeline": 1,
+      "shape.loop_cond_bc_statement_lowering": 1,
+      "shape.loop_cond_co_ast_statement_lowering": 1,
+      "shape.loop_cond_co_block_lowering": 1,
+      "shape.loop_cond_co_cleanup": 1,
+      "shape.loop_cond_co_continue_if_group_prelude": 1,
+      "shape.loop_cond_co_continue_if_no_else": 1,
+      "shape.loop_cond_co_continue_if_prelude_span": 1,
+      "shape.loop_cond_co_group_if_branch": 1,
+      "shape.loop_cond_co_group_if_nested_loop": 1,
+      "shape.loop_cond_co_helper_carrier_sync": 1,
+      "shape.loop_cond_co_helper_mutation_probe": 1,
+      "shape.loop_cond_co_root_pipeline": 1,
+      "shape.loop_cond_co_statement_dispatcher": 1,
+      "shape.loop_cond_continue_with_return": 3,
+      "shape.loop_cond_plan": 42,
+      "shape.loop_cond_return_in_body": 5,
+      "shape.loop_cond_utility": 5,
+      "shape.loop_cond_verifier": 5,
+      "shape.loop_true_break_continue": 4,
+      "shape.nested_loop_plan": 14,
+      "shape.other_join_i_r_plan": 19,
+      "shape.other_plan_feature": 4,
+      "shape.phi_materializer_feature": 30,
+      "shape.plan_composer": 6,
+      "shape.plan_facts": 41,
+      "shape.plan_lowerer": 30,
+      "shape.plan_normalizer": 39,
+      "shape.plan_parts_assembly": 72,
+      "shape.planner_policy": 9,
+      "shape.recipe_tree_matcher": 71
+    },
+    "subcluster_count": 120
+  },
+  "token": "MIRBUILDER-MISSING-PROJECTION-POLICY-JOINIR-PLAN-CLUSTER-001"
+}
