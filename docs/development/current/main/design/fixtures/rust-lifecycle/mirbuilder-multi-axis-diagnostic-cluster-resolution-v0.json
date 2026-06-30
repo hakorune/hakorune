@@ -1,0 +1,70 @@
+{
+  "claims": {
+    "cluster_size_as_proof": 0,
+    "converter_completion_inventory_consumed": 1,
+    "coverage_percentage_as_proof": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "manual_axis_selection": 0,
+    "manual_family_selection": 0,
+    "multi_axis_clusters_resolved_to_next_lane": 1,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "other_owner_edge_repair_consumed": 1,
+    "other_shape_signature_resolution_consumed": 1,
+    "route_membership_alone_as_proof": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_report_consumed": 1,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "SelectCarrierTypeTransportPolicyInventory",
+    "reason_token": "MultiAxisClustersBlockedByCarrierTypeTransportPolicy",
+    "selected_next_card": "MIRBUILDER-CARRIER-TYPE-TRANSPORT-POLICY-INVENTORY-001"
+  },
+  "input_counts": {
+    "inventory_needs_multiple_diagnostic_axes_count": 185,
+    "other_repair_input_other_owner_cluster_count": 185,
+    "other_shape_input_other_owner_cluster_count": 185,
+    "other_shape_input_shape_signature_count": 11,
+    "other_shape_selection_eligible_shape_count": 0,
+    "source_report_owner_edge_missing_count": 185
+  },
+  "input_state": {
+    "converter_completion_inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-converter-completion-task-inventory-v0.json",
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "other_owner_edge_confidence_repair": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-policy-other-owner-edge-confidence-repair-v0.json",
+    "other_shape_signature_cluster_resolution": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-policy-other-shape-signature-cluster-resolution-002-v0.json",
+    "unconverted_surface_report": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-unconverted-surface-report-v0.json"
+  },
+  "kind": "MirBuilderMultiAxisDiagnosticClusterResolutionV1",
+  "provenance": {
+    "converter_completion_inventory_hash": "dc091ccfeb03834c8896d27f8a2a85c6a4a7da95d68b9ad40b282847a8bb556f",
+    "other_owner_edge_confidence_repair_hash": "c20119cb1c477f0d95c4ecfb4c0e5fc82aef46a9e304cdc986128a197eb5b5d7",
+    "other_shape_signature_cluster_resolution_hash": "31a29882c784c8bd278fad0d4c6f0dc4022a25416944b8bbfc50e88275350528",
+    "unconverted_surface_report_hash": "93ce02bcfad01b32f6d3c0ea93fe9974380b71e26b5e4949c3a103730497d8cc"
+  },
+  "resolved_axis_summary": {
+    "blocked_axis_cluster_counts": {
+      "BorrowOrReceiverPolicyGap": 8,
+      "CarrierPolicyGap": 7,
+      "ProjectionPolicyDescriptorAlreadyLanded": 1,
+      "TypeTransportOrVerifierGap": 4
+    },
+    "borrow_or_receiver_candidate_count": 139,
+    "carrier_type_transport_candidate_count": 125,
+    "completed_shape_signature_count": 1
+  },
+  "schema_version": 0,
+  "selection_rules": {
+    "carrier_type_transport_inventory_before_borrow_gap_when_present": 1,
+    "cluster_size_as_proof": 0,
+    "consume_existing_other_decomposition": 1,
+    "manual_axis_selection": 0,
+    "shape_descriptor_candidate_wins_before_policy_inventory": 1
+  },
+  "token": "MIRBUILDER-MULTI-AXIS-DIAGNOSTIC-CLUSTER-RESOLUTION-001"
+}
