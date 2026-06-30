@@ -24,11 +24,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-CALL-LOWERING-PURE-METHOD-CATALOG-POLICY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1903-MIRBUILDER-CALL-LOWERING-PURE-METHOD-CATALOG-POLICY-001.md"
-latest_card_summary = """The latest card materializes the CallLowering
-pure-method predicate as a source-extracted catalog descriptor and advances the
-feature predicate lane to value-return AST scanning."""
+latest_card = "MIRBUILDER-CALL-LOWERING-VALUE-RETURN-AST-SCAN-PROJECTION-POLICY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1904-MIRBUILDER-CALL-LOWERING-VALUE-RETURN-AST-SCAN-PROJECTION-POLICY-001.md"
+latest_card_summary = """The latest card keeps the CallLowering value-return
+AST scan helper parent-owned and advances the CallLowering lane to name
+canonicalization."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -39,6 +39,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-30: 1904 keeps the CallLowering value-return AST scan helper parent-owned.",
   "2026-06-30: 1903 materializes the CallLowering pure-method catalog descriptor.",
   "2026-06-30: 1902 keeps the CallLowering unified-call mode gate parent-owned by config authority.",
   "2026-06-30: 1901 decomposes CallLowering feature predicates into narrower subclusters.",
