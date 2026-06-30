@@ -1,0 +1,1915 @@
+{
+  "claims": {
+    "borrow_policy_selected": 0,
+    "explicit_mutation_api_selected_for_new_surface": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "manual_borrow_policy_selection": 0,
+    "manual_owner_edge_selection": 0,
+    "mut_lease_selected": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "owned_read_snapshot_selected_for_new_surface": 0,
+    "report_consumed": 1,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0,
+    "strict_rules_changed": 0
+  },
+  "clusters": [
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedReadBorrow",
+      "candidate_count": 21,
+      "cluster_id": "borrow_surface::ReturnedReadBorrow::option_ref::shared_receiver::loop_types::None",
+      "examples": [
+        {
+          "line": 103,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "&self",
+          "return_type": "Option<&AccumConstLoopFacts>",
+          "source_id": "src/mir/builder/control_flow/plan/facts/loop_types.rs::accum_const_loop:L103",
+          "source_path": "src/mir/builder/control_flow/plan/facts/loop_types.rs",
+          "symbol": "accum_const_loop"
+        },
+        {
+          "line": 99,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "&self",
+          "return_type": "Option<&BoolPredicateScanFacts>",
+          "source_id": "src/mir/builder/control_flow/plan/facts/loop_types.rs::bool_predicate_scan:L99",
+          "source_path": "src/mir/builder/control_flow/plan/facts/loop_types.rs",
+          "symbol": "bool_predicate_scan"
+        },
+        {
+          "line": 135,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "&self",
+          "return_type": "Option<&GenericLoopV0Facts>",
+          "source_id": "src/mir/builder/control_flow/plan/facts/loop_types.rs::generic_loop_v0:L135",
+          "source_path": "src/mir/builder/control_flow/plan/facts/loop_types.rs",
+          "symbol": "generic_loop_v0"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "shared_receiver",
+      "return_shape": "option_ref",
+      "selection_eligible": false,
+      "source_module": "loop_types"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedReadBorrow",
+      "candidate_count": 5,
+      "cluster_id": "borrow_surface::ReturnedReadBorrow::option_str_ref::shared_receiver::compilation_context::None",
+      "examples": [
+        {
+          "line": 321,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "&self",
+          "return_type": "Option<&str>",
+          "source_id": "src/mir/builder/compilation_context.rs::current_static_box:L321",
+          "source_path": "src/mir/builder/compilation_context.rs",
+          "symbol": "current_static_box"
+        },
+        {
+          "line": 288,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "&self",
+          "return_type": "Option<&str>",
+          "source_id": "src/mir/builder/compilation_context.rs::declared_field_type_name:L288",
+          "source_path": "src/mir/builder/compilation_context.rs",
+          "symbol": "declared_field_type_name"
+        },
+        {
+          "line": 385,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "&self",
+          "return_type": "Option<&str>",
+          "source_id": "src/mir/builder/compilation_context.rs::get_field_origin_by_box:L385",
+          "source_path": "src/mir/builder/compilation_context.rs",
+          "symbol": "get_field_origin_by_box"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "shared_receiver",
+      "return_shape": "option_str_ref",
+      "selection_eligible": false,
+      "source_module": "compilation_context"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedReadBorrow",
+      "candidate_count": 4,
+      "cluster_id": "borrow_surface::ReturnedReadBorrow::static_str_ref::free_function_or_static::rule_order::None",
+      "examples": [
+        {
+          "line": 154,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "None",
+          "return_type": "&'static str",
+          "source_id": "src/mir/builder/control_flow/plan/single_planner/rule_order.rs::planner_rule_route_label:L154",
+          "source_path": "src/mir/builder/control_flow/plan/single_planner/rule_order.rs",
+          "symbol": "planner_rule_route_label"
+        },
+        {
+          "line": 169,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "None",
+          "return_type": "&'static str",
+          "source_id": "src/mir/builder/control_flow/plan/single_planner/rule_order.rs::planner_rule_semantic_label:L169",
+          "source_path": "src/mir/builder/control_flow/plan/single_planner/rule_order.rs",
+          "symbol": "planner_rule_semantic_label"
+        },
+        {
+          "line": 150,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "None",
+          "return_type": "&'static str",
+          "source_id": "src/mir/builder/control_flow/plan/single_planner/rule_order.rs::planner_rule_tag_name:L150",
+          "source_path": "src/mir/builder/control_flow/plan/single_planner/rule_order.rs",
+          "symbol": "planner_rule_tag_name"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "free_function_or_static",
+      "return_shape": "static_str_ref",
+      "selection_eligible": false,
+      "source_module": "rule_order"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedReadBorrow",
+      "candidate_count": 3,
+      "cluster_id": "borrow_surface::ReturnedReadBorrow::btree_map_ref::shared_receiver::loop_cond_bc_phi_materializer::None",
+      "examples": [
+        {
+          "line": 110,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "&self",
+          "return_type": "&BTreeMap<String, ValueId>",
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_bc_phi_materializer.rs::break_phi_dsts:L110",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_bc_phi_materializer.rs",
+          "symbol": "break_phi_dsts"
+        },
+        {
+          "line": 102,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "&self",
+          "return_type": "&BTreeMap<String, ValueId>",
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_bc_phi_materializer.rs::carrier_phis:L102",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_bc_phi_materializer.rs",
+          "symbol": "carrier_phis"
+        },
+        {
+          "line": 106,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "&self",
+          "return_type": "&BTreeMap<String, ValueId>",
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_bc_phi_materializer.rs::carrier_step_phis:L106",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_bc_phi_materializer.rs",
+          "symbol": "carrier_step_phis"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "shared_receiver",
+      "return_shape": "btree_map_ref",
+      "selection_eligible": false,
+      "source_module": "loop_cond_bc_phi_materializer"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedReadBorrow",
+      "candidate_count": 3,
+      "cluster_id": "borrow_surface::ReturnedReadBorrow::btree_map_ref::shared_receiver::loop_cond_return_in_body_phi_materializer::None",
+      "examples": [
+        {
+          "line": 126,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "&self",
+          "return_type": "&BTreeMap<String, ValueId>",
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_return_in_body_phi_materializer.rs::carrier_phis:L126",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_return_in_body_phi_materializer.rs",
+          "symbol": "carrier_phis"
+        },
+        {
+          "line": 130,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "&self",
+          "return_type": "&BTreeMap<String, ValueId>",
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_return_in_body_phi_materializer.rs::carrier_step_phis:L130",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_return_in_body_phi_materializer.rs",
+          "symbol": "carrier_step_phis"
+        },
+        {
+          "line": 116,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "&self",
+          "return_type": "&BTreeMap<String, ValueId>",
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_return_in_body_phi_materializer.rs::current_bindings:L116",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_return_in_body_phi_materializer.rs",
+          "symbol": "current_bindings"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "shared_receiver",
+      "return_shape": "btree_map_ref",
+      "selection_eligible": false,
+      "source_module": "loop_cond_return_in_body_phi_materializer"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedReadBorrow",
+      "candidate_count": 3,
+      "cluster_id": "borrow_surface::ReturnedReadBorrow::option_ref::shared_receiver::compilation_context::None",
+      "examples": [
+        {
+          "line": 455,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "&self",
+          "return_type": "Option<&MirType>",
+          "source_id": "src/mir/builder/compilation_context.rs::get_plugin_method_sig:L455",
+          "source_path": "src/mir/builder/compilation_context.rs",
+          "symbol": "get_plugin_method_sig"
+        },
+        {
+          "line": 261,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "&self",
+          "return_type": "Option<&LoweredMethodAst>",
+          "source_id": "src/mir/builder/compilation_context.rs::lowered_method_ast:L261",
+          "source_path": "src/mir/builder/compilation_context.rs",
+          "symbol": "lowered_method_ast"
+        },
+        {
+          "line": 280,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "&self",
+          "return_type": "Option<&StaticScalarMethodFact>",
+          "source_id": "src/mir/builder/compilation_context.rs::static_scalar_method_fact:L280",
+          "source_path": "src/mir/builder/compilation_context.rs",
+          "symbol": "static_scalar_method_fact"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "shared_receiver",
+      "return_shape": "option_ref",
+      "selection_eligible": false,
+      "source_module": "compilation_context"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedReadBorrow",
+      "candidate_count": 3,
+      "cluster_id": "borrow_surface::ReturnedReadBorrow::option_static_str_ref::free_function_or_static::task_scope_stmt::None",
+      "examples": [
+        {
+          "line": 28,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "None",
+          "return_type": "Option<&'static str>",
+          "source_id": "src/mir/builder/stmts/task_scope_stmt.rs::first_unsupported_early_exit:L28",
+          "source_path": "src/mir/builder/stmts/task_scope_stmt.rs",
+          "symbol": "first_unsupported_early_exit"
+        },
+        {
+          "line": 130,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "None",
+          "return_type": "Option<&'static str>",
+          "source_id": "src/mir/builder/stmts/task_scope_stmt.rs::first_unsupported_early_exit_in_block:L130",
+          "source_path": "src/mir/builder/stmts/task_scope_stmt.rs",
+          "symbol": "first_unsupported_early_exit_in_block"
+        },
+        {
+          "line": 34,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "None",
+          "return_type": "Option<&'static str>",
+          "source_id": "src/mir/builder/stmts/task_scope_stmt.rs::first_unsupported_early_exit_in_node:L34",
+          "source_path": "src/mir/builder/stmts/task_scope_stmt.rs",
+          "symbol": "first_unsupported_early_exit_in_node"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "free_function_or_static",
+      "return_shape": "option_static_str_ref",
+      "selection_eligible": false,
+      "source_module": "task_scope_stmt"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedReadBorrow",
+      "candidate_count": 2,
+      "cluster_id": "borrow_surface::ReturnedReadBorrow::btree_map_ref::shared_receiver::loop_true_break_continue_phi_materializer::None",
+      "examples": [
+        {
+          "line": 66,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "&self",
+          "return_type": "&BTreeMap<String, ValueId>",
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_true_break_continue_phi_materializer.rs::carrier_phis:L66",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_true_break_continue_phi_materializer.rs",
+          "symbol": "carrier_phis"
+        },
+        {
+          "line": 70,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "&self",
+          "return_type": "&BTreeMap<String, ValueId>",
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_true_break_continue_phi_materializer.rs::carrier_step_phis:L70",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_true_break_continue_phi_materializer.rs",
+          "symbol": "carrier_step_phis"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "shared_receiver",
+      "return_shape": "btree_map_ref",
+      "selection_eligible": false,
+      "source_module": "loop_true_break_continue_phi_materializer"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedReadBorrow",
+      "candidate_count": 2,
+      "cluster_id": "borrow_surface::ReturnedReadBorrow::btree_map_ref::shared_receiver::verified::None",
+      "examples": [
+        {
+          "line": 47,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "&self",
+          "return_type": "&BTreeMap<String, ObligationState>",
+          "source_id": "src/mir/builder/control_flow/plan/recipe_tree/verified.rs::fallthrough:L47",
+          "source_path": "src/mir/builder/control_flow/plan/recipe_tree/verified.rs",
+          "symbol": "fallthrough"
+        },
+        {
+          "line": 52,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "&self",
+          "return_type": "&BTreeMap<String, ObligationState>",
+          "source_id": "src/mir/builder/control_flow/plan/recipe_tree/verified.rs::port:L52",
+          "source_path": "src/mir/builder/control_flow/plan/recipe_tree/verified.rs",
+          "symbol": "port"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "shared_receiver",
+      "return_shape": "btree_map_ref",
+      "selection_eligible": false,
+      "source_module": "verified"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedReadBorrow",
+      "candidate_count": 2,
+      "cluster_id": "borrow_surface::ReturnedReadBorrow::option_ref::shared_receiver::body::None",
+      "examples": [
+        {
+          "line": 27,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "&self",
+          "return_type": "Option<&ASTNode>",
+          "source_id": "src/mir/builder/control_flow/recipes/body.rs::get:L27",
+          "source_path": "src/mir/builder/control_flow/recipes/body.rs",
+          "symbol": "get"
+        },
+        {
+          "line": 31,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "&self",
+          "return_type": "Option<&ASTNode>",
+          "source_id": "src/mir/builder/control_flow/recipes/body.rs::get_ref:L31",
+          "source_path": "src/mir/builder/control_flow/recipes/body.rs",
+          "symbol": "get_ref"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "shared_receiver",
+      "return_shape": "option_ref",
+      "selection_eligible": false,
+      "source_module": "body"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedReadBorrow",
+      "candidate_count": 2,
+      "cluster_id": "borrow_surface::ReturnedReadBorrow::option_ref::shared_receiver::body_view::None",
+      "examples": [
+        {
+          "line": 27,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "&self",
+          "return_type": "Option<&'a [ASTNode]>",
+          "source_id": "src/mir/builder/control_flow/plan/features/body_view.rs::get_span:L27",
+          "source_path": "src/mir/builder/control_flow/plan/features/body_view.rs",
+          "symbol": "get_span"
+        },
+        {
+          "line": 20,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "&self",
+          "return_type": "Option<&'a ASTNode>",
+          "source_id": "src/mir/builder/control_flow/plan/features/body_view.rs::get_stmt:L20",
+          "source_path": "src/mir/builder/control_flow/plan/features/body_view.rs",
+          "symbol": "get_stmt"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "shared_receiver",
+      "return_shape": "option_ref",
+      "selection_eligible": false,
+      "source_module": "body_view"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedReadBorrow",
+      "candidate_count": 2,
+      "cluster_id": "borrow_surface::ReturnedReadBorrow::option_slice_ref::shared_receiver::compilation_context::None",
+      "examples": [
+        {
+          "line": 427,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "&self",
+          "return_type": "Option<&[String]>",
+          "source_id": "src/mir/builder/compilation_context.rs::get_method_tail_candidates:L427",
+          "source_path": "src/mir/builder/compilation_context.rs",
+          "symbol": "get_method_tail_candidates"
+        },
+        {
+          "line": 405,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "&self",
+          "return_type": "Option<&[(String, usize)]>",
+          "source_id": "src/mir/builder/compilation_context.rs::get_static_method_candidates:L405",
+          "source_path": "src/mir/builder/compilation_context.rs",
+          "symbol": "get_static_method_candidates"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "shared_receiver",
+      "return_shape": "option_slice_ref",
+      "selection_eligible": false,
+      "source_module": "compilation_context"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedReadBorrow",
+      "candidate_count": 2,
+      "cluster_id": "borrow_surface::ReturnedReadBorrow::shared_ref::shared_receiver::verified::None",
+      "examples": [
+        {
+          "line": 93,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "&self",
+          "return_type": "&'a RecipeBodies",
+          "source_id": "src/mir/builder/control_flow/plan/recipe_tree/verified.rs::arena:L93",
+          "source_path": "src/mir/builder/control_flow/plan/recipe_tree/verified.rs",
+          "symbol": "arena"
+        },
+        {
+          "line": 97,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "&self",
+          "return_type": "&'a RecipeBlock",
+          "source_id": "src/mir/builder/control_flow/plan/recipe_tree/verified.rs::block:L97",
+          "source_path": "src/mir/builder/control_flow/plan/recipe_tree/verified.rs",
+          "symbol": "block"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "shared_receiver",
+      "return_shape": "shared_ref",
+      "selection_eligible": false,
+      "source_module": "verified"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedReadBorrow",
+      "candidate_count": 2,
+      "cluster_id": "borrow_surface::ReturnedReadBorrow::slice_ref::shared_receiver::loop_cond_bc_phi_materializer::None",
+      "examples": [
+        {
+          "line": 40,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "&self",
+          "return_type": "&[(String, ValueId)]",
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_bc_phi_materializer.rs::final_values:L40",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_bc_phi_materializer.rs",
+          "symbol": "final_values"
+        },
+        {
+          "line": 36,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "&self",
+          "return_type": "&[CorePhiInfo]",
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_bc_phi_materializer.rs::phis:L36",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_bc_phi_materializer.rs",
+          "symbol": "phis"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "shared_receiver",
+      "return_shape": "slice_ref",
+      "selection_eligible": false,
+      "source_module": "loop_cond_bc_phi_materializer"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedReadBorrow",
+      "candidate_count": 2,
+      "cluster_id": "borrow_surface::ReturnedReadBorrow::slice_ref::shared_receiver::loop_cond_co_phi_materializer::None",
+      "examples": [
+        {
+          "line": 30,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "&self",
+          "return_type": "&[(String, ValueId)]",
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_co_phi_materializer.rs::final_values:L30",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_co_phi_materializer.rs",
+          "symbol": "final_values"
+        },
+        {
+          "line": 26,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "&self",
+          "return_type": "&[CorePhiInfo]",
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_co_phi_materializer.rs::phis:L26",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_co_phi_materializer.rs",
+          "symbol": "phis"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "shared_receiver",
+      "return_shape": "slice_ref",
+      "selection_eligible": false,
+      "source_module": "loop_cond_co_phi_materializer"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedReadBorrow",
+      "candidate_count": 2,
+      "cluster_id": "borrow_surface::ReturnedReadBorrow::slice_ref::shared_receiver::loop_cond_continue_with_return_phi_materializer::None",
+      "examples": [
+        {
+          "line": 43,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "&self",
+          "return_type": "&[(String, ValueId)]",
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_continue_with_return_phi_materializer.rs::final_values:L43",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_continue_with_return_phi_materializer.rs",
+          "symbol": "final_values"
+        },
+        {
+          "line": 39,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "&self",
+          "return_type": "&[CorePhiInfo]",
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_continue_with_return_phi_materializer.rs::phis:L39",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_continue_with_return_phi_materializer.rs",
+          "symbol": "phis"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "shared_receiver",
+      "return_shape": "slice_ref",
+      "selection_eligible": false,
+      "source_module": "loop_cond_continue_with_return_phi_materializer"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedReadBorrow",
+      "candidate_count": 2,
+      "cluster_id": "borrow_surface::ReturnedReadBorrow::slice_ref::shared_receiver::loop_cond_return_in_body_join::None",
+      "examples": [
+        {
+          "line": 30,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "&self",
+          "return_type": "&[(String, ValueId)]",
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_return_in_body_join.rs::final_values:L30",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_return_in_body_join.rs",
+          "symbol": "final_values"
+        },
+        {
+          "line": 26,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "&self",
+          "return_type": "&[CorePhiInfo]",
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_return_in_body_join.rs::phis:L26",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_return_in_body_join.rs",
+          "symbol": "phis"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "shared_receiver",
+      "return_shape": "slice_ref",
+      "selection_eligible": false,
+      "source_module": "loop_cond_return_in_body_join"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedReadBorrow",
+      "candidate_count": 2,
+      "cluster_id": "borrow_surface::ReturnedReadBorrow::slice_ref::shared_receiver::loop_cond_return_in_body_phi_materializer::None",
+      "examples": [
+        {
+          "line": 52,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "&self",
+          "return_type": "&[(String, ValueId)]",
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_return_in_body_phi_materializer.rs::final_values:L52",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_return_in_body_phi_materializer.rs",
+          "symbol": "final_values"
+        },
+        {
+          "line": 48,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "&self",
+          "return_type": "&[CorePhiInfo]",
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_return_in_body_phi_materializer.rs::phis:L48",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_return_in_body_phi_materializer.rs",
+          "symbol": "phis"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "shared_receiver",
+      "return_shape": "slice_ref",
+      "selection_eligible": false,
+      "source_module": "loop_cond_return_in_body_phi_materializer"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedReadBorrow",
+      "candidate_count": 2,
+      "cluster_id": "borrow_surface::ReturnedReadBorrow::slice_ref::shared_receiver::loop_true_break_continue_phi_materializer::None",
+      "examples": [
+        {
+          "line": 30,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "&self",
+          "return_type": "&[(String, ValueId)]",
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_true_break_continue_phi_materializer.rs::final_values:L30",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_true_break_continue_phi_materializer.rs",
+          "symbol": "final_values"
+        },
+        {
+          "line": 26,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "&self",
+          "return_type": "&[CorePhiInfo]",
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_true_break_continue_phi_materializer.rs::phis:L26",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_true_break_continue_phi_materializer.rs",
+          "symbol": "phis"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "shared_receiver",
+      "return_shape": "slice_ref",
+      "selection_eligible": false,
+      "source_module": "loop_true_break_continue_phi_materializer"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedReadBorrow",
+      "candidate_count": 2,
+      "cluster_id": "borrow_surface::ReturnedReadBorrow::static_str_ref::free_function_or_static::utils::None",
+      "examples": [
+        {
+          "line": 61,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "None",
+          "return_type": "&'static str",
+          "source_id": "src/mir/builder/control_flow/plan/generic_loop/facts/stmt_classifier/utils.rs::stmt_kind_name:L61",
+          "source_path": "src/mir/builder/control_flow/plan/generic_loop/facts/stmt_classifier/utils.rs",
+          "symbol": "stmt_kind_name"
+        },
+        {
+          "line": 82,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "None",
+          "return_type": "&'static str",
+          "source_id": "src/mir/builder/control_flow/plan/generic_loop/facts/stmt_classifier/utils.rs::unsupported_stmt_detail:L82",
+          "source_path": "src/mir/builder/control_flow/plan/generic_loop/facts/stmt_classifier/utils.rs",
+          "symbol": "unsupported_stmt_detail"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "free_function_or_static",
+      "return_shape": "static_str_ref",
+      "selection_eligible": false,
+      "source_module": "utils"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedReadBorrow",
+      "candidate_count": 2,
+      "cluster_id": "borrow_surface::ReturnedReadBorrow::static_str_ref::owned_receiver::flowbox_tags::None",
+      "examples": [
+        {
+          "line": 14,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "self",
+          "return_type": "&'static str",
+          "source_id": "src/mir/builder/control_flow/verify/observability/flowbox_tags.rs::as_str:L14",
+          "source_path": "src/mir/builder/control_flow/verify/observability/flowbox_tags.rs",
+          "symbol": "as_str"
+        },
+        {
+          "line": 32,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "self",
+          "return_type": "&'static str",
+          "source_id": "src/mir/builder/control_flow/verify/observability/flowbox_tags.rs::as_str:L32",
+          "source_path": "src/mir/builder/control_flow/verify/observability/flowbox_tags.rs",
+          "symbol": "as_str"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "owned_receiver",
+      "return_shape": "static_str_ref",
+      "selection_eligible": false,
+      "source_module": "flowbox_tags"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedReadBorrow",
+      "candidate_count": 2,
+      "cluster_id": "borrow_surface::ReturnedReadBorrow::static_str_ref::owned_receiver::legacy_observer::None",
+      "examples": [
+        {
+          "line": 29,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "self",
+          "return_type": "&'static str",
+          "source_id": "src/mir/builder/control_flow/joinir/route_entry/registry/legacy_observer.rs::as_str:L29",
+          "source_path": "src/mir/builder/control_flow/joinir/route_entry/registry/legacy_observer.rs",
+          "symbol": "as_str"
+        },
+        {
+          "line": 21,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "self",
+          "return_type": "&'static str",
+          "source_id": "src/mir/builder/control_flow/joinir/route_entry/registry/legacy_observer.rs::owner:L21",
+          "source_path": "src/mir/builder/control_flow/joinir/route_entry/registry/legacy_observer.rs",
+          "symbol": "owner"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "owned_receiver",
+      "return_shape": "static_str_ref",
+      "selection_eligible": false,
+      "source_module": "legacy_observer"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedReadBorrow",
+      "candidate_count": 2,
+      "cluster_id": "borrow_surface::ReturnedReadBorrow::static_str_ref::shared_receiver::reject_reason::None",
+      "examples": [
+        {
+          "line": 182,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "&self",
+          "return_type": "&'static str",
+          "source_id": "src/mir/builder/control_flow/plan/facts/reject_reason.rs::as_str:L182",
+          "source_path": "src/mir/builder/control_flow/plan/facts/reject_reason.rs",
+          "symbol": "as_str"
+        },
+        {
+          "line": 36,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "&self",
+          "return_type": "&'static str",
+          "source_id": "src/mir/builder/control_flow/plan/facts/reject_reason.rs::as_str:L36",
+          "source_path": "src/mir/builder/control_flow/plan/facts/reject_reason.rs",
+          "symbol": "as_str"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "shared_receiver",
+      "return_shape": "static_str_ref",
+      "selection_eligible": false,
+      "source_module": "reject_reason"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedMutableBorrow",
+      "candidate_count": 1,
+      "cluster_id": "borrow_surface::ReturnedMutableBorrow::mutable_ref::mutable_receiver::loop_cond_return_in_body_phi_materializer::None",
+      "examples": [
+        {
+          "line": 120,
+          "reason_token": "ReturnedMutableBorrowPolicyMissing",
+          "receiver": "&mut self",
+          "return_type": "&mut BTreeMap<String, ValueId>",
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_return_in_body_phi_materializer.rs::current_bindings_mut:L120",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_return_in_body_phi_materializer.rs",
+          "symbol": "current_bindings_mut"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "mutable_receiver",
+      "return_shape": "mutable_ref",
+      "selection_eligible": false,
+      "source_module": "loop_cond_return_in_body_phi_materializer"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedMutableBorrow",
+      "candidate_count": 1,
+      "cluster_id": "borrow_surface::ReturnedMutableBorrow::mutable_ref::mutable_receiver::verified::None",
+      "examples": [
+        {
+          "line": 60,
+          "reason_token": "ReturnedMutableBorrowPolicyMissing",
+          "receiver": "&mut self",
+          "return_type": "&mut BTreeMap<String, ObligationState>",
+          "source_id": "src/mir/builder/control_flow/plan/recipe_tree/verified.rs::port_mut:L60",
+          "source_path": "src/mir/builder/control_flow/plan/recipe_tree/verified.rs",
+          "symbol": "port_mut"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "mutable_receiver",
+      "return_shape": "mutable_ref",
+      "selection_eligible": false,
+      "source_module": "verified"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedMutableBorrow",
+      "candidate_count": 1,
+      "cluster_id": "borrow_surface::ReturnedMutableBorrow::option_ref::mutable_receiver::scope_context::None",
+      "examples": [
+        {
+          "line": 90,
+          "reason_token": "ReturnedMutableBorrowPolicyMissing",
+          "receiver": "&mut self",
+          "return_type": "Option<&mut LexicalScopeFrame>",
+          "source_id": "src/mir/builder/scope_context.rs::current_scope_mut:L90",
+          "source_path": "src/mir/builder/scope_context.rs",
+          "symbol": "current_scope_mut"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "mutable_receiver",
+      "return_shape": "option_ref",
+      "selection_eligible": false,
+      "source_module": "scope_context"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedReadBorrow",
+      "candidate_count": 1,
+      "cluster_id": "borrow_surface::ReturnedReadBorrow::btree_map_ref::shared_receiver::carrier_orchestration::None",
+      "examples": [
+        {
+          "line": 21,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "&self",
+          "return_type": "&BTreeMap<String, ValueId>",
+          "source_id": "src/mir/builder/control_flow/plan/features/generic_loop_body/carrier_orchestration.rs::post_body_map:L21",
+          "source_path": "src/mir/builder/control_flow/plan/features/generic_loop_body/carrier_orchestration.rs",
+          "symbol": "post_body_map"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "shared_receiver",
+      "return_shape": "btree_map_ref",
+      "selection_eligible": false,
+      "source_module": "carrier_orchestration"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedReadBorrow",
+      "candidate_count": 1,
+      "cluster_id": "borrow_surface::ReturnedReadBorrow::btree_map_ref::shared_receiver::loop_cond_continue_with_return_phi_materializer::None",
+      "examples": [
+        {
+          "line": 71,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "&self",
+          "return_type": "&BTreeMap<String, ValueId>",
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_continue_with_return_phi_materializer.rs::current_bindings:L71",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_continue_with_return_phi_materializer.rs",
+          "symbol": "current_bindings"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "shared_receiver",
+      "return_shape": "btree_map_ref",
+      "selection_eligible": false,
+      "source_module": "loop_cond_continue_with_return_phi_materializer"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedReadBorrow",
+      "candidate_count": 1,
+      "cluster_id": "borrow_surface::ReturnedReadBorrow::hash_map_ref::shared_receiver::metadata_context::None",
+      "examples": [
+        {
+          "line": 179,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "&self",
+          "return_type": "&HashMap<ValueId, String>",
+          "source_id": "crates/hakorune_mir_builder/src/metadata_context.rs::value_origin_callers:L179",
+          "source_path": "crates/hakorune_mir_builder/src/metadata_context.rs",
+          "symbol": "value_origin_callers"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "shared_receiver",
+      "return_shape": "hash_map_ref",
+      "selection_eligible": false,
+      "source_module": "metadata_context"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedReadBorrow",
+      "candidate_count": 1,
+      "cluster_id": "borrow_surface::ReturnedReadBorrow::option_ref::free_function_or_static::control_flow::None",
+      "examples": [
+        {
+          "line": 157,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "None",
+          "return_type": "Option<&ASTNode>",
+          "source_id": "src/mir/builder/control_flow/facts/extractors/common_helpers/control_flow.rs::find_if_else_statement:L157",
+          "source_path": "src/mir/builder/control_flow/facts/extractors/common_helpers/control_flow.rs",
+          "symbol": "find_if_else_statement"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "free_function_or_static",
+      "return_shape": "option_ref",
+      "selection_eligible": false,
+      "source_module": "control_flow"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedReadBorrow",
+      "candidate_count": 1,
+      "cluster_id": "borrow_surface::ReturnedReadBorrow::option_ref::free_function_or_static::exprs_enum_match::None",
+      "examples": [
+        {
+          "line": 376,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "None",
+          "return_type": "Option<&EnumMatchArm>",
+          "source_id": "src/mir/builder/exprs_enum_match.rs::single_projection_arm:L376",
+          "source_path": "src/mir/builder/exprs_enum_match.rs",
+          "symbol": "single_projection_arm"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "free_function_or_static",
+      "return_shape": "option_ref",
+      "selection_eligible": false,
+      "source_module": "exprs_enum_match"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedReadBorrow",
+      "candidate_count": 1,
+      "cluster_id": "borrow_surface::ReturnedReadBorrow::option_ref::shared_receiver::block::None",
+      "examples": [
+        {
+          "line": 70,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "&self",
+          "return_type": "Option<&RecipeBody>",
+          "source_id": "src/mir/builder/control_flow/plan/recipe_tree/block.rs::get:L70",
+          "source_path": "src/mir/builder/control_flow/plan/recipe_tree/block.rs",
+          "symbol": "get"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "shared_receiver",
+      "return_shape": "option_ref",
+      "selection_eligible": false,
+      "source_module": "block"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedReadBorrow",
+      "candidate_count": 1,
+      "cluster_id": "borrow_surface::ReturnedReadBorrow::option_ref::shared_receiver::declarations::None",
+      "examples": [
+        {
+          "line": 187,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "&self",
+          "return_type": "Option<&RecordLocalValue>",
+          "source_id": "src/mir/builder/compilation_context/declarations.rs::record_local_value:L187",
+          "source_path": "src/mir/builder/compilation_context/declarations.rs",
+          "symbol": "record_local_value"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "shared_receiver",
+      "return_shape": "option_ref",
+      "selection_eligible": false,
+      "source_module": "declarations"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedReadBorrow",
+      "candidate_count": 1,
+      "cluster_id": "borrow_surface::ReturnedReadBorrow::option_ref::shared_receiver::function_slot_registry::None",
+      "examples": [
+        {
+          "line": 91,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "&self",
+          "return_type": "Option<&SlotInfo>",
+          "source_id": "src/mir/region/function_slot_registry.rs::get_slot_info:L91",
+          "source_path": "src/mir/region/function_slot_registry.rs",
+          "symbol": "get_slot_info"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "shared_receiver",
+      "return_shape": "option_ref",
+      "selection_eligible": false,
+      "source_module": "function_slot_registry"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedReadBorrow",
+      "candidate_count": 1,
+      "cluster_id": "borrow_surface::ReturnedReadBorrow::option_ref::shared_receiver::guard::None",
+      "examples": [
+        {
+          "line": 191,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "&self",
+          "return_type": "Option<&String>",
+          "source_id": "src/mir/builder/calls/guard.rs::get_box_type:L191",
+          "source_path": "src/mir/builder/calls/guard.rs",
+          "symbol": "get_box_type"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "shared_receiver",
+      "return_shape": "option_ref",
+      "selection_eligible": false,
+      "source_module": "guard"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedReadBorrow",
+      "candidate_count": 1,
+      "cluster_id": "borrow_surface::ReturnedReadBorrow::option_ref::shared_receiver::loop_cond_break_continue::None",
+      "examples": [
+        {
+          "line": 149,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "&self",
+          "return_type": "Option<&ExitAllowedBlockRecipe>",
+          "source_id": "src/mir/builder/control_flow/recipes/loop_cond_break_continue.rs::tail_break_exit_allowed_block:L149",
+          "source_path": "src/mir/builder/control_flow/recipes/loop_cond_break_continue.rs",
+          "symbol": "tail_break_exit_allowed_block"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "shared_receiver",
+      "return_shape": "option_ref",
+      "selection_eligible": false,
+      "source_module": "loop_cond_break_continue"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedReadBorrow",
+      "candidate_count": 1,
+      "cluster_id": "borrow_surface::ReturnedReadBorrow::option_ref::shared_receiver::type_context::None",
+      "examples": [
+        {
+          "line": 65,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "&self",
+          "return_type": "Option<&MirType>",
+          "source_id": "crates/hakorune_mir_builder/src/type_context.rs::get_type:L65",
+          "source_path": "crates/hakorune_mir_builder/src/type_context.rs",
+          "symbol": "get_type"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "shared_receiver",
+      "return_shape": "option_ref",
+      "selection_eligible": false,
+      "source_module": "type_context"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedReadBorrow",
+      "candidate_count": 1,
+      "cluster_id": "borrow_surface::ReturnedReadBorrow::option_ref::shared_receiver::type_registry::None",
+      "examples": [
+        {
+          "line": 182,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "&self",
+          "return_type": "Option<&String>",
+          "source_id": "src/mir/builder/type_registry.rs::get_origin:L182",
+          "source_path": "src/mir/builder/type_registry.rs",
+          "symbol": "get_origin"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "shared_receiver",
+      "return_shape": "option_ref",
+      "selection_eligible": false,
+      "source_module": "type_registry"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedReadBorrow",
+      "candidate_count": 1,
+      "cluster_id": "borrow_surface::ReturnedReadBorrow::option_static_str_ref::free_function_or_static::catalog::None",
+      "examples": [
+        {
+          "line": 6,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "None",
+          "return_type": "Option<&'static str>",
+          "source_id": "src/mir/builder/router/catalog.rs::unified_value_path_reason:L6",
+          "source_path": "src/mir/builder/router/catalog.rs",
+          "symbol": "unified_value_path_reason"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "free_function_or_static",
+      "return_shape": "option_static_str_ref",
+      "selection_eligible": false,
+      "source_module": "catalog"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedReadBorrow",
+      "candidate_count": 1,
+      "cluster_id": "borrow_surface::ReturnedReadBorrow::option_static_str_ref::free_function_or_static::helpers::None",
+      "examples": [
+        {
+          "line": 170,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "None",
+          "return_type": "Option<&'static str>",
+          "source_id": "src/mir/builder/control_flow/plan/lowerer/body_processing/helpers.rs::plan_def_kind:L170",
+          "source_path": "src/mir/builder/control_flow/plan/lowerer/body_processing/helpers.rs",
+          "symbol": "plan_def_kind"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "free_function_or_static",
+      "return_shape": "option_static_str_ref",
+      "selection_eligible": false,
+      "source_module": "helpers"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedReadBorrow",
+      "candidate_count": 1,
+      "cluster_id": "borrow_surface::ReturnedReadBorrow::option_static_str_ref::free_function_or_static::shape_resolution::None",
+      "examples": [
+        {
+          "line": 7,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "None",
+          "return_type": "Option<&'static str>",
+          "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check/shape_resolution.rs::check_body_generic_v0:L7",
+          "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check/shape_resolution.rs",
+          "symbol": "check_body_generic_v0"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "free_function_or_static",
+      "return_shape": "option_static_str_ref",
+      "selection_eligible": false,
+      "source_module": "shape_resolution"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedReadBorrow",
+      "candidate_count": 1,
+      "cluster_id": "borrow_surface::ReturnedReadBorrow::option_static_str_ref::free_function_or_static::validation_v0::None",
+      "examples": [
+        {
+          "line": 13,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "None",
+          "return_type": "Option<&'static str>",
+          "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check/validation_v0.rs::check_body_generic_v0:L13",
+          "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check/validation_v0.rs",
+          "symbol": "check_body_generic_v0"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "free_function_or_static",
+      "return_shape": "option_static_str_ref",
+      "selection_eligible": false,
+      "source_module": "validation_v0"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedReadBorrow",
+      "candidate_count": 1,
+      "cluster_id": "borrow_surface::ReturnedReadBorrow::option_str_ref::shared_receiver::metadata_context::None",
+      "examples": [
+        {
+          "line": 173,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "&self",
+          "return_type": "Option<&str>",
+          "source_id": "crates/hakorune_mir_builder/src/metadata_context.rs::value_caller:L173",
+          "source_path": "crates/hakorune_mir_builder/src/metadata_context.rs",
+          "symbol": "value_caller"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "shared_receiver",
+      "return_shape": "option_str_ref",
+      "selection_eligible": false,
+      "source_module": "metadata_context"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedReadBorrow",
+      "candidate_count": 1,
+      "cluster_id": "borrow_surface::ReturnedReadBorrow::option_str_ref::shared_receiver::type_context::None",
+      "examples": [
+        {
+          "line": 95,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "&self",
+          "return_type": "Option<&str>",
+          "source_id": "crates/hakorune_mir_builder/src/type_context.rs::get_origin_box:L95",
+          "source_path": "crates/hakorune_mir_builder/src/type_context.rs",
+          "symbol": "get_origin_box"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "shared_receiver",
+      "return_shape": "option_str_ref",
+      "selection_eligible": false,
+      "source_module": "type_context"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedReadBorrow",
+      "candidate_count": 1,
+      "cluster_id": "borrow_surface::ReturnedReadBorrow::shared_ref::free_function_or_static::trace::None",
+      "examples": [
+        {
+          "line": 224,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "None",
+          "return_type": "&'static JoinLoopTrace",
+          "source_id": "src/mir/builder/control_flow/joinir/trace.rs::trace:L224",
+          "source_path": "src/mir/builder/control_flow/joinir/trace.rs",
+          "symbol": "trace"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "free_function_or_static",
+      "return_shape": "shared_ref",
+      "selection_eligible": false,
+      "source_module": "trace"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedReadBorrow",
+      "candidate_count": 1,
+      "cluster_id": "borrow_surface::ReturnedReadBorrow::shared_ref::free_function_or_static::true_break_continue::None",
+      "examples": [
+        {
+          "line": 405,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "None",
+          "return_type": "&'static Mutex<()>",
+          "source_id": "src/mir/builder/control_flow/plan/loop_cond/true_break_continue.rs::env_guard:L405",
+          "source_path": "src/mir/builder/control_flow/plan/loop_cond/true_break_continue.rs",
+          "symbol": "env_guard"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "free_function_or_static",
+      "return_shape": "shared_ref",
+      "selection_eligible": false,
+      "source_module": "true_break_continue"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedReadBorrow",
+      "candidate_count": 1,
+      "cluster_id": "borrow_surface::ReturnedReadBorrow::shared_ref::shared_receiver::body::None",
+      "examples": [
+        {
+          "line": 45,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "&self",
+          "return_type": "&Self::Target",
+          "source_id": "src/mir/builder/control_flow/recipes/body.rs::deref:L45",
+          "source_path": "src/mir/builder/control_flow/recipes/body.rs",
+          "symbol": "deref"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "shared_receiver",
+      "return_shape": "shared_ref",
+      "selection_eligible": false,
+      "source_module": "body"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedReadBorrow",
+      "candidate_count": 1,
+      "cluster_id": "borrow_surface::ReturnedReadBorrow::slice_ref::free_function_or_static::map_value::None",
+      "examples": [
+        {
+          "line": 117,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "None",
+          "return_type": "&[ValueId]",
+          "source_id": "src/mir/builder/types/map_value.rs::user_args:L117",
+          "source_path": "src/mir/builder/types/map_value.rs",
+          "symbol": "user_args"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "free_function_or_static",
+      "return_shape": "slice_ref",
+      "selection_eligible": false,
+      "source_module": "map_value"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedReadBorrow",
+      "candidate_count": 1,
+      "cluster_id": "borrow_surface::ReturnedReadBorrow::slice_ref::shared_receiver::body::None",
+      "examples": [
+        {
+          "line": 52,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "&self",
+          "return_type": "&[ASTNode]",
+          "source_id": "src/mir/builder/control_flow/recipes/body.rs::as_ref:L52",
+          "source_path": "src/mir/builder/control_flow/recipes/body.rs",
+          "symbol": "as_ref"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "shared_receiver",
+      "return_shape": "slice_ref",
+      "selection_eligible": false,
+      "source_module": "body"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedReadBorrow",
+      "candidate_count": 1,
+      "cluster_id": "borrow_surface::ReturnedReadBorrow::slice_ref::shared_receiver::metadata_context::None",
+      "examples": [
+        {
+          "line": 142,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "&self",
+          "return_type": "&[RegionIdT]",
+          "source_id": "crates/hakorune_mir_builder/src/metadata_context.rs::current_region_stack:L142",
+          "source_path": "crates/hakorune_mir_builder/src/metadata_context.rs",
+          "symbol": "current_region_stack"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "shared_receiver",
+      "return_shape": "slice_ref",
+      "selection_eligible": false,
+      "source_module": "metadata_context"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedReadBorrow",
+      "candidate_count": 1,
+      "cluster_id": "borrow_surface::ReturnedReadBorrow::static_str_ref::free_function_or_static::analysis::None",
+      "examples": [
+        {
+          "line": 50,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "None",
+          "return_type": "&'static str",
+          "source_id": "src/mir/builder/ssa/analysis.rs::def_inst_kind:L50",
+          "source_path": "src/mir/builder/ssa/analysis.rs",
+          "symbol": "def_inst_kind"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "free_function_or_static",
+      "return_shape": "static_str_ref",
+      "selection_eligible": false,
+      "source_module": "analysis"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedReadBorrow",
+      "candidate_count": 1,
+      "cluster_id": "borrow_surface::ReturnedReadBorrow::static_str_ref::free_function_or_static::finalize::None",
+      "examples": [
+        {
+          "line": 4,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "None",
+          "return_type": "&'static str",
+          "source_id": "src/mir/builder/ssa/local/finalize.rs::def_inst_kind:L4",
+          "source_path": "src/mir/builder/ssa/local/finalize.rs",
+          "symbol": "def_inst_kind"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "free_function_or_static",
+      "return_shape": "static_str_ref",
+      "selection_eligible": false,
+      "source_module": "finalize"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedReadBorrow",
+      "candidate_count": 1,
+      "cluster_id": "borrow_surface::ReturnedReadBorrow::static_str_ref::free_function_or_static::loop_cond_bc_util::None",
+      "examples": [
+        {
+          "line": 27,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "None",
+          "return_type": "&'static str",
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_bc_util.rs::direct_exit_reason_text:L27",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_bc_util.rs",
+          "symbol": "direct_exit_reason_text"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "free_function_or_static",
+      "return_shape": "static_str_ref",
+      "selection_eligible": false,
+      "source_module": "loop_cond_bc_util"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedReadBorrow",
+      "candidate_count": 1,
+      "cluster_id": "borrow_surface::ReturnedReadBorrow::static_str_ref::free_function_or_static::mod::None",
+      "examples": [
+        {
+          "line": 46,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "None",
+          "return_type": "&'static str",
+          "source_id": "src/mir/builder/emit_guard/mod.rs::short_inst_name:L46",
+          "source_path": "src/mir/builder/emit_guard/mod.rs",
+          "symbol": "short_inst_name"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "free_function_or_static",
+      "return_shape": "static_str_ref",
+      "selection_eligible": false,
+      "source_module": "mod"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedReadBorrow",
+      "candidate_count": 1,
+      "cluster_id": "borrow_surface::ReturnedReadBorrow::static_str_ref::free_function_or_static::phi_type_inference::None",
+      "examples": [
+        {
+          "line": 45,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "None",
+          "return_type": "&'static str",
+          "source_id": "src/mir/builder/phi_type_inference.rs::classify_phi_resolver_miss_case:L45",
+          "source_path": "src/mir/builder/phi_type_inference.rs",
+          "symbol": "classify_phi_resolver_miss_case"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "free_function_or_static",
+      "return_shape": "static_str_ref",
+      "selection_eligible": false,
+      "source_module": "phi_type_inference"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedReadBorrow",
+      "candidate_count": 1,
+      "cluster_id": "borrow_surface::ReturnedReadBorrow::static_str_ref::free_function_or_static::rules::None",
+      "examples": [
+        {
+          "line": 76,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "None",
+          "return_type": "&'static str",
+          "source_id": "src/mir/builder/control_flow/plan/single_planner/rules.rs::promotion_hint_tag:L76",
+          "source_path": "src/mir/builder/control_flow/plan/single_planner/rules.rs",
+          "symbol": "promotion_hint_tag"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "free_function_or_static",
+      "return_shape": "static_str_ref",
+      "selection_eligible": false,
+      "source_module": "rules"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedReadBorrow",
+      "candidate_count": 1,
+      "cluster_id": "borrow_surface::ReturnedReadBorrow::static_str_ref::free_function_or_static::tags::None",
+      "examples": [
+        {
+          "line": 18,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "None",
+          "return_type": "&'static str",
+          "source_id": "src/mir/builder/control_flow/plan/planner/tags.rs::planner_first_display_label:L18",
+          "source_path": "src/mir/builder/control_flow/plan/planner/tags.rs",
+          "symbol": "planner_first_display_label"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "free_function_or_static",
+      "return_shape": "static_str_ref",
+      "selection_eligible": false,
+      "source_module": "tags"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedReadBorrow",
+      "candidate_count": 1,
+      "cluster_id": "borrow_surface::ReturnedReadBorrow::static_str_ref::owned_receiver::copy_emitter::None",
+      "examples": [
+        {
+          "line": 49,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "self",
+          "return_type": "&'static str",
+          "source_id": "src/mir/builder/emission/copy_emitter.rs::as_str:L49",
+          "source_path": "src/mir/builder/emission/copy_emitter.rs",
+          "symbol": "as_str"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "owned_receiver",
+      "return_shape": "static_str_ref",
+      "selection_eligible": false,
+      "source_module": "copy_emitter"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedReadBorrow",
+      "candidate_count": 1,
+      "cluster_id": "borrow_surface::ReturnedReadBorrow::static_str_ref::owned_receiver::facts_types::None",
+      "examples": [
+        {
+          "line": 48,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "self",
+          "return_type": "&'static str",
+          "source_id": "src/mir/builder/control_flow/plan/nested_loop_depth1/facts_types.rs::context_name:L48",
+          "source_path": "src/mir/builder/control_flow/plan/nested_loop_depth1/facts_types.rs",
+          "symbol": "context_name"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "owned_receiver",
+      "return_shape": "static_str_ref",
+      "selection_eligible": false,
+      "source_module": "facts_types"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedReadBorrow",
+      "candidate_count": 1,
+      "cluster_id": "borrow_surface::ReturnedReadBorrow::static_str_ref::owned_receiver::reject_reason::None",
+      "examples": [
+        {
+          "line": 109,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "self",
+          "return_type": "&'static str",
+          "source_id": "src/mir/builder/control_flow/plan/facts/reject_reason.rs::as_freeze_message:L109",
+          "source_path": "src/mir/builder/control_flow/plan/facts/reject_reason.rs",
+          "symbol": "as_freeze_message"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "owned_receiver",
+      "return_shape": "static_str_ref",
+      "selection_eligible": false,
+      "source_module": "reject_reason"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "borrow_kind": "ReturnedReadBorrow",
+      "candidate_count": 1,
+      "cluster_id": "borrow_surface::ReturnedReadBorrow::static_str_ref::owned_receiver::types::None",
+      "examples": [
+        {
+          "line": 54,
+          "reason_token": "ReturnedReadBorrowPolicyMissing",
+          "receiver": "self",
+          "return_type": "&'static str",
+          "source_id": "src/mir/builder/control_flow/joinir/route_entry/registry/types.rs::as_str:L54",
+          "source_path": "src/mir/builder/control_flow/joinir/route_entry/registry/types.rs",
+          "symbol": "as_str"
+        }
+      ],
+      "next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "next_owner_kind": "BorrowSurfaceOwnerEdgeConfidenceRepair",
+      "owner_edge_confidence": "None",
+      "receiver_axis": "owned_receiver",
+      "return_shape": "static_str_ref",
+      "selection_eligible": false,
+      "source_module": "types"
+    }
+  ],
+  "decision": {
+    "kind": "SelectBorrowSurfaceOwnerEdgeConfidenceRepair",
+    "reason_token": "BorrowSurfaceOwnerEdgeConfidenceMissingForAllCandidates",
+    "selected_cluster_id": null,
+    "selected_next_card": "MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001"
+  },
+  "input_authority": {
+    "current_state": "docs/development/current/main/CURRENT_STATE.toml",
+    "unconverted_surface_report": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-unconverted-surface-report-v0.json"
+  },
+  "kind": "MirBuilderBorrowSurfaceNeedsPolicyClusterResolutionV1",
+  "provenance": {
+    "unconverted_surface_report_hash": "93ce02bcfad01b32f6d3c0ea93fe9974380b71e26b5e4949c3a103730497d8cc"
+  },
+  "return_shape_counts": {
+    "btree_map_ref": 12,
+    "hash_map_ref": 1,
+    "mutable_ref": 2,
+    "option_ref": 38,
+    "option_slice_ref": 2,
+    "option_static_str_ref": 7,
+    "option_str_ref": 7,
+    "shared_ref": 5,
+    "slice_ref": 15,
+    "static_str_ref": 23
+  },
+  "schema_version": 0,
+  "summary": {
+    "borrow_surface_needs_policy_count": 112,
+    "cluster_count": 61,
+    "owner_edge_confidence_none_count": 112,
+    "returned_mutable_borrow_count": 3,
+    "returned_read_borrow_count": 109,
+    "selection_eligible_cluster_count": 0
+  },
+  "token": "MIRBUILDER-BORROW-SURFACE-NEEDS-POLICY-CLUSTER-RESOLUTION-001"
+}

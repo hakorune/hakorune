@@ -24,9 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-BORROW-SURFACE-NEEDS-POLICY-CLUSTER-RESOLUTION-001.
-  Classify the remaining unknown borrow surfaces before any new Hako emission
-  or native owner seed selection.
+  MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001.
+  Repair owner-edge confidence for borrow-policy candidates before selecting
+  any borrow replacement policy.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  MIRBUILDER-BORROW-SURFACE-NEEDS-POLICY-CLUSTER-RESOLUTION-001
+  MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -173,9 +173,9 @@ completed:
   strict-deny near-miss projection clusters exhausted
 
 next_priority_1:
-  MIRBUILDER-BORROW-SURFACE-NEEDS-POLICY-CLUSTER-RESOLUTION-001
-  purpose = classify 112 unknown borrow surfaces by borrow kind and owner confidence
-  output = exactly one borrow policy lane or KeepStopped with stable reason
+  MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001
+  purpose = map 112 borrow candidates to evidence-backed owner edges
+  output = repaired owner confidence or KeepStopped with stable reason
 
 next_priority_2:
   MIRBUILDER-MULTI-AXIS-DIAGNOSTIC-CLUSTER-RESOLUTION-001
@@ -246,22 +246,22 @@ history, not in this task-order SSOT.
    non_authority=manual family selection, runtime fallback, Source Selfhost claim
 
 2. MIRBUILDER-BORROW-SURFACE-NEEDS-POLICY-CLUSTER-RESOLUTION-001
-   status=next
-   boundary=classify 112 unknown borrow surfaces without selecting MutLease by default
-   semantic_authority=unconverted report and borrow projection SSOT
-   non_authority=raw borrow alias transport, runtime fallback, Hako generation
+   status=green
+   boundary=all 112 borrow candidates lack owner-edge confidence
+   semantic_authority=borrow cluster resolution fixture
+   non_authority=borrow policy selection, MutLease, Hako generation
 
-3. MIRBUILDER-MULTI-AXIS-DIAGNOSTIC-CLUSTER-RESOLUTION-001
-   status=queued
-   boundary=split 185 multi-axis denies after borrow policy clustering
-   semantic_authority=near-miss diagnostic fixture and unconverted report
-   non_authority=manual axis selection, cluster size as proof, Source Selfhost claim
+3. MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001
+   status=next
+   boundary=repair borrow owner-edge mapping without selecting borrow replacement policy
+   semantic_authority=borrow cluster fixture and source path/module evidence
+   non_authority=manual owner selection, borrow policy selection, Hako generation
 
 next_documented_task =
-  MIRBUILDER-BORROW-SURFACE-NEEDS-POLICY-CLUSTER-RESOLUTION-001
+  MIRBUILDER-BORROW-SURFACE-OWNER-EDGE-CONFIDENCE-REPAIR-001
 
 next_after_active_3 =
-  MIRBUILDER-CARRIER-TYPE-TRANSPORT-POLICY-INVENTORY-001
+  MIRBUILDER-MULTI-AXIS-DIAGNOSTIC-CLUSTER-RESOLUTION-001
 ```
 
 ## Landed Converter Capability Summary
