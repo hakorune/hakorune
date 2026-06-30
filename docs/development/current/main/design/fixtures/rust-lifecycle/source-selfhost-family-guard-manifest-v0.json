@@ -982,6 +982,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-policy-call-emit-ssa-cluster-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_missing_projection_policy_call_emit_ssa_cluster_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-CRATE-WIDE-SURFACE-REPORT-OWNER-CLUSTER-FIELD-001",
+      "card": "docs/development/current/main/phases/phase-296x/1940-MIRBUILDER-CRATE-WIDE-SURFACE-REPORT-OWNER-CLUSTER-FIELD-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-surface-report-owner-cluster-field-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_crate_wide_surface_report_owner_cluster_field_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {

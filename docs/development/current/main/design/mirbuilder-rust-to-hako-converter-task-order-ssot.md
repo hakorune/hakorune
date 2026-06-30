@@ -381,15 +381,15 @@ history, not in this task-order SSOT.
 
 3. SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
    status=stop-line
-   boundary=Call/Emit/SSA clusters split into 61 subclusters; 13 remain ambiguous
-   semantic_authority=Call/Emit/SSA subcluster fixture
+   boundary=owner-cluster fields audited; OtherMissingProjectionPolicyCluster remains
+   semantic_authority=crate-wide owner-cluster field audit fixture
    non_authority=manual family selection, cluster size as proof, Source Selfhost claim
 
 next_documented_task =
-  MIRBUILDER-CRATE-WIDE-SURFACE-REPORT-OWNER-CLUSTER-FIELD-001
+  MIRBUILDER-MISSING-PROJECTION-POLICY-OTHER-OWNER-CLUSTER-001
 
 next_after_active_3 =
-  MIRBUILDER-CRATE-WIDE-SURFACE-REPORT-OWNER-CLUSTER-FIELD-001
+  MIRBUILDER-MISSING-PROJECTION-POLICY-OTHER-OWNER-CLUSTER-001
 ```
 
 ## Landed Converter Capability Summary

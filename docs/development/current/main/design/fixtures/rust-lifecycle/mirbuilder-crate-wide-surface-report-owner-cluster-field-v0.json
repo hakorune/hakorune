@@ -1,0 +1,113 @@
+{
+  "claims": {
+    "cluster_size_as_proof": 0,
+    "coverage_percentage_as_proof": 0,
+    "generated_artifact_as_edit_authority": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "known_owner_edge_field_present_for_every_item": 1,
+    "likely_owner_cluster_present_for_every_item": 1,
+    "manual_family_selection": 0,
+    "native_source_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "owner_cluster_field_audited": 1,
+    "owner_edge_confidence_present_for_every_item": 1,
+    "projection_cluster_resolution_consumed": 1,
+    "projection_priority_consumed": 1,
+    "route_membership_alone_as_proof": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_report_consumed": 1,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "SelectOtherOwnerClusterDecomposition",
+    "reason_token": "OtherOwnerClusterFieldRequiresDecomposition",
+    "selected_cluster": "OtherMissingProjectionPolicyCluster",
+    "selected_next_card": "MIRBUILDER-MISSING-PROJECTION-POLICY-OTHER-OWNER-CLUSTER-001"
+  },
+  "field_gaps": [],
+  "field_presence": {
+    "classification": 1584,
+    "known_owner_edge": 1584,
+    "likely_owner_cluster": 1584,
+    "owner_edge_confidence": 1584,
+    "reason_token": 1584,
+    "source_id": 1584,
+    "source_path": 1584,
+    "symbol": 1584
+  },
+  "input_state": {
+    "cluster_resolution": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-missing-projection-policy-cluster-resolution-v0.json",
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "missing_projection_policy_count": 1384,
+    "priority_resolution": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-projection-policy-cluster-priority-resolution-v0.json",
+    "reported_item_count": 1584,
+    "source_report": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-unconverted-surface-report-v0.json"
+  },
+  "kind": "MirBuilderCrateWideSurfaceReportOwnerClusterFieldV1",
+  "owner_field_summary": {
+    "known_owner_edge_missing_by_classification": {
+      "BorrowSurfaceNeedsPolicy": 112,
+      "DebugOnlySurface": 47,
+      "MissingProjectionPolicy": 185,
+      "TestOnlySurface": 20
+    },
+    "likely_owner_cluster_counts": {
+      "CallLoweringCluster": 88,
+      "ContextRegistryCluster": 114,
+      "EmissionSsaPhiCluster": 53,
+      "FastMemCluster": 19,
+      "JoinIRPlanCluster": 623,
+      "JoinIRRouteRegistryCluster": 37,
+      "JoinIRRouteVerifyCluster": 206,
+      "NotMissingProjectionPolicy": 200,
+      "OtherMissingProjectionPolicyCluster": 185,
+      "StatementValueConstructionCluster": 59
+    },
+    "missing_projection_cluster_counts": {
+      "CallLoweringCluster": 88,
+      "ContextRegistryCluster": 114,
+      "EmissionSsaPhiCluster": 53,
+      "FastMemCluster": 19,
+      "JoinIRPlanCluster": 623,
+      "JoinIRRouteRegistryCluster": 37,
+      "JoinIRRouteVerifyCluster": 206,
+      "OtherMissingProjectionPolicyCluster": 185,
+      "StatementValueConstructionCluster": 59
+    },
+    "owner_edge_confidence_counts": {
+      "ExactSymbol": 3,
+      "FileScoped": 17,
+      "FixtureMapped": 1199,
+      "Heuristic": 1,
+      "None": 364
+    }
+  },
+  "provenance": {
+    "cluster_resolution_hash": "ac0059a9dc2bafab00e6d20dda10dc3b7f6468c9508a891f4de69257d779f2bb",
+    "priority_resolution_hash": "e574dbc276f39ca6a7404c9bbc8d6e2c0ce39126dc9d028d1fb93886c57fb3d2",
+    "source_report_hash": "08186ed99f676574e43236bfbc3ad26a91bfbc90fc3dd1fd43807d6d728a8ab3"
+  },
+  "residual_owner_clusters": [
+    {
+      "cluster": "OtherMissingProjectionPolicyCluster",
+      "count": 185,
+      "reason_token": "OtherOwnerClusterFieldRequiresDecomposition"
+    },
+    {
+      "cluster": "JoinIRRouteRegistryCluster",
+      "count": 37,
+      "reason_token": "KnownOwnerClusterStillUnresolved"
+    },
+    {
+      "cluster": "FastMemCluster",
+      "count": 19,
+      "reason_token": "KnownOwnerClusterStillUnresolved"
+    }
+  ],
+  "schema_version": 0,
+  "token": "MIRBUILDER-CRATE-WIDE-SURFACE-REPORT-OWNER-CLUSTER-FIELD-001"
+}
