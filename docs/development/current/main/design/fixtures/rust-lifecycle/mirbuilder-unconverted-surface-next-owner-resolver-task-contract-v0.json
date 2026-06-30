@@ -1,0 +1,98 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderUnconvertedSurfaceNextOwnerResolverTaskContractV1",
+  "token": "MIRBUILDER-UNCONVERTED-SURFACE-NEXT-OWNER-RESOLVER-TASK-CONTRACT-001",
+  "purpose": "Define the next deterministic resolver task over the crate-wide unconverted surface report.",
+  "input_authority": {
+    "unconverted_surface_report": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-unconverted-surface-report-v0.json",
+    "native_owner_seed_capability_survey": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-native-owner-seed-capability-survey-v0.json",
+    "source_selfhost_family_guard_manifest": "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-family-guard-manifest-v0.json",
+    "current_state": "docs/development/current/main/CURRENT_STATE.toml",
+    "task_order": "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
+  },
+  "current_inventory": {
+    "source_selfhost_claim": 0,
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "unconverted_report_decision": "KeepStopped",
+    "unconverted_report_reason": "AmbiguousUnconvertedSurfaceCandidates",
+    "missing_projection_policy_count": 1396,
+    "borrow_policy_needed_count": 113,
+    "composite_suspected_count": 1,
+    "mapped_to_known_owner_count": 18,
+    "largest_cluster": "JoinIRPlanCluster",
+    "largest_cluster_count": 628
+  },
+  "next_task": {
+    "token": "MIRBUILDER-UNCONVERTED-SURFACE-NEXT-OWNER-RESOLVER-001",
+    "kind": "DeterministicResolver",
+    "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-unconverted-surface-next-owner-resolution-v0.json",
+    "guard": "tools/checks/rust_lifecycle_mirbuilder_unconverted_surface_next_owner_resolver_guard.sh"
+  },
+  "decision_enum": [
+    "SelectOwnerEdgeClassification",
+    "SelectProjectionPolicy",
+    "SelectBorrowPolicy",
+    "SelectCompositeDecomposition",
+    "SelectCompositeEvidenceInventory",
+    "SelectVerifierOrOracleRepair",
+    "SelectNativeSourceSeed",
+    "SelectHakoAdoptionDecision",
+    "KeepStopped"
+  ],
+  "exclusion_rules": [
+    "AlreadyAdopted",
+    "SupportLaneOnly",
+    "TestOnlySurface",
+    "DebugOnlySurface",
+    "BorrowSurfacePolicyKnown"
+  ],
+  "priority_rules": [
+    "MissingRouteOrArtifactEvidence",
+    "MissingProjectionPolicy",
+    "BorrowSurfaceNeedsPolicy",
+    "CompositeNeedsDecomposition",
+    "CompositeSuspected",
+    "MissingVerifierOrOracle",
+    "NativeSeedReady",
+    "ConvertibleLeaf"
+  ],
+  "tie_breaker": {
+    "same_priority_multiple_candidates": "KeepStopped",
+    "same_priority_reason_token": "AmbiguousNextOwnerCandidates",
+    "zero_candidates_reason_token": "NoMachineDerivedNextOwner",
+    "manual_selection_allowed": 0
+  },
+  "generated_artifact_seedability_requirements": {
+    "shadow_parity_green": 1,
+    "hako_mainline_or_promotion_green": 1,
+    "bounded_surface": 1,
+    "borrow_policy_resolved": 1,
+    "composite_owner": 0,
+    "deterministic_regeneration_evidence": 1,
+    "verifier_or_oracle_present": 1,
+    "generated_artifact_as_edit_authority": 0
+  },
+  "acceptance": {
+    "report_consumed": 1,
+    "resolver_selects_exactly_one_next_owner_when_unambiguous": 1,
+    "multiple_candidates_keep_stopped": 1,
+    "zero_candidates_keep_stopped": 1,
+    "support_lane_projector_as_hako_adoption_candidate": 0,
+    "generated_artifact_as_edit_authority": 0,
+    "manual_family_selection": 0,
+    "source_selfhost_claim": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "new_python_semantic_projector": 0,
+    "runner_semantic_owner": 0
+  },
+  "claims": {
+    "task_contract_only": 1,
+    "resolver_implemented": 0,
+    "hako_generation": 0,
+    "hako_adopted_decision": 0,
+    "native_seed_materialization": 0,
+    "source_selfhost_claim": 0
+  }
+}
