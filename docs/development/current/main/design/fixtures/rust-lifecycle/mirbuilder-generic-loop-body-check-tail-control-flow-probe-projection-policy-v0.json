@@ -1,0 +1,82 @@
+{
+  "claims": {
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "hako_projection_selected": 0,
+    "manual_family_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "probe_descriptor_selected": 1,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0,
+    "strict_reject_semantics_selected": 0
+  },
+  "decision": {
+    "kind": "SelectProbeDescriptorPolicy",
+    "reason_token": "TailControlFlowProbeDescriptorMaterialized",
+    "selected_next_card": "MIRBUILDER-GENERIC-LOOP-BODY-CHECK-IN-BODY-STEP-VALIDATION-PROJECTION-POLICY-001"
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "selected_subcluster_id": "TailControlFlowProbe",
+    "source_count": 1,
+    "source_module": "src/mir/builder/control_flow/plan/generic_loop/body_check/step_validation.rs",
+    "step_validation_policy": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-generic-loop-body-check-step-validation-projection-policy-v0.json"
+  },
+  "kind": "MirBuilderGenericLoopBodyCheckTailControlFlowProbeProjectionPolicyV1",
+  "probe_descriptor": {
+    "control_flow_predicates": [
+      "is_exit_if(stmt)",
+      "ASTNode::Break",
+      "ASTNode::Continue",
+      "ASTNode::Return"
+    ],
+    "descriptor_id": "generic_loop_body_check_tail_control_flow_probe_v1",
+    "returns": "bool",
+    "scan_range": "body[(step_index + 1)..]",
+    "source_extraction": "rust_tail_statement_scan",
+    "source_markers": [
+      "body.iter().skip(step_index + 1)",
+      "is_exit_if(stmt)",
+      "ASTNode::Break",
+      "ASTNode::Continue",
+      "ASTNode::Return"
+    ]
+  },
+  "provenance": {
+    "semantic_projection_inference": 0,
+    "tool_role": "FactsAdapterGuardOrchestrator"
+  },
+  "schema_version": 0,
+  "selected_policy": {
+    "hako_projection_selected": false,
+    "owner_edge": "mirbuilder::generic_loop_body_check_tail_control_flow_probe",
+    "policy": "SourceExtractedTailControlFlowProbeDescriptor",
+    "probe_descriptor_selected": true,
+    "reason_token": "TailControlFlowProbeDescriptorMaterializedBeforeStrictValidators",
+    "strict_reject_semantics_selected": false
+  },
+  "selection_axes": {
+    "borrow_axis": "NoBorrow",
+    "owner_edge_confidence": "FixtureMapped",
+    "shape_signature": "shape.generic_loop_body_check_tail_control_flow_probe",
+    "stable_deny_reason": "UnsupportedDirectShape",
+    "type_transport_axis": "Known",
+    "verifier_or_oracle_state": "Present"
+  },
+  "source_surfaces": [
+    {
+      "line": 17,
+      "params": "body: &[ASTNode],\n    step_index: usize,",
+      "probe_role": "tail_control_flow_scan",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check/step_validation.rs::has_control_flow_after_step:L17",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check/step_validation.rs",
+      "symbol": "has_control_flow_after_step"
+    }
+  ],
+  "token": "MIRBUILDER-GENERIC-LOOP-BODY-CHECK-TAIL-CONTROL-FLOW-PROBE-PROJECTION-POLICY-001"
+}
