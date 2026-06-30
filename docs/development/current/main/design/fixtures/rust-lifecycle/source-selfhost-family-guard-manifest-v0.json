@@ -534,6 +534,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-missing-projection-policy-cluster-resolution-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_crate_wide_missing_projection_policy_cluster_resolution_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-OWNER-EDGE-CONFIDENCE-REPAIR-001",
+      "card": "docs/development/current/main/phases/phase-296x/1876-MIRBUILDER-OWNER-EDGE-CONFIDENCE-REPAIR-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_owner_edge_confidence_repair_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {

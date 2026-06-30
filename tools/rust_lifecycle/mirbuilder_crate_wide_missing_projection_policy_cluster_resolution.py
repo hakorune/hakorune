@@ -246,6 +246,13 @@ def build_resolution() -> dict[str, Any]:
             "selected_next_card": "MIRBUILDER-OWNER-EDGE-CONFIDENCE-REPAIR-001",
             "reason_token": "NoExactOrFixtureMappedOwnerEdge",
         }
+    elif stable_deny_reason_counts.get("MissingStableDenyReason", 0) == len(items):
+        decision = {
+            "kind": "SelectStableDenyReasonRepair",
+            "selected_cluster_id": None,
+            "selected_next_card": "MIRBUILDER-MISSING-PROJECTION-STABLE-DENY-REASON-REPAIR-001",
+            "reason_token": "MissingStableDenyReasonForMappedProjectionPolicyClusters",
+        }
     elif eligible_clusters and len(eligible_clusters) == 1:
         cluster = eligible_clusters[0]
         decision = {

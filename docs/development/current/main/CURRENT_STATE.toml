@@ -24,11 +24,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-CRATE-WIDE-MISSING-PROJECTION-POLICY-CLUSTER-RESOLUTION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1875-MIRBUILDER-CRATE-WIDE-MISSING-PROJECTION-POLICY-CLUSTER-RESOLUTION-001.md"
-latest_card_summary = """The latest card clusters the 1396
-MissingProjectionPolicy surfaces and selects owner-edge confidence repair
-because every candidate still has owner_edge_confidence=None."""
+latest_card = "MIRBUILDER-OWNER-EDGE-CONFIDENCE-REPAIR-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1876-MIRBUILDER-OWNER-EDGE-CONFIDENCE-REPAIR-001.md"
+latest_card_summary = """The latest card repairs owner-edge confidence for
+MissingProjectionPolicy surfaces: 1211 candidates become FixtureMapped and the
+remaining 185 Other-cluster candidates stay unselectable."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -39,6 +39,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-30: 1876 repairs owner-edge confidence for MissingProjectionPolicy clusters.",
   "2026-06-30: 1875 clusters MissingProjectionPolicy and selects owner-edge confidence repair.",
   "2026-06-30: 1874 implements the unconverted-surface next-owner resolver.",
   "2026-06-30: 1873 fixes the unconverted-surface next-owner resolver task contract.",
@@ -46,5 +47,4 @@ landed_tail = [
   "2026-06-30: 1871 materializes the carrier-merge assignment native Hako source seed.",
   "2026-06-30: 1870 promotes carrier-merge assignment HakoShadow to HakoMainline.",
   "2026-06-30: 1869 adds carrier-merge assignment HakoShadow parity for the contracted mutation frame.",
-  "2026-06-30: 1868 fixes the carrier-merge assignment mutation-frame contract.",
 ]
