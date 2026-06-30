@@ -639,6 +639,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-plan-composer-projection-policy-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_plan_composer_projection_policy_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-PLAN-NORMALIZER-PROJECTION-POLICY-001",
+      "card": "docs/development/current/main/phases/phase-296x/1891-MIRBUILDER-PLAN-NORMALIZER-PROJECTION-POLICY-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-plan-normalizer-projection-policy-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_plan_normalizer_projection_policy_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {

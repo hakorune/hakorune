@@ -1,0 +1,75 @@
+{
+  "claims": {
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "manual_family_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "projection_surface_selected": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "KeepParentOwner",
+    "reason_token": "PlanNormalizerDoesNotOpenStandaloneProjectionOwner",
+    "selected_next_card": "MIRBUILDER-PROJECTION-POLICY-CLUSTER-PRIORITY-RESOLUTION-001"
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "priority_resolution": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-projection-policy-cluster-priority-resolution-v0.json",
+    "selected_cluster_id": "projection_policy::UnsupportedDirectShape::shape.plan_normalizer::FixtureMapped::PlanNormalizerCluster",
+    "source_count": 2,
+    "source_report": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-unconverted-surface-report-v0.json"
+  },
+  "kind": "MirBuilderPlanNormalizerProjectionPolicyV1",
+  "normalizer_evidence": [
+    "Create phi_bindings map from variable name-ValueId pairs",
+    "phi_bindings are used to override variable_map lookups",
+    "is_known_pure_method_call_for_value_if",
+    "Stage-B/JsonFrag normalizer uses ternary value-if",
+    "Selfhost FuncLowering uses ternary value-if",
+    "ASTNode::BlockExpr",
+    "BinaryOperator::Add"
+  ],
+  "role_counts": {
+    "normalizer_local_purity_predicate": 1,
+    "phi_binding_map_helper": 1
+  },
+  "schema_version": 0,
+  "selected_policy": {
+    "owner_edge": "mirbuilder::plan_normalizer",
+    "policy": "KeepParentOwner",
+    "projection_surface_selected": false,
+    "reason_token": "PlanNormalizerLocalHelpersAreParentOwned"
+  },
+  "selection_axes": {
+    "borrow_axis": "NoBorrow",
+    "owner_edge_confidence": "FixtureMapped",
+    "shape_signature": "shape.plan_normalizer",
+    "stable_deny_reason": "UnsupportedDirectShape",
+    "type_transport_axis": "Known",
+    "verifier_or_oracle_state": "Present"
+  },
+  "source_surfaces": [
+    {
+      "return_type": "",
+      "role": "phi_binding_map_helper",
+      "source_id": "src/mir/builder/control_flow/plan/normalizer/helpers_layout.rs::create_phi_bindings:L43",
+      "source_path": "src/mir/builder/control_flow/plan/normalizer/helpers_layout.rs",
+      "symbol": "create_phi_bindings",
+      "visibility": "pub(in crate::mir::builder)"
+    },
+    {
+      "return_type": "bool",
+      "role": "normalizer_local_purity_predicate",
+      "source_id": "src/mir/builder/control_flow/plan/normalizer/helpers_pure_value.rs::is_pure_value_expr:L1",
+      "source_path": "src/mir/builder/control_flow/plan/normalizer/helpers_pure_value.rs",
+      "symbol": "is_pure_value_expr",
+      "visibility": "pub(super)"
+    }
+  ],
+  "token": "MIRBUILDER-PLAN-NORMALIZER-PROJECTION-POLICY-001"
+}
