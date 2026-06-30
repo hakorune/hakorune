@@ -25,12 +25,12 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-STRICT-CONVERTER-EMISSION-TO-NATIVE-SEED-BRIDGE-POLICY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1963-MIRBUILDER-STRICT-CONVERTER-EMISSION-TO-NATIVE-SEED-BRIDGE-POLICY-001.md"
-latest_card_summary = """The latest card defines the bridge policy that lets
-strict converter emission evidence feed native source seed candidate selection
-as DerivedArtifactSeedDraftInput while keeping generated artifacts out of
-native edit authority."""
+latest_card = "MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1964-MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-001.md"
+latest_card_summary = """The latest card filters strict converter emission
+evidence through the bridge policy and selects core_context as the next native
+source seed candidate without materializing a seed or claiming Source
+Selfhost."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -41,6 +41,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-01: 1964 selects core_context as the strict-emission native seed candidate while keeping seed materialization and Source Selfhost unclaimed.",
   "2026-07-01: 1963 defines the strict-emission to native-seed bridge policy without Hako generation, adoption, or Source Selfhost claim.",
   "2026-07-01: 1962 reruns native-owner seed capability after strict emission evidence and keeps Source Selfhost stopped with no machine-derived seed candidate.",
   "2026-07-01: 1961 records strict converter emission evidence from existing verifier results and selects native-owner seed survey rerun next.",
