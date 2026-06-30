@@ -1,0 +1,70 @@
+{
+  "claims": {
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "manual_family_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "projection_surface_selected": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_extracted_descriptor": 1,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "ReturnToProjectionPolicyClusterResolution",
+    "reason_token": "CallLoweringSubclustersResolved",
+    "selected_next_card": "MIRBUILDER-PROJECTION-POLICY-CLUSTER-PRIORITY-RESOLUTION-001"
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "previous_policy": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-call-lowering-value-return-ast-scan-projection-policy-v0.json",
+    "selected_subcluster_id": "CallNameCanonicalizationHelpers",
+    "source_count": 1,
+    "subcluster_decomposition": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-call-lowering-policy-subcluster-decomposition-v0.json"
+  },
+  "kind": "MirBuilderCallLoweringNameCanonicalizationProjectionPolicyV1",
+  "name_canonicalization_descriptor": {
+    "callsite_paths": [
+      "src/mir/builder/builder_build.rs",
+      "src/mir/builder/method_call_handlers.rs",
+      "src/mir/builder/record_helper_args.rs",
+      "src/mir/builder/rewrite/known.rs"
+    ],
+    "descriptor_kind": "MethodFunctionNameCanonicalizationV1",
+    "format": "{}.{}/{}",
+    "parts": [
+      "box_name",
+      ".",
+      "method_name",
+      "/",
+      "arity"
+    ],
+    "source_extracted": true
+  },
+  "schema_version": 0,
+  "selected_policy": {
+    "owner_edge": "mirbuilder::call_lowering_name_canonicalization",
+    "policy": "MaterializeNameCanonicalizationDescriptor",
+    "projection_surface_selected": false,
+    "reason_token": "MethodFunctionNameIsSourceCanonicalizationDescriptor"
+  },
+  "selection_axes": {
+    "borrow_axis": "NoBorrow",
+    "owner_edge_confidence": "FixtureMapped",
+    "shape_signature": "shape.name_canonicalization",
+    "stable_deny_reason": "UnsupportedDirectShape",
+    "type_transport_axis": "Known",
+    "verifier_or_oracle_state": "Present"
+  },
+  "source_surface": {
+    "params": "box_name: &str, method_name: &str, arity: usize",
+    "return_type": "String",
+    "source_id": "src/mir/builder/calls/function_lowering.rs::generate_method_function_name:L78",
+    "source_path": "src/mir/builder/calls/function_lowering.rs",
+    "symbol": "generate_method_function_name"
+  },
+  "token": "MIRBUILDER-CALL-LOWERING-NAME-CANONICALIZATION-PROJECTION-POLICY-001"
+}
