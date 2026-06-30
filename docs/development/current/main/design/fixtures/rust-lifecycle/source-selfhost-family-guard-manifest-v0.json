@@ -576,6 +576,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-feature-projection-policy-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_carrier_feature_projection_policy_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-OTHER-JOIN-I-R-PLAN-PROJECTION-POLICY-001",
+      "card": "docs/development/current/main/phases/phase-296x/1882-MIRBUILDER-OTHER-JOIN-I-R-PLAN-PROJECTION-POLICY-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-other-join-i-r-plan-projection-policy-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_other_join_i_r_plan_projection_policy_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {

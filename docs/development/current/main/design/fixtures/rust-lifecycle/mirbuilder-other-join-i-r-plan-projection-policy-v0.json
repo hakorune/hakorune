@@ -1,0 +1,210 @@
+{
+  "claims": {
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "manual_family_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "projection_surface_selected": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "KeepParentOwner",
+    "reason_token": "OtherJoinIRPlanDoesNotOpenStandaloneProjectionOwner",
+    "selected_next_card": "MIRBUILDER-PROJECTION-POLICY-CLUSTER-PRIORITY-RESOLUTION-001"
+  },
+  "helper_bucket_summary": {
+    "join_payload": 1,
+    "plan_helper": 1,
+    "planner_gate_or_fact_count": 3,
+    "planner_session_or_rule_dispatch": 4,
+    "route_rewrite_helper": 1,
+    "skeleton_or_wiring": 6,
+    "trace_or_debug": 3
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "priority_resolution": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-projection-policy-cluster-priority-resolution-v0.json",
+    "selected_cluster_id": "projection_policy::UnsupportedDirectShape::shape.other_join_i_r_plan::FixtureMapped::OtherJoinIRPlanCluster",
+    "source_count": 19,
+    "source_report": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-unconverted-surface-report-v0.json"
+  },
+  "joinir_plan_evidence": [
+    "CorePlan::If",
+    "PlanBuildSession",
+    "PLAN_RULE_ORDER",
+    "GenericLoopSkeleton",
+    "LoopTrueSkeleton",
+    "LoopStepMode",
+    "CoreIfJoin",
+    "FragEmitSession",
+    "[plan/trace]"
+  ],
+  "kind": "MirBuilderOtherJoinIRPlanProjectionPolicyV1",
+  "schema_version": 0,
+  "selected_policy": {
+    "owner_edge": "mirbuilder::join_i_r_plan",
+    "policy": "KeepParentOwner",
+    "projection_surface_selected": false,
+    "reason_token": "JoinIRPlanHelpersAreParentOwned"
+  },
+  "source_surfaces": [
+    {
+      "helper_bucket": "route_rewrite_helper",
+      "return_type": "Result<LoweredRecipe, String>",
+      "source_id": "src/mir/builder/control_flow/plan/branchn.rs::branchn_to_if_chain:L24",
+      "source_path": "src/mir/builder/control_flow/plan/branchn.rs",
+      "symbol": "branchn_to_if_chain",
+      "visibility": "pub(in crate::mir::builder)"
+    },
+    {
+      "helper_bucket": "planner_gate_or_fact_count",
+      "return_type": "ControlFlowCounts",
+      "source_id": "src/mir/builder/control_flow/plan/loop_cond_unified_helpers.rs::count_control_flow_with_returns:L35",
+      "source_path": "src/mir/builder/control_flow/plan/loop_cond_unified_helpers.rs",
+      "symbol": "count_control_flow_with_returns",
+      "visibility": "pub(in crate::mir::builder)"
+    },
+    {
+      "helper_bucket": "planner_gate_or_fact_count",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/loop_cond_unified_helpers.rs::entry_gate_ok:L14",
+      "source_path": "src/mir/builder/control_flow/plan/loop_cond_unified_helpers.rs",
+      "symbol": "entry_gate_ok",
+      "visibility": "pub(in crate::mir::builder)"
+    },
+    {
+      "helper_bucket": "planner_gate_or_fact_count",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/control_flow/plan/loop_cond_unified_helpers.rs::validate_loop_condition:L27",
+      "source_path": "src/mir/builder/control_flow/plan/loop_cond_unified_helpers.rs",
+      "symbol": "validate_loop_condition",
+      "visibility": "pub(in crate::mir::builder)"
+    },
+    {
+      "helper_bucket": "planner_session_or_rule_dispatch",
+      "return_type": "Result<(), String>",
+      "source_id": "src/mir/builder/control_flow/plan/plan_build_session.rs::emit_and_seal:L55",
+      "source_path": "src/mir/builder/control_flow/plan/plan_build_session.rs",
+      "symbol": "emit_and_seal",
+      "visibility": "pub"
+    },
+    {
+      "helper_bucket": "planner_session_or_rule_dispatch",
+      "return_type": "Self",
+      "source_id": "src/mir/builder/control_flow/plan/plan_build_session.rs::new:L33",
+      "source_path": "src/mir/builder/control_flow/plan/plan_build_session.rs",
+      "symbol": "new",
+      "visibility": "pub"
+    },
+    {
+      "helper_bucket": "planner_session_or_rule_dispatch",
+      "return_type": "Result<PlanBuildOutcome, String>",
+      "source_id": "src/mir/builder/control_flow/plan/single_planner/mod.rs::try_build_outcome:L17",
+      "source_path": "src/mir/builder/control_flow/plan/single_planner/mod.rs",
+      "symbol": "try_build_outcome",
+      "visibility": "pub(in crate::mir::builder)"
+    },
+    {
+      "helper_bucket": "planner_session_or_rule_dispatch",
+      "return_type": "Result<PlanBuildOutcome, String>",
+      "source_id": "src/mir/builder/control_flow/plan/single_planner/rules.rs::try_build_outcome:L107",
+      "source_path": "src/mir/builder/control_flow/plan/single_planner/rules.rs",
+      "symbol": "try_build_outcome",
+      "visibility": "pub(super)"
+    },
+    {
+      "helper_bucket": "skeleton_or_wiring",
+      "return_type": "Result<GenericLoopSkeleton, String>",
+      "source_id": "src/mir/builder/control_flow/plan/skeletons/generic_loop.rs::alloc_generic_loop_v0_skeleton:L24",
+      "source_path": "src/mir/builder/control_flow/plan/skeletons/generic_loop.rs",
+      "symbol": "alloc_generic_loop_v0_skeleton",
+      "visibility": "pub(in crate::mir::builder)"
+    },
+    {
+      "helper_bucket": "skeleton_or_wiring",
+      "return_type": "Result<LoopTrueSkeleton, String>",
+      "source_id": "src/mir/builder/control_flow/plan/skeletons/loop_true.rs::alloc_loop_true_skeleton:L24",
+      "source_path": "src/mir/builder/control_flow/plan/skeletons/loop_true.rs",
+      "symbol": "alloc_loop_true_skeleton",
+      "visibility": "pub(in crate::mir::builder)"
+    },
+    {
+      "helper_bucket": "skeleton_or_wiring",
+      "return_type": "(LoopStepMode, bool)",
+      "source_id": "src/mir/builder/control_flow/plan/step_mode.rs::extract_to_step_bb_explicit_step:L11",
+      "source_path": "src/mir/builder/control_flow/plan/step_mode.rs",
+      "symbol": "extract_to_step_bb_explicit_step",
+      "visibility": "pub(in crate::mir::builder)"
+    },
+    {
+      "helper_bucket": "skeleton_or_wiring",
+      "return_type": "(LoopStepMode, bool)",
+      "source_id": "src/mir/builder/control_flow/plan/step_mode.rs::inline_in_body_no_explicit_step:L6",
+      "source_path": "src/mir/builder/control_flow/plan/step_mode.rs",
+      "symbol": "inline_in_body_no_explicit_step",
+      "visibility": "pub(in crate::mir::builder)"
+    },
+    {
+      "helper_bucket": "plan_helper",
+      "return_type": "Vec<LoweredRecipe>",
+      "source_id": "src/mir/builder/control_flow/plan/steps/effects.rs::effects_to_plans:L7",
+      "source_path": "src/mir/builder/control_flow/plan/steps/effects.rs",
+      "symbol": "effects_to_plans",
+      "visibility": "pub"
+    },
+    {
+      "helper_bucket": "join_payload",
+      "return_type": "Result<Vec<CoreIfJoin>, String>",
+      "source_id": "src/mir/builder/control_flow/plan/steps/join_payload.rs::build_join_payload:L105",
+      "source_path": "src/mir/builder/control_flow/plan/steps/join_payload.rs",
+      "symbol": "build_join_payload",
+      "visibility": "pub"
+    },
+    {
+      "helper_bucket": "skeleton_or_wiring",
+      "return_type": "Vec<EdgeStub>",
+      "source_id": "src/mir/builder/control_flow/plan/steps/loop_wiring_standard5.rs::build_standard5_internal_wires:L37",
+      "source_path": "src/mir/builder/control_flow/plan/steps/loop_wiring_standard5.rs",
+      "symbol": "build_standard5_internal_wires",
+      "visibility": "pub"
+    },
+    {
+      "helper_bucket": "skeleton_or_wiring",
+      "return_type": "EdgeArgs",
+      "source_id": "src/mir/builder/control_flow/plan/steps/loop_wiring_standard5.rs::empty_carriers_args:L16",
+      "source_path": "src/mir/builder/control_flow/plan/steps/loop_wiring_standard5.rs",
+      "symbol": "empty_carriers_args",
+      "visibility": "pub"
+    },
+    {
+      "helper_bucket": "trace_or_debug",
+      "return_type": "",
+      "source_id": "src/mir/builder/control_flow/plan/trace.rs::trace_outcome_path:L36",
+      "source_path": "src/mir/builder/control_flow/plan/trace.rs",
+      "symbol": "trace_outcome_path",
+      "visibility": "pub(in crate::mir::builder)"
+    },
+    {
+      "helper_bucket": "trace_or_debug",
+      "return_type": "",
+      "source_id": "src/mir/builder/control_flow/plan/trace.rs::trace_outcome_snapshot:L20",
+      "source_path": "src/mir/builder/control_flow/plan/trace.rs",
+      "symbol": "trace_outcome_snapshot",
+      "visibility": "pub(in crate::mir::builder)"
+    },
+    {
+      "helper_bucket": "trace_or_debug",
+      "return_type": "",
+      "source_id": "src/mir/builder/control_flow/plan/trace.rs::trace_try_take_planner:L3",
+      "source_path": "src/mir/builder/control_flow/plan/trace.rs",
+      "symbol": "trace_try_take_planner",
+      "visibility": "pub(in crate::mir::builder)"
+    }
+  ],
+  "token": "MIRBUILDER-OTHER-JOIN-I-R-PLAN-PROJECTION-POLICY-001"
+}
