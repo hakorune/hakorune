@@ -919,6 +919,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-statement-value-construction-box-field-initialization-hako-native-source-seed-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_statement_value_construction_box_field_initialization_hako_native_source_seed_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-BOX-FIELD-INITIALIZATION-HAKO-ADOPTION-DECISION-001",
+      "card": "docs/development/current/main/phases/phase-296x/1931-MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-BOX-FIELD-INITIALIZATION-HAKO-ADOPTION-DECISION-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-statement-value-construction-box-field-initialization-hako-adoption-decision-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_statement_value_construction_box_field_initialization_hako_adoption_decision_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {

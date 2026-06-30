@@ -342,7 +342,7 @@ semantic_closure_report =
 
 latest_frontier_card =
   docs/development/current/main/phases/phase-296x/
-  1930-MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-BOX-FIELD-INITIALIZATION-HAKO-NATIVE-SOURCE-SEED-001.md
+  1931-MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-BOX-FIELD-INITIALIZATION-HAKO-ADOPTION-DECISION-001.md
 
 latest_integration_card =
   docs/development/current/main/phases/phase-296x/
@@ -373,20 +373,20 @@ history, not in this task-order SSOT.
    semantic_authority=design-stop card, cluster/priority resolver fixtures
    non_authority=manual family selection, runtime fallback, Source Selfhost claim
 
-2. MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-BOX-FIELD-INITIALIZATION-HAKO-NATIVE-SOURCE-SEED-001
+2. MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-BOX-FIELD-INITIALIZATION-HAKO-ADOPTION-DECISION-001
    status=green
-   boundary=box field initialization native Hako source seed materialized
-   semantic_authority=promotion decision and native source seed fixtures
-   non_authority=Hako generation, HakoAdopted decision, Source Selfhost claim
+   boundary=box field initialization adopted as a narrow Hako leaf owner
+   semantic_authority=native source seed and HakoAdoption decision fixtures
+   non_authority=full field assignment, Rust deletion, Source Selfhost claim
 
-3. MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-BOX-FIELD-INITIALIZATION-HAKO-ADOPTION-DECISION-001
+3. MIRBUILDER-LOOP-TRUE-BREAK-CONTINUE-PROJECTION-POLICY-001
    status=next
-   boundary=decide whether the native source seed becomes HakoAdopted
-   semantic_authority=native source seed and mutation-frame contract fixtures
-   non_authority=manual family selection, Rust deletion, Source Selfhost claim
+   boundary=resume projection-policy priority queue after box field initialization adoption
+   semantic_authority=projection-policy cluster priority resolver fixture
+   non_authority=manual family selection, cluster size as proof, Source Selfhost claim
 
 next_after_active_3 =
-  MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-BOX-FIELD-INITIALIZATION-HAKO-ADOPTION-DECISION-001
+  MIRBUILDER-LOOP-TRUE-BREAK-CONTINUE-PROJECTION-POLICY-001
 ```
 
 ## Landed Converter Capability Summary

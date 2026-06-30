@@ -1,0 +1,54 @@
+{
+  "claims": {
+    "generated_artifact_as_edit_authority": 0,
+    "generator_overwrite_guard": 1,
+    "hako_adopted": 1,
+    "manual_family_selection": 0,
+    "native_hako_source_owner_present": 1,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "rust_bootstrap_retained": 1,
+    "rust_deletion": 0,
+    "rust_oracle_retained": 1,
+    "source_selfhost_claim": 0,
+    "support_lane_projector_as_hako_adoption_candidate": 0
+  },
+  "decision": {
+    "reason_token": "BoxFieldInitializationNativeSeedPresentAndPromotionGreen",
+    "selected_next_route": "native_hako_source_owner",
+    "value": "Adopt"
+  },
+  "family_id": "hakorune_mir_builder::statement_value_construction_box_field_initialization",
+  "input_authority": {
+    "derived_to_native_model": "docs/development/current/main/design/derived-to-native-hako-artifact-model-ssot.md",
+    "hako_shadow_promotion_decision": "docs/development/current/main/design/fixtures/rust-lifecycle/box-field-initialization-hako-shadow-promotion-decision-v0.json",
+    "mutation_frame_contract": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-statement-value-construction-box-field-initialization-mutation-frame-contract-v0.json",
+    "native_source_path": "lang/src/compiler/lib/box_field_initialization_native_seed.hako",
+    "native_source_seed": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-statement-value-construction-box-field-initialization-hako-native-source-seed-v0.json"
+  },
+  "kind": "MirBuilderStatementValueConstructionBoxFieldInitializationHakoAdoptionDecisionV1",
+  "next_action": {
+    "kind": "SourceSelfhostStillStopped",
+    "next_card": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "reason_token": "BoxFieldInitializationAdoptedSourceSelfhostStillStopped"
+  },
+  "post_decision_state": {
+    "generated_artifact_role": "provenance_and_regeneration_reference",
+    "hako_adopted": 1,
+    "native_edit_authority": 1,
+    "python_role": "oracle_guard_only",
+    "rust_role": "bootstrap_oracle_compat"
+  },
+  "schema_version": 0,
+  "target": {
+    "family_scope": "LeafSemanticOwner",
+    "generator_overwrite_guard": 1,
+    "native_source_owner_present": 1,
+    "selected_behavior": "BoxFieldInitialization_mutation_frame_only",
+    "support_lane_projector_as_hako_adoption_candidate": 0
+  },
+  "token": "MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-BOX-FIELD-INITIALIZATION-HAKO-ADOPTION-DECISION-001"
+}

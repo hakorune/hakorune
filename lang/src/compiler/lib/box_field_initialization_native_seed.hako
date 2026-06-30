@@ -23,7 +23,7 @@
 // source-family: hakorune_mir_builder::statement_value_construction_box_field_initialization
 // mutation-frame-contract:
 //   MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-BOX-FIELD-INITIALIZATION-MUTATION-FRAME-CONTRACT-001
-// hako-adopted: 0
+// hako-adopted: 1
 // source-selfhost-claim: 0
 
 box BoxFieldInitializationStateShellBox {
