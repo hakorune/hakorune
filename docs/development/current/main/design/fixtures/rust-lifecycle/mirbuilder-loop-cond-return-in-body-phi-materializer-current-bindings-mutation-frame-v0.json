@@ -1,0 +1,161 @@
+{
+  "claims": {
+    "bounded_mutation_frame_contract_ready": 1,
+    "caller_owned_mutable_alias": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "hako_shadow_projector_selected": 0,
+    "manual_axis_selection": 0,
+    "manual_family_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "raw_mutable_alias_selected": 0,
+    "returned_mutable_borrow_allowed": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0,
+    "stored_borrow_allowed": 0
+  },
+  "decision": {
+    "kind": "SelectNextDiagnosticClusterResolution",
+    "reason_token": "BoundedCurrentBindingsMutationFrameContractReady",
+    "selected_next_card": "MIRBUILDER-MULTI-AXIS-DIAGNOSTIC-CLUSTER-RESOLUTION-001"
+  },
+  "input_state": {
+    "borrow_policy_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-borrow-surface-returned-mutable-borrow-policy-v0.json",
+    "replacement_id": "LoopCondReturnInBodyPhiMaterializerCurrentBindingsMutationFrameV1",
+    "selected_policy": "BoundedWithMapOperation",
+    "strict_raw_borrow_policy": "Deny"
+  },
+  "kind": "MirBuilderLoopCondReturnInBodyPhiMaterializerCurrentBindingsMutationFrameV1",
+  "mutation_frame_contract": {
+    "allowed_operations": [
+      "MapGetCopied",
+      "MapSet",
+      "MapRemoveIfExisting",
+      "MapClearOnlyIfSourceEvidenceExists"
+    ],
+    "bounded_callsite": "lower_return_in_body_block",
+    "entry_surface": "current_bindings_mut",
+    "forbidden_operations": [
+      "ReturnMutableMapAlias",
+      "StoreMutableBorrow",
+      "CallerOwnedMutableAlias",
+      "RustLifetimeSyntaxTransport",
+      "RuntimeFallback"
+    ],
+    "frame_kind": "BoundedOwnerMutationFrame",
+    "local_only_state": [
+      "plans vector for lowered body recipes",
+      "statement dispatch frame"
+    ],
+    "mutation_order": [
+      "EnterBoundedCurrentBindingsFrame",
+      "IterateRecipeItemsInSourceOrder",
+      "DispatchStatementAst",
+      "LowerAssignmentThroughCarrierMerge",
+      "LowerLocalInitThroughCarrierMerge",
+      "LowerMethodCallEffectsWithCurrentBindings",
+      "LowerFunctionCallEffectsWithCurrentBindings",
+      "LowerPrintEffectsWithCurrentBindings",
+      "LowerIfWithJoinedBranchBindings",
+      "RecordCarrierUpdatesFromJoinedCarrierPhis",
+      "LowerReturnWithCurrentBindings",
+      "ReturnLoweredBodyPlans",
+      "ExitFrameWithoutAliasEscape"
+    ],
+    "owned_field": "current_bindings",
+    "owner": "LoopCondReturnInBodyPhiMaterializer",
+    "read_only_inputs": [
+      "carrier_phis",
+      "carrier_step_phis",
+      "recipe.items",
+      "recipe.body"
+    ],
+    "replacement_policy": "BoundedWithMapOperation",
+    "state_inputs": [
+      "LoopCondReturnInBodyPhiMaterializer.current_bindings",
+      "carrier_phis",
+      "carrier_step_phis",
+      "carrier_updates",
+      "builder.variable_ctx.variable_map",
+      "recipe.items",
+      "recipe.body"
+    ],
+    "state_outputs": [
+      "LoopCondReturnInBodyPhiMaterializer.current_bindings",
+      "carrier_updates",
+      "builder.variable_ctx.variable_map",
+      "lowered body plans"
+    ]
+  },
+  "provenance": {
+    "borrow_policy_fixture_hash": "7cfa885a4497de33280ee9fc18aef96f4ce89121ac8b4b68672e84b1c8a2b5b0",
+    "carrier_merge_source_hash": "938321a9d7c576d0f6a5eddef7d611a740db93841de9d005d8b764b7da7c22ce",
+    "normalizer_loop_body_lowering_source_hash": "1de268ecc57eacb4e258ac80952c9815e1e87b60ced18867fd87bb8c44440788",
+    "pipeline_source_hash": "e575186ef294eaab53d0e72fb37518f076ee4fd18905cabc9b594566d27778fb"
+  },
+  "schema_version": 0,
+  "source_order_sections": [
+    {
+      "markers": [
+        "let mut body_plans = lower_return_in_body_block(",
+        "phi_materializer.current_bindings_mut()",
+        "fn lower_return_in_body_block(",
+        "for item in &recipe.items",
+        "plans.extend(lower_stmt_ast(",
+        "fn lower_stmt_ast(",
+        "ASTNode::Assignment",
+        "lower_assignment_stmt(",
+        "ASTNode::Local",
+        "lower_local_init_stmt(",
+        "ASTNode::MethodCall",
+        "loop_body_lowering::lower_method_call_stmt(",
+        "ASTNode::FunctionCall",
+        "loop_body_lowering::lower_function_call_stmt(",
+        "ASTNode::Print",
+        "PlanNormalizer::lower_value_ast(expression, builder, current_bindings)?",
+        "ASTNode::If",
+        "lower_if_with_join(",
+        "ASTNode::Return",
+        "parts::entry::lower_return_with_effects(",
+        "fn lower_if_with_join(",
+        "lower_if_with_branch_lowerers_and_updates(",
+        "carrier_updates.insert(join.name.clone(), join.dst)"
+      ],
+      "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_return_in_body_pipeline.rs"
+    },
+    {
+      "markers": [
+        "pub(in crate::mir::builder) fn lower_assignment_stmt(",
+        "current_bindings.iter()",
+        "loop_body_lowering::lower_assignment_stmt(",
+        "carrier_updates.insert(name.clone(), value_id)",
+        "current_bindings.insert(name.clone(), value_id)",
+        "builder.variable_ctx.variable_map.insert(name, value_id)",
+        "pub(in crate::mir::builder) fn lower_local_init_stmt(",
+        "loop_body_lowering::lower_local_init_values(",
+        "current_bindings.insert(name.clone(), value_id)",
+        "builder.variable_ctx.variable_map.insert(name, value_id)"
+      ],
+      "source_path": "src/mir/builder/control_flow/plan/features/carrier_merge.rs"
+    },
+    {
+      "markers": [
+        "pub(in crate::mir::builder) fn lower_assignment_stmt(",
+        "PlanNormalizer::lower_value_ast(value, builder, phi_bindings)?",
+        "Ok((Some((name.clone(), value_id)), effects))",
+        "pub(in crate::mir::builder) fn lower_local_init_values(",
+        "PlanNormalizer::lower_value_ast(init_node.as_ref(), builder, phi_bindings)?",
+        "inits.push((name.to_string(), value_id))",
+        "pub(in crate::mir::builder) fn lower_method_call_stmt(",
+        "PlanNormalizer::lower_value_ast(arg, builder, phi_bindings)?",
+        "pub(in crate::mir::builder) fn lower_function_call_stmt("
+      ],
+      "source_path": "src/mir/builder/control_flow/plan/normalizer/loop_body_lowering.rs"
+    }
+  ],
+  "token": "MIRBUILDER-LOOP-COND-RETURN-IN-BODY-PHI-MATERIALIZER-CURRENT-BINDINGS-MUTATION-FRAME-001"
+}

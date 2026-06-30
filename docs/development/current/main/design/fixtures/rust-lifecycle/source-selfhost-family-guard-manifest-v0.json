@@ -1108,6 +1108,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-borrow-surface-returned-mutable-borrow-policy-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_borrow_surface_returned_mutable_borrow_policy_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-LOOP-COND-RETURN-IN-BODY-PHI-MATERIALIZER-CURRENT-BINDINGS-MUTATION-FRAME-001",
+      "card": "docs/development/current/main/phases/phase-296x/1958-MIRBUILDER-LOOP-COND-RETURN-IN-BODY-PHI-MATERIALIZER-CURRENT-BINDINGS-MUTATION-FRAME-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-cond-return-in-body-phi-materializer-current-bindings-mutation-frame-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_loop_cond_return_in_body_phi_materializer_current_bindings_mutation_frame_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {

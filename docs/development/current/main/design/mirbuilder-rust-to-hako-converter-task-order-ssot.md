@@ -24,10 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-LOOP-COND-RETURN-IN-BODY-PHI-MATERIALIZER-
-  CURRENT-BINDINGS-MUTATION-FRAME-001.
-  Materialize the bounded owner mutation-frame descriptor selected for the
-  loop_cond_return_in_body_phi_materializer current_bindings surface.
+  MIRBUILDER-MULTI-AXIS-DIAGNOSTIC-CLUSTER-RESOLUTION-001.
+  Split the remaining multi-axis diagnostic clusters by owner-edge, shape,
+  type transport, borrow, or verifier blockers.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -63,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  MIRBUILDER-BORROW-SURFACE-RETURNED-MUTABLE-BORROW-POLICY-001
+  MIRBUILDER-MULTI-AXIS-DIAGNOSTIC-CLUSTER-RESOLUTION-001
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -246,23 +245,23 @@ history, not in this task-order SSOT.
    semantic_authority=design-stop card, cluster/priority resolver fixtures
    non_authority=manual family selection, runtime fallback, Source Selfhost claim
 
-2. MIRBUILDER-BORROW-SURFACE-RETURNED-MUTABLE-BORROW-POLICY-001
+2. MIRBUILDER-LOOP-COND-RETURN-IN-BODY-PHI-MATERIALIZER-CURRENT-BINDINGS-MUTATION-FRAME-001
    status=green
-   boundary=Deny raw returned mutable borrow and select bounded replacement
-   semantic_authority=borrow policy fixture and Rust-to-Hako lifecycle SSOT
-   non_authority=raw mutable alias transport, MutLease, Hako generation
-
-3. MIRBUILDER-LOOP-COND-RETURN-IN-BODY-PHI-MATERIALIZER-CURRENT-BINDINGS-MUTATION-FRAME-001
-   status=next
    boundary=descriptor for bounded current_bindings mutation frame
    semantic_authority=returned mutable borrow policy fixture and source evidence
    non_authority=raw mutable alias transport, runtime fallback, Hako generation
 
+3. MIRBUILDER-MULTI-AXIS-DIAGNOSTIC-CLUSTER-RESOLUTION-001
+   status=next
+   boundary=split multi-axis diagnostic clusters into next machine-derived lane
+   semantic_authority=converter completion inventory and unconverted surface report
+   non_authority=manual axis selection, cluster size as proof, Hako generation
+
 next_documented_task =
-  MIRBUILDER-LOOP-COND-RETURN-IN-BODY-PHI-MATERIALIZER-CURRENT-BINDINGS-MUTATION-FRAME-001
+  MIRBUILDER-MULTI-AXIS-DIAGNOSTIC-CLUSTER-RESOLUTION-001
 
 next_after_active_3 =
-  MIRBUILDER-MULTI-AXIS-DIAGNOSTIC-CLUSTER-RESOLUTION-001
+  MIRBUILDER-CARRIER-TYPE-TRANSPORT-POLICY-INVENTORY-001
 ```
 
 ## Landed Converter Capability Summary
