@@ -1,0 +1,137 @@
+{
+  "claims": {
+    "ad_hoc_by_name_policy": 0,
+    "ast_traversal_projection_selected": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "manual_family_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "projection_surface_selected": 0,
+    "registry_descriptor_selected": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "runtime_or_projection_policy_by_name": 0,
+    "source_selfhost_claim": 0,
+    "whole_feature_predicate_projection": 0
+  },
+  "decision": {
+    "kind": "SelectFeaturePredicateSubcluster",
+    "reason_token": "SelectConfigGateBeforeCatalogAndAstTraversal",
+    "selected_feature_subcluster_id": "UnifiedCallModeGate",
+    "selected_next_card": "MIRBUILDER-CALL-LOWERING-UNIFIED-CALL-MODE-GATE-PROJECTION-POLICY-001"
+  },
+  "decomposition_policy": {
+    "mixed_responsibility_reason": "ConfigGateCatalogPredicateAndAstTraversalMustNotShareOneProjectionPolicy",
+    "unified_call_mode_gate_first": true,
+    "whole_feature_predicate_projection_selected": false
+  },
+  "feature_subcluster_counts": {
+    "PureMethodCatalog": 1,
+    "UnifiedCallModeGate": 1,
+    "ValueReturnAstScan": 1
+  },
+  "feature_subclusters": [
+    {
+      "classification": "CallFeaturePredicateSubcluster",
+      "feature_subcluster_id": "UnifiedCallModeGate",
+      "next_card": "MIRBUILDER-CALL-LOWERING-UNIFIED-CALL-MODE-GATE-PROJECTION-POLICY-001",
+      "next_owner_kind": "ProjectionPolicy",
+      "reason_token": "UnifiedCallModeGateReadsConfig",
+      "selection_eligible": true,
+      "source_count": 1,
+      "symbols": [
+        "is_unified_call_enabled"
+      ]
+    },
+    {
+      "classification": "CallFeaturePredicateSubcluster",
+      "feature_subcluster_id": "PureMethodCatalog",
+      "next_card": "MIRBUILDER-CALL-LOWERING-PURE-METHOD-CATALOG-POLICY-001",
+      "next_owner_kind": "RegistryDescriptorPolicy",
+      "reason_token": "PureMethodPredicateRequiresCatalogDescriptor",
+      "selection_eligible": false,
+      "source_count": 1,
+      "symbols": [
+        "is_pure_method"
+      ]
+    },
+    {
+      "classification": "CallFeaturePredicateSubcluster",
+      "feature_subcluster_id": "ValueReturnAstScan",
+      "next_card": "MIRBUILDER-CALL-LOWERING-VALUE-RETURN-AST-SCAN-PROJECTION-POLICY-001",
+      "next_owner_kind": "ProjectionPolicy",
+      "reason_token": "ValueReturnScanRequiresAstTraversalPolicy",
+      "selection_eligible": false,
+      "source_count": 1,
+      "symbols": [
+        "contains_value_return"
+      ]
+    }
+  ],
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "previous_policy": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-call-lowering-static-receiver-method-catalog-policy-v0.json",
+    "selected_subcluster_id": "CallFeaturePredicates",
+    "source_count": 3,
+    "subcluster_decomposition": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-call-lowering-policy-subcluster-decomposition-v0.json"
+  },
+  "kind": "MirBuilderCallLoweringFeaturePredicatesProjectionPolicyV1",
+  "schema_version": 0,
+  "selection_axes": {
+    "borrow_axis": "NoBorrow",
+    "owner_edge_confidence": "FixtureMapped",
+    "shape_signature": "shape.call_lowering",
+    "stable_deny_reason": "UnsupportedDirectShape",
+    "type_transport_axis": "Known",
+    "verifier_or_oracle_state": "Present"
+  },
+  "source_surfaces": [
+    {
+      "feature_subcluster_id": "UnifiedCallModeGate",
+      "params": "",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/calls/call_unified.rs::is_unified_call_enabled:L12",
+      "source_markers": [
+        "builder_unified_call_mode",
+        "default ON during development; explicit opt-out supported"
+      ],
+      "source_path": "src/mir/builder/calls/call_unified.rs",
+      "symbol": "is_unified_call_enabled"
+    },
+    {
+      "feature_subcluster_id": "PureMethodCatalog",
+      "params": "box_name: &str, method: &str",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/calls/effects_analyzer.rs::is_pure_method:L117",
+      "source_markers": [
+        "StringBox",
+        "IntegerBox",
+        "FloatBox",
+        "BoolBox"
+      ],
+      "source_path": "src/mir/builder/calls/effects_analyzer.rs",
+      "symbol": "is_pure_method"
+    },
+    {
+      "feature_subcluster_id": "ValueReturnAstScan",
+      "params": "nodes: &[ASTNode]",
+      "return_type": "bool",
+      "source_id": "src/mir/builder/calls/special_handlers.rs::contains_value_return:L92",
+      "source_markers": [
+        "ASTNode::Return { value: Some(_), .. }",
+        "ASTNode::If",
+        "ASTNode::Loop",
+        "ASTNode::TryCatch",
+        "ASTNode::Program",
+        "ASTNode::ScopeBox",
+        "ASTNode::FunctionDeclaration"
+      ],
+      "source_path": "src/mir/builder/calls/special_handlers.rs",
+      "symbol": "contains_value_return"
+    }
+  ],
+  "token": "MIRBUILDER-CALL-LOWERING-FEATURE-PREDICATES-PROJECTION-POLICY-001"
+}
