@@ -381,15 +381,15 @@ history, not in this task-order SSOT.
 
 3. SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
    status=stop-line
-   boundary=OtherMissingProjectionPolicyCluster shape inventory assigned 11 diagnostic shapes
-   semantic_authority=Other shape-signature inventory fixture
+   boundary=Other shape-signature clusters resolved by evidence quality
+   semantic_authority=Other shape-signature cluster resolution fixture
    non_authority=manual family selection, cluster size as proof, Source Selfhost claim
 
 next_documented_task =
-  MIRBUILDER-MISSING-PROJECTION-POLICY-OTHER-SHAPE-SIGNATURE-CLUSTER-RESOLUTION-001
+  MIRBUILDER-OTHER-UNIT-OBSERVER-SURFACE-PROJECTION-POLICY-001
 
 next_after_active_3 =
-  MIRBUILDER-MISSING-PROJECTION-POLICY-OTHER-SHAPE-SIGNATURE-CLUSTER-RESOLUTION-001
+  MIRBUILDER-OTHER-UNIT-OBSERVER-SURFACE-PROJECTION-POLICY-001
 ```
 
 ## Landed Converter Capability Summary
