@@ -1,0 +1,2331 @@
+{
+  "bucket_summary": {
+    "AlreadyCoveredByKnownBorrowPolicy": 2,
+    "IgnoredNonSemanticSurface": 67,
+    "NeedsBorrowPolicy": 112,
+    "NeedsCompositeEvidenceInventory": 1,
+    "NeedsMultipleDiagnosticAxes": 185,
+    "NeedsProjectionPolicyOnly": 1199,
+    "StillUnsupported": 18
+  },
+  "claims": {
+    "cluster_size_as_proof": 0,
+    "coverage_percentage_as_proof": 0,
+    "diagnostic_probe_only": 1,
+    "generated_artifact_as_native_edit_authority": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "manual_axis_selection": 0,
+    "manual_family_selection": 0,
+    "manual_shape_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "report_consumed": 1,
+    "route_membership_alone_as_proof": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0,
+    "strict_rules_changed": 0
+  },
+  "cluster_summary": {
+    "cluster_count": 61,
+    "ignored_nonsemantic_surface_count": 67,
+    "needs_borrow_policy_count": 112,
+    "needs_owner_edge_mapping_only_count": 0,
+    "needs_projection_policy_only_count": 1199,
+    "selection_eligible_cluster_count": 54
+  },
+  "clusters": [
+    {
+      "bucket": "NeedsProjectionPolicyOnly",
+      "candidate_count": 206,
+      "cluster_id": "near_miss::NeedsProjectionPolicyOnly::UnsupportedDirectShape::shape.join_i_r_route_verify::FixtureMapped::JoinIRRouteVerifyCluster",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
+      ],
+      "examples": [
+        {
+          "line": 36,
+          "source_id": "src/mir/builder/control_flow/edgecfg/api/branch_stub.rs::new:L36",
+          "source_path": "src/mir/builder/control_flow/edgecfg/api/branch_stub.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "new"
+        },
+        {
+          "line": 50,
+          "source_id": "src/mir/builder/control_flow/edgecfg/api/compose/cleanup.rs::cleanup:L50",
+          "source_path": "src/mir/builder/control_flow/edgecfg/api/compose/cleanup.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "cleanup"
+        },
+        {
+          "line": 51,
+          "source_id": "src/mir/builder/control_flow/edgecfg/api/compose/if_.rs::if_:L51",
+          "source_path": "src/mir/builder/control_flow/edgecfg/api/compose/if_.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "if_"
+        }
+      ],
+      "likely_owner_cluster": "JoinIRRouteVerifyCluster",
+      "missing_axes": [
+        "projection_policy"
+      ],
+      "next_owner_kind": "ProjectionPolicyClusterResolution",
+      "owner_edge_confidence": "FixtureMapped",
+      "reason_token": "ProjectionPolicyOnlyNearMiss",
+      "selection_eligible": true,
+      "shape_signature": "shape.join_i_r_route_verify",
+      "stable_deny_reason": "UnsupportedDirectShape"
+    },
+    {
+      "bucket": "NeedsProjectionPolicyOnly",
+      "candidate_count": 114,
+      "cluster_id": "near_miss::NeedsProjectionPolicyOnly::UnsupportedDirectShape::shape.context_registry::FixtureMapped::ContextRegistryCluster",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
+      ],
+      "examples": [
+        {
+          "line": 90,
+          "source_id": "crates/hakorune_mir_builder/src/binding_context.rs::clear_for_function_entry:L90",
+          "source_path": "crates/hakorune_mir_builder/src/binding_context.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "clear_for_function_entry"
+        },
+        {
+          "line": 71,
+          "source_id": "crates/hakorune_mir_builder/src/binding_context.rs::contains:L71",
+          "source_path": "crates/hakorune_mir_builder/src/binding_context.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "contains"
+        },
+        {
+          "line": 81,
+          "source_id": "crates/hakorune_mir_builder/src/binding_context.rs::insert:L81",
+          "source_path": "crates/hakorune_mir_builder/src/binding_context.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "insert"
+        }
+      ],
+      "likely_owner_cluster": "ContextRegistryCluster",
+      "missing_axes": [
+        "projection_policy"
+      ],
+      "next_owner_kind": "ProjectionPolicyClusterResolution",
+      "owner_edge_confidence": "FixtureMapped",
+      "reason_token": "ProjectionPolicyOnlyNearMiss",
+      "selection_eligible": true,
+      "shape_signature": "shape.context_registry",
+      "stable_deny_reason": "UnsupportedDirectShape"
+    },
+    {
+      "bucket": "NeedsProjectionPolicyOnly",
+      "candidate_count": 89,
+      "cluster_id": "near_miss::NeedsProjectionPolicyOnly::UnsupportedDirectShape::shape.generic_loop_plan::FixtureMapped::JoinIRPlanCluster",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
+      ],
+      "examples": [
+        {
+          "line": 7,
+          "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/call.rs::matches_is_space_call:L7",
+          "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/call.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "matches_is_space_call"
+        },
+        {
+          "line": 25,
+          "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/call.rs::matches_substring_call_with_loop_var:L25",
+          "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/call.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "matches_substring_call_with_loop_var"
+        },
+        {
+          "line": 64,
+          "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/compare.rs::matches_loop_var_compare:L64",
+          "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check/expr_matchers/compare.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "matches_loop_var_compare"
+        }
+      ],
+      "likely_owner_cluster": "JoinIRPlanCluster",
+      "missing_axes": [
+        "projection_policy"
+      ],
+      "next_owner_kind": "ProjectionPolicyClusterResolution",
+      "owner_edge_confidence": "FixtureMapped",
+      "reason_token": "ProjectionPolicyOnlyNearMiss",
+      "selection_eligible": true,
+      "shape_signature": "shape.generic_loop_plan",
+      "stable_deny_reason": "UnsupportedDirectShape"
+    },
+    {
+      "bucket": "NeedsProjectionPolicyOnly",
+      "candidate_count": 88,
+      "cluster_id": "near_miss::NeedsProjectionPolicyOnly::UnsupportedDirectShape::shape.call_lowering::FixtureMapped::CallLoweringCluster",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
+      ],
+      "examples": [
+        {
+          "line": 9,
+          "source_id": "src/mir/builder/calls/annotation.rs::callee_sig_name:L9",
+          "source_path": "src/mir/builder/calls/annotation.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "callee_sig_name"
+        },
+        {
+          "line": 181,
+          "source_id": "src/mir/builder/calls/build.rs::build_brand_constructor_call:L181",
+          "source_path": "src/mir/builder/calls/build.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "build_brand_constructor_call"
+        },
+        {
+          "line": 203,
+          "source_id": "src/mir/builder/calls/build.rs::build_call_args:L203",
+          "source_path": "src/mir/builder/calls/build.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "build_call_args"
+        }
+      ],
+      "likely_owner_cluster": "CallLoweringCluster",
+      "missing_axes": [
+        "projection_policy"
+      ],
+      "next_owner_kind": "ProjectionPolicyClusterResolution",
+      "owner_edge_confidence": "FixtureMapped",
+      "reason_token": "ProjectionPolicyOnlyNearMiss",
+      "selection_eligible": true,
+      "shape_signature": "shape.call_lowering",
+      "stable_deny_reason": "UnsupportedDirectShape"
+    },
+    {
+      "bucket": "NeedsProjectionPolicyOnly",
+      "candidate_count": 72,
+      "cluster_id": "near_miss::NeedsProjectionPolicyOnly::UnsupportedDirectShape::shape.plan_parts_assembly::FixtureMapped::JoinIRPlanCluster",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
+      ],
+      "examples": [
+        {
+          "line": 144,
+          "source_id": "src/mir/builder/control_flow/plan/parts/conditional_update.rs::lower_conditional_update_if_assume_with_break_phi_args_recipe_first:L144",
+          "source_path": "src/mir/builder/control_flow/plan/parts/conditional_update.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "lower_conditional_update_if_assume_with_break_phi_args_recipe_first"
+        },
+        {
+          "line": 36,
+          "source_id": "src/mir/builder/control_flow/plan/parts/conditional_update.rs::try_lower_conditional_update_if:L36",
+          "source_path": "src/mir/builder/control_flow/plan/parts/conditional_update.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "try_lower_conditional_update_if"
+        },
+        {
+          "line": 61,
+          "source_id": "src/mir/builder/control_flow/plan/parts/conditional_update.rs::try_lower_conditional_update_if_with_break_phi_args:L61",
+          "source_path": "src/mir/builder/control_flow/plan/parts/conditional_update.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "try_lower_conditional_update_if_with_break_phi_args"
+        }
+      ],
+      "likely_owner_cluster": "JoinIRPlanCluster",
+      "missing_axes": [
+        "projection_policy"
+      ],
+      "next_owner_kind": "ProjectionPolicyClusterResolution",
+      "owner_edge_confidence": "FixtureMapped",
+      "reason_token": "ProjectionPolicyOnlyNearMiss",
+      "selection_eligible": true,
+      "shape_signature": "shape.plan_parts_assembly",
+      "stable_deny_reason": "UnsupportedDirectShape"
+    },
+    {
+      "bucket": "NeedsProjectionPolicyOnly",
+      "candidate_count": 71,
+      "cluster_id": "near_miss::NeedsProjectionPolicyOnly::UnsupportedDirectShape::shape.recipe_tree_matcher::FixtureMapped::JoinIRPlanCluster",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
+      ],
+      "examples": [
+        {
+          "line": 23,
+          "source_id": "src/mir/builder/control_flow/plan/recipe_tree/accum_const_loop_builder.rs::build_accum_const_loop_recipe:L23",
+          "source_path": "src/mir/builder/control_flow/plan/recipe_tree/accum_const_loop_builder.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "build_accum_const_loop_recipe"
+        },
+        {
+          "line": 20,
+          "source_id": "src/mir/builder/control_flow/plan/recipe_tree/accum_const_loop_composer.rs::compose_accum_const_loop_recipe:L20",
+          "source_path": "src/mir/builder/control_flow/plan/recipe_tree/accum_const_loop_composer.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "compose_accum_const_loop_recipe"
+        },
+        {
+          "line": 31,
+          "source_id": "src/mir/builder/control_flow/plan/recipe_tree/array_join_builder.rs::build_array_join_recipe:L31",
+          "source_path": "src/mir/builder/control_flow/plan/recipe_tree/array_join_builder.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "build_array_join_recipe"
+        }
+      ],
+      "likely_owner_cluster": "JoinIRPlanCluster",
+      "missing_axes": [
+        "projection_policy"
+      ],
+      "next_owner_kind": "ProjectionPolicyClusterResolution",
+      "owner_edge_confidence": "FixtureMapped",
+      "reason_token": "ProjectionPolicyOnlyNearMiss",
+      "selection_eligible": true,
+      "shape_signature": "shape.recipe_tree_matcher",
+      "stable_deny_reason": "UnsupportedDirectShape"
+    },
+    {
+      "bucket": "NeedsProjectionPolicyOnly",
+      "candidate_count": 59,
+      "cluster_id": "near_miss::NeedsProjectionPolicyOnly::UnsupportedDirectShape::shape.statement_value_construction::FixtureMapped::StatementValueConstructionCluster",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
+      ],
+      "examples": [
+        {
+          "line": 191,
+          "source_id": "src/mir/builder/builder_build.rs::build_assignment:L191",
+          "source_path": "src/mir/builder/builder_build.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "build_assignment"
+        },
+        {
+          "line": 208,
+          "source_id": "src/mir/builder/builder_build.rs::build_assignment_from_value:L208",
+          "source_path": "src/mir/builder/builder_build.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "build_assignment_from_value"
+        },
+        {
+          "line": 21,
+          "source_id": "src/mir/builder/builder_build.rs::build_expression:L21",
+          "source_path": "src/mir/builder/builder_build.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "build_expression"
+        }
+      ],
+      "likely_owner_cluster": "StatementValueConstructionCluster",
+      "missing_axes": [
+        "projection_policy"
+      ],
+      "next_owner_kind": "ProjectionPolicyClusterResolution",
+      "owner_edge_confidence": "FixtureMapped",
+      "reason_token": "ProjectionPolicyOnlyNearMiss",
+      "selection_eligible": true,
+      "shape_signature": "shape.statement_value_construction",
+      "stable_deny_reason": "UnsupportedDirectShape"
+    },
+    {
+      "bucket": "NeedsProjectionPolicyOnly",
+      "candidate_count": 57,
+      "cluster_id": "near_miss::NeedsProjectionPolicyOnly::UnsupportedDirectShape::shape.loop_break_plan::FixtureMapped::JoinIRPlanCluster",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
+      ],
+      "examples": [
+        {
+          "line": 21,
+          "source_id": "src/mir/builder/control_flow/plan/loop_break/facts/body_local_facts.rs::try_extract_loop_break_body_local_facts:L21",
+          "source_path": "src/mir/builder/control_flow/plan/loop_break/facts/body_local_facts.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "try_extract_loop_break_body_local_facts"
+        },
+        {
+          "line": 82,
+          "source_id": "src/mir/builder/control_flow/plan/loop_break/facts/body_local_facts_helpers.rs::find_local_init_expr:L82",
+          "source_path": "src/mir/builder/control_flow/plan/loop_break/facts/body_local_facts_helpers.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "find_local_init_expr"
+        },
+        {
+          "line": 9,
+          "source_id": "src/mir/builder/control_flow/plan/loop_break/facts/body_local_facts_helpers.rs::try_extract_loop_break_body_local_facts_inner:L9",
+          "source_path": "src/mir/builder/control_flow/plan/loop_break/facts/body_local_facts_helpers.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "try_extract_loop_break_body_local_facts_inner"
+        }
+      ],
+      "likely_owner_cluster": "JoinIRPlanCluster",
+      "missing_axes": [
+        "projection_policy"
+      ],
+      "next_owner_kind": "ProjectionPolicyClusterResolution",
+      "owner_edge_confidence": "FixtureMapped",
+      "reason_token": "ProjectionPolicyOnlyNearMiss",
+      "selection_eligible": true,
+      "shape_signature": "shape.loop_break_plan",
+      "stable_deny_reason": "UnsupportedDirectShape"
+    },
+    {
+      "bucket": "NeedsProjectionPolicyOnly",
+      "candidate_count": 53,
+      "cluster_id": "near_miss::NeedsProjectionPolicyOnly::UnsupportedDirectShape::shape.emission_ssa_phi::FixtureMapped::EmissionSsaPhiCluster",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
+      ],
+      "examples": [
+        {
+          "line": 7,
+          "source_id": "src/mir/builder/emission/branch.rs::emit_conditional:L7",
+          "source_path": "src/mir/builder/emission/branch.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "emit_conditional"
+        },
+        {
+          "line": 73,
+          "source_id": "src/mir/builder/emission/branch.rs::emit_conditional_edgecfg:L73",
+          "source_path": "src/mir/builder/emission/branch.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "emit_conditional_edgecfg"
+        },
+        {
+          "line": 28,
+          "source_id": "src/mir/builder/emission/branch.rs::emit_jump:L28",
+          "source_path": "src/mir/builder/emission/branch.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "emit_jump"
+        }
+      ],
+      "likely_owner_cluster": "EmissionSsaPhiCluster",
+      "missing_axes": [
+        "projection_policy"
+      ],
+      "next_owner_kind": "ProjectionPolicyClusterResolution",
+      "owner_edge_confidence": "FixtureMapped",
+      "reason_token": "ProjectionPolicyOnlyNearMiss",
+      "selection_eligible": true,
+      "shape_signature": "shape.emission_ssa_phi",
+      "stable_deny_reason": "UnsupportedDirectShape"
+    },
+    {
+      "bucket": "NeedsProjectionPolicyOnly",
+      "candidate_count": 42,
+      "cluster_id": "near_miss::NeedsProjectionPolicyOnly::UnsupportedDirectShape::shape.loop_cond_plan::FixtureMapped::JoinIRPlanCluster",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
+      ],
+      "examples": [
+        {
+          "line": 14,
+          "source_id": "src/mir/builder/control_flow/plan/loop_cond/break_continue_accept.rs::determine_accept_kind:L14",
+          "source_path": "src/mir/builder/control_flow/plan/loop_cond/break_continue_accept.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "determine_accept_kind"
+        },
+        {
+          "line": 61,
+          "source_id": "src/mir/builder/control_flow/plan/loop_cond/break_continue_classify.rs::build_continue_if_with_else_recipes:L61",
+          "source_path": "src/mir/builder/control_flow/plan/loop_cond/break_continue_classify.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "build_continue_if_with_else_recipes"
+        },
+        {
+          "line": 18,
+          "source_id": "src/mir/builder/control_flow/plan/loop_cond/break_continue_classify.rs::continue_if_with_else_info:L18",
+          "source_path": "src/mir/builder/control_flow/plan/loop_cond/break_continue_classify.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "continue_if_with_else_info"
+        }
+      ],
+      "likely_owner_cluster": "JoinIRPlanCluster",
+      "missing_axes": [
+        "projection_policy"
+      ],
+      "next_owner_kind": "ProjectionPolicyClusterResolution",
+      "owner_edge_confidence": "FixtureMapped",
+      "reason_token": "ProjectionPolicyOnlyNearMiss",
+      "selection_eligible": true,
+      "shape_signature": "shape.loop_cond_plan",
+      "stable_deny_reason": "UnsupportedDirectShape"
+    },
+    {
+      "bucket": "NeedsProjectionPolicyOnly",
+      "candidate_count": 41,
+      "cluster_id": "near_miss::NeedsProjectionPolicyOnly::UnsupportedDirectShape::shape.plan_facts::FixtureMapped::JoinIRPlanCluster",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
+      ],
+      "examples": [
+        {
+          "line": 23,
+          "source_id": "src/mir/builder/control_flow/plan/facts/accum_const_loop_facts.rs::try_extract_accum_const_loop_facts:L23",
+          "source_path": "src/mir/builder/control_flow/plan/facts/accum_const_loop_facts.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "try_extract_accum_const_loop_facts"
+        },
+        {
+          "line": 22,
+          "source_id": "src/mir/builder/control_flow/plan/facts/bool_predicate_scan_facts.rs::try_extract_bool_predicate_scan_facts:L22",
+          "source_path": "src/mir/builder/control_flow/plan/facts/bool_predicate_scan_facts.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "try_extract_bool_predicate_scan_facts"
+        },
+        {
+          "line": 31,
+          "source_id": "src/mir/builder/control_flow/plan/facts/exit_only_block.rs::ends_with_exit_on_all_paths:L31",
+          "source_path": "src/mir/builder/control_flow/plan/facts/exit_only_block.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "ends_with_exit_on_all_paths"
+        }
+      ],
+      "likely_owner_cluster": "JoinIRPlanCluster",
+      "missing_axes": [
+        "projection_policy"
+      ],
+      "next_owner_kind": "ProjectionPolicyClusterResolution",
+      "owner_edge_confidence": "FixtureMapped",
+      "reason_token": "ProjectionPolicyOnlyNearMiss",
+      "selection_eligible": true,
+      "shape_signature": "shape.plan_facts",
+      "stable_deny_reason": "UnsupportedDirectShape"
+    },
+    {
+      "bucket": "NeedsProjectionPolicyOnly",
+      "candidate_count": 39,
+      "cluster_id": "near_miss::NeedsProjectionPolicyOnly::UnsupportedDirectShape::shape.plan_normalizer::FixtureMapped::JoinIRPlanCluster",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
+      ],
+      "examples": [
+        {
+          "line": 9,
+          "source_id": "src/mir/builder/control_flow/plan/normalizer/common.rs::empty_args:L9",
+          "source_path": "src/mir/builder/control_flow/plan/normalizer/common.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "empty_args"
+        },
+        {
+          "line": 37,
+          "source_id": "src/mir/builder/control_flow/plan/normalizer/common.rs::lower_me_this_method_effect:L37",
+          "source_path": "src/mir/builder/control_flow/plan/normalizer/common.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "lower_me_this_method_effect"
+        },
+        {
+          "line": 16,
+          "source_id": "src/mir/builder/control_flow/plan/normalizer/common.rs::negate_bool_cond:L16",
+          "source_path": "src/mir/builder/control_flow/plan/normalizer/common.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "negate_bool_cond"
+        }
+      ],
+      "likely_owner_cluster": "JoinIRPlanCluster",
+      "missing_axes": [
+        "projection_policy"
+      ],
+      "next_owner_kind": "ProjectionPolicyClusterResolution",
+      "owner_edge_confidence": "FixtureMapped",
+      "reason_token": "ProjectionPolicyOnlyNearMiss",
+      "selection_eligible": true,
+      "shape_signature": "shape.plan_normalizer",
+      "stable_deny_reason": "UnsupportedDirectShape"
+    },
+    {
+      "bucket": "NeedsProjectionPolicyOnly",
+      "candidate_count": 37,
+      "cluster_id": "near_miss::NeedsProjectionPolicyOnly::UnsupportedDirectShape::shape.join_i_r_route_registry::FixtureMapped::JoinIRRouteRegistryCluster",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
+      ],
+      "examples": [
+        {
+          "line": 51,
+          "source_id": "src/mir/builder/control_flow/joinir/route_entry/registry/handlers/generic.rs::route_generic_loop_v0:L51",
+          "source_path": "src/mir/builder/control_flow/joinir/route_entry/registry/handlers/generic.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "route_generic_loop_v0"
+        },
+        {
+          "line": 14,
+          "source_id": "src/mir/builder/control_flow/joinir/route_entry/registry/handlers/generic.rs::route_generic_loop_v1:L14",
+          "source_path": "src/mir/builder/control_flow/joinir/route_entry/registry/handlers/generic.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "route_generic_loop_v1"
+        },
+        {
+          "line": 312,
+          "source_id": "src/mir/builder/control_flow/joinir/route_entry/registry/handlers/routes.rs::route_accum_const_loop:L312",
+          "source_path": "src/mir/builder/control_flow/joinir/route_entry/registry/handlers/routes.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "route_accum_const_loop"
+        }
+      ],
+      "likely_owner_cluster": "JoinIRRouteRegistryCluster",
+      "missing_axes": [
+        "projection_policy"
+      ],
+      "next_owner_kind": "ProjectionPolicyClusterResolution",
+      "owner_edge_confidence": "FixtureMapped",
+      "reason_token": "ProjectionPolicyOnlyNearMiss",
+      "selection_eligible": true,
+      "shape_signature": "shape.join_i_r_route_registry",
+      "stable_deny_reason": "UnsupportedDirectShape"
+    },
+    {
+      "bucket": "NeedsProjectionPolicyOnly",
+      "candidate_count": 30,
+      "cluster_id": "near_miss::NeedsProjectionPolicyOnly::UnsupportedDirectShape::shape.generic_loop_body_feature::FixtureMapped::JoinIRPlanCluster",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
+      ],
+      "examples": [
+        {
+          "line": 71,
+          "source_id": "src/mir/builder/control_flow/plan/features/generic_loop_body/branch.rs::body_has_blockexpr_prelude_loop:L71",
+          "source_path": "src/mir/builder/control_flow/plan/features/generic_loop_body/branch.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "body_has_blockexpr_prelude_loop"
+        },
+        {
+          "line": 216,
+          "source_id": "src/mir/builder/control_flow/plan/features/generic_loop_body/branch.rs::can_attempt_conditional_update_branch:L216",
+          "source_path": "src/mir/builder/control_flow/plan/features/generic_loop_body/branch.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "can_attempt_conditional_update_branch"
+        },
+        {
+          "line": 121,
+          "source_id": "src/mir/builder/control_flow/plan/features/generic_loop_body/branch.rs::expr_has_blockexpr_prelude_loop:L121",
+          "source_path": "src/mir/builder/control_flow/plan/features/generic_loop_body/branch.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "expr_has_blockexpr_prelude_loop"
+        }
+      ],
+      "likely_owner_cluster": "JoinIRPlanCluster",
+      "missing_axes": [
+        "projection_policy"
+      ],
+      "next_owner_kind": "ProjectionPolicyClusterResolution",
+      "owner_edge_confidence": "FixtureMapped",
+      "reason_token": "ProjectionPolicyOnlyNearMiss",
+      "selection_eligible": true,
+      "shape_signature": "shape.generic_loop_body_feature",
+      "stable_deny_reason": "UnsupportedDirectShape"
+    },
+    {
+      "bucket": "NeedsProjectionPolicyOnly",
+      "candidate_count": 30,
+      "cluster_id": "near_miss::NeedsProjectionPolicyOnly::UnsupportedDirectShape::shape.phi_materializer_feature::FixtureMapped::JoinIRPlanCluster",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
+      ],
+      "examples": [
+        {
+          "line": 52,
+          "source_id": "src/mir/builder/control_flow/plan/features/coreloop_frame.rs::build_coreloop_frame:L52",
+          "source_path": "src/mir/builder/control_flow/plan/features/coreloop_frame.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "build_coreloop_frame"
+        },
+        {
+          "line": 126,
+          "source_id": "src/mir/builder/control_flow/plan/features/coreloop_frame.rs::build_header_step_phis:L126",
+          "source_path": "src/mir/builder/control_flow/plan/features/coreloop_frame.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "build_header_step_phis"
+        },
+        {
+          "line": 68,
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_carriers.rs::build_after_merge_phi_info:L68",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_carriers.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "build_after_merge_phi_info"
+        }
+      ],
+      "likely_owner_cluster": "JoinIRPlanCluster",
+      "missing_axes": [
+        "projection_policy"
+      ],
+      "next_owner_kind": "ProjectionPolicyClusterResolution",
+      "owner_edge_confidence": "FixtureMapped",
+      "reason_token": "ProjectionPolicyOnlyNearMiss",
+      "selection_eligible": true,
+      "shape_signature": "shape.phi_materializer_feature",
+      "stable_deny_reason": "UnsupportedDirectShape"
+    },
+    {
+      "bucket": "NeedsProjectionPolicyOnly",
+      "candidate_count": 30,
+      "cluster_id": "near_miss::NeedsProjectionPolicyOnly::UnsupportedDirectShape::shape.plan_lowerer::FixtureMapped::JoinIRPlanCluster",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
+      ],
+      "examples": [
+        {
+          "line": 28,
+          "source_id": "src/mir/builder/control_flow/plan/lowerer/block_effect_emission.rs::emit_all_block_effects:L28",
+          "source_path": "src/mir/builder/control_flow/plan/lowerer/block_effect_emission.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "emit_all_block_effects"
+        },
+        {
+          "line": 260,
+          "source_id": "src/mir/builder/control_flow/plan/lowerer/body_processing.rs::emit_body_effects:L260",
+          "source_path": "src/mir/builder/control_flow/plan/lowerer/body_processing.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "emit_body_effects"
+        },
+        {
+          "line": 379,
+          "source_id": "src/mir/builder/control_flow/plan/lowerer/body_processing.rs::emit_effect_in_loop:L379",
+          "source_path": "src/mir/builder/control_flow/plan/lowerer/body_processing.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "emit_effect_in_loop"
+        }
+      ],
+      "likely_owner_cluster": "JoinIRPlanCluster",
+      "missing_axes": [
+        "projection_policy"
+      ],
+      "next_owner_kind": "ProjectionPolicyClusterResolution",
+      "owner_edge_confidence": "FixtureMapped",
+      "reason_token": "ProjectionPolicyOnlyNearMiss",
+      "selection_eligible": true,
+      "shape_signature": "shape.plan_lowerer",
+      "stable_deny_reason": "UnsupportedDirectShape"
+    },
+    {
+      "bucket": "NeedsProjectionPolicyOnly",
+      "candidate_count": 19,
+      "cluster_id": "near_miss::NeedsProjectionPolicyOnly::UnsupportedDirectShape::shape.fast_mem::FixtureMapped::FastMemCluster",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
+      ],
+      "examples": [
+        {
+          "line": 11,
+          "source_id": "src/mir/builder/fastmem/branch.rs::ensure_fastmem_owner_eq_condition:L11",
+          "source_path": "src/mir/builder/fastmem/branch.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "ensure_fastmem_owner_eq_condition"
+        },
+        {
+          "line": 74,
+          "source_id": "src/mir/builder/fastmem/calls.rs::lower_fastmem_function_call:L74",
+          "source_path": "src/mir/builder/fastmem/calls.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "lower_fastmem_function_call"
+        },
+        {
+          "line": 234,
+          "source_id": "src/mir/builder/fastmem/calls.rs::lower_fastmem_method_call:L234",
+          "source_path": "src/mir/builder/fastmem/calls.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "lower_fastmem_method_call"
+        }
+      ],
+      "likely_owner_cluster": "FastMemCluster",
+      "missing_axes": [
+        "projection_policy"
+      ],
+      "next_owner_kind": "ProjectionPolicyClusterResolution",
+      "owner_edge_confidence": "FixtureMapped",
+      "reason_token": "ProjectionPolicyOnlyNearMiss",
+      "selection_eligible": true,
+      "shape_signature": "shape.fast_mem",
+      "stable_deny_reason": "UnsupportedDirectShape"
+    },
+    {
+      "bucket": "NeedsProjectionPolicyOnly",
+      "candidate_count": 19,
+      "cluster_id": "near_miss::NeedsProjectionPolicyOnly::UnsupportedDirectShape::shape.other_join_i_r_plan::FixtureMapped::JoinIRPlanCluster",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
+      ],
+      "examples": [
+        {
+          "line": 24,
+          "source_id": "src/mir/builder/control_flow/plan/branchn.rs::branchn_to_if_chain:L24",
+          "source_path": "src/mir/builder/control_flow/plan/branchn.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "branchn_to_if_chain"
+        },
+        {
+          "line": 35,
+          "source_id": "src/mir/builder/control_flow/plan/loop_cond_unified_helpers.rs::count_control_flow_with_returns:L35",
+          "source_path": "src/mir/builder/control_flow/plan/loop_cond_unified_helpers.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "count_control_flow_with_returns"
+        },
+        {
+          "line": 14,
+          "source_id": "src/mir/builder/control_flow/plan/loop_cond_unified_helpers.rs::entry_gate_ok:L14",
+          "source_path": "src/mir/builder/control_flow/plan/loop_cond_unified_helpers.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "entry_gate_ok"
+        }
+      ],
+      "likely_owner_cluster": "JoinIRPlanCluster",
+      "missing_axes": [
+        "projection_policy"
+      ],
+      "next_owner_kind": "ProjectionPolicyClusterResolution",
+      "owner_edge_confidence": "FixtureMapped",
+      "reason_token": "ProjectionPolicyOnlyNearMiss",
+      "selection_eligible": true,
+      "shape_signature": "shape.other_join_i_r_plan",
+      "stable_deny_reason": "UnsupportedDirectShape"
+    },
+    {
+      "bucket": "NeedsProjectionPolicyOnly",
+      "candidate_count": 14,
+      "cluster_id": "near_miss::NeedsProjectionPolicyOnly::UnsupportedDirectShape::shape.nested_loop_plan::FixtureMapped::JoinIRPlanCluster",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
+      ],
+      "examples": [
+        {
+          "line": 12,
+          "source_id": "src/mir/builder/control_flow/plan/nested_loop_depth1/facts.rs::try_extract_nested_loop_depth1_facts:L12",
+          "source_path": "src/mir/builder/control_flow/plan/nested_loop_depth1/facts.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "try_extract_nested_loop_depth1_facts"
+        },
+        {
+          "line": 9,
+          "source_id": "src/mir/builder/control_flow/plan/nested_loop_depth1/facts_helpers.rs::try_extract_break_continue_pure:L9",
+          "source_path": "src/mir/builder/control_flow/plan/nested_loop_depth1/facts_helpers.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "try_extract_break_continue_pure"
+        },
+        {
+          "line": 34,
+          "source_id": "src/mir/builder/control_flow/plan/nested_loop_depth1/facts_helpers.rs::try_extract_methodcall:L34",
+          "source_path": "src/mir/builder/control_flow/plan/nested_loop_depth1/facts_helpers.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "try_extract_methodcall"
+        }
+      ],
+      "likely_owner_cluster": "JoinIRPlanCluster",
+      "missing_axes": [
+        "projection_policy"
+      ],
+      "next_owner_kind": "ProjectionPolicyClusterResolution",
+      "owner_edge_confidence": "FixtureMapped",
+      "reason_token": "ProjectionPolicyOnlyNearMiss",
+      "selection_eligible": true,
+      "shape_signature": "shape.nested_loop_plan",
+      "stable_deny_reason": "UnsupportedDirectShape"
+    },
+    {
+      "bucket": "NeedsProjectionPolicyOnly",
+      "candidate_count": 13,
+      "cluster_id": "near_miss::NeedsProjectionPolicyOnly::UnsupportedDirectShape::shape.carrier_feature::FixtureMapped::JoinIRPlanCluster",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
+      ],
+      "examples": [
+        {
+          "line": 9,
+          "source_id": "src/mir/builder/control_flow/plan/features/carrier_merge.rs::lower_assignment_stmt:L9",
+          "source_path": "src/mir/builder/control_flow/plan/features/carrier_merge.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "lower_assignment_stmt"
+        },
+        {
+          "line": 47,
+          "source_id": "src/mir/builder/control_flow/plan/features/carrier_merge.rs::lower_local_init_stmt:L47",
+          "source_path": "src/mir/builder/control_flow/plan/features/carrier_merge.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "lower_local_init_stmt"
+        },
+        {
+          "line": 93,
+          "source_id": "src/mir/builder/control_flow/plan/features/carriers.rs::collect_carrier_vars:L93",
+          "source_path": "src/mir/builder/control_flow/plan/features/carriers.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "collect_carrier_vars"
+        }
+      ],
+      "likely_owner_cluster": "JoinIRPlanCluster",
+      "missing_axes": [
+        "projection_policy"
+      ],
+      "next_owner_kind": "ProjectionPolicyClusterResolution",
+      "owner_edge_confidence": "FixtureMapped",
+      "reason_token": "ProjectionPolicyOnlyNearMiss",
+      "selection_eligible": true,
+      "shape_signature": "shape.carrier_feature",
+      "stable_deny_reason": "UnsupportedDirectShape"
+    },
+    {
+      "bucket": "NeedsProjectionPolicyOnly",
+      "candidate_count": 9,
+      "cluster_id": "near_miss::NeedsProjectionPolicyOnly::UnsupportedDirectShape::shape.planner_policy::FixtureMapped::JoinIRPlanCluster",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
+      ],
+      "examples": [
+        {
+          "line": 24,
+          "source_id": "src/mir/builder/control_flow/plan/planner/freeze.rs::ambiguous:L24",
+          "source_path": "src/mir/builder/control_flow/plan/planner/freeze.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "ambiguous"
+        },
+        {
+          "line": 48,
+          "source_id": "src/mir/builder/control_flow/plan/planner/freeze.rs::bug:L48",
+          "source_path": "src/mir/builder/control_flow/plan/planner/freeze.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "bug"
+        },
+        {
+          "line": 16,
+          "source_id": "src/mir/builder/control_flow/plan/planner/freeze.rs::contract:L16",
+          "source_path": "src/mir/builder/control_flow/plan/planner/freeze.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "contract"
+        }
+      ],
+      "likely_owner_cluster": "JoinIRPlanCluster",
+      "missing_axes": [
+        "projection_policy"
+      ],
+      "next_owner_kind": "ProjectionPolicyClusterResolution",
+      "owner_edge_confidence": "FixtureMapped",
+      "reason_token": "ProjectionPolicyOnlyNearMiss",
+      "selection_eligible": true,
+      "shape_signature": "shape.planner_policy",
+      "stable_deny_reason": "UnsupportedDirectShape"
+    },
+    {
+      "bucket": "NeedsProjectionPolicyOnly",
+      "candidate_count": 6,
+      "cluster_id": "near_miss::NeedsProjectionPolicyOnly::UnsupportedDirectShape::shape.edge_cfg_stub_feature::FixtureMapped::JoinIRPlanCluster",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
+      ],
+      "examples": [
+        {
+          "line": 8,
+          "source_id": "src/mir/builder/control_flow/plan/features/edgecfg_stubs.rs::build_branch_stub:L8",
+          "source_path": "src/mir/builder/control_flow/plan/features/edgecfg_stubs.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "build_branch_stub"
+        },
+        {
+          "line": 34,
+          "source_id": "src/mir/builder/control_flow/plan/features/edgecfg_stubs.rs::build_edge_stub:L34",
+          "source_path": "src/mir/builder/control_flow/plan/features/edgecfg_stubs.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "build_edge_stub"
+        },
+        {
+          "line": 70,
+          "source_id": "src/mir/builder/control_flow/plan/features/edgecfg_stubs.rs::build_loop_back_edge:L70",
+          "source_path": "src/mir/builder/control_flow/plan/features/edgecfg_stubs.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "build_loop_back_edge"
+        }
+      ],
+      "likely_owner_cluster": "JoinIRPlanCluster",
+      "missing_axes": [
+        "projection_policy"
+      ],
+      "next_owner_kind": "ProjectionPolicyClusterResolution",
+      "owner_edge_confidence": "FixtureMapped",
+      "reason_token": "ProjectionPolicyOnlyNearMiss",
+      "selection_eligible": true,
+      "shape_signature": "shape.edge_cfg_stub_feature",
+      "stable_deny_reason": "UnsupportedDirectShape"
+    },
+    {
+      "bucket": "NeedsProjectionPolicyOnly",
+      "candidate_count": 6,
+      "cluster_id": "near_miss::NeedsProjectionPolicyOnly::UnsupportedDirectShape::shape.plan_composer::FixtureMapped::JoinIRPlanCluster",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
+      ],
+      "examples": [
+        {
+          "line": 18,
+          "source_id": "src/mir/builder/control_flow/plan/composer/branchn_return.rs::compose_match_return_branchn:L18",
+          "source_path": "src/mir/builder/control_flow/plan/composer/branchn_return.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "compose_match_return_branchn"
+        },
+        {
+          "line": 4,
+          "source_id": "src/mir/builder/control_flow/plan/composer/coreloop_gates.rs::coreloop_base_gate:L4",
+          "source_path": "src/mir/builder/control_flow/plan/composer/coreloop_gates.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "coreloop_base_gate"
+        },
+        {
+          "line": 8,
+          "source_id": "src/mir/builder/control_flow/plan/composer/coreloop_gates.rs::exit_kinds_empty:L8",
+          "source_path": "src/mir/builder/control_flow/plan/composer/coreloop_gates.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "exit_kinds_empty"
+        }
+      ],
+      "likely_owner_cluster": "JoinIRPlanCluster",
+      "missing_axes": [
+        "projection_policy"
+      ],
+      "next_owner_kind": "ProjectionPolicyClusterResolution",
+      "owner_edge_confidence": "FixtureMapped",
+      "reason_token": "ProjectionPolicyOnlyNearMiss",
+      "selection_eligible": true,
+      "shape_signature": "shape.plan_composer",
+      "stable_deny_reason": "UnsupportedDirectShape"
+    },
+    {
+      "bucket": "NeedsProjectionPolicyOnly",
+      "candidate_count": 5,
+      "cluster_id": "near_miss::NeedsProjectionPolicyOnly::UnsupportedDirectShape::shape.loop_cond_return_in_body::FixtureMapped::JoinIRPlanCluster",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
+      ],
+      "examples": [
+        {
+          "line": 14,
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_return_in_body_cleanup.rs::apply_fallthrough_continue_exit:L14",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_return_in_body_cleanup.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "apply_fallthrough_continue_exit"
+        },
+        {
+          "line": 10,
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_return_in_body_cleanup.rs::body_exits_all_paths:L10",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_return_in_body_cleanup.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "body_exits_all_paths"
+        },
+        {
+          "line": 35,
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_return_in_body_join.rs::build_loop_cond_return_in_body_join_sig:L35",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_return_in_body_join.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "build_loop_cond_return_in_body_join_sig"
+        }
+      ],
+      "likely_owner_cluster": "JoinIRPlanCluster",
+      "missing_axes": [
+        "projection_policy"
+      ],
+      "next_owner_kind": "ProjectionPolicyClusterResolution",
+      "owner_edge_confidence": "FixtureMapped",
+      "reason_token": "ProjectionPolicyOnlyNearMiss",
+      "selection_eligible": true,
+      "shape_signature": "shape.loop_cond_return_in_body",
+      "stable_deny_reason": "UnsupportedDirectShape"
+    },
+    {
+      "bucket": "NeedsProjectionPolicyOnly",
+      "candidate_count": 5,
+      "cluster_id": "near_miss::NeedsProjectionPolicyOnly::UnsupportedDirectShape::shape.loop_cond_utility::FixtureMapped::JoinIRPlanCluster",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
+      ],
+      "examples": [
+        {
+          "line": 38,
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_bc_util.rs::direct_exit_reject:L38",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_bc_util.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "direct_exit_reject"
+        },
+        {
+          "line": 48,
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_bc_util.rs::is_direct_exit_reject:L48",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_bc_util.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "is_direct_exit_reject"
+        },
+        {
+          "line": 64,
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_bc_util.rs::lower_simple_effect_stmt:L64",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_bc_util.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "lower_simple_effect_stmt"
+        }
+      ],
+      "likely_owner_cluster": "JoinIRPlanCluster",
+      "missing_axes": [
+        "projection_policy"
+      ],
+      "next_owner_kind": "ProjectionPolicyClusterResolution",
+      "owner_edge_confidence": "FixtureMapped",
+      "reason_token": "ProjectionPolicyOnlyNearMiss",
+      "selection_eligible": true,
+      "shape_signature": "shape.loop_cond_utility",
+      "stable_deny_reason": "UnsupportedDirectShape"
+    },
+    {
+      "bucket": "NeedsProjectionPolicyOnly",
+      "candidate_count": 5,
+      "cluster_id": "near_miss::NeedsProjectionPolicyOnly::UnsupportedDirectShape::shape.loop_cond_verifier::FixtureMapped::JoinIRPlanCluster",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
+      ],
+      "examples": [
+        {
+          "line": 12,
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_bc_verifier.rs::verify_loop_cond_break_continue_phi_closure:L12",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_bc_verifier.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "verify_loop_cond_break_continue_phi_closure"
+        },
+        {
+          "line": 11,
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_co_verifier.rs::verify_loop_cond_continue_only_phi_closure:L11",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_co_verifier.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "verify_loop_cond_continue_only_phi_closure"
+        },
+        {
+          "line": 11,
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_continue_with_return_verifier.rs::verify_loop_cond_continue_with_return_phi_closure:L11",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_continue_with_return_verifier.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "verify_loop_cond_continue_with_return_phi_closure"
+        }
+      ],
+      "likely_owner_cluster": "JoinIRPlanCluster",
+      "missing_axes": [
+        "projection_policy"
+      ],
+      "next_owner_kind": "ProjectionPolicyClusterResolution",
+      "owner_edge_confidence": "FixtureMapped",
+      "reason_token": "ProjectionPolicyOnlyNearMiss",
+      "selection_eligible": true,
+      "shape_signature": "shape.loop_cond_verifier",
+      "stable_deny_reason": "UnsupportedDirectShape"
+    },
+    {
+      "bucket": "NeedsProjectionPolicyOnly",
+      "candidate_count": 4,
+      "cluster_id": "near_miss::NeedsProjectionPolicyOnly::UnsupportedDirectShape::shape.loop_true_break_continue::FixtureMapped::JoinIRPlanCluster",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
+      ],
+      "examples": [
+        {
+          "line": 19,
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_true_break_continue_cleanup.rs::apply_fallthrough_continue_exit:L19",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_true_break_continue_cleanup.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "apply_fallthrough_continue_exit"
+        },
+        {
+          "line": 12,
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_true_break_continue_cleanup.rs::requires_fallthrough_continue:L12",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_true_break_continue_cleanup.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "requires_fallthrough_continue"
+        },
+        {
+          "line": 37,
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_true_break_continue_pipeline.rs::lower_loop_true_break_continue:L37",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_true_break_continue_pipeline.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "lower_loop_true_break_continue"
+        }
+      ],
+      "likely_owner_cluster": "JoinIRPlanCluster",
+      "missing_axes": [
+        "projection_policy"
+      ],
+      "next_owner_kind": "ProjectionPolicyClusterResolution",
+      "owner_edge_confidence": "FixtureMapped",
+      "reason_token": "ProjectionPolicyOnlyNearMiss",
+      "selection_eligible": true,
+      "shape_signature": "shape.loop_true_break_continue",
+      "stable_deny_reason": "UnsupportedDirectShape"
+    },
+    {
+      "bucket": "NeedsProjectionPolicyOnly",
+      "candidate_count": 4,
+      "cluster_id": "near_miss::NeedsProjectionPolicyOnly::UnsupportedDirectShape::shape.other_plan_feature::FixtureMapped::JoinIRPlanCluster",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
+      ],
+      "examples": [
+        {
+          "line": 37,
+          "source_id": "src/mir/builder/control_flow/plan/features/if_join.rs::apply_if_joins:L37",
+          "source_path": "src/mir/builder/control_flow/plan/features/if_join.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "apply_if_joins"
+        },
+        {
+          "line": 9,
+          "source_id": "src/mir/builder/control_flow/plan/features/nested_loop_depth1.rs::lower_nested_loop_depth1_any:L9",
+          "source_path": "src/mir/builder/control_flow/plan/features/nested_loop_depth1.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "lower_nested_loop_depth1_any"
+        },
+        {
+          "line": 10,
+          "source_id": "src/mir/builder/control_flow/plan/features/nested_loop_depth1_preheader.rs::apply_nested_loop_preheader_freshness:L10",
+          "source_path": "src/mir/builder/control_flow/plan/features/nested_loop_depth1_preheader.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "apply_nested_loop_preheader_freshness"
+        }
+      ],
+      "likely_owner_cluster": "JoinIRPlanCluster",
+      "missing_axes": [
+        "projection_policy"
+      ],
+      "next_owner_kind": "ProjectionPolicyClusterResolution",
+      "owner_edge_confidence": "FixtureMapped",
+      "reason_token": "ProjectionPolicyOnlyNearMiss",
+      "selection_eligible": true,
+      "shape_signature": "shape.other_plan_feature",
+      "stable_deny_reason": "UnsupportedDirectShape"
+    },
+    {
+      "bucket": "NeedsProjectionPolicyOnly",
+      "candidate_count": 3,
+      "cluster_id": "near_miss::NeedsProjectionPolicyOnly::UnsupportedDirectShape::shape.loop_cond_continue_with_return::FixtureMapped::JoinIRPlanCluster",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
+      ],
+      "examples": [
+        {
+          "line": 35,
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_continue_with_return_body_helpers.rs::lower_continue_with_return_block:L35",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_continue_with_return_body_helpers.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "lower_continue_with_return_block"
+        },
+        {
+          "line": 11,
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_continue_with_return_cleanup.rs::apply_fallthrough_continue_exit:L11",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_continue_with_return_cleanup.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "apply_fallthrough_continue_exit"
+        },
+        {
+          "line": 42,
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_continue_with_return_pipeline.rs::lower_loop_cond_continue_with_return:L42",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_continue_with_return_pipeline.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "lower_loop_cond_continue_with_return"
+        }
+      ],
+      "likely_owner_cluster": "JoinIRPlanCluster",
+      "missing_axes": [
+        "projection_policy"
+      ],
+      "next_owner_kind": "ProjectionPolicyClusterResolution",
+      "owner_edge_confidence": "FixtureMapped",
+      "reason_token": "ProjectionPolicyOnlyNearMiss",
+      "selection_eligible": true,
+      "shape_signature": "shape.loop_cond_continue_with_return",
+      "stable_deny_reason": "UnsupportedDirectShape"
+    },
+    {
+      "bucket": "NeedsProjectionPolicyOnly",
+      "candidate_count": 2,
+      "cluster_id": "near_miss::NeedsProjectionPolicyOnly::UnsupportedDirectShape::shape.exit_if_feature::FixtureMapped::JoinIRPlanCluster",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
+      ],
+      "examples": [
+        {
+          "line": 10,
+          "source_id": "src/mir/builder/control_flow/plan/features/exit_if_map.rs::lower_if_exit_stmt:L10",
+          "source_path": "src/mir/builder/control_flow/plan/features/exit_if_map.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "lower_if_exit_stmt"
+        },
+        {
+          "line": 31,
+          "source_id": "src/mir/builder/control_flow/plan/features/exit_if_map.rs::lower_if_exit_stmt_with_break_phi_args:L31",
+          "source_path": "src/mir/builder/control_flow/plan/features/exit_if_map.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "lower_if_exit_stmt_with_break_phi_args"
+        }
+      ],
+      "likely_owner_cluster": "JoinIRPlanCluster",
+      "missing_axes": [
+        "projection_policy"
+      ],
+      "next_owner_kind": "ProjectionPolicyClusterResolution",
+      "owner_edge_confidence": "FixtureMapped",
+      "reason_token": "ProjectionPolicyOnlyNearMiss",
+      "selection_eligible": true,
+      "shape_signature": "shape.exit_if_feature",
+      "stable_deny_reason": "UnsupportedDirectShape"
+    },
+    {
+      "bucket": "NeedsProjectionPolicyOnly",
+      "candidate_count": 2,
+      "cluster_id": "near_miss::NeedsProjectionPolicyOnly::UnsupportedDirectShape::shape.loop_cond_bc_break_only_else_pattern::FixtureMapped::JoinIRPlanCluster",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
+      ],
+      "examples": [
+        {
+          "line": 15,
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_bc_else_patterns/breaks.rs::lower_else_only_break_if:L15",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_bc_else_patterns/breaks.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "lower_else_only_break_if"
+        },
+        {
+          "line": 176,
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_bc_else_patterns/breaks.rs::lower_then_only_break_if:L176",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_bc_else_patterns/breaks.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "lower_then_only_break_if"
+        }
+      ],
+      "likely_owner_cluster": "JoinIRPlanCluster",
+      "missing_axes": [
+        "projection_policy"
+      ],
+      "next_owner_kind": "ProjectionPolicyClusterResolution",
+      "owner_edge_confidence": "FixtureMapped",
+      "reason_token": "ProjectionPolicyOnlyNearMiss",
+      "selection_eligible": true,
+      "shape_signature": "shape.loop_cond_bc_break_only_else_pattern",
+      "stable_deny_reason": "UnsupportedDirectShape"
+    },
+    {
+      "bucket": "NeedsProjectionPolicyOnly",
+      "candidate_count": 2,
+      "cluster_id": "near_miss::NeedsProjectionPolicyOnly::UnsupportedDirectShape::shape.loop_cond_bc_guard_break_else_pattern::FixtureMapped::JoinIRPlanCluster",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
+      ],
+      "examples": [
+        {
+          "line": 107,
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_bc_else_patterns/guard_break.rs::lower_else_guard_break_body:L107",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_bc_else_patterns/guard_break.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "lower_else_guard_break_body"
+        },
+        {
+          "line": 13,
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_bc_else_patterns/guard_break.rs::lower_else_guard_break_if_with_exit_allowed:L13",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_bc_else_patterns/guard_break.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "lower_else_guard_break_if_with_exit_allowed"
+        }
+      ],
+      "likely_owner_cluster": "JoinIRPlanCluster",
+      "missing_axes": [
+        "projection_policy"
+      ],
+      "next_owner_kind": "ProjectionPolicyClusterResolution",
+      "owner_edge_confidence": "FixtureMapped",
+      "reason_token": "ProjectionPolicyOnlyNearMiss",
+      "selection_eligible": true,
+      "shape_signature": "shape.loop_cond_bc_guard_break_else_pattern",
+      "stable_deny_reason": "UnsupportedDirectShape"
+    },
+    {
+      "bucket": "NeedsProjectionPolicyOnly",
+      "candidate_count": 2,
+      "cluster_id": "near_miss::NeedsProjectionPolicyOnly::UnsupportedDirectShape::shape.loop_cond_bc_return_only_else_pattern::FixtureMapped::JoinIRPlanCluster",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
+      ],
+      "examples": [
+        {
+          "line": 19,
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_bc_else_patterns/returns.rs::lower_else_only_return_if:L19",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_bc_else_patterns/returns.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "lower_else_only_return_if"
+        },
+        {
+          "line": 205,
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_bc_else_patterns/returns.rs::lower_then_only_return_if:L205",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_bc_else_patterns/returns.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "lower_then_only_return_if"
+        }
+      ],
+      "likely_owner_cluster": "JoinIRPlanCluster",
+      "missing_axes": [
+        "projection_policy"
+      ],
+      "next_owner_kind": "ProjectionPolicyClusterResolution",
+      "owner_edge_confidence": "FixtureMapped",
+      "reason_token": "ProjectionPolicyOnlyNearMiss",
+      "selection_eligible": true,
+      "shape_signature": "shape.loop_cond_bc_return_only_else_pattern",
+      "stable_deny_reason": "UnsupportedDirectShape"
+    },
+    {
+      "bucket": "NeedsProjectionPolicyOnly",
+      "candidate_count": 1,
+      "cluster_id": "near_miss::NeedsProjectionPolicyOnly::UnsupportedDirectShape::shape.body_view_feature::FixtureMapped::JoinIRPlanCluster",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
+      ],
+      "examples": [
+        {
+          "line": 13,
+          "source_id": "src/mir/builder/control_flow/plan/features/body_view.rs::len:L13",
+          "source_path": "src/mir/builder/control_flow/plan/features/body_view.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "len"
+        }
+      ],
+      "likely_owner_cluster": "JoinIRPlanCluster",
+      "missing_axes": [
+        "projection_policy"
+      ],
+      "next_owner_kind": "ProjectionPolicyClusterResolution",
+      "owner_edge_confidence": "FixtureMapped",
+      "reason_token": "ProjectionPolicyOnlyNearMiss",
+      "selection_eligible": true,
+      "shape_signature": "shape.body_view_feature",
+      "stable_deny_reason": "UnsupportedDirectShape"
+    },
+    {
+      "bucket": "NeedsProjectionPolicyOnly",
+      "candidate_count": 1,
+      "cluster_id": "near_miss::NeedsProjectionPolicyOnly::UnsupportedDirectShape::shape.loop_cond_bc_carrier_sync::FixtureMapped::JoinIRPlanCluster",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
+      ],
+      "examples": [
+        {
+          "line": 317,
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_bc.rs::sync_carrier_bindings:L317",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_bc.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "sync_carrier_bindings"
+        }
+      ],
+      "likely_owner_cluster": "JoinIRPlanCluster",
+      "missing_axes": [
+        "projection_policy"
+      ],
+      "next_owner_kind": "ProjectionPolicyClusterResolution",
+      "owner_edge_confidence": "FixtureMapped",
+      "reason_token": "ProjectionPolicyOnlyNearMiss",
+      "selection_eligible": true,
+      "shape_signature": "shape.loop_cond_bc_carrier_sync",
+      "stable_deny_reason": "UnsupportedDirectShape"
+    },
+    {
+      "bucket": "NeedsProjectionPolicyOnly",
+      "candidate_count": 1,
+      "cluster_id": "near_miss::NeedsProjectionPolicyOnly::UnsupportedDirectShape::shape.loop_cond_bc_cleanup_application::FixtureMapped::JoinIRPlanCluster",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
+      ],
+      "examples": [
+        {
+          "line": 22,
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_bc_cleanup.rs::apply_loop_cond_break_continue_cleanup:L22",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_bc_cleanup.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "apply_loop_cond_break_continue_cleanup"
+        }
+      ],
+      "likely_owner_cluster": "JoinIRPlanCluster",
+      "missing_axes": [
+        "projection_policy"
+      ],
+      "next_owner_kind": "ProjectionPolicyClusterResolution",
+      "owner_edge_confidence": "FixtureMapped",
+      "reason_token": "ProjectionPolicyOnlyNearMiss",
+      "selection_eligible": true,
+      "shape_signature": "shape.loop_cond_bc_cleanup_application",
+      "stable_deny_reason": "UnsupportedDirectShape"
+    },
+    {
+      "bucket": "NeedsProjectionPolicyOnly",
+      "candidate_count": 1,
+      "cluster_id": "near_miss::NeedsProjectionPolicyOnly::UnsupportedDirectShape::shape.loop_cond_bc_cleanup_exit_predicate::FixtureMapped::JoinIRPlanCluster",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
+      ],
+      "examples": [
+        {
+          "line": 17,
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_bc_cleanup.rs::body_exits_all_paths:L17",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_bc_cleanup.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "body_exits_all_paths"
+        }
+      ],
+      "likely_owner_cluster": "JoinIRPlanCluster",
+      "missing_axes": [
+        "projection_policy"
+      ],
+      "next_owner_kind": "ProjectionPolicyClusterResolution",
+      "owner_edge_confidence": "FixtureMapped",
+      "reason_token": "ProjectionPolicyOnlyNearMiss",
+      "selection_eligible": true,
+      "shape_signature": "shape.loop_cond_bc_cleanup_exit_predicate",
+      "stable_deny_reason": "UnsupportedDirectShape"
+    },
+    {
+      "bucket": "NeedsProjectionPolicyOnly",
+      "candidate_count": 1,
+      "cluster_id": "near_miss::NeedsProjectionPolicyOnly::UnsupportedDirectShape::shape.loop_cond_bc_continue_if_else::FixtureMapped::JoinIRPlanCluster",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
+      ],
+      "examples": [
+        {
+          "line": 11,
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_bc_continue_if.rs::lower_continue_if_with_else:L11",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_bc_continue_if.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "lower_continue_if_with_else"
+        }
+      ],
+      "likely_owner_cluster": "JoinIRPlanCluster",
+      "missing_axes": [
+        "projection_policy"
+      ],
+      "next_owner_kind": "ProjectionPolicyClusterResolution",
+      "owner_edge_confidence": "FixtureMapped",
+      "reason_token": "ProjectionPolicyOnlyNearMiss",
+      "selection_eligible": true,
+      "shape_signature": "shape.loop_cond_bc_continue_if_else",
+      "stable_deny_reason": "UnsupportedDirectShape"
+    },
+    {
+      "bucket": "NeedsProjectionPolicyOnly",
+      "candidate_count": 1,
+      "cluster_id": "near_miss::NeedsProjectionPolicyOnly::UnsupportedDirectShape::shape.loop_cond_bc_item_dispatcher::FixtureMapped::JoinIRPlanCluster",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
+      ],
+      "examples": [
+        {
+          "line": 24,
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_bc_item.rs::lower_loop_cond_item:L24",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_bc_item.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "lower_loop_cond_item"
+        }
+      ],
+      "likely_owner_cluster": "JoinIRPlanCluster",
+      "missing_axes": [
+        "projection_policy"
+      ],
+      "next_owner_kind": "ProjectionPolicyClusterResolution",
+      "owner_edge_confidence": "FixtureMapped",
+      "reason_token": "ProjectionPolicyOnlyNearMiss",
+      "selection_eligible": true,
+      "shape_signature": "shape.loop_cond_bc_item_dispatcher",
+      "stable_deny_reason": "UnsupportedDirectShape"
+    },
+    {
+      "bucket": "NeedsProjectionPolicyOnly",
+      "candidate_count": 1,
+      "cluster_id": "near_miss::NeedsProjectionPolicyOnly::UnsupportedDirectShape::shape.loop_cond_bc_nested_carrier::FixtureMapped::JoinIRPlanCluster",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
+      ],
+      "examples": [
+        {
+          "line": 10,
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_bc_nested_carriers.rs::extend_nested_loop_carriers:L10",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_bc_nested_carriers.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "extend_nested_loop_carriers"
+        }
+      ],
+      "likely_owner_cluster": "JoinIRPlanCluster",
+      "missing_axes": [
+        "projection_policy"
+      ],
+      "next_owner_kind": "ProjectionPolicyClusterResolution",
+      "owner_edge_confidence": "FixtureMapped",
+      "reason_token": "ProjectionPolicyOnlyNearMiss",
+      "selection_eligible": true,
+      "shape_signature": "shape.loop_cond_bc_nested_carrier",
+      "stable_deny_reason": "UnsupportedDirectShape"
+    },
+    {
+      "bucket": "NeedsProjectionPolicyOnly",
+      "candidate_count": 1,
+      "cluster_id": "near_miss::NeedsProjectionPolicyOnly::UnsupportedDirectShape::shape.loop_cond_bc_root_pipeline::FixtureMapped::JoinIRPlanCluster",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
+      ],
+      "examples": [
+        {
+          "line": 33,
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_bc.rs::lower_loop_cond_break_continue:L33",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_bc.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "lower_loop_cond_break_continue"
+        }
+      ],
+      "likely_owner_cluster": "JoinIRPlanCluster",
+      "missing_axes": [
+        "projection_policy"
+      ],
+      "next_owner_kind": "ProjectionPolicyClusterResolution",
+      "owner_edge_confidence": "FixtureMapped",
+      "reason_token": "ProjectionPolicyOnlyNearMiss",
+      "selection_eligible": true,
+      "shape_signature": "shape.loop_cond_bc_root_pipeline",
+      "stable_deny_reason": "UnsupportedDirectShape"
+    },
+    {
+      "bucket": "NeedsProjectionPolicyOnly",
+      "candidate_count": 1,
+      "cluster_id": "near_miss::NeedsProjectionPolicyOnly::UnsupportedDirectShape::shape.loop_cond_bc_statement_lowering::FixtureMapped::JoinIRPlanCluster",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
+      ],
+      "examples": [
+        {
+          "line": 22,
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_bc_item_stmt.rs::lower_loop_cond_stmt:L22",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_bc_item_stmt.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "lower_loop_cond_stmt"
+        }
+      ],
+      "likely_owner_cluster": "JoinIRPlanCluster",
+      "missing_axes": [
+        "projection_policy"
+      ],
+      "next_owner_kind": "ProjectionPolicyClusterResolution",
+      "owner_edge_confidence": "FixtureMapped",
+      "reason_token": "ProjectionPolicyOnlyNearMiss",
+      "selection_eligible": true,
+      "shape_signature": "shape.loop_cond_bc_statement_lowering",
+      "stable_deny_reason": "UnsupportedDirectShape"
+    },
+    {
+      "bucket": "NeedsProjectionPolicyOnly",
+      "candidate_count": 1,
+      "cluster_id": "near_miss::NeedsProjectionPolicyOnly::UnsupportedDirectShape::shape.loop_cond_co_ast_statement_lowering::FixtureMapped::JoinIRPlanCluster",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
+      ],
+      "examples": [
+        {
+          "line": 158,
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_co_stmt.rs::lower_stmt_ast:L158",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_co_stmt.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "lower_stmt_ast"
+        }
+      ],
+      "likely_owner_cluster": "JoinIRPlanCluster",
+      "missing_axes": [
+        "projection_policy"
+      ],
+      "next_owner_kind": "ProjectionPolicyClusterResolution",
+      "owner_edge_confidence": "FixtureMapped",
+      "reason_token": "ProjectionPolicyOnlyNearMiss",
+      "selection_eligible": true,
+      "shape_signature": "shape.loop_cond_co_ast_statement_lowering",
+      "stable_deny_reason": "UnsupportedDirectShape"
+    },
+    {
+      "bucket": "NeedsProjectionPolicyOnly",
+      "candidate_count": 1,
+      "cluster_id": "near_miss::NeedsProjectionPolicyOnly::UnsupportedDirectShape::shape.loop_cond_co_block_lowering::FixtureMapped::JoinIRPlanCluster",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
+      ],
+      "examples": [
+        {
+          "line": 12,
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_co_block.rs::lower_continue_only_block:L12",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_co_block.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "lower_continue_only_block"
+        }
+      ],
+      "likely_owner_cluster": "JoinIRPlanCluster",
+      "missing_axes": [
+        "projection_policy"
+      ],
+      "next_owner_kind": "ProjectionPolicyClusterResolution",
+      "owner_edge_confidence": "FixtureMapped",
+      "reason_token": "ProjectionPolicyOnlyNearMiss",
+      "selection_eligible": true,
+      "shape_signature": "shape.loop_cond_co_block_lowering",
+      "stable_deny_reason": "UnsupportedDirectShape"
+    },
+    {
+      "bucket": "NeedsProjectionPolicyOnly",
+      "candidate_count": 1,
+      "cluster_id": "near_miss::NeedsProjectionPolicyOnly::UnsupportedDirectShape::shape.loop_cond_co_cleanup::FixtureMapped::JoinIRPlanCluster",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
+      ],
+      "examples": [
+        {
+          "line": 11,
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_co_cleanup.rs::apply_fallthrough_continue_exit:L11",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_co_cleanup.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "apply_fallthrough_continue_exit"
+        }
+      ],
+      "likely_owner_cluster": "JoinIRPlanCluster",
+      "missing_axes": [
+        "projection_policy"
+      ],
+      "next_owner_kind": "ProjectionPolicyClusterResolution",
+      "owner_edge_confidence": "FixtureMapped",
+      "reason_token": "ProjectionPolicyOnlyNearMiss",
+      "selection_eligible": true,
+      "shape_signature": "shape.loop_cond_co_cleanup",
+      "stable_deny_reason": "UnsupportedDirectShape"
+    },
+    {
+      "bucket": "NeedsProjectionPolicyOnly",
+      "candidate_count": 1,
+      "cluster_id": "near_miss::NeedsProjectionPolicyOnly::UnsupportedDirectShape::shape.loop_cond_co_continue_if_group_prelude::FixtureMapped::JoinIRPlanCluster",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
+      ],
+      "examples": [
+        {
+          "line": 109,
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_co_continue_if.rs::lower_continue_if_group_prelude:L109",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_co_continue_if.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "lower_continue_if_group_prelude"
+        }
+      ],
+      "likely_owner_cluster": "JoinIRPlanCluster",
+      "missing_axes": [
+        "projection_policy"
+      ],
+      "next_owner_kind": "ProjectionPolicyClusterResolution",
+      "owner_edge_confidence": "FixtureMapped",
+      "reason_token": "ProjectionPolicyOnlyNearMiss",
+      "selection_eligible": true,
+      "shape_signature": "shape.loop_cond_co_continue_if_group_prelude",
+      "stable_deny_reason": "UnsupportedDirectShape"
+    },
+    {
+      "bucket": "NeedsProjectionPolicyOnly",
+      "candidate_count": 1,
+      "cluster_id": "near_miss::NeedsProjectionPolicyOnly::UnsupportedDirectShape::shape.loop_cond_co_continue_if_no_else::FixtureMapped::JoinIRPlanCluster",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
+      ],
+      "examples": [
+        {
+          "line": 51,
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_co_continue_if.rs::lower_continue_if_no_else:L51",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_co_continue_if.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "lower_continue_if_no_else"
+        }
+      ],
+      "likely_owner_cluster": "JoinIRPlanCluster",
+      "missing_axes": [
+        "projection_policy"
+      ],
+      "next_owner_kind": "ProjectionPolicyClusterResolution",
+      "owner_edge_confidence": "FixtureMapped",
+      "reason_token": "ProjectionPolicyOnlyNearMiss",
+      "selection_eligible": true,
+      "shape_signature": "shape.loop_cond_co_continue_if_no_else",
+      "stable_deny_reason": "UnsupportedDirectShape"
+    },
+    {
+      "bucket": "NeedsProjectionPolicyOnly",
+      "candidate_count": 1,
+      "cluster_id": "near_miss::NeedsProjectionPolicyOnly::UnsupportedDirectShape::shape.loop_cond_co_continue_if_prelude_span::FixtureMapped::JoinIRPlanCluster",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
+      ],
+      "examples": [
+        {
+          "line": 20,
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_co_continue_if.rs::lower_continue_if_prelude_span:L20",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_co_continue_if.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "lower_continue_if_prelude_span"
+        }
+      ],
+      "likely_owner_cluster": "JoinIRPlanCluster",
+      "missing_axes": [
+        "projection_policy"
+      ],
+      "next_owner_kind": "ProjectionPolicyClusterResolution",
+      "owner_edge_confidence": "FixtureMapped",
+      "reason_token": "ProjectionPolicyOnlyNearMiss",
+      "selection_eligible": true,
+      "shape_signature": "shape.loop_cond_co_continue_if_prelude_span",
+      "stable_deny_reason": "UnsupportedDirectShape"
+    },
+    {
+      "bucket": "NeedsProjectionPolicyOnly",
+      "candidate_count": 1,
+      "cluster_id": "near_miss::NeedsProjectionPolicyOnly::UnsupportedDirectShape::shape.loop_cond_co_group_if_branch::FixtureMapped::JoinIRPlanCluster",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
+      ],
+      "examples": [
+        {
+          "line": 23,
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_co_group_if.rs::lower_group_if:L23",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_co_group_if.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "lower_group_if"
+        }
+      ],
+      "likely_owner_cluster": "JoinIRPlanCluster",
+      "missing_axes": [
+        "projection_policy"
+      ],
+      "next_owner_kind": "ProjectionPolicyClusterResolution",
+      "owner_edge_confidence": "FixtureMapped",
+      "reason_token": "ProjectionPolicyOnlyNearMiss",
+      "selection_eligible": true,
+      "shape_signature": "shape.loop_cond_co_group_if_branch",
+      "stable_deny_reason": "UnsupportedDirectShape"
+    },
+    {
+      "bucket": "NeedsProjectionPolicyOnly",
+      "candidate_count": 1,
+      "cluster_id": "near_miss::NeedsProjectionPolicyOnly::UnsupportedDirectShape::shape.loop_cond_co_group_if_nested_loop::FixtureMapped::JoinIRPlanCluster",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
+      ],
+      "examples": [
+        {
+          "line": 128,
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_co_group_if.rs::lower_continue_if_nested_loop:L128",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_co_group_if.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "lower_continue_if_nested_loop"
+        }
+      ],
+      "likely_owner_cluster": "JoinIRPlanCluster",
+      "missing_axes": [
+        "projection_policy"
+      ],
+      "next_owner_kind": "ProjectionPolicyClusterResolution",
+      "owner_edge_confidence": "FixtureMapped",
+      "reason_token": "ProjectionPolicyOnlyNearMiss",
+      "selection_eligible": true,
+      "shape_signature": "shape.loop_cond_co_group_if_nested_loop",
+      "stable_deny_reason": "UnsupportedDirectShape"
+    },
+    {
+      "bucket": "NeedsProjectionPolicyOnly",
+      "candidate_count": 1,
+      "cluster_id": "near_miss::NeedsProjectionPolicyOnly::UnsupportedDirectShape::shape.loop_cond_co_helper_carrier_sync::FixtureMapped::JoinIRPlanCluster",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
+      ],
+      "examples": [
+        {
+          "line": 55,
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_co_helpers.rs::sync_carrier_bindings:L55",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_co_helpers.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "sync_carrier_bindings"
+        }
+      ],
+      "likely_owner_cluster": "JoinIRPlanCluster",
+      "missing_axes": [
+        "projection_policy"
+      ],
+      "next_owner_kind": "ProjectionPolicyClusterResolution",
+      "owner_edge_confidence": "FixtureMapped",
+      "reason_token": "ProjectionPolicyOnlyNearMiss",
+      "selection_eligible": true,
+      "shape_signature": "shape.loop_cond_co_helper_carrier_sync",
+      "stable_deny_reason": "UnsupportedDirectShape"
+    },
+    {
+      "bucket": "NeedsProjectionPolicyOnly",
+      "candidate_count": 1,
+      "cluster_id": "near_miss::NeedsProjectionPolicyOnly::UnsupportedDirectShape::shape.loop_cond_co_helper_mutation_probe::FixtureMapped::JoinIRPlanCluster",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
+      ],
+      "examples": [
+        {
+          "line": 40,
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_co_helpers.rs::map_mutates_existing_vars:L40",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_co_helpers.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "map_mutates_existing_vars"
+        }
+      ],
+      "likely_owner_cluster": "JoinIRPlanCluster",
+      "missing_axes": [
+        "projection_policy"
+      ],
+      "next_owner_kind": "ProjectionPolicyClusterResolution",
+      "owner_edge_confidence": "FixtureMapped",
+      "reason_token": "ProjectionPolicyOnlyNearMiss",
+      "selection_eligible": true,
+      "shape_signature": "shape.loop_cond_co_helper_mutation_probe",
+      "stable_deny_reason": "UnsupportedDirectShape"
+    },
+    {
+      "bucket": "NeedsProjectionPolicyOnly",
+      "candidate_count": 1,
+      "cluster_id": "near_miss::NeedsProjectionPolicyOnly::UnsupportedDirectShape::shape.loop_cond_co_root_pipeline::FixtureMapped::JoinIRPlanCluster",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
+      ],
+      "examples": [
+        {
+          "line": 28,
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_co_pipeline.rs::lower_loop_cond_continue_only:L28",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_co_pipeline.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "lower_loop_cond_continue_only"
+        }
+      ],
+      "likely_owner_cluster": "JoinIRPlanCluster",
+      "missing_axes": [
+        "projection_policy"
+      ],
+      "next_owner_kind": "ProjectionPolicyClusterResolution",
+      "owner_edge_confidence": "FixtureMapped",
+      "reason_token": "ProjectionPolicyOnlyNearMiss",
+      "selection_eligible": true,
+      "shape_signature": "shape.loop_cond_co_root_pipeline",
+      "stable_deny_reason": "UnsupportedDirectShape"
+    },
+    {
+      "bucket": "NeedsProjectionPolicyOnly",
+      "candidate_count": 1,
+      "cluster_id": "near_miss::NeedsProjectionPolicyOnly::UnsupportedDirectShape::shape.loop_cond_co_statement_dispatcher::FixtureMapped::JoinIRPlanCluster",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json"
+      ],
+      "examples": [
+        {
+          "line": 27,
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_co_stmt.rs::lower_continue_only_stmt:L27",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_co_stmt.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "lower_continue_only_stmt"
+        }
+      ],
+      "likely_owner_cluster": "JoinIRPlanCluster",
+      "missing_axes": [
+        "projection_policy"
+      ],
+      "next_owner_kind": "ProjectionPolicyClusterResolution",
+      "owner_edge_confidence": "FixtureMapped",
+      "reason_token": "ProjectionPolicyOnlyNearMiss",
+      "selection_eligible": true,
+      "shape_signature": "shape.loop_cond_co_statement_dispatcher",
+      "stable_deny_reason": "UnsupportedDirectShape"
+    },
+    {
+      "bucket": "NeedsMultipleDiagnosticAxes",
+      "candidate_count": 185,
+      "cluster_id": "near_miss::NeedsMultipleDiagnosticAxes::OwnerEdgeConfidenceMissing::NoShapeSignature::None::OtherMissingProjectionPolicyCluster",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json"
+      ],
+      "examples": [
+        {
+          "line": 392,
+          "source_id": "src/mir/builder/builder_emit.rs::emit_extern_call:L392",
+          "source_path": "src/mir/builder/builder_emit.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "emit_extern_call"
+        },
+        {
+          "line": 373,
+          "source_id": "src/mir/builder/builder_emit.rs::emit_extern_call_with_effects:L373",
+          "source_path": "src/mir/builder/builder_emit.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "emit_extern_call_with_effects"
+        },
+        {
+          "line": 9,
+          "source_id": "src/mir/builder/builder_emit.rs::emit_instruction:L9",
+          "source_path": "src/mir/builder/builder_emit.rs",
+          "strict_classification": "MissingProjectionPolicy",
+          "symbol": "emit_instruction"
+        }
+      ],
+      "likely_owner_cluster": "OtherMissingProjectionPolicyCluster",
+      "missing_axes": [
+        "owner_edge_confidence",
+        "shape_signature"
+      ],
+      "next_owner_kind": "DiagnosticRepair",
+      "owner_edge_confidence": "None",
+      "reason_token": "MultipleDiagnosticAxesRequired",
+      "selection_eligible": false,
+      "shape_signature": null,
+      "stable_deny_reason": "OwnerEdgeConfidenceMissing"
+    },
+    {
+      "bucket": "NeedsBorrowPolicy",
+      "candidate_count": 112,
+      "cluster_id": "near_miss::NeedsBorrowPolicy::NoStableDenyReason::NoShapeSignature::None::NotMissingProjectionPolicy",
+      "evidence_refs": [],
+      "examples": [
+        {
+          "line": 142,
+          "source_id": "crates/hakorune_mir_builder/src/metadata_context.rs::current_region_stack:L142",
+          "source_path": "crates/hakorune_mir_builder/src/metadata_context.rs",
+          "strict_classification": "BorrowSurfaceNeedsPolicy",
+          "symbol": "current_region_stack"
+        },
+        {
+          "line": 173,
+          "source_id": "crates/hakorune_mir_builder/src/metadata_context.rs::value_caller:L173",
+          "source_path": "crates/hakorune_mir_builder/src/metadata_context.rs",
+          "strict_classification": "BorrowSurfaceNeedsPolicy",
+          "symbol": "value_caller"
+        },
+        {
+          "line": 179,
+          "source_id": "crates/hakorune_mir_builder/src/metadata_context.rs::value_origin_callers:L179",
+          "source_path": "crates/hakorune_mir_builder/src/metadata_context.rs",
+          "strict_classification": "BorrowSurfaceNeedsPolicy",
+          "symbol": "value_origin_callers"
+        }
+      ],
+      "likely_owner_cluster": "NotMissingProjectionPolicy",
+      "missing_axes": [
+        "borrow_policy"
+      ],
+      "next_owner_kind": "DiagnosticRepair",
+      "owner_edge_confidence": "None",
+      "reason_token": "ReturnedReadBorrowPolicyMissing",
+      "selection_eligible": false,
+      "shape_signature": null,
+      "stable_deny_reason": null
+    },
+    {
+      "bucket": "IgnoredNonSemanticSurface",
+      "candidate_count": 67,
+      "cluster_id": "near_miss::IgnoredNonSemanticSurface::NoStableDenyReason::NoShapeSignature::None::NotMissingProjectionPolicy",
+      "evidence_refs": [],
+      "examples": [
+        {
+          "line": 90,
+          "source_id": "crates/hakorune_mir_builder/src/core_context.rs::next_debug_join:L90",
+          "source_path": "crates/hakorune_mir_builder/src/core_context.rs",
+          "strict_classification": "DebugOnlySurface",
+          "symbol": "next_debug_join"
+        },
+        {
+          "line": 37,
+          "source_id": "src/mir/builder/builder_debug.rs::compile_trace_enabled:L37",
+          "source_path": "src/mir/builder/builder_debug.rs",
+          "strict_classification": "DebugOnlySurface",
+          "symbol": "compile_trace_enabled"
+        },
+        {
+          "line": 28,
+          "source_id": "src/mir/builder/builder_debug.rs::debug_current_region_id:L28",
+          "source_path": "src/mir/builder/builder_debug.rs",
+          "strict_classification": "DebugOnlySurface",
+          "symbol": "debug_current_region_id"
+        }
+      ],
+      "likely_owner_cluster": "NotMissingProjectionPolicy",
+      "missing_axes": [],
+      "next_owner_kind": "None",
+      "owner_edge_confidence": "None",
+      "reason_token": "DebugOnlySurfaceIgnored",
+      "selection_eligible": false,
+      "shape_signature": null,
+      "stable_deny_reason": null
+    },
+    {
+      "bucket": "StillUnsupported",
+      "candidate_count": 17,
+      "cluster_id": "near_miss::StillUnsupported::NoStableDenyReason::NoShapeSignature::FileScoped::NotMissingProjectionPolicy",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/variable-context-reference-projection-contract-v0.json"
+      ],
+      "examples": [
+        {
+          "line": 159,
+          "source_id": "crates/hakorune_mir_builder/src/variable_context.rs::contains:L159",
+          "source_path": "crates/hakorune_mir_builder/src/variable_context.rs",
+          "strict_classification": "MappedToKnownOwner",
+          "symbol": "contains"
+        },
+        {
+          "line": 74,
+          "source_id": "crates/hakorune_mir_builder/src/variable_context.rs::default:L74",
+          "source_path": "crates/hakorune_mir_builder/src/variable_context.rs",
+          "strict_classification": "MappedToKnownOwner",
+          "symbol": "default"
+        },
+        {
+          "line": 127,
+          "source_id": "crates/hakorune_mir_builder/src/variable_context.rs::insert:L127",
+          "source_path": "crates/hakorune_mir_builder/src/variable_context.rs",
+          "strict_classification": "MappedToKnownOwner",
+          "symbol": "insert"
+        }
+      ],
+      "likely_owner_cluster": "NotMissingProjectionPolicy",
+      "missing_axes": [
+        "classification_policy"
+      ],
+      "next_owner_kind": "None",
+      "owner_edge_confidence": "FileScoped",
+      "reason_token": "MappedToKnownOwnerEdge",
+      "selection_eligible": false,
+      "shape_signature": null,
+      "stable_deny_reason": null
+    },
+    {
+      "bucket": "AlreadyCoveredByKnownBorrowPolicy",
+      "candidate_count": 2,
+      "cluster_id": "near_miss::AlreadyCoveredByKnownBorrowPolicy::NoStableDenyReason::NoShapeSignature::ExactSymbol::NotMissingProjectionPolicy",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/variable-context-reference-projection-contract-v0.json"
+      ],
+      "examples": [
+        {
+          "line": 145,
+          "source_id": "crates/hakorune_mir_builder/src/variable_context.rs::variable_map:L145",
+          "source_path": "crates/hakorune_mir_builder/src/variable_context.rs",
+          "strict_classification": "BorrowSurfacePolicyKnown",
+          "symbol": "variable_map"
+        },
+        {
+          "line": 154,
+          "source_id": "crates/hakorune_mir_builder/src/variable_context.rs::variable_map_mut:L154",
+          "source_path": "crates/hakorune_mir_builder/src/variable_context.rs",
+          "strict_classification": "BorrowSurfacePolicyKnown",
+          "symbol": "variable_map_mut"
+        }
+      ],
+      "likely_owner_cluster": "NotMissingProjectionPolicy",
+      "missing_axes": [],
+      "next_owner_kind": "None",
+      "owner_edge_confidence": "ExactSymbol",
+      "reason_token": "StrictBorrowDenyAlreadyHasReplacementPolicy",
+      "selection_eligible": false,
+      "shape_signature": null,
+      "stable_deny_reason": null
+    },
+    {
+      "bucket": "NeedsCompositeEvidenceInventory",
+      "candidate_count": 1,
+      "cluster_id": "near_miss::NeedsCompositeEvidenceInventory::NoStableDenyReason::NoShapeSignature::Heuristic::NotMissingProjectionPolicy",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-native-owner-seed-capability-survey-v0.json"
+      ],
+      "examples": [
+        {
+          "line": 340,
+          "source_id": "src/mir/builder/module_lifecycle.rs::finalize_module:L340",
+          "source_path": "src/mir/builder/module_lifecycle.rs",
+          "strict_classification": "CompositeSuspected",
+          "symbol": "finalize_module"
+        }
+      ],
+      "likely_owner_cluster": "NotMissingProjectionPolicy",
+      "missing_axes": [
+        "composite_evidence"
+      ],
+      "next_owner_kind": "DiagnosticRepair",
+      "owner_edge_confidence": "Heuristic",
+      "reason_token": "CompositeSuspectedRequiresEvidenceBeforeDecomposition",
+      "selection_eligible": false,
+      "shape_signature": null,
+      "stable_deny_reason": null
+    },
+    {
+      "bucket": "StillUnsupported",
+      "candidate_count": 1,
+      "cluster_id": "near_miss::StillUnsupported::NoStableDenyReason::NoShapeSignature::ExactSymbol::NotMissingProjectionPolicy",
+      "evidence_refs": [
+        "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-native-owner-seed-capability-survey-v0.json"
+      ],
+      "examples": [
+        {
+          "line": 137,
+          "source_id": "src/mir/region/observer.rs::pop_function_region:L137",
+          "source_path": "src/mir/region/observer.rs",
+          "strict_classification": "MappedToKnownOwner",
+          "symbol": "pop_function_region"
+        }
+      ],
+      "likely_owner_cluster": "NotMissingProjectionPolicy",
+      "missing_axes": [
+        "classification_policy"
+      ],
+      "next_owner_kind": "None",
+      "owner_edge_confidence": "ExactSymbol",
+      "reason_token": "MappedToKnownOwnerEdge",
+      "selection_eligible": false,
+      "shape_signature": null,
+      "stable_deny_reason": null
+    }
+  ],
+  "decision": {
+    "kind": "SelectNearMissClusterResolution",
+    "reason_token": "ProjectionPolicyNearMissClustersAvailable",
+    "selected_cluster_id": null,
+    "selected_next_card": "MIRBUILDER-STRICT-DENY-NEAR-MISS-CLUSTER-RESOLUTION-001"
+  },
+  "input_authority": {
+    "current_state": "docs/development/current/main/CURRENT_STATE.toml",
+    "unconverted_surface_report": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-unconverted-surface-report-v0.json"
+  },
+  "kind": "MirBuilderStrictDenyNearMissDiagnosticProbeV1",
+  "missing_axis_summary": {
+    "borrow_policy": 112,
+    "classification_policy": 18,
+    "composite_evidence": 1,
+    "owner_edge_confidence": 185,
+    "projection_policy": 1199,
+    "shape_signature": 185
+  },
+  "provenance": {
+    "probe_mode": "diagnostic_relaxed_classification_only",
+    "unconverted_surface_report_hash": "93ce02bcfad01b32f6d3c0ea93fe9974380b71e26b5e4949c3a103730497d8cc"
+  },
+  "reason_token_summary": {
+    "CompositeSuspectedRequiresEvidenceBeforeDecomposition": 1,
+    "DebugOnlySurfaceIgnored": 47,
+    "MappedToKnownOwnerEdge": 18,
+    "MultipleDiagnosticAxesRequired": 185,
+    "ProjectionPolicyOnlyNearMiss": 1199,
+    "ReturnedMutableBorrowPolicyMissing": 3,
+    "ReturnedReadBorrowPolicyMissing": 109,
+    "StrictBorrowDenyAlreadyHasReplacementPolicy": 2,
+    "TestOnlySurfaceIgnored": 20
+  },
+  "rules": {
+    "diagnostic_relaxed_mode_only": 1,
+    "hako_adoption_decision": 0,
+    "hako_emission": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0,
+    "strict_classification_remains_authority": 1
+  },
+  "schema_version": 0,
+  "token": "MIRBUILDER-STRICT-DENY-NEAR-MISS-DIAGNOSTIC-PROBE-001"
+}

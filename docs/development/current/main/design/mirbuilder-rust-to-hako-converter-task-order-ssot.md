@@ -24,9 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-SUBCLUSTER-DECOMPOSITION-001.
-  Split the selected StatementValueConstruction cluster before any projection
-  policy is selected. Whole-cluster projection remains forbidden.
+  MIRBUILDER-STRICT-DENY-NEAR-MISS-DIAGNOSTIC-PROBE-001.
+  Keep strict conversion authoritative while adding a diagnostic-only
+  near-miss view over strict-denied Rust surfaces.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+  MIRBUILDER-STRICT-DENY-NEAR-MISS-CLUSTER-RESOLUTION-001
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -373,20 +373,20 @@ history, not in this task-order SSOT.
    semantic_authority=design-stop card, cluster/priority resolver fixtures
    non_authority=manual family selection, runtime fallback, Source Selfhost claim
 
-2. MIRBUILDER-MISSING-PROJECTION-POLICY-OTHER-SHAPE-SIGNATURE-CLUSTER-RESOLUTION-002
+2. MIRBUILDER-STRICT-DENY-NEAR-MISS-DIAGNOSTIC-PROBE-001
    status=green
-   boundary=descriptor-completed Other shape queue has no unclosed eligible shape
-   semantic_authority=Other shape inventory/resolution fixtures
-   non_authority=family-name policy, semantic projection inference, Source Selfhost claim
+   boundary=diagnostic relaxed classification only; strict conversion unchanged
+   semantic_authority=near-miss diagnostic fixture and strict unconverted report
+   non_authority=Hako generation, relaxed executable conversion, Source Selfhost claim
 
-3. MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-002
-   status=green
-   boundary=fresh report produced no machine-derived native owner seed candidate
-   semantic_authority=1950 seed capability rerun fixture
-   non_authority=manual family selection, native seed selection, Source Selfhost claim
+3. MIRBUILDER-STRICT-DENY-NEAR-MISS-CLUSTER-RESOLUTION-001
+   status=next
+   boundary=select exactly one near-miss cluster by evidence quality, not size
+   semantic_authority=near-miss diagnostic fixture and strict unconverted report
+   non_authority=manual cluster selection, cluster size as proof, Hako generation
 
 next_documented_task =
-  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+  MIRBUILDER-STRICT-DENY-NEAR-MISS-CLUSTER-RESOLUTION-001
 
 next_after_active_3 =
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
