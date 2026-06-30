@@ -16,6 +16,7 @@ from shared_family_generator import stable_json, write_if_changed
 ROOT = Path(__file__).resolve().parents[2]
 FIXTURES = ROOT / "docs/development/current/main/design/fixtures/rust-lifecycle"
 CLUSTER_RESOLUTION = FIXTURES / "mirbuilder-crate-wide-missing-projection-policy-cluster-resolution-v0.json"
+FAMILY_MANIFEST = FIXTURES / "source-selfhost-family-guard-manifest-v0.json"
 OUTPUT = FIXTURES / "mirbuilder-projection-policy-cluster-priority-resolution-v0.json"
 
 PROXIMITY_PRIORITY = {
@@ -71,11 +72,27 @@ def priority_tuple(cluster: dict[str, Any]) -> tuple[Any, ...]:
 
 def build_resolution() -> dict[str, Any]:
     cluster_resolution = read_json(CLUSTER_RESOLUTION)
+    family_manifest = read_json(FAMILY_MANIFEST)
+    existing_tokens = {row["token"] for row in family_manifest.get("rows", [])}
     eligible = [
         cluster for cluster in cluster_resolution["clusters"]
         if cluster.get("selection_eligible") is True
     ]
-    ranked = sorted(eligible, key=priority_tuple)
+    eligible_with_cards = [
+        (cluster, card_slug(cluster))
+        for cluster in eligible
+    ]
+    excluded_existing = [
+        (cluster, next_card)
+        for cluster, next_card in eligible_with_cards
+        if next_card in existing_tokens
+    ]
+    selectable = [
+        cluster
+        for cluster, next_card in eligible_with_cards
+        if next_card not in existing_tokens
+    ]
+    ranked = sorted(selectable, key=priority_tuple)
     selected = ranked[0] if ranked else None
 
     ranked_items = [
@@ -121,7 +138,22 @@ def build_resolution() -> dict[str, Any]:
         },
         "provenance": {
             "cluster_resolution_hash": sha256_file(CLUSTER_RESOLUTION),
+            "family_manifest_hash": sha256_file(FAMILY_MANIFEST),
         },
+        "existing_decision_filter": {
+            "enabled": True,
+            "excluded_cluster_count": len(excluded_existing),
+            "reason_token": "ProjectionPolicyDecisionAlreadyLanded",
+        },
+        "excluded_existing_decision_clusters": [
+            {
+                "cluster_id": cluster["cluster_id"],
+                "next_card": next_card,
+                "candidate_count": cluster["candidate_count"],
+                "reason_token": "ProjectionPolicyDecisionAlreadyLanded",
+            }
+            for cluster, next_card in sorted(excluded_existing, key=lambda pair: priority_tuple(pair[0]))
+        ],
         "priority_rules": [
             "native_seed_or_adoption_proximity",
             "control_flow_axis",
@@ -134,6 +166,8 @@ def build_resolution() -> dict[str, Any]:
         "ranked_clusters": ranked_items,
         "summary": {
             "eligible_cluster_count": len(eligible),
+            "excluded_existing_decision_cluster_count": len(excluded_existing),
+            "selectable_cluster_count": len(selectable),
             "selected_cluster_id": selected["cluster_id"] if selected else None,
             "selected_candidate_count": selected["candidate_count"] if selected else 0,
             "cluster_size_as_proof": 0,
@@ -141,6 +175,9 @@ def build_resolution() -> dict[str, Any]:
         "decision": decision,
         "claims": {
             "eligible_cluster_count": len(eligible),
+            "existing_decision_filter_enabled": 1,
+            "excluded_existing_decision_cluster_count": len(excluded_existing),
+            "selectable_cluster_count": len(selectable),
             "deterministic_priority_resolution": 1,
             "cluster_size_as_proof": 0,
             "cluster_size_tiebreaker_only": 1,
