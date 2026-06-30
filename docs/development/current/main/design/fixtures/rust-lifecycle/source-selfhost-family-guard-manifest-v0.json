@@ -926,6 +926,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-statement-value-construction-box-field-initialization-hako-adoption-decision-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_statement_value_construction_box_field_initialization_hako_adoption_decision_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-LOOP-TRUE-BREAK-CONTINUE-PROJECTION-POLICY-001",
+      "card": "docs/development/current/main/phases/phase-296x/1932-MIRBUILDER-LOOP-TRUE-BREAK-CONTINUE-PROJECTION-POLICY-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-true-break-continue-projection-policy-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_loop_true_break_continue_projection_policy_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {

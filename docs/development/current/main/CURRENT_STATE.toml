@@ -25,11 +25,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-BOX-FIELD-INITIALIZATION-HAKO-ADOPTION-DECISION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1931-MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-BOX-FIELD-INITIALIZATION-HAKO-ADOPTION-DECISION-001.md"
-latest_card_summary = """The latest card adopts the StatementValueConstruction
-box field initialization native Hako source seed as a narrow leaf semantic
-owner while keeping Source Selfhost unclaimed."""
+latest_card = "MIRBUILDER-LOOP-TRUE-BREAK-CONTINUE-PROJECTION-POLICY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1932-MIRBUILDER-LOOP-TRUE-BREAK-CONTINUE-PROJECTION-POLICY-001.md"
+latest_card_summary = """The latest card materializes the LoopTrueBreakContinue
+fallthrough continue-exit cleanup descriptor while keeping Source Selfhost
+unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -40,6 +40,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-30: 1932 materializes the LoopTrueBreakContinue fallthrough continue-exit cleanup descriptor.",
   "2026-06-30: 1931 adopts StatementValueConstruction box field initialization as a narrow HakoAdopted mutation-frame leaf owner.",
   "2026-06-30: 1930 materializes the StatementValueConstruction box field initialization native Hako source seed.",
   "2026-06-30: 1929 promotes StatementValueConstruction box field initialization HakoShadow to HakoMainline.",
@@ -73,5 +74,4 @@ landed_tail = [
   "2026-06-30: 1901 decomposes CallLowering feature predicates into narrower subclusters.",
   "2026-06-30: 1900 materializes the CallLowering static receiver method catalog descriptor fixture.",
   "2026-06-30: 1899 materializes the CallLowering extern prefix / env interface registry descriptor fixture.",
-  "2026-06-30: 1898 materializes the CallLowering builtin/math registry descriptor fixture.",
 ]

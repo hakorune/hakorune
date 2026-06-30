@@ -342,7 +342,7 @@ semantic_closure_report =
 
 latest_frontier_card =
   docs/development/current/main/phases/phase-296x/
-  1931-MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-BOX-FIELD-INITIALIZATION-HAKO-ADOPTION-DECISION-001.md
+  1932-MIRBUILDER-LOOP-TRUE-BREAK-CONTINUE-PROJECTION-POLICY-001.md
 
 latest_integration_card =
   docs/development/current/main/phases/phase-296x/
@@ -373,20 +373,20 @@ history, not in this task-order SSOT.
    semantic_authority=design-stop card, cluster/priority resolver fixtures
    non_authority=manual family selection, runtime fallback, Source Selfhost claim
 
-2. MIRBUILDER-STATEMENT-VALUE-CONSTRUCTION-BOX-FIELD-INITIALIZATION-HAKO-ADOPTION-DECISION-001
+2. MIRBUILDER-LOOP-TRUE-BREAK-CONTINUE-PROJECTION-POLICY-001
    status=green
-   boundary=box field initialization adopted as a narrow Hako leaf owner
-   semantic_authority=native source seed and HakoAdoption decision fixtures
-   non_authority=full field assignment, Rust deletion, Source Selfhost claim
+   boundary=LoopTrueBreakContinue fallthrough continue-exit descriptor materialized
+   semantic_authority=loop true break/continue projection-policy fixture
+   non_authority=Hako generation, native seed, Source Selfhost claim
 
-3. MIRBUILDER-LOOP-TRUE-BREAK-CONTINUE-PROJECTION-POLICY-001
+3. MIRBUILDER-LOOP-BREAK-PLAN-PROJECTION-POLICY-001
    status=next
-   boundary=resume projection-policy priority queue after box field initialization adoption
+   boundary=continue projection-policy priority queue after LoopTrueBreakContinue descriptor
    semantic_authority=projection-policy cluster priority resolver fixture
    non_authority=manual family selection, cluster size as proof, Source Selfhost claim
 
 next_after_active_3 =
-  MIRBUILDER-LOOP-TRUE-BREAK-CONTINUE-PROJECTION-POLICY-001
+  MIRBUILDER-LOOP-BREAK-PLAN-PROJECTION-POLICY-001
 ```
 
 ## Landed Converter Capability Summary
