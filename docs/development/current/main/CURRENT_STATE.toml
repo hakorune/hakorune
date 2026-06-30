@@ -24,11 +24,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PLAN-FACTS-PROJECTION-POLICY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1894-MIRBUILDER-PLAN-FACTS-PROJECTION-POLICY-001.md"
-latest_card_summary = """The latest card resolves PlanFacts predicate,
-matcher, and gated diagnostic helper surfaces as KeepParentOwner; they do not
-open standalone Hako projection surfaces."""
+latest_card = "MIRBUILDER-PLAN-PARTS-ASSEMBLY-PROJECTION-POLICY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1895-MIRBUILDER-PLAN-PARTS-ASSEMBLY-PROJECTION-POLICY-001.md"
+latest_card_summary = """The latest card resolves PlanPartsAssembly shape,
+exit-path, and conditional-update predicate surfaces as KeepParentOwner; they
+do not open standalone Hako projection surfaces."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -39,6 +39,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-06-30: 1895 keeps PlanPartsAssembly shape / exit-path / conditional-update predicate surfaces under their parent owner.",
   "2026-06-30: 1894 keeps PlanFacts predicate / matcher / diagnostic helper surfaces under their parent owner.",
   "2026-06-30: 1893 keeps GenericLoopBodyFeature predicate / matcher surfaces under their parent owner.",
   "2026-06-30: 1892 keeps PlannerPolicy stable tag helper surfaces under their parent owner.",
@@ -52,5 +53,4 @@ landed_tail = [
   "2026-06-30: 1884 keeps JoinIR route verify helpers under their parent owner.",
   "2026-06-30: 1883 keeps JoinIR route registry predicates/utilities under their parent owner.",
   "2026-06-30: 1882 keeps OtherJoinIRPlan helpers under the JoinIR plan parent owner.",
-  "2026-06-30: 1881 keeps CarrierFeature finalization under its parent owner.",
 ]

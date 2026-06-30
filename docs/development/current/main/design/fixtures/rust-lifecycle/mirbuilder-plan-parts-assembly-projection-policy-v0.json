@@ -1,0 +1,143 @@
+{
+  "claims": {
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "manual_family_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "projection_surface_selected": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "KeepParentOwner",
+    "reason_token": "PlanPartsAssemblyDoesNotOpenStandaloneProjectionOwner",
+    "selected_next_card": "MIRBUILDER-PROJECTION-POLICY-CLUSTER-PRIORITY-RESOLUTION-001"
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "priority_resolution": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-projection-policy-cluster-priority-resolution-v0.json",
+    "selected_cluster_id": "projection_policy::UnsupportedDirectShape::shape.plan_parts_assembly::FixtureMapped::PlanPartsAssemblyCluster",
+    "source_count": 10,
+    "source_report": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-unconverted-surface-report-v0.json"
+  },
+  "kind": "MirBuilderPlanPartsAssemblyProjectionPolicyV1",
+  "plan_parts_assembly_evidence": [
+    "is_conditional_update_branch_supported",
+    "has_any_assignment",
+    "is_pure_value_expr",
+    "Exit-path predicates for RecipeBlock dispatch",
+    "plans_exit_on_all_paths",
+    "Statement shape predicates for return-prelude lowering",
+    "Shape predicates for RecipeBlock verification",
+    "is_exit_only_block"
+  ],
+  "role_counts": {
+    "conditional_update_branch_predicate": 2,
+    "conditional_update_pure_expr_predicate": 1,
+    "plan_exit_path_predicate": 2,
+    "recipe_block_verify_shape_predicate": 2,
+    "statement_shape_predicate": 3
+  },
+  "schema_version": 0,
+  "selected_policy": {
+    "owner_edge": "mirbuilder::plan_parts_assembly",
+    "policy": "KeepParentOwner",
+    "projection_surface_selected": false,
+    "reason_token": "PlanPartsAssemblyPredicatesAreParentOwned"
+  },
+  "selection_axes": {
+    "borrow_axis": "NoReturnedOrMutableBorrow",
+    "owner_edge_confidence": "FixtureMapped",
+    "shape_signature": "shape.plan_parts_assembly",
+    "stable_deny_reason": "UnsupportedDirectShape",
+    "type_transport_axis": "Known",
+    "verifier_or_oracle_state": "Present"
+  },
+  "source_surfaces": [
+    {
+      "return_type": "bool",
+      "role": "conditional_update_branch_predicate",
+      "source_id": "src/mir/builder/control_flow/plan/parts/conditional_update/helpers.rs::has_any_assignment:L191",
+      "source_path": "src/mir/builder/control_flow/plan/parts/conditional_update/helpers.rs",
+      "symbol": "has_any_assignment",
+      "visibility": "pub(super)"
+    },
+    {
+      "return_type": "bool",
+      "role": "conditional_update_branch_predicate",
+      "source_id": "src/mir/builder/control_flow/plan/parts/conditional_update/helpers.rs::is_conditional_update_branch_supported:L199",
+      "source_path": "src/mir/builder/control_flow/plan/parts/conditional_update/helpers.rs",
+      "symbol": "is_conditional_update_branch_supported",
+      "visibility": "pub(super)"
+    },
+    {
+      "return_type": "bool",
+      "role": "conditional_update_pure_expr_predicate",
+      "source_id": "src/mir/builder/control_flow/plan/parts/conditional_update/helpers.rs::is_pure_value_expr:L241",
+      "source_path": "src/mir/builder/control_flow/plan/parts/conditional_update/helpers.rs",
+      "symbol": "is_pure_value_expr",
+      "visibility": "pub(super)"
+    },
+    {
+      "return_type": "bool",
+      "role": "plan_exit_path_predicate",
+      "source_id": "src/mir/builder/control_flow/plan/parts/dispatch/block.rs::plans_exit_on_all_paths:L302",
+      "source_path": "src/mir/builder/control_flow/plan/parts/dispatch/block.rs",
+      "symbol": "plans_exit_on_all_paths",
+      "visibility": "pub(in crate::mir::builder)"
+    },
+    {
+      "return_type": "bool",
+      "role": "plan_exit_path_predicate",
+      "source_id": "src/mir/builder/control_flow/plan/parts/dispatch/block_exit.rs::plans_exit_on_all_paths:L8",
+      "source_path": "src/mir/builder/control_flow/plan/parts/dispatch/block_exit.rs",
+      "symbol": "plans_exit_on_all_paths",
+      "visibility": "pub(super)"
+    },
+    {
+      "return_type": "bool",
+      "role": "statement_shape_predicate",
+      "source_id": "src/mir/builder/control_flow/plan/parts/stmt_shape.rs::stmt_has_loop_stmt_recursive:L22",
+      "source_path": "src/mir/builder/control_flow/plan/parts/stmt_shape.rs",
+      "symbol": "stmt_has_loop_stmt_recursive",
+      "visibility": "pub(super)"
+    },
+    {
+      "return_type": "bool",
+      "role": "statement_shape_predicate",
+      "source_id": "src/mir/builder/control_flow/plan/parts/stmt_shape.rs::tail_is_exit:L8",
+      "source_path": "src/mir/builder/control_flow/plan/parts/stmt_shape.rs",
+      "symbol": "tail_is_exit",
+      "visibility": "pub(super)"
+    },
+    {
+      "return_type": "bool",
+      "role": "statement_shape_predicate",
+      "source_id": "src/mir/builder/control_flow/plan/parts/stmt_shape.rs::value_has_blockexpr_prelude_loop:L15",
+      "source_path": "src/mir/builder/control_flow/plan/parts/stmt_shape.rs",
+      "symbol": "value_has_blockexpr_prelude_loop",
+      "visibility": "pub(super)"
+    },
+    {
+      "return_type": "bool",
+      "role": "recipe_block_verify_shape_predicate",
+      "source_id": "src/mir/builder/control_flow/plan/parts/verify_shape.rs::is_block_exit_only_item:L10",
+      "source_path": "src/mir/builder/control_flow/plan/parts/verify_shape.rs",
+      "symbol": "is_block_exit_only_item",
+      "visibility": "pub(super)"
+    },
+    {
+      "return_type": "bool",
+      "role": "recipe_block_verify_shape_predicate",
+      "source_id": "src/mir/builder/control_flow/plan/parts/verify_shape.rs::is_exit_only_block:L40",
+      "source_path": "src/mir/builder/control_flow/plan/parts/verify_shape.rs",
+      "symbol": "is_exit_only_block",
+      "visibility": "pub(super)"
+    }
+  ],
+  "token": "MIRBUILDER-PLAN-PARTS-ASSEMBLY-PROJECTION-POLICY-001"
+}
