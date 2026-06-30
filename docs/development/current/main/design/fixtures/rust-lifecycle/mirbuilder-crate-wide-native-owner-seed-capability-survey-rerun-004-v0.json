@@ -1,0 +1,63 @@
+{
+  "adoption_delta": {
+    "decision": "Adopt",
+    "family_id": "hakorune_mir_builder::core_context",
+    "hako_adopted": 1,
+    "source_selfhost_claim": 0
+  },
+  "candidate_pool": {
+    "already_adopted_count": 4,
+    "bridge_blocked_count": 39,
+    "bridge_eligible_count": 8,
+    "composite_or_integration_owner_count": 7,
+    "gap_blocked_count": 36,
+    "unscoped_adoption_blocked_count": 4,
+    "verified_hako_family_ir_count": 47
+  },
+  "claims": {
+    "bridge_policy_consumed": 1,
+    "cluster_size_as_proof": 0,
+    "core_context_adoption_consumed": 1,
+    "coverage_percentage_as_proof": 0,
+    "generated_artifact_as_native_edit_authority": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "manual_family_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "route_membership_alone_as_proof": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0,
+    "strict_converter_emission_probe_consumed": 1
+  },
+  "decision": {
+    "kind": "SelectNativeSeedCandidate",
+    "reason_token": "NativeOwnerSeedCandidateRerunAfterCoreContextAdoption",
+    "selected_next_card": "MIRBUILDER-METADATA-CONTEXT-HAKO-NATIVE-SOURCE-SEED-001",
+    "selected_owner_edge_id": "hakorune_mir_builder::metadata_context"
+  },
+  "input_state": {
+    "bridge_policy": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-strict-converter-emission-to-native-seed-bridge-policy-v0.json",
+    "core_context_adoption_decision": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-core-context-hako-adoption-decision-v0.json",
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "previous_candidate_selection": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-strict-converter-emission-native-seed-candidate-selection-v0.json",
+    "strict_converter_emission_probe": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-strict-converter-emission-probe-v0.json"
+  },
+  "kind": "MirBuilderCrateWideNativeOwnerSeedCapabilitySurveyRerunV4",
+  "provenance": {
+    "bridge_policy_hash": "218cd631ed71744538d528b472cd42ac5a500d74440c97e1e93fe074a6456055",
+    "core_context_adoption_decision_hash": "b16d1bc50bb080ff86934948ee0b973b33c2f13200b5f3d8a3d488bc3a62f71b",
+    "previous_candidate_selection_hash": "c5b4e7530f35d1e7d9f73a28ed5e82276a4afbc5b30055558a53a70d8b8ce563",
+    "strict_converter_emission_probe_hash": "60209abdd157303ebeedc467c3d6f7d5f66f7eeba9c47c590864effef06d7e09"
+  },
+  "schema_version": 0,
+  "selected_candidate": {
+    "owner_edge_id": "hakorune_mir_builder::metadata_context",
+    "reason_token": "StrictEmissionBridgeEligibleCandidateSelected",
+    "selected_next_card": "MIRBUILDER-METADATA-CONTEXT-HAKO-NATIVE-SOURCE-SEED-001"
+  },
+  "token": "MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-004"
+}

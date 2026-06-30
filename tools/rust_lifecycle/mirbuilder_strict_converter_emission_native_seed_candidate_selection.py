@@ -214,11 +214,11 @@ def bridge_state_for(
     }
 
 
-def build_fixture() -> dict[str, Any]:
+def build_fixture(cutoff_token: str = TOKEN) -> dict[str, Any]:
     bridge = read_json(BRIDGE)
     probe = read_json(STRICT_PROBE)
-    adopted = adopted_family_ids()
-    unscoped = unscoped_adoption_slugs()
+    adopted = adopted_family_ids(cutoff_token)
+    unscoped = unscoped_adoption_slugs(cutoff_token)
 
     candidates = [
         bridge_state_for(row, adopted, unscoped)
@@ -256,7 +256,7 @@ def build_fixture() -> dict[str, Any]:
             "bridge_policy_hash": sha256_file(BRIDGE),
             "strict_converter_emission_probe_hash": sha256_file(STRICT_PROBE),
             "source_selfhost_family_guard_manifest": rel(FAMILY_MANIFEST),
-            "adoption_evidence_cutoff_token": TOKEN,
+            "adoption_evidence_cutoff_token": cutoff_token,
         },
         "selection_rule": {
             "manual_family_selection": False,
