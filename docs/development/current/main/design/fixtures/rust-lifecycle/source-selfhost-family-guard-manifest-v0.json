@@ -555,6 +555,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-shape-signature-inventory-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_crate_wide_shape_signature_inventory_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-PROJECTION-POLICY-CLUSTER-PRIORITY-RESOLUTION-001",
+      "card": "docs/development/current/main/phases/phase-296x/1879-MIRBUILDER-PROJECTION-POLICY-CLUSTER-PRIORITY-RESOLUTION-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-projection-policy-cluster-priority-resolution-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_projection_policy_cluster_priority_resolution_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {
