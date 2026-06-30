@@ -1,0 +1,100 @@
+{
+  "claims": {
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "hako_projection_selected": 0,
+    "manual_family_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0,
+    "validator_descriptor_selected": 1
+  },
+  "decision": {
+    "kind": "SelectValidatorDescriptorPolicy",
+    "reason_token": "ContinueIfStepValidationDescriptorMaterialized",
+    "selected_next_card": "MIRBUILDER-GENERIC-LOOP-BODY-CHECK-BREAK-ELSE-IF-STEP-VALIDATION-PROJECTION-POLICY-001"
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "previous_policy": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-generic-loop-body-check-in-body-step-validation-projection-policy-v0.json",
+    "selected_subcluster_id": "ContinueIfStepValidation",
+    "source_count": 1,
+    "source_module": "src/mir/builder/control_flow/plan/generic_loop/body_check/step_validation.rs",
+    "step_validation_policy": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-generic-loop-body-check-step-validation-projection-policy-v0.json"
+  },
+  "kind": "MirBuilderGenericLoopBodyCheckContinueIfStepValidationProjectionPolicyV1",
+  "provenance": {
+    "semantic_projection_inference": 0,
+    "tool_role": "FactsAdapterGuardOrchestrator"
+  },
+  "schema_version": 0,
+  "selected_policy": {
+    "hako_projection_selected": false,
+    "owner_edge": "mirbuilder::generic_loop_body_check_continue_if_step_validation",
+    "policy": "SourceExtractedStrictRejectValidationDescriptor",
+    "reason_token": "ContinueIfStepValidationRequiresTailExitDescriptorBeforeHakoProjection",
+    "validator_descriptor_selected": true
+  },
+  "selection_axes": {
+    "borrow_axis": "NoBorrow",
+    "owner_edge_confidence": "FixtureMapped",
+    "shape_signature": "shape.generic_loop_body_check_continue_if_step_validation",
+    "stable_deny_reason": "UnsupportedDirectShape",
+    "type_transport_axis": "Known",
+    "verifier_or_oracle_state": "Present"
+  },
+  "source_surfaces": [
+    {
+      "line": 175,
+      "params": "body: &[ASTNode],\n    step_index: usize,\n    strict: bool,",
+      "return_type": "Result<bool, Freeze>",
+      "source_id": "src/mir/builder/control_flow/plan/generic_loop/body_check/step_validation.rs::validate_continue_if_step:L175",
+      "source_path": "src/mir/builder/control_flow/plan/generic_loop/body_check/step_validation.rs",
+      "symbol": "validate_continue_if_step",
+      "validator_role": "strict_reject_continue_if_tail_validator"
+    }
+  ],
+  "token": "MIRBUILDER-GENERIC-LOOP-BODY-CHECK-CONTINUE-IF-STEP-VALIDATION-PROJECTION-POLICY-001",
+  "validator_descriptor": {
+    "descriptor_id": "generic_loop_body_check_continue_if_step_validation_v1",
+    "entries": [
+      {
+        "allowed_tail_shapes": [
+          "empty_tail",
+          "single_break",
+          "single_return"
+        ],
+        "log_tags": [
+          "generic_loop_v0"
+        ],
+        "reject_reason": "ContinueIfStepRequiresTrailingExit",
+        "rejected_tail_shapes": [
+          "non_empty_tail_without_single_exit",
+          "single_continue",
+          "multi_statement_tail"
+        ],
+        "source_markers": [
+          "let tail = if step_index + 1 >= body.len()",
+          "tail.is_empty()",
+          "tail.len() == 1",
+          "ASTNode::Break",
+          "ASTNode::Return",
+          "RejectReason::ContinueIfStepRequiresTrailingExit",
+          "reject_or_false"
+        ],
+        "symbol": "validate_continue_if_step",
+        "tail_scan": "body[(step_index + 1)..]",
+        "version": "v0"
+      }
+    ],
+    "entry_count": 1,
+    "handoff_table": "handoff_tables::for_generic_loop",
+    "reject_dispatch": "reject_or_false(strict, reason.as_freeze_message())",
+    "return_contract": "Result<bool, Freeze>",
+    "source_extraction": "rust_continue_if_tail_validation"
+  }
+}
