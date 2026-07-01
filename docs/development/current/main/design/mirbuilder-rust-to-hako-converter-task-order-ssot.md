@@ -24,9 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001.
-  ID scalar rerun 002 still cannot derive SourcePlanAndRecipe; owner scope and
-  behavior-recipe basis gaps need design consultation before the next lane.
+  MIRBUILDER-ID-SCALAR-OWNER-SCOPE-BOUNDEDNESS-RESOLUTION-001.
+  ID scalar basis priority selected OwnerScopeBoundedness as the next root
+  component; SourcePlanAndRecipe materialization remains blocked.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+  MIRBUILDER-ID-SCALAR-OWNER-SCOPE-BOUNDEDNESS-RESOLUTION-001
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -333,48 +333,23 @@ id_scalar_seed_evidence_contract_result:
   selected_next_card = MIRBUILDER-ID-SCALAR-SEED-PACKET-CANDIDATE-SELECTION-001
   source_selfhost_claim = 0
 
-id_scalar_seed_packet_candidate_selection_result:
-  token = MIRBUILDER-ID-SCALAR-SEED-PACKET-CANDIDATE-SELECTION-001
+id_scalar_source_plan_basis_chain_summary:
+  2021_to_2026 = seed packet selection -> derivability -> derivation basis -> source surfaces -> operation vocabulary -> rerun 002
   packet_generation_candidate_count = 10
   ambiguous_candidate_count = 4
-  reason_token = MultipleEqualIdScalarSeedPacketCandidates
-  selected_next_card = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
-  source_selfhost_claim = 0
-
-id_scalar_source_plan_derivability_result:
-  token = MIRBUILDER-ID-SCALAR-SOURCE-PLAN-AND-RECIPE-DERIVABILITY-RESOLUTION-001
-  source_plan_derivable_count = 0
-  reason_token = NoIdScalarSourcePlanAndRecipeDerivabilityCandidate
-  selected_next_card = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
-  source_selfhost_claim = 0
-
-id_scalar_source_plan_derivation_basis_result:
-  token = MIRBUILDER-ID-SCALAR-SOURCE-PLAN-DERIVATION-BASIS-001
   source_plan_derivation_basis_defined = 1
-  directability_only_is_source_plan = 0
-  descriptor_only_is_source_plan = 0
-  selected_next_card = MIRBUILDER-ID-SCALAR-SOURCE-SURFACE-INVENTORY-001
-  source_selfhost_claim = 0
-
-id_scalar_source_surface_inventory_result:
-  token = MIRBUILDER-ID-SCALAR-SOURCE-SURFACE-INVENTORY-001
   required_source_surface_count = 102
-  surface_complete_candidate_count = 4
-  selected_next_card = MIRBUILDER-ID-SCALAR-OPERATION-VOCABULARY-INVENTORY-001
-  source_selfhost_claim = 0
-
-id_scalar_operation_vocabulary_inventory_result:
-  token = MIRBUILDER-ID-SCALAR-OPERATION-VOCABULARY-INVENTORY-001
   operation_vocabulary_token_count = 28
   unknown_operation_count = 0
-  selected_next_card = MIRBUILDER-ID-SCALAR-SOURCE-PLAN-AND-RECIPE-DERIVABILITY-RESOLUTION-002
-  source_selfhost_claim = 0
-
-id_scalar_source_plan_derivability_rerun_002_result:
-  token = MIRBUILDER-ID-SCALAR-SOURCE-PLAN-AND-RECIPE-DERIVABILITY-RESOLUTION-002
   source_plan_derivable_count = 0
   reason_token = IdScalarSourcePlanDerivabilityRequiresScopeAndRecipeBasis
-  selected_next_card = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+  selected_next_card = MIRBUILDER-ID-SCALAR-SOURCE-PLAN-BASIS-COMPONENT-PRIORITY-RESOLUTION-001
+  source_selfhost_claim = 0
+
+id_scalar_source_plan_basis_component_priority_result:
+  token = MIRBUILDER-ID-SCALAR-SOURCE-PLAN-BASIS-COMPONENT-PRIORITY-RESOLUTION-001
+  selected_component_id = OwnerScopeBoundedness
+  selected_next_card = MIRBUILDER-ID-SCALAR-OWNER-SCOPE-BOUNDEDNESS-RESOLUTION-001
   source_selfhost_claim = 0
 
 placement_rule:
@@ -406,27 +381,27 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. MIRBUILDER-ID-SCALAR-SOURCE-PLAN-AND-RECIPE-DERIVABILITY-RESOLUTION-002
+1. MIRBUILDER-ID-SCALAR-SOURCE-PLAN-BASIS-COMPONENT-PRIORITY-RESOLUTION-001
    status=closed
-   boundary=SourcePlanAndRecipe still blocked by owner-scope/recipe basis
+   boundary=OwnerScopeBoundedness selected by dependency order
 
-2. SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
-   status=design-consultation-required
-   boundary=choose next basis lane: owner scope, behavior recipe, verifier input
+2. MIRBUILDER-ID-SCALAR-OWNER-SCOPE-BOUNDEDNESS-RESOLUTION-001
+   status=next
+   boundary=prove bounded owner scope; no SourcePlanAndRecipe yet
 
 3. SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
    status=guardrail
    boundary=no native seed / Hako generation / Source Selfhost claim
 
 next:
-  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
-  boundary=consult before selecting the next SourcePlan basis component
+  MIRBUILDER-ID-SCALAR-OWNER-SCOPE-BOUNDEDNESS-RESOLUTION-001
+  boundary=owner-edge primary, validated by surface/operation/native seed boundary
 
 next_documented_task =
-  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+  MIRBUILDER-ID-SCALAR-OWNER-SCOPE-BOUNDEDNESS-RESOLUTION-001
 
 next_after_active_3 =
-  TBD_AFTER_ID_SCALAR_SCOPE_RECIPE_BASIS_DESIGN
+  MIRBUILDER-ID-SCALAR-ID-DOMAIN-BOUNDARY-BASIS-001
 ```
 
 ## Landed Converter Capability Summary

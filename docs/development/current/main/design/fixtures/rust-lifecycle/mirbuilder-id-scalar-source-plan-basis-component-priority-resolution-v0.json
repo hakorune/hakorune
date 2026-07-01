@@ -1,0 +1,160 @@
+{
+  "claims": {
+    "behavior_recipe_materialization": 0,
+    "cluster_size_as_proof": 0,
+    "derived_artifact_seed_draft_materialization": 0,
+    "directable_row_count_as_proof": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "manual_component_selection": 0,
+    "manual_owner_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "route_membership_alone_as_proof": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_plan_materialization": 0,
+    "source_selfhost_claim": 0,
+    "surface_count_as_proof": 0,
+    "verifier_result_materialization": 0
+  },
+  "decision": {
+    "kind": "SelectBasisComponent",
+    "reason_token": "OwnerScopeBoundednessSelectedAsSourcePlanRootComponent",
+    "selected_component_id": "OwnerScopeBoundedness",
+    "selected_next_card": "MIRBUILDER-ID-SCALAR-OWNER-SCOPE-BOUNDEDNESS-RESOLUTION-001"
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "operation_vocabulary_inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-operation-vocabulary-inventory-v0.json",
+    "source_plan_derivability_rerun_002": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-source-plan-and-recipe-derivability-resolution-002-v0.json",
+    "source_surface_inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-source-surface-inventory-v0.json"
+  },
+  "kind": "MirBuilderIdScalarSourcePlanBasisComponentPriorityResolutionV1",
+  "previous_state": {
+    "behavior_recipe_effect_coverage_complete_count": 0,
+    "input_candidate_count": 4,
+    "nominal_id_domain_preserved_count": 4,
+    "operation_vocabulary_complete_count": 4,
+    "owner_scope_bounded_count": 0,
+    "reason_token": "IdScalarSourcePlanDerivabilityRequiresScopeAndRecipeBasis",
+    "required_source_surfaces_complete_count": 4,
+    "selection_eligible_count": 0,
+    "source_plan_derivable_count": 0
+  },
+  "provenance": {
+    "operation_vocabulary_inventory_hash": "0621af5b2cffd27c406f20daca9e95d2ea949be414947bce945d9977511ed261",
+    "source_plan_derivability_rerun_002_hash": "8a0e4efcfb2013092472c4ff7218808de8143daecc0785b7ccee7e1f71cb8119",
+    "source_surface_inventory_hash": "df4562eceb32f942ff6dbd41cb5abbd2becb8c0fd9d4f0bbcd04820fb90056b7"
+  },
+  "schema_version": 0,
+  "selection_rule": {
+    "cluster_size_as_proof": false,
+    "lexical_order_as_proof": false,
+    "manual_component_selection": false,
+    "prefer_components_that_define_owner_subject": true,
+    "select_lowest_dependency_rank": true,
+    "surface_count_as_proof": false
+  },
+  "token": "MIRBUILDER-ID-SCALAR-SOURCE-PLAN-BASIS-COMPONENT-PRIORITY-RESOLUTION-001",
+  "unresolved_components": [
+    {
+      "blocked_by_token": "OwnerScopeBoundedNotProven",
+      "component_id": "OwnerScopeBoundedness",
+      "dependency_rank": 0,
+      "next_card": "MIRBUILDER-ID-SCALAR-OWNER-SCOPE-BOUNDEDNESS-RESOLUTION-001",
+      "requires": [],
+      "selection_eligible": true,
+      "unblocks": [
+        "StateMutationFrame",
+        "BehaviorRecipeEffectCoverage",
+        "VerifierInputContract",
+        "NativeSeedFileBoundary"
+      ]
+    },
+    {
+      "blocked_by_token": "IdDomainBoundaryNotDeclared",
+      "component_id": "IdDomainBoundary",
+      "dependency_rank": 1,
+      "next_card": "MIRBUILDER-ID-SCALAR-ID-DOMAIN-BOUNDARY-BASIS-001",
+      "requires": [],
+      "selection_eligible": true,
+      "unblocks": [
+        "BehaviorRecipeEffectCoverage",
+        "VerifierInputContract"
+      ]
+    },
+    {
+      "blocked_by_token": "ErrorSemanticsNotDeclared",
+      "component_id": "ErrorSemantics",
+      "dependency_rank": 1,
+      "next_card": "MIRBUILDER-ID-SCALAR-ERROR-SEMANTICS-BASIS-001",
+      "requires": [],
+      "selection_eligible": true,
+      "unblocks": [
+        "BehaviorRecipeEffectCoverage",
+        "VerifierInputContract"
+      ]
+    },
+    {
+      "blocked_by_token": "DeterministicOrderNotDeclared",
+      "component_id": "DeterministicOrder",
+      "dependency_rank": 1,
+      "next_card": "MIRBUILDER-ID-SCALAR-DETERMINISTIC-ORDER-BASIS-001",
+      "requires": [],
+      "selection_eligible": true,
+      "unblocks": [
+        "BehaviorRecipeEffectCoverage",
+        "VerifierInputContract"
+      ]
+    },
+    {
+      "blocked_by_token": "StateMutationFrameNotDeclared",
+      "component_id": "StateMutationFrame",
+      "dependency_rank": 2,
+      "next_card": "MIRBUILDER-ID-SCALAR-STATE-MUTATION-FRAME-BASIS-001",
+      "requires": [
+        "OwnerScopeBoundedness"
+      ],
+      "selection_eligible": false,
+      "unblocks": [
+        "BehaviorRecipeEffectCoverage",
+        "VerifierInputContract"
+      ]
+    },
+    {
+      "blocked_by_token": "BehaviorRecipeEffectCoverageNotProven",
+      "component_id": "BehaviorRecipeEffectCoverage",
+      "dependency_rank": 3,
+      "next_card": "MIRBUILDER-ID-SCALAR-BEHAVIOR-RECIPE-EFFECT-COVERAGE-BASIS-001",
+      "requires": [
+        "OwnerScopeBoundedness",
+        "IdDomainBoundary",
+        "StateMutationFrame",
+        "ErrorSemantics",
+        "DeterministicOrder"
+      ],
+      "selection_eligible": false,
+      "unblocks": [
+        "VerifierInputContract",
+        "SourcePlanAndRecipeDerivability"
+      ]
+    },
+    {
+      "blocked_by_token": "VerifierInputContractNotDeclared",
+      "component_id": "VerifierInputContract",
+      "dependency_rank": 4,
+      "next_card": "MIRBUILDER-ID-SCALAR-VERIFIER-INPUT-CONTRACT-BASIS-001",
+      "requires": [
+        "SourcePlan",
+        "BehaviorRecipeEffectCoverage"
+      ],
+      "selection_eligible": false,
+      "unblocks": [
+        "VerifierResultFixture"
+      ]
+    }
+  ]
+}
