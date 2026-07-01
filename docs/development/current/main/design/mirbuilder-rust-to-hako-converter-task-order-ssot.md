@@ -24,12 +24,10 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-STRICT-EMISSION-TO-NATIVE-SEED-BRIDGE-POLICY-V2-001.
-  Forbidden non-claim scope resolution classified all 12 ResultBox carrier
-  refresh-owner forbidden non-claim occurrences as wider denied-boundary
-  mentions, not selected narrow seed-surface evidence. Define BridgePolicyV2
-  so mention-only forbidden non-claims remain non-evidence but no longer block
-  a clean selected narrow seed surface.
+  MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-RERUN-002.
+  BridgePolicyV2 is defined: mention-only forbidden non-claims are never seed
+  evidence but no longer block a clean selected narrow seed surface. Rerun
+  strict native-seed candidate selection with that policy.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -65,7 +63,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  MIRBUILDER-STRICT-EMISSION-TO-NATIVE-SEED-BRIDGE-POLICY-V2-001
+  MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-RERUN-002
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -308,6 +306,14 @@ forbidden_nonclaim_boundary_scope_resolution_result:
   seed_eligibility_from_forbidden_nonclaim = 0
   source_selfhost_claim = 0
 
+strict_emission_to_native_seed_bridge_policy_v2_result:
+  token = MIRBUILDER-STRICT-EMISSION-TO-NATIVE-SEED-BRIDGE-POLICY-V2-001
+  mention_only_forbidden_nonclaim_is_seed_evidence = 0
+  mention_only_forbidden_nonclaim_blocks_clean_narrow_seed_surface = 0
+  required_forbidden_nonclaim_blocks_seed = 1
+  selected_next_card = MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-RERUN-002
+  source_selfhost_claim = 0
+
 post_rerun_006_selector_basis:
   token = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-002
   output_contract = rust-lifecycle-source-selfhost-wider-route-selection-basis-002-v0
@@ -393,14 +399,14 @@ history, not in this task-order SSOT.
    non_authority=seed eligibility, Hako generation, Source Selfhost claim
 
 next:
-  MIRBUILDER-STRICT-EMISSION-TO-NATIVE-SEED-BRIDGE-POLICY-V2-001
-  boundary=mention-only forbidden non-claims are never seed evidence but may stop blocking clean narrow seed surfaces
+  MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-RERUN-002
+  boundary=consume BridgePolicyV2; no seed/adoption unless exactly one bridge-eligible candidate is derived
 
 next_documented_task =
-  MIRBUILDER-STRICT-EMISSION-TO-NATIVE-SEED-BRIDGE-POLICY-V2-001
+  MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-RERUN-002
 
 next_after_active_3 =
-  MIRBUILDER-STRICT-EMISSION-TO-NATIVE-SEED-BRIDGE-POLICY-V2-001
+  MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-RERUN-002
 ```
 
 ## Landed Converter Capability Summary

@@ -1,0 +1,65 @@
+{
+  "base_policy": {
+    "generated_artifact_as_native_edit_authority": false,
+    "policy_id": "DerivedArtifactSeedDraftInput",
+    "source_selfhost_claim_allowed": false
+  },
+  "claims": {
+    "bridge_policy_v1_consumed": 1,
+    "cluster_size_as_proof": 0,
+    "coverage_percentage_as_proof": 0,
+    "forbidden_nonclaim_boundary_scope_resolution_consumed": 1,
+    "generated_artifact_as_native_edit_authority": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "manual_boundary_reclassification": 0,
+    "manual_family_selection": 0,
+    "mention_only_forbidden_nonclaim_scope_consumed": 1,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_canonical_mir_instruction": 0,
+    "new_python_semantic_projector": 0,
+    "route_membership_alone_as_proof": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "seed_eligibility_from_forbidden_nonclaim": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "PolicyDefined",
+    "reason_token": "StrictBridgePolicyV2DefinedForMentionOnlyForbiddenNonclaims",
+    "selected_next_card": "MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-RERUN-002"
+  },
+  "input_state": {
+    "bridge_policy_v1": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-strict-converter-emission-to-native-seed-bridge-policy-v0.json",
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "forbidden_nonclaim_boundary_scope_resolution": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-forbidden-nonclaim-boundary-scope-resolution-v0.json"
+  },
+  "kind": "MirBuilderStrictEmissionToNativeSeedBridgePolicyV2",
+  "provenance": {
+    "bridge_policy_v1_hash": "218cd631ed71744538d528b472cd42ac5a500d74440c97e1e93fe074a6456055",
+    "forbidden_nonclaim_boundary_scope_resolution_hash": "92b3c110482d96572aa5e3f07adcb178fe85d2ebf5d15dce9e40f2824213a688"
+  },
+  "schema_version": 0,
+  "scope_resolution_summary": {
+    "bridge_policy_v2_candidate_count": 3,
+    "input_owner_edge_count": 3,
+    "permanent_forbidden_nonclaim_count": 0,
+    "required_by_selected_narrow_seed_surface_count": 0,
+    "unclassified_forbidden_nonclaim_count": 0,
+    "wider_denied_boundary_mention_only_count": 12
+  },
+  "token": "MIRBUILDER-STRICT-EMISSION-TO-NATIVE-SEED-BRIDGE-POLICY-V2-001",
+  "v2_policy": {
+    "mention_only_forbidden_nonclaim_blocks_clean_narrow_seed_surface": false,
+    "mention_only_forbidden_nonclaim_is_seed_evidence": false,
+    "new_abi_allowed": false,
+    "new_backend_route_allowed": false,
+    "new_canonical_mir_instruction_allowed": false,
+    "policy_id": "StrictEmissionToNativeSeedBridgePolicyV2",
+    "required_forbidden_nonclaim_blocks_seed": true,
+    "runtime_fallback_allowed": false,
+    "unclassified_forbidden_nonclaim_blocks_seed": true
+  }
+}
