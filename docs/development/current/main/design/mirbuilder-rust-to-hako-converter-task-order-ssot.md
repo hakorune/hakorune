@@ -24,11 +24,12 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-002.
-  The strict-emission native seed candidate pool is exhausted after
-  type_context adoption. The next progress point is a machine-checkable
-  selector fixture that derives exactly one next lane or keeps Source Selfhost
-  stopped.
+  SOURCE-SELFHOST-POST-RERUN-006-NEXT-LANE-SELECTOR-001.
+  The post-rerun-006 selector consumes BASIS-002 and rerun-006, then chooses
+  the next machine-checkable lane without manual family/shape/axis selection.
+  It selects MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-002 because the
+  crate-wide unconverted surface report is stale against the current Source
+  Selfhost family guard manifest.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -64,7 +65,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-002
+  MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-002
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -198,19 +199,32 @@ latest_rerun_result:
   next = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 next_action:
-  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-002
-  purpose = define the post-rerun-006 selector basis
-  output = selector fixture contract before further implementation
+  MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-002
+  purpose = regenerate the source-surface report against current manifests
+  output = fresh report before any owner/shape/axis/native-seed selection
 
 post_rerun_006_task_order:
   1. land SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-002 as the accepted
      post-strict-emission bridge exhaustion selector basis
-  2. next, land a selector fixture that derives exactly one next lane before
-     any native seed or adoption card
-  3. if no owner is derived, keep stopped; do not pick a family, shape, or
+  2. land SOURCE-SELFHOST-POST-RERUN-006-NEXT-LANE-SELECTOR-001 to derive
+     exactly one next lane before any native seed or adoption card
+  3. next, run MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-002 because the
+     current report provenance is stale against the current family manifest
+  4. if no owner is derived, keep stopped; do not pick a family, shape, or
      blocker axis by hand
-  4. repair stale design-stop guard vocabulary separately from semantic
+  5. repair stale design-stop guard vocabulary separately from semantic
      converter progress if it blocks current validation
+
+post_rerun_006_selector_result:
+  token = SOURCE-SELFHOST-POST-RERUN-006-NEXT-LANE-SELECTOR-001
+  output_contract = rust-lifecycle-source-selfhost-post-rerun-006-next-lane-selector-v0
+  decision = SelectUnconvertedSurfaceReportRerun
+  reason_token = UnconvertedSurfaceReportStaleAfterBasis002
+  selected_next_card = MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-002
+  manual_family_selection = 0
+  manual_shape_selection = 0
+  manual_axis_selection = 0
+  source_selfhost_claim = 0
 
 post_rerun_006_selector_basis:
   token = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-002
