@@ -24,10 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-DIRECT-STATE-PLAN-REFRESH-HAKO-NATIVE-SOURCE-SEED-001.
-  Strict candidate selection rerun 002 consumed BridgePolicyV2, derived three
-  bridge-eligible ResultBox carrier refresh-owner candidates, and selected
-  `hakorune_mir_builder::direct_state_plan_refresh` by stable priority.
+  MIRBUILDER-DIRECT-STATE-PLAN-REFRESH-HAKO-ADOPTION-DECISION-001.
+  The direct_state_plan_refresh native source seed was materialized from
+  DerivedArtifactSeedDraftInput without HakoAdopted or Source Selfhost claim.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -63,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  MIRBUILDER-DIRECT-STATE-PLAN-REFRESH-HAKO-NATIVE-SOURCE-SEED-001
+  MIRBUILDER-DIRECT-STATE-PLAN-REFRESH-HAKO-ADOPTION-DECISION-001
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -198,127 +197,20 @@ bridge_progression_summary:
   mixed_borrow_carrier_type_transport_count = 1
   invariant = no manual family/shape/axis/cluster selection, source_selfhost_claim=0
 
-carrier_type_transport_policy_inventory_rerun_task:
-  token = MIRBUILDER-CARRIER-TYPE-TRANSPORT-POLICY-INVENTORY-RERUN-001
-  owner_kind = CarrierTypeTransportPolicyInventoryRerun
-  input_cluster = bridge_gap::carrier_type_transport_only
-  input_candidate_count = 23
-  deferred_mixed_gap_count = 1
-  transport_notes_missing_count = 4
-  eligible_policy_lane_count = 4
-  decision = SelectCarrierTypeTransportEvidenceInventory
-  selected_next_card = MIRBUILDER-CARRIER-TYPE-TRANSPORT-EVIDENCE-INVENTORY-001
-  source_selfhost_claim = 0
+result_carrier_bridge_v2_chain_result:
+  1980_to_1985 = carrier/type evidence -> ResultCarrierVerifierProjectionPolicy
+  1986_to_1988 = denied-boundary normalization kept Source Selfhost stopped
+  1989 = 12 forbidden nonclaim occurrences scoped as wider mention-only
+  1990 = BridgePolicyV2 defined; mention-only is neither evidence nor blocker
+  1991 = selected hakorune_mir_builder::direct_state_plan_refresh native seed
+  invariant = source_selfhost_claim=0, runtime_fallback=0, new backend/ABI=0
 
-carrier_type_transport_evidence_inventory_result:
-  token = MIRBUILDER-CARRIER-TYPE-TRANSPORT-EVIDENCE-INVENTORY-001
-  input_candidate_count = 23
-  input_transport_notes_missing_count = 4
-  evidence_inventory_complete_count = 23
-  unclassified_evidence_count = 0
-  policy_lanes =
-    GenericCarrierPolicyCandidate: 12
-    KnownTypeTransportNoCarrierPolicy: 2
-    OptionCarrierPolicyCandidate: 3
-    ResultCarrierVerifierPolicyCandidate: 3
-    VecOrArrayCarrierPolicyCandidate: 3
-  decision = SelectCarrierTypeTransportPolicyLanePriorityResolution
-  selected_next_card = MIRBUILDER-CARRIER-TYPE-TRANSPORT-POLICY-LANE-PRIORITY-RESOLUTION-001
-  source_selfhost_claim = 0
-
-carrier_type_transport_policy_lane_priority_result:
-  token = MIRBUILDER-CARRIER-TYPE-TRANSPORT-POLICY-LANE-PRIORITY-RESOLUTION-001
-  input_candidate_count = 23
-  eligible_policy_lane_count = 4
-  known_type_transport_no_policy_count = 2
-  selected_policy_lane = ResultCarrierVerifierPolicyCandidate
-  selected_policy_lane_candidate_count = 3
-  selected_next_card = MIRBUILDER-RESULT-CARRIER-VERIFIER-POLICY-001
-  source_selfhost_claim = 0
-
-result_carrier_verifier_policy_result:
-  token = MIRBUILDER-RESULT-CARRIER-VERIFIER-POLICY-001
-  result_carrier_candidate_count = 3
-  policy = ResultCarrierVerifierPolicyV1
-  requires = ResultBox transport + projection_contract + canonical_json_parity + runtime_fallback=0
-  selected_next_card = MIRBUILDER-RESULT-CARRIER-VERIFIER-CONTRACT-001
-  source_selfhost_claim = 0
-
-result_carrier_verifier_contract_result:
-  token = MIRBUILDER-RESULT-CARRIER-VERIFIER-CONTRACT-001
-  contract = ResultCarrierVerifierContractV1
-  result_carrier_contract_row_count = 3
-  result_carrier_contract_ready = 1
-  selected_next_card = MIRBUILDER-RESULT-CARRIER-VERIFIER-PROJECTION-POLICY-001
-  source_selfhost_claim = 0
-
-result_carrier_verifier_projection_policy_result:
-  token = MIRBUILDER-RESULT-CARRIER-VERIFIER-PROJECTION-POLICY-001
-  policy = VerifierBackedResultCarrierProjectionPolicyV1
-  rows = 3
-  hako_projection_selected = 0
-  selected_next_card = MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-RERUN-001
-  source_selfhost_claim = 0
-
-strict_candidate_selection_rerun_result:
-  token = MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-RERUN-001
-  result_carrier_policy_covered_count = 3
-  bridge_eligible_after_policy_count = 0
-  denied_boundary_vocabulary_blocked_count = 3
-  denied_boundary_classes = ForbiddenNonClaimBoundary, NarrowRefreshScopeExclusion, ScopeExclusionBoundary
-  selected_next_card = MIRBUILDER-STRICT-DENIED-BOUNDARY-VOCABULARY-NORMALIZATION-001
-  source_selfhost_claim = 0
-
-strict_denied_boundary_vocabulary_normalization_result:
-  token = MIRBUILDER-STRICT-DENIED-BOUNDARY-VOCABULARY-NORMALIZATION-001
-  normalized_row_count = 3
-  unclassified_denied_boundary_count = 0
-  normalized_classes = ForbiddenNonClaimBoundary, NarrowRefreshScopeExclusion, ScopeExclusionBoundary
-  forbidden_non_claim_never_proves_seed_eligibility = 1
-  scope_exclusion_not_transport_gap = 1
-  selected_next_card = MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-NORMALIZED-RERUN-001
-  source_selfhost_claim = 0
-
-strict_candidate_selection_normalized_rerun_result:
-  token = MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-NORMALIZED-RERUN-001
-  normalized_row_count = 3
-  bridge_eligible_after_normalization_count = 0
-  forbidden_nonclaim_blocked_count = 3
-  selected_next_card = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
-  source_selfhost_claim = 0
-
-forbidden_nonclaim_boundary_scope_resolution_task:
-  token = MIRBUILDER-FORBIDDEN-NONCLAIM-BOUNDARY-SCOPE-RESOLUTION-001
-  owner_kind = ForbiddenNonClaimBoundaryScopeResolution
-  input = MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-NORMALIZED-RERUN-001
-  classify = RequiredBySelectedNarrowSeedSurface, WiderDeniedBoundaryMentionOnly, ScopedForbiddenNonClaimExclusion, PermanentForbiddenNonClaim, UnclassifiedForbiddenNonClaim
-  seed_eligibility_from_forbidden_nonclaim = 0
-  next_if_all_mention_only = MIRBUILDER-STRICT-EMISSION-TO-NATIVE-SEED-BRIDGE-POLICY-V2-001
-  next_if_required_or_permanent = MIRBUILDER-RESULT-CARRIER-REFRESH-OWNERS-PERMANENT-DERIVED-CLASSIFICATION-001
-  source_selfhost_claim = 0
-
-forbidden_nonclaim_boundary_scope_resolution_result:
-  token = MIRBUILDER-FORBIDDEN-NONCLAIM-BOUNDARY-SCOPE-RESOLUTION-001
-  wider_denied_boundary_mention_only_count = 12
-  required_by_selected_narrow_seed_surface_count = 0
-  unclassified_forbidden_nonclaim_count = 0
-  selected_next_card = MIRBUILDER-STRICT-EMISSION-TO-NATIVE-SEED-BRIDGE-POLICY-V2-001
-  seed_eligibility_from_forbidden_nonclaim = 0
-  source_selfhost_claim = 0
-
-strict_emission_to_native_seed_bridge_policy_v2_result:
-  token = MIRBUILDER-STRICT-EMISSION-TO-NATIVE-SEED-BRIDGE-POLICY-V2-001
-  mention_only_forbidden_nonclaim_is_seed_evidence = 0
-  mention_only_forbidden_nonclaim_blocks_clean_narrow_seed_surface = 0
-  required_forbidden_nonclaim_blocks_seed = 1
-  selected_next_card = MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-RERUN-002
-  source_selfhost_claim = 0
-
-strict_candidate_selection_rerun_002_result:
-  token = MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-RERUN-002
-  bridge_eligible_after_bridge_policy_v2_count = 3
-  selected_owner_edge_id = hakorune_mir_builder::direct_state_plan_refresh
-  selected_next_card = MIRBUILDER-DIRECT-STATE-PLAN-REFRESH-HAKO-NATIVE-SOURCE-SEED-001
+direct_state_plan_refresh_native_seed_result:
+  token = MIRBUILDER-DIRECT-STATE-PLAN-REFRESH-HAKO-NATIVE-SOURCE-SEED-001
+  native_seed = lang/src/compiler/lib/direct_state_plan_refresh_native_seed.hako
+  module_export = lib.direct_state_plan_refresh_native_seed
+  hako_adopted_decision = 0
+  selected_next_card = MIRBUILDER-DIRECT-STATE-PLAN-REFRESH-HAKO-ADOPTION-DECISION-001
   source_selfhost_claim = 0
 
 post_rerun_006_selector_basis:
@@ -393,27 +285,27 @@ history, not in this task-order SSOT.
    semantic_authority=design-stop card, cluster/priority resolver fixtures
    non_authority=manual family selection, runtime fallback, Source Selfhost claim
 
-2. MIRBUILDER-STRICT-DENIED-BOUNDARY-VOCABULARY-NORMALIZATION-001
+2. MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-RERUN-002
    status=green
-   boundary=normalize denied-boundary classes only
-   semantic_authority=1986 strict candidate rerun fixture
-   non_authority=seed eligibility, Hako generation, Source Selfhost claim
+   boundary=BridgePolicyV2 candidate rerun selects direct_state_plan_refresh
+   semantic_authority=1991 rerun fixture
+   non_authority=seed materialization, HakoAdopted, Source Selfhost claim
 
-3. MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-NORMALIZED-RERUN-001
+3. MIRBUILDER-DIRECT-STATE-PLAN-REFRESH-HAKO-NATIVE-SOURCE-SEED-001
    status=green
-   boundary=rerun seed candidate selection after normalization
-   semantic_authority=1987 normalized vocabulary fixture
-   non_authority=seed eligibility, Hako generation, Source Selfhost claim
+   boundary=native seed materialized outside generated tree
+   semantic_authority=1992 seed fixture and guard
+   non_authority=HakoAdopted, Source Selfhost claim, Rust deletion
 
 next:
-  MIRBUILDER-DIRECT-STATE-PLAN-REFRESH-HAKO-NATIVE-SOURCE-SEED-001
-  boundary=materialize native source seed only; no HakoAdopted or Source Selfhost claim
+  MIRBUILDER-DIRECT-STATE-PLAN-REFRESH-HAKO-ADOPTION-DECISION-001
+  boundary=adopt/defer/reject native seed; no Source Selfhost claim
 
 next_documented_task =
-  MIRBUILDER-DIRECT-STATE-PLAN-REFRESH-HAKO-NATIVE-SOURCE-SEED-001
+  MIRBUILDER-DIRECT-STATE-PLAN-REFRESH-HAKO-ADOPTION-DECISION-001
 
 next_after_active_3 =
-  MIRBUILDER-DIRECT-STATE-PLAN-REFRESH-HAKO-NATIVE-SOURCE-SEED-001
+  MIRBUILDER-DIRECT-STATE-PLAN-REFRESH-HAKO-ADOPTION-DECISION-001
 ```
 
 ## Landed Converter Capability Summary

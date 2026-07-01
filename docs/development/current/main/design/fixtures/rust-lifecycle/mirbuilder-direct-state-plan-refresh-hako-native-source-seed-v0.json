@@ -1,0 +1,71 @@
+{
+  "claims": {
+    "family_adoption_decision": 0,
+    "generated_artifact_as_edit_authority": 0,
+    "manual_family_selection": 0,
+    "native_seed_materialization": 1,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_canonical_mir_instruction": 0,
+    "new_python_semantic_projector": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "rust_deletion": 0,
+    "source_selfhost_claim": 0
+  },
+  "family_id": "hakorune_mir_builder::direct_state_plan_refresh",
+  "input_authority": {
+    "bridge_policy_v2": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-strict-emission-to-native-seed-bridge-policy-v2-v0.json",
+    "derived_to_native_model": "docs/development/current/main/design/derived-to-native-hako-artifact-model-ssot.md",
+    "generated_artifact": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_direct_state_plan_refresh.hako",
+    "generated_artifact_manifest": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_direct_state_plan_refresh.artifact.json",
+    "strict_candidate_selection_rerun_002": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-strict-converter-emission-native-seed-candidate-selection-rerun-002-v0.json",
+    "verifier_result": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-direct-state-plan-refresh-derived-hako-verifier-result-v0.json"
+  },
+  "kind": "MirBuilderDirectStatePlanRefreshHakoNativeSourceSeedV1",
+  "native_source_seed": {
+    "api": "DirectStatePlanRefreshApi.project_shadow_record",
+    "generator_overwrite_guard": true,
+    "module_export": "lib.direct_state_plan_refresh_native_seed",
+    "native_seed_api": "DirectStatePlanRefreshApi.project_shadow_record",
+    "native_seed_sha256": "9755085fdf7146234e86a40e1b364167efde9674bd342298c1d4870bee41c652",
+    "outside_generated_tree": true,
+    "path": "lang/src/compiler/lib/direct_state_plan_refresh_native_seed.hako"
+  },
+  "next_action": {
+    "kind": "HakoAdoptionDecisionDeferred",
+    "next_card": "MIRBUILDER-DIRECT-STATE-PLAN-REFRESH-HAKO-ADOPTION-DECISION-001",
+    "reason_token": "DirectStatePlanRefreshNativeSourceSeedMaterialized"
+  },
+  "provenance": {
+    "bridge_policy_v2_hash": "d1c71472fa4eb648bec4db3836698ac87f5c0657b14479a8653a9e990f56a13e",
+    "generated_artifact_hash": "d4a9aa6e7d5114721a61d15b7c4ca9415c1e8571ede3b69caebf275a7cd8e5d9",
+    "generated_artifact_manifest_hash": "63a19651e58c083387f762f168c9eb723b00973952fcf8e6d4cb964e4ddb9293",
+    "strict_candidate_selection_rerun_002_hash": "cb69d30942d7c761be5d278b509cbd0a6aa17d8ab92443e1572b2a4ecd44515c",
+    "verifier_result_hash": "76f99b1ecce1d1a35bfdfe54c9a12879301e6997b3c966132ef53487294675ad"
+  },
+  "schema_version": 0,
+  "seed_status": {
+    "generated_artifact_as_edit_authority": 0,
+    "hako_adopted_decision": 0,
+    "native_edit_authority_claim": 0,
+    "native_source_owner_seed_present": 1,
+    "source_selfhost_claim": 0
+  },
+  "selected_behavior": {
+    "entrypoint": "direct_state_plan::refresh_module_direct_state_plans",
+    "operation": "DirectStatePlanRefreshPreparedOnly",
+    "pilot_scope": "DirectStatePlanRefresh_prepared_direct_state_plan_refresh_only",
+    "result_contract": {
+      "canonical_json_parity": 1,
+      "direct_state_plan_refresh": 1,
+      "direct_state_plan_refresh_only": 1,
+      "mutation_target_count": 1,
+      "projected_field_count": 8,
+      "publication_target_count": 1,
+      "runtime_fallback": 0
+    },
+    "result_transport": "DirectStatePlanRefreshResultBox"
+  },
+  "token": "MIRBUILDER-DIRECT-STATE-PLAN-REFRESH-HAKO-NATIVE-SOURCE-SEED-001"
+}
