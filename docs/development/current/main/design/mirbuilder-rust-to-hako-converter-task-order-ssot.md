@@ -24,11 +24,11 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-STRICT-DENIED-BOUNDARY-VOCABULARY-NORMALIZATION-001.
-  ResultBox carrier policy covers the selected carrier gap, but strict
-  candidate rerun still blocks on denied-boundary vocabulary that mixes scope
-  exclusions and forbidden non-claims. Normalize that vocabulary before seed
-  selection can resume.
+  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001.
+  Strict candidate selection normalized rerun found no bridge-eligible native
+  seed candidate after ResultBox carrier policy and denied-boundary vocabulary
+  normalization. The remaining blocker is forbidden non-claim boundary policy,
+  not a carrier/type transport gap.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -64,7 +64,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  MIRBUILDER-CARRIER-TYPE-TRANSPORT-POLICY-INVENTORY-RERUN-001
+  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -270,6 +270,24 @@ strict_candidate_selection_rerun_result:
   selected_next_card = MIRBUILDER-STRICT-DENIED-BOUNDARY-VOCABULARY-NORMALIZATION-001
   source_selfhost_claim = 0
 
+strict_denied_boundary_vocabulary_normalization_result:
+  token = MIRBUILDER-STRICT-DENIED-BOUNDARY-VOCABULARY-NORMALIZATION-001
+  normalized_row_count = 3
+  unclassified_denied_boundary_count = 0
+  normalized_classes = ForbiddenNonClaimBoundary, NarrowRefreshScopeExclusion, ScopeExclusionBoundary
+  forbidden_non_claim_never_proves_seed_eligibility = 1
+  scope_exclusion_not_transport_gap = 1
+  selected_next_card = MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-NORMALIZED-RERUN-001
+  source_selfhost_claim = 0
+
+strict_candidate_selection_normalized_rerun_result:
+  token = MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-NORMALIZED-RERUN-001
+  normalized_row_count = 3
+  bridge_eligible_after_normalization_count = 0
+  forbidden_nonclaim_blocked_count = 3
+  selected_next_card = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+  source_selfhost_claim = 0
+
 post_rerun_006_selector_basis:
   token = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-002
   output_contract = rust-lifecycle-source-selfhost-wider-route-selection-basis-002-v0
@@ -342,24 +360,24 @@ history, not in this task-order SSOT.
    semantic_authority=design-stop card, cluster/priority resolver fixtures
    non_authority=manual family selection, runtime fallback, Source Selfhost claim
 
-2. MIRBUILDER-CARRIER-TYPE-TRANSPORT-POLICY-INVENTORY-RERUN-001
+2. MIRBUILDER-STRICT-DENIED-BOUNDARY-VOCABULARY-NORMALIZATION-001
    status=green
-   boundary=resolver only; classify 23 carrier/type-only BridgeBlocked gaps
-   semantic_authority=bridge gap fixture, strict candidate fixture, verifier evidence
-   non_authority=owner-name policy, cluster size proof, Hako generation
+   boundary=normalize denied-boundary classes only
+   semantic_authority=1986 strict candidate rerun fixture
+   non_authority=seed eligibility, Hako generation, Source Selfhost claim
 
-3. MIRBUILDER-RESULT-CARRIER-VERIFIER-CONTRACT-001
+3. MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-NORMALIZED-RERUN-001
    status=green
-   boundary=materialize verifier contract only
-   semantic_authority=1983 policy fixture and ResultBox carrier rows
-   non_authority=Hako generation, native seed, Source Selfhost claim
+   boundary=rerun seed candidate selection after normalization
+   semantic_authority=1987 normalized vocabulary fixture
+   non_authority=seed eligibility, Hako generation, Source Selfhost claim
 
 next:
-  MIRBUILDER-STRICT-DENIED-BOUNDARY-VOCABULARY-NORMALIZATION-001
-  boundary=normalize denied-boundary classes only; no seed/adoption
+  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+  boundary=forbidden non-claim boundaries still block seed eligibility
 
 next_documented_task =
-  MIRBUILDER-STRICT-DENIED-BOUNDARY-VOCABULARY-NORMALIZATION-001
+  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 next_after_active_3 =
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001

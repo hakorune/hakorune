@@ -1,0 +1,85 @@
+{
+  "candidate_pool": {
+    "bridge_eligible_after_normalization_count": 0,
+    "forbidden_nonclaim_blocked_count": 3,
+    "normalized_row_count": 3,
+    "unclassified_denied_boundary_count": 0
+  },
+  "claims": {
+    "denied_boundary_vocabulary_normalization_consumed": 1,
+    "generated_artifact_as_native_edit_authority": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "manual_boundary_reclassification": 0,
+    "manual_family_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "seed_eligibility_from_forbidden_nonclaim": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "KeepStopped",
+    "reason_token": "NoBridgeEligibleCandidateAfterDeniedBoundaryNormalization",
+    "selected_next_card": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "selected_owner_edge_id": null
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "denied_boundary_vocabulary_normalization": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-strict-denied-boundary-vocabulary-normalization-v0.json"
+  },
+  "kind": "MirBuilderStrictConverterEmissionNativeSeedCandidateSelectionNormalizedRerunV1",
+  "normalized_candidate_rows": [
+    {
+      "blocked_by_after_normalized_rerun": [
+        "ForbiddenNonClaimBoundaryStillDenied"
+      ],
+      "bridge_state_after_normalized_rerun": "BridgeBlocked",
+      "next_card": null,
+      "normalized_classes": [
+        "ForbiddenNonClaimBoundary",
+        "NarrowRefreshScopeExclusion",
+        "ScopeExclusionBoundary"
+      ],
+      "owner_edge_id": "hakorune_mir_builder::direct_state_plan_refresh",
+      "verifier_result_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-direct-state-plan-refresh-derived-hako-verifier-result-v0.json"
+    },
+    {
+      "blocked_by_after_normalized_rerun": [
+        "ForbiddenNonClaimBoundaryStillDenied"
+      ],
+      "bridge_state_after_normalized_rerun": "BridgeBlocked",
+      "next_card": null,
+      "normalized_classes": [
+        "ForbiddenNonClaimBoundary",
+        "NarrowRefreshScopeExclusion",
+        "ScopeExclusionBoundary"
+      ],
+      "owner_edge_id": "hakorune_mir_builder::record_packed_layout_refresh",
+      "verifier_result_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-record-packed-layout-refresh-derived-hako-verifier-result-v0.json"
+    },
+    {
+      "blocked_by_after_normalized_rerun": [
+        "ForbiddenNonClaimBoundaryStillDenied"
+      ],
+      "bridge_state_after_normalized_rerun": "BridgeBlocked",
+      "next_card": null,
+      "normalized_classes": [
+        "ForbiddenNonClaimBoundary",
+        "NarrowRefreshScopeExclusion",
+        "ScopeExclusionBoundary"
+      ],
+      "owner_edge_id": "hakorune_mir_builder::typed_object_plan_refresh",
+      "verifier_result_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-typed-object-plan-refresh-derived-hako-verifier-result-v0.json"
+    }
+  ],
+  "provenance": {
+    "denied_boundary_vocabulary_normalization_hash": "26245c64a4e5a3bf353ff9aa0c0ea47dfd7252f2c3dca52b229f680f3090cff3",
+    "input_token": "MIRBUILDER-STRICT-DENIED-BOUNDARY-VOCABULARY-NORMALIZATION-001"
+  },
+  "schema_version": 0,
+  "token": "MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-NORMALIZED-RERUN-001"
+}
