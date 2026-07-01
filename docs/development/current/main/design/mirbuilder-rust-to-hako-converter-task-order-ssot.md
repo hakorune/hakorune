@@ -24,10 +24,10 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-007.
-  The fresh-report rerun finds no bridge-eligible strict-emission native seed
-  candidate. This reaches the design consultation stop; do not pick a family,
-  shape, or axis by hand.
+  SOURCE-SELFHOST-BRIDGE-BLOCKED-REASON-AXIS-RESOLUTION-001.
+  BridgeBlocked strict-emission candidates are partitioned by reason axis.
+  The selected axis is PolicyGapInDeniedBoundaries, and the next task is
+  MIRBUILDER-BRIDGE-BLOCKED-GAP-CLUSTER-RESOLUTION-001.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -63,7 +63,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+  MIRBUILDER-BRIDGE-BLOCKED-GAP-CLUSTER-RESOLUTION-001
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -197,9 +197,9 @@ latest_rerun_result:
   next = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 next_action:
-  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
-  purpose = design consultation stop reached
-  output = decide the next widening rule before implementation resumes
+  MIRBUILDER-BRIDGE-BLOCKED-GAP-CLUSTER-RESOLUTION-001
+  purpose = partition pure PolicyGapInDeniedBoundaries rows into repair gaps
+  output = exactly one gap repair lane or KeepStopped with machine reason
 
 post_rerun_006_task_order:
   1. land SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-002 as the accepted
@@ -244,6 +244,19 @@ native_owner_seed_capability_rerun_007_result:
   reason_token = NoBridgeEligibleStrictEmissionNativeSeedCandidateAfterFreshUnconvertedSurfaceReport
   selected_next_card = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
   design consultation stop reached
+  source_selfhost_claim = 0
+
+bridge_blocked_reason_axis_resolution_result:
+  token = SOURCE-SELFHOST-BRIDGE-BLOCKED-REASON-AXIS-RESOLUTION-001
+  owner_kind = BridgeBlockedReasonAxisResolution
+  bridge_eligible_count = 0
+  bridge_blocked_count = 47
+  selected_axis = PolicyGapInDeniedBoundaries
+  selected_next_card = MIRBUILDER-BRIDGE-BLOCKED-GAP-CLUSTER-RESOLUTION-001
+  manual_family_selection = 0
+  manual_shape_selection = 0
+  manual_axis_selection = 0
+  cluster_size_as_proof = 0
   source_selfhost_claim = 0
 
 post_rerun_006_selector_basis:
