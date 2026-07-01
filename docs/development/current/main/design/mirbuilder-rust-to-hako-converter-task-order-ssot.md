@@ -24,9 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-ID-SCALAR-SOURCE-PLAN-AND-RECIPE-DERIVABILITY-RESOLUTION-003.
-  Verifier input contract facts are declared; rerun SourcePlanAndRecipe
-  derivability before any materialization.
+  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001.
+  ID scalar derivability rerun produced two equal derivable owners; a
+  machine-derived discriminator is required before materialization.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  MIRBUILDER-ID-SCALAR-SOURCE-PLAN-AND-RECIPE-DERIVABILITY-RESOLUTION-003
+  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -365,6 +365,13 @@ id_scalar_verifier_input_contract_basis_result:
   selected_next_card = MIRBUILDER-ID-SCALAR-SOURCE-PLAN-AND-RECIPE-DERIVABILITY-RESOLUTION-003
   source_selfhost_claim = 0
 
+id_scalar_source_plan_derivability_rerun_003_result:
+  token = MIRBUILDER-ID-SCALAR-SOURCE-PLAN-AND-RECIPE-DERIVABILITY-RESOLUTION-003
+  source_plan_derivable_count = 2
+  reason_token = MultipleEqualIdScalarSourcePlanDerivabilityCandidates
+  selected_next_card = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+  source_selfhost_claim = 0
+
 placement_rule:
   scan_unit = rust_function_or_method
   classification_unit = semantic_owner_edge
@@ -394,27 +401,27 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. MIRBUILDER-ID-SCALAR-VERIFIER-INPUT-CONTRACT-BASIS-001
+1. MIRBUILDER-ID-SCALAR-SOURCE-PLAN-AND-RECIPE-DERIVABILITY-RESOLUTION-003
    status=closed
-   boundary=6 verifier input fact sets declared, no verifier result
+   boundary=2 derivable owners tie; no manual owner selection
 
-2. MIRBUILDER-ID-SCALAR-SOURCE-PLAN-AND-RECIPE-DERIVABILITY-RESOLUTION-003
-   status=next
-   boundary=rerun derivability only; no materialization
+2. SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+   status=design-consultation-required
+   boundary=choose machine discriminator for context_registry vs emission_ssa_phi
 
 3. SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
    status=guardrail
    boundary=no native seed / Hako generation / Source Selfhost claim
 
 next:
-  MIRBUILDER-ID-SCALAR-SOURCE-PLAN-AND-RECIPE-DERIVABILITY-RESOLUTION-003
-  boundary=select exactly one derivable owner or keep stopped
+  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+  boundary=consult before selecting derivable ID scalar owner
 
 next_documented_task =
-  MIRBUILDER-ID-SCALAR-SOURCE-PLAN-AND-RECIPE-DERIVABILITY-RESOLUTION-003
+  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 next_after_active_3 =
-  TBD_AFTER_ID_SCALAR_SOURCE_PLAN_DERIVABILITY_RERUN_003
+  TBD_AFTER_ID_SCALAR_DERIVABLE_OWNER_DISCRIMINATOR
 ```
 
 ## Landed Converter Capability Summary

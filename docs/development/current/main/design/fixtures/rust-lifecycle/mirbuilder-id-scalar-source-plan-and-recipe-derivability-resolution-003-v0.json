@@ -1,0 +1,137 @@
+{
+  "candidate_pool": {
+    "ambiguous_derivable_count": 2,
+    "behavior_recipe_derivable_count": 2,
+    "input_candidate_count": 4,
+    "selection_eligible_count": 2,
+    "source_plan_derivable_count": 2
+  },
+  "candidates": [
+    {
+      "behavior_recipe_derivable": true,
+      "behavior_recipe_effect_coverage_complete": true,
+      "blocked_by": [],
+      "deterministic_order_declared": true,
+      "error_semantics_declared": true,
+      "id_domain_boundary_declared": true,
+      "native_seed_file_boundary_derivable": true,
+      "next_card": "MIRBUILDER-CONTEXT_REGISTRY-ID-SCALAR-SOURCE-PLAN-AND-RECIPE-001",
+      "operation_vocabulary_complete": true,
+      "owner_edge_id": "mirbuilder::context_registry",
+      "owner_scope_bounded": true,
+      "required_source_surfaces_complete": true,
+      "selection_eligible": true,
+      "source_plan_derivable": true,
+      "state_mutation_frame_declared": true,
+      "verifier_input_contract_declared": true
+    },
+    {
+      "behavior_recipe_derivable": true,
+      "behavior_recipe_effect_coverage_complete": true,
+      "blocked_by": [],
+      "deterministic_order_declared": true,
+      "error_semantics_declared": true,
+      "id_domain_boundary_declared": true,
+      "native_seed_file_boundary_derivable": true,
+      "next_card": "MIRBUILDER-EMISSION_SSA_PHI-ID-SCALAR-SOURCE-PLAN-AND-RECIPE-001",
+      "operation_vocabulary_complete": true,
+      "owner_edge_id": "mirbuilder::emission_ssa_phi",
+      "owner_scope_bounded": true,
+      "required_source_surfaces_complete": true,
+      "selection_eligible": true,
+      "source_plan_derivable": true,
+      "state_mutation_frame_declared": true,
+      "verifier_input_contract_declared": true
+    },
+    {
+      "behavior_recipe_derivable": false,
+      "behavior_recipe_effect_coverage_complete": true,
+      "blocked_by": [
+        "owner_scope_bounded",
+        "native_seed_file_boundary_derivable"
+      ],
+      "deterministic_order_declared": true,
+      "error_semantics_declared": true,
+      "id_domain_boundary_declared": true,
+      "native_seed_file_boundary_derivable": false,
+      "next_card": null,
+      "operation_vocabulary_complete": true,
+      "owner_edge_id": "mirbuilder::join_i_r_plan",
+      "owner_scope_bounded": false,
+      "required_source_surfaces_complete": true,
+      "selection_eligible": false,
+      "source_plan_derivable": false,
+      "state_mutation_frame_declared": true,
+      "verifier_input_contract_declared": true
+    },
+    {
+      "behavior_recipe_derivable": false,
+      "behavior_recipe_effect_coverage_complete": true,
+      "blocked_by": [
+        "owner_scope_bounded",
+        "native_seed_file_boundary_derivable"
+      ],
+      "deterministic_order_declared": true,
+      "error_semantics_declared": true,
+      "id_domain_boundary_declared": true,
+      "native_seed_file_boundary_derivable": false,
+      "next_card": null,
+      "operation_vocabulary_complete": true,
+      "owner_edge_id": "mirbuilder::join_i_r_route_verify",
+      "owner_scope_bounded": false,
+      "required_source_surfaces_complete": true,
+      "selection_eligible": false,
+      "source_plan_derivable": false,
+      "state_mutation_frame_declared": true,
+      "verifier_input_contract_declared": true
+    }
+  ],
+  "claims": {
+    "behavior_recipe_materialization": 0,
+    "derived_artifact_seed_draft_materialization": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "manual_owner_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_plan_materialization": 0,
+    "source_selfhost_claim": 0,
+    "verifier_result_materialization": 0
+  },
+  "decision": {
+    "kind": "KeepStopped",
+    "reason_token": "MultipleEqualIdScalarSourcePlanDerivabilityCandidates",
+    "selected_next_card": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "selected_owner_edge_id": null
+  },
+  "input_state": {
+    "behavior_recipe_effect_coverage_basis": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-behavior-recipe-effect-coverage-basis-v0.json",
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "error_and_deterministic_order_basis": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-error-and-deterministic-order-basis-v0.json",
+    "id_domain_boundary_basis": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-id-domain-boundary-basis-v0.json",
+    "native_seed_file_boundary_basis": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-native-seed-file-boundary-basis-v0.json",
+    "operation_vocabulary_inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-operation-vocabulary-inventory-v0.json",
+    "owner_scope_boundedness_rerun_002": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-owner-scope-boundedness-resolution-002-v0.json",
+    "source_surface_inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-source-surface-inventory-v0.json",
+    "state_mutation_frame_basis": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-state-mutation-frame-basis-v0.json",
+    "verifier_input_contract_basis": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-verifier-input-contract-basis-v0.json"
+  },
+  "kind": "MirBuilderIdScalarSourcePlanAndRecipeDerivabilityResolutionV3",
+  "provenance": {
+    "behavior_recipe_effect_coverage_basis_hash": "bc22449b6ff1cdb8f6525ed1f8a6d90dd8796886a5c2177d937c8bfd512f2943",
+    "error_and_deterministic_order_basis_hash": "8b8d3a22bedb28935556cb6671a60cd5e4ade01354274be4323c91884188d817",
+    "id_domain_boundary_basis_hash": "b32b873490f282fc213d5b49dc535258eaff00a4fd7ea1bb445e92ab3ccc5e8f",
+    "native_seed_file_boundary_basis_hash": "377f8f8e101c6db4b3909179c3842e855aaa45aa2fce6b878a49583026314b74",
+    "operation_vocabulary_inventory_hash": "0621af5b2cffd27c406f20daca9e95d2ea949be414947bce945d9977511ed261",
+    "owner_scope_boundedness_rerun_002_hash": "ebfd7e836968c42b8ac5696da28cb42566467bae14845b5572ef4d2eb97b54ac",
+    "source_surface_inventory_hash": "df4562eceb32f942ff6dbd41cb5abbd2becb8c0fd9d4f0bbcd04820fb90056b7",
+    "state_mutation_frame_basis_hash": "9394bce404229542ea455689df42a8955b64530f25a2b687146cbef745ae48ff",
+    "verifier_input_contract_basis_hash": "d6305503183ae293458e6b8a4d04b9ed4b02b16818924dd2095d258d383fc6f3"
+  },
+  "schema_version": 0,
+  "token": "MIRBUILDER-ID-SCALAR-SOURCE-PLAN-AND-RECIPE-DERIVABILITY-RESOLUTION-003"
+}
