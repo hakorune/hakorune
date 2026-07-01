@@ -25,11 +25,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-TYPE-CONTEXT-HAKO-ADOPTION-DECISION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1972-MIRBUILDER-TYPE-CONTEXT-HAKO-ADOPTION-DECISION-001.md"
-latest_card_summary = """The latest card adopts type_context as a bounded
-FamilySeedSurfaceCollationV1 native Hako source owner for five map/snapshot
-surfaces while keeping Source Selfhost unclaimed."""
+latest_card = "MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-006"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1973-MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-006.md"
+latest_card_summary = """The latest card reruns native-owner seed capability
+after type_context adoption and keeps Source Selfhost stopped because no
+strict-emission bridge-eligible native seed candidate remains."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -40,6 +40,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-01: 1973 reruns native-owner seed capability after type_context adoption and finds no bridge-eligible native seed candidate.",
   "2026-07-01: 1972 adopts type_context as a bounded FamilySeedSurfaceCollationV1 native Hako source owner without Source Selfhost claim.",
   "2026-07-01: 1971 materializes the type_context native source seed from a machine-derived 5-surface BridgeEligible set.",
   "2026-07-01: 1970 reruns native-owner seed capability after metadata_context adoption and selects type_context as the next native seed candidate.",

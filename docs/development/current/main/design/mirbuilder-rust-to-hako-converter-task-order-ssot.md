@@ -24,9 +24,10 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-006.
-  The type_context bounded surface set is now HakoAdopted. Next, rerun
-  native-owner seed capability after type_context adoption.
+  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001.
+  The strict-emission native seed candidate pool is exhausted after
+  type_context adoption. Further progress needs a new machine-checkable
+  widening basis or another evidence-producing lane.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +63,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-006
+  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -187,17 +188,18 @@ completed:
   native-owner seed capability rerun 005
   type_context native source seed
   type_context HakoAdopted decision
+  native-owner seed capability rerun 006
 
 latest_rerun_result:
-  MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-005
-  decision = SelectNativeSeedCandidate
-  reason = NativeOwnerSeedCandidateRerunAfterMetadataContextAdoption
-  next = MIRBUILDER-TYPE-CONTEXT-HAKO-NATIVE-SOURCE-SEED-001
+  MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-006
+  decision = KeepStopped
+  reason = NoBridgeEligibleStrictEmissionNativeSeedCandidateAfterTypeContextAdoption
+  next = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 next_action:
-  MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-006
-  purpose = rerun native-owner seed capability after type_context adoption
-  output = next native seed candidate or guarded KeepStopped decision
+  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+  purpose = decide the next machine-checkable widening or evidence lane
+  output = design consultation before further implementation
 
 forbidden:
   strict rule weakening as executable conversion
@@ -255,13 +257,13 @@ history, not in this task-order SSOT.
    non_authority=rule weakening, fallback Hako, HakoAdopted decision
 
 3. MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-006
-   status=next
-   boundary=derive the next native seed candidate after type_context adoption
-   semantic_authority=strict emission probe, bridge policy, adoption fixtures
+   status=green
+   boundary=strict-emission native seed candidate pool exhausted
+   semantic_authority=rerun-006 fixture and strict bridge evidence
    non_authority=manual owner selection, Source Selfhost claim
 
 next_documented_task =
-  MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-006
+  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 next_after_active_3 =
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
