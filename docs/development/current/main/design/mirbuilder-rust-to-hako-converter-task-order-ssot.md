@@ -24,10 +24,10 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-CARRIER-TYPE-TRANSPORT-EVIDENCE-INVENTORY-001.
-  The carrier/type transport rerun found multiple eligible policy lanes and
-  four rows with missing transport_notes, so the next step is evidence
-  inventory before any Result / Option / Vec / GenericCarrier policy selection.
+  MIRBUILDER-CARRIER-TYPE-TRANSPORT-POLICY-LANE-PRIORITY-RESOLUTION-001.
+  Evidence inventory is complete for all 23 carrier/type candidates, but the
+  normalized rows split into five policy lane buckets. Select the next lane by
+  evidence quality before any concrete carrier policy card.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -282,6 +282,22 @@ carrier_type_transport_policy_inventory_rerun_task:
   selected_next_card = MIRBUILDER-CARRIER-TYPE-TRANSPORT-EVIDENCE-INVENTORY-001
   source_selfhost_claim = 0
 
+carrier_type_transport_evidence_inventory_result:
+  token = MIRBUILDER-CARRIER-TYPE-TRANSPORT-EVIDENCE-INVENTORY-001
+  input_candidate_count = 23
+  input_transport_notes_missing_count = 4
+  evidence_inventory_complete_count = 23
+  unclassified_evidence_count = 0
+  policy_lanes =
+    GenericCarrierPolicyCandidate: 12
+    KnownTypeTransportNoCarrierPolicy: 2
+    OptionCarrierPolicyCandidate: 3
+    ResultCarrierVerifierPolicyCandidate: 3
+    VecOrArrayCarrierPolicyCandidate: 3
+  decision = SelectCarrierTypeTransportPolicyLanePriorityResolution
+  selected_next_card = MIRBUILDER-CARRIER-TYPE-TRANSPORT-POLICY-LANE-PRIORITY-RESOLUTION-001
+  source_selfhost_claim = 0
+
 post_rerun_006_selector_basis:
   token = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-002
   output_contract = rust-lifecycle-source-selfhost-wider-route-selection-basis-002-v0
@@ -360,14 +376,14 @@ history, not in this task-order SSOT.
    semantic_authority=bridge gap fixture, strict candidate fixture, verifier evidence
    non_authority=owner-name policy, cluster size proof, Hako generation
 
-3. MIRBUILDER-CARRIER-TYPE-TRANSPORT-EVIDENCE-INVENTORY-001
+3. MIRBUILDER-CARRIER-TYPE-TRANSPORT-POLICY-LANE-PRIORITY-RESOLUTION-001
    status=next
-   boundary=resolve missing/mixed transport evidence before policy lane selection
-   semantic_authority=1980 rerun fixture and verifier-result transport_notes
+   boundary=select exactly one carrier/type policy lane by evidence quality
+   semantic_authority=1981 evidence inventory fixture
    non_authority=manual carrier policy, owner-name policy, Source Selfhost claim
 
 next_documented_task =
-  MIRBUILDER-CARRIER-TYPE-TRANSPORT-EVIDENCE-INVENTORY-001
+  MIRBUILDER-CARRIER-TYPE-TRANSPORT-POLICY-LANE-PRIORITY-RESOLUTION-001
 
 next_after_active_3 =
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
