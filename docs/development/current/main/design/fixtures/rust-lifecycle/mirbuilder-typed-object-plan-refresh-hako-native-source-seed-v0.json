@@ -1,0 +1,68 @@
+{
+  "claims": {
+    "family_adoption_decision": 0,
+    "generated_artifact_as_edit_authority": 0,
+    "manual_family_selection": 0,
+    "native_seed_materialization": 1,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_canonical_mir_instruction": 0,
+    "new_python_semantic_projector": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "rust_deletion": 0,
+    "source_selfhost_claim": 0
+  },
+  "family_id": "hakorune_mir_builder::typed_object_plan_refresh",
+  "input_authority": {
+    "derived_to_native_model": "docs/development/current/main/design/derived-to-native-hako-artifact-model-ssot.md",
+    "generated_artifact": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_typed_object_plan_refresh.hako",
+    "generated_artifact_manifest": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_typed_object_plan_refresh.artifact.json",
+    "strict_candidate_selection_rerun_004": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-strict-converter-emission-native-seed-candidate-selection-rerun-004-v0.json",
+    "verifier_result": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-typed-object-plan-refresh-derived-hako-verifier-result-v0.json"
+  },
+  "kind": "MirBuilderTypedObjectPlanRefreshHakoNativeSourceSeedV1",
+  "native_source_seed": {
+    "api": "TypedObjectPlanRefreshApi.project_shadow_record",
+    "generator_overwrite_guard": true,
+    "module_export": "lib.typed_object_plan_refresh_native_seed",
+    "native_seed_api": "TypedObjectPlanRefreshApi.project_shadow_record",
+    "outside_generated_tree": true,
+    "path": "lang/src/compiler/lib/typed_object_plan_refresh_native_seed.hako"
+  },
+  "next_action": {
+    "kind": "HakoAdoptionDecisionDeferred",
+    "next_card": "MIRBUILDER-TYPED-OBJECT-PLAN-REFRESH-HAKO-ADOPTION-DECISION-001",
+    "reason_token": "TypedObjectPlanRefreshNativeSourceSeedMaterialized"
+  },
+  "provenance": {
+    "generated_artifact_hash": "20ba532c6ea4a19b381e1f6279ea766c6d0026dd8cc188543aaf78b48f2b384b",
+    "generated_artifact_manifest_hash": "704b742c67aa59f351f4132658c4652b2a655e6b0ba43a00aa8f84568445d35e",
+    "strict_candidate_selection_rerun_004_hash": "22f8f98fe6a085b7658f1b4313d871a426791064523df6ba7ac00960cdbf26a4",
+    "verifier_result_hash": "d0a23af09c2e96b068232ec18fb63d70855fe6702df32b46ec18eda4fd629239"
+  },
+  "schema_version": 0,
+  "seed_status": {
+    "generated_artifact_as_edit_authority": 0,
+    "hako_adopted_decision": 0,
+    "native_edit_authority_claim": 0,
+    "native_source_owner_seed_present": 1,
+    "source_selfhost_claim": 0
+  },
+  "selected_behavior": {
+    "entrypoint": "typed_object_plan::refresh_module_typed_object_plans",
+    "operation": "TypedObjectPlanRefreshPreparedOnly",
+    "pilot_scope": "TypedObjectPlanRefresh_prepared_typed_object_plan_refresh_only",
+    "result_contract": {
+      "canonical_json_parity": 1,
+      "direct_state_plan_refresh": 0,
+      "mutation_target_count": 1,
+      "projected_field_count": 5,
+      "publication_target_count": 1,
+      "runtime_fallback": 0,
+      "typed_object_plan_refresh_only": 1
+    },
+    "result_transport": "TypedObjectPlanRefreshResultBox"
+  },
+  "token": "MIRBUILDER-TYPED-OBJECT-PLAN-REFRESH-HAKO-NATIVE-SOURCE-SEED-001"
+}

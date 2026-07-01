@@ -24,9 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-TYPED-OBJECT-PLAN-REFRESH-HAKO-NATIVE-SOURCE-SEED-001.
-  Strict candidate selection rerun 004 excluded adopted direct/record refresh
-  owners and selected `hakorune_mir_builder::typed_object_plan_refresh`.
+  MIRBUILDER-TYPED-OBJECT-PLAN-REFRESH-HAKO-ADOPTION-DECISION-001.
+  The typed_object_plan_refresh native source seed was materialized from
+  DerivedArtifactSeedDraftInput without HakoAdopted or Source Selfhost claim.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  MIRBUILDER-TYPED-OBJECT-PLAN-REFRESH-HAKO-NATIVE-SOURCE-SEED-001
+  MIRBUILDER-TYPED-OBJECT-PLAN-REFRESH-HAKO-ADOPTION-DECISION-001
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -253,6 +253,14 @@ strict_candidate_selection_rerun_004_result:
   selected_next_card = MIRBUILDER-TYPED-OBJECT-PLAN-REFRESH-HAKO-NATIVE-SOURCE-SEED-001
   source_selfhost_claim = 0
 
+typed_object_plan_refresh_native_seed_result:
+  token = MIRBUILDER-TYPED-OBJECT-PLAN-REFRESH-HAKO-NATIVE-SOURCE-SEED-001
+  native_seed = lang/src/compiler/lib/typed_object_plan_refresh_native_seed.hako
+  module_export = lib.typed_object_plan_refresh_native_seed
+  hako_adopted_decision = 0
+  selected_next_card = MIRBUILDER-TYPED-OBJECT-PLAN-REFRESH-HAKO-ADOPTION-DECISION-001
+  source_selfhost_claim = 0
+
 post_rerun_006_selector_basis:
   token = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-002
   output_contract = rust-lifecycle-source-selfhost-wider-route-selection-basis-002-v0
@@ -338,14 +346,14 @@ history, not in this task-order SSOT.
    non_authority=HakoAdopted, Source Selfhost claim, Rust deletion
 
 next:
-  MIRBUILDER-TYPED-OBJECT-PLAN-REFRESH-HAKO-NATIVE-SOURCE-SEED-001
-  boundary=materialize native source seed only; no HakoAdopted or Source Selfhost claim
+  MIRBUILDER-TYPED-OBJECT-PLAN-REFRESH-HAKO-ADOPTION-DECISION-001
+  boundary=adopt/defer/reject native seed; no Source Selfhost claim
 
 next_documented_task =
-  MIRBUILDER-TYPED-OBJECT-PLAN-REFRESH-HAKO-NATIVE-SOURCE-SEED-001
+  MIRBUILDER-TYPED-OBJECT-PLAN-REFRESH-HAKO-ADOPTION-DECISION-001
 
 next_after_active_3 =
-  MIRBUILDER-TYPED-OBJECT-PLAN-REFRESH-HAKO-NATIVE-SOURCE-SEED-001
+  MIRBUILDER-TYPED-OBJECT-PLAN-REFRESH-HAKO-ADOPTION-DECISION-001
 ```
 
 ## Landed Converter Capability Summary
