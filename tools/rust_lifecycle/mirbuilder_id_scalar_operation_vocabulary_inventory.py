@@ -28,6 +28,7 @@ ROLE_OPERATIONS = {
     "builder_phi_definition": "PhiInstructionDefine",
     "builder_phi_patch": "PhiInstructionPatch",
     "contract_validator": "VerifierContractCheck",
+    "context_registry_constructor": "ContextRegistryConstruct",
     "core_phi_info_builder": "PhiInfoBuild",
     "current_block_phi_definition": "PhiInstructionDefineCurrentBlock",
     "diagnostic_formatter": "DiagnosticStringBuild",
@@ -43,6 +44,7 @@ ROLE_OPERATIONS = {
     "planner_gate_or_fact_count": "PlannerGateOrFactRead",
     "planner_session_or_rule_dispatch": "PlannerSessionDispatch",
     "recipe_index": "RecipeIndexRead",
+    "route_local_cleanup_mutation_frame": "RouteLocalCleanupMutationFrame",
     "route_local_closure_constructor": "RouteLocalClosureConstruct",
     "route_rewrite_helper": "RouteRewriteBuild",
     "route_verify_helper": "RouteVerifyPredicate",
@@ -68,10 +70,6 @@ def infer_unclassified_operation(surface: dict[str, Any]) -> str:
         return "PredicateRead"
     if symbol == "len":
         return "ReadOnlyLength"
-    if symbol == "with_plugin_sigs":
-        return "ContextRegistryConstruct"
-    if symbol == "apply_fallthrough_continue_exit":
-        return "RouteLocalCleanupMutationFrame"
     if symbol == "new":
         return "RouteLocalClosureConstruct"
     if return_type.startswith("bool"):

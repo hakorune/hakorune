@@ -165,9 +165,9 @@
     "surface_inventory_token": "MIRBUILDER-ID-SCALAR-SOURCE-SURFACE-INVENTORY-001"
   },
   "provenance": {
-    "operation_vocabulary_inventory_hash": "0621af5b2cffd27c406f20daca9e95d2ea949be414947bce945d9977511ed261",
+    "operation_vocabulary_inventory_hash": "8729c5bbb6cae5a2baac649956bfeeea73cba9e4721dfddbfe749f4645b2c449",
     "source_plan_derivation_basis_hash": "456ce24b07e245a2d6088bc352bc4ccc1acdad4cc8079c774fec069ecc14252c",
-    "source_surface_inventory_hash": "df4562eceb32f942ff6dbd41cb5abbd2becb8c0fd9d4f0bbcd04820fb90056b7"
+    "source_surface_inventory_hash": "0f9e17e1ef0a1f4c12e90de9891a16c5c1a8533815e8265136b7cefcb0f57ba7"
   },
   "schema_version": 0,
   "token": "MIRBUILDER-ID-SCALAR-SOURCE-PLAN-AND-RECIPE-DERIVABILITY-RESOLUTION-002"

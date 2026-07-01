@@ -130,8 +130,8 @@
   "kind": "MirBuilderIdScalarErrorAndDeterministicOrderBasisV1",
   "provenance": {
     "id_domain_boundary_basis_hash": "b32b873490f282fc213d5b49dc535258eaff00a4fd7ea1bb445e92ab3ccc5e8f",
-    "state_mutation_frame_basis_hash": "9394bce404229542ea455689df42a8955b64530f25a2b687146cbef745ae48ff",
-    "state_target_enumeration_basis_hash": "665f720d1716504aeecf7c59045069f223c44465df56ea11143939c3037c50e8"
+    "state_mutation_frame_basis_hash": "dc6d438d6f8dc8ff5e7f3bc089e936ad7b77b8a226fb0a5f20a2082db5cee336",
+    "state_target_enumeration_basis_hash": "4e181f270e58a6559a8dc6985dc0f7a3ed457d5228bc3b285824142090df8920"
   },
   "schema_version": 0,
   "token": "MIRBUILDER-ID-SCALAR-ERROR-AND-DETERMINISTIC-ORDER-BASIS-001"

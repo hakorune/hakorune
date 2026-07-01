@@ -35,14 +35,31 @@ def source_complete(surface: dict[str, Any]) -> bool:
     return bool(surface.get("source_id") and surface.get("source_path") and surface.get("symbol"))
 
 
-def normalize_surface(surface: dict[str, Any], owner_edge_id: str, ref: str) -> dict[str, Any]:
+def projection_surface_role(surface: dict[str, Any], fixture: dict[str, Any]) -> str:
+    explicit_role = surface.get("role") or surface.get("helper_bucket")
+    if explicit_role:
+        return explicit_role
+
+    axes = fixture.get("selection_axes") or {}
+    selected_policy = fixture.get("selected_policy") or {}
+    shape = axes.get("shape_signature")
+    policy = selected_policy.get("policy")
+
+    if shape == "shape.context_registry" and policy == "KeepParentOwner":
+        return "context_registry_constructor"
+    if shape == "shape.loop_true_break_continue":
+        return "route_local_cleanup_mutation_frame"
+    return "UnclassifiedSurfaceRole"
+
+
+def normalize_surface(surface: dict[str, Any], owner_edge_id: str, ref: str, fixture: dict[str, Any]) -> dict[str, Any]:
     return {
         "source_id": surface.get("source_id"),
         "source_path": surface.get("source_path"),
         "symbol": surface.get("symbol"),
         "visibility": surface.get("visibility", ""),
         "return_type": surface.get("return_type", ""),
-        "role": surface.get("role") or surface.get("helper_bucket") or "UnclassifiedSurfaceRole",
+        "role": projection_surface_role(surface, fixture),
         "known_owner_edge": surface.get("known_owner_edge") or owner_edge_id,
         "owner_edge_confidence": surface.get("owner_edge_confidence", "FixtureMapped"),
         "evidence_ref": ref,
@@ -59,7 +76,7 @@ def surfaces_for_candidate(candidate: dict[str, Any]) -> tuple[list[dict[str, An
         refs.append(ref)
         fixture = read_json(path)
         for surface in fixture.get("source_surfaces") or []:
-            row = normalize_surface(surface, owner_edge_id, ref)
+            row = normalize_surface(surface, owner_edge_id, ref, fixture)
             key = (row["source_id"], row["evidence_ref"])
             if key in seen:
                 continue

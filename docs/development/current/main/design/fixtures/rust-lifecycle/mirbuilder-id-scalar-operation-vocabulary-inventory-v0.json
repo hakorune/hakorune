@@ -13,13 +13,13 @@
       "next_card": "MIRBUILDER-ID-SCALAR-SOURCE-PLAN-AND-RECIPE-DERIVABILITY-RESOLUTION-002",
       "operation_rows": [
         {
-          "classification_authority": "SymbolReturnTypeMapped",
+          "classification_authority": "RoleMapped",
           "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-context-registry-projection-policy-v0.json",
           "nominal_id_domain_required": true,
           "operation_token": "ContextRegistryConstruct",
           "raw_i64_interchangeability": 0,
           "return_type": "",
-          "role": "UnclassifiedSurfaceRole",
+          "role": "context_registry_constructor",
           "source_id": "src/mir/builder/compilation_context.rs::with_plugin_sigs:L232",
           "source_path": "src/mir/builder/compilation_context.rs",
           "symbol": "with_plugin_sigs"
@@ -297,13 +297,13 @@
           "symbol": "new"
         },
         {
-          "classification_authority": "SymbolReturnTypeMapped",
+          "classification_authority": "RoleMapped",
           "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-true-break-continue-projection-policy-v0.json",
           "nominal_id_domain_required": true,
           "operation_token": "RouteLocalCleanupMutationFrame",
           "raw_i64_interchangeability": 0,
           "return_type": "Result<(), String>",
-          "role": "UnclassifiedSurfaceRole",
+          "role": "route_local_cleanup_mutation_frame",
           "source_id": "src/mir/builder/control_flow/plan/features/loop_true_break_continue_cleanup.rs::apply_fallthrough_continue_exit:L19",
           "source_path": "src/mir/builder/control_flow/plan/features/loop_true_break_continue_cleanup.rs",
           "symbol": "apply_fallthrough_continue_exit"
@@ -1435,7 +1435,7 @@
   },
   "provenance": {
     "source_plan_derivation_basis_hash": "456ce24b07e245a2d6088bc352bc4ccc1acdad4cc8079c774fec069ecc14252c",
-    "source_surface_inventory_hash": "df4562eceb32f942ff6dbd41cb5abbd2becb8c0fd9d4f0bbcd04820fb90056b7"
+    "source_surface_inventory_hash": "0f9e17e1ef0a1f4c12e90de9891a16c5c1a8533815e8265136b7cefcb0f57ba7"
   },
   "schema_version": 0,
   "token": "MIRBUILDER-ID-SCALAR-OPERATION-VOCABULARY-INVENTORY-001"

@@ -143,7 +143,7 @@
   "provenance": {
     "id_domain_boundary_basis_hash": "b32b873490f282fc213d5b49dc535258eaff00a4fd7ea1bb445e92ab3ccc5e8f",
     "native_seed_file_boundary_basis_hash": "377f8f8e101c6db4b3909179c3842e855aaa45aa2fce6b878a49583026314b74",
-    "state_target_enumeration_basis_hash": "665f720d1716504aeecf7c59045069f223c44465df56ea11143939c3037c50e8"
+    "state_target_enumeration_basis_hash": "4e181f270e58a6559a8dc6985dc0f7a3ed457d5228bc3b285824142090df8920"
   },
   "schema_version": 0,
   "token": "MIRBUILDER-ID-SCALAR-STATE-MUTATION-FRAME-BASIS-001"
