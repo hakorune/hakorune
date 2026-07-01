@@ -24,9 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-DOMAIN-OBJECT-ID-TRANSPORT-POLICY-INVENTORY-001.
-  Unclassified transport evidence resolution found six axes and selected
-  DomainObjectOrId as the pure type-transport inventory lane.
+  MIRBUILDER-ID-SCALAR-DOMAIN-TRANSPORT-POLICY-001.
+  DomainObject/Id transport inventory split 116 rows into six subaxes and
+  selected IdScalar as the closest reusable scalar transport policy lane.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  MIRBUILDER-DOMAIN-OBJECT-ID-TRANSPORT-POLICY-INVENTORY-001
+  MIRBUILDER-ID-SCALAR-DOMAIN-TRANSPORT-POLICY-001
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -205,77 +205,14 @@ result_carrier_bridge_v2_chain_result:
   1991 = selected hakorune_mir_builder::direct_state_plan_refresh native seed
   invariant = source_selfhost_claim=0, runtime_fallback=0, new backend/ABI=0
 
-direct_state_plan_refresh_native_seed_result:
-  token = MIRBUILDER-DIRECT-STATE-PLAN-REFRESH-HAKO-NATIVE-SOURCE-SEED-001
-  native_seed = lang/src/compiler/lib/direct_state_plan_refresh_native_seed.hako
-  module_export = lib.direct_state_plan_refresh_native_seed
-  hako_adopted_decision = 0
-  selected_next_card = MIRBUILDER-DIRECT-STATE-PLAN-REFRESH-HAKO-ADOPTION-DECISION-001
-  source_selfhost_claim = 0
-
-direct_state_plan_refresh_adoption_result:
-  token = MIRBUILDER-DIRECT-STATE-PLAN-REFRESH-HAKO-ADOPTION-DECISION-001
-  decision = Adopt
-  native_hako_source_owner_present = 1
-  rust_role = bootstrap_oracle_compat
-  selected_next_card = MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-RERUN-003
-  source_selfhost_claim = 0
-
-strict_candidate_selection_rerun_003_result:
-  token = MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-RERUN-003
-  already_hako_adopted_count = 1
-  bridge_eligible_remaining_count = 2
-  selected_owner_edge_id = hakorune_mir_builder::record_packed_layout_refresh
-  selected_next_card = MIRBUILDER-RECORD-PACKED-LAYOUT-REFRESH-HAKO-NATIVE-SOURCE-SEED-001
-  source_selfhost_claim = 0
-
-record_packed_layout_refresh_native_seed_result:
-  token = MIRBUILDER-RECORD-PACKED-LAYOUT-REFRESH-HAKO-NATIVE-SOURCE-SEED-001
-  native_seed = lang/src/compiler/lib/record_packed_layout_refresh_native_seed.hako
-  module_export = lib.record_packed_layout_refresh_native_seed
-  hako_adopted_decision = 0
-  selected_next_card = MIRBUILDER-RECORD-PACKED-LAYOUT-REFRESH-HAKO-ADOPTION-DECISION-001
-  source_selfhost_claim = 0
-
-record_packed_layout_refresh_adoption_result:
-  token = MIRBUILDER-RECORD-PACKED-LAYOUT-REFRESH-HAKO-ADOPTION-DECISION-001
-  decision = Adopt
-  native_hako_source_owner_present = 1
-  rust_role = bootstrap_oracle_compat
-  selected_next_card = MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-RERUN-004
-  source_selfhost_claim = 0
-
-strict_candidate_selection_rerun_004_result:
-  token = MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-RERUN-004
-  already_hako_adopted_count = 2
-  bridge_eligible_remaining_count = 1
-  selected_owner_edge_id = hakorune_mir_builder::typed_object_plan_refresh
-  selected_next_card = MIRBUILDER-TYPED-OBJECT-PLAN-REFRESH-HAKO-NATIVE-SOURCE-SEED-001
-  source_selfhost_claim = 0
-
-typed_object_plan_refresh_native_seed_result:
-  token = MIRBUILDER-TYPED-OBJECT-PLAN-REFRESH-HAKO-NATIVE-SOURCE-SEED-001
-  native_seed = lang/src/compiler/lib/typed_object_plan_refresh_native_seed.hako
-  module_export = lib.typed_object_plan_refresh_native_seed
-  hako_adopted_decision = 0
-  selected_next_card = MIRBUILDER-TYPED-OBJECT-PLAN-REFRESH-HAKO-ADOPTION-DECISION-001
-  source_selfhost_claim = 0
-
-typed_object_plan_refresh_adoption_result:
-  token = MIRBUILDER-TYPED-OBJECT-PLAN-REFRESH-HAKO-ADOPTION-DECISION-001
-  decision = Adopt
-  native_hako_source_owner_present = 1
-  rust_role = bootstrap_oracle_compat
-  selected_next_card = MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-RERUN-005
-  source_selfhost_claim = 0
-
-strict_candidate_selection_rerun_005_result:
-  token = MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-RERUN-005
-  already_hako_adopted_count = 3
-  bridge_eligible_remaining_count = 0
-  decision = KeepStopped
-  selected_next_card = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
-  source_selfhost_claim = 0
+bridge_policy_v2_native_owner_result:
+  direct_state_plan_refresh / record_packed_layout_refresh / typed_object_plan_refresh
+  native seeds materialized and adopted in sequence.
+  strict_candidate_selection_rerun_005:
+    already_hako_adopted_count = 3
+    bridge_eligible_remaining_count = 0
+    selected_next_card = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+  invariant = source_selfhost_claim=0, runtime_fallback=0, new backend/ABI=0
 
 post_bridge_policy_v2_basis_003_result:
   token = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-003
@@ -341,6 +278,13 @@ carrier_type_transport_unclassified_evidence_resolution_result:
   selected_next_card = MIRBUILDER-DOMAIN-OBJECT-ID-TRANSPORT-POLICY-INVENTORY-001
   source_selfhost_claim = 0
 
+domain_object_id_transport_policy_inventory_result:
+  token = MIRBUILDER-DOMAIN-OBJECT-ID-TRANSPORT-POLICY-INVENTORY-001
+  domain_object_id_input_count = 116
+  IdScalarDomainTransportAxis = 31
+  selected_next_card = MIRBUILDER-ID-SCALAR-DOMAIN-TRANSPORT-POLICY-001
+  source_selfhost_claim = 0
+
 placement_rule:
   scan_unit = rust_function_or_method
   classification_unit = semantic_owner_edge
@@ -393,16 +337,16 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. MIRBUILDER-DOMAIN-OBJECT-ID-TRANSPORT-POLICY-INVENTORY-001
+1. MIRBUILDER-ID-SCALAR-DOMAIN-TRANSPORT-POLICY-001
    status=next
-   boundary=inventory pure domain-object/id type transport policy candidates
-   semantic_authority=unclassified evidence resolution and fresh report
-   non_authority=return-type count proof, manual carrier selection, fallback
+   boundary=define ID scalar domain transport without object layout policy
+   semantic_authority=DomainObject/Id inventory and existing scalar transport precedent
+   non_authority=domain object count proof, object layout policy, fallback
 
 2. MIRBUILDER-BORROW-SURFACE-POLICY-CLUSTER-RERUN-002
-   status=conditional-after-checkpoint
-   boundary=rerun borrow policy clustering only if checkpoint selects that blocker class
-   semantic_authority=fresh checkpoint and report, not candidate count
+   status=conditional
+   boundary=rerun only if a fresh checkpoint selects borrow policy again
+   semantic_authority=fresh blocker fixture, not candidate count
    non_authority=manual axis selection, MutLease by default, runtime fallback
 
 3. MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-008
@@ -412,11 +356,11 @@ history, not in this task-order SSOT.
    non_authority=generated artifact edit authority, Source Selfhost claim
 
 next:
-  MIRBUILDER-DOMAIN-OBJECT-ID-TRANSPORT-POLICY-INVENTORY-001
-  boundary=DomainObjectOrId axis selected as pure type transport
+  MIRBUILDER-ID-SCALAR-DOMAIN-TRANSPORT-POLICY-001
+  boundary=ID scalar domain transport selected before broader object layout
 
 next_documented_task =
-  MIRBUILDER-DOMAIN-OBJECT-ID-TRANSPORT-POLICY-INVENTORY-001
+  MIRBUILDER-ID-SCALAR-DOMAIN-TRANSPORT-POLICY-001
 
 next_after_active_3 =
   MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-008
