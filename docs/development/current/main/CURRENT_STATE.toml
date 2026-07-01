@@ -25,13 +25,13 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-TYPED-OBJECT-PLAN-REFRESH-HAKO-ADOPTION-DECISION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1999-MIRBUILDER-TYPED-OBJECT-PLAN-REFRESH-HAKO-ADOPTION-DECISION-001.md"
-latest_card_summary = """The latest card adopts the typed_object_plan_refresh
-native .hako source seed as a narrow native Hako source owner while retaining
-Rust as bootstrap/oracle/compat and keeping Source Selfhost, Rust deletion,
-runtime fallback, backend, ABI, canonical MIR, and Python projector claims at
-0."""
+latest_card = "MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-RERUN-005"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2000-MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-RERUN-005.md"
+latest_card_summary = """The latest card reruns strict native-seed candidate
+selection after typed_object_plan_refresh adoption. It proves all three
+BridgePolicyV2 ResultBox refresh-owner rows are already HakoAdopted, leaves no
+bridge-eligible candidate, and keeps Source Selfhost stopped at the wider
+route-selection design stop."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -42,6 +42,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-01: 2000 reruns strict candidate selection after typed_object_plan_refresh adoption and finds no remaining BridgePolicyV2 seed candidate.",
   "2026-07-01: 1999 adopts typed_object_plan_refresh as a narrow native Hako source owner without Source Selfhost claim.",
   "2026-07-01: 1998 materializes the typed_object_plan_refresh native source seed and defers HakoAdopted decision.",
   "2026-07-01: 1997 reruns strict candidate selection after record_packed_layout_refresh adoption and selects typed_object_plan_refresh native seed.",
