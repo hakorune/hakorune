@@ -1465,6 +1465,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-policy-cluster-resolution-v3-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_missing_projection_policy_cluster_resolution_v3_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-CARRIER-TYPE-TRANSPORT-POLICY-INVENTORY-RERUN-002",
+      "card": "docs/development/current/main/phases/phase-296x/2009-MIRBUILDER-CARRIER-TYPE-TRANSPORT-POLICY-INVENTORY-RERUN-002.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-transport-policy-inventory-rerun-002-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_carrier_type_transport_policy_inventory_rerun_002_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {

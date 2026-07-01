@@ -24,9 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-CARRIER-TYPE-TRANSPORT-POLICY-INVENTORY-RERUN-002.
-  MissingProjectionPolicy V3 found no directly selectable projection-policy
-  cluster; 76 clusters are blocked by missing type transport evidence.
+  MIRBUILDER-CARRIER-TYPE-TRANSPORT-EVIDENCE-INVENTORY-RERUN-002.
+  Carrier/type transport inventory found multiple policy lanes across 944
+  type-transport items, so evidence inventory must run before policy selection.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  MIRBUILDER-CARRIER-TYPE-TRANSPORT-POLICY-INVENTORY-RERUN-002
+  MIRBUILDER-CARRIER-TYPE-TRANSPORT-EVIDENCE-INVENTORY-RERUN-002
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -335,6 +335,13 @@ missing_projection_policy_cluster_resolution_v3_result:
   selected_next_card = MIRBUILDER-CARRIER-TYPE-TRANSPORT-POLICY-INVENTORY-RERUN-002
   source_selfhost_claim = 0
 
+carrier_type_transport_policy_inventory_rerun_002_result:
+  token = MIRBUILDER-CARRIER-TYPE-TRANSPORT-POLICY-INVENTORY-RERUN-002
+  type_transport_missing_item_count = 944
+  eligible_policy_lane_count = 4
+  selected_next_card = MIRBUILDER-CARRIER-TYPE-TRANSPORT-EVIDENCE-INVENTORY-RERUN-002
+  source_selfhost_claim = 0
+
 placement_rule:
   scan_unit = rust_function_or_method
   classification_unit = semantic_owner_edge
@@ -387,11 +394,11 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. MIRBUILDER-CARRIER-TYPE-TRANSPORT-POLICY-INVENTORY-RERUN-002
+1. MIRBUILDER-CARRIER-TYPE-TRANSPORT-EVIDENCE-INVENTORY-RERUN-002
    status=next
-   boundary=inventory type transport gaps blocking remaining projection clusters
-   semantic_authority=V3 cluster resolution and fresh report
-   non_authority=manual axis selection, runtime fallback, Source Selfhost claim
+   boundary=classify evidence for multiple carrier/type policy lanes
+   semantic_authority=transport inventory rerun 002 and fresh report
+   non_authority=return-type count proof, manual carrier selection, fallback
 
 2. MIRBUILDER-BORROW-SURFACE-POLICY-CLUSTER-RERUN-002
    status=conditional-after-checkpoint
@@ -406,11 +413,11 @@ history, not in this task-order SSOT.
    non_authority=generated artifact edit authority, Source Selfhost claim
 
 next:
-  MIRBUILDER-CARRIER-TYPE-TRANSPORT-POLICY-INVENTORY-RERUN-002
-  boundary=type transport gaps block direct projection-policy selection
+  MIRBUILDER-CARRIER-TYPE-TRANSPORT-EVIDENCE-INVENTORY-RERUN-002
+  boundary=multiple transport lanes require evidence inventory before policy
 
 next_documented_task =
-  MIRBUILDER-CARRIER-TYPE-TRANSPORT-POLICY-INVENTORY-RERUN-002
+  MIRBUILDER-CARRIER-TYPE-TRANSPORT-EVIDENCE-INVENTORY-RERUN-002
 
 next_after_active_3 =
   MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-008
