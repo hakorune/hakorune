@@ -25,11 +25,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-ID-SCALAR-ID-DOMAIN-BOUNDARY-BASIS-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2034-MIRBUILDER-ID-SCALAR-ID-DOMAIN-BOUNDARY-BASIS-001.md"
-latest_card_summary = """The latest card defines nominal ID domain
-boundaries for bounded ID scalar owners without materializing SourcePlan or
-seed."""
+latest_card = "MIRBUILDER-ID-SCALAR-STATE-MUTATION-FRAME-BASIS-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2035-MIRBUILDER-ID-SCALAR-STATE-MUTATION-FRAME-BASIS-001.md"
+latest_card_summary = """The latest card defines state mutation frames for
+bounded ID scalar owners and selects error/deterministic-order basis next
+without materializing SourcePlan or seed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -40,6 +40,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-02: 2035 declares three ID scalar state mutation frames for bounded owners.",
   "2026-07-02: 2034 defines nominal ID domain boundaries for bounded ID scalar owners.",
   "2026-07-02: 2033 reruns ID scalar SourcePlan basis priority and selects IdDomainBoundary next.",
   "2026-07-02: 2032 defines deterministic native seed file boundaries for two bounded ID scalar owners.",
