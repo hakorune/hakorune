@@ -25,14 +25,14 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-NORMALIZED-RERUN-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1988-MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-NORMALIZED-RERUN-001.md"
-latest_card_summary = """The latest card reruns strict native-seed candidate
-selection after denied-boundary vocabulary normalization. The normalized
-ResultBox carrier rows still have forbidden non-claim boundaries, so no
-bridge-eligible native seed candidate is selected and the lane remains stopped
-at SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001 without native seed
-materialization or Source Selfhost claim."""
+latest_card = "MIRBUILDER-FORBIDDEN-NONCLAIM-BOUNDARY-SCOPE-RESOLUTION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1989-MIRBUILDER-FORBIDDEN-NONCLAIM-BOUNDARY-SCOPE-RESOLUTION-001.md"
+latest_card_summary = """The latest card resolves forbidden non-claim boundary
+scope for the three ResultBox carrier refresh owners. All 12 forbidden
+non-claim occurrences are wider denied-boundary mentions, not selected narrow
+seed-surface evidence, so the next task is
+MIRBUILDER-STRICT-EMISSION-TO-NATIVE-SEED-BRIDGE-POLICY-V2-001 without native
+seed materialization or Source Selfhost claim."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -43,6 +43,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-01: 1989 classifies forbidden non-claim boundaries as wider mention-only and selects BridgePolicyV2.",
   "2026-07-01: 1988 reruns strict candidate selection after denied-boundary normalization and keeps Source Selfhost stopped with no seed candidate.",
   "2026-07-01: 1987 normalizes denied-boundary vocabulary after Result carrier policy and selects strict candidate normalized rerun.",
   "2026-07-01: 1986 reruns strict candidate selection after Result carrier policy and selects denied-boundary vocabulary normalization.",
