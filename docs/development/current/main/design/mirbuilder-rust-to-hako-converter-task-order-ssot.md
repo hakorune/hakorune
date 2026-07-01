@@ -24,10 +24,10 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-TYPE-CONTEXT-HAKO-NATIVE-SOURCE-SEED-001.
-  The post-metadata_context rerun selected `hakorune_mir_builder::type_context`
-  as the next bridge-eligible native seed candidate. Next, materialize the
-  native `.hako` source seed without adoption or Source Selfhost claim.
+  MIRBUILDER-TYPE-CONTEXT-HAKO-ADOPTION-DECISION-001.
+  The type_context native source seed is materialized from a machine-derived
+  `FamilySeedSurfaceCollationV1` set. Next, decide Adopt / Defer / Reject
+  without Source Selfhost claim.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -63,7 +63,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  MIRBUILDER-TYPE-CONTEXT-HAKO-NATIVE-SOURCE-SEED-001
+  MIRBUILDER-TYPE-CONTEXT-HAKO-ADOPTION-DECISION-001
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -186,6 +186,7 @@ completed:
   metadata_context native source seed
   metadata_context HakoAdopted decision
   native-owner seed capability rerun 005
+  type_context native source seed
 
 latest_rerun_result:
   MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-005
@@ -194,9 +195,9 @@ latest_rerun_result:
   next = MIRBUILDER-TYPE-CONTEXT-HAKO-NATIVE-SOURCE-SEED-001
 
 next_action:
-  MIRBUILDER-TYPE-CONTEXT-HAKO-NATIVE-SOURCE-SEED-001
-  purpose = materialize native source seed for type_context from DerivedArtifactSeedDraftInput
-  output = native source seed fixture / overwrite guard, no HakoAdopted decision
+  MIRBUILDER-TYPE-CONTEXT-HAKO-ADOPTION-DECISION-001
+  purpose = decide Adopt / Defer / Reject for type_context native source seed
+  output = adoption decision fixture / guard, no Source Selfhost claim
 
 forbidden:
   strict rule weakening as executable conversion
@@ -253,14 +254,16 @@ history, not in this task-order SSOT.
    semantic_authority=carrier/type inventory and verifier-result fixtures
    non_authority=rule weakening, fallback Hako, HakoAdopted decision
 
-3. MIRBUILDER-TYPE-CONTEXT-HAKO-NATIVE-SOURCE-SEED-001
+3. MIRBUILDER-TYPE-CONTEXT-HAKO-ADOPTION-DECISION-001
    status=next
-   boundary=materialize type_context native seed from strict bridge evidence
-   semantic_authority=rerun-005 fixture, strict emission probe, bridge policy
-   non_authority=HakoAdopted decision, Source Selfhost claim
+   boundary=decide whether the machine-derived type_context native seed is
+   HakoAdopted
+   semantic_authority=type_context native seed fixture / guard and bridge
+   eligible surface evidence
+   non_authority=Source Selfhost claim, generated artifact as edit authority
 
 next_documented_task =
-  MIRBUILDER-TYPE-CONTEXT-HAKO-NATIVE-SOURCE-SEED-001
+  MIRBUILDER-TYPE-CONTEXT-HAKO-ADOPTION-DECISION-001
 
 next_after_active_3 =
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001

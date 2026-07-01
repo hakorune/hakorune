@@ -1,0 +1,120 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderTypeContextHakoNativeSourceSeedV1",
+  "token": "MIRBUILDER-TYPE-CONTEXT-HAKO-NATIVE-SOURCE-SEED-001",
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "native_seed_candidate_rerun": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-native-owner-seed-capability-survey-rerun-005-v0.json",
+    "bridge_policy": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-strict-converter-emission-to-native-seed-bridge-policy-v0.json",
+    "strict_candidate_selection": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-strict-converter-emission-native-seed-candidate-selection-v0.json",
+    "derived_to_native_model": "docs/development/current/main/design/derived-to-native-hako-artifact-model-ssot.md"
+  },
+  "selected_owner": {
+    "owner_edge_id": "hakorune_mir_builder::type_context",
+    "selection_reason": "NativeOwnerSeedCandidateRerunAfterMetadataContextAdoption",
+    "selected_next_card": "MIRBUILDER-TYPE-CONTEXT-HAKO-NATIVE-SOURCE-SEED-001"
+  },
+  "surface_scope": {
+    "collation_rule": "FamilySeedSurfaceCollationV1",
+    "selection_rule": "All BridgeEligible candidates with selected_owner_edge_id and selected_next_card",
+    "selected_surface_count": 5,
+    "surfaces": [
+      {
+        "surface_id": "type_context.origin_map",
+        "role": "OwnerMapProjectionSurface",
+        "pilot_scope": "TypeContext_value_origin_newbox_only",
+        "generated_artifact": "lang/generated/rust_derived/hakorune_mir_builder/type_context_origin_map.hako",
+        "generated_artifact_manifest": "lang/generated/rust_derived/hakorune_mir_builder/type_context_origin_map.artifact.json",
+        "verifier_result": "docs/development/current/main/design/fixtures/rust-lifecycle/type-context-origin-map-derived-artifact-verifier-result-v0.json",
+        "source_plan": "docs/development/current/main/design/fixtures/rust-lifecycle/type-context-origin-map-plan-v0.json",
+        "source_recipe": "docs/development/current/main/design/fixtures/rust-lifecycle/type-context-origin-map-behavior-recipe-v0.json",
+        "bridge_state": "BridgeEligible"
+      },
+      {
+        "surface_id": "type_context.snapshot_restore",
+        "role": "OwnedMapSnapshotRestoreSurface",
+        "pilot_scope": "TypeContext_snapshot_restore_only",
+        "generated_artifact": "lang/generated/rust_derived/hakorune_mir_builder/type_context_snapshot_restore.hako",
+        "generated_artifact_manifest": "lang/generated/rust_derived/hakorune_mir_builder/type_context_snapshot_restore.artifact.json",
+        "verifier_result": "docs/development/current/main/design/fixtures/rust-lifecycle/type-context-snapshot-restore-derived-artifact-verifier-result-v0.json",
+        "source_plan": "docs/development/current/main/design/fixtures/rust-lifecycle/type-context-snapshot-restore-plan-v0.json",
+        "source_recipe": "docs/development/current/main/design/fixtures/rust-lifecycle/type-context-snapshot-restore-behavior-recipe-v0.json",
+        "bridge_state": "BridgeEligible",
+        "snapshot_notes": {
+          "field_transport": "OpaqueOwnedMapStorage",
+          "container_cloned": false,
+          "move_reset_contract": true
+        }
+      },
+      {
+        "surface_id": "type_context.string_literal",
+        "role": "OwnerMapProjectionSurface",
+        "pilot_scope": "TypeContext_string_literals_only",
+        "generated_artifact": "lang/generated/rust_derived/hakorune_mir_builder/type_context_string_literal.hako",
+        "generated_artifact_manifest": "lang/generated/rust_derived/hakorune_mir_builder/type_context_string_literal.artifact.json",
+        "verifier_result": "docs/development/current/main/design/fixtures/rust-lifecycle/type-context-string-literal-derived-artifact-verifier-result-v0.json",
+        "source_plan": "docs/development/current/main/design/fixtures/rust-lifecycle/type-context-string-literal-plan-v0.json",
+        "source_recipe": "docs/development/current/main/design/fixtures/rust-lifecycle/type-context-string-literal-behavior-recipe-v0.json",
+        "bridge_state": "BridgeEligible"
+      },
+      {
+        "surface_id": "type_context.value_kind",
+        "role": "OwnerMapProjectionSurface",
+        "pilot_scope": "TypeContext_value_kinds_only",
+        "generated_artifact": "lang/generated/rust_derived/hakorune_mir_builder/type_context_value_kind.hako",
+        "generated_artifact_manifest": "lang/generated/rust_derived/hakorune_mir_builder/type_context_value_kind.artifact.json",
+        "verifier_result": "docs/development/current/main/design/fixtures/rust-lifecycle/type-context-value-kind-derived-artifact-verifier-result-v0.json",
+        "source_plan": "docs/development/current/main/design/fixtures/rust-lifecycle/type-context-value-kind-plan-v0.json",
+        "source_recipe": "docs/development/current/main/design/fixtures/rust-lifecycle/type-context-value-kind-behavior-recipe-v0.json",
+        "bridge_state": "BridgeEligible"
+      },
+      {
+        "surface_id": "type_context.value_type",
+        "role": "OwnerMapProjectionSurface",
+        "pilot_scope": "TypeContext_value_types_only",
+        "generated_artifact": "lang/generated/rust_derived/hakorune_mir_builder/type_context_value_type.hako",
+        "generated_artifact_manifest": "lang/generated/rust_derived/hakorune_mir_builder/type_context_value_type.artifact.json",
+        "verifier_result": "docs/development/current/main/design/fixtures/rust-lifecycle/type-context-value-type-derived-artifact-verifier-result-v0.json",
+        "source_plan": "docs/development/current/main/design/fixtures/rust-lifecycle/type-context-value-type-plan-v0.json",
+        "source_recipe": "docs/development/current/main/design/fixtures/rust-lifecycle/type-context-value-type-behavior-recipe-v0.json",
+        "bridge_state": "BridgeEligible"
+      }
+    ]
+  },
+  "native_seed": {
+    "native_source_seed_path": "lang/src/compiler/lib/type_context_native_seed.hako",
+    "module_export": "lib.type_context_native_seed",
+    "native_source_seed_outside_generated_tree": true,
+    "generator_overwrite_guard": true
+  },
+  "seed_status": {
+    "native_source_owner_seed_present": 1,
+    "family_seed_surface_collation": 1,
+    "hako_adopted_decision": 0,
+    "native_edit_authority_claim": 0,
+    "generated_artifact_as_edit_authority": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "HakoAdoptionDecisionDeferred",
+    "reason_token": "TypeContextNativeSourceSeedMaterialized",
+    "selected_next_card": "MIRBUILDER-TYPE-CONTEXT-HAKO-ADOPTION-DECISION-001"
+  },
+  "claims": {
+    "native_seed_materialization": 1,
+    "family_seed_surface_collation": 1,
+    "surface_selection_by_hand": 0,
+    "manual_family_selection": 0,
+    "generated_artifact_as_native_edit_authority": 0,
+    "generated_artifact_as_edit_authority": 0,
+    "hako_generation": 0,
+    "hako_adopted_decision": 0,
+    "source_selfhost_claim": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "new_python_semantic_projector": 0,
+    "runner_semantic_owner": 0,
+    "rust_deletion": 0
+  }
+}

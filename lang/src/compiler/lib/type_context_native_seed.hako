@@ -1,0 +1,257 @@
+// native-source-seed: MIRBUILDER-TYPE-CONTEXT-HAKO-NATIVE-SOURCE-SEED-001
+// source-family: hakorune_mir_builder::type_context
+// source-input-state: DerivedArtifactSeedDraftInput
+// surface-collation: FamilySeedSurfaceCollationV1
+// hako-adopted: 0
+// source-selfhost-claim: 0
+
+using selfhost.shared.common.box_helpers as BoxHelpers
+
+enum MirType {
+    Integer
+    Float
+    Bool
+    String
+    Box(StringBox)
+    Array(MirType)
+    Future(MirType)
+    WeakRef
+    Void
+    Unknown
+}
+
+enum MirValueKind {
+    Parameter(i64)
+    Local(i64)
+    Constant
+    Temporary
+    Pinned
+    LoopCarrier
+}
+
+box TypeContext {
+    value_types: MapBox
+    value_kinds: MapBox
+    value_origin_newbox: MapBox
+    string_literals: MapBox
+    map_value_types: MapBox
+    map_literal_value_types: MapBox
+
+    birth() {
+        me.value_types = new MapBox()
+        me.value_kinds = new MapBox()
+        me.value_origin_newbox = new MapBox()
+        me.string_literals = new MapBox()
+        me.map_value_types = new MapBox()
+        me.map_literal_value_types = new MapBox()
+    }
+}
+
+box TypeContextSnapshot {
+    value_types: MapBox
+    value_kinds: MapBox
+    value_origin_newbox: MapBox
+    string_literals: MapBox
+    map_value_types: MapBox
+    map_literal_value_types: MapBox
+    consumed: i64
+
+    birth() {
+        me.value_types = new MapBox()
+        me.value_kinds = new MapBox()
+        me.value_origin_newbox = new MapBox()
+        me.string_literals = new MapBox()
+        me.map_value_types = new MapBox()
+        me.map_literal_value_types = new MapBox()
+        me.consumed = 0
+    }
+}
+
+static box TypeContextApi {
+    get_origin_box(ctx, value_id): Option<StringBox> {
+        if ctx.value_origin_newbox.has(value_id) {
+            return Option::Some(ctx.value_origin_newbox.get(value_id))
+        }
+        return Option::None()
+    }
+
+    set_origin_box(ctx, value_id, class_name): i64 {
+        ctx.value_origin_newbox.set(value_id, class_name)
+        return 1
+    }
+
+    clear_origin_boxes(ctx): i64 {
+        ctx.value_origin_newbox = new MapBox()
+        return 1
+    }
+
+    string_literal(ctx, value_id): Option<StringBox> {
+        if ctx.string_literals.has(value_id) {
+            return Option::Some(ctx.string_literals.get(value_id))
+        }
+        return Option::None()
+    }
+
+    try_get_kind(ctx, value_id): Option<MirValueKind> {
+        if ctx.value_kinds.has(value_id) {
+            return Option::Some(ctx.value_kinds.get(value_id))
+        }
+        return Option::None()
+    }
+
+    get_kind(ctx, value_id): MirValueKind {
+        local kind: Option<MirValueKind> = Option::None()
+        if ctx.value_kinds.has(value_id) {
+            kind = Option::Some(ctx.value_kinds.get(value_id))
+        }
+        guard let Option::Some(value) = kind else {
+            return MirValueKind::Temporary()
+        }
+        return value
+    }
+
+    set_kind(ctx, value_id, kind): i64 {
+        ctx.value_kinds.set(value_id, kind)
+        return 1
+    }
+
+    get_type(ctx, value_id): Option<MirType> {
+        if ctx.value_types.has(value_id) {
+            return Option::Some(ctx.value_types.get(value_id))
+        }
+        return Option::None()
+    }
+
+    set_type(ctx, value_id, ty): i64 {
+        ctx.value_types.set(value_id, ty)
+        return 1
+    }
+
+    take_snapshot(ctx): TypeContextSnapshot {
+        local snapshot = new TypeContextSnapshot()
+        snapshot.value_types = ctx.value_types
+        ctx.value_types = new MapBox()
+        snapshot.value_kinds = ctx.value_kinds
+        ctx.value_kinds = new MapBox()
+        snapshot.value_origin_newbox = ctx.value_origin_newbox
+        ctx.value_origin_newbox = new MapBox()
+        snapshot.string_literals = ctx.string_literals
+        ctx.string_literals = new MapBox()
+        snapshot.map_value_types = ctx.map_value_types
+        ctx.map_value_types = new MapBox()
+        snapshot.map_literal_value_types = ctx.map_literal_value_types
+        ctx.map_literal_value_types = new MapBox()
+        return snapshot
+    }
+
+    restore_snapshot(ctx, snapshot: TypeContextSnapshot): i64 {
+        if snapshot.consumed != 0 {
+            print("type_context_snapshot_already_consumed=fail")
+            return 7
+        }
+        ctx.value_types = snapshot.value_types
+        snapshot.value_types = new MapBox()
+        ctx.value_kinds = snapshot.value_kinds
+        snapshot.value_kinds = new MapBox()
+        ctx.value_origin_newbox = snapshot.value_origin_newbox
+        snapshot.value_origin_newbox = new MapBox()
+        ctx.string_literals = snapshot.string_literals
+        snapshot.string_literals = new MapBox()
+        ctx.map_value_types = snapshot.map_value_types
+        snapshot.map_value_types = new MapBox()
+        ctx.map_literal_value_types = snapshot.map_literal_value_types
+        snapshot.map_literal_value_types = new MapBox()
+        snapshot.consumed = 1
+        return 0
+    }
+}
+
+static box TypeContextHarnessApi {
+    prefill_string_literal(ctx, value_id, text): i64 {
+        ctx.string_literals.set(value_id, text)
+        return 1
+    }
+
+    seed_value_types(ctx): i64 {
+        ctx.value_types.set(1, 10)
+        return 1
+    }
+
+    has_value_types(ctx): i64 {
+        return ctx.value_types.has(1)
+    }
+
+    snapshot_has_value_types(snapshot: TypeContextSnapshot): i64 {
+        return snapshot.value_types.has(1)
+    }
+
+    seed_value_kinds(ctx): i64 {
+        ctx.value_kinds.set(2, 20)
+        return 1
+    }
+
+    has_value_kinds(ctx): i64 {
+        return ctx.value_kinds.has(2)
+    }
+
+    snapshot_has_value_kinds(snapshot: TypeContextSnapshot): i64 {
+        return snapshot.value_kinds.has(2)
+    }
+
+    seed_value_origin_newbox(ctx): i64 {
+        ctx.value_origin_newbox.set(3, 30)
+        return 1
+    }
+
+    has_value_origin_newbox(ctx): i64 {
+        return ctx.value_origin_newbox.has(3)
+    }
+
+    snapshot_has_value_origin_newbox(snapshot: TypeContextSnapshot): i64 {
+        return snapshot.value_origin_newbox.has(3)
+    }
+
+    seed_string_literals(ctx): i64 {
+        ctx.string_literals.set(4, 40)
+        return 1
+    }
+
+    has_string_literals(ctx): i64 {
+        return ctx.string_literals.has(4)
+    }
+
+    snapshot_has_string_literals(snapshot: TypeContextSnapshot): i64 {
+        return snapshot.string_literals.has(4)
+    }
+
+    seed_map_value_types(ctx): i64 {
+        ctx.map_value_types.set(5, 50)
+        return 1
+    }
+
+    has_map_value_types(ctx): i64 {
+        return ctx.map_value_types.has(5)
+    }
+
+    snapshot_has_map_value_types(snapshot: TypeContextSnapshot): i64 {
+        return snapshot.map_value_types.has(5)
+    }
+
+    seed_map_literal_value_types(ctx): i64 {
+        ctx.map_literal_value_types.set(6, 60)
+        return 1
+    }
+
+    has_map_literal_value_types(ctx): i64 {
+        return ctx.map_literal_value_types.has(6)
+    }
+
+    snapshot_has_map_literal_value_types(snapshot: TypeContextSnapshot): i64 {
+        return snapshot.map_literal_value_types.has(6)
+    }
+
+    set_replacement(ctx): i64 {
+        ctx.value_types.set(99, 99)
+        return 1
+    }
+}
