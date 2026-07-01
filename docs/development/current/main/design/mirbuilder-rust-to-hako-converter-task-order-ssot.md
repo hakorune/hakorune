@@ -24,10 +24,11 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001.
+  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-002.
   The strict-emission native seed candidate pool is exhausted after
-  type_context adoption. Further progress needs a new machine-checkable
-  widening basis or another evidence-producing lane.
+  type_context adoption. The next progress point is a machine-checkable
+  selector fixture that derives exactly one next lane or keeps Source Selfhost
+  stopped.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -63,7 +64,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-002
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -197,19 +198,33 @@ latest_rerun_result:
   next = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 next_action:
-  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
-  purpose = decide the next machine-checkable widening or evidence lane
-  output = design consultation before further implementation
+  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-002
+  purpose = define the post-rerun-006 selector basis
+  output = selector fixture contract before further implementation
 
 post_rerun_006_task_order:
-  1. keep SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001 active
-     until a consultation answer names the next machine-checkable lane
-  2. if a lane is approved, land a selector fixture that derives exactly one
-     selected_owner_edge_id before any native seed or adoption card
+  1. land SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-002 as the accepted
+     post-strict-emission bridge exhaustion selector basis
+  2. next, land a selector fixture that derives exactly one next lane before
+     any native seed or adoption card
   3. if no owner is derived, keep stopped; do not pick a family, shape, or
      blocker axis by hand
   4. repair stale design-stop guard vocabulary separately from semantic
      converter progress if it blocks current validation
+
+post_rerun_006_selector_basis:
+  token = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-002
+  output_contract = rust-lifecycle-source-selfhost-wider-route-selection-basis-002-v0
+  basis_kind = PostStrictEmissionBridgeExhaustionSelectorBasis
+  allowed_decisions =
+    SelectUnconvertedSurfaceReportRerun
+    SelectStrictDenyGapClusterResolution
+    SelectGeneratedArtifactToNativeSeedBridgePolicyV2
+    SelectNativeOwnerCoverageCheckpoint
+    SelectRouteRepair
+    KeepStopped
+  selected_owner_edge_id = null
+  source_selfhost_claim = 0
 
 placement_rule:
   scan_unit = rust_function_or_method
