@@ -24,9 +24,10 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-ID-SCALAR-DOMAIN-TRANSPORT-DIRECTABILITY-RERUN-001.
-  Nominal ID scalar transport is now defined over an i64 physical lane without
-  raw i64 interchangeability or object layout transport.
+  MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-009.
+  ID scalar directability rerun found 19 FixtureMapped rows that can be
+  considered by the seed survey while 12 owner-edge-missing rows remain repair
+  backlog.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +63,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  MIRBUILDER-ID-SCALAR-DOMAIN-TRANSPORT-DIRECTABILITY-RERUN-001
+  MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-009
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -294,6 +295,13 @@ id_scalar_domain_transport_policy_result:
   selected_next_card = MIRBUILDER-ID-SCALAR-DOMAIN-TRANSPORT-DIRECTABILITY-RERUN-001
   source_selfhost_claim = 0
 
+id_scalar_domain_transport_directability_rerun_result:
+  token = MIRBUILDER-ID-SCALAR-DOMAIN-TRANSPORT-DIRECTABILITY-RERUN-001
+  directable_with_nominal_id_scalar_transport_count = 19
+  owner_edge_repair_required_count = 12
+  selected_next_card = MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-009
+  source_selfhost_claim = 0
+
 placement_rule:
   scan_unit = rust_function_or_method
   classification_unit = semantic_owner_edge
@@ -346,30 +354,30 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. MIRBUILDER-ID-SCALAR-DOMAIN-TRANSPORT-DIRECTABILITY-RERUN-001
+1. MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-009
    status=next
-   boundary=rerun 31 ID scalar rows after nominal transport policy
-   semantic_authority=ID scalar transport policy and fresh report
-   non_authority=raw i64 interchangeability, object layout transport, fallback
+   boundary=rerun seed capability after ID scalar directability unlock
+   semantic_authority=directability rerun, native owner ledger, fresh report
+   non_authority=generated artifact edit authority, Source Selfhost claim
 
-2. MIRBUILDER-BORROW-SURFACE-POLICY-CLUSTER-RERUN-002
+2. MIRBUILDER-ID-SCALAR-DOMAIN-OWNER-EDGE-REPAIR-001
    status=conditional
-   boundary=rerun only if a fresh checkpoint selects borrow policy again
-   semantic_authority=fresh blocker fixture, not candidate count
-   non_authority=manual axis selection, MutLease by default, runtime fallback
+   boundary=repair the 12 owner-edge-missing ID scalar rows if selected
+   semantic_authority=directability rerun repair backlog
+   non_authority=manual owner selection, raw i64 interchangeability
 
 3. MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-008
-   status=after-next-unlock
-   boundary=rerun seed capability only after the selected blocker lane changes evidence
+   status=closed-predecessor
+   boundary=previous seed survey rerun before ID scalar unlock
    semantic_authority=updated blocker fixture and native owner ledger
    non_authority=generated artifact edit authority, Source Selfhost claim
 
 next:
-  MIRBUILDER-ID-SCALAR-DOMAIN-TRANSPORT-DIRECTABILITY-RERUN-001
-  boundary=rerun directability after nominal ID scalar transport policy
+  MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-009
+  boundary=seed survey rerun after ID scalar directability unlock
 
 next_documented_task =
-  MIRBUILDER-ID-SCALAR-DOMAIN-TRANSPORT-DIRECTABILITY-RERUN-001
+  MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-009
 
 next_after_active_3 =
   MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-008

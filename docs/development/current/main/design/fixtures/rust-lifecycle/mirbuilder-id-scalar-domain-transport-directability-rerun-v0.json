@@ -1,0 +1,409 @@
+{
+  "claims": {
+    "directability_rerun_ready": 1,
+    "generated_artifact_as_native_edit_authority": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "id_scalar_domain_transport_policy_consumed": 1,
+    "manual_axis_selection": 0,
+    "manual_family_selection": 0,
+    "manual_owner_selection": 0,
+    "manual_shape_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "object_layout_transport": 0,
+    "raw_i64_interchangeability": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "SelectNativeOwnerSeedCapabilitySurveyRerun",
+    "reason_token": "IdScalarTransportDirectableRowsAvailable",
+    "selected_next_card": "MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-009"
+  },
+  "input_decision": {
+    "kind": "SelectIdScalarDomainTransportDirectabilityRerun",
+    "reason_token": "NominalIdScalarTransportPolicyDefined",
+    "selected_next_card": "MIRBUILDER-ID-SCALAR-DOMAIN-TRANSPORT-DIRECTABILITY-RERUN-001"
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "id_scalar_domain_transport_policy": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-domain-transport-policy-v0.json"
+  },
+  "kind": "MirBuilderIdScalarDomainTransportDirectabilityRerunV1",
+  "provenance": {
+    "id_scalar_domain_transport_policy_hash": "024854c452d1b40aa29b296df4da787c1f880b50ba2ea76a346799030e72b912"
+  },
+  "rerun_rows": [
+    {
+      "blocked_by": [],
+      "canonical_id_type": "BindingId",
+      "directability_state": "DirectableWithNominalIdScalarTransport",
+      "known_owner_edge": "mirbuilder::context_registry",
+      "nominal_transport": "BindingIdAsI64",
+      "owner_edge_confidence": "FixtureMapped",
+      "shape_signature": "shape.context_registry",
+      "source_id": "crates/hakorune_mir_builder/src/core_context.rs::next_binding:L71"
+    },
+    {
+      "blocked_by": [],
+      "canonical_id_type": "BasicBlockId",
+      "directability_state": "DirectableWithNominalIdScalarTransport",
+      "known_owner_edge": "mirbuilder::context_registry",
+      "nominal_transport": "BasicBlockIdAsI64",
+      "owner_edge_confidence": "FixtureMapped",
+      "shape_signature": "shape.context_registry",
+      "source_id": "crates/hakorune_mir_builder/src/core_context.rs::next_block:L63"
+    },
+    {
+      "blocked_by": [],
+      "canonical_id_type": "ValueId",
+      "directability_state": "DirectableWithNominalIdScalarTransport",
+      "known_owner_edge": "mirbuilder::context_registry",
+      "nominal_transport": "ValueIdAsI64",
+      "owner_edge_confidence": "FixtureMapped",
+      "shape_signature": "shape.context_registry",
+      "source_id": "crates/hakorune_mir_builder/src/core_context.rs::next_value:L58"
+    },
+    {
+      "blocked_by": [],
+      "canonical_id_type": "BasicBlockId",
+      "directability_state": "DirectableWithNominalIdScalarTransport",
+      "known_owner_edge": "mirbuilder::context_registry",
+      "nominal_transport": "BasicBlockIdAsI64",
+      "owner_edge_confidence": "FixtureMapped",
+      "shape_signature": "shape.context_registry",
+      "source_id": "crates/hakorune_mir_builder/src/core_context.rs::peek_next_block:L104"
+    },
+    {
+      "blocked_by": [],
+      "canonical_id_type": "ValueId",
+      "directability_state": "DirectableWithNominalIdScalarTransport",
+      "known_owner_edge": "mirbuilder::context_registry",
+      "nominal_transport": "ValueIdAsI64",
+      "owner_edge_confidence": "FixtureMapped",
+      "shape_signature": "shape.context_registry",
+      "source_id": "crates/hakorune_mir_builder/src/core_context.rs::peek_next_value:L98"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "canonical_id_type": "BindingId",
+      "directability_state": "OwnerEdgeRepairRequired",
+      "known_owner_edge": null,
+      "nominal_transport": "BindingIdAsI64",
+      "owner_edge_confidence": "None",
+      "shape_signature": null,
+      "source_id": "src/mir/builder/builder_init.rs::allocate_binding_id:L102"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "canonical_id_type": "TypedValueId",
+      "directability_state": "OwnerEdgeRepairRequired",
+      "known_owner_edge": null,
+      "nominal_transport": "TypedValueIdAsI64",
+      "owner_edge_confidence": "None",
+      "shape_signature": null,
+      "source_id": "src/mir/builder/builder_value_kind.rs::new_typed_value:L11"
+    },
+    {
+      "blocked_by": [],
+      "canonical_id_type": "BasicBlockId",
+      "directability_state": "DirectableWithNominalIdScalarTransport",
+      "known_owner_edge": "mirbuilder::join_i_r_route_verify",
+      "nominal_transport": "BasicBlockIdAsI64",
+      "owner_edge_confidence": "FixtureMapped",
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id": "src/mir/builder/control_flow/joinir/merge/block_remapper.rs::remap_block_id:L71"
+    },
+    {
+      "blocked_by": [],
+      "canonical_id_type": "BasicBlockId",
+      "directability_state": "DirectableWithNominalIdScalarTransport",
+      "known_owner_edge": "mirbuilder::join_i_r_plan",
+      "nominal_transport": "BasicBlockIdAsI64",
+      "owner_edge_confidence": "FixtureMapped",
+      "shape_signature": "shape.phi_materializer_feature",
+      "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_bc_phi_materializer.rs::continue_target:L118"
+    },
+    {
+      "blocked_by": [],
+      "canonical_id_type": "BasicBlockId",
+      "directability_state": "DirectableWithNominalIdScalarTransport",
+      "known_owner_edge": "mirbuilder::join_i_r_plan",
+      "nominal_transport": "BasicBlockIdAsI64",
+      "owner_edge_confidence": "FixtureMapped",
+      "shape_signature": "shape.phi_materializer_feature",
+      "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_continue_with_return_phi_materializer.rs::continue_target:L47"
+    },
+    {
+      "blocked_by": [],
+      "canonical_id_type": "BasicBlockId",
+      "directability_state": "DirectableWithNominalIdScalarTransport",
+      "known_owner_edge": "mirbuilder::join_i_r_plan",
+      "nominal_transport": "BasicBlockIdAsI64",
+      "owner_edge_confidence": "FixtureMapped",
+      "shape_signature": "shape.phi_materializer_feature",
+      "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_continue_with_return_phi_materializer.rs::continue_target:L75"
+    },
+    {
+      "blocked_by": [],
+      "canonical_id_type": "BasicBlockId",
+      "directability_state": "DirectableWithNominalIdScalarTransport",
+      "known_owner_edge": "mirbuilder::join_i_r_plan",
+      "nominal_transport": "BasicBlockIdAsI64",
+      "owner_edge_confidence": "FixtureMapped",
+      "shape_signature": "shape.phi_materializer_feature",
+      "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_return_in_body_phi_materializer.rs::continue_target:L56"
+    },
+    {
+      "blocked_by": [],
+      "canonical_id_type": "BasicBlockId",
+      "directability_state": "DirectableWithNominalIdScalarTransport",
+      "known_owner_edge": "mirbuilder::join_i_r_plan",
+      "nominal_transport": "BasicBlockIdAsI64",
+      "owner_edge_confidence": "FixtureMapped",
+      "shape_signature": "shape.plan_normalizer",
+      "source_id": "src/mir/builder/control_flow/plan/normalizer/cond_lowering_freshen/utils.rs::map_block_id:L22"
+    },
+    {
+      "blocked_by": [],
+      "canonical_id_type": "ValueId",
+      "directability_state": "DirectableWithNominalIdScalarTransport",
+      "known_owner_edge": "mirbuilder::join_i_r_plan",
+      "nominal_transport": "ValueIdAsI64",
+      "owner_edge_confidence": "FixtureMapped",
+      "shape_signature": "shape.plan_normalizer",
+      "source_id": "src/mir/builder/control_flow/plan/normalizer/cond_lowering_freshen/utils.rs::remap_value_id:L7"
+    },
+    {
+      "blocked_by": [],
+      "canonical_id_type": "BodyId",
+      "directability_state": "DirectableWithNominalIdScalarTransport",
+      "known_owner_edge": "mirbuilder::join_i_r_plan",
+      "nominal_transport": "BodyIdAsI64",
+      "owner_edge_confidence": "FixtureMapped",
+      "shape_signature": "shape.recipe_tree_matcher",
+      "source_id": "src/mir/builder/control_flow/plan/recipe_tree/block.rs::register:L64"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "canonical_id_type": "ValueId",
+      "directability_state": "OwnerEdgeRepairRequired",
+      "known_owner_edge": null,
+      "nominal_transport": "ValueIdAsI64",
+      "owner_edge_confidence": "None",
+      "shape_signature": null,
+      "source_id": "src/mir/builder/joinir_id_remapper.rs::remap_value:L497"
+    },
+    {
+      "blocked_by": [],
+      "canonical_id_type": "ValueId",
+      "directability_state": "DirectableWithNominalIdScalarTransport",
+      "known_owner_edge": "mirbuilder::emission_ssa_phi",
+      "nominal_transport": "ValueIdAsI64",
+      "owner_edge_confidence": "FixtureMapped",
+      "shape_signature": "shape.emission_ssa_phi",
+      "source_id": "src/mir/builder/ssa/local.rs::arg:L637"
+    },
+    {
+      "blocked_by": [],
+      "canonical_id_type": "ValueId",
+      "directability_state": "DirectableWithNominalIdScalarTransport",
+      "known_owner_edge": "mirbuilder::emission_ssa_phi",
+      "nominal_transport": "ValueIdAsI64",
+      "owner_edge_confidence": "FixtureMapped",
+      "shape_signature": "shape.emission_ssa_phi",
+      "source_id": "src/mir/builder/ssa/local.rs::cmp_operand:L652"
+    },
+    {
+      "blocked_by": [],
+      "canonical_id_type": "ValueId",
+      "directability_state": "DirectableWithNominalIdScalarTransport",
+      "known_owner_edge": "mirbuilder::emission_ssa_phi",
+      "nominal_transport": "ValueIdAsI64",
+      "owner_edge_confidence": "FixtureMapped",
+      "shape_signature": "shape.emission_ssa_phi",
+      "source_id": "src/mir/builder/ssa/local.rs::cond:L642"
+    },
+    {
+      "blocked_by": [],
+      "canonical_id_type": "ValueId",
+      "directability_state": "DirectableWithNominalIdScalarTransport",
+      "known_owner_edge": "mirbuilder::emission_ssa_phi",
+      "nominal_transport": "ValueIdAsI64",
+      "owner_edge_confidence": "FixtureMapped",
+      "shape_signature": "shape.emission_ssa_phi",
+      "source_id": "src/mir/builder/ssa/local.rs::ensure:L72"
+    },
+    {
+      "blocked_by": [],
+      "canonical_id_type": "ValueId",
+      "directability_state": "DirectableWithNominalIdScalarTransport",
+      "known_owner_edge": "mirbuilder::emission_ssa_phi",
+      "nominal_transport": "ValueIdAsI64",
+      "owner_edge_confidence": "FixtureMapped",
+      "shape_signature": "shape.emission_ssa_phi",
+      "source_id": "src/mir/builder/ssa/local.rs::field_base:L647"
+    },
+    {
+      "blocked_by": [],
+      "canonical_id_type": "ValueId",
+      "directability_state": "DirectableWithNominalIdScalarTransport",
+      "known_owner_edge": "mirbuilder::emission_ssa_phi",
+      "nominal_transport": "ValueIdAsI64",
+      "owner_edge_confidence": "FixtureMapped",
+      "shape_signature": "shape.emission_ssa_phi",
+      "source_id": "src/mir/builder/ssa/local.rs::recv:L632"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "canonical_id_type": "ValueId",
+      "directability_state": "OwnerEdgeRepairRequired",
+      "known_owner_edge": null,
+      "nominal_transport": "ValueIdAsI64",
+      "owner_edge_confidence": "None",
+      "shape_signature": null,
+      "source_id": "src/mir/builder/utils/id_alloc.rs::alloc_typed:L49"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "canonical_id_type": "BasicBlockId",
+      "directability_state": "OwnerEdgeRepairRequired",
+      "known_owner_edge": null,
+      "nominal_transport": "BasicBlockIdAsI64",
+      "owner_edge_confidence": "None",
+      "shape_signature": null,
+      "source_id": "src/mir/builder/utils/id_alloc.rs::next_block_id:L59"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "canonical_id_type": "ValueId",
+      "directability_state": "OwnerEdgeRepairRequired",
+      "known_owner_edge": null,
+      "nominal_transport": "ValueIdAsI64",
+      "owner_edge_confidence": "None",
+      "shape_signature": null,
+      "source_id": "src/mir/builder/utils/id_alloc.rs::next_value_id:L20"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "canonical_id_type": "ValueId",
+      "directability_state": "OwnerEdgeRepairRequired",
+      "known_owner_edge": null,
+      "nominal_transport": "ValueIdAsI64",
+      "owner_edge_confidence": "None",
+      "shape_signature": null,
+      "source_id": "src/mir/builder/utils/local_ssa.rs::local_arg:L14"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "canonical_id_type": "ValueId",
+      "directability_state": "OwnerEdgeRepairRequired",
+      "known_owner_edge": null,
+      "nominal_transport": "ValueIdAsI64",
+      "owner_edge_confidence": "None",
+      "shape_signature": null,
+      "source_id": "src/mir/builder/utils/local_ssa.rs::local_cond:L24"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "canonical_id_type": "ValueId",
+      "directability_state": "OwnerEdgeRepairRequired",
+      "known_owner_edge": null,
+      "nominal_transport": "ValueIdAsI64",
+      "owner_edge_confidence": "None",
+      "shape_signature": null,
+      "source_id": "src/mir/builder/utils/local_ssa.rs::local_field_base:L19"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "canonical_id_type": "ValueId",
+      "directability_state": "OwnerEdgeRepairRequired",
+      "known_owner_edge": null,
+      "nominal_transport": "ValueIdAsI64",
+      "owner_edge_confidence": "None",
+      "shape_signature": null,
+      "source_id": "src/mir/builder/utils/local_ssa.rs::local_recv:L9"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "canonical_id_type": "ValueId",
+      "directability_state": "OwnerEdgeRepairRequired",
+      "known_owner_edge": null,
+      "nominal_transport": "ValueIdAsI64",
+      "owner_edge_confidence": "None",
+      "shape_signature": null,
+      "source_id": "src/mir/builder/utils/local_ssa.rs::local_ssa_ensure:L30"
+    },
+    {
+      "blocked_by": [
+        "OwnerEdgeConfidenceMissing"
+      ],
+      "canonical_id_type": "SlotId",
+      "directability_state": "OwnerEdgeRepairRequired",
+      "known_owner_edge": null,
+      "nominal_transport": "SlotIdAsI64",
+      "owner_edge_confidence": "None",
+      "shape_signature": null,
+      "source_id": "src/mir/region/function_slot_registry.rs::ensure_slot:L52"
+    }
+  ],
+  "schema_version": 0,
+  "selection_rule": {
+    "fixture_mapped_owner_edge_required_for_directable": true,
+    "manual_owner_selection": false,
+    "object_layout_transport": false,
+    "owner_edge_missing_rows_are_repair_backlog": true,
+    "raw_i64_interchangeability": false
+  },
+  "summary": {
+    "canonical_id_type_counts": {
+      "BasicBlockId": 9,
+      "BindingId": 2,
+      "BodyId": 1,
+      "SlotId": 1,
+      "TypedValueId": 1,
+      "ValueId": 17
+    },
+    "directability_state_counts": {
+      "DirectableWithNominalIdScalarTransport": 19,
+      "OwnerEdgeRepairRequired": 12
+    },
+    "directable_with_nominal_id_scalar_transport_count": 19,
+    "input_id_scalar_row_count": 31,
+    "owner_edge_counts": {
+      "<none>": 12,
+      "mirbuilder::context_registry": 5,
+      "mirbuilder::emission_ssa_phi": 6,
+      "mirbuilder::join_i_r_plan": 7,
+      "mirbuilder::join_i_r_route_verify": 1
+    },
+    "owner_edge_repair_required_count": 12
+  },
+  "token": "MIRBUILDER-ID-SCALAR-DOMAIN-TRANSPORT-DIRECTABILITY-RERUN-001"
+}
