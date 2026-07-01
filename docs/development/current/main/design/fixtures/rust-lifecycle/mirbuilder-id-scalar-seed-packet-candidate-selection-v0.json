@@ -1,0 +1,235 @@
+{
+  "candidate_pool": {
+    "ambiguous_candidate_count": 4,
+    "input_owner_edge_count": 10,
+    "packet_generation_candidate_count": 10,
+    "selected_candidate_count": 0
+  },
+  "candidate_rows": [
+    {
+      "blocked_by": [],
+      "directability_evidence_present": true,
+      "next_card": "MIRBUILDER-HAKORUNE-MIR-BUILDER-BUILDER-INIT-ID-SCALAR-SOURCE-PLAN-AND-RECIPE-001",
+      "nominal_id_domain_isolation": "Preserved",
+      "owner_edge_complete": true,
+      "owner_edge_confidence": "FileScoped",
+      "owner_edge_id": "hakorune_mir_builder::builder_init",
+      "packet_generation_candidate": true,
+      "priority_tuple": [
+        2,
+        0,
+        0,
+        0
+      ],
+      "seed_packet_state": "MissingPacket"
+    },
+    {
+      "blocked_by": [],
+      "directability_evidence_present": true,
+      "next_card": "MIRBUILDER-HAKORUNE-MIR-BUILDER-BUILDER-VALUE-KIND-ID-SCALAR-SOURCE-PLAN-AND-RECIPE-001",
+      "nominal_id_domain_isolation": "Preserved",
+      "owner_edge_complete": true,
+      "owner_edge_confidence": "FileScoped",
+      "owner_edge_id": "hakorune_mir_builder::builder_value_kind",
+      "packet_generation_candidate": true,
+      "priority_tuple": [
+        2,
+        0,
+        0,
+        0
+      ],
+      "seed_packet_state": "MissingPacket"
+    },
+    {
+      "blocked_by": [],
+      "directability_evidence_present": true,
+      "next_card": "MIRBUILDER-HAKORUNE-MIR-BUILDER-JOINIR-ID-REMAPPER-ID-SCALAR-SOURCE-PLAN-AND-RECIPE-001",
+      "nominal_id_domain_isolation": "Preserved",
+      "owner_edge_complete": true,
+      "owner_edge_confidence": "FileScoped",
+      "owner_edge_id": "hakorune_mir_builder::joinir_id_remapper",
+      "packet_generation_candidate": true,
+      "priority_tuple": [
+        2,
+        0,
+        0,
+        0
+      ],
+      "seed_packet_state": "MissingPacket"
+    },
+    {
+      "blocked_by": [],
+      "directability_evidence_present": true,
+      "next_card": "MIRBUILDER-HAKORUNE-MIR-BUILDER-UTILS-ID-ALLOC-ID-SCALAR-SOURCE-PLAN-AND-RECIPE-001",
+      "nominal_id_domain_isolation": "Preserved",
+      "owner_edge_complete": true,
+      "owner_edge_confidence": "FileScoped",
+      "owner_edge_id": "hakorune_mir_builder::utils::id_alloc",
+      "packet_generation_candidate": true,
+      "priority_tuple": [
+        2,
+        0,
+        0,
+        0
+      ],
+      "seed_packet_state": "MissingPacket"
+    },
+    {
+      "blocked_by": [],
+      "directability_evidence_present": true,
+      "next_card": "MIRBUILDER-HAKORUNE-MIR-BUILDER-UTILS-LOCAL-SSA-ID-SCALAR-SOURCE-PLAN-AND-RECIPE-001",
+      "nominal_id_domain_isolation": "Preserved",
+      "owner_edge_complete": true,
+      "owner_edge_confidence": "FileScoped",
+      "owner_edge_id": "hakorune_mir_builder::utils::local_ssa",
+      "packet_generation_candidate": true,
+      "priority_tuple": [
+        2,
+        0,
+        0,
+        0
+      ],
+      "seed_packet_state": "MissingPacket"
+    },
+    {
+      "blocked_by": [],
+      "directability_evidence_present": true,
+      "next_card": "MIRBUILDER-HAKORUNE-MIR-REGION-FUNCTION-SLOT-REGISTRY-ID-SCALAR-SOURCE-PLAN-AND-RECIPE-001",
+      "nominal_id_domain_isolation": "Preserved",
+      "owner_edge_complete": true,
+      "owner_edge_confidence": "FileScoped",
+      "owner_edge_id": "hakorune_mir_region::function_slot_registry",
+      "packet_generation_candidate": true,
+      "priority_tuple": [
+        2,
+        0,
+        0,
+        0
+      ],
+      "seed_packet_state": "MissingPacket"
+    },
+    {
+      "blocked_by": [],
+      "directability_evidence_present": true,
+      "next_card": "MIRBUILDER-MIRBUILDER-CONTEXT-REGISTRY-ID-SCALAR-SOURCE-PLAN-AND-RECIPE-001",
+      "nominal_id_domain_isolation": "Preserved",
+      "owner_edge_complete": true,
+      "owner_edge_confidence": "FixtureMapped",
+      "owner_edge_id": "mirbuilder::context_registry",
+      "packet_generation_candidate": true,
+      "priority_tuple": [
+        1,
+        0,
+        0,
+        0
+      ],
+      "seed_packet_state": "MissingPacket"
+    },
+    {
+      "blocked_by": [],
+      "directability_evidence_present": true,
+      "next_card": "MIRBUILDER-MIRBUILDER-EMISSION-SSA-PHI-ID-SCALAR-SOURCE-PLAN-AND-RECIPE-001",
+      "nominal_id_domain_isolation": "Preserved",
+      "owner_edge_complete": true,
+      "owner_edge_confidence": "FixtureMapped",
+      "owner_edge_id": "mirbuilder::emission_ssa_phi",
+      "packet_generation_candidate": true,
+      "priority_tuple": [
+        1,
+        0,
+        0,
+        0
+      ],
+      "seed_packet_state": "MissingPacket"
+    },
+    {
+      "blocked_by": [],
+      "directability_evidence_present": true,
+      "next_card": "MIRBUILDER-MIRBUILDER-JOIN-I-R-PLAN-ID-SCALAR-SOURCE-PLAN-AND-RECIPE-001",
+      "nominal_id_domain_isolation": "Preserved",
+      "owner_edge_complete": true,
+      "owner_edge_confidence": "FixtureMapped",
+      "owner_edge_id": "mirbuilder::join_i_r_plan",
+      "packet_generation_candidate": true,
+      "priority_tuple": [
+        1,
+        0,
+        0,
+        0
+      ],
+      "seed_packet_state": "MissingPacket"
+    },
+    {
+      "blocked_by": [],
+      "directability_evidence_present": true,
+      "next_card": "MIRBUILDER-MIRBUILDER-JOIN-I-R-ROUTE-VERIFY-ID-SCALAR-SOURCE-PLAN-AND-RECIPE-001",
+      "nominal_id_domain_isolation": "Preserved",
+      "owner_edge_complete": true,
+      "owner_edge_confidence": "FixtureMapped",
+      "owner_edge_id": "mirbuilder::join_i_r_route_verify",
+      "packet_generation_candidate": true,
+      "priority_tuple": [
+        1,
+        0,
+        0,
+        0
+      ],
+      "seed_packet_state": "MissingPacket"
+    }
+  ],
+  "claims": {
+    "cluster_size_as_proof": 0,
+    "coverage_percentage_as_proof": 0,
+    "derived_artifact_seed_draft_input_materialization": 0,
+    "directable_row_count_as_proof": 0,
+    "generated_artifact_as_native_edit_authority": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "lexical_tiebreaker_as_seed_selection_proof": 0,
+    "manual_owner_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "route_membership_alone_as_proof": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "seed_evidence_contract_consumed": 1,
+    "source_plan_and_recipe_materialization": 0,
+    "source_selfhost_claim": 0,
+    "verifier_result_fixture_materialization": 0
+  },
+  "decision": {
+    "kind": "KeepStopped",
+    "reason_token": "MultipleEqualIdScalarSeedPacketCandidates",
+    "selected_next_card": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "selected_owner_edge_id": null
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "seed_evidence_contract": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-seed-evidence-contract-v0.json"
+  },
+  "kind": "MirBuilderIdScalarSeedPacketCandidateSelectionV1",
+  "provenance": {
+    "seed_evidence_contract_hash": "03e91c34370b821f45b78baa31c8789fb1c96b2ef9542adc915f013054dd114c"
+  },
+  "schema_version": 0,
+  "selection_rule": {
+    "allowed_signals": [
+      "owner_edge_confidence",
+      "owner_edge_completeness",
+      "nominal_id_domain_isolation",
+      "seed_packet_state"
+    ],
+    "forbidden_proofs": [
+      "cluster_size",
+      "directable_row_count",
+      "lexical_order",
+      "coverage_percentage",
+      "route_membership_alone",
+      "manual_owner_preference"
+    ],
+    "primary": "SeedPacketMaterializationReadiness"
+  },
+  "token": "MIRBUILDER-ID-SCALAR-SEED-PACKET-CANDIDATE-SELECTION-001"
+}

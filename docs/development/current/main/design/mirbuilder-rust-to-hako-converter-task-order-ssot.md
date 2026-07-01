@@ -24,9 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-ID-SCALAR-SEED-PACKET-CANDIDATE-SELECTION-001.
-  The evidence contract is defined; next select a packet-generation candidate
-  without treating directability alone as seed proof.
+  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001.
+  ID scalar packet selection found four equal FixtureMapped candidates; a new
+  discriminator is required before implementation can continue.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  MIRBUILDER-ID-SCALAR-SEED-PACKET-CANDIDATE-SELECTION-001
+  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -349,6 +349,14 @@ id_scalar_seed_evidence_contract_result:
   selected_next_card = MIRBUILDER-ID-SCALAR-SEED-PACKET-CANDIDATE-SELECTION-001
   source_selfhost_claim = 0
 
+id_scalar_seed_packet_candidate_selection_result:
+  token = MIRBUILDER-ID-SCALAR-SEED-PACKET-CANDIDATE-SELECTION-001
+  packet_generation_candidate_count = 10
+  ambiguous_candidate_count = 4
+  reason_token = MultipleEqualIdScalarSeedPacketCandidates
+  selected_next_card = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+  source_selfhost_claim = 0
+
 placement_rule:
   scan_unit = rust_function_or_method
   classification_unit = semantic_owner_edge
@@ -369,31 +377,8 @@ forbidden:
 
 ## Evidence Pointers
 
-```text
-semantic_closure_report =
-  docs/development/current/main/design/fixtures/rust-lifecycle/
-  minimal-mirbuilder-execution-path-semantic-closure-report-v0.json
-
-latest_frontier_card =
-  docs/development/current/main/phases/phase-296x/
-  1936-MIRBUILDER-MISSING-PROJECTION-POLICY-JOINIR-PLAN-CLUSTER-001.md
-
-latest_integration_card =
-  docs/development/current/main/phases/phase-296x/
-  296x-1763-MIRBUILDER-MINIMAL-PATH-MAINLINE-READINESS-RESOLVER-001.md
-
-latest_guard_repair_card =
-  docs/development/current/main/phases/phase-296x/
-  1772-MIRBUILDER-COMPOSED-PREFIX-GUARD-DRIFT-REPAIR-001.md
-
-latest_adoption_card =
-  docs/development/current/main/phases/phase-296x/
-  1771-MIRBUILDER-CONTEXT-HAKO-ADOPTION-DECISION-001.md
-
-latest_native_owner_card =
-  docs/development/current/main/phases/phase-296x/
-  1770-MIRBUILDER-CONTEXT-HAKO-NATIVE-SOURCE-OWNER-001.md
-```
+Detailed evidence lives in phase cards, fixtures, and git history. Keep this
+task-order thin.
 
 ## Active Next 3
 
@@ -401,27 +386,27 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. MIRBUILDER-ID-SCALAR-SEED-EVIDENCE-CONTRACT-001
+1. MIRBUILDER-ID-SCALAR-SEED-PACKET-CANDIDATE-SELECTION-001
    status=closed
-   boundary=directability may feed packet generation but is not seed proof
+   boundary=four FixtureMapped packet candidates tie
 
-2. MIRBUILDER-ID-SCALAR-SEED-PACKET-CANDIDATE-SELECTION-001
-   status=next
-   boundary=select packet-generation candidate without manual owner selection
+2. SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+   status=design-consultation-required
+   boundary=need a new machine-derived packet discriminator
 
 3. SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
    status=guardrail
    boundary=no native seed / Hako generation / Source Selfhost claim
 
 next:
-  MIRBUILDER-ID-SCALAR-SEED-PACKET-CANDIDATE-SELECTION-001
-  boundary=derive exactly one seed packet candidate or keep stopped
+  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+  boundary=design consultation required before selecting a packet candidate
 
 next_documented_task =
-  MIRBUILDER-ID-SCALAR-SEED-PACKET-CANDIDATE-SELECTION-001
+  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 next_after_active_3 =
-  <SELECTED-OWNER>-ID-SCALAR-SOURCE-PLAN-AND-RECIPE-001
+  TBD_AFTER_ID_SCALAR_PACKET_DISCRIMINATOR_DESIGN
 ```
 
 ## Landed Converter Capability Summary

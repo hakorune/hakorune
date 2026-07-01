@@ -1549,6 +1549,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-seed-evidence-contract-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_id_scalar_seed_evidence_contract_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-ID-SCALAR-SEED-PACKET-CANDIDATE-SELECTION-001",
+      "card": "docs/development/current/main/phases/phase-296x/2021-MIRBUILDER-ID-SCALAR-SEED-PACKET-CANDIDATE-SELECTION-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-seed-packet-candidate-selection-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_id_scalar_seed_packet_candidate_selection_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {
