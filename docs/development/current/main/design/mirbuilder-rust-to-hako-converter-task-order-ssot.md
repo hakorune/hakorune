@@ -24,9 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-ID-SCALAR-DOMAIN-SEED-READINESS-RESOLUTION-002.
-  Owner-edge repair completed all 12 ID scalar repair-required rows; readiness
-  must rerun before any ID scalar native seed owner can be selected.
+  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001.
+  ID scalar readiness rerun found no seed-ready owner after repair; selecting
+  the next implementation lane now requires a design basis update.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  MIRBUILDER-ID-SCALAR-DOMAIN-SEED-READINESS-RESOLUTION-002
+  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -334,6 +334,14 @@ id_scalar_domain_owner_edge_repair_result:
   selected_next_card = MIRBUILDER-ID-SCALAR-DOMAIN-SEED-READINESS-RESOLUTION-002
   source_selfhost_claim = 0
 
+id_scalar_domain_seed_readiness_resolution_002_result:
+  token = MIRBUILDER-ID-SCALAR-DOMAIN-SEED-READINESS-RESOLUTION-002
+  readiness_input_owner_edge_count = 10
+  seed_materialization_ready_count = 0
+  reason_token = NoIdScalarSeedMaterializationReadyOwnerEdgeAfterOwnerEdgeRepair
+  selected_next_card = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+  source_selfhost_claim = 0
+
 placement_rule:
   scan_unit = rust_function_or_method
   classification_unit = semantic_owner_edge
@@ -393,26 +401,26 @@ history, not in this task-order SSOT.
    non_authority=manual owner selection, raw i64 interchangeability
 
 2. MIRBUILDER-ID-SCALAR-DOMAIN-SEED-READINESS-RESOLUTION-002
-   status=next
+   status=closed
    boundary=rerun readiness after owner-edge repair
    semantic_authority=repaired owner-edge fixture
    non_authority=cluster size proof, lexical tiebreaker, Source Selfhost claim
 
-3. MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-008
-   status=closed-predecessor
-   boundary=previous seed survey rerun before ID scalar unlock
-   semantic_authority=updated blocker fixture and native owner ledger
-   non_authority=generated artifact edit authority, Source Selfhost claim
+3. SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+   status=design-consultation-required
+   boundary=directability alone is not native seed evidence
+   semantic_authority=latest readiness rerun and bridge policy
+   non_authority=manual owner selection or count-based proof
 
 next:
-  MIRBUILDER-ID-SCALAR-DOMAIN-SEED-READINESS-RESOLUTION-002
-  boundary=rerun seed readiness with repaired owner-edge completeness
+  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+  boundary=design consultation required before selecting another lane
 
 next_documented_task =
-  MIRBUILDER-ID-SCALAR-DOMAIN-SEED-READINESS-RESOLUTION-002
+  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 next_after_active_3 =
-  MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-008
+  TBD_AFTER_DESIGN_CONSULTATION
 ```
 
 ## Landed Converter Capability Summary

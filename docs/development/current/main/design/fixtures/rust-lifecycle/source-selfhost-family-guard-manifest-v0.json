@@ -1535,6 +1535,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-domain-owner-edge-repair-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_id_scalar_domain_owner_edge_repair_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-ID-SCALAR-DOMAIN-SEED-READINESS-RESOLUTION-002",
+      "card": "docs/development/current/main/phases/phase-296x/2019-MIRBUILDER-ID-SCALAR-DOMAIN-SEED-READINESS-RESOLUTION-002.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-domain-seed-readiness-resolution-002-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_id_scalar_domain_seed_readiness_resolution_002_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {
