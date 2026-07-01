@@ -25,13 +25,12 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PROJECTION-DESCRIPTOR-COVERAGE-RECLASSIFICATION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2005-MIRBUILDER-PROJECTION-DESCRIPTOR-COVERAGE-RECLASSIFICATION-001.md"
-latest_card_summary = """The latest card reclassifies source-surface report
-rows covered by landed projection descriptors. It moves 380 rows from
-MissingProjectionPolicy to mapped known-owner coverage, leaves 1004
-MissingProjectionPolicy rows, and selects native-owner seed capability rerun
-008 next without Source Selfhost claim."""
+latest_card = "MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-008"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2006-MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-008.md"
+latest_card_summary = """The latest card reruns native-owner seed capability
+after projection descriptor coverage reclassification. It finds no bridge-
+eligible strict-emission native seed candidate, keeps Source Selfhost
+unclaimed, and selects native-owner checkpoint rerun next."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -42,6 +41,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-01: 2006 reruns native-owner seed capability after descriptor coverage reclassification and selects native-owner checkpoint rerun.",
   "2026-07-01: 2005 reclassifies 380 descriptor-covered source surfaces and selects native-owner seed capability rerun 008.",
   "2026-07-01: 2004 resolves MissingProjectionPolicy V2 and selects projection descriptor coverage reclassification instead of a new policy.",
   "2026-07-01: 2003 checkpoints 11 native owners and selects MissingProjectionPolicy V2 by evidence quality, not count.",

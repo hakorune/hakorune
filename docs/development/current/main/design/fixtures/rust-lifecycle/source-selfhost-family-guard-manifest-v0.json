@@ -1444,6 +1444,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-unconverted-surface-report-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_projection_descriptor_coverage_reclassification_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-008",
+      "card": "docs/development/current/main/phases/phase-296x/2006-MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-008.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-native-owner-seed-capability-survey-rerun-008-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_crate_wide_native_owner_seed_capability_survey_rerun_008_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {

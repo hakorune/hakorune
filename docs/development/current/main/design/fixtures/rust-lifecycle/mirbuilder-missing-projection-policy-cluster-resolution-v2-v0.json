@@ -46,7 +46,7 @@
   "kind": "MirBuilderMissingProjectionPolicyClusterResolutionV2",
   "provenance": {
     "cluster_resolution_v1_hash": "ac0059a9dc2bafab00e6d20dda10dc3b7f6468c9508a891f4de69257d779f2bb",
-    "native_owner_checkpoint_hash": "baee2ce1a3460919392a1b577ccd3c2f1774f4375cc57402790d511e6fd222ed",
+    "native_owner_checkpoint_hash": "10004a4e5f63595f97b437f0bcf973c872e72a8d526c8f282c6b787dd31c06a3",
     "priority_resolution_hash": "e574dbc276f39ca6a7404c9bbc8d6e2c0ce39126dc9d028d1fb93886c57fb3d2",
     "unconverted_surface_report_hash": "724c2765760cca5b37a11104d560a69bd2134de2235a0dad514d01c08cfdfa1a"
   },

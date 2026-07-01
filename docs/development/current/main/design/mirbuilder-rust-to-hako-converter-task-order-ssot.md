@@ -24,10 +24,10 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-008.
-  Projection descriptor coverage reclassified 380 source surfaces out of
-  MissingProjectionPolicy. Rerun seed capability against the fresh report before
-  choosing another blocker lane.
+  SOURCE-SELFHOST-NATIVE-OWNER-CHECKPOINT-RERUN-001.
+  Seed capability rerun 008 found no bridge-eligible native seed after
+  descriptor coverage reclassification, so rerun the native-owner checkpoint
+  against the fresh report before selecting another blocker lane.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -63,7 +63,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-008
+  SOURCE-SELFHOST-NATIVE-OWNER-CHECKPOINT-RERUN-001
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -324,22 +324,15 @@ projection_descriptor_coverage_reclassification_result:
   token = MIRBUILDER-PROJECTION-DESCRIPTOR-COVERAGE-RECLASSIFICATION-001
   projection_descriptor_coverage_reclassified_count = 380
   missing_projection_policy_count = 1004
-  mapped_to_known_owner_count = 398
   selected_next_card = MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-008
   source_selfhost_claim = 0
 
-post_rerun_006_selector_basis:
-  token = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-002
-  output_contract = rust-lifecycle-source-selfhost-wider-route-selection-basis-002-v0
-  basis_kind = PostStrictEmissionBridgeExhaustionSelectorBasis
-  allowed_decisions =
-    SelectUnconvertedSurfaceReportRerun
-    SelectStrictDenyGapClusterResolution
-    SelectGeneratedArtifactToNativeSeedBridgePolicyV2
-    SelectNativeOwnerCoverageCheckpoint
-    SelectRouteRepair
-    KeepStopped
-  selected_owner_edge_id = null
+native_owner_seed_capability_rerun_008_result:
+  token = MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-008
+  bridge_eligible_count = 0
+  already_adopted_count = 15
+  decision = SelectNativeOwnerCheckpointRerun
+  selected_next_card = SOURCE-SELFHOST-NATIVE-OWNER-CHECKPOINT-RERUN-001
   source_selfhost_claim = 0
 
 placement_rule:
@@ -394,11 +387,11 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-008
+1. SOURCE-SELFHOST-NATIVE-OWNER-CHECKPOINT-RERUN-001
    status=next
-   boundary=rerun seed capability after report evidence changed
-   semantic_authority=fresh report, native owner ledger, bridge policy
-   non_authority=generated artifact edit authority, Source Selfhost claim
+   boundary=checkpoint blocker class after report evidence changed
+   semantic_authority=fresh report and native owner ledger
+   non_authority=manual blocker-lane selection, Source Selfhost claim
 
 2. MIRBUILDER-BORROW-SURFACE-POLICY-CLUSTER-RERUN-002
    status=conditional-after-checkpoint
@@ -413,11 +406,11 @@ history, not in this task-order SSOT.
    non_authority=generated artifact edit authority, Source Selfhost claim
 
 next:
-  MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-008
-  boundary=report evidence changed; rerun seed capability before choosing another lane
+  SOURCE-SELFHOST-NATIVE-OWNER-CHECKPOINT-RERUN-001
+  boundary=rerun checkpoint after seed rerun found no bridge-eligible candidate
 
 next_documented_task =
-  MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-008
+  SOURCE-SELFHOST-NATIVE-OWNER-CHECKPOINT-RERUN-001
 
 next_after_active_3 =
   MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-008
