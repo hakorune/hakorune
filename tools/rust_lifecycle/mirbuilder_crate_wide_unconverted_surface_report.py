@@ -17,6 +17,19 @@ from pathlib import Path
 from typing import Any
 
 from shared_family_generator import stable_json, write_if_changed
+from mirbuilder_crate_wide_missing_projection_policy_cluster_resolution import (
+    borrow_axis,
+    call_vocabulary_axis,
+    cluster_axis,
+    cluster_id_for,
+    control_flow_axis,
+    legacy_cluster_id,
+    owner_confidence,
+    shape_signature,
+    stable_deny_reason,
+    type_transport_axis,
+    verifier_or_oracle_state,
+)
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -34,6 +47,7 @@ FAMILY_MANIFEST = FIXTURES / "source-selfhost-family-guard-manifest-v0.json"
 OWNER_EDGE_CONFIDENCE_REPAIR = FIXTURES / "mirbuilder-owner-edge-confidence-repair-v0.json"
 STABLE_DENY_REASON_REPAIR = FIXTURES / "mirbuilder-missing-projection-stable-deny-reason-repair-v0.json"
 SHAPE_SIGNATURE_INVENTORY = FIXTURES / "mirbuilder-crate-wide-shape-signature-inventory-v0.json"
+PROJECTION_POLICY_PRIORITY_RESOLUTION = FIXTURES / "mirbuilder-projection-policy-cluster-priority-resolution-v0.json"
 CURRENT_STATE = ROOT / "docs/development/current/main/CURRENT_STATE.toml"
 
 FN_PATTERN = re.compile(
@@ -51,6 +65,7 @@ REASON_TOKEN_TABLE = {
     "NoKnownOwnerEdge": "source surface has no known owner-edge evidence yet",
     "PrivateHelperSurfaceNotSelected": "private helper not selected as a source-selfhost conversion surface",
     "PublicRustSurfaceMissingProjectionPolicy": "public Rust surface lacks a selected Hako projection policy",
+    "ProjectionDescriptorCoverageLanded": "source surface is covered by a landed projection descriptor cluster",
     "ReturnedMutableBorrowCoveredByExplicitMutationApiOnly": "known returned mutable borrow replacement policy",
     "ReturnedMutableBorrowPolicyMissing": "returned mutable borrow detected without an existing replacement policy",
     "ReturnedReadBorrowCoveredByOwnedReadSnapshotProjection": "known returned read borrow replacement policy",
@@ -750,6 +765,58 @@ def loop_cond_co_statement_lowering_subcluster(item: dict[str, Any]) -> str | No
     return "OtherLoopCondCoStatementLoweringCluster"
 
 
+def projection_cluster_for_item(item: dict[str, Any]) -> dict[str, Any]:
+    source_cluster = cluster_axis(item)
+    confidence = owner_confidence(item)
+    deny_reason = stable_deny_reason(item)
+    shape = shape_signature(item)
+    borrow = borrow_axis(item)
+    control_flow = control_flow_axis(item)
+    type_axis = type_transport_axis(item)
+    call_axis = call_vocabulary_axis(item)
+    verifier_state = verifier_or_oracle_state(item)
+    return {
+        "cluster_id": cluster_id_for(
+            deny_reason,
+            shape,
+            confidence,
+            source_cluster,
+            borrow,
+            control_flow,
+            type_axis,
+            call_axis,
+            verifier_state,
+        ),
+        "legacy_cluster_id": legacy_cluster_id(deny_reason, shape, confidence, source_cluster),
+        "shape_signature": shape,
+    }
+
+
+def apply_projection_descriptor_coverage(classified: list[dict[str, Any]]) -> None:
+    if not PROJECTION_POLICY_PRIORITY_RESOLUTION.exists():
+        return
+    priority_resolution = read_json(PROJECTION_POLICY_PRIORITY_RESOLUTION)
+    covered = {
+        row["cluster_id"]: row
+        for row in priority_resolution.get("excluded_existing_decision_clusters", [])
+    }
+    for item in classified:
+        if item.get("classification") != "MissingProjectionPolicy":
+            continue
+        cluster = projection_cluster_for_item(item)
+        coverage = covered.get(cluster["cluster_id"])
+        if coverage is None:
+            continue
+        item["classification"] = "MappedToKnownOwner"
+        item["reason_token"] = "ProjectionDescriptorCoverageLanded"
+        item["blockers"] = []
+        item["next_owner_kind"] = "None"
+        item["next_card"] = None
+        item["covered_projection_cluster_id"] = cluster["cluster_id"]
+        item["covered_projection_next_card"] = coverage.get("next_card")
+        item["coverage_reason_token"] = coverage.get("reason_token")
+
+
 def included_item(item: dict[str, Any]) -> bool:
     if item["is_public_surface"]:
         return True
@@ -799,6 +866,7 @@ def build_report() -> dict[str, Any]:
     apply_owner_edge_confidence_repair(classified)
     apply_stable_deny_reason_repair(classified)
     apply_shape_signature_inventory(classified)
+    apply_projection_descriptor_coverage(classified)
     items = [item for item in classified if included_item(item)]
     known_owner_edges = {item["known_owner_edge"] for item in items if item["known_owner_edge"]}
     orphan_evidence_rows = [
@@ -933,6 +1001,7 @@ def build_report() -> dict[str, Any]:
             "owner_edge_confidence_repair_hash": sha256_file(OWNER_EDGE_CONFIDENCE_REPAIR) if OWNER_EDGE_CONFIDENCE_REPAIR.exists() else None,
             "stable_deny_reason_repair_hash": sha256_file(STABLE_DENY_REASON_REPAIR) if STABLE_DENY_REASON_REPAIR.exists() else None,
             "shape_signature_inventory_hash": sha256_file(SHAPE_SIGNATURE_INVENTORY) if SHAPE_SIGNATURE_INVENTORY.exists() else None,
+            "projection_policy_priority_resolution_hash": sha256_file(PROJECTION_POLICY_PRIORITY_RESOLUTION) if PROJECTION_POLICY_PRIORITY_RESOLUTION.exists() else None,
         },
         "source_inventory": {
             "rust_surface_count": len(all_surfaces),
@@ -1099,6 +1168,10 @@ def build_report() -> dict[str, Any]:
             "ignored_helper_count": counts.get("IgnoredNonSemanticHelper", 0),
             "test_only_count": counts.get("TestOnlySurface", 0),
             "debug_only_count": counts.get("DebugOnlySurface", 0),
+            "projection_descriptor_coverage_reclassified_count": sum(
+                1 for item in items
+                if item.get("reason_token") == "ProjectionDescriptorCoverageLanded"
+            ),
         },
         "decision": decision,
         "claims": {
@@ -1135,6 +1208,7 @@ def build_report() -> dict[str, Any]:
             "composite_suspected_is_not_decomposition_proof": 1,
             "generated_artifact_only_is_not_native_edit_authority": 1,
             "support_lane_only_is_not_hako_adoption_candidate": 1,
+            "projection_descriptor_coverage_reclassification": 1,
             "manual_family_selection": 0,
             "source_selfhost_claim": 0,
             "runtime_fallback": 0,

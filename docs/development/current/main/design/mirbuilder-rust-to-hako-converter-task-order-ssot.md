@@ -24,10 +24,10 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-PROJECTION-DESCRIPTOR-COVERAGE-RECLASSIFICATION-001.
-  MissingProjectionPolicy V2 proved all 41 eligible projection-policy clusters
-  are already covered by landed descriptor decisions; the report classification
-  must now absorb that coverage instead of selecting a new policy.
+  MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-008.
+  Projection descriptor coverage reclassified 380 source surfaces out of
+  MissingProjectionPolicy. Rerun seed capability against the fresh report before
+  choosing another blocker lane.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -63,7 +63,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  MIRBUILDER-PROJECTION-DESCRIPTOR-COVERAGE-RECLASSIFICATION-001
+  MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-008
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -320,6 +320,14 @@ missing_projection_policy_cluster_resolution_v2_result:
   selected_next_card = MIRBUILDER-PROJECTION-DESCRIPTOR-COVERAGE-RECLASSIFICATION-001
   source_selfhost_claim = 0
 
+projection_descriptor_coverage_reclassification_result:
+  token = MIRBUILDER-PROJECTION-DESCRIPTOR-COVERAGE-RECLASSIFICATION-001
+  projection_descriptor_coverage_reclassified_count = 380
+  missing_projection_policy_count = 1004
+  mapped_to_known_owner_count = 398
+  selected_next_card = MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-008
+  source_selfhost_claim = 0
+
 post_rerun_006_selector_basis:
   token = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-002
   output_contract = rust-lifecycle-source-selfhost-wider-route-selection-basis-002-v0
@@ -386,11 +394,11 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. MIRBUILDER-PROJECTION-DESCRIPTOR-COVERAGE-RECLASSIFICATION-001
+1. MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-008
    status=next
-   boundary=reclassify report rows covered by landed projection descriptors
-   semantic_authority=V2 cluster resolution and priority resolver exclusions
-   non_authority=new projection policy, coverage percentage, Source Selfhost claim
+   boundary=rerun seed capability after report evidence changed
+   semantic_authority=fresh report, native owner ledger, bridge policy
+   non_authority=generated artifact edit authority, Source Selfhost claim
 
 2. MIRBUILDER-BORROW-SURFACE-POLICY-CLUSTER-RERUN-002
    status=conditional-after-checkpoint
@@ -405,11 +413,11 @@ history, not in this task-order SSOT.
    non_authority=generated artifact edit authority, Source Selfhost claim
 
 next:
-  MIRBUILDER-PROJECTION-DESCRIPTOR-COVERAGE-RECLASSIFICATION-001
-  boundary=eligible projection clusters are landed; report must stop counting them as missing
+  MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-008
+  boundary=report evidence changed; rerun seed capability before choosing another lane
 
 next_documented_task =
-  MIRBUILDER-PROJECTION-DESCRIPTOR-COVERAGE-RECLASSIFICATION-001
+  MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-008
 
 next_after_active_3 =
   MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-008

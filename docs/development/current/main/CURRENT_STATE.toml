@@ -25,12 +25,13 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-MISSING-PROJECTION-POLICY-CLUSTER-RESOLUTION-V2"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2004-MIRBUILDER-MISSING-PROJECTION-POLICY-CLUSTER-RESOLUTION-V2.md"
-latest_card_summary = """The latest card resolves the checkpoint-selected
-MissingProjectionPolicy blocker. It proves all 41 eligible projection-policy
-clusters are already covered by landed descriptor decisions, selects projection
-descriptor coverage reclassification next, and keeps Source Selfhost unclaimed."""
+latest_card = "MIRBUILDER-PROJECTION-DESCRIPTOR-COVERAGE-RECLASSIFICATION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2005-MIRBUILDER-PROJECTION-DESCRIPTOR-COVERAGE-RECLASSIFICATION-001.md"
+latest_card_summary = """The latest card reclassifies source-surface report
+rows covered by landed projection descriptors. It moves 380 rows from
+MissingProjectionPolicy to mapped known-owner coverage, leaves 1004
+MissingProjectionPolicy rows, and selects native-owner seed capability rerun
+008 next without Source Selfhost claim."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -41,6 +42,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-01: 2005 reclassifies 380 descriptor-covered source surfaces and selects native-owner seed capability rerun 008.",
   "2026-07-01: 2004 resolves MissingProjectionPolicy V2 and selects projection descriptor coverage reclassification instead of a new policy.",
   "2026-07-01: 2003 checkpoints 11 native owners and selects MissingProjectionPolicy V2 by evidence quality, not count.",
   "2026-07-01: 2002 refreshes the unconverted surface report against projection and native-owner adoption ledgers, then selects native-owner checkpoint next.",

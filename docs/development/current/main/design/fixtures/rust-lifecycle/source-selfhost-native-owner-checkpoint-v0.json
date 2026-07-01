@@ -8,8 +8,8 @@
       "selection_eligible": false
     },
     "MissingProjectionPolicy": {
-      "candidate_count": 1384,
-      "evidence_quality_count": 1199,
+      "candidate_count": 1004,
+      "evidence_quality_count": 819,
       "next_card": "MIRBUILDER-MISSING-PROJECTION-POLICY-CLUSTER-RESOLUTION-V2",
       "reason_token": "MissingProjectionPolicyHasFixtureMappedKnownShapeEvidence",
       "selection_eligible": true
@@ -149,8 +149,8 @@
     ]
   },
   "provenance": {
-    "source_selfhost_family_guard_manifest_hash": "9edf8fa8e42ebcbe58d3f4ddb4964860c8a9b726af5d2939cd2f75ee4bd7c335",
-    "unconverted_surface_report_hash": "0e444d56c9b135d53aadc68fcdb9792c0129c3187c9076d0745d1ce0832254f0"
+    "source_selfhost_family_guard_manifest_hash": "cbb52244828a52671dd2640731e005bddc1255c94f5ed6a882fa08f336f67c91",
+    "unconverted_surface_report_hash": "724c2765760cca5b37a11104d560a69bd2134de2235a0dad514d01c08cfdfa1a"
   },
   "schema_version": 0,
   "selection_rule": {
