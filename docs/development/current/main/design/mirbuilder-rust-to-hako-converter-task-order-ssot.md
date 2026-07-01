@@ -24,9 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-ID-SCALAR-ERROR-AND-DETERMINISTIC-ORDER-BASIS-001.
-  State mutation frames are declared; next define error semantics and
-  deterministic order before behavior recipe coverage.
+  MIRBUILDER-ID-SCALAR-BEHAVIOR-RECIPE-EFFECT-COVERAGE-BASIS-001.
+  Error semantics and deterministic order are declared; next normalize effect
+  coverage before SourcePlanAndRecipe derivability.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  MIRBUILDER-ID-SCALAR-ERROR-AND-DETERMINISTIC-ORDER-BASIS-001
+  MIRBUILDER-ID-SCALAR-BEHAVIOR-RECIPE-EFFECT-COVERAGE-BASIS-001
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -363,6 +363,13 @@ id_scalar_state_mutation_frame_basis_result:
   selected_next_card = MIRBUILDER-ID-SCALAR-ERROR-AND-DETERMINISTIC-ORDER-BASIS-001
   source_selfhost_claim = 0
 
+id_scalar_error_and_deterministic_order_basis_result:
+  token = MIRBUILDER-ID-SCALAR-ERROR-AND-DETERMINISTIC-ORDER-BASIS-001
+  error_semantics_count = 6
+  deterministic_order_count = 3
+  selected_next_card = MIRBUILDER-ID-SCALAR-BEHAVIOR-RECIPE-EFFECT-COVERAGE-BASIS-001
+  source_selfhost_claim = 0
+
 placement_rule:
   scan_unit = rust_function_or_method
   classification_unit = semantic_owner_edge
@@ -392,27 +399,27 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. MIRBUILDER-ID-SCALAR-STATE-MUTATION-FRAME-BASIS-001
+1. MIRBUILDER-ID-SCALAR-ERROR-AND-DETERMINISTIC-ORDER-BASIS-001
    status=closed
-   boundary=3 mutation frames declared, no SourcePlan or seed
+   boundary=error/order basis declared, no behavior recipe materialized
 
-2. MIRBUILDER-ID-SCALAR-ERROR-AND-DETERMINISTIC-ORDER-BASIS-001
+2. MIRBUILDER-ID-SCALAR-BEHAVIOR-RECIPE-EFFECT-COVERAGE-BASIS-001
    status=next
-   boundary=declare error/order basis only; no SourcePlan or seed
+   boundary=normalize effect coverage only; no SourcePlan or seed
 
 3. SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
    status=guardrail
    boundary=no native seed / Hako generation / Source Selfhost claim
 
 next:
-  MIRBUILDER-ID-SCALAR-ERROR-AND-DETERMINISTIC-ORDER-BASIS-001
-  boundary=declare error semantics and deterministic order obligations
+  MIRBUILDER-ID-SCALAR-BEHAVIOR-RECIPE-EFFECT-COVERAGE-BASIS-001
+  boundary=map operation tokens to verifier-visible effect classes
 
 next_documented_task =
-  MIRBUILDER-ID-SCALAR-ERROR-AND-DETERMINISTIC-ORDER-BASIS-001
+  MIRBUILDER-ID-SCALAR-BEHAVIOR-RECIPE-EFFECT-COVERAGE-BASIS-001
 
 next_after_active_3 =
-  TBD_AFTER_ID_SCALAR_ERROR_AND_DETERMINISTIC_ORDER_BASIS
+  TBD_AFTER_ID_SCALAR_BEHAVIOR_RECIPE_EFFECT_COVERAGE_BASIS
 ```
 
 ## Landed Converter Capability Summary

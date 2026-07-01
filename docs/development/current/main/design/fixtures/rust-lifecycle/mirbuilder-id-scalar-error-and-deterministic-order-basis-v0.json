@@ -1,0 +1,138 @@
+{
+  "basis_policy": {
+    "deterministic_order_declared": true,
+    "error_semantics_declared": true,
+    "runtime_fallback": false,
+    "source_order_preservation_declared": true,
+    "stable_iteration_declared": true,
+    "verifier_observable_order_declared": true
+  },
+  "candidate_pool": {
+    "deterministic_order_count": 3,
+    "diagnostic_prefix_required_count": 3,
+    "error_semantics_count": 6,
+    "runtime_fallback_count": 0
+  },
+  "claims": {
+    "behavior_recipe_materialization": 0,
+    "derived_artifact_seed_draft_materialization": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_plan_materialization": 0,
+    "source_selfhost_claim": 0,
+    "verifier_result_materialization": 0
+  },
+  "decision": {
+    "kind": "ErrorAndDeterministicOrderBasisDefined",
+    "reason_token": "IdScalarErrorAndDeterministicOrderBasisDefined",
+    "selected_next_card": "MIRBUILDER-ID-SCALAR-BEHAVIOR-RECIPE-EFFECT-COVERAGE-BASIS-001"
+  },
+  "deterministic_order": [
+    {
+      "order_basis": "SourceSurfaceOrder",
+      "order_semantics_id": "mirbuilder.context_registry.context_registry_state.mutation_frame::order",
+      "source_order_preservation": true,
+      "stable_iteration": false,
+      "subject": "mirbuilder.context_registry.context_registry_state.mutation_frame",
+      "verifier_observable_order": true
+    },
+    {
+      "order_basis": "SourceSurfaceOrder",
+      "order_semantics_id": "mirbuilder.emission_ssa_phi.phi_instruction_state.mutation_frame::order",
+      "source_order_preservation": true,
+      "stable_iteration": false,
+      "subject": "mirbuilder.emission_ssa_phi.phi_instruction_state.mutation_frame",
+      "verifier_observable_order": true
+    },
+    {
+      "order_basis": "SourceSurfaceOrder",
+      "order_semantics_id": "mirbuilder.emission_ssa_phi.phi_lifecycle_state.mutation_frame::order",
+      "source_order_preservation": true,
+      "stable_iteration": false,
+      "subject": "mirbuilder.emission_ssa_phi.phi_lifecycle_state.mutation_frame",
+      "verifier_observable_order": true
+    }
+  ],
+  "error_semantics": [
+    {
+      "diagnostic_prefix_required": false,
+      "error_semantics_id": "id_domain::BasicBlockId::invalid_or_missing",
+      "invalid_or_missing_id_behavior": "DenyInvalidOrMissingId",
+      "reserved_id_policy": "NotUsedUnlessSourceEvidence",
+      "runtime_fallback": false,
+      "sentinel_policy": "NoSentinelUnlessSourceEvidence",
+      "source": "IdDomainBoundary",
+      "subject": "BasicBlockId"
+    },
+    {
+      "diagnostic_prefix_required": false,
+      "error_semantics_id": "id_domain::BindingId::invalid_or_missing",
+      "invalid_or_missing_id_behavior": "DenyInvalidOrMissingId",
+      "reserved_id_policy": "NotUsedUnlessSourceEvidence",
+      "runtime_fallback": false,
+      "sentinel_policy": "NoSentinelUnlessSourceEvidence",
+      "source": "IdDomainBoundary",
+      "subject": "BindingId"
+    },
+    {
+      "diagnostic_prefix_required": false,
+      "error_semantics_id": "id_domain::ValueId::invalid_or_missing",
+      "invalid_or_missing_id_behavior": "DenyInvalidOrMissingId",
+      "reserved_id_policy": "NotUsedUnlessSourceEvidence",
+      "runtime_fallback": false,
+      "sentinel_policy": "NoSentinelUnlessSourceEvidence",
+      "source": "IdDomainBoundary",
+      "subject": "ValueId"
+    },
+    {
+      "diagnostic_prefix_required": true,
+      "error_semantics_id": "mirbuilder::emission_ssa_phi::diagnostic_state::diagnostic",
+      "invalid_or_missing_id_behavior": "NotApplicable",
+      "reserved_id_policy": "NotApplicable",
+      "runtime_fallback": false,
+      "sentinel_policy": "NotApplicable",
+      "source": "DiagnosticStateTarget",
+      "subject": "DiagnosticState"
+    },
+    {
+      "diagnostic_prefix_required": true,
+      "error_semantics_id": "mirbuilder::join_i_r_plan::diagnostic_state::diagnostic",
+      "invalid_or_missing_id_behavior": "NotApplicable",
+      "reserved_id_policy": "NotApplicable",
+      "runtime_fallback": false,
+      "sentinel_policy": "NotApplicable",
+      "source": "DiagnosticStateTarget",
+      "subject": "DiagnosticState"
+    },
+    {
+      "diagnostic_prefix_required": true,
+      "error_semantics_id": "mirbuilder::join_i_r_route_verify::diagnostic_state::diagnostic",
+      "invalid_or_missing_id_behavior": "NotApplicable",
+      "reserved_id_policy": "NotApplicable",
+      "runtime_fallback": false,
+      "sentinel_policy": "NotApplicable",
+      "source": "DiagnosticStateTarget",
+      "subject": "DiagnosticState"
+    }
+  ],
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "id_domain_boundary_basis": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-id-domain-boundary-basis-v0.json",
+    "state_mutation_frame_basis": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-state-mutation-frame-basis-v0.json",
+    "state_target_enumeration_basis": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-state-target-enumeration-basis-v0.json"
+  },
+  "kind": "MirBuilderIdScalarErrorAndDeterministicOrderBasisV1",
+  "provenance": {
+    "id_domain_boundary_basis_hash": "b32b873490f282fc213d5b49dc535258eaff00a4fd7ea1bb445e92ab3ccc5e8f",
+    "state_mutation_frame_basis_hash": "9394bce404229542ea455689df42a8955b64530f25a2b687146cbef745ae48ff",
+    "state_target_enumeration_basis_hash": "665f720d1716504aeecf7c59045069f223c44465df56ea11143939c3037c50e8"
+  },
+  "schema_version": 0,
+  "token": "MIRBUILDER-ID-SCALAR-ERROR-AND-DETERMINISTIC-ORDER-BASIS-001"
+}
