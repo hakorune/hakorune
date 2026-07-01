@@ -1,0 +1,996 @@
+{
+  "claims": {
+    "carrier_type_transport_policy_inventory_rerun_002_consumed": 1,
+    "cluster_size_as_proof": 0,
+    "coverage_percentage_as_proof": 0,
+    "generated_artifact_as_native_edit_authority": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "manual_axis_selection": 0,
+    "manual_carrier_selection": 0,
+    "manual_family_selection": 0,
+    "manual_shape_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "return_type_count_as_proof": 0,
+    "route_membership_alone_as_proof": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0,
+    "transport_evidence_inventory_ready": 1
+  },
+  "decision": {
+    "kind": "SelectCarrierTypeTransportUnclassifiedEvidenceResolution",
+    "reason_token": "UnclassifiedCarrierTypeTransportEvidenceRemainsAfterRerun002",
+    "selected_next_card": "MIRBUILDER-CARRIER-TYPE-TRANSPORT-UNCLASSIFIED-EVIDENCE-RESOLUTION-001"
+  },
+  "evidence_rows_sample": [
+    {
+      "evidence_inventory_complete": true,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": "mirbuilder::context_registry",
+      "normalized_evidence_labels": [
+        "OptionCarrierEvidence"
+      ],
+      "normalized_policy_lane_candidate": "OptionCarrierPolicyCandidate",
+      "return_type": "Option<BindingId>",
+      "source_id": "crates/hakorune_mir_builder/src/binding_context.rs::lookup:L76"
+    },
+    {
+      "evidence_inventory_complete": true,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": "mirbuilder::context_registry",
+      "normalized_evidence_labels": [
+        "SelfConstructorTransportEvidence"
+      ],
+      "normalized_policy_lane_candidate": "SelfConstructorTransportPolicyCandidate",
+      "return_type": "Self",
+      "source_id": "crates/hakorune_mir_builder/src/binding_context.rs::new:L54"
+    },
+    {
+      "evidence_inventory_complete": true,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": "mirbuilder::context_registry",
+      "normalized_evidence_labels": [
+        "OptionCarrierEvidence"
+      ],
+      "normalized_policy_lane_candidate": "OptionCarrierPolicyCandidate",
+      "return_type": "Option<BindingId>",
+      "source_id": "crates/hakorune_mir_builder/src/binding_context.rs::remove:L86"
+    },
+    {
+      "evidence_inventory_complete": true,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": "mirbuilder::context_registry",
+      "normalized_evidence_labels": [
+        "SelfConstructorTransportEvidence"
+      ],
+      "normalized_policy_lane_candidate": "SelfConstructorTransportPolicyCandidate",
+      "return_type": "Self",
+      "source_id": "crates/hakorune_mir_builder/src/context.rs::new:L47"
+    },
+    {
+      "evidence_inventory_complete": false,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": "mirbuilder::context_registry",
+      "normalized_evidence_labels": [
+        "UnclassifiedTypeTransportEvidence"
+      ],
+      "normalized_policy_lane_candidate": "CarrierTypeTransportEvidenceInventoryRequired",
+      "return_type": "(usize, usize, usize)",
+      "source_id": "crates/hakorune_mir_builder/src/context.rs::size_info:L61"
+    },
+    {
+      "evidence_inventory_complete": true,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": "mirbuilder::context_registry",
+      "normalized_evidence_labels": [
+        "SelfConstructorTransportEvidence"
+      ],
+      "normalized_policy_lane_candidate": "SelfConstructorTransportPolicyCandidate",
+      "return_type": "Self",
+      "source_id": "crates/hakorune_mir_builder/src/core_context.rs::new:L44"
+    },
+    {
+      "evidence_inventory_complete": false,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": "mirbuilder::context_registry",
+      "normalized_evidence_labels": [
+        "UnclassifiedTypeTransportEvidence"
+      ],
+      "normalized_policy_lane_candidate": "CarrierTypeTransportEvidenceInventoryRequired",
+      "return_type": "BindingId",
+      "source_id": "crates/hakorune_mir_builder/src/core_context.rs::next_binding:L71"
+    },
+    {
+      "evidence_inventory_complete": false,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": "mirbuilder::context_registry",
+      "normalized_evidence_labels": [
+        "DomainObjectOrIdTransportEvidence"
+      ],
+      "normalized_policy_lane_candidate": "CarrierTypeTransportEvidenceInventoryRequired",
+      "return_type": "BasicBlockId",
+      "source_id": "crates/hakorune_mir_builder/src/core_context.rs::next_block:L63"
+    },
+    {
+      "evidence_inventory_complete": false,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": "mirbuilder::context_registry",
+      "normalized_evidence_labels": [
+        "UnclassifiedTypeTransportEvidence"
+      ],
+      "normalized_policy_lane_candidate": "CarrierTypeTransportEvidenceInventoryRequired",
+      "return_type": "u32",
+      "source_id": "crates/hakorune_mir_builder/src/core_context.rs::next_temp_slot:L83"
+    },
+    {
+      "evidence_inventory_complete": false,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": "mirbuilder::context_registry",
+      "normalized_evidence_labels": [
+        "DomainObjectOrIdTransportEvidence"
+      ],
+      "normalized_policy_lane_candidate": "CarrierTypeTransportEvidenceInventoryRequired",
+      "return_type": "ValueId",
+      "source_id": "crates/hakorune_mir_builder/src/core_context.rs::next_value:L58"
+    },
+    {
+      "evidence_inventory_complete": false,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": "mirbuilder::context_registry",
+      "normalized_evidence_labels": [
+        "DomainObjectOrIdTransportEvidence"
+      ],
+      "normalized_policy_lane_candidate": "CarrierTypeTransportEvidenceInventoryRequired",
+      "return_type": "BasicBlockId",
+      "source_id": "crates/hakorune_mir_builder/src/core_context.rs::peek_next_block:L104"
+    },
+    {
+      "evidence_inventory_complete": false,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": "mirbuilder::context_registry",
+      "normalized_evidence_labels": [
+        "DomainObjectOrIdTransportEvidence"
+      ],
+      "normalized_policy_lane_candidate": "CarrierTypeTransportEvidenceInventoryRequired",
+      "return_type": "ValueId",
+      "source_id": "crates/hakorune_mir_builder/src/core_context.rs::peek_next_value:L98"
+    },
+    {
+      "evidence_inventory_complete": true,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": "mirbuilder::context_registry",
+      "normalized_evidence_labels": [
+        "OptionCarrierEvidence"
+      ],
+      "normalized_policy_lane_candidate": "OptionCarrierPolicyCandidate",
+      "return_type": "Option<String>",
+      "source_id": "crates/hakorune_mir_builder/src/metadata_context.rs::current_source_file:L102"
+    },
+    {
+      "evidence_inventory_complete": false,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": "mirbuilder::context_registry",
+      "normalized_evidence_labels": [
+        "UnclassifiedTypeTransportEvidence"
+      ],
+      "normalized_policy_lane_candidate": "CarrierTypeTransportEvidenceInventoryRequired",
+      "return_type": "SpanT",
+      "source_id": "crates/hakorune_mir_builder/src/metadata_context.rs::current_span:L76"
+    },
+    {
+      "evidence_inventory_complete": true,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": "mirbuilder::context_registry",
+      "normalized_evidence_labels": [
+        "SelfConstructorTransportEvidence"
+      ],
+      "normalized_policy_lane_candidate": "SelfConstructorTransportPolicyCandidate",
+      "return_type": "Self",
+      "source_id": "crates/hakorune_mir_builder/src/metadata_context.rs::new:L61"
+    },
+    {
+      "evidence_inventory_complete": true,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": "mirbuilder::context_registry",
+      "normalized_evidence_labels": [
+        "OptionCarrierEvidence"
+      ],
+      "normalized_policy_lane_candidate": "OptionCarrierPolicyCandidate",
+      "return_type": "Option<RegionIdT>",
+      "source_id": "crates/hakorune_mir_builder/src/metadata_context.rs::pop_region:L136"
+    },
+    {
+      "evidence_inventory_complete": true,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": "mirbuilder::context_registry",
+      "normalized_evidence_labels": [
+        "OptionCarrierEvidence"
+      ],
+      "normalized_policy_lane_candidate": "OptionCarrierPolicyCandidate",
+      "return_type": "Option<SpanT>",
+      "source_id": "crates/hakorune_mir_builder/src/metadata_context.rs::value_span:L156"
+    },
+    {
+      "evidence_inventory_complete": false,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": "mirbuilder::context_registry",
+      "normalized_evidence_labels": [
+        "UnclassifiedTypeTransportEvidence"
+      ],
+      "normalized_policy_lane_candidate": "CarrierTypeTransportEvidenceInventoryRequired",
+      "return_type": "MirValueKind",
+      "source_id": "crates/hakorune_mir_builder/src/type_context.rs::get_kind:L84"
+    },
+    {
+      "evidence_inventory_complete": true,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": "mirbuilder::context_registry",
+      "normalized_evidence_labels": [
+        "SelfConstructorTransportEvidence"
+      ],
+      "normalized_policy_lane_candidate": "SelfConstructorTransportPolicyCandidate",
+      "return_type": "Self",
+      "source_id": "crates/hakorune_mir_builder/src/type_context.rs::new:L60"
+    },
+    {
+      "evidence_inventory_complete": false,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": "mirbuilder::context_registry",
+      "normalized_evidence_labels": [
+        "UnclassifiedTypeTransportEvidence"
+      ],
+      "normalized_policy_lane_candidate": "CarrierTypeTransportEvidenceInventoryRequired",
+      "return_type": "TypeContextSnapshot",
+      "source_id": "crates/hakorune_mir_builder/src/type_context.rs::take_snapshot:L110"
+    },
+    {
+      "evidence_inventory_complete": true,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": "mirbuilder::context_registry",
+      "normalized_evidence_labels": [
+        "OptionCarrierEvidence"
+      ],
+      "normalized_policy_lane_candidate": "OptionCarrierPolicyCandidate",
+      "return_type": "Option<MirValueKind>",
+      "source_id": "crates/hakorune_mir_builder/src/type_context.rs::try_get_kind:L76"
+    },
+    {
+      "evidence_inventory_complete": true,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": "mirbuilder::statement_value_construction",
+      "normalized_evidence_labels": [
+        "DomainObjectOrIdTransportEvidence",
+        "ResultCarrierEvidence"
+      ],
+      "normalized_policy_lane_candidate": "ResultCarrierPolicyCandidate",
+      "return_type": "Result<ValueId, String>",
+      "source_id": "src/mir/builder/builder_build.rs::build_assignment:L191"
+    },
+    {
+      "evidence_inventory_complete": true,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": "mirbuilder::statement_value_construction",
+      "normalized_evidence_labels": [
+        "DomainObjectOrIdTransportEvidence",
+        "ResultCarrierEvidence"
+      ],
+      "normalized_policy_lane_candidate": "ResultCarrierPolicyCandidate",
+      "return_type": "Result<ValueId, String>",
+      "source_id": "src/mir/builder/builder_build.rs::build_assignment_from_value:L208"
+    },
+    {
+      "evidence_inventory_complete": true,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": "mirbuilder::statement_value_construction",
+      "normalized_evidence_labels": [
+        "DomainObjectOrIdTransportEvidence",
+        "ResultCarrierEvidence"
+      ],
+      "normalized_policy_lane_candidate": "ResultCarrierPolicyCandidate",
+      "return_type": "Result<ValueId, String>",
+      "source_id": "src/mir/builder/builder_build.rs::build_expression:L21"
+    },
+    {
+      "evidence_inventory_complete": true,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": "mirbuilder::statement_value_construction",
+      "normalized_evidence_labels": [
+        "DomainObjectOrIdTransportEvidence",
+        "ResultCarrierEvidence"
+      ],
+      "normalized_policy_lane_candidate": "ResultCarrierPolicyCandidate",
+      "return_type": "Result<ValueId, String>",
+      "source_id": "src/mir/builder/builder_build.rs::build_literal:L57"
+    },
+    {
+      "evidence_inventory_complete": true,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": "mirbuilder::statement_value_construction",
+      "normalized_evidence_labels": [
+        "ResultCarrierEvidence"
+      ],
+      "normalized_policy_lane_candidate": "ResultCarrierPolicyCandidate",
+      "return_type": "Result<MirModule, String>",
+      "source_id": "src/mir/builder/builder_build.rs::build_module:L14"
+    },
+    {
+      "evidence_inventory_complete": true,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": "mirbuilder::statement_value_construction",
+      "normalized_evidence_labels": [
+        "DomainObjectOrIdTransportEvidence",
+        "ResultCarrierEvidence"
+      ],
+      "normalized_policy_lane_candidate": "ResultCarrierPolicyCandidate",
+      "return_type": "Result<ValueId, String>",
+      "source_id": "src/mir/builder/builder_build.rs::build_new_expression:L258"
+    },
+    {
+      "evidence_inventory_complete": true,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": "mirbuilder::statement_value_construction",
+      "normalized_evidence_labels": [
+        "DomainObjectOrIdTransportEvidence",
+        "ResultCarrierEvidence"
+      ],
+      "normalized_policy_lane_candidate": "ResultCarrierPolicyCandidate",
+      "return_type": "Result<ValueId, String>",
+      "source_id": "src/mir/builder/builder_build.rs::build_variable_access:L123"
+    },
+    {
+      "evidence_inventory_complete": true,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": "mirbuilder::statement_value_construction",
+      "normalized_evidence_labels": [
+        "DomainObjectOrIdTransportEvidence",
+        "ResultCarrierEvidence"
+      ],
+      "normalized_policy_lane_candidate": "ResultCarrierPolicyCandidate",
+      "return_type": "Result<ValueId, String>",
+      "source_id": "src/mir/builder/builder_build.rs::emit_typed_integer_literal:L93"
+    },
+    {
+      "evidence_inventory_complete": true,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": null,
+      "normalized_evidence_labels": [
+        "ResultCarrierEvidence"
+      ],
+      "normalized_policy_lane_candidate": "ResultCarrierPolicyCandidate",
+      "return_type": "Result<(), String>",
+      "source_id": "src/mir/builder/builder_emit.rs::emit_extern_call:L392"
+    },
+    {
+      "evidence_inventory_complete": true,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": null,
+      "normalized_evidence_labels": [
+        "ResultCarrierEvidence"
+      ],
+      "normalized_policy_lane_candidate": "ResultCarrierPolicyCandidate",
+      "return_type": "Result<(), String>",
+      "source_id": "src/mir/builder/builder_emit.rs::emit_extern_call_with_effects:L373"
+    },
+    {
+      "evidence_inventory_complete": true,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": null,
+      "normalized_evidence_labels": [
+        "ResultCarrierEvidence"
+      ],
+      "normalized_policy_lane_candidate": "ResultCarrierPolicyCandidate",
+      "return_type": "Result<(), String>",
+      "source_id": "src/mir/builder/builder_emit.rs::emit_instruction:L9"
+    },
+    {
+      "evidence_inventory_complete": false,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": null,
+      "normalized_evidence_labels": [
+        "UnclassifiedTypeTransportEvidence"
+      ],
+      "normalized_policy_lane_candidate": "CarrierTypeTransportEvidenceInventoryRequired",
+      "return_type": "BindingId",
+      "source_id": "src/mir/builder/builder_init.rs::allocate_binding_id:L102"
+    },
+    {
+      "evidence_inventory_complete": true,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": null,
+      "normalized_evidence_labels": [
+        "SelfConstructorTransportEvidence"
+      ],
+      "normalized_policy_lane_candidate": "SelfConstructorTransportPolicyCandidate",
+      "return_type": "Self",
+      "source_id": "src/mir/builder/builder_init.rs::new:L12"
+    },
+    {
+      "evidence_inventory_complete": true,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": "mirbuilder::context_registry",
+      "normalized_evidence_labels": [
+        "OptionCarrierEvidence"
+      ],
+      "normalized_policy_lane_candidate": "OptionCarrierPolicyCandidate",
+      "return_type": "Option<String>",
+      "source_id": "src/mir/builder/builder_metadata.rs::current_source_file:L35"
+    },
+    {
+      "evidence_inventory_complete": true,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": "mirbuilder::context_registry",
+      "normalized_evidence_labels": [
+        "OptionCarrierEvidence"
+      ],
+      "normalized_policy_lane_candidate": "OptionCarrierPolicyCandidate",
+      "return_type": "Option<crate::mir::function::ClosureBodyId>",
+      "source_id": "src/mir/builder/builder_metadata.rs::intern_closure_body:L42"
+    },
+    {
+      "evidence_inventory_complete": false,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": "mirbuilder::context_registry",
+      "normalized_evidence_labels": [
+        "UnclassifiedTypeTransportEvidence"
+      ],
+      "normalized_policy_lane_candidate": "CarrierTypeTransportEvidenceInventoryRequired",
+      "return_type": "MirFunction",
+      "source_id": "src/mir/builder/builder_metadata.rs::new_function_with_metadata:L55"
+    },
+    {
+      "evidence_inventory_complete": true,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": null,
+      "normalized_evidence_labels": [
+        "CollectionCarrierEvidence"
+      ],
+      "normalized_policy_lane_candidate": "CollectionCarrierPolicyCandidate",
+      "return_type": "Vec<String>",
+      "source_id": "src/mir/builder/builder_method_index.rs::method_candidates:L40"
+    },
+    {
+      "evidence_inventory_complete": true,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": null,
+      "normalized_evidence_labels": [
+        "OptionCarrierEvidence"
+      ],
+      "normalized_policy_lane_candidate": "OptionCarrierPolicyCandidate",
+      "return_type": "Option<MirValueKind>",
+      "source_id": "src/mir/builder/builder_value_kind.rs::get_value_kind:L18"
+    },
+    {
+      "evidence_inventory_complete": false,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": null,
+      "normalized_evidence_labels": [
+        "DomainObjectOrIdTransportEvidence"
+      ],
+      "normalized_policy_lane_candidate": "CarrierTypeTransportEvidenceInventoryRequired",
+      "return_type": "TypedValueId",
+      "source_id": "src/mir/builder/builder_value_kind.rs::new_typed_value:L11"
+    },
+    {
+      "evidence_inventory_complete": true,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": "mirbuilder::call_lowering",
+      "normalized_evidence_labels": [
+        "OptionCarrierEvidence"
+      ],
+      "normalized_policy_lane_candidate": "OptionCarrierPolicyCandidate",
+      "return_type": "Option<String>",
+      "source_id": "src/mir/builder/calls/annotation.rs::callee_sig_name:L9"
+    },
+    {
+      "evidence_inventory_complete": true,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": "mirbuilder::call_lowering",
+      "normalized_evidence_labels": [
+        "DomainObjectOrIdTransportEvidence",
+        "ResultCarrierEvidence"
+      ],
+      "normalized_policy_lane_candidate": "ResultCarrierPolicyCandidate",
+      "return_type": "Result<ValueId, String>",
+      "source_id": "src/mir/builder/calls/build.rs::build_brand_constructor_call:L181"
+    },
+    {
+      "evidence_inventory_complete": true,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": "mirbuilder::call_lowering",
+      "normalized_evidence_labels": [
+        "CollectionCarrierEvidence",
+        "DomainObjectOrIdTransportEvidence",
+        "ResultCarrierEvidence"
+      ],
+      "normalized_policy_lane_candidate": "ResultCarrierPolicyCandidate",
+      "return_type": "Result<Vec<ValueId>, String>",
+      "source_id": "src/mir/builder/calls/build.rs::build_call_args:L203"
+    },
+    {
+      "evidence_inventory_complete": true,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": "mirbuilder::call_lowering",
+      "normalized_evidence_labels": [
+        "DomainObjectOrIdTransportEvidence",
+        "ResultCarrierEvidence"
+      ],
+      "normalized_policy_lane_candidate": "ResultCarrierPolicyCandidate",
+      "return_type": "Result<ValueId, String>",
+      "source_id": "src/mir/builder/calls/build.rs::build_explicit_extern_call:L320"
+    },
+    {
+      "evidence_inventory_complete": true,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": "mirbuilder::call_lowering",
+      "normalized_evidence_labels": [
+        "DomainObjectOrIdTransportEvidence",
+        "ResultCarrierEvidence"
+      ],
+      "normalized_policy_lane_candidate": "ResultCarrierPolicyCandidate",
+      "return_type": "Result<ValueId, String>",
+      "source_id": "src/mir/builder/calls/build.rs::build_from_expression:L155"
+    },
+    {
+      "evidence_inventory_complete": true,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": "mirbuilder::call_lowering",
+      "normalized_evidence_labels": [
+        "DomainObjectOrIdTransportEvidence",
+        "ResultCarrierEvidence"
+      ],
+      "normalized_policy_lane_candidate": "ResultCarrierPolicyCandidate",
+      "return_type": "Result<ValueId, String>",
+      "source_id": "src/mir/builder/calls/build.rs::build_function_call:L30"
+    },
+    {
+      "evidence_inventory_complete": true,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": "mirbuilder::call_lowering",
+      "normalized_evidence_labels": [
+        "DomainObjectOrIdTransportEvidence",
+        "ResultCarrierEvidence"
+      ],
+      "normalized_policy_lane_candidate": "ResultCarrierPolicyCandidate",
+      "return_type": "Result<ValueId, String>",
+      "source_id": "src/mir/builder/calls/build.rs::build_method_call:L85"
+    },
+    {
+      "evidence_inventory_complete": false,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": "mirbuilder::call_lowering",
+      "normalized_evidence_labels": [
+        "DomainObjectOrIdTransportEvidence"
+      ],
+      "normalized_policy_lane_candidate": "CarrierTypeTransportEvidenceInventoryRequired",
+      "return_type": "crate::mir::definitions::call_unified::CalleeBoxKind",
+      "source_id": "src/mir/builder/calls/call_unified.rs::classify_box_kind:L24"
+    },
+    {
+      "evidence_inventory_complete": false,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": "mirbuilder::call_lowering",
+      "normalized_evidence_labels": [
+        "UnclassifiedTypeTransportEvidence"
+      ],
+      "normalized_policy_lane_candidate": "CarrierTypeTransportEvidenceInventoryRequired",
+      "return_type": "EffectMask",
+      "source_id": "src/mir/builder/calls/call_unified.rs::compute_call_effects:L67"
+    },
+    {
+      "evidence_inventory_complete": false,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": "mirbuilder::call_lowering",
+      "normalized_evidence_labels": [
+        "UnclassifiedTypeTransportEvidence"
+      ],
+      "normalized_policy_lane_candidate": "CarrierTypeTransportEvidenceInventoryRequired",
+      "return_type": "CallFlags",
+      "source_id": "src/mir/builder/calls/call_unified.rs::create_call_flags:L72"
+    },
+    {
+      "evidence_inventory_complete": false,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": "mirbuilder::call_lowering",
+      "normalized_evidence_labels": [
+        "UnclassifiedTypeTransportEvidence"
+      ],
+      "normalized_policy_lane_candidate": "CarrierTypeTransportEvidenceInventoryRequired",
+      "return_type": "MirCall",
+      "source_id": "src/mir/builder/calls/call_unified.rs::create_mir_call:L83"
+    },
+    {
+      "evidence_inventory_complete": false,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": "mirbuilder::call_lowering",
+      "normalized_evidence_labels": [
+        "UnclassifiedTypeTransportEvidence"
+      ],
+      "normalized_policy_lane_candidate": "CarrierTypeTransportEvidenceInventoryRequired",
+      "return_type": "LoweringContext",
+      "source_id": "src/mir/builder/calls/context_lifecycle.rs::prepare_lowering_context:L61"
+    },
+    {
+      "evidence_inventory_complete": false,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": "mirbuilder::call_lowering",
+      "normalized_evidence_labels": [
+        "UnclassifiedTypeTransportEvidence"
+      ],
+      "normalized_policy_lane_candidate": "CarrierTypeTransportEvidenceInventoryRequired",
+      "return_type": "EffectMask",
+      "source_id": "src/mir/builder/calls/effects_analyzer.rs::compute_call_effects:L37"
+    },
+    {
+      "evidence_inventory_complete": true,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": "mirbuilder::call_lowering",
+      "normalized_evidence_labels": [
+        "ResultCarrierEvidence"
+      ],
+      "normalized_policy_lane_candidate": "ResultCarrierPolicyCandidate",
+      "return_type": "Result<(), String>",
+      "source_id": "src/mir/builder/calls/emit.rs::emit_constructor_birth_marker:L140"
+    },
+    {
+      "evidence_inventory_complete": true,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": "mirbuilder::call_lowering",
+      "normalized_evidence_labels": [
+        "ResultCarrierEvidence"
+      ],
+      "normalized_policy_lane_candidate": "ResultCarrierPolicyCandidate",
+      "return_type": "Result<(), String>",
+      "source_id": "src/mir/builder/calls/emit.rs::emit_constructor_call:L130"
+    },
+    {
+      "evidence_inventory_complete": true,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": "mirbuilder::call_lowering",
+      "normalized_evidence_labels": [
+        "ResultCarrierEvidence"
+      ],
+      "normalized_policy_lane_candidate": "ResultCarrierPolicyCandidate",
+      "return_type": "Result<(), String>",
+      "source_id": "src/mir/builder/calls/emit.rs::emit_global_call:L101"
+    },
+    {
+      "evidence_inventory_complete": true,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": "mirbuilder::call_lowering",
+      "normalized_evidence_labels": [
+        "ResultCarrierEvidence"
+      ],
+      "normalized_policy_lane_candidate": "ResultCarrierPolicyCandidate",
+      "return_type": "Result<(), String>",
+      "source_id": "src/mir/builder/calls/emit.rs::emit_legacy_call:L25"
+    },
+    {
+      "evidence_inventory_complete": true,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": "mirbuilder::call_lowering",
+      "normalized_evidence_labels": [
+        "ResultCarrierEvidence"
+      ],
+      "normalized_policy_lane_candidate": "ResultCarrierPolicyCandidate",
+      "return_type": "Result<(), String>",
+      "source_id": "src/mir/builder/calls/emit.rs::emit_method_call:L111"
+    },
+    {
+      "evidence_inventory_complete": true,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": "mirbuilder::call_lowering",
+      "normalized_evidence_labels": [
+        "ResultCarrierEvidence"
+      ],
+      "normalized_policy_lane_candidate": "ResultCarrierPolicyCandidate",
+      "return_type": "Result<(), String>",
+      "source_id": "src/mir/builder/calls/emit.rs::emit_unified_call:L15"
+    },
+    {
+      "evidence_inventory_complete": false,
+      "evidence_sources": [
+        "source_return_type",
+        "shape_signature",
+        "owner_edge_confidence"
+      ],
+      "known_owner_edge": "mirbuilder::call_lowering",
+      "normalized_evidence_labels": [
+        "UnclassifiedTypeTransportEvidence"
+      ],
+      "normalized_policy_lane_candidate": "CarrierTypeTransportEvidenceInventoryRequired",
+      "return_type": "EffectMask",
+      "source_id": "src/mir/builder/calls/extern_calls.rs::compute_extern_effects:L289"
+    }
+  ],
+  "input_decision": {
+    "kind": "SelectCarrierTypeTransportEvidenceInventoryRerun002",
+    "reason_token": "MultipleCarrierTypeTransportLanesRequireEvidenceInventory",
+    "selected_next_card": "MIRBUILDER-CARRIER-TYPE-TRANSPORT-EVIDENCE-INVENTORY-RERUN-002",
+    "selected_policy_lane": null
+  },
+  "input_state": {
+    "carrier_type_transport_policy_inventory_rerun_002": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-transport-policy-inventory-rerun-002-v0.json",
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "unconverted_surface_report": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-unconverted-surface-report-v0.json"
+  },
+  "kind": "MirBuilderCarrierTypeTransportEvidenceInventoryRerunV2",
+  "provenance": {
+    "carrier_type_transport_policy_inventory_rerun_002_hash": "eff9a684d316f5180bf5adae57b734ed659fc143fa4e3c2e0c931285826494a5",
+    "unconverted_surface_report_hash": "724c2765760cca5b37a11104d560a69bd2134de2235a0dad514d01c08cfdfa1a"
+  },
+  "schema_version": 0,
+  "selection_rule": {
+    "cluster_size_as_proof": false,
+    "manual_carrier_selection": false,
+    "return_type_count_as_proof": false,
+    "source_return_type_is_evidence_not_policy": true,
+    "unclassified_evidence_blocks_policy_priority": true
+  },
+  "summary": {
+    "evidence_inventory_complete_count": 814,
+    "evidence_label_counts": {
+      "BorrowInTypeTransportEvidence": 13,
+      "CollectionCarrierEvidence": 132,
+      "DomainObjectOrIdTransportEvidence": 274,
+      "OptionCarrierEvidence": 287,
+      "ResultCarrierEvidence": 557,
+      "SelfConstructorTransportEvidence": 56,
+      "UnclassifiedTypeTransportEvidence": 75
+    },
+    "evidence_source_counts": {
+      "owner_edge_confidence": 944,
+      "shape_signature": 944,
+      "source_return_type": 944
+    },
+    "input_candidate_count": 944,
+    "policy_lane_candidate_counts": {
+      "CarrierTypeTransportEvidenceInventoryRequired": 130,
+      "CollectionCarrierPolicyCandidate": 35,
+      "OptionCarrierPolicyCandidate": 166,
+      "ResultCarrierPolicyCandidate": 557,
+      "SelfConstructorTransportPolicyCandidate": 56
+    },
+    "unclassified_evidence_count": 130
+  },
+  "token": "MIRBUILDER-CARRIER-TYPE-TRANSPORT-EVIDENCE-INVENTORY-RERUN-002"
+}

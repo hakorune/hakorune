@@ -24,9 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-CARRIER-TYPE-TRANSPORT-EVIDENCE-INVENTORY-RERUN-002.
-  Carrier/type transport inventory found multiple policy lanes across 944
-  type-transport items, so evidence inventory must run before policy selection.
+  MIRBUILDER-CARRIER-TYPE-TRANSPORT-UNCLASSIFIED-EVIDENCE-RESOLUTION-001.
+  Evidence inventory classified 814 of 944 type-transport items and left 130
+  unclassified rows; resolve those before selecting a carrier policy lane.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  MIRBUILDER-CARRIER-TYPE-TRANSPORT-EVIDENCE-INVENTORY-RERUN-002
+  MIRBUILDER-CARRIER-TYPE-TRANSPORT-UNCLASSIFIED-EVIDENCE-RESOLUTION-001
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -319,14 +319,6 @@ missing_projection_policy_cluster_resolution_v2_result:
   selected_next_card = MIRBUILDER-PROJECTION-DESCRIPTOR-COVERAGE-RECLASSIFICATION-001
   source_selfhost_claim = 0
 
-native_owner_checkpoint_rerun_result:
-  token = SOURCE-SELFHOST-NATIVE-OWNER-CHECKPOINT-RERUN-001
-  native_owner_count = 11
-  missing_projection_evidence_quality_count = 819
-  borrow_surface_evidence_quality_count = 0
-  selected_next_card = MIRBUILDER-MISSING-PROJECTION-POLICY-CLUSTER-RESOLUTION-V3
-  source_selfhost_claim = 0
-
 missing_projection_policy_cluster_resolution_v3_result:
   token = MIRBUILDER-MISSING-PROJECTION-POLICY-CLUSTER-RESOLUTION-V3
   input_candidate_count = 1004
@@ -340,6 +332,13 @@ carrier_type_transport_policy_inventory_rerun_002_result:
   type_transport_missing_item_count = 944
   eligible_policy_lane_count = 4
   selected_next_card = MIRBUILDER-CARRIER-TYPE-TRANSPORT-EVIDENCE-INVENTORY-RERUN-002
+  source_selfhost_claim = 0
+
+carrier_type_transport_evidence_inventory_rerun_002_result:
+  token = MIRBUILDER-CARRIER-TYPE-TRANSPORT-EVIDENCE-INVENTORY-RERUN-002
+  input_candidate_count = 944
+  unclassified_evidence_count = 130
+  selected_next_card = MIRBUILDER-CARRIER-TYPE-TRANSPORT-UNCLASSIFIED-EVIDENCE-RESOLUTION-001
   source_selfhost_claim = 0
 
 placement_rule:
@@ -394,10 +393,10 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. MIRBUILDER-CARRIER-TYPE-TRANSPORT-EVIDENCE-INVENTORY-RERUN-002
+1. MIRBUILDER-CARRIER-TYPE-TRANSPORT-UNCLASSIFIED-EVIDENCE-RESOLUTION-001
    status=next
-   boundary=classify evidence for multiple carrier/type policy lanes
-   semantic_authority=transport inventory rerun 002 and fresh report
+   boundary=resolve unclassified carrier/type evidence before policy lane selection
+   semantic_authority=evidence inventory rerun 002 and fresh report
    non_authority=return-type count proof, manual carrier selection, fallback
 
 2. MIRBUILDER-BORROW-SURFACE-POLICY-CLUSTER-RERUN-002
@@ -413,11 +412,11 @@ history, not in this task-order SSOT.
    non_authority=generated artifact edit authority, Source Selfhost claim
 
 next:
-  MIRBUILDER-CARRIER-TYPE-TRANSPORT-EVIDENCE-INVENTORY-RERUN-002
-  boundary=multiple transport lanes require evidence inventory before policy
+  MIRBUILDER-CARRIER-TYPE-TRANSPORT-UNCLASSIFIED-EVIDENCE-RESOLUTION-001
+  boundary=130 unclassified type-transport evidence rows remain
 
 next_documented_task =
-  MIRBUILDER-CARRIER-TYPE-TRANSPORT-EVIDENCE-INVENTORY-RERUN-002
+  MIRBUILDER-CARRIER-TYPE-TRANSPORT-UNCLASSIFIED-EVIDENCE-RESOLUTION-001
 
 next_after_active_3 =
   MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-008
