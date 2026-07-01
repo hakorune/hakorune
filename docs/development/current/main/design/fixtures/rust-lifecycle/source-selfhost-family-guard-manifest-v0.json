@@ -1409,6 +1409,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-strict-converter-emission-native-seed-candidate-selection-rerun-005-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_strict_converter_emission_native_seed_candidate_selection_rerun_005_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-003",
+      "card": "docs/development/current/main/phases/phase-296x/2001-SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-003.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-wider-route-selection-basis-003-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_source_selfhost_wider_route_selection_basis_003_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {
