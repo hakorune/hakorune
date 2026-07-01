@@ -1556,6 +1556,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-seed-packet-candidate-selection-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_id_scalar_seed_packet_candidate_selection_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-ID-SCALAR-SOURCE-PLAN-AND-RECIPE-DERIVABILITY-RESOLUTION-001",
+      "card": "docs/development/current/main/phases/phase-296x/2022-MIRBUILDER-ID-SCALAR-SOURCE-PLAN-AND-RECIPE-DERIVABILITY-RESOLUTION-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-source-plan-and-recipe-derivability-resolution-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_id_scalar_source_plan_and_recipe_derivability_resolution_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {

@@ -25,8 +25,8 @@ active blocker:
 
 current implementation task:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001.
-  ID scalar packet selection found four equal FixtureMapped candidates; a new
-  discriminator is required before implementation can continue.
+  ID scalar SourcePlanAndRecipe derivability found no eligible candidate;
+  descriptor-only evidence is not enough to materialize packet components.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -357,6 +357,13 @@ id_scalar_seed_packet_candidate_selection_result:
   selected_next_card = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
   source_selfhost_claim = 0
 
+id_scalar_source_plan_derivability_result:
+  token = MIRBUILDER-ID-SCALAR-SOURCE-PLAN-AND-RECIPE-DERIVABILITY-RESOLUTION-001
+  source_plan_derivable_count = 0
+  reason_token = NoIdScalarSourcePlanAndRecipeDerivabilityCandidate
+  selected_next_card = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+  source_selfhost_claim = 0
+
 placement_rule:
   scan_unit = rust_function_or_method
   classification_unit = semantic_owner_edge
@@ -386,13 +393,13 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. MIRBUILDER-ID-SCALAR-SEED-PACKET-CANDIDATE-SELECTION-001
+1. MIRBUILDER-ID-SCALAR-SOURCE-PLAN-AND-RECIPE-DERIVABILITY-RESOLUTION-001
    status=closed
-   boundary=four FixtureMapped packet candidates tie
+   boundary=descriptor-only evidence is not SourcePlanAndRecipe
 
 2. SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
    status=design-consultation-required
-   boundary=need a new machine-derived packet discriminator
+   boundary=need SourcePlanAndRecipe generation basis
 
 3. SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
    status=guardrail
@@ -406,7 +413,7 @@ next_documented_task =
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 next_after_active_3 =
-  TBD_AFTER_ID_SCALAR_PACKET_DISCRIMINATOR_DESIGN
+  TBD_AFTER_ID_SCALAR_SOURCE_PLAN_BASIS_DESIGN
 ```
 
 ## Landed Converter Capability Summary
