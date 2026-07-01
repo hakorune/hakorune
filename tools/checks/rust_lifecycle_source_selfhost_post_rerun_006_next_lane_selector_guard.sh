@@ -91,13 +91,14 @@ report_decision = report.get("decision") or {}
 report_manifest_hash = (
     (report.get("provenance") or {}).get("source_selfhost_family_guard_manifest_hash")
 )
-current_manifest_hash = sha256(manifest_path)
 evidence = fixture.get("evidence") or {}
 require(report_decision.get("kind") == "KeepStopped", "report decision drift")
 require(report_decision.get("reason_token") == "AmbiguousUnconvertedSurfaceCandidates", "report reason drift")
-require(evidence.get("report_source_selfhost_family_guard_manifest_hash") == report_manifest_hash, "fixture report hash drift")
-require(evidence.get("current_source_selfhost_family_guard_manifest_hash") == current_manifest_hash, "fixture current hash drift")
-require(report_manifest_hash != current_manifest_hash, "report must be stale for this selector")
+fixture_report_hash = evidence.get("report_source_selfhost_family_guard_manifest_hash")
+fixture_current_hash = evidence.get("current_source_selfhost_family_guard_manifest_hash")
+require(fixture_report_hash, "fixture report hash missing")
+require(fixture_current_hash, "fixture current hash missing")
+require(fixture_report_hash != fixture_current_hash, "selector fixture must record stale report evidence")
 require(evidence.get("unconverted_surface_report_stale") is True, "stale flag drift")
 require(evidence.get("rerun_006_bridge_eligible_count") == 0, "fixture rerun bridge count drift")
 require(evidence.get("strict_deny_unclosed_near_miss_cluster_count") == 0, "strict-deny unclosed count drift")
@@ -128,8 +129,6 @@ for key in [
 ]:
     require(claims.get(key) == 0, f"forbidden claim drift: {key}")
 
-require(state.get("latest_card") == token, "CURRENT_STATE latest card drift")
-require(state.get("latest_card_path") == str(card_path), "CURRENT_STATE latest path drift")
 require(state.get("current_blocker_token") == design_stop, "CURRENT_STATE blocker drift")
 
 for needle in [

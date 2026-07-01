@@ -913,7 +913,7 @@ def build_report() -> dict[str, Any]:
             "tool_version": "regex_source_text_v0",
             "source_root_hash": hash_source_roots(),
             "native_owner_seed_capability_survey_hash": sha256_file(NATIVE_SEED_SURVEY),
-            "source_selfhost_family_guard_manifest_hash": projection_descriptor_ledger_hash(family_manifest),
+            "source_selfhost_family_guard_manifest_hash": sha256_file(FAMILY_MANIFEST),
             "projection_descriptor_ledger_hash": projection_descriptor_ledger_hash(family_manifest),
             "variable_context_reference_projection_contract_hash": sha256_file(REFERENCE_PROJECTION),
             "owner_edge_confidence_repair_hash": sha256_file(OWNER_EDGE_CONFIDENCE_REPAIR) if OWNER_EDGE_CONFIDENCE_REPAIR.exists() else None,

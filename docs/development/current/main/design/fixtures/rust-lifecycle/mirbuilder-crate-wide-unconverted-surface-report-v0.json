@@ -54421,7 +54421,7 @@
     "projection_descriptor_ledger_hash": "45ca493f1e7ce53b151982b4ae3b7d2dc19ff88ebbb94a89aa80803acadc11f1",
     "shape_signature_inventory_hash": "3810dffac3b2c2849e3478ca715f44974a4a867339800402c8cbdb394797c406",
     "source_root_hash": "7a78fe0b1620eed7b9f2a580a852fa3088262e7dcd5017f3466cbdad7e565d52",
-    "source_selfhost_family_guard_manifest_hash": "45ca493f1e7ce53b151982b4ae3b7d2dc19ff88ebbb94a89aa80803acadc11f1",
+    "source_selfhost_family_guard_manifest_hash": "c93abc8423e74bdf790e683594afc0d404a17c4b5fb4074ade6b8671cd3379a1",
     "stable_deny_reason_repair_hash": "415773a60b02ed604c544da1a638ee2ea2db280248e181b8d919ad633a6fb5bc",
     "tool_version": "regex_source_text_v0",
     "variable_context_reference_projection_contract_hash": "2544f1becb9758c4ed04698ccc69beb0ede33af6efb3edf61b5e5223c41a8cc7"

@@ -1234,6 +1234,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-post-rerun-006-next-lane-selector-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_source_selfhost_post_rerun_006_next_lane_selector_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-002",
+      "card": "docs/development/current/main/phases/phase-296x/1976-MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-002.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-unconverted-surface-report-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_unconverted_surface_report_rerun_002_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {

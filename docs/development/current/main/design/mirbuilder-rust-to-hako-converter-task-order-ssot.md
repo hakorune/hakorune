@@ -24,12 +24,10 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  SOURCE-SELFHOST-POST-RERUN-006-NEXT-LANE-SELECTOR-001.
-  The post-rerun-006 selector consumes BASIS-002 and rerun-006, then chooses
-  the next machine-checkable lane without manual family/shape/axis selection.
-  It selects MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-002 because the
-  crate-wide unconverted surface report is stale against the current Source
-  Selfhost family guard manifest.
+  MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-002.
+  The report rerun refreshes crate-wide source-surface inventory after the
+  post-rerun-006 selector and separates full family-manifest freshness from
+  projection-ledger freshness.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -65,7 +63,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-002
+  MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-007
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -199,9 +197,9 @@ latest_rerun_result:
   next = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 next_action:
-  MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-002
-  purpose = regenerate the source-surface report against current manifests
-  output = fresh report before any owner/shape/axis/native-seed selection
+  MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-007
+  purpose = re-evaluate native-owner seed capability after fresh report
+  output = exactly one next lane or KeepStopped with machine reason
 
 post_rerun_006_task_order:
   1. land SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-002 as the accepted
@@ -224,6 +222,17 @@ post_rerun_006_selector_result:
   manual_family_selection = 0
   manual_shape_selection = 0
   manual_axis_selection = 0
+  source_selfhost_claim = 0
+
+unconverted_surface_report_rerun_002_result:
+  token = MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-002
+  source_selfhost_family_guard_manifest_hash_fresh = 1
+  projection_descriptor_ledger_hash_fresh = 1
+  scanned_surface_count = 1584
+  missing_projection_policy_count = 1384
+  decision = KeepStopped
+  reason_token = AmbiguousUnconvertedSurfaceCandidates
+  selected_next_card = MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-007
   source_selfhost_claim = 0
 
 post_rerun_006_selector_basis:

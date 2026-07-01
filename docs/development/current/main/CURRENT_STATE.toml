@@ -25,14 +25,14 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "SOURCE-SELFHOST-POST-RERUN-006-NEXT-LANE-SELECTOR-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1975-SOURCE-SELFHOST-POST-RERUN-006-NEXT-LANE-SELECTOR-001.md"
-latest_card_summary = """The latest card consumes BASIS-002 and rerun-006,
-detects that the crate-wide unconverted surface report is stale against the
-current Source Selfhost family manifest, and selects
-MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-002 as the next machine-checkable
-lane. Source Selfhost remains unclaimed and stopped at the wider
-route-selection design stop."""
+latest_card = "MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-002"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1976-MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-002.md"
+latest_card_summary = """The latest card regenerates the crate-wide
+unconverted surface report after the post-rerun-006 selector. The report
+provenance now separates the full Source Selfhost family manifest hash from the
+projection descriptor ledger hash. Source Selfhost remains unclaimed and
+stopped; the next machine-checkable lane is native-owner seed capability rerun
+007."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -43,6 +43,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-01: 1976 refreshes the unconverted surface report and splits full manifest freshness from projection ledger freshness.",
   "2026-07-01: 1975 selects unconverted surface report rerun as the next lane because the report provenance is stale after BASIS-002.",
   "2026-07-01: 1974 defines the post-rerun-006 wider route-selection basis and requires a selector fixture before any implementation lane resumes.",
   "2026-07-01: 1973 reruns native-owner seed capability after type_context adoption and finds no bridge-eligible native seed candidate.",
