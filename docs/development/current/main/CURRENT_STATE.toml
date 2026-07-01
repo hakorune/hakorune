@@ -25,13 +25,14 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "SOURCE-SELFHOST-BRIDGE-BLOCKED-REASON-AXIS-RESOLUTION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1978-SOURCE-SELFHOST-BRIDGE-BLOCKED-REASON-AXIS-RESOLUTION-001.md"
-latest_card_summary = """The latest card resolves the bridge-blocked design
-stop by partitioning BridgeBlocked strict-emission candidates by reason axis.
-It selects the pure PolicyGapInDeniedBoundaries axis and routes the next
-machine-checkable task to MIRBUILDER-BRIDGE-BLOCKED-GAP-CLUSTER-RESOLUTION-001
-without manual family, shape, or axis selection."""
+latest_card = "MIRBUILDER-BRIDGE-BLOCKED-GAP-CLUSTER-RESOLUTION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1979-MIRBUILDER-BRIDGE-BLOCKED-GAP-CLUSTER-RESOLUTION-001.md"
+latest_card_summary = """The latest card partitions pure
+PolicyGapInDeniedBoundaries BridgeBlocked candidates into gap clusters. It
+selects the carrier/type transport-only cluster and routes the next
+machine-checkable task to
+MIRBUILDER-CARRIER-TYPE-TRANSPORT-POLICY-INVENTORY-RERUN-001 without manual
+family, shape, axis, or cluster selection."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -42,6 +43,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-01: 1979 resolves pure BridgeBlocked policy gaps and selects the carrier/type transport policy inventory rerun lane.",
   "2026-07-01: 1978 resolves BridgeBlocked reason axes and selects the policy-gap cluster resolution lane without manual axis selection.",
   "2026-07-01: 1977 reruns native-owner seed capability after the fresh report and keeps Source Selfhost stopped with no bridge-eligible candidate.",
   "2026-07-01: 1976 re-checks the unconverted surface report and keeps projection-ledger freshness as the report provenance boundary.",

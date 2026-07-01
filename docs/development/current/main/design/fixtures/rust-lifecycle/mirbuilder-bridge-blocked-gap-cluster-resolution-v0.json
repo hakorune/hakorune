@@ -1,0 +1,91 @@
+{
+  "claims": {
+    "cluster_size_as_proof": 0,
+    "coverage_percentage_as_proof": 0,
+    "generated_artifact_as_native_edit_authority": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "manual_axis_selection": 0,
+    "manual_cluster_selection": 0,
+    "manual_family_selection": 0,
+    "manual_shape_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "route_membership_alone_as_proof": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "SelectCarrierTypeTransportPolicyInventoryRerun",
+    "reason_token": "ExactlyOneBridgeBlockedGapClusterEligible",
+    "selected_cluster_id": "bridge_gap::carrier_type_transport_only",
+    "selected_next_card": "MIRBUILDER-CARRIER-TYPE-TRANSPORT-POLICY-INVENTORY-RERUN-001"
+  },
+  "gap_clusters": [
+    {
+      "candidate_count": 23,
+      "cluster_id": "bridge_gap::carrier_type_transport_only",
+      "gap_signature": "CarrierTypeTransportGapOnly",
+      "next_card": "MIRBUILDER-CARRIER-TYPE-TRANSPORT-POLICY-INVENTORY-RERUN-001",
+      "next_owner_kind": "CarrierTypeTransportPolicyInventoryRerun",
+      "reason_token": "CarrierTypeTransportGapOnlyDominatesPurePolicyGapAxis",
+      "selection_eligible": true
+    },
+    {
+      "candidate_count": 1,
+      "cluster_id": "bridge_gap::borrow_and_carrier_type_transport",
+      "gap_signature": "BorrowAndCarrierTypeTransportGap",
+      "next_card": "MIRBUILDER-BRIDGE-BLOCKED-MIXED-GAP-RESOLUTION-001",
+      "next_owner_kind": "MixedGapResolution",
+      "reason_token": "BorrowCarrierMixedGapDeferredUntilSingleAxisGapsClose",
+      "selection_eligible": false
+    },
+    {
+      "candidate_count": 0,
+      "cluster_id": "bridge_gap::borrow_policy_only",
+      "gap_signature": "BorrowPolicyGapOnly",
+      "next_card": "MIRBUILDER-BRIDGE-BLOCKED-BORROW-GAP-RESOLUTION-001",
+      "next_owner_kind": "BorrowPolicyGapResolution",
+      "reason_token": "NoPureBorrowPolicyGapCandidate",
+      "selection_eligible": false
+    }
+  ],
+  "input_candidate_pool": {
+    "already_adopted_count": 12,
+    "bridge_blocked_count": 47,
+    "bridge_eligible_count": 0,
+    "composite_or_integration_owner_count": 7,
+    "gap_blocked_count": 36,
+    "unscoped_adoption_blocked_count": 4,
+    "verified_hako_family_ir_count": 47
+  },
+  "input_decision": {
+    "kind": "SelectBridgeBlockedGapClusterResolution",
+    "reason_token": "ExactlyOneBridgeBlockedReasonAxisEligible",
+    "selected_axis": "PolicyGapInDeniedBoundaries",
+    "selected_next_card": "MIRBUILDER-BRIDGE-BLOCKED-GAP-CLUSTER-RESOLUTION-001"
+  },
+  "input_state": {
+    "bridge_blocked_reason_axis_resolution": "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-bridge-blocked-reason-axis-resolution-v0.json",
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "native_owner_seed_rerun_007": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-native-owner-seed-capability-survey-rerun-007-v0.json"
+  },
+  "kind": "MirBuilderBridgeBlockedGapClusterResolutionV1",
+  "provenance": {
+    "bridge_blocked_reason_axis_resolution_hash": "7fd3ec3e4f373c3ebaef85857d6670e9267ea87baad4baf183653deceb9442cf",
+    "native_owner_seed_rerun_007_hash": "35d38d23388b3758ca2e84cd63ea58ead546091707e4b15fc1d73486be278ce0"
+  },
+  "pure_policy_gap_candidate_count": 24,
+  "schema_version": 0,
+  "selection_rule": {
+    "cluster_size_as_proof": false,
+    "defer_mixed_borrow_carrier_gap": true,
+    "manual_cluster_selection": false,
+    "select_carrier_type_transport_gap_if_unique": true,
+    "select_single_axis_gap_before_mixed_gap": true
+  },
+  "token": "MIRBUILDER-BRIDGE-BLOCKED-GAP-CLUSTER-RESOLUTION-001"
+}

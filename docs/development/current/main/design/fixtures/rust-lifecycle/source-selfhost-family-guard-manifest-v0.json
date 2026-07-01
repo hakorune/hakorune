@@ -1255,6 +1255,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-bridge-blocked-reason-axis-resolution-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_source_selfhost_bridge_blocked_reason_axis_resolution_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-BRIDGE-BLOCKED-GAP-CLUSTER-RESOLUTION-001",
+      "card": "docs/development/current/main/phases/phase-296x/1979-MIRBUILDER-BRIDGE-BLOCKED-GAP-CLUSTER-RESOLUTION-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-bridge-blocked-gap-cluster-resolution-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_bridge_blocked_gap_cluster_resolution_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {

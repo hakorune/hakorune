@@ -24,10 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  SOURCE-SELFHOST-BRIDGE-BLOCKED-REASON-AXIS-RESOLUTION-001.
-  BridgeBlocked strict-emission candidates are partitioned by reason axis.
-  The selected axis is PolicyGapInDeniedBoundaries, and the next task is
   MIRBUILDER-BRIDGE-BLOCKED-GAP-CLUSTER-RESOLUTION-001.
+  Pure PolicyGapInDeniedBoundaries candidates are partitioned into repair
+  clusters. The selected cluster is carrier/type transport-only.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -63,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  MIRBUILDER-BRIDGE-BLOCKED-GAP-CLUSTER-RESOLUTION-001
+  MIRBUILDER-CARRIER-TYPE-TRANSPORT-POLICY-INVENTORY-RERUN-001
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -197,9 +196,9 @@ latest_rerun_result:
   next = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 next_action:
-  MIRBUILDER-BRIDGE-BLOCKED-GAP-CLUSTER-RESOLUTION-001
-  purpose = partition pure PolicyGapInDeniedBoundaries rows into repair gaps
-  output = exactly one gap repair lane or KeepStopped with machine reason
+  MIRBUILDER-CARRIER-TYPE-TRANSPORT-POLICY-INVENTORY-RERUN-001
+  purpose = re-inventory carrier/type transport policy gaps for bridge repair
+  output = exactly one transport policy lane or KeepStopped with machine reason
 
 post_rerun_006_task_order:
   1. land SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-002 as the accepted
@@ -256,6 +255,17 @@ bridge_blocked_reason_axis_resolution_result:
   manual_family_selection = 0
   manual_shape_selection = 0
   manual_axis_selection = 0
+  cluster_size_as_proof = 0
+  source_selfhost_claim = 0
+
+bridge_blocked_gap_cluster_resolution_result:
+  token = MIRBUILDER-BRIDGE-BLOCKED-GAP-CLUSTER-RESOLUTION-001
+  pure_policy_gap_candidate_count = 24
+  selected_cluster = bridge_gap::carrier_type_transport_only
+  carrier_type_transport_only_count = 23
+  mixed_borrow_carrier_type_transport_count = 1
+  selected_next_card = MIRBUILDER-CARRIER-TYPE-TRANSPORT-POLICY-INVENTORY-RERUN-001
+  manual_cluster_selection = 0
   cluster_size_as_proof = 0
   source_selfhost_claim = 0
 
