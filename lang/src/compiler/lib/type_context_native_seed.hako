@@ -2,7 +2,7 @@
 // source-family: hakorune_mir_builder::type_context
 // source-input-state: DerivedArtifactSeedDraftInput
 // surface-collation: FamilySeedSurfaceCollationV1
-// hako-adopted: 0
+// hako-adopted: 1
 // source-selfhost-claim: 0
 
 using selfhost.shared.common.box_helpers as BoxHelpers
