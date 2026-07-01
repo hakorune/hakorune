@@ -68,7 +68,7 @@
     ],
     "native_owner_adoption_delta_count": 3,
     "unconverted_surface_report_fresh": false,
-    "unconverted_surface_report_hash": "93ce02bcfad01b32f6d3c0ea93fe9974380b71e26b5e4949c3a103730497d8cc",
+    "unconverted_surface_report_hash": "0e444d56c9b135d53aadc68fcdb9792c0129c3187c9076d0745d1ce0832254f0",
     "unconverted_surface_report_token": "MIRBUILDER-CRATE-WIDE-UNCONVERTED-SURFACE-REPORT-001"
   },
   "input_state": {
@@ -84,9 +84,9 @@
   "provenance": {
     "bridge_policy_hash": "218cd631ed71744538d528b472cd42ac5a500d74440c97e1e93fe074a6456055",
     "bridge_policy_v2_hash": "d1c71472fa4eb648bec4db3836698ac87f5c0657b14479a8653a9e990f56a13e",
-    "source_selfhost_family_guard_manifest_hash": "94dbc677f66d2632680dd9c174b669e3ec3da79a27d87e074fa9d35ac9e24b4a",
+    "source_selfhost_family_guard_manifest_hash": "bb64d4cc351d8bc0142ca929ccf459245b9635c3963baa382c98d31016053508",
     "strict_candidate_rerun_005_hash": "6c772ba62c5d96b6ca4f8d7a0c395a4db96e02e3d88d4a315eef415cf55fbdc1",
-    "unconverted_surface_report_hash": "93ce02bcfad01b32f6d3c0ea93fe9974380b71e26b5e4949c3a103730497d8cc"
+    "unconverted_surface_report_hash": "0e444d56c9b135d53aadc68fcdb9792c0129c3187c9076d0745d1ce0832254f0"
   },
   "schema_version": 0,
   "selection_rule": {

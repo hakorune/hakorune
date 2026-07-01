@@ -314,6 +314,19 @@ def projection_descriptor_ledger_hash(family_manifest: dict[str, Any]) -> str:
     return sha256_bytes(payload)
 
 
+def native_owner_adoption_ledger_hash(family_manifest: dict[str, Any]) -> str:
+    rows = [
+        {
+            "token": row.get("token"),
+            "fixture": row.get("fixture"),
+        }
+        for row in family_manifest.get("rows", [])
+        if str(row.get("token") or "").endswith("-HAKO-ADOPTION-DECISION-001")
+    ]
+    payload = json.dumps(rows, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return sha256_bytes(payload)
+
+
 def normalize(text: str) -> str:
     return re.sub(r"\s+", " ", (text or "").strip())
 
@@ -915,6 +928,7 @@ def build_report() -> dict[str, Any]:
             "native_owner_seed_capability_survey_hash": sha256_file(NATIVE_SEED_SURVEY),
             "source_selfhost_family_guard_manifest_hash": projection_descriptor_ledger_hash(family_manifest),
             "projection_descriptor_ledger_hash": projection_descriptor_ledger_hash(family_manifest),
+            "native_owner_adoption_ledger_hash": native_owner_adoption_ledger_hash(family_manifest),
             "variable_context_reference_projection_contract_hash": sha256_file(REFERENCE_PROJECTION),
             "owner_edge_confidence_repair_hash": sha256_file(OWNER_EDGE_CONFIDENCE_REPAIR) if OWNER_EDGE_CONFIDENCE_REPAIR.exists() else None,
             "stable_deny_reason_repair_hash": sha256_file(STABLE_DENY_REASON_REPAIR) if STABLE_DENY_REASON_REPAIR.exists() else None,

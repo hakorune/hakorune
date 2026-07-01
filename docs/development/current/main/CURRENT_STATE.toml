@@ -25,13 +25,13 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-003"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2001-SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-003.md"
-latest_card_summary = """The latest card defines a post-BridgePolicyV2
-exhaustion lane selector. It consumes rerun-005, observes three native-owner
-adoption deltas after the last source-surface report, selects
-MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-003, and keeps Source Selfhost
-unclaimed at the wider route-selection design stop."""
+latest_card = "MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-003"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2002-MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-003.md"
+latest_card_summary = """The latest card refreshes the crate-wide
+unconverted surface report against the latest projection descriptor ledger and
+native-owner adoption ledger. It keeps the report diagnostic-only and selects
+SOURCE-SELFHOST-NATIVE-OWNER-CHECKPOINT-001 as the next task without Source
+Selfhost claim."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -42,6 +42,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-01: 2002 refreshes the unconverted surface report against projection and native-owner adoption ledgers, then selects native-owner checkpoint next.",
   "2026-07-01: 2001 defines the post-BridgePolicyV2 lane selector and selects unconverted surface report rerun 003 before checkpoint or blocker-class lanes.",
   "2026-07-01: 2000 reruns strict candidate selection after typed_object_plan_refresh adoption and finds no remaining BridgePolicyV2 seed candidate.",
   "2026-07-01: 1999 adopts typed_object_plan_refresh as a narrow native Hako source owner without Source Selfhost claim.",

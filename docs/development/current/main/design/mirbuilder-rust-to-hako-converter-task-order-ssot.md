@@ -24,10 +24,10 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-003.
-  BASIS-003 consumed rerun 005, proved the BridgePolicyV2 candidate set is
-  exhausted, and selected source-surface report rerun before checkpoint or
-  blocker-class lanes.
+  SOURCE-SELFHOST-NATIVE-OWNER-CHECKPOINT-001.
+  The source-surface report is fresh against the latest projection descriptor
+  ledger and native-owner adoption ledger. Next, compute the native owner map
+  and blocker class without Source Selfhost claim.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -63,7 +63,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-003
+  SOURCE-SELFHOST-NATIVE-OWNER-CHECKPOINT-001
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -289,6 +289,17 @@ post_bridge_policy_v2_basis_003_result:
   selected_next_card = MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-003
   source_selfhost_claim = 0
 
+unconverted_surface_report_rerun_003_result:
+  token = MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-003
+  projection_descriptor_ledger_hash_fresh = 1
+  native_owner_adoption_ledger_hash_fresh = 1
+  native_owner_adoption_delta_count = 3
+  missing_projection_policy_count = 1384
+  borrow_policy_needed_count = 112
+  decision = KeepStopped
+  selected_next_card = SOURCE-SELFHOST-NATIVE-OWNER-CHECKPOINT-001
+  source_selfhost_claim = 0
+
 post_rerun_006_selector_basis:
   token = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-002
   output_contract = rust-lifecycle-source-selfhost-wider-route-selection-basis-002-v0
@@ -355,33 +366,33 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-003
+1. SOURCE-SELFHOST-NATIVE-OWNER-CHECKPOINT-001
    status=next
-   boundary=regenerate source-surface classification after native-owner adoption delta
-   semantic_authority=source-surface report tool, manifest, latest adoption ledger
-   non_authority=coverage percentage, manual blocker-class selection, Source Selfhost claim
-
-2. SOURCE-SELFHOST-NATIVE-OWNER-CHECKPOINT-001
-   status=conditional-after-fresh-report
    boundary=compute native owner map and next blocker class without claiming Source Selfhost
    semantic_authority=fresh report plus native owner adoption ledger
    non_authority=Source Selfhost claim, Rust deletion, generated artifact edit authority
 
-3. MIRBUILDER-MISSING-PROJECTION-POLICY-CLUSTER-RESOLUTION-V2
+2. MIRBUILDER-MISSING-PROJECTION-POLICY-CLUSTER-RESOLUTION-V2
    status=conditional-after-checkpoint
    boundary=resolve MissingProjectionPolicy only if checkpoint selects that blocker class
    semantic_authority=fresh checkpoint and report, not candidate count
    non_authority=cluster size, coverage percentage, manual shape selection
 
+3. MIRBUILDER-BORROW-SURFACE-POLICY-CLUSTER-RERUN-002
+   status=conditional-after-checkpoint
+   boundary=rerun borrow policy clustering only if checkpoint selects that blocker class
+   semantic_authority=fresh checkpoint and report, not candidate count
+   non_authority=manual axis selection, MutLease by default, runtime fallback
+
 next:
-  MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-003
-  boundary=source-surface report is stale after direct_state / record_packed_layout / typed_object native-owner adoptions
+  SOURCE-SELFHOST-NATIVE-OWNER-CHECKPOINT-001
+  boundary=fresh report exists; checkpoint must compute native owner map and blocker class
 
 next_documented_task =
-  MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-003
+  SOURCE-SELFHOST-NATIVE-OWNER-CHECKPOINT-001
 
 next_after_active_3 =
-  MIRBUILDER-BORROW-SURFACE-POLICY-CLUSTER-RERUN-002
+  MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-008
 ```
 
 ## Landed Converter Capability Summary
