@@ -1,0 +1,434 @@
+// native-source-seed: MIRBUILDER-RECORD-PACKED-LAYOUT-REFRESH-HAKO-NATIVE-SOURCE-SEED-001
+// source-family: hakorune_mir_builder::record_packed_layout_refresh
+// source-input-state: DerivedArtifactSeedDraftInput
+// hako-adopted: 0
+// source-selfhost-claim: 0
+using selfhost.shared.common.box_helpers as BoxHelpers
+
+box RecordPackedLayoutRefreshKernel {
+}
+
+
+box RecordPackedLayoutRefreshPayloadBox {
+    payload: MapBox
+    shadow_json: StringBox
+
+    birth() {
+        me.payload = new MapBox()
+        me.shadow_json = ""
+    }
+}
+
+
+box RecordPackedLayoutRefreshResultBox {
+    err: i64
+    err_line: StringBox
+    shadow_record: MapBox
+    shadow_json: StringBox
+
+    birth() {
+        me.err = 0
+        me.err_line = ""
+        me.shadow_record = new MapBox()
+        me.shadow_json = ""
+    }
+}
+
+static box RecordPackedLayoutRefreshFixtureApi {
+    build_plan(): RecordPackedLayoutRefreshPayloadBox {
+        local plan = new MapBox()
+        plan.set("schema_version", 0)
+        plan.set("kind", "MirBuilderRecordPackedLayoutRefreshPlanV1")
+        plan.set("subject", "MirBuilder::finalize_module record/packed layout refresh")
+        local plan_source_authority = new MapBox()
+        plan_source_authority.set("finalize", "src/mir/builder/module_lifecycle.rs::MirBuilder::finalize_module")
+        plan_source_authority.set("refresh_entrypoint", "src/mir/semantic_refresh.rs::refresh_module_record_and_packed_layout_plans")
+        plan_source_authority.set("predecessor_plan", "mirbuilder-module-metadata-publication-plan-v0.json")
+        plan.set("source_authority", plan_source_authority)
+        local plan_execution_profile = new MapBox()
+        plan_execution_profile.set("input", "ASTNode::Literal(Integer(0))")
+        plan_execution_profile.set("context", "finalize_module")
+        plan_execution_profile.set("module_transport", "MirModuleMinimalShell")
+        plan.set("execution_profile", plan_execution_profile)
+        local plan_observed_source_order = new MapBox()
+        local plan_observed_source_order_finalize_module = new ArrayBox()
+        local plan_observed_source_order_finalize_module_0 = new MapBox()
+        plan_observed_source_order_finalize_module_0.set("marker", "module.metadata.enum_decls = self.comp_ctx.enum_decls_for_module_metadata();")
+        plan_observed_source_order_finalize_module_0.set("byte_offset", 10435)
+        plan_observed_source_order_finalize_module.push(plan_observed_source_order_finalize_module_0)
+        local plan_observed_source_order_finalize_module_1 = new MapBox()
+        plan_observed_source_order_finalize_module_1.set("marker", "crate::mir::semantic_refresh::refresh_module_record_and_packed_layout_plans(&mut module);")
+        plan_observed_source_order_finalize_module_1.set("byte_offset", 10520)
+        plan_observed_source_order_finalize_module.push(plan_observed_source_order_finalize_module_1)
+        local plan_observed_source_order_finalize_module_2 = new MapBox()
+        plan_observed_source_order_finalize_module_2.set("marker", "crate::mir::typed_object_plan::refresh_module_typed_object_plans(&mut module);")
+        plan_observed_source_order_finalize_module_2.set("byte_offset", 10618)
+        plan_observed_source_order_finalize_module.push(plan_observed_source_order_finalize_module_2)
+        plan_observed_source_order.set("finalize_module", plan_observed_source_order_finalize_module)
+        local plan_observed_source_order_refresh_entrypoint = new ArrayBox()
+        local plan_observed_source_order_refresh_entrypoint_0 = new MapBox()
+        plan_observed_source_order_refresh_entrypoint_0.set("marker", "refresh_module_record_layout_plans(module);")
+        plan_observed_source_order_refresh_entrypoint_0.set("byte_offset", 5)
+        plan_observed_source_order_refresh_entrypoint.push(plan_observed_source_order_refresh_entrypoint_0)
+        local plan_observed_source_order_refresh_entrypoint_1 = new MapBox()
+        plan_observed_source_order_refresh_entrypoint_1.set("marker", "refresh_module_array_record_storage_plans(module);")
+        plan_observed_source_order_refresh_entrypoint_1.set("byte_offset", 53)
+        plan_observed_source_order_refresh_entrypoint.push(plan_observed_source_order_refresh_entrypoint_1)
+        local plan_observed_source_order_refresh_entrypoint_2 = new MapBox()
+        plan_observed_source_order_refresh_entrypoint_2.set("marker", "refresh_module_array_record_autouse_eligibility_plans(module);")
+        plan_observed_source_order_refresh_entrypoint_2.set("byte_offset", 108)
+        plan_observed_source_order_refresh_entrypoint.push(plan_observed_source_order_refresh_entrypoint_2)
+        local plan_observed_source_order_refresh_entrypoint_3 = new MapBox()
+        plan_observed_source_order_refresh_entrypoint_3.set("marker", "refresh_module_array_record_materialization_boundary_plans(module);")
+        plan_observed_source_order_refresh_entrypoint_3.set("byte_offset", 175)
+        plan_observed_source_order_refresh_entrypoint.push(plan_observed_source_order_refresh_entrypoint_3)
+        local plan_observed_source_order_refresh_entrypoint_4 = new MapBox()
+        plan_observed_source_order_refresh_entrypoint_4.set("marker", "refresh_module_array_record_packed_autouse_pilot_plans(module);")
+        plan_observed_source_order_refresh_entrypoint_4.set("byte_offset", 247)
+        plan_observed_source_order_refresh_entrypoint.push(plan_observed_source_order_refresh_entrypoint_4)
+        local plan_observed_source_order_refresh_entrypoint_5 = new MapBox()
+        plan_observed_source_order_refresh_entrypoint_5.set("marker", "refresh_module_source_packed_array_autouse_pilot_plans(module);")
+        plan_observed_source_order_refresh_entrypoint_5.set("byte_offset", 315)
+        plan_observed_source_order_refresh_entrypoint.push(plan_observed_source_order_refresh_entrypoint_5)
+        local plan_observed_source_order_refresh_entrypoint_6 = new MapBox()
+        plan_observed_source_order_refresh_entrypoint_6.set("marker", "refresh_module_source_packed_array_direct_read_consumption_plans(module);")
+        plan_observed_source_order_refresh_entrypoint_6.set("byte_offset", 383)
+        plan_observed_source_order_refresh_entrypoint.push(plan_observed_source_order_refresh_entrypoint_6)
+        local plan_observed_source_order_refresh_entrypoint_7 = new MapBox()
+        plan_observed_source_order_refresh_entrypoint_7.set("marker", "refresh_module_hako_alloc_aligned_small_packed_store_pilot_plans(module);")
+        plan_observed_source_order_refresh_entrypoint_7.set("byte_offset", 461)
+        plan_observed_source_order_refresh_entrypoint.push(plan_observed_source_order_refresh_entrypoint_7)
+        local plan_observed_source_order_refresh_entrypoint_8 = new MapBox()
+        plan_observed_source_order_refresh_entrypoint_8.set("marker", "refresh_module_hako_alloc_huge_page_packed_store_pilot_plans(module);")
+        plan_observed_source_order_refresh_entrypoint_8.set("byte_offset", 539)
+        plan_observed_source_order_refresh_entrypoint.push(plan_observed_source_order_refresh_entrypoint_8)
+        plan_observed_source_order.set("refresh_entrypoint", plan_observed_source_order_refresh_entrypoint)
+        plan.set("observed_source_order", plan_observed_source_order)
+        local plan_refresh_policy = new MapBox()
+        plan_refresh_policy.set("entrypoint", "refresh_module_record_and_packed_layout_plans")
+        plan_refresh_policy.set("timing", "AfterModuleMetadataPublicationBeforeTypedObjectRefresh")
+        local plan_refresh_policy_steps = new ArrayBox()
+        plan_refresh_policy_steps.push("refresh_module_record_layout_plans")
+        plan_refresh_policy_steps.push("refresh_module_array_record_storage_plans")
+        plan_refresh_policy_steps.push("refresh_module_array_record_autouse_eligibility_plans")
+        plan_refresh_policy_steps.push("refresh_module_array_record_materialization_boundary_plans")
+        plan_refresh_policy_steps.push("refresh_module_array_record_packed_autouse_pilot_plans")
+        plan_refresh_policy_steps.push("refresh_module_source_packed_array_autouse_pilot_plans")
+        plan_refresh_policy_steps.push("refresh_module_source_packed_array_direct_read_consumption_plans")
+        plan_refresh_policy_steps.push("refresh_module_hako_alloc_aligned_small_packed_store_pilot_plans")
+        plan_refresh_policy_steps.push("refresh_module_hako_alloc_huge_page_packed_store_pilot_plans")
+        plan_refresh_policy.set("steps", plan_refresh_policy_steps)
+        plan_refresh_policy.set("module_arg", "&mut MirModule")
+        plan.set("refresh_policy", plan_refresh_policy)
+        local plan_available_capabilities = new ArrayBox()
+        plan_available_capabilities.push("RecordAndPackedLayoutRefresh")
+        plan.set("available_capabilities", plan_available_capabilities)
+        local plan_result_contract = new MapBox()
+        local plan_result_contract_mutates = new ArrayBox()
+        plan_result_contract_mutates.push("module.metadata.record_layout_plans")
+        plan_result_contract_mutates.push("module.metadata.array_record_storage_plans")
+        plan_result_contract_mutates.push("module.metadata.array_record_autouse_eligibility_plans")
+        plan_result_contract_mutates.push("module.metadata.array_record_materialization_boundary_plans")
+        plan_result_contract_mutates.push("module.metadata.array_record_packed_autouse_pilot_plans")
+        plan_result_contract_mutates.push("module.metadata.source_packed_array_autouse_pilot_plans")
+        plan_result_contract_mutates.push("module.metadata.source_packed_array_direct_read_consumption_plans")
+        plan_result_contract_mutates.push("module.metadata.hako_alloc_aligned_small_packed_store_pilot_plans")
+        plan_result_contract_mutates.push("module.metadata.hako_alloc_huge_page_packed_store_pilot_plans")
+        plan_result_contract.set("mutates", plan_result_contract_mutates)
+        plan_result_contract.set("entrypoint", "semantic_refresh::refresh_module_record_and_packed_layout_plans")
+        plan_result_contract.set("minimal_path_expected_result", "NoErrorReturn")
+        plan.set("result_contract", plan_result_contract)
+        local plan_non_claims = new MapBox()
+        plan_non_claims.set("typed_object_plan_refresh", 0)
+        plan_non_claims.set("direct_state_plan_refresh", 0)
+        plan_non_claims.set("full_semantic_refresh", 0)
+        plan_non_claims.set("all_functions_phi_materialization", 0)
+        plan_non_claims.set("full_finalize_module", 0)
+        plan_non_claims.set("generated_hako_artifact", 0)
+        plan_non_claims.set("backend_route_changed", 0)
+        plan_non_claims.set("abi_changed", 0)
+        plan_non_claims.set("runtime_fallback", 0)
+        plan_non_claims.set("mainline_selected", 0)
+        plan.set("non_claims", plan_non_claims)
+        local result = new RecordPackedLayoutRefreshPayloadBox()
+        result.payload = plan
+        result.shadow_json = "{
+  \"available_capabilities\": [
+    \"RecordAndPackedLayoutRefresh\"
+  ],
+  \"execution_profile\": {
+    \"context\": \"finalize_module\",
+    \"input\": \"ASTNode::Literal(Integer(0))\",
+    \"module_transport\": \"MirModuleMinimalShell\"
+  },
+  \"kind\": \"MirBuilderRecordPackedLayoutRefreshPlanV1\",
+  \"non_claims\": {
+    \"abi_changed\": 0,
+    \"all_functions_phi_materialization\": 0,
+    \"backend_route_changed\": 0,
+    \"direct_state_plan_refresh\": 0,
+    \"full_finalize_module\": 0,
+    \"full_semantic_refresh\": 0,
+    \"generated_hako_artifact\": 0,
+    \"mainline_selected\": 0,
+    \"runtime_fallback\": 0,
+    \"typed_object_plan_refresh\": 0
+  },
+  \"observed_source_order\": {
+    \"finalize_module\": [
+      {
+        \"byte_offset\": 10435,
+        \"marker\": \"module.metadata.enum_decls = self.comp_ctx.enum_decls_for_module_metadata();\"
+      },
+      {
+        \"byte_offset\": 10520,
+        \"marker\": \"crate::mir::semantic_refresh::refresh_module_record_and_packed_layout_plans(&mut module);\"
+      },
+      {
+        \"byte_offset\": 10618,
+        \"marker\": \"crate::mir::typed_object_plan::refresh_module_typed_object_plans(&mut module);\"
+      }
+    ],
+    \"refresh_entrypoint\": [
+      {
+        \"byte_offset\": 5,
+        \"marker\": \"refresh_module_record_layout_plans(module);\"
+      },
+      {
+        \"byte_offset\": 53,
+        \"marker\": \"refresh_module_array_record_storage_plans(module);\"
+      },
+      {
+        \"byte_offset\": 108,
+        \"marker\": \"refresh_module_array_record_autouse_eligibility_plans(module);\"
+      },
+      {
+        \"byte_offset\": 175,
+        \"marker\": \"refresh_module_array_record_materialization_boundary_plans(module);\"
+      },
+      {
+        \"byte_offset\": 247,
+        \"marker\": \"refresh_module_array_record_packed_autouse_pilot_plans(module);\"
+      },
+      {
+        \"byte_offset\": 315,
+        \"marker\": \"refresh_module_source_packed_array_autouse_pilot_plans(module);\"
+      },
+      {
+        \"byte_offset\": 383,
+        \"marker\": \"refresh_module_source_packed_array_direct_read_consumption_plans(module);\"
+      },
+      {
+        \"byte_offset\": 461,
+        \"marker\": \"refresh_module_hako_alloc_aligned_small_packed_store_pilot_plans(module);\"
+      },
+      {
+        \"byte_offset\": 539,
+        \"marker\": \"refresh_module_hako_alloc_huge_page_packed_store_pilot_plans(module);\"
+      }
+    ]
+  },
+  \"refresh_policy\": {
+    \"entrypoint\": \"refresh_module_record_and_packed_layout_plans\",
+    \"module_arg\": \"&mut MirModule\",
+    \"steps\": [
+      \"refresh_module_record_layout_plans\",
+      \"refresh_module_array_record_storage_plans\",
+      \"refresh_module_array_record_autouse_eligibility_plans\",
+      \"refresh_module_array_record_materialization_boundary_plans\",
+      \"refresh_module_array_record_packed_autouse_pilot_plans\",
+      \"refresh_module_source_packed_array_autouse_pilot_plans\",
+      \"refresh_module_source_packed_array_direct_read_consumption_plans\",
+      \"refresh_module_hako_alloc_aligned_small_packed_store_pilot_plans\",
+      \"refresh_module_hako_alloc_huge_page_packed_store_pilot_plans\"
+    ],
+    \"timing\": \"AfterModuleMetadataPublicationBeforeTypedObjectRefresh\"
+  },
+  \"result_contract\": {
+    \"entrypoint\": \"semantic_refresh::refresh_module_record_and_packed_layout_plans\",
+    \"minimal_path_expected_result\": \"NoErrorReturn\",
+    \"mutates\": [
+      \"module.metadata.record_layout_plans\",
+      \"module.metadata.array_record_storage_plans\",
+      \"module.metadata.array_record_autouse_eligibility_plans\",
+      \"module.metadata.array_record_materialization_boundary_plans\",
+      \"module.metadata.array_record_packed_autouse_pilot_plans\",
+      \"module.metadata.source_packed_array_autouse_pilot_plans\",
+      \"module.metadata.source_packed_array_direct_read_consumption_plans\",
+      \"module.metadata.hako_alloc_aligned_small_packed_store_pilot_plans\",
+      \"module.metadata.hako_alloc_huge_page_packed_store_pilot_plans\"
+    ]
+  },
+  \"schema_version\": 0,
+  \"source_authority\": {
+    \"finalize\": \"src/mir/builder/module_lifecycle.rs::MirBuilder::finalize_module\",
+    \"predecessor_plan\": \"mirbuilder-module-metadata-publication-plan-v0.json\",
+    \"refresh_entrypoint\": \"src/mir/semantic_refresh.rs::refresh_module_record_and_packed_layout_plans\"
+  },
+  \"subject\": \"MirBuilder::finalize_module record/packed layout refresh\"
+}
+"
+        return result
+    }
+
+    build_shadow_candidate(): RecordPackedLayoutRefreshPayloadBox {
+        local candidate = new MapBox()
+        candidate.set("schema_version", 0)
+        candidate.set("kind", "RecordPackedLayoutRefreshShadowCandidateV1")
+        candidate.set("family_id", "hakorune_mir_builder::record_packed_layout_refresh")
+        candidate.set("stage_id", "record_packed_layout_refresh")
+        candidate.set("subject", "MirBuilder::finalize_module record/packed layout refresh")
+        candidate.set("source_authority", "src/mir/builder/module_lifecycle.rs::MirBuilder::finalize_module")
+        candidate.set("refresh_timing", "AfterModuleMetadataPublicationBeforeTypedObjectRefresh")
+        local candidate_publication_targets = new ArrayBox()
+        candidate_publication_targets.push("module.metadata.record_layout_plans")
+        candidate_publication_targets.push("module.metadata.array_record_storage_plans")
+        candidate_publication_targets.push("module.metadata.array_record_autouse_eligibility_plans")
+        candidate_publication_targets.push("module.metadata.array_record_materialization_boundary_plans")
+        candidate_publication_targets.push("module.metadata.array_record_packed_autouse_pilot_plans")
+        candidate_publication_targets.push("module.metadata.source_packed_array_autouse_pilot_plans")
+        candidate_publication_targets.push("module.metadata.source_packed_array_direct_read_consumption_plans")
+        candidate_publication_targets.push("module.metadata.hako_alloc_aligned_small_packed_store_pilot_plans")
+        candidate_publication_targets.push("module.metadata.hako_alloc_huge_page_packed_store_pilot_plans")
+        candidate.set("publication_targets", candidate_publication_targets)
+        local candidate_projected_fields = new ArrayBox()
+        candidate_projected_fields.push("refresh_module_record_layout_plans")
+        candidate_projected_fields.push("refresh_module_array_record_storage_plans")
+        candidate_projected_fields.push("refresh_module_array_record_autouse_eligibility_plans")
+        candidate_projected_fields.push("refresh_module_array_record_materialization_boundary_plans")
+        candidate_projected_fields.push("refresh_module_array_record_packed_autouse_pilot_plans")
+        candidate_projected_fields.push("refresh_module_source_packed_array_autouse_pilot_plans")
+        candidate_projected_fields.push("refresh_module_source_packed_array_direct_read_consumption_plans")
+        candidate_projected_fields.push("refresh_module_hako_alloc_aligned_small_packed_store_pilot_plans")
+        candidate_projected_fields.push("refresh_module_hako_alloc_huge_page_packed_store_pilot_plans")
+        candidate.set("projected_fields", candidate_projected_fields)
+        candidate.set("publication_target_count", 9)
+        candidate.set("projected_field_count", 9)
+        candidate.set("mutation_target_count", 9)
+        candidate.set("step_count", 9)
+        candidate.set("entrypoint", "semantic_refresh::refresh_module_record_and_packed_layout_plans")
+        local result = new RecordPackedLayoutRefreshPayloadBox()
+        result.payload = candidate
+        result.shadow_json = "{
+  \"entrypoint\": \"semantic_refresh::refresh_module_record_and_packed_layout_plans\",
+  \"family_id\": \"hakorune_mir_builder::record_packed_layout_refresh\",
+  \"kind\": \"RecordPackedLayoutRefreshShadowCandidateV1\",
+  \"mutation_target_count\": 9,
+  \"projected_field_count\": 9,
+  \"projected_fields\": [
+    \"refresh_module_record_layout_plans\",
+    \"refresh_module_array_record_storage_plans\",
+    \"refresh_module_array_record_autouse_eligibility_plans\",
+    \"refresh_module_array_record_materialization_boundary_plans\",
+    \"refresh_module_array_record_packed_autouse_pilot_plans\",
+    \"refresh_module_source_packed_array_autouse_pilot_plans\",
+    \"refresh_module_source_packed_array_direct_read_consumption_plans\",
+    \"refresh_module_hako_alloc_aligned_small_packed_store_pilot_plans\",
+    \"refresh_module_hako_alloc_huge_page_packed_store_pilot_plans\"
+  ],
+  \"publication_target_count\": 9,
+  \"publication_targets\": [
+    \"module.metadata.record_layout_plans\",
+    \"module.metadata.array_record_storage_plans\",
+    \"module.metadata.array_record_autouse_eligibility_plans\",
+    \"module.metadata.array_record_materialization_boundary_plans\",
+    \"module.metadata.array_record_packed_autouse_pilot_plans\",
+    \"module.metadata.source_packed_array_autouse_pilot_plans\",
+    \"module.metadata.source_packed_array_direct_read_consumption_plans\",
+    \"module.metadata.hako_alloc_aligned_small_packed_store_pilot_plans\",
+    \"module.metadata.hako_alloc_huge_page_packed_store_pilot_plans\"
+  ],
+  \"refresh_timing\": \"AfterModuleMetadataPublicationBeforeTypedObjectRefresh\",
+  \"schema_version\": 0,
+  \"source_authority\": \"src/mir/builder/module_lifecycle.rs::MirBuilder::finalize_module\",
+  \"stage_id\": \"record_packed_layout_refresh\",
+  \"step_count\": 9,
+  \"subject\": \"MirBuilder::finalize_module record/packed layout refresh\"
+}
+"
+        return result
+    }
+
+    build_python_oracle(): RecordPackedLayoutRefreshPayloadBox {
+        local oracle = RecordPackedLayoutRefreshFixtureApi.build_shadow_candidate()
+        return oracle
+    }
+
+    build_hako_shadow(): RecordPackedLayoutRefreshPayloadBox {
+        local shadow = RecordPackedLayoutRefreshFixtureApi.build_shadow_candidate()
+        return shadow
+    }
+
+    build_parity_gate(): RecordPackedLayoutRefreshPayloadBox {
+        local parity_gate = new MapBox()
+        parity_gate.set("schema_version", 0)
+        parity_gate.set("kind", "RecordPackedLayoutRefreshParityGateV1")
+        parity_gate.set("family_id", "hakorune_mir_builder::record_packed_layout_refresh")
+        parity_gate.set("stage_id", "record_packed_layout_refresh")
+        parity_gate.set("comparison", "canonical_json")
+        parity_gate.set("expected_match", 1)
+        local result = new RecordPackedLayoutRefreshPayloadBox()
+        result.payload = parity_gate
+        result.shadow_json = "{
+  \"comparison\": \"canonical_json\",
+  \"expected_match\": 1,
+  \"family_id\": \"hakorune_mir_builder::record_packed_layout_refresh\",
+  \"kind\": \"RecordPackedLayoutRefreshParityGateV1\",
+  \"schema_version\": 0,
+  \"stage_id\": \"record_packed_layout_refresh\"
+}
+"
+        return result
+    }
+
+    build_promotion_token(): RecordPackedLayoutRefreshPayloadBox {
+        local promotion_token = new MapBox()
+        promotion_token.set("schema_version", 0)
+        promotion_token.set("kind", "RecordPackedLayoutRefreshPromotionTokenV1")
+        promotion_token.set("family_id", "hakorune_mir_builder::record_packed_layout_refresh")
+        promotion_token.set("stage_id", "record_packed_layout_refresh")
+        promotion_token.set("value", "promotion")
+        local result = new RecordPackedLayoutRefreshPayloadBox()
+        result.payload = promotion_token
+        result.shadow_json = "{
+  \"family_id\": \"hakorune_mir_builder::record_packed_layout_refresh\",
+  \"kind\": \"RecordPackedLayoutRefreshPromotionTokenV1\",
+  \"schema_version\": 0,
+  \"stage_id\": \"record_packed_layout_refresh\",
+  \"value\": \"promotion\"
+}
+"
+        return result
+    }
+
+    build_retirement_token(): RecordPackedLayoutRefreshPayloadBox {
+        local retirement_token = new MapBox()
+        retirement_token.set("schema_version", 0)
+        retirement_token.set("kind", "RecordPackedLayoutRefreshRetirementTokenV1")
+        retirement_token.set("family_id", "hakorune_mir_builder::record_packed_layout_refresh")
+        retirement_token.set("stage_id", "record_packed_layout_refresh")
+        retirement_token.set("value", "retirement")
+        local result = new RecordPackedLayoutRefreshPayloadBox()
+        result.payload = retirement_token
+        result.shadow_json = "{
+  \"family_id\": \"hakorune_mir_builder::record_packed_layout_refresh\",
+  \"kind\": \"RecordPackedLayoutRefreshRetirementTokenV1\",
+  \"schema_version\": 0,
+  \"stage_id\": \"record_packed_layout_refresh\",
+  \"value\": \"retirement\"
+}
+"
+        return result
+    }
+}
+
+static box RecordPackedLayoutRefreshApi {
+    project_shadow_record(plan, python_oracle, hako_shadow, parity_gate, promotion_token, retirement_token): RecordPackedLayoutRefreshResultBox {
+        local result = new RecordPackedLayoutRefreshResultBox()
+        result.err = 0
+        result.err_line = ""
+        result.shadow_record = hako_shadow.payload
+        result.shadow_json = hako_shadow.shadow_json
+        return result
+    }
+}

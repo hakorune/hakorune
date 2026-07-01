@@ -1,0 +1,68 @@
+{
+  "claims": {
+    "family_adoption_decision": 0,
+    "generated_artifact_as_edit_authority": 0,
+    "manual_family_selection": 0,
+    "native_seed_materialization": 1,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_canonical_mir_instruction": 0,
+    "new_python_semantic_projector": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "rust_deletion": 0,
+    "source_selfhost_claim": 0
+  },
+  "family_id": "hakorune_mir_builder::record_packed_layout_refresh",
+  "input_authority": {
+    "derived_to_native_model": "docs/development/current/main/design/derived-to-native-hako-artifact-model-ssot.md",
+    "generated_artifact": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_record_packed_layout_refresh.hako",
+    "generated_artifact_manifest": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_record_packed_layout_refresh.artifact.json",
+    "strict_candidate_selection_rerun_003": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-strict-converter-emission-native-seed-candidate-selection-rerun-003-v0.json",
+    "verifier_result": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-record-packed-layout-refresh-derived-hako-verifier-result-v0.json"
+  },
+  "kind": "MirBuilderRecordPackedLayoutRefreshHakoNativeSourceSeedV1",
+  "native_source_seed": {
+    "api": "RecordPackedLayoutRefreshApi.project_shadow_record",
+    "generator_overwrite_guard": true,
+    "module_export": "lib.record_packed_layout_refresh_native_seed",
+    "native_seed_api": "RecordPackedLayoutRefreshApi.project_shadow_record",
+    "outside_generated_tree": true,
+    "path": "lang/src/compiler/lib/record_packed_layout_refresh_native_seed.hako"
+  },
+  "next_action": {
+    "kind": "HakoAdoptionDecisionDeferred",
+    "next_card": "MIRBUILDER-RECORD-PACKED-LAYOUT-REFRESH-HAKO-ADOPTION-DECISION-001",
+    "reason_token": "RecordPackedLayoutRefreshNativeSourceSeedMaterialized"
+  },
+  "provenance": {
+    "generated_artifact_hash": "9ac6ab79fdb986618371ff3f5d23f02405ed7b2d10a86ca8e907b2de0519c10f",
+    "generated_artifact_manifest_hash": "f4b75023a24274324f70252d9f6570b1d5781d9225c5dd3b6cf69ce46deafa5a",
+    "strict_candidate_selection_rerun_003_hash": "a0881a22f8b9494fd45feb4b8eae183c3ce7ef819ebe0b359751a42c2672a241",
+    "verifier_result_hash": "261a39e139859013a550a1e0cbee025b4e3d1eed5e007c04f6c0a869d440a698"
+  },
+  "schema_version": 0,
+  "seed_status": {
+    "generated_artifact_as_edit_authority": 0,
+    "hako_adopted_decision": 0,
+    "native_edit_authority_claim": 0,
+    "native_source_owner_seed_present": 1,
+    "source_selfhost_claim": 0
+  },
+  "selected_behavior": {
+    "entrypoint": "semantic_refresh::refresh_module_record_and_packed_layout_plans",
+    "operation": "RecordPackedLayoutRefreshPreparedOnly",
+    "pilot_scope": "RecordPackedLayoutRefresh_prepared_record_packed_layout_refresh_only",
+    "result_contract": {
+      "canonical_json_parity": 1,
+      "mutation_target_count": 9,
+      "projected_field_count": 9,
+      "publication_target_count": 9,
+      "record_packed_layout_refresh": 1,
+      "record_packed_layout_refresh_only": 1,
+      "runtime_fallback": 0
+    },
+    "result_transport": "RecordPackedLayoutRefreshResultBox"
+  },
+  "token": "MIRBUILDER-RECORD-PACKED-LAYOUT-REFRESH-HAKO-NATIVE-SOURCE-SEED-001"
+}

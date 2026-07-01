@@ -25,13 +25,14 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-RERUN-003"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1994-MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-RERUN-003.md"
-latest_card_summary = """The latest card reruns strict native-seed candidate
-selection after direct_state_plan_refresh adoption. It excludes the already
-adopted direct_state owner, keeps two bridge-eligible candidates, and selects
-hakorune_mir_builder::record_packed_layout_refresh by stable priority without
-native seed materialization or Source Selfhost claim."""
+latest_card = "MIRBUILDER-RECORD-PACKED-LAYOUT-REFRESH-HAKO-NATIVE-SOURCE-SEED-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1995-MIRBUILDER-RECORD-PACKED-LAYOUT-REFRESH-HAKO-NATIVE-SOURCE-SEED-001.md"
+latest_card_summary = """The latest card materializes the native .hako source
+seed for hakorune_mir_builder::record_packed_layout_refresh from
+DerivedArtifactSeedDraftInput, adds the compiler module export, and defers the
+HakoAdopted decision to
+MIRBUILDER-RECORD-PACKED-LAYOUT-REFRESH-HAKO-ADOPTION-DECISION-001 without
+Source Selfhost claim."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -42,6 +43,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-01: 1995 materializes the record_packed_layout_refresh native source seed and defers HakoAdopted decision.",
   "2026-07-01: 1994 reruns strict candidate selection after direct_state_plan_refresh adoption and selects record_packed_layout_refresh native seed.",
   "2026-07-01: 1993 adopts direct_state_plan_refresh as a narrow native Hako source owner without Source Selfhost claim.",
   "2026-07-01: 1992 materializes the direct_state_plan_refresh native source seed and defers HakoAdopted decision.",
