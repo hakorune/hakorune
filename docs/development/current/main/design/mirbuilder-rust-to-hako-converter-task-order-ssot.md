@@ -24,9 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001.
-  ID scalar readiness rerun found no seed-ready owner after repair; selecting
-  the next implementation lane now requires a design basis update.
+  MIRBUILDER-ID-SCALAR-SEED-PACKET-CANDIDATE-SELECTION-001.
+  The evidence contract is defined; next select a packet-generation candidate
+  without treating directability alone as seed proof.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+  MIRBUILDER-ID-SCALAR-SEED-PACKET-CANDIDATE-SELECTION-001
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -342,6 +342,13 @@ id_scalar_domain_seed_readiness_resolution_002_result:
   selected_next_card = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
   source_selfhost_claim = 0
 
+id_scalar_seed_evidence_contract_result:
+  token = MIRBUILDER-ID-SCALAR-SEED-EVIDENCE-CONTRACT-001
+  contract_id = IdScalarSeedEvidencePacketV1
+  directability_only_is_seed_evidence = 0
+  selected_next_card = MIRBUILDER-ID-SCALAR-SEED-PACKET-CANDIDATE-SELECTION-001
+  source_selfhost_claim = 0
+
 placement_rule:
   scan_unit = rust_function_or_method
   classification_unit = semantic_owner_edge
@@ -394,33 +401,27 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. MIRBUILDER-ID-SCALAR-DOMAIN-OWNER-EDGE-REPAIR-001
+1. MIRBUILDER-ID-SCALAR-SEED-EVIDENCE-CONTRACT-001
    status=closed
-   boundary=repair the 12 owner-edge-missing ID scalar rows
-   semantic_authority=seed readiness resolution and directability rerun
-   non_authority=manual owner selection, raw i64 interchangeability
+   boundary=directability may feed packet generation but is not seed proof
 
-2. MIRBUILDER-ID-SCALAR-DOMAIN-SEED-READINESS-RESOLUTION-002
-   status=closed
-   boundary=rerun readiness after owner-edge repair
-   semantic_authority=repaired owner-edge fixture
-   non_authority=cluster size proof, lexical tiebreaker, Source Selfhost claim
+2. MIRBUILDER-ID-SCALAR-SEED-PACKET-CANDIDATE-SELECTION-001
+   status=next
+   boundary=select packet-generation candidate without manual owner selection
 
 3. SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
-   status=design-consultation-required
-   boundary=directability alone is not native seed evidence
-   semantic_authority=latest readiness rerun and bridge policy
-   non_authority=manual owner selection or count-based proof
+   status=guardrail
+   boundary=no native seed / Hako generation / Source Selfhost claim
 
 next:
-  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
-  boundary=design consultation required before selecting another lane
+  MIRBUILDER-ID-SCALAR-SEED-PACKET-CANDIDATE-SELECTION-001
+  boundary=derive exactly one seed packet candidate or keep stopped
 
 next_documented_task =
-  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+  MIRBUILDER-ID-SCALAR-SEED-PACKET-CANDIDATE-SELECTION-001
 
 next_after_active_3 =
-  TBD_AFTER_DESIGN_CONSULTATION
+  <SELECTED-OWNER>-ID-SCALAR-SOURCE-PLAN-AND-RECIPE-001
 ```
 
 ## Landed Converter Capability Summary
