@@ -1,7 +1,7 @@
 // native-source-seed: MIRBUILDER-RECORD-PACKED-LAYOUT-REFRESH-HAKO-NATIVE-SOURCE-SEED-001
 // source-family: hakorune_mir_builder::record_packed_layout_refresh
 // source-input-state: DerivedArtifactSeedDraftInput
-// hako-adopted: 0
+// hako-adopted: 1
 // source-selfhost-claim: 0
 using selfhost.shared.common.box_helpers as BoxHelpers
 
