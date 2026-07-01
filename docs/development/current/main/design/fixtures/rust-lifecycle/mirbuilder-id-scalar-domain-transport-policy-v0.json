@@ -1,0 +1,410 @@
+{
+  "claims": {
+    "cluster_size_as_proof": 0,
+    "coverage_percentage_as_proof": 0,
+    "domain_object_count_as_proof": 0,
+    "domain_object_id_transport_policy_inventory_consumed": 1,
+    "generated_artifact_as_native_edit_authority": 0,
+    "generator_object_transport": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "id_scalar_domain_transport_policy_defined": 1,
+    "invalid_sentinel_semantics": 0,
+    "manual_axis_selection": 0,
+    "manual_carrier_selection": 0,
+    "manual_family_selection": 0,
+    "manual_shape_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "object_layout_transport": 0,
+    "raw_i64_interchangeability": 0,
+    "reserved_id_policy": 0,
+    "route_membership_alone_as_proof": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "SelectIdScalarDomainTransportDirectabilityRerun",
+    "reason_token": "NominalIdScalarTransportPolicyDefined",
+    "selected_next_card": "MIRBUILDER-ID-SCALAR-DOMAIN-TRANSPORT-DIRECTABILITY-RERUN-001"
+  },
+  "input_decision": {
+    "kind": "SelectIdScalarDomainTransportPolicy",
+    "reason_token": "IdScalarDomainTransportClosestToExistingScalarTransport",
+    "selected_next_card": "MIRBUILDER-ID-SCALAR-DOMAIN-TRANSPORT-POLICY-001",
+    "selected_subaxis": "IdScalarDomainTransportAxis"
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "domain_object_id_transport_policy_inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-transport-policy-inventory-v0.json",
+    "newtype_id_scalarization_precedent": "docs/development/current/main/phases/phase-296x/296x-1679-NEWTYPE-ID-GENERATOR-SCALARIZATION-001.md",
+    "unconverted_surface_report": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-unconverted-surface-report-v0.json"
+  },
+  "kind": "MirBuilderIdScalarDomainTransportPolicyV1",
+  "nominal_transports": {
+    "BasicBlockId": "BasicBlockIdAsI64",
+    "BindingId": "BindingIdAsI64",
+    "BodyId": "BodyIdAsI64",
+    "SlotId": "SlotIdAsI64",
+    "TypedValueId": "TypedValueIdAsI64",
+    "ValueId": "ValueIdAsI64"
+  },
+  "policy_rows": [
+    {
+      "canonical_id_type": "BindingId",
+      "known_owner_edge": "mirbuilder::context_registry",
+      "nominal_transport": "BindingIdAsI64",
+      "owner_edge_confidence": "FixtureMapped",
+      "policy_state": "IdScalarDomainTransportSelected",
+      "return_type": "BindingId",
+      "shape_signature": "shape.context_registry",
+      "source_id": "crates/hakorune_mir_builder/src/core_context.rs::next_binding:L71"
+    },
+    {
+      "canonical_id_type": "BasicBlockId",
+      "known_owner_edge": "mirbuilder::context_registry",
+      "nominal_transport": "BasicBlockIdAsI64",
+      "owner_edge_confidence": "FixtureMapped",
+      "policy_state": "IdScalarDomainTransportSelected",
+      "return_type": "BasicBlockId",
+      "shape_signature": "shape.context_registry",
+      "source_id": "crates/hakorune_mir_builder/src/core_context.rs::next_block:L63"
+    },
+    {
+      "canonical_id_type": "ValueId",
+      "known_owner_edge": "mirbuilder::context_registry",
+      "nominal_transport": "ValueIdAsI64",
+      "owner_edge_confidence": "FixtureMapped",
+      "policy_state": "IdScalarDomainTransportSelected",
+      "return_type": "ValueId",
+      "shape_signature": "shape.context_registry",
+      "source_id": "crates/hakorune_mir_builder/src/core_context.rs::next_value:L58"
+    },
+    {
+      "canonical_id_type": "BasicBlockId",
+      "known_owner_edge": "mirbuilder::context_registry",
+      "nominal_transport": "BasicBlockIdAsI64",
+      "owner_edge_confidence": "FixtureMapped",
+      "policy_state": "IdScalarDomainTransportSelected",
+      "return_type": "BasicBlockId",
+      "shape_signature": "shape.context_registry",
+      "source_id": "crates/hakorune_mir_builder/src/core_context.rs::peek_next_block:L104"
+    },
+    {
+      "canonical_id_type": "ValueId",
+      "known_owner_edge": "mirbuilder::context_registry",
+      "nominal_transport": "ValueIdAsI64",
+      "owner_edge_confidence": "FixtureMapped",
+      "policy_state": "IdScalarDomainTransportSelected",
+      "return_type": "ValueId",
+      "shape_signature": "shape.context_registry",
+      "source_id": "crates/hakorune_mir_builder/src/core_context.rs::peek_next_value:L98"
+    },
+    {
+      "canonical_id_type": "BindingId",
+      "known_owner_edge": null,
+      "nominal_transport": "BindingIdAsI64",
+      "owner_edge_confidence": "None",
+      "policy_state": "IdScalarDomainTransportSelected",
+      "return_type": "BindingId",
+      "shape_signature": null,
+      "source_id": "src/mir/builder/builder_init.rs::allocate_binding_id:L102"
+    },
+    {
+      "canonical_id_type": "TypedValueId",
+      "known_owner_edge": null,
+      "nominal_transport": "TypedValueIdAsI64",
+      "owner_edge_confidence": "None",
+      "policy_state": "IdScalarDomainTransportSelected",
+      "return_type": "TypedValueId",
+      "shape_signature": null,
+      "source_id": "src/mir/builder/builder_value_kind.rs::new_typed_value:L11"
+    },
+    {
+      "canonical_id_type": "BasicBlockId",
+      "known_owner_edge": "mirbuilder::join_i_r_route_verify",
+      "nominal_transport": "BasicBlockIdAsI64",
+      "owner_edge_confidence": "FixtureMapped",
+      "policy_state": "IdScalarDomainTransportSelected",
+      "return_type": "BasicBlockId",
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id": "src/mir/builder/control_flow/joinir/merge/block_remapper.rs::remap_block_id:L71"
+    },
+    {
+      "canonical_id_type": "BasicBlockId",
+      "known_owner_edge": "mirbuilder::join_i_r_plan",
+      "nominal_transport": "BasicBlockIdAsI64",
+      "owner_edge_confidence": "FixtureMapped",
+      "policy_state": "IdScalarDomainTransportSelected",
+      "return_type": "BasicBlockId",
+      "shape_signature": "shape.phi_materializer_feature",
+      "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_bc_phi_materializer.rs::continue_target:L118"
+    },
+    {
+      "canonical_id_type": "BasicBlockId",
+      "known_owner_edge": "mirbuilder::join_i_r_plan",
+      "nominal_transport": "BasicBlockIdAsI64",
+      "owner_edge_confidence": "FixtureMapped",
+      "policy_state": "IdScalarDomainTransportSelected",
+      "return_type": "BasicBlockId",
+      "shape_signature": "shape.phi_materializer_feature",
+      "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_continue_with_return_phi_materializer.rs::continue_target:L47"
+    },
+    {
+      "canonical_id_type": "BasicBlockId",
+      "known_owner_edge": "mirbuilder::join_i_r_plan",
+      "nominal_transport": "BasicBlockIdAsI64",
+      "owner_edge_confidence": "FixtureMapped",
+      "policy_state": "IdScalarDomainTransportSelected",
+      "return_type": "BasicBlockId",
+      "shape_signature": "shape.phi_materializer_feature",
+      "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_continue_with_return_phi_materializer.rs::continue_target:L75"
+    },
+    {
+      "canonical_id_type": "BasicBlockId",
+      "known_owner_edge": "mirbuilder::join_i_r_plan",
+      "nominal_transport": "BasicBlockIdAsI64",
+      "owner_edge_confidence": "FixtureMapped",
+      "policy_state": "IdScalarDomainTransportSelected",
+      "return_type": "BasicBlockId",
+      "shape_signature": "shape.phi_materializer_feature",
+      "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_return_in_body_phi_materializer.rs::continue_target:L56"
+    },
+    {
+      "canonical_id_type": "BasicBlockId",
+      "known_owner_edge": "mirbuilder::join_i_r_plan",
+      "nominal_transport": "BasicBlockIdAsI64",
+      "owner_edge_confidence": "FixtureMapped",
+      "policy_state": "IdScalarDomainTransportSelected",
+      "return_type": "BasicBlockId",
+      "shape_signature": "shape.plan_normalizer",
+      "source_id": "src/mir/builder/control_flow/plan/normalizer/cond_lowering_freshen/utils.rs::map_block_id:L22"
+    },
+    {
+      "canonical_id_type": "ValueId",
+      "known_owner_edge": "mirbuilder::join_i_r_plan",
+      "nominal_transport": "ValueIdAsI64",
+      "owner_edge_confidence": "FixtureMapped",
+      "policy_state": "IdScalarDomainTransportSelected",
+      "return_type": "ValueId",
+      "shape_signature": "shape.plan_normalizer",
+      "source_id": "src/mir/builder/control_flow/plan/normalizer/cond_lowering_freshen/utils.rs::remap_value_id:L7"
+    },
+    {
+      "canonical_id_type": "BodyId",
+      "known_owner_edge": "mirbuilder::join_i_r_plan",
+      "nominal_transport": "BodyIdAsI64",
+      "owner_edge_confidence": "FixtureMapped",
+      "policy_state": "IdScalarDomainTransportSelected",
+      "return_type": "BodyId",
+      "shape_signature": "shape.recipe_tree_matcher",
+      "source_id": "src/mir/builder/control_flow/plan/recipe_tree/block.rs::register:L64"
+    },
+    {
+      "canonical_id_type": "ValueId",
+      "known_owner_edge": null,
+      "nominal_transport": "ValueIdAsI64",
+      "owner_edge_confidence": "None",
+      "policy_state": "IdScalarDomainTransportSelected",
+      "return_type": "ValueId",
+      "shape_signature": null,
+      "source_id": "src/mir/builder/joinir_id_remapper.rs::remap_value:L497"
+    },
+    {
+      "canonical_id_type": "ValueId",
+      "known_owner_edge": "mirbuilder::emission_ssa_phi",
+      "nominal_transport": "ValueIdAsI64",
+      "owner_edge_confidence": "FixtureMapped",
+      "policy_state": "IdScalarDomainTransportSelected",
+      "return_type": "ValueId",
+      "shape_signature": "shape.emission_ssa_phi",
+      "source_id": "src/mir/builder/ssa/local.rs::arg:L637"
+    },
+    {
+      "canonical_id_type": "ValueId",
+      "known_owner_edge": "mirbuilder::emission_ssa_phi",
+      "nominal_transport": "ValueIdAsI64",
+      "owner_edge_confidence": "FixtureMapped",
+      "policy_state": "IdScalarDomainTransportSelected",
+      "return_type": "ValueId",
+      "shape_signature": "shape.emission_ssa_phi",
+      "source_id": "src/mir/builder/ssa/local.rs::cmp_operand:L652"
+    },
+    {
+      "canonical_id_type": "ValueId",
+      "known_owner_edge": "mirbuilder::emission_ssa_phi",
+      "nominal_transport": "ValueIdAsI64",
+      "owner_edge_confidence": "FixtureMapped",
+      "policy_state": "IdScalarDomainTransportSelected",
+      "return_type": "ValueId",
+      "shape_signature": "shape.emission_ssa_phi",
+      "source_id": "src/mir/builder/ssa/local.rs::cond:L642"
+    },
+    {
+      "canonical_id_type": "ValueId",
+      "known_owner_edge": "mirbuilder::emission_ssa_phi",
+      "nominal_transport": "ValueIdAsI64",
+      "owner_edge_confidence": "FixtureMapped",
+      "policy_state": "IdScalarDomainTransportSelected",
+      "return_type": "ValueId",
+      "shape_signature": "shape.emission_ssa_phi",
+      "source_id": "src/mir/builder/ssa/local.rs::ensure:L72"
+    },
+    {
+      "canonical_id_type": "ValueId",
+      "known_owner_edge": "mirbuilder::emission_ssa_phi",
+      "nominal_transport": "ValueIdAsI64",
+      "owner_edge_confidence": "FixtureMapped",
+      "policy_state": "IdScalarDomainTransportSelected",
+      "return_type": "ValueId",
+      "shape_signature": "shape.emission_ssa_phi",
+      "source_id": "src/mir/builder/ssa/local.rs::field_base:L647"
+    },
+    {
+      "canonical_id_type": "ValueId",
+      "known_owner_edge": "mirbuilder::emission_ssa_phi",
+      "nominal_transport": "ValueIdAsI64",
+      "owner_edge_confidence": "FixtureMapped",
+      "policy_state": "IdScalarDomainTransportSelected",
+      "return_type": "ValueId",
+      "shape_signature": "shape.emission_ssa_phi",
+      "source_id": "src/mir/builder/ssa/local.rs::recv:L632"
+    },
+    {
+      "canonical_id_type": "ValueId",
+      "known_owner_edge": null,
+      "nominal_transport": "ValueIdAsI64",
+      "owner_edge_confidence": "None",
+      "policy_state": "IdScalarDomainTransportSelected",
+      "return_type": "super::super::ValueId",
+      "shape_signature": null,
+      "source_id": "src/mir/builder/utils/id_alloc.rs::alloc_typed:L49"
+    },
+    {
+      "canonical_id_type": "BasicBlockId",
+      "known_owner_edge": null,
+      "nominal_transport": "BasicBlockIdAsI64",
+      "owner_edge_confidence": "None",
+      "policy_state": "IdScalarDomainTransportSelected",
+      "return_type": "super::super::BasicBlockId",
+      "shape_signature": null,
+      "source_id": "src/mir/builder/utils/id_alloc.rs::next_block_id:L59"
+    },
+    {
+      "canonical_id_type": "ValueId",
+      "known_owner_edge": null,
+      "nominal_transport": "ValueIdAsI64",
+      "owner_edge_confidence": "None",
+      "policy_state": "IdScalarDomainTransportSelected",
+      "return_type": "super::super::ValueId",
+      "shape_signature": null,
+      "source_id": "src/mir/builder/utils/id_alloc.rs::next_value_id:L20"
+    },
+    {
+      "canonical_id_type": "ValueId",
+      "known_owner_edge": null,
+      "nominal_transport": "ValueIdAsI64",
+      "owner_edge_confidence": "None",
+      "policy_state": "IdScalarDomainTransportSelected",
+      "return_type": "super::super::ValueId",
+      "shape_signature": null,
+      "source_id": "src/mir/builder/utils/local_ssa.rs::local_arg:L14"
+    },
+    {
+      "canonical_id_type": "ValueId",
+      "known_owner_edge": null,
+      "nominal_transport": "ValueIdAsI64",
+      "owner_edge_confidence": "None",
+      "policy_state": "IdScalarDomainTransportSelected",
+      "return_type": "super::super::ValueId",
+      "shape_signature": null,
+      "source_id": "src/mir/builder/utils/local_ssa.rs::local_cond:L24"
+    },
+    {
+      "canonical_id_type": "ValueId",
+      "known_owner_edge": null,
+      "nominal_transport": "ValueIdAsI64",
+      "owner_edge_confidence": "None",
+      "policy_state": "IdScalarDomainTransportSelected",
+      "return_type": "super::super::ValueId",
+      "shape_signature": null,
+      "source_id": "src/mir/builder/utils/local_ssa.rs::local_field_base:L19"
+    },
+    {
+      "canonical_id_type": "ValueId",
+      "known_owner_edge": null,
+      "nominal_transport": "ValueIdAsI64",
+      "owner_edge_confidence": "None",
+      "policy_state": "IdScalarDomainTransportSelected",
+      "return_type": "super::super::ValueId",
+      "shape_signature": null,
+      "source_id": "src/mir/builder/utils/local_ssa.rs::local_recv:L9"
+    },
+    {
+      "canonical_id_type": "ValueId",
+      "known_owner_edge": null,
+      "nominal_transport": "ValueIdAsI64",
+      "owner_edge_confidence": "None",
+      "policy_state": "IdScalarDomainTransportSelected",
+      "return_type": "super::super::ValueId",
+      "shape_signature": null,
+      "source_id": "src/mir/builder/utils/local_ssa.rs::local_ssa_ensure:L30"
+    },
+    {
+      "canonical_id_type": "SlotId",
+      "known_owner_edge": null,
+      "nominal_transport": "SlotIdAsI64",
+      "owner_edge_confidence": "None",
+      "policy_state": "IdScalarDomainTransportSelected",
+      "return_type": "SlotId",
+      "shape_signature": null,
+      "source_id": "src/mir/region/function_slot_registry.rs::ensure_slot:L52"
+    }
+  ],
+  "provenance": {
+    "domain_object_id_transport_policy_inventory_hash": "2c57a7e865321bef871bea81f4d652369518acc6bbd54002d0c885a1d5b5ca62",
+    "newtype_id_scalarization_precedent_hash": "24a165c7cda1c0e6e289816c90168440f24abc9214a03e954813d53481cd35ae",
+    "unconverted_surface_report_hash": "724c2765760cca5b37a11104d560a69bd2134de2235a0dad514d01c08cfdfa1a"
+  },
+  "schema_version": 0,
+  "selected_policy": {
+    "generator_object_transport": false,
+    "hako_generation": false,
+    "invalid_sentinel_semantics": false,
+    "object_layout_transport": false,
+    "physical_lane": "i64",
+    "policy_id": "NominalIdScalarDomainTransportV1",
+    "raw_i64_interchangeability": false,
+    "reserved_id_policy": false,
+    "semantic_transport_is_nominal": true
+  },
+  "summary": {
+    "canonical_id_type_counts": {
+      "BasicBlockId": 9,
+      "BindingId": 2,
+      "BodyId": 1,
+      "SlotId": 1,
+      "TypedValueId": 1,
+      "ValueId": 17
+    },
+    "id_scalar_domain_transport_policy_ready": 1,
+    "id_scalar_input_count": 31,
+    "nominal_transport_counts": {
+      "BasicBlockIdAsI64": 9,
+      "BindingIdAsI64": 2,
+      "BodyIdAsI64": 1,
+      "SlotIdAsI64": 1,
+      "TypedValueIdAsI64": 1,
+      "ValueIdAsI64": 17
+    },
+    "owner_edge_confidence_counts": {
+      "FixtureMapped": 19,
+      "None": 12
+    },
+    "unsupported_id_scalar_type_count": 0
+  },
+  "token": "MIRBUILDER-ID-SCALAR-DOMAIN-TRANSPORT-POLICY-001"
+}

@@ -1493,6 +1493,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-transport-policy-inventory-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_domain_object_id_transport_policy_inventory_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-ID-SCALAR-DOMAIN-TRANSPORT-POLICY-001",
+      "card": "docs/development/current/main/phases/phase-296x/2013-MIRBUILDER-ID-SCALAR-DOMAIN-TRANSPORT-POLICY-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-domain-transport-policy-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_id_scalar_domain_transport_policy_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {

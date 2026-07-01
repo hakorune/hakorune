@@ -24,9 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-ID-SCALAR-DOMAIN-TRANSPORT-POLICY-001.
-  DomainObject/Id transport inventory split 116 rows into six subaxes and
-  selected IdScalar as the closest reusable scalar transport policy lane.
+  MIRBUILDER-ID-SCALAR-DOMAIN-TRANSPORT-DIRECTABILITY-RERUN-001.
+  Nominal ID scalar transport is now defined over an i64 physical lane without
+  raw i64 interchangeability or object layout transport.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  MIRBUILDER-ID-SCALAR-DOMAIN-TRANSPORT-POLICY-001
+  MIRBUILDER-ID-SCALAR-DOMAIN-TRANSPORT-DIRECTABILITY-RERUN-001
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -285,6 +285,15 @@ domain_object_id_transport_policy_inventory_result:
   selected_next_card = MIRBUILDER-ID-SCALAR-DOMAIN-TRANSPORT-POLICY-001
   source_selfhost_claim = 0
 
+id_scalar_domain_transport_policy_result:
+  token = MIRBUILDER-ID-SCALAR-DOMAIN-TRANSPORT-POLICY-001
+  id_scalar_input_count = 31
+  ValueId = 17
+  BasicBlockId = 9
+  policy_id = NominalIdScalarDomainTransportV1
+  selected_next_card = MIRBUILDER-ID-SCALAR-DOMAIN-TRANSPORT-DIRECTABILITY-RERUN-001
+  source_selfhost_claim = 0
+
 placement_rule:
   scan_unit = rust_function_or_method
   classification_unit = semantic_owner_edge
@@ -337,11 +346,11 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. MIRBUILDER-ID-SCALAR-DOMAIN-TRANSPORT-POLICY-001
+1. MIRBUILDER-ID-SCALAR-DOMAIN-TRANSPORT-DIRECTABILITY-RERUN-001
    status=next
-   boundary=define ID scalar domain transport without object layout policy
-   semantic_authority=DomainObject/Id inventory and existing scalar transport precedent
-   non_authority=domain object count proof, object layout policy, fallback
+   boundary=rerun 31 ID scalar rows after nominal transport policy
+   semantic_authority=ID scalar transport policy and fresh report
+   non_authority=raw i64 interchangeability, object layout transport, fallback
 
 2. MIRBUILDER-BORROW-SURFACE-POLICY-CLUSTER-RERUN-002
    status=conditional
@@ -356,11 +365,11 @@ history, not in this task-order SSOT.
    non_authority=generated artifact edit authority, Source Selfhost claim
 
 next:
-  MIRBUILDER-ID-SCALAR-DOMAIN-TRANSPORT-POLICY-001
-  boundary=ID scalar domain transport selected before broader object layout
+  MIRBUILDER-ID-SCALAR-DOMAIN-TRANSPORT-DIRECTABILITY-RERUN-001
+  boundary=rerun directability after nominal ID scalar transport policy
 
 next_documented_task =
-  MIRBUILDER-ID-SCALAR-DOMAIN-TRANSPORT-POLICY-001
+  MIRBUILDER-ID-SCALAR-DOMAIN-TRANSPORT-DIRECTABILITY-RERUN-001
 
 next_after_active_3 =
   MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-008
