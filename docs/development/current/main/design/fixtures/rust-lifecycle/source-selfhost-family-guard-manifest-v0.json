@@ -1381,6 +1381,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-record-packed-layout-refresh-hako-adoption-decision-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_record_packed_layout_refresh_hako_adoption_decision_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-RERUN-004",
+      "card": "docs/development/current/main/phases/phase-296x/1997-MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-RERUN-004.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-strict-converter-emission-native-seed-candidate-selection-rerun-004-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_strict_converter_emission_native_seed_candidate_selection_rerun_004_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {
