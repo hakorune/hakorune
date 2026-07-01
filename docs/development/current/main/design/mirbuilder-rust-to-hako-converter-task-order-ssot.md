@@ -24,10 +24,10 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-MISSING-PROJECTION-POLICY-CLUSTER-RESOLUTION-V2.
-  Native-owner checkpoint selected MissingProjectionPolicy by evidence quality:
-  1199 fixture-mapped known-shape rows are eligible, while BorrowSurface rows
-  still lack owner-edge confidence.
+  MIRBUILDER-PROJECTION-DESCRIPTOR-COVERAGE-RECLASSIFICATION-001.
+  MissingProjectionPolicy V2 proved all 41 eligible projection-policy clusters
+  are already covered by landed descriptor decisions; the report classification
+  must now absorb that coverage instead of selecting a new policy.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -63,7 +63,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  MIRBUILDER-MISSING-PROJECTION-POLICY-CLUSTER-RESOLUTION-V2
+  MIRBUILDER-PROJECTION-DESCRIPTOR-COVERAGE-RECLASSIFICATION-001
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -310,6 +310,16 @@ native_owner_checkpoint_result:
   selected_next_card = MIRBUILDER-MISSING-PROJECTION-POLICY-CLUSTER-RESOLUTION-V2
   source_selfhost_claim = 0
 
+missing_projection_policy_cluster_resolution_v2_result:
+  token = MIRBUILDER-MISSING-PROJECTION-POLICY-CLUSTER-RESOLUTION-V2
+  input_candidate_count = 1384
+  selection_eligible_cluster_count = 41
+  excluded_existing_decision_cluster_count = 41
+  selectable_cluster_count = 0
+  decision = SelectProjectionDescriptorCoverageReclassification
+  selected_next_card = MIRBUILDER-PROJECTION-DESCRIPTOR-COVERAGE-RECLASSIFICATION-001
+  source_selfhost_claim = 0
+
 post_rerun_006_selector_basis:
   token = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-002
   output_contract = rust-lifecycle-source-selfhost-wider-route-selection-basis-002-v0
@@ -376,11 +386,11 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. MIRBUILDER-MISSING-PROJECTION-POLICY-CLUSTER-RESOLUTION-V2
+1. MIRBUILDER-PROJECTION-DESCRIPTOR-COVERAGE-RECLASSIFICATION-001
    status=next
-   boundary=resolve fixture-mapped known-shape MissingProjectionPolicy rows into the next machine lane
-   semantic_authority=fresh checkpoint and report, not candidate count
-   non_authority=cluster size, coverage percentage, manual shape selection
+   boundary=reclassify report rows covered by landed projection descriptors
+   semantic_authority=V2 cluster resolution and priority resolver exclusions
+   non_authority=new projection policy, coverage percentage, Source Selfhost claim
 
 2. MIRBUILDER-BORROW-SURFACE-POLICY-CLUSTER-RERUN-002
    status=conditional-after-checkpoint
@@ -395,11 +405,11 @@ history, not in this task-order SSOT.
    non_authority=generated artifact edit authority, Source Selfhost claim
 
 next:
-  MIRBUILDER-MISSING-PROJECTION-POLICY-CLUSTER-RESOLUTION-V2
-  boundary=checkpoint selected MissingProjectionPolicy by evidence quality
+  MIRBUILDER-PROJECTION-DESCRIPTOR-COVERAGE-RECLASSIFICATION-001
+  boundary=eligible projection clusters are landed; report must stop counting them as missing
 
 next_documented_task =
-  MIRBUILDER-MISSING-PROJECTION-POLICY-CLUSTER-RESOLUTION-V2
+  MIRBUILDER-PROJECTION-DESCRIPTOR-COVERAGE-RECLASSIFICATION-001
 
 next_after_active_3 =
   MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-008

@@ -1430,6 +1430,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-native-owner-checkpoint-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_source_selfhost_native_owner_checkpoint_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-MISSING-PROJECTION-POLICY-CLUSTER-RESOLUTION-V2",
+      "card": "docs/development/current/main/phases/phase-296x/2004-MIRBUILDER-MISSING-PROJECTION-POLICY-CLUSTER-RESOLUTION-V2.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-policy-cluster-resolution-v2-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_missing_projection_policy_cluster_resolution_v2_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {

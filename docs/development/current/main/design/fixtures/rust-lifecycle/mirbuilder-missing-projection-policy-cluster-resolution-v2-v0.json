@@ -1,0 +1,65 @@
+{
+  "claims": {
+    "candidate_count_as_proof": 0,
+    "cluster_size_as_proof": 0,
+    "coverage_percentage_as_proof": 0,
+    "generated_artifact_as_native_edit_authority": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "manual_axis_selection": 0,
+    "manual_family_selection": 0,
+    "manual_shape_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_projection_policy_selected": 0,
+    "new_python_semantic_projector": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "cluster_state": {
+    "excluded_existing_decision_cluster_count": 41,
+    "input_candidate_count": 1384,
+    "priority_eligible_cluster_count": 41,
+    "selectable_cluster_count": 0,
+    "selection_eligible_cluster_count": 41
+  },
+  "decision": {
+    "kind": "SelectProjectionDescriptorCoverageReclassification",
+    "reason_token": "ProjectionPolicyClustersAlreadyLandedButReportStillMissing",
+    "selected_next_card": "MIRBUILDER-PROJECTION-DESCRIPTOR-COVERAGE-RECLASSIFICATION-001"
+  },
+  "input_checkpoint": {
+    "kind": "SelectMissingProjectionPolicyClusterResolutionV2",
+    "reason_token": "MissingProjectionPolicyEvidenceQualityWinsCheckpoint",
+    "selected_blocker_class": "MissingProjectionPolicy",
+    "selected_next_card": "MIRBUILDER-MISSING-PROJECTION-POLICY-CLUSTER-RESOLUTION-V2"
+  },
+  "input_state": {
+    "cluster_resolution_v1": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-missing-projection-policy-cluster-resolution-v0.json",
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "native_owner_checkpoint": "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-native-owner-checkpoint-v0.json",
+    "priority_resolution": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-projection-policy-cluster-priority-resolution-v0.json",
+    "unconverted_surface_report": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-unconverted-surface-report-v0.json"
+  },
+  "kind": "MirBuilderMissingProjectionPolicyClusterResolutionV2",
+  "provenance": {
+    "cluster_resolution_v1_hash": "ac0059a9dc2bafab00e6d20dda10dc3b7f6468c9508a891f4de69257d779f2bb",
+    "native_owner_checkpoint_hash": "1118dedb1d8c2a89c88de72e8f5c4e7be56c788bdd8012a1001cedbd09519e16",
+    "priority_resolution_hash": "e574dbc276f39ca6a7404c9bbc8d6e2c0ce39126dc9d028d1fb93886c57fb3d2",
+    "unconverted_surface_report_hash": "0e444d56c9b135d53aadc68fcdb9792c0129c3187c9076d0745d1ce0832254f0"
+  },
+  "report_state": {
+    "borrow_policy_needed_count": 112,
+    "missing_projection_policy_count": 1384
+  },
+  "resolution": {
+    "candidate_count_as_proof": false,
+    "eligible_projection_policy_clusters_already_landed": true,
+    "new_projection_policy_selection_allowed": false,
+    "report_reclassification_required": true
+  },
+  "schema_version": 0,
+  "token": "MIRBUILDER-MISSING-PROJECTION-POLICY-CLUSTER-RESOLUTION-V2"
+}
