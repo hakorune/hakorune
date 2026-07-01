@@ -25,11 +25,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-ID-SCALAR-SOURCE-PLAN-BASIS-COMPONENT-PRIORITY-RESOLUTION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2027-MIRBUILDER-ID-SCALAR-SOURCE-PLAN-BASIS-COMPONENT-PRIORITY-RESOLUTION-001.md"
-latest_card_summary = """The latest card selects OwnerScopeBoundedness as the
-next ID scalar SourcePlan basis component by dependency order, not by manual
-axis selection."""
+latest_card = "MIRBUILDER-ID-SCALAR-OWNER-SCOPE-BOUNDEDNESS-RESOLUTION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2028-MIRBUILDER-ID-SCALAR-OWNER-SCOPE-BOUNDEDNESS-RESOLUTION-001.md"
+latest_card_summary = """The latest card resolves ID scalar owner-scope
+boundedness and finds no bounded owner because state targets and native seed
+file boundaries are not yet derived."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -40,6 +40,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-02: 2028 resolves ID scalar owner-scope boundedness and keeps Source Selfhost stopped with no bounded owner.",
   "2026-07-02: 2027 selects OwnerScopeBoundedness as the next ID scalar SourcePlan basis component.",
   "2026-07-02: 2026 reruns ID scalar SourcePlanAndRecipe derivability and stops on missing owner-scope / behavior-recipe basis.",
   "2026-07-02: 2025 inventories ID scalar operation vocabulary across 102 surfaces and selects derivability rerun 002.",

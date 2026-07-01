@@ -1,0 +1,215 @@
+{
+  "boundedness_policy": {
+    "manual_owner_selection": false,
+    "primary_unit": "owner_edge",
+    "route_membership_alone_as_proof": false,
+    "source_file_path_as_authority": false,
+    "surface_count_as_proof": false,
+    "validated_by": [
+      "required_source_surface_set",
+      "operation_token_set",
+      "state_target_set",
+      "future_native_seed_file_boundary"
+    ]
+  },
+  "candidate_pool": {
+    "cross_owner_recipe_required_count": 2,
+    "input_candidate_count": 4,
+    "native_seed_file_boundary_derivable_count": 0,
+    "owner_scope_bounded_count": 0,
+    "selection_eligible_for_source_plan_count": 0,
+    "state_targets_enumerated_count": 0
+  },
+  "candidates": [
+    {
+      "all_required_source_surfaces_same_owner_edge": true,
+      "blocked_by": [
+        "StateTargetsNotEnumerated",
+        "NativeSeedFileBoundaryNotDerived",
+        "OwnerScopeBoundedNotProven"
+      ],
+      "composite_operation_tokens": [],
+      "mutating_operation_tokens": [
+        "ContextRegistryConstruct"
+      ],
+      "native_seed_file_boundary_derivable": false,
+      "next_card": null,
+      "operation_tokens": [
+        "ContextRegistryConstruct"
+      ],
+      "operation_tokens_need_cross_owner_recipe_authority": false,
+      "owner_edge_id": "mirbuilder::context_registry",
+      "owner_scope_bounded": false,
+      "selection_eligible_for_source_plan": false,
+      "source_module_boundary_is_evidence_not_authority": true,
+      "source_module_prefix": "src/mir/builder",
+      "source_path_count": 1,
+      "source_surface_count": 1,
+      "state_targets_enumerated": false
+    },
+    {
+      "all_required_source_surfaces_same_owner_edge": true,
+      "blocked_by": [
+        "StateTargetsNotEnumerated",
+        "NativeSeedFileBoundaryNotDerived",
+        "OwnerScopeBoundedNotProven"
+      ],
+      "composite_operation_tokens": [],
+      "mutating_operation_tokens": [
+        "PhiInstructionDefine",
+        "PhiInstructionDefineCurrentBlock",
+        "PhiInstructionDefineFunction",
+        "PhiInstructionPatch",
+        "PhiLifecyclePatch"
+      ],
+      "native_seed_file_boundary_derivable": false,
+      "next_card": null,
+      "operation_tokens": [
+        "DiagnosticStringBuild",
+        "PhiInstructionDefine",
+        "PhiInstructionDefineCurrentBlock",
+        "PhiInstructionDefineFunction",
+        "PhiInstructionPatch",
+        "PhiLifecyclePatch",
+        "PredicateRead",
+        "VerifierContractCheck"
+      ],
+      "operation_tokens_need_cross_owner_recipe_authority": false,
+      "owner_edge_id": "mirbuilder::emission_ssa_phi",
+      "owner_scope_bounded": false,
+      "selection_eligible_for_source_plan": false,
+      "source_module_boundary_is_evidence_not_authority": true,
+      "source_module_prefix": "src/mir/builder",
+      "source_path_count": 4,
+      "source_surface_count": 13,
+      "state_targets_enumerated": false
+    },
+    {
+      "all_required_source_surfaces_same_owner_edge": true,
+      "blocked_by": [
+        "OperationTokensRequireCrossOwnerRecipeAuthority",
+        "StateTargetsNotEnumerated",
+        "NativeSeedFileBoundaryNotDerived",
+        "OwnerScopeBoundedNotProven"
+      ],
+      "composite_operation_tokens": [
+        "JoinPayloadBuild",
+        "PlanListBuild",
+        "PlannerSessionDispatch",
+        "RouteLocalCleanupMutationFrame",
+        "RouteRewriteBuild",
+        "SkeletonOrWiringBuild"
+      ],
+      "mutating_operation_tokens": [
+        "RouteLocalCleanupMutationFrame"
+      ],
+      "native_seed_file_boundary_derivable": false,
+      "next_card": null,
+      "operation_tokens": [
+        "JoinPayloadBuild",
+        "LoopBindingBuild",
+        "PhiInfoBuild",
+        "PlanListBuild",
+        "PlannerGateOrFactRead",
+        "PlannerSessionDispatch",
+        "PredicateRead",
+        "ReadOnlyLength",
+        "RouteLocalCleanupMutationFrame",
+        "RouteLocalClosureConstruct",
+        "RouteRewriteBuild",
+        "SkeletonOrWiringBuild",
+        "TraceDiagnosticEmission"
+      ],
+      "operation_tokens_need_cross_owner_recipe_authority": true,
+      "owner_edge_id": "mirbuilder::join_i_r_plan",
+      "owner_scope_bounded": false,
+      "selection_eligible_for_source_plan": false,
+      "source_module_boundary_is_evidence_not_authority": true,
+      "source_module_prefix": "src/mir/builder/control_flow/plan",
+      "source_path_count": 24,
+      "source_surface_count": 35,
+      "state_targets_enumerated": false
+    },
+    {
+      "all_required_source_surfaces_same_owner_edge": true,
+      "blocked_by": [
+        "OperationTokensRequireCrossOwnerRecipeAuthority",
+        "NativeSeedFileBoundaryNotDerived",
+        "OwnerScopeBoundedNotProven"
+      ],
+      "composite_operation_tokens": [
+        "EdgeCfgCompose",
+        "MergeContractOrDiagnostic",
+        "MergeRewriteDecision"
+      ],
+      "mutating_operation_tokens": [],
+      "native_seed_file_boundary_derivable": false,
+      "next_card": null,
+      "operation_tokens": [
+        "EdgeCfgCompose",
+        "MergeContractOrDiagnostic",
+        "MergeRewriteDecision",
+        "PredicateRead",
+        "RecipeIndexRead",
+        "RouteVerifyPredicate",
+        "VerifierDiagnosticState",
+        "VerifierObservabilityEmit"
+      ],
+      "operation_tokens_need_cross_owner_recipe_authority": true,
+      "owner_edge_id": "mirbuilder::join_i_r_route_verify",
+      "owner_scope_bounded": false,
+      "selection_eligible_for_source_plan": false,
+      "source_module_boundary_is_evidence_not_authority": true,
+      "source_module_prefix": "src/mir/builder/control_flow",
+      "source_path_count": 28,
+      "source_surface_count": 53,
+      "state_targets_enumerated": false
+    }
+  ],
+  "claims": {
+    "behavior_recipe_materialization": 0,
+    "cluster_size_as_proof": 0,
+    "derived_artifact_seed_draft_materialization": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "manual_owner_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "owner_scope_boundedness_resolution_completed": 1,
+    "route_membership_alone_as_proof": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_file_path_as_authority": 0,
+    "source_plan_materialization": 0,
+    "source_selfhost_claim": 0,
+    "surface_count_as_proof": 0,
+    "verifier_result_materialization": 0
+  },
+  "decision": {
+    "kind": "KeepStopped",
+    "reason_token": "IdScalarOwnerScopeBoundednessNotProven",
+    "selected_next_card": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "selected_owner_edge_id": null
+  },
+  "input_state": {
+    "basis_component_priority_resolution": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-source-plan-basis-component-priority-resolution-v0.json",
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "operation_vocabulary_inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-operation-vocabulary-inventory-v0.json",
+    "source_surface_inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-source-surface-inventory-v0.json"
+  },
+  "kind": "MirBuilderIdScalarOwnerScopeBoundednessResolutionV1",
+  "previous_state": {
+    "previous_reason_token": "OwnerScopeBoundednessSelectedAsSourcePlanRootComponent",
+    "previous_selected_next_card": "MIRBUILDER-ID-SCALAR-OWNER-SCOPE-BOUNDEDNESS-RESOLUTION-001",
+    "selected_component_id": "OwnerScopeBoundedness"
+  },
+  "provenance": {
+    "basis_component_priority_resolution_hash": "7816ca8c3cae3318c157c99aed0d8558bb94955583a3a8732ff10bb21b33ee3d",
+    "operation_vocabulary_inventory_hash": "0621af5b2cffd27c406f20daca9e95d2ea949be414947bce945d9977511ed261",
+    "source_surface_inventory_hash": "df4562eceb32f942ff6dbd41cb5abbd2becb8c0fd9d4f0bbcd04820fb90056b7"
+  },
+  "schema_version": 0,
+  "token": "MIRBUILDER-ID-SCALAR-OWNER-SCOPE-BOUNDEDNESS-RESOLUTION-001"
+}

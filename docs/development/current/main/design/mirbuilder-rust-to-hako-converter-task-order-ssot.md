@@ -24,9 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-ID-SCALAR-OWNER-SCOPE-BOUNDEDNESS-RESOLUTION-001.
-  ID scalar basis priority selected OwnerScopeBoundedness as the next root
-  component; SourcePlanAndRecipe materialization remains blocked.
+  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001.
+  ID scalar owner-scope boundedness found no bounded owner; state targets and
+  native seed file boundary need design basis before SourcePlanAndRecipe.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  MIRBUILDER-ID-SCALAR-OWNER-SCOPE-BOUNDEDNESS-RESOLUTION-001
+  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -352,6 +352,13 @@ id_scalar_source_plan_basis_component_priority_result:
   selected_next_card = MIRBUILDER-ID-SCALAR-OWNER-SCOPE-BOUNDEDNESS-RESOLUTION-001
   source_selfhost_claim = 0
 
+id_scalar_owner_scope_boundedness_result:
+  token = MIRBUILDER-ID-SCALAR-OWNER-SCOPE-BOUNDEDNESS-RESOLUTION-001
+  owner_scope_bounded_count = 0
+  reason_token = IdScalarOwnerScopeBoundednessNotProven
+  selected_next_card = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+  source_selfhost_claim = 0
+
 placement_rule:
   scan_unit = rust_function_or_method
   classification_unit = semantic_owner_edge
@@ -381,27 +388,27 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. MIRBUILDER-ID-SCALAR-SOURCE-PLAN-BASIS-COMPONENT-PRIORITY-RESOLUTION-001
+1. MIRBUILDER-ID-SCALAR-OWNER-SCOPE-BOUNDEDNESS-RESOLUTION-001
    status=closed
-   boundary=OwnerScopeBoundedness selected by dependency order
+   boundary=no bounded owner without state targets/native seed file boundary
 
-2. MIRBUILDER-ID-SCALAR-OWNER-SCOPE-BOUNDEDNESS-RESOLUTION-001
-   status=next
-   boundary=prove bounded owner scope; no SourcePlanAndRecipe yet
+2. SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+   status=design-consultation-required
+   boundary=choose next basis: state target inventory or native seed boundary
 
 3. SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
    status=guardrail
    boundary=no native seed / Hako generation / Source Selfhost claim
 
 next:
-  MIRBUILDER-ID-SCALAR-OWNER-SCOPE-BOUNDEDNESS-RESOLUTION-001
-  boundary=owner-edge primary, validated by surface/operation/native seed boundary
+  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+  boundary=consult before selecting state-target vs native-seed-boundary basis
 
 next_documented_task =
-  MIRBUILDER-ID-SCALAR-OWNER-SCOPE-BOUNDEDNESS-RESOLUTION-001
+  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 next_after_active_3 =
-  MIRBUILDER-ID-SCALAR-ID-DOMAIN-BOUNDARY-BASIS-001
+  TBD_AFTER_ID_SCALAR_OWNER_SCOPE_BOUNDEDNESS_DESIGN
 ```
 
 ## Landed Converter Capability Summary
