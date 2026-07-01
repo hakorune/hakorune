@@ -24,10 +24,10 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-RERUN-002.
-  BridgePolicyV2 is defined: mention-only forbidden non-claims are never seed
-  evidence but no longer block a clean selected narrow seed surface. Rerun
-  strict native-seed candidate selection with that policy.
+  MIRBUILDER-DIRECT-STATE-PLAN-REFRESH-HAKO-NATIVE-SOURCE-SEED-001.
+  Strict candidate selection rerun 002 consumed BridgePolicyV2, derived three
+  bridge-eligible ResultBox carrier refresh-owner candidates, and selected
+  `hakorune_mir_builder::direct_state_plan_refresh` by stable priority.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -63,7 +63,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-RERUN-002
+  MIRBUILDER-DIRECT-STATE-PLAN-REFRESH-HAKO-NATIVE-SOURCE-SEED-001
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -314,6 +314,13 @@ strict_emission_to_native_seed_bridge_policy_v2_result:
   selected_next_card = MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-RERUN-002
   source_selfhost_claim = 0
 
+strict_candidate_selection_rerun_002_result:
+  token = MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-RERUN-002
+  bridge_eligible_after_bridge_policy_v2_count = 3
+  selected_owner_edge_id = hakorune_mir_builder::direct_state_plan_refresh
+  selected_next_card = MIRBUILDER-DIRECT-STATE-PLAN-REFRESH-HAKO-NATIVE-SOURCE-SEED-001
+  source_selfhost_claim = 0
+
 post_rerun_006_selector_basis:
   token = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-002
   output_contract = rust-lifecycle-source-selfhost-wider-route-selection-basis-002-v0
@@ -399,14 +406,14 @@ history, not in this task-order SSOT.
    non_authority=seed eligibility, Hako generation, Source Selfhost claim
 
 next:
-  MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-RERUN-002
-  boundary=consume BridgePolicyV2; no seed/adoption unless exactly one bridge-eligible candidate is derived
+  MIRBUILDER-DIRECT-STATE-PLAN-REFRESH-HAKO-NATIVE-SOURCE-SEED-001
+  boundary=materialize native source seed only; no HakoAdopted or Source Selfhost claim
 
 next_documented_task =
-  MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-RERUN-002
+  MIRBUILDER-DIRECT-STATE-PLAN-REFRESH-HAKO-NATIVE-SOURCE-SEED-001
 
 next_after_active_3 =
-  MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-RERUN-002
+  MIRBUILDER-DIRECT-STATE-PLAN-REFRESH-HAKO-NATIVE-SOURCE-SEED-001
 ```
 
 ## Landed Converter Capability Summary
