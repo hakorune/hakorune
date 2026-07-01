@@ -24,10 +24,11 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-RERUN-001.
-  VerifierBackedResultCarrierProjectionPolicyV1 is selected for the three
-  ResultBox carrier rows. Rerun strict candidate selection with that policy
-  evidence before any seed or adoption card.
+  MIRBUILDER-STRICT-DENIED-BOUNDARY-VOCABULARY-NORMALIZATION-001.
+  ResultBox carrier policy covers the selected carrier gap, but strict
+  candidate rerun still blocks on denied-boundary vocabulary that mixes scope
+  exclusions and forbidden non-claims. Normalize that vocabulary before seed
+  selection can resume.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -260,6 +261,15 @@ result_carrier_verifier_projection_policy_result:
   selected_next_card = MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-RERUN-001
   source_selfhost_claim = 0
 
+strict_candidate_selection_rerun_result:
+  token = MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-RERUN-001
+  result_carrier_policy_covered_count = 3
+  bridge_eligible_after_policy_count = 0
+  denied_boundary_vocabulary_blocked_count = 3
+  denied_boundary_classes = ForbiddenNonClaimBoundary, NarrowRefreshScopeExclusion, ScopeExclusionBoundary
+  selected_next_card = MIRBUILDER-STRICT-DENIED-BOUNDARY-VOCABULARY-NORMALIZATION-001
+  source_selfhost_claim = 0
+
 post_rerun_006_selector_basis:
   token = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-002
   output_contract = rust-lifecycle-source-selfhost-wider-route-selection-basis-002-v0
@@ -345,11 +355,11 @@ history, not in this task-order SSOT.
    non_authority=Hako generation, native seed, Source Selfhost claim
 
 next:
-  MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-RERUN-001
-  boundary=rerun candidate selection only; no manual seed selection
+  MIRBUILDER-STRICT-DENIED-BOUNDARY-VOCABULARY-NORMALIZATION-001
+  boundary=normalize denied-boundary classes only; no seed/adoption
 
 next_documented_task =
-  MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-RERUN-001
+  MIRBUILDER-STRICT-DENIED-BOUNDARY-VOCABULARY-NORMALIZATION-001
 
 next_after_active_3 =
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001

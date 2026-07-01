@@ -25,14 +25,14 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-RESULT-CARRIER-VERIFIER-PROJECTION-POLICY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1985-MIRBUILDER-RESULT-CARRIER-VERIFIER-PROJECTION-POLICY-001.md"
-latest_card_summary = """The latest card selects
-VerifierBackedResultCarrierProjectionPolicyV1 for the three ResultBox carrier
-rows. It accepts ResultBox carrier transport only with verifier contract evidence
-and routes the next task to
-MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-RERUN-001
-without Hako generation, native seed materialization, or Source Selfhost claim."""
+latest_card = "MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-RERUN-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1986-MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-RERUN-001.md"
+latest_card_summary = """The latest card reruns strict native-seed candidate
+selection after VerifierBackedResultCarrierProjectionPolicyV1. It covers the
+three ResultBox carrier policy gaps but keeps them bridge-blocked because denied
+boundaries still mix scope exclusions and forbidden non-claims, then routes the
+next task to MIRBUILDER-STRICT-DENIED-BOUNDARY-VOCABULARY-NORMALIZATION-001
+without native seed materialization or Source Selfhost claim."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -43,6 +43,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-01: 1986 reruns strict candidate selection after Result carrier policy and selects denied-boundary vocabulary normalization.",
   "2026-07-01: 1985 selects VerifierBackedResultCarrierProjectionPolicyV1 and routes to strict candidate selection rerun.",
   "2026-07-01: 1984 materializes the ResultCarrierVerifierContractV1 contract and selects projection policy next.",
   "2026-07-01: 1983 defines the ResultCarrierVerifierPolicyV1 policy and selects its contract card next.",
