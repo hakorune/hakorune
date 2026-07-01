@@ -25,12 +25,12 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-ID-SCALAR-SOURCE-PLAN-DERIVATION-BASIS-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2023-MIRBUILDER-ID-SCALAR-SOURCE-PLAN-DERIVATION-BASIS-001.md"
-latest_card_summary = """The latest card defines the ID scalar
-SourcePlanAndRecipe derivation basis. Directability-only and descriptor-only
-evidence remain insufficient, and the next machine-derived task is source
-surface inventory."""
+latest_card = "MIRBUILDER-ID-SCALAR-SOURCE-SURFACE-INVENTORY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2024-MIRBUILDER-ID-SCALAR-SOURCE-SURFACE-INVENTORY-001.md"
+latest_card_summary = """The latest card inventories 102 machine-derived ID
+scalar source surfaces across the four packet candidates and selects operation
+vocabulary inventory next. SourcePlanAndRecipe materialization remains
+unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -41,6 +41,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-02: 2024 inventories 102 ID scalar source surfaces and selects operation vocabulary inventory next.",
   "2026-07-02: 2023 defines the ID scalar SourcePlan derivation basis and selects source-surface inventory next.",
   "2026-07-02: 2022 finds no ID scalar SourcePlanAndRecipe derivability candidate and keeps Source Selfhost stopped.",
   "2026-07-02: 2021 keeps ID scalar seed packet candidate selection stopped because four FixtureMapped candidates tie.",

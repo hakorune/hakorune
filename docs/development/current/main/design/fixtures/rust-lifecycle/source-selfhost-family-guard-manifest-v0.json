@@ -1570,6 +1570,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-source-plan-derivation-basis-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_id_scalar_source_plan_derivation_basis_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-ID-SCALAR-SOURCE-SURFACE-INVENTORY-001",
+      "card": "docs/development/current/main/phases/phase-296x/2024-MIRBUILDER-ID-SCALAR-SOURCE-SURFACE-INVENTORY-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-source-surface-inventory-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_id_scalar_source_surface_inventory_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {

@@ -24,9 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-ID-SCALAR-SOURCE-SURFACE-INVENTORY-001.
-  ID scalar SourcePlan derivation basis is defined; next inventory must derive
-  the required source-surface set before any SourcePlanAndRecipe materializes.
+  MIRBUILDER-ID-SCALAR-OPERATION-VOCABULARY-INVENTORY-001.
+  ID scalar source surfaces are inventoried; next inventory must classify the
+  operation vocabulary before any SourcePlanAndRecipe materializes.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  MIRBUILDER-ID-SCALAR-SOURCE-SURFACE-INVENTORY-001
+  MIRBUILDER-ID-SCALAR-OPERATION-VOCABULARY-INVENTORY-001
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -285,27 +285,11 @@ domain_object_id_transport_policy_inventory_result:
   selected_next_card = MIRBUILDER-ID-SCALAR-DOMAIN-TRANSPORT-POLICY-001
   source_selfhost_claim = 0
 
-id_scalar_domain_transport_policy_result:
-  token = MIRBUILDER-ID-SCALAR-DOMAIN-TRANSPORT-POLICY-001
+id_scalar_transport_chain_summary:
+  2013_to_2015 = nominal transport policy -> directability rerun -> native seed survey rerun 009
   id_scalar_input_count = 31
-  ValueId = 17
-  BasicBlockId = 9
-  policy_id = NominalIdScalarDomainTransportV1
-  selected_next_card = MIRBUILDER-ID-SCALAR-DOMAIN-TRANSPORT-DIRECTABILITY-RERUN-001
-  source_selfhost_claim = 0
-
-id_scalar_domain_transport_directability_rerun_result:
-  token = MIRBUILDER-ID-SCALAR-DOMAIN-TRANSPORT-DIRECTABILITY-RERUN-001
-  directable_with_nominal_id_scalar_transport_count = 19
-  owner_edge_repair_required_count = 12
-  selected_next_card = MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-009
-  source_selfhost_claim = 0
-
-native_owner_seed_capability_survey_rerun_009_result:
-  token = MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-009
   directable_row_count = 19
   directable_owner_edge_count = 4
-  native_seed_candidate_count = 0
   selected_next_card = MIRBUILDER-ID-SCALAR-DOMAIN-SEED-CANDIDATE-CLUSTER-RESOLUTION-001
   source_selfhost_claim = 0
 
@@ -372,6 +356,13 @@ id_scalar_source_plan_derivation_basis_result:
   selected_next_card = MIRBUILDER-ID-SCALAR-SOURCE-SURFACE-INVENTORY-001
   source_selfhost_claim = 0
 
+id_scalar_source_surface_inventory_result:
+  token = MIRBUILDER-ID-SCALAR-SOURCE-SURFACE-INVENTORY-001
+  required_source_surface_count = 102
+  surface_complete_candidate_count = 4
+  selected_next_card = MIRBUILDER-ID-SCALAR-OPERATION-VOCABULARY-INVENTORY-001
+  source_selfhost_claim = 0
+
 placement_rule:
   scan_unit = rust_function_or_method
   classification_unit = semantic_owner_edge
@@ -401,27 +392,27 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. MIRBUILDER-ID-SCALAR-SOURCE-PLAN-DERIVATION-BASIS-001
+1. MIRBUILDER-ID-SCALAR-SOURCE-SURFACE-INVENTORY-001
    status=closed
-   boundary=SourcePlanAndRecipe derivation basis defined
+   boundary=102 source surfaces inventoried; no SourcePlanAndRecipe yet
 
-2. MIRBUILDER-ID-SCALAR-SOURCE-SURFACE-INVENTORY-001
+2. MIRBUILDER-ID-SCALAR-OPERATION-VOCABULARY-INVENTORY-001
    status=next
-   boundary=derive required source surfaces; no SourcePlanAndRecipe yet
+   boundary=classify operation vocabulary; no SourcePlanAndRecipe yet
 
 3. SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
    status=guardrail
    boundary=no native seed / Hako generation / Source Selfhost claim
 
 next:
-  MIRBUILDER-ID-SCALAR-SOURCE-SURFACE-INVENTORY-001
-  boundary=machine-derived surface inventory before operation vocabulary
+  MIRBUILDER-ID-SCALAR-OPERATION-VOCABULARY-INVENTORY-001
+  boundary=operation vocabulary inventory before derivability rerun
 
 next_documented_task =
-  MIRBUILDER-ID-SCALAR-SOURCE-SURFACE-INVENTORY-001
+  MIRBUILDER-ID-SCALAR-OPERATION-VOCABULARY-INVENTORY-001
 
 next_after_active_3 =
-  MIRBUILDER-ID-SCALAR-OPERATION-VOCABULARY-INVENTORY-001
+  MIRBUILDER-ID-SCALAR-SOURCE-PLAN-AND-RECIPE-DERIVABILITY-RESOLUTION-002
 ```
 
 ## Landed Converter Capability Summary
