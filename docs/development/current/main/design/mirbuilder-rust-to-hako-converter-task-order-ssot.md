@@ -24,10 +24,10 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  SOURCE-SELFHOST-NATIVE-OWNER-CHECKPOINT-001.
-  The source-surface report is fresh against the latest projection descriptor
-  ledger and native-owner adoption ledger. Next, compute the native owner map
-  and blocker class without Source Selfhost claim.
+  MIRBUILDER-MISSING-PROJECTION-POLICY-CLUSTER-RESOLUTION-V2.
+  Native-owner checkpoint selected MissingProjectionPolicy by evidence quality:
+  1199 fixture-mapped known-shape rows are eligible, while BorrowSurface rows
+  still lack owner-edge confidence.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -63,7 +63,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  SOURCE-SELFHOST-NATIVE-OWNER-CHECKPOINT-001
+  MIRBUILDER-MISSING-PROJECTION-POLICY-CLUSTER-RESOLUTION-V2
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -300,6 +300,16 @@ unconverted_surface_report_rerun_003_result:
   selected_next_card = SOURCE-SELFHOST-NATIVE-OWNER-CHECKPOINT-001
   source_selfhost_claim = 0
 
+native_owner_checkpoint_result:
+  token = SOURCE-SELFHOST-NATIVE-OWNER-CHECKPOINT-001
+  native_owner_count = 11
+  missing_projection_policy_count = 1384
+  missing_projection_evidence_quality_count = 1199
+  borrow_surface_evidence_quality_count = 0
+  decision = SelectMissingProjectionPolicyClusterResolutionV2
+  selected_next_card = MIRBUILDER-MISSING-PROJECTION-POLICY-CLUSTER-RESOLUTION-V2
+  source_selfhost_claim = 0
+
 post_rerun_006_selector_basis:
   token = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-002
   output_contract = rust-lifecycle-source-selfhost-wider-route-selection-basis-002-v0
@@ -366,30 +376,30 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. SOURCE-SELFHOST-NATIVE-OWNER-CHECKPOINT-001
+1. MIRBUILDER-MISSING-PROJECTION-POLICY-CLUSTER-RESOLUTION-V2
    status=next
-   boundary=compute native owner map and next blocker class without claiming Source Selfhost
-   semantic_authority=fresh report plus native owner adoption ledger
-   non_authority=Source Selfhost claim, Rust deletion, generated artifact edit authority
-
-2. MIRBUILDER-MISSING-PROJECTION-POLICY-CLUSTER-RESOLUTION-V2
-   status=conditional-after-checkpoint
-   boundary=resolve MissingProjectionPolicy only if checkpoint selects that blocker class
+   boundary=resolve fixture-mapped known-shape MissingProjectionPolicy rows into the next machine lane
    semantic_authority=fresh checkpoint and report, not candidate count
    non_authority=cluster size, coverage percentage, manual shape selection
 
-3. MIRBUILDER-BORROW-SURFACE-POLICY-CLUSTER-RERUN-002
+2. MIRBUILDER-BORROW-SURFACE-POLICY-CLUSTER-RERUN-002
    status=conditional-after-checkpoint
    boundary=rerun borrow policy clustering only if checkpoint selects that blocker class
    semantic_authority=fresh checkpoint and report, not candidate count
    non_authority=manual axis selection, MutLease by default, runtime fallback
 
+3. MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-008
+   status=after-next-unlock
+   boundary=rerun seed capability only after the selected blocker lane changes evidence
+   semantic_authority=updated blocker fixture and native owner ledger
+   non_authority=generated artifact edit authority, Source Selfhost claim
+
 next:
-  SOURCE-SELFHOST-NATIVE-OWNER-CHECKPOINT-001
-  boundary=fresh report exists; checkpoint must compute native owner map and blocker class
+  MIRBUILDER-MISSING-PROJECTION-POLICY-CLUSTER-RESOLUTION-V2
+  boundary=checkpoint selected MissingProjectionPolicy by evidence quality
 
 next_documented_task =
-  SOURCE-SELFHOST-NATIVE-OWNER-CHECKPOINT-001
+  MIRBUILDER-MISSING-PROJECTION-POLICY-CLUSTER-RESOLUTION-V2
 
 next_after_active_3 =
   MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-008

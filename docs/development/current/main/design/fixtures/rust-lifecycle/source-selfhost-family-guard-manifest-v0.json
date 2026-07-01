@@ -1423,6 +1423,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-unconverted-surface-report-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_unconverted_surface_report_rerun_003_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "SOURCE-SELFHOST-NATIVE-OWNER-CHECKPOINT-001",
+      "card": "docs/development/current/main/phases/phase-296x/2003-SOURCE-SELFHOST-NATIVE-OWNER-CHECKPOINT-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-native-owner-checkpoint-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_source_selfhost_native_owner_checkpoint_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {

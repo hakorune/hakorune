@@ -84,7 +84,7 @@
   "provenance": {
     "bridge_policy_hash": "218cd631ed71744538d528b472cd42ac5a500d74440c97e1e93fe074a6456055",
     "bridge_policy_v2_hash": "d1c71472fa4eb648bec4db3836698ac87f5c0657b14479a8653a9e990f56a13e",
-    "source_selfhost_family_guard_manifest_hash": "bb64d4cc351d8bc0142ca929ccf459245b9635c3963baa382c98d31016053508",
+    "source_selfhost_family_guard_manifest_hash": "26c631bd338ade4a691f4d413e3b7cfb31a5e189084597db7a5e60ca33f22d79",
     "strict_candidate_rerun_005_hash": "6c772ba62c5d96b6ca4f8d7a0c395a4db96e02e3d88d4a315eef415cf55fbdc1",
     "unconverted_surface_report_hash": "0e444d56c9b135d53aadc68fcdb9792c0129c3187c9076d0745d1ce0832254f0"
   },
