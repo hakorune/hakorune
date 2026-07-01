@@ -327,28 +327,8 @@ id_scalar_source_plan_basis_chain_summary:
   selected_next_card = MIRBUILDER-ID-SCALAR-SOURCE-PLAN-BASIS-COMPONENT-PRIORITY-RESOLUTION-001
   source_selfhost_claim = 0
 
-id_scalar_source_plan_basis_component_priority_result:
-  token = MIRBUILDER-ID-SCALAR-SOURCE-PLAN-BASIS-COMPONENT-PRIORITY-RESOLUTION-001
-  selected_component_id = OwnerScopeBoundedness
-  selected_next_card = MIRBUILDER-ID-SCALAR-OWNER-SCOPE-BOUNDEDNESS-RESOLUTION-001
-  source_selfhost_claim = 0
-
-id_scalar_owner_scope_boundedness_result:
-  token = MIRBUILDER-ID-SCALAR-OWNER-SCOPE-BOUNDEDNESS-RESOLUTION-001
-  owner_scope_bounded_count = 0
-  reason_token = IdScalarOwnerScopeBoundednessNotProven
-  selected_next_card = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
-  source_selfhost_claim = 0
-
-id_scalar_owner_scope_blocker_priority_result:
-  token = MIRBUILDER-ID-SCALAR-OWNER-SCOPE-BLOCKER-PRIORITY-RESOLUTION-001
-  selected_component_id = StateTargetEnumeration
-  selected_next_card = MIRBUILDER-ID-SCALAR-STATE-TARGET-ENUMERATION-BASIS-001
-  source_selfhost_claim = 0
-
-id_scalar_state_target_enumeration_result:
-  token = MIRBUILDER-ID-SCALAR-STATE-TARGET-ENUMERATION-BASIS-001
-  state_target_count = 22
+id_scalar_owner_scope_basis_summary:
+  2027_to_2030 = owner-scope priority -> state-target root blocker -> 22 target enumeration
   cross_owner_state_target_count = 4
   selected_next_card = MIRBUILDER-ID-SCALAR-OWNER-SCOPE-BOUNDEDNESS-RESOLUTION-002
   source_selfhost_claim = 0
