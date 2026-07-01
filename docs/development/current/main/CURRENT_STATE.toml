@@ -25,11 +25,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-ID-SCALAR-OWNER-SCOPE-BOUNDEDNESS-RESOLUTION-002"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2031-MIRBUILDER-ID-SCALAR-OWNER-SCOPE-BOUNDEDNESS-RESOLUTION-002.md"
-latest_card_summary = """The latest card reruns ID scalar owner-scope
-boundedness after state target enumeration and selects native seed file
-boundary basis before SourcePlan or seed materialization."""
+latest_card = "MIRBUILDER-ID-SCALAR-NATIVE-SEED-FILE-BOUNDARY-BASIS-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2032-MIRBUILDER-ID-SCALAR-NATIVE-SEED-FILE-BOUNDARY-BASIS-001.md"
+latest_card_summary = """The latest card defines deterministic native seed
+file boundaries for the two bounded ID scalar owner edges without
+materializing native source seeds."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -40,6 +40,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-02: 2032 defines deterministic native seed file boundaries for two bounded ID scalar owners.",
   "2026-07-02: 2031 reruns ID scalar owner-scope boundedness and selects native seed file boundary basis.",
   "2026-07-02: 2030 enumerates 22 ID scalar semantic state targets and selects owner-scope boundedness rerun 002.",
   "2026-07-02: 2029 selects StateTargetEnumeration as the ID scalar owner-scope root blocker without selecting an owner or seed.",

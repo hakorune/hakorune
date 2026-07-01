@@ -1,0 +1,108 @@
+{
+  "boundary_policy": {
+    "authority": [
+      "owner_edge",
+      "state_target_set",
+      "operation_token_set",
+      "module_export_plan"
+    ],
+    "native_seed_materialization": false,
+    "owner_name_alone_as_authority": false,
+    "source_path_alone_as_authority": false,
+    "surface_count_as_proof": false
+  },
+  "boundary_rows": [
+    {
+      "blocked_by": [],
+      "generator_overwrite_guard_path": "lang/src/compiler/lib/mirbuilder/context_registry_native_seed.hako",
+      "module_export": "lib.mirbuilder.context_registry_native_seed",
+      "native_seed_file_boundary_derivable": true,
+      "native_source_seed_path": "lang/src/compiler/lib/mirbuilder/context_registry_native_seed.hako",
+      "operation_token_count": 1,
+      "owner_edge_id": "mirbuilder::context_registry",
+      "owner_scope_bounded": true,
+      "state_target_count": 1
+    },
+    {
+      "blocked_by": [],
+      "generator_overwrite_guard_path": "lang/src/compiler/lib/mirbuilder/emission_ssa_phi_native_seed.hako",
+      "module_export": "lib.mirbuilder.emission_ssa_phi_native_seed",
+      "native_seed_file_boundary_derivable": true,
+      "native_source_seed_path": "lang/src/compiler/lib/mirbuilder/emission_ssa_phi_native_seed.hako",
+      "operation_token_count": 8,
+      "owner_edge_id": "mirbuilder::emission_ssa_phi",
+      "owner_scope_bounded": true,
+      "state_target_count": 5
+    },
+    {
+      "blocked_by": [
+        "NativeSeedFileBoundaryRequiresBoundedOwnerScope",
+        "CrossOwnerRecipeAuthorityMustBeSeparated"
+      ],
+      "generator_overwrite_guard_path": null,
+      "module_export": null,
+      "native_seed_file_boundary_derivable": false,
+      "native_source_seed_path": null,
+      "operation_token_count": 13,
+      "owner_edge_id": "mirbuilder::join_i_r_plan",
+      "owner_scope_bounded": false,
+      "state_target_count": 11
+    },
+    {
+      "blocked_by": [
+        "NativeSeedFileBoundaryRequiresBoundedOwnerScope",
+        "CrossOwnerRecipeAuthorityMustBeSeparated"
+      ],
+      "generator_overwrite_guard_path": null,
+      "module_export": null,
+      "native_seed_file_boundary_derivable": false,
+      "native_source_seed_path": null,
+      "operation_token_count": 8,
+      "owner_edge_id": "mirbuilder::join_i_r_route_verify",
+      "owner_scope_bounded": false,
+      "state_target_count": 5
+    }
+  ],
+  "candidate_pool": {
+    "cross_owner_boundary_blocked_count": 2,
+    "input_candidate_count": 4,
+    "native_seed_file_boundary_derivable_count": 2,
+    "owner_scope_bounded_count": 2
+  },
+  "claims": {
+    "behavior_recipe_materialization": 0,
+    "derived_artifact_seed_draft_materialization": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "manual_owner_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "owner_name_alone_as_authority": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_path_alone_as_authority": 0,
+    "source_plan_materialization": 0,
+    "source_selfhost_claim": 0,
+    "surface_count_as_proof": 0,
+    "verifier_result_materialization": 0
+  },
+  "decision": {
+    "kind": "NativeSeedFileBoundaryBasisDefined",
+    "reason_token": "IdScalarNativeSeedFileBoundaryBasisDefined",
+    "selected_next_card": "MIRBUILDER-ID-SCALAR-SOURCE-PLAN-BASIS-COMPONENT-PRIORITY-RESOLUTION-002"
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "owner_scope_boundedness_rerun_002": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-owner-scope-boundedness-resolution-002-v0.json",
+    "state_target_enumeration_basis": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-state-target-enumeration-basis-v0.json"
+  },
+  "kind": "MirBuilderIdScalarNativeSeedFileBoundaryBasisV1",
+  "provenance": {
+    "owner_scope_boundedness_rerun_002_hash": "ebfd7e836968c42b8ac5696da28cb42566467bae14845b5572ef4d2eb97b54ac",
+    "state_target_enumeration_basis_hash": "665f720d1716504aeecf7c59045069f223c44465df56ea11143939c3037c50e8"
+  },
+  "schema_version": 0,
+  "token": "MIRBUILDER-ID-SCALAR-NATIVE-SEED-FILE-BOUNDARY-BASIS-001"
+}
