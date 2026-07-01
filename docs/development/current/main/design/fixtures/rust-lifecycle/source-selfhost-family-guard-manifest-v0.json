@@ -1640,6 +1640,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-source-plan-basis-component-priority-resolution-002-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_id_scalar_source_plan_basis_component_priority_resolution_002_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-ID-SCALAR-ID-DOMAIN-BOUNDARY-BASIS-001",
+      "card": "docs/development/current/main/phases/phase-296x/2034-MIRBUILDER-ID-SCALAR-ID-DOMAIN-BOUNDARY-BASIS-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-id-domain-boundary-basis-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_id_scalar_id_domain_boundary_basis_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {

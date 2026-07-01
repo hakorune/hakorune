@@ -1,0 +1,105 @@
+{
+  "boundary_policy": {
+    "cross_domain_assignment": false,
+    "invalid_id_behavior_declared": true,
+    "nominal_transport_required": true,
+    "raw_i64_interchangeability": false,
+    "reserved_id_semantics_inferred": false,
+    "sentinel_semantics_inferred": false
+  },
+  "candidate_pool": {
+    "bounded_owner_count": 2,
+    "cross_domain_assignment_count": 0,
+    "directable_row_count": 11,
+    "id_domain_boundary_count": 3,
+    "raw_i64_interchangeability_count": 0
+  },
+  "claims": {
+    "behavior_recipe_materialization": 0,
+    "derived_artifact_seed_draft_materialization": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "manual_owner_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_plan_materialization": 0,
+    "source_selfhost_claim": 0,
+    "verifier_result_materialization": 0
+  },
+  "decision": {
+    "kind": "IdDomainBoundaryBasisDefined",
+    "reason_token": "IdScalarIdDomainBoundaryBasisDefined",
+    "selected_next_card": "MIRBUILDER-ID-SCALAR-STATE-MUTATION-FRAME-BASIS-001"
+  },
+  "domain_boundaries": [
+    {
+      "canonical_id_type": "BasicBlockId",
+      "cross_domain_assignment": false,
+      "directable_row_count": 2,
+      "equality_ordering_semantics": "VerifierVisibleWithinNominalDomainOnly",
+      "invalid_or_missing_id_behavior": "DenyInvalidOrMissingId",
+      "map_key_domain": "BasicBlockId",
+      "nominal_transport": "BasicBlockIdAsI64",
+      "owner_edge_counts": {
+        "mirbuilder::context_registry": 2
+      },
+      "raw_i64_interchangeability": false,
+      "reserved_id_policy": "NotUsedUnlessSourceEvidence",
+      "sentinel_policy": "NoSentinelUnlessSourceEvidence"
+    },
+    {
+      "canonical_id_type": "BindingId",
+      "cross_domain_assignment": false,
+      "directable_row_count": 1,
+      "equality_ordering_semantics": "VerifierVisibleWithinNominalDomainOnly",
+      "invalid_or_missing_id_behavior": "DenyInvalidOrMissingId",
+      "map_key_domain": "BindingId",
+      "nominal_transport": "BindingIdAsI64",
+      "owner_edge_counts": {
+        "mirbuilder::context_registry": 1
+      },
+      "raw_i64_interchangeability": false,
+      "reserved_id_policy": "NotUsedUnlessSourceEvidence",
+      "sentinel_policy": "NoSentinelUnlessSourceEvidence"
+    },
+    {
+      "canonical_id_type": "ValueId",
+      "cross_domain_assignment": false,
+      "directable_row_count": 8,
+      "equality_ordering_semantics": "VerifierVisibleWithinNominalDomainOnly",
+      "invalid_or_missing_id_behavior": "DenyInvalidOrMissingId",
+      "map_key_domain": "ValueId",
+      "nominal_transport": "ValueIdAsI64",
+      "owner_edge_counts": {
+        "mirbuilder::context_registry": 2,
+        "mirbuilder::emission_ssa_phi": 6
+      },
+      "raw_i64_interchangeability": false,
+      "reserved_id_policy": "NotUsedUnlessSourceEvidence",
+      "sentinel_policy": "NoSentinelUnlessSourceEvidence"
+    }
+  ],
+  "input_state": {
+    "basis_component_priority_rerun_002": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-source-plan-basis-component-priority-resolution-002-v0.json",
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "directability_rerun": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-domain-transport-directability-rerun-v0.json",
+    "native_seed_file_boundary_basis": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-native-seed-file-boundary-basis-v0.json"
+  },
+  "kind": "MirBuilderIdScalarIdDomainBoundaryBasisV1",
+  "previous_state": {
+    "native_seed_file_boundary_derivable_count": 2,
+    "selected_component_id": "IdDomainBoundary",
+    "selected_next_card": "MIRBUILDER-ID-SCALAR-ID-DOMAIN-BOUNDARY-BASIS-001"
+  },
+  "provenance": {
+    "basis_component_priority_rerun_002_hash": "48ae1dcda81be444dc860afb386d2f549dae269190ba24f4699cc9df33f7d169",
+    "directability_rerun_hash": "4a6ff2e39be091b842ab9c4bda08688535333313d1a07c8c61d40f3d73f7653f",
+    "native_seed_file_boundary_basis_hash": "377f8f8e101c6db4b3909179c3842e855aaa45aa2fce6b878a49583026314b74"
+  },
+  "schema_version": 0,
+  "token": "MIRBUILDER-ID-SCALAR-ID-DOMAIN-BOUNDARY-BASIS-001"
+}

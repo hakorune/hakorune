@@ -24,9 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-ID-SCALAR-ID-DOMAIN-BOUNDARY-BASIS-001.
-  Basis priority rerun selected IdDomainBoundary after owner-scope and native
-  seed file boundary evidence became available.
+  MIRBUILDER-ID-SCALAR-STATE-MUTATION-FRAME-BASIS-001.
+  ID domain boundaries are declared; next define read/write/append mutation
+  frames before behavior recipe coverage.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  MIRBUILDER-ID-SCALAR-ID-DOMAIN-BOUNDARY-BASIS-001
+  MIRBUILDER-ID-SCALAR-STATE-MUTATION-FRAME-BASIS-001
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -371,6 +371,12 @@ id_scalar_source_plan_basis_component_priority_rerun_002_result:
   selected_next_card = MIRBUILDER-ID-SCALAR-ID-DOMAIN-BOUNDARY-BASIS-001
   source_selfhost_claim = 0
 
+id_scalar_id_domain_boundary_basis_result:
+  token = MIRBUILDER-ID-SCALAR-ID-DOMAIN-BOUNDARY-BASIS-001
+  id_domain_boundary_count = 3
+  selected_next_card = MIRBUILDER-ID-SCALAR-STATE-MUTATION-FRAME-BASIS-001
+  source_selfhost_claim = 0
+
 placement_rule:
   scan_unit = rust_function_or_method
   classification_unit = semantic_owner_edge
@@ -400,27 +406,27 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. MIRBUILDER-ID-SCALAR-SOURCE-PLAN-BASIS-COMPONENT-PRIORITY-RESOLUTION-002
+1. MIRBUILDER-ID-SCALAR-ID-DOMAIN-BOUNDARY-BASIS-001
    status=closed
-   boundary=IdDomainBoundary selected as next basis component
+   boundary=3 nominal ID domains declared, no raw i64 interchange
 
-2. MIRBUILDER-ID-SCALAR-ID-DOMAIN-BOUNDARY-BASIS-001
+2. MIRBUILDER-ID-SCALAR-STATE-MUTATION-FRAME-BASIS-001
    status=next
-   boundary=nominal ID boundaries only; no SourcePlan or seed
+   boundary=declare mutation frames only; no SourcePlan or seed
 
 3. SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
    status=guardrail
    boundary=no native seed / Hako generation / Source Selfhost claim
 
 next:
-  MIRBUILDER-ID-SCALAR-ID-DOMAIN-BOUNDARY-BASIS-001
-  boundary=declare nominal ID domain/sentinel/error invariants
+  MIRBUILDER-ID-SCALAR-STATE-MUTATION-FRAME-BASIS-001
+  boundary=declare state mutation frame read/write/append sets
 
 next_documented_task =
-  MIRBUILDER-ID-SCALAR-ID-DOMAIN-BOUNDARY-BASIS-001
+  MIRBUILDER-ID-SCALAR-STATE-MUTATION-FRAME-BASIS-001
 
 next_after_active_3 =
-  TBD_AFTER_ID_SCALAR_ID_DOMAIN_BOUNDARY_BASIS
+  TBD_AFTER_ID_SCALAR_STATE_MUTATION_FRAME_BASIS
 ```
 
 ## Landed Converter Capability Summary
