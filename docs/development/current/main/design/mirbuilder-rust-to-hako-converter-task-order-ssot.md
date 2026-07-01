@@ -24,9 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-ID-SCALAR-DOMAIN-OWNER-EDGE-REPAIR-001.
-  Seed readiness resolution selected owner-edge repair as the hard precondition
-  before any ID scalar native seed owner can be selected.
+  MIRBUILDER-ID-SCALAR-DOMAIN-SEED-READINESS-RESOLUTION-002.
+  Owner-edge repair completed all 12 ID scalar repair-required rows; readiness
+  must rerun before any ID scalar native seed owner can be selected.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  MIRBUILDER-ID-SCALAR-DOMAIN-OWNER-EDGE-REPAIR-001
+  MIRBUILDER-ID-SCALAR-DOMAIN-SEED-READINESS-RESOLUTION-002
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -325,6 +325,15 @@ id_scalar_domain_seed_readiness_resolution_result:
   selected_next_card = MIRBUILDER-ID-SCALAR-DOMAIN-OWNER-EDGE-REPAIR-001
   source_selfhost_claim = 0
 
+id_scalar_domain_owner_edge_repair_result:
+  token = MIRBUILDER-ID-SCALAR-DOMAIN-OWNER-EDGE-REPAIR-001
+  input_repair_required_count = 12
+  repaired_row_count = 12
+  unrepaired_row_count = 0
+  reason_token = IdScalarOwnerEdgeRepairComplete
+  selected_next_card = MIRBUILDER-ID-SCALAR-DOMAIN-SEED-READINESS-RESOLUTION-002
+  source_selfhost_claim = 0
+
 placement_rule:
   scan_unit = rust_function_or_method
   classification_unit = semantic_owner_edge
@@ -378,13 +387,13 @@ history, not in this task-order SSOT.
 
 ```text
 1. MIRBUILDER-ID-SCALAR-DOMAIN-OWNER-EDGE-REPAIR-001
-   status=next
+   status=closed
    boundary=repair the 12 owner-edge-missing ID scalar rows
    semantic_authority=seed readiness resolution and directability rerun
    non_authority=manual owner selection, raw i64 interchangeability
 
 2. MIRBUILDER-ID-SCALAR-DOMAIN-SEED-READINESS-RESOLUTION-002
-   status=after-repair
+   status=next
    boundary=rerun readiness after owner-edge repair
    semantic_authority=repaired owner-edge fixture
    non_authority=cluster size proof, lexical tiebreaker, Source Selfhost claim
@@ -396,11 +405,11 @@ history, not in this task-order SSOT.
    non_authority=generated artifact edit authority, Source Selfhost claim
 
 next:
-  MIRBUILDER-ID-SCALAR-DOMAIN-OWNER-EDGE-REPAIR-001
-  boundary=repair owner-edge completeness before seed readiness
+  MIRBUILDER-ID-SCALAR-DOMAIN-SEED-READINESS-RESOLUTION-002
+  boundary=rerun seed readiness with repaired owner-edge completeness
 
 next_documented_task =
-  MIRBUILDER-ID-SCALAR-DOMAIN-OWNER-EDGE-REPAIR-001
+  MIRBUILDER-ID-SCALAR-DOMAIN-SEED-READINESS-RESOLUTION-002
 
 next_after_active_3 =
   MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-008

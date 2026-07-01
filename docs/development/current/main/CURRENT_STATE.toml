@@ -6,7 +6,7 @@
 # - Let tools/checks/current_state_pointer_guard.sh catch stale pointers.
 
 status = "Active"
-date = "2026-07-01"
+date = "2026-07-02"
 
 active_lane = "RUST-SUBSET-TO-HAKO-APP-FRONT compiler construction / selfhost app front"
 active_lane_status = """Source Selfhost is intentionally stopped at the wider
@@ -25,12 +25,12 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-ID-SCALAR-DOMAIN-SEED-READINESS-RESOLUTION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2017-MIRBUILDER-ID-SCALAR-DOMAIN-SEED-READINESS-RESOLUTION-001.md"
-latest_card_summary = """The latest card adds NativeSeedMaterializationReadiness
-as the ID scalar discriminator and treats OwnerEdgeCompleteness as a hard
-precondition. Because 12 owner-edge repair rows remain, it selects
-MIRBUILDER-ID-SCALAR-DOMAIN-OWNER-EDGE-REPAIR-001 next."""
+latest_card = "MIRBUILDER-ID-SCALAR-DOMAIN-OWNER-EDGE-REPAIR-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2018-MIRBUILDER-ID-SCALAR-DOMAIN-OWNER-EDGE-REPAIR-001.md"
+latest_card_summary = """The latest card repairs all 12 ID scalar
+owner-edge-missing rows by exact source_id match against the existing Other
+owner-edge confidence repair fixture, then selects
+MIRBUILDER-ID-SCALAR-DOMAIN-SEED-READINESS-RESOLUTION-002 next."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -41,6 +41,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-02: 2018 repairs all 12 ID scalar owner-edge rows and selects seed readiness rerun 002.",
   "2026-07-02: 2017 resolves ID scalar seed readiness and selects owner-edge repair before seed selection.",
   "2026-07-01: 2016 resolves ID scalar seed-candidate clusters and stops on equal evidence quality.",
   "2026-07-01: 2015 reruns native-owner seed capability after ID scalar unlock and selects seed-candidate cluster resolution.",
