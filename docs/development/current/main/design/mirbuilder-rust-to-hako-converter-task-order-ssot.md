@@ -24,9 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001.
-  ID scalar SourcePlanAndRecipe derivability found no eligible candidate;
-  descriptor-only evidence is not enough to materialize packet components.
+  MIRBUILDER-ID-SCALAR-SOURCE-SURFACE-INVENTORY-001.
+  ID scalar SourcePlan derivation basis is defined; next inventory must derive
+  the required source-surface set before any SourcePlanAndRecipe materializes.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+  MIRBUILDER-ID-SCALAR-SOURCE-SURFACE-INVENTORY-001
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -364,6 +364,14 @@ id_scalar_source_plan_derivability_result:
   selected_next_card = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
   source_selfhost_claim = 0
 
+id_scalar_source_plan_derivation_basis_result:
+  token = MIRBUILDER-ID-SCALAR-SOURCE-PLAN-DERIVATION-BASIS-001
+  source_plan_derivation_basis_defined = 1
+  directability_only_is_source_plan = 0
+  descriptor_only_is_source_plan = 0
+  selected_next_card = MIRBUILDER-ID-SCALAR-SOURCE-SURFACE-INVENTORY-001
+  source_selfhost_claim = 0
+
 placement_rule:
   scan_unit = rust_function_or_method
   classification_unit = semantic_owner_edge
@@ -393,27 +401,27 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. MIRBUILDER-ID-SCALAR-SOURCE-PLAN-AND-RECIPE-DERIVABILITY-RESOLUTION-001
+1. MIRBUILDER-ID-SCALAR-SOURCE-PLAN-DERIVATION-BASIS-001
    status=closed
-   boundary=descriptor-only evidence is not SourcePlanAndRecipe
+   boundary=SourcePlanAndRecipe derivation basis defined
 
-2. SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
-   status=design-consultation-required
-   boundary=need SourcePlanAndRecipe generation basis
+2. MIRBUILDER-ID-SCALAR-SOURCE-SURFACE-INVENTORY-001
+   status=next
+   boundary=derive required source surfaces; no SourcePlanAndRecipe yet
 
 3. SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
    status=guardrail
    boundary=no native seed / Hako generation / Source Selfhost claim
 
 next:
-  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
-  boundary=design consultation required before selecting a packet candidate
+  MIRBUILDER-ID-SCALAR-SOURCE-SURFACE-INVENTORY-001
+  boundary=machine-derived surface inventory before operation vocabulary
 
 next_documented_task =
-  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+  MIRBUILDER-ID-SCALAR-SOURCE-SURFACE-INVENTORY-001
 
 next_after_active_3 =
-  TBD_AFTER_ID_SCALAR_SOURCE_PLAN_BASIS_DESIGN
+  MIRBUILDER-ID-SCALAR-OPERATION-VOCABULARY-INVENTORY-001
 ```
 
 ## Landed Converter Capability Summary
