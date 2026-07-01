@@ -1395,6 +1395,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-typed-object-plan-refresh-hako-native-source-seed-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_typed_object_plan_refresh_hako_native_source_seed_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-TYPED-OBJECT-PLAN-REFRESH-HAKO-ADOPTION-DECISION-001",
+      "card": "docs/development/current/main/phases/phase-296x/1999-MIRBUILDER-TYPED-OBJECT-PLAN-REFRESH-HAKO-ADOPTION-DECISION-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-typed-object-plan-refresh-hako-adoption-decision-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_typed_object_plan_refresh_hako_adoption_decision_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {
