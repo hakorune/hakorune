@@ -24,9 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-ID-SCALAR-SOURCE-PLAN-BASIS-COMPONENT-PRIORITY-RESOLUTION-002.
-  Native seed file boundaries are now derived for bounded ID scalar owners;
-  rerun basis component priority without hand-selecting the next basis.
+  MIRBUILDER-ID-SCALAR-ID-DOMAIN-BOUNDARY-BASIS-001.
+  Basis priority rerun selected IdDomainBoundary after owner-scope and native
+  seed file boundary evidence became available.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  MIRBUILDER-ID-SCALAR-SOURCE-PLAN-BASIS-COMPONENT-PRIORITY-RESOLUTION-002
+  MIRBUILDER-ID-SCALAR-ID-DOMAIN-BOUNDARY-BASIS-001
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -365,6 +365,12 @@ id_scalar_native_seed_file_boundary_basis_result:
   selected_next_card = MIRBUILDER-ID-SCALAR-SOURCE-PLAN-BASIS-COMPONENT-PRIORITY-RESOLUTION-002
   source_selfhost_claim = 0
 
+id_scalar_source_plan_basis_component_priority_rerun_002_result:
+  token = MIRBUILDER-ID-SCALAR-SOURCE-PLAN-BASIS-COMPONENT-PRIORITY-RESOLUTION-002
+  selected_component_id = IdDomainBoundary
+  selected_next_card = MIRBUILDER-ID-SCALAR-ID-DOMAIN-BOUNDARY-BASIS-001
+  source_selfhost_claim = 0
+
 placement_rule:
   scan_unit = rust_function_or_method
   classification_unit = semantic_owner_edge
@@ -394,27 +400,27 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. MIRBUILDER-ID-SCALAR-NATIVE-SEED-FILE-BOUNDARY-BASIS-001
+1. MIRBUILDER-ID-SCALAR-SOURCE-PLAN-BASIS-COMPONENT-PRIORITY-RESOLUTION-002
    status=closed
-   boundary=2 deterministic seed file boundaries defined, no seed created
+   boundary=IdDomainBoundary selected as next basis component
 
-2. MIRBUILDER-ID-SCALAR-SOURCE-PLAN-BASIS-COMPONENT-PRIORITY-RESOLUTION-002
+2. MIRBUILDER-ID-SCALAR-ID-DOMAIN-BOUNDARY-BASIS-001
    status=next
-   boundary=select next SourcePlan basis component without manual axis choice
+   boundary=nominal ID boundaries only; no SourcePlan or seed
 
 3. SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
    status=guardrail
    boundary=no native seed / Hako generation / Source Selfhost claim
 
 next:
-  MIRBUILDER-ID-SCALAR-SOURCE-PLAN-BASIS-COMPONENT-PRIORITY-RESOLUTION-002
-  boundary=rerun basis component priority after boundedness/file-boundary
+  MIRBUILDER-ID-SCALAR-ID-DOMAIN-BOUNDARY-BASIS-001
+  boundary=declare nominal ID domain/sentinel/error invariants
 
 next_documented_task =
-  MIRBUILDER-ID-SCALAR-SOURCE-PLAN-BASIS-COMPONENT-PRIORITY-RESOLUTION-002
+  MIRBUILDER-ID-SCALAR-ID-DOMAIN-BOUNDARY-BASIS-001
 
 next_after_active_3 =
-  TBD_AFTER_ID_SCALAR_BASIS_COMPONENT_PRIORITY_RERUN_002
+  TBD_AFTER_ID_SCALAR_ID_DOMAIN_BOUNDARY_BASIS
 ```
 
 ## Landed Converter Capability Summary

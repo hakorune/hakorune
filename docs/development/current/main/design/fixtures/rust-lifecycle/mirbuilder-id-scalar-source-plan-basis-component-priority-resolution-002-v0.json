@@ -1,0 +1,147 @@
+{
+  "claims": {
+    "behavior_recipe_materialization": 0,
+    "cluster_size_as_proof": 0,
+    "derived_artifact_seed_draft_materialization": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "manual_component_selection": 0,
+    "manual_owner_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_plan_materialization": 0,
+    "source_selfhost_claim": 0,
+    "surface_count_as_proof": 0,
+    "verifier_result_materialization": 0
+  },
+  "decision": {
+    "kind": "SelectBasisComponent",
+    "reason_token": "IdDomainBoundarySelectedAfterOwnerScopeAndFileBoundary",
+    "selected_component_id": "IdDomainBoundary",
+    "selected_next_card": "MIRBUILDER-ID-SCALAR-ID-DOMAIN-BOUNDARY-BASIS-001"
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "native_seed_file_boundary_basis": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-native-seed-file-boundary-basis-v0.json",
+    "owner_scope_boundedness_rerun_002": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-owner-scope-boundedness-resolution-002-v0.json",
+    "source_plan_derivability_rerun_002": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-source-plan-and-recipe-derivability-resolution-002-v0.json",
+    "state_target_enumeration_basis": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-state-target-enumeration-basis-v0.json"
+  },
+  "kind": "MirBuilderIdScalarSourcePlanBasisComponentPriorityResolutionV2",
+  "previous_state": {
+    "bounded_owner_count": 2,
+    "native_seed_file_boundary_derivable_count": 2,
+    "source_plan_derivable_count": 0,
+    "state_target_count": 22
+  },
+  "provenance": {
+    "native_seed_file_boundary_basis_hash": "377f8f8e101c6db4b3909179c3842e855aaa45aa2fce6b878a49583026314b74",
+    "owner_scope_boundedness_rerun_002_hash": "ebfd7e836968c42b8ac5696da28cb42566467bae14845b5572ef4d2eb97b54ac",
+    "source_plan_derivability_rerun_002_hash": "8a0e4efcfb2013092472c4ff7218808de8143daecc0785b7ccee7e1f71cb8119",
+    "state_target_enumeration_basis_hash": "665f720d1716504aeecf7c59045069f223c44465df56ea11143939c3037c50e8"
+  },
+  "schema_version": 0,
+  "selection_rule": {
+    "cluster_size_as_proof": false,
+    "lexical_order_as_seed_selection_proof": false,
+    "manual_component_selection": false,
+    "prefer_nominal_id_boundary_before_recipe_effects": true,
+    "select_lowest_dependency_rank": true,
+    "surface_count_as_proof": false
+  },
+  "token": "MIRBUILDER-ID-SCALAR-SOURCE-PLAN-BASIS-COMPONENT-PRIORITY-RESOLUTION-002",
+  "unresolved_components": [
+    {
+      "blocked_by_token": "IdDomainBoundaryNotDeclared",
+      "component_id": "IdDomainBoundary",
+      "dependency_rank": 0,
+      "next_card": "MIRBUILDER-ID-SCALAR-ID-DOMAIN-BOUNDARY-BASIS-001",
+      "requires": [
+        "OwnerScopeBoundedness",
+        "NativeSeedFileBoundary"
+      ],
+      "selection_eligible": true,
+      "unblocks": [
+        "BehaviorRecipeEffectCoverage",
+        "VerifierInputContract"
+      ]
+    },
+    {
+      "blocked_by_token": "StateMutationFrameNotDeclared",
+      "component_id": "StateMutationFrame",
+      "dependency_rank": 1,
+      "next_card": "MIRBUILDER-ID-SCALAR-STATE-MUTATION-FRAME-BASIS-001",
+      "requires": [
+        "OwnerScopeBoundedness",
+        "StateTargetEnumeration"
+      ],
+      "selection_eligible": false,
+      "unblocks": [
+        "BehaviorRecipeEffectCoverage",
+        "VerifierInputContract"
+      ]
+    },
+    {
+      "blocked_by_token": "ErrorSemanticsNotDeclared",
+      "component_id": "ErrorSemantics",
+      "dependency_rank": 2,
+      "next_card": "MIRBUILDER-ID-SCALAR-ERROR-SEMANTICS-BASIS-001",
+      "requires": [
+        "IdDomainBoundary"
+      ],
+      "selection_eligible": false,
+      "unblocks": [
+        "BehaviorRecipeEffectCoverage",
+        "VerifierInputContract"
+      ]
+    },
+    {
+      "blocked_by_token": "DeterministicOrderNotDeclared",
+      "component_id": "DeterministicOrder",
+      "dependency_rank": 2,
+      "next_card": "MIRBUILDER-ID-SCALAR-DETERMINISTIC-ORDER-BASIS-001",
+      "requires": [
+        "IdDomainBoundary"
+      ],
+      "selection_eligible": false,
+      "unblocks": [
+        "BehaviorRecipeEffectCoverage",
+        "VerifierInputContract"
+      ]
+    },
+    {
+      "blocked_by_token": "BehaviorRecipeEffectCoverageNotProven",
+      "component_id": "BehaviorRecipeEffectCoverage",
+      "dependency_rank": 3,
+      "next_card": "MIRBUILDER-ID-SCALAR-BEHAVIOR-RECIPE-EFFECT-COVERAGE-BASIS-001",
+      "requires": [
+        "IdDomainBoundary",
+        "StateMutationFrame",
+        "ErrorSemantics",
+        "DeterministicOrder"
+      ],
+      "selection_eligible": false,
+      "unblocks": [
+        "VerifierInputContract",
+        "SourcePlanAndRecipeDerivability"
+      ]
+    },
+    {
+      "blocked_by_token": "VerifierInputContractNotDeclared",
+      "component_id": "VerifierInputContract",
+      "dependency_rank": 4,
+      "next_card": "MIRBUILDER-ID-SCALAR-VERIFIER-INPUT-CONTRACT-BASIS-001",
+      "requires": [
+        "BehaviorRecipeEffectCoverage"
+      ],
+      "selection_eligible": false,
+      "unblocks": [
+        "VerifierResultFixture"
+      ]
+    }
+  ]
+}
