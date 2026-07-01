@@ -1521,6 +1521,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-domain-seed-candidate-cluster-resolution-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_id_scalar_domain_seed_candidate_cluster_resolution_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-ID-SCALAR-DOMAIN-SEED-READINESS-RESOLUTION-001",
+      "card": "docs/development/current/main/phases/phase-296x/2017-MIRBUILDER-ID-SCALAR-DOMAIN-SEED-READINESS-RESOLUTION-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-domain-seed-readiness-resolution-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_id_scalar_domain_seed_readiness_resolution_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {
