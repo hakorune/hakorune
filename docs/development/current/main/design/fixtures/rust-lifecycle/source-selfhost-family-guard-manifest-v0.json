@@ -1262,6 +1262,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-bridge-blocked-gap-cluster-resolution-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_bridge_blocked_gap_cluster_resolution_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-CARRIER-TYPE-TRANSPORT-POLICY-INVENTORY-RERUN-001",
+      "card": "docs/development/current/main/phases/phase-296x/1980-MIRBUILDER-CARRIER-TYPE-TRANSPORT-POLICY-INVENTORY-RERUN-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-transport-policy-inventory-rerun-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_carrier_type_transport_policy_inventory_rerun_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {

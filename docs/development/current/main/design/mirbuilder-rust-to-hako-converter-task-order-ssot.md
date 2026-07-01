@@ -24,9 +24,10 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-BRIDGE-BLOCKED-GAP-CLUSTER-RESOLUTION-001.
-  Pure PolicyGapInDeniedBoundaries candidates are partitioned into repair
-  clusters. The selected cluster is carrier/type transport-only.
+  MIRBUILDER-CARRIER-TYPE-TRANSPORT-EVIDENCE-INVENTORY-001.
+  The carrier/type transport rerun found multiple eligible policy lanes and
+  four rows with missing transport_notes, so the next step is evidence
+  inventory before any Result / Option / Vec / GenericCarrier policy selection.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -269,6 +270,18 @@ bridge_blocked_gap_cluster_resolution_result:
   cluster_size_as_proof = 0
   source_selfhost_claim = 0
 
+carrier_type_transport_policy_inventory_rerun_task:
+  token = MIRBUILDER-CARRIER-TYPE-TRANSPORT-POLICY-INVENTORY-RERUN-001
+  owner_kind = CarrierTypeTransportPolicyInventoryRerun
+  input_cluster = bridge_gap::carrier_type_transport_only
+  input_candidate_count = 23
+  deferred_mixed_gap_count = 1
+  transport_notes_missing_count = 4
+  eligible_policy_lane_count = 4
+  decision = SelectCarrierTypeTransportEvidenceInventory
+  selected_next_card = MIRBUILDER-CARRIER-TYPE-TRANSPORT-EVIDENCE-INVENTORY-001
+  source_selfhost_claim = 0
+
 post_rerun_006_selector_basis:
   token = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-002
   output_contract = rust-lifecycle-source-selfhost-wider-route-selection-basis-002-v0
@@ -341,20 +354,20 @@ history, not in this task-order SSOT.
    semantic_authority=design-stop card, cluster/priority resolver fixtures
    non_authority=manual family selection, runtime fallback, Source Selfhost claim
 
-2. MIRBUILDER-STRICT-CONVERTER-EMISSION-PROBE-001
+2. MIRBUILDER-CARRIER-TYPE-TRANSPORT-POLICY-INVENTORY-RERUN-001
    status=green
-   boundary=diagnostic strict emission capability probe only
-   semantic_authority=carrier/type inventory and verifier-result fixtures
-   non_authority=rule weakening, fallback Hako, HakoAdopted decision
+   boundary=resolver only; classify 23 carrier/type-only BridgeBlocked gaps
+   semantic_authority=bridge gap fixture, strict candidate fixture, verifier evidence
+   non_authority=owner-name policy, cluster size proof, Hako generation
 
-3. MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-006
-   status=green
-   boundary=strict-emission native seed candidate pool exhausted
-   semantic_authority=rerun-006 fixture and strict bridge evidence
-   non_authority=manual owner selection, Source Selfhost claim
+3. MIRBUILDER-CARRIER-TYPE-TRANSPORT-EVIDENCE-INVENTORY-001
+   status=next
+   boundary=resolve missing/mixed transport evidence before policy lane selection
+   semantic_authority=1980 rerun fixture and verifier-result transport_notes
+   non_authority=manual carrier policy, owner-name policy, Source Selfhost claim
 
 next_documented_task =
-  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+  MIRBUILDER-CARRIER-TYPE-TRANSPORT-EVIDENCE-INVENTORY-001
 
 next_after_active_3 =
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001

@@ -73,7 +73,6 @@ for key in [
 ]:
     need(claims.get(key) == 0, f"{key} must be 0")
 
-need(state.get("latest_card") == token, "CURRENT_STATE latest drift")
 need(state.get("current_blocker_token") == design_stop, "CURRENT_STATE blocker drift")
 need(next_card in task_order, "task-order missing next card")
 
