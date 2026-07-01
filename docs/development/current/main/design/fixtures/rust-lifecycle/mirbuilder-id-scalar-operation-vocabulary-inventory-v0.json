@@ -1,0 +1,1442 @@
+{
+  "candidate_pool": {
+    "input_candidate_count": 4,
+    "operation_surface_count": 102,
+    "operation_vocabulary_complete_candidate_count": 4,
+    "operation_vocabulary_token_count": 28,
+    "selection_eligible_for_source_plan_count": 0,
+    "unknown_operation_count": 0
+  },
+  "candidates": [
+    {
+      "blocked_by": [],
+      "next_card": "MIRBUILDER-ID-SCALAR-SOURCE-PLAN-AND-RECIPE-DERIVABILITY-RESOLUTION-002",
+      "operation_rows": [
+        {
+          "classification_authority": "SymbolReturnTypeMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-context-registry-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "ContextRegistryConstruct",
+          "raw_i64_interchangeability": 0,
+          "return_type": "",
+          "role": "UnclassifiedSurfaceRole",
+          "source_id": "src/mir/builder/compilation_context.rs::with_plugin_sigs:L232",
+          "source_path": "src/mir/builder/compilation_context.rs",
+          "symbol": "with_plugin_sigs"
+        }
+      ],
+      "operation_vocabulary_complete": true,
+      "owner_edge_id": "mirbuilder::context_registry",
+      "source_surface_count": 1,
+      "unknown_operation_count": 0
+    },
+    {
+      "blocked_by": [],
+      "next_card": "MIRBUILDER-ID-SCALAR-SOURCE-PLAN-AND-RECIPE-DERIVABILITY-RESOLUTION-002",
+      "operation_rows": [
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-emission-ssa-phi-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "PhiInstructionDefine",
+          "raw_i64_interchangeability": 0,
+          "return_type": "",
+          "role": "builder_phi_definition",
+          "source_id": "src/mir/builder/emission/phi_lifecycle.rs::define_phi_final:L246",
+          "source_path": "src/mir/builder/emission/phi_lifecycle.rs",
+          "symbol": "define_phi_final"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-emission-ssa-phi-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "PhiInstructionDefineFunction",
+          "raw_i64_interchangeability": 0,
+          "return_type": "",
+          "role": "function_phi_definition",
+          "source_id": "src/mir/builder/emission/phi_lifecycle.rs::define_phi_final_fn:L423",
+          "source_path": "src/mir/builder/emission/phi_lifecycle.rs",
+          "symbol": "define_phi_final_fn"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-emission-ssa-phi-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "PhiInstructionDefineFunction",
+          "raw_i64_interchangeability": 0,
+          "return_type": "",
+          "role": "function_phi_definition",
+          "source_id": "src/mir/builder/emission/phi_lifecycle.rs::define_phi_final_fn_with_type_hint_and_tag:L443",
+          "source_path": "src/mir/builder/emission/phi_lifecycle.rs",
+          "symbol": "define_phi_final_fn_with_type_hint_and_tag"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-emission-ssa-phi-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "PhiInstructionDefine",
+          "raw_i64_interchangeability": 0,
+          "return_type": "",
+          "role": "builder_phi_definition",
+          "source_id": "src/mir/builder/emission/phi_lifecycle.rs::define_phi_final_with_type_hint:L258",
+          "source_path": "src/mir/builder/emission/phi_lifecycle.rs",
+          "symbol": "define_phi_final_with_type_hint"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-emission-ssa-phi-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "PhiInstructionPatch",
+          "raw_i64_interchangeability": 0,
+          "return_type": "",
+          "role": "builder_phi_patch",
+          "source_id": "src/mir/builder/emission/phi_lifecycle.rs::patch_phi_inputs:L518",
+          "source_path": "src/mir/builder/emission/phi_lifecycle.rs",
+          "symbol": "patch_phi_inputs"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-emission-ssa-phi-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "PhiLifecyclePatch",
+          "raw_i64_interchangeability": 0,
+          "return_type": "",
+          "role": "lifecycle_scope_patch",
+          "source_id": "src/mir/builder/emission/phi_lifecycle.rs::patch_phi_inputs:L81",
+          "source_path": "src/mir/builder/emission/phi_lifecycle.rs",
+          "symbol": "patch_phi_inputs"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-emission-ssa-phi-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "PhiInstructionDefineCurrentBlock",
+          "raw_i64_interchangeability": 0,
+          "return_type": "",
+          "role": "current_block_phi_definition",
+          "source_id": "src/mir/builder/phi.rs::define_current_block_phi_final:L9",
+          "source_path": "src/mir/builder/phi.rs",
+          "symbol": "define_current_block_phi_final"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-emission-ssa-phi-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "PhiInstructionDefineCurrentBlock",
+          "raw_i64_interchangeability": 0,
+          "return_type": "",
+          "role": "current_block_phi_definition",
+          "source_id": "src/mir/builder/phi.rs::define_current_block_phi_final_with_type_hint:L25",
+          "source_path": "src/mir/builder/phi.rs",
+          "symbol": "define_current_block_phi_final_with_type_hint"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-emission-ssa-phi-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "DiagnosticStringBuild",
+          "raw_i64_interchangeability": 0,
+          "return_type": "String",
+          "role": "diagnostic_formatter",
+          "source_id": "src/mir/builder/ssa/analysis.rs::format_value_ids:L36",
+          "source_path": "src/mir/builder/ssa/analysis.rs",
+          "symbol": "format_value_ids"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-emission-ssa-phi-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "PredicateRead",
+          "raw_i64_interchangeability": 0,
+          "return_type": "bool",
+          "role": "analysis_predicate",
+          "source_id": "src/mir/builder/ssa/analysis.rs::has_dominated_same_field_set_after_root:L201",
+          "source_path": "src/mir/builder/ssa/analysis.rs",
+          "symbol": "has_dominated_same_field_set_after_root"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-emission-ssa-phi-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "PredicateRead",
+          "raw_i64_interchangeability": 0,
+          "return_type": "bool",
+          "role": "analysis_predicate",
+          "source_id": "src/mir/builder/ssa/analysis.rs::strict_planner_required:L5",
+          "source_path": "src/mir/builder/ssa/analysis.rs",
+          "symbol": "strict_planner_required"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-emission-ssa-phi-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "PredicateRead",
+          "raw_i64_interchangeability": 0,
+          "return_type": "bool",
+          "role": "analysis_predicate",
+          "source_id": "src/mir/builder/ssa/analysis.rs::value_defined_in_current_function:L10",
+          "source_path": "src/mir/builder/ssa/analysis.rs",
+          "symbol": "value_defined_in_current_function"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-emission-ssa-phi-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "VerifierContractCheck",
+          "raw_i64_interchangeability": 0,
+          "return_type": "",
+          "role": "contract_validator",
+          "source_id": "src/mir/builder/ssa/phi_input_contract.rs::check_phi_input_contract:L7",
+          "source_path": "src/mir/builder/ssa/phi_input_contract.rs",
+          "symbol": "check_phi_input_contract"
+        }
+      ],
+      "operation_vocabulary_complete": true,
+      "owner_edge_id": "mirbuilder::emission_ssa_phi",
+      "source_surface_count": 13,
+      "unknown_operation_count": 0
+    },
+    {
+      "blocked_by": [],
+      "next_card": "MIRBUILDER-ID-SCALAR-SOURCE-PLAN-AND-RECIPE-DERIVABILITY-RESOLUTION-002",
+      "operation_rows": [
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-other-join-i-r-plan-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "RouteRewriteBuild",
+          "raw_i64_interchangeability": 0,
+          "return_type": "Result<LoweredRecipe, String>",
+          "role": "route_rewrite_helper",
+          "source_id": "src/mir/builder/control_flow/plan/branchn.rs::branchn_to_if_chain:L24",
+          "source_path": "src/mir/builder/control_flow/plan/branchn.rs",
+          "symbol": "branchn_to_if_chain"
+        },
+        {
+          "classification_authority": "SymbolReturnTypeMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-body-view-feature-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "ReadOnlyLength",
+          "raw_i64_interchangeability": 0,
+          "return_type": "usize",
+          "role": "UnclassifiedSurfaceRole",
+          "source_id": "src/mir/builder/control_flow/plan/features/body_view.rs::len:L13",
+          "source_path": "src/mir/builder/control_flow/plan/features/body_view.rs",
+          "symbol": "len"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-phi-materializer-feature-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "LoopBindingBuild",
+          "raw_i64_interchangeability": 0,
+          "return_type": "",
+          "role": "loop_binding_builder",
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_carriers.rs::build_loop_bindings:L39",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_carriers.rs",
+          "symbol": "build_loop_bindings"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-phi-materializer-feature-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "PhiInfoBuild",
+          "raw_i64_interchangeability": 0,
+          "return_type": "",
+          "role": "core_phi_info_builder",
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_carriers.rs::build_phi_info:L8",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_carriers.rs",
+          "symbol": "build_phi_info"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-phi-materializer-feature-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "RouteLocalClosureConstruct",
+          "raw_i64_interchangeability": 0,
+          "return_type": "",
+          "role": "route_local_closure_constructor",
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_bc_phi_materializer.rs::new:L29",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_bc_phi_materializer.rs",
+          "symbol": "new"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-phi-materializer-feature-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "RouteLocalClosureConstruct",
+          "raw_i64_interchangeability": 0,
+          "return_type": "",
+          "role": "route_local_closure_constructor",
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_co_phi_materializer.rs::new:L19",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_co_phi_materializer.rs",
+          "symbol": "new"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-phi-materializer-feature-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "RouteLocalClosureConstruct",
+          "raw_i64_interchangeability": 0,
+          "return_type": "",
+          "role": "route_local_closure_constructor",
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_continue_with_return_phi_materializer.rs::new:L27",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_continue_with_return_phi_materializer.rs",
+          "symbol": "new"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-phi-materializer-feature-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "RouteLocalClosureConstruct",
+          "raw_i64_interchangeability": 0,
+          "return_type": "",
+          "role": "route_local_closure_constructor",
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_cond_return_in_body_phi_materializer.rs::new:L30",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_cond_return_in_body_phi_materializer.rs",
+          "symbol": "new"
+        },
+        {
+          "classification_authority": "SymbolReturnTypeMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-true-break-continue-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "RouteLocalCleanupMutationFrame",
+          "raw_i64_interchangeability": 0,
+          "return_type": "Result<(), String>",
+          "role": "UnclassifiedSurfaceRole",
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_true_break_continue_cleanup.rs::apply_fallthrough_continue_exit:L19",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_true_break_continue_cleanup.rs",
+          "symbol": "apply_fallthrough_continue_exit"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-phi-materializer-feature-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "RouteLocalClosureConstruct",
+          "raw_i64_interchangeability": 0,
+          "return_type": "",
+          "role": "route_local_closure_constructor",
+          "source_id": "src/mir/builder/control_flow/plan/features/loop_true_break_continue_phi_materializer.rs::new:L19",
+          "source_path": "src/mir/builder/control_flow/plan/features/loop_true_break_continue_phi_materializer.rs",
+          "symbol": "new"
+        },
+        {
+          "classification_authority": "SymbolReturnTypeMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-break-plan-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "PredicateRead",
+          "raw_i64_interchangeability": 0,
+          "return_type": "bool",
+          "role": "UnclassifiedSurfaceRole",
+          "source_id": "src/mir/builder/control_flow/plan/loop_break/facts/helpers_common.rs::has_continue_statement:L92",
+          "source_path": "src/mir/builder/control_flow/plan/loop_break/facts/helpers_common.rs",
+          "symbol": "has_continue_statement"
+        },
+        {
+          "classification_authority": "SymbolReturnTypeMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-break-plan-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "PredicateRead",
+          "raw_i64_interchangeability": 0,
+          "return_type": "bool",
+          "role": "UnclassifiedSurfaceRole",
+          "source_id": "src/mir/builder/control_flow/plan/loop_break/facts/helpers_common.rs::has_return_statement:L99",
+          "source_path": "src/mir/builder/control_flow/plan/loop_break/facts/helpers_common.rs",
+          "symbol": "has_return_statement"
+        },
+        {
+          "classification_authority": "SymbolReturnTypeMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-break-plan-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "PredicateRead",
+          "raw_i64_interchangeability": 0,
+          "return_type": "bool",
+          "role": "UnclassifiedSurfaceRole",
+          "source_id": "src/mir/builder/control_flow/plan/loop_break/facts/helpers_condition.rs::matches_eq_empty_string:L113",
+          "source_path": "src/mir/builder/control_flow/plan/loop_break/facts/helpers_condition.rs",
+          "symbol": "matches_eq_empty_string"
+        },
+        {
+          "classification_authority": "SymbolReturnTypeMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-break-plan-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "PredicateRead",
+          "raw_i64_interchangeability": 0,
+          "return_type": "bool",
+          "role": "UnclassifiedSurfaceRole",
+          "source_id": "src/mir/builder/control_flow/plan/loop_break/facts/helpers_condition.rs::matches_ge_zero:L90",
+          "source_path": "src/mir/builder/control_flow/plan/loop_break/facts/helpers_condition.rs",
+          "symbol": "matches_ge_zero"
+        },
+        {
+          "classification_authority": "SymbolReturnTypeMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-break-plan-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "PredicateRead",
+          "raw_i64_interchangeability": 0,
+          "return_type": "bool",
+          "role": "UnclassifiedSurfaceRole",
+          "source_id": "src/mir/builder/control_flow/plan/loop_break/facts/helpers_loop.rs::has_assignment_after:L99",
+          "source_path": "src/mir/builder/control_flow/plan/loop_break/facts/helpers_loop.rs",
+          "symbol": "has_assignment_after"
+        },
+        {
+          "classification_authority": "SymbolReturnTypeMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-break-plan-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "PredicateRead",
+          "raw_i64_interchangeability": 0,
+          "return_type": "bool",
+          "role": "UnclassifiedSurfaceRole",
+          "source_id": "src/mir/builder/control_flow/plan/loop_break/facts/trim_whitespace_helpers.rs::collect_whitespace_terms:L118",
+          "source_path": "src/mir/builder/control_flow/plan/loop_break/facts/trim_whitespace_helpers.rs",
+          "symbol": "collect_whitespace_terms"
+        },
+        {
+          "classification_authority": "SymbolReturnTypeMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-break-plan-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "PredicateRead",
+          "raw_i64_interchangeability": 0,
+          "return_type": "bool",
+          "role": "UnclassifiedSurfaceRole",
+          "source_id": "src/mir/builder/control_flow/plan/loop_break/facts/trim_whitespace_helpers.rs::matches_substring_at_loop_var:L489",
+          "source_path": "src/mir/builder/control_flow/plan/loop_break/facts/trim_whitespace_helpers.rs",
+          "symbol": "matches_substring_at_loop_var"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-other-join-i-r-plan-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "PlannerGateOrFactRead",
+          "raw_i64_interchangeability": 0,
+          "return_type": "ControlFlowCounts",
+          "role": "planner_gate_or_fact_count",
+          "source_id": "src/mir/builder/control_flow/plan/loop_cond_unified_helpers.rs::count_control_flow_with_returns:L35",
+          "source_path": "src/mir/builder/control_flow/plan/loop_cond_unified_helpers.rs",
+          "symbol": "count_control_flow_with_returns"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-other-join-i-r-plan-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "PlannerGateOrFactRead",
+          "raw_i64_interchangeability": 0,
+          "return_type": "bool",
+          "role": "planner_gate_or_fact_count",
+          "source_id": "src/mir/builder/control_flow/plan/loop_cond_unified_helpers.rs::entry_gate_ok:L14",
+          "source_path": "src/mir/builder/control_flow/plan/loop_cond_unified_helpers.rs",
+          "symbol": "entry_gate_ok"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-other-join-i-r-plan-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "PlannerGateOrFactRead",
+          "raw_i64_interchangeability": 0,
+          "return_type": "bool",
+          "role": "planner_gate_or_fact_count",
+          "source_id": "src/mir/builder/control_flow/plan/loop_cond_unified_helpers.rs::validate_loop_condition:L27",
+          "source_path": "src/mir/builder/control_flow/plan/loop_cond_unified_helpers.rs",
+          "symbol": "validate_loop_condition"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-other-join-i-r-plan-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "PlannerSessionDispatch",
+          "raw_i64_interchangeability": 0,
+          "return_type": "Result<(), String>",
+          "role": "planner_session_or_rule_dispatch",
+          "source_id": "src/mir/builder/control_flow/plan/plan_build_session.rs::emit_and_seal:L55",
+          "source_path": "src/mir/builder/control_flow/plan/plan_build_session.rs",
+          "symbol": "emit_and_seal"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-other-join-i-r-plan-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "PlannerSessionDispatch",
+          "raw_i64_interchangeability": 0,
+          "return_type": "Self",
+          "role": "planner_session_or_rule_dispatch",
+          "source_id": "src/mir/builder/control_flow/plan/plan_build_session.rs::new:L33",
+          "source_path": "src/mir/builder/control_flow/plan/plan_build_session.rs",
+          "symbol": "new"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-other-join-i-r-plan-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "PlannerSessionDispatch",
+          "raw_i64_interchangeability": 0,
+          "return_type": "Result<PlanBuildOutcome, String>",
+          "role": "planner_session_or_rule_dispatch",
+          "source_id": "src/mir/builder/control_flow/plan/single_planner/mod.rs::try_build_outcome:L17",
+          "source_path": "src/mir/builder/control_flow/plan/single_planner/mod.rs",
+          "symbol": "try_build_outcome"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-other-join-i-r-plan-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "PlannerSessionDispatch",
+          "raw_i64_interchangeability": 0,
+          "return_type": "Result<PlanBuildOutcome, String>",
+          "role": "planner_session_or_rule_dispatch",
+          "source_id": "src/mir/builder/control_flow/plan/single_planner/rules.rs::try_build_outcome:L107",
+          "source_path": "src/mir/builder/control_flow/plan/single_planner/rules.rs",
+          "symbol": "try_build_outcome"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-other-join-i-r-plan-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "SkeletonOrWiringBuild",
+          "raw_i64_interchangeability": 0,
+          "return_type": "Result<GenericLoopSkeleton, String>",
+          "role": "skeleton_or_wiring",
+          "source_id": "src/mir/builder/control_flow/plan/skeletons/generic_loop.rs::alloc_generic_loop_v0_skeleton:L24",
+          "source_path": "src/mir/builder/control_flow/plan/skeletons/generic_loop.rs",
+          "symbol": "alloc_generic_loop_v0_skeleton"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-other-join-i-r-plan-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "SkeletonOrWiringBuild",
+          "raw_i64_interchangeability": 0,
+          "return_type": "Result<LoopTrueSkeleton, String>",
+          "role": "skeleton_or_wiring",
+          "source_id": "src/mir/builder/control_flow/plan/skeletons/loop_true.rs::alloc_loop_true_skeleton:L24",
+          "source_path": "src/mir/builder/control_flow/plan/skeletons/loop_true.rs",
+          "symbol": "alloc_loop_true_skeleton"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-other-join-i-r-plan-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "SkeletonOrWiringBuild",
+          "raw_i64_interchangeability": 0,
+          "return_type": "(LoopStepMode, bool)",
+          "role": "skeleton_or_wiring",
+          "source_id": "src/mir/builder/control_flow/plan/step_mode.rs::extract_to_step_bb_explicit_step:L11",
+          "source_path": "src/mir/builder/control_flow/plan/step_mode.rs",
+          "symbol": "extract_to_step_bb_explicit_step"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-other-join-i-r-plan-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "SkeletonOrWiringBuild",
+          "raw_i64_interchangeability": 0,
+          "return_type": "(LoopStepMode, bool)",
+          "role": "skeleton_or_wiring",
+          "source_id": "src/mir/builder/control_flow/plan/step_mode.rs::inline_in_body_no_explicit_step:L6",
+          "source_path": "src/mir/builder/control_flow/plan/step_mode.rs",
+          "symbol": "inline_in_body_no_explicit_step"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-other-join-i-r-plan-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "PlanListBuild",
+          "raw_i64_interchangeability": 0,
+          "return_type": "Vec<LoweredRecipe>",
+          "role": "plan_helper",
+          "source_id": "src/mir/builder/control_flow/plan/steps/effects.rs::effects_to_plans:L7",
+          "source_path": "src/mir/builder/control_flow/plan/steps/effects.rs",
+          "symbol": "effects_to_plans"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-other-join-i-r-plan-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "JoinPayloadBuild",
+          "raw_i64_interchangeability": 0,
+          "return_type": "Result<Vec<CoreIfJoin>, String>",
+          "role": "join_payload",
+          "source_id": "src/mir/builder/control_flow/plan/steps/join_payload.rs::build_join_payload:L105",
+          "source_path": "src/mir/builder/control_flow/plan/steps/join_payload.rs",
+          "symbol": "build_join_payload"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-other-join-i-r-plan-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "SkeletonOrWiringBuild",
+          "raw_i64_interchangeability": 0,
+          "return_type": "Vec<EdgeStub>",
+          "role": "skeleton_or_wiring",
+          "source_id": "src/mir/builder/control_flow/plan/steps/loop_wiring_standard5.rs::build_standard5_internal_wires:L37",
+          "source_path": "src/mir/builder/control_flow/plan/steps/loop_wiring_standard5.rs",
+          "symbol": "build_standard5_internal_wires"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-other-join-i-r-plan-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "SkeletonOrWiringBuild",
+          "raw_i64_interchangeability": 0,
+          "return_type": "EdgeArgs",
+          "role": "skeleton_or_wiring",
+          "source_id": "src/mir/builder/control_flow/plan/steps/loop_wiring_standard5.rs::empty_carriers_args:L16",
+          "source_path": "src/mir/builder/control_flow/plan/steps/loop_wiring_standard5.rs",
+          "symbol": "empty_carriers_args"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-other-join-i-r-plan-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "TraceDiagnosticEmission",
+          "raw_i64_interchangeability": 0,
+          "return_type": "",
+          "role": "trace_or_debug",
+          "source_id": "src/mir/builder/control_flow/plan/trace.rs::trace_outcome_path:L36",
+          "source_path": "src/mir/builder/control_flow/plan/trace.rs",
+          "symbol": "trace_outcome_path"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-other-join-i-r-plan-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "TraceDiagnosticEmission",
+          "raw_i64_interchangeability": 0,
+          "return_type": "",
+          "role": "trace_or_debug",
+          "source_id": "src/mir/builder/control_flow/plan/trace.rs::trace_outcome_snapshot:L20",
+          "source_path": "src/mir/builder/control_flow/plan/trace.rs",
+          "symbol": "trace_outcome_snapshot"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-other-join-i-r-plan-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "TraceDiagnosticEmission",
+          "raw_i64_interchangeability": 0,
+          "return_type": "",
+          "role": "trace_or_debug",
+          "source_id": "src/mir/builder/control_flow/plan/trace.rs::trace_try_take_planner:L3",
+          "source_path": "src/mir/builder/control_flow/plan/trace.rs",
+          "symbol": "trace_try_take_planner"
+        }
+      ],
+      "operation_vocabulary_complete": true,
+      "owner_edge_id": "mirbuilder::join_i_r_plan",
+      "source_surface_count": 35,
+      "unknown_operation_count": 0
+    },
+    {
+      "blocked_by": [],
+      "next_card": "MIRBUILDER-ID-SCALAR-SOURCE-PLAN-AND-RECIPE-DERIVABILITY-RESOLUTION-002",
+      "operation_rows": [
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-join-i-r-route-verify-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "EdgeCfgCompose",
+          "raw_i64_interchangeability": 0,
+          "return_type": "",
+          "role": "edgecfg_compose",
+          "source_id": "src/mir/builder/control_flow/edgecfg/api/compose/if_.rs::if_:L51",
+          "source_path": "src/mir/builder/control_flow/edgecfg/api/compose/if_.rs",
+          "symbol": "if_"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-join-i-r-route-verify-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "PredicateRead",
+          "raw_i64_interchangeability": 0,
+          "return_type": "bool",
+          "role": "facts_or_recognizer",
+          "source_id": "src/mir/builder/control_flow/facts/block_policies.rs::is_allowed_effect_stmt:L16",
+          "source_path": "src/mir/builder/control_flow/facts/block_policies.rs",
+          "symbol": "is_allowed_effect_stmt"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-join-i-r-route-verify-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "PredicateRead",
+          "raw_i64_interchangeability": 0,
+          "return_type": "bool",
+          "role": "facts_or_recognizer",
+          "source_id": "src/mir/builder/control_flow/facts/expr_bool.rs::is_supported_bool_expr_with_canon:L10",
+          "source_path": "src/mir/builder/control_flow/facts/expr_bool.rs",
+          "symbol": "is_supported_bool_expr_with_canon"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-join-i-r-route-verify-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "PredicateRead",
+          "raw_i64_interchangeability": 0,
+          "return_type": "bool",
+          "role": "facts_or_recognizer",
+          "source_id": "src/mir/builder/control_flow/facts/expr_value.rs::is_supported_value_expr:L5",
+          "source_path": "src/mir/builder/control_flow/facts/expr_value.rs",
+          "symbol": "is_supported_value_expr"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-join-i-r-route-verify-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "PredicateRead",
+          "raw_i64_interchangeability": 0,
+          "return_type": "bool",
+          "role": "facts_or_recognizer",
+          "source_id": "src/mir/builder/control_flow/facts/expr_value.rs::value_expr_requires_canon:L31",
+          "source_path": "src/mir/builder/control_flow/facts/expr_value.rs",
+          "symbol": "value_expr_requires_canon"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-join-i-r-route-verify-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "PredicateRead",
+          "raw_i64_interchangeability": 0,
+          "return_type": "bool",
+          "role": "facts_or_recognizer",
+          "source_id": "src/mir/builder/control_flow/facts/extractors/common_helpers/condition.rs::is_true_literal:L8",
+          "source_path": "src/mir/builder/control_flow/facts/extractors/common_helpers/condition.rs",
+          "symbol": "is_true_literal"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-join-i-r-route-verify-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "PredicateRead",
+          "raw_i64_interchangeability": 0,
+          "return_type": "bool",
+          "role": "facts_or_recognizer",
+          "source_id": "src/mir/builder/control_flow/facts/extractors/common_helpers/control_flow.rs::branch_tail_is_continue:L129",
+          "source_path": "src/mir/builder/control_flow/facts/extractors/common_helpers/control_flow.rs",
+          "symbol": "branch_tail_is_continue"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-join-i-r-route-verify-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "PredicateRead",
+          "raw_i64_interchangeability": 0,
+          "return_type": "bool",
+          "role": "facts_or_recognizer",
+          "source_id": "src/mir/builder/control_flow/facts/extractors/common_helpers/control_flow.rs::branch_tail_is_continue_flattened:L133",
+          "source_path": "src/mir/builder/control_flow/facts/extractors/common_helpers/control_flow.rs",
+          "symbol": "branch_tail_is_continue_flattened"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-join-i-r-route-verify-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "PredicateRead",
+          "raw_i64_interchangeability": 0,
+          "return_type": "bool",
+          "role": "facts_or_recognizer",
+          "source_id": "src/mir/builder/control_flow/facts/extractors/common_helpers/control_flow.rs::has_break_statement:L113",
+          "source_path": "src/mir/builder/control_flow/facts/extractors/common_helpers/control_flow.rs",
+          "symbol": "has_break_statement"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-join-i-r-route-verify-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "PredicateRead",
+          "raw_i64_interchangeability": 0,
+          "return_type": "bool",
+          "role": "facts_or_recognizer",
+          "source_id": "src/mir/builder/control_flow/facts/extractors/common_helpers/control_flow.rs::has_continue_statement:L118",
+          "source_path": "src/mir/builder/control_flow/facts/extractors/common_helpers/control_flow.rs",
+          "symbol": "has_continue_statement"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-join-i-r-route-verify-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "PredicateRead",
+          "raw_i64_interchangeability": 0,
+          "return_type": "bool",
+          "role": "facts_or_recognizer",
+          "source_id": "src/mir/builder/control_flow/facts/extractors/common_helpers/control_flow.rs::has_if_else_statement:L146",
+          "source_path": "src/mir/builder/control_flow/facts/extractors/common_helpers/control_flow.rs",
+          "symbol": "has_if_else_statement"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-join-i-r-route-verify-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "PredicateRead",
+          "raw_i64_interchangeability": 0,
+          "return_type": "bool",
+          "role": "facts_or_recognizer",
+          "source_id": "src/mir/builder/control_flow/facts/extractors/common_helpers/control_flow.rs::has_return_statement:L123",
+          "source_path": "src/mir/builder/control_flow/facts/extractors/common_helpers/control_flow.rs",
+          "symbol": "has_return_statement"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-join-i-r-route-verify-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "PredicateRead",
+          "raw_i64_interchangeability": 0,
+          "return_type": "usize",
+          "role": "facts_or_recognizer",
+          "source_id": "src/mir/builder/control_flow/facts/route_shape_recognizers/carrier_count.rs::count_carriers_in_body:L26",
+          "source_path": "src/mir/builder/control_flow/facts/route_shape_recognizers/carrier_count.rs",
+          "symbol": "count_carriers_in_body"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-join-i-r-route-verify-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "PredicateRead",
+          "raw_i64_interchangeability": 0,
+          "return_type": "bool",
+          "role": "facts_or_recognizer",
+          "source_id": "src/mir/builder/control_flow/facts/route_shape_recognizers/continue_break.rs::detect_break_in_body:L38",
+          "source_path": "src/mir/builder/control_flow/facts/route_shape_recognizers/continue_break.rs",
+          "symbol": "detect_break_in_body"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-join-i-r-route-verify-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "PredicateRead",
+          "raw_i64_interchangeability": 0,
+          "return_type": "bool",
+          "role": "facts_or_recognizer",
+          "source_id": "src/mir/builder/control_flow/facts/route_shape_recognizers/continue_break.rs::detect_continue_in_body:L25",
+          "source_path": "src/mir/builder/control_flow/facts/route_shape_recognizers/continue_break.rs",
+          "symbol": "detect_continue_in_body"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-join-i-r-route-verify-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "PredicateRead",
+          "raw_i64_interchangeability": 0,
+          "return_type": "bool",
+          "role": "facts_or_recognizer",
+          "source_id": "src/mir/builder/control_flow/facts/route_shape_recognizers/continue_break.rs::detect_return_in_body:L45",
+          "source_path": "src/mir/builder/control_flow/facts/route_shape_recognizers/continue_break.rs",
+          "symbol": "detect_return_in_body"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-join-i-r-route-verify-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "PredicateRead",
+          "raw_i64_interchangeability": 0,
+          "return_type": "bool",
+          "role": "facts_or_recognizer",
+          "source_id": "src/mir/builder/control_flow/facts/route_shape_recognizers/continue_break.rs::has_continue_node:L50",
+          "source_path": "src/mir/builder/control_flow/facts/route_shape_recognizers/continue_break.rs",
+          "symbol": "has_continue_node"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-join-i-r-route-verify-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "PredicateRead",
+          "raw_i64_interchangeability": 0,
+          "return_type": "bool",
+          "role": "facts_or_recognizer",
+          "source_id": "src/mir/builder/control_flow/facts/route_shape_recognizers/if_else_phi.rs::detect_if_else_phi_in_body:L36",
+          "source_path": "src/mir/builder/control_flow/facts/route_shape_recognizers/if_else_phi.rs",
+          "symbol": "detect_if_else_phi_in_body"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-join-i-r-route-verify-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "PredicateRead",
+          "raw_i64_interchangeability": 0,
+          "return_type": "bool",
+          "role": "facts_or_recognizer",
+          "source_id": "src/mir/builder/control_flow/facts/route_shape_recognizers/infinite_loop.rs::detect_infinite_loop:L18",
+          "source_path": "src/mir/builder/control_flow/facts/route_shape_recognizers/infinite_loop.rs",
+          "symbol": "detect_infinite_loop"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-join-i-r-route-verify-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "MergeContractOrDiagnostic",
+          "raw_i64_interchangeability": 0,
+          "return_type": "",
+          "role": "merge_contract_or_logging",
+          "source_id": "src/mir/builder/control_flow/joinir/merge/boundary_logging.rs::log_boundary_info:L18",
+          "source_path": "src/mir/builder/control_flow/joinir/merge/boundary_logging.rs",
+          "symbol": "log_boundary_info"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-join-i-r-route-verify-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "MergeContractOrDiagnostic",
+          "raw_i64_interchangeability": 0,
+          "return_type": "",
+          "role": "merge_contract_or_logging",
+          "source_id": "src/mir/builder/control_flow/joinir/merge/boundary_logging.rs::log_merge_complete:L100",
+          "source_path": "src/mir/builder/control_flow/joinir/merge/boundary_logging.rs",
+          "symbol": "log_merge_complete"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-join-i-r-route-verify-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "MergeContractOrDiagnostic",
+          "raw_i64_interchangeability": 0,
+          "return_type": "",
+          "role": "merge_contract_or_logging",
+          "source_id": "src/mir/builder/control_flow/joinir/merge/contract_checks/carrier_inputs.rs::verify_carrier_inputs_complete:L25",
+          "source_path": "src/mir/builder/control_flow/joinir/merge/contract_checks/carrier_inputs.rs",
+          "symbol": "verify_carrier_inputs_complete"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-join-i-r-route-verify-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "MergeContractOrDiagnostic",
+          "raw_i64_interchangeability": 0,
+          "return_type": "bool",
+          "role": "merge_contract_or_logging",
+          "source_id": "src/mir/builder/control_flow/joinir/merge/contract_checks/entry_like_policy.rs::is_entry_like_source:L8",
+          "source_path": "src/mir/builder/control_flow/joinir/merge/contract_checks/entry_like_policy.rs",
+          "symbol": "is_entry_like_source"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-join-i-r-route-verify-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "MergeContractOrDiagnostic",
+          "raw_i64_interchangeability": 0,
+          "return_type": "bool",
+          "role": "merge_contract_or_logging",
+          "source_id": "src/mir/builder/control_flow/joinir/merge/dev_log.rs::dev_enabled:L6",
+          "source_path": "src/mir/builder/control_flow/joinir/merge/dev_log.rs",
+          "symbol": "dev_enabled"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-join-i-r-route-verify-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "MergeContractOrDiagnostic",
+          "raw_i64_interchangeability": 0,
+          "return_type": "",
+          "role": "merge_contract_or_logging",
+          "source_id": "src/mir/builder/control_flow/joinir/merge/exit_args_collector.rs::to_carrier_map:L249",
+          "source_path": "src/mir/builder/control_flow/joinir/merge/exit_args_collector.rs",
+          "symbol": "to_carrier_map"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-join-i-r-route-verify-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "MergeContractOrDiagnostic",
+          "raw_i64_interchangeability": 0,
+          "return_type": "",
+          "role": "merge_contract_or_logging",
+          "source_id": "src/mir/builder/control_flow/joinir/merge/phi_block_remapper.rs::remap_existing_phi_block_ids:L15",
+          "source_path": "src/mir/builder/control_flow/joinir/merge/phi_block_remapper.rs",
+          "symbol": "remap_existing_phi_block_ids"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-join-i-r-route-verify-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "MergeRewriteDecision",
+          "raw_i64_interchangeability": 0,
+          "return_type": "bool",
+          "role": "merge_rewriter",
+          "source_id": "src/mir/builder/control_flow/joinir/merge/rewriter/helpers.rs::is_skippable_continuation:L31",
+          "source_path": "src/mir/builder/control_flow/joinir/merge/rewriter/helpers.rs",
+          "symbol": "is_skippable_continuation"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-join-i-r-route-verify-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "MergeRewriteDecision",
+          "raw_i64_interchangeability": 0,
+          "return_type": "bool",
+          "role": "merge_rewriter",
+          "source_id": "src/mir/builder/control_flow/joinir/merge/rewriter/instruction_filter_box.rs::should_skip_boundary_input_const:L64",
+          "source_path": "src/mir/builder/control_flow/joinir/merge/rewriter/instruction_filter_box.rs",
+          "symbol": "should_skip_boundary_input_const"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-join-i-r-route-verify-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "MergeRewriteDecision",
+          "raw_i64_interchangeability": 0,
+          "return_type": "bool",
+          "role": "merge_rewriter",
+          "source_id": "src/mir/builder/control_flow/joinir/merge/rewriter/instruction_filter_box.rs::should_skip_copy_overwriting_phi:L28",
+          "source_path": "src/mir/builder/control_flow/joinir/merge/rewriter/instruction_filter_box.rs",
+          "symbol": "should_skip_copy_overwriting_phi"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-join-i-r-route-verify-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "MergeRewriteDecision",
+          "raw_i64_interchangeability": 0,
+          "return_type": "bool",
+          "role": "merge_rewriter",
+          "source_id": "src/mir/builder/control_flow/joinir/merge/rewriter/instruction_filter_box.rs::should_skip_function_name_const:L47",
+          "source_path": "src/mir/builder/control_flow/joinir/merge/rewriter/instruction_filter_box.rs",
+          "symbol": "should_skip_function_name_const"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-join-i-r-route-verify-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "MergeRewriteDecision",
+          "raw_i64_interchangeability": 0,
+          "return_type": "bool",
+          "role": "merge_rewriter",
+          "source_id": "src/mir/builder/control_flow/joinir/merge/rewriter/return_converter_box.rs::should_keep_return:L27",
+          "source_path": "src/mir/builder/control_flow/joinir/merge/rewriter/return_converter_box.rs",
+          "symbol": "should_keep_return"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-join-i-r-route-verify-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "MergeRewriteDecision",
+          "raw_i64_interchangeability": 0,
+          "return_type": "",
+          "role": "merge_rewriter",
+          "source_id": "src/mir/builder/control_flow/joinir/merge/rewriter/stages/plan/entry_resolver.rs::resolve_entry_func_name:L20",
+          "source_path": "src/mir/builder/control_flow/joinir/merge/rewriter/stages/plan/entry_resolver.rs",
+          "symbol": "resolve_entry_func_name"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-join-i-r-route-verify-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "MergeRewriteDecision",
+          "raw_i64_interchangeability": 0,
+          "return_type": "bool",
+          "role": "merge_rewriter",
+          "source_id": "src/mir/builder/control_flow/joinir/merge/rewriter/tail_call_policy.rs::is_loop_entry_source:L16",
+          "source_path": "src/mir/builder/control_flow/joinir/merge/rewriter/tail_call_policy.rs",
+          "symbol": "is_loop_entry_source"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-join-i-r-route-verify-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "RecipeIndexRead",
+          "raw_i64_interchangeability": 0,
+          "return_type": "usize",
+          "role": "recipe_index",
+          "source_id": "src/mir/builder/control_flow/recipes/body.rs::end_index:L85",
+          "source_path": "src/mir/builder/control_flow/recipes/body.rs",
+          "symbol": "end_index"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-join-i-r-route-verify-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "RecipeIndexRead",
+          "raw_i64_interchangeability": 0,
+          "return_type": "usize",
+          "role": "recipe_index",
+          "source_id": "src/mir/builder/control_flow/recipes/body.rs::index:L62",
+          "source_path": "src/mir/builder/control_flow/recipes/body.rs",
+          "symbol": "index"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-join-i-r-route-verify-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "RecipeIndexRead",
+          "raw_i64_interchangeability": 0,
+          "return_type": "usize",
+          "role": "recipe_index",
+          "source_id": "src/mir/builder/control_flow/recipes/body.rs::start_index:L81",
+          "source_path": "src/mir/builder/control_flow/recipes/body.rs",
+          "symbol": "start_index"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-join-i-r-route-verify-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "RecipeIndexRead",
+          "raw_i64_interchangeability": 0,
+          "return_type": "usize",
+          "role": "recipe_index",
+          "source_id": "src/mir/builder/control_flow/recipes/refs.rs::end_index:L57",
+          "source_path": "src/mir/builder/control_flow/recipes/refs.rs",
+          "symbol": "end_index"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-join-i-r-route-verify-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "RecipeIndexRead",
+          "raw_i64_interchangeability": 0,
+          "return_type": "usize",
+          "role": "recipe_index",
+          "source_id": "src/mir/builder/control_flow/recipes/refs.rs::index:L19",
+          "source_path": "src/mir/builder/control_flow/recipes/refs.rs",
+          "symbol": "index"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-join-i-r-route-verify-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "RecipeIndexRead",
+          "raw_i64_interchangeability": 0,
+          "return_type": "usize",
+          "role": "recipe_index",
+          "source_id": "src/mir/builder/control_flow/recipes/refs.rs::start_index:L53",
+          "source_path": "src/mir/builder/control_flow/recipes/refs.rs",
+          "symbol": "start_index"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-join-i-r-route-verify-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "RouteVerifyPredicate",
+          "raw_i64_interchangeability": 0,
+          "return_type": "bool",
+          "role": "route_verify_helper",
+          "source_id": "src/mir/builder/control_flow/verify/coreloop_body_contract.rs::has_control_flow_effect:L27",
+          "source_path": "src/mir/builder/control_flow/verify/coreloop_body_contract.rs",
+          "symbol": "has_control_flow_effect"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-join-i-r-route-verify-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "RouteVerifyPredicate",
+          "raw_i64_interchangeability": 0,
+          "return_type": "bool",
+          "role": "route_verify_helper",
+          "source_id": "src/mir/builder/control_flow/verify/coreloop_body_contract.rs::is_effect_only_stmt:L36",
+          "source_path": "src/mir/builder/control_flow/verify/coreloop_body_contract.rs",
+          "symbol": "is_effect_only_stmt"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-join-i-r-route-verify-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "RouteVerifyPredicate",
+          "raw_i64_interchangeability": 0,
+          "return_type": "bool",
+          "role": "route_verify_helper",
+          "source_id": "src/mir/builder/control_flow/verify/coreloop_body_contract.rs::is_leaf_effect_plan:L10",
+          "source_path": "src/mir/builder/control_flow/verify/coreloop_body_contract.rs",
+          "symbol": "is_leaf_effect_plan"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-join-i-r-route-verify-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "VerifierDiagnosticState",
+          "raw_i64_interchangeability": 0,
+          "return_type": "",
+          "role": "verify_diagnostic",
+          "source_id": "src/mir/builder/control_flow/verify/diagnostics/planner_reject_detail.rs::clear_last_plan_reject_detail:L10",
+          "source_path": "src/mir/builder/control_flow/verify/diagnostics/planner_reject_detail.rs",
+          "symbol": "clear_last_plan_reject_detail"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-join-i-r-route-verify-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "VerifierDiagnosticState",
+          "raw_i64_interchangeability": 0,
+          "return_type": "",
+          "role": "verify_diagnostic",
+          "source_id": "src/mir/builder/control_flow/verify/diagnostics/planner_reject_detail.rs::set_last_plan_reject_detail:L17",
+          "source_path": "src/mir/builder/control_flow/verify/diagnostics/planner_reject_detail.rs",
+          "symbol": "set_last_plan_reject_detail"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-join-i-r-route-verify-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "VerifierDiagnosticState",
+          "raw_i64_interchangeability": 0,
+          "return_type": "",
+          "role": "verify_diagnostic",
+          "source_id": "src/mir/builder/control_flow/verify/diagnostics/planner_reject_detail.rs::set_last_plan_reject_detail_if_absent:L24",
+          "source_path": "src/mir/builder/control_flow/verify/diagnostics/planner_reject_detail.rs",
+          "symbol": "set_last_plan_reject_detail_if_absent"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-join-i-r-route-verify-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "VerifierDiagnosticState",
+          "raw_i64_interchangeability": 0,
+          "return_type": "String",
+          "role": "verify_diagnostic",
+          "source_id": "src/mir/builder/control_flow/verify/diagnostics/span_format.rs::normalize_span_line_col:L1",
+          "source_path": "src/mir/builder/control_flow/verify/diagnostics/span_format.rs",
+          "symbol": "normalize_span_line_col"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-join-i-r-route-verify-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "VerifierObservabilityEmit",
+          "raw_i64_interchangeability": 0,
+          "return_type": "",
+          "role": "verify_observability",
+          "source_id": "src/mir/builder/control_flow/verify/observability/flowbox_tags.rs::emit_flowbox_adopt_tag:L129",
+          "source_path": "src/mir/builder/control_flow/verify/observability/flowbox_tags.rs",
+          "symbol": "emit_flowbox_adopt_tag"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-join-i-r-route-verify-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "VerifierObservabilityEmit",
+          "raw_i64_interchangeability": 0,
+          "return_type": "",
+          "role": "verify_observability",
+          "source_id": "src/mir/builder/control_flow/verify/observability/flowbox_tags.rs::emit_flowbox_adopt_tag_for_coreplan:L108",
+          "source_path": "src/mir/builder/control_flow/verify/observability/flowbox_tags.rs",
+          "symbol": "emit_flowbox_adopt_tag_for_coreplan"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-join-i-r-route-verify-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "VerifierObservabilityEmit",
+          "raw_i64_interchangeability": 0,
+          "return_type": "",
+          "role": "verify_observability",
+          "source_id": "src/mir/builder/control_flow/verify/observability/flowbox_tags.rs::emit_flowbox_adopt_tag_from_coreplan:L99",
+          "source_path": "src/mir/builder/control_flow/verify/observability/flowbox_tags.rs",
+          "symbol": "emit_flowbox_adopt_tag_from_coreplan"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-join-i-r-route-verify-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "VerifierObservabilityEmit",
+          "raw_i64_interchangeability": 0,
+          "return_type": "String",
+          "role": "verify_observability",
+          "source_id": "src/mir/builder/control_flow/verify/observability/flowbox_tags.rs::emit_flowbox_freeze_contract:L159",
+          "source_path": "src/mir/builder/control_flow/verify/observability/flowbox_tags.rs",
+          "symbol": "emit_flowbox_freeze_contract"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-join-i-r-route-verify-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "VerifierObservabilityEmit",
+          "raw_i64_interchangeability": 0,
+          "return_type": "",
+          "role": "verify_observability",
+          "source_id": "src/mir/builder/control_flow/verify/observability/flowbox_tags.rs::emit_flowbox_freeze_tag:L169",
+          "source_path": "src/mir/builder/control_flow/verify/observability/flowbox_tags.rs",
+          "symbol": "emit_flowbox_freeze_tag"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-join-i-r-route-verify-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "VerifierObservabilityEmit",
+          "raw_i64_interchangeability": 0,
+          "return_type": "",
+          "role": "verify_observability",
+          "source_id": "src/mir/builder/control_flow/verify/observability/flowbox_tags.rs::emit_flowbox_freeze_tag_from_facts:L149",
+          "source_path": "src/mir/builder/control_flow/verify/observability/flowbox_tags.rs",
+          "symbol": "emit_flowbox_freeze_tag_from_facts"
+        },
+        {
+          "classification_authority": "RoleMapped",
+          "evidence_ref": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-join-i-r-route-verify-projection-policy-v0.json",
+          "nominal_id_domain_required": true,
+          "operation_token": "VerifierDiagnosticState",
+          "raw_i64_interchangeability": 0,
+          "return_type": "String",
+          "role": "verify_diagnostic",
+          "source_id": "src/mir/builder/control_flow/verify/verifier/primitives.rs::err:L69",
+          "source_path": "src/mir/builder/control_flow/verify/verifier/primitives.rs",
+          "symbol": "err"
+        }
+      ],
+      "operation_vocabulary_complete": true,
+      "owner_edge_id": "mirbuilder::join_i_r_route_verify",
+      "source_surface_count": 53,
+      "unknown_operation_count": 0
+    }
+  ],
+  "claims": {
+    "behavior_recipe_materialization": 0,
+    "cluster_size_as_proof": 0,
+    "coverage_percentage_as_proof": 0,
+    "derived_artifact_seed_draft_materialization": 0,
+    "generated_artifact_as_native_edit_authority": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "manual_operation_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "nominal_id_erasure": 0,
+    "operation_vocabulary_inventory_defined": 1,
+    "raw_i64_interchangeability": 0,
+    "route_membership_alone_as_proof": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_plan_materialization": 0,
+    "source_selfhost_claim": 0,
+    "verifier_result_materialization": 0
+  },
+  "decision": {
+    "kind": "SelectSourcePlanAndRecipeDerivabilityRerun",
+    "reason_token": "IdScalarOperationVocabularyInventoried",
+    "selected_next_card": "MIRBUILDER-ID-SCALAR-SOURCE-PLAN-AND-RECIPE-DERIVABILITY-RESOLUTION-002"
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "source_plan_derivation_basis": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-source-plan-derivation-basis-v0.json",
+    "source_surface_inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-source-surface-inventory-v0.json"
+  },
+  "inventory_policy": {
+    "classification_authority": "surface_role_then_symbol_return_type_rule_table",
+    "manual_operation_selection": false,
+    "operation_vocabulary_inventory_only": true,
+    "source_plan_materialization": false
+  },
+  "kind": "MirBuilderIdScalarOperationVocabularyInventoryV1",
+  "operation_vocabulary": [
+    {
+      "operation_token": "ContextRegistryConstruct",
+      "surface_count": 1
+    },
+    {
+      "operation_token": "DiagnosticStringBuild",
+      "surface_count": 1
+    },
+    {
+      "operation_token": "EdgeCfgCompose",
+      "surface_count": 1
+    },
+    {
+      "operation_token": "JoinPayloadBuild",
+      "surface_count": 1
+    },
+    {
+      "operation_token": "LoopBindingBuild",
+      "surface_count": 1
+    },
+    {
+      "operation_token": "MergeContractOrDiagnostic",
+      "surface_count": 7
+    },
+    {
+      "operation_token": "MergeRewriteDecision",
+      "surface_count": 7
+    },
+    {
+      "operation_token": "PhiInfoBuild",
+      "surface_count": 1
+    },
+    {
+      "operation_token": "PhiInstructionDefine",
+      "surface_count": 2
+    },
+    {
+      "operation_token": "PhiInstructionDefineCurrentBlock",
+      "surface_count": 2
+    },
+    {
+      "operation_token": "PhiInstructionDefineFunction",
+      "surface_count": 2
+    },
+    {
+      "operation_token": "PhiInstructionPatch",
+      "surface_count": 1
+    },
+    {
+      "operation_token": "PhiLifecyclePatch",
+      "surface_count": 1
+    },
+    {
+      "operation_token": "PlanListBuild",
+      "surface_count": 1
+    },
+    {
+      "operation_token": "PlannerGateOrFactRead",
+      "surface_count": 3
+    },
+    {
+      "operation_token": "PlannerSessionDispatch",
+      "surface_count": 4
+    },
+    {
+      "operation_token": "PredicateRead",
+      "surface_count": 28
+    },
+    {
+      "operation_token": "ReadOnlyLength",
+      "surface_count": 1
+    },
+    {
+      "operation_token": "RecipeIndexRead",
+      "surface_count": 6
+    },
+    {
+      "operation_token": "RouteLocalCleanupMutationFrame",
+      "surface_count": 1
+    },
+    {
+      "operation_token": "RouteLocalClosureConstruct",
+      "surface_count": 5
+    },
+    {
+      "operation_token": "RouteRewriteBuild",
+      "surface_count": 1
+    },
+    {
+      "operation_token": "RouteVerifyPredicate",
+      "surface_count": 3
+    },
+    {
+      "operation_token": "SkeletonOrWiringBuild",
+      "surface_count": 6
+    },
+    {
+      "operation_token": "TraceDiagnosticEmission",
+      "surface_count": 3
+    },
+    {
+      "operation_token": "VerifierContractCheck",
+      "surface_count": 1
+    },
+    {
+      "operation_token": "VerifierDiagnosticState",
+      "surface_count": 5
+    },
+    {
+      "operation_token": "VerifierObservabilityEmit",
+      "surface_count": 6
+    }
+  ],
+  "previous_state": {
+    "basis_token": "MIRBUILDER-ID-SCALAR-SOURCE-PLAN-DERIVATION-BASIS-001",
+    "previous_reason_token": "IdScalarRequiredSourceSurfacesInventoried",
+    "previous_selected_next_card": "MIRBUILDER-ID-SCALAR-OPERATION-VOCABULARY-INVENTORY-001",
+    "previous_token": "MIRBUILDER-ID-SCALAR-SOURCE-SURFACE-INVENTORY-001"
+  },
+  "provenance": {
+    "source_plan_derivation_basis_hash": "456ce24b07e245a2d6088bc352bc4ccc1acdad4cc8079c774fec069ecc14252c",
+    "source_surface_inventory_hash": "df4562eceb32f942ff6dbd41cb5abbd2becb8c0fd9d4f0bbcd04820fb90056b7"
+  },
+  "schema_version": 0,
+  "token": "MIRBUILDER-ID-SCALAR-OPERATION-VOCABULARY-INVENTORY-001"
+}
