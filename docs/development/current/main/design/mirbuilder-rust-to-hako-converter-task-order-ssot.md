@@ -24,10 +24,10 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-RESULT-CARRIER-VERIFIER-POLICY-001.
-  Carrier/type transport lane priority selected ResultCarrierVerifierPolicyCandidate
-  as the next concrete policy lane. Define the result-carrier verifier policy
-  without Hako generation, native seed materialization, or Source Selfhost claim.
+  MIRBUILDER-RESULT-CARRIER-VERIFIER-CONTRACT-001.
+  ResultCarrierVerifierPolicyV1 is defined. Next, materialize the verifier
+  contract for the three ResultBox carrier rows without Hako generation,
+  native seed materialization, or Source Selfhost claim.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -308,6 +308,14 @@ carrier_type_transport_policy_lane_priority_result:
   selected_next_card = MIRBUILDER-RESULT-CARRIER-VERIFIER-POLICY-001
   source_selfhost_claim = 0
 
+result_carrier_verifier_policy_result:
+  token = MIRBUILDER-RESULT-CARRIER-VERIFIER-POLICY-001
+  result_carrier_candidate_count = 3
+  policy = ResultCarrierVerifierPolicyV1
+  requires = ResultBox transport + projection_contract + canonical_json_parity + runtime_fallback=0
+  selected_next_card = MIRBUILDER-RESULT-CARRIER-VERIFIER-CONTRACT-001
+  source_selfhost_claim = 0
+
 post_rerun_006_selector_basis:
   token = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-002
   output_contract = rust-lifecycle-source-selfhost-wider-route-selection-basis-002-v0
@@ -386,14 +394,14 @@ history, not in this task-order SSOT.
    semantic_authority=bridge gap fixture, strict candidate fixture, verifier evidence
    non_authority=owner-name policy, cluster size proof, Hako generation
 
-3. MIRBUILDER-RESULT-CARRIER-VERIFIER-POLICY-001
+3. MIRBUILDER-RESULT-CARRIER-VERIFIER-CONTRACT-001
    status=next
-   boundary=define result-carrier verifier policy only
-   semantic_authority=1982 priority fixture and result carrier evidence rows
+   boundary=materialize verifier contract only
+   semantic_authority=1983 policy fixture and ResultBox carrier rows
    non_authority=Hako generation, native seed, Source Selfhost claim
 
 next_documented_task =
-  MIRBUILDER-RESULT-CARRIER-VERIFIER-POLICY-001
+  MIRBUILDER-RESULT-CARRIER-VERIFIER-CONTRACT-001
 
 next_after_active_3 =
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
