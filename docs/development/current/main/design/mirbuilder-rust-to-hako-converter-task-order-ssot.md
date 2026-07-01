@@ -333,26 +333,9 @@ id_scalar_owner_scope_basis_summary:
   selected_next_card = MIRBUILDER-ID-SCALAR-OWNER-SCOPE-BOUNDEDNESS-RESOLUTION-002
   source_selfhost_claim = 0
 
-id_scalar_owner_scope_boundedness_rerun_002_result:
-  token = MIRBUILDER-ID-SCALAR-OWNER-SCOPE-BOUNDEDNESS-RESOLUTION-002
+id_scalar_bounded_domain_basis_summary:
+  2031_to_2034 = bounded rerun -> seed file boundary -> IdDomainBoundary
   owner_scope_bounded_count = 2
-  selected_next_card = MIRBUILDER-ID-SCALAR-NATIVE-SEED-FILE-BOUNDARY-BASIS-001
-  source_selfhost_claim = 0
-
-id_scalar_native_seed_file_boundary_basis_result:
-  token = MIRBUILDER-ID-SCALAR-NATIVE-SEED-FILE-BOUNDARY-BASIS-001
-  native_seed_file_boundary_derivable_count = 2
-  selected_next_card = MIRBUILDER-ID-SCALAR-SOURCE-PLAN-BASIS-COMPONENT-PRIORITY-RESOLUTION-002
-  source_selfhost_claim = 0
-
-id_scalar_source_plan_basis_component_priority_rerun_002_result:
-  token = MIRBUILDER-ID-SCALAR-SOURCE-PLAN-BASIS-COMPONENT-PRIORITY-RESOLUTION-002
-  selected_component_id = IdDomainBoundary
-  selected_next_card = MIRBUILDER-ID-SCALAR-ID-DOMAIN-BOUNDARY-BASIS-001
-  source_selfhost_claim = 0
-
-id_scalar_id_domain_boundary_basis_result:
-  token = MIRBUILDER-ID-SCALAR-ID-DOMAIN-BOUNDARY-BASIS-001
   id_domain_boundary_count = 3
   selected_next_card = MIRBUILDER-ID-SCALAR-STATE-MUTATION-FRAME-BASIS-001
   source_selfhost_claim = 0
