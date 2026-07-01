@@ -2,7 +2,7 @@
 // source-family: hakorune_mir_builder::metadata_context
 // source-input-state: DerivedArtifactSeedDraftInput
 // surface-collation: FamilySeedSurfaceCollationV1
-// hako-adopted: 0
+// hako-adopted: 1
 // source-selfhost-claim: 0
 
 using apps.lib.collections.value_id_ordered_map as ValueIdOrderedMap
