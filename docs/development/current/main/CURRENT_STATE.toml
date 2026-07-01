@@ -25,12 +25,12 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-ID-SCALAR-DOMAIN-TRANSPORT-DIRECTABILITY-RERUN-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2014-MIRBUILDER-ID-SCALAR-DOMAIN-TRANSPORT-DIRECTABILITY-RERUN-001.md"
-latest_card_summary = """The latest card reruns directability after nominal ID
-scalar transport. It finds 19 FixtureMapped rows directable, leaves 12
-owner-edge-missing rows as repair backlog, and selects native-owner seed
-capability survey rerun 009 next."""
+latest_card = "MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-009"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2015-MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-009.md"
+latest_card_summary = """The latest card reruns native-owner seed capability
+after ID scalar directability. It finds 19 directable rows across four owner
+edges, selects ID scalar seed-candidate cluster resolution, and keeps native
+seed materialization and Source Selfhost unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -41,6 +41,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-01: 2015 reruns native-owner seed capability after ID scalar unlock and selects seed-candidate cluster resolution.",
   "2026-07-01: 2014 reruns ID scalar directability and selects native-owner seed survey rerun 009.",
   "2026-07-01: 2013 defines nominal ID scalar domain transport and selects directability rerun.",
   "2026-07-01: 2012 inventories DomainObject/Id transport subaxes and selects IdScalar domain transport policy.",

@@ -24,10 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-009.
-  ID scalar directability rerun found 19 FixtureMapped rows that can be
-  considered by the seed survey while 12 owner-edge-missing rows remain repair
-  backlog.
+  MIRBUILDER-ID-SCALAR-DOMAIN-SEED-CANDIDATE-CLUSTER-RESOLUTION-001.
+  Native-owner seed survey rerun 009 found 19 directable ID scalar rows across
+  four owner edges, so seed selection must be clustered before any seed card.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -63,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-009
+  MIRBUILDER-ID-SCALAR-DOMAIN-SEED-CANDIDATE-CLUSTER-RESOLUTION-001
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -302,6 +301,14 @@ id_scalar_domain_transport_directability_rerun_result:
   selected_next_card = MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-009
   source_selfhost_claim = 0
 
+native_owner_seed_capability_survey_rerun_009_result:
+  token = MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-009
+  directable_row_count = 19
+  directable_owner_edge_count = 4
+  native_seed_candidate_count = 0
+  selected_next_card = MIRBUILDER-ID-SCALAR-DOMAIN-SEED-CANDIDATE-CLUSTER-RESOLUTION-001
+  source_selfhost_claim = 0
+
 placement_rule:
   scan_unit = rust_function_or_method
   classification_unit = semantic_owner_edge
@@ -354,11 +361,11 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-009
+1. MIRBUILDER-ID-SCALAR-DOMAIN-SEED-CANDIDATE-CLUSTER-RESOLUTION-001
    status=next
-   boundary=rerun seed capability after ID scalar directability unlock
-   semantic_authority=directability rerun, native owner ledger, fresh report
-   non_authority=generated artifact edit authority, Source Selfhost claim
+   boundary=cluster four ID scalar directable owner edges before seed selection
+   semantic_authority=rerun 009 owner-edge candidate pool
+   non_authority=cluster size proof, manual owner selection, Source Selfhost claim
 
 2. MIRBUILDER-ID-SCALAR-DOMAIN-OWNER-EDGE-REPAIR-001
    status=conditional
@@ -373,11 +380,11 @@ history, not in this task-order SSOT.
    non_authority=generated artifact edit authority, Source Selfhost claim
 
 next:
-  MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-009
-  boundary=seed survey rerun after ID scalar directability unlock
+  MIRBUILDER-ID-SCALAR-DOMAIN-SEED-CANDIDATE-CLUSTER-RESOLUTION-001
+  boundary=cluster directable ID scalar owner edges before seed selection
 
 next_documented_task =
-  MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-009
+  MIRBUILDER-ID-SCALAR-DOMAIN-SEED-CANDIDATE-CLUSTER-RESOLUTION-001
 
 next_after_active_3 =
   MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-008
