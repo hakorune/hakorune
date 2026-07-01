@@ -1297,6 +1297,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-result-carrier-verifier-contract-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_result_carrier_verifier_contract_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-RESULT-CARRIER-VERIFIER-PROJECTION-POLICY-001",
+      "card": "docs/development/current/main/phases/phase-296x/1985-MIRBUILDER-RESULT-CARRIER-VERIFIER-PROJECTION-POLICY-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-result-carrier-verifier-projection-policy-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_result_carrier_verifier_projection_policy_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {

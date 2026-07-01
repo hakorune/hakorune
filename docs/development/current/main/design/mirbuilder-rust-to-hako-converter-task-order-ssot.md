@@ -24,10 +24,10 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-RESULT-CARRIER-VERIFIER-PROJECTION-POLICY-001.
-  ResultCarrierVerifierContractV1 is ready for the three ResultBox carrier
-  rows. Next, define the projection policy; do not generate Hako or materialize
-  native seeds from this policy card.
+  MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-RERUN-001.
+  VerifierBackedResultCarrierProjectionPolicyV1 is selected for the three
+  ResultBox carrier rows. Rerun strict candidate selection with that policy
+  evidence before any seed or adoption card.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -252,6 +252,14 @@ result_carrier_verifier_contract_result:
   selected_next_card = MIRBUILDER-RESULT-CARRIER-VERIFIER-PROJECTION-POLICY-001
   source_selfhost_claim = 0
 
+result_carrier_verifier_projection_policy_result:
+  token = MIRBUILDER-RESULT-CARRIER-VERIFIER-PROJECTION-POLICY-001
+  policy = VerifierBackedResultCarrierProjectionPolicyV1
+  rows = 3
+  hako_projection_selected = 0
+  selected_next_card = MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-RERUN-001
+  source_selfhost_claim = 0
+
 post_rerun_006_selector_basis:
   token = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-002
   output_contract = rust-lifecycle-source-selfhost-wider-route-selection-basis-002-v0
@@ -337,11 +345,11 @@ history, not in this task-order SSOT.
    non_authority=Hako generation, native seed, Source Selfhost claim
 
 next:
-  MIRBUILDER-RESULT-CARRIER-VERIFIER-PROJECTION-POLICY-001
-  boundary=policy only; no Hako generation or native seed
+  MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-RERUN-001
+  boundary=rerun candidate selection only; no manual seed selection
 
 next_documented_task =
-  MIRBUILDER-RESULT-CARRIER-VERIFIER-PROJECTION-POLICY-001
+  MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-RERUN-001
 
 next_after_active_3 =
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
