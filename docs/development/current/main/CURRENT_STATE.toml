@@ -25,13 +25,12 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-002"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1976-MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-002.md"
-latest_card_summary = """The latest card re-checks the crate-wide unconverted
-surface report after the post-rerun-006 selector. The report remains fresh
-against the projection descriptor ledger and Source Selfhost remains unclaimed
-and stopped; the next machine-checkable lane is native-owner seed capability
-rerun 007."""
+latest_card = "MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-007"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1977-MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-007.md"
+latest_card_summary = """The latest card reruns native-owner seed capability
+after the fresh unconverted surface report and finds no bridge-eligible strict
+emission native seed candidate. Source Selfhost remains unclaimed and stopped
+at the wider route-selection design stop."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -42,6 +41,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-01: 1977 reruns native-owner seed capability after the fresh report and keeps Source Selfhost stopped with no bridge-eligible candidate.",
   "2026-07-01: 1976 re-checks the unconverted surface report and keeps projection-ledger freshness as the report provenance boundary.",
   "2026-07-01: 1975 selects unconverted surface report freshness check as the next lane after BASIS-002.",
   "2026-07-01: 1974 defines the post-rerun-006 wider route-selection basis and requires a selector fixture before any implementation lane resumes.",

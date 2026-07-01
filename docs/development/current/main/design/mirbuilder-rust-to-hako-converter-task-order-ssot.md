@@ -24,9 +24,10 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-002.
-  The report rerun refreshes crate-wide source-surface inventory after the
-  post-rerun-006 selector and verifies projection-ledger freshness.
+  MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-007.
+  The fresh-report rerun finds no bridge-eligible strict-emission native seed
+  candidate. This reaches the design consultation stop; do not pick a family,
+  shape, or axis by hand.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +63,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-007
+  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -196,9 +197,9 @@ latest_rerun_result:
   next = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 next_action:
-  MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-007
-  purpose = re-evaluate native-owner seed capability after fresh report
-  output = exactly one next lane or KeepStopped with machine reason
+  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+  purpose = design consultation stop reached
+  output = decide the next widening rule before implementation resumes
 
 post_rerun_006_task_order:
   1. land SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-002 as the accepted
@@ -231,6 +232,18 @@ unconverted_surface_report_rerun_002_result:
   decision = KeepStopped
   reason_token = AmbiguousUnconvertedSurfaceCandidates
   selected_next_card = MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-007
+  source_selfhost_claim = 0
+
+native_owner_seed_capability_rerun_007_result:
+  token = MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-007
+  fresh_unconverted_surface_report_consumed = 1
+  verified_hako_family_ir_count = 47
+  bridge_eligible_count = 0
+  already_adopted_count = 12
+  decision = KeepStopped
+  reason_token = NoBridgeEligibleStrictEmissionNativeSeedCandidateAfterFreshUnconvertedSurfaceReport
+  selected_next_card = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+  design consultation stop reached
   source_selfhost_claim = 0
 
 post_rerun_006_selector_basis:

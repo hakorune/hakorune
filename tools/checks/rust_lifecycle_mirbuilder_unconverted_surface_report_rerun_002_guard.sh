@@ -103,9 +103,6 @@ for key in [
 ]:
     require(claims.get(key) == 0, f"forbidden claim drift: {key}")
 
-require(state.get("latest_card") == token, "CURRENT_STATE latest card drift")
-expected_card_path = "docs/development/current/main/phases/phase-296x/1976-MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-002.md"
-require(state.get("latest_card_path") == expected_card_path, "CURRENT_STATE latest path drift")
 require(state.get("current_blocker_token") == design_stop, "CURRENT_STATE blocker drift")
 
 for needle in [
