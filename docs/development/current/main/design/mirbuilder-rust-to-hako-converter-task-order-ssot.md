@@ -24,10 +24,10 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  SOURCE-SELFHOST-NATIVE-OWNER-CHECKPOINT-RERUN-001.
-  Seed capability rerun 008 found no bridge-eligible native seed after
-  descriptor coverage reclassification, so rerun the native-owner checkpoint
-  against the fresh report before selecting another blocker lane.
+  MIRBUILDER-MISSING-PROJECTION-POLICY-CLUSTER-RESOLUTION-V3.
+  Checkpoint rerun selected MissingProjectionPolicy again by evidence quality:
+  1004 candidates, 819 with fixture-mapped known-shape evidence, and zero
+  BorrowSurface evidence-quality candidates.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -63,7 +63,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  SOURCE-SELFHOST-NATIVE-OWNER-CHECKPOINT-RERUN-001
+  MIRBUILDER-MISSING-PROJECTION-POLICY-CLUSTER-RESOLUTION-V3
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -335,6 +335,14 @@ native_owner_seed_capability_rerun_008_result:
   selected_next_card = SOURCE-SELFHOST-NATIVE-OWNER-CHECKPOINT-RERUN-001
   source_selfhost_claim = 0
 
+native_owner_checkpoint_rerun_result:
+  token = SOURCE-SELFHOST-NATIVE-OWNER-CHECKPOINT-RERUN-001
+  native_owner_count = 11
+  missing_projection_evidence_quality_count = 819
+  borrow_surface_evidence_quality_count = 0
+  selected_next_card = MIRBUILDER-MISSING-PROJECTION-POLICY-CLUSTER-RESOLUTION-V3
+  source_selfhost_claim = 0
+
 placement_rule:
   scan_unit = rust_function_or_method
   classification_unit = semantic_owner_edge
@@ -387,11 +395,11 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. SOURCE-SELFHOST-NATIVE-OWNER-CHECKPOINT-RERUN-001
+1. MIRBUILDER-MISSING-PROJECTION-POLICY-CLUSTER-RESOLUTION-V3
    status=next
-   boundary=checkpoint blocker class after report evidence changed
-   semantic_authority=fresh report and native owner ledger
-   non_authority=manual blocker-lane selection, Source Selfhost claim
+   boundary=cluster remaining MissingProjectionPolicy after descriptor coverage
+   semantic_authority=fresh checkpoint and report
+   non_authority=cluster size, coverage percentage, Source Selfhost claim
 
 2. MIRBUILDER-BORROW-SURFACE-POLICY-CLUSTER-RERUN-002
    status=conditional-after-checkpoint
@@ -406,11 +414,11 @@ history, not in this task-order SSOT.
    non_authority=generated artifact edit authority, Source Selfhost claim
 
 next:
-  SOURCE-SELFHOST-NATIVE-OWNER-CHECKPOINT-RERUN-001
-  boundary=rerun checkpoint after seed rerun found no bridge-eligible candidate
+  MIRBUILDER-MISSING-PROJECTION-POLICY-CLUSTER-RESOLUTION-V3
+  boundary=checkpoint selected MissingProjectionPolicy by evidence quality
 
 next_documented_task =
-  SOURCE-SELFHOST-NATIVE-OWNER-CHECKPOINT-RERUN-001
+  MIRBUILDER-MISSING-PROJECTION-POLICY-CLUSTER-RESOLUTION-V3
 
 next_after_active_3 =
   MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-008
