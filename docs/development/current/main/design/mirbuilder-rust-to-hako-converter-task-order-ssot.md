@@ -293,28 +293,9 @@ id_scalar_transport_chain_summary:
   selected_next_card = MIRBUILDER-ID-SCALAR-DOMAIN-SEED-CANDIDATE-CLUSTER-RESOLUTION-001
   source_selfhost_claim = 0
 
-id_scalar_domain_seed_candidate_cluster_resolution_result:
-  token = MIRBUILDER-ID-SCALAR-DOMAIN-SEED-CANDIDATE-CLUSTER-RESOLUTION-001
-  input_directable_owner_edge_count = 4
-  unique_evidence_quality_tuple_count = 1
-  reason_token = MultipleEqualEvidenceIdScalarOwnerEdgeClusters
-  selected_next_card = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
-  source_selfhost_claim = 0
-
-id_scalar_domain_seed_readiness_resolution_result:
-  token = MIRBUILDER-ID-SCALAR-DOMAIN-SEED-READINESS-RESOLUTION-001
-  owner_edge_repair_required_count = 12
-  seed_materialization_ready_count = 0
-  reason_token = IdScalarOwnerEdgeRepairRequiredBeforeSeedReadiness
-  selected_next_card = MIRBUILDER-ID-SCALAR-DOMAIN-OWNER-EDGE-REPAIR-001
-  source_selfhost_claim = 0
-
-id_scalar_domain_owner_edge_repair_result:
-  token = MIRBUILDER-ID-SCALAR-DOMAIN-OWNER-EDGE-REPAIR-001
-  input_repair_required_count = 12
+id_scalar_seed_selection_pre_basis_summary:
+  2016_to_2018 = equal clusters -> seed readiness -> owner-edge repair
   repaired_row_count = 12
-  unrepaired_row_count = 0
-  reason_token = IdScalarOwnerEdgeRepairComplete
   selected_next_card = MIRBUILDER-ID-SCALAR-DOMAIN-SEED-READINESS-RESOLUTION-002
   source_selfhost_claim = 0
 
