@@ -1,0 +1,96 @@
+{
+  "candidate_pool": {
+    "already_hako_adopted_count": 1,
+    "bridge_blocked_remaining_count": 0,
+    "bridge_eligible_remaining_count": 2,
+    "input_owner_edge_count": 3,
+    "selected_candidate_count": 1
+  },
+  "candidate_rows": [
+    {
+      "already_hako_adopted": true,
+      "blocked_by_after_adoption": [
+        "AlreadyHakoAdopted"
+      ],
+      "input_bridge_state": "BridgeEligible",
+      "next_card": null,
+      "owner_edge_id": "hakorune_mir_builder::direct_state_plan_refresh",
+      "priority_tuple": [
+        1,
+        0,
+        0,
+        "hakorune_mir_builder::direct_state_plan_refresh"
+      ],
+      "selection_eligible_after_adoption": false,
+      "verifier_result_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-direct-state-plan-refresh-derived-hako-verifier-result-v0.json"
+    },
+    {
+      "already_hako_adopted": false,
+      "blocked_by_after_adoption": [],
+      "input_bridge_state": "BridgeEligible",
+      "next_card": "MIRBUILDER-RECORD-PACKED-LAYOUT-REFRESH-HAKO-NATIVE-SOURCE-SEED-001",
+      "owner_edge_id": "hakorune_mir_builder::record_packed_layout_refresh",
+      "priority_tuple": [
+        1,
+        0,
+        0,
+        "hakorune_mir_builder::record_packed_layout_refresh"
+      ],
+      "selection_eligible_after_adoption": true,
+      "verifier_result_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-record-packed-layout-refresh-derived-hako-verifier-result-v0.json"
+    },
+    {
+      "already_hako_adopted": false,
+      "blocked_by_after_adoption": [],
+      "input_bridge_state": "BridgeEligible",
+      "next_card": "MIRBUILDER-TYPED-OBJECT-PLAN-REFRESH-HAKO-NATIVE-SOURCE-SEED-001",
+      "owner_edge_id": "hakorune_mir_builder::typed_object_plan_refresh",
+      "priority_tuple": [
+        1,
+        0,
+        0,
+        "hakorune_mir_builder::typed_object_plan_refresh"
+      ],
+      "selection_eligible_after_adoption": true,
+      "verifier_result_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-typed-object-plan-refresh-derived-hako-verifier-result-v0.json"
+    }
+  ],
+  "claims": {
+    "cluster_size_as_proof": 0,
+    "coverage_percentage_as_proof": 0,
+    "direct_state_plan_refresh_adoption_consumed": 1,
+    "generated_artifact_as_native_edit_authority": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "manual_family_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_canonical_mir_instruction": 0,
+    "new_python_semantic_projector": 0,
+    "previous_rerun_consumed": 1,
+    "route_membership_alone_as_proof": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "seed_eligibility_from_forbidden_nonclaim": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "SelectNativeSeedCandidate",
+    "reason_token": "PostDirectStateAdoptionStrictEmissionCandidateSelected",
+    "selected_next_card": "MIRBUILDER-RECORD-PACKED-LAYOUT-REFRESH-HAKO-NATIVE-SOURCE-SEED-001",
+    "selected_owner_edge_id": "hakorune_mir_builder::record_packed_layout_refresh"
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "direct_state_plan_refresh_adoption": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-direct-state-plan-refresh-hako-adoption-decision-v0.json",
+    "previous_rerun": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-strict-converter-emission-native-seed-candidate-selection-rerun-002-v0.json"
+  },
+  "kind": "MirBuilderStrictConverterEmissionNativeSeedCandidateSelectionRerun003V1",
+  "provenance": {
+    "direct_state_plan_refresh_adoption_hash": "22304a14e83c35d9167411a19b81dc441c18dc97391db1df9c3e26b3b62740a4",
+    "previous_rerun_hash": "cb69d30942d7c761be5d278b509cbd0a6aa17d8ab92443e1572b2a4ecd44515c"
+  },
+  "schema_version": 0,
+  "token": "MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-RERUN-003"
+}
