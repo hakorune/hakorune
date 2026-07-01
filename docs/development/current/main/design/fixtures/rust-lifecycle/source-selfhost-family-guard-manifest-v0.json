@@ -1192,6 +1192,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-metadata-context-hako-adoption-decision-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_metadata_context_hako_adoption_decision_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-005",
+      "card": "docs/development/current/main/phases/phase-296x/1970-MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-005.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-native-owner-seed-capability-survey-rerun-005-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_crate_wide_native_owner_seed_capability_survey_rerun_005_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {

@@ -24,9 +24,10 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-005.
-  The metadata_context bounded surface set is now HakoAdopted. Next, rerun
-  native-owner seed capability after metadata_context adoption.
+  MIRBUILDER-TYPE-CONTEXT-HAKO-NATIVE-SOURCE-SEED-001.
+  The post-metadata_context rerun selected `hakorune_mir_builder::type_context`
+  as the next bridge-eligible native seed candidate. Next, materialize the
+  native `.hako` source seed without adoption or Source Selfhost claim.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +63,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-005
+  MIRBUILDER-TYPE-CONTEXT-HAKO-NATIVE-SOURCE-SEED-001
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -184,17 +185,18 @@ completed:
   native-owner seed capability rerun 004
   metadata_context native source seed
   metadata_context HakoAdopted decision
+  native-owner seed capability rerun 005
 
 latest_rerun_result:
-  MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-004
+  MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-005
   decision = SelectNativeSeedCandidate
-  reason = NativeOwnerSeedCandidateRerunAfterCoreContextAdoption
-  next = MIRBUILDER-METADATA-CONTEXT-HAKO-NATIVE-SOURCE-SEED-001
+  reason = NativeOwnerSeedCandidateRerunAfterMetadataContextAdoption
+  next = MIRBUILDER-TYPE-CONTEXT-HAKO-NATIVE-SOURCE-SEED-001
 
 next_action:
-  MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-005
-  purpose = rerun native-owner seed capability after metadata_context adoption
-  output = next native seed candidate or guarded KeepStopped decision
+  MIRBUILDER-TYPE-CONTEXT-HAKO-NATIVE-SOURCE-SEED-001
+  purpose = materialize native source seed for type_context from DerivedArtifactSeedDraftInput
+  output = native source seed fixture / overwrite guard, no HakoAdopted decision
 
 forbidden:
   strict rule weakening as executable conversion
@@ -251,14 +253,14 @@ history, not in this task-order SSOT.
    semantic_authority=carrier/type inventory and verifier-result fixtures
    non_authority=rule weakening, fallback Hako, HakoAdopted decision
 
-3. MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-005
+3. MIRBUILDER-TYPE-CONTEXT-HAKO-NATIVE-SOURCE-SEED-001
    status=next
-   boundary=derive the next native seed candidate after metadata_context adoption
-   semantic_authority=strict emission probe, bridge policy, adoption fixtures
-   non_authority=manual owner selection, Source Selfhost claim
+   boundary=materialize type_context native seed from strict bridge evidence
+   semantic_authority=rerun-005 fixture, strict emission probe, bridge policy
+   non_authority=HakoAdopted decision, Source Selfhost claim
 
 next_documented_task =
-  MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-005
+  MIRBUILDER-TYPE-CONTEXT-HAKO-NATIVE-SOURCE-SEED-001
 
 next_after_active_3 =
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
