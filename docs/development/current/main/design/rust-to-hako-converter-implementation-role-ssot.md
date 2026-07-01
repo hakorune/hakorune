@@ -81,6 +81,31 @@ risks: composed execution closure, a narrow HakoAdopted decision, Hako shadow
 projector parity, Python SemanticProjector retirement, or composite-owner
 decomposition.
 
+## Placement Rule Pointer
+
+Rust-to-Hako placement is owned by the Derived-to-Native artifact model. The
+converter may scan a crate and classify individual Rust functions or methods,
+but native Hako seed files are placed by semantic owner module, not by Rust file
+path and not by one-function-one-file output.
+
+```text
+scan unit:
+  Rust function or method
+
+classification unit:
+  semantic owner edge
+
+native seed file unit:
+  owner module / bounded surface set
+
+adoption unit:
+  semantic owner / bounded surface set
+```
+
+Do not let the emitter infer target file placement from Rust paths. See
+`derived-to-native-hako-artifact-model-ssot.md` for the authoritative
+Source-to-Hako placement rules.
+
 ## Role Classification
 
 Python tooling is classified by role.

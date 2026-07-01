@@ -201,6 +201,25 @@ next_action:
   purpose = decide the next machine-checkable widening or evidence lane
   output = design consultation before further implementation
 
+post_rerun_006_task_order:
+  1. keep SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001 active
+     until a consultation answer names the next machine-checkable lane
+  2. if a lane is approved, land a selector fixture that derives exactly one
+     selected_owner_edge_id before any native seed or adoption card
+  3. if no owner is derived, keep stopped; do not pick a family, shape, or
+     blocker axis by hand
+  4. repair stale design-stop guard vocabulary separately from semantic
+     converter progress if it blocks current validation
+
+placement_rule:
+  scan_unit = rust_function_or_method
+  classification_unit = semantic_owner_edge
+  native_seed_file_unit = owner_module_bounded_surface_set
+  adoption_unit = semantic_owner_or_bounded_surface_set
+  authority = derived-to-native-hako-artifact-model-ssot.md
+  rust_file_path_as_hako_authority = 0
+  one_function_one_hako_file = 0
+
 forbidden:
   strict rule weakening as executable conversion
   manual family / shape / axis selection

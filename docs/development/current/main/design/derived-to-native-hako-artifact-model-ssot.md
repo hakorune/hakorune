@@ -324,17 +324,94 @@ not invoke the pinned nightly rustc adapter.
 Regeneration is explicit. CI or guards may regenerate and diff artifacts
 against checked-in output.
 
+## Source-to-Hako Placement Units
+
+Do not map Rust files to Hako files one-to-one. Rust physical layout is input
+provenance, not target authority.
+
+Use these units:
+
+```text
+Rust crate:
+  scan / inventory / report scope
+
+Rust function or method:
+  convertibility, deny reason, verifier evidence, and source-surface scan unit
+
+semantic owner edge:
+  classification and next native seed candidate selection unit
+
+bounded surface set:
+  all BridgeEligible surfaces with the same selected owner edge and next card
+
+Hako native seed file:
+  owner-module placement unit
+
+HakoAdopted decision:
+  semantic owner / bounded surface set authority decision
+```
+
+Native seed path rule:
+
+```text
+lang/src/compiler/lib/<stable_owner_module>_native_seed.hako
+```
+
+`stable_owner_module` is derived from the selected `owner_edge_id`, not from
+the Rust source path. For example:
+
+```text
+hakorune_mir_builder::metadata_context
+  -> lang/src/compiler/lib/metadata_context_native_seed.hako
+
+hakorune_mir_builder::type_context
+  -> lang/src/compiler/lib/type_context_native_seed.hako
+```
+
+Collation rules:
+
+```text
+one Rust file with multiple semantic owners:
+  materialize separate owner-module Hako files
+
+multiple Rust files for one semantic owner:
+  collate into one owner-module Hako seed when the surface set is
+  machine-derived
+
+one Rust function or method:
+  may produce diagnostics or verifier evidence, but must not force a standalone
+  Hako file
+```
+
+Generated artifact paths remain under `lang/generated/rust_derived/**`.
+Native seed paths live outside the generated tree and require generator
+overwrite guards before HakoAdopted can be considered.
+
+Forbidden placement shortcuts:
+
+```text
+Rust file path as Hako authority
+function-per-Hako-file proliferation
+owner-edge mismatch inside one native seed
+TODO/null/Unsupported executable bodies for unconverted Rust methods
+generated artifact as native edit authority
+manual surface selection outside a fixture-derived collation rule
+```
+
 ## Crate and Family Roles
 
 ```text
 crate:
-  transport, inventory, coverage ledger
+  transport, inventory, coverage ledger, source-surface report scope
 
 module:
-  provenance and focused materialization
+  provenance and focused materialization; not an authority by path alone
 
 family:
   behavioral conversion, parity, route selection, adoption decision
+
+semantic owner edge:
+  native seed candidate selection and bounded surface collation
 
 artifact bundle:
   packages green family artifacts for a crate route
