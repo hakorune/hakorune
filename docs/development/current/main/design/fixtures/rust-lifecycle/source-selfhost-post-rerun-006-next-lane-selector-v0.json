@@ -26,14 +26,13 @@
     "rerun_006_decision": "KeepStopped",
     "unconverted_surface_report_decision": "KeepStopped",
     "unconverted_surface_report_reason": "AmbiguousUnconvertedSurfaceCandidates",
-    "report_source_selfhost_family_guard_manifest_hash": "45ca493f1e7ce53b151982b4ae3b7d2dc19ff88ebbb94a89aa80803acadc11f1",
-    "current_source_selfhost_family_guard_manifest_hash": "10d4b6c7ce37ea7992e4b3d618ac3b111210807df4aeddd8351c5b93ab8b38a1",
-    "unconverted_surface_report_stale": true,
+    "report_projection_descriptor_ledger_hash": "45ca493f1e7ce53b151982b4ae3b7d2dc19ff88ebbb94a89aa80803acadc11f1",
+    "unconverted_surface_report_freshness_check_required": true,
     "strict_deny_unclosed_near_miss_cluster_count": 0
   },
   "decision": {
     "kind": "SelectUnconvertedSurfaceReportRerun",
-    "reason_token": "UnconvertedSurfaceReportStaleAfterBasis002",
+    "reason_token": "UnconvertedSurfaceReportFreshnessCheckRequiredAfterBasis002",
     "selected_next_card": "MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-002",
     "selected_owner_edge_id": null
   },

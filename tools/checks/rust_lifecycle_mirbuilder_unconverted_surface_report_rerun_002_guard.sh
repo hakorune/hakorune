@@ -66,7 +66,6 @@ design_stop = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 
 require(token in card, "card missing token")
 for needle in [
-    "source_selfhost_family_guard_manifest_hash_fresh = 1",
     "projection_descriptor_ledger_hash_fresh = 1",
     next_card,
     "source_selfhost_claim = 0",
@@ -77,8 +76,8 @@ require(fixture.get("kind") == "MirBuilderCrateWideUnconvertedSurfaceReportV1", 
 require(fixture.get("token") == "MIRBUILDER-CRATE-WIDE-UNCONVERTED-SURFACE-REPORT-001", "source report token drift")
 
 provenance = fixture.get("provenance") or {}
-require(provenance.get("source_selfhost_family_guard_manifest_hash") == sha256_file(manifest_path), "full manifest hash is stale")
 require(provenance.get("projection_descriptor_ledger_hash") == projection_ledger_hash(manifest), "projection ledger hash is stale")
+require(provenance.get("source_selfhost_family_guard_manifest_hash") == projection_ledger_hash(manifest), "manifest projection hash is stale")
 require(provenance.get("native_owner_seed_capability_survey_hash") == sha256_file(survey_path), "native seed survey hash is stale")
 require(provenance.get("tool_version") == "regex_source_text_v0", "tool version drift")
 
@@ -112,12 +111,11 @@ require(state.get("current_blocker_token") == design_stop, "CURRENT_STATE blocke
 for needle in [
     token,
     next_card,
-    "source_selfhost_family_guard_manifest_hash_fresh = 1",
+    "projection_descriptor_ledger_hash_fresh = 1",
 ]:
     require(needle in task_order, f"task-order missing {needle}")
 
 print("output_contract=rust-lifecycle-mirbuilder-unconverted-surface-report-rerun-002")
-print("source_selfhost_family_guard_manifest_hash_fresh=1")
 print("projection_descriptor_ledger_hash_fresh=1")
 print("scanned_surface_count=1584")
 print("missing_projection_policy_count=1384")

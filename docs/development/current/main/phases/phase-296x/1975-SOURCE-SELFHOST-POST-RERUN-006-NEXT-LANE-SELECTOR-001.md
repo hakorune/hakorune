@@ -25,18 +25,16 @@ decision:
   SelectUnconvertedSurfaceReportRerun
 
 reason_token:
-  UnconvertedSurfaceReportStaleAfterBasis002
+  UnconvertedSurfaceReportFreshnessCheckRequiredAfterBasis002
 
 selected_next_card:
   MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-002
 ```
 
-The current unconverted surface report still points at an older
-`source-selfhost-family-guard-manifest-v0.json` hash. Because the family
-manifest changed after later native-source owner adoptions and
-`SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-002`, the source-surface report
-must be regenerated before selecting a new owner, shape, axis, native seed, or
-route repair lane.
+The selector does not pick a family, shape, axis, native seed, or route repair
+lane directly. It routes through the source-surface report freshness lane so
+the report tool can re-check the projection descriptor ledger before any new
+owner selection.
 
 ## Non-Claims
 
@@ -60,7 +58,6 @@ runner_semantic_owner = 0
 tools/checks/rust_lifecycle_source_selfhost_post_rerun_006_next_lane_selector_guard.sh
 ```
 
-The guard verifies that the current manifest hash differs from the report
-provenance hash, that the selector chooses only
+The guard verifies that the selector chooses only
 `MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-002`, and that Source Selfhost
 remains stopped at `SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001`.

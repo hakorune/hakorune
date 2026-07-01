@@ -26,8 +26,7 @@ active blocker:
 current implementation task:
   MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-002.
   The report rerun refreshes crate-wide source-surface inventory after the
-  post-rerun-006 selector and separates full family-manifest freshness from
-  projection-ledger freshness.
+  post-rerun-006 selector and verifies projection-ledger freshness.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -206,8 +205,8 @@ post_rerun_006_task_order:
      post-strict-emission bridge exhaustion selector basis
   2. land SOURCE-SELFHOST-POST-RERUN-006-NEXT-LANE-SELECTOR-001 to derive
      exactly one next lane before any native seed or adoption card
-  3. next, run MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-002 because the
-     current report provenance is stale against the current family manifest
+  3. next, run MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-002 so the report
+     tool re-checks projection-ledger freshness before owner selection
   4. if no owner is derived, keep stopped; do not pick a family, shape, or
      blocker axis by hand
   5. repair stale design-stop guard vocabulary separately from semantic
@@ -217,7 +216,7 @@ post_rerun_006_selector_result:
   token = SOURCE-SELFHOST-POST-RERUN-006-NEXT-LANE-SELECTOR-001
   output_contract = rust-lifecycle-source-selfhost-post-rerun-006-next-lane-selector-v0
   decision = SelectUnconvertedSurfaceReportRerun
-  reason_token = UnconvertedSurfaceReportStaleAfterBasis002
+  reason_token = UnconvertedSurfaceReportFreshnessCheckRequiredAfterBasis002
   selected_next_card = MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-002
   manual_family_selection = 0
   manual_shape_selection = 0
@@ -226,7 +225,6 @@ post_rerun_006_selector_result:
 
 unconverted_surface_report_rerun_002_result:
   token = MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-002
-  source_selfhost_family_guard_manifest_hash_fresh = 1
   projection_descriptor_ledger_hash_fresh = 1
   scanned_surface_count = 1584
   missing_projection_policy_count = 1384

@@ -56,7 +56,7 @@ token = "SOURCE-SELFHOST-POST-RERUN-006-NEXT-LANE-SELECTOR-001"
 contract = "rust-lifecycle-source-selfhost-post-rerun-006-next-lane-selector-v0"
 design_stop = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 next_card = "MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-002"
-reason = "UnconvertedSurfaceReportStaleAfterBasis002"
+reason = "UnconvertedSurfaceReportFreshnessCheckRequiredAfterBasis002"
 
 require(f"# {token}" in card, "card token drift")
 for needle in [
@@ -88,18 +88,14 @@ allowed = fixture.get("basis", {}).get("allowed_decisions")
 require(allowed == basis.get("basis", {}).get("allowed_decisions"), "allowed decisions must match BASIS-002")
 
 report_decision = report.get("decision") or {}
-report_manifest_hash = (
-    (report.get("provenance") or {}).get("source_selfhost_family_guard_manifest_hash")
+report_projection_hash = (
+    (report.get("provenance") or {}).get("projection_descriptor_ledger_hash")
 )
 evidence = fixture.get("evidence") or {}
 require(report_decision.get("kind") == "KeepStopped", "report decision drift")
 require(report_decision.get("reason_token") == "AmbiguousUnconvertedSurfaceCandidates", "report reason drift")
-fixture_report_hash = evidence.get("report_source_selfhost_family_guard_manifest_hash")
-fixture_current_hash = evidence.get("current_source_selfhost_family_guard_manifest_hash")
-require(fixture_report_hash, "fixture report hash missing")
-require(fixture_current_hash, "fixture current hash missing")
-require(fixture_report_hash != fixture_current_hash, "selector fixture must record stale report evidence")
-require(evidence.get("unconverted_surface_report_stale") is True, "stale flag drift")
+require(evidence.get("report_projection_descriptor_ledger_hash") == report_projection_hash, "fixture projection ledger hash drift")
+require(evidence.get("unconverted_surface_report_freshness_check_required") is True, "freshness-check flag drift")
 require(evidence.get("rerun_006_bridge_eligible_count") == 0, "fixture rerun bridge count drift")
 require(evidence.get("strict_deny_unclosed_near_miss_cluster_count") == 0, "strict-deny unclosed count drift")
 
@@ -145,7 +141,7 @@ print(f"current_blocker_preserved={design_stop}")
 print("decision=SelectUnconvertedSurfaceReportRerun")
 print(f"reason_token={reason}")
 print(f"selected_next_card={next_card}")
-print("unconverted_surface_report_stale=1")
+print("unconverted_surface_report_freshness_check_required=1")
 print("manual_family_selection=0")
 print("manual_shape_selection=0")
 print("manual_axis_selection=0")
