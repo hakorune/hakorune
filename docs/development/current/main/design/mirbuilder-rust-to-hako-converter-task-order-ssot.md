@@ -24,9 +24,10 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-ID-SCALAR-DOMAIN-SEED-CANDIDATE-CLUSTER-RESOLUTION-001.
-  Native-owner seed survey rerun 009 found 19 directable ID scalar rows across
-  four owner edges, so seed selection must be clustered before any seed card.
+  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001.
+  ID scalar seed-candidate cluster resolution found four equal-evidence owner
+  edges. A new machine-derived discriminator is needed before selecting any
+  native seed owner.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +63,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  MIRBUILDER-ID-SCALAR-DOMAIN-SEED-CANDIDATE-CLUSTER-RESOLUTION-001
+  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -309,6 +310,14 @@ native_owner_seed_capability_survey_rerun_009_result:
   selected_next_card = MIRBUILDER-ID-SCALAR-DOMAIN-SEED-CANDIDATE-CLUSTER-RESOLUTION-001
   source_selfhost_claim = 0
 
+id_scalar_domain_seed_candidate_cluster_resolution_result:
+  token = MIRBUILDER-ID-SCALAR-DOMAIN-SEED-CANDIDATE-CLUSTER-RESOLUTION-001
+  input_directable_owner_edge_count = 4
+  unique_evidence_quality_tuple_count = 1
+  reason_token = MultipleEqualEvidenceIdScalarOwnerEdgeClusters
+  selected_next_card = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+  source_selfhost_claim = 0
+
 placement_rule:
   scan_unit = rust_function_or_method
   classification_unit = semantic_owner_edge
@@ -361,11 +370,11 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. MIRBUILDER-ID-SCALAR-DOMAIN-SEED-CANDIDATE-CLUSTER-RESOLUTION-001
+1. SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
    status=next
-   boundary=cluster four ID scalar directable owner edges before seed selection
-   semantic_authority=rerun 009 owner-edge candidate pool
-   non_authority=cluster size proof, manual owner selection, Source Selfhost claim
+   boundary=design discriminator for four equal-evidence ID scalar owner edges
+   semantic_authority=cluster resolution fixture, not owner count
+   non_authority=cluster size proof, lexical tiebreaker, manual owner selection
 
 2. MIRBUILDER-ID-SCALAR-DOMAIN-OWNER-EDGE-REPAIR-001
    status=conditional
@@ -380,11 +389,11 @@ history, not in this task-order SSOT.
    non_authority=generated artifact edit authority, Source Selfhost claim
 
 next:
-  MIRBUILDER-ID-SCALAR-DOMAIN-SEED-CANDIDATE-CLUSTER-RESOLUTION-001
-  boundary=cluster directable ID scalar owner edges before seed selection
+  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+  boundary=need machine-derived discriminator before ID scalar native seed
 
 next_documented_task =
-  MIRBUILDER-ID-SCALAR-DOMAIN-SEED-CANDIDATE-CLUSTER-RESOLUTION-001
+  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 next_after_active_3 =
   MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-008
