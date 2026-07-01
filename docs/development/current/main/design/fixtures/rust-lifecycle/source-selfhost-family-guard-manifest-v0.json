@@ -1479,6 +1479,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-transport-evidence-inventory-rerun-002-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_carrier_type_transport_evidence_inventory_rerun_002_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-CARRIER-TYPE-TRANSPORT-UNCLASSIFIED-EVIDENCE-RESOLUTION-001",
+      "card": "docs/development/current/main/phases/phase-296x/2011-MIRBUILDER-CARRIER-TYPE-TRANSPORT-UNCLASSIFIED-EVIDENCE-RESOLUTION-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-transport-unclassified-evidence-resolution-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_carrier_type_transport_unclassified_evidence_resolution_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {

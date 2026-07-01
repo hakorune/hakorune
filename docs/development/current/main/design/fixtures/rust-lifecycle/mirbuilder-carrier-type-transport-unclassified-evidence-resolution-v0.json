@@ -1,0 +1,521 @@
+{
+  "axis_rows_sample": [
+    {
+      "known_owner_edge": "mirbuilder::context_registry",
+      "return_type": "(usize, usize, usize)",
+      "shape_signature": "shape.context_registry",
+      "source_id": "crates/hakorune_mir_builder/src/context.rs::size_info:L61",
+      "unclassified_axis": "ProductTupleTransportAxis"
+    },
+    {
+      "known_owner_edge": "mirbuilder::context_registry",
+      "return_type": "BindingId",
+      "shape_signature": "shape.context_registry",
+      "source_id": "crates/hakorune_mir_builder/src/core_context.rs::next_binding:L71",
+      "unclassified_axis": "DomainObjectOrIdTransportAxis"
+    },
+    {
+      "known_owner_edge": "mirbuilder::context_registry",
+      "return_type": "BasicBlockId",
+      "shape_signature": "shape.context_registry",
+      "source_id": "crates/hakorune_mir_builder/src/core_context.rs::next_block:L63",
+      "unclassified_axis": "DomainObjectOrIdTransportAxis"
+    },
+    {
+      "known_owner_edge": "mirbuilder::context_registry",
+      "return_type": "u32",
+      "shape_signature": "shape.context_registry",
+      "source_id": "crates/hakorune_mir_builder/src/core_context.rs::next_temp_slot:L83",
+      "unclassified_axis": "ScalarKnownTransportAxis"
+    },
+    {
+      "known_owner_edge": "mirbuilder::context_registry",
+      "return_type": "ValueId",
+      "shape_signature": "shape.context_registry",
+      "source_id": "crates/hakorune_mir_builder/src/core_context.rs::next_value:L58",
+      "unclassified_axis": "DomainObjectOrIdTransportAxis"
+    },
+    {
+      "known_owner_edge": "mirbuilder::context_registry",
+      "return_type": "BasicBlockId",
+      "shape_signature": "shape.context_registry",
+      "source_id": "crates/hakorune_mir_builder/src/core_context.rs::peek_next_block:L104",
+      "unclassified_axis": "DomainObjectOrIdTransportAxis"
+    },
+    {
+      "known_owner_edge": "mirbuilder::context_registry",
+      "return_type": "ValueId",
+      "shape_signature": "shape.context_registry",
+      "source_id": "crates/hakorune_mir_builder/src/core_context.rs::peek_next_value:L98",
+      "unclassified_axis": "DomainObjectOrIdTransportAxis"
+    },
+    {
+      "known_owner_edge": "mirbuilder::context_registry",
+      "return_type": "SpanT",
+      "shape_signature": "shape.context_registry",
+      "source_id": "crates/hakorune_mir_builder/src/metadata_context.rs::current_span:L76",
+      "unclassified_axis": "DomainObjectOrIdTransportAxis"
+    },
+    {
+      "known_owner_edge": "mirbuilder::context_registry",
+      "return_type": "MirValueKind",
+      "shape_signature": "shape.context_registry",
+      "source_id": "crates/hakorune_mir_builder/src/type_context.rs::get_kind:L84",
+      "unclassified_axis": "DomainObjectOrIdTransportAxis"
+    },
+    {
+      "known_owner_edge": "mirbuilder::context_registry",
+      "return_type": "TypeContextSnapshot",
+      "shape_signature": "shape.context_registry",
+      "source_id": "crates/hakorune_mir_builder/src/type_context.rs::take_snapshot:L110",
+      "unclassified_axis": "DomainObjectOrIdTransportAxis"
+    },
+    {
+      "known_owner_edge": null,
+      "return_type": "BindingId",
+      "shape_signature": null,
+      "source_id": "src/mir/builder/builder_init.rs::allocate_binding_id:L102",
+      "unclassified_axis": "DomainObjectOrIdTransportAxis"
+    },
+    {
+      "known_owner_edge": "mirbuilder::context_registry",
+      "return_type": "MirFunction",
+      "shape_signature": "shape.context_registry",
+      "source_id": "src/mir/builder/builder_metadata.rs::new_function_with_metadata:L55",
+      "unclassified_axis": "DomainObjectOrIdTransportAxis"
+    },
+    {
+      "known_owner_edge": null,
+      "return_type": "TypedValueId",
+      "shape_signature": null,
+      "source_id": "src/mir/builder/builder_value_kind.rs::new_typed_value:L11",
+      "unclassified_axis": "DomainObjectOrIdTransportAxis"
+    },
+    {
+      "known_owner_edge": "mirbuilder::call_lowering",
+      "return_type": "crate::mir::definitions::call_unified::CalleeBoxKind",
+      "shape_signature": "shape.call_lowering",
+      "source_id": "src/mir/builder/calls/call_unified.rs::classify_box_kind:L24",
+      "unclassified_axis": "DomainObjectOrIdTransportAxis"
+    },
+    {
+      "known_owner_edge": "mirbuilder::call_lowering",
+      "return_type": "EffectMask",
+      "shape_signature": "shape.call_lowering",
+      "source_id": "src/mir/builder/calls/call_unified.rs::compute_call_effects:L67",
+      "unclassified_axis": "DomainObjectOrIdTransportAxis"
+    },
+    {
+      "known_owner_edge": "mirbuilder::call_lowering",
+      "return_type": "CallFlags",
+      "shape_signature": "shape.call_lowering",
+      "source_id": "src/mir/builder/calls/call_unified.rs::create_call_flags:L72",
+      "unclassified_axis": "DomainObjectOrIdTransportAxis"
+    },
+    {
+      "known_owner_edge": "mirbuilder::call_lowering",
+      "return_type": "MirCall",
+      "shape_signature": "shape.call_lowering",
+      "source_id": "src/mir/builder/calls/call_unified.rs::create_mir_call:L83",
+      "unclassified_axis": "DomainObjectOrIdTransportAxis"
+    },
+    {
+      "known_owner_edge": "mirbuilder::call_lowering",
+      "return_type": "LoweringContext",
+      "shape_signature": "shape.call_lowering",
+      "source_id": "src/mir/builder/calls/context_lifecycle.rs::prepare_lowering_context:L61",
+      "unclassified_axis": "DomainObjectOrIdTransportAxis"
+    },
+    {
+      "known_owner_edge": "mirbuilder::call_lowering",
+      "return_type": "EffectMask",
+      "shape_signature": "shape.call_lowering",
+      "source_id": "src/mir/builder/calls/effects_analyzer.rs::compute_call_effects:L37",
+      "unclassified_axis": "DomainObjectOrIdTransportAxis"
+    },
+    {
+      "known_owner_edge": "mirbuilder::call_lowering",
+      "return_type": "EffectMask",
+      "shape_signature": "shape.call_lowering",
+      "source_id": "src/mir/builder/calls/extern_calls.rs::compute_extern_effects:L289",
+      "unclassified_axis": "DomainObjectOrIdTransportAxis"
+    },
+    {
+      "known_owner_edge": "mirbuilder::call_lowering",
+      "return_type": "MirType",
+      "shape_signature": "shape.call_lowering",
+      "source_id": "src/mir/builder/calls/extern_calls.rs::explicit_extern_return_type:L235",
+      "unclassified_axis": "DomainObjectOrIdTransportAxis"
+    },
+    {
+      "known_owner_edge": "mirbuilder::call_lowering",
+      "return_type": "(String, String)",
+      "shape_signature": "shape.call_lowering",
+      "source_id": "src/mir/builder/calls/extern_calls.rs::parse_extern_name:L262",
+      "unclassified_axis": "ProductTupleTransportAxis"
+    },
+    {
+      "known_owner_edge": "mirbuilder::call_lowering",
+      "return_type": "(String, String)",
+      "shape_signature": "shape.call_lowering",
+      "source_id": "src/mir/builder/calls/extern_calls.rs::split_explicit_extern_name:L221",
+      "unclassified_axis": "ProductTupleTransportAxis"
+    },
+    {
+      "known_owner_edge": "mirbuilder::call_lowering",
+      "return_type": "FunctionSignature",
+      "shape_signature": "shape.call_lowering",
+      "source_id": "src/mir/builder/calls/function_lowering.rs::prepare_method_signature:L14",
+      "unclassified_axis": "DomainObjectOrIdTransportAxis"
+    },
+    {
+      "known_owner_edge": "mirbuilder::call_lowering",
+      "return_type": "FunctionSignature",
+      "shape_signature": "shape.call_lowering",
+      "source_id": "src/mir/builder/calls/function_lowering.rs::prepare_static_method_signature:L48",
+      "unclassified_axis": "DomainObjectOrIdTransportAxis"
+    },
+    {
+      "known_owner_edge": "mirbuilder::call_lowering",
+      "return_type": "ASTNode",
+      "shape_signature": "shape.call_lowering",
+      "source_id": "src/mir/builder/calls/function_lowering.rs::wrap_in_program:L83",
+      "unclassified_axis": "DomainObjectOrIdTransportAxis"
+    },
+    {
+      "known_owner_edge": "mirbuilder::call_lowering",
+      "return_type": "CalleeBoxKind",
+      "shape_signature": "shape.call_lowering",
+      "source_id": "src/mir/builder/calls/resolver.rs::classify_box_kind:L161",
+      "unclassified_axis": "DomainObjectOrIdTransportAxis"
+    },
+    {
+      "known_owner_edge": "mirbuilder::call_lowering",
+      "return_type": "MirType",
+      "shape_signature": "shape.call_lowering",
+      "source_id": "src/mir/builder/calls/special_handlers.rs::parse_type_name_to_mir:L51",
+      "unclassified_axis": "DomainObjectOrIdTransportAxis"
+    },
+    {
+      "known_owner_edge": "mirbuilder::call_lowering",
+      "return_type": "MirType",
+      "shape_signature": "shape.call_lowering",
+      "source_id": "src/mir/builder/calls/utils.rs::parse_type_name_to_mir:L13",
+      "unclassified_axis": "DomainObjectOrIdTransportAxis"
+    },
+    {
+      "known_owner_edge": "mirbuilder::call_lowering",
+      "return_type": "MirType",
+      "shape_signature": "shape.call_lowering",
+      "source_id": "src/mir/builder/calls/utils.rs::parse_type_name_to_mir:L24",
+      "unclassified_axis": "DomainObjectOrIdTransportAxis"
+    },
+    {
+      "known_owner_edge": null,
+      "return_type": "PolicyDecision<BalancedDepthScanPolicyResult>",
+      "shape_signature": null,
+      "source_id": "src/mir/builder/control_flow/cleanup/policies/balanced_depth_scan_policy_box.rs::decide:L16",
+      "unclassified_axis": "DomainObjectOrIdTransportAxis"
+    },
+    {
+      "known_owner_edge": "mirbuilder::join_i_r_route_verify",
+      "return_type": "LoopFeatures",
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id": "src/mir/builder/control_flow/facts/ast_feature_extractor.rs::extract_features:L72",
+      "unclassified_axis": "DomainObjectOrIdTransportAxis"
+    },
+    {
+      "known_owner_edge": "mirbuilder::join_i_r_route_verify",
+      "return_type": "ControlFlowCounts",
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id": "src/mir/builder/control_flow/facts/extractors/common_helpers/control_flow.rs::count_control_flow:L46",
+      "unclassified_axis": "DomainObjectOrIdTransportAxis"
+    },
+    {
+      "known_owner_edge": null,
+      "return_type": "StepPlacementDecision",
+      "shape_signature": null,
+      "source_id": "src/mir/builder/control_flow/generic_loop_canon/step_placement/plan.rs::classify_step_placement:L8",
+      "unclassified_axis": "DomainObjectOrIdTransportAxis"
+    },
+    {
+      "known_owner_edge": "mirbuilder::join_i_r_route_verify",
+      "return_type": "ASTNode",
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id": "src/mir/builder/control_flow/joinir/loop_context.rs::to_loop_ast:L94",
+      "unclassified_axis": "DomainObjectOrIdTransportAxis"
+    },
+    {
+      "known_owner_edge": "mirbuilder::join_i_r_route_verify",
+      "return_type": "BasicBlockId",
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id": "src/mir/builder/control_flow/joinir/merge/block_remapper.rs::remap_block_id:L71",
+      "unclassified_axis": "DomainObjectOrIdTransportAxis"
+    },
+    {
+      "known_owner_edge": "mirbuilder::join_i_r_route_verify",
+      "return_type": "HeaderPredGroups",
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id": "src/mir/builder/control_flow/joinir/merge/header_pred_policy.rs::split_header_preds:L19",
+      "unclassified_axis": "DomainObjectOrIdTransportAxis"
+    },
+    {
+      "known_owner_edge": "mirbuilder::join_i_r_route_verify",
+      "return_type": "std::collections::HashSet<ValueId>",
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id": "src/mir/builder/control_flow/joinir/merge/loop_header_phi_info.rs::reserved_value_ids:L116",
+      "unclassified_axis": "CollectionCarrierTransportAxis"
+    },
+    {
+      "known_owner_edge": "mirbuilder::join_i_r_route_verify",
+      "return_type": "MirInstruction",
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id": "src/mir/builder/control_flow/joinir/merge/rewriter/terminator.rs::remap_branch:L62",
+      "unclassified_axis": "DomainObjectOrIdTransportAxis"
+    },
+    {
+      "known_owner_edge": "mirbuilder::join_i_r_route_verify",
+      "return_type": "MirInstruction",
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id": "src/mir/builder/control_flow/joinir/merge/rewriter/terminator.rs::remap_jump:L38",
+      "unclassified_axis": "DomainObjectOrIdTransportAxis"
+    },
+    {
+      "known_owner_edge": "mirbuilder::join_i_r_route_verify",
+      "return_type": "TailCallKind",
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id": "src/mir/builder/control_flow/joinir/merge/tail_call_classifier.rs::classify_tail_call:L45",
+      "unclassified_axis": "DomainObjectOrIdTransportAxis"
+    },
+    {
+      "known_owner_edge": "mirbuilder::join_i_r_route_verify",
+      "return_type": "(",
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id": "src/mir/builder/control_flow/joinir/parity_checker.rs::verify_router_parity:L19",
+      "unclassified_axis": "ProductTupleTransportAxis"
+    },
+    {
+      "known_owner_edge": "mirbuilder::join_i_r_route_registry",
+      "return_type": "LoopRouteShadowReport",
+      "shape_signature": "shape.join_i_r_route_registry",
+      "source_id": "src/mir/builder/control_flow/joinir/route_entry/registry/legacy_observer.rs::shadow_report:L80",
+      "unclassified_axis": "DomainObjectOrIdTransportAxis"
+    },
+    {
+      "known_owner_edge": "mirbuilder::join_i_r_route_registry",
+      "return_type": "legacy_observer::LoopRouteShadowReport",
+      "shape_signature": "shape.join_i_r_route_registry",
+      "source_id": "src/mir/builder/control_flow/joinir/route_entry/registry/mod.rs::collect_b_lite_shadow_report:L21",
+      "unclassified_axis": "DomainObjectOrIdTransportAxis"
+    },
+    {
+      "known_owner_edge": "mirbuilder::join_i_r_route_verify",
+      "return_type": "crate::mir::loop_route_detection::LoopRouteKind",
+      "shape_signature": "shape.join_i_r_route_verify",
+      "source_id": "src/mir/builder/control_flow/joinir/routing.rs::choose_route_kind:L37",
+      "unclassified_axis": "DomainObjectOrIdTransportAxis"
+    },
+    {
+      "known_owner_edge": null,
+      "return_type": "CanonicalLoopFacts",
+      "shape_signature": null,
+      "source_id": "src/mir/builder/control_flow/lower/normalize/canonicalize.rs::canonicalize_loop_facts:L21",
+      "unclassified_axis": "DomainObjectOrIdTransportAxis"
+    },
+    {
+      "known_owner_edge": "mirbuilder::join_i_r_plan",
+      "return_type": "HandoffTarget",
+      "shape_signature": "shape.plan_facts",
+      "source_id": "src/mir/builder/control_flow/plan/facts/reject_reason.rs::for_generic_loop:L262",
+      "unclassified_axis": "DomainObjectOrIdTransportAxis"
+    },
+    {
+      "known_owner_edge": "mirbuilder::join_i_r_plan",
+      "return_type": "HandoffTarget",
+      "shape_signature": "shape.plan_facts",
+      "source_id": "src/mir/builder/control_flow/plan/facts/reject_reason.rs::for_loop_cond_break_continue:L242",
+      "unclassified_axis": "DomainObjectOrIdTransportAxis"
+    },
+    {
+      "known_owner_edge": "mirbuilder::join_i_r_plan",
+      "return_type": "HandoffTarget",
+      "shape_signature": "shape.plan_facts",
+      "source_id": "src/mir/builder/control_flow/plan/facts/reject_reason.rs::for_loop_cond_continue_only:L220",
+      "unclassified_axis": "DomainObjectOrIdTransportAxis"
+    },
+    {
+      "known_owner_edge": "mirbuilder::join_i_r_plan",
+      "return_type": "HandoffTarget",
+      "shape_signature": "shape.plan_facts",
+      "source_id": "src/mir/builder/control_flow/plan/facts/reject_reason.rs::for_match_return_facts:L284",
+      "unclassified_axis": "DomainObjectOrIdTransportAxis"
+    },
+    {
+      "known_owner_edge": "mirbuilder::join_i_r_plan",
+      "return_type": "CondProfile",
+      "shape_signature": "shape.plan_facts",
+      "source_id": "src/mir/builder/control_flow/plan/facts/scan_shapes.rs::cond_profile_from_scan_shapes:L173",
+      "unclassified_axis": "DomainObjectOrIdTransportAxis"
+    },
+    {
+      "known_owner_edge": "mirbuilder::join_i_r_plan",
+      "return_type": "ScanConditionObservation",
+      "shape_signature": "shape.plan_facts",
+      "source_id": "src/mir/builder/control_flow/plan/facts/scan_shapes.rs::scan_condition_observation:L162",
+      "unclassified_axis": "DomainObjectOrIdTransportAxis"
+    },
+    {
+      "known_owner_edge": "mirbuilder::join_i_r_plan",
+      "return_type": "CarrierSets",
+      "shape_signature": "shape.carrier_feature",
+      "source_id": "src/mir/builder/control_flow/plan/features/carriers.rs::collect_from_body:L23",
+      "unclassified_axis": "DomainObjectOrIdTransportAxis"
+    },
+    {
+      "known_owner_edge": "mirbuilder::join_i_r_plan",
+      "return_type": "CarrierSets",
+      "shape_signature": "shape.carrier_feature",
+      "source_id": "src/mir/builder/control_flow/plan/features/carriers.rs::collect_from_recipe_continue_only:L473",
+      "unclassified_axis": "DomainObjectOrIdTransportAxis"
+    },
+    {
+      "known_owner_edge": "mirbuilder::join_i_r_plan",
+      "return_type": "CarrierSets",
+      "shape_signature": "shape.carrier_feature",
+      "source_id": "src/mir/builder/control_flow/plan/features/carriers.rs::collect_from_recipe_continue_with_return:L262",
+      "unclassified_axis": "DomainObjectOrIdTransportAxis"
+    },
+    {
+      "known_owner_edge": "mirbuilder::join_i_r_plan",
+      "return_type": "CarrierSets",
+      "shape_signature": "shape.carrier_feature",
+      "source_id": "src/mir/builder/control_flow/plan/features/carriers.rs::collect_outer_from_body:L32",
+      "unclassified_axis": "DomainObjectOrIdTransportAxis"
+    },
+    {
+      "known_owner_edge": "mirbuilder::join_i_r_plan",
+      "return_type": "CarrierSets",
+      "shape_signature": "shape.carrier_feature",
+      "source_id": "src/mir/builder/control_flow/plan/features/carriers/continue_only.rs::collect_from_recipe_continue_only:L9",
+      "unclassified_axis": "DomainObjectOrIdTransportAxis"
+    },
+    {
+      "known_owner_edge": "mirbuilder::join_i_r_plan",
+      "return_type": "BranchStub",
+      "shape_signature": "shape.edge_cfg_stub_feature",
+      "source_id": "src/mir/builder/control_flow/plan/features/edgecfg_stubs.rs::build_branch_stub:L8",
+      "unclassified_axis": "DomainObjectOrIdTransportAxis"
+    },
+    {
+      "known_owner_edge": "mirbuilder::join_i_r_plan",
+      "return_type": "EdgeStub",
+      "shape_signature": "shape.edge_cfg_stub_feature",
+      "source_id": "src/mir/builder/control_flow/plan/features/edgecfg_stubs.rs::build_edge_stub:L34",
+      "unclassified_axis": "DomainObjectOrIdTransportAxis"
+    },
+    {
+      "known_owner_edge": "mirbuilder::join_i_r_plan",
+      "return_type": "EdgeStub",
+      "shape_signature": "shape.edge_cfg_stub_feature",
+      "source_id": "src/mir/builder/control_flow/plan/features/edgecfg_stubs.rs::build_loop_back_edge:L70",
+      "unclassified_axis": "DomainObjectOrIdTransportAxis"
+    }
+  ],
+  "claims": {
+    "carrier_type_transport_evidence_inventory_rerun_002_consumed": 1,
+    "cluster_size_as_proof": 0,
+    "coverage_percentage_as_proof": 0,
+    "generated_artifact_as_native_edit_authority": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "manual_axis_selection": 0,
+    "manual_carrier_selection": 0,
+    "manual_family_selection": 0,
+    "manual_shape_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "return_type_count_as_proof": 0,
+    "route_membership_alone_as_proof": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0,
+    "unclassified_evidence_resolution_ready": 1
+  },
+  "decision": {
+    "kind": "SelectDomainObjectIdTransportPolicyInventory",
+    "reason_token": "DomainObjectIdTransportAxisIsPureTypeTransport",
+    "selected_axis": "DomainObjectOrIdTransportAxis",
+    "selected_next_card": "MIRBUILDER-DOMAIN-OBJECT-ID-TRANSPORT-POLICY-INVENTORY-001"
+  },
+  "input_decision": {
+    "kind": "SelectCarrierTypeTransportUnclassifiedEvidenceResolution",
+    "reason_token": "UnclassifiedCarrierTypeTransportEvidenceRemainsAfterRerun002",
+    "selected_next_card": "MIRBUILDER-CARRIER-TYPE-TRANSPORT-UNCLASSIFIED-EVIDENCE-RESOLUTION-001"
+  },
+  "input_state": {
+    "carrier_type_transport_evidence_inventory_rerun_002": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-transport-evidence-inventory-rerun-002-v0.json",
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "unconverted_surface_report": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-unconverted-surface-report-v0.json"
+  },
+  "kind": "MirBuilderCarrierTypeTransportUnclassifiedEvidenceResolutionV1",
+  "provenance": {
+    "carrier_type_transport_evidence_inventory_rerun_002_hash": "99253c9b99fae8e960a2b8cf9383a2268fc686e694494df7791c831c45d5524b",
+    "unconverted_surface_report_hash": "724c2765760cca5b37a11104d560a69bd2134de2235a0dad514d01c08cfdfa1a"
+  },
+  "schema_version": 0,
+  "selection_rule": {
+    "collection_axis_not_selected_by_count": true,
+    "domain_object_id_axis_is_pure_type_transport": true,
+    "iterator_or_borrow_axis_not_selected_by_default": true,
+    "manual_axis_selection": false,
+    "return_type_count_as_proof": false,
+    "tuple_axis_not_selected_by_count": true
+  },
+  "summary": {
+    "axis_counts": {
+      "CollectionCarrierTransportAxis": 2,
+      "DomainObjectOrIdTransportAxis": 116,
+      "IteratorOrBorrowTypeTransportAxis": 1,
+      "OpaqueTypeTransportAxis": 1,
+      "ProductTupleTransportAxis": 9,
+      "ScalarKnownTransportAxis": 1
+    },
+    "resolved_axis_count": 6,
+    "top_return_type_counts": {
+      "(": 2,
+      "(LoopStepMode, bool)": 2,
+      "(String, String)": 2,
+      "(usize, usize)": 2,
+      "(usize, usize, usize)": 1,
+      "ASTNode": 12,
+      "BasicBlockId": 8,
+      "BindingId": 2,
+      "BranchStub": 2,
+      "CarrierSets": 5,
+      "ControlFlowCounts": 2,
+      "CoreExitPlan": 3,
+      "CorePhiInfo": 4,
+      "EdgeArgs": 2,
+      "EdgeStub": 4,
+      "EffectMask": 3,
+      "FlowboxBoxKind": 2,
+      "FunctionSignature": 2,
+      "HandoffTarget": 4,
+      "LoweredRecipe": 3,
+      "MirFunction": 1,
+      "MirInstruction": 3,
+      "MirType": 4,
+      "MirValueKind": 1,
+      "SpanT": 1,
+      "TypeContextSnapshot": 1,
+      "ValueId": 10,
+      "crate::ast::ASTNode": 2,
+      "super::super::ValueId": 7,
+      "u32": 1
+    },
+    "unclassified_input_count": 130
+  },
+  "token": "MIRBUILDER-CARRIER-TYPE-TRANSPORT-UNCLASSIFIED-EVIDENCE-RESOLUTION-001"
+}
