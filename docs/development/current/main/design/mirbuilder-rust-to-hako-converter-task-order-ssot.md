@@ -24,10 +24,10 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-RESULT-CARRIER-VERIFIER-CONTRACT-001.
-  ResultCarrierVerifierPolicyV1 is defined. Next, materialize the verifier
-  contract for the three ResultBox carrier rows without Hako generation,
-  native seed materialization, or Source Selfhost claim.
+  MIRBUILDER-RESULT-CARRIER-VERIFIER-PROJECTION-POLICY-001.
+  ResultCarrierVerifierContractV1 is ready for the three ResultBox carrier
+  rows. Next, define the projection policy; do not generate Hako or materialize
+  native seeds from this policy card.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -190,85 +190,13 @@ completed:
   type_context HakoAdopted decision
   native-owner seed capability rerun 006
 
-latest_rerun_result:
-  MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-006
-  decision = KeepStopped
-  reason = NoBridgeEligibleStrictEmissionNativeSeedCandidateAfterTypeContextAdoption
-  next = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
-
-next_action:
-  MIRBUILDER-CARRIER-TYPE-TRANSPORT-POLICY-INVENTORY-RERUN-001
-  purpose = re-inventory carrier/type transport policy gaps for bridge repair
-  output = exactly one transport policy lane or KeepStopped with machine reason
-
-post_rerun_006_task_order:
-  1. land SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-002 as the accepted
-     post-strict-emission bridge exhaustion selector basis
-  2. land SOURCE-SELFHOST-POST-RERUN-006-NEXT-LANE-SELECTOR-001 to derive
-     exactly one next lane before any native seed or adoption card
-  3. next, run MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-002 so the report
-     tool re-checks projection-ledger freshness before owner selection
-  4. if no owner is derived, keep stopped; do not pick a family, shape, or
-     blocker axis by hand
-  5. repair stale design-stop guard vocabulary separately from semantic
-     converter progress if it blocks current validation
-
-post_rerun_006_selector_result:
-  token = SOURCE-SELFHOST-POST-RERUN-006-NEXT-LANE-SELECTOR-001
-  output_contract = rust-lifecycle-source-selfhost-post-rerun-006-next-lane-selector-v0
-  decision = SelectUnconvertedSurfaceReportRerun
-  reason_token = UnconvertedSurfaceReportFreshnessCheckRequiredAfterBasis002
-  selected_next_card = MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-002
-  manual_family_selection = 0
-  manual_shape_selection = 0
-  manual_axis_selection = 0
-  source_selfhost_claim = 0
-
-unconverted_surface_report_rerun_002_result:
-  token = MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-002
-  projection_descriptor_ledger_hash_fresh = 1
-  scanned_surface_count = 1584
-  missing_projection_policy_count = 1384
-  decision = KeepStopped
-  reason_token = AmbiguousUnconvertedSurfaceCandidates
-  selected_next_card = MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-007
-  source_selfhost_claim = 0
-
-native_owner_seed_capability_rerun_007_result:
-  token = MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-007
-  fresh_unconverted_surface_report_consumed = 1
-  verified_hako_family_ir_count = 47
-  bridge_eligible_count = 0
-  already_adopted_count = 12
-  decision = KeepStopped
-  reason_token = NoBridgeEligibleStrictEmissionNativeSeedCandidateAfterFreshUnconvertedSurfaceReport
-  selected_next_card = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
-  design consultation stop reached
-  source_selfhost_claim = 0
-
-bridge_blocked_reason_axis_resolution_result:
-  token = SOURCE-SELFHOST-BRIDGE-BLOCKED-REASON-AXIS-RESOLUTION-001
-  owner_kind = BridgeBlockedReasonAxisResolution
-  bridge_eligible_count = 0
-  bridge_blocked_count = 47
-  selected_axis = PolicyGapInDeniedBoundaries
-  selected_next_card = MIRBUILDER-BRIDGE-BLOCKED-GAP-CLUSTER-RESOLUTION-001
-  manual_family_selection = 0
-  manual_shape_selection = 0
-  manual_axis_selection = 0
-  cluster_size_as_proof = 0
-  source_selfhost_claim = 0
-
-bridge_blocked_gap_cluster_resolution_result:
-  token = MIRBUILDER-BRIDGE-BLOCKED-GAP-CLUSTER-RESOLUTION-001
-  pure_policy_gap_candidate_count = 24
-  selected_cluster = bridge_gap::carrier_type_transport_only
+bridge_progression_summary:
+  post_rerun_006_basis -> unconverted_report_rerun_002 -> native_seed_rerun_007
+  -> bridge_blocked_reason_axis_resolution -> bridge_blocked_gap_cluster_resolution
+  result = selected bridge_gap::carrier_type_transport_only
   carrier_type_transport_only_count = 23
   mixed_borrow_carrier_type_transport_count = 1
-  selected_next_card = MIRBUILDER-CARRIER-TYPE-TRANSPORT-POLICY-INVENTORY-RERUN-001
-  manual_cluster_selection = 0
-  cluster_size_as_proof = 0
-  source_selfhost_claim = 0
+  invariant = no manual family/shape/axis/cluster selection, source_selfhost_claim=0
 
 carrier_type_transport_policy_inventory_rerun_task:
   token = MIRBUILDER-CARRIER-TYPE-TRANSPORT-POLICY-INVENTORY-RERUN-001
@@ -314,6 +242,14 @@ result_carrier_verifier_policy_result:
   policy = ResultCarrierVerifierPolicyV1
   requires = ResultBox transport + projection_contract + canonical_json_parity + runtime_fallback=0
   selected_next_card = MIRBUILDER-RESULT-CARRIER-VERIFIER-CONTRACT-001
+  source_selfhost_claim = 0
+
+result_carrier_verifier_contract_result:
+  token = MIRBUILDER-RESULT-CARRIER-VERIFIER-CONTRACT-001
+  contract = ResultCarrierVerifierContractV1
+  result_carrier_contract_row_count = 3
+  result_carrier_contract_ready = 1
+  selected_next_card = MIRBUILDER-RESULT-CARRIER-VERIFIER-PROJECTION-POLICY-001
   source_selfhost_claim = 0
 
 post_rerun_006_selector_basis:
@@ -395,13 +331,17 @@ history, not in this task-order SSOT.
    non_authority=owner-name policy, cluster size proof, Hako generation
 
 3. MIRBUILDER-RESULT-CARRIER-VERIFIER-CONTRACT-001
-   status=next
+   status=green
    boundary=materialize verifier contract only
    semantic_authority=1983 policy fixture and ResultBox carrier rows
    non_authority=Hako generation, native seed, Source Selfhost claim
 
+next:
+  MIRBUILDER-RESULT-CARRIER-VERIFIER-PROJECTION-POLICY-001
+  boundary=policy only; no Hako generation or native seed
+
 next_documented_task =
-  MIRBUILDER-RESULT-CARRIER-VERIFIER-CONTRACT-001
+  MIRBUILDER-RESULT-CARRIER-VERIFIER-PROJECTION-POLICY-001
 
 next_after_active_3 =
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001

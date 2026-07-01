@@ -25,14 +25,14 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-RESULT-CARRIER-VERIFIER-POLICY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1983-MIRBUILDER-RESULT-CARRIER-VERIFIER-POLICY-001.md"
-latest_card_summary = """The latest card defines ResultCarrierVerifierPolicyV1
-for the selected ResultCarrierVerifierPolicyCandidate lane. It requires
-ResultBox transport, a projection contract, canonical JSON parity, and
+latest_card = "MIRBUILDER-RESULT-CARRIER-VERIFIER-CONTRACT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1984-MIRBUILDER-RESULT-CARRIER-VERIFIER-CONTRACT-001.md"
+latest_card_summary = """The latest card materializes
+ResultCarrierVerifierContractV1 for the three ResultBox carrier rows. It verifies
+ResultBox transport, projection contract presence, canonical JSON parity, and
 runtime_fallback=0, then routes the next task to
-MIRBUILDER-RESULT-CARRIER-VERIFIER-CONTRACT-001 without Hako generation, native
-seed materialization, or Source Selfhost claim."""
+MIRBUILDER-RESULT-CARRIER-VERIFIER-PROJECTION-POLICY-001 without Hako generation,
+native seed materialization, or Source Selfhost claim."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -43,6 +43,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-01: 1984 materializes the ResultCarrierVerifierContractV1 contract and selects projection policy next.",
   "2026-07-01: 1983 defines the ResultCarrierVerifierPolicyV1 policy and selects its contract card next.",
   "2026-07-01: 1982 selects ResultCarrierVerifierPolicyCandidate as the next carrier/type transport policy lane by stable priority.",
   "2026-07-01: 1981 normalizes carrier/type transport evidence and selects policy lane priority resolution.",
