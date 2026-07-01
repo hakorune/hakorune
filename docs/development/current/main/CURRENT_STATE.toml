@@ -25,11 +25,12 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-ID-SCALAR-OPERATION-VOCABULARY-INVENTORY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2025-MIRBUILDER-ID-SCALAR-OPERATION-VOCABULARY-INVENTORY-001.md"
-latest_card_summary = """The latest card classifies operation vocabulary for
-102 ID scalar source surfaces into 28 operation tokens with no unknown
-operations, then selects SourcePlanAndRecipe derivability rerun 002 next."""
+latest_card = "MIRBUILDER-ID-SCALAR-SOURCE-PLAN-AND-RECIPE-DERIVABILITY-RESOLUTION-002"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2026-MIRBUILDER-ID-SCALAR-SOURCE-PLAN-AND-RECIPE-DERIVABILITY-RESOLUTION-002.md"
+latest_card_summary = """The latest card reruns ID scalar SourcePlanAndRecipe
+derivability after surface and operation inventories. The inputs are better,
+but owner scope and behavior-recipe basis gaps remain, so Source Selfhost stays
+stopped."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -40,6 +41,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-02: 2026 reruns ID scalar SourcePlanAndRecipe derivability and stops on missing owner-scope / behavior-recipe basis.",
   "2026-07-02: 2025 inventories ID scalar operation vocabulary across 102 surfaces and selects derivability rerun 002.",
   "2026-07-02: 2024 inventories 102 ID scalar source surfaces and selects operation vocabulary inventory next.",
   "2026-07-02: 2023 defines the ID scalar SourcePlan derivation basis and selects source-surface inventory next.",
