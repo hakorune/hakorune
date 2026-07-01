@@ -1,0 +1,235 @@
+{
+  "candidate_pool": {
+    "bounded_owner_count": 2,
+    "effect_class_count": 6,
+    "effect_row_count": 14,
+    "error_semantics_count": 6,
+    "mutation_frame_count": 3,
+    "operation_token_count": 9
+  },
+  "claims": {
+    "behavior_recipe_materialization": 0,
+    "derived_artifact_seed_draft_materialization": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_plan_materialization": 0,
+    "source_selfhost_claim": 0,
+    "verifier_result_materialization": 0
+  },
+  "coverage_policy": {
+    "all_bounded_owner_operation_tokens_covered": true,
+    "behavior_recipe_materialization": false,
+    "operation_tokens_normalized_to_effect_classes": true,
+    "source_plan_materialization": false
+  },
+  "decision": {
+    "kind": "BehaviorRecipeEffectCoverageBasisDefined",
+    "reason_token": "IdScalarBehaviorRecipeEffectCoverageDefined",
+    "selected_next_card": "MIRBUILDER-ID-SCALAR-VERIFIER-INPUT-CONTRACT-BASIS-001"
+  },
+  "effect_class_summary": [
+    {
+      "effect_class": "DiagnosticBuild",
+      "operation_tokens": [
+        "DiagnosticStringBuild"
+      ]
+    },
+    {
+      "effect_class": "OwnerStateWrite",
+      "operation_tokens": [
+        "ContextRegistryConstruct"
+      ]
+    },
+    {
+      "effect_class": "PhiInstructionAppend",
+      "operation_tokens": [
+        "PhiInstructionDefine",
+        "PhiInstructionDefineCurrentBlock",
+        "PhiInstructionDefineFunction"
+      ]
+    },
+    {
+      "effect_class": "PhiInstructionPatch",
+      "operation_tokens": [
+        "PhiInstructionPatch",
+        "PhiLifecyclePatch"
+      ]
+    },
+    {
+      "effect_class": "PredicateRead",
+      "operation_tokens": [
+        "PredicateRead"
+      ]
+    },
+    {
+      "effect_class": "VerifierContractCheck",
+      "operation_tokens": [
+        "VerifierContractCheck"
+      ]
+    }
+  ],
+  "effect_rows": [
+    {
+      "effect_class": "OwnerStateWrite",
+      "operation_token": "ContextRegistryConstruct",
+      "owner_edge_id": "mirbuilder::context_registry",
+      "requires_deterministic_order": true,
+      "requires_error_semantics": false,
+      "requires_mutation_frame": true,
+      "source_id": "src/mir/builder/compilation_context.rs::with_plugin_sigs:L232",
+      "verifier_visible": true
+    },
+    {
+      "effect_class": "PhiInstructionAppend",
+      "operation_token": "PhiInstructionDefine",
+      "owner_edge_id": "mirbuilder::emission_ssa_phi",
+      "requires_deterministic_order": true,
+      "requires_error_semantics": false,
+      "requires_mutation_frame": true,
+      "source_id": "src/mir/builder/emission/phi_lifecycle.rs::define_phi_final:L246",
+      "verifier_visible": true
+    },
+    {
+      "effect_class": "PhiInstructionAppend",
+      "operation_token": "PhiInstructionDefineFunction",
+      "owner_edge_id": "mirbuilder::emission_ssa_phi",
+      "requires_deterministic_order": true,
+      "requires_error_semantics": false,
+      "requires_mutation_frame": true,
+      "source_id": "src/mir/builder/emission/phi_lifecycle.rs::define_phi_final_fn:L423",
+      "verifier_visible": true
+    },
+    {
+      "effect_class": "PhiInstructionAppend",
+      "operation_token": "PhiInstructionDefineFunction",
+      "owner_edge_id": "mirbuilder::emission_ssa_phi",
+      "requires_deterministic_order": true,
+      "requires_error_semantics": false,
+      "requires_mutation_frame": true,
+      "source_id": "src/mir/builder/emission/phi_lifecycle.rs::define_phi_final_fn_with_type_hint_and_tag:L443",
+      "verifier_visible": true
+    },
+    {
+      "effect_class": "PhiInstructionAppend",
+      "operation_token": "PhiInstructionDefine",
+      "owner_edge_id": "mirbuilder::emission_ssa_phi",
+      "requires_deterministic_order": true,
+      "requires_error_semantics": false,
+      "requires_mutation_frame": true,
+      "source_id": "src/mir/builder/emission/phi_lifecycle.rs::define_phi_final_with_type_hint:L258",
+      "verifier_visible": true
+    },
+    {
+      "effect_class": "PhiInstructionPatch",
+      "operation_token": "PhiInstructionPatch",
+      "owner_edge_id": "mirbuilder::emission_ssa_phi",
+      "requires_deterministic_order": true,
+      "requires_error_semantics": false,
+      "requires_mutation_frame": true,
+      "source_id": "src/mir/builder/emission/phi_lifecycle.rs::patch_phi_inputs:L518",
+      "verifier_visible": true
+    },
+    {
+      "effect_class": "PhiInstructionPatch",
+      "operation_token": "PhiLifecyclePatch",
+      "owner_edge_id": "mirbuilder::emission_ssa_phi",
+      "requires_deterministic_order": true,
+      "requires_error_semantics": false,
+      "requires_mutation_frame": true,
+      "source_id": "src/mir/builder/emission/phi_lifecycle.rs::patch_phi_inputs:L81",
+      "verifier_visible": true
+    },
+    {
+      "effect_class": "PhiInstructionAppend",
+      "operation_token": "PhiInstructionDefineCurrentBlock",
+      "owner_edge_id": "mirbuilder::emission_ssa_phi",
+      "requires_deterministic_order": true,
+      "requires_error_semantics": false,
+      "requires_mutation_frame": true,
+      "source_id": "src/mir/builder/phi.rs::define_current_block_phi_final:L9",
+      "verifier_visible": true
+    },
+    {
+      "effect_class": "PhiInstructionAppend",
+      "operation_token": "PhiInstructionDefineCurrentBlock",
+      "owner_edge_id": "mirbuilder::emission_ssa_phi",
+      "requires_deterministic_order": true,
+      "requires_error_semantics": false,
+      "requires_mutation_frame": true,
+      "source_id": "src/mir/builder/phi.rs::define_current_block_phi_final_with_type_hint:L25",
+      "verifier_visible": true
+    },
+    {
+      "effect_class": "DiagnosticBuild",
+      "operation_token": "DiagnosticStringBuild",
+      "owner_edge_id": "mirbuilder::emission_ssa_phi",
+      "requires_deterministic_order": false,
+      "requires_error_semantics": true,
+      "requires_mutation_frame": false,
+      "source_id": "src/mir/builder/ssa/analysis.rs::format_value_ids:L36",
+      "verifier_visible": true
+    },
+    {
+      "effect_class": "PredicateRead",
+      "operation_token": "PredicateRead",
+      "owner_edge_id": "mirbuilder::emission_ssa_phi",
+      "requires_deterministic_order": false,
+      "requires_error_semantics": false,
+      "requires_mutation_frame": false,
+      "source_id": "src/mir/builder/ssa/analysis.rs::has_dominated_same_field_set_after_root:L201",
+      "verifier_visible": true
+    },
+    {
+      "effect_class": "PredicateRead",
+      "operation_token": "PredicateRead",
+      "owner_edge_id": "mirbuilder::emission_ssa_phi",
+      "requires_deterministic_order": false,
+      "requires_error_semantics": false,
+      "requires_mutation_frame": false,
+      "source_id": "src/mir/builder/ssa/analysis.rs::strict_planner_required:L5",
+      "verifier_visible": true
+    },
+    {
+      "effect_class": "PredicateRead",
+      "operation_token": "PredicateRead",
+      "owner_edge_id": "mirbuilder::emission_ssa_phi",
+      "requires_deterministic_order": false,
+      "requires_error_semantics": false,
+      "requires_mutation_frame": false,
+      "source_id": "src/mir/builder/ssa/analysis.rs::value_defined_in_current_function:L10",
+      "verifier_visible": true
+    },
+    {
+      "effect_class": "VerifierContractCheck",
+      "operation_token": "VerifierContractCheck",
+      "owner_edge_id": "mirbuilder::emission_ssa_phi",
+      "requires_deterministic_order": false,
+      "requires_error_semantics": true,
+      "requires_mutation_frame": false,
+      "source_id": "src/mir/builder/ssa/phi_input_contract.rs::check_phi_input_contract:L7",
+      "verifier_visible": true
+    }
+  ],
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "error_and_deterministic_order_basis": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-error-and-deterministic-order-basis-v0.json",
+    "native_seed_file_boundary_basis": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-native-seed-file-boundary-basis-v0.json",
+    "operation_vocabulary_inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-operation-vocabulary-inventory-v0.json",
+    "state_mutation_frame_basis": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-state-mutation-frame-basis-v0.json"
+  },
+  "kind": "MirBuilderIdScalarBehaviorRecipeEffectCoverageBasisV1",
+  "provenance": {
+    "error_and_deterministic_order_basis_hash": "8b8d3a22bedb28935556cb6671a60cd5e4ade01354274be4323c91884188d817",
+    "native_seed_file_boundary_basis_hash": "377f8f8e101c6db4b3909179c3842e855aaa45aa2fce6b878a49583026314b74",
+    "operation_vocabulary_inventory_hash": "0621af5b2cffd27c406f20daca9e95d2ea949be414947bce945d9977511ed261",
+    "state_mutation_frame_basis_hash": "9394bce404229542ea455689df42a8955b64530f25a2b687146cbef745ae48ff"
+  },
+  "schema_version": 0,
+  "token": "MIRBUILDER-ID-SCALAR-BEHAVIOR-RECIPE-EFFECT-COVERAGE-BASIS-001"
+}
