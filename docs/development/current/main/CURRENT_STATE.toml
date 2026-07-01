@@ -25,13 +25,13 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "SOURCE-SELFHOST-NATIVE-OWNER-CHECKPOINT-RERUN-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2007-SOURCE-SELFHOST-NATIVE-OWNER-CHECKPOINT-RERUN-001.md"
-latest_card_summary = """The latest card reruns the native-owner checkpoint
-after seed rerun 008. It keeps Source Selfhost unclaimed and selects
-MissingProjectionPolicy V3 by evidence quality: 1004 candidates, 819 with
-fixture-mapped known-shape evidence, while BorrowSurface evidence quality
-remains zero."""
+latest_card = "MIRBUILDER-MISSING-PROJECTION-POLICY-CLUSTER-RESOLUTION-V3"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2008-MIRBUILDER-MISSING-PROJECTION-POLICY-CLUSTER-RESOLUTION-V3.md"
+latest_card_summary = """The latest card reclusters the remaining
+MissingProjectionPolicy queue after descriptor coverage reclassification. It
+finds 1004 candidates, 78 clusters, zero directly selectable projection-policy
+clusters, and selects carrier/type transport policy inventory rerun 002 because
+76 clusters are blocked by missing type transport evidence."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -42,6 +42,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-01: 2008 reclusters remaining MissingProjectionPolicy and selects carrier/type transport policy inventory rerun 002.",
   "2026-07-01: 2007 reruns the native-owner checkpoint and selects MissingProjectionPolicy V3 by evidence quality.",
   "2026-07-01: 2006 reruns native-owner seed capability after descriptor coverage reclassification and selects native-owner checkpoint rerun.",
   "2026-07-01: 2005 reclassifies 380 descriptor-covered source surfaces and selects native-owner seed capability rerun 008.",
