@@ -1605,6 +1605,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-owner-scope-boundedness-resolution-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_id_scalar_owner_scope_boundedness_resolution_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-ID-SCALAR-OWNER-SCOPE-BLOCKER-PRIORITY-RESOLUTION-001",
+      "card": "docs/development/current/main/phases/phase-296x/2029-MIRBUILDER-ID-SCALAR-OWNER-SCOPE-BLOCKER-PRIORITY-RESOLUTION-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-owner-scope-blocker-priority-resolution-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_id_scalar_owner_scope_blocker_priority_resolution_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {

@@ -1,0 +1,111 @@
+{
+  "blocker_components": [
+    {
+      "affected_candidate_count": 4,
+      "blocked_by": "StateTargetsNotEnumerated",
+      "component_id": "StateTargetEnumeration",
+      "dependency_rank": 0,
+      "requires": [],
+      "selected_next_card": "MIRBUILDER-ID-SCALAR-STATE-TARGET-ENUMERATION-BASIS-001",
+      "selection_eligible": true,
+      "unblocks": [
+        "OwnerScopeBoundedness",
+        "NativeSeedFileBoundary",
+        "StateMutationFrame",
+        "CrossOwnerRecipeAuthority",
+        "BehaviorRecipeEffectCoverage"
+      ]
+    },
+    {
+      "affected_candidate_count": 4,
+      "blocked_by": "NativeSeedFileBoundaryNotDerived",
+      "component_id": "NativeSeedFileBoundary",
+      "dependency_rank": 2,
+      "requires": [
+        "StateTargetEnumeration",
+        "OwnerScopeBoundedness"
+      ],
+      "selected_next_card": "MIRBUILDER-ID-SCALAR-NATIVE-SEED-FILE-BOUNDARY-BASIS-001",
+      "selection_eligible": false,
+      "unblocks": [
+        "NativeSourceSeedReadiness"
+      ]
+    },
+    {
+      "affected_candidate_count": 2,
+      "blocked_by": "OperationTokensRequireCrossOwnerRecipeAuthority",
+      "component_id": "CrossOwnerRecipeAuthority",
+      "dependency_rank": 1,
+      "requires": [
+        "StateTargetEnumeration"
+      ],
+      "selected_next_card": "MIRBUILDER-ID-SCALAR-CROSS-OWNER-RECIPE-AUTHORITY-BASIS-001",
+      "selection_eligible": false,
+      "unblocks": [
+        "OwnerAuthorityRecipeAuthoritySplit",
+        "BehaviorRecipeEffectCoverage"
+      ]
+    }
+  ],
+  "claims": {
+    "behavior_recipe_materialization": 0,
+    "cluster_size_as_proof": 0,
+    "derived_artifact_seed_draft_materialization": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "manual_axis_selection": 0,
+    "manual_owner_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "route_membership_alone_as_proof": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_file_path_as_authority": 0,
+    "source_plan_materialization": 0,
+    "source_selfhost_claim": 0,
+    "surface_count_as_proof": 0,
+    "verifier_result_materialization": 0
+  },
+  "decision": {
+    "kind": "SelectOwnerScopeBlockerComponent",
+    "reason_token": "StateTargetEnumerationSelectedAsOwnerScopeRootBlocker",
+    "selected_component_id": "StateTargetEnumeration",
+    "selected_next_card": "MIRBUILDER-ID-SCALAR-STATE-TARGET-ENUMERATION-BASIS-001"
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "operation_vocabulary_inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-operation-vocabulary-inventory-v0.json",
+    "owner_scope_boundedness_resolution": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-owner-scope-boundedness-resolution-v0.json",
+    "source_plan_derivability_rerun_002": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-source-plan-and-recipe-derivability-resolution-002-v0.json",
+    "source_surface_inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-source-surface-inventory-v0.json"
+  },
+  "kind": "MirBuilderIdScalarOwnerScopeBlockerPriorityResolutionV1",
+  "previous_state": {
+    "cross_owner_recipe_required_count": 2,
+    "input_candidate_count": 4,
+    "native_seed_file_boundary_derivable_count": 0,
+    "owner_scope_bounded_count": 0,
+    "reason_token": "IdScalarOwnerScopeBoundednessNotProven",
+    "selection_eligible_for_source_plan_count": 0,
+    "state_targets_enumerated_count": 0
+  },
+  "provenance": {
+    "operation_vocabulary_inventory_hash": "0621af5b2cffd27c406f20daca9e95d2ea949be414947bce945d9977511ed261",
+    "owner_scope_boundedness_resolution_hash": "b3e72d2dcc3ea0b85da653550faeff97b2a4d72d64c084c2d4a443e098895c6f",
+    "source_plan_derivability_rerun_002_hash": "8a0e4efcfb2013092472c4ff7218808de8143daecc0785b7ccee7e1f71cb8119",
+    "source_surface_inventory_hash": "df4562eceb32f942ff6dbd41cb5abbd2becb8c0fd9d4f0bbcd04820fb90056b7"
+  },
+  "schema_version": 0,
+  "selection_rule": {
+    "cluster_size_as_proof": false,
+    "manual_axis_selection": false,
+    "prefer_common_root_blocker": true,
+    "route_membership_alone_as_proof": false,
+    "select_lowest_dependency_rank": true,
+    "source_file_path_as_authority": false,
+    "surface_count_as_proof": false
+  },
+  "token": "MIRBUILDER-ID-SCALAR-OWNER-SCOPE-BLOCKER-PRIORITY-RESOLUTION-001"
+}
