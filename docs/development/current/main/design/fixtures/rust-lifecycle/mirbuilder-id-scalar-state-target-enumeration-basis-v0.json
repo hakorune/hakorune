@@ -1,0 +1,577 @@
+{
+  "candidate_pool": {
+    "all_targets_inside_owner_scope_count": 2,
+    "cross_owner_state_target_count": 4,
+    "input_candidate_count": 4,
+    "mutation_frame_required_owner_edge_count": 3,
+    "state_target_count": 22,
+    "state_targets_enumerated_owner_edge_count": 4
+  },
+  "claims": {
+    "behavior_recipe_materialization": 0,
+    "cluster_size_as_proof": 0,
+    "derived_artifact_seed_draft_materialization": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "manual_axis_selection": 0,
+    "manual_owner_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_file_path_as_authority": 0,
+    "source_plan_materialization": 0,
+    "source_selfhost_claim": 0,
+    "surface_count_as_proof": 0,
+    "verifier_result_materialization": 0
+  },
+  "decision": {
+    "kind": "StateTargetBasisDefined",
+    "reason_token": "IdScalarStateTargetsEnumerated",
+    "selected_next_card": "MIRBUILDER-ID-SCALAR-OWNER-SCOPE-BOUNDEDNESS-RESOLUTION-002"
+  },
+  "enumeration_policy": {
+    "grouped_by": "owner_edge",
+    "manual_owner_selection": false,
+    "primary_unit": "semantic_state_target",
+    "source_file_path_as_authority": false,
+    "surface_count_as_proof": false,
+    "validated_by": [
+      "source_surface",
+      "operation_token",
+      "mutation_frame",
+      "native_seed_file_boundary"
+    ]
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "operation_vocabulary_inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-operation-vocabulary-inventory-v0.json",
+    "owner_scope_blocker_priority": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-owner-scope-blocker-priority-resolution-v0.json",
+    "owner_scope_boundedness_resolution": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-owner-scope-boundedness-resolution-v0.json",
+    "source_surface_inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-source-surface-inventory-v0.json"
+  },
+  "kind": "MirBuilderIdScalarStateTargetEnumerationBasisV1",
+  "owner_edge_targets": [
+    {
+      "all_state_targets_inside_owner_scope": true,
+      "cross_owner_state_target_count": 0,
+      "mutation_frame_required_count": 1,
+      "owner_edge_id": "mirbuilder::context_registry",
+      "state_targets": [
+        {
+          "access": [
+            "Write"
+          ],
+          "inside_owner_scope": true,
+          "mutation_frame_required": true,
+          "operation_tokens": [
+            "ContextRegistryConstruct"
+          ],
+          "requires_cross_owner_recipe_authority": false,
+          "semantic_resource": "ContextRegistryState",
+          "source_surfaces": [
+            "src/mir/builder/compilation_context.rs::with_plugin_sigs:L232"
+          ],
+          "state_target_id": "mirbuilder::context_registry::context_registry_state",
+          "target_kind": "OwnerField"
+        }
+      ],
+      "state_targets_enumerated": true
+    },
+    {
+      "all_state_targets_inside_owner_scope": true,
+      "cross_owner_state_target_count": 0,
+      "mutation_frame_required_count": 2,
+      "owner_edge_id": "mirbuilder::emission_ssa_phi",
+      "state_targets": [
+        {
+          "access": [
+            "Observe"
+          ],
+          "inside_owner_scope": true,
+          "mutation_frame_required": false,
+          "operation_tokens": [
+            "DiagnosticStringBuild"
+          ],
+          "requires_cross_owner_recipe_authority": false,
+          "semantic_resource": "DiagnosticState",
+          "source_surfaces": [
+            "src/mir/builder/ssa/analysis.rs::format_value_ids:L36"
+          ],
+          "state_target_id": "mirbuilder::emission_ssa_phi::diagnostic_state",
+          "target_kind": "DiagnosticState"
+        },
+        {
+          "access": [
+            "Append",
+            "Read",
+            "Write"
+          ],
+          "inside_owner_scope": true,
+          "mutation_frame_required": true,
+          "operation_tokens": [
+            "PhiInstructionDefine",
+            "PhiInstructionDefineCurrentBlock",
+            "PhiInstructionDefineFunction",
+            "PhiInstructionPatch"
+          ],
+          "requires_cross_owner_recipe_authority": false,
+          "semantic_resource": "PhiInstructionState",
+          "source_surfaces": [
+            "src/mir/builder/emission/phi_lifecycle.rs::define_phi_final:L246",
+            "src/mir/builder/emission/phi_lifecycle.rs::define_phi_final_fn:L423",
+            "src/mir/builder/emission/phi_lifecycle.rs::define_phi_final_fn_with_type_hint_and_tag:L443",
+            "src/mir/builder/emission/phi_lifecycle.rs::define_phi_final_with_type_hint:L258",
+            "src/mir/builder/emission/phi_lifecycle.rs::patch_phi_inputs:L518",
+            "src/mir/builder/phi.rs::define_current_block_phi_final:L9",
+            "src/mir/builder/phi.rs::define_current_block_phi_final_with_type_hint:L25"
+          ],
+          "state_target_id": "mirbuilder::emission_ssa_phi::phi_instruction_state",
+          "target_kind": "OwnerField"
+        },
+        {
+          "access": [
+            "Read",
+            "Write"
+          ],
+          "inside_owner_scope": true,
+          "mutation_frame_required": true,
+          "operation_tokens": [
+            "PhiLifecyclePatch"
+          ],
+          "requires_cross_owner_recipe_authority": false,
+          "semantic_resource": "PhiLifecycleState",
+          "source_surfaces": [
+            "src/mir/builder/emission/phi_lifecycle.rs::patch_phi_inputs:L81"
+          ],
+          "state_target_id": "mirbuilder::emission_ssa_phi::phi_lifecycle_state",
+          "target_kind": "OwnerField"
+        },
+        {
+          "access": [
+            "Read"
+          ],
+          "inside_owner_scope": true,
+          "mutation_frame_required": false,
+          "operation_tokens": [
+            "PredicateRead"
+          ],
+          "requires_cross_owner_recipe_authority": false,
+          "semantic_resource": "PredicateObservationState",
+          "source_surfaces": [
+            "src/mir/builder/ssa/analysis.rs::has_dominated_same_field_set_after_root:L201",
+            "src/mir/builder/ssa/analysis.rs::strict_planner_required:L5",
+            "src/mir/builder/ssa/analysis.rs::value_defined_in_current_function:L10"
+          ],
+          "state_target_id": "mirbuilder::emission_ssa_phi::predicate_observation_state",
+          "target_kind": "VerifierObservation"
+        },
+        {
+          "access": [
+            "Observe"
+          ],
+          "inside_owner_scope": true,
+          "mutation_frame_required": false,
+          "operation_tokens": [
+            "VerifierContractCheck"
+          ],
+          "requires_cross_owner_recipe_authority": false,
+          "semantic_resource": "VerifierObservationState",
+          "source_surfaces": [
+            "src/mir/builder/ssa/phi_input_contract.rs::check_phi_input_contract:L7"
+          ],
+          "state_target_id": "mirbuilder::emission_ssa_phi::verifier_observation_state",
+          "target_kind": "VerifierObservation"
+        }
+      ],
+      "state_targets_enumerated": true
+    },
+    {
+      "all_state_targets_inside_owner_scope": false,
+      "cross_owner_state_target_count": 2,
+      "mutation_frame_required_count": 7,
+      "owner_edge_id": "mirbuilder::join_i_r_plan",
+      "state_targets": [
+        {
+          "access": [
+            "Append"
+          ],
+          "inside_owner_scope": true,
+          "mutation_frame_required": false,
+          "operation_tokens": [
+            "TraceDiagnosticEmission"
+          ],
+          "requires_cross_owner_recipe_authority": false,
+          "semantic_resource": "DiagnosticState",
+          "source_surfaces": [
+            "src/mir/builder/control_flow/plan/trace.rs::trace_outcome_path:L36",
+            "src/mir/builder/control_flow/plan/trace.rs::trace_outcome_snapshot:L20",
+            "src/mir/builder/control_flow/plan/trace.rs::trace_try_take_planner:L3"
+          ],
+          "state_target_id": "mirbuilder::join_i_r_plan::diagnostic_state",
+          "target_kind": "DiagnosticState"
+        },
+        {
+          "access": [
+            "Append"
+          ],
+          "inside_owner_scope": true,
+          "mutation_frame_required": true,
+          "operation_tokens": [
+            "PlanListBuild",
+            "SkeletonOrWiringBuild"
+          ],
+          "requires_cross_owner_recipe_authority": false,
+          "semantic_resource": "JoinIRPlanState",
+          "source_surfaces": [
+            "src/mir/builder/control_flow/plan/skeletons/generic_loop.rs::alloc_generic_loop_v0_skeleton:L24",
+            "src/mir/builder/control_flow/plan/skeletons/loop_true.rs::alloc_loop_true_skeleton:L24",
+            "src/mir/builder/control_flow/plan/step_mode.rs::extract_to_step_bb_explicit_step:L11",
+            "src/mir/builder/control_flow/plan/step_mode.rs::inline_in_body_no_explicit_step:L6",
+            "src/mir/builder/control_flow/plan/steps/effects.rs::effects_to_plans:L7",
+            "src/mir/builder/control_flow/plan/steps/loop_wiring_standard5.rs::build_standard5_internal_wires:L37",
+            "src/mir/builder/control_flow/plan/steps/loop_wiring_standard5.rs::empty_carriers_args:L16"
+          ],
+          "state_target_id": "mirbuilder::join_i_r_plan::join_i_r_plan_state",
+          "target_kind": "OutputPlanList"
+        },
+        {
+          "access": [
+            "Append"
+          ],
+          "inside_owner_scope": true,
+          "mutation_frame_required": true,
+          "operation_tokens": [
+            "JoinPayloadBuild"
+          ],
+          "requires_cross_owner_recipe_authority": false,
+          "semantic_resource": "JoinPayloadState",
+          "source_surfaces": [
+            "src/mir/builder/control_flow/plan/steps/join_payload.rs::build_join_payload:L105"
+          ],
+          "state_target_id": "mirbuilder::join_i_r_plan::join_payload_state",
+          "target_kind": "OutputPlanList"
+        },
+        {
+          "access": [
+            "Write"
+          ],
+          "inside_owner_scope": true,
+          "mutation_frame_required": true,
+          "operation_tokens": [
+            "LoopBindingBuild"
+          ],
+          "requires_cross_owner_recipe_authority": false,
+          "semantic_resource": "LoopBindingState",
+          "source_surfaces": [
+            "src/mir/builder/control_flow/plan/features/loop_carriers.rs::build_loop_bindings:L39"
+          ],
+          "state_target_id": "mirbuilder::join_i_r_plan::loop_binding_state",
+          "target_kind": "LocalAccumulator"
+        },
+        {
+          "access": [
+            "Write"
+          ],
+          "inside_owner_scope": true,
+          "mutation_frame_required": true,
+          "operation_tokens": [
+            "PhiInfoBuild"
+          ],
+          "requires_cross_owner_recipe_authority": false,
+          "semantic_resource": "PhiInfoState",
+          "source_surfaces": [
+            "src/mir/builder/control_flow/plan/features/loop_carriers.rs::build_phi_info:L8"
+          ],
+          "state_target_id": "mirbuilder::join_i_r_plan::phi_info_state",
+          "target_kind": "LocalAccumulator"
+        },
+        {
+          "access": [
+            "Read"
+          ],
+          "inside_owner_scope": false,
+          "mutation_frame_required": false,
+          "operation_tokens": [
+            "PlannerGateOrFactRead"
+          ],
+          "requires_cross_owner_recipe_authority": true,
+          "semantic_resource": "PlannerFactState",
+          "source_surfaces": [
+            "src/mir/builder/control_flow/plan/loop_cond_unified_helpers.rs::count_control_flow_with_returns:L35",
+            "src/mir/builder/control_flow/plan/loop_cond_unified_helpers.rs::entry_gate_ok:L14",
+            "src/mir/builder/control_flow/plan/loop_cond_unified_helpers.rs::validate_loop_condition:L27"
+          ],
+          "state_target_id": "mirbuilder::join_i_r_plan::planner_fact_state",
+          "target_kind": "ExternalDependency"
+        },
+        {
+          "access": [
+            "Observe",
+            "Read"
+          ],
+          "inside_owner_scope": false,
+          "mutation_frame_required": false,
+          "operation_tokens": [
+            "PlannerSessionDispatch"
+          ],
+          "requires_cross_owner_recipe_authority": true,
+          "semantic_resource": "PlannerSessionState",
+          "source_surfaces": [
+            "src/mir/builder/control_flow/plan/plan_build_session.rs::emit_and_seal:L55",
+            "src/mir/builder/control_flow/plan/plan_build_session.rs::new:L33",
+            "src/mir/builder/control_flow/plan/single_planner/mod.rs::try_build_outcome:L17",
+            "src/mir/builder/control_flow/plan/single_planner/rules.rs::try_build_outcome:L107"
+          ],
+          "state_target_id": "mirbuilder::join_i_r_plan::planner_session_state",
+          "target_kind": "ExternalDependency"
+        },
+        {
+          "access": [
+            "Read"
+          ],
+          "inside_owner_scope": true,
+          "mutation_frame_required": false,
+          "operation_tokens": [
+            "PredicateRead",
+            "ReadOnlyLength"
+          ],
+          "requires_cross_owner_recipe_authority": false,
+          "semantic_resource": "PredicateObservationState",
+          "source_surfaces": [
+            "src/mir/builder/control_flow/plan/features/body_view.rs::len:L13",
+            "src/mir/builder/control_flow/plan/loop_break/facts/helpers_common.rs::has_continue_statement:L92",
+            "src/mir/builder/control_flow/plan/loop_break/facts/helpers_common.rs::has_return_statement:L99",
+            "src/mir/builder/control_flow/plan/loop_break/facts/helpers_condition.rs::matches_eq_empty_string:L113",
+            "src/mir/builder/control_flow/plan/loop_break/facts/helpers_condition.rs::matches_ge_zero:L90",
+            "src/mir/builder/control_flow/plan/loop_break/facts/helpers_loop.rs::has_assignment_after:L99",
+            "src/mir/builder/control_flow/plan/loop_break/facts/trim_whitespace_helpers.rs::collect_whitespace_terms:L118",
+            "src/mir/builder/control_flow/plan/loop_break/facts/trim_whitespace_helpers.rs::matches_substring_at_loop_var:L489"
+          ],
+          "state_target_id": "mirbuilder::join_i_r_plan::predicate_observation_state",
+          "target_kind": "VerifierObservation"
+        },
+        {
+          "access": [
+            "Read",
+            "Write"
+          ],
+          "inside_owner_scope": true,
+          "mutation_frame_required": true,
+          "operation_tokens": [
+            "RouteLocalCleanupMutationFrame"
+          ],
+          "requires_cross_owner_recipe_authority": false,
+          "semantic_resource": "RouteLocalCleanupState",
+          "source_surfaces": [
+            "src/mir/builder/control_flow/plan/features/loop_true_break_continue_cleanup.rs::apply_fallthrough_continue_exit:L19"
+          ],
+          "state_target_id": "mirbuilder::join_i_r_plan::route_local_cleanup_state",
+          "target_kind": "LocalAccumulator"
+        },
+        {
+          "access": [
+            "Write"
+          ],
+          "inside_owner_scope": true,
+          "mutation_frame_required": true,
+          "operation_tokens": [
+            "RouteLocalClosureConstruct"
+          ],
+          "requires_cross_owner_recipe_authority": false,
+          "semantic_resource": "RouteLocalClosureState",
+          "source_surfaces": [
+            "src/mir/builder/control_flow/plan/features/loop_cond_bc_phi_materializer.rs::new:L29",
+            "src/mir/builder/control_flow/plan/features/loop_cond_co_phi_materializer.rs::new:L19",
+            "src/mir/builder/control_flow/plan/features/loop_cond_continue_with_return_phi_materializer.rs::new:L27",
+            "src/mir/builder/control_flow/plan/features/loop_cond_return_in_body_phi_materializer.rs::new:L30",
+            "src/mir/builder/control_flow/plan/features/loop_true_break_continue_phi_materializer.rs::new:L19"
+          ],
+          "state_target_id": "mirbuilder::join_i_r_plan::route_local_closure_state",
+          "target_kind": "LocalAccumulator"
+        },
+        {
+          "access": [
+            "Append"
+          ],
+          "inside_owner_scope": true,
+          "mutation_frame_required": true,
+          "operation_tokens": [
+            "RouteRewriteBuild"
+          ],
+          "requires_cross_owner_recipe_authority": false,
+          "semantic_resource": "RouteRewriteState",
+          "source_surfaces": [
+            "src/mir/builder/control_flow/plan/branchn.rs::branchn_to_if_chain:L24"
+          ],
+          "state_target_id": "mirbuilder::join_i_r_plan::route_rewrite_state",
+          "target_kind": "OutputPlanList"
+        }
+      ],
+      "state_targets_enumerated": true
+    },
+    {
+      "all_state_targets_inside_owner_scope": false,
+      "cross_owner_state_target_count": 2,
+      "mutation_frame_required_count": 0,
+      "owner_edge_id": "mirbuilder::join_i_r_route_verify",
+      "state_targets": [
+        {
+          "access": [
+            "Append",
+            "Read"
+          ],
+          "inside_owner_scope": true,
+          "mutation_frame_required": false,
+          "operation_tokens": [
+            "VerifierDiagnosticState"
+          ],
+          "requires_cross_owner_recipe_authority": false,
+          "semantic_resource": "DiagnosticState",
+          "source_surfaces": [
+            "src/mir/builder/control_flow/verify/diagnostics/planner_reject_detail.rs::clear_last_plan_reject_detail:L10",
+            "src/mir/builder/control_flow/verify/diagnostics/planner_reject_detail.rs::set_last_plan_reject_detail:L17",
+            "src/mir/builder/control_flow/verify/diagnostics/planner_reject_detail.rs::set_last_plan_reject_detail_if_absent:L24",
+            "src/mir/builder/control_flow/verify/diagnostics/span_format.rs::normalize_span_line_col:L1",
+            "src/mir/builder/control_flow/verify/verifier/primitives.rs::err:L69"
+          ],
+          "state_target_id": "mirbuilder::join_i_r_route_verify::diagnostic_state",
+          "target_kind": "DiagnosticState"
+        },
+        {
+          "access": [
+            "Read"
+          ],
+          "inside_owner_scope": true,
+          "mutation_frame_required": false,
+          "operation_tokens": [
+            "PredicateRead"
+          ],
+          "requires_cross_owner_recipe_authority": false,
+          "semantic_resource": "PredicateObservationState",
+          "source_surfaces": [
+            "src/mir/builder/control_flow/facts/block_policies.rs::is_allowed_effect_stmt:L16",
+            "src/mir/builder/control_flow/facts/expr_bool.rs::is_supported_bool_expr_with_canon:L10",
+            "src/mir/builder/control_flow/facts/expr_value.rs::is_supported_value_expr:L5",
+            "src/mir/builder/control_flow/facts/expr_value.rs::value_expr_requires_canon:L31",
+            "src/mir/builder/control_flow/facts/extractors/common_helpers/condition.rs::is_true_literal:L8",
+            "src/mir/builder/control_flow/facts/extractors/common_helpers/control_flow.rs::branch_tail_is_continue:L129",
+            "src/mir/builder/control_flow/facts/extractors/common_helpers/control_flow.rs::branch_tail_is_continue_flattened:L133",
+            "src/mir/builder/control_flow/facts/extractors/common_helpers/control_flow.rs::has_break_statement:L113",
+            "src/mir/builder/control_flow/facts/extractors/common_helpers/control_flow.rs::has_continue_statement:L118",
+            "src/mir/builder/control_flow/facts/extractors/common_helpers/control_flow.rs::has_if_else_statement:L146",
+            "src/mir/builder/control_flow/facts/extractors/common_helpers/control_flow.rs::has_return_statement:L123",
+            "src/mir/builder/control_flow/facts/route_shape_recognizers/carrier_count.rs::count_carriers_in_body:L26",
+            "src/mir/builder/control_flow/facts/route_shape_recognizers/continue_break.rs::detect_break_in_body:L38",
+            "src/mir/builder/control_flow/facts/route_shape_recognizers/continue_break.rs::detect_continue_in_body:L25",
+            "src/mir/builder/control_flow/facts/route_shape_recognizers/continue_break.rs::detect_return_in_body:L45",
+            "src/mir/builder/control_flow/facts/route_shape_recognizers/continue_break.rs::has_continue_node:L50",
+            "src/mir/builder/control_flow/facts/route_shape_recognizers/if_else_phi.rs::detect_if_else_phi_in_body:L36",
+            "src/mir/builder/control_flow/facts/route_shape_recognizers/infinite_loop.rs::detect_infinite_loop:L18"
+          ],
+          "state_target_id": "mirbuilder::join_i_r_route_verify::predicate_observation_state",
+          "target_kind": "VerifierObservation"
+        },
+        {
+          "access": [
+            "Read"
+          ],
+          "inside_owner_scope": false,
+          "mutation_frame_required": false,
+          "operation_tokens": [
+            "RecipeIndexRead"
+          ],
+          "requires_cross_owner_recipe_authority": true,
+          "semantic_resource": "RecipeAuthorityState",
+          "source_surfaces": [
+            "src/mir/builder/control_flow/recipes/body.rs::end_index:L85",
+            "src/mir/builder/control_flow/recipes/body.rs::index:L62",
+            "src/mir/builder/control_flow/recipes/body.rs::start_index:L81",
+            "src/mir/builder/control_flow/recipes/refs.rs::end_index:L57",
+            "src/mir/builder/control_flow/recipes/refs.rs::index:L19",
+            "src/mir/builder/control_flow/recipes/refs.rs::start_index:L53"
+          ],
+          "state_target_id": "mirbuilder::join_i_r_route_verify::recipe_authority_state",
+          "target_kind": "ExternalDependency"
+        },
+        {
+          "access": [
+            "Observe",
+            "Read"
+          ],
+          "inside_owner_scope": false,
+          "mutation_frame_required": false,
+          "operation_tokens": [
+            "EdgeCfgCompose",
+            "MergeContractOrDiagnostic",
+            "MergeRewriteDecision",
+            "RouteVerifyPredicate"
+          ],
+          "requires_cross_owner_recipe_authority": true,
+          "semantic_resource": "RouteVerificationState",
+          "source_surfaces": [
+            "src/mir/builder/control_flow/edgecfg/api/compose/if_.rs::if_:L51",
+            "src/mir/builder/control_flow/joinir/merge/boundary_logging.rs::log_boundary_info:L18",
+            "src/mir/builder/control_flow/joinir/merge/boundary_logging.rs::log_merge_complete:L100",
+            "src/mir/builder/control_flow/joinir/merge/contract_checks/carrier_inputs.rs::verify_carrier_inputs_complete:L25",
+            "src/mir/builder/control_flow/joinir/merge/contract_checks/entry_like_policy.rs::is_entry_like_source:L8",
+            "src/mir/builder/control_flow/joinir/merge/dev_log.rs::dev_enabled:L6",
+            "src/mir/builder/control_flow/joinir/merge/exit_args_collector.rs::to_carrier_map:L249",
+            "src/mir/builder/control_flow/joinir/merge/phi_block_remapper.rs::remap_existing_phi_block_ids:L15",
+            "src/mir/builder/control_flow/joinir/merge/rewriter/helpers.rs::is_skippable_continuation:L31",
+            "src/mir/builder/control_flow/joinir/merge/rewriter/instruction_filter_box.rs::should_skip_boundary_input_const:L64",
+            "src/mir/builder/control_flow/joinir/merge/rewriter/instruction_filter_box.rs::should_skip_copy_overwriting_phi:L28",
+            "src/mir/builder/control_flow/joinir/merge/rewriter/instruction_filter_box.rs::should_skip_function_name_const:L47",
+            "src/mir/builder/control_flow/joinir/merge/rewriter/return_converter_box.rs::should_keep_return:L27",
+            "src/mir/builder/control_flow/joinir/merge/rewriter/stages/plan/entry_resolver.rs::resolve_entry_func_name:L20",
+            "src/mir/builder/control_flow/joinir/merge/rewriter/tail_call_policy.rs::is_loop_entry_source:L16",
+            "src/mir/builder/control_flow/verify/coreloop_body_contract.rs::has_control_flow_effect:L27",
+            "src/mir/builder/control_flow/verify/coreloop_body_contract.rs::is_effect_only_stmt:L36",
+            "src/mir/builder/control_flow/verify/coreloop_body_contract.rs::is_leaf_effect_plan:L10"
+          ],
+          "state_target_id": "mirbuilder::join_i_r_route_verify::route_verification_state",
+          "target_kind": "ExternalOwnerState"
+        },
+        {
+          "access": [
+            "Observe"
+          ],
+          "inside_owner_scope": true,
+          "mutation_frame_required": false,
+          "operation_tokens": [
+            "VerifierObservabilityEmit"
+          ],
+          "requires_cross_owner_recipe_authority": false,
+          "semantic_resource": "VerifierObservationState",
+          "source_surfaces": [
+            "src/mir/builder/control_flow/verify/observability/flowbox_tags.rs::emit_flowbox_adopt_tag:L129",
+            "src/mir/builder/control_flow/verify/observability/flowbox_tags.rs::emit_flowbox_adopt_tag_for_coreplan:L108",
+            "src/mir/builder/control_flow/verify/observability/flowbox_tags.rs::emit_flowbox_adopt_tag_from_coreplan:L99",
+            "src/mir/builder/control_flow/verify/observability/flowbox_tags.rs::emit_flowbox_freeze_contract:L159",
+            "src/mir/builder/control_flow/verify/observability/flowbox_tags.rs::emit_flowbox_freeze_tag:L169",
+            "src/mir/builder/control_flow/verify/observability/flowbox_tags.rs::emit_flowbox_freeze_tag_from_facts:L149"
+          ],
+          "state_target_id": "mirbuilder::join_i_r_route_verify::verifier_observation_state",
+          "target_kind": "VerifierObservation"
+        }
+      ],
+      "state_targets_enumerated": true
+    }
+  ],
+  "previous_state": {
+    "input_candidate_count": 4,
+    "selected_component_id": "StateTargetEnumeration",
+    "selected_next_card": "MIRBUILDER-ID-SCALAR-STATE-TARGET-ENUMERATION-BASIS-001",
+    "state_targets_enumerated_count": 0
+  },
+  "provenance": {
+    "operation_vocabulary_inventory_hash": "0621af5b2cffd27c406f20daca9e95d2ea949be414947bce945d9977511ed261",
+    "owner_scope_blocker_priority_hash": "31eaeedc9556cdefa744a8ca084cd62e115ea1cbff45da37010ac97d375a61b4",
+    "owner_scope_boundedness_resolution_hash": "b3e72d2dcc3ea0b85da653550faeff97b2a4d72d64c084c2d4a443e098895c6f",
+    "source_surface_inventory_hash": "df4562eceb32f942ff6dbd41cb5abbd2becb8c0fd9d4f0bbcd04820fb90056b7"
+  },
+  "schema_version": 0,
+  "token": "MIRBUILDER-ID-SCALAR-STATE-TARGET-ENUMERATION-BASIS-001"
+}

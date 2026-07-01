@@ -25,10 +25,10 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-ID-SCALAR-OWNER-SCOPE-BLOCKER-PRIORITY-RESOLUTION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2029-MIRBUILDER-ID-SCALAR-OWNER-SCOPE-BLOCKER-PRIORITY-RESOLUTION-001.md"
-latest_card_summary = """The latest card resolves ID scalar owner-scope
-blocker priority and selects StateTargetEnumeration as the next root blocker
+latest_card = "MIRBUILDER-ID-SCALAR-STATE-TARGET-ENUMERATION-BASIS-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2030-MIRBUILDER-ID-SCALAR-STATE-TARGET-ENUMERATION-BASIS-001.md"
+latest_card_summary = """The latest card enumerates ID scalar semantic state
+targets across four owner edges and selects owner-scope boundedness rerun 002
 without selecting an owner or materializing a seed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
@@ -40,6 +40,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-02: 2030 enumerates 22 ID scalar semantic state targets and selects owner-scope boundedness rerun 002.",
   "2026-07-02: 2029 selects StateTargetEnumeration as the ID scalar owner-scope root blocker without selecting an owner or seed.",
   "2026-07-02: 2028 resolves ID scalar owner-scope boundedness and keeps Source Selfhost stopped with no bounded owner.",
   "2026-07-02: 2027 selects OwnerScopeBoundedness as the next ID scalar SourcePlan basis component.",

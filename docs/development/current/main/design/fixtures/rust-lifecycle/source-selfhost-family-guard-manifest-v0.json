@@ -1612,6 +1612,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-owner-scope-blocker-priority-resolution-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_id_scalar_owner_scope_blocker_priority_resolution_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-ID-SCALAR-STATE-TARGET-ENUMERATION-BASIS-001",
+      "card": "docs/development/current/main/phases/phase-296x/2030-MIRBUILDER-ID-SCALAR-STATE-TARGET-ENUMERATION-BASIS-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-state-target-enumeration-basis-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_id_scalar_state_target_enumeration_basis_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {
