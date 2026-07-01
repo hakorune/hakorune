@@ -24,9 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-ID-SCALAR-OWNER-SCOPE-BOUNDEDNESS-RESOLUTION-002.
-  ID scalar state targets are now enumerated; rerun owner-scope boundedness
-  before native seed file boundary or cross-owner recipe authority.
+  MIRBUILDER-ID-SCALAR-NATIVE-SEED-FILE-BOUNDARY-BASIS-001.
+  ID scalar boundedness rerun found two bounded owners, but native seed file
+  boundary is still required before SourcePlanAndRecipe.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  MIRBUILDER-ID-SCALAR-OWNER-SCOPE-BOUNDEDNESS-RESOLUTION-002
+  MIRBUILDER-ID-SCALAR-NATIVE-SEED-FILE-BOUNDARY-BASIS-001
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -372,6 +372,12 @@ id_scalar_state_target_enumeration_result:
   selected_next_card = MIRBUILDER-ID-SCALAR-OWNER-SCOPE-BOUNDEDNESS-RESOLUTION-002
   source_selfhost_claim = 0
 
+id_scalar_owner_scope_boundedness_rerun_002_result:
+  token = MIRBUILDER-ID-SCALAR-OWNER-SCOPE-BOUNDEDNESS-RESOLUTION-002
+  owner_scope_bounded_count = 2
+  selected_next_card = MIRBUILDER-ID-SCALAR-NATIVE-SEED-FILE-BOUNDARY-BASIS-001
+  source_selfhost_claim = 0
+
 placement_rule:
   scan_unit = rust_function_or_method
   classification_unit = semantic_owner_edge
@@ -401,27 +407,27 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. MIRBUILDER-ID-SCALAR-STATE-TARGET-ENUMERATION-BASIS-001
+1. MIRBUILDER-ID-SCALAR-OWNER-SCOPE-BOUNDEDNESS-RESOLUTION-002
    status=closed
-   boundary=22 semantic state targets enumerated, no SourcePlan or seed
+   boundary=2 bounded owners, native seed file boundary still missing
 
-2. MIRBUILDER-ID-SCALAR-OWNER-SCOPE-BOUNDEDNESS-RESOLUTION-002
+2. MIRBUILDER-ID-SCALAR-NATIVE-SEED-FILE-BOUNDARY-BASIS-001
    status=next
-   boundary=rerun boundedness after state target enumeration
+   boundary=derive owner module seed boundary; no SourcePlan or seed
 
 3. SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
    status=guardrail
    boundary=no native seed / Hako generation / Source Selfhost claim
 
 next:
-  MIRBUILDER-ID-SCALAR-OWNER-SCOPE-BOUNDEDNESS-RESOLUTION-002
-  boundary=use state target set to resolve bounded owner scope
+  MIRBUILDER-ID-SCALAR-NATIVE-SEED-FILE-BOUNDARY-BASIS-001
+  boundary=derive native seed file boundary for bounded ID scalar owners
 
 next_documented_task =
-  MIRBUILDER-ID-SCALAR-OWNER-SCOPE-BOUNDEDNESS-RESOLUTION-002
+  MIRBUILDER-ID-SCALAR-NATIVE-SEED-FILE-BOUNDARY-BASIS-001
 
 next_after_active_3 =
-  TBD_AFTER_ID_SCALAR_OWNER_SCOPE_BOUNDEDNESS_RERUN_002
+  TBD_AFTER_ID_SCALAR_NATIVE_SEED_FILE_BOUNDARY_BASIS
 ```
 
 ## Landed Converter Capability Summary
