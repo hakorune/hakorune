@@ -24,9 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-ID-SCALAR-VERIFIER-INPUT-CONTRACT-BASIS-001.
-  Behavior recipe effect coverage is normalized; next define verifier input
-  contract before SourcePlanAndRecipe derivability.
+  MIRBUILDER-ID-SCALAR-SOURCE-PLAN-AND-RECIPE-DERIVABILITY-RESOLUTION-003.
+  Verifier input contract facts are declared; rerun SourcePlanAndRecipe
+  derivability before any materialization.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  MIRBUILDER-ID-SCALAR-VERIFIER-INPUT-CONTRACT-BASIS-001
+  MIRBUILDER-ID-SCALAR-SOURCE-PLAN-AND-RECIPE-DERIVABILITY-RESOLUTION-003
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -359,6 +359,12 @@ id_scalar_behavior_recipe_effect_coverage_basis_result:
   selected_next_card = MIRBUILDER-ID-SCALAR-VERIFIER-INPUT-CONTRACT-BASIS-001
   source_selfhost_claim = 0
 
+id_scalar_verifier_input_contract_basis_result:
+  token = MIRBUILDER-ID-SCALAR-VERIFIER-INPUT-CONTRACT-BASIS-001
+  input_fact_set_count = 6
+  selected_next_card = MIRBUILDER-ID-SCALAR-SOURCE-PLAN-AND-RECIPE-DERIVABILITY-RESOLUTION-003
+  source_selfhost_claim = 0
+
 placement_rule:
   scan_unit = rust_function_or_method
   classification_unit = semantic_owner_edge
@@ -388,27 +394,27 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. MIRBUILDER-ID-SCALAR-BEHAVIOR-RECIPE-EFFECT-COVERAGE-BASIS-001
+1. MIRBUILDER-ID-SCALAR-VERIFIER-INPUT-CONTRACT-BASIS-001
    status=closed
-   boundary=6 effect classes covered, no behavior recipe materialized
+   boundary=6 verifier input fact sets declared, no verifier result
 
-2. MIRBUILDER-ID-SCALAR-VERIFIER-INPUT-CONTRACT-BASIS-001
+2. MIRBUILDER-ID-SCALAR-SOURCE-PLAN-AND-RECIPE-DERIVABILITY-RESOLUTION-003
    status=next
-   boundary=define verifier inputs only; no verifier result or seed
+   boundary=rerun derivability only; no materialization
 
 3. SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
    status=guardrail
    boundary=no native seed / Hako generation / Source Selfhost claim
 
 next:
-  MIRBUILDER-ID-SCALAR-VERIFIER-INPUT-CONTRACT-BASIS-001
-  boundary=declare verifier input facts for effect coverage
+  MIRBUILDER-ID-SCALAR-SOURCE-PLAN-AND-RECIPE-DERIVABILITY-RESOLUTION-003
+  boundary=select exactly one derivable owner or keep stopped
 
 next_documented_task =
-  MIRBUILDER-ID-SCALAR-VERIFIER-INPUT-CONTRACT-BASIS-001
+  MIRBUILDER-ID-SCALAR-SOURCE-PLAN-AND-RECIPE-DERIVABILITY-RESOLUTION-003
 
 next_after_active_3 =
-  TBD_AFTER_ID_SCALAR_VERIFIER_INPUT_CONTRACT_BASIS
+  TBD_AFTER_ID_SCALAR_SOURCE_PLAN_DERIVABILITY_RERUN_003
 ```
 
 ## Landed Converter Capability Summary

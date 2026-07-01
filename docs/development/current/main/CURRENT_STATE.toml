@@ -25,11 +25,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-ID-SCALAR-BEHAVIOR-RECIPE-EFFECT-COVERAGE-BASIS-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2037-MIRBUILDER-ID-SCALAR-BEHAVIOR-RECIPE-EFFECT-COVERAGE-BASIS-001.md"
-latest_card_summary = """The latest card normalizes bounded ID scalar
-operation tokens into behavior recipe effect classes and selects verifier
-input contract basis next."""
+latest_card = "MIRBUILDER-ID-SCALAR-VERIFIER-INPUT-CONTRACT-BASIS-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2038-MIRBUILDER-ID-SCALAR-VERIFIER-INPUT-CONTRACT-BASIS-001.md"
+latest_card_summary = """The latest card defines verifier input contract
+facts for bounded ID scalar SourcePlan evidence and selects derivability rerun
+003 next."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -40,6 +40,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-02: 2038 defines verifier input contract facts for bounded ID scalar SourcePlan evidence.",
   "2026-07-02: 2037 normalizes bounded ID scalar operation tokens into six behavior recipe effect classes.",
   "2026-07-02: 2036 declares ID scalar error semantics and deterministic order obligations.",
   "2026-07-02: 2035 declares three ID scalar state mutation frames for bounded owners.",
