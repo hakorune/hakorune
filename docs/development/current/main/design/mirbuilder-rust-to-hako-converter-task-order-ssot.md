@@ -24,9 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-DIRECT-STATE-PLAN-REFRESH-HAKO-ADOPTION-DECISION-001.
-  The direct_state_plan_refresh native source seed was materialized from
-  DerivedArtifactSeedDraftInput without HakoAdopted or Source Selfhost claim.
+  MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-RERUN-003.
+  The direct_state_plan_refresh native source seed is now adopted as a narrow
+  native Hako source owner without Source Selfhost claim.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next owner:
-  MIRBUILDER-DIRECT-STATE-PLAN-REFRESH-HAKO-ADOPTION-DECISION-001
+  MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-RERUN-003
 
 current fail-fast boundary:
   Do not reopen `variable_map()` as a raw borrowed alias. The selected
@@ -213,6 +213,14 @@ direct_state_plan_refresh_native_seed_result:
   selected_next_card = MIRBUILDER-DIRECT-STATE-PLAN-REFRESH-HAKO-ADOPTION-DECISION-001
   source_selfhost_claim = 0
 
+direct_state_plan_refresh_adoption_result:
+  token = MIRBUILDER-DIRECT-STATE-PLAN-REFRESH-HAKO-ADOPTION-DECISION-001
+  decision = Adopt
+  native_hako_source_owner_present = 1
+  rust_role = bootstrap_oracle_compat
+  selected_next_card = MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-RERUN-003
+  source_selfhost_claim = 0
+
 post_rerun_006_selector_basis:
   token = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-002
   output_contract = rust-lifecycle-source-selfhost-wider-route-selection-basis-002-v0
@@ -298,14 +306,14 @@ history, not in this task-order SSOT.
    non_authority=HakoAdopted, Source Selfhost claim, Rust deletion
 
 next:
-  MIRBUILDER-DIRECT-STATE-PLAN-REFRESH-HAKO-ADOPTION-DECISION-001
-  boundary=adopt/defer/reject native seed; no Source Selfhost claim
+  MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-RERUN-003
+  boundary=rerun after direct_state_plan_refresh adoption; no Source Selfhost claim
 
 next_documented_task =
-  MIRBUILDER-DIRECT-STATE-PLAN-REFRESH-HAKO-ADOPTION-DECISION-001
+  MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-RERUN-003
 
 next_after_active_3 =
-  MIRBUILDER-DIRECT-STATE-PLAN-REFRESH-HAKO-ADOPTION-DECISION-001
+  MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-RERUN-003
 ```
 
 ## Landed Converter Capability Summary

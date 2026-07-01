@@ -28,7 +28,6 @@
     "generator_overwrite_guard": true,
     "module_export": "lib.direct_state_plan_refresh_native_seed",
     "native_seed_api": "DirectStatePlanRefreshApi.project_shadow_record",
-    "native_seed_sha256": "9755085fdf7146234e86a40e1b364167efde9674bd342298c1d4870bee41c652",
     "outside_generated_tree": true,
     "path": "lang/src/compiler/lib/direct_state_plan_refresh_native_seed.hako"
   },

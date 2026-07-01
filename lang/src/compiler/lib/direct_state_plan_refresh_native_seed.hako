@@ -1,7 +1,7 @@
 // native-source-seed: MIRBUILDER-DIRECT-STATE-PLAN-REFRESH-HAKO-NATIVE-SOURCE-SEED-001
 // source-family: hakorune_mir_builder::direct_state_plan_refresh
 // source-input-state: DerivedArtifactSeedDraftInput
-// hako-adopted: 0
+// hako-adopted: 1
 // source-selfhost-claim: 0
 using selfhost.shared.common.box_helpers as BoxHelpers
 

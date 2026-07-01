@@ -1,0 +1,57 @@
+{
+  "claims": {
+    "cluster_size_as_proof": 0,
+    "coverage_percentage_as_proof": 0,
+    "generated_artifact_as_edit_authority": 0,
+    "hako_adopted": 1,
+    "manual_family_selection": 0,
+    "native_hako_source_owner_present": 1,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_canonical_mir_instruction": 0,
+    "new_python_semantic_projector": 0,
+    "route_membership_alone_as_proof": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "rust_bootstrap_retained": 1,
+    "rust_deletion": 0,
+    "rust_oracle_retained": 1,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "reason_token": "DirectStatePlanRefreshNativeSeedPresentAndBridgePolicyV2Green",
+    "selected_next_route": "native_hako_source_owner",
+    "value": "Adopt"
+  },
+  "family_id": "hakorune_mir_builder::direct_state_plan_refresh",
+  "input_authority": {
+    "bridge_policy_v2": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-strict-emission-to-native-seed-bridge-policy-v2-v0.json",
+    "derived_artifact_verifier": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-direct-state-plan-refresh-derived-hako-verifier-result-v0.json",
+    "derived_to_native_model": "docs/development/current/main/design/derived-to-native-hako-artifact-model-ssot.md",
+    "native_source_path": "lang/src/compiler/lib/direct_state_plan_refresh_native_seed.hako",
+    "native_source_seed": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-direct-state-plan-refresh-hako-native-source-seed-v0.json",
+    "strict_candidate_selection_rerun_002": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-strict-converter-emission-native-seed-candidate-selection-rerun-002-v0.json"
+  },
+  "kind": "MirBuilderDirectStatePlanRefreshHakoAdoptionDecisionV1",
+  "next_action": {
+    "kind": "StrictEmissionNativeSeedCandidateSelectionRerun",
+    "next_card": "MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-RERUN-003",
+    "reason_token": "DirectStatePlanRefreshAdoptedSourceSelfhostStillStopped"
+  },
+  "post_decision_state": {
+    "generated_artifact_role": "provenance_and_regeneration_reference",
+    "hako_adopted": 1,
+    "native_edit_authority": 1,
+    "python_role": "oracle_guard_only",
+    "rust_role": "bootstrap_oracle_compat"
+  },
+  "schema_version": 0,
+  "target": {
+    "family_scope": "LeafSemanticOwner",
+    "generated_artifact_as_edit_authority": 0,
+    "native_source_owner_present": 1,
+    "selected_behavior": "DirectStatePlanRefreshPreparedOnly",
+    "strict_emission_bridge_candidate": 1
+  },
+  "token": "MIRBUILDER-DIRECT-STATE-PLAN-REFRESH-HAKO-ADOPTION-DECISION-001"
+}

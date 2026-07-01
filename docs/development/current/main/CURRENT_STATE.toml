@@ -25,14 +25,13 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-DIRECT-STATE-PLAN-REFRESH-HAKO-NATIVE-SOURCE-SEED-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/1992-MIRBUILDER-DIRECT-STATE-PLAN-REFRESH-HAKO-NATIVE-SOURCE-SEED-001.md"
-latest_card_summary = """The latest card materializes the native .hako source
-seed for hakorune_mir_builder::direct_state_plan_refresh from
-DerivedArtifactSeedDraftInput, adds the compiler module export, and defers the
-HakoAdopted decision to
-MIRBUILDER-DIRECT-STATE-PLAN-REFRESH-HAKO-ADOPTION-DECISION-001 without Source
-Selfhost claim."""
+latest_card = "MIRBUILDER-DIRECT-STATE-PLAN-REFRESH-HAKO-ADOPTION-DECISION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/1993-MIRBUILDER-DIRECT-STATE-PLAN-REFRESH-HAKO-ADOPTION-DECISION-001.md"
+latest_card_summary = """The latest card adopts the direct_state_plan_refresh
+native .hako source seed as a narrow native Hako source owner while retaining
+Rust as bootstrap/oracle/compat and keeping Source Selfhost, Rust deletion,
+runtime fallback, backend, ABI, canonical MIR, and Python projector claims at
+0."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -43,6 +42,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-01: 1993 adopts direct_state_plan_refresh as a narrow native Hako source owner without Source Selfhost claim.",
   "2026-07-01: 1992 materializes the direct_state_plan_refresh native source seed and defers HakoAdopted decision.",
   "2026-07-01: 1991 reruns strict candidate selection with BridgePolicyV2 and selects direct_state_plan_refresh native seed.",
   "2026-07-01: 1990 defines BridgePolicyV2 for mention-only forbidden non-claims and selects strict candidate rerun 002.",

@@ -27,6 +27,7 @@ GENERATED = ROOT / "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_
 GENERATED_MANIFEST = ROOT / "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_direct_state_plan_refresh.artifact.json"
 NATIVE_SEED = ROOT / "lang/src/compiler/lib/direct_state_plan_refresh_native_seed.hako"
 FIXTURE = ROOT / "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-direct-state-plan-refresh-hako-native-source-seed-v0.json"
+ADOPTION_FIXTURE = ROOT / "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-direct-state-plan-refresh-hako-adoption-decision-v0.json"
 
 
 def rel(path: Path) -> str:
@@ -62,12 +63,18 @@ def render_native_seed() -> str:
         raise SystemExit("generated artifact has no Hako body")
     body = "\n".join(lines[body_start:]).rstrip() + "\n"
 
+    hako_adopted = 0
+    if ADOPTION_FIXTURE.exists():
+        adoption = load_json(ADOPTION_FIXTURE)
+        if adoption.get("decision", {}).get("value") == "Adopt":
+            hako_adopted = 1
+
     header = "\n".join(
         [
             f"// native-source-seed: {TOKEN}",
             f"// source-family: {FAMILY_ID}",
             "// source-input-state: DerivedArtifactSeedDraftInput",
-            "// hako-adopted: 0",
+            f"// hako-adopted: {hako_adopted}",
             "// source-selfhost-claim: 0",
             "",
         ]
@@ -123,7 +130,6 @@ def render_fixture(native_text: str) -> dict:
             "native_seed_api": "DirectStatePlanRefreshApi.project_shadow_record",
             "outside_generated_tree": True,
             "generator_overwrite_guard": True,
-            "native_seed_sha256": sha256_text(native_text),
         },
         "selected_behavior": {
             "operation": "DirectStatePlanRefreshPreparedOnly",
