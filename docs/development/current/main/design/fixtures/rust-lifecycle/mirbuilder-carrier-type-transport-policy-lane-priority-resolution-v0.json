@@ -1,0 +1,125 @@
+{
+  "claims": {
+    "carrier_type_transport_evidence_inventory_consumed": 1,
+    "cluster_size_as_proof": 0,
+    "coverage_percentage_as_proof": 0,
+    "generated_artifact_as_native_edit_authority": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "manual_axis_selection": 0,
+    "manual_carrier_selection": 0,
+    "manual_family_selection": 0,
+    "manual_shape_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "owner_name_as_transport_policy": 0,
+    "policy_lane_priority_resolution_ready": 1,
+    "route_membership_alone_as_proof": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "SelectCarrierTypeTransportPolicyLane",
+    "reason_token": "StableCarrierTypeTransportLanePrioritySelected",
+    "selected_next_card": "MIRBUILDER-RESULT-CARRIER-VERIFIER-POLICY-001",
+    "selected_policy_lane": "ResultCarrierVerifierPolicyCandidate"
+  },
+  "input_state": {
+    "carrier_type_transport_evidence_inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-transport-evidence-inventory-v0.json",
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+  },
+  "kind": "MirBuilderCarrierTypeTransportPolicyLanePriorityResolutionV1",
+  "lane_priority": [
+    "ResultCarrierVerifierPolicyCandidate",
+    "OptionCarrierPolicyCandidate",
+    "VecOrArrayCarrierPolicyCandidate",
+    "GenericCarrierPolicyCandidate"
+  ],
+  "policy_lanes": [
+    {
+      "candidate_count": 12,
+      "candidate_owner_edges": [
+        "hakorune_mir::MirModuleMinimalShell",
+        "hakorune_mir_builder::condition_fn_injection",
+        "hakorune_mir_builder::current_function_take",
+        "hakorune_mir_builder::current_module_take",
+        "hakorune_mir_builder::dev_birth_verification",
+        "hakorune_mir_builder::literal_integer_lowering",
+        "hakorune_mir_builder::metadata_origin_caller_merge",
+        "hakorune_mir_builder::module_function_insertion",
+        "hakorune_mir_builder::phi_input_materialization",
+        "hakorune_mir_builder::single_scalar_loop_carrier",
+        "hakorune_mir_builder::type_hint_provision",
+        "hakorune_mir_builder::typed_value_verification"
+      ],
+      "lane": "GenericCarrierPolicyCandidate",
+      "priority_index": 3,
+      "selection_eligible": true
+    },
+    {
+      "candidate_count": 2,
+      "candidate_owner_edges": [
+        "hakorune_mir_builder::binding_context",
+        "hakorune_mir_builder::canonical_explicit_phi"
+      ],
+      "lane": "KnownTypeTransportNoCarrierPolicy",
+      "priority_index": null,
+      "selection_eligible": false
+    },
+    {
+      "candidate_count": 3,
+      "candidate_owner_edges": [
+        "hakorune_mir_builder::next_value_id_prepared_state_kernel",
+        "hakorune_mir_builder::phi_return_type_inference",
+        "hakorune_mir_builder::prepared_state_install"
+      ],
+      "lane": "OptionCarrierPolicyCandidate",
+      "priority_index": 1,
+      "selection_eligible": true
+    },
+    {
+      "candidate_count": 3,
+      "candidate_owner_edges": [
+        "hakorune_mir_builder::direct_state_plan_refresh",
+        "hakorune_mir_builder::record_packed_layout_refresh",
+        "hakorune_mir_builder::typed_object_plan_refresh"
+      ],
+      "lane": "ResultCarrierVerifierPolicyCandidate",
+      "priority_index": 0,
+      "selection_eligible": true
+    },
+    {
+      "candidate_count": 3,
+      "candidate_owner_edges": [
+        "hakorune_mir::MirFunctionConstructorShell",
+        "hakorune_mir_builder::multi_carrier_exit_phi",
+        "hakorune_mir_builder::structured_loop_without_carried_state"
+      ],
+      "lane": "VecOrArrayCarrierPolicyCandidate",
+      "priority_index": 2,
+      "selection_eligible": true
+    }
+  ],
+  "provenance": {
+    "carrier_type_transport_evidence_inventory_hash": "8fcd028d3c9f893e0f1e0ca4f6066bf3d742c8c7ee2b40b332afdcd8fddfcb5a"
+  },
+  "schema_version": 0,
+  "selection_rule": {
+    "cluster_size_as_proof": false,
+    "exclude_known_type_transport_no_policy_from_policy_lane_selection": true,
+    "manual_carrier_selection": false,
+    "owner_name_as_transport_policy": false,
+    "use_precedent_lane_order": true
+  },
+  "summary": {
+    "eligible_policy_lane_count": 4,
+    "input_candidate_count": 23,
+    "known_type_transport_no_policy_count": 2,
+    "policy_lane_count": 5,
+    "selected_policy_lane_candidate_count": 3
+  },
+  "token": "MIRBUILDER-CARRIER-TYPE-TRANSPORT-POLICY-LANE-PRIORITY-RESOLUTION-001"
+}

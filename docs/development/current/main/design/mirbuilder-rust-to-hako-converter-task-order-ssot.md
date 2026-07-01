@@ -24,10 +24,10 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-CARRIER-TYPE-TRANSPORT-POLICY-LANE-PRIORITY-RESOLUTION-001.
-  Evidence inventory is complete for all 23 carrier/type candidates, but the
-  normalized rows split into five policy lane buckets. Select the next lane by
-  evidence quality before any concrete carrier policy card.
+  MIRBUILDER-RESULT-CARRIER-VERIFIER-POLICY-001.
+  Carrier/type transport lane priority selected ResultCarrierVerifierPolicyCandidate
+  as the next concrete policy lane. Define the result-carrier verifier policy
+  without Hako generation, native seed materialization, or Source Selfhost claim.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -298,6 +298,16 @@ carrier_type_transport_evidence_inventory_result:
   selected_next_card = MIRBUILDER-CARRIER-TYPE-TRANSPORT-POLICY-LANE-PRIORITY-RESOLUTION-001
   source_selfhost_claim = 0
 
+carrier_type_transport_policy_lane_priority_result:
+  token = MIRBUILDER-CARRIER-TYPE-TRANSPORT-POLICY-LANE-PRIORITY-RESOLUTION-001
+  input_candidate_count = 23
+  eligible_policy_lane_count = 4
+  known_type_transport_no_policy_count = 2
+  selected_policy_lane = ResultCarrierVerifierPolicyCandidate
+  selected_policy_lane_candidate_count = 3
+  selected_next_card = MIRBUILDER-RESULT-CARRIER-VERIFIER-POLICY-001
+  source_selfhost_claim = 0
+
 post_rerun_006_selector_basis:
   token = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-002
   output_contract = rust-lifecycle-source-selfhost-wider-route-selection-basis-002-v0
@@ -376,14 +386,14 @@ history, not in this task-order SSOT.
    semantic_authority=bridge gap fixture, strict candidate fixture, verifier evidence
    non_authority=owner-name policy, cluster size proof, Hako generation
 
-3. MIRBUILDER-CARRIER-TYPE-TRANSPORT-POLICY-LANE-PRIORITY-RESOLUTION-001
+3. MIRBUILDER-RESULT-CARRIER-VERIFIER-POLICY-001
    status=next
-   boundary=select exactly one carrier/type policy lane by evidence quality
-   semantic_authority=1981 evidence inventory fixture
-   non_authority=manual carrier policy, owner-name policy, Source Selfhost claim
+   boundary=define result-carrier verifier policy only
+   semantic_authority=1982 priority fixture and result carrier evidence rows
+   non_authority=Hako generation, native seed, Source Selfhost claim
 
 next_documented_task =
-  MIRBUILDER-CARRIER-TYPE-TRANSPORT-POLICY-LANE-PRIORITY-RESOLUTION-001
+  MIRBUILDER-RESULT-CARRIER-VERIFIER-POLICY-001
 
 next_after_active_3 =
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
