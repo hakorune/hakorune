@@ -1,0 +1,81 @@
+{
+  "allowed_proof_axes": [
+    "TypedEvidenceIndexCompleteness",
+    "VerifierInputContractCompleteness",
+    "NativeSeedFileBoundaryDeterminism",
+    "StateTargetClosureQuality",
+    "OperationEffectClassCompleteness",
+    "SourcePlanRecipeComponentReadiness",
+    "SemanticOperationAuthorityComplete",
+    "SelectorGuardClean"
+  ],
+  "authority_rules": {
+    "eligible_zero_or_lexical_sort_selection_forbidden": true,
+    "fixture_declared_role_required_for_semantic_operation_mapping": true,
+    "mention_only_owner_edge_text_is_not_evidence": true,
+    "operation_name_fallback_is_diagnostic_only": true,
+    "shape_name_is_provenance_not_semantic_policy": true,
+    "typed_evidence_index_required": true
+  },
+  "claims": {
+    "behavior_recipe_materialization": 0,
+    "cluster_size_as_proof": 0,
+    "coverage_percentage_as_proof": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "lexical_order_as_proof": 0,
+    "manual_owner_selection": 0,
+    "native_seed_materialization": 0,
+    "owner_name_as_proof": 0,
+    "route_membership_alone_as_proof": 0,
+    "row_count_as_proof": 0,
+    "source_plan_materialization": 0,
+    "source_selfhost_claim": 0,
+    "surface_count_as_proof": 0,
+    "verifier_result_materialization": 0
+  },
+  "decision": {
+    "kind": "BasisFixtureMaterialized",
+    "reason_token": "IdScalarDerivableOwnerDiscriminatorBasisFixtureMaterialized",
+    "selected_next_card": "MIRBUILDER-ID-SCALAR-DERIVABLE-OWNER-PROOF-AXIS-REFINEMENT-001"
+  },
+  "forbidden_selection_axes": [
+    "OwnerName",
+    "LexicalOrder",
+    "SurfaceCount",
+    "RowCount",
+    "ClusterSize",
+    "CoveragePercentage",
+    "RouteMembershipAlone",
+    "ManualOwnerPreference"
+  ],
+  "formalized_fixture": {
+    "hash": "fb6f3198356cba532ece159934204ef2676b4a284668cafa9726f6115916d99e",
+    "materialized": true,
+    "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-derivable-owner-discriminator-basis-v0.json"
+  },
+  "input_state": {
+    "basis_card": "docs/development/current/main/phases/phase-296x/2040-MIRBUILDER-ID-SCALAR-DERIVABLE-OWNER-DISCRIMINATOR-BASIS-001.md",
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "resolution_card": "docs/development/current/main/phases/phase-296x/2044-MIRBUILDER-ID-SCALAR-DERIVABLE-OWNER-DISCRIMINATOR-RESOLUTION-001.md",
+    "resolution_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-derivable-owner-discriminator-resolution-v0.json"
+  },
+  "kind": "MirBuilderIdScalarDerivableOwnerDiscriminatorBasisFormalizationV1",
+  "provenance": {
+    "basis_card_hash": "0ef5916c4999034dae4d891c1f546225ee71462f331a0a45584984d74a368fe4",
+    "resolution_card_hash": "cde5377cd17ae610a940d4b8042eb0ca17ff73968030bbc9f46ac7e857bb8459",
+    "resolution_fixture_hash": "5ffc8685018ecf631347efaea6a0ee1ab076d66094cfff83648a841b5981a80b"
+  },
+  "resolution_reference_repair": {
+    "resolution_reason_token": "MultipleEqualIdScalarDerivableOwnerDiscriminatorCandidates",
+    "resolution_referenced_basis_fixture_exists": true,
+    "resolution_token": "MIRBUILDER-ID-SCALAR-DERIVABLE-OWNER-DISCRIMINATOR-RESOLUTION-001"
+  },
+  "schema_version": 0,
+  "tie_break_signals_only": [
+    "AlreadyHakoAdoptedAdjacency",
+    "MinimalPathProximity",
+    "MigrationUnblockValue"
+  ],
+  "token": "MIRBUILDER-ID-SCALAR-DERIVABLE-OWNER-DISCRIMINATOR-BASIS-FORMALIZATION-001"
+}

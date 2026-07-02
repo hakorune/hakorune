@@ -1,0 +1,108 @@
+{
+  "claims": {
+    "behavior_recipe_materialization": 0,
+    "context_registry_projection_policy_consumed": 1,
+    "derived_artifact_seed_draft_materialization": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "id_scalar_derivable_owner_discriminator_resolution_consumed": 1,
+    "keep_parent_owner_as_standalone_proof": 0,
+    "latest_candidate_rerun_consumed": 1,
+    "lifecycle_contract_descriptor_completeness": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "owner_name_as_proof": 0,
+    "projection_descriptor_coverage_as_standalone_proof": 0,
+    "remaining_owner_count_as_proof": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_path_as_authority": 0,
+    "source_plan_materialization": 0,
+    "source_selfhost_claim": 0,
+    "source_symbol_as_proof": 0,
+    "verifier_result_materialization": 0,
+    "with_plugin_sigs_symbol_name_as_proof": 0
+  },
+  "classification": {
+    "blocked_by": [
+      "standalone_subject_id_declared",
+      "parent_owner_id_declared",
+      "parent_semantics_not_copied",
+      "external_parent_dependencies_declared"
+    ],
+    "kind": "RemainParentOwned",
+    "lifecycle_contract_descriptor_allowed_next": false,
+    "source_plan_materialization_allowed": false,
+    "standalone_projection_subject_established": false
+  },
+  "decision": {
+    "kind": "SelectWiderRouteSelectionBasis",
+    "reason_token": "ContextRegistryRemainsParentOwnedNotSeedEligible",
+    "selected_next_card": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-007"
+  },
+  "input_candidate": {
+    "current_reason_token": "ContextRegistryPluginSignatureConstructorIsParentOwned",
+    "existing_blocked_by": [
+      "LifecycleContractDescriptorCompleteness",
+      "StandaloneProjectionSubjectEstablished"
+    ],
+    "owner_edge_id": "mirbuilder::context_registry",
+    "projection_disposition": "KeepParentOwner",
+    "projection_surface_selected": false,
+    "remaining_owner_count_as_proof": false
+  },
+  "input_state": {
+    "behavior_recipe_effect_coverage_basis": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-behavior-recipe-effect-coverage-basis-v0.json",
+    "context_registry_projection_policy": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-context-registry-projection-policy-v0.json",
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "id_scalar_derivable_owner_discriminator_resolution": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-derivable-owner-discriminator-resolution-002-v0.json",
+    "latest_candidate_rerun": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-native-owner-seed-capability-survey-rerun-010-v0.json",
+    "native_seed_file_boundary_basis": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-native-seed-file-boundary-basis-v0.json",
+    "source_surface_inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-source-surface-inventory-v0.json",
+    "state_target_enumeration_basis": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-state-target-enumeration-basis-v0.json",
+    "typed_evidence_index_policy": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-typed-evidence-index-policy-v0.json"
+  },
+  "kind": "MirBuilderIdScalarParentOwnedSubjectBoundaryResolutionV1",
+  "provenance": {
+    "behavior_recipe_effect_coverage_basis_hash": "eccf436dd5b747797f25f6172989715a560ce6a9a68ef23515f67833ffaebd52",
+    "context_registry_projection_policy_hash": "539ea16847568d278d56a32fdaff81a625956a77405e1c5432a86ebe4819ef3e",
+    "id_scalar_derivable_owner_discriminator_resolution_hash": "ca083c4bec992a893ffc55d0951945b6715134c54f8ee752f3b9be8a0f119b34",
+    "latest_candidate_rerun_hash": "7766fe7161bec42d009ecb4b49c9ae8a963effbacdcc01df593a5739f9bc979e",
+    "native_seed_file_boundary_basis_hash": "377f8f8e101c6db4b3909179c3842e855aaa45aa2fce6b878a49583026314b74",
+    "source_surface_inventory_hash": "0f9e17e1ef0a1f4c12e90de9891a16c5c1a8533815e8265136b7cefcb0f57ba7",
+    "state_target_enumeration_basis_hash": "4e181f270e58a6559a8dc6985dc0f7a3ed457d5228bc3b285824142090df8920",
+    "typed_evidence_index_policy_hash": "b867d3cae82afae180a820eee3ed618270ad4c8ad75b9b11c51da33b7386e223"
+  },
+  "schema_version": 0,
+  "subject_boundary_tests": {
+    "external_parent_dependencies_declared": false,
+    "generator_overwrite_guard_candidate_declared": true,
+    "keep_parent_owner_as_standalone_proof": false,
+    "module_export_candidate_declared": true,
+    "native_seed_file_boundary_candidate_declared": true,
+    "operation_effect_class_set_declared": true,
+    "owned_semantic_resource_declared": true,
+    "parent_owner_id_declared": false,
+    "parent_semantics_not_copied": false,
+    "route_membership_alone_as_proof": false,
+    "shape_name_as_semantic_policy": false,
+    "source_path_as_authority": false,
+    "source_surface_set_declared": true,
+    "source_symbol_as_proof": false,
+    "standalone_subject_id_declared": false,
+    "state_target_set_declared": true
+  },
+  "token": "MIRBUILDER-ID-SCALAR-PARENT-OWNED-SUBJECT-BOUNDARY-RESOLUTION-001",
+  "typed_subject_boundary_evidence": {
+    "module_export_candidate": "lib.mirbuilder.context_registry_native_seed",
+    "native_source_seed_path_candidate": "lang/src/compiler/lib/mirbuilder/context_registry_native_seed.hako",
+    "operation_effect_classes": [
+      "OwnerStateWrite"
+    ],
+    "source_surface_count": 1,
+    "state_target_count": 1,
+    "typed_evidence_complete": true
+  }
+}

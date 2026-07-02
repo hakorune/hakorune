@@ -37,6 +37,7 @@ lib.box_field_initialization_native_seed = "lib/box_field_initialization_native_
 lib.direct_state_plan_refresh_native_seed = "lib/direct_state_plan_refresh_native_seed.hako"
 lib.record_packed_layout_refresh_native_seed = "lib/record_packed_layout_refresh_native_seed.hako"
 lib.typed_object_plan_refresh_native_seed = "lib/typed_object_plan_refresh_native_seed.hako"
+lib.mirbuilder.emission_ssa_phi_native_seed = "lib/mirbuilder/emission_ssa_phi_native_seed.hako"
 lib.module_metadata_publication_projector = "lib/module_metadata_publication_projector.hako"
 lib.record_packed_layout_refresh = "lib/record_packed_layout_refresh_projector.hako"
 lib.return_emission_projector = "lib/return_emission_projector.hako"

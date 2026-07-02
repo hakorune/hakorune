@@ -1,0 +1,329 @@
+{
+  "behavior_recipe": {
+    "effect_rows": [
+      {
+        "effect_class": "PhiInstructionAppend",
+        "operation_token": "PhiInstructionDefine",
+        "requires_deterministic_order": true,
+        "requires_error_semantics": false,
+        "requires_mutation_frame": true,
+        "source_id": "src/mir/builder/emission/phi_lifecycle.rs::define_phi_final:L246"
+      },
+      {
+        "effect_class": "PhiInstructionAppend",
+        "operation_token": "PhiInstructionDefineFunction",
+        "requires_deterministic_order": true,
+        "requires_error_semantics": false,
+        "requires_mutation_frame": true,
+        "source_id": "src/mir/builder/emission/phi_lifecycle.rs::define_phi_final_fn:L423"
+      },
+      {
+        "effect_class": "PhiInstructionAppend",
+        "operation_token": "PhiInstructionDefineFunction",
+        "requires_deterministic_order": true,
+        "requires_error_semantics": false,
+        "requires_mutation_frame": true,
+        "source_id": "src/mir/builder/emission/phi_lifecycle.rs::define_phi_final_fn_with_type_hint_and_tag:L443"
+      },
+      {
+        "effect_class": "PhiInstructionAppend",
+        "operation_token": "PhiInstructionDefine",
+        "requires_deterministic_order": true,
+        "requires_error_semantics": false,
+        "requires_mutation_frame": true,
+        "source_id": "src/mir/builder/emission/phi_lifecycle.rs::define_phi_final_with_type_hint:L258"
+      },
+      {
+        "effect_class": "PhiInstructionPatch",
+        "operation_token": "PhiInstructionPatch",
+        "requires_deterministic_order": true,
+        "requires_error_semantics": false,
+        "requires_mutation_frame": true,
+        "source_id": "src/mir/builder/emission/phi_lifecycle.rs::patch_phi_inputs:L518"
+      },
+      {
+        "effect_class": "PhiInstructionPatch",
+        "operation_token": "PhiLifecyclePatch",
+        "requires_deterministic_order": true,
+        "requires_error_semantics": false,
+        "requires_mutation_frame": true,
+        "source_id": "src/mir/builder/emission/phi_lifecycle.rs::patch_phi_inputs:L81"
+      },
+      {
+        "effect_class": "PhiInstructionAppend",
+        "operation_token": "PhiInstructionDefineCurrentBlock",
+        "requires_deterministic_order": true,
+        "requires_error_semantics": false,
+        "requires_mutation_frame": true,
+        "source_id": "src/mir/builder/phi.rs::define_current_block_phi_final:L9"
+      },
+      {
+        "effect_class": "PhiInstructionAppend",
+        "operation_token": "PhiInstructionDefineCurrentBlock",
+        "requires_deterministic_order": true,
+        "requires_error_semantics": false,
+        "requires_mutation_frame": true,
+        "source_id": "src/mir/builder/phi.rs::define_current_block_phi_final_with_type_hint:L25"
+      },
+      {
+        "effect_class": "DiagnosticBuild",
+        "operation_token": "DiagnosticStringBuild",
+        "requires_deterministic_order": false,
+        "requires_error_semantics": true,
+        "requires_mutation_frame": false,
+        "source_id": "src/mir/builder/ssa/analysis.rs::format_value_ids:L36"
+      },
+      {
+        "effect_class": "PredicateRead",
+        "operation_token": "PredicateRead",
+        "requires_deterministic_order": false,
+        "requires_error_semantics": false,
+        "requires_mutation_frame": false,
+        "source_id": "src/mir/builder/ssa/analysis.rs::has_dominated_same_field_set_after_root:L201"
+      },
+      {
+        "effect_class": "PredicateRead",
+        "operation_token": "PredicateRead",
+        "requires_deterministic_order": false,
+        "requires_error_semantics": false,
+        "requires_mutation_frame": false,
+        "source_id": "src/mir/builder/ssa/analysis.rs::strict_planner_required:L5"
+      },
+      {
+        "effect_class": "PredicateRead",
+        "operation_token": "PredicateRead",
+        "requires_deterministic_order": false,
+        "requires_error_semantics": false,
+        "requires_mutation_frame": false,
+        "source_id": "src/mir/builder/ssa/analysis.rs::value_defined_in_current_function:L10"
+      },
+      {
+        "effect_class": "VerifierContractCheck",
+        "operation_token": "VerifierContractCheck",
+        "requires_deterministic_order": false,
+        "requires_error_semantics": true,
+        "requires_mutation_frame": false,
+        "source_id": "src/mir/builder/ssa/phi_input_contract.rs::check_phi_input_contract:L7"
+      }
+    ],
+    "mutation_frames": [
+      {
+        "access": [
+          "Append",
+          "Read",
+          "Write"
+        ],
+        "cleanup_requirement": "NoCleanupDeclared",
+        "mutation_frame_id": "mirbuilder.emission_ssa_phi.phi_instruction_state.mutation_frame",
+        "mutation_order": "SourceSurfaceOrder",
+        "owner_return_state": "OwnerRetainedAfterFrame",
+        "rollback_requirement": "NoRollbackDeclared"
+      },
+      {
+        "access": [
+          "Read",
+          "Write"
+        ],
+        "cleanup_requirement": "NoCleanupDeclared",
+        "mutation_frame_id": "mirbuilder.emission_ssa_phi.phi_lifecycle_state.mutation_frame",
+        "mutation_order": "SourceSurfaceOrder",
+        "owner_return_state": "OwnerRetainedAfterFrame",
+        "rollback_requirement": "NoRollbackDeclared"
+      }
+    ],
+    "owner_edge_id": "mirbuilder::emission_ssa_phi",
+    "recipe_id": "MirBuilderEmissionSsaPhiIdScalarBehaviorRecipeV1",
+    "return_contract": "Result<(), String> or predicate/diagnostic scalar",
+    "verifier_observable_effects_declared": true
+  },
+  "claims": {
+    "behavior_recipe_materialization": 1,
+    "coverage_percentage_as_proof": 0,
+    "derived_artifact_seed_draft_materialization": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "owner_name_as_proof": 0,
+    "row_count_as_proof": 0,
+    "runtime_fallback": 0,
+    "source_plan_materialization": 1,
+    "source_selfhost_claim": 0,
+    "surface_count_as_proof": 0,
+    "verifier_result_materialization": 0
+  },
+  "decision": {
+    "kind": "SourcePlanAndRecipeMaterialized",
+    "reason_token": "EmissionSsaPhiIdScalarSourcePlanAndRecipeMaterialized",
+    "selected_next_card": "MIRBUILDER-EMISSION_SSA_PHI-ID-SCALAR-VERIFIER-RESULT-001"
+  },
+  "input_state": {
+    "behavior_recipe_effect_coverage_basis": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-behavior-recipe-effect-coverage-basis-v0.json",
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "discriminator_resolution_002": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-derivable-owner-discriminator-resolution-002-v0.json",
+    "error_and_deterministic_order_basis": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-error-and-deterministic-order-basis-v0.json",
+    "id_domain_boundary_basis": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-id-domain-boundary-basis-v0.json",
+    "projection_policy": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-emission-ssa-phi-projection-policy-v0.json",
+    "state_mutation_frame_basis": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-state-mutation-frame-basis-v0.json",
+    "verifier_input_contract_basis": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-verifier-input-contract-basis-v0.json"
+  },
+  "kind": "MirBuilderEmissionSsaPhiIdScalarSourcePlanAndRecipeV1",
+  "provenance": {
+    "behavior_recipe_effect_coverage_basis_hash": "eccf436dd5b747797f25f6172989715a560ce6a9a68ef23515f67833ffaebd52",
+    "discriminator_resolution_002_hash": "ca083c4bec992a893ffc55d0951945b6715134c54f8ee752f3b9be8a0f119b34",
+    "error_and_deterministic_order_basis_hash": "0b9dce4539849a2692199721004b182dbbe92af5635a30a93199643f00edb5bc",
+    "id_domain_boundary_basis_hash": "b32b873490f282fc213d5b49dc535258eaff00a4fd7ea1bb445e92ab3ccc5e8f",
+    "projection_policy_hash": "7a7fabb74b9682fbf35e72b449134b317170c30198575166c4562c4c1ce51798",
+    "state_mutation_frame_basis_hash": "dc6d438d6f8dc8ff5e7f3bc089e936ad7b77b8a226fb0a5f20a2082db5cee336",
+    "verifier_input_contract_basis_hash": "233e2f102524ea4ffecb3bcf0efa5848b217445b83a9c2954a2559e942b14a52"
+  },
+  "schema_version": 0,
+  "selected_owner": {
+    "owner_edge_id": "mirbuilder::emission_ssa_phi",
+    "selected_by_count": false,
+    "selected_by_owner_name": false,
+    "selection_reason": "ExactlyOneIdScalarDerivableOwnerAfterRefinedProofAxes"
+  },
+  "source_plan": {
+    "descriptor_id": "emission_ssa_phi_contract_lifecycle_v1",
+    "id_domain_boundaries": [
+      null
+    ],
+    "owner_edge_id": "mirbuilder::emission_ssa_phi",
+    "plan_id": "MirBuilderEmissionSsaPhiIdScalarSourcePlanV1",
+    "source_surfaces": [
+      {
+        "borrow_axis": "NoReturnedBorrow",
+        "return_type": "",
+        "role": "builder_phi_definition",
+        "source_id": "src/mir/builder/emission/phi_lifecycle.rs::define_phi_final:L246"
+      },
+      {
+        "borrow_axis": "NoReturnedBorrow",
+        "return_type": "",
+        "role": "function_phi_definition",
+        "source_id": "src/mir/builder/emission/phi_lifecycle.rs::define_phi_final_fn:L423"
+      },
+      {
+        "borrow_axis": "NoReturnedBorrow",
+        "return_type": "",
+        "role": "function_phi_definition",
+        "source_id": "src/mir/builder/emission/phi_lifecycle.rs::define_phi_final_fn_with_type_hint_and_tag:L443"
+      },
+      {
+        "borrow_axis": "NoReturnedBorrow",
+        "return_type": "",
+        "role": "builder_phi_definition",
+        "source_id": "src/mir/builder/emission/phi_lifecycle.rs::define_phi_final_with_type_hint:L258"
+      },
+      {
+        "borrow_axis": "NoReturnedBorrow",
+        "return_type": "",
+        "role": "builder_phi_patch",
+        "source_id": "src/mir/builder/emission/phi_lifecycle.rs::patch_phi_inputs:L518"
+      },
+      {
+        "borrow_axis": "NoReturnedBorrow",
+        "return_type": "",
+        "role": "lifecycle_scope_patch",
+        "source_id": "src/mir/builder/emission/phi_lifecycle.rs::patch_phi_inputs:L81"
+      },
+      {
+        "borrow_axis": "NoReturnedBorrow",
+        "return_type": "",
+        "role": "current_block_phi_definition",
+        "source_id": "src/mir/builder/phi.rs::define_current_block_phi_final:L9"
+      },
+      {
+        "borrow_axis": "NoReturnedBorrow",
+        "return_type": "",
+        "role": "current_block_phi_definition",
+        "source_id": "src/mir/builder/phi.rs::define_current_block_phi_final_with_type_hint:L25"
+      },
+      {
+        "borrow_axis": "NoBorrow",
+        "return_type": "String",
+        "role": "diagnostic_formatter",
+        "source_id": "src/mir/builder/ssa/analysis.rs::format_value_ids:L36"
+      },
+      {
+        "borrow_axis": "NoBorrow",
+        "return_type": "bool",
+        "role": "analysis_predicate",
+        "source_id": "src/mir/builder/ssa/analysis.rs::has_dominated_same_field_set_after_root:L201"
+      },
+      {
+        "borrow_axis": "NoBorrow",
+        "return_type": "bool",
+        "role": "analysis_predicate",
+        "source_id": "src/mir/builder/ssa/analysis.rs::strict_planner_required:L5"
+      },
+      {
+        "borrow_axis": "NoBorrow",
+        "return_type": "bool",
+        "role": "analysis_predicate",
+        "source_id": "src/mir/builder/ssa/analysis.rs::value_defined_in_current_function:L10"
+      },
+      {
+        "borrow_axis": "NoBorrow",
+        "return_type": "",
+        "role": "contract_validator",
+        "source_id": "src/mir/builder/ssa/phi_input_contract.rs::check_phi_input_contract:L7"
+      }
+    ],
+    "standalone_projection_subject": true,
+    "state_targets": [
+      {
+        "semantic_resource": "PhiInstructionState",
+        "state_target_id": "mirbuilder::emission_ssa_phi::phi_instruction_state",
+        "target_kind": "OwnerField"
+      },
+      {
+        "semantic_resource": "PhiLifecycleState",
+        "state_target_id": "mirbuilder::emission_ssa_phi::phi_lifecycle_state",
+        "target_kind": "OwnerField"
+      }
+    ]
+  },
+  "token": "MIRBUILDER-EMISSION_SSA_PHI-ID-SCALAR-SOURCE-PLAN-AND-RECIPE-001",
+  "verifier_preconditions": [
+    {
+      "fact_set": "EffectCoverageRows",
+      "row_count": 14,
+      "source_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-behavior-recipe-effect-coverage-basis-v0.json",
+      "verifier_obligation": "Every bounded owner operation token maps to exactly one effect class"
+    },
+    {
+      "fact_set": "MutationFrameRows",
+      "row_count": 3,
+      "source_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-state-mutation-frame-basis-v0.json",
+      "verifier_obligation": "Every mutating effect references a declared mutation frame"
+    },
+    {
+      "fact_set": "IdDomainBoundaryRows",
+      "row_count": 3,
+      "source_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-id-domain-boundary-basis-v0.json",
+      "verifier_obligation": "Nominal ID domains are not raw-i64 interchangeable"
+    },
+    {
+      "fact_set": "ErrorSemanticsRows",
+      "row_count": 6,
+      "source_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-error-and-deterministic-order-basis-v0.json",
+      "verifier_obligation": "Invalid/missing IDs and diagnostics have declared semantics"
+    },
+    {
+      "fact_set": "DeterministicOrderRows",
+      "row_count": 3,
+      "source_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-error-and-deterministic-order-basis-v0.json",
+      "verifier_obligation": "Verifier-visible mutation order is declared"
+    },
+    {
+      "fact_set": "NativeSeedFileBoundaryRows",
+      "row_count": 2,
+      "source_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-native-seed-file-boundary-basis-v0.json",
+      "verifier_obligation": "Verifier subject is a bounded owner module seed boundary"
+    }
+  ]
+}

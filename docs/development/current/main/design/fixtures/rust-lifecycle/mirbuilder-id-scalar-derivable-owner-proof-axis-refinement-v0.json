@@ -1,0 +1,101 @@
+{
+  "candidate_axes": [
+    {
+      "axis_name": "PriorProjectionPolicyDisposition",
+      "conditions": [
+        "projection_policy_fixture_present",
+        "decision_kind_is_SelectProjectionPolicyDescriptor",
+        "descriptor_selected = 1",
+        "owner_edge_matches_candidate",
+        "not_parent_owned",
+        "not_diagnostic_only",
+        "standalone_subject_boundary_declared"
+      ],
+      "decision": "ReplaceWithRefinedProofAxis",
+      "forbidden_interpretation": "Prefer owner because descriptor existed historically",
+      "proof_allowed": true,
+      "refined_axis": "StandaloneProjectionSubjectEstablished"
+    },
+    {
+      "axis_name": "ContractLifecycleDescriptorPresence",
+      "conditions": [
+        "contract_descriptor_exists",
+        "return_contract_declared",
+        "mutation_entrypoints_declared",
+        "diagnostic_error_semantics_declared",
+        "verifier_observable_effects_declared",
+        "typed_evidence_refs_present"
+      ],
+      "decision": "ReplaceWithRefinedProofAxis",
+      "forbidden_interpretation": "Prefer richer lifecycle owner",
+      "proof_allowed": true,
+      "refined_axis": "LifecycleContractDescriptorCompleteness"
+    },
+    {
+      "axis_name": "LifecycleMutationShape",
+      "conditions": [
+        "read_set_declared_when_read_exists",
+        "write_set_declared_when_write_exists",
+        "append_targets_declared_when_append_exists",
+        "patch_targets_declared_when_patch_exists",
+        "owner_return_state_declared",
+        "mutation_order_declared",
+        "rollback_or_no_rollback_declared",
+        "cleanup_or_no_cleanup_declared"
+      ],
+      "decision": "ReplaceWithRefinedProofAxis",
+      "forbidden_interpretation": "Prefer complexity or more mutation kinds",
+      "proof_allowed": true,
+      "refined_axis": "MutationFrameSemanticCompleteness"
+    },
+    {
+      "axis_name": "VerifierEffectClassPresence",
+      "conditions": [
+        "all_operation_tokens_map_to_effect_classes",
+        "all_effect_classes_map_to_verifier_input_facts",
+        "no_verifier_visible_effect_unaccounted",
+        "predicate_reads_declared",
+        "diagnostic_error_effects_declared",
+        "state_mutation_effects_declared"
+      ],
+      "decision": "ReplaceWithRefinedProofAxis",
+      "forbidden_interpretation": "Prefer owner with more effect classes",
+      "proof_allowed": true,
+      "refined_axis": "VerifierEffectClassCoverageCompleteness"
+    }
+  ],
+  "claims": {
+    "coverage_percentage_as_proof": 0,
+    "effect_class_count_as_proof": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "historical_descriptor_presence_as_preference": 0,
+    "lifecycle_richness_as_proof": 0,
+    "mutation_complexity_as_proof": 0,
+    "native_seed_materialization": 0,
+    "owner_name_as_proof": 0,
+    "row_count_as_proof": 0,
+    "source_plan_materialization": 0,
+    "source_selfhost_claim": 0,
+    "surface_count_as_proof": 0
+  },
+  "decision": {
+    "kind": "ProofAxesRefined",
+    "reason_token": "IdScalarDerivableOwnerProofAxesRefinedWithoutCountOrNameProof",
+    "selected_next_card": "MIRBUILDER-ID-SCALAR-DERIVABLE-OWNER-DISCRIMINATOR-RESOLUTION-002"
+  },
+  "input_state": {
+    "basis_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-derivable-owner-discriminator-basis-v0.json",
+    "basis_formalization": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-derivable-owner-discriminator-basis-formalization-v0.json",
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "discriminator_resolution_001": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-derivable-owner-discriminator-resolution-v0.json"
+  },
+  "kind": "MirBuilderIdScalarDerivableOwnerProofAxisRefinementV1",
+  "provenance": {
+    "basis_fixture_hash": "fb6f3198356cba532ece159934204ef2676b4a284668cafa9726f6115916d99e",
+    "basis_formalization_hash": "e9207e40590e5a6819a927a2c543e06bb4a537070b01ed7060f88a4adec7f8f4",
+    "discriminator_resolution_001_hash": "5ffc8685018ecf631347efaea6a0ee1ab076d66094cfff83648a841b5981a80b"
+  },
+  "schema_version": 0,
+  "token": "MIRBUILDER-ID-SCALAR-DERIVABLE-OWNER-PROOF-AXIS-REFINEMENT-001"
+}

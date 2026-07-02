@@ -1,0 +1,115 @@
+{
+  "candidate_pool": {
+    "input_derivable_owner_count": 2,
+    "selected_owner_count": 1,
+    "selection_eligible_count": 2,
+    "unique_refined_proof_tuple_count": 2
+  },
+  "candidates": [
+    {
+      "blocked_by": [
+        "StandaloneProjectionSubjectEstablished",
+        "LifecycleContractDescriptorCompleteness"
+      ],
+      "next_card": "MIRBUILDER-CONTEXT_REGISTRY-ID-SCALAR-SOURCE-PLAN-AND-RECIPE-001",
+      "owner_edge_id": "mirbuilder::context_registry",
+      "prior_proof_axes": {
+        "NativeSeedFileBoundaryDeterminism": true,
+        "OperationEffectClassCompleteness": true,
+        "SelectorGuardClean": true,
+        "SemanticOperationAuthorityComplete": true,
+        "SourcePlanRecipeComponentReadiness": true,
+        "StateTargetClosureQuality": true,
+        "TypedEvidenceIndexCompleteness": true,
+        "VerifierInputContractCompleteness": true
+      },
+      "refined_proof_axes": {
+        "LifecycleContractDescriptorCompleteness": false,
+        "MutationFrameSemanticCompleteness": true,
+        "StandaloneProjectionSubjectEstablished": false,
+        "VerifierEffectClassCoverageCompleteness": true
+      },
+      "refined_proof_tuple": [
+        false,
+        true,
+        false,
+        true
+      ],
+      "selection_eligible": true
+    },
+    {
+      "blocked_by": [],
+      "next_card": "MIRBUILDER-EMISSION_SSA_PHI-ID-SCALAR-SOURCE-PLAN-AND-RECIPE-001",
+      "owner_edge_id": "mirbuilder::emission_ssa_phi",
+      "prior_proof_axes": {
+        "NativeSeedFileBoundaryDeterminism": true,
+        "OperationEffectClassCompleteness": true,
+        "SelectorGuardClean": true,
+        "SemanticOperationAuthorityComplete": true,
+        "SourcePlanRecipeComponentReadiness": true,
+        "StateTargetClosureQuality": true,
+        "TypedEvidenceIndexCompleteness": true,
+        "VerifierInputContractCompleteness": true
+      },
+      "refined_proof_axes": {
+        "LifecycleContractDescriptorCompleteness": true,
+        "MutationFrameSemanticCompleteness": true,
+        "StandaloneProjectionSubjectEstablished": true,
+        "VerifierEffectClassCoverageCompleteness": true
+      },
+      "refined_proof_tuple": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "selection_eligible": true
+    }
+  ],
+  "claims": {
+    "coverage_percentage_as_proof": 0,
+    "effect_class_count_as_proof": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "historical_descriptor_presence_as_preference": 0,
+    "lifecycle_richness_as_proof": 0,
+    "mutation_complexity_as_proof": 0,
+    "native_seed_materialization": 0,
+    "owner_name_as_proof": 0,
+    "row_count_as_proof": 0,
+    "source_plan_materialization": 0,
+    "source_selfhost_claim": 0,
+    "surface_count_as_proof": 0
+  },
+  "decision": {
+    "kind": "SelectSourcePlanAndRecipe",
+    "reason_token": "ExactlyOneIdScalarDerivableOwnerAfterRefinedProofAxes",
+    "selected_next_card": "MIRBUILDER-EMISSION_SSA_PHI-ID-SCALAR-SOURCE-PLAN-AND-RECIPE-001",
+    "selected_owner_edge_id": "mirbuilder::emission_ssa_phi"
+  },
+  "input_state": {
+    "behavior_recipe_effect_coverage_basis": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-behavior-recipe-effect-coverage-basis-v0.json",
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "discriminator_resolution_001": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-derivable-owner-discriminator-resolution-v0.json",
+    "proof_axis_refinement": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-derivable-owner-proof-axis-refinement-v0.json",
+    "state_mutation_frame_basis": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-state-mutation-frame-basis-v0.json"
+  },
+  "kind": "MirBuilderIdScalarDerivableOwnerDiscriminatorResolutionV2",
+  "provenance": {
+    "behavior_recipe_effect_coverage_basis_hash": "eccf436dd5b747797f25f6172989715a560ce6a9a68ef23515f67833ffaebd52",
+    "discriminator_resolution_001_hash": "5ffc8685018ecf631347efaea6a0ee1ab076d66094cfff83648a841b5981a80b",
+    "proof_axis_refinement_hash": "b1f71c233bc5f597d44ea9a69c38884f161f3b6dee07f9a6748303da4b849c40",
+    "state_mutation_frame_basis_hash": "dc6d438d6f8dc8ff5e7f3bc089e936ad7b77b8a226fb0a5f20a2082db5cee336"
+  },
+  "schema_version": 0,
+  "selection_policy": {
+    "effect_class_count_as_proof": false,
+    "historical_descriptor_presence_as_preference": false,
+    "lifecycle_richness_as_proof": false,
+    "mutation_complexity_as_proof": false,
+    "owner_name_as_proof": false,
+    "raw_prior_projection_policy_disposition_as_proof": false,
+    "row_count_as_proof": false
+  },
+  "token": "MIRBUILDER-ID-SCALAR-DERIVABLE-OWNER-DISCRIMINATOR-RESOLUTION-002"
+}

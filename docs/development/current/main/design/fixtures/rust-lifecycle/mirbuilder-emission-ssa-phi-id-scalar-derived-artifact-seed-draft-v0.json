@@ -1,0 +1,41 @@
+{
+  "claims": {
+    "derived_artifact_seed_draft_materialization": 1,
+    "generated_artifact_as_native_edit_authority": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "DerivedArtifactSeedDraftInputMaterialized",
+    "reason_token": "EmissionSsaPhiIdScalarDerivedArtifactSeedDraftInputMaterialized",
+    "selected_next_card": "MIRBUILDER-ID-SCALAR-DOMAIN-SEED-READINESS-RESOLUTION-003"
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "source_plan_and_recipe": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-emission-ssa-phi-id-scalar-source-plan-and-recipe-v0.json",
+    "verifier_result": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-emission-ssa-phi-id-scalar-verifier-result-v0.json"
+  },
+  "kind": "MirBuilderEmissionSsaPhiIdScalarDerivedArtifactSeedDraftV1",
+  "provenance": {
+    "source_plan_and_recipe_hash": "b2c2256a06694315998355886838df18327d07e6b95482fbf55192686562e6a0",
+    "verifier_result_hash": "ddb8c7ccff172c8e7d401e1b823abf82173d6fed33cd09da7b837673665c7c73"
+  },
+  "schema_version": 0,
+  "seed_draft_input": {
+    "behavior_recipe_id": "MirBuilderEmissionSsaPhiIdScalarBehaviorRecipeV1",
+    "generated_artifact_as_native_edit_authority": false,
+    "hako_adopted": false,
+    "native_source_seed": false,
+    "owner_edge_id": "mirbuilder::emission_ssa_phi",
+    "source_plan_id": "MirBuilderEmissionSsaPhiIdScalarSourcePlanV1",
+    "state": "DerivedArtifactSeedDraftInput",
+    "verifier_result_kind": "VerifiedSourcePlanAndRecipe"
+  },
+  "token": "MIRBUILDER-EMISSION_SSA_PHI-ID-SCALAR-DERIVED-ARTIFACT-SEED-DRAFT-001"
+}

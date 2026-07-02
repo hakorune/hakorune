@@ -1,0 +1,54 @@
+{
+  "claims": {
+    "generated_artifact_as_native_edit_authority": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "native_seed_materialization": 1,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "runtime_fallback": 0,
+    "rust_deletion": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "HakoAdoptionDecisionDeferred",
+    "reason_token": "EmissionSsaPhiNativeSourceSeedMaterialized",
+    "selected_next_card": "MIRBUILDER-EMISSION_SSA_PHI-HAKO-ADOPTION-DECISION-001"
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "derived_artifact_seed_draft_input": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-emission-ssa-phi-id-scalar-derived-artifact-seed-draft-v0.json",
+    "native_seed_file_boundary_basis": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-native-seed-file-boundary-basis-v0.json",
+    "seed_readiness_resolution": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-domain-seed-readiness-resolution-003-v0.json"
+  },
+  "kind": "MirBuilderEmissionSsaPhiHakoNativeSourceSeedV1",
+  "native_source_seed": {
+    "generator_overwrite_guard": true,
+    "module_export": "lib.mirbuilder.emission_ssa_phi_native_seed",
+    "native_source_seed_outside_generated_tree": true,
+    "native_source_seed_path": "lang/src/compiler/lib/mirbuilder/emission_ssa_phi_native_seed.hako",
+    "source_input_state": "DerivedArtifactSeedDraftInput"
+  },
+  "provenance": {
+    "derived_artifact_seed_draft_input_hash": "75b3a9f15c9a38b535ee64cc6e945dcc6be32a3b99e36c4cd96aadc421665cd3",
+    "module_manifest_hash": "07857f2871ba6a8bd7aa7982ddd511fcc5195e024cf32a57b76583f28f296313",
+    "native_seed_file_boundary_basis_hash": "377f8f8e101c6db4b3909179c3842e855aaa45aa2fce6b878a49583026314b74",
+    "native_source_seed_hash": "db9f55e6d5de0a5c713215362baf6e0f16326d4970b47bc8e24006e7c7900ab9",
+    "seed_readiness_resolution_hash": "1d2f86698b3c673843aeb6e5b8e5f45e1bb23b16ef718c1cbd2ca6dee464598c"
+  },
+  "schema_version": 0,
+  "seed_status": {
+    "generated_artifact_as_edit_authority": 0,
+    "hako_adopted_decision": 0,
+    "native_edit_authority_claim": 0,
+    "native_source_owner_seed_present": 1,
+    "source_selfhost_claim": 0
+  },
+  "selected_owner": {
+    "owner_edge_id": "mirbuilder::emission_ssa_phi",
+    "selected_next_card": "MIRBUILDER-EMISSION_SSA_PHI-HAKO-NATIVE-SOURCE-SEED-001",
+    "selection_reason": "ExactlyOneIdScalarSeedMaterializationReadyOwnerEdgeAfterSeedPacket"
+  },
+  "token": "MIRBUILDER-EMISSION_SSA_PHI-HAKO-NATIVE-SOURCE-SEED-001"
+}

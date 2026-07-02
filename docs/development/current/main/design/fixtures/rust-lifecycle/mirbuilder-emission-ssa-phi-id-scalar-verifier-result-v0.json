@@ -1,0 +1,67 @@
+{
+  "candidate_pool": {
+    "check_count": 6,
+    "failed_check_count": 0,
+    "passed_check_count": 6
+  },
+  "checks": [
+    {
+      "check_id": "SourcePlanOwnerMatchesRecipeOwner",
+      "passed": true
+    },
+    {
+      "check_id": "StandaloneProjectionSubjectPresent",
+      "passed": true
+    },
+    {
+      "check_id": "EffectRowsPresent",
+      "passed": true
+    },
+    {
+      "check_id": "MutationFramesPresent",
+      "passed": true
+    },
+    {
+      "check_id": "VerifierPreconditionsPresent",
+      "passed": true
+    },
+    {
+      "check_id": "NoNativeSeedOrHakoClaimInSourcePlan",
+      "passed": true
+    }
+  ],
+  "claims": {
+    "derived_artifact_seed_draft_materialization": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0,
+    "verified_source_plan_and_recipe": 1,
+    "verifier_result_materialization": 1
+  },
+  "decision": {
+    "kind": "VerifierResultFixtureMaterialized",
+    "reason_token": "EmissionSsaPhiIdScalarSourcePlanAndRecipeVerified",
+    "selected_next_card": "MIRBUILDER-EMISSION_SSA_PHI-ID-SCALAR-DERIVED-ARTIFACT-SEED-DRAFT-001"
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "source_plan_and_recipe": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-emission-ssa-phi-id-scalar-source-plan-and-recipe-v0.json"
+  },
+  "kind": "MirBuilderEmissionSsaPhiIdScalarVerifierResultV1",
+  "provenance": {
+    "source_plan_and_recipe_hash": "b2c2256a06694315998355886838df18327d07e6b95482fbf55192686562e6a0"
+  },
+  "schema_version": 0,
+  "token": "MIRBUILDER-EMISSION_SSA_PHI-ID-SCALAR-VERIFIER-RESULT-001",
+  "verification_subject": {
+    "owner_edge_id": "mirbuilder::emission_ssa_phi",
+    "plan_id": "MirBuilderEmissionSsaPhiIdScalarSourcePlanV1",
+    "recipe_id": "MirBuilderEmissionSsaPhiIdScalarBehaviorRecipeV1",
+    "result_kind": "VerifiedSourcePlanAndRecipe"
+  }
+}

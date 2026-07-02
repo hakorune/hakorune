@@ -1,0 +1,58 @@
+// native-source-seed: MIRBUILDER-EMISSION_SSA_PHI-HAKO-NATIVE-SOURCE-SEED-001
+// source-family: mirbuilder::emission_ssa_phi
+// source-input-state: DerivedArtifactSeedDraftInput
+// source-plan: MirBuilderEmissionSsaPhiIdScalarSourcePlanV1
+// behavior-recipe: MirBuilderEmissionSsaPhiIdScalarBehaviorRecipeV1
+// hako-adopted: 0
+// source-selfhost-claim: 0
+
+box EmissionSsaPhiInput {
+    pred_block: i64
+    value_id: i64
+
+    birth(pred_block, value_id) {
+        me.pred_block = pred_block
+        me.value_id = value_id
+    }
+}
+
+box EmissionSsaPhiState {
+    phi_instructions: MapBox
+    lifecycle_pending: MapBox
+    diagnostic_values: ArrayBox
+
+    birth() {
+        me.phi_instructions = new MapBox()
+        me.lifecycle_pending = new MapBox()
+        me.diagnostic_values = new ArrayBox()
+    }
+}
+
+static box EmissionSsaPhiApi {
+    define_phi(state, block_id, dst_value_id, inputs): i64 {
+        state.phi_instructions.set(dst_value_id, inputs)
+        return 1
+    }
+
+    patch_phi(state, dst_value_id, inputs): i64 {
+        state.phi_instructions.set(dst_value_id, inputs)
+        return 1
+    }
+
+    lifecycle_patch(state, token_id, inputs): i64 {
+        state.lifecycle_pending.set(token_id, inputs)
+        return 1
+    }
+
+    remember_diagnostic_value(state, value_id): i64 {
+        state.diagnostic_values.push(value_id)
+        return 1
+    }
+
+    has_phi(state, dst_value_id): i64 {
+        if state.phi_instructions.has(dst_value_id) {
+            return 1
+        }
+        return 0
+    }
+}

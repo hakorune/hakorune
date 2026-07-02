@@ -1,0 +1,382 @@
+{
+  "candidate_pool": {
+    "missing_seed_evidence_owner_edge_count": 9,
+    "readiness_input_owner_edge_count": 10,
+    "seed_materialization_ready_count": 1,
+    "selected_owner_count": 1
+  },
+  "claims": {
+    "cluster_size_as_proof": 0,
+    "coverage_percentage_as_proof": 0,
+    "directable_row_count_as_proof": 0,
+    "generated_artifact_as_native_edit_authority": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "manual_owner_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "SelectNativeSeedMaterialization",
+    "reason_token": "ExactlyOneIdScalarSeedMaterializationReadyOwnerEdgeAfterSeedPacket",
+    "selected_next_card": "MIRBUILDER-EMISSION_SSA_PHI-HAKO-NATIVE-SOURCE-SEED-001",
+    "selected_owner_edge_id": "mirbuilder::emission_ssa_phi"
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "derived_artifact_seed_draft_input": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-emission-ssa-phi-id-scalar-derived-artifact-seed-draft-v0.json",
+    "previous_seed_readiness_resolution": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-domain-seed-readiness-resolution-002-v0.json",
+    "source_plan_and_recipe": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-emission-ssa-phi-id-scalar-source-plan-and-recipe-v0.json",
+    "verifier_result": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-emission-ssa-phi-id-scalar-verifier-result-v0.json"
+  },
+  "kind": "MirBuilderIdScalarDomainSeedReadinessResolutionV3",
+  "owner_edge_readiness": [
+    {
+      "blocked_by": [
+        "MissingDerivedArtifactSeedDraftInput",
+        "MissingVerifierResultFixture",
+        "MissingSourcePlanAndRecipe",
+        "DirectabilityOnlyIsNotSeedEvidence"
+      ],
+      "canonical_id_type_counts": {
+        "BindingId": 1
+      },
+      "derived_artifact_seed_draft_input_available": false,
+      "directable_row_count": 1,
+      "evidence_refs": {
+        "adoption": [],
+        "native_seed": [],
+        "plan_or_recipe": [],
+        "verifier": []
+      },
+      "generator_overwrite_guard_readiness": "NeedsNativeSeedMaterialization",
+      "module_export_readiness": "DerivableIfSeedCardSelected",
+      "native_seed_file_boundary": "DerivableIfSeedCardSelected",
+      "next_card": null,
+      "nominal_id_domain_isolation": "Preserved",
+      "owner_edge_complete": true,
+      "owner_edge_confidence_set": [
+        "FileScoped"
+      ],
+      "owner_edge_id": "hakorune_mir_builder::builder_init",
+      "policy_gap": false,
+      "selection_eligible_for_seed_materialization": false,
+      "source_plan_and_recipe_present": false,
+      "verifier_result_fixture_present": false
+    },
+    {
+      "blocked_by": [
+        "MissingDerivedArtifactSeedDraftInput",
+        "MissingVerifierResultFixture",
+        "MissingSourcePlanAndRecipe",
+        "DirectabilityOnlyIsNotSeedEvidence"
+      ],
+      "canonical_id_type_counts": {
+        "TypedValueId": 1
+      },
+      "derived_artifact_seed_draft_input_available": false,
+      "directable_row_count": 1,
+      "evidence_refs": {
+        "adoption": [],
+        "native_seed": [],
+        "plan_or_recipe": [],
+        "verifier": []
+      },
+      "generator_overwrite_guard_readiness": "NeedsNativeSeedMaterialization",
+      "module_export_readiness": "DerivableIfSeedCardSelected",
+      "native_seed_file_boundary": "DerivableIfSeedCardSelected",
+      "next_card": null,
+      "nominal_id_domain_isolation": "Preserved",
+      "owner_edge_complete": true,
+      "owner_edge_confidence_set": [
+        "FileScoped"
+      ],
+      "owner_edge_id": "hakorune_mir_builder::builder_value_kind",
+      "policy_gap": false,
+      "selection_eligible_for_seed_materialization": false,
+      "source_plan_and_recipe_present": false,
+      "verifier_result_fixture_present": false
+    },
+    {
+      "blocked_by": [
+        "MissingDerivedArtifactSeedDraftInput",
+        "MissingVerifierResultFixture",
+        "MissingSourcePlanAndRecipe",
+        "DirectabilityOnlyIsNotSeedEvidence"
+      ],
+      "canonical_id_type_counts": {
+        "ValueId": 1
+      },
+      "derived_artifact_seed_draft_input_available": false,
+      "directable_row_count": 1,
+      "evidence_refs": {
+        "adoption": [],
+        "native_seed": [],
+        "plan_or_recipe": [],
+        "verifier": []
+      },
+      "generator_overwrite_guard_readiness": "NeedsNativeSeedMaterialization",
+      "module_export_readiness": "DerivableIfSeedCardSelected",
+      "native_seed_file_boundary": "DerivableIfSeedCardSelected",
+      "next_card": null,
+      "nominal_id_domain_isolation": "Preserved",
+      "owner_edge_complete": true,
+      "owner_edge_confidence_set": [
+        "FileScoped"
+      ],
+      "owner_edge_id": "hakorune_mir_builder::joinir_id_remapper",
+      "policy_gap": false,
+      "selection_eligible_for_seed_materialization": false,
+      "source_plan_and_recipe_present": false,
+      "verifier_result_fixture_present": false
+    },
+    {
+      "blocked_by": [
+        "MissingDerivedArtifactSeedDraftInput",
+        "MissingVerifierResultFixture",
+        "MissingSourcePlanAndRecipe",
+        "DirectabilityOnlyIsNotSeedEvidence"
+      ],
+      "canonical_id_type_counts": {
+        "BasicBlockId": 1,
+        "ValueId": 2
+      },
+      "derived_artifact_seed_draft_input_available": false,
+      "directable_row_count": 3,
+      "evidence_refs": {
+        "adoption": [],
+        "native_seed": [],
+        "plan_or_recipe": [],
+        "verifier": []
+      },
+      "generator_overwrite_guard_readiness": "NeedsNativeSeedMaterialization",
+      "module_export_readiness": "DerivableIfSeedCardSelected",
+      "native_seed_file_boundary": "DerivableIfSeedCardSelected",
+      "next_card": null,
+      "nominal_id_domain_isolation": "Preserved",
+      "owner_edge_complete": true,
+      "owner_edge_confidence_set": [
+        "FileScoped"
+      ],
+      "owner_edge_id": "hakorune_mir_builder::utils::id_alloc",
+      "policy_gap": false,
+      "selection_eligible_for_seed_materialization": false,
+      "source_plan_and_recipe_present": false,
+      "verifier_result_fixture_present": false
+    },
+    {
+      "blocked_by": [
+        "MissingDerivedArtifactSeedDraftInput",
+        "MissingVerifierResultFixture",
+        "MissingSourcePlanAndRecipe",
+        "DirectabilityOnlyIsNotSeedEvidence"
+      ],
+      "canonical_id_type_counts": {
+        "ValueId": 5
+      },
+      "derived_artifact_seed_draft_input_available": false,
+      "directable_row_count": 5,
+      "evidence_refs": {
+        "adoption": [],
+        "native_seed": [],
+        "plan_or_recipe": [],
+        "verifier": []
+      },
+      "generator_overwrite_guard_readiness": "NeedsNativeSeedMaterialization",
+      "module_export_readiness": "DerivableIfSeedCardSelected",
+      "native_seed_file_boundary": "DerivableIfSeedCardSelected",
+      "next_card": null,
+      "nominal_id_domain_isolation": "Preserved",
+      "owner_edge_complete": true,
+      "owner_edge_confidence_set": [
+        "FileScoped"
+      ],
+      "owner_edge_id": "hakorune_mir_builder::utils::local_ssa",
+      "policy_gap": false,
+      "selection_eligible_for_seed_materialization": false,
+      "source_plan_and_recipe_present": false,
+      "verifier_result_fixture_present": false
+    },
+    {
+      "blocked_by": [
+        "MissingDerivedArtifactSeedDraftInput",
+        "MissingVerifierResultFixture",
+        "MissingSourcePlanAndRecipe",
+        "DirectabilityOnlyIsNotSeedEvidence"
+      ],
+      "canonical_id_type_counts": {
+        "SlotId": 1
+      },
+      "derived_artifact_seed_draft_input_available": false,
+      "directable_row_count": 1,
+      "evidence_refs": {
+        "adoption": [],
+        "native_seed": [],
+        "plan_or_recipe": [],
+        "verifier": []
+      },
+      "generator_overwrite_guard_readiness": "NeedsNativeSeedMaterialization",
+      "module_export_readiness": "DerivableIfSeedCardSelected",
+      "native_seed_file_boundary": "DerivableIfSeedCardSelected",
+      "next_card": null,
+      "nominal_id_domain_isolation": "Preserved",
+      "owner_edge_complete": true,
+      "owner_edge_confidence_set": [
+        "FileScoped"
+      ],
+      "owner_edge_id": "hakorune_mir_region::function_slot_registry",
+      "policy_gap": false,
+      "selection_eligible_for_seed_materialization": false,
+      "source_plan_and_recipe_present": false,
+      "verifier_result_fixture_present": false
+    },
+    {
+      "blocked_by": [
+        "MissingDerivedArtifactSeedDraftInput",
+        "MissingVerifierResultFixture",
+        "MissingSourcePlanAndRecipe",
+        "DirectabilityOnlyIsNotSeedEvidence"
+      ],
+      "canonical_id_type_counts": {
+        "BasicBlockId": 2,
+        "BindingId": 1,
+        "ValueId": 2
+      },
+      "derived_artifact_seed_draft_input_available": false,
+      "directable_row_count": 5,
+      "evidence_refs": {
+        "adoption": [],
+        "native_seed": [],
+        "plan_or_recipe": [],
+        "verifier": []
+      },
+      "generator_overwrite_guard_readiness": "NeedsNativeSeedMaterialization",
+      "module_export_readiness": "DerivableIfSeedCardSelected",
+      "native_seed_file_boundary": "DerivableIfSeedCardSelected",
+      "next_card": null,
+      "nominal_id_domain_isolation": "Preserved",
+      "owner_edge_complete": true,
+      "owner_edge_confidence_set": [
+        "FixtureMapped"
+      ],
+      "owner_edge_id": "mirbuilder::context_registry",
+      "policy_gap": false,
+      "selection_eligible_for_seed_materialization": false,
+      "source_plan_and_recipe_present": false,
+      "verifier_result_fixture_present": false
+    },
+    {
+      "blocked_by": [],
+      "canonical_id_type_counts": {
+        "ValueId": 6
+      },
+      "derived_artifact_seed_draft_input_available": true,
+      "directable_row_count": 6,
+      "evidence_refs": {
+        "derived_artifact_seed_draft_input": [
+          "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-emission-ssa-phi-id-scalar-derived-artifact-seed-draft-v0.json"
+        ],
+        "source_plan_and_recipe": [
+          "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-emission-ssa-phi-id-scalar-source-plan-and-recipe-v0.json"
+        ],
+        "verifier_result": [
+          "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-emission-ssa-phi-id-scalar-verifier-result-v0.json"
+        ]
+      },
+      "generator_overwrite_guard_readiness": "NeedsNativeSeedMaterialization",
+      "module_export_readiness": "DerivableIfSeedCardSelected",
+      "native_seed_file_boundary": "DerivableIfSeedCardSelected",
+      "next_card": "MIRBUILDER-EMISSION_SSA_PHI-HAKO-NATIVE-SOURCE-SEED-001",
+      "nominal_id_domain_isolation": "Preserved",
+      "owner_edge_complete": true,
+      "owner_edge_confidence_set": [
+        "FixtureMapped"
+      ],
+      "owner_edge_id": "mirbuilder::emission_ssa_phi",
+      "policy_gap": false,
+      "selection_eligible_for_seed_materialization": true,
+      "source_plan_and_recipe_present": true,
+      "verifier_result_fixture_present": true
+    },
+    {
+      "blocked_by": [
+        "MissingDerivedArtifactSeedDraftInput",
+        "MissingVerifierResultFixture",
+        "MissingSourcePlanAndRecipe",
+        "DirectabilityOnlyIsNotSeedEvidence"
+      ],
+      "canonical_id_type_counts": {
+        "BasicBlockId": 5,
+        "BodyId": 1,
+        "ValueId": 1
+      },
+      "derived_artifact_seed_draft_input_available": false,
+      "directable_row_count": 7,
+      "evidence_refs": {
+        "adoption": [],
+        "native_seed": [],
+        "plan_or_recipe": [],
+        "verifier": []
+      },
+      "generator_overwrite_guard_readiness": "NeedsNativeSeedMaterialization",
+      "module_export_readiness": "DerivableIfSeedCardSelected",
+      "native_seed_file_boundary": "DerivableIfSeedCardSelected",
+      "next_card": null,
+      "nominal_id_domain_isolation": "Preserved",
+      "owner_edge_complete": true,
+      "owner_edge_confidence_set": [
+        "FixtureMapped"
+      ],
+      "owner_edge_id": "mirbuilder::join_i_r_plan",
+      "policy_gap": false,
+      "selection_eligible_for_seed_materialization": false,
+      "source_plan_and_recipe_present": false,
+      "verifier_result_fixture_present": false
+    },
+    {
+      "blocked_by": [
+        "MissingDerivedArtifactSeedDraftInput",
+        "MissingVerifierResultFixture",
+        "MissingSourcePlanAndRecipe",
+        "DirectabilityOnlyIsNotSeedEvidence"
+      ],
+      "canonical_id_type_counts": {
+        "BasicBlockId": 1
+      },
+      "derived_artifact_seed_draft_input_available": false,
+      "directable_row_count": 1,
+      "evidence_refs": {
+        "adoption": [],
+        "native_seed": [],
+        "plan_or_recipe": [],
+        "verifier": []
+      },
+      "generator_overwrite_guard_readiness": "NeedsNativeSeedMaterialization",
+      "module_export_readiness": "DerivableIfSeedCardSelected",
+      "native_seed_file_boundary": "DerivableIfSeedCardSelected",
+      "next_card": null,
+      "nominal_id_domain_isolation": "Preserved",
+      "owner_edge_complete": true,
+      "owner_edge_confidence_set": [
+        "FixtureMapped"
+      ],
+      "owner_edge_id": "mirbuilder::join_i_r_route_verify",
+      "policy_gap": false,
+      "selection_eligible_for_seed_materialization": false,
+      "source_plan_and_recipe_present": false,
+      "verifier_result_fixture_present": false
+    }
+  ],
+  "provenance": {
+    "derived_artifact_seed_draft_input_hash": "75b3a9f15c9a38b535ee64cc6e945dcc6be32a3b99e36c4cd96aadc421665cd3",
+    "previous_seed_readiness_resolution_hash": "bae201a841855a36e6a87646d8ab0819eb23dc6d4c6b6f108177f0be7d5a323e",
+    "source_plan_and_recipe_hash": "b2c2256a06694315998355886838df18327d07e6b95482fbf55192686562e6a0",
+    "verifier_result_hash": "ddb8c7ccff172c8e7d401e1b823abf82173d6fed33cd09da7b837673665c7c73"
+  },
+  "schema_version": 0,
+  "token": "MIRBUILDER-ID-SCALAR-DOMAIN-SEED-READINESS-RESOLUTION-003"
+}

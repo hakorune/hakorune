@@ -372,10 +372,10 @@ id_scalar_source_plan_derivability_rerun_003_result:
   selected_next_card = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
   source_selfhost_claim = 0
 
-id_scalar_derivable_owner_discriminator_resolution_result:
-  token = MIRBUILDER-ID-SCALAR-DERIVABLE-OWNER-DISCRIMINATOR-RESOLUTION-001
-  reason_token = MultipleEqualIdScalarDerivableOwnerDiscriminatorCandidates
-  selected_next_card = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+parent_owned_subject_boundary_resolution_result:
+  token = MIRBUILDER-ID-SCALAR-PARENT-OWNED-SUBJECT-BOUNDARY-RESOLUTION-001
+  reason_token = ContextRegistryRemainsParentOwnedNotSeedEligible
+  selected_next_card = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-007
   source_selfhost_claim = 0
 
 placement_rule:
@@ -405,27 +405,27 @@ Detailed evidence lives in phase cards, fixtures, and git history.
 Keep this section short.
 
 ```text
-1. MIRBUILDER-ID-SCALAR-DERIVABLE-OWNER-DISCRIMINATOR-RESOLUTION-001
+1. MIRBUILDER-EMISSION_SSA_PHI-HAKO-NATIVE-SOURCE-SEED-001
    status=closed
-   boundary=proof axes equal; no owner selected
+   boundary=native source seed materialized
 
-2. SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
-   status=design-consultation-required
-   boundary=need new non-count/non-name discriminator
+2. MIRBUILDER-EMISSION_SSA_PHI-HAKO-ADOPTION-DECISION-001
+   status=closed
+   boundary=narrow native owner adopted; no Source Selfhost claim
 
-3. MIRBUILDER-HISTORICAL-SEED-SELECTOR-QUARANTINE-001
-   status=parked
-   boundary=only if historical selectors are reused
+3. MIRBUILDER-ID-SCALAR-PARENT-OWNED-SUBJECT-BOUNDARY-RESOLUTION-001
+   status=closed
+   boundary=RemainParentOwned; no materialization
 
 next:
-  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
-  boundary=consult before selecting context_registry/emission_ssa_phi
+  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-007
+  boundary=select next lane after context_registry remains parent-owned
 
 next_documented_task =
-  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-007
 
 next_after_active_3 =
-  TBD_AFTER_ID_SCALAR_DERIVABLE_OWNER_DISCRIMINATOR
+  TBD by wider route-selection basis 007
 ```
 
 ## Landed Converter Capability Summary
