@@ -1,0 +1,411 @@
+{
+  "candidate_subaxes": [
+    {
+      "blocked_by": [
+        "NoDependencyRootAuthority",
+        "NoPriorClosedLaneContinuationAuthority",
+        "ProofTupleIncomplete"
+      ],
+      "dependency_root_authority": {
+        "all_other_selected_candidates_depend_on_root": 0,
+        "proof_sources": [],
+        "status": "Unproven",
+        "typed_dependency_edges_present": 0,
+        "unique_root": 0
+      },
+      "domain_subaxis": "AstNodeDomainTransportAxis",
+      "guard_clean_authority": {
+        "hako_adopted_decision_required": 0,
+        "hako_generation_required": 0,
+        "native_seed_materialization_required": 0,
+        "new_abi_required": 0,
+        "new_backend_route_required": 0,
+        "new_python_semantic_projector_required": 0,
+        "proof_sources": [
+          "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-subaxis-mechanical-selection-basis-v0.json"
+        ],
+        "runner_semantic_owner_required": 0,
+        "runtime_fallback_required": 0,
+        "source_selfhost_claim_required": 0,
+        "status": "Proven"
+      },
+      "owner_edge_counts": {
+        "mirbuilder::call_lowering": 1,
+        "mirbuilder::join_i_r_plan": 12,
+        "mirbuilder::join_i_r_route_verify": 1
+      },
+      "prior_closed_lane_continuation_authority": {
+        "closed_lane_source_id_overlap_count": 0,
+        "closed_lane_source_id_overlap_present": 0,
+        "owner_edge_continuity_present": 1,
+        "owner_edge_continuity_values": [
+          "mirbuilder::join_i_r_plan",
+          "mirbuilder::join_i_r_route_verify"
+        ],
+        "proof_sources": [],
+        "semantic_resource_continuity_present": 0,
+        "shape_signature_continuity_present": 1,
+        "shape_signature_continuity_values": [
+          "shape.join_i_r_route_verify",
+          "shape.recipe_tree_matcher"
+        ],
+        "status": "Unproven"
+      },
+      "proof_tuple_complete": false,
+      "row_count": 14,
+      "row_count_diagnostic_only": true,
+      "sample_source_ids": [
+        "src/mir/builder/calls/function_lowering.rs::wrap_in_program:L83",
+        "src/mir/builder/control_flow/joinir/loop_context.rs::to_loop_ast:L94",
+        "src/mir/builder/control_flow/plan/loop_break/facts/helpers_common.rs::add:L15",
+        "src/mir/builder/control_flow/plan/loop_break/facts/helpers_common.rs::index_of_call:L54",
+        "src/mir/builder/control_flow/plan/loop_break/facts/helpers_common.rs::index_of_call_expr:L67",
+        "src/mir/builder/control_flow/plan/loop_break/facts/helpers_common.rs::length_call:L45",
+        "src/mir/builder/control_flow/plan/loop_break/facts/helpers_common.rs::lit_bool:L31",
+        "src/mir/builder/control_flow/plan/loop_break/facts/helpers_common.rs::lit_int:L24",
+        "src/mir/builder/control_flow/plan/loop_break/facts/helpers_common.rs::lit_str:L38",
+        "src/mir/builder/control_flow/plan/loop_break/facts/helpers_common.rs::substring_call:L79",
+        "src/mir/builder/control_flow/plan/loop_break/facts/helpers_common.rs::var:L8",
+        "src/mir/builder/control_flow/plan/loop_break/facts/trim_whitespace_helpers.rs::build_not_whitespace_condition:L278"
+      ],
+      "selection_eligible": false
+    },
+    {
+      "blocked_by": [
+        "NoDependencyRootAuthority",
+        "NoPriorClosedLaneContinuationAuthority",
+        "ProofTupleIncomplete"
+      ],
+      "dependency_root_authority": {
+        "all_other_selected_candidates_depend_on_root": 0,
+        "proof_sources": [],
+        "status": "Unproven",
+        "typed_dependency_edges_present": 0,
+        "unique_root": 0
+      },
+      "domain_subaxis": "ContextOrSpanDomainTransportAxis",
+      "guard_clean_authority": {
+        "hako_adopted_decision_required": 0,
+        "hako_generation_required": 0,
+        "native_seed_materialization_required": 0,
+        "new_abi_required": 0,
+        "new_backend_route_required": 0,
+        "new_python_semantic_projector_required": 0,
+        "proof_sources": [
+          "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-subaxis-mechanical-selection-basis-v0.json"
+        ],
+        "runner_semantic_owner_required": 0,
+        "runtime_fallback_required": 0,
+        "source_selfhost_claim_required": 0,
+        "status": "Proven"
+      },
+      "owner_edge_counts": {
+        "mirbuilder::call_lowering": 1,
+        "mirbuilder::context_registry": 2
+      },
+      "prior_closed_lane_continuation_authority": {
+        "closed_lane_source_id_overlap_count": 0,
+        "closed_lane_source_id_overlap_present": 0,
+        "owner_edge_continuity_present": 1,
+        "owner_edge_continuity_values": [
+          "mirbuilder::context_registry"
+        ],
+        "proof_sources": [],
+        "semantic_resource_continuity_present": 0,
+        "shape_signature_continuity_present": 1,
+        "shape_signature_continuity_values": [
+          "shape.context_registry"
+        ],
+        "status": "Unproven"
+      },
+      "proof_tuple_complete": false,
+      "row_count": 3,
+      "row_count_diagnostic_only": true,
+      "sample_source_ids": [
+        "crates/hakorune_mir_builder/src/metadata_context.rs::current_span:L76",
+        "crates/hakorune_mir_builder/src/type_context.rs::take_snapshot:L110",
+        "src/mir/builder/calls/context_lifecycle.rs::prepare_lowering_context:L61"
+      ],
+      "selection_eligible": false
+    },
+    {
+      "blocked_by": [
+        "NoDependencyRootAuthority",
+        "NoPriorClosedLaneContinuationAuthority",
+        "ProofTupleIncomplete"
+      ],
+      "dependency_root_authority": {
+        "all_other_selected_candidates_depend_on_root": 0,
+        "proof_sources": [],
+        "status": "Unproven",
+        "typed_dependency_edges_present": 0,
+        "unique_root": 0
+      },
+      "domain_subaxis": "MirDomainTransportAxis",
+      "guard_clean_authority": {
+        "hako_adopted_decision_required": 0,
+        "hako_generation_required": 0,
+        "native_seed_materialization_required": 0,
+        "new_abi_required": 0,
+        "new_backend_route_required": 0,
+        "new_python_semantic_projector_required": 0,
+        "proof_sources": [
+          "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-subaxis-mechanical-selection-basis-v0.json"
+        ],
+        "runner_semantic_owner_required": 0,
+        "runtime_fallback_required": 0,
+        "source_selfhost_claim_required": 0,
+        "status": "Proven"
+      },
+      "owner_edge_counts": {
+        "<none>": 3,
+        "mirbuilder::call_lowering": 10,
+        "mirbuilder::context_registry": 2,
+        "mirbuilder::join_i_r_route_verify": 4
+      },
+      "prior_closed_lane_continuation_authority": {
+        "closed_lane_source_id_overlap_count": 0,
+        "closed_lane_source_id_overlap_present": 0,
+        "owner_edge_continuity_present": 1,
+        "owner_edge_continuity_values": [
+          "mirbuilder::context_registry",
+          "mirbuilder::join_i_r_route_verify"
+        ],
+        "proof_sources": [],
+        "semantic_resource_continuity_present": 0,
+        "shape_signature_continuity_present": 1,
+        "shape_signature_continuity_values": [
+          "shape.context_registry",
+          "shape.join_i_r_route_verify"
+        ],
+        "status": "Unproven"
+      },
+      "proof_tuple_complete": false,
+      "row_count": 19,
+      "row_count_diagnostic_only": true,
+      "sample_source_ids": [
+        "crates/hakorune_mir_builder/src/type_context.rs::get_kind:L84",
+        "src/mir/builder/builder_metadata.rs::new_function_with_metadata:L55",
+        "src/mir/builder/calls/call_unified.rs::classify_box_kind:L24",
+        "src/mir/builder/calls/call_unified.rs::create_call_flags:L72",
+        "src/mir/builder/calls/call_unified.rs::create_mir_call:L83",
+        "src/mir/builder/calls/extern_calls.rs::explicit_extern_return_type:L235",
+        "src/mir/builder/calls/function_lowering.rs::prepare_method_signature:L14",
+        "src/mir/builder/calls/function_lowering.rs::prepare_static_method_signature:L48",
+        "src/mir/builder/calls/resolver.rs::classify_box_kind:L161",
+        "src/mir/builder/calls/special_handlers.rs::parse_type_name_to_mir:L51",
+        "src/mir/builder/calls/utils.rs::parse_type_name_to_mir:L13",
+        "src/mir/builder/calls/utils.rs::parse_type_name_to_mir:L24"
+      ],
+      "selection_eligible": false
+    },
+    {
+      "blocked_by": [
+        "NoDependencyRootAuthority",
+        "NoPriorClosedLaneContinuationAuthority",
+        "ProofTupleIncomplete"
+      ],
+      "dependency_root_authority": {
+        "all_other_selected_candidates_depend_on_root": 0,
+        "proof_sources": [],
+        "status": "Unproven",
+        "typed_dependency_edges_present": 0,
+        "unique_root": 0
+      },
+      "domain_subaxis": "OtherDomainObjectTransportAxis",
+      "guard_clean_authority": {
+        "hako_adopted_decision_required": 0,
+        "hako_generation_required": 0,
+        "native_seed_materialization_required": 0,
+        "new_abi_required": 0,
+        "new_backend_route_required": 0,
+        "new_python_semantic_projector_required": 0,
+        "proof_sources": [
+          "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-subaxis-mechanical-selection-basis-v0.json"
+        ],
+        "runner_semantic_owner_required": 0,
+        "runtime_fallback_required": 0,
+        "source_selfhost_claim_required": 0,
+        "status": "Proven"
+      },
+      "owner_edge_counts": {
+        "<none>": 1
+      },
+      "prior_closed_lane_continuation_authority": {
+        "closed_lane_source_id_overlap_count": 0,
+        "closed_lane_source_id_overlap_present": 0,
+        "owner_edge_continuity_present": 0,
+        "owner_edge_continuity_values": [],
+        "proof_sources": [],
+        "semantic_resource_continuity_present": 0,
+        "shape_signature_continuity_present": 0,
+        "shape_signature_continuity_values": [],
+        "status": "Unproven"
+      },
+      "proof_tuple_complete": false,
+      "row_count": 1,
+      "row_count_diagnostic_only": true,
+      "sample_source_ids": [
+        "src/mir/builder/control_flow/cleanup/policies/balanced_depth_scan_policy_box.rs::decide:L16"
+      ],
+      "selection_eligible": false
+    },
+    {
+      "blocked_by": [
+        "NoDependencyRootAuthority",
+        "NoPriorClosedLaneContinuationAuthority",
+        "ProofTupleIncomplete"
+      ],
+      "dependency_root_authority": {
+        "all_other_selected_candidates_depend_on_root": 0,
+        "proof_sources": [],
+        "status": "Unproven",
+        "typed_dependency_edges_present": 0,
+        "unique_root": 0
+      },
+      "domain_subaxis": "PlanRecipeDomainTransportAxis",
+      "guard_clean_authority": {
+        "hako_adopted_decision_required": 0,
+        "hako_generation_required": 0,
+        "native_seed_materialization_required": 0,
+        "new_abi_required": 0,
+        "new_backend_route_required": 0,
+        "new_python_semantic_projector_required": 0,
+        "proof_sources": [
+          "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-subaxis-mechanical-selection-basis-v0.json"
+        ],
+        "runner_semantic_owner_required": 0,
+        "runtime_fallback_required": 0,
+        "source_selfhost_claim_required": 0,
+        "status": "Proven"
+      },
+      "owner_edge_counts": {
+        "<none>": 3,
+        "mirbuilder::call_lowering": 3,
+        "mirbuilder::join_i_r_plan": 34,
+        "mirbuilder::join_i_r_route_registry": 2,
+        "mirbuilder::join_i_r_route_verify": 6
+      },
+      "prior_closed_lane_continuation_authority": {
+        "closed_lane_source_id_overlap_count": 0,
+        "closed_lane_source_id_overlap_present": 0,
+        "owner_edge_continuity_present": 1,
+        "owner_edge_continuity_values": [
+          "mirbuilder::join_i_r_plan",
+          "mirbuilder::join_i_r_route_verify"
+        ],
+        "proof_sources": [],
+        "semantic_resource_continuity_present": 0,
+        "shape_signature_continuity_present": 1,
+        "shape_signature_continuity_values": [
+          "shape.join_i_r_route_verify",
+          "shape.phi_materializer_feature",
+          "shape.plan_normalizer",
+          "shape.recipe_tree_matcher"
+        ],
+        "status": "Unproven"
+      },
+      "proof_tuple_complete": false,
+      "row_count": 48,
+      "row_count_diagnostic_only": true,
+      "sample_source_ids": [
+        "src/mir/builder/calls/call_unified.rs::compute_call_effects:L67",
+        "src/mir/builder/calls/effects_analyzer.rs::compute_call_effects:L37",
+        "src/mir/builder/calls/extern_calls.rs::compute_extern_effects:L289",
+        "src/mir/builder/control_flow/facts/ast_feature_extractor.rs::extract_features:L72",
+        "src/mir/builder/control_flow/facts/extractors/common_helpers/control_flow.rs::count_control_flow:L46",
+        "src/mir/builder/control_flow/generic_loop_canon/step_placement/plan.rs::classify_step_placement:L8",
+        "src/mir/builder/control_flow/joinir/merge/header_pred_policy.rs::split_header_preds:L19",
+        "src/mir/builder/control_flow/joinir/merge/tail_call_classifier.rs::classify_tail_call:L45",
+        "src/mir/builder/control_flow/joinir/route_entry/registry/legacy_observer.rs::shadow_report:L80",
+        "src/mir/builder/control_flow/joinir/route_entry/registry/mod.rs::collect_b_lite_shadow_report:L21",
+        "src/mir/builder/control_flow/joinir/routing.rs::choose_route_kind:L37",
+        "src/mir/builder/control_flow/lower/normalize/canonicalize.rs::canonicalize_loop_facts:L21"
+      ],
+      "selection_eligible": false
+    }
+  ],
+  "claims": {
+    "cluster_size_as_proof": 0,
+    "convenience_as_proof": 0,
+    "coverage_percentage_as_proof": 0,
+    "domain_object_count_as_proof": 0,
+    "domain_object_id_transport_policy_inventory_rerun_002_consumed": 1,
+    "generated_artifact_as_native_edit_authority": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "hardcoded_subaxis_priority": 0,
+    "manual_axis_selection": 0,
+    "manual_carrier_selection": 0,
+    "manual_family_selection": 0,
+    "manual_shape_selection": 0,
+    "manual_subaxis_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "owner_name_as_proof": 0,
+    "route_membership_alone_as_proof": 0,
+    "row_count_as_proof": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_path_as_authority": 0,
+    "source_selfhost_claim": 0,
+    "subaxis_mechanical_selection_basis_consumed": 1
+  },
+  "decision": {
+    "kind": "KeepStopped",
+    "reason_token": "NoExactlyOneDomainObjectIdSubaxisMechanicalCandidate",
+    "selected_domain_subaxis": null,
+    "selected_next_card": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "domain_object_id_transport_policy_inventory_rerun_002": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-transport-policy-inventory-rerun-002-v0.json",
+    "subaxis_mechanical_selection_basis": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-subaxis-mechanical-selection-basis-v0.json"
+  },
+  "kind": "MirBuilderDomainObjectIdUnresolvedSubaxisPriorityRerunV2",
+  "local_authority": {
+    "local_selection_authority": "LocalMechanicalSelectorAuthorityV1",
+    "worker_inventory": "consumed",
+    "worker_inventory_scope": "read_only_current_fixtures_cards_ledgers"
+  },
+  "previous_decision": {
+    "kind": "SelectDomainObjectIdSubaxisPriorityRerun",
+    "reason_token": "DomainObjectIdSubaxisMechanicalSelectorBasisDefined",
+    "selected_domain_subaxis": null,
+    "selected_next_card": "MIRBUILDER-DOMAIN-OBJECT-ID-UNRESOLVED-SUBAXIS-PRIORITY-RERUN-002"
+  },
+  "provenance": {
+    "domain_object_id_transport_policy_inventory_rerun_002_hash": "778ca61ba57fcee9d77498ee721874f7d6fed56a3b74ad71cb6fe23de0fd3ed3",
+    "subaxis_mechanical_selection_basis_hash": "f7574ddf0df4c9a55e59d2782389c207e9e97bcdf8f62e8e7cea9aedf806d187"
+  },
+  "recovery": {
+    "kind": "DesignConsultationRequired",
+    "question": "No non-ID DomainObject/Id subaxis has dependency-root or prior closed-lane continuation authority. Define stronger typed dependency evidence or return to the wider route selector.",
+    "reason": "NoExactlyOneDomainObjectIdSubaxisMechanicalCandidate"
+  },
+  "schema_version": 0,
+  "selector_rule": {
+    "dependency_root_authority_allowed": true,
+    "hardcoded_subaxis_priority": false,
+    "manual_subaxis_selection": false,
+    "name": "DomainObjectIdSubaxisMechanicalSelectorV1",
+    "owner_name_as_proof": false,
+    "prior_closed_lane_continuation_authority_allowed": true,
+    "proof_tuple_complete_requires": "guard_clean_authority AND (dependency_root_authority OR prior_closed_lane_continuation_authority)",
+    "route_membership_alone_as_proof": false,
+    "row_count_is_diagnostic_only": true,
+    "selection_requires_exactly_one_guard_clean_candidate": true,
+    "source_path_as_authority": false
+  },
+  "summary": {
+    "candidate_subaxis_count": 5,
+    "closed_id_scalar_row_count": 31,
+    "guard_clean_candidate_count": 5,
+    "proof_tuple_complete_candidate_count": 0,
+    "selection_eligible_subaxis_count": 0,
+    "unresolved_non_id_domain_row_count": 85
+  },
+  "token": "MIRBUILDER-DOMAIN-OBJECT-ID-UNRESOLVED-SUBAXIS-PRIORITY-RERUN-002"
+}

@@ -25,9 +25,10 @@ active blocker:
 
 current implementation task:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001.
-  2064 consumed the 85 unresolved non-ID DomainObject/Id rows and found no
-  machine-derived subaxis priority. Design consultation is required before
-  opening a PlanRecipe, MIR, AST, Context/Span, or Other policy basis.
+  2066 reran unresolved non-ID DomainObject/Id subaxis priority under
+  DomainObjectIdSubaxisMechanicalSelectorV1 and found no proof-complete
+  candidate. Design consultation is required before selecting PlanRecipe,
+  MIR, AST, Context/Span, or Other.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -68,10 +69,8 @@ selected next task:
 current fail-fast boundary:
   Do not select PlanRecipe, MIR, AST, Context/Span, or Other by row count,
   owner name, route membership, source path, or apparent convenience. The
-  current non-ID DomainObject/Id subaxis resolver has
-  selection_eligible_subaxis_count = 0. Source Selfhost remains stopped until
-  external design input defines a machine-checkable authority for exactly one
-  non-ID DomainObject/Id subaxis, or routes this lane back to a wider selector.
+  2066 rerun has guard_clean_candidate_count = 5 but
+  proof_tuple_complete_candidate_count = 0. Source Selfhost remains stopped.
 
 latest design decision:
   Pointer realignment, VariableContext closeout, the blocked candidate
@@ -140,6 +139,10 @@ source_selfhost_status = Stopped
 source_selfhost_blocker = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 latest_diagnostics:
+  latest_stop_token = MIRBUILDER-DOMAIN-OBJECT-ID-UNRESOLVED-SUBAXIS-PRIORITY-RERUN-002
+  selector_basis_token = MIRBUILDER-DOMAIN-OBJECT-ID-SUBAXIS-MECHANICAL-SELECTION-BASIS-001
+  previous_ledger_token = MIRBUILDER-DOMAIN-OBJECT-ID-TRANSPORT-POLICY-INVENTORY-RERUN-002
+  previous_stop_token = MIRBUILDER-DOMAIN-OBJECT-ID-UNRESOLVED-SUBAXIS-PRIORITY-RESOLUTION-001
   unconverted_surface_count = 1584
   missing_projection_policy_count = 1004
   borrow_surface_needs_policy_count = 112
@@ -149,7 +152,10 @@ latest_diagnostics:
   legacy_id_scalar_domain_rows = 31
   unresolved_non_id_domain_rows = 85
   unresolved_non_id_subaxis_candidate_count = 5
+  guard_clean_candidate_count = 5
+  proof_tuple_complete_candidate_count = 0
   selection_eligible_subaxis_count = 0
+  domain_object_id_subaxis_mechanical_selector_basis = defined
 
 completed:
   VariableContext returned read borrow -> OwnedReadSnapshotProjection
@@ -392,23 +398,23 @@ Detailed evidence lives in phase cards, fixtures, and git history.
 Keep this section short.
 
 ```text
-1. MIRBUILDER-DOMAIN-OBJECT-ID-TRANSPORT-POLICY-INVENTORY-RERUN-002
+1. MIRBUILDER-DOMAIN-OBJECT-ID-UNRESOLVED-SUBAXIS-PRIORITY-RERUN-002
    status=closed
-   boundary=full 116-row ledger; closed_id_scalar_row_count = 31; unresolved_non_id_domain_row_count = 85; no subaxis selected by count
+   boundary=guard_clean_candidate_count = 5; proof_tuple_complete_candidate_count = 0; no subaxis selected
 
-2. MIRBUILDER-DOMAIN-OBJECT-ID-UNRESOLVED-SUBAXIS-PRIORITY-RESOLUTION-001
-   status=closed
-   boundary=selection_eligible_subaxis_count = 0; reason = NoMachineDerivedDomainObjectIdUnresolvedSubaxisPriority
-
-3. SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+2. SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
    status=active
    boundary=design consultation required before selecting any non-ID DomainObject/Id subaxis
+
+3. MIRBUILDER-DOMAIN-OBJECT-ID-SELECTED-SUBAXIS-POLICY-BASIS-001
+   status=blocked
+   boundary=open only after a future selector proves exactly one subaxis
 
 next_documented_task =
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 next_after_active_3 =
-  TBD by design consultation on non-ID DomainObject/Id subaxis authority
+  TBD by design consultation on dependency-root or closed-lane continuation authority
 ```
 
 ## Landed Converter Capability Summary

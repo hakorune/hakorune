@@ -25,11 +25,12 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-DOMAIN-OBJECT-ID-UNRESOLVED-SUBAXIS-PRIORITY-RESOLUTION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2064-MIRBUILDER-DOMAIN-OBJECT-ID-UNRESOLVED-SUBAXIS-PRIORITY-RESOLUTION-001.md"
-latest_card_summary = """The latest card consumes the 85 unresolved non-ID
-DomainObject/Id rows and keeps Source Selfhost stopped because no machine-
-derived subaxis priority is available."""
+latest_card = "MIRBUILDER-DOMAIN-OBJECT-ID-UNRESOLVED-SUBAXIS-PRIORITY-RERUN-002"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2066-MIRBUILDER-DOMAIN-OBJECT-ID-UNRESOLVED-SUBAXIS-PRIORITY-RERUN-002.md"
+latest_card_summary = """The latest card consumes
+DomainObjectIdSubaxisMechanicalSelectorV1 and keeps Source Selfhost stopped:
+all five subaxes are guard-clean, but none has dependency-root or prior
+closed-lane continuation authority."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -40,6 +41,8 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-02: 2066 reruns non-ID DomainObject/Id subaxis priority under the mechanical selector basis and keeps Source Selfhost stopped with no proof-complete candidate.",
+  "2026-07-02: 2065 defines the non-ID DomainObject/Id mechanical subaxis selector basis and selects priority rerun 002 without selecting a subaxis.",
   "2026-07-02: 2064 consumes 85 unresolved non-ID DomainObject/Id rows and keeps Source Selfhost stopped with no machine-derived subaxis priority.",
   "2026-07-02: 2063 builds the full DomainObject/Id ledger, consumes the closed 31-row ID scalar lane, and selects unresolved non-ID subaxis priority resolution next.",
   "2026-07-02: 2062 resolves 130 unclassified carrier/type evidence rows into six axes and selects DomainObject/Id transport policy inventory rerun 002.",

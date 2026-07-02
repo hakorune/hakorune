@@ -1,0 +1,275 @@
+{
+  "candidate_subaxes": [
+    {
+      "blocked_by": [
+        "MechanicalSelectorBasisDefinedButNotEvaluated"
+      ],
+      "dependency_root_authority": {
+        "all_other_selected_candidates_depend_on_root_required": true,
+        "proof_sources": [],
+        "status": "NotEvaluatedAtBasis",
+        "typed_dependency_edges_required": true,
+        "unique_root_required": true
+      },
+      "domain_subaxis": "AstNodeDomainTransportAxis",
+      "guard_clean_authority": {
+        "hako_adopted_decision_required": 0,
+        "hako_generation_required": 0,
+        "native_seed_materialization_required": 0,
+        "new_abi_required": 0,
+        "new_backend_route_required": 0,
+        "new_python_semantic_projector_required": 0,
+        "runner_semantic_owner_required": 0,
+        "runtime_fallback_required": 0,
+        "source_selfhost_claim_required": 0,
+        "status": "NotEvaluatedAtBasis"
+      },
+      "prior_closed_lane_continuation_authority": {
+        "closed_lane_source_id_overlap_required": true,
+        "owner_edge_or_shape_signature_continuity_required": true,
+        "proof_sources": [],
+        "semantic_resource_continuity_required": true,
+        "status": "NotEvaluatedAtBasis"
+      },
+      "proof_tuple_complete": false,
+      "row_count": 14,
+      "row_count_diagnostic_only": true,
+      "selection_eligible": false
+    },
+    {
+      "blocked_by": [
+        "MechanicalSelectorBasisDefinedButNotEvaluated"
+      ],
+      "dependency_root_authority": {
+        "all_other_selected_candidates_depend_on_root_required": true,
+        "proof_sources": [],
+        "status": "NotEvaluatedAtBasis",
+        "typed_dependency_edges_required": true,
+        "unique_root_required": true
+      },
+      "domain_subaxis": "ContextOrSpanDomainTransportAxis",
+      "guard_clean_authority": {
+        "hako_adopted_decision_required": 0,
+        "hako_generation_required": 0,
+        "native_seed_materialization_required": 0,
+        "new_abi_required": 0,
+        "new_backend_route_required": 0,
+        "new_python_semantic_projector_required": 0,
+        "runner_semantic_owner_required": 0,
+        "runtime_fallback_required": 0,
+        "source_selfhost_claim_required": 0,
+        "status": "NotEvaluatedAtBasis"
+      },
+      "prior_closed_lane_continuation_authority": {
+        "closed_lane_source_id_overlap_required": true,
+        "owner_edge_or_shape_signature_continuity_required": true,
+        "proof_sources": [],
+        "semantic_resource_continuity_required": true,
+        "status": "NotEvaluatedAtBasis"
+      },
+      "proof_tuple_complete": false,
+      "row_count": 3,
+      "row_count_diagnostic_only": true,
+      "selection_eligible": false
+    },
+    {
+      "blocked_by": [
+        "MechanicalSelectorBasisDefinedButNotEvaluated"
+      ],
+      "dependency_root_authority": {
+        "all_other_selected_candidates_depend_on_root_required": true,
+        "proof_sources": [],
+        "status": "NotEvaluatedAtBasis",
+        "typed_dependency_edges_required": true,
+        "unique_root_required": true
+      },
+      "domain_subaxis": "MirDomainTransportAxis",
+      "guard_clean_authority": {
+        "hako_adopted_decision_required": 0,
+        "hako_generation_required": 0,
+        "native_seed_materialization_required": 0,
+        "new_abi_required": 0,
+        "new_backend_route_required": 0,
+        "new_python_semantic_projector_required": 0,
+        "runner_semantic_owner_required": 0,
+        "runtime_fallback_required": 0,
+        "source_selfhost_claim_required": 0,
+        "status": "NotEvaluatedAtBasis"
+      },
+      "prior_closed_lane_continuation_authority": {
+        "closed_lane_source_id_overlap_required": true,
+        "owner_edge_or_shape_signature_continuity_required": true,
+        "proof_sources": [],
+        "semantic_resource_continuity_required": true,
+        "status": "NotEvaluatedAtBasis"
+      },
+      "proof_tuple_complete": false,
+      "row_count": 19,
+      "row_count_diagnostic_only": true,
+      "selection_eligible": false
+    },
+    {
+      "blocked_by": [
+        "MechanicalSelectorBasisDefinedButNotEvaluated"
+      ],
+      "dependency_root_authority": {
+        "all_other_selected_candidates_depend_on_root_required": true,
+        "proof_sources": [],
+        "status": "NotEvaluatedAtBasis",
+        "typed_dependency_edges_required": true,
+        "unique_root_required": true
+      },
+      "domain_subaxis": "OtherDomainObjectTransportAxis",
+      "guard_clean_authority": {
+        "hako_adopted_decision_required": 0,
+        "hako_generation_required": 0,
+        "native_seed_materialization_required": 0,
+        "new_abi_required": 0,
+        "new_backend_route_required": 0,
+        "new_python_semantic_projector_required": 0,
+        "runner_semantic_owner_required": 0,
+        "runtime_fallback_required": 0,
+        "source_selfhost_claim_required": 0,
+        "status": "NotEvaluatedAtBasis"
+      },
+      "prior_closed_lane_continuation_authority": {
+        "closed_lane_source_id_overlap_required": true,
+        "owner_edge_or_shape_signature_continuity_required": true,
+        "proof_sources": [],
+        "semantic_resource_continuity_required": true,
+        "status": "NotEvaluatedAtBasis"
+      },
+      "proof_tuple_complete": false,
+      "row_count": 1,
+      "row_count_diagnostic_only": true,
+      "selection_eligible": false
+    },
+    {
+      "blocked_by": [
+        "MechanicalSelectorBasisDefinedButNotEvaluated"
+      ],
+      "dependency_root_authority": {
+        "all_other_selected_candidates_depend_on_root_required": true,
+        "proof_sources": [],
+        "status": "NotEvaluatedAtBasis",
+        "typed_dependency_edges_required": true,
+        "unique_root_required": true
+      },
+      "domain_subaxis": "PlanRecipeDomainTransportAxis",
+      "guard_clean_authority": {
+        "hako_adopted_decision_required": 0,
+        "hako_generation_required": 0,
+        "native_seed_materialization_required": 0,
+        "new_abi_required": 0,
+        "new_backend_route_required": 0,
+        "new_python_semantic_projector_required": 0,
+        "runner_semantic_owner_required": 0,
+        "runtime_fallback_required": 0,
+        "source_selfhost_claim_required": 0,
+        "status": "NotEvaluatedAtBasis"
+      },
+      "prior_closed_lane_continuation_authority": {
+        "closed_lane_source_id_overlap_required": true,
+        "owner_edge_or_shape_signature_continuity_required": true,
+        "proof_sources": [],
+        "semantic_resource_continuity_required": true,
+        "status": "NotEvaluatedAtBasis"
+      },
+      "proof_tuple_complete": false,
+      "row_count": 48,
+      "row_count_diagnostic_only": true,
+      "selection_eligible": false
+    }
+  ],
+  "claims": {
+    "cluster_size_as_proof": 0,
+    "convenience_as_proof": 0,
+    "coverage_percentage_as_proof": 0,
+    "domain_object_count_as_proof": 0,
+    "domain_object_id_subaxis_mechanical_selection_basis_defined": 1,
+    "generated_artifact_as_native_edit_authority": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "hardcoded_subaxis_priority": 0,
+    "local_mechanical_selector_authority_consumed": 1,
+    "manual_axis_selection": 0,
+    "manual_carrier_selection": 0,
+    "manual_family_selection": 0,
+    "manual_shape_selection": 0,
+    "manual_subaxis_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "owner_name_as_proof": 0,
+    "route_membership_alone_as_proof": 0,
+    "row_count_as_proof": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_path_as_authority": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "SelectDomainObjectIdSubaxisPriorityRerun",
+    "reason_token": "DomainObjectIdSubaxisMechanicalSelectorBasisDefined",
+    "selected_domain_subaxis": null,
+    "selected_next_card": "MIRBUILDER-DOMAIN-OBJECT-ID-UNRESOLVED-SUBAXIS-PRIORITY-RERUN-002"
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "domain_object_id_transport_policy_inventory_rerun_002": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-transport-policy-inventory-rerun-002-v0.json",
+    "unresolved_subaxis_priority_resolution": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-unresolved-subaxis-priority-resolution-v0.json"
+  },
+  "kind": "MirBuilderDomainObjectIdSubaxisMechanicalSelectionBasisV1",
+  "local_authority": {
+    "local_selection_authority": "LocalMechanicalSelectorAuthorityV1",
+    "worker_inventory": "consumed",
+    "worker_inventory_scope": "read_only_current_fixtures_cards_ledgers"
+  },
+  "previous_state": {
+    "candidate_subaxis_count": 5,
+    "previous_decision": "KeepStopped",
+    "previous_reason_token": "NoMachineDerivedDomainObjectIdUnresolvedSubaxisPriority",
+    "selection_eligible_subaxis_count": 0,
+    "unresolved_non_id_domain_row_count": 85
+  },
+  "provenance": {
+    "domain_object_id_transport_policy_inventory_rerun_002_hash": "778ca61ba57fcee9d77498ee721874f7d6fed56a3b74ad71cb6fe23de0fd3ed3",
+    "unresolved_subaxis_priority_resolution_hash": "7bc61fd78dbfaa00c9e37e02faa97d2c556c07e6a139f802a2b7329ff9f193a6"
+  },
+  "recovery_if_rerun_fails": {
+    "dependency_root_missing_reason_token": "NoDomainObjectIdSubaxisDependencyRootAuthority",
+    "guard_clean_missing_reason_token": "NoDomainObjectIdSubaxisGuardCleanAuthority",
+    "multiple_candidate_reason_token": "MultipleDomainObjectIdSubaxisMechanicalCandidates",
+    "no_candidate_reason_token": "NoExactlyOneDomainObjectIdSubaxisMechanicalCandidate",
+    "selected_next_card": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+  },
+  "schema_version": 0,
+  "selector_rule": {
+    "dependency_root_authority_allowed": true,
+    "hardcoded_subaxis_priority": false,
+    "manual_subaxis_selection": false,
+    "name": "DomainObjectIdSubaxisMechanicalSelectorV1",
+    "owner_name_as_proof": false,
+    "prior_closed_lane_continuation_authority_allowed": true,
+    "proof_tuple_complete_requires": "guard_clean_authority AND (dependency_root_authority OR prior_closed_lane_continuation_authority)",
+    "route_membership_alone_as_proof": false,
+    "row_count_is_diagnostic_only": true,
+    "selection_requires_exactly_one_guard_clean_candidate": true,
+    "source_path_as_authority": false
+  },
+  "summary": {
+    "candidate_set": [
+      "AstNodeDomainTransportAxis",
+      "ContextOrSpanDomainTransportAxis",
+      "MirDomainTransportAxis",
+      "OtherDomainObjectTransportAxis",
+      "PlanRecipeDomainTransportAxis"
+    ],
+    "candidate_subaxis_count": 5,
+    "guard_clean_candidate_count": 0,
+    "proof_tuple_complete_candidate_count": 0,
+    "selection_eligible_subaxis_count": 0
+  },
+  "token": "MIRBUILDER-DOMAIN-OBJECT-ID-SUBAXIS-MECHANICAL-SELECTION-BASIS-001"
+}

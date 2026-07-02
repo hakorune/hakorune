@@ -1822,6 +1822,55 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-policy-cluster-resolution-v4-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_missing_projection_policy_cluster_resolution_v4_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-CARRIER-TYPE-TRANSPORT-POLICY-INVENTORY-RERUN-003",
+      "card": "docs/development/current/main/phases/phase-296x/2060-MIRBUILDER-CARRIER-TYPE-TRANSPORT-POLICY-INVENTORY-RERUN-003.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-transport-policy-inventory-rerun-003-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_carrier_type_transport_policy_inventory_rerun_003_guard.sh",
+      "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-CARRIER-TYPE-TRANSPORT-EVIDENCE-INVENTORY-RERUN-003",
+      "card": "docs/development/current/main/phases/phase-296x/2061-MIRBUILDER-CARRIER-TYPE-TRANSPORT-EVIDENCE-INVENTORY-RERUN-003.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-transport-evidence-inventory-rerun-003-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_carrier_type_transport_evidence_inventory_rerun_003_guard.sh",
+      "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-CARRIER-TYPE-TRANSPORT-UNCLASSIFIED-EVIDENCE-RESOLUTION-002",
+      "card": "docs/development/current/main/phases/phase-296x/2062-MIRBUILDER-CARRIER-TYPE-TRANSPORT-UNCLASSIFIED-EVIDENCE-RESOLUTION-002.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-transport-unclassified-evidence-resolution-002-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_carrier_type_transport_unclassified_evidence_resolution_002_guard.sh",
+      "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-DOMAIN-OBJECT-ID-TRANSPORT-POLICY-INVENTORY-RERUN-002",
+      "card": "docs/development/current/main/phases/phase-296x/2063-MIRBUILDER-DOMAIN-OBJECT-ID-TRANSPORT-POLICY-INVENTORY-RERUN-002.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-transport-policy-inventory-rerun-002-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_domain_object_id_transport_policy_inventory_rerun_002_guard.sh",
+      "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-DOMAIN-OBJECT-ID-UNRESOLVED-SUBAXIS-PRIORITY-RESOLUTION-001",
+      "card": "docs/development/current/main/phases/phase-296x/2064-MIRBUILDER-DOMAIN-OBJECT-ID-UNRESOLVED-SUBAXIS-PRIORITY-RESOLUTION-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-unresolved-subaxis-priority-resolution-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_domain_object_id_unresolved_subaxis_priority_resolution_guard.sh",
+      "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-DOMAIN-OBJECT-ID-SUBAXIS-MECHANICAL-SELECTION-BASIS-001",
+      "card": "docs/development/current/main/phases/phase-296x/2065-MIRBUILDER-DOMAIN-OBJECT-ID-SUBAXIS-MECHANICAL-SELECTION-BASIS-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-subaxis-mechanical-selection-basis-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_domain_object_id_subaxis_mechanical_selection_basis_guard.sh",
+      "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-DOMAIN-OBJECT-ID-UNRESOLVED-SUBAXIS-PRIORITY-RERUN-002",
+      "card": "docs/development/current/main/phases/phase-296x/2066-MIRBUILDER-DOMAIN-OBJECT-ID-UNRESOLVED-SUBAXIS-PRIORITY-RERUN-002.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-unresolved-subaxis-priority-rerun-002-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_domain_object_id_unresolved_subaxis_priority_rerun_002_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {
