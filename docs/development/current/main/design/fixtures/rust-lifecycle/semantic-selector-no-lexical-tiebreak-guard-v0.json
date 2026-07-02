@@ -1,0 +1,102 @@
+{
+  "active_enforcement": {
+    "active_file_count": 3,
+    "exactly_one_guarded_selection_count": 1,
+    "findings": [],
+    "forbidden_active_finding_count": 0
+  },
+  "claims": {
+    "first_eligible_without_exactly_one_guard": 0,
+    "fixture_name_as_proof": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "lexical_order_as_proof": 0,
+    "manifest_order_as_proof": 0,
+    "manual_owner_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "owner_name_as_proof": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_plan_materialization": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "GuardDefined",
+    "reason_token": "SemanticSelectorNoLexicalTiebreakGuardDefined",
+    "selected_next_card": "MIRBUILDER-ID-SCALAR-DERIVABLE-OWNER-DISCRIMINATOR-RESOLUTION-001"
+  },
+  "guard_policy": {
+    "first_eligible_selection_requires_exactly_one_guard": true,
+    "fixture_name_as_proof": false,
+    "historical_findings_are_not_new_authority": true,
+    "lexical_order_as_proof": false,
+    "manifest_order_as_proof": false,
+    "manual_owner_selection": false,
+    "owner_name_as_proof": false
+  },
+  "historical_findings": {
+    "finding_count": 9,
+    "findings": [
+      {
+        "line": 112,
+        "path": "tools/rust_lifecycle/mirbuilder_next_hako_adoption_candidate_selection.py",
+        "pattern": "selected_candidate = eligible_tokens[0]"
+      },
+      {
+        "line": 246,
+        "path": "tools/rust_lifecycle/mirbuilder_projection_policy_cluster_priority_resolution.py",
+        "pattern": "cluster_id_lexical_tiebreaker"
+      },
+      {
+        "line": 228,
+        "path": "tools/rust_lifecycle/mirbuilder_strict_converter_emission_native_seed_candidate_selection.py",
+        "pattern": "eligible.sort(key=lambda row: row[\"priority_tuple\"])"
+      },
+      {
+        "line": 229,
+        "path": "tools/rust_lifecycle/mirbuilder_strict_converter_emission_native_seed_candidate_selection.py",
+        "pattern": "selected = eligible[0] if eligible else None"
+      },
+      {
+        "line": 270,
+        "path": "tools/rust_lifecycle/mirbuilder_strict_converter_emission_native_seed_candidate_selection.py",
+        "pattern": "family_id_lexical"
+      },
+      {
+        "line": 271,
+        "path": "tools/rust_lifecycle/mirbuilder_strict_converter_emission_native_seed_candidate_selection.py",
+        "pattern": "verifier_fixture_lexical"
+      },
+      {
+        "line": 73,
+        "path": "tools/rust_lifecycle/mirbuilder_strict_converter_emission_native_seed_candidate_selection_rerun_002.py",
+        "pattern": "selected = eligible_rows[0] if eligible_rows else None"
+      },
+      {
+        "line": 72,
+        "path": "tools/rust_lifecycle/mirbuilder_strict_converter_emission_native_seed_candidate_selection_rerun_003.py",
+        "pattern": "selected = eligible_rows[0] if eligible_rows else None"
+      },
+      {
+        "line": 75,
+        "path": "tools/rust_lifecycle/mirbuilder_strict_converter_emission_native_seed_candidate_selection_rerun_004.py",
+        "pattern": "selected = eligible_rows[0] if eligible_rows else None"
+      }
+    ],
+    "next_cleanup_card": "MIRBUILDER-HISTORICAL-SEED-SELECTOR-QUARANTINE-001"
+  },
+  "input_state": {
+    "active_enforced_files": [
+      "tools/rust_lifecycle/mirbuilder_id_scalar_source_plan_and_recipe_derivability_resolution_003.py",
+      "tools/rust_lifecycle/mirbuilder_id_scalar_typed_evidence_index_policy.py",
+      "tools/rust_lifecycle/mirbuilder_id_scalar_operation_vocabulary_authority_split.py"
+    ],
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+  },
+  "kind": "MirBuilderSemanticSelectorNoLexicalTiebreakGuardV1",
+  "schema_version": 0,
+  "token": "MIRBUILDER-SEMANTIC-SELECTOR-NO-LEXICAL-TIEBREAK-GUARD-001"
+}

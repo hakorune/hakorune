@@ -372,9 +372,10 @@ id_scalar_source_plan_derivability_rerun_003_result:
   selected_next_card = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
   source_selfhost_claim = 0
 
-id_scalar_derivable_owner_discriminator_basis_task:
-  token = MIRBUILDER-ID-SCALAR-DERIVABLE-OWNER-DISCRIMINATOR-BASIS-001
-  selected_next_card = MIRBUILDER-ID-SCALAR-TYPED-EVIDENCE-INDEX-POLICY-001
+id_scalar_derivable_owner_discriminator_resolution_result:
+  token = MIRBUILDER-ID-SCALAR-DERIVABLE-OWNER-DISCRIMINATOR-RESOLUTION-001
+  reason_token = MultipleEqualIdScalarDerivableOwnerDiscriminatorCandidates
+  selected_next_card = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
   source_selfhost_claim = 0
 
 placement_rule:
@@ -397,36 +398,34 @@ forbidden:
 
 ## Evidence Pointers
 
-Detailed evidence lives in phase cards, fixtures, and git history. Keep this
-task-order thin.
+Detailed evidence lives in phase cards, fixtures, and git history.
 
 ## Active Next 3
 
-Keep this section short. Detailed landed rows belong in phase cards and git
-history, not in this task-order SSOT.
+Keep this section short.
 
 ```text
-1. MIRBUILDER-ID-SCALAR-DERIVABLE-OWNER-DISCRIMINATOR-BASIS-001
-   status=taskized
-   boundary=define proof axes before selecting context_registry/emission_ssa_phi
+1. MIRBUILDER-ID-SCALAR-DERIVABLE-OWNER-DISCRIMINATOR-RESOLUTION-001
+   status=closed
+   boundary=proof axes equal; no owner selected
 
-2. MIRBUILDER-ID-SCALAR-TYPED-EVIDENCE-INDEX-POLICY-001
-   status=next
-   boundary=typed refs only; owner_edge_id text mentions are not evidence
+2. SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+   status=design-consultation-required
+   boundary=need new non-count/non-name discriminator
 
-3. MIRBUILDER-ID-SCALAR-OPERATION-VOCABULARY-AUTHORITY-SPLIT-001
-   status=queued
-   boundary=semantic role authority; name/type fallbacks diagnostic-only
+3. MIRBUILDER-HISTORICAL-SEED-SELECTOR-QUARANTINE-001
+   status=parked
+   boundary=only if historical selectors are reused
 
 next:
-  MIRBUILDER-ID-SCALAR-TYPED-EVIDENCE-INDEX-POLICY-001
-  boundary=build typed evidence authority before discriminator resolution
+  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+  boundary=consult before selecting context_registry/emission_ssa_phi
 
 next_documented_task =
-  MIRBUILDER-ID-SCALAR-TYPED-EVIDENCE-INDEX-POLICY-001
+  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 next_after_active_3 =
-  MIRBUILDER-SEMANTIC-SELECTOR-NO-LEXICAL-TIEBREAK-GUARD-001
+  TBD_AFTER_ID_SCALAR_DERIVABLE_OWNER_DISCRIMINATOR
 ```
 
 ## Landed Converter Capability Summary

@@ -1,0 +1,217 @@
+{
+  "candidate_pool": {
+    "input_tied_owner_count": 2,
+    "selection_eligible_count": 0,
+    "typed_evidence_complete_owner_count": 2
+  },
+  "claims": {
+    "behavior_recipe_materialization": 0,
+    "derived_artifact_seed_draft_materialization": 0,
+    "fixture_path_substring_as_evidence": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "manual_owner_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "owner_edge_text_mention_as_evidence": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_plan_materialization": 0,
+    "source_selfhost_claim": 0,
+    "verifier_result_materialization": 0
+  },
+  "decision": {
+    "kind": "PolicyDefined",
+    "reason_token": "IdScalarTypedEvidenceIndexPolicyDefined",
+    "selected_next_card": "MIRBUILDER-ID-SCALAR-OPERATION-VOCABULARY-AUTHORITY-SPLIT-001"
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "derivability_rerun_003": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-source-plan-and-recipe-derivability-resolution-003-v0.json",
+    "derivable_owner_discriminator_basis_card": "docs/development/current/main/phases/phase-296x/2040-MIRBUILDER-ID-SCALAR-DERIVABLE-OWNER-DISCRIMINATOR-BASIS-001.md"
+  },
+  "kind": "MirBuilderIdScalarTypedEvidenceIndexPolicyV1",
+  "policy": {
+    "fixture_path_substring_search_allowed": false,
+    "mention_only_owner_edge_text_is_not_evidence": true,
+    "owner_edge_substring_search_allowed": false,
+    "source_plan_materialization": false,
+    "typed_evidence_index_required": true,
+    "typed_fixture_refs_only": true
+  },
+  "provenance": {
+    "behavior_recipe_effect_coverage_basis_hash": "eccf436dd5b747797f25f6172989715a560ce6a9a68ef23515f67833ffaebd52",
+    "derivability_rerun_003_hash": "e19c0bc725f85db59671b3c51f40622c951fc69c309f8027d3976b8f10629b74",
+    "derivable_owner_discriminator_basis_card_hash": "0ef5916c4999034dae4d891c1f546225ee71462f331a0a45584984d74a368fe4",
+    "error_and_deterministic_order_basis_hash": "0b9dce4539849a2692199721004b182dbbe92af5635a30a93199643f00edb5bc",
+    "id_domain_boundary_basis_hash": "b32b873490f282fc213d5b49dc535258eaff00a4fd7ea1bb445e92ab3ccc5e8f",
+    "native_seed_file_boundary_basis_hash": "377f8f8e101c6db4b3909179c3842e855aaa45aa2fce6b878a49583026314b74",
+    "operation_vocabulary_inventory_hash": "8729c5bbb6cae5a2baac649956bfeeea73cba9e4721dfddbfe749f4645b2c449",
+    "owner_scope_boundedness_rerun_002_hash": "2be10e0fc1e464a2f91aca2348f116864cc88d8ef1be00705981eee455590559",
+    "source_surface_inventory_hash": "0f9e17e1ef0a1f4c12e90de9891a16c5c1a8533815e8265136b7cefcb0f57ba7",
+    "state_mutation_frame_basis_hash": "dc6d438d6f8dc8ff5e7f3bc089e936ad7b77b8a226fb0a5f20a2082db5cee336",
+    "verifier_input_contract_basis_hash": "233e2f102524ea4ffecb3bcf0efa5848b217445b83a9c2954a2559e942b14a52"
+  },
+  "schema_version": 0,
+  "token": "MIRBUILDER-ID-SCALAR-TYPED-EVIDENCE-INDEX-POLICY-001",
+  "typed_evidence_rows": [
+    {
+      "blocked_by": [],
+      "evidence_entries": [
+        {
+          "artifact_kind": "SourceSurfaceInventory",
+          "mention_only_owner_edge_text": false,
+          "source_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-source-surface-inventory-v0.json",
+          "typed_ref_count": 1,
+          "typed_refs_complete": true
+        },
+        {
+          "artifact_kind": "OperationVocabularyInventory",
+          "mention_only_owner_edge_text": false,
+          "source_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-operation-vocabulary-inventory-v0.json",
+          "typed_ref_count": 1,
+          "typed_refs_complete": true
+        },
+        {
+          "artifact_kind": "OwnerScopeBoundedness",
+          "mention_only_owner_edge_text": false,
+          "source_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-owner-scope-boundedness-resolution-002-v0.json",
+          "typed_ref_count": 1,
+          "typed_refs_complete": true
+        },
+        {
+          "artifact_kind": "NativeSeedFileBoundary",
+          "mention_only_owner_edge_text": false,
+          "source_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-native-seed-file-boundary-basis-v0.json",
+          "typed_ref_count": 1,
+          "typed_refs_complete": true
+        },
+        {
+          "artifact_kind": "IdDomainBoundary",
+          "mention_only_owner_edge_text": false,
+          "source_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-id-domain-boundary-basis-v0.json",
+          "typed_ref_count": 3,
+          "typed_refs_complete": true
+        },
+        {
+          "artifact_kind": "StateMutationFrame",
+          "mention_only_owner_edge_text": false,
+          "source_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-state-mutation-frame-basis-v0.json",
+          "typed_ref_count": 1,
+          "typed_refs_complete": true
+        },
+        {
+          "artifact_kind": "ErrorSemantics",
+          "mention_only_owner_edge_text": false,
+          "source_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-error-and-deterministic-order-basis-v0.json",
+          "typed_ref_count": 3,
+          "typed_refs_complete": true
+        },
+        {
+          "artifact_kind": "DeterministicOrder",
+          "mention_only_owner_edge_text": false,
+          "source_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-error-and-deterministic-order-basis-v0.json",
+          "typed_ref_count": 1,
+          "typed_refs_complete": true
+        },
+        {
+          "artifact_kind": "BehaviorRecipeEffectCoverage",
+          "mention_only_owner_edge_text": false,
+          "source_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-behavior-recipe-effect-coverage-basis-v0.json",
+          "typed_ref_count": 1,
+          "typed_refs_complete": true
+        },
+        {
+          "artifact_kind": "VerifierInputContract",
+          "mention_only_owner_edge_text": false,
+          "source_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-verifier-input-contract-basis-v0.json",
+          "typed_ref_count": 6,
+          "typed_refs_complete": true
+        }
+      ],
+      "owner_edge_id": "mirbuilder::context_registry",
+      "selection_eligible": false,
+      "typed_evidence_complete": true
+    },
+    {
+      "blocked_by": [],
+      "evidence_entries": [
+        {
+          "artifact_kind": "SourceSurfaceInventory",
+          "mention_only_owner_edge_text": false,
+          "source_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-source-surface-inventory-v0.json",
+          "typed_ref_count": 13,
+          "typed_refs_complete": true
+        },
+        {
+          "artifact_kind": "OperationVocabularyInventory",
+          "mention_only_owner_edge_text": false,
+          "source_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-operation-vocabulary-inventory-v0.json",
+          "typed_ref_count": 13,
+          "typed_refs_complete": true
+        },
+        {
+          "artifact_kind": "OwnerScopeBoundedness",
+          "mention_only_owner_edge_text": false,
+          "source_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-owner-scope-boundedness-resolution-002-v0.json",
+          "typed_ref_count": 1,
+          "typed_refs_complete": true
+        },
+        {
+          "artifact_kind": "NativeSeedFileBoundary",
+          "mention_only_owner_edge_text": false,
+          "source_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-native-seed-file-boundary-basis-v0.json",
+          "typed_ref_count": 1,
+          "typed_refs_complete": true
+        },
+        {
+          "artifact_kind": "IdDomainBoundary",
+          "mention_only_owner_edge_text": false,
+          "source_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-id-domain-boundary-basis-v0.json",
+          "typed_ref_count": 1,
+          "typed_refs_complete": true
+        },
+        {
+          "artifact_kind": "StateMutationFrame",
+          "mention_only_owner_edge_text": false,
+          "source_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-state-mutation-frame-basis-v0.json",
+          "typed_ref_count": 2,
+          "typed_refs_complete": true
+        },
+        {
+          "artifact_kind": "ErrorSemantics",
+          "mention_only_owner_edge_text": false,
+          "source_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-error-and-deterministic-order-basis-v0.json",
+          "typed_ref_count": 2,
+          "typed_refs_complete": true
+        },
+        {
+          "artifact_kind": "DeterministicOrder",
+          "mention_only_owner_edge_text": false,
+          "source_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-error-and-deterministic-order-basis-v0.json",
+          "typed_ref_count": 2,
+          "typed_refs_complete": true
+        },
+        {
+          "artifact_kind": "BehaviorRecipeEffectCoverage",
+          "mention_only_owner_edge_text": false,
+          "source_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-behavior-recipe-effect-coverage-basis-v0.json",
+          "typed_ref_count": 13,
+          "typed_refs_complete": true
+        },
+        {
+          "artifact_kind": "VerifierInputContract",
+          "mention_only_owner_edge_text": false,
+          "source_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-verifier-input-contract-basis-v0.json",
+          "typed_ref_count": 6,
+          "typed_refs_complete": true
+        }
+      ],
+      "owner_edge_id": "mirbuilder::emission_ssa_phi",
+      "selection_eligible": false,
+      "typed_evidence_complete": true
+    }
+  ]
+}

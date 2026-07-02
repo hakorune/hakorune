@@ -1,0 +1,116 @@
+{
+  "candidate_pool": {
+    "input_derivable_owner_count": 2,
+    "selected_owner_count": 0,
+    "selection_eligible_count": 2,
+    "unique_proof_tuple_count": 1
+  },
+  "candidates": [
+    {
+      "blocked_by": [],
+      "next_card": "MIRBUILDER-CONTEXT_REGISTRY-ID-SCALAR-SOURCE-PLAN-AND-RECIPE-001",
+      "owner_edge_id": "mirbuilder::context_registry",
+      "proof_axes": {
+        "NativeSeedFileBoundaryDeterminism": true,
+        "OperationEffectClassCompleteness": true,
+        "SelectorGuardClean": true,
+        "SemanticOperationAuthorityComplete": true,
+        "SourcePlanRecipeComponentReadiness": true,
+        "StateTargetClosureQuality": true,
+        "TypedEvidenceIndexCompleteness": true,
+        "VerifierInputContractCompleteness": true
+      },
+      "proof_tuple": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "selection_eligible": true
+    },
+    {
+      "blocked_by": [],
+      "next_card": "MIRBUILDER-EMISSION_SSA_PHI-ID-SCALAR-SOURCE-PLAN-AND-RECIPE-001",
+      "owner_edge_id": "mirbuilder::emission_ssa_phi",
+      "proof_axes": {
+        "NativeSeedFileBoundaryDeterminism": true,
+        "OperationEffectClassCompleteness": true,
+        "SelectorGuardClean": true,
+        "SemanticOperationAuthorityComplete": true,
+        "SourcePlanRecipeComponentReadiness": true,
+        "StateTargetClosureQuality": true,
+        "TypedEvidenceIndexCompleteness": true,
+        "VerifierInputContractCompleteness": true
+      },
+      "proof_tuple": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "selection_eligible": true
+    }
+  ],
+  "claims": {
+    "behavior_recipe_materialization": 0,
+    "coverage_percentage_as_proof": 0,
+    "derived_artifact_seed_draft_materialization": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "lexical_order_as_proof": 0,
+    "manual_owner_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "owner_name_as_proof": 0,
+    "route_membership_alone_as_proof": 0,
+    "row_count_as_proof": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_plan_materialization": 0,
+    "source_selfhost_claim": 0,
+    "surface_count_as_proof": 0,
+    "verifier_result_materialization": 0
+  },
+  "decision": {
+    "kind": "KeepStopped",
+    "reason_token": "MultipleEqualIdScalarDerivableOwnerDiscriminatorCandidates",
+    "selected_next_card": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "selected_owner_edge_id": null
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "derivability_rerun_003": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-source-plan-and-recipe-derivability-resolution-003-v0.json",
+    "operation_vocabulary_authority_split": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-operation-vocabulary-authority-split-v0.json",
+    "semantic_selector_no_lexical_tiebreak_guard": "docs/development/current/main/design/fixtures/rust-lifecycle/semantic-selector-no-lexical-tiebreak-guard-v0.json",
+    "typed_evidence_index_policy": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-typed-evidence-index-policy-v0.json"
+  },
+  "kind": "MirBuilderIdScalarDerivableOwnerDiscriminatorResolutionV1",
+  "provenance": {
+    "derivability_rerun_003_hash": "e19c0bc725f85db59671b3c51f40622c951fc69c309f8027d3976b8f10629b74",
+    "operation_vocabulary_authority_split_hash": "27347b1b2bd9f7b5b0817f7f7874ab8b3bea65cac6a7fff6d6ce3a78ddfced25",
+    "semantic_selector_no_lexical_tiebreak_guard_hash": "8c112cf6b781200cee6639a77103e5b63e01ebcccefd2fd9805ec138f46bd55d",
+    "typed_evidence_index_policy_hash": "b867d3cae82afae180a820eee3ed618270ad4c8ad75b9b11c51da33b7386e223"
+  },
+  "schema_version": 0,
+  "selection_policy": {
+    "coverage_percentage_as_proof": false,
+    "lexical_order_as_proof": false,
+    "manual_owner_selection": false,
+    "owner_name_as_proof": false,
+    "proof_axes_only": true,
+    "route_membership_alone_as_proof": false,
+    "row_count_as_proof": false,
+    "surface_count_as_proof": false
+  },
+  "token": "MIRBUILDER-ID-SCALAR-DERIVABLE-OWNER-DISCRIMINATOR-RESOLUTION-001"
+}

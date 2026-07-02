@@ -25,12 +25,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-ID-SCALAR-DERIVABLE-OWNER-DISCRIMINATOR-BASIS-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2040-MIRBUILDER-ID-SCALAR-DERIVABLE-OWNER-DISCRIMINATOR-BASIS-001.md"
-latest_card_summary = """The latest card taskizes the allowed proof axes,
-tie-break signals, and forbidden axes for resolving the two ID scalar
-SourcePlanAndRecipe-derivable owners without owner-name, count, lexical, or
-manual selection."""
+latest_card = "MIRBUILDER-ID-SCALAR-DERIVABLE-OWNER-DISCRIMINATOR-RESOLUTION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2044-MIRBUILDER-ID-SCALAR-DERIVABLE-OWNER-DISCRIMINATOR-RESOLUTION-001.md"
+latest_card_summary = """The latest card reruns the ID scalar derivable-owner
+discriminator and keeps Source Selfhost stopped because context_registry and
+emission_ssa_phi have an equal allowed proof tuple."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -41,6 +40,10 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-02: 2044 reruns the ID scalar derivable-owner discriminator and stops on equal proof axes.",
+  "2026-07-02: 2043 defines the active semantic selector no-lexical-tiebreak guard and selects ID scalar discriminator resolution next.",
+  "2026-07-02: 2042 splits ID scalar operation vocabulary authority from diagnostic name/type suggestions.",
+  "2026-07-02: 2041 defines the ID scalar typed evidence index policy and selects operation vocabulary authority split next.",
   "2026-07-02: 2040 taskizes the ID scalar derivable-owner discriminator basis and selects typed evidence / selector guardrails next.",
   "2026-07-02: 2039 reruns ID scalar SourcePlanAndRecipe derivability and stops on two equal derivable owners.",
   "2026-07-02: 2038 defines verifier input contract facts for bounded ID scalar SourcePlan evidence.",
