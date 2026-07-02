@@ -1,0 +1,631 @@
+{
+  "allowed_authority_sources": [
+    {
+      "allowed": true,
+      "required_fields": [
+        "semantic_resource_id",
+        "type_decl_ref",
+        "declared_resource_domain_subaxis",
+        "resource_domain_declaration_ref",
+        "proof_source_hash"
+      ],
+      "source_kind": "ExistingSemanticResourceDeclarationFixture"
+    },
+    {
+      "allowed": true,
+      "allowed_only_if_explicitly_declares": [
+        "semantic_resource_id",
+        "declared_resource_domain_subaxis",
+        "proof_source_hash"
+      ],
+      "forbidden_if_only": [
+        "descriptor_coverage",
+        "route_membership",
+        "owner_name",
+        "source_path"
+      ],
+      "source_kind": "ProjectionDescriptorLedgerExplicitResourceDeclaration"
+    },
+    {
+      "allowed": true,
+      "allowed_only_if": [
+        "reads_existing_explicit_semantic_declarations",
+        "does_not_infer_from_type_name",
+        "does_not_infer_from_source_path",
+        "does_not_infer_from_observed_subaxis_set"
+      ],
+      "source_kind": "NewReadOnlySemanticResourceDeclarationInventory"
+    }
+  ],
+  "authority_rule": {
+    "declared_resource_domain_subaxis_requires_explicit_semantic_declaration": true,
+    "manual_type_to_subaxis_assignment": false,
+    "name": "ExplicitSemanticResourceDomainDeclarationBasisV1",
+    "observed_subaxis_set_as_policy_authority": false,
+    "owner_name_as_proof": false,
+    "proof_source_hash_required": true,
+    "return_type_string_to_subaxis_mapping": false,
+    "route_membership_alone_as_proof": false,
+    "row_count_as_proof": false,
+    "self_signed_declaration_forbidden": true,
+    "semantic_resource_id_required": true,
+    "shape_signature_as_proof": false,
+    "source_path_as_policy_authority": false,
+    "type_decl_ref_required": true,
+    "type_identity_only_is_not_resource_domain_authority": true
+  },
+  "candidate_registry_rows": [
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "current_registry_row_state": "TypeIdentityOnly",
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "resource_domain_declaration_state": "Missing",
+      "semantic_resource_id": "semantic-resource:type-decl:crates/hakorune_frontend_ast/src/ast_node.rs::ASTNode:L105",
+      "type_decl_ref": "type-decl:crates/hakorune_frontend_ast/src/ast_node.rs::ASTNode:L105"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "current_registry_row_state": "TypeIdentityOnly",
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "resource_domain_declaration_state": "Missing",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/builder/control_flow/plan/recipe_tree/block.rs::BlockContractKind:L34",
+      "type_decl_ref": "type-decl:src/mir/builder/control_flow/plan/recipe_tree/block.rs::BlockContractKind:L34"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "current_registry_row_state": "TypeIdentityOnly",
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "resource_domain_declaration_state": "Missing",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/builder/control_flow/edgecfg/api/branch_stub.rs::BranchStub:L14",
+      "type_decl_ref": "type-decl:src/mir/builder/control_flow/edgecfg/api/branch_stub.rs::BranchStub:L14"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "current_registry_row_state": "TypeIdentityOnly",
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "resource_domain_declaration_state": "Missing",
+      "semantic_resource_id": "semantic-resource:type-decl:crates/hakorune_mir_defs/src/call_unified.rs::CallFlags:L98",
+      "type_decl_ref": "type-decl:crates/hakorune_mir_defs/src/call_unified.rs::CallFlags:L98"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "current_registry_row_state": "TypeIdentityOnly",
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "resource_domain_declaration_state": "Missing",
+      "semantic_resource_id": "semantic-resource:type-decl:crates/hakorune_mir_defs/src/call_unified.rs::CalleeBoxKind:L22",
+      "type_decl_ref": "type-decl:crates/hakorune_mir_defs/src/call_unified.rs::CalleeBoxKind:L22"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "current_registry_row_state": "TypeIdentityOnly",
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "resource_domain_declaration_state": "Missing",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/builder/control_flow/lower/normalize/canonicalize.rs::CanonicalLoopFacts:L11",
+      "type_decl_ref": "type-decl:src/mir/builder/control_flow/lower/normalize/canonicalize.rs::CanonicalLoopFacts:L11"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "current_registry_row_state": "TypeIdentityOnly",
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "resource_domain_declaration_state": "Missing",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/builder/control_flow/plan/features/carriers.rs::CarrierSets:L18",
+      "type_decl_ref": "type-decl:src/mir/builder/control_flow/plan/features/carriers.rs::CarrierSets:L18"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "current_registry_row_state": "TypeIdentityOnly",
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "resource_domain_declaration_state": "Missing",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/policies/cond_profile.rs::CondProfile:L49",
+      "type_decl_ref": "type-decl:src/mir/policies/cond_profile.rs::CondProfile:L49"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "current_registry_row_state": "TypeIdentityOnly",
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "resource_domain_declaration_state": "Missing",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/builder/control_flow/facts/extractors/common_helpers/control_flow.rs::ControlFlowCounts:L9",
+      "type_decl_ref": "type-decl:src/mir/builder/control_flow/facts/extractors/common_helpers/control_flow.rs::ControlFlowCounts:L9"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "current_registry_row_state": "TypeIdentityOnly",
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "resource_domain_declaration_state": "Missing",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/builder/control_flow/plan/exit.rs::CoreExitPlan:L5",
+      "type_decl_ref": "type-decl:src/mir/builder/control_flow/plan/exit.rs::CoreExitPlan:L5"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "current_registry_row_state": "TypeIdentityOnly",
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "resource_domain_declaration_state": "Missing",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/builder/control_flow/plan/core.rs::CorePhiInfo:L40",
+      "type_decl_ref": "type-decl:src/mir/builder/control_flow/plan/core.rs::CorePhiInfo:L40"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "current_registry_row_state": "TypeIdentityOnly",
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "resource_domain_declaration_state": "Missing",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/basic_block.rs::EdgeArgs:L18",
+      "type_decl_ref": "type-decl:src/mir/basic_block.rs::EdgeArgs:L18"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "current_registry_row_state": "TypeIdentityOnly",
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "resource_domain_declaration_state": "Missing",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/builder/control_flow/edgecfg/api/edge_stub.rs::EdgeStub:L32",
+      "type_decl_ref": "type-decl:src/mir/builder/control_flow/edgecfg/api/edge_stub.rs::EdgeStub:L32"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "current_registry_row_state": "TypeIdentityOnly",
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "resource_domain_declaration_state": "Missing",
+      "semantic_resource_id": "semantic-resource:type-decl:crates/hakorune_mir_core/src/effect.rs::EffectMask:L13",
+      "type_decl_ref": "type-decl:crates/hakorune_mir_core/src/effect.rs::EffectMask:L13"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "current_registry_row_state": "TypeIdentityOnly",
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "resource_domain_declaration_state": "Missing",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/builder/control_flow/verify/observability/flowbox_tags.rs::FlowboxBoxKind:L24",
+      "type_decl_ref": "type-decl:src/mir/builder/control_flow/verify/observability/flowbox_tags.rs::FlowboxBoxKind:L24"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "current_registry_row_state": "TypeIdentityOnly",
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "resource_domain_declaration_state": "Missing",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/function/types.rs::FunctionSignature:L17",
+      "type_decl_ref": "type-decl:src/mir/function/types.rs::FunctionSignature:L17"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "current_registry_row_state": "TypeIdentityOnly",
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "resource_domain_declaration_state": "Missing",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/builder/control_flow/plan/features/generic_loop_body/carriers.rs::GenericLoopV1CarrierState:L11",
+      "type_decl_ref": "type-decl:src/mir/builder/control_flow/plan/features/generic_loop_body/carriers.rs::GenericLoopV1CarrierState:L11"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "current_registry_row_state": "TypeIdentityOnly",
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "resource_domain_declaration_state": "Missing",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/builder/control_flow/plan/facts/reject_reason.rs::HandoffTarget:L202",
+      "type_decl_ref": "type-decl:src/mir/builder/control_flow/plan/facts/reject_reason.rs::HandoffTarget:L202"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "current_registry_row_state": "TypeIdentityOnly",
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "resource_domain_declaration_state": "Missing",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/builder/control_flow/joinir/merge/header_pred_policy.rs::HeaderPredGroups:L13",
+      "type_decl_ref": "type-decl:src/mir/builder/control_flow/joinir/merge/header_pred_policy.rs::HeaderPredGroups:L13"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "current_registry_row_state": "TypeIdentityOnly",
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "resource_domain_declaration_state": "Missing",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/builder/control_flow/recipes/loop_cond_return_in_body.rs::LoopCondReturnInBodyRecipe:L8",
+      "type_decl_ref": "type-decl:src/mir/builder/control_flow/recipes/loop_cond_return_in_body.rs::LoopCondReturnInBodyRecipe:L8"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "current_registry_row_state": "TypeIdentityOnly",
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "resource_domain_declaration_state": "Missing",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/loop_route_detection/features.rs::LoopFeatures:L6",
+      "type_decl_ref": "type-decl:src/mir/loop_route_detection/features.rs::LoopFeatures:L6"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "current_registry_row_state": "TypeIdentityOnly",
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "resource_domain_declaration_state": "Missing",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/builder/control_flow/joinir/route_entry/registry/legacy_observer.rs::LoopRouteShadowReport:L61",
+      "type_decl_ref": "type-decl:src/mir/builder/control_flow/joinir/route_entry/registry/legacy_observer.rs::LoopRouteShadowReport:L61"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "current_registry_row_state": "TypeIdentityOnly",
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "resource_domain_declaration_state": "Missing",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/builder/control_flow/plan/core.rs::LoweredRecipe:L36",
+      "type_decl_ref": "type-decl:src/mir/builder/control_flow/plan/core.rs::LoweredRecipe:L36"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "current_registry_row_state": "TypeIdentityOnly",
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "resource_domain_declaration_state": "Missing",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/builder/calls/context_lifecycle.rs::LoweringContext:L31",
+      "type_decl_ref": "type-decl:src/mir/builder/calls/context_lifecycle.rs::LoweringContext:L31"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "current_registry_row_state": "TypeIdentityOnly",
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "resource_domain_declaration_state": "Missing",
+      "semantic_resource_id": "semantic-resource:type-decl:crates/hakorune_mir_defs/src/call_unified.rs::MirCall:L152",
+      "type_decl_ref": "type-decl:crates/hakorune_mir_defs/src/call_unified.rs::MirCall:L152"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "current_registry_row_state": "TypeIdentityOnly",
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "resource_domain_declaration_state": "Missing",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/function/types.rs::MirFunction:L43",
+      "type_decl_ref": "type-decl:src/mir/function/types.rs::MirFunction:L43"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "current_registry_row_state": "TypeIdentityOnly",
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "resource_domain_declaration_state": "Missing",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/instruction.rs::MirInstruction:L206",
+      "type_decl_ref": "type-decl:src/mir/instruction.rs::MirInstruction:L206"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "current_registry_row_state": "TypeIdentityOnly",
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "resource_domain_declaration_state": "Missing",
+      "semantic_resource_id": "semantic-resource:type-decl:crates/hakorune_mir_core/src/types.rs::MirType:L83",
+      "type_decl_ref": "type-decl:crates/hakorune_mir_core/src/types.rs::MirType:L83"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "current_registry_row_state": "TypeIdentityOnly",
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "resource_domain_declaration_state": "Missing",
+      "semantic_resource_id": "semantic-resource:type-decl:crates/hakorune_mir_core/src/value_kind.rs::MirValueKind:L35",
+      "type_decl_ref": "type-decl:crates/hakorune_mir_core/src/value_kind.rs::MirValueKind:L35"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "current_registry_row_state": "TypeIdentityOnly",
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "resource_domain_declaration_state": "Missing",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/builder/control_flow/plan/facts/nested_loop_profile.rs::NestedLoopBodyProfile:L37",
+      "type_decl_ref": "type-decl:src/mir/builder/control_flow/plan/facts/nested_loop_profile.rs::NestedLoopBodyProfile:L37"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "current_registry_row_state": "TypeIdentityOnly",
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "resource_domain_declaration_state": "Missing",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/policies/mod.rs::PolicyDecision:L6",
+      "type_decl_ref": "type-decl:src/mir/policies/mod.rs::PolicyDecision:L6"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "current_registry_row_state": "TypeIdentityOnly",
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "resource_domain_declaration_state": "Missing",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/builder/control_flow/plan/recipe_tree/block.rs::RecipeBlock:L76",
+      "type_decl_ref": "type-decl:src/mir/builder/control_flow/plan/recipe_tree/block.rs::RecipeBlock:L76"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "current_registry_row_state": "TypeIdentityOnly",
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "resource_domain_declaration_state": "Missing",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/region/mod.rs::RefSlotKind:L19",
+      "type_decl_ref": "type-decl:src/mir/region/mod.rs::RefSlotKind:L19"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "current_registry_row_state": "TypeIdentityOnly",
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "resource_domain_declaration_state": "Missing",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/builder/router/policy.rs::Route:L7",
+      "type_decl_ref": "type-decl:src/mir/builder/router/policy.rs::Route:L7"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "current_registry_row_state": "TypeIdentityOnly",
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "resource_domain_declaration_state": "Missing",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/builder/control_flow/plan/facts/scan_shapes.rs::ScanConditionObservation:L42",
+      "type_decl_ref": "type-decl:src/mir/builder/control_flow/plan/facts/scan_shapes.rs::ScanConditionObservation:L42"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "current_registry_row_state": "TypeIdentityOnly",
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "resource_domain_declaration_state": "Missing",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/builder/control_flow/generic_loop_canon/types.rs::StepPlacementDecision:L27",
+      "type_decl_ref": "type-decl:src/mir/builder/control_flow/generic_loop_canon/types.rs::StepPlacementDecision:L27"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "current_registry_row_state": "TypeIdentityOnly",
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "resource_domain_declaration_state": "Missing",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/builder/control_flow/joinir/merge/tail_call_classifier.rs::TailCallKind:L25",
+      "type_decl_ref": "type-decl:src/mir/builder/control_flow/joinir/merge/tail_call_classifier.rs::TailCallKind:L25"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "current_registry_row_state": "TypeIdentityOnly",
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "resource_domain_declaration_state": "Missing",
+      "semantic_resource_id": "semantic-resource:type-decl:crates/hakorune_mir_builder/src/type_context.rs::TypeContextSnapshot:L48",
+      "type_decl_ref": "type-decl:crates/hakorune_mir_builder/src/type_context.rs::TypeContextSnapshot:L48"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "current_registry_row_state": "TypeIdentityOnly",
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "resource_domain_declaration_state": "Missing",
+      "semantic_resource_id": "semantic-resource:type-decl:crates/hakorune_frontend_ast/src/ast_node.rs::ASTNode:L105",
+      "type_decl_ref": "type-decl:crates/hakorune_frontend_ast/src/ast_node.rs::ASTNode:L105"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "current_registry_row_state": "TypeIdentityOnly",
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "resource_domain_declaration_state": "Missing",
+      "semantic_resource_id": "semantic-resource:type-decl:crates/hakorune_mir_defs/src/call_unified.rs::CalleeBoxKind:L22",
+      "type_decl_ref": "type-decl:crates/hakorune_mir_defs/src/call_unified.rs::CalleeBoxKind:L22"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "current_registry_row_state": "TypeIdentityOnly",
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "resource_domain_declaration_state": "Missing",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/loop_route_detection/kind.rs::LoopRouteKind:L6",
+      "type_decl_ref": "type-decl:src/mir/loop_route_detection/kind.rs::LoopRouteKind:L6"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "current_registry_row_state": "TypeIdentityOnly",
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "resource_domain_declaration_state": "Missing",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/builder/control_flow/joinir/route_entry/registry/legacy_observer.rs::LoopRouteShadowReport:L61",
+      "type_decl_ref": "type-decl:src/mir/builder/control_flow/joinir/route_entry/registry/legacy_observer.rs::LoopRouteShadowReport:L61"
+    }
+  ],
+  "claims": {
+    "accepted_typed_dependency_edge_materialized": 0,
+    "explicit_semantic_resource_domain_declaration_basis_defined": 1,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "manual_subaxis_selection": 0,
+    "manual_type_to_subaxis_assignment": 0,
+    "native_seed_materialization": 0,
+    "observed_subaxis_set_as_policy_authority": 0,
+    "owner_name_as_proof": 0,
+    "return_type_string_to_subaxis_mapping": 0,
+    "route_membership_alone_as_proof": 0,
+    "row_count_as_proof": 0,
+    "self_signed_taxonomy": 0,
+    "shape_signature_as_proof": 0,
+    "source_path_as_policy_authority": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "SelectSemanticResourceDomainDeclarationInventory",
+    "reason_token": "ExplicitSemanticResourceDomainDeclarationBasisDefined",
+    "selected_domain_subaxis": null,
+    "selected_next_card": "MIRBUILDER-DOMAIN-OBJECT-ID-SEMANTIC-RESOURCE-DOMAIN-DECLARATION-INVENTORY-001"
+  },
+  "guard": {
+    "profile": "explicit_semantic_resource_domain_declaration_basis",
+    "reusable_lane_guard": "tools/checks/rust_lifecycle_mirbuilder_domain_object_id_lane_guard.sh",
+    "row_specific_guard_added": false
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "rust_type_declaration_inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-rust-type-declaration-inventory-v0.json",
+    "stable_type_resource_registry_authority": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-stable-type-resource-registry-authority-v0.json",
+    "stable_type_resource_registry_authority_rerun": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-stable-type-resource-registry-authority-rerun-v0.json"
+  },
+  "kind": "MirBuilderDomainObjectIdExplicitSemanticResourceDomainDeclarationBasisV1",
+  "previous_state": {
+    "ambiguous_type_decl_ref_count": 1,
+    "declared_resource_domain_subaxis_ready_count": 0,
+    "previous_reason_token": "StableTypeResourceRegistryHasTypeIdentityOnlyNoResourceDomainAuthority",
+    "registry_ready_row_count": 0,
+    "resolved_type_decl_ref_count": 42,
+    "type_identity_only_row_count": 42,
+    "unresolved_type_decl_ref_count": 1
+  },
+  "provenance": {
+    "rust_type_declaration_inventory_hash": "95ef359b0985ed77d84fc7390a4143b673541a141948e8b9bd1b88a07446a26b",
+    "stable_type_resource_registry_authority_hash": "1c5ed9213c03e49188a0ed9fa51cd9a83b0034c9812ada6cca01105b8784794f",
+    "stable_type_resource_registry_authority_rerun_hash": "5c70b4b68ec870c6d100344c28f256ef346004b6b85fa1de457747950daabefe"
+  },
+  "resource_domain_declaration_requirements": {
+    "declared_resource_domain_subaxis_must_be_from_allowed_set": true,
+    "declared_resource_domain_subaxis_must_be_present": true,
+    "dependency_role_must_be_declared": true,
+    "proof_source_hash_must_be_recorded": true,
+    "proof_source_must_be_stable": true,
+    "semantic_resource_id_must_join_registry_row": true,
+    "type_decl_ref_must_join_registry_row": true
+  },
+  "schema_version": 0,
+  "summary": {
+    "accepted_typed_dependency_edge_count": 0,
+    "candidate_registry_row_count": 42,
+    "registry_ready_row_count": 0,
+    "resource_domain_declaration_ready_count": 0,
+    "type_identity_only_row_count": 42
+  },
+  "token": "MIRBUILDER-DOMAIN-OBJECT-ID-EXPLICIT-SEMANTIC-RESOURCE-DOMAIN-DECLARATION-BASIS-001"
+}

@@ -25,8 +25,7 @@ active blocker:
 
 current implementation task:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001.
-  2075 reruns stable type/resource registry authority and stops because type
-  identity rows are not resource-domain authority.
+  2083 keeps stopped with no machine-derived root component.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -65,9 +64,7 @@ selected next task:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current fail-fast boundary:
-  Do not select PlanRecipe, MIR, AST, Context/Span, or Other by row count,
-  owner name, route membership, source path, or apparent convenience.
-  Rust type declarations may provide identity only; resource-domain authority needs explicit semantic declaration.
+  No axis/component selection; design consultation required for new authority.
 
 latest design decision:
   Pointer realignment, VariableContext closeout, the blocked candidate
@@ -142,7 +139,12 @@ latest_diagnostics:
   latest_taxonomy_inventory_token = MIRBUILDER-DOMAIN-OBJECT-ID-RETURN-TYPE-RESOURCE-TAXONOMY-INVENTORY-001
   latest_taxonomy_authority_token = MIRBUILDER-DOMAIN-OBJECT-ID-RETURN-TYPE-RESOURCE-TAXONOMY-AUTHORITY-001
   latest_registry_authority_token = MIRBUILDER-DOMAIN-OBJECT-ID-STABLE-TYPE-RESOURCE-REGISTRY-AUTHORITY-001
-  latest_stop_token = MIRBUILDER-DOMAIN-OBJECT-ID-UNRESOLVED-SUBAXIS-PRIORITY-RERUN-003
+  latest_explicit_declaration_basis_token = MIRBUILDER-DOMAIN-OBJECT-ID-EXPLICIT-SEMANTIC-RESOURCE-DOMAIN-DECLARATION-BASIS-001
+  latest_wider_selector_token = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-008
+  latest_remaining_axis_priority_basis_token = MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-PRIORITY-BASIS-001
+  latest_remaining_axis_priority_rerun_token = MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-PRIORITY-RERUN-001
+  latest_remaining_axis_component_requirement_rerun_token = MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-COMPONENT-REQUIREMENT-RERUN-001
+  latest_stop_token = MIRBUILDER-DOMAIN-OBJECT-ID-SEMANTIC-RESOURCE-DOMAIN-DECLARATION-INVENTORY-001
   selector_basis_token = MIRBUILDER-DOMAIN-OBJECT-ID-TYPED-DEPENDENCY-ROOT-AUTHORITY-BASIS-001
   previous_selector_basis_token = MIRBUILDER-DOMAIN-OBJECT-ID-SUBAXIS-MECHANICAL-SELECTION-BASIS-001
   previous_selector_rerun_token = MIRBUILDER-DOMAIN-OBJECT-ID-UNRESOLVED-SUBAXIS-PRIORITY-RERUN-002
@@ -168,6 +170,8 @@ latest_diagnostics:
   resource_taxonomy_join_ready_count = 0
   accepted_registry_authority_source_count = 0
   registry_ready_row_count = 0
+  domain_object_id_lane_parked = 1
+  post_domain_object_id_eligible_lane_count = 1
   guard_clean_candidate_count = 5
   proof_tuple_complete_candidate_count = 0
   selection_eligible_subaxis_count = 0
@@ -411,20 +415,20 @@ Detailed evidence lives in phase cards, fixtures, and git history.
 
 ## Active Next 3
 ```text
-1. MIRBUILDER-DOMAIN-OBJECT-ID-STABLE-TYPE-RESOURCE-REGISTRY-AUTHORITY-RERUN-001
-   status=closed; boundary=42 type identity rows, 0 resource-domain authorities
+1. MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-COMPONENT-REQUIREMENT-INVENTORY-001
+   status=closed; boundary=0 accepted component evidence sources
 
-2. MIRBUILDER-DOMAIN-OBJECT-ID-RUST-TYPE-DECLARATION-INVENTORY-001
-   status=closed; boundary=42 resolved, 1 ambiguous, 1 missing type declaration
+2. MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-COMPONENT-REQUIREMENT-RERUN-001
+   status=closed; boundary=NoCarrierTypeRemainingAxisRootComponentRequirement
 
 3. SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
-   status=next; boundary=needs design consultation before new authority
+   status=next; boundary=design consultation required before new authority
 
 next_documented_task =
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 next_after_active_3 =
-  pending design consultation
+  pending design consultation for carrier/type component authority
 ```
 
 ## Landed Converter Capability Summary

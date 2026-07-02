@@ -1934,6 +1934,65 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-stable-type-resource-registry-authority-rerun-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_domain_object_id_stable_type_resource_registry_authority_rerun_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-DOMAIN-OBJECT-ID-EXPLICIT-SEMANTIC-RESOURCE-DOMAIN-DECLARATION-BASIS-001",
+      "card": "docs/development/current/main/phases/phase-296x/2076-MIRBUILDER-DOMAIN-OBJECT-ID-EXPLICIT-SEMANTIC-RESOURCE-DOMAIN-DECLARATION-BASIS-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-explicit-semantic-resource-domain-declaration-basis-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_domain_object_id_lane_guard.sh",
+      "guard_profile": "explicit_semantic_resource_domain_declaration_basis",
+      "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-DOMAIN-OBJECT-ID-SEMANTIC-RESOURCE-DOMAIN-DECLARATION-INVENTORY-001",
+      "card": "docs/development/current/main/phases/phase-296x/2077-MIRBUILDER-DOMAIN-OBJECT-ID-SEMANTIC-RESOURCE-DOMAIN-DECLARATION-INVENTORY-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-semantic-resource-domain-declaration-inventory-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_domain_object_id_lane_guard.sh",
+      "guard_profile": "semantic_resource_domain_declaration_inventory",
+      "role": "current_queue"
+    },
+    {
+      "token": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-008",
+      "card": "docs/development/current/main/phases/phase-296x/2078-SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-008.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-wider-route-selection-basis-008-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_domain_object_id_lane_guard.sh",
+      "guard_profile": "post_domain_object_id_exhaustion_wider_selection",
+      "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-PRIORITY-BASIS-001",
+      "card": "docs/development/current/main/phases/phase-296x/2079-MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-PRIORITY-BASIS-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-transport-remaining-axis-priority-basis-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_carrier_type_transport_remaining_axis_priority_basis_guard.sh",
+      "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-PRIORITY-RERUN-001",
+      "card": "docs/development/current/main/phases/phase-296x/2080-MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-PRIORITY-RERUN-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-transport-remaining-axis-priority-rerun-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_carrier_type_transport_remaining_axis_priority_rerun_guard.sh",
+      "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-COMPONENT-REQUIREMENT-BASIS-001",
+      "card": "docs/development/current/main/phases/phase-296x/2081-MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-COMPONENT-REQUIREMENT-BASIS-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-transport-remaining-axis-component-requirement-basis-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_carrier_type_transport_remaining_axis_component_requirement_basis_guard.sh",
+      "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-COMPONENT-REQUIREMENT-INVENTORY-001",
+      "card": "docs/development/current/main/phases/phase-296x/2082-MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-COMPONENT-REQUIREMENT-INVENTORY-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-transport-remaining-axis-component-requirement-inventory-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_carrier_type_transport_remaining_axis_component_requirement_inventory_guard.sh",
+      "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-COMPONENT-REQUIREMENT-RERUN-001",
+      "card": "docs/development/current/main/phases/phase-296x/2083-MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-COMPONENT-REQUIREMENT-RERUN-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-transport-remaining-axis-component-requirement-rerun-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_carrier_type_transport_remaining_axis_component_requirement_rerun_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {

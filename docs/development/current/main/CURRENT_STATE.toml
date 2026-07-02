@@ -6,7 +6,7 @@
 # - Let tools/checks/current_state_pointer_guard.sh catch stale pointers.
 
 status = "Active"
-date = "2026-07-02"
+date = "2026-07-03"
 
 active_lane = "RUST-SUBSET-TO-HAKO-APP-FRONT compiler construction / selfhost app front"
 active_lane_status = """Source Selfhost is intentionally stopped at the wider
@@ -25,11 +25,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-DOMAIN-OBJECT-ID-STABLE-TYPE-RESOURCE-REGISTRY-AUTHORITY-RERUN-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2075-MIRBUILDER-DOMAIN-OBJECT-ID-STABLE-TYPE-RESOURCE-REGISTRY-AUTHORITY-RERUN-001.md"
-latest_card_summary = """The latest card reruns stable type/resource registry
-authority after Rust type declaration inventory and keeps Source Selfhost
-stopped because type identity rows do not provide resource-domain authority."""
+latest_card = "MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-COMPONENT-REQUIREMENT-RERUN-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2083-MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-COMPONENT-REQUIREMENT-RERUN-001.md"
+latest_card_summary = """The latest card reruns remaining carrier/type
+component requirement priority and keeps Source Selfhost stopped because no
+root component requirement is machine-derived."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -40,6 +40,14 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-03: 2083 reruns carrier/type component requirement priority and keeps Source Selfhost stopped with no machine-derived root component.",
+  "2026-07-03: 2082 inventories typed component requirement evidence and selects component requirement rerun with no component or concrete axis selected.",
+  "2026-07-03: 2081 defines component requirements for the five remaining carrier/type axes and selects component requirement inventory without selecting a concrete axis.",
+  "2026-07-03: 2080 reruns remaining carrier/type axis priority and keeps Source Selfhost stopped with no proof-complete axis, selecting component requirement basis next.",
+  "2026-07-03: 2079 defines the remaining carrier/type axis selector basis after DomainObject/Id is parked and selects priority rerun 001 without selecting a concrete axis.",
+  "2026-07-03: 2078 parks the DomainObject/Id lane after authority exhaustion and selects carrier/type remaining-axis priority basis without selecting a concrete axis.",
+  "2026-07-02: 2077 inventories explicit semantic resource-domain declarations and selects wider route-selection basis 008 because no declaration source or closed-resource manifest is available.",
+  "2026-07-02: 2076 defines explicit semantic resource-domain declaration authority and selects declaration inventory without assigning subaxes.",
   "2026-07-02: 2075 reruns stable type/resource registry authority and keeps Source Selfhost stopped because type identity rows lack resource-domain authority.",
   "2026-07-02: 2074 inventories Rust type declarations for non-ID DomainObject/Id return types and selects stable type/resource registry authority rerun without assigning subaxes.",
   "2026-07-02: 2073 defines stable type/resource registry authority and selects read-only Rust type declaration inventory without selecting a subaxis.",

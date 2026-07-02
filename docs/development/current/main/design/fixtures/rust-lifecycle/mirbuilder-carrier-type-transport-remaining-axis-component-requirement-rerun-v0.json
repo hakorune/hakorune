@@ -1,0 +1,312 @@
+{
+  "candidate_axes": [
+    {
+      "axis": "CollectionCarrierTransportAxis",
+      "axis_selection_eligible": false,
+      "blocked_by": [
+        "CollectionElementCarrierPolicyBlockedByOverlapResolution",
+        "CollectionPolicyOverlapResolutionMissing",
+        "CollectionPolicyOverlapResolutionNotResolved"
+      ],
+      "component_requirement_complete": false,
+      "component_requirement_ids": [
+        "CollectionPolicyOverlapResolution",
+        "CollectionElementCarrierPolicy"
+      ],
+      "ready_component_requirement_count": 0,
+      "root_component_requirement_count": 0
+    },
+    {
+      "axis": "IteratorOrBorrowTypeTransportAxis",
+      "axis_selection_eligible": false,
+      "blocked_by": [
+        "IteratorBorrowBoundaryRoutingPolicyMissing"
+      ],
+      "component_requirement_complete": false,
+      "component_requirement_ids": [
+        "IteratorBorrowBoundaryRoutingPolicy"
+      ],
+      "ready_component_requirement_count": 0,
+      "root_component_requirement_count": 0
+    },
+    {
+      "axis": "OpaqueTypeTransportAxis",
+      "axis_selection_eligible": false,
+      "blocked_by": [
+        "OpaqueTypeBoundaryDeclarationMissing"
+      ],
+      "component_requirement_complete": false,
+      "component_requirement_ids": [
+        "OpaqueTypeBoundaryDeclaration"
+      ],
+      "ready_component_requirement_count": 0,
+      "root_component_requirement_count": 0
+    },
+    {
+      "axis": "ProductTupleTransportAxis",
+      "axis_selection_eligible": false,
+      "blocked_by": [
+        "TupleElementTransportPolicyMissing",
+        "TupleFieldDomainBoundaryInventoryMissing"
+      ],
+      "component_requirement_complete": false,
+      "component_requirement_ids": [
+        "TupleFieldDomainBoundaryPolicy",
+        "TupleElementTransportPolicy"
+      ],
+      "ready_component_requirement_count": 0,
+      "root_component_requirement_count": 0
+    },
+    {
+      "axis": "ScalarKnownTransportAxis",
+      "axis_selection_eligible": false,
+      "blocked_by": [
+        "ScalarKnownCloseoutAuthorityMissing"
+      ],
+      "component_requirement_complete": false,
+      "component_requirement_ids": [
+        "ScalarKnownCloseoutAuthority"
+      ],
+      "ready_component_requirement_count": 0,
+      "root_component_requirement_count": 0
+    }
+  ],
+  "claims": {
+    "accepted_typed_dependency_edge_materialized": 0,
+    "component_specific_card_selection": 0,
+    "concrete_carrier_type_axis_selection": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "hardcoded_carrier_axis_priority": 0,
+    "manual_axis_selection": 0,
+    "manual_carrier_selection": 0,
+    "native_seed_materialization": 0,
+    "observed_subaxis_set_as_proof": 0,
+    "owner_name_as_proof": 0,
+    "return_type_string_mapping_as_proof": 0,
+    "route_membership_alone_as_proof": 0,
+    "row_count_as_proof": 0,
+    "source_path_as_authority": 0,
+    "source_selfhost_claim": 0
+  },
+  "component_requirement_rows": [
+    {
+      "blocked_by": [
+        "TupleFieldDomainBoundaryInventoryMissing"
+      ],
+      "candidate_axes": [
+        "ProductTupleTransportAxis"
+      ],
+      "component_scope_eligible": true,
+      "evidence_inventory_completeness": "Proven",
+      "guard_clean_authority": "Proven",
+      "inventory_state": "Missing",
+      "proof_tuple_complete": false,
+      "requirement_id": "TupleFieldDomainBoundaryPolicy",
+      "requirement_kind": "BoundaryPolicy",
+      "root_authority": {
+        "proof_sources": [],
+        "reason_token": "TupleFieldDomainBoundaryInventoryMissing",
+        "status": "Unproven"
+      },
+      "selected_next_card_if_root": "MIRBUILDER-CARRIER-TYPE-PRODUCT-TUPLE-FIELD-DOMAIN-INVENTORY-001",
+      "selection_eligible": false
+    },
+    {
+      "blocked_by": [
+        "TupleElementTransportPolicyMissing"
+      ],
+      "candidate_axes": [
+        "ProductTupleTransportAxis"
+      ],
+      "component_scope_eligible": true,
+      "evidence_inventory_completeness": "Proven",
+      "guard_clean_authority": "Proven",
+      "inventory_state": "Missing",
+      "proof_tuple_complete": false,
+      "requirement_id": "TupleElementTransportPolicy",
+      "requirement_kind": "TransportPolicy",
+      "root_authority": {
+        "proof_sources": [],
+        "reason_token": "TupleElementTransportPolicyMissing",
+        "status": "Unproven"
+      },
+      "selected_next_card_if_root": "MIRBUILDER-CARRIER-TYPE-PRODUCT-TUPLE-ELEMENT-TRANSPORT-POLICY-BASIS-001",
+      "selection_eligible": false
+    },
+    {
+      "blocked_by": [
+        "CollectionPolicyOverlapResolutionMissing"
+      ],
+      "candidate_axes": [
+        "CollectionCarrierTransportAxis"
+      ],
+      "component_scope_eligible": true,
+      "evidence_inventory_completeness": "Proven",
+      "guard_clean_authority": "Proven",
+      "inventory_state": "Missing",
+      "proof_tuple_complete": false,
+      "requirement_id": "CollectionPolicyOverlapResolution",
+      "requirement_kind": "OverlapResolution",
+      "root_authority": {
+        "proof_sources": [],
+        "reason_token": "CollectionPolicyOverlapResolutionMissing",
+        "status": "Unproven"
+      },
+      "selected_next_card_if_root": "MIRBUILDER-CARRIER-TYPE-COLLECTION-POLICY-OVERLAP-RESOLUTION-001",
+      "selection_eligible": false
+    },
+    {
+      "blocked_by": [
+        "CollectionElementCarrierPolicyBlockedByOverlapResolution",
+        "CollectionPolicyOverlapResolutionNotResolved"
+      ],
+      "candidate_axes": [
+        "CollectionCarrierTransportAxis"
+      ],
+      "component_scope_eligible": true,
+      "evidence_inventory_completeness": "Proven",
+      "guard_clean_authority": "Proven",
+      "inventory_state": "BlockedByComponentDependency",
+      "proof_tuple_complete": false,
+      "requirement_id": "CollectionElementCarrierPolicy",
+      "requirement_kind": "ElementCarrierPolicy",
+      "root_authority": {
+        "proof_sources": [],
+        "reason_token": "CollectionElementCarrierPolicyBlockedByOverlapResolution",
+        "status": "BlockedByComponentDependency"
+      },
+      "selected_next_card_if_root": "MIRBUILDER-CARRIER-TYPE-COLLECTION-ELEMENT-CARRIER-POLICY-BASIS-001",
+      "selection_eligible": false
+    },
+    {
+      "blocked_by": [
+        "IteratorBorrowBoundaryRoutingPolicyMissing"
+      ],
+      "candidate_axes": [
+        "IteratorOrBorrowTypeTransportAxis"
+      ],
+      "component_scope_eligible": true,
+      "evidence_inventory_completeness": "Proven",
+      "guard_clean_authority": "Proven",
+      "inventory_state": "Missing",
+      "proof_tuple_complete": false,
+      "requirement_id": "IteratorBorrowBoundaryRoutingPolicy",
+      "requirement_kind": "BoundaryRouting",
+      "root_authority": {
+        "proof_sources": [],
+        "reason_token": "IteratorBorrowBoundaryRoutingPolicyMissing",
+        "status": "Unproven"
+      },
+      "selected_next_card_if_root": "MIRBUILDER-CARRIER-TYPE-ITERATOR-BORROW-BOUNDARY-ROUTING-BASIS-001",
+      "selection_eligible": false
+    },
+    {
+      "blocked_by": [
+        "OpaqueTypeBoundaryDeclarationMissing"
+      ],
+      "candidate_axes": [
+        "OpaqueTypeTransportAxis"
+      ],
+      "component_scope_eligible": true,
+      "evidence_inventory_completeness": "Proven",
+      "guard_clean_authority": "Proven",
+      "inventory_state": "Missing",
+      "proof_tuple_complete": false,
+      "requirement_id": "OpaqueTypeBoundaryDeclaration",
+      "requirement_kind": "ExplicitBoundaryDeclaration",
+      "root_authority": {
+        "proof_sources": [],
+        "reason_token": "OpaqueTypeBoundaryDeclarationMissing",
+        "status": "Unproven"
+      },
+      "selected_next_card_if_root": "MIRBUILDER-CARRIER-TYPE-OPAQUE-TYPE-BOUNDARY-DECLARATION-BASIS-001",
+      "selection_eligible": false
+    },
+    {
+      "blocked_by": [
+        "ScalarKnownCloseoutAuthorityMissing"
+      ],
+      "candidate_axes": [
+        "ScalarKnownTransportAxis"
+      ],
+      "component_scope_eligible": true,
+      "evidence_inventory_completeness": "Proven",
+      "guard_clean_authority": "Proven",
+      "inventory_state": "Missing",
+      "proof_tuple_complete": false,
+      "requirement_id": "ScalarKnownCloseoutAuthority",
+      "requirement_kind": "DirectCloseoutOrPolicyBasis",
+      "root_authority": {
+        "proof_sources": [],
+        "reason_token": "ScalarKnownCloseoutAuthorityMissing",
+        "status": "Unproven"
+      },
+      "selected_next_card_if_root": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-TRANSPORT-CLOSEOUT-BASIS-001",
+      "selection_eligible": false
+    }
+  ],
+  "decision": {
+    "kind": "KeepStopped",
+    "reason_token": "NoCarrierTypeRemainingAxisRootComponentRequirement",
+    "selected_carrier_type_axis": null,
+    "selected_component_requirement": null,
+    "selected_next_card": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "remaining_axis_component_requirement_basis": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-transport-remaining-axis-component-requirement-basis-v0.json",
+    "remaining_axis_component_requirement_inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-transport-remaining-axis-component-requirement-inventory-v0.json",
+    "remaining_axis_priority_rerun_001": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-transport-remaining-axis-priority-rerun-v0.json"
+  },
+  "kind": "MirBuilderCarrierTypeTransportRemainingAxisComponentRequirementRerunV1",
+  "previous_state": {
+    "accepted_component_evidence_source_count": 0,
+    "basis_component_requirement_count": 7,
+    "inventory_decision": "SelectCarrierTypeRemainingAxisComponentRequirementRerun",
+    "inventory_reason_token": "CarrierTypeRemainingAxisComponentRequirementInventoryRecorded",
+    "inventory_selected_next_card": "MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-COMPONENT-REQUIREMENT-RERUN-001",
+    "priority_rerun_reason_token": "NoCarrierTypeRemainingAxisMechanicalCandidate",
+    "ready_component_requirement_count": 0,
+    "root_component_requirement_count": 0
+  },
+  "provenance": {
+    "remaining_axis_component_requirement_basis_hash": "fd730c893a9f9b7b4ad10f37935d2dd93e19f7634174ab6c7351d9675cc17636",
+    "remaining_axis_component_requirement_inventory_hash": "2685ee5b831148b305975ff3e69ba392779afcdd12fd45aef679b94d2986c896",
+    "remaining_axis_priority_rerun_001_hash": "bb50701bb904fa28c69354fba675fca3fa6af624ec0ff94dfe35c01fe7b1d8d5"
+  },
+  "schema_version": 0,
+  "selector_rule": {
+    "component_specific_card_selection_allowed_if_exactly_one_root_requirement": true,
+    "concrete_carrier_type_axis_selection": false,
+    "forbidden_priority_sources": [
+      "row_count",
+      "source_path",
+      "owner_name",
+      "route_membership_alone",
+      "return_type_string_mapping",
+      "lexical_order",
+      "coverage_percentage",
+      "apparent_simplicity",
+      "observed_subaxis_set",
+      "hardcoded_carrier_axis_priority",
+      "manual_axis_selection"
+    ],
+    "if_multiple_root_requirements_keep_stopped": true,
+    "if_zero_root_requirements_keep_stopped": true,
+    "name": "CarrierTypeRemainingAxisComponentRequirementSelectorV1",
+    "selection_requires_exactly_one_root_component_requirement": true,
+    "tie_breaking_forbidden": true
+  },
+  "summary": {
+    "accepted_component_evidence_source_count": 0,
+    "candidate_axis_count": 5,
+    "component_requirement_count": 7,
+    "component_specific_card_selection_eligible_count": 0,
+    "concrete_carrier_type_axis_selection": 0,
+    "ready_component_requirement_count": 0,
+    "root_component_requirement_count": 0,
+    "selection_eligible_component_requirement_count": 0
+  },
+  "token": "MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-COMPONENT-REQUIREMENT-RERUN-001"
+}
