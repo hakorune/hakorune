@@ -415,20 +415,20 @@ Detailed evidence lives in phase cards, fixtures, and git history.
 
 ## Active Next 3
 ```text
-1. MIRBUILDER-MISSING-PROJECTION-POLICY-POST-TYPE-EXHAUSTION-SELECTION-BASIS-001
-   status=closed; boundary=MissingProjectionPolicyPostTypeExhaustionSelectorBasisDefined
-
-2. MIRBUILDER-MISSING-PROJECTION-POLICY-POST-TYPE-EXHAUSTION-SELECTION-RERUN-001
-   status=closed; boundary=NoMachineDerivedMissingProjectionPolicyRerun005Lane
-
-3. SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-011
+1. SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-011
    status=closed; boundary=NoMachineDerivedPostMissingProjectionPolicyWiderLane
+
+2. SOURCE-SELFHOST-LOCAL-CANDIDATE-SELECTION-POLICY-001
+   status=closed; boundary=SourceSelfhostLocalCandidateSelectionPolicyDefined
+
+3. SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-CLOSEOUT-001
+   status=closed; boundary=SourceSelfhostRouteSelectionExhaustedNoMachineDerivedNextLane
 
 next_documented_task =
   stopped at Source Selfhost wider route-selection design stop
 
 next_after_active_3 =
-  no machine-derived wider lane after MissingProjectionPolicy post-Type exhaustion
+  reentry requires new non-self-signed authority or stable input delta
 ```
 
 ## Landed Converter Capability Summary

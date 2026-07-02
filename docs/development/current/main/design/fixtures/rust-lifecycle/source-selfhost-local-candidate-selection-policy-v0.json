@@ -1,0 +1,97 @@
+{
+  "claims": {
+    "cluster_size_as_proof": 0,
+    "external_consultation_for_counting": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "historical_preference_as_proof": 0,
+    "manual_lane_selection": 0,
+    "native_seed_materialization": 0,
+    "owner_name_as_proof": 0,
+    "projection_policy_selected": 0,
+    "row_count_as_proof": 0,
+    "semantic_lane_selected": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "PolicyDefined",
+    "reason_token": "SourceSelfhostLocalCandidateSelectionPolicyDefined",
+    "selected_lane": null,
+    "selected_next_card": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+  },
+  "external_consultation_gate": {
+    "ask_externally_only_if_any_true": [
+      "new_proof_axis_needed",
+      "existing_forbidden_axis_needs_reconsideration",
+      "new_authority_source_kind_introduced",
+      "source_selfhost_or_native_seed_or_hako_adopted_boundary_approached",
+      "selector_rule_semantics_change",
+      "local_worker_finds_fixture_card_contradiction"
+    ],
+    "do_not_ask_externally_for": [
+      "row_count_differs",
+      "cluster_count_differs",
+      "candidate_labels_look_important",
+      "one_option_feels_more_central",
+      "historical_card_exists"
+    ]
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "latest_design_stop_card": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-011"
+  },
+  "keep_stopped_reentry_contract": {
+    "required_fields": [
+      "park_reason_token",
+      "exact_blocking_counts",
+      "forbidden_axes_held_at_zero",
+      "new_evidence_that_allows_reentry",
+      "selected_next_card_or_design_stop_pointer"
+    ]
+  },
+  "kind": "SourceSelfhostLocalCandidateSelectionPolicyV1",
+  "local_candidate_selection_protocol": [
+    "spawn_read_only_worker_inventory",
+    "record_candidate_set",
+    "record_selector_rule",
+    "record_allowed_proof_axes",
+    "record_forbidden_proof_axes",
+    "record_proof_tuple_per_candidate",
+    "record_selection_eligible_count",
+    "select_locally_only_if_exactly_one",
+    "keep_stopped_locally_if_zero_or_multiple"
+  ],
+  "policy_rule": {
+    "external_consultation_only_for_new_authority": true,
+    "local_mechanical_selection_requires_exactly_one": true,
+    "name": "SourceSelfhostLocalCandidateSelectionPolicyV1",
+    "no_consultation_for_counting": true,
+    "parked_lane_must_record_reentry_condition": true,
+    "two_turn_same_missing_authority_stops_micro_basis": true,
+    "worker_inventory_first": true,
+    "zero_or_multiple_keeps_stopped": true
+  },
+  "schema_version": 0,
+  "token": "SOURCE-SELFHOST-LOCAL-CANDIDATE-SELECTION-POLICY-001",
+  "two_turn_rule": {
+    "allowed_next_actions": [
+      "park_lane_and_return_wider",
+      "open_explicit_authority_registry_basis",
+      "keep_stopped_with_reentry_contract"
+    ],
+    "if_two_consecutive_keep_stopped_same_selector_family": true,
+    "same_forbidden_axes": true,
+    "same_missing_authority_class": true,
+    "then_do_not_open_another_micro_basis_in_same_lane": true
+  },
+  "worker_inventory_required_fields": [
+    "candidate_set",
+    "selector_rule",
+    "allowed_proof_axes",
+    "forbidden_proof_axes",
+    "proof_tuple_per_candidate",
+    "selection_eligible_count",
+    "zero_or_multiple_reason",
+    "reentry_condition_when_parked"
+  ]
+}

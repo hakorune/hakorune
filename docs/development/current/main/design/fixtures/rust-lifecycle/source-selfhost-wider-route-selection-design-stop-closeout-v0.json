@@ -1,0 +1,176 @@
+{
+  "basis_011_candidate_lanes": [
+    {
+      "lane_id": "NativeOwnerCheckpointRerun",
+      "reentry_condition": "native_owner_adoption_delta_count > 0 / or checkpoint_hash_stale = 1",
+      "selection_eligible": false
+    },
+    {
+      "lane_id": "UnconvertedSurfaceReportRerun",
+      "reentry_condition": "source_surface_input_hash_changed / projection_descriptor_ledger_hash_changed / native_owner_adoption_ledger_hash_changed",
+      "selection_eligible": false
+    },
+    {
+      "lane_id": "BorrowSurfacePolicyLane",
+      "reentry_condition": "borrow_surface_policy_blocker_count = 1 / borrow_policy_fixture_proves_guard_clean = 1",
+      "selection_eligible": false
+    },
+    {
+      "lane_id": "GuardConsolidation",
+      "reentry_condition": "lane_guard_profile_missing_or_stale = 1 / guard_duplication_blocks_next_lane = 1",
+      "selection_eligible": false
+    }
+  ],
+  "claims": {
+    "apparent_simplicity_as_proof": 0,
+    "cluster_size_as_proof": 0,
+    "coverage_percentage_as_proof": 0,
+    "family_name_as_proof": 0,
+    "generated_artifact_as_native_edit_authority": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "historical_preference_as_proof": 0,
+    "lexical_order_as_proof": 0,
+    "manual_axis_selection": 0,
+    "manual_family_selection": 0,
+    "manual_lane_selection": 0,
+    "manual_shape_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "owner_name_as_proof": 0,
+    "projection_policy_selected": 0,
+    "route_exhaustion_as_hako_adoption": 0,
+    "route_exhaustion_as_native_seed_readiness": 0,
+    "route_exhaustion_as_owner_selection": 0,
+    "route_exhaustion_as_projection_policy_selection": 0,
+    "route_exhaustion_as_source_selfhost_success": 0,
+    "route_membership_alone_as_proof": 0,
+    "row_count_as_proof": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "self_signed_fixture_as_proof": 0,
+    "source_path_as_authority": 0,
+    "source_selfhost_claim": 0,
+    "source_selfhost_complete": 0
+  },
+  "closeout_rule": {
+    "closeout_is_not_hako_adoption": true,
+    "closeout_is_not_native_seed_materialization": true,
+    "closeout_is_not_source_selfhost_claim": true,
+    "closeout_parks_current_machine_derived_route_tree": true,
+    "do_not_invent_fresh_executable_owner_from_history": true,
+    "future_candidate_selection_uses_local_policy": true,
+    "future_reentry_requires_new_authority_or_stable_input_delta": true,
+    "name": "SourceSelfhostWiderRouteSelectionDesignStopCloseoutV1"
+  },
+  "decision": {
+    "kind": "KeepStopped",
+    "reason_token": "SourceSelfhostRouteSelectionExhaustedNoMachineDerivedNextLane",
+    "selected_lane": null,
+    "selected_next_card": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "current_latest_card": "SOURCE-SELFHOST-LOCAL-CANDIDATE-SELECTION-POLICY-001",
+    "local_candidate_selection_policy": "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-local-candidate-selection-policy-v0.json",
+    "missing_projection_policy_cluster_resolution_v4": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-policy-cluster-resolution-v4-v0.json",
+    "missing_projection_policy_post_type_selection_rerun": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-policy-post-type-exhaustion-selection-rerun-v0.json",
+    "missing_projection_policy_rerun_005": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-policy-cluster-resolution-rerun-005-v0.json",
+    "wider_route_selection_basis_011": "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-wider-route-selection-basis-011-v0.json"
+  },
+  "kind": "SourceSelfhostWiderRouteSelectionDesignStopCloseoutV1",
+  "parked_or_exhausted_lanes": [
+    {
+      "lane_id": "DomainObjectIdLane",
+      "park_reason_token": "ExplicitSemanticResourceDomainDeclarationSourceMissing",
+      "parked": true,
+      "safe_reentry_requires": [
+        "new explicit semantic resource-domain declaration source",
+        "new stable closed-resource manifest",
+        "new non-self-signed return-type taxonomy authority"
+      ]
+    },
+    {
+      "lane_id": "CarrierTypeRemainingAxisLane",
+      "park_reason_token": "NoCarrierTypeComponentEvidenceSourceAuthority",
+      "parked": true,
+      "safe_reentry_requires": [
+        "new stable component policy contract",
+        "new explicit boundary declaration",
+        "new stable cross-lane handoff contract",
+        "new collection overlap contract",
+        "new typed direct closeout contract"
+      ]
+    },
+    {
+      "lane_id": "CarrierTypeParentPolicyLane",
+      "park_reason_token": "NoCarrierTypeParentPolicyLaneEvidenceSourceAuthority",
+      "parked": true,
+      "safe_reentry_requires": [
+        "new current reusable policy contract",
+        "new verifier contract compatibility proof",
+        "new stable parent policy dependency root",
+        "new prior closed policy continuation contract",
+        "new cross-lane policy handoff contract"
+      ]
+    },
+    {
+      "lane_id": "MissingProjectionPolicyPostTypeTransportLane",
+      "park_reason_token": "NoMachineDerivedMissingProjectionPolicyRerun005Lane",
+      "parked": true,
+      "projection_policy_selected": 0,
+      "remaining_blocker_candidate_count": 185,
+      "remaining_blocker_cluster_count": 5,
+      "safe_reentry_requires": [
+        "new residual blocker root authority",
+        "new type-only projection policy selector authority",
+        "new projection descriptor / overlay freshness delta"
+      ],
+      "type_only_candidate_count": 819,
+      "type_only_cluster_count": 73
+    }
+  ],
+  "provenance": {
+    "local_candidate_selection_policy_hash": "2f85a707fb623221655058efc2b8bc12c8e453f0c2cbc700b35c0024256c23f8",
+    "missing_projection_policy_cluster_resolution_v4_hash": "7a4deb7949e9c260e305f32894dd4aeca64f53ef51c464abd79180c27e704527",
+    "missing_projection_policy_post_type_selection_rerun_hash": "9518235c70fcf1cf62660df65dac62aee12fd85765e7c87f5b2206d6cac6acaa",
+    "missing_projection_policy_rerun_005_hash": "714c30f8a2199df12104d09a30f7612fe44aae9c6f6bbcc7b72fb0c8ed6b9909",
+    "wider_route_selection_basis_011_hash": "930d4bf827169a62758ebc11753f64c34b282457869e8a538a0f7f9da4eade9f"
+  },
+  "reentry_policy": {
+    "allowed_only_when": [
+      "stable input hash delta is detected",
+      "new non-self-signed authority source is added",
+      "new checker-verified contradiction invalidates closeout",
+      "reviewer provides explicit design authority for a new proof axis"
+    ],
+    "automatic_local_reentry_allowed": true,
+    "external_consultation_only_for_new_authority": true,
+    "reentry_must_not_open": [
+      "direct Source Selfhost claim",
+      "direct HakoAdopted decision",
+      "direct native seed materialization",
+      "direct projection policy selection",
+      "manual lane preference"
+    ],
+    "reentry_must_open": [
+      "freshness rerun",
+      "authority inventory",
+      "selector basis",
+      "guard consolidation if guard is concrete blocker"
+    ],
+    "worker_inventory_first": true
+  },
+  "schema_version": 0,
+  "summary": {
+    "basis_011_candidate_lane_count": 4,
+    "basis_011_selection_eligible_progress_lane_count": 0,
+    "current_machine_derived_progress_lane_count": 0,
+    "parked_or_exhausted_lane_count": 4,
+    "source_selfhost_claim": 0,
+    "source_selfhost_status": "Stopped"
+  },
+  "token": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-CLOSEOUT-001"
+}

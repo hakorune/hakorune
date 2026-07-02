@@ -25,11 +25,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-011"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2095-SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-011.md"
-latest_card_summary = """The latest card parks the MissingProjectionPolicy
-post-TypeTransport lane and keeps Source Selfhost stopped because no
-machine-derived wider lane is eligible."""
+latest_card = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-CLOSEOUT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2097-SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-CLOSEOUT-001.md"
+latest_card_summary = """The latest card closes out the current Source
+Selfhost wider route-selection design stop, parks all current machine-derived
+route lanes, and keeps Source Selfhost unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -40,6 +40,8 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-03: 2097 closes out the current Source Selfhost wider route-selection design stop with no machine-derived progress lane.",
+  "2026-07-03: 2096 defines the Source Selfhost local candidate selection policy to use worker inventory before external consultation.",
   "2026-07-03: 2095 parks the MissingProjectionPolicy post-TypeTransport lane and keeps Source Selfhost stopped with no machine-derived wider lane.",
   "2026-07-03: 2094 applies the MissingProjectionPolicy post-TypeTransport selector and keeps Source Selfhost stopped with no machine-derived lane.",
   "2026-07-03: 2093 defines the MissingProjectionPolicy post-TypeTransport exhaustion selector basis and selects selection rerun 001 without selecting a projection policy.",

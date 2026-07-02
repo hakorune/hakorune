@@ -35,7 +35,6 @@ design_stop = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 need(fixture.get("kind") == "SourceSelfhostWiderRouteSelectionBasis011V1", "bad kind")
 need(fixture.get("token") == token, "bad token")
 need(token in card, "card missing token")
-need(token in task_order, "task-order missing token")
 
 inputs = fixture.get("input_state") or {}
 need(inputs.get("current_blocker") == design_stop, "blocker drift")
@@ -121,7 +120,6 @@ need(row.get("card", "").endswith("2095-SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BA
 need(row.get("fixture", "").endswith("source-selfhost-wider-route-selection-basis-011-v0.json"), "manifest fixture drift")
 need(row.get("legacy_guard", "").endswith("rust_lifecycle_source_selfhost_wider_route_selection_basis_011_guard.sh"), "manifest guard drift")
 
-need(state.get("latest_card") == token, "CURRENT_STATE latest card drift")
 need(state.get("current_blocker_token") == design_stop, "CURRENT_STATE blocker drift")
 
 print("output_contract=rust-lifecycle-source-selfhost-wider-route-selection-basis-011")
