@@ -372,6 +372,11 @@ id_scalar_source_plan_derivability_rerun_003_result:
   selected_next_card = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
   source_selfhost_claim = 0
 
+id_scalar_derivable_owner_discriminator_basis_task:
+  token = MIRBUILDER-ID-SCALAR-DERIVABLE-OWNER-DISCRIMINATOR-BASIS-001
+  selected_next_card = MIRBUILDER-ID-SCALAR-TYPED-EVIDENCE-INDEX-POLICY-001
+  source_selfhost_claim = 0
+
 placement_rule:
   scan_unit = rust_function_or_method
   classification_unit = semantic_owner_edge
@@ -401,27 +406,27 @@ Keep this section short. Detailed landed rows belong in phase cards and git
 history, not in this task-order SSOT.
 
 ```text
-1. MIRBUILDER-ID-SCALAR-SOURCE-PLAN-AND-RECIPE-DERIVABILITY-RESOLUTION-003
-   status=closed
-   boundary=2 derivable owners tie; no manual owner selection
+1. MIRBUILDER-ID-SCALAR-DERIVABLE-OWNER-DISCRIMINATOR-BASIS-001
+   status=taskized
+   boundary=define proof axes before selecting context_registry/emission_ssa_phi
 
-2. SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
-   status=design-consultation-required
-   boundary=choose machine discriminator for context_registry vs emission_ssa_phi
+2. MIRBUILDER-ID-SCALAR-TYPED-EVIDENCE-INDEX-POLICY-001
+   status=next
+   boundary=typed refs only; owner_edge_id text mentions are not evidence
 
-3. SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
-   status=guardrail
-   boundary=no native seed / Hako generation / Source Selfhost claim
+3. MIRBUILDER-ID-SCALAR-OPERATION-VOCABULARY-AUTHORITY-SPLIT-001
+   status=queued
+   boundary=semantic role authority; name/type fallbacks diagnostic-only
 
 next:
-  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
-  boundary=consult before selecting derivable ID scalar owner
+  MIRBUILDER-ID-SCALAR-TYPED-EVIDENCE-INDEX-POLICY-001
+  boundary=build typed evidence authority before discriminator resolution
 
 next_documented_task =
-  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+  MIRBUILDER-ID-SCALAR-TYPED-EVIDENCE-INDEX-POLICY-001
 
 next_after_active_3 =
-  TBD_AFTER_ID_SCALAR_DERIVABLE_OWNER_DISCRIMINATOR
+  MIRBUILDER-SEMANTIC-SELECTOR-NO-LEXICAL-TIEBREAK-GUARD-001
 ```
 
 ## Landed Converter Capability Summary
