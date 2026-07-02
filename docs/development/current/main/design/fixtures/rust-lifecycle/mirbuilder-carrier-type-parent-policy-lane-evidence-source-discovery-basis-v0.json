@@ -1,0 +1,205 @@
+{
+  "allowed_evidence_source_kinds": [
+    {
+      "allowed_for": [
+        "ResultCarrierPolicyCandidate",
+        "OptionCarrierPolicyCandidate",
+        "SelfConstructorTransportPolicyCandidate",
+        "CollectionCarrierPolicyCandidate"
+      ],
+      "required_fields": [
+        "policy_contract_id",
+        "supported_policy_lane",
+        "current_input_fixture_hash",
+        "verifier_contract_id",
+        "proof_source_hash"
+      ],
+      "source_kind": "CurrentReusablePolicyContract"
+    },
+    {
+      "allowed_for": [
+        "ResultCarrierPolicyCandidate",
+        "OptionCarrierPolicyCandidate",
+        "SelfConstructorTransportPolicyCandidate",
+        "CollectionCarrierPolicyCandidate"
+      ],
+      "required_fields": [
+        "verifier_contract_id",
+        "current_candidate_set_hash",
+        "compatibility_rule",
+        "proof_source_hash"
+      ],
+      "source_kind": "CurrentVerifierContractCompatibility"
+    },
+    {
+      "allowed_for": [
+        "ResultCarrierPolicyCandidate",
+        "OptionCarrierPolicyCandidate",
+        "SelfConstructorTransportPolicyCandidate",
+        "CollectionCarrierPolicyCandidate"
+      ],
+      "required_fields": [
+        "typed_dependency_edge_id",
+        "dependent_policy_lane",
+        "prerequisite_policy_lane",
+        "proof_source_hash"
+      ],
+      "source_kind": "StableParentPolicyDependencyRoot"
+    },
+    {
+      "allowed_for": [
+        "ResultCarrierPolicyCandidate",
+        "OptionCarrierPolicyCandidate",
+        "SelfConstructorTransportPolicyCandidate",
+        "CollectionCarrierPolicyCandidate"
+      ],
+      "required_fields": [
+        "closed_policy_contract_id",
+        "current_policy_lane_ref",
+        "reopen_closed_lane_required",
+        "proof_source_hash"
+      ],
+      "source_kind": "PriorClosedPolicyContinuationContract"
+    },
+    {
+      "allowed_for": [
+        "CollectionCarrierPolicyCandidate",
+        "SelfConstructorTransportPolicyCandidate"
+      ],
+      "required_fields": [
+        "handoff_contract_id",
+        "source_lane",
+        "target_lane",
+        "handoff_condition",
+        "proof_source_hash"
+      ],
+      "source_kind": "CrossLanePolicyHandoffContract"
+    }
+  ],
+  "claims": {
+    "accepted_typed_dependency_edge_materialized": 0,
+    "direct_parent_policy_candidate_selection": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "hardcoded_parent_policy_priority": 0,
+    "historical_preference_as_proof": 0,
+    "manual_parent_policy_selection": 0,
+    "native_seed_materialization": 0,
+    "owner_name_as_proof": 0,
+    "parent_policy_candidate_selection": 0,
+    "result_history_as_direct_selection_proof": 0,
+    "return_type_count_as_proof": 0,
+    "route_membership_alone_as_proof": 0,
+    "row_count_as_proof": 0,
+    "self_signed_parent_policy_authority": 0,
+    "source_path_as_authority": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "SelectParentPolicyLaneEvidenceSourceDiscoveryInventory",
+    "reason_token": "ParentPolicyLaneEvidenceSourceDiscoveryBasisDefined",
+    "selected_next_card": "MIRBUILDER-CARRIER-TYPE-PARENT-POLICY-LANE-EVIDENCE-SOURCE-DISCOVERY-INVENTORY-001",
+    "selected_parent_policy_candidate": null
+  },
+  "forbidden_evidence_source_kinds": [
+    "RowCount",
+    "ReturnTypeCount",
+    "HistoricalPreference",
+    "ResultHistoryAlone",
+    "OwnerNameInference",
+    "SourcePathOrModuleInference",
+    "RouteMembershipAlone",
+    "LexicalOrder",
+    "HardcodedParentPolicyPriority",
+    "SelfSignedFixture"
+  ],
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "parent_policy_lane_priority_rerun": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-transport-parent-policy-lane-priority-rerun-v0.json"
+  },
+  "kind": "MirBuilderCarrierTypeParentPolicyLaneEvidenceSourceDiscoveryBasisV1",
+  "parent_policy_lane_source_expectations": [
+    {
+      "accepted_source_kinds": [
+        "CurrentReusablePolicyContract",
+        "CurrentVerifierContractCompatibility",
+        "StableParentPolicyDependencyRoot",
+        "PriorClosedPolicyContinuationContract"
+      ],
+      "diagnostic_count": 557,
+      "if_no_source_reason": "ResultCarrierPolicyCandidateAuthoritySourceMissing",
+      "policy_lane": "ResultCarrierPolicyCandidate"
+    },
+    {
+      "accepted_source_kinds": [
+        "CurrentReusablePolicyContract",
+        "CurrentVerifierContractCompatibility",
+        "StableParentPolicyDependencyRoot",
+        "PriorClosedPolicyContinuationContract"
+      ],
+      "diagnostic_count": 166,
+      "if_no_source_reason": "OptionCarrierPolicyCandidateAuthoritySourceMissing",
+      "policy_lane": "OptionCarrierPolicyCandidate"
+    },
+    {
+      "accepted_source_kinds": [
+        "CurrentReusablePolicyContract",
+        "CurrentVerifierContractCompatibility",
+        "StableParentPolicyDependencyRoot",
+        "PriorClosedPolicyContinuationContract",
+        "CrossLanePolicyHandoffContract"
+      ],
+      "diagnostic_count": 56,
+      "if_no_source_reason": "SelfConstructorTransportPolicyCandidateAuthoritySourceMissing",
+      "policy_lane": "SelfConstructorTransportPolicyCandidate"
+    },
+    {
+      "accepted_source_kinds": [
+        "CurrentReusablePolicyContract",
+        "CurrentVerifierContractCompatibility",
+        "StableParentPolicyDependencyRoot",
+        "PriorClosedPolicyContinuationContract",
+        "CrossLanePolicyHandoffContract"
+      ],
+      "diagnostic_count": 35,
+      "if_no_source_reason": "CollectionCarrierPolicyCandidateAuthoritySourceMissing",
+      "policy_lane": "CollectionCarrierPolicyCandidate"
+    }
+  ],
+  "previous_state": {
+    "candidate_parent_policy_lane_count": 4,
+    "historical_result_contract_as_direct_selection_proof": 0,
+    "historical_result_contract_present": 1,
+    "previous_decision": "KeepStopped",
+    "previous_reason_token": "NoCarrierTypeParentPolicyLaneMechanicalCandidate",
+    "selection_eligible_parent_policy_lane_count": 0
+  },
+  "provenance": {
+    "parent_policy_lane_priority_rerun_hash": "b7603e535634df4626a38b0fe640035033371b3ab988ea97b134d791bedebc1b"
+  },
+  "schema_version": 0,
+  "selector_rule": {
+    "accepted_source_requires": [
+      "stable_source_id",
+      "stable_contract_or_dependency_id",
+      "proof_source_hash",
+      "current_policy_lane_join",
+      "non_string_non_count_non_history_authority"
+    ],
+    "basis_selects_parent_policy_candidate": false,
+    "discovery_source_must_be_independent": true,
+    "hardcoded_parent_policy_priority_forbidden": true,
+    "historical_result_contract_is_diagnostic_until_current_compatibility_proven": true,
+    "if_no_accepted_source_after_inventory_return_wider": true,
+    "name": "ParentPolicyLaneEvidenceSourceDiscoveryAuthorityV1",
+    "self_signed_parent_policy_authority_forbidden": true,
+    "source_discovery_may_select_inventory_only": true
+  },
+  "summary": {
+    "accepted_parent_policy_evidence_source_count": 0,
+    "allowed_source_kind_count": 5,
+    "candidate_parent_policy_lane_count": 4,
+    "parent_policy_candidate_selection": 0
+  },
+  "token": "MIRBUILDER-CARRIER-TYPE-PARENT-POLICY-LANE-EVIDENCE-SOURCE-DISCOVERY-BASIS-001"
+}

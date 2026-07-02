@@ -1,0 +1,291 @@
+{
+  "claims": {
+    "accepted_typed_dependency_edge_materialized": 0,
+    "component_specific_card_selection": 0,
+    "concrete_carrier_type_axis_selection": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "hardcoded_carrier_axis_priority": 0,
+    "manual_axis_selection": 0,
+    "manual_carrier_selection": 0,
+    "native_seed_materialization": 0,
+    "observed_subaxis_set_as_proof": 0,
+    "owner_name_as_proof": 0,
+    "return_type_string_mapping_as_proof": 0,
+    "route_membership_alone_as_proof": 0,
+    "row_count_as_proof": 0,
+    "self_signed_component_authority": 0,
+    "source_path_as_authority": 0,
+    "source_selfhost_claim": 0
+  },
+  "component_requirement_source_rows": [
+    {
+      "accepted_source_kinds": [
+        "ExplicitBoundaryDeclaration"
+      ],
+      "accepted_sources": [],
+      "blocked_until": [],
+      "candidate_axis": "ProductTupleTransportAxis",
+      "discovery_state": "NoAcceptedSource",
+      "proof_tuple_complete": false,
+      "reason_token": "TupleFieldDomainBoundaryAuthoritySourceMissing",
+      "requirement_id": "TupleFieldDomainBoundaryPolicy",
+      "selection_eligible": false
+    },
+    {
+      "accepted_source_kinds": [
+        "StableComponentPolicyContract"
+      ],
+      "accepted_sources": [],
+      "blocked_until": [],
+      "candidate_axis": "ProductTupleTransportAxis",
+      "discovery_state": "NoAcceptedSource",
+      "proof_tuple_complete": false,
+      "reason_token": "TupleElementTransportAuthoritySourceMissing",
+      "requirement_id": "TupleElementTransportPolicy",
+      "selection_eligible": false
+    },
+    {
+      "accepted_source_kinds": [
+        "CollectionOverlapContract"
+      ],
+      "accepted_sources": [],
+      "blocked_until": [],
+      "candidate_axis": "CollectionCarrierTransportAxis",
+      "discovery_state": "NoAcceptedSource",
+      "proof_tuple_complete": false,
+      "reason_token": "CollectionPolicyOverlapAuthoritySourceMissing",
+      "requirement_id": "CollectionPolicyOverlapResolution",
+      "selection_eligible": false
+    },
+    {
+      "accepted_source_kinds": [
+        "StableComponentPolicyContract"
+      ],
+      "accepted_sources": [],
+      "blocked_until": [
+        "CollectionPolicyOverlapResolution"
+      ],
+      "candidate_axis": "CollectionCarrierTransportAxis",
+      "discovery_state": "BlockedByPrerequisiteAndNoAcceptedSource",
+      "proof_tuple_complete": false,
+      "reason_token": "CollectionElementCarrierAuthoritySourceMissing",
+      "requirement_id": "CollectionElementCarrierPolicy",
+      "selection_eligible": false
+    },
+    {
+      "accepted_source_kinds": [
+        "StableCrossLaneHandoffContract",
+        "StableComponentPolicyContract"
+      ],
+      "accepted_sources": [],
+      "blocked_until": [],
+      "candidate_axis": "IteratorOrBorrowTypeTransportAxis",
+      "discovery_state": "NoAcceptedSource",
+      "proof_tuple_complete": false,
+      "reason_token": "IteratorBorrowBoundaryRoutingAuthoritySourceMissing",
+      "requirement_id": "IteratorBorrowBoundaryRoutingPolicy",
+      "selection_eligible": false
+    },
+    {
+      "accepted_source_kinds": [
+        "ExplicitBoundaryDeclaration"
+      ],
+      "accepted_sources": [],
+      "blocked_until": [],
+      "candidate_axis": "OpaqueTypeTransportAxis",
+      "discovery_state": "NoAcceptedSource",
+      "proof_tuple_complete": false,
+      "reason_token": "OpaqueTypeBoundaryAuthoritySourceMissing",
+      "requirement_id": "OpaqueTypeBoundaryDeclaration",
+      "selection_eligible": false
+    },
+    {
+      "accepted_source_kinds": [
+        "TypedDirectCloseoutContract"
+      ],
+      "accepted_sources": [],
+      "blocked_until": [],
+      "candidate_axis": "ScalarKnownTransportAxis",
+      "discovery_state": "NoAcceptedSource",
+      "proof_tuple_complete": false,
+      "reason_token": "ScalarKnownCloseoutAuthoritySourceMissing",
+      "requirement_id": "ScalarKnownCloseoutAuthority",
+      "selection_eligible": false
+    }
+  ],
+  "decision": {
+    "kind": "SelectWiderRouteSelectionBasis",
+    "reason_token": "NoCarrierTypeComponentEvidenceSourceAuthority",
+    "selected_carrier_type_axis": null,
+    "selected_component_requirement": null,
+    "selected_next_card": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-009"
+  },
+  "input_state": {
+    "carrier_type_transport_policy_inventory_rerun_003": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-transport-policy-inventory-rerun-003-v0.json",
+    "carrier_type_transport_unclassified_evidence_resolution_002": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-transport-unclassified-evidence-resolution-002-v0.json",
+    "component_evidence_source_discovery_basis": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-transport-component-evidence-source-discovery-basis-v0.json",
+    "component_requirement_rerun": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-transport-remaining-axis-component-requirement-rerun-v0.json",
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+  },
+  "inventory_rule": {
+    "accepted_source_must_have_proof_source_hash": true,
+    "accepted_source_must_have_stable_id": true,
+    "accepted_source_must_join_current_requirement": true,
+    "component_specific_card_selection": false,
+    "concrete_carrier_type_axis_selection": false,
+    "hardcoded_component_priority_forbidden": true,
+    "if_no_accepted_source_return_wider": true,
+    "name": "ComponentEvidenceSourceDiscoveryInventoryV1",
+    "reads_existing_authority_sources_only": true,
+    "self_signed_component_authority_forbidden": true
+  },
+  "kind": "MirBuilderCarrierTypeTransportComponentEvidenceSourceDiscoveryInventoryV1",
+  "previous_state": {
+    "basis_decision": "SelectCarrierTypeComponentEvidenceSourceDiscoveryInventory",
+    "basis_reason_token": "CarrierTypeComponentEvidenceSourceDiscoveryBasisDefined",
+    "basis_selected_next_card": "MIRBUILDER-CARRIER-TYPE-TRANSPORT-COMPONENT-EVIDENCE-SOURCE-DISCOVERY-INVENTORY-001",
+    "component_requirement_count": 7,
+    "policy_lane_candidates_present": true,
+    "previous_reason_token": "NoCarrierTypeRemainingAxisRootComponentRequirement",
+    "previous_root_component_requirement_count": 0,
+    "unclassified_axis_resolution_present": true
+  },
+  "provenance": {
+    "carrier_type_transport_policy_inventory_rerun_003_hash": "2d79c7ef91b120426566ce12e89c45068cf377a29acb104d8177befc714f9ce9",
+    "carrier_type_transport_unclassified_evidence_resolution_002_hash": "a1693463c7cb3cbd03813d30afacc5a904a6b6f25dd08b032ddfd7c124c67717",
+    "component_evidence_source_discovery_basis_hash": "b687d14c09ceac0196902aff9f11ac5396611d65f4e398deb41afbeb0e5a24fd",
+    "component_requirement_rerun_hash": "2a16e81492efbe2f8346f5d8280fc7e685ab25ba8c81d50e6f975bd09fb56610"
+  },
+  "schema_version": 0,
+  "source_kind_rows": [
+    {
+      "accepted_source_count": 0,
+      "allowed_for": [
+        "TupleElementTransportPolicy",
+        "CollectionElementCarrierPolicy",
+        "IteratorBorrowBoundaryRoutingPolicy",
+        "ScalarKnownCloseoutAuthority"
+      ],
+      "blocked_by": [
+        "StableComponentPolicyContractSourceMissing",
+        "NoStableContractOrDeclarationSource"
+      ],
+      "discovery_state": "NoAcceptedSource",
+      "required_fields": [
+        "component_policy_contract_id",
+        "supported_requirement_id",
+        "proof_source_hash",
+        "current_input_compatibility"
+      ],
+      "source_kind": "StableComponentPolicyContract"
+    },
+    {
+      "accepted_source_count": 0,
+      "allowed_for": [
+        "TupleFieldDomainBoundaryPolicy",
+        "OpaqueTypeBoundaryDeclaration"
+      ],
+      "blocked_by": [
+        "ExplicitBoundaryDeclarationSourceMissing",
+        "NoStableContractOrDeclarationSource"
+      ],
+      "discovery_state": "NoAcceptedSource",
+      "required_fields": [
+        "boundary_declaration_id",
+        "resource_id",
+        "declared_boundary_kind",
+        "proof_source_hash"
+      ],
+      "source_kind": "ExplicitBoundaryDeclaration"
+    },
+    {
+      "accepted_source_count": 0,
+      "allowed_for": [
+        "IteratorBorrowBoundaryRoutingPolicy"
+      ],
+      "blocked_by": [
+        "StableCrossLaneHandoffContractSourceMissing",
+        "NoStableContractOrDeclarationSource"
+      ],
+      "discovery_state": "NoAcceptedSource",
+      "required_fields": [
+        "handoff_contract_id",
+        "source_lane",
+        "target_lane",
+        "handoff_condition",
+        "proof_source_hash"
+      ],
+      "source_kind": "StableCrossLaneHandoffContract"
+    },
+    {
+      "accepted_source_count": 0,
+      "allowed_for": [
+        "CollectionPolicyOverlapResolution"
+      ],
+      "blocked_by": [
+        "CollectionOverlapContractSourceMissing",
+        "NoStableContractOrDeclarationSource"
+      ],
+      "discovery_state": "NoAcceptedSource",
+      "required_fields": [
+        "overlap_contract_id",
+        "parent_policy_lane_ref",
+        "child_axis_ref",
+        "overlap_kind",
+        "proof_source_hash"
+      ],
+      "source_kind": "CollectionOverlapContract"
+    },
+    {
+      "accepted_source_count": 0,
+      "allowed_for": [
+        "ScalarKnownCloseoutAuthority"
+      ],
+      "blocked_by": [
+        "TypedDirectCloseoutContractSourceMissing",
+        "NoStableContractOrDeclarationSource"
+      ],
+      "discovery_state": "NoAcceptedSource",
+      "required_fields": [
+        "closeout_contract_id",
+        "all_rows_join_contract",
+        "no_carrier_boundary_required_or_already_covered",
+        "proof_source_hash"
+      ],
+      "source_kind": "TypedDirectCloseoutContract"
+    }
+  ],
+  "source_search_scope": [
+    {
+      "authority_source": false,
+      "source": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-transport-component-evidence-source-discovery-basis-v0.json",
+      "used_for": "allowed_source_kinds"
+    },
+    {
+      "authority_source": false,
+      "source": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-transport-policy-inventory-rerun-003-v0.json",
+      "used_for": "diagnostic_parent_policy_lanes"
+    },
+    {
+      "authority_source": false,
+      "source": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-transport-unclassified-evidence-resolution-002-v0.json",
+      "used_for": "diagnostic_axis_scope"
+    }
+  ],
+  "summary": {
+    "accepted_component_evidence_source_count": 0,
+    "allowed_source_kind_count": 5,
+    "collection_overlap_contract_count": 0,
+    "component_authority_source_count": 0,
+    "component_requirement_count": 7,
+    "component_requirement_with_accepted_source_count": 0,
+    "component_specific_card_selection": 0,
+    "concrete_carrier_type_axis_selection": 0,
+    "explicit_boundary_declaration_count": 0,
+    "stable_component_policy_contract_count": 0,
+    "stable_cross_lane_handoff_contract_count": 0,
+    "typed_direct_closeout_contract_count": 0
+  },
+  "token": "MIRBUILDER-CARRIER-TYPE-TRANSPORT-COMPONENT-EVIDENCE-SOURCE-DISCOVERY-INVENTORY-001"
+}

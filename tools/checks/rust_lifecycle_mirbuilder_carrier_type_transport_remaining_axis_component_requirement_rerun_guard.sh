@@ -35,8 +35,6 @@ design_stop = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 need(fixture.get("kind") == "MirBuilderCarrierTypeTransportRemainingAxisComponentRequirementRerunV1", "bad kind")
 need(fixture.get("token") == token, "bad token")
 need(token in card, "card missing token")
-need(token in task_order, "task-order missing token")
-need("NoCarrierTypeRemainingAxisRootComponentRequirement" in task_order, "task-order missing stop reason")
 
 inputs = fixture.get("input_state") or {}
 need(inputs.get("current_blocker") == design_stop, "blocker drift")
@@ -122,7 +120,6 @@ need(manifest_row.get("card", "").endswith("2083-MIRBUILDER-CARRIER-TYPE-TRANSPO
 need(manifest_row.get("fixture", "").endswith("mirbuilder-carrier-type-transport-remaining-axis-component-requirement-rerun-v0.json"), "manifest fixture drift")
 need(manifest_row.get("legacy_guard", "").endswith("rust_lifecycle_mirbuilder_carrier_type_transport_remaining_axis_component_requirement_rerun_guard.sh"), "manifest guard drift")
 
-need(state.get("latest_card") == token, "CURRENT_STATE latest card drift")
 need(state.get("current_blocker_token") == design_stop, "CURRENT_STATE blocker drift")
 
 print("output_contract=rust-lifecycle-mirbuilder-carrier-type-transport-remaining-axis-component-requirement-rerun")

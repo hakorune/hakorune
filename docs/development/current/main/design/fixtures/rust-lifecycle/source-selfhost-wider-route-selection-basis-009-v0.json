@@ -1,0 +1,202 @@
+{
+  "candidate_lanes": [
+    {
+      "lane_id": "UnconvertedSurfaceReportRerun",
+      "required_proof": [
+        "source_surface_input_hash_changed",
+        "projection_descriptor_ledger_hash_changed",
+        "native_owner_adoption_ledger_hash_changed"
+      ],
+      "selected_next_card_if_eligible": "MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-005",
+      "selection_authority": "FreshnessRepair",
+      "selection_eligible": false
+    },
+    {
+      "lane_id": "NativeOwnerCheckpointRerun",
+      "required_proof": [
+        "native_owner_adoption_delta_count > 0",
+        "or checkpoint_hash_stale"
+      ],
+      "selected_next_card_if_eligible": "SOURCE-SELFHOST-NATIVE-OWNER-CHECKPOINT-RERUN-003",
+      "selection_authority": "AdoptionDeltaCheckpoint",
+      "selection_eligible": false
+    },
+    {
+      "lane_id": "CarrierTypeParentPolicyLanePriority",
+      "required_proof": [
+        "carrier_type_remaining_axis_lane_parked = 1",
+        "carrier_type_parent_policy_lanes_present = 1",
+        "carrier_type_parent_policy_lanes_not_parked = 1",
+        "selected_next_card_is_priority_basis_not_concrete_policy = 1"
+      ],
+      "selected_next_card_if_eligible": "MIRBUILDER-CARRIER-TYPE-TRANSPORT-PARENT-POLICY-LANE-PRIORITY-BASIS-001",
+      "selection_authority": "NearestUnexhaustedParentLane",
+      "selection_eligible": true
+    },
+    {
+      "lane_id": "MissingProjectionPolicyNextLane",
+      "required_proof": [
+        "carrier_type_parent_policy_lane_exhausted = 1",
+        "missing_projection_policy_evidence_quality_present = 1"
+      ],
+      "selected_next_card_if_eligible": "MIRBUILDER-MISSING-PROJECTION-POLICY-CLUSTER-RESOLUTION-RERUN-005",
+      "selection_authority": "BroaderParentFallback",
+      "selection_eligible": false
+    },
+    {
+      "lane_id": "BorrowSurfacePolicyLane",
+      "required_proof": [
+        "borrow_surface_policy_blocker_count = 1",
+        "borrow_policy_fixture_proves_guard_clean = 1",
+        "not selected by IteratorBorrow axis name"
+      ],
+      "selected_next_card_if_eligible": "MIRBUILDER-BORROW-SURFACE-POLICY-BASIS-001",
+      "selection_authority": "IndependentBorrowBlockerAuthority",
+      "selection_eligible": false
+    },
+    {
+      "lane_id": "GuardConsolidation",
+      "required_proof": [
+        "lane_guard_profile_missing_or_stale = 1",
+        "guard_duplication_blocks_next_lane = 1"
+      ],
+      "selected_next_card_if_eligible": "MIRBUILDER-CARRIER-TYPE-LANE-GUARD-CONSOLIDATION-001",
+      "selection_authority": "CodeFacingGuardConsolidationRequired",
+      "selection_eligible": false
+    }
+  ],
+  "claims": {
+    "component_specific_card_selection": 0,
+    "concrete_carrier_type_axis_selection": 0,
+    "direct_parent_policy_candidate_selection": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "hardcoded_lane_priority": 0,
+    "manual_lane_selection": 0,
+    "native_seed_materialization": 0,
+    "observed_subaxis_set_as_proof": 0,
+    "owner_name_as_proof": 0,
+    "return_type_string_mapping_as_proof": 0,
+    "route_membership_alone_as_proof": 0,
+    "row_count_as_proof": 0,
+    "source_path_as_authority": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "SelectCarrierTypeParentPolicyLanePriorityBasis",
+    "reason_token": "CarrierTypeRemainingLaneParkedReturnToParentPolicyLanePriority",
+    "selected_carrier_type_axis": null,
+    "selected_component_requirement": null,
+    "selected_lane": "CarrierTypeParentPolicyLanePriority",
+    "selected_next_card": "MIRBUILDER-CARRIER-TYPE-TRANSPORT-PARENT-POLICY-LANE-PRIORITY-BASIS-001",
+    "selected_parent_policy_candidate": null
+  },
+  "deferred_parent_policy_lanes": [
+    {
+      "direct_selection_allowed": false,
+      "policy_lane": "ResultCarrierPolicyCandidate",
+      "selection_scope": "CarrierTypeParentPolicyLanePriorityBasis"
+    },
+    {
+      "direct_selection_allowed": false,
+      "policy_lane": "OptionCarrierPolicyCandidate",
+      "selection_scope": "CarrierTypeParentPolicyLanePriorityBasis"
+    },
+    {
+      "direct_selection_allowed": false,
+      "policy_lane": "SelfConstructorTransportPolicyCandidate",
+      "selection_scope": "CarrierTypeParentPolicyLanePriorityBasis"
+    },
+    {
+      "direct_selection_allowed": false,
+      "policy_lane": "CollectionCarrierPolicyCandidate",
+      "selection_scope": "CarrierTypeParentPolicyLanePriorityBasis"
+    }
+  ],
+  "input_state": {
+    "carrier_type_transport_policy_inventory_rerun_003": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-transport-policy-inventory-rerun-003-v0.json",
+    "component_evidence_source_discovery_basis": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-transport-component-evidence-source-discovery-basis-v0.json",
+    "component_evidence_source_discovery_inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-transport-component-evidence-source-discovery-inventory-v0.json",
+    "component_requirement_rerun": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-transport-remaining-axis-component-requirement-rerun-v0.json",
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "native_owner_adoption_ledger": "docs/development/current/main/design/fixtures/rust-lifecycle/native-owner-adoption-ledger-v0.json",
+    "unconverted_surface_report": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-unconverted-surface-report-v0.json"
+  },
+  "kind": "SourceSelfhostWiderRouteSelectionBasis009V1",
+  "parked_lanes": [
+    {
+      "lane_id": "DomainObjectIdLane",
+      "park_reason_token": "ExplicitSemanticResourceDomainDeclarationSourceMissing",
+      "parked": true
+    },
+    {
+      "accepted_component_evidence_source_count": 0,
+      "component_authority_source_count": 0,
+      "concrete_carrier_type_axis_selection": 0,
+      "lane_id": "CarrierTypeRemainingAxisLane",
+      "park_reason_token": "NoCarrierTypeComponentEvidenceSourceAuthority",
+      "parked": true
+    }
+  ],
+  "previous_state": {
+    "accepted_component_evidence_source_count": 0,
+    "allowed_source_kind_count": 5,
+    "collection_overlap_contract_count": 0,
+    "component_authority_source_count": 0,
+    "component_requirement_count": 7,
+    "component_requirement_with_accepted_source_count": 0,
+    "component_rerun_reason_token": "NoCarrierTypeRemainingAxisRootComponentRequirement",
+    "discovery_basis_reason_token": "CarrierTypeComponentEvidenceSourceDiscoveryBasisDefined",
+    "explicit_boundary_declaration_count": 0,
+    "latest_card": "MIRBUILDER-CARRIER-TYPE-TRANSPORT-COMPONENT-EVIDENCE-SOURCE-DISCOVERY-INVENTORY-001",
+    "previous_decision": "SelectWiderRouteSelectionBasis",
+    "previous_reason_token": "NoCarrierTypeComponentEvidenceSourceAuthority",
+    "stable_component_policy_contract_count": 0,
+    "stable_cross_lane_handoff_contract_count": 0,
+    "typed_direct_closeout_contract_count": 0
+  },
+  "provenance": {
+    "carrier_type_transport_policy_inventory_rerun_003_hash": "2d79c7ef91b120426566ce12e89c45068cf377a29acb104d8177befc714f9ce9",
+    "component_evidence_source_discovery_basis_hash": "b687d14c09ceac0196902aff9f11ac5396611d65f4e398deb41afbeb0e5a24fd",
+    "component_evidence_source_discovery_inventory_hash": "4e3945d65c6028b3b6020dfd8e9c9c38fefa9228eac7c72dd30838d250b06a1f",
+    "component_requirement_rerun_hash": "2a16e81492efbe2f8346f5d8280fc7e685ab25ba8c81d50e6f975bd09fb56610",
+    "native_owner_adoption_ledger_hash": null,
+    "unconverted_surface_report_hash": "610bc2b724b270c5a09615c27de40616517caab74411cd9933703871424f263e"
+  },
+  "schema_version": 0,
+  "selector_rule": {
+    "borrow_surface_lane_requires_independent_borrow_blocker_authority": true,
+    "carrier_type_remaining_lane_must_be_parked_before_wider_selection": true,
+    "component_specific_card_selection_forbidden": true,
+    "concrete_carrier_type_axis_selection_forbidden": true,
+    "direct_parent_policy_candidate_selection_forbidden": true,
+    "forbidden_proof_axes": [
+      "row_count",
+      "source_path",
+      "owner_name",
+      "route_membership_alone",
+      "observed_subaxis_set",
+      "apparent_simplicity",
+      "manual_lane_selection",
+      "hardcoded_lane_priority",
+      "historical_preference",
+      "return_type_string_mapping"
+    ],
+    "freshness_repair_precedes_parent_lane_selection": true,
+    "guard_consolidation_requires_guard_blocker": true,
+    "missing_projection_lane_requires_carrier_type_parent_exhausted": true,
+    "name": "PostCarrierTypeRemainingAuthorityExhaustionWiderLaneSelectorV1",
+    "native_checkpoint_requires_adoption_delta_or_stale_checkpoint": true,
+    "nearest_unexhausted_parent_lane_allowed": true,
+    "select_only_if_exactly_one_machine_derived_lane": true
+  },
+  "summary": {
+    "candidate_lane_count": 6,
+    "carrier_type_parent_policy_lanes_present": 1,
+    "carrier_type_remaining_lane_parked": 1,
+    "component_authority_source_count": 0,
+    "deferred_parent_policy_lane_count": 4,
+    "selection_eligible_lane_count": 1
+  },
+  "token": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-009"
+}

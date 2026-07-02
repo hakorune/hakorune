@@ -36,8 +36,6 @@ design_stop = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 need(fixture.get("kind") == "MirBuilderCarrierTypeTransportRemainingAxisComponentRequirementInventoryV1", "bad kind")
 need(fixture.get("token") == token, "bad token")
 need(token in card, "card missing token")
-need(token in task_order, "task-order missing token")
-need(next_card in task_order, "task-order missing next card")
 
 inputs = fixture.get("input_state") or {}
 need(inputs.get("current_blocker") == design_stop, "blocker drift")

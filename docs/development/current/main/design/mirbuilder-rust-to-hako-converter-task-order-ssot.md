@@ -25,7 +25,7 @@ active blocker:
 
 current implementation task:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001.
-  2083 keeps stopped with no machine-derived root component.
+  2085 selects wider route-selection basis 009 after source exhaustion.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -61,10 +61,10 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next task:
-  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-009
 
 current fail-fast boundary:
-  No axis/component selection; design consultation required for new authority.
+  Carrier/type remaining lane has no accepted component evidence source.
 
 latest design decision:
   Pointer realignment, VariableContext closeout, the blocked candidate
@@ -143,7 +143,7 @@ latest_diagnostics:
   latest_wider_selector_token = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-008
   latest_remaining_axis_priority_basis_token = MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-PRIORITY-BASIS-001
   latest_remaining_axis_priority_rerun_token = MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-PRIORITY-RERUN-001
-  latest_remaining_axis_component_requirement_rerun_token = MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-COMPONENT-REQUIREMENT-RERUN-001
+  latest_parent_policy_evidence_source_discovery_inventory_token = MIRBUILDER-CARRIER-TYPE-PARENT-POLICY-LANE-EVIDENCE-SOURCE-DISCOVERY-INVENTORY-001
   latest_stop_token = MIRBUILDER-DOMAIN-OBJECT-ID-SEMANTIC-RESOURCE-DOMAIN-DECLARATION-INVENTORY-001
   selector_basis_token = MIRBUILDER-DOMAIN-OBJECT-ID-TYPED-DEPENDENCY-ROOT-AUTHORITY-BASIS-001
   previous_selector_basis_token = MIRBUILDER-DOMAIN-OBJECT-ID-SUBAXIS-MECHANICAL-SELECTION-BASIS-001
@@ -415,20 +415,20 @@ Detailed evidence lives in phase cards, fixtures, and git history.
 
 ## Active Next 3
 ```text
-1. MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-COMPONENT-REQUIREMENT-INVENTORY-001
-   status=closed; boundary=0 accepted component evidence sources
+1. MIRBUILDER-CARRIER-TYPE-PARENT-POLICY-LANE-EVIDENCE-SOURCE-DISCOVERY-BASIS-001
+   status=closed; boundary=ParentPolicyLaneEvidenceSourceDiscoveryBasisDefined
 
-2. MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-COMPONENT-REQUIREMENT-RERUN-001
-   status=closed; boundary=NoCarrierTypeRemainingAxisRootComponentRequirement
+2. MIRBUILDER-CARRIER-TYPE-PARENT-POLICY-LANE-EVIDENCE-SOURCE-DISCOVERY-INVENTORY-001
+   status=closed; boundary=NoCarrierTypeParentPolicyLaneEvidenceSourceAuthority
 
-3. SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
-   status=next; boundary=design consultation required before new authority
+3. SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-010
+   status=next; boundary=post parent-policy authority exhaustion selector
 
 next_documented_task =
-  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-010
 
 next_after_active_3 =
-  pending design consultation for carrier/type component authority
+  pending wider route-selection basis 010
 ```
 
 ## Landed Converter Capability Summary
