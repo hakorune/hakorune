@@ -1,0 +1,114 @@
+{
+  "accepted_derivation_rule": {
+    "edge_direction": "dependent_subaxis_requires_prerequisite_subaxis",
+    "may_emit_edge_only_if": [
+      "return_type_resource_taxonomy_entry_exists",
+      "return_type_resource_domain_subaxis_declared",
+      "dependent_source_row_domain_subaxis_declared",
+      "dependent_subaxis != prerequisite_subaxis",
+      "dependency_role_declared",
+      "typed_reference_token_stable",
+      "proof_source_stable"
+    ],
+    "must_not_use": [
+      "return_type_name_prefix",
+      "return_type_name_contains",
+      "observed_subaxis_count",
+      "row_count",
+      "owner_name",
+      "source_path",
+      "route_membership_alone",
+      "lexical_order"
+    ],
+    "name": "ReturnTypeReferenceEdgeDerivationV1"
+  },
+  "claims": {
+    "cluster_size_as_proof": 0,
+    "convenience_as_proof": 0,
+    "coverage_percentage_as_proof": 0,
+    "domain_object_count_as_proof": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "hardcoded_return_type_priority_allowed": 0,
+    "hardcoded_subaxis_priority": 0,
+    "manual_axis_selection": 0,
+    "manual_carrier_selection": 0,
+    "manual_family_selection": 0,
+    "manual_shape_selection": 0,
+    "manual_subaxis_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "owner_name_as_proof": 0,
+    "return_type_name_to_subaxis_map_allowed": 0,
+    "return_type_reference_edge_derivation_basis_defined": 1,
+    "return_type_reference_is_dependency_edge_by_itself": 0,
+    "route_membership_alone_as_proof": 0,
+    "row_count_as_proof": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_path_as_authority": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "SelectReturnTypeResourceTaxonomyInventory",
+    "reason_token": "ReturnTypeReferenceEdgeDerivationRequiresResourceTaxonomy",
+    "selected_domain_subaxis": null,
+    "selected_next_card": "MIRBUILDER-DOMAIN-OBJECT-ID-RETURN-TYPE-RESOURCE-TAXONOMY-INVENTORY-001"
+  },
+  "derivation_basis": {
+    "derivation_requires_accepted_evidence_kind": "ReturnTypeFieldReference",
+    "derivation_requires_concrete_source_row_reference": true,
+    "derivation_requires_dependent_and_prerequisite_roles": true,
+    "derivation_requires_resource_taxonomy": true,
+    "hardcoded_return_type_priority_allowed": false,
+    "return_type_name_to_subaxis_map_allowed": false,
+    "return_type_reference_is_dependency_edge_by_itself": false
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "domain_object_id_transport_policy_inventory_rerun_002": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-transport-policy-inventory-rerun-002-v0.json",
+    "typed_dependency_edge_evidence_inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-typed-dependency-edge-evidence-inventory-v0.json"
+  },
+  "kind": "MirBuilderDomainObjectIdReturnTypeReferenceEdgeDerivationBasisV1",
+  "previous_state": {
+    "accepted_edge_ready_count": 0,
+    "return_type_field_reference_candidate_count": 85,
+    "selected_evidence_kind": "ReturnTypeFieldReference"
+  },
+  "provenance": {
+    "domain_object_id_transport_policy_inventory_rerun_002_hash": "778ca61ba57fcee9d77498ee721874f7d6fed56a3b74ad71cb6fe23de0fd3ed3",
+    "typed_dependency_edge_evidence_inventory_hash": "d4447ff89eb318c52e1a6ca9d0a7e424369df471986c7832ebe7ce391d775587"
+  },
+  "return_type_inventory": {
+    "distinct_return_type_count": 44,
+    "edge_ready_return_type_count": 0,
+    "resource_taxonomy_entry_count": 0,
+    "return_type_reference_count": 85,
+    "sample_return_types": [
+      "ASTNode",
+      "BlockContractKind",
+      "BranchStub",
+      "CallFlags",
+      "CalleeBoxKind",
+      "CanonicalLoopFacts",
+      "CarrierSets",
+      "CondProfile",
+      "ControlFlowCounts",
+      "CoreExitPlan",
+      "CorePhiInfo",
+      "EdgeArgs",
+      "EdgeStub",
+      "EffectMask",
+      "FlowboxBoxKind",
+      "FunctionSignature",
+      "GenericLoopV1CarrierState",
+      "HandoffTarget",
+      "HeaderPredGroups",
+      "LoopCondReturnInBodyRecipe"
+    ]
+  },
+  "schema_version": 0,
+  "token": "MIRBUILDER-DOMAIN-OBJECT-ID-RETURN-TYPE-REFERENCE-EDGE-DERIVATION-BASIS-001"
+}

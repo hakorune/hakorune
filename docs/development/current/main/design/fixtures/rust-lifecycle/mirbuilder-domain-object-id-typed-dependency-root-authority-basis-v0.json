@@ -1,0 +1,204 @@
+{
+  "accepted_edge_evidence_kinds": [
+    "ReturnTypeFieldReference",
+    "ParameterTypeReference",
+    "ConstructedDomainObjectReference",
+    "VerifierInputContractReference",
+    "PolicyDecisionPayloadReference",
+    "FixtureDeclaredSemanticResourceDependency"
+  ],
+  "candidate_subaxes": [
+    {
+      "candidate_depended_on_by_set": [],
+      "dependency_participation": "NotEvaluatedByBasis",
+      "dependency_root_authority": {
+        "all_non_isolated_candidates_depend_on_candidate": 0,
+        "positive_dependent_count": 0,
+        "proof_sources": [],
+        "status": "NotEvaluatedByBasis",
+        "unique_root": 0
+      },
+      "depends_on_candidate_set": [],
+      "domain_subaxis": "AstNodeDomainTransportAxis",
+      "guard_clean_authority": "Proven",
+      "incoming_dependency_edge_count": 0,
+      "outgoing_dependency_edge_count": 0,
+      "outgoing_unresolved_prerequisite_count": 0,
+      "proof_tuple_complete": false,
+      "selection_eligible": false
+    },
+    {
+      "candidate_depended_on_by_set": [],
+      "dependency_participation": "NotEvaluatedByBasis",
+      "dependency_root_authority": {
+        "all_non_isolated_candidates_depend_on_candidate": 0,
+        "positive_dependent_count": 0,
+        "proof_sources": [],
+        "status": "NotEvaluatedByBasis",
+        "unique_root": 0
+      },
+      "depends_on_candidate_set": [],
+      "domain_subaxis": "ContextOrSpanDomainTransportAxis",
+      "guard_clean_authority": "Proven",
+      "incoming_dependency_edge_count": 0,
+      "outgoing_dependency_edge_count": 0,
+      "outgoing_unresolved_prerequisite_count": 0,
+      "proof_tuple_complete": false,
+      "selection_eligible": false
+    },
+    {
+      "candidate_depended_on_by_set": [],
+      "dependency_participation": "NotEvaluatedByBasis",
+      "dependency_root_authority": {
+        "all_non_isolated_candidates_depend_on_candidate": 0,
+        "positive_dependent_count": 0,
+        "proof_sources": [],
+        "status": "NotEvaluatedByBasis",
+        "unique_root": 0
+      },
+      "depends_on_candidate_set": [],
+      "domain_subaxis": "MirDomainTransportAxis",
+      "guard_clean_authority": "Proven",
+      "incoming_dependency_edge_count": 0,
+      "outgoing_dependency_edge_count": 0,
+      "outgoing_unresolved_prerequisite_count": 0,
+      "proof_tuple_complete": false,
+      "selection_eligible": false
+    },
+    {
+      "candidate_depended_on_by_set": [],
+      "dependency_participation": "NotEvaluatedByBasis",
+      "dependency_root_authority": {
+        "all_non_isolated_candidates_depend_on_candidate": 0,
+        "positive_dependent_count": 0,
+        "proof_sources": [],
+        "status": "NotEvaluatedByBasis",
+        "unique_root": 0
+      },
+      "depends_on_candidate_set": [],
+      "domain_subaxis": "OtherDomainObjectTransportAxis",
+      "guard_clean_authority": "Proven",
+      "incoming_dependency_edge_count": 0,
+      "outgoing_dependency_edge_count": 0,
+      "outgoing_unresolved_prerequisite_count": 0,
+      "proof_tuple_complete": false,
+      "selection_eligible": false
+    },
+    {
+      "candidate_depended_on_by_set": [],
+      "dependency_participation": "NotEvaluatedByBasis",
+      "dependency_root_authority": {
+        "all_non_isolated_candidates_depend_on_candidate": 0,
+        "positive_dependent_count": 0,
+        "proof_sources": [],
+        "status": "NotEvaluatedByBasis",
+        "unique_root": 0
+      },
+      "depends_on_candidate_set": [],
+      "domain_subaxis": "PlanRecipeDomainTransportAxis",
+      "guard_clean_authority": "Proven",
+      "incoming_dependency_edge_count": 0,
+      "outgoing_dependency_edge_count": 0,
+      "outgoing_unresolved_prerequisite_count": 0,
+      "proof_tuple_complete": false,
+      "selection_eligible": false
+    }
+  ],
+  "claims": {
+    "cluster_size_as_proof": 0,
+    "convenience_as_proof": 0,
+    "coverage_percentage_as_proof": 0,
+    "domain_object_count_as_proof": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "hardcoded_subaxis_priority": 0,
+    "manual_axis_selection": 0,
+    "manual_carrier_selection": 0,
+    "manual_family_selection": 0,
+    "manual_shape_selection": 0,
+    "manual_subaxis_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "owner_name_as_proof": 0,
+    "route_membership_alone_as_proof": 0,
+    "row_count_as_proof": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_path_as_authority": 0,
+    "source_selfhost_claim": 0,
+    "typed_dependency_root_authority_basis_defined": 1
+  },
+  "decision": {
+    "kind": "SelectDomainObjectIdSubaxisPriorityRerun003",
+    "reason_token": "DefineDomainObjectIdTypedDependencyRootAuthorityBeforeSubaxisSelection",
+    "selected_domain_subaxis": null,
+    "selected_next_card": "MIRBUILDER-DOMAIN-OBJECT-ID-UNRESOLVED-SUBAXIS-PRIORITY-RERUN-003"
+  },
+  "edge_inventory_state": "ShapeDefinedNotEvaluated",
+  "forbidden_edge_evidence_kinds": [
+    "RowCount",
+    "OwnerName",
+    "SourcePath",
+    "RouteMembershipAlone",
+    "CoveragePercentage",
+    "ImplementationConvenience",
+    "LexicalOrder",
+    "HardcodedSubaxisPriority"
+  ],
+  "graph_summary": {
+    "accepted_typed_dependency_edge_count": 0,
+    "ambiguous_edge_count": 0,
+    "candidate_subaxis_count": 5,
+    "cycle_count": 0,
+    "dependency_root_candidate_count": 0,
+    "forbidden_edge_source_count": 0,
+    "guard_clean_candidate_count": 5,
+    "proof_tuple_complete_candidate_count": 0,
+    "rejected_edge_count": 0,
+    "selection_eligible_subaxis_count": 0
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "domain_object_id_transport_policy_inventory_rerun_002": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-transport-policy-inventory-rerun-002-v0.json",
+    "subaxis_mechanical_selection_basis": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-subaxis-mechanical-selection-basis-v0.json",
+    "unresolved_subaxis_priority_rerun_002": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-unresolved-subaxis-priority-rerun-002-v0.json"
+  },
+  "kind": "MirBuilderDomainObjectIdTypedDependencyRootAuthorityBasisV1",
+  "previous_state": {
+    "candidate_subaxis_count": 5,
+    "guard_clean_candidate_count": 5,
+    "previous_reason_token": "NoExactlyOneDomainObjectIdSubaxisMechanicalCandidate",
+    "proof_tuple_complete_candidate_count": 0,
+    "selection_eligible_subaxis_count": 0
+  },
+  "provenance": {
+    "domain_object_id_transport_policy_inventory_rerun_002_hash": "778ca61ba57fcee9d77498ee721874f7d6fed56a3b74ad71cb6fe23de0fd3ed3",
+    "subaxis_mechanical_selection_basis_hash": "f7574ddf0df4c9a55e59d2782389c207e9e97bcdf8f62e8e7cea9aedf806d187",
+    "unresolved_subaxis_priority_rerun_002_hash": "af5856462fcb211d9bb04976bb6c505ec4fe346f33a22eed935c57278b87f004"
+  },
+  "recovery_if_rerun_fails": {
+    "cycle_reason_token": "DomainObjectIdSubaxisDependencyCycleUnresolved",
+    "multiple_roots_reason_token": "MultipleDomainObjectIdTypedDependencyRootCandidates",
+    "no_root_reason_token": "NoMachineDerivedDomainObjectIdTypedDependencyRootAuthority",
+    "selected_next_card": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+  },
+  "schema_version": 0,
+  "selector_rule": {
+    "convenience_as_proof": false,
+    "coverage_as_proof": false,
+    "edge_direction": "dependent_subaxis_requires_prerequisite_subaxis",
+    "extends": "DomainObjectIdSubaxisMechanicalSelectorV1.dependency_root_authority",
+    "hardcoded_subaxis_priority": false,
+    "isolated_candidates_are_unranked": true,
+    "name": "DomainObjectIdTypedDependencyRootAuthorityV1",
+    "owner_name_as_proof": false,
+    "route_membership_alone_as_proof": false,
+    "row_count_is_diagnostic_only": true,
+    "selection_requires_exactly_one_dependency_root": true,
+    "source_path_as_authority": false
+  },
+  "token": "MIRBUILDER-DOMAIN-OBJECT-ID-TYPED-DEPENDENCY-ROOT-AUTHORITY-BASIS-001",
+  "typed_dependency_edges": []
+}

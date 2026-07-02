@@ -25,12 +25,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-DOMAIN-OBJECT-ID-UNRESOLVED-SUBAXIS-PRIORITY-RERUN-002"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2066-MIRBUILDER-DOMAIN-OBJECT-ID-UNRESOLVED-SUBAXIS-PRIORITY-RERUN-002.md"
-latest_card_summary = """The latest card consumes
-DomainObjectIdSubaxisMechanicalSelectorV1 and keeps Source Selfhost stopped:
-all five subaxes are guard-clean, but none has dependency-root or prior
-closed-lane continuation authority."""
+latest_card = "MIRBUILDER-DOMAIN-OBJECT-ID-STABLE-TYPE-RESOURCE-REGISTRY-AUTHORITY-RERUN-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2075-MIRBUILDER-DOMAIN-OBJECT-ID-STABLE-TYPE-RESOURCE-REGISTRY-AUTHORITY-RERUN-001.md"
+latest_card_summary = """The latest card reruns stable type/resource registry
+authority after Rust type declaration inventory and keeps Source Selfhost
+stopped because type identity rows do not provide resource-domain authority."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -41,6 +40,15 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-02: 2075 reruns stable type/resource registry authority and keeps Source Selfhost stopped because type identity rows lack resource-domain authority.",
+  "2026-07-02: 2074 inventories Rust type declarations for non-ID DomainObject/Id return types and selects stable type/resource registry authority rerun without assigning subaxes.",
+  "2026-07-02: 2073 defines stable type/resource registry authority and selects read-only Rust type declaration inventory without selecting a subaxis.",
+  "2026-07-02: 2072 defines return-type resource taxonomy authority and keeps Source Selfhost stopped because independent stable registry rows are missing.",
+  "2026-07-02: 2071 inventories return-type resource taxonomy and keeps Source Selfhost stopped because typed taxonomy entries are missing.",
+  "2026-07-02: 2070 defines return-type reference edge derivation basis and selects return-type resource taxonomy inventory without selecting a subaxis.",
+  "2026-07-02: 2069 inventories typed dependency-edge evidence sources and selects return-type reference edge derivation basis without selecting a subaxis.",
+  "2026-07-02: 2068 applies typed dependency-root authority and keeps Source Selfhost stopped because no accepted typed dependency edge or root is available.",
+  "2026-07-02: 2067 defines typed dependency-root authority for non-ID DomainObject/Id subaxes and selects priority rerun 003 without selecting a subaxis.",
   "2026-07-02: 2066 reruns non-ID DomainObject/Id subaxis priority under the mechanical selector basis and keeps Source Selfhost stopped with no proof-complete candidate.",
   "2026-07-02: 2065 defines the non-ID DomainObject/Id mechanical subaxis selector basis and selects priority rerun 002 without selecting a subaxis.",
   "2026-07-02: 2064 consumes 85 unresolved non-ID DomainObject/Id rows and keeps Source Selfhost stopped with no machine-derived subaxis priority.",

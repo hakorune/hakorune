@@ -25,10 +25,8 @@ active blocker:
 
 current implementation task:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001.
-  2066 reran unresolved non-ID DomainObject/Id subaxis priority under
-  DomainObjectIdSubaxisMechanicalSelectorV1 and found no proof-complete
-  candidate. Design consultation is required before selecting PlanRecipe,
-  MIR, AST, Context/Span, or Other.
+  2075 reruns stable type/resource registry authority and stops because type
+  identity rows are not resource-domain authority.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -68,9 +66,8 @@ selected next task:
 
 current fail-fast boundary:
   Do not select PlanRecipe, MIR, AST, Context/Span, or Other by row count,
-  owner name, route membership, source path, or apparent convenience. The
-  2066 rerun has guard_clean_candidate_count = 5 but
-  proof_tuple_complete_candidate_count = 0. Source Selfhost remains stopped.
+  owner name, route membership, source path, or apparent convenience.
+  Rust type declarations may provide identity only; resource-domain authority needs explicit semantic declaration.
 
 latest design decision:
   Pointer realignment, VariableContext closeout, the blocked candidate
@@ -139,8 +136,16 @@ source_selfhost_status = Stopped
 source_selfhost_blocker = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 latest_diagnostics:
-  latest_stop_token = MIRBUILDER-DOMAIN-OBJECT-ID-UNRESOLVED-SUBAXIS-PRIORITY-RERUN-002
-  selector_basis_token = MIRBUILDER-DOMAIN-OBJECT-ID-SUBAXIS-MECHANICAL-SELECTION-BASIS-001
+  typed_dependency_root_authority_basis = defined
+  latest_evidence_inventory_token = MIRBUILDER-DOMAIN-OBJECT-ID-TYPED-DEPENDENCY-EDGE-EVIDENCE-INVENTORY-001
+  latest_derivation_basis_token = MIRBUILDER-DOMAIN-OBJECT-ID-RETURN-TYPE-REFERENCE-EDGE-DERIVATION-BASIS-001
+  latest_taxonomy_inventory_token = MIRBUILDER-DOMAIN-OBJECT-ID-RETURN-TYPE-RESOURCE-TAXONOMY-INVENTORY-001
+  latest_taxonomy_authority_token = MIRBUILDER-DOMAIN-OBJECT-ID-RETURN-TYPE-RESOURCE-TAXONOMY-AUTHORITY-001
+  latest_registry_authority_token = MIRBUILDER-DOMAIN-OBJECT-ID-STABLE-TYPE-RESOURCE-REGISTRY-AUTHORITY-001
+  latest_stop_token = MIRBUILDER-DOMAIN-OBJECT-ID-UNRESOLVED-SUBAXIS-PRIORITY-RERUN-003
+  selector_basis_token = MIRBUILDER-DOMAIN-OBJECT-ID-TYPED-DEPENDENCY-ROOT-AUTHORITY-BASIS-001
+  previous_selector_basis_token = MIRBUILDER-DOMAIN-OBJECT-ID-SUBAXIS-MECHANICAL-SELECTION-BASIS-001
+  previous_selector_rerun_token = MIRBUILDER-DOMAIN-OBJECT-ID-UNRESOLVED-SUBAXIS-PRIORITY-RERUN-002
   previous_ledger_token = MIRBUILDER-DOMAIN-OBJECT-ID-TRANSPORT-POLICY-INVENTORY-RERUN-002
   previous_stop_token = MIRBUILDER-DOMAIN-OBJECT-ID-UNRESOLVED-SUBAXIS-PRIORITY-RESOLUTION-001
   unconverted_surface_count = 1584
@@ -152,6 +157,17 @@ latest_diagnostics:
   legacy_id_scalar_domain_rows = 31
   unresolved_non_id_domain_rows = 85
   unresolved_non_id_subaxis_candidate_count = 5
+  accepted_typed_dependency_edge_count = 0
+  dependency_root_candidate_count = 0
+  return_type_field_reference_candidate_count = 85
+  return_type_field_as_edge_by_itself = 0
+  distinct_return_type_count = 44
+  edge_ready_return_type_count = 0
+  return_type_resource_taxonomy_entry_count = 0
+  resolved_type_decl_ref_count = 0
+  resource_taxonomy_join_ready_count = 0
+  accepted_registry_authority_source_count = 0
+  registry_ready_row_count = 0
   guard_clean_candidate_count = 5
   proof_tuple_complete_candidate_count = 0
   selection_eligible_subaxis_count = 0
@@ -394,27 +410,21 @@ forbidden:
 Detailed evidence lives in phase cards, fixtures, and git history.
 
 ## Active Next 3
-
-Keep this section short.
-
 ```text
-1. MIRBUILDER-DOMAIN-OBJECT-ID-UNRESOLVED-SUBAXIS-PRIORITY-RERUN-002
-   status=closed
-   boundary=guard_clean_candidate_count = 5; proof_tuple_complete_candidate_count = 0; no subaxis selected
+1. MIRBUILDER-DOMAIN-OBJECT-ID-STABLE-TYPE-RESOURCE-REGISTRY-AUTHORITY-RERUN-001
+   status=closed; boundary=42 type identity rows, 0 resource-domain authorities
 
-2. SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
-   status=active
-   boundary=design consultation required before selecting any non-ID DomainObject/Id subaxis
+2. MIRBUILDER-DOMAIN-OBJECT-ID-RUST-TYPE-DECLARATION-INVENTORY-001
+   status=closed; boundary=42 resolved, 1 ambiguous, 1 missing type declaration
 
-3. MIRBUILDER-DOMAIN-OBJECT-ID-SELECTED-SUBAXIS-POLICY-BASIS-001
-   status=blocked
-   boundary=open only after a future selector proves exactly one subaxis
+3. SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+   status=next; boundary=needs design consultation before new authority
 
 next_documented_task =
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 next_after_active_3 =
-  TBD by design consultation on dependency-root or closed-lane continuation authority
+  pending design consultation
 ```
 
 ## Landed Converter Capability Summary

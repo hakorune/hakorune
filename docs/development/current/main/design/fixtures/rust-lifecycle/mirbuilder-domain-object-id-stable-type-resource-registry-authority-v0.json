@@ -1,0 +1,129 @@
+{
+  "authority_rule": {
+    "declared_resource_domain_subaxis_requires_explicit_semantic_declaration": true,
+    "manual_type_to_subaxis_assignment": false,
+    "name": "StableTypeResourceRegistryAuthorityV1",
+    "observed_subaxis_set_is_not_policy_authority": true,
+    "owner_name_is_not_policy_authority": true,
+    "projection_descriptor_ledger_allowed_only_if_explicit_resource_declaration": true,
+    "registry_is_independent_proof_source": true,
+    "registry_must_not_be_self_signed": true,
+    "return_type_string_is_diagnostic_only": true,
+    "return_type_string_to_subaxis_mapping": false,
+    "rust_source_declaration_inventory_allowed": true,
+    "semantic_resource_id_required": true,
+    "shape_signature_is_not_policy_authority": true,
+    "source_path_is_not_policy_authority": true,
+    "source_surface_inventory_not_registry_authority": true,
+    "type_decl_ref_required": true
+  },
+  "authority_source_candidates": [
+    {
+      "accepted_for": [],
+      "candidate_state": "Missing",
+      "rejected_for": [
+        "type_decl_ref",
+        "declaration_hash",
+        "declared_resource_domain_subaxis"
+      ],
+      "rejected_reason": "RustTypeDeclarationInventoryMissing",
+      "source_hash": null,
+      "source_kind": "ExistingRustTypeDeclarationInventory",
+      "source_path": null
+    },
+    {
+      "accepted_for": [],
+      "candidate_state": "Rejected",
+      "rejected_for": [
+        "type_resource_registry_authority"
+      ],
+      "rejected_reason": "ProjectionDescriptorLedgerNotSemanticResourceAuthority",
+      "source_hash": null,
+      "source_kind": "ExistingProjectionDescriptorLedger",
+      "source_path": null
+    },
+    {
+      "accepted_for": [
+        "return_type_reference_anchor"
+      ],
+      "candidate_state": "Rejected",
+      "rejected_for": [
+        "type_resource_registry_authority"
+      ],
+      "rejected_reason": "SourceSurfaceInventoryNotRegistryAuthority",
+      "source_hash": null,
+      "source_kind": "SourceSurfaceInventory",
+      "source_path": null
+    },
+    {
+      "accepted_for": [
+        "type_decl_ref",
+        "declaration_hash"
+      ],
+      "candidate_state": "SelectedIfNoExistingRegistry",
+      "rejected_for": [
+        "declared_resource_domain_subaxis"
+      ],
+      "rejected_reason": "ResourceDomainDeclarationStillRequiresExplicitSemanticDeclaration",
+      "selected_next_card": "MIRBUILDER-DOMAIN-OBJECT-ID-RUST-TYPE-DECLARATION-INVENTORY-001",
+      "source_hash": null,
+      "source_kind": "NewReadOnlyRustTypeDeclarationInventory",
+      "source_path": null
+    }
+  ],
+  "claims": {
+    "accepted_typed_dependency_edge_materialized": 0,
+    "coverage_percentage_as_proof": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "hardcoded_subaxis_priority": 0,
+    "manual_subaxis_selection": 0,
+    "manual_type_to_subaxis_assignment": 0,
+    "native_seed_materialization": 0,
+    "observed_subaxis_set_as_policy_authority": 0,
+    "owner_name_as_proof": 0,
+    "return_type_string_to_subaxis_mapping": 0,
+    "route_membership_alone_as_proof": 0,
+    "row_count_as_proof": 0,
+    "self_signed_taxonomy": 0,
+    "shape_signature_as_proof": 0,
+    "source_path_as_policy_authority": 0,
+    "source_selfhost_claim": 0,
+    "stable_type_resource_registry_authority_defined": 1
+  },
+  "decision": {
+    "kind": "SelectRustTypeDeclarationInventory",
+    "reason_token": "StableTypeResourceRegistryAuthorityRequiresReadOnlyTypeDeclarationInventory",
+    "selected_domain_subaxis": null,
+    "selected_next_card": "MIRBUILDER-DOMAIN-OBJECT-ID-RUST-TYPE-DECLARATION-INVENTORY-001"
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "domain_object_id_transport_policy_inventory_rerun_002": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-transport-policy-inventory-rerun-002-v0.json",
+    "return_type_resource_taxonomy_authority": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-return-type-resource-taxonomy-authority-v0.json"
+  },
+  "kind": "MirBuilderDomainObjectIdStableTypeResourceRegistryAuthorityV1",
+  "previous_state": {
+    "previous_reason_token": "ReturnTypeResourceTaxonomyAuthorityEntriesMissing",
+    "resolved_type_decl_ref_count": 0,
+    "resource_taxonomy_join_ready_count": 0,
+    "taxonomy_entry_count": 0
+  },
+  "provenance": {
+    "domain_object_id_transport_policy_inventory_rerun_002_hash": "778ca61ba57fcee9d77498ee721874f7d6fed56a3b74ad71cb6fe23de0fd3ed3",
+    "return_type_resource_taxonomy_authority_hash": "7b1312ca067b01930376737f6623d99775aec79dc42996284438abcf9b67402a"
+  },
+  "schema_version": 0,
+  "summary": {
+    "accepted_registry_authority_source_count": 0,
+    "accepted_typed_dependency_edge_count": 0,
+    "authority_source_candidate_count": 4,
+    "declared_resource_domain_subaxis_ready_count": 0,
+    "registry_ready_row_count": 0,
+    "semantic_resource_id_ready_count": 0,
+    "type_decl_ref_ready_count": 0,
+    "type_identity_only_row_count": 0
+  },
+  "token": "MIRBUILDER-DOMAIN-OBJECT-ID-STABLE-TYPE-RESOURCE-REGISTRY-AUTHORITY-001",
+  "type_resource_registry_rows": []
+}

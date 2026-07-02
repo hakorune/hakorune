@@ -1,0 +1,919 @@
+{
+  "claims": {
+    "cluster_size_as_proof": 0,
+    "convenience_as_proof": 0,
+    "coverage_percentage_as_proof": 0,
+    "domain_object_count_as_proof": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "hardcoded_subaxis_priority": 0,
+    "manual_axis_selection": 0,
+    "manual_carrier_selection": 0,
+    "manual_family_selection": 0,
+    "manual_shape_selection": 0,
+    "manual_subaxis_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "observed_subaxis_set_as_policy_proof": 0,
+    "owner_name_as_proof": 0,
+    "return_type_name_as_policy_authority": 0,
+    "return_type_resource_taxonomy_inventory": 1,
+    "route_membership_alone_as_proof": 0,
+    "row_count_as_proof": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_path_as_authority": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "KeepStopped",
+    "reason_token": "ReturnTypeResourceTaxonomyEntriesMissing",
+    "selected_domain_subaxis": null,
+    "selected_next_card": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "domain_object_id_transport_policy_inventory_rerun_002": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-transport-policy-inventory-rerun-002-v0.json",
+    "return_type_reference_edge_derivation_basis": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-return-type-reference-edge-derivation-basis-v0.json"
+  },
+  "kind": "MirBuilderDomainObjectIdReturnTypeResourceTaxonomyInventoryV1",
+  "previous_state": {
+    "distinct_return_type_count": 44,
+    "edge_ready_return_type_count": 0,
+    "previous_next_card": "MIRBUILDER-DOMAIN-OBJECT-ID-RETURN-TYPE-RESOURCE-TAXONOMY-INVENTORY-001",
+    "return_type_reference_count": 85
+  },
+  "provenance": {
+    "domain_object_id_transport_policy_inventory_rerun_002_hash": "778ca61ba57fcee9d77498ee721874f7d6fed56a3b74ad71cb6fe23de0fd3ed3",
+    "return_type_reference_edge_derivation_basis_hash": "0493b9558a3b9764f650df0440574d6c7938a77985e0a0f0d02a9bac5180eb96"
+  },
+  "recovery": {
+    "do_not": [
+      "map return_type names to subaxes by string",
+      "use observed subaxis set as policy proof",
+      "select a non-ID DomainObject/Id subaxis"
+    ],
+    "next_consultation_topic": "Define typed fixture authority for return_type resource taxonomy rows."
+  },
+  "return_type_taxonomy_rows": [
+    {
+      "blocked_by": [
+        "ReturnTypeResourceTaxonomyEntryMissing",
+        "ObservedSubaxisSetIsDiagnosticOnly",
+        "ReturnTypeNameIsNotPolicyAuthority"
+      ],
+      "dependency_role_declared": false,
+      "edge_ready": false,
+      "observed_domain_subaxis_set": [
+        "AstNodeDomainTransportAxis"
+      ],
+      "observed_owner_edge_set": [
+        "mirbuilder::call_lowering",
+        "mirbuilder::join_i_r_plan",
+        "mirbuilder::join_i_r_route_verify"
+      ],
+      "reference_count": 12,
+      "resource_domain_subaxis_declared": false,
+      "return_type": "ASTNode",
+      "taxonomy_entry_state": "MissingTaxonomyEntry"
+    },
+    {
+      "blocked_by": [
+        "ReturnTypeResourceTaxonomyEntryMissing",
+        "ObservedSubaxisSetIsDiagnosticOnly",
+        "ReturnTypeNameIsNotPolicyAuthority"
+      ],
+      "dependency_role_declared": false,
+      "edge_ready": false,
+      "observed_domain_subaxis_set": [
+        "PlanRecipeDomainTransportAxis"
+      ],
+      "observed_owner_edge_set": [
+        "mirbuilder::join_i_r_plan"
+      ],
+      "reference_count": 1,
+      "resource_domain_subaxis_declared": false,
+      "return_type": "BlockContractKind",
+      "taxonomy_entry_state": "MissingTaxonomyEntry"
+    },
+    {
+      "blocked_by": [
+        "ReturnTypeResourceTaxonomyEntryMissing",
+        "ObservedSubaxisSetIsDiagnosticOnly",
+        "ReturnTypeNameIsNotPolicyAuthority"
+      ],
+      "dependency_role_declared": false,
+      "edge_ready": false,
+      "observed_domain_subaxis_set": [
+        "PlanRecipeDomainTransportAxis"
+      ],
+      "observed_owner_edge_set": [
+        "mirbuilder::join_i_r_plan"
+      ],
+      "reference_count": 2,
+      "resource_domain_subaxis_declared": false,
+      "return_type": "BranchStub",
+      "taxonomy_entry_state": "MissingTaxonomyEntry"
+    },
+    {
+      "blocked_by": [
+        "ReturnTypeResourceTaxonomyEntryMissing",
+        "ObservedSubaxisSetIsDiagnosticOnly",
+        "ReturnTypeNameIsNotPolicyAuthority"
+      ],
+      "dependency_role_declared": false,
+      "edge_ready": false,
+      "observed_domain_subaxis_set": [
+        "MirDomainTransportAxis"
+      ],
+      "observed_owner_edge_set": [
+        "mirbuilder::call_lowering"
+      ],
+      "reference_count": 1,
+      "resource_domain_subaxis_declared": false,
+      "return_type": "CallFlags",
+      "taxonomy_entry_state": "MissingTaxonomyEntry"
+    },
+    {
+      "blocked_by": [
+        "ReturnTypeResourceTaxonomyEntryMissing",
+        "ObservedSubaxisSetIsDiagnosticOnly",
+        "ReturnTypeNameIsNotPolicyAuthority"
+      ],
+      "dependency_role_declared": false,
+      "edge_ready": false,
+      "observed_domain_subaxis_set": [
+        "MirDomainTransportAxis"
+      ],
+      "observed_owner_edge_set": [
+        "mirbuilder::call_lowering"
+      ],
+      "reference_count": 1,
+      "resource_domain_subaxis_declared": false,
+      "return_type": "CalleeBoxKind",
+      "taxonomy_entry_state": "MissingTaxonomyEntry"
+    },
+    {
+      "blocked_by": [
+        "ReturnTypeResourceTaxonomyEntryMissing",
+        "ObservedSubaxisSetIsDiagnosticOnly",
+        "ReturnTypeNameIsNotPolicyAuthority"
+      ],
+      "dependency_role_declared": false,
+      "edge_ready": false,
+      "observed_domain_subaxis_set": [
+        "PlanRecipeDomainTransportAxis"
+      ],
+      "observed_owner_edge_set": [
+        "None"
+      ],
+      "reference_count": 1,
+      "resource_domain_subaxis_declared": false,
+      "return_type": "CanonicalLoopFacts",
+      "taxonomy_entry_state": "MissingTaxonomyEntry"
+    },
+    {
+      "blocked_by": [
+        "ReturnTypeResourceTaxonomyEntryMissing",
+        "ObservedSubaxisSetIsDiagnosticOnly",
+        "ReturnTypeNameIsNotPolicyAuthority"
+      ],
+      "dependency_role_declared": false,
+      "edge_ready": false,
+      "observed_domain_subaxis_set": [
+        "PlanRecipeDomainTransportAxis"
+      ],
+      "observed_owner_edge_set": [
+        "mirbuilder::join_i_r_plan"
+      ],
+      "reference_count": 5,
+      "resource_domain_subaxis_declared": false,
+      "return_type": "CarrierSets",
+      "taxonomy_entry_state": "MissingTaxonomyEntry"
+    },
+    {
+      "blocked_by": [
+        "ReturnTypeResourceTaxonomyEntryMissing",
+        "ObservedSubaxisSetIsDiagnosticOnly",
+        "ReturnTypeNameIsNotPolicyAuthority"
+      ],
+      "dependency_role_declared": false,
+      "edge_ready": false,
+      "observed_domain_subaxis_set": [
+        "PlanRecipeDomainTransportAxis"
+      ],
+      "observed_owner_edge_set": [
+        "mirbuilder::join_i_r_plan"
+      ],
+      "reference_count": 1,
+      "resource_domain_subaxis_declared": false,
+      "return_type": "CondProfile",
+      "taxonomy_entry_state": "MissingTaxonomyEntry"
+    },
+    {
+      "blocked_by": [
+        "ReturnTypeResourceTaxonomyEntryMissing",
+        "ObservedSubaxisSetIsDiagnosticOnly",
+        "ReturnTypeNameIsNotPolicyAuthority"
+      ],
+      "dependency_role_declared": false,
+      "edge_ready": false,
+      "observed_domain_subaxis_set": [
+        "PlanRecipeDomainTransportAxis"
+      ],
+      "observed_owner_edge_set": [
+        "mirbuilder::join_i_r_plan",
+        "mirbuilder::join_i_r_route_verify"
+      ],
+      "reference_count": 2,
+      "resource_domain_subaxis_declared": false,
+      "return_type": "ControlFlowCounts",
+      "taxonomy_entry_state": "MissingTaxonomyEntry"
+    },
+    {
+      "blocked_by": [
+        "ReturnTypeResourceTaxonomyEntryMissing",
+        "ObservedSubaxisSetIsDiagnosticOnly",
+        "ReturnTypeNameIsNotPolicyAuthority"
+      ],
+      "dependency_role_declared": false,
+      "edge_ready": false,
+      "observed_domain_subaxis_set": [
+        "PlanRecipeDomainTransportAxis"
+      ],
+      "observed_owner_edge_set": [
+        "mirbuilder::join_i_r_plan"
+      ],
+      "reference_count": 3,
+      "resource_domain_subaxis_declared": false,
+      "return_type": "CoreExitPlan",
+      "taxonomy_entry_state": "MissingTaxonomyEntry"
+    },
+    {
+      "blocked_by": [
+        "ReturnTypeResourceTaxonomyEntryMissing",
+        "ObservedSubaxisSetIsDiagnosticOnly",
+        "ReturnTypeNameIsNotPolicyAuthority"
+      ],
+      "dependency_role_declared": false,
+      "edge_ready": false,
+      "observed_domain_subaxis_set": [
+        "PlanRecipeDomainTransportAxis"
+      ],
+      "observed_owner_edge_set": [
+        "mirbuilder::join_i_r_plan"
+      ],
+      "reference_count": 4,
+      "resource_domain_subaxis_declared": false,
+      "return_type": "CorePhiInfo",
+      "taxonomy_entry_state": "MissingTaxonomyEntry"
+    },
+    {
+      "blocked_by": [
+        "ReturnTypeResourceTaxonomyEntryMissing",
+        "ObservedSubaxisSetIsDiagnosticOnly",
+        "ReturnTypeNameIsNotPolicyAuthority"
+      ],
+      "dependency_role_declared": false,
+      "edge_ready": false,
+      "observed_domain_subaxis_set": [
+        "PlanRecipeDomainTransportAxis"
+      ],
+      "observed_owner_edge_set": [
+        "mirbuilder::join_i_r_plan"
+      ],
+      "reference_count": 2,
+      "resource_domain_subaxis_declared": false,
+      "return_type": "EdgeArgs",
+      "taxonomy_entry_state": "MissingTaxonomyEntry"
+    },
+    {
+      "blocked_by": [
+        "ReturnTypeResourceTaxonomyEntryMissing",
+        "ObservedSubaxisSetIsDiagnosticOnly",
+        "ReturnTypeNameIsNotPolicyAuthority"
+      ],
+      "dependency_role_declared": false,
+      "edge_ready": false,
+      "observed_domain_subaxis_set": [
+        "PlanRecipeDomainTransportAxis"
+      ],
+      "observed_owner_edge_set": [
+        "mirbuilder::join_i_r_plan"
+      ],
+      "reference_count": 4,
+      "resource_domain_subaxis_declared": false,
+      "return_type": "EdgeStub",
+      "taxonomy_entry_state": "MissingTaxonomyEntry"
+    },
+    {
+      "blocked_by": [
+        "ReturnTypeResourceTaxonomyEntryMissing",
+        "ObservedSubaxisSetIsDiagnosticOnly",
+        "ReturnTypeNameIsNotPolicyAuthority"
+      ],
+      "dependency_role_declared": false,
+      "edge_ready": false,
+      "observed_domain_subaxis_set": [
+        "PlanRecipeDomainTransportAxis"
+      ],
+      "observed_owner_edge_set": [
+        "mirbuilder::call_lowering"
+      ],
+      "reference_count": 3,
+      "resource_domain_subaxis_declared": false,
+      "return_type": "EffectMask",
+      "taxonomy_entry_state": "MissingTaxonomyEntry"
+    },
+    {
+      "blocked_by": [
+        "ReturnTypeResourceTaxonomyEntryMissing",
+        "ObservedSubaxisSetIsDiagnosticOnly",
+        "ReturnTypeNameIsNotPolicyAuthority"
+      ],
+      "dependency_role_declared": false,
+      "edge_ready": false,
+      "observed_domain_subaxis_set": [
+        "MirDomainTransportAxis"
+      ],
+      "observed_owner_edge_set": [
+        "mirbuilder::join_i_r_route_verify"
+      ],
+      "reference_count": 2,
+      "resource_domain_subaxis_declared": false,
+      "return_type": "FlowboxBoxKind",
+      "taxonomy_entry_state": "MissingTaxonomyEntry"
+    },
+    {
+      "blocked_by": [
+        "ReturnTypeResourceTaxonomyEntryMissing",
+        "ObservedSubaxisSetIsDiagnosticOnly",
+        "ReturnTypeNameIsNotPolicyAuthority"
+      ],
+      "dependency_role_declared": false,
+      "edge_ready": false,
+      "observed_domain_subaxis_set": [
+        "MirDomainTransportAxis"
+      ],
+      "observed_owner_edge_set": [
+        "mirbuilder::call_lowering"
+      ],
+      "reference_count": 2,
+      "resource_domain_subaxis_declared": false,
+      "return_type": "FunctionSignature",
+      "taxonomy_entry_state": "MissingTaxonomyEntry"
+    },
+    {
+      "blocked_by": [
+        "ReturnTypeResourceTaxonomyEntryMissing",
+        "ObservedSubaxisSetIsDiagnosticOnly",
+        "ReturnTypeNameIsNotPolicyAuthority"
+      ],
+      "dependency_role_declared": false,
+      "edge_ready": false,
+      "observed_domain_subaxis_set": [
+        "PlanRecipeDomainTransportAxis"
+      ],
+      "observed_owner_edge_set": [
+        "mirbuilder::join_i_r_plan"
+      ],
+      "reference_count": 1,
+      "resource_domain_subaxis_declared": false,
+      "return_type": "GenericLoopV1CarrierState",
+      "taxonomy_entry_state": "MissingTaxonomyEntry"
+    },
+    {
+      "blocked_by": [
+        "ReturnTypeResourceTaxonomyEntryMissing",
+        "ObservedSubaxisSetIsDiagnosticOnly",
+        "ReturnTypeNameIsNotPolicyAuthority"
+      ],
+      "dependency_role_declared": false,
+      "edge_ready": false,
+      "observed_domain_subaxis_set": [
+        "PlanRecipeDomainTransportAxis"
+      ],
+      "observed_owner_edge_set": [
+        "mirbuilder::join_i_r_plan"
+      ],
+      "reference_count": 4,
+      "resource_domain_subaxis_declared": false,
+      "return_type": "HandoffTarget",
+      "taxonomy_entry_state": "MissingTaxonomyEntry"
+    },
+    {
+      "blocked_by": [
+        "ReturnTypeResourceTaxonomyEntryMissing",
+        "ObservedSubaxisSetIsDiagnosticOnly",
+        "ReturnTypeNameIsNotPolicyAuthority"
+      ],
+      "dependency_role_declared": false,
+      "edge_ready": false,
+      "observed_domain_subaxis_set": [
+        "PlanRecipeDomainTransportAxis"
+      ],
+      "observed_owner_edge_set": [
+        "mirbuilder::join_i_r_route_verify"
+      ],
+      "reference_count": 1,
+      "resource_domain_subaxis_declared": false,
+      "return_type": "HeaderPredGroups",
+      "taxonomy_entry_state": "MissingTaxonomyEntry"
+    },
+    {
+      "blocked_by": [
+        "ReturnTypeResourceTaxonomyEntryMissing",
+        "ObservedSubaxisSetIsDiagnosticOnly",
+        "ReturnTypeNameIsNotPolicyAuthority"
+      ],
+      "dependency_role_declared": false,
+      "edge_ready": false,
+      "observed_domain_subaxis_set": [
+        "PlanRecipeDomainTransportAxis"
+      ],
+      "observed_owner_edge_set": [
+        "mirbuilder::join_i_r_route_verify"
+      ],
+      "reference_count": 1,
+      "resource_domain_subaxis_declared": false,
+      "return_type": "LoopCondReturnInBodyRecipe",
+      "taxonomy_entry_state": "MissingTaxonomyEntry"
+    },
+    {
+      "blocked_by": [
+        "ReturnTypeResourceTaxonomyEntryMissing",
+        "ObservedSubaxisSetIsDiagnosticOnly",
+        "ReturnTypeNameIsNotPolicyAuthority"
+      ],
+      "dependency_role_declared": false,
+      "edge_ready": false,
+      "observed_domain_subaxis_set": [
+        "PlanRecipeDomainTransportAxis"
+      ],
+      "observed_owner_edge_set": [
+        "mirbuilder::join_i_r_route_verify"
+      ],
+      "reference_count": 1,
+      "resource_domain_subaxis_declared": false,
+      "return_type": "LoopFeatures",
+      "taxonomy_entry_state": "MissingTaxonomyEntry"
+    },
+    {
+      "blocked_by": [
+        "ReturnTypeResourceTaxonomyEntryMissing",
+        "ObservedSubaxisSetIsDiagnosticOnly",
+        "ReturnTypeNameIsNotPolicyAuthority"
+      ],
+      "dependency_role_declared": false,
+      "edge_ready": false,
+      "observed_domain_subaxis_set": [
+        "PlanRecipeDomainTransportAxis"
+      ],
+      "observed_owner_edge_set": [
+        "mirbuilder::join_i_r_route_registry"
+      ],
+      "reference_count": 1,
+      "resource_domain_subaxis_declared": false,
+      "return_type": "LoopRouteShadowReport",
+      "taxonomy_entry_state": "MissingTaxonomyEntry"
+    },
+    {
+      "blocked_by": [
+        "ReturnTypeResourceTaxonomyEntryMissing",
+        "ObservedSubaxisSetIsDiagnosticOnly",
+        "ReturnTypeNameIsNotPolicyAuthority"
+      ],
+      "dependency_role_declared": false,
+      "edge_ready": false,
+      "observed_domain_subaxis_set": [
+        "PlanRecipeDomainTransportAxis"
+      ],
+      "observed_owner_edge_set": [
+        "mirbuilder::join_i_r_plan"
+      ],
+      "reference_count": 3,
+      "resource_domain_subaxis_declared": false,
+      "return_type": "LoweredRecipe",
+      "taxonomy_entry_state": "MissingTaxonomyEntry"
+    },
+    {
+      "blocked_by": [
+        "ReturnTypeResourceTaxonomyEntryMissing",
+        "ObservedSubaxisSetIsDiagnosticOnly",
+        "ReturnTypeNameIsNotPolicyAuthority"
+      ],
+      "dependency_role_declared": false,
+      "edge_ready": false,
+      "observed_domain_subaxis_set": [
+        "ContextOrSpanDomainTransportAxis"
+      ],
+      "observed_owner_edge_set": [
+        "mirbuilder::call_lowering"
+      ],
+      "reference_count": 1,
+      "resource_domain_subaxis_declared": false,
+      "return_type": "LoweringContext",
+      "taxonomy_entry_state": "MissingTaxonomyEntry"
+    },
+    {
+      "blocked_by": [
+        "ReturnTypeResourceTaxonomyEntryMissing",
+        "ObservedSubaxisSetIsDiagnosticOnly",
+        "ReturnTypeNameIsNotPolicyAuthority"
+      ],
+      "dependency_role_declared": false,
+      "edge_ready": false,
+      "observed_domain_subaxis_set": [
+        "MirDomainTransportAxis"
+      ],
+      "observed_owner_edge_set": [
+        "mirbuilder::call_lowering"
+      ],
+      "reference_count": 1,
+      "resource_domain_subaxis_declared": false,
+      "return_type": "MirCall",
+      "taxonomy_entry_state": "MissingTaxonomyEntry"
+    },
+    {
+      "blocked_by": [
+        "ReturnTypeResourceTaxonomyEntryMissing",
+        "ObservedSubaxisSetIsDiagnosticOnly",
+        "ReturnTypeNameIsNotPolicyAuthority"
+      ],
+      "dependency_role_declared": false,
+      "edge_ready": false,
+      "observed_domain_subaxis_set": [
+        "MirDomainTransportAxis"
+      ],
+      "observed_owner_edge_set": [
+        "mirbuilder::context_registry"
+      ],
+      "reference_count": 1,
+      "resource_domain_subaxis_declared": false,
+      "return_type": "MirFunction",
+      "taxonomy_entry_state": "MissingTaxonomyEntry"
+    },
+    {
+      "blocked_by": [
+        "ReturnTypeResourceTaxonomyEntryMissing",
+        "ObservedSubaxisSetIsDiagnosticOnly",
+        "ReturnTypeNameIsNotPolicyAuthority"
+      ],
+      "dependency_role_declared": false,
+      "edge_ready": false,
+      "observed_domain_subaxis_set": [
+        "MirDomainTransportAxis"
+      ],
+      "observed_owner_edge_set": [
+        "None",
+        "mirbuilder::join_i_r_route_verify"
+      ],
+      "reference_count": 3,
+      "resource_domain_subaxis_declared": false,
+      "return_type": "MirInstruction",
+      "taxonomy_entry_state": "MissingTaxonomyEntry"
+    },
+    {
+      "blocked_by": [
+        "ReturnTypeResourceTaxonomyEntryMissing",
+        "ObservedSubaxisSetIsDiagnosticOnly",
+        "ReturnTypeNameIsNotPolicyAuthority"
+      ],
+      "dependency_role_declared": false,
+      "edge_ready": false,
+      "observed_domain_subaxis_set": [
+        "MirDomainTransportAxis"
+      ],
+      "observed_owner_edge_set": [
+        "mirbuilder::call_lowering"
+      ],
+      "reference_count": 4,
+      "resource_domain_subaxis_declared": false,
+      "return_type": "MirType",
+      "taxonomy_entry_state": "MissingTaxonomyEntry"
+    },
+    {
+      "blocked_by": [
+        "ReturnTypeResourceTaxonomyEntryMissing",
+        "ObservedSubaxisSetIsDiagnosticOnly",
+        "ReturnTypeNameIsNotPolicyAuthority"
+      ],
+      "dependency_role_declared": false,
+      "edge_ready": false,
+      "observed_domain_subaxis_set": [
+        "MirDomainTransportAxis"
+      ],
+      "observed_owner_edge_set": [
+        "mirbuilder::context_registry"
+      ],
+      "reference_count": 1,
+      "resource_domain_subaxis_declared": false,
+      "return_type": "MirValueKind",
+      "taxonomy_entry_state": "MissingTaxonomyEntry"
+    },
+    {
+      "blocked_by": [
+        "ReturnTypeResourceTaxonomyEntryMissing",
+        "ObservedSubaxisSetIsDiagnosticOnly",
+        "ReturnTypeNameIsNotPolicyAuthority"
+      ],
+      "dependency_role_declared": false,
+      "edge_ready": false,
+      "observed_domain_subaxis_set": [
+        "PlanRecipeDomainTransportAxis"
+      ],
+      "observed_owner_edge_set": [
+        "mirbuilder::join_i_r_plan"
+      ],
+      "reference_count": 1,
+      "resource_domain_subaxis_declared": false,
+      "return_type": "NestedLoopBodyProfile",
+      "taxonomy_entry_state": "MissingTaxonomyEntry"
+    },
+    {
+      "blocked_by": [
+        "ReturnTypeResourceTaxonomyEntryMissing",
+        "ObservedSubaxisSetIsDiagnosticOnly",
+        "ReturnTypeNameIsNotPolicyAuthority"
+      ],
+      "dependency_role_declared": false,
+      "edge_ready": false,
+      "observed_domain_subaxis_set": [
+        "MirDomainTransportAxis"
+      ],
+      "observed_owner_edge_set": [
+        "None"
+      ],
+      "reference_count": 1,
+      "resource_domain_subaxis_declared": false,
+      "return_type": "OperandTypeClass",
+      "taxonomy_entry_state": "MissingTaxonomyEntry"
+    },
+    {
+      "blocked_by": [
+        "ReturnTypeResourceTaxonomyEntryMissing",
+        "ObservedSubaxisSetIsDiagnosticOnly",
+        "ReturnTypeNameIsNotPolicyAuthority"
+      ],
+      "dependency_role_declared": false,
+      "edge_ready": false,
+      "observed_domain_subaxis_set": [
+        "OtherDomainObjectTransportAxis"
+      ],
+      "observed_owner_edge_set": [
+        "None"
+      ],
+      "reference_count": 1,
+      "resource_domain_subaxis_declared": false,
+      "return_type": "PolicyDecision<BalancedDepthScanPolicyResult>",
+      "taxonomy_entry_state": "MissingTaxonomyEntry"
+    },
+    {
+      "blocked_by": [
+        "ReturnTypeResourceTaxonomyEntryMissing",
+        "ObservedSubaxisSetIsDiagnosticOnly",
+        "ReturnTypeNameIsNotPolicyAuthority"
+      ],
+      "dependency_role_declared": false,
+      "edge_ready": false,
+      "observed_domain_subaxis_set": [
+        "PlanRecipeDomainTransportAxis"
+      ],
+      "observed_owner_edge_set": [
+        "mirbuilder::join_i_r_plan"
+      ],
+      "reference_count": 1,
+      "resource_domain_subaxis_declared": false,
+      "return_type": "RecipeBlock",
+      "taxonomy_entry_state": "MissingTaxonomyEntry"
+    },
+    {
+      "blocked_by": [
+        "ReturnTypeResourceTaxonomyEntryMissing",
+        "ObservedSubaxisSetIsDiagnosticOnly",
+        "ReturnTypeNameIsNotPolicyAuthority"
+      ],
+      "dependency_role_declared": false,
+      "edge_ready": false,
+      "observed_domain_subaxis_set": [
+        "MirDomainTransportAxis"
+      ],
+      "observed_owner_edge_set": [
+        "None"
+      ],
+      "reference_count": 1,
+      "resource_domain_subaxis_declared": false,
+      "return_type": "RefSlotKind",
+      "taxonomy_entry_state": "MissingTaxonomyEntry"
+    },
+    {
+      "blocked_by": [
+        "ReturnTypeResourceTaxonomyEntryMissing",
+        "ObservedSubaxisSetIsDiagnosticOnly",
+        "ReturnTypeNameIsNotPolicyAuthority"
+      ],
+      "dependency_role_declared": false,
+      "edge_ready": false,
+      "observed_domain_subaxis_set": [
+        "PlanRecipeDomainTransportAxis"
+      ],
+      "observed_owner_edge_set": [
+        "None"
+      ],
+      "reference_count": 1,
+      "resource_domain_subaxis_declared": false,
+      "return_type": "Route",
+      "taxonomy_entry_state": "MissingTaxonomyEntry"
+    },
+    {
+      "blocked_by": [
+        "ReturnTypeResourceTaxonomyEntryMissing",
+        "ObservedSubaxisSetIsDiagnosticOnly",
+        "ReturnTypeNameIsNotPolicyAuthority"
+      ],
+      "dependency_role_declared": false,
+      "edge_ready": false,
+      "observed_domain_subaxis_set": [
+        "PlanRecipeDomainTransportAxis"
+      ],
+      "observed_owner_edge_set": [
+        "mirbuilder::join_i_r_plan"
+      ],
+      "reference_count": 1,
+      "resource_domain_subaxis_declared": false,
+      "return_type": "ScanConditionObservation",
+      "taxonomy_entry_state": "MissingTaxonomyEntry"
+    },
+    {
+      "blocked_by": [
+        "ReturnTypeResourceTaxonomyEntryMissing",
+        "ObservedSubaxisSetIsDiagnosticOnly",
+        "ReturnTypeNameIsNotPolicyAuthority"
+      ],
+      "dependency_role_declared": false,
+      "edge_ready": false,
+      "observed_domain_subaxis_set": [
+        "ContextOrSpanDomainTransportAxis"
+      ],
+      "observed_owner_edge_set": [
+        "mirbuilder::context_registry"
+      ],
+      "reference_count": 1,
+      "resource_domain_subaxis_declared": false,
+      "return_type": "SpanT",
+      "taxonomy_entry_state": "MissingTaxonomyEntry"
+    },
+    {
+      "blocked_by": [
+        "ReturnTypeResourceTaxonomyEntryMissing",
+        "ObservedSubaxisSetIsDiagnosticOnly",
+        "ReturnTypeNameIsNotPolicyAuthority"
+      ],
+      "dependency_role_declared": false,
+      "edge_ready": false,
+      "observed_domain_subaxis_set": [
+        "PlanRecipeDomainTransportAxis"
+      ],
+      "observed_owner_edge_set": [
+        "None"
+      ],
+      "reference_count": 1,
+      "resource_domain_subaxis_declared": false,
+      "return_type": "StepPlacementDecision",
+      "taxonomy_entry_state": "MissingTaxonomyEntry"
+    },
+    {
+      "blocked_by": [
+        "ReturnTypeResourceTaxonomyEntryMissing",
+        "ObservedSubaxisSetIsDiagnosticOnly",
+        "ReturnTypeNameIsNotPolicyAuthority"
+      ],
+      "dependency_role_declared": false,
+      "edge_ready": false,
+      "observed_domain_subaxis_set": [
+        "PlanRecipeDomainTransportAxis"
+      ],
+      "observed_owner_edge_set": [
+        "mirbuilder::join_i_r_route_verify"
+      ],
+      "reference_count": 1,
+      "resource_domain_subaxis_declared": false,
+      "return_type": "TailCallKind",
+      "taxonomy_entry_state": "MissingTaxonomyEntry"
+    },
+    {
+      "blocked_by": [
+        "ReturnTypeResourceTaxonomyEntryMissing",
+        "ObservedSubaxisSetIsDiagnosticOnly",
+        "ReturnTypeNameIsNotPolicyAuthority"
+      ],
+      "dependency_role_declared": false,
+      "edge_ready": false,
+      "observed_domain_subaxis_set": [
+        "ContextOrSpanDomainTransportAxis"
+      ],
+      "observed_owner_edge_set": [
+        "mirbuilder::context_registry"
+      ],
+      "reference_count": 1,
+      "resource_domain_subaxis_declared": false,
+      "return_type": "TypeContextSnapshot",
+      "taxonomy_entry_state": "MissingTaxonomyEntry"
+    },
+    {
+      "blocked_by": [
+        "ReturnTypeResourceTaxonomyEntryMissing",
+        "ObservedSubaxisSetIsDiagnosticOnly",
+        "ReturnTypeNameIsNotPolicyAuthority"
+      ],
+      "dependency_role_declared": false,
+      "edge_ready": false,
+      "observed_domain_subaxis_set": [
+        "AstNodeDomainTransportAxis"
+      ],
+      "observed_owner_edge_set": [
+        "mirbuilder::join_i_r_plan"
+      ],
+      "reference_count": 2,
+      "resource_domain_subaxis_declared": false,
+      "return_type": "crate::ast::ASTNode",
+      "taxonomy_entry_state": "MissingTaxonomyEntry"
+    },
+    {
+      "blocked_by": [
+        "ReturnTypeResourceTaxonomyEntryMissing",
+        "ObservedSubaxisSetIsDiagnosticOnly",
+        "ReturnTypeNameIsNotPolicyAuthority"
+      ],
+      "dependency_role_declared": false,
+      "edge_ready": false,
+      "observed_domain_subaxis_set": [
+        "MirDomainTransportAxis"
+      ],
+      "observed_owner_edge_set": [
+        "mirbuilder::call_lowering"
+      ],
+      "reference_count": 1,
+      "resource_domain_subaxis_declared": false,
+      "return_type": "crate::mir::definitions::call_unified::CalleeBoxKind",
+      "taxonomy_entry_state": "MissingTaxonomyEntry"
+    },
+    {
+      "blocked_by": [
+        "ReturnTypeResourceTaxonomyEntryMissing",
+        "ObservedSubaxisSetIsDiagnosticOnly",
+        "ReturnTypeNameIsNotPolicyAuthority"
+      ],
+      "dependency_role_declared": false,
+      "edge_ready": false,
+      "observed_domain_subaxis_set": [
+        "PlanRecipeDomainTransportAxis"
+      ],
+      "observed_owner_edge_set": [
+        "mirbuilder::join_i_r_route_verify"
+      ],
+      "reference_count": 1,
+      "resource_domain_subaxis_declared": false,
+      "return_type": "crate::mir::loop_route_detection::LoopRouteKind",
+      "taxonomy_entry_state": "MissingTaxonomyEntry"
+    },
+    {
+      "blocked_by": [
+        "ReturnTypeResourceTaxonomyEntryMissing",
+        "ObservedSubaxisSetIsDiagnosticOnly",
+        "ReturnTypeNameIsNotPolicyAuthority"
+      ],
+      "dependency_role_declared": false,
+      "edge_ready": false,
+      "observed_domain_subaxis_set": [
+        "PlanRecipeDomainTransportAxis"
+      ],
+      "observed_owner_edge_set": [
+        "mirbuilder::join_i_r_route_registry"
+      ],
+      "reference_count": 1,
+      "resource_domain_subaxis_declared": false,
+      "return_type": "legacy_observer::LoopRouteShadowReport",
+      "taxonomy_entry_state": "MissingTaxonomyEntry"
+    }
+  ],
+  "schema_version": 0,
+  "summary": {
+    "accepted_edge_candidate_count": 0,
+    "distinct_return_type_count": 44,
+    "edge_ready_return_type_count": 0,
+    "missing_taxonomy_entry_count": 44,
+    "return_type_reference_count": 85,
+    "taxonomy_entry_count": 0
+  },
+  "taxonomy_policy": {
+    "observed_subaxis_set_is_diagnostic_only": true,
+    "owner_edge_is_not_policy_authority": true,
+    "return_type_name_is_not_policy_authority": true,
+    "row_count_is_not_policy_authority": true,
+    "taxonomy_entries_must_be_typed_fixture_rows": true
+  },
+  "token": "MIRBUILDER-DOMAIN-OBJECT-ID-RETURN-TYPE-RESOURCE-TAXONOMY-INVENTORY-001"
+}

@@ -1,0 +1,200 @@
+{
+  "accepted_edge_evidence_kinds": [
+    "ReturnTypeFieldReference",
+    "ParameterTypeReference",
+    "ConstructedDomainObjectReference",
+    "VerifierInputContractReference",
+    "PolicyDecisionPayloadReference",
+    "FixtureDeclaredSemanticResourceDependency"
+  ],
+  "claims": {
+    "cluster_size_as_proof": 0,
+    "convenience_as_proof": 0,
+    "coverage_percentage_as_proof": 0,
+    "domain_object_count_as_proof": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "hardcoded_subaxis_priority": 0,
+    "manual_axis_selection": 0,
+    "manual_carrier_selection": 0,
+    "manual_family_selection": 0,
+    "manual_shape_selection": 0,
+    "manual_subaxis_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "owner_name_as_proof": 0,
+    "return_type_field_as_edge_by_itself": 0,
+    "route_membership_alone_as_proof": 0,
+    "row_count_as_proof": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_path_as_authority": 0,
+    "source_selfhost_claim": 0,
+    "typed_dependency_edge_evidence_inventory": 1
+  },
+  "decision": {
+    "kind": "SelectReturnTypeReferenceEdgeDerivationBasis",
+    "reason_token": "ReturnTypeFieldReferenceIsOnlyConcreteLedgerEvidenceSource",
+    "selected_domain_subaxis": null,
+    "selected_evidence_kind": "ReturnTypeFieldReference",
+    "selected_next_card": "MIRBUILDER-DOMAIN-OBJECT-ID-RETURN-TYPE-REFERENCE-EDGE-DERIVATION-BASIS-001"
+  },
+  "evidence_source_inventory": [
+    {
+      "accepted_edge_ready_count": 0,
+      "blocked_by": [
+        "ReturnTypeReferenceIsNotDependencyEdgeByItself",
+        "ReturnTypeToDomainSubaxisMappingBasisMissing"
+      ],
+      "candidate_reference_count": 85,
+      "concrete_typed_reference_count": 85,
+      "direct_source_field_present": true,
+      "evidence_kind": "ReturnTypeFieldReference",
+      "notes": {
+        "distinct_return_type_count": 44,
+        "top_return_types": [
+          {
+            "count": 12,
+            "return_type": "ASTNode"
+          },
+          {
+            "count": 5,
+            "return_type": "CarrierSets"
+          },
+          {
+            "count": 4,
+            "return_type": "MirType"
+          },
+          {
+            "count": 4,
+            "return_type": "HandoffTarget"
+          },
+          {
+            "count": 4,
+            "return_type": "EdgeStub"
+          },
+          {
+            "count": 4,
+            "return_type": "CorePhiInfo"
+          },
+          {
+            "count": 3,
+            "return_type": "EffectMask"
+          },
+          {
+            "count": 3,
+            "return_type": "MirInstruction"
+          },
+          {
+            "count": 3,
+            "return_type": "LoweredRecipe"
+          },
+          {
+            "count": 3,
+            "return_type": "CoreExitPlan"
+          }
+        ]
+      },
+      "selected_for_derivation_basis": true,
+      "source_field": "return_type"
+    },
+    {
+      "accepted_edge_ready_count": 0,
+      "blocked_by": [
+        "LedgerFieldMissing:parameter_types"
+      ],
+      "candidate_reference_count": 0,
+      "concrete_typed_reference_count": 0,
+      "direct_source_field_present": false,
+      "evidence_kind": "ParameterTypeReference",
+      "notes": {},
+      "selected_for_derivation_basis": false,
+      "source_field": null
+    },
+    {
+      "accepted_edge_ready_count": 0,
+      "blocked_by": [
+        "LedgerFieldMissing:constructed_domain_object"
+      ],
+      "candidate_reference_count": 0,
+      "concrete_typed_reference_count": 0,
+      "direct_source_field_present": false,
+      "evidence_kind": "ConstructedDomainObjectReference",
+      "notes": {},
+      "selected_for_derivation_basis": false,
+      "source_field": null
+    },
+    {
+      "accepted_edge_ready_count": 0,
+      "blocked_by": [
+        "LedgerFieldMissing:verifier_input_contract"
+      ],
+      "candidate_reference_count": 0,
+      "concrete_typed_reference_count": 0,
+      "direct_source_field_present": false,
+      "evidence_kind": "VerifierInputContractReference",
+      "notes": {},
+      "selected_for_derivation_basis": false,
+      "source_field": null
+    },
+    {
+      "accepted_edge_ready_count": 0,
+      "blocked_by": [
+        "PolicyDecisionPayloadOnlyPatternObservedInReturnType",
+        "PolicyPayloadFixtureMissing"
+      ],
+      "candidate_reference_count": 1,
+      "concrete_typed_reference_count": 0,
+      "direct_source_field_present": false,
+      "evidence_kind": "PolicyDecisionPayloadReference",
+      "notes": {},
+      "selected_for_derivation_basis": false,
+      "source_field": null
+    },
+    {
+      "accepted_edge_ready_count": 0,
+      "blocked_by": [
+        "FixtureDeclaredDependencyRowsMissing"
+      ],
+      "candidate_reference_count": 0,
+      "concrete_typed_reference_count": 0,
+      "direct_source_field_present": false,
+      "evidence_kind": "FixtureDeclaredSemanticResourceDependency",
+      "notes": {},
+      "selected_for_derivation_basis": false,
+      "source_field": null
+    }
+  ],
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "domain_object_id_transport_policy_inventory_rerun_002": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-transport-policy-inventory-rerun-002-v0.json",
+    "typed_dependency_root_authority_basis": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-typed-dependency-root-authority-basis-v0.json",
+    "unresolved_subaxis_priority_rerun_003": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-unresolved-subaxis-priority-rerun-003-v0.json"
+  },
+  "kind": "MirBuilderDomainObjectIdTypedDependencyEdgeEvidenceInventoryV1",
+  "previous_state": {
+    "accepted_typed_dependency_edge_count": 0,
+    "dependency_root_candidate_count": 0,
+    "rerun_003_decision": "KeepStopped",
+    "rerun_003_reason_token": "NoMachineDerivedDomainObjectIdTypedDependencyRootAuthority"
+  },
+  "provenance": {
+    "domain_object_id_transport_policy_inventory_rerun_002_hash": "778ca61ba57fcee9d77498ee721874f7d6fed56a3b74ad71cb6fe23de0fd3ed3",
+    "typed_dependency_root_authority_basis_hash": "a4f9181f7a94a73b33d28b83e2c03337d606efaa2a09c695325d3df0b7695805",
+    "unresolved_subaxis_priority_rerun_003_hash": "0b0dc517bd1ffc7486aa2aac3d7025bd4b54945956cf8f69a03d7b20c7a08292"
+  },
+  "schema_version": 0,
+  "summary": {
+    "accepted_edge_ready_count": 0,
+    "direct_source_field_evidence_kind_count": 1,
+    "evidence_kind_count": 6,
+    "policy_decision_payload_pattern_count": 1,
+    "return_type_field_reference_candidate_count": 85,
+    "selected_evidence_kind": "ReturnTypeFieldReference",
+    "selected_evidence_kind_count": 1,
+    "unresolved_non_id_domain_row_count": 85
+  },
+  "token": "MIRBUILDER-DOMAIN-OBJECT-ID-TYPED-DEPENDENCY-EDGE-EVIDENCE-INVENTORY-001"
+}

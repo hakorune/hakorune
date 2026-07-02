@@ -1871,6 +1871,69 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-unresolved-subaxis-priority-rerun-002-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_domain_object_id_unresolved_subaxis_priority_rerun_002_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-DOMAIN-OBJECT-ID-TYPED-DEPENDENCY-ROOT-AUTHORITY-BASIS-001",
+      "card": "docs/development/current/main/phases/phase-296x/2067-MIRBUILDER-DOMAIN-OBJECT-ID-TYPED-DEPENDENCY-ROOT-AUTHORITY-BASIS-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-typed-dependency-root-authority-basis-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_domain_object_id_typed_dependency_root_authority_basis_guard.sh",
+      "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-DOMAIN-OBJECT-ID-UNRESOLVED-SUBAXIS-PRIORITY-RERUN-003",
+      "card": "docs/development/current/main/phases/phase-296x/2068-MIRBUILDER-DOMAIN-OBJECT-ID-UNRESOLVED-SUBAXIS-PRIORITY-RERUN-003.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-unresolved-subaxis-priority-rerun-003-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_domain_object_id_unresolved_subaxis_priority_rerun_003_guard.sh",
+      "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-DOMAIN-OBJECT-ID-TYPED-DEPENDENCY-EDGE-EVIDENCE-INVENTORY-001",
+      "card": "docs/development/current/main/phases/phase-296x/2069-MIRBUILDER-DOMAIN-OBJECT-ID-TYPED-DEPENDENCY-EDGE-EVIDENCE-INVENTORY-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-typed-dependency-edge-evidence-inventory-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_domain_object_id_typed_dependency_edge_evidence_inventory_guard.sh",
+      "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-DOMAIN-OBJECT-ID-RETURN-TYPE-REFERENCE-EDGE-DERIVATION-BASIS-001",
+      "card": "docs/development/current/main/phases/phase-296x/2070-MIRBUILDER-DOMAIN-OBJECT-ID-RETURN-TYPE-REFERENCE-EDGE-DERIVATION-BASIS-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-return-type-reference-edge-derivation-basis-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_domain_object_id_return_type_reference_edge_derivation_basis_guard.sh",
+      "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-DOMAIN-OBJECT-ID-RETURN-TYPE-RESOURCE-TAXONOMY-INVENTORY-001",
+      "card": "docs/development/current/main/phases/phase-296x/2071-MIRBUILDER-DOMAIN-OBJECT-ID-RETURN-TYPE-RESOURCE-TAXONOMY-INVENTORY-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-return-type-resource-taxonomy-inventory-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_domain_object_id_return_type_resource_taxonomy_inventory_guard.sh",
+      "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-DOMAIN-OBJECT-ID-RETURN-TYPE-RESOURCE-TAXONOMY-AUTHORITY-001",
+      "card": "docs/development/current/main/phases/phase-296x/2072-MIRBUILDER-DOMAIN-OBJECT-ID-RETURN-TYPE-RESOURCE-TAXONOMY-AUTHORITY-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-return-type-resource-taxonomy-authority-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_domain_object_id_return_type_resource_taxonomy_authority_guard.sh",
+      "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-DOMAIN-OBJECT-ID-STABLE-TYPE-RESOURCE-REGISTRY-AUTHORITY-001",
+      "card": "docs/development/current/main/phases/phase-296x/2073-MIRBUILDER-DOMAIN-OBJECT-ID-STABLE-TYPE-RESOURCE-REGISTRY-AUTHORITY-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-stable-type-resource-registry-authority-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_domain_object_id_stable_type_resource_registry_authority_guard.sh",
+      "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-DOMAIN-OBJECT-ID-RUST-TYPE-DECLARATION-INVENTORY-001",
+      "card": "docs/development/current/main/phases/phase-296x/2074-MIRBUILDER-DOMAIN-OBJECT-ID-RUST-TYPE-DECLARATION-INVENTORY-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-rust-type-declaration-inventory-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_domain_object_id_rust_type_declaration_inventory_guard.sh",
+      "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-DOMAIN-OBJECT-ID-STABLE-TYPE-RESOURCE-REGISTRY-AUTHORITY-RERUN-001",
+      "card": "docs/development/current/main/phases/phase-296x/2075-MIRBUILDER-DOMAIN-OBJECT-ID-STABLE-TYPE-RESOURCE-REGISTRY-AUTHORITY-RERUN-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-stable-type-resource-registry-authority-rerun-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_domain_object_id_stable_type_resource_registry_authority_rerun_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {

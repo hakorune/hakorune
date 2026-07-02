@@ -1,0 +1,1469 @@
+{
+  "authority_rule": {
+    "declared_resource_domain_subaxis_requires_explicit_semantic_declaration": true,
+    "manual_type_to_subaxis_assignment": false,
+    "name": "StableTypeResourceRegistryAuthorityV1",
+    "observed_subaxis_set_is_not_policy_authority": true,
+    "owner_name_is_not_policy_authority": true,
+    "registry_is_independent_proof_source": true,
+    "registry_must_not_be_self_signed": true,
+    "return_type_string_is_diagnostic_only": true,
+    "return_type_string_to_subaxis_mapping": false,
+    "semantic_resource_id_required": true,
+    "shape_signature_is_not_policy_authority": true,
+    "source_path_is_not_policy_authority": true,
+    "type_decl_ref_required": true,
+    "type_identity_only_is_not_resource_domain_authority": true
+  },
+  "claims": {
+    "accepted_typed_dependency_edge_materialized": 0,
+    "coverage_percentage_as_proof": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "hardcoded_subaxis_priority": 0,
+    "manual_subaxis_selection": 0,
+    "manual_type_to_subaxis_assignment": 0,
+    "native_seed_materialization": 0,
+    "observed_domain_subaxis_set_as_policy_authority": 0,
+    "owner_name_as_proof": 0,
+    "return_type_string_as_policy_authority": 0,
+    "return_type_string_to_subaxis_mapping": 0,
+    "route_membership_alone_as_proof": 0,
+    "row_count_as_proof": 0,
+    "self_signed_taxonomy": 0,
+    "shape_signature_as_proof": 0,
+    "source_path_as_policy_authority": 0,
+    "source_selfhost_claim": 0,
+    "stable_type_resource_registry_authority_rerun": 1
+  },
+  "decision": {
+    "kind": "KeepStopped",
+    "reason_token": "StableTypeResourceRegistryHasTypeIdentityOnlyNoResourceDomainAuthority",
+    "selected_domain_subaxis": null,
+    "selected_next_card": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "rust_type_declaration_inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-rust-type-declaration-inventory-v0.json",
+    "stable_type_resource_registry_authority": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-stable-type-resource-registry-authority-v0.json"
+  },
+  "kind": "MirBuilderDomainObjectIdStableTypeResourceRegistryAuthorityRerunV1",
+  "previous_state": {
+    "ambiguous_type_decl_ref_count": 1,
+    "inventory_decision": "SelectStableTypeResourceRegistryAuthorityRerun",
+    "inventory_reason_token": "RustTypeDeclarationInventoryMaterializedTypeIdentityOnly",
+    "previous_reason_token": "StableTypeResourceRegistryAuthorityRequiresReadOnlyTypeDeclarationInventory",
+    "resolved_type_decl_ref_count": 42,
+    "unresolved_type_decl_ref_count": 1
+  },
+  "provenance": {
+    "rust_type_declaration_inventory_hash": "95ef359b0985ed77d84fc7390a4143b673541a141948e8b9bd1b88a07446a26b",
+    "stable_type_resource_registry_authority_hash": "1c5ed9213c03e49188a0ed9fa51cd9a83b0034c9812ada6cca01105b8784794f"
+  },
+  "recovery": {
+    "do_not": [
+      "map type_decl_ref or return_type names to domain subaxes",
+      "use source path as policy authority",
+      "select a non-ID DomainObject/Id subaxis"
+    ],
+    "next_consultation_topic": "Decide whether to define an explicit semantic resource-domain declaration basis, try prior closed-lane continuation with stable resource IDs, or return to wider route selector."
+  },
+  "schema_version": 0,
+  "summary": {
+    "accepted_typed_dependency_edge_count": 0,
+    "declared_resource_domain_subaxis_ready_count": 0,
+    "registry_ready_row_count": 0,
+    "semantic_resource_id_ready_count": 42,
+    "type_decl_ref_ready_count": 42,
+    "type_identity_only_row_count": 42
+  },
+  "token": "MIRBUILDER-DOMAIN-OBJECT-ID-STABLE-TYPE-RESOURCE-REGISTRY-AUTHORITY-RERUN-001",
+  "type_resource_registry_rows": [
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "claims": {
+        "manual_type_to_subaxis_assignment": 0,
+        "observed_subaxis_set_as_policy_authority": 0,
+        "return_type_string_as_policy_authority": 0,
+        "source_path_as_policy_authority": 0
+      },
+      "declaration_source": {
+        "inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-rust-type-declaration-inventory-v0.json",
+        "inventory_hash": null,
+        "kind": "RustTypeDeclarationInventory",
+        "source_decl_hash": "5ecbaf76762a9acc01b774cd5845660d1871727d7c3364cb1167cbd52f0e3c39",
+        "source_decl_span": "locator-only",
+        "source_file_hash": "1aa8cf29f76dbdff1c4ea76ded2fc83a7ec176b21121a8d139544f01e3c87991"
+      },
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "dependency_role": null,
+      "diagnostic_return_type": "ASTNode",
+      "diagnostic_return_type_tokens": [
+        "ASTNode"
+      ],
+      "normalized_type_name": "ASTNode",
+      "registry_row_state": "TypeIdentityOnly",
+      "resource_kind": "DomainObjectResource",
+      "semantic_resource_id": "semantic-resource:type-decl:crates/hakorune_frontend_ast/src/ast_node.rs::ASTNode:L105",
+      "type_decl_kind": "RustTypeDeclaration",
+      "type_decl_ref": "type-decl:crates/hakorune_frontend_ast/src/ast_node.rs::ASTNode:L105"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "claims": {
+        "manual_type_to_subaxis_assignment": 0,
+        "observed_subaxis_set_as_policy_authority": 0,
+        "return_type_string_as_policy_authority": 0,
+        "source_path_as_policy_authority": 0
+      },
+      "declaration_source": {
+        "inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-rust-type-declaration-inventory-v0.json",
+        "inventory_hash": null,
+        "kind": "RustTypeDeclarationInventory",
+        "source_decl_hash": "6789dabf502cc0557044f3e73359ffd3fb5384d6042a22238335cb76071638b1",
+        "source_decl_span": "locator-only",
+        "source_file_hash": "b9ec939c731fabe7ffb035bf5f8c831704ecd547d075a300095b84e6f0ec7b16"
+      },
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "dependency_role": null,
+      "diagnostic_return_type": "BlockContractKind",
+      "diagnostic_return_type_tokens": [
+        "BlockContractKind"
+      ],
+      "normalized_type_name": "BlockContractKind",
+      "registry_row_state": "TypeIdentityOnly",
+      "resource_kind": "DomainObjectResource",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/builder/control_flow/plan/recipe_tree/block.rs::BlockContractKind:L34",
+      "type_decl_kind": "RustTypeDeclaration",
+      "type_decl_ref": "type-decl:src/mir/builder/control_flow/plan/recipe_tree/block.rs::BlockContractKind:L34"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "claims": {
+        "manual_type_to_subaxis_assignment": 0,
+        "observed_subaxis_set_as_policy_authority": 0,
+        "return_type_string_as_policy_authority": 0,
+        "source_path_as_policy_authority": 0
+      },
+      "declaration_source": {
+        "inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-rust-type-declaration-inventory-v0.json",
+        "inventory_hash": null,
+        "kind": "RustTypeDeclarationInventory",
+        "source_decl_hash": "492c9702f30246cbcc191ec22f43721d6da69f9cdd96a715a08edf30d5fec3fb",
+        "source_decl_span": "locator-only",
+        "source_file_hash": "9585255d239e16bfcbcbc82e729a664f3f3bd2fff9aabd23de0031a0c0a915e0"
+      },
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "dependency_role": null,
+      "diagnostic_return_type": "BranchStub",
+      "diagnostic_return_type_tokens": [
+        "BranchStub"
+      ],
+      "normalized_type_name": "BranchStub",
+      "registry_row_state": "TypeIdentityOnly",
+      "resource_kind": "DomainObjectResource",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/builder/control_flow/edgecfg/api/branch_stub.rs::BranchStub:L14",
+      "type_decl_kind": "RustTypeDeclaration",
+      "type_decl_ref": "type-decl:src/mir/builder/control_flow/edgecfg/api/branch_stub.rs::BranchStub:L14"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "claims": {
+        "manual_type_to_subaxis_assignment": 0,
+        "observed_subaxis_set_as_policy_authority": 0,
+        "return_type_string_as_policy_authority": 0,
+        "source_path_as_policy_authority": 0
+      },
+      "declaration_source": {
+        "inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-rust-type-declaration-inventory-v0.json",
+        "inventory_hash": null,
+        "kind": "RustTypeDeclarationInventory",
+        "source_decl_hash": "2272e38617126e9e6aa40cff78b0b2f56e372e879c3506a0f05a6f8027655b12",
+        "source_decl_span": "locator-only",
+        "source_file_hash": "4d434896d394d0cce92e4c3812ea5e5b6192430fb9b0111755aca749f63dd5f5"
+      },
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "dependency_role": null,
+      "diagnostic_return_type": "CallFlags",
+      "diagnostic_return_type_tokens": [
+        "CallFlags"
+      ],
+      "normalized_type_name": "CallFlags",
+      "registry_row_state": "TypeIdentityOnly",
+      "resource_kind": "DomainObjectResource",
+      "semantic_resource_id": "semantic-resource:type-decl:crates/hakorune_mir_defs/src/call_unified.rs::CallFlags:L98",
+      "type_decl_kind": "RustTypeDeclaration",
+      "type_decl_ref": "type-decl:crates/hakorune_mir_defs/src/call_unified.rs::CallFlags:L98"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "claims": {
+        "manual_type_to_subaxis_assignment": 0,
+        "observed_subaxis_set_as_policy_authority": 0,
+        "return_type_string_as_policy_authority": 0,
+        "source_path_as_policy_authority": 0
+      },
+      "declaration_source": {
+        "inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-rust-type-declaration-inventory-v0.json",
+        "inventory_hash": null,
+        "kind": "RustTypeDeclarationInventory",
+        "source_decl_hash": "c492334b89e539cd8b11a9cf11ccc4ca39a24889e7020fcce3a583fd64e7b1b3",
+        "source_decl_span": "locator-only",
+        "source_file_hash": "4d434896d394d0cce92e4c3812ea5e5b6192430fb9b0111755aca749f63dd5f5"
+      },
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "dependency_role": null,
+      "diagnostic_return_type": "CalleeBoxKind",
+      "diagnostic_return_type_tokens": [
+        "CalleeBoxKind"
+      ],
+      "normalized_type_name": "CalleeBoxKind",
+      "registry_row_state": "TypeIdentityOnly",
+      "resource_kind": "DomainObjectResource",
+      "semantic_resource_id": "semantic-resource:type-decl:crates/hakorune_mir_defs/src/call_unified.rs::CalleeBoxKind:L22",
+      "type_decl_kind": "RustTypeDeclaration",
+      "type_decl_ref": "type-decl:crates/hakorune_mir_defs/src/call_unified.rs::CalleeBoxKind:L22"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "claims": {
+        "manual_type_to_subaxis_assignment": 0,
+        "observed_subaxis_set_as_policy_authority": 0,
+        "return_type_string_as_policy_authority": 0,
+        "source_path_as_policy_authority": 0
+      },
+      "declaration_source": {
+        "inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-rust-type-declaration-inventory-v0.json",
+        "inventory_hash": null,
+        "kind": "RustTypeDeclarationInventory",
+        "source_decl_hash": "9acdb063c95ce2b3e9537e17b54456d6fe20decf8bf1269ab5fe12ada8008b51",
+        "source_decl_span": "locator-only",
+        "source_file_hash": "c767eb3c8819b492eda8a85f86dcbdd32df32287248b222ef406363e3e018dc2"
+      },
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "dependency_role": null,
+      "diagnostic_return_type": "CanonicalLoopFacts",
+      "diagnostic_return_type_tokens": [
+        "CanonicalLoopFacts"
+      ],
+      "normalized_type_name": "CanonicalLoopFacts",
+      "registry_row_state": "TypeIdentityOnly",
+      "resource_kind": "DomainObjectResource",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/builder/control_flow/lower/normalize/canonicalize.rs::CanonicalLoopFacts:L11",
+      "type_decl_kind": "RustTypeDeclaration",
+      "type_decl_ref": "type-decl:src/mir/builder/control_flow/lower/normalize/canonicalize.rs::CanonicalLoopFacts:L11"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "claims": {
+        "manual_type_to_subaxis_assignment": 0,
+        "observed_subaxis_set_as_policy_authority": 0,
+        "return_type_string_as_policy_authority": 0,
+        "source_path_as_policy_authority": 0
+      },
+      "declaration_source": {
+        "inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-rust-type-declaration-inventory-v0.json",
+        "inventory_hash": null,
+        "kind": "RustTypeDeclarationInventory",
+        "source_decl_hash": "b3d3e3c3d766418f340d7677ed513461930b2210864853d18ce068e10366240a",
+        "source_decl_span": "locator-only",
+        "source_file_hash": "2c88b3f8b6b65f491ac67502b987cc66167cd4510f52cc8a2b000cc55aff20ea"
+      },
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "dependency_role": null,
+      "diagnostic_return_type": "CarrierSets",
+      "diagnostic_return_type_tokens": [
+        "CarrierSets"
+      ],
+      "normalized_type_name": "CarrierSets",
+      "registry_row_state": "TypeIdentityOnly",
+      "resource_kind": "DomainObjectResource",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/builder/control_flow/plan/features/carriers.rs::CarrierSets:L18",
+      "type_decl_kind": "RustTypeDeclaration",
+      "type_decl_ref": "type-decl:src/mir/builder/control_flow/plan/features/carriers.rs::CarrierSets:L18"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "claims": {
+        "manual_type_to_subaxis_assignment": 0,
+        "observed_subaxis_set_as_policy_authority": 0,
+        "return_type_string_as_policy_authority": 0,
+        "source_path_as_policy_authority": 0
+      },
+      "declaration_source": {
+        "inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-rust-type-declaration-inventory-v0.json",
+        "inventory_hash": null,
+        "kind": "RustTypeDeclarationInventory",
+        "source_decl_hash": "fbfc70de77e1c94c023b393efd7e8348bd21e25549fd3fa92c913ed06e74c757",
+        "source_decl_span": "locator-only",
+        "source_file_hash": "44412acb66924bf6c5d711d1bac9dac039b20f0709aeeae519d128e93caf1f20"
+      },
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "dependency_role": null,
+      "diagnostic_return_type": "CondProfile",
+      "diagnostic_return_type_tokens": [
+        "CondProfile"
+      ],
+      "normalized_type_name": "CondProfile",
+      "registry_row_state": "TypeIdentityOnly",
+      "resource_kind": "DomainObjectResource",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/policies/cond_profile.rs::CondProfile:L49",
+      "type_decl_kind": "RustTypeDeclaration",
+      "type_decl_ref": "type-decl:src/mir/policies/cond_profile.rs::CondProfile:L49"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "claims": {
+        "manual_type_to_subaxis_assignment": 0,
+        "observed_subaxis_set_as_policy_authority": 0,
+        "return_type_string_as_policy_authority": 0,
+        "source_path_as_policy_authority": 0
+      },
+      "declaration_source": {
+        "inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-rust-type-declaration-inventory-v0.json",
+        "inventory_hash": null,
+        "kind": "RustTypeDeclarationInventory",
+        "source_decl_hash": "e9b4577d1a8a210aca679ad91123cd5b8c7aa6484a505a2ac8417f67b9d7557d",
+        "source_decl_span": "locator-only",
+        "source_file_hash": "0d3b4086347993e2c782031c73f4b6eef38c96abfd83815acad7e27257461655"
+      },
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "dependency_role": null,
+      "diagnostic_return_type": "ControlFlowCounts",
+      "diagnostic_return_type_tokens": [
+        "ControlFlowCounts"
+      ],
+      "normalized_type_name": "ControlFlowCounts",
+      "registry_row_state": "TypeIdentityOnly",
+      "resource_kind": "DomainObjectResource",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/builder/control_flow/facts/extractors/common_helpers/control_flow.rs::ControlFlowCounts:L9",
+      "type_decl_kind": "RustTypeDeclaration",
+      "type_decl_ref": "type-decl:src/mir/builder/control_flow/facts/extractors/common_helpers/control_flow.rs::ControlFlowCounts:L9"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "claims": {
+        "manual_type_to_subaxis_assignment": 0,
+        "observed_subaxis_set_as_policy_authority": 0,
+        "return_type_string_as_policy_authority": 0,
+        "source_path_as_policy_authority": 0
+      },
+      "declaration_source": {
+        "inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-rust-type-declaration-inventory-v0.json",
+        "inventory_hash": null,
+        "kind": "RustTypeDeclarationInventory",
+        "source_decl_hash": "c1289b73f28662d249b595136aa23b26292098606e8c1d34ab007457259de792",
+        "source_decl_span": "locator-only",
+        "source_file_hash": "1f4f4da72b603cdce7641607b5df58285ce6b81b70d5074a18efc4f6f3f489e5"
+      },
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "dependency_role": null,
+      "diagnostic_return_type": "CoreExitPlan",
+      "diagnostic_return_type_tokens": [
+        "CoreExitPlan"
+      ],
+      "normalized_type_name": "CoreExitPlan",
+      "registry_row_state": "TypeIdentityOnly",
+      "resource_kind": "DomainObjectResource",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/builder/control_flow/plan/exit.rs::CoreExitPlan:L5",
+      "type_decl_kind": "RustTypeDeclaration",
+      "type_decl_ref": "type-decl:src/mir/builder/control_flow/plan/exit.rs::CoreExitPlan:L5"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "claims": {
+        "manual_type_to_subaxis_assignment": 0,
+        "observed_subaxis_set_as_policy_authority": 0,
+        "return_type_string_as_policy_authority": 0,
+        "source_path_as_policy_authority": 0
+      },
+      "declaration_source": {
+        "inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-rust-type-declaration-inventory-v0.json",
+        "inventory_hash": null,
+        "kind": "RustTypeDeclarationInventory",
+        "source_decl_hash": "2a1ac42974fb960c4bba8ac9a8816d35a8280c2c30a1e6cff86d38dbcfd0ccb5",
+        "source_decl_span": "locator-only",
+        "source_file_hash": "fea775798bafb93d9d11542145e0b94337c87155379a25e5464afb016da298ae"
+      },
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "dependency_role": null,
+      "diagnostic_return_type": "CorePhiInfo",
+      "diagnostic_return_type_tokens": [
+        "CorePhiInfo"
+      ],
+      "normalized_type_name": "CorePhiInfo",
+      "registry_row_state": "TypeIdentityOnly",
+      "resource_kind": "DomainObjectResource",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/builder/control_flow/plan/core.rs::CorePhiInfo:L40",
+      "type_decl_kind": "RustTypeDeclaration",
+      "type_decl_ref": "type-decl:src/mir/builder/control_flow/plan/core.rs::CorePhiInfo:L40"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "claims": {
+        "manual_type_to_subaxis_assignment": 0,
+        "observed_subaxis_set_as_policy_authority": 0,
+        "return_type_string_as_policy_authority": 0,
+        "source_path_as_policy_authority": 0
+      },
+      "declaration_source": {
+        "inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-rust-type-declaration-inventory-v0.json",
+        "inventory_hash": null,
+        "kind": "RustTypeDeclarationInventory",
+        "source_decl_hash": "7a3b121e8135f0d3d2fb82a45afb2186f6978213c299babe30d06b594fe8e794",
+        "source_decl_span": "locator-only",
+        "source_file_hash": "34c398c0e71be8a266736a485a0bb9788a834f6a7b84897f30e6099de22909d0"
+      },
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "dependency_role": null,
+      "diagnostic_return_type": "EdgeArgs",
+      "diagnostic_return_type_tokens": [
+        "EdgeArgs"
+      ],
+      "normalized_type_name": "EdgeArgs",
+      "registry_row_state": "TypeIdentityOnly",
+      "resource_kind": "DomainObjectResource",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/basic_block.rs::EdgeArgs:L18",
+      "type_decl_kind": "RustTypeDeclaration",
+      "type_decl_ref": "type-decl:src/mir/basic_block.rs::EdgeArgs:L18"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "claims": {
+        "manual_type_to_subaxis_assignment": 0,
+        "observed_subaxis_set_as_policy_authority": 0,
+        "return_type_string_as_policy_authority": 0,
+        "source_path_as_policy_authority": 0
+      },
+      "declaration_source": {
+        "inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-rust-type-declaration-inventory-v0.json",
+        "inventory_hash": null,
+        "kind": "RustTypeDeclarationInventory",
+        "source_decl_hash": "6d84817f7951619d1acc710fa0f5523552be41ce36f5b7e4eea50a7be7d197f1",
+        "source_decl_span": "locator-only",
+        "source_file_hash": "acc9a293003679ce7e6785156c82395af2ae69918fd4760e72244e7bbd17fd81"
+      },
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "dependency_role": null,
+      "diagnostic_return_type": "EdgeStub",
+      "diagnostic_return_type_tokens": [
+        "EdgeStub"
+      ],
+      "normalized_type_name": "EdgeStub",
+      "registry_row_state": "TypeIdentityOnly",
+      "resource_kind": "DomainObjectResource",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/builder/control_flow/edgecfg/api/edge_stub.rs::EdgeStub:L32",
+      "type_decl_kind": "RustTypeDeclaration",
+      "type_decl_ref": "type-decl:src/mir/builder/control_flow/edgecfg/api/edge_stub.rs::EdgeStub:L32"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "claims": {
+        "manual_type_to_subaxis_assignment": 0,
+        "observed_subaxis_set_as_policy_authority": 0,
+        "return_type_string_as_policy_authority": 0,
+        "source_path_as_policy_authority": 0
+      },
+      "declaration_source": {
+        "inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-rust-type-declaration-inventory-v0.json",
+        "inventory_hash": null,
+        "kind": "RustTypeDeclarationInventory",
+        "source_decl_hash": "17e136a066ec683ef9f2a7eaf55e979530f5daa4fcbed8691d5608646eae864c",
+        "source_decl_span": "locator-only",
+        "source_file_hash": "c4fc0bc67512899a057b3fd2be384ec62430708a8c508a51c6320d411553fc66"
+      },
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "dependency_role": null,
+      "diagnostic_return_type": "EffectMask",
+      "diagnostic_return_type_tokens": [
+        "EffectMask"
+      ],
+      "normalized_type_name": "EffectMask",
+      "registry_row_state": "TypeIdentityOnly",
+      "resource_kind": "DomainObjectResource",
+      "semantic_resource_id": "semantic-resource:type-decl:crates/hakorune_mir_core/src/effect.rs::EffectMask:L13",
+      "type_decl_kind": "RustTypeDeclaration",
+      "type_decl_ref": "type-decl:crates/hakorune_mir_core/src/effect.rs::EffectMask:L13"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "claims": {
+        "manual_type_to_subaxis_assignment": 0,
+        "observed_subaxis_set_as_policy_authority": 0,
+        "return_type_string_as_policy_authority": 0,
+        "source_path_as_policy_authority": 0
+      },
+      "declaration_source": {
+        "inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-rust-type-declaration-inventory-v0.json",
+        "inventory_hash": null,
+        "kind": "RustTypeDeclarationInventory",
+        "source_decl_hash": "75683c792ad639e15ee6f8b62008ebe3b5eead85db321fde263878e6ecba766a",
+        "source_decl_span": "locator-only",
+        "source_file_hash": "257e48bc8ff47c9e8fb754590e742eb41d728806463a4dbfb6630b9bf1f65154"
+      },
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "dependency_role": null,
+      "diagnostic_return_type": "FlowboxBoxKind",
+      "diagnostic_return_type_tokens": [
+        "FlowboxBoxKind"
+      ],
+      "normalized_type_name": "FlowboxBoxKind",
+      "registry_row_state": "TypeIdentityOnly",
+      "resource_kind": "DomainObjectResource",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/builder/control_flow/verify/observability/flowbox_tags.rs::FlowboxBoxKind:L24",
+      "type_decl_kind": "RustTypeDeclaration",
+      "type_decl_ref": "type-decl:src/mir/builder/control_flow/verify/observability/flowbox_tags.rs::FlowboxBoxKind:L24"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "claims": {
+        "manual_type_to_subaxis_assignment": 0,
+        "observed_subaxis_set_as_policy_authority": 0,
+        "return_type_string_as_policy_authority": 0,
+        "source_path_as_policy_authority": 0
+      },
+      "declaration_source": {
+        "inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-rust-type-declaration-inventory-v0.json",
+        "inventory_hash": null,
+        "kind": "RustTypeDeclarationInventory",
+        "source_decl_hash": "66b502ffc5483657cf2ce04b65789030baf306c02febdc61480cde3abaf349a5",
+        "source_decl_span": "locator-only",
+        "source_file_hash": "c0a5db2b6eeed3fb8cf859cbeafc9a913420f53fcecb537f8bd58926fdaf8163"
+      },
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "dependency_role": null,
+      "diagnostic_return_type": "FunctionSignature",
+      "diagnostic_return_type_tokens": [
+        "FunctionSignature"
+      ],
+      "normalized_type_name": "FunctionSignature",
+      "registry_row_state": "TypeIdentityOnly",
+      "resource_kind": "DomainObjectResource",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/function/types.rs::FunctionSignature:L17",
+      "type_decl_kind": "RustTypeDeclaration",
+      "type_decl_ref": "type-decl:src/mir/function/types.rs::FunctionSignature:L17"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "claims": {
+        "manual_type_to_subaxis_assignment": 0,
+        "observed_subaxis_set_as_policy_authority": 0,
+        "return_type_string_as_policy_authority": 0,
+        "source_path_as_policy_authority": 0
+      },
+      "declaration_source": {
+        "inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-rust-type-declaration-inventory-v0.json",
+        "inventory_hash": null,
+        "kind": "RustTypeDeclarationInventory",
+        "source_decl_hash": "f018b32dd3e628ab2e540ce5f8235533ed041f4dce4c359bfc51b9fed51abeee",
+        "source_decl_span": "locator-only",
+        "source_file_hash": "59779742dfc70f22db663ecd5d934d872594337f76b87ffe73ffe871e4ad832f"
+      },
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "dependency_role": null,
+      "diagnostic_return_type": "GenericLoopV1CarrierState",
+      "diagnostic_return_type_tokens": [
+        "GenericLoopV1CarrierState"
+      ],
+      "normalized_type_name": "GenericLoopV1CarrierState",
+      "registry_row_state": "TypeIdentityOnly",
+      "resource_kind": "DomainObjectResource",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/builder/control_flow/plan/features/generic_loop_body/carriers.rs::GenericLoopV1CarrierState:L11",
+      "type_decl_kind": "RustTypeDeclaration",
+      "type_decl_ref": "type-decl:src/mir/builder/control_flow/plan/features/generic_loop_body/carriers.rs::GenericLoopV1CarrierState:L11"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "claims": {
+        "manual_type_to_subaxis_assignment": 0,
+        "observed_subaxis_set_as_policy_authority": 0,
+        "return_type_string_as_policy_authority": 0,
+        "source_path_as_policy_authority": 0
+      },
+      "declaration_source": {
+        "inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-rust-type-declaration-inventory-v0.json",
+        "inventory_hash": null,
+        "kind": "RustTypeDeclarationInventory",
+        "source_decl_hash": "b7c091ce24a959686aa7aa50716e5316a8a346bb1530654db47b863d8652cb36",
+        "source_decl_span": "locator-only",
+        "source_file_hash": "8d2817f7291c4078ead61a30456359e7532a5b28563111e0c16cc95469be3fbf"
+      },
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "dependency_role": null,
+      "diagnostic_return_type": "HandoffTarget",
+      "diagnostic_return_type_tokens": [
+        "HandoffTarget"
+      ],
+      "normalized_type_name": "HandoffTarget",
+      "registry_row_state": "TypeIdentityOnly",
+      "resource_kind": "DomainObjectResource",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/builder/control_flow/plan/facts/reject_reason.rs::HandoffTarget:L202",
+      "type_decl_kind": "RustTypeDeclaration",
+      "type_decl_ref": "type-decl:src/mir/builder/control_flow/plan/facts/reject_reason.rs::HandoffTarget:L202"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "claims": {
+        "manual_type_to_subaxis_assignment": 0,
+        "observed_subaxis_set_as_policy_authority": 0,
+        "return_type_string_as_policy_authority": 0,
+        "source_path_as_policy_authority": 0
+      },
+      "declaration_source": {
+        "inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-rust-type-declaration-inventory-v0.json",
+        "inventory_hash": null,
+        "kind": "RustTypeDeclarationInventory",
+        "source_decl_hash": "dea64e925bbed57a3f70a09cb84f9ce0bbf9bb10c3943ee150542a85119706af",
+        "source_decl_span": "locator-only",
+        "source_file_hash": "ddd391590d57372196dbf9e153b7659c0e7d6a6407a269ea28a408625cdbc84f"
+      },
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "dependency_role": null,
+      "diagnostic_return_type": "HeaderPredGroups",
+      "diagnostic_return_type_tokens": [
+        "HeaderPredGroups"
+      ],
+      "normalized_type_name": "HeaderPredGroups",
+      "registry_row_state": "TypeIdentityOnly",
+      "resource_kind": "DomainObjectResource",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/builder/control_flow/joinir/merge/header_pred_policy.rs::HeaderPredGroups:L13",
+      "type_decl_kind": "RustTypeDeclaration",
+      "type_decl_ref": "type-decl:src/mir/builder/control_flow/joinir/merge/header_pred_policy.rs::HeaderPredGroups:L13"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "claims": {
+        "manual_type_to_subaxis_assignment": 0,
+        "observed_subaxis_set_as_policy_authority": 0,
+        "return_type_string_as_policy_authority": 0,
+        "source_path_as_policy_authority": 0
+      },
+      "declaration_source": {
+        "inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-rust-type-declaration-inventory-v0.json",
+        "inventory_hash": null,
+        "kind": "RustTypeDeclarationInventory",
+        "source_decl_hash": "a632f053ec211e11e0a84d94e19dea88e5f4ef9edd4b85387eeaf9612fac4cfc",
+        "source_decl_span": "locator-only",
+        "source_file_hash": "a578221af78f096006431f8666dfefc3483d4d9787adfb28b9ca972e2f171fd0"
+      },
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "dependency_role": null,
+      "diagnostic_return_type": "LoopCondReturnInBodyRecipe",
+      "diagnostic_return_type_tokens": [
+        "LoopCondReturnInBodyRecipe"
+      ],
+      "normalized_type_name": "LoopCondReturnInBodyRecipe",
+      "registry_row_state": "TypeIdentityOnly",
+      "resource_kind": "DomainObjectResource",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/builder/control_flow/recipes/loop_cond_return_in_body.rs::LoopCondReturnInBodyRecipe:L8",
+      "type_decl_kind": "RustTypeDeclaration",
+      "type_decl_ref": "type-decl:src/mir/builder/control_flow/recipes/loop_cond_return_in_body.rs::LoopCondReturnInBodyRecipe:L8"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "claims": {
+        "manual_type_to_subaxis_assignment": 0,
+        "observed_subaxis_set_as_policy_authority": 0,
+        "return_type_string_as_policy_authority": 0,
+        "source_path_as_policy_authority": 0
+      },
+      "declaration_source": {
+        "inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-rust-type-declaration-inventory-v0.json",
+        "inventory_hash": null,
+        "kind": "RustTypeDeclarationInventory",
+        "source_decl_hash": "612e773ba6dfc1985bfdb8ea2df6ddd17d6b26916129e30a1d895158bddaa4c9",
+        "source_decl_span": "locator-only",
+        "source_file_hash": "2c2ffadfef7e2354f32501660368f881949a2b4172d5f2f85e7eed7e5635ae94"
+      },
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "dependency_role": null,
+      "diagnostic_return_type": "LoopFeatures",
+      "diagnostic_return_type_tokens": [
+        "LoopFeatures"
+      ],
+      "normalized_type_name": "LoopFeatures",
+      "registry_row_state": "TypeIdentityOnly",
+      "resource_kind": "DomainObjectResource",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/loop_route_detection/features.rs::LoopFeatures:L6",
+      "type_decl_kind": "RustTypeDeclaration",
+      "type_decl_ref": "type-decl:src/mir/loop_route_detection/features.rs::LoopFeatures:L6"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "claims": {
+        "manual_type_to_subaxis_assignment": 0,
+        "observed_subaxis_set_as_policy_authority": 0,
+        "return_type_string_as_policy_authority": 0,
+        "source_path_as_policy_authority": 0
+      },
+      "declaration_source": {
+        "inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-rust-type-declaration-inventory-v0.json",
+        "inventory_hash": null,
+        "kind": "RustTypeDeclarationInventory",
+        "source_decl_hash": "81d16d1ab0cf361b33a43ddf094e85925104e36ca633b8c1e37283b94eb6ce73",
+        "source_decl_span": "locator-only",
+        "source_file_hash": "cb9a919b1938d9eb1c57628c2a95d7969b97c56b6ca80378ed4d00d100ed11fc"
+      },
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "dependency_role": null,
+      "diagnostic_return_type": "LoopRouteShadowReport",
+      "diagnostic_return_type_tokens": [
+        "LoopRouteShadowReport"
+      ],
+      "normalized_type_name": "LoopRouteShadowReport",
+      "registry_row_state": "TypeIdentityOnly",
+      "resource_kind": "DomainObjectResource",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/builder/control_flow/joinir/route_entry/registry/legacy_observer.rs::LoopRouteShadowReport:L61",
+      "type_decl_kind": "RustTypeDeclaration",
+      "type_decl_ref": "type-decl:src/mir/builder/control_flow/joinir/route_entry/registry/legacy_observer.rs::LoopRouteShadowReport:L61"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "claims": {
+        "manual_type_to_subaxis_assignment": 0,
+        "observed_subaxis_set_as_policy_authority": 0,
+        "return_type_string_as_policy_authority": 0,
+        "source_path_as_policy_authority": 0
+      },
+      "declaration_source": {
+        "inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-rust-type-declaration-inventory-v0.json",
+        "inventory_hash": null,
+        "kind": "RustTypeDeclarationInventory",
+        "source_decl_hash": "1d7a09ea3acf20cb479f930d2dfb51a5902f85967955b3f94019c77fce8ae874",
+        "source_decl_span": "locator-only",
+        "source_file_hash": "fea775798bafb93d9d11542145e0b94337c87155379a25e5464afb016da298ae"
+      },
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "dependency_role": null,
+      "diagnostic_return_type": "LoweredRecipe",
+      "diagnostic_return_type_tokens": [
+        "LoweredRecipe"
+      ],
+      "normalized_type_name": "LoweredRecipe",
+      "registry_row_state": "TypeIdentityOnly",
+      "resource_kind": "DomainObjectResource",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/builder/control_flow/plan/core.rs::LoweredRecipe:L36",
+      "type_decl_kind": "RustTypeDeclaration",
+      "type_decl_ref": "type-decl:src/mir/builder/control_flow/plan/core.rs::LoweredRecipe:L36"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "claims": {
+        "manual_type_to_subaxis_assignment": 0,
+        "observed_subaxis_set_as_policy_authority": 0,
+        "return_type_string_as_policy_authority": 0,
+        "source_path_as_policy_authority": 0
+      },
+      "declaration_source": {
+        "inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-rust-type-declaration-inventory-v0.json",
+        "inventory_hash": null,
+        "kind": "RustTypeDeclarationInventory",
+        "source_decl_hash": "360bfce80f87c5830b577752f38d2116817b58c695d2ae4c2082f52aa5b29473",
+        "source_decl_span": "locator-only",
+        "source_file_hash": "8e411e89670774c34c32820c9bf754a798c6fe46cc04e809d6929664001b4114"
+      },
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "dependency_role": null,
+      "diagnostic_return_type": "LoweringContext",
+      "diagnostic_return_type_tokens": [
+        "LoweringContext"
+      ],
+      "normalized_type_name": "LoweringContext",
+      "registry_row_state": "TypeIdentityOnly",
+      "resource_kind": "DomainObjectResource",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/builder/calls/context_lifecycle.rs::LoweringContext:L31",
+      "type_decl_kind": "RustTypeDeclaration",
+      "type_decl_ref": "type-decl:src/mir/builder/calls/context_lifecycle.rs::LoweringContext:L31"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "claims": {
+        "manual_type_to_subaxis_assignment": 0,
+        "observed_subaxis_set_as_policy_authority": 0,
+        "return_type_string_as_policy_authority": 0,
+        "source_path_as_policy_authority": 0
+      },
+      "declaration_source": {
+        "inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-rust-type-declaration-inventory-v0.json",
+        "inventory_hash": null,
+        "kind": "RustTypeDeclarationInventory",
+        "source_decl_hash": "76ba495dedb7c00161bef9eadfb581e4c3d8e49743e84febf418ccc9907e8f71",
+        "source_decl_span": "locator-only",
+        "source_file_hash": "4d434896d394d0cce92e4c3812ea5e5b6192430fb9b0111755aca749f63dd5f5"
+      },
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "dependency_role": null,
+      "diagnostic_return_type": "MirCall",
+      "diagnostic_return_type_tokens": [
+        "MirCall"
+      ],
+      "normalized_type_name": "MirCall",
+      "registry_row_state": "TypeIdentityOnly",
+      "resource_kind": "DomainObjectResource",
+      "semantic_resource_id": "semantic-resource:type-decl:crates/hakorune_mir_defs/src/call_unified.rs::MirCall:L152",
+      "type_decl_kind": "RustTypeDeclaration",
+      "type_decl_ref": "type-decl:crates/hakorune_mir_defs/src/call_unified.rs::MirCall:L152"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "claims": {
+        "manual_type_to_subaxis_assignment": 0,
+        "observed_subaxis_set_as_policy_authority": 0,
+        "return_type_string_as_policy_authority": 0,
+        "source_path_as_policy_authority": 0
+      },
+      "declaration_source": {
+        "inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-rust-type-declaration-inventory-v0.json",
+        "inventory_hash": null,
+        "kind": "RustTypeDeclarationInventory",
+        "source_decl_hash": "c97ad1863a4ee61ce9c2626208733b23279ca90212cb01a97ed4de66bcf68c97",
+        "source_decl_span": "locator-only",
+        "source_file_hash": "c0a5db2b6eeed3fb8cf859cbeafc9a913420f53fcecb537f8bd58926fdaf8163"
+      },
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "dependency_role": null,
+      "diagnostic_return_type": "MirFunction",
+      "diagnostic_return_type_tokens": [
+        "MirFunction"
+      ],
+      "normalized_type_name": "MirFunction",
+      "registry_row_state": "TypeIdentityOnly",
+      "resource_kind": "DomainObjectResource",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/function/types.rs::MirFunction:L43",
+      "type_decl_kind": "RustTypeDeclaration",
+      "type_decl_ref": "type-decl:src/mir/function/types.rs::MirFunction:L43"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "claims": {
+        "manual_type_to_subaxis_assignment": 0,
+        "observed_subaxis_set_as_policy_authority": 0,
+        "return_type_string_as_policy_authority": 0,
+        "source_path_as_policy_authority": 0
+      },
+      "declaration_source": {
+        "inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-rust-type-declaration-inventory-v0.json",
+        "inventory_hash": null,
+        "kind": "RustTypeDeclarationInventory",
+        "source_decl_hash": "cce6bb01d80ae103d28cd42458378564bca07e4126c88459dfc45e8922ff99db",
+        "source_decl_span": "locator-only",
+        "source_file_hash": "9eea278e89ff671189bd612ad565c3672de019ba6eabc8cd1f1cd0242fc0c1c0"
+      },
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "dependency_role": null,
+      "diagnostic_return_type": "MirInstruction",
+      "diagnostic_return_type_tokens": [
+        "MirInstruction"
+      ],
+      "normalized_type_name": "MirInstruction",
+      "registry_row_state": "TypeIdentityOnly",
+      "resource_kind": "DomainObjectResource",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/instruction.rs::MirInstruction:L206",
+      "type_decl_kind": "RustTypeDeclaration",
+      "type_decl_ref": "type-decl:src/mir/instruction.rs::MirInstruction:L206"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "claims": {
+        "manual_type_to_subaxis_assignment": 0,
+        "observed_subaxis_set_as_policy_authority": 0,
+        "return_type_string_as_policy_authority": 0,
+        "source_path_as_policy_authority": 0
+      },
+      "declaration_source": {
+        "inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-rust-type-declaration-inventory-v0.json",
+        "inventory_hash": null,
+        "kind": "RustTypeDeclarationInventory",
+        "source_decl_hash": "3607d0ba7ef93f090ffd24ed83a85a90eb2874ee8aa36f92960fefe6ebcef66a",
+        "source_decl_span": "locator-only",
+        "source_file_hash": "7d156e342282b7ab1653270489af4117ec376cd866d72bfe4f4e423bf8d9ae25"
+      },
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "dependency_role": null,
+      "diagnostic_return_type": "MirType",
+      "diagnostic_return_type_tokens": [
+        "MirType"
+      ],
+      "normalized_type_name": "MirType",
+      "registry_row_state": "TypeIdentityOnly",
+      "resource_kind": "DomainObjectResource",
+      "semantic_resource_id": "semantic-resource:type-decl:crates/hakorune_mir_core/src/types.rs::MirType:L83",
+      "type_decl_kind": "RustTypeDeclaration",
+      "type_decl_ref": "type-decl:crates/hakorune_mir_core/src/types.rs::MirType:L83"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "claims": {
+        "manual_type_to_subaxis_assignment": 0,
+        "observed_subaxis_set_as_policy_authority": 0,
+        "return_type_string_as_policy_authority": 0,
+        "source_path_as_policy_authority": 0
+      },
+      "declaration_source": {
+        "inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-rust-type-declaration-inventory-v0.json",
+        "inventory_hash": null,
+        "kind": "RustTypeDeclarationInventory",
+        "source_decl_hash": "6bfb364c3cd55ba70a00760ace757606f9e4d4a446c753ad4e20af2b132e3a4f",
+        "source_decl_span": "locator-only",
+        "source_file_hash": "4867edcb94721bee83519c239d6708755a7127a3da06cea9d85332f5d35d7fa8"
+      },
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "dependency_role": null,
+      "diagnostic_return_type": "MirValueKind",
+      "diagnostic_return_type_tokens": [
+        "MirValueKind"
+      ],
+      "normalized_type_name": "MirValueKind",
+      "registry_row_state": "TypeIdentityOnly",
+      "resource_kind": "DomainObjectResource",
+      "semantic_resource_id": "semantic-resource:type-decl:crates/hakorune_mir_core/src/value_kind.rs::MirValueKind:L35",
+      "type_decl_kind": "RustTypeDeclaration",
+      "type_decl_ref": "type-decl:crates/hakorune_mir_core/src/value_kind.rs::MirValueKind:L35"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "claims": {
+        "manual_type_to_subaxis_assignment": 0,
+        "observed_subaxis_set_as_policy_authority": 0,
+        "return_type_string_as_policy_authority": 0,
+        "source_path_as_policy_authority": 0
+      },
+      "declaration_source": {
+        "inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-rust-type-declaration-inventory-v0.json",
+        "inventory_hash": null,
+        "kind": "RustTypeDeclarationInventory",
+        "source_decl_hash": "3bae09c8276a32ea7b993be46b4bd41092949468ec0bd8142f74bc06e2dd409a",
+        "source_decl_span": "locator-only",
+        "source_file_hash": "c7248f6f7a884b80a729be385a41cb41125a2ac9593108a7c2a7ad30854874bb"
+      },
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "dependency_role": null,
+      "diagnostic_return_type": "NestedLoopBodyProfile",
+      "diagnostic_return_type_tokens": [
+        "NestedLoopBodyProfile"
+      ],
+      "normalized_type_name": "NestedLoopBodyProfile",
+      "registry_row_state": "TypeIdentityOnly",
+      "resource_kind": "DomainObjectResource",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/builder/control_flow/plan/facts/nested_loop_profile.rs::NestedLoopBodyProfile:L37",
+      "type_decl_kind": "RustTypeDeclaration",
+      "type_decl_ref": "type-decl:src/mir/builder/control_flow/plan/facts/nested_loop_profile.rs::NestedLoopBodyProfile:L37"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "claims": {
+        "manual_type_to_subaxis_assignment": 0,
+        "observed_subaxis_set_as_policy_authority": 0,
+        "return_type_string_as_policy_authority": 0,
+        "source_path_as_policy_authority": 0
+      },
+      "declaration_source": {
+        "inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-rust-type-declaration-inventory-v0.json",
+        "inventory_hash": null,
+        "kind": "RustTypeDeclarationInventory",
+        "source_decl_hash": "b7cee852af927a740e553413196d8c23af5997b0096e4ac83db7791cd91f96fe",
+        "source_decl_span": "locator-only",
+        "source_file_hash": "80d9488d5cf073ef4477498a761c45ecd9304d52e892b3d4433ce39b160529f4"
+      },
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "dependency_role": null,
+      "diagnostic_return_type": "PolicyDecision<BalancedDepthScanPolicyResult>",
+      "diagnostic_return_type_tokens": [
+        "PolicyDecision<BalancedDepthScanPolicyResult>"
+      ],
+      "normalized_type_name": "PolicyDecision",
+      "registry_row_state": "TypeIdentityOnly",
+      "resource_kind": "DomainObjectResource",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/policies/mod.rs::PolicyDecision:L6",
+      "type_decl_kind": "RustTypeDeclaration",
+      "type_decl_ref": "type-decl:src/mir/policies/mod.rs::PolicyDecision:L6"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "claims": {
+        "manual_type_to_subaxis_assignment": 0,
+        "observed_subaxis_set_as_policy_authority": 0,
+        "return_type_string_as_policy_authority": 0,
+        "source_path_as_policy_authority": 0
+      },
+      "declaration_source": {
+        "inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-rust-type-declaration-inventory-v0.json",
+        "inventory_hash": null,
+        "kind": "RustTypeDeclarationInventory",
+        "source_decl_hash": "4b22cd5e485612865c7b3f0bc134c673cf419e23c3c95651cf0592380faa6cb0",
+        "source_decl_span": "locator-only",
+        "source_file_hash": "b9ec939c731fabe7ffb035bf5f8c831704ecd547d075a300095b84e6f0ec7b16"
+      },
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "dependency_role": null,
+      "diagnostic_return_type": "RecipeBlock",
+      "diagnostic_return_type_tokens": [
+        "RecipeBlock"
+      ],
+      "normalized_type_name": "RecipeBlock",
+      "registry_row_state": "TypeIdentityOnly",
+      "resource_kind": "DomainObjectResource",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/builder/control_flow/plan/recipe_tree/block.rs::RecipeBlock:L76",
+      "type_decl_kind": "RustTypeDeclaration",
+      "type_decl_ref": "type-decl:src/mir/builder/control_flow/plan/recipe_tree/block.rs::RecipeBlock:L76"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "claims": {
+        "manual_type_to_subaxis_assignment": 0,
+        "observed_subaxis_set_as_policy_authority": 0,
+        "return_type_string_as_policy_authority": 0,
+        "source_path_as_policy_authority": 0
+      },
+      "declaration_source": {
+        "inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-rust-type-declaration-inventory-v0.json",
+        "inventory_hash": null,
+        "kind": "RustTypeDeclarationInventory",
+        "source_decl_hash": "ef6602ddda2af1ccdc1e277207548b2e3b7f7112f015e84e8cf45df1b3e7248f",
+        "source_decl_span": "locator-only",
+        "source_file_hash": "4a2afe50a86275394581a2a97a3373c8ad92b80a05dcc4fbb7c404643bddf930"
+      },
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "dependency_role": null,
+      "diagnostic_return_type": "RefSlotKind",
+      "diagnostic_return_type_tokens": [
+        "RefSlotKind"
+      ],
+      "normalized_type_name": "RefSlotKind",
+      "registry_row_state": "TypeIdentityOnly",
+      "resource_kind": "DomainObjectResource",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/region/mod.rs::RefSlotKind:L19",
+      "type_decl_kind": "RustTypeDeclaration",
+      "type_decl_ref": "type-decl:src/mir/region/mod.rs::RefSlotKind:L19"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "claims": {
+        "manual_type_to_subaxis_assignment": 0,
+        "observed_subaxis_set_as_policy_authority": 0,
+        "return_type_string_as_policy_authority": 0,
+        "source_path_as_policy_authority": 0
+      },
+      "declaration_source": {
+        "inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-rust-type-declaration-inventory-v0.json",
+        "inventory_hash": null,
+        "kind": "RustTypeDeclarationInventory",
+        "source_decl_hash": "196fefaf955164dc3063f3a6839c656a5836fb588a04f5b4ea6cc5a415d805a4",
+        "source_decl_span": "locator-only",
+        "source_file_hash": "ac3546bcfaecbbf1a07738c6f8106360b53d8ff5d8cdb0aa7df16f1802aa193f"
+      },
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "dependency_role": null,
+      "diagnostic_return_type": "Route",
+      "diagnostic_return_type_tokens": [
+        "Route"
+      ],
+      "normalized_type_name": "Route",
+      "registry_row_state": "TypeIdentityOnly",
+      "resource_kind": "DomainObjectResource",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/builder/router/policy.rs::Route:L7",
+      "type_decl_kind": "RustTypeDeclaration",
+      "type_decl_ref": "type-decl:src/mir/builder/router/policy.rs::Route:L7"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "claims": {
+        "manual_type_to_subaxis_assignment": 0,
+        "observed_subaxis_set_as_policy_authority": 0,
+        "return_type_string_as_policy_authority": 0,
+        "source_path_as_policy_authority": 0
+      },
+      "declaration_source": {
+        "inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-rust-type-declaration-inventory-v0.json",
+        "inventory_hash": null,
+        "kind": "RustTypeDeclarationInventory",
+        "source_decl_hash": "74dd24ec386d078c2da2052055e7a540f3b0aa363fc9d0fa067594611c5cfeec",
+        "source_decl_span": "locator-only",
+        "source_file_hash": "bb33177fe8fbb7b27da4a5f17ad4562a6fbc745a04838e54c68ab76190b493d5"
+      },
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "dependency_role": null,
+      "diagnostic_return_type": "ScanConditionObservation",
+      "diagnostic_return_type_tokens": [
+        "ScanConditionObservation"
+      ],
+      "normalized_type_name": "ScanConditionObservation",
+      "registry_row_state": "TypeIdentityOnly",
+      "resource_kind": "DomainObjectResource",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/builder/control_flow/plan/facts/scan_shapes.rs::ScanConditionObservation:L42",
+      "type_decl_kind": "RustTypeDeclaration",
+      "type_decl_ref": "type-decl:src/mir/builder/control_flow/plan/facts/scan_shapes.rs::ScanConditionObservation:L42"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "claims": {
+        "manual_type_to_subaxis_assignment": 0,
+        "observed_subaxis_set_as_policy_authority": 0,
+        "return_type_string_as_policy_authority": 0,
+        "source_path_as_policy_authority": 0
+      },
+      "declaration_source": {
+        "inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-rust-type-declaration-inventory-v0.json",
+        "inventory_hash": null,
+        "kind": "RustTypeDeclarationInventory",
+        "source_decl_hash": "b258b1947961ee6e0ce922d4fd2e060e5ce58fb9f5ce890b9c5063e024a600a5",
+        "source_decl_span": "locator-only",
+        "source_file_hash": "e36dbd593899d2ed1d1f75eaf62ee4aeebdfea8075ff27cb2ebc7b999dd23bba"
+      },
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "dependency_role": null,
+      "diagnostic_return_type": "StepPlacementDecision",
+      "diagnostic_return_type_tokens": [
+        "StepPlacementDecision"
+      ],
+      "normalized_type_name": "StepPlacementDecision",
+      "registry_row_state": "TypeIdentityOnly",
+      "resource_kind": "DomainObjectResource",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/builder/control_flow/generic_loop_canon/types.rs::StepPlacementDecision:L27",
+      "type_decl_kind": "RustTypeDeclaration",
+      "type_decl_ref": "type-decl:src/mir/builder/control_flow/generic_loop_canon/types.rs::StepPlacementDecision:L27"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "claims": {
+        "manual_type_to_subaxis_assignment": 0,
+        "observed_subaxis_set_as_policy_authority": 0,
+        "return_type_string_as_policy_authority": 0,
+        "source_path_as_policy_authority": 0
+      },
+      "declaration_source": {
+        "inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-rust-type-declaration-inventory-v0.json",
+        "inventory_hash": null,
+        "kind": "RustTypeDeclarationInventory",
+        "source_decl_hash": "8be8a61915d0aa41572d8789ce1f6104f048d37fcb433c3c834fc674eced358f",
+        "source_decl_span": "locator-only",
+        "source_file_hash": "455a269a70bde4750d0603566c310eb8795d3398ae660a3085354df07fd206c0"
+      },
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "dependency_role": null,
+      "diagnostic_return_type": "TailCallKind",
+      "diagnostic_return_type_tokens": [
+        "TailCallKind"
+      ],
+      "normalized_type_name": "TailCallKind",
+      "registry_row_state": "TypeIdentityOnly",
+      "resource_kind": "DomainObjectResource",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/builder/control_flow/joinir/merge/tail_call_classifier.rs::TailCallKind:L25",
+      "type_decl_kind": "RustTypeDeclaration",
+      "type_decl_ref": "type-decl:src/mir/builder/control_flow/joinir/merge/tail_call_classifier.rs::TailCallKind:L25"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "claims": {
+        "manual_type_to_subaxis_assignment": 0,
+        "observed_subaxis_set_as_policy_authority": 0,
+        "return_type_string_as_policy_authority": 0,
+        "source_path_as_policy_authority": 0
+      },
+      "declaration_source": {
+        "inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-rust-type-declaration-inventory-v0.json",
+        "inventory_hash": null,
+        "kind": "RustTypeDeclarationInventory",
+        "source_decl_hash": "02150912b3eaebfc3d6ed2bb43ebf507d9a39ad0c8eb6ae7efbca3df48baf371",
+        "source_decl_span": "locator-only",
+        "source_file_hash": "5629acdefc1580339a504f30fbb8266190d3c3c2f572b46b87cfbf5a0bafb424"
+      },
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "dependency_role": null,
+      "diagnostic_return_type": "TypeContextSnapshot",
+      "diagnostic_return_type_tokens": [
+        "TypeContextSnapshot"
+      ],
+      "normalized_type_name": "TypeContextSnapshot",
+      "registry_row_state": "TypeIdentityOnly",
+      "resource_kind": "DomainObjectResource",
+      "semantic_resource_id": "semantic-resource:type-decl:crates/hakorune_mir_builder/src/type_context.rs::TypeContextSnapshot:L48",
+      "type_decl_kind": "RustTypeDeclaration",
+      "type_decl_ref": "type-decl:crates/hakorune_mir_builder/src/type_context.rs::TypeContextSnapshot:L48"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "claims": {
+        "manual_type_to_subaxis_assignment": 0,
+        "observed_subaxis_set_as_policy_authority": 0,
+        "return_type_string_as_policy_authority": 0,
+        "source_path_as_policy_authority": 0
+      },
+      "declaration_source": {
+        "inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-rust-type-declaration-inventory-v0.json",
+        "inventory_hash": null,
+        "kind": "RustTypeDeclarationInventory",
+        "source_decl_hash": "5ecbaf76762a9acc01b774cd5845660d1871727d7c3364cb1167cbd52f0e3c39",
+        "source_decl_span": "locator-only",
+        "source_file_hash": "1aa8cf29f76dbdff1c4ea76ded2fc83a7ec176b21121a8d139544f01e3c87991"
+      },
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "dependency_role": null,
+      "diagnostic_return_type": "crate::ast::ASTNode",
+      "diagnostic_return_type_tokens": [
+        "crate::ast::ASTNode"
+      ],
+      "normalized_type_name": "ASTNode",
+      "registry_row_state": "TypeIdentityOnly",
+      "resource_kind": "DomainObjectResource",
+      "semantic_resource_id": "semantic-resource:type-decl:crates/hakorune_frontend_ast/src/ast_node.rs::ASTNode:L105",
+      "type_decl_kind": "RustTypeDeclaration",
+      "type_decl_ref": "type-decl:crates/hakorune_frontend_ast/src/ast_node.rs::ASTNode:L105"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "claims": {
+        "manual_type_to_subaxis_assignment": 0,
+        "observed_subaxis_set_as_policy_authority": 0,
+        "return_type_string_as_policy_authority": 0,
+        "source_path_as_policy_authority": 0
+      },
+      "declaration_source": {
+        "inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-rust-type-declaration-inventory-v0.json",
+        "inventory_hash": null,
+        "kind": "RustTypeDeclarationInventory",
+        "source_decl_hash": "c492334b89e539cd8b11a9cf11ccc4ca39a24889e7020fcce3a583fd64e7b1b3",
+        "source_decl_span": "locator-only",
+        "source_file_hash": "4d434896d394d0cce92e4c3812ea5e5b6192430fb9b0111755aca749f63dd5f5"
+      },
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "dependency_role": null,
+      "diagnostic_return_type": "crate::mir::definitions::call_unified::CalleeBoxKind",
+      "diagnostic_return_type_tokens": [
+        "crate::mir::definitions::call_unified::CalleeBoxKind"
+      ],
+      "normalized_type_name": "CalleeBoxKind",
+      "registry_row_state": "TypeIdentityOnly",
+      "resource_kind": "DomainObjectResource",
+      "semantic_resource_id": "semantic-resource:type-decl:crates/hakorune_mir_defs/src/call_unified.rs::CalleeBoxKind:L22",
+      "type_decl_kind": "RustTypeDeclaration",
+      "type_decl_ref": "type-decl:crates/hakorune_mir_defs/src/call_unified.rs::CalleeBoxKind:L22"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "claims": {
+        "manual_type_to_subaxis_assignment": 0,
+        "observed_subaxis_set_as_policy_authority": 0,
+        "return_type_string_as_policy_authority": 0,
+        "source_path_as_policy_authority": 0
+      },
+      "declaration_source": {
+        "inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-rust-type-declaration-inventory-v0.json",
+        "inventory_hash": null,
+        "kind": "RustTypeDeclarationInventory",
+        "source_decl_hash": "3e5bd881fad4aa71a1686c76e5f32478ef683a5d77e7393f0a90e1805257eec9",
+        "source_decl_span": "locator-only",
+        "source_file_hash": "bb9d442f1732d11d522dfcfc692176fc859a39355429e4dfd185ce879849b43a"
+      },
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "dependency_role": null,
+      "diagnostic_return_type": "crate::mir::loop_route_detection::LoopRouteKind",
+      "diagnostic_return_type_tokens": [
+        "crate::mir::loop_route_detection::LoopRouteKind"
+      ],
+      "normalized_type_name": "LoopRouteKind",
+      "registry_row_state": "TypeIdentityOnly",
+      "resource_kind": "DomainObjectResource",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/loop_route_detection/kind.rs::LoopRouteKind:L6",
+      "type_decl_kind": "RustTypeDeclaration",
+      "type_decl_ref": "type-decl:src/mir/loop_route_detection/kind.rs::LoopRouteKind:L6"
+    },
+    {
+      "blocked_by": [
+        "ExplicitResourceDomainDeclarationMissing",
+        "TypeIdentityOnlyIsNotResourceDomainAuthority"
+      ],
+      "claims": {
+        "manual_type_to_subaxis_assignment": 0,
+        "observed_subaxis_set_as_policy_authority": 0,
+        "return_type_string_as_policy_authority": 0,
+        "source_path_as_policy_authority": 0
+      },
+      "declaration_source": {
+        "inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-rust-type-declaration-inventory-v0.json",
+        "inventory_hash": null,
+        "kind": "RustTypeDeclarationInventory",
+        "source_decl_hash": "81d16d1ab0cf361b33a43ddf094e85925104e36ca633b8c1e37283b94eb6ce73",
+        "source_decl_span": "locator-only",
+        "source_file_hash": "cb9a919b1938d9eb1c57628c2a95d7969b97c56b6ca80378ed4d00d100ed11fc"
+      },
+      "declared_resource_domain_subaxis": null,
+      "declared_resource_domain_subaxis_authority": null,
+      "dependency_role": null,
+      "diagnostic_return_type": "legacy_observer::LoopRouteShadowReport",
+      "diagnostic_return_type_tokens": [
+        "legacy_observer::LoopRouteShadowReport"
+      ],
+      "normalized_type_name": "LoopRouteShadowReport",
+      "registry_row_state": "TypeIdentityOnly",
+      "resource_kind": "DomainObjectResource",
+      "semantic_resource_id": "semantic-resource:type-decl:src/mir/builder/control_flow/joinir/route_entry/registry/legacy_observer.rs::LoopRouteShadowReport:L61",
+      "type_decl_kind": "RustTypeDeclaration",
+      "type_decl_ref": "type-decl:src/mir/builder/control_flow/joinir/route_entry/registry/legacy_observer.rs::LoopRouteShadowReport:L61"
+    }
+  ]
+}
