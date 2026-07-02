@@ -2042,6 +2042,41 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-parent-policy-lane-evidence-source-discovery-inventory-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_carrier_type_parent_policy_lane_evidence_source_discovery_inventory_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-010",
+      "card": "docs/development/current/main/phases/phase-296x/2091-SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-010.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-wider-route-selection-basis-010-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_source_selfhost_wider_route_selection_basis_010_guard.sh",
+      "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-MISSING-PROJECTION-POLICY-CLUSTER-RESOLUTION-RERUN-005",
+      "card": "docs/development/current/main/phases/phase-296x/2092-MIRBUILDER-MISSING-PROJECTION-POLICY-CLUSTER-RESOLUTION-RERUN-005.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-policy-cluster-resolution-rerun-005-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_missing_projection_policy_cluster_resolution_rerun_005_guard.sh",
+      "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-MISSING-PROJECTION-POLICY-POST-TYPE-EXHAUSTION-SELECTION-BASIS-001",
+      "card": "docs/development/current/main/phases/phase-296x/2093-MIRBUILDER-MISSING-PROJECTION-POLICY-POST-TYPE-EXHAUSTION-SELECTION-BASIS-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-policy-post-type-exhaustion-selection-basis-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_missing_projection_policy_post_type_exhaustion_selection_basis_guard.sh",
+      "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-MISSING-PROJECTION-POLICY-POST-TYPE-EXHAUSTION-SELECTION-RERUN-001",
+      "card": "docs/development/current/main/phases/phase-296x/2094-MIRBUILDER-MISSING-PROJECTION-POLICY-POST-TYPE-EXHAUSTION-SELECTION-RERUN-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-policy-post-type-exhaustion-selection-rerun-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_missing_projection_policy_post_type_exhaustion_selection_rerun_guard.sh",
+      "role": "current_queue"
+    },
+    {
+      "token": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-011",
+      "card": "docs/development/current/main/phases/phase-296x/2095-SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-011.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-wider-route-selection-basis-011-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_source_selfhost_wider_route_selection_basis_011_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {

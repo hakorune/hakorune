@@ -143,7 +143,7 @@ latest_diagnostics:
   latest_wider_selector_token = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-008
   latest_remaining_axis_priority_basis_token = MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-PRIORITY-BASIS-001
   latest_remaining_axis_priority_rerun_token = MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-PRIORITY-RERUN-001
-  latest_parent_policy_evidence_source_discovery_inventory_token = MIRBUILDER-CARRIER-TYPE-PARENT-POLICY-LANE-EVIDENCE-SOURCE-DISCOVERY-INVENTORY-001
+  latest_wider_selector_basis_010_token = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-010
   latest_stop_token = MIRBUILDER-DOMAIN-OBJECT-ID-SEMANTIC-RESOURCE-DOMAIN-DECLARATION-INVENTORY-001
   selector_basis_token = MIRBUILDER-DOMAIN-OBJECT-ID-TYPED-DEPENDENCY-ROOT-AUTHORITY-BASIS-001
   previous_selector_basis_token = MIRBUILDER-DOMAIN-OBJECT-ID-SUBAXIS-MECHANICAL-SELECTION-BASIS-001
@@ -415,20 +415,20 @@ Detailed evidence lives in phase cards, fixtures, and git history.
 
 ## Active Next 3
 ```text
-1. MIRBUILDER-CARRIER-TYPE-PARENT-POLICY-LANE-EVIDENCE-SOURCE-DISCOVERY-BASIS-001
-   status=closed; boundary=ParentPolicyLaneEvidenceSourceDiscoveryBasisDefined
+1. MIRBUILDER-MISSING-PROJECTION-POLICY-POST-TYPE-EXHAUSTION-SELECTION-BASIS-001
+   status=closed; boundary=MissingProjectionPolicyPostTypeExhaustionSelectorBasisDefined
 
-2. MIRBUILDER-CARRIER-TYPE-PARENT-POLICY-LANE-EVIDENCE-SOURCE-DISCOVERY-INVENTORY-001
-   status=closed; boundary=NoCarrierTypeParentPolicyLaneEvidenceSourceAuthority
+2. MIRBUILDER-MISSING-PROJECTION-POLICY-POST-TYPE-EXHAUSTION-SELECTION-RERUN-001
+   status=closed; boundary=NoMachineDerivedMissingProjectionPolicyRerun005Lane
 
-3. SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-010
-   status=next; boundary=post parent-policy authority exhaustion selector
+3. SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-011
+   status=closed; boundary=NoMachineDerivedPostMissingProjectionPolicyWiderLane
 
 next_documented_task =
-  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-010
+  stopped at Source Selfhost wider route-selection design stop
 
 next_after_active_3 =
-  pending wider route-selection basis 010
+  no machine-derived wider lane after MissingProjectionPolicy post-Type exhaustion
 ```
 
 ## Landed Converter Capability Summary

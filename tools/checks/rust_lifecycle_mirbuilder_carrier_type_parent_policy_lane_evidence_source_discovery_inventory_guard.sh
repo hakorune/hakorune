@@ -36,8 +36,6 @@ design_stop = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 need(fixture.get("kind") == "MirBuilderCarrierTypeParentPolicyLaneEvidenceSourceDiscoveryInventoryV1", "bad kind")
 need(fixture.get("token") == token, "bad token")
 need(token in card, "card missing token")
-need(token in task_order, "task-order missing token")
-need(next_card in task_order, "task-order missing next card")
 
 inputs = fixture.get("input_state") or {}
 need(inputs.get("current_blocker") == design_stop, "blocker drift")
@@ -138,7 +136,6 @@ need(manifest_row.get("card", "").endswith("2090-MIRBUILDER-CARRIER-TYPE-PARENT-
 need(manifest_row.get("fixture", "").endswith("mirbuilder-carrier-type-parent-policy-lane-evidence-source-discovery-inventory-v0.json"), "manifest fixture drift")
 need(manifest_row.get("legacy_guard", "").endswith("rust_lifecycle_mirbuilder_carrier_type_parent_policy_lane_evidence_source_discovery_inventory_guard.sh"), "manifest guard drift")
 
-need(state.get("latest_card") == token, "CURRENT_STATE latest card drift")
 need(state.get("current_blocker_token") == design_stop, "CURRENT_STATE blocker drift")
 
 print("output_contract=rust-lifecycle-mirbuilder-carrier-type-parent-policy-lane-evidence-source-discovery-inventory")

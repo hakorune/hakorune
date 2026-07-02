@@ -1,0 +1,339 @@
+{
+  "candidate_lanes": [
+    {
+      "candidate_cluster_count": 5,
+      "candidate_row_count": 185,
+      "lane_id": "ResidualOwnerEdgeAndShapeSignatureBlockerInventory",
+      "required_authority": [
+        "residual clusters are exactly owner-edge/shape blockers",
+        "repair lane has stable fixture input",
+        "does not select projection policy directly"
+      ],
+      "scope": "remaining blocker clusters",
+      "selected_next_card_if_eligible": "MIRBUILDER-MISSING-PROJECTION-POLICY-RESIDUAL-OWNER-EDGE-SHAPE-BLOCKER-INVENTORY-001",
+      "selection_eligible": false
+    },
+    {
+      "candidate_cluster_count": 73,
+      "candidate_row_count": 819,
+      "lane_id": "TypeOnlyProjectionPolicySelectorBasis",
+      "required_authority": [
+        "type-only clusters are not directly selectable",
+        "selector basis must define proof tuple before policy selection"
+      ],
+      "scope": "type-only clusters after TypeTransport parked",
+      "selected_next_card_if_eligible": "MIRBUILDER-MISSING-PROJECTION-POLICY-TYPE-ONLY-CLUSTER-SELECTION-BASIS-001",
+      "selection_eligible": false
+    },
+    {
+      "lane_id": "ProjectionDescriptorOverlayFreshnessRerun",
+      "required_authority": [
+        "overlay_or_descriptor_fixture_hash_stale",
+        "freshness delta affects projection-policy cluster selection"
+      ],
+      "scope": "projection descriptor overlay freshness",
+      "selected_next_card_if_eligible": "MIRBUILDER-PROJECTION-DESCRIPTOR-COVERAGE-RECLASSIFICATION-RERUN-002",
+      "selection_eligible": false
+    },
+    {
+      "lane_id": "KeepStopped",
+      "required_authority": [
+        "no exactly-one lane"
+      ],
+      "scope": "no exactly-one lane",
+      "selection_eligible": false
+    }
+  ],
+  "claims": {
+    "basis_010_exactly_one_wider_lane_as_projection_policy_proof": 0,
+    "cluster_size_as_proof": 0,
+    "coverage_percentage_as_proof": 0,
+    "family_name_as_proof": 0,
+    "generated_artifact_as_native_edit_authority": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "historical_preference_as_proof": 0,
+    "manual_axis_selection": 0,
+    "manual_family_selection": 0,
+    "manual_lane_selection": 0,
+    "manual_shape_selection": 0,
+    "native_seed_materialization": 0,
+    "new_projection_policy_selected": 0,
+    "owner_edge_repair_as_projection_policy_proof": 0,
+    "owner_name_as_proof": 0,
+    "route_membership_alone_as_proof": 0,
+    "row_count_as_proof": 0,
+    "self_signed_fixture_as_proof": 0,
+    "shape_signature_inventory_as_projection_policy_proof": 0,
+    "source_path_as_authority": 0,
+    "source_selfhost_claim": 0,
+    "type_only_cluster_direct_selection": 0,
+    "type_transport_exhausted_as_projection_policy_proof": 0
+  },
+  "decision": {
+    "kind": "KeepStopped",
+    "reason_token": "NoMachineDerivedMissingProjectionPolicyRerun005Lane",
+    "selected_lane": null,
+    "selected_next_card": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "selected_projection_policy_cluster": null
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "missing_projection_policy_rerun_005": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-policy-cluster-resolution-rerun-005-v0.json",
+    "post_type_exhaustion_selection_basis": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-policy-post-type-exhaustion-selection-basis-v0.json"
+  },
+  "kind": "MirBuilderMissingProjectionPolicyPostTypeExhaustionSelectionRerunV1",
+  "post_type_transport_inventory": {
+    "input_candidate_count": 1004,
+    "input_cluster_count": 78,
+    "remaining_blocker_candidate_count": 185,
+    "remaining_blocker_classes": [
+      "NoExactOrFixtureMappedOwnerEdge",
+      "MissingShapeSignatureClusterAxis"
+    ],
+    "remaining_blocker_cluster_count": 5,
+    "remaining_blocker_clusters": [
+      {
+        "candidate_count": 90,
+        "cluster_id": "projection_policy::OwnerEdgeConfidenceMissing::unknown_shape::None::OtherMissingProjectionPolicyCluster::borrow=NoReturnedBorrow::control=StraightLine::type=Missing::call=SomeUnknown::verifier=Present",
+        "owner_edge_confidence": "None",
+        "post_type_blocked_by": [
+          "MissingShapeSignatureClusterAxis",
+          "NoExactOrFixtureMappedOwnerEdge"
+        ],
+        "shape_signature": "unknown_shape",
+        "type_transport_axis": "Missing",
+        "v4_blocked_by": [
+          "MissingShapeSignatureClusterAxis",
+          "NoExactOrFixtureMappedOwnerEdge",
+          "TypeTransportMissing"
+        ]
+      },
+      {
+        "candidate_count": 39,
+        "cluster_id": "projection_policy::OwnerEdgeConfidenceMissing::unknown_shape::None::OtherMissingProjectionPolicyCluster::borrow=NoReturnedBorrow::control=StraightLine::type=Known::call=SomeUnknown::verifier=Present",
+        "owner_edge_confidence": "None",
+        "post_type_blocked_by": [
+          "MissingShapeSignatureClusterAxis",
+          "NoExactOrFixtureMappedOwnerEdge"
+        ],
+        "shape_signature": "unknown_shape",
+        "type_transport_axis": "Known",
+        "v4_blocked_by": [
+          "MissingShapeSignatureClusterAxis",
+          "NoExactOrFixtureMappedOwnerEdge"
+        ]
+      },
+      {
+        "candidate_count": 34,
+        "cluster_id": "projection_policy::OwnerEdgeConfidenceMissing::unknown_shape::None::OtherMissingProjectionPolicyCluster::borrow=NoBorrow::control=StraightLine::type=Missing::call=SomeUnknown::verifier=Present",
+        "owner_edge_confidence": "None",
+        "post_type_blocked_by": [
+          "MissingShapeSignatureClusterAxis",
+          "NoExactOrFixtureMappedOwnerEdge"
+        ],
+        "shape_signature": "unknown_shape",
+        "type_transport_axis": "Missing",
+        "v4_blocked_by": [
+          "MissingShapeSignatureClusterAxis",
+          "NoExactOrFixtureMappedOwnerEdge",
+          "TypeTransportMissing"
+        ]
+      },
+      {
+        "candidate_count": 21,
+        "cluster_id": "projection_policy::OwnerEdgeConfidenceMissing::unknown_shape::None::OtherMissingProjectionPolicyCluster::borrow=NoBorrow::control=StraightLine::type=Known::call=SomeUnknown::verifier=Present",
+        "owner_edge_confidence": "None",
+        "post_type_blocked_by": [
+          "MissingShapeSignatureClusterAxis",
+          "NoExactOrFixtureMappedOwnerEdge"
+        ],
+        "shape_signature": "unknown_shape",
+        "type_transport_axis": "Known",
+        "v4_blocked_by": [
+          "MissingShapeSignatureClusterAxis",
+          "NoExactOrFixtureMappedOwnerEdge"
+        ]
+      },
+      {
+        "candidate_count": 1,
+        "cluster_id": "projection_policy::OwnerEdgeConfidenceMissing::unknown_shape::None::OtherMissingProjectionPolicyCluster::borrow=BorrowPolicyNeeded::control=StraightLine::type=Missing::call=SomeUnknown::verifier=Present",
+        "owner_edge_confidence": "None",
+        "post_type_blocked_by": [
+          "MissingShapeSignatureClusterAxis",
+          "NoExactOrFixtureMappedOwnerEdge"
+        ],
+        "shape_signature": "unknown_shape",
+        "type_transport_axis": "Missing",
+        "v4_blocked_by": [
+          "MissingShapeSignatureClusterAxis",
+          "NoExactOrFixtureMappedOwnerEdge",
+          "TypeTransportMissing"
+        ]
+      }
+    ],
+    "type_only_candidate_count": 819,
+    "type_only_cluster_count": 73,
+    "type_only_cluster_samples": [
+      {
+        "candidate_count": 87,
+        "cluster_id": "projection_policy::UnsupportedDirectShape::shape.join_i_r_route_verify::FixtureMapped::JoinIRRouteVerifyCluster::borrow=NoBorrow::control=StraightLine::type=Missing::call=AllKnown::verifier=Present",
+        "owner_edge_confidence": "FixtureMapped",
+        "post_type_blocked_by": [],
+        "shape_signature": "shape.join_i_r_route_verify",
+        "type_transport_axis": "Missing",
+        "v4_blocked_by": [
+          "TypeTransportMissing"
+        ]
+      },
+      {
+        "candidate_count": 51,
+        "cluster_id": "projection_policy::UnsupportedDirectShape::shape.recipe_tree_matcher::FixtureMapped::RecipeTreeMatcherCluster::borrow=NoBorrow::control=StraightLine::type=Missing::call=AllKnown::verifier=Present",
+        "owner_edge_confidence": "FixtureMapped",
+        "post_type_blocked_by": [],
+        "shape_signature": "shape.recipe_tree_matcher",
+        "type_transport_axis": "Missing",
+        "v4_blocked_by": [
+          "TypeTransportMissing"
+        ]
+      },
+      {
+        "candidate_count": 50,
+        "cluster_id": "projection_policy::UnsupportedDirectShape::shape.loop_break_plan::FixtureMapped::LoopBreakPlanCluster::borrow=NoBorrow::control=StructuredLoop::type=Missing::call=AllKnown::verifier=Present",
+        "owner_edge_confidence": "FixtureMapped",
+        "post_type_blocked_by": [],
+        "shape_signature": "shape.loop_break_plan",
+        "type_transport_axis": "Missing",
+        "v4_blocked_by": [
+          "TypeTransportMissing"
+        ]
+      },
+      {
+        "candidate_count": 45,
+        "cluster_id": "projection_policy::UnsupportedDirectShape::shape.statement_value_construction::FixtureMapped::StatementValueConstructionCluster::borrow=NoReturnedBorrow::control=StraightLine::type=Missing::call=AllKnown::verifier=Present",
+        "owner_edge_confidence": "FixtureMapped",
+        "post_type_blocked_by": [],
+        "shape_signature": "shape.statement_value_construction",
+        "type_transport_axis": "Missing",
+        "v4_blocked_by": [
+          "TypeTransportMissing"
+        ]
+      },
+      {
+        "candidate_count": 42,
+        "cluster_id": "projection_policy::UnsupportedDirectShape::shape.call_lowering::FixtureMapped::CallLoweringCluster::borrow=NoReturnedBorrow::control=StraightLine::type=Missing::call=AllKnown::verifier=Present",
+        "owner_edge_confidence": "FixtureMapped",
+        "post_type_blocked_by": [],
+        "shape_signature": "shape.call_lowering",
+        "type_transport_axis": "Missing",
+        "v4_blocked_by": [
+          "TypeTransportMissing"
+        ]
+      },
+      {
+        "candidate_count": 38,
+        "cluster_id": "projection_policy::UnsupportedDirectShape::shape.plan_parts_assembly::FixtureMapped::PlanPartsAssemblyCluster::borrow=NoReturnedBorrow::control=StraightLine::type=Missing::call=AllKnown::verifier=Present",
+        "owner_edge_confidence": "FixtureMapped",
+        "post_type_blocked_by": [],
+        "shape_signature": "shape.plan_parts_assembly",
+        "type_transport_axis": "Missing",
+        "v4_blocked_by": [
+          "TypeTransportMissing"
+        ]
+      },
+      {
+        "candidate_count": 34,
+        "cluster_id": "projection_policy::UnsupportedDirectShape::shape.join_i_r_route_verify::FixtureMapped::JoinIRRouteVerifyCluster::borrow=NoReturnedBorrow::control=StraightLine::type=Missing::call=AllKnown::verifier=Present",
+        "owner_edge_confidence": "FixtureMapped",
+        "post_type_blocked_by": [],
+        "shape_signature": "shape.join_i_r_route_verify",
+        "type_transport_axis": "Missing",
+        "v4_blocked_by": [
+          "TypeTransportMissing"
+        ]
+      },
+      {
+        "candidate_count": 33,
+        "cluster_id": "projection_policy::UnsupportedDirectShape::shape.emission_ssa_phi::FixtureMapped::EmissionSsaPhiCluster::borrow=NoReturnedBorrow::control=PhiRequired::type=Missing::call=AllKnown::verifier=Present",
+        "owner_edge_confidence": "FixtureMapped",
+        "post_type_blocked_by": [],
+        "shape_signature": "shape.emission_ssa_phi",
+        "type_transport_axis": "Missing",
+        "v4_blocked_by": [
+          "TypeTransportMissing"
+        ]
+      },
+      {
+        "candidate_count": 31,
+        "cluster_id": "projection_policy::UnsupportedDirectShape::shape.plan_facts::FixtureMapped::PlanFactsCluster::borrow=NoBorrow::control=StraightLine::type=Missing::call=AllKnown::verifier=Present",
+        "owner_edge_confidence": "FixtureMapped",
+        "post_type_blocked_by": [],
+        "shape_signature": "shape.plan_facts",
+        "type_transport_axis": "Missing",
+        "v4_blocked_by": [
+          "TypeTransportMissing"
+        ]
+      },
+      {
+        "candidate_count": 29,
+        "cluster_id": "projection_policy::UnsupportedDirectShape::shape.context_registry::FixtureMapped::ContextRegistryCluster::borrow=NoReturnedBorrow::control=StraightLine::type=Missing::call=AllKnown::verifier=Present",
+        "owner_edge_confidence": "FixtureMapped",
+        "post_type_blocked_by": [],
+        "shape_signature": "shape.context_registry",
+        "type_transport_axis": "Missing",
+        "v4_blocked_by": [
+          "TypeTransportMissing"
+        ]
+      }
+    ],
+    "type_only_clusters_are_directly_selectable": false,
+    "type_transport_missing_cluster_count_from_v4": 76,
+    "type_transport_missing_treated_as_parked_count": 76
+  },
+  "provenance": {
+    "missing_projection_policy_rerun_005_hash": "714c30f8a2199df12104d09a30f7612fe44aae9c6f6bbcc7b72fb0c8ed6b9909",
+    "post_type_exhaustion_selection_basis_hash": "04d218a90fdf5f3a093c9b9be833b6323cfb638d7f96ff28d3f3fdbb0651f574"
+  },
+  "schema_version": 0,
+  "selector_rule": {
+    "allowed_proof_axes": [
+      "parked_lane_reason_tokens",
+      "v4_cluster_blocker_inventory",
+      "post_type_transport_blocker_inventory",
+      "prior_overlay_or_descriptor_fixture_freshness_if_hash_consumed",
+      "exactly_one_machine_derived_candidate"
+    ],
+    "basis_selects_projection_policy": false,
+    "forbidden_proof_axes": [
+      "row_count",
+      "cluster_size",
+      "coverage_percentage",
+      "source_path",
+      "owner_name",
+      "family_name",
+      "route_membership_alone",
+      "historical_preference",
+      "lexical_order",
+      "apparent_simplicity",
+      "manual_lane_selection",
+      "manual_family_selection",
+      "manual_shape_selection",
+      "manual_axis_selection",
+      "self_signed_fixture"
+    ],
+    "if_zero_or_multiple_keep_stopped": true,
+    "name": "MissingProjectionPolicyPostTypeExhaustionSelectorV1",
+    "selection_requires_exactly_one_machine_derived_lane_or_card": true,
+    "type_transport_missing_is_parked_not_deleted": true
+  },
+  "summary": {
+    "candidate_lane_count": 4,
+    "new_projection_policy_selected": 0,
+    "remaining_blocker_candidate_count": 185,
+    "remaining_blocker_cluster_count": 5,
+    "selection_eligible_lane_count": 0,
+    "type_only_candidate_count": 819,
+    "type_only_cluster_count": 73
+  },
+  "token": "MIRBUILDER-MISSING-PROJECTION-POLICY-POST-TYPE-EXHAUSTION-SELECTION-RERUN-001"
+}

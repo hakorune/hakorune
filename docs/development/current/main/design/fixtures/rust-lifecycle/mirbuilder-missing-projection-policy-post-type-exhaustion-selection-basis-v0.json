@@ -1,0 +1,131 @@
+{
+  "candidate_lanes": [
+    {
+      "candidate_cluster_count": 5,
+      "candidate_row_count": 185,
+      "lane_id": "ResidualOwnerEdgeAndShapeSignatureBlockerInventory",
+      "required_authority": [
+        "residual clusters are exactly owner-edge/shape blockers",
+        "repair lane has stable fixture input",
+        "does not select projection policy directly"
+      ],
+      "scope": "remaining blocker clusters",
+      "selected_next_card_if_eligible": "MIRBUILDER-MISSING-PROJECTION-POLICY-RESIDUAL-OWNER-EDGE-SHAPE-BLOCKER-INVENTORY-001",
+      "selection_eligible": false
+    },
+    {
+      "candidate_cluster_count": 73,
+      "candidate_row_count": 819,
+      "lane_id": "TypeOnlyProjectionPolicySelectorBasis",
+      "required_authority": [
+        "type-only clusters are not directly selectable",
+        "selector basis must define proof tuple before policy selection"
+      ],
+      "scope": "type-only clusters after TypeTransport parked",
+      "selected_next_card_if_eligible": "MIRBUILDER-MISSING-PROJECTION-POLICY-TYPE-ONLY-CLUSTER-SELECTION-BASIS-001",
+      "selection_eligible": false
+    },
+    {
+      "lane_id": "ProjectionDescriptorOverlayFreshnessRerun",
+      "required_authority": [
+        "overlay_or_descriptor_fixture_hash_stale",
+        "freshness delta affects projection-policy cluster selection"
+      ],
+      "scope": "projection descriptor overlay freshness",
+      "selected_next_card_if_eligible": "MIRBUILDER-PROJECTION-DESCRIPTOR-COVERAGE-RECLASSIFICATION-RERUN-002",
+      "selection_eligible": false
+    },
+    {
+      "lane_id": "KeepStopped",
+      "required_authority": [
+        "no exactly-one lane"
+      ],
+      "scope": "no exactly-one lane",
+      "selection_eligible": false
+    }
+  ],
+  "claims": {
+    "basis_010_exactly_one_wider_lane_as_projection_policy_proof": 0,
+    "cluster_size_as_proof": 0,
+    "coverage_percentage_as_proof": 0,
+    "family_name_as_proof": 0,
+    "generated_artifact_as_native_edit_authority": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "historical_preference_as_proof": 0,
+    "manual_axis_selection": 0,
+    "manual_family_selection": 0,
+    "manual_lane_selection": 0,
+    "manual_shape_selection": 0,
+    "native_seed_materialization": 0,
+    "new_projection_policy_selected": 0,
+    "owner_edge_repair_as_projection_policy_proof": 0,
+    "owner_name_as_proof": 0,
+    "route_membership_alone_as_proof": 0,
+    "row_count_as_proof": 0,
+    "self_signed_fixture_as_proof": 0,
+    "shape_signature_inventory_as_projection_policy_proof": 0,
+    "source_path_as_authority": 0,
+    "source_selfhost_claim": 0,
+    "type_only_cluster_direct_selection": 0,
+    "type_transport_exhausted_as_projection_policy_proof": 0
+  },
+  "decision": {
+    "kind": "SelectPostTypeExhaustionSelectionRerun",
+    "reason_token": "MissingProjectionPolicyPostTypeExhaustionSelectorBasisDefined",
+    "selected_lane": null,
+    "selected_next_card": "MIRBUILDER-MISSING-PROJECTION-POLICY-POST-TYPE-EXHAUSTION-SELECTION-RERUN-001"
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "missing_projection_policy_cluster_resolution_v4": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-policy-cluster-resolution-v4-v0.json",
+    "missing_projection_policy_rerun_005": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-policy-cluster-resolution-rerun-005-v0.json",
+    "wider_route_selection_basis_010": "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-wider-route-selection-basis-010-v0.json"
+  },
+  "kind": "MirBuilderMissingProjectionPolicyPostTypeExhaustionSelectionBasisV1",
+  "provenance": {
+    "missing_projection_policy_cluster_resolution_v4_hash": "7a4deb7949e9c260e305f32894dd4aeca64f53ef51c464abd79180c27e704527",
+    "missing_projection_policy_rerun_005_hash": "714c30f8a2199df12104d09a30f7612fe44aae9c6f6bbcc7b72fb0c8ed6b9909",
+    "wider_route_selection_basis_010_hash": "1d0a314e9310b711f94ef21bf14387218d8aec846103aab6ea25eb4c4aac3fc5"
+  },
+  "schema_version": 0,
+  "selector_rule": {
+    "allowed_proof_axes": [
+      "parked_lane_reason_tokens",
+      "v4_cluster_blocker_inventory",
+      "post_type_transport_blocker_inventory",
+      "prior_overlay_or_descriptor_fixture_freshness_if_hash_consumed",
+      "exactly_one_machine_derived_candidate"
+    ],
+    "basis_selects_projection_policy": false,
+    "forbidden_proof_axes": [
+      "row_count",
+      "cluster_size",
+      "coverage_percentage",
+      "source_path",
+      "owner_name",
+      "family_name",
+      "route_membership_alone",
+      "historical_preference",
+      "lexical_order",
+      "apparent_simplicity",
+      "manual_lane_selection",
+      "manual_family_selection",
+      "manual_shape_selection",
+      "manual_axis_selection",
+      "self_signed_fixture"
+    ],
+    "if_zero_or_multiple_keep_stopped": true,
+    "name": "MissingProjectionPolicyPostTypeExhaustionSelectorV1",
+    "selection_requires_exactly_one_machine_derived_lane_or_card": true,
+    "type_transport_missing_is_parked_not_deleted": true
+  },
+  "summary": {
+    "remaining_blocker_candidate_count": 185,
+    "remaining_blocker_cluster_count": 5,
+    "selection_eligible_lane_count": 0,
+    "type_only_candidate_count": 819,
+    "type_only_cluster_count": 73
+  },
+  "token": "MIRBUILDER-MISSING-PROJECTION-POLICY-POST-TYPE-EXHAUSTION-SELECTION-BASIS-001"
+}
