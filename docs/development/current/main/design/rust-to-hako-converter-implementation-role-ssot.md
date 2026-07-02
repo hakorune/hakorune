@@ -31,6 +31,55 @@ family. A converter implementation migration makes the tool that projects
 facts/plans into typed artifact IR run in `.hako`. These are related but not
 the same task.
 
+## Two-Loop Separation Rule
+
+Do not mix the converter-completion loop with the Source Selfhost adoption
+selector loop.
+
+```text
+converter-completion loop:
+  run the .hako mirbuilder mainline emit route
+  observe the first unsupported Program(JSON v0) shape
+  add exactly one accepted shape in .hako mirbuilder
+  pin it with one fixture / smoke
+  rerun the quick suite
+
+Source Selfhost adoption selector loop:
+  select whether a Rust semantic owner can become native .hako edit authority
+  require non-self-signed authority and exact-one selector proof
+  keep Source Selfhost stopped when proof is absent
+```
+
+The Source Selfhost design-stop closeout does not mean the `.hako` mirbuilder
+converter is complete. It only means no current machine-derived semantic owner
+promotion is safe. Converter-completion work may continue when it is limited to
+new `.hako` mirbuilder acceptance shapes and does not claim Source Selfhost.
+
+Allowed converter-completion work while Source Selfhost is stopped:
+
+```text
+failure diagnostics for hako-mainline emit
+one Program(JSON v0) shape acceptance
+one fixture / smoke pin per accepted shape
+quick-suite or fast-gate evidence refresh
+```
+
+Forbidden in that loop:
+
+```text
+Source Selfhost claim
+HakoAdopted decision
+native seed materialization
+semantic owner selection
+compat fallback enablement
+delegate fallback enablement
+manual selection by row count / path / owner name / history
+```
+
+If the first unsupported shape is not visible, the next task is a diagnostic
+pin. Do not guess the shape and do not widen acceptance before the freeze tag,
+stderr tail, or Program(JSON v0) slice is visible.
+
 ## Converter Completion Stop-Line
 
 The converter exists to build a verified bridge into selfhost. Completing more

@@ -274,6 +274,130 @@ stageb_program_json_v0_direct_emit_fail_message() {
   esac
 }
 
+STAGEB_PROGRAM_JSON_V0_RAW_STDOUT_FILE=""
+STAGEB_PROGRAM_JSON_V0_RAW_STDERR_FILE=""
+STAGEB_PROGRAM_JSON_V0_CHILD_RC=""
+STAGEB_PROGRAM_JSON_V0_EXTRACT_RC=""
+
+cleanup_stageb_program_json_v0_diag_files() {
+  rm -f "${STAGEB_PROGRAM_JSON_V0_RAW_STDOUT_FILE:-}" "${STAGEB_PROGRAM_JSON_V0_RAW_STDERR_FILE:-}" 2>/dev/null || true
+  STAGEB_PROGRAM_JSON_V0_RAW_STDOUT_FILE=""
+  STAGEB_PROGRAM_JSON_V0_RAW_STDERR_FILE=""
+}
+
+reset_stageb_program_json_v0_diag() {
+  cleanup_stageb_program_json_v0_diag_files
+  STAGEB_PROGRAM_JSON_V0_CHILD_RC=""
+  STAGEB_PROGRAM_JSON_V0_EXTRACT_RC=""
+}
+
+stageb_program_json_v0_diag_has_literal() {
+  local needle="$1" file
+  for file in "${STAGEB_PROGRAM_JSON_V0_RAW_STDERR_FILE:-}" "${STAGEB_PROGRAM_JSON_V0_RAW_STDOUT_FILE:-}"; do
+    if [ -s "$file" ] && grep -F -q "$needle" "$file"; then
+      return 0
+    fi
+  done
+  return 1
+}
+
+stageb_program_json_v0_first_diag_line_containing() {
+  local needle="$1" file line
+  for file in "${STAGEB_PROGRAM_JSON_V0_RAW_STDERR_FILE:-}" "${STAGEB_PROGRAM_JSON_V0_RAW_STDOUT_FILE:-}"; do
+    if [ ! -s "$file" ]; then
+      continue
+    fi
+    line="$(grep -F -m 1 "$needle" "$file" || true)"
+    if [ -n "$line" ]; then
+      printf '%s' "$line"
+      return 0
+    fi
+  done
+  return 1
+}
+
+stageb_program_json_v0_first_diag_line_matching() {
+  local pattern="$1" file line
+  for file in "${STAGEB_PROGRAM_JSON_V0_RAW_STDERR_FILE:-}" "${STAGEB_PROGRAM_JSON_V0_RAW_STDOUT_FILE:-}"; do
+    if [ ! -s "$file" ]; then
+      continue
+    fi
+    line="$(grep -E -m 1 "$pattern" "$file" || true)"
+    if [ -n "$line" ]; then
+      printf '%s' "$line"
+      return 0
+    fi
+  done
+  return 1
+}
+
+classify_stageb_program_json_v0_failure() {
+  if stageb_program_json_v0_diag_has_literal "VM keep/reference execution is not available in this build"; then
+    printf '%s' "EnvironmentMissingVmReference"
+    return 0
+  fi
+  if stageb_program_json_v0_diag_has_literal "[freeze:contract][hako_mirbuilder]"; then
+    printf '%s' "HakoMirbuilderFreezeContract"
+    return 0
+  fi
+  if stageb_program_json_v0_diag_has_literal "[freeze:contract]"; then
+    printf '%s' "StageBFreezeContract"
+    return 0
+  fi
+  if [ "${STAGEB_PROGRAM_JSON_V0_CHILD_RC:-}" != "0" ]; then
+    printf '%s' "StageBChildExecutionFailed"
+    return 0
+  fi
+  if [ "${STAGEB_PROGRAM_JSON_V0_EXTRACT_RC:-}" != "0" ]; then
+    printf '%s' "StageBProgramJsonMissing"
+    return 0
+  fi
+  printf '%s' "UnknownStageBProgramJsonFailure"
+}
+
+report_stageb_program_json_v0_mainline_only_failure_detail() {
+  if [ "${HAKO_EMIT_MIR_MAINLINE_ONLY:-0}" != "1" ]; then
+    return 0
+  fi
+
+  local failure_class first_freeze first_any_freeze first_env_error
+  failure_class="$(classify_stageb_program_json_v0_failure)"
+
+  echo "[stageb/program-json-v0:fail:detail] child_rc=${STAGEB_PROGRAM_JSON_V0_CHILD_RC:-unknown} extract_rc=${STAGEB_PROGRAM_JSON_V0_EXTRACT_RC:-unknown} input=$IN" >&2
+  echo "[stageb/program-json-v0:fail:class] class=$failure_class" >&2
+
+  first_env_error="$(stageb_program_json_v0_first_diag_line_containing "VM keep/reference execution is not available in this build" || true)"
+  if [ -n "$first_env_error" ]; then
+    echo "[stageb/program-json-v0:fail:environment] $first_env_error" >&2
+  fi
+
+  first_freeze="$(stageb_program_json_v0_first_diag_line_matching '\[freeze:contract\]\[hako_mirbuilder\]' || true)"
+  if [ -n "$first_freeze" ]; then
+    echo "[stageb/program-json-v0:fail:first-hako-mirbuilder-freeze] $first_freeze" >&2
+  else
+    first_any_freeze="$(stageb_program_json_v0_first_diag_line_matching '\[freeze:contract\]' || true)"
+    if [ -n "$first_any_freeze" ]; then
+      echo "[stageb/program-json-v0:fail:first-freeze] $first_any_freeze" >&2
+    else
+      echo "[stageb/program-json-v0:fail:first-freeze] <none>" >&2
+    fi
+  fi
+
+  if [ -s "${STAGEB_PROGRAM_JSON_V0_RAW_STDERR_FILE:-}" ]; then
+    echo "[stageb/program-json-v0:fail:stderr-tail] Last 80 lines:" >&2
+    tail -n 80 "$STAGEB_PROGRAM_JSON_V0_RAW_STDERR_FILE" >&2 || true
+  else
+    echo "[stageb/program-json-v0:fail:stderr-tail] <empty>" >&2
+  fi
+
+  if [ -s "${STAGEB_PROGRAM_JSON_V0_RAW_STDOUT_FILE:-}" ]; then
+    echo "[stageb/program-json-v0:fail:stdout-tail] Last 80 lines:" >&2
+    tail -n 80 "$STAGEB_PROGRAM_JSON_V0_RAW_STDOUT_FILE" >&2 || true
+  else
+    echo "[stageb/program-json-v0:fail:stdout-tail] <empty>" >&2
+  fi
+}
+
 exit_after_forced_direct_emit() {
   local out_path="$1"
   if try_direct_emit_mir_json "$out_path"; then
@@ -294,13 +418,17 @@ exit_after_stageb_program_json_v0_fallback_policy() {
 
   if [ "${HAKO_EMIT_MIR_MAINLINE_ONLY:-0}" = "1" ]; then
     echo "$mainline_only_fail" >&2
+    report_stageb_program_json_v0_mainline_only_failure_detail
+    cleanup_stageb_program_json_v0_diag_files
     exit 1
   fi
   if try_direct_emit_mir_json "$out_path"; then
+    cleanup_stageb_program_json_v0_diag_files
     echo "[OK] MIR JSON written ($success_label): $out_path"
     exit 0
   fi
   echo "$direct_emit_fail" >&2
+  cleanup_stageb_program_json_v0_diag_files
   exit 1
 }
 
@@ -375,25 +503,40 @@ emit_stageb_program_json_v0() {
 }
 
 execute_stageb_program_json_v0_raw() {
-  local prog_json_out rc
+  local raw_stdout raw_stderr prog_json_out rc extract_rc
+  raw_stdout=$(mktemp)
+  raw_stderr=$(mktemp)
   set +e
-  prog_json_out=$((cd "$ROOT" && \
-                  NYASH_JSON_ONLY=1 NYASH_DISABLE_NY_COMPILER=1 HAKO_DISABLE_NY_COMPILER=1 \
-                  NYASH_MIR_UNIFIED_CALL=1 \
-                  NYASH_VM_HAKO_PREFER_STRICT_DEV=0 NYASH_VM_USE_FALLBACK=0 \
-                  HAKO_JOINIR_STRICT="$STAGEB_JOINIR_STRICT" HAKO_JOINIR_PLANNER_REQUIRED="$STAGEB_JOINIR_PLANNER_REQUIRED" \
-                  HAKO_STAGEB_FUNC_SCAN="${HAKO_STAGEB_FUNC_SCAN:-}" \
-                  NYASH_PARSER_STAGE3=1 HAKO_PARSER_STAGE3=1 NYASH_PARSER_ALLOW_SEMICOLON=1 \
-                  NYASH_ENABLE_USING=${NYASH_ENABLE_USING:-1} HAKO_ENABLE_USING=${HAKO_ENABLE_USING:-1} \
-                  "$NYASH_BIN" --backend vm "$ROOT/lang/src/compiler/entry/compiler_stageb.hako" -- --source "$CODE") 2>/dev/null | extract_program_json)
+  execute_stageb_program_json_v0_child_to_files "$raw_stdout" "$raw_stderr"
   rc=$?
+  if [ "$rc" -eq 0 ]; then
+    prog_json_out="$(extract_program_json < "$raw_stdout")"
+    extract_rc=$?
+  else
+    prog_json_out=""
+    extract_rc=1
+  fi
   set -e
+  rm -f "$raw_stdout" "$raw_stderr" 2>/dev/null || true
 
-  if [ $rc -ne 0 ] || [ -z "$prog_json_out" ]; then
+  if [ $rc -ne 0 ] || [ $extract_rc -ne 0 ] || [ -z "$prog_json_out" ]; then
     return 1
   fi
   printf '%s' "$prog_json_out"
   return 0
+}
+
+execute_stageb_program_json_v0_child_to_files() {
+  local raw_stdout="$1" raw_stderr="$2"
+  (cd "$ROOT" && \
+    NYASH_JSON_ONLY=1 NYASH_DISABLE_NY_COMPILER=1 HAKO_DISABLE_NY_COMPILER=1 \
+    NYASH_MIR_UNIFIED_CALL=1 \
+    NYASH_VM_HAKO_PREFER_STRICT_DEV=0 NYASH_VM_USE_FALLBACK=0 \
+    HAKO_JOINIR_STRICT="$STAGEB_JOINIR_STRICT" HAKO_JOINIR_PLANNER_REQUIRED="$STAGEB_JOINIR_PLANNER_REQUIRED" \
+    HAKO_STAGEB_FUNC_SCAN="${HAKO_STAGEB_FUNC_SCAN:-}" \
+    NYASH_PARSER_STAGE3=1 HAKO_PARSER_STAGE3=1 NYASH_PARSER_ALLOW_SEMICOLON=1 \
+    NYASH_ENABLE_USING=${NYASH_ENABLE_USING:-1} HAKO_ENABLE_USING=${HAKO_ENABLE_USING:-1} \
+    "$NYASH_BIN" --backend vm "$ROOT/lang/src/compiler/entry/compiler_stageb.hako" -- --source "$CODE") >"$raw_stdout" 2>"$raw_stderr"
 }
 
 coerce_stageb_program_json_v0_output() {
@@ -413,8 +556,24 @@ load_stageb_program_json_v0() {
   local prog_json_out
   STAGEB_PROGRAM_JSON_V0_OUT=""
   STAGEB_PROGRAM_JSON_V0_RESULT_KIND=""
+  reset_stageb_program_json_v0_diag
 
-  if ! prog_json_out="$(execute_stageb_program_json_v0_raw)"; then
+  STAGEB_PROGRAM_JSON_V0_RAW_STDOUT_FILE=$(mktemp)
+  STAGEB_PROGRAM_JSON_V0_RAW_STDERR_FILE=$(mktemp)
+
+  set +e
+  execute_stageb_program_json_v0_child_to_files "$STAGEB_PROGRAM_JSON_V0_RAW_STDOUT_FILE" "$STAGEB_PROGRAM_JSON_V0_RAW_STDERR_FILE"
+  STAGEB_PROGRAM_JSON_V0_CHILD_RC=$?
+  if [ "$STAGEB_PROGRAM_JSON_V0_CHILD_RC" -eq 0 ]; then
+    prog_json_out="$(extract_program_json < "$STAGEB_PROGRAM_JSON_V0_RAW_STDOUT_FILE")"
+    STAGEB_PROGRAM_JSON_V0_EXTRACT_RC=$?
+  else
+    prog_json_out=""
+    STAGEB_PROGRAM_JSON_V0_EXTRACT_RC=1
+  fi
+  set -e
+
+  if [ "$STAGEB_PROGRAM_JSON_V0_CHILD_RC" -ne 0 ] || [ "$STAGEB_PROGRAM_JSON_V0_EXTRACT_RC" -ne 0 ] || [ -z "$prog_json_out" ]; then
     STAGEB_PROGRAM_JSON_V0_RESULT_KIND="stageb-fail"
     return 1
   fi
@@ -425,6 +584,7 @@ load_stageb_program_json_v0() {
   fi
 
   STAGEB_PROGRAM_JSON_V0_OUT="$prog_json_out"
+  cleanup_stageb_program_json_v0_diag_files
   return 0
 }
 STAGEB_PROGRAM_JSON_V0_OUT=""

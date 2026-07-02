@@ -41,6 +41,67 @@ Phase-0 は “実装を進められる入口” を固定するフェーズ:
 - 1ブロッカー = 1コミット（fixture + gate で pin してから次へ）
 - 失敗は fail-fast: `[freeze:contract][hako_mirbuilder] ...` を先頭に統一
 
+## Failure-Driven Converter Completion Loop
+
+`.hako` mirbuilder migration advances by running the mainline emit route and
+removing one unsupported Program(JSON v0) shape at a time.
+
+```text
+1. run hako-mainline emit or the quick suite
+2. capture the first [freeze:contract][hako_mirbuilder] failure
+3. add exactly one accepted shape
+4. add or update exactly one fixture / smoke pin
+5. rerun the pin, then the quick suite
+```
+
+This loop is separate from Source Selfhost adoption. A Source Selfhost
+design-stop closeout must not block `.hako` mirbuilder shape work, as long as
+the change does not select a semantic owner or claim native `.hako` edit
+authority.
+
+Allowed:
+
+```text
+hako-mainline failure diagnostic pin
+one accepted Program(JSON v0) shape
+one reject pin for the adjacent forbidden shape
+MIR JSON replay with --mir-json-file
+```
+
+Forbidden:
+
+```text
+compat fallback
+delegate fallback
+empty/success placeholder MIR
+acceptance widening without a visible freeze tag
+Source Selfhost claim
+HakoAdopted decision
+native seed materialization
+multiple new accepted shapes in one commit
+```
+
+If the mainline emit route only reports a generic wrapper failure such as
+`Stage-B failed under mainline-only mode`, first add a diagnostic pin that
+preserves the child stdout/stderr tail and the first freeze tag. Do not
+implement a guessed shape before that evidence exists.
+
+Failure classes:
+
+```text
+EnvironmentMissingVmReference:
+  build / route preflight issue; do not add a converter shape
+
+HakoMirbuilderFreezeContract:
+  valid converter-completion frontier; add exactly one accepted shape
+
+StageBProgramJsonMissing:
+  Stage-B output/extraction issue; fix capture or Stage-B emit before shape work
+
+StageBChildExecutionFailed:
+  route execution issue; inspect stderr tail before changing mirbuilder
+```
+
 ## Concurrency note (Phase-0; SSOT)
 
 - `nowait` / `await` は既存構文だが、Phase-0 の `.hako mirbuilder` 移植の必須要件には含めない（selfhost compiler が依存しない前提）。
