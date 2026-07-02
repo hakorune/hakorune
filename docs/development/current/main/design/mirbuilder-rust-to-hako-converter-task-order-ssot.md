@@ -25,8 +25,9 @@ active blocker:
 
 current implementation task:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001.
-  ID scalar derivability rerun produced two equal derivable owners; a
-  machine-derived discriminator is required before materialization.
+  2064 consumed the 85 unresolved non-ID DomainObject/Id rows and found no
+  machine-derived subaxis priority. Design consultation is required before
+  opening a PlanRecipe, MIR, AST, Context/Span, or Other policy basis.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -61,33 +62,16 @@ landed evidence pointer:
   git history. This task-order only keeps the active blocker, fail-fast
   boundary, and Active Next 3.
 
-selected next owner:
+selected next task:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current fail-fast boundary:
-  Do not reopen `variable_map()` as a raw borrowed alias. The selected
-  projection is adopted only as a bounded native surface. Route-matrix rerun
-  002 has already derived the candidate-eligible explicit-mutation surface;
-  full VariableContext, returned mutable borrow, MutLease, Rust deletion, and
-  source selfhost claims remain parked. Selected surface id
-  `VariableContextNativeSurfaceExplicitMutationApiOnlyV1` is the bounded
-  explicit-mutation adoption target. Returned mutable borrow is replaced by
-  explicit mutation APIs, and `replace_owned_map` is the owned-map replacement
-  hook. The reference projection contract is semantic one-to-one verified
-  projection, not Rust syntax one-to-one translation. The current readiness
-  decision is bounded-consumer readiness only; `entries_snapshot` is not
-  required for current bounded consumers, `snapshot_owned` and `restore_owned`
-  remain naming cleanup only, and MutLease remains a follow-up lane. The next
-  policy does not select a family by hand: it classifies route-family rows and
-  blocks with recovery guidance when no machine-derived native adoption
-  candidate remains. The wider route-selection resolution row keeps the lane
-  stopped until consultation-gated widening or machine-derived route repair
-  resumes it. The current maintenance phase does not change that stop line; it
-  fixes stale guard vocabulary and reduces row-update cost before semantic
-  native-slice decomposition resumes. Native-slice decomposition now consumes
-  the composed-closure evidence and derives no eligible native adoption slice
-  and no concrete route repair. Source Selfhost stays stopped at the wider
-  route-selection design stop.
+  Do not select PlanRecipe, MIR, AST, Context/Span, or Other by row count,
+  owner name, route membership, source path, or apparent convenience. The
+  current non-ID DomainObject/Id subaxis resolver has
+  selection_eligible_subaxis_count = 0. Source Selfhost remains stopped until
+  external design input defines a machine-checkable authority for exactly one
+  non-ID DomainObject/Id subaxis, or routes this lane back to a wider selector.
 
 latest design decision:
   Pointer realignment, VariableContext closeout, the blocked candidate
@@ -157,12 +141,15 @@ source_selfhost_blocker = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 latest_diagnostics:
   unconverted_surface_count = 1584
-  missing_projection_policy_count = 1384
+  missing_projection_policy_count = 1004
   borrow_surface_needs_policy_count = 112
-  needs_multiple_diagnostic_axes_count = 185
-  still_unsupported_count = 18
-  near_miss_projection_policy_only_count = 1199
-  unclosed_near_miss_projection_policy_cluster_count = 0
+  type_transport_missing_item_count = 944
+  carrier_type_unclassified_count = 130
+  DomainObjectOrIdTransportAxis = 116
+  legacy_id_scalar_domain_rows = 31
+  unresolved_non_id_domain_rows = 85
+  unresolved_non_id_subaxis_candidate_count = 5
+  selection_eligible_subaxis_count = 0
 
 completed:
   VariableContext returned read borrow -> OwnedReadSnapshotProjection
@@ -405,27 +392,23 @@ Detailed evidence lives in phase cards, fixtures, and git history.
 Keep this section short.
 
 ```text
-1. MIRBUILDER-EMISSION_SSA_PHI-HAKO-NATIVE-SOURCE-SEED-001
+1. MIRBUILDER-DOMAIN-OBJECT-ID-TRANSPORT-POLICY-INVENTORY-RERUN-002
    status=closed
-   boundary=native source seed materialized
+   boundary=full 116-row ledger; closed_id_scalar_row_count = 31; unresolved_non_id_domain_row_count = 85; no subaxis selected by count
 
-2. MIRBUILDER-EMISSION_SSA_PHI-HAKO-ADOPTION-DECISION-001
+2. MIRBUILDER-DOMAIN-OBJECT-ID-UNRESOLVED-SUBAXIS-PRIORITY-RESOLUTION-001
    status=closed
-   boundary=narrow native owner adopted; no Source Selfhost claim
+   boundary=selection_eligible_subaxis_count = 0; reason = NoMachineDerivedDomainObjectIdUnresolvedSubaxisPriority
 
-3. MIRBUILDER-ID-SCALAR-PARENT-OWNED-SUBJECT-BOUNDARY-RESOLUTION-001
-   status=closed
-   boundary=RemainParentOwned; no materialization
-
-next:
-  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-007
-  boundary=select next lane after context_registry remains parent-owned
+3. SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+   status=active
+   boundary=design consultation required before selecting any non-ID DomainObject/Id subaxis
 
 next_documented_task =
-  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-007
+  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 next_after_active_3 =
-  TBD by wider route-selection basis 007
+  TBD by design consultation on non-ID DomainObject/Id subaxis authority
 ```
 
 ## Landed Converter Capability Summary

@@ -1,0 +1,137 @@
+{
+  "candidate_lanes": [
+    {
+      "lane": "UnconvertedSurfaceReportRerun004",
+      "next_card": "MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-004",
+      "reason_token": "SourceSurfaceReportStaleAfterEmissionSsaPhiAdoption",
+      "selection_eligible": true
+    },
+    {
+      "lane": "NativeOwnerCheckpointRerun002",
+      "next_card": "SOURCE-SELFHOST-NATIVE-OWNER-CHECKPOINT-RERUN-002",
+      "reason_token": "NeedsFreshSurfaceReportFirst",
+      "selection_eligible": false
+    },
+    {
+      "lane": "MissingProjectionPolicyClusterResolutionV4",
+      "next_card": "MIRBUILDER-MISSING-PROJECTION-POLICY-CLUSTER-RESOLUTION-V4",
+      "reason_token": "RequiresFreshReportAndCheckpoint",
+      "selection_eligible": false
+    },
+    {
+      "lane": "BorrowSurfacePolicyClusterRerun003",
+      "next_card": "MIRBUILDER-BORROW-SURFACE-POLICY-CLUSTER-RERUN-003",
+      "reason_token": "RequiresFreshReportAndCheckpoint",
+      "selection_eligible": false
+    },
+    {
+      "lane": "CarrierTypeTransportPriorityRerun",
+      "next_card": "MIRBUILDER-CARRIER-TYPE-TRANSPORT-PRIORITY-RERUN-003",
+      "reason_token": "RequiresFreshReportAndCheckpoint",
+      "selection_eligible": false
+    }
+  ],
+  "claims": {
+    "behavior_recipe_materialization": 0,
+    "cluster_size_as_proof": 0,
+    "coverage_percentage_as_proof": 0,
+    "derived_artifact_seed_draft_materialization": 0,
+    "generated_artifact_as_native_edit_authority": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "keep_parent_owner_as_standalone_proof": 0,
+    "manual_axis_selection": 0,
+    "manual_family_selection": 0,
+    "manual_lane_selection": 0,
+    "manual_shape_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "owner_name_as_proof": 0,
+    "projection_descriptor_coverage_as_standalone_proof": 0,
+    "remaining_owner_count_as_proof": 0,
+    "route_membership_alone_as_proof": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_path_as_authority": 0,
+    "source_plan_materialization": 0,
+    "source_selfhost_claim": 0,
+    "source_symbol_as_proof": 0,
+    "verifier_result_materialization": 0
+  },
+  "decision": {
+    "kind": "SelectUnconvertedSurfaceReportRerun",
+    "reason_token": "SourceSurfaceReportStaleAfterEmissionSsaPhiAdoption",
+    "selected_next_card": "MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-004",
+    "selected_owner_edge_id": null
+  },
+  "freshness": {
+    "current_native_owner_manifest_hash": "4cf64ac98ff5deed6d784e8434bc3254e00df1bd456ab1c3ce52a771e22a9dfa",
+    "emission_ssa_phi_hako_adopted": 1,
+    "emission_ssa_phi_source_selfhost_claim": 0,
+    "freshness_reason_token": "SourceSurfaceReportStaleAfterEmissionSsaPhiAdoption",
+    "latest_native_owner_delta_tokens": [
+      "MIRBUILDER-EMISSION_SSA_PHI-HAKO-ADOPTION-DECISION-001"
+    ],
+    "native_owner_adoption_delta_count": 1,
+    "report_native_owner_adoption_ledger_hash": "ded42c9f1a6934bdec3b16c7bf7af122a882bc1d98be7ec2ac4332ca433fe89b",
+    "unconverted_surface_report_fresh_after_emission_ssa_phi_adoption": false
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "emission_ssa_phi_hako_adoption_decision": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-emission-ssa-phi-hako-adoption-decision-v0.json",
+    "local_mechanical_selector_policy": "docs/development/current/main/design/current-docs-update-policy-ssot.md",
+    "native_owner_seed_capability_rerun_010": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-native-owner-seed-capability-survey-rerun-010-v0.json",
+    "parent_owned_subject_boundary": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-parent-owned-subject-boundary-resolution-v0.json",
+    "source_selfhost_family_guard_manifest": "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-family-guard-manifest-v0.json",
+    "unconverted_surface_report": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-unconverted-surface-report-v0.json"
+  },
+  "kind": "SourceSelfhostWiderRouteSelectionBasisV7",
+  "local_authority": {
+    "local_selection_authority": "LocalMechanicalSelectorAuthorityV1",
+    "worker_inventory": "consumed",
+    "worker_inventory_scope": "read_only_current_fixtures_cards_ledgers"
+  },
+  "output_contract": "rust-lifecycle-source-selfhost-wider-route-selection-basis-007-v0",
+  "parent_owned_closeout": {
+    "classification": "RemainParentOwned",
+    "input_decision": "SelectWiderRouteSelectionBasis",
+    "reason_token": "ContextRegistryRemainsParentOwnedNotSeedEligible",
+    "selected_next_card": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-007",
+    "source_plan_materialization_allowed": false,
+    "standalone_projection_subject_established": false
+  },
+  "provenance": {
+    "emission_ssa_phi_hako_adoption_decision_hash": "b3355738cf61c89323e89c5758030a64d1eeab4459456f8ca84c0105693f0c3b",
+    "local_mechanical_selector_policy_hash": "91e4f0defedc391d4ce859bc43b57abf8196b81f6fddd7695352491f5091c800",
+    "native_owner_seed_capability_rerun_010_hash": "7766fe7161bec42d009ecb4b49c9ae8a963effbacdcc01df593a5739f9bc979e",
+    "parent_owned_subject_boundary_hash": "ed91667d9f575d369a047f75f601358f23f171a287ad4f8fb745789932cba8c8",
+    "source_selfhost_family_guard_manifest_hash": "4cf64ac98ff5deed6d784e8434bc3254e00df1bd456ab1c3ce52a771e22a9dfa",
+    "unconverted_surface_report_hash": "724c2765760cca5b37a11104d560a69bd2134de2235a0dad514d01c08cfdfa1a"
+  },
+  "schema_version": 0,
+  "seed_capability_after_adoption": {
+    "input_decision": "KeepStopped",
+    "native_seed_candidate_count": 0,
+    "reason_token": "NoRemainingIdScalarOwnerWithCompleteRefinedProofAxesAfterEmissionSsaPhiAdoption",
+    "remaining_owner_count": 1,
+    "selected_next_card": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "selection_eligible_count": 0
+  },
+  "selection_rule": {
+    "cluster_size_as_proof": false,
+    "consume_parent_owned_boundary": true,
+    "context_registry_remain_parent_owned_required": true,
+    "coverage_percentage_as_proof": false,
+    "exactly_one_lane_or_keep_stopped": true,
+    "local_mechanical_selector_authority": true,
+    "manual_lane_selection": false,
+    "native_owner_checkpoint_precedes_blocker_class_selection": true,
+    "owner_name_as_proof": false,
+    "remaining_owner_count_as_proof": false,
+    "report_freshness_precedes_checkpoint": true,
+    "worker_inventory_required_or_waived": true
+  },
+  "token": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-007"
+}

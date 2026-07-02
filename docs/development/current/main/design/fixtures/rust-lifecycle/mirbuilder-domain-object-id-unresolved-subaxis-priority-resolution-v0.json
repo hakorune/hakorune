@@ -1,0 +1,215 @@
+{
+  "candidate_subaxes": [
+    {
+      "blocked_by": [
+        "NoDependencyRootAuthority",
+        "NoPriorClosedLaneConsumptionAuthority",
+        "NoExactlyOneGuardCleanCandidate",
+        "RowCountIsDiagnosticOnly"
+      ],
+      "domain_subaxis": "AstNodeDomainTransportAxis",
+      "machine_priority_authority": "Unproven",
+      "owner_edge_counts": {
+        "mirbuilder::call_lowering": 1,
+        "mirbuilder::join_i_r_plan": 12,
+        "mirbuilder::join_i_r_route_verify": 1
+      },
+      "row_count": 14,
+      "sample_source_ids": [
+        "src/mir/builder/calls/function_lowering.rs::wrap_in_program:L83",
+        "src/mir/builder/control_flow/joinir/loop_context.rs::to_loop_ast:L94",
+        "src/mir/builder/control_flow/plan/loop_break/facts/helpers_common.rs::add:L15",
+        "src/mir/builder/control_flow/plan/loop_break/facts/helpers_common.rs::index_of_call:L54",
+        "src/mir/builder/control_flow/plan/loop_break/facts/helpers_common.rs::index_of_call_expr:L67",
+        "src/mir/builder/control_flow/plan/loop_break/facts/helpers_common.rs::length_call:L45",
+        "src/mir/builder/control_flow/plan/loop_break/facts/helpers_common.rs::lit_bool:L31",
+        "src/mir/builder/control_flow/plan/loop_break/facts/helpers_common.rs::lit_int:L24",
+        "src/mir/builder/control_flow/plan/loop_break/facts/helpers_common.rs::lit_str:L38",
+        "src/mir/builder/control_flow/plan/loop_break/facts/helpers_common.rs::substring_call:L79",
+        "src/mir/builder/control_flow/plan/loop_break/facts/helpers_common.rs::var:L8",
+        "src/mir/builder/control_flow/plan/loop_break/facts/trim_whitespace_helpers.rs::build_not_whitespace_condition:L278"
+      ],
+      "selection_eligible": false
+    },
+    {
+      "blocked_by": [
+        "NoDependencyRootAuthority",
+        "NoPriorClosedLaneConsumptionAuthority",
+        "NoExactlyOneGuardCleanCandidate",
+        "RowCountIsDiagnosticOnly"
+      ],
+      "domain_subaxis": "ContextOrSpanDomainTransportAxis",
+      "machine_priority_authority": "Unproven",
+      "owner_edge_counts": {
+        "mirbuilder::call_lowering": 1,
+        "mirbuilder::context_registry": 2
+      },
+      "row_count": 3,
+      "sample_source_ids": [
+        "crates/hakorune_mir_builder/src/metadata_context.rs::current_span:L76",
+        "crates/hakorune_mir_builder/src/type_context.rs::take_snapshot:L110",
+        "src/mir/builder/calls/context_lifecycle.rs::prepare_lowering_context:L61"
+      ],
+      "selection_eligible": false
+    },
+    {
+      "blocked_by": [
+        "NoDependencyRootAuthority",
+        "NoPriorClosedLaneConsumptionAuthority",
+        "NoExactlyOneGuardCleanCandidate",
+        "RowCountIsDiagnosticOnly"
+      ],
+      "domain_subaxis": "MirDomainTransportAxis",
+      "machine_priority_authority": "Unproven",
+      "owner_edge_counts": {
+        "<none>": 3,
+        "mirbuilder::call_lowering": 10,
+        "mirbuilder::context_registry": 2,
+        "mirbuilder::join_i_r_route_verify": 4
+      },
+      "row_count": 19,
+      "sample_source_ids": [
+        "crates/hakorune_mir_builder/src/type_context.rs::get_kind:L84",
+        "src/mir/builder/builder_metadata.rs::new_function_with_metadata:L55",
+        "src/mir/builder/calls/call_unified.rs::classify_box_kind:L24",
+        "src/mir/builder/calls/call_unified.rs::create_call_flags:L72",
+        "src/mir/builder/calls/call_unified.rs::create_mir_call:L83",
+        "src/mir/builder/calls/extern_calls.rs::explicit_extern_return_type:L235",
+        "src/mir/builder/calls/function_lowering.rs::prepare_method_signature:L14",
+        "src/mir/builder/calls/function_lowering.rs::prepare_static_method_signature:L48",
+        "src/mir/builder/calls/resolver.rs::classify_box_kind:L161",
+        "src/mir/builder/calls/special_handlers.rs::parse_type_name_to_mir:L51",
+        "src/mir/builder/calls/utils.rs::parse_type_name_to_mir:L13",
+        "src/mir/builder/calls/utils.rs::parse_type_name_to_mir:L24"
+      ],
+      "selection_eligible": false
+    },
+    {
+      "blocked_by": [
+        "NoDependencyRootAuthority",
+        "NoPriorClosedLaneConsumptionAuthority",
+        "NoExactlyOneGuardCleanCandidate",
+        "RowCountIsDiagnosticOnly"
+      ],
+      "domain_subaxis": "OtherDomainObjectTransportAxis",
+      "machine_priority_authority": "Unproven",
+      "owner_edge_counts": {
+        "<none>": 1
+      },
+      "row_count": 1,
+      "sample_source_ids": [
+        "src/mir/builder/control_flow/cleanup/policies/balanced_depth_scan_policy_box.rs::decide:L16"
+      ],
+      "selection_eligible": false
+    },
+    {
+      "blocked_by": [
+        "NoDependencyRootAuthority",
+        "NoPriorClosedLaneConsumptionAuthority",
+        "NoExactlyOneGuardCleanCandidate",
+        "RowCountIsDiagnosticOnly"
+      ],
+      "domain_subaxis": "PlanRecipeDomainTransportAxis",
+      "machine_priority_authority": "Unproven",
+      "owner_edge_counts": {
+        "<none>": 3,
+        "mirbuilder::call_lowering": 3,
+        "mirbuilder::join_i_r_plan": 34,
+        "mirbuilder::join_i_r_route_registry": 2,
+        "mirbuilder::join_i_r_route_verify": 6
+      },
+      "row_count": 48,
+      "sample_source_ids": [
+        "src/mir/builder/calls/call_unified.rs::compute_call_effects:L67",
+        "src/mir/builder/calls/effects_analyzer.rs::compute_call_effects:L37",
+        "src/mir/builder/calls/extern_calls.rs::compute_extern_effects:L289",
+        "src/mir/builder/control_flow/facts/ast_feature_extractor.rs::extract_features:L72",
+        "src/mir/builder/control_flow/facts/extractors/common_helpers/control_flow.rs::count_control_flow:L46",
+        "src/mir/builder/control_flow/generic_loop_canon/step_placement/plan.rs::classify_step_placement:L8",
+        "src/mir/builder/control_flow/joinir/merge/header_pred_policy.rs::split_header_preds:L19",
+        "src/mir/builder/control_flow/joinir/merge/tail_call_classifier.rs::classify_tail_call:L45",
+        "src/mir/builder/control_flow/joinir/route_entry/registry/legacy_observer.rs::shadow_report:L80",
+        "src/mir/builder/control_flow/joinir/route_entry/registry/mod.rs::collect_b_lite_shadow_report:L21",
+        "src/mir/builder/control_flow/joinir/routing.rs::choose_route_kind:L37",
+        "src/mir/builder/control_flow/lower/normalize/canonicalize.rs::canonicalize_loop_facts:L21"
+      ],
+      "selection_eligible": false
+    }
+  ],
+  "claims": {
+    "cluster_size_as_proof": 0,
+    "coverage_percentage_as_proof": 0,
+    "domain_object_count_as_proof": 0,
+    "domain_object_id_transport_policy_inventory_rerun_002_consumed": 1,
+    "generated_artifact_as_native_edit_authority": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "manual_axis_selection": 0,
+    "manual_carrier_selection": 0,
+    "manual_family_selection": 0,
+    "manual_shape_selection": 0,
+    "manual_subaxis_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "owner_name_as_proof": 0,
+    "route_membership_alone_as_proof": 0,
+    "row_count_as_proof": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0,
+    "unresolved_subaxis_priority_resolution_ready": 1
+  },
+  "decision": {
+    "kind": "KeepStopped",
+    "reason_token": "NoMachineDerivedDomainObjectIdUnresolvedSubaxisPriority",
+    "selected_domain_subaxis": null,
+    "selected_next_card": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+  },
+  "input_decision": {
+    "kind": "SelectUnresolvedSubaxisPriorityResolution",
+    "reason_token": "ClosedIdScalarLaneConsumedAndNonIdDomainRowsRemain",
+    "selected_next_card": "MIRBUILDER-DOMAIN-OBJECT-ID-UNRESOLVED-SUBAXIS-PRIORITY-RESOLUTION-001"
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "domain_object_id_transport_policy_inventory_rerun_002": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-domain-object-id-transport-policy-inventory-rerun-002-v0.json"
+  },
+  "kind": "MirBuilderDomainObjectIdUnresolvedSubaxisPriorityResolutionV1",
+  "local_authority": {
+    "local_selection_authority": "LocalMechanicalSelectorAuthorityV1",
+    "worker_inventory": "consumed",
+    "worker_inventory_scope": "read_only_current_fixtures_cards_ledgers"
+  },
+  "provenance": {
+    "domain_object_id_transport_policy_inventory_rerun_002_hash": "778ca61ba57fcee9d77498ee721874f7d6fed56a3b74ad71cb6fe23de0fd3ed3"
+  },
+  "recovery": {
+    "kind": "DesignConsultationRequired",
+    "question": "Which non-ID DomainObject/Id subaxis may define the next policy basis without using row count, owner name, route membership, or convenience as proof?",
+    "reason": "NoMachineDerivedDomainObjectIdUnresolvedSubaxisPriority"
+  },
+  "schema_version": 0,
+  "selection_rule": {
+    "design_consultation_required_if_no_machine_authority": true,
+    "manual_subaxis_selection": false,
+    "owner_name_as_proof": false,
+    "route_membership_alone_as_proof": false,
+    "row_count_is_diagnostic_only": true,
+    "subaxis_priority_requires_machine_authority": true
+  },
+  "summary": {
+    "candidate_subaxis_count": 5,
+    "domain_subaxis_counts": {
+      "AstNodeDomainTransportAxis": 14,
+      "ContextOrSpanDomainTransportAxis": 3,
+      "MirDomainTransportAxis": 19,
+      "OtherDomainObjectTransportAxis": 1,
+      "PlanRecipeDomainTransportAxis": 48
+    },
+    "selection_eligible_subaxis_count": 0,
+    "unresolved_non_id_domain_row_count": 85
+  },
+  "token": "MIRBUILDER-DOMAIN-OBJECT-ID-UNRESOLVED-SUBAXIS-PRIORITY-RESOLUTION-001"
+}

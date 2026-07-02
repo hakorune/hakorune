@@ -1682,6 +1682,146 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-source-plan-and-recipe-derivability-resolution-003-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_id_scalar_source_plan_and_recipe_derivability_resolution_003_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-ID-SCALAR-DERIVABLE-OWNER-DISCRIMINATOR-BASIS-001",
+      "card": "docs/development/current/main/phases/phase-296x/2040-MIRBUILDER-ID-SCALAR-DERIVABLE-OWNER-DISCRIMINATOR-BASIS-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-derivable-owner-discriminator-basis-v0.json",
+      "legacy_guard": "",
+      "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-ID-SCALAR-TYPED-EVIDENCE-INDEX-POLICY-001",
+      "card": "docs/development/current/main/phases/phase-296x/2041-MIRBUILDER-ID-SCALAR-TYPED-EVIDENCE-INDEX-POLICY-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-typed-evidence-index-policy-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_id_scalar_typed_evidence_index_policy_guard.sh",
+      "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-ID-SCALAR-OPERATION-VOCABULARY-AUTHORITY-SPLIT-001",
+      "card": "docs/development/current/main/phases/phase-296x/2042-MIRBUILDER-ID-SCALAR-OPERATION-VOCABULARY-AUTHORITY-SPLIT-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-operation-vocabulary-authority-split-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_id_scalar_operation_vocabulary_authority_split_guard.sh",
+      "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-SEMANTIC-SELECTOR-NO-LEXICAL-TIEBREAK-GUARD-001",
+      "card": "docs/development/current/main/phases/phase-296x/2043-MIRBUILDER-SEMANTIC-SELECTOR-NO-LEXICAL-TIEBREAK-GUARD-001.md",
+      "fixture": "",
+      "legacy_guard": "tools/checks/rust_lifecycle_semantic_selector_no_lexical_tiebreak_guard.sh",
+      "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-ID-SCALAR-DERIVABLE-OWNER-DISCRIMINATOR-RESOLUTION-001",
+      "card": "docs/development/current/main/phases/phase-296x/2044-MIRBUILDER-ID-SCALAR-DERIVABLE-OWNER-DISCRIMINATOR-RESOLUTION-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-derivable-owner-discriminator-resolution-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_id_scalar_derivable_owner_discriminator_resolution_guard.sh",
+      "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-ID-SCALAR-DERIVABLE-OWNER-DISCRIMINATOR-BASIS-FORMALIZATION-001",
+      "card": "docs/development/current/main/phases/phase-296x/2045-MIRBUILDER-ID-SCALAR-DERIVABLE-OWNER-DISCRIMINATOR-BASIS-FORMALIZATION-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-derivable-owner-discriminator-basis-formalization-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_id_scalar_derivable_owner_discriminator_basis_formalization_guard.sh",
+      "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-ID-SCALAR-DERIVABLE-OWNER-PROOF-AXIS-REFINEMENT-001",
+      "card": "docs/development/current/main/phases/phase-296x/2046-MIRBUILDER-ID-SCALAR-DERIVABLE-OWNER-PROOF-AXIS-REFINEMENT-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-derivable-owner-proof-axis-refinement-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_id_scalar_derivable_owner_proof_axis_refinement_guard.sh",
+      "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-ID-SCALAR-DERIVABLE-OWNER-DISCRIMINATOR-RESOLUTION-002",
+      "card": "docs/development/current/main/phases/phase-296x/2047-MIRBUILDER-ID-SCALAR-DERIVABLE-OWNER-DISCRIMINATOR-RESOLUTION-002.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-derivable-owner-discriminator-resolution-002-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_id_scalar_derivable_owner_discriminator_resolution_002_guard.sh",
+      "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-EMISSION_SSA_PHI-ID-SCALAR-SOURCE-PLAN-AND-RECIPE-001",
+      "card": "docs/development/current/main/phases/phase-296x/2048-MIRBUILDER-EMISSION_SSA_PHI-ID-SCALAR-SOURCE-PLAN-AND-RECIPE-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-emission-ssa-phi-id-scalar-source-plan-and-recipe-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_emission_ssa_phi_id_scalar_source_plan_and_recipe_guard.sh",
+      "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-EMISSION_SSA_PHI-ID-SCALAR-VERIFIER-RESULT-001",
+      "card": "docs/development/current/main/phases/phase-296x/2049-MIRBUILDER-EMISSION_SSA_PHI-ID-SCALAR-VERIFIER-RESULT-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-emission-ssa-phi-id-scalar-verifier-result-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_emission_ssa_phi_id_scalar_verifier_result_guard.sh",
+      "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-EMISSION_SSA_PHI-ID-SCALAR-DERIVED-ARTIFACT-SEED-DRAFT-001",
+      "card": "docs/development/current/main/phases/phase-296x/2050-MIRBUILDER-EMISSION_SSA_PHI-ID-SCALAR-DERIVED-ARTIFACT-SEED-DRAFT-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-emission-ssa-phi-id-scalar-derived-artifact-seed-draft-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_emission_ssa_phi_id_scalar_derived_artifact_seed_draft_guard.sh",
+      "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-ID-SCALAR-DOMAIN-SEED-READINESS-RESOLUTION-003",
+      "card": "docs/development/current/main/phases/phase-296x/2051-MIRBUILDER-ID-SCALAR-DOMAIN-SEED-READINESS-RESOLUTION-003.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-domain-seed-readiness-resolution-003-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_id_scalar_domain_seed_readiness_resolution_003_guard.sh",
+      "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-EMISSION_SSA_PHI-HAKO-NATIVE-SOURCE-SEED-001",
+      "card": "docs/development/current/main/phases/phase-296x/2052-MIRBUILDER-EMISSION_SSA_PHI-HAKO-NATIVE-SOURCE-SEED-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-emission-ssa-phi-hako-native-source-seed-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_emission_ssa_phi_hako_native_source_seed_guard.sh",
+      "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-EMISSION_SSA_PHI-HAKO-ADOPTION-DECISION-001",
+      "card": "docs/development/current/main/phases/phase-296x/2053-MIRBUILDER-EMISSION_SSA_PHI-HAKO-ADOPTION-DECISION-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-emission-ssa-phi-hako-adoption-decision-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_emission_ssa_phi_hako_adoption_decision_guard.sh",
+      "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-010",
+      "card": "docs/development/current/main/phases/phase-296x/2054-MIRBUILDER-CRATE-WIDE-NATIVE-OWNER-SEED-CAPABILITY-SURVEY-RERUN-010.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-native-owner-seed-capability-survey-rerun-010-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_crate_wide_native_owner_seed_capability_survey_rerun_010_guard.sh",
+      "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-ID-SCALAR-PARENT-OWNED-SUBJECT-BOUNDARY-RESOLUTION-001",
+      "card": "docs/development/current/main/phases/phase-296x/2055-MIRBUILDER-ID-SCALAR-PARENT-OWNED-SUBJECT-BOUNDARY-RESOLUTION-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-parent-owned-subject-boundary-resolution-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_id_scalar_parent_owned_subject_boundary_resolution_guard.sh",
+      "role": "current_queue"
+    },
+    {
+      "token": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-007",
+      "card": "docs/development/current/main/phases/phase-296x/2056-SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-007.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-wider-route-selection-basis-007-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_source_selfhost_wider_route_selection_basis_007_guard.sh",
+      "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-004",
+      "card": "docs/development/current/main/phases/phase-296x/2057-MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-004.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-crate-wide-unconverted-surface-report-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_unconverted_surface_report_rerun_004_guard.sh",
+      "role": "current_queue"
+    },
+    {
+      "token": "SOURCE-SELFHOST-NATIVE-OWNER-CHECKPOINT-RERUN-002",
+      "card": "docs/development/current/main/phases/phase-296x/2058-SOURCE-SELFHOST-NATIVE-OWNER-CHECKPOINT-RERUN-002.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-native-owner-checkpoint-rerun-002-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_source_selfhost_native_owner_checkpoint_rerun_002_guard.sh",
+      "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-MISSING-PROJECTION-POLICY-CLUSTER-RESOLUTION-V4",
+      "card": "docs/development/current/main/phases/phase-296x/2059-MIRBUILDER-MISSING-PROJECTION-POLICY-CLUSTER-RESOLUTION-V4.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-policy-cluster-resolution-v4-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_missing_projection_policy_cluster_resolution_v4_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {

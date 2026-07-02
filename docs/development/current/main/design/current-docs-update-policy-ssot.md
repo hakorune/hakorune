@@ -39,14 +39,16 @@ clear current-state owner.
 `docs/development/current/main/CURRENT_STATE.toml` is the machine-readable SSOT
 for the current lane, blocker, phase pointers, and latest card pointer.
 
-Current work is constrained to four buckets:
+Current work is constrained to the active lane named by `CURRENT_STATE.toml`
+and the durable workstream card it points to. The current active buckets are:
 
-1. mimalloc migration and optimization
-2. direct memory / DirectArray language substrate when it reduces allocator
-   workaround pressure or clarifies future fast-path ownership
-3. Array / representation fast paths only when selected by mimalloc perf
-   evidence or by the active direct-memory substrate workstream
-4. docs and shell hygiene
+1. Source Selfhost / MirBuilder Rust-to-Hako converter task order;
+2. mimalloc migration and optimization when reopened by `CURRENT_STATE.toml`;
+3. direct memory / DirectArray language substrate when it reduces allocator
+   workaround pressure or clarifies future fast-path ownership;
+4. Array / representation fast paths only when selected by current perf
+   evidence or by the active direct-memory substrate workstream;
+5. docs and shell hygiene.
 
 These buckets are the work taxonomy. Do not open a new active lane outside
 them without updating this policy and `CURRENT_STATE.toml`.
@@ -160,6 +162,80 @@ Allowed documentation during an implementation card is limited to:
 
 Everything else is a Ghost Task or commit-message note unless it changes a
 durable contract.
+
+## Local Mechanical Selector Authority
+
+Local agents may advance a selector without external design consultation when
+the next card is selected by a mechanical, machine-checkable rule rather than a
+semantic authority decision.
+
+This authority is intentionally narrow. It exists to prevent operational
+freshness checks and dependency-root selections from becoming repeated
+consultation stops.
+
+Allowed local selections:
+
+- stale report / ledger rerun selected by hash or provenance freshness;
+- native-owner checkpoint rerun selected by a fresh adoption delta;
+- missing fixture formalization when a card references a non-existent durable
+  fixture path;
+- accepted fixture `selected_next_card` closeout when the fixture guard proves
+  exactly one next card;
+- dependency graph root blocker selection when the root is explicit and all
+  other candidates depend on it;
+- exactly-one guard-clean candidate selected by a previously documented proof
+  tuple.
+
+Required acceptance for local selection:
+
+- the selector consumes current fixtures / cards / ledgers by stable path;
+- the selected lane is reproducible from fixture fields, hashes, or dependency
+  edges;
+- when multiple lanes, freshness states, or blocker classes are plausible, a
+  read-only worker inventory is run or explicitly waived with the reason in the
+  card;
+- forbidden proof axes are recorded as zero;
+- the result does not change semantic ownership authority;
+- the result does not claim Source Selfhost;
+- if selection is not exactly one, the selector keeps the design stop active
+  with a stable reason token.
+
+External consultation is still required for:
+
+- semantic owner or family selection when multiple proof-equivalent candidates
+  remain;
+- Source Selfhost claim or source authority map changes;
+- generated artifact promoted to native edit authority;
+- parent-owned surface promoted to standalone subject authority;
+- forbidden non-claim boundary reinterpretation;
+- ABI, backend route, language syntax, raw pointer / borrow semantics, or
+  runtime fallback changes;
+- new Python SemanticProjector or runner / VM / interpreter semantic owner
+  claims.
+
+Selectors using this authority should name it in the card or fixture as:
+
+```text
+local_selection_authority = LocalMechanicalSelectorAuthorityV1
+```
+
+If a worker inventory is used, record only the durable summary:
+
+```text
+worker_inventory = consumed
+worker_inventory_scope = read_only_current_fixtures_cards_ledgers
+```
+
+Example:
+
+```text
+SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-007 may locally select
+MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-004 if the unconverted surface
+report is stale after a native-owner adoption delta. If the report is fresh, it
+may locally select SOURCE-SELFHOST-NATIVE-OWNER-CHECKPOINT-RERUN-002 before any
+blocker-class lane. It may not select a semantic owner, Source Selfhost claim,
+ABI/syntax change, or parent-owned standalone promotion.
+```
 
 ## Workstream Card / Ghost Task Policy
 
