@@ -1,0 +1,36 @@
+// closure_call_shape_classifier.hako - hand-authored closure-call shape classifier
+//
+// Responsibility:
+// - classify closure call dst/arg shape into Rust oracle shape labels
+// - format the matching Rust oracle reject code
+//
+// Non-responsibility:
+// - callsite canonicalization
+// - NewClosure rewrite
+// - backend fail-fast boundary
+// - MIR instruction mutation
+// - Source Selfhost or HakoAdopted promotion
+static box ClosureCallShapeClassifierBox {
+  classify_shape(dst_present, arg_count) {
+    if dst_present == "0" {
+      return "MissingDst"
+    }
+    if arg_count != "0" {
+      return "RuntimeArgs"
+    }
+    return "CanonicalCtor"
+  }
+
+  reject_code(shape) {
+    if shape == "CanonicalCtor" {
+      return "call-closure-not-canonical"
+    }
+    if shape == "MissingDst" {
+      return "call-closure-missing-dst"
+    }
+    if shape == "RuntimeArgs" {
+      return "call-closure-runtime-args"
+    }
+    return "call-closure-unknown-shape"
+  }
+}

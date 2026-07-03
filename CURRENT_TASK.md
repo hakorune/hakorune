@@ -88,6 +88,11 @@ SOURCE-SELFHOST-RUST-TO-HAKO-CONVERTER-ROLE-PIVOT-001
   -> MIRBUILDER-GENERIC-METHOD-ROUTE-FACT-TOKEN-FORMATTER-PARITY-GATE-001
   -> MIRBUILDER-GENERIC-METHOD-ROUTE-FACT-TOKEN-FORMATTER-HAKO-ADOPTION-DECISION-001
   -> MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-008
+  -> MIRBUILDER-CLOSURE-CALL-SHAPE-CLASSIFIER-RUST-ORACLE-FIXTURE-001
+  -> MIRBUILDER-CLOSURE-CALL-SHAPE-CLASSIFIER-HAKO-NATIVE-IMPLEMENTATION-001
+  -> MIRBUILDER-CLOSURE-CALL-SHAPE-CLASSIFIER-PARITY-GATE-001
+  -> MIRBUILDER-CLOSURE-CALL-SHAPE-CLASSIFIER-HAKO-ADOPTION-DECISION-001
+  -> MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-009
 ```
 
 Rule:
@@ -136,6 +141,11 @@ generic_method_route_fact_token_formatter has a 12-row Rust-oracle fixture; next
 generic_method_route_fact_token_formatter has hand-authored .hako implementation; next is parity gate
 generic_method_route_fact_token_formatter parity gate is green; next is HakoAdoption decision
 generic_method_route_fact_token_formatter is HakoAdopted as the eighth parity pilot; next is pilot selection rerun 008
+closure_call_shape_classifier is selected as the ninth parity pilot; next is its Rust-oracle fixture
+closure_call_shape_classifier has a 4-row Rust-oracle fixture; next is hand-authored .hako implementation
+closure_call_shape_classifier has hand-authored .hako implementation; next is parity gate
+closure_call_shape_classifier parity gate is green; next is HakoAdoption decision
+closure_call_shape_classifier is HakoAdopted as the ninth parity pilot; next is pilot selection rerun 009
 ```
 
 ## Immediate Maintenance Slice

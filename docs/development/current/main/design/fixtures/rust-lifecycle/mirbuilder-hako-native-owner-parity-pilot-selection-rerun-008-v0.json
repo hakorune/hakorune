@@ -1,0 +1,72 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderHakoNativeOwnerParityPilotSelectionRerun008V1",
+  "token": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-008",
+  "input_state": {
+    "previous_hako_adoption": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-generic-method-route-fact-token-formatter-hako-adoption-decision-v0.json",
+    "previous_hako_adoption_hash": "sha256:d802a61505fc4a97a7a0cc9cf4dfd9bf2d336000480e51c9dd9cedc9c05cd0d0",
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+  },
+  "selection_policy": {
+    "candidate_ranking_is_advisory": true,
+    "manual_target_selection_allowed": true,
+    "correctness_proof_is_parity_gate": true,
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0
+  },
+  "candidate_rows": [
+    {
+      "candidate_owner": "closure_call_shape_classifier",
+      "source_path": "src/mir/ssot/closure_call.rs",
+      "source_hash": "sha256:e7d429a5f671eb4889fd1ae781f03ee096b4632136c586396178cc3f2e7d09ff",
+      "selected": true,
+      "positive_signals": [
+        "tiny shape classifier with existing Rust tests",
+        "scalar input to shape/reject-code output",
+        "no MIR traversal in selected surface",
+        "no PHI or LocalSSA surface",
+        "canonicalization rewrite can be excluded"
+      ],
+      "excluded_surface": [
+        "callsite canonicalization",
+        "NewClosure rewrite",
+        "backend fail-fast boundary",
+        "MIR instruction mutation"
+      ],
+      "selected_next_card_if_selected": "MIRBUILDER-CLOSURE-CALL-SHAPE-CLASSIFIER-RUST-ORACLE-FIXTURE-001"
+    },
+    {
+      "candidate_owner": "user_box_method_publication_state_formatter",
+      "source_path": "src/mir/user_box_method_publication.rs",
+      "selected": false,
+      "reason": "Publication tags are small but sit next to publication proof classification; defer until a tag-only seam is isolated."
+    },
+    {
+      "candidate_owner": "region_ref_slot_kind_classifier",
+      "source_path": "src/mir/region/mod.rs",
+      "selected": false,
+      "reason": "Pure MirType classification, but region/GC observation vocabulary is a separate lane."
+    }
+  ],
+  "decision": {
+    "kind": "SelectPilotOwner",
+    "reason_token": "ClosureCallShapeClassifierSelectedAsNinthParityPilot",
+    "selected_owner": "closure_call_shape_classifier",
+    "selected_rust_surface": "closure call dst/arg shape -> shape and reject code",
+    "selected_next_card": "MIRBUILDER-CLOSURE-CALL-SHAPE-CLASSIFIER-RUST-ORACLE-FIXTURE-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "native_seed_materialization": 0,
+    "hako_generation": 0,
+    "generated_artifact_as_native_edit_authority": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "callsite_canonicalization_migration": 0,
+    "new_closure_rewrite_migration": 0,
+    "backend_fail_fast_boundary_migration": 0,
+    "mir_instruction_mutation_migration": 0
+  }
+}

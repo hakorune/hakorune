@@ -24,9 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-GENERIC-METHOD-ROUTE-FACT-TOKEN-FORMATTER-HAKO-ADOPTION-DECISION-001.
-  The generic_method_route_fact_token_formatter owner is HakoAdopted as the
-  eighth narrow Rust-oracle parity pilot; next is pilot selection rerun 008.
+  MIRBUILDER-CLOSURE-CALL-SHAPE-CLASSIFIER-HAKO-ADOPTION-DECISION-001.
+  The closure_call_shape_classifier owner is HakoAdopted as the ninth narrow
+  Rust-oracle parity pilot; next is pilot selection rerun 009.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-008
+  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-009
 
 current fail-fast boundary:
   Do not re-enter full converter route selection without new non-self-signed
@@ -75,16 +75,16 @@ current fail-fast boundary:
   refresh, route collection, const emission, full AST traversal, method
   dispatch, string corridor fact inference, same-module definition closure
   collection, receiver origin resolution, key route classification, route
-  convergence, lowering execution, and MirBuilder mutation remain Rust.
+  convergence, closure callsite canonicalization, NewClosure rewrite, lowering
+  execution, and MirBuilder mutation remain Rust.
 
 latest design decision:
-  generic_method_route_fact_token_formatter is now HakoAdopted as a narrow
-  Rust-oracle parity pilot owner after a green 12-row `.hako` EXE parity gate
-  for GenericMethodKeyRoute / ValueDemand / ReturnShape / PublicationPolicy
-  token formatting. Receiver origin resolution, key route classification,
-  const i64 extraction, generic method route planning, and backend emission
-  remain Rust. The selected next card is
-  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-008`.
+  closure_call_shape_classifier is now HakoAdopted as a narrow Rust-oracle
+  parity pilot owner after a green 4-row `.hako` EXE parity gate for
+  `dst_present + arg_count -> ClosureCallShape -> reject code`. Callsite
+  canonicalization, NewClosure rewrite, backend fail-fast boundaries, and MIR
+  instruction mutation remain Rust. The selected next card is
+  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-009`.
 
 historical route-selection decision:
   Detailed landed route-selection rows are closed as provenance and live in

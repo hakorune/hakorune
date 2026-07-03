@@ -1,0 +1,57 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderClosureCallShapeClassifierRustOracleV1",
+  "token": "MIRBUILDER-CLOSURE-CALL-SHAPE-CLASSIFIER-RUST-ORACLE-FIXTURE-001",
+  "owner": "closure_call_shape_classifier",
+  "rust_source": {
+    "path": "src/mir/ssot/closure_call.rs",
+    "hash": "sha256:e7d429a5f671eb4889fd1ae781f03ee096b4632136c586396178cc3f2e7d09ff",
+    "oracle_functions": [
+      "classify_closure_call_shape",
+      "closure_call_reject_code"
+    ]
+  },
+  "oracle_rule": {
+    "surface": "closure call dst/arg shape -> shape and reject code",
+    "callsite_canonicalization_migration": 0,
+    "new_closure_rewrite_migration": 0,
+    "backend_fail_fast_boundary_migration": 0,
+    "mir_instruction_mutation_migration": 0
+  },
+  "rows": [
+    {
+      "case_id": "canonical_ctor",
+      "dst_present": "1",
+      "arg_count": "0",
+      "expected_shape": "CanonicalCtor",
+      "expected_reject_code": "call-closure-not-canonical"
+    },
+    {
+      "case_id": "missing_dst_no_args",
+      "dst_present": "0",
+      "arg_count": "0",
+      "expected_shape": "MissingDst",
+      "expected_reject_code": "call-closure-missing-dst"
+    },
+    {
+      "case_id": "runtime_args",
+      "dst_present": "1",
+      "arg_count": "1",
+      "expected_shape": "RuntimeArgs",
+      "expected_reject_code": "call-closure-runtime-args"
+    },
+    {
+      "case_id": "missing_dst_takes_precedence",
+      "dst_present": "0",
+      "arg_count": "2",
+      "expected_shape": "MissingDst",
+      "expected_reject_code": "call-closure-missing-dst"
+    }
+  ],
+  "summary": {
+    "oracle_row_count": 4,
+    "selected_surface_is_pure_shape_classifier": 1,
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0
+  }
+}
