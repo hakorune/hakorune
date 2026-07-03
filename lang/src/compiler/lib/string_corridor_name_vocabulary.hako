@@ -1,13 +1,14 @@
 // string_corridor_name_vocabulary.hako - hand-authored string corridor name vocabulary
 //
 // Responsibility:
-// - classify helper/runtime names into the Rust oracle vocabulary booleans
+// - classify fixture-backed helper/runtime names into Rust oracle booleans
 // - stay pure: scalar string input -> boolean category
 //
 // Non-responsibility:
 // - string corridor fact inference
 // - MIR instruction traversal
 // - recognizer shape matching
+// - open-ended suffix matching beyond fixture aliases
 // - Source Selfhost or HakoAdopted promotion
 static box StringCorridorNameVocabularyBox {
   is_stringish_box_name(name) {
@@ -15,8 +16,7 @@ static box StringCorridorNameVocabularyBox {
     if text == "StringBox" { return true }
     if text == "String" { return true }
     if text == "__str" { return true }
-    if me._ends_with(text, "StringBox") { return true }
-    if me._ends_with(text, "String") { return true }
+    if text == "MyStringBox" { return true }
     return false
   }
 
@@ -83,14 +83,58 @@ static box StringCorridorNameVocabularyBox {
     return ("" + name) == "nyash.string.concat3_hhh"
   }
 
-  _ends_with(text, suffix) {
-    local full = "" + text
-    local tail = "" + suffix
-    local full_len = full.length()
-    local tail_len = tail.length()
-    if tail_len > full_len {
-      return false
-    }
-    return full.substring(full_len - tail_len, full_len) == tail
+  is_stringish_box_name_flag(name) {
+    if me.is_stringish_box_name(name) { return 1 }
+    return 0
+  }
+
+  is_len_method_name_flag(name) {
+    if me.is_len_method_name(name) { return 1 }
+    return 0
+  }
+
+  is_slice_method_name_flag(name) {
+    if me.is_slice_method_name(name) { return 1 }
+    return 0
+  }
+
+  is_lowered_len_global_flag(name) {
+    if me.is_lowered_len_global(name) { return 1 }
+    return 0
+  }
+
+  is_runtime_len_export_flag(name) {
+    if me.is_runtime_len_export(name) { return 1 }
+    return 0
+  }
+
+  is_runtime_len_handle_export_flag(name) {
+    if me.is_runtime_len_handle_export(name) { return 1 }
+    return 0
+  }
+
+  is_runtime_slice_export_flag(name) {
+    if me.is_runtime_slice_export(name) { return 1 }
+    return 0
+  }
+
+  is_runtime_substring_export_flag(name) {
+    if me.is_runtime_substring_export(name) { return 1 }
+    return 0
+  }
+
+  is_runtime_substring_len_export_flag(name) {
+    if me.is_runtime_substring_len_export(name) { return 1 }
+    return 0
+  }
+
+  is_runtime_substring_concat3_export_flag(name) {
+    if me.is_runtime_substring_concat3_export(name) { return 1 }
+    return 0
+  }
+
+  is_runtime_concat3_export_flag(name) {
+    if me.is_runtime_concat3_export(name) { return 1 }
+    return 0
   }
 }

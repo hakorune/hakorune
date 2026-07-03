@@ -11,7 +11,8 @@
     "surface": "helper/runtime string name -> vocabulary boolean category tags",
     "fact_inference_migration": 0,
     "mir_instruction_traversal_migration": 0,
-    "runtime_export_lowering_migration": 0
+    "runtime_export_lowering_migration": 0,
+    "open_ended_suffix_matching_migration": 0
   },
   "rows": [
     {
