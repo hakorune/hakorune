@@ -890,6 +890,59 @@ NyashRuntime / NyashValue compatibility type names renamed = 0
 VM behavior changed = 0
 ```
 
+### HAKORUNE-REFERENCE-DOCS-RESIDUAL-NAMING-DEFER-INVENTORY-001
+
+Status: landed inventory.
+
+Purpose:
+
+```text
+Record that the remaining `docs/reference` Nyash/Stage headings are not a
+safe title-cleanup backlog. They are deferred compatibility, ABI, historical,
+or stage-profile policy surfaces.
+```
+
+Deferred classes:
+
+```text
+ABI / plugin ABI compatibility:
+  docs/reference/abi/NYASH_ABI_MIN_CORE.md
+  docs/reference/abi/ffi_calling_convention_min.md
+  docs/reference/plugin-abi/nyash_abi_v2.md
+
+historical Box/plugin/parser material:
+  docs/reference/boxes-system/**
+  docs/reference/plugin-system/plugin-system.md
+  docs/reference/plugin-system/migration-guide.md
+  docs/reference/architecture/plugin-migration-*.md
+  docs/reference/architecture/parser_mvp_stage2.md
+  docs/reference/architecture/parser_mvp_stage3.md
+  docs/reference/language/LANGUAGE_REFERENCE_2025.md
+
+stage-profile policy surfaces:
+  docs/reference/language/stage-profiles.md
+  docs/reference/mir/metadata-facts-ssot.md
+  docs/reference/concurrency/boundary-model.md
+```
+
+Entry rule:
+
+```text
+Do not rewrite any deferred class by title cleanup. Open a dedicated
+compatibility inventory, historical archive note, or stage-profile naming
+decision before editing these headings.
+```
+
+Non-claims:
+
+```text
+remaining reference headings renamed = 0
+ABI/helper names renamed = 0
+stage-profile vocabulary renamed = 0
+historical docs rewritten = 0
+runtime behavior changed = 0
+```
+
 ### HAKORUNE-BINARY-PRIMARY-CUTOVER-INVENTORY-001
 
 Status: landed inventory cut.
