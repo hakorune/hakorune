@@ -992,6 +992,36 @@ git diff --check
 tools/checks/dev_gate.sh quick
 ```
 
+### HAKORUNE-PARSER-INTEGRATION-SMOKE-BINARY-NAMING-001
+
+Status: active in this slice.
+
+Scope:
+
+- make selected parser integration smokes spell the Hakorune-first executable
+  resolver explicitly;
+- keep legacy `nyash` only as a named compatibility fallback;
+- keep parser fixtures and expected smoke behavior unchanged in this slice;
+- add naming guard coverage so these smokes do not regress to direct legacy
+  binary naming.
+
+Affected scripts:
+
+```text
+tools/smokes/v2/profiles/integration/parser/fastmem_parser_parity_smoke.sh
+tools/smokes/v2/profiles/integration/parser/parser_opt_annotations_dual_route_noop.sh
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+bash tools/smokes/v2/profiles/integration/parser/fastmem_parser_parity_smoke.sh
+bash tools/smokes/v2/profiles/integration/parser/parser_opt_annotations_dual_route_noop.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
 ### STAGE-TERM-EXISTING-NAME-MIGRATION-001
 
 Status: defined, not implementation.

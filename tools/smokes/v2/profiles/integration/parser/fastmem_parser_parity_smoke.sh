@@ -3,13 +3,15 @@ set -euo pipefail
 
 source "$(dirname "$0")/../../../lib/test_runner.sh"
 
-BIN="${NYASH_BIN:-$NYASH_ROOT/target/release/hakorune}"
+HAKORUNE_BIN="${HAKORUNE_BIN:-$NYASH_ROOT/target/release/hakorune}"
+LEGACY_NYASH_BIN="$NYASH_ROOT/target/release/nyash"
+BIN="${NYASH_BIN:-$HAKORUNE_BIN}"
 if [ ! -x "$BIN" ]; then
-  BIN="$NYASH_ROOT/target/release/nyash"
+  BIN="$LEGACY_NYASH_BIN"
 fi
 
 if [ ! -x "$BIN" ]; then
-  log_error "nyash/hakorune binary not found: $BIN"
+  log_error "hakorune binary not found: $BIN"
   exit 2
 fi
 
