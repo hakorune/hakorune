@@ -7,9 +7,22 @@ use std::collections::{BTreeMap, BTreeSet};
 ///
 /// This keeps branch-local lowering failures from leaking partially-mutated
 /// bindings into outer lowering paths.
-pub(super) fn with_saved_variable_map<T, F>(builder: &mut MirBuilder, f: F) -> Result<T, String>
+pub(in crate::mir::builder::control_flow::plan) fn with_saved_variable_map<T, F>(
+    builder: &mut MirBuilder,
+    f: F,
+) -> Result<T, String>
 where
     F: FnOnce(&mut MirBuilder) -> Result<T, String>,
+{
+    with_saved_variable_map_typed(builder, f)
+}
+
+pub(in crate::mir::builder::control_flow::plan) fn with_saved_variable_map_typed<T, E, F>(
+    builder: &mut MirBuilder,
+    f: F,
+) -> Result<T, E>
+where
+    F: FnOnce(&mut MirBuilder) -> Result<T, E>,
 {
     let saved = builder.variable_ctx.variable_map.clone();
     let result = f(builder);

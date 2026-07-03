@@ -3,6 +3,7 @@
 use super::facts_types::GenericLoopV1Facts;
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::features::generic_loop_pipeline;
+use crate::mir::builder::control_flow::plan::parts::var_map_scope::with_saved_variable_map;
 use crate::mir::builder::control_flow::plan::skeletons::generic_loop::alloc_generic_loop_v0_skeleton;
 use crate::mir::builder::control_flow::plan::{CorePlan, LoweredRecipe};
 use crate::mir::builder::MirBuilder;
@@ -12,8 +13,10 @@ pub(in crate::mir::builder) fn normalize_generic_loop_v1(
     facts: &GenericLoopV1Facts,
     ctx: &LoopRouteContext,
 ) -> Result<LoweredRecipe, String> {
-    let mut skeleton = alloc_generic_loop_v0_skeleton(builder, &facts.loop_var)?;
-    generic_loop_pipeline::apply_generic_loop_v1_pipeline(builder, facts, ctx, &mut skeleton)?;
+    with_saved_variable_map(builder, |builder| {
+        let mut skeleton = alloc_generic_loop_v0_skeleton(builder, &facts.loop_var)?;
+        generic_loop_pipeline::apply_generic_loop_v1_pipeline(builder, facts, ctx, &mut skeleton)?;
 
-    Ok(CorePlan::Loop(skeleton.plan))
+        Ok(CorePlan::Loop(skeleton.plan))
+    })
 }

@@ -4,6 +4,7 @@ use super::RecipeComposer;
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
 use crate::mir::builder::control_flow::plan::features::generic_loop_pipeline;
+use crate::mir::builder::control_flow::plan::parts::var_map_scope::with_saved_variable_map_typed;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 use crate::mir::builder::control_flow::plan::skeletons::generic_loop::alloc_generic_loop_v0_skeleton;
 use crate::mir::builder::control_flow::plan::{CorePlan, LoweredRecipe};
@@ -32,18 +33,22 @@ impl RecipeComposer {
                 .debug("[recipe:compose] route=generic_loop_v0 path=direct_pipeline");
         }
 
-        let mut skeleton = alloc_generic_loop_v0_skeleton(builder, &generic_loop_v0.loop_var)
-            .map_err(|e| Freeze::contract(&format!("generic_loop_v0 skeleton failed: {}", e)))?;
+        with_saved_variable_map_typed(builder, |builder| {
+            let mut skeleton = alloc_generic_loop_v0_skeleton(builder, &generic_loop_v0.loop_var)
+                .map_err(|e| {
+                Freeze::contract(&format!("generic_loop_v0 skeleton failed: {}", e))
+            })?;
 
-        generic_loop_pipeline::apply_generic_loop_v0_pipeline(
-            builder,
-            generic_loop_v0,
-            ctx,
-            &mut skeleton,
-        )
-        .map_err(|e| Freeze::contract(&format!("generic_loop_v0 pipeline failed: {}", e)))?;
+            generic_loop_pipeline::apply_generic_loop_v0_pipeline(
+                builder,
+                generic_loop_v0,
+                ctx,
+                &mut skeleton,
+            )
+            .map_err(|e| Freeze::contract(&format!("generic_loop_v0 pipeline failed: {}", e)))?;
 
-        Ok(CorePlan::Loop(skeleton.plan))
+            Ok(CorePlan::Loop(skeleton.plan))
+        })
     }
 
     /// Compose generic_loop_v1 facts into LoweredRecipe without the normalizer.
@@ -79,17 +84,21 @@ impl RecipeComposer {
             ));
         }
 
-        let mut skeleton = alloc_generic_loop_v0_skeleton(builder, &generic_loop_v1.loop_var)
-            .map_err(|e| Freeze::contract(&format!("generic_loop_v1 skeleton failed: {}", e)))?;
+        with_saved_variable_map_typed(builder, |builder| {
+            let mut skeleton = alloc_generic_loop_v0_skeleton(builder, &generic_loop_v1.loop_var)
+                .map_err(|e| {
+                Freeze::contract(&format!("generic_loop_v1 skeleton failed: {}", e))
+            })?;
 
-        generic_loop_pipeline::apply_generic_loop_v1_pipeline(
-            builder,
-            generic_loop_v1,
-            ctx,
-            &mut skeleton,
-        )
-        .map_err(|e| Freeze::contract(&format!("generic_loop_v1 pipeline failed: {}", e)))?;
+            generic_loop_pipeline::apply_generic_loop_v1_pipeline(
+                builder,
+                generic_loop_v1,
+                ctx,
+                &mut skeleton,
+            )
+            .map_err(|e| Freeze::contract(&format!("generic_loop_v1 pipeline failed: {}", e)))?;
 
-        Ok(CorePlan::Loop(skeleton.plan))
+            Ok(CorePlan::Loop(skeleton.plan))
+        })
     }
 }
