@@ -1,0 +1,44 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderGenericLoopV1ShapeLabelFormatterRustOracleV1",
+  "token": "MIRBUILDER-GENERIC-LOOP-V1-SHAPE-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "generic_loop_v1_shape_label_formatter",
+  "rust_source": {
+    "path": "src/mir/policies/generic_loop_v1_shape.rs",
+    "hash": "sha256:a0f0c23a5a84aa02f36665499b2ce2fb875e95fdf8105f407a4c3a5207618c57",
+    "oracle_surface": "GenericLoopV1ShapeId as_str vocabulary"
+  },
+  "rows": [
+    {"kind": "shape", "input": "ParseBlockExpr", "expected": "parse_block_expr"},
+    {"kind": "shape", "input": "ParseMap", "expected": "parse_map"},
+    {"kind": "shape", "input": "PeekParse", "expected": "peek_parse"},
+    {"kind": "shape", "input": "RewriteKnownItoaComplexStep", "expected": "rewriteknown_itoa_complex_step"},
+    {"kind": "shape", "input": "RewriteKnownTrimLoopCondAndMethodCall", "expected": "rewriteknown_trim_loop_cond_and_methodcall"},
+    {"kind": "shape", "input": "ParseProgram2NestedLoopIfReturn", "expected": "parse_program2_nested_loop_if_return"},
+    {"kind": "shape", "input": "ParseProgram2NestedLoopIfElseReturn", "expected": "parse_program2_nested_loop_if_else_return"},
+    {"kind": "shape", "input": "ParseProgram2NestedLoopIfReturnVar", "expected": "parse_program2_nested_loop_if_return_var"},
+    {"kind": "shape", "input": "ParseProgram2NestedLoopIfReturnLocal", "expected": "parse_program2_nested_loop_if_return_local"},
+    {"kind": "shape", "input": "ParseProgram2NestedLoopIfElseReturnVar", "expected": "parse_program2_nested_loop_if_else_return_var"},
+    {"kind": "shape", "input": "ParseProgram2NestedLoopIfElseReturnLocal", "expected": "parse_program2_nested_loop_if_else_return_local"},
+    {"kind": "shape", "input": "ParseProgram2NestedLoopIfElseIfReturn", "expected": "parse_program2_nested_loop_if_else_if_return"},
+    {"kind": "shape", "input": "WhileCapAccumSum", "expected": "while_cap_accum_sum"},
+    {"kind": "shape", "input": "UsingCollectorLineScan", "expected": "usingcollector_line_scan"},
+    {"kind": "shape", "input": "ScanAllBoxesNextI", "expected": "scan_all_boxes_next_i"},
+    {"kind": "shape", "input": "DecodeEscapesLoop", "expected": "decode_escapes_loop"},
+    {"kind": "shape", "input": "DivCountdownBy10", "expected": "div_countdown_by10"},
+    {"kind": "shape", "input": "ScanWhilePredicate", "expected": "scan_while_predicate"},
+    {"kind": "shape", "input": "EffectStepOnly", "expected": "effect_step_only"}
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "shape_detection_migration": 0,
+    "shape_resolution_migration": 0,
+    "loop_body_analysis_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

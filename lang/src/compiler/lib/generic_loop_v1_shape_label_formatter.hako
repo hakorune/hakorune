@@ -1,0 +1,35 @@
+// generic_loop_v1_shape_label_formatter.hako
+//
+// Responsibility:
+// - format narrow GenericLoopV1ShapeId vocabulary into Rust oracle text
+// - stay pure: scalar token in, scalar text out
+//
+// Non-responsibility:
+// - generic loop shape detection
+// - shape resolution
+// - loop body analysis
+// - MIR mutation
+static box GenericLoopV1ShapeLabelFormatterBox {
+  format_shape(shape) {
+    if shape == "ParseBlockExpr" { return "parse_block_expr" }
+    if shape == "ParseMap" { return "parse_map" }
+    if shape == "PeekParse" { return "peek_parse" }
+    if shape == "RewriteKnownItoaComplexStep" { return "rewriteknown_itoa_complex_step" }
+    if shape == "RewriteKnownTrimLoopCondAndMethodCall" { return "rewriteknown_trim_loop_cond_and_methodcall" }
+    if shape == "ParseProgram2NestedLoopIfReturn" { return "parse_program2_nested_loop_if_return" }
+    if shape == "ParseProgram2NestedLoopIfElseReturn" { return "parse_program2_nested_loop_if_else_return" }
+    if shape == "ParseProgram2NestedLoopIfReturnVar" { return "parse_program2_nested_loop_if_return_var" }
+    if shape == "ParseProgram2NestedLoopIfReturnLocal" { return "parse_program2_nested_loop_if_return_local" }
+    if shape == "ParseProgram2NestedLoopIfElseReturnVar" { return "parse_program2_nested_loop_if_else_return_var" }
+    if shape == "ParseProgram2NestedLoopIfElseReturnLocal" { return "parse_program2_nested_loop_if_else_return_local" }
+    if shape == "ParseProgram2NestedLoopIfElseIfReturn" { return "parse_program2_nested_loop_if_else_if_return" }
+    if shape == "WhileCapAccumSum" { return "while_cap_accum_sum" }
+    if shape == "UsingCollectorLineScan" { return "usingcollector_line_scan" }
+    if shape == "ScanAllBoxesNextI" { return "scan_all_boxes_next_i" }
+    if shape == "DecodeEscapesLoop" { return "decode_escapes_loop" }
+    if shape == "DivCountdownBy10" { return "div_countdown_by10" }
+    if shape == "ScanWhilePredicate" { return "scan_while_predicate" }
+    if shape == "EffectStepOnly" { return "effect_step_only" }
+    return "unsupported_generic_loop_v1_shape"
+  }
+}
