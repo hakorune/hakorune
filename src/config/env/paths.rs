@@ -1,6 +1,6 @@
 //! Path resolution helpers (SSOT for env-derived paths).
 
-use super::warn_alias_once;
+use super::{env_string_trimmed_with_alias, warn_alias_once};
 use std::path::{Path, PathBuf};
 
 fn env_string_trimmed(key: &str) -> Option<String> {
@@ -76,14 +76,7 @@ pub fn nyrt_entry_apply_windows_path_shaping(_exe_dir: &Path) {}
 /// `HAKO_ROOT` is the preferred spelling. `NYASH_ROOT` remains a compatibility
 /// alias while callers migrate.
 pub fn hako_root() -> Option<String> {
-    if let Some(root) = env_string_trimmed("HAKO_ROOT") {
-        return Some(root);
-    }
-    if let Some(root) = env_string_trimmed("NYASH_ROOT") {
-        warn_alias_once("NYASH_ROOT", "HAKO_ROOT");
-        return Some(root);
-    }
-    None
+    env_string_trimmed_with_alias("HAKO_ROOT", "NYASH_ROOT")
 }
 
 /// Compatibility wrapper for existing callers.
@@ -120,14 +113,7 @@ pub fn ensure_root_aliases_from_cwd() {
 /// `HAKO_BIN` is the preferred spelling. `NYASH_BIN` remains a compatibility
 /// alias while callers migrate.
 pub fn hako_bin() -> Option<String> {
-    if let Some(bin) = env_string_trimmed("HAKO_BIN") {
-        return Some(bin);
-    }
-    if let Some(bin) = env_string_trimmed("NYASH_BIN") {
-        warn_alias_once("NYASH_BIN", "HAKO_BIN");
-        return Some(bin);
-    }
-    None
+    env_string_trimmed_with_alias("HAKO_BIN", "NYASH_BIN")
 }
 
 /// Compatibility wrapper for existing callers.
@@ -143,5 +129,46 @@ mod tests {
     fn entry_path_helpers_have_current_process_context() {
         assert!(nyrt_entry_exe_dir().is_some());
         assert!(nyrt_entry_current_dir_display().is_some());
+    }
+
+    #[test]
+    fn hako_root_prefers_primary_and_trims_value() {
+        crate::test_support::with_env_vars(
+            &[
+                ("HAKO_ROOT", Some("  /tmp/hakorune-root  ")),
+                ("NYASH_ROOT", Some("/tmp/legacy-root")),
+            ],
+            || {
+                assert_eq!(hako_root(), Some("/tmp/hakorune-root".to_string()));
+                assert_eq!(nyash_root(), Some("/tmp/hakorune-root".to_string()));
+            },
+        );
+    }
+
+    #[test]
+    fn hako_root_uses_legacy_alias_when_primary_empty() {
+        crate::test_support::with_env_vars(
+            &[
+                ("HAKO_ROOT", Some("   ")),
+                ("NYASH_ROOT", Some(" /tmp/legacy-root ")),
+            ],
+            || {
+                assert_eq!(hako_root(), Some("/tmp/legacy-root".to_string()));
+            },
+        );
+    }
+
+    #[test]
+    fn hako_bin_prefers_primary_and_keeps_legacy_wrapper() {
+        crate::test_support::with_env_vars(
+            &[
+                ("HAKO_BIN", Some(" target/release/hakorune ")),
+                ("NYASH_BIN", Some("target/release/nyash")),
+            ],
+            || {
+                assert_eq!(hako_bin(), Some("target/release/hakorune".to_string()));
+                assert_eq!(nyash_bin(), Some("target/release/hakorune".to_string()));
+            },
+        );
     }
 }

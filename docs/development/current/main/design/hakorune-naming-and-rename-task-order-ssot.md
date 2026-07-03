@@ -220,7 +220,7 @@ Each subtask must be its own commit or short series. Do not mix them.
 
 ### HAKORUNE-ENV-ALIAS-INVENTORY-001
 
-Status: active in this slice.
+Status: landed foundation.
 
 Scope:
 
@@ -248,6 +248,43 @@ both unset:
 Acceptance:
 
 ```bash
+cargo test -q --lib env_alias_helpers
+bash tools/checks/naming_charter_guard.sh
+tools/checks/dev_gate.sh quick
+```
+
+### HAKORUNE-ENV-ALIAS-FIRST-CUT-001
+
+Status: active in this slice.
+
+Scope:
+
+- move the already-documented `HAKO_ROOT` / `NYASH_ROOT` and `HAKO_BIN` /
+  `NYASH_BIN` compatibility pairs through the common env alias helpers;
+- keep `HAKO_*` as the preferred spelling and `NYASH_*` as compatibility alias;
+- preserve existing trimmed-string behavior, where empty or whitespace-only
+  values are treated as unset;
+- do not rename package names, binaries, plugin paths, or ABI helper symbols.
+
+Contract:
+
+```text
+HAKO_ROOT / HAKO_BIN set to non-empty:
+  use preferred value
+
+preferred value empty or unset and NYASH_ROOT / NYASH_BIN non-empty:
+  use compatibility alias
+  emit warn_alias_once(alias, preferred)
+
+both values empty or unset:
+  return None
+```
+
+Acceptance:
+
+```bash
+cargo test -q --lib hako_root
+cargo test -q --lib hako_bin
 cargo test -q --lib env_alias_helpers
 bash tools/checks/naming_charter_guard.sh
 tools/checks/dev_gate.sh quick

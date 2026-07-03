@@ -337,6 +337,34 @@ pub fn env_string_with_alias(primary: &str, alias: &str) -> Option<String> {
     None
 }
 
+fn trim_env_value(value: String) -> Option<String> {
+    let trimmed = value.trim().to_string();
+    if trimmed.is_empty() {
+        None
+    } else {
+        Some(trimmed)
+    }
+}
+
+/// Trimmed env string fetch with a deprecated alias.
+///
+/// Empty or whitespace-only values are treated as unset. The primary key wins
+/// when it has a non-empty value; otherwise the alias is checked.
+pub fn env_string_trimmed_with_alias(primary: &str, alias: &str) -> Option<String> {
+    if let Ok(value) = std::env::var(primary) {
+        if let Some(value) = trim_env_value(value) {
+            return Some(value);
+        }
+    }
+    if let Ok(value) = std::env::var(alias) {
+        if let Some(value) = trim_env_value(value) {
+            warn_alias_once(alias, primary);
+            return Some(value);
+        }
+    }
+    None
+}
+
 pub(crate) fn warn_alias_once(alias: &str, primary: &str) {
     let set = WARNED_ALIASES.get_or_init(|| Mutex::new(HashSet::new()));
     if let Ok(mut s) = set.lock() {
@@ -409,6 +437,22 @@ mod tests {
                 assert_eq!(
                     env_string_with_alias("HAKORUNE_TEST_ALIAS_ONLY", "NYASH_TEST_ALIAS_ONLY"),
                     Some("on".to_string())
+                );
+            },
+        );
+    }
+
+    #[test]
+    fn env_alias_helpers_trimmed_string_falls_back_on_empty_primary() {
+        crate::test_support::with_env_vars(
+            &[
+                ("HAKORUNE_TEST_TRIMMED", Some("   ")),
+                ("NYASH_TEST_TRIMMED", Some("  alias/path  ")),
+            ],
+            || {
+                assert_eq!(
+                    env_string_trimmed_with_alias("HAKORUNE_TEST_TRIMMED", "NYASH_TEST_TRIMMED"),
+                    Some("alias/path".to_string())
                 );
             },
         );

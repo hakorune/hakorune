@@ -187,8 +187,8 @@ Throw surface policy:
 
 | 変数 | デフォルト | 適用経路 | 説明 |
 | --- | --- | --- | --- |
-| `HAKO_ROOT=/path/to/repo` | unset | Any | リポジトリルートのヒント（パス解決・ツール用途）。未指定なら自動推定 |
-| `NYASH_ROOT=/path/to/repo` | unset | Any | `HAKO_ROOT` の互換 alias |
+| `HAKO_ROOT=/path/to/repo` | unset | Any | リポジトリルートのヒント（パス解決・ツール用途）。未指定なら自動推定。`src/config/env` の alias helper 経由で読み、空文字は unset 扱い |
+| `NYASH_ROOT=/path/to/repo` | unset | Any | `HAKO_ROOT` の互換 alias。`HAKO_ROOT` が非空ならそちらが優先 |
 | `NYASH_WASM_ROUTE_POLICY=default\|legacy\|legacy-wasm-rust` | `default` | WASM (`--backend wasm`) | WASM 出力 route policy。`default`/`legacy-wasm-rust` のみ受理し、無効値は fail-fast（`[freeze:contract][wasm/route-policy]`）。 |
 | `NYASH_WASM_ROUTE_TRACE=1` | OFF | WASM (`--backend wasm`) | route 決定時に1行の観測ログを出す（`[wasm/route-trace] policy=<...> plan=<...> shape_id=<...>`）。 |
 | `NYASH_JSON_V0_IMPORT_TRACE=1` | OFF | Runner / Program(JSON v0) compat loader | `--json-file` compat umbrella intake の import-bundle 合流時に安定トレースを出す。summary は info-level で default-visible（`phase=<enter|skip|merge.done|fail>`）、詳細は `NYASH_RING0_LOG_LEVEL=DEBUG` でのみ出る（`phase=merge.begin|guard.set|restore`）。mainline MIR route trace ではなく、compat loader の hot/cold 切り分け専用。 |
@@ -328,8 +328,8 @@ NYASH_LLVM_DEBUG_PHI=1 NYASH_LLVM_DEBUG_PHI_TRACE=1 \
 
 | 変数 | デフォルト | 説明 |
 | --- | --- | --- |
-| `HAKO_BIN` | `./target/release/hakorune` | hakorune バイナリのパス |
-| `NYASH_BIN` | `./target/release/hakorune` | `HAKO_BIN` の互換 alias |
+| `HAKO_BIN` | `./target/release/hakorune` | hakorune バイナリのパス。`src/config/env` の alias helper 経由で読み、空文字は unset 扱い |
+| `NYASH_BIN` | `./target/release/hakorune` | `HAKO_BIN` の互換 alias。`HAKO_BIN` が非空ならそちらが優先 |
 | `NYASH_LLVM_COMPILER` | `crate` | `tools/build_llvm.sh` のローカル mode selector。`harness` または `crate`。mainline backend boundary の ny-llvmc path truth には使わない |
 | `NYASH_NY_LLVM_COMPILER` | `target/release/ny-llvmc` | ny-llvmc バイナリのパス。backend-zero thin boundary / selfhost / stage1 helper で使う path truth |
 | `NYASH_LLVM_FEATURE` | `llvm` | LLVM feature flag (`llvm` または `llvm-inkwell-legacy`) |

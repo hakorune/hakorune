@@ -41,17 +41,19 @@ the active card and task-order SSOT. Do not duplicate them here.
 
 ## Immediate Maintenance Slice
 
-Scope: Hakorune env alias helper inventory.
+Scope: Hakorune env alias first cut.
 
-- add `src/config/env` helpers for primary env vars with legacy aliases
-- fix primary-wins behavior for future `HAKORUNE_*` / `HAKO_*` variables that
-  keep `NYASH_*` compatibility aliases
-- document that new product-name env spellings must use those helpers
-- do not rename existing `NYASH_*` variables in this slice
+- route `HAKO_ROOT` / `NYASH_ROOT` and `HAKO_BIN` / `NYASH_BIN` through the
+  shared alias helpers in `src/config/env`
+- keep `HAKO_*` as primary and `NYASH_*` as compatibility alias
+- preserve trimmed-string behavior: empty or whitespace-only values are unset
+- do not rename package names, binaries, plugin paths, or ABI helper symbols
 
 Acceptance:
 
 ```bash
+cargo test -q --lib hako_root
+cargo test -q --lib hako_bin
 cargo test -q --lib env_alias_helpers
 bash tools/checks/naming_charter_guard.sh
 tools/checks/dev_gate.sh quick
