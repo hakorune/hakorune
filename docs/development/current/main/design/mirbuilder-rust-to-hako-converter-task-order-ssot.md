@@ -24,9 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-GLOBAL-CALL-DEFINITION-OWNER-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.
-  The global_call_definition_owner_label_formatter owner is HakoAdopted as the
-  seventieth narrow Rust-oracle parity pilot; next is rerun 070.
+  MIRBUILDER-GLOBAL-CALL-TARGET-SHAPE-REASON-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.
+  The global_call_target_shape_reason_label_formatter owner is HakoAdopted as
+  the seventy-first narrow Rust-oracle parity pilot; next is rerun 071.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-070
+  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-071
 
 current fail-fast boundary:
   Do not re-enter full converter route selection without new non-self-signed
@@ -115,18 +115,17 @@ current fail-fast boundary:
   call target resolution, MIR instruction traversal, MIR instruction display
   formatting, memory operation semantics, FastMem handling, function signature
   preparation, map lookup fusion route derivation, generic method route analysis,
-  route selection, Freeze construction, Freeze message/hint formatting,
-  planner fail-fast policy, global-call target inference, global-call route
-  collection, global-call definition-owner inference, and global-call proof
-  policy remain Rust.
+  route selection, Freeze construction/message formatting, planner fail-fast
+  policy, global-call target inference/shape reasoning/route collection,
+  definition-owner inference, and proof policy remain Rust.
 
 latest design decision:
-  global_call_definition_owner_label_formatter is now HakoAdopted as a narrow
-  Rust-oracle parity pilot owner after a green 14-row `.hako` EXE parity gate.
-  Global-call definition-owner inference, route collection, and proof policy
+  global_call_target_shape_reason_label_formatter is now HakoAdopted as a
+  narrow Rust-oracle parity pilot owner after a green 15-row `.hako` EXE parity
+  gate. Global-call target-shape inference, route collection, and proof policy
   remain Rust.
   The selected next card is
-  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-070`.
+  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-071`.
 
 historical route-selection decision:
   Detailed landed route-selection rows are closed as provenance and live in

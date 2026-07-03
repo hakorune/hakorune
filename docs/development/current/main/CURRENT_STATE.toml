@@ -225,6 +225,9 @@ Source Selfhost remains unclaimed.
 GlobalCallDefinitionOwnerLabelFormatter is now a narrow HakoAdopted
 Rust-oracle parity pilot owner after a green 14-row `.hako` EXE parity gate.
 Source Selfhost remains unclaimed.
+GlobalCallTargetShapeReasonLabelFormatter is now a narrow HakoAdopted
+Rust-oracle parity pilot owner after a green 15-row `.hako` EXE parity gate.
+Source Selfhost remains unclaimed.
 EXE/AOT remains the primary
 app/selfhost validation route; VM/interpreter lanes are not semantic owners."""
 
@@ -234,11 +237,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-GLOBAL-CALL-DEFINITION-OWNER-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2448-MIRBUILDER-GLOBAL-CALL-DEFINITION-OWNER-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.md"
+latest_card = "MIRBUILDER-GLOBAL-CALL-TARGET-SHAPE-REASON-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2453-MIRBUILDER-GLOBAL-CALL-TARGET-SHAPE-REASON-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.md"
 latest_card_summary = """The latest card adopts
-global_call_definition_owner_label_formatter as the seventieth narrow
-Rust-oracle parity pilot owner and chooses pilot selection rerun 070 next."""
+global_call_target_shape_reason_label_formatter as the seventy-first narrow
+Rust-oracle parity pilot owner and chooses pilot selection rerun 071 next."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -249,14 +252,14 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-04: 2453 adopts global_call_target_shape_reason_label_formatter as the seventy-first narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
+  "2026-07-04: 2452 adds the global_call_target_shape_reason_label_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
+  "2026-07-04: 2451 adds the hand-authored global_call_target_shape_reason_label_formatter .hako implementation and chooses the parity gate card next.",
+  "2026-07-04: 2450 creates the 15-row global_call_target_shape_reason_label_formatter Rust-oracle fixture and chooses the Hako-native implementation card next.",
+  "2026-07-04: 2449 selects global_call_target_shape_reason_label_formatter as the seventy-first narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
   "2026-07-04: 2448 adopts global_call_definition_owner_label_formatter as the seventieth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
   "2026-07-04: 2447 adds the global_call_definition_owner_label_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
   "2026-07-04: 2446 adds the hand-authored global_call_definition_owner_label_formatter .hako implementation and chooses the parity gate card next.",
   "2026-07-04: 2445 creates the 14-row global_call_definition_owner_label_formatter Rust-oracle fixture and chooses the Hako-native implementation card next.",
   "2026-07-04: 2444 selects global_call_definition_owner_label_formatter as the seventieth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
-  "2026-07-04: 2443 adopts global_call_return_contract_label_formatter as the sixty-ninth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
-  "2026-07-04: 2442 adds the global_call_return_contract_label_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
-  "2026-07-04: 2441 adds the hand-authored global_call_return_contract_label_formatter .hako implementation and chooses the parity gate card next.",
-  "2026-07-04: 2440 creates the 16-row global_call_return_contract_label_formatter Rust-oracle fixture and chooses the Hako-native implementation card next.",
-  "2026-07-04: 2439 selects global_call_return_contract_label_formatter as the sixty-ninth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
 ]

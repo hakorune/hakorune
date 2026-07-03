@@ -1,0 +1,39 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderGlobalCallTargetShapeReasonLabelFormatterRustOracleV1",
+  "token": "MIRBUILDER-GLOBAL-CALL-TARGET-SHAPE-REASON-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "global_call_target_shape_reason_label_formatter",
+  "rust_source": {
+    "path": "src/mir/global_call_route_plan/model.rs",
+    "hash": "sha256:5818fc9a9bd6906cb216cc6f1d7d99eb67847fb5cf38b6fbcedefc2bc4ffa52f",
+    "oracle_surface": "GlobalCallTargetShapeReason label vocabulary"
+  },
+  "rows": [
+    {"kind": "reason_label", "input": "ParamBindingMismatch", "expected": "param_binding_mismatch"},
+    {"kind": "reason_label", "input": "GenericStringReturnAbiNotHandleCompatible", "expected": "generic_string_return_abi_not_handle_compatible"},
+    {"kind": "reason_label", "input": "GenericStringReturnObjectAbiNotHandleCompatible", "expected": "generic_string_return_object_abi_not_handle_compatible"},
+    {"kind": "reason_label", "input": "GenericStringReturnVoidSentinelCandidate", "expected": "generic_string_return_void_sentinel_candidate"},
+    {"kind": "reason_label", "input": "GenericStringParamAbiNotHandleCompatible", "expected": "generic_string_param_abi_not_handle_compatible"},
+    {"kind": "reason_label", "input": "GenericStringUnsupportedInstruction", "expected": "generic_string_unsupported_instruction"},
+    {"kind": "reason_label", "input": "GenericStringUnsupportedVoidSentinelConst", "expected": "generic_string_unsupported_void_sentinel_const"},
+    {"kind": "reason_label", "input": "GenericStringUnsupportedCall", "expected": "generic_string_unsupported_call"},
+    {"kind": "reason_label", "input": "GenericStringUnsupportedMethodCall", "expected": "generic_string_unsupported_method_call"},
+    {"kind": "reason_label", "input": "GenericStringUnsupportedKnownReceiverMethod", "expected": "generic_string_unsupported_known_receiver_method"},
+    {"kind": "reason_label", "input": "GenericStringUnsupportedExternCall", "expected": "generic_string_unsupported_extern_call"},
+    {"kind": "reason_label", "input": "GenericStringGlobalTargetMissing", "expected": "generic_string_global_target_missing"},
+    {"kind": "reason_label", "input": "GenericStringGlobalTargetShapeUnknown", "expected": "generic_string_global_target_shape_unknown"},
+    {"kind": "reason_label", "input": "GenericStringNoStringSurface", "expected": "generic_string_no_string_surface"},
+    {"kind": "reason_label", "input": "GenericStringReturnNotString", "expected": "generic_string_return_not_string"}
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "global_call_target_shape_inference_migration": 0,
+    "global_call_route_collection_migration": 0,
+    "global_call_proof_policy_migration": 0
+  }
+}

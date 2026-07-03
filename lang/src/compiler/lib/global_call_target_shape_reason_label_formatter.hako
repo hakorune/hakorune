@@ -1,0 +1,29 @@
+// global_call_target_shape_reason_label_formatter.hako
+//
+// Responsibility:
+// - format the narrow GlobalCallTargetShapeReason label vocabulary
+//
+// Non-responsibility:
+// - target-shape inference
+// - global-call route collection
+// - proof policy or lowering decisions
+static box GlobalCallTargetShapeReasonLabelFormatterBox {
+  label(reason) {
+    if reason == "ParamBindingMismatch" { return "param_binding_mismatch" }
+    if reason == "GenericStringReturnAbiNotHandleCompatible" { return "generic_string_return_abi_not_handle_compatible" }
+    if reason == "GenericStringReturnObjectAbiNotHandleCompatible" { return "generic_string_return_object_abi_not_handle_compatible" }
+    if reason == "GenericStringReturnVoidSentinelCandidate" { return "generic_string_return_void_sentinel_candidate" }
+    if reason == "GenericStringParamAbiNotHandleCompatible" { return "generic_string_param_abi_not_handle_compatible" }
+    if reason == "GenericStringUnsupportedInstruction" { return "generic_string_unsupported_instruction" }
+    if reason == "GenericStringUnsupportedVoidSentinelConst" { return "generic_string_unsupported_void_sentinel_const" }
+    if reason == "GenericStringUnsupportedCall" { return "generic_string_unsupported_call" }
+    if reason == "GenericStringUnsupportedMethodCall" { return "generic_string_unsupported_method_call" }
+    if reason == "GenericStringUnsupportedKnownReceiverMethod" { return "generic_string_unsupported_known_receiver_method" }
+    if reason == "GenericStringUnsupportedExternCall" { return "generic_string_unsupported_extern_call" }
+    if reason == "GenericStringGlobalTargetMissing" { return "generic_string_global_target_missing" }
+    if reason == "GenericStringGlobalTargetShapeUnknown" { return "generic_string_global_target_shape_unknown" }
+    if reason == "GenericStringNoStringSurface" { return "generic_string_no_string_surface" }
+    if reason == "GenericStringReturnNotString" { return "generic_string_return_not_string" }
+    return "unsupported_global_call_target_shape_reason"
+  }
+}
