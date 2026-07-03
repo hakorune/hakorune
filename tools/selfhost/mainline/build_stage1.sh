@@ -147,11 +147,14 @@ export HAKO_BACKEND_COMPAT_REPLAY="${HAKO_BACKEND_COMPAT_REPLAY:-none}"
 
 ARTIFACT_KIND="${HAKORUNE_STAGE1_ARTIFACT_KIND:-launcher-exe}"
 
+HAKORUNE_BOOTSTRAP_BIN="$ROOT/target/release/hakorune"
+LEGACY_NYASH_BOOTSTRAP_BIN="$ROOT/target/release/nyash"
+
 if [ -z "${NYASH_BIN:-}" ]; then
-  if [ -x "$ROOT/target/release/hakorune" ]; then
-    NYASH_BIN="$ROOT/target/release/hakorune"
-  elif [ -x "$ROOT/target/release/nyash" ]; then
-    NYASH_BIN="$ROOT/target/release/nyash"
+  if [ -x "$HAKORUNE_BOOTSTRAP_BIN" ]; then
+    NYASH_BIN="$HAKORUNE_BOOTSTRAP_BIN"
+  elif [ -x "$LEGACY_NYASH_BOOTSTRAP_BIN" ]; then
+    NYASH_BIN="$LEGACY_NYASH_BOOTSTRAP_BIN"
   elif [ "$ARTIFACT_KIND" = "stage1-cli" ]; then
     if [ -x "$ROOT/target/selfhost/hakorune.stage1_cli.stage2" ]; then
       NYASH_BIN="$ROOT/target/selfhost/hakorune.stage1_cli.stage2"
@@ -160,7 +163,10 @@ if [ -z "${NYASH_BIN:-}" ]; then
     fi
   fi
   if [ -z "${NYASH_BIN:-}" ]; then
-    echo "[stage1] error: NYASH_BIN not set and no bootstrap binary found under target/release" >&2
+    echo "[selfhost-mainline] error: Hakorune bootstrap binary not found" >&2
+    echo "         checked: $HAKORUNE_BOOTSTRAP_BIN" >&2
+    echo "         legacy compatibility fallback checked: $LEGACY_NYASH_BOOTSTRAP_BIN" >&2
+    echo "         NYASH_BIN remains supported as a compatibility override" >&2
     exit 2
   fi
 fi

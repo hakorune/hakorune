@@ -735,6 +735,35 @@ git diff --check
 tools/checks/dev_gate.sh quick
 ```
 
+### HAKORUNE-SELFHOST-MAINLINE-STAGE1-BINARY-RESOLUTION-001
+
+Status: active in this slice.
+
+Scope:
+
+- make `tools/selfhost/mainline/build_stage1.sh` spell bootstrap executable
+  resolution in Hakorune-first terms;
+- keep `NYASH_BIN` as the historical compatibility override consumed by the
+  Stage1 mainline script;
+- keep legacy `target/release/nyash` only as a named compatibility fallback;
+- keep Stage1 artifact names, Stage-B route wording, and build behavior
+  unchanged.
+
+Affected script:
+
+```text
+tools/selfhost/mainline/build_stage1.sh
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+bash -n tools/selfhost/mainline/build_stage1.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
 ### HAKORUNE-PARSER-BRIDGE-SMOKE-BINARY-RESOLUTION-001
 
 Status: active in this slice.
