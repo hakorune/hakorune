@@ -165,14 +165,14 @@ impl MirBuilder {
         // Enhance diagnostics using Using simple registry (Phase 1)
         let mut msg = format!("Undefined variable: {}", name);
 
-        // Stage-3 keyword diagnostic (local/flow/try/catch/throw)
+        // syntax-3 keyword diagnostic (local/flow/try/catch/throw)
         if name == "local" && !crate::config::env::parser_stage3_enabled() {
-            msg.push_str("\nHint: 'local' is a Stage-3 keyword. Prefer NYASH_FEATURES=stage3 (legacy: NYASH_PARSER_STAGE3=1 / HAKO_PARSER_STAGE3=1 for Stage-B).");
+            msg.push_str("\nHint: 'local' is a syntax-3 keyword. Prefer NYASH_FEATURES=stage3 (legacy: NYASH_PARSER_STAGE3=1 / HAKO_PARSER_STAGE3=1 for mode-B compatibility routes).");
             msg.push_str("\nFor AotPrep verification, use tools/hakorune_emit_mir.sh which sets these automatically.");
         } else if (name == "flow" || name == "try" || name == "catch" || name == "throw")
             && !crate::config::env::parser_stage3_enabled()
         {
-            msg.push_str(&format!("\nHint: '{}' is a Stage-3 keyword. Prefer NYASH_FEATURES=stage3 (legacy: NYASH_PARSER_STAGE3=1 / HAKO_PARSER_STAGE3=1 for Stage-B).", name));
+            msg.push_str(&format!("\nHint: '{}' is a syntax-3 keyword. Prefer NYASH_FEATURES=stage3 (legacy: NYASH_PARSER_STAGE3=1 / HAKO_PARSER_STAGE3=1 for mode-B compatibility routes).", name));
         }
 
         let suggest = crate::using::simple_registry::suggest_using_for_symbol(name);

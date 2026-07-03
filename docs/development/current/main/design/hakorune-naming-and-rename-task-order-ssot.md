@@ -1855,6 +1855,37 @@ git diff --check
 tools/checks/dev_gate.sh quick
 ```
 
+### STAGE-TERM-SYNTAX3-DIAGNOSTIC-WORDING-001
+
+Status: landed diagnostic wording cleanup.
+
+Purpose: use `syntax-3` / `mode-B compatibility routes` in live MIR builder
+undefined-variable hints, without changing parser internals or compatibility
+env names.
+
+Affected file:
+
+```text
+src/mir/builder/builder_build.rs
+```
+
+Non-claims:
+
+```text
+parser internal stage3 API renamed = 0
+NYASH_FEATURES=stage3 renamed = 0
+HAKO_PARSER_STAGE3 renamed = 0
+Stage-B route token removed = 0
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
 ### STAGE-TERM-EXISTING-NAME-MIGRATION-001
 
 Status: inventory-only; no implementation rename selected.
