@@ -1,0 +1,19 @@
+// emit_guard_value_id_list_formatter.hako
+//
+// Responsibility:
+// - format narrow emit-guard ValueId list diagnostics
+// - stay pure: scalar id tokens in, scalar text out
+//
+// Non-responsibility:
+// - ValueId analysis
+// - emit-guard scope validation
+// - MIR mutation
+static box EmitGuardValueIdListFormatterBox {
+  format_list(count, a, b, c) {
+    if count == "0" { return "[]" }
+    if count == "1" { return "[%" + a + "]" }
+    if count == "2" { return "[%" + a + ",%" + b + "]" }
+    if count == "3" { return "[%" + a + ",%" + b + ",%" + c + "]" }
+    return "unsupported_emit_guard_value_id_list"
+  }
+}

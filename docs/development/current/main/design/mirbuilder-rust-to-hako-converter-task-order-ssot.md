@@ -24,9 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-EMIT-GUARD-CALLEE-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.
-  The emit_guard_callee_label_formatter owner is HakoAdopted as the fifty-eighth
-  narrow Rust-oracle parity pilot; next is rerun 058.
+  MIRBUILDER-EMIT-GUARD-VALUE-ID-LIST-FORMATTER-HAKO-ADOPTION-DECISION-001.
+  The emit_guard_value_id_list_formatter owner is HakoAdopted as the fifty-ninth
+  narrow Rust-oracle parity pilot; next is rerun 059.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-058
+  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-059
 
 current fail-fast boundary:
   Do not re-enter full converter route selection without new non-self-signed
@@ -110,15 +110,15 @@ current fail-fast boundary:
   generation, publication-site MIR mutation, Copy instruction emission,
   dominance checks, test-only copy-emission reasons, CorePlan/Facts flowbox
   classification, facts-to-feature extraction, tag emission, Freeze contract,
-  stderr write, Callee resolution, emit-guard scope validation, and route
+  stderr write, Callee/ValueId analysis, emit-guard scope validation, and route
   selection remain Rust.
 
 latest design decision:
-  emit_guard_callee_label_formatter is now HakoAdopted as a narrow Rust-oracle
-  parity pilot owner after a green 6-row `.hako` EXE parity gate. Callee
-  resolution, emit-guard scope validation, and MIR mutation remain Rust.
+  emit_guard_value_id_list_formatter is now HakoAdopted as a narrow Rust-oracle
+  parity pilot owner after a green 4-row `.hako` EXE parity gate. ValueId
+  analysis, emit-guard scope validation, and MIR mutation remain Rust.
   The selected next card is
-  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-058`.
+  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-059`.
 
 historical route-selection decision:
   Detailed landed route-selection rows are closed as provenance and live in

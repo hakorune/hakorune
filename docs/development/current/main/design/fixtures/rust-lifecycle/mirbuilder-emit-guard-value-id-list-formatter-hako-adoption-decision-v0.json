@@ -1,0 +1,28 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderEmitGuardValueIdListFormatterHakoAdoptionDecisionV1",
+  "token": "MIRBUILDER-EMIT-GUARD-VALUE-ID-LIST-FORMATTER-HAKO-ADOPTION-DECISION-001",
+  "owner": "emit_guard_value_id_list_formatter",
+  "accepted_evidence": {
+    "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-emit-guard-value-id-list-formatter-rust-oracle-v0.json",
+    "hako_implementation": "lang/src/compiler/lib/emit_guard_value_id_list_formatter.hako",
+    "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_emit_guard_value_id_list_formatter_parity_gate.sh",
+    "parity_status": "green",
+    "parity_row_count": 4
+  },
+  "decision": {
+    "kind": "HakoAdopted",
+    "reason_token": "EmitGuardValueIdListFormatterParityGateGreen",
+    "selected_next_card": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-059"
+  },
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "value_id_analysis_migration": 0,
+    "emit_guard_scope_check_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

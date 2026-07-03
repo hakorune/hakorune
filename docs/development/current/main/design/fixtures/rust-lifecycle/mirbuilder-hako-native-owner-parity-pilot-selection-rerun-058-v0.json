@@ -1,0 +1,32 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderHakoNativeOwnerParityPilotSelectionRerun058V1",
+  "token": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-058",
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "previous_adoption_decision": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-emit-guard-callee-label-formatter-hako-adoption-decision-v0.json",
+    "previous_adoption_decision_hash": "sha256:0b8e398627e78bafa2bb0ffa3653ab3c97ca89b0479f0a7c9d9910d31723ff19"
+  },
+  "decision": {
+    "kind": "SelectRustOracleFixture",
+    "reason_token": "EmitGuardValueIdListFormatterIsNarrowPureDiagnosticOwner",
+    "selected_owner": "emit_guard_value_id_list_formatter",
+    "selected_next_card": "MIRBUILDER-EMIT-GUARD-VALUE-ID-LIST-FORMATTER-RUST-ORACLE-FIXTURE-001"
+  },
+  "accepted_scope": {
+    "surface": "emit guard ValueId list diagnostic formatting",
+    "manual_target_selection_allowed": 1,
+    "correctness_requires_rust_oracle_parity": 1
+  },
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "value_id_analysis_migration": 0,
+    "emit_guard_scope_check_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

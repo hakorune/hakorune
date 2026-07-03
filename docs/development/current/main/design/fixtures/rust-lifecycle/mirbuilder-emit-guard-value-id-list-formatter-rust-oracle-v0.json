@@ -1,0 +1,28 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderEmitGuardValueIdListFormatterRustOracleV1",
+  "token": "MIRBUILDER-EMIT-GUARD-VALUE-ID-LIST-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "emit_guard_value_id_list_formatter",
+  "rust_source": {
+    "path": "src/mir/builder/emit_guard/mod.rs",
+    "hash": "sha256:2dbc794d212e3644e1c3029187633971ac610a6e7033749146592835df338877",
+    "oracle_surface": "format_value_ids diagnostic string formatting"
+  },
+  "rows": [
+    {"count": "0", "a": "", "b": "", "c": "", "expected": "[]"},
+    {"count": "1", "a": "7", "b": "", "c": "", "expected": "[%7]"},
+    {"count": "2", "a": "7", "b": "9", "c": "", "expected": "[%7,%9]"},
+    {"count": "3", "a": "1", "b": "2", "c": "3", "expected": "[%1,%2,%3]"}
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "value_id_analysis_migration": 0,
+    "emit_guard_scope_check_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}
