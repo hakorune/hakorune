@@ -1,0 +1,38 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderHakoNativeOwnerParityPilotSelectionRerun018V1",
+  "token": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-018",
+  "input_state": {
+    "previous_adoption_decision": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-sum-variant-seed-label-formatter-hako-adoption-decision-v0.json",
+    "previous_adoption_hash": "sha256:780873f254b2b91c7bdec2572a1af053309a7391018fb5daba570810eb1db475",
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+  },
+  "selection_rule": {
+    "name": "MirBuilderNarrowRustOracleParityPilotSelectionV1",
+    "manual_target_selection_allowed": true,
+    "correctness_proof_required": "RustOracleParityGate",
+    "source_selfhost_claim_forbidden": true,
+    "full_converter_route_reentry_forbidden": true
+  },
+  "selected_owner": {
+    "owner_id": "mir_type_label_formatter",
+    "rust_source": "src/mir/global_call_route_plan/type_label.rs",
+    "rust_source_hash": "sha256:cc40b932573c3b0d3afed86e05d484c502ee60676e3cf2f7d35319d5e4732c75",
+    "selection_reason": "Pure MirType label vocabulary and composition formatter with JSON-fixture parity surface."
+  },
+  "decision": {
+    "kind": "SelectRustOracleFixture",
+    "selected_next_card": "MIRBUILDER-MIR-TYPE-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001"
+  },
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "mir_type_tree_traversal_migration": 0,
+    "global_call_route_collection_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

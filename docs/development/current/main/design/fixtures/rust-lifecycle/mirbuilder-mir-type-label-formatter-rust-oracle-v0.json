@@ -1,0 +1,37 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderMirTypeLabelFormatterRustOracleV1",
+  "token": "MIRBUILDER-MIR-TYPE-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "mir_type_label_formatter",
+  "rust_source": {
+    "path": "src/mir/global_call_route_plan/type_label.rs",
+    "hash": "sha256:cc40b932573c3b0d3afed86e05d484c502ee60676e3cf2f7d35319d5e4732c75",
+    "oracle_function": "format_mir_type_label"
+  },
+  "rows": [
+    { "kind": "Integer", "payload": "", "expected": "i64" },
+    { "kind": "Float", "payload": "", "expected": "f64" },
+    { "kind": "Bool", "payload": "", "expected": "i1" },
+    { "kind": "String", "payload": "", "expected": "str" },
+    { "kind": "Box", "payload": "Point", "expected": "box<Point>" },
+    { "kind": "Box", "payload": "RuntimeDataBox", "expected": "box<RuntimeDataBox>" },
+    { "kind": "Array", "payload": "i64", "expected": "[i64]" },
+    { "kind": "Array", "payload": "box<Point>", "expected": "[box<Point>]" },
+    { "kind": "Future", "payload": "str", "expected": "future<str>" },
+    { "kind": "Future", "payload": "[i64]", "expected": "future<[i64]>" },
+    { "kind": "WeakRef", "payload": "", "expected": "weakref" },
+    { "kind": "Void", "payload": "", "expected": "void" },
+    { "kind": "Unknown", "payload": "", "expected": "?" }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "mir_type_tree_traversal_migration": 0,
+    "global_call_route_collection_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

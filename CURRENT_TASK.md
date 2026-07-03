@@ -363,14 +363,14 @@ or replacement routes in the same slice.
 Latest adopted owner:
 
 ```text
-MIRBUILDER-SUM-VARIANT-SEED-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001
+MIRBUILDER-MIR-TYPE-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001
 ```
 
 Status:
 
 ```text
-sum_variant_seed_label_formatter is HakoAdopted as the eighteenth narrow
-Rust-oracle parity pilot after a green 16-row `.hako` EXE parity gate. Source
+mir_type_label_formatter is HakoAdopted as the nineteenth narrow Rust-oracle
+parity pilot after a green 13-row `.hako` EXE parity gate. Source
 Selfhost remains unclaimed.
 ```
 
@@ -378,20 +378,19 @@ Boundary:
 
 ```text
 Adopted:
-  Sum variant tag/project seed labels
+  MirType label vocabulary/composition formatting
 
 Still Rust:
-  sum route matching
-  Sum placement selection
-  payload extraction
-  backend helper emission
+  MirType tree traversal
+  global-call route collection
+  backend lowering
   MIR mutation
 ```
 
 Next:
 
 ```text
-MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-018
+MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-019
 ```
 
 Acceptance:

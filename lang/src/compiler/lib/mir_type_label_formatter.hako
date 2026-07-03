@@ -1,0 +1,26 @@
+// mir_type_label_formatter.hako - hand-authored MIR type label formatter
+//
+// Responsibility:
+// - format narrow MirType label vocabulary/composition rows into Rust oracle text
+// - stay pure: scalar kind + preformatted payload in, scalar text out
+//
+// Non-responsibility:
+// - MirType tree traversal
+// - global-call route collection
+// - MIR mutation
+// - backend lowering
+static box MirTypeLabelFormatterBox {
+  format_label(kind, payload) {
+    if kind == "Integer" { return "i64" }
+    if kind == "Float" { return "f64" }
+    if kind == "Bool" { return "i1" }
+    if kind == "String" { return "str" }
+    if kind == "Box" { return "box<" + payload + ">" }
+    if kind == "Array" { return "[" + payload + "]" }
+    if kind == "Future" { return "future<" + payload + ">" }
+    if kind == "WeakRef" { return "weakref" }
+    if kind == "Void" { return "void" }
+    if kind == "Unknown" { return "?" }
+    return "unsupported_mir_type_label"
+  }
+}

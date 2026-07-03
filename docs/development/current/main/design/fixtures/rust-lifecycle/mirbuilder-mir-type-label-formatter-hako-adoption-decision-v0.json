@@ -1,0 +1,35 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderMirTypeLabelFormatterHakoAdoptionDecisionV1",
+  "token": "MIRBUILDER-MIR-TYPE-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001",
+  "input_state": {
+    "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-mir-type-label-formatter-rust-oracle-v0.json",
+    "hako_source": "lang/src/compiler/lib/mir_type_label_formatter.hako",
+    "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_mir_type_label_formatter_parity_gate.sh"
+  },
+  "decision": {
+    "kind": "Adopt",
+    "reason_token": "MirTypeLabelFormatterRustOracleParityGateGreen",
+    "hako_adopted": 1,
+    "selected_owner": "mir_type_label_formatter",
+    "selected_next_card": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-019"
+  },
+  "accepted_scope": {
+    "surface": "MirType label vocabulary and composition formatting",
+    "parity_rows": 13,
+    "rust_bootstrap_retained": 1,
+    "rust_oracle_retained": 1
+  },
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "generated_artifact_as_native_edit_authority": 0,
+    "mir_type_tree_traversal_migration": 0,
+    "global_call_route_collection_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}
