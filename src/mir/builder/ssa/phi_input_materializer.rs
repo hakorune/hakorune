@@ -69,6 +69,53 @@ fn find_def_inst(
     None
 }
 
+fn write_debug_function_dump(func: &MirFunction, reason: &str) -> String {
+    if !crate::config::env::joinir_dev::debug_enabled()
+        && !crate::config::env::builder_debug_enabled()
+    {
+        return "disabled".to_string();
+    }
+
+    let fn_name = func
+        .signature
+        .name
+        .chars()
+        .map(|c| match c {
+            'a'..='z' | 'A'..='Z' | '0'..='9' | '_' | '-' => c,
+            _ => '_',
+        })
+        .collect::<String>();
+    let path = format!(
+        "/tmp/mir_dump_phi_input_{}_{}_{}.txt",
+        reason,
+        fn_name,
+        std::process::id()
+    );
+    match std::fs::write(&path, crate::mir::MirPrinter::new().print_function(func)) {
+        Ok(_) => path,
+        Err(_) => "write_failed".to_string(),
+    }
+}
+
+fn format_defined_values(analysis: &PhiInputMaterializationAnalysis) -> String {
+    let mut values = analysis
+        .def_blocks
+        .keys()
+        .map(|value| value.0)
+        .collect::<Vec<_>>();
+    values.sort_unstable();
+    let mut out = String::from("[");
+    for (idx, value) in values.into_iter().take(24).enumerate() {
+        if idx > 0 {
+            out.push(',');
+        }
+        out.push('%');
+        out.push_str(&value.to_string());
+    }
+    out.push(']');
+    out
+}
+
 fn rematerialize_for_pred(
     func: &mut MirFunction,
     analysis: &PhiInputMaterializationAnalysis,
@@ -97,9 +144,11 @@ fn rematerialize_for_pred(
     }
 
     let Some((def_bb, def_inst)) = find_def_inst(func, value) else {
+        let mir_dump = write_debug_function_dump(func, "without_def");
+        let defined_values = format_defined_values(analysis);
         return Err(format!(
-            "[freeze:contract][ssa/phi_input/without_def] fn={} pred={:?} context={} edge={} value=%{}",
-            func.signature.name, pred, context, edge_kind, value.0
+            "[freeze:contract][ssa/phi_input/without_def] fn={} pred={:?} context={} edge={} value=%{} defined_values={} mir_dump={}",
+            func.signature.name, pred, context, edge_kind, value.0, defined_values, mir_dump
         ));
     };
 
