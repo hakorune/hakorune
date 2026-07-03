@@ -24,9 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-THIN-ENTRY-TAG-FORMATTER-HAKO-ADOPTION-DECISION-001.
-  The thin_entry_tag_formatter owner is HakoAdopted as the twelfth narrow
-  Rust-oracle parity pilot; next is pilot selection rerun 012.
+  MIRBUILDER-ARRAY-TEXT-OBSERVER-EXECUTOR-TAG-FORMATTER-HAKO-ADOPTION-DECISION-001.
+  The array_text_observer_executor_tag_formatter owner is HakoAdopted as the
+  thirteenth narrow Rust-oracle parity pilot; next is pilot selection rerun 013.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-012
+  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-013
 
 current fail-fast boundary:
   Do not re-enter full converter route selection without new non-self-signed
@@ -73,20 +73,23 @@ current fail-fast boundary:
   formatting, user-box method type-label formatting, and core-method carrier
   token formatting, generic-method route fact token formatting, closure-call
   shape classification, region ref-slot kind classification, loop route
-  kind label/id/flag formatting, and thin-entry enum tag formatting. Metadata refresh, route collection, const emission, full AST traversal, method
+  kind label/id/flag formatting, thin-entry enum tag formatting, and
+  array-text observer executor contract enum tag formatting. Metadata refresh, route collection, const emission, full AST traversal, method
   dispatch, string corridor fact inference, same-module definition closure
   collection, receiver origin resolution, key route classification, route
   convergence, closure callsite canonicalization, NewClosure rewrite, lowering
   execution, Region construction, GC retain/release, loop feature extraction,
   loop route classification, planner route selection, thin-entry candidate
-  collection/selection, manifest generation, and MirBuilder mutation remain Rust.
+  collection/selection, manifest generation, observer route derivation, region
+  matching, combined region planning, and MirBuilder mutation remain Rust.
 
 latest design decision:
-  thin_entry_tag_formatter is now HakoAdopted as a narrow Rust-oracle parity
-  pilot owner after a green 23-row `.hako` EXE parity gate for ThinEntry enum
-  Display tags. Candidate collection, selection, manifest generation, lowering
-  execution, and MIR mutation remain Rust. The selected next card is
-  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-012`.
+  array_text_observer_executor_tag_formatter is now HakoAdopted as a narrow
+  Rust-oracle parity pilot owner after a green 11-row `.hako` EXE parity gate
+  for executor contract enum Display tags. Observer route derivation, region
+  matching, combined region planning, lowering execution, and MIR mutation
+  remain Rust. The selected next card is
+  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-013`.
 
 historical route-selection decision:
   Detailed landed route-selection rows are closed as provenance and live in

@@ -363,14 +363,14 @@ or replacement routes in the same slice.
 Latest adopted owner:
 
 ```text
-MIRBUILDER-THIN-ENTRY-TAG-FORMATTER-HAKO-ADOPTION-DECISION-001
+MIRBUILDER-ARRAY-TEXT-OBSERVER-EXECUTOR-TAG-FORMATTER-HAKO-ADOPTION-DECISION-001
 ```
 
 Status:
 
 ```text
-thin_entry_tag_formatter is HakoAdopted as the twelfth narrow Rust-oracle
-parity pilot after a green 23-row `.hako` EXE parity gate.
+array_text_observer_executor_tag_formatter is HakoAdopted as the thirteenth
+narrow Rust-oracle parity pilot after a green 11-row `.hako` EXE parity gate.
 Source Selfhost remains unclaimed.
 ```
 
@@ -378,12 +378,12 @@ Boundary:
 
 ```text
 Adopted:
-  ThinEntry enum-family Display tags
+  ArrayTextObserver executor contract enum-family Display tags
 
 Still Rust:
-  thin-entry candidate collection
-  thin-entry selection
-  manifest generation
+  observer route derivation
+  region matching
+  combined region planning
   lowering execution
   MIR mutation
 ```
@@ -391,7 +391,7 @@ Still Rust:
 Next:
 
 ```text
-MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-012
+MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-013
 ```
 
 Acceptance:

@@ -1,0 +1,92 @@
+// array_text_observer_executor_tag_formatter.hako - hand-authored observer executor tag formatter
+//
+// Responsibility:
+// - format ArrayTextObserver executor contract enum-family + variant names
+// - stay pure: scalar strings in, scalar text out
+//
+// Non-responsibility:
+// - observer route derivation
+// - region matching
+// - combined region planning
+// - lowering execution
+// - MIR mutation
+static box ArrayTextObserverExecutorTagFormatterBox {
+  format_tag(enum_family, variant) {
+    if enum_family == "ArrayTextObserverExecutorExecutionMode" {
+      return me.format_execution_mode_tag(variant)
+    }
+    if enum_family == "ArrayTextObserverExecutorProofRegion" {
+      return me.format_proof_region_tag(variant)
+    }
+    if enum_family == "ArrayTextObserverExecutorCarrier" {
+      return me.format_carrier_tag(variant)
+    }
+    if enum_family == "ArrayTextObserverExecutorEffect" {
+      return me.format_effect_tag(variant)
+    }
+    if enum_family == "ArrayTextObserverExecutorConsumerCapability" {
+      return me.format_consumer_capability_tag(variant)
+    }
+    if enum_family == "ArrayTextObserverExecutorMaterializationPolicy" {
+      return me.format_materialization_policy_tag(variant)
+    }
+    return "unsupported_array_text_observer_executor_tag"
+  }
+
+  format_execution_mode_tag(variant) {
+    if variant == "SingleRegionExecutor" {
+      return "single_region_executor"
+    }
+    return "unsupported_array_text_observer_executor_execution_mode"
+  }
+
+  format_proof_region_tag(variant) {
+    if variant == "LoopBackedgeSingleBody" {
+      return "loop_backedge_single_body"
+    }
+    return "unsupported_array_text_observer_executor_proof_region"
+  }
+
+  format_carrier_tag(variant) {
+    if variant == "ArrayLaneTextCell" {
+      return "array_lane_text_cell"
+    }
+    return "unsupported_array_text_observer_executor_carrier"
+  }
+
+  format_effect_tag(variant) {
+    if variant == "ObserveIndexOf" {
+      return "observe.indexof"
+    }
+    if variant == "StoreCell" {
+      return "store.cell"
+    }
+    if variant == "LengthResultCarry" {
+      return "length_result_carry"
+    }
+    if variant == "ScalarAccumulator" {
+      return "scalar_accumulator"
+    }
+    return "unsupported_array_text_observer_executor_effect"
+  }
+
+  format_consumer_capability_tag(variant) {
+    if variant == "CompareOnly" {
+      return "compare_only"
+    }
+    if variant == "SinkStore" {
+      return "sink_store"
+    }
+    if variant == "SinkStoreLenSum" {
+      return "sink_store_len_sum"
+    }
+    return "unsupported_array_text_observer_executor_consumer_capability"
+  }
+
+  format_materialization_policy_tag(variant) {
+    if variant == "TextResidentOrStringlikeSlot" {
+      return "text_resident_or_stringlike_slot"
+    }
+    return "unsupported_array_text_observer_executor_materialization_policy"
+  }
+}

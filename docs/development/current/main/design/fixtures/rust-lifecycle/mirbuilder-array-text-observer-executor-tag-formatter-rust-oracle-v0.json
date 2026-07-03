@@ -1,0 +1,45 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderArrayTextObserverExecutorTagFormatterRustOracleV1",
+  "token": "MIRBUILDER-ARRAY-TEXT-OBSERVER-EXECUTOR-TAG-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "array_text_observer_executor_tag_formatter",
+  "rust_source": {
+    "path": "src/mir/array_text_observer_region_contract/types.rs",
+    "hash": "sha256:e82a2a3eafacff054c1165971f60b151b714d03b60f0a0fc2d42ecac29ff1dbd",
+    "oracle_functions": [
+      "Display for ArrayTextObserverExecutorExecutionMode",
+      "Display for ArrayTextObserverExecutorProofRegion",
+      "Display for ArrayTextObserverExecutorCarrier",
+      "Display for ArrayTextObserverExecutorEffect",
+      "Display for ArrayTextObserverExecutorConsumerCapability",
+      "Display for ArrayTextObserverExecutorMaterializationPolicy"
+    ]
+  },
+  "oracle_rule": {
+    "surface": "ArrayTextObserver executor contract enum Display tag formatter",
+    "observer_route_derivation_migration": 0,
+    "region_matching_migration": 0,
+    "combined_region_planning_migration": 0,
+    "lowering_execution_migration": 0,
+    "mir_mutation_migration": 0
+  },
+  "rows": [
+    { "kind": "execution_mode", "input": "SingleRegionExecutor", "expected": "single_region_executor" },
+    { "kind": "proof_region", "input": "LoopBackedgeSingleBody", "expected": "loop_backedge_single_body" },
+    { "kind": "carrier", "input": "ArrayLaneTextCell", "expected": "array_lane_text_cell" },
+    { "kind": "effect", "input": "ObserveIndexOf", "expected": "observe.indexof" },
+    { "kind": "effect", "input": "StoreCell", "expected": "store.cell" },
+    { "kind": "effect", "input": "LengthResultCarry", "expected": "length_result_carry" },
+    { "kind": "effect", "input": "ScalarAccumulator", "expected": "scalar_accumulator" },
+    { "kind": "consumer_capability", "input": "CompareOnly", "expected": "compare_only" },
+    { "kind": "consumer_capability", "input": "SinkStore", "expected": "sink_store" },
+    { "kind": "consumer_capability", "input": "SinkStoreLenSum", "expected": "sink_store_len_sum" },
+    { "kind": "materialization_policy", "input": "TextResidentOrStringlikeSlot", "expected": "text_resident_or_stringlike_slot" }
+  ],
+  "summary": {
+    "oracle_row_count": 11,
+    "selected_surface_is_pure_enum_tag_formatter": 1,
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0
+  }
+}

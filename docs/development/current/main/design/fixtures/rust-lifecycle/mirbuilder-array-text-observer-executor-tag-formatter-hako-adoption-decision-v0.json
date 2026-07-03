@@ -1,0 +1,55 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderArrayTextObserverExecutorTagFormatterHakoAdoptionDecisionV1",
+  "token": "MIRBUILDER-ARRAY-TEXT-OBSERVER-EXECUTOR-TAG-FORMATTER-HAKO-ADOPTION-DECISION-001",
+  "owner": "array_text_observer_executor_tag_formatter",
+  "input_state": {
+    "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-array-text-observer-executor-tag-formatter-rust-oracle-v0.json",
+    "hako_source": "lang/src/compiler/lib/array_text_observer_executor_tag_formatter.hako",
+    "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_array_text_observer_executor_tag_formatter_parity_gate.sh",
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+  },
+  "adoption_rule": {
+    "adopt_only_narrow_owner": true,
+    "correctness_proof": "RustOracleParityGate",
+    "parity_rows": 11,
+    "parity_status": "green",
+    "rust_bootstrap_retained": 1,
+    "rust_oracle_retained": 1
+  },
+  "adopted_surface": {
+    "name": "ArrayTextObserver executor tag formatter",
+    "scope": [
+      "ArrayTextObserver executor contract enum Display text"
+    ]
+  },
+  "excluded_surface": [
+    "observer route derivation",
+    "region matching",
+    "combined region planning",
+    "lowering execution",
+    "MIR mutation",
+    "Source Selfhost claim",
+    "Rust deletion"
+  ],
+  "decision": {
+    "kind": "Adopt",
+    "reason_token": "ArrayTextObserverExecutorTagFormatterRustOracleParityGateGreen",
+    "selected_next_card": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-013"
+  },
+  "claims": {
+    "hako_adopted": 1,
+    "source_selfhost_claim": 0,
+    "source_selfhost_complete": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "generated_artifact_as_native_edit_authority": 0,
+    "observer_route_derivation_migration": 0,
+    "region_matching_migration": 0,
+    "combined_region_planning_migration": 0,
+    "lowering_execution_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

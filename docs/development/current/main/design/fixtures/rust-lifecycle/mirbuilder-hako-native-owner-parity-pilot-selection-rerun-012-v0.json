@@ -1,0 +1,58 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderHakoNativeOwnerParityPilotSelectionRerun012V1",
+  "token": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-012",
+  "input_state": {
+    "previous_hako_adoption": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-thin-entry-tag-formatter-hako-adoption-decision-v0.json",
+    "previous_hako_adoption_hash": "sha256:aa0ac77819f50ab9c1dbeaa4cd337fa6ab0c9788fd40aca9d99d0b149e910709",
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+  },
+  "selection_rule": {
+    "name": "RustOracleParityMigrationPilotSelectorV1",
+    "manual_target_selection_allowed": true,
+    "correctness_proof_required": "RustOracleParityGate",
+    "source_selfhost_claim": 0,
+    "hako_adopted_before_parity": 0,
+    "full_converter_route_reentry": 0
+  },
+  "candidate_rows": [
+    {
+      "candidate_owner": "array_text_observer_executor_tag_formatter",
+      "source_path": "src/mir/array_text_observer_region_contract/types.rs",
+      "source_hash": "sha256:e82a2a3eafacff054c1165971f60b151b714d03b60f0a0fc2d42ecac29ff1dbd",
+      "surface": "ArrayTextObserver executor contract enum Display tags",
+      "pure": true,
+      "small": true,
+      "json_serializable": true,
+      "rust_oracle_available": true,
+      "selection_state": "Selected",
+      "accepted_reason": "Pure executor-contract enum/tag formatting surface; no route derivation or region matching migration."
+    },
+    {
+      "candidate_owner": "array_text_observer_route_summary",
+      "selection_state": "Rejected",
+      "rejected_reason": "RouteSummaryObjectTooWideForNextPilot"
+    },
+    {
+      "candidate_owner": "sum_placement_layout_tag_formatter",
+      "selection_state": "Deferred",
+      "rejected_reason": "Available after observer executor tag surface."
+    }
+  ],
+  "decision": {
+    "kind": "SelectRustOracleFixture",
+    "reason_token": "ArrayTextObserverExecutorTagFormatterSelectedAsThirteenthParityPilot",
+    "selected_owner": "array_text_observer_executor_tag_formatter",
+    "selected_next_card": "MIRBUILDER-ARRAY-TEXT-OBSERVER-EXECUTOR-TAG-FORMATTER-RUST-ORACLE-FIXTURE-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "generated_artifact_as_native_edit_authority": 0,
+    "observer_route_derivation_migration": 0,
+    "region_matching_migration": 0,
+    "combined_region_planning_migration": 0,
+    "lowering_execution_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}
