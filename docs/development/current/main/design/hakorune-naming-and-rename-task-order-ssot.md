@@ -2884,6 +2884,31 @@ guard behavior changed = 0
 runtime behavior changed = 0
 ```
 
+#### STAGE-TERM-STAGE1-BRIDGE-ALIAS-COMMENT-WORDING-001
+
+Status: landed.
+
+Scope:
+
+```text
+src/runner/stage1_bridge/env/parser_stageb.rs:
+  parser feature propagation comment says phase-1 compatibility alias promotion
+
+src/runner/stage1_bridge/modules.rs:
+  well-known alias comments say phase-1 compatibility CLI
+```
+
+Non-claims:
+
+```text
+stage1_bridge path renamed = 0
+Stage1* Rust type names renamed = 0
+stage1_* modules/functions renamed = 0
+NYASH_STAGE1_* / HAKO_STAGE1_* env names renamed = 0
+[stage1-cli] log tags changed = 0
+runtime behavior changed = 0
+```
+
 ## Guard Policy
 
 `tools/checks/naming_charter_guard.sh` is a lightweight reusable guard. It does

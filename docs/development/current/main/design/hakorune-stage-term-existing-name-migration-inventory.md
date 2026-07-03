@@ -1033,6 +1033,33 @@ guard behavior changed = 0
 runtime behavior changed = 0
 ```
 
+## Landed Stage1 Bridge Alias Comment Wording Slice
+
+`STAGE-TERM-STAGE1-BRIDGE-ALIAS-COMMENT-WORDING-001` changes selected
+`src/runner/stage1_bridge` env/module comments from unqualified Stage-1 CLI
+wording to phase-1 compatibility CLI / alias wording.
+
+Scope:
+
+```text
+src/runner/stage1_bridge/env/parser_stageb.rs:
+  phase-1 compatibility alias promotion
+
+src/runner/stage1_bridge/modules.rs:
+  well-known aliases required by phase-1 compatibility CLI
+```
+
+Non-claims:
+
+```text
+stage1_bridge path renamed = 0
+Stage1* Rust type names renamed = 0
+stage1_* modules/functions renamed = 0
+NYASH_STAGE1_* / HAKO_STAGE1_* env names renamed = 0
+[stage1-cli] log tags changed = 0
+runtime behavior changed = 0
+```
+
 ## Migration Eligibility
 
 An occurrence is eligible for a future rename only if all conditions hold:

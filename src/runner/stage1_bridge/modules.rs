@@ -337,7 +337,7 @@ fn collect_workspace_module_entries(doc: &toml::Value, toml_dir: &Path) -> Vec<(
 ///
 /// Returns a "|||"-separated list of "key=value" entries for HAKO_STAGE1_MODULES_LIST.
 /// HAKO_STAGEB_MODULES_LIST is kept as a mode-B compatibility alias.
-/// Includes well-known aliases required by Stage-1 CLI if absent.
+/// Includes well-known aliases required by phase-1 compatibility CLI if absent.
 ///
 /// Merge policy:
 /// - workspace exports are loaded first
@@ -369,7 +369,7 @@ fn collect_modules_list_from_doc(doc: &toml::Value, path: &Path) -> Option<Strin
         }
     }
 
-    // Add a few well-known aliases required by Stage-1 CLI if they are absent in nyash.toml.
+    // Add well-known aliases required by phase-1 compatibility CLI when absent.
     for (k, v) in [
         (
             "lang.compiler.entry.using_resolver_box",
