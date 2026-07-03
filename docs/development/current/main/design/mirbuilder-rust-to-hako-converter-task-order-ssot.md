@@ -24,9 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-PROPERTY-GETTER-METHOD-NAME-FORMATTER-HAKO-ADOPTION-DECISION-001.
-  The property_getter_method_name_formatter owner is HakoAdopted as the
-  sixty-second narrow Rust-oracle parity pilot; next is rerun 062.
+  MIRBUILDER-CALL-TARGET-NAME-FORMATTER-HAKO-ADOPTION-DECISION-001.
+  The call_target_name_formatter owner is HakoAdopted as the sixty-third narrow
+  Rust-oracle parity pilot; next is rerun 063.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-062
+  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-063
 
 current fail-fast boundary:
   Do not re-enter full converter route selection without new non-self-signed
@@ -112,14 +112,14 @@ current fail-fast boundary:
   classification, facts-to-feature extraction, tag emission, Freeze contract,
   stderr write, Callee/ValueId analysis, emit-guard instruction analysis,
   emit-guard scope validation, index route selection, property registry state,
-  and route selection remain Rust.
+  call target resolution, and route selection remain Rust.
 
 latest design decision:
-  property_getter_method_name_formatter is now HakoAdopted as a narrow
-  Rust-oracle parity pilot owner after a green 6-row `.hako` EXE parity gate.
-  Property parsing, registry state, read lowering, and MIR mutation remain Rust.
+  call_target_name_formatter is now HakoAdopted as a narrow Rust-oracle parity
+  pilot owner after a green 6-row `.hako` EXE parity gate. Call target
+  resolution, closure capture handling, call lowering, and MIR mutation remain Rust.
   The selected next card is
-  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-062`.
+  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-063`.
 
 historical route-selection decision:
   Detailed landed route-selection rows are closed as provenance and live in

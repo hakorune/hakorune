@@ -1,0 +1,22 @@
+// call_target_name_formatter.hako
+//
+// Responsibility:
+// - format narrow MIR builder CallTarget debug names
+// - stay pure: target kind/name tokens in, scalar text out
+//
+// Non-responsibility:
+// - call target resolution
+// - closure capture handling
+// - call lowering
+// - MIR mutation
+static box CallTargetNameFormatterBox {
+  format_name(kind, name) {
+    if kind == "Global" { return name }
+    if kind == "Method" { return name }
+    if kind == "Constructor" { return "new " + name }
+    if kind == "Extern" { return name }
+    if kind == "Value" { return "<dynamic>" }
+    if kind == "Closure" { return "<closure>" }
+    return "unsupported_call_target"
+  }
+}

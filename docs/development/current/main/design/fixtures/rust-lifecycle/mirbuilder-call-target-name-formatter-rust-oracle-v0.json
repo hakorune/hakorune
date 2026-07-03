@@ -1,0 +1,31 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderCallTargetNameFormatterRustOracleV1",
+  "token": "MIRBUILDER-CALL-TARGET-NAME-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "call_target_name_formatter",
+  "rust_source": {
+    "path": "src/mir/builder/calls/call_target.rs",
+    "hash": "sha256:fd9322fc814359adfe1995baa44c3efbf48bca65c07b051a578bb01c39977e41",
+    "oracle_surface": "CallTarget::name debug string formatting"
+  },
+  "rows": [
+    {"kind": "Global", "name": "print", "expected": "print"},
+    {"kind": "Method", "name": "push", "expected": "push"},
+    {"kind": "Constructor", "name": "Point", "expected": "new Point"},
+    {"kind": "Extern", "name": "hako.osvm.alloc", "expected": "hako.osvm.alloc"},
+    {"kind": "Value", "name": "", "expected": "<dynamic>"},
+    {"kind": "Closure", "name": "", "expected": "<closure>"}
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "call_target_resolution_migration": 0,
+    "closure_capture_migration": 0,
+    "call_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}
