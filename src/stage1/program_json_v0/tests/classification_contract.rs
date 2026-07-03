@@ -197,7 +197,11 @@ return x + 1
         "unexpected error: {error}"
     );
     assert!(
-        error.contains("Unexpected character '@'"),
+        error.contains("parse error (Rust parser, v0 subset):"),
+        "unexpected error: {error}"
+    );
+    assert!(
+        error.contains("Unexpected token ASSIGN"),
         "unexpected error: {error}"
     );
 }
