@@ -13,6 +13,7 @@ static box PatternRegistryBox {
     a.push("if.merge.local.return.var")
     a.push("loop.local.return.var")
     a.push("return.method.string.length")
+    a.push("load.store.local")
     a.push("return.var.local")
     a.push("return.string")
     a.push("return.float")

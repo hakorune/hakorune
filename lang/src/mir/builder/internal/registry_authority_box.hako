@@ -12,6 +12,7 @@ using "hako.mir.builder.internal.lower_if_compare_varvar" as LowerIfCompareVarVa
 using "lang.mir.builder.internal.lower_if_merge_local_return_var_box" as LowerIfMergeLocalReturnVarBox
 using "lang.mir.builder.internal.lower_loop_local_return_var_box" as LowerLoopLocalReturnVarBox
 using "hako.mir.builder.internal.lower_return_method_string_length" as LowerReturnMethodStringLengthBox
+using "hako.mir.builder.internal.lower_load_store_local" as LowerLoadStoreLocalBox
 using "hako.mir.builder.internal.lower_return_var_local" as LowerReturnVarLocalBox
 using "hako.mir.builder.internal.lower_return_string" as LowerReturnStringBox
 using "hako.mir.builder.internal.lower_return_float" as LowerReturnFloatBox
@@ -26,6 +27,7 @@ static box BuilderRegistryAuthorityBox {
   method try_lower(program_json) {
     if BuilderConfigBox.registry_on() != 1 { return null }
     local s = me._coerce_text_compat(program_json)
+    if me._has_loop_try_mix(s) == 1 { return null }
     local only = BuilderConfigBox.registry_only()
 
     local names = PatternRegistryBox.candidates()
@@ -47,6 +49,7 @@ static box BuilderRegistryAuthorityBox {
       if nm == "if.merge.local.return.var" { local out = LowerIfMergeLocalReturnVarBox.try_lower(s); if out != null { me._debug_registry_hit(nm) return out } }
       if nm == "loop.local.return.var" { local out = LowerLoopLocalReturnVarBox.try_lower(s); if out != null { me._debug_registry_hit(nm) return out } }
       if nm == "return.method.string.length" { local out = LowerReturnMethodStringLengthBox.try_lower(s); if out != null { me._debug_registry_hit(nm) return out } }
+      if nm == "load.store.local" { local out = LowerLoadStoreLocalBox.try_lower(s); if out != null { me._debug_registry_hit(nm) return out } }
       if nm == "return.var.local" { local out = LowerReturnVarLocalBox.try_lower(s); if out != null { me._debug_registry_hit(nm) return out } }
       if nm == "return.string" { local out = LowerReturnStringBox.try_lower(s); if out != null { me._debug_registry_hit(nm) return out } }
       if nm == "return.float" { local out = LowerReturnFloatBox.try_lower(s); if out != null { me._debug_registry_hit(nm) return out } }
@@ -69,5 +72,11 @@ static box BuilderRegistryAuthorityBox {
   }
   method _coerce_text_compat(value) {
     return "" + value
+  }
+
+  method _has_loop_try_mix(s) {
+    if s.indexOf("\"type\":\"Loop\"") < 0 { return 0 }
+    if s.indexOf("\"type\":\"Try\"") < 0 { return 0 }
+    return 1
   }
 }

@@ -101,7 +101,7 @@ static box MirBuilderBox {
     local out_reg = me._try_emit_registry_program_json(program_body_json, func_defs_mir)
     if out_reg != null { return out_reg }
 
-    local out_fallback = me._try_emit_fallback_program_json(program_body_json, func_defs_mir)
+    local out_fallback = me._try_emit_fallback_program_json(program_body_json, program_json, func_defs_mir)
     if out_fallback != null { return out_fallback }
 
     return BuilderUnsupportedTailBox.fail(program_body_json, func_defs_mir)
@@ -113,8 +113,8 @@ static box MirBuilderBox {
     return me._finalize_internal_candidate(out_reg, func_defs_mir)
   }
 
-  method _try_emit_fallback_program_json(program_body_json, func_defs_mir) {
-    local out_fallback = BuilderFallbackAuthorityBox.try_lower("" + program_body_json)
+  method _try_emit_fallback_program_json(program_body_json, root_program_json, func_defs_mir) {
+    local out_fallback = BuilderFallbackAuthorityBox.try_lower_with_root("" + program_body_json, "" + root_program_json)
     if out_fallback == null { return null }
     return me._finalize_internal_candidate(out_fallback, func_defs_mir)
   }

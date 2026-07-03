@@ -5,7 +5,12 @@ use serde_json::Value;
 pub(super) fn parse_call_callee(inst: &Value) -> Result<Option<Callee>, String> {
     let callee_obj = match inst.get("callee") {
         Some(obj) => obj,
-        None => return Ok(None),
+        None => {
+            return Ok(inst
+                .get("name")
+                .and_then(Value::as_str)
+                .map(|name| Callee::Global(name.to_string())));
+        }
     };
     let callee_type = callee_obj
         .get("type")

@@ -37,6 +37,8 @@ static box LowerPrintVarReturnIntBox {
     if k_if >= 0 && k_if < k_ret { return null }
     local k_loop = JsonFragBox.index_of_from(s, "\"type\":\"Loop\"", k_loc)
     if k_loop >= 0 && k_loop < k_ret { return null }
+    local k_try = JsonFragBox.index_of_from(s, "\"type\":\"Try\"", k_loc)
+    if k_try >= 0 && k_try < k_ret { return null }
 
     local k_local_name = JsonFragBox.index_of_from(s, "\"name\":", 0)
     if k_local_name < 0 || k_local_name > k_loc { return null }

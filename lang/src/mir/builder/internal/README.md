@@ -28,6 +28,8 @@ Notes
 - If the generic unsupported/no-match tail needs to grow, extend `unsupported_tail_box.hako` before widening the outer box again.
 - If the normal registry-first mainline needs to grow, extend `registry_authority_box.hako` before widening the outer box again.
 - If the non-registry/internal fallback chain needs to grow, extend `fallback_authority_box.hako` before widening the outer box again.
+- Dedicated cleanup fallback shapes stay in their own lowerer files; do not let generic `Print/Return` lowers consume `Try(cleanup)` bodies.
+- Dedicated multi-local print fallback shapes stay in their own lowerer files; keep the generic `Print/Return` lowerer narrow.
 - If the delegate/provider compat lane needs to grow, extend `delegate_provider_box.hako` before widening the outer box again.
 - If the delegate-side local finalize needs to grow, extend `delegate_finalize_box.hako` before widening the outer box again.
 - If the shared outer finalize chain needs to grow, extend `finalize_chain_box.hako` before widening the outer box again.

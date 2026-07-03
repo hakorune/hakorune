@@ -279,14 +279,20 @@ static box MirJsonEmitBox {
     }
     if op == "call" {
       local func_id = inst.get("func")
-      if me._is_map_missing_sentinel(func_id) == 1 || me._is_present_compat(func_id) == 0 {
-        func_id = inst.get("name")
-      }
       local args_box2 = inst.get("args")
       if me._is_present_compat(args_box2) == 0 || me._is_map_missing_sentinel(args_box2) == 1 || !BoxHelpers.is_array(args_box2) {
         args_box2 = []
       }
       local dst2 = inst.get("dst")
+      local common_tail = ",\"args\":" + me._emit_vid_array(args_box2) +
+             ",\"dst\":" + me._emit_vid_or_null(dst2) + "}"
+      if me._is_map_missing_sentinel(func_id) == 0 && me._is_present_compat(func_id) == 1 {
+        return "{\"op\":\"call\",\"func\":" + me._emit_vid_or_null(func_id) + common_tail
+      }
+      local func_name = inst.get("name")
+      if me._is_map_missing_sentinel(func_name) == 0 && me._is_present_compat(func_name) == 1 {
+        return "{\"op\":\"call\",\"name\":" + me._quote(func_name) + common_tail
+      }
       return "{\"op\":\"call\",\"func\":" + me._emit_vid_or_null(func_id) +
              ",\"args\":" + me._emit_vid_array(args_box2) +
              ",\"dst\":" + me._emit_vid_or_null(dst2) + "}"

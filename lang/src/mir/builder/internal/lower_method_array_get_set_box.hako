@@ -8,6 +8,14 @@ static box LowerMethodArrayGetSetBox {
     local s = me._coerce_text_compat(program_json)
     if JsonFragBox.index_of_from(s, "\"type\":\"New\"", 0) < 0 { return null }
     if JsonFragBox.index_of_from(s, "\"class\":\"ArrayBox\"", 0) < 0 { return null }
+    if JsonFragBox.index_of_from(s, "\"type\":\"Method\"", 0) < 0 { return null }
+    local has_get = 0
+    local has_set = 0
+    if JsonFragBox.index_of_from(s, "\"method\":\"get\"", 0) >= 0 { has_get = 1 }
+    if JsonFragBox.index_of_from(s, "\"name\":\"get\"", 0) >= 0 { has_get = 1 }
+    if JsonFragBox.index_of_from(s, "\"method\":\"set\"", 0) >= 0 { has_set = 1 }
+    if JsonFragBox.index_of_from(s, "\"name\":\"set\"", 0) >= 0 { has_set = 1 }
+    if !(has_get || has_set) { return null }
     // Reverse-lookup (safe subset): prefer Local(Int) for index, Local(String) for value
     local n = s.length()
     local idx = PatternUtilBox.find_any_local_int_before(s, n)

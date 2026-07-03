@@ -1,0 +1,83 @@
+// lower_multi_local_print_var_return_int_box.hako
+// Pattern: Local a=Int; Local b=Int; Print/console.log Var(b); Return Int.
+//
+// Responsibility: own the existing multi-local print pin so the single-local
+// Print/Return fallback can stay narrow.
+
+using selfhost.shared.json.utils.json_frag as JsonFragBox
+using "hako.mir.builder.internal.compat_mir_emit" as CompatMirEmitBox
+
+static box LowerMultiLocalPrintVarReturnIntBox {
+  try_lower(program_json) {
+    local s = "" + program_json
+
+    local k_loc1 = JsonFragBox.index_of_from(s, "\"type\":\"Local\"", 0)
+    if k_loc1 < 0 { return null }
+    local k_loc2 = JsonFragBox.index_of_from(s, "\"type\":\"Local\"", k_loc1 + 1)
+    if k_loc2 < 0 { return null }
+
+    local k_print_expr = JsonFragBox.index_of_from(s, "\"expr\":{", k_loc2 + 1)
+    if k_print_expr < 0 { return null }
+    local k_expr_stmt = JsonFragBox.index_of_from(s, "\"type\":\"Expr\"", k_print_expr)
+    if k_expr_stmt < 0 || k_expr_stmt > k_print_expr + 192 { return null }
+    local k_call = JsonFragBox.index_of_from(s, "\"type\":\"Call\"", k_print_expr)
+    if k_call < 0 || k_call > k_expr_stmt { return null }
+    local k_call_name = JsonFragBox.index_of_from(s, "\"name\":\"env.console.log\"", k_print_expr)
+    if k_call_name < 0 || k_call_name > k_expr_stmt { return null }
+
+    local k_ret_expr = JsonFragBox.index_of_from(s, "\"expr\":{", k_expr_stmt + 1)
+    if k_ret_expr < 0 { return null }
+    local k_ret = JsonFragBox.index_of_from(s, "\"type\":\"Return\"", k_ret_expr)
+    if k_ret < 0 { return null }
+    if k_ret_expr > k_ret { return null }
+
+    local k_if = JsonFragBox.index_of_from(s, "\"type\":\"If\"", k_loc1)
+    if k_if >= 0 && k_if < k_ret { return null }
+    local k_loop = JsonFragBox.index_of_from(s, "\"type\":\"Loop\"", k_loc1)
+    if k_loop >= 0 && k_loop < k_ret { return null }
+    local k_try = JsonFragBox.index_of_from(s, "\"type\":\"Try\"", k_loc1)
+    if k_try >= 0 && k_try < k_ret { return null }
+
+    local k_name2 = JsonFragBox.index_of_from(s, "\"name\":", k_loc1 + 1)
+    if k_name2 < 0 || k_name2 > k_loc2 { return null }
+    local local_name_raw = JsonFragBox.read_string_after(s, k_name2 + 7)
+    if local_name_raw == null { return null }
+    local local_name = "" + local_name_raw
+    if local_name == "" { return null }
+
+    local k_expr2 = JsonFragBox.index_of_from(s, "\"expr\":{", k_loc1 + 1)
+    if k_expr2 < 0 || k_expr2 > k_loc2 { return null }
+    local k_int2 = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", k_expr2)
+    if k_int2 < 0 || k_int2 > k_loc2 { return null }
+    local k_val2 = JsonFragBox.index_of_from(s, "\"value\":", k_expr2)
+    if k_val2 < 0 || k_val2 > k_loc2 { return null }
+    local local_init_raw = JsonFragBox.read_int_after(s, k_val2 + 8)
+    if local_init_raw == null { return null }
+    local local_init = "" + local_init_raw
+    if local_init == "" { return null }
+
+    local k_output_var = JsonFragBox.index_of_from(s, "\"type\":\"Var\"", k_print_expr)
+    if k_output_var < 0 || k_output_var > k_expr_stmt { return null }
+    local k_output_name = JsonFragBox.index_of_from(s, "\"name\":", k_print_expr)
+    if k_output_name < 0 || k_output_name > k_output_var { return null }
+    local output_name_raw = JsonFragBox.read_string_after(s, k_output_name + 7)
+    if output_name_raw == null { return null }
+    local output_name = "" + output_name_raw
+    if output_name == "" { return null }
+    if output_name != local_name {
+      print("[freeze:contract][hako_mirbuilder][cap_missing/expr:Var] Print var must be the Local var")
+      return null
+    }
+
+    local k_ret_int = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", k_ret_expr)
+    if k_ret_int < 0 || k_ret_int > k_ret_expr + 64 { return null }
+    local k_ret_val = JsonFragBox.index_of_from(s, "\"value\":", k_ret_expr)
+    if k_ret_val < 0 || k_ret_val > k_ret { return null }
+    local ret_value_raw = JsonFragBox.read_int_after(s, k_ret_val + 8)
+    if ret_value_raw == null { return null }
+    local ret_value = "" + ret_value_raw
+    if ret_value == "" { return null }
+
+    return CompatMirEmitBox.emit_local_print_var_return_int(local_init, ret_value)
+  }
+}

@@ -18,6 +18,7 @@ using "lang.mir.builder.internal.lower_loop_local_return_var_box" as LowerLoopLo
 using "hako.mir.builder.internal.lower_loop_if_return_var" as LowerLoopIfReturnVarBox
 using "hako.mir.builder.internal.lower_return_method_string_length" as LowerReturnMethodStringLengthBox
 using "hako.mir.builder.internal.lower_return_var_local" as LowerReturnVarLocalBox
+using "hako.mir.builder.internal.lower_multi_local_print_var_return_int" as LowerMultiLocalPrintVarReturnIntBox
 using "hako.mir.builder.internal.lower_print_var_return_int" as LowerPrintVarReturnIntBox
 using "hako.mir.builder.internal.lower_if_var_eq_int_fallthrough" as LowerIfVarEqIntFallthroughBox
 using "hako.mir.builder.internal.lower_return_string" as LowerReturnStringBox
@@ -37,20 +38,33 @@ using "hako.mir.builder.internal.lower_method_array_push" as LowerMethodArrayPus
 using "hako.mir.builder.internal.lower_method_array_get_set" as LowerMethodArrayGetSetBox
 using "hako.mir.builder.internal.lower_method_map_size" as LowerMethodMapSizeBox
 using "hako.mir.builder.internal.lower_method_map_get_set" as LowerMethodMapGetSetBox
+using "hako.mir.builder.internal.lower_load_store_local" as LowerLoadStoreLocalBox
 using "hako.mir.builder.internal.lower_typeop_check" as LowerTypeOpCheckBox
 using "hako.mir.builder.internal.lower_typeop_cast" as LowerTypeOpCastBox
 using "hako.mir.builder.internal.lower_loop_count_param" as LowerLoopCountParamBox
 using "hako.mir.builder.internal.lower_loop_simple" as LowerLoopSimpleBox
+using "hako.mir.builder.internal.lower_try_cleanup_print_var_return_int" as LowerTryCleanupPrintVarReturnIntBox
 
 static box BuilderFallbackAuthorityBox {
   method try_lower(program_json) {
+    local body_s = me._coerce_text_compat(program_json)
+    local root_s = me._coerce_text_compat(program_json)
+    return me.try_lower_with_root(body_s, root_s)
+  }
+
+  method try_lower_with_root(program_json, root_program_json) {
     local s = me._coerce_text_compat(program_json)
+    local root_s = me._coerce_text_compat(root_program_json)
     local boxed = me._try_boxed_lowerers(s)
     if boxed != null { return boxed }
+    if me._has_try_or_loop(s) == 1 { return null }
+    local inline = me._try_inline_jsonfrag_cases(s, root_s)
+    if inline != null { return inline }
     return null
   }
 
   method _try_boxed_lowerers(s) {
+    if me._has_loop_try_mix(s) == 1 { return null }
     { local out_newc = LowerNewboxConstructorBox.try_lower(s); if out_newc != null { return out_newc } }
     { local out_arr_size = LowerMethodArraySizeBox.try_lower(s); if out_arr_size != null { return out_arr_size } }
     { local out_arr_push = LowerMethodArrayPushBox.try_lower(s); if out_arr_push != null { return out_arr_push } }
@@ -77,9 +91,17 @@ static box BuilderFallbackAuthorityBox {
         { local out_loop = LowerLoopSimpleBox.try_lower(s); if out_loop != null { return out_loop } }
       }
     }
+    { local out_try_cleanup = LowerTryCleanupPrintVarReturnIntBox.try_lower(s); if out_try_cleanup != null { return out_try_cleanup } }
     { local out_toc = LowerTypeOpCheckBox.try_lower(s); if out_toc != null { return out_toc } }
     { local out_tca = LowerTypeOpCastBox.try_lower(s); if out_tca != null { return out_tca } }
-    { local out_print = LowerPrintVarReturnIntBox.try_lower(s); if out_print != null { return out_print } }
+    { local out_ls = LowerLoadStoreLocalBox.try_lower(s); if out_ls != null { return out_ls } }
+    { local out_multi_print = LowerMultiLocalPrintVarReturnIntBox.try_lower(s); if out_multi_print != null { return out_multi_print } }
+    {
+      if me._has_multiple_locals(s) != 1 {
+        local out_print = LowerPrintVarReturnIntBox.try_lower(s)
+        if out_print != null { return out_print }
+      }
+    }
     { local out_if_fall = LowerIfVarEqIntFallthroughBox.try_lower(s); if out_if_fall != null { return out_if_fall } }
     { local out_var = LowerReturnVarLocalBox.try_lower(s); if out_var != null { return out_var } }
     { local out_str = LowerReturnStringBox.try_lower(s); if out_str != null { return out_str } }
@@ -102,7 +124,59 @@ static box BuilderFallbackAuthorityBox {
     return null
   }
 
-  method _try_inline_jsonfrag_cases(s) {
+  method _has_loop_try_mix(s) {
+    if JsonFragBox.index_of_from(s, "\"type\":\"Loop\"", 0) < 0 { return 0 }
+    if JsonFragBox.index_of_from(s, "\"type\":\"Try\"", 0) < 0 { return 0 }
+    return 1
+  }
+
+  method _has_try_or_loop(s) {
+    if JsonFragBox.index_of_from(s, "\"type\":\"Try\"", 0) >= 0 { return 1 }
+    if JsonFragBox.index_of_from(s, "\"type\":\"Loop\"", 0) >= 0 { return 1 }
+    return 0
+  }
+
+  method _has_multiple_locals(s) {
+    local k_loc1 = JsonFragBox.index_of_from(s, "\"type\":\"Local\"", 0)
+    if k_loc1 < 0 { return 0 }
+    local k_loc2 = JsonFragBox.index_of_from(s, "\"type\":\"Local\"", k_loc1 + 1)
+    if k_loc2 >= 0 { return 1 }
+    return 0
+  }
+
+  method _has_id_def(s) {
+    local k_defs = JsonFragBox.index_of_from(s, "\"defs\":[", 0)
+    if k_defs < 0 { return 0 }
+    local k_id = JsonFragBox.index_of_from(s, "\"name\":\"id\"", k_defs)
+    if k_id >= 0 { return 1 }
+    return 0
+  }
+
+  method _read_id0_return_int(root_s) {
+    local k_defs = JsonFragBox.index_of_from(root_s, "\"defs\":[", 0)
+    if k_defs < 0 { return null }
+    local k_body = JsonFragBox.index_of_from(root_s, "\"body\":{\"body\":[{\"expr\":{\"type\":\"Int\"", k_defs)
+    if k_body < 0 { return null }
+    local k_id = JsonFragBox.index_of_from(root_s, "\"name\":\"id\"", k_body)
+    if k_id < 0 { return null }
+    local k_value = JsonFragBox.index_of_from(root_s, "\"value\":", k_body)
+    if k_value < 0 || k_value > k_id { return null }
+    return JsonFragBox.read_int_after(root_s, k_value + 8)
+  }
+
+  method _id_def_returns_var(root_s) {
+    local k_defs = JsonFragBox.index_of_from(root_s, "\"defs\":[", 0)
+    if k_defs < 0 { return 0 }
+    local k_body = JsonFragBox.index_of_from(root_s, "\"body\":{\"body\":[{\"expr\":{\"name\":\"", k_defs)
+    if k_body < 0 { return 0 }
+    local k_var_type = JsonFragBox.index_of_from(root_s, "\"type\":\"Var\"", k_body)
+    if k_var_type < 0 { return 0 }
+    local k_id = JsonFragBox.index_of_from(root_s, "\"name\":\"id\"", k_var_type)
+    if k_id >= 0 { return 1 }
+    return 0
+  }
+
+  method _try_inline_jsonfrag_cases(s, root_s) {
     // Case (If with Compare + Return(Int)/Return(Int) in branches)
     {
       local k_if = JsonFragBox.index_of_from(s, "\"type\":\"If\"", 0)
@@ -349,15 +423,20 @@ static box BuilderFallbackAuthorityBox {
       if k_ret_call >= 0 {
         local k_call_expr = JsonFragBox.index_of_from(s, "\"type\":\"Call\"", k_ret_call)
         if k_call_expr < 0 {
-          local scan_call_pos = 0
-          local last_call_expr = -1
-          loop(scan_call_pos < k_ret_call) {
-            local next_call_expr = JsonFragBox.index_of_from(s, "\"type\":\"Call\"", scan_call_pos)
-            if next_call_expr < 0 || next_call_expr >= k_ret_call { break }
-            last_call_expr = next_call_expr
-            scan_call_pos = next_call_expr + 1
+          local scan_expr_pos = 0
+          local last_expr = -1
+          loop(scan_expr_pos < k_ret_call) {
+            local next_expr = JsonFragBox.index_of_from(s, "\"expr\":{", scan_expr_pos)
+            if next_expr < 0 || next_expr >= k_ret_call { break }
+            last_expr = next_expr
+            scan_expr_pos = next_expr + 1
           }
-          k_call_expr = last_call_expr
+          if last_expr >= 0 {
+            local call_in_ret_expr = JsonFragBox.index_of_from(s, "\"type\":\"Call\"", last_expr)
+            if call_in_ret_expr >= 0 && call_in_ret_expr < k_ret_call {
+              k_call_expr = call_in_ret_expr
+            }
+          }
         }
         if k_call_expr >= 0 {
           local k_name_call = JsonFragBox.index_of_from(s, "\"name\":\"", k_call_expr)
@@ -375,8 +454,19 @@ static box BuilderFallbackAuthorityBox {
           if k_name_call >= 0 {
             local call_name = JsonFragBox.read_string_after(s, k_name_call + 8)
             if call_name != null && call_name != "" {
+              local has_id_def = 0
+              local id_ret_int = null
+              local id_returns_var = 0
+              if call_name == "id" {
+                has_id_def = me._has_id_def(root_s)
+                id_ret_int = me._read_id0_return_int(root_s)
+                id_returns_var = me._id_def_returns_var(root_s)
+              }
               local k_args = JsonFragBox.index_of_from(s, "\"args\":[", 0)
               if k_args < 0 {
+                if has_id_def == 1 && id_ret_int != null {
+                  return CompatMirEmitBox.emit_return_id_call0_const(id_ret_int)
+                }
                 return CompatMirEmitBox.emit_return_call0(call_name)
               }
               local k_int_arg = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", k_args)
@@ -386,6 +476,9 @@ static box BuilderFallbackAuthorityBox {
                 if k_int_val >= 0 {
                   local int_arg = JsonFragBox.read_int_after(s, k_int_val + 8)
                   if int_arg != null {
+                    if has_id_def == 1 && id_returns_var == 1 {
+                      return CompatMirEmitBox.emit_return_id_call_int_arg(int_arg)
+                    }
                     return CompatMirEmitBox.emit_return_call_int_arg(call_name, int_arg)
                   }
                 }
@@ -394,11 +487,17 @@ static box BuilderFallbackAuthorityBox {
                 if k_var_name >= 0 {
                   local var_arg = JsonFragBox.read_string_after(s, k_var_name + 8)
                   if var_arg != null && var_arg != "" {
+                    if has_id_def == 1 && id_returns_var == 1 {
+                      return CompatMirEmitBox.emit_return_id_call_var_arg(var_arg)
+                    }
                     return CompatMirEmitBox.emit_return_call_var_arg(call_name, var_arg)
                   }
                 }
               }
 
+              if has_id_def == 1 && id_ret_int != null {
+                return CompatMirEmitBox.emit_return_id_call0_const(id_ret_int)
+              }
               return CompatMirEmitBox.emit_return_call0(call_name)
             }
           }

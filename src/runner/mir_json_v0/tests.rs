@@ -38,6 +38,41 @@ fn parse_call_accepts_extern_callee_without_func() {
 }
 
 #[test]
+fn parse_call_accepts_top_level_name_as_global_callee_without_func() {
+    let json = r#"{
+      "functions":[
+        {"name":"main","blocks":[
+          {"id":0,"instructions":[
+            {"op":"call","dst":1,"name":"id","args":[]},
+            {"op":"ret","value":1}
+          ]}
+        ]}
+      ]
+    }"#;
+
+    let module = parse_mir_v0_to_module(json).expect("must parse");
+    let func = module.get_function("main").expect("main exists");
+    let insts = &func
+        .blocks
+        .get(&BasicBlockId::new(0))
+        .expect("bb0 exists")
+        .instructions;
+    assert!(matches!(
+        &insts[0],
+        MirInstruction::Call {
+            func,
+            callee: Some(Callee::Global(name)),
+            args,
+            dst: Some(dst),
+            ..
+        } if *func == ValueId::INVALID
+            && name == "id"
+            && args.is_empty()
+            && *dst == ValueId::new(1)
+    ));
+}
+
+#[test]
 fn parse_call_accepts_method_callee_without_func() {
     let json = r#"{
       "functions":[

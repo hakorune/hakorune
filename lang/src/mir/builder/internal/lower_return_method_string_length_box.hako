@@ -1,6 +1,8 @@
 // lower_return_method_string_length_box.hako — Program(JSON v0)
-//   Return(Method(New(StringBox, <String>), "length|size", []))
-// → MIR(JSON v1): const string + call(callee=Method) + ret
+//   Return(Method(Str|String, "length|size", []))
+//     -> canonical call(callee=Method) + ret
+//   Return(Method(New(StringBox, <String>), "length|size|indexOf", args))
+//     -> v0 newbox + boxcall + ret
 
 using selfhost.shared.json.utils.json_frag as JsonFragBox
 using selfhost.shared.json.core.json_cursor as JsonCursorBox
@@ -14,17 +16,17 @@ static box LowerReturnMethodStringLengthBox {
     local k_m = me._find_return_method_start(s, k_ret); if k_m < 0 { return null }
     local m_obj = JsonFragBox.index_of_from(s, "{", k_m); if m_obj < 0 { return null }
     local m_end = JsonCursorBox.seek_obj_end(s, m_obj); if m_end < 0 { return null }
-    if me._method_args_empty(s, m_obj, m_end) != 1 { return null }
     // method name
     local k_name = JsonFragBox.index_of_from(s, "\"method\":\"", k_m); if k_name < 0 { return null }
     local mname = JsonFragBox.read_string_after(s, k_name + 9); if mname == null { return null }
-    if !(mname == "length" || mname == "size") { return null }
+    if !(mname == "length" || mname == "size" || mname == "indexOf") { return null }
     // receiver: current parser emits direct Str/String; older routes may emit New(StringBox,...).
     local k_recv = JsonFragBox.index_of_from(s, "\"recv\":{", k_m); if k_recv < 0 { return null }
     local k_recv_str = -1
     if k_recv + 20 <= s.length() && s.substring(k_recv, k_recv + 20) == "\"recv\":{\"type\":\"Str\"" { k_recv_str = k_recv }
     if k_recv_str < 0 && k_recv + 23 <= s.length() && s.substring(k_recv, k_recv + 23) == "\"recv\":{\"type\":\"String\"" { k_recv_str = k_recv }
     if k_recv_str >= 0 {
+      if me._method_args_empty(s, m_obj, m_end) != 1 { return null }
       local k_val_direct = JsonFragBox.index_of_from(s, "\"value\":", k_recv_str); if k_val_direct < 0 { return null }
       local raw = me._read_string_literal_json_text_after(s, k_val_direct + 8); if raw == "" { return null }
       if mname == "length" { return me._emit_length_mir(raw) }
@@ -32,17 +34,26 @@ static box LowerReturnMethodStringLengthBox {
       return null
     }
 
-    local k_new = JsonFragBox.index_of_from(s, "\"type\":\"New\"", k_recv); if k_new < 0 { return null }
-    if JsonFragBox.index_of_from(s, "\"class\":\"StringBox\"", k_new) < 0 { return null }
-    // find first String literal value under args
-    local k_args = JsonFragBox.index_of_from(s, "\"args\":[", k_new); if k_args < 0 { return null }
-    local k_str = JsonFragBox.index_of_from(s, "\"type\":\"String\"", k_args); if k_str < 0 { return null }
-    local k_val = JsonFragBox.index_of_from(s, "\"value\":\"", k_str); if k_val < 0 { return null }
-    local sval = JsonFragBox.read_string_after(s, k_val + 8); if sval == null { return null }
-    // Emit minimal MIR v1: const string + call(callee=Method) → i64 → ret
-    // Note: const string is compatible with ny-llvmc const lowering (marks string_ptrs)
-    if mname == "length" { return me._emit_length_mir("\"" + sval + "\"") }
-    if mname == "size" { return me._emit_size_mir("\"" + sval + "\"") }
+    local recv_obj = JsonFragBox.index_of_from(s, "{", k_recv); if recv_obj < 0 { return null }
+    local recv_end = JsonCursorBox.seek_obj_end(s, recv_obj); if recv_end < 0 { return null }
+    local k_new = JsonFragBox.index_of_from(s, "\"type\":\"New\"", recv_obj)
+    if k_new < 0 || k_new > recv_end { return null }
+    local k_class = JsonFragBox.index_of_from(s, "\"class\":\"StringBox\"", recv_obj)
+    if k_class < 0 || k_class > recv_end { return null }
+
+    local recv_raw = me._read_first_string_literal_between(s, recv_obj, recv_end)
+    if recv_raw == "" { return null }
+
+    if mname == "length" || mname == "size" {
+      if me._method_args_empty(s, m_obj, m_end) != 1 { return null }
+      return me._emit_new_stringbox_boxcall0(recv_raw, mname)
+    }
+
+    if mname == "indexOf" {
+      local arg_raw = me._read_method_first_string_arg(s, m_obj, m_end)
+      if arg_raw == "" { return null }
+      return me._emit_new_stringbox_boxcall1_string(recv_raw, mname, arg_raw)
+    }
     return null
   }
 
@@ -52,7 +63,7 @@ static box LowerReturnMethodStringLengthBox {
 
   _find_return_method_start(s, k_ret) {
     local k_forward = JsonFragBox.index_of_from(s, "\"expr\":{\"type\":\"Method\"", k_ret)
-    if k_forward >= 0 && k_forward < k_ret + 256 { return k_forward }
+    if k_forward >= 0 && k_forward < k_ret + 1024 { return k_forward }
 
     local scan = 0
     local last_expr = -1
@@ -62,7 +73,7 @@ static box LowerReturnMethodStringLengthBox {
       last_expr = next_expr
       scan = next_expr + 1
     }
-    if last_expr >= 0 && k_ret - last_expr < 256 {
+    if last_expr >= 0 && k_ret - last_expr < 1024 {
       local boundary_back = JsonFragBox.index_of_from(s, "},{", last_expr)
       if boundary_back < 0 || boundary_back > k_ret {
         local k_method = JsonFragBox.index_of_from(s, "\"type\":\"Method\"", last_expr)
@@ -77,6 +88,38 @@ static box LowerReturnMethodStringLengthBox {
     if k_args < 0 || k_args > end { return 0 }
     if k_args + 9 <= s.length() && k_args + 9 <= end + 1 && s.substring(k_args, k_args + 9) == "\"args\":[]" { return 1 }
     return 0
+  }
+
+  _method_args_end(s, start, end) {
+    local k_args = JsonFragBox.index_of_from(s, "\"args\":[", start)
+    if k_args < 0 || k_args > end { return -1 }
+    local k_arr = JsonFragBox.index_of_from(s, "[", k_args)
+    if k_arr < 0 || k_arr > end { return -1 }
+    local arr_end = JsonCursorBox.seek_array_end(s, k_arr)
+    if arr_end < 0 || arr_end > end { return -1 }
+    return arr_end
+  }
+
+  _read_method_first_string_arg(s, start, end) {
+    local k_args = JsonFragBox.index_of_from(s, "\"args\":[", start)
+    if k_args < 0 || k_args > end { return "" }
+    local arr_end = me._method_args_end(s, start, end)
+    if arr_end < 0 { return "" }
+    return me._read_first_string_literal_between(s, k_args, arr_end)
+  }
+
+  _read_first_string_literal_between(s, start, end) {
+    local k_str = JsonFragBox.index_of_from(s, "\"type\":\"Str\"", start)
+    local k_string = JsonFragBox.index_of_from(s, "\"type\":\"String\"", start)
+    local k_type = -1
+    if k_str >= 0 && k_str <= end { k_type = k_str }
+    if k_string >= 0 && k_string <= end {
+      if k_type < 0 || k_string < k_type { k_type = k_string }
+    }
+    if k_type < 0 { return "" }
+    local k_val = JsonFragBox.index_of_from(s, "\"value\":", k_type)
+    if k_val < 0 || k_val > end { return "" }
+    return me._read_string_literal_json_text_after(s, k_val + 8)
   }
 
   _read_string_literal_json_text_after(s, pos) {
@@ -114,5 +157,24 @@ static box LowerReturnMethodStringLengthBox {
 
   _emit_size_mir(raw) {
     return "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"string\",\"value\":" + raw + "}},{\"op\":\"call\",\"dst\":2,\"callee\":{\"type\":\"Method\",\"box_name\":\"StringBox\",\"method\":\"size\",\"receiver\":1},\"args\":[]},{\"op\":\"ret\",\"value\":2}]}]}]}"
+  }
+
+  _emit_new_stringbox_boxcall0(raw, method_name) {
+    return "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[{\"id\":0,\"instructions\":[" +
+      "{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"string\",\"value\":" + raw + "}}," +
+      "{\"op\":\"newbox\",\"dst\":2,\"type\":\"StringBox\",\"args\":[1]}," +
+      "{\"op\":\"boxcall\",\"dst\":3,\"box\":2,\"box_name\":\"StringBox\",\"method\":\"" + method_name + "\",\"args\":[]}," +
+      "{\"op\":\"ret\",\"value\":3}" +
+      "]}]}]}"
+  }
+
+  _emit_new_stringbox_boxcall1_string(raw, method_name, arg_raw) {
+    return "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[{\"id\":0,\"instructions\":[" +
+      "{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"string\",\"value\":" + raw + "}}," +
+      "{\"op\":\"newbox\",\"dst\":2,\"type\":\"StringBox\",\"args\":[1]}," +
+      "{\"op\":\"const\",\"dst\":3,\"value\":{\"type\":\"string\",\"value\":" + arg_raw + "}}," +
+      "{\"op\":\"boxcall\",\"dst\":4,\"box\":2,\"box_name\":\"StringBox\",\"method\":\"" + method_name + "\",\"args\":[3]}," +
+      "{\"op\":\"ret\",\"value\":4}" +
+      "]}]}]}"
   }
 }

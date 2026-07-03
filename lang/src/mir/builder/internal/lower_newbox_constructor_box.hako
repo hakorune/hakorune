@@ -1,30 +1,133 @@
-// lower_newbox_constructor_box.hako — Program(JSON v0) with New(Array/Map) → MIR v1 (mir_call Constructor)
-// Scope: minimal safe subset for Phase 20.43 Step‑2
+// lower_newbox_constructor_box.hako — Program(JSON v0) New(Array/Map/String) constructor lowers
+// Scope: minimal safe subsets only. Return(New(...)) emits MIR JSON v0 `newbox`;
+// legacy Local(New(...)); Return(Int) keeps the old direct-core canary shape.
 
+using selfhost.shared.json.utils.json_frag as JsonFragBox
 
 static box LowerNewboxConstructorBox {
   try_lower(program_json) {
     if program_json == null { return null }
     local s = me._coerce_text_compat(program_json)
-    // Quick pattern check
-    if JsonFragBox.index_of_from(s, "\"type\":\"New\"", 0) < 0 { return null }
-    // Find class name (minimal scan)
+    local k_ret = JsonFragBox.index_of_from(s, "\"type\":\"Return\"", 0)
+    if k_ret < 0 { return null }
+
+    local k_new = JsonFragBox.index_of_from(s, "\"type\":\"New\"", 0)
+    if k_new < 0 { return null }
+
+    local k_new_in_return = -1
+    local k_expr = me._find_return_expr_start(s, k_ret)
+    if k_expr >= 0 {
+      local k_expr_new = JsonFragBox.index_of_from(s, "\"type\":\"New\"", k_expr)
+      if k_expr_new >= 0 && k_expr_new < k_ret + 160 { k_new_in_return = k_expr_new }
+    }
+    if k_new_in_return < 0 {
+      local k_new_after_return = JsonFragBox.index_of_from(s, "\"type\":\"New\"", k_ret)
+      if k_new_after_return >= 0 { k_new_in_return = k_new_after_return }
+    }
+
+    // Find class name (minimal scan). Keep the lookup after the matched New
+    // when possible, so unrelated New expressions do not authorize Return(Int).
+    local class_scan_start = k_new
+    if k_new_in_return >= 0 {
+      class_scan_start = k_new_in_return
+      if k_expr >= 0 { class_scan_start = k_expr }
+    }
     local cls = ""
-    if JsonFragBox.index_of_from(s, "\"class\":\"ArrayBox\"", 0) >= 0 { cls = "ArrayBox" }
-    else { if JsonFragBox.index_of_from(s, "\"class\":\"MapBox\"", 0) >= 0 { cls = "MapBox" } }
+    if JsonFragBox.index_of_from(s, "\"class\":\"ArrayBox\"", class_scan_start) >= 0 { cls = "ArrayBox" }
+    else {
+      if JsonFragBox.index_of_from(s, "\"class\":\"MapBox\"", class_scan_start) >= 0 { cls = "MapBox" }
+      else { if JsonFragBox.index_of_from(s, "\"class\":\"StringBox\"", class_scan_start) >= 0 { cls = "StringBox" } }
+    }
     if cls == "" { return null }
     // Only accept known minimal boxes
-    if !(cls == "ArrayBox" || cls == "MapBox") { return null }
+    if !(cls == "ArrayBox" || cls == "MapBox" || cls == "StringBox") { return null }
 
-    // Emit MIR v1 JSON text directly (no Map/Array construction)
-    local json = "{\"kind\":\"MIR\",\"schema_version\":\"1.0\",\"functions\":[{\"name\":\"main\",\"blocks\":[{\"id\":0,\"instructions\":[" +
-                 "{\"op\":\"mir_call\",\"dst\":1,\"mir_call\":{\"callee\":{\"type\":\"Constructor\",\"box_type\":\"" + cls + "\"},\"args\":[],\"effects\":[]}}," +
-                 "{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":0}}," +
-                 "{\"op\":\"ret\",\"value\":2}]}]}]}"
-    return json
+    if k_new_in_return >= 0 {
+      if cls == "StringBox" {
+        local scan_start = class_scan_start
+        local raw = me._read_first_string_literal_after(s, scan_start)
+        if raw == "" { return null }
+        return "{\"functions\":[{\"name\":\"main\",\"params\":[],\"blocks\":[{\"id\":0,\"instructions\":[" +
+               "{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"string\",\"value\":" + raw + "}}," +
+               "{\"op\":\"newbox\",\"dst\":2,\"type\":\"StringBox\",\"args\":[1]}," +
+               "{\"op\":\"ret\",\"value\":2}]}]}]}"
+      }
+      return "{\"functions\":[{\"name\":\"main\",\"params\":[],\"blocks\":[{\"id\":0,\"instructions\":[" +
+             "{\"op\":\"newbox\",\"dst\":1,\"type\":\"" + cls + "\",\"args\":[]}," +
+             "{\"op\":\"ret\",\"value\":1}]}]}]}"
+    }
+
+    local k_local = JsonFragBox.index_of_from(s, "\"type\":\"Local\"", 0)
+    local k_int_after_return = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", k_ret)
+    if k_local < 0 || !(k_local < k_new && k_new < k_ret) || k_int_after_return < 0 {
+      return null
+    }
+
+    return "{\"kind\":\"MIR\",\"schema_version\":\"1.0\",\"functions\":[{\"name\":\"main\",\"blocks\":[{\"id\":0,\"instructions\":[" +
+           "{\"op\":\"mir_call\",\"dst\":1,\"mir_call\":{\"callee\":{\"type\":\"Constructor\",\"box_type\":\"" + cls + "\"},\"args\":[],\"effects\":[]}}," +
+           "{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":0}}," +
+           "{\"op\":\"ret\",\"value\":2}]}]}]}"
   }
 
   _coerce_text_compat(value) {
     return "" + value
+  }
+
+  _read_first_string_literal_after(s, start_pos) {
+    local k_str = JsonFragBox.index_of_from(s, "\"type\":\"Str\"", start_pos)
+    local k_string = JsonFragBox.index_of_from(s, "\"type\":\"String\"", start_pos)
+    local k_type = -1
+    if k_str >= 0 { k_type = k_str }
+    if k_string >= 0 {
+      if k_type < 0 || k_string < k_type { k_type = k_string }
+    }
+    if k_type < 0 { return "" }
+    local k_val = JsonFragBox.index_of_from(s, "\"value\":", k_type)
+    if k_val < 0 { return "" }
+    return me._read_string_literal_json_text_after(s, k_val + 8)
+  }
+
+  _read_string_literal_json_text_after(s, pos) {
+    local start = me._skip_ws(s, pos)
+    if start >= s.length() || s.substring(start, start + 1) != "\"" { return "" }
+    local i = start + 1
+    loop(i < s.length()) {
+      local ch = s.substring(i, i + 1)
+      if ch == "\\" {
+        i = i + 2
+        continue
+      }
+      if ch == "\"" { return s.substring(start, i + 1) }
+      i = i + 1
+    }
+    return ""
+  }
+
+  _skip_ws(s, pos) {
+    local i = pos
+    loop(i < s.length()) {
+      local ch = s.substring(i, i + 1)
+      if ch == " " || ch == "\n" || ch == "\r" || ch == "\t" {
+        i = i + 1
+        continue
+      }
+      break
+    }
+    return i
+  }
+
+  _find_return_expr_start(s, k_ret) {
+    local k_forward = JsonFragBox.index_of_from(s, "\"expr\":{", k_ret)
+    if k_forward >= 0 && k_forward < k_ret + 160 {
+      local boundary_forward = JsonFragBox.index_of_from(s, "},{", k_ret)
+      if boundary_forward < 0 || boundary_forward > k_forward { return k_forward }
+    }
+
+    local k_before = JsonFragBox.index_of_from(s, "\"expr\":{", 0)
+    if k_before >= 0 && k_ret - k_before < 160 {
+      local boundary_back = JsonFragBox.index_of_from(s, "},{", k_before)
+      if boundary_back < 0 || boundary_back > k_ret { return k_before }
+    }
+    return -1
   }
 }

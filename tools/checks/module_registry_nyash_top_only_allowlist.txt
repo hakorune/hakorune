@@ -53,8 +53,10 @@ hako.mir.builder.internal.lower_return_method_string_length
 hako.mir.builder.internal.lower_return_method_array_map
 hako.mir.builder.internal.lower_return_string
 hako.mir.builder.internal.lower_return_var_local
+hako.mir.builder.internal.lower_multi_local_print_var_return_int
 hako.mir.builder.internal.lower_typeop_cast
 hako.mir.builder.internal.lower_typeop_check
+hako.mir.builder.internal.lower_try_cleanup_print_var_return_int
 hako.mir.builder.internal.pattern_util
 hako.mir.builder.internal.prog_scan
 hako.mir.builder.internal.program_json_input_contract

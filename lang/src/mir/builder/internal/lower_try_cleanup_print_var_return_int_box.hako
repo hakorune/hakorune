@@ -1,0 +1,189 @@
+// lower_try_cleanup_print_var_return_int_box.hako
+// Pattern: Local x=Int; Try { x = x + Int } cleanup { print(x) }; Return Int.
+//
+// Responsibility: own the canonical fallback for the existing cleanup_try_min
+// pin so generic Print/Return lowers do not silently erase Try(cleanup).
+
+using selfhost.shared.json.utils.json_frag as JsonFragBox
+using "hako.mir.builder.internal.compat_mir_emit" as CompatMirEmitBox
+
+static box LowerTryCleanupPrintVarReturnIntBox {
+  try_lower(program_json) {
+    local s = "" + program_json
+
+    local k_try = JsonFragBox.index_of_from(s, "\"type\":\"Try\"", 0)
+    if k_try < 0 { return null }
+    if JsonFragBox.index_of_from(s, "\"catches\":[]", 0) < 0 { return null }
+
+    local k_finally = JsonFragBox.index_of_from(s, "\"finally\":[", 0)
+    if k_finally < 0 || k_finally > k_try { return null }
+    local k_try_arr = JsonFragBox.last_index_of_from(s, "\"try\":[", k_try)
+    if k_try_arr < 0 { return null }
+
+    local k_outer_local = JsonFragBox.last_index_of_from(s, "\"type\":\"Local\"", k_finally)
+    if k_outer_local < 0 { return null }
+    local local_name = me._local_name_before_type(s, k_outer_local)
+    if local_name == "" { return null }
+    local local_init = me._local_int_value_before_type(s, k_outer_local)
+    if local_init == "" { return null }
+
+    local k_try_local = JsonFragBox.index_of_from(s, "\"type\":\"Local\"", k_try_arr)
+    if k_try_local < 0 { return null }
+    local assign_name = me._local_name_before_type(s, k_try_local)
+    if assign_name == "" || assign_name != local_name { return null }
+
+    local rhs = me._try_add_var_int_rhs(s, k_try_arr, k_try_local, local_name)
+    if rhs == "" { return null }
+    if me._try_has_more_than_one_stmt(s, k_try_local, k_try) == 1 { return null }
+
+    local k_ret = JsonFragBox.index_of_from(s, "\"type\":\"Return\"", k_try_local)
+    if k_ret < 0 { return null }
+    local ret_value = me._return_int_value(s, k_ret)
+    if ret_value == "" { return null }
+
+    local cleanup_print_name = me._finally_print_var_name(s, k_finally, k_try_arr)
+    if cleanup_print_name != "" {
+      if cleanup_print_name != local_name { return null }
+      return CompatMirEmitBox.emit_local_add_print_var_return_int(local_init, rhs, ret_value)
+    }
+
+    local finally_rhs = me._finally_add_var_int_rhs(s, k_finally, k_try_arr, local_name)
+    if finally_rhs == "__reject_var_mismatch__" { return null }
+    if finally_rhs == "" { return null }
+    local outer_print_name = me._body_print_var_name_after_try(s, k_try, k_ret)
+    if outer_print_name == "" || outer_print_name != local_name { return null }
+    return CompatMirEmitBox.emit_local_add_add_print_var_return_int(local_init, rhs, finally_rhs, ret_value)
+  }
+
+  _local_name_before_type(s, k_local_type) {
+    local k_name = JsonFragBox.last_index_of_from(s, "\"name\":\"", k_local_type)
+    if k_name < 0 { return "" }
+    local boundary = JsonFragBox.last_index_of_from(s, "},{", k_local_type)
+    if boundary >= 0 && k_name < boundary { return "" }
+    local out = JsonFragBox.read_string_after(s, k_name + 7)
+    if out == null { return "" }
+    return "" + out
+  }
+
+  _local_int_value_before_type(s, k_local_type) {
+    local boundary = JsonFragBox.last_index_of_from(s, "},{", k_local_type)
+    local k_int = JsonFragBox.last_index_of_from(s, "\"type\":\"Int\"", k_local_type)
+    if k_int < 0 { return "" }
+    if boundary >= 0 && k_int < boundary { return "" }
+    local k_val = JsonFragBox.index_of_from(s, "\"value\":", k_int)
+    if k_val < 0 || k_val > k_local_type { return "" }
+    local out = JsonFragBox.read_int_after(s, k_val + 8)
+    if out == null { return "" }
+    return "" + out
+  }
+
+  _finally_print_var_name(s, k_finally, k_try_arr) {
+    local k_call = JsonFragBox.index_of_from(s, "\"name\":\"env.console.log\"", k_finally)
+    if k_call < 0 || k_call > k_try_arr { return "" }
+    local k_args = JsonFragBox.index_of_from(s, "\"args\":[", k_finally)
+    if k_args < 0 || k_args > k_call { return "" }
+    local k_var = JsonFragBox.index_of_from(s, "\"type\":\"Var\"", k_args)
+    if k_var < 0 || k_var > k_call { return "" }
+    local k_name = JsonFragBox.index_of_from(s, "\"name\":\"", k_args)
+    if k_name < 0 || k_name > k_var { return "" }
+    local out = JsonFragBox.read_string_after(s, k_name + 7)
+    if out == null { return "" }
+    return "" + out
+  }
+
+  _try_add_var_int_rhs(s, k_try_arr, k_try_local, local_name) {
+    local k_bin = JsonFragBox.index_of_from(s, "\"type\":\"Binary\"", k_try_arr)
+    if k_bin < 0 || k_bin > k_try_local { return "" }
+    local k_op = JsonFragBox.index_of_from(s, "\"op\":\"+\"", k_try_arr)
+    if k_op < 0 || k_op > k_try_local { return "" }
+
+    local k_lhs = JsonFragBox.index_of_from(s, "\"lhs\":{", k_try_arr)
+    if k_lhs < 0 || k_lhs > k_try_local { return "" }
+    local k_lhs_var = JsonFragBox.index_of_from(s, "\"type\":\"Var\"", k_lhs)
+    if k_lhs_var < 0 || k_lhs_var > k_try_local { return "" }
+    local k_lhs_name = JsonFragBox.index_of_from(s, "\"name\":\"", k_lhs)
+    if k_lhs_name < 0 || k_lhs_name > k_lhs_var { return "" }
+    local lhs_name = JsonFragBox.read_string_after(s, k_lhs_name + 7)
+    if lhs_name == null || ("" + lhs_name) != local_name { return "" }
+
+    local k_rhs = JsonFragBox.index_of_from(s, "\"rhs\":{", k_try_arr)
+    if k_rhs < 0 || k_rhs > k_try_local { return "" }
+    local k_rhs_int = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", k_rhs)
+    if k_rhs_int < 0 || k_rhs_int > k_try_local { return "" }
+    local k_rhs_val = JsonFragBox.index_of_from(s, "\"value\":", k_rhs_int)
+    if k_rhs_val < 0 || k_rhs_val > k_try_local { return "" }
+    local out = JsonFragBox.read_int_after(s, k_rhs_val + 8)
+    if out == null { return "" }
+    return "" + out
+  }
+
+  _finally_add_var_int_rhs(s, k_finally, k_try_arr, local_name) {
+    local k_fin_local = JsonFragBox.index_of_from(s, "\"type\":\"Local\"", k_finally)
+    if k_fin_local < 0 || k_fin_local > k_try_arr { return "" }
+    local assign_name = me._local_name_before_type(s, k_fin_local)
+    if assign_name == "" { return "" }
+
+    local k_bin = JsonFragBox.index_of_from(s, "\"type\":\"Binary\"", k_finally)
+    if k_bin < 0 || k_bin > k_fin_local { return "" }
+    local k_op = JsonFragBox.index_of_from(s, "\"op\":\"+\"", k_finally)
+    if k_op < 0 || k_op > k_fin_local { return "" }
+
+    local k_lhs = JsonFragBox.index_of_from(s, "\"lhs\":{", k_finally)
+    if k_lhs < 0 || k_lhs > k_fin_local { return "" }
+    local k_lhs_var = JsonFragBox.index_of_from(s, "\"type\":\"Var\"", k_lhs)
+    if k_lhs_var < 0 || k_lhs_var > k_fin_local { return "" }
+    local k_lhs_name = JsonFragBox.index_of_from(s, "\"name\":\"", k_lhs)
+    if k_lhs_name < 0 || k_lhs_name > k_lhs_var { return "" }
+    local lhs_name = JsonFragBox.read_string_after(s, k_lhs_name + 7)
+    if lhs_name == null { return "" }
+    if assign_name != local_name || ("" + lhs_name) != local_name {
+      print("[cap_missing/stmt:Try] Try finally Local must update the same var as Try body")
+      return "__reject_var_mismatch__"
+    }
+
+    local k_rhs = JsonFragBox.index_of_from(s, "\"rhs\":{", k_finally)
+    if k_rhs < 0 || k_rhs > k_fin_local { return "" }
+    local k_rhs_int = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", k_rhs)
+    if k_rhs_int < 0 || k_rhs_int > k_fin_local { return "" }
+    local k_rhs_val = JsonFragBox.index_of_from(s, "\"value\":", k_rhs_int)
+    if k_rhs_val < 0 || k_rhs_val > k_fin_local { return "" }
+    local out = JsonFragBox.read_int_after(s, k_rhs_val + 8)
+    if out == null { return "" }
+    return "" + out
+  }
+
+  _body_print_var_name_after_try(s, k_try, k_ret) {
+    local k_call = JsonFragBox.index_of_from(s, "\"name\":\"env.console.log\"", k_try)
+    if k_call < 0 || k_call > k_ret { return "" }
+    local k_args = JsonFragBox.index_of_from(s, "\"args\":[", k_try)
+    if k_args < 0 || k_args > k_call { return "" }
+    local k_var = JsonFragBox.index_of_from(s, "\"type\":\"Var\"", k_args)
+    if k_var < 0 || k_var > k_call { return "" }
+    local k_name = JsonFragBox.index_of_from(s, "\"name\":\"", k_args)
+    if k_name < 0 || k_name > k_var { return "" }
+    local out = JsonFragBox.read_string_after(s, k_name + 7)
+    if out == null { return "" }
+    return "" + out
+  }
+
+  _try_has_more_than_one_stmt(s, k_try_local, k_try_type) {
+    local k_next_stmt_type = JsonFragBox.index_of_from(s, "\"type\":\"", k_try_local + 1)
+    if k_next_stmt_type >= 0 && k_next_stmt_type < k_try_type { return 1 }
+    return 0
+  }
+
+  _return_int_value(s, k_ret) {
+    local k_expr = JsonFragBox.index_of_from(s, "\"expr\":{", k_ret)
+    if k_expr < 0 || k_expr > k_ret + 96 {
+      k_expr = JsonFragBox.last_index_of_from(s, "\"expr\":{", k_ret)
+      if k_expr < 0 || k_ret - k_expr > 96 { return "" }
+    }
+    local k_int = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", k_expr)
+    if k_int < 0 || k_int > k_ret + 128 { return "" }
+    local k_val = JsonFragBox.index_of_from(s, "\"value\":", k_int)
+    if k_val < 0 || k_val > k_ret + 160 { return "" }
+    local out = JsonFragBox.read_int_after(s, k_val + 8)
+    if out == null { return "" }
+    return "" + out
+  }
+}

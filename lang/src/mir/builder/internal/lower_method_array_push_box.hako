@@ -9,6 +9,11 @@ static box LowerMethodArrayPushBox {
     local s = me._coerce_text_compat(program_json)
     if JsonFragBox.index_of_from(s, "\"type\":\"New\"", 0) < 0 { return null }
     if JsonFragBox.index_of_from(s, "\"class\":\"ArrayBox\"", 0) < 0 { return null }
+    if JsonFragBox.index_of_from(s, "\"type\":\"Method\"", 0) < 0 { return null }
+    local has_push_method = 0
+    if JsonFragBox.index_of_from(s, "\"method\":\"push\"", 0) >= 0 { has_push_method = 1 }
+    if JsonFragBox.index_of_from(s, "\"name\":\"push\"", 0) >= 0 { has_push_method = 1 }
+    if has_push_method != 1 { return null }
     // Reverse-lookup (safe subset): prefer Local(Int) for push values when present
     local n = s.length()
     local p1 = PatternUtilBox.find_any_local_int_before(s, n); if p1 == null { p1 = "1" }

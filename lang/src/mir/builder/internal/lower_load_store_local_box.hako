@@ -1,60 +1,10 @@
 // lower_load_store_local_box.hako — Minimal Local(Int/Assign) -> store/load lowering
-using selfhost.shared.common.string_helpers as StringHelpers
 using selfhost.shared.json.utils.json_frag as JsonFragBox
+using selfhost.shared.json.core.json_cursor as JsonCursorBox
 
 static box LowerLoadStoreLocalBox {
   _find_from(s, pat, start_pos) {
     return s.indexOf(pat, start_pos)
-  }
-
-  _skip_ws(s, pos) {
-    local i = pos
-    local n = s.length()
-    loop(i < n) {
-      local ch = s.substring(i, i + 1)
-      if ch == " " || ch == "\n" || ch == "\r" || ch == "\t" {
-        i = i + 1
-        continue
-      }
-      break
-    }
-    return i
-  }
-
-  _read_quoted_after(s, pos) {
-    local i = me._skip_ws(s, pos)
-    local n = s.length()
-    if i >= n { return null }
-    if s.substring(i, i + 1) != "\"" { return null }
-    local j = i + 1
-    loop(j < n) {
-      if s.substring(j, j + 1) == "\"" { return s.substring(i + 1, j) }
-      j = j + 1
-    }
-    return null
-  }
-
-  _first_delim_after(s, start_pos) {
-    local n = s.length()
-    local end = n
-    local p = s.indexOf(",", start_pos)
-    if p >= 0 && p < end { end = p }
-    p = s.indexOf("}", start_pos)
-    if p >= 0 && p < end { end = p }
-    p = s.indexOf("]", start_pos)
-    if p >= 0 && p < end { end = p }
-    return end
-  }
-
-  _read_int_after(s, pos) {
-    local i = me._skip_ws(s, pos)
-    local n = s.length()
-    if i >= n { return null }
-    local e = me._first_delim_after(s, i)
-    local tok = s.substring(i, e)
-    local trimmed = StringHelpers.trim(tok)
-    if trimmed == "" { return null }
-    return StringHelpers.to_i64(trimmed)
   }
 
   _json_string_or_empty(s, pos) {
@@ -69,22 +19,87 @@ static box LowerLoadStoreLocalBox {
     return "" + value
   }
 
-  _next_local_or_end(s, k_local) {
-    local n = s.length()
-    local k_next = me._find_from(s, "\"type\":\"Local\"", k_local + 1)
-    if k_next < 0 { return n }
-    return k_next
+  _stmt_start_before_type(s, k_type) {
+    local k_sep = JsonFragBox.last_index_of_from(s, "},{", k_type)
+    if k_sep >= 0 { return k_sep + 2 }
+    local k_arr = JsonFragBox.last_index_of_from(s, "[{", k_type)
+    if k_arr >= 0 { return k_arr + 1 }
+    if JsonFragBox.index_of_from(s, "\"type\":\"Local\"", k_type) == k_type {
+      local k_decl = JsonFragBox.last_index_of_from(s, "{\"declared_type\"", k_type)
+      if k_decl >= 0 { return k_decl }
+      local k_expr_local = JsonFragBox.last_index_of_from(s, "{\"expr\":", k_type)
+      if k_expr_local >= 0 { return k_expr_local }
+    }
+    if JsonFragBox.index_of_from(s, "\"type\":\"Return\"", k_type) == k_type {
+      local k_expr_ret = JsonFragBox.last_index_of_from(s, "{\"expr\":", k_type)
+      if k_expr_ret >= 0 { return k_expr_ret }
+    }
+    local k_expr = JsonFragBox.last_index_of_from(s, "{\"expr\":", k_type)
+    local k_decl = JsonFragBox.last_index_of_from(s, "{\"declared_type\"", k_type)
+    if k_expr >= 0 && k_decl >= 0 {
+      if k_expr > k_decl { return k_expr }
+      return k_decl
+    }
+    if k_expr >= 0 { return k_expr }
+    if k_decl >= 0 { return k_decl }
+    return -1
   }
 
-  _is_local_alias_to_var_in_range(s, k_local, base_name, rb) {
-    local k_var = me._find_from(s, "\"expr\":{\"type\":\"Var\"", k_local)
-    if k_var < 0 || k_var >= rb { return 0 }
-    local k_var_name = me._find_from(s, "\"name\":", k_var)
-    if k_var_name < 0 || k_var_name >= rb { return 0 }
-    local src_name = me._read_quoted_after(s, k_var_name + 7)
-    if src_name == null { return 0 }
-    if src_name != base_name { return 0 }
-    return 1
+  _stmt_segment_around_type(s, k_type) {
+    local st = me._stmt_start_before_type(s, k_type)
+    if st < 0 { return "" }
+    local en = JsonCursorBox.seek_obj_end(s, st)
+    if en < 0 { return "" }
+    if en < k_type { return "" }
+    return s.substring(st, en + 1)
+  }
+
+  _local_decl_name(seg) {
+    local k_type = JsonFragBox.index_of_from(seg, "\"type\":\"Local\"", 0)
+    if k_type < 0 { return "" }
+    local k_name = JsonFragBox.index_of_from(seg, "\"name\":\"", k_type)
+    if k_name < 0 {
+      k_name = JsonFragBox.last_index_of_from(seg, "\"name\":\"", k_type)
+    }
+    if k_name < 0 { return "" }
+    return me._json_string_or_empty(seg, k_name + 7)
+  }
+
+  _local_expr_int_text(seg) {
+    local k_expr = JsonFragBox.index_of_from(seg, "\"expr\":{\"type\":\"Int\"", 0)
+    if k_expr < 0 { return "" }
+    local k_value = JsonFragBox.index_of_from(seg, "\"value\":", k_expr)
+    if k_value < 0 { return "" }
+    return me._json_int_text_or_empty(seg, k_value + 8)
+  }
+
+  _local_expr_var_name(seg) {
+    local k_expr = JsonFragBox.index_of_from(seg, "\"expr\":{", 0)
+    if k_expr < 0 { return "" }
+    local k_var_type = JsonFragBox.index_of_from(seg, "\"type\":\"Var\"", k_expr)
+    if k_var_type < 0 { return "" }
+    local k_local_type = JsonFragBox.index_of_from(seg, "\"type\":\"Local\"", k_expr)
+    if k_local_type >= 0 {
+      if k_var_type >= k_local_type { return "" }
+    }
+    local k_name = JsonFragBox.index_of_from(seg, "\"name\":\"", k_expr)
+    if k_name < 0 { return "" }
+    if k_local_type >= 0 {
+      if k_name >= k_local_type { return "" }
+    }
+    return me._json_string_or_empty(seg, k_name + 7)
+  }
+
+  _return_expr_var_name(seg) {
+    local k_ret = JsonFragBox.index_of_from(seg, "\"type\":\"Return\"", 0)
+    if k_ret < 0 { return "" }
+    local k_expr = JsonFragBox.index_of_from(seg, "\"expr\":{", 0)
+    if k_expr < 0 { return "" }
+    local k_var_type = JsonFragBox.index_of_from(seg, "\"type\":\"Var\"", k_expr)
+    if k_var_type < 0 { return "" }
+    local k_name = JsonFragBox.index_of_from(seg, "\"name\":\"", k_expr)
+    if k_name < 0 { return "" }
+    return me._json_string_or_empty(seg, k_name + 7)
   }
 
   _accept_shape(s) {
@@ -99,41 +114,50 @@ static box LowerLoadStoreLocalBox {
     if s.indexOf("\"type\":\"Call\"") >= 0 { return 0 }
     if s.indexOf("\"type\":\"Local\"") < 0 { return 0 }
     if s.indexOf("\"type\":\"Var\"") < 0 { return 0 }
-    if s.indexOf("\"expr\":{\"type\":\"Var\"") < 0 && s.indexOf("\"type\":\"Assignment\"") < 0 { return 0 }
     return 1
   }
 
   try_lower(program_json) {
     local s = me._coerce_text_compat(program_json)
-    if me._accept_shape(s) != 1 { return "" }
+    if me._accept_shape(s) != 1 { return null }
 
     local k_local0 = me._find_from(s, "\"type\":\"Local\"", 0)
-    if k_local0 < 0 { return "" }
-    local rb0 = me._next_local_or_end(s, k_local0)
-    local k_base_name = JsonFragBox.index_of_from(s, "\"name\":\"", k_local0)
-    if k_base_name < 0 { return "" }
-    if k_base_name >= rb0 { return "" }
-    local base_name = me._json_string_or_empty(s, k_base_name + 7)
-    if base_name == "" { return "" }
-    local k_init_int = JsonFragBox.index_of_from(s, "\"expr\":{\"type\":\"Int\"", k_local0)
-    if k_init_int < 0 { return "" }
-    if k_init_int >= rb0 { return "" }
-    local k_init_value = JsonFragBox.index_of_from(s, "\"value\":", k_init_int)
-    if k_init_value < 0 { return "" }
-    if k_init_value >= rb0 { return "" }
-    local init_val = me._json_int_text_or_empty(s, k_init_value + 8)
-    if init_val == "" { return "" }
+    if k_local0 < 0 { return null }
+    local seg0 = me._stmt_segment_around_type(s, k_local0)
+    if seg0 == "" { return null }
+    local base_name = me._local_decl_name(seg0)
+    if base_name == "" { return null }
+    local init_val = me._local_expr_int_text(seg0)
+    if init_val == "" { return null }
 
     local k_ret = me._find_from(s, "\"type\":\"Return\"", k_local0 + 1)
-    if k_ret < 0 { return "" }
-    local k_ret_var = JsonFragBox.index_of_from(s, "\"expr\":{\"type\":\"Var\"", k_ret)
-    if k_ret_var < 0 { return "" }
-    local k_ret_name = JsonFragBox.index_of_from(s, "\"name\":\"", k_ret_var)
-    if k_ret_name < 0 { return "" }
-    local ret_name = me._json_string_or_empty(s, k_ret_name + 7)
-    if ret_name == "" { return "" }
+    if k_ret < 0 { return null }
+    local ret_seg = me._stmt_segment_around_type(s, k_ret)
+    if ret_seg == "" { return null }
+    local ret_name = me._return_expr_var_name(ret_seg)
+    if ret_name == "" { return null }
 
     local assigned_val = ""
+    local k_scan = me._find_from(s, "\"type\":\"Local\"", k_local0 + 1)
+    loop(k_scan >= 0 && k_scan < k_ret) {
+      local seg_scan = me._stmt_segment_around_type(s, k_scan)
+      if seg_scan == "" { return null }
+      local scan_decl = me._local_decl_name(seg_scan)
+      if scan_decl == "" { return null }
+      local scan_int = me._local_expr_int_text(seg_scan)
+      if scan_decl == base_name && scan_int != "" {
+        assigned_val = scan_int
+      } else {
+        if ret_name != base_name {
+          if scan_decl == ret_name {
+            local scan_src = me._local_expr_var_name(seg_scan)
+            if scan_src != base_name { return null }
+          }
+        }
+      }
+      k_scan = me._find_from(s, "\"type\":\"Local\"", k_scan + 1)
+    }
+
     local pat_asn = "\"type\":\"Assignment\",\"name\":\"" + base_name + "\""
     local k_asn = JsonFragBox.last_index_of_from(s, pat_asn, k_ret)
     if k_asn >= 0 {
@@ -155,13 +179,19 @@ static box LowerLoadStoreLocalBox {
     if assigned_val != "" { final_val = assigned_val }
 
     if ret_name != base_name {
-      local pat_alias = "\"type\":\"Local\",\"name\":\"" + ret_name + "\""
-      local k_alias = me._find_from(s, pat_alias, k_local0 + 1)
-      if k_alias < 0 { return "" }
-      if k_alias >= k_ret { return "" }
-      local rb_alias = me._next_local_or_end(s, k_alias)
-      if rb_alias > k_ret { rb_alias = k_ret }
-      if me._is_local_alias_to_var_in_range(s, k_alias, base_name, rb_alias) != 1 { return "" }
+      local found_alias = 0
+      local k_alias2 = me._find_from(s, "\"type\":\"Local\"", k_local0 + 1)
+      loop(k_alias2 >= 0 && k_alias2 < k_ret) {
+        local seg_alias = me._stmt_segment_around_type(s, k_alias2)
+        if seg_alias == "" { return null }
+        local alias_decl = me._local_decl_name(seg_alias)
+        if alias_decl == ret_name {
+          local alias_src = me._local_expr_var_name(seg_alias)
+          if alias_src == base_name { found_alias = 1 }
+        }
+        k_alias2 = me._find_from(s, "\"type\":\"Local\"", k_alias2 + 1)
+      }
+      if found_alias != 1 { return null }
     }
 
     return "{\"kind\":\"MIR\",\"schema_version\":\"1.0\",\"functions\":[{\"name\":\"main\",\"blocks\":[{\"id\":0,\"instructions\":[" +

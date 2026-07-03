@@ -14,6 +14,14 @@ static box CompatMirEmitBox {
     return MirJsonEmitBox.to_json(%{"functions"=> [main]})
   }
 
+  method _module_with_functions(functions) {
+    return MirJsonEmitBox.to_json(%{"functions"=> functions})
+  }
+
+  method _function(name, params, blocks) {
+    return %{"name"=> name, "params"=> params, "locals"=> [], "blocks"=> blocks}
+  }
+
   method _module_with_block(insts) {
     return me._module_with_blocks([me._block(0, insts)])
   }
@@ -32,6 +40,10 @@ static box CompatMirEmitBox {
 
   method _inst_call_func_reg(func_reg, arg_ids, dst) {
     return %{"op"=> "call", "func"=> func_reg, "args"=> arg_ids, "dst"=> dst}
+  }
+
+  method _inst_call_name(name, arg_ids, dst) {
+    return %{"op"=> "call", "name"=> name, "args"=> arg_ids, "dst"=> dst}
   }
 
   method _inst_mir_call_method(method, recv_id, arg_ids, dst) {
@@ -139,6 +151,30 @@ static box CompatMirEmitBox {
       "]}]}]}"
   }
 
+  method emit_local_add_print_var_return_int(local_init, rhs, ret_int) {
+    return "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[{\"id\":0,\"instructions\":[" +
+      "{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + local_init + "}}," +
+      "{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":" + rhs + "}}," +
+      "{\"op\":\"binop\",\"dst\":3,\"lhs\":1,\"rhs\":2,\"operation\":\"+\"}," +
+      "{\"op\":\"externcall\",\"func\":\"env.console.log\",\"args\":[3]}," +
+      "{\"op\":\"const\",\"dst\":4,\"value\":{\"type\":\"i64\",\"value\":" + ret_int + "}}," +
+      "{\"op\":\"ret\",\"value\":4}" +
+      "]}]}]}"
+  }
+
+  method emit_local_add_add_print_var_return_int(local_init, try_rhs, finally_rhs, ret_int) {
+    return "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[{\"id\":0,\"instructions\":[" +
+      "{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + local_init + "}}," +
+      "{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":" + try_rhs + "}}," +
+      "{\"op\":\"binop\",\"dst\":3,\"lhs\":1,\"rhs\":2,\"operation\":\"+\"}," +
+      "{\"op\":\"const\",\"dst\":4,\"value\":{\"type\":\"i64\",\"value\":" + finally_rhs + "}}," +
+      "{\"op\":\"binop\",\"dst\":5,\"lhs\":3,\"rhs\":4,\"operation\":\"+\"}," +
+      "{\"op\":\"externcall\",\"func\":\"env.console.log\",\"args\":[5]}," +
+      "{\"op\":\"const\",\"dst\":6,\"value\":{\"type\":\"i64\",\"value\":" + ret_int + "}}," +
+      "{\"op\":\"ret\",\"value\":6}" +
+      "]}]}]}"
+  }
+
   method emit_loop_local_return_var_text(local_init, loop_limit, loop_step) {
     return "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[" +
       "{\"id\":0,\"instructions\":[" +
@@ -193,18 +229,16 @@ static box CompatMirEmitBox {
 
   method emit_return_call0(name) {
     local insts = [
-      %{"op"=> "const", "dst"=> 1, "value"=> %{"type"=> "string", "value"=> name}},
-      me._inst_call_func_reg(1, [], 2),
-      MirEmitBox.make_ret(2)
+      me._inst_call_name(name, [], 1),
+      MirEmitBox.make_ret(1)
     ]
     return me._module_with_block(insts)
   }
 
   method emit_return_call_int_arg(name, int_arg) {
     local insts = [
-      %{"op"=> "const", "dst"=> 1, "value"=> %{"type"=> "string", "value"=> name}},
       MirEmitBox.make_const(2, int_arg),
-      me._inst_call_func_reg(1, [2], 3),
+      me._inst_call_name(name, [2], 3),
       MirEmitBox.make_ret(3)
     ]
     return me._module_with_block(insts)
@@ -212,12 +246,59 @@ static box CompatMirEmitBox {
 
   method emit_return_call_var_arg(name, var_name) {
     local insts = [
-      %{"op"=> "const", "dst"=> 1, "value"=> %{"type"=> "string", "value"=> name}},
       me._inst_load_name(2, var_name),
-      me._inst_call_func_reg(1, [2], 3),
+      me._inst_call_name(name, [2], 3),
       MirEmitBox.make_ret(3)
     ]
     return me._module_with_block(insts)
+  }
+
+  method emit_return_id_call0_const(ret_value) {
+    local main = me._function("main", [], [
+      me._block(0, [
+        me._inst_call_name("id", [], 1),
+        MirEmitBox.make_ret(1)
+      ])
+    ])
+    local id_func = me._function("id", [], [
+      me._block(0, [
+        MirEmitBox.make_const(1, ret_value),
+        MirEmitBox.make_ret(1)
+      ])
+    ])
+    return me._module_with_functions([main, id_func])
+  }
+
+  method emit_return_id_call_int_arg(int_arg) {
+    local main = me._function("main", [], [
+      me._block(0, [
+        MirEmitBox.make_const(2, int_arg),
+        me._inst_call_name("id", [2], 3),
+        MirEmitBox.make_ret(3)
+      ])
+    ])
+    local id_func = me._function("id", [0], [
+      me._block(0, [
+        MirEmitBox.make_ret(0)
+      ])
+    ])
+    return me._module_with_functions([main, id_func])
+  }
+
+  method emit_return_id_call_var_arg(var_name) {
+    local main = me._function("main", [], [
+      me._block(0, [
+        me._inst_load_name(2, var_name),
+        me._inst_call_name("id", [2], 3),
+        MirEmitBox.make_ret(3)
+      ])
+    ])
+    local id_func = me._function("id", [0], [
+      me._block(0, [
+        MirEmitBox.make_ret(0)
+      ])
+    ])
+    return me._module_with_functions([main, id_func])
   }
 
   method emit_registry_only_arraymap(method, arg_values) {
