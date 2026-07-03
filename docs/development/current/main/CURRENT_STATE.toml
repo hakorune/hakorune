@@ -33,6 +33,9 @@ parity pilot owner, has a 10-row Rust-oracle fixture, and now has a
 hand-authored `.hako` implementation with a green 10-row parity gate.
 UserBoxMethodTypeLabelFormatter is now a narrow HakoAdopted Rust-oracle parity
 pilot owner. Source Selfhost remains unclaimed.
+CoreMethodCarrierTokenFormatter is now a narrow HakoAdopted Rust-oracle parity
+pilot owner after a green 32-row `.hako` EXE parity gate. Source Selfhost
+remains unclaimed.
 EXE/AOT remains the primary
 app/selfhost validation route; VM/interpreter lanes are not semantic owners."""
 
@@ -42,11 +45,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-USER-BOX-METHOD-TYPE-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2128-MIRBUILDER-USER-BOX-METHOD-TYPE-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.md"
+latest_card = "MIRBUILDER-CORE-METHOD-CARRIER-TOKEN-FORMATTER-HAKO-ADOPTION-DECISION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2133-MIRBUILDER-CORE-METHOD-CARRIER-TOKEN-FORMATTER-HAKO-ADOPTION-DECISION-001.md"
 latest_card_summary = """The latest card adopts
-user_box_method_type_label_formatter as the sixth narrow Rust-oracle parity
-pilot owner and chooses pilot selection rerun 006 next."""
+core_method_carrier_token_formatter as the seventh narrow Rust-oracle parity
+pilot owner and chooses pilot selection rerun 007 next."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -57,15 +60,15 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-04: 2133 adopts core_method_carrier_token_formatter as the seventh narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
+  "2026-07-04: 2132 adds the core_method_carrier_token_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
+  "2026-07-04: 2131 adds the hand-authored core_method_carrier_token_formatter .hako implementation and chooses the parity gate card next.",
+  "2026-07-04: 2130 creates the 32-row core_method_carrier_token_formatter Rust-oracle fixture and chooses the Hako-native implementation card next.",
+  "2026-07-04: 2129 selects core_method_carrier_token_formatter as the seventh narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
   "2026-07-04: 2128 adopts user_box_method_type_label_formatter as the sixth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
   "2026-07-04: 2127 adds the user_box_method_type_label_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
   "2026-07-04: 2126 adds the hand-authored user_box_method_type_label_formatter .hako implementation and chooses the parity gate card next.",
   "2026-07-04: 2125 creates the 10-row user_box_method_type_label_formatter Rust-oracle fixture and chooses the Hako-native implementation card next.",
   "2026-07-04: 2124 selects user_box_method_type_label_formatter as the sixth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
   "2026-07-04: 2123 adopts same_module_definition_kind_formatter as the fifth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
-  "2026-07-04: 2122 adds the same_module_definition_kind_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
-  "2026-07-04: 2121 adds the hand-authored same_module_definition_kind_formatter .hako implementation and chooses the parity gate card next.",
-  "2026-07-04: 2120 creates the 2-row same_module_definition_kind_formatter Rust-oracle fixture and chooses the Hako-native implementation card next.",
-  "2026-07-04: 2119 selects same_module_definition_kind_formatter as the fifth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
-  "2026-07-04: 2118 adopts string_corridor_name_vocabulary_classifier as the fourth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
 ]

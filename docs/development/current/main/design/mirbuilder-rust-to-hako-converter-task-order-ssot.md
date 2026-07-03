@@ -24,9 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-USER-BOX-METHOD-TYPE-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.
-  The user_box_method_type_label_formatter owner is HakoAdopted as the sixth
-  narrow Rust-oracle parity pilot; next is pilot selection rerun 006.
+  MIRBUILDER-CORE-METHOD-CARRIER-TOKEN-FORMATTER-HAKO-ADOPTION-DECISION-001.
+  The core_method_carrier_token_formatter owner is HakoAdopted as the seventh
+  narrow Rust-oracle parity pilot; next is pilot selection rerun 007.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-006
+  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-007
 
 current fail-fast boundary:
   Do not re-enter full converter route selection without new non-self-signed
@@ -70,18 +70,19 @@ current fail-fast boundary:
   owners only: storage-class classification, placement-effect tag formatting,
   static-scalar fact classification, and fixture-backed string corridor name
   vocabulary classification, and same-module definition kind JSON-name
-  formatting, and user-box method type-label formatting. Metadata refresh,
-  route collection, const emission, full AST traversal, method dispatch,
-  string corridor fact inference, same-module definition closure collection,
-  route convergence, and MirBuilder mutation remain Rust.
+  formatting, user-box method type-label formatting, and core-method carrier
+  token formatting. Metadata refresh, route collection, const emission, full
+  AST traversal, method dispatch, string corridor fact inference, same-module
+  definition closure collection, route convergence, lowering execution, and
+  MirBuilder mutation remain Rust.
 
 latest design decision:
-  user_box_method_type_label_formatter is now HakoAdopted as a narrow
-  Rust-oracle parity pilot owner after a green 10-row `.hako` EXE parity gate
-  for `MirType -> user-box method route type label`. User-box method route
-  collection, route convergence, MirModule mutation, and backend emission
-  remain Rust. The selected next card is
-  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-006`.
+  core_method_carrier_token_formatter is now HakoAdopted as a narrow
+  Rust-oracle parity pilot owner after a green 32-row `.hako` EXE parity gate
+  for CoreMethodOp / lowering tier token formatting. CoreMethodContract
+  manifest generation, method resolution, route collection, lowering
+  execution, and backend emission remain Rust. The selected next card is
+  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-007`.
 
 historical route-selection decision:
   Detailed landed route-selection rows are closed as provenance and live in

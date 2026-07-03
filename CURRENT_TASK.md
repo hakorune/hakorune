@@ -78,6 +78,11 @@ SOURCE-SELFHOST-RUST-TO-HAKO-CONVERTER-ROLE-PIVOT-001
   -> MIRBUILDER-USER-BOX-METHOD-TYPE-LABEL-FORMATTER-PARITY-GATE-001
   -> MIRBUILDER-USER-BOX-METHOD-TYPE-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001
   -> MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-006
+  -> MIRBUILDER-CORE-METHOD-CARRIER-TOKEN-FORMATTER-RUST-ORACLE-FIXTURE-001
+  -> MIRBUILDER-CORE-METHOD-CARRIER-TOKEN-FORMATTER-HAKO-NATIVE-IMPLEMENTATION-001
+  -> MIRBUILDER-CORE-METHOD-CARRIER-TOKEN-FORMATTER-PARITY-GATE-001
+  -> MIRBUILDER-CORE-METHOD-CARRIER-TOKEN-FORMATTER-HAKO-ADOPTION-DECISION-001
+  -> MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-007
 ```
 
 Rule:
@@ -116,6 +121,11 @@ user_box_method_type_label_formatter has a 10-row Rust-oracle fixture; next is h
 user_box_method_type_label_formatter has hand-authored .hako implementation; next is parity gate
 user_box_method_type_label_formatter parity gate is green; next is HakoAdoption decision
 user_box_method_type_label_formatter is HakoAdopted as the sixth parity pilot; next is pilot selection rerun 006
+core_method_carrier_token_formatter is selected as the seventh parity pilot; next is its Rust-oracle fixture
+core_method_carrier_token_formatter has a 32-row Rust-oracle fixture; next is hand-authored .hako implementation
+core_method_carrier_token_formatter has hand-authored .hako implementation; next is parity gate
+core_method_carrier_token_formatter parity gate is green; next is HakoAdoption decision
+core_method_carrier_token_formatter is HakoAdopted as the seventh parity pilot; next is pilot selection rerun 007
 ```
 
 ## Immediate Maintenance Slice

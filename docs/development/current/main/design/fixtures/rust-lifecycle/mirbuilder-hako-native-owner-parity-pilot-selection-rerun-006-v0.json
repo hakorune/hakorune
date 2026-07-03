@@ -1,0 +1,81 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderHakoNativeOwnerParityPilotSelectionRerun006V1",
+  "token": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-006",
+  "input_state": {
+    "previous_hako_adoption": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-user-box-method-type-label-formatter-hako-adoption-decision-v0.json",
+    "previous_hako_adoption_hash": "sha256:6b40b90e602a44950edf9732da038a4ba294eb19c7dfbcb24119a61403d076d7",
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+  },
+  "selection_policy": {
+    "candidate_ranking_is_advisory": true,
+    "manual_target_selection_allowed": true,
+    "correctness_proof_is_parity_gate": true,
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0
+  },
+  "candidate_rows": [
+    {
+      "candidate_owner": "core_method_carrier_token_formatter",
+      "source_path": "src/mir/core_method_op.rs",
+      "source_hash": "sha256:5aa45bf8e322d9c981aaa56536f73257f4064ea05dfd35b2f0f20d6abb3da2ad",
+      "selected": true,
+      "positive_signals": [
+        "pure enum/token formatting surface",
+        "string-only input/output parity boundary",
+        "existing Rust manifest/token stability tests",
+        "no MIR traversal in selected surface",
+        "no PHI or LocalSSA surface",
+        "no backend lowering or route collection"
+      ],
+      "excluded_surface": [
+        "CoreMethodContract manifest generation",
+        "method resolution",
+        "carrier route collection",
+        "lowering execution",
+        "backend emission"
+      ],
+      "selected_next_card_if_selected": "MIRBUILDER-CORE-METHOD-CARRIER-TOKEN-FORMATTER-RUST-ORACLE-FIXTURE-001"
+    },
+    {
+      "candidate_owner": "exact_numeric_backend_capability_policy",
+      "source_path": "src/mir/exact_numeric_backend_capability.rs",
+      "selected": false,
+      "reason": "Requires module-level counting and backend fail-fast error aggregation; wider than a pure token formatter pilot."
+    },
+    {
+      "candidate_owner": "string_corridor_compat_recovery_policy",
+      "source_path": "src/mir/string_corridor_compat.rs",
+      "selected": false,
+      "reason": "Depends on MIR instruction/callee shape inspection; keep it out of the next narrow parity pilot."
+    },
+    {
+      "candidate_owner": "map_lookup_fusion_metadata_formatter",
+      "source_path": "src/mir/map_lookup_fusion_plan.rs",
+      "selected": false,
+      "reason": "Metadata formatting is small, but the owner is embedded in route matching and value-origin analysis; defer until a narrower seam is isolated."
+    }
+  ],
+  "decision": {
+    "kind": "SelectPilotOwner",
+    "reason_token": "CoreMethodCarrierTokenFormatterSelectedAsSeventhParityPilot",
+    "selected_owner": "core_method_carrier_token_formatter",
+    "selected_rust_surface": "CoreMethodOp / lowering tier token formatters",
+    "selected_next_card": "MIRBUILDER-CORE-METHOD-CARRIER-TOKEN-FORMATTER-RUST-ORACLE-FIXTURE-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "native_seed_materialization": 0,
+    "hako_generation": 0,
+    "generated_artifact_as_native_edit_authority": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "core_method_contract_manifest_migration": 0,
+    "method_resolution_migration": 0,
+    "route_collection_migration": 0,
+    "lowering_execution_migration": 0,
+    "backend_emission_migration": 0
+  }
+}

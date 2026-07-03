@@ -1,0 +1,67 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderCoreMethodCarrierTokenFormatterRustOracleV1",
+  "token": "MIRBUILDER-CORE-METHOD-CARRIER-TOKEN-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "core_method_carrier_token_formatter",
+  "rust_source": {
+    "path": "src/mir/core_method_op.rs",
+    "hash": "sha256:5aa45bf8e322d9c981aaa56536f73257f4064ea05dfd35b2f0f20d6abb3da2ad",
+    "oracle_functions": [
+      "CoreMethodOp::as_manifest_name",
+      "CoreMethodOpProof::Display",
+      "CoreMethodLoweringTier::as_manifest_name",
+      "CoreMethodLoweringTier::plan_tier",
+      "CoreMethodLoweringTier::plan_emit_kind",
+      "LoweringPlanTier::as_json_name",
+      "LoweringPlanEmitKind::as_json_name"
+    ]
+  },
+  "oracle_rule": {
+    "surface": "Core method carrier enum tokens -> stable string labels",
+    "core_method_contract_manifest_migration": 0,
+    "method_resolution_migration": 0,
+    "route_collection_migration": 0,
+    "lowering_execution_migration": 0,
+    "backend_emission_migration": 0
+  },
+  "rows": [
+    { "case_id": "op_array_len", "kind": "core_method_op", "input": "ArrayLen", "expected": "ArrayLen" },
+    { "case_id": "op_array_get", "kind": "core_method_op", "input": "ArrayGet", "expected": "ArrayGet" },
+    { "case_id": "op_array_has", "kind": "core_method_op", "input": "ArrayHas", "expected": "ArrayHas" },
+    { "case_id": "op_array_set", "kind": "core_method_op", "input": "ArraySet", "expected": "ArraySet" },
+    { "case_id": "op_array_push", "kind": "core_method_op", "input": "ArrayPush", "expected": "ArrayPush" },
+    { "case_id": "op_any_get", "kind": "core_method_op", "input": "AnyGet", "expected": "AnyGet" },
+    { "case_id": "op_any_has", "kind": "core_method_op", "input": "AnyHas", "expected": "AnyHas" },
+    { "case_id": "op_map_get", "kind": "core_method_op", "input": "MapGet", "expected": "MapGet" },
+    { "case_id": "op_map_set", "kind": "core_method_op", "input": "MapSet", "expected": "MapSet" },
+    { "case_id": "op_map_has", "kind": "core_method_op", "input": "MapHas", "expected": "MapHas" },
+    { "case_id": "op_map_delete", "kind": "core_method_op", "input": "MapDelete", "expected": "MapDelete" },
+    { "case_id": "op_map_len", "kind": "core_method_op", "input": "MapLen", "expected": "MapLen" },
+    { "case_id": "op_map_keys", "kind": "core_method_op", "input": "MapKeys", "expected": "MapKeys" },
+    { "case_id": "op_any_len", "kind": "core_method_op", "input": "AnyLen", "expected": "AnyLen" },
+    { "case_id": "op_string_len", "kind": "core_method_op", "input": "StringLen", "expected": "StringLen" },
+    { "case_id": "op_string_substring", "kind": "core_method_op", "input": "StringSubstring", "expected": "StringSubstring" },
+    { "case_id": "op_string_index_of", "kind": "core_method_op", "input": "StringIndexOf", "expected": "StringIndexOf" },
+    { "case_id": "op_string_last_index_of", "kind": "core_method_op", "input": "StringLastIndexOf", "expected": "StringLastIndexOf" },
+    { "case_id": "op_string_contains", "kind": "core_method_op", "input": "StringContains", "expected": "StringContains" },
+    { "case_id": "proof_contract_manifest", "kind": "proof", "input": "CoreMethodContractManifest", "expected": "core_method_contract_manifest" },
+    { "case_id": "tier_hot_manifest", "kind": "lowering_tier_manifest", "input": "HotInline", "expected": "hot_inline" },
+    { "case_id": "tier_warm_manifest", "kind": "lowering_tier_manifest", "input": "WarmDirectAbi", "expected": "warm_direct_abi" },
+    { "case_id": "tier_cold_manifest", "kind": "lowering_tier_manifest", "input": "ColdFallback", "expected": "cold_fallback" },
+    { "case_id": "tier_hot_plan", "kind": "lowering_tier_plan_tier", "input": "HotInline", "expected": "HotInline" },
+    { "case_id": "tier_warm_plan", "kind": "lowering_tier_plan_tier", "input": "WarmDirectAbi", "expected": "DirectAbi" },
+    { "case_id": "tier_cold_plan", "kind": "lowering_tier_plan_tier", "input": "ColdFallback", "expected": "ColdRuntime" },
+    { "case_id": "tier_hot_emit", "kind": "lowering_tier_emit_kind", "input": "HotInline", "expected": "inline_ir" },
+    { "case_id": "tier_warm_emit", "kind": "lowering_tier_emit_kind", "input": "WarmDirectAbi", "expected": "direct_abi_call" },
+    { "case_id": "tier_cold_emit", "kind": "lowering_tier_emit_kind", "input": "ColdFallback", "expected": "runtime_call" },
+    { "case_id": "plan_tier_unsupported", "kind": "plan_tier_json", "input": "Unsupported", "expected": "Unsupported" },
+    { "case_id": "emit_kind_direct_function", "kind": "emit_kind_json", "input": "DirectFunctionCall", "expected": "direct_function_call" },
+    { "case_id": "emit_kind_unsupported", "kind": "emit_kind_json", "input": "Unsupported", "expected": "unsupported" }
+  ],
+  "summary": {
+    "oracle_row_count": 32,
+    "selected_surface_is_pure_token_formatter": 1,
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0
+  }
+}

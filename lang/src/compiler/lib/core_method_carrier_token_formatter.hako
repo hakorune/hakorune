@@ -1,0 +1,155 @@
+// core_method_carrier_token_formatter.hako - hand-authored core method carrier token formatter
+//
+// Responsibility:
+// - format MIR core-method carrier enum tokens into Rust oracle string labels
+// - stay pure: string token input, string token output
+//
+// Non-responsibility:
+// - CoreMethodContract manifest generation
+// - method resolution or route collection
+// - lowering execution
+// - backend emission
+// - Source Selfhost or HakoAdopted promotion
+static box CoreMethodCarrierTokenFormatterBox {
+  format_core_method_op(op) {
+    if op == "ArrayLen" {
+      return "ArrayLen"
+    }
+    if op == "ArrayGet" {
+      return "ArrayGet"
+    }
+    if op == "ArrayHas" {
+      return "ArrayHas"
+    }
+    if op == "ArraySet" {
+      return "ArraySet"
+    }
+    if op == "ArrayPush" {
+      return "ArrayPush"
+    }
+    if op == "AnyGet" {
+      return "AnyGet"
+    }
+    if op == "AnyHas" {
+      return "AnyHas"
+    }
+    if op == "MapGet" {
+      return "MapGet"
+    }
+    if op == "MapSet" {
+      return "MapSet"
+    }
+    if op == "MapHas" {
+      return "MapHas"
+    }
+    if op == "MapDelete" {
+      return "MapDelete"
+    }
+    if op == "MapLen" {
+      return "MapLen"
+    }
+    if op == "MapKeys" {
+      return "MapKeys"
+    }
+    if op == "AnyLen" {
+      return "AnyLen"
+    }
+    if op == "StringLen" {
+      return "StringLen"
+    }
+    if op == "StringSubstring" {
+      return "StringSubstring"
+    }
+    if op == "StringIndexOf" {
+      return "StringIndexOf"
+    }
+    if op == "StringLastIndexOf" {
+      return "StringLastIndexOf"
+    }
+    if op == "StringContains" {
+      return "StringContains"
+    }
+    return "unsupported_core_method_op"
+  }
+
+  format_proof(proof) {
+    if proof == "CoreMethodContractManifest" {
+      return "core_method_contract_manifest"
+    }
+    return "unsupported_core_method_proof"
+  }
+
+  format_lowering_tier(tier) {
+    if tier == "HotInline" {
+      return "hot_inline"
+    }
+    if tier == "WarmDirectAbi" {
+      return "warm_direct_abi"
+    }
+    if tier == "ColdFallback" {
+      return "cold_fallback"
+    }
+    return "unsupported_core_method_lowering_tier"
+  }
+
+  format_plan_tier_from_lowering_tier(tier) {
+    if tier == "HotInline" {
+      return "HotInline"
+    }
+    if tier == "WarmDirectAbi" {
+      return "DirectAbi"
+    }
+    if tier == "ColdFallback" {
+      return "ColdRuntime"
+    }
+    return "Unsupported"
+  }
+
+  format_emit_kind_from_lowering_tier(tier) {
+    if tier == "HotInline" {
+      return "inline_ir"
+    }
+    if tier == "WarmDirectAbi" {
+      return "direct_abi_call"
+    }
+    if tier == "ColdFallback" {
+      return "runtime_call"
+    }
+    return "unsupported"
+  }
+
+  format_plan_tier_json_name(plan_tier) {
+    if plan_tier == "HotInline" {
+      return "HotInline"
+    }
+    if plan_tier == "DirectAbi" {
+      return "DirectAbi"
+    }
+    if plan_tier == "ColdRuntime" {
+      return "ColdRuntime"
+    }
+    if plan_tier == "Unsupported" {
+      return "Unsupported"
+    }
+    return "Unsupported"
+  }
+
+  format_emit_kind_json_name(emit_kind) {
+    if emit_kind == "InlineIr" {
+      return "inline_ir"
+    }
+    if emit_kind == "DirectAbiCall" {
+      return "direct_abi_call"
+    }
+    if emit_kind == "DirectFunctionCall" {
+      return "direct_function_call"
+    }
+    if emit_kind == "RuntimeCall" {
+      return "runtime_call"
+    }
+    if emit_kind == "Unsupported" {
+      return "unsupported"
+    }
+    return "unsupported"
+  }
+}

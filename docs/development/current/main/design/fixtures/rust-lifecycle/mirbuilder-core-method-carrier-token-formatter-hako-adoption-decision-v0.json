@@ -1,0 +1,61 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderCoreMethodCarrierTokenFormatterHakoAdoptionDecisionV1",
+  "token": "MIRBUILDER-CORE-METHOD-CARRIER-TOKEN-FORMATTER-HAKO-ADOPTION-DECISION-001",
+  "owner": "core_method_carrier_token_formatter",
+  "input_state": {
+    "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-core-method-carrier-token-formatter-rust-oracle-v0.json",
+    "hako_source": "lang/src/compiler/lib/core_method_carrier_token_formatter.hako",
+    "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_core_method_carrier_token_formatter_parity_gate.sh",
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+  },
+  "adoption_rule": {
+    "adopt_only_narrow_owner": true,
+    "correctness_proof": "RustOracleParityGate",
+    "parity_rows": 32,
+    "parity_status": "green",
+    "rust_bootstrap_retained": 1,
+    "rust_oracle_retained": 1
+  },
+  "adopted_surface": {
+    "name": "Core method carrier token formatter",
+    "scope": [
+      "CoreMethodOp token formatting",
+      "CoreMethodOpProof token formatting",
+      "CoreMethodLoweringTier manifest token formatting",
+      "CoreMethodLoweringTier plan tier token formatting",
+      "CoreMethodLoweringTier emit kind token formatting",
+      "LoweringPlanTier JSON token formatting",
+      "LoweringPlanEmitKind JSON token formatting"
+    ]
+  },
+  "excluded_surface": [
+    "CoreMethodContract manifest generation",
+    "method resolution",
+    "carrier route collection",
+    "lowering execution",
+    "backend emission",
+    "Source Selfhost claim",
+    "Rust deletion"
+  ],
+  "decision": {
+    "kind": "Adopt",
+    "reason_token": "CoreMethodCarrierTokenFormatterRustOracleParityGateGreen",
+    "selected_next_card": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-007"
+  },
+  "claims": {
+    "hako_adopted": 1,
+    "source_selfhost_claim": 0,
+    "source_selfhost_complete": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "generated_artifact_as_native_edit_authority": 0,
+    "core_method_contract_manifest_migration": 0,
+    "method_resolution_migration": 0,
+    "route_collection_migration": 0,
+    "lowering_execution_migration": 0,
+    "backend_emission_migration": 0
+  }
+}
