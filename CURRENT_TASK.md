@@ -41,20 +41,20 @@ the active card and task-order SSOT. Do not duplicate them here.
 
 ## Immediate Maintenance Slice
 
-Scope: Hakorune PHI trace debug runner binary resolution naming.
+Scope: Hakorune test shell helper binary resolution.
 
-- make `tools/debug/phi/phi_trace_run.sh` invoke `hakorune` before legacy
-  `nyash`
-- keep `target/release/nyash` only behind explicit `LEGACY_NYASH_BIN`
+- make `tools/test/lib/shlib.sh` emit-json helper invoke `hakorune` before
+  legacy `nyash`
+- keep `target/release/nyash` only behind explicit Hakorune-first resolver
   fallback
-- keep PHI trace environment and checker behavior untouched in this slice
-- do not edit PHI lifecycle or MIR PHI construction code in this slice
+- keep legacy helper function names untouched for compatibility in this slice
+- keep test route behavior untouched in this slice
 
 Acceptance:
 
 ```bash
 bash tools/checks/naming_charter_guard.sh
-bash -n tools/debug/phi/phi_trace_run.sh
+bash -n tools/test/lib/shlib.sh
 git diff --check
 tools/checks/dev_gate.sh quick
 ```

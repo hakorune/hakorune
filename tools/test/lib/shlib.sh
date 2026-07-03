@@ -34,8 +34,18 @@ build_nyash_release() { (cd "$ROOT_DIR" && cargo build --release -j 8 >/dev/null
 build_ny_llvmc() { (cd "$ROOT_DIR" && cargo build --release -p nyash-llvm-compiler -j 8 >/dev/null); }
 build_nyrt() { (cd "$ROOT_DIR/crates/nyrt" && cargo build --release -j 8 >/dev/null); }
 
+resolve_hakorune_bin() {
+  local primary="${HAKORUNE_BIN:-$ROOT_DIR/target/release/hakorune}"
+  local fallback="$ROOT_DIR/target/release/nyash"
+  if [[ -x "$primary" ]]; then
+    printf '%s\n' "$primary"
+    return 0
+  fi
+  printf '%s\n' "$fallback"
+}
+
 emit_json() { # args: src out_json
-  "$ROOT_DIR/target/release/nyash" --emit-mir-json "$2" --backend mir "$1" >/dev/null
+  "$(resolve_hakorune_bin)" --emit-mir-json "$2" --backend mir "$1" >/dev/null
 }
 
 run_pyvm_json() { # args: json_path

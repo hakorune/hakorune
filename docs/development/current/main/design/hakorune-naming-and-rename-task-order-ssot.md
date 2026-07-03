@@ -774,6 +774,42 @@ git diff --check
 tools/checks/dev_gate.sh quick
 ```
 
+### HAKORUNE-TEST-SHLIB-BINARY-RESOLUTION-001
+
+Status: active in this slice.
+
+Scope:
+
+- make `tools/test/lib/shlib.sh` emit-json helper invoke `hakorune` before
+  legacy `nyash`;
+- keep `target/release/nyash` only behind explicit Hakorune-first resolver
+  fallback;
+- keep legacy helper function names untouched for compatibility in this slice;
+- keep test route behavior untouched in this slice.
+
+Contract:
+
+```text
+primary:
+  target/release/hakorune
+
+compat fallback:
+  target/release/nyash
+  used only if primary is absent
+
+override:
+  HAKORUNE_BIN
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+bash -n tools/test/lib/shlib.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
 ### STAGE-TERM-EXISTING-NAME-MIGRATION-001
 
 Status: defined, not implementation.
