@@ -41,20 +41,20 @@ the active card and task-order SSOT. Do not duplicate them here.
 
 ## Immediate Maintenance Slice
 
-Scope: Parser try-compat smoke binary naming cleanup.
+Scope: Gate-C OOB strict smoke binary resolution.
 
-- make the parser try-compat smoke spell the Hakorune-first executable
-  resolver explicitly
-- keep legacy `nyash` only as a named compatibility fallback
-- keep parser fixtures and expected freeze-tag behavior unchanged in this slice
+- make the Gate-C OOB strict opt-in smoke invoke `$HAKO_BIN` instead of direct
+  `target/release/nyash`
+- keep Stage-B source fixtures and strict OOB expectations unchanged in this
+  slice
 - add naming guard coverage so the smoke does not regress to direct legacy
-  binary naming
+  binary calls
 
 Acceptance:
 
 ```bash
 bash tools/checks/naming_charter_guard.sh
-bash tools/smokes/v2/profiles/integration/parser/parser_try_compat_boundary.sh
+SMOKES_ENABLE_OOB_STRICT=1 bash tools/smokes/v2/profiles/quick/core/gate_c_oob_strict_fail_vm.sh
 git diff --check
 tools/checks/dev_gate.sh quick
 ```

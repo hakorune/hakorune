@@ -12,6 +12,8 @@ fi
 
 source "$ROOT/tools/smokes/v2/lib/test_runner.sh"
 require_env || exit 2
+HAKO_BIN_DEFAULT="$ROOT/tools/bin/hako"
+HAKO_BIN="${HAKO_BIN:-$HAKO_BIN_DEFAULT}"
 
 if [ "${SMOKES_ENABLE_OOB_STRICT:-0}" != "1" ]; then
   test_skip "gate_c_oob_strict_fail_vm" "opt-in (set SMOKES_ENABLE_OOB_STRICT=1)" && exit 0
@@ -28,7 +30,7 @@ hako_compile_to_mir_stageb() {
   NYASH_FEATURES=stage3 \
   NYASH_VARMAP_GUARD_STRICT=0 NYASH_BLOCK_SCHEDULE_VERIFY=0 \
   NYASH_QUIET=1 HAKO_QUIET=1 NYASH_CLI_VERBOSE=0 \
-  "$ROOT/target/release/nyash" --backend vm \
+  "$HAKO_BIN" --backend vm \
     "$ROOT/lang/src/compiler/entry/compiler_stageb.hako" -- --source "$(cat "$hako_tmp")" > "$raw" 2>&1 || true
   awk '/"version":0/ && /"kind":"Program"/ {print; exit}' "$raw" > "$json_out"
   rm -f "$raw" "$hako_tmp"
@@ -40,7 +42,7 @@ run_gate_c_core() {
   HAKO_OOB_STRICT=1 NYASH_OOB_STRICT=1 \
   HAKO_OOB_STRICT_FAIL=1 NYASH_OOB_STRICT_FAIL=1 \
   NYASH_QUIET=1 HAKO_QUIET=1 NYASH_CLI_VERBOSE=0 NYASH_NYRT_SILENT_RESULT=1 \
-    "$ROOT/target/release/nyash" --json-file "$json_path" >/tmp/hako_oob_strict_run.txt 2>&1
+    "$HAKO_BIN" --json-file "$json_path" >/tmp/hako_oob_strict_run.txt 2>&1
   local rc=$?
   cat /tmp/hako_oob_strict_run.txt >&2
   rm -f "$json_path" /tmp/hako_oob_strict_run.txt
@@ -74,4 +76,3 @@ else
 fi
 
 exit 0
-

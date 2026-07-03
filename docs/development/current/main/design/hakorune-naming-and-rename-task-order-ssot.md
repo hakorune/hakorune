@@ -1050,6 +1050,34 @@ git diff --check
 tools/checks/dev_gate.sh quick
 ```
 
+### HAKORUNE-GATE-C-OOB-STRICT-SMOKE-BINARY-RESOLUTION-001
+
+Status: active in this slice.
+
+Scope:
+
+- make the Gate-C OOB strict opt-in smoke invoke `$HAKO_BIN` instead of direct
+  `target/release/nyash`;
+- keep Stage-B source fixtures and strict OOB expectations unchanged in this
+  slice;
+- add naming guard coverage so the smoke does not regress to direct legacy
+  binary calls.
+
+Affected script:
+
+```text
+tools/smokes/v2/profiles/quick/core/gate_c_oob_strict_fail_vm.sh
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+SMOKES_ENABLE_OOB_STRICT=1 bash tools/smokes/v2/profiles/quick/core/gate_c_oob_strict_fail_vm.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
 ### STAGE-TERM-EXISTING-NAME-MIGRATION-001
 
 Status: defined, not implementation.
