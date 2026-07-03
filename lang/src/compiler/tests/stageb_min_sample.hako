@@ -1,6 +1,6 @@
-// Stage-B minimal test harness
+// mode-B compatibility minimal test harness
 // Purpose: Reproduce SSA/ValueId bugs in a minimal 100-line sample
-// This file should pass through Stage-B compilation without SSA errors
+// This file should pass through mode-B compatibility compilation without SSA errors
 
 static box TestArgs {
   method process(args) {

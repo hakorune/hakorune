@@ -87,6 +87,7 @@ STAGE-TERM-CHECK-SCRIPTS-INDEX-WORDING-001
 STAGE-TERM-SYNTAX3-RUST-ENV-COMMENT-WORDING-001
 STAGE-TERM-HHAKO-PARSER-BUILD-COMMENT-WORDING-001
 STAGE-TERM-JSON-V0-BRIDGE-COMMENT-WORDING-001
+STAGE-TERM-HHAKO-BUILD-TEST-COMMENT-WORDING-001
 ```
 
 `--syntax-3` is now the frontend syntax-level spelling; `--stage3` remains a
@@ -132,10 +133,12 @@ also use mode-A/mode-B compatibility or syntax-3 wording while keeping `stage3`
 fields/functions, trace strings, file names, and PHI/LocalSSA/variable-map
 internals untouched. Rust JSON v0 bridge comments and one local freeze
 diagnostic now use mode-B compatibility / bootstrap wording while keeping
-`try_lower_stageb_*` names, route symbols, and behavior unchanged. Next safe
-naming work, if explicitly selected, must pick a different classified layer
-from that inventory and keep compatibility aliases or replacement routes in the
-same slice.
+`try_lower_stageb_*` names, route symbols, and behavior unchanged. Remaining
+HHako build/test comments now also use bootstrap / mode-B compatibility wording
+while keeping `stageb_*` test file names and StageB Box names unchanged. Next
+safe naming work, if explicitly selected, must pick a different classified
+layer from that inventory and keep compatibility aliases or replacement routes
+in the same slice.
 
 Acceptance:
 

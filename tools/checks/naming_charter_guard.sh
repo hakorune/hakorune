@@ -79,6 +79,8 @@ HH_PARSER_RUNE_CONTRACT="$ROOT_DIR/lang/src/compiler/parser/rune/rune_contract_b
 HH_PARSER_CONTROL_BOX="$ROOT_DIR/lang/src/compiler/parser/stmt/parser_control_box.hako"
 HH_PARSER_EXCEPTION_BOX="$ROOT_DIR/lang/src/compiler/parser/stmt/parser_exception_box.hako"
 HH_PARSER_STMT_CORE="$ROOT_DIR/lang/src/compiler/parser/stmt/parser_stmt_box/core.hako"
+HH_TEST_FUNCSCANNER_SKIP_WS="$ROOT_DIR/lang/src/compiler/tests/funcscanner_skip_ws_min.hako"
+HH_TEST_STAGEB_MIN_SAMPLE="$ROOT_DIR/lang/src/compiler/tests/stageb_min_sample.hako"
 K2_WIDE_STAGEB_FIELD_TYPE_ANNOTATION_GUARD="$ROOT_DIR/tools/checks/k2_wide_stageb_field_type_annotation_alignment_guard.sh"
 K2_WIDE_STAGEB_NUMERIC_LITERAL_SUFFIX_GUARD="$ROOT_DIR/tools/checks/k2_wide_stageb_numeric_literal_suffix_alignment_guard.sh"
 NY_PARSER_BRIDGE_SMOKE="$ROOT_DIR/tools/ny_parser_bridge_smoke.sh"
@@ -233,6 +235,8 @@ REQUIRED_FILES=(
   "$HH_PARSER_CONTROL_BOX"
   "$HH_PARSER_EXCEPTION_BOX"
   "$HH_PARSER_STMT_CORE"
+  "$HH_TEST_FUNCSCANNER_SKIP_WS"
+  "$HH_TEST_STAGEB_MIN_SAMPLE"
   "$K2_WIDE_STAGEB_FIELD_TYPE_ANNOTATION_GUARD"
   "$K2_WIDE_STAGEB_NUMERIC_LITERAL_SUFFIX_GUARD"
   "$NY_PARSER_BRIDGE_SMOKE"
@@ -384,6 +388,7 @@ SSOT_REQUIRED_TOKENS=(
   "STAGE-TERM-SYNTAX3-RUST-ENV-COMMENT-WORDING-001"
   "STAGE-TERM-HHAKO-PARSER-BUILD-COMMENT-WORDING-001"
   "STAGE-TERM-JSON-V0-BRIDGE-COMMENT-WORDING-001"
+  "STAGE-TERM-HHAKO-BUILD-TEST-COMMENT-WORDING-001"
 )
 guard_require_unique_values "SSOT required token" "${SSOT_REQUIRED_TOKENS[@]}"
 for ssot_token in "${SSOT_REQUIRED_TOKENS[@]}"; do
@@ -794,6 +799,7 @@ if rg -n 'Function definition scanner for Stage-B compiler|Stage-B VM path can l
   guard_fail "$TAG" "FuncScanner comments must say mode-B compatibility"
 fi
 require_fixed "bundle-aware mode-B compatibility adapter" "$HH_BUILD_BUNDLE_FACADE"
+require_fixed "bootstrap source execution does not import bundle" "$HH_BUILD_BUNDLE_FACADE"
 require_fixed "Live mode-B compatibility bundle entry" "$HH_BUILD_README"
 require_fixed "mode-A bridge callers" "$HH_MIRBUILDER_README"
 require_fixed "mode-B compatibility Program(JSON v0)" "$HH_MIRBUILDER_README"
@@ -823,6 +829,16 @@ if rg -n 'Stage-B adapter|Live Stage-B bundle entry|Stage-A bridge callers|Stage
   "$HH_PARSER_RUNE_CONTRACT" \
   "$HH_PARSER_NUMBER_SCAN"; then
   guard_fail "$TAG" "HHako parser/build comments must say mode-A/mode-B compatibility or syntax-3"
+fi
+require_fixed "mode-B compatibility delegate call" "$HH_TEST_FUNCSCANNER_SKIP_WS"
+require_fixed "mode-B compatibility path" "$HH_TEST_FUNCSCANNER_SKIP_WS"
+require_fixed "mode-B compatibility minimal test harness" "$HH_TEST_STAGEB_MIN_SAMPLE"
+require_fixed "mode-B compatibility compilation without SSA errors" "$HH_TEST_STAGEB_MIN_SAMPLE"
+if rg -n 'Stage0 source execution|Stage-B delegate call|closer to Stage-B path|Stage-B minimal test harness|Stage-B compilation' \
+  "$HH_BUILD_BUNDLE_FACADE" \
+  "$HH_TEST_FUNCSCANNER_SKIP_WS" \
+  "$HH_TEST_STAGEB_MIN_SAMPLE"; then
+  guard_fail "$TAG" "HHako build/test comments must say bootstrap or mode-B compatibility"
 fi
 require_fixed "mode-B compatibility currently emits this as a statement wrapper" "$JSON_V0_BRIDGE_AST_RS"
 require_fixed 'mode-B compatibility legacy encoding for `if !(cond) { ... }`' "$JSON_V0_BRIDGE_IF_LEGACY_RS"
@@ -941,6 +957,8 @@ NAMING_DIFF_ALLOWED_PATHS=(
   "lang/src/compiler/parser/stmt/parser_control_box.hako"
   "lang/src/compiler/parser/stmt/parser_exception_box.hako"
   "lang/src/compiler/parser/stmt/parser_stmt_box/core.hako"
+  "lang/src/compiler/tests/funcscanner_skip_ws_min.hako"
+  "lang/src/compiler/tests/stageb_min_sample.hako"
   "tools/checks/k2_wide_stageb_field_type_annotation_alignment_guard.sh"
   "tools/checks/k2_wide_stageb_numeric_literal_suffix_alignment_guard.sh"
   "tools/smokes/v2/profiles/integration/selfhost/phase120_stable_paths.sh"

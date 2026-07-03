@@ -371,6 +371,36 @@ git diff --check
 tools/checks/dev_gate.sh quick
 ```
 
+### STAGE-TERM-HHAKO-BUILD-TEST-COMMENT-WORDING-001
+
+Status: landed HHako build/test comment cut.
+
+Scope:
+
+- update remaining HHako build/test comments from `Stage0` / `Stage-B` wording
+  to `bootstrap` or `mode-B compatibility`;
+- keep test file names and `StageBFuncScannerBox` compatibility Box names
+  unchanged;
+- do not change test behavior.
+
+Contract:
+
+```text
+comments:
+  use bootstrap or mode-B compatibility wording
+
+compatibility surfaces:
+  stageb test file names and StageB* Box names remain unchanged
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
 ### HAKORUNE-ENV-ALIAS-INVENTORY-001
 
 Status: landed foundation.

@@ -642,6 +642,34 @@ route symbols renamed = 0
 runtime behavior changed = 0
 ```
 
+## Landed HHako Build/Test Comment Wording Slice
+
+`STAGE-TERM-HHAKO-BUILD-TEST-COMMENT-WORDING-001` changes remaining HHako
+build/test comments from `Stage0` / `Stage-B` wording to `bootstrap` or
+`mode-B compatibility` wording.
+
+Scope:
+
+```text
+lang/src/compiler/build/build_bundle_facade_box.hako:
+  BuildBox source-only comment says bootstrap source execution
+
+lang/src/compiler/tests/funcscanner_skip_ws_min.hako:
+  delegate-call test comments say mode-B compatibility
+
+lang/src/compiler/tests/stageb_min_sample.hako:
+  minimal test harness comments say mode-B compatibility
+```
+
+Non-claims:
+
+```text
+stageb_min_sample.hako renamed = 0
+StageBFuncScannerBox renamed = 0
+test behavior changed = 0
+runtime behavior changed = 0
+```
+
 ## Migration Eligibility
 
 An occurrence is eligible for a future rename only if all conditions hold:

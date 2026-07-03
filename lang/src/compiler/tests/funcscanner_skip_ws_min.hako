@@ -2,7 +2,7 @@
 // Minimal reproduction case for FuncScannerBox.skip_whitespace loop bug
 //
 // Purpose:
-// - Test both "direct FuncScanner call" and "Stage-B delegate call"
+// - Test both "direct FuncScanner call" and "mode-B compatibility delegate call"
 // - Use __mir__.log to observe loop execution at MIR level
 // - Compare behavior between pure static call and delegated call
 
@@ -29,7 +29,7 @@ static box Main {
   }
 }
 
-// Test 2: Delegate call via StageBFuncScannerBox (closer to Stage-B path)
+// Test 2: Delegate call via StageBFuncScannerBox (closer to mode-B compatibility path)
 // NOTE: Commenting out for now - need to verify if this path works
 // using lang.compiler.entry.compiler_stageb as StageBMod
 //
