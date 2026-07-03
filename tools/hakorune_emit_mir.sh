@@ -31,18 +31,19 @@ source "$ROOT/tools/selfhost/lib/stageb_program_json_capture.sh"
 # shellcheck source=/dev/null
 source "$ROOT/tools/lib/program_json_v0_compat.sh"
 
-# Resolve nyash/hakorune binary via test_runner helper (ensures consistent env)
 if [ ! -f "$IN" ]; then
   echo "[FAIL] input not found: $IN" >&2
   exit 1
 fi
 
-# Resolve nyash/hakorune binary (simple detection; test_runner will override later if sourced)
+# Resolve Hakorune binary (simple detection; test_runner may override later if sourced)
+HAKORUNE_BIN_PATH="$ROOT/target/release/hakorune"
+LEGACY_NYASH_BIN_PATH="$ROOT/target/release/nyash"
 if [ -z "${NYASH_BIN:-}" ]; then
-  if [ -x "$ROOT/target/release/hakorune" ]; then
-    export NYASH_BIN="$ROOT/target/release/hakorune"
+  if [ -x "$HAKORUNE_BIN_PATH" ]; then
+    export NYASH_BIN="$HAKORUNE_BIN_PATH"
   else
-    export NYASH_BIN="$ROOT/target/release/nyash"
+    export NYASH_BIN="$LEGACY_NYASH_BIN_PATH"
   fi
 fi
 

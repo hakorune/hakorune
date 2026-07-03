@@ -31,9 +31,11 @@ set -euo pipefail
 
 ROOT="${NYASH_ROOT:-$(cd "$(dirname "$0")/../.." && pwd)}"
 BIN="${NYASH_BIN:-}"
+HAKORUNE_BIN_PATH="$ROOT/target/release/hakorune"
+LEGACY_NYASH_BIN_PATH="$ROOT/target/release/nyash"
 if [ -z "${BIN}" ]; then
-  if [ -x "$ROOT/target/release/hakorune" ]; then BIN="$ROOT/target/release/hakorune";
-  elif [ -x "$ROOT/target/release/nyash" ]; then BIN="$ROOT/target/release/nyash";
+  if [ -x "$HAKORUNE_BIN_PATH" ]; then BIN="$HAKORUNE_BIN_PATH";
+  elif [ -x "$LEGACY_NYASH_BIN_PATH" ]; then BIN="$LEGACY_NYASH_BIN_PATH";
   else echo "[selfhost] error: NYASH_BIN not set and no Hakorune binary found under target/release" >&2; exit 2; fi
 fi
 SMOKE_ENV_SKIP_EXPORTS=1

@@ -704,6 +704,34 @@ git diff --check
 tools/checks/dev_gate.sh quick
 ```
 
+### HAKORUNE-CORE-EMIT-HELPER-BINARY-RESOLUTION-001
+
+Status: active in this slice.
+
+Scope:
+
+- make `tools/hakorune_emit_mir.sh` spell direct binary detection in
+  Hakorune-first terms;
+- keep `NYASH_BIN` as the historical compatibility override consumed by the
+  helper and smoke routes;
+- keep legacy `target/release/nyash` only as a named compatibility fallback;
+- keep MIR emit route behavior unchanged.
+
+Affected script:
+
+```text
+tools/hakorune_emit_mir.sh
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+bash -n tools/hakorune_emit_mir.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
 ### HAKORUNE-SELFHOST-ROUTE-BINARY-DIAGNOSTICS-001
 
 Status: active in this slice.
