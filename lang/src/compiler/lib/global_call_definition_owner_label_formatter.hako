@@ -1,0 +1,33 @@
+// global_call_definition_owner_label_formatter.hako
+//
+// Responsibility:
+// - format the narrow GlobalCallDefinitionOwner label vocabulary
+// - report the trace-consumer token for that owner
+//
+// Non-responsibility:
+// - definition-owner inference
+// - global-call route collection
+// - proof policy or lowering decisions
+static box GlobalCallDefinitionOwnerLabelFormatterBox {
+  json_name(owner) {
+    if owner == "None" { return "none" }
+    if owner == "DiagnosticsOnly" { return "diagnostics_only" }
+    if owner == "LeafI64" { return "leaf_i64" }
+    if owner == "GenericI64OrLeaf" { return "generic_i64_or_leaf" }
+    if owner == "ModuleGeneric" { return "module_generic" }
+    if owner == "UniformMir" { return "uniform_mir" }
+    if owner == "RuntimeHelper" { return "runtime_helper" }
+    return "unsupported_global_call_definition_owner"
+  }
+
+  emit_trace_consumer(owner) {
+    if owner == "None" { return "mir_call_global_unknown_emit" }
+    if owner == "DiagnosticsOnly" { return "mir_call_global_diagnostics_only_emit" }
+    if owner == "LeafI64" { return "mir_call_global_leaf_emit" }
+    if owner == "GenericI64OrLeaf" { return "mir_call_global_generic_i64_emit" }
+    if owner == "ModuleGeneric" { return "mir_call_global_module_generic_emit" }
+    if owner == "UniformMir" { return "mir_call_global_uniform_mir_emit" }
+    if owner == "RuntimeHelper" { return "mir_call_stage1_emit_program_json_emit" }
+    return "unsupported_global_call_definition_owner_trace_consumer"
+  }
+}

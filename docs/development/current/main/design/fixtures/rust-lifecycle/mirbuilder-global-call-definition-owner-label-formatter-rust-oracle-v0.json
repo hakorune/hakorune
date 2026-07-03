@@ -1,0 +1,38 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderGlobalCallDefinitionOwnerLabelFormatterRustOracleV1",
+  "token": "MIRBUILDER-GLOBAL-CALL-DEFINITION-OWNER-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "global_call_definition_owner_label_formatter",
+  "rust_source": {
+    "path": "src/mir/global_call_route_plan/model.rs",
+    "hash": "sha256:5818fc9a9bd6906cb216cc6f1d7d99eb67847fb5cf38b6fbcedefc2bc4ffa52f",
+    "oracle_surface": "GlobalCallDefinitionOwner label and trace-consumer vocabulary"
+  },
+  "rows": [
+    {"kind": "json_name", "input": "None", "expected": "none"},
+    {"kind": "emit_trace_consumer", "input": "None", "expected": "mir_call_global_unknown_emit"},
+    {"kind": "json_name", "input": "DiagnosticsOnly", "expected": "diagnostics_only"},
+    {"kind": "emit_trace_consumer", "input": "DiagnosticsOnly", "expected": "mir_call_global_diagnostics_only_emit"},
+    {"kind": "json_name", "input": "LeafI64", "expected": "leaf_i64"},
+    {"kind": "emit_trace_consumer", "input": "LeafI64", "expected": "mir_call_global_leaf_emit"},
+    {"kind": "json_name", "input": "GenericI64OrLeaf", "expected": "generic_i64_or_leaf"},
+    {"kind": "emit_trace_consumer", "input": "GenericI64OrLeaf", "expected": "mir_call_global_generic_i64_emit"},
+    {"kind": "json_name", "input": "ModuleGeneric", "expected": "module_generic"},
+    {"kind": "emit_trace_consumer", "input": "ModuleGeneric", "expected": "mir_call_global_module_generic_emit"},
+    {"kind": "json_name", "input": "UniformMir", "expected": "uniform_mir"},
+    {"kind": "emit_trace_consumer", "input": "UniformMir", "expected": "mir_call_global_uniform_mir_emit"},
+    {"kind": "json_name", "input": "RuntimeHelper", "expected": "runtime_helper"},
+    {"kind": "emit_trace_consumer", "input": "RuntimeHelper", "expected": "mir_call_stage1_emit_program_json_emit"}
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "global_call_definition_owner_inference_migration": 0,
+    "global_call_route_collection_migration": 0,
+    "global_call_proof_policy_migration": 0
+  }
+}

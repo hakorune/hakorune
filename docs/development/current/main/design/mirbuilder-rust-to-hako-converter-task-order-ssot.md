@@ -24,9 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-GLOBAL-CALL-RETURN-CONTRACT-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.
-  The global_call_return_contract_label_formatter owner is HakoAdopted as the
-  sixty-ninth narrow Rust-oracle parity pilot; next is rerun 069.
+  MIRBUILDER-GLOBAL-CALL-DEFINITION-OWNER-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.
+  The global_call_definition_owner_label_formatter owner is HakoAdopted as the
+  seventieth narrow Rust-oracle parity pilot; next is rerun 070.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-069
+  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-070
 
 current fail-fast boundary:
   Do not re-enter full converter route selection without new non-self-signed
@@ -117,14 +117,16 @@ current fail-fast boundary:
   preparation, map lookup fusion route derivation, generic method route analysis,
   route selection, Freeze construction, Freeze message/hint formatting,
   planner fail-fast policy, global-call target inference, global-call route
-  collection, and global-call proof policy remain Rust.
+  collection, global-call definition-owner inference, and global-call proof
+  policy remain Rust.
 
 latest design decision:
-  global_call_return_contract_label_formatter is now HakoAdopted as a narrow
-  Rust-oracle parity pilot owner after a green 16-row `.hako` EXE parity gate.
-  Global-call target inference, route collection, and proof policy remain Rust.
+  global_call_definition_owner_label_formatter is now HakoAdopted as a narrow
+  Rust-oracle parity pilot owner after a green 14-row `.hako` EXE parity gate.
+  Global-call definition-owner inference, route collection, and proof policy
+  remain Rust.
   The selected next card is
-  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-069`.
+  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-070`.
 
 historical route-selection decision:
   Detailed landed route-selection rows are closed as provenance and live in
