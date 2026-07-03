@@ -520,7 +520,7 @@ tools/checks/dev_gate.sh quick
 
 ### HAKORUNE-HAKO-CHECK-BINARY-RESOLUTION-001
 
-Status: active in this slice.
+Status: landed hako-check wrapper cut.
 
 Scope:
 
@@ -547,6 +547,43 @@ Acceptance:
 ```bash
 bash tools/checks/naming_charter_guard.sh
 tools/hako-check/hako-check.sh --help
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
+### HAKORUNE-ROOT-POWERSHELL-BUILD-SCRIPT-CUTOVER-001
+
+Status: active in this slice.
+
+Scope:
+
+- make root PowerShell build scripts invoke `hakorune` as the primary binary;
+- keep legacy `nyash.exe` only behind an explicit Hakorune-first resolver;
+- keep historical `NYASH_*` object-output env names untouched in this slice;
+- keep plugin/package/crate names untouched in this slice.
+
+Contract:
+
+```text
+root PowerShell scripts:
+  tools/build_llvm.ps1
+  tools/build_aot.ps1
+
+primary:
+  target\release\hakorune.exe
+
+compat fallback:
+  target\release\nyash.exe
+  used only if primary is absent
+
+resolver:
+  Resolve-HakoruneCli
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
 git diff --check
 tools/checks/dev_gate.sh quick
 ```

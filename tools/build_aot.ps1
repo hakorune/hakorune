@@ -7,10 +7,17 @@ $ErrorActionPreference = "Stop"
 
 function Info($m) { Write-Host "[AOT] $m" }
 function Fail($m) { Write-Host "error: $m" -ForegroundColor Red; exit 1 }
+function Resolve-HakoruneCli() {
+  $primary = ".\target\release\hakorune.exe"
+  $legacy = ".\target\release\nyash.exe"
+  if (Test-Path $primary) { return $primary }
+  if (Test-Path $legacy) { return $legacy }
+  return $primary
+}
 
 if (-not (Test-Path $Input)) { Fail "input file not found: $Input" }
 
-Info "Building nyash (Cranelift)..."
+Info "Building Hakorune (Cranelift)..."
 & cargo build --release --features cranelift-jit | Out-Null
 
 Info "Emitting object (.o) via JIT (Strict/No-fallback)..."
@@ -22,7 +29,7 @@ $env:NYASH_JIT_STRICT = "1"
 $env:NYASH_JIT_ARGS_HANDLE_ONLY = "1"
 $env:NYASH_JIT_THRESHOLD = "1"
 New-Item -ItemType Directory -Force -Path $env:NYASH_AOT_OBJECT_OUT | Out-Null
-& .\target\release\nyash --backend vm $Input | Out-Null
+& (Resolve-HakoruneCli) --backend vm $Input | Out-Null
 
 $OBJ = "target/aot_objects/main.o"
 if (-not (Test-Path $OBJ)) {
@@ -64,4 +71,4 @@ if (-not (Test-Path $Out)) {
 }
 
 Info "Done: $Out"
-Write-Host "   (runtime requires nyash.toml and plugin .so/.dll per config)"
+Write-Host "   (runtime requires hakorune.toml or legacy nyash.toml and plugin .so/.dll per config)"
