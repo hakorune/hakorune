@@ -21,15 +21,20 @@ LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 if [ -f "$LIB_DIR/env.sh" ]; then
   source "$LIB_DIR/env.sh"
 fi
-# Prefer hakorune binary if exists; fallback to nyash for compatibility
+# Prefer Hakorune binary if it exists; fallback to legacy nyash only as a named
+# compatibility path.
 if [ -n "${HAKO_BIN:-}" ] && [ -z "${NYASH_BIN:-}" ]; then
   export NYASH_BIN="$HAKO_BIN"
 fi
+HAKORUNE_BIN_PATH="${HAKORUNE_BIN:-$NYASH_ROOT/target/release/hakorune}"
+LEGACY_NYASH_BIN_PATH="$NYASH_ROOT/target/release/nyash"
 if [ -z "${NYASH_BIN:-}" ]; then
-  if [ -x "$NYASH_ROOT/target/release/hakorune" ]; then
-    export NYASH_BIN="$NYASH_ROOT/target/release/hakorune"
+  if [ -x "$HAKORUNE_BIN_PATH" ]; then
+    export NYASH_BIN="$HAKORUNE_BIN_PATH"
+  elif [ -x "$LEGACY_NYASH_BIN_PATH" ]; then
+    export NYASH_BIN="$LEGACY_NYASH_BIN_PATH"
   else
-    export NYASH_BIN="$NYASH_ROOT/target/release/nyash"
+    export NYASH_BIN="$HAKORUNE_BIN_PATH"
   fi
 fi
 export HAKO_BIN="${HAKO_BIN:-$NYASH_BIN}"

@@ -1175,6 +1175,34 @@ git diff --check
 tools/checks/dev_gate.sh quick
 ```
 
+### HAKORUNE-SMOKE-TEST-RUNNER-BINARY-RESOLUTION-001
+
+Status: active in this slice.
+
+Scope:
+
+- make `tools/smokes/v2/lib/test_runner.sh` spell the shared smoke binary
+  resolver in Hakorune-first terms;
+- keep `NYASH_BIN` as the historical compatibility variable consumed by
+  existing smoke bodies;
+- keep legacy `target/release/nyash` only as a named compatibility fallback;
+- keep smoke execution behavior unchanged.
+
+Affected file:
+
+```text
+tools/smokes/v2/lib/test_runner.sh
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+bash -n tools/smokes/v2/lib/test_runner.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
 ### HAKORUNE-GATE-C-OOB-STRICT-SMOKE-BINARY-RESOLUTION-001
 
 Status: active in this slice.
