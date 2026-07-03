@@ -1,0 +1,88 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderUserBoxMethodTypeLabelFormatterRustOracleV1",
+  "token": "MIRBUILDER-USER-BOX-METHOD-TYPE-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "user_box_method_type_label_formatter",
+  "rust_source": {
+    "path": "src/mir/user_box_method_route_plan.rs",
+    "hash": "sha256:37d81825bba36072d819eddce73e6f1bad7648af9b18b28a0fffa0823e0c40f3",
+    "oracle_function": "format_user_box_method_type_label"
+  },
+  "type_vocabulary_source": {
+    "path": "crates/hakorune_mir_core/src/types.rs",
+    "hash": "sha256:7d156e342282b7ab1653270489af4117ec376cd866d72bfe4f4e423bf8d9ae25",
+    "enum": "MirType"
+  },
+  "oracle_rule": {
+    "surface": "MirType -> user-box method route type label",
+    "user_box_method_route_collection_migration": 0,
+    "route_convergence_migration": 0,
+    "materialization_fixpoint_migration": 0,
+    "mir_module_mutation_migration": 0,
+    "backend_emission_migration": 0
+  },
+  "rows": [
+    {
+      "case_id": "integer",
+      "mir_type": "Integer",
+      "expected_label": "i64"
+    },
+    {
+      "case_id": "bool",
+      "mir_type": "Bool",
+      "expected_label": "i1"
+    },
+    {
+      "case_id": "float",
+      "mir_type": "Float",
+      "expected_label": "f64"
+    },
+    {
+      "case_id": "string",
+      "mir_type": "String",
+      "expected_label": "StringBox"
+    },
+    {
+      "case_id": "void",
+      "mir_type": "Void",
+      "expected_label": "void"
+    },
+    {
+      "case_id": "box_counter",
+      "mir_type": {
+        "Box": "Counter"
+      },
+      "expected_label": "Counter"
+    },
+    {
+      "case_id": "array_integer",
+      "mir_type": {
+        "Array": "Integer"
+      },
+      "expected_label": "ArrayBox"
+    },
+    {
+      "case_id": "future_string",
+      "mir_type": {
+        "Future": "String"
+      },
+      "expected_label": "FutureBox"
+    },
+    {
+      "case_id": "weak_ref",
+      "mir_type": "WeakRef",
+      "expected_label": "WeakRef"
+    },
+    {
+      "case_id": "unknown",
+      "mir_type": "Unknown",
+      "expected_label": "unknown"
+    }
+  ],
+  "summary": {
+    "oracle_row_count": 10,
+    "selected_surface_is_pure_scalar_formatter": 1,
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0
+  }
+}
