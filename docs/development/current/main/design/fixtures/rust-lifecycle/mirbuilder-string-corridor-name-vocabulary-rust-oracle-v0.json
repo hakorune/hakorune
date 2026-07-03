@@ -1,0 +1,146 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderStringCorridorNameVocabularyRustOracleV1",
+  "token": "MIRBUILDER-STRING-CORRIDOR-NAME-VOCABULARY-RUST-ORACLE-FIXTURE-001",
+  "owner": "string_corridor_name_vocabulary_classifier",
+  "source": {
+    "rust_source": "src/mir/string_corridor_names.rs",
+    "rust_source_hash": "sha256:1bd5d8b2d8cc897fdb4b6f5386bf2f59477ca6305579302e98a22c5708f32928"
+  },
+  "oracle_rule": {
+    "surface": "helper/runtime string name -> vocabulary boolean category tags",
+    "fact_inference_migration": 0,
+    "mir_instruction_traversal_migration": 0,
+    "runtime_export_lowering_migration": 0
+  },
+  "rows": [
+    {
+      "id": "box-stringbox",
+      "name": "StringBox",
+      "expected": { "stringish_box": true }
+    },
+    {
+      "id": "box-alias-str",
+      "name": "__str",
+      "expected": { "stringish_box": true }
+    },
+    {
+      "id": "box-suffix-stringbox",
+      "name": "MyStringBox",
+      "expected": { "stringish_box": true }
+    },
+    {
+      "id": "box-runtime-data-not-stringish",
+      "name": "RuntimeDataBox",
+      "expected": { "stringish_box": false }
+    },
+    {
+      "id": "method-length",
+      "name": "length",
+      "expected": { "len_method": true, "slice_method": false }
+    },
+    {
+      "id": "method-len",
+      "name": "len",
+      "expected": { "len_method": true, "slice_method": false }
+    },
+    {
+      "id": "method-substring",
+      "name": "substring",
+      "expected": { "len_method": false, "slice_method": true }
+    },
+    {
+      "id": "method-slice",
+      "name": "slice",
+      "expected": { "len_method": false, "slice_method": true }
+    },
+    {
+      "id": "global-str-len",
+      "name": "str.len",
+      "expected": { "lowered_len_global": true }
+    },
+    {
+      "id": "global-string-len-not-lowered",
+      "name": "String.len",
+      "expected": { "lowered_len_global": false }
+    },
+    {
+      "id": "runtime-len-h",
+      "name": "nyash.string.len_h",
+      "expected": {
+        "runtime_len_export": true,
+        "runtime_len_handle_export": true,
+        "runtime_slice_export": false
+      }
+    },
+    {
+      "id": "runtime-len-fast-h",
+      "name": "nyash.string.len_fast_h",
+      "expected": {
+        "runtime_len_export": true,
+        "runtime_len_handle_export": true,
+        "runtime_slice_export": false
+      }
+    },
+    {
+      "id": "runtime-substring-len-hii",
+      "name": "nyash.string.substring_len_hii",
+      "expected": {
+        "runtime_len_export": true,
+        "runtime_len_handle_export": false,
+        "runtime_slice_export": false,
+        "runtime_substring_len_export": true
+      }
+    },
+    {
+      "id": "runtime-substring-hii",
+      "name": "nyash.string.substring_hii",
+      "expected": {
+        "runtime_len_export": false,
+        "runtime_slice_export": true,
+        "runtime_substring_export": true
+      }
+    },
+    {
+      "id": "runtime-substring-concat-hhii",
+      "name": "nyash.string.substring_concat_hhii",
+      "expected": {
+        "runtime_slice_export": true,
+        "runtime_substring_export": false,
+        "runtime_substring_concat3_export": false
+      }
+    },
+    {
+      "id": "runtime-substring-concat3-hhhii",
+      "name": "nyash.string.substring_concat3_hhhii",
+      "expected": {
+        "runtime_slice_export": true,
+        "runtime_substring_concat3_export": true,
+        "runtime_concat3_export": false
+      }
+    },
+    {
+      "id": "runtime-concat3-hhh",
+      "name": "nyash.string.concat3_hhh",
+      "expected": {
+        "runtime_slice_export": false,
+        "runtime_substring_concat3_export": false,
+        "runtime_concat3_export": true
+      }
+    },
+    {
+      "id": "runtime-unknown",
+      "name": "nyash.string.unknown",
+      "expected": {
+        "runtime_len_export": false,
+        "runtime_slice_export": false,
+        "runtime_concat3_export": false
+      }
+    }
+  ],
+  "summary": {
+    "row_count": 18,
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0
+  }
+}
