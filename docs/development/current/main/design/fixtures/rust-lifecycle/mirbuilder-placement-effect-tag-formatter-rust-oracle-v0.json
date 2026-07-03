@@ -1,0 +1,284 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderPlacementEffectTagFormatterRustOracleV1",
+  "token": "MIRBUILDER-PLACEMENT-EFFECT-TAG-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "placement_effect_tag_formatter",
+  "source": {
+    "source_path": "src/mir/placement_effect.rs",
+    "source_hash": "sha256:0d06fa28ad35b3c4245e40ecc198d21875080ba93ceabf3863b50605d9b75cd5",
+    "surface": "PlacementEffect enum/tag display text"
+  },
+  "rows": [
+    {
+      "id": "source.string_corridor",
+      "input": {
+        "enum_family": "PlacementEffectSource",
+        "variant": "StringCorridor"
+      },
+      "expected": {
+        "text": "string_corridor"
+      }
+    },
+    {
+      "id": "source.sum_placement",
+      "input": {
+        "enum_family": "PlacementEffectSource",
+        "variant": "SumPlacement"
+      },
+      "expected": {
+        "text": "sum_placement"
+      }
+    },
+    {
+      "id": "source.agg_local_scalarization",
+      "input": {
+        "enum_family": "PlacementEffectSource",
+        "variant": "AggLocalScalarization"
+      },
+      "expected": {
+        "text": "agg_local_scalarization"
+      }
+    },
+    {
+      "id": "source.thin_entry",
+      "input": {
+        "enum_family": "PlacementEffectSource",
+        "variant": "ThinEntry"
+      },
+      "expected": {
+        "text": "thin_entry"
+      }
+    },
+    {
+      "id": "decision.stay_borrowed",
+      "input": {
+        "enum_family": "PlacementEffectDecision",
+        "variant": "StayBorrowed"
+      },
+      "expected": {
+        "text": "stay_borrowed"
+      }
+    },
+    {
+      "id": "decision.publish_handle",
+      "input": {
+        "enum_family": "PlacementEffectDecision",
+        "variant": "PublishHandle"
+      },
+      "expected": {
+        "text": "publish_handle"
+      }
+    },
+    {
+      "id": "decision.materialize_owned",
+      "input": {
+        "enum_family": "PlacementEffectDecision",
+        "variant": "MaterializeOwned"
+      },
+      "expected": {
+        "text": "materialize_owned"
+      }
+    },
+    {
+      "id": "decision.direct_kernel_entry",
+      "input": {
+        "enum_family": "PlacementEffectDecision",
+        "variant": "DirectKernelEntry"
+      },
+      "expected": {
+        "text": "direct_kernel_entry"
+      }
+    },
+    {
+      "id": "decision.local_aggregate",
+      "input": {
+        "enum_family": "PlacementEffectDecision",
+        "variant": "LocalAggregate"
+      },
+      "expected": {
+        "text": "local_aggregate"
+      }
+    },
+    {
+      "id": "decision.compat_runtime_box",
+      "input": {
+        "enum_family": "PlacementEffectDecision",
+        "variant": "CompatRuntimeBox"
+      },
+      "expected": {
+        "text": "compat_runtime_box"
+      }
+    },
+    {
+      "id": "decision.public_entry",
+      "input": {
+        "enum_family": "PlacementEffectDecision",
+        "variant": "PublicEntry"
+      },
+      "expected": {
+        "text": "public_entry"
+      }
+    },
+    {
+      "id": "decision.thin_internal_entry",
+      "input": {
+        "enum_family": "PlacementEffectDecision",
+        "variant": "ThinInternalEntry"
+      },
+      "expected": {
+        "text": "thin_internal_entry"
+      }
+    },
+    {
+      "id": "state.candidate",
+      "input": {
+        "enum_family": "PlacementEffectState",
+        "variant": "Candidate"
+      },
+      "expected": {
+        "text": "candidate"
+      }
+    },
+    {
+      "id": "state.selected",
+      "input": {
+        "enum_family": "PlacementEffectState",
+        "variant": "Selected"
+      },
+      "expected": {
+        "text": "selected"
+      }
+    },
+    {
+      "id": "state.already_satisfied",
+      "input": {
+        "enum_family": "PlacementEffectState",
+        "variant": "AlreadySatisfied"
+      },
+      "expected": {
+        "text": "already_satisfied"
+      }
+    },
+    {
+      "id": "demand.unknown",
+      "input": {
+        "enum_family": "PlacementEffectDemand",
+        "variant": "Unknown"
+      },
+      "expected": {
+        "text": "?"
+      }
+    },
+    {
+      "id": "demand.read_ref",
+      "input": {
+        "enum_family": "PlacementEffectDemand",
+        "variant": "ReadRef"
+      },
+      "expected": {
+        "text": "read_ref"
+      }
+    },
+    {
+      "id": "demand.owned_payload",
+      "input": {
+        "enum_family": "PlacementEffectDemand",
+        "variant": "OwnedPayload"
+      },
+      "expected": {
+        "text": "owned_payload"
+      }
+    },
+    {
+      "id": "demand.cell_residence",
+      "input": {
+        "enum_family": "PlacementEffectDemand",
+        "variant": "CellResidence"
+      },
+      "expected": {
+        "text": "cell_residence"
+      }
+    },
+    {
+      "id": "demand.immediate",
+      "input": {
+        "enum_family": "PlacementEffectDemand",
+        "variant": "Immediate"
+      },
+      "expected": {
+        "text": "immediate"
+      }
+    },
+    {
+      "id": "demand.publish_handle",
+      "input": {
+        "enum_family": "PlacementEffectDemand",
+        "variant": "PublishHandle"
+      },
+      "expected": {
+        "text": "publish_handle"
+      }
+    },
+    {
+      "id": "demand.stable_object",
+      "input": {
+        "enum_family": "PlacementEffectDemand",
+        "variant": "StableObject"
+      },
+      "expected": {
+        "text": "stable_object"
+      }
+    },
+    {
+      "id": "demand.local_aggregate",
+      "input": {
+        "enum_family": "PlacementEffectDemand",
+        "variant": "LocalAggregate"
+      },
+      "expected": {
+        "text": "local_aggregate"
+      }
+    },
+    {
+      "id": "publication_boundary.first_external_boundary",
+      "input": {
+        "enum_family": "PlacementEffectPublicationBoundary",
+        "variant": "FirstExternalBoundary"
+      },
+      "expected": {
+        "text": "first_external_boundary"
+      }
+    },
+    {
+      "id": "borrow_contract.borrow_text_from_object",
+      "input": {
+        "enum_family": "PlacementEffectBorrowContract",
+        "variant": "BorrowTextFromObject"
+      },
+      "expected": {
+        "text": "borrow_text_from_obj"
+      }
+    }
+  ],
+  "summary": {
+    "oracle_row_count": 25,
+    "enum_family_count": 6,
+    "json_scalar_boundary": 1
+  },
+  "excluded_surface": {
+    "refresh_function_placement_effect_routes": 0,
+    "refresh_module_placement_effect_routes": 0,
+    "placement_effect_route_summary": 0,
+    "metadata_placement_effect_routes_mutation": 0
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "native_seed_materialization": 0,
+    "hako_generation": 0,
+    "generated_artifact_as_native_edit_authority": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

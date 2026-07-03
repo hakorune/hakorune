@@ -54,6 +54,7 @@ SOURCE-SELFHOST-RUST-TO-HAKO-CONVERTER-ROLE-PIVOT-001
   -> MIRBUILDER-STORAGE-CLASS-CLASSIFIER-HAKO-ADOPTION-DECISION-001
   -> MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-001
   -> MIRBUILDER-PLACEMENT-EFFECT-TAG-FORMATTER-RUST-ORACLE-FIXTURE-001
+  -> MIRBUILDER-PLACEMENT-EFFECT-TAG-FORMATTER-HAKO-NATIVE-IMPLEMENTATION-001
 ```
 
 Rule:
@@ -68,6 +69,7 @@ first owner pilot is storage_class_classifier
 return_prelude_policy is harness smoke only
 storage_class is HakoAdopted as a narrow parity pilot; next is pilot selection rerun
 placement_effect_tag_formatter is selected as the second parity pilot; next is its Rust-oracle fixture
+placement_effect_tag_formatter has a 25-row Rust-oracle fixture; next is hand-authored .hako implementation
 ```
 
 ## Immediate Maintenance Slice

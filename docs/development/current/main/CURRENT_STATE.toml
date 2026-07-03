@@ -17,8 +17,8 @@ owner, and carrier-merge assignment is now a narrow HakoAdopted mutation-frame
 leaf semantic owner. StatementValueConstruction box field initialization is
 now a narrow HakoAdopted mutation-frame leaf semantic owner.
 StorageClassClassifier is now a narrow HakoAdopted Rust-oracle parity pilot
-owner. PlacementEffectTagFormatter is selected as the second narrow parity
-pilot. Source Selfhost remains unclaimed. EXE/AOT remains the primary
+owner. PlacementEffectTagFormatter has a 25-row Rust-oracle fixture for the
+second narrow parity pilot. Source Selfhost remains unclaimed. EXE/AOT remains the primary
 app/selfhost validation route; VM/interpreter lanes are not semantic owners."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
@@ -27,11 +27,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2104-MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-001.md"
-latest_card_summary = """The latest card selects placement_effect_tag_formatter
-as the second narrow Rust-oracle parity pilot owner and chooses the
-PlacementEffect tag formatter Rust-oracle fixture card next."""
+latest_card = "MIRBUILDER-PLACEMENT-EFFECT-TAG-FORMATTER-RUST-ORACLE-FIXTURE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2105-MIRBUILDER-PLACEMENT-EFFECT-TAG-FORMATTER-RUST-ORACLE-FIXTURE-001.md"
+latest_card_summary = """The latest card creates the 25-row PlacementEffect tag
+formatter Rust-oracle fixture and chooses the Hako-native implementation card
+next."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -42,6 +42,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-04: 2105 creates the 25-row placement_effect_tag_formatter Rust-oracle fixture and chooses the Hako-native implementation card next.",
   "2026-07-04: 2104 selects placement_effect_tag_formatter as the second narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
   "2026-07-04: 2103 adopts storage_class_classifier as the first narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
   "2026-07-04: 2102 adds the storage_class_classifier Rust-oracle parity gate and selects the HakoAdopted decision card next.",
@@ -53,5 +54,4 @@ landed_tail = [
   "2026-07-03: 2096 defines the Source Selfhost local candidate selection policy to use worker inventory before external consultation.",
   "2026-07-03: 2095 parks the MissingProjectionPolicy post-TypeTransport lane and keeps Source Selfhost stopped with no machine-derived wider lane.",
   "2026-07-03: 2094 applies the MissingProjectionPolicy post-TypeTransport selector and keeps Source Selfhost stopped with no machine-derived lane.",
-  "2026-07-03: 2093 defines the MissingProjectionPolicy post-TypeTransport exhaustion selector basis and selects selection rerun 001 without selecting a projection policy.",
 ]
