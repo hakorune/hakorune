@@ -1,0 +1,80 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderHakoNativeOwnerParityPilotSelectionRerun003V1",
+  "token": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-003",
+  "input_state": {
+    "previous_hako_adoption": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-static-scalar-fact-classifier-hako-adoption-decision-v0.json",
+    "previous_hako_adoption_hash": "sha256:b63f7b6a9bbc8f3b54c98017e56a7826e96974f803baa254a4ae601665ff5c5a",
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+  },
+  "selection_policy": {
+    "candidate_ranking_is_advisory": true,
+    "manual_target_selection_allowed": true,
+    "correctness_proof_is_parity_gate": true,
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0
+  },
+  "candidate_rows": [
+    {
+      "candidate_owner": "string_corridor_name_vocabulary_classifier",
+      "source_path": "src/mir/string_corridor_names.rs",
+      "source_hash": "sha256:1bd5d8b2d8cc897fdb4b6f5386bf2f59477ca6305579302e98a22c5708f32928",
+      "selected": true,
+      "positive_signals": [
+        "small Rust vocabulary quarantine with existing tests",
+        "pure scalar string to boolean category surface",
+        "json scalar input/output boundary",
+        "no MIR shape inspection in selected surface",
+        "no PHI or LocalSSA surface"
+      ],
+      "excluded_surface": [
+        "string corridor fact inference",
+        "string corridor recognizer shape matching",
+        "compat recovery policy",
+        "MIR instruction traversal",
+        "runtime export lowering"
+      ],
+      "selected_next_card_if_selected": "MIRBUILDER-STRING-CORRIDOR-NAME-VOCABULARY-RUST-ORACLE-FIXTURE-001"
+    },
+    {
+      "candidate_owner": "same_module_definition_kind_formatter",
+      "source_path": "src/mir/same_module_definition_plan.rs",
+      "source_hash": "sha256:c1176d3a315770d93d4556df5a41690613765d2154c41fd759c78effdaad301c",
+      "selected": false,
+      "reason": "The enum formatter is small, but the owner is embedded in module metadata closure collection; keep it for a later pilot."
+    },
+    {
+      "candidate_owner": "exact_numeric_backend_capability_policy",
+      "source_path": "src/mir/exact_numeric_backend_capability.rs",
+      "source_hash": "sha256:73adfc8ba1311b06d0dc809e0531e7b1c24be4b7b262040f6ca79d5d726b2e26",
+      "selected": false,
+      "reason": "Requires module-level counting and backend fail-fast error aggregation; wider than the next scalar vocabulary pilot."
+    },
+    {
+      "candidate_owner": "string_corridor_compat_recovery_policy",
+      "source_path": "src/mir/string_corridor_compat.rs",
+      "source_hash": "sha256:c65ea189c23af8a89beaefb7b48f6dafa44e130db8ba5956587f7a2c0176ff4a",
+      "selected": false,
+      "reason": "Depends on the vocabulary classifier plus string corridor fact construction; select the vocabulary owner first."
+    }
+  ],
+  "decision": {
+    "kind": "SelectPilotOwner",
+    "reason_token": "StringCorridorNameVocabularySelectedAsFourthParityPilot",
+    "selected_owner": "string_corridor_name_vocabulary_classifier",
+    "selected_rust_surface": "string helper/runtime name -> vocabulary boolean category tags",
+    "selected_next_card": "MIRBUILDER-STRING-CORRIDOR-NAME-VOCABULARY-RUST-ORACLE-FIXTURE-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "native_seed_materialization": 0,
+    "hako_generation": 0,
+    "generated_artifact_as_native_edit_authority": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "string_corridor_fact_inference_migration": 0,
+    "mir_instruction_traversal_migration": 0
+  }
+}

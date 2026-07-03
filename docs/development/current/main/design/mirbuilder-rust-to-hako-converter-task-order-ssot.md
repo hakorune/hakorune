@@ -24,9 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-STATIC-SCALAR-FACT-CLASSIFIER-HAKO-ADOPTION-DECISION-001.
-  static_scalar_fact_classifier is adopted as the third narrow Rust-oracle
-  parity pilot owner; next is pilot selection rerun 003.
+  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-003.
+  string_corridor_name_vocabulary_classifier is selected as the fourth narrow
+  Rust-oracle parity pilot owner; next is its Rust-oracle fixture.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-003
+  MIRBUILDER-STRING-CORRIDOR-NAME-VOCABULARY-RUST-ORACLE-FIXTURE-001
 
 current fail-fast boundary:
   Do not re-enter full converter route selection without new non-self-signed
@@ -73,11 +73,12 @@ current fail-fast boundary:
   remain Rust.
 
 latest design decision:
-  static_scalar_fact_classifier is now HakoAdopted as the third narrow
-  Rust-oracle parity pilot owner for the normalized zero-arg return literal
-  shape -> static scalar fact surface. Emit-const, full AST traversal, method
-  dispatch, and MirBuilder mutation remain Rust. The selected next card is
-  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-003`.
+  string_corridor_name_vocabulary_classifier is selected as the fourth narrow
+  Rust-oracle parity pilot owner for helper/runtime name -> vocabulary boolean
+  category tags. String corridor fact inference, recognizer shape matching,
+  compat recovery policy, MIR traversal, and runtime export lowering remain
+  Rust. The selected next card is
+  `MIRBUILDER-STRING-CORRIDOR-NAME-VOCABULARY-RUST-ORACLE-FIXTURE-001`.
 
 historical route-selection decision:
   Detailed landed route-selection rows are closed as provenance and live in

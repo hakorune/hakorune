@@ -63,6 +63,7 @@ SOURCE-SELFHOST-RUST-TO-HAKO-CONVERTER-ROLE-PIVOT-001
   -> MIRBUILDER-STATIC-SCALAR-FACT-CLASSIFIER-PARITY-GATE-001
   -> MIRBUILDER-STATIC-SCALAR-FACT-CLASSIFIER-HAKO-ADOPTION-DECISION-001
   -> MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-003
+  -> MIRBUILDER-STRING-CORRIDOR-NAME-VOCABULARY-RUST-ORACLE-FIXTURE-001
 ```
 
 Rule:
@@ -86,6 +87,7 @@ static_scalar_fact_classifier has an 8-row Rust-oracle fixture; next is hand-aut
 static_scalar_fact_classifier has hand-authored .hako implementation; next is parity gate
 static_scalar_fact_classifier parity gate is green; next is HakoAdoption decision
 static_scalar_fact_classifier is HakoAdopted as the third parity pilot; next is pilot selection rerun 003
+string_corridor_name_vocabulary_classifier is selected as the fourth parity pilot; next is its Rust-oracle fixture
 ```
 
 ## Immediate Maintenance Slice
