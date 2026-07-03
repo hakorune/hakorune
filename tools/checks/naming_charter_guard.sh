@@ -208,6 +208,13 @@ SSOT_REQUIRED_TOKENS=(
   "HAKORUNE-ENV-ALIAS-INVENTORY-001"
   "HAKORUNE-ENV-ALIAS-FIRST-CUT-001"
 )
+declare -A seen_ssot_tokens=()
+for ssot_token in "${SSOT_REQUIRED_TOKENS[@]}"; do
+  if [[ -n "${seen_ssot_tokens[$ssot_token]:-}" ]]; then
+    guard_fail "$TAG" "duplicate SSOT required token in guard: $ssot_token"
+  fi
+  seen_ssot_tokens[$ssot_token]=1
+done
 for ssot_token in "${SSOT_REQUIRED_TOKENS[@]}"; do
   require_fixed "$ssot_token" "$SSOT"
 done

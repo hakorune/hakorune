@@ -793,6 +793,7 @@ Scope:
 
 - split the `tools/checks/naming_charter_guard.sh` SSOT task token checks into
   a shell array;
+- fail fast if the guard token list contains a duplicate token;
 - keep guard behavior unchanged;
 - make future task-token additions produce readable diffs instead of one long
   block of repeated `require_fixed` calls.
