@@ -78,12 +78,14 @@ path = "src/lib.rs"
 crate-type = ["rlib"]
 doctest = false
 
-# Bin layout (Stage0/Stage1)
-# - Stage0: Rust bootstrap CLI (`nyash`) — OS entry, VM/LLVM core, minimal runner.
-# - Stage1: Hakorune selfhost binary (`hakorune-selfhost`) is built via tools/selfhost/mainline/build_stage1.sh
-#           and lives under target/selfhost/, not as a Cargo [[bin]] (Phase 25.1 design).
+# Bin layout (RHako / HHako)
+# - hakorune: primary RHako CLI — OS entry, VM/LLVM core, minimal runner.
+# - nyash: legacy compatibility alias. Keep until the binary rename cutover gate
+#   proves all active callers use `hakorune`.
+# - hakorune-selfhost: HHako target built via tools/selfhost/mainline/build_stage1.sh
+#   and lives under target/selfhost/, not as a Cargo [[bin]].
 
-# Main CLI binary - always available (Stage0 bootstrap)
+# Legacy compatibility binary.
 [[bin]]
 name = "nyash"
 path = "src/main.rs"

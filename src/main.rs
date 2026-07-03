@@ -56,6 +56,14 @@ fn maybe_pin_phase0_program_json_builder_env() {
     }
 }
 
+fn invoked_as_legacy_nyash() -> bool {
+    std::env::current_exe()
+        .ok()
+        .and_then(|exe| exe.file_name().and_then(|s| s.to_str()).map(str::to_owned))
+        .map(|name| name.eq_ignore_ascii_case("nyash"))
+        .unwrap_or(false)
+}
+
 /// Thin entry point - delegates to CLI parsing and runner execution
 fn main() {
     // Optional: enable backtrace on stack overflow for deep debug runs.
@@ -97,29 +105,15 @@ fn main() {
     let config = CliConfig::parse();
     // Ensure Ring0 before any deprecation logging path that may call get_global_ring0().
     let _ = nyash_rust::runtime::ring0::ensure_global_ring0_initialized();
-    // Deprecation notice when invoked via the legacy binary name
-    if let Ok(exe) = std::env::current_exe() {
-        if let Some(name) = exe.file_name().and_then(|s| s.to_str()) {
-            if name.eq_ignore_ascii_case("nyash") {
-                let ring0 = nyash_rust::runtime::get_global_ring0();
-                ring0
-                    .log
-                    .warn("[deprecate] 'nyash' binary is deprecated. Please use 'hakorune'.");
-            }
-        }
-    }
-    // Legacy binary deprecation: prefer 'hakorune'
-    if let Ok(exe) = std::env::current_exe() {
-        if let Some(name) = exe.file_name().and_then(|s| s.to_str()) {
-            let allow_legacy = env_config::env_string("HAKO_ALLOW_NYASH").as_deref() == Some("1")
-                || env_config::env_string("NYASH_ALLOW_NYASH").as_deref() == Some("1");
-            if name.eq_ignore_ascii_case("nyash") && !allow_legacy {
-                let ring0 = nyash_rust::runtime::get_global_ring0();
-                ring0
-                    .log
-                    .warn("[deprecate] 'nyash' binary is deprecated. Please use 'hakorune'.");
-                std::process::exit(2);
-            }
+    if invoked_as_legacy_nyash() {
+        let ring0 = nyash_rust::runtime::get_global_ring0();
+        ring0
+            .log
+            .warn("[deprecate] 'nyash' binary is deprecated. Please use 'hakorune'.");
+        let allow_legacy = env_config::env_string("HAKO_ALLOW_NYASH").as_deref() == Some("1")
+            || env_config::env_string("NYASH_ALLOW_NYASH").as_deref() == Some("1");
+        if !allow_legacy {
+            std::process::exit(2);
         }
     }
     if let Some(exit_code) = nyash_rust::cli::maybe_reject_allocator_diagnostic_conflicts(&config) {
