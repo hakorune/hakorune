@@ -59,6 +59,7 @@ SOURCE-SELFHOST-RUST-TO-HAKO-CONVERTER-ROLE-PIVOT-001
   -> MIRBUILDER-PLACEMENT-EFFECT-TAG-FORMATTER-HAKO-ADOPTION-DECISION-001
   -> MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-002
   -> MIRBUILDER-STATIC-SCALAR-FACT-CLASSIFIER-RUST-ORACLE-FIXTURE-001
+  -> MIRBUILDER-STATIC-SCALAR-FACT-CLASSIFIER-HAKO-NATIVE-IMPLEMENTATION-001
 ```
 
 Rule:
@@ -78,6 +79,7 @@ placement_effect_tag_formatter has hand-authored .hako implementation; next is p
 placement_effect_tag_formatter parity gate is green; next is HakoAdoption decision
 placement_effect_tag_formatter is HakoAdopted as the second parity pilot; next is pilot selection rerun 002
 static_scalar_fact_classifier is selected as the third parity pilot; next is its Rust-oracle fixture
+static_scalar_fact_classifier has an 8-row Rust-oracle fixture; next is hand-authored .hako implementation
 ```
 
 ## Immediate Maintenance Slice

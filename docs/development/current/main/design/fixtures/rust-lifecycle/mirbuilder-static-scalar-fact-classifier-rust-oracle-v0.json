@@ -1,0 +1,163 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderStaticScalarFactClassifierRustOracleV1",
+  "token": "MIRBUILDER-STATIC-SCALAR-FACT-CLASSIFIER-RUST-ORACLE-FIXTURE-001",
+  "owner": "static_scalar_fact_classifier",
+  "source": {
+    "source_path": "src/mir/builder/static_scalar_facts.rs",
+    "source_hash": "sha256:d47b8bd9e37bd08cf6df67d15f111d40e205431129c3f49eb43affde97f22ace",
+    "surface": "normalized zero-arg return literal shape -> static scalar fact text"
+  },
+  "rows": [
+    {
+      "id": "accept.integer",
+      "input": {
+        "method_symbol": "Reason.small_no_page/0",
+        "param_count": 0,
+        "body_len": 1,
+        "return_has_value": true,
+        "returned_expr_kind": "Literal",
+        "literal_kind": "Integer",
+        "literal_i64": 1,
+        "literal_bool": false
+      },
+      "expected": {
+        "fact": "i64:1:zero_arg_return_literal_only"
+      }
+    },
+    {
+      "id": "accept.typed_integer",
+      "input": {
+        "method_symbol": "Reason.page_size/0",
+        "param_count": 0,
+        "body_len": 1,
+        "return_has_value": true,
+        "returned_expr_kind": "Literal",
+        "literal_kind": "TypedInteger",
+        "literal_i64": 4096,
+        "literal_bool": false
+      },
+      "expected": {
+        "fact": "i64:4096:zero_arg_return_literal_only"
+      }
+    },
+    {
+      "id": "accept.bool_true",
+      "input": {
+        "method_symbol": "Reason.enabled/0",
+        "param_count": 0,
+        "body_len": 1,
+        "return_has_value": true,
+        "returned_expr_kind": "Literal",
+        "literal_kind": "Bool",
+        "literal_i64": 0,
+        "literal_bool": true
+      },
+      "expected": {
+        "fact": "bool:true:zero_arg_return_literal_only"
+      }
+    },
+    {
+      "id": "accept.bool_false",
+      "input": {
+        "method_symbol": "Reason.disabled/0",
+        "param_count": 0,
+        "body_len": 1,
+        "return_has_value": true,
+        "returned_expr_kind": "Literal",
+        "literal_kind": "Bool",
+        "literal_i64": 0,
+        "literal_bool": false
+      },
+      "expected": {
+        "fact": "bool:false:zero_arg_return_literal_only"
+      }
+    },
+    {
+      "id": "reject.has_params",
+      "input": {
+        "method_symbol": "Reason.with_arg/1",
+        "param_count": 1,
+        "body_len": 1,
+        "return_has_value": true,
+        "returned_expr_kind": "Literal",
+        "literal_kind": "Integer",
+        "literal_i64": 1,
+        "literal_bool": false
+      },
+      "expected": {
+        "fact": "none"
+      }
+    },
+    {
+      "id": "reject.body_len_two",
+      "input": {
+        "method_symbol": "Reason.two_stmts/0",
+        "param_count": 0,
+        "body_len": 2,
+        "return_has_value": true,
+        "returned_expr_kind": "Literal",
+        "literal_kind": "Integer",
+        "literal_i64": 1,
+        "literal_bool": false
+      },
+      "expected": {
+        "fact": "none"
+      }
+    },
+    {
+      "id": "reject.return_without_value",
+      "input": {
+        "method_symbol": "Reason.empty/0",
+        "param_count": 0,
+        "body_len": 1,
+        "return_has_value": false,
+        "returned_expr_kind": "None",
+        "literal_kind": "None",
+        "literal_i64": 0,
+        "literal_bool": false
+      },
+      "expected": {
+        "fact": "none"
+      }
+    },
+    {
+      "id": "reject.non_literal_return",
+      "input": {
+        "method_symbol": "Reason.other/0",
+        "param_count": 0,
+        "body_len": 1,
+        "return_has_value": true,
+        "returned_expr_kind": "FunctionCall",
+        "literal_kind": "None",
+        "literal_i64": 0,
+        "literal_bool": false
+      },
+      "expected": {
+        "fact": "none"
+      }
+    }
+  ],
+  "summary": {
+    "oracle_row_count": 8,
+    "accepted_fact_row_count": 4,
+    "rejected_shape_row_count": 4,
+    "json_scalar_boundary": 1
+  },
+  "excluded_surface": {
+    "emit_static_scalar_fact_const": 0,
+    "mirbuilder_state_mutation": 0,
+    "full_ast_json_traversal": 0,
+    "method_call_dispatch": 0
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "native_seed_materialization": 0,
+    "hako_generation": 0,
+    "generated_artifact_as_native_edit_authority": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
