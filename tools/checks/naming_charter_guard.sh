@@ -639,6 +639,16 @@ require_fixed "mode-B compatibility entry" "$HH_STAGEB_OUTPUT"
 if rg -n 'Stage-B (emit/adapter lane|compiler entry|boundary|entry should|adapter lane|CLI token packaging|entry-local handoff|entry\.)' "$HH_COMPILER_README" "$HH_COMPILER_STAGEB_ENTRY" "$HH_STAGEB_ARGS" "$HH_STAGEB_BUILD_OPTIONS" "$HH_STAGEB_COMPILE_ADAPTER" "$HH_STAGEB_OUTPUT"; then
   guard_fail "$TAG" "HHako entry comments must say mode-B compatibility, not Stage-B"
 fi
+require_fixed "mode-B compatibility adapter module" "$HH_COMPILER_ENTRY"
+require_fixed "mode-A compatibility flags" "$HH_COMPILER_ENTRY"
+require_fixed "mode-B compatibility flags" "$HH_COMPILER_ENTRY"
+require_fixed "Minimal parser utilities (mode-A compatibility)" "$HH_COMPILER_ENTRY"
+require_fixed "mode-A compatibility fallback behavior" "$HH_COMPILER_ENTRY"
+require_fixed "mode-B compatibility route is SSOT" "$HH_COMPILER_ENTRY"
+require_fixed "String indexing not supported in mode-A compatibility" "$HH_COMPILER_ENTRY"
+if rg -n 'Stage-A flags|Stage-B flags|Minimal parser utilities \(Stage-A\)|Stage-A fallback behavior|Stage-B SSOT helper|unsupported in Stage-A|String indexing not supported in Stage-A|Stage.B 経路|Stage-A は --min-json' "$HH_COMPILER_ENTRY"; then
+  guard_fail "$TAG" "compiler.hako route comments/diagnostics must say mode-A/mode-B compatibility"
+fi
 require_fixed "legacy mode-B compatibility bundling resolver fixture" "$HH_BUNDLE_RESOLVER"
 require_fixed "Live mode-B compatibility source-to-Program production goes through BuildBox" "$HH_BUNDLE_RESOLVER"
 require_fixed "mode-B compatibility bundler" "$HH_BUNDLE_RESOLVER"

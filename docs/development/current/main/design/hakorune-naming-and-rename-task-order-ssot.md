@@ -2092,6 +2092,38 @@ git diff --check
 tools/checks/dev_gate.sh quick
 ```
 
+### STAGE-TERM-HHAKO-COMPILER-ROUTE-WORDING-001
+
+Status: landed HHako compiler route wording cleanup.
+
+Purpose: use `mode-A compatibility` / `mode-B compatibility` wording in
+`compiler.hako` route comments and the string-indexing diagnostic while keeping
+`StageB*` Box names, `stage_b` fields, trace strings, and `--stage-b` route
+tokens unchanged.
+
+Affected file:
+
+```text
+lang/src/compiler/entry/compiler.hako
+```
+
+Non-claims:
+
+```text
+StageB* Box names renamed = 0
+stage_b field renamed = 0
+trace strings renamed = 0
+--stage-b removed = 0
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
 ### STAGE-TERM-EXISTING-NAME-MIGRATION-001
 
 Status: inventory-only; no implementation rename selected.

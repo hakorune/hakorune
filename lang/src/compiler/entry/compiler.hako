@@ -2,7 +2,7 @@
 // - When invoked with --min-json, emit minimal Program JSON v0 to stdout
 // - Otherwise, act as a silent placeholder (return 0)
 
-// Phase 28.2 Quick Win 3: import Stage-B adapter module and call StageBDriverBox directly.
+// Phase 28.2 Quick Win 3: import mode-B compatibility adapter module and call StageBDriverBox directly.
 using lang.compiler.entry.compiler_stageb
 using lang.compiler.entry.stageb_main_detection_box as MainDetectionHelper
 
@@ -31,8 +31,8 @@ static box Main {
   }
 
   _collect_flags(args) {
-    // Stage-A flags: emit/source/return only
-    // Stage-B flags: prefer_cfg/stage3/v1_compat
+    // mode-A compatibility flags: emit/source/return only
+    // mode-B compatibility flags: prefer_cfg/syntax-3/v1_compat
     local flags = %{ "emit"=> 0, "ret"=> null, "source"=> null, "stage_b"=> 0, "prefer_cfg"=> 1, "stage3"=> 0, "v1_compat"=> 0 }
     if args == null { return flags }
 
@@ -80,7 +80,7 @@ static box Main {
     return flags
   }
 
-  // ----- Minimal parser utilities (Stage-A) -----
+  // ----- Minimal parser utilities (mode-A compatibility) -----
   _trim(s) {
     if s == null { return "" }
     local i = 0
@@ -101,7 +101,7 @@ static box Main {
   _starts_with(s, pref) { if s.length() < pref.length() { return 0 } return s.substring(0, pref.length()) == pref }
 
   _find_main_body(src) {
-    // Keep Stage-A fallback behavior, but delegate detection to Stage-B SSOT helper
+    // Keep mode-A compatibility fallback behavior, but delegate detection to mode-B SSOT helper
     // to avoid pattern drift ("static method main" / "method main") across entry paths.
     return MainDetectionHelper.findLegacyMainBody(src)
   }
@@ -339,10 +339,10 @@ static box Main {
     if lb > 0 && tok.substring(tok.length()-1,tok.length()) == "]" {
       local name = me._trim(tok.substring(0,lb))
       local idxs = me._trim(tok.substring(lb+1, tok.length()-1))
-      // Check for string indexing (unsupported in Stage-A)
+      // Check for string indexing (unsupported in mode-A compatibility)
       if name.length() >= 2 && name.substring(0,1) == "\"" && name.substring(name.length()-1,name.length()) == "\"" {
         // String indexing not supported: return error diagnostic
-        return "{\"type\":\"Error\",\"message\":\"String indexing not supported in Stage-A\"}"
+        return "{\"type\":\"Error\",\"message\":\"String indexing not supported in mode-A compatibility\"}"
       }
       local kj = me._emit_key(idxs)
       return me._emit_method(me._emit_var(name), "get", kj)
@@ -493,7 +493,7 @@ static box Main {
       }
     }
     if flags.stage_b == 1 {
-      // Stage‑B 経路は SSOT: StageBDriverBox.main をそのまま叩く（末尾で print(ast_json) 済み）
+      // mode-B compatibility route is SSOT: call StageBDriverBox.main directly (it prints ast_json at the end)
       // stdout / stderr 両方にタグを出して、実行経路を確実に観測する
       print("[compiler/main] enter stage-b args=" + ("" + args))
       env.error("[compiler/main] enter stage-b args=" + ("" + args))  // dev trace
@@ -509,7 +509,7 @@ static box Main {
       print(json)
       return 0
     }
-    // Stage-A は --min-json 指定時のみ JSON を出力
+    // mode-A compatibility emits JSON only when --min-json is specified.
     if flags.source != null && flags.source != "" {
       local json = me._compile_source_to_json_v0(flags.source)
       if json == "" { json = "{\"version\":0,\"kind\":\"Program\",\"body\":[{\"type\":\"Return\",\"expr\":{\"type\":\"Int\",\"value\":0}}]}" }

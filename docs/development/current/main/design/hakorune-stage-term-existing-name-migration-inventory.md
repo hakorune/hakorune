@@ -277,6 +277,29 @@ trace strings renamed = 0
 runtime behavior changed = 0
 ```
 
+## Landed HHako Compiler Route Wording Slice
+
+`STAGE-TERM-HHAKO-COMPILER-ROUTE-WORDING-001` changes `compiler.hako` route
+comments and the string-indexing diagnostic to `mode-A compatibility` /
+`mode-B compatibility` wording while keeping route tokens, trace strings, and
+Box names unchanged.
+
+Scope:
+
+```text
+lang/src/compiler/entry/compiler.hako:
+  route comments and one string-indexing diagnostic say mode-A/mode-B compatibility
+```
+
+Non-claims:
+
+```text
+StageB* Box names renamed = 0
+stage_b field renamed = 0
+trace strings renamed = 0
+--stage-b removed = 0
+```
+
 ## Migration Eligibility
 
 An occurrence is eligible for a future rename only if all conditions hold:
