@@ -104,6 +104,7 @@ require_fixed "HAKORUNE-ROOT-POWERSHELL-BUILD-SCRIPT-CUTOVER-001" "$SSOT"
 require_fixed "HAKORUNE-DEV-SELFHOST-SMOKE-BINARY-RESOLUTION-001" "$SSOT"
 require_fixed "HAKORUNE-ENGINEERING-PARITY-BINARY-RESOLUTION-001" "$SSOT"
 require_fixed "HAKORUNE-SELFHOST-EXE-STAGEB-BINARY-RESOLUTION-001" "$SSOT"
+require_fixed "HAKORUNE-SELFHOST-EXE-STAGEB-SOURCE-WORDING-001" "$SSOT"
 require_fixed "HAKORUNE-CORE-EMIT-HELPER-BINARY-RESOLUTION-001" "$SSOT"
 require_fixed "HAKORUNE-SELFHOST-ROUTE-BINARY-DIAGNOSTICS-001" "$SSOT"
 require_fixed "HAKORUNE-SELFHOST-MAINLINE-STAGE1-BINARY-RESOLUTION-001" "$SSOT"
@@ -203,8 +204,12 @@ require_fixed 'local hakorune_bin="$ROOT_DIR/target/release/hakorune"' "$SELFHOS
 require_fixed 'local legacy_nyash_bin="$ROOT_DIR/target/release/nyash"' "$SELFHOST_EXE_STAGEB"
 require_fixed 'NYASH_BIN="$hakorune_bin"' "$SELFHOST_EXE_STAGEB"
 require_fixed 'NYASH_BIN="$legacy_nyash_bin"' "$SELFHOST_EXE_STAGEB"
+require_fixed 'Build a native EXE from a Hakorune .hako source' "$SELFHOST_EXE_STAGEB"
 if rg -n "resolve_nyash_bin|nyash/hakorune binary not found" "$SELFHOST_EXE_STAGEB"; then
   guard_fail "$TAG" "selfhost EXE Stage-B helper must use Hakorune-first resolver naming"
+fi
+if rg -n 'Nyash \.hako source' "$SELFHOST_EXE_STAGEB"; then
+  guard_fail "$TAG" "selfhost EXE Stage-B helper must describe .hako input as Hakorune source"
 fi
 for selfhost_route_script in "$SELFHOST_STAGEB_PROOF_VM" "$SELFHOST_RUN_ROUTES" "$SELFHOST_BUILD"; do
   require_fixed 'Hakorune' "$selfhost_route_script"

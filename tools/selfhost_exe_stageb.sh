@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # selfhost_exe_stageb.sh — route-selectable emit → ny-llvmc (crate) → EXE
-# Purpose: Build a native EXE from a Nyash .hako source for explicit
+# Purpose: Build a native EXE from a Hakorune .hako source for explicit
 # bootstrap/compat work. This is not the selfhost_build.sh mainline facade.
 # Usage: tools/selfhost_exe_stageb.sh <input.hako> [-o <out>] [--run]
 #

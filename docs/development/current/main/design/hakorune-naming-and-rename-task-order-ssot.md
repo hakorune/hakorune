@@ -732,6 +732,32 @@ git diff --check
 tools/checks/dev_gate.sh quick
 ```
 
+### HAKORUNE-SELFHOST-EXE-STAGEB-SOURCE-WORDING-001
+
+Status: active in this slice.
+
+Scope:
+
+- make `tools/selfhost_exe_stageb.sh` describe `.hako` input as a Hakorune
+  source instead of a Nyash source;
+- keep script name, Stage-B compatibility route names, and executable behavior
+  unchanged.
+
+Affected script:
+
+```text
+tools/selfhost_exe_stageb.sh
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+bash -n tools/selfhost_exe_stageb.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
 ### HAKORUNE-SELFHOST-ROUTE-BINARY-DIAGNOSTICS-001
 
 Status: active in this slice.
