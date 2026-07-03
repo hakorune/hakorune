@@ -24,9 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-STRING-CORRIDOR-NAME-VOCABULARY-RUST-ORACLE-FIXTURE-001.
-  The 18-row string_corridor_name_vocabulary_classifier Rust-oracle fixture is
-  created; next is hand-authored Hako-native implementation.
+  MIRBUILDER-STRING-CORRIDOR-NAME-VOCABULARY-HAKO-NATIVE-IMPLEMENTATION-001.
+  The hand-authored string_corridor_name_vocabulary_classifier Hako-native
+  implementation is created; next is the parity gate card.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-STRING-CORRIDOR-NAME-VOCABULARY-HAKO-NATIVE-IMPLEMENTATION-001
+  MIRBUILDER-STRING-CORRIDOR-NAME-VOCABULARY-PARITY-GATE-001
 
 current fail-fast boundary:
   Do not re-enter full converter route selection without new non-self-signed
@@ -73,12 +73,11 @@ current fail-fast boundary:
   remain Rust.
 
 latest design decision:
-  string_corridor_name_vocabulary_classifier now has an 18-row Rust-oracle
-  fixture for helper/runtime name -> vocabulary boolean category tags. String
-  corridor fact inference, recognizer shape matching, compat recovery policy,
-  MIR traversal, and runtime export lowering remain Rust. The selected next
-  card is
-  `MIRBUILDER-STRING-CORRIDOR-NAME-VOCABULARY-HAKO-NATIVE-IMPLEMENTATION-001`.
+  string_corridor_name_vocabulary_classifier now has a hand-authored `.hako`
+  implementation for helper/runtime name -> vocabulary boolean category tags.
+  String corridor fact inference, recognizer shape matching, compat recovery
+  policy, MIR traversal, and runtime export lowering remain Rust. The selected
+  next card is `MIRBUILDER-STRING-CORRIDOR-NAME-VOCABULARY-PARITY-GATE-001`.
 
 historical route-selection decision:
   Detailed landed route-selection rows are closed as provenance and live in

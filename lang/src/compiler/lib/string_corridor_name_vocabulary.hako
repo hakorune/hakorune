@@ -1,0 +1,96 @@
+// string_corridor_name_vocabulary.hako - hand-authored string corridor name vocabulary
+//
+// Responsibility:
+// - classify helper/runtime names into the Rust oracle vocabulary booleans
+// - stay pure: scalar string input -> boolean category
+//
+// Non-responsibility:
+// - string corridor fact inference
+// - MIR instruction traversal
+// - recognizer shape matching
+// - Source Selfhost or HakoAdopted promotion
+static box StringCorridorNameVocabularyBox {
+  is_stringish_box_name(name) {
+    local text = "" + name
+    if text == "StringBox" { return true }
+    if text == "String" { return true }
+    if text == "__str" { return true }
+    if me._ends_with(text, "StringBox") { return true }
+    if me._ends_with(text, "String") { return true }
+    return false
+  }
+
+  is_len_method_name(name) {
+    local text = "" + name
+    if text == "length" { return true }
+    if text == "len" { return true }
+    return false
+  }
+
+  is_slice_method_name(name) {
+    local text = "" + name
+    if text == "substring" { return true }
+    if text == "slice" { return true }
+    return false
+  }
+
+  is_lowered_len_global(name) {
+    local text = "" + name
+    if text == "str.len" { return true }
+    if text == "__str.len" { return true }
+    return false
+  }
+
+  is_runtime_len_export(name) {
+    local text = "" + name
+    if text == "nyash.string.len_h" { return true }
+    if text == "nyash.string.len_fast_h" { return true }
+    if text == "nyash.string.substring_len_hii" { return true }
+    if text == "nyash.string.length_si" { return true }
+    if text == "nyrt_string_length" { return true }
+    if text == "nyrt.string.length" { return true }
+    return false
+  }
+
+  is_runtime_len_handle_export(name) {
+    local text = "" + name
+    if text == "nyash.string.len_h" { return true }
+    if text == "nyash.string.len_fast_h" { return true }
+    return false
+  }
+
+  is_runtime_slice_export(name) {
+    local text = "" + name
+    if text == "nyash.string.substring_hii" { return true }
+    if text == "nyash.string.substring_concat_hhii" { return true }
+    if text == "nyash.string.substring_concat3_hhhii" { return true }
+    return false
+  }
+
+  is_runtime_substring_export(name) {
+    return ("" + name) == "nyash.string.substring_hii"
+  }
+
+  is_runtime_substring_len_export(name) {
+    return ("" + name) == "nyash.string.substring_len_hii"
+  }
+
+  is_runtime_substring_concat3_export(name) {
+    return ("" + name) == "nyash.string.substring_concat3_hhhii"
+  }
+
+  is_runtime_concat3_export(name) {
+    return ("" + name) == "nyash.string.concat3_hhh"
+  }
+
+  _ends_with(text, suffix) {
+    local full = "" + text
+    local tail = "" + suffix
+    local full_len = full.length()
+    local tail_len = tail.length()
+    if tail_len > full_len {
+      return false
+    }
+    return full.substring(full_len - tail_len, full_len) == tail
+  }
+}
