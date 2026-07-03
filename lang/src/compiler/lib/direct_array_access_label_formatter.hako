@@ -1,0 +1,43 @@
+// direct_array_access_label_formatter.hako
+//
+// Responsibility:
+// - format narrow DirectArray access enum vocabulary into Rust oracle text
+// - stay pure: category token + variant token in, scalar text out
+//
+// Non-responsibility:
+// - DirectArray plan construction
+// - proof derivation
+// - lowering selection
+// - MIR mutation
+static box DirectArrayAccessLabelFormatterBox {
+  format_label(kind, token) {
+    if kind == "access_op" {
+      if token == "Load" { return "load" }
+      if token == "Store" { return "store" }
+    }
+    if kind == "bounds_policy" {
+      if token == "Checked" { return "checked" }
+      if token == "ProvedUnchecked" { return "proved_unchecked" }
+    }
+    if kind == "proof_kind" {
+      if token == "ExactFrontContract" { return "exact_front_contract" }
+      if token == "RangeIndex" { return "range_index" }
+      if token == "StackTopPop" { return "stack_top_pop" }
+      if token == "CallerPrecondition" { return "caller_precondition" }
+    }
+    if kind == "fallback_policy" {
+      if token == "AllowChecked" { return "allow_checked" }
+      if token == "FailFast" { return "fail_fast" }
+    }
+    if kind == "cfg_shape" {
+      if token == "CheckedBranching" { return "checked_branching" }
+      if token == "Branchless" { return "branchless" }
+    }
+    if kind == "store_semantics" {
+      if token == "NotStore" { return "not_store" }
+      if token == "AppendOrOverwrite" { return "append_or_overwrite" }
+      if token == "OverwriteExisting" { return "overwrite_existing" }
+    }
+    return "unsupported_direct_array_access_label"
+  }
+}

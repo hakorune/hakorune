@@ -1,0 +1,40 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderDirectArrayAccessLabelFormatterRustOracleV1",
+  "token": "MIRBUILDER-DIRECT-ARRAY-ACCESS-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "direct_array_access_label_formatter",
+  "rust_source": {
+    "path": "src/mir/direct_array_access_plan.rs",
+    "hash": "sha256:a76578e91d97f8b31fd9e11dfe1a60b3ba2a7bc524e7907e098a87895d48257d",
+    "oracle_surface": "DirectArray access enum as_str vocabulary"
+  },
+  "rows": [
+    {"kind": "access_op", "input": "Load", "expected": "load"},
+    {"kind": "access_op", "input": "Store", "expected": "store"},
+    {"kind": "bounds_policy", "input": "Checked", "expected": "checked"},
+    {"kind": "bounds_policy", "input": "ProvedUnchecked", "expected": "proved_unchecked"},
+    {"kind": "proof_kind", "input": "ExactFrontContract", "expected": "exact_front_contract"},
+    {"kind": "proof_kind", "input": "RangeIndex", "expected": "range_index"},
+    {"kind": "proof_kind", "input": "StackTopPop", "expected": "stack_top_pop"},
+    {"kind": "proof_kind", "input": "CallerPrecondition", "expected": "caller_precondition"},
+    {"kind": "fallback_policy", "input": "AllowChecked", "expected": "allow_checked"},
+    {"kind": "fallback_policy", "input": "FailFast", "expected": "fail_fast"},
+    {"kind": "cfg_shape", "input": "CheckedBranching", "expected": "checked_branching"},
+    {"kind": "cfg_shape", "input": "Branchless", "expected": "branchless"},
+    {"kind": "store_semantics", "input": "NotStore", "expected": "not_store"},
+    {"kind": "store_semantics", "input": "AppendOrOverwrite", "expected": "append_or_overwrite"},
+    {"kind": "store_semantics", "input": "OverwriteExisting", "expected": "overwrite_existing"}
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "direct_array_plan_construction_migration": 0,
+    "direct_array_proof_derivation_migration": 0,
+    "direct_array_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

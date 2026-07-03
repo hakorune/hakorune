@@ -1,0 +1,33 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderHakoNativeOwnerParityPilotSelectionRerun047V1",
+  "token": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-047",
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "previous_adoption_decision": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-array-text-loop-session-reject-label-formatter-hako-adoption-decision-v0.json",
+    "previous_adoption_decision_hash": "sha256:165b5699670c06a6257f0852676d1894b1a7de948465b31e5c12730a260d89eb"
+  },
+  "decision": {
+    "kind": "SelectRustOracleFixture",
+    "reason_token": "DirectArrayAccessLabelFormatterIsNarrowPureVocabularyOwner",
+    "selected_owner": "direct_array_access_label_formatter",
+    "selected_next_card": "MIRBUILDER-DIRECT-ARRAY-ACCESS-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001"
+  },
+  "accepted_scope": {
+    "surface": "DirectArray access enum label vocabulary formatting",
+    "manual_target_selection_allowed": 1,
+    "correctness_requires_rust_oracle_parity": 1
+  },
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "direct_array_plan_construction_migration": 0,
+    "direct_array_proof_derivation_migration": 0,
+    "direct_array_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}
