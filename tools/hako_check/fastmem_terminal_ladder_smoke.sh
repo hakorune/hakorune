@@ -2,13 +2,19 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-BIN="${NYASH_BIN:-$ROOT/target/release/hakorune}"
-if [ ! -x "$BIN" ]; then
-  BIN="$ROOT/target/release/nyash"
+if [ -n "${HAKO_BIN:-}" ] && [ -z "${NYASH_BIN:-}" ]; then
+  NYASH_BIN="$HAKO_BIN"
 fi
+HAKORUNE_BIN="$ROOT/target/release/hakorune"
+LEGACY_NYASH_BIN="$ROOT/target/release/nyash"
+BIN="${NYASH_BIN:-$HAKORUNE_BIN}"
+if [ ! -x "$BIN" ]; then
+  BIN="$LEGACY_NYASH_BIN"
+fi
+export HAKO_BIN="${HAKO_BIN:-$BIN}"
 
 if [ ! -x "$BIN" ]; then
-  echo "[TEST/FAIL] hakorune/nyash binary not found: $BIN" >&2
+  echo "[TEST/FAIL] Hakorune binary not found: $BIN (legacy fallback checked: $LEGACY_NYASH_BIN)" >&2
   exit 2
 fi
 

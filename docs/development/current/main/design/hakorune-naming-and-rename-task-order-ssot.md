@@ -1197,6 +1197,38 @@ git diff --check
 tools/checks/dev_gate.sh quick
 ```
 
+### HAKORUNE-FASTMEM-HAKO-CHECK-SMOKE-BINARY-RESOLUTION-001
+
+Status: active in this slice.
+
+Scope:
+
+- make `tools/hako_check` fastmem smoke scripts spell the Hakorune-first
+  executable resolver explicitly;
+- keep caller-provided `$HAKO_BIN` as the preferred override alias;
+- keep caller-provided `$NYASH_BIN` as historical compatibility override;
+- keep legacy `nyash` only as a named compatibility fallback;
+- keep fastmem source / terminal ladder semantics unchanged in this slice;
+- add naming guard coverage so these smokes do not regress to ambiguous direct
+  legacy fallback or `hakorune/nyash` mixed error wording.
+
+Affected scripts:
+
+```text
+tools/hako_check/fastmem_source_syntax_smoke.sh
+tools/hako_check/fastmem_terminal_ladder_smoke.sh
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+bash -n tools/hako_check/fastmem_source_syntax_smoke.sh
+bash -n tools/hako_check/fastmem_terminal_ladder_smoke.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
 ### STAGE-TERM-EXISTING-NAME-MIGRATION-001
 
 Status: defined, not implementation.
