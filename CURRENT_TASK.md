@@ -363,14 +363,14 @@ or replacement routes in the same slice.
 Latest adopted owner:
 
 ```text
-MIRBUILDER-LOOP-ROUTE-KIND-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001
+MIRBUILDER-THIN-ENTRY-TAG-FORMATTER-HAKO-ADOPTION-DECISION-001
 ```
 
 Status:
 
 ```text
-loop_route_kind_label_formatter is HakoAdopted as the eleventh narrow
-Rust-oracle parity pilot after a green 7-row `.hako` EXE parity gate.
+thin_entry_tag_formatter is HakoAdopted as the twelfth narrow Rust-oracle
+parity pilot after a green 23-row `.hako` EXE parity gate.
 Source Selfhost remains unclaimed.
 ```
 
@@ -378,12 +378,12 @@ Boundary:
 
 ```text
 Adopted:
-  LoopRouteKind -> name / semantic_label / pattern_id / flags
+  ThinEntry enum-family Display tags
 
 Still Rust:
-  loop feature extraction
-  loop route classification
-  planner route selection
+  thin-entry candidate collection
+  thin-entry selection
+  manifest generation
   lowering execution
   MIR mutation
 ```
@@ -391,7 +391,7 @@ Still Rust:
 Next:
 
 ```text
-MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-011
+MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-012
 ```
 
 Acceptance:

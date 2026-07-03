@@ -1,0 +1,59 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderThinEntryTagFormatterHakoAdoptionDecisionV1",
+  "token": "MIRBUILDER-THIN-ENTRY-TAG-FORMATTER-HAKO-ADOPTION-DECISION-001",
+  "owner": "thin_entry_tag_formatter",
+  "input_state": {
+    "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-thin-entry-tag-formatter-rust-oracle-v0.json",
+    "hako_source": "lang/src/compiler/lib/thin_entry_tag_formatter.hako",
+    "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_thin_entry_tag_formatter_parity_gate.sh",
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+  },
+  "adoption_rule": {
+    "adopt_only_narrow_owner": true,
+    "correctness_proof": "RustOracleParityGate",
+    "parity_rows": 23,
+    "parity_status": "green",
+    "rust_bootstrap_retained": 1,
+    "rust_oracle_retained": 1
+  },
+  "adopted_surface": {
+    "name": "ThinEntry tag formatter",
+    "scope": [
+      "ThinEntrySurface -> Display text",
+      "ThinEntryPreferredEntry -> Display text",
+      "ThinEntryCurrentCarrier -> Display text",
+      "ThinEntryValueClass -> Display text",
+      "ThinEntryDemand -> Display text"
+    ]
+  },
+  "excluded_surface": [
+    "thin-entry candidate collection",
+    "thin-entry selection",
+    "manifest generation",
+    "lowering execution",
+    "MIR mutation",
+    "Source Selfhost claim",
+    "Rust deletion"
+  ],
+  "decision": {
+    "kind": "Adopt",
+    "reason_token": "ThinEntryTagFormatterRustOracleParityGateGreen",
+    "selected_next_card": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-012"
+  },
+  "claims": {
+    "hako_adopted": 1,
+    "source_selfhost_claim": 0,
+    "source_selfhost_complete": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "generated_artifact_as_native_edit_authority": 0,
+    "thin_entry_candidate_collection_migration": 0,
+    "thin_entry_selection_migration": 0,
+    "manifest_generation_migration": 0,
+    "lowering_execution_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

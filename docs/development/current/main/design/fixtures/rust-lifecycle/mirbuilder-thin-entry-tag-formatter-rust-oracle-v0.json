@@ -1,0 +1,56 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderThinEntryTagFormatterRustOracleV1",
+  "token": "MIRBUILDER-THIN-ENTRY-TAG-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "thin_entry_tag_formatter",
+  "rust_source": {
+    "path": "src/mir/thin_entry.rs",
+    "hash": "sha256:fd4f3c1ce6bb74a5fc33c93fca2ddb12b2e0011a4e6e3469414d143360412030",
+    "oracle_functions": [
+      "Display for ThinEntrySurface",
+      "Display for ThinEntryPreferredEntry",
+      "Display for ThinEntryCurrentCarrier",
+      "Display for ThinEntryValueClass",
+      "Display for ThinEntryDemand"
+    ]
+  },
+  "oracle_rule": {
+    "surface": "ThinEntry enum Display tag formatter",
+    "thin_entry_candidate_collection_migration": 0,
+    "thin_entry_selection_migration": 0,
+    "manifest_generation_migration": 0,
+    "lowering_execution_migration": 0,
+    "mir_mutation_migration": 0
+  },
+  "rows": [
+    { "kind": "surface", "input": "UserBoxMethod", "expected": "user_box_method" },
+    { "kind": "surface", "input": "UserBoxFieldGet", "expected": "user_box_field_get" },
+    { "kind": "surface", "input": "UserBoxFieldSet", "expected": "user_box_field_set" },
+    { "kind": "surface", "input": "VariantMake", "expected": "variant_make" },
+    { "kind": "surface", "input": "VariantTag", "expected": "variant_tag" },
+    { "kind": "surface", "input": "VariantProject", "expected": "variant_project" },
+    { "kind": "preferred_entry", "input": "PublicEntry", "expected": "public_entry" },
+    { "kind": "preferred_entry", "input": "ThinInternalEntry", "expected": "thin_internal_entry" },
+    { "kind": "current_carrier", "input": "PublicRuntime", "expected": "public_runtime" },
+    { "kind": "current_carrier", "input": "BackendTyped", "expected": "backend_typed" },
+    { "kind": "current_carrier", "input": "CompatBox", "expected": "compat_box" },
+    { "kind": "value_class", "input": "Unknown", "expected": "?" },
+    { "kind": "value_class", "input": "InlineI64", "expected": "inline_i64" },
+    { "kind": "value_class", "input": "InlineBool", "expected": "inline_bool" },
+    { "kind": "value_class", "input": "InlineF64", "expected": "inline_f64" },
+    { "kind": "value_class", "input": "BorrowedText", "expected": "borrowed_text" },
+    { "kind": "value_class", "input": "Handle", "expected": "handle" },
+    { "kind": "value_class", "input": "AggLocal", "expected": "agg_local" },
+    { "kind": "demand", "input": "Unknown", "expected": "?" },
+    { "kind": "demand", "input": "InlineScalar", "expected": "inline_scalar" },
+    { "kind": "demand", "input": "BorrowedText", "expected": "borrowed_text" },
+    { "kind": "demand", "input": "PublicHandle", "expected": "public_handle" },
+    { "kind": "demand", "input": "LocalAggregate", "expected": "local_aggregate" }
+  ],
+  "summary": {
+    "oracle_row_count": 23,
+    "selected_surface_is_pure_enum_tag_formatter": 1,
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0
+  }
+}

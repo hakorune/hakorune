@@ -1,0 +1,121 @@
+// thin_entry_tag_formatter.hako - hand-authored ThinEntry tag formatter
+//
+// Responsibility:
+// - format ThinEntry enum-family + variant names into Rust oracle text
+// - stay pure: scalar strings in, scalar text out
+//
+// Non-responsibility:
+// - thin-entry candidate collection
+// - thin-entry selection
+// - manifest generation
+// - lowering execution
+// - MIR mutation
+static box ThinEntryTagFormatterBox {
+  format_tag(enum_family, variant) {
+    if enum_family == "ThinEntrySurface" {
+      return ThinEntryTagFormatterBox.format_surface_tag(variant)
+    }
+    if enum_family == "ThinEntryPreferredEntry" {
+      return ThinEntryTagFormatterBox.format_preferred_entry_tag(variant)
+    }
+    if enum_family == "ThinEntryCurrentCarrier" {
+      return ThinEntryTagFormatterBox.format_current_carrier_tag(variant)
+    }
+    if enum_family == "ThinEntryValueClass" {
+      return ThinEntryTagFormatterBox.format_value_class_tag(variant)
+    }
+    if enum_family == "ThinEntryDemand" {
+      return ThinEntryTagFormatterBox.format_demand_tag(variant)
+    }
+    return "unsupported_thin_entry_tag"
+  }
+
+  format_surface_tag(variant) {
+    if variant == "UserBoxMethod" {
+      return "user_box_method"
+    }
+    if variant == "UserBoxFieldGet" {
+      return "user_box_field_get"
+    }
+    if variant == "UserBoxFieldSet" {
+      return "user_box_field_set"
+    }
+    if variant == "VariantMake" {
+      return "variant_make"
+    }
+    if variant == "VariantTag" {
+      return "variant_tag"
+    }
+    if variant == "VariantProject" {
+      return "variant_project"
+    }
+    return "unsupported_thin_entry_surface"
+  }
+
+  format_preferred_entry_tag(variant) {
+    if variant == "PublicEntry" {
+      return "public_entry"
+    }
+    if variant == "ThinInternalEntry" {
+      return "thin_internal_entry"
+    }
+    return "unsupported_thin_entry_preferred_entry"
+  }
+
+  format_current_carrier_tag(variant) {
+    if variant == "PublicRuntime" {
+      return "public_runtime"
+    }
+    if variant == "BackendTyped" {
+      return "backend_typed"
+    }
+    if variant == "CompatBox" {
+      return "compat_box"
+    }
+    return "unsupported_thin_entry_current_carrier"
+  }
+
+  format_value_class_tag(variant) {
+    if variant == "Unknown" {
+      return "?"
+    }
+    if variant == "InlineI64" {
+      return "inline_i64"
+    }
+    if variant == "InlineBool" {
+      return "inline_bool"
+    }
+    if variant == "InlineF64" {
+      return "inline_f64"
+    }
+    if variant == "BorrowedText" {
+      return "borrowed_text"
+    }
+    if variant == "Handle" {
+      return "handle"
+    }
+    if variant == "AggLocal" {
+      return "agg_local"
+    }
+    return "unsupported_thin_entry_value_class"
+  }
+
+  format_demand_tag(variant) {
+    if variant == "Unknown" {
+      return "?"
+    }
+    if variant == "InlineScalar" {
+      return "inline_scalar"
+    }
+    if variant == "BorrowedText" {
+      return "borrowed_text"
+    }
+    if variant == "PublicHandle" {
+      return "public_handle"
+    }
+    if variant == "LocalAggregate" {
+      return "local_aggregate"
+    }
+    return "unsupported_thin_entry_demand"
+  }
+}

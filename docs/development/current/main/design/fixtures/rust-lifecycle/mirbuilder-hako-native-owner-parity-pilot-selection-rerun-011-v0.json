@@ -1,0 +1,58 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderHakoNativeOwnerParityPilotSelectionRerun011V1",
+  "token": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-011",
+  "input_state": {
+    "previous_hako_adoption": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-route-kind-label-formatter-hako-adoption-decision-v0.json",
+    "previous_hako_adoption_hash": "sha256:28ac640dc31b0fe3c99ef54499986a191c5b4168c0a65dff52261154cb79f3a9",
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+  },
+  "selection_rule": {
+    "name": "RustOracleParityMigrationPilotSelectorV1",
+    "manual_target_selection_allowed": true,
+    "correctness_proof_required": "RustOracleParityGate",
+    "source_selfhost_claim": 0,
+    "hako_adopted_before_parity": 0,
+    "full_converter_route_reentry": 0
+  },
+  "candidate_rows": [
+    {
+      "candidate_owner": "thin_entry_tag_formatter",
+      "source_path": "src/mir/thin_entry.rs",
+      "source_hash": "sha256:fd4f3c1ce6bb74a5fc33c93fca2ddb12b2e0011a4e6e3469414d143360412030",
+      "surface": "ThinEntry enum Display tags",
+      "pure": true,
+      "small": true,
+      "json_serializable": true,
+      "rust_oracle_available": true,
+      "selection_state": "Selected",
+      "accepted_reason": "Pure enum/tag formatting surface; no candidate collection or thin-entry selection migration."
+    },
+    {
+      "candidate_owner": "placement_effect_route_summary",
+      "selection_state": "Rejected",
+      "rejected_reason": "RouteSummaryObjectTooWideForNextPilot"
+    },
+    {
+      "candidate_owner": "array_text_observer_tag_formatter",
+      "selection_state": "Deferred",
+      "rejected_reason": "Smaller vocabulary remains available after thin-entry tags."
+    }
+  ],
+  "decision": {
+    "kind": "SelectRustOracleFixture",
+    "reason_token": "ThinEntryTagFormatterSelectedAsTwelfthParityPilot",
+    "selected_owner": "thin_entry_tag_formatter",
+    "selected_next_card": "MIRBUILDER-THIN-ENTRY-TAG-FORMATTER-RUST-ORACLE-FIXTURE-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "generated_artifact_as_native_edit_authority": 0,
+    "thin_entry_candidate_collection_migration": 0,
+    "thin_entry_selection_migration": 0,
+    "manifest_generation_migration": 0,
+    "lowering_execution_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}
