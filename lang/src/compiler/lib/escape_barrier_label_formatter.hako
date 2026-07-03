@@ -1,0 +1,23 @@
+// escape_barrier_label_formatter.hako
+//
+// Responsibility:
+// - format narrow EscapeBarrier vocabulary into Rust oracle text
+// - stay pure: scalar token in, scalar text out
+//
+// Non-responsibility:
+// - escape use classification
+// - operand-role policy
+// - MIR instruction traversal
+// - MIR mutation
+static box EscapeBarrierLabelFormatterBox {
+  format_barrier(barrier) {
+    if barrier == "Return" { return "return" }
+    if barrier == "Throw" { return "throw" }
+    if barrier == "Call" { return "call" }
+    if barrier == "StoreLike" { return "store_like" }
+    if barrier == "PhiMerge" { return "phi_merge" }
+    if barrier == "Capture" { return "capture" }
+    if barrier == "DebugObserve" { return "debug_observe" }
+    return "unsupported_escape_barrier"
+  }
+}

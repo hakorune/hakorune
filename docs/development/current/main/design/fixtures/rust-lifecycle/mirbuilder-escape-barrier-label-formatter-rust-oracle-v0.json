@@ -1,0 +1,32 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderEscapeBarrierLabelFormatterRustOracleV1",
+  "token": "MIRBUILDER-ESCAPE-BARRIER-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "escape_barrier_label_formatter",
+  "rust_source": {
+    "path": "src/mir/escape_barrier.rs",
+    "hash": "sha256:0d762feb481b142943f00216786c7e85b460d39d374a4ad7d3d85fe19c9da32a",
+    "oracle_surface": "EscapeBarrier Display vocabulary"
+  },
+  "rows": [
+    {"kind": "barrier", "input": "Return", "expected": "return"},
+    {"kind": "barrier", "input": "Throw", "expected": "throw"},
+    {"kind": "barrier", "input": "Call", "expected": "call"},
+    {"kind": "barrier", "input": "StoreLike", "expected": "store_like"},
+    {"kind": "barrier", "input": "PhiMerge", "expected": "phi_merge"},
+    {"kind": "barrier", "input": "Capture", "expected": "capture"},
+    {"kind": "barrier", "input": "DebugObserve", "expected": "debug_observe"}
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "escape_use_classification_migration": 0,
+    "operand_role_policy_migration": 0,
+    "mir_instruction_traversal_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

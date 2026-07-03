@@ -1,0 +1,33 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderHakoNativeOwnerParityPilotSelectionRerun043V1",
+  "token": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-043",
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "previous_adoption_decision": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-string-corridor-placement-label-formatter-hako-adoption-decision-v0.json",
+    "previous_adoption_decision_hash": "sha256:b8e1f1f56ee24fbefdcace059561a15efbea1270ce4a3b622eb035cbf4272b8e"
+  },
+  "decision": {
+    "kind": "SelectRustOracleFixture",
+    "reason_token": "EscapeBarrierLabelFormatterIsNarrowPureVocabularyOwner",
+    "selected_owner": "escape_barrier_label_formatter",
+    "selected_next_card": "MIRBUILDER-ESCAPE-BARRIER-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001"
+  },
+  "accepted_scope": {
+    "surface": "Escape barrier Display label vocabulary formatting",
+    "manual_target_selection_allowed": 1,
+    "correctness_requires_rust_oracle_parity": 1
+  },
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "escape_use_classification_migration": 0,
+    "operand_role_policy_migration": 0,
+    "mir_instruction_traversal_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}
