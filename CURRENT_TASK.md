@@ -41,20 +41,20 @@ the active card and task-order SSOT. Do not duplicate them here.
 
 ## Immediate Maintenance Slice
 
-Scope: Hakorune env alias first cut.
+Scope: Hakorune user-facing docs canonicalization.
 
-- route `HAKO_ROOT` / `NYASH_ROOT` and `HAKO_BIN` / `NYASH_BIN` through the
-  shared alias helpers in `src/config/env`
-- keep `HAKO_*` as primary and `NYASH_*` as compatibility alias
-- preserve trimmed-string behavior: empty or whitespace-only values are unset
-- do not rename package names, binaries, plugin paths, or ABI helper symbols
+- make the root `README.md` present Hakorune as the primary product and binary
+  spelling
+- use `target/release/hakorune` or `$HAKO_BIN` for primary user-facing command
+  examples
+- keep `nyash`, `NYASH_*`, `ny-llvmc`, and `nyash.toml` when they are
+  compatibility, ABI, package, crate, historical, env, or tool names
+- do not rename binaries, packages, paths, ABI helper symbols, or historical
+  sections in this slice
 
 Acceptance:
 
 ```bash
-cargo test -q --lib hako_root
-cargo test -q --lib hako_bin
-cargo test -q --lib env_alias_helpers
 bash tools/checks/naming_charter_guard.sh
 tools/checks/dev_gate.sh quick
 ```

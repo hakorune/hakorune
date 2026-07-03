@@ -1,5 +1,5 @@
 # 🐱 Hakorune Programming Language
-> Note: the project binary and user-visible brand are Hakorune. The legacy `nyash` binary remains as a compatibility alias. Config prefers `hako.toml` (fallback: `nyash.toml`). In scripts and docs, prefer `$NYASH_BIN`, which points to `target/release/hakorune` when available.
+> Note: the project binary and user-visible brand are Hakorune. The legacy `nyash` binary remains as a compatibility alias. Config prefers `hako.toml` (fallback: `nyash.toml`). In scripts and docs, prefer `target/release/hakorune` or `$HAKO_BIN`; `$NYASH_BIN` remains a compatibility alias.
 
 **Small surface, strong boundaries.**
 **A Seriously-Crafted Hobby Language**  
@@ -152,12 +152,12 @@ ExternCall (env.*) and println normalization: `docs/reference/runtime/externcall
 - Mainline selfhost route:
   - `tools/selfhost/run.sh --runtime --runtime-route mainline --input apps/examples/string_p0.hako`
 - Explicit compat/proof override:
-  - Example: `$NYASH_BIN --backend vm apps/tests/ternary_basic.hako`
+  - Example: `target/release/hakorune --backend vm apps/tests/ternary_basic.hako`
 - LLVM harness: set three variables so the runner finds the harness and runtime.
   - `NYASH_LLVM_USE_HARNESS=1`
-  - `NYASH_NY_LLVM_COMPILER=$NYASH_ROOT/target/release/ny-llvmc`
-  - `NYASH_EMIT_EXE_NYRT=$NYASH_ROOT/target/release`
-  - Example: `NYASH_LLVM_USE_HARNESS=1 NYASH_NY_LLVM_COMPILER=target/release/ny-llvmc NYASH_EMIT_EXE_NYRT=target/release $NYASH_BIN --backend llvm apps/ny-llvm-smoke/main.hako`
+  - `NYASH_NY_LLVM_COMPILER=$HAKO_ROOT/target/release/ny-llvmc`
+  - `NYASH_EMIT_EXE_NYRT=$HAKO_ROOT/target/release`
+  - Example: `NYASH_LLVM_USE_HARNESS=1 NYASH_NY_LLVM_COMPILER=target/release/ny-llvmc NYASH_EMIT_EXE_NYRT=target/release target/release/hakorune --backend llvm apps/ny-llvm-smoke/main.hako`
 
 ### DebugHub Quick Guide
 - Enable: `NYASH_DEBUG_ENABLE=1`
@@ -193,7 +193,7 @@ Layer guard (one-way deps: origin→observe→rewrite)
 Profiles (quick)
 - `--profile dev` → Macros ON (strict), legacy compat settings only（必要に応じて環境で上書き可）
 - `--profile lite` → Macros OFF の軽量実行
-  - 例 (compat/proof keep): `$NYASH_BIN --profile dev --backend vm apps/tests/ternary_basic.hako`
+  - 例 (compat/proof keep): `target/release/hakorune --profile dev --backend vm apps/tests/ternary_basic.hako`
 
 Specs & Constraints
 - Invariants (must-hold): `docs/reference/invariants.md`
@@ -213,7 +213,7 @@ Specs & Constraints
 ## 🧪 Self‑Hosting (Compat / Proof)
 - Guide: `docs/how-to/self-hosting.md`
 - Mainline runtime E2E: `tools/selfhost/run.sh --runtime --runtime-route mainline --input apps/selfhost-minimal/main.hako`
-- Raw legacy proof/debug ingress only: `$NYASH_BIN --backend vm apps/selfhost-minimal/main.hako`
+- Raw legacy proof/debug ingress only: `target/release/hakorune --backend vm apps/selfhost-minimal/main.hako`
 - Optional proof/debug surfaces:
   - `bash tools/selfhost/proof/run_stageb_compiler_vm.sh --source-file apps/tests/hello_simple_llvm.hako`
   - `bash tools/selfhost/proof/selfhost_vm_smoke.sh`
@@ -340,13 +340,13 @@ cargo build --release -p nyash-llvm-compiler && cargo build --release --features
 NYASH_LLVM_USE_HARNESS=1 \
 NYASH_NY_LLVM_COMPILER=target/release/ny-llvmc \
 NYASH_EMIT_EXE_NYRT=target/release \
-  $NYASH_BIN --backend llvm --emit-exe myapp program.hako
+  target/release/hakorune --backend llvm --emit-exe myapp program.hako
 ./myapp
 
 # Alternatively, emit an object file then link manually
 NYASH_LLVM_USE_HARNESS=1 \
 NYASH_NY_LLVM_COMPILER=target/release/ny-llvmc \
-  $NYASH_BIN --backend llvm program.hako \
+  target/release/hakorune --backend llvm program.hako \
   -D NYASH_LLVM_OBJ_OUT=$PWD/nyash_llvm_temp.o
 cc nyash_llvm_temp.o -L crates/nyrt/target/release -Wl,--whole-archive -lnyrt -Wl,--no-whole-archive -lpthread -ldl -lm -o myapp
 ./myapp
@@ -354,14 +354,14 @@ cc nyash_llvm_temp.o -L crates/nyrt/target/release -Wl,--whole-archive -lnyrt -W
 
 ### LLVM Backend Notes
 - `NYASH_LLVM_OBJ_OUT`: Path to emit `.o` when running `--backend llvm` (product main).
-  - Example: `NYASH_LLVM_OBJ_OUT=$PWD/nyash_llvm_temp.o $NYASH_BIN --backend llvm apps/ny-llvm-smoke/main.hako`
+  - Example: `NYASH_LLVM_OBJ_OUT=$PWD/nyash_llvm_temp.o target/release/hakorune --backend llvm apps/ny-llvm-smoke/main.hako`
 - Previously available `NYASH_LLVM_ALLOW_BY_NAME=1`: Removed - all plugin calls now use method_id by default.
   - The LLVM backend only supports method_id-based plugin calls for better performance and type safety.
 
 ### 2. **VM Mode (explicit keep/debug override)**
 ```bash
 # Explicit keep/debug override: Rust VM
-$NYASH_BIN --backend vm program.hako
+target/release/hakorune --backend vm program.hako
 
 # Historical PyVM parity route
 bash tools/historical/pyvm/pyvm_vs_llvmlite.sh program.hako
@@ -372,7 +372,7 @@ bash tools/historical/pyvm/pyvm_vs_llvmlite.sh program.hako
 
 ### 3. **vm-hako (explicit reference / conformance lane)**
 ```bash
-$NYASH_BIN --backend vm-hako program.hako
+target/release/hakorune --backend vm-hako program.hako
 tools/smokes/v2/run.sh --profile integration --suite vm-hako-caps --skip-preflight
 ```
 - Semantic witness and conformance lane
@@ -394,7 +394,7 @@ cargo build --release --features cranelift-jit
 ### 5. **Legacy Interpreter** (feature-gated / non-default)
 ```bash
 cargo build --release --features interpreter-legacy
-$NYASH_BIN --backend interpreter program.hako
+target/release/hakorune --backend interpreter program.hako
 ```
 - Legacy debug/development route
 - Excluded from default builds
@@ -414,7 +414,7 @@ Reads `hako.toml` (compat: `nyash.toml`), builds plugins → core → emits AOT 
 
 Basic (Cranelift AOT)
 ```bash
-$NYASH_BIN --build hako.toml \
+target/release/hakorune --build hako.toml \
   --app apps/egui-hello-plugin/main.hako \
   --out app_egui
 ```
@@ -621,7 +621,7 @@ cargo build --release --features cranelift-jit
 
 # Run your first program
 echo 'print("Hello Hakorune!")' > hello.hako
-$NYASH_BIN hello.hako
+target/release/hakorune hello.hako
 ```
 
 ### Windows

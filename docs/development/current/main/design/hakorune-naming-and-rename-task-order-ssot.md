@@ -255,7 +255,7 @@ tools/checks/dev_gate.sh quick
 
 ### HAKORUNE-ENV-ALIAS-FIRST-CUT-001
 
-Status: active in this slice.
+Status: landed first cut.
 
 Scope:
 
@@ -286,6 +286,42 @@ Acceptance:
 cargo test -q --lib hako_root
 cargo test -q --lib hako_bin
 cargo test -q --lib env_alias_helpers
+bash tools/checks/naming_charter_guard.sh
+tools/checks/dev_gate.sh quick
+```
+
+### HAKORUNE-USER-FACING-DOCS-CANONICALIZATION-001
+
+Status: active in this slice.
+
+Scope:
+
+- make the root `README.md` present Hakorune as the primary product and binary
+  spelling;
+- use `target/release/hakorune` or `$HAKO_BIN` in user-facing command examples;
+- keep `nyash`, `NYASH_*`, `ny-llvmc`, and `nyash.toml` where they are
+  compatibility, ABI, package, crate, historical, or existing-tool names;
+- do not rename binaries, packages, paths, syntax highlighting tags, ABI helper
+  symbols, or historical sections.
+
+Contract:
+
+```text
+root README top note:
+  prefer target/release/hakorune or $HAKO_BIN
+  state $NYASH_BIN remains compatibility alias
+
+primary command examples:
+  use target/release/hakorune
+
+compat / internal names:
+  may remain when explicitly scoped as compatibility, historical, package,
+  crate, ABI, env, or tool names
+```
+
+Acceptance:
+
+```bash
 bash tools/checks/naming_charter_guard.sh
 tools/checks/dev_gate.sh quick
 ```
@@ -352,6 +388,7 @@ hako_adopted_decision = 0
 native_seed_materialization = 0
 project_wide_rename_completed = 0
 nyash_alias_removed = 0
+user_facing_docs_full_canonicalization_completed = 0
 abi_helper_rename_completed = 0
 stage_term_existing_migration_completed = 0
 ```

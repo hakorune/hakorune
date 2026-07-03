@@ -9,13 +9,14 @@ SSOT="$ROOT_DIR/docs/development/current/main/design/hakorune-naming-and-rename-
 CHECK_INDEX="$ROOT_DIR/docs/tools/check-scripts-index.md"
 QUICK_STEPS="$ROOT_DIR/tools/checks/lib/dev_gate_quick_steps.sh"
 DOCS_LAYOUT="$ROOT_DIR/docs/development/current/main/DOCS_LAYOUT.md"
+README_MD="$ROOT_DIR/README.md"
 ENV_RS="$ROOT_DIR/src/config/env.rs"
 ENV_PATHS_RS="$ROOT_DIR/src/config/env/paths.rs"
 ENV_DOC="$ROOT_DIR/docs/reference/environment-variables.md"
 
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" git
-guard_require_files "$TAG" "$SSOT" "$CHECK_INDEX" "$QUICK_STEPS" "$DOCS_LAYOUT" "$ENV_RS" "$ENV_PATHS_RS" "$ENV_DOC"
+guard_require_files "$TAG" "$SSOT" "$CHECK_INDEX" "$QUICK_STEPS" "$DOCS_LAYOUT" "$README_MD" "$ENV_RS" "$ENV_PATHS_RS" "$ENV_DOC"
 
 require_fixed() {
   local pattern="$1"
@@ -33,8 +34,11 @@ require_fixed "NYASH_*" "$SSOT"
 require_fixed "HAKORUNE_*" "$SSOT"
 require_fixed "NAMING-CHARTER-STAGE-TERM-DISAMBIGUATION-001" "$SSOT"
 require_fixed "NYASH-TO-HAKORUNE-RENAME-ROADMAP-001" "$SSOT"
+require_fixed "HAKORUNE-USER-FACING-DOCS-CANONICALIZATION-001" "$SSOT"
 require_fixed "HAKORUNE-ENV-ALIAS-INVENTORY-001" "$SSOT"
 require_fixed "HAKORUNE-ENV-ALIAS-FIRST-CUT-001" "$SSOT"
+require_fixed 'prefer `target/release/hakorune` or `$HAKO_BIN`' "$README_MD"
+require_fixed '`$NYASH_BIN` remains a compatibility alias' "$README_MD"
 require_fixed "env_bool_with_alias" "$ENV_RS"
 require_fixed "env_string_with_alias" "$ENV_RS"
 require_fixed "env_string_trimmed_with_alias" "$ENV_RS"
