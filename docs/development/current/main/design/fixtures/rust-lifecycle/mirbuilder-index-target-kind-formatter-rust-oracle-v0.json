@@ -1,0 +1,30 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderIndexTargetKindFormatterRustOracleV1",
+  "token": "MIRBUILDER-INDEX-TARGET-KIND-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "index_target_kind_formatter",
+  "rust_source": {
+    "path": "src/mir/builder/indexing.rs",
+    "hash": "sha256:b8e265b1a608737ddd6918ba4eecb77ff024a65047c7d29fe39f7d5f602fc67a",
+    "oracle_surface": "format_index_target_kind diagnostic string formatting"
+  },
+  "rows": [
+    {"class_hint_state": "None", "class_hint": "", "expected": "unknown"},
+    {"class_hint_state": "Some", "class_hint": "", "expected": "unknown"},
+    {"class_hint_state": "Some", "class_hint": "ArrayBox", "expected": "ArrayBox"},
+    {"class_hint_state": "Some", "class_hint": "MapBox", "expected": "MapBox"},
+    {"class_hint_state": "Some", "class_hint": "String", "expected": "String"}
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "index_target_class_inference_migration": 0,
+    "index_route_selection_migration": 0,
+    "fastmem_handling_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

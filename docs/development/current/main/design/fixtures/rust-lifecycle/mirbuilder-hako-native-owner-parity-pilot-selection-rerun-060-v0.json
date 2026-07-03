@@ -1,0 +1,32 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderHakoNativeOwnerParityPilotSelectionRerun060V1",
+  "token": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-060",
+  "previous_adoption_decision": {
+    "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-emit-guard-short-inst-name-formatter-hako-adoption-decision-v0.json",
+    "hash": "sha256:b0fbc1f37079057f141859bcbf44c8f79e62a9cdc825cccc3e4e37efd0412bf0"
+  },
+  "selected_owner": {
+    "owner_id": "index_target_kind_formatter",
+    "rust_source": "src/mir/builder/indexing.rs",
+    "oracle_surface": "format_index_target_kind diagnostic string formatting",
+    "selection_reason": "Pure indexing diagnostic label owner with optional class-hint input and no route selection."
+  },
+  "decision": {
+    "kind": "SelectRustOracleFixture",
+    "reason_token": "IndexTargetKindFormatterSelected",
+    "selected_next_card": "MIRBUILDER-INDEX-TARGET-KIND-FORMATTER-RUST-ORACLE-FIXTURE-001"
+  },
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "index_target_class_inference_migration": 0,
+    "index_route_selection_migration": 0,
+    "fastmem_handling_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

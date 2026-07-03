@@ -1,0 +1,29 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderIndexTargetKindFormatterHakoAdoptionDecisionV1",
+  "token": "MIRBUILDER-INDEX-TARGET-KIND-FORMATTER-HAKO-ADOPTION-DECISION-001",
+  "owner": "index_target_kind_formatter",
+  "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-index-target-kind-formatter-rust-oracle-v0.json",
+  "hako_implementation": "lang/src/compiler/lib/index_target_kind_formatter.hako",
+  "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_index_target_kind_formatter_parity_gate.sh",
+  "parity_result": {
+    "parity_rows": 5,
+    "parity_status": "green"
+  },
+  "decision": {
+    "kind": "HakoAdopted",
+    "reason_token": "IndexTargetKindFormatterParityGreen",
+    "selected_next_card": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-061"
+  },
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "index_target_class_inference_migration": 0,
+    "index_route_selection_migration": 0,
+    "fastmem_handling_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

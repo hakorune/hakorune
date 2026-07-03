@@ -1,0 +1,18 @@
+// index_target_kind_formatter.hako
+//
+// Responsibility:
+// - format narrow indexing target-kind diagnostic labels
+// - stay pure: optional class-hint token in, scalar text out
+//
+// Non-responsibility:
+// - target class inference
+// - index route selection
+// - FastMem handling
+// - MIR mutation
+static box IndexTargetKindFormatterBox {
+  format_label(class_hint_state, class_hint) {
+    if class_hint_state == "None" { return "unknown" }
+    if class_hint == "" { return "unknown" }
+    return class_hint
+  }
+}

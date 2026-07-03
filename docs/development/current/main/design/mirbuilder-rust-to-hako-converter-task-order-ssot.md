@@ -24,9 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-EMIT-GUARD-SHORT-INST-NAME-FORMATTER-HAKO-ADOPTION-DECISION-001.
-  The emit_guard_short_inst_name_formatter owner is HakoAdopted as the sixtieth
-  narrow Rust-oracle parity pilot; next is rerun 060.
+  MIRBUILDER-INDEX-TARGET-KIND-FORMATTER-HAKO-ADOPTION-DECISION-001.
+  The index_target_kind_formatter owner is HakoAdopted as the sixty-first
+  narrow Rust-oracle parity pilot; next is rerun 061.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-060
+  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-061
 
 current fail-fast boundary:
   Do not re-enter full converter route selection without new non-self-signed
@@ -111,14 +111,15 @@ current fail-fast boundary:
   dominance checks, test-only copy-emission reasons, CorePlan/Facts flowbox
   classification, facts-to-feature extraction, tag emission, Freeze contract,
   stderr write, Callee/ValueId analysis, emit-guard instruction analysis,
-  emit-guard scope validation, and route selection remain Rust.
+  emit-guard scope validation, index route selection, and route selection remain
+  Rust.
 
 latest design decision:
-  emit_guard_short_inst_name_formatter is now HakoAdopted as a narrow
-  Rust-oracle parity pilot owner after a green 10-row `.hako` EXE parity gate.
-  Instruction analysis, emit-guard scope validation, and MIR mutation remain Rust.
+  index_target_kind_formatter is now HakoAdopted as a narrow Rust-oracle parity
+  pilot owner after a green 5-row `.hako` EXE parity gate. Index target class
+  inference, route selection, FastMem handling, and MIR mutation remain Rust.
   The selected next card is
-  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-060`.
+  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-061`.
 
 historical route-selection decision:
   Detailed landed route-selection rows are closed as provenance and live in
