@@ -1,0 +1,47 @@
+// sum_variant_seed_label_formatter.hako - hand-authored sum variant seed label formatter
+//
+// Responsibility:
+// - format Sum variant tag/project seed labels into Rust oracle text
+// - stay pure: scalar category/name in, scalar text out
+//
+// Non-responsibility:
+// - sum route matching
+// - Sum placement selection
+// - payload extraction
+// - backend helper emission
+// - MIR mutation
+static box SumVariantSeedLabelFormatterBox {
+  format_label(category, variant) {
+    if category == "TagKind" {
+      if variant == "LocalI64" { return "variant_tag_local_i64" }
+      if variant == "LocalTagOnly" { return "variant_tag_local_tag_only" }
+      if variant == "LocalF64" { return "variant_tag_local_f64" }
+      if variant == "LocalHandle" { return "variant_tag_local_handle" }
+      if variant == "CopyLocalI64" { return "variant_tag_copy_local_i64" }
+    }
+    if category == "TagProof" {
+      if variant == "LocalAggregateTagSeed" {
+        return "sum_variant_tag_local_aggregate_seed"
+      }
+    }
+    if category == "ProjectKind" {
+      if variant == "LocalI64" { return "variant_project_local_i64" }
+      if variant == "LocalF64" { return "variant_project_local_f64" }
+      if variant == "LocalHandle" { return "variant_project_local_handle" }
+      if variant == "CopyLocalI64" { return "variant_project_copy_local_i64" }
+      if variant == "CopyLocalF64" { return "variant_project_copy_local_f64" }
+      if variant == "CopyLocalHandle" { return "variant_project_copy_local_handle" }
+    }
+    if category == "ProjectPayloadKind" {
+      if variant == "I64" { return "i64" }
+      if variant == "F64" { return "f64" }
+      if variant == "String" { return "string" }
+    }
+    if category == "ProjectProof" {
+      if variant == "LocalAggregateProjectSeed" {
+        return "sum_variant_project_local_aggregate_seed"
+      }
+    }
+    return "unsupported_sum_variant_seed_label"
+  }
+}

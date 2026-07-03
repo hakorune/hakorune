@@ -1,0 +1,42 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderSumVariantSeedLabelFormatterRustOracleV1",
+  "token": "MIRBUILDER-SUM-VARIANT-SEED-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "sources": [
+    {
+      "path": "src/mir/sum_variant_tag_seed_plan.rs",
+      "hash": "sha256:0bd072a25b29b1177853b855a981eb92cc8b95f8aa487cee7e25e74f55f1d93e"
+    },
+    {
+      "path": "src/mir/sum_variant_project_seed_plan.rs",
+      "hash": "sha256:973f4d24e1c83c94505d32fb52d59deb8208facbb5a41c9abca0b1424fee7e85"
+    }
+  ],
+  "rows": [
+    {"category": "TagKind", "input": "LocalI64", "expected": "variant_tag_local_i64"},
+    {"category": "TagKind", "input": "LocalTagOnly", "expected": "variant_tag_local_tag_only"},
+    {"category": "TagKind", "input": "LocalF64", "expected": "variant_tag_local_f64"},
+    {"category": "TagKind", "input": "LocalHandle", "expected": "variant_tag_local_handle"},
+    {"category": "TagKind", "input": "CopyLocalI64", "expected": "variant_tag_copy_local_i64"},
+    {"category": "TagProof", "input": "LocalAggregateTagSeed", "expected": "sum_variant_tag_local_aggregate_seed"},
+    {"category": "ProjectKind", "input": "LocalI64", "expected": "variant_project_local_i64"},
+    {"category": "ProjectKind", "input": "LocalF64", "expected": "variant_project_local_f64"},
+    {"category": "ProjectKind", "input": "LocalHandle", "expected": "variant_project_local_handle"},
+    {"category": "ProjectKind", "input": "CopyLocalI64", "expected": "variant_project_copy_local_i64"},
+    {"category": "ProjectKind", "input": "CopyLocalF64", "expected": "variant_project_copy_local_f64"},
+    {"category": "ProjectKind", "input": "CopyLocalHandle", "expected": "variant_project_copy_local_handle"},
+    {"category": "ProjectPayloadKind", "input": "I64", "expected": "i64"},
+    {"category": "ProjectPayloadKind", "input": "F64", "expected": "f64"},
+    {"category": "ProjectPayloadKind", "input": "String", "expected": "string"},
+    {"category": "ProjectProof", "input": "LocalAggregateProjectSeed", "expected": "sum_variant_project_local_aggregate_seed"}
+  ],
+  "claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "sum_route_matching_migration": 0,
+    "sum_placement_selection_migration": 0,
+    "payload_extraction_migration": 0,
+    "backend_helper_emission_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}
