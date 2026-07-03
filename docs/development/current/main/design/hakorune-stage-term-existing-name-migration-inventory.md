@@ -512,6 +512,34 @@ exact expected Stage1 stderr changed = 0
 runtime behavior changed = 0
 ```
 
+## Landed Check Scripts Index Wording Slice
+
+`STAGE-TERM-CHECK-SCRIPTS-INDEX-WORDING-001` changes `docs/tools/check-scripts-index.md`
+descriptions for already-migrated active guards to `mode-B compatibility`,
+`phase-1 compatibility`, or concrete `GlobalCallTarget` wording.
+
+Scope:
+
+```text
+docs/tools/check-scripts-index.md:
+  stage1_emit_program_json_runtime_helper_guard description says phase-1 compatibility
+  stage1_program_json_compat_caller_guard description says phase-1 compatibility
+  stage0_shape_inventory_guard description says GlobalCallTarget shape inventory
+  stageb_program_json_capture_caller_guard description says mode-B compatibility
+  k2_wide_stageb_* descriptions say mode-B compatibility
+```
+
+Non-claims:
+
+```text
+guard script names renamed = 0
+stage0_shape_inventory_guard.sh renamed = 0
+stage1_* guard script names renamed = 0
+stageb_* guard script names renamed = 0
+docs/tools/check-scripts-index.md historical rows fully migrated = 0
+runtime behavior changed = 0
+```
+
 ## Migration Eligibility
 
 An occurrence is eligible for a future rename only if all conditions hold:

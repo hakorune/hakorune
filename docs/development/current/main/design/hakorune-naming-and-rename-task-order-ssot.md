@@ -249,6 +249,36 @@ git diff --check
 tools/checks/dev_gate.sh quick
 ```
 
+### STAGE-TERM-CHECK-SCRIPTS-INDEX-WORDING-001
+
+Status: landed docs index cut.
+
+Scope:
+
+- update `docs/tools/check-scripts-index.md` descriptions for guard rows whose
+  owning scripts already migrated to mode-B, phase-1, or concrete
+  GlobalCallTarget wording;
+- keep guard script names unchanged because they remain compatibility surfaces;
+- do not attempt a full historical index rewrite in this slice.
+
+Contract:
+
+```text
+active migrated guard descriptions:
+  use mode-B compatibility / phase-1 compatibility / GlobalCallTarget wording
+
+compatibility surfaces:
+  stage0/stage1/stageb script names remain unchanged
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
 ### HAKORUNE-ENV-ALIAS-INVENTORY-001
 
 Status: landed foundation.

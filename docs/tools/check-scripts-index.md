@@ -1096,17 +1096,17 @@ nontrivial build, code, or perf validation.
 | `tools/checks/map_lookup_fusion_reader_boundary_guard.sh` | `map_lookup_fusion_routes` を読む `.inc` を共有 reader seam に限定し、get/has policy が enum/table consumer に留まることを fail-fast で検出する。 |
 | `tools/checks/route_detector_legacy_surface_guard.sh` | JoinIR route detector の `legacy/` storage / legacy module / 旧 compatibility path / `LoopPatternKind` alias が再導入されないことを fail-fast で検出する。 |
 | `tools/checks/array_string_push_get_metadata_fixture_guard.sh` | array-string boundary fixtures の `RuntimeDataBox.push/get(ArrayBox)` が MIR-owned CoreMethod metadata を持ち、pure-first route state に消費されることを fail-fast で検出する。 |
-| `tools/checks/stage1_emit_program_json_runtime_helper_guard.sh` | public `BuildBox.emit_program_json_v0(source, null)` が Stage1 Program(JSON v0) runtime helper route として pure-first で消費されることを fail-fast で検出する。 |
-| `tools/checks/stage0_shape_inventory_guard.sh` | `GlobalCallTargetShape` variants が Stage0 LLVM line shape inventory SSOT に全て棚卸しされていることを fail-fast で検出する。 |
+| `tools/checks/stage1_emit_program_json_runtime_helper_guard.sh` | public `BuildBox.emit_program_json_v0(source, null)` が phase-1 compatibility Program(JSON v0) runtime helper route として pure-first で消費されることを fail-fast で検出する。 |
+| `tools/checks/stage0_shape_inventory_guard.sh` | `GlobalCallTargetShape` variants が GlobalCallTarget shape inventory SSOT に全て棚卸しされていることを fail-fast で検出する。 |
 | `tools/checks/k2_wide_stage0_cleanup_catch_boundary_guard.sh` | Stage0 cleanup/catch boundary を固定し、cleanup は MIR-builder route で安定、catch は compatibility/future carrier、throw は source reserved/prohibited、JoinIR strict TryCatch は fail-fast のまま保たれることを検証する。 |
 | `tools/checks/program_json_dev_surface_guard.sh` | archived Program(JSON) diagnostics probes / empty dev capsule directory が active `tools/dev` surface に戻らないことを fail-fast で検出する。 |
 | `tools/checks/program_json_v0_compat_caller_guard.sh` | raw `Program(JSON v0)` compat emit helper の active shell caller を `stage1_contract.sh` / `stageb_helpers.sh` に限定する。 |
 | `tools/checks/program_json_mir_bridge_caller_guard.sh` | `Program(JSON)->MIR` bridge helper の active shell caller を `selfhost_exe_stageb.sh` / phase29cg proof に限定する。 |
-| `tools/checks/stageb_program_json_capture_caller_guard.sh` | Stage-B Program(JSON) stdout capture helper の active shell caller を MIR emit / Stage-B helper surfaces に限定する。 |
-| `tools/checks/k2_wide_stageb_numeric_literal_suffix_alignment_guard.sh` | Stage-B `.hako` parser が `0usize` を trailing `Var(usize)` に分割せず、Program(JSON v0) の `Int.declared_type` として保持することを固定する。 |
-| `tools/checks/k2_wide_stageb_param_type_annotation_alignment_guard.sh` | Stage-B FuncScanner / JSON builder が method parameter annotations を `params` の bare names と `param_decls[].declared_type` に分けて保持することを固定する。 |
-| `tools/checks/k2_wide_stageb_return_type_annotation_alignment_guard.sh` | Stage-B FuncScanner / JSON builder が method return annotations を Program(JSON v0) `return_type` として保持することを固定する。 |
-| `tools/checks/k2_wide_stageb_field_type_annotation_alignment_guard.sh` | Stage-B enrichment seam が user-box field annotations を Program(JSON v0) `user_box_decls[].field_decls[].declared_type` として保持することを固定する。 |
+| `tools/checks/stageb_program_json_capture_caller_guard.sh` | mode-B compatibility Program(JSON) stdout capture helper の active shell caller を MIR emit / mode-B helper surfaces に限定する。 |
+| `tools/checks/k2_wide_stageb_numeric_literal_suffix_alignment_guard.sh` | mode-B compatibility `.hako` parser が `0usize` を trailing `Var(usize)` に分割せず、Program(JSON v0) の `Int.declared_type` として保持することを固定する。 |
+| `tools/checks/k2_wide_stageb_param_type_annotation_alignment_guard.sh` | mode-B compatibility FuncScanner / JSON builder が method parameter annotations を `params` の bare names と `param_decls[].declared_type` に分けて保持することを固定する。 |
+| `tools/checks/k2_wide_stageb_return_type_annotation_alignment_guard.sh` | mode-B compatibility FuncScanner / JSON builder が method return annotations を Program(JSON v0) `return_type` として保持することを固定する。 |
+| `tools/checks/k2_wide_stageb_field_type_annotation_alignment_guard.sh` | mode-B compatibility enrichment seam が user-box field annotations を Program(JSON v0) `user_box_decls[].field_decls[].declared_type` として保持することを固定する。 |
 | `tools/checks/k2_wide_hako_alloc_usize_realloc_requested_size_result_observer_guard.sh` | `HakoAllocObjectLifecycleReallocResult.last_requested_size` が exact `usize` で、周辺の page/block id sentinels・reason・ok・alignment result は signed のまま保たれることを固定する。 |
 | `tools/checks/k2_wide_hako_alloc_usize_page_queue_numeric_inventory_guard.sh` | `HakoAllocPageQueue` の already-exact `usize` storage と `NUMERIC_FIELDS.md` 詳細行が同期し、`has_direct_page` は signed flag として残ることを固定する。 |
 | `tools/checks/k2_wide_hako_alloc_usize_page_heap_occupancy_guard.sh` | legacy `HakoAllocPage.current_used` / `peak_used` が exact `usize` で、block size / capacity / free_top / requested bytes の exact 化とも整合し、page/handle ids は signed のまま保たれることを固定する。 |
@@ -1116,7 +1116,7 @@ nontrivial build, code, or perf validation.
 | `tools/checks/k2_wide_hako_alloc_usize_page_heap_capacity_guard.sh` | legacy `HakoAllocPage.capacity` が exact `usize` で、free_top の exact 化と整合し、page id・handle ids・method parameter surfaces・requested_sizes array payload semantics は current-lane のまま保たれることを固定する。 |
 | `tools/checks/k2_wide_hako_alloc_usize_page_heap_free_top_guard.sh` | legacy `HakoAllocPage.free_top` が exact `usize` で、underflow guard / stack push-pop behavior と page id / handle id stop-lines が保たれることを固定する。 |
 | `tools/checks/k2_wide_hako_alloc_usize_page_heap_non_id_closeout_guard.sh` | legacy page-heap の non-id `usize` slice が exact storage で閉じ、page/handle identity fields は signed のまま保たれることを固定する。 |
-| `tools/checks/stage1_program_json_compat_caller_guard.sh` | Stage1 Program(JSON) compat execution helper の active shell caller を phase29ch explicit probe に限定する。 |
+| `tools/checks/stage1_program_json_compat_caller_guard.sh` | phase-1 compatibility Program(JSON) compat execution helper の active shell caller を phase29ch explicit probe に限定する。 |
 | `tools/checks/phase29ch_route_probe_surface_guard.sh` | archived phase29ch route diagnostics probes が active `tools/dev` surface に戻らず、live compat keeper だけが残ることを fail-fast で検出する。 |
 | `tools/checks/phase29ck_preperf_probe_surface_guard.sh` | archived phase29ck pre-perf diagnostics probes が active `tools/dev` surface に戻らず、live compat/dialect keepers が残ることを fail-fast で検出する。 |
 | `tools/checks/phase29ck_small_entry_probe_surface_guard.sh` | archived phase29ck small-entry perf diagnostics probes が active `tools/dev` surface に戻らず、runtime-proof smoke anchor が残ることを fail-fast で検出する。 |

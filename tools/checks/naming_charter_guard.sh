@@ -342,6 +342,7 @@ SSOT_REQUIRED_TOKENS=(
   "STAGE-TERM-MODEB-HHAKO-FUNC-SCANNER-COMMENT-WORDING-001"
   "STAGE-TERM-MODEB-K2-WIDE-GUARD-DIAGNOSTIC-WORDING-001"
   "STAGE-TERM-SELFHOST-SMOKE-COMMENT-WORDING-001"
+  "STAGE-TERM-CHECK-SCRIPTS-INDEX-WORDING-001"
 )
 guard_require_unique_values "SSOT required token" "${SSOT_REQUIRED_TOKENS[@]}"
 for ssot_token in "${SSOT_REQUIRED_TOKENS[@]}"; do
@@ -773,6 +774,16 @@ require_fixed '.arg("--syntax-3")' "$PHASE29CI_STAGEB_BODY_EXTRACT_TEST"
 require_fixed '`--syntax-3` with compatibility alias `--stage3`' "$REFERENCE_EBNF"
 require_fixed 'selfhost: `--syntax-3`' "$REFERENCE_STATEMENTS"
 require_fixed '--syntax-3` (syntax-3 surface enable; `--stage3` remains a compatibility alias)' "$SELFHOST_QUICKSTART"
+require_fixed "phase-1 compatibility Program(JSON v0) runtime helper route" "$CHECK_INDEX"
+require_fixed "GlobalCallTarget shape inventory SSOT" "$CHECK_INDEX"
+require_fixed "mode-B compatibility Program(JSON) stdout capture helper" "$CHECK_INDEX"
+require_fixed 'mode-B compatibility `.hako` parser' "$CHECK_INDEX"
+require_fixed "mode-B compatibility FuncScanner / JSON builder" "$CHECK_INDEX"
+require_fixed "mode-B compatibility enrichment seam" "$CHECK_INDEX"
+require_fixed "phase-1 compatibility Program(JSON) compat execution helper" "$CHECK_INDEX"
+if rg -n 'Stage1 Program\(JSON v0\) runtime helper route|Stage0 LLVM line shape inventory SSOT|Stage-B Program\(JSON\) stdout capture helper|Stage-B `.hako` parser|Stage-B FuncScanner / JSON builder|Stage-B enrichment seam|Stage1 Program\(JSON\) compat execution helper' "$CHECK_INDEX"; then
+  guard_fail "$TAG" "check scripts index descriptions must use mode-B / phase-1 / GlobalCallTarget wording for migrated guards"
+fi
 require_fixed "STAGE-TERM-EXISTING-NAME-INVENTORY-001" "$STAGE_TERM_INVENTORY"
 require_fixed "classification-only inventory" "$STAGE_TERM_INVENTORY"
 require_fixed "direct renames are forbidden" "$STAGE_TERM_INVENTORY"
