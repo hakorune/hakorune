@@ -10,8 +10,14 @@ use crate::config::env;
 use std::process::Command;
 
 pub(super) fn apply(cmd: &mut Command, config: &Stage1ChildEnvConfig<'_>) {
+    let apply_usings =
+        first_non_empty_env(&["HAKO_STAGE1_APPLY_USINGS", "HAKO_STAGEB_APPLY_USINGS"])
+            .unwrap_or_else(|| "0".to_string());
+    if std::env::var("HAKO_STAGE1_APPLY_USINGS").is_err() {
+        cmd.env("HAKO_STAGE1_APPLY_USINGS", &apply_usings);
+    }
     if std::env::var("HAKO_STAGEB_APPLY_USINGS").is_err() {
-        cmd.env("HAKO_STAGEB_APPLY_USINGS", "0");
+        cmd.env("HAKO_STAGEB_APPLY_USINGS", &apply_usings);
     }
 
     if std::env::var("NYASH_ENABLE_USING").is_err() {
@@ -49,6 +55,14 @@ pub(super) fn apply(cmd: &mut Command, config: &Stage1ChildEnvConfig<'_>) {
         cmd.env("HAKO_PARSER_STAGE3", value);
     }
     config.module_env_lists.apply_to_command_if_missing(cmd);
+}
+
+fn first_non_empty_env(names: &[&str]) -> Option<String> {
+    names.iter().find_map(|name| {
+        std::env::var(name)
+            .ok()
+            .filter(|value| !value.trim().is_empty())
+    })
 }
 
 fn merge_feature(current: &str, feature: &str) -> String {

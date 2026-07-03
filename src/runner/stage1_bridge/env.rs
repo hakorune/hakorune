@@ -5,7 +5,7 @@
  * section to a focused helper module:
  * - runtime defaults
  * - Stage-1 alias propagation
- * - parser / Stage-B toggles
+ * - parser / Stage-1 using toggles and Stage-B compatibility aliases
  */
 
 mod parser_stageb;
@@ -161,12 +161,15 @@ mod tests {
             "NYASH_BOX_FACTORY_POLICY",
             "HAKO_MIR_BUILDER_METHODIZE",
             "NYASH_MIR_UNIFIED_CALL",
+            "HAKO_STAGE1_APPLY_USINGS",
             "HAKO_STAGEB_APPLY_USINGS",
             "NYASH_ENABLE_USING",
             "HAKO_ENABLE_USING",
             "NYASH_FEATURES",
             "NYASH_PARSER_STAGE3",
             "HAKO_PARSER_STAGE3",
+            "HAKO_STAGE1_MODULES_LIST",
+            "HAKO_STAGE1_MODULE_ROOTS_LIST",
             "HAKO_STAGEB_MODULES_LIST",
             "HAKO_STAGEB_MODULE_ROOTS_LIST",
             "STAGE1_CLI_ENTRY",
@@ -207,13 +210,22 @@ mod tests {
             envs.get("HAKO_MIR_BUILDER_DELEGATE"),
             Some(&"0".to_string())
         );
+        assert_eq!(envs.get("HAKO_STAGE1_APPLY_USINGS"), Some(&"0".to_string()));
         assert_eq!(envs.get("HAKO_STAGEB_APPLY_USINGS"), Some(&"0".to_string()));
         assert_eq!(envs.get("NYASH_ENABLE_USING"), Some(&"1".to_string()));
         assert_eq!(envs.get("HAKO_ENABLE_USING"), Some(&"1".to_string()));
         assert_eq!(envs.get("NYASH_FEATURES"), Some(&"stage3".to_string()));
         assert_eq!(
+            envs.get("HAKO_STAGE1_MODULES_LIST"),
+            Some(&"core=lang/core".to_string())
+        );
+        assert_eq!(
             envs.get("HAKO_STAGEB_MODULES_LIST"),
             Some(&"core=lang/core".to_string())
+        );
+        assert_eq!(
+            envs.get("HAKO_STAGE1_MODULE_ROOTS_LIST"),
+            Some(&"core=lang".to_string())
         );
         assert_eq!(
             envs.get("HAKO_STAGEB_MODULE_ROOTS_LIST"),
@@ -239,6 +251,7 @@ mod tests {
             "NYASH_NYRT_SILENT_RESULT",
             "HAKO_MIR_BUILDER_METHODIZE",
             "NYASH_MIR_UNIFIED_CALL",
+            "HAKO_STAGE1_APPLY_USINGS",
             "HAKO_STAGEB_APPLY_USINGS",
             "NYASH_ENABLE_USING",
             "HAKO_ENABLE_USING",
@@ -271,6 +284,7 @@ mod tests {
             Some(&"1".to_string())
         );
         assert_eq!(envs.get("NYASH_MIR_UNIFIED_CALL"), Some(&"1".to_string()));
+        assert_eq!(envs.get("HAKO_STAGE1_APPLY_USINGS"), Some(&"1".to_string()));
         assert!(!envs.contains_key("HAKO_STAGEB_APPLY_USINGS"));
         assert!(!envs.contains_key("NYASH_ENABLE_USING"));
         assert!(!envs.contains_key("HAKO_ENABLE_USING"));

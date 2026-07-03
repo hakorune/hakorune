@@ -185,6 +185,44 @@ Some stage-like words are script or artifact contracts. Do not rename them as
 part of vocabulary cleanup unless a dedicated tool migration row owns every
 caller.
 
+## Stage Naming Map
+
+Use these readings when a name contains `stage1`, `Stage-B`, or `stageb`.
+
+```text
+stage1:
+  Daily .hako frontier / proof axis / bootstrap artifact name.
+  New bridge env aliases should prefer HAKO_STAGE1_*.
+
+Stage-B:
+  Program(JSON v0) proof / compatibility route around compiler_stageb.hako.
+  It is not a synonym for the whole stage1 frontier.
+
+stageb-delegate:
+  Stable route label for the Program(JSON v0) delegate path.
+  Do not rename without a dedicated route-migration row.
+
+HAKO_STAGEB_*:
+  Compatibility env names consumed by existing Stage-B and .hako readers.
+  Keep exporting them while adding HAKO_STAGE1_* aliases for new callers.
+
+Stage B:
+  A/B pilot wording in unrelated historical docs. Do not fold it into stage1.
+```
+
+Rule:
+
+```text
+new caller:
+  prefer HAKO_STAGE1_* when the payload is a Stage-1 bridge payload
+
+compat caller:
+  keep HAKO_STAGEB_* until all .hako and proof-route consumers migrate
+
+script / route label:
+  do not rename stageb-delegate or run_stageb_* as a vocabulary cleanup
+```
+
 Keep as tool labels:
 
 ```text

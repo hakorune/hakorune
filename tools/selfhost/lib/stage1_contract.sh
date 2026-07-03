@@ -180,7 +180,7 @@ stage1_contract_repo_root() {
   (cd "${script_dir}/../../.." && pwd)
 }
 
-stage1_contract_normalize_stageb_list() {
+stage1_contract_normalize_stage1_list() {
   local raw="${1:-}"
   if [[ -z "${raw}" ]]; then
     printf ""
@@ -195,7 +195,11 @@ stage1_contract_normalize_stageb_list() {
   printf "%s" "${raw//|/|||}"
 }
 
-stage1_contract_export_stageb_module_env() {
+stage1_contract_normalize_stageb_list() {
+  stage1_contract_normalize_stage1_list "$@"
+}
+
+stage1_contract_export_stage1_module_env() {
   local root
   root="$(stage1_contract_repo_root)"
   export NYASH_ROOT="${NYASH_ROOT:-$root}"
@@ -216,23 +220,29 @@ stage1_contract_export_stageb_module_env() {
     export SMOKE_ENV_SKIP_EXPORTS="${prev_skip}"
   fi
 
-  if [[ -z "${HAKO_STAGEB_MODULES_LIST:-}" ]]; then
-    local modules_list
-    modules_list="$(collect_stageb_modules_list "$root" || true)"
-    modules_list="$(stage1_contract_normalize_stageb_list "$modules_list")"
-    if [[ -n "${modules_list}" ]]; then
-      export HAKO_STAGEB_MODULES_LIST="${modules_list}"
-    fi
+  local modules_list="${HAKO_STAGE1_MODULES_LIST:-${HAKO_STAGEB_MODULES_LIST:-}}"
+  if [[ -z "${modules_list}" ]]; then
+    modules_list="$(collect_stage1_modules_list "$root" || true)"
+  fi
+  modules_list="$(stage1_contract_normalize_stage1_list "$modules_list")"
+  if [[ -n "${modules_list}" ]]; then
+    export HAKO_STAGE1_MODULES_LIST="${HAKO_STAGE1_MODULES_LIST:-$modules_list}"
+    export HAKO_STAGEB_MODULES_LIST="${HAKO_STAGEB_MODULES_LIST:-$modules_list}"
   fi
 
-  if [[ -z "${HAKO_STAGEB_MODULE_ROOTS_LIST:-}" ]]; then
-    local module_roots_list
-    module_roots_list="$(collect_stageb_module_roots_list "$root" || true)"
-    module_roots_list="$(stage1_contract_normalize_stageb_list "$module_roots_list")"
-    if [[ -n "${module_roots_list}" ]]; then
-      export HAKO_STAGEB_MODULE_ROOTS_LIST="${module_roots_list}"
-    fi
+  local module_roots_list="${HAKO_STAGE1_MODULE_ROOTS_LIST:-${HAKO_STAGEB_MODULE_ROOTS_LIST:-}}"
+  if [[ -z "${module_roots_list}" ]]; then
+    module_roots_list="$(collect_stage1_module_roots_list "$root" || true)"
   fi
+  module_roots_list="$(stage1_contract_normalize_stage1_list "$module_roots_list")"
+  if [[ -n "${module_roots_list}" ]]; then
+    export HAKO_STAGE1_MODULE_ROOTS_LIST="${HAKO_STAGE1_MODULE_ROOTS_LIST:-$module_roots_list}"
+    export HAKO_STAGEB_MODULE_ROOTS_LIST="${HAKO_STAGEB_MODULE_ROOTS_LIST:-$module_roots_list}"
+  fi
+}
+
+stage1_contract_export_stageb_module_env() {
+  stage1_contract_export_stage1_module_env "$@"
 }
 
 stage1_contract_export_runner_defaults() {
@@ -244,7 +254,7 @@ stage1_contract_export_runner_defaults() {
   export HAKO_SELFHOST_NO_DELEGATE="${HAKO_SELFHOST_NO_DELEGATE:-1}"
   export HAKO_MIR_BUILDER_DELEGATE="${HAKO_MIR_BUILDER_DELEGATE:-0}"
   export NYASH_STAGE1_EMIT_TIMEOUT_MS="${NYASH_STAGE1_EMIT_TIMEOUT_MS:-300000}"
-  stage1_contract_export_stageb_module_env
+  stage1_contract_export_stage1_module_env
 }
 
 stage1_contract_run_bin_with_env() {

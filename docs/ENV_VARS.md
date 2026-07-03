@@ -37,12 +37,18 @@ Parser/Stage‑B
 - HAKO_STAGEB_FUNC_SCAN=1
   - Dev-only: inject a `defs` array into Program(JSON) with scanned method definitions for `box Main`.
 
-- HAKO_STAGEB_MODULES_LIST
-  - Stage‑B/Hakorune 向けの using 解決に使う `name=path` 連結文字列（`nyash.toml` の `[modules]` をシェル側で変換）。
+- HAKO_STAGE1_MODULES_LIST / HAKO_STAGEB_MODULES_LIST
+  - Stage‑1/Hakorune 向けの using 解決に使う `name=path` 連結文字列（`nyash.toml` の `[modules]` をシェル側で変換）。
+  - `HAKO_STAGE1_MODULES_LIST` が優先名。`HAKO_STAGEB_MODULES_LIST` は既存 Stage‑B / .hako 読み手向けの互換名。
   - 例: `lang.mir.builder.MirBuilderBox=lang/src/mir/builder/MirBuilderBox.hako|||lang.compiler.build.build_box=lang/src/compiler/build/build_box.hako`
 
-- HAKO_STAGEB_APPLY_USINGS=0|1
+- HAKO_STAGE1_MODULE_ROOTS_LIST / HAKO_STAGEB_MODULE_ROOTS_LIST
+  - Stage‑1/Hakorune 向けの using prefix 解決に使う `prefix=path` 連結文字列（`nyash.toml` の `[module_roots]` をシェル側で変換）。
+  - `HAKO_STAGE1_MODULE_ROOTS_LIST` が優先名。`HAKO_STAGEB_MODULE_ROOTS_LIST` は互換名。
+
+- HAKO_STAGE1_APPLY_USINGS=0|1 / HAKO_STAGEB_APPLY_USINGS=0|1
   - `1` のとき、Stage‑B は `lang.compiler.entry.using_resolver_box` を通じて Stage1 用の using を text merge する。`0` で旧挙動。
+  - `HAKO_STAGE1_APPLY_USINGS` が優先名。`HAKO_STAGEB_APPLY_USINGS` は互換名。
 
 - HAKO_STAGEB_BODY_EXTRACT=0|1
   - Toggle Stage‑B body extractor. When `0`, skip method‑body extraction and pass the full `--source` to `parse_program2`. Useful to avoid environment‑specific drift in extractors; default is `1` (enabled).

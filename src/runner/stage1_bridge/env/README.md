@@ -7,8 +7,8 @@ Scope: child environment wiring under `src/runner/stage1_bridge/env.rs`.
 - `env.rs`: facade entrypoint (`configure_stage1_env(...)`) only
 - `runtime_defaults.rs`: runtime defaults and mainline MIR builder locks
 - `stage1_aliases.rs`: `NYASH_STAGE1_*` propagation, child guard, entry/backend alias handling
-- `parser_stageb.rs`: parser feature propagation and `HAKO_STAGEB_APPLY_USINGS` / using toggles
-- `../modules.rs`: `HAKO_STAGEB_MODULES_LIST` / `HAKO_STAGEB_MODULE_ROOTS_LIST` payload generation + child-env apply
+- `parser_stageb.rs`: parser feature propagation and `HAKO_STAGE1_APPLY_USINGS` / `HAKO_STAGEB_APPLY_USINGS` aliases
+- `../modules.rs`: `HAKO_STAGE1_*` module payload generation + `HAKO_STAGEB_*` compatibility aliases
 
 ## Forbidden
 

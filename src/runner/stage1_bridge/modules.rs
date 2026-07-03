@@ -20,6 +20,11 @@ use std::time::SystemTime;
 
 use serde::{Deserialize, Serialize};
 
+const HAKO_STAGE1_MODULES_LIST: &str = "HAKO_STAGE1_MODULES_LIST";
+const HAKO_STAGE1_MODULE_ROOTS_LIST: &str = "HAKO_STAGE1_MODULE_ROOTS_LIST";
+const HAKO_STAGEB_MODULES_LIST: &str = "HAKO_STAGEB_MODULES_LIST";
+const HAKO_STAGEB_MODULE_ROOTS_LIST: &str = "HAKO_STAGEB_MODULE_ROOTS_LIST";
+
 #[derive(Clone, Default)]
 pub(super) struct Stage1ModuleEnvLists {
     pub(super) modules_list: Option<String>,
@@ -28,17 +33,35 @@ pub(super) struct Stage1ModuleEnvLists {
 
 impl Stage1ModuleEnvLists {
     pub(super) fn apply_to_command_if_missing(&self, cmd: &mut Command) {
-        if std::env::var("HAKO_STAGEB_MODULES_LIST").is_err() {
-            if let Some(modules) = self.modules_list.as_ref() {
-                cmd.env("HAKO_STAGEB_MODULES_LIST", modules);
-            }
+        let modules_value =
+            first_non_empty_env(&[HAKO_STAGE1_MODULES_LIST, HAKO_STAGEB_MODULES_LIST])
+                .or_else(|| self.modules_list.clone());
+        if let Some(modules) = modules_value.as_ref() {
+            set_if_missing(cmd, HAKO_STAGE1_MODULES_LIST, modules);
+            set_if_missing(cmd, HAKO_STAGEB_MODULES_LIST, modules);
         }
 
-        if std::env::var("HAKO_STAGEB_MODULE_ROOTS_LIST").is_err() {
-            if let Some(roots) = self.module_roots_list.as_ref() {
-                cmd.env("HAKO_STAGEB_MODULE_ROOTS_LIST", roots);
-            }
+        let roots_value =
+            first_non_empty_env(&[HAKO_STAGE1_MODULE_ROOTS_LIST, HAKO_STAGEB_MODULE_ROOTS_LIST])
+                .or_else(|| self.module_roots_list.clone());
+        if let Some(roots) = roots_value.as_ref() {
+            set_if_missing(cmd, HAKO_STAGE1_MODULE_ROOTS_LIST, roots);
+            set_if_missing(cmd, HAKO_STAGEB_MODULE_ROOTS_LIST, roots);
         }
+    }
+}
+
+fn first_non_empty_env(names: &[&str]) -> Option<String> {
+    names.iter().find_map(|name| {
+        std::env::var(name)
+            .ok()
+            .filter(|value| !value.trim().is_empty())
+    })
+}
+
+fn set_if_missing(cmd: &mut Command, name: &str, value: &str) {
+    if std::env::var(name).is_err() {
+        cmd.env(name, value);
     }
 }
 
@@ -312,7 +335,8 @@ fn collect_workspace_module_entries(doc: &toml::Value, toml_dir: &Path) -> Vec<(
 
 /// Collect modules list from hako.toml/nyash.toml registry
 ///
-/// Returns a "|||"-separated list of "key=value" entries for HAKO_STAGEB_MODULES_LIST.
+/// Returns a "|||"-separated list of "key=value" entries for HAKO_STAGE1_MODULES_LIST.
+/// HAKO_STAGEB_MODULES_LIST is kept as a compatibility alias for Stage-B routes.
 /// Includes well-known aliases required by Stage-1 CLI if absent.
 ///
 /// Merge policy:
@@ -376,8 +400,10 @@ fn collect_modules_list_from_doc(doc: &toml::Value, path: &Path) -> Option<Strin
 
 /// Collect module_roots list from hako.toml/nyash.toml [module_roots] section
 ///
-/// Returns a "|||"-separated list of "prefix=path" entries for HAKO_STAGEB_MODULE_ROOTS_LIST.
-/// Entries are sorted by prefix length descending (longest match first) for Stage-B.
+/// Returns a "|||"-separated list of "prefix=path" entries for HAKO_STAGE1_MODULE_ROOTS_LIST.
+/// HAKO_STAGEB_MODULE_ROOTS_LIST is kept as a compatibility alias for Stage-B routes.
+/// Entries are sorted by prefix length descending (longest match first) for the
+/// Stage-1 bridge payload and Stage-B compatibility readers.
 fn collect_module_roots_list_from_doc(doc: &toml::Value) -> Option<String> {
     let mut entries: Vec<(String, String)> = Vec::new();
     if let Some(roots) = doc.get("module_roots").and_then(|v| v.as_table()) {
@@ -568,10 +594,14 @@ mod tests {
     }
 
     #[test]
-    fn apply_to_command_if_missing_sets_stageb_lists() {
+    fn apply_to_command_if_missing_sets_stage1_and_stageb_lists() {
         let _lock = test_support::env_lock().lock().unwrap();
-        let _clear =
-            EnvGuard::clear(&["HAKO_STAGEB_MODULES_LIST", "HAKO_STAGEB_MODULE_ROOTS_LIST"]);
+        let _clear = EnvGuard::clear(&[
+            "HAKO_STAGE1_MODULES_LIST",
+            "HAKO_STAGE1_MODULE_ROOTS_LIST",
+            "HAKO_STAGEB_MODULES_LIST",
+            "HAKO_STAGEB_MODULE_ROOTS_LIST",
+        ]);
         let lists = Stage1ModuleEnvLists {
             modules_list: Some("core=lang/core".into()),
             module_roots_list: Some("core=lang".into()),
@@ -582,8 +612,16 @@ mod tests {
         let envs = command_env_map(&cmd);
 
         assert_eq!(
+            envs.get("HAKO_STAGE1_MODULES_LIST"),
+            Some(&"core=lang/core".to_string())
+        );
+        assert_eq!(
             envs.get("HAKO_STAGEB_MODULES_LIST"),
             Some(&"core=lang/core".to_string())
+        );
+        assert_eq!(
+            envs.get("HAKO_STAGE1_MODULE_ROOTS_LIST"),
+            Some(&"core=lang".to_string())
         );
         assert_eq!(
             envs.get("HAKO_STAGEB_MODULE_ROOTS_LIST"),
@@ -592,10 +630,14 @@ mod tests {
     }
 
     #[test]
-    fn apply_to_command_if_missing_preserves_parent_stageb_lists() {
+    fn apply_to_command_if_missing_bridges_parent_stageb_lists() {
         let _lock = test_support::env_lock().lock().unwrap();
-        let _clear =
-            EnvGuard::clear(&["HAKO_STAGEB_MODULES_LIST", "HAKO_STAGEB_MODULE_ROOTS_LIST"]);
+        let _clear = EnvGuard::clear(&[
+            "HAKO_STAGE1_MODULES_LIST",
+            "HAKO_STAGE1_MODULE_ROOTS_LIST",
+            "HAKO_STAGEB_MODULES_LIST",
+            "HAKO_STAGEB_MODULE_ROOTS_LIST",
+        ]);
         let _set = EnvGuard::set(&[
             ("HAKO_STAGEB_MODULES_LIST", "parent-mods"),
             ("HAKO_STAGEB_MODULE_ROOTS_LIST", "parent-roots"),
@@ -609,6 +651,14 @@ mod tests {
         lists.apply_to_command_if_missing(&mut cmd);
         let envs = command_env_map(&cmd);
 
+        assert_eq!(
+            envs.get("HAKO_STAGE1_MODULES_LIST"),
+            Some(&"parent-mods".to_string())
+        );
+        assert_eq!(
+            envs.get("HAKO_STAGE1_MODULE_ROOTS_LIST"),
+            Some(&"parent-roots".to_string())
+        );
         assert!(!envs.contains_key("HAKO_STAGEB_MODULES_LIST"));
         assert!(!envs.contains_key("HAKO_STAGEB_MODULE_ROOTS_LIST"));
     }

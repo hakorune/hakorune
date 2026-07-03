@@ -418,6 +418,12 @@ collect_stageb_modules_list() {
     echo "$out"
 }
 
+# Preferred Stage-1 name. The stageb spelling remains a Program(JSON v0)
+# compatibility alias because existing proof routes and .hako readers consume it.
+collect_stage1_modules_list() {
+    collect_stageb_modules_list "$@"
+}
+
 collect_stageb_module_roots_list() {
     local root="${1:-${NYASH_ROOT:-$(pwd)}}"
     local toml
@@ -483,6 +489,12 @@ collect_stageb_module_roots_list() {
         fi
     done
     echo "$out"
+}
+
+# Preferred Stage-1 name. Keep the stageb spelling as the stable compatibility
+# payload name until a dedicated env retirement row migrates all callers.
+collect_stage1_module_roots_list() {
+    collect_stageb_module_roots_list "$@"
 }
 
 # ============================================================================

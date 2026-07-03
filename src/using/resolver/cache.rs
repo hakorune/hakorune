@@ -138,24 +138,30 @@ fn should_skip_workspace_member_scan() -> bool {
         return false;
     }
 
-    let apply_usings_enabled = std::env::var("HAKO_STAGEB_APPLY_USINGS")
-        .map(|v| matches!(v.trim(), "1" | "true" | "TRUE" | "True"))
-        .unwrap_or(false);
+    let apply_usings_enabled =
+        first_non_empty_env(&["HAKO_STAGE1_APPLY_USINGS", "HAKO_STAGEB_APPLY_USINGS"])
+            .map(|v| matches!(v.trim(), "1" | "true" | "TRUE" | "True"))
+            .unwrap_or(false);
     if apply_usings_enabled {
         return false;
     }
 
-    std::env::var("HAKO_STAGEB_MODULES_LIST")
-        .map(|v| !v.trim().is_empty())
-        .unwrap_or(false)
+    first_non_empty_env(&["HAKO_STAGE1_MODULES_LIST", "HAKO_STAGEB_MODULES_LIST"]).is_some()
 }
 
-fn read_stageb_modules_list_from_env() -> Vec<(String, String)> {
-    let raw = match std::env::var("HAKO_STAGEB_MODULES_LIST") {
-        Ok(v) => v,
-        Err(_) => return Vec::new(),
-    };
+fn first_non_empty_env(names: &[&str]) -> Option<String> {
+    names.iter().find_map(|name| {
+        std::env::var(name)
+            .ok()
+            .filter(|value| !value.trim().is_empty())
+    })
+}
 
+fn read_stage1_modules_list_from_env() -> Vec<(String, String)> {
+    let raw = match first_non_empty_env(&["HAKO_STAGE1_MODULES_LIST", "HAKO_STAGEB_MODULES_LIST"]) {
+        Some(v) => v,
+        None => return Vec::new(),
+    };
     let mut out = Vec::new();
     for entry in raw.split("|||") {
         let trimmed = entry.trim();
@@ -173,10 +179,13 @@ fn read_stageb_modules_list_from_env() -> Vec<(String, String)> {
     out
 }
 
-fn read_stageb_module_roots_list_from_env() -> Vec<(String, String)> {
-    let raw = match std::env::var("HAKO_STAGEB_MODULE_ROOTS_LIST") {
-        Ok(v) => v,
-        Err(_) => return Vec::new(),
+fn read_stage1_module_roots_list_from_env() -> Vec<(String, String)> {
+    let raw = match first_non_empty_env(&[
+        "HAKO_STAGE1_MODULE_ROOTS_LIST",
+        "HAKO_STAGEB_MODULE_ROOTS_LIST",
+    ]) {
+        Some(v) => v,
+        None => return Vec::new(),
     };
 
     let mut out = Vec::new();
@@ -483,8 +492,8 @@ pub fn populate_from_toml(
     module_roots: &mut Vec<(String, String)>,
 ) -> Result<UsingPolicy, UsingError> {
     if should_skip_workspace_member_scan() {
-        pending_modules.extend(read_stageb_modules_list_from_env());
-        module_roots.extend(read_stageb_module_roots_list_from_env());
+        pending_modules.extend(read_stage1_modules_list_from_env());
+        module_roots.extend(read_stage1_module_roots_list_from_env());
         return Ok(UsingPolicy::default());
     }
 
@@ -520,7 +529,7 @@ pub fn populate_from_toml(
         )?;
     }
 
-    for (name, path) in read_stageb_modules_list_from_env() {
+    for (name, path) in read_stage1_modules_list_from_env() {
         merge_module_entry(&mut resolved_pending_modules, name, path);
     }
 
