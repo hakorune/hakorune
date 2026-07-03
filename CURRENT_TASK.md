@@ -41,15 +41,19 @@ the active card and task-order SSOT. Do not duplicate them here.
 
 ## Immediate Maintenance Slice
 
-Scope: golden MIR helper fail-fast hygiene only.
+Scope: `local_tests/` tracking hygiene only.
 
-- move the active golden MIR input out of ignored `local_tests`
-- make `tools/ci_check_golden.sh` fail on missing inputs or helper failures
-- do not remove tracked `local_tests` files broadly in this slice
+- remove ignored `local_tests/` scratch files from the git index
+- keep local scratch files on disk for developers
+- move active test-generated inputs out of `local_tests/`
+- do not change docs/archive references, grammar, backend lanes, or `.git`
+  maintenance in this slice
 
 Acceptance:
 
 ```bash
-bash tools/ci_check_golden.sh
+test "$(git ls-files local_tests | wc -l)" -eq 0
+! rg -n 'local_tests' tools tests src .github --glob '!tools/archive/**'
+cargo test -q --test phase246_json_atoi --no-run
 tools/checks/dev_gate.sh quick
 ```

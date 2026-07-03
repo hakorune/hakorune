@@ -1,2 +1,0 @@
-print("Testing throw")
-throw "Simple exception"

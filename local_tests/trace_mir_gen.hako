@@ -1,6 +1,0 @@
-// Trace MIR generation
-static box Main {
-    main() {
-        print("Hello")
-    }
-}

@@ -11,6 +11,7 @@
 //! - Immediate break (no digits): "abc" → 0
 
 use std::fs;
+use std::path::PathBuf;
 use std::process::Command;
 
 /// Helper function to run _atoi implementation via hakorune binary
@@ -45,8 +46,11 @@ static box Main {{
         input.len()
     );
 
-    // Write test file
-    let test_file = format!("local_tests/phase246_atoi_{}.hako", test_name);
+    // Write generated inputs under target/ so the test does not depend on
+    // ignored local scratch directories existing in a fresh checkout.
+    let test_dir = PathBuf::from("target/test-inputs/phase246_json_atoi");
+    fs::create_dir_all(&test_dir).expect("Failed to create test input directory");
+    let test_file = test_dir.join(format!("phase246_atoi_{}.hako", test_name));
     fs::write(&test_file, &code).expect("Failed to write test file");
 
     // Run hakorune
@@ -79,7 +83,15 @@ static box Main {{
     let output_value: i64 = stdout
         .trim()
         .parse()
-        .unwrap_or_else(|_| panic!("Failed to parse output '{}' as integer", stdout.trim()));
+        .unwrap_or_else(|_| {
+            panic!(
+                "[phase246/atoi/{}] Failed to parse stdout as integer.\nstatus: {}\nstdout: {}\nstderr: {}",
+                test_name,
+                output.status,
+                stdout.trim(),
+                String::from_utf8_lossy(&output.stderr),
+            )
+        });
 
     assert_eq!(
         output_value, expected,
