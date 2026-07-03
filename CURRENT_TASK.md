@@ -56,6 +56,7 @@ SOURCE-SELFHOST-RUST-TO-HAKO-CONVERTER-ROLE-PIVOT-001
   -> MIRBUILDER-PLACEMENT-EFFECT-TAG-FORMATTER-RUST-ORACLE-FIXTURE-001
   -> MIRBUILDER-PLACEMENT-EFFECT-TAG-FORMATTER-HAKO-NATIVE-IMPLEMENTATION-001
   -> MIRBUILDER-PLACEMENT-EFFECT-TAG-FORMATTER-PARITY-GATE-001
+  -> MIRBUILDER-PLACEMENT-EFFECT-TAG-FORMATTER-HAKO-ADOPTION-DECISION-001
 ```
 
 Rule:
@@ -72,6 +73,7 @@ storage_class is HakoAdopted as a narrow parity pilot; next is pilot selection r
 placement_effect_tag_formatter is selected as the second parity pilot; next is its Rust-oracle fixture
 placement_effect_tag_formatter has a 25-row Rust-oracle fixture; next is hand-authored .hako implementation
 placement_effect_tag_formatter has hand-authored .hako implementation; next is parity gate
+placement_effect_tag_formatter parity gate is green; next is HakoAdoption decision
 ```
 
 ## Immediate Maintenance Slice
