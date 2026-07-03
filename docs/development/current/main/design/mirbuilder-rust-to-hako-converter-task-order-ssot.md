@@ -66,8 +66,11 @@ selected next task:
 
 current fail-fast boundary:
   Do not re-enter full converter route selection without new non-self-signed
-  authority or stable input delta. The selected pilot scope is only
-  `MirType -> StorageClass`; metadata refresh/mutation remains Rust.
+  authority or stable input delta. The adopted pilot scopes are narrow pure
+  owners only: storage-class classification, placement-effect tag formatting,
+  and static-scalar fact classification. Metadata refresh, route collection,
+  const emission, full AST traversal, method dispatch, and MirBuilder mutation
+  remain Rust.
 
 latest design decision:
   static_scalar_fact_classifier is now HakoAdopted as the third narrow
