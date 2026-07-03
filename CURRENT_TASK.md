@@ -58,9 +58,15 @@ Current state:
 - PHI / LocalSSA / variable-map internals remain out of scope for naming
   cleanup.
 
-Next safe naming work, if explicitly selected, is
-`STAGE-TERM-EXISTING-NAME-MIGRATION-001`; it must start with an inventory and
-classification pass, not direct renames.
+Stage-term existing-name migration has a classification inventory at:
+
+```text
+docs/development/current/main/design/hakorune-stage-term-existing-name-migration-inventory.md
+```
+
+No existing stage term rename has been selected yet. Next safe naming work, if
+explicitly selected, must pick one classified layer from that inventory and keep
+compatibility aliases or replacement routes in the same slice.
 
 Acceptance:
 
