@@ -24,9 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-STRING-CORRIDOR-NAME-VOCABULARY-PARITY-GATE-001.
-  The string_corridor_name_vocabulary_classifier Rust-oracle parity gate is
-  green; next is the HakoAdoption decision card.
+  MIRBUILDER-STRING-CORRIDOR-NAME-VOCABULARY-HAKO-ADOPTION-DECISION-001.
+  The string_corridor_name_vocabulary_classifier owner is HakoAdopted as the
+  fourth narrow Rust-oracle parity pilot; next is pilot selection rerun 004.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,23 +62,25 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-STRING-CORRIDOR-NAME-VOCABULARY-HAKO-ADOPTION-DECISION-001
+  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-004
 
 current fail-fast boundary:
   Do not re-enter full converter route selection without new non-self-signed
   authority or stable input delta. The adopted pilot scopes are narrow pure
   owners only: storage-class classification, placement-effect tag formatting,
-  and static-scalar fact classification. Metadata refresh, route collection,
-  const emission, full AST traversal, method dispatch, and MirBuilder mutation
-  remain Rust.
+  static-scalar fact classification, and fixture-backed string corridor name
+  vocabulary classification. Metadata refresh, route collection, const
+  emission, full AST traversal, method dispatch, string corridor fact
+  inference, and MirBuilder mutation remain Rust.
 
 latest design decision:
-  string_corridor_name_vocabulary_classifier now has a green 18-row `.hako`
-  EXE parity gate for helper/runtime name -> vocabulary boolean category tags.
-  String corridor fact inference, recognizer shape matching, compat recovery
-  policy, MIR traversal, and runtime export lowering remain Rust. The selected
-  next card is
-  `MIRBUILDER-STRING-CORRIDOR-NAME-VOCABULARY-HAKO-ADOPTION-DECISION-001`.
+  string_corridor_name_vocabulary_classifier is now HakoAdopted as a narrow
+  Rust-oracle parity pilot owner after a green 18-row `.hako` EXE parity gate
+  for helper/runtime name -> vocabulary boolean category tags. String corridor
+  fact inference, recognizer shape matching, compat recovery policy, MIR
+  traversal, runtime export lowering, and open-ended suffix matching remain
+  Rust. The selected next card is
+  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-004`.
 
 historical route-selection decision:
   Detailed landed route-selection rows are closed as provenance and live in

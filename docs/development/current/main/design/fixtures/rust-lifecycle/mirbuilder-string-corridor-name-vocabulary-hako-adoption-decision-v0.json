@@ -1,0 +1,39 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderStringCorridorNameVocabularyHakoAdoptionDecisionV1",
+  "token": "MIRBUILDER-STRING-CORRIDOR-NAME-VOCABULARY-HAKO-ADOPTION-DECISION-001",
+  "owner": "string_corridor_name_vocabulary_classifier",
+  "decision": {
+    "kind": "Adopt",
+    "reason_token": "StringCorridorNameVocabularyRustOracleParityGateGreen",
+    "hako_adopted": 1,
+    "selected_next_card": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-004"
+  },
+  "evidence": {
+    "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-string-corridor-name-vocabulary-rust-oracle-v0.json",
+    "rust_oracle_fixture_hash": "sha256:59f89369390667062ef1ebb68cb21c0f713cfb608eca156816d5237376bf0c72",
+    "hako_source": "lang/src/compiler/lib/string_corridor_name_vocabulary.hako",
+    "hako_source_hash": "sha256:29ac05e4ef467ee6823b5b739d6db27987cc5896c53e6ec6b337ef9c81d9fe1f",
+    "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_string_corridor_name_vocabulary_parity_gate.sh",
+    "parity_gate_hash": "sha256:812273c1178d479fc211acad98c75620f061c1aeee69f84ef7e21813ef31a1e9",
+    "parity_rows": 18,
+    "parity_status": "green"
+  },
+  "scope": {
+    "adopted_surface": "fixture-backed helper/runtime name -> vocabulary boolean category tags",
+    "string_corridor_fact_inference_migration": 0,
+    "recognizer_shape_matching_migration": 0,
+    "compat_recovery_policy_migration": 0,
+    "mir_instruction_traversal_migration": 0,
+    "runtime_export_lowering_migration": 0,
+    "open_ended_suffix_matching_migration": 0
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "generated_artifact_as_native_edit_authority": 0
+  }
+}

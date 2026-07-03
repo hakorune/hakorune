@@ -94,6 +94,7 @@ string_corridor_name_vocabulary_classifier is selected as the fourth parity pilo
 string_corridor_name_vocabulary_classifier has an 18-row Rust-oracle fixture; next is hand-authored .hako implementation
 string_corridor_name_vocabulary_classifier has hand-authored .hako implementation; next is parity gate
 string_corridor_name_vocabulary_classifier parity gate is green; next is HakoAdoption decision
+string_corridor_name_vocabulary_classifier is HakoAdopted as the fourth parity pilot; next is pilot selection rerun 004
 ```
 
 ## Immediate Maintenance Slice
