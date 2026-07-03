@@ -30,6 +30,7 @@ build/
 !tools/build/**
 dist/
 *.egg-info/
+plugins/**/*.a
 
 # Rust
 /target/

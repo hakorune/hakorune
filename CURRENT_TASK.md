@@ -41,17 +41,16 @@ the active card and task-order SSOT. Do not duplicate them here.
 
 ## Immediate Maintenance Slice
 
-Scope: current-state hygiene only.
+Scope: plugin artifact hygiene only.
 
-- enforce the existing `landed_tail` target maximum in
-  `tools/checks/current_state_pointer_guard.sh`
-- trim `docs/development/current/main/CURRENT_STATE.toml` `landed_tail` back to
-  the policy target
-- do not remove tracked artifacts, `local_tests`, or backend lanes in this slice
+- remove tracked, rebuildable plugin static archives from the git index
+- add an ignore rule for generated plugin archives
+- do not touch `local_tests`, grammar, backend lanes, or `.git` maintenance in
+  this slice
 
 Acceptance:
 
 ```bash
-bash tools/checks/current_state_pointer_guard.sh
+git ls-files | rg '^plugins/.*\.a$' && exit 1 || true
 tools/checks/dev_gate.sh quick
 ```
