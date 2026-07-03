@@ -1213,6 +1213,28 @@ MIR instruction vocabulary changed = 0
 runtime behavior changed = 0
 ```
 
+## Landed Reference Docs Plugin Index Wording Slice
+
+`HAKORUNE-REFERENCE-DOCS-PLUGIN-INDEX-WORDING-001` updates the current plugin
+system reference index title and core-developer heading.
+
+Scope:
+
+```text
+docs/reference/plugin-system/README.md
+```
+
+Non-claims:
+
+```text
+nyash.toml compatibility name removed = 0
+nyash_box.toml compatibility/spec name removed = 0
+plugin package paths renamed = 0
+repository URL renamed = 0
+plugin ABI names renamed = 0
+runtime behavior changed = 0
+```
+
 ## Migration Eligibility
 
 An occurrence is eligible for a future rename only if all conditions hold:

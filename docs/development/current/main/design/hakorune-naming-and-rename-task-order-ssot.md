@@ -803,6 +803,28 @@ MIR instruction vocabulary changed = 0
 runtime behavior changed = 0
 ```
 
+### HAKORUNE-REFERENCE-DOCS-PLUGIN-INDEX-WORDING-001
+
+Status: landed.
+
+Scope:
+
+```text
+docs/reference/plugin-system/README.md:
+  title and core-developer heading are Hakorune-first
+```
+
+Non-claims:
+
+```text
+nyash.toml compatibility name removed = 0
+nyash_box.toml compatibility/spec name removed = 0
+plugin package paths renamed = 0
+repository URL renamed = 0
+plugin ABI names renamed = 0
+runtime behavior changed = 0
+```
+
 ### HAKORUNE-BINARY-PRIMARY-CUTOVER-INVENTORY-001
 
 Status: landed inventory cut.

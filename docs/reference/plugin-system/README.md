@@ -1,4 +1,4 @@
-# Nyash Plugin System Documentation
+# Hakorune Plugin System Documentation
 
 ## 🎯 Quick Start
 
@@ -148,7 +148,7 @@ export NYASH_PLUGIN_OVERRIDE_TYPES="ArrayBox,MapBox,ConsoleBox"
   - 上記により、`new ConsoleBox()` などの生成がプラグイン経路に切替わります。
   - 後方互換のため `[libraries]` にも対象プラグインを登録しておくと、解決の一貫性が高まります。
 
-## 🔧 For Nyash Core Developers
+## 🔧 For Hakorune Core Developers
 
 ### Implementation Files
 - **[plugin_loader_v2.rs](../../../../src/runtime/plugin_loader_v2.rs)** - プラグインローダー実装

@@ -150,6 +150,7 @@ REFERENCE_INVARIANTS="$ROOT_DIR/docs/reference/invariants.md"
 REFERENCE_CONSTRAINTS="$ROOT_DIR/docs/reference/constraints.md"
 REFERENCE_MIR_INSTRUCTION_SET="$ROOT_DIR/docs/reference/mir/INSTRUCTION_SET.md"
 REFERENCE_RUNTIME_GC="$ROOT_DIR/docs/reference/runtime/gc.md"
+REFERENCE_PLUGIN_SYSTEM_README="$ROOT_DIR/docs/reference/plugin-system/README.md"
 STAGE1_BRIDGE_ENV_PARSER_STAGEB_RS="$ROOT_DIR/src/runner/stage1_bridge/env/parser_stageb.rs"
 RUST_STAGE1_README="$ROOT_DIR/src/stage1/README.md"
 RUST_STAGE1_MOD_RS="$ROOT_DIR/src/stage1/mod.rs"
@@ -412,6 +413,7 @@ REQUIRED_FILES=(
   "$REFERENCE_CONSTRAINTS"
   "$REFERENCE_MIR_INSTRUCTION_SET"
   "$REFERENCE_RUNTIME_GC"
+  "$REFERENCE_PLUGIN_SYSTEM_README"
   "$STAGE1_BRIDGE_ENV_PARSER_STAGEB_RS"
   "$RUST_STAGE1_README"
   "$RUST_STAGE1_MOD_RS"
@@ -509,6 +511,7 @@ SSOT_REQUIRED_TOKENS=(
   "HAKORUNE-REFERENCE-DOCS-ENTRY-INDEX-WORDING-001"
   "HAKORUNE-REFERENCE-DOCS-INVARIANTS-CONSTRAINTS-WORDING-001"
   "HAKORUNE-REFERENCE-DOCS-MIR-GC-WORDING-001"
+  "HAKORUNE-REFERENCE-DOCS-PLUGIN-INDEX-WORDING-001"
   "STAGE-TERM-EXISTING-NAME-INVENTORY-001"
   "STAGE-TERM-SYNTAX3-ALIAS-001"
   "STAGE-TERM-SYNTAX3-DIAGNOSTIC-WORDING-001"
@@ -625,6 +628,14 @@ if rg -n -F \
   -e "Nyash adopts a pragmatic GC strategy" \
   "$REFERENCE_MIR_INSTRUCTION_SET" "$REFERENCE_RUNTIME_GC"; then
   guard_fail "$TAG" "reference MIR/GC docs must use Hakorune-first title/intro wording"
+fi
+require_fixed "# Hakorune Plugin System Documentation" "$REFERENCE_PLUGIN_SYSTEM_README"
+require_fixed "## 🔧 For Hakorune Core Developers" "$REFERENCE_PLUGIN_SYSTEM_README"
+if rg -n -F \
+  -e "# Nyash Plugin System Documentation" \
+  -e "## 🔧 For Nyash Core Developers" \
+  "$REFERENCE_PLUGIN_SYSTEM_README"; then
+  guard_fail "$TAG" "plugin-system reference index must use Hakorune-first title/heading wording"
 fi
 require_fixed 'default-run = "hakorune"' "$CARGO_TOML"
 require_fixed 'name = "hakorune"' "$CARGO_TOML"
