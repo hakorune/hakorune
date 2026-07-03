@@ -1,0 +1,32 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderArrayTextResidenceSessionLabelFormatterRustOracleV1",
+  "token": "MIRBUILDER-ARRAY-TEXT-RESIDENCE-SESSION-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "source": {
+    "path": "src/mir/array_text_residence_session_plan.rs",
+    "hash": "sha256:b16c393d87b4305370bb80b03f8c53092fcd143f7602183d4b16f8e4f6d27c0e"
+  },
+  "rows": [
+    {"category": "Scope", "input": "LoopBackedgeSingleBody", "expected": "loop_backedge_single_body"},
+    {"category": "Proof", "input": "LoopcarryLenStoreOnly", "expected": "loopcarry_len_store_only"},
+    {"category": "BeginPlacement", "input": "BeforePreheaderJump", "expected": "before_preheader_jump"},
+    {"category": "UpdatePlacement", "input": "RouteInstruction", "expected": "route_instruction"},
+    {"category": "EndPlacement", "input": "ExitBlockEntry", "expected": "exit_block_entry"},
+    {"category": "ExecutionMode", "input": "SingleRegionExecutor", "expected": "single_region_executor"},
+    {"category": "Carrier", "input": "ArrayLaneTextCell", "expected": "array_lane_text_cell"},
+    {"category": "Effect", "input": "StoreCell", "expected": "store.cell"},
+    {"category": "Effect", "input": "LengthOnlyResultCarry", "expected": "length_only_result_carry"},
+    {"category": "ConsumerCapability", "input": "SinkStore", "expected": "sink_store"},
+    {"category": "ConsumerCapability", "input": "LengthOnly", "expected": "length_only"},
+    {"category": "MaterializationPolicy", "input": "TextResidentOrStringlikeSlot", "expected": "text_resident_or_stringlike_slot"}
+  ],
+  "claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "session_derivation_migration": 0,
+    "region_mapping_migration": 0,
+    "executor_plan_assembly_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

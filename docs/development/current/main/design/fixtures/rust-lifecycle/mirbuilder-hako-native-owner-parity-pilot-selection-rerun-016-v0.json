@@ -1,0 +1,58 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderHakoNativeOwnerParityPilotSelectionRerun016V1",
+  "token": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-016",
+  "input_state": {
+    "previous_hako_adoption": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-array-text-state-residence-label-formatter-hako-adoption-decision-v0.json",
+    "previous_hako_adoption_hash": "sha256:76502db0c67f5f29029f53d1c531c88a922757b7707508e0e86a4c24f8f7be82",
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+  },
+  "selection_rule": {
+    "name": "RustOracleParityMigrationPilotSelectorV1",
+    "manual_target_selection_allowed": true,
+    "correctness_proof_required": "RustOracleParityGate",
+    "source_selfhost_claim": 0,
+    "hako_adopted_before_parity": 0,
+    "full_converter_route_reentry": 0
+  },
+  "candidate_rows": [
+    {
+      "candidate_owner": "array_text_residence_session_label_formatter",
+      "source_path": "src/mir/array_text_residence_session_plan.rs",
+      "source_hash": "sha256:b16c393d87b4305370bb80b03f8c53092fcd143f7602183d4b16f8e4f6d27c0e",
+      "surface": "ArrayTextResidenceSession* label formatting",
+      "pure": true,
+      "small": true,
+      "json_serializable": true,
+      "rust_oracle_available": true,
+      "selection_state": "Selected",
+      "accepted_reason": "Pure residence-session enum label surface; no session derivation, region mapping, executor plan assembly, or backend lowering migration."
+    },
+    {
+      "candidate_owner": "array_text_residence_session_region_mapping",
+      "selection_state": "Rejected",
+      "rejected_reason": "RegionMappingCarriesValueIdsAndLoopShapeTooWideForNextPilot"
+    },
+    {
+      "candidate_owner": "placement_effect_summary_formatter",
+      "selection_state": "Deferred",
+      "rejected_reason": "Available after residence-session label surface."
+    }
+  ],
+  "decision": {
+    "kind": "SelectRustOracleFixture",
+    "reason_token": "ArrayTextResidenceSessionLabelFormatterSelectedAsSeventeenthParityPilot",
+    "selected_owner": "array_text_residence_session_label_formatter",
+    "selected_next_card": "MIRBUILDER-ARRAY-TEXT-RESIDENCE-SESSION-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "generated_artifact_as_native_edit_authority": 0,
+    "session_derivation_migration": 0,
+    "region_mapping_migration": 0,
+    "executor_plan_assembly_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

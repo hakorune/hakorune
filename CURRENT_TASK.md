@@ -363,14 +363,14 @@ or replacement routes in the same slice.
 Latest adopted owner:
 
 ```text
-MIRBUILDER-ARRAY-TEXT-STATE-RESIDENCE-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001
+MIRBUILDER-ARRAY-TEXT-RESIDENCE-SESSION-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001
 ```
 
 Status:
 
 ```text
-array_text_state_residence_label_formatter is HakoAdopted as the sixteenth
-narrow Rust-oracle parity pilot after a green 5-row `.hako` EXE parity gate.
+array_text_residence_session_label_formatter is HakoAdopted as the seventeenth
+narrow Rust-oracle parity pilot after a green 12-row `.hako` EXE parity gate.
 Source Selfhost remains unclaimed.
 ```
 
@@ -378,12 +378,12 @@ Boundary:
 
 ```text
 Adopted:
-  ArrayTextStateResidence contract labels
+  ArrayTextResidenceSession labels
 
 Still Rust:
-  array/text route matching
-  exact-shape payload construction
-  executor/session planning
+  session derivation
+  region mapping
+  executor plan assembly
   backend lowering
   MIR mutation
 ```
@@ -391,7 +391,7 @@ Still Rust:
 Next:
 
 ```text
-MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-016
+MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-017
 ```
 
 Acceptance:

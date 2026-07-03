@@ -1,0 +1,51 @@
+// array_text_residence_session_label_formatter.hako - hand-authored residence-session label formatter
+//
+// Responsibility:
+// - format narrow ArrayTextResidenceSession enum names into Rust oracle text
+// - stay pure: scalar category/name in, scalar text out
+//
+// Non-responsibility:
+// - session derivation
+// - loop region mapping
+// - executor plan assembly
+// - backend lowering
+// - MIR mutation
+static box ArrayTextResidenceSessionLabelFormatterBox {
+  format_label(category, variant) {
+    if category == "Scope" {
+      if variant == "LoopBackedgeSingleBody" { return "loop_backedge_single_body" }
+    }
+    if category == "Proof" {
+      if variant == "LoopcarryLenStoreOnly" { return "loopcarry_len_store_only" }
+    }
+    if category == "BeginPlacement" {
+      if variant == "BeforePreheaderJump" { return "before_preheader_jump" }
+    }
+    if category == "UpdatePlacement" {
+      if variant == "RouteInstruction" { return "route_instruction" }
+    }
+    if category == "EndPlacement" {
+      if variant == "ExitBlockEntry" { return "exit_block_entry" }
+    }
+    if category == "ExecutionMode" {
+      if variant == "SingleRegionExecutor" { return "single_region_executor" }
+    }
+    if category == "Carrier" {
+      if variant == "ArrayLaneTextCell" { return "array_lane_text_cell" }
+    }
+    if category == "Effect" {
+      if variant == "StoreCell" { return "store.cell" }
+      if variant == "LengthOnlyResultCarry" { return "length_only_result_carry" }
+    }
+    if category == "ConsumerCapability" {
+      if variant == "SinkStore" { return "sink_store" }
+      if variant == "LengthOnly" { return "length_only" }
+    }
+    if category == "MaterializationPolicy" {
+      if variant == "TextResidentOrStringlikeSlot" {
+        return "text_resident_or_stringlike_slot"
+      }
+    }
+    return "unsupported_array_text_residence_session_label"
+  }
+}

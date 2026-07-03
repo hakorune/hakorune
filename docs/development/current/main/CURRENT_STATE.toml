@@ -63,6 +63,9 @@ remains unclaimed.
 ArrayTextStateResidenceLabelFormatter is now a narrow HakoAdopted Rust-oracle
 parity pilot owner after a green 5-row `.hako` EXE parity gate. Source
 Selfhost remains unclaimed.
+ArrayTextResidenceSessionLabelFormatter is now a narrow HakoAdopted Rust-oracle
+parity pilot owner after a green 12-row `.hako` EXE parity gate. Source
+Selfhost remains unclaimed.
 EXE/AOT remains the primary
 app/selfhost validation route; VM/interpreter lanes are not semantic owners."""
 
@@ -72,11 +75,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-ARRAY-TEXT-STATE-RESIDENCE-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2178-MIRBUILDER-ARRAY-TEXT-STATE-RESIDENCE-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.md"
+latest_card = "MIRBUILDER-ARRAY-TEXT-RESIDENCE-SESSION-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2183-MIRBUILDER-ARRAY-TEXT-RESIDENCE-SESSION-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.md"
 latest_card_summary = """The latest card adopts
-array_text_state_residence_label_formatter as the sixteenth narrow
-Rust-oracle parity pilot owner and chooses pilot selection rerun 016 next."""
+array_text_residence_session_label_formatter as the seventeenth narrow
+Rust-oracle parity pilot owner and chooses pilot selection rerun 017 next."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -87,14 +90,14 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-04: 2183 adopts array_text_residence_session_label_formatter as the seventeenth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
+  "2026-07-04: 2182 adds the array_text_residence_session_label_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
+  "2026-07-04: 2181 adds the hand-authored array_text_residence_session_label_formatter .hako implementation and chooses the parity gate card next.",
+  "2026-07-04: 2180 creates the 12-row array_text_residence_session_label_formatter Rust-oracle fixture and chooses the Hako-native implementation card next.",
+  "2026-07-04: 2179 selects array_text_residence_session_label_formatter as the seventeenth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
   "2026-07-04: 2178 adopts array_text_state_residence_label_formatter as the sixteenth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
   "2026-07-04: 2177 adds the array_text_state_residence_label_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
   "2026-07-04: 2176 adds the hand-authored array_text_state_residence_label_formatter .hako implementation and chooses the parity gate card next.",
   "2026-07-04: 2175 creates the 5-row array_text_state_residence_label_formatter Rust-oracle fixture and chooses the Hako-native implementation card next.",
   "2026-07-04: 2174 selects array_text_state_residence_label_formatter as the sixteenth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
-  "2026-07-04: 2173 adopts string_kernel_plan_label_formatter as the fifteenth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
-  "2026-07-04: 2172 adds the string_kernel_plan_label_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
-  "2026-07-04: 2171 adds the hand-authored string_kernel_plan_label_formatter .hako implementation and chooses the parity gate card next.",
-  "2026-07-04: 2170 creates the 12-row string_kernel_plan_label_formatter Rust-oracle fixture and chooses the Hako-native implementation card next.",
-  "2026-07-04: 2169 selects string_kernel_plan_label_formatter as the fifteenth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
 ]
