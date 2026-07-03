@@ -1,0 +1,54 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderSumLocalAggregateLayoutTagFormatterHakoAdoptionDecisionV1",
+  "token": "MIRBUILDER-SUM-LOCAL-AGGREGATE-LAYOUT-TAG-FORMATTER-HAKO-ADOPTION-DECISION-001",
+  "owner": "sum_local_aggregate_layout_tag_formatter",
+  "input_state": {
+    "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-sum-local-aggregate-layout-tag-formatter-rust-oracle-v0.json",
+    "hako_source": "lang/src/compiler/lib/sum_local_aggregate_layout_tag_formatter.hako",
+    "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_sum_local_aggregate_layout_tag_formatter_parity_gate.sh",
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+  },
+  "adoption_rule": {
+    "adopt_only_narrow_owner": true,
+    "correctness_proof": "RustOracleParityGate",
+    "parity_rows": 4,
+    "parity_status": "green",
+    "rust_bootstrap_retained": 1,
+    "rust_oracle_retained": 1
+  },
+  "adopted_surface": {
+    "name": "SumLocalAggregateLayout tag formatter",
+    "scope": [
+      "SumLocalAggregateLayout -> Display text"
+    ]
+  },
+  "excluded_surface": [
+    "payload-type layout binding",
+    "sum placement layout refresh",
+    "layout summary formatting",
+    "lowering execution",
+    "MIR mutation",
+    "Source Selfhost claim",
+    "Rust deletion"
+  ],
+  "decision": {
+    "kind": "Adopt",
+    "reason_token": "SumLocalAggregateLayoutTagFormatterRustOracleParityGateGreen",
+    "selected_next_card": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-014"
+  },
+  "claims": {
+    "hako_adopted": 1,
+    "source_selfhost_claim": 0,
+    "source_selfhost_complete": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "generated_artifact_as_native_edit_authority": 0,
+    "payload_type_layout_binding_migration": 0,
+    "sum_placement_layout_refresh_migration": 0,
+    "lowering_execution_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

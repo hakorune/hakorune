@@ -1,0 +1,32 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderSumLocalAggregateLayoutTagFormatterRustOracleV1",
+  "token": "MIRBUILDER-SUM-LOCAL-AGGREGATE-LAYOUT-TAG-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "sum_local_aggregate_layout_tag_formatter",
+  "rust_source": {
+    "path": "src/mir/sum_placement_layout.rs",
+    "hash": "sha256:8f054386dc8e1e6cf48606384995ffdb79298705c9b7064e299c8a44e77f3ac6",
+    "oracle_functions": [
+      "Display for SumLocalAggregateLayout"
+    ]
+  },
+  "oracle_rule": {
+    "surface": "SumLocalAggregateLayout enum Display tag formatter",
+    "payload_type_layout_binding_migration": 0,
+    "sum_placement_layout_refresh_migration": 0,
+    "lowering_execution_migration": 0,
+    "mir_mutation_migration": 0
+  },
+  "rows": [
+    { "input": "TagOnly", "expected": "tag_only" },
+    { "input": "TagI64Payload", "expected": "tag_i64_payload" },
+    { "input": "TagF64Payload", "expected": "tag_f64_payload" },
+    { "input": "TagHandlePayload", "expected": "tag_handle_payload" }
+  ],
+  "summary": {
+    "oracle_row_count": 4,
+    "selected_surface_is_pure_enum_tag_formatter": 1,
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0
+  }
+}

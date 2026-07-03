@@ -1,0 +1,57 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderHakoNativeOwnerParityPilotSelectionRerun013V1",
+  "token": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-013",
+  "input_state": {
+    "previous_hako_adoption": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-array-text-observer-executor-tag-formatter-hako-adoption-decision-v0.json",
+    "previous_hako_adoption_hash": "sha256:8cf3ef931891ac9e0ef82942fa398b8f08fea5a6abe9fce5fad0df81486ff4f7",
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+  },
+  "selection_rule": {
+    "name": "RustOracleParityMigrationPilotSelectorV1",
+    "manual_target_selection_allowed": true,
+    "correctness_proof_required": "RustOracleParityGate",
+    "source_selfhost_claim": 0,
+    "hako_adopted_before_parity": 0,
+    "full_converter_route_reentry": 0
+  },
+  "candidate_rows": [
+    {
+      "candidate_owner": "sum_local_aggregate_layout_tag_formatter",
+      "source_path": "src/mir/sum_placement_layout.rs",
+      "source_hash": "sha256:8f054386dc8e1e6cf48606384995ffdb79298705c9b7064e299c8a44e77f3ac6",
+      "surface": "SumLocalAggregateLayout Display tags",
+      "pure": true,
+      "small": true,
+      "json_serializable": true,
+      "rust_oracle_available": true,
+      "selection_state": "Selected",
+      "accepted_reason": "Pure layout enum/tag formatting surface; no payload-type layout binding or lowering migration."
+    },
+    {
+      "candidate_owner": "sum_placement_layout_summary",
+      "selection_state": "Rejected",
+      "rejected_reason": "LayoutSummaryObjectTooWideForNextPilot"
+    },
+    {
+      "candidate_owner": "array_text_observer_route_tag_formatter",
+      "selection_state": "Deferred",
+      "rejected_reason": "Available after sum-local layout tag surface."
+    }
+  ],
+  "decision": {
+    "kind": "SelectRustOracleFixture",
+    "reason_token": "SumLocalAggregateLayoutTagFormatterSelectedAsFourteenthParityPilot",
+    "selected_owner": "sum_local_aggregate_layout_tag_formatter",
+    "selected_next_card": "MIRBUILDER-SUM-LOCAL-AGGREGATE-LAYOUT-TAG-FORMATTER-RUST-ORACLE-FIXTURE-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "generated_artifact_as_native_edit_authority": 0,
+    "payload_type_layout_binding_migration": 0,
+    "sum_placement_layout_refresh_migration": 0,
+    "lowering_execution_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

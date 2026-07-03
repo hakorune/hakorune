@@ -363,14 +363,14 @@ or replacement routes in the same slice.
 Latest adopted owner:
 
 ```text
-MIRBUILDER-ARRAY-TEXT-OBSERVER-EXECUTOR-TAG-FORMATTER-HAKO-ADOPTION-DECISION-001
+MIRBUILDER-SUM-LOCAL-AGGREGATE-LAYOUT-TAG-FORMATTER-HAKO-ADOPTION-DECISION-001
 ```
 
 Status:
 
 ```text
-array_text_observer_executor_tag_formatter is HakoAdopted as the thirteenth
-narrow Rust-oracle parity pilot after a green 11-row `.hako` EXE parity gate.
+sum_local_aggregate_layout_tag_formatter is HakoAdopted as the fourteenth
+narrow Rust-oracle parity pilot after a green 4-row `.hako` EXE parity gate.
 Source Selfhost remains unclaimed.
 ```
 
@@ -378,12 +378,11 @@ Boundary:
 
 ```text
 Adopted:
-  ArrayTextObserver executor contract enum-family Display tags
+  SumLocalAggregateLayout Display tags
 
 Still Rust:
-  observer route derivation
-  region matching
-  combined region planning
+  payload-type layout binding
+  sum placement layout refresh
   lowering execution
   MIR mutation
 ```
@@ -391,7 +390,7 @@ Still Rust:
 Next:
 
 ```text
-MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-013
+MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-014
 ```
 
 Acceptance:

@@ -1,0 +1,29 @@
+// sum_local_aggregate_layout_tag_formatter.hako - hand-authored sum layout tag formatter
+//
+// Responsibility:
+// - format SumLocalAggregateLayout variant names into Rust oracle text
+// - stay pure: scalar string in, scalar text out
+//
+// Non-responsibility:
+// - payload-type layout binding
+// - sum placement layout refresh
+// - layout summary formatting
+// - lowering execution
+// - MIR mutation
+static box SumLocalAggregateLayoutTagFormatterBox {
+  format_tag(variant) {
+    if variant == "TagOnly" {
+      return "tag_only"
+    }
+    if variant == "TagI64Payload" {
+      return "tag_i64_payload"
+    }
+    if variant == "TagF64Payload" {
+      return "tag_f64_payload"
+    }
+    if variant == "TagHandlePayload" {
+      return "tag_handle_payload"
+    }
+    return "unsupported_sum_local_aggregate_layout"
+  }
+}
