@@ -41,17 +41,20 @@ the active card and task-order SSOT. Do not duplicate them here.
 
 ## Immediate Maintenance Slice
 
-Scope: `me.method` static-box call target repair only.
+Scope: Hakorune naming charter and `nyash` -> `hakorune` rename task order.
 
-- fix static-box `main` lowering so `me.helper(...)` resolves to the current
-  static box owner, not the top-level `main` function name
-- keep PHI lifecycle / type propagation SSOT untouched
-- do not add new language syntax, fallbacks, or `.hako` workarounds in this
-  slice
+- define RHako / HHako implementation vocabulary
+- reserve naked `stage` for bootstrap-only names and require layer-qualified
+  alternatives for new names
+- define run-pipeline / converter / adoption-plan as separate concepts
+- cut the `nyash` -> `hakorune` migration into safe rename surfaces
+- add a lightweight guard that fixes the naming SSOT as a reusable quick-gate
+  entry
+- do not perform broad source/package/env/plugin renames in this slice
 
 Acceptance:
 
 ```bash
-cargo test -q --features vm-reference --test phase246_json_atoi
+bash tools/checks/naming_charter_guard.sh
 tools/checks/dev_gate.sh quick
 ```

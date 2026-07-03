@@ -1,0 +1,107 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
+TAG="naming-charter-guard"
+source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
+
+SSOT="$ROOT_DIR/docs/development/current/main/design/hakorune-naming-and-rename-task-order-ssot.md"
+CHECK_INDEX="$ROOT_DIR/docs/tools/check-scripts-index.md"
+QUICK_STEPS="$ROOT_DIR/tools/checks/lib/dev_gate_quick_steps.sh"
+DOCS_LAYOUT="$ROOT_DIR/docs/development/current/main/DOCS_LAYOUT.md"
+
+guard_require_command "$TAG" rg
+guard_require_command "$TAG" git
+guard_require_files "$TAG" "$SSOT" "$CHECK_INDEX" "$QUICK_STEPS" "$DOCS_LAYOUT"
+
+require_fixed() {
+  local pattern="$1"
+  local file="$2"
+  guard_expect_fixed_in_file "$TAG" "$pattern" "$file" "$file missing required naming token: $pattern"
+}
+
+require_fixed "RHako" "$SSOT"
+require_fixed "HHako" "$SSOT"
+require_fixed "Qualify by layer. Naked \"stage\" is forbidden for new names." "$SSOT"
+require_fixed "run-pipeline" "$SSOT"
+require_fixed "converter" "$SSOT"
+require_fixed "adoption-plan" "$SSOT"
+require_fixed "NYASH_*" "$SSOT"
+require_fixed "HAKORUNE_*" "$SSOT"
+require_fixed "NAMING-CHARTER-STAGE-TERM-DISAMBIGUATION-001" "$SSOT"
+require_fixed "NYASH-TO-HAKORUNE-RENAME-ROADMAP-001" "$SSOT"
+require_fixed "tools/checks/naming_charter_guard.sh" "$CHECK_INDEX"
+require_fixed "naming_charter_guard.sh" "$QUICK_STEPS"
+require_fixed "hakorune-naming-and-rename-task-order-ssot.md" "$DOCS_LAYOUT"
+
+is_allowed_path() {
+  case "$1" in
+    docs/development/current/main/design/hakorune-naming-and-rename-task-order-ssot.md | \
+    docs/development/current/main/DOCS_LAYOUT.md | \
+    docs/tools/check-scripts-index.md | \
+    tools/checks/naming_charter_guard.sh | \
+    tools/checks/lib/dev_gate_quick_steps.sh | \
+    CURRENT_TASK.md)
+      return 0
+      ;;
+    *)
+      return 1
+      ;;
+  esac
+}
+
+check_added_stage_terms_in_diff() {
+  local mode="$1"
+  local tmp
+  tmp="$(mktemp "/tmp/${TAG}.${mode}.diff.XXXXXX")"
+  if [[ "$mode" == "cached" ]]; then
+    git -C "$ROOT_DIR" diff --cached --unified=0 -- >"$tmp"
+  else
+    git -C "$ROOT_DIR" diff --unified=0 -- >"$tmp"
+  fi
+
+  if awk '
+    /^\+\+\+ b\// {
+      file = substr($0, 7)
+      allowed = 0
+      if (file == "docs/development/current/main/design/hakorune-naming-and-rename-task-order-ssot.md") { allowed = 1 }
+      if (file == "docs/development/current/main/DOCS_LAYOUT.md") { allowed = 1 }
+      if (file == "docs/tools/check-scripts-index.md") { allowed = 1 }
+      if (file == "tools/checks/naming_charter_guard.sh") { allowed = 1 }
+      if (file == "tools/checks/lib/dev_gate_quick_steps.sh") { allowed = 1 }
+      if (file == "CURRENT_TASK.md") { allowed = 1 }
+      next
+    }
+    /^\+\+\+ / { next }
+    /^\+/ && !allowed && /(^|[^A-Za-z0-9_])(Stage-[A-Za-z0-9_-]+|Stage[0-9]+|stage[0-9]+|stage-[A-Za-z0-9_-]+)/ {
+      print
+      found = 1
+    }
+    END { exit found ? 0 : 1 }
+  ' "$tmp"; then
+    rm -f "$tmp"
+    guard_fail "$TAG" "new unqualified stage term added outside naming charter in ${mode} diff; classify it by layer first"
+  fi
+  rm -f "$tmp"
+}
+
+check_added_stage_terms_in_untracked() {
+  local path
+  while IFS= read -r path; do
+    [[ -z "$path" ]] && continue
+    if is_allowed_path "$path"; then
+      continue
+    fi
+    if [[ -f "$ROOT_DIR/$path" ]] && rg -n '(^|[^A-Za-z0-9_])(Stage-[A-Za-z0-9_-]+|Stage[0-9]+|stage[0-9]+|stage-[A-Za-z0-9_-]+)' "$ROOT_DIR/$path"; then
+      guard_fail "$TAG" "new unqualified stage term added in untracked file: $path"
+    fi
+  done < <(git -C "$ROOT_DIR" ls-files --others --exclude-standard)
+}
+
+if git -C "$ROOT_DIR" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  check_added_stage_terms_in_diff "unstaged"
+  check_added_stage_terms_in_diff "cached"
+  check_added_stage_terms_in_untracked
+fi
+
+echo "[$TAG] ok"

@@ -83,6 +83,10 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
   - MirBuilder-only Rust-to-Hako converter task order; keeps day-to-day work in
     implementation commits and uses human design stops instead of route/card
     churn
+- `design/hakorune-naming-and-rename-task-order-ssot.md`
+  - Hakorune naming charter and rename task order; defines RHako / HHako,
+    reserves naked `stage` for bootstrap vocabulary, separates run-pipeline /
+    converter / adoption-plan, and stages the `nyash` -> `hakorune` migration
 - `design/current-docs-archive-policy-ssot.md`
   - archive buckets, landed ledger, and current-doc slimming contract
 - `design/mir-cleanup-policy-ssot.md`

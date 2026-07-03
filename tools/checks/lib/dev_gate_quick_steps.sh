@@ -1,4 +1,5 @@
 dev_gate_script_step "current-state pointer guard" tools/checks/current_state_pointer_guard.sh
+dev_gate_script_step "naming charter guard" tools/checks/naming_charter_guard.sh
 dev_gate_script_step "MIR metadata catalog guard" tools/checks/mir_metadata_catalog_guard.sh
 dev_gate_script_step "Stage0 shape inventory guard" tools/checks/stage0_shape_inventory_guard.sh
 dev_gate_script_step "Stage1 emit-program runtime-helper guard" tools/checks/stage1_emit_program_json_runtime_helper_guard.sh
