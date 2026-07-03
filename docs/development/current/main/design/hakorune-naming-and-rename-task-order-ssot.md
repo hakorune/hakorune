@@ -813,6 +813,37 @@ git diff --check
 tools/checks/dev_gate.sh quick
 ```
 
+### HAKORUNE-NAMING-GUARD-DIFF-ALLOWLIST-SSOT-001
+
+Status: active in this slice.
+
+Purpose: keep the naming guard's allowed diff paths in one local SSOT so the
+unstaged/cached diff scan and untracked-file scan cannot drift.
+
+Scope:
+
+- add one `NAMING_DIFF_ALLOWED_PATHS` array to
+  `tools/checks/naming_charter_guard.sh`;
+- make the shell untracked-file scan and the awk diff scan consume the same
+  path list;
+- keep guard behavior unchanged;
+- do not broaden the allowed path set.
+
+Affected script:
+
+```text
+tools/checks/naming_charter_guard.sh
+```
+
+Acceptance:
+
+```bash
+bash -n tools/checks/naming_charter_guard.sh
+bash tools/checks/naming_charter_guard.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
 ### HAKORUNE-SELFHOST-ROUTE-BINARY-DIAGNOSTICS-001
 
 Status: active in this slice.

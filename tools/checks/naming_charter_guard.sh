@@ -175,6 +175,7 @@ SSOT_REQUIRED_TOKENS=(
   "HAKORUNE-SELFHOST-EXE-STAGEB-SOURCE-WORDING-001"
   "HAKORUNE-NAMING-GUARD-REQUIRED-FILES-READABILITY-001"
   "HAKORUNE-NAMING-GUARD-SSOT-TOKEN-LIST-READABILITY-001"
+  "HAKORUNE-NAMING-GUARD-DIFF-ALLOWLIST-SSOT-001"
   "HAKORUNE-CORE-EMIT-HELPER-BINARY-RESOLUTION-001"
   "HAKORUNE-SELFHOST-ROUTE-BINARY-DIAGNOSTICS-001"
   "HAKORUNE-SELFHOST-MAINLINE-STAGE1-BINARY-RESOLUTION-001"
@@ -502,42 +503,48 @@ require_fixed "tools/checks/naming_charter_guard.sh" "$CHECK_INDEX"
 require_fixed "naming_charter_guard.sh" "$QUICK_STEPS"
 require_fixed "hakorune-naming-and-rename-task-order-ssot.md" "$DOCS_LAYOUT"
 
+NAMING_DIFF_ALLOWED_PATHS=(
+  "docs/development/current/main/design/hakorune-naming-and-rename-task-order-ssot.md"
+  "docs/development/current/main/DOCS_LAYOUT.md"
+  "docs/tools/check-scripts-index.md"
+  "tools/checks/naming_charter_guard.sh"
+  "tools/checks/lib/dev_gate_quick_steps.sh"
+  "CURRENT_TASK.md"
+)
+
 is_allowed_path() {
-  case "$1" in
-    docs/development/current/main/design/hakorune-naming-and-rename-task-order-ssot.md | \
-    docs/development/current/main/DOCS_LAYOUT.md | \
-    docs/tools/check-scripts-index.md | \
-    tools/checks/naming_charter_guard.sh | \
-    tools/checks/lib/dev_gate_quick_steps.sh | \
-    CURRENT_TASK.md)
+  local allowed_path
+  for allowed_path in "${NAMING_DIFF_ALLOWED_PATHS[@]}"; do
+    if [[ "$1" == "$allowed_path" ]]; then
       return 0
-      ;;
-    *)
-      return 1
-      ;;
-  esac
+    fi
+  done
+  return 1
 }
 
 check_added_stage_terms_in_diff() {
   local mode="$1"
   local tmp
+  local allowed_paths_tmp
   tmp="$(mktemp "/tmp/${TAG}.${mode}.diff.XXXXXX")"
+  allowed_paths_tmp="$(mktemp "/tmp/${TAG}.${mode}.allowed.XXXXXX")"
+  printf "%s\n" "${NAMING_DIFF_ALLOWED_PATHS[@]}" >"$allowed_paths_tmp"
   if [[ "$mode" == "cached" ]]; then
     git -C "$ROOT_DIR" diff --cached --unified=0 -- >"$tmp"
   else
     git -C "$ROOT_DIR" diff --unified=0 -- >"$tmp"
   fi
 
-  if awk '
+  if awk -v allowed_paths_file="$allowed_paths_tmp" '
+    BEGIN {
+      while ((getline allowed_path < allowed_paths_file) > 0) {
+        allowed_paths[allowed_path] = 1
+      }
+      close(allowed_paths_file)
+    }
     /^\+\+\+ b\// {
       file = substr($0, 7)
-      allowed = 0
-      if (file == "docs/development/current/main/design/hakorune-naming-and-rename-task-order-ssot.md") { allowed = 1 }
-      if (file == "docs/development/current/main/DOCS_LAYOUT.md") { allowed = 1 }
-      if (file == "docs/tools/check-scripts-index.md") { allowed = 1 }
-      if (file == "tools/checks/naming_charter_guard.sh") { allowed = 1 }
-      if (file == "tools/checks/lib/dev_gate_quick_steps.sh") { allowed = 1 }
-      if (file == "CURRENT_TASK.md") { allowed = 1 }
+      allowed = (file in allowed_paths)
       next
     }
     /^\+\+\+ / { next }
@@ -547,10 +554,10 @@ check_added_stage_terms_in_diff() {
     }
     END { exit found ? 0 : 1 }
   ' "$tmp"; then
-    rm -f "$tmp"
+    rm -f "$tmp" "$allowed_paths_tmp"
     guard_fail "$TAG" "new unqualified stage term added outside naming charter in ${mode} diff; classify it by layer first"
   fi
-  rm -f "$tmp"
+  rm -f "$tmp" "$allowed_paths_tmp"
 }
 
 check_added_stage_terms_in_untracked() {
