@@ -1,0 +1,15 @@
+// flowbox_adopt_tag_formatter.hako
+//
+// Responsibility:
+// - format a FlowBox adopt observability tag from precomputed labels
+// - stay pure: scalar labels in, scalar text out
+//
+// Non-responsibility:
+// - FlowBox label derivation
+// - stderr emission
+// - MIR mutation
+static box FlowboxAdoptTagFormatterBox {
+  format_tag(box_kind, features_csv, via_label) {
+    return "[flowbox/adopt box_kind=" + box_kind + " features=" + features_csv + " via=" + via_label + "]"
+  }
+}
