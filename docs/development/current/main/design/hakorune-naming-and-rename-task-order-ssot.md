@@ -328,7 +328,7 @@ tools/checks/dev_gate.sh quick
 
 ### HAKORUNE-BINARY-PRIMARY-CUTOVER-INVENTORY-001
 
-Status: active in this slice.
+Status: landed inventory cut.
 
 Scope:
 
@@ -345,8 +345,7 @@ Current inventory:
 Cargo package:
   package.name = nyash-rust
   status = legacy package identity, not renamed in this slice
-  default-run = absent
-  next safe cut = HAKORUNE-BINARY-DEFAULT-RUN-CUTOVER-001
+  default-run = hakorune
 
 library crate:
   lib.name = nyash_rust
@@ -407,6 +406,42 @@ Acceptance:
 
 ```bash
 bash tools/checks/naming_charter_guard.sh
+tools/checks/dev_gate.sh quick
+```
+
+### HAKORUNE-BINARY-DEFAULT-RUN-CUTOVER-001
+
+Status: active in this slice.
+
+Scope:
+
+- make plain `cargo run` resolve to the primary `hakorune` binary;
+- keep explicit `cargo run --bin nyash` available only as legacy compatibility;
+- do not rename the Cargo package, library crate, plugin packages, backend tools,
+  ABI helper symbols, or script internals in this slice.
+
+Contract:
+
+```text
+Cargo package:
+  package.name = nyash-rust
+  default-run = hakorune
+
+primary command:
+  cargo run -- <args>
+  resolves to [[bin]] name = hakorune
+
+legacy command:
+  cargo run --bin nyash -- <args>
+  remains explicit compatibility only
+  requires the existing nyash deprecation / allow policy
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+cargo run -q -- --version
 tools/checks/dev_gate.sh quick
 ```
 

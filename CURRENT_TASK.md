@@ -41,12 +41,10 @@ the active card and task-order SSOT. Do not duplicate them here.
 
 ## Immediate Maintenance Slice
 
-Scope: Hakorune binary primary cutover inventory.
+Scope: Hakorune Cargo default-run cutover.
 
-- inventory Cargo binary surfaces for `hakorune`, legacy `nyash`, and
-  `hakorune-compat`
-- verify quick gate checks `cargo check --bin hakorune`
-- verify `nyash` invocation is deprecated and gated by explicit allow env
+- make plain `cargo run` resolve to the primary `hakorune` binary
+- keep `nyash` as an explicit compatibility binary only
 - keep package/crate/plugin/ABI/tool names untouched in this slice
 - do not remove `nyash` aliases or rename Cargo package metadata
 
@@ -54,5 +52,6 @@ Acceptance:
 
 ```bash
 bash tools/checks/naming_charter_guard.sh
+cargo run -q -- --version
 tools/checks/dev_gate.sh quick
 ```

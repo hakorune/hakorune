@@ -2,6 +2,7 @@
 name = "nyash-rust"
 version = "0.1.0"
 edition = "2021"
+default-run = "hakorune"
 authors = ["Claude Code <claude@anthropic.com>"]
 description = "Everything is Box in Rust - Ultimate Memory Safe Nyash Implementation"
 license = "MIT"
