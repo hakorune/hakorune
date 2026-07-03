@@ -24,9 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-STATIC-SCALAR-FACT-CLASSIFIER-RUST-ORACLE-FIXTURE-001.
-  The static_scalar_fact_classifier Rust-oracle fixture is created; next is
-  the hand-authored Hako-native implementation card.
+  MIRBUILDER-STATIC-SCALAR-FACT-CLASSIFIER-HAKO-NATIVE-IMPLEMENTATION-001.
+  The hand-authored static_scalar_fact_classifier Hako-native implementation
+  is created; next is the parity gate card.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-STATIC-SCALAR-FACT-CLASSIFIER-HAKO-NATIVE-IMPLEMENTATION-001
+  MIRBUILDER-STATIC-SCALAR-FACT-CLASSIFIER-PARITY-GATE-001
 
 current fail-fast boundary:
   Do not re-enter full converter route selection without new non-self-signed
@@ -70,11 +70,11 @@ current fail-fast boundary:
   `MirType -> StorageClass`; metadata refresh/mutation remains Rust.
 
 latest design decision:
-  The static_scalar_fact_classifier pilot now has an 8-row Rust-oracle fixture
-  for the normalized zero-arg return literal shape -> static scalar fact
-  surface. Emit-const, full AST traversal, method dispatch, and MirBuilder
-  mutation remain Rust. The selected next card is
-  `MIRBUILDER-STATIC-SCALAR-FACT-CLASSIFIER-HAKO-NATIVE-IMPLEMENTATION-001`.
+  The static_scalar_fact_classifier pilot now has a hand-authored `.hako`
+  implementation for the normalized zero-arg return literal shape -> static
+  scalar fact surface. Emit-const, full AST traversal, method dispatch, and
+  MirBuilder mutation remain Rust. The selected next card is
+  `MIRBUILDER-STATIC-SCALAR-FACT-CLASSIFIER-PARITY-GATE-001`.
 
 historical route-selection decision:
   Detailed landed route-selection rows are closed as provenance and live in

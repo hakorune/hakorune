@@ -21,6 +21,8 @@ Scope:
   - `storage_class_classifier.hako`
 - second Rust-oracle parity pilot library:
   - `placement_effect_tag_formatter.hako`
+- third Rust-oracle parity pilot library:
+  - `static_scalar_fact_classifier.hako`
 - first shadow-projector support library:
   - `return_emission_projector.hako`
 - first native source owner candidate:

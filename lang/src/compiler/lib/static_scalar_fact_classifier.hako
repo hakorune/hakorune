@@ -1,0 +1,50 @@
+// static_scalar_fact_classifier.hako - hand-authored static scalar fact classifier
+//
+// Responsibility:
+// - classify normalized zero-arg return literal shapes into Rust oracle fact text
+// - stay pure: scalar shape fields in, scalar fact text out
+//
+// Non-responsibility:
+// - full AST traversal
+// - MirBuilder state mutation
+// - static scalar const emission
+// - Source Selfhost or HakoAdopted promotion
+static box StaticScalarFactClassifierBox {
+  classify_shape(
+    method_symbol,
+    param_count,
+    body_len,
+    return_has_value,
+    returned_expr_kind,
+    literal_kind,
+    literal_i64,
+    literal_bool
+  ) {
+    if param_count != 0 {
+      return "none"
+    }
+    if body_len != 1 {
+      return "none"
+    }
+    if return_has_value != true {
+      return "none"
+    }
+    if returned_expr_kind != "Literal" {
+      return "none"
+    }
+
+    if literal_kind == "Integer" {
+      return "i64:" + literal_i64 + ":zero_arg_return_literal_only"
+    }
+    if literal_kind == "TypedInteger" {
+      return "i64:" + literal_i64 + ":zero_arg_return_literal_only"
+    }
+    if literal_kind == "Bool" {
+      if literal_bool == true {
+        return "bool:true:zero_arg_return_literal_only"
+      }
+      return "bool:false:zero_arg_return_literal_only"
+    }
+    return "none"
+  }
+}
