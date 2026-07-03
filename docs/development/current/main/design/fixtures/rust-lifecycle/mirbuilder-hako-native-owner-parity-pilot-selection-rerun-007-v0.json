@@ -1,0 +1,75 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderHakoNativeOwnerParityPilotSelectionRerun007V1",
+  "token": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-007",
+  "input_state": {
+    "previous_hako_adoption": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-core-method-carrier-token-formatter-hako-adoption-decision-v0.json",
+    "previous_hako_adoption_hash": "sha256:090a1acf59d6c4dd706628b3c064677327f81a14f22212345680999842618f08",
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+  },
+  "selection_policy": {
+    "candidate_ranking_is_advisory": true,
+    "manual_target_selection_allowed": true,
+    "correctness_proof_is_parity_gate": true,
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0
+  },
+  "candidate_rows": [
+    {
+      "candidate_owner": "generic_method_route_fact_token_formatter",
+      "source_path": "src/mir/generic_method_route_facts.rs",
+      "source_hash": "sha256:7585f442b4e715121573c0fb9c9356125e4b2b17be26a296776a5336a125cc39",
+      "selected": true,
+      "positive_signals": [
+        "pure enum metadata-token formatting surface",
+        "string-only input/output parity boundary",
+        "route fact construction can be excluded cleanly",
+        "no MIR traversal in selected surface",
+        "no PHI or LocalSSA surface",
+        "no backend lowering or route collection"
+      ],
+      "excluded_surface": [
+        "receiver origin resolution",
+        "key route classification",
+        "const i64 extraction",
+        "generic method route planning",
+        "backend emission"
+      ],
+      "selected_next_card_if_selected": "MIRBUILDER-GENERIC-METHOD-ROUTE-FACT-TOKEN-FORMATTER-RUST-ORACLE-FIXTURE-001"
+    },
+    {
+      "candidate_owner": "user_box_method_publication_state_formatter",
+      "source_path": "src/mir/user_box_method_publication.rs",
+      "selected": false,
+      "reason": "Publication state tags are small, but the owner is embedded in publication proof classification; defer until the tag-only seam is isolated."
+    },
+    {
+      "candidate_owner": "region_ref_slot_kind_classifier",
+      "source_path": "src/mir/region/mod.rs",
+      "selected": false,
+      "reason": "Pure MirType classification, but region/GC vocabulary is a separate observation lane; keep it out of the current generic-method pilot sequence."
+    }
+  ],
+  "decision": {
+    "kind": "SelectPilotOwner",
+    "reason_token": "GenericMethodRouteFactTokenFormatterSelectedAsEighthParityPilot",
+    "selected_owner": "generic_method_route_fact_token_formatter",
+    "selected_rust_surface": "Generic method route fact enum token formatters",
+    "selected_next_card": "MIRBUILDER-GENERIC-METHOD-ROUTE-FACT-TOKEN-FORMATTER-RUST-ORACLE-FIXTURE-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "native_seed_materialization": 0,
+    "hako_generation": 0,
+    "generated_artifact_as_native_edit_authority": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "receiver_origin_resolution_migration": 0,
+    "key_route_classification_migration": 0,
+    "const_i64_extraction_migration": 0,
+    "generic_method_route_planning_migration": 0,
+    "backend_emission_migration": 0
+  }
+}

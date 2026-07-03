@@ -83,6 +83,11 @@ SOURCE-SELFHOST-RUST-TO-HAKO-CONVERTER-ROLE-PIVOT-001
   -> MIRBUILDER-CORE-METHOD-CARRIER-TOKEN-FORMATTER-PARITY-GATE-001
   -> MIRBUILDER-CORE-METHOD-CARRIER-TOKEN-FORMATTER-HAKO-ADOPTION-DECISION-001
   -> MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-007
+  -> MIRBUILDER-GENERIC-METHOD-ROUTE-FACT-TOKEN-FORMATTER-RUST-ORACLE-FIXTURE-001
+  -> MIRBUILDER-GENERIC-METHOD-ROUTE-FACT-TOKEN-FORMATTER-HAKO-NATIVE-IMPLEMENTATION-001
+  -> MIRBUILDER-GENERIC-METHOD-ROUTE-FACT-TOKEN-FORMATTER-PARITY-GATE-001
+  -> MIRBUILDER-GENERIC-METHOD-ROUTE-FACT-TOKEN-FORMATTER-HAKO-ADOPTION-DECISION-001
+  -> MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-008
 ```
 
 Rule:
@@ -126,6 +131,11 @@ core_method_carrier_token_formatter has a 32-row Rust-oracle fixture; next is ha
 core_method_carrier_token_formatter has hand-authored .hako implementation; next is parity gate
 core_method_carrier_token_formatter parity gate is green; next is HakoAdoption decision
 core_method_carrier_token_formatter is HakoAdopted as the seventh parity pilot; next is pilot selection rerun 007
+generic_method_route_fact_token_formatter is selected as the eighth parity pilot; next is its Rust-oracle fixture
+generic_method_route_fact_token_formatter has a 12-row Rust-oracle fixture; next is hand-authored .hako implementation
+generic_method_route_fact_token_formatter has hand-authored .hako implementation; next is parity gate
+generic_method_route_fact_token_formatter parity gate is green; next is HakoAdoption decision
+generic_method_route_fact_token_formatter is HakoAdopted as the eighth parity pilot; next is pilot selection rerun 008
 ```
 
 ## Immediate Maintenance Slice

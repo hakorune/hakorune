@@ -1,0 +1,66 @@
+// generic_method_route_fact_token_formatter.hako - hand-authored generic-method route fact token formatter
+//
+// Responsibility:
+// - format generic-method route fact enum tokens into Rust oracle metadata labels
+// - stay pure: string token input, string token output
+//
+// Non-responsibility:
+// - receiver origin resolution
+// - key route classification
+// - const i64 extraction
+// - generic method route planning
+// - backend emission
+// - Source Selfhost or HakoAdopted promotion
+static box GenericMethodRouteFactTokenFormatterBox {
+  format_key_route(route) {
+    if route == "I64Const" {
+      return "i64_const"
+    }
+    if route == "I64Value" {
+      return "i64_value"
+    }
+    if route == "UnknownAny" {
+      return "unknown_any"
+    }
+    return "unsupported_generic_method_key_route"
+  }
+
+  format_value_demand(demand) {
+    if demand == "ReadRef" {
+      return "read_ref"
+    }
+    if demand == "RuntimeI64OrHandle" {
+      return "runtime_i64_or_handle"
+    }
+    if demand == "ScalarI64" {
+      return "scalar_i64"
+    }
+    if demand == "WriteAny" {
+      return "write_any"
+    }
+    return "unsupported_generic_method_value_demand"
+  }
+
+  format_return_shape(shape) {
+    if shape == "MixedRuntimeI64OrHandle" {
+      return "mixed_runtime_i64_or_handle"
+    }
+    if shape == "ScalarI64OrMissingZero" {
+      return "scalar_i64_or_missing_zero"
+    }
+    if shape == "ScalarI64" {
+      return "scalar_i64"
+    }
+    return "unsupported_generic_method_return_shape"
+  }
+
+  format_publication_policy(policy) {
+    if policy == "NoPublication" {
+      return "no_publication"
+    }
+    if policy == "RuntimeDataFacade" {
+      return "runtime_data_facade"
+    }
+    return "unsupported_generic_method_publication_policy"
+  }
+}

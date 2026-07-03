@@ -1,0 +1,44 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderGenericMethodRouteFactTokenFormatterRustOracleV1",
+  "token": "MIRBUILDER-GENERIC-METHOD-ROUTE-FACT-TOKEN-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "generic_method_route_fact_token_formatter",
+  "rust_source": {
+    "path": "src/mir/generic_method_route_facts.rs",
+    "hash": "sha256:7585f442b4e715121573c0fb9c9356125e4b2b17be26a296776a5336a125cc39",
+    "oracle_functions": [
+      "GenericMethodKeyRoute::as_metadata_name",
+      "GenericMethodValueDemand::as_metadata_name",
+      "GenericMethodReturnShape::as_metadata_name",
+      "GenericMethodPublicationPolicy::as_metadata_name"
+    ]
+  },
+  "oracle_rule": {
+    "surface": "Generic method route fact enum tokens -> stable metadata labels",
+    "receiver_origin_resolution_migration": 0,
+    "key_route_classification_migration": 0,
+    "const_i64_extraction_migration": 0,
+    "generic_method_route_planning_migration": 0,
+    "backend_emission_migration": 0
+  },
+  "rows": [
+    { "case_id": "key_i64_const", "kind": "key_route", "input": "I64Const", "expected": "i64_const" },
+    { "case_id": "key_i64_value", "kind": "key_route", "input": "I64Value", "expected": "i64_value" },
+    { "case_id": "key_unknown_any", "kind": "key_route", "input": "UnknownAny", "expected": "unknown_any" },
+    { "case_id": "demand_read_ref", "kind": "value_demand", "input": "ReadRef", "expected": "read_ref" },
+    { "case_id": "demand_runtime_i64_or_handle", "kind": "value_demand", "input": "RuntimeI64OrHandle", "expected": "runtime_i64_or_handle" },
+    { "case_id": "demand_scalar_i64", "kind": "value_demand", "input": "ScalarI64", "expected": "scalar_i64" },
+    { "case_id": "demand_write_any", "kind": "value_demand", "input": "WriteAny", "expected": "write_any" },
+    { "case_id": "return_mixed_runtime", "kind": "return_shape", "input": "MixedRuntimeI64OrHandle", "expected": "mixed_runtime_i64_or_handle" },
+    { "case_id": "return_scalar_or_missing", "kind": "return_shape", "input": "ScalarI64OrMissingZero", "expected": "scalar_i64_or_missing_zero" },
+    { "case_id": "return_scalar_i64", "kind": "return_shape", "input": "ScalarI64", "expected": "scalar_i64" },
+    { "case_id": "publication_none", "kind": "publication_policy", "input": "NoPublication", "expected": "no_publication" },
+    { "case_id": "publication_runtime_data_facade", "kind": "publication_policy", "input": "RuntimeDataFacade", "expected": "runtime_data_facade" }
+  ],
+  "summary": {
+    "oracle_row_count": 12,
+    "selected_surface_is_pure_token_formatter": 1,
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0
+  }
+}
