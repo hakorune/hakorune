@@ -1,0 +1,19 @@
+// array_rmw_add1_leaf_seed_proof_label_formatter.hako - hand-authored proof label formatter
+//
+// Responsibility:
+// - format narrow array RMW add1 leaf seed proof vocabulary into Rust oracle text
+// - stay pure: scalar proof in, scalar text out
+//
+// Non-responsibility:
+// - array RMW add1 leaf seed matching
+// - array RMW window matching
+// - backend lowering
+// - MIR mutation
+static box ArrayRmwAdd1LeafSeedProofLabelFormatterBox {
+  format_label(proof) {
+    if proof == "KiloLeafArrayRmwAdd1SevenBlock" {
+      return "kilo_leaf_array_rmw_add1_7block"
+    }
+    return "unsupported_array_rmw_add1_leaf_seed_proof_label"
+  }
+}

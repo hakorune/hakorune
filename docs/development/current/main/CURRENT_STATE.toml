@@ -90,6 +90,9 @@ Selfhost remains unclaimed.
 ArrayRmwWindowProofLabelFormatter is now a narrow HakoAdopted Rust-oracle
 parity pilot owner after a green 1-row `.hako` EXE parity gate. Source
 Selfhost remains unclaimed.
+ArrayRmwAdd1LeafSeedProofLabelFormatter is now a narrow HakoAdopted
+Rust-oracle parity pilot owner after a green 1-row `.hako` EXE parity gate.
+Source Selfhost remains unclaimed.
 EXE/AOT remains the primary
 app/selfhost validation route; VM/interpreter lanes are not semantic owners."""
 
@@ -99,11 +102,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-ARRAY-RMW-WINDOW-PROOF-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2223-MIRBUILDER-ARRAY-RMW-WINDOW-PROOF-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.md"
+latest_card = "MIRBUILDER-ARRAY-RMW-ADD1-LEAF-SEED-PROOF-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2228-MIRBUILDER-ARRAY-RMW-ADD1-LEAF-SEED-PROOF-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.md"
 latest_card_summary = """The latest card adopts
-array_rmw_window_proof_label_formatter as the twenty-fifth narrow Rust-oracle
-parity pilot owner and chooses pilot selection rerun 025 next."""
+array_rmw_add1_leaf_seed_proof_label_formatter as the twenty-sixth narrow
+Rust-oracle parity pilot owner and chooses pilot selection rerun 026 next."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -114,14 +117,14 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-04: 2228 adopts array_rmw_add1_leaf_seed_proof_label_formatter as the twenty-sixth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
+  "2026-07-04: 2227 adds the array_rmw_add1_leaf_seed_proof_label_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
+  "2026-07-04: 2226 adds the hand-authored array_rmw_add1_leaf_seed_proof_label_formatter .hako implementation and chooses the parity gate card next.",
+  "2026-07-04: 2225 creates the 1-row array_rmw_add1_leaf_seed_proof_label_formatter Rust-oracle fixture and chooses the Hako-native implementation card next.",
+  "2026-07-04: 2224 selects array_rmw_add1_leaf_seed_proof_label_formatter as the twenty-sixth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
   "2026-07-04: 2223 adopts array_rmw_window_proof_label_formatter as the twenty-fifth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
   "2026-07-04: 2222 adds the array_rmw_window_proof_label_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
   "2026-07-04: 2221 adds the hand-authored array_rmw_window_proof_label_formatter .hako implementation and chooses the parity gate card next.",
   "2026-07-04: 2220 creates the 1-row array_rmw_window_proof_label_formatter Rust-oracle fixture and chooses the Hako-native implementation card next.",
   "2026-07-04: 2219 selects array_rmw_window_proof_label_formatter as the twenty-fifth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
-  "2026-07-04: 2218 adopts loop_route_deny_reason_label_formatter as the twenty-fourth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
-  "2026-07-04: 2217 adds the loop_route_deny_reason_label_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
-  "2026-07-04: 2216 adds the hand-authored loop_route_deny_reason_label_formatter .hako implementation and chooses the parity gate card next.",
-  "2026-07-04: 2215 creates the 6-row loop_route_deny_reason_label_formatter Rust-oracle fixture and chooses the Hako-native implementation card next.",
-  "2026-07-04: 2214 selects loop_route_deny_reason_label_formatter as the twenty-fourth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
 ]

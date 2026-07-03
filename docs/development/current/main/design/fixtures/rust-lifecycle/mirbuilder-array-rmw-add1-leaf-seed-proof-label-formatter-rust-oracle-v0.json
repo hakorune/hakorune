@@ -1,0 +1,29 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderArrayRmwAdd1LeafSeedProofLabelFormatterRustOracleV1",
+  "token": "MIRBUILDER-ARRAY-RMW-ADD1-LEAF-SEED-PROOF-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "array_rmw_add1_leaf_seed_proof_label_formatter",
+  "rust_source": {
+    "path": "src/mir/array_rmw_add1_leaf_seed_plan.rs",
+    "hash": "sha256:2ea786e0d2b05268428bf56ea441ea761673354b7ac8ba2fd865ec1175f26db0",
+    "oracle_surface": "ArrayRmwAdd1LeafSeedProof display vocabulary"
+  },
+  "rows": [
+    {
+      "proof": "KiloLeafArrayRmwAdd1SevenBlock",
+      "expected": "kilo_leaf_array_rmw_add1_7block"
+    }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "array_rmw_add1_leaf_seed_matching_migration": 0,
+    "array_rmw_window_matching_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}
