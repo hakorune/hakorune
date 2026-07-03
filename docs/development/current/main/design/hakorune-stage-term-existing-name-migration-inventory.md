@@ -1257,6 +1257,27 @@ StringBox semantics changed = 0
 runtime behavior changed = 0
 ```
 
+## Landed Reference Docs Architecture Overview Wording Slice
+
+`HAKORUNE-REFERENCE-DOCS-ARCHITECTURE-OVERVIEW-WORDING-001` updates the
+architecture overview title/opening to mark it as a historical Nyash design
+snapshot under Hakorune.
+
+Scope:
+
+```text
+docs/reference/architecture/design-overview.md
+```
+
+Non-claims:
+
+```text
+NyashRuntime / NyashValue compatibility type names renamed = 0
+Everything-is-Box historical content rewritten = 0
+architecture overview made current SSOT = 0
+runtime behavior changed = 0
+```
+
 ## Migration Eligibility
 
 An occurrence is eligible for a future rename only if all conditions hold:

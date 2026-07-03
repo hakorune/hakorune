@@ -1,8 +1,8 @@
-# Nyash 設計図（アーキテクチャ概要）
+# Hakorune Architecture Overview (Historical Nyash Design Snapshot)
 
 最終更新: 2025-08-21（Phase 9.78b〜3 反映）
 
-本書はNyashの実装設計を、バックエンド共通で理解できる単一ドキュメントとしてまとめたもの。言語コア、MIR、インタープリター/VM統合、ランタイム/プラグイン、ビルドと配布の観点を俯瞰する。
+本書はHakoruneの旧Nyash時代の実装設計を、バックエンド共通で理解できる historical snapshot としてまとめたもの。言語コア、MIR、インタープリター/VM統合、ランタイム/プラグイン、ビルドと配布の観点を俯瞰する。
 
 ## レイヤー構成
 

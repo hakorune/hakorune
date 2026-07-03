@@ -849,6 +849,27 @@ StringBox semantics changed = 0
 runtime behavior changed = 0
 ```
 
+### HAKORUNE-REFERENCE-DOCS-ARCHITECTURE-OVERVIEW-WORDING-001
+
+Status: landed.
+
+Scope:
+
+```text
+docs/reference/architecture/design-overview.md:
+  title and opening sentence mark the page as a Hakorune historical Nyash
+  design snapshot
+```
+
+Non-claims:
+
+```text
+NyashRuntime / NyashValue compatibility type names renamed = 0
+Everything-is-Box historical content rewritten = 0
+architecture overview made current SSOT = 0
+runtime behavior changed = 0
+```
+
 ### HAKORUNE-BINARY-PRIMARY-CUTOVER-INVENTORY-001
 
 Status: landed inventory cut.
