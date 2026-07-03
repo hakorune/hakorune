@@ -28,13 +28,14 @@ USING_STRICT_PATH_FAIL_SMOKE="$ROOT_DIR/tools/using_strict_path_fail_smoke.sh"
 DEV_SELFHOST_LOOP="$ROOT_DIR/tools/dev_selfhost_loop.sh"
 ENGINEERING_PARITY="$ROOT_DIR/tools/engineering/parity.sh"
 SELFHOST_EXE_STAGEB="$ROOT_DIR/tools/selfhost_exe_stageb.sh"
+NY_PARSER_BRIDGE_SMOKE="$ROOT_DIR/tools/ny_parser_bridge_smoke.sh"
 ENV_RS="$ROOT_DIR/src/config/env.rs"
 ENV_PATHS_RS="$ROOT_DIR/src/config/env/paths.rs"
 ENV_DOC="$ROOT_DIR/docs/reference/environment-variables.md"
 
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" git
-guard_require_files "$TAG" "$SSOT" "$CHECK_INDEX" "$QUICK_STEPS" "$DOCS_LAYOUT" "$CARGO_TOML" "$README_MD" "$HACO_WRAPPER" "$MAIN_RS" "$HAKORUNE_BIN_RS" "$HAKORUNE_COMPAT_BIN_RS" "$BUILD_SHARED_RS" "$BUILD_PRODUCT_RS" "$BUILD_ENGINEERING_RS" "$HAKO_CHECK_SH" "$BUILD_LLVM_PS" "$BUILD_AOT_PS" "$USING_UNRESOLVED_SMOKE" "$USING_RESOLVE_SMOKE" "$USING_STRICT_PATH_FAIL_SMOKE" "$DEV_SELFHOST_LOOP" "$ENGINEERING_PARITY" "$SELFHOST_EXE_STAGEB" "$ENV_RS" "$ENV_PATHS_RS" "$ENV_DOC"
+guard_require_files "$TAG" "$SSOT" "$CHECK_INDEX" "$QUICK_STEPS" "$DOCS_LAYOUT" "$CARGO_TOML" "$README_MD" "$HACO_WRAPPER" "$MAIN_RS" "$HAKORUNE_BIN_RS" "$HAKORUNE_COMPAT_BIN_RS" "$BUILD_SHARED_RS" "$BUILD_PRODUCT_RS" "$BUILD_ENGINEERING_RS" "$HAKO_CHECK_SH" "$BUILD_LLVM_PS" "$BUILD_AOT_PS" "$USING_UNRESOLVED_SMOKE" "$USING_RESOLVE_SMOKE" "$USING_STRICT_PATH_FAIL_SMOKE" "$DEV_SELFHOST_LOOP" "$ENGINEERING_PARITY" "$SELFHOST_EXE_STAGEB" "$NY_PARSER_BRIDGE_SMOKE" "$ENV_RS" "$ENV_PATHS_RS" "$ENV_DOC"
 
 require_fixed() {
   local pattern="$1"
@@ -62,6 +63,7 @@ require_fixed "HAKORUNE-ROOT-POWERSHELL-BUILD-SCRIPT-CUTOVER-001" "$SSOT"
 require_fixed "HAKORUNE-DEV-SELFHOST-SMOKE-BINARY-RESOLUTION-001" "$SSOT"
 require_fixed "HAKORUNE-ENGINEERING-PARITY-BINARY-RESOLUTION-001" "$SSOT"
 require_fixed "HAKORUNE-SELFHOST-EXE-STAGEB-BINARY-RESOLUTION-001" "$SSOT"
+require_fixed "HAKORUNE-PARSER-BRIDGE-SMOKE-BINARY-RESOLUTION-001" "$SSOT"
 require_fixed "HAKORUNE-ENV-ALIAS-INVENTORY-001" "$SSOT"
 require_fixed "HAKORUNE-ENV-ALIAS-FIRST-CUT-001" "$SSOT"
 require_fixed 'prefer `target/release/hakorune` or `$HAKO_BIN`' "$README_MD"
@@ -122,6 +124,12 @@ require_fixed 'NYASH_BIN="$ROOT_DIR/target/release/hakorune"' "$SELFHOST_EXE_STA
 require_fixed 'NYASH_BIN="$ROOT_DIR/target/release/nyash"' "$SELFHOST_EXE_STAGEB"
 if rg -n "resolve_nyash_bin|nyash/hakorune binary not found" "$SELFHOST_EXE_STAGEB"; then
   guard_fail "$TAG" "selfhost EXE Stage-B helper must use Hakorune-first resolver naming"
+fi
+require_fixed 'HAKORUNE_BIN="$ROOT_DIR/target/release/hakorune"' "$NY_PARSER_BRIDGE_SMOKE"
+require_fixed 'LEGACY_NYASH_BIN="$ROOT_DIR/target/release/nyash"' "$NY_PARSER_BRIDGE_SMOKE"
+require_fixed 'mktemp /tmp/hakorune-bridge-smoke.' "$NY_PARSER_BRIDGE_SMOKE"
+if rg -n "nyash-bridge-smoke|BIN=\"\\$ROOT_DIR/target/release/nyash\"" "$NY_PARSER_BRIDGE_SMOKE"; then
+  guard_fail "$TAG" "parser bridge smoke must use Hakorune-first temp and binary naming"
 fi
 require_fixed "env_bool_with_alias" "$ENV_RS"
 require_fixed "env_string_with_alias" "$ENV_RS"

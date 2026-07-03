@@ -704,6 +704,40 @@ git diff --check
 tools/checks/dev_gate.sh quick
 ```
 
+### HAKORUNE-PARSER-BRIDGE-SMOKE-BINARY-RESOLUTION-001
+
+Status: active in this slice.
+
+Scope:
+
+- make `tools/ny_parser_bridge_smoke.sh` use Hakorune-first resolver variable
+  names;
+- keep `target/release/nyash` only behind explicit `LEGACY_NYASH_BIN`
+  fallback;
+- rename temporary smoke output files from `nyash-bridge-*` to
+  `hakorune-bridge-*`;
+- keep parser bridge behavior and expected rc values untouched in this slice.
+
+Contract:
+
+```text
+primary:
+  target/release/hakorune
+
+compat fallback:
+  target/release/nyash
+  used only if primary is absent
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+bash tools/ny_parser_bridge_smoke.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
 ### STAGE-TERM-EXISTING-NAME-MIGRATION-001
 
 Status: defined, not implementation.

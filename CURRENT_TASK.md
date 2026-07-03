@@ -41,20 +41,21 @@ the active card and task-order SSOT. Do not duplicate them here.
 
 ## Immediate Maintenance Slice
 
-Scope: Hakorune selfhost EXE Stage-B helper binary resolution naming.
+Scope: Hakorune parser bridge smoke binary resolution and temp-output naming.
 
-- rename the internal resolver in `tools/selfhost_exe_stageb.sh` to
-  Hakorune-first terminology
-- keep `target/release/nyash` only behind explicit Hakorune-first resolver
+- make `tools/ny_parser_bridge_smoke.sh` use Hakorune-first resolver variable
+  names
+- keep `target/release/nyash` only behind explicit `LEGACY_NYASH_BIN`
   fallback
-- keep package/crate/plugin/ABI/tool names untouched in this slice
-- keep legacy `NYASH_BIN` override behavior untouched in this slice
+- rename temporary smoke output files from `nyash-bridge-*` to
+  `hakorune-bridge-*`
+- keep parser bridge behavior and expected rc values untouched in this slice
 
 Acceptance:
 
 ```bash
 bash tools/checks/naming_charter_guard.sh
-bash tools/selfhost_exe_stageb.sh --help
+bash tools/ny_parser_bridge_smoke.sh
 git diff --check
 tools/checks/dev_gate.sh quick
 ```
