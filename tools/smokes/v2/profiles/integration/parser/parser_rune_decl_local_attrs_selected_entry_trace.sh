@@ -3,15 +3,17 @@ set -euo pipefail
 
 source "$(dirname "$0")/../../../lib/test_runner.sh"
 
-BIN="${NYASH_BIN:-$NYASH_ROOT/target/release/hakorune}"
-if [ ! -x "$BIN" ]; then
-  BIN="$NYASH_ROOT/target/release/nyash"
+HAKORUNE_BIN="${HAKORUNE_BIN:-$NYASH_ROOT/target/release/hakorune}"
+LEGACY_NYASH_BIN="$NYASH_ROOT/target/release/nyash"
+BIN="${NYASH_BIN:-$HAKORUNE_BIN}"
+if [ ! -x "$BIN" ] && [ -z "${NYASH_BIN:-}" ] && [ -x "$LEGACY_NYASH_BIN" ]; then
+  BIN="$LEGACY_NYASH_BIN"
 fi
 NY_LLVM_C="$NYASH_ROOT/target/release/ny-llvmc"
 FFI_LIB="$NYASH_ROOT/target/release/libhako_llvmc_ffi.so"
 
 if [ ! -x "$BIN" ]; then
-  log_error "nyash/hakorune binary not found: $BIN"
+  log_error "Hakorune binary not found: $BIN (set NYASH_BIN for compatibility override)"
   exit 2
 fi
 

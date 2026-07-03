@@ -1083,6 +1083,35 @@ git diff --check
 tools/checks/dev_gate.sh quick
 ```
 
+### HAKORUNE-PARSER-INTEGRATION-EXTRA-SMOKE-BINARY-NAMING-001
+
+Status: active in this slice.
+
+Scope:
+
+- make additional parser integration smokes spell Hakorune-first binary
+  resolution and diagnostics;
+- keep legacy `nyash` only as a named compatibility fallback;
+- keep legacy `$NYASH_BIN` override behavior untouched in this slice;
+- keep parser fixture behavior unchanged in this slice.
+
+Affected scripts:
+
+```text
+tools/smokes/v2/profiles/integration/parser/parser_min_methods_ok.sh
+tools/smokes/v2/profiles/integration/parser/parser_rune_decl_local_attrs_selected_entry_trace.sh
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+bash -n tools/smokes/v2/profiles/integration/parser/parser_min_methods_ok.sh
+bash -n tools/smokes/v2/profiles/integration/parser/parser_rune_decl_local_attrs_selected_entry_trace.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
 ### HAKORUNE-GATE-C-OOB-STRICT-SMOKE-BINARY-RESOLUTION-001
 
 Status: active in this slice.

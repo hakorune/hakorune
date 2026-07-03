@@ -2,7 +2,7 @@
 set -euo pipefail
 
 BIN="${NYASH_BIN:-./target/release/hakorune}"
-if [ ! -x "$BIN" ]; then echo "nyash binary not found: $BIN" >&2; exit 2; fi
+if [ ! -x "$BIN" ]; then echo "Hakorune binary not found: $BIN (set NYASH_BIN for compatibility override)" >&2; exit 2; fi
 
 # Minimal static box with two methods; analyzer should see 2 methods via AST
 PROG=$(mktemp /tmp/parser_min_methods_ok.XXXXXX.hako)
