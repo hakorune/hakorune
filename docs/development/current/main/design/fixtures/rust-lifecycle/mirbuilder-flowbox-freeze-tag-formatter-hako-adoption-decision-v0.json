@@ -1,0 +1,29 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderFlowboxFreezeTagFormatterHakoAdoptionDecisionV1",
+  "token": "MIRBUILDER-FLOWBOX-FREEZE-TAG-FORMATTER-HAKO-ADOPTION-DECISION-001",
+  "owner": "flowbox_freeze_tag_formatter",
+  "accepted_evidence": {
+    "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-flowbox-freeze-tag-formatter-rust-oracle-v0.json",
+    "hako_implementation": "lang/src/compiler/lib/flowbox_freeze_tag_formatter.hako",
+    "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_flowbox_freeze_tag_formatter_parity_gate.sh",
+    "parity_status": "green",
+    "parity_row_count": 3
+  },
+  "decision": {
+    "kind": "HakoAdopted",
+    "reason_token": "FlowboxFreezeTagFormatterParityGateGreen",
+    "selected_next_card": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-057"
+  },
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "flowbox_tag_emission_migration": 0,
+    "flowbox_stderr_write_migration": 0,
+    "freeze_contract_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

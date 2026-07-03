@@ -1,0 +1,15 @@
+// flowbox_freeze_tag_formatter.hako
+//
+// Responsibility:
+// - format a FlowBox freeze observability tag from precomputed labels
+// - stay pure: scalar labels in, scalar text out
+//
+// Non-responsibility:
+// - FlowBox label derivation
+// - Freeze contract construction
+// - stderr emission
+static box FlowboxFreezeTagFormatterBox {
+  format_tag(code, box_kind, features_csv) {
+    return "[flowbox/freeze code=" + code + " box_kind=" + box_kind + " features=" + features_csv + "]"
+  }
+}

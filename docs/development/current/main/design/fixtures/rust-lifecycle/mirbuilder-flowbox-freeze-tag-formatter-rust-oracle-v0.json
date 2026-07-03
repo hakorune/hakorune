@@ -1,0 +1,43 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderFlowboxFreezeTagFormatterRustOracleV1",
+  "token": "MIRBUILDER-FLOWBOX-FREEZE-TAG-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "flowbox_freeze_tag_formatter",
+  "rust_source": {
+    "path": "src/mir/builder/control_flow/verify/observability/flowbox_tags.rs",
+    "hash": "sha256:257e48bc8ff47c9e8fb754590e742eb41d728806463a4dbfb6630b9bf1f65154",
+    "oracle_surface": "emit_flowbox_freeze_tag message formatting after labels are computed"
+  },
+  "rows": [
+    {
+      "code": "NoFacts",
+      "box_kind": "Loop",
+      "features_csv": "",
+      "expected": "[flowbox/freeze code=NoFacts box_kind=Loop features=]"
+    },
+    {
+      "code": "RejectShape",
+      "box_kind": "Seq",
+      "features_csv": "return,cleanup",
+      "expected": "[flowbox/freeze code=RejectShape box_kind=Seq features=return,cleanup]"
+    },
+    {
+      "code": "NestedLoop",
+      "box_kind": "If2",
+      "features_csv": "return,break,continue,unwind,value_join,cleanup,nested_loop",
+      "expected": "[flowbox/freeze code=NestedLoop box_kind=If2 features=return,break,continue,unwind,value_join,cleanup,nested_loop]"
+    }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "flowbox_tag_emission_migration": 0,
+    "flowbox_stderr_write_migration": 0,
+    "freeze_contract_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}
