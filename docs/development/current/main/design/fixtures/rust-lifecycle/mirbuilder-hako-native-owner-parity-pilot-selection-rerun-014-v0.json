@@ -1,0 +1,58 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderHakoNativeOwnerParityPilotSelectionRerun014V1",
+  "token": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-014",
+  "input_state": {
+    "previous_hako_adoption": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-sum-local-aggregate-layout-tag-formatter-hako-adoption-decision-v0.json",
+    "previous_hako_adoption_hash": "sha256:6dc5272c2dfb008ccbcccf1f02759622734999a86fa4385ff8c9fe373eeccb5f",
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+  },
+  "selection_rule": {
+    "name": "RustOracleParityMigrationPilotSelectorV1",
+    "manual_target_selection_allowed": true,
+    "correctness_proof_required": "RustOracleParityGate",
+    "source_selfhost_claim": 0,
+    "hako_adopted_before_parity": 0,
+    "full_converter_route_reentry": 0
+  },
+  "candidate_rows": [
+    {
+      "candidate_owner": "string_kernel_plan_label_formatter",
+      "source_path": "src/mir/string_kernel_plan/model.rs",
+      "source_hash": "sha256:023d29ed732705a880902c6fe650b5e535f2b39a7c9e8b1d947374e1d258cfb6",
+      "surface": "StringKernelPlan* Display labels",
+      "pure": true,
+      "small": true,
+      "json_serializable": true,
+      "rust_oracle_available": true,
+      "selection_state": "Selected",
+      "accepted_reason": "Pure string-kernel plan enum label formatting surface; no plan construction, legality analysis, publication logic, or backend lowering migration."
+    },
+    {
+      "candidate_owner": "string_kernel_plan_part_summary",
+      "selection_state": "Rejected",
+      "rejected_reason": "PlanPartCarriesValueIdsAndLiteralStateTooWideForNextPilot"
+    },
+    {
+      "candidate_owner": "placement_effect_summary_formatter",
+      "selection_state": "Deferred",
+      "rejected_reason": "Available after string-kernel label surface."
+    }
+  ],
+  "decision": {
+    "kind": "SelectRustOracleFixture",
+    "reason_token": "StringKernelPlanLabelFormatterSelectedAsFifteenthParityPilot",
+    "selected_owner": "string_kernel_plan_label_formatter",
+    "selected_next_card": "MIRBUILDER-STRING-KERNEL-PLAN-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "generated_artifact_as_native_edit_authority": 0,
+    "string_kernel_plan_construction_migration": 0,
+    "string_kernel_legality_analysis_migration": 0,
+    "publication_logic_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

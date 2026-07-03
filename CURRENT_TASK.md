@@ -363,34 +363,35 @@ or replacement routes in the same slice.
 Latest adopted owner:
 
 ```text
-MIRBUILDER-SUM-LOCAL-AGGREGATE-LAYOUT-TAG-FORMATTER-HAKO-ADOPTION-DECISION-001
+MIRBUILDER-STRING-KERNEL-PLAN-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001
 ```
 
 Status:
 
 ```text
-sum_local_aggregate_layout_tag_formatter is HakoAdopted as the fourteenth
-narrow Rust-oracle parity pilot after a green 4-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
+string_kernel_plan_label_formatter is HakoAdopted as the fifteenth narrow
+Rust-oracle parity pilot after a green 12-row `.hako` EXE parity gate. Source
+Selfhost remains unclaimed.
 ```
 
 Boundary:
 
 ```text
 Adopted:
-  SumLocalAggregateLayout Display tags
+  StringKernelPlan* Display labels
 
 Still Rust:
-  payload-type layout binding
-  sum placement layout refresh
-  lowering execution
+  string-kernel plan construction
+  string-kernel legality analysis
+  publication logic
+  backend lowering
   MIR mutation
 ```
 
 Next:
 
 ```text
-MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-014
+MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-015
 ```
 
 Acceptance:

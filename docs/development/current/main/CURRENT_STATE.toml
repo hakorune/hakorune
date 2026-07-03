@@ -57,6 +57,9 @@ Selfhost remains unclaimed.
 SumLocalAggregateLayoutTagFormatter is now a narrow HakoAdopted Rust-oracle
 parity pilot owner after a green 4-row `.hako` EXE parity gate. Source
 Selfhost remains unclaimed.
+StringKernelPlanLabelFormatter is now a narrow HakoAdopted Rust-oracle parity
+pilot owner after a green 12-row `.hako` EXE parity gate. Source Selfhost
+remains unclaimed.
 EXE/AOT remains the primary
 app/selfhost validation route; VM/interpreter lanes are not semantic owners."""
 
@@ -66,11 +69,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-SUM-LOCAL-AGGREGATE-LAYOUT-TAG-FORMATTER-HAKO-ADOPTION-DECISION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2168-MIRBUILDER-SUM-LOCAL-AGGREGATE-LAYOUT-TAG-FORMATTER-HAKO-ADOPTION-DECISION-001.md"
+latest_card = "MIRBUILDER-STRING-KERNEL-PLAN-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2173-MIRBUILDER-STRING-KERNEL-PLAN-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.md"
 latest_card_summary = """The latest card adopts
-sum_local_aggregate_layout_tag_formatter as the fourteenth narrow Rust-oracle
-parity pilot owner and chooses pilot selection rerun 014 next."""
+string_kernel_plan_label_formatter as the fifteenth narrow Rust-oracle parity
+pilot owner and chooses pilot selection rerun 015 next."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -81,15 +84,14 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-04: 2173 adopts string_kernel_plan_label_formatter as the fifteenth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
+  "2026-07-04: 2172 adds the string_kernel_plan_label_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
+  "2026-07-04: 2171 adds the hand-authored string_kernel_plan_label_formatter .hako implementation and chooses the parity gate card next.",
+  "2026-07-04: 2170 creates the 12-row string_kernel_plan_label_formatter Rust-oracle fixture and chooses the Hako-native implementation card next.",
+  "2026-07-04: 2169 selects string_kernel_plan_label_formatter as the fifteenth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
   "2026-07-04: 2168 adopts sum_local_aggregate_layout_tag_formatter as the fourteenth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
   "2026-07-04: 2167 adds the sum_local_aggregate_layout_tag_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
   "2026-07-04: 2166 adds the hand-authored sum_local_aggregate_layout_tag_formatter .hako implementation and chooses the parity gate card next.",
   "2026-07-04: 2165 creates the 4-row sum_local_aggregate_layout_tag_formatter Rust-oracle fixture and chooses the Hako-native implementation card next.",
   "2026-07-04: 2164 selects sum_local_aggregate_layout_tag_formatter as the fourteenth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
-  "2026-07-04: 2163 adopts array_text_observer_executor_tag_formatter as the thirteenth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
-  "2026-07-04: 2162 adds the array_text_observer_executor_tag_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
-  "2026-07-04: 2161 adds the hand-authored array_text_observer_executor_tag_formatter .hako implementation and chooses the parity gate card next.",
-  "2026-07-04: 2160 creates the 11-row array_text_observer_executor_tag_formatter Rust-oracle fixture and chooses the Hako-native implementation card next.",
-  "2026-07-04: 2159 selects array_text_observer_executor_tag_formatter as the thirteenth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
-  "2026-07-04: 2158 adopts thin_entry_tag_formatter as the twelfth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
 ]

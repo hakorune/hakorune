@@ -1,0 +1,49 @@
+// string_kernel_plan_label_formatter.hako - hand-authored string-kernel plan label formatter
+//
+// Responsibility:
+// - format narrow StringKernelPlan enum variant names into Rust oracle text
+// - stay pure: scalar category/name in, scalar text out
+//
+// Non-responsibility:
+// - string-kernel plan construction
+// - legality analysis
+// - publication decision logic
+// - backend lowering
+// - MIR mutation
+static box StringKernelPlanLabelFormatterBox {
+  format_label(category, variant) {
+    if category == "Family" {
+      if variant == "BorrowedSliceWindow" { return "borrowed_slice_window" }
+      if variant == "ConcatTripletWindow" { return "concat_triplet_window" }
+    }
+    if category == "RetainedForm" {
+      if variant == "BorrowedText" { return "borrowed_text" }
+    }
+    if category == "Consumer" {
+      if variant == "DirectKernelEntry" { return "direct_kernel_entry" }
+    }
+    if category == "TextConsumer" {
+      if variant == "SlotText" { return "slot_text" }
+      if variant == "ExplicitColdPublish" { return "explicit_cold_publish" }
+    }
+    if category == "Carrier" {
+      if variant == "KernelTextSlot" { return "kernel_text_slot" }
+      if variant == "RegistryBackedHandle" { return "registry_backed_handle" }
+    }
+    if category == "BorrowContract" {
+      if variant == "BorrowTextFromObject" { return "borrow_text_from_obj" }
+    }
+    if category == "VerifierOwner" {
+      if variant == "LoweringDirectKernelEntry" { return "lowering_direct_kernel_entry" }
+    }
+    if category == "PublicationBoundary" {
+      if variant == "FirstExternalBoundary" { return "first_external_boundary" }
+    }
+    if category == "PublicationContract" {
+      if variant == "PublishNowNotRequiredBeforeFirstExternalBoundary" {
+        return "publish_now_not_required_before_first_external_boundary"
+      }
+    }
+    return "unsupported_string_kernel_plan_label"
+  }
+}

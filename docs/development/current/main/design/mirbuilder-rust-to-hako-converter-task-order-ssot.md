@@ -24,9 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-SUM-LOCAL-AGGREGATE-LAYOUT-TAG-FORMATTER-HAKO-ADOPTION-DECISION-001.
-  The sum_local_aggregate_layout_tag_formatter owner is HakoAdopted as the
-  fourteenth narrow Rust-oracle parity pilot; next is pilot selection rerun 014.
+  MIRBUILDER-STRING-KERNEL-PLAN-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.
+  The string_kernel_plan_label_formatter owner is HakoAdopted as the fifteenth
+  narrow Rust-oracle parity pilot; next is pilot selection rerun 015.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-014
+  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-015
 
 current fail-fast boundary:
   Do not re-enter full converter route selection without new non-self-signed
@@ -83,15 +83,17 @@ current fail-fast boundary:
   loop route classification, planner route selection, thin-entry candidate
   collection/selection, manifest generation, observer route derivation, region
   matching, combined region planning, and MirBuilder mutation remain Rust.
-  Payload-type layout binding and sum placement layout refresh remain Rust.
+  Payload-type layout binding, sum placement layout refresh, string-kernel plan
+  construction, legality analysis, publication logic, and backend lowering
+  remain Rust.
 
 latest design decision:
-  sum_local_aggregate_layout_tag_formatter is now HakoAdopted as a narrow
-  Rust-oracle parity pilot owner after a green 4-row `.hako` EXE parity gate
-  for SumLocalAggregateLayout Display tags. Payload-type layout binding, sum
-  placement layout refresh, lowering execution, and MIR mutation remain Rust.
+  string_kernel_plan_label_formatter is now HakoAdopted as a narrow Rust-oracle
+  parity pilot owner after a green 12-row `.hako` EXE parity gate for
+  StringKernelPlan* Display labels. Plan construction, legality analysis,
+  publication logic, backend lowering, and MIR mutation remain Rust.
   The selected next card is
-  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-014`.
+  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-015`.
 
 historical route-selection decision:
   Detailed landed route-selection rows are closed as provenance and live in

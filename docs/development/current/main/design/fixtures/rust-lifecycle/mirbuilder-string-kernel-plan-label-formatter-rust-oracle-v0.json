@@ -1,0 +1,32 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderStringKernelPlanLabelFormatterRustOracleV1",
+  "token": "MIRBUILDER-STRING-KERNEL-PLAN-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "source": {
+    "path": "src/mir/string_kernel_plan/model.rs",
+    "hash": "sha256:023d29ed732705a880902c6fe650b5e535f2b39a7c9e8b1d947374e1d258cfb6"
+  },
+  "rows": [
+    {"category": "Family", "input": "BorrowedSliceWindow", "expected": "borrowed_slice_window"},
+    {"category": "Family", "input": "ConcatTripletWindow", "expected": "concat_triplet_window"},
+    {"category": "RetainedForm", "input": "BorrowedText", "expected": "borrowed_text"},
+    {"category": "Consumer", "input": "DirectKernelEntry", "expected": "direct_kernel_entry"},
+    {"category": "TextConsumer", "input": "SlotText", "expected": "slot_text"},
+    {"category": "TextConsumer", "input": "ExplicitColdPublish", "expected": "explicit_cold_publish"},
+    {"category": "Carrier", "input": "KernelTextSlot", "expected": "kernel_text_slot"},
+    {"category": "Carrier", "input": "RegistryBackedHandle", "expected": "registry_backed_handle"},
+    {"category": "BorrowContract", "input": "BorrowTextFromObject", "expected": "borrow_text_from_obj"},
+    {"category": "VerifierOwner", "input": "LoweringDirectKernelEntry", "expected": "lowering_direct_kernel_entry"},
+    {"category": "PublicationBoundary", "input": "FirstExternalBoundary", "expected": "first_external_boundary"},
+    {"category": "PublicationContract", "input": "PublishNowNotRequiredBeforeFirstExternalBoundary", "expected": "publish_now_not_required_before_first_external_boundary"}
+  ],
+  "claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "string_kernel_plan_construction_migration": 0,
+    "string_kernel_legality_analysis_migration": 0,
+    "publication_logic_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}
