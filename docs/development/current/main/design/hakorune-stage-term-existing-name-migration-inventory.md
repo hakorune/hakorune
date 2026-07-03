@@ -337,6 +337,32 @@ runtime behavior changed = 0
 PHI / LocalSSA / variable-map internals touched = 0
 ```
 
+## Landed mode-B Capture Caller Guard Wording Slice
+
+`STAGE-TERM-MODEB-CAPTURE-CALLER-GUARD-WORDING-001` changes the active
+Program(JSON) capture caller guard comments/diagnostics and quick gate label to
+`mode-B compatibility` wording while keeping the guard script name and allowed
+caller surfaces unchanged.
+
+Scope:
+
+```text
+tools/checks/stageb_program_json_capture_caller_guard.sh:
+  comments and failure diagnostic say mode-B compatibility
+
+tools/checks/lib/dev_gate_quick_steps.sh:
+  quick gate label says mode-B compatibility
+```
+
+Non-claims:
+
+```text
+stageb_program_json_capture_caller_guard.sh renamed = 0
+stageb_program_json_capture.sh renamed = 0
+allowed caller list changed = 0
+runtime behavior changed = 0
+```
+
 ## Migration Eligibility
 
 An occurrence is eligible for a future rename only if all conditions hold:

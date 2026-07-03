@@ -4,9 +4,9 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT"
 
-# Stage-B Program(JSON) stdout capture remains an explicit compat/debug
+# mode-B compatibility Program(JSON) stdout capture remains an explicit compat/debug
 # capsule. Archived engineering evidence is excluded; active callers stay
-# behind the known MIR emit / Stage-B helper surfaces only.
+# behind the known MIR emit / mode-B helper surfaces only.
 allowed_files=(
   "tools/selfhost/lib/stageb_program_json_capture.sh"
   "tools/hakorune_emit_mir.sh"
@@ -48,7 +48,7 @@ while IFS=: read -r path line rest; do
 done <"$tmp"
 
 if [ "$bad" -ne 0 ]; then
-  echo "[stageb-program-json-capture-caller-guard] keep Stage-B Program(JSON) capture behind hakorune_emit_mir.sh or Stage-B helper surfaces only" >&2
+  echo "[stageb-program-json-capture-caller-guard] keep mode-B compatibility Program(JSON) capture behind hakorune_emit_mir.sh or mode-B helper surfaces only" >&2
   exit 1
 fi
 

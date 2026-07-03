@@ -33,6 +33,7 @@ DEV_SELFHOST_LOOP="$ROOT_DIR/tools/dev_selfhost_loop.sh"
 ENGINEERING_PARITY="$ROOT_DIR/tools/engineering/parity.sh"
 SELFHOST_EXE_STAGEB="$ROOT_DIR/tools/selfhost_exe_stageb.sh"
 HAKORUNE_EMIT_MIR="$ROOT_DIR/tools/hakorune_emit_mir.sh"
+STAGEB_PROGRAM_JSON_CAPTURE_CALLER_GUARD="$ROOT_DIR/tools/checks/stageb_program_json_capture_caller_guard.sh"
 SELFHOST_STAGEB_PROOF_VM="$ROOT_DIR/tools/selfhost/proof/run_stageb_compiler_vm.sh"
 SELFHOST_RUN_ROUTES="$ROOT_DIR/tools/selfhost/lib/selfhost_run_routes.sh"
 SELFHOST_BUILD="$ROOT_DIR/tools/selfhost/selfhost_build.sh"
@@ -153,6 +154,7 @@ REQUIRED_FILES=(
   "$ENGINEERING_PARITY"
   "$SELFHOST_EXE_STAGEB"
   "$HAKORUNE_EMIT_MIR"
+  "$STAGEB_PROGRAM_JSON_CAPTURE_CALLER_GUARD"
   "$SELFHOST_STAGEB_PROOF_VM"
   "$SELFHOST_RUN_ROUTES"
   "$SELFHOST_BUILD"
@@ -306,6 +308,7 @@ SSOT_REQUIRED_TOKENS=(
   "STAGE-TERM-MODEB-HHAKO-COMPAT-FIXTURE-WORDING-001"
   "STAGE-TERM-HHAKO-COMPILER-ROUTE-WORDING-001"
   "STAGE-TERM-MODEB-HHAKO-HELPER-COMMENT-WORDING-001"
+  "STAGE-TERM-MODEB-CAPTURE-CALLER-GUARD-WORDING-001"
 )
 guard_require_unique_values "SSOT required token" "${SSOT_REQUIRED_TOKENS[@]}"
 for ssot_token in "${SSOT_REQUIRED_TOKENS[@]}"; do
@@ -321,6 +324,7 @@ require_fixed 'path = "src/main.rs"' "$CARGO_TOML"
 require_fixed 'name = "hakorune-compat"' "$CARGO_TOML"
 require_fixed 'path = "src/bin/hakorune_compat.rs"' "$CARGO_TOML"
 require_fixed 'cargo check --bin hakorune' "$QUICK_STEPS"
+require_fixed 'mode-B compatibility Program(JSON) capture caller guard' "$QUICK_STEPS"
 require_fixed 'BIN_HAKORUNE="$ROOT_DIR/target/release/hakorune"' "$HACO_WRAPPER"
 require_fixed 'BIN_NYASH="$ROOT_DIR/target/release/nyash"' "$HACO_WRAPPER"
 require_fixed 'if [[ -x "$BIN_HAKORUNE" ]]; then' "$HACO_WRAPPER"
@@ -682,6 +686,12 @@ require_fixed "mode-B compatibility user-box field declaration scanner" "$HH_STA
 if rg -n 'Stage-B driver entry|helper for Stage-B|Keeps Stage-B behavior|Stage-B main/body|Stage-A fallback dependency|Used by both Stage-B and Stage-A fallback|Stage-B/source-route Rune helper|Stage-B user-box field declaration scanner' "$HH_STAGEB_DRIVER_GUARD" "$HH_STAGEB_TRACE" "$HH_STAGEB_MAIN_DETECTION" "$HH_STAGEB_RUNE" "$HH_STAGEB_USER_BOX_DECL_SCANNER"; then
   guard_fail "$TAG" "HHako helper comments must say mode-B/mode-A compatibility, not Stage-A/B"
 fi
+require_fixed "mode-B compatibility Program(JSON) stdout capture remains an explicit compat/debug" "$STAGEB_PROGRAM_JSON_CAPTURE_CALLER_GUARD"
+require_fixed "known MIR emit / mode-B helper surfaces only" "$STAGEB_PROGRAM_JSON_CAPTURE_CALLER_GUARD"
+require_fixed "keep mode-B compatibility Program(JSON) capture behind hakorune_emit_mir.sh or mode-B helper surfaces only" "$STAGEB_PROGRAM_JSON_CAPTURE_CALLER_GUARD"
+if rg -n 'Stage-B Program\(JSON\) capture|Stage-B helper surfaces|Stage-B Program\(JSON\) stdout capture' "$STAGEB_PROGRAM_JSON_CAPTURE_CALLER_GUARD" "$QUICK_STEPS"; then
+  guard_fail "$TAG" "Program(JSON) capture caller guard wording must say mode-B compatibility"
+fi
 require_fixed '.arg("--syntax-3")' "$PHASE29CI_STAGEB_BODY_EXTRACT_TEST"
 require_fixed '`--syntax-3` with compatibility alias `--stage3`' "$REFERENCE_EBNF"
 require_fixed 'selfhost: `--syntax-3`' "$REFERENCE_STATEMENTS"
@@ -732,6 +742,7 @@ NAMING_DIFF_ALLOWED_PATHS=(
   "lang/src/compiler/entry/stageb/stageb_user_box_decl_scanner_box.hako"
   "tests/phase29ci_stageb_body_extract.rs"
   "tools/selfhost/proof/run_stageb_compiler_vm.sh"
+  "tools/checks/stageb_program_json_capture_caller_guard.sh"
   "docs/development/selfhosting/quickstart.md"
   "docs/development/current/main/DOCS_LAYOUT.md"
   "docs/tools/check-scripts-index.md"

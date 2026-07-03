@@ -2161,6 +2161,38 @@ git diff --check
 tools/checks/dev_gate.sh quick
 ```
 
+### STAGE-TERM-MODEB-CAPTURE-CALLER-GUARD-WORDING-001
+
+Status: landed capture caller guard wording cleanup.
+
+Purpose: use `mode-B compatibility` wording in the active Program(JSON)
+capture caller guard comments/diagnostics and quick gate label while keeping
+compatibility script names and allowed caller surfaces unchanged.
+
+Affected files:
+
+```text
+tools/checks/stageb_program_json_capture_caller_guard.sh
+tools/checks/lib/dev_gate_quick_steps.sh
+```
+
+Non-claims:
+
+```text
+stageb_program_json_capture_caller_guard.sh renamed = 0
+stageb_program_json_capture.sh renamed = 0
+allowed caller list changed = 0
+runtime behavior changed = 0
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
 ### STAGE-TERM-EXISTING-NAME-MIGRATION-001
 
 Status: inventory-only; no implementation rename selected.

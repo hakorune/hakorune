@@ -6,7 +6,7 @@ dev_gate_script_step "Stage1 emit-program runtime-helper guard" tools/checks/sta
 dev_gate_script_step "Program(JSON) dev surface guard" tools/checks/program_json_dev_surface_guard.sh
 dev_gate_script_step "Program(JSON v0) compat caller guard" tools/checks/program_json_v0_compat_caller_guard.sh
 dev_gate_script_step "Program(JSON)->MIR bridge caller guard" tools/checks/program_json_mir_bridge_caller_guard.sh
-dev_gate_script_step "Stage-B Program(JSON) capture caller guard" tools/checks/stageb_program_json_capture_caller_guard.sh
+dev_gate_script_step "mode-B compatibility Program(JSON) capture caller guard" tools/checks/stageb_program_json_capture_caller_guard.sh
 dev_gate_script_step "Stage1 Program(JSON) compat caller guard" tools/checks/stage1_program_json_compat_caller_guard.sh
 dev_gate_script_step "phase29ch route probe surface guard" tools/checks/phase29ch_route_probe_surface_guard.sh
 dev_gate_script_step "phase29ck pre-perf probe surface guard" tools/checks/phase29ck_preperf_probe_surface_guard.sh
