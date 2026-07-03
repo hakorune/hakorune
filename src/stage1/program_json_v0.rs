@@ -1,4 +1,4 @@
-//! Stage1 Program(JSON v0) façade.
+//! Phase-1 compatibility Program(JSON v0) façade.
 //!
 //! Layout SSOT:
 //! - `routing.rs`: source-shape and build-route policy
@@ -66,7 +66,7 @@ pub fn emit_program_json_v0_for_strict_authority_source(
     authority::emit_program_json_v0_for_strict_authority_source(source_text)
 }
 
-/// Crate-local helper for the future-retire Rust Stage1 bridge emit-program route.
+/// Crate-local helper for the future-retire Rust phase-1 compatibility bridge emit-program route.
 pub(crate) fn emit_program_json_v0_for_stage1_bridge_emit_program_json(
     source_text: &str,
 ) -> Result<String, String> {
@@ -88,7 +88,7 @@ fn emit_program_json_v0_for_stage1_build_box(
         .map_err(format_stage1_program_json_v0_freeze)
 }
 
-/// Cross-crate build-box helper that follows the current stage1 mode contract.
+/// Cross-crate build-box helper that follows the current phase-1 compatibility mode contract.
 pub fn emit_program_json_v0_for_current_stage1_build_box_mode(
     source_text: &str,
 ) -> Result<String, String> {

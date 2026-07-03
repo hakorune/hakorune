@@ -142,6 +142,11 @@ ENV_PATHS_RS="$ROOT_DIR/src/config/env/paths.rs"
 VERIFICATION_FLAGS_RS="$ROOT_DIR/src/config/env/verification_flags.rs"
 ENV_DOC="$ROOT_DIR/docs/reference/environment-variables.md"
 STAGE1_BRIDGE_ENV_PARSER_STAGEB_RS="$ROOT_DIR/src/runner/stage1_bridge/env/parser_stageb.rs"
+RUST_STAGE1_README="$ROOT_DIR/src/stage1/README.md"
+RUST_STAGE1_MOD_RS="$ROOT_DIR/src/stage1/mod.rs"
+RUST_STAGE1_PROGRAM_JSON_RS="$ROOT_DIR/src/stage1/program_json_v0.rs"
+RUST_STAGE1_PROGRAM_JSON_ROUTING_RS="$ROOT_DIR/src/stage1/program_json_v0/routing.rs"
+RUST_STAGE1_PROGRAM_JSON_README="$ROOT_DIR/src/stage1/program_json_v0/README.md"
 REFERENCE_EBNF="$ROOT_DIR/docs/reference/language/EBNF.md"
 REFERENCE_STATEMENTS="$ROOT_DIR/docs/reference/language/statements.md"
 PHASE29CI_STAGEB_BODY_EXTRACT_TEST="$ROOT_DIR/tests/phase29ci_stageb_body_extract.rs"
@@ -393,6 +398,11 @@ REQUIRED_FILES=(
   "$VERIFICATION_FLAGS_RS"
   "$ENV_DOC"
   "$STAGE1_BRIDGE_ENV_PARSER_STAGEB_RS"
+  "$RUST_STAGE1_README"
+  "$RUST_STAGE1_MOD_RS"
+  "$RUST_STAGE1_PROGRAM_JSON_RS"
+  "$RUST_STAGE1_PROGRAM_JSON_ROUTING_RS"
+  "$RUST_STAGE1_PROGRAM_JSON_README"
   "$REFERENCE_EBNF"
   "$REFERENCE_STATEMENTS"
   "$PHASE29CI_STAGEB_BODY_EXTRACT_TEST"
@@ -507,6 +517,7 @@ SSOT_REQUIRED_TOKENS=(
   "STAGE-TERM-STAGE1-BRIDGE-PHASE-COMMENT-WORDING-001"
   "STAGE-TERM-ENV-REFERENCE-PHASE-WORDING-001"
   "STAGE-TERM-RUST-STAGE1-ENV-HELPER-COMMENT-WORDING-001"
+  "STAGE-TERM-RUST-STAGE1-BOUNDARY-COMMENT-WORDING-001"
 )
 guard_require_unique_values "SSOT required token" "${SSOT_REQUIRED_TOKENS[@]}"
 for ssot_token in "${SSOT_REQUIRED_TOKENS[@]}"; do
@@ -868,6 +879,23 @@ require_fixed "mode-B module payload apply" "$STAGE1_BRIDGE_ENV_PARSER_STAGEB_RS
 if rg -n 'Stage-B toggles|Stage-B module payload' "$STAGE1_BRIDGE_ENV_PARSER_STAGEB_RS"; then
   guard_fail "$TAG" "stage1 bridge env comments must say mode-B compatibility, not Stage-B toggles"
 fi
+require_fixed "Phase-1 Compatibility Rust Boundary" "$RUST_STAGE1_README"
+require_fixed "legacy bootstrap artifact/proof labels" "$RUST_STAGE1_README"
+require_fixed "phase-1 compatibility bridge orchestration" "$RUST_STAGE1_README"
+require_fixed "Rust phase-1 compatibility bootstrap boundary" "$RUST_STAGE1_MOD_RS"
+require_fixed "Phase-1 compatibility Program(JSON v0) façade" "$RUST_STAGE1_PROGRAM_JSON_RS"
+require_fixed "phase-1 compatibility bridge emit-program route" "$RUST_STAGE1_PROGRAM_JSON_RS"
+require_fixed "current phase-1 compatibility mode contract" "$RUST_STAGE1_PROGRAM_JSON_RS"
+require_fixed "phase-1 compatibility Program(JSON v0)" "$RUST_STAGE1_PROGRAM_JSON_ROUTING_RS"
+require_fixed "Phase-1 Compatibility Program JSON v0 Layout" "$RUST_STAGE1_PROGRAM_JSON_README"
+if rg -n 'Stage1 Rust Boundary|Rust-side Stage1 bootstrap boundary|Rust-owned Stage1 source|artifact-stage directory|move Stage1 bridge orchestration|encode Stage2 artifact flow|Rust Stage1 bootstrap boundary|Stage1 Program\(JSON v0\) façade|Rust Stage1 bridge emit-program route|current stage1 mode contract|SSOT for Stage1 Program|# Stage1 Program JSON v0 Layout' \
+  "$RUST_STAGE1_README" \
+  "$RUST_STAGE1_MOD_RS" \
+  "$RUST_STAGE1_PROGRAM_JSON_RS" \
+  "$RUST_STAGE1_PROGRAM_JSON_ROUTING_RS" \
+  "$RUST_STAGE1_PROGRAM_JSON_README"; then
+  guard_fail "$TAG" "src/stage1 boundary comments must use phase-1 compatibility wording"
+fi
 require_fixed "mode-B compatibility module payload generation" "$STAGE1_BRIDGE_README"
 require_fixed "mode-B compatibility aliases" "$STAGE1_BRIDGE_ENV_RS"
 require_fixed "mode-B compatibility alias" "$STAGE1_BRIDGE_MODULES_RS"
@@ -1137,6 +1165,11 @@ NAMING_DIFF_ALLOWED_PATHS=(
   "docs/tools/script-index.md"
   "docs/reference/environment-variables.md"
   "src/config/env/stage1.rs"
+  "src/stage1/README.md"
+  "src/stage1/mod.rs"
+  "src/stage1/program_json_v0.rs"
+  "src/stage1/program_json_v0/routing.rs"
+  "src/stage1/program_json_v0/README.md"
   "src/config/env/parser_flags.rs"
   "src/config/env/selfhost_flags.rs"
   "src/cli/args.rs"

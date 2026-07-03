@@ -1,4 +1,4 @@
-# Stage1 Program JSON v0 Layout
+# Phase-1 Compatibility Program JSON v0 Layout
 
 Scope: `src/stage1/program_json_v0.rs` façade と、その配下の owner-local modules。
 

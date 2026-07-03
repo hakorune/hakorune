@@ -1,4 +1,4 @@
-//! Rust Stage1 bootstrap boundary.
+//! Rust phase-1 compatibility bootstrap boundary.
 //!
 //! Layout/ownership SSOT:
 //! - `README.md`

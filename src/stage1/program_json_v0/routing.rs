@@ -1,4 +1,4 @@
-//! Source-shape / build-route SSOT for Stage1 Program(JSON v0).
+//! Source-shape / build-route SSOT for phase-1 compatibility Program(JSON v0).
 
 const RELAXED_KEEP_REASON_DEV_LOCAL_ALIAS_SUGAR: &str = "dev-local-alias-sugar";
 

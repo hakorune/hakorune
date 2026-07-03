@@ -949,6 +949,38 @@ STAGE1_* legacy env aliases removed = 0
 runtime behavior changed = 0
 ```
 
+## Landed Rust Stage1 Boundary Comment Wording Slice
+
+`STAGE-TERM-RUST-STAGE1-BOUNDARY-COMMENT-WORDING-001` changes the
+`src/stage1` boundary README and Program(JSON v0) header comments from
+unqualified Stage1 wording to phase-1 compatibility wording. The explicit
+`Stage1` / `Stage2` legacy artifact-label explanation remains as compatibility
+vocabulary.
+
+Scope:
+
+```text
+src/stage1/README.md:
+  boundary title and responsibility lines use phase-1 compatibility wording
+  legacy Stage1/Stage2 artifact/proof label explanation remains explicit
+
+src/stage1/mod.rs:
+src/stage1/program_json_v0.rs:
+src/stage1/program_json_v0/routing.rs:
+src/stage1/program_json_v0/README.md:
+  module/header comments use phase-1 compatibility wording
+```
+
+Non-claims:
+
+```text
+src/stage1 directory renamed = 0
+src/stage2 directory created = 0
+stage1_bridge helper/function names renamed = 0
+Program(JSON v0) behavior changed = 0
+runtime behavior changed = 0
+```
+
 ## Migration Eligibility
 
 An occurrence is eligible for a future rename only if all conditions hold:

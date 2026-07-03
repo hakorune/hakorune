@@ -2814,6 +2814,33 @@ helper function names renamed = 0
 runtime behavior changed = 0
 ```
 
+#### STAGE-TERM-RUST-STAGE1-BOUNDARY-COMMENT-WORDING-001
+
+Status: landed.
+
+Scope:
+
+```text
+src/stage1/README.md:
+  owner-boundary wording uses phase-1 compatibility and keeps legacy
+  Stage1/Stage2 artifact labels as explicit compatibility vocabulary
+
+src/stage1/mod.rs:
+src/stage1/program_json_v0.rs:
+src/stage1/program_json_v0/routing.rs:
+src/stage1/program_json_v0/README.md:
+  file/module header comments use phase-1 compatibility wording
+```
+
+Non-claims:
+
+```text
+src/stage1 path renamed = 0
+src/stage2 path created = 0
+stage1_bridge helper names renamed = 0
+Program(JSON v0) behavior changed = 0
+```
+
 ## Guard Policy
 
 `tools/checks/naming_charter_guard.sh` is a lightweight reusable guard. It does
