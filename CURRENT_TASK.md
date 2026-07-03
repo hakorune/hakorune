@@ -1,7 +1,7 @@
 # CURRENT_TASK
 
 Status: SSOT pointer
-Date: 2026-07-03
+Date: 2026-07-04
 Scope: root restart anchor only. Do not store landed history here.
 
 ## Quick Restart
@@ -50,6 +50,7 @@ SOURCE-SELFHOST-RUST-TO-HAKO-CONVERTER-ROLE-PIVOT-001
   -> MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-001
   -> MIRBUILDER-STORAGE-CLASS-CLASSIFIER-RUST-ORACLE-FIXTURE-001
   -> MIRBUILDER-STORAGE-CLASS-CLASSIFIER-HAKO-NATIVE-IMPLEMENTATION-001
+  -> MIRBUILDER-STORAGE-CLASS-CLASSIFIER-PARITY-GATE-001
 ```
 
 Rule:
@@ -62,7 +63,7 @@ correctness must be proven by Rust-oracle parity fixtures
 Source Selfhost claim remains 0
 first owner pilot is storage_class_classifier
 return_prelude_policy is harness smoke only
-storage_class oracle fixture is fixed; next is hand-authored .hako implementation
+storage_class .hako implementation exists; next is Rust-oracle parity gate
 ```
 
 ## Immediate Maintenance Slice

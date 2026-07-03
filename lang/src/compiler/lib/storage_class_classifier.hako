@@ -1,0 +1,71 @@
+// storage_class_classifier.hako - hand-authored storage-class classifier
+//
+// Responsibility:
+// - classify a MIR type-shaped value into the Rust oracle StorageClass strings
+// - stay pure: input value -> storage class text
+//
+// Non-responsibility:
+// - metadata.value_storage_classes mutation
+// - function/module traversal
+// - Source Selfhost or HakoAdopted promotion
+
+using selfhost.shared.common.box_helpers as BoxHelpers
+
+static box StorageClassClassifierBox {
+  classify_mir_type(mir_type) {
+    if mir_type == null {
+      return "opaque"
+    }
+    if BoxHelpers.is_map(mir_type) == 1 {
+      return me._classify_mir_type_map(mir_type)
+    }
+    return me._classify_mir_type_name("" + mir_type)
+  }
+
+  _classify_mir_type_name(name) {
+    if name == "Integer" {
+      return "inline_i64"
+    }
+    if name == "Bool" {
+      return "inline_bool"
+    }
+    if name == "Float" {
+      return "inline_f64"
+    }
+    if name == "String" {
+      return "borrowed_text"
+    }
+    return "opaque"
+  }
+
+  _classify_mir_type_map(mir_type) {
+    local box_name = BoxHelpers.map_get(mir_type, "Box")
+    if box_name != null {
+      return me._classify_box_name("" + box_name)
+    }
+
+    if BoxHelpers.map_get(mir_type, "Array") != null {
+      return "opaque"
+    }
+    if BoxHelpers.map_get(mir_type, "Future") != null {
+      return "opaque"
+    }
+    return "opaque"
+  }
+
+  _classify_box_name(name) {
+    if name == "IntegerBox" {
+      return "inline_i64"
+    }
+    if name == "BoolBox" {
+      return "inline_bool"
+    }
+    if name == "FloatBox" {
+      return "inline_f64"
+    }
+    if name == "StringBox" {
+      return "borrowed_text"
+    }
+    return "box_ref"
+  }
+}

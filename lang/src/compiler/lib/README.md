@@ -17,6 +17,8 @@ Scope:
   - `canonical_json.hako`
   - `projection_value.hako`
   - `projector_support.hako`
+- first Rust-oracle parity pilot library:
+  - `storage_class_classifier.hako`
 - first shadow-projector support library:
   - `return_emission_projector.hako`
 - first native source owner candidate:

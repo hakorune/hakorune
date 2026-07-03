@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-06-27
+Date: 2026-07-04
 Scope: MirBuilder-only Rust-to-Hako converter task order.
 Related:
   - docs/development/current/main/design/derived-to-native-hako-artifact-model-ssot.md
@@ -24,9 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-STORAGE-CLASS-CLASSIFIER-RUST-ORACLE-FIXTURE-001.
-  The storage_class_classifier Rust-oracle JSON fixture is fixed; next is the
-  hand-authored `.hako` implementation.
+  MIRBUILDER-STORAGE-CLASS-CLASSIFIER-HAKO-NATIVE-IMPLEMENTATION-001.
+  The storage_class_classifier hand-authored `.hako` implementation exists;
+  next is the Rust-oracle parity gate.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-STORAGE-CLASS-CLASSIFIER-HAKO-NATIVE-IMPLEMENTATION-001
+  MIRBUILDER-STORAGE-CLASS-CLASSIFIER-PARITY-GATE-001
 
 current fail-fast boundary:
   Do not re-enter full converter route selection without new non-self-signed
@@ -70,10 +70,10 @@ current fail-fast boundary:
   `MirType -> StorageClass`; metadata refresh/mutation remains Rust.
 
 latest design decision:
-  The storage_class_classifier pilot now has a Rust-oracle fixture. The
-  classifier surface is `MirType -> StorageClass`; metadata refresh and
-  function/module traversal remain Rust. The selected next card is
-  `MIRBUILDER-STORAGE-CLASS-CLASSIFIER-HAKO-NATIVE-IMPLEMENTATION-001`.
+  The storage_class_classifier pilot now has a hand-authored `.hako`
+  implementation for the pure `MirType -> StorageClass` surface. Metadata
+  refresh and function/module traversal remain Rust. The selected next card is
+  `MIRBUILDER-STORAGE-CLASS-CLASSIFIER-PARITY-GATE-001`.
 
 historical route-selection decision:
   Detailed landed route-selection rows are closed as provenance and live in
