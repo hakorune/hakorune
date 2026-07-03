@@ -881,6 +881,27 @@ git diff --check
 tools/checks/dev_gate.sh quick
 ```
 
+### HAKORUNE-WRAPPER-EXECUTABLE-BIT-001
+
+Status: active in this slice.
+
+Scope:
+
+- make `tools/bin/hako` executable so opt-in Hako smokes do not skip only
+  because the wrapper has mode `100644`;
+- keep wrapper content and Hakorune-first binary resolution unchanged in this
+  slice;
+- add naming guard coverage for the executable bit.
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+tools/bin/hako --version
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
 ### STAGE-TERM-EXISTING-NAME-MIGRATION-001
 
 Status: defined, not implementation.
