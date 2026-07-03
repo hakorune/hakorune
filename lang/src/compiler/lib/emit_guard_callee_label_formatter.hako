@@ -1,0 +1,21 @@
+// emit_guard_callee_label_formatter.hako
+//
+// Responsibility:
+// - format narrow emit-guard Callee diagnostic labels
+// - stay pure: scalar tokens in, scalar text out
+//
+// Non-responsibility:
+// - callee resolution
+// - emit-guard scope validation
+// - MIR mutation
+static box EmitGuardCalleeLabelFormatterBox {
+  format_label(kind, a, b) {
+    if kind == "Global" { return "Global(" + a + ")" }
+    if kind == "Method" { return "Method(" + a + "." + b + ")" }
+    if kind == "Constructor" { return "Constructor(" + a + ")" }
+    if kind == "Closure" { return "Closure" }
+    if kind == "Value" { return "Value(%" + a + ")" }
+    if kind == "Extern" { return "Extern(" + a + ")" }
+    return "unsupported_emit_guard_callee"
+  }
+}

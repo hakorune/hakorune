@@ -1,0 +1,30 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderEmitGuardCalleeLabelFormatterRustOracleV1",
+  "token": "MIRBUILDER-EMIT-GUARD-CALLEE-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "emit_guard_callee_label_formatter",
+  "rust_source": {
+    "path": "src/mir/builder/emit_guard/mod.rs",
+    "hash": "sha256:2dbc794d212e3644e1c3029187633971ac610a6e7033749146592835df338877",
+    "oracle_surface": "callee_label diagnostic string formatting"
+  },
+  "rows": [
+    {"kind": "Global", "a": "Main.main/0", "b": "", "expected": "Global(Main.main/0)"},
+    {"kind": "Method", "a": "ArrayBox", "b": "push", "expected": "Method(ArrayBox.push)"},
+    {"kind": "Constructor", "a": "Point", "b": "", "expected": "Constructor(Point)"},
+    {"kind": "Closure", "a": "", "b": "", "expected": "Closure"},
+    {"kind": "Value", "a": "42", "b": "", "expected": "Value(%42)"},
+    {"kind": "Extern", "a": "env.console.log", "b": "", "expected": "Extern(env.console.log)"}
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "callee_resolution_migration": 0,
+    "emit_guard_scope_check_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderHakoNativeOwnerParityPilotSelectionRerun057V1",
+  "token": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-057",
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "previous_adoption_decision": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-flowbox-freeze-tag-formatter-hako-adoption-decision-v0.json",
+    "previous_adoption_decision_hash": "sha256:a4930a7dae3be5813f73067e6c0e6957a98b326a981ef62e9eaf83a86f322f2d"
+  },
+  "decision": {
+    "kind": "SelectRustOracleFixture",
+    "reason_token": "EmitGuardCalleeLabelFormatterIsNarrowPureDiagnosticOwner",
+    "selected_owner": "emit_guard_callee_label_formatter",
+    "selected_next_card": "MIRBUILDER-EMIT-GUARD-CALLEE-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001"
+  },
+  "accepted_scope": {
+    "surface": "emit guard Callee diagnostic label formatting",
+    "manual_target_selection_allowed": 1,
+    "correctness_requires_rust_oracle_parity": 1
+  },
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "callee_resolution_migration": 0,
+    "emit_guard_scope_check_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

@@ -24,9 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-FLOWBOX-FREEZE-TAG-FORMATTER-HAKO-ADOPTION-DECISION-001.
-  The flowbox_freeze_tag_formatter owner is HakoAdopted as the fifty-seventh
-  narrow Rust-oracle parity pilot; next is rerun 057.
+  MIRBUILDER-EMIT-GUARD-CALLEE-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.
+  The emit_guard_callee_label_formatter owner is HakoAdopted as the fifty-eighth
+  narrow Rust-oracle parity pilot; next is rerun 058.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-057
+  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-058
 
 current fail-fast boundary:
   Do not re-enter full converter route selection without new non-self-signed
@@ -110,14 +110,15 @@ current fail-fast boundary:
   generation, publication-site MIR mutation, Copy instruction emission,
   dominance checks, test-only copy-emission reasons, CorePlan/Facts flowbox
   classification, facts-to-feature extraction, tag emission, Freeze contract,
-  stderr write, and route selection remain Rust.
+  stderr write, Callee resolution, emit-guard scope validation, and route
+  selection remain Rust.
 
 latest design decision:
-  flowbox_freeze_tag_formatter is now HakoAdopted as a narrow Rust-oracle
-  parity pilot owner after a green 3-row `.hako` EXE parity gate. Freeze
-  contract construction, stderr emission, and MIR mutation remain Rust.
+  emit_guard_callee_label_formatter is now HakoAdopted as a narrow Rust-oracle
+  parity pilot owner after a green 6-row `.hako` EXE parity gate. Callee
+  resolution, emit-guard scope validation, and MIR mutation remain Rust.
   The selected next card is
-  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-057`.
+  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-058`.
 
 historical route-selection decision:
   Detailed landed route-selection rows are closed as provenance and live in

@@ -186,6 +186,9 @@ Source Selfhost remains unclaimed.
 FlowboxFreezeTagFormatter is now a narrow HakoAdopted Rust-oracle parity pilot
 owner after a green 3-row `.hako` EXE parity gate.
 Source Selfhost remains unclaimed.
+EmitGuardCalleeLabelFormatter is now a narrow HakoAdopted Rust-oracle parity
+pilot owner after a green 6-row `.hako` EXE parity gate.
+Source Selfhost remains unclaimed.
 EXE/AOT remains the primary
 app/selfhost validation route; VM/interpreter lanes are not semantic owners."""
 
@@ -195,11 +198,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-FLOWBOX-FREEZE-TAG-FORMATTER-HAKO-ADOPTION-DECISION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2383-MIRBUILDER-FLOWBOX-FREEZE-TAG-FORMATTER-HAKO-ADOPTION-DECISION-001.md"
+latest_card = "MIRBUILDER-EMIT-GUARD-CALLEE-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2388-MIRBUILDER-EMIT-GUARD-CALLEE-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.md"
 latest_card_summary = """The latest card adopts
-flowbox_freeze_tag_formatter as the fifty-seventh narrow Rust-oracle parity
-pilot owner and chooses pilot selection rerun 057 next."""
+emit_guard_callee_label_formatter as the fifty-eighth narrow Rust-oracle parity
+pilot owner and chooses pilot selection rerun 058 next."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -210,14 +213,14 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-04: 2388 adopts emit_guard_callee_label_formatter as the fifty-eighth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
+  "2026-07-04: 2387 adds the emit_guard_callee_label_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
+  "2026-07-04: 2386 adds the hand-authored emit_guard_callee_label_formatter .hako implementation and chooses the parity gate card next.",
+  "2026-07-04: 2385 creates the 6-row emit_guard_callee_label_formatter Rust-oracle fixture and chooses the Hako-native implementation card next.",
+  "2026-07-04: 2384 selects emit_guard_callee_label_formatter as the fifty-eighth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
   "2026-07-04: 2383 adopts flowbox_freeze_tag_formatter as the fifty-seventh narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
   "2026-07-04: 2382 adds the flowbox_freeze_tag_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
   "2026-07-04: 2381 adds the hand-authored flowbox_freeze_tag_formatter .hako implementation and chooses the parity gate card next.",
   "2026-07-04: 2380 creates the 3-row flowbox_freeze_tag_formatter Rust-oracle fixture and chooses the Hako-native implementation card next.",
   "2026-07-04: 2379 selects flowbox_freeze_tag_formatter as the fifty-seventh narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
-  "2026-07-04: 2378 adopts flowbox_adopt_tag_formatter as the fifty-sixth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
-  "2026-07-04: 2377 adds the flowbox_adopt_tag_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
-  "2026-07-04: 2376 adds the hand-authored flowbox_adopt_tag_formatter .hako implementation and chooses the parity gate card next.",
-  "2026-07-04: 2375 creates the 3-row flowbox_adopt_tag_formatter Rust-oracle fixture and chooses the Hako-native implementation card next.",
-  "2026-07-04: 2374 selects flowbox_adopt_tag_formatter as the fifty-sixth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
 ]
