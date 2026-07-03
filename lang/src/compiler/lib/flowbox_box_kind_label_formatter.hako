@@ -1,0 +1,21 @@
+// flowbox_box_kind_label_formatter.hako
+//
+// Responsibility:
+// - format narrow FlowboxBoxKind vocabulary into Rust oracle text
+// - stay pure: scalar token in, scalar text out
+//
+// Non-responsibility:
+// - CorePlan/Facts to FlowboxBoxKind classification
+// - feature extraction
+// - flowbox tag emission
+// - MIR mutation
+static box FlowboxBoxKindLabelFormatterBox {
+  format_kind(token) {
+    if token == "Loop" { return "Loop" }
+    if token == "If2" { return "If2" }
+    if token == "BranchN" { return "BranchN" }
+    if token == "Seq" { return "Seq" }
+    if token == "Leaf" { return "Leaf" }
+    return "unsupported_flowbox_box_kind"
+  }
+}

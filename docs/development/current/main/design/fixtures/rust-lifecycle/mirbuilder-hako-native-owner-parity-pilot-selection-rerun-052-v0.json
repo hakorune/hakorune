@@ -1,0 +1,33 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderHakoNativeOwnerParityPilotSelectionRerun052V1",
+  "token": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-052",
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "previous_adoption_decision": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-copy-emit-reason-label-formatter-hako-adoption-decision-v0.json",
+    "previous_adoption_decision_hash": "sha256:296b2d748429b07f1907ddcc4de87df525af606cd298c7d6bd418550f873bd9a"
+  },
+  "decision": {
+    "kind": "SelectRustOracleFixture",
+    "reason_token": "FlowboxBoxKindLabelFormatterIsNarrowPureVocabularyOwner",
+    "selected_owner": "flowbox_box_kind_label_formatter",
+    "selected_next_card": "MIRBUILDER-FLOWBOX-BOX-KIND-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001"
+  },
+  "accepted_scope": {
+    "surface": "FlowboxBoxKind label vocabulary formatting",
+    "manual_target_selection_allowed": 1,
+    "correctness_requires_rust_oracle_parity": 1
+  },
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "flowbox_box_kind_classification_migration": 0,
+    "flowbox_feature_extraction_migration": 0,
+    "flowbox_tag_emission_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}
