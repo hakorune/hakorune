@@ -38,6 +38,11 @@ impl std::fmt::Display for StorageClass {
     }
 }
 
+/// Classify a MIR type without touching function/module metadata.
+pub fn classify_mir_type_storage_class(ty: &MirType) -> StorageClass {
+    infer_storage_class(ty)
+}
+
 /// Refresh every function's storage-class inventory from the current MIR value types.
 pub fn refresh_module_storage_class_facts(module: &mut MirModule) {
     for function in module.functions.values_mut() {
@@ -145,6 +150,30 @@ mod tests {
             infer_storage_class(&MirType::Box("MyUserBox".to_string())),
             StorageClass::BoxRef
         );
+    }
+
+    #[test]
+    fn classifier_oracle_fixture_matches_rust_outputs() {
+        let rows = [
+            (MirType::Integer, "inline_i64"),
+            (MirType::Bool, "inline_bool"),
+            (MirType::Float, "inline_f64"),
+            (MirType::String, "borrowed_text"),
+            (MirType::Box("IntegerBox".to_string()), "inline_i64"),
+            (MirType::Box("BoolBox".to_string()), "inline_bool"),
+            (MirType::Box("FloatBox".to_string()), "inline_f64"),
+            (MirType::Box("StringBox".to_string()), "borrowed_text"),
+            (MirType::Box("MyUserBox".to_string()), "box_ref"),
+            (MirType::Array(Box::new(MirType::Integer)), "opaque"),
+            (MirType::Future(Box::new(MirType::Integer)), "opaque"),
+            (MirType::WeakRef, "opaque"),
+            (MirType::Void, "opaque"),
+            (MirType::Unknown, "opaque"),
+        ];
+
+        for (ty, expected) in rows {
+            assert_eq!(classify_mir_type_storage_class(&ty).as_str(), expected);
+        }
     }
 
     #[test]

@@ -1,0 +1,150 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderStorageClassClassifierRustOracleV1",
+  "token": "MIRBUILDER-STORAGE-CLASS-CLASSIFIER-RUST-ORACLE-FIXTURE-001",
+  "owner": "storage_class_classifier",
+  "rust_surface": {
+    "source_file": "src/mir/storage_class.rs",
+    "function": "classify_mir_type_storage_class",
+    "excluded": [
+      "refresh_module_storage_class_facts",
+      "refresh_function_storage_class_facts",
+      "metadata.value_storage_classes mutation"
+    ]
+  },
+  "rows": [
+    {
+      "input": {
+        "mir_type": "Integer"
+      },
+      "expected": {
+        "storage_class": "inline_i64"
+      }
+    },
+    {
+      "input": {
+        "mir_type": "Bool"
+      },
+      "expected": {
+        "storage_class": "inline_bool"
+      }
+    },
+    {
+      "input": {
+        "mir_type": "Float"
+      },
+      "expected": {
+        "storage_class": "inline_f64"
+      }
+    },
+    {
+      "input": {
+        "mir_type": "String"
+      },
+      "expected": {
+        "storage_class": "borrowed_text"
+      }
+    },
+    {
+      "input": {
+        "mir_type": {
+          "Box": "IntegerBox"
+        }
+      },
+      "expected": {
+        "storage_class": "inline_i64"
+      }
+    },
+    {
+      "input": {
+        "mir_type": {
+          "Box": "BoolBox"
+        }
+      },
+      "expected": {
+        "storage_class": "inline_bool"
+      }
+    },
+    {
+      "input": {
+        "mir_type": {
+          "Box": "FloatBox"
+        }
+      },
+      "expected": {
+        "storage_class": "inline_f64"
+      }
+    },
+    {
+      "input": {
+        "mir_type": {
+          "Box": "StringBox"
+        }
+      },
+      "expected": {
+        "storage_class": "borrowed_text"
+      }
+    },
+    {
+      "input": {
+        "mir_type": {
+          "Box": "MyUserBox"
+        }
+      },
+      "expected": {
+        "storage_class": "box_ref"
+      }
+    },
+    {
+      "input": {
+        "mir_type": {
+          "Array": "Integer"
+        }
+      },
+      "expected": {
+        "storage_class": "opaque"
+      }
+    },
+    {
+      "input": {
+        "mir_type": {
+          "Future": "Integer"
+        }
+      },
+      "expected": {
+        "storage_class": "opaque"
+      }
+    },
+    {
+      "input": {
+        "mir_type": "WeakRef"
+      },
+      "expected": {
+        "storage_class": "opaque"
+      }
+    },
+    {
+      "input": {
+        "mir_type": "Void"
+      },
+      "expected": {
+        "storage_class": "opaque"
+      }
+    },
+    {
+      "input": {
+        "mir_type": "Unknown"
+      },
+      "expected": {
+        "storage_class": "opaque"
+      }
+    }
+  ],
+  "claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "native_seed_materialization": 0,
+    "generated_artifact_as_native_edit_authority": 0,
+    "metadata_refresh_migration": 0
+  }
+}

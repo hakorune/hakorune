@@ -25,12 +25,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2099-MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-001.md"
-latest_card_summary = """The latest card defines advisory pilot candidate
-ranking, selects storage_class_classifier as the first hand-authored
-.hako-native owner parity pilot, and selects the Rust-oracle fixture card
-next."""
+latest_card = "MIRBUILDER-STORAGE-CLASS-CLASSIFIER-RUST-ORACLE-FIXTURE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2100-MIRBUILDER-STORAGE-CLASS-CLASSIFIER-RUST-ORACLE-FIXTURE-001.md"
+latest_card_summary = """The latest card creates the Rust-oracle fixture for
+the storage_class_classifier pilot, exposes a pure classifier surface, and
+selects the hand-authored .hako-native implementation card next."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -41,6 +40,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-04: 2100 creates the storage_class_classifier Rust-oracle fixture and selects the Hako-native implementation card next.",
   "2026-07-04: 2099 selects storage_class_classifier as the first Hako-native owner parity pilot and chooses the Rust-oracle fixture card next.",
   "2026-07-03: 2098 pivots the converter from Source Selfhost main route to Rust-oracle parity helper and selects the Hako-native owner parity pilot.",
   "2026-07-03: 2097 closes out the current Source Selfhost wider route-selection design stop with no machine-derived progress lane.",
@@ -52,5 +52,4 @@ landed_tail = [
   "2026-07-03: 2091 parks the carrier/type parent policy lane and selects MissingProjectionPolicy cluster resolution rerun 005 as the wider lane.",
   "2026-07-03: 2090 inventories parent policy lane evidence sources and selects wider route-selection basis 010 with no parent policy candidate selected.",
   "2026-07-03: 2089 defines parent policy lane evidence-source discovery authority for all four parent policy lanes without selecting a candidate.",
-  "2026-07-03: 2088 reruns carrier/type parent policy lane priority and keeps Source Selfhost stopped because no current machine-derived parent policy candidate is available.",
 ]

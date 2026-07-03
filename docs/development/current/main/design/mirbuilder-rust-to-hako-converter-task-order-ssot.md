@@ -24,9 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-001.
-  The first pilot is `storage_class_classifier`: hand-authored `.hako`
-  implementation later, Rust-oracle JSON fixture first.
+  MIRBUILDER-STORAGE-CLASS-CLASSIFIER-RUST-ORACLE-FIXTURE-001.
+  The storage_class_classifier Rust-oracle JSON fixture is fixed; next is the
+  hand-authored `.hako` implementation.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-STORAGE-CLASS-CLASSIFIER-RUST-ORACLE-FIXTURE-001
+  MIRBUILDER-STORAGE-CLASS-CLASSIFIER-HAKO-NATIVE-IMPLEMENTATION-001
 
 current fail-fast boundary:
   Do not re-enter full converter route selection without new non-self-signed
@@ -70,11 +70,10 @@ current fail-fast boundary:
   `MirType -> StorageClass`; metadata refresh/mutation remains Rust.
 
 latest design decision:
-  Pilot selection is now fixed. Candidate ranking is advisory only; correctness
-  is the later parity gate. `return_prelude_policy` is reserved for a parity
-  harness smoke, while `storage_class_classifier` is the first owner pilot.
-  The selected next card is
-  `MIRBUILDER-STORAGE-CLASS-CLASSIFIER-RUST-ORACLE-FIXTURE-001`.
+  The storage_class_classifier pilot now has a Rust-oracle fixture. The
+  classifier surface is `MirType -> StorageClass`; metadata refresh and
+  function/module traversal remain Rust. The selected next card is
+  `MIRBUILDER-STORAGE-CLASS-CLASSIFIER-HAKO-NATIVE-IMPLEMENTATION-001`.
 
 historical route-selection decision:
   Detailed landed route-selection rows are closed as provenance and live in
