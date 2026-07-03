@@ -1782,11 +1782,46 @@ Runtime execution of these quick collection scripts still depends on the
 currently available VM reference route. This naming slice does not alter that
 route.
 
+### STAGE-TERM-EXISTING-NAME-INVENTORY-001
+
+Status: classification-only inventory recorded.
+
+Purpose: classify existing `stage` terms before any rename, so future slices do
+not perform broad text replacement or mix layers.
+
+Inventory:
+
+```text
+docs/development/current/main/design/hakorune-stage-term-existing-name-migration-inventory.md
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
+Non-claims:
+
+```text
+existing_stage_terms_renamed = 0
+direct_global_replacement = 0
+stage_term_rename_without_classification = 0
+```
+
 ### STAGE-TERM-EXISTING-NAME-MIGRATION-001
 
-Status: defined, not implementation.
+Status: inventory-only; no implementation rename selected.
 
 Purpose: rename existing non-bootstrap `stage` terms only after an inventory.
+
+Inventory:
+
+```text
+docs/development/current/main/design/hakorune-stage-term-existing-name-migration-inventory.md
+```
 
 Initial mapping:
 

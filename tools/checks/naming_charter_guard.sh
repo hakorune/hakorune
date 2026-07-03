@@ -6,6 +6,7 @@ TAG="naming-charter-guard"
 source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
 
 SSOT="$ROOT_DIR/docs/development/current/main/design/hakorune-naming-and-rename-task-order-ssot.md"
+STAGE_TERM_INVENTORY="$ROOT_DIR/docs/development/current/main/design/hakorune-stage-term-existing-name-migration-inventory.md"
 CHECK_INDEX="$ROOT_DIR/docs/tools/check-scripts-index.md"
 QUICK_STEPS="$ROOT_DIR/tools/checks/lib/dev_gate_quick_steps.sh"
 DOCS_LAYOUT="$ROOT_DIR/docs/development/current/main/DOCS_LAYOUT.md"
@@ -92,6 +93,7 @@ guard_require_unique_values() {
 
 REQUIRED_FILES=(
   "$SSOT"
+  "$STAGE_TERM_INVENTORY"
   "$CHECK_INDEX"
   "$QUICK_STEPS"
   "$DOCS_LAYOUT"
@@ -225,6 +227,7 @@ SSOT_REQUIRED_TOKENS=(
   "HAKORUNE-COLLECTION-QUICK-SMOKE-BINARY-WORDING-001"
   "HAKORUNE-ENV-ALIAS-INVENTORY-001"
   "HAKORUNE-ENV-ALIAS-FIRST-CUT-001"
+  "STAGE-TERM-EXISTING-NAME-INVENTORY-001"
 )
 guard_require_unique_values "SSOT required token" "${SSOT_REQUIRED_TOKENS[@]}"
 for ssot_token in "${SSOT_REQUIRED_TOKENS[@]}"; do
@@ -510,12 +513,17 @@ require_fixed "env_string_trimmed_with_alias(\"HAKO_BIN\", \"NYASH_BIN\")" "$ENV
 require_fixed "HAKORUNE_*" "$ENV_DOC"
 require_fixed "HAKO_ROOT" "$ENV_DOC"
 require_fixed "HAKO_BIN" "$ENV_DOC"
+require_fixed "STAGE-TERM-EXISTING-NAME-INVENTORY-001" "$STAGE_TERM_INVENTORY"
+require_fixed "classification-only inventory" "$STAGE_TERM_INVENTORY"
+require_fixed "direct renames are forbidden" "$STAGE_TERM_INVENTORY"
+require_fixed "hakorune-stage-term-existing-name-migration-inventory.md" "$SSOT"
 require_fixed "tools/checks/naming_charter_guard.sh" "$CHECK_INDEX"
 require_fixed "naming_charter_guard.sh" "$QUICK_STEPS"
 require_fixed "hakorune-naming-and-rename-task-order-ssot.md" "$DOCS_LAYOUT"
 
 NAMING_DIFF_ALLOWED_PATHS=(
   "docs/development/current/main/design/hakorune-naming-and-rename-task-order-ssot.md"
+  "docs/development/current/main/design/hakorune-stage-term-existing-name-migration-inventory.md"
   "docs/development/current/main/DOCS_LAYOUT.md"
   "docs/tools/check-scripts-index.md"
   "tools/checks/naming_charter_guard.sh"
