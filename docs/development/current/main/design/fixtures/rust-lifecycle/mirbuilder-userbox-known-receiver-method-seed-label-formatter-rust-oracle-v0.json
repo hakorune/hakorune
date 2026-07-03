@@ -1,0 +1,40 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderUserBoxKnownReceiverMethodSeedLabelFormatterRustOracleV1",
+  "token": "MIRBUILDER-USERBOX-KNOWN-RECEIVER-METHOD-SEED-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "userbox_known_receiver_method_seed_label_formatter",
+  "rust_source": {
+    "path": "src/mir/userbox_known_receiver_method_seed_plan/model.rs",
+    "hash": "sha256:6bc8c8878707497b8a00fd33e64acb5d3f983a0a2aac79e58d257d46b403dbc2",
+    "oracle_surface": "UserBoxKnownReceiverMethodSeedKind display vocabulary and UserBoxKnownReceiverMethodSeedProof as_str vocabulary"
+  },
+  "rows": [
+    {"kind": "kind", "input": "CounterStepLocalI64", "expected": "counter_step_local_i64"},
+    {"kind": "kind", "input": "CounterStepCopyLocalI64", "expected": "counter_step_copy_local_i64"},
+    {"kind": "kind", "input": "CounterStepChainLocalI64", "expected": "counter_step_chain_local_i64"},
+    {"kind": "kind", "input": "CounterStepChainMicro", "expected": "counter_step_chain_micro"},
+    {"kind": "kind", "input": "CounterStepMicro", "expected": "counter_step_micro"},
+    {"kind": "kind", "input": "PointSumLocalI64", "expected": "point_sum_local_i64"},
+    {"kind": "kind", "input": "PointSumCopyLocalI64", "expected": "point_sum_copy_local_i64"},
+    {"kind": "kind", "input": "PointSumMicro", "expected": "point_sum_micro"},
+    {"kind": "proof", "input": "CounterStepLocalI64Seed", "expected": "userbox_counter_step_local_i64_seed"},
+    {"kind": "proof", "input": "CounterStepChainLocalI64Seed", "expected": "userbox_counter_step_chain_local_i64_seed"},
+    {"kind": "proof", "input": "CounterStepChainMicroSeed", "expected": "userbox_counter_step_chain_micro_seed"},
+    {"kind": "proof", "input": "CounterStepMicroSeed", "expected": "userbox_counter_step_micro_seed"},
+    {"kind": "proof", "input": "PointSumLocalI64Seed", "expected": "userbox_point_sum_local_i64_seed"},
+    {"kind": "proof", "input": "PointSumMicroSeed", "expected": "userbox_point_sum_micro_seed"}
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "userbox_known_receiver_method_seed_matching_migration": 0,
+    "seed_payload_migration": 0,
+    "thin_entry_selection_migration": 0,
+    "backend_helper_emission_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

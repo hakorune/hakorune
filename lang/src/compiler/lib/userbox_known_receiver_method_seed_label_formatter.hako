@@ -1,0 +1,47 @@
+// userbox_known_receiver_method_seed_label_formatter.hako
+//
+// Responsibility:
+// - format narrow UserBox known receiver method seed kind/proof vocabulary
+// - stay pure: scalar token in, scalar text out
+//
+// Non-responsibility:
+// - UserBox known receiver method seed matching
+// - seed payload migration
+// - thin-entry selection
+// - backend helper emission
+// - MIR mutation
+static box UserBoxKnownReceiverMethodSeedLabelFormatterBox {
+  format_kind(kind) {
+    if kind == "CounterStepLocalI64" { return "counter_step_local_i64" }
+    if kind == "CounterStepCopyLocalI64" { return "counter_step_copy_local_i64" }
+    if kind == "CounterStepChainLocalI64" { return "counter_step_chain_local_i64" }
+    if kind == "CounterStepChainMicro" { return "counter_step_chain_micro" }
+    if kind == "CounterStepMicro" { return "counter_step_micro" }
+    if kind == "PointSumLocalI64" { return "point_sum_local_i64" }
+    if kind == "PointSumCopyLocalI64" { return "point_sum_copy_local_i64" }
+    if kind == "PointSumMicro" { return "point_sum_micro" }
+    return "unsupported_userbox_known_receiver_method_seed_kind"
+  }
+
+  format_proof(proof) {
+    if proof == "CounterStepLocalI64Seed" {
+      return "userbox_counter_step_local_i64_seed"
+    }
+    if proof == "CounterStepChainLocalI64Seed" {
+      return "userbox_counter_step_chain_local_i64_seed"
+    }
+    if proof == "CounterStepChainMicroSeed" {
+      return "userbox_counter_step_chain_micro_seed"
+    }
+    if proof == "CounterStepMicroSeed" {
+      return "userbox_counter_step_micro_seed"
+    }
+    if proof == "PointSumLocalI64Seed" {
+      return "userbox_point_sum_local_i64_seed"
+    }
+    if proof == "PointSumMicroSeed" {
+      return "userbox_point_sum_micro_seed"
+    }
+    return "unsupported_userbox_known_receiver_method_seed_proof"
+  }
+}

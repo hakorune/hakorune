@@ -1,0 +1,34 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderHakoNativeOwnerParityPilotSelectionRerun035V1",
+  "token": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-035",
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "previous_adoption_decision": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-exact-seed-backend-route-label-formatter-hako-adoption-decision-v0.json",
+    "previous_adoption_decision_hash": "sha256:ea4c80514becb716052a7eb9e9f9587d0a5405f53ab1658c1ca9210185eeaeb2"
+  },
+  "decision": {
+    "kind": "SelectRustOracleFixture",
+    "reason_token": "UserBoxKnownReceiverMethodSeedLabelFormatterIsNarrowPureVocabularyOwner",
+    "selected_owner": "userbox_known_receiver_method_seed_label_formatter",
+    "selected_next_card": "MIRBUILDER-USERBOX-KNOWN-RECEIVER-METHOD-SEED-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001"
+  },
+  "accepted_scope": {
+    "surface": "UserBox known receiver method seed kind/proof label vocabulary formatting",
+    "manual_target_selection_allowed": 1,
+    "correctness_requires_rust_oracle_parity": 1
+  },
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "userbox_known_receiver_method_seed_matching_migration": 0,
+    "seed_payload_migration": 0,
+    "thin_entry_selection_migration": 0,
+    "backend_helper_emission_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}
