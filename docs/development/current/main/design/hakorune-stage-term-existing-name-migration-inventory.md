@@ -392,6 +392,28 @@ fixture paths renamed = 0
 runtime behavior changed = 0
 ```
 
+## Landed Stage0 Shape Gate Label Wording Slice
+
+`STAGE-TERM-STAGE0-SHAPE-GATE-LABEL-WORDING-001` changes the quick gate label
+for the Stage0-named shape inventory script to its concrete responsibility:
+`GlobalCallTarget shape inventory guard`.
+
+Scope:
+
+```text
+tools/checks/lib/dev_gate_quick_steps.sh:
+  quick gate label says GlobalCallTarget shape inventory guard
+```
+
+Non-claims:
+
+```text
+stage0_shape_inventory_guard.sh renamed = 0
+stage0-llvm-line-shape-inventory-ssot.md renamed = 0
+GlobalCallTargetShape behavior changed = 0
+runtime behavior changed = 0
+```
+
 ## Migration Eligibility
 
 An occurrence is eligible for a future rename only if all conditions hold:

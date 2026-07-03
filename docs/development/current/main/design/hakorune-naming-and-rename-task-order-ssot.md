@@ -2226,6 +2226,37 @@ git diff --check
 tools/checks/dev_gate.sh quick
 ```
 
+### STAGE-TERM-STAGE0-SHAPE-GATE-LABEL-WORDING-001
+
+Status: landed quick gate label wording cleanup.
+
+Purpose: use the concrete `GlobalCallTarget shape inventory guard` label for
+the Stage0-named shape inventory script while keeping script and inventory doc
+paths unchanged.
+
+Affected file:
+
+```text
+tools/checks/lib/dev_gate_quick_steps.sh
+```
+
+Non-claims:
+
+```text
+stage0_shape_inventory_guard.sh renamed = 0
+stage0-llvm-line-shape-inventory-ssot.md renamed = 0
+GlobalCallTargetShape behavior changed = 0
+runtime behavior changed = 0
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
 ### STAGE-TERM-EXISTING-NAME-MIGRATION-001
 
 Status: inventory-only; no implementation rename selected.

@@ -314,6 +314,7 @@ SSOT_REQUIRED_TOKENS=(
   "STAGE-TERM-MODEB-HHAKO-HELPER-COMMENT-WORDING-001"
   "STAGE-TERM-MODEB-CAPTURE-CALLER-GUARD-WORDING-001"
   "STAGE-TERM-PHASE1-PROGRAM-JSON-GUARD-WORDING-001"
+  "STAGE-TERM-STAGE0-SHAPE-GATE-LABEL-WORDING-001"
 )
 guard_require_unique_values "SSOT required token" "${SSOT_REQUIRED_TOKENS[@]}"
 for ssot_token in "${SSOT_REQUIRED_TOKENS[@]}"; do
@@ -329,6 +330,7 @@ require_fixed 'path = "src/main.rs"' "$CARGO_TOML"
 require_fixed 'name = "hakorune-compat"' "$CARGO_TOML"
 require_fixed 'path = "src/bin/hakorune_compat.rs"' "$CARGO_TOML"
 require_fixed 'cargo check --bin hakorune' "$QUICK_STEPS"
+require_fixed 'GlobalCallTarget shape inventory guard' "$QUICK_STEPS"
 require_fixed 'mode-B compatibility Program(JSON) capture caller guard' "$QUICK_STEPS"
 require_fixed 'phase-1 compatibility emit-program runtime-helper guard' "$QUICK_STEPS"
 require_fixed 'phase-1 compatibility Program(JSON) caller guard' "$QUICK_STEPS"
@@ -704,6 +706,9 @@ require_fixed "phase-1 compatibility Program(JSON) execution is a probe-only rou
 require_fixed "keep phase-1 compatibility Program(JSON) execution behind phase29ch explicit probe only" "$STAGE1_PROGRAM_JSON_COMPAT_CALLER_GUARD"
 if rg -n 'Stage1 emit-program runtime-helper guard|Stage1 Program\(JSON\) compat caller guard|Stage1 runtime helper|Stage1 Program\(JSON\) compat execution' "$QUICK_STEPS" "$STAGE1_EMIT_PROGRAM_JSON_RUNTIME_HELPER_GUARD" "$STAGE1_PROGRAM_JSON_COMPAT_CALLER_GUARD"; then
   guard_fail "$TAG" "Stage1 Program(JSON) guard wording must say phase-1 compatibility"
+fi
+if rg -n 'Stage0 shape inventory guard' "$QUICK_STEPS"; then
+  guard_fail "$TAG" "Stage0 shape quick-gate label must say GlobalCallTarget shape inventory guard"
 fi
 require_fixed '.arg("--syntax-3")' "$PHASE29CI_STAGEB_BODY_EXTRACT_TEST"
 require_fixed '`--syntax-3` with compatibility alias `--stage3`' "$REFERENCE_EBNF"
