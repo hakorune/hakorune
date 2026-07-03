@@ -141,6 +141,9 @@ SELFHOST_FLAGS_RS="$ROOT_DIR/src/config/env/selfhost_flags.rs"
 ENV_PATHS_RS="$ROOT_DIR/src/config/env/paths.rs"
 VERIFICATION_FLAGS_RS="$ROOT_DIR/src/config/env/verification_flags.rs"
 ENV_DOC="$ROOT_DIR/docs/reference/environment-variables.md"
+REFERENCE_QUICK="$ROOT_DIR/docs/reference/language/quick-reference.md"
+REFERENCE_CORE_LANGUAGE_README="$ROOT_DIR/docs/reference/core-language/README.md"
+REFERENCE_PHI_SSA="$ROOT_DIR/docs/reference/architecture/phi-and-ssa.md"
 STAGE1_BRIDGE_ENV_PARSER_STAGEB_RS="$ROOT_DIR/src/runner/stage1_bridge/env/parser_stageb.rs"
 RUST_STAGE1_README="$ROOT_DIR/src/stage1/README.md"
 RUST_STAGE1_MOD_RS="$ROOT_DIR/src/stage1/mod.rs"
@@ -491,6 +494,8 @@ SSOT_REQUIRED_TOKENS=(
   "HAKORUNE-ENV-ALIAS-FIRST-CUT-001"
   "HAKORUNE-README-MODEB-USER-FACING-WORDING-001"
   "HAKORUNE-README-MODEB-LINE-QUICKGUIDE-WORDING-001"
+  "HAKORUNE-REFERENCE-DOCS-CANONICALIZATION-DECISION-001"
+  "HAKORUNE-REFERENCE-DOCS-FIRST-CUT-001"
   "STAGE-TERM-EXISTING-NAME-INVENTORY-001"
   "STAGE-TERM-SYNTAX3-ALIAS-001"
   "STAGE-TERM-SYNTAX3-DIAGNOSTIC-WORDING-001"
@@ -540,6 +545,31 @@ require_fixed "mode-B compatibility → MIR(JSON)" "$README_MD"
 require_fixed "mode-B compatibility → MirBuilder → ny‑llvmc → EXE" "$README_MD"
 if rg -n 'Stage[‑-]B parser|runs Stage[‑-]B|Stage[‑-]B → MIR|Stage[‑-]B → MirBuilder' "$README_MD"; then
   guard_fail "$TAG" "README current developer quickstart must use mode-B compatibility wording"
+fi
+require_fixed "# Hakorune Quick Reference" "$REFERENCE_QUICK"
+require_fixed "current Hakorune" "$REFERENCE_QUICK"
+require_fixed "VM/LLVM/NyRT" "$REFERENCE_QUICK"
+require_fixed 'hako.toml` preferred; `nyash.toml` remains a compatibility config' "$REFERENCE_QUICK"
+require_fixed "Current phase-1 selfhost profile" "$REFERENCE_QUICK"
+require_fixed "bootstrap / phase-1 support" "$REFERENCE_QUICK"
+require_fixed "# Hakorune Core Language Documentation" "$REFERENCE_CORE_LANGUAGE_README"
+require_fixed "practical bootstrap / phase-1 usable" "$REFERENCE_CORE_LANGUAGE_README"
+require_fixed "# PHI and SSA in Hakorune" "$REFERENCE_PHI_SSA"
+require_fixed "Hakorune lowers high-level control flow" "$REFERENCE_PHI_SSA"
+if rg -n -F \
+  -e '# Hakorune / Nyash Quick Reference' \
+  -e 'current Hakorune/Nyash' \
+  -e 'VM/LLVM/Ny)' \
+  -e 'Prod: `nyash.toml` only' \
+  -e 'Current Stage1 profile' \
+  -e 'Stage0 must not' \
+  -e 'Stage0 / Stage1 support manual' \
+  -e '# Nyash Core Language Documentation' \
+  -e 'practical Stage0 / Stage1 usable' \
+  -e '# PHI and SSA in Nyash' \
+  -e 'Nyash lowers high-level control flow' \
+  "$REFERENCE_QUICK" "$REFERENCE_CORE_LANGUAGE_README" "$REFERENCE_PHI_SSA"; then
+  guard_fail "$TAG" "selected reference entry docs must use Hakorune-first / phase-1 wording"
 fi
 require_fixed 'default-run = "hakorune"' "$CARGO_TOML"
 require_fixed 'name = "hakorune"' "$CARGO_TOML"
@@ -1165,7 +1195,7 @@ fi
 require_fixed '.arg("--syntax-3")' "$PHASE29CI_STAGEB_BODY_EXTRACT_TEST"
 require_fixed '`--syntax-3` with compatibility alias `--stage3`' "$REFERENCE_EBNF"
 require_fixed 'selfhost: `--syntax-3`' "$REFERENCE_STATEMENTS"
-require_fixed '--syntax-3` (syntax-3 surface enable; `--stage3` remains a compatibility alias)' "$SELFHOST_QUICKSTART"
+require_fixed "syntax-3 surface enable" "$SELFHOST_QUICKSTART"
 require_fixed "phase-1 compatibility Program(JSON v0) runtime helper route" "$CHECK_INDEX"
 require_fixed "GlobalCallTarget shape inventory SSOT" "$CHECK_INDEX"
 require_fixed "mode-B compatibility Program(JSON) stdout capture helper" "$CHECK_INDEX"

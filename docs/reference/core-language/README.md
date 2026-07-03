@@ -1,4 +1,4 @@
-# Nyash Core Language Documentation
+# Hakorune Core Language Documentation
 
 ## 📚 Current Language References
 
@@ -9,7 +9,7 @@ Current canonical language references are:
 - **[Grammar Reference](../language/EBNF.md)** - living
   canonical grammar / accepted rows
 - **[Stage Profiles](../language/stage-profiles.md)** -
-  practical Stage0 / Stage1 usable `.hako` surface manual
+  practical bootstrap / phase-1 usable `.hako` surface manual
 - **[Quick Reference](../language/quick-reference.md)** -
   practical syntax summary
 

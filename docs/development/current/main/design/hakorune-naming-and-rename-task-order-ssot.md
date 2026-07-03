@@ -672,6 +672,60 @@ historical PyVM stage2 smoke path renamed = 0
 runtime behavior changed = 0
 ```
 
+### HAKORUNE-REFERENCE-DOCS-CANONICALIZATION-DECISION-001
+
+Status: landed.
+
+Decision:
+
+```text
+Reference docs should be Hakorune-first for current product/language wording.
+Legacy Nyash terms remain allowed only when they name compatibility binaries,
+NYASH_* environment variables, nyash.toml compatibility config, ny-llvmc /
+nyash-llvm-compiler tool/package names, ABI helper symbols, historical Nyash
+Era material, or archived pages.
+```
+
+Guardrail:
+
+```text
+do not broad-rewrite docs/reference/**
+do not rename stage-profiles.md or compatibility path names in this decision
+```
+
+### HAKORUNE-REFERENCE-DOCS-FIRST-CUT-001
+
+Status: landed.
+
+Scope:
+
+```text
+docs/reference/language/quick-reference.md:
+  title and purpose are Hakorune-first
+  current backend mention says NyRT instead of Ny
+  prod config guidance prefers hako.toml with nyash.toml compatibility
+  LoopRange profile wording says phase-1 / bootstrap
+
+docs/reference/core-language/README.md:
+  title is Hakorune-first
+  Stage Profiles link description says bootstrap / phase-1
+
+docs/reference/architecture/phi-and-ssa.md:
+  title and overview are Hakorune-first
+```
+
+Non-claims:
+
+```text
+docs/reference/** broadly rewritten = 0
+stage-profiles.md renamed = 0
+NYASH_* env names renamed = 0
+nyash.toml compatibility name removed = 0
+ny-llvmc / nyash-llvm-compiler names renamed = 0
+historical Nyash pages rewritten = 0
+runtime behavior changed = 0
+```
+
 ### HAKORUNE-BINARY-PRIMARY-CUTOVER-INVENTORY-001
 
 Status: landed inventory cut.

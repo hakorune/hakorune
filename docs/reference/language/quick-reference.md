@@ -1,7 +1,7 @@
-# Hakorune / Nyash Quick Reference
+# Hakorune Quick Reference
 
 Purpose
-- One-page practical summary for writing and implementing current Hakorune/Nyash.
+- One-page practical summary for writing and implementing current Hakorune.
 - Keep grammar minimal; clarify rules that often cause confusion.
 
 Keywords (reserved)
@@ -15,7 +15,7 @@ Expressions and Calls
   - Default‑ON（P4）: Known 受信者かつ関数が一意に存在する場合に正規化（userbox 限定）。
   - それ以外（Unknown/core/user‑instance）は安全に BoxCall へフォールバック（挙動不変）。
   - 環境で無効化: `NYASH_REWRITE_KNOWN_DEFAULT=0`（開発時の切替用）。
-  - バックエンド（VM/LLVM/Ny）は統一形状の呼び出しを受け取る。
+  - バックエンド（VM/LLVM/NyRT）は統一形状の呼び出しを受け取る。
 - Member: `obj.field` or `obj.m`
 
 Display & Conversion
@@ -122,7 +122,8 @@ MIR observability (`__mir__`, dev-only)
 
 Using / SSOT
 - Dev/CI: file‑based `using` allowed for convenience.
-- Prod: `nyash.toml` only. Duplicate imports or alias rebinding is an error.
+- Prod: `hako.toml` preferred; `nyash.toml` remains a compatibility config
+  name. Duplicate imports or alias rebinding is an error.
 
 Errors (format)
 - Always: `Error at line X, column Y: <message>`
@@ -147,11 +148,12 @@ loop i in start..end {
 }
 ```
 
-Current Stage1 profile: entry-bound capture, end-exclusive range, fixed step
-`1`, continue-safe step routing, and read-only index facts. Fresh body-local
-writes are accepted; loop-carried writes remain fail-fast under the current
-carrier policy.
+Current phase-1 selfhost profile: entry-bound capture, end-exclusive range,
+fixed step `1`, continue-safe step routing, and read-only index facts. Fresh
+body-local writes are accepted; loop-carried writes remain fail-fast under the
+current carrier policy.
 
-Stage0 must not desugar this shape to `local i; loop i < end; i += 1`.
-For the full Stage0 / Stage1 support manual, see
+Bootstrap/profile readers must not desugar this shape to
+`local i; loop i < end; i += 1`. For the full bootstrap / phase-1 support
+manual, see
 `docs/reference/language/stage-profiles.md`.

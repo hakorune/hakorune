@@ -1,7 +1,8 @@
-# PHI and SSA in Nyash
+# PHI and SSA in Hakorune
 
 Overview
-- Nyash lowers high-level control flow (If/Loop/Match) to MIR and backends that rely on SSA form.
+- Hakorune lowers high-level control flow (If/Loop/Match) to MIR and backends
+  that rely on SSA form.
 - We prioritize IR hygiene and observability while keeping runtime cost at zero.
 
 Design points
@@ -20,4 +21,3 @@ Testing
 Roadmap
 - Remove text-level sanitization once finalize‑PHI is trustworthy across Loop/If/Match.
 - Expand goldens to cover nested joins and multi‑carrier loops while keeping CI light.
-

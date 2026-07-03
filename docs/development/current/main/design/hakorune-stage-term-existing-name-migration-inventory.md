@@ -1106,6 +1106,46 @@ historical PyVM stage2 smoke path renamed = 0
 runtime behavior changed = 0
 ```
 
+## Landed Reference Docs Canonicalization Decision
+
+`HAKORUNE-REFERENCE-DOCS-CANONICALIZATION-DECISION-001` records the reference
+docs rule required by the classification table before editing `docs/reference`
+wording.
+
+Decision:
+
+```text
+Reference docs are Hakorune-first for current product/language wording.
+Nyash remains only for compatibility binaries, NYASH_* env vars,
+nyash.toml compatibility config, ny-llvmc / nyash-llvm-compiler names, ABI
+symbols, historical Nyash Era text, or archived material.
+```
+
+## Landed Reference Docs First Cut
+
+`HAKORUNE-REFERENCE-DOCS-FIRST-CUT-001` updates three reference entry docs
+under that decision.
+
+Scope:
+
+```text
+docs/reference/language/quick-reference.md
+docs/reference/core-language/README.md
+docs/reference/architecture/phi-and-ssa.md
+```
+
+Non-claims:
+
+```text
+docs/reference/** broadly rewritten = 0
+stage-profiles.md renamed = 0
+NYASH_* env names renamed = 0
+nyash.toml compatibility name removed = 0
+ny-llvmc / nyash-llvm-compiler names renamed = 0
+historical Nyash pages rewritten = 0
+runtime behavior changed = 0
+```
+
 ## Migration Eligibility
 
 An occurrence is eligible for a future rename only if all conditions hold:
