@@ -24,9 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-STRING-KERNEL-PLAN-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.
-  The string_kernel_plan_label_formatter owner is HakoAdopted as the fifteenth
-  narrow Rust-oracle parity pilot; next is pilot selection rerun 015.
+  MIRBUILDER-ARRAY-TEXT-STATE-RESIDENCE-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.
+  The array_text_state_residence_label_formatter owner is HakoAdopted as the
+  sixteenth narrow Rust-oracle parity pilot; next is pilot selection rerun 016.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-015
+  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-016
 
 current fail-fast boundary:
   Do not re-enter full converter route selection without new non-self-signed
@@ -75,7 +75,8 @@ current fail-fast boundary:
   shape classification, region ref-slot kind classification, loop route
   kind label/id/flag formatting, thin-entry enum tag formatting, and
   array-text observer executor contract enum tag formatting, and sum-local
-  aggregate layout tag formatting. Metadata refresh, route collection, const emission, full AST traversal, method
+  aggregate layout tag formatting, string-kernel plan label formatting, and
+  array-text state-residence contract label formatting. Metadata refresh, route collection, const emission, full AST traversal, method
   dispatch, string corridor fact inference, same-module definition closure
   collection, receiver origin resolution, key route classification, route
   convergence, closure callsite canonicalization, NewClosure rewrite, lowering
@@ -84,16 +85,18 @@ current fail-fast boundary:
   collection/selection, manifest generation, observer route derivation, region
   matching, combined region planning, and MirBuilder mutation remain Rust.
   Payload-type layout binding, sum placement layout refresh, string-kernel plan
-  construction, legality analysis, publication logic, and backend lowering
+  construction, legality analysis, publication logic, array/text route matching,
+  exact-shape payload construction, executor planning, and backend lowering
   remain Rust.
 
 latest design decision:
-  string_kernel_plan_label_formatter is now HakoAdopted as a narrow Rust-oracle
-  parity pilot owner after a green 12-row `.hako` EXE parity gate for
-  StringKernelPlan* Display labels. Plan construction, legality analysis,
-  publication logic, backend lowering, and MIR mutation remain Rust.
+  array_text_state_residence_label_formatter is now HakoAdopted as a narrow
+  Rust-oracle parity pilot owner after a green 5-row `.hako` EXE parity gate
+  for array/text state-residence contract labels. Route matching, exact-shape
+  payload construction, executor planning, backend lowering, and MIR mutation
+  remain Rust.
   The selected next card is
-  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-015`.
+  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-016`.
 
 historical route-selection decision:
   Detailed landed route-selection rows are closed as provenance and live in

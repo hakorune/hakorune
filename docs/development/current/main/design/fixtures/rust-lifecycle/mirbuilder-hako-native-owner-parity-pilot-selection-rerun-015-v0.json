@@ -1,0 +1,58 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderHakoNativeOwnerParityPilotSelectionRerun015V1",
+  "token": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-015",
+  "input_state": {
+    "previous_hako_adoption": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-string-kernel-plan-label-formatter-hako-adoption-decision-v0.json",
+    "previous_hako_adoption_hash": "sha256:423c4221433e863a2b79ba628198cc569973833a26c679536bce7fc7c48fd240",
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+  },
+  "selection_rule": {
+    "name": "RustOracleParityMigrationPilotSelectorV1",
+    "manual_target_selection_allowed": true,
+    "correctness_proof_required": "RustOracleParityGate",
+    "source_selfhost_claim": 0,
+    "hako_adopted_before_parity": 0,
+    "full_converter_route_reentry": 0
+  },
+  "candidate_rows": [
+    {
+      "candidate_owner": "array_text_state_residence_label_formatter",
+      "source_path": "src/mir/array_text_state_residence_plan.rs",
+      "source_hash": "sha256:eac5800e916f2104d04113971df43498887d5223299151699e14e9136a7e3907",
+      "surface": "ArrayTextStateResidence* contract labels",
+      "pure": true,
+      "small": true,
+      "json_serializable": true,
+      "rust_oracle_available": true,
+      "selection_state": "Selected",
+      "accepted_reason": "Pure array/text state-residence enum label surface; no route matching, exact-shape payload, executor planning, or backend lowering migration."
+    },
+    {
+      "candidate_owner": "array_text_residence_session_label_formatter",
+      "selection_state": "Rejected",
+      "rejected_reason": "SessionSurfaceWiderThanStateResidenceContractForNextPilot"
+    },
+    {
+      "candidate_owner": "placement_effect_summary_formatter",
+      "selection_state": "Deferred",
+      "rejected_reason": "Available after array-text state residence label surface."
+    }
+  ],
+  "decision": {
+    "kind": "SelectRustOracleFixture",
+    "reason_token": "ArrayTextStateResidenceLabelFormatterSelectedAsSixteenthParityPilot",
+    "selected_owner": "array_text_state_residence_label_formatter",
+    "selected_next_card": "MIRBUILDER-ARRAY-TEXT-STATE-RESIDENCE-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "generated_artifact_as_native_edit_authority": 0,
+    "array_text_route_matching_migration": 0,
+    "exact_shape_payload_migration": 0,
+    "executor_planning_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

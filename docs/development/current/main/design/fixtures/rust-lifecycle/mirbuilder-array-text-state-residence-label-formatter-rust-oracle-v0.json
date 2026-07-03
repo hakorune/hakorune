@@ -1,0 +1,25 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderArrayTextStateResidenceLabelFormatterRustOracleV1",
+  "token": "MIRBUILDER-ARRAY-TEXT-STATE-RESIDENCE-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "source": {
+    "path": "src/mir/array_text_state_residence_plan.rs",
+    "hash": "sha256:eac5800e916f2104d04113971df43498887d5223299151699e14e9136a7e3907"
+  },
+  "rows": [
+    {"category": "Kind", "input": "IndexOf", "expected": "indexof"},
+    {"category": "Residence", "input": "LoopLocalPointerArray", "expected": "loop_local_pointer_array"},
+    {"category": "ResultRepr", "input": "ScalarI64", "expected": "scalar_i64"},
+    {"category": "ConsumerCapability", "input": "DirectArrayTextStateResidence", "expected": "direct_array_text_state_residence"},
+    {"category": "PublicationBoundary", "input": "None", "expected": "none"}
+  ],
+  "claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "array_text_route_matching_migration": 0,
+    "exact_shape_payload_migration": 0,
+    "executor_planning_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

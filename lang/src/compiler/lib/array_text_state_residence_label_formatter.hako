@@ -1,0 +1,34 @@
+// array_text_state_residence_label_formatter.hako - hand-authored state-residence label formatter
+//
+// Responsibility:
+// - format narrow ArrayTextStateResidence contract enum names into Rust oracle text
+// - stay pure: scalar category/name in, scalar text out
+//
+// Non-responsibility:
+// - array/text route matching
+// - exact-shape payload construction
+// - residence executor/session planning
+// - backend lowering
+// - MIR mutation
+static box ArrayTextStateResidenceLabelFormatterBox {
+  format_label(category, variant) {
+    if category == "Kind" {
+      if variant == "IndexOf" { return "indexof" }
+    }
+    if category == "Residence" {
+      if variant == "LoopLocalPointerArray" { return "loop_local_pointer_array" }
+    }
+    if category == "ResultRepr" {
+      if variant == "ScalarI64" { return "scalar_i64" }
+    }
+    if category == "ConsumerCapability" {
+      if variant == "DirectArrayTextStateResidence" {
+        return "direct_array_text_state_residence"
+      }
+    }
+    if category == "PublicationBoundary" {
+      if variant == "None" { return "none" }
+    }
+    return "unsupported_array_text_state_residence_label"
+  }
+}
