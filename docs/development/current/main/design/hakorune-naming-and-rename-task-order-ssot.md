@@ -1406,6 +1406,32 @@ git diff --check
 tools/checks/dev_gate.sh quick
 ```
 
+### HAKORUNE-SMOKE-PREFLIGHT-STAGE-TERM-DIAGNOSTIC-001
+
+Status: active in this slice.
+
+Scope:
+
+- make `tools/smokes/v2/lib/preflight.sh` user-facing build guidance say
+  `Hakorune bootstrap CLI` instead of `Stage0 CLI`;
+- keep bootstrap implementation and binary resolver behavior unchanged;
+- keep `stage0` path/module names out of scope for this diagnostic-only slice.
+
+Affected script:
+
+```text
+tools/smokes/v2/lib/preflight.sh
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+bash -n tools/smokes/v2/lib/preflight.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
 ### HAKORUNE-HAKO-CHECK-WRAPPER-BINARY-RESOLUTION-001
 
 Status: active in this slice.

@@ -81,7 +81,7 @@ preflight_nyash_build() {
     # バイナリ存在確認
     if [ ! -f "$nyash_exe" ]; then
         echo "[ERROR] Hakorune executable not found: $nyash_exe" >&2
-        echo "[INFO] Run 'cargo build --release' to build Hakorune (Stage0 CLI)" >&2
+        echo "[INFO] Run 'cargo build --release' to build Hakorune bootstrap CLI" >&2
         return 1
     fi
 

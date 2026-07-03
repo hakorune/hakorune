@@ -125,6 +125,7 @@ require_fixed "HAKORUNE-GATE-C-OOB-STRICT-SMOKE-BINARY-RESOLUTION-001" "$SSOT"
 require_fixed "HAKORUNE-NY-MIR-BUILDER-BINARY-RESOLUTION-001" "$SSOT"
 require_fixed "HAKORUNE-PHASE29X-CACHE-HELPER-BINARY-RESOLUTION-001" "$SSOT"
 require_fixed "HAKORUNE-SMOKE-SHARED-PREFLIGHT-BINARY-RESOLUTION-001" "$SSOT"
+require_fixed "HAKORUNE-SMOKE-PREFLIGHT-STAGE-TERM-DIAGNOSTIC-001" "$SSOT"
 require_fixed "HAKORUNE-HAKO-CHECK-WRAPPER-BINARY-RESOLUTION-001" "$SSOT"
 require_fixed "HAKORUNE-FASTMEM-HAKO-CHECK-SMOKE-BINARY-RESOLUTION-001" "$SSOT"
 require_fixed "HAKORUNE-COLLECTION-QUICK-SMOKE-BINARY-WORDING-001" "$SSOT"
@@ -333,6 +334,10 @@ for smoke_lib in "$SMOKE_PREFLIGHT" "$SMOKE_PLUGIN_MANAGER"; do
     guard_fail "$TAG" "shared smoke helpers must spell Hakorune-first resolver and legacy fallback"
   fi
 done
+require_fixed "Hakorune bootstrap CLI" "$SMOKE_PREFLIGHT"
+if rg -n "Stage0 CLI" "$SMOKE_PREFLIGHT"; then
+  guard_fail "$TAG" "smoke preflight diagnostics must say bootstrap CLI, not Stage0 CLI"
+fi
 require_fixed 'HAKORUNE_BIN_PATH="${HAKORUNE_BIN:-$NYASH_ROOT/target/release/hakorune}"' "$SMOKE_TEST_RUNNER"
 require_fixed 'LEGACY_NYASH_BIN_PATH="$NYASH_ROOT/target/release/nyash"' "$SMOKE_TEST_RUNNER"
 require_fixed 'export NYASH_BIN="$HAKORUNE_BIN_PATH"' "$SMOKE_TEST_RUNNER"
