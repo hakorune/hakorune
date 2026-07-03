@@ -108,6 +108,7 @@ HAKORUNE-REFERENCE-DOCS-CANONICALIZATION-DECISION-001
 HAKORUNE-REFERENCE-DOCS-FIRST-CUT-001
 HAKORUNE-REFERENCE-DOCS-ENTRY-INDEX-WORDING-001
 HAKORUNE-REFERENCE-DOCS-INVARIANTS-CONSTRAINTS-WORDING-001
+HAKORUNE-REFERENCE-DOCS-MIR-GC-WORDING-001
 ```
 
 `--syntax-3` is now the frontend syntax-level spelling; `--stage3` remains a
@@ -212,6 +213,9 @@ stage-profiles.md as the compatibility support manual path.
 Reference invariants and constraints spec titles now also use Hakorune-first
 wording while preserving `NYASH_*` compatibility env names and internal
 compatibility identifiers in the entries.
+Reference MIR instruction-set and runtime GC docs now also use Hakorune-first
+titles/intro wording while preserving `NYASH_*`, `nyash.toml`, NyRT, and ABI
+compatibility names.
 Next safe naming work, if explicitly selected, must pick a
 different classified layer from that inventory and keep compatibility aliases
 or replacement routes in the same slice.

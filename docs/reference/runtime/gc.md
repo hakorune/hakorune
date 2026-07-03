@@ -1,7 +1,7 @@
-Nyash GC Modes — Design and Usage
+# Hakorune GC Modes — Design and Usage
 
 Overview
-- Nyash adopts a pragmatic GC strategy that balances safety, performance, and simplicity.
+- Hakorune adopts a pragmatic GC strategy that balances safety, performance, and simplicity.
 - Current operational contract is fixed by Phase 29y RC/GC alignment gates.
 - Semantics invariance is pinned between `rc+cycle` and `off` (diagnostic GC hooks ON/OFF).
 - Current runtime ownership is reference-counted. The active `rc+cycle`

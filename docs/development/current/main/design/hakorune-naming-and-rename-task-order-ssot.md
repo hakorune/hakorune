@@ -779,6 +779,30 @@ constraints entries broadly rewritten = 0
 runtime behavior changed = 0
 ```
 
+### HAKORUNE-REFERENCE-DOCS-MIR-GC-WORDING-001
+
+Status: landed.
+
+Scope:
+
+```text
+docs/reference/mir/INSTRUCTION_SET.md:
+  title and opening sentence are Hakorune-first
+
+docs/reference/runtime/gc.md:
+  title and overview sentence are Hakorune-first
+```
+
+Non-claims:
+
+```text
+NYASH_* env names renamed = 0
+nyash.toml compatibility name removed = 0
+NyRT / ABI names renamed = 0
+MIR instruction vocabulary changed = 0
+runtime behavior changed = 0
+```
+
 ### HAKORUNE-BINARY-PRIMARY-CUTOVER-INVENTORY-001
 
 Status: landed inventory cut.

@@ -148,6 +148,8 @@ REFERENCE_CORE_LANGUAGE_README="$ROOT_DIR/docs/reference/core-language/README.md
 REFERENCE_PHI_SSA="$ROOT_DIR/docs/reference/architecture/phi-and-ssa.md"
 REFERENCE_INVARIANTS="$ROOT_DIR/docs/reference/invariants.md"
 REFERENCE_CONSTRAINTS="$ROOT_DIR/docs/reference/constraints.md"
+REFERENCE_MIR_INSTRUCTION_SET="$ROOT_DIR/docs/reference/mir/INSTRUCTION_SET.md"
+REFERENCE_RUNTIME_GC="$ROOT_DIR/docs/reference/runtime/gc.md"
 STAGE1_BRIDGE_ENV_PARSER_STAGEB_RS="$ROOT_DIR/src/runner/stage1_bridge/env/parser_stageb.rs"
 RUST_STAGE1_README="$ROOT_DIR/src/stage1/README.md"
 RUST_STAGE1_MOD_RS="$ROOT_DIR/src/stage1/mod.rs"
@@ -408,6 +410,8 @@ REQUIRED_FILES=(
   "$ENV_DOC"
   "$REFERENCE_INVARIANTS"
   "$REFERENCE_CONSTRAINTS"
+  "$REFERENCE_MIR_INSTRUCTION_SET"
+  "$REFERENCE_RUNTIME_GC"
   "$STAGE1_BRIDGE_ENV_PARSER_STAGEB_RS"
   "$RUST_STAGE1_README"
   "$RUST_STAGE1_MOD_RS"
@@ -504,6 +508,7 @@ SSOT_REQUIRED_TOKENS=(
   "HAKORUNE-REFERENCE-DOCS-FIRST-CUT-001"
   "HAKORUNE-REFERENCE-DOCS-ENTRY-INDEX-WORDING-001"
   "HAKORUNE-REFERENCE-DOCS-INVARIANTS-CONSTRAINTS-WORDING-001"
+  "HAKORUNE-REFERENCE-DOCS-MIR-GC-WORDING-001"
   "STAGE-TERM-EXISTING-NAME-INVENTORY-001"
   "STAGE-TERM-SYNTAX3-ALIAS-001"
   "STAGE-TERM-SYNTAX3-DIAGNOSTIC-WORDING-001"
@@ -608,6 +613,18 @@ if rg -n -F \
   -e "# Nyash Constraints & Temporary Limitations" \
   "$REFERENCE_INVARIANTS" "$REFERENCE_CONSTRAINTS"; then
   guard_fail "$TAG" "reference invariants/constraints titles must be Hakorune-first"
+fi
+require_fixed "# Hakorune MIR Instruction Set (Canonical SSOT)" "$REFERENCE_MIR_INSTRUCTION_SET"
+require_fixed "この文書はHakoruneのMIR命令セットの唯一の参照だよ。" "$REFERENCE_MIR_INSTRUCTION_SET"
+require_fixed "# Hakorune GC Modes" "$REFERENCE_RUNTIME_GC"
+require_fixed "Hakorune adopts a pragmatic GC strategy" "$REFERENCE_RUNTIME_GC"
+if rg -n -F \
+  -e "# Nyash MIR Instruction Set (Canonical SSOT)" \
+  -e "この文書はNyashのMIR命令セットの唯一の参照だよ。" \
+  -e "Nyash GC Modes" \
+  -e "Nyash adopts a pragmatic GC strategy" \
+  "$REFERENCE_MIR_INSTRUCTION_SET" "$REFERENCE_RUNTIME_GC"; then
+  guard_fail "$TAG" "reference MIR/GC docs must use Hakorune-first title/intro wording"
 fi
 require_fixed 'default-run = "hakorune"' "$CARGO_TOML"
 require_fixed 'name = "hakorune"' "$CARGO_TOML"

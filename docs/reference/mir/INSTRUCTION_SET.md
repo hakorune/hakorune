@@ -1,9 +1,9 @@
-# Nyash MIR Instruction Set (Canonical SSOT)
+# Hakorune MIR Instruction Set (Canonical SSOT)
 
 Status: Canonical (Source of Truth) — transitioning
 Last Updated: 2026-04-10
 
-この文書はNyashのMIR命令セットの唯一の参照だよ。
+この文書はHakoruneのMIR命令セットの唯一の参照だよ。
 `src/mir/contracts/backend_core_ops.rs` の ledger と、この文書の機械可読カウントが一致することを SSOT 契約とする。
 Core-26 / Core-15 / Core-14 は運用プロファイル（目標）で、実装語彙（kept/removed）とは別軸。
 

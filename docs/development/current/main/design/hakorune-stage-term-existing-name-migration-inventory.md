@@ -1191,6 +1191,28 @@ constraints entries broadly rewritten = 0
 runtime behavior changed = 0
 ```
 
+## Landed Reference Docs MIR / GC Wording Slice
+
+`HAKORUNE-REFERENCE-DOCS-MIR-GC-WORDING-001` updates current MIR and runtime GC
+reference titles/intro wording.
+
+Scope:
+
+```text
+docs/reference/mir/INSTRUCTION_SET.md
+docs/reference/runtime/gc.md
+```
+
+Non-claims:
+
+```text
+NYASH_* env names renamed = 0
+nyash.toml compatibility name removed = 0
+NyRT / ABI names renamed = 0
+MIR instruction vocabulary changed = 0
+runtime behavior changed = 0
+```
+
 ## Migration Eligibility
 
 An occurrence is eligible for a future rename only if all conditions hold:
