@@ -1168,6 +1168,35 @@ git diff --check
 tools/checks/dev_gate.sh quick
 ```
 
+### HAKORUNE-HAKO-CHECK-WRAPPER-BINARY-RESOLUTION-001
+
+Status: active in this slice.
+
+Scope:
+
+- make `tools/hako-check/hako-check.sh` spell the Hakorune-first executable
+  resolver explicitly;
+- keep caller-provided `$HAKO_BIN` as the preferred override alias;
+- keep legacy `nyash` only as a named compatibility fallback;
+- keep hako-check parse/MIR/verify behavior unchanged in this slice;
+- add naming guard coverage so the wrapper does not regress to ambiguous direct
+  legacy fallback.
+
+Affected script:
+
+```text
+tools/hako-check/hako-check.sh
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+bash tools/hako-check/hako-check.sh --help
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
 ### STAGE-TERM-EXISTING-NAME-MIGRATION-001
 
 Status: defined, not implementation.

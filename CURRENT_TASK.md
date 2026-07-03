@@ -41,22 +41,21 @@ the active card and task-order SSOT. Do not duplicate them here.
 
 ## Immediate Maintenance Slice
 
-Scope: smoke shared preflight binary resolver naming.
+Scope: hako-check CLI wrapper binary resolver naming.
 
-- make shared smoke preflight/plugin helpers spell the Hakorune-first
-  executable resolver explicitly
-- keep caller-provided `$NYASH_BIN` as the historical override alias
+- make `tools/hako-check/hako-check.sh` spell the Hakorune-first executable
+  resolver explicitly
+- keep caller-provided `$HAKO_BIN` as the preferred override alias
 - keep legacy `nyash` only as a named compatibility fallback
-- keep preflight/plugin behavior unchanged in this slice
-- add naming guard coverage so shared smoke helpers do not regress to ambiguous
-  direct legacy fallback
+- keep hako-check parse/MIR/verify behavior unchanged in this slice
+- add naming guard coverage so the wrapper does not regress to ambiguous direct
+  legacy fallback
 
 Acceptance:
 
 ```bash
 bash tools/checks/naming_charter_guard.sh
-bash -n tools/smokes/v2/lib/preflight.sh
-bash -n tools/smokes/v2/lib/plugin_manager.sh
+bash tools/hako-check/hako-check.sh --help
 git diff --check
 tools/checks/dev_gate.sh quick
 ```

@@ -20,16 +20,20 @@ esac
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 # Allow alias: HAKO_BIN overrides binary path. Otherwise prefer 'hako' alias,
 # then the Hakorune binary. Legacy nyash is a compatibility fallback only.
+HAKO_ALIAS_BIN="$ROOT_DIR/tools/bin/hako"
+HAKORUNE_ALIAS_BIN="$ROOT_DIR/tools/bin/hakorune"
+HAKORUNE_RELEASE_BIN="$ROOT_DIR/target/release/hakorune"
+LEGACY_NYASH_BIN="$ROOT_DIR/target/release/nyash"
 BIN="${HAKO_BIN:-}"
 if [[ -z "${BIN}" ]]; then
-  if [[ -x "$ROOT_DIR/tools/bin/hako" ]]; then
-    BIN="$ROOT_DIR/tools/bin/hako"
-  elif [[ -x "$ROOT_DIR/tools/bin/hakorune" ]]; then
-    BIN="$ROOT_DIR/tools/bin/hakorune"
-  elif [[ -x "$ROOT_DIR/target/release/hakorune" ]]; then
-    BIN="$ROOT_DIR/target/release/hakorune"
+  if [[ -x "$HAKO_ALIAS_BIN" ]]; then
+    BIN="$HAKO_ALIAS_BIN"
+  elif [[ -x "$HAKORUNE_ALIAS_BIN" ]]; then
+    BIN="$HAKORUNE_ALIAS_BIN"
+  elif [[ -x "$HAKORUNE_RELEASE_BIN" ]]; then
+    BIN="$HAKORUNE_RELEASE_BIN"
   else
-    BIN="$ROOT_DIR/target/release/nyash"
+    BIN="$LEGACY_NYASH_BIN"
   fi
 fi
 FILE="$1"
