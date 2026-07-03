@@ -67,16 +67,18 @@ load_stageb_delegate_helpers() {
 }
 
 resolve_hakorune_bin() {
+  local hakorune_bin="$ROOT_DIR/target/release/hakorune"
+  local legacy_nyash_bin="$ROOT_DIR/target/release/nyash"
   if [[ -z "${NYASH_BIN:-}" ]]; then
-    if [[ -x "$ROOT_DIR/target/release/hakorune" ]]; then
-      NYASH_BIN="$ROOT_DIR/target/release/hakorune"
+    if [[ -x "$hakorune_bin" ]]; then
+      NYASH_BIN="$hakorune_bin"
     else
-      NYASH_BIN="$ROOT_DIR/target/release/nyash"
+      NYASH_BIN="$legacy_nyash_bin"
     fi
   fi
   if [[ ! -x "$NYASH_BIN" ]]; then
     echo "[emit] error: hakorune binary not found: $NYASH_BIN" >&2
-    echo "       compat fallback checked: $ROOT_DIR/target/release/nyash" >&2
+    echo "       compat fallback checked: $legacy_nyash_bin" >&2
     echo "       hint: run cargo build --release --bin hakorune" >&2
     exit 2
   fi

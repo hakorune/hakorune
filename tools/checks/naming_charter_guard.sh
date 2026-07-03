@@ -191,8 +191,10 @@ if rg -n '^\s*NYASH_BIN="\$ROOT/target/release/nyash"' "$ENGINEERING_PARITY"; th
 fi
 require_fixed "resolve_hakorune_bin" "$SELFHOST_EXE_STAGEB"
 require_fixed 'if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then' "$SELFHOST_EXE_STAGEB"
-require_fixed 'NYASH_BIN="$ROOT_DIR/target/release/hakorune"' "$SELFHOST_EXE_STAGEB"
-require_fixed 'NYASH_BIN="$ROOT_DIR/target/release/nyash"' "$SELFHOST_EXE_STAGEB"
+require_fixed 'local hakorune_bin="$ROOT_DIR/target/release/hakorune"' "$SELFHOST_EXE_STAGEB"
+require_fixed 'local legacy_nyash_bin="$ROOT_DIR/target/release/nyash"' "$SELFHOST_EXE_STAGEB"
+require_fixed 'NYASH_BIN="$hakorune_bin"' "$SELFHOST_EXE_STAGEB"
+require_fixed 'NYASH_BIN="$legacy_nyash_bin"' "$SELFHOST_EXE_STAGEB"
 if rg -n "resolve_nyash_bin|nyash/hakorune binary not found" "$SELFHOST_EXE_STAGEB"; then
   guard_fail "$TAG" "selfhost EXE Stage-B helper must use Hakorune-first resolver naming"
 fi
@@ -230,8 +232,10 @@ if rg -n 'target/release/nyash" --emit-mir-json' "$TEST_SHLIB"; then
   guard_fail "$TAG" "test shell helper emit_json must invoke Hakorune-first binary resolver"
 fi
 require_fixed 'if [ -n "${HAKO_BIN:-}" ] && [ -z "${NYASH_BIN:-}" ]; then' "$EMIT_MIR_ROUTE"
-require_fixed 'NYASH_BIN="$ROOT/target/release/hakorune"' "$EMIT_MIR_ROUTE"
-require_fixed 'NYASH_BIN="$ROOT/target/release/nyash"' "$EMIT_MIR_ROUTE"
+require_fixed 'HAKORUNE_BIN_PATH="$ROOT/target/release/hakorune"' "$EMIT_MIR_ROUTE"
+require_fixed 'LEGACY_NYASH_BIN_PATH="$ROOT/target/release/nyash"' "$EMIT_MIR_ROUTE"
+require_fixed 'NYASH_BIN="$HAKORUNE_BIN_PATH"' "$EMIT_MIR_ROUTE"
+require_fixed 'NYASH_BIN="$LEGACY_NYASH_BIN_PATH"' "$EMIT_MIR_ROUTE"
 require_fixed 'HAKO_BIN="${HAKO_BIN:-$NYASH_BIN}"' "$EMIT_MIR_ROUTE"
 require_fixed '<HAKO_BIN|NYASH_BIN> --backend mir --emit-mir-json' "$EMIT_MIR_ROUTE"
 if rg -n "nyash/hakorune binary not found" "$EMIT_MIR_ROUTE"; then

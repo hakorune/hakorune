@@ -81,21 +81,24 @@ if [ ! -f "$INPUT" ]; then
   exit 2
 fi
 
+HAKORUNE_BIN_PATH="$ROOT/target/release/hakorune"
+LEGACY_NYASH_BIN_PATH="$ROOT/target/release/nyash"
+
 if [ -n "${HAKO_BIN:-}" ] && [ -z "${NYASH_BIN:-}" ]; then
   NYASH_BIN="$HAKO_BIN"
 fi
 if [ -z "${NYASH_BIN:-}" ]; then
-  if [ -x "$ROOT/target/release/hakorune" ]; then
-    NYASH_BIN="$ROOT/target/release/hakorune"
+  if [ -x "$HAKORUNE_BIN_PATH" ]; then
+    NYASH_BIN="$HAKORUNE_BIN_PATH"
   else
-    NYASH_BIN="$ROOT/target/release/nyash"
+    NYASH_BIN="$LEGACY_NYASH_BIN_PATH"
   fi
 fi
 HAKO_BIN="${HAKO_BIN:-$NYASH_BIN}"
 
 if [ ! -x "$NYASH_BIN" ]; then
   echo "[emit-route] hakorune binary not found: $NYASH_BIN" >&2
-  echo "[emit-route] compat fallback checked: $ROOT/target/release/nyash" >&2
+  echo "[emit-route] compat fallback checked: $LEGACY_NYASH_BIN_PATH" >&2
   exit 2
 fi
 
