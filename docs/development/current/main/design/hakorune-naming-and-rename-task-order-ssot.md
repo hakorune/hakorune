@@ -2289,6 +2289,38 @@ git diff --check
 tools/checks/dev_gate.sh quick
 ```
 
+### STAGE-TERM-MODEB-K2-WIDE-GUARD-DIAGNOSTIC-WORDING-001
+
+Status: landed K2-wide guard diagnostic wording cleanup.
+
+Purpose: use `mode-B compatibility` wording in two active K2-wide guard failure
+diagnostics while keeping script names, StageB Box names, and guard logic
+unchanged.
+
+Affected files:
+
+```text
+tools/checks/k2_wide_stageb_field_type_annotation_alignment_guard.sh
+tools/checks/k2_wide_stageb_numeric_literal_suffix_alignment_guard.sh
+```
+
+Non-claims:
+
+```text
+k2_wide_stageb_* script names renamed = 0
+StageB* Box names renamed = 0
+guard logic changed = 0
+runtime behavior changed = 0
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
 ### STAGE-TERM-EXISTING-NAME-MIGRATION-001
 
 Status: inventory-only; no implementation rename selected.

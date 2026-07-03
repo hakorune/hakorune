@@ -17,7 +17,7 @@ APP_SRC='box Main { static method main() { return 0usize } }'
 export NYASH_ROOT="$ROOT_DIR"
 export NYASH_BIN="$BIN"
 if ! JSON_PATH="$(stageb_compile_to_json_with_args "$APP_SRC")"; then
-  echo "[$TAG] ERROR: Stage-B parser route failed" >&2
+  echo "[$TAG] ERROR: mode-B compatibility parser route failed" >&2
   exit 1
 fi
 trap 'rm -f "$JSON_PATH"' EXIT

@@ -34,7 +34,7 @@ HAKO
 if ! NYASH_DISABLE_NY_COMPILER=1 HAKO_DISABLE_NY_COMPILER=1 \
   NYASH_FEATURES=stage3 NYASH_PARSER_ALLOW_SEMICOLON=1 \
   "$BIN" --backend vm "$TMP_APP" >"$RAW_OUT" 2>"$ERR_OUT"; then
-  echo "[$TAG] ERROR: Stage-B user_box_decls scanner probe failed" >&2
+  echo "[$TAG] ERROR: mode-B compatibility user_box_decls scanner probe failed" >&2
   sed -n '1,120p' "$ERR_OUT" >&2 || true
   exit 1
 fi

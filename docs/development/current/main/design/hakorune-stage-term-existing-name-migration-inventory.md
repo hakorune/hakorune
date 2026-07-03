@@ -439,6 +439,31 @@ StageB* Box names renamed = 0
 runtime behavior changed = 0
 ```
 
+## Landed mode-B K2-Wide Guard Diagnostic Wording Slice
+
+`STAGE-TERM-MODEB-K2-WIDE-GUARD-DIAGNOSTIC-WORDING-001` changes two active
+K2-wide guard failure diagnostics from `Stage-B` wording to
+`mode-B compatibility` wording.
+
+Scope:
+
+```text
+tools/checks/k2_wide_stageb_field_type_annotation_alignment_guard.sh:
+  failure diagnostic says mode-B compatibility user_box_decls scanner
+
+tools/checks/k2_wide_stageb_numeric_literal_suffix_alignment_guard.sh:
+  failure diagnostic says mode-B compatibility parser route
+```
+
+Non-claims:
+
+```text
+k2_wide_stageb_* script names renamed = 0
+StageB* Box names renamed = 0
+guard logic changed = 0
+runtime behavior changed = 0
+```
+
 ## Migration Eligibility
 
 An occurrence is eligible for a future rename only if all conditions hold:

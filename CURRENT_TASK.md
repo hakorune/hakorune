@@ -81,6 +81,7 @@ STAGE-TERM-MODEB-CAPTURE-CALLER-GUARD-WORDING-001
 STAGE-TERM-PHASE1-PROGRAM-JSON-GUARD-WORDING-001
 STAGE-TERM-STAGE0-SHAPE-GATE-LABEL-WORDING-001
 STAGE-TERM-MODEB-HHAKO-FUNC-SCANNER-COMMENT-WORDING-001
+STAGE-TERM-MODEB-K2-WIDE-GUARD-DIAGNOSTIC-WORDING-001
 ```
 
 `--syntax-3` is now the frontend syntax-level spelling; `--stage3` remains a
@@ -112,9 +113,11 @@ fixture names, and helper symbols unchanged. The Stage0-named shape inventory
 script now appears in quick gate output as `GlobalCallTarget shape inventory
 guard` while keeping script and inventory doc paths unchanged. FuncScanner
 comments now say mode-B compatibility while keeping PHI / LocalSSA /
-variable-map internals untouched. Next safe naming work, if explicitly
-selected, must pick a different classified layer from that inventory and keep
-compatibility aliases or replacement routes in the same slice.
+variable-map internals untouched. Two active K2-wide guard diagnostics now say
+mode-B compatibility while keeping script names, StageB Box names, and guard
+logic unchanged. Next safe naming work, if explicitly selected, must pick a
+different classified layer from that inventory and keep compatibility aliases
+or replacement routes in the same slice.
 
 Acceptance:
 
