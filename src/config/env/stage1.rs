@@ -1,4 +1,4 @@
-//! Stage-1 / selfhost CLI environment helpers (SSOT).
+//! Phase-1 compatibility / selfhost CLI environment helpers (SSOT).
 
 use super::mir_flags;
 use crate::config::env::env_bool;
@@ -10,7 +10,7 @@ pub enum NyrtAutoOffMode {
     Off,
 }
 
-/// Primary toggle: enable Stage-1 stub routing.
+/// Primary toggle: enable phase-1 compatibility stub routing.
 pub fn enabled() -> bool {
     env_bool("NYASH_USE_STAGE1_CLI")
         || env_bool("HAKO_STAGE1_ENABLE")
@@ -18,15 +18,15 @@ pub fn enabled() -> bool {
         || env_bool("HAKO_EMIT_MIR_JSON")
 }
 
-/// Recursion guard when Stage-1 stub calls back into the runner.
+/// Recursion guard when the phase-1 compatibility stub calls back into the runner.
 pub fn child_invocation() -> bool {
     env_bool("NYASH_STAGE1_CLI_CHILD")
 }
 
-/// NyRT exact-EXE / Stage-1 shared result-line toggle.
+/// NyRT exact-EXE / phase-1 compatibility shared result-line toggle.
 ///
 /// This is the P0 seam for `NYASH_NYRT_SILENT_RESULT`, shared by the NyRT
-/// entry tail and the Stage-1 bridge runtime defaults.
+/// entry tail and the phase-1 compatibility bridge runtime defaults.
 pub fn nyrt_silent_result_enabled() -> bool {
     env_bool("NYASH_NYRT_SILENT_RESULT")
 }
@@ -138,7 +138,7 @@ pub fn nyrt_ring0_init_mode() -> Result<NyrtAutoOffMode, String> {
     )
 }
 
-/// Stage-1 mode hint (emit-program / emit-mir / run).
+/// Phase-1 compatibility mode hint (emit-program / emit-mir / run).
 pub fn mode() -> Option<String> {
     if let Some(m) = std::env::var("HAKO_STAGE1_MODE")
         .ok()
@@ -167,7 +167,7 @@ pub fn mode() -> Option<String> {
     None
 }
 
-/// True when Stage-1 should emit Program(JSON v0).
+/// True when phase-1 compatibility should emit Program(JSON v0).
 pub fn emit_program_json() -> bool {
     matches!(
         mode().as_deref(),
@@ -175,12 +175,12 @@ pub fn emit_program_json() -> bool {
     )
 }
 
-/// True when Stage-1 should emit MIR(JSON).
+/// True when phase-1 compatibility should emit MIR(JSON).
 pub fn emit_mir_json() -> bool {
     matches!(mode().as_deref(), Some("emit-mir" | "emit-mir-json"))
 }
 
-/// Input source path passed to Stage-1 stub (aliases included).
+/// Input source path passed to the phase-1 compatibility stub (aliases included).
 pub fn input_path() -> Option<String> {
     std::env::var("HAKO_STAGE1_INPUT")
         .ok()
@@ -189,7 +189,7 @@ pub fn input_path() -> Option<String> {
         .or_else(|| std::env::var("STAGE1_INPUT").ok())
 }
 
-/// Program(JSON v0) path for Stage-1 emit-mir mode (aliases included).
+/// Program(JSON v0) path for phase-1 compatibility emit-mir mode (aliases included).
 pub fn program_json_path() -> Option<String> {
     std::env::var("HAKO_STAGE1_PROGRAM_JSON")
         .ok()
@@ -197,7 +197,7 @@ pub fn program_json_path() -> Option<String> {
         .or_else(|| std::env::var("STAGE1_PROGRAM_JSON").ok())
 }
 
-/// Backend hint for Stage-1 run mode (aliases included).
+/// Backend hint for phase-1 compatibility run mode (aliases included).
 pub fn backend_hint() -> Option<String> {
     std::env::var("HAKO_STAGE1_BACKEND")
         .ok()
@@ -205,19 +205,19 @@ pub fn backend_hint() -> Option<String> {
         .or_else(|| std::env::var("STAGE1_BACKEND").ok())
 }
 
-/// Optional override for Stage-1 CLI entry path.
+/// Optional override for phase-1 compatibility CLI entry path.
 pub fn entry_override() -> Option<String> {
     std::env::var("STAGE1_CLI_ENTRY")
         .ok()
         .or_else(|| std::env::var("HAKORUNE_STAGE1_ENTRY").ok())
 }
 
-/// Optional Stage-1 child args (passed through to stub).
+/// Optional phase-1 compatibility child args (passed through to stub).
 pub fn child_args_env() -> Option<String> {
     std::env::var("NYASH_SCRIPT_ARGS_JSON").ok()
 }
 
-/// Stage-1 debug flag (verbose child stderr).
+/// Phase-1 compatibility debug flag (verbose child stderr).
 pub fn debug() -> bool {
     std::env::var("STAGE1_CLI_DEBUG").ok().as_deref() == Some("1")
 }

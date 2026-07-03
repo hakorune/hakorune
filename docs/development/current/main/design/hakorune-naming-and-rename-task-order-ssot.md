@@ -2794,6 +2794,26 @@ NYASH_NY_COMPILER_STAGE3 env name renamed = 0
 runtime behavior changed = 0
 ```
 
+#### STAGE-TERM-RUST-STAGE1-ENV-HELPER-COMMENT-WORDING-001
+
+Status: landed.
+
+Scope:
+
+```text
+src/config/env/stage1.rs:
+  helper module/file comments use phase-1 compatibility wording
+```
+
+Non-claims:
+
+```text
+stage1 module path renamed = 0
+NYASH_STAGE1_* / HAKO_STAGE1_* env names renamed = 0
+helper function names renamed = 0
+runtime behavior changed = 0
+```
+
 ## Guard Policy
 
 `tools/checks/naming_charter_guard.sh` is a lightweight reusable guard. It does

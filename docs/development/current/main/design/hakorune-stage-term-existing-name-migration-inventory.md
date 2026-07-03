@@ -923,6 +923,32 @@ NYASH_NY_COMPILER_STAGE3 env name renamed = 0
 runtime behavior changed = 0
 ```
 
+## Landed Rust Stage1 Env Helper Comment Wording Slice
+
+`STAGE-TERM-RUST-STAGE1-ENV-HELPER-COMMENT-WORDING-001` changes
+`src/config/env/stage1.rs` helper comments from unqualified Stage-1 wording to
+phase-1 compatibility wording while keeping the env helper module path as a
+compatibility surface.
+
+Scope:
+
+```text
+src/config/env/stage1.rs:
+  module doc comment says phase-1 compatibility / selfhost CLI env helper
+  helper doc comments say phase-1 compatibility for stub, mode, emit, input,
+  backend, entry, child-args, and debug surfaces
+```
+
+Non-claims:
+
+```text
+src/config/env/stage1.rs renamed = 0
+stage1 module path renamed = 0
+NYASH_STAGE1_* / HAKO_STAGE1_* env names renamed = 0
+STAGE1_* legacy env aliases removed = 0
+runtime behavior changed = 0
+```
+
 ## Migration Eligibility
 
 An occurrence is eligible for a future rename only if all conditions hold:

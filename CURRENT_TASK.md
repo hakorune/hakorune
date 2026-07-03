@@ -97,6 +97,7 @@ STAGE-TERM-LANG-README-PHASE-WORDING-001
 STAGE-TERM-DOCS-TOOLS-QUICK-ENTRY-WORDING-001
 STAGE-TERM-STAGE1-BRIDGE-PHASE-COMMENT-WORDING-001
 STAGE-TERM-ENV-REFERENCE-PHASE-WORDING-001
+STAGE-TERM-RUST-STAGE1-ENV-HELPER-COMMENT-WORDING-001
 ```
 
 `--syntax-3` is now the frontend syntax-level spelling; `--stage3` remains a
@@ -169,6 +170,9 @@ preserving `stage1_*`, `Stage1*`, env names, log tags, and expected stderr.
 syntax-3, and bootstrap wording for the active environment variable reference
 while preserving `NYASH_STAGE1_*`, `STAGE1_*`, `NYASH_FEATURES=stage3`, and
 `NYASH_NY_COMPILER_STAGE3` compatibility names.
+`src/config/env/stage1.rs` helper comments now use phase-1 compatibility
+wording while preserving the `stage1` module path, env names, helper function
+names, and behavior.
 Next safe naming work, if explicitly selected, must pick a
 different classified layer from that inventory and keep compatibility aliases
 or replacement routes in the same slice.
