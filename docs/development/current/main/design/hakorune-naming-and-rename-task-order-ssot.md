@@ -1054,6 +1054,33 @@ git diff --check
 tools/checks/dev_gate.sh quick
 ```
 
+### HAKORUNE-QUICK-SMOKE-MODE-B-DIAGNOSTIC-001
+
+Status: active in this slice.
+
+Scope:
+
+- make shared quick smoke helper comments/diagnostics use `mode-B` instead of
+  `Stage-B`;
+- keep smoke execution behavior and helper function names unchanged;
+- keep broader Stage-A/Stage-B compatibility naming outside this diagnostic
+  slice.
+
+Affected script:
+
+```text
+tools/smokes/v2/lib/stageb_helpers.sh
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+bash -n tools/smokes/v2/lib/stageb_helpers.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
 ### HAKORUNE-MAP-ESCAPE-OPTIN-SMOKE-BINARY-RESOLUTION-001
 
 Status: active in this slice.

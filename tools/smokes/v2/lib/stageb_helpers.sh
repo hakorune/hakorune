@@ -1,5 +1,5 @@
 #!/bin/bash
-# stageb_helpers.sh — Helpers to compile Hako(Stage‑B) source to Program(JSON v0)
+# stageb_helpers.sh — Helpers to compile Hako(mode-B) source to Program(JSON v0)
 
 _STAGEB_HELPERS_TOOLS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 
@@ -35,7 +35,7 @@ stageb_export_vm_compile_env() {
   export HAKO_FAIL_FAST_ON_HAKO_IN_NYASH_VM=0
   export NYASH_VARMAP_GUARD_STRICT=0
   export NYASH_BLOCK_SCHEDULE_VERIFY=0
-  # Stage-B entry includes nested compat loops; these smokes check CLI/JSON
+  # mode-B entry includes nested compat loops; these smokes check CLI/JSON
   # contracts, not planner-required JoinIR acceptance.
   export NYASH_JOINIR_DEV=0
   export HAKO_JOINIR_STRICT=0
