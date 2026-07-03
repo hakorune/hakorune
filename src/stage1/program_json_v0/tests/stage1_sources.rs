@@ -119,20 +119,20 @@ fn source_to_program_json_v0_stage1_cli_env_materializes_same_file_stage1_boxes(
             def["box"] == "Stage1ProgramJsonMirCallerBox"
                 && def["name"] == "_emit_mir_from_program_json_text_checked"
         }),
-        "stage1 program-json caller entry must be materialized"
+        "phase-1 compatibility program-json caller entry must be materialized"
     );
     assert!(
         defs.iter().any(|def| {
             def["box"] == "Stage1SourceMirAuthorityBox" && def["name"] == "emit_mir_from_source"
         }),
-        "stage1 source-route authority entry must be materialized"
+        "phase-1 compatibility source-route authority entry must be materialized"
     );
     assert!(
         defs.iter().any(|def| {
             def["box"] == "Stage1SourceProgramAuthorityBox"
                 && def["name"] == "emit_program_from_source"
         }),
-        "stage1 source-program authority entry must be materialized"
+        "phase-1 compatibility source-program authority entry must be materialized"
     );
 }
 

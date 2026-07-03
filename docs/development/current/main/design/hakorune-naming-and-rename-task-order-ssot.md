@@ -2841,6 +2841,28 @@ stage1_bridge helper names renamed = 0
 Program(JSON v0) behavior changed = 0
 ```
 
+#### STAGE-TERM-RUST-STAGE1-PROGRAM-JSON-TEST-WORDING-001
+
+Status: landed.
+
+Scope:
+
+```text
+src/stage1/program_json_v0/tests/stage1_sources.rs:
+src/stage1/program_json_v0/tests/classification_contract.rs:
+  selected assertion / expect_err messages use phase-1 compatibility wording
+```
+
+Non-claims:
+
+```text
+test function names renamed = 0
+stage1_cli_env.hako fixture path renamed = 0
+Stage1* Box names renamed = 0
+helper function names renamed = 0
+runtime behavior changed = 0
+```
+
 ## Guard Policy
 
 `tools/checks/naming_charter_guard.sh` is a lightweight reusable guard. It does

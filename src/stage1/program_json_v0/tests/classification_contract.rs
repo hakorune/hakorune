@@ -191,7 +191,7 @@ return x + 1
 }
 "#;
     let error = emit_program_json_v0_for_stage1_bridge_emit_program_json(relaxed_source)
-        .expect_err("stage1 bridge strict parse should fail on compat-only source");
+        .expect_err("phase-1 compatibility bridge strict parse should fail on compat-only source");
     assert!(
         error.starts_with("emit-program-json-v0: "),
         "unexpected error: {error}"

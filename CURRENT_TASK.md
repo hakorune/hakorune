@@ -99,6 +99,7 @@ STAGE-TERM-STAGE1-BRIDGE-PHASE-COMMENT-WORDING-001
 STAGE-TERM-ENV-REFERENCE-PHASE-WORDING-001
 STAGE-TERM-RUST-STAGE1-ENV-HELPER-COMMENT-WORDING-001
 STAGE-TERM-RUST-STAGE1-BOUNDARY-COMMENT-WORDING-001
+STAGE-TERM-RUST-STAGE1-PROGRAM-JSON-TEST-WORDING-001
 ```
 
 `--syntax-3` is now the frontend syntax-level spelling; `--stage3` remains a
@@ -178,6 +179,9 @@ names, and behavior.
 phase-1 compatibility wording while preserving the `src/stage1` path,
 `stage1_bridge` helper names, and explicit legacy Stage1/Stage2 artifact
 label explanation.
+Selected `src/stage1/program_json_v0` assertion/expectation messages now use
+phase-1 compatibility wording while preserving test function names, fixture
+file names, helper function names, and `Stage1*` Box names.
 Next safe naming work, if explicitly selected, must pick a
 different classified layer from that inventory and keep compatibility aliases
 or replacement routes in the same slice.

@@ -981,6 +981,33 @@ Program(JSON v0) behavior changed = 0
 runtime behavior changed = 0
 ```
 
+## Landed Rust Stage1 Program JSON Test Wording Slice
+
+`STAGE-TERM-RUST-STAGE1-PROGRAM-JSON-TEST-WORDING-001` changes selected
+human-facing assertion / expectation messages under `src/stage1/program_json_v0`
+from unqualified stage1 wording to phase-1 compatibility wording.
+
+Scope:
+
+```text
+src/stage1/program_json_v0/tests/stage1_sources.rs:
+  program-json caller and source authority assertion messages say phase-1
+  compatibility
+
+src/stage1/program_json_v0/tests/classification_contract.rs:
+  bridge strict-parse expectation message says phase-1 compatibility
+```
+
+Non-claims:
+
+```text
+test function names renamed = 0
+stage1_cli_env.hako fixture path renamed = 0
+Stage1* Box names renamed = 0
+helper function names renamed = 0
+runtime behavior changed = 0
+```
+
 ## Migration Eligibility
 
 An occurrence is eligible for a future rename only if all conditions hold:

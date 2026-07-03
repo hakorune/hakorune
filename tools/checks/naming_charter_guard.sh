@@ -147,6 +147,8 @@ RUST_STAGE1_MOD_RS="$ROOT_DIR/src/stage1/mod.rs"
 RUST_STAGE1_PROGRAM_JSON_RS="$ROOT_DIR/src/stage1/program_json_v0.rs"
 RUST_STAGE1_PROGRAM_JSON_ROUTING_RS="$ROOT_DIR/src/stage1/program_json_v0/routing.rs"
 RUST_STAGE1_PROGRAM_JSON_README="$ROOT_DIR/src/stage1/program_json_v0/README.md"
+RUST_STAGE1_PROGRAM_JSON_TEST_SOURCES="$ROOT_DIR/src/stage1/program_json_v0/tests/stage1_sources.rs"
+RUST_STAGE1_PROGRAM_JSON_TEST_CLASSIFICATION="$ROOT_DIR/src/stage1/program_json_v0/tests/classification_contract.rs"
 REFERENCE_EBNF="$ROOT_DIR/docs/reference/language/EBNF.md"
 REFERENCE_STATEMENTS="$ROOT_DIR/docs/reference/language/statements.md"
 PHASE29CI_STAGEB_BODY_EXTRACT_TEST="$ROOT_DIR/tests/phase29ci_stageb_body_extract.rs"
@@ -403,6 +405,8 @@ REQUIRED_FILES=(
   "$RUST_STAGE1_PROGRAM_JSON_RS"
   "$RUST_STAGE1_PROGRAM_JSON_ROUTING_RS"
   "$RUST_STAGE1_PROGRAM_JSON_README"
+  "$RUST_STAGE1_PROGRAM_JSON_TEST_SOURCES"
+  "$RUST_STAGE1_PROGRAM_JSON_TEST_CLASSIFICATION"
   "$REFERENCE_EBNF"
   "$REFERENCE_STATEMENTS"
   "$PHASE29CI_STAGEB_BODY_EXTRACT_TEST"
@@ -518,6 +522,7 @@ SSOT_REQUIRED_TOKENS=(
   "STAGE-TERM-ENV-REFERENCE-PHASE-WORDING-001"
   "STAGE-TERM-RUST-STAGE1-ENV-HELPER-COMMENT-WORDING-001"
   "STAGE-TERM-RUST-STAGE1-BOUNDARY-COMMENT-WORDING-001"
+  "STAGE-TERM-RUST-STAGE1-PROGRAM-JSON-TEST-WORDING-001"
 )
 guard_require_unique_values "SSOT required token" "${SSOT_REQUIRED_TOKENS[@]}"
 for ssot_token in "${SSOT_REQUIRED_TOKENS[@]}"; do
@@ -896,6 +901,15 @@ if rg -n 'Stage1 Rust Boundary|Rust-side Stage1 bootstrap boundary|Rust-owned St
   "$RUST_STAGE1_PROGRAM_JSON_README"; then
   guard_fail "$TAG" "src/stage1 boundary comments must use phase-1 compatibility wording"
 fi
+require_fixed "phase-1 compatibility program-json caller entry must be materialized" "$RUST_STAGE1_PROGRAM_JSON_TEST_SOURCES"
+require_fixed "phase-1 compatibility source-route authority entry must be materialized" "$RUST_STAGE1_PROGRAM_JSON_TEST_SOURCES"
+require_fixed "phase-1 compatibility source-program authority entry must be materialized" "$RUST_STAGE1_PROGRAM_JSON_TEST_SOURCES"
+require_fixed "phase-1 compatibility bridge strict parse should fail on compat-only source" "$RUST_STAGE1_PROGRAM_JSON_TEST_CLASSIFICATION"
+if rg -n 'stage1 program-json caller entry must be materialized|stage1 source-route authority entry must be materialized|stage1 source-program authority entry must be materialized|stage1 bridge strict parse should fail on compat-only source' \
+  "$RUST_STAGE1_PROGRAM_JSON_TEST_SOURCES" \
+  "$RUST_STAGE1_PROGRAM_JSON_TEST_CLASSIFICATION"; then
+  guard_fail "$TAG" "src/stage1 Program(JSON v0) test messages must use phase-1 compatibility wording"
+fi
 require_fixed "mode-B compatibility module payload generation" "$STAGE1_BRIDGE_README"
 require_fixed "mode-B compatibility aliases" "$STAGE1_BRIDGE_ENV_RS"
 require_fixed "mode-B compatibility alias" "$STAGE1_BRIDGE_MODULES_RS"
@@ -1170,6 +1184,8 @@ NAMING_DIFF_ALLOWED_PATHS=(
   "src/stage1/program_json_v0.rs"
   "src/stage1/program_json_v0/routing.rs"
   "src/stage1/program_json_v0/README.md"
+  "src/stage1/program_json_v0/tests/stage1_sources.rs"
+  "src/stage1/program_json_v0/tests/classification_contract.rs"
   "src/config/env/parser_flags.rs"
   "src/config/env/selfhost_flags.rs"
   "src/cli/args.rs"
