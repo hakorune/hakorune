@@ -6,4 +6,5 @@
 
 Helpers
 - normalize_json: Python json.dumps with sort_keys=True
-- *_user_macro_golden.sh scripts: run nyash --dump-expanded-ast-json and compare
+- lib/resolve_hakorune.sh: shared Hakorune-first binary resolver for golden scripts
+- *_user_macro_golden.sh scripts: run Hakorune --dump-expanded-ast-json and compare

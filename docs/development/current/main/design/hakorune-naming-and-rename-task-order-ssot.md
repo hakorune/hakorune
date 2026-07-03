@@ -1112,6 +1112,39 @@ git diff --check
 tools/checks/dev_gate.sh quick
 ```
 
+### HAKORUNE-GOLDEN-MACRO-BINARY-RESOLVER-001
+
+Status: active in this slice.
+
+Scope:
+
+- introduce one shared Hakorune-first resolver for macro golden scripts;
+- keep legacy `target/release/nyash` only as a named compatibility fallback;
+- keep `$NYASH_BIN` as the historical compatibility override;
+- keep macro golden fixtures and comparison semantics unchanged in this slice;
+- add naming guard coverage so generated/golden scripts do not regress to
+  direct legacy binary paths or legacy-only diagnostics.
+
+Affected scripts:
+
+```text
+tools/test/golden/macro/lib/resolve_hakorune.sh
+tools/test/golden/macro/*_golden.sh
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+for f in tools/test/golden/macro/*.sh; do bash -n "$f"; done
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
+Executing the macro golden scripts is intentionally outside this naming slice:
+current AST JSON output may differ from older golden baselines. This slice only
+changes binary resolution and diagnostics.
+
 ### HAKORUNE-GATE-C-OOB-STRICT-SMOKE-BINARY-RESOLUTION-001
 
 Status: active in this slice.

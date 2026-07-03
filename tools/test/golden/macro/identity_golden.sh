@@ -2,14 +2,11 @@
 set -euo pipefail
 
 root=$(cd "$(dirname "$0")"/../../../.. && pwd)
-bin="$root/target/release/nyash"
+source "$root/tools/test/golden/macro/lib/resolve_hakorune.sh"
+bin="$(resolve_hakorune_golden_bin "$root")"
 src="apps/tests/macro/identity/identity.hako"
 golden="$root/tools/test/golden/macro/identity.expanded.json"
 
-if [ ! -x "$bin" ]; then
-  echo "nyash binary not found at $bin; build first (cargo build --release)" >&2
-  exit 1
-fi
 
 out=$("$bin" --dump-expanded-ast-json "$src")
 

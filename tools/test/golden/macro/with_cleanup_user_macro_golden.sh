@@ -2,14 +2,11 @@
 set -euo pipefail
 
 root=$(cd "$(dirname "$0")"/../../../.. && pwd)
-bin="$root/target/release/nyash"
+source "$root/tools/test/golden/macro/lib/resolve_hakorune.sh"
+bin="$(resolve_hakorune_golden_bin "$root")"
 src="apps/tests/macro/exception/with_cleanup.hako"
 golden="$root/tools/test/golden/macro/with_cleanup.expanded.json"
 
-if [ ! -x "$bin" ]; then
-  echo "nyash binary not found at $bin; build first (cargo build --release)" >&2
-  exit 1
-fi
 
 normalize_json() { python3 -c 'import sys,json; print(json.dumps(json.loads(sys.stdin.read()), sort_keys=True, separators=(",", ":")))'; }
 
