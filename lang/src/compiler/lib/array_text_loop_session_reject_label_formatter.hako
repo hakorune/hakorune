@@ -1,0 +1,21 @@
+// array_text_loop_session_reject_label_formatter.hako
+//
+// Responsibility:
+// - format narrow ArrayTextLoopSessionRejectReason vocabulary into Rust oracle text
+// - stay pure: scalar token in, scalar text out
+//
+// Non-responsibility:
+// - loop-session plan construction
+// - region payload derivation
+// - array/text route matching
+// - MIR mutation
+static box ArrayTextLoopSessionRejectLabelFormatterBox {
+  format_reject_reason(reason) {
+    if reason == "DifferentArrayHandle" { return "different_array_handle" }
+    if reason == "UnknownLoopRegion" { return "unknown_loop_region" }
+    if reason == "ArrayMutationInRegion" { return "array_mutation_in_region" }
+    if reason == "DropOrPublicationBoundary" { return "drop_or_publication_boundary" }
+    if reason == "IndexDomainUnproven" { return "index_domain_unproven" }
+    return "unsupported_array_text_loop_session_reject_reason"
+  }
+}

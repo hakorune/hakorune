@@ -1,0 +1,30 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderArrayTextLoopSessionRejectLabelFormatterRustOracleV1",
+  "token": "MIRBUILDER-ARRAY-TEXT-LOOP-SESSION-REJECT-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "array_text_loop_session_reject_label_formatter",
+  "rust_source": {
+    "path": "src/mir/array_text_loop_session_plan.rs",
+    "hash": "sha256:ffee406a5e9b58eaccd6a6410020244450721dfb32b18609805b6383f090f23b",
+    "oracle_surface": "ArrayTextLoopSessionRejectReason as_str vocabulary"
+  },
+  "rows": [
+    {"kind": "reject_reason", "input": "DifferentArrayHandle", "expected": "different_array_handle"},
+    {"kind": "reject_reason", "input": "UnknownLoopRegion", "expected": "unknown_loop_region"},
+    {"kind": "reject_reason", "input": "ArrayMutationInRegion", "expected": "array_mutation_in_region"},
+    {"kind": "reject_reason", "input": "DropOrPublicationBoundary", "expected": "drop_or_publication_boundary"},
+    {"kind": "reject_reason", "input": "IndexDomainUnproven", "expected": "index_domain_unproven"}
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "loop_session_plan_construction_migration": 0,
+    "region_payload_derivation_migration": 0,
+    "array_text_route_matching_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

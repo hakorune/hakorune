@@ -1,0 +1,33 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderHakoNativeOwnerParityPilotSelectionRerun046V1",
+  "token": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-046",
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "previous_adoption_decision": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-generic-loop-v1-shape-label-formatter-hako-adoption-decision-v0.json",
+    "previous_adoption_decision_hash": "sha256:e8816f6285ac65a7539db15bf6372d9aae46ddb76c007faef9b810ce13c73b7f"
+  },
+  "decision": {
+    "kind": "SelectRustOracleFixture",
+    "reason_token": "ArrayTextLoopSessionRejectLabelFormatterIsNarrowPureVocabularyOwner",
+    "selected_owner": "array_text_loop_session_reject_label_formatter",
+    "selected_next_card": "MIRBUILDER-ARRAY-TEXT-LOOP-SESSION-REJECT-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001"
+  },
+  "accepted_scope": {
+    "surface": "ArrayTextLoopSessionRejectReason label vocabulary formatting",
+    "manual_target_selection_allowed": 1,
+    "correctness_requires_rust_oracle_parity": 1
+  },
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "loop_session_plan_construction_migration": 0,
+    "region_payload_derivation_migration": 0,
+    "array_text_route_matching_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}
