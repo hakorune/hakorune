@@ -5,7 +5,7 @@
 
 using sh_core as StringHelpers  // Required: using chain resolution not implemented
 static box ParserExceptionBox {
-  // Parse: throw expr → {type:"Throw", expr:...} (Stage-3) or {type:"Expr", expr:...} (fallback)
+  // Parse: throw expr -> {type:"Throw", expr:...} (syntax-3) or {type:"Expr", expr:...} (fallback)
   parse_throw(src, i, stmt_start, ctx) {
     local j = i + 5  // skip "throw"
     j = ctx.skip_ws(src, j)
@@ -174,7 +174,7 @@ static box ParserExceptionBox {
     return "{\"type\":\"Expr\",\"expr\":{\"type\":\"Int\",\"value\":0}}"
   }
 
-  // Parse: try { ... } (catch ...)* (cleanup { ... })? → {type:"Try", ...} (Stage-3) or no-op
+  // Parse: try { ... } (catch ...)* (cleanup { ... })? -> {type:"Try", ...} (syntax-3) or no-op
   parse_try(src, i, stmt_start, ctx) {
     local j = i + 3  // skip "try"
     j = ctx.skip_ws(src, j)
@@ -187,7 +187,7 @@ static box ParserExceptionBox {
     return me.parse_try_tail(src, j, stmt_start, ctx, try_json)
   }
 
-  // Parse: { ... } (catch ...)? (cleanup ...)?  -> Try node (Stage-3)
+  // Parse: { ... } (catch ...)? (cleanup ...)?  -> Try node (syntax-3)
   // This supports try-less postfix handlers in statement position.
   parse_block_postfix(src, i, stmt_start, ctx) {
     local j = ctx.skip_ws(src, i)

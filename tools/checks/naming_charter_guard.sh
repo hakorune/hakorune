@@ -69,6 +69,16 @@ HH_STAGEB_RUNE="$ROOT_DIR/lang/src/compiler/entry/stageb/stageb_rune_box.hako"
 HH_STAGEB_USER_BOX_DECL_SCANNER="$ROOT_DIR/lang/src/compiler/entry/stageb/stageb_user_box_decl_scanner_box.hako"
 HH_FUNC_SCANNER="$ROOT_DIR/lang/src/compiler/entry/func_scanner.hako"
 HH_FUNC_SCANNER_HELPERS="$ROOT_DIR/lang/src/compiler/entry/func_scanner_helpers.hako"
+HH_BUILD_README="$ROOT_DIR/lang/src/compiler/build/README.md"
+HH_BUILD_BUNDLE_FACADE="$ROOT_DIR/lang/src/compiler/build/build_bundle_facade_box.hako"
+HH_MIRBUILDER_README="$ROOT_DIR/lang/src/compiler/mirbuilder/README.md"
+HH_PARSER_BOX="$ROOT_DIR/lang/src/compiler/parser/parser_box.hako"
+HH_PARSER_EXPR_BOX="$ROOT_DIR/lang/src/compiler/parser/expr/parser_expr_box.hako"
+HH_PARSER_NUMBER_SCAN="$ROOT_DIR/lang/src/compiler/parser/scan/parser_number_scan_box.hako"
+HH_PARSER_RUNE_CONTRACT="$ROOT_DIR/lang/src/compiler/parser/rune/rune_contract_box.hako"
+HH_PARSER_CONTROL_BOX="$ROOT_DIR/lang/src/compiler/parser/stmt/parser_control_box.hako"
+HH_PARSER_EXCEPTION_BOX="$ROOT_DIR/lang/src/compiler/parser/stmt/parser_exception_box.hako"
+HH_PARSER_STMT_CORE="$ROOT_DIR/lang/src/compiler/parser/stmt/parser_stmt_box/core.hako"
 K2_WIDE_STAGEB_FIELD_TYPE_ANNOTATION_GUARD="$ROOT_DIR/tools/checks/k2_wide_stageb_field_type_annotation_alignment_guard.sh"
 K2_WIDE_STAGEB_NUMERIC_LITERAL_SUFFIX_GUARD="$ROOT_DIR/tools/checks/k2_wide_stageb_numeric_literal_suffix_alignment_guard.sh"
 NY_PARSER_BRIDGE_SMOKE="$ROOT_DIR/tools/ny_parser_bridge_smoke.sh"
@@ -206,6 +216,16 @@ REQUIRED_FILES=(
   "$HH_STAGEB_USER_BOX_DECL_SCANNER"
   "$HH_FUNC_SCANNER"
   "$HH_FUNC_SCANNER_HELPERS"
+  "$HH_BUILD_README"
+  "$HH_BUILD_BUNDLE_FACADE"
+  "$HH_MIRBUILDER_README"
+  "$HH_PARSER_BOX"
+  "$HH_PARSER_EXPR_BOX"
+  "$HH_PARSER_NUMBER_SCAN"
+  "$HH_PARSER_RUNE_CONTRACT"
+  "$HH_PARSER_CONTROL_BOX"
+  "$HH_PARSER_EXCEPTION_BOX"
+  "$HH_PARSER_STMT_CORE"
   "$K2_WIDE_STAGEB_FIELD_TYPE_ANNOTATION_GUARD"
   "$K2_WIDE_STAGEB_NUMERIC_LITERAL_SUFFIX_GUARD"
   "$NY_PARSER_BRIDGE_SMOKE"
@@ -348,6 +368,7 @@ SSOT_REQUIRED_TOKENS=(
   "STAGE-TERM-SELFHOST-SMOKE-COMMENT-WORDING-001"
   "STAGE-TERM-CHECK-SCRIPTS-INDEX-WORDING-001"
   "STAGE-TERM-SYNTAX3-RUST-ENV-COMMENT-WORDING-001"
+  "STAGE-TERM-HHAKO-PARSER-BUILD-COMMENT-WORDING-001"
 )
 guard_require_unique_values "SSOT required token" "${SSOT_REQUIRED_TOKENS[@]}"
 for ssot_token in "${SSOT_REQUIRED_TOKENS[@]}"; do
@@ -757,6 +778,37 @@ require_fixed "mode-B compatibility VM path can lose string-state" "$HH_FUNC_SCA
 if rg -n 'Function definition scanner for Stage-B compiler|Stage-B VM path can lose string-state' "$HH_FUNC_SCANNER" "$HH_FUNC_SCANNER_HELPERS"; then
   guard_fail "$TAG" "FuncScanner comments must say mode-B compatibility"
 fi
+require_fixed "bundle-aware mode-B compatibility adapter" "$HH_BUILD_BUNDLE_FACADE"
+require_fixed "Live mode-B compatibility bundle entry" "$HH_BUILD_README"
+require_fixed "mode-A bridge callers" "$HH_MIRBUILDER_README"
+require_fixed "mode-B compatibility Program(JSON v0)" "$HH_MIRBUILDER_README"
+require_fixed "mode-B compatibility MIR emitter can stall" "$HH_PARSER_CONTROL_BOX"
+require_fixed "disabled in mode-B compatibility runtime" "$HH_PARSER_CONTROL_BOX"
+require_fixed "syntax-3 path" "$HH_PARSER_CONTROL_BOX"
+require_fixed "mode-B compatibility/selfhost safety valve" "$HH_PARSER_STMT_CORE"
+require_fixed "mode-B compatibility compiler code" "$HH_PARSER_STMT_CORE"
+require_fixed "syntax-3: try-less postfix handler path" "$HH_PARSER_STMT_CORE"
+require_fixed "mode-B compatibility / selfhost callers" "$HH_PARSER_BOX"
+require_fixed "mode-B compatibility/selfhost callers" "$HH_PARSER_BOX"
+require_fixed "syntax-3 only" "$HH_PARSER_BOX"
+require_fixed "mode-B compatibility VM quirks" "$HH_PARSER_CONTROL_BOX"
+require_fixed "Required by mode-B compatibility fixtures" "$HH_PARSER_EXPR_BOX"
+require_fixed "mode-B compatibility parser routes" "$HH_PARSER_RUNE_CONTRACT"
+require_fixed "mode-B compatibility VM path can lose" "$HH_PARSER_NUMBER_SCAN"
+require_fixed "syntax-3" "$HH_PARSER_EXCEPTION_BOX"
+if rg -n 'Stage-B adapter|Live Stage-B bundle entry|Stage-A bridge callers|Stage-B Program\(JSON v0\)|Stage-B MIR emitter|Stage-B runtime|Stage-B/selfhost|Stage-B compiler code|Stage-B fixtures|Stage-B parser routes|Stage-B VM path|Stage-3|Stage.B' \
+  "$HH_BUILD_BUNDLE_FACADE" \
+  "$HH_BUILD_README" \
+  "$HH_MIRBUILDER_README" \
+  "$HH_PARSER_CONTROL_BOX" \
+  "$HH_PARSER_STMT_CORE" \
+  "$HH_PARSER_BOX" \
+  "$HH_PARSER_EXCEPTION_BOX" \
+  "$HH_PARSER_EXPR_BOX" \
+  "$HH_PARSER_RUNE_CONTRACT" \
+  "$HH_PARSER_NUMBER_SCAN"; then
+  guard_fail "$TAG" "HHako parser/build comments must say mode-A/mode-B compatibility or syntax-3"
+fi
 require_fixed "mode-B compatibility user_box_decls scanner probe failed" "$K2_WIDE_STAGEB_FIELD_TYPE_ANNOTATION_GUARD"
 require_fixed "mode-B compatibility parser route failed" "$K2_WIDE_STAGEB_NUMERIC_LITERAL_SUFFIX_GUARD"
 if rg -n 'Stage-B user_box_decls scanner probe failed|Stage-B parser route failed' "$K2_WIDE_STAGEB_FIELD_TYPE_ANNOTATION_GUARD" "$K2_WIDE_STAGEB_NUMERIC_LITERAL_SUFFIX_GUARD"; then
@@ -846,6 +898,16 @@ NAMING_DIFF_ALLOWED_PATHS=(
   "lang/src/compiler/entry/stageb/stageb_user_box_decl_scanner_box.hako"
   "lang/src/compiler/entry/func_scanner.hako"
   "lang/src/compiler/entry/func_scanner_helpers.hako"
+  "lang/src/compiler/build/README.md"
+  "lang/src/compiler/build/build_bundle_facade_box.hako"
+  "lang/src/compiler/mirbuilder/README.md"
+  "lang/src/compiler/parser/parser_box.hako"
+  "lang/src/compiler/parser/expr/parser_expr_box.hako"
+  "lang/src/compiler/parser/scan/parser_number_scan_box.hako"
+  "lang/src/compiler/parser/rune/rune_contract_box.hako"
+  "lang/src/compiler/parser/stmt/parser_control_box.hako"
+  "lang/src/compiler/parser/stmt/parser_exception_box.hako"
+  "lang/src/compiler/parser/stmt/parser_stmt_box/core.hako"
   "tools/checks/k2_wide_stageb_field_type_annotation_alignment_guard.sh"
   "tools/checks/k2_wide_stageb_numeric_literal_suffix_alignment_guard.sh"
   "tools/smokes/v2/profiles/integration/selfhost/phase120_stable_paths.sh"

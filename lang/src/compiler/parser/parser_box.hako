@@ -171,10 +171,10 @@ box ParserBox {
   read_string_lit(src, i) {
     local q0 = src.substring(i, i + 1)
 
-    // Check for single quote (Stage-3 only)
+    // Check for single quote (syntax-3 only)
     if q0 == "'" {
       if me.stage3_enabled() == 1 {
-        // Single-quote string in Stage-3
+        // Single-quote string in syntax-3
         local pair = ParserStringScanBox.scan_with_quote(src, i, "'")
         local at = pair.lastIndexOf("@")
         local content = pair.substring(0, at)
@@ -723,7 +723,7 @@ box ParserBox {
       }
     }
 
-    // Shallow recursion guard for Stage‑B / selfhost callers:
+    // Shallow recursion guard for mode-B compatibility / selfhost callers:
     // prevent accidental self-recursion in ParserBox.parse_program2.
     {
       local depth = env.get("HAKO_STAGEB_PARSER_DEPTH")
@@ -788,7 +788,7 @@ box ParserBox {
 
     // Dev-only program-level progress guard (Phase 25.1c):
     // - Enabled when HAKO_PARSER_PROG_MAX > 0
-    // - Protects Stage‑B/selfhost callers from infinite top-level loops on malformed input
+    // - Protects mode-B compatibility/selfhost callers from infinite top-level loops on malformed input
     local guard_prog = 0
     local max_prog = 0
     {

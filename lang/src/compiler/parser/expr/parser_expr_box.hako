@@ -204,7 +204,7 @@ static box ParserExprBox {
       local k = ctx.gpos_get()
 
       // Support method chaining on string literals: "abc".indexOf("b")
-      // (Required by Stage-B fixtures and compiler parser utils.)
+      // (Required by mode-B compatibility fixtures and compiler parser utils.)
       local loop_guard = 0
       local max = 200000
       loop(loop_guard < max) {

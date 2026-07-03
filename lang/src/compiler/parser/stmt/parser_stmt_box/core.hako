@@ -16,7 +16,7 @@ static box ParserStmtCoreBox {
   // API: parse(src, i, ctx) -> JSON string
   parse(src, i, ctx) {
     // Shallow recursion guard: prevent ParserStmtBox.parse from recursively
-    // re-entering itself on the same VM stack（Stage-B/selfhost 安全弁）。
+    // re-entering itself on the same VM stack (mode-B compatibility/selfhost safety valve).
     {
       local depth = env.get("HAKO_STAGEB_STMT_DEPTH")
       if depth != null && ("" + depth) != "0" {
@@ -172,7 +172,7 @@ static box ParserStmtCoreBox {
 
     if ctx.starts_with_kw(src, j, "loop") == 1 {
       // Guard: require an actual loop header `loop (...)` (keyword boundary is not enough).
-      // This prevents false positives like `loop_depth_before = 0` inside Stage-B compiler code.
+      // This prevents false positives like `loop_depth_before = 0` inside mode-B compatibility compiler code.
       local k_loop = j + 4
       k_loop = ParserStringUtilsBox.skip_ws(src, k_loop)
       if k_loop >= src.length() || src.substring(k_loop, k_loop+1) != "(" {
@@ -250,7 +250,7 @@ static box ParserStmtCoreBox {
       return out_fini
     }
 
-    // Stage-3: try-less postfix handler path.
+    // syntax-3: try-less postfix handler path.
     // Route only `{ ... } catch/cleanup ...` here; plain `{ ... }` stays on expr fallback path.
     if ctx.stage3_enabled() == 1 {
       if j < src.length() && src.substring(j, j+1) == "{" {

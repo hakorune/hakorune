@@ -3,7 +3,7 @@
 Compatibility status:
 - Canonical native MirBuilder home is now `lang/src/mir/builder/`.
 - This directory is retained as a compat / migration surface while old
-  Program(JSON v0) entry paths, Stage-A bridge callers, and active smokes are
+  Program(JSON v0) entry paths, mode-A bridge callers, and active smokes are
   drained.
 - New authority behavior belongs under `lang/src/mir/builder/`, not here.
 - Allowed redirect direction: this directory may forward to `lang/src/mir/builder/`.
@@ -20,7 +20,7 @@ Pointers:
   - `docs/development/current/main/design/selfhost-mir-object-metadata-ssot.md`
 
 Responsibility (Phase-0):
-- Convert **Stage-B Program(JSON v0)** → **MIR JSON v0**.
+- Convert **mode-B compatibility Program(JSON v0)** → **MIR JSON v0**.
 - This layer is an **I/O + contract** boundary for starting the `.hako` MIR Builder migration.
 
 Non-goals (Phase-0):

@@ -310,6 +310,37 @@ git diff --check
 tools/checks/dev_gate.sh quick
 ```
 
+### STAGE-TERM-HHAKO-PARSER-BUILD-COMMENT-WORDING-001
+
+Status: landed HHako parser/build comment cut.
+
+Scope:
+
+- update HHako parser/build/MIR builder comments and local README wording from
+  `Stage-A` / `Stage-B` / `Stage-3` to `mode-A compatibility`,
+  `mode-B compatibility`, or `syntax-3`;
+- keep `stage3` fields/functions, trace strings, file names, Box names, and
+  route tokens unchanged;
+- do not touch PHI / LocalSSA / variable-map implementation internals.
+
+Contract:
+
+```text
+comments:
+  use layer-qualified wording
+
+compatibility surfaces:
+  stage3 implementation fields and route/file names remain unchanged
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
 ### HAKORUNE-ENV-ALIAS-INVENTORY-001
 
 Status: landed foundation.

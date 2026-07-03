@@ -1,4 +1,4 @@
-// BuildBundleFacadeBox - bundle-aware Stage-B adapter for BuildBox.
+// BuildBundleFacadeBox - bundle-aware mode-B compatibility adapter for BuildBox.
 // BuildBox stays source-only so Stage0 source execution does not import bundle
 // collection object flows.
 

@@ -1,4 +1,4 @@
-// RuneContractBox — pending Rune contract helpers for Stage-B parser routes.
+// RuneContractBox - pending Rune contract helpers for mode-B compatibility parser routes.
 // Responsibility:
 // - Keep pending rune JSON normalized.
 // - Detect duplicate rune names and conflicting visibility in pending sets.

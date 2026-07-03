@@ -569,6 +569,39 @@ feature_stage3_enabled renamed = 0
 runtime behavior changed = 0
 ```
 
+## Landed HHako Parser/Build Comment Wording Slice
+
+`STAGE-TERM-HHAKO-PARSER-BUILD-COMMENT-WORDING-001` changes HHako parser,
+build, and MIR builder documentation comments from unqualified stage terms to
+`mode-A compatibility`, `mode-B compatibility`, or `syntax-3` wording.
+
+Scope:
+
+```text
+lang/src/compiler/build/README.md:
+  live bundle entry comment says mode-B compatibility
+
+lang/src/compiler/build/build_bundle_facade_box.hako:
+  BuildBundleFacade comment says mode-B compatibility
+
+lang/src/compiler/mirbuilder/README.md:
+  bridge caller and Program(JSON v0) descriptions say mode-A/mode-B compatibility
+
+lang/src/compiler/parser/**:
+  parser comments say mode-B compatibility or syntax-3 where they previously
+  used Stage-B / Stage-3 wording
+```
+
+Non-claims:
+
+```text
+stage3 fields/functions renamed = 0
+trace strings renamed = 0
+parser behavior changed = 0
+PHI / LocalSSA / variable-map internals touched = 0
+runtime behavior changed = 0
+```
+
 ## Migration Eligibility
 
 An occurrence is eligible for a future rename only if all conditions hold:

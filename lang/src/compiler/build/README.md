@@ -30,7 +30,7 @@ Notes
 - `BuildBox` is the source-only source-to-Program(JSON v0) authority. It does
   not import bundle collector/resolver boxes, and it fail-fast rejects non-null
   opts or bundle env inputs instead of silently ignoring them.
-- Live Stage-B bundle entry uses `BuildBundleFacadeBox` as a thin bundle-aware
+- Live mode-B compatibility bundle entry uses `BuildBundleFacadeBox` as a thin bundle-aware
   adapter. The facade prepares merged scan source, then delegates to `BuildBox`
   for Program(JSON v0) emission.
 - `lang/src/compiler/entry/bundle_resolver.hako` is a legacy compat and JoinIR
