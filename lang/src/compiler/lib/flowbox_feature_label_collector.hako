@@ -1,0 +1,28 @@
+// flowbox_feature_label_collector.hako
+//
+// Responsibility:
+// - collect precomputed FlowBox feature flags into Rust oracle CSV order
+// - stay pure: scalar flag tokens in, scalar text out
+//
+// Non-responsibility:
+// - CanonicalLoopFacts analysis
+// - flowbox tag emission
+// - MIR mutation
+static box FlowboxFeatureLabelCollectorBox {
+  collect(has_return, has_break, has_continue, has_unwind, value_join, cleanup_flag, nested_loop) {
+    local out = ""
+    out = me._push(out, has_return, "return")
+    out = me._push(out, has_break, "break")
+    out = me._push(out, has_continue, "continue")
+    out = me._push(out, has_unwind, "unwind")
+    out = me._push(out, value_join, "value_join")
+    out = me._push(out, cleanup_flag, "cleanup")
+    return me._push(out, nested_loop, "nested_loop")
+  }
+
+  _push(current, enabled, label) {
+    if enabled != "1" { return current }
+    if current == "" { return label }
+    return current + "," + label
+  }
+}
