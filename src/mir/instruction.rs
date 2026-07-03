@@ -431,7 +431,7 @@ pub enum MirInstruction {
     /// Phase 287: Release strong references (for variable overwrite, scope exit)
     /// `release_strong %v1 %v2 ...`
     /// Effect: WRITE (modifies reference count, may trigger deallocation)
-    /// Releases all strong references to the specified values, including SSA aliases.
+    /// Releases the specified SSA values. Other live aliases must remain usable.
     ReleaseStrong { values: Vec<ValueId> },
 
     // === Control Flow & Exception Handling (Phase 5) ===

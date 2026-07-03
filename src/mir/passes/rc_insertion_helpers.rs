@@ -48,9 +48,9 @@ pub struct RcInsertionStats {
 /// Implements minimal case: overwrite release (x = <new> releases old value).
 ///
 /// **CRITICAL SAFETY NOTES**:
-/// 1. ReleaseStrong does SSA alias cleanup (releases all SSA values sharing same Arc)
-///    - MUST NOT release values still in use
-///    - Safety guard: Skip release if `old_value == value` (same Arc, no-op overwrite)
+/// 1. ReleaseStrong drops only the explicitly named SSA values.
+///    - MUST NOT name values still in use
+///    - Safety guard: Skip release if `old_value == value` (no-op overwrite)
 /// 2. Span mismatch: `instruction_spans` may not match `instructions` length
 ///    - Fill missing spans with `Span::unknown()` to prevent panic
 ///
