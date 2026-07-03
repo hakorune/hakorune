@@ -156,8 +156,8 @@ region_ref_slot_kind_classifier has a 10-row Rust-oracle fixture; next is hand-a
 region_ref_slot_kind_classifier has hand-authored .hako implementation; next is parity gate
 region_ref_slot_kind_classifier parity gate is green; next is HakoAdoption decision
 region_ref_slot_kind_classifier is HakoAdopted as the tenth parity pilot; next is pilot selection rerun 010
-current latest card is MIRBUILDER-USER-BOX-METHOD-PUBLICATION-STATE-FORMATTER-HAKO-ADOPTION-DECISION-001
-user_box_method_publication_state_formatter is HakoAdopted as the fifty-first parity pilot; next is pilot selection rerun 051
+current latest card is MIRBUILDER-COPY-EMIT-REASON-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001
+copy_emit_reason_label_formatter is HakoAdopted as the fifty-second parity pilot; next is pilot selection rerun 052
 ```
 
 ## Immediate Maintenance Slice

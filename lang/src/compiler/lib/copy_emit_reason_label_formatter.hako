@@ -1,0 +1,28 @@
+// copy_emit_reason_label_formatter.hako
+//
+// Responsibility:
+// - format production CopyEmitReason vocabulary into Rust oracle text
+// - stay pure: scalar token in, scalar text out
+//
+// Non-responsibility:
+// - Copy instruction emission
+// - dominance checks
+// - test-only reason vocabulary
+// - MIR mutation
+static box CopyEmitReasonLabelFormatterBox {
+  format_reason(token) {
+    if token == "JoinIrBridgeJoinirBlockConverterConditionalMethodCall" {
+      return "joinir_bridge/joinir_block_converter:conditional_method_call"
+    }
+    if token == "JoinIrMergeRewriterTailCallParamsContinuation" {
+      return "joinir_merge_rewriter/tail_call_params:continuation"
+    }
+    if token == "JoinIrMergeRewriterTailCallParamsTailCall" {
+      return "joinir_merge_rewriter/tail_call_params:tail_call"
+    }
+    if token == "JsonV0BridgeLoopformEmitCopy" {
+      return "json_v0_bridge/loopform/emit_copy"
+    }
+    return "unsupported_copy_emit_reason"
+  }
+}

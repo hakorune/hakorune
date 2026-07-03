@@ -1,0 +1,41 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderCopyEmitReasonLabelFormatterRustOracleV1",
+  "token": "MIRBUILDER-COPY-EMIT-REASON-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "copy_emit_reason_label_formatter",
+  "rust_source": {
+    "path": "src/mir/builder/emission/copy_emitter.rs",
+    "hash": "sha256:dae313ec8b53362548fd315df593050b8eb53baa92fe22a2d56abd222be2b11b",
+    "oracle_surface": "production CopyEmitReason as_str vocabulary"
+  },
+  "rows": [
+    {
+      "input": "JoinIrBridgeJoinirBlockConverterConditionalMethodCall",
+      "expected": "joinir_bridge/joinir_block_converter:conditional_method_call"
+    },
+    {
+      "input": "JoinIrMergeRewriterTailCallParamsContinuation",
+      "expected": "joinir_merge_rewriter/tail_call_params:continuation"
+    },
+    {
+      "input": "JoinIrMergeRewriterTailCallParamsTailCall",
+      "expected": "joinir_merge_rewriter/tail_call_params:tail_call"
+    },
+    {
+      "input": "JsonV0BridgeLoopformEmitCopy",
+      "expected": "json_v0_bridge/loopform/emit_copy"
+    }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "copy_emission_migration": 0,
+    "dominance_check_migration": 0,
+    "test_only_reason_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}
