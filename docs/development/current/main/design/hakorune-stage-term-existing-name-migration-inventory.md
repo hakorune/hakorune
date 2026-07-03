@@ -86,6 +86,34 @@ NYASH_NY_COMPILER_STAGE3 renamed = 0
 parser internal stage3 API renamed = 0
 ```
 
+## Landed mode-B Compatibility Wording Slice
+
+`STAGE-TERM-MODEB-COMPAT-ENV-WORDING-001` changes live env docs/comments to
+`mode-B compatibility` wording while keeping existing `STAGEB` environment
+names and route tokens as compatibility aliases.
+
+Scope:
+
+```text
+src/config/env/verification_flags.rs:
+  dev verify toggle comments say mode-B/selfhost compatibility
+
+src/runner/stage1_bridge/env/parser_stageb.rs:
+  bridge env section comments say mode-B compatibility
+
+docs/reference/environment-variables.md:
+  HAKO_STAGEB_* is documented as compatibility alias wording
+```
+
+Non-claims:
+
+```text
+NYASH_STAGEB_DEV_VERIFY renamed = 0
+HAKO_STAGEB_* renamed = 0
+Stage-B route token removed = 0
+runtime behavior changed = 0
+```
+
 ## Migration Eligibility
 
 An occurrence is eligible for a future rename only if all conditions hold:

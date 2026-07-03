@@ -27,8 +27,8 @@ pub fn verify_ret_purity() -> bool {
     env_bool("NYASH_VERIFY_RET_PURITY")
 }
 
-/// Stage-B/selfhost 専用の dev verify トグル（SSA などの厳格チェックを一時緩和するためのスイッチ）
-/// Default: ON（現行挙動）。NYASH_STAGEB_DEV_VERIFY=0 で Stage-B 経路の dev verify をスキップ。
+/// mode-B/selfhost compatibility dev verify toggle.
+/// Default: ON. NYASH_STAGEB_DEV_VERIFY=0 skips dev verify on mode-B compatibility routes.
 pub fn stageb_dev_verify_enabled() -> bool {
     fn env_flag(var: &str) -> Option<bool> {
         std::env::var(var).ok().map(|v| {

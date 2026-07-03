@@ -1,8 +1,8 @@
 /*!
- * Stage-1 bridge child env - parser and Stage-B toggles section.
+ * Stage-1 bridge child env - parser and mode-B compatibility toggles section.
  *
  * Keeps parser feature propagation separate from runtime defaults and Stage-1
- * alias promotion. Stage-B module payload apply stays owned by `modules.rs`.
+ * alias promotion. mode-B module payload apply stays owned by `modules.rs`.
  */
 
 use super::Stage1ChildEnvConfig;

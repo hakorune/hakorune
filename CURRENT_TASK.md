@@ -69,13 +69,16 @@ The first classified stage-term migration slice is landed:
 ```text
 STAGE-TERM-SYNTAX3-ALIAS-001
 STAGE-TERM-SYNTAX3-DIAGNOSTIC-WORDING-001
+STAGE-TERM-MODEB-COMPAT-ENV-WORDING-001
 ```
 
 `--syntax-3` is now the frontend syntax-level spelling; `--stage3` remains a
 compatibility alias. Live MIR builder hints now say `syntax-3` and `mode-B`
-compatibility routes. Next safe naming work, if explicitly selected, must pick
-a different classified layer from that inventory and keep compatibility aliases
-or replacement routes in the same slice.
+compatibility routes. Live env docs/comments now describe `STAGEB` names as
+mode-B compatibility aliases without renaming those compatibility surfaces.
+Next safe naming work, if explicitly selected, must pick a different
+classified layer from that inventory and keep compatibility aliases or
+replacement routes in the same slice.
 
 Acceptance:
 

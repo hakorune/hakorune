@@ -1886,6 +1886,39 @@ git diff --check
 tools/checks/dev_gate.sh quick
 ```
 
+### STAGE-TERM-MODEB-COMPAT-ENV-WORDING-001
+
+Status: landed env/comment wording cleanup.
+
+Purpose: use `mode-B compatibility` wording in live env docs/comments while
+keeping existing `STAGEB` environment names and route tokens as compatibility
+aliases.
+
+Affected files:
+
+```text
+src/config/env/verification_flags.rs
+src/runner/stage1_bridge/env/parser_stageb.rs
+docs/reference/environment-variables.md
+```
+
+Non-claims:
+
+```text
+NYASH_STAGEB_DEV_VERIFY renamed = 0
+HAKO_STAGEB_* renamed = 0
+Stage-B route token removed = 0
+runtime behavior changed = 0
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
 ### STAGE-TERM-EXISTING-NAME-MIGRATION-001
 
 Status: inventory-only; no implementation rename selected.

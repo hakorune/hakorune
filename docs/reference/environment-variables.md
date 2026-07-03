@@ -121,7 +121,7 @@ NYASH_LEAK_LOG=2 NYASH_LLVM_USE_HARNESS=1 ./target/release/hakorune --backend ll
 | `NYASH_STAGE1_BINARY_ONLY_RUN_DIRECT={0\|1}` | unset | Stage-1 | `--hako-run` の binary-only direct route を強制ON/OFF（unset は `NYASH_STAGE1_BINARY_ONLY_DIRECT` を継承し、最終的に OFF） |
 | `HAKO_SELFHOST_NO_DELEGATE={0\|1}` | unset | Stage-1 / selfhost | `env.mirbuilder.emit` の delegate route を禁止（`1` で fail-fast 固定） |
 | `HAKO_MIR_BUILDER_DELEGATE={0\|1}` | unset | Stage-1 / selfhost | MirBuilder delegate route の互換トグル（mainline child では `0` に固定） |
-| `HAKO_STAGE1_MODULES_LIST=...` | unset | Stage-1 / selfhost | Stage-1 using 解決用の `name=path` payload。`HAKO_STAGEB_MODULES_LIST` は Stage-B / .hako 読み手向け互換 alias。 |
+| `HAKO_STAGE1_MODULES_LIST=...` | unset | Stage-1 / selfhost | Stage-1 using 解決用の `name=path` payload。`HAKO_STAGEB_MODULES_LIST` は mode-B .hako reader compatibility alias。 |
 | `HAKO_STAGE1_MODULE_ROOTS_LIST=...` | unset | Stage-1 / selfhost | Stage-1 using prefix 解決用の `prefix=path` payload。`HAKO_STAGEB_MODULE_ROOTS_LIST` は互換 alias。 |
 | `HAKO_STAGE1_APPLY_USINGS={0\|1}` | `0` | Stage-1 / selfhost | Stage-1 child の using text-merge 適用制御。`HAKO_STAGEB_APPLY_USINGS` は互換 alias。 |
 | `STAGE1_*` alias | legacy | Stage-1 | `NYASH_STAGE1_*` の旧名。互換のため受理するが順次廃止予定 |
