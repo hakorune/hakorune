@@ -25,11 +25,10 @@ replace the task-order SSOT.
    Compiler meaning and edit authority move from Rust to native .hako.
 ```
 
-Current work is still in the Artifact selfhost lane, but the narrow
-prepared-state allocation-policy family is already adopted and the minimal-path
-pilot is green. The remaining work is now the family-by-family move from
-artifact selfhost to mainline selfhost and then source selfhost, not another
-generic support-lane parity pass.
+Current work has pivoted away from full Rust-to-Hako MirBuilder conversion as
+the Source Selfhost main route. Rust is now the bootstrap oracle and parity
+reference. The remaining work is small, hand-authored `.hako` native owners
+whose correctness is checked against Rust-oracle parity fixtures.
 
 ## Current Transition
 
@@ -83,8 +82,28 @@ work is family adoption and library/consultation gating.
 
 ## Current Remaining Work
 
-The remaining selfhost work is now a bounded inventory, not a new semantic
-owner.
+The remaining selfhost work is now a bounded oracle/parity migration, not a
+new generic converter route.
+
+```text
+current_migration_mode:
+  RustOracleParityMigrationPolicyV1
+
+manual_target_selection_allowed:
+  yes, for small `.hako` native owner pilots
+
+correctness_authority:
+  Rust oracle fixture + parity gate
+
+converter_role:
+  read-only inventory / test-vector / parity-fixture / library-subset draft helper
+
+forbidden_current_claims:
+  Source Selfhost claim
+  Hako adoption before parity
+  native seed materialization from converter
+  generated artifact as native edit authority
+```
 
 ## Current Family Status
 
@@ -174,10 +193,9 @@ not from a handwritten `none` row or route-manifest membership alone.
    No new Python semantic projector growth unless an exception card is
    opened.
 
-2. Continue family-by-family HakoAdopted decisions for mature narrow
-   derived families.
-   Native .hako source is the goal for selected semantic families; the
-   converter bridge is not the destination.
+2. Continue family-by-family native `.hako` pilots for small owners.
+   Target selection may be human/AI chosen, but correctness must be proven by
+   Rust-oracle parity before any Hako adoption decision.
 
 3. Add compiler-library support first when Hako ergonomics block progress.
    TextBuilder, CanonicalJson, projector helpers, and other small helper

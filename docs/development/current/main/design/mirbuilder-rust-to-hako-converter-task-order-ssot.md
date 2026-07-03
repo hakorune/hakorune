@@ -24,8 +24,10 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001.
-  2085 selects wider route-selection basis 009 after source exhaustion.
+  SOURCE-SELFHOST-RUST-TO-HAKO-CONVERTER-ROLE-PIVOT-001.
+  The full Rust-to-Hako MirBuilder converter is no longer the Source
+  Selfhost main route. Rust is the bootstrap oracle / parity reference;
+  small hand-authored `.hako` native owners are the next migration path.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -61,70 +63,32 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next task:
-  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-009
+  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-001
 
 current fail-fast boundary:
-  Carrier/type remaining lane has no accepted component evidence source.
+  Do not re-enter full converter route selection without new non-self-signed
+  authority or stable input delta. Next progress must select a small
+  hand-authored `.hako` owner and prove it with Rust-oracle parity.
 
 latest design decision:
-  Pointer realignment, VariableContext closeout, the blocked candidate
-  selection, the artifact-selfhost checkpoint, and the minimal-path mainline
-  pilot are closed as provenance. The ReturnEmission, FunctionRegionStackPop,
-  and SlotRegistryRelease promotion decisions are closed as provenance. The
-  VariableContext native surface that excludes returned borrow routes is
-  adopted. The returned read borrow repair lane now has an owned read snapshot
-  projection, the route matrix rerun derives a bounded owned-read snapshot
-  native surface candidate, that surface is adopted, and the queue stops at
-  returned mutable borrow policy consultation. ExplicitMutationApiOnly is now
-  selected as the replacement policy, and the explicit mutation API
-  projection materializes replace_owned_map as the bounded owned-map
-  replacement hook before route-matrix rerun 002 derives the repaired
-  explicit-mutation surface, which is then adopted as native Hako authority.
-  VariableContext reference projection is now fixed as a semantic one-to-one
-  verified projection contract: `variable_map()` remains an owned read
-  snapshot projection, `variable_map_mut()` remains explicit mutation APIs, and
-  Rust lifetime syntax / raw borrow alias transport are not target authority.
-  The adopted explicit-mutation surface is now resolved as ready for bounded
-  native consumers, while full VariableContext and Source Selfhost remain
-  closed. `entries_snapshot` is not required for the current bounded
-  consumers, so the next machine-derived step is NextRouteFamilySelectionPolicy,
-  not a new projection lane. That policy now classifies the current rows and
-  keeps Source Selfhost stopped because no eligible native adoption candidate
-  remains after excluding already adopted, bounded-only, support-lane, and
-  consultation-gated rows. That policy's recovery line now lands on the wider
-  route-selection design stop, which keeps the lane stopped until consultation-
-  gated widening or machine-derived route repair resumes it. Reason token:
-  `NoEligibleNativeAdoptionCandidate`. Runner roles are now separated from
-  semantic ownership: EXE/AOT is a validation gate, current `vm-hako` is an
-  internal witness/debug/bootstrap-proof lane, and a future interpreter is not
-  required for Python-to-Hako projector migration. The next task pack freezes
-  the consultation-gated wider route-selection resolution rather than opening
-  route repair or family adoption. The next selected task is a maintenance
-  phase: realign stale guard vocabulary, decouple historical row guards from
-  live CURRENT_STATE pointer churn, and prepare reusable Source Selfhost family
-  guards before native-slice decomposition. The stale readiness guard
-  vocabulary is now represented as structured evidence fields rather than a
-  prose task-order needle. Historical 1801/1802 row guards no longer pin a
-  live `CURRENT_STATE.latest_card` allowlist; `current_state_pointer_guard`
-  owns live pointer validation. Source Selfhost row boilerplate now has a
-  reusable family manifest guard for card / fixture / non-claim existence.
-  `CURRENT_STATE.toml` is now compact pointer state, not a landed-history
-  ledger. This task-order is also compact pointer state; detailed landed rows
-  live in phase cards, git history, and the Source Selfhost family manifest.
-  The check-scripts index now treats Source Selfhost row-specific guards as
-  legacy traceability and keeps the family guard as the stable public entry.
-  The post-maintenance queue is now fixed: next semantic work is native-slice
-  decomposition, and Source Selfhost remains stopped at the wider route
-  selection design stop. The native-slice decomposition result is now fixed:
-  `candidate_eligible_count = 0`, `repairable_inconsistency_count = 0`, and
-  selected next card remains `SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001`.
-  Native owner seed inventory now confirms that the composed closure is not a
-  semantic family owner, the generated artifact is not edit authority, and no
-  leaf native owner seed is machine-derived. The GeneratedArtifactOnly to
-  NativeOwnerSeedCandidate policy now defines the missing promotion conditions
-  without selecting a family or opening Source Selfhost. The native source seed
-  pilot target selection now narrows progress to ReturnEmission, treating
-  support-lane projectors as seed pilot targets but not HakoAdopted candidates.
+  The Source Selfhost route-selection closeout is now followed by a converter
+  role pivot. Full Rust-to-Hako MirBuilder auto-conversion is stopped as the
+  Source Selfhost main path. Rust remains the bootstrap oracle and parity
+  reference. The converter remains only as read-only inventory, source surface
+  extraction, test-vector extraction, parity fixture generation, and
+  library-subset draft helper. New Source Selfhost progress must be a small
+  hand-authored `.hako` native owner with machine-checked parity against Rust.
+  Manual target selection is allowed in this migration path; correctness
+  claims are not. Source Selfhost claim, Hako adoption, native seed
+  materialization, generated artifact edit authority, runtime fallback,
+  backend route, and ABI promotion all remain zero until explicit parity and
+  adoption cards say otherwise. The selected next card is
+  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-001`.
+
+historical route-selection decision:
+  Detailed landed route-selection rows are closed as provenance and live in
+  phase cards, fixture guards, and git history. This task-order stays a compact
+  pointer to the active pivot and next 3 tasks.
 
 ## Converter Completion Task Inventory
 

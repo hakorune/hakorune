@@ -25,11 +25,12 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-CLOSEOUT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2097-SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-CLOSEOUT-001.md"
-latest_card_summary = """The latest card closes out the current Source
-Selfhost wider route-selection design stop, parks all current machine-derived
-route lanes, and keeps Source Selfhost unclaimed."""
+latest_card = "SOURCE-SELFHOST-RUST-TO-HAKO-CONVERTER-ROLE-PIVOT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2098-SOURCE-SELFHOST-RUST-TO-HAKO-CONVERTER-ROLE-PIVOT-001.md"
+latest_card_summary = """The latest card demotes the full Rust-to-Hako
+MirBuilder converter from the Source Selfhost main route, keeps Rust as the
+bootstrap oracle and parity reference, and selects a small hand-authored
+.hako-native owner parity pilot as the next route."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -40,6 +41,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-03: 2098 pivots the converter from Source Selfhost main route to Rust-oracle parity helper and selects the Hako-native owner parity pilot.",
   "2026-07-03: 2097 closes out the current Source Selfhost wider route-selection design stop with no machine-derived progress lane.",
   "2026-07-03: 2096 defines the Source Selfhost local candidate selection policy to use worker inventory before external consultation.",
   "2026-07-03: 2095 parks the MissingProjectionPolicy post-TypeTransport lane and keeps Source Selfhost stopped with no machine-derived wider lane.",
@@ -51,5 +53,4 @@ landed_tail = [
   "2026-07-03: 2089 defines parent policy lane evidence-source discovery authority for all four parent policy lanes without selecting a candidate.",
   "2026-07-03: 2088 reruns carrier/type parent policy lane priority and keeps Source Selfhost stopped because no current machine-derived parent policy candidate is available.",
   "2026-07-03: 2087 defines the carrier/type parent policy lane selector basis and selects priority rerun 001 without direct parent policy selection.",
-  "2026-07-03: 2086 parks the carrier/type remaining-axis lane and selects carrier/type parent policy lane priority basis without direct parent policy selection.",
 ]

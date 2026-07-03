@@ -39,6 +39,27 @@ owner.
 Current implementation details, acceptance, parked items, and non-claims live in
 the active card and task-order SSOT. Do not duplicate them here.
 
+## Active Pivot Slice
+
+Status: active.
+
+Current route:
+
+```text
+SOURCE-SELFHOST-RUST-TO-HAKO-CONVERTER-ROLE-PIVOT-001
+  -> MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-001
+```
+
+Rule:
+
+```text
+full Rust-to-Hako MirBuilder converter is no longer the Source Selfhost main path
+Rust remains bootstrap oracle / parity reference
+small hand-authored .hako native owner pilots are selected manually
+correctness must be proven by Rust-oracle parity fixtures
+Source Selfhost claim remains 0
+```
+
 ## Immediate Maintenance Slice
 
 Status: closed for the Hakorune naming cleanup guard follow-up.
