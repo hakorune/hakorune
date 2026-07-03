@@ -74,7 +74,7 @@ if [ ! -f "$SOURCE_FILE" ]; then
 fi
 
 if [ ! -x "$NYASH_BIN" ]; then
-  echo "[selfhost/route] nyash binary not found/executable: $NYASH_BIN" >&2
+  echo "[selfhost/route] Hakorune binary not found/executable: $NYASH_BIN (set NYASH_BIN for compatibility override)" >&2
   exit 2
 fi
 

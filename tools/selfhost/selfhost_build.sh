@@ -34,7 +34,7 @@ BIN="${NYASH_BIN:-}"
 if [ -z "${BIN}" ]; then
   if [ -x "$ROOT/target/release/hakorune" ]; then BIN="$ROOT/target/release/hakorune";
   elif [ -x "$ROOT/target/release/nyash" ]; then BIN="$ROOT/target/release/nyash";
-  else echo "[selfhost] error: NYASH_BIN not set and no binary found under target/release" >&2; exit 2; fi
+  else echo "[selfhost] error: NYASH_BIN not set and no Hakorune binary found under target/release" >&2; exit 2; fi
 fi
 SMOKE_ENV_SKIP_EXPORTS=1
 if [ -f "$ROOT/tools/smokes/v2/lib/env.sh" ]; then

@@ -704,6 +704,37 @@ git diff --check
 tools/checks/dev_gate.sh quick
 ```
 
+### HAKORUNE-SELFHOST-ROUTE-BINARY-DIAGNOSTICS-001
+
+Status: active in this slice.
+
+Scope:
+
+- keep selfhost route/build executable resolution behavior unchanged;
+- keep `$NYASH_BIN` as the historical compatibility override name;
+- make missing-binary diagnostics name Hakorune as the current executable;
+- add naming guard coverage so selfhost route/build diagnostics do not regress
+  to legacy-only `nyash` wording.
+
+Affected scripts:
+
+```text
+tools/selfhost/proof/run_stageb_compiler_vm.sh
+tools/selfhost/lib/selfhost_run_routes.sh
+tools/selfhost/selfhost_build.sh
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+bash -n tools/selfhost/proof/run_stageb_compiler_vm.sh
+bash -n tools/selfhost/lib/selfhost_run_routes.sh
+bash -n tools/selfhost/selfhost_build.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
 ### HAKORUNE-PARSER-BRIDGE-SMOKE-BINARY-RESOLUTION-001
 
 Status: active in this slice.

@@ -54,7 +54,7 @@ run_runtime_temp_mir_handoff() {
   # Shared helper body for the runtime temp-MIR handoff.
   # B1 introduced the body; B2 makes the exe route call it by default.
   if [ ! -x "$NYASH_BIN" ]; then
-    echo "[selfhost/run] nyash binary not found/executable: $NYASH_BIN" >&2
+    echo "[selfhost/run] Hakorune binary not found/executable: $NYASH_BIN (set NYASH_BIN for compatibility override)" >&2
     exit 2
   fi
 
@@ -189,7 +189,7 @@ run_gate() {
 
 run_runtime() {
   if [ ! -x "$NYASH_BIN" ]; then
-    echo "[selfhost/run] nyash binary not found/executable: $NYASH_BIN" >&2
+    echo "[selfhost/run] Hakorune binary not found/executable: $NYASH_BIN (set NYASH_BIN for compatibility override)" >&2
     exit 2
   fi
 
