@@ -814,6 +814,32 @@ JoinIR lowering behavior changed = 0
 PHI / LocalSSA / variable-map internals touched = 0
 ```
 
+## Landed Lang README Phase Wording Slice
+
+`STAGE-TERM-LANG-README-PHASE-WORDING-001` changes current `lang/README.md`
+distribution/launcher wording from unqualified Stage1/Stage2 phrasing to
+phase-1 / K2+ wording.
+
+Scope:
+
+```text
+lang/README.md:
+  dev line says phase-1 core compatibility
+  stable snapshot says phase-1 bridge/proof reading
+  distribution line says K2+ instead of Stage2+
+  legacy stage0/stage1 Program(JSON v0) boundary terms remain explicit legacy
+  compatibility vocabulary
+```
+
+Non-claims:
+
+```text
+tools/selfhost/mainline/build_stage1.sh renamed = 0
+target/selfhost/hakorune path renamed = 0
+lang/bin/hakorune behavior changed = 0
+legacy stage0/stage1 boundary vocabulary deleted = 0
+```
+
 ## Migration Eligibility
 
 An occurrence is eligible for a future rename only if all conditions hold:

@@ -93,6 +93,7 @@ STAGE-TERM-APP-SMOKE-PHASE-COMMENT-WORDING-001
 STAGE-TERM-STAGE0-CAPTURE-COMMENT-WORDING-001
 STAGE-TERM-PIPELINE-V2-COMMENT-WORDING-001
 STAGE-TERM-JOINIR-LOWERING-COMMENT-WORDING-001
+STAGE-TERM-LANG-README-PHASE-WORDING-001
 ```
 
 `--syntax-3` is now the frontend syntax-level spelling; `--stage3` remains a
@@ -153,8 +154,11 @@ phase-2 / phase-3, syntax-3, or mode-B compatibility wording while keeping
 `Stage1*` Box names, `stage1_*` file/module names, and `lower_stage1_*` APIs
 unchanged. JoinIR lowering comments now use lower-resolver, phase-1
 compatibility, or mode-B compatibility wording while keeping `stage1_*`,
-`stageb_*`, `Stage1*`, and `StageB*` compatibility identifiers unchanged. Next
-safe naming work, if explicitly selected, must pick a
+`stageb_*`, `Stage1*`, and `StageB*` compatibility identifiers unchanged.
+`lang/README.md` now uses phase-1 / K2+ distribution wording while keeping
+`build_stage1.sh`, `target/selfhost/hakorune`, and legacy `stage0`/`stage1`
+boundary references explicit compatibility vocabulary. Next safe naming work,
+if explicitly selected, must pick a
 different classified layer from that inventory and keep compatibility aliases
 or replacement routes in the same slice.
 

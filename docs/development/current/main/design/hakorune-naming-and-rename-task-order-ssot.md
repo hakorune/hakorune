@@ -2705,6 +2705,27 @@ JoinIR lowering behavior changed = 0
 PHI / LocalSSA / variable-map internals touched = 0
 ```
 
+#### STAGE-TERM-LANG-README-PHASE-WORDING-001
+
+Status: landed.
+
+Scope:
+
+```text
+lang/README.md:
+  clarify current user-facing stage vocabulary as phase-1 / K2+ distribution
+  wording
+```
+
+Non-claims:
+
+```text
+build_stage1.sh renamed = 0
+target/selfhost/hakorune path renamed = 0
+legacy stage0/stage1 boundary vocabulary removed = 0
+distribution artifact behavior changed = 0
+```
+
 ## Guard Policy
 
 `tools/checks/naming_charter_guard.sh` is a lightweight reusable guard. It does

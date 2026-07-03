@@ -18,6 +18,7 @@ HACO_WRAPPER="$ROOT_DIR/tools/bin/hako"
 MAIN_RS="$ROOT_DIR/src/main.rs"
 HAKORUNE_BIN_RS="$ROOT_DIR/src/bin/hakorune.rs"
 HAKORUNE_COMPAT_BIN_RS="$ROOT_DIR/src/bin/hakorune_compat.rs"
+LANG_README="$ROOT_DIR/lang/README.md"
 BUILD_SHARED_RS="$ROOT_DIR/src/runner/build_shared.rs"
 BUILD_PRODUCT_RS="$ROOT_DIR/src/runner/build_product.rs"
 BUILD_ENGINEERING_RS="$ROOT_DIR/src/runner/build_engineering.rs"
@@ -212,6 +213,7 @@ REQUIRED_FILES=(
   "$MAIN_RS"
   "$HAKORUNE_BIN_RS"
   "$HAKORUNE_COMPAT_BIN_RS"
+  "$LANG_README"
   "$BUILD_SHARED_RS"
   "$BUILD_PRODUCT_RS"
   "$BUILD_ENGINEERING_RS"
@@ -439,6 +441,7 @@ SSOT_REQUIRED_TOKENS=(
   "STAGE-TERM-STAGE0-CAPTURE-COMMENT-WORDING-001"
   "STAGE-TERM-PIPELINE-V2-COMMENT-WORDING-001"
   "STAGE-TERM-JOINIR-LOWERING-COMMENT-WORDING-001"
+  "STAGE-TERM-LANG-README-PHASE-WORDING-001"
 )
 guard_require_unique_values "SSOT required token" "${SSOT_REQUIRED_TOKENS[@]}"
 for ssot_token in "${SSOT_REQUIRED_TOKENS[@]}"; do
@@ -466,6 +469,14 @@ if [[ ! -x "$HACO_WRAPPER" ]]; then
 fi
 require_fixed 'include!("../main.rs");' "$HAKORUNE_BIN_RS"
 require_fixed 'include!("../main.rs");' "$HAKORUNE_COMPAT_BIN_RS"
+require_fixed "phase-1 core compatibility" "$LANG_README"
+require_fixed "future owner-policy boxes" "$LANG_README"
+require_fixed "phase-1 bridge/proof reading" "$LANG_README"
+require_fixed 'legacy `stage0` is the Rust authority side' "$LANG_README"
+require_fixed '`phase-1` / `K2+`' "$LANG_README"
+if rg -n 'Stage1 core|Stage1 selfhost|Stage1 コア|stage1 bridge|Stage2\+ line|stage2 owner-policy boxes|単一の stage artifact|stage/selfhost' "$LANG_README"; then
+  guard_fail "$TAG" "lang README must use phase-1 / K2+ wording for current user-facing stage terms"
+fi
 require_fixed "HAKO_ALLOW_NYASH" "$MAIN_RS"
 require_fixed "NYASH_ALLOW_NYASH" "$MAIN_RS"
 require_fixed "'nyash' binary is deprecated. Please use 'hakorune'." "$MAIN_RS"
@@ -1023,6 +1034,7 @@ NAMING_DIFF_ALLOWED_PATHS=(
   "docs/development/current/main/design/hakorune-stage-term-existing-name-migration-inventory.md"
   "docs/reference/language/EBNF.md"
   "docs/reference/language/statements.md"
+  "lang/README.md"
   "docs/reference/environment-variables.md"
   "src/config/env/parser_flags.rs"
   "src/config/env/selfhost_flags.rs"

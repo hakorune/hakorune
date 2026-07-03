@@ -21,7 +21,7 @@ Layout (initial)
 - `src/runtime/kernel/` — logical `hako_kernel` runtime semantic owner lane
 - `src/runtime/substrate/` — logical `hako_substrate` runtime algorithm substrate lane
 - `src/runtime/host/` — host-call routing facade only
-- `src/runtime/meta/` — compiler semantic tables and stage2 owner-policy boxes
+- `src/runtime/meta/` — compiler semantic tables and future owner-policy boxes
   - runtime/kernel owns runtime behavior; runtime/meta owns compiler semantic tables
 - `src/compat/` — compat/proof and legacy bridge surfaces
 - `src/hako_alloc/` — `.hako` alloc-layer (policy plane) helpers (e.g. `ArcBox`, `RefCellBox`)
@@ -45,11 +45,11 @@ Non‑Goals
 
 ## Selfhost Launcher (AOT)
 
-### Dev line (Stage1 core – experimental)
+### Dev line (phase-1 core compatibility – experimental)
 
 - Dev build: `tools/selfhost/mainline/build_stage1.sh` → produces `target/selfhost/hakorune`
 - Role:
-  - Fast iteration用の Stage1 selfhost バイナリ（Ny Executor / CLI 実験など）。
+  - Fast iteration用の phase-1 selfhost バイナリ（Ny Executor / CLI 実験など）。
   - bridge/proof line only; not daily distribution truth.
   - new CLI/runner 機能はまずこちらで開発・検証する。
 
@@ -61,16 +61,16 @@ Non‑Goals
   - Requirements: LLVM 18 dev (`llvm-config-18`)
 - Policy（Phase 25.1 以降の想定）:
   - `target/selfhost/hakorune` で十分に安定したら、その成果物を `lang/bin/hakorune` に昇格させる（手動コピー or 専用スクリプト）。
-  - `lang/bin/hakorune` は「last known good」の Stage1 コア EXE として扱い、配布や外部からの参照時は原則こちらを基準にする。
-  - ただしこれは stage1 bridge/proof reading であり、final distribution truth ではない。
+  - `lang/bin/hakorune` は「last known good」の phase-1 コア EXE として扱い、配布や外部からの参照時は原則こちらを基準にする。
+  - ただしこれは phase-1 bridge/proof reading であり、final distribution truth ではない。
 
 Notes
-- `lang/` 以下は「最終的に 1 つの Stage1 コア EXE（hakorune）を構成するソース群」という前提で整理する。
+- `lang/` 以下は「最終的に 1 つの phase-1 コア EXE（hakorune）を構成するソース群」という前提で整理する。
 - Daily selfhost vocabulary is owned by
   `docs/development/current/main/design/selfhost-program-json-boundary-vocabulary-ssot.md`.
   Read the current compiler vocabulary boundary as `Program(JSON v0)`:
-  `stage0` is the Rust authority side and `stage1` is the `.hako` side crossing
-  that boundary one shape at a time. This is not a claim that Program(JSON v0)
+  legacy `stage0` is the Rust authority side and legacy `stage1` is the `.hako`
+  side crossing that boundary one shape at a time. This is not a claim that Program(JSON v0)
   is the preferred day-to-day runner route; MIR-first routes remain owned by
   the selfhost route-map docs.
 - `hako_core / hako_alloc / hako_std` are logical library layers; the physical roots today are `lang/src/runtime/kernel/`, `lang/src/runtime/substrate/`, and `lang/src/hako_alloc/`.
@@ -78,9 +78,9 @@ Notes
 - `hako_kernel` / `hako_substrate` are logical owner nouns; do not read them as same-named physical directories.
 - `hako_std` is reserved as a logical future layer until a physical `lang/src/hako_std/` root is intentionally materialized.
 - `target/selfhost/hakorune` は開発中の最新版、`lang/bin/hakorune` は安定版スナップショットという役割分担にする。
-- stage/artifact/lane の親SSOTは `docs/development/current/main/design/execution-lanes-and-axis-separation-ssot.md`。
+- artifact/lane の親SSOTは `docs/development/current/main/design/execution-lanes-and-axis-separation-ssot.md`。
 - artifact-role detail と future interpreter reservation は `docs/development/current/main/design/artifact-policy-ssot.md` を正本にする。
-- `Stage1` / `Stage2+` は artifact / proof / mainline の stage 軸であって、kernel owner/substrate 軸とは別だよ。
+- `phase-1` / `K2+` は artifact / proof / mainline の distribution 軸であって、kernel owner/substrate 軸とは別だよ。
 - The following K-axis terms are roadmap / historical distribution vocabulary,
   not the daily bug-owner selection model:
   - `K0 = all-Rust hakorune`
@@ -89,9 +89,9 @@ Notes
   - `K2-core` / `K2-wide` are task packs inside `K2`
 - owner/substrate の current truth は `docs/development/current/main/design/de-rust-stage-and-owner-axis-ssot.md` と `docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md` を正本にする。
 - kernel implementation phase plan SSOT is `docs/development/current/main/design/kernel-implementation-phase-plan-ssot.md`.
-- final distribution target は Stage2+ line であり、`lang/bin/hakorune` そのものを final 配布物の意味で読むのはやめる。
-- default distribution shape は `hakoruneup + self-contained release bundle` であり、単一の stage artifact をそのまま配布正本とは読まない。
-- stage/selfhost と `hako_core/alloc/std` の end-state は `docs/development/current/main/design/stage2-selfhost-and-hako-alloc-ssot.md` を正本にする。
+- final distribution target は K2+ line であり、`lang/bin/hakorune` そのものを final 配布物の意味で読むのはやめる。
+- default distribution shape は `hakoruneup + self-contained release bundle` であり、単一の phase artifact をそのまま配布正本とは読まない。
+- selfhost と `hako_core/alloc/std` の end-state は `docs/development/current/main/design/stage2-selfhost-and-hako-alloc-ssot.md` を正本にする。
 - current artifact reality:
   - `target/release/hakorune`
   - `target/selfhost/hakorune`
@@ -104,7 +104,7 @@ Notes
   - `dist/k2/<channel>/<triple>/bundle/`
 - roadmap reading only: read `K0/K1` primarily as binaries and `K2`
   primarily as a bundle.
-- roadmap reading only: stage1 may complete domain phases and still remain
-  bridge/proof; stage2+ is an end-state/mainline distribution reading, not the
+- roadmap reading only: phase-1 may complete domain phases and still remain
+  bridge/proof; K2+ is an end-state/mainline distribution reading, not the
   daily bug-owner vocabulary.
 - `.hako` complete は authority completion を意味し、kernel substrate や native keep の wholesale removal は意味しない。
