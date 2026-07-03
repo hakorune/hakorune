@@ -146,6 +146,8 @@ REFERENCE_LANGUAGE_README="$ROOT_DIR/docs/reference/language/README.md"
 REFERENCE_QUICK="$ROOT_DIR/docs/reference/language/quick-reference.md"
 REFERENCE_CORE_LANGUAGE_README="$ROOT_DIR/docs/reference/core-language/README.md"
 REFERENCE_PHI_SSA="$ROOT_DIR/docs/reference/architecture/phi-and-ssa.md"
+REFERENCE_INVARIANTS="$ROOT_DIR/docs/reference/invariants.md"
+REFERENCE_CONSTRAINTS="$ROOT_DIR/docs/reference/constraints.md"
 STAGE1_BRIDGE_ENV_PARSER_STAGEB_RS="$ROOT_DIR/src/runner/stage1_bridge/env/parser_stageb.rs"
 RUST_STAGE1_README="$ROOT_DIR/src/stage1/README.md"
 RUST_STAGE1_MOD_RS="$ROOT_DIR/src/stage1/mod.rs"
@@ -404,6 +406,8 @@ REQUIRED_FILES=(
   "$ENV_PATHS_RS"
   "$VERIFICATION_FLAGS_RS"
   "$ENV_DOC"
+  "$REFERENCE_INVARIANTS"
+  "$REFERENCE_CONSTRAINTS"
   "$STAGE1_BRIDGE_ENV_PARSER_STAGEB_RS"
   "$RUST_STAGE1_README"
   "$RUST_STAGE1_MOD_RS"
@@ -499,6 +503,7 @@ SSOT_REQUIRED_TOKENS=(
   "HAKORUNE-REFERENCE-DOCS-CANONICALIZATION-DECISION-001"
   "HAKORUNE-REFERENCE-DOCS-FIRST-CUT-001"
   "HAKORUNE-REFERENCE-DOCS-ENTRY-INDEX-WORDING-001"
+  "HAKORUNE-REFERENCE-DOCS-INVARIANTS-CONSTRAINTS-WORDING-001"
   "STAGE-TERM-EXISTING-NAME-INVENTORY-001"
   "STAGE-TERM-SYNTAX3-ALIAS-001"
   "STAGE-TERM-SYNTAX3-DIAGNOSTIC-WORDING-001"
@@ -595,6 +600,14 @@ if rg -n -F \
   -e 'Practical Stage0 / Stage1 support status' \
   "$REFERENCE_README" "$REFERENCE_LANGUAGE_README" "$REFERENCE_EBNF"; then
   guard_fail "$TAG" "reference index docs must use Hakorune-first / bootstrap / phase-1 wording"
+fi
+require_fixed "# Hakorune Invariants (Spec)" "$REFERENCE_INVARIANTS"
+require_fixed "# Hakorune Constraints & Temporary Limitations" "$REFERENCE_CONSTRAINTS"
+if rg -n -F \
+  -e "# Nyash Invariants (Spec)" \
+  -e "# Nyash Constraints & Temporary Limitations" \
+  "$REFERENCE_INVARIANTS" "$REFERENCE_CONSTRAINTS"; then
+  guard_fail "$TAG" "reference invariants/constraints titles must be Hakorune-first"
 fi
 require_fixed 'default-run = "hakorune"' "$CARGO_TOML"
 require_fixed 'name = "hakorune"' "$CARGO_TOML"

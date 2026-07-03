@@ -1170,6 +1170,27 @@ nyash.toml compatibility name removed = 0
 runtime behavior changed = 0
 ```
 
+## Landed Reference Docs Invariants / Constraints Wording Slice
+
+`HAKORUNE-REFERENCE-DOCS-INVARIANTS-CONSTRAINTS-WORDING-001` updates the
+current reference spec titles for invariants and known constraints.
+
+Scope:
+
+```text
+docs/reference/invariants.md
+docs/reference/constraints.md
+```
+
+Non-claims:
+
+```text
+NYASH_* env names renamed = 0
+internal compatibility identifiers renamed = 0
+constraints entries broadly rewritten = 0
+runtime behavior changed = 0
+```
+
 ## Migration Eligibility
 
 An occurrence is eligible for a future rename only if all conditions hold:

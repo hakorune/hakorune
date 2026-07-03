@@ -1,4 +1,4 @@
-# Nyash Constraints & Temporary Limitations
+# Hakorune Constraints & Temporary Limitations
 
 This is a living index of known constraints. Each entry includes status and references to tests and code. Update this file when a constraint is added or lifted.
 

@@ -1,4 +1,4 @@
-# Nyash Invariants (Spec)
+# Hakorune Invariants (Spec)
 
 This document lists non‑negotiable invariants the implementation preserves across backends. They’re used as a contract for testing and design.
 

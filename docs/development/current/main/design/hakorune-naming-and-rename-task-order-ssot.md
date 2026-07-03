@@ -756,6 +756,29 @@ nyash.toml compatibility name removed = 0
 runtime behavior changed = 0
 ```
 
+### HAKORUNE-REFERENCE-DOCS-INVARIANTS-CONSTRAINTS-WORDING-001
+
+Status: landed.
+
+Scope:
+
+```text
+docs/reference/invariants.md:
+  title is Hakorune-first
+
+docs/reference/constraints.md:
+  title is Hakorune-first
+```
+
+Non-claims:
+
+```text
+NYASH_* env names renamed = 0
+internal compatibility identifiers renamed = 0
+constraints entries broadly rewritten = 0
+runtime behavior changed = 0
+```
+
 ### HAKORUNE-BINARY-PRIMARY-CUTOVER-INVENTORY-001
 
 Status: landed inventory cut.

@@ -107,6 +107,7 @@ HAKORUNE-README-MODEB-LINE-QUICKGUIDE-WORDING-001
 HAKORUNE-REFERENCE-DOCS-CANONICALIZATION-DECISION-001
 HAKORUNE-REFERENCE-DOCS-FIRST-CUT-001
 HAKORUNE-REFERENCE-DOCS-ENTRY-INDEX-WORDING-001
+HAKORUNE-REFERENCE-DOCS-INVARIANTS-CONSTRAINTS-WORDING-001
 ```
 
 `--syntax-3` is now the frontend syntax-level spelling; `--stage3` remains a
@@ -208,6 +209,9 @@ compatibility names.
 Reference docs entry/index wording now also covers docs/reference/README,
 language/README, and EBNF titles/support-profile pointers while preserving
 stage-profiles.md as the compatibility support manual path.
+Reference invariants and constraints spec titles now also use Hakorune-first
+wording while preserving `NYASH_*` compatibility env names and internal
+compatibility identifiers in the entries.
 Next safe naming work, if explicitly selected, must pick a
 different classified layer from that inventory and keep compatibility aliases
 or replacement routes in the same slice.
