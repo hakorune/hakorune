@@ -1,0 +1,32 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderHakoNativeOwnerParityPilotSelectionRerun064V1",
+  "token": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-064",
+  "previous_adoption_decision": {
+    "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-call-target-constructor-classifier-hako-adoption-decision-v0.json",
+    "hash": "sha256:da63070d9a0d4f2254f6ce8c401c8d855f429a0162d6c77d62607c35d9fe7814"
+  },
+  "selected_owner": {
+    "owner_id": "mir14_instruction_name_classifier",
+    "rust_source": "src/mir/instruction_introspection.rs",
+    "oracle_surface": "mir14_instruction_names vocabulary membership",
+    "selection_reason": "Pure MIR14 instruction name vocabulary classifier with scalar string input and no MIR traversal."
+  },
+  "decision": {
+    "kind": "SelectRustOracleFixture",
+    "reason_token": "Mir14InstructionNameClassifierSelected",
+    "selected_next_card": "MIRBUILDER-MIR14-INSTRUCTION-NAME-CLASSIFIER-RUST-ORACLE-FIXTURE-001"
+  },
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "mir_instruction_traversal_migration": 0,
+    "mir_instruction_display_migration": 0,
+    "mir_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

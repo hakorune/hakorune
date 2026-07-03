@@ -1,0 +1,41 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderMir14InstructionNameClassifierRustOracleV1",
+  "token": "MIRBUILDER-MIR14-INSTRUCTION-NAME-CLASSIFIER-RUST-ORACLE-FIXTURE-001",
+  "owner": "mir14_instruction_name_classifier",
+  "rust_source": {
+    "path": "src/mir/instruction_introspection.rs",
+    "hash": "sha256:0b26d3e78f054ddde5fd0e887407a8868a8e4273dbfbf9f17955b45221d2eee6",
+    "oracle_surface": "mir14_instruction_names vocabulary membership"
+  },
+  "rows": [
+    {"name": "Const", "expected": "true"},
+    {"name": "UnaryOp", "expected": "true"},
+    {"name": "BinOp", "expected": "true"},
+    {"name": "Compare", "expected": "true"},
+    {"name": "TypeOp", "expected": "true"},
+    {"name": "Load", "expected": "true"},
+    {"name": "Store", "expected": "true"},
+    {"name": "Jump", "expected": "true"},
+    {"name": "Branch", "expected": "true"},
+    {"name": "Return", "expected": "true"},
+    {"name": "Phi", "expected": "true"},
+    {"name": "NewBox", "expected": "true"},
+    {"name": "Call", "expected": "true"},
+    {"name": "Nop", "expected": "false"},
+    {"name": "Throw", "expected": "false"},
+    {"name": "Unknown", "expected": "false"}
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "mir_instruction_traversal_migration": 0,
+    "mir_instruction_display_migration": 0,
+    "mir_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

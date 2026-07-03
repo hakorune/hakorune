@@ -1,0 +1,29 @@
+// mir14_instruction_name_classifier.hako
+//
+// Responsibility:
+// - classify MIR14 instruction name vocabulary membership
+// - stay pure: instruction name token in, boolean text out
+//
+// Non-responsibility:
+// - MIR instruction traversal
+// - MIR instruction display formatting
+// - MIR lowering
+// - MIR mutation
+static box Mir14InstructionNameClassifierBox {
+  is_mir14_instruction_name(name) {
+    if name == "Const" { return "true" }
+    if name == "UnaryOp" { return "true" }
+    if name == "BinOp" { return "true" }
+    if name == "Compare" { return "true" }
+    if name == "TypeOp" { return "true" }
+    if name == "Load" { return "true" }
+    if name == "Store" { return "true" }
+    if name == "Jump" { return "true" }
+    if name == "Branch" { return "true" }
+    if name == "Return" { return "true" }
+    if name == "Phi" { return "true" }
+    if name == "NewBox" { return "true" }
+    if name == "Call" { return "true" }
+    return "false"
+  }
+}

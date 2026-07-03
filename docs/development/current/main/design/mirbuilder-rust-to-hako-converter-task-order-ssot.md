@@ -24,9 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-CALL-TARGET-CONSTRUCTOR-CLASSIFIER-HAKO-ADOPTION-DECISION-001.
-  The call_target_constructor_classifier owner is HakoAdopted as the sixty-fourth
-  narrow Rust-oracle parity pilot; next is rerun 064.
+  MIRBUILDER-MIR14-INSTRUCTION-NAME-CLASSIFIER-HAKO-ADOPTION-DECISION-001.
+  The mir14_instruction_name_classifier owner is HakoAdopted as the sixty-fifth
+  narrow Rust-oracle parity pilot; next is rerun 065.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-064
+  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-065
 
 current fail-fast boundary:
   Do not re-enter full converter route selection without new non-self-signed
@@ -112,15 +112,15 @@ current fail-fast boundary:
   classification, facts-to-feature extraction, tag emission, Freeze contract,
   stderr write, Callee/ValueId analysis, emit-guard instruction analysis,
   emit-guard scope validation, index route selection, property registry state,
-  call target resolution, function signature preparation, and route selection
-  remain Rust.
+  call target resolution, MIR instruction traversal, MIR instruction display
+  formatting, function signature preparation, and route selection remain Rust.
 
 latest design decision:
-  call_target_constructor_classifier is now HakoAdopted as a narrow Rust-oracle
-  parity pilot owner after a green 6-row `.hako` EXE parity gate. Call target
-  resolution, closure capture handling, call lowering, and MIR mutation remain Rust.
+  mir14_instruction_name_classifier is now HakoAdopted as a narrow Rust-oracle
+  parity pilot owner after a green 16-row `.hako` EXE parity gate. MIR
+  instruction traversal, display formatting, lowering, and mutation remain Rust.
   The selected next card is
-  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-064`.
+  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-065`.
 
 historical route-selection decision:
   Detailed landed route-selection rows are closed as provenance and live in
