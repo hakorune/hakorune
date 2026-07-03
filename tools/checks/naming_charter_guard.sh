@@ -101,7 +101,15 @@ FASTMEM_SOURCE_SYNTAX_SMOKE="$ROOT_DIR/tools/hako_check/fastmem_source_syntax_sm
 FASTMEM_TERMINAL_LADDER_SMOKE="$ROOT_DIR/tools/hako_check/fastmem_terminal_ladder_smoke.sh"
 FASTMEM_SOURCE_MANIFEST_RUNNER="$ROOT_DIR/tools/hako_check/fastmem_source_manifest_runner.py"
 SELFHOST_JSON_V0_TRY_CATCH_CANARY="$ROOT_DIR/tools/smokes/v2/profiles/integration/selfhost/phase29bq_json_v0_try_catch_cleanup_canary_vm.sh"
+SELFHOST_STABLE_PATHS_SMOKE="$ROOT_DIR/tools/smokes/v2/profiles/integration/selfhost/phase120_stable_paths.sh"
+SELFHOST_PLANNER_REQUIRED_DEV_GATE="$ROOT_DIR/tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_planner_required_dev_gate_vm.sh"
+SELFHOST_STAGE1_CONTRACT_SMOKE="$ROOT_DIR/tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_stage1_contract_smoke_vm.sh"
+SELFHOST_STAGEB_FUNCSCANNER_BOX_SMOKE="$ROOT_DIR/tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_stageb_funcscanner_box_from_min_vm.sh"
+SELFHOST_STAGEB_FUNCSCANNER_METHOD_BOUNDARY_SMOKE="$ROOT_DIR/tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_stageb_funcscanner_method_boundary_min_vm.sh"
+SELFHOST_STAGEB_LAMBDA_LITERAL_PAIR_SMOKE="$ROOT_DIR/tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_stageb_lambda_literal_pair_min_vm.sh"
 SELFHOST_STAGEB_ROUTE_PARITY_SMOKE="$ROOT_DIR/tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_stageb_route_parity_smoke_vm.sh"
+SELFHOST_STEADY_STATE_SMOKE="$ROOT_DIR/tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_steady_state_vm.sh"
+SELFHOST_STAGEB_FUNCSCANNER_TYPED_PARAMS_SMOKE="$ROOT_DIR/tools/smokes/v2/profiles/integration/selfhost/phase29cc_selfhost_stageb_funcscanner_typed_params_implements_min_vm.sh"
 COLLECTION_MAP_GET_SHARES_MAP_SMOKE="$ROOT_DIR/tools/smokes/v2/profiles/quick/collections/map_get_shares_map.sh"
 COLLECTION_MAP_GET_SHARES_ARRAY_SMOKE="$ROOT_DIR/tools/smokes/v2/profiles/quick/collections/map_get_shares_array.sh"
 COLLECTION_STRING_SIZE_ALIAS_SMOKE="$ROOT_DIR/tools/smokes/v2/profiles/quick/collections/string_size_alias.sh"
@@ -227,7 +235,15 @@ REQUIRED_FILES=(
   "$FASTMEM_TERMINAL_LADDER_SMOKE"
   "$FASTMEM_SOURCE_MANIFEST_RUNNER"
   "$SELFHOST_JSON_V0_TRY_CATCH_CANARY"
+  "$SELFHOST_STABLE_PATHS_SMOKE"
+  "$SELFHOST_PLANNER_REQUIRED_DEV_GATE"
+  "$SELFHOST_STAGE1_CONTRACT_SMOKE"
+  "$SELFHOST_STAGEB_FUNCSCANNER_BOX_SMOKE"
+  "$SELFHOST_STAGEB_FUNCSCANNER_METHOD_BOUNDARY_SMOKE"
+  "$SELFHOST_STAGEB_LAMBDA_LITERAL_PAIR_SMOKE"
   "$SELFHOST_STAGEB_ROUTE_PARITY_SMOKE"
+  "$SELFHOST_STEADY_STATE_SMOKE"
+  "$SELFHOST_STAGEB_FUNCSCANNER_TYPED_PARAMS_SMOKE"
   "$COLLECTION_MAP_GET_SHARES_MAP_SMOKE"
   "$COLLECTION_MAP_GET_SHARES_ARRAY_SMOKE"
   "$COLLECTION_STRING_SIZE_ALIAS_SMOKE"
@@ -325,6 +341,7 @@ SSOT_REQUIRED_TOKENS=(
   "STAGE-TERM-STAGE0-SHAPE-GATE-LABEL-WORDING-001"
   "STAGE-TERM-MODEB-HHAKO-FUNC-SCANNER-COMMENT-WORDING-001"
   "STAGE-TERM-MODEB-K2-WIDE-GUARD-DIAGNOSTIC-WORDING-001"
+  "STAGE-TERM-SELFHOST-SMOKE-COMMENT-WORDING-001"
 )
 guard_require_unique_values "SSOT required token" "${SSOT_REQUIRED_TOKENS[@]}"
 for ssot_token in "${SSOT_REQUIRED_TOKENS[@]}"; do
@@ -730,6 +747,28 @@ require_fixed "mode-B compatibility parser route failed" "$K2_WIDE_STAGEB_NUMERI
 if rg -n 'Stage-B user_box_decls scanner probe failed|Stage-B parser route failed' "$K2_WIDE_STAGEB_FIELD_TYPE_ANNOTATION_GUARD" "$K2_WIDE_STAGEB_NUMERIC_LITERAL_SUFFIX_GUARD"; then
   guard_fail "$TAG" "K2-wide stageb guard diagnostics must say mode-B compatibility"
 fi
+require_fixed "selfhost mode-B compatibility wrapper missing/executable" "$SELFHOST_PLANNER_REQUIRED_DEV_GATE"
+require_fixed "keep mode-B compatibility compiler route" "$SELFHOST_PLANNER_REQUIRED_DEV_GATE"
+require_fixed "Pin mode-B compatibility FuncScanner delegated box header" "$SELFHOST_STAGEB_FUNCSCANNER_BOX_SMOKE"
+require_fixed "Pin mode-B compatibility FuncScanner method-decl boundary" "$SELFHOST_STAGEB_FUNCSCANNER_METHOD_BOUNDARY_SMOKE"
+require_fixed "Pin mode-B compatibility legacy lambda pair" "$SELFHOST_STAGEB_LAMBDA_LITERAL_PAIR_SMOKE"
+require_fixed "Pin mode-B compatibility FuncScanner parity" "$SELFHOST_STAGEB_FUNCSCANNER_TYPED_PARAMS_SMOKE"
+require_fixed "selfhost mode-B compatibility route parity smoke" "$SELFHOST_STEADY_STATE_SMOKE"
+require_fixed "Compare mode-B compatibility output" "$SELFHOST_STAGEB_ROUTE_PARITY_SMOKE"
+require_fixed "Contract smoke for phase-1 compatibility bootstrap capability" "$SELFHOST_STAGE1_CONTRACT_SMOKE"
+require_fixed "selfhost syntax-3 stable paths smoke test" "$SELFHOST_STABLE_PATHS_SMOKE"
+if rg -n 'selfhost Stage-B wrapper missing/executable|keep Stage-B compiler route|Pin Stage-B FuncScanner delegated box header|Pin Stage-B legacy lambda pair|Pin Stage-B FuncScanner method-decl boundary|Pin Stage-B FuncScanner parity|selfhost Stage-B route parity smoke|Compare Stage-B output|Contract smoke for Stage1 bootstrap capability|selfhost Stage-3 stable paths smoke test' \
+  "$SELFHOST_PLANNER_REQUIRED_DEV_GATE" \
+  "$SELFHOST_STAGEB_FUNCSCANNER_BOX_SMOKE" \
+  "$SELFHOST_STAGEB_FUNCSCANNER_METHOD_BOUNDARY_SMOKE" \
+  "$SELFHOST_STAGEB_LAMBDA_LITERAL_PAIR_SMOKE" \
+  "$SELFHOST_STAGEB_FUNCSCANNER_TYPED_PARAMS_SMOKE" \
+  "$SELFHOST_STEADY_STATE_SMOKE" \
+  "$SELFHOST_STAGEB_ROUTE_PARITY_SMOKE" \
+  "$SELFHOST_STAGE1_CONTRACT_SMOKE" \
+  "$SELFHOST_STABLE_PATHS_SMOKE"; then
+  guard_fail "$TAG" "selfhost smoke comments/diagnostics must say mode-B, phase-1, or syntax-3 compatibility"
+fi
 require_fixed '.arg("--syntax-3")' "$PHASE29CI_STAGEB_BODY_EXTRACT_TEST"
 require_fixed '`--syntax-3` with compatibility alias `--stage3`' "$REFERENCE_EBNF"
 require_fixed 'selfhost: `--syntax-3`' "$REFERENCE_STATEMENTS"
@@ -782,6 +821,15 @@ NAMING_DIFF_ALLOWED_PATHS=(
   "lang/src/compiler/entry/func_scanner_helpers.hako"
   "tools/checks/k2_wide_stageb_field_type_annotation_alignment_guard.sh"
   "tools/checks/k2_wide_stageb_numeric_literal_suffix_alignment_guard.sh"
+  "tools/smokes/v2/profiles/integration/selfhost/phase120_stable_paths.sh"
+  "tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_planner_required_dev_gate_vm.sh"
+  "tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_stage1_contract_smoke_vm.sh"
+  "tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_stageb_funcscanner_box_from_min_vm.sh"
+  "tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_stageb_funcscanner_method_boundary_min_vm.sh"
+  "tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_stageb_lambda_literal_pair_min_vm.sh"
+  "tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_stageb_route_parity_smoke_vm.sh"
+  "tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_steady_state_vm.sh"
+  "tools/smokes/v2/profiles/integration/selfhost/phase29cc_selfhost_stageb_funcscanner_typed_params_implements_min_vm.sh"
   "tests/phase29ci_stageb_body_extract.rs"
   "tools/selfhost/proof/run_stageb_compiler_vm.sh"
   "tools/checks/stageb_program_json_capture_caller_guard.sh"

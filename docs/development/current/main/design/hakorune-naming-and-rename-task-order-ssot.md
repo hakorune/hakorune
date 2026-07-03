@@ -218,6 +218,37 @@ Subtasks:
 
 Each subtask must be its own commit or short series. Do not mix them.
 
+### STAGE-TERM-SELFHOST-SMOKE-COMMENT-WORDING-001
+
+Status: landed smoke comment cut.
+
+Scope:
+
+- update active selfhost smoke comments and human-facing diagnostics from
+  unqualified `Stage-B`, `Stage1`, and `Stage-3` wording to `mode-B
+  compatibility`, `phase-1 compatibility`, and `syntax-3`;
+- keep compatibility script names, fixture names, exact expected stderr, and
+  `StageB*` / `Stage1UsingResolverBox` names unchanged;
+- add naming guard checks so the old comment/diagnostic phrases do not return.
+
+Contract:
+
+```text
+comments/diagnostics:
+  describe the layer explicitly as mode-B, phase-1, or syntax-3
+
+compatibility surfaces:
+  file names, Box names, route tokens, and expected stderr remain unchanged
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
 ### HAKORUNE-ENV-ALIAS-INVENTORY-001
 
 Status: landed foundation.

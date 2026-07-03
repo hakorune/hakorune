@@ -1,6 +1,6 @@
 #!/bin/bash
 # phase29bq_selfhost_stageb_funcscanner_method_boundary_min_vm.sh
-# Pin Stage-B FuncScanner method-decl boundary:
+# Pin mode-B compatibility FuncScanner method-decl boundary:
 #   - modern decls: name(args) { ... }
 #   - delegated constructor call: from Parent.birth(args)
 #   - must not emit bogus def name "from Parent.birth"

@@ -53,7 +53,7 @@ if [ ! -f "$COMPILER" ]; then
 fi
 
 if [ ! -x "$STAGEB_WRAPPER" ]; then
-  log_error "selfhost Stage-B wrapper missing/executable: $STAGEB_WRAPPER"
+  log_error "selfhost mode-B compatibility wrapper missing/executable: $STAGEB_WRAPPER"
   exit 2
 fi
 
@@ -264,7 +264,7 @@ run_selfhost_case() {
   local stageb_rc=0
   set +e
   local stageb_start=$SECONDS
-  # Phase 29x X22: keep Stage-B compiler route on Rust VM core lane even under strict/dev.
+  # Phase 29x X22: keep mode-B compatibility compiler route on Rust VM core lane even under strict/dev.
   run_with_vm_route_pin env \
     NYASH_SELFHOST_STAGEB_PROOF_ONLY=1 \
     SELFHOST_ROUTE_ID="SH-GATE-STAGEB" \

@@ -1,5 +1,5 @@
 #!/bin/bash
-# phase120_stable_paths.sh — Phase 120: selfhost Stage-3 stable paths smoke test
+# phase120_stable_paths.sh — Phase 120: selfhost syntax-3 stable paths smoke test
 
 source "$(dirname "$0")/../../../lib/test_runner.sh"
 export SMOKES_USE_PYVM=0
@@ -12,7 +12,7 @@ export NYASH_USE_NY_COMPILER=1
 export NYASH_PARSER_STAGE3=1
 export HAKO_PARSER_STAGE3=1
 
-log_info "Phase 120: selfhost Stage-3 stable paths smoke test"
+log_info "Phase 120: selfhost syntax-3 stable paths smoke test"
 log_info "JoinIR Strict mode: NYASH_JOINIR_STRICT=1"
 
 # Test counter

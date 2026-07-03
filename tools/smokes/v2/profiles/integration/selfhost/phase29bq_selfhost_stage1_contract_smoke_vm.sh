@@ -1,6 +1,6 @@
 #!/bin/bash
 # phase29bq_selfhost_stage1_contract_smoke_vm.sh
-# Contract smoke for Stage1 bootstrap capability:
+# Contract smoke for phase-1 compatibility bootstrap capability:
 # - stage0 bootstrap route emits Program/MIR payloads
 # - reduced stage1-cli artifact is runnable bootstrap output
 # - legacy env route is diagnostics-only

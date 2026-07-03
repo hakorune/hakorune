@@ -5,7 +5,7 @@
 # Default sequence:
 # 1) .hako mirbuilder quick suite
 # 2) JoinIR fast gate (--only bq)
-# 3) selfhost Stage-B route parity smoke
+# 3) selfhost mode-B compatibility route parity smoke
 #
 # Option:
 #   --with-runtime-parity  Also run runtime route/mode parity smokes.

@@ -1,6 +1,6 @@
 #!/bin/bash
 # phase29bq_selfhost_stageb_route_parity_smoke_vm.sh
-# Compare Stage-B output between wrapper route and direct invocation route.
+# Compare mode-B compatibility output between wrapper route and direct invocation route.
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/../../../../.." && pwd)"

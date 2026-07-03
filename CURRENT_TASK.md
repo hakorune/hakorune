@@ -82,6 +82,7 @@ STAGE-TERM-PHASE1-PROGRAM-JSON-GUARD-WORDING-001
 STAGE-TERM-STAGE0-SHAPE-GATE-LABEL-WORDING-001
 STAGE-TERM-MODEB-HHAKO-FUNC-SCANNER-COMMENT-WORDING-001
 STAGE-TERM-MODEB-K2-WIDE-GUARD-DIAGNOSTIC-WORDING-001
+STAGE-TERM-SELFHOST-SMOKE-COMMENT-WORDING-001
 ```
 
 `--syntax-3` is now the frontend syntax-level spelling; `--stage3` remains a
@@ -115,9 +116,12 @@ guard` while keeping script and inventory doc paths unchanged. FuncScanner
 comments now say mode-B compatibility while keeping PHI / LocalSSA /
 variable-map internals untouched. Two active K2-wide guard diagnostics now say
 mode-B compatibility while keeping script names, StageB Box names, and guard
-logic unchanged. Next safe naming work, if explicitly selected, must pick a
-different classified layer from that inventory and keep compatibility aliases
-or replacement routes in the same slice.
+logic unchanged. Active selfhost smoke comments and human-facing diagnostics
+now say mode-B compatibility, phase-1 compatibility, or syntax-3 while keeping
+smoke file names, compatibility route tokens, exact expected stderr, and
+StageB/Stage1 Box names unchanged. Next safe naming work, if explicitly
+selected, must pick a different classified layer from that inventory and keep
+compatibility aliases or replacement routes in the same slice.
 
 Acceptance:
 

@@ -464,6 +464,54 @@ guard logic changed = 0
 runtime behavior changed = 0
 ```
 
+## Landed Selfhost Smoke Comment Wording Slice
+
+`STAGE-TERM-SELFHOST-SMOKE-COMMENT-WORDING-001` changes active selfhost smoke
+comments and human-facing diagnostics to `mode-B compatibility`,
+`phase-1 compatibility`, and `syntax-3` wording where the old wording used
+unqualified stage terms.
+
+Scope:
+
+```text
+tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_planner_required_dev_gate_vm.sh:
+  wrapper diagnostic and Rust VM lane comment say mode-B compatibility
+
+tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_stageb_funcscanner_box_from_min_vm.sh:
+  FuncScanner delegated box header comment says mode-B compatibility
+
+tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_stageb_funcscanner_method_boundary_min_vm.sh:
+  FuncScanner method-decl boundary comment says mode-B compatibility
+
+tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_stageb_lambda_literal_pair_min_vm.sh:
+  legacy lambda pair comment says mode-B compatibility
+
+tools/smokes/v2/profiles/integration/selfhost/phase29cc_selfhost_stageb_funcscanner_typed_params_implements_min_vm.sh:
+  FuncScanner parity comment says mode-B compatibility
+
+tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_steady_state_vm.sh:
+  steady-state route parity comment says mode-B compatibility
+
+tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_stageb_route_parity_smoke_vm.sh:
+  route parity comparison comment says mode-B compatibility
+
+tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_stage1_contract_smoke_vm.sh:
+  bootstrap capability comment says phase-1 compatibility
+
+tools/smokes/v2/profiles/integration/selfhost/phase120_stable_paths.sh:
+  stable paths smoke label says syntax-3
+```
+
+Non-claims:
+
+```text
+stageb_* smoke file names renamed = 0
+StageB* Box names renamed = 0
+Stage1UsingResolverBox renamed = 0
+exact expected Stage1 stderr changed = 0
+runtime behavior changed = 0
+```
+
 ## Migration Eligibility
 
 An occurrence is eligible for a future rename only if all conditions hold:

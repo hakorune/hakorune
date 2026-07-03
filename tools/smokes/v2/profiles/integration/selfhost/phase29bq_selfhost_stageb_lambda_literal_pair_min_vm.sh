@@ -1,6 +1,6 @@
 #!/bin/bash
 # phase29bq_selfhost_stageb_lambda_literal_pair_min_vm.sh
-# Pin Stage-B legacy lambda pair in method defs:
+# Pin mode-B compatibility legacy lambda pair in method defs:
 #   return fn(x) { ... }
 # -> Return(Call "fn") + Expr(BlockExpr ...)
 set -euo pipefail
