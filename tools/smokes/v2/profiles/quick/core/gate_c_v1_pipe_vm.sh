@@ -13,13 +13,17 @@ ROOT="$(git -C "$SCRIPT_DIR" rev-parse --show-toplevel 2>/dev/null)"
 if [ -z "$ROOT" ]; then
   ROOT="$(cd "$SCRIPT_DIR/../../../../.." && pwd)"
 fi
-BIN="$ROOT/target/release/nyash"
+BIN="$ROOT/target/release/hakorune"
+LEGACY_NYASH_BIN="$ROOT/target/release/nyash"
 
 if [ ! -x "$BIN" ]; then
-  (cd "$ROOT" && cargo build --release >/dev/null 2>&1) || {
-    echo "[FAIL] build release nyash" >&2
+  (cd "$ROOT" && cargo build --release --bin hakorune >/dev/null 2>&1) || {
+    echo "[FAIL] build release hakorune" >&2
     exit 1
   }
+fi
+if [ ! -x "$BIN" ] && [ -x "$LEGACY_NYASH_BIN" ]; then
+  BIN="$LEGACY_NYASH_BIN"
 fi
 
 PAYLOAD='{"schema_version":"1.0","functions":[{"name":"main","params":[],"blocks":[{"id":0,"instructions":[{"op":"const","dst":1,"value":{"type":"i64","value":5}},{"op":"ret","value":1}]}]}]}'
@@ -41,8 +45,10 @@ run_case() {
   export NYASH_NYVM_CORE=1
   export HAKO_NYVM_CORE=1
 
-  output=$(printf '%s' "$PAYLOAD" | $BIN --ny-parser-pipe 2>&1)
+  set +e
+  output=$(printf '%s' "$PAYLOAD" | "$BIN" --ny-parser-pipe 2>&1)
   rc=$?
+  set -e
   last=$(printf '%s\n' "$output" | awk '/Result:/{val=$2} END{print val}')
 
   if [ "$rc" -ne 0 ]; then
