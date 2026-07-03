@@ -102,6 +102,7 @@ STAGE-TERM-RUST-STAGE1-BOUNDARY-COMMENT-WORDING-001
 STAGE-TERM-RUST-STAGE1-PROGRAM-JSON-TEST-WORDING-001
 STAGE-TERM-CHECK-SCRIPTS-INDEX-PHASE-ENV-WORDING-001
 STAGE-TERM-STAGE1-BRIDGE-ALIAS-COMMENT-WORDING-001
+HAKORUNE-README-MODEB-USER-FACING-WORDING-001
 ```
 
 `--syntax-3` is now the frontend syntax-level spelling; `--stage3` remains a
@@ -190,6 +191,9 @@ cleanup/catch boundary guard descriptions while preserving script names.
 Selected `src/runner/stage1_bridge` env/module alias comments now use phase-1
 compatibility CLI / alias wording while preserving module names, types, env
 names, and `[stage1-cli]` log tags.
+The root README developer quickstart now says mode-B compatibility for the
+current MIR emit helper route while preserving `nyash` syntax fences,
+`NYASH_*` compatibility env names, and `ny-llvmc` tool names.
 Next safe naming work, if explicitly selected, must pick a
 different classified layer from that inventory and keep compatibility aliases
 or replacement routes in the same slice.

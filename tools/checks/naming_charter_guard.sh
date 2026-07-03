@@ -489,6 +489,7 @@ SSOT_REQUIRED_TOKENS=(
   "HAKORUNE-COLLECTION-QUICK-SMOKE-BINARY-WORDING-001"
   "HAKORUNE-ENV-ALIAS-INVENTORY-001"
   "HAKORUNE-ENV-ALIAS-FIRST-CUT-001"
+  "HAKORUNE-README-MODEB-USER-FACING-WORDING-001"
   "STAGE-TERM-EXISTING-NAME-INVENTORY-001"
   "STAGE-TERM-SYNTAX3-ALIAS-001"
   "STAGE-TERM-SYNTAX3-DIAGNOSTIC-WORDING-001"
@@ -532,6 +533,12 @@ for ssot_token in "${SSOT_REQUIRED_TOKENS[@]}"; do
 done
 require_fixed 'prefer `target/release/hakorune` or `$HAKO_BIN`' "$README_MD"
 require_fixed '`$NYASH_BIN` remains a compatibility alias' "$README_MD"
+require_fixed "mode-B compatibility parser" "$README_MD"
+require_fixed "mode-B compatibility route" "$README_MD"
+require_fixed "mode-B compatibility → MIR(JSON)" "$README_MD"
+if rg -n 'Stage[‑-]B parser|runs Stage[‑-]B|Stage[‑-]B → MIR' "$README_MD"; then
+  guard_fail "$TAG" "README current developer quickstart must use mode-B compatibility wording"
+fi
 require_fixed 'default-run = "hakorune"' "$CARGO_TOML"
 require_fixed 'name = "hakorune"' "$CARGO_TOML"
 require_fixed 'path = "src/bin/hakorune.rs"' "$CARGO_TOML"

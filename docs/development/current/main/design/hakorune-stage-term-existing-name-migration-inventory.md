@@ -1060,6 +1060,30 @@ NYASH_STAGE1_* / HAKO_STAGE1_* env names renamed = 0
 runtime behavior changed = 0
 ```
 
+## Landed README mode-B User-Facing Wording Slice
+
+`HAKORUNE-README-MODEB-USER-FACING-WORDING-001` changes the root README's
+current developer quickstart from Stage-B wording to mode-B compatibility
+wording.
+
+Scope:
+
+```text
+README.md:
+  Quick Emit MIR helper route
+  Performance quickstart MIR emit bench label
+```
+
+Non-claims:
+
+```text
+syntax highlighting fences renamed = 0
+NYASH_* env names renamed = 0
+ny-llvmc / nyash-llvm-compiler tool names renamed = 0
+historical Nyash Era section rewritten = 0
+runtime behavior changed = 0
+```
+
 ## Migration Eligibility
 
 An occurrence is eligible for a future rename only if all conditions hold:

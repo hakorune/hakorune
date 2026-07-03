@@ -631,6 +631,27 @@ bash tools/checks/naming_charter_guard.sh
 tools/checks/dev_gate.sh quick
 ```
 
+### HAKORUNE-README-MODEB-USER-FACING-WORDING-001
+
+Status: landed.
+
+Scope:
+
+```text
+README.md:
+  current developer quickstart MIR emit route says mode-B compatibility
+```
+
+Non-claims:
+
+```text
+syntax highlighting fences renamed = 0
+NYASH_* env names renamed = 0
+ny-llvmc / nyash-llvm-compiler tool names renamed = 0
+historical Nyash Era section rewritten = 0
+runtime behavior changed = 0
+```
+
 ### HAKORUNE-BINARY-PRIMARY-CUTOVER-INVENTORY-001
 
 Status: landed inventory cut.

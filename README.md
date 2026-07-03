@@ -24,7 +24,8 @@ Current development truth:
 Allocator note: the mimalloc-shaped `.hako` lane is a proof/completeness track for Hakorune’s compiler, runtime substrate, and allocator-facing contracts. It is not a silent replacement for the host allocator; selectable allocator backends are a later, explicit layer.
 
 Quick — Emit MIR (developer helper)
-- Generate MIR(JSON) from a Hako file using the Stage‑B parser + MirBuilder helper:
+- Generate MIR(JSON) from a Hako file using the mode-B compatibility parser +
+  MirBuilder helper:
 
 ```
 tools/hakorune_emit_mir.sh path/to/program.hako /tmp/program.mir.json
@@ -32,11 +33,12 @@ target/release/hakorune --mir-json-file /tmp/program.mir.json
 ```
 
 Notes
-- The wrapper runs Stage‑B with `NYASH_JSON_ONLY=1` to keep the output clean (no `RC:` lines).
+- The wrapper runs the mode-B compatibility route with `NYASH_JSON_ONLY=1` to
+  keep the output clean (no `RC:` lines).
 - Program(JSON v0) remains compat/proof-only and is not a day-to-day user route. Current exact routes and guard entrypoints are indexed from `docs/tools/check-scripts-index.md`.
 
 [Performance quickstart]
-- MIR emit bench (Stage‑B → MIR(JSON))
+- MIR emit bench (mode-B compatibility → MIR(JSON))
   - `tools/perf/bench_hakorune_emit_mir.sh apps/examples/json_query/main.hako 5`
   - Env toggles: `HAKO_USING_RESOLVER_FIRST=1`, `HAKO_SELFHOST_BUILDER_FIRST=1`
 - MIR(JSON) → obj/exe bench（ny-llvmc/crate）
