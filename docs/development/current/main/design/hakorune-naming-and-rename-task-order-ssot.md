@@ -785,6 +785,36 @@ git diff --check
 tools/checks/dev_gate.sh quick
 ```
 
+### HAKORUNE-NAMING-GUARD-REQUIRED-FILES-DUPLICATE-CHECK-001
+
+Status: active in this slice.
+
+Purpose: keep the naming guard's required-file list fail-fast when future
+cleanup slices accidentally add the same required file twice.
+
+Scope:
+
+- check the `tools/checks/naming_charter_guard.sh` `REQUIRED_FILES` array for
+  duplicate expanded paths before calling `guard_require_files`;
+- keep required-file membership and guard behavior unchanged for non-duplicate
+  lists;
+- keep the duplicate diagnostic specific to the naming guard.
+
+Affected script:
+
+```text
+tools/checks/naming_charter_guard.sh
+```
+
+Acceptance:
+
+```bash
+bash -n tools/checks/naming_charter_guard.sh
+bash tools/checks/naming_charter_guard.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
 ### HAKORUNE-NAMING-GUARD-SSOT-TOKEN-LIST-READABILITY-001
 
 Status: active in this slice.

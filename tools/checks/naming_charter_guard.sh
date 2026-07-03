@@ -143,6 +143,13 @@ REQUIRED_FILES=(
   "$ENV_PATHS_RS"
   "$ENV_DOC"
 )
+declare -A seen_required_files=()
+for required_file in "${REQUIRED_FILES[@]}"; do
+  if [[ -n "${seen_required_files[$required_file]:-}" ]]; then
+    guard_fail "$TAG" "duplicate required file in guard: $required_file"
+  fi
+  seen_required_files[$required_file]=1
+done
 guard_require_files "$TAG" "${REQUIRED_FILES[@]}"
 
 require_fixed() {
@@ -174,6 +181,7 @@ SSOT_REQUIRED_TOKENS=(
   "HAKORUNE-SELFHOST-EXE-STAGEB-BINARY-RESOLUTION-001"
   "HAKORUNE-SELFHOST-EXE-STAGEB-SOURCE-WORDING-001"
   "HAKORUNE-NAMING-GUARD-REQUIRED-FILES-READABILITY-001"
+  "HAKORUNE-NAMING-GUARD-REQUIRED-FILES-DUPLICATE-CHECK-001"
   "HAKORUNE-NAMING-GUARD-SSOT-TOKEN-LIST-READABILITY-001"
   "HAKORUNE-NAMING-GUARD-DIFF-ALLOWLIST-SSOT-001"
   "HAKORUNE-CORE-EMIT-HELPER-BINARY-RESOLUTION-001"
