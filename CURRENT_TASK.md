@@ -41,21 +41,20 @@ the active card and task-order SSOT. Do not duplicate them here.
 
 ## Immediate Maintenance Slice
 
-Scope: Parser integration smoke binary naming cleanup.
+Scope: Parser try-compat smoke binary naming cleanup.
 
-- make selected parser integration smokes spell the Hakorune-first executable
+- make the parser try-compat smoke spell the Hakorune-first executable
   resolver explicitly
 - keep legacy `nyash` only as a named compatibility fallback
-- keep parser fixtures and expected smoke behavior unchanged in this slice
-- add naming guard coverage so these smokes do not regress to direct legacy
+- keep parser fixtures and expected freeze-tag behavior unchanged in this slice
+- add naming guard coverage so the smoke does not regress to direct legacy
   binary naming
 
 Acceptance:
 
 ```bash
 bash tools/checks/naming_charter_guard.sh
-bash tools/smokes/v2/profiles/integration/parser/fastmem_parser_parity_smoke.sh
-bash tools/smokes/v2/profiles/integration/parser/parser_opt_annotations_dual_route_noop.sh
+bash tools/smokes/v2/profiles/integration/parser/parser_try_compat_boundary.sh
 git diff --check
 tools/checks/dev_gate.sh quick
 ```

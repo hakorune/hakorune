@@ -1022,6 +1022,34 @@ git diff --check
 tools/checks/dev_gate.sh quick
 ```
 
+### HAKORUNE-PARSER-TRY-COMPAT-SMOKE-BINARY-NAMING-001
+
+Status: active in this slice.
+
+Scope:
+
+- make the parser try-compat smoke spell the Hakorune-first executable
+  resolver explicitly;
+- keep legacy `nyash` only as a named compatibility fallback;
+- keep parser fixtures and expected freeze-tag behavior unchanged in this slice;
+- add naming guard coverage so the smoke does not regress to direct legacy
+  binary naming.
+
+Affected script:
+
+```text
+tools/smokes/v2/profiles/integration/parser/parser_try_compat_boundary.sh
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+bash tools/smokes/v2/profiles/integration/parser/parser_try_compat_boundary.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
 ### STAGE-TERM-EXISTING-NAME-MIGRATION-001
 
 Status: defined, not implementation.

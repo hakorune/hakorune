@@ -1,9 +1,15 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-BIN="${NYASH_BIN:-./target/release/hakorune}"
+HAKORUNE_BIN="${HAKORUNE_BIN:-./target/release/hakorune}"
+LEGACY_NYASH_BIN="./target/release/nyash"
+BIN="${NYASH_BIN:-$HAKORUNE_BIN}"
 if [ ! -x "$BIN" ]; then
-  echo "nyash binary not found: $BIN" >&2
+  BIN="$LEGACY_NYASH_BIN"
+fi
+
+if [ ! -x "$BIN" ]; then
+  echo "hakorune binary not found: $BIN" >&2
   exit 2
 fi
 
