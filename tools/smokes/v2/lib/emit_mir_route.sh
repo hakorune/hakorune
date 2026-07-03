@@ -14,7 +14,7 @@ Usage:
   emit_mir_route.sh --route <direct|hako-mainline|hako-helper> --out <mir.json> --input <src.hako> [--timeout-secs <n>] [-- <extra args>]
 
 Notes:
-  - route=direct uses:      <NYASH_BIN> --backend mir --emit-mir-json <out> <input>
+  - route=direct uses:      <HAKO_BIN|NYASH_BIN> --backend mir --emit-mir-json <out> <input>
   - route=hako-mainline uses helper with:
       HAKO_SELFHOST_BUILDER_FIRST=1
       HAKO_SELFHOST_NO_DELEGATE=1
@@ -81,6 +81,9 @@ if [ ! -f "$INPUT" ]; then
   exit 2
 fi
 
+if [ -n "${HAKO_BIN:-}" ] && [ -z "${NYASH_BIN:-}" ]; then
+  NYASH_BIN="$HAKO_BIN"
+fi
 if [ -z "${NYASH_BIN:-}" ]; then
   if [ -x "$ROOT/target/release/hakorune" ]; then
     NYASH_BIN="$ROOT/target/release/hakorune"
@@ -88,9 +91,11 @@ if [ -z "${NYASH_BIN:-}" ]; then
     NYASH_BIN="$ROOT/target/release/nyash"
   fi
 fi
+HAKO_BIN="${HAKO_BIN:-$NYASH_BIN}"
 
 if [ ! -x "$NYASH_BIN" ]; then
-  echo "[emit-route] nyash/hakorune binary not found: $NYASH_BIN" >&2
+  echo "[emit-route] hakorune binary not found: $NYASH_BIN" >&2
+  echo "[emit-route] compat fallback checked: $ROOT/target/release/nyash" >&2
   exit 2
 fi
 

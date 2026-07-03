@@ -41,20 +41,20 @@ the active card and task-order SSOT. Do not duplicate them here.
 
 ## Immediate Maintenance Slice
 
-Scope: Hakorune test shell helper binary resolution.
+Scope: Hakorune smoke MIR emit route binary aliasing.
 
-- make `tools/test/lib/shlib.sh` emit-json helper invoke `hakorune` before
-  legacy `nyash`
+- make `tools/smokes/v2/lib/emit_mir_route.sh` accept `HAKO_BIN` as the
+  preferred alias for the historical `NYASH_BIN`
 - keep `target/release/nyash` only behind explicit Hakorune-first resolver
   fallback
-- keep legacy helper function names untouched for compatibility in this slice
-- keep test route behavior untouched in this slice
+- keep route behavior and argument contract untouched in this slice
+- keep direct/hako-mainline/hako-helper route semantics untouched in this slice
 
 Acceptance:
 
 ```bash
 bash tools/checks/naming_charter_guard.sh
-bash -n tools/test/lib/shlib.sh
+bash tools/smokes/v2/lib/emit_mir_route.sh --help
 git diff --check
 tools/checks/dev_gate.sh quick
 ```

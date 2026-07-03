@@ -810,6 +810,45 @@ git diff --check
 tools/checks/dev_gate.sh quick
 ```
 
+### HAKORUNE-SMOKE-EMIT-MIR-ROUTE-BINARY-ALIAS-001
+
+Status: active in this slice.
+
+Scope:
+
+- make `tools/smokes/v2/lib/emit_mir_route.sh` accept `HAKO_BIN` as the
+  preferred alias for the historical `NYASH_BIN`;
+- keep `target/release/nyash` only behind explicit Hakorune-first resolver
+  fallback;
+- keep route behavior and argument contract untouched in this slice;
+- keep direct/hako-mainline/hako-helper route semantics untouched in this slice.
+
+Contract:
+
+```text
+preferred override:
+  HAKO_BIN
+
+compat override:
+  NYASH_BIN
+
+primary:
+  target/release/hakorune
+
+compat fallback:
+  target/release/nyash
+  used only if primary is absent
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+bash tools/smokes/v2/lib/emit_mir_route.sh --help
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
 ### STAGE-TERM-EXISTING-NAME-MIGRATION-001
 
 Status: defined, not implementation.

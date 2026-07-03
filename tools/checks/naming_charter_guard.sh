@@ -31,13 +31,14 @@ SELFHOST_EXE_STAGEB="$ROOT_DIR/tools/selfhost_exe_stageb.sh"
 NY_PARSER_BRIDGE_SMOKE="$ROOT_DIR/tools/ny_parser_bridge_smoke.sh"
 PHI_TRACE_RUN="$ROOT_DIR/tools/debug/phi/phi_trace_run.sh"
 TEST_SHLIB="$ROOT_DIR/tools/test/lib/shlib.sh"
+EMIT_MIR_ROUTE="$ROOT_DIR/tools/smokes/v2/lib/emit_mir_route.sh"
 ENV_RS="$ROOT_DIR/src/config/env.rs"
 ENV_PATHS_RS="$ROOT_DIR/src/config/env/paths.rs"
 ENV_DOC="$ROOT_DIR/docs/reference/environment-variables.md"
 
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" git
-guard_require_files "$TAG" "$SSOT" "$CHECK_INDEX" "$QUICK_STEPS" "$DOCS_LAYOUT" "$CARGO_TOML" "$README_MD" "$HACO_WRAPPER" "$MAIN_RS" "$HAKORUNE_BIN_RS" "$HAKORUNE_COMPAT_BIN_RS" "$BUILD_SHARED_RS" "$BUILD_PRODUCT_RS" "$BUILD_ENGINEERING_RS" "$HAKO_CHECK_SH" "$BUILD_LLVM_PS" "$BUILD_AOT_PS" "$USING_UNRESOLVED_SMOKE" "$USING_RESOLVE_SMOKE" "$USING_STRICT_PATH_FAIL_SMOKE" "$DEV_SELFHOST_LOOP" "$ENGINEERING_PARITY" "$SELFHOST_EXE_STAGEB" "$NY_PARSER_BRIDGE_SMOKE" "$PHI_TRACE_RUN" "$TEST_SHLIB" "$ENV_RS" "$ENV_PATHS_RS" "$ENV_DOC"
+guard_require_files "$TAG" "$SSOT" "$CHECK_INDEX" "$QUICK_STEPS" "$DOCS_LAYOUT" "$CARGO_TOML" "$README_MD" "$HACO_WRAPPER" "$MAIN_RS" "$HAKORUNE_BIN_RS" "$HAKORUNE_COMPAT_BIN_RS" "$BUILD_SHARED_RS" "$BUILD_PRODUCT_RS" "$BUILD_ENGINEERING_RS" "$HAKO_CHECK_SH" "$BUILD_LLVM_PS" "$BUILD_AOT_PS" "$USING_UNRESOLVED_SMOKE" "$USING_RESOLVE_SMOKE" "$USING_STRICT_PATH_FAIL_SMOKE" "$DEV_SELFHOST_LOOP" "$ENGINEERING_PARITY" "$SELFHOST_EXE_STAGEB" "$NY_PARSER_BRIDGE_SMOKE" "$PHI_TRACE_RUN" "$TEST_SHLIB" "$EMIT_MIR_ROUTE" "$ENV_RS" "$ENV_PATHS_RS" "$ENV_DOC"
 
 require_fixed() {
   local pattern="$1"
@@ -68,6 +69,7 @@ require_fixed "HAKORUNE-SELFHOST-EXE-STAGEB-BINARY-RESOLUTION-001" "$SSOT"
 require_fixed "HAKORUNE-PARSER-BRIDGE-SMOKE-BINARY-RESOLUTION-001" "$SSOT"
 require_fixed "HAKORUNE-PHI-TRACE-RUNNER-BINARY-RESOLUTION-001" "$SSOT"
 require_fixed "HAKORUNE-TEST-SHLIB-BINARY-RESOLUTION-001" "$SSOT"
+require_fixed "HAKORUNE-SMOKE-EMIT-MIR-ROUTE-BINARY-ALIAS-001" "$SSOT"
 require_fixed "HAKORUNE-ENV-ALIAS-INVENTORY-001" "$SSOT"
 require_fixed "HAKORUNE-ENV-ALIAS-FIRST-CUT-001" "$SSOT"
 require_fixed 'prefer `target/release/hakorune` or `$HAKO_BIN`' "$README_MD"
@@ -147,6 +149,14 @@ require_fixed 'local fallback="$ROOT_DIR/target/release/nyash"' "$TEST_SHLIB"
 require_fixed '"$(resolve_hakorune_bin)" --emit-mir-json' "$TEST_SHLIB"
 if rg -n 'target/release/nyash" --emit-mir-json' "$TEST_SHLIB"; then
   guard_fail "$TAG" "test shell helper emit_json must invoke Hakorune-first binary resolver"
+fi
+require_fixed 'if [ -n "${HAKO_BIN:-}" ] && [ -z "${NYASH_BIN:-}" ]; then' "$EMIT_MIR_ROUTE"
+require_fixed 'NYASH_BIN="$ROOT/target/release/hakorune"' "$EMIT_MIR_ROUTE"
+require_fixed 'NYASH_BIN="$ROOT/target/release/nyash"' "$EMIT_MIR_ROUTE"
+require_fixed 'HAKO_BIN="${HAKO_BIN:-$NYASH_BIN}"' "$EMIT_MIR_ROUTE"
+require_fixed '<HAKO_BIN|NYASH_BIN> --backend mir --emit-mir-json' "$EMIT_MIR_ROUTE"
+if rg -n "nyash/hakorune binary not found" "$EMIT_MIR_ROUTE"; then
+  guard_fail "$TAG" "emit MIR route helper must use Hakorune-first binary wording"
 fi
 require_fixed "env_bool_with_alias" "$ENV_RS"
 require_fixed "env_string_with_alias" "$ENV_RS"
