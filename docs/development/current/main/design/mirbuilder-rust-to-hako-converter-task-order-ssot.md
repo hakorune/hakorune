@@ -24,9 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-SAME-MODULE-DEFINITION-KIND-FORMATTER-HAKO-NATIVE-IMPLEMENTATION-001.
-  The hand-authored same_module_definition_kind_formatter Hako-native
-  implementation is created; next is the parity gate card.
+  MIRBUILDER-SAME-MODULE-DEFINITION-KIND-FORMATTER-PARITY-GATE-001.
+  The same_module_definition_kind_formatter Rust-oracle parity gate is green;
+  next is the HakoAdoption decision card.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-SAME-MODULE-DEFINITION-KIND-FORMATTER-PARITY-GATE-001
+  MIRBUILDER-SAME-MODULE-DEFINITION-KIND-FORMATTER-HAKO-ADOPTION-DECISION-001
 
 current fail-fast boundary:
   Do not re-enter full converter route selection without new non-self-signed
@@ -76,11 +76,11 @@ current fail-fast boundary:
   remain Rust.
 
 latest design decision:
-  same_module_definition_kind_formatter now has a hand-authored `.hako`
-  implementation for `SameModuleDefinitionKind -> JSON name`. Same-module
-  closure collection, route traversal, MirModule mutation, and backend C shim
-  emission remain Rust. The selected next card is
-  `MIRBUILDER-SAME-MODULE-DEFINITION-KIND-FORMATTER-PARITY-GATE-001`.
+  same_module_definition_kind_formatter now has a green 2-row `.hako` EXE
+  parity gate for `SameModuleDefinitionKind -> JSON name`. Same-module closure
+  collection, route traversal, MirModule mutation, and backend C shim emission
+  remain Rust. The selected next card is
+  `MIRBUILDER-SAME-MODULE-DEFINITION-KIND-FORMATTER-HAKO-ADOPTION-DECISION-001`.
 
 historical route-selection decision:
   Detailed landed route-selection rows are closed as provenance and live in
