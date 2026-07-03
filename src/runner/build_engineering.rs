@@ -1,4 +1,5 @@
-use std::path::{Path, PathBuf};
+use super::build_shared::hakorune_cli_bin_path;
+use std::path::Path;
 
 pub(super) fn build_engineering_artifact(
     cwd: &Path,
@@ -20,18 +21,12 @@ fn emit_engineering_object(
         "[emit] Cranelift object → {} (directory)",
         obj_dir.display()
     );
-    let status = std::process::Command::new(nyash_bin_path(cwd, profile))
+    let status = std::process::Command::new(hakorune_cli_bin_path(cwd, profile))
         .args(["--backend", "vm", app])
         .status()
-        .map_err(|e| format!("spawn nyash jit-aot: {}", e))?;
+        .map_err(|e| format!("spawn hakorune jit-aot: {}", e))?;
     if !status.success() {
         return Err("Cranelift emit failed".into());
     }
     Ok(())
-}
-
-fn nyash_bin_path(cwd: &Path, profile: &str) -> PathBuf {
-    cwd.join("target")
-        .join(profile)
-        .join(if cfg!(windows) { "nyash.exe" } else { "nyash" })
 }

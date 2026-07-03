@@ -87,6 +87,29 @@ pub(super) fn build_core(profile: &str, aot: &str, target: Option<&str>) -> Resu
     Ok(())
 }
 
+pub(super) fn hakorune_cli_bin_path(cwd: &Path, profile: &str) -> PathBuf {
+    let dir = cwd.join("target").join(profile);
+    let primary = dir.join(exe_name("hakorune"));
+    if primary.is_file() {
+        return primary;
+    }
+
+    let legacy = dir.join(exe_name("nyash"));
+    if legacy.is_file() {
+        return legacy;
+    }
+
+    primary
+}
+
+fn exe_name(stem: &str) -> String {
+    if cfg!(windows) {
+        format!("{stem}.exe")
+    } else {
+        stem.to_string()
+    }
+}
+
 pub(super) fn resolve_app_entry(
     cwd: &Path,
     doc: &toml::Value,
@@ -128,5 +151,66 @@ fn collect_main_hako_candidates(dir: &Path, acc: &mut Vec<String>) {
                 acc.push(path.display().to_string());
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::hakorune_cli_bin_path;
+    use std::fs;
+    use std::path::PathBuf;
+
+    fn test_root(name: &str) -> PathBuf {
+        let root = std::env::temp_dir().join(format!(
+            "hakorune-build-shared-{}-{}",
+            name,
+            std::process::id()
+        ));
+        let _ = fs::remove_dir_all(&root);
+        fs::create_dir_all(root.join("target").join("debug")).expect("create target/debug");
+        root
+    }
+
+    fn bin_name(stem: &str) -> String {
+        if cfg!(windows) {
+            format!("{stem}.exe")
+        } else {
+            stem.to_string()
+        }
+    }
+
+    #[test]
+    fn hakorune_cli_bin_path_prefers_primary_binary() {
+        let root = test_root("prefers-primary");
+        let dir = root.join("target").join("debug");
+        let primary = dir.join(bin_name("hakorune"));
+        let legacy = dir.join(bin_name("nyash"));
+        fs::write(&primary, "").expect("write primary");
+        fs::write(&legacy, "").expect("write legacy");
+
+        assert_eq!(hakorune_cli_bin_path(&root, "debug"), primary);
+
+        let _ = fs::remove_dir_all(root);
+    }
+
+    #[test]
+    fn hakorune_cli_bin_path_falls_back_to_legacy_binary() {
+        let root = test_root("falls-back");
+        let legacy = root.join("target").join("debug").join(bin_name("nyash"));
+        fs::write(&legacy, "").expect("write legacy");
+
+        assert_eq!(hakorune_cli_bin_path(&root, "debug"), legacy);
+
+        let _ = fs::remove_dir_all(root);
+    }
+
+    #[test]
+    fn hakorune_cli_bin_path_returns_primary_when_no_binary_exists() {
+        let root = test_root("missing");
+        let expected = root.join("target").join("debug").join(bin_name("hakorune"));
+
+        assert_eq!(hakorune_cli_bin_path(&root, "debug"), expected);
+
+        let _ = fs::remove_dir_all(root);
     }
 }

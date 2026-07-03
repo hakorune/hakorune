@@ -411,7 +411,7 @@ tools/checks/dev_gate.sh quick
 
 ### HAKORUNE-BINARY-DEFAULT-RUN-CUTOVER-001
 
-Status: active in this slice.
+Status: landed Cargo default-run cut.
 
 Scope:
 
@@ -442,6 +442,44 @@ Acceptance:
 ```bash
 bash tools/checks/naming_charter_guard.sh
 cargo run -q -- --version
+tools/checks/dev_gate.sh quick
+```
+
+### HAKORUNE-RUNNER-BUILD-HELPER-BINARY-RESOLUTION-001
+
+Status: active in this slice.
+
+Scope:
+
+- route product / engineering build helper child-process execution through a
+  single Hakorune-first binary resolver;
+- prefer `target/<profile>/hakorune` when present;
+- fall back to `target/<profile>/nyash` only when the primary binary is absent;
+- keep package/crate/plugin/ABI/tool names untouched in this slice.
+
+Contract:
+
+```text
+resolver:
+  src/runner/build_shared.rs::hakorune_cli_bin_path
+
+primary:
+  target/<profile>/hakorune(.exe)
+
+compat fallback:
+  target/<profile>/nyash(.exe)
+  used only if primary is absent
+
+callers:
+  src/runner/build_product.rs
+  src/runner/build_engineering.rs
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+cargo test -q --lib hakorune_cli_bin_path
 tools/checks/dev_gate.sh quick
 ```
 

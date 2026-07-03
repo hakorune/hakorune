@@ -41,10 +41,10 @@ the active card and task-order SSOT. Do not duplicate them here.
 
 ## Immediate Maintenance Slice
 
-Scope: Hakorune Cargo default-run cutover.
+Scope: Hakorune runner build helper binary resolution.
 
-- make plain `cargo run` resolve to the primary `hakorune` binary
-- keep `nyash` as an explicit compatibility binary only
+- make build product / engineering emit helpers resolve `hakorune` first
+- keep `nyash` as an explicit fallback when the primary binary is absent
 - keep package/crate/plugin/ABI/tool names untouched in this slice
 - do not remove `nyash` aliases or rename Cargo package metadata
 
@@ -52,6 +52,6 @@ Acceptance:
 
 ```bash
 bash tools/checks/naming_charter_guard.sh
-cargo run -q -- --version
+cargo test -q --lib hakorune_cli_bin_path
 tools/checks/dev_gate.sh quick
 ```

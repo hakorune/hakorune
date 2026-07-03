@@ -1,4 +1,5 @@
-use std::path::{Path, PathBuf};
+use super::build_shared::hakorune_cli_bin_path;
+use std::path::Path;
 
 pub(super) fn build_product_artifact(
     cwd: &Path,
@@ -12,18 +13,12 @@ pub(super) fn build_product_artifact(
 fn emit_llvm_object(cwd: &Path, profile: &str, app: &str, obj_path: &Path) -> Result<(), String> {
     std::env::set_var("NYASH_LLVM_OBJ_OUT", obj_path);
     println!("[emit] LLVM object → {}", obj_path.display());
-    let status = std::process::Command::new(nyash_bin_path(cwd, profile))
+    let status = std::process::Command::new(hakorune_cli_bin_path(cwd, profile))
         .args(["--backend", "llvm", app])
         .status()
-        .map_err(|e| format!("spawn nyash llvm: {}", e))?;
+        .map_err(|e| format!("spawn hakorune llvm: {}", e))?;
     if !status.success() {
         return Err("LLVM emit failed".into());
     }
     Ok(())
-}
-
-fn nyash_bin_path(cwd: &Path, profile: &str) -> PathBuf {
-    cwd.join("target")
-        .join(profile)
-        .join(if cfg!(windows) { "nyash.exe" } else { "nyash" })
 }
