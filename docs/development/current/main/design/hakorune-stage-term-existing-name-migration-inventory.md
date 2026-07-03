@@ -670,6 +670,29 @@ test behavior changed = 0
 runtime behavior changed = 0
 ```
 
+## Landed App Binary-Only Smoke Comment Wording Slice
+
+`STAGE-TERM-APP-BINARY-ONLY-SMOKE-COMMENT-WORDING-001` changes the app-level
+binary-only selfhost readiness smoke comments from unqualified stage terms to
+phase-1 / phase-2 proxy wording.
+
+Scope:
+
+```text
+tools/smokes/v2/profiles/integration/apps/phase29y_hako_binary_only_selfhost_readiness_vm.sh:
+  contract comment says phase-1 repo dependencies
+  pass1/pass2 comments say phase-1 / phase-2 proxy
+```
+
+Non-claims:
+
+```text
+stage1.mir / stage2.mir artifact filenames renamed = 0
+pass1/pass2 behavior changed = 0
+binary-only readiness contract changed = 0
+runtime behavior changed = 0
+```
+
 ## Migration Eligibility
 
 An occurrence is eligible for a future rename only if all conditions hold:

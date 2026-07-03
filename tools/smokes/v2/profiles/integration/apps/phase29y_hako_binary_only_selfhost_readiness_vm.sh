@@ -1,7 +1,7 @@
 #!/bin/bash
 # phase29y_hako_binary_only_selfhost_readiness_vm.sh
 # Contract pin (ported, non-gating):
-# - repo-outside `hakorune` binary-only route can run a 2-pass MIR emit without stage1 repo dependencies.
+# - repo-outside `hakorune` binary-only route can run a 2-pass MIR emit without phase-1 repo dependencies.
 # - pass1/pass2 MIR must match under canonical normalization (pre-selfhost N->N+1->N+2 proxy lock).
 # - same workdir must run `--backend vm --hako-run` successfully.
 
@@ -43,7 +43,7 @@ check_stale_binary_only_markers() {
 phase29y_binary_only_require_input_and_bin "$SMOKE_NAME" "$INPUT" || exit 2
 phase29y_binary_only_prepare_workdir "$INPUT" "phase29y_hako_binary_only_selfhost_readiness"
 
-# pass1 emit (Stage1 proxy)
+# pass1 emit (phase-1 proxy)
 phase29y_binary_only_run_in_workdir "$RUN_TIMEOUT_SECS" 1 --hako-emit-mir-json ./stage1.mir ./input.hako
 OUTPUT="$PHASE29Y_BINARY_ONLY_OUTPUT"
 RC="$PHASE29Y_BINARY_ONLY_RC"
@@ -59,7 +59,7 @@ if [ "$RC" -ne 0 ]; then
 fi
 check_stale_binary_only_markers "$OUTPUT" "emit-pass1"
 
-# pass2 emit (Stage2 proxy)
+# pass2 emit (phase-2 proxy)
 phase29y_binary_only_run_in_workdir "$RUN_TIMEOUT_SECS" 1 --hako-emit-mir-json ./stage2.mir ./input.hako
 OUTPUT="$PHASE29Y_BINARY_ONLY_OUTPUT"
 RC="$PHASE29Y_BINARY_ONLY_RC"

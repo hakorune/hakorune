@@ -135,10 +135,12 @@ internals untouched. Rust JSON v0 bridge comments and one local freeze
 diagnostic now use mode-B compatibility / bootstrap wording while keeping
 `try_lower_stageb_*` names, route symbols, and behavior unchanged. Remaining
 HHako build/test comments now also use bootstrap / mode-B compatibility wording
-while keeping `stageb_*` test file names and StageB Box names unchanged. Next
-safe naming work, if explicitly selected, must pick a different classified
-layer from that inventory and keep compatibility aliases or replacement routes
-in the same slice.
+while keeping `stageb_*` test file names and StageB Box names unchanged. The
+binary-only app selfhost readiness smoke comments now use phase-1 / phase-2
+proxy wording while keeping pass names and `stage1.mir` / `stage2.mir`
+artifact filenames unchanged. Next safe naming work, if explicitly selected,
+must pick a different classified layer from that inventory and keep
+compatibility aliases or replacement routes in the same slice.
 
 Acceptance:
 

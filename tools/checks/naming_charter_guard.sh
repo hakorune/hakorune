@@ -122,6 +122,7 @@ SELFHOST_STAGEB_LAMBDA_LITERAL_PAIR_SMOKE="$ROOT_DIR/tools/smokes/v2/profiles/in
 SELFHOST_STAGEB_ROUTE_PARITY_SMOKE="$ROOT_DIR/tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_stageb_route_parity_smoke_vm.sh"
 SELFHOST_STEADY_STATE_SMOKE="$ROOT_DIR/tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_steady_state_vm.sh"
 SELFHOST_STAGEB_FUNCSCANNER_TYPED_PARAMS_SMOKE="$ROOT_DIR/tools/smokes/v2/profiles/integration/selfhost/phase29cc_selfhost_stageb_funcscanner_typed_params_implements_min_vm.sh"
+APP_BINARY_ONLY_SELFHOST_READINESS_SMOKE="$ROOT_DIR/tools/smokes/v2/profiles/integration/apps/phase29y_hako_binary_only_selfhost_readiness_vm.sh"
 COLLECTION_MAP_GET_SHARES_MAP_SMOKE="$ROOT_DIR/tools/smokes/v2/profiles/quick/collections/map_get_shares_map.sh"
 COLLECTION_MAP_GET_SHARES_ARRAY_SMOKE="$ROOT_DIR/tools/smokes/v2/profiles/quick/collections/map_get_shares_array.sh"
 COLLECTION_STRING_SIZE_ALIAS_SMOKE="$ROOT_DIR/tools/smokes/v2/profiles/quick/collections/string_size_alias.sh"
@@ -277,6 +278,7 @@ REQUIRED_FILES=(
   "$SELFHOST_STAGEB_ROUTE_PARITY_SMOKE"
   "$SELFHOST_STEADY_STATE_SMOKE"
   "$SELFHOST_STAGEB_FUNCSCANNER_TYPED_PARAMS_SMOKE"
+  "$APP_BINARY_ONLY_SELFHOST_READINESS_SMOKE"
   "$COLLECTION_MAP_GET_SHARES_MAP_SMOKE"
   "$COLLECTION_MAP_GET_SHARES_ARRAY_SMOKE"
   "$COLLECTION_STRING_SIZE_ALIAS_SMOKE"
@@ -389,6 +391,7 @@ SSOT_REQUIRED_TOKENS=(
   "STAGE-TERM-HHAKO-PARSER-BUILD-COMMENT-WORDING-001"
   "STAGE-TERM-JSON-V0-BRIDGE-COMMENT-WORDING-001"
   "STAGE-TERM-HHAKO-BUILD-TEST-COMMENT-WORDING-001"
+  "STAGE-TERM-APP-BINARY-ONLY-SMOKE-COMMENT-WORDING-001"
 )
 guard_require_unique_values "SSOT required token" "${SSOT_REQUIRED_TOKENS[@]}"
 for ssot_token in "${SSOT_REQUIRED_TOKENS[@]}"; do
@@ -664,6 +667,12 @@ for current_diag_script in "$SELFHOST_JSON_V0_TRY_CATCH_CANARY" "$SELFHOST_STAGE
     guard_fail "$TAG" "current selfhost diagnostic scripts must use Hakorune-first binary wording"
   fi
 done
+require_fixed 'without phase-1 repo dependencies' "$APP_BINARY_ONLY_SELFHOST_READINESS_SMOKE"
+require_fixed 'pass1 emit (phase-1 proxy)' "$APP_BINARY_ONLY_SELFHOST_READINESS_SMOKE"
+require_fixed 'pass2 emit (phase-2 proxy)' "$APP_BINARY_ONLY_SELFHOST_READINESS_SMOKE"
+if rg -n 'without stage1 repo dependencies|pass1 emit \(Stage1 proxy\)|pass2 emit \(Stage2 proxy\)' "$APP_BINARY_ONLY_SELFHOST_READINESS_SMOKE"; then
+  guard_fail "$TAG" "binary-only selfhost readiness smoke comments must use phase-1/phase-2 proxy wording"
+fi
 for collection_smoke in "$COLLECTION_MAP_GET_SHARES_MAP_SMOKE" "$COLLECTION_MAP_GET_SHARES_ARRAY_SMOKE" "$COLLECTION_STRING_SIZE_ALIAS_SMOKE"; do
   require_fixed 'BIN="${NYASH_BIN:-./target/release/hakorune}"' "$collection_smoke"
   require_fixed 'Hakorune binary not found' "$collection_smoke"
@@ -970,6 +979,7 @@ NAMING_DIFF_ALLOWED_PATHS=(
   "tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_stageb_route_parity_smoke_vm.sh"
   "tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_steady_state_vm.sh"
   "tools/smokes/v2/profiles/integration/selfhost/phase29cc_selfhost_stageb_funcscanner_typed_params_implements_min_vm.sh"
+  "tools/smokes/v2/profiles/integration/apps/phase29y_hako_binary_only_selfhost_readiness_vm.sh"
   "tests/phase29ci_stageb_body_extract.rs"
   "src/runner/json_v0_bridge/ast.rs"
   "src/runner/json_v0_bridge/lowering/if_legacy.rs"

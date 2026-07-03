@@ -401,6 +401,37 @@ git diff --check
 tools/checks/dev_gate.sh quick
 ```
 
+### STAGE-TERM-APP-BINARY-ONLY-SMOKE-COMMENT-WORDING-001
+
+Status: landed app binary-only smoke comment cut.
+
+Scope:
+
+- update the app-level binary-only selfhost readiness smoke comments from
+  unqualified `stage1` / `Stage1` / `Stage2` wording to phase-1 / phase-2
+  proxy wording;
+- keep pass names and `stage1.mir` / `stage2.mir` artifact filenames
+  unchanged;
+- do not change binary-only readiness behavior.
+
+Contract:
+
+```text
+comments:
+  use phase-1 / phase-2 proxy wording
+
+compatibility surfaces:
+  stage1.mir and stage2.mir artifact filenames remain unchanged
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
 ### HAKORUNE-ENV-ALIAS-INVENTORY-001
 
 Status: landed foundation.
