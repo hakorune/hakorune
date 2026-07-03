@@ -129,4 +129,4 @@ HAKO_SRC="$(cat "$SOURCE_FILE")" \
   HAKO_QUIET="${HAKO_QUIET:-0}" \
   NYASH_CLI_VERBOSE="${NYASH_CLI_VERBOSE:-0}" \
   timeout "$TIMEOUT_SECS" \
-  "$NYASH_BIN" --backend vm "$COMPILER" -- --stage-b --stage3
+  "$NYASH_BIN" --backend vm "$COMPILER" -- --stage-b --syntax-3

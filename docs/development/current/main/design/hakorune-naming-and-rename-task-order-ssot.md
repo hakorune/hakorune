@@ -1830,6 +1830,9 @@ HHako compiler entry:
 Rust selfhost child spawn:
   new child args use --syntax-3
 
+Selfhost proof/quickstart:
+  representative proof command and quickstart examples use --syntax-3
+
 Reference docs:
   --syntax-3 documented first, --stage3 retained as compatibility
 ```

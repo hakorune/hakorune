@@ -20,19 +20,19 @@ The flow below keeps raw defaults unchanged and uses small, opt‑in flags for d
 Compile a minimal program (string embedded in the compiler) and print JSON v0:
 
 ```
-./target/release/nyash lang/src/compiler/entry/compiler_stageb.hako -- --stage3 --source 'static box Main { main() { return 7 } }'
+./target/release/nyash lang/src/compiler/entry/compiler_stageb.hako -- --syntax-3 --source 'static box Main { main() { return 7 } }'
 ```
 
 ENV → child args (透過):
 - `NYASH_NY_COMPILER_MIN_JSON=1` → `-- --min-json`
 - `NYASH_SELFHOST_READ_TMP=1`    → `-- --read-tmp` (reads `tmp/ny_parser_input.ny`)
-- `NYASH_NY_COMPILER_STAGE3=1`   → `-- --stage3` (Stage‑3 surface enable)
+- `NYASH_NY_COMPILER_STAGE3=1`   → `-- --syntax-3` (syntax-3 surface enable; `--stage3` remains a compatibility alias)
 - `NYASH_NY_COMPILER_CHILD_ARGS="..."` → passes extra args verbatim
 
 Examples:
 ```
-NYASH_NY_COMPILER_MIN_JSON=1 ./target/release/nyash lang/src/compiler/entry/compiler_stageb.hako -- --stage3 --source 'static box Main { main() { return 1+2 } }' > /tmp/out.json
-NYASH_SELFHOST_READ_TMP=1 ./target/release/nyash lang/src/compiler/entry/compiler_stageb.hako -- --min-json --stage3
+NYASH_NY_COMPILER_MIN_JSON=1 ./target/release/nyash lang/src/compiler/entry/compiler_stageb.hako -- --syntax-3 --source 'static box Main { main() { return 1+2 } }' > /tmp/out.json
+NYASH_SELFHOST_READ_TMP=1 ./target/release/nyash lang/src/compiler/entry/compiler_stageb.hako -- --min-json --syntax-3
 ```
 
 ## Execute MIR(JSON v0)
