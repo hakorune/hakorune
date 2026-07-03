@@ -1,0 +1,31 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderHakoNativeOwnerParityPilotSelectionRerun067V1",
+  "token": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-067",
+  "previous_adoption_decision": {
+    "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-map-lookup-fusion-metadata-label-formatter-hako-adoption-decision-v0.json",
+    "hash": "sha256:5828dcd452bbe5d82fcbc0bc59b262527208e825f44a9a9396c07bd9e2ccce65"
+  },
+  "selected_owner": {
+    "owner_id": "plan_freeze_tag_formatter",
+    "rust_source": "src/mir/builder/control_flow/plan/planner/freeze.rs",
+    "oracle_surface": "Freeze constructor tag vocabulary",
+    "selection_reason": "Pure planner freeze tag vocabulary with scalar constructor-token input and no freeze construction or error formatting."
+  },
+  "decision": {
+    "kind": "SelectRustOracleFixture",
+    "reason_token": "PlanFreezeTagFormatterSelected",
+    "selected_next_card": "MIRBUILDER-PLAN-FREEZE-TAG-FORMATTER-RUST-ORACLE-FIXTURE-001"
+  },
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "freeze_construction_migration": 0,
+    "freeze_message_formatting_migration": 0,
+    "planner_failfast_policy_migration": 0
+  }
+}

@@ -1,0 +1,21 @@
+// plan_freeze_tag_formatter.hako
+//
+// Responsibility:
+// - format the narrow planner Freeze constructor tag vocabulary
+// - stay pure: constructor token in, tag token out
+//
+// Non-responsibility:
+// - Freeze object construction
+// - message and hint formatting
+// - planner fail-fast policy
+// - Rust Error / Display integration
+static box PlanFreezeTagFormatterBox {
+  tag(kind) {
+    if kind == "Contract" { return "contract" }
+    if kind == "Ambiguous" { return "ambiguous" }
+    if kind == "Unsupported" { return "unsupported" }
+    if kind == "Unstructured" { return "unstructured" }
+    if kind == "Bug" { return "bug" }
+    return "unsupported_plan_freeze_tag"
+  }
+}

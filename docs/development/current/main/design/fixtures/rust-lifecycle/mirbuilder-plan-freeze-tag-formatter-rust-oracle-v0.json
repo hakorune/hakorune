@@ -1,0 +1,29 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderPlanFreezeTagFormatterRustOracleV1",
+  "token": "MIRBUILDER-PLAN-FREEZE-TAG-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "plan_freeze_tag_formatter",
+  "rust_source": {
+    "path": "src/mir/builder/control_flow/plan/planner/freeze.rs",
+    "hash": "sha256:66713815cc53b137512d1d027d288cfcf6cf5b7ac1d9ea1f2bb283085568365b",
+    "oracle_surface": "Freeze constructor tag vocabulary"
+  },
+  "rows": [
+    {"kind": "freeze_tag", "input": "Contract", "expected": "contract"},
+    {"kind": "freeze_tag", "input": "Ambiguous", "expected": "ambiguous"},
+    {"kind": "freeze_tag", "input": "Unsupported", "expected": "unsupported"},
+    {"kind": "freeze_tag", "input": "Unstructured", "expected": "unstructured"},
+    {"kind": "freeze_tag", "input": "Bug", "expected": "bug"}
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "freeze_construction_migration": 0,
+    "freeze_message_formatting_migration": 0,
+    "planner_failfast_policy_migration": 0
+  }
+}
