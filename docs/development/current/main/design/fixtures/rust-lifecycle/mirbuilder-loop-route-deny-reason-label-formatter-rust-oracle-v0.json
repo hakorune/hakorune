@@ -1,0 +1,31 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderLoopRouteDenyReasonLabelFormatterRustOracleV1",
+  "token": "MIRBUILDER-LOOP-ROUTE-DENY-REASON-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "loop_route_deny_reason_label_formatter",
+  "rust_source": {
+    "path": "src/mir/builder/control_flow/joinir/route_entry/registry/legacy_observer.rs",
+    "hash": "sha256:cb9a919b1938d9eb1c57628c2a95d7969b97c56b6ca80378ed4d00d100ed11fc",
+    "oracle_surface": "LoopRouteDenyReason label/owner vocabulary"
+  },
+  "rows": [
+    { "reason": "NoFacts", "field": "reason", "expected": "NoFacts" },
+    { "reason": "NoFacts", "field": "owner", "expected": "recipe_fact_producer" },
+    { "reason": "NoCandidate", "field": "reason", "expected": "NoCandidate" },
+    { "reason": "NoCandidate", "field": "owner", "expected": "fixture_inventory" },
+    { "reason": "OverlappingNamedRoutes", "field": "reason", "expected": "OverlappingNamedRoutes" },
+    { "reason": "OverlappingNamedRoutes", "field": "owner", "expected": "loop_route_retire_selection" }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "legacy_observer_shadow_decision_migration": 0,
+    "loop_route_candidate_collection_migration": 0,
+    "runtime_route_selection_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

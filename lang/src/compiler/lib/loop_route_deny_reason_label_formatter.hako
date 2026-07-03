@@ -1,0 +1,31 @@
+// loop_route_deny_reason_label_formatter.hako - hand-authored deny label formatter
+//
+// Responsibility:
+// - format narrow loop legacy observer deny reason/owner vocabulary
+// - stay pure: scalar reason/field in, scalar text out
+//
+// Non-responsibility:
+// - legacy observer shadow decision
+// - loop route candidate collection
+// - runtime route selection
+// - MIR mutation
+static box LoopRouteDenyReasonLabelFormatterBox {
+  format_label(reason, field) {
+    if reason == "NoFacts" {
+      return me.route(field, "NoFacts", "recipe_fact_producer")
+    }
+    if reason == "NoCandidate" {
+      return me.route(field, "NoCandidate", "fixture_inventory")
+    }
+    if reason == "OverlappingNamedRoutes" {
+      return me.route(field, "OverlappingNamedRoutes", "loop_route_retire_selection")
+    }
+    return "unsupported_loop_route_deny_reason_label"
+  }
+
+  route(field, reason_label, owner_label) {
+    if field == "reason" { return reason_label }
+    if field == "owner" { return owner_label }
+    return "unsupported_loop_route_deny_reason_label_field"
+  }
+}
