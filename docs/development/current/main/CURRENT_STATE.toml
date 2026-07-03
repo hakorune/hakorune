@@ -15,9 +15,10 @@ semantic owner, FunctionRegionStackPop is now a narrow HakoAdopted leaf
 semantic owner, SlotRegistryRelease is now a narrow HakoAdopted leaf semantic
 owner, and carrier-merge assignment is now a narrow HakoAdopted mutation-frame
 leaf semantic owner. StatementValueConstruction box field initialization is
-now a narrow HakoAdopted mutation-frame leaf semantic owner. Source Selfhost
-remains unclaimed. EXE/AOT remains the primary app/selfhost validation route;
-VM/interpreter lanes are not semantic owners."""
+now a narrow HakoAdopted mutation-frame leaf semantic owner.
+StorageClassClassifier is now a narrow HakoAdopted Rust-oracle parity pilot
+owner. Source Selfhost remains unclaimed. EXE/AOT remains the primary
+app/selfhost validation route; VM/interpreter lanes are not semantic owners."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
@@ -25,11 +26,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-STORAGE-CLASS-CLASSIFIER-PARITY-GATE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2102-MIRBUILDER-STORAGE-CLASS-CLASSIFIER-PARITY-GATE-001.md"
-latest_card_summary = """The latest card adds the storage_class_classifier
-Rust-oracle parity gate, compares 14 oracle rows through the .hako EXE route,
-and selects the HakoAdopted decision card next."""
+latest_card = "MIRBUILDER-STORAGE-CLASS-CLASSIFIER-HAKO-ADOPTION-DECISION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2103-MIRBUILDER-STORAGE-CLASS-CLASSIFIER-HAKO-ADOPTION-DECISION-001.md"
+latest_card_summary = """The latest card adopts storage_class_classifier as
+the first narrow Rust-oracle parity pilot owner after a green 14-row .hako EXE
+parity gate, while keeping Source Selfhost unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -40,6 +41,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-04: 2103 adopts storage_class_classifier as the first narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
   "2026-07-04: 2102 adds the storage_class_classifier Rust-oracle parity gate and selects the HakoAdopted decision card next.",
   "2026-07-04: 2101 adds the hand-authored .hako storage_class_classifier implementation and selects the parity gate next.",
   "2026-07-04: 2100 creates the storage_class_classifier Rust-oracle fixture and selects the Hako-native implementation card next.",
@@ -51,5 +53,4 @@ landed_tail = [
   "2026-07-03: 2094 applies the MissingProjectionPolicy post-TypeTransport selector and keeps Source Selfhost stopped with no machine-derived lane.",
   "2026-07-03: 2093 defines the MissingProjectionPolicy post-TypeTransport exhaustion selector basis and selects selection rerun 001 without selecting a projection policy.",
   "2026-07-03: 2092 records post-TypeTransport MissingProjectionPolicy inventory and selects the post-Type exhaustion selector basis.",
-  "2026-07-03: 2091 parks the carrier/type parent policy lane and selects MissingProjectionPolicy cluster resolution rerun 005 as the wider lane.",
 ]

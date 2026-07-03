@@ -52,6 +52,7 @@ SOURCE-SELFHOST-RUST-TO-HAKO-CONVERTER-ROLE-PIVOT-001
   -> MIRBUILDER-STORAGE-CLASS-CLASSIFIER-HAKO-NATIVE-IMPLEMENTATION-001
   -> MIRBUILDER-STORAGE-CLASS-CLASSIFIER-PARITY-GATE-001
   -> MIRBUILDER-STORAGE-CLASS-CLASSIFIER-HAKO-ADOPTION-DECISION-001
+  -> MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-001
 ```
 
 Rule:
@@ -64,7 +65,7 @@ correctness must be proven by Rust-oracle parity fixtures
 Source Selfhost claim remains 0
 first owner pilot is storage_class_classifier
 return_prelude_policy is harness smoke only
-storage_class parity gate is green; next is HakoAdopted decision
+storage_class is HakoAdopted as a narrow parity pilot; next is pilot selection rerun
 ```
 
 ## Immediate Maintenance Slice
