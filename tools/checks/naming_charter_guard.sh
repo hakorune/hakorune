@@ -47,6 +47,7 @@ SELFHOST_STAGE_A_COMPAT_BRIDGE_RS="$ROOT_DIR/src/runner/modes/common_util/selfho
 SELFHOST_STAGE_A_ROUTE_RS="$ROOT_DIR/src/runner/modes/common_util/selfhost/stage_a_route.rs"
 SELFHOST_STAGE_A_POLICY_RS="$ROOT_DIR/src/runner/modes/common_util/selfhost/stage_a_policy.rs"
 SELFHOST_COMMON_JSON_RS="$ROOT_DIR/src/runner/modes/common_util/selfhost/json.rs"
+SELFHOST_STAGE0_CAPTURE_RS="$ROOT_DIR/src/runner/modes/common_util/selfhost/stage0_capture.rs"
 SELFHOST_STAGE0_CAPTURE_ROUTE_RS="$ROOT_DIR/src/runner/modes/common_util/selfhost/stage0_capture_route.rs"
 RUNNER_SELFHOST_RS="$ROOT_DIR/src/runner/selfhost.rs"
 HH_COMPILER_README="$ROOT_DIR/lang/src/compiler/README.md"
@@ -208,6 +209,7 @@ REQUIRED_FILES=(
   "$SELFHOST_STAGE_A_ROUTE_RS"
   "$SELFHOST_STAGE_A_POLICY_RS"
   "$SELFHOST_COMMON_JSON_RS"
+  "$SELFHOST_STAGE0_CAPTURE_RS"
   "$SELFHOST_STAGE0_CAPTURE_ROUTE_RS"
   "$RUNNER_SELFHOST_RS"
   "$HH_COMPILER_README"
@@ -401,6 +403,7 @@ SSOT_REQUIRED_TOKENS=(
   "STAGE-TERM-HHAKO-BUILD-TEST-COMMENT-WORDING-001"
   "STAGE-TERM-APP-BINARY-ONLY-SMOKE-COMMENT-WORDING-001"
   "STAGE-TERM-APP-SMOKE-PHASE-COMMENT-WORDING-001"
+  "STAGE-TERM-STAGE0-CAPTURE-COMMENT-WORDING-001"
 )
 guard_require_unique_values "SSOT required token" "${SSOT_REQUIRED_TOKENS[@]}"
 for ssot_token in "${SSOT_REQUIRED_TOKENS[@]}"; do
@@ -759,9 +762,14 @@ require_fixed "mode-A compatibility keep: Program(JSON v0)" "$SELFHOST_STAGE_A_C
 require_fixed "mode-A compatibility route orchestration helper" "$SELFHOST_STAGE_A_ROUTE_RS"
 require_fixed "mode-A compatibility runtime route policy helpers" "$SELFHOST_STAGE_A_POLICY_RS"
 require_fixed "Resolve mode-A compatibility child payload ownership boundary" "$SELFHOST_COMMON_JSON_RS"
+require_fixed "Route-neutral bootstrap capture plumbing" "$SELFHOST_STAGE0_CAPTURE_RS"
+require_fixed "Bootstrap capture route builders" "$SELFHOST_STAGE0_CAPTURE_ROUTE_RS"
+require_fixed "Build a bootstrap capture command for the requested backend" "$SELFHOST_STAGE0_CAPTURE_ROUTE_RS"
+require_fixed "Build a bootstrap capture command for non-VM routes" "$SELFHOST_STAGE0_CAPTURE_ROUTE_RS"
+require_fixed "VM-backed bootstrap capture route" "$SELFHOST_STAGE0_CAPTURE_ROUTE_RS"
 require_fixed "current mode-A compatibility routes use the non-VM builder" "$SELFHOST_STAGE0_CAPTURE_ROUTE_RS"
 require_fixed "mode-A compatibility child spawn/setup" "$RUNNER_SELFHOST_RS"
-if rg -n 'Stage-A (Program|spawn|route|runtime|payload|compat|child|routes|capture)|stage-a compat keep|stage-a compat fallback' "$SELFHOST_STAGE_A_SPAWN_RS" "$SELFHOST_STAGE_A_COMPAT_BRIDGE_RS" "$SELFHOST_STAGE_A_ROUTE_RS" "$SELFHOST_STAGE_A_POLICY_RS" "$SELFHOST_COMMON_JSON_RS" "$SELFHOST_STAGE0_CAPTURE_ROUTE_RS" "$RUNNER_SELFHOST_RS"; then
+if rg -n 'Route-neutral Stage0 capture|Stage0 capture route builders|Build a stage0 capture command|VM-backed stage0 capture route|Stage-A (Program|spawn|route|runtime|payload|compat|child|routes|capture)|stage-a compat keep|stage-a compat fallback' "$SELFHOST_STAGE_A_SPAWN_RS" "$SELFHOST_STAGE_A_COMPAT_BRIDGE_RS" "$SELFHOST_STAGE_A_ROUTE_RS" "$SELFHOST_STAGE_A_POLICY_RS" "$SELFHOST_COMMON_JSON_RS" "$SELFHOST_STAGE0_CAPTURE_RS" "$SELFHOST_STAGE0_CAPTURE_ROUTE_RS" "$RUNNER_SELFHOST_RS"; then
   guard_fail "$TAG" "selfhost mode-A compatibility route wording must not reintroduce Stage-A comments/logs"
 fi
 require_fixed 'token == "--syntax-3" || token == "--stage3"' "$HH_COMPILER_ENTRY"

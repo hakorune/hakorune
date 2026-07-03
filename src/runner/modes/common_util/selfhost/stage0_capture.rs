@@ -123,7 +123,7 @@ fn extract_captured_json_lines(stdout: &str) -> CapturedJsonV0Lines {
     }
 }
 
-/// Route-neutral Stage0 capture plumbing.
+/// Route-neutral bootstrap capture plumbing.
 ///
 /// This function owns:
 /// - timeout / kill / wait handling

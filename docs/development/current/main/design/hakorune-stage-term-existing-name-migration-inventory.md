@@ -726,6 +726,32 @@ artifact filenames renamed = 0
 runtime behavior changed = 0
 ```
 
+## Landed Stage0 Capture Comment Wording Slice
+
+`STAGE-TERM-STAGE0-CAPTURE-COMMENT-WORDING-001` changes Stage0-named capture
+helper comments to bootstrap capture wording while keeping the compatibility
+file/function/test names unchanged.
+
+Scope:
+
+```text
+src/runner/modes/common_util/selfhost/stage0_capture.rs:
+  route-neutral capture comment says bootstrap capture
+
+src/runner/modes/common_util/selfhost/stage0_capture_route.rs:
+  route builder comments say bootstrap capture
+```
+
+Non-claims:
+
+```text
+stage0_capture.rs renamed = 0
+stage0_capture_route.rs renamed = 0
+build_stage0_* function names renamed = 0
+stage0_capture tests renamed = 0
+runtime behavior changed = 0
+```
+
 ## Migration Eligibility
 
 An occurrence is eligible for a future rename only if all conditions hold:

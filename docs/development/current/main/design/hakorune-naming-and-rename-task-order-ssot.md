@@ -463,6 +463,35 @@ git diff --check
 tools/checks/dev_gate.sh quick
 ```
 
+### STAGE-TERM-STAGE0-CAPTURE-COMMENT-WORDING-001
+
+Status: landed Stage0-named capture comment cut.
+
+Scope:
+
+- update Stage0-named capture helper comments to bootstrap capture wording;
+- keep `stage0_capture*` file names, `build_stage0_*` function names, and
+  existing tests unchanged;
+- do not change capture behavior.
+
+Contract:
+
+```text
+comments:
+  use bootstrap capture wording
+
+compatibility surfaces:
+  stage0_capture file/function/test names remain unchanged
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
 ### HAKORUNE-ENV-ALIAS-INVENTORY-001
 
 Status: landed foundation.

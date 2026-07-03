@@ -1,5 +1,5 @@
 /*!
- * Stage0 capture route builders.
+ * Bootstrap capture route builders.
  *
  * Purpose:
  * - Keep `stage0_capture.rs` route-neutral.
@@ -9,7 +9,7 @@
 use std::path::Path;
 use std::process::Command;
 
-/// Build a stage0 capture command for the requested backend.
+/// Build a bootstrap capture command for the requested backend.
 #[allow(dead_code)] // ASTCLEAN-017: retained for VM-backed capture reactivation; current mode-A compatibility routes use the non-VM builder.
 pub(crate) fn build_stage0_capture_command(
     backend: &str,
@@ -34,7 +34,7 @@ pub(crate) fn build_stage0_capture_command(
     cmd
 }
 
-/// Build a stage0 capture command for non-VM routes.
+/// Build a bootstrap capture command for non-VM routes.
 ///
 /// This keeps the capture plumbing route-neutral while letting callers
 /// supply direct/core or compat-only route bodies without reintroducing a
@@ -61,7 +61,7 @@ pub(crate) fn build_stage0_non_vm_capture_command(
     cmd
 }
 
-/// Convenience builder for the current VM-backed stage0 capture route.
+/// Convenience builder for the current VM-backed bootstrap capture route.
 #[allow(dead_code)] // ASTCLEAN-017: retained as the explicit VM route wrapper while mode-A compatibility capture remains non-VM by default.
 pub(crate) fn build_stage0_vm_capture_command(
     exe: &Path,
