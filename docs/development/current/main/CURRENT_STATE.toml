@@ -165,6 +165,9 @@ Source Selfhost remains unclaimed.
 GlobalCallTargetShapeLabelFormatter is now a narrow HakoAdopted Rust-oracle
 parity pilot owner after a green 4-row `.hako` EXE parity gate.
 Source Selfhost remains unclaimed.
+UserBoxMethodPublicationStateFormatter is now a narrow HakoAdopted Rust-oracle
+parity pilot owner after a green 3-row `.hako` EXE parity gate.
+Source Selfhost remains unclaimed.
 EXE/AOT remains the primary
 app/selfhost validation route; VM/interpreter lanes are not semantic owners."""
 
@@ -174,11 +177,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-GLOBAL-CALL-TARGET-SHAPE-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2348-MIRBUILDER-GLOBAL-CALL-TARGET-SHAPE-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.md"
+latest_card = "MIRBUILDER-USER-BOX-METHOD-PUBLICATION-STATE-FORMATTER-HAKO-ADOPTION-DECISION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2353-MIRBUILDER-USER-BOX-METHOD-PUBLICATION-STATE-FORMATTER-HAKO-ADOPTION-DECISION-001.md"
 latest_card_summary = """The latest card adopts
-global_call_target_shape_label_formatter as the fiftieth narrow Rust-oracle
-parity pilot owner and chooses pilot selection rerun 050 next."""
+user_box_method_publication_state_formatter as the fifty-first narrow
+Rust-oracle parity pilot owner and chooses pilot selection rerun 051 next."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -189,14 +192,14 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-04: 2353 adopts user_box_method_publication_state_formatter as the fifty-first narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
+  "2026-07-04: 2352 adds the user_box_method_publication_state_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
+  "2026-07-04: 2351 adds the hand-authored user_box_method_publication_state_formatter .hako implementation and chooses the parity gate card next.",
+  "2026-07-04: 2350 creates the 3-row user_box_method_publication_state_formatter Rust-oracle fixture and chooses the Hako-native implementation card next.",
+  "2026-07-04: 2349 selects user_box_method_publication_state_formatter as the fifty-first narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
   "2026-07-04: 2348 adopts global_call_target_shape_label_formatter as the fiftieth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
   "2026-07-04: 2347 adds the global_call_target_shape_label_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
   "2026-07-04: 2346 adds the hand-authored global_call_target_shape_label_formatter .hako implementation and chooses the parity gate card next.",
   "2026-07-04: 2345 creates the 4-row global_call_target_shape_label_formatter Rust-oracle fixture and chooses the Hako-native implementation card next.",
   "2026-07-04: 2344 selects global_call_target_shape_label_formatter as the fiftieth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
-  "2026-07-04: 2343 adopts boxed_sum_payload_storage_label_formatter as the forty-ninth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
-  "2026-07-04: 2342 adds the boxed_sum_payload_storage_label_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
-  "2026-07-04: 2341 adds the hand-authored boxed_sum_payload_storage_label_formatter .hako implementation and chooses the parity gate card next.",
-  "2026-07-04: 2340 creates the 3-row boxed_sum_payload_storage_label_formatter Rust-oracle fixture and chooses the Hako-native implementation card next.",
-  "2026-07-04: 2339 selects boxed_sum_payload_storage_label_formatter as the forty-ninth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
 ]

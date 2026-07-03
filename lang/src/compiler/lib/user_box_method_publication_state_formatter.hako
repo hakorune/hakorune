@@ -1,0 +1,33 @@
+// user_box_method_publication_state_formatter.hako
+//
+// Responsibility:
+// - format narrow PublicationState vocabulary into Rust oracle text
+// - expose the local-fastpath allowance bit as stable parity text
+//
+// Non-responsibility:
+// - receiver-origin classification
+// - publication proof construction
+// - LocalFastPathFact generation
+// - MIR mutation
+static box UserBoxMethodPublicationStateFormatterBox {
+  format_state(token) {
+    if token == "Unpublished" { return "unpublished" }
+    if token == "Published" { return "published" }
+    if token == "MaybePublished" { return "maybe_published" }
+    return "unsupported_publication_state"
+  }
+
+  permits_local_fastpath(token) {
+    if token == "Unpublished" { return "1" }
+    if token == "Published" { return "0" }
+    if token == "MaybePublished" { return "0" }
+    return "0"
+  }
+
+  fallback_reason(token) {
+    if token == "Unpublished" { return "none" }
+    if token == "Published" { return "published_before_site" }
+    if token == "MaybePublished" { return "maybe_published_before_site" }
+    return "unsupported_publication_state"
+  }
+}

@@ -24,9 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-GLOBAL-CALL-TARGET-SHAPE-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.
-  The global_call_target_shape_label_formatter owner is HakoAdopted as the
-  fiftieth narrow Rust-oracle parity pilot; next is rerun 050.
+  MIRBUILDER-USER-BOX-METHOD-PUBLICATION-STATE-FORMATTER-HAKO-ADOPTION-DECISION-001.
+  The user_box_method_publication_state_formatter owner is HakoAdopted as the
+  fifty-first narrow Rust-oracle parity pilot; next is rerun 051.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-050
+  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-051
 
 current fail-fast boundary:
   Do not re-enter full converter route selection without new non-self-signed
@@ -105,15 +105,17 @@ current fail-fast boundary:
   region payload derivation, DirectArray plan construction/proof derivation,
   DirectArray lowering selection, BoxedSum ABI plan construction/site lookup,
   BoxedSum lowering, global-call target shape inference/route collection,
-  lowering decision, and MIR instruction traversal remain Rust.
+  lowering decision, MIR instruction traversal, receiver-origin
+  classification, publication proof construction, LocalFastPathFact
+  generation, and publication-site MIR mutation remain Rust.
 
 latest design decision:
-  global_call_target_shape_label_formatter is now HakoAdopted as a narrow
-  Rust-oracle parity pilot owner after a green 4-row `.hako` EXE parity gate.
-  Global-call target shape inference, route collection, lowering decision, and
-  MIR mutation remain Rust.
+  user_box_method_publication_state_formatter is now HakoAdopted as a narrow
+  Rust-oracle parity pilot owner after a green 3-row `.hako` EXE parity gate.
+  Receiver-origin classification, publication proof construction,
+  LocalFastPathFact generation, and MIR mutation remain Rust.
   The selected next card is
-  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-050`.
+  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-051`.
 
 historical route-selection decision:
   Detailed landed route-selection rows are closed as provenance and live in

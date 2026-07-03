@@ -1,0 +1,45 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderUserBoxMethodPublicationStateFormatterRustOracleV1",
+  "token": "MIRBUILDER-USER-BOX-METHOD-PUBLICATION-STATE-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "user_box_method_publication_state_formatter",
+  "rust_source": {
+    "path": "src/mir/user_box_method_publication.rs",
+    "hash": "sha256:f42c6aea8b1863cf3438b23015563ef0bbf4ae2bb78be1cfbe58343a78ff1a0f",
+    "policy_path": "crates/hakorune_mir_plans/src/object_storage_plan/publication.rs",
+    "policy_hash": "sha256:c4fb3193ec908db4afcd805685257d98a0f871abd2816a7a945e42fab685f8dd",
+    "oracle_surface": "PublicationState tag / local-fastpath allowance / fallback reason"
+  },
+  "rows": [
+    {
+      "input": "Unpublished",
+      "expected_tag": "unpublished",
+      "expected_allowed": "1",
+      "expected_fallback_reason": "none"
+    },
+    {
+      "input": "Published",
+      "expected_tag": "published",
+      "expected_allowed": "0",
+      "expected_fallback_reason": "published_before_site"
+    },
+    {
+      "input": "MaybePublished",
+      "expected_tag": "maybe_published",
+      "expected_allowed": "0",
+      "expected_fallback_reason": "maybe_published_before_site"
+    }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "publication_state_classification_migration": 0,
+    "publication_proof_migration": 0,
+    "local_fastpath_fact_generation_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}
