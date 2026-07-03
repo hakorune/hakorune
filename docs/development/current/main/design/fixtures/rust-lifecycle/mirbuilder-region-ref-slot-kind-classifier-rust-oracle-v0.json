@@ -1,0 +1,41 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderRegionRefSlotKindClassifierRustOracleV1",
+  "token": "MIRBUILDER-REGION-REF-SLOT-KIND-CLASSIFIER-RUST-ORACLE-FIXTURE-001",
+  "owner": "region_ref_slot_kind_classifier",
+  "rust_source": {
+    "path": "src/mir/region/mod.rs",
+    "hash": "sha256:4a2afe50a86275394581a2a97a3373c8ad92b80a05dcc4fbb7c404643bddf930",
+    "oracle_function": "Region::classify_ref_kind"
+  },
+  "type_vocabulary_source": {
+    "path": "crates/hakorune_mir_core/src/types.rs",
+    "enum": "MirType"
+  },
+  "oracle_rule": {
+    "surface": "MirType -> Region RefSlotKind classifier",
+    "region_construction_migration": 0,
+    "slot_metadata_collection_migration": 0,
+    "gc_retain_release_migration": 0,
+    "region_trace_log_migration": 0,
+    "mir_mutation_migration": 0
+  },
+  "rows": [
+    { "case_id": "box_counter", "mir_type": { "Box": "Counter" }, "expected_ref_slot_kind": "StrongRoot" },
+    { "case_id": "array_integer", "mir_type": { "Array": "Integer" }, "expected_ref_slot_kind": "StrongRoot" },
+    { "case_id": "future_string", "mir_type": { "Future": "String" }, "expected_ref_slot_kind": "StrongRoot" },
+    { "case_id": "weak_ref", "mir_type": "WeakRef", "expected_ref_slot_kind": "WeakRoot" },
+    { "case_id": "integer", "mir_type": "Integer", "expected_ref_slot_kind": "NonRef" },
+    { "case_id": "float", "mir_type": "Float", "expected_ref_slot_kind": "NonRef" },
+    { "case_id": "bool", "mir_type": "Bool", "expected_ref_slot_kind": "NonRef" },
+    { "case_id": "string", "mir_type": "String", "expected_ref_slot_kind": "NonRef" },
+    { "case_id": "void", "mir_type": "Void", "expected_ref_slot_kind": "NonRef" },
+    { "case_id": "unknown", "mir_type": "Unknown", "expected_ref_slot_kind": "NonRef" }
+  ],
+  "summary": {
+    "oracle_row_count": 10,
+    "selected_surface_is_pure_type_classifier": 1,
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0
+  }
+}

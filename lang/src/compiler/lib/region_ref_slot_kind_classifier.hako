@@ -1,0 +1,29 @@
+// region_ref_slot_kind_classifier.hako - hand-authored Region RefSlotKind classifier
+//
+// Responsibility:
+// - classify MirType kind names into Rust oracle Region RefSlotKind labels
+// - stay pure: scalar type kind input, scalar ref-kind output
+//
+// Non-responsibility:
+// - Region construction
+// - slot metadata collection
+// - GC retain/release insertion
+// - Region trace/log emission
+// - MIR mutation
+static box RegionRefSlotKindClassifierBox {
+  classify_ref_kind(kind) {
+    if kind == "Box" {
+      return "StrongRoot"
+    }
+    if kind == "Array" {
+      return "StrongRoot"
+    }
+    if kind == "Future" {
+      return "StrongRoot"
+    }
+    if kind == "WeakRef" {
+      return "WeakRoot"
+    }
+    return "NonRef"
+  }
+}

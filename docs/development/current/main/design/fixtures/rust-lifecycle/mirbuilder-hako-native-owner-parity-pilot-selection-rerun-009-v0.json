@@ -1,0 +1,74 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderHakoNativeOwnerParityPilotSelectionRerun009V1",
+  "token": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-009",
+  "input_state": {
+    "previous_hako_adoption": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-closure-call-shape-classifier-hako-adoption-decision-v0.json",
+    "previous_hako_adoption_hash": "sha256:c78393ef4b6592e9f99ed151df5636af8bcb2ebbacdd451e0f0bb65608ff3bd8",
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+  },
+  "selection_policy": {
+    "candidate_ranking_is_advisory": true,
+    "manual_target_selection_allowed": true,
+    "correctness_proof_is_parity_gate": true,
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0
+  },
+  "candidate_rows": [
+    {
+      "candidate_owner": "region_ref_slot_kind_classifier",
+      "source_path": "src/mir/region/mod.rs",
+      "source_hash": "sha256:4a2afe50a86275394581a2a97a3373c8ad92b80a05dcc4fbb7c404643bddf930",
+      "selected": true,
+      "positive_signals": [
+        "pure MirType-to-RefSlotKind classifier",
+        "scalar input/output parity boundary",
+        "observation-only owner with no Region mutation in selected surface",
+        "no PHI or LocalSSA surface",
+        "GC retain/release can be excluded"
+      ],
+      "excluded_surface": [
+        "Region construction",
+        "slot metadata collection",
+        "GC retain/release insertion",
+        "Region trace/log emission",
+        "MIR mutation"
+      ],
+      "selected_next_card_if_selected": "MIRBUILDER-REGION-REF-SLOT-KIND-CLASSIFIER-RUST-ORACLE-FIXTURE-001"
+    },
+    {
+      "candidate_owner": "user_box_method_publication_state_formatter",
+      "source_path": "src/mir/user_box_method_publication.rs",
+      "selected": false,
+      "reason": "Publication tags are small but sit next to publication proof classification; defer until a tag-only seam is isolated."
+    },
+    {
+      "candidate_owner": "memop_kind_name_formatter",
+      "source_path": "src/mir/contracts/fastmem_ops.rs",
+      "selected": false,
+      "reason": "MemOp naming is pure, but FASTMEM is a backend/perf lane; keep migration pilots on compiler-observation owners."
+    }
+  ],
+  "decision": {
+    "kind": "SelectPilotOwner",
+    "reason_token": "RegionRefSlotKindClassifierSelectedAsTenthParityPilot",
+    "selected_owner": "region_ref_slot_kind_classifier",
+    "selected_rust_surface": "MirType -> Region RefSlotKind classifier",
+    "selected_next_card": "MIRBUILDER-REGION-REF-SLOT-KIND-CLASSIFIER-RUST-ORACLE-FIXTURE-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "native_seed_materialization": 0,
+    "hako_generation": 0,
+    "generated_artifact_as_native_edit_authority": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "region_construction_migration": 0,
+    "slot_metadata_collection_migration": 0,
+    "gc_retain_release_migration": 0,
+    "region_trace_log_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

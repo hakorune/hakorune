@@ -42,6 +42,9 @@ Selfhost remains unclaimed.
 ClosureCallShapeClassifier is now a narrow HakoAdopted Rust-oracle parity
 pilot owner after a green 4-row `.hako` EXE parity gate. Source Selfhost
 remains unclaimed.
+RegionRefSlotKindClassifier is now a narrow HakoAdopted Rust-oracle parity
+pilot owner after a green 10-row `.hako` EXE parity gate. Source Selfhost
+remains unclaimed.
 EXE/AOT remains the primary
 app/selfhost validation route; VM/interpreter lanes are not semantic owners."""
 
@@ -51,11 +54,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-CLOSURE-CALL-SHAPE-CLASSIFIER-HAKO-ADOPTION-DECISION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2143-MIRBUILDER-CLOSURE-CALL-SHAPE-CLASSIFIER-HAKO-ADOPTION-DECISION-001.md"
+latest_card = "MIRBUILDER-REGION-REF-SLOT-KIND-CLASSIFIER-HAKO-ADOPTION-DECISION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2148-MIRBUILDER-REGION-REF-SLOT-KIND-CLASSIFIER-HAKO-ADOPTION-DECISION-001.md"
 latest_card_summary = """The latest card adopts
-closure_call_shape_classifier as the ninth narrow Rust-oracle parity pilot
-owner and chooses pilot selection rerun 009 next."""
+region_ref_slot_kind_classifier as the tenth narrow Rust-oracle parity pilot
+owner and chooses pilot selection rerun 010 next."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -66,15 +69,15 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-04: 2148 adopts region_ref_slot_kind_classifier as the tenth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
+  "2026-07-04: 2147 adds the region_ref_slot_kind_classifier Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
+  "2026-07-04: 2146 adds the hand-authored region_ref_slot_kind_classifier .hako implementation and chooses the parity gate card next.",
+  "2026-07-04: 2145 creates the 10-row region_ref_slot_kind_classifier Rust-oracle fixture and chooses the Hako-native implementation card next.",
+  "2026-07-04: 2144 selects region_ref_slot_kind_classifier as the tenth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
   "2026-07-04: 2143 adopts closure_call_shape_classifier as the ninth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
   "2026-07-04: 2142 adds the closure_call_shape_classifier Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
   "2026-07-04: 2141 adds the hand-authored closure_call_shape_classifier .hako implementation and chooses the parity gate card next.",
   "2026-07-04: 2140 creates the 4-row closure_call_shape_classifier Rust-oracle fixture and chooses the Hako-native implementation card next.",
   "2026-07-04: 2139 selects closure_call_shape_classifier as the ninth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
   "2026-07-04: 2138 adopts generic_method_route_fact_token_formatter as the eighth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
-  "2026-07-04: 2137 adds the generic_method_route_fact_token_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
-  "2026-07-04: 2136 adds the hand-authored generic_method_route_fact_token_formatter .hako implementation and chooses the parity gate card next.",
-  "2026-07-04: 2135 creates the 12-row generic_method_route_fact_token_formatter Rust-oracle fixture and chooses the Hako-native implementation card next.",
-  "2026-07-04: 2134 selects generic_method_route_fact_token_formatter as the eighth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
-  "2026-07-04: 2133 adopts core_method_carrier_token_formatter as the seventh narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
 ]

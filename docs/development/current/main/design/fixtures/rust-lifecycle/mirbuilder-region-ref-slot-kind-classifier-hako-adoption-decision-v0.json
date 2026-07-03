@@ -1,0 +1,55 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderRegionRefSlotKindClassifierHakoAdoptionDecisionV1",
+  "token": "MIRBUILDER-REGION-REF-SLOT-KIND-CLASSIFIER-HAKO-ADOPTION-DECISION-001",
+  "owner": "region_ref_slot_kind_classifier",
+  "input_state": {
+    "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-region-ref-slot-kind-classifier-rust-oracle-v0.json",
+    "hako_source": "lang/src/compiler/lib/region_ref_slot_kind_classifier.hako",
+    "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_region_ref_slot_kind_classifier_parity_gate.sh",
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+  },
+  "adoption_rule": {
+    "adopt_only_narrow_owner": true,
+    "correctness_proof": "RustOracleParityGate",
+    "parity_rows": 10,
+    "parity_status": "green",
+    "rust_bootstrap_retained": 1,
+    "rust_oracle_retained": 1
+  },
+  "adopted_surface": {
+    "name": "Region RefSlotKind classifier",
+    "scope": [
+      "MirType -> RefSlotKind"
+    ]
+  },
+  "excluded_surface": [
+    "Region construction",
+    "slot metadata collection",
+    "GC retain/release insertion",
+    "Region trace/log emission",
+    "MIR mutation",
+    "Source Selfhost claim",
+    "Rust deletion"
+  ],
+  "decision": {
+    "kind": "Adopt",
+    "reason_token": "RegionRefSlotKindClassifierRustOracleParityGateGreen",
+    "selected_next_card": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-010"
+  },
+  "claims": {
+    "hako_adopted": 1,
+    "source_selfhost_claim": 0,
+    "source_selfhost_complete": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "generated_artifact_as_native_edit_authority": 0,
+    "region_construction_migration": 0,
+    "slot_metadata_collection_migration": 0,
+    "gc_retain_release_migration": 0,
+    "region_trace_log_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

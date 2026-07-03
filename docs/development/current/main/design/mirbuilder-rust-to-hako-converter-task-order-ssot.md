@@ -24,9 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-CLOSURE-CALL-SHAPE-CLASSIFIER-HAKO-ADOPTION-DECISION-001.
-  The closure_call_shape_classifier owner is HakoAdopted as the ninth narrow
-  Rust-oracle parity pilot; next is pilot selection rerun 009.
+  MIRBUILDER-REGION-REF-SLOT-KIND-CLASSIFIER-HAKO-ADOPTION-DECISION-001.
+  The region_ref_slot_kind_classifier owner is HakoAdopted as the tenth narrow
+  Rust-oracle parity pilot; next is pilot selection rerun 010.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-009
+  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-010
 
 current fail-fast boundary:
   Do not re-enter full converter route selection without new non-self-signed
@@ -76,15 +76,16 @@ current fail-fast boundary:
   dispatch, string corridor fact inference, same-module definition closure
   collection, receiver origin resolution, key route classification, route
   convergence, closure callsite canonicalization, NewClosure rewrite, lowering
-  execution, and MirBuilder mutation remain Rust.
+  execution, Region construction, GC retain/release, and MirBuilder mutation
+  remain Rust.
 
 latest design decision:
-  closure_call_shape_classifier is now HakoAdopted as a narrow Rust-oracle
-  parity pilot owner after a green 4-row `.hako` EXE parity gate for
-  `dst_present + arg_count -> ClosureCallShape -> reject code`. Callsite
-  canonicalization, NewClosure rewrite, backend fail-fast boundaries, and MIR
-  instruction mutation remain Rust. The selected next card is
-  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-009`.
+  region_ref_slot_kind_classifier is now HakoAdopted as a narrow Rust-oracle
+  parity pilot owner after a green 10-row `.hako` EXE parity gate for
+  `MirType -> RefSlotKind`. Region construction, slot metadata collection, GC
+  retain/release insertion, Region trace/log emission, and MIR mutation remain
+  Rust. The selected next card is
+  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-010`.
 
 historical route-selection decision:
   Detailed landed route-selection rows are closed as provenance and live in

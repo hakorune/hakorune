@@ -93,6 +93,11 @@ SOURCE-SELFHOST-RUST-TO-HAKO-CONVERTER-ROLE-PIVOT-001
   -> MIRBUILDER-CLOSURE-CALL-SHAPE-CLASSIFIER-PARITY-GATE-001
   -> MIRBUILDER-CLOSURE-CALL-SHAPE-CLASSIFIER-HAKO-ADOPTION-DECISION-001
   -> MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-009
+  -> MIRBUILDER-REGION-REF-SLOT-KIND-CLASSIFIER-RUST-ORACLE-FIXTURE-001
+  -> MIRBUILDER-REGION-REF-SLOT-KIND-CLASSIFIER-HAKO-NATIVE-IMPLEMENTATION-001
+  -> MIRBUILDER-REGION-REF-SLOT-KIND-CLASSIFIER-PARITY-GATE-001
+  -> MIRBUILDER-REGION-REF-SLOT-KIND-CLASSIFIER-HAKO-ADOPTION-DECISION-001
+  -> MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-010
 ```
 
 Rule:
@@ -146,6 +151,11 @@ closure_call_shape_classifier has a 4-row Rust-oracle fixture; next is hand-auth
 closure_call_shape_classifier has hand-authored .hako implementation; next is parity gate
 closure_call_shape_classifier parity gate is green; next is HakoAdoption decision
 closure_call_shape_classifier is HakoAdopted as the ninth parity pilot; next is pilot selection rerun 009
+region_ref_slot_kind_classifier is selected as the tenth parity pilot; next is its Rust-oracle fixture
+region_ref_slot_kind_classifier has a 10-row Rust-oracle fixture; next is hand-authored .hako implementation
+region_ref_slot_kind_classifier has hand-authored .hako implementation; next is parity gate
+region_ref_slot_kind_classifier parity gate is green; next is HakoAdoption decision
+region_ref_slot_kind_classifier is HakoAdopted as the tenth parity pilot; next is pilot selection rerun 010
 ```
 
 ## Immediate Maintenance Slice
