@@ -78,6 +78,7 @@ STAGE-TERM-MODEB-HHAKO-COMPAT-FIXTURE-WORDING-001
 STAGE-TERM-HHAKO-COMPILER-ROUTE-WORDING-001
 STAGE-TERM-MODEB-HHAKO-HELPER-COMMENT-WORDING-001
 STAGE-TERM-MODEB-CAPTURE-CALLER-GUARD-WORDING-001
+STAGE-TERM-PHASE1-PROGRAM-JSON-GUARD-WORDING-001
 ```
 
 `--syntax-3` is now the frontend syntax-level spelling; `--stage3` remains a
@@ -103,9 +104,11 @@ mode-B/mode-A compatibility while keeping `StageB*` Box names, trace strings,
 env names, file names, and route tokens unchanged. The active Program(JSON)
 capture caller guard comments/diagnostics and quick gate label now say mode-B
 compatibility while keeping compatibility script names and allowed caller
-surfaces unchanged. Next safe naming work, if explicitly selected, must pick a
-different classified layer from that inventory and keep compatibility aliases
-or replacement routes in the same slice.
+surfaces unchanged. Active Stage1 Program(JSON) guard comments/diagnostics and
+quick gate labels now say phase-1 compatibility while keeping script names,
+fixture names, and helper symbols unchanged. Next safe naming work, if
+explicitly selected, must pick a different classified layer from that inventory
+and keep compatibility aliases or replacement routes in the same slice.
 
 Acceptance:
 

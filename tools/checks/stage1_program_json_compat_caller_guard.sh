@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT"
 
-# Stage1 Program(JSON) compat execution is a probe-only route. Keep the exact
+# phase-1 compatibility Program(JSON) execution is a probe-only route. Keep the exact
 # helper callable only from the explicit phase29ch compatibility probe.
 allowed_files=(
   "tools/selfhost/lib/stage1_contract.sh"
@@ -45,7 +45,7 @@ while IFS=: read -r path line rest; do
 done <"$tmp"
 
 if [ "$bad" -ne 0 ]; then
-  echo "[stage1-program-json-compat-caller-guard] keep Stage1 Program(JSON) compat execution behind phase29ch explicit probe only" >&2
+  echo "[stage1-program-json-compat-caller-guard] keep phase-1 compatibility Program(JSON) execution behind phase29ch explicit probe only" >&2
   exit 1
 fi
 

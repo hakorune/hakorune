@@ -2193,6 +2193,39 @@ git diff --check
 tools/checks/dev_gate.sh quick
 ```
 
+### STAGE-TERM-PHASE1-PROGRAM-JSON-GUARD-WORDING-001
+
+Status: landed phase-1 Program(JSON) guard wording cleanup.
+
+Purpose: use `phase-1 compatibility` wording in active Stage1 Program(JSON)
+guard comments/diagnostics and quick gate labels while keeping script names,
+fixture names, and helper symbols unchanged.
+
+Affected files:
+
+```text
+tools/checks/stage1_emit_program_json_runtime_helper_guard.sh
+tools/checks/stage1_program_json_compat_caller_guard.sh
+tools/checks/lib/dev_gate_quick_steps.sh
+```
+
+Non-claims:
+
+```text
+stage1_* script names renamed = 0
+stage1_* helper symbols renamed = 0
+fixture paths renamed = 0
+runtime behavior changed = 0
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
 ### STAGE-TERM-EXISTING-NAME-MIGRATION-001
 
 Status: inventory-only; no implementation rename selected.

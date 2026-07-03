@@ -363,6 +363,35 @@ allowed caller list changed = 0
 runtime behavior changed = 0
 ```
 
+## Landed phase-1 Program(JSON) Guard Wording Slice
+
+`STAGE-TERM-PHASE1-PROGRAM-JSON-GUARD-WORDING-001` changes active Stage1
+Program(JSON) guard comments/diagnostics and quick gate labels to
+`phase-1 compatibility` wording while keeping script names, fixture names, and
+helper symbols unchanged.
+
+Scope:
+
+```text
+tools/checks/stage1_emit_program_json_runtime_helper_guard.sh:
+  runtime-helper guard comment says phase-1 compatibility
+
+tools/checks/stage1_program_json_compat_caller_guard.sh:
+  probe-only route comment and failure diagnostic say phase-1 compatibility
+
+tools/checks/lib/dev_gate_quick_steps.sh:
+  quick gate labels say phase-1 compatibility
+```
+
+Non-claims:
+
+```text
+stage1_* script names renamed = 0
+stage1_* helper symbols renamed = 0
+fixture paths renamed = 0
+runtime behavior changed = 0
+```
+
 ## Migration Eligibility
 
 An occurrence is eligible for a future rename only if all conditions hold:

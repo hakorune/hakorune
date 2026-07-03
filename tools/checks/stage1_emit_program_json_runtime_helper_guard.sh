@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Guard: public BuildBox.emit_program_json_v0(source, null) lowers to the Stage1 runtime helper.
+# Guard: public BuildBox.emit_program_json_v0(source, null) lowers to the phase-1 compatibility runtime helper.
 
 set -euo pipefail
 

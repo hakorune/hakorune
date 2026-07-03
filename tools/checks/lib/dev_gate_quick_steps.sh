@@ -2,12 +2,12 @@ dev_gate_script_step "current-state pointer guard" tools/checks/current_state_po
 dev_gate_script_step "naming charter guard" tools/checks/naming_charter_guard.sh
 dev_gate_script_step "MIR metadata catalog guard" tools/checks/mir_metadata_catalog_guard.sh
 dev_gate_script_step "Stage0 shape inventory guard" tools/checks/stage0_shape_inventory_guard.sh
-dev_gate_script_step "Stage1 emit-program runtime-helper guard" tools/checks/stage1_emit_program_json_runtime_helper_guard.sh
+dev_gate_script_step "phase-1 compatibility emit-program runtime-helper guard" tools/checks/stage1_emit_program_json_runtime_helper_guard.sh
 dev_gate_script_step "Program(JSON) dev surface guard" tools/checks/program_json_dev_surface_guard.sh
 dev_gate_script_step "Program(JSON v0) compat caller guard" tools/checks/program_json_v0_compat_caller_guard.sh
 dev_gate_script_step "Program(JSON)->MIR bridge caller guard" tools/checks/program_json_mir_bridge_caller_guard.sh
 dev_gate_script_step "mode-B compatibility Program(JSON) capture caller guard" tools/checks/stageb_program_json_capture_caller_guard.sh
-dev_gate_script_step "Stage1 Program(JSON) compat caller guard" tools/checks/stage1_program_json_compat_caller_guard.sh
+dev_gate_script_step "phase-1 compatibility Program(JSON) caller guard" tools/checks/stage1_program_json_compat_caller_guard.sh
 dev_gate_script_step "phase29ch route probe surface guard" tools/checks/phase29ch_route_probe_surface_guard.sh
 dev_gate_script_step "phase29ck pre-perf probe surface guard" tools/checks/phase29ck_preperf_probe_surface_guard.sh
 dev_gate_script_step "phase29ck small-entry probe surface guard" tools/checks/phase29ck_small_entry_probe_surface_guard.sh
