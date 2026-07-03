@@ -7,7 +7,7 @@ fi
 
 usage() {
   cat << USAGE
-Nyash parity runner — compare two execution paths on the same .hako
+Hakorune parity runner — compare two execution paths on the same .hako
 
 Usage: tools/engineering/parity.sh [options] <app.hako>
 
@@ -47,10 +47,20 @@ if [[ ! -f "$APP" ]]; then
 fi
 
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
-NYASH_BIN="$ROOT/target/release/nyash"
+HAKORUNE_BIN="$ROOT/target/release/hakorune"
+LEGACY_NYASH_BIN="$ROOT/target/release/nyash"
+NYASH_BIN="${NYASH_BIN:-}"
+if [[ -z "$NYASH_BIN" ]]; then
+  if [[ -x "$HAKORUNE_BIN" ]]; then
+    NYASH_BIN="$HAKORUNE_BIN"
+  else
+    NYASH_BIN="$LEGACY_NYASH_BIN"
+  fi
+fi
 if [[ ! -x "$NYASH_BIN" ]]; then
-  echo "[build] nyash not found; building release ..." >&2
+  echo "[build] hakorune not found; building release ..." >&2
   (cd "$ROOT" && cargo build --release >/dev/null)
+  NYASH_BIN="$HAKORUNE_BIN"
 fi
 
 has_cmd() { command -v "$1" >/dev/null 2>&1; }

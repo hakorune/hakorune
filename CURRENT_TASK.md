@@ -41,9 +41,9 @@ the active card and task-order SSOT. Do not duplicate them here.
 
 ## Immediate Maintenance Slice
 
-Scope: Hakorune dev/selfhost smoke binary cutover.
+Scope: Hakorune engineering parity helper binary cutover.
 
-- make lightweight using/selfhost dev smoke scripts invoke `hakorune` before legacy `nyash`
+- make `tools/engineering/parity.sh` invoke `hakorune` before legacy `nyash`
 - keep `target/release/nyash` only behind explicit Hakorune-first resolver fallback
 - keep package/crate/plugin/ABI/tool names untouched in this slice
 - keep legacy `NYASH_*` behavior/env names untouched in this slice
@@ -52,10 +52,7 @@ Acceptance:
 
 ```bash
 bash tools/checks/naming_charter_guard.sh
-tools/using_unresolved_smoke.sh
-tools/using_resolve_smoke.sh
-tools/using_strict_path_fail_smoke.sh
-tools/dev_selfhost_loop.sh --help
+tools/engineering/parity.sh --help
 git diff --check
 tools/checks/dev_gate.sh quick
 ```

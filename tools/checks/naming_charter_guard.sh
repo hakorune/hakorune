@@ -26,13 +26,14 @@ USING_UNRESOLVED_SMOKE="$ROOT_DIR/tools/using_unresolved_smoke.sh"
 USING_RESOLVE_SMOKE="$ROOT_DIR/tools/using_resolve_smoke.sh"
 USING_STRICT_PATH_FAIL_SMOKE="$ROOT_DIR/tools/using_strict_path_fail_smoke.sh"
 DEV_SELFHOST_LOOP="$ROOT_DIR/tools/dev_selfhost_loop.sh"
+ENGINEERING_PARITY="$ROOT_DIR/tools/engineering/parity.sh"
 ENV_RS="$ROOT_DIR/src/config/env.rs"
 ENV_PATHS_RS="$ROOT_DIR/src/config/env/paths.rs"
 ENV_DOC="$ROOT_DIR/docs/reference/environment-variables.md"
 
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" git
-guard_require_files "$TAG" "$SSOT" "$CHECK_INDEX" "$QUICK_STEPS" "$DOCS_LAYOUT" "$CARGO_TOML" "$README_MD" "$HACO_WRAPPER" "$MAIN_RS" "$HAKORUNE_BIN_RS" "$HAKORUNE_COMPAT_BIN_RS" "$BUILD_SHARED_RS" "$BUILD_PRODUCT_RS" "$BUILD_ENGINEERING_RS" "$HAKO_CHECK_SH" "$BUILD_LLVM_PS" "$BUILD_AOT_PS" "$USING_UNRESOLVED_SMOKE" "$USING_RESOLVE_SMOKE" "$USING_STRICT_PATH_FAIL_SMOKE" "$DEV_SELFHOST_LOOP" "$ENV_RS" "$ENV_PATHS_RS" "$ENV_DOC"
+guard_require_files "$TAG" "$SSOT" "$CHECK_INDEX" "$QUICK_STEPS" "$DOCS_LAYOUT" "$CARGO_TOML" "$README_MD" "$HACO_WRAPPER" "$MAIN_RS" "$HAKORUNE_BIN_RS" "$HAKORUNE_COMPAT_BIN_RS" "$BUILD_SHARED_RS" "$BUILD_PRODUCT_RS" "$BUILD_ENGINEERING_RS" "$HAKO_CHECK_SH" "$BUILD_LLVM_PS" "$BUILD_AOT_PS" "$USING_UNRESOLVED_SMOKE" "$USING_RESOLVE_SMOKE" "$USING_STRICT_PATH_FAIL_SMOKE" "$DEV_SELFHOST_LOOP" "$ENGINEERING_PARITY" "$ENV_RS" "$ENV_PATHS_RS" "$ENV_DOC"
 
 require_fixed() {
   local pattern="$1"
@@ -58,6 +59,7 @@ require_fixed "HAKORUNE-WINDOWS-BUILD-SCRIPT-CUTOVER-INVENTORY-001" "$SSOT"
 require_fixed "HAKORUNE-HAKO-CHECK-BINARY-RESOLUTION-001" "$SSOT"
 require_fixed "HAKORUNE-ROOT-POWERSHELL-BUILD-SCRIPT-CUTOVER-001" "$SSOT"
 require_fixed "HAKORUNE-DEV-SELFHOST-SMOKE-BINARY-RESOLUTION-001" "$SSOT"
+require_fixed "HAKORUNE-ENGINEERING-PARITY-BINARY-RESOLUTION-001" "$SSOT"
 require_fixed "HAKORUNE-ENV-ALIAS-INVENTORY-001" "$SSOT"
 require_fixed "HAKORUNE-ENV-ALIAS-FIRST-CUT-001" "$SSOT"
 require_fixed 'prefer `target/release/hakorune` or `$HAKO_BIN`' "$README_MD"
@@ -107,6 +109,11 @@ for smoke_script in "$USING_UNRESOLVED_SMOKE" "$USING_RESOLVE_SMOKE" "$USING_STR
     guard_fail "$TAG" "dev/selfhost smoke scripts must resolve Hakorune before legacy nyash"
   fi
 done
+require_fixed 'HAKORUNE_BIN="$ROOT/target/release/hakorune"' "$ENGINEERING_PARITY"
+require_fixed 'LEGACY_NYASH_BIN="$ROOT/target/release/nyash"' "$ENGINEERING_PARITY"
+if rg -n '^\s*NYASH_BIN="\$ROOT/target/release/nyash"' "$ENGINEERING_PARITY"; then
+  guard_fail "$TAG" "engineering parity helper must resolve Hakorune before legacy nyash"
+fi
 require_fixed "env_bool_with_alias" "$ENV_RS"
 require_fixed "env_string_with_alias" "$ENV_RS"
 require_fixed "env_string_trimmed_with_alias" "$ENV_RS"
