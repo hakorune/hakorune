@@ -95,9 +95,16 @@ impl MirInterpreter {
         let blk = block.or(self.last_block);
         let inst_idx = instruction_index.or(self.last_inst_index);
         if let (Some(blk), Some(inst_idx)) = (blk, inst_idx) {
-            if let Some(Callee::Method { method, receiver: Some(recv_id), .. }) = callee {
+            if let Some(Callee::Method {
+                method,
+                receiver: Some(recv_id),
+                ..
+            }) = callee
+            {
                 if method == "get" || method == "set" {
-                    if self.try_direct_array_i64_fastpath(dst, *recv_id, method, args, blk, inst_idx)? {
+                    if self
+                        .try_direct_array_i64_fastpath(dst, *recv_id, method, args, blk, inst_idx)?
+                    {
                         return Ok(());
                     }
                 }
@@ -167,17 +174,13 @@ impl MirInterpreter {
         let recv_val = self.reg_load(recv_id)?;
         let bx = match &recv_val {
             VMValue::BoxRef(bx) => bx,
-            _ => return Err(self.err_invalid(
-                "[direct_array_i64] receiver not a box (plan/runtime mismatch)",
-            )),
+            _ => return Ok(false),
         };
-        let arr = bx.as_any().downcast_ref::<ArrayBox>().ok_or_else(|| {
-            self.err_invalid("[direct_array_i64] receiver is not ArrayBox")
-        })?;
+        let Some(arr) = bx.as_any().downcast_ref::<ArrayBox>() else {
+            return Ok(false);
+        };
         if !arr.uses_inline_i64_slots() {
-            return Err(self.err_invalid(
-                "[direct_array_i64] plan present but storage is not InlineI64",
-            ));
+            return Ok(false);
         }
 
         // (c) Resolve index
@@ -209,10 +212,9 @@ impl MirInterpreter {
                     _ => return Err(self.err_invalid("[direct_array_i64] store value not i64")),
                 };
                 if !arr.slot_store_i64_raw(idx, val) {
-                    return Err(self.err_invalid(format!(
-                        "[direct_array_i64] store failed idx={}",
-                        idx
-                    )));
+                    return Err(
+                        self.err_invalid(format!("[direct_array_i64] store failed idx={}", idx))
+                    );
                 }
                 if let Some(d) = plan.result_value().or(dst) {
                     self.write_reg(d, VMValue::Void);
