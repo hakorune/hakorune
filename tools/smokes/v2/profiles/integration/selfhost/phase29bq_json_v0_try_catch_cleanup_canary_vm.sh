@@ -7,7 +7,7 @@ ROOT_DIR="$(cd "$(dirname "$0")/../../../../../.." && pwd)"
 BIN="${NYASH_BIN:-$ROOT_DIR/target/release/hakorune}"
 
 if [ ! -x "$BIN" ]; then
-  echo "[FAIL] nyash binary not found: $BIN" >&2
+  echo "[FAIL] Hakorune binary not found: $BIN (set NYASH_BIN for compatibility override)" >&2
   exit 2
 fi
 

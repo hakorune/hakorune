@@ -23,7 +23,7 @@ if [ ! -x "$WRAPPER" ]; then
 fi
 
 if [ ! -x "$NYASH_BIN" ]; then
-  log_error "nyash binary not found/executable: $NYASH_BIN"
+  log_error "Hakorune binary not found/executable: $NYASH_BIN (set NYASH_BIN for compatibility override)"
   exit 2
 fi
 

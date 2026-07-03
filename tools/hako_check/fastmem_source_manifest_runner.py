@@ -91,7 +91,11 @@ def find_binary(root: Path) -> Path:
     for candidate in candidates:
         if candidate.exists() and candidate.is_file() and os.access(candidate, os.X_OK):
             return candidate
-    fail(f"hakorune/nyash binary not found in {', '.join(str(path) for path in candidates)}")
+    fail(
+        "Hakorune binary not found in "
+        f"{', '.join(str(path) for path in candidates)} "
+        "(NYASH_BIN remains supported as a compatibility override)"
+    )
     raise AssertionError("unreachable")
 
 

@@ -1145,6 +1145,36 @@ Executing the macro golden scripts is intentionally outside this naming slice:
 current AST JSON output may differ from older golden baselines. This slice only
 changes binary resolution and diagnostics.
 
+### HAKORUNE-CURRENT-DIAGNOSTIC-BINARY-WORDING-001
+
+Status: active in this slice.
+
+Scope:
+
+- make current hako-check / selfhost diagnostic scripts name Hakorune first;
+- keep `NYASH_BIN` as the historical compatibility override;
+- keep archive scripts and historical snapshots untouched in this slice;
+- keep route behavior and fixture semantics unchanged.
+
+Affected files:
+
+```text
+tools/hako_check/fastmem_source_manifest_runner.py
+tools/smokes/v2/profiles/integration/selfhost/phase29bq_json_v0_try_catch_cleanup_canary_vm.sh
+tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_stageb_route_parity_smoke_vm.sh
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+python3 -m py_compile tools/hako_check/fastmem_source_manifest_runner.py
+bash -n tools/smokes/v2/profiles/integration/selfhost/phase29bq_json_v0_try_catch_cleanup_canary_vm.sh
+bash -n tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_stageb_route_parity_smoke_vm.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
 ### HAKORUNE-GATE-C-OOB-STRICT-SMOKE-BINARY-RESOLUTION-001
 
 Status: active in this slice.
