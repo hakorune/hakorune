@@ -1,0 +1,35 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderFastMemProofKindLabelFormatterRustOracleV1",
+  "token": "MIRBUILDER-FASTMEM-PROOF-KIND-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "fastmem_proof_kind_label_formatter",
+  "rust_source": {
+    "path": "src/mir/function/fastmem.rs",
+    "hash": "sha256:f42f26e36d62a8a726b4eccc1f53d8aaeea003db15047d953c98e0e6b6f39c04",
+    "oracle_surface": "FastMemory proof/policy kind as_str vocabulary"
+  },
+  "rows": [
+    { "category": "TableLengthPolicy", "input": "ExplicitConstLen", "expected": "explicit_const_len" },
+    { "category": "SameOwnerProof", "input": "SourceAssumeOwnerEq", "expected": "source_assume_owner_eq" },
+    { "category": "RemoteOwnerProof", "input": "SourceAssumeRemoteOwner", "expected": "source_assume_remote_owner" },
+    { "category": "BlockNextProof", "input": "SourceAssumeLocalFreeBlockNext", "expected": "source_assume_local_free_block_next" },
+    { "category": "BlockNextProof", "input": "SourceAssumeFreeHeadBlockNext", "expected": "source_assume_free_head_block_next" },
+    { "category": "BlockNextProof", "input": "SourceAssumeRemoteFreeBlockNext", "expected": "source_assume_remote_free_block_next" },
+    { "category": "LocalFreeNonEmptyProof", "input": "SourceAssumeLocalFreeNonEmpty", "expected": "source_assume_local_free_non_empty" },
+    { "category": "FreeHeadNonEmptyProof", "input": "SourceAssumeFreeHeadNonEmpty", "expected": "source_assume_free_head_non_empty" },
+    { "category": "FreeHeadNonEmptyProof", "input": "DerivedFromFreeHeadPush", "expected": "derived_from_free_head_push" },
+    { "category": "BranchConditionProof", "input": "SourceAssumeOwnerEq", "expected": "source_assume_owner_eq" }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "fastmem_fact_construction_migration": 0,
+    "fastmem_region_analysis_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

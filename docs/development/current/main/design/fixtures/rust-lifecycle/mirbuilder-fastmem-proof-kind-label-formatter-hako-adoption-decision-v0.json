@@ -1,0 +1,35 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderFastMemProofKindLabelFormatterHakoAdoptionDecisionV1",
+  "token": "MIRBUILDER-FASTMEM-PROOF-KIND-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001",
+  "input_state": {
+    "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-fastmem-proof-kind-label-formatter-rust-oracle-v0.json",
+    "hako_source": "lang/src/compiler/lib/fastmem_proof_kind_label_formatter.hako",
+    "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_fastmem_proof_kind_label_formatter_parity_gate.sh"
+  },
+  "decision": {
+    "kind": "Adopt",
+    "reason_token": "FastMemProofKindLabelFormatterRustOracleParityGateGreen",
+    "hako_adopted": 1,
+    "selected_owner": "fastmem_proof_kind_label_formatter",
+    "selected_next_card": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-021"
+  },
+  "accepted_scope": {
+    "surface": "FastMemory proof/policy label vocabulary formatting",
+    "parity_rows": 10,
+    "rust_bootstrap_retained": 1,
+    "rust_oracle_retained": 1
+  },
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "generated_artifact_as_native_edit_authority": 0,
+    "fastmem_fact_construction_migration": 0,
+    "fastmem_region_analysis_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

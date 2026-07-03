@@ -1,0 +1,39 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderHakoNativeOwnerParityPilotSelectionRerun020V1",
+  "token": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-020",
+  "input_state": {
+    "previous_adoption_decision": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-effect-capability-plan-label-formatter-hako-adoption-decision-v0.json",
+    "previous_adoption_hash": "sha256:8a6f1e48f3a0fb34b4ced2b37ee6c429a8fe7a8b791c92f0e14abc30556ba731",
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+  },
+  "selection_rule": {
+    "name": "MirBuilderNarrowRustOracleParityPilotSelectionV1",
+    "manual_target_selection_allowed": true,
+    "correctness_proof_required": "RustOracleParityGate",
+    "source_selfhost_claim_forbidden": true,
+    "full_converter_route_reentry_forbidden": true
+  },
+  "selected_owner": {
+    "owner_id": "fastmem_proof_kind_label_formatter",
+    "rust_source": "src/mir/function/fastmem.rs",
+    "rust_source_hash": "sha256:f42f26e36d62a8a726b4eccc1f53d8aaeea003db15047d953c98e0e6b6f39c04",
+    "selection_reason": "Pure FastMemory proof/policy label vocabulary with JSON-fixture parity surface."
+  },
+  "decision": {
+    "kind": "SelectRustOracleFixture",
+    "selected_next_card": "MIRBUILDER-FASTMEM-PROOF-KIND-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001"
+  },
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "fastmem_fact_construction_migration": 0,
+    "fastmem_region_analysis_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

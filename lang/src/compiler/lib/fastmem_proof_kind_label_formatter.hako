@@ -1,0 +1,40 @@
+// fastmem_proof_kind_label_formatter.hako - hand-authored label formatter
+//
+// Responsibility:
+// - format narrow FastMemory proof/policy vocabulary into Rust oracle text
+// - stay pure: scalar category/name in, scalar text out
+//
+// Non-responsibility:
+// - FastMemory fact construction
+// - region analysis
+// - backend lowering
+// - MIR mutation
+static box FastMemProofKindLabelFormatterBox {
+  format_label(category, input) {
+    if category == "TableLengthPolicy" {
+      if input == "ExplicitConstLen" { return "explicit_const_len" }
+    }
+    if category == "SameOwnerProof" {
+      if input == "SourceAssumeOwnerEq" { return "source_assume_owner_eq" }
+    }
+    if category == "RemoteOwnerProof" {
+      if input == "SourceAssumeRemoteOwner" { return "source_assume_remote_owner" }
+    }
+    if category == "BlockNextProof" {
+      if input == "SourceAssumeLocalFreeBlockNext" { return "source_assume_local_free_block_next" }
+      if input == "SourceAssumeFreeHeadBlockNext" { return "source_assume_free_head_block_next" }
+      if input == "SourceAssumeRemoteFreeBlockNext" { return "source_assume_remote_free_block_next" }
+    }
+    if category == "LocalFreeNonEmptyProof" {
+      if input == "SourceAssumeLocalFreeNonEmpty" { return "source_assume_local_free_non_empty" }
+    }
+    if category == "FreeHeadNonEmptyProof" {
+      if input == "SourceAssumeFreeHeadNonEmpty" { return "source_assume_free_head_non_empty" }
+      if input == "DerivedFromFreeHeadPush" { return "derived_from_free_head_push" }
+    }
+    if category == "BranchConditionProof" {
+      if input == "SourceAssumeOwnerEq" { return "source_assume_owner_eq" }
+    }
+    return "unsupported_fastmem_proof_kind_label"
+  }
+}
