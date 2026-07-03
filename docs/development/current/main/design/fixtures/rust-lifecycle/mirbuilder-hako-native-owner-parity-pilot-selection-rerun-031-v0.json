@@ -1,0 +1,32 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderHakoNativeOwnerParityPilotSelectionRerun031V1",
+  "token": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-031",
+  "input_state": {
+    "previous_adoption_decision": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-array-string-len-window-label-formatter-hako-adoption-decision-v0.json",
+    "previous_adoption_decision_hash": "sha256:88667e02f2cfe8ff93a11a1e019204d0d741691bef759ed98340d7f1d9799c5e"
+  },
+  "decision": {
+    "kind": "SelectRustOracleParityPilot",
+    "reason_token": "StringDirectSetWindowProofLabelFormatterIsPureVocabularyLeaf",
+    "selected_owner": "string_direct_set_window_proof_label_formatter",
+    "selected_next_card": "MIRBUILDER-STRING-DIRECT-SET-WINDOW-PROOF-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001"
+  },
+  "accepted_scope": {
+    "surface": "String direct-set window proof label vocabulary formatting",
+    "correctness_proof_required": "RustOracleParityGate",
+    "manual_target_selection_allowed": 1
+  },
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "string_direct_set_window_matching_migration": 0,
+    "string_corridor_matching_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

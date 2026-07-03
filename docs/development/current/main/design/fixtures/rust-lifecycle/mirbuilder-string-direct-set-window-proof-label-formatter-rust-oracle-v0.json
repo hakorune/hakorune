@@ -1,0 +1,29 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderStringDirectSetWindowProofLabelFormatterRustOracleV1",
+  "token": "MIRBUILDER-STRING-DIRECT-SET-WINDOW-PROOF-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "string_direct_set_window_proof_label_formatter",
+  "rust_source": {
+    "path": "src/mir/string_direct_set_window_plan.rs",
+    "hash": "sha256:2feefb5d3a326170c583b46f516e7ea26d31496d68fe41129fec265f50f3d154",
+    "oracle_surface": "StringDirectSetWindowProof display vocabulary"
+  },
+  "rows": [
+    {
+      "proof": "PiecewiseConcat3DirectSetSourceWindow",
+      "expected": "piecewise_concat3_direct_set_source_window"
+    }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "string_direct_set_window_matching_migration": 0,
+    "string_corridor_matching_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

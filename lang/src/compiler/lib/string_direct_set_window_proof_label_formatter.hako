@@ -1,0 +1,19 @@
+// string_direct_set_window_proof_label_formatter.hako - hand-authored proof label formatter
+//
+// Responsibility:
+// - format narrow string direct-set window proof vocabulary into Rust oracle text
+// - stay pure: scalar proof in, scalar text out
+//
+// Non-responsibility:
+// - string direct-set window matching
+// - string corridor matching
+// - backend lowering
+// - MIR mutation
+static box StringDirectSetWindowProofLabelFormatterBox {
+  format_label(proof) {
+    if proof == "PiecewiseConcat3DirectSetSourceWindow" {
+      return "piecewise_concat3_direct_set_source_window"
+    }
+    return "unsupported_string_direct_set_window_proof_label"
+  }
+}
