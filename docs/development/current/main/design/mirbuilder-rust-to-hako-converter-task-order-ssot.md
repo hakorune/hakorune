@@ -24,9 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-STORAGE-CLASS-CLASSIFIER-HAKO-NATIVE-IMPLEMENTATION-001.
-  The storage_class_classifier hand-authored `.hako` implementation exists;
-  next is the Rust-oracle parity gate.
+  MIRBUILDER-STORAGE-CLASS-CLASSIFIER-PARITY-GATE-001.
+  The storage_class_classifier Rust-oracle parity gate is green; next is the
+  HakoAdopted decision for this narrow owner.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-STORAGE-CLASS-CLASSIFIER-PARITY-GATE-001
+  MIRBUILDER-STORAGE-CLASS-CLASSIFIER-HAKO-ADOPTION-DECISION-001
 
 current fail-fast boundary:
   Do not re-enter full converter route selection without new non-self-signed
@@ -70,10 +70,10 @@ current fail-fast boundary:
   `MirType -> StorageClass`; metadata refresh/mutation remains Rust.
 
 latest design decision:
-  The storage_class_classifier pilot now has a hand-authored `.hako`
-  implementation for the pure `MirType -> StorageClass` surface. Metadata
-  refresh and function/module traversal remain Rust. The selected next card is
-  `MIRBUILDER-STORAGE-CLASS-CLASSIFIER-PARITY-GATE-001`.
+  The storage_class_classifier pilot now has a green Rust-oracle parity gate
+  over the pure `MirType -> StorageClass` surface. Metadata refresh and
+  function/module traversal remain Rust. The selected next card is
+  `MIRBUILDER-STORAGE-CLASS-CLASSIFIER-HAKO-ADOPTION-DECISION-001`.
 
 historical route-selection decision:
   Detailed landed route-selection rows are closed as provenance and live in

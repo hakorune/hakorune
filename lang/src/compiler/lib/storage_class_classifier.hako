@@ -1,28 +1,23 @@
 // storage_class_classifier.hako - hand-authored storage-class classifier
 //
 // Responsibility:
-// - classify a MIR type-shaped value into the Rust oracle StorageClass strings
+// - classify MIR type-shaped values into the Rust oracle StorageClass strings
 // - stay pure: input value -> storage class text
 //
 // Non-responsibility:
 // - metadata.value_storage_classes mutation
 // - function/module traversal
 // - Source Selfhost or HakoAdopted promotion
-
-using selfhost.shared.common.box_helpers as BoxHelpers
-
 static box StorageClassClassifierBox {
+  // String-shaped MIR type entrypoint.
   classify_mir_type(mir_type) {
     if mir_type == null {
       return "opaque"
     }
-    if BoxHelpers.is_map(mir_type) == 1 {
-      return me._classify_mir_type_map(mir_type)
-    }
-    return me._classify_mir_type_name("" + mir_type)
+    return me.classify_mir_type_name("" + mir_type)
   }
 
-  _classify_mir_type_name(name) {
+  classify_mir_type_name(name) {
     if name == "Integer" {
       return "inline_i64"
     }
@@ -38,22 +33,37 @@ static box StorageClassClassifierBox {
     return "opaque"
   }
 
-  _classify_mir_type_map(mir_type) {
-    local box_name = BoxHelpers.map_get(mir_type, "Box")
-    if box_name != null {
-      return me._classify_box_name("" + box_name)
-    }
-
-    if BoxHelpers.map_get(mir_type, "Array") != null {
+  // MapBox-shaped MIR type entrypoint for oracle fixture object variants.
+  classify_mir_type_map(mir_type) {
+    if mir_type == null {
       return "opaque"
     }
-    if BoxHelpers.map_get(mir_type, "Future") != null {
+
+    local box_name = mir_type.get("Box")
+    if box_name != null {
+      return me.classify_box_name("" + box_name)
+    }
+
+    if mir_type.get("Array") != null {
+      return "opaque"
+    }
+    if mir_type.get("Future") != null {
       return "opaque"
     }
     return "opaque"
   }
 
-  _classify_box_name(name) {
+  classify_compound_type_kind(kind) {
+    if kind == "Array" {
+      return "opaque"
+    }
+    if kind == "Future" {
+      return "opaque"
+    }
+    return "opaque"
+  }
+
+  classify_box_name(name) {
     if name == "IntegerBox" {
       return "inline_i64"
     }

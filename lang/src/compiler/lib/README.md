@@ -57,6 +57,8 @@ Scope:
   - `tools/checks/rust_lifecycle_hako_shadow_projector_stage_state_inventory_guard.sh`
 - first shadow parity guard:
   - `tools/checks/rust_lifecycle_mirbuilder_return_emission_hako_shadow_parity_guard.sh`
+- first Rust-oracle parity pilot gate:
+  - `tools/checks/rust_lifecycle_mirbuilder_storage_class_classifier_parity_gate.sh`
 
 Allowed:
 - reuse of existing `StringBox`, `ArrayBox`, and `OrderedMapBox`

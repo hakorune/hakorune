@@ -29,7 +29,7 @@ lang/src/compiler/lib/storage_class_classifier.hako
 ```
 
 The implementation accepts the same JSON-shaped inputs as the Rust oracle
-fixture:
+fixture through pure shape-specific entrypoints:
 
 ```text
 primitive strings:
@@ -43,6 +43,10 @@ object variants:
   {"Array": "..."}
   {"Future": "..."}
 ```
+
+The parity harness dispatches JSON object variants to the explicit MapBox /
+kind entrypoints instead of requiring dynamic JSON type inspection inside the
+classifier. That keeps the owner pure and AOT-friendly.
 
 ## Verification
 
