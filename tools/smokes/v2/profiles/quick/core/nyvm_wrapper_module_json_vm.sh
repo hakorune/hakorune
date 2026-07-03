@@ -9,9 +9,11 @@ if ROOT_GIT=$(git -C "$SCRIPT_DIR" rev-parse --show-toplevel 2>/dev/null); then
 else
   ROOT="$(cd "$SCRIPT_DIR/../../../../.." && pwd)"
 fi
-BIN="$ROOT/target/release/hakorune"
+HAKORUNE_BIN="$ROOT/target/release/hakorune"
+LEGACY_NYASH_BIN="$ROOT/target/release/nyash"
+BIN="$HAKORUNE_BIN"
 if [ ! -x "$BIN" ]; then
-  BIN="$ROOT/target/release/nyash"
+  BIN="$LEGACY_NYASH_BIN"
 fi
 
 warn() { echo -e "[WARN] $*" >&2; }

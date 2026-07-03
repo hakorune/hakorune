@@ -41,19 +41,21 @@ the active card and task-order SSOT. Do not duplicate them here.
 
 ## Immediate Maintenance Slice
 
-Scope: Hako map escape opt-in smoke binary resolution.
+Scope: Gate-C/NyVM wrapper smoke binary naming cleanup.
 
-- make the Hako map escape opt-in smoke invoke `$HAKO_BIN` instead of direct
-  `target/release/nyash`
-- keep boundary-case diagnostics and `.hako` fixtures unchanged in this slice
-- add naming guard coverage so the smoke does not regress to direct legacy
-  binary calls
+- make Gate-C v1 file and NyVM wrapper smokes spell the Hakorune-first
+  executable resolver explicitly
+- keep legacy `nyash` only as a named compatibility fallback
+- keep JSON fixtures and expected smoke behavior unchanged in this slice
+- add naming guard coverage so these smokes do not regress to direct legacy
+  binary naming
 
 Acceptance:
 
 ```bash
 bash tools/checks/naming_charter_guard.sh
-SMOKES_ENABLE_STAGEA_BOUNDARY=1 bash tools/smokes/v2/profiles/quick/core/hako_map_escape_vm.sh
+SMOKES_ENABLE_GATE_C_V1=1 bash tools/smokes/v2/profiles/quick/core/gate_c_v1_file_vm.sh
+SMOKES_ENABLE_NYVM_WRAPPER=1 bash tools/smokes/v2/profiles/quick/core/nyvm_wrapper_module_json_vm.sh
 git diff --check
 tools/checks/dev_gate.sh quick
 ```

@@ -13,14 +13,16 @@ ROOT="$(git -C "$SCRIPT_DIR" rev-parse --show-toplevel 2>/dev/null)"
 if [ -z "$ROOT" ]; then
   ROOT="$(cd "$SCRIPT_DIR/../../../../.." && pwd)"
 fi
-BIN="$ROOT/target/release/hakorune"
+HAKORUNE_BIN="$ROOT/target/release/hakorune"
+LEGACY_NYASH_BIN="$ROOT/target/release/nyash"
+BIN="$HAKORUNE_BIN"
 if [ ! -x "$BIN" ]; then
-  BIN="$ROOT/target/release/nyash"
+  BIN="$LEGACY_NYASH_BIN"
 fi
 
 if [ ! -x "$BIN" ]; then
   (cd "$ROOT" && cargo build --release >/dev/null 2>&1) || {
-    echo "[FAIL] build release nyash" >&2
+    echo "[FAIL] build release hakorune" >&2
     exit 1
   }
 fi

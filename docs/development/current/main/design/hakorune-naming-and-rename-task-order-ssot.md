@@ -962,6 +962,36 @@ git diff --check
 tools/checks/dev_gate.sh quick
 ```
 
+### HAKORUNE-GATE-C-NYVM-WRAPPER-SMOKE-BINARY-NAMING-001
+
+Status: active in this slice.
+
+Scope:
+
+- make Gate-C v1 file and NyVM wrapper smokes spell the Hakorune-first
+  executable resolver explicitly;
+- keep legacy `nyash` only as a named compatibility fallback;
+- keep JSON fixtures and expected smoke behavior unchanged in this slice;
+- add naming guard coverage so these smokes do not regress to direct legacy
+  binary naming.
+
+Affected scripts:
+
+```text
+tools/smokes/v2/profiles/quick/core/gate_c_v1_file_vm.sh
+tools/smokes/v2/profiles/quick/core/nyvm_wrapper_module_json_vm.sh
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+SMOKES_ENABLE_GATE_C_V1=1 bash tools/smokes/v2/profiles/quick/core/gate_c_v1_file_vm.sh
+SMOKES_ENABLE_NYVM_WRAPPER=1 bash tools/smokes/v2/profiles/quick/core/nyvm_wrapper_module_json_vm.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
 ### STAGE-TERM-EXISTING-NAME-MIGRATION-001
 
 Status: defined, not implementation.
