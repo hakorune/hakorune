@@ -1,0 +1,77 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderHakoNativeOwnerParityPilotSelectionRerun001V1",
+  "token": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-001",
+  "input_state": {
+    "previous_hako_adoption": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-storage-class-classifier-hako-adoption-decision-v0.json",
+    "previous_hako_adoption_hash": "sha256:eaa7eebca73bf8e3663b70782a0b10536174db8d3d53b872af550b39bda71cfc",
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+  },
+  "selection_policy": {
+    "candidate_ranking_is_advisory": true,
+    "manual_target_selection_allowed": true,
+    "correctness_proof_is_parity_gate": true,
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0
+  },
+  "candidate_rows": [
+    {
+      "candidate_owner": "placement_effect_tag_formatter",
+      "source_path": "src/mir/placement_effect.rs",
+      "source_hash": "sha256:0d06fa28ad35b3c4245e40ecc198d21875080ba93ceabf3863b50605d9b75cd5",
+      "selected": true,
+      "positive_signals": [
+        "pure enum/tag to stable text surface",
+        "json scalar input/output boundary",
+        "existing placement_effect Rust tests cover enum consumers",
+        "no builder context mutation in selected surface",
+        "no PHI or LocalSSA surface"
+      ],
+      "excluded_surface": [
+        "refresh_function_placement_effect_routes",
+        "refresh_module_placement_effect_routes",
+        "PlacementEffectRoute summary",
+        "placement_effect route sorting",
+        "metadata.placement_effect_routes mutation"
+      ],
+      "selected_next_card_if_selected": "MIRBUILDER-PLACEMENT-EFFECT-TAG-FORMATTER-RUST-ORACLE-FIXTURE-001"
+    },
+    {
+      "candidate_owner": "record_layout_plan",
+      "source_path": "src/mir/record_layout_plan.rs",
+      "selected": false,
+      "reason": "Reads MirModule metadata and derives layout rows; useful later but heavier than a scalar tag formatter."
+    },
+    {
+      "candidate_owner": "loop_form_alias",
+      "source_path": "src/mir/loop_form.rs",
+      "selected": false,
+      "reason": "Only aliases ControlForm::LoopShape and is too thin to validate the next parity pilot."
+    },
+    {
+      "candidate_owner": "placement_effect_route_summary",
+      "source_path": "src/mir/placement_effect.rs",
+      "selected": false,
+      "reason": "Route summary formatting joins IDs, optional fields, and route details; keep it out of the second pilot."
+    }
+  ],
+  "decision": {
+    "kind": "SelectPilotOwner",
+    "reason_token": "PlacementEffectTagFormatterSelectedAsSecondParityPilot",
+    "selected_owner": "placement_effect_tag_formatter",
+    "selected_rust_surface": "PlacementEffect enum/tag display text",
+    "selected_next_card": "MIRBUILDER-PLACEMENT-EFFECT-TAG-FORMATTER-RUST-ORACLE-FIXTURE-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "native_seed_materialization": 0,
+    "hako_generation": 0,
+    "generated_artifact_as_native_edit_authority": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "metadata_refresh_migration": 0,
+    "placement_effect_route_collection_migration": 0
+  }
+}
