@@ -19,6 +19,8 @@ Scope:
   - `projector_support.hako`
 - first Rust-oracle parity pilot library:
   - `storage_class_classifier.hako`
+- second Rust-oracle parity pilot library:
+  - `placement_effect_tag_formatter.hako`
 - first shadow-projector support library:
   - `return_emission_projector.hako`
 - first native source owner candidate:

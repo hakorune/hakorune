@@ -1,0 +1,133 @@
+// placement_effect_tag_formatter.hako - hand-authored PlacementEffect tag formatter
+//
+// Responsibility:
+// - format PlacementEffect enum-family + variant names into Rust oracle text
+// - stay pure: scalar strings in, scalar text out
+//
+// Non-responsibility:
+// - placement_effect route collection
+// - PlacementEffectRoute summary formatting
+// - route sorting or metadata mutation
+// - Source Selfhost or HakoAdopted promotion
+static box PlacementEffectTagFormatterBox {
+  format_tag(enum_family, variant) {
+    if enum_family == "PlacementEffectSource" {
+      return me.format_source_tag(variant)
+    }
+    if enum_family == "PlacementEffectDecision" {
+      return me.format_decision_tag(variant)
+    }
+    if enum_family == "PlacementEffectState" {
+      return me.format_state_tag(variant)
+    }
+    if enum_family == "PlacementEffectDemand" {
+      return me.format_demand_tag(variant)
+    }
+    if enum_family == "PlacementEffectPublicationBoundary" {
+      return me.format_publication_boundary_tag(variant)
+    }
+    if enum_family == "PlacementEffectBorrowContract" {
+      return me.format_borrow_contract_tag(variant)
+    }
+    return "unsupported_placement_effect_tag"
+  }
+
+  format_source_tag(variant) {
+    if variant == "StringCorridor" {
+      return "string_corridor"
+    }
+    if variant == "SumPlacement" {
+      return "sum_placement"
+    }
+    if variant == "AggLocalScalarization" {
+      return "agg_local_scalarization"
+    }
+    if variant == "ThinEntry" {
+      return "thin_entry"
+    }
+    return "unsupported_placement_effect_source"
+  }
+
+  format_decision_tag(variant) {
+    if variant == "StayBorrowed" {
+      return "stay_borrowed"
+    }
+    if variant == "PublishHandle" {
+      return "publish_handle"
+    }
+    if variant == "MaterializeOwned" {
+      return "materialize_owned"
+    }
+    if variant == "DirectKernelEntry" {
+      return "direct_kernel_entry"
+    }
+    if variant == "LocalAggregate" {
+      return "local_aggregate"
+    }
+    if variant == "CompatRuntimeBox" {
+      return "compat_runtime_box"
+    }
+    if variant == "PublicEntry" {
+      return "public_entry"
+    }
+    if variant == "ThinInternalEntry" {
+      return "thin_internal_entry"
+    }
+    return "unsupported_placement_effect_decision"
+  }
+
+  format_state_tag(variant) {
+    if variant == "Candidate" {
+      return "candidate"
+    }
+    if variant == "Selected" {
+      return "selected"
+    }
+    if variant == "AlreadySatisfied" {
+      return "already_satisfied"
+    }
+    return "unsupported_placement_effect_state"
+  }
+
+  format_demand_tag(variant) {
+    if variant == "Unknown" {
+      return "?"
+    }
+    if variant == "ReadRef" {
+      return "read_ref"
+    }
+    if variant == "OwnedPayload" {
+      return "owned_payload"
+    }
+    if variant == "CellResidence" {
+      return "cell_residence"
+    }
+    if variant == "Immediate" {
+      return "immediate"
+    }
+    if variant == "PublishHandle" {
+      return "publish_handle"
+    }
+    if variant == "StableObject" {
+      return "stable_object"
+    }
+    if variant == "LocalAggregate" {
+      return "local_aggregate"
+    }
+    return "unsupported_placement_effect_demand"
+  }
+
+  format_publication_boundary_tag(variant) {
+    if variant == "FirstExternalBoundary" {
+      return "first_external_boundary"
+    }
+    return "unsupported_placement_effect_publication_boundary"
+  }
+
+  format_borrow_contract_tag(variant) {
+    if variant == "BorrowTextFromObject" {
+      return "borrow_text_from_obj"
+    }
+    return "unsupported_placement_effect_borrow_contract"
+  }
+}
