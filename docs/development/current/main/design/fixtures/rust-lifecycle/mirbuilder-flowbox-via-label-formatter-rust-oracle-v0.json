@@ -1,0 +1,26 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderFlowboxViaLabelFormatterRustOracleV1",
+  "token": "MIRBUILDER-FLOWBOX-VIA-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "flowbox_via_label_formatter",
+  "rust_source": {
+    "path": "src/mir/builder/control_flow/verify/observability/flowbox_tags.rs",
+    "hash": "sha256:257e48bc8ff47c9e8fb754590e742eb41d728806463a4dbfb6630b9bf1f65154",
+    "oracle_surface": "FlowboxVia as_str vocabulary"
+  },
+  "rows": [
+    {"input": "Shadow", "expected": "shadow"},
+    {"input": "Release", "expected": "release"}
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "flowbox_route_selection_migration": 0,
+    "flowbox_tag_emission_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

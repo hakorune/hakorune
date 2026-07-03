@@ -1,0 +1,17 @@
+// flowbox_via_label_formatter.hako
+//
+// Responsibility:
+// - format narrow FlowboxVia vocabulary into Rust oracle text
+// - stay pure: scalar token in, scalar text out
+//
+// Non-responsibility:
+// - flowbox route selection
+// - flowbox tag emission
+// - MIR mutation
+static box FlowboxViaLabelFormatterBox {
+  format_via(token) {
+    if token == "Shadow" { return "shadow" }
+    if token == "Release" { return "release" }
+    return "unsupported_flowbox_via"
+  }
+}
