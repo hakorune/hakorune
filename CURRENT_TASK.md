@@ -100,6 +100,7 @@ STAGE-TERM-ENV-REFERENCE-PHASE-WORDING-001
 STAGE-TERM-RUST-STAGE1-ENV-HELPER-COMMENT-WORDING-001
 STAGE-TERM-RUST-STAGE1-BOUNDARY-COMMENT-WORDING-001
 STAGE-TERM-RUST-STAGE1-PROGRAM-JSON-TEST-WORDING-001
+STAGE-TERM-CHECK-SCRIPTS-INDEX-PHASE-ENV-WORDING-001
 ```
 
 `--syntax-3` is now the frontend syntax-level spelling; `--stage3` remains a
@@ -182,6 +183,9 @@ label explanation.
 Selected `src/stage1/program_json_v0` assertion/expectation messages now use
 phase-1 compatibility wording while preserving test function names, fixture
 file names, helper function names, and `Stage1*` Box names.
+Selected active `docs/tools/check-scripts-index.md` rows now use phase-1
+compatibility / bootstrap wording for selfhost surface, NyRT env P0, and
+cleanup/catch boundary guard descriptions while preserving script names.
 Next safe naming work, if explicitly selected, must pick a
 different classified layer from that inventory and keep compatibility aliases
 or replacement routes in the same slice.

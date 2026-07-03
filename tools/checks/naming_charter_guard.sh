@@ -523,6 +523,7 @@ SSOT_REQUIRED_TOKENS=(
   "STAGE-TERM-RUST-STAGE1-ENV-HELPER-COMMENT-WORDING-001"
   "STAGE-TERM-RUST-STAGE1-BOUNDARY-COMMENT-WORDING-001"
   "STAGE-TERM-RUST-STAGE1-PROGRAM-JSON-TEST-WORDING-001"
+  "STAGE-TERM-CHECK-SCRIPTS-INDEX-PHASE-ENV-WORDING-001"
 )
 guard_require_unique_values "SSOT required token" "${SSOT_REQUIRED_TOKENS[@]}"
 for ssot_token in "${SSOT_REQUIRED_TOKENS[@]}"; do
@@ -916,6 +917,12 @@ require_fixed "mode-B compatibility alias" "$STAGE1_BRIDGE_MODULES_RS"
 require_fixed "mode-B compatibility readers" "$STAGE1_BRIDGE_MODULES_RS"
 if rg -n 'Stage-B module payload|Stage-B compatibility aliases|compatibility alias for Stage-B routes|Stage-B compatibility readers' "$STAGE1_BRIDGE_README" "$STAGE1_BRIDGE_ENV_RS" "$STAGE1_BRIDGE_MODULES_RS"; then
   guard_fail "$TAG" "stage1 bridge module/env docs must say mode-B compatibility"
+fi
+require_fixed "phase-1 compatibility selfhost sources" "$CHECK_INDEX"
+require_fixed "phase-1 compatibility bridge runtime defaults" "$CHECK_INDEX"
+require_fixed "bootstrap cleanup/catch boundary" "$CHECK_INDEX"
+if rg -n 'Stage1 selfhost sources|Stage-1 bridge runtime defaults|Stage0 cleanup/catch boundary' "$CHECK_INDEX"; then
+  guard_fail "$TAG" "selected check-scripts index rows must use phase-1 compatibility / bootstrap wording"
 fi
 require_fixed "Phase-1 Compatibility Bridge" "$STAGE1_BRIDGE_README"
 require_fixed "Phase-1 compatibility CLI bridge" "$ROOT_DIR/src/runner/stage1_bridge/mod.rs"

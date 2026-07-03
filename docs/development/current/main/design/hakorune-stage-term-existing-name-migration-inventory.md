@@ -1008,6 +1008,31 @@ helper function names renamed = 0
 runtime behavior changed = 0
 ```
 
+## Landed Check Scripts Index Phase/Env Wording Slice
+
+`STAGE-TERM-CHECK-SCRIPTS-INDEX-PHASE-ENV-WORDING-001` changes selected active
+`docs/tools/check-scripts-index.md` guard descriptions from unqualified
+Stage1 / Stage-1 / Stage0 wording to phase-1 compatibility or bootstrap
+wording.
+
+Scope:
+
+```text
+docs/tools/check-scripts-index.md:
+  selfhost surface guard description says phase-1 compatibility selfhost sources
+  NyRT env P0 centralization row says phase-1 compatibility bridge defaults
+  cleanup/catch boundary row says bootstrap cleanup/catch boundary
+```
+
+Non-claims:
+
+```text
+guard script names renamed = 0
+historical check-scripts ledger broadly rewritten = 0
+guard behavior changed = 0
+runtime behavior changed = 0
+```
+
 ## Migration Eligibility
 
 An occurrence is eligible for a future rename only if all conditions hold:

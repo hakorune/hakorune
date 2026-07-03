@@ -2863,6 +2863,27 @@ helper function names renamed = 0
 runtime behavior changed = 0
 ```
 
+#### STAGE-TERM-CHECK-SCRIPTS-INDEX-PHASE-ENV-WORDING-001
+
+Status: landed.
+
+Scope:
+
+```text
+docs/tools/check-scripts-index.md:
+  selected active guard descriptions for selfhost surface, NyRT env P0, and
+  cleanup/catch boundary use phase-1 compatibility or bootstrap wording
+```
+
+Non-claims:
+
+```text
+guard script names renamed = 0
+historical check-scripts ledger broadly rewritten = 0
+guard behavior changed = 0
+runtime behavior changed = 0
+```
+
 ## Guard Policy
 
 `tools/checks/naming_charter_guard.sh` is a lightweight reusable guard. It does
