@@ -553,7 +553,7 @@ tools/checks/dev_gate.sh quick
 
 ### HAKORUNE-ROOT-POWERSHELL-BUILD-SCRIPT-CUTOVER-001
 
-Status: active in this slice.
+Status: landed root PowerShell script cut.
 
 Scope:
 
@@ -584,6 +584,51 @@ Acceptance:
 
 ```bash
 bash tools/checks/naming_charter_guard.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
+### HAKORUNE-DEV-SELFHOST-SMOKE-BINARY-RESOLUTION-001
+
+Status: active in this slice.
+
+Scope:
+
+- make lightweight using/selfhost dev smoke scripts invoke `hakorune` as the
+  primary binary;
+- keep `target/release/nyash` only behind explicit Hakorune-first resolver
+  fallback;
+- keep legacy `NYASH_*` behavior/env names untouched in this slice;
+- keep plugin/package/crate names untouched in this slice.
+
+Scripts:
+
+```text
+tools/using_unresolved_smoke.sh
+tools/using_resolve_smoke.sh
+tools/using_strict_path_fail_smoke.sh
+tools/dev_selfhost_loop.sh
+```
+
+Contract:
+
+```text
+primary:
+  target/release/hakorune
+
+compat fallback:
+  target/release/nyash
+  used only if primary is absent
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+tools/using_unresolved_smoke.sh
+tools/using_resolve_smoke.sh
+tools/using_strict_path_fail_smoke.sh
+tools/dev_selfhost_loop.sh --help
 git diff --check
 tools/checks/dev_gate.sh quick
 ```

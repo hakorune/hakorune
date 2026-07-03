@@ -1,14 +1,20 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Nyash self-hosting dev loop helper
+# Hakorune self-hosting dev loop helper
 # Goals:
 # - Avoid repeated Rust builds; iterate on .hako scripts only
 # - One-time ensure binary exists; then run with VM (default) or MIR
 # - Optional watch mode that re-runs on file changes (uses entr/inotifywait if available)
 
 ROOT_DIR=$(cd "$(dirname "$0")/.." && pwd)
-BIN="$ROOT_DIR/target/release/nyash"
+HAKORUNE_BIN="$ROOT_DIR/target/release/hakorune"
+LEGACY_NYASH_BIN="$ROOT_DIR/target/release/nyash"
+if [[ -x "$HAKORUNE_BIN" ]]; then
+  BIN="$HAKORUNE_BIN"
+else
+  BIN="$LEGACY_NYASH_BIN"
+fi
 
 SCRIPT="apps/selfhost-minimal/main.hako"
 BACKEND="vm"
@@ -24,7 +30,7 @@ Usage: tools/dev_selfhost_loop.sh [options] [script.hako] [-- ARGS]
 Options:
   --watch           Re-run on file changes (apps/**/*.hako)
   --backend <mode>  interpreter|mir|vm (default: vm)
-  --std             Load Ny std scripts from nyash.toml ([ny_plugins])
+  --std             Load Hako std scripts from hako.toml (legacy nyash.toml compatible)
   -v, --verbose     Verbose CLI output
   -h, --help        Show this help
 
@@ -32,7 +38,7 @@ Examples:
   # One-off run (VM), minimal selfhost sample
   tools/dev_selfhost_loop.sh apps/selfhost-minimal/main.hako
 
-  # Watch mode with Ny std libs loaded
+  # Watch mode with Hako std libs loaded
   tools/dev_selfhost_loop.sh --watch --std lang/src/compiler/entry/compiler_stageb.hako
 
 EOF
@@ -52,8 +58,9 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [[ ! -f "$BIN" ]]; then
-  echo "[dev] nyash binary not found; building release (one-time)..."
+  echo "[dev] hakorune binary not found; building release (one-time)..."
   (cd "$ROOT_DIR" && cargo build --release --features cranelift-jit)
+  BIN="$HAKORUNE_BIN"
 fi
 
 run_once() {

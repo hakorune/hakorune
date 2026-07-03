@@ -22,13 +22,17 @@ WINDOWS_DIR="$ROOT_DIR/tools/windows"
 HAKO_CHECK_SH="$ROOT_DIR/tools/hako-check/hako-check.sh"
 BUILD_LLVM_PS="$ROOT_DIR/tools/build_llvm.ps1"
 BUILD_AOT_PS="$ROOT_DIR/tools/build_aot.ps1"
+USING_UNRESOLVED_SMOKE="$ROOT_DIR/tools/using_unresolved_smoke.sh"
+USING_RESOLVE_SMOKE="$ROOT_DIR/tools/using_resolve_smoke.sh"
+USING_STRICT_PATH_FAIL_SMOKE="$ROOT_DIR/tools/using_strict_path_fail_smoke.sh"
+DEV_SELFHOST_LOOP="$ROOT_DIR/tools/dev_selfhost_loop.sh"
 ENV_RS="$ROOT_DIR/src/config/env.rs"
 ENV_PATHS_RS="$ROOT_DIR/src/config/env/paths.rs"
 ENV_DOC="$ROOT_DIR/docs/reference/environment-variables.md"
 
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" git
-guard_require_files "$TAG" "$SSOT" "$CHECK_INDEX" "$QUICK_STEPS" "$DOCS_LAYOUT" "$CARGO_TOML" "$README_MD" "$HACO_WRAPPER" "$MAIN_RS" "$HAKORUNE_BIN_RS" "$HAKORUNE_COMPAT_BIN_RS" "$BUILD_SHARED_RS" "$BUILD_PRODUCT_RS" "$BUILD_ENGINEERING_RS" "$HAKO_CHECK_SH" "$BUILD_LLVM_PS" "$BUILD_AOT_PS" "$ENV_RS" "$ENV_PATHS_RS" "$ENV_DOC"
+guard_require_files "$TAG" "$SSOT" "$CHECK_INDEX" "$QUICK_STEPS" "$DOCS_LAYOUT" "$CARGO_TOML" "$README_MD" "$HACO_WRAPPER" "$MAIN_RS" "$HAKORUNE_BIN_RS" "$HAKORUNE_COMPAT_BIN_RS" "$BUILD_SHARED_RS" "$BUILD_PRODUCT_RS" "$BUILD_ENGINEERING_RS" "$HAKO_CHECK_SH" "$BUILD_LLVM_PS" "$BUILD_AOT_PS" "$USING_UNRESOLVED_SMOKE" "$USING_RESOLVE_SMOKE" "$USING_STRICT_PATH_FAIL_SMOKE" "$DEV_SELFHOST_LOOP" "$ENV_RS" "$ENV_PATHS_RS" "$ENV_DOC"
 
 require_fixed() {
   local pattern="$1"
@@ -53,6 +57,7 @@ require_fixed "HAKORUNE-RUNNER-BUILD-HELPER-BINARY-RESOLUTION-001" "$SSOT"
 require_fixed "HAKORUNE-WINDOWS-BUILD-SCRIPT-CUTOVER-INVENTORY-001" "$SSOT"
 require_fixed "HAKORUNE-HAKO-CHECK-BINARY-RESOLUTION-001" "$SSOT"
 require_fixed "HAKORUNE-ROOT-POWERSHELL-BUILD-SCRIPT-CUTOVER-001" "$SSOT"
+require_fixed "HAKORUNE-DEV-SELFHOST-SMOKE-BINARY-RESOLUTION-001" "$SSOT"
 require_fixed "HAKORUNE-ENV-ALIAS-INVENTORY-001" "$SSOT"
 require_fixed "HAKORUNE-ENV-ALIAS-FIRST-CUT-001" "$SSOT"
 require_fixed 'prefer `target/release/hakorune` or `$HAKO_BIN`' "$README_MD"
@@ -95,6 +100,13 @@ require_fixed 'target\release\hakorune.exe' "$BUILD_AOT_PS"
 if rg -n -F -e '& .\target\release\nyash' "$BUILD_LLVM_PS" "$BUILD_AOT_PS"; then
   guard_fail "$TAG" "root PowerShell build scripts must invoke Resolve-HakoruneCli instead of legacy nyash directly"
 fi
+for smoke_script in "$USING_UNRESOLVED_SMOKE" "$USING_RESOLVE_SMOKE" "$USING_STRICT_PATH_FAIL_SMOKE" "$DEV_SELFHOST_LOOP"; do
+  require_fixed 'HAKORUNE_BIN="$ROOT_DIR/target/release/hakorune"' "$smoke_script"
+  require_fixed 'LEGACY_NYASH_BIN="$ROOT_DIR/target/release/nyash"' "$smoke_script"
+  if rg -n '^\s*BIN="\$ROOT_DIR/target/release/nyash"' "$smoke_script"; then
+    guard_fail "$TAG" "dev/selfhost smoke scripts must resolve Hakorune before legacy nyash"
+  fi
+done
 require_fixed "env_bool_with_alias" "$ENV_RS"
 require_fixed "env_string_with_alias" "$ENV_RS"
 require_fixed "env_string_trimmed_with_alias" "$ENV_RS"
