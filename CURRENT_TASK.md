@@ -74,6 +74,7 @@ STAGE-TERM-MODEB-PROOF-ROUTE-WORDING-001
 STAGE-TERM-MODEB-STAGE1-BRIDGE-WORDING-001
 STAGE-TERM-MODEA-COMPAT-ROUTE-WORDING-001
 STAGE-TERM-MODEB-HHAKO-ENTRY-WORDING-001
+STAGE-TERM-MODEB-HHAKO-COMPAT-FIXTURE-WORDING-001
 ```
 
 `--syntax-3` is now the frontend syntax-level spelling; `--stage3` remains a
@@ -88,9 +89,12 @@ names unchanged. Rust selfhost compat route comments/diagnostics now say
 mode-A compatibility while keeping `stage-a-compat` runtime-mode aliases and
 `stage_a_*` file/function names unchanged. HHako compiler entry comments now
 say mode-B compatibility while keeping `StageB*` Box names, trace strings,
-file names, and `--stage-b` route tokens unchanged. Next safe naming work, if
-explicitly selected, must pick a different classified layer from that inventory
-and keep compatibility aliases or replacement routes in the same slice.
+file names, and `--stage-b` route tokens unchanged. HHako legacy fixture and
+adapter comments that defer authority to BuildBox now also say mode-B
+compatibility while keeping env names, trace strings, and Box names unchanged.
+Next safe naming work, if explicitly selected, must pick a different classified
+layer from that inventory and keep compatibility aliases or replacement routes
+in the same slice.
 
 Acceptance:
 

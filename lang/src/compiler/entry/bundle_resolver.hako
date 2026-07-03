@@ -1,5 +1,5 @@
-// bundle_resolver.hako - legacy Stage-B bundling resolver fixture.
-// Live Stage-B source-to-Program production goes through BuildBox. Keep this
+// bundle_resolver.hako - legacy mode-B compatibility bundling resolver fixture.
+// Live mode-B compatibility source-to-Program production goes through BuildBox. Keep this
 // box for compat paths and JoinIR fixture coverage; do not add new production
 // bundle authority here.
 
@@ -10,7 +10,7 @@ static box BundleResolver {
   //  - --require-mod Name must appear in named bundles ([bundle/missing] Name)
   //  - Merge order: bundle-src* → bundle-mod* (in given order)
   resolve(bundle_srcs, bundle_names, bundle_mod_srcs, require_mods) {
-    // Shallow recursion guard to prevent accidental self-recursion in Stage‑B bundler.
+    // Shallow recursion guard to prevent accidental self-recursion in the mode-B compatibility bundler.
     {
       local depth = env.get("HAKO_STAGEB_BUNDLE_DEPTH")
       if depth != null && ("" + depth) != "0" {

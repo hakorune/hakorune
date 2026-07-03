@@ -2058,6 +2058,40 @@ git diff --check
 tools/checks/dev_gate.sh quick
 ```
 
+### STAGE-TERM-MODEB-HHAKO-COMPAT-FIXTURE-WORDING-001
+
+Status: landed HHako compat fixture wording cleanup.
+
+Purpose: use `mode-B compatibility` wording in HHako legacy fixture/adapter
+comments that explicitly defer live source-to-Program authority to BuildBox,
+while keeping `StageB*` Box names, env names, trace strings, file names, and
+route tokens unchanged.
+
+Affected files:
+
+```text
+lang/src/compiler/entry/bundle_resolver.hako
+lang/src/compiler/entry/stageb_body_extractor_box.hako
+lang/src/compiler/entry/stageb_keyword_expr_strip_box.hako
+```
+
+Non-claims:
+
+```text
+StageB* Box names renamed = 0
+HAKO_STAGEB_* env names renamed = 0
+trace strings renamed = 0
+runtime behavior changed = 0
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
 ### STAGE-TERM-EXISTING-NAME-MIGRATION-001
 
 Status: inventory-only; no implementation rename selected.

@@ -1,5 +1,5 @@
 // StageBBodyExtractorBox - legacy body extraction + bundle + using + trim.
-// Live Stage-B source-to-Program production goes through BuildBox. This box is
+// Live mode-B compatibility source-to-Program production goes through BuildBox. This box is
 // retained as a compat surface and JoinIR fixture target, so do not move live
 // bundle semantics back here.
 
@@ -19,7 +19,7 @@ static box StageBBodyExtractorBox {
       tracer.log("StageBBodyExtractorBox.build_body_src:enter len=" + ("" + l))
     }
     // ============================================================================
-    // Depth guard: prevent accidental recursion inside Stage‑B body extractor
+    // Depth guard: prevent accidental recursion inside mode-B compatibility body extractor
     // ============================================================================
     {
       local depth = env.get("HAKO_STAGEB_BODY_DEPTH")
@@ -70,7 +70,7 @@ static box StageBBodyExtractorBox {
     // ============================================================================
     // Optional: bundle extra module sources provided via repeated --bundle-src args
     // This is a minimal concatenation bundler (no I/O, no resolver). It simply places
-    // provided module snippets before the main body for Stage-B parser to accept.
+    // provided module snippets before the main body for the mode-B compatibility parser to accept.
     // Usage example:
     //   compiler_stageb.hako -- --bundle-src "static box Util { method nop(a){ return a } }" --source "static box Main { method main() { return 0 } }"
     // Policy:

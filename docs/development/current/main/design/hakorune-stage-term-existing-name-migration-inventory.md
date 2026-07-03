@@ -249,6 +249,34 @@ trace strings renamed = 0
 runtime behavior changed = 0
 ```
 
+## Landed HHako mode-B Compat Fixture Wording Slice
+
+`STAGE-TERM-MODEB-HHAKO-COMPAT-FIXTURE-WORDING-001` changes HHako legacy
+fixture/adapter comments to `mode-B compatibility` wording where the comments
+explicitly defer live source-to-Program authority to BuildBox.
+
+Scope:
+
+```text
+lang/src/compiler/entry/bundle_resolver.hako:
+  legacy bundling resolver fixture comments say mode-B compatibility
+
+lang/src/compiler/entry/stageb_body_extractor_box.hako:
+  legacy body extractor / bundle comments say mode-B compatibility
+
+lang/src/compiler/entry/stageb_keyword_expr_strip_box.hako:
+  keyword cleanup comment says mode-B compatibility
+```
+
+Non-claims:
+
+```text
+StageB* Box names renamed = 0
+HAKO_STAGEB_* env names renamed = 0
+trace strings renamed = 0
+runtime behavior changed = 0
+```
+
 ## Migration Eligibility
 
 An occurrence is eligible for a future rename only if all conditions hold:

@@ -1,4 +1,4 @@
-// Stage-B keyword expression JSON cleanup.
+// mode-B compatibility keyword expression JSON cleanup.
 // Extracted from compiler_stageb.hako to keep the entry file adapter-shaped.
 
 static box StageBKeywordExprStripBox {
