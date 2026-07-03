@@ -24,9 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-USER-BOX-METHOD-TYPE-LABEL-FORMATTER-HAKO-NATIVE-IMPLEMENTATION-001.
-  The user_box_method_type_label_formatter owner has a hand-authored `.hako`
-  implementation; next is its parity gate.
+  MIRBUILDER-USER-BOX-METHOD-TYPE-LABEL-FORMATTER-PARITY-GATE-001.
+  The user_box_method_type_label_formatter owner has a green 10-row `.hako`
+  EXE parity gate; next is its HakoAdoption decision.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-USER-BOX-METHOD-TYPE-LABEL-FORMATTER-PARITY-GATE-001
+  MIRBUILDER-USER-BOX-METHOD-TYPE-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001
 
 current fail-fast boundary:
   Do not re-enter full converter route selection without new non-self-signed
@@ -77,11 +77,11 @@ current fail-fast boundary:
   remain Rust.
 
 latest design decision:
-  user_box_method_type_label_formatter now has a hand-authored `.hako`
-  implementation for `MirType -> user-box method route type label`.
+  user_box_method_type_label_formatter now has a green 10-row `.hako` EXE
+  parity gate for `MirType -> user-box method route type label`.
   User-box method route collection, route convergence, MirModule mutation,
   and backend emission remain Rust. The selected next card is
-  `MIRBUILDER-USER-BOX-METHOD-TYPE-LABEL-FORMATTER-PARITY-GATE-001`.
+  `MIRBUILDER-USER-BOX-METHOD-TYPE-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001`.
 
 historical route-selection decision:
   Detailed landed route-selection rows are closed as provenance and live in
