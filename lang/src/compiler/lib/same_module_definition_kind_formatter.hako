@@ -1,0 +1,24 @@
+// same_module_definition_kind_formatter.hako - hand-authored SameModuleDefinitionKind formatter
+//
+// Responsibility:
+// - format SameModuleDefinitionKind names into Rust oracle JSON names
+// - stay pure: scalar kind text in, scalar JSON name out
+//
+// Non-responsibility:
+// - same-module definition closure collection
+// - global call route traversal
+// - user box method route traversal
+// - MirModule mutation
+// - backend C shim emission
+// - Source Selfhost or HakoAdopted promotion
+static box SameModuleDefinitionKindFormatterBox {
+  format_kind(kind) {
+    if kind == "Function" {
+      return "same_module_function"
+    }
+    if kind == "LeafI64" {
+      return "leaf_i64_function"
+    }
+    return "unsupported_same_module_definition_kind"
+  }
+}
