@@ -1,0 +1,37 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderSameModuleDefinitionKindFormatterRustOracleV1",
+  "token": "MIRBUILDER-SAME-MODULE-DEFINITION-KIND-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "same_module_definition_kind_formatter",
+  "rust_source": {
+    "path": "src/mir/same_module_definition_plan.rs",
+    "hash": "sha256:c1176d3a315770d93d4556df5a41690613765d2154c41fd759c78effdaad301c",
+    "oracle_function": "SameModuleDefinitionKind::as_json_name"
+  },
+  "oracle_rule": {
+    "surface": "SameModuleDefinitionKind -> JSON name",
+    "same_module_definition_closure_migration": 0,
+    "global_call_route_traversal_migration": 0,
+    "user_box_method_route_traversal_migration": 0,
+    "mir_module_mutation_migration": 0,
+    "backend_c_shim_emission_migration": 0
+  },
+  "rows": [
+    {
+      "case_id": "function",
+      "kind": "Function",
+      "expected_json_name": "same_module_function"
+    },
+    {
+      "case_id": "leaf_i64",
+      "kind": "LeafI64",
+      "expected_json_name": "leaf_i64_function"
+    }
+  ],
+  "summary": {
+    "oracle_row_count": 2,
+    "selected_surface_is_pure_scalar_formatter": 1,
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0
+  }
+}
