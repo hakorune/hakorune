@@ -1078,6 +1078,34 @@ git diff --check
 tools/checks/dev_gate.sh quick
 ```
 
+### HAKORUNE-NY-MIR-BUILDER-BINARY-RESOLUTION-001
+
+Status: active in this slice.
+
+Scope:
+
+- make the `tools/ny_mir_builder.sh --emit ll` helper spell the Hakorune-first
+  executable resolver explicitly;
+- keep the legacy `nyash` binary only as a named compatibility fallback;
+- keep backend selection and LLVM harness behavior unchanged in this slice;
+- add naming guard coverage so the helper does not regress to a direct legacy
+  binary fallback.
+
+Affected script:
+
+```text
+tools/ny_mir_builder.sh
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+bash tools/ny_mir_builder.sh --help
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
 ### STAGE-TERM-EXISTING-NAME-MIGRATION-001
 
 Status: defined, not implementation.

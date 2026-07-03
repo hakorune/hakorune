@@ -143,9 +143,10 @@ case "$EMIT" in
     export NYASH_LLVM_DUMP_LL=1
     export NYASH_LLVM_LL_OUT="$OUT"
     if [[ "$VERIFY" == "1" ]]; then export NYASH_LLVM_VERIFY=1; fi
-    # Prefer 'hakorune' binary if present (nyash is deprecated)
-    BIN="./target/release/hakorune"
-    [[ -x "$BIN" ]] || BIN="./target/release/nyash"
+    HAKORUNE_BIN="./target/release/hakorune"
+    LEGACY_NYASH_BIN="./target/release/nyash"
+    BIN="$HAKORUNE_BIN"
+    [[ -x "$BIN" ]] || BIN="$LEGACY_NYASH_BIN"
     if [[ "$LLVM_FEATURE" == "llvm-inkwell-legacy" ]]; then
       cat "$IN_FILE" | NYASH_LLVM_USE_HARNESS=1 LLVM_SYS_181_PREFIX="${_LLVMPREFIX}" LLVM_SYS_180_PREFIX="${_LLVMPREFIX}" \
         "$BIN" --backend llvm --ny-parser-pipe >/dev/null || true

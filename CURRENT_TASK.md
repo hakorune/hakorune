@@ -41,20 +41,20 @@ the active card and task-order SSOT. Do not duplicate them here.
 
 ## Immediate Maintenance Slice
 
-Scope: Gate-C OOB strict smoke binary resolution.
+Scope: ny MIR builder LLVM harness binary resolver naming.
 
-- make the Gate-C OOB strict opt-in smoke invoke `$HAKO_BIN` instead of direct
-  `target/release/nyash`
-- keep Stage-B source fixtures and strict OOB expectations unchanged in this
-  slice
-- add naming guard coverage so the smoke does not regress to direct legacy
-  binary calls
+- make the `tools/ny_mir_builder.sh --emit ll` helper spell the Hakorune-first
+  executable resolver explicitly
+- keep the legacy `nyash` binary only as a named compatibility fallback
+- keep backend selection and LLVM harness behavior unchanged in this slice
+- add naming guard coverage so the helper does not regress to a direct legacy
+  binary fallback
 
 Acceptance:
 
 ```bash
 bash tools/checks/naming_charter_guard.sh
-SMOKES_ENABLE_OOB_STRICT=1 bash tools/smokes/v2/profiles/quick/core/gate_c_oob_strict_fail_vm.sh
+bash tools/ny_mir_builder.sh --help
 git diff --check
 tools/checks/dev_gate.sh quick
 ```
