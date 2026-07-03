@@ -935,6 +935,33 @@ git diff --check
 tools/checks/dev_gate.sh quick
 ```
 
+### HAKORUNE-MAP-ESCAPE-OPTIN-SMOKE-BINARY-RESOLUTION-001
+
+Status: active in this slice.
+
+Scope:
+
+- make the Hako map escape opt-in smoke invoke `$HAKO_BIN` instead of direct
+  `target/release/nyash`;
+- keep boundary-case diagnostics and `.hako` fixtures unchanged in this slice;
+- add naming guard coverage so the smoke does not regress to direct legacy
+  binary calls.
+
+Affected script:
+
+```text
+tools/smokes/v2/profiles/quick/core/hako_map_escape_vm.sh
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+SMOKES_ENABLE_STAGEA_BOUNDARY=1 bash tools/smokes/v2/profiles/quick/core/hako_map_escape_vm.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
 ### STAGE-TERM-EXISTING-NAME-MIGRATION-001
 
 Status: defined, not implementation.

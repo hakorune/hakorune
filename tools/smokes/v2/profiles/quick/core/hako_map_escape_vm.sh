@@ -14,11 +14,12 @@ if ROOT_GIT=$(git -C "$SCRIPT_DIR" rev-parse --show-toplevel 2>/dev/null); then
 else
   ROOT="$(cd "$SCRIPT_DIR/../../../../../.." && pwd)"
 fi
-BIN="$ROOT/target/release/nyash"
+HAKO_BIN_DEFAULT="$ROOT/tools/bin/hako"
+HAKO_BIN="${HAKO_BIN:-$HAKO_BIN_DEFAULT}"
 
-if [ ! -x "$BIN" ]; then
+if [ ! -x "$HAKO_BIN" ]; then
   (cd "$ROOT" && cargo build --release >/dev/null 2>&1) || {
-    echo "[FAIL] build release nyash" >&2
+    echo "[FAIL] build release hakorune" >&2
     exit 1
   }
 fi
@@ -32,7 +33,7 @@ compile_stage_a() {
   NYASH_PARSER_ALLOW_SEMICOLON=1 NYASH_SYNTAX_SUGAR_LEVEL=full NYASH_ENABLE_ARRAY_LITERAL=1 \
   HAKO_ALLOW_USING_FILE=1 NYASH_ALLOW_USING_FILE=1 \
   NYASH_QUIET=1 HAKO_QUIET=1 NYASH_CLI_VERBOSE=0 \
-  "$BIN" --backend vm "$ROOT/lang/src/compiler/entry/compiler.hako" -- --min-json --source "$(cat "$hako_tmp")" > "$raw" 2>&1
+  "$HAKO_BIN" --backend vm "$ROOT/lang/src/compiler/entry/compiler.hako" -- --min-json --source "$(cat "$hako_tmp")" > "$raw" 2>&1
   awk '/"version":0/ && /"kind":"Program"/ {print; exit}' "$raw" > "$json_out" || true
   rm -f "$raw" "$hako_tmp"
   if [ ! -s "$json_out" ]; then
@@ -46,7 +47,7 @@ compile_stage_a() {
 run_gate_c() {
   local json_path="$1"
   NYASH_QUIET=1 HAKO_QUIET=1 NYASH_CLI_VERBOSE=0 NYASH_NYRT_SILENT_RESULT=1 \
-    "$BIN" --json-file "$json_path" >/dev/null 2>&1 || true
+    "$HAKO_BIN" --json-file "$json_path" >/dev/null 2>&1 || true
   rm -f "$json_path"
 }
 
