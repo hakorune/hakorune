@@ -41,20 +41,22 @@ the active card and task-order SSOT. Do not duplicate them here.
 
 ## Immediate Maintenance Slice
 
-Scope: ny MIR builder LLVM harness binary resolver naming.
+Scope: Phase29x cache helper binary resolver naming.
 
-- make the `tools/ny_mir_builder.sh --emit ll` helper spell the Hakorune-first
-  executable resolver explicitly
-- keep the legacy `nyash` binary only as a named compatibility fallback
-- keep backend selection and LLVM harness behavior unchanged in this slice
-- add naming guard coverage so the helper does not regress to a direct legacy
-  binary fallback
+- make the Phase29x L1/L2 cache helpers spell the Hakorune-first executable
+  resolver explicitly
+- keep caller-provided `$NYASH_BIN` as the historical override alias
+- keep legacy `nyash` only as a named compatibility fallback
+- keep cache key, MIR emit, and object emit behavior unchanged in this slice
+- add naming guard coverage so cache helpers do not regress to ambiguous direct
+  legacy fallback
 
 Acceptance:
 
 ```bash
 bash tools/checks/naming_charter_guard.sh
-bash tools/ny_mir_builder.sh --help
+bash tools/cache/phase29x_l1_mir_cache.sh --help
+bash tools/cache/phase29x_l2_object_cache.sh --help
 git diff --check
 tools/checks/dev_gate.sh quick
 ```

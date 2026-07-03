@@ -86,14 +86,16 @@ if [ ! -f "$L1_TOOL" ]; then
   exit 2
 fi
 
+HAKORUNE_BIN_PATH="$ROOT_DIR/target/release/hakorune"
+LEGACY_NYASH_BIN_PATH="$ROOT_DIR/target/release/nyash"
 if [ -n "${NYASH_BIN:-}" ] && [ -x "${NYASH_BIN:-}" ]; then
   NYASH_BIN_PATH="$NYASH_BIN"
-elif [ -x "$ROOT_DIR/target/release/hakorune" ]; then
-  NYASH_BIN_PATH="$ROOT_DIR/target/release/hakorune"
-elif [ -x "$ROOT_DIR/target/release/nyash" ]; then
-  NYASH_BIN_PATH="$ROOT_DIR/target/release/nyash"
+elif [ -x "$HAKORUNE_BIN_PATH" ]; then
+  NYASH_BIN_PATH="$HAKORUNE_BIN_PATH"
+elif [ -x "$LEGACY_NYASH_BIN_PATH" ]; then
+  NYASH_BIN_PATH="$LEGACY_NYASH_BIN_PATH"
 else
-  echo "phase29x_l2_object_cache: nyash binary not found (target/release/hakorune|nyash)" >&2
+  echo "phase29x_l2_object_cache: Hakorune binary not found (target/release/hakorune; legacy nyash fallback checked)" >&2
   exit 2
 fi
 

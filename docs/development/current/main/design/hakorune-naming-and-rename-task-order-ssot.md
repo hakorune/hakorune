@@ -1106,6 +1106,37 @@ git diff --check
 tools/checks/dev_gate.sh quick
 ```
 
+### HAKORUNE-PHASE29X-CACHE-HELPER-BINARY-RESOLUTION-001
+
+Status: active in this slice.
+
+Scope:
+
+- make the Phase29x L1/L2 cache helpers spell the Hakorune-first executable
+  resolver explicitly;
+- keep caller-provided `$NYASH_BIN` as the historical override alias;
+- keep legacy `nyash` only as a named compatibility fallback;
+- keep cache key, MIR emit, and object emit behavior unchanged in this slice;
+- add naming guard coverage so cache helpers do not regress to ambiguous direct
+  legacy fallback.
+
+Affected scripts:
+
+```text
+tools/cache/phase29x_l1_mir_cache.sh
+tools/cache/phase29x_l2_object_cache.sh
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+bash tools/cache/phase29x_l1_mir_cache.sh --help
+bash tools/cache/phase29x_l2_object_cache.sh --help
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
 ### STAGE-TERM-EXISTING-NAME-MIGRATION-001
 
 Status: defined, not implementation.
