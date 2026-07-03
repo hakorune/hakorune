@@ -1,0 +1,32 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderHakoNativeOwnerParityPilotSelectionRerun065V1",
+  "token": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-065",
+  "previous_adoption_decision": {
+    "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-mir14-instruction-name-classifier-hako-adoption-decision-v0.json",
+    "hash": "sha256:962d22bb7f2d4248b48e7e2d6716c3e828583c7a60189521c00e37a58b335607"
+  },
+  "selected_owner": {
+    "owner_id": "mem_op_kind_label_formatter",
+    "rust_source": "src/mir/instruction.rs",
+    "oracle_surface": "MemOpKind display_name/as_json_name vocabulary",
+    "selection_reason": "Pure MemOpKind label vocabulary formatter with scalar enum-token input and no MIR traversal."
+  },
+  "decision": {
+    "kind": "SelectRustOracleFixture",
+    "reason_token": "MemOpKindLabelFormatterSelected",
+    "selected_next_card": "MIRBUILDER-MEM-OP-KIND-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001"
+  },
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "memory_op_semantics_migration": 0,
+    "fastmem_handling_migration": 0,
+    "mir_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

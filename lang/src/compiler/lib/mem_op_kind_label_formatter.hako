@@ -1,0 +1,54 @@
+// mem_op_kind_label_formatter.hako
+//
+// Responsibility:
+// - format narrow MemOpKind display/json vocabulary
+// - stay pure: enum token in, label token out
+//
+// Non-responsibility:
+// - memory operation semantics
+// - FastMem handling
+// - MIR lowering
+// - MIR mutation
+static box MemOpKindLabelFormatterBox {
+  display_name(kind) {
+    if kind == "AddrOf" { return "AddrOf" }
+    if kind == "LogicalShr" { return "LogicalShr" }
+    if kind == "BitAnd" { return "BitAnd" }
+    if kind == "Add" { return "Add" }
+    if kind == "Sub" { return "Sub" }
+    if kind == "TableIndex" { return "TableIndex" }
+    if kind == "FieldLoad" { return "FieldLoad" }
+    if kind == "FieldStore" { return "FieldStore" }
+    if kind == "CurrentAllocOwnerId" { return "CurrentAllocOwnerId" }
+    if kind == "OwnerEq" { return "OwnerEq" }
+    if kind == "LocalFreePush" { return "LocalFreePush" }
+    if kind == "LocalFreePop" { return "LocalFreePop" }
+    if kind == "FreeHeadPush" { return "FreeHeadPush" }
+    if kind == "FreeHeadPop" { return "FreeHeadPop" }
+    if kind == "AtomicRemoteHeadPush" { return "AtomicRemoteHeadPush" }
+    if kind == "AtomicRemoteHeadDrain" { return "AtomicRemoteHeadDrain" }
+    if kind == "DrainRemoteListToLocal" { return "DrainRemoteListToLocal" }
+    return "unsupported_mem_op_kind"
+  }
+
+  json_name(kind) {
+    if kind == "AddrOf" { return "addr_of" }
+    if kind == "LogicalShr" { return "logical_shr" }
+    if kind == "BitAnd" { return "bit_and" }
+    if kind == "Add" { return "add" }
+    if kind == "Sub" { return "sub" }
+    if kind == "TableIndex" { return "table_index" }
+    if kind == "FieldLoad" { return "field_load" }
+    if kind == "FieldStore" { return "field_store" }
+    if kind == "CurrentAllocOwnerId" { return "current_alloc_owner_id" }
+    if kind == "OwnerEq" { return "owner_eq" }
+    if kind == "LocalFreePush" { return "local_free_push" }
+    if kind == "LocalFreePop" { return "local_free_pop" }
+    if kind == "FreeHeadPush" { return "free_head_push" }
+    if kind == "FreeHeadPop" { return "free_head_pop" }
+    if kind == "AtomicRemoteHeadPush" { return "atomic_remote_head_push" }
+    if kind == "AtomicRemoteHeadDrain" { return "atomic_remote_head_drain" }
+    if kind == "DrainRemoteListToLocal" { return "drain_remote_list_to_local" }
+    return "unsupported_mem_op_kind_json"
+  }
+}
