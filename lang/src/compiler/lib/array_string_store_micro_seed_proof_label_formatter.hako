@@ -1,0 +1,19 @@
+// array_string_store_micro_seed_proof_label_formatter.hako - hand-authored proof label formatter
+//
+// Responsibility:
+// - format narrow array string-store micro seed proof vocabulary into Rust oracle text
+// - stay pure: scalar proof in, scalar text out
+//
+// Non-responsibility:
+// - array string-store micro seed matching
+// - array string length window matching
+// - backend lowering
+// - MIR mutation
+static box ArrayStringStoreMicroSeedProofLabelFormatterBox {
+  format_label(proof) {
+    if proof == "KiloMicroArrayStringStore8Block" {
+      return "kilo_micro_array_string_store_8block"
+    }
+    return "unsupported_array_string_store_micro_seed_proof_label"
+  }
+}
