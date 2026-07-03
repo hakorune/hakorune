@@ -635,7 +635,7 @@ tools/checks/dev_gate.sh quick
 
 ### HAKORUNE-ENGINEERING-PARITY-BINARY-RESOLUTION-001
 
-Status: active in this slice.
+Status: landed naming-cleanup cut.
 
 Scope:
 
@@ -670,7 +670,7 @@ tools/checks/dev_gate.sh quick
 
 ### HAKORUNE-SELFHOST-EXE-STAGEB-BINARY-RESOLUTION-001
 
-Status: active in this slice.
+Status: landed naming-cleanup cut.
 
 Scope:
 
@@ -706,7 +706,7 @@ tools/checks/dev_gate.sh quick
 
 ### HAKORUNE-CORE-EMIT-HELPER-BINARY-RESOLUTION-001
 
-Status: active in this slice.
+Status: landed naming-cleanup cut.
 
 Scope:
 
@@ -734,7 +734,7 @@ tools/checks/dev_gate.sh quick
 
 ### HAKORUNE-SELFHOST-EXE-STAGEB-SOURCE-WORDING-001
 
-Status: active in this slice.
+Status: landed naming-cleanup cut.
 
 Scope:
 
@@ -907,7 +907,7 @@ tools/checks/dev_gate.sh quick
 
 ### HAKORUNE-SELFHOST-ROUTE-BINARY-DIAGNOSTICS-001
 
-Status: active in this slice.
+Status: landed naming-cleanup cut.
 
 Scope:
 
@@ -938,7 +938,7 @@ tools/checks/dev_gate.sh quick
 
 ### HAKORUNE-SELFHOST-MAINLINE-STAGE1-BINARY-RESOLUTION-001
 
-Status: active in this slice.
+Status: landed naming-cleanup cut.
 
 Scope:
 
@@ -967,7 +967,7 @@ tools/checks/dev_gate.sh quick
 
 ### HAKORUNE-SELFHOST-RUN-DIRECT-MODE-B-DIAGNOSTIC-001
 
-Status: active in this slice.
+Status: landed naming-cleanup cut.
 
 Scope:
 
@@ -992,7 +992,7 @@ tools/checks/dev_gate.sh quick
 
 ### HAKORUNE-PARSER-BRIDGE-SMOKE-BINARY-RESOLUTION-001
 
-Status: active in this slice.
+Status: landed naming-cleanup cut.
 
 Scope:
 
@@ -1026,7 +1026,7 @@ tools/checks/dev_gate.sh quick
 
 ### HAKORUNE-PHI-TRACE-RUNNER-BINARY-RESOLUTION-001
 
-Status: active in this slice.
+Status: landed naming-cleanup cut.
 
 Scope:
 
@@ -1062,7 +1062,7 @@ tools/checks/dev_gate.sh quick
 
 ### HAKORUNE-TEST-SHLIB-BINARY-RESOLUTION-001
 
-Status: active in this slice.
+Status: landed naming-cleanup cut.
 
 Scope:
 
@@ -1098,7 +1098,7 @@ tools/checks/dev_gate.sh quick
 
 ### HAKORUNE-SMOKE-EMIT-MIR-ROUTE-BINARY-ALIAS-001
 
-Status: active in this slice.
+Status: landed naming-cleanup cut.
 
 Scope:
 
@@ -1137,7 +1137,7 @@ tools/checks/dev_gate.sh quick
 
 ### HAKORUNE-BRIDGE-CANONICALIZE-STABLE-SMOKE-BINARY-RESOLUTION-001
 
-Status: active in this slice.
+Status: landed naming-cleanup cut.
 
 Scope:
 
@@ -1169,7 +1169,7 @@ tools/checks/dev_gate.sh quick
 
 ### HAKORUNE-WRAPPER-EXECUTABLE-BIT-001
 
-Status: active in this slice.
+Status: landed naming-cleanup cut.
 
 Scope:
 
@@ -1190,7 +1190,7 @@ tools/checks/dev_gate.sh quick
 
 ### HAKORUNE-MIN-OPTIN-SMOKE-BINARY-RESOLUTION-001
 
-Status: active in this slice.
+Status: landed naming-cleanup cut.
 
 Scope:
 
@@ -1225,7 +1225,7 @@ tools/checks/dev_gate.sh quick
 
 ### HAKORUNE-QUICK-SMOKE-MODE-A-DIAGNOSTIC-001
 
-Status: active in this slice.
+Status: landed naming-cleanup cut.
 
 Scope:
 
@@ -1254,7 +1254,7 @@ tools/checks/dev_gate.sh quick
 
 ### HAKORUNE-QUICK-SMOKE-MODE-B-DIAGNOSTIC-001
 
-Status: active in this slice.
+Status: landed naming-cleanup cut.
 
 Scope:
 
@@ -1281,7 +1281,7 @@ tools/checks/dev_gate.sh quick
 
 ### HAKORUNE-MAP-ESCAPE-OPTIN-SMOKE-BINARY-RESOLUTION-001
 
-Status: active in this slice.
+Status: landed naming-cleanup cut.
 
 Scope:
 
@@ -1308,7 +1308,7 @@ tools/checks/dev_gate.sh quick
 
 ### HAKORUNE-GATE-C-NYVM-WRAPPER-SMOKE-BINARY-NAMING-001
 
-Status: active in this slice.
+Status: landed naming-cleanup cut.
 
 Scope:
 
@@ -1338,7 +1338,7 @@ tools/checks/dev_gate.sh quick
 
 ### HAKORUNE-PARSER-INTEGRATION-SMOKE-BINARY-NAMING-001
 
-Status: active in this slice.
+Status: landed naming-cleanup cut.
 
 Scope:
 
@@ -1368,7 +1368,7 @@ tools/checks/dev_gate.sh quick
 
 ### HAKORUNE-PARSER-TRY-COMPAT-SMOKE-BINARY-NAMING-001
 
-Status: active in this slice.
+Status: landed naming-cleanup cut.
 
 Scope:
 
@@ -1396,7 +1396,7 @@ tools/checks/dev_gate.sh quick
 
 ### HAKORUNE-PARSER-INTEGRATION-EXTRA-SMOKE-BINARY-NAMING-001
 
-Status: active in this slice.
+Status: landed naming-cleanup cut.
 
 Scope:
 
@@ -1425,7 +1425,7 @@ tools/checks/dev_gate.sh quick
 
 ### HAKORUNE-GOLDEN-MACRO-BINARY-RESOLVER-001
 
-Status: active in this slice.
+Status: landed naming-cleanup cut.
 
 Scope:
 
@@ -1458,7 +1458,7 @@ changes binary resolution and diagnostics.
 
 ### HAKORUNE-CURRENT-DIAGNOSTIC-BINARY-WORDING-001
 
-Status: active in this slice.
+Status: landed naming-cleanup cut.
 
 Scope:
 
@@ -1488,7 +1488,7 @@ tools/checks/dev_gate.sh quick
 
 ### HAKORUNE-SMOKE-TEST-RUNNER-BINARY-RESOLUTION-001
 
-Status: active in this slice.
+Status: landed naming-cleanup cut.
 
 Scope:
 
@@ -1516,7 +1516,7 @@ tools/checks/dev_gate.sh quick
 
 ### HAKORUNE-SMOKE-AUTO-DETECT-BINARY-RESOLUTION-001
 
-Status: active in this slice.
+Status: landed naming-cleanup cut.
 
 Scope:
 
@@ -1544,7 +1544,7 @@ tools/checks/dev_gate.sh quick
 
 ### HAKORUNE-GATE-C-OOB-STRICT-SMOKE-BINARY-RESOLUTION-001
 
-Status: active in this slice.
+Status: landed naming-cleanup cut.
 
 Scope:
 
@@ -1572,7 +1572,7 @@ tools/checks/dev_gate.sh quick
 
 ### HAKORUNE-NY-MIR-BUILDER-BINARY-RESOLUTION-001
 
-Status: active in this slice.
+Status: landed naming-cleanup cut.
 
 Scope:
 
@@ -1600,7 +1600,7 @@ tools/checks/dev_gate.sh quick
 
 ### HAKORUNE-PHASE29X-CACHE-HELPER-BINARY-RESOLUTION-001
 
-Status: active in this slice.
+Status: landed naming-cleanup cut.
 
 Scope:
 
@@ -1631,7 +1631,7 @@ tools/checks/dev_gate.sh quick
 
 ### HAKORUNE-SMOKE-SHARED-PREFLIGHT-BINARY-RESOLUTION-001
 
-Status: active in this slice.
+Status: landed naming-cleanup cut.
 
 Scope:
 
@@ -1662,7 +1662,7 @@ tools/checks/dev_gate.sh quick
 
 ### HAKORUNE-SMOKE-PREFLIGHT-STAGE-TERM-DIAGNOSTIC-001
 
-Status: active in this slice.
+Status: landed naming-cleanup cut.
 
 Scope:
 
@@ -1688,7 +1688,7 @@ tools/checks/dev_gate.sh quick
 
 ### HAKORUNE-HAKO-CHECK-WRAPPER-BINARY-RESOLUTION-001
 
-Status: active in this slice.
+Status: landed naming-cleanup cut.
 
 Scope:
 
@@ -1717,7 +1717,7 @@ tools/checks/dev_gate.sh quick
 
 ### HAKORUNE-FASTMEM-HAKO-CHECK-SMOKE-BINARY-RESOLUTION-001
 
-Status: active in this slice.
+Status: landed naming-cleanup cut.
 
 Scope:
 
@@ -1749,7 +1749,7 @@ tools/checks/dev_gate.sh quick
 
 ### HAKORUNE-COLLECTION-QUICK-SMOKE-BINARY-WORDING-001
 
-Status: active in this slice.
+Status: landed naming-cleanup cut.
 
 Scope:
 
