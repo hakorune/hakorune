@@ -1,0 +1,47 @@
+// user_box_method_type_label_formatter.hako - hand-authored user-box method type-label formatter
+//
+// Responsibility:
+// - format MirType kind names into Rust oracle user-box method route labels
+// - stay pure: scalar kind/name input, scalar label output
+//
+// Non-responsibility:
+// - user-box method route collection
+// - route convergence or materialization fixpoint
+// - MirModule mutation
+// - backend emission
+// - Source Selfhost or HakoAdopted promotion
+static box UserBoxMethodTypeLabelFormatterBox {
+  format_type_label(kind, box_name) {
+    if kind == "Integer" {
+      return "i64"
+    }
+    if kind == "Bool" {
+      return "i1"
+    }
+    if kind == "Float" {
+      return "f64"
+    }
+    if kind == "String" {
+      return "StringBox"
+    }
+    if kind == "Void" {
+      return "void"
+    }
+    if kind == "Box" {
+      return "" + box_name
+    }
+    if kind == "Array" {
+      return "ArrayBox"
+    }
+    if kind == "Future" {
+      return "FutureBox"
+    }
+    if kind == "WeakRef" {
+      return "WeakRef"
+    }
+    if kind == "Unknown" {
+      return "unknown"
+    }
+    return "unsupported_user_box_method_type_label"
+  }
+}
