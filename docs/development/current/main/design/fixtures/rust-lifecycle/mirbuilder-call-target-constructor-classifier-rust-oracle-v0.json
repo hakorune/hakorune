@@ -1,0 +1,31 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderCallTargetConstructorClassifierRustOracleV1",
+  "token": "MIRBUILDER-CALL-TARGET-CONSTRUCTOR-CLASSIFIER-RUST-ORACLE-FIXTURE-001",
+  "owner": "call_target_constructor_classifier",
+  "rust_source": {
+    "path": "src/mir/builder/calls/call_target.rs",
+    "hash": "sha256:fd9322fc814359adfe1995baa44c3efbf48bca65c07b051a578bb01c39977e41",
+    "oracle_surface": "CallTarget::is_constructor boolean classification"
+  },
+  "rows": [
+    {"kind": "Global", "expected": "false"},
+    {"kind": "Method", "expected": "false"},
+    {"kind": "Constructor", "expected": "true"},
+    {"kind": "Extern", "expected": "false"},
+    {"kind": "Value", "expected": "false"},
+    {"kind": "Closure", "expected": "false"}
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "call_target_resolution_migration": 0,
+    "closure_capture_migration": 0,
+    "call_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

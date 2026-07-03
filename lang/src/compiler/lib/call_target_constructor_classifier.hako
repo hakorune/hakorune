@@ -1,0 +1,17 @@
+// call_target_constructor_classifier.hako
+//
+// Responsibility:
+// - classify whether a narrow MIR builder CallTarget kind is Constructor
+// - stay pure: target kind token in, boolean text out
+//
+// Non-responsibility:
+// - call target resolution
+// - closure capture handling
+// - call lowering
+// - MIR mutation
+static box CallTargetConstructorClassifierBox {
+  is_constructor(kind) {
+    if kind == "Constructor" { return "true" }
+    return "false"
+  }
+}
