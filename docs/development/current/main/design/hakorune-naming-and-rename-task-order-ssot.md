@@ -652,6 +652,26 @@ historical Nyash Era section rewritten = 0
 runtime behavior changed = 0
 ```
 
+### HAKORUNE-README-MODEB-LINE-QUICKGUIDE-WORDING-001
+
+Status: landed.
+
+Scope:
+
+```text
+README.md:
+  ny-llvm line quickstart label says mode-B compatibility
+```
+
+Non-claims:
+
+```text
+selfhost_exe_stageb_quick_guide.md path renamed = 0
+ny-llvmc tool name renamed = 0
+historical PyVM stage2 smoke path renamed = 0
+runtime behavior changed = 0
+```
+
 ### HAKORUNE-BINARY-PRIMARY-CUTOVER-INVENTORY-001
 
 Status: landed inventory cut.

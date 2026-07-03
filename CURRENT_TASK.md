@@ -103,6 +103,7 @@ STAGE-TERM-RUST-STAGE1-PROGRAM-JSON-TEST-WORDING-001
 STAGE-TERM-CHECK-SCRIPTS-INDEX-PHASE-ENV-WORDING-001
 STAGE-TERM-STAGE1-BRIDGE-ALIAS-COMMENT-WORDING-001
 HAKORUNE-README-MODEB-USER-FACING-WORDING-001
+HAKORUNE-README-MODEB-LINE-QUICKGUIDE-WORDING-001
 ```
 
 `--syntax-3` is now the frontend syntax-level spelling; `--stage3` remains a
@@ -194,6 +195,9 @@ names, and `[stage1-cli]` log tags.
 The root README developer quickstart now says mode-B compatibility for the
 current MIR emit helper route while preserving `nyash` syntax fences,
 `NYASH_*` compatibility env names, and `ny-llvmc` tool names.
+The remaining root README ny-llvm line quickstart label now also says mode-B
+compatibility while preserving the compatibility guide path and `ny-llvmc`
+tool name.
 Next safe naming work, if explicitly selected, must pick a
 different classified layer from that inventory and keep compatibility aliases
 or replacement routes in the same slice.

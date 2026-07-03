@@ -490,6 +490,7 @@ SSOT_REQUIRED_TOKENS=(
   "HAKORUNE-ENV-ALIAS-INVENTORY-001"
   "HAKORUNE-ENV-ALIAS-FIRST-CUT-001"
   "HAKORUNE-README-MODEB-USER-FACING-WORDING-001"
+  "HAKORUNE-README-MODEB-LINE-QUICKGUIDE-WORDING-001"
   "STAGE-TERM-EXISTING-NAME-INVENTORY-001"
   "STAGE-TERM-SYNTAX3-ALIAS-001"
   "STAGE-TERM-SYNTAX3-DIAGNOSTIC-WORDING-001"
@@ -536,7 +537,8 @@ require_fixed '`$NYASH_BIN` remains a compatibility alias' "$README_MD"
 require_fixed "mode-B compatibility parser" "$README_MD"
 require_fixed "mode-B compatibility route" "$README_MD"
 require_fixed "mode-B compatibility → MIR(JSON)" "$README_MD"
-if rg -n 'Stage[‑-]B parser|runs Stage[‑-]B|Stage[‑-]B → MIR' "$README_MD"; then
+require_fixed "mode-B compatibility → MirBuilder → ny‑llvmc → EXE" "$README_MD"
+if rg -n 'Stage[‑-]B parser|runs Stage[‑-]B|Stage[‑-]B → MIR|Stage[‑-]B → MirBuilder' "$README_MD"; then
   guard_fail "$TAG" "README current developer quickstart must use mode-B compatibility wording"
 fi
 require_fixed 'default-run = "hakorune"' "$CARGO_TOML"

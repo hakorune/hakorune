@@ -1084,6 +1084,28 @@ historical Nyash Era section rewritten = 0
 runtime behavior changed = 0
 ```
 
+## Landed README ny-llvm Quick Guide Wording Slice
+
+`HAKORUNE-README-MODEB-LINE-QUICKGUIDE-WORDING-001` changes the remaining root
+README ny-llvm quick guide label from Stage-B wording to mode-B compatibility
+wording.
+
+Scope:
+
+```text
+README.md:
+  ny-llvm line quickstart label
+```
+
+Non-claims:
+
+```text
+selfhost_exe_stageb_quick_guide.md path renamed = 0
+ny-llvmc tool name renamed = 0
+historical PyVM stage2 smoke path renamed = 0
+runtime behavior changed = 0
+```
+
 ## Migration Eligibility
 
 An occurrence is eligible for a future rename only if all conditions hold:

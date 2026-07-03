@@ -138,7 +138,7 @@ Phase‑15 (2025‑09) update
 - 推奨トグル: `NYASH_LLVM_USE_HARNESS=1`, `NYASH_PARSER_TOKEN_CURSOR=1`, `NYASH_JSON_PROVIDER=ny`, `NYASH_SELFHOST_EXEC=1`。
 
 Developer quickstart: see `docs/guides/getting-started.md`. Changelog highlights: `CHANGELOG.md`.
-ny‑llvm line quickstart: `docs/development/testing/selfhost_exe_stageb_quick_guide.md`（Stage‑B → MirBuilder → ny‑llvmc → EXE）
+ny‑llvm line quickstart: `docs/development/testing/selfhost_exe_stageb_quick_guide.md`（mode-B compatibility → MirBuilder → ny‑llvmc → EXE）
 User Macros (Phase 2): `docs/guides/user-macros.md`
 Exceptions (postfix catch/cleanup): `docs/guides/exception-handling.md`
 ScopeBox & MIR hints: `docs/guides/scopebox.md`
