@@ -2,7 +2,7 @@
 setlocal ENABLEDELAYEDEXPANSION
 chcp 65001 >nul
 
-echo [Nyash AOT Build - libffi disabled]
+echo [Hakorune AOT Build - libffi disabled]
 echo ===================================
 
 REM Set LLVM environment variables
@@ -35,17 +35,17 @@ echo Cleaning previous build...
 cargo clean
 
 echo.
-echo Building Nyash with LLVM AOT support (no libffi)...
-cargo build --bin nyash --release --features llvm
+echo Building Hakorune with LLVM AOT support (no libffi)...
+cargo build --bin hakorune --release --features llvm
 
 REM Check result
 echo.
-if exist "target\release\nyash.exe" (
-    echo SUCCESS: nyash.exe built successfully!
+if exist "target\release\hakorune.exe" (
+    echo SUCCESS: hakorune.exe built successfully!
     echo.
-    dir target\release\nyash.exe
+    dir target\release\hakorune.exe
 ) else (
-    echo ERROR: Build failed - nyash.exe not found
+    echo ERROR: Build failed - hakorune.exe not found
     exit /b 1
 )
 

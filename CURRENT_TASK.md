@@ -41,17 +41,17 @@ the active card and task-order SSOT. Do not duplicate them here.
 
 ## Immediate Maintenance Slice
 
-Scope: Hakorune runner build helper binary resolution.
+Scope: Hakorune Windows build script binary cutover.
 
-- make build product / engineering emit helpers resolve `hakorune` first
-- keep `nyash` as an explicit fallback when the primary binary is absent
+- make Windows build scripts build/invoke `hakorune` as the primary binary
+- keep `nyash` only as compatibility fallback where explicitly resolved
 - keep package/crate/plugin/ABI/tool names untouched in this slice
-- do not remove `nyash` aliases or rename Cargo package metadata
+- do not rename historical script filenames in this slice
 
 Acceptance:
 
 ```bash
 bash tools/checks/naming_charter_guard.sh
-cargo test -q --lib hakorune_cli_bin_path
+git diff --check
 tools/checks/dev_gate.sh quick
 ```

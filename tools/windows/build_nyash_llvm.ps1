@@ -9,9 +9,9 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-function Info($m){ Write-Host "[build-nyash-llvm] $m" -ForegroundColor Cyan }
-function Warn($m){ Write-Host "[build-nyash-llvm] WARN: $m" -ForegroundColor Yellow }
-function Err($m){ Write-Host "[build-nyash-llvm] ERROR: $m" -ForegroundColor Red; exit 1 }
+function Info($m){ Write-Host "[build-hakorune-llvm] $m" -ForegroundColor Cyan }
+function Warn($m){ Write-Host "[build-hakorune-llvm] WARN: $m" -ForegroundColor Yellow }
+function Err($m){ Write-Host "[build-hakorune-llvm] ERROR: $m" -ForegroundColor Red; exit 1 }
 
 # Move to repo root for stable paths
 Set-Location (Split-Path -Parent $PSCommandPath) | Out-Null
@@ -23,7 +23,7 @@ if ($EnsureLLVM) {
   & tools\windows\ensure-llvm18.ps1 @args
 }
 
-Info "Building nyash (features=llvm, profile=$Profile)"
+Info "Building Hakorune (features=llvm, profile=$Profile)"
 $cargoArgs = @('build')
 if ($Profile -eq 'release') { $cargoArgs += '--release' }
 elseif ($Profile -ne 'debug') { Warn "Unknown profile '$Profile', using release"; $cargoArgs += '--release' }
@@ -41,4 +41,3 @@ if ($App) {
 }
 
 Info "Done"
-

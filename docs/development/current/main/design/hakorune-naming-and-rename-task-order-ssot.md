@@ -447,7 +447,7 @@ tools/checks/dev_gate.sh quick
 
 ### HAKORUNE-RUNNER-BUILD-HELPER-BINARY-RESOLUTION-001
 
-Status: active in this slice.
+Status: landed runner helper cut.
 
 Scope:
 
@@ -480,6 +480,41 @@ Acceptance:
 ```bash
 bash tools/checks/naming_charter_guard.sh
 cargo test -q --lib hakorune_cli_bin_path
+tools/checks/dev_gate.sh quick
+```
+
+### HAKORUNE-WINDOWS-BUILD-SCRIPT-CUTOVER-INVENTORY-001
+
+Status: active in this slice.
+
+Scope:
+
+- make Windows build scripts build / invoke `hakorune` as the primary binary;
+- replace direct `cargo build --bin nyash` with `cargo build --bin hakorune`;
+- replace direct `target\release\nyash.exe` invocation with a Hakorune-first
+  resolver that falls back to `nyash.exe` only when the primary binary is absent;
+- keep historical script filenames, plugin package names, ABI symbols, backend
+  tool names, and `nyash` compatibility fallback names untouched.
+
+Contract:
+
+```text
+Windows primary binary:
+  target\release\hakorune.exe
+
+legacy fallback:
+  target\release\nyash.exe
+  allowed only behind explicit Hakorune-first resolver
+
+forbidden current command:
+  cargo build --bin nyash
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+git diff --check
 tools/checks/dev_gate.sh quick
 ```
 

@@ -3,8 +3,8 @@
 
   This script replicates the exact manual steps you listed:
    1) Build Egui plugin (with-egui)
-   2) Build Nyash (with Cranelift AOT toolchain)
-   3) Emit AOT object (main.o) from the Egui Nyash script
+   2) Build Hakorune (with Cranelift AOT toolchain)
+   3) Emit AOT object (main.o) from the Egui Hakorune script
       NOTE: An Egui window will open — close it to continue
    4) Build the NyRT static runtime library
    5) Link main.o + NyRT into app_egui.exe using clang (or cc)
@@ -14,7 +14,7 @@
       -Input apps/egui-hello-plugin/main.hako -Out app_egui.exe
 
   Options:
-    -Input  : Path to Nyash Egui script (default: apps/egui-hello-plugin/main.hako)
+    -Input  : Path to Hakorune Egui script (default: apps/egui-hello-plugin/main.hako)
     -Out    : Output exe path/name (default: app_egui.exe)
     -Verbose: Prints extra logs
 #>
@@ -30,6 +30,13 @@ $ErrorActionPreference = 'Stop'
 function Info($msg) { Write-Host "[manual] $msg" -ForegroundColor Cyan }
 function Warn($msg) { Write-Host "[manual] $msg" -ForegroundColor Yellow }
 function Fail($msg) { Write-Host "[manual] ERROR: $msg" -ForegroundColor Red; exit 1 }
+function Resolve-HakoruneCli {
+  $primary = ".\target\release\hakorune.exe"
+  if (Test-Path $primary) { return $primary }
+  $legacy = ".\target\release\nyash.exe"
+  if (Test-Path $legacy) { return $legacy }
+  return $primary
+}
 
 if ($Verbose) { $env:NYASH_CLI_VERBOSE = '1' }
 
@@ -44,11 +51,11 @@ try {
   cargo build --release --features with-egui | Out-Host
 } finally { Pop-Location }
 
-# 2) Nyash core (Cranelift tooling enabled)
-Info "Building Nyash (cranelift-jit feature for AOT tools)..."
+# 2) Hakorune core (Cranelift tooling enabled)
+Info "Building Hakorune (cranelift-jit feature for AOT tools)..."
 cargo build --release --features cranelift-jit | Out-Host
 
-# 3) Emit main.o via Nyash (AOT object)
+# 3) Emit main.o via Hakorune (AOT object)
 $env:NYASH_AOT_OBJECT_OUT = if ([string]::IsNullOrWhiteSpace($env:NYASH_AOT_OBJECT_OUT)) { "target/aot_objects" } else { $env:NYASH_AOT_OBJECT_OUT }
 if (-not (Test-Path $env:NYASH_AOT_OBJECT_OUT)) { [void][System.IO.Directory]::CreateDirectory($env:NYASH_AOT_OBJECT_OUT) }
 
@@ -61,7 +68,8 @@ $env:NYASH_JIT_ARGS_HANDLE_ONLY = '1'
 $env:NYASH_JIT_THRESHOLD = '1'
 
 Info "Emitting main.o (an Egui window will appear — close it to continue)..."
-& .\target\release\nyash --backend vm $InputPath | Out-Null
+$HakoruneCli = Resolve-HakoruneCli
+& $HakoruneCli --backend vm $InputPath | Out-Null
 
 $obj = Join-Path $env:NYASH_AOT_OBJECT_OUT 'main.o'
 if (-not (Test-Path $obj)) { Fail "object not generated: $obj" }
@@ -109,4 +117,3 @@ if (Test-Path $OutputExe) {
 } else {
   Fail "Output exe not found: $OutputExe"
 }
-

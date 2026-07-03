@@ -5,15 +5,15 @@ set "LLVM_SYS_180_FFI_WORKAROUND=1"
 set "LLVM_SYS_180_NO_LIBFFI=1"
 set "PATH=C:\LLVM-18\bin;%PATH%"
 
-echo Cleaning and building Nyash with LLVM AOT (no libffi)...
+echo Cleaning and building Hakorune with LLVM AOT (no libffi)...
 cargo clean
-cargo build --bin nyash --release --features llvm
+cargo build --bin hakorune --release --features llvm
 
 echo.
 echo Checking output...
-if exist target\release\nyash.exe (
-    echo SUCCESS: nyash.exe created
-    dir target\release\nyash.exe
+if exist target\release\hakorune.exe (
+    echo SUCCESS: hakorune.exe created
+    dir target\release\hakorune.exe
 ) else (
-    echo ERROR: nyash.exe not found
+    echo ERROR: hakorune.exe not found
 )

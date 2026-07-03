@@ -8,6 +8,13 @@ param(
 
 function Info($msg) { Write-Host "[build] $msg" }
 function Fail($msg) { Write-Host "[error] $msg"; exit 1 }
+function Resolve-HakoruneCli {
+  $primary = ".\target\release\hakorune.exe"
+  if (Test-Path $primary) { return $primary }
+  $legacy = ".\target\release\nyash.exe"
+  if (Test-Path $legacy) { return $legacy }
+  return $primary
+}
 
 $ErrorActionPreference = "Stop"
 
@@ -33,17 +40,17 @@ try {
 }
 Pop-Location
 
-# 2) Build nyash with Cranelift (AOT tools)
-Info "Building nyash (cranelift-jit feature for AOT tools)..."
+# 2) Build Hakorune with Cranelift (AOT tools)
+Info "Building Hakorune (cranelift-jit feature for AOT tools)..."
 try {
   cargo build --release --features cranelift-jit | Out-Host
 } catch {
-  Fail "nyash build failed"
+  Fail "Hakorune build failed"
 }
 
 # 3) AOT: emit native exe - MERGED FROM build_aot.ps1
 Info "Emitting object (.o) via JIT (Strict/No-fallback)..."
-$host.ui.WriteLine("[build] Heads-up: Running Nyash to emit main.o will open the Egui window. Close the window to continue linking.")
+$host.ui.WriteLine("[build] Heads-up: Running Hakorune to emit main.o will open the Egui window. Close the window to continue linking.")
 $env:NYASH_AOT_OBJECT_OUT = if ([string]::IsNullOrWhiteSpace($env:NYASH_AOT_OBJECT_OUT)) { "target/aot_objects" } else { $env:NYASH_AOT_OBJECT_OUT }
 $env:NYASH_USE_PLUGIN_BUILTINS = "1"
 $env:NYASH_JIT_EXEC = "1"
@@ -52,7 +59,8 @@ $env:NYASH_JIT_STRICT = "1"
 $env:NYASH_JIT_ARGS_HANDLE_ONLY = "1"
 $env:NYASH_JIT_THRESHOLD = "1"
 if (-not (Test-Path $env:NYASH_AOT_OBJECT_OUT)) { [void][System.IO.Directory]::CreateDirectory($env:NYASH_AOT_OBJECT_OUT) }
-& .\target\release\nyash --backend vm $InputPath | Out-Null
+$HakoruneCli = Resolve-HakoruneCli
+& $HakoruneCli --backend vm $InputPath | Out-Null
 
 $OBJ = Join-Path $env:NYASH_AOT_OBJECT_OUT "main.o"
 if (-not (Test-Path $OBJ)) {

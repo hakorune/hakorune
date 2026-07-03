@@ -8,6 +8,6 @@ setx LLVM_SYS_180_FFI_WORKAROUND "1"
 
 echo.
 echo Environment variables set. Please open a NEW command prompt and run:
-echo cargo build --bin nyash --release --features llvm
+echo cargo build --bin hakorune --release --features llvm
 echo.
 pause

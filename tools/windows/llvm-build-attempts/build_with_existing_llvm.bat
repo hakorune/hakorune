@@ -8,13 +8,13 @@ set "LLVM_SYS_180_FFI_WORKAROUND=1"
 set "PATH=C:\LLVM-18\bin;%PATH%"
 
 echo.
-echo Building Nyash without libffi (AOT only)...
-cargo build --bin nyash --release --features llvm --no-default-features --features cli,plugins
+echo Building Hakorune without libffi (AOT only)...
+cargo build --bin hakorune --release --features llvm --no-default-features --features cli,plugins
 
 echo.
-if exist target\release\nyash.exe (
-    echo SUCCESS: nyash.exe created!
-    dir target\release\nyash.exe
+if exist target\release\hakorune.exe (
+    echo SUCCESS: hakorune.exe created!
+    dir target\release\hakorune.exe
 ) else (
     echo Build failed. Trying alternative approach...
 )
