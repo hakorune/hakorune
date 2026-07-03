@@ -792,6 +792,31 @@ git diff --check
 tools/checks/dev_gate.sh quick
 ```
 
+### HAKORUNE-SELFHOST-RUN-DIRECT-MODE-B-DIAGNOSTIC-001
+
+Status: active in this slice.
+
+Scope:
+
+- make the day-to-day `tools/selfhost/run.sh --direct` README description use
+  `mode-B` instead of `Stage-B`;
+- keep explicit proof-only Stage-B route names and script names unchanged;
+- keep `tools/selfhost/run.sh` behavior unchanged.
+
+Affected doc:
+
+```text
+tools/selfhost/README.md
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
 ### HAKORUNE-PARSER-BRIDGE-SMOKE-BINARY-RESOLUTION-001
 
 Status: active in this slice.
