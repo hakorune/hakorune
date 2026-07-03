@@ -1,0 +1,27 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderSumPlacementPathLabelFormatterRustOracleV1",
+  "token": "MIRBUILDER-SUM-PLACEMENT-PATH-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "sum_placement_path_label_formatter",
+  "rust_source": {
+    "path": "src/mir/sum_placement_selection.rs",
+    "hash": "sha256:43832dcbc572572d77651f27655cf83e4e9df2dff12c99e918355a25ae98877d",
+    "oracle_surface": "SumPlacementPath display vocabulary"
+  },
+  "rows": [
+    {"kind": "selected_path", "input": "LocalAggregate", "expected": "local_aggregate"},
+    {"kind": "selected_path", "input": "CompatRuntimeBox", "expected": "compat_runtime_box"}
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "sum_placement_fact_collection_migration": 0,
+    "sum_placement_selection_migration": 0,
+    "manifest_row_policy_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

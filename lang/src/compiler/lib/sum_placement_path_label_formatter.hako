@@ -1,0 +1,18 @@
+// sum_placement_path_label_formatter.hako
+//
+// Responsibility:
+// - format narrow sum placement selected-path vocabulary into Rust oracle text
+// - stay pure: scalar token in, scalar text out
+//
+// Non-responsibility:
+// - sum placement fact collection
+// - sum placement selection
+// - manifest row policy
+// - MIR mutation
+static box SumPlacementPathLabelFormatterBox {
+  format_selected_path(path) {
+    if path == "LocalAggregate" { return "local_aggregate" }
+    if path == "CompatRuntimeBox" { return "compat_runtime_box" }
+    return "unsupported_sum_placement_path"
+  }
+}

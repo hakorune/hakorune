@@ -1,0 +1,33 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderHakoNativeOwnerParityPilotSelectionRerun040V1",
+  "token": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-040",
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "previous_adoption_decision": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-string-corridor-relation-label-formatter-hako-adoption-decision-v0.json",
+    "previous_adoption_decision_hash": "sha256:15dc37696ea51f2506d36251ecd1b53a9fef2ed6ad9431fa0b53839e09c40dd2"
+  },
+  "decision": {
+    "kind": "SelectRustOracleFixture",
+    "reason_token": "SumPlacementPathLabelFormatterIsNarrowPureVocabularyOwner",
+    "selected_owner": "sum_placement_path_label_formatter",
+    "selected_next_card": "MIRBUILDER-SUM-PLACEMENT-PATH-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001"
+  },
+  "accepted_scope": {
+    "surface": "Sum placement selected path label vocabulary formatting",
+    "manual_target_selection_allowed": 1,
+    "correctness_requires_rust_oracle_parity": 1
+  },
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "sum_placement_fact_collection_migration": 0,
+    "sum_placement_selection_migration": 0,
+    "manifest_row_policy_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}
