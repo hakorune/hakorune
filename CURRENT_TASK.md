@@ -363,14 +363,14 @@ or replacement routes in the same slice.
 Latest adopted owner:
 
 ```text
-MIRBUILDER-LOOP-ROUTE-DENY-REASON-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001
+MIRBUILDER-ARRAY-RMW-WINDOW-PROOF-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001
 ```
 
 Status:
 
 ```text
-loop_route_deny_reason_label_formatter is HakoAdopted as the twenty-fourth
-narrow Rust-oracle parity pilot after a green 6-row `.hako` EXE parity gate.
+array_rmw_window_proof_label_formatter is HakoAdopted as the twenty-fifth
+narrow Rust-oracle parity pilot after a green 1-row `.hako` EXE parity gate.
 Source Selfhost remains unclaimed.
 ```
 
@@ -381,6 +381,7 @@ Adopted:
   constructor call route label vocabulary formatting
   planner rule tag/display/route label vocabulary formatting
   loop legacy observer deny reason/owner label vocabulary formatting
+  array RMW window proof label vocabulary formatting
 
 Still Rust:
   constructor route collection
@@ -390,6 +391,8 @@ Still Rust:
   legacy observer shadow decision
   loop route candidate collection
   runtime route selection
+  array RMW window matching
+  array receiver proof
   backend lowering
   MIR mutation
 ```
@@ -397,7 +400,7 @@ Still Rust:
 Next:
 
 ```text
-MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-024
+MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-025
 ```
 
 Acceptance:

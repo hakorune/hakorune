@@ -1,0 +1,39 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderHakoNativeOwnerParityPilotSelectionRerun024V1",
+  "token": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-024",
+  "input_state": {
+    "previous_adoption_decision": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-route-deny-reason-label-formatter-hako-adoption-decision-v0.json",
+    "previous_adoption_hash": "sha256:307acaa2764ce0fed320c62ddc9c14f854972d3ab987e2f2828773b24b1800e9",
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+  },
+  "selection_rule": {
+    "name": "MirBuilderNarrowRustOracleParityPilotSelectionV1",
+    "manual_target_selection_allowed": true,
+    "correctness_proof_required": "RustOracleParityGate",
+    "source_selfhost_claim_forbidden": true,
+    "full_converter_route_reentry_forbidden": true
+  },
+  "selected_owner": {
+    "owner_id": "array_rmw_window_proof_label_formatter",
+    "rust_source": "src/mir/array_rmw_window_plan.rs",
+    "rust_source_hash": "sha256:e55b6517fe69ec8f7e8adfb501b021bdeb24e0e6ddc989747707d0d903859a5c",
+    "selection_reason": "Pure array RMW window proof label vocabulary with JSON-fixture parity surface."
+  },
+  "decision": {
+    "kind": "SelectRustOracleFixture",
+    "selected_next_card": "MIRBUILDER-ARRAY-RMW-WINDOW-PROOF-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001"
+  },
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "array_rmw_window_matching_migration": 0,
+    "array_receiver_proof_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

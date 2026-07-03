@@ -1,0 +1,26 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderArrayRmwWindowProofLabelFormatterRustOracleV1",
+  "token": "MIRBUILDER-ARRAY-RMW-WINDOW-PROOF-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "array_rmw_window_proof_label_formatter",
+  "rust_source": {
+    "path": "src/mir/array_rmw_window_plan.rs",
+    "hash": "sha256:e55b6517fe69ec8f7e8adfb501b021bdeb24e0e6ddc989747707d0d903859a5c",
+    "oracle_surface": "ArrayRmwWindowProof display vocabulary"
+  },
+  "rows": [
+    { "proof": "ArrayGetAdd1SetSameSlot", "expected": "array_get_add1_set_same_slot" }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "array_rmw_window_matching_migration": 0,
+    "array_receiver_proof_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

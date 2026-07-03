@@ -1,0 +1,19 @@
+// array_rmw_window_proof_label_formatter.hako - hand-authored proof label formatter
+//
+// Responsibility:
+// - format narrow array RMW window proof vocabulary into Rust oracle text
+// - stay pure: scalar proof in, scalar text out
+//
+// Non-responsibility:
+// - array RMW window matching
+// - array receiver proof
+// - backend lowering
+// - MIR mutation
+static box ArrayRmwWindowProofLabelFormatterBox {
+  format_label(proof) {
+    if proof == "ArrayGetAdd1SetSameSlot" {
+      return "array_get_add1_set_same_slot"
+    }
+    return "unsupported_array_rmw_window_proof_label"
+  }
+}
