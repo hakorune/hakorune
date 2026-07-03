@@ -41,19 +41,17 @@ the active card and task-order SSOT. Do not duplicate them here.
 
 ## Immediate Maintenance Slice
 
-Scope: `local_tests/` tracking hygiene only.
+Scope: `me.method` static-box call target repair only.
 
-- remove ignored `local_tests/` scratch files from the git index
-- keep local scratch files on disk for developers
-- move active test-generated inputs out of `local_tests/`
-- do not change docs/archive references, grammar, backend lanes, or `.git`
-  maintenance in this slice
+- fix static-box `main` lowering so `me.helper(...)` resolves to the current
+  static box owner, not the top-level `main` function name
+- keep PHI lifecycle / type propagation SSOT untouched
+- do not add new language syntax, fallbacks, or `.hako` workarounds in this
+  slice
 
 Acceptance:
 
 ```bash
-test "$(git ls-files local_tests | wc -l)" -eq 0
-! rg -n 'local_tests' tools tests src .github --glob '!tools/archive/**'
-cargo test -q --test phase246_json_atoi --no-run
+cargo test -q --features vm-reference --test phase246_json_atoi
 tools/checks/dev_gate.sh quick
 ```

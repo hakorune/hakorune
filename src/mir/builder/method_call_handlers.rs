@@ -16,6 +16,19 @@ use crate::mir::{MirInstruction, MirType, TypeOpKind};
 ///   - static box 文脈で実体のない receiver を生まないように、静的メソッド降下にフォールバックする。
 struct MeCallPolicyBox;
 
+fn current_enclosing_box_name(builder: &MirBuilder) -> Option<String> {
+    if let Some(cls) = builder.scope_ctx.current_function.as_ref().and_then(|f| {
+        f.signature
+            .name
+            .split_once('.')
+            .map(|(cls, _)| cls.to_string())
+    }) {
+        return Some(cls);
+    }
+
+    builder.comp_ctx.current_static_box.clone()
+}
+
 impl MeCallPolicyBox {
     fn resolve_me_call(
         builder: &mut MirBuilder,
@@ -23,11 +36,7 @@ impl MeCallPolicyBox {
         arguments: &[ASTNode],
     ) -> Result<Option<ValueId>, String> {
         // Instance box: prefer enclosing box method (lowered function) if存在
-        let enclosing_cls: Option<String> = builder
-            .scope_ctx
-            .current_function
-            .as_ref()
-            .and_then(|f| f.signature.name.split('.').next().map(|s| s.to_string()));
+        let enclosing_cls = current_enclosing_box_name(builder);
         let me_value = super::stmts::variable_stmt::build_me_expression(builder).ok();
 
         if let Some(cls) = enclosing_cls.as_ref() {
@@ -261,12 +270,7 @@ impl MirBuilder {
             .copied()
             .is_some_and(|me| me == object_value)
         {
-            if let Some(cls) = self
-                .scope_ctx
-                .current_function
-                .as_ref()
-                .and_then(|f| f.signature.name.split('.').next().map(|s| s.to_string()))
-            {
+            if let Some(cls) = current_enclosing_box_name(self) {
                 let func_name = function_lowering::generate_method_function_name(
                     &cls,
                     &method,
