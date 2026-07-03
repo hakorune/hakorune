@@ -1,0 +1,24 @@
+// string_corridor_relation_label_formatter.hako
+//
+// Responsibility:
+// - format narrow string corridor relation vocabulary into Rust oracle text
+// - stay pure: scalar token in, scalar text out
+//
+// Non-responsibility:
+// - PHI relation collection
+// - string corridor relation detection
+// - window contract policy
+// - MIR mutation
+static box StringCorridorRelationLabelFormatterBox {
+  format_relation_kind(kind) {
+    if kind == "PhiCarryBase" { return "phi_carry_base" }
+    if kind == "StableLengthScalar" { return "stable_length_scalar" }
+    return "unsupported_string_corridor_relation_kind"
+  }
+
+  format_window_contract(contract) {
+    if contract == "PreservePlanWindow" { return "preserve_plan_window" }
+    if contract == "StopAtMerge" { return "stop_at_merge" }
+    return "unsupported_string_corridor_window_contract"
+  }
+}

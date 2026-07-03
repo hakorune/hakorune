@@ -1,0 +1,29 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderStringCorridorRelationLabelFormatterRustOracleV1",
+  "token": "MIRBUILDER-STRING-CORRIDOR-RELATION-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "string_corridor_relation_label_formatter",
+  "rust_source": {
+    "path": "src/mir/string_corridor_relation.rs",
+    "hash": "sha256:f549b5c46788cf9d1072eea6ba71c3d50fde90aa0cf521cbddc96722e3ba6a49",
+    "oracle_surface": "StringCorridorRelationKind and StringCorridorWindowContract display vocabulary"
+  },
+  "rows": [
+    {"kind": "relation_kind", "input": "PhiCarryBase", "expected": "phi_carry_base"},
+    {"kind": "relation_kind", "input": "StableLengthScalar", "expected": "stable_length_scalar"},
+    {"kind": "window_contract", "input": "PreservePlanWindow", "expected": "preserve_plan_window"},
+    {"kind": "window_contract", "input": "StopAtMerge", "expected": "stop_at_merge"}
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "phi_relation_collection_migration": 0,
+    "string_corridor_relation_detection_migration": 0,
+    "window_contract_policy_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}
