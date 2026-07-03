@@ -4,7 +4,7 @@
 # Contract pin:
 # - bench_compare_compile_run_split emits a stable one-line contract:
 #   [bench-split] name=<key> status=<ok|...> emit_route=<route> total_ms=<n> emit_ms=<n> run_prebuilt_ms=<n> ...
-# - default emit_route is direct (binary-only stage1 route)
+# - default emit_route is direct (binary-only phase-1 route)
 # - default status is ok
 # - lock two bench keys:
 #   numeric_mixed_medium / method_call_only_small

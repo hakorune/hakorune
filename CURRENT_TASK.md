@@ -138,9 +138,12 @@ HHako build/test comments now also use bootstrap / mode-B compatibility wording
 while keeping `stageb_*` test file names and StageB Box names unchanged. The
 binary-only app selfhost readiness smoke comments now use phase-1 / phase-2
 proxy wording while keeping pass names and `stage1.mir` / `stage2.mir`
-artifact filenames unchanged. Next safe naming work, if explicitly selected,
-must pick a different classified layer from that inventory and keep
-compatibility aliases or replacement routes in the same slice.
+artifact filenames unchanged. Remaining app smoke comments for binary-only
+run, no-compat mainline, perf split, and shared app helpers now use phase-1 or
+mode-A compatibility wording while keeping `stage1-cli`, `stage-a-compat`,
+`stage3`, and artifact filenames unchanged. Next safe naming work, if
+explicitly selected, must pick a different classified layer from that inventory
+and keep compatibility aliases or replacement routes in the same slice.
 
 Acceptance:
 

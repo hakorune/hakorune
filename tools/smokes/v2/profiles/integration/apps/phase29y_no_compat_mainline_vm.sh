@@ -2,9 +2,9 @@
 # Phase 29y no-compat mainline smoke
 #
 # Contract pin:
-# 1) Mainline stage-a-compat runtime probe must not emit `lane=compat-rust-json-v0-bridge`.
+# 1) Mainline mode-A compatibility runtime probe must not emit `lane=compat-rust-json-v0-bridge`.
 # 2) Probe runs with explicit fallback disabled (`NYASH_VM_USE_FALLBACK=0`).
-# 3) Stage1 bootstrap diagnostics are covered separately by the phase29bq contract smoke.
+# 3) Phase-1 compatibility diagnostics are covered separately by the phase29bq contract smoke.
 
 set -euo pipefail
 

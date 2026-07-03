@@ -693,6 +693,39 @@ binary-only readiness contract changed = 0
 runtime behavior changed = 0
 ```
 
+## Landed App Smoke Phase Comment Wording Slice
+
+`STAGE-TERM-APP-SMOKE-PHASE-COMMENT-WORDING-001` changes remaining app smoke
+comments that used unqualified `stage1` / `Stage1` / `stage-a-compat` wording
+to phase-1 or mode-A compatibility wording.
+
+Scope:
+
+```text
+tools/smokes/v2/profiles/integration/apps/phase29y_hako_run_binary_only_ported_vm.sh:
+  binary-only run route contract comment says phase-1
+
+tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh:
+  no-compat runtime probe comment says mode-A compatibility
+  separate diagnostic owner comment says phase-1 compatibility
+
+tools/smokes/v2/profiles/integration/apps/phase21_5_perf_bench_compile_run_split_contract_vm.sh:
+  binary-only direct route comment says phase-1
+
+tools/smokes/v2/profiles/integration/apps/lib/README.md:
+  shared helper comment says binary-only phase-1 probes
+```
+
+Non-claims:
+
+```text
+stage1-cli log tags renamed = 0
+stage-a-compat runtime-mode token renamed = 0
+stage3 feature/env tokens renamed = 0
+artifact filenames renamed = 0
+runtime behavior changed = 0
+```
+
 ## Migration Eligibility
 
 An occurrence is eligible for a future rename only if all conditions hold:

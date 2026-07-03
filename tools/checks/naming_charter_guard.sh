@@ -123,6 +123,10 @@ SELFHOST_STAGEB_ROUTE_PARITY_SMOKE="$ROOT_DIR/tools/smokes/v2/profiles/integrati
 SELFHOST_STEADY_STATE_SMOKE="$ROOT_DIR/tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_steady_state_vm.sh"
 SELFHOST_STAGEB_FUNCSCANNER_TYPED_PARAMS_SMOKE="$ROOT_DIR/tools/smokes/v2/profiles/integration/selfhost/phase29cc_selfhost_stageb_funcscanner_typed_params_implements_min_vm.sh"
 APP_BINARY_ONLY_SELFHOST_READINESS_SMOKE="$ROOT_DIR/tools/smokes/v2/profiles/integration/apps/phase29y_hako_binary_only_selfhost_readiness_vm.sh"
+APP_BINARY_ONLY_RUN_PORTED_SMOKE="$ROOT_DIR/tools/smokes/v2/profiles/integration/apps/phase29y_hako_run_binary_only_ported_vm.sh"
+APP_NO_COMPAT_MAINLINE_SMOKE="$ROOT_DIR/tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh"
+APP_PERF_COMPILE_RUN_SPLIT_SMOKE="$ROOT_DIR/tools/smokes/v2/profiles/integration/apps/phase21_5_perf_bench_compile_run_split_contract_vm.sh"
+APP_SMOKE_LIB_README="$ROOT_DIR/tools/smokes/v2/profiles/integration/apps/lib/README.md"
 COLLECTION_MAP_GET_SHARES_MAP_SMOKE="$ROOT_DIR/tools/smokes/v2/profiles/quick/collections/map_get_shares_map.sh"
 COLLECTION_MAP_GET_SHARES_ARRAY_SMOKE="$ROOT_DIR/tools/smokes/v2/profiles/quick/collections/map_get_shares_array.sh"
 COLLECTION_STRING_SIZE_ALIAS_SMOKE="$ROOT_DIR/tools/smokes/v2/profiles/quick/collections/string_size_alias.sh"
@@ -279,6 +283,10 @@ REQUIRED_FILES=(
   "$SELFHOST_STEADY_STATE_SMOKE"
   "$SELFHOST_STAGEB_FUNCSCANNER_TYPED_PARAMS_SMOKE"
   "$APP_BINARY_ONLY_SELFHOST_READINESS_SMOKE"
+  "$APP_BINARY_ONLY_RUN_PORTED_SMOKE"
+  "$APP_NO_COMPAT_MAINLINE_SMOKE"
+  "$APP_PERF_COMPILE_RUN_SPLIT_SMOKE"
+  "$APP_SMOKE_LIB_README"
   "$COLLECTION_MAP_GET_SHARES_MAP_SMOKE"
   "$COLLECTION_MAP_GET_SHARES_ARRAY_SMOKE"
   "$COLLECTION_STRING_SIZE_ALIAS_SMOKE"
@@ -392,6 +400,7 @@ SSOT_REQUIRED_TOKENS=(
   "STAGE-TERM-JSON-V0-BRIDGE-COMMENT-WORDING-001"
   "STAGE-TERM-HHAKO-BUILD-TEST-COMMENT-WORDING-001"
   "STAGE-TERM-APP-BINARY-ONLY-SMOKE-COMMENT-WORDING-001"
+  "STAGE-TERM-APP-SMOKE-PHASE-COMMENT-WORDING-001"
 )
 guard_require_unique_values "SSOT required token" "${SSOT_REQUIRED_TOKENS[@]}"
 for ssot_token in "${SSOT_REQUIRED_TOKENS[@]}"; do
@@ -672,6 +681,18 @@ require_fixed 'pass1 emit (phase-1 proxy)' "$APP_BINARY_ONLY_SELFHOST_READINESS_
 require_fixed 'pass2 emit (phase-2 proxy)' "$APP_BINARY_ONLY_SELFHOST_READINESS_SMOKE"
 if rg -n 'without stage1 repo dependencies|pass1 emit \(Stage1 proxy\)|pass2 emit \(Stage2 proxy\)' "$APP_BINARY_ONLY_SELFHOST_READINESS_SMOKE"; then
   guard_fail "$TAG" "binary-only selfhost readiness smoke comments must use phase-1/phase-2 proxy wording"
+fi
+require_fixed 'phase-1 run route must not depend on repo checkout files' "$APP_BINARY_ONLY_RUN_PORTED_SMOKE"
+require_fixed 'Mainline mode-A compatibility runtime probe' "$APP_NO_COMPAT_MAINLINE_SMOKE"
+require_fixed 'Phase-1 compatibility diagnostics are covered separately' "$APP_NO_COMPAT_MAINLINE_SMOKE"
+require_fixed 'binary-only phase-1 route' "$APP_PERF_COMPILE_RUN_SPLIT_SMOKE"
+require_fixed 'binary-only phase-1 probes' "$APP_SMOKE_LIB_README"
+if rg -n 'stage1 run route|Mainline stage-a-compat runtime probe|Stage1 bootstrap diagnostics|binary-only stage1 (route|probes)' \
+  "$APP_BINARY_ONLY_RUN_PORTED_SMOKE" \
+  "$APP_NO_COMPAT_MAINLINE_SMOKE" \
+  "$APP_PERF_COMPILE_RUN_SPLIT_SMOKE" \
+  "$APP_SMOKE_LIB_README"; then
+  guard_fail "$TAG" "app smoke comments must use phase-1 / mode-A compatibility wording"
 fi
 for collection_smoke in "$COLLECTION_MAP_GET_SHARES_MAP_SMOKE" "$COLLECTION_MAP_GET_SHARES_ARRAY_SMOKE" "$COLLECTION_STRING_SIZE_ALIAS_SMOKE"; do
   require_fixed 'BIN="${NYASH_BIN:-./target/release/hakorune}"' "$collection_smoke"
@@ -980,6 +1001,10 @@ NAMING_DIFF_ALLOWED_PATHS=(
   "tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_steady_state_vm.sh"
   "tools/smokes/v2/profiles/integration/selfhost/phase29cc_selfhost_stageb_funcscanner_typed_params_implements_min_vm.sh"
   "tools/smokes/v2/profiles/integration/apps/phase29y_hako_binary_only_selfhost_readiness_vm.sh"
+  "tools/smokes/v2/profiles/integration/apps/phase29y_hako_run_binary_only_ported_vm.sh"
+  "tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh"
+  "tools/smokes/v2/profiles/integration/apps/phase21_5_perf_bench_compile_run_split_contract_vm.sh"
+  "tools/smokes/v2/profiles/integration/apps/lib/README.md"
   "tests/phase29ci_stageb_body_extract.rs"
   "src/runner/json_v0_bridge/ast.rs"
   "src/runner/json_v0_bridge/lowering/if_legacy.rs"

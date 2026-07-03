@@ -432,6 +432,37 @@ git diff --check
 tools/checks/dev_gate.sh quick
 ```
 
+### STAGE-TERM-APP-SMOKE-PHASE-COMMENT-WORDING-001
+
+Status: landed app smoke phase comment cut.
+
+Scope:
+
+- update remaining app smoke comments that used unqualified `stage1`,
+  `Stage1`, or `stage-a-compat` wording to phase-1 / mode-A compatibility
+  wording;
+- keep `stage1-cli` log tags, `stage-a-compat` runtime-mode tokens,
+  `stage3` feature/env tokens, and artifact filenames unchanged;
+- do not change smoke behavior.
+
+Contract:
+
+```text
+comments:
+  use phase-1 or mode-A compatibility wording
+
+compatibility surfaces:
+  stage1-cli, stage-a-compat, and stage3 tokens remain unchanged
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
 ### HAKORUNE-ENV-ALIAS-INVENTORY-001
 
 Status: landed foundation.

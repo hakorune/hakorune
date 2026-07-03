@@ -2,7 +2,7 @@
 # phase29y_hako_run_binary_only_ported_vm.sh
 # Contract pin (ported, non-gating):
 # - repo-outside `./hakorune --backend vm --hako-run` succeeds in binary-only mode.
-# - stage1 run route must not depend on repo checkout files.
+# - phase-1 run route must not depend on repo checkout files.
 # - stale blockers (`entry not found`, internal timeout marker, lang/src read fail-fast) must not reappear.
 
 set -euo pipefail
