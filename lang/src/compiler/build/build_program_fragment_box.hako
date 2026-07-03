@@ -104,12 +104,7 @@ static box BuildProgramFragmentBox {
   method inject_json_fragment(json, fragment) {
     if fragment == null || fragment == "" { return json }
     local ajson = "" + json
-    local close_pos = -1
-    local j = ajson.length() - 1
-    loop(j >= 0) {
-      if ajson.substring(j, j + 1) == "}" { close_pos = j  break }
-      j = j - 1
-    }
+    local close_pos = StringHelpers.last_index_of(ajson, "}")
     if close_pos >= 0 {
       return ajson.substring(0, close_pos) + fragment + ajson.substring(close_pos, ajson.length())
     }
