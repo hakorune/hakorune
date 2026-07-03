@@ -96,6 +96,7 @@ STAGE-TERM-JOINIR-LOWERING-COMMENT-WORDING-001
 STAGE-TERM-LANG-README-PHASE-WORDING-001
 STAGE-TERM-DOCS-TOOLS-QUICK-ENTRY-WORDING-001
 STAGE-TERM-STAGE1-BRIDGE-PHASE-COMMENT-WORDING-001
+STAGE-TERM-ENV-REFERENCE-PHASE-WORDING-001
 ```
 
 `--syntax-3` is now the frontend syntax-level spelling; `--stage3` remains a
@@ -164,6 +165,10 @@ entries now use phase-1 / syntax-3 wording while preserving compatibility
 script names and not rewriting the historical guard ledger. Stage1 bridge
 README and file-header comments now use phase-1 compatibility wording while
 preserving `stage1_*`, `Stage1*`, env names, log tags, and expected stderr.
+`docs/reference/environment-variables.md` now uses phase-1 compatibility,
+syntax-3, and bootstrap wording for the active environment variable reference
+while preserving `NYASH_STAGE1_*`, `STAGE1_*`, `NYASH_FEATURES=stage3`, and
+`NYASH_NY_COMPILER_STAGE3` compatibility names.
 Next safe naming work, if explicitly selected, must pick a
 different classified layer from that inventory and keep compatibility aliases
 or replacement routes in the same slice.

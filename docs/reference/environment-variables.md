@@ -7,7 +7,7 @@ Hakorune / Hako の主要な環境変数をカテゴリ別に整理するよ。`
 compat を直接読む実装を増やさないこと。
 
 - Rust AST: Rust パーサ直通（例: `--dump-mir`。compile-only の入口）
-- JSON v0/Stage-1: selfhost/Stage-1/`--ny-parser-pipe` 経由（json_v0_bridge で処理）
+- JSON v0/phase-1 compatibility: selfhost/phase-1 compatibility/`--ny-parser-pipe` 経由（json_v0_bridge で処理）
 - Any: どの経路でも有効
 
 ---
@@ -16,7 +16,7 @@ compat を直接読む実装を増やさないこと。
 
 | 変数 | デフォルト | 適用経路 | 説明 |
 | --- | --- | --- | --- |
-| `RUST_MIR_DUMP_PATH=/tmp/out.mir` | OFF | JSON v0/Stage-1 | MIR printer の出力をファイルに書く (`json_v0_bridge::maybe_dump_mir` 経由) |
+| `RUST_MIR_DUMP_PATH=/tmp/out.mir` | OFF | JSON v0/phase-1 compatibility | MIR printer の出力をファイルに書く (`json_v0_bridge::maybe_dump_mir` 経由) |
 | `NYASH_CLI_VERBOSE=1` | OFF | Any | 詳細ログ。`maybe_dump_mir` が stdout に MIR を出す |
 | `NYASH_CLI_VERBOSE=2` | OFF | Any | さらに詳細なログ（Ny compiler 経路の診断ログ含む） |
 | `NYASH_RING0_LOG_LEVEL=INFO` | `INFO` | Any | Ring0 logger の最小レベル（`DEBUG`/`INFO`/`WARN`/`ERROR`） |
@@ -51,7 +51,7 @@ NyRT exact-EXE startup の centralization priority は
 を参照する。ここでは優先順位の説明だけを固定し、実装順を暗黙に
 拡張しない。P0 の `NYASH_NYRT_SILENT_RESULT` は
 `src/config/env/stage1.rs` の shared helper で扱い、NyRT entry tail と
-Stage-1 bridge defaults は同じ helper を通す。
+phase-1 compatibility bridge defaults は同じ helper を通す。
 P0 の landed slice は
 `docs/development/current/main/design/nyrt-startup-env-p0-centralization-ssot.md`
 に置く。
@@ -74,7 +74,7 @@ P5 の path-shaping landed slice は
 ### ダンプの使い分け
 - 実行経路SSOT（推奨）: `NYASH_VM_DUMP_MIR=1 ./target/release/hakorune --backend vm apps/tests/minimal.hako`
 - Rust AST 直通（compile-only）: `./target/release/hakorune --dump-mir apps/tests/minimal.hako`（env は不要、stdout のみ）
-- JSON v0 経路/Stage-1: `RUST_MIR_DUMP_PATH=/tmp/out.mir NYASH_USE_STAGE1_CLI=1 STAGE1_EMIT_MIR_JSON=1 ./target/release/hakorune --dump-mir`（stdout + ファイル）
+- JSON v0 経路/phase-1 compatibility: `RUST_MIR_DUMP_PATH=/tmp/out.mir NYASH_USE_STAGE1_CLI=1 STAGE1_EMIT_MIR_JSON=1 ./target/release/hakorune --dump-mir`（stdout + ファイル）
 
 ### NYASH_LEAK_LOG（Phase 285LLVM-0）
 
@@ -99,41 +99,41 @@ NYASH_LEAK_LOG=2 NYASH_LLVM_USE_HARNESS=1 ./target/release/hakorune --backend ll
 
 ---
 
-## Stage-1 / selfhost CLI
+## Phase-1 Compatibility / selfhost CLI
 
 | 変数 | デフォルト | 適用経路 | 説明 |
 | --- | --- | --- | --- |
-| `NYASH_USE_STAGE1_CLI=1` | OFF | Stage-1 | Stage-1 stub 経由に切替 |
-| `NYASH_STAGE1_MODE=emit-mir` | unset | Stage-1 | `emit-program` / `emit-mir` / `run` を明示（`emit-program` は compat-only） |
-| `STAGE1_EMIT_PROGRAM_JSON=1` | OFF | Stage-1 | Program(JSON v0) を吐いて終了（compat-only legacy alias） |
-| `STAGE1_EMIT_MIR_JSON=1` | OFF | Stage-1 | Program(JSON v0)→MIR(JSON) を Rust 側で降ろす（レガシー alias） |
-| `HAKO_STAGE1_MODE={emit-program\|emit-mir\|run}` | unset | Stage-1 | .hako / Stage-1 ルート専用のモード指定（`--hako-*` が設定） |
-| `HAKO_EMIT_PROGRAM_JSON=1` | OFF | Stage-1 | `.hako` stub に Program(JSON v0) emit を指示（compat-only） |
-| `HAKO_EMIT_MIR_JSON=1` | OFF | Stage-1 | `.hako` stub に MIR(JSON) emit を指示（json_v0_bridge 経由） |
-| `NYASH_STAGE1_INPUT=path` | unset | Stage-1 | 入力ソース（alias: `STAGE1_SOURCE`, `STAGE1_INPUT`） |
-| `HAKO_STAGE1_INPUT=path` | unset | Stage-1 | `.hako` stub 用の入力ソース（`--hako-*` が設定） |
-| `NYASH_STAGE1_PROGRAM_JSON=path` | unset | Stage-1 | Program(JSON v0) のパス（compat-only; alias: `STAGE1_PROGRAM_JSON`） |
-| `HAKO_STAGE1_PROGRAM_JSON=path` | unset | Stage-1 | `.hako` stub 用 Program(JSON v0) パス（compat-only） |
-| `NYASH_STAGE1_BACKEND=vm` | `vm` | Stage-1 | Stage-1 実行の backend ヒント（alias: `STAGE1_BACKEND`） |
-| `NYASH_STAGE1_CLI_CHILD=1` | OFF | Stage-1 | 再帰呼び出しガード |
-| `STAGE1_CLI_ENTRY=...` | `lang/src/runner/stage1_cli.hako` | Stage-1 | Stage-1 stub のエントリ差し替え。canonical compat owner は `lang/src/runner/compat/stage1_cli.hako`、この default は薄い keep wrapper を指す。 |
-| `NYASH_STAGE1_BINARY_ONLY_DIRECT={0\|1}` | unset | Stage-1 | binary-only direct route を強制ON/OFF（unset は OFF。明示時のみ有効） |
-| `NYASH_STAGE1_BINARY_ONLY_RUN_DIRECT={0\|1}` | unset | Stage-1 | `--hako-run` の binary-only direct route を強制ON/OFF（unset は `NYASH_STAGE1_BINARY_ONLY_DIRECT` を継承し、最終的に OFF） |
-| `HAKO_SELFHOST_NO_DELEGATE={0\|1}` | unset | Stage-1 / selfhost | `env.mirbuilder.emit` の delegate route を禁止（`1` で fail-fast 固定） |
-| `HAKO_MIR_BUILDER_DELEGATE={0\|1}` | unset | Stage-1 / selfhost | MirBuilder delegate route の互換トグル（mainline child では `0` に固定） |
-| `HAKO_STAGE1_MODULES_LIST=...` | unset | Stage-1 / selfhost | Stage-1 using 解決用の `name=path` payload。`HAKO_STAGEB_MODULES_LIST` は mode-B .hako reader compatibility alias。 |
-| `HAKO_STAGE1_MODULE_ROOTS_LIST=...` | unset | Stage-1 / selfhost | Stage-1 using prefix 解決用の `prefix=path` payload。`HAKO_STAGEB_MODULE_ROOTS_LIST` は互換 alias。 |
-| `HAKO_STAGE1_APPLY_USINGS={0\|1}` | `0` | Stage-1 / selfhost | Stage-1 child の using text-merge 適用制御。`HAKO_STAGEB_APPLY_USINGS` は互換 alias。 |
-| `STAGE1_*` alias | legacy | Stage-1 | `NYASH_STAGE1_*` の旧名。互換のため受理するが順次廃止予定 |
+| `NYASH_USE_STAGE1_CLI=1` | OFF | phase-1 compatibility | phase-1 compatibility stub 経由に切替 |
+| `NYASH_STAGE1_MODE=emit-mir` | unset | phase-1 compatibility | `emit-program` / `emit-mir` / `run` を明示（`emit-program` は compat-only） |
+| `STAGE1_EMIT_PROGRAM_JSON=1` | OFF | phase-1 compatibility | Program(JSON v0) を吐いて終了（compat-only legacy alias） |
+| `STAGE1_EMIT_MIR_JSON=1` | OFF | phase-1 compatibility | Program(JSON v0)→MIR(JSON) を Rust 側で降ろす（レガシー alias） |
+| `HAKO_STAGE1_MODE={emit-program\|emit-mir\|run}` | unset | phase-1 compatibility | .hako / phase-1 compatibility ルート専用のモード指定（`--hako-*` が設定） |
+| `HAKO_EMIT_PROGRAM_JSON=1` | OFF | phase-1 compatibility | `.hako` stub に Program(JSON v0) emit を指示（compat-only） |
+| `HAKO_EMIT_MIR_JSON=1` | OFF | phase-1 compatibility | `.hako` stub に MIR(JSON) emit を指示（json_v0_bridge 経由） |
+| `NYASH_STAGE1_INPUT=path` | unset | phase-1 compatibility | 入力ソース（alias: `STAGE1_SOURCE`, `STAGE1_INPUT`） |
+| `HAKO_STAGE1_INPUT=path` | unset | phase-1 compatibility | `.hako` stub 用の入力ソース（`--hako-*` が設定） |
+| `NYASH_STAGE1_PROGRAM_JSON=path` | unset | phase-1 compatibility | Program(JSON v0) のパス（compat-only; alias: `STAGE1_PROGRAM_JSON`） |
+| `HAKO_STAGE1_PROGRAM_JSON=path` | unset | phase-1 compatibility | `.hako` stub 用 Program(JSON v0) パス（compat-only） |
+| `NYASH_STAGE1_BACKEND=vm` | `vm` | phase-1 compatibility | phase-1 compatibility 実行の backend ヒント（alias: `STAGE1_BACKEND`） |
+| `NYASH_STAGE1_CLI_CHILD=1` | OFF | phase-1 compatibility | 再帰呼び出しガード |
+| `STAGE1_CLI_ENTRY=...` | `lang/src/runner/stage1_cli.hako` | phase-1 compatibility | phase-1 compatibility stub のエントリ差し替え。canonical compat owner は `lang/src/runner/compat/stage1_cli.hako`、この default は薄い keep wrapper を指す。 |
+| `NYASH_STAGE1_BINARY_ONLY_DIRECT={0\|1}` | unset | phase-1 compatibility | binary-only direct route を強制ON/OFF（unset は OFF。明示時のみ有効） |
+| `NYASH_STAGE1_BINARY_ONLY_RUN_DIRECT={0\|1}` | unset | phase-1 compatibility | `--hako-run` の binary-only direct route を強制ON/OFF（unset は `NYASH_STAGE1_BINARY_ONLY_DIRECT` を継承し、最終的に OFF） |
+| `HAKO_SELFHOST_NO_DELEGATE={0\|1}` | unset | phase-1 compatibility / selfhost | `env.mirbuilder.emit` の delegate route を禁止（`1` で fail-fast 固定） |
+| `HAKO_MIR_BUILDER_DELEGATE={0\|1}` | unset | phase-1 compatibility / selfhost | MirBuilder delegate route の互換トグル（mainline child では `0` に固定） |
+| `HAKO_STAGE1_MODULES_LIST=...` | unset | phase-1 compatibility / selfhost | phase-1 compatibility using 解決用の `name=path` payload。`HAKO_STAGEB_MODULES_LIST` は mode-B .hako reader compatibility alias。 |
+| `HAKO_STAGE1_MODULE_ROOTS_LIST=...` | unset | phase-1 compatibility / selfhost | phase-1 compatibility using prefix 解決用の `prefix=path` payload。`HAKO_STAGEB_MODULE_ROOTS_LIST` は互換 alias。 |
+| `HAKO_STAGE1_APPLY_USINGS={0\|1}` | `0` | phase-1 compatibility / selfhost | phase-1 compatibility child の using text-merge 適用制御。`HAKO_STAGEB_APPLY_USINGS` は互換 alias。 |
+| `STAGE1_*` alias | legacy | phase-1 compatibility | `NYASH_STAGE1_*` の旧名。互換のため受理するが順次廃止予定 |
 
-### Stage-1 経路の例
+### Phase-1 compatibility 経路の例
 ```bash
-# Stage-1 で MIR(JSON) を受け取り、Rust 側で dump（preferred）
+# Phase-1 compatibility で MIR(JSON) を受け取り、Rust 側で dump（preferred）
 RUST_MIR_DUMP_PATH=/tmp/out.mir \
 NYASH_USE_STAGE1_CLI=1 STAGE1_EMIT_MIR_JSON=1 \
   ./target/release/hakorune --dump-mir apps/tests/minimal.hako
 
-# hako- 前置の Stage-1 MIR launcher（stage1-env-mir-source）
+# hako- 前置の phase-1 compatibility MIR launcher（stage1-env-mir-source）
 ./target/release/hakorune --hako-emit-mir-json /tmp/out.mir apps/tests/minimal.hako --dump-mir
 ```
 
@@ -143,7 +143,7 @@ Compat-only raw Program(JSON) route:
 ```
 
 Note:
-- `--hako-emit-mir-json` is the current Stage-1 MIR launcher entry.
+- `--hako-emit-mir-json` is the current phase-1 compatibility MIR launcher entry.
 - Program(JSON) is compat-only; hako-prefixed Program(JSON) public aliases and
   raw Program(JSON)->MIR CLI conversion are retired.
 - explicit Program(JSON)->MIR helper work should use `env.mirbuilder.emit` /
@@ -158,10 +158,10 @@ Note:
 
 | 変数 | デフォルト | 適用経路 | 説明 |
 | --- | --- | --- | --- |
-| `NYASH_FEATURES=stage3` | `stage3` (implicit) | Any | カンマ区切りの機能フラグ。`stage3` で Stage-3 構文を許可（既定ON）。 |
-| `NYASH_PARSER_STAGE3=1` | legacy | Any | Stage-3 旧エイリアス。将来削除予定。OFF にしたい場合のみ指定。 |
-| `HAKO_PARSER_STAGE3=1` | legacy | Any | `.hako` 向け Stage-3 legacy alias。将来削除予定。 |
-| `NYASH_TRY_RESULT_MODE=1` | OFF | Historical JSON v0 bridge | Historical Result-mode try/catch lowering knob. Current Stage0 keeps `throw` reserved/prohibited and stabilizes cleanup through the MIR-builder route. Do not use for new canonical examples. |
+| `NYASH_FEATURES=stage3` | `stage3` (implicit) | Any | カンマ区切りの機能フラグ。`stage3` 互換 token で syntax-3 構文を許可（既定ON）。 |
+| `NYASH_PARSER_STAGE3=1` | legacy | Any | syntax-3 旧エイリアス。将来削除予定。OFF にしたい場合のみ指定。 |
+| `HAKO_PARSER_STAGE3=1` | legacy | Any | `.hako` 向け syntax-3 legacy alias。将来削除予定。 |
+| `NYASH_TRY_RESULT_MODE=1` | OFF | Historical JSON v0 bridge | Historical Result-mode try/catch lowering knob. Current bootstrap cleanup/catch boundary keeps `throw` reserved/prohibited and stabilizes cleanup through the MIR-builder route. Do not use for new canonical examples. |
 | `NYASH_ENABLE_USING=1` | ON | Any | using 文を有効化 |
 | `HAKO_ENABLE_USING=1` | ON | Any | using 文 alias (.hako) |
 | `NYASH_RESOLVE_TRACE=1` | OFF | Any | using/prelude 解決のトレース |
@@ -179,7 +179,7 @@ Note:
 Throw surface policy:
 - parser は `throw` を常時拒否する（`[freeze:contract][parser/throw_reserved]`）。
 - `throw-compat` フラグは撤去済み。
-- cleanup 実行経路は Stage0 cleanup/catch boundary SSOT を優先する。`NYASH_TRY_RESULT_MODE=1` + JSON v0 canary は historical bridge inventory として扱い、新しい canonical 例には使わない。
+- cleanup 実行経路は bootstrap cleanup/catch boundary SSOT を優先する。`NYASH_TRY_RESULT_MODE=1` + JSON v0 canary は historical bridge inventory として扱い、新しい canonical 例には使わない。
 
 ---
 
@@ -200,7 +200,7 @@ Throw surface policy:
 | `HAKO_V1_EXTERN_PROVIDER_C_ABI=1` | OFF | LLVM / backend-zero | extern provider の C-ABI bridge を有効化。`phase-29ck` runtime proof では pinned keep env。 |
 | `NYASH_LLVM_ROUTE_TRACE=1` | OFF | LLVM / backend-zero | backend route trace を stderr に 1 行で出す。`[llvm-route/select] owner=boundary recipe=<...> compat_replay=<...> symbol=<...>` と `[llvm-route/replay] lane=<none\|harness> reason=<...>` に加え、dev/optimization wave では `[llvm-route/trace] stage=<...> result=<...> reason=<...> extra=<...>` を emit する。perf/mainline の owner proof と route/window debug bundle の両方に使う。 |
 | `HAKO_BACKEND_COMPILE_RECIPE=pure-first` | OFF | LLVM / backend-zero | backend-zero の transport hint。`.hako` daily compile は explicit recipe payload を渡し、Rust/C transport が boundary handoff でこの値を mirror する。recipe-aware caller は explicit `pure-first` FFI export を選び、generic C export には route 意味論を増やさない。 |
-| `HAKO_BACKEND_COMPAT_REPLAY={none\|harness}` | OFF | LLVM / backend-zero | pure-first route で unsupported shape をどの compat keep へ流すかを示す transport hint。mainline/perf judge は `none` を正本にし、`harness` は explicit Stage0 keep lane だけで使う。 |
+| `HAKO_BACKEND_COMPAT_REPLAY={none\|harness}` | OFF | LLVM / backend-zero | pure-first route で unsupported shape をどの compat keep へ流すかを示す transport hint。mainline/perf judge は `none` を正本にし、`harness` は explicit bootstrap keep lane だけで使う。 |
 | `HAKO_AOT_LDFLAGS` | OFF | LLVM / backend-zero | AOT link の compat append ldflags。daily caller の main route は `LlvmBackendBox.link_exe(..., libs)` の 3rd arg。 |
 | `NYASH_LLVM_LINK_WHOLE_ARCHIVE=1` | `1` | LLVM / backend-zero | AOT executable link 時に `libnyash_kernel.a` を `--whole-archive` で固定する。`0` にすると archive を通常リンクして、perf/startup probe で小さい実行体を測りやすくする。 |
 | `NYASH_LLVM_LINK_GC_SECTIONS=1` | `0` | LLVM / backend-zero | AOT executable link 時に `--gc-sections` を有効化する。`1` にすると未使用 section を落として、perf/startup probe でさらに小さい実行体を測りやすくする。 |
@@ -331,7 +331,7 @@ NYASH_LLVM_DEBUG_PHI=1 NYASH_LLVM_DEBUG_PHI_TRACE=1 \
 | `HAKO_BIN` | `./target/release/hakorune` | hakorune バイナリのパス。`src/config/env` の alias helper 経由で読み、空文字は unset 扱い |
 | `NYASH_BIN` | `./target/release/hakorune` | `HAKO_BIN` の互換 alias。`HAKO_BIN` が非空ならそちらが優先 |
 | `NYASH_LLVM_COMPILER` | `crate` | `tools/build_llvm.sh` のローカル mode selector。`harness` または `crate`。mainline backend boundary の ny-llvmc path truth には使わない |
-| `NYASH_NY_LLVM_COMPILER` | `target/release/ny-llvmc` | ny-llvmc バイナリのパス。backend-zero thin boundary / selfhost / stage1 helper で使う path truth |
+| `NYASH_NY_LLVM_COMPILER` | `target/release/ny-llvmc` | ny-llvmc バイナリのパス。backend-zero thin boundary / selfhost / phase-1 compatibility helper で使う path truth |
 | `NYASH_LLVM_FEATURE` | `llvm` | LLVM feature flag (`llvm` または `llvm-inkwell-legacy`) |
 | `NYASH_LLVM_OBJ_OUT` | `target/aot_objects/<stem>.o` | オブジェクトファイル出力パス |
 | `NYASH_CLI_VERBOSE` | `0` | 詳細ビルド出力を有効化 |
@@ -387,9 +387,9 @@ NYASH_LLVM_COMPILER=crate NYASH_LLVM_VALIDATE_JSON=1 \
 | 変数 | デフォルト | 適用経路 | 説明 |
 | --- | --- | --- | --- |
 | `NYASH_USE_NY_COMPILER=1` | OFF | JSON v0 | Ny selfhost コンパイラを使用 |
-| `NYASH_NY_COMPILER_STAGE3=1` | OFF | JSON v0 | Ny コンパイラ子プロセスで Stage-3 surface を許可 |
+| `NYASH_NY_COMPILER_STAGE3=1` | OFF | JSON v0 | Ny コンパイラ子プロセスで syntax-3 surface を許可 |
 | `NYASH_NY_COMPILER_TIMEOUT_MS=2000` | `2000` | JSON v0 | selfhost 子プロセスのタイムアウト (ms) |
-| `NYASH_STAGE1_EMIT_TIMEOUT_MS=<ms>` | unset | JSON v0 | Stage-1 emit系（`--hako-emit-mir-json` / emit-program）のタイムアウト上書き。未指定時は `NYASH_NY_COMPILER_TIMEOUT_MS` を使用 |
+| `NYASH_STAGE1_EMIT_TIMEOUT_MS=<ms>` | unset | JSON v0 | phase-1 compatibility emit系（`--hako-emit-mir-json` / emit-program）のタイムアウト上書き。未指定時は `NYASH_NY_COMPILER_TIMEOUT_MS` を使用 |
 | `NYASH_NY_COMPILER_EMIT_ONLY=1` | ON | JSON v0 | selfhost コンパイラを emit-only で動かす |
 | `NYASH_NY_COMPILER_CHILD_ARGS="-- --min-json"` | unset | JSON v0 | 子プロセスへ透過する追加引数 |
 
@@ -552,7 +552,7 @@ JoinIR の **strict / planner_required / debug は別トグル**。`--dev`（ま
 ### 使用例
 
 ```bash
-# JoinIR は常に ON。Stage-3（推奨）
+# JoinIR は常に ON。syntax-3（推奨）
 env NYASH_FEATURES=stage3 ./target/release/hakorune program.hako
 
 # VM bridge Route B（開発用）

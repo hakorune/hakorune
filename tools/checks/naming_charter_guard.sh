@@ -503,6 +503,7 @@ SSOT_REQUIRED_TOKENS=(
   "STAGE-TERM-LANG-README-PHASE-WORDING-001"
   "STAGE-TERM-DOCS-TOOLS-QUICK-ENTRY-WORDING-001"
   "STAGE-TERM-STAGE1-BRIDGE-PHASE-COMMENT-WORDING-001"
+  "STAGE-TERM-ENV-REFERENCE-PHASE-WORDING-001"
 )
 guard_require_unique_values "SSOT required token" "${SSOT_REQUIRED_TOKENS[@]}"
 for ssot_token in "${SSOT_REQUIRED_TOKENS[@]}"; do
@@ -837,6 +838,15 @@ require_fixed "HAKORUNE_*" "$ENV_DOC"
 require_fixed "HAKO_ROOT" "$ENV_DOC"
 require_fixed "HAKO_BIN" "$ENV_DOC"
 require_fixed 'mode-B .hako reader compatibility alias' "$ENV_DOC"
+require_fixed "JSON v0/phase-1 compatibility" "$ENV_DOC"
+require_fixed "## Phase-1 Compatibility / selfhost CLI" "$ENV_DOC"
+require_fixed "phase-1 compatibility stub" "$ENV_DOC"
+require_fixed "syntax-3 legacy alias" "$ENV_DOC"
+require_fixed "bootstrap cleanup/catch boundary" "$ENV_DOC"
+require_fixed "phase-1 compatibility helper" "$ENV_DOC"
+if rg -n 'JSON v0/Stage-1|## Stage-1 / selfhost CLI|Stage-1 stub|Stage-1 経路|Stage-1 MIR launcher|Stage-3 構文|Stage-3 旧エイリアス|Stage-3 legacy alias|Current Stage0 keeps|Stage0 cleanup/catch boundary|explicit Stage0 keep lane|stage1 helper|Stage-1 emit系|Stage-3（推奨）' "$ENV_DOC"; then
+  guard_fail "$TAG" "environment reference must use phase-1 / syntax-3 / bootstrap wording for migrated env surfaces"
+fi
 require_fixed "mode-B/selfhost compatibility dev verify toggle" "$VERIFICATION_FLAGS_RS"
 require_fixed "mode-B compatibility routes" "$VERIFICATION_FLAGS_RS"
 if rg -n 'Stage-B/selfhost|Stage-B 経路' "$VERIFICATION_FLAGS_RS"; then

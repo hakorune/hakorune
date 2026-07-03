@@ -2773,6 +2773,27 @@ NYASH_STAGE1_* / HAKO_STAGE1_* env names renamed = 0
 expected stderr/smoke output changed = 0
 ```
 
+#### STAGE-TERM-ENV-REFERENCE-PHASE-WORDING-001
+
+Status: landed.
+
+Scope:
+
+```text
+docs/reference/environment-variables.md:
+  active environment variable reference wording uses phase-1 compatibility,
+  syntax-3, and bootstrap where the variables are compatibility surfaces
+```
+
+Non-claims:
+
+```text
+NYASH_STAGE1_* / STAGE1_* env names renamed = 0
+NYASH_FEATURES=stage3 compatibility token removed = 0
+NYASH_NY_COMPILER_STAGE3 env name renamed = 0
+runtime behavior changed = 0
+```
+
 ## Guard Policy
 
 `tools/checks/naming_charter_guard.sh` is a lightweight reusable guard. It does

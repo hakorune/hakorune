@@ -896,6 +896,33 @@ smoke expected stderr changed = 0
 embedded_stage1_modules_snapshot.json touched = 0
 ```
 
+## Landed Environment Reference Phase Wording Slice
+
+`STAGE-TERM-ENV-REFERENCE-PHASE-WORDING-001` changes the active environment
+variable reference from unqualified Stage-1 / Stage-3 / Stage0 wording to
+phase-1 compatibility, syntax-3, or bootstrap wording where the variables are
+compatibility surfaces.
+
+Scope:
+
+```text
+docs/reference/environment-variables.md:
+  JSON v0 / phase-1 compatibility route descriptions use phase-1 wording
+  parser feature descriptions use syntax-3 wording while keeping `stage3`
+  compatibility tokens
+  historical cleanup / explicit keep lane descriptions use bootstrap wording
+```
+
+Non-claims:
+
+```text
+NYASH_STAGE1_* / STAGE1_* env names renamed = 0
+NYASH_FEATURES=stage3 compatibility token removed = 0
+NYASH_PARSER_STAGE3 / HAKO_PARSER_STAGE3 env names renamed = 0
+NYASH_NY_COMPILER_STAGE3 env name renamed = 0
+runtime behavior changed = 0
+```
+
 ## Migration Eligibility
 
 An occurrence is eligible for a future rename only if all conditions hold:
