@@ -292,7 +292,7 @@ tools/checks/dev_gate.sh quick
 
 ### HAKORUNE-USER-FACING-DOCS-CANONICALIZATION-001
 
-Status: active in this slice.
+Status: landed root README cut.
 
 Scope:
 
@@ -317,6 +317,90 @@ primary command examples:
 compat / internal names:
   may remain when explicitly scoped as compatibility, historical, package,
   crate, ABI, env, or tool names
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+tools/checks/dev_gate.sh quick
+```
+
+### HAKORUNE-BINARY-PRIMARY-CUTOVER-INVENTORY-001
+
+Status: active in this slice.
+
+Scope:
+
+- inventory the current Cargo binary surface for Hakorune vs legacy `nyash`;
+- verify the `hakorune` binary exists and is checked by quick gate;
+- verify the legacy `nyash` binary still exists only as compatibility surface;
+- verify `nyash` invocation has an explicit deprecation / allow gate;
+- do not rename the Cargo package, library crate, plugin crates, `ny-llvmc`,
+  ABI helper symbols, or existing script internals in this slice.
+
+Current inventory:
+
+```text
+Cargo package:
+  package.name = nyash-rust
+  status = legacy package identity, not renamed in this slice
+  default-run = absent
+  next safe cut = HAKORUNE-BINARY-DEFAULT-RUN-CUTOVER-001
+
+library crate:
+  lib.name = nyash_rust
+  status = legacy crate identity, not renamed in this slice
+
+primary user-facing binary:
+  [[bin]] name = hakorune
+  path = src/bin/hakorune.rs
+  implementation = thin include of src/main.rs
+  quick gate = cargo check --bin hakorune
+
+legacy compatibility binary:
+  [[bin]] name = nyash
+  path = src/main.rs
+  invocation policy = deprecated; requires explicit allow env for legacy use
+
+compat helper binary:
+  [[bin]] name = hakorune-compat
+  path = src/bin/hakorune_compat.rs
+  status = compatibility wrapper, not product primary
+
+tool wrapper:
+  tools/bin/hako
+  resolution = target/release/hakorune first, target/release/nyash fallback
+```
+
+Allowed compatibility:
+
+```text
+NYASH_BIN:
+  env compatibility variable, default should point at target/release/hakorune
+
+target/release/nyash:
+  legacy binary fallback only, not primary docs route
+
+ny-llvmc:
+  backend compiler tool name, not the product binary
+```
+
+Known remaining drift:
+
+```text
+Windows / PowerShell build scripts:
+  some still build or invoke --bin nyash
+  next action = HAKORUNE-WINDOWS-BUILD-SCRIPT-CUTOVER-INVENTORY-001
+
+Rust build helpers:
+  src/runner/build_product.rs and src/runner/build_engineering.rs still refer
+  to target/<profile>/nyash
+  next action = HAKORUNE-RUNNER-BUILD-HELPER-BINARY-RESOLUTION-001
+
+plugin/package/ABI surfaces:
+  nyash-* packages, nyash_kernel, ny-llvmc, and nyash.* ABI helper symbols stay
+  out of this slice
 ```
 
 Acceptance:
@@ -389,6 +473,8 @@ native_seed_materialization = 0
 project_wide_rename_completed = 0
 nyash_alias_removed = 0
 user_facing_docs_full_canonicalization_completed = 0
+binary_primary_cutover_full_rename_completed = 0
+cargo_package_rename_completed = 0
 abi_helper_rename_completed = 0
 stage_term_existing_migration_completed = 0
 ```

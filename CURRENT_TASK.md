@@ -41,16 +41,14 @@ the active card and task-order SSOT. Do not duplicate them here.
 
 ## Immediate Maintenance Slice
 
-Scope: Hakorune user-facing docs canonicalization.
+Scope: Hakorune binary primary cutover inventory.
 
-- make the root `README.md` present Hakorune as the primary product and binary
-  spelling
-- use `target/release/hakorune` or `$HAKO_BIN` for primary user-facing command
-  examples
-- keep `nyash`, `NYASH_*`, `ny-llvmc`, and `nyash.toml` when they are
-  compatibility, ABI, package, crate, historical, env, or tool names
-- do not rename binaries, packages, paths, ABI helper symbols, or historical
-  sections in this slice
+- inventory Cargo binary surfaces for `hakorune`, legacy `nyash`, and
+  `hakorune-compat`
+- verify quick gate checks `cargo check --bin hakorune`
+- verify `nyash` invocation is deprecated and gated by explicit allow env
+- keep package/crate/plugin/ABI/tool names untouched in this slice
+- do not remove `nyash` aliases or rename Cargo package metadata
 
 Acceptance:
 
