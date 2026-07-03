@@ -55,7 +55,7 @@ pub fn parse_mir_json_v0_line(line: &str) -> Result<MirModule, String> {
         .map_err(|e| format!("MIR JSON v0 parse error: {}", e))
 }
 
-/// Resolve Stage-A child payload ownership boundary.
+/// Resolve mode-A compatibility child payload ownership boundary.
 /// Priority:
 /// 1) valid MIR(JSON v0) -> `MirModule`
 /// 2) Program(JSON v0) (including MIR parse error fallback)

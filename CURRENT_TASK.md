@@ -72,6 +72,7 @@ STAGE-TERM-SYNTAX3-DIAGNOSTIC-WORDING-001
 STAGE-TERM-MODEB-COMPAT-ENV-WORDING-001
 STAGE-TERM-MODEB-PROOF-ROUTE-WORDING-001
 STAGE-TERM-MODEB-STAGE1-BRIDGE-WORDING-001
+STAGE-TERM-MODEA-COMPAT-ROUTE-WORDING-001
 ```
 
 `--syntax-3` is now the frontend syntax-level spelling; `--stage3` remains a
@@ -82,9 +83,11 @@ The explicit proof-only selfhost route docs/diagnostics now also say mode-B
 compatibility while keeping `--stage-b`, `stageb-delegate`, and script names as
 compatibility surfaces. Stage-1 bridge module payload comments/docs also say
 mode-B compatibility while keeping `HAKO_STAGEB_*` env names and bridge file
-names unchanged. Next safe naming work, if explicitly selected, must pick a
-different classified layer from that inventory and keep compatibility aliases
-or replacement routes in the same slice.
+names unchanged. Rust selfhost compat route comments/diagnostics now say
+mode-A compatibility while keeping `stage-a-compat` runtime-mode aliases and
+`stage_a_*` file/function names unchanged. Next safe naming work, if explicitly
+selected, must pick a different classified layer from that inventory and keep
+compatibility aliases or replacement routes in the same slice.
 
 Acceptance:
 

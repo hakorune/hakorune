@@ -1,9 +1,9 @@
 /*!
- * Stage-A route orchestration helper.
+ * mode-A compatibility route orchestration helper.
  *
  * Purpose:
  * - Keep `selfhost.rs` focused on high-level route sequencing.
- * - Keep Stage-A child spawn/setup local while leaving Program(JSON) fallback
+ * - Keep mode-A compatibility child spawn/setup local while leaving Program(JSON) fallback
  *   in the explicit compat bridge only.
  */
 
@@ -28,7 +28,7 @@ pub(crate) fn try_capture_stage_a_module(
 
     child::emit_runtime_route_mode(child::ROUTE_MODE_COMPAT, source_name);
 
-    // Non-strict Stage-A compat lanes remain explicit-only.
+    // Non-strict mode-A compatibility lanes remain explicit-only.
     stage_a_policy::enforce_stage_a_compat_policy_or_exit(source_name);
 
     if verbose_level >= 2 {
@@ -47,7 +47,7 @@ pub(crate) fn try_capture_stage_a_module(
         .map(|(k, v)| (k.as_str(), v.as_str()))
         .collect();
 
-    // Stage-A keeps an explicit compat-only Program(JSON) bridge for fallback.
+    // mode-A compatibility keeps an explicit compat-only Program(JSON) bridge for fallback.
     // Do not widen this branch into a day-to-day owner or re-anchor it on `--backend vm`.
     let cmd = stage0_capture_route::build_stage0_non_vm_capture_command(
         exe,

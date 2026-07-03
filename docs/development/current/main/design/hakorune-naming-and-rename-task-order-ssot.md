@@ -1985,6 +1985,43 @@ git diff --check
 tools/checks/dev_gate.sh quick
 ```
 
+### STAGE-TERM-MODEA-COMPAT-ROUTE-WORDING-001
+
+Status: landed route wording cleanup.
+
+Purpose: use `mode-A compatibility` wording for the Rust selfhost compat route
+comments/diagnostics while keeping existing file names, function names, and
+`stage-a-compat` runtime-mode compatibility tokens unchanged.
+
+Affected files:
+
+```text
+src/runner/modes/common_util/selfhost/stage_a_compat_bridge.rs
+src/runner/modes/common_util/selfhost/stage_a_route.rs
+src/runner/modes/common_util/selfhost/stage_a_policy.rs
+src/runner/modes/common_util/selfhost/stage_a_spawn.rs
+src/runner/modes/common_util/selfhost/json.rs
+src/runner/modes/common_util/selfhost/stage0_capture_route.rs
+src/runner/selfhost.rs
+```
+
+Non-claims:
+
+```text
+stage-a-compat runtime-mode alias renamed = 0
+stage_a_* file names renamed = 0
+function names renamed = 0
+runtime behavior changed = 0
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
 ### STAGE-TERM-EXISTING-NAME-MIGRATION-001
 
 Status: inventory-only; no implementation rename selected.

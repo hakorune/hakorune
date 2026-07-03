@@ -1,9 +1,9 @@
 /*!
- * Stage-A runtime route policy helpers.
+ * mode-A compatibility runtime route policy helpers.
  *
  * RNR-04 (BoxShape):
  * - Keep `route_orchestrator` focused on backend execution routing.
- * - Keep Stage-A payload/compat policy decisions under selfhost runtime helpers.
+ * - Keep mode-A compatibility payload/compat policy decisions under selfhost runtime helpers.
  */
 
 use super::runtime_route_contract;
@@ -61,7 +61,7 @@ pub(crate) fn decide_stage_a_compat_guard(
 }
 
 pub(crate) fn enforce_stage_a_compat_policy_or_exit(source: &str) {
-    // Stage-A compat is explicit-only in non-strict mode.
+    // mode-A compatibility is explicit-only in non-strict mode.
     // Keep this as a narrow gate; new runtime features must not widen it implicitly.
     let strict_enabled = crate::config::env::joinir_dev::strict_enabled();
     let fallback_enabled = crate::config::env::vm_use_fallback();

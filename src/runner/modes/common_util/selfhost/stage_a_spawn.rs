@@ -1,9 +1,9 @@
 /*!
- * Stage-A spawn payload builders.
+ * mode-A compatibility spawn payload builders.
  *
  * RNR cleanup:
  * - Keep `selfhost.rs` focused on route sequencing.
- * - Keep Stage-A child args/env construction in one place.
+ * - Keep mode-A compatibility child args/env construction in one place.
  */
 
 pub(crate) fn build_stage_a_child_extra_args() -> Vec<String> {
@@ -45,7 +45,7 @@ pub(crate) fn build_stage_a_child_extra_args() -> Vec<String> {
 pub(crate) fn build_stage_a_child_env(raw_source: &str) -> Vec<(String, String)> {
     let mut envs = Vec::new();
 
-    // Stage-B contract expects raw source in HAKO_SRC.
+    // mode-B compatibility contract expects raw source in HAKO_SRC.
     envs.push(("HAKO_SRC".to_string(), raw_source.to_string()));
     envs.push(("NYASH_DISABLE_PLUGINS".to_string(), "1".to_string()));
     envs.push(("NYASH_USING_AST".to_string(), "1".to_string()));

@@ -171,6 +171,47 @@ modules.rs behavior changed = 0
 runtime behavior changed = 0
 ```
 
+## Landed mode-A Compatibility Route Wording Slice
+
+`STAGE-TERM-MODEA-COMPAT-ROUTE-WORDING-001` changes Rust selfhost compat route
+comments/diagnostics to `mode-A compatibility` wording while keeping
+`stage-a-compat` runtime-mode tokens and `stage_a_*` file/function names as
+compatibility surfaces.
+
+Scope:
+
+```text
+src/runner/modes/common_util/selfhost/stage_a_compat_bridge.rs:
+  compat bridge boundary and diagnostics say mode-A compatibility
+
+src/runner/modes/common_util/selfhost/stage_a_route.rs:
+  route helper comments say mode-A compatibility
+
+src/runner/modes/common_util/selfhost/stage_a_policy.rs:
+  policy helper comments say mode-A compatibility
+
+src/runner/modes/common_util/selfhost/stage_a_spawn.rs:
+  child payload comments say mode-A/mode-B compatibility as appropriate
+
+src/runner/modes/common_util/selfhost/json.rs:
+  payload ownership boundary says mode-A compatibility
+
+src/runner/modes/common_util/selfhost/stage0_capture_route.rs:
+  retained route wrapper comments say mode-A compatibility
+
+src/runner/selfhost.rs:
+  high-level route sequencing comment says mode-A compatibility
+```
+
+Non-claims:
+
+```text
+stage-a-compat runtime-mode alias renamed = 0
+stage_a_* file names renamed = 0
+function names renamed = 0
+runtime behavior changed = 0
+```
+
 ## Migration Eligibility
 
 An occurrence is eligible for a future rename only if all conditions hold:

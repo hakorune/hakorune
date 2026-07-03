@@ -172,7 +172,7 @@ impl NyashRunner {
                 .unwrap_or_else(|_| std::path::PathBuf::from("target/release/nyash"));
             let timeout_ms: u64 = crate::config::env::ny_compiler_timeout_ms();
             // Keep `selfhost.rs` on high-level route sequencing only.
-            // Stage-A child spawn/setup and captured payload-family resolution live below.
+            // mode-A compatibility child spawn/setup and captured payload-family resolution live below.
             if let Some(resolved) = stage_a_route::try_capture_stage_a_module(
                 &exe,
                 source_name,

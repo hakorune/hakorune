@@ -1,5 +1,5 @@
 /*!
- * Stage-A Program(JSON v0) compat keep boundary.
+ * mode-A compatibility Program(JSON v0) keep boundary.
  *
  * Purpose:
  * - Keep `selfhost.rs` focused on route sequencing.
@@ -34,7 +34,7 @@ pub(crate) fn resolve_program_payload_to_mir(
     if verbose_level >= 2 {
         let ring0 = crate::runtime::ring0::get_global_ring0();
         ring0.log.info(&format!(
-            "[selfhost/ny] stage-a compat keep: Program(JSON v0) -> MIR(JSON v0) via .hako mirbuilder (size={} bytes)",
+            "[selfhost/ny] mode-A compatibility keep: Program(JSON v0) -> MIR(JSON v0) via .hako mirbuilder (size={} bytes)",
             program_line.len()
         ));
     }
@@ -82,7 +82,7 @@ pub(crate) fn resolve_program_payload_to_mir(
         let ring0 = crate::runtime::ring0::get_global_ring0();
         ring0
             .log
-            .error("[ny-compiler] stage-a compat keep produced no MIR(JSON v0)");
+            .error("[ny-compiler] mode-A compatibility keep produced no MIR(JSON v0)");
     }
 
     // RDM-1-min1 contract:
@@ -100,7 +100,7 @@ pub(crate) fn resolve_program_payload_to_mir(
         Err(e) => {
             let ring0 = crate::runtime::ring0::get_global_ring0();
             ring0.log.error(&format!(
-                "[ny-compiler] json parse error (stage-a compat fallback): {}",
+                "[ny-compiler] json parse error (mode-A compatibility fallback): {}",
                 e
             ));
             None
