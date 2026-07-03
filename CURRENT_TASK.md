@@ -64,9 +64,16 @@ Stage-term existing-name migration has a classification inventory at:
 docs/development/current/main/design/hakorune-stage-term-existing-name-migration-inventory.md
 ```
 
-No existing stage term rename has been selected yet. Next safe naming work, if
-explicitly selected, must pick one classified layer from that inventory and keep
-compatibility aliases or replacement routes in the same slice.
+The first classified stage-term migration slice is landed:
+
+```text
+STAGE-TERM-SYNTAX3-ALIAS-001
+```
+
+`--syntax-3` is now the frontend syntax-level spelling; `--stage3` remains a
+compatibility alias. Next safe naming work, if explicitly selected, must pick a
+different classified layer from that inventory and keep compatibility aliases or
+replacement routes in the same slice.
 
 Acceptance:
 
