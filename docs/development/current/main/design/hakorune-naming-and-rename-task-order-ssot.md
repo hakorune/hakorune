@@ -849,6 +849,38 @@ git diff --check
 tools/checks/dev_gate.sh quick
 ```
 
+### HAKORUNE-BRIDGE-CANONICALIZE-STABLE-SMOKE-BINARY-RESOLUTION-001
+
+Status: active in this slice.
+
+Scope:
+
+- make bridge canonicalize stable smoke scripts use the `NYASH_BIN` resolver
+  from `tools/smokes/v2/lib/test_runner.sh`;
+- keep `target/release/nyash` only behind the shared Hakorune-first resolver
+  fallback;
+- keep v1 JSON fixtures and expected rc/message behavior untouched in this
+  slice;
+- keep canonicalize semantics untouched in this slice;
+- leave stale opt-in `canonicalize_off/on` canaries unchanged in this slice.
+
+Affected scripts:
+
+```text
+tools/smokes/v2/profiles/quick/core/bridge/canonicalize_noop_method_on_vm.sh
+tools/smokes/v2/profiles/quick/core/bridge/canonicalize_fail_vm.sh
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+bash tools/smokes/v2/profiles/quick/core/bridge/canonicalize_noop_method_on_vm.sh
+SMOKES_ENABLE_BRIDGE_CANON=1 bash tools/smokes/v2/profiles/quick/core/bridge/canonicalize_fail_vm.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
 ### STAGE-TERM-EXISTING-NAME-MIGRATION-001
 
 Status: defined, not implementation.

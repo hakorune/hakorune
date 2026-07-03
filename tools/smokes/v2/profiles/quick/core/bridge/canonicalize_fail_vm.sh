@@ -26,7 +26,7 @@ cat >"$json_path" <<'JSON'
 JSON
 
 set +e
-output=$(NYASH_NYVM_V1_DOWNCONVERT=1 "$ROOT/target/release/nyash" --json-file "$json_path" 2>&1)
+output=$(NYASH_NYVM_V1_DOWNCONVERT=1 "$NYASH_BIN" --json-file "$json_path" 2>&1)
 rc=$?
 set -e
 rm -f "$json_path"

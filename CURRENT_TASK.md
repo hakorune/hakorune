@@ -41,20 +41,23 @@ the active card and task-order SSOT. Do not duplicate them here.
 
 ## Immediate Maintenance Slice
 
-Scope: Hakorune smoke MIR emit route binary aliasing.
+Scope: Hakorune bridge canonicalize stable smoke binary resolution.
 
-- make `tools/smokes/v2/lib/emit_mir_route.sh` accept `HAKO_BIN` as the
-  preferred alias for the historical `NYASH_BIN`
-- keep `target/release/nyash` only behind explicit Hakorune-first resolver
+- make bridge canonicalize stable smoke scripts use the `NYASH_BIN` resolver
+  from `tools/smokes/v2/lib/test_runner.sh`
+- keep `target/release/nyash` only behind the shared Hakorune-first resolver
   fallback
-- keep route behavior and argument contract untouched in this slice
-- keep direct/hako-mainline/hako-helper route semantics untouched in this slice
+- keep v1 JSON fixtures and expected rc/message behavior untouched in this
+  slice
+- keep canonicalize semantics untouched in this slice
+- leave stale opt-in `canonicalize_off/on` canaries unchanged in this slice
 
 Acceptance:
 
 ```bash
 bash tools/checks/naming_charter_guard.sh
-bash tools/smokes/v2/lib/emit_mir_route.sh --help
+bash tools/smokes/v2/profiles/quick/core/bridge/canonicalize_noop_method_on_vm.sh
+SMOKES_ENABLE_BRIDGE_CANON=1 bash tools/smokes/v2/profiles/quick/core/bridge/canonicalize_fail_vm.sh
 git diff --check
 tools/checks/dev_gate.sh quick
 ```

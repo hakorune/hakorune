@@ -32,6 +32,7 @@ NY_PARSER_BRIDGE_SMOKE="$ROOT_DIR/tools/ny_parser_bridge_smoke.sh"
 PHI_TRACE_RUN="$ROOT_DIR/tools/debug/phi/phi_trace_run.sh"
 TEST_SHLIB="$ROOT_DIR/tools/test/lib/shlib.sh"
 EMIT_MIR_ROUTE="$ROOT_DIR/tools/smokes/v2/lib/emit_mir_route.sh"
+BRIDGE_CANON_DIR="$ROOT_DIR/tools/smokes/v2/profiles/quick/core/bridge"
 ENV_RS="$ROOT_DIR/src/config/env.rs"
 ENV_PATHS_RS="$ROOT_DIR/src/config/env/paths.rs"
 ENV_DOC="$ROOT_DIR/docs/reference/environment-variables.md"
@@ -70,6 +71,7 @@ require_fixed "HAKORUNE-PARSER-BRIDGE-SMOKE-BINARY-RESOLUTION-001" "$SSOT"
 require_fixed "HAKORUNE-PHI-TRACE-RUNNER-BINARY-RESOLUTION-001" "$SSOT"
 require_fixed "HAKORUNE-TEST-SHLIB-BINARY-RESOLUTION-001" "$SSOT"
 require_fixed "HAKORUNE-SMOKE-EMIT-MIR-ROUTE-BINARY-ALIAS-001" "$SSOT"
+require_fixed "HAKORUNE-BRIDGE-CANONICALIZE-STABLE-SMOKE-BINARY-RESOLUTION-001" "$SSOT"
 require_fixed "HAKORUNE-ENV-ALIAS-INVENTORY-001" "$SSOT"
 require_fixed "HAKORUNE-ENV-ALIAS-FIRST-CUT-001" "$SSOT"
 require_fixed 'prefer `target/release/hakorune` or `$HAKO_BIN`' "$README_MD"
@@ -158,6 +160,12 @@ require_fixed '<HAKO_BIN|NYASH_BIN> --backend mir --emit-mir-json' "$EMIT_MIR_RO
 if rg -n "nyash/hakorune binary not found" "$EMIT_MIR_ROUTE"; then
   guard_fail "$TAG" "emit MIR route helper must use Hakorune-first binary wording"
 fi
+for bridge_script in "$BRIDGE_CANON_DIR/canonicalize_noop_method_on_vm.sh" "$BRIDGE_CANON_DIR/canonicalize_fail_vm.sh"; do
+  require_fixed '"$NYASH_BIN" --json-file "$json_path"' "$bridge_script"
+  if rg -n 'target/release/nyash" --json-file' "$bridge_script"; then
+    guard_fail "$TAG" "bridge canonicalize smoke must use shared Hakorune-first NYASH_BIN resolver"
+  fi
+done
 require_fixed "env_bool_with_alias" "$ENV_RS"
 require_fixed "env_string_with_alias" "$ENV_RS"
 require_fixed "env_string_trimmed_with_alias" "$ENV_RS"

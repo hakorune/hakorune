@@ -21,7 +21,7 @@ JSON
 
 set +e
 HAKO_NYVM_V1_DOWNCONVERT=1 HAKO_BRIDGE_INJECT_SINGLETON=1 HAKO_DEBUG_NYVM_BRIDGE_DUMP_MUT="$mut_on" \
-  "$ROOT/target/release/nyash" --json-file "$json_path" >/dev/null 2>&1
+  "$NYASH_BIN" --json-file "$json_path" >/dev/null 2>&1
 set -e || true
 
 if [ -f "$mut_on" ]; then
@@ -32,4 +32,3 @@ fi
 echo "[PASS] canonicalize_noop_method_on_vm"
 rm -f "$json_path" "$mut_on"
 exit 0
-
