@@ -173,7 +173,7 @@ static box FuncScannerHelpersBox {
     local in_block = 0
     local result = -1
     local i = open_idx
-    // Keep one loop exit/PHI shape. The Stage-B VM path can lose string-state
+    // Keep one loop exit/PHI shape. The mode-B compatibility VM path can lose string-state
     // updates when this scanner uses many early `continue` exits.
     loop(i < n && result < 0) {
       local next_i = i + 1

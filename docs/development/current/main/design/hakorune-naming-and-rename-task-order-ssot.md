@@ -2257,6 +2257,38 @@ git diff --check
 tools/checks/dev_gate.sh quick
 ```
 
+### STAGE-TERM-MODEB-HHAKO-FUNC-SCANNER-COMMENT-WORDING-001
+
+Status: landed FuncScanner comment wording cleanup.
+
+Purpose: use `mode-B compatibility` wording in FuncScanner comments that
+describe the mode-B compiler/VM path while leaving PHI-related implementation
+unchanged.
+
+Affected files:
+
+```text
+lang/src/compiler/entry/func_scanner.hako
+lang/src/compiler/entry/func_scanner_helpers.hako
+```
+
+Non-claims:
+
+```text
+FuncScanner behavior changed = 0
+PHI / LocalSSA / variable-map internals touched = 0
+StageB* Box names renamed = 0
+runtime behavior changed = 0
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
 ### STAGE-TERM-EXISTING-NAME-MIGRATION-001
 
 Status: inventory-only; no implementation rename selected.

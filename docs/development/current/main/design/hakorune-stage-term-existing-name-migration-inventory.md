@@ -414,6 +414,31 @@ GlobalCallTargetShape behavior changed = 0
 runtime behavior changed = 0
 ```
 
+## Landed HHako FuncScanner Comment Wording Slice
+
+`STAGE-TERM-MODEB-HHAKO-FUNC-SCANNER-COMMENT-WORDING-001` changes FuncScanner
+comments that describe the mode-B compiler/VM path to `mode-B compatibility`
+wording. The PHI-related implementation is not changed.
+
+Scope:
+
+```text
+lang/src/compiler/entry/func_scanner.hako:
+  scanner ownership comment says mode-B compatibility
+
+lang/src/compiler/entry/func_scanner_helpers.hako:
+  one loop exit/PHI shape comment says mode-B compatibility VM path
+```
+
+Non-claims:
+
+```text
+FuncScanner behavior changed = 0
+PHI / LocalSSA / variable-map internals touched = 0
+StageB* Box names renamed = 0
+runtime behavior changed = 0
+```
+
 ## Migration Eligibility
 
 An occurrence is eligible for a future rename only if all conditions hold:

@@ -1,4 +1,4 @@
-// FuncScannerBox — Function definition scanner for Stage-B compiler
+// FuncScannerBox — Function definition scanner for mode-B compatibility compiler
 // Policy: Extract method definitions from Hako source (conservative, minimal)
 // Toggle: HAKO_STAGEB_FUNC_SCAN=1
 // Scope: method <name>(params) { ... } outside of main (same box Main)

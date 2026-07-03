@@ -67,6 +67,8 @@ HH_STAGEB_TRACE="$ROOT_DIR/lang/src/compiler/entry/stageb_trace_box.hako"
 HH_STAGEB_MAIN_DETECTION="$ROOT_DIR/lang/src/compiler/entry/stageb_main_detection_box.hako"
 HH_STAGEB_RUNE="$ROOT_DIR/lang/src/compiler/entry/stageb/stageb_rune_box.hako"
 HH_STAGEB_USER_BOX_DECL_SCANNER="$ROOT_DIR/lang/src/compiler/entry/stageb/stageb_user_box_decl_scanner_box.hako"
+HH_FUNC_SCANNER="$ROOT_DIR/lang/src/compiler/entry/func_scanner.hako"
+HH_FUNC_SCANNER_HELPERS="$ROOT_DIR/lang/src/compiler/entry/func_scanner_helpers.hako"
 NY_PARSER_BRIDGE_SMOKE="$ROOT_DIR/tools/ny_parser_bridge_smoke.sh"
 PHI_TRACE_RUN="$ROOT_DIR/tools/debug/phi/phi_trace_run.sh"
 TEST_SHLIB="$ROOT_DIR/tools/test/lib/shlib.sh"
@@ -190,6 +192,8 @@ REQUIRED_FILES=(
   "$HH_STAGEB_MAIN_DETECTION"
   "$HH_STAGEB_RUNE"
   "$HH_STAGEB_USER_BOX_DECL_SCANNER"
+  "$HH_FUNC_SCANNER"
+  "$HH_FUNC_SCANNER_HELPERS"
   "$NY_PARSER_BRIDGE_SMOKE"
   "$PHI_TRACE_RUN"
   "$TEST_SHLIB"
@@ -315,6 +319,7 @@ SSOT_REQUIRED_TOKENS=(
   "STAGE-TERM-MODEB-CAPTURE-CALLER-GUARD-WORDING-001"
   "STAGE-TERM-PHASE1-PROGRAM-JSON-GUARD-WORDING-001"
   "STAGE-TERM-STAGE0-SHAPE-GATE-LABEL-WORDING-001"
+  "STAGE-TERM-MODEB-HHAKO-FUNC-SCANNER-COMMENT-WORDING-001"
 )
 guard_require_unique_values "SSOT required token" "${SSOT_REQUIRED_TOKENS[@]}"
 for ssot_token in "${SSOT_REQUIRED_TOKENS[@]}"; do
@@ -710,6 +715,11 @@ fi
 if rg -n 'Stage0 shape inventory guard' "$QUICK_STEPS"; then
   guard_fail "$TAG" "Stage0 shape quick-gate label must say GlobalCallTarget shape inventory guard"
 fi
+require_fixed "Function definition scanner for mode-B compatibility compiler" "$HH_FUNC_SCANNER"
+require_fixed "mode-B compatibility VM path can lose string-state" "$HH_FUNC_SCANNER_HELPERS"
+if rg -n 'Function definition scanner for Stage-B compiler|Stage-B VM path can lose string-state' "$HH_FUNC_SCANNER" "$HH_FUNC_SCANNER_HELPERS"; then
+  guard_fail "$TAG" "FuncScanner comments must say mode-B compatibility"
+fi
 require_fixed '.arg("--syntax-3")' "$PHASE29CI_STAGEB_BODY_EXTRACT_TEST"
 require_fixed '`--syntax-3` with compatibility alias `--stage3`' "$REFERENCE_EBNF"
 require_fixed 'selfhost: `--syntax-3`' "$REFERENCE_STATEMENTS"
@@ -758,6 +768,8 @@ NAMING_DIFF_ALLOWED_PATHS=(
   "lang/src/compiler/entry/stageb_main_detection_box.hako"
   "lang/src/compiler/entry/stageb/stageb_rune_box.hako"
   "lang/src/compiler/entry/stageb/stageb_user_box_decl_scanner_box.hako"
+  "lang/src/compiler/entry/func_scanner.hako"
+  "lang/src/compiler/entry/func_scanner_helpers.hako"
   "tests/phase29ci_stageb_body_extract.rs"
   "tools/selfhost/proof/run_stageb_compiler_vm.sh"
   "tools/checks/stageb_program_json_capture_caller_guard.sh"
