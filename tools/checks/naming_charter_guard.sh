@@ -511,6 +511,13 @@ NAMING_DIFF_ALLOWED_PATHS=(
   "tools/checks/lib/dev_gate_quick_steps.sh"
   "CURRENT_TASK.md"
 )
+declare -A seen_naming_diff_allowed_paths=()
+for allowed_path in "${NAMING_DIFF_ALLOWED_PATHS[@]}"; do
+  if [[ -n "${seen_naming_diff_allowed_paths[$allowed_path]:-}" ]]; then
+    guard_fail "$TAG" "duplicate naming diff allowed path in guard: $allowed_path"
+  fi
+  seen_naming_diff_allowed_paths[$allowed_path]=1
+done
 
 is_allowed_path() {
   local allowed_path

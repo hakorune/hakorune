@@ -826,6 +826,7 @@ Scope:
   `tools/checks/naming_charter_guard.sh`;
 - make the shell untracked-file scan and the awk diff scan consume the same
   path list;
+- fail fast if the allowed path list contains a duplicate path;
 - keep guard behavior unchanged;
 - do not broaden the allowed path set.
 
