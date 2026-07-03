@@ -19,6 +19,7 @@ now a narrow HakoAdopted mutation-frame leaf semantic owner.
 StorageClassClassifier is now a narrow HakoAdopted Rust-oracle parity pilot
 owner. PlacementEffectTagFormatter is now a narrow HakoAdopted Rust-oracle
 parity pilot owner after a green 25-row `.hako` EXE parity gate. Source Selfhost remains unclaimed.
+StaticScalarFactClassifier is selected as the third narrow parity pilot.
 EXE/AOT remains the primary
 app/selfhost validation route; VM/interpreter lanes are not semantic owners."""
 
@@ -28,11 +29,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PLACEMENT-EFFECT-TAG-FORMATTER-HAKO-ADOPTION-DECISION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2108-MIRBUILDER-PLACEMENT-EFFECT-TAG-FORMATTER-HAKO-ADOPTION-DECISION-001.md"
-latest_card_summary = """The latest card adopts placement_effect_tag_formatter
-as the second narrow Rust-oracle parity pilot owner after a green 25-row `.hako`
-EXE parity gate, while keeping Source Selfhost unclaimed."""
+latest_card = "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-002"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2109-MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-002.md"
+latest_card_summary = """The latest card selects static_scalar_fact_classifier
+as the third narrow Rust-oracle parity pilot owner and chooses its Rust-oracle
+fixture card next."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -43,6 +44,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-04: 2109 selects static_scalar_fact_classifier as the third narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
   "2026-07-04: 2108 adopts placement_effect_tag_formatter as the second narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
   "2026-07-04: 2107 adds the placement_effect_tag_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
   "2026-07-04: 2106 adds the hand-authored placement_effect_tag_formatter .hako scalar implementation and chooses the parity gate card next.",
@@ -54,5 +56,4 @@ landed_tail = [
   "2026-07-04: 2100 creates the storage_class_classifier Rust-oracle fixture and selects the Hako-native implementation card next.",
   "2026-07-04: 2099 selects storage_class_classifier as the first Hako-native owner parity pilot and chooses the Rust-oracle fixture card next.",
   "2026-07-03: 2098 pivots the converter from Source Selfhost main route to Rust-oracle parity helper and selects the Hako-native owner parity pilot.",
-  "2026-07-03: 2097 closes out the current Source Selfhost wider route-selection design stop with no machine-derived progress lane.",
 ]

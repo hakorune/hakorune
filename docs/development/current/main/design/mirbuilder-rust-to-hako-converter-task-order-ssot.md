@@ -24,9 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-PLACEMENT-EFFECT-TAG-FORMATTER-HAKO-ADOPTION-DECISION-001.
-  The placement_effect_tag_formatter Rust-oracle parity pilot is HakoAdopted;
-  next is the pilot selection rerun for the next small owner.
+  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-002.
+  The third narrow parity pilot is static_scalar_fact_classifier; next is its
+  Rust-oracle fixture card.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-002
+  MIRBUILDER-STATIC-SCALAR-FACT-CLASSIFIER-RUST-ORACLE-FIXTURE-001
 
 current fail-fast boundary:
   Do not re-enter full converter route selection without new non-self-signed
@@ -70,11 +70,11 @@ current fail-fast boundary:
   `MirType -> StorageClass`; metadata refresh/mutation remains Rust.
 
 latest design decision:
-  The placement_effect_tag_formatter pilot is now HakoAdopted for the pure
-  PlacementEffect enum/tag display surface after a green Rust-oracle parity
-  gate. Route collection, route summary, sorting, and metadata refresh remain
-  Rust. The selected next card is
-  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-002`.
+  The static_scalar_fact_classifier pilot is selected for the normalized
+  zero-arg return literal shape -> static scalar fact surface. Emit-const,
+  full AST traversal, method dispatch, and MirBuilder mutation remain Rust.
+  The selected next card is
+  `MIRBUILDER-STATIC-SCALAR-FACT-CLASSIFIER-RUST-ORACLE-FIXTURE-001`.
 
 historical route-selection decision:
   Detailed landed route-selection rows are closed as provenance and live in

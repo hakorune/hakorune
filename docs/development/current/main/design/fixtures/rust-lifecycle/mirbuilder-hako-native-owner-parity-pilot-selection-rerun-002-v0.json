@@ -1,0 +1,69 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderHakoNativeOwnerParityPilotSelectionRerun002V1",
+  "token": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-002",
+  "input_state": {
+    "previous_hako_adoption": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-placement-effect-tag-formatter-hako-adoption-decision-v0.json",
+    "previous_hako_adoption_hash": "sha256:bea43833f31894ef4648f96665b882471e1a1318971107cf380619a17b2277aa",
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+  },
+  "selection_policy": {
+    "candidate_ranking_is_advisory": true,
+    "manual_target_selection_allowed": true,
+    "correctness_proof_is_parity_gate": true,
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0
+  },
+  "candidate_rows": [
+    {
+      "candidate_owner": "static_scalar_fact_classifier",
+      "source_path": "src/mir/builder/static_scalar_facts.rs",
+      "source_hash": "sha256:d47b8bd9e37bd08cf6df67d15f111d40e205431129c3f49eb43affde97f22ace",
+      "selected": true,
+      "positive_signals": [
+        "small Rust surface with existing tests",
+        "pure normalized shape to fact classification",
+        "json scalar input/output boundary",
+        "no PHI or LocalSSA surface",
+        "emit const and MirBuilder mutation can remain Rust"
+      ],
+      "excluded_surface": [
+        "emit_static_scalar_fact_const",
+        "MirBuilder state mutation",
+        "full AST JSON traversal",
+        "method call dispatch"
+      ],
+      "selected_next_card_if_selected": "MIRBUILDER-STATIC-SCALAR-FACT-CLASSIFIER-RUST-ORACLE-FIXTURE-001"
+    },
+    {
+      "candidate_owner": "effect_capability_plan",
+      "source_path": "src/mir/effect_capability_plan.rs",
+      "selected": false,
+      "reason": "Useful later, but profile expansion and capability source joins are wider than the next small pilot."
+    },
+    {
+      "candidate_owner": "generic_method_route_fact_tags",
+      "source_path": "src/mir/generic_method_route_facts.rs",
+      "selected": false,
+      "reason": "Enum tags are easy, but the owner quickly widens into value-origin and MIR-function analysis."
+    }
+  ],
+  "decision": {
+    "kind": "SelectPilotOwner",
+    "reason_token": "StaticScalarFactClassifierSelectedAsThirdParityPilot",
+    "selected_owner": "static_scalar_fact_classifier",
+    "selected_rust_surface": "normalized zero-arg return literal shape -> static scalar fact text",
+    "selected_next_card": "MIRBUILDER-STATIC-SCALAR-FACT-CLASSIFIER-RUST-ORACLE-FIXTURE-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "native_seed_materialization": 0,
+    "hako_generation": 0,
+    "generated_artifact_as_native_edit_authority": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "mirbuilder_state_mutation_migration": 0
+  }
+}
