@@ -76,6 +76,20 @@ ENV_DOC="$ROOT_DIR/docs/reference/environment-variables.md"
 
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" git
+
+guard_require_unique_values() {
+  local label="$1"
+  shift
+  declare -A seen_values=()
+  local value
+  for value in "$@"; do
+    if [[ -n "${seen_values[$value]:-}" ]]; then
+      guard_fail "$TAG" "duplicate $label in guard: $value"
+    fi
+    seen_values[$value]=1
+  done
+}
+
 REQUIRED_FILES=(
   "$SSOT"
   "$CHECK_INDEX"
@@ -143,13 +157,7 @@ REQUIRED_FILES=(
   "$ENV_PATHS_RS"
   "$ENV_DOC"
 )
-declare -A seen_required_files=()
-for required_file in "${REQUIRED_FILES[@]}"; do
-  if [[ -n "${seen_required_files[$required_file]:-}" ]]; then
-    guard_fail "$TAG" "duplicate required file in guard: $required_file"
-  fi
-  seen_required_files[$required_file]=1
-done
+guard_require_unique_values "required file" "${REQUIRED_FILES[@]}"
 guard_require_files "$TAG" "${REQUIRED_FILES[@]}"
 
 require_fixed() {
@@ -182,6 +190,7 @@ SSOT_REQUIRED_TOKENS=(
   "HAKORUNE-SELFHOST-EXE-STAGEB-SOURCE-WORDING-001"
   "HAKORUNE-NAMING-GUARD-REQUIRED-FILES-READABILITY-001"
   "HAKORUNE-NAMING-GUARD-REQUIRED-FILES-DUPLICATE-CHECK-001"
+  "HAKORUNE-NAMING-GUARD-DUPLICATE-CHECK-HELPER-001"
   "HAKORUNE-NAMING-GUARD-SSOT-TOKEN-LIST-READABILITY-001"
   "HAKORUNE-NAMING-GUARD-DIFF-ALLOWLIST-SSOT-001"
   "HAKORUNE-CORE-EMIT-HELPER-BINARY-RESOLUTION-001"
@@ -217,13 +226,7 @@ SSOT_REQUIRED_TOKENS=(
   "HAKORUNE-ENV-ALIAS-INVENTORY-001"
   "HAKORUNE-ENV-ALIAS-FIRST-CUT-001"
 )
-declare -A seen_ssot_tokens=()
-for ssot_token in "${SSOT_REQUIRED_TOKENS[@]}"; do
-  if [[ -n "${seen_ssot_tokens[$ssot_token]:-}" ]]; then
-    guard_fail "$TAG" "duplicate SSOT required token in guard: $ssot_token"
-  fi
-  seen_ssot_tokens[$ssot_token]=1
-done
+guard_require_unique_values "SSOT required token" "${SSOT_REQUIRED_TOKENS[@]}"
 for ssot_token in "${SSOT_REQUIRED_TOKENS[@]}"; do
   require_fixed "$ssot_token" "$SSOT"
 done
@@ -519,13 +522,7 @@ NAMING_DIFF_ALLOWED_PATHS=(
   "tools/checks/lib/dev_gate_quick_steps.sh"
   "CURRENT_TASK.md"
 )
-declare -A seen_naming_diff_allowed_paths=()
-for allowed_path in "${NAMING_DIFF_ALLOWED_PATHS[@]}"; do
-  if [[ -n "${seen_naming_diff_allowed_paths[$allowed_path]:-}" ]]; then
-    guard_fail "$TAG" "duplicate naming diff allowed path in guard: $allowed_path"
-  fi
-  seen_naming_diff_allowed_paths[$allowed_path]=1
-done
+guard_require_unique_values "naming diff allowed path" "${NAMING_DIFF_ALLOWED_PATHS[@]}"
 
 is_allowed_path() {
   local allowed_path

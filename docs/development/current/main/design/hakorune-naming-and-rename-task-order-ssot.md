@@ -815,6 +815,36 @@ git diff --check
 tools/checks/dev_gate.sh quick
 ```
 
+### HAKORUNE-NAMING-GUARD-DUPLICATE-CHECK-HELPER-001
+
+Status: active in this slice.
+
+Purpose: keep naming guard duplicate checks on one implementation path.
+
+Scope:
+
+- add one local `guard_require_unique_values` helper to
+  `tools/checks/naming_charter_guard.sh`;
+- make required-file, SSOT-token, and diff-allowlist duplicate checks call the
+  same helper;
+- keep duplicate diagnostics label-specific;
+- keep guarded lists and non-duplicate behavior unchanged.
+
+Affected script:
+
+```text
+tools/checks/naming_charter_guard.sh
+```
+
+Acceptance:
+
+```bash
+bash -n tools/checks/naming_charter_guard.sh
+bash tools/checks/naming_charter_guard.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
 ### HAKORUNE-NAMING-GUARD-SSOT-TOKEN-LIST-READABILITY-001
 
 Status: active in this slice.
