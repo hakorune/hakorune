@@ -760,7 +760,7 @@ tools/checks/dev_gate.sh quick
 
 ### HAKORUNE-NAMING-GUARD-REQUIRED-FILES-READABILITY-001
 
-Status: active in this slice.
+Status: landed guard-structure cut.
 
 Scope:
 
@@ -787,7 +787,7 @@ tools/checks/dev_gate.sh quick
 
 ### HAKORUNE-NAMING-GUARD-REQUIRED-FILES-DUPLICATE-CHECK-001
 
-Status: active in this slice.
+Status: landed guard-structure cut.
 
 Purpose: keep the naming guard's required-file list fail-fast when future
 cleanup slices accidentally add the same required file twice.
@@ -817,7 +817,7 @@ tools/checks/dev_gate.sh quick
 
 ### HAKORUNE-NAMING-GUARD-DUPLICATE-CHECK-HELPER-001
 
-Status: active in this slice.
+Status: landed guard-structure cut.
 
 Purpose: keep naming guard duplicate checks on one implementation path.
 
@@ -847,7 +847,7 @@ tools/checks/dev_gate.sh quick
 
 ### HAKORUNE-NAMING-GUARD-SSOT-TOKEN-LIST-READABILITY-001
 
-Status: active in this slice.
+Status: landed guard-structure cut.
 
 Scope:
 
@@ -875,7 +875,7 @@ tools/checks/dev_gate.sh quick
 
 ### HAKORUNE-NAMING-GUARD-DIFF-ALLOWLIST-SSOT-001
 
-Status: active in this slice.
+Status: landed guard-structure cut.
 
 Purpose: keep the naming guard's allowed diff paths in one local SSOT so the
 unstaged/cached diff scan and untracked-file scan cannot drift.
