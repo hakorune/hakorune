@@ -24,10 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-CONSTRUCTOR-CALL-ROUTE-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.
-  The constructor_call_route_label_formatter owner is HakoAdopted as the
-  twenty-second narrow Rust-oracle parity pilot; next is pilot selection rerun
-  022.
+  MIRBUILDER-PLANNER-RULE-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.
+  The planner_rule_label_formatter owner is HakoAdopted as the twenty-third
+  narrow Rust-oracle parity pilot; next is pilot selection rerun 023.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -63,24 +62,16 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-022
+  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-023
 
 current fail-fast boundary:
   Do not re-enter full converter route selection without new non-self-signed
   authority or stable input delta. The adopted pilot scopes are narrow pure
-  owners only: storage-class classification, placement-effect tag formatting,
-  static-scalar fact classification, and fixture-backed string corridor name
-  vocabulary classification, and same-module definition kind JSON-name
-  formatting, user-box method type-label formatting, and core-method carrier
-  token formatting, generic-method route fact token formatting, closure-call
-  shape classification, region ref-slot kind classification, loop route
-  kind label/id/flag formatting, thin-entry enum tag formatting, and
-  array-text observer executor contract enum tag formatting, and sum-local
-  aggregate layout tag formatting, string-kernel plan label formatting, and
-  array-text state/session residence label formatting and recent label
-  vocabulary formatters for Sum variants, MirType, effect/capability plans,
-  FastMemory proof kinds, and constructor call routes. Metadata refresh, route
-  collection, const emission, full AST traversal, method
+  owners only: classification/formatting vocabulary, tiny mutation-frame leaves,
+  label/tag surfaces, and fixture-backed parity helpers. Recent adopted
+  formatters cover Sum variants, MirType, effect/capability plans, FastMemory
+  proof kinds, constructor call routes, and planner rule labels. Metadata
+  refresh, route collection, const emission, full AST traversal, method
   dispatch, string corridor fact inference, same-module definition closure
   collection, receiver origin resolution, key route classification, route
   convergence, closure callsite canonicalization, NewClosure rewrite, lowering
@@ -94,16 +85,15 @@ current fail-fast boundary:
   route matching, payload extraction, helper emission, MirType tree traversal,
   global-call route collection, rune profile expansion, effect/capability plan
   construction/verification, FastMemory fact construction/region analysis,
-  constructor route collection/callee classification, and backend lowering
-  remain Rust.
+  constructor route collection/callee classification, planner order/selection,
+  and backend lowering remain Rust.
 
 latest design decision:
-  constructor_call_route_label_formatter is now HakoAdopted as a narrow
-  Rust-oracle parity pilot owner after a green 12-row `.hako` EXE parity gate.
-  Constructor route collection, callee classification, backend lowering, and
-  MIR mutation remain Rust.
+  planner_rule_label_formatter is now HakoAdopted as a narrow Rust-oracle
+  parity pilot owner after a green 42-row `.hako` EXE parity gate. Planner
+  order, planner rule selection, lowering, and MIR mutation remain Rust.
   The selected next card is
-  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-022`.
+  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-023`.
 
 historical route-selection decision:
   Detailed landed route-selection rows are closed as provenance and live in

@@ -1,0 +1,37 @@
+// planner_rule_label_formatter.hako - hand-authored planner label formatter
+//
+// Responsibility:
+// - format narrow MirBuilder planner rule vocabulary into Rust oracle text
+// - stay pure: scalar rule/field in, scalar text out
+//
+// Non-responsibility:
+// - planner order
+// - planner rule selection
+// - lowering
+// - MIR mutation
+static box PlannerRuleLabelFormatterBox {
+  format_label(rule, field) {
+    if rule == "LoopSimpleWhile" { return me.route(field, "LoopSimpleWhile", "LoopSimpleWhile", "loop_simple_while") }
+    if rule == "LoopBreakRecipe" { return me.route(field, "LoopBreakRecipe", "LoopBreakRecipe", "loop_break") }
+    if rule == "IfPhiJoin" { return me.route(field, "IfPhiJoin", "IfPhiJoin", "if_phi_join") }
+    if rule == "LoopContinueOnly" { return me.route(field, "LoopContinueOnly", "LoopContinueOnly", "loop_continue_only") }
+    if rule == "LoopTrueEarlyExit" { return me.route(field, "LoopTrueEarlyExit", "LoopTrueEarlyExit", "loop_true_early_exit") }
+    if rule == "ScanWithInit" { return me.route(field, "ScanWithInit", "ScanWithInit", "scan_with_init") }
+    if rule == "SplitScan" { return me.route(field, "SplitScan", "SplitScan", "split_scan") }
+    if rule == "BoolPredicateScan" { return me.route(field, "BoolPredicateScan", "BoolPredicateScan", "bool_predicate_scan") }
+    if rule == "AccumConstLoop" { return me.route(field, "AccumConstLoop", "AccumConstLoop", "accum_const_loop") }
+    if rule == "LoopTrueBreak" { return me.route(field, "LoopTrueBreak", "LoopTrueBreakContinue", "loop_true_break_continue") }
+    if rule == "LoopCondBreak" { return me.route(field, "LoopCondBreak", "LoopExitIfBreakContinue", "loop_cond_break_continue") }
+    if rule == "LoopCondContinueOnly" { return me.route(field, "LoopCondContinueOnly", "LoopContinueOnly", "loop_cond_continue_only") }
+    if rule == "LoopCondContinueWithReturn" { return me.route(field, "LoopCondContinueWithReturn", "LoopContinueWithReturn", "loop_cond_continue_with_return") }
+    if rule == "LoopCondReturnInBody" { return me.route(field, "LoopCondReturnInBody", "LoopReturnInBody", "loop_cond_return_in_body") }
+    return "unsupported_planner_rule_label"
+  }
+
+  route(field, tag_rule, display_label, route_label) {
+    if field == "tag_rule" { return tag_rule }
+    if field == "display_label" { return display_label }
+    if field == "route_label" { return route_label }
+    return "unsupported_planner_rule_label_field"
+  }
+}

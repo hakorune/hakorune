@@ -364,13 +364,14 @@ Latest adopted owner:
 
 ```text
 MIRBUILDER-CONSTRUCTOR-CALL-ROUTE-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001
+MIRBUILDER-PLANNER-RULE-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001
 ```
 
 Status:
 
 ```text
-constructor_call_route_label_formatter is HakoAdopted as the twenty-second
-narrow Rust-oracle parity pilot after a green 12-row `.hako` EXE parity gate. Source
+planner_rule_label_formatter is HakoAdopted as the twenty-third narrow
+Rust-oracle parity pilot after a green 42-row `.hako` EXE parity gate. Source
 Selfhost remains unclaimed.
 ```
 
@@ -379,10 +380,13 @@ Boundary:
 ```text
 Adopted:
   constructor call route label vocabulary formatting
+  planner rule tag/display/route label vocabulary formatting
 
 Still Rust:
   constructor route collection
   callee classification
+  planner order
+  planner rule selection
   backend lowering
   MIR mutation
 ```
@@ -390,7 +394,7 @@ Still Rust:
 Next:
 
 ```text
-MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-022
+MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-023
 ```
 
 Acceptance:
