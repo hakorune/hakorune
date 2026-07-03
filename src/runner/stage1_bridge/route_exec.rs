@@ -1,8 +1,8 @@
 /*!
- * Stage-1 bridge route executor.
+ * Phase-1 compatibility bridge route executor.
  *
  * Keeps route-to-executor dispatch thin while delegating direct-route and
- * stage1-stub execution policy to focused helpers.
+ * phase-1 stub execution policy to focused helpers.
  */
 
 mod direct;

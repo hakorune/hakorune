@@ -1,7 +1,7 @@
 /*!
- * Stage-1 bridge stub emit output helper.
+ * Phase-1 compatibility bridge stub emit output helper.
  *
- * Keeps Stage1 stub emit orchestration thin while delegating stdout
+ * Keeps phase-1 stub emit orchestration thin while delegating stdout
  * parse/validation and writeback policy to focused helpers.
  */
 

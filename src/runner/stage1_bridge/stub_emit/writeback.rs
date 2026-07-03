@@ -1,5 +1,5 @@
 /*!
- * Stage-1 bridge stub emit - writeback helper.
+ * Phase-1 compatibility bridge stub emit - writeback helper.
  */
 
 use super::parse::ParsedStage1StubEmitPayload;

@@ -1,5 +1,5 @@
 /*!
- * Stage-1 bridge binary-only direct route facade.
+ * Phase-1 compatibility bridge binary-only direct route facade.
  *
  * Keeps direct route entrypoints thin while delegating compile and emit-output
  * policy to focused helpers.

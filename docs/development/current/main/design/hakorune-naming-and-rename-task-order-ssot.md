@@ -2750,6 +2750,29 @@ tools/selfhost/stage3_same_result_check.sh renamed = 0
 historical check-scripts ledger rewritten = 0
 ```
 
+#### STAGE-TERM-STAGE1-BRIDGE-PHASE-COMMENT-WORDING-001
+
+Status: landed.
+
+Scope:
+
+```text
+src/runner/stage1_bridge/**:
+  update README titles and Rust file-header comments to phase-1 compatibility
+  wording
+```
+
+Non-claims:
+
+```text
+stage1_bridge path renamed = 0
+Stage1* Rust type names renamed = 0
+stage1_* modules/functions renamed = 0
+NYASH_STAGE1_* / HAKO_STAGE1_* env names renamed = 0
+[stage1-cli] log tags changed = 0
+expected stderr/smoke output changed = 0
+```
+
 ## Guard Policy
 
 `tools/checks/naming_charter_guard.sh` is a lightweight reusable guard. It does

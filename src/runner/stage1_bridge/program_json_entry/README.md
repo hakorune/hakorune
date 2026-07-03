@@ -1,4 +1,4 @@
-# Stage1 Bridge Program JSON Entry
+# Phase-1 Compatibility Bridge Program JSON Entry
 
 Scope: future-retire, explicit compat-only `emit-program-json-v0` entry helpers under `src/runner/stage1_bridge/program_json_entry/`.
 

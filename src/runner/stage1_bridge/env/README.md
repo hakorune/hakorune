@@ -1,4 +1,4 @@
-# Stage1 Bridge Child Env
+# Phase-1 Compatibility Bridge Child Env
 
 Scope: child environment wiring under `src/runner/stage1_bridge/env.rs`.
 

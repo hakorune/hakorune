@@ -1,4 +1,4 @@
-# Stage1 Bridge Stub Emit
+# Phase-1 Compatibility Bridge Stub Emit
 
 Scope: stub emit helpers under `src/runner/stage1_bridge/stub_emit/`.
 

@@ -1,5 +1,5 @@
 /*!
- * Stage-1 bridge entry guard helper.
+ * Phase-1 compatibility bridge entry guard helper.
  *
  * Owns child-recursion guard, top-level enablement guard, and bridge-entry
  * trace/debug logging so `mod.rs` stays focused on dispatch.

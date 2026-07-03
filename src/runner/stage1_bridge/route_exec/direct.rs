@@ -1,5 +1,5 @@
 /*!
- * Stage-1 bridge route executor - binary-only direct route helper.
+ * Phase-1 compatibility bridge route executor - binary-only direct route helper.
  */
 
 use crate::cli::CliGroups;

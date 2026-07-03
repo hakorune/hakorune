@@ -1,7 +1,7 @@
 /*!
- * Stage-1 CLI bridge - modules list collector
+ * Phase-1 compatibility CLI bridge - modules list collector
  *
- * Provides module mappings for Stage-1 CLI environment variables.
+ * Provides module mappings for phase-1 CLI compatibility environment variables.
  *
  * Source of truth priority:
  *   1) Embedded snapshot (default; binary-only safe)
@@ -403,7 +403,7 @@ fn collect_modules_list_from_doc(doc: &toml::Value, path: &Path) -> Option<Strin
 /// Returns a "|||"-separated list of "prefix=path" entries for HAKO_STAGE1_MODULE_ROOTS_LIST.
 /// HAKO_STAGEB_MODULE_ROOTS_LIST is kept as a mode-B compatibility alias.
 /// Entries are sorted by prefix length descending (longest match first) for the
-/// Stage-1 bridge payload and mode-B compatibility readers.
+/// Phase-1 compatibility bridge payload and mode-B compatibility readers.
 fn collect_module_roots_list_from_doc(doc: &toml::Value) -> Option<String> {
     let mut entries: Vec<(String, String)> = Vec::new();
     if let Some(roots) = doc.get("module_roots").and_then(|v| v.as_table()) {

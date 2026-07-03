@@ -1,5 +1,5 @@
 /*!
- * Stage-1 bridge emit output-path helper.
+ * Phase-1 compatibility bridge emit output-path helper.
  *
  * Centralizes bridge-local output-path resolution for stub emit and binary-only
  * direct emit routes.

@@ -1,5 +1,5 @@
 /*!
- * Stage-1 bridge child env - Stage-1 alias propagation section.
+ * Phase-1 compatibility bridge child env - phase-1 alias propagation section.
  *
  * Mirrors the unified `NYASH_STAGE1_*` contract for child processes while
  * keeping legacy alias handling out of the facade.

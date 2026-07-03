@@ -1,11 +1,11 @@
 /*!
- * Stage-1 CLI bridge - child environment facade
+ * Phase-1 compatibility CLI bridge - child environment facade
  *
  * Keeps one child-env entrypoint for the bridge while delegating each policy
  * section to a focused helper module:
  * - runtime defaults
- * - Stage-1 alias propagation
- * - parser / Stage-1 using toggles and mode-B compatibility aliases
+ * - phase-1 compatibility alias propagation
+ * - parser / phase-1 using toggles and mode-B compatibility aliases
  */
 
 mod parser_stageb;
@@ -22,7 +22,7 @@ pub(super) struct Stage1ChildEnvConfig<'a> {
     pub(super) module_env_lists: Stage1ModuleEnvLists,
 }
 
-/// Configure environment variables for Stage-1 CLI child process.
+/// Configure environment variables for the phase-1 CLI child process.
 ///
 /// Child env policy stays split by responsibility so callers keep a single
 /// bridge-local entrypoint without reintroducing mixed mode/backend parsing.

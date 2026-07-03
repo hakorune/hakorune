@@ -1,5 +1,5 @@
 /*!
- * Stage-1 bridge binary-only direct route - MIR compilation helper.
+ * Phase-1 compatibility bridge binary-only direct route - MIR compilation helper.
  */
 
 use crate::cli::CliGroups;

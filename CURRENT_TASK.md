@@ -95,6 +95,7 @@ STAGE-TERM-PIPELINE-V2-COMMENT-WORDING-001
 STAGE-TERM-JOINIR-LOWERING-COMMENT-WORDING-001
 STAGE-TERM-LANG-README-PHASE-WORDING-001
 STAGE-TERM-DOCS-TOOLS-QUICK-ENTRY-WORDING-001
+STAGE-TERM-STAGE1-BRIDGE-PHASE-COMMENT-WORDING-001
 ```
 
 `--syntax-3` is now the frontend syntax-level spelling; `--stage3` remains a
@@ -160,8 +161,10 @@ compatibility, or mode-B compatibility wording while keeping `stage1_*`,
 `build_stage1.sh`, `target/selfhost/hakorune`, and legacy `stage0`/`stage1`
 boundary references explicit compatibility vocabulary. `docs/tools` quick
 entries now use phase-1 / syntax-3 wording while preserving compatibility
-script names and not rewriting the historical guard ledger. Next safe naming
-work, if explicitly selected, must pick a
+script names and not rewriting the historical guard ledger. Stage1 bridge
+README and file-header comments now use phase-1 compatibility wording while
+preserving `stage1_*`, `Stage1*`, env names, log tags, and expected stderr.
+Next safe naming work, if explicitly selected, must pick a
 different classified layer from that inventory and keep compatibility aliases
 or replacement routes in the same slice.
 

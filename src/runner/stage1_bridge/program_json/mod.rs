@@ -1,4 +1,4 @@
-//! Stage1 bridge Program(JSON v0) emit facade.
+//! Phase-1 compatibility bridge Program(JSON v0) emit facade.
 //!
 //! Keep the bridge root focused on routing while `program_json/orchestrator.rs`
 //! owns source-text read, bridge-local read->emit->write orchestration, and

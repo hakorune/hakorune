@@ -1,5 +1,5 @@
 /*!
- * Stage-1 bridge route executor - stage1 stub helper.
+ * Phase-1 compatibility bridge route executor - phase-1 stub helper.
  */
 
 use super::super::args::{Stage1Args, Stage1StubExecPlan};

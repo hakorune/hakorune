@@ -1,5 +1,5 @@
 /*!
- * Stage-1 bridge stub emit - stdout parse / validation helper.
+ * Phase-1 compatibility bridge stub emit - stdout parse / validation helper.
  */
 
 use super::Stage1StubEmitMode;

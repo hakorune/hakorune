@@ -1,8 +1,8 @@
 /*!
- * Stage-1 bridge stub delegate-status executor.
+ * Phase-1 compatibility bridge stub delegate-status executor.
  *
  * Owns plain child-status execution, delegation log emission, and spawn-failure
- * mapping for the future-retire stage1 stub lane.
+ * mapping for the future-retire phase-1 stub lane.
  */
 
 use super::stub_child::PreparedStage1StubChild;

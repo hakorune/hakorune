@@ -865,6 +865,37 @@ docs/tools/check-scripts-index.md historical ledger rewritten = 0
 runtime behavior changed = 0
 ```
 
+## Landed Stage1 Bridge Phase Comment Wording Slice
+
+`STAGE-TERM-STAGE1-BRIDGE-PHASE-COMMENT-WORDING-001` changes current
+`src/runner/stage1_bridge/**` README titles and Rust file-header comments from
+unqualified Stage-1 / Stage1 wording to phase-1 compatibility wording.
+
+Scope:
+
+```text
+src/runner/stage1_bridge/README.md:
+  bridge ownership and route-facade comments say phase-1 compatibility
+
+src/runner/stage1_bridge/**/README.md:
+  helper-local README titles use phase-1 compatibility bridge wording
+
+src/runner/stage1_bridge/**/*.rs:
+  selected file-header comments use phase-1 compatibility wording
+```
+
+Non-claims:
+
+```text
+stage1_bridge directory renamed = 0
+Stage1* type names renamed = 0
+stage1_* module/function names renamed = 0
+NYASH_STAGE1_* / HAKO_STAGE1_* env names renamed = 0
+[stage1-cli] log tags changed = 0
+smoke expected stderr changed = 0
+embedded_stage1_modules_snapshot.json touched = 0
+```
+
 ## Migration Eligibility
 
 An occurrence is eligible for a future rename only if all conditions hold:

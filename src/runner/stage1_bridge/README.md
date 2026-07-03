@@ -1,6 +1,6 @@
-# Stage1 Bridge
+# Phase-1 Compatibility Bridge
 
-Scope: Rust-side Stage-1 bridge glue in `src/runner/stage1_bridge/`.
+Scope: Rust-side phase-1 compatibility bridge glue in `src/runner/stage1_bridge/`.
 
 ## Status
 
@@ -9,7 +9,7 @@ Scope: Rust-side Stage-1 bridge glue in `src/runner/stage1_bridge/`.
 - explicit `emit-program-json-v0` route is compat-only / deprecated-now on the public boundary and must not be described as a day-to-day CLI route
 - public route-family SSOT is `docs/development/current/main/design/json-v0-route-map-ssot.md`
 - keep bridge logic thin and explicit
-- `Stage1` / `Stage2` are artifact/proof names in `tools/selfhost/**`, not a reason to create parallel Rust owner directories here
+- `Stage1` / `Stage2` are legacy artifact/proof compatibility names in `tools/selfhost/**`, not a reason to create parallel Rust owner directories here
 - keep physical split as `src/stage1/**` (authority/bootstrap boundary) vs `src/runner/stage1_bridge/**` (future-retire bridge shell)
 
 ## Program JSON Rule
@@ -17,14 +17,14 @@ Scope: Rust-side Stage-1 bridge glue in `src/runner/stage1_bridge/`.
 - treat `Program(JSON v0)` as compat/bootstrap-only, retire-target, and explicit/probe-only on the public CLI surface
 - do not describe this route as the mainline JSON boundary; mainline boundary is `MIR(JSON)`
 
-- Stage1 bridge mode classification is fixed in `args.rs::Stage1ArgsMode`
+- Phase-1 bridge mode classification is fixed in `args.rs::Stage1ArgsMode`
 - backend CLI hint extraction is fixed in `args.rs::Stage1Args::backend_cli_hint()` and only forwarded to explicit legacy override entry paths
 - bridge entry child/enable guard + trace logging live in `entry_guard.rs`
 - stub capture-vs-delegate contract is fixed in `args.rs::Stage1Args::stub_exec_plan()`
 - exact execution plan selection is fixed in `plan.rs::Stage1BridgePlan`
 - `route_exec.rs` is a thin route-to-executor facade
 - binary-only direct route execution and direct-route exit-code mapping live in `route_exec/direct.rs`
-- Stage1 stub route facade lives in `route_exec/stub.rs`
+- Phase-1 stub route facade lives in `route_exec/stub.rs`
 - binary-only direct route facade lives in `direct_route/mod.rs`
 - binary-only direct-route MIR compile lives in `direct_route/compile.rs`
 - binary-only direct-route MIR output-path policy and JSON write live in `direct_route/emit.rs`
@@ -36,14 +36,14 @@ Scope: Rust-side Stage-1 bridge glue in `src/runner/stage1_bridge/`.
 - exact success/error process-exit formatting for that route now lives in `program_json_entry/exit.rs`
 - outer callers should use the `program_json_entry` module helpers directly; this contract is no longer rebound as `NyashRunner` methods
 - `emit_program_json_v0(...)` must use `stage1::program_json_v0::emit_program_json_v0_for_stage1_bridge_emit_program_json(...)`
-- Stage1 stub entry resolution + child command/env assembly + prepare-failure mapping live in `stub_child.rs`
-- Stage1 stub plain delegate-status execution + child-spawn-failure mapping live in `stub_delegate.rs`
+- Phase-1 stub entry resolution + child command/env assembly + prepare-failure mapping live in `stub_child.rs`
+- Phase-1 stub plain delegate-status execution + child-spawn-failure mapping live in `stub_delegate.rs`
 - stub emit facade lives in `stub_emit.rs`
 - stub emit stdout parse / validation live in `stub_emit/parse.rs`
 - stub emit writeback policy lives in `stub_emit/writeback.rs`
 - child env policy stays behind `env.rs` and `env/README.md`
 - runtime defaults live in `env/runtime_defaults.rs`
-- Stage-1 alias propagation lives in `env/stage1_aliases.rs`; default `stage1_cli_env.hako` entry paths stay backend-hint free unless an explicit override is selected
+- Phase-1 compatibility alias propagation lives in `env/stage1_aliases.rs`; default `stage1_cli_env.hako` entry paths stay backend-hint free unless an explicit override is selected
 - parser / using toggle propagation lives in `env/parser_stageb.rs`
 - mode-B compatibility module payload generation + child-env apply live in `modules.rs`
 - `embedded_stage1_modules_snapshot.json` is a derived artifact for binary-only default route; refresh it via `tools/selfhost/refresh_stage1_module_env_snapshot.sh`, do not hand-edit it

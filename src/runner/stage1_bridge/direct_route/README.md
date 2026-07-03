@@ -1,4 +1,4 @@
-# Stage1 Bridge Direct Route
+# Phase-1 Compatibility Bridge Direct Route
 
 Scope: binary-only direct route helpers under `src/runner/stage1_bridge/direct_route/`.
 
@@ -11,7 +11,7 @@ Scope: binary-only direct route helpers under `src/runner/stage1_bridge/direct_r
 
 ## Forbidden
 
-- stage1 stub route orchestration here
+- phase-1 stub route orchestration here
 - route-to-executor dispatch here
 - child env policy here
 - `Program(JSON v0)` compatibility policy here

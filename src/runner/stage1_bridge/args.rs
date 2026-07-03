@@ -1,5 +1,5 @@
 /*!
- * Stage-1 CLI bridge - args builder
+ * Phase-1 compatibility CLI bridge - args builder
  *
  * Constructs stage1_args based on execution mode (emit_program / emit_mir / run).
  * The resulting raw/subcmd lane is a non-authority future-retire target;
@@ -11,7 +11,7 @@ use crate::config::env::stage1;
 use serde_json;
 use std::process;
 
-/// Stage-1 args construction result
+/// Phase-1 compatibility args mode.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) enum Stage1ArgsMode {
     EmitProgramJsonV0,
@@ -31,7 +31,7 @@ pub(super) enum Stage1StubExecPlan {
     DelegateStatus,
 }
 
-/// Stage-1 args construction result
+/// Phase-1 compatibility args construction result.
 #[derive(Debug)]
 pub(super) struct Stage1Args {
     pub mode: Stage1ArgsMode,

@@ -1,4 +1,4 @@
-# Stage1 Bridge Route Exec
+# Phase-1 Compatibility Bridge Route Exec
 
 Scope: route execution helpers under `src/runner/stage1_bridge/route_exec/`.
 
@@ -6,8 +6,8 @@ Scope: route execution helpers under `src/runner/stage1_bridge/route_exec/`.
 
 - `../route_exec.rs`: facade (`execute(...)`) only
 - `direct.rs`: binary-only direct route execution, route-local logging, bridge direct-route exit-code mapping
-- `stub.rs`: stage1 stub route facade (prepare + capture-vs-delegate only)
-- `../stub_delegate.rs`: plain stage1 stub delegate-status execution, spawn-failure mapping, stub delegation log
+- `stub.rs`: phase-1 stub route facade (prepare + capture-vs-delegate only)
+- `../stub_delegate.rs`: plain phase-1 stub delegate-status execution, spawn-failure mapping, stub delegation log
 
 ## Contract
 

@@ -1,5 +1,5 @@
 /*!
- * Stage-1 bridge child env - parser and mode-B compatibility toggles section.
+ * Phase-1 compatibility bridge child env - parser and mode-B compatibility toggles section.
  *
  * Keeps parser feature propagation separate from runtime defaults and Stage-1
  * alias promotion. mode-B module payload apply stays owned by `modules.rs`.

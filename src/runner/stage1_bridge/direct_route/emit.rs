@@ -1,5 +1,5 @@
 /*!
- * Stage-1 bridge binary-only direct route - emit-output helper.
+ * Phase-1 compatibility bridge binary-only direct route - emit-output helper.
  */
 
 use crate::mir::MirModule;

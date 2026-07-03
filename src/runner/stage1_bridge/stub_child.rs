@@ -1,7 +1,7 @@
 /*!
- * Stage-1 bridge stub child command builder.
+ * Phase-1 compatibility bridge stub child command builder.
  *
- * Keeps Stage1 stub entry resolution and child command/env construction outside
+ * Keeps phase-1 stub entry resolution and child command/env construction outside
  * `mod.rs` so the future-retire bridge root stays focused on route dispatch.
  */
 
@@ -12,7 +12,7 @@ use crate::config::env::stage1;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
-// Default embedded child entry stays on the env authority so the stage1 stub
+// Default embedded child entry stays on the env authority so the phase-1 stub
 // preserves payload materialization instead of falling back to the raw lane.
 const EMBEDDED_STAGE1_ENTRY_SRC: &str =
     include_str!("../../../lang/src/runner/stage1_cli_env.hako");

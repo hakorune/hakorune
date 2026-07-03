@@ -1,7 +1,7 @@
 /*!
- * Stage-1 bridge route plan selector.
+ * Phase-1 compatibility bridge route plan selector.
  *
- * Centralizes "direct route vs stage1 stub route" decision in one place.
+ * Centralizes "direct route vs phase-1 stub route" decision in one place.
  */
 
 use super::args::{Stage1Args, Stage1ArgsMode};

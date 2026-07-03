@@ -1,5 +1,5 @@
 /*!
- * Stage-1 bridge child env - runtime defaults section.
+ * Phase-1 compatibility bridge child env - runtime defaults section.
  *
  * Keeps bridge-local runtime defaults and mainline MIR builder locks out of the
  * top-level child-env facade.
