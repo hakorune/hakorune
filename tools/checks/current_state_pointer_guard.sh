@@ -5,6 +5,7 @@ ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 TAG="current-state-pointer-guard"
 source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
 MAX_TASK_ORDER_LINES=800
+MAX_LANDED_TAIL_ROWS=12
 
 STATE_DOC="$ROOT_DIR/docs/development/current/main/CURRENT_STATE.toml"
 CURRENT_TASK_DOC="$ROOT_DIR/CURRENT_TASK.md"
@@ -44,6 +45,33 @@ require_scalar() {
     guard_fail "$TAG" "CURRENT_STATE.toml missing scalar: $key"
   fi
   printf '%s' "$value"
+}
+
+count_landed_tail_rows() {
+  awk '
+    BEGIN {
+      in_tail = 0
+      found = 0
+      count = 0
+    }
+    /^[[:space:]]*landed_tail[[:space:]]*=[[:space:]]*\[/ {
+      in_tail = 1
+      next
+    }
+    in_tail && /^[[:space:]]*\]/ {
+      found = 1
+      print count
+      exit
+    }
+    in_tail && /^[[:space:]]*"/ {
+      count += 1
+    }
+    END {
+      if (!found) {
+        exit 2
+      }
+    }
+  ' "$STATE_DOC"
 }
 
 active_lane="$(require_scalar active_lane)"
@@ -88,6 +116,13 @@ if [[ -n "$latest_workstream_card" ]]; then
 fi
 require_repo_file "$latest_card_path" "latest_card_path"
 require_repo_file "$current_update_policy" "current_update_policy"
+
+if ! landed_tail_rows="$(count_landed_tail_rows)"; then
+  guard_fail "$TAG" "CURRENT_STATE.toml missing landed_tail array"
+fi
+if (( landed_tail_rows > MAX_LANDED_TAIL_ROWS )); then
+  guard_fail "$TAG" "CURRENT_STATE.toml landed_tail exceeds ${MAX_LANDED_TAIL_ROWS} rows: $landed_tail_rows"
+fi
 
 if [[ "$latest_card_path" != *"$latest_card"* ]]; then
   guard_fail "$TAG" "latest_card_path does not contain latest_card: $latest_card -> $latest_card_path"

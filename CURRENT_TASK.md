@@ -1,7 +1,7 @@
 # CURRENT_TASK
 
 Status: SSOT pointer
-Date: 2026-06-24
+Date: 2026-07-03
 Scope: root restart anchor only. Do not store landed history here.
 
 ## Quick Restart
@@ -38,3 +38,20 @@ owner.
 
 Current implementation details, acceptance, parked items, and non-claims live in
 the active card and task-order SSOT. Do not duplicate them here.
+
+## Immediate Maintenance Slice
+
+Scope: current-state hygiene only.
+
+- enforce the existing `landed_tail` target maximum in
+  `tools/checks/current_state_pointer_guard.sh`
+- trim `docs/development/current/main/CURRENT_STATE.toml` `landed_tail` back to
+  the policy target
+- do not remove tracked artifacts, `local_tests`, or backend lanes in this slice
+
+Acceptance:
+
+```bash
+bash tools/checks/current_state_pointer_guard.sh
+tools/checks/dev_gate.sh quick
+```
