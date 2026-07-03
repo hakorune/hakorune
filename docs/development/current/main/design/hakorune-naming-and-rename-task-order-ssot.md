@@ -668,6 +668,42 @@ git diff --check
 tools/checks/dev_gate.sh quick
 ```
 
+### HAKORUNE-SELFHOST-EXE-STAGEB-BINARY-RESOLUTION-001
+
+Status: active in this slice.
+
+Scope:
+
+- rename `tools/selfhost_exe_stageb.sh` internal binary resolver to
+  Hakorune-first terminology;
+- keep `target/release/nyash` only behind explicit Hakorune-first resolver
+  fallback;
+- keep legacy `NYASH_BIN` override behavior untouched in this slice;
+- keep direct and stageb-delegate emit routes untouched in this slice.
+
+Contract:
+
+```text
+primary:
+  target/release/hakorune
+
+compat fallback:
+  target/release/nyash
+  used only if primary is absent
+
+override:
+  NYASH_BIN
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+bash tools/selfhost_exe_stageb.sh --help
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
 ### STAGE-TERM-EXISTING-NAME-MIGRATION-001
 
 Status: defined, not implementation.

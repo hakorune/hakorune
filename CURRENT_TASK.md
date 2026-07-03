@@ -41,18 +41,20 @@ the active card and task-order SSOT. Do not duplicate them here.
 
 ## Immediate Maintenance Slice
 
-Scope: Hakorune engineering parity helper binary cutover.
+Scope: Hakorune selfhost EXE Stage-B helper binary resolution naming.
 
-- make `tools/engineering/parity.sh` invoke `hakorune` before legacy `nyash`
-- keep `target/release/nyash` only behind explicit Hakorune-first resolver fallback
+- rename the internal resolver in `tools/selfhost_exe_stageb.sh` to
+  Hakorune-first terminology
+- keep `target/release/nyash` only behind explicit Hakorune-first resolver
+  fallback
 - keep package/crate/plugin/ABI/tool names untouched in this slice
-- keep legacy `NYASH_*` behavior/env names untouched in this slice
+- keep legacy `NYASH_BIN` override behavior untouched in this slice
 
 Acceptance:
 
 ```bash
 bash tools/checks/naming_charter_guard.sh
-tools/engineering/parity.sh --help
+bash tools/selfhost_exe_stageb.sh --help
 git diff --check
 tools/checks/dev_gate.sh quick
 ```

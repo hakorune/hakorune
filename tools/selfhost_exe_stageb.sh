@@ -19,8 +19,17 @@ set -euo pipefail
 
 OUT="a.out"
 DO_RUN=0
-if [[ $# -lt 1 ]]; then
+usage() {
   echo "Usage: $0 <input.hako> [-o <out>] [--run]" >&2
+}
+
+if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
+  usage
+  exit 0
+fi
+
+if [[ $# -lt 1 ]]; then
+  usage
   exit 2
 fi
 
@@ -57,7 +66,7 @@ load_stageb_delegate_helpers() {
   STAGEB_DELEGATE_HELPERS_LOADED=1
 }
 
-resolve_nyash_bin() {
+resolve_hakorune_bin() {
   if [[ -z "${NYASH_BIN:-}" ]]; then
     if [[ -x "$ROOT_DIR/target/release/hakorune" ]]; then
       NYASH_BIN="$ROOT_DIR/target/release/hakorune"
@@ -66,7 +75,8 @@ resolve_nyash_bin() {
     fi
   fi
   if [[ ! -x "$NYASH_BIN" ]]; then
-    echo "[emit] error: nyash/hakorune binary not found: $NYASH_BIN" >&2
+    echo "[emit] error: hakorune binary not found: $NYASH_BIN" >&2
+    echo "       compat fallback checked: $ROOT_DIR/target/release/nyash" >&2
     echo "       hint: run cargo build --release --bin hakorune" >&2
     exit 2
   fi
@@ -250,7 +260,7 @@ emit_mir_stageb_delegate() {
   return 0
 }
 
-resolve_nyash_bin
+resolve_hakorune_bin
 
 case "$EMIT_ROUTE" in
   stageb-delegate)
