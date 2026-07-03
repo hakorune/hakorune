@@ -1,0 +1,31 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderHakoNativeOwnerParityPilotSelectionRerun059V1",
+  "token": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-059",
+  "previous_adoption_decision": {
+    "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-emit-guard-value-id-list-formatter-hako-adoption-decision-v0.json",
+    "hash": "sha256:9d1571dc90d816865335d6d99e88c8ddc1f37cd259f50fea023c06aec28f5227"
+  },
+  "selected_owner": {
+    "owner_id": "emit_guard_short_inst_name_formatter",
+    "rust_source": "src/mir/builder/emit_guard/mod.rs",
+    "oracle_surface": "short_inst_name diagnostic string formatting",
+    "selection_reason": "Pure emit-guard diagnostic label owner with scalar instruction-kind input and no MIR mutation."
+  },
+  "decision": {
+    "kind": "SelectRustOracleFixture",
+    "reason_token": "EmitGuardShortInstNameFormatterSelected",
+    "selected_next_card": "MIRBUILDER-EMIT-GUARD-SHORT-INST-NAME-FORMATTER-RUST-ORACLE-FIXTURE-001"
+  },
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "instruction_analysis_migration": 0,
+    "emit_guard_scope_check_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

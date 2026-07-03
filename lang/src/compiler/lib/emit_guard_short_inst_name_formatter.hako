@@ -1,0 +1,24 @@
+// emit_guard_short_inst_name_formatter.hako
+//
+// Responsibility:
+// - format narrow emit-guard instruction-kind diagnostic labels
+// - stay pure: scalar instruction-kind token in, scalar text out
+//
+// Non-responsibility:
+// - instruction analysis
+// - emit-guard scope validation
+// - MIR mutation
+static box EmitGuardShortInstNameFormatterBox {
+  format_label(kind) {
+    if kind == "Const" { return "Const" }
+    if kind == "Copy" { return "Copy" }
+    if kind == "BinOp" { return "BinOp" }
+    if kind == "Compare" { return "Compare" }
+    if kind == "StaticDataLoad" { return "StaticDataLoad" }
+    if kind == "Call" { return "Call" }
+    if kind == "Phi" { return "Phi" }
+    if kind == "TypeOp" { return "TypeOp" }
+    if kind == "Return" { return "Return" }
+    return "Other"
+  }
+}

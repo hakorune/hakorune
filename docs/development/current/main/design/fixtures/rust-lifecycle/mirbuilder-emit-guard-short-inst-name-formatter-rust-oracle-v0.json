@@ -1,0 +1,34 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderEmitGuardShortInstNameFormatterRustOracleV1",
+  "token": "MIRBUILDER-EMIT-GUARD-SHORT-INST-NAME-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "emit_guard_short_inst_name_formatter",
+  "rust_source": {
+    "path": "src/mir/builder/emit_guard/mod.rs",
+    "hash": "sha256:2dbc794d212e3644e1c3029187633971ac610a6e7033749146592835df338877",
+    "oracle_surface": "short_inst_name diagnostic string formatting"
+  },
+  "rows": [
+    {"inst_kind": "Const", "expected": "Const"},
+    {"inst_kind": "Copy", "expected": "Copy"},
+    {"inst_kind": "BinOp", "expected": "BinOp"},
+    {"inst_kind": "Compare", "expected": "Compare"},
+    {"inst_kind": "StaticDataLoad", "expected": "StaticDataLoad"},
+    {"inst_kind": "Call", "expected": "Call"},
+    {"inst_kind": "Phi", "expected": "Phi"},
+    {"inst_kind": "TypeOp", "expected": "TypeOp"},
+    {"inst_kind": "Return", "expected": "Return"},
+    {"inst_kind": "Other", "expected": "Other"}
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "instruction_analysis_migration": 0,
+    "emit_guard_scope_check_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

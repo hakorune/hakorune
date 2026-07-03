@@ -24,9 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-EMIT-GUARD-VALUE-ID-LIST-FORMATTER-HAKO-ADOPTION-DECISION-001.
-  The emit_guard_value_id_list_formatter owner is HakoAdopted as the fifty-ninth
-  narrow Rust-oracle parity pilot; next is rerun 059.
+  MIRBUILDER-EMIT-GUARD-SHORT-INST-NAME-FORMATTER-HAKO-ADOPTION-DECISION-001.
+  The emit_guard_short_inst_name_formatter owner is HakoAdopted as the sixtieth
+  narrow Rust-oracle parity pilot; next is rerun 060.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-059
+  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-060
 
 current fail-fast boundary:
   Do not re-enter full converter route selection without new non-self-signed
@@ -110,15 +110,15 @@ current fail-fast boundary:
   generation, publication-site MIR mutation, Copy instruction emission,
   dominance checks, test-only copy-emission reasons, CorePlan/Facts flowbox
   classification, facts-to-feature extraction, tag emission, Freeze contract,
-  stderr write, Callee/ValueId analysis, emit-guard scope validation, and route
-  selection remain Rust.
+  stderr write, Callee/ValueId analysis, emit-guard instruction analysis,
+  emit-guard scope validation, and route selection remain Rust.
 
 latest design decision:
-  emit_guard_value_id_list_formatter is now HakoAdopted as a narrow Rust-oracle
-  parity pilot owner after a green 4-row `.hako` EXE parity gate. ValueId
-  analysis, emit-guard scope validation, and MIR mutation remain Rust.
+  emit_guard_short_inst_name_formatter is now HakoAdopted as a narrow
+  Rust-oracle parity pilot owner after a green 10-row `.hako` EXE parity gate.
+  Instruction analysis, emit-guard scope validation, and MIR mutation remain Rust.
   The selected next card is
-  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-059`.
+  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-060`.
 
 historical route-selection decision:
   Detailed landed route-selection rows are closed as provenance and live in
@@ -770,25 +770,10 @@ Tracker:
 docs/development/current/main/design/perf-owner-first-optimization-ssot.md
 ```
 
-Current status:
-
-```text
-fastpath_analysis_ready=accepted framework
-exact_aot_fastpath_sweep=closed_no_fresh_owner
-primitive_family_fastpath=provisional_design_only
-speed_goal_blocker=backend_lowering_consumer_missing
-optimization_open=0
-```
-
-Parked task order when perf/backend work reopens:
-
-```text
-1. Inventory fast-path fact consumers.
-2. Implement the first backend fact consumer.
-   preferred first target: DirectArrayI64 / ArrayBox i64 lowering
-3. Measure exact / meso / whole fronts.
-4. Select the next owner only after measurement.
-```
+Current status: accepted resolver framework; exact-AOT sweep closed with no
+fresh owner; primitive-family remains provisional; backend lowering consumer is
+the speed blocker. Parked order when perf/backend reopens: inventory consumers,
+implement the first backend fact consumer, measure, then select next owner.
 
 Do not block MirBuilder migration on this backlog. Do not add Hako syntax for
 fast paths. Backend facts must be consumed by lowering before claiming speed.
