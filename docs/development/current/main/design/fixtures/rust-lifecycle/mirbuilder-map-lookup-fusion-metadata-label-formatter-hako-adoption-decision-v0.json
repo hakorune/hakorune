@@ -1,0 +1,29 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderMapLookupFusionMetadataLabelFormatterHakoAdoptionDecisionV1",
+  "token": "MIRBUILDER-MAP-LOOKUP-FUSION-METADATA-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001",
+  "owner": "map_lookup_fusion_metadata_label_formatter",
+  "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-map-lookup-fusion-metadata-label-formatter-rust-oracle-v0.json",
+  "hako_implementation": "lang/src/compiler/lib/map_lookup_fusion_metadata_label_formatter.hako",
+  "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_map_lookup_fusion_metadata_label_formatter_parity_gate.sh",
+  "parity_result": {
+    "parity_rows": 5,
+    "parity_status": "green"
+  },
+  "decision": {
+    "kind": "HakoAdopted",
+    "reason_token": "MapLookupFusionMetadataLabelFormatterParityGreen",
+    "selected_next_card": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-067"
+  },
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "map_lookup_fusion_route_derivation_migration": 0,
+    "generic_method_route_analysis_migration": 0,
+    "map_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

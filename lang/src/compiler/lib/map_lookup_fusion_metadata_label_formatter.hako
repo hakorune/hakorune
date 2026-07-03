@@ -1,0 +1,31 @@
+// map_lookup_fusion_metadata_label_formatter.hako
+//
+// Responsibility:
+// - format narrow MapLookupFusion metadata label vocabulary
+// - stay pure: enum token in, label token out
+//
+// Non-responsibility:
+// - map lookup fusion route derivation
+// - generic method route analysis
+// - map lowering
+// - MIR mutation
+static box MapLookupFusionMetadataLabelFormatterBox {
+  fusion_op(op) {
+    if op == "MapLookupSameKey" { return "MapLookupSameKey" }
+    return "unsupported_map_lookup_fusion_op"
+  }
+
+  fusion_proof(proof) {
+    if proof == "SameReceiverSameI64KeyScalarGetHas" {
+      return "same_receiver_same_i64_key_scalar_get_has"
+    }
+    return "unsupported_map_lookup_fusion_proof"
+  }
+
+  stored_value_proof(proof) {
+    if proof == "UnknownScalar" { return "unknown_scalar" }
+    if proof == "ScalarI64Const" { return "scalar_i64_const" }
+    if proof == "ScalarI64NonZero" { return "scalar_i64_nonzero" }
+    return "unsupported_map_lookup_stored_value_proof"
+  }
+}

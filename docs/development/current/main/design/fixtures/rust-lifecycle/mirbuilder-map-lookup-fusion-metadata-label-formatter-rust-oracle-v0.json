@@ -1,0 +1,30 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderMapLookupFusionMetadataLabelFormatterRustOracleV1",
+  "token": "MIRBUILDER-MAP-LOOKUP-FUSION-METADATA-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "map_lookup_fusion_metadata_label_formatter",
+  "rust_source": {
+    "path": "src/mir/map_lookup_fusion_plan.rs",
+    "hash": "sha256:1bfe12bc53751aeb29a14075c5475088c8aff42ddb9e92958be81dced5701b3e",
+    "oracle_surface": "MapLookupFusion metadata label vocabulary"
+  },
+  "rows": [
+    {"kind": "fusion_op", "input": "MapLookupSameKey", "expected": "MapLookupSameKey"},
+    {"kind": "fusion_proof", "input": "SameReceiverSameI64KeyScalarGetHas", "expected": "same_receiver_same_i64_key_scalar_get_has"},
+    {"kind": "stored_value_proof", "input": "UnknownScalar", "expected": "unknown_scalar"},
+    {"kind": "stored_value_proof", "input": "ScalarI64Const", "expected": "scalar_i64_const"},
+    {"kind": "stored_value_proof", "input": "ScalarI64NonZero", "expected": "scalar_i64_nonzero"}
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "map_lookup_fusion_route_derivation_migration": 0,
+    "generic_method_route_analysis_migration": 0,
+    "map_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

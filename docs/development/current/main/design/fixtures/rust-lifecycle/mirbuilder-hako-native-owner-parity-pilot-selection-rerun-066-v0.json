@@ -1,0 +1,32 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderHakoNativeOwnerParityPilotSelectionRerun066V1",
+  "token": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-066",
+  "previous_adoption_decision": {
+    "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-mem-op-kind-label-formatter-hako-adoption-decision-v0.json",
+    "hash": "sha256:5a95544c7941ebafa3cac01c4919e5c2d6bd25afa795500421421db057140f42"
+  },
+  "selected_owner": {
+    "owner_id": "map_lookup_fusion_metadata_label_formatter",
+    "rust_source": "src/mir/map_lookup_fusion_plan.rs",
+    "oracle_surface": "MapLookupFusion metadata label vocabulary",
+    "selection_reason": "Pure metadata label vocabulary formatter with scalar enum-token input and no route derivation."
+  },
+  "decision": {
+    "kind": "SelectRustOracleFixture",
+    "reason_token": "MapLookupFusionMetadataLabelFormatterSelected",
+    "selected_next_card": "MIRBUILDER-MAP-LOOKUP-FUSION-METADATA-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001"
+  },
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "map_lookup_fusion_route_derivation_migration": 0,
+    "generic_method_route_analysis_migration": 0,
+    "map_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}
