@@ -77,6 +77,7 @@ SOURCE-SELFHOST-RUST-TO-HAKO-CONVERTER-ROLE-PIVOT-001
   -> MIRBUILDER-USER-BOX-METHOD-TYPE-LABEL-FORMATTER-HAKO-NATIVE-IMPLEMENTATION-001
   -> MIRBUILDER-USER-BOX-METHOD-TYPE-LABEL-FORMATTER-PARITY-GATE-001
   -> MIRBUILDER-USER-BOX-METHOD-TYPE-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001
+  -> MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-006
 ```
 
 Rule:
@@ -114,6 +115,7 @@ user_box_method_type_label_formatter is selected as the sixth parity pilot; next
 user_box_method_type_label_formatter has a 10-row Rust-oracle fixture; next is hand-authored .hako implementation
 user_box_method_type_label_formatter has hand-authored .hako implementation; next is parity gate
 user_box_method_type_label_formatter parity gate is green; next is HakoAdoption decision
+user_box_method_type_label_formatter is HakoAdopted as the sixth parity pilot; next is pilot selection rerun 006
 ```
 
 ## Immediate Maintenance Slice
