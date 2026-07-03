@@ -54,6 +54,35 @@ tests/**                    fixture and compatibility tests
 | `tests/**` and parser fixture names | `stage3`, `Stage-B`, `stage1` | test fixture / compatibility flag | Rename only after replacement flags or aliases exist. |
 | `tools/plugins/stage-built.sh` | `stage-built` | ordinary English / build staging | Not part of the compiler stage-term migration. |
 
+## Landed Alias Slice
+
+`STAGE-TERM-SYNTAX3-ALIAS-001` adds `--syntax-3` as the canonical frontend
+syntax-level CLI spelling while keeping `--stage3` as a compatibility alias.
+
+Scope:
+
+```text
+Rust CLI:
+  --syntax-3 is a visible alias for the existing stage3 parser flag
+
+HHako compiler entry:
+  --syntax-3 and --stage3 both enable the same parser surface
+
+Rust selfhost child spawn:
+  new child invocations use --syntax-3
+
+Reference docs:
+  --syntax-3 is documented first; --stage3 remains compatibility wording
+```
+
+Non-claims:
+
+```text
+--stage3 removed = 0
+NYASH_NY_COMPILER_STAGE3 renamed = 0
+parser internal stage3 API renamed = 0
+```
+
 ## Migration Eligibility
 
 An occurrence is eligible for a future rename only if all conditions hold:

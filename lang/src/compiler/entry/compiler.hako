@@ -62,7 +62,7 @@ static box Main {
         local parsed = me._parse_signed_int(args.get(i + 1))
         if parsed != null { flags.prefer_cfg = parsed }
         i = i + 1
-      } else if token == "--stage3" {
+      } else if token == "--syntax-3" || token == "--stage3" {
         flags.stage3 = 1
       } else if token == "--v1-compat" {
         flags.v1_compat = 1

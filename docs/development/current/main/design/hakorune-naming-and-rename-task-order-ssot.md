@@ -1811,6 +1811,47 @@ direct_global_replacement = 0
 stage_term_rename_without_classification = 0
 ```
 
+### STAGE-TERM-SYNTAX3-ALIAS-001
+
+Status: landed compatibility alias.
+
+Purpose: introduce `--syntax-3` as the frontend syntax-level spelling while
+keeping `--stage3` as a compatibility alias.
+
+Scope:
+
+```text
+Rust CLI:
+  --syntax-3 visible alias for the existing stage3 parser flag
+
+HHako compiler entry:
+  --syntax-3 and --stage3 both accepted
+
+Rust selfhost child spawn:
+  new child args use --syntax-3
+
+Reference docs:
+  --syntax-3 documented first, --stage3 retained as compatibility
+```
+
+Non-claims:
+
+```text
+--stage3 removed = 0
+NYASH_NY_COMPILER_STAGE3 renamed = 0
+parser internal stage3 API renamed = 0
+```
+
+Acceptance:
+
+```bash
+cargo test -q --lib syntax3_alias_sets_stage3_parser_flag
+cargo test -q --features vm-reference --test phase29ci_stageb_body_extract stageb_compiler_no_longer_falls_back_to_full_source_for_hello_simple_fixture
+bash tools/checks/naming_charter_guard.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
 ### STAGE-TERM-EXISTING-NAME-MIGRATION-001
 
 Status: inventory-only; no implementation rename selected.

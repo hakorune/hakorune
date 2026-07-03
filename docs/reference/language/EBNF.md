@@ -865,7 +865,7 @@ Notes:
 
 ## Stage‑3 (Gated) Additions
 
-Enabled when `NYASH_PARSER_STAGE3=1` for the Rust parser (and via `--stage3`/`NYASH_NY_COMPILER_STAGE3=1` for the selfhost parser):
+Enabled when `NYASH_PARSER_STAGE3=1` for the Rust parser (and via `--syntax-3` with compatibility alias `--stage3`, or `NYASH_NY_COMPILER_STAGE3=1`, for the selfhost parser):
 
 - Legacy (compat): `try` statement (deprecated)
   - Surface SSOT is postfix `catch/cleanup` + DropScope `fini`. `try_stmt` is legacy only; avoid in new code.

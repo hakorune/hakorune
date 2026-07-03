@@ -26,6 +26,18 @@ fn hako_emit_mir_conflicts_with_emit_mir_json() {
 }
 
 #[test]
+fn syntax3_alias_sets_stage3_parser_flag() {
+    let matches = build_command()
+        .try_get_matches_from(["hakorune", "--syntax-3", "apps/min.hako"])
+        .expect("syntax-3 alias should parse");
+
+    assert!(
+        matches.get_flag("stage3"),
+        "syntax-3 must set the existing stage3 parser flag"
+    );
+}
+
+#[test]
 fn emit_mir_json_minimal_parses_and_sets_output_path() {
     let matches = build_command()
         .try_get_matches_from([

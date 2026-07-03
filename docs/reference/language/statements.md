@@ -87,7 +87,7 @@ Rules
 - `x = expr` は従来通り **代入文（statement）** として扱う。
 - `'(x = expr)'` のように **括弧で囲まれた代入** だけを、値を返す式（expression）として扱う。
   - 値と型は右辺 `expr` と同じになる（`(x = 1)` の値は `1`）。
-- この拡張は Stage‑3 パーサーのみで有効（Rust: `NYASH_FEATURES=stage3` / selfhost: `--stage3`/`NYASH_NY_COMPILER_STAGE3=1`）。
+- この拡張は syntax-3 パーサー surface のみで有効（Rust: `NYASH_FEATURES=stage3` / selfhost: `--syntax-3`、互換 alias `--stage3`、または `NYASH_NY_COMPILER_STAGE3=1`）。
 
 Examples
 ```nyash

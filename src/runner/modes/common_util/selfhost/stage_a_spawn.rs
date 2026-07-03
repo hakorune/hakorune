@@ -10,7 +10,7 @@ pub(crate) fn build_stage_a_child_extra_args() -> Vec<String> {
     let mut args = Vec::new();
     args.push("--".to_string());
     args.push("--stage-b".to_string());
-    args.push("--stage3".to_string());
+    args.push("--syntax-3".to_string());
 
     if crate::config::env::ny_compiler_min_json() {
         args.push("--min-json".to_string());
@@ -87,12 +87,12 @@ mod tests {
     use super::*;
 
     #[test]
-    fn stage_a_child_extra_args_have_stage_b_stage3_prefix() {
+    fn stage_a_child_extra_args_have_stage_b_syntax3_prefix() {
         let args = build_stage_a_child_extra_args();
-        assert!(args.len() >= 3, "args must include stage-b/stage3");
+        assert!(args.len() >= 3, "args must include stage-b/syntax-3");
         assert_eq!(args[0], "--");
         assert_eq!(args[1], "--stage-b");
-        assert_eq!(args[2], "--stage3");
+        assert_eq!(args[2], "--syntax-3");
     }
 
     #[test]

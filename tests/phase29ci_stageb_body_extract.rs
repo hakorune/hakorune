@@ -23,7 +23,7 @@ fn stageb_compiler_no_longer_falls_back_to_full_source_for_hello_simple_fixture(
         .arg("lang/src/compiler/entry/compiler.hako")
         .arg("--")
         .arg("--stage-b")
-        .arg("--stage3")
+        .arg("--syntax-3")
         .env(
             "HAKO_SRC",
             include_str!("../apps/tests/hello_simple_llvm.hako"),
