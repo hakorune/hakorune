@@ -1,0 +1,32 @@
+// array_text_edit_label_formatter.hako
+//
+// Responsibility:
+// - format narrow array text edit vocabulary into Rust oracle text
+// - stay pure: scalar token in, scalar text out
+//
+// Non-responsibility:
+// - array text edit matching
+// - edit payload migration
+// - backend action execution
+// - MIR mutation
+static box ArrayTextEditLabelFormatterBox {
+  format_edit_kind(kind) {
+    if kind == "InsertMidConst" { return "insert_mid_const" }
+    return "unsupported_array_text_edit_kind"
+  }
+
+  format_split_policy(policy) {
+    if policy == "SourceLenDivConst2" { return "source_len_div_const(2)" }
+    return "unsupported_array_text_edit_split_policy"
+  }
+
+  format_proof(proof) {
+    if proof == "ArrayGetLenHalfInsertMidSameSlot" {
+      return "array_get_lenhalf_insert_mid_same_slot"
+    }
+    if proof == "ArrayGetLenHalfInsertMidDestSlotLenOnly" {
+      return "array_get_lenhalf_insert_mid_dest_slot_len_only"
+    }
+    return "unsupported_array_text_edit_proof"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderArrayTextEditLabelFormatterRustOracleV1",
+  "token": "MIRBUILDER-ARRAY-TEXT-EDIT-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "array_text_edit_label_formatter",
+  "rust_source": {
+    "path": "src/mir/array_text_edit_plan/model.rs",
+    "hash": "sha256:65558523be4d8f4c5c99b5473ae3c4d99f9b8e66871ed5fddc81d91d027a9326",
+    "oracle_surface": "ArrayTextEditKind, ArrayTextEditSplitPolicy, and ArrayTextEditProof display vocabulary"
+  },
+  "rows": [
+    {"kind": "edit_kind", "input": "InsertMidConst", "expected": "insert_mid_const"},
+    {"kind": "split_policy", "input": "SourceLenDivConst2", "expected": "source_len_div_const(2)"},
+    {"kind": "proof", "input": "ArrayGetLenHalfInsertMidSameSlot", "expected": "array_get_lenhalf_insert_mid_same_slot"},
+    {"kind": "proof", "input": "ArrayGetLenHalfInsertMidDestSlotLenOnly", "expected": "array_get_lenhalf_insert_mid_dest_slot_len_only"}
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "array_text_edit_matching_migration": 0,
+    "edit_payload_migration": 0,
+    "backend_action_execution_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}
