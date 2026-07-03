@@ -255,6 +255,7 @@ SSOT_REQUIRED_TOKENS=(
   "STAGE-TERM-SYNTAX3-ALIAS-001"
   "STAGE-TERM-SYNTAX3-DIAGNOSTIC-WORDING-001"
   "STAGE-TERM-MODEB-COMPAT-ENV-WORDING-001"
+  "STAGE-TERM-MODEB-PROOF-ROUTE-WORDING-001"
 )
 guard_require_unique_values "SSOT required token" "${SSOT_REQUIRED_TOKENS[@]}"
 for ssot_token in "${SSOT_REQUIRED_TOKENS[@]}"; do
@@ -341,9 +342,17 @@ for selfhost_route_script in "$SELFHOST_STAGEB_PROOF_VM" "$SELFHOST_RUN_ROUTES" 
   fi
 done
 require_fixed '--syntax-3' "$SELFHOST_STAGEB_PROOF_VM"
+require_fixed 'proof-only mode-B compatibility compiler gate' "$SELFHOST_STAGEB_PROOF_VM"
+require_fixed 'mode-B VM compatibility route is proof-only' "$SELFHOST_STAGEB_PROOF_VM"
+require_fixed 'mode-B compatibility gate stays explicit proof-only' "$SELFHOST_STAGEB_PROOF_VM"
 require_fixed '`--direct`: run mode-B direct/source route' "$SELFHOST_README"
+require_fixed 'proof-only mode-B compatibility compiler route' "$SELFHOST_README"
+require_fixed 'Explicit mode-B compatibility Program(JSON v0) artifact capture' "$SELFHOST_README"
 if rg -n 'Stage-B direct/source route' "$SELFHOST_README"; then
   guard_fail "$TAG" "selfhost README daily --direct description must say mode-B, not Stage-B"
+fi
+if rg -n 'proof-only Stage-B compiler route|Explicit Stage-B Program\(JSON v0\) artifact capture|consumes Stage-B Program\(JSON v0\)' "$SELFHOST_README"; then
+  guard_fail "$TAG" "selfhost README proof route wording must say mode-B compatibility, not Stage-B"
 fi
 require_fixed 'HAKORUNE_BIN_PATH="$ROOT/target/release/hakorune"' "$SELFHOST_BUILD"
 require_fixed 'LEGACY_NYASH_BIN_PATH="$ROOT/target/release/nyash"' "$SELFHOST_BUILD"

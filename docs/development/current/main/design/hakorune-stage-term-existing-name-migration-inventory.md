@@ -114,6 +114,34 @@ Stage-B route token removed = 0
 runtime behavior changed = 0
 ```
 
+## Landed mode-B Proof Route Wording Slice
+
+`STAGE-TERM-MODEB-PROOF-ROUTE-WORDING-001` changes the explicit proof-only
+selfhost route docs/diagnostics to `mode-B compatibility` wording while keeping
+the existing script names and route tokens.
+
+Scope:
+
+```text
+tools/selfhost/proof/run_stageb_compiler_vm.sh:
+  proof-only gate comments and proof-only diagnostic say mode-B compatibility
+
+tools/selfhost/proof/selfhost_smoke.sh:
+  proof emission comment says mode-B compatibility
+
+tools/selfhost/README.md:
+  proof gate and retired Program(JSON v0) probe wording says mode-B compatibility
+```
+
+Non-claims:
+
+```text
+--stage-b removed = 0
+stageb-delegate renamed = 0
+run_stageb_compiler_vm.sh renamed = 0
+runtime behavior changed = 0
+```
+
 ## Migration Eligibility
 
 An occurrence is eligible for a future rename only if all conditions hold:

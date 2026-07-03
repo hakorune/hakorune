@@ -1919,6 +1919,39 @@ git diff --check
 tools/checks/dev_gate.sh quick
 ```
 
+### STAGE-TERM-MODEB-PROOF-ROUTE-WORDING-001
+
+Status: landed proof-route wording cleanup.
+
+Purpose: use `mode-B compatibility` wording for the explicit proof-only
+selfhost route while keeping the external route tokens and script names
+unchanged.
+
+Affected files:
+
+```text
+tools/selfhost/proof/run_stageb_compiler_vm.sh
+tools/selfhost/proof/selfhost_smoke.sh
+tools/selfhost/README.md
+```
+
+Non-claims:
+
+```text
+--stage-b removed = 0
+stageb-delegate renamed = 0
+run_stageb_compiler_vm.sh renamed = 0
+runtime behavior changed = 0
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
 ### STAGE-TERM-EXISTING-NAME-MIGRATION-001
 
 Status: inventory-only; no implementation rename selected.

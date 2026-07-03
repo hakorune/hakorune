@@ -1,5 +1,5 @@
 #!/bin/bash
-# run_stageb_compiler_vm.sh - proof-only Stage-B compiler gate (VM)
+# run_stageb_compiler_vm.sh - proof-only mode-B compatibility compiler gate (VM)
 #
 # Contract:
 # - Input: --source-file <path> (fixture/source file)
@@ -84,7 +84,7 @@ if [ ! -f "$COMPILER" ]; then
 fi
 
 if [ "${NYASH_SELFHOST_STAGEB_PROOF_ONLY:-0}" != "1" ]; then
-  echo "[selfhost/route] stage-b VM route is proof-only; set NYASH_SELFHOST_STAGEB_PROOF_ONLY=1 to run" >&2
+  echo "[selfhost/route] mode-B VM compatibility route is proof-only; set NYASH_SELFHOST_STAGEB_PROOF_ONLY=1 to run" >&2
   exit 2
 fi
 
@@ -101,7 +101,7 @@ fi
 
 echo "[selfhost/route] id=${ROUTE_ID} mode=stageb source=$(basename "$SOURCE_FILE") timeout_secs=${TIMEOUT_SECS}" >&2
 
-# Stage-B gate stays explicit proof-only and keeps vm-hako priority disabled.
+# mode-B compatibility gate stays explicit proof-only and keeps vm-hako priority disabled.
 HAKO_SRC="$(cat "$SOURCE_FILE")" \
   NYASH_DISABLE_PLUGINS="${NYASH_DISABLE_PLUGINS:-1}" \
   NYASH_VM_HAKO_PREFER_STRICT_DEV="${NYASH_VM_HAKO_PREFER_STRICT_DEV:-0}" \

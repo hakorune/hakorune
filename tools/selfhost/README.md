@@ -59,8 +59,8 @@ Script
     tools/selfhost/run.sh --direct --source-file apps/tests/phase29bq_selfhost_cleanup_only_min.hako
     ```
 - tools/selfhost/proof/run_stageb_compiler_vm.sh
-  - Optional public proof gate for explicit Stage-B VM keep.
-  - Use this only when you need the proof-only Stage-B compiler route on purpose.
+  - Optional public proof gate for explicit mode-B compatibility VM keep.
+  - Use this only when you need the proof-only mode-B compatibility compiler route on purpose.
 - tools/selfhost/proof/selfhost_vm_smoke.sh
   - Optional public proof smoke for selfhost-minimal on the explicit VM keep.
   - Historical top-level alias remains a compatibility facade; do not read this as the day-to-day runtime route.
@@ -72,12 +72,12 @@ Script
 - tools/selfhost/selfhost_build.sh
   - --in <file.hako>: input Hako source
   - --json <out.json>: retired wrapper surface; use `--mir` for day-to-day flow and explicit dev/compat probes for Program(JSON)
-  - --mir <out.json>: emit MIR(JSON) from source (preferred runner path); this bypasses Stage-B Program(JSON v0) production and can be combined with `--run` or `--exe`
+  - --mir <out.json>: emit MIR(JSON) from source (preferred runner path); this bypasses mode-B compatibility Program(JSON v0) production and can be combined with `--run` or `--exe`
   - --exe <out>: build native executable via the direct source MIR -> ny-llvmc mainline route
   - --run: run via direct source MIR(JSON) -> `--mir-json-file`. Exit code mirrors program return.
   - --keep-tmp: retired facade route; the old Program(JSON v0) artifact probe is archived at `tools/archive/legacy-selfhost/engineering/program_json_v0_stageb_artifact_probe.sh`.
   - `NYASH_SELFHOST_KEEP_RAW=1`: retired facade route; use the same explicit dev probe.
-  - diagnostic Program(JSON)->MIR probes use `program_json_mir_bridge_emit()` directly; `selfhost_build.sh --exe` no longer produces or consumes Stage-B Program(JSON v0).
+  - diagnostic Program(JSON)->MIR probes use `program_json_mir_bridge_emit()` directly; `selfhost_build.sh --exe` no longer produces or consumes mode-B compatibility Program(JSON v0).
   - `--keep-tmp` and `NYASH_SELFHOST_KEEP_RAW=1` now fail fast in all `selfhost_build.sh` routes.
   - Env:
     - NYASH_BIN: path to hakorune/nyash binary (auto-detected)
@@ -142,7 +142,7 @@ Script
 
 Examples
 ```bash
-# Explicit Stage-B Program(JSON v0) artifact capture
+# Explicit mode-B compatibility Program(JSON v0) artifact capture
 bash tools/archive/legacy-selfhost/engineering/program_json_v0_stageb_artifact_probe.sh --in apps/tests/phase122_if_only_normalized_emit_min.hako --out /tmp/phase122.program.json
 
 # Explicit Program(JSON)->MIR bridge compat capsule
@@ -181,13 +181,13 @@ bash tools/archive/legacy-selfhost/compat-codegen/run_compat_pure_pack.sh
 - `phase-29x` cleanup bands are mirrored in `docs/development/current/main/phases/phase-29x/29x-98-legacy-route-retirement-investigation-ssot.md`; the proof/example driver stays archive-later until the compat wrapper gains a root-first equivalent or is retired as a whole.
 
 Notes
-- `selfhost_build.sh` no longer owns Stage-B Program(JSON v0) artifact production; the old explicit diagnostic probe is archived under `tools/archive/legacy-selfhost/engineering/`.
+- `selfhost_build.sh` no longer owns mode-B compatibility Program(JSON v0) artifact production; the old explicit diagnostic probe is archived under `tools/archive/legacy-selfhost/engineering/`.
 - `tools/selfhost_exe_stageb.sh` is route-selectable:
   - default / `HAKORUNE_STAGE1_EMIT_ROUTE=direct` is the MIR-first route.
     This route pins canonical MIR/user-call/macro env needed by the EXE build,
     but `HAKO_JOINIR_STRICT` and `HAKO_JOINIR_PLANNER_REQUIRED` stay caller
     opt-in so the helper does not turn a normal build into a strict/dev gate.
-  - explicit `HAKORUNE_STAGE1_EMIT_ROUTE=stageb-delegate` is a Program(JSON v0)
+  - explicit `HAKORUNE_STAGE1_EMIT_ROUTE=stageb-delegate` is a mode-B compatibility Program(JSON v0)
     bridge compat capsule, kept only while bridge replacement/archive coverage
     is incomplete.
 - `tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh` still calls the
@@ -259,7 +259,7 @@ Notes
 - `launcher-exe` is still a run artifact and does not satisfy G1 identity emit contract by itself.
 - `stage1-cli` is a runnable bootstrap output; success is defined by stage0 bootstrap payload proof plus reduced artifact `run` liveness, not by reduced artifact payload emission.
 - `stage0` bootstrap proof stays on the payload/file materialization route.
-- `selfhost_build.sh` is direct source->MIR(JSON) for `--mir`, `--run`, and `--exe`. The old Stage-B Program(JSON v0) artifact diagnostic probe is archived under `tools/archive/legacy-selfhost/engineering/`.
+- `selfhost_build.sh` is direct source->MIR(JSON) for `--mir`, `--run`, and `--exe`. The old mode-B compatibility Program(JSON v0) artifact diagnostic probe is archived under `tools/archive/legacy-selfhost/engineering/`.
 - current same-result sanity closure is `stage3 launcher -> stage4 stage1-cli -> stage5 launcher -> stage6 stage1-cli -> stage7 launcher`.
   These stage-numbered labels are bootstrap comparison labels, not daily
   selfhost stage-axis owners.
