@@ -9,6 +9,14 @@
       "name": "main",
       "params": [],
       "metadata": {
+        "same_module_function_definitions": [
+          {
+            "target_symbol": "Stage1SourceProgramAuthorityBox._emit_program_json_from_source_raw/1",
+            "definition_kind": "same_module_function",
+            "definition_owner": "module_generic",
+            "source": "global_call_routes"
+          }
+        ],
         "lowering_plan": [
           {
             "site": "b0.i1",

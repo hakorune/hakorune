@@ -6,34 +6,55 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 NY_LLVM_C="$ROOT_DIR/target/release/ny-llvmc"
 FIXTURE="$ROOT_DIR/apps/tests/mir_shape_guard/lowering_plan_stage1_emit_program_json_runtime_helper_same_module_min_v1.mir.json"
-
-if [ ! -x "$NY_LLVM_C" ]; then
-  echo "[stage1-emit-program-json-runtime-helper-guard] ny-llvmc missing: $NY_LLVM_C" >&2
-  exit 2
-fi
+TAG="stage1-emit-program-json-runtime-helper-guard"
 
 if [ ! -f "$FIXTURE" ]; then
-  echo "[stage1-emit-program-json-runtime-helper-guard] fixture missing: $FIXTURE" >&2
+  echo "[$TAG] fixture missing: $FIXTURE" >&2
   exit 1
 fi
 
+build_log="$(mktemp /tmp/stage1_emit_program_json_runtime_helper_build.XXXXXX.log)"
 log="$(mktemp /tmp/stage1_emit_program_json_runtime_helper.XXXXXX.log)"
 obj="$(mktemp /tmp/stage1_emit_program_json_runtime_helper.XXXXXX.o)"
-trap 'rm -f "$log" "$obj"' EXIT
+trap 'rm -f "$build_log" "$log" "$obj"' EXIT
 
+set +e
+(cd "$ROOT_DIR" && cargo build --release -q -p nyash-llvm-compiler --bin ny-llvmc) >"$build_log" 2>&1
+rc=$?
+set -e
+if [ "$rc" -ne 0 ]; then
+  echo "[$TAG] failed to build current ny-llvmc (rc=$rc)" >&2
+  tail -n 120 "$build_log" >&2 || true
+  exit "$rc"
+fi
+
+if [ ! -x "$NY_LLVM_C" ]; then
+  echo "[$TAG] ny-llvmc missing after build: $NY_LLVM_C" >&2
+  tail -n 120 "$build_log" >&2 || true
+  exit 2
+fi
+
+set +e
 NYASH_LLVM_ROUTE_TRACE=1 \
   "$NY_LLVM_C" --in "$FIXTURE" --emit obj --out "$obj" >"$log" 2>&1
+rc=$?
+set -e
+if [ "$rc" -ne 0 ]; then
+  echo "[$TAG] ny-llvmc failed to compile runtime-helper fixture (rc=$rc)" >&2
+  tail -n 120 "$log" >&2 || true
+  exit "$rc"
+fi
 
 if ! grep -Fq "consumer=mir_call_stage1_emit_program_json_emit" "$log"; then
-  echo "[stage1-emit-program-json-runtime-helper-guard] runtime-helper route not consumed" >&2
+  echo "[$TAG] runtime-helper route not consumed" >&2
   tail -n 80 "$log" >&2 || true
   exit 1
 fi
 
 if [ ! -s "$obj" ]; then
-  echo "[stage1-emit-program-json-runtime-helper-guard] object output missing" >&2
+  echo "[$TAG] object output missing" >&2
   tail -n 80 "$log" >&2 || true
   exit 1
 fi
 
-echo "[stage1-emit-program-json-runtime-helper-guard] ok"
+echo "[$TAG] ok"

@@ -9,6 +9,7 @@ Related:
   - tools/checks/mir_root_import_hygiene_guard.sh
   - docs/development/current/main/phases/phase-291x/291x-523-semantic-metadata-root-export-inventory-card.md
   - docs/development/current/main/phases/phase-291x/291x-537-mir-root-facade-contract-card.md
+  - docs/development/current/main/phases/phase-296x/archive/296x-976-MIMALLOC-SUBSTRING-CONCAT-DEAD-TEXT-REGION-PLAN-SURFACE-001.md
 ---
 
 # MIR Root Facade Contract

@@ -8,8 +8,8 @@ source tools/checks/lib/guard_common.sh
 
 TASKBOARD="docs/development/current/main/workstreams/compiler-foundation-current.md"
 CARD="docs/development/current/main/phases/phase-293x/293x-1021-COREPLAN-PHI-BINDING-SSOT-001.md"
-PHI_BATCH_CARD="docs/development/current/main/phases/phase-296x/296x-942-PHI-LOOP-HEADER-BATCH-PREPEND-MIGRATION-001.md"
-PHI_CLOSEOUT_CARD="docs/development/current/main/phases/phase-296x/296x-947-PHI-IMPORT-BOUNDARY-CLOSEOUT-001.md"
+PHI_BATCH_CARD="docs/development/current/main/phases/phase-296x/archive/296x-942-PHI-LOOP-HEADER-BATCH-PREPEND-MIGRATION-001.md"
+PHI_CLOSEOUT_CARD="docs/development/current/main/phases/phase-296x/archive/296x-947-PHI-IMPORT-BOUNDARY-CLOSEOUT-001.md"
 INDEX="docs/tools/check-scripts-index.md"
 LOCAL_PATCH_SSOT="docs/development/current/main/design/local-patch-prevention-ssot.md"
 DEV_GATE_STEPS="tools/checks/lib/dev_gate_quick_steps.sh"

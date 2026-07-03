@@ -200,7 +200,7 @@ fn build_mir_json_root_emits_direct_plan_for_program_json_emit_body() {
 
     module.add_function(caller);
     module.add_function(callee);
-    refresh_module_global_call_routes(&mut module);
+    crate::mir::refresh_module_semantic_metadata(&mut module);
 
     let root = build_mir_json_root(&module).expect("mir json root");
     let route = &root["functions"][0]["metadata"]["global_call_routes"][0];
@@ -248,6 +248,18 @@ fn build_mir_json_root_emits_direct_plan_for_program_json_emit_body() {
         plan["emit_trace_consumer"],
         "mir_call_global_module_generic_emit"
     );
+
+    let definitions = root["functions"][0]["metadata"]["same_module_function_definitions"]
+        .as_array()
+        .expect("same_module_function_definitions");
+    assert_eq!(definitions.len(), 1);
+    assert_eq!(
+        definitions[0]["target_symbol"],
+        "Stage1SourceProgramAuthorityBox._emit_program_json_from_source_raw/1"
+    );
+    assert_eq!(definitions[0]["definition_kind"], "same_module_function");
+    assert_eq!(definitions[0]["definition_owner"], "module_generic");
+    assert_eq!(definitions[0]["source"], "global_call_routes");
 }
 
 #[test]
