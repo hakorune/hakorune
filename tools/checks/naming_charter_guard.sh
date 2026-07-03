@@ -135,6 +135,13 @@ STAGE1_BRIDGE_ENV_PARSER_STAGEB_RS="$ROOT_DIR/src/runner/stage1_bridge/env/parse
 REFERENCE_EBNF="$ROOT_DIR/docs/reference/language/EBNF.md"
 REFERENCE_STATEMENTS="$ROOT_DIR/docs/reference/language/statements.md"
 PHASE29CI_STAGEB_BODY_EXTRACT_TEST="$ROOT_DIR/tests/phase29ci_stageb_body_extract.rs"
+JSON_V0_BRIDGE_AST_RS="$ROOT_DIR/src/runner/json_v0_bridge/ast.rs"
+JSON_V0_BRIDGE_IF_LEGACY_RS="$ROOT_DIR/src/runner/json_v0_bridge/lowering/if_legacy.rs"
+JSON_V0_BRIDGE_LAMBDA_LEGACY_RS="$ROOT_DIR/src/runner/json_v0_bridge/lowering/lambda_legacy.rs"
+JSON_V0_BRIDGE_LOOP_RS="$ROOT_DIR/src/runner/json_v0_bridge/lowering/loop_.rs"
+JSON_V0_BRIDGE_LOOP_RANGE_RS="$ROOT_DIR/src/runner/json_v0_bridge/lowering/loop_range.rs"
+JSON_V0_BRIDGE_PROGRAM_RS="$ROOT_DIR/src/runner/json_v0_bridge/lowering/program.rs"
+JSON_V0_BRIDGE_BLOCK_EXPR_RS="$ROOT_DIR/src/runner/json_v0_bridge/lowering/expr/block_expr.rs"
 
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" git
@@ -280,6 +287,13 @@ REQUIRED_FILES=(
   "$REFERENCE_EBNF"
   "$REFERENCE_STATEMENTS"
   "$PHASE29CI_STAGEB_BODY_EXTRACT_TEST"
+  "$JSON_V0_BRIDGE_AST_RS"
+  "$JSON_V0_BRIDGE_IF_LEGACY_RS"
+  "$JSON_V0_BRIDGE_LAMBDA_LEGACY_RS"
+  "$JSON_V0_BRIDGE_LOOP_RS"
+  "$JSON_V0_BRIDGE_LOOP_RANGE_RS"
+  "$JSON_V0_BRIDGE_PROGRAM_RS"
+  "$JSON_V0_BRIDGE_BLOCK_EXPR_RS"
 )
 guard_require_unique_values "required file" "${REQUIRED_FILES[@]}"
 guard_require_files "$TAG" "${REQUIRED_FILES[@]}"
@@ -369,6 +383,7 @@ SSOT_REQUIRED_TOKENS=(
   "STAGE-TERM-CHECK-SCRIPTS-INDEX-WORDING-001"
   "STAGE-TERM-SYNTAX3-RUST-ENV-COMMENT-WORDING-001"
   "STAGE-TERM-HHAKO-PARSER-BUILD-COMMENT-WORDING-001"
+  "STAGE-TERM-JSON-V0-BRIDGE-COMMENT-WORDING-001"
 )
 guard_require_unique_values "SSOT required token" "${SSOT_REQUIRED_TOKENS[@]}"
 for ssot_token in "${SSOT_REQUIRED_TOKENS[@]}"; do
@@ -809,6 +824,24 @@ if rg -n 'Stage-B adapter|Live Stage-B bundle entry|Stage-A bridge callers|Stage
   "$HH_PARSER_NUMBER_SCAN"; then
   guard_fail "$TAG" "HHako parser/build comments must say mode-A/mode-B compatibility or syntax-3"
 fi
+require_fixed "mode-B compatibility currently emits this as a statement wrapper" "$JSON_V0_BRIDGE_AST_RS"
+require_fixed 'mode-B compatibility legacy encoding for `if !(cond) { ... }`' "$JSON_V0_BRIDGE_IF_LEGACY_RS"
+require_fixed "mode-B legacy if-not: invalid BlockExpr.tail" "$JSON_V0_BRIDGE_IF_LEGACY_RS"
+require_fixed 'mode-B compatibility legacy encoding: `fn(x) { ... }`' "$JSON_V0_BRIDGE_LAMBDA_LEGACY_RS"
+require_fixed "mode-B compatibility / JSON v0" "$JSON_V0_BRIDGE_LOOP_RS"
+require_fixed "no bootstrap desugar" "$JSON_V0_BRIDGE_LOOP_RANGE_RS"
+require_fixed "mode-B compatibility JSON often uses" "$JSON_V0_BRIDGE_PROGRAM_RS"
+require_fixed "mode-B compatibility currently emits tail" "$JSON_V0_BRIDGE_BLOCK_EXPR_RS"
+if rg -n 'Stage-B currently emits|Stage-B legacy encoding|Stage-B JSON often uses|Stage-B / JSON v0|no Stage0 desugar|stageb legacy if-not' \
+  "$JSON_V0_BRIDGE_AST_RS" \
+  "$JSON_V0_BRIDGE_IF_LEGACY_RS" \
+  "$JSON_V0_BRIDGE_LAMBDA_LEGACY_RS" \
+  "$JSON_V0_BRIDGE_LOOP_RS" \
+  "$JSON_V0_BRIDGE_LOOP_RANGE_RS" \
+  "$JSON_V0_BRIDGE_PROGRAM_RS" \
+  "$JSON_V0_BRIDGE_BLOCK_EXPR_RS"; then
+  guard_fail "$TAG" "JSON v0 bridge comments/diagnostics must say mode-B compatibility or bootstrap"
+fi
 require_fixed "mode-B compatibility user_box_decls scanner probe failed" "$K2_WIDE_STAGEB_FIELD_TYPE_ANNOTATION_GUARD"
 require_fixed "mode-B compatibility parser route failed" "$K2_WIDE_STAGEB_NUMERIC_LITERAL_SUFFIX_GUARD"
 if rg -n 'Stage-B user_box_decls scanner probe failed|Stage-B parser route failed' "$K2_WIDE_STAGEB_FIELD_TYPE_ANNOTATION_GUARD" "$K2_WIDE_STAGEB_NUMERIC_LITERAL_SUFFIX_GUARD"; then
@@ -920,6 +953,13 @@ NAMING_DIFF_ALLOWED_PATHS=(
   "tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_steady_state_vm.sh"
   "tools/smokes/v2/profiles/integration/selfhost/phase29cc_selfhost_stageb_funcscanner_typed_params_implements_min_vm.sh"
   "tests/phase29ci_stageb_body_extract.rs"
+  "src/runner/json_v0_bridge/ast.rs"
+  "src/runner/json_v0_bridge/lowering/if_legacy.rs"
+  "src/runner/json_v0_bridge/lowering/lambda_legacy.rs"
+  "src/runner/json_v0_bridge/lowering/loop_.rs"
+  "src/runner/json_v0_bridge/lowering/loop_range.rs"
+  "src/runner/json_v0_bridge/lowering/program.rs"
+  "src/runner/json_v0_bridge/lowering/expr/block_expr.rs"
   "tools/selfhost/proof/run_stageb_compiler_vm.sh"
   "tools/checks/stageb_program_json_capture_caller_guard.sh"
   "tools/checks/stage1_emit_program_json_runtime_helper_guard.sh"

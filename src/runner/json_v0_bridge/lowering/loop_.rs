@@ -249,7 +249,7 @@ pub(super) fn lower_loop_stmt(
     loop_stack: &mut Vec<LoopContext>,
     env: &BridgeEnv,
 ) -> Result<BasicBlockId, String> {
-    // DEBUG: Track loop lowering calls (Stage-B / JSON v0) — dev用トレース
+    // DEBUG: Track loop lowering calls (mode-B compatibility / JSON v0) - dev trace
     if env::env_bool("HAKO_LOOP_PHI_TRACE") {
         get_global_ring0().log.debug(&format!(
             "[loop-phi/json] lower_loop_stmt called, fn={}, base_vars={}",

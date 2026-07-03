@@ -341,6 +341,36 @@ git diff --check
 tools/checks/dev_gate.sh quick
 ```
 
+### STAGE-TERM-JSON-V0-BRIDGE-COMMENT-WORDING-001
+
+Status: landed JSON v0 bridge comment cut.
+
+Scope:
+
+- update Rust JSON v0 bridge comments and one local freeze diagnostic to
+  `mode-B compatibility` / `bootstrap` wording;
+- keep `try_lower_stageb_*` function names, route symbols, and JSON v0 bridge
+  behavior unchanged;
+- do not touch lowering semantics beyond the diagnostic string.
+
+Contract:
+
+```text
+comments/diagnostics:
+  use mode-B compatibility or bootstrap wording
+
+compatibility surfaces:
+  stageb function names and route symbols remain unchanged
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
 ### HAKORUNE-ENV-ALIAS-INVENTORY-001
 
 Status: landed foundation.

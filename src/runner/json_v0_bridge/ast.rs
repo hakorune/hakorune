@@ -276,7 +276,7 @@ pub(super) enum ExprV0 {
     },
     BlockExpr {
         prelude: Vec<StmtV0>,
-        /// Stage-B currently emits this as a statement wrapper (`{"type":"Expr","expr":...}`).
+        /// mode-B compatibility currently emits this as a statement wrapper (`{"type":"Expr","expr":...}`).
         /// Keep it flexible at the schema edge and validate in the lowerer.
         tail: serde_json::Value,
     },

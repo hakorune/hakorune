@@ -63,7 +63,7 @@ pub(super) fn lower_defs_into_module(
         let mut loop_stack: Vec<LoopContext> = Vec::new();
         let start_bb = func.entry_block;
         // Per-def env: bind `me`-receiver static dispatch to the owning box name.
-        // Stage-B JSON often uses `me.method(...)` inside box methods even when `me` is not a
+        // mode-B compatibility JSON often uses `me.method(...)` inside box methods even when `me` is not a
         // runtime value; lowering treats this as a static-box method call on `box_name`.
         let mut env_for_def = env.clone();
         env_for_def.me_class = func_def.box_name.clone();

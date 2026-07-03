@@ -4,7 +4,7 @@
  * LOOP-003B owns the first executable route for `loop i in start..end`.
  *
  * Stop line:
- * - no Stage0 desugar
+ * - no bootstrap desugar
  * - no re-evaluated end bound
  * - no loop-carried variable writes in the pilot
  * - no silent fallback to legacy for-range lowering

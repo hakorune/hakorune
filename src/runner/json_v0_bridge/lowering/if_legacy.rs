@@ -3,7 +3,7 @@ use super::{BridgeEnv, LoopContext};
 use crate::mir::{BasicBlockId, MirFunction, ValueId};
 use std::collections::BTreeMap;
 
-/// Stage-B legacy encoding for `if !(cond) { ... }`:
+/// mode-B compatibility legacy encoding for `if !(cond) { ... }`:
 ///   1) `If { cond: Int(0), then: [] }`
 ///   2) `Expr Int(0)`
 ///   3) `Expr <cond>`
@@ -76,7 +76,7 @@ pub(super) fn try_lower_stageb_legacy_if_not_stmt_quad(
     } else if let Ok(expr) = serde_json::from_value::<ExprV0>(tail.clone()) {
         then_body.push(StmtV0::Expr { expr });
     } else {
-        return Err("stageb legacy if-not: invalid BlockExpr.tail".into());
+        return Err("mode-B legacy if-not: invalid BlockExpr.tail".into());
     }
 
     let normalized_if = StmtV0::If {

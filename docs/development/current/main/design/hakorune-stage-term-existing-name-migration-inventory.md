@@ -602,6 +602,46 @@ PHI / LocalSSA / variable-map internals touched = 0
 runtime behavior changed = 0
 ```
 
+## Landed JSON v0 Bridge Comment Wording Slice
+
+`STAGE-TERM-JSON-V0-BRIDGE-COMMENT-WORDING-001` changes Rust JSON v0 bridge
+comments and one freeze diagnostic from `Stage-B` / `Stage0` wording to
+`mode-B compatibility` or `bootstrap` wording.
+
+Scope:
+
+```text
+src/runner/json_v0_bridge/ast.rs:
+  BlockExpr tail schema comment says mode-B compatibility
+
+src/runner/json_v0_bridge/lowering/if_legacy.rs:
+  if-not legacy encoding comment and diagnostic say mode-B legacy
+
+src/runner/json_v0_bridge/lowering/lambda_legacy.rs:
+  lambda legacy encoding comment says mode-B compatibility
+
+src/runner/json_v0_bridge/lowering/loop_.rs:
+  loop lowering dev trace comment says mode-B compatibility / JSON v0
+
+src/runner/json_v0_bridge/lowering/loop_range.rs:
+  stop-line comment says no bootstrap desugar
+
+src/runner/json_v0_bridge/lowering/program.rs:
+  static `me.method(...)` dispatch comment says mode-B compatibility JSON
+
+src/runner/json_v0_bridge/lowering/expr/block_expr.rs:
+  BlockExpr tail comment says mode-B compatibility
+```
+
+Non-claims:
+
+```text
+try_lower_stageb_* function names renamed = 0
+JSON v0 bridge behavior changed = 0
+route symbols renamed = 0
+runtime behavior changed = 0
+```
+
 ## Migration Eligibility
 
 An occurrence is eligible for a future rename only if all conditions hold:

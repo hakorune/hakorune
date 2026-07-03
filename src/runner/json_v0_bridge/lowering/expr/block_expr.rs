@@ -97,7 +97,7 @@ pub(super) fn lower_blockexpr_with_vars(
         idx += 1;
     }
 
-    // Stage-B currently emits tail as a statement wrapper: {"type":"Expr","expr":{...}}
+    // mode-B compatibility currently emits tail as a statement wrapper: {"type":"Expr","expr":{...}}
     let tail_type = tail.get("type").and_then(|v| v.as_str());
     let tail_expr = if tail_type == Some("Expr") {
         let stmt: StmtV0 = serde_json::from_value(tail.clone()).map_err(|e| {

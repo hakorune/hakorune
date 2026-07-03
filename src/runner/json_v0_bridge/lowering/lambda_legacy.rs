@@ -4,7 +4,7 @@ use crate::ast::{ASTNode, LiteralValue, Span};
 use crate::mir::{BasicBlockId, MirFunction, MirInstruction, ValueId};
 use std::collections::BTreeMap;
 
-/// Stage-B legacy encoding: `fn(x) { ... }` is emitted as two adjacent statements:
+/// mode-B compatibility legacy encoding: `fn(x) { ... }` is emitted as two adjacent statements:
 ///   1) `return fn(x)`
 ///   2) `{ ... }` as a standalone BlockExpr statement
 ///
