@@ -1,0 +1,33 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderHakoNativeOwnerParityPilotSelectionRerun041V1",
+  "token": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-041",
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "previous_adoption_decision": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-sum-placement-path-label-formatter-hako-adoption-decision-v0.json",
+    "previous_adoption_decision_hash": "sha256:63667cfa7fa5c94f4dca0a998e7718d4981527af75592afe93f2bbb147c9d555"
+  },
+  "decision": {
+    "kind": "SelectRustOracleFixture",
+    "reason_token": "SumPlacementLabelFormatterIsNarrowPureVocabularyOwner",
+    "selected_owner": "sum_placement_label_formatter",
+    "selected_next_card": "MIRBUILDER-SUM-PLACEMENT-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001"
+  },
+  "accepted_scope": {
+    "surface": "Sum placement state and objectization barrier label vocabulary formatting",
+    "manual_target_selection_allowed": 1,
+    "correctness_requires_rust_oracle_parity": 1
+  },
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "sum_placement_fact_collection_migration": 0,
+    "sum_placement_selection_migration": 0,
+    "objectization_policy_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

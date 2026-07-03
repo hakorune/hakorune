@@ -1,0 +1,29 @@
+// sum_placement_label_formatter.hako
+//
+// Responsibility:
+// - format narrow sum placement state/barrier vocabulary into Rust oracle text
+// - stay pure: scalar token in, scalar text out
+//
+// Non-responsibility:
+// - sum placement fact collection
+// - sum placement selection
+// - objectization policy
+// - MIR mutation
+static box SumPlacementLabelFormatterBox {
+  format_state(state) {
+    if state == "LocalAggregateCandidate" { return "local_agg_candidate" }
+    if state == "NeedsObjectization" { return "needs_objectization" }
+    return "unsupported_sum_placement_state"
+  }
+
+  format_barrier(barrier) {
+    if barrier == "Return" { return "return" }
+    if barrier == "Call" { return "call" }
+    if barrier == "StoreLike" { return "store_like" }
+    if barrier == "PhiMerge" { return "phi_merge" }
+    if barrier == "Capture" { return "capture" }
+    if barrier == "DebugObserve" { return "debug_observe" }
+    if barrier == "UnknownUse" { return "unknown_use" }
+    return "unsupported_sum_objectization_barrier"
+  }
+}

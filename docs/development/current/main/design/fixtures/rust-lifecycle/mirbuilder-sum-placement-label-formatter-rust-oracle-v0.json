@@ -1,0 +1,34 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderSumPlacementLabelFormatterRustOracleV1",
+  "token": "MIRBUILDER-SUM-PLACEMENT-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "sum_placement_label_formatter",
+  "rust_source": {
+    "path": "src/mir/sum_placement.rs",
+    "hash": "sha256:788fc3983afd18581682d3e7ac9a4376b8642c959d417dd57db865554b5a3ded",
+    "oracle_surface": "SumPlacementState and SumObjectizationBarrier display vocabulary"
+  },
+  "rows": [
+    {"kind": "state", "input": "LocalAggregateCandidate", "expected": "local_agg_candidate"},
+    {"kind": "state", "input": "NeedsObjectization", "expected": "needs_objectization"},
+    {"kind": "barrier", "input": "Return", "expected": "return"},
+    {"kind": "barrier", "input": "Call", "expected": "call"},
+    {"kind": "barrier", "input": "StoreLike", "expected": "store_like"},
+    {"kind": "barrier", "input": "PhiMerge", "expected": "phi_merge"},
+    {"kind": "barrier", "input": "Capture", "expected": "capture"},
+    {"kind": "barrier", "input": "DebugObserve", "expected": "debug_observe"},
+    {"kind": "barrier", "input": "UnknownUse", "expected": "unknown_use"}
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "sum_placement_fact_collection_migration": 0,
+    "sum_placement_selection_migration": 0,
+    "objectization_policy_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}
