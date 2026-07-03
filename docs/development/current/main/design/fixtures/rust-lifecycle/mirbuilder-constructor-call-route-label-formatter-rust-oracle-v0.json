@@ -1,0 +1,37 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderConstructorCallRouteLabelFormatterRustOracleV1",
+  "token": "MIRBUILDER-CONSTRUCTOR-CALL-ROUTE-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "constructor_call_route_label_formatter",
+  "rust_source": {
+    "path": "src/mir/constructor_call_route_plan.rs",
+    "hash": "sha256:a7c54f681bfc0f4544c343a1bf74dc8abfc04c95793d9bbaffc3bcc313227b25",
+    "oracle_surface": "ConstructorCallRouteKind label vocabulary"
+  },
+  "rows": [
+    { "kind": "MapBoxBirth", "field": "route_id", "expected": "constructor.map_birth" },
+    { "kind": "MapBoxBirth", "field": "core_op", "expected": "MapBirth" },
+    { "kind": "MapBoxBirth", "field": "route_kind", "expected": "constructor.map_birth" },
+    { "kind": "MapBoxBirth", "field": "symbol", "expected": "nyash.map.birth_h" },
+    { "kind": "MapBoxBirth", "field": "result_origin", "expected": "map_birth" },
+    { "kind": "MapBoxBirth", "field": "need_kind", "expected": "map_birth" },
+    { "kind": "ArrayBoxBirth", "field": "route_id", "expected": "constructor.array_birth" },
+    { "kind": "ArrayBoxBirth", "field": "core_op", "expected": "ArrayBirth" },
+    { "kind": "ArrayBoxBirth", "field": "route_kind", "expected": "constructor.array_birth" },
+    { "kind": "ArrayBoxBirth", "field": "symbol", "expected": "nyash.array.birth_h" },
+    { "kind": "ArrayBoxBirth", "field": "result_origin", "expected": "array_birth" },
+    { "kind": "ArrayBoxBirth", "field": "need_kind", "expected": "array_birth" }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "constructor_route_collection_migration": 0,
+    "callee_classification_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

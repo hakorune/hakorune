@@ -1,0 +1,32 @@
+// constructor_call_route_label_formatter.hako - hand-authored label formatter
+//
+// Responsibility:
+// - format narrow constructor call route vocabulary into Rust oracle text
+// - stay pure: scalar kind/field in, scalar text out
+//
+// Non-responsibility:
+// - constructor route collection
+// - callee classification
+// - backend lowering
+// - MIR mutation
+static box ConstructorCallRouteLabelFormatterBox {
+  format_label(kind, field) {
+    if kind == "MapBoxBirth" {
+      if field == "route_id" { return "constructor.map_birth" }
+      if field == "core_op" { return "MapBirth" }
+      if field == "route_kind" { return "constructor.map_birth" }
+      if field == "symbol" { return "nyash.map.birth_h" }
+      if field == "result_origin" { return "map_birth" }
+      if field == "need_kind" { return "map_birth" }
+    }
+    if kind == "ArrayBoxBirth" {
+      if field == "route_id" { return "constructor.array_birth" }
+      if field == "core_op" { return "ArrayBirth" }
+      if field == "route_kind" { return "constructor.array_birth" }
+      if field == "symbol" { return "nyash.array.birth_h" }
+      if field == "result_origin" { return "array_birth" }
+      if field == "need_kind" { return "array_birth" }
+    }
+    return "unsupported_constructor_call_route_label"
+  }
+}

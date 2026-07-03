@@ -363,14 +363,14 @@ or replacement routes in the same slice.
 Latest adopted owner:
 
 ```text
-MIRBUILDER-FASTMEM-PROOF-KIND-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001
+MIRBUILDER-CONSTRUCTOR-CALL-ROUTE-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001
 ```
 
 Status:
 
 ```text
-fastmem_proof_kind_label_formatter is HakoAdopted as the twenty-first narrow
-Rust-oracle parity pilot after a green 10-row `.hako` EXE parity gate. Source
+constructor_call_route_label_formatter is HakoAdopted as the twenty-second
+narrow Rust-oracle parity pilot after a green 12-row `.hako` EXE parity gate. Source
 Selfhost remains unclaimed.
 ```
 
@@ -378,11 +378,11 @@ Boundary:
 
 ```text
 Adopted:
-  FastMemory proof/policy label vocabulary formatting
+  constructor call route label vocabulary formatting
 
 Still Rust:
-  FastMemory fact construction
-  FastMemory region analysis
+  constructor route collection
+  callee classification
   backend lowering
   MIR mutation
 ```
@@ -390,7 +390,7 @@ Still Rust:
 Next:
 
 ```text
-MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-021
+MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-022
 ```
 
 Acceptance:
