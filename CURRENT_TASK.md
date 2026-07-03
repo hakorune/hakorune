@@ -84,6 +84,7 @@ STAGE-TERM-MODEB-HHAKO-FUNC-SCANNER-COMMENT-WORDING-001
 STAGE-TERM-MODEB-K2-WIDE-GUARD-DIAGNOSTIC-WORDING-001
 STAGE-TERM-SELFHOST-SMOKE-COMMENT-WORDING-001
 STAGE-TERM-CHECK-SCRIPTS-INDEX-WORDING-001
+STAGE-TERM-SYNTAX3-RUST-ENV-COMMENT-WORDING-001
 ```
 
 `--syntax-3` is now the frontend syntax-level spelling; `--stage3` remains a
@@ -122,9 +123,11 @@ now say mode-B compatibility, phase-1 compatibility, or syntax-3 while keeping
 smoke file names, compatibility route tokens, exact expected stderr, and
 StageB/Stage1 Box names unchanged. The check-scripts index rows for
 already-migrated active guards now also use mode-B / phase-1 / GlobalCallTarget
-wording while keeping guard script names unchanged. Next safe naming work, if
-explicitly selected, must pick a different classified layer from that inventory
-and keep compatibility aliases or replacement routes in the same slice.
+wording while keeping guard script names unchanged. Rust env comments now say
+syntax-3 for the parser surface while keeping `stage3` feature tokens and env
+names as compatibility surfaces. Next safe naming work, if explicitly selected,
+must pick a different classified layer from that inventory and keep
+compatibility aliases or replacement routes in the same slice.
 
 Acceptance:
 

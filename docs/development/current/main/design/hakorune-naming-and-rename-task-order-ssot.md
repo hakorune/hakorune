@@ -279,6 +279,37 @@ git diff --check
 tools/checks/dev_gate.sh quick
 ```
 
+### STAGE-TERM-SYNTAX3-RUST-ENV-COMMENT-WORDING-001
+
+Status: landed Rust env comment cut.
+
+Scope:
+
+- update Rust environment flag comments to describe the parser surface as
+  `syntax-3`;
+- keep existing `stage3` feature tokens, env variable names, and helper
+  function names unchanged as compatibility surfaces;
+- document `--syntax-3` as the selfhost child flag while preserving `--stage3`
+  as compatibility alias.
+
+Contract:
+
+```text
+comments:
+  say syntax-3 for the parser surface
+
+compatibility surfaces:
+  stage3 feature tokens and env/function names remain unchanged
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
 ### HAKORUNE-ENV-ALIAS-INVENTORY-001
 
 Status: landed foundation.

@@ -48,7 +48,7 @@ pub fn selfhost_read_tmp() -> bool {
     std::env::var("NYASH_SELFHOST_READ_TMP").ok().as_deref() == Some("1")
 }
 
-/// Pass `-- --stage3` to child selfhost compiler to allow Stage-3 surface.
+/// Pass `-- --syntax-3` to child selfhost compiler; `--stage3` remains a compatibility alias.
 pub fn ny_compiler_stage3() -> bool {
     std::env::var("NYASH_NY_COMPILER_STAGE3").ok().as_deref() == Some("1")
 }

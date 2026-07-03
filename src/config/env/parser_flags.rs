@@ -80,11 +80,11 @@ fn env_flag(var: &str) -> Option<bool> {
     })
 }
 
-/// Core (Rust) parser Stage-3 gate (default ON).
+/// Core (Rust) parser syntax-3 gate (default ON).
 /// Precedence:
-/// 1) NYASH_FEATURES contains `stage3`/`parser-stage3`
+/// 1) NYASH_FEATURES contains compatibility tokens `stage3`/`parser-stage3`
 /// 2) Legacy env aliases (NYASH_PARSER_STAGE3 / HAKO_PARSER_STAGE3)
-/// 3) Default true (Stage-3 is standard syntax)
+/// 3) Default true (syntax-3 is standard syntax)
 pub fn parser_stage3_enabled() -> bool {
     if feature_stage3_enabled() {
         return true;
@@ -113,7 +113,7 @@ pub fn parser_try_compat_enabled() -> bool {
 }
 
 /// Parser gate for Block‑Postfix Catch acceptance
-/// Enabled when either NYASH_BLOCK_CATCH=1 or Stage‑3 gate is on.
+/// Enabled when either NYASH_BLOCK_CATCH=1 or syntax-3 gate is on.
 /// Phase 15.5 allows parsing a standalone `{ ... }` block optionally followed by
 /// a single `catch (...) { ... }` and/or `finally { ... }`, which is folded into
 /// ASTNode::TryCatch with the preceding block as the try body.
@@ -122,13 +122,13 @@ pub fn block_postfix_catch() -> bool {
 }
 
 /// Parser gate for method-level postfix catch/finally acceptance on method definitions.
-/// Enabled when either NYASH_METHOD_CATCH=1 or Stage‑3 gate is on.
+/// Enabled when either NYASH_METHOD_CATCH=1 or syntax-3 gate is on.
 pub fn method_catch() -> bool {
     std::env::var("NYASH_METHOD_CATCH").ok().as_deref() == Some("1") || parser_stage3_enabled()
 }
 
 /// Parser gate for expression-level postfix catch/cleanup acceptance.
-/// Enabled when Stage-3 gate is on (NYASH_FEATURES=stage3 or legacy aliases). Separate gate can
+/// Enabled when syntax-3 gate is on (NYASH_FEATURES=stage3 or legacy aliases). Separate gate can
 /// be introduced in future if needed, but we keep minimal toggles now.
 pub fn expr_postfix_catch() -> bool {
     parser_stage3_enabled()

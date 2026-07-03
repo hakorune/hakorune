@@ -540,6 +540,35 @@ docs/tools/check-scripts-index.md historical rows fully migrated = 0
 runtime behavior changed = 0
 ```
 
+## Landed syntax-3 Rust Env Comment Wording Slice
+
+`STAGE-TERM-SYNTAX3-RUST-ENV-COMMENT-WORDING-001` changes Rust environment
+flag comments from `Stage-3` wording to `syntax-3` wording while keeping
+existing `stage3` feature tokens and env names as compatibility surfaces.
+
+Scope:
+
+```text
+src/config/env/parser_flags.rs:
+  parser gate comments say syntax-3 and identify `stage3` / `parser-stage3`
+  as compatibility tokens
+
+src/config/env/selfhost_flags.rs:
+  selfhost child-arg comment says `--syntax-3`, with `--stage3` as
+  compatibility alias
+```
+
+Non-claims:
+
+```text
+NYASH_FEATURES=stage3 removed = 0
+NYASH_PARSER_STAGE3 renamed = 0
+HAKO_PARSER_STAGE3 renamed = 0
+NYASH_NY_COMPILER_STAGE3 renamed = 0
+feature_stage3_enabled renamed = 0
+runtime behavior changed = 0
+```
+
 ## Migration Eligibility
 
 An occurrence is eligible for a future rename only if all conditions hold:
