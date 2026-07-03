@@ -8,6 +8,7 @@ cd "$ROOT"
 # Archived engineering evidence is excluded; this guard locks active tools.
 allowed_files=(
   "tools/lib/program_json_v0_compat.sh"
+  "tools/hakorune_emit_mir.sh"
   "tools/selfhost/lib/stage1_contract.sh"
   "tools/smokes/v2/lib/stageb_helpers.sh"
 )

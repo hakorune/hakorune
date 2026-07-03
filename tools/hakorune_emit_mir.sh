@@ -28,6 +28,8 @@ fi
 
 # shellcheck source=/dev/null
 source "$ROOT/tools/selfhost/lib/stageb_program_json_capture.sh"
+# shellcheck source=/dev/null
+source "$ROOT/tools/lib/program_json_v0_compat.sh"
 
 # Resolve nyash/hakorune binary via test_runner helper (ensures consistent env)
 if [ ! -f "$IN" ]; then
@@ -528,15 +530,29 @@ execute_stageb_program_json_v0_raw() {
 
 execute_stageb_program_json_v0_child_to_files() {
   local raw_stdout="$1" raw_stderr="$2"
-  (cd "$ROOT" && \
-    NYASH_JSON_ONLY=1 NYASH_DISABLE_NY_COMPILER=1 HAKO_DISABLE_NY_COMPILER=1 \
-    NYASH_MIR_UNIFIED_CALL=1 \
-    NYASH_VM_HAKO_PREFER_STRICT_DEV=0 NYASH_VM_USE_FALLBACK=0 \
-    HAKO_JOINIR_STRICT="$STAGEB_JOINIR_STRICT" HAKO_JOINIR_PLANNER_REQUIRED="$STAGEB_JOINIR_PLANNER_REQUIRED" \
-    HAKO_STAGEB_FUNC_SCAN="${HAKO_STAGEB_FUNC_SCAN:-}" \
-    NYASH_PARSER_STAGE3=1 HAKO_PARSER_STAGE3=1 NYASH_PARSER_ALLOW_SEMICOLON=1 \
-    NYASH_ENABLE_USING=${NYASH_ENABLE_USING:-1} HAKO_ENABLE_USING=${HAKO_ENABLE_USING:-1} \
-    "$NYASH_BIN" --backend vm "$ROOT/lang/src/compiler/entry/compiler_stageb.hako" -- --source "$CODE") >"$raw_stdout" 2>"$raw_stderr"
+  local program_json_tmp
+  program_json_tmp=$(mktemp)
+
+  # Program(JSON v0) is still an explicit compat/retire-target seam. Keep the
+  # public CLI spelling behind tools/lib/program_json_v0_compat.sh, matching the
+  # active phase29bq pin helpers, instead of requiring a vm-reference Stage-B
+  # execution build for this source-to-Program boundary.
+  if ! (cd "$ROOT" && \
+        NYASH_JSON_ONLY=1 NYASH_DISABLE_NY_COMPILER=1 HAKO_DISABLE_NY_COMPILER=1 \
+        NYASH_MIR_UNIFIED_CALL=1 \
+        HAKO_JOINIR_STRICT="$STAGEB_JOINIR_STRICT" HAKO_JOINIR_PLANNER_REQUIRED="$STAGEB_JOINIR_PLANNER_REQUIRED" \
+        HAKO_STAGEB_FUNC_SCAN="${HAKO_STAGEB_FUNC_SCAN:-}" \
+        NYASH_PARSER_STAGE3=1 HAKO_PARSER_STAGE3=1 NYASH_PARSER_ALLOW_SEMICOLON=1 \
+        NYASH_ENABLE_USING=${NYASH_ENABLE_USING:-1} HAKO_ENABLE_USING=${HAKO_ENABLE_USING:-1} \
+        program_json_v0_compat_emit_to_file "$NYASH_BIN" "$program_json_tmp" "$IN") >"$raw_stdout" 2>"$raw_stderr"; then
+    rm -f "$program_json_tmp" 2>/dev/null || true
+    return 1
+  fi
+
+  if [ -s "$program_json_tmp" ]; then
+    cat "$program_json_tmp" >>"$raw_stdout"
+  fi
+  rm -f "$program_json_tmp" 2>/dev/null || true
 }
 
 coerce_stageb_program_json_v0_output() {
