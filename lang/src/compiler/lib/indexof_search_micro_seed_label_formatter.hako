@@ -1,0 +1,46 @@
+// indexof_search_micro_seed_label_formatter.hako
+//
+// Responsibility:
+// - format narrow indexOf search micro seed vocabulary into Rust oracle text
+// - stay pure: scalar token in, scalar text out
+//
+// Non-responsibility:
+// - indexOf search micro seed matching
+// - seed payload migration
+// - backend action execution
+// - MIR mutation
+static box IndexOfSearchMicroSeedLabelFormatterBox {
+  format_variant(variant) {
+    if variant == "Leaf" { return "leaf" }
+    if variant == "Line" { return "line" }
+    return "unsupported_indexof_search_micro_seed_variant"
+  }
+
+  format_proof(proof) {
+    if proof == "KiloLeafArrayStringIndexOfConst10Block" {
+      return "kilo_leaf_array_string_indexof_const_10block"
+    }
+    if proof == "KiloMicroIndexOfLine15Block" {
+      return "kilo_micro_indexof_line_15block"
+    }
+    return "unsupported_indexof_search_micro_seed_proof"
+  }
+
+  format_result_use(result_use) {
+    if result_use == "FoundPredicate" { return "found_predicate" }
+    return "unsupported_indexof_search_result_use"
+  }
+
+  format_backend_action(action) {
+    if action == "LiteralMembershipPredicate" {
+      return "literal_membership_predicate"
+    }
+    return "unsupported_indexof_search_backend_action"
+  }
+
+  format_candidate_outcome(outcome) {
+    if outcome == "Found" { return "found" }
+    if outcome == "NotFound" { return "not_found" }
+    return "unsupported_indexof_search_candidate_outcome"
+  }
+}

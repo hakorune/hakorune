@@ -1,0 +1,33 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderIndexOfSearchMicroSeedLabelFormatterRustOracleV1",
+  "token": "MIRBUILDER-INDEXOF-SEARCH-MICRO-SEED-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "indexof_search_micro_seed_label_formatter",
+  "rust_source": {
+    "path": "src/mir/indexof_search_micro_seed_plan.rs",
+    "hash": "sha256:2b58b5dad1005ac7788a885eded00d562980df3c5f53a1162a368c7394d531c5",
+    "oracle_surface": "IndexOfSearchMicroSeed display vocabulary"
+  },
+  "rows": [
+    {"kind": "variant", "input": "Leaf", "expected": "leaf"},
+    {"kind": "variant", "input": "Line", "expected": "line"},
+    {"kind": "proof", "input": "KiloLeafArrayStringIndexOfConst10Block", "expected": "kilo_leaf_array_string_indexof_const_10block"},
+    {"kind": "proof", "input": "KiloMicroIndexOfLine15Block", "expected": "kilo_micro_indexof_line_15block"},
+    {"kind": "result_use", "input": "FoundPredicate", "expected": "found_predicate"},
+    {"kind": "backend_action", "input": "LiteralMembershipPredicate", "expected": "literal_membership_predicate"},
+    {"kind": "candidate_outcome", "input": "Found", "expected": "found"},
+    {"kind": "candidate_outcome", "input": "NotFound", "expected": "not_found"}
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "indexof_search_micro_seed_matching_migration": 0,
+    "seed_payload_migration": 0,
+    "backend_action_execution_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}
