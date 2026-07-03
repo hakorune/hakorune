@@ -24,10 +24,10 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-ARRAY-RMW-ADD1-LEAF-SEED-PROOF-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.
-  The array_rmw_add1_leaf_seed_proof_label_formatter owner is HakoAdopted as
-  the twenty-sixth narrow Rust-oracle parity pilot; next is pilot selection
-  rerun 026.
+  MIRBUILDER-ARRAY-GETSET-MICRO-SEED-PROOF-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.
+  The array_getset_micro_seed_proof_label_formatter owner is HakoAdopted as
+  the twenty-seventh narrow Rust-oracle parity pilot; next is pilot selection
+  rerun 027.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -63,7 +63,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-026
+  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-027
 
 current fail-fast boundary:
   Do not re-enter full converter route selection without new non-self-signed
@@ -89,15 +89,16 @@ current fail-fast boundary:
   constructor route collection/callee classification, planner order/selection,
   legacy observer shadow decisions, loop route candidate collection, runtime
   route selection, array RMW matching, array receiver proof, array RMW add1
-  leaf seed matching, and backend lowering remain Rust.
+  leaf seed matching, array get/set micro seed matching, and backend lowering
+  remain Rust.
 
 latest design decision:
-  array_rmw_add1_leaf_seed_proof_label_formatter is now HakoAdopted as a
-  narrow Rust-oracle parity pilot owner after a green 1-row `.hako` EXE parity
-  gate. Array RMW add1 leaf seed matching, array RMW window matching, backend
+  array_getset_micro_seed_proof_label_formatter is now HakoAdopted as a narrow
+  Rust-oracle parity pilot owner after a green 1-row `.hako` EXE parity gate.
+  Array get/set micro seed matching, array RMW window matching, backend
   lowering, and MIR mutation remain Rust.
   The selected next card is
-  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-026`.
+  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-027`.
 
 historical route-selection decision:
   Detailed landed route-selection rows are closed as provenance and live in

@@ -1,0 +1,19 @@
+// array_getset_micro_seed_proof_label_formatter.hako - hand-authored proof label formatter
+//
+// Responsibility:
+// - format narrow array get/set micro seed proof vocabulary into Rust oracle text
+// - stay pure: scalar proof in, scalar text out
+//
+// Non-responsibility:
+// - array get/set micro seed matching
+// - array RMW window matching
+// - backend lowering
+// - MIR mutation
+static box ArrayGetSetMicroSeedProofLabelFormatterBox {
+  format_label(proof) {
+    if proof == "KiloMicroArrayGetSetSevenBlock" {
+      return "kilo_micro_array_getset_7block"
+    }
+    return "unsupported_array_getset_micro_seed_proof_label"
+  }
+}

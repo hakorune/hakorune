@@ -1,0 +1,29 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderArrayGetSetMicroSeedProofLabelFormatterRustOracleV1",
+  "token": "MIRBUILDER-ARRAY-GETSET-MICRO-SEED-PROOF-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "array_getset_micro_seed_proof_label_formatter",
+  "rust_source": {
+    "path": "src/mir/array_getset_micro_seed_plan.rs",
+    "hash": "sha256:a80064e578d8bf1887f8fcfa985c8a8ae95c42d97a70d9be4400130cb7aac139",
+    "oracle_surface": "ArrayGetSetMicroSeedProof display vocabulary"
+  },
+  "rows": [
+    {
+      "proof": "KiloMicroArrayGetSetSevenBlock",
+      "expected": "kilo_micro_array_getset_7block"
+    }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "array_getset_micro_seed_matching_migration": 0,
+    "array_rmw_window_matching_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}
