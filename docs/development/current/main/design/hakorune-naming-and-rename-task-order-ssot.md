@@ -870,6 +870,26 @@ architecture overview made current SSOT = 0
 runtime behavior changed = 0
 ```
 
+### HAKORUNE-REFERENCE-DOCS-VM-GUIDE-TITLE-WORDING-001
+
+Status: landed.
+
+Scope:
+
+```text
+docs/reference/architecture/vm.md:
+  title is Hakorune-first
+```
+
+Non-claims:
+
+```text
+nyash CLI compatibility examples renamed = 0
+NYASH_* env names renamed = 0
+NyashRuntime / NyashValue compatibility type names renamed = 0
+VM behavior changed = 0
+```
+
 ### HAKORUNE-BINARY-PRIMARY-CUTOVER-INVENTORY-001
 
 Status: landed inventory cut.

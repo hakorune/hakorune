@@ -1278,6 +1278,26 @@ architecture overview made current SSOT = 0
 runtime behavior changed = 0
 ```
 
+## Landed Reference Docs VM Guide Title Wording Slice
+
+`HAKORUNE-REFERENCE-DOCS-VM-GUIDE-TITLE-WORDING-001` updates the VM guide title
+to Hakorune-first wording.
+
+Scope:
+
+```text
+docs/reference/architecture/vm.md
+```
+
+Non-claims:
+
+```text
+nyash CLI compatibility examples renamed = 0
+NYASH_* env names renamed = 0
+NyashRuntime / NyashValue compatibility type names renamed = 0
+VM behavior changed = 0
+```
+
 ## Migration Eligibility
 
 An occurrence is eligible for a future rename only if all conditions hold:

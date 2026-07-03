@@ -1,4 +1,4 @@
-# Nyash VM 実行基盤ガイド（更新）
+# Hakorune VM Execution Guide
 
 - プラグインBox引数の最小対応を追加（TLV: BoxRef）
 - TLVタグ: 1=Bool, 2=I32, 3=I64, 4=F32, 5=F64, 6=String, 7=Bytes, 8=Handle(BoxRef)

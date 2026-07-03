@@ -112,6 +112,7 @@ HAKORUNE-REFERENCE-DOCS-MIR-GC-WORDING-001
 HAKORUNE-REFERENCE-DOCS-PLUGIN-INDEX-WORDING-001
 HAKORUNE-REFERENCE-DOCS-STRINGS-BOXES-WORDING-001
 HAKORUNE-REFERENCE-DOCS-ARCHITECTURE-OVERVIEW-WORDING-001
+HAKORUNE-REFERENCE-DOCS-VM-GUIDE-TITLE-WORDING-001
 ```
 
 `--syntax-3` is now the frontend syntax-level spelling; `--stage3` remains a
@@ -228,6 +229,8 @@ Nyash-era historical text and compatibility names.
 The architecture overview title/opening now mark it as a Hakorune historical
 Nyash design snapshot while preserving runtime type names and older design
 content.
+The VM guide title now uses Hakorune-first wording while preserving `nyash`
+CLI examples and `NYASH_*` compatibility environment names.
 Next safe naming work, if explicitly selected, must pick a
 different classified layer from that inventory and keep compatibility aliases
 or replacement routes in the same slice.

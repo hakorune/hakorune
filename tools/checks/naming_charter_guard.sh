@@ -154,6 +154,7 @@ REFERENCE_PLUGIN_SYSTEM_README="$ROOT_DIR/docs/reference/plugin-system/README.md
 REFERENCE_LANGUAGE_STRINGS="$ROOT_DIR/docs/reference/language/strings.md"
 REFERENCE_BOXES_SYSTEM_README="$ROOT_DIR/docs/reference/boxes-system/README.md"
 REFERENCE_ARCH_DESIGN_OVERVIEW="$ROOT_DIR/docs/reference/architecture/design-overview.md"
+REFERENCE_ARCH_VM="$ROOT_DIR/docs/reference/architecture/vm.md"
 STAGE1_BRIDGE_ENV_PARSER_STAGEB_RS="$ROOT_DIR/src/runner/stage1_bridge/env/parser_stageb.rs"
 RUST_STAGE1_README="$ROOT_DIR/src/stage1/README.md"
 RUST_STAGE1_MOD_RS="$ROOT_DIR/src/stage1/mod.rs"
@@ -420,6 +421,7 @@ REQUIRED_FILES=(
   "$REFERENCE_LANGUAGE_STRINGS"
   "$REFERENCE_BOXES_SYSTEM_README"
   "$REFERENCE_ARCH_DESIGN_OVERVIEW"
+  "$REFERENCE_ARCH_VM"
   "$STAGE1_BRIDGE_ENV_PARSER_STAGEB_RS"
   "$RUST_STAGE1_README"
   "$RUST_STAGE1_MOD_RS"
@@ -520,6 +522,7 @@ SSOT_REQUIRED_TOKENS=(
   "HAKORUNE-REFERENCE-DOCS-PLUGIN-INDEX-WORDING-001"
   "HAKORUNE-REFERENCE-DOCS-STRINGS-BOXES-WORDING-001"
   "HAKORUNE-REFERENCE-DOCS-ARCHITECTURE-OVERVIEW-WORDING-001"
+  "HAKORUNE-REFERENCE-DOCS-VM-GUIDE-TITLE-WORDING-001"
   "STAGE-TERM-EXISTING-NAME-INVENTORY-001"
   "STAGE-TERM-SYNTAX3-ALIAS-001"
   "STAGE-TERM-SYNTAX3-DIAGNOSTIC-WORDING-001"
@@ -664,6 +667,12 @@ if rg -n -F \
   -e "本書はNyashの実装設計" \
   "$REFERENCE_ARCH_DESIGN_OVERVIEW"; then
   guard_fail "$TAG" "architecture design overview must be marked as Hakorune historical snapshot"
+fi
+require_fixed "# Hakorune VM Execution Guide" "$REFERENCE_ARCH_VM"
+if rg -n -F \
+  -e "# Nyash VM 実行基盤ガイド（更新）" \
+  "$REFERENCE_ARCH_VM"; then
+  guard_fail "$TAG" "VM guide title must use Hakorune-first wording"
 fi
 require_fixed 'default-run = "hakorune"' "$CARGO_TOML"
 require_fixed 'name = "hakorune"' "$CARGO_TOML"
