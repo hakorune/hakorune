@@ -1,9 +1,9 @@
 use super::super::root::build_mir_json_root;
 use super::super::{
-    collect_array_record_storage_plan_values,
-    collect_object_storage_plan_values, collect_record_layout_plan_values,
-    collect_sorted_enum_decl_values, collect_sorted_record_decl_values,
-    collect_sorted_user_box_decl_values, collect_typed_object_plan_values,
+    collect_array_record_storage_plan_values, collect_object_storage_plan_values,
+    collect_record_layout_plan_values, collect_sorted_enum_decl_values,
+    collect_sorted_record_decl_values, collect_sorted_user_box_decl_values,
+    collect_typed_object_plan_values,
 };
 use crate::mir::function::{
     ArrayRecordStorageColumnPlan, ArrayRecordStoragePlan, RecordDecl, RecordLayoutFieldPlan,

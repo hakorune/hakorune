@@ -111,9 +111,7 @@ fn refresh_module_global_call_routes_accepts_same_module_scalar_counter_phi() {
         .metadata
         .value_types
         .insert(ValueId::new(0), MirType::Box("Counter".to_string()));
-    for value in [
-        2_u32, 4, 11, 12, 14, 19, 20, 23, 24, 25,
-    ] {
+    for value in [2_u32, 4, 11, 12, 14, 19, 20, 23, 24, 25] {
         callee
             .metadata
             .value_types
@@ -224,7 +222,9 @@ fn refresh_module_global_call_routes_accepts_same_module_scalar_counter_phi() {
     callee.add_block(join);
 
     module.functions.insert("main".to_string(), caller);
-    module.functions.insert("CounterApi.next/1".to_string(), callee);
+    module
+        .functions
+        .insert("CounterApi.next/1".to_string(), callee);
 
     refresh_module_global_call_routes(&mut module);
     crate::mir::same_module_definition_plan::refresh_module_same_module_definition_plans(
@@ -245,6 +245,9 @@ fn refresh_module_global_call_routes_accepts_same_module_scalar_counter_phi() {
         .same_module_definition_plans;
     assert_eq!(definitions.len(), 1, "{definitions:?}");
     assert_eq!(definitions[0].target_symbol, "CounterApi.next/1");
-    assert_eq!(definitions[0].definition_kind.as_json_name(), "same_module_function");
+    assert_eq!(
+        definitions[0].definition_kind.as_json_name(),
+        "same_module_function"
+    );
     assert_eq!(definitions[0].definition_owner, "uniform_mir");
 }

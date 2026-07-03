@@ -189,8 +189,7 @@ fn build_mir_json_root_emits_string_substring_len_extern_route() {
     refresh_function_extern_call_routes(&mut function);
     assert_eq!(function.metadata.extern_call_routes.len(), 1);
 
-    let mut module =
-        crate::mir::MirModule::new("json_string_substring_len_route_test".to_string());
+    let mut module = crate::mir::MirModule::new("json_string_substring_len_route_test".to_string());
     module.add_function(function);
 
     let root = build_mir_json_root(&module).expect("mir json root");
@@ -202,7 +201,10 @@ fn build_mir_json_root_emits_string_substring_len_extern_route() {
     assert_eq!(route["result_value"], 23);
     assert_eq!(route["return_shape"], "scalar_i64");
     assert_eq!(route["value_demand"], "runtime_i64");
-    assert_eq!(route["effects"], serde_json::json!(["string.substring_len"]));
+    assert_eq!(
+        route["effects"],
+        serde_json::json!(["string.substring_len"])
+    );
 
     let lowering_plan = root["functions"][0]["metadata"]["lowering_plan"]
         .as_array()
