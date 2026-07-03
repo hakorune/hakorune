@@ -1,0 +1,44 @@
+// exact_seed_backend_route_label_formatter.hako - hand-authored route label formatter
+//
+// Responsibility:
+// - format exact seed backend route tag/source-field vocabulary into Rust oracle text
+// - stay pure: scalar token in, scalar text out
+//
+// Non-responsibility:
+// - exact seed backend route selection
+// - exact seed payload route migration
+// - backend lowering
+// - MIR mutation
+static box ExactSeedBackendRouteLabelFormatterBox {
+  format_tag(kind) {
+    if kind == "ArrayStringStoreMicro" { return "array_string_store_micro" }
+    if kind == "ArrayGetSetMicro" { return "array_getset_micro" }
+    if kind == "ArrayRmwAdd1Leaf" { return "array_rmw_add1_leaf" }
+    if kind == "ConcatConstSuffixMicro" { return "concat_const_suffix_micro" }
+    if kind == "SubstringViewsOnlyMicro" { return "substring_views_only_micro" }
+    if kind == "SubstringConcatLoopAscii" { return "substring_concat_loop_ascii" }
+    if kind == "SumVariantTagLocal" { return "sum_variant_tag_local" }
+    if kind == "SumVariantProjectLocal" { return "sum_variant_project_local" }
+    if kind == "UserBoxPointLocalScalar" { return "userbox_point_local_scalar" }
+    if kind == "UserBoxFlagPointFLocalScalar" { return "userbox_flag_pointf_local_scalar" }
+    if kind == "UserBoxLoopMicro" { return "userbox_loop_micro" }
+    if kind == "UserBoxKnownReceiverMethodSeed" { return "userbox_known_receiver_method_seed" }
+    return "unsupported_exact_seed_backend_route_tag"
+  }
+
+  format_source_route_field(kind) {
+    if kind == "ArrayStringStoreMicro" { return "array_string_store_micro_seed_route" }
+    if kind == "ArrayGetSetMicro" { return "array_getset_micro_seed_route" }
+    if kind == "ArrayRmwAdd1Leaf" { return "array_rmw_add1_leaf_seed_route" }
+    if kind == "ConcatConstSuffixMicro" { return "concat_const_suffix_micro_seed_route" }
+    if kind == "SubstringViewsOnlyMicro" { return "substring_views_micro_seed_route" }
+    if kind == "SubstringConcatLoopAscii" { return "string_kernel_plans.loop_payload" }
+    if kind == "SumVariantTagLocal" { return "sum_variant_tag_seed_route" }
+    if kind == "SumVariantProjectLocal" { return "sum_variant_project_seed_route" }
+    if kind == "UserBoxPointLocalScalar" { return "userbox_local_scalar_seed_route" }
+    if kind == "UserBoxFlagPointFLocalScalar" { return "userbox_local_scalar_seed_route" }
+    if kind == "UserBoxLoopMicro" { return "userbox_loop_micro_seed_route" }
+    if kind == "UserBoxKnownReceiverMethodSeed" { return "userbox_known_receiver_method_seed_route" }
+    return "unsupported_exact_seed_backend_route_source_field"
+  }
+}

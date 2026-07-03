@@ -1,0 +1,32 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderHakoNativeOwnerParityPilotSelectionRerun034V1",
+  "token": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-034",
+  "input_state": {
+    "previous_adoption_decision": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-userbox-loop-micro-seed-label-formatter-hako-adoption-decision-v0.json",
+    "previous_adoption_decision_hash": "sha256:e824ede6f35326b9fc49040642f4c4b157f834d0bd3710d3e4b6354e343cf6fc"
+  },
+  "decision": {
+    "kind": "SelectRustOracleParityPilot",
+    "reason_token": "ExactSeedBackendRouteLabelFormatterIsPureVocabularyLeaf",
+    "selected_owner": "exact_seed_backend_route_label_formatter",
+    "selected_next_card": "MIRBUILDER-EXACT-SEED-BACKEND-ROUTE-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001"
+  },
+  "accepted_scope": {
+    "surface": "Exact seed backend route tag/source-field vocabulary formatting",
+    "correctness_proof_required": "RustOracleParityGate",
+    "manual_target_selection_allowed": 1
+  },
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "exact_seed_backend_route_selection_migration": 0,
+    "exact_seed_payload_route_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

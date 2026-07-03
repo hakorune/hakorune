@@ -1,0 +1,49 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderExactSeedBackendRouteLabelFormatterRustOracleV1",
+  "token": "MIRBUILDER-EXACT-SEED-BACKEND-ROUTE-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "exact_seed_backend_route_label_formatter",
+  "rust_source": {
+    "path": "src/mir/exact_seed_backend_route.rs",
+    "hash": "sha256:7f49e69f5c9ecb1041c2cdf688d2ec70bf2bb5444618a45392ac64e77a5af1a1",
+    "oracle_surface": "ExactSeedBackendRouteKind tag and source_route_field vocabulary"
+  },
+  "rows": [
+    {"kind": "tag", "input": "ArrayStringStoreMicro", "expected": "array_string_store_micro"},
+    {"kind": "tag", "input": "ArrayGetSetMicro", "expected": "array_getset_micro"},
+    {"kind": "tag", "input": "ArrayRmwAdd1Leaf", "expected": "array_rmw_add1_leaf"},
+    {"kind": "tag", "input": "ConcatConstSuffixMicro", "expected": "concat_const_suffix_micro"},
+    {"kind": "tag", "input": "SubstringViewsOnlyMicro", "expected": "substring_views_only_micro"},
+    {"kind": "tag", "input": "SubstringConcatLoopAscii", "expected": "substring_concat_loop_ascii"},
+    {"kind": "tag", "input": "SumVariantTagLocal", "expected": "sum_variant_tag_local"},
+    {"kind": "tag", "input": "SumVariantProjectLocal", "expected": "sum_variant_project_local"},
+    {"kind": "tag", "input": "UserBoxPointLocalScalar", "expected": "userbox_point_local_scalar"},
+    {"kind": "tag", "input": "UserBoxFlagPointFLocalScalar", "expected": "userbox_flag_pointf_local_scalar"},
+    {"kind": "tag", "input": "UserBoxLoopMicro", "expected": "userbox_loop_micro"},
+    {"kind": "tag", "input": "UserBoxKnownReceiverMethodSeed", "expected": "userbox_known_receiver_method_seed"},
+    {"kind": "source_route_field", "input": "ArrayStringStoreMicro", "expected": "array_string_store_micro_seed_route"},
+    {"kind": "source_route_field", "input": "ArrayGetSetMicro", "expected": "array_getset_micro_seed_route"},
+    {"kind": "source_route_field", "input": "ArrayRmwAdd1Leaf", "expected": "array_rmw_add1_leaf_seed_route"},
+    {"kind": "source_route_field", "input": "ConcatConstSuffixMicro", "expected": "concat_const_suffix_micro_seed_route"},
+    {"kind": "source_route_field", "input": "SubstringViewsOnlyMicro", "expected": "substring_views_micro_seed_route"},
+    {"kind": "source_route_field", "input": "SubstringConcatLoopAscii", "expected": "string_kernel_plans.loop_payload"},
+    {"kind": "source_route_field", "input": "SumVariantTagLocal", "expected": "sum_variant_tag_seed_route"},
+    {"kind": "source_route_field", "input": "SumVariantProjectLocal", "expected": "sum_variant_project_seed_route"},
+    {"kind": "source_route_field", "input": "UserBoxPointLocalScalar", "expected": "userbox_local_scalar_seed_route"},
+    {"kind": "source_route_field", "input": "UserBoxFlagPointFLocalScalar", "expected": "userbox_local_scalar_seed_route"},
+    {"kind": "source_route_field", "input": "UserBoxLoopMicro", "expected": "userbox_loop_micro_seed_route"},
+    {"kind": "source_route_field", "input": "UserBoxKnownReceiverMethodSeed", "expected": "userbox_known_receiver_method_seed_route"}
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "exact_seed_backend_route_selection_migration": 0,
+    "exact_seed_payload_route_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

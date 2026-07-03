@@ -24,9 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-USERBOX-LOOP-MICRO-SEED-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.
-  The userbox_loop_micro_seed_label_formatter owner is HakoAdopted as the thirty-fourth
-  narrow Rust-oracle parity pilot; next is pilot selection rerun 034.
+  MIRBUILDER-EXACT-SEED-BACKEND-ROUTE-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.
+  The exact_seed_backend_route_label_formatter owner is HakoAdopted as the
+  thirty-fifth narrow Rust-oracle parity pilot; next is pilot selection rerun 035.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-034
+  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-035
 
 current fail-fast boundary:
   Do not re-enter full converter route selection without new non-self-signed
@@ -91,16 +91,17 @@ current fail-fast boundary:
   leaf seed matching, array get/set micro seed matching, array string-store
   micro seed matching, concat const suffix seed matching, array text loopcarry
   matching, array string length window matching, string direct-set window matching,
-  substring views micro seed matching, UserBox loop micro seed matching, and
-  backend lowering remain Rust.
+  substring views micro seed matching, UserBox loop micro seed matching, exact
+  seed backend route selection, exact seed payload route migration, and backend
+  lowering remain Rust.
 
 latest design decision:
-  userbox_loop_micro_seed_label_formatter is now HakoAdopted as a narrow
-  Rust-oracle parity pilot owner after a green 4-row `.hako` EXE parity gate.
-  UserBox loop micro seed matching, thin-entry selection, backend helper
-  emission, and MIR mutation remain Rust.
+  exact_seed_backend_route_label_formatter is now HakoAdopted as a narrow
+  Rust-oracle parity pilot owner after a green 24-row `.hako` EXE parity gate.
+  Exact seed backend route selection, exact seed payload route migration,
+  backend lowering, and MIR mutation remain Rust.
   The selected next card is
-  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-034`.
+  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-035`.
 
 historical route-selection decision:
   Detailed landed route-selection rows are closed as provenance and live in
@@ -755,8 +756,9 @@ docs/development/current/main/design/perf-owner-first-optimization-ssot.md
 Current status:
 
 ```text
-fastpath_analysis_ready=partial
-fastpath_backend_consumption=parked
+fastpath_analysis_ready=accepted framework
+exact_aot_fastpath_sweep=closed_no_fresh_owner
+primitive_family_fastpath=provisional_design_only
 speed_goal_blocker=backend_lowering_consumer_missing
 optimization_open=0
 ```
