@@ -1,0 +1,38 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderSameModuleDefinitionKindFormatterHakoAdoptionDecisionV1",
+  "token": "MIRBUILDER-SAME-MODULE-DEFINITION-KIND-FORMATTER-HAKO-ADOPTION-DECISION-001",
+  "owner": "same_module_definition_kind_formatter",
+  "decision": {
+    "kind": "Adopt",
+    "reason_token": "SameModuleDefinitionKindFormatterRustOracleParityGateGreen",
+    "hako_adopted": 1,
+    "selected_next_card": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-005"
+  },
+  "evidence": {
+    "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-same-module-definition-kind-formatter-rust-oracle-v0.json",
+    "rust_oracle_fixture_hash": "sha256:99da394bcc3764ba4c18b1644fee35d2859a46fa8783d5ece8a4acfea19ba938",
+    "hako_source": "lang/src/compiler/lib/same_module_definition_kind_formatter.hako",
+    "hako_source_hash": "sha256:bda9665f35fa98e39545fbab4530cfcfc866747f41038f01c4687d8e399c04b4",
+    "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_same_module_definition_kind_formatter_parity_gate.sh",
+    "parity_gate_hash": "sha256:0e66f34125076a398b3d56d1c4f8425d76f6c13a8d03ab2badf6372b256e2445",
+    "parity_rows": 2,
+    "parity_status": "green"
+  },
+  "scope": {
+    "adopted_surface": "SameModuleDefinitionKind -> JSON name",
+    "same_module_definition_closure_migration": 0,
+    "global_call_route_traversal_migration": 0,
+    "user_box_method_route_traversal_migration": 0,
+    "mir_module_mutation_migration": 0,
+    "backend_c_shim_emission_migration": 0
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "generated_artifact_as_native_edit_authority": 0
+  }
+}
