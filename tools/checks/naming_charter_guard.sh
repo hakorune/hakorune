@@ -141,6 +141,8 @@ SELFHOST_FLAGS_RS="$ROOT_DIR/src/config/env/selfhost_flags.rs"
 ENV_PATHS_RS="$ROOT_DIR/src/config/env/paths.rs"
 VERIFICATION_FLAGS_RS="$ROOT_DIR/src/config/env/verification_flags.rs"
 ENV_DOC="$ROOT_DIR/docs/reference/environment-variables.md"
+REFERENCE_README="$ROOT_DIR/docs/reference/README.md"
+REFERENCE_LANGUAGE_README="$ROOT_DIR/docs/reference/language/README.md"
 REFERENCE_QUICK="$ROOT_DIR/docs/reference/language/quick-reference.md"
 REFERENCE_CORE_LANGUAGE_README="$ROOT_DIR/docs/reference/core-language/README.md"
 REFERENCE_PHI_SSA="$ROOT_DIR/docs/reference/architecture/phi-and-ssa.md"
@@ -496,6 +498,7 @@ SSOT_REQUIRED_TOKENS=(
   "HAKORUNE-README-MODEB-LINE-QUICKGUIDE-WORDING-001"
   "HAKORUNE-REFERENCE-DOCS-CANONICALIZATION-DECISION-001"
   "HAKORUNE-REFERENCE-DOCS-FIRST-CUT-001"
+  "HAKORUNE-REFERENCE-DOCS-ENTRY-INDEX-WORDING-001"
   "STAGE-TERM-EXISTING-NAME-INVENTORY-001"
   "STAGE-TERM-SYNTAX3-ALIAS-001"
   "STAGE-TERM-SYNTAX3-DIAGNOSTIC-WORDING-001"
@@ -570,6 +573,28 @@ if rg -n -F \
   -e 'Nyash lowers high-level control flow' \
   "$REFERENCE_QUICK" "$REFERENCE_CORE_LANGUAGE_README" "$REFERENCE_PHI_SSA"; then
   guard_fail "$TAG" "selected reference entry docs must use Hakorune-first / phase-1 wording"
+fi
+require_fixed "bootstrap / phase-1 で使える" "$REFERENCE_README"
+require_fixed "bootstrap / phase-1 support manual owner" "$REFERENCE_README"
+require_fixed "# Hakorune Language Reference" "$REFERENCE_LANGUAGE_README"
+require_fixed "current Hakorune language reference" "$REFERENCE_LANGUAGE_README"
+require_fixed "Bootstrap / phase-1 usable surface profiles: see the profile manual below." "$REFERENCE_LANGUAGE_README"
+require_fixed "bootstrap compiler helper no-match" "$REFERENCE_LANGUAGE_README"
+require_fixed "phase-1/selfhost code may rely on" "$REFERENCE_LANGUAGE_README"
+require_fixed "# Hakorune Grammar Reference" "$REFERENCE_EBNF"
+require_fixed "Practical bootstrap / phase-1 support status" "$REFERENCE_EBNF"
+if rg -n -F \
+  -e 'Stage0 / Stage1 で使える' \
+  -e 'Stage0 / Stage1 support manual owner' \
+  -e '# Hakorune / Nyash Language Reference' \
+  -e 'current Hakorune / Nyash language reference' \
+  -e 'Stage0 / Stage1 usable surface profiles' \
+  -e 'Stage0.' \
+  -e 'what Stage0 may carry and what Stage1 code may rely on' \
+  -e '# Hakorune / Nyash Grammar Reference' \
+  -e 'Practical Stage0 / Stage1 support status' \
+  "$REFERENCE_README" "$REFERENCE_LANGUAGE_README" "$REFERENCE_EBNF"; then
+  guard_fail "$TAG" "reference index docs must use Hakorune-first / bootstrap / phase-1 wording"
 fi
 require_fixed 'default-run = "hakorune"' "$CARGO_TOML"
 require_fixed 'name = "hakorune"' "$CARGO_TOML"

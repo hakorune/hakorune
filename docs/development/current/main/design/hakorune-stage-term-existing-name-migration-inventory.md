@@ -1146,6 +1146,30 @@ historical Nyash pages rewritten = 0
 runtime behavior changed = 0
 ```
 
+## Landed Reference Docs Entry Index Wording Slice
+
+`HAKORUNE-REFERENCE-DOCS-ENTRY-INDEX-WORDING-001` updates the remaining
+reference entry/index wording that is safe under the reference-doc
+canonicalization decision.
+
+Scope:
+
+```text
+docs/reference/README.md
+docs/reference/language/README.md
+docs/reference/language/EBNF.md
+```
+
+Non-claims:
+
+```text
+stage-profiles.md renamed = 0
+Stage-2 historical note removed = 0
+NYASH_* env names renamed = 0
+nyash.toml compatibility name removed = 0
+runtime behavior changed = 0
+```
+
 ## Migration Eligibility
 
 An occurrence is eligible for a future rename only if all conditions hold:

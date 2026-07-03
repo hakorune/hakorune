@@ -7,7 +7,7 @@
 ### language/
 - 言語仕様（構文、型システム、Box仕様、デリゲーション）
 - 正式な言語リファレンス
-- Stage0 / Stage1 で使える `.hako` surface profile:
+- bootstrap / phase-1 で使える `.hako` surface profile:
   `docs/reference/language/stage-profiles.md`
 
 ### architecture/
@@ -63,7 +63,7 @@ Runtime substrate note:
 
 Language stage profile note:
 - canonical grammar owner は `docs/reference/language/EBNF.md`
-- Stage0 / Stage1 support manual owner は
+- bootstrap / phase-1 support manual owner は
   `docs/reference/language/stage-profiles.md`
 - practical current syntax summary は
   `docs/reference/language/quick-reference.md`

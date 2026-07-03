@@ -1,9 +1,9 @@
-# Hakorune / Nyash Grammar Reference
+# Hakorune Grammar Reference
 
 Status: Living reference for the current Hakorune language-minimal surface.
 Parser implementations (Rust / selfhost) should conform to the accepted rows
 listed in this document. Historical Stage-2 notes remain for compatibility
-where explicitly labeled. Practical Stage0 / Stage1 support status is tracked
+where explicitly labeled. Practical bootstrap / phase-1 support status is tracked
 in `docs/reference/language/stage-profiles.md`.
 
 Design SSOT note (Scope Exit Semantics):

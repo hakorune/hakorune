@@ -106,6 +106,7 @@ HAKORUNE-README-MODEB-USER-FACING-WORDING-001
 HAKORUNE-README-MODEB-LINE-QUICKGUIDE-WORDING-001
 HAKORUNE-REFERENCE-DOCS-CANONICALIZATION-DECISION-001
 HAKORUNE-REFERENCE-DOCS-FIRST-CUT-001
+HAKORUNE-REFERENCE-DOCS-ENTRY-INDEX-WORDING-001
 ```
 
 `--syntax-3` is now the frontend syntax-level spelling; `--stage3` remains a
@@ -204,6 +205,9 @@ Reference docs now have a Hakorune-first canonicalization decision, and the
 first entry-doc cut updates quick-reference, core-language README, and PHI/SSA
 architecture titles/phrasing while preserving env, ABI, historical, and
 compatibility names.
+Reference docs entry/index wording now also covers docs/reference/README,
+language/README, and EBNF titles/support-profile pointers while preserving
+stage-profiles.md as the compatibility support manual path.
 Next safe naming work, if explicitly selected, must pick a
 different classified layer from that inventory and keep compatibility aliases
 or replacement routes in the same slice.

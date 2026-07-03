@@ -1,12 +1,12 @@
-# Hakorune / Nyash Language Reference – Index
+# Hakorune Language Reference – Index
 
-This is the entry point for the current Hakorune / Nyash language reference.
+This is the entry point for the current Hakorune language reference.
 
 Current canonical surface:
 
 - Minimal surface policy: development/current/main/design/language-minimal-surface-ssot.md
 - Grammar and accepted rows: reference/language/EBNF.md
-- Stage0 / Stage1 usable surface profiles: reference/language/stage-profiles.md
+- Bootstrap / phase-1 usable surface profiles: see the profile manual below.
 - Practical syntax summary: reference/language/quick-reference.md
 - Type and enum surface: reference/language/types.md
 - Record vs Box / Object Storage: reference/language/types.md “Record vs Box”,
@@ -55,8 +55,8 @@ Variables and scope
 Type system (SSOT)
 - See: reference/language/types.md — runtime truthiness, `+`/compare/equality semantics, and the role/limits of MIR type facts.
 - See: reference/language/option.md — current `Option<T>` / `Result<T,E>`
-  enum prelude surface and why compiler helper no-match must not use Option on
-  Stage0.
+  enum prelude surface and why bootstrap compiler helper no-match must not use
+  Option.
 - Static const table declarations, reads, and narrow integer initializer const expressions are live for the M11b `u16[]` row. Const fn remains reserved. See reference/language/types.md “Static Const Tables (M11b live)” and `docs/development/current/main/design/static-const-table-syntax-ssot.md`.
 - Low-level allocator-grade `.hako` code uses explicit capability modules,
   static tables, and Rune metadata rather than broad `unsafe` blocks. See:
@@ -72,8 +72,8 @@ Grammar (EBNF)
 - See: reference/language/EBNF.md — living grammar reference used by parser
   implementations.
 - See: reference/language/stage-profiles.md — practical support manual for
-  what Stage0 may carry and what Stage1 code may rely on. It is not a second
-  grammar.
+  what bootstrap readers may carry and what phase-1/selfhost code may rely on.
+  It is not a second grammar.
 - Unified Members (stored/computed/once/birth_once): see reference/language/EBNF.md “Box Members (Phase 15)” and the Language Reference section. Stored fields use `name` for simple dynamic slots and `name: Type` when declared-type metadata helps typed-object planning / optimization / verification. Canonical computed syntax is `get name: Type { ... }`; legacy `name: Type { ... }` remains accepted. Default ON (disable with `NYASH_ENABLE_UNIFIED_MEMBERS=0`).
 
 Member exceptions and handlers (Stage‑3)

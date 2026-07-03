@@ -726,6 +726,36 @@ historical Nyash pages rewritten = 0
 runtime behavior changed = 0
 ```
 
+### HAKORUNE-REFERENCE-DOCS-ENTRY-INDEX-WORDING-001
+
+Status: landed.
+
+Scope:
+
+```text
+docs/reference/README.md:
+  support-profile pointers say bootstrap / phase-1
+
+docs/reference/language/README.md:
+  title and entry sentence are Hakorune-first
+  support-profile pointers say bootstrap / phase-1
+  bootstrap no-match and phase-1/selfhost support wording replace Stage0/Stage1
+
+docs/reference/language/EBNF.md:
+  title is Hakorune-first
+  support status says bootstrap / phase-1
+```
+
+Non-claims:
+
+```text
+stage-profiles.md renamed = 0
+Stage-2 historical note removed = 0
+NYASH_* env names renamed = 0
+nyash.toml compatibility name removed = 0
+runtime behavior changed = 0
+```
+
 ### HAKORUNE-BINARY-PRIMARY-CUTOVER-INVENTORY-001
 
 Status: landed inventory cut.
