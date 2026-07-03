@@ -922,6 +922,7 @@ Affected scripts:
 tools/smokes/v2/profiles/quick/core/hako_min_binop_vm.sh
 tools/smokes/v2/profiles/quick/core/hako_min_if_vm.sh
 tools/smokes/v2/profiles/quick/core/index_operator_hako.sh
+tools/smokes/v2/profiles/quick/core/hako_min_compile_return_vm.sh
 ```
 
 Acceptance:
@@ -931,6 +932,7 @@ bash tools/checks/naming_charter_guard.sh
 SMOKES_ENABLE_HAKO_BINOP=1 bash tools/smokes/v2/profiles/quick/core/hako_min_binop_vm.sh
 SMOKES_ENABLE_HAKO_IF=1 bash tools/smokes/v2/profiles/quick/core/hako_min_if_vm.sh
 SMOKES_ENABLE_HAKO_INDEX=1 bash tools/smokes/v2/profiles/quick/core/index_operator_hako.sh
+bash tools/smokes/v2/profiles/quick/core/hako_min_compile_return_vm.sh
 git diff --check
 tools/checks/dev_gate.sh quick
 ```

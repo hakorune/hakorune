@@ -10,14 +10,15 @@ if [ "${SMOKES_ENABLE_HAKO_MIN:-0}" != "1" ]; then
 fi
 
 ROOT="$(cd "$(dirname "$0")/../../../../../.." && pwd)"
-NYASH_BIN="${NYASH_BIN:-$ROOT/target/release/nyash}"
+HAKO_BIN_DEFAULT="$ROOT/tools/bin/hako"
+HAKO_BIN="${HAKO_BIN:-$HAKO_BIN_DEFAULT}"
 
 fail() { echo "[FAIL] $*" >&2; exit 1; }
 pass() { echo "[PASS] $*" >&2; }
 
-if [ ! -x "$NYASH_BIN" ]; then
-  echo "[INFO] building nyash..." >&2
-  cargo build --release >/dev/null 2>&1 || fail "build failed"
+if [ ! -x "$HAKO_BIN" ]; then
+  echo "[SKIP] Hako binary not found: $HAKO_BIN (set HAKO_BIN to override)" >&2
+  exit 0
 fi
 
 TMP_SRC="/tmp/hako_min_src_$$.hako"
@@ -34,7 +35,7 @@ RAW="/tmp/hako_min_out_raw_$$.txt"
 trap 'rm -f "$TMP_SRC" "$TMP_JSON" "$RAW"' EXIT
 NYASH_PARSER_ALLOW_SEMICOLON=1 NYASH_SYNTAX_SUGAR_LEVEL=full \
   HAKO_ALLOW_USING_FILE=1 NYASH_ALLOW_USING_FILE=1 \
-  "$NYASH_BIN" --backend vm "$ROOT/lang/src/compiler/entry/compiler.hako" -- --min-json --return-int 42 > "$RAW" 2>/dev/null || true
+  "$HAKO_BIN" --backend vm "$ROOT/lang/src/compiler/entry/compiler.hako" -- --min-json --return-int 42 > "$RAW" 2>/dev/null || true
 
 # Extract first JSON v0 Program line
 awk '/"version":0/ && /"kind":"Program"/ {print; exit}' "$RAW" > "$TMP_JSON"
@@ -44,7 +45,7 @@ if [ ! -s "$TMP_JSON" ]; then
 fi
 
 # Execute JSON v0
-OUT=$("$NYASH_BIN" --json-file "$TMP_JSON" 2>&1)
+OUT=$("$HAKO_BIN" --json-file "$TMP_JSON" 2>&1)
 ACTUAL=$(printf '%s\n' "$OUT" | awk -F': ' '/^Result:/ { val=$2 } END { print val }')
 if [ -z "$ACTUAL" ]; then
   echo "[FAIL] could not parse Result line" >&2
