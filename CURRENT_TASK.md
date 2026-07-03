@@ -358,6 +358,42 @@ Next safe naming work, if explicitly selected, must pick a
 different classified layer from that inventory and keep compatibility aliases
 or replacement routes in the same slice.
 
+## Latest MirBuilder Hako-Native Parity Pilot
+
+Latest adopted owner:
+
+```text
+MIRBUILDER-LOOP-ROUTE-KIND-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001
+```
+
+Status:
+
+```text
+loop_route_kind_label_formatter is HakoAdopted as the eleventh narrow
+Rust-oracle parity pilot after a green 7-row `.hako` EXE parity gate.
+Source Selfhost remains unclaimed.
+```
+
+Boundary:
+
+```text
+Adopted:
+  LoopRouteKind -> name / semantic_label / pattern_id / flags
+
+Still Rust:
+  loop feature extraction
+  loop route classification
+  planner route selection
+  lowering execution
+  MIR mutation
+```
+
+Next:
+
+```text
+MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-011
+```
+
 Acceptance:
 
 ```bash

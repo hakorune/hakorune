@@ -24,9 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-REGION-REF-SLOT-KIND-CLASSIFIER-HAKO-ADOPTION-DECISION-001.
-  The region_ref_slot_kind_classifier owner is HakoAdopted as the tenth narrow
-  Rust-oracle parity pilot; next is pilot selection rerun 010.
+  MIRBUILDER-LOOP-ROUTE-KIND-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.
+  The loop_route_kind_label_formatter owner is HakoAdopted as the eleventh
+  narrow Rust-oracle parity pilot; next is pilot selection rerun 011.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-010
+  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-011
 
 current fail-fast boundary:
   Do not re-enter full converter route selection without new non-self-signed
@@ -71,21 +71,22 @@ current fail-fast boundary:
   static-scalar fact classification, and fixture-backed string corridor name
   vocabulary classification, and same-module definition kind JSON-name
   formatting, user-box method type-label formatting, and core-method carrier
-  token formatting, and generic-method route fact token formatting. Metadata
-  refresh, route collection, const emission, full AST traversal, method
+  token formatting, generic-method route fact token formatting, closure-call
+  shape classification, region ref-slot kind classification, and loop route
+  kind label/id/flag formatting. Metadata refresh, route collection, const emission, full AST traversal, method
   dispatch, string corridor fact inference, same-module definition closure
   collection, receiver origin resolution, key route classification, route
   convergence, closure callsite canonicalization, NewClosure rewrite, lowering
-  execution, Region construction, GC retain/release, and MirBuilder mutation
-  remain Rust.
+  execution, Region construction, GC retain/release, loop feature extraction,
+  loop route classification, planner route selection, and MirBuilder mutation remain Rust.
 
 latest design decision:
-  region_ref_slot_kind_classifier is now HakoAdopted as a narrow Rust-oracle
-  parity pilot owner after a green 10-row `.hako` EXE parity gate for
-  `MirType -> RefSlotKind`. Region construction, slot metadata collection, GC
-  retain/release insertion, Region trace/log emission, and MIR mutation remain
-  Rust. The selected next card is
-  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-010`.
+  loop_route_kind_label_formatter is now HakoAdopted as a narrow Rust-oracle
+  parity pilot owner after a green 7-row `.hako` EXE parity gate for
+  `LoopRouteKind -> label/id/flags`. Loop feature extraction, route
+  classification, planner route selection, lowering execution, and MIR
+  mutation remain Rust. The selected next card is
+  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-011`.
 
 historical route-selection decision:
   Detailed landed route-selection rows are closed as provenance and live in

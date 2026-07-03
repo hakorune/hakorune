@@ -1,0 +1,91 @@
+// loop_route_kind_label_formatter.hako - hand-authored LoopRouteKind label formatter
+//
+// Responsibility:
+// - format LoopRouteKind labels, semantic labels, pattern IDs, and flags
+// - stay pure: route-kind string input, scalar string output
+//
+// Non-responsibility:
+// - loop feature extraction
+// - loop route classification
+// - planner route selection
+// - lowering execution
+// - MIR mutation
+static box LoopRouteKindLabelFormatterBox {
+  name(kind) {
+    if kind == "LoopSimpleWhile" {
+      return "LoopSimpleWhile"
+    }
+    if kind == "LoopBreak" {
+      return "LoopBreak"
+    }
+    if kind == "IfPhiJoin" {
+      return "IfPhiJoin"
+    }
+    if kind == "LoopContinueOnly" {
+      return "LoopContinueOnly"
+    }
+    if kind == "LoopTrueEarlyExit" {
+      return "LoopTrueEarlyExit"
+    }
+    if kind == "NestedLoopMinimal" {
+      return "NestedLoopMinimal"
+    }
+    return "UnknownLoopShape"
+  }
+
+  semantic_label(kind) {
+    if kind == "LoopBreak" {
+      return "LoopBreakRecipe"
+    }
+    return LoopRouteKindLabelFormatterBox.name(kind)
+  }
+
+  pattern_id(kind) {
+    if kind == "LoopSimpleWhile" {
+      return "1"
+    }
+    if kind == "LoopBreak" {
+      return "2"
+    }
+    if kind == "IfPhiJoin" {
+      return "3"
+    }
+    if kind == "LoopContinueOnly" {
+      return "4"
+    }
+    if kind == "LoopTrueEarlyExit" {
+      return "5"
+    }
+    if kind == "NestedLoopMinimal" {
+      return "6"
+    }
+    return "0"
+  }
+
+  is_recognized(kind) {
+    if kind == "Unknown" {
+      return "0"
+    }
+    return "1"
+  }
+
+  has_special_control_flow(kind) {
+    if kind == "LoopBreak" {
+      return "1"
+    }
+    if kind == "LoopContinueOnly" {
+      return "1"
+    }
+    if kind == "LoopTrueEarlyExit" {
+      return "1"
+    }
+    return "0"
+  }
+
+  has_phi_merge(kind) {
+    if kind == "IfPhiJoin" {
+      return "1"
+    }
+    return "0"
+  }
+}

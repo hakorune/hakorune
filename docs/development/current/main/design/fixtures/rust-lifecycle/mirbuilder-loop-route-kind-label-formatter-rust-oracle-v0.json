@@ -1,0 +1,41 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderLoopRouteKindLabelFormatterRustOracleV1",
+  "token": "MIRBUILDER-LOOP-ROUTE-KIND-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "loop_route_kind_label_formatter",
+  "rust_source": {
+    "path": "src/mir/loop_route_detection/kind.rs",
+    "hash": "sha256:bb9d442f1732d11d522dfcfc692176fc859a39355429e4dfd185ce879849b43a",
+    "oracle_functions": [
+      "LoopRouteKind::name",
+      "LoopRouteKind::semantic_label",
+      "LoopRouteKind::pattern_id",
+      "LoopRouteKind::is_recognized",
+      "LoopRouteKind::has_special_control_flow",
+      "LoopRouteKind::has_phi_merge"
+    ]
+  },
+  "oracle_rule": {
+    "surface": "LoopRouteKind label/id/flag formatter",
+    "loop_feature_extraction_migration": 0,
+    "loop_route_classification_migration": 0,
+    "planner_route_selection_migration": 0,
+    "lowering_execution_migration": 0,
+    "mir_mutation_migration": 0
+  },
+  "rows": [
+    { "route_kind": "LoopSimpleWhile", "expected_name": "LoopSimpleWhile", "expected_semantic_label": "LoopSimpleWhile", "expected_pattern_id": "1", "expected_is_recognized": "1", "expected_has_special_control_flow": "0", "expected_has_phi_merge": "0" },
+    { "route_kind": "LoopBreak", "expected_name": "LoopBreak", "expected_semantic_label": "LoopBreakRecipe", "expected_pattern_id": "2", "expected_is_recognized": "1", "expected_has_special_control_flow": "1", "expected_has_phi_merge": "0" },
+    { "route_kind": "IfPhiJoin", "expected_name": "IfPhiJoin", "expected_semantic_label": "IfPhiJoin", "expected_pattern_id": "3", "expected_is_recognized": "1", "expected_has_special_control_flow": "0", "expected_has_phi_merge": "1" },
+    { "route_kind": "LoopContinueOnly", "expected_name": "LoopContinueOnly", "expected_semantic_label": "LoopContinueOnly", "expected_pattern_id": "4", "expected_is_recognized": "1", "expected_has_special_control_flow": "1", "expected_has_phi_merge": "0" },
+    { "route_kind": "LoopTrueEarlyExit", "expected_name": "LoopTrueEarlyExit", "expected_semantic_label": "LoopTrueEarlyExit", "expected_pattern_id": "5", "expected_is_recognized": "1", "expected_has_special_control_flow": "1", "expected_has_phi_merge": "0" },
+    { "route_kind": "NestedLoopMinimal", "expected_name": "NestedLoopMinimal", "expected_semantic_label": "NestedLoopMinimal", "expected_pattern_id": "6", "expected_is_recognized": "1", "expected_has_special_control_flow": "0", "expected_has_phi_merge": "0" },
+    { "route_kind": "Unknown", "expected_name": "UnknownLoopShape", "expected_semantic_label": "UnknownLoopShape", "expected_pattern_id": "0", "expected_is_recognized": "0", "expected_has_special_control_flow": "0", "expected_has_phi_merge": "0" }
+  ],
+  "summary": {
+    "oracle_row_count": 7,
+    "selected_surface_is_pure_route_label_formatter": 1,
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0
+  }
+}

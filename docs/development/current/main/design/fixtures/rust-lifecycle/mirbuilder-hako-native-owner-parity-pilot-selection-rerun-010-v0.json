@@ -1,0 +1,75 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderHakoNativeOwnerParityPilotSelectionRerun010V1",
+  "token": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-010",
+  "input_state": {
+    "previous_hako_adoption": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-region-ref-slot-kind-classifier-hako-adoption-decision-v0.json",
+    "previous_hako_adoption_hash": "sha256:c4d9670c763daaa70654d633068687685b4ea058b508d10efddc1d37a4c89642",
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+  },
+  "selection_policy": {
+    "candidate_ranking_is_advisory": true,
+    "manual_target_selection_allowed": true,
+    "correctness_proof_is_parity_gate": true,
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0
+  },
+  "candidate_rows": [
+    {
+      "candidate_owner": "loop_route_kind_label_formatter",
+      "source_path": "src/mir/loop_route_detection/kind.rs",
+      "source_hash": "sha256:bb9d442f1732d11d522dfcfc692176fc859a39355429e4dfd185ce879849b43a",
+      "selected": true,
+      "positive_signals": [
+        "pure LoopRouteKind label and flag formatter",
+        "string-only input/output parity boundary",
+        "existing semantic-label SSOT",
+        "no MIR traversal in selected surface",
+        "no PHI or LocalSSA surface",
+        "route classification can be excluded"
+      ],
+      "excluded_surface": [
+        "loop feature extraction",
+        "loop route classification",
+        "planner route selection",
+        "lowering execution",
+        "MIR mutation"
+      ],
+      "selected_next_card_if_selected": "MIRBUILDER-LOOP-ROUTE-KIND-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001"
+    },
+    {
+      "candidate_owner": "capability_tag_formatter",
+      "source_path": "src/mir/loop_canonicalizer/capability_guard.rs",
+      "selected": false,
+      "reason": "Capability tags are small but sit in fail-fast routing decisions; defer until route-label vocabulary is adopted."
+    },
+    {
+      "candidate_owner": "fastmem_proof_kind_formatter",
+      "source_path": "src/mir/function/fastmem.rs",
+      "selected": false,
+      "reason": "FastMem proof tokens are pure, but FASTMEM is a backend/perf lane; keep this migration pilot on loop-route vocabulary."
+    }
+  ],
+  "decision": {
+    "kind": "SelectPilotOwner",
+    "reason_token": "LoopRouteKindLabelFormatterSelectedAsEleventhParityPilot",
+    "selected_owner": "loop_route_kind_label_formatter",
+    "selected_rust_surface": "LoopRouteKind label/id/flag formatter",
+    "selected_next_card": "MIRBUILDER-LOOP-ROUTE-KIND-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "native_seed_materialization": 0,
+    "hako_generation": 0,
+    "generated_artifact_as_native_edit_authority": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "loop_feature_extraction_migration": 0,
+    "loop_route_classification_migration": 0,
+    "planner_route_selection_migration": 0,
+    "lowering_execution_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}
