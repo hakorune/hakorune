@@ -24,9 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-GLOBAL-CALL-TARGET-SHAPE-REASON-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.
-  The global_call_target_shape_reason_label_formatter owner is HakoAdopted as
-  the seventy-first narrow Rust-oracle parity pilot; next is rerun 071.
+  MIRBUILDER-GLOBAL-CALL-PROOF-JSON-NAME-FORMATTER-HAKO-ADOPTION-DECISION-001.
+  The global_call_proof_json_name_formatter owner is HakoAdopted as the
+  seventy-second narrow Rust-oracle parity pilot; next is rerun 072.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-071
+  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-072
 
 current fail-fast boundary:
   Do not re-enter full converter route selection without new non-self-signed
@@ -116,16 +116,16 @@ current fail-fast boundary:
   formatting, memory operation semantics, FastMem handling, function signature
   preparation, map lookup fusion route derivation, generic method route analysis,
   route selection, Freeze construction/message formatting, planner fail-fast
-  policy, global-call target inference/shape reasoning/route collection,
-  definition-owner inference, and proof policy remain Rust.
+  policy, global-call target/shape/proof analysis, result-origin mapping,
+  definition-owner inference, route collection, and proof policy remain Rust.
 
 latest design decision:
-  global_call_target_shape_reason_label_formatter is now HakoAdopted as a
-  narrow Rust-oracle parity pilot owner after a green 15-row `.hako` EXE parity
-  gate. Global-call target-shape inference, route collection, and proof policy
-  remain Rust.
+  global_call_proof_json_name_formatter is now HakoAdopted as a narrow
+  Rust-oracle parity pilot owner after a green 17-row `.hako` EXE parity gate.
+  Global-call proof policy, result-origin mapping, definition-owner inference,
+  and route collection remain Rust.
   The selected next card is
-  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-071`.
+  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-072`.
 
 historical route-selection decision:
   Detailed landed route-selection rows are closed as provenance and live in

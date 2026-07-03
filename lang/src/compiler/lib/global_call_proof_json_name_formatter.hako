@@ -1,0 +1,32 @@
+// global_call_proof_json_name_formatter.hako
+//
+// Responsibility:
+// - format the narrow GlobalCallProof JSON-name vocabulary
+//
+// Non-responsibility:
+// - proof policy
+// - result-origin mapping
+// - definition-owner inference
+// - global-call route collection
+static box GlobalCallProofJsonNameFormatterBox {
+  json_name(proof) {
+    if proof == "ContractMissing" { return "typed_global_call_contract_missing" }
+    if proof == "LeafNumericI64" { return "typed_global_call_leaf_numeric_i64" }
+    if proof == "GenericPureString" { return "typed_global_call_generic_pure_string" }
+    if proof == "GenericStringOrVoidSentinel" { return "typed_global_call_generic_string_or_void_sentinel" }
+    if proof == "GenericStringVoidLogging" { return "typed_global_call_generic_string_void_logging" }
+    if proof == "GenericI64" { return "typed_global_call_generic_i64" }
+    if proof == "ParserProgramJson" { return "typed_global_call_parser_program_json" }
+    if proof == "Stage" + "1EmitProgramJson" { return "typed_global_call_stage1_emit_program_json" }
+    if proof == "StaticStringArray" { return "typed_global_call_static_string_array" }
+    if proof == "MirSchemaMapConstructor" { return "typed_global_call_mir_schema_map_constructor" }
+    if proof == "BoxTypeInspectorDescribe" { return "typed_global_call_box_type_inspector_describe" }
+    if proof == "PatternUtilLocalValueProbe" { return "typed_global_call_pattern_util_local_value_probe" }
+    if proof == "SameModuleObjectHandle" { return "typed_global_call_same_module_object_handle" }
+    if proof == "SameModuleScalarI64" { return "typed_global_call_same_module_scalar_i64" }
+    if proof == "SameModuleVoidSentinel" { return "typed_global_call_same_module_void_sentinel" }
+    if proof == "SameModuleMixedRuntime" { return "typed_global_call_same_module_mixed_runtime" }
+    if proof == "VoidSideEffect" { return "typed_global_call_void_side_effect" }
+    return "unsupported_global_call_proof"
+  }
+}

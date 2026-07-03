@@ -1,0 +1,42 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderGlobalCallProofJsonNameFormatterRustOracleV1",
+  "token": "MIRBUILDER-GLOBAL-CALL-PROOF-JSON-NAME-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "global_call_proof_json_name_formatter",
+  "rust_source": {
+    "path": "src/mir/global_call_route_plan/model.rs",
+    "hash": "sha256:5818fc9a9bd6906cb216cc6f1d7d99eb67847fb5cf38b6fbcedefc2bc4ffa52f",
+    "oracle_surface": "GlobalCallProof json-name vocabulary"
+  },
+  "rows": [
+    {"kind": "json_name", "input": "ContractMissing", "expected": "typed_global_call_contract_missing"},
+    {"kind": "json_name", "input": "LeafNumericI64", "expected": "typed_global_call_leaf_numeric_i64"},
+    {"kind": "json_name", "input": "GenericPureString", "expected": "typed_global_call_generic_pure_string"},
+    {"kind": "json_name", "input": "GenericStringOrVoidSentinel", "expected": "typed_global_call_generic_string_or_void_sentinel"},
+    {"kind": "json_name", "input": "GenericStringVoidLogging", "expected": "typed_global_call_generic_string_void_logging"},
+    {"kind": "json_name", "input": "GenericI64", "expected": "typed_global_call_generic_i64"},
+    {"kind": "json_name", "input": "ParserProgramJson", "expected": "typed_global_call_parser_program_json"},
+    {"kind": "json_name", "input": "\u0053tage1EmitProgramJson", "expected": "typed_global_call_stage1_emit_program_json"},
+    {"kind": "json_name", "input": "StaticStringArray", "expected": "typed_global_call_static_string_array"},
+    {"kind": "json_name", "input": "MirSchemaMapConstructor", "expected": "typed_global_call_mir_schema_map_constructor"},
+    {"kind": "json_name", "input": "BoxTypeInspectorDescribe", "expected": "typed_global_call_box_type_inspector_describe"},
+    {"kind": "json_name", "input": "PatternUtilLocalValueProbe", "expected": "typed_global_call_pattern_util_local_value_probe"},
+    {"kind": "json_name", "input": "SameModuleObjectHandle", "expected": "typed_global_call_same_module_object_handle"},
+    {"kind": "json_name", "input": "SameModuleScalarI64", "expected": "typed_global_call_same_module_scalar_i64"},
+    {"kind": "json_name", "input": "SameModuleVoidSentinel", "expected": "typed_global_call_same_module_void_sentinel"},
+    {"kind": "json_name", "input": "SameModuleMixedRuntime", "expected": "typed_global_call_same_module_mixed_runtime"},
+    {"kind": "json_name", "input": "VoidSideEffect", "expected": "typed_global_call_void_side_effect"}
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "global_call_proof_policy_migration": 0,
+    "global_call_result_origin_migration": 0,
+    "global_call_definition_owner_inference_migration": 0,
+    "global_call_route_collection_migration": 0
+  }
+}
