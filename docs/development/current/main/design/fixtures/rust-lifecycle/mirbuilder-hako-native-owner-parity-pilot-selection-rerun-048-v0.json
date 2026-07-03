@@ -1,0 +1,33 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderHakoNativeOwnerParityPilotSelectionRerun048V1",
+  "token": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-048",
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "previous_adoption_decision": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-direct-array-access-label-formatter-hako-adoption-decision-v0.json",
+    "previous_adoption_decision_hash": "sha256:2f1b9d666ec26e17c2319ea970ed8d2f8f3beed812dfc873355acd6b2860d00e"
+  },
+  "decision": {
+    "kind": "SelectRustOracleFixture",
+    "reason_token": "BoxedSumPayloadStorageLabelFormatterIsNarrowPureVocabularyOwner",
+    "selected_owner": "boxed_sum_payload_storage_label_formatter",
+    "selected_next_card": "MIRBUILDER-BOXED-SUM-PAYLOAD-STORAGE-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001"
+  },
+  "accepted_scope": {
+    "surface": "BoxedSumPayloadStorage label vocabulary formatting",
+    "manual_target_selection_allowed": 1,
+    "correctness_requires_rust_oracle_parity": 1
+  },
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "boxed_sum_abi_plan_construction_migration": 0,
+    "boxed_sum_site_lookup_migration": 0,
+    "boxed_sum_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

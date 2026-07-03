@@ -1,0 +1,19 @@
+// boxed_sum_payload_storage_label_formatter.hako
+//
+// Responsibility:
+// - format narrow BoxedSumPayloadStorage vocabulary into Rust oracle text
+// - stay pure: scalar token in, scalar text out
+//
+// Non-responsibility:
+// - BoxedSum ABI plan construction
+// - site lookup
+// - lowering
+// - MIR mutation
+static box BoxedSumPayloadStorageLabelFormatterBox {
+  format_payload_storage(token) {
+    if token == "None" { return "none" }
+    if token == "I64" { return "i64" }
+    if token == "Handle" { return "handle" }
+    return "unsupported_boxed_sum_payload_storage"
+  }
+}

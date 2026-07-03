@@ -159,6 +159,9 @@ Source Selfhost remains unclaimed.
 DirectArrayAccessLabelFormatter is now a narrow HakoAdopted Rust-oracle
 parity pilot owner after a green 15-row `.hako` EXE parity gate.
 Source Selfhost remains unclaimed.
+BoxedSumPayloadStorageLabelFormatter is now a narrow HakoAdopted Rust-oracle
+parity pilot owner after a green 3-row `.hako` EXE parity gate.
+Source Selfhost remains unclaimed.
 EXE/AOT remains the primary
 app/selfhost validation route; VM/interpreter lanes are not semantic owners."""
 
@@ -168,11 +171,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-DIRECT-ARRAY-ACCESS-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2338-MIRBUILDER-DIRECT-ARRAY-ACCESS-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.md"
+latest_card = "MIRBUILDER-BOXED-SUM-PAYLOAD-STORAGE-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2343-MIRBUILDER-BOXED-SUM-PAYLOAD-STORAGE-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.md"
 latest_card_summary = """The latest card adopts
-direct_array_access_label_formatter as the forty-eighth narrow Rust-oracle
-parity pilot owner and chooses pilot selection rerun 048 next."""
+boxed_sum_payload_storage_label_formatter as the forty-ninth narrow Rust-oracle
+parity pilot owner and chooses pilot selection rerun 049 next."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -183,14 +186,14 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-04: 2343 adopts boxed_sum_payload_storage_label_formatter as the forty-ninth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
+  "2026-07-04: 2342 adds the boxed_sum_payload_storage_label_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
+  "2026-07-04: 2341 adds the hand-authored boxed_sum_payload_storage_label_formatter .hako implementation and chooses the parity gate card next.",
+  "2026-07-04: 2340 creates the 3-row boxed_sum_payload_storage_label_formatter Rust-oracle fixture and chooses the Hako-native implementation card next.",
+  "2026-07-04: 2339 selects boxed_sum_payload_storage_label_formatter as the forty-ninth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
   "2026-07-04: 2338 adopts direct_array_access_label_formatter as the forty-eighth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
   "2026-07-04: 2337 adds the direct_array_access_label_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
   "2026-07-04: 2336 adds the hand-authored direct_array_access_label_formatter .hako implementation and chooses the parity gate card next.",
   "2026-07-04: 2335 creates the 15-row direct_array_access_label_formatter Rust-oracle fixture and chooses the Hako-native implementation card next.",
   "2026-07-04: 2334 selects direct_array_access_label_formatter as the forty-eighth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
-  "2026-07-04: 2333 adopts array_text_loop_session_reject_label_formatter as the forty-seventh narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
-  "2026-07-04: 2332 adds the array_text_loop_session_reject_label_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
-  "2026-07-04: 2331 adds the hand-authored array_text_loop_session_reject_label_formatter .hako implementation and chooses the parity gate card next.",
-  "2026-07-04: 2330 creates the 5-row array_text_loop_session_reject_label_formatter Rust-oracle fixture and chooses the Hako-native implementation card next.",
-  "2026-07-04: 2329 selects array_text_loop_session_reject_label_formatter as the forty-seventh narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
 ]

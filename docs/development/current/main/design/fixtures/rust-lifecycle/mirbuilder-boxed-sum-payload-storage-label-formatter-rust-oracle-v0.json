@@ -1,0 +1,28 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderBoxedSumPayloadStorageLabelFormatterRustOracleV1",
+  "token": "MIRBUILDER-BOXED-SUM-PAYLOAD-STORAGE-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "boxed_sum_payload_storage_label_formatter",
+  "rust_source": {
+    "path": "src/mir/boxed_sum_abi_plan.rs",
+    "hash": "sha256:22a992312212babcaea4476b08115f827a26ada1035cbd1d20b641c39967283e",
+    "oracle_surface": "BoxedSumPayloadStorage as_str vocabulary"
+  },
+  "rows": [
+    {"kind": "payload_storage", "input": "None", "expected": "none"},
+    {"kind": "payload_storage", "input": "I64", "expected": "i64"},
+    {"kind": "payload_storage", "input": "Handle", "expected": "handle"}
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "boxed_sum_abi_plan_construction_migration": 0,
+    "boxed_sum_site_lookup_migration": 0,
+    "boxed_sum_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}
