@@ -41,21 +41,21 @@ the active card and task-order SSOT. Do not duplicate them here.
 
 ## Immediate Maintenance Slice
 
-Scope: hako-check CLI wrapper binary resolver naming.
+Scope: Hakorune naming cleanup guard follow-up.
 
-- make `tools/hako-check/hako-check.sh` spell the Hakorune-first executable
-  resolver explicitly
-- keep caller-provided `$HAKO_BIN` as the preferred override alias
-- keep legacy `nyash` only as a named compatibility fallback
-- keep hako-check parse/MIR/verify behavior unchanged in this slice
-- add naming guard coverage so the wrapper does not regress to ambiguous direct
-  legacy fallback
+- use `docs/development/current/main/design/hakorune-naming-and-rename-task-order-ssot.md`
+  as the task-order SSOT;
+- keep broad package/env/ABI renames out of small cleanup slices;
+- continue only with thin, behavior-preserving naming cleanups that have an
+  SSOT task token and guard coverage;
+- preserve compatibility route names such as Stage1/Stage-B unless the selected
+  slice explicitly narrows the layer and acceptance gate;
+- do not touch PHI / LocalSSA / variable-map internals for naming cleanup.
 
 Acceptance:
 
 ```bash
 bash tools/checks/naming_charter_guard.sh
-bash tools/hako-check/hako-check.sh --help
 git diff --check
 tools/checks/dev_gate.sh quick
 ```
