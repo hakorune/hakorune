@@ -1,6 +1,6 @@
-# Nyash Strings: UTF‑8 First, Bytes Separate
+# Hakorune Strings: UTF‑8 First, Bytes Separate
 
-Status: Design committed. This document defines how Nyash treats text vs bytes and the minimal APIs we expose in each layer.
+Status: Design committed. This document defines how Hakorune treats text vs bytes and the minimal APIs we expose in each layer.
 
 ## Principles
 - UTF‑8 is the only in‑memory encoding for `StringBox`.
@@ -51,7 +51,7 @@ Bytes: handled by `ByteCursorBox`.
 - Other encodings (e.g., UTF‑16) are future work via separate cursor boxes; `StringBox` remains UTF‑8.
 
 ## Roadmap
-1) Provide Nyash‑level MVP boxes: `Utf8CursorBox`, `ByteCursorBox`.
+1) Provide Hakorune-level MVP boxes: `Utf8CursorBox`, `ByteCursorBox`.
 2) Route `StringBox` public methods through `Utf8CursorBox`.
 3) Migrate Mini‑VM and macro scanners to use `Utf8CursorBox` helpers.
 4) Add CP/byte parity smokes; later add GC helpers and normalizers.

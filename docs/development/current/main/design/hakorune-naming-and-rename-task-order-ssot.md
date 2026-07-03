@@ -825,6 +825,30 @@ plugin ABI names renamed = 0
 runtime behavior changed = 0
 ```
 
+### HAKORUNE-REFERENCE-DOCS-STRINGS-BOXES-WORDING-001
+
+Status: landed.
+
+Scope:
+
+```text
+docs/reference/language/strings.md:
+  title, status sentence, and roadmap phrase are Hakorune-first
+
+docs/reference/boxes-system/README.md:
+  title marks the folder as Hakorune Box-system historical documentation
+```
+
+Non-claims:
+
+```text
+Nyash-era historical text rewritten = 0
+Box-system pages broadly rewritten = 0
+NYASH_* env names renamed = 0
+StringBox semantics changed = 0
+runtime behavior changed = 0
+```
+
 ### HAKORUNE-BINARY-PRIMARY-CUTOVER-INVENTORY-001
 
 Status: landed inventory cut.

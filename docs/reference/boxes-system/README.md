@@ -1,4 +1,4 @@
-# 📦 Nyash Boxシステム設計ドキュメント
+# 📦 Hakorune Box-System Historical Documentation
 
 > Historical note: this folder preserves older Box-system reference material.
 > Current Hakorune does not use “Everything is Box” as the whole language

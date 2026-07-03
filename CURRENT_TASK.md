@@ -110,6 +110,7 @@ HAKORUNE-REFERENCE-DOCS-ENTRY-INDEX-WORDING-001
 HAKORUNE-REFERENCE-DOCS-INVARIANTS-CONSTRAINTS-WORDING-001
 HAKORUNE-REFERENCE-DOCS-MIR-GC-WORDING-001
 HAKORUNE-REFERENCE-DOCS-PLUGIN-INDEX-WORDING-001
+HAKORUNE-REFERENCE-DOCS-STRINGS-BOXES-WORDING-001
 ```
 
 `--syntax-3` is now the frontend syntax-level spelling; `--stage3` remains a
@@ -220,6 +221,9 @@ compatibility names.
 The plugin-system reference index title and core-developer heading now use
 Hakorune-first wording while preserving `nyash.toml`, `nyash_box.toml`,
 plugin package paths, and repository compatibility names.
+Reference strings docs now use Hakorune-first wording, and the Box-system index
+title now marks the folder as Hakorune historical documentation while preserving
+Nyash-era historical text and compatibility names.
 Next safe naming work, if explicitly selected, must pick a
 different classified layer from that inventory and keep compatibility aliases
 or replacement routes in the same slice.

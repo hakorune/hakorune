@@ -1235,6 +1235,28 @@ plugin ABI names renamed = 0
 runtime behavior changed = 0
 ```
 
+## Landed Reference Docs Strings / Boxes Wording Slice
+
+`HAKORUNE-REFERENCE-DOCS-STRINGS-BOXES-WORDING-001` updates current strings
+reference wording and the historical Box-system folder title.
+
+Scope:
+
+```text
+docs/reference/language/strings.md
+docs/reference/boxes-system/README.md
+```
+
+Non-claims:
+
+```text
+Nyash-era historical text rewritten = 0
+Box-system pages broadly rewritten = 0
+NYASH_* env names renamed = 0
+StringBox semantics changed = 0
+runtime behavior changed = 0
+```
+
 ## Migration Eligibility
 
 An occurrence is eligible for a future rename only if all conditions hold:
