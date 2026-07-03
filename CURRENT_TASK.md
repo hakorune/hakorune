@@ -41,16 +41,26 @@ the active card and task-order SSOT. Do not duplicate them here.
 
 ## Immediate Maintenance Slice
 
-Scope: Hakorune naming cleanup guard follow-up.
+Status: closed for the Hakorune naming cleanup guard follow-up.
 
-- use `docs/development/current/main/design/hakorune-naming-and-rename-task-order-ssot.md`
-  as the task-order SSOT;
-- keep broad package/env/ABI renames out of small cleanup slices;
-- continue only with thin, behavior-preserving naming cleanups that have an
-  SSOT task token and guard coverage;
-- preserve compatibility route names such as Stage1/Stage-B unless the selected
-  slice explicitly narrows the layer and acceptance gate;
-- do not touch PHI / LocalSSA / variable-map internals for naming cleanup.
+The completed guard follow-up is tracked in:
+
+```text
+docs/development/current/main/design/hakorune-naming-and-rename-task-order-ssot.md
+```
+
+Current state:
+
+- all `HAKORUNE-*` naming cleanup slices in the task-order SSOT are landed;
+- the only `active in this slice` entry is the always-on
+  `NAMING-CHARTER-STAGE-TERM-DISAMBIGUATION-001` guardrail;
+- broad package/env/ABI renames remain out of scope for maintenance slices;
+- PHI / LocalSSA / variable-map internals remain out of scope for naming
+  cleanup.
+
+Next safe naming work, if explicitly selected, is
+`STAGE-TERM-EXISTING-NAME-MIGRATION-001`; it must start with an inventory and
+classification pass, not direct renames.
 
 Acceptance:
 
