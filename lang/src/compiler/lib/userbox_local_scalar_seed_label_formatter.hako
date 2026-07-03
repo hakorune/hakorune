@@ -1,0 +1,36 @@
+// userbox_local_scalar_seed_label_formatter.hako
+//
+// Responsibility:
+// - format narrow UserBox local scalar seed kind/proof vocabulary
+// - stay pure: scalar token in, scalar text out
+//
+// Non-responsibility:
+// - UserBox local scalar seed matching
+// - seed payload migration
+// - thin-entry selection
+// - backend helper emission
+// - MIR mutation
+static box UserBoxLocalScalarSeedLabelFormatterBox {
+  format_kind(kind) {
+    if kind == "PointLocalI64" { return "point_local_i64" }
+    if kind == "PointCopyLocalI64" { return "point_copy_local_i64" }
+    if kind == "FlagLocalBool" { return "flag_local_bool" }
+    if kind == "FlagCopyLocalBool" { return "flag_copy_local_bool" }
+    if kind == "PointFLocalF64" { return "pointf_local_f64" }
+    if kind == "PointFCopyLocalF64" { return "pointf_copy_local_f64" }
+    return "unsupported_userbox_local_scalar_seed_kind"
+  }
+
+  format_proof(proof) {
+    if proof == "PointFieldLocalScalarSeed" {
+      return "userbox_point_field_local_scalar_seed"
+    }
+    if proof == "FlagFieldLocalScalarSeed" {
+      return "userbox_flag_field_local_scalar_seed"
+    }
+    if proof == "PointFFieldLocalScalarSeed" {
+      return "userbox_pointf_field_local_scalar_seed"
+    }
+    return "unsupported_userbox_local_scalar_seed_proof"
+  }
+}

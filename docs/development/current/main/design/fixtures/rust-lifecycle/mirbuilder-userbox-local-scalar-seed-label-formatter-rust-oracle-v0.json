@@ -1,0 +1,35 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderUserBoxLocalScalarSeedLabelFormatterRustOracleV1",
+  "token": "MIRBUILDER-USERBOX-LOCAL-SCALAR-SEED-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "userbox_local_scalar_seed_label_formatter",
+  "rust_source": {
+    "path": "src/mir/userbox_local_scalar_seed_plan.rs",
+    "hash": "sha256:81c366211188b211b465bc2e66db622873d27830f882a1630464db7c8d400a70",
+    "oracle_surface": "UserBoxLocalScalarSeedKind display vocabulary and UserBoxLocalScalarSeedProof as_str vocabulary"
+  },
+  "rows": [
+    {"kind": "kind", "input": "PointLocalI64", "expected": "point_local_i64"},
+    {"kind": "kind", "input": "PointCopyLocalI64", "expected": "point_copy_local_i64"},
+    {"kind": "kind", "input": "FlagLocalBool", "expected": "flag_local_bool"},
+    {"kind": "kind", "input": "FlagCopyLocalBool", "expected": "flag_copy_local_bool"},
+    {"kind": "kind", "input": "PointFLocalF64", "expected": "pointf_local_f64"},
+    {"kind": "kind", "input": "PointFCopyLocalF64", "expected": "pointf_copy_local_f64"},
+    {"kind": "proof", "input": "PointFieldLocalScalarSeed", "expected": "userbox_point_field_local_scalar_seed"},
+    {"kind": "proof", "input": "FlagFieldLocalScalarSeed", "expected": "userbox_flag_field_local_scalar_seed"},
+    {"kind": "proof", "input": "PointFFieldLocalScalarSeed", "expected": "userbox_pointf_field_local_scalar_seed"}
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "userbox_local_scalar_seed_matching_migration": 0,
+    "seed_payload_migration": 0,
+    "thin_entry_selection_migration": 0,
+    "backend_helper_emission_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

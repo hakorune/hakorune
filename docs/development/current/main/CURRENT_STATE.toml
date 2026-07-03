@@ -123,6 +123,9 @@ Source Selfhost remains unclaimed.
 UserBoxKnownReceiverMethodSeedLabelFormatter is now a narrow HakoAdopted
 Rust-oracle parity pilot owner after a green 14-row `.hako` EXE parity gate.
 Source Selfhost remains unclaimed.
+UserBoxLocalScalarSeedLabelFormatter is now a narrow HakoAdopted Rust-oracle
+parity pilot owner after a green 9-row `.hako` EXE parity gate.
+Source Selfhost remains unclaimed.
 EXE/AOT remains the primary
 app/selfhost validation route; VM/interpreter lanes are not semantic owners."""
 
@@ -132,11 +135,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-USERBOX-KNOWN-RECEIVER-METHOD-SEED-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2278-MIRBUILDER-USERBOX-KNOWN-RECEIVER-METHOD-SEED-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.md"
+latest_card = "MIRBUILDER-USERBOX-LOCAL-SCALAR-SEED-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2283-MIRBUILDER-USERBOX-LOCAL-SCALAR-SEED-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.md"
 latest_card_summary = """The latest card adopts
-userbox_known_receiver_method_seed_label_formatter as the thirty-sixth narrow
-Rust-oracle parity pilot owner and chooses pilot selection rerun 036 next."""
+userbox_local_scalar_seed_label_formatter as the thirty-seventh narrow
+Rust-oracle parity pilot owner and chooses pilot selection rerun 037 next."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -147,14 +150,14 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-04: 2283 adopts userbox_local_scalar_seed_label_formatter as the thirty-seventh narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
+  "2026-07-04: 2282 adds the userbox_local_scalar_seed_label_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
+  "2026-07-04: 2281 adds the hand-authored userbox_local_scalar_seed_label_formatter .hako implementation and chooses the parity gate card next.",
+  "2026-07-04: 2280 creates the 9-row userbox_local_scalar_seed_label_formatter Rust-oracle fixture and chooses the Hako-native implementation card next.",
+  "2026-07-04: 2279 selects userbox_local_scalar_seed_label_formatter as the thirty-seventh narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
   "2026-07-04: 2278 adopts userbox_known_receiver_method_seed_label_formatter as the thirty-sixth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
   "2026-07-04: 2277 adds the userbox_known_receiver_method_seed_label_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
   "2026-07-04: 2276 adds the hand-authored userbox_known_receiver_method_seed_label_formatter .hako implementation and chooses the parity gate card next.",
   "2026-07-04: 2275 creates the 14-row userbox_known_receiver_method_seed_label_formatter Rust-oracle fixture and chooses the Hako-native implementation card next.",
   "2026-07-04: 2274 selects userbox_known_receiver_method_seed_label_formatter as the thirty-sixth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
-  "2026-07-04: 2273 adopts exact_seed_backend_route_label_formatter as the thirty-fifth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
-  "2026-07-04: 2272 adds the exact_seed_backend_route_label_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
-  "2026-07-04: 2271 adds the hand-authored exact_seed_backend_route_label_formatter .hako implementation and chooses the parity gate card next.",
-  "2026-07-04: 2270 creates the 24-row exact_seed_backend_route_label_formatter Rust-oracle fixture and chooses the Hako-native implementation card next.",
-  "2026-07-04: 2269 selects exact_seed_backend_route_label_formatter as the thirty-fifth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
 ]

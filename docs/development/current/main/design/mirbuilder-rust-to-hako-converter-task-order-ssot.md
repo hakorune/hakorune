@@ -24,10 +24,10 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-USERBOX-KNOWN-RECEIVER-METHOD-SEED-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.
-  The userbox_known_receiver_method_seed_label_formatter owner is HakoAdopted
-  as the thirty-sixth narrow Rust-oracle parity pilot; next is pilot selection
-  rerun 036.
+  MIRBUILDER-USERBOX-LOCAL-SCALAR-SEED-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.
+  The userbox_local_scalar_seed_label_formatter owner is HakoAdopted as the
+  thirty-seventh narrow Rust-oracle parity pilot; next is pilot selection rerun
+  037.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -63,7 +63,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-036
+  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-037
 
 current fail-fast boundary:
   Do not re-enter full converter route selection without new non-self-signed
@@ -94,16 +94,16 @@ current fail-fast boundary:
   matching, array string length window matching, string direct-set window matching,
   substring views micro seed matching, UserBox loop micro seed matching, exact
   seed backend route selection, exact seed payload route migration, UserBox
-  known receiver method seed matching, seed payload migration, and backend
-  lowering remain Rust.
+  known receiver method seed matching, UserBox local scalar seed matching, seed
+  payload migration, and backend lowering remain Rust.
 
 latest design decision:
-  userbox_known_receiver_method_seed_label_formatter is now HakoAdopted as a
-  narrow Rust-oracle parity pilot owner after a green 14-row `.hako` EXE parity
-  gate. UserBox known receiver method seed matching, seed payload migration,
-  thin-entry selection, backend helper emission, and MIR mutation remain Rust.
+  userbox_local_scalar_seed_label_formatter is now HakoAdopted as a narrow
+  Rust-oracle parity pilot owner after a green 9-row `.hako` EXE parity gate.
+  UserBox local scalar seed matching, seed payload migration, thin-entry
+  selection, backend helper emission, and MIR mutation remain Rust.
   The selected next card is
-  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-036`.
+  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-037`.
 
 historical route-selection decision:
   Detailed landed route-selection rows are closed as provenance and live in
