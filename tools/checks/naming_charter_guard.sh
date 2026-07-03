@@ -112,6 +112,7 @@ require_fixed "HAKORUNE-SMOKE-EMIT-MIR-ROUTE-BINARY-ALIAS-001" "$SSOT"
 require_fixed "HAKORUNE-BRIDGE-CANONICALIZE-STABLE-SMOKE-BINARY-RESOLUTION-001" "$SSOT"
 require_fixed "HAKORUNE-WRAPPER-EXECUTABLE-BIT-001" "$SSOT"
 require_fixed "HAKORUNE-MIN-OPTIN-SMOKE-BINARY-RESOLUTION-001" "$SSOT"
+require_fixed "HAKORUNE-QUICK-SMOKE-MODE-A-DIAGNOSTIC-001" "$SSOT"
 require_fixed "HAKORUNE-MAP-ESCAPE-OPTIN-SMOKE-BINARY-RESOLUTION-001" "$SSOT"
 require_fixed "HAKORUNE-GATE-C-NYVM-WRAPPER-SMOKE-BINARY-NAMING-001" "$SSOT"
 require_fixed "HAKORUNE-PARSER-INTEGRATION-SMOKE-BINARY-NAMING-001" "$SSOT"
@@ -271,10 +272,15 @@ for hako_min_script in "$HAKO_MIN_BINOP_SMOKE" "$HAKO_MIN_IF_SMOKE" "$HAKO_MIN_I
     guard_fail "$TAG" "Hako minimum opt-in smokes must use HAKO_BIN instead of direct legacy nyash"
   fi
 done
+require_fixed "mode-A" "$HAKO_MIN_COMPILE_RETURN_SMOKE"
 require_fixed '"$HAKO_BIN" --backend vm' "$HAKO_MAP_ESCAPE_SMOKE"
 require_fixed '"$HAKO_BIN" --json-file "$json_path"' "$HAKO_MAP_ESCAPE_SMOKE"
+require_fixed "mode-A" "$HAKO_MAP_ESCAPE_SMOKE"
 if rg -n 'target/release/nyash" --(backend vm|json-file)' "$HAKO_MAP_ESCAPE_SMOKE"; then
   guard_fail "$TAG" "Hako map escape opt-in smoke must use HAKO_BIN instead of direct legacy nyash"
+fi
+if rg -n 'Stage-A' "$HAKO_MIN_COMPILE_RETURN_SMOKE" "$HAKO_MAP_ESCAPE_SMOKE"; then
+  guard_fail "$TAG" "quick smoke diagnostics must say mode-A, not Stage-A"
 fi
 for gate_smoke in "$GATE_C_V1_FILE_SMOKE" "$NYVM_WRAPPER_SMOKE"; do
   require_fixed 'HAKORUNE_BIN="$ROOT/target/release/hakorune"' "$gate_smoke"

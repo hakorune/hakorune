@@ -26,11 +26,11 @@ TMP_JSON="/tmp/hako_min_out_$$.json"
 trap 'rm -f "$TMP_SRC" "$TMP_JSON"' EXIT
 
 cat > "$TMP_SRC" <<'HK'
-// dummy; not used in Stage-A (args only)
+// dummy; not used in mode-A (args only)
 box Main { static method main() { return 0 } }
 HK
 
-# Compile to JSON v0 via selfhost compiler (Stage‑A: args only)
+# Compile to JSON v0 via selfhost compiler (mode-A: args only)
 RAW="/tmp/hako_min_out_raw_$$.txt"
 trap 'rm -f "$TMP_SRC" "$TMP_JSON" "$RAW"' EXIT
 NYASH_PARSER_ALLOW_SEMICOLON=1 NYASH_SYNTAX_SUGAR_LEVEL=full \

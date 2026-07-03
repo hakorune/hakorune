@@ -1025,6 +1025,35 @@ git diff --check
 tools/checks/dev_gate.sh quick
 ```
 
+### HAKORUNE-QUICK-SMOKE-MODE-A-DIAGNOSTIC-001
+
+Status: active in this slice.
+
+Scope:
+
+- make quick opt-in smoke comments/diagnostics use `mode-A` instead of
+  `Stage-A`;
+- keep smoke execution behavior and `.hako` fixtures unchanged;
+- keep broader Stage-A/Stage-B compatibility naming outside this diagnostic
+  slice.
+
+Affected scripts:
+
+```text
+tools/smokes/v2/profiles/quick/core/hako_min_compile_return_vm.sh
+tools/smokes/v2/profiles/quick/core/hako_map_escape_vm.sh
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+bash -n tools/smokes/v2/profiles/quick/core/hako_min_compile_return_vm.sh
+bash -n tools/smokes/v2/profiles/quick/core/hako_map_escape_vm.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
 ### HAKORUNE-MAP-ESCAPE-OPTIN-SMOKE-BINARY-RESOLUTION-001
 
 Status: active in this slice.

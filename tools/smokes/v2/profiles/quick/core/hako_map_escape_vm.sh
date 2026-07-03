@@ -1,5 +1,5 @@
 #!/bin/bash
-# hako_map_escape_vm.sh — Stage-A map literal escape/unicode boundary (opt-in)
+# hako_map_escape_vm.sh — mode-A map literal escape/unicode boundary (opt-in)
 
 set -euo pipefail
 
@@ -37,7 +37,7 @@ compile_stage_a() {
   awk '/"version":0/ && /"kind":"Program"/ {print; exit}' "$raw" > "$json_out" || true
   rm -f "$raw" "$hako_tmp"
   if [ ! -s "$json_out" ]; then
-    echo "[DIAG] Stage-A failed to emit JSON (expected for some boundary cases)" >&2
+    echo "[DIAG] mode-A failed to emit JSON (expected for some boundary cases)" >&2
     return 2
   fi
   echo "$json_out"
