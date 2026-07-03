@@ -1137,6 +1137,37 @@ git diff --check
 tools/checks/dev_gate.sh quick
 ```
 
+### HAKORUNE-SMOKE-SHARED-PREFLIGHT-BINARY-RESOLUTION-001
+
+Status: active in this slice.
+
+Scope:
+
+- make shared smoke preflight/plugin helpers spell the Hakorune-first
+  executable resolver explicitly;
+- keep caller-provided `$NYASH_BIN` as the historical override alias;
+- keep legacy `nyash` only as a named compatibility fallback;
+- keep preflight/plugin behavior unchanged in this slice;
+- add naming guard coverage so shared smoke helpers do not regress to ambiguous
+  direct legacy fallback.
+
+Affected scripts:
+
+```text
+tools/smokes/v2/lib/preflight.sh
+tools/smokes/v2/lib/plugin_manager.sh
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+bash -n tools/smokes/v2/lib/preflight.sh
+bash -n tools/smokes/v2/lib/plugin_manager.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
 ### STAGE-TERM-EXISTING-NAME-MIGRATION-001
 
 Status: defined, not implementation.

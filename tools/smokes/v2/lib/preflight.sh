@@ -6,9 +6,11 @@
 set -uo pipefail
 
 # Canonical CLI binary (hakorune). Fallback to legacy nyash if only that exists.
-NYASH_BIN_RESOLVED="${NYASH_BIN:-./target/release/hakorune}"
-if [ ! -f "$NYASH_BIN_RESOLVED" ] && [ -f "./target/release/nyash" ]; then
-    NYASH_BIN_RESOLVED="./target/release/nyash"
+HAKORUNE_BIN_PATH="./target/release/hakorune"
+LEGACY_NYASH_BIN_PATH="./target/release/nyash"
+NYASH_BIN_RESOLVED="${NYASH_BIN:-$HAKORUNE_BIN_PATH}"
+if [ ! -f "$NYASH_BIN_RESOLVED" ] && [ -f "$LEGACY_NYASH_BIN_PATH" ]; then
+    NYASH_BIN_RESOLVED="$LEGACY_NYASH_BIN_PATH"
 fi
 
 # プリフライトチェック実行

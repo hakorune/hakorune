@@ -46,13 +46,15 @@ GATE_C_OOB_STRICT_SMOKE="$ROOT_DIR/tools/smokes/v2/profiles/quick/core/gate_c_oo
 NY_MIR_BUILDER="$ROOT_DIR/tools/ny_mir_builder.sh"
 PHASE29X_L1_CACHE="$ROOT_DIR/tools/cache/phase29x_l1_mir_cache.sh"
 PHASE29X_L2_CACHE="$ROOT_DIR/tools/cache/phase29x_l2_object_cache.sh"
+SMOKE_PREFLIGHT="$ROOT_DIR/tools/smokes/v2/lib/preflight.sh"
+SMOKE_PLUGIN_MANAGER="$ROOT_DIR/tools/smokes/v2/lib/plugin_manager.sh"
 ENV_RS="$ROOT_DIR/src/config/env.rs"
 ENV_PATHS_RS="$ROOT_DIR/src/config/env/paths.rs"
 ENV_DOC="$ROOT_DIR/docs/reference/environment-variables.md"
 
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" git
-guard_require_files "$TAG" "$SSOT" "$CHECK_INDEX" "$QUICK_STEPS" "$DOCS_LAYOUT" "$CARGO_TOML" "$README_MD" "$HACO_WRAPPER" "$MAIN_RS" "$HAKORUNE_BIN_RS" "$HAKORUNE_COMPAT_BIN_RS" "$BUILD_SHARED_RS" "$BUILD_PRODUCT_RS" "$BUILD_ENGINEERING_RS" "$HAKO_CHECK_SH" "$BUILD_LLVM_PS" "$BUILD_AOT_PS" "$USING_UNRESOLVED_SMOKE" "$USING_RESOLVE_SMOKE" "$USING_STRICT_PATH_FAIL_SMOKE" "$DEV_SELFHOST_LOOP" "$ENGINEERING_PARITY" "$SELFHOST_EXE_STAGEB" "$NY_PARSER_BRIDGE_SMOKE" "$PHI_TRACE_RUN" "$TEST_SHLIB" "$EMIT_MIR_ROUTE" "$HAKO_MIN_BINOP_SMOKE" "$HAKO_MIN_IF_SMOKE" "$HAKO_MIN_INDEX_SMOKE" "$HAKO_MAP_ESCAPE_SMOKE" "$GATE_C_V1_FILE_SMOKE" "$NYVM_WRAPPER_SMOKE" "$FASTMEM_PARSER_PARITY_SMOKE" "$PARSER_OPT_ANNOTATIONS_SMOKE" "$PARSER_TRY_COMPAT_SMOKE" "$GATE_C_OOB_STRICT_SMOKE" "$NY_MIR_BUILDER" "$PHASE29X_L1_CACHE" "$PHASE29X_L2_CACHE" "$ENV_RS" "$ENV_PATHS_RS" "$ENV_DOC"
+guard_require_files "$TAG" "$SSOT" "$CHECK_INDEX" "$QUICK_STEPS" "$DOCS_LAYOUT" "$CARGO_TOML" "$README_MD" "$HACO_WRAPPER" "$MAIN_RS" "$HAKORUNE_BIN_RS" "$HAKORUNE_COMPAT_BIN_RS" "$BUILD_SHARED_RS" "$BUILD_PRODUCT_RS" "$BUILD_ENGINEERING_RS" "$HAKO_CHECK_SH" "$BUILD_LLVM_PS" "$BUILD_AOT_PS" "$USING_UNRESOLVED_SMOKE" "$USING_RESOLVE_SMOKE" "$USING_STRICT_PATH_FAIL_SMOKE" "$DEV_SELFHOST_LOOP" "$ENGINEERING_PARITY" "$SELFHOST_EXE_STAGEB" "$NY_PARSER_BRIDGE_SMOKE" "$PHI_TRACE_RUN" "$TEST_SHLIB" "$EMIT_MIR_ROUTE" "$HAKO_MIN_BINOP_SMOKE" "$HAKO_MIN_IF_SMOKE" "$HAKO_MIN_INDEX_SMOKE" "$HAKO_MAP_ESCAPE_SMOKE" "$GATE_C_V1_FILE_SMOKE" "$NYVM_WRAPPER_SMOKE" "$FASTMEM_PARSER_PARITY_SMOKE" "$PARSER_OPT_ANNOTATIONS_SMOKE" "$PARSER_TRY_COMPAT_SMOKE" "$GATE_C_OOB_STRICT_SMOKE" "$NY_MIR_BUILDER" "$PHASE29X_L1_CACHE" "$PHASE29X_L2_CACHE" "$SMOKE_PREFLIGHT" "$SMOKE_PLUGIN_MANAGER" "$ENV_RS" "$ENV_PATHS_RS" "$ENV_DOC"
 
 require_fixed() {
   local pattern="$1"
@@ -94,6 +96,7 @@ require_fixed "HAKORUNE-PARSER-TRY-COMPAT-SMOKE-BINARY-NAMING-001" "$SSOT"
 require_fixed "HAKORUNE-GATE-C-OOB-STRICT-SMOKE-BINARY-RESOLUTION-001" "$SSOT"
 require_fixed "HAKORUNE-NY-MIR-BUILDER-BINARY-RESOLUTION-001" "$SSOT"
 require_fixed "HAKORUNE-PHASE29X-CACHE-HELPER-BINARY-RESOLUTION-001" "$SSOT"
+require_fixed "HAKORUNE-SMOKE-SHARED-PREFLIGHT-BINARY-RESOLUTION-001" "$SSOT"
 require_fixed "HAKORUNE-ENV-ALIAS-INVENTORY-001" "$SSOT"
 require_fixed "HAKORUNE-ENV-ALIAS-FIRST-CUT-001" "$SSOT"
 require_fixed 'prefer `target/release/hakorune` or `$HAKO_BIN`' "$README_MD"
@@ -240,6 +243,14 @@ for cache_helper in "$PHASE29X_L1_CACHE" "$PHASE29X_L2_CACHE"; do
   require_fixed 'NYASH_BIN_PATH="$HAKORUNE_BIN_PATH"' "$cache_helper"
   if rg -n '^\s*NYASH_BIN_PATH="\$ROOT_DIR/target/release/nyash"|nyash binary not found' "$cache_helper"; then
     guard_fail "$TAG" "Phase29x cache helpers must spell Hakorune-first resolver and legacy fallback"
+  fi
+done
+for smoke_lib in "$SMOKE_PREFLIGHT" "$SMOKE_PLUGIN_MANAGER"; do
+  require_fixed 'HAKORUNE_BIN_PATH="./target/release/hakorune"' "$smoke_lib"
+  require_fixed 'LEGACY_NYASH_BIN_PATH="./target/release/nyash"' "$smoke_lib"
+  require_fixed 'NYASH_BIN_RESOLVED="${NYASH_BIN:-$HAKORUNE_BIN_PATH}"' "$smoke_lib"
+  if rg -n 'NYASH_BIN_RESOLVED="\./target/release/nyash"|hakorune/nyash binary not found' "$smoke_lib"; then
+    guard_fail "$TAG" "shared smoke helpers must spell Hakorune-first resolver and legacy fallback"
   fi
 done
 require_fixed "env_bool_with_alias" "$ENV_RS"
