@@ -16,8 +16,14 @@ export NYASH_RESOLVE_SEAM_DEBUG=1
 export NYASH_RESOLVE_FIX_BRACES=1
 export NYASH_RESOLVE_DEDUP_BOX=1
 
-BIN=${NYASH_BIN:-./target/release/hakorune}
-[[ -x "$BIN" ]] || BIN=./target/release/nyash
+if [ -n "${HAKO_BIN:-}" ] && [ -z "${NYASH_BIN:-}" ]; then
+  NYASH_BIN="$HAKO_BIN"
+fi
+HAKORUNE_BIN="./target/release/hakorune"
+LEGACY_NYASH_BIN="./target/release/nyash"
+BIN=${NYASH_BIN:-$HAKORUNE_BIN}
+[[ -x "$BIN" ]] || BIN="$LEGACY_NYASH_BIN"
+export HAKO_BIN="${HAKO_BIN:-$BIN}"
 APP_MIX=lang/src/compiler/entry/compiler_stageb.hako  # TODO migrate to a proper mixed-using smoke under lang
 APP_INS=apps/tests/dev_seam_inspect_dump.hako
 

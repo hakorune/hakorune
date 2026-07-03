@@ -19,8 +19,14 @@ cargo build --release -j 8 >/dev/null
 echo "[phi-trace] running quick smoke (loop_if_phi/ternary_nested/phi_mix/heavy_mix) ..." >&2
 # v2: 代表ケースを数本実行して PHI トレースを採取
 echo "[phi-trace] executing samples with LLVM harness..." >&2
-BIN=${NYASH_BIN:-./target/release/hakorune}
-[[ -x "$BIN" ]] || BIN=./target/release/nyash
+if [ -n "${HAKO_BIN:-}" ] && [ -z "${NYASH_BIN:-}" ]; then
+  NYASH_BIN="$HAKO_BIN"
+fi
+HAKORUNE_BIN="./target/release/hakorune"
+LEGACY_NYASH_BIN="./target/release/nyash"
+BIN=${NYASH_BIN:-$HAKORUNE_BIN}
+[[ -x "$BIN" ]] || BIN="$LEGACY_NYASH_BIN"
+export HAKO_BIN="${HAKO_BIN:-$BIN}"
 SAMPLES=(
   "apps/tests/llvm_phi_mix.hako"
   "apps/tests/loop_if_phi.hako"
