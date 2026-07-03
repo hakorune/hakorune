@@ -1,0 +1,20 @@
+// global_call_target_shape_label_formatter.hako
+//
+// Responsibility:
+// - format narrow GlobalCallTargetShape vocabulary into Rust oracle text
+// - stay pure: scalar token in, scalar text out
+//
+// Non-responsibility:
+// - global-call target shape inference
+// - route collection
+// - lowering decision
+// - MIR mutation
+static box GlobalCallTargetShapeLabelFormatterBox {
+  format_target_shape(token) {
+    if token == "Unknown" { return "unknown" }
+    if token == "NumericI64Leaf" { return "numeric_i64_leaf" }
+    if token == "GenericPureStringBody" { return "generic_pure_string_body" }
+    if token == "GenericI64Body" { return "generic_i64_body" }
+    return "unsupported_global_call_target_shape"
+  }
+}
