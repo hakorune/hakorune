@@ -48,6 +48,7 @@ Current route:
 ```text
 SOURCE-SELFHOST-RUST-TO-HAKO-CONVERTER-ROLE-PIVOT-001
   -> MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-001
+  -> MIRBUILDER-STORAGE-CLASS-CLASSIFIER-RUST-ORACLE-FIXTURE-001
 ```
 
 Rule:
@@ -58,6 +59,8 @@ Rust remains bootstrap oracle / parity reference
 small hand-authored .hako native owner pilots are selected manually
 correctness must be proven by Rust-oracle parity fixtures
 Source Selfhost claim remains 0
+first owner pilot is storage_class_classifier
+return_prelude_policy is harness smoke only
 ```
 
 ## Immediate Maintenance Slice

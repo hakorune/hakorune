@@ -24,10 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  SOURCE-SELFHOST-RUST-TO-HAKO-CONVERTER-ROLE-PIVOT-001.
-  The full Rust-to-Hako MirBuilder converter is no longer the Source
-  Selfhost main route. Rust is the bootstrap oracle / parity reference;
-  small hand-authored `.hako` native owners are the next migration path.
+  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-001.
+  The first pilot is `storage_class_classifier`: hand-authored `.hako`
+  implementation later, Rust-oracle JSON fixture first.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -63,27 +62,19 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-001
+  MIRBUILDER-STORAGE-CLASS-CLASSIFIER-RUST-ORACLE-FIXTURE-001
 
 current fail-fast boundary:
   Do not re-enter full converter route selection without new non-self-signed
-  authority or stable input delta. Next progress must select a small
-  hand-authored `.hako` owner and prove it with Rust-oracle parity.
+  authority or stable input delta. The selected pilot scope is only
+  `MirType -> StorageClass`; metadata refresh/mutation remains Rust.
 
 latest design decision:
-  The Source Selfhost route-selection closeout is now followed by a converter
-  role pivot. Full Rust-to-Hako MirBuilder auto-conversion is stopped as the
-  Source Selfhost main path. Rust remains the bootstrap oracle and parity
-  reference. The converter remains only as read-only inventory, source surface
-  extraction, test-vector extraction, parity fixture generation, and
-  library-subset draft helper. New Source Selfhost progress must be a small
-  hand-authored `.hako` native owner with machine-checked parity against Rust.
-  Manual target selection is allowed in this migration path; correctness
-  claims are not. Source Selfhost claim, Hako adoption, native seed
-  materialization, generated artifact edit authority, runtime fallback,
-  backend route, and ABI promotion all remain zero until explicit parity and
-  adoption cards say otherwise. The selected next card is
-  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-001`.
+  Pilot selection is now fixed. Candidate ranking is advisory only; correctness
+  is the later parity gate. `return_prelude_policy` is reserved for a parity
+  harness smoke, while `storage_class_classifier` is the first owner pilot.
+  The selected next card is
+  `MIRBUILDER-STORAGE-CLASS-CLASSIFIER-RUST-ORACLE-FIXTURE-001`.
 
 historical route-selection decision:
   Detailed landed route-selection rows are closed as provenance and live in
