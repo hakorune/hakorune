@@ -840,6 +840,31 @@ lang/bin/hakorune behavior changed = 0
 legacy stage0/stage1 boundary vocabulary deleted = 0
 ```
 
+## Landed Docs Tools Quick Entry Wording Slice
+
+`STAGE-TERM-DOCS-TOOLS-QUICK-ENTRY-WORDING-001` changes the active tools quick
+entry/index rows from unqualified stage terms to phase-1 / syntax-3 wording.
+
+Scope:
+
+```text
+docs/tools/README.md:
+  bug-origin triage labels say phase1-route and phase-1 compiler side
+
+docs/tools/script-index.md:
+  active selfhost script descriptions say phase-1 compatibility
+  syntax-level same-result helper says syntax-3
+```
+
+Non-claims:
+
+```text
+tools/selfhost/* script names renamed = 0
+stage1_cli_env.hako compatibility fixture renamed = 0
+docs/tools/check-scripts-index.md historical ledger rewritten = 0
+runtime behavior changed = 0
+```
+
 ## Migration Eligibility
 
 An occurrence is eligible for a future rename only if all conditions hold:

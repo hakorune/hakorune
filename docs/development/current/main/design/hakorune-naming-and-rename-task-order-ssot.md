@@ -2726,6 +2726,30 @@ legacy stage0/stage1 boundary vocabulary removed = 0
 distribution artifact behavior changed = 0
 ```
 
+#### STAGE-TERM-DOCS-TOOLS-QUICK-ENTRY-WORDING-001
+
+Status: landed.
+
+Scope:
+
+```text
+docs/tools/README.md:
+  bug-origin quick-entry route labels say phase-1
+
+docs/tools/script-index.md:
+  day-to-day selfhost/script rows say phase-1 compatibility or syntax-3
+```
+
+Non-claims:
+
+```text
+tools/selfhost/mainline/build_stage1.sh renamed = 0
+tools/selfhost/compat/run_stage1_cli.sh renamed = 0
+tools/selfhost/mainline/stage1_mainline_smoke.sh renamed = 0
+tools/selfhost/stage3_same_result_check.sh renamed = 0
+historical check-scripts ledger rewritten = 0
+```
+
 ## Guard Policy
 
 `tools/checks/naming_charter_guard.sh` is a lightweight reusable guard. It does

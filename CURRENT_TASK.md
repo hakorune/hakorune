@@ -94,6 +94,7 @@ STAGE-TERM-STAGE0-CAPTURE-COMMENT-WORDING-001
 STAGE-TERM-PIPELINE-V2-COMMENT-WORDING-001
 STAGE-TERM-JOINIR-LOWERING-COMMENT-WORDING-001
 STAGE-TERM-LANG-README-PHASE-WORDING-001
+STAGE-TERM-DOCS-TOOLS-QUICK-ENTRY-WORDING-001
 ```
 
 `--syntax-3` is now the frontend syntax-level spelling; `--stage3` remains a
@@ -157,8 +158,10 @@ compatibility, or mode-B compatibility wording while keeping `stage1_*`,
 `stageb_*`, `Stage1*`, and `StageB*` compatibility identifiers unchanged.
 `lang/README.md` now uses phase-1 / K2+ distribution wording while keeping
 `build_stage1.sh`, `target/selfhost/hakorune`, and legacy `stage0`/`stage1`
-boundary references explicit compatibility vocabulary. Next safe naming work,
-if explicitly selected, must pick a
+boundary references explicit compatibility vocabulary. `docs/tools` quick
+entries now use phase-1 / syntax-3 wording while preserving compatibility
+script names and not rewriting the historical guard ledger. Next safe naming
+work, if explicitly selected, must pick a
 different classified layer from that inventory and keep compatibility aliases
 or replacement routes in the same slice.
 

@@ -442,6 +442,7 @@ SSOT_REQUIRED_TOKENS=(
   "STAGE-TERM-PIPELINE-V2-COMMENT-WORDING-001"
   "STAGE-TERM-JOINIR-LOWERING-COMMENT-WORDING-001"
   "STAGE-TERM-LANG-README-PHASE-WORDING-001"
+  "STAGE-TERM-DOCS-TOOLS-QUICK-ENTRY-WORDING-001"
 )
 guard_require_unique_values "SSOT required token" "${SSOT_REQUIRED_TOKENS[@]}"
 for ssot_token in "${SSOT_REQUIRED_TOKENS[@]}"; do
@@ -1021,6 +1022,13 @@ require_fixed "phase-1 compatibility Program(JSON) compat execution helper" "$CH
 if rg -n 'Stage1 Program\(JSON v0\) runtime helper route|Stage0 LLVM line shape inventory SSOT|Stage-B Program\(JSON\) stdout capture helper|Stage-B `.hako` parser|Stage-B FuncScanner / JSON builder|Stage-B enrichment seam|Stage1 Program\(JSON\) compat execution helper' "$CHECK_INDEX"; then
   guard_fail "$TAG" "check scripts index descriptions must use mode-B / phase-1 / GlobalCallTarget wording for migrated guards"
 fi
+require_fixed "phase1-route=fail" "$ROOT_DIR/docs/tools/README.md"
+require_fixed "phase-1 compatibility 直接実行" "$ROOT_DIR/docs/tools/script-index.md"
+require_fixed "phase-1 CLI compatibility 実行ヘルパ" "$ROOT_DIR/docs/tools/script-index.md"
+require_fixed "syntax-3 same-result sanity check" "$ROOT_DIR/docs/tools/script-index.md"
+if rg -n 'stage1-route|stage1 直接実行|Stage1 CLI 実行ヘルパ|current Stage1 shell compat|Stage3 same-result' "$ROOT_DIR/docs/tools/README.md" "$ROOT_DIR/docs/tools/script-index.md"; then
+  guard_fail "$TAG" "docs/tools quick entries must use phase-1 / syntax-3 wording for migrated rows"
+fi
 require_fixed "STAGE-TERM-EXISTING-NAME-INVENTORY-001" "$STAGE_TERM_INVENTORY"
 require_fixed "classification-only inventory" "$STAGE_TERM_INVENTORY"
 require_fixed "direct renames are forbidden" "$STAGE_TERM_INVENTORY"
@@ -1035,6 +1043,8 @@ NAMING_DIFF_ALLOWED_PATHS=(
   "docs/reference/language/EBNF.md"
   "docs/reference/language/statements.md"
   "lang/README.md"
+  "docs/tools/README.md"
+  "docs/tools/script-index.md"
   "docs/reference/environment-variables.md"
   "src/config/env/parser_flags.rs"
   "src/config/env/selfhost_flags.rs"

@@ -43,16 +43,16 @@ Scope: `tools/` 配下の頻用導線。履歴・実験スクリプトは原則�
 - `tools/hako_check.sh`  
   - lint/解析導線
 - `tools/selfhost/mainline/build_stage1.sh`
-  - stage1 直接実行（launch/exe 任意）
+  - phase-1 compatibility 直接実行（launch/exe 任意）
 - `tools/selfhost/run.sh`  
   - selfhost の統合エントリ
 - `tools/selfhost/compat/run_stage1_cli.sh`
-  - Stage1 CLI 実行ヘルパ
+  - phase-1 CLI compatibility 実行ヘルパ
 - `tools/selfhost/mainline/stage1_mainline_smoke.sh`
-  - current Stage1 shell compat direct-emit smoke
+  - current phase-1 shell compatibility direct-emit smoke
 - `tools/selfhost/stage3_same_result_check.sh`
-  - Stage3 same-result sanity check; use `--build-seed` for the full
-    `stage1_cli_env.hako` payload seed lane
+  - syntax-3 same-result sanity check; use `--build-seed` for the full
+    `stage1_cli_env.hako` compatibility payload seed lane
 
 ## 4. 監査 / ガード
 

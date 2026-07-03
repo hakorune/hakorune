@@ -39,8 +39,8 @@ bash tools/archive/legacy-selfhost/engineering/bug_origin_triage.sh apps/tests/p
 ```
 
 判定の目安:
-- `rust-vm=pass` かつ `stage1-route=fail`: `.hako compiler / stage1` 側
-- `stage1-route=pass` かつ `rust-vm=fail`: Rust lane 側
+- `rust-vm=pass` かつ `phase1-route=fail`: `.hako compiler / phase-1` 側
+- `phase1-route=pass` かつ `rust-vm=fail`: Rust lane 側
 - `vm-hako` に `[vm-hako/unimplemented]`: vm-hako 未実装ギャップ
 - 複数 route 同時 fail: frontend/core 契約（SSOT）側を優先調査
 
