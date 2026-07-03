@@ -67,11 +67,35 @@ while [ $# -gt 0 ]; do
   esac
 done
 
+summarize_step_log() {
+  local label="$1"
+  local log="$2"
+  local summary
+  summary="$(grep -E '^\[PASS\]|^\[OK\] MIR JSON written|^RC: 0|^RC=0' "$log" | tail -n "${HAKO_MIRBUILDER_QUICK_SUITE_SUCCESS_TAIL:-8}" || true)"
+  if [ -n "$summary" ]; then
+    printf '%s\n' "$summary"
+  else
+    echo "[PASS] $label"
+  fi
+}
+
 run_step() {
   local label="$1"
   shift
+  local slug
+  local log
+  slug="$(printf '%s' "$label" | tr -c 'A-Za-z0-9._-' '_' | sed 's/_$//')"
+  log="/tmp/phase29bq_hako_mirbuilder_quick_suite_${slug}_$$.log"
   echo "[INFO] $label"
-  "$@"
+  echo "[INFO] log: $log"
+  if "$@" >"$log" 2>&1; then
+    summarize_step_log "$label" "$log"
+    return 0
+  fi
+  local rc=$?
+  echo "[FAIL] $label (rc=$rc log=$log)" >&2
+  tail -n "${HAKO_MIRBUILDER_QUICK_SUITE_FAILURE_TAIL:-160}" "$log" >&2 || true
+  return "$rc"
 }
 
 run_step "internal-only emit: cleanup_only_min" \
