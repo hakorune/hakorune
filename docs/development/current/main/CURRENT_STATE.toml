@@ -219,6 +219,9 @@ Source Selfhost remains unclaimed.
 PlanFreezeTagFormatter is now a narrow HakoAdopted Rust-oracle parity pilot
 owner after a green 5-row `.hako` EXE parity gate.
 Source Selfhost remains unclaimed.
+GlobalCallReturnContractLabelFormatter is now a narrow HakoAdopted
+Rust-oracle parity pilot owner after a green 16-row `.hako` EXE parity gate.
+Source Selfhost remains unclaimed.
 EXE/AOT remains the primary
 app/selfhost validation route; VM/interpreter lanes are not semantic owners."""
 
@@ -228,11 +231,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PLAN-FREEZE-TAG-FORMATTER-HAKO-ADOPTION-DECISION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2438-MIRBUILDER-PLAN-FREEZE-TAG-FORMATTER-HAKO-ADOPTION-DECISION-001.md"
+latest_card = "MIRBUILDER-GLOBAL-CALL-RETURN-CONTRACT-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2443-MIRBUILDER-GLOBAL-CALL-RETURN-CONTRACT-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.md"
 latest_card_summary = """The latest card adopts
-plan_freeze_tag_formatter as the sixty-eighth narrow Rust-oracle parity pilot
-owner and chooses pilot selection rerun 068 next."""
+global_call_return_contract_label_formatter as the sixty-ninth narrow
+Rust-oracle parity pilot owner and chooses pilot selection rerun 069 next."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -243,14 +246,14 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-04: 2443 adopts global_call_return_contract_label_formatter as the sixty-ninth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
+  "2026-07-04: 2442 adds the global_call_return_contract_label_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
+  "2026-07-04: 2441 adds the hand-authored global_call_return_contract_label_formatter .hako implementation and chooses the parity gate card next.",
+  "2026-07-04: 2440 creates the 16-row global_call_return_contract_label_formatter Rust-oracle fixture and chooses the Hako-native implementation card next.",
+  "2026-07-04: 2439 selects global_call_return_contract_label_formatter as the sixty-ninth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
   "2026-07-04: 2438 adopts plan_freeze_tag_formatter as the sixty-eighth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
   "2026-07-04: 2437 adds the plan_freeze_tag_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
   "2026-07-04: 2436 adds the hand-authored plan_freeze_tag_formatter .hako implementation and chooses the parity gate card next.",
   "2026-07-04: 2435 creates the 5-row plan_freeze_tag_formatter Rust-oracle fixture and chooses the Hako-native implementation card next.",
   "2026-07-04: 2434 selects plan_freeze_tag_formatter as the sixty-eighth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
-  "2026-07-04: 2433 adopts map_lookup_fusion_metadata_label_formatter as the sixty-seventh narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
-  "2026-07-04: 2432 adds the map_lookup_fusion_metadata_label_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
-  "2026-07-04: 2431 adds the hand-authored map_lookup_fusion_metadata_label_formatter .hako implementation and chooses the parity gate card next.",
-  "2026-07-04: 2430 creates the 5-row map_lookup_fusion_metadata_label_formatter Rust-oracle fixture and chooses the Hako-native implementation card next.",
-  "2026-07-04: 2429 selects map_lookup_fusion_metadata_label_formatter as the sixty-seventh narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
 ]

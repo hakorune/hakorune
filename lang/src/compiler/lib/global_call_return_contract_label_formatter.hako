@@ -1,0 +1,35 @@
+// global_call_return_contract_label_formatter.hako
+//
+// Responsibility:
+// - format the narrow GlobalCallReturnContract label vocabulary
+// - report the value-demand token for that contract
+//
+// Non-responsibility:
+// - global-call target inference
+// - global-call route collection
+// - proof policy or lowering decisions
+static box GlobalCallReturnContractLabelFormatterBox {
+  json_name(contract) {
+    if contract == "ScalarI64" { return "ScalarI64" }
+    if contract == "StringHandle" { return "string_handle" }
+    if contract == "StringHandleOrNull" { return "string_handle_or_null" }
+    if contract == "VoidSentinelI64Zero" { return "void_sentinel_i64_zero" }
+    if contract == "ArrayHandle" { return "array_handle" }
+    if contract == "MapHandle" { return "map_handle" }
+    if contract == "ObjectHandle" { return "object_handle" }
+    if contract == "MixedRuntimeI64OrHandle" { return "mixed_runtime_i64_or_handle" }
+    return "unsupported_global_call_return_contract"
+  }
+
+  value_demand(contract) {
+    if contract == "ScalarI64" { return "scalar_i64" }
+    if contract == "VoidSentinelI64Zero" { return "scalar_i64" }
+    if contract == "StringHandle" { return "runtime_i64_or_handle" }
+    if contract == "StringHandleOrNull" { return "runtime_i64_or_handle" }
+    if contract == "ArrayHandle" { return "runtime_i64_or_handle" }
+    if contract == "MapHandle" { return "runtime_i64_or_handle" }
+    if contract == "ObjectHandle" { return "runtime_i64_or_handle" }
+    if contract == "MixedRuntimeI64OrHandle" { return "runtime_i64_or_handle" }
+    return "unsupported_global_call_value_demand"
+  }
+}

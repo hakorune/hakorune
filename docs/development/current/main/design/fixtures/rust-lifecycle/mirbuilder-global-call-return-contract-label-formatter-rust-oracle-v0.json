@@ -1,0 +1,40 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderGlobalCallReturnContractLabelFormatterRustOracleV1",
+  "token": "MIRBUILDER-GLOBAL-CALL-RETURN-CONTRACT-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "global_call_return_contract_label_formatter",
+  "rust_source": {
+    "path": "src/mir/global_call_route_plan/model.rs",
+    "hash": "sha256:5818fc9a9bd6906cb216cc6f1d7d99eb67847fb5cf38b6fbcedefc2bc4ffa52f",
+    "oracle_surface": "GlobalCallReturnContract label and value-demand vocabulary"
+  },
+  "rows": [
+    {"kind": "json_name", "input": "ScalarI64", "expected": "ScalarI64"},
+    {"kind": "value_demand", "input": "ScalarI64", "expected": "scalar_i64"},
+    {"kind": "json_name", "input": "StringHandle", "expected": "string_handle"},
+    {"kind": "value_demand", "input": "StringHandle", "expected": "runtime_i64_or_handle"},
+    {"kind": "json_name", "input": "StringHandleOrNull", "expected": "string_handle_or_null"},
+    {"kind": "value_demand", "input": "StringHandleOrNull", "expected": "runtime_i64_or_handle"},
+    {"kind": "json_name", "input": "VoidSentinelI64Zero", "expected": "void_sentinel_i64_zero"},
+    {"kind": "value_demand", "input": "VoidSentinelI64Zero", "expected": "scalar_i64"},
+    {"kind": "json_name", "input": "ArrayHandle", "expected": "array_handle"},
+    {"kind": "value_demand", "input": "ArrayHandle", "expected": "runtime_i64_or_handle"},
+    {"kind": "json_name", "input": "MapHandle", "expected": "map_handle"},
+    {"kind": "value_demand", "input": "MapHandle", "expected": "runtime_i64_or_handle"},
+    {"kind": "json_name", "input": "ObjectHandle", "expected": "object_handle"},
+    {"kind": "value_demand", "input": "ObjectHandle", "expected": "runtime_i64_or_handle"},
+    {"kind": "json_name", "input": "MixedRuntimeI64OrHandle", "expected": "mixed_runtime_i64_or_handle"},
+    {"kind": "value_demand", "input": "MixedRuntimeI64OrHandle", "expected": "runtime_i64_or_handle"}
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "global_call_target_inference_migration": 0,
+    "global_call_route_collection_migration": 0,
+    "global_call_proof_policy_migration": 0
+  }
+}
