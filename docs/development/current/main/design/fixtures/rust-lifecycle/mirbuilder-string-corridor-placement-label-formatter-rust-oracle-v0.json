@@ -1,0 +1,33 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderStringCorridorPlacementLabelFormatterRustOracleV1",
+  "token": "MIRBUILDER-STRING-CORRIDOR-PLACEMENT-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "string_corridor_placement_label_formatter",
+  "rust_source": {
+    "path": "src/mir/string_corridor_placement/types.rs",
+    "hash": "sha256:f37d18d9c81a79b52ee470289aaebdef84aee0f18d4757228b77de153a5b60db",
+    "oracle_surface": "StringCorridorCandidateKind, state, publication boundary, and contract display vocabulary"
+  },
+  "rows": [
+    {"kind": "candidate_kind", "input": "BorrowCorridorFusion", "expected": "borrowed_corridor_fusion"},
+    {"kind": "candidate_kind", "input": "PublicationSink", "expected": "publication_sink"},
+    {"kind": "candidate_kind", "input": "MaterializationSink", "expected": "materialization_sink"},
+    {"kind": "candidate_kind", "input": "DirectKernelEntry", "expected": "direct_kernel_entry"},
+    {"kind": "candidate_state", "input": "Candidate", "expected": "candidate"},
+    {"kind": "candidate_state", "input": "AlreadySatisfied", "expected": "already_satisfied"},
+    {"kind": "publication_boundary", "input": "FirstExternalBoundary", "expected": "first_external_boundary"},
+    {"kind": "publication_contract", "input": "PublishNowNotRequiredBeforeFirstExternalBoundary", "expected": "publish_now_not_required_before_first_external_boundary"}
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "string_corridor_candidate_derivation_migration": 0,
+    "publication_policy_migration": 0,
+    "proof_summary_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

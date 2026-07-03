@@ -1,0 +1,38 @@
+// string_corridor_placement_label_formatter.hako
+//
+// Responsibility:
+// - format narrow string corridor placement vocabulary into Rust oracle text
+// - stay pure: scalar token in, scalar text out
+//
+// Non-responsibility:
+// - string corridor candidate derivation
+// - publication policy
+// - proof summary
+// - MIR mutation
+static box StringCorridorPlacementLabelFormatterBox {
+  format_candidate_kind(kind) {
+    if kind == "BorrowCorridorFusion" { return "borrowed_corridor_fusion" }
+    if kind == "PublicationSink" { return "publication_sink" }
+    if kind == "MaterializationSink" { return "materialization_sink" }
+    if kind == "DirectKernelEntry" { return "direct_kernel_entry" }
+    return "unsupported_string_corridor_candidate_kind"
+  }
+
+  format_candidate_state(state) {
+    if state == "Candidate" { return "candidate" }
+    if state == "AlreadySatisfied" { return "already_satisfied" }
+    return "unsupported_string_corridor_candidate_state"
+  }
+
+  format_publication_boundary(boundary) {
+    if boundary == "FirstExternalBoundary" { return "first_external_boundary" }
+    return "unsupported_string_corridor_publication_boundary"
+  }
+
+  format_publication_contract(contract) {
+    if contract == "PublishNowNotRequiredBeforeFirstExternalBoundary" {
+      return "publish_now_not_required_before_first_external_boundary"
+    }
+    return "unsupported_string_corridor_publication_contract"
+  }
+}

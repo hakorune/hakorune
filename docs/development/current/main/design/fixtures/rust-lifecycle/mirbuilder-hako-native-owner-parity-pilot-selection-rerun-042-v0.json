@@ -1,0 +1,33 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderHakoNativeOwnerParityPilotSelectionRerun042V1",
+  "token": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-042",
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "previous_adoption_decision": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-sum-placement-label-formatter-hako-adoption-decision-v0.json",
+    "previous_adoption_decision_hash": "sha256:c5807b2238c55a0d5fe06b6f9dd6f65de0e624a12b382357a4d38b1e8252bdeb"
+  },
+  "decision": {
+    "kind": "SelectRustOracleFixture",
+    "reason_token": "StringCorridorPlacementLabelFormatterIsNarrowPureVocabularyOwner",
+    "selected_owner": "string_corridor_placement_label_formatter",
+    "selected_next_card": "MIRBUILDER-STRING-CORRIDOR-PLACEMENT-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001"
+  },
+  "accepted_scope": {
+    "surface": "String corridor placement candidate/state/boundary/contract label vocabulary formatting",
+    "manual_target_selection_allowed": 1,
+    "correctness_requires_rust_oracle_parity": 1
+  },
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "string_corridor_candidate_derivation_migration": 0,
+    "publication_policy_migration": 0,
+    "proof_summary_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}
