@@ -20,6 +20,6 @@ Behavior
 Notes
 - Binary alias
   - Preferred alias: tools/bin/hako (or tools/bin/hakorune)
-  - Backward‑compat: target/release/nyash も利用可（自動検出）
+  - Backward-compat: target/release/nyash も利用可（hakorune 不在時のみ自動検出）
 - This MVP only checks a single file and depends on the Rust parser.
 - Extend with flags (parser selection, JSON emit) as migration progresses.

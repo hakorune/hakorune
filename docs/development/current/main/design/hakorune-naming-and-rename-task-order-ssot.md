@@ -485,7 +485,7 @@ tools/checks/dev_gate.sh quick
 
 ### HAKORUNE-WINDOWS-BUILD-SCRIPT-CUTOVER-INVENTORY-001
 
-Status: active in this slice.
+Status: landed Windows script cut.
 
 Scope:
 
@@ -514,6 +514,39 @@ Acceptance:
 
 ```bash
 bash tools/checks/naming_charter_guard.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
+### HAKORUNE-HAKO-CHECK-BINARY-RESOLUTION-001
+
+Status: active in this slice.
+
+Scope:
+
+- make `tools/hako-check/hako-check.sh` resolve `hakorune` before legacy
+  `nyash`;
+- keep `HAKO_BIN` as the explicit override;
+- keep `tools/bin/hako` as preferred local wrapper when present;
+- keep `target/release/nyash` only as compatibility fallback when the primary
+  binary is absent.
+
+Contract:
+
+```text
+resolution order:
+  HAKO_BIN
+  tools/bin/hako
+  tools/bin/hakorune
+  target/release/hakorune
+  target/release/nyash
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+tools/hako-check/hako-check.sh --help
 git diff --check
 tools/checks/dev_gate.sh quick
 ```

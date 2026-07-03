@@ -41,17 +41,18 @@ the active card and task-order SSOT. Do not duplicate them here.
 
 ## Immediate Maintenance Slice
 
-Scope: Hakorune Windows build script binary cutover.
+Scope: Hakorune hako-check binary resolution.
 
-- make Windows build scripts build/invoke `hakorune` as the primary binary
-- keep `nyash` only as compatibility fallback where explicitly resolved
+- make `tools/hako-check/hako-check.sh` resolve `hakorune` before legacy `nyash`
+- keep `nyash` only as compatibility fallback when the primary binary is absent
 - keep package/crate/plugin/ABI/tool names untouched in this slice
-- do not rename historical script filenames in this slice
+- do not rename the hako-check tool directory in this slice
 
 Acceptance:
 
 ```bash
 bash tools/checks/naming_charter_guard.sh
+tools/hako-check/hako-check.sh --help
 git diff --check
 tools/checks/dev_gate.sh quick
 ```
