@@ -1,0 +1,45 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderUserBoxLoopMicroSeedLabelFormatterRustOracleV1",
+  "token": "MIRBUILDER-USERBOX-LOOP-MICRO-SEED-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "userbox_loop_micro_seed_label_formatter",
+  "rust_source": {
+    "path": "src/mir/userbox_loop_micro_seed_plan.rs",
+    "hash": "sha256:0f9a9d2294c7fe48def0f62351fd1a472507588bf5f99d7b5155e81b1e8e9410",
+    "oracle_surface": "UserBoxLoopMicroSeedKind and UserBoxLoopMicroSeedProof display vocabulary"
+  },
+  "rows": [
+    {
+      "kind": "kind",
+      "input": "PointAddMicro",
+      "expected": "point_add_micro"
+    },
+    {
+      "kind": "kind",
+      "input": "FlagToggleMicro",
+      "expected": "flag_toggle_micro"
+    },
+    {
+      "kind": "proof",
+      "input": "PointAddLoopMicroSeed",
+      "expected": "userbox_point_add_loop_micro_seed"
+    },
+    {
+      "kind": "proof",
+      "input": "FlagToggleLoopMicroSeed",
+      "expected": "userbox_flag_toggle_loop_micro_seed"
+    }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "userbox_loop_micro_seed_matching_migration": 0,
+    "thin_entry_selection_migration": 0,
+    "backend_helper_emission_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

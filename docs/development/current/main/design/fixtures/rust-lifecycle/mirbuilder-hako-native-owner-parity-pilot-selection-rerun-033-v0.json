@@ -1,0 +1,32 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderHakoNativeOwnerParityPilotSelectionRerun033V1",
+  "token": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-033",
+  "input_state": {
+    "previous_adoption_decision": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-substring-views-micro-seed-proof-label-formatter-hako-adoption-decision-v0.json",
+    "previous_adoption_decision_hash": "sha256:3590ea94a05a49744738b031b07bf333e77c75275b214c124514b9e1523e9aa6"
+  },
+  "decision": {
+    "kind": "SelectRustOracleParityPilot",
+    "reason_token": "UserBoxLoopMicroSeedLabelFormatterIsPureVocabularyLeaf",
+    "selected_owner": "userbox_loop_micro_seed_label_formatter",
+    "selected_next_card": "MIRBUILDER-USERBOX-LOOP-MICRO-SEED-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001"
+  },
+  "accepted_scope": {
+    "surface": "UserBox loop micro seed kind/proof label vocabulary formatting",
+    "correctness_proof_required": "RustOracleParityGate",
+    "manual_target_selection_allowed": 1
+  },
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "userbox_loop_micro_seed_matching_migration": 0,
+    "thin_entry_selection_migration": 0,
+    "backend_helper_emission_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

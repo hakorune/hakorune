@@ -1,0 +1,32 @@
+// userbox_loop_micro_seed_label_formatter.hako - hand-authored micro seed label formatter
+//
+// Responsibility:
+// - format narrow UserBox loop micro seed kind/proof vocabulary into Rust oracle text
+// - stay pure: scalar token in, scalar text out
+//
+// Non-responsibility:
+// - UserBox loop micro seed matching
+// - thin-entry selection
+// - backend helper emission
+// - MIR mutation
+static box UserBoxLoopMicroSeedLabelFormatterBox {
+  format_kind(kind) {
+    if kind == "PointAddMicro" {
+      return "point_add_micro"
+    }
+    if kind == "FlagToggleMicro" {
+      return "flag_toggle_micro"
+    }
+    return "unsupported_userbox_loop_micro_seed_kind"
+  }
+
+  format_proof(proof) {
+    if proof == "PointAddLoopMicroSeed" {
+      return "userbox_point_add_loop_micro_seed"
+    }
+    if proof == "FlagToggleLoopMicroSeed" {
+      return "userbox_flag_toggle_loop_micro_seed"
+    }
+    return "unsupported_userbox_loop_micro_seed_proof"
+  }
+}
