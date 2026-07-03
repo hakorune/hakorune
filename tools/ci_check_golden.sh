@@ -7,33 +7,22 @@ ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT_DIR"
 
 PAIRS=(
-  "local_tests/typeop_is_as_func_poc.hako docs/development/testing/golden/typeop_is_as_func_poc.mir.txt"
-  "local_tests/typeop_is_as_poc.hako docs/development/testing/golden/typeop_is_as_poc.mir.txt"
-  "local_tests/extern_console_log.hako docs/development/testing/golden/extern_console_log.mir.txt"
-  "local_tests/simple_loop_test.hako docs/development/testing/golden/loop_simple.mir.txt"
-  "local_tests/test_vm_array_getset.hako docs/development/testing/golden/boxcall_array_getset.mir.txt"
-  "local_tests/typeop_mixed.hako docs/development/testing/golden/typeop_mixed.mir.txt"
-  "local_tests/loop_nested_if_test.hako docs/development/testing/golden/loop_nested_if.mir.txt"
+  "docs/development/testing/fixtures/golden/simple_return.hako docs/development/testing/golden/simple_return.mir.txt"
 )
-
-FAILED=0
 
 for pair in "${PAIRS[@]}"; do
   in_file="${pair%% *}"
   golden_file="${pair##* }"
   if [ ! -f "$in_file" ]; then
-    echo "[GOLDEN] Skip missing input: $in_file"
-    continue
+    echo "[GOLDEN] Missing input: $in_file" >&2
+    exit 1
+  fi
+  if [ ! -f "$golden_file" ]; then
+    echo "[GOLDEN] Missing golden: $golden_file" >&2
+    exit 1
   fi
   echo "[GOLDEN] Checking: $in_file vs $golden_file"
-  if ! ./tools/compare_mir.sh "$in_file" "$golden_file"; then
-    echo "[GOLDEN] Mismatch (non-blocking): $in_file" >&2
-    FAILED=$((FAILED+1))
-    continue
-  fi
+  bash ./tools/compare_mir.sh "$in_file" "$golden_file"
 done
-if [ "$FAILED" -eq 0 ]; then
-  echo "All golden MIR snapshots match."
-else
-  echo "Golden mismatches: $FAILED (non-blocking summary)"
-fi
+
+echo "All golden MIR snapshots match."

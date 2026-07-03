@@ -1,0 +1,313 @@
+🚀 MIR Output for docs/development/testing/fixtures/golden/simple_return.hako:
+; MIR Module: main
+; Source: docs/development/testing/fixtures/golden/simple_return.hako
+
+; Module Statistics:
+;   Functions: 13
+;   Globals: 0
+;   Total Blocks: 19
+;   Total Instructions: 79
+;   Pure Functions: 2
+
+define i64 @AddOperator.apply/2(? %0, ? %1) effects(0x0010) {
+  ; Function Statistics:
+  ;   Blocks: 1
+  ;   Instructions: 4
+  ;   Values: 5
+  ;   Phi Functions: 0
+  ;   Storage Classes:
+  ;     %0: opaque
+  ;     %1: opaque
+  ;     %2: opaque
+  ;     %3: opaque
+  ;     %4: inline_i64
+
+bb13:
+    1: %2: Unknown = copy %0
+    1: %3: Unknown = copy %1
+    1: %4: Integer = %2 Add %3
+    1: ret %4
+}
+
+define i1 @AddOperator.equals/1(? %0) effects(0x0010) {
+  ; Function Statistics:
+  ;   Blocks: 1
+  ;   Instructions: 2
+  ;   Values: 2
+  ;   Phi Functions: 0
+  ;   Storage Classes:
+  ;     %0: opaque
+  ;     %1: inline_bool
+
+bb14:
+    1: %1: Bool = const true
+    1: ret %1
+}
+
+define str @AddOperator.toString/0() effects(0x0010) {
+  ; Function Statistics:
+  ;   Blocks: 1
+  ;   Instructions: 6
+  ;   Values: 6
+  ;   Phi Functions: 0
+  ;   Storage Classes:
+  ;     %1: borrowed_text
+  ;     %2: borrowed_text
+  ;     %3: borrowed_text
+  ;     %4: borrowed_text
+  ;     %5: borrowed_text
+
+bb15:
+    1: %1: String = const "AddOperator("
+    1: %2: String = const ")"
+    1: %3: String = const "AddOperator("
+    1: %4: String = const ")"
+    1: %5: String = %3 Add %4
+    1: ret %5
+}
+
+define void @CompareOperator.apply/3(? %0, ? %1, ? %2) effects(0x0010) {
+  ; Function Statistics:
+  ;   Blocks: 1
+  ;   Instructions: 2
+  ;   Values: 4
+  ;   Phi Functions: 0
+  ;   Storage Classes:
+  ;     %0: opaque
+  ;     %1: opaque
+  ;     %2: opaque
+  ;     %3: opaque
+
+bb10:
+    1: %3: Void = const void
+    1: ret %3
+}
+
+define i1 @CompareOperator.equals/1(? %0) effects(0x0010) {
+  ; Function Statistics:
+  ;   Blocks: 1
+  ;   Instructions: 2
+  ;   Values: 2
+  ;   Phi Functions: 0
+  ;   Storage Classes:
+  ;     %0: opaque
+  ;     %1: inline_bool
+
+bb11:
+    1: %1: Bool = const true
+    1: ret %1
+}
+
+define str @CompareOperator.toString/0() effects(0x0010) {
+  ; Function Statistics:
+  ;   Blocks: 1
+  ;   Instructions: 6
+  ;   Values: 6
+  ;   Phi Functions: 0
+  ;   Storage Classes:
+  ;     %1: borrowed_text
+  ;     %2: borrowed_text
+  ;     %3: borrowed_text
+  ;     %4: borrowed_text
+  ;     %5: borrowed_text
+
+bb12:
+    1: %1: String = const "CompareOperator("
+    1: %2: String = const ")"
+    1: %3: String = const "CompareOperator("
+    1: %4: String = const ")"
+    1: %5: String = %3 Add %4
+    1: ret %5
+}
+
+define i1 @Main.equals/1(? %0) effects(0x0010) {
+  ; Function Statistics:
+  ;   Blocks: 1
+  ;   Instructions: 2
+  ;   Values: 2
+  ;   Phi Functions: 0
+  ;   Storage Classes:
+  ;     %0: opaque
+  ;     %1: inline_bool
+
+bb16:
+    1: %1: Bool = const true
+    1: ret %1
+}
+
+define str @Main.toString/0() effects(0x0010) {
+  ; Function Statistics:
+  ;   Blocks: 1
+  ;   Instructions: 6
+  ;   Values: 6
+  ;   Phi Functions: 0
+  ;   Storage Classes:
+  ;     %1: borrowed_text
+  ;     %2: borrowed_text
+  ;     %3: borrowed_text
+  ;     %4: borrowed_text
+  ;     %5: borrowed_text
+
+bb17:
+    1: %1: String = const "Main("
+    1: %2: String = const ")"
+    1: %3: String = const "Main("
+    1: %4: String = const ")"
+    1: %5: String = %3 Add %4
+    1: ret %5
+}
+
+define str @StringifyOperator.apply/1(? %0) effects(0x0010) {
+  ; Function Statistics:
+  ;   Blocks: 7
+  ;   Instructions: 37
+  ;   Values: 34
+  ;   Phi Functions: 0
+  ;   Storage Classes:
+  ;     %0: opaque
+  ;     %1: opaque
+  ;     %2: inline_bool
+  ;     %3: opaque
+  ;     %4: opaque
+  ;     %5: inline_bool
+  ;     %6: opaque
+  ;     %7: opaque
+  ;     %8: inline_bool
+  ;     %9: opaque
+  ;     %10: opaque
+  ;     %11: borrowed_text
+  ;     %12: opaque
+  ;     %14: opaque
+  ;     %15: opaque
+  ;     %17: opaque
+  ;     %18: inline_bool
+  ;     %20: opaque
+  ;     %21: inline_bool
+  ;     %22: opaque
+  ;     %23: inline_bool
+  ;     %24: opaque
+  ;     %25: borrowed_text
+  ;     %26: opaque
+  ;     %27: opaque
+  ;     %29: opaque
+  ;     %30: borrowed_text
+  ;     %31: borrowed_text
+  ;     %32: opaque
+
+bb1:
+    9: %1: Void = const null
+    9: %3: Unknown = copy %0
+    9: %4: Void = const null
+    1: %2: Bool = icmp Eq %3, %4
+    9: %6: Unknown = copy %3
+    9: %7: Void = const null
+    9: %5: Bool = icmp Eq %6, %7
+    9: %9: Unknown = copy %6
+    9: %10: Void = const null
+    9: %8: Bool = icmp Eq %9, %10
+    9: br %8, label bb2, label bb3
+
+bb2:  ; preds(bb1)
+   10: %11: String = const "null"
+   10: ret %11
+
+bb3:  ; preds(bb1)
+   10: %12: Void = const void
+   10: br label bb4
+
+bb4:  ; preds(bb3)
+   10: %14: Void = const void
+    1: %15: Unknown = copy %0
+    1: %16 = field.get %15.stringify
+   13: %17: Void = const null
+   13: %20: Void = const null
+    1: %18: Bool = icmp Ne %16, %20
+   13: %22: Void = const null
+   13: %21: Bool = icmp Ne %16, %22
+   13: %24: Void = const null
+   13: %23: Bool = icmp Ne %16, %24
+   13: br %23, label bb5, label bb6
+    ; effects: 0x0011
+
+bb5:  ; preds(bb4)
+    1: %26: Unknown = copy %0
+    1: %25: String = call_method RuntimeDataBox.stringify() [recv: %26] [Union]
+    1: ret %25
+
+bb6:  ; preds(bb4)
+    1: %27: Void = const void
+    1: br label bb7
+
+bb7:  ; preds(bb6)
+    1: %29: Void = const void
+   17: %30: String = const ""
+    1: %31: String = const ""
+    1: %32: Unknown = copy %0
+    1: %33 = %31 Add %32
+    1: ret %33
+}
+
+define i1 @StringifyOperator.equals/1(? %0) effects(0x0010) {
+  ; Function Statistics:
+  ;   Blocks: 1
+  ;   Instructions: 2
+  ;   Values: 2
+  ;   Phi Functions: 0
+  ;   Storage Classes:
+  ;     %0: opaque
+  ;     %1: inline_bool
+
+bb8:
+    1: %1: Bool = const true
+    1: ret %1
+}
+
+define str @StringifyOperator.toString/0() effects(0x0010) {
+  ; Function Statistics:
+  ;   Blocks: 1
+  ;   Instructions: 6
+  ;   Values: 6
+  ;   Phi Functions: 0
+  ;   Storage Classes:
+  ;     %1: borrowed_text
+  ;     %2: borrowed_text
+  ;     %3: borrowed_text
+  ;     %4: borrowed_text
+  ;     %5: borrowed_text
+
+bb9:
+    1: %1: String = const "StringifyOperator("
+    1: %2: String = const ")"
+    1: %3: String = const "StringifyOperator("
+    1: %4: String = const ")"
+    1: %5: String = %3 Add %4
+    1: ret %5
+}
+
+define i64 @condition_fn(i64 %0) {
+  ; Function Statistics:
+  ;   Blocks: 1
+  ;   Instructions: 2
+  ;   Values: 2
+  ;   Phi Functions: 0
+  ;   Pure: yes
+
+bb0:
+    1: %1 = const 1
+    1: ret %1
+}
+
+define i64 @main() {
+  ; Function Statistics:
+  ;   Blocks: 1
+  ;   Instructions: 2
+  ;   Values: 2
+  ;   Phi Functions: 0
+  ;   Pure: yes
+  ;   Storage Classes:
+  ;     %1: inline_i64
+
+bb0:
+   50: %1: Integer = const 42
+   50: ret %1
+}

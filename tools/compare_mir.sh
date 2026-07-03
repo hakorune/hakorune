@@ -15,9 +15,9 @@ trap 'rm -f "$OUT"' EXIT
 
 # Allow effect annotation opt-in via env var
 if [ -n "${NYASH_MIR_VERBOSE_EFFECTS:-}" ]; then
-  NYASH_MIR_VERBOSE_EFFECTS=1 ./tools/snapshot_mir.sh "$INPUT" "$OUT" >/dev/null
+  NYASH_MIR_VERBOSE_EFFECTS=1 bash ./tools/snapshot_mir.sh "$INPUT" "$OUT" >/dev/null
 else
-  ./tools/snapshot_mir.sh "$INPUT" "$OUT" >/dev/null
+  bash ./tools/snapshot_mir.sh "$INPUT" "$OUT" >/dev/null
 fi
 
 if ! diff -u "$GOLDEN" "$OUT"; then
@@ -26,4 +26,3 @@ if ! diff -u "$GOLDEN" "$OUT"; then
 fi
 
 echo "MIR matches golden: $GOLDEN"
-

@@ -8,7 +8,6 @@ echo "[core-ci] Build (release)"
 cargo build --release -j32
 
 echo "[core-ci] Golden snapshots"
-./tools/ci_check_golden.sh
+bash ./tools/ci_check_golden.sh
 
 echo "[core-ci] Done (core build + golden checks)"
-

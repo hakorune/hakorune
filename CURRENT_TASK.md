@@ -41,16 +41,15 @@ the active card and task-order SSOT. Do not duplicate them here.
 
 ## Immediate Maintenance Slice
 
-Scope: plugin artifact hygiene only.
+Scope: golden MIR helper fail-fast hygiene only.
 
-- remove tracked, rebuildable plugin static archives from the git index
-- add an ignore rule for generated plugin archives
-- do not touch `local_tests`, grammar, backend lanes, or `.git` maintenance in
-  this slice
+- move the active golden MIR input out of ignored `local_tests`
+- make `tools/ci_check_golden.sh` fail on missing inputs or helper failures
+- do not remove tracked `local_tests` files broadly in this slice
 
 Acceptance:
 
 ```bash
-git ls-files | rg '^plugins/.*\.a$' && exit 1 || true
+bash tools/ci_check_golden.sh
 tools/checks/dev_gate.sh quick
 ```

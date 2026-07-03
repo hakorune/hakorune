@@ -1,0 +1,6 @@
+// Minimal stable input for the protected MIR golden helper chain.
+static box Main {
+  main() {
+    return 42
+  }
+}
