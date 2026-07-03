@@ -1,0 +1,19 @@
+// substring_views_micro_seed_proof_label_formatter.hako - hand-authored proof label formatter
+//
+// Responsibility:
+// - format narrow substring views micro seed proof vocabulary into Rust oracle text
+// - stay pure: scalar proof in, scalar text out
+//
+// Non-responsibility:
+// - substring views micro seed matching
+// - string kernel plan migration
+// - backend lowering
+// - MIR mutation
+static box SubstringViewsMicroSeedProofLabelFormatterBox {
+  format_label(proof) {
+    if proof == "KiloMicroSubstringViewsOnly5Block" {
+      return "kilo_micro_substring_views_only_5block"
+    }
+    return "unsupported_substring_views_micro_seed_proof_label"
+  }
+}
