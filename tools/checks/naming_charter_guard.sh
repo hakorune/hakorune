@@ -40,6 +40,9 @@ SELFHOST_README="$ROOT_DIR/tools/selfhost/README.md"
 SELFHOST_QUICKSTART="$ROOT_DIR/docs/development/selfhosting/quickstart.md"
 SELFHOST_MAINLINE_BUILD_STAGE1="$ROOT_DIR/tools/selfhost/mainline/build_stage1.sh"
 SELFHOST_STAGE_A_SPAWN_RS="$ROOT_DIR/src/runner/modes/common_util/selfhost/stage_a_spawn.rs"
+STAGE1_BRIDGE_README="$ROOT_DIR/src/runner/stage1_bridge/README.md"
+STAGE1_BRIDGE_ENV_RS="$ROOT_DIR/src/runner/stage1_bridge/env.rs"
+STAGE1_BRIDGE_MODULES_RS="$ROOT_DIR/src/runner/stage1_bridge/modules.rs"
 HH_COMPILER_ENTRY="$ROOT_DIR/lang/src/compiler/entry/compiler.hako"
 HH_STAGEB_ARGS="$ROOT_DIR/lang/src/compiler/entry/stageb_args_box.hako"
 NY_PARSER_BRIDGE_SMOKE="$ROOT_DIR/tools/ny_parser_bridge_smoke.sh"
@@ -138,6 +141,9 @@ REQUIRED_FILES=(
   "$SELFHOST_QUICKSTART"
   "$SELFHOST_MAINLINE_BUILD_STAGE1"
   "$SELFHOST_STAGE_A_SPAWN_RS"
+  "$STAGE1_BRIDGE_README"
+  "$STAGE1_BRIDGE_ENV_RS"
+  "$STAGE1_BRIDGE_MODULES_RS"
   "$HH_COMPILER_ENTRY"
   "$HH_STAGEB_ARGS"
   "$NY_PARSER_BRIDGE_SMOKE"
@@ -256,6 +262,7 @@ SSOT_REQUIRED_TOKENS=(
   "STAGE-TERM-SYNTAX3-DIAGNOSTIC-WORDING-001"
   "STAGE-TERM-MODEB-COMPAT-ENV-WORDING-001"
   "STAGE-TERM-MODEB-PROOF-ROUTE-WORDING-001"
+  "STAGE-TERM-MODEB-STAGE1-BRIDGE-WORDING-001"
 )
 guard_require_unique_values "SSOT required token" "${SSOT_REQUIRED_TOKENS[@]}"
 for ssot_token in "${SSOT_REQUIRED_TOKENS[@]}"; do
@@ -561,6 +568,13 @@ require_fixed "mode-B module payload apply" "$STAGE1_BRIDGE_ENV_PARSER_STAGEB_RS
 if rg -n 'Stage-B toggles|Stage-B module payload' "$STAGE1_BRIDGE_ENV_PARSER_STAGEB_RS"; then
   guard_fail "$TAG" "stage1 bridge env comments must say mode-B compatibility, not Stage-B toggles"
 fi
+require_fixed "mode-B compatibility module payload generation" "$STAGE1_BRIDGE_README"
+require_fixed "mode-B compatibility aliases" "$STAGE1_BRIDGE_ENV_RS"
+require_fixed "mode-B compatibility alias" "$STAGE1_BRIDGE_MODULES_RS"
+require_fixed "mode-B compatibility readers" "$STAGE1_BRIDGE_MODULES_RS"
+if rg -n 'Stage-B module payload|Stage-B compatibility aliases|compatibility alias for Stage-B routes|Stage-B compatibility readers' "$STAGE1_BRIDGE_README" "$STAGE1_BRIDGE_ENV_RS" "$STAGE1_BRIDGE_MODULES_RS"; then
+  guard_fail "$TAG" "stage1 bridge module/env docs must say mode-B compatibility"
+fi
 require_fixed 'visible_alias("syntax-3")' "$CLI_ARGS_RS"
 require_fixed "syntax3_alias_sets_stage3_parser_flag" "$CLI_ARGS_TESTS_RS"
 require_fixed "syntax-3 keyword diagnostic" "$MIR_BUILDER_BUILD_RS"
@@ -593,6 +607,9 @@ NAMING_DIFF_ALLOWED_PATHS=(
   "src/cli/args/tests.rs"
   "src/config/env/verification_flags.rs"
   "src/mir/builder/builder_build.rs"
+  "src/runner/stage1_bridge/README.md"
+  "src/runner/stage1_bridge/env.rs"
+  "src/runner/stage1_bridge/modules.rs"
   "src/runner/stage1_bridge/env/parser_stageb.rs"
   "src/runner/modes/common_util/selfhost/stage_a_spawn.rs"
   "lang/src/compiler/entry/compiler.hako"

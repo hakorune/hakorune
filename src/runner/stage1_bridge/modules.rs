@@ -336,7 +336,7 @@ fn collect_workspace_module_entries(doc: &toml::Value, toml_dir: &Path) -> Vec<(
 /// Collect modules list from hako.toml/nyash.toml registry
 ///
 /// Returns a "|||"-separated list of "key=value" entries for HAKO_STAGE1_MODULES_LIST.
-/// HAKO_STAGEB_MODULES_LIST is kept as a compatibility alias for Stage-B routes.
+/// HAKO_STAGEB_MODULES_LIST is kept as a mode-B compatibility alias.
 /// Includes well-known aliases required by Stage-1 CLI if absent.
 ///
 /// Merge policy:
@@ -401,9 +401,9 @@ fn collect_modules_list_from_doc(doc: &toml::Value, path: &Path) -> Option<Strin
 /// Collect module_roots list from hako.toml/nyash.toml [module_roots] section
 ///
 /// Returns a "|||"-separated list of "prefix=path" entries for HAKO_STAGE1_MODULE_ROOTS_LIST.
-/// HAKO_STAGEB_MODULE_ROOTS_LIST is kept as a compatibility alias for Stage-B routes.
+/// HAKO_STAGEB_MODULE_ROOTS_LIST is kept as a mode-B compatibility alias.
 /// Entries are sorted by prefix length descending (longest match first) for the
-/// Stage-1 bridge payload and Stage-B compatibility readers.
+/// Stage-1 bridge payload and mode-B compatibility readers.
 fn collect_module_roots_list_from_doc(doc: &toml::Value) -> Option<String> {
     let mut entries: Vec<(String, String)> = Vec::new();
     if let Some(roots) = doc.get("module_roots").and_then(|v| v.as_table()) {

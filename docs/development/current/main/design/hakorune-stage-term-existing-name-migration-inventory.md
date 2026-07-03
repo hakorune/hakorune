@@ -142,6 +142,35 @@ run_stageb_compiler_vm.sh renamed = 0
 runtime behavior changed = 0
 ```
 
+## Landed Stage-1 Bridge mode-B Wording Slice
+
+`STAGE-TERM-MODEB-STAGE1-BRIDGE-WORDING-001` changes Stage-1 bridge module
+payload comments/docs to `mode-B compatibility` wording while keeping existing
+`HAKO_STAGEB_*` environment names and bridge file names as compatibility
+surfaces.
+
+Scope:
+
+```text
+src/runner/stage1_bridge/README.md:
+  module payload ownership line says mode-B compatibility
+
+src/runner/stage1_bridge/env.rs:
+  child env facade comment says mode-B compatibility aliases
+
+src/runner/stage1_bridge/modules.rs:
+  HAKO_STAGEB_* doc comments say mode-B compatibility alias/readers
+```
+
+Non-claims:
+
+```text
+HAKO_STAGEB_* renamed = 0
+parser_stageb.rs renamed = 0
+modules.rs behavior changed = 0
+runtime behavior changed = 0
+```
+
 ## Migration Eligibility
 
 An occurrence is eligible for a future rename only if all conditions hold:

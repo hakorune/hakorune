@@ -5,7 +5,7 @@
  * section to a focused helper module:
  * - runtime defaults
  * - Stage-1 alias propagation
- * - parser / Stage-1 using toggles and Stage-B compatibility aliases
+ * - parser / Stage-1 using toggles and mode-B compatibility aliases
  */
 
 mod parser_stageb;

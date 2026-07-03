@@ -45,7 +45,7 @@ Scope: Rust-side Stage-1 bridge glue in `src/runner/stage1_bridge/`.
 - runtime defaults live in `env/runtime_defaults.rs`
 - Stage-1 alias propagation lives in `env/stage1_aliases.rs`; default `stage1_cli_env.hako` entry paths stay backend-hint free unless an explicit override is selected
 - parser / using toggle propagation lives in `env/parser_stageb.rs`
-- Stage-B module payload generation + child-env apply live in `modules.rs`
+- mode-B compatibility module payload generation + child-env apply live in `modules.rs`
 - `embedded_stage1_modules_snapshot.json` is a derived artifact for binary-only default route; refresh it via `tools/selfhost/refresh_stage1_module_env_snapshot.sh`, do not hand-edit it
 - `modules.rs` test `embedded_snapshot_matches_registry_doc` is the fail-fast parity guard for that derived snapshot
 - bridge-local file read/write for this route lives in `program_json/orchestrator.rs`

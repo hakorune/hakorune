@@ -1952,6 +1952,39 @@ git diff --check
 tools/checks/dev_gate.sh quick
 ```
 
+### STAGE-TERM-MODEB-STAGE1-BRIDGE-WORDING-001
+
+Status: landed bridge wording cleanup.
+
+Purpose: use `mode-B compatibility` wording for Stage-1 bridge module payload
+alias comments while keeping existing `HAKO_STAGEB_*` environment names and
+bridge file names unchanged.
+
+Affected files:
+
+```text
+src/runner/stage1_bridge/README.md
+src/runner/stage1_bridge/env.rs
+src/runner/stage1_bridge/modules.rs
+```
+
+Non-claims:
+
+```text
+HAKO_STAGEB_* renamed = 0
+parser_stageb.rs renamed = 0
+modules.rs behavior changed = 0
+runtime behavior changed = 0
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
 ### STAGE-TERM-EXISTING-NAME-MIGRATION-001
 
 Status: inventory-only; no implementation rename selected.
