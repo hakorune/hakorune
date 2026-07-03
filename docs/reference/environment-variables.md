@@ -2,6 +2,9 @@
 
 Hakorune / Hako の主要な環境変数をカテゴリ別に整理するよ。`適用経路` はどのパスで効くかを示す。
 `HAKO_*` がある項目は新規利用の優先名で、対応する `NYASH_*` は互換 alias として残すよ。
+新しい product-name spelling として `HAKORUNE_*` を追加する場合は、
+必ず `src/config/env.rs` の alias helper 経由にして、`NYASH_*`
+compat を直接読む実装を増やさないこと。
 
 - Rust AST: Rust パーサ直通（例: `--dump-mir`。compile-only の入口）
 - JSON v0/Stage-1: selfhost/Stage-1/`--ny-parser-pipe` 経由（json_v0_bridge で処理）

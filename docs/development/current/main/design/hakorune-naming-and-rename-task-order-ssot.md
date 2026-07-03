@@ -218,6 +218,41 @@ Subtasks:
 
 Each subtask must be its own commit or short series. Do not mix them.
 
+### HAKORUNE-ENV-ALIAS-INVENTORY-001
+
+Status: active in this slice.
+
+Scope:
+
+- add common alias helper entrypoints in `src/config/env.rs`;
+- define primary-wins behavior for future `HAKORUNE_*` / `HAKO_*` variables
+  with `NYASH_*` compatibility aliases;
+- keep existing `NYASH_*` variables untouched until each subsystem gets its own
+  inventory;
+- do not introduce new environment variables in this slice.
+
+Contract:
+
+```text
+primary env var set:
+  use primary value
+
+primary unset and alias set:
+  use alias value
+  emit one deprecation warning through warn_alias_once(alias, primary)
+
+both unset:
+  return the helper default / None / false
+```
+
+Acceptance:
+
+```bash
+cargo test -q --lib env_alias_helpers
+bash tools/checks/naming_charter_guard.sh
+tools/checks/dev_gate.sh quick
+```
+
 ### STAGE-TERM-EXISTING-NAME-MIGRATION-001
 
 Status: defined, not implementation.

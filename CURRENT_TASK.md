@@ -41,20 +41,18 @@ the active card and task-order SSOT. Do not duplicate them here.
 
 ## Immediate Maintenance Slice
 
-Scope: Hakorune naming charter and `nyash` -> `hakorune` rename task order.
+Scope: Hakorune env alias helper inventory.
 
-- define RHako / HHako implementation vocabulary
-- reserve naked `stage` for bootstrap-only names and require layer-qualified
-  alternatives for new names
-- define run-pipeline / converter / adoption-plan as separate concepts
-- cut the `nyash` -> `hakorune` migration into safe rename surfaces
-- add a lightweight guard that fixes the naming SSOT as a reusable quick-gate
-  entry
-- do not perform broad source/package/env/plugin renames in this slice
+- add `src/config/env` helpers for primary env vars with legacy aliases
+- fix primary-wins behavior for future `HAKORUNE_*` / `HAKO_*` variables that
+  keep `NYASH_*` compatibility aliases
+- document that new product-name env spellings must use those helpers
+- do not rename existing `NYASH_*` variables in this slice
 
 Acceptance:
 
 ```bash
+cargo test -q --lib env_alias_helpers
 bash tools/checks/naming_charter_guard.sh
 tools/checks/dev_gate.sh quick
 ```

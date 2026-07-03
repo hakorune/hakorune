@@ -35,6 +35,8 @@
 //!
 //! 1. **モジュール選択**: 上記のモジュールから適切なものを選択。
 //! 2. **関数定義**: 選択したモジュールに `fn env_var_name() -> type` 形式で関数を定義。
+//!    `NYASH_*` 互換 alias を持つ新規 `HAKORUNE_*` / `HAKO_*` 変数は
+//!    `env_bool_with_alias()` / `env_string_with_alias()` を使う。
 //! 3. **再export**: `src/config/env.rs` で `pub use module::*;` を確認（既に集約済み）。
 //! 4. **ドキュメント追記**: `docs/reference/environment-variables.md` に必ず追記してください。
 //!
@@ -272,14 +274,67 @@ pub(crate) fn env_flag(var: &str) -> Option<bool> {
     })
 }
 
+/// Boolean env parser with a deprecated alias.
+///
+/// Use this for new Hakorune/Hako-primary env vars that keep a `NYASH_*`
+/// compatibility spelling. The primary key always wins when both are set.
+pub fn env_bool_with_alias(primary: &str, alias: &str) -> bool {
+    if let Some(value) = env_flag(primary) {
+        return value;
+    }
+    if let Some(value) = env_flag(alias) {
+        warn_alias_once(alias, primary);
+        return value;
+    }
+    false
+}
+
+/// Boolean env parser with a deprecated alias and default when both are unset.
+pub fn env_bool_default_with_alias(primary: &str, alias: &str, default: bool) -> bool {
+    if let Some(value) = env_flag(primary) {
+        return value;
+    }
+    if let Some(value) = env_flag(alias) {
+        warn_alias_once(alias, primary);
+        return value;
+    }
+    default
+}
+
 /// Generic env presence check: returns true when the key is set (any value).
 pub fn env_present(key: &str) -> bool {
     std::env::var(key).is_ok()
 }
 
+/// Generic env presence check with a deprecated alias.
+pub fn env_present_with_alias(primary: &str, alias: &str) -> bool {
+    if std::env::var(primary).is_ok() {
+        return true;
+    }
+    if std::env::var(alias).is_ok() {
+        warn_alias_once(alias, primary);
+        return true;
+    }
+    false
+}
+
 /// Generic env string fetch.
 pub fn env_string(key: &str) -> Option<String> {
     std::env::var(key).ok()
+}
+
+/// Generic env string fetch with a deprecated alias.
+///
+/// The primary key wins when both are set.
+pub fn env_string_with_alias(primary: &str, alias: &str) -> Option<String> {
+    if let Ok(value) = std::env::var(primary) {
+        return Some(value);
+    }
+    if let Ok(value) = std::env::var(alias) {
+        warn_alias_once(alias, primary);
+        return Some(value);
+    }
+    None
 }
 
 pub(crate) fn warn_alias_once(alias: &str, primary: &str) {
@@ -296,5 +351,66 @@ pub(crate) fn warn_alias_once(alias: &str, primary: &str) {
             ));
             s.insert(alias.to_string());
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn env_alias_helpers_bool_prefers_primary() {
+        crate::test_support::with_env_vars(
+            &[
+                ("HAKORUNE_TEST_BOOL", Some("0")),
+                ("NYASH_TEST_BOOL", Some("1")),
+            ],
+            || {
+                assert!(!env_bool_with_alias(
+                    "HAKORUNE_TEST_BOOL",
+                    "NYASH_TEST_BOOL"
+                ));
+            },
+        );
+    }
+
+    #[test]
+    fn env_alias_helpers_string_prefers_primary() {
+        crate::test_support::with_env_vars(
+            &[
+                ("HAKORUNE_TEST_STRING", Some("primary")),
+                ("NYASH_TEST_STRING", Some("alias")),
+            ],
+            || {
+                assert_eq!(
+                    env_string_with_alias("HAKORUNE_TEST_STRING", "NYASH_TEST_STRING"),
+                    Some("primary".to_string())
+                );
+            },
+        );
+    }
+
+    #[test]
+    fn env_alias_helpers_read_legacy_when_primary_absent() {
+        crate::test_support::with_env_vars(
+            &[
+                ("HAKORUNE_TEST_ALIAS_ONLY", None),
+                ("NYASH_TEST_ALIAS_ONLY", Some("on")),
+            ],
+            || {
+                assert!(env_bool_with_alias(
+                    "HAKORUNE_TEST_ALIAS_ONLY",
+                    "NYASH_TEST_ALIAS_ONLY"
+                ));
+                assert!(env_present_with_alias(
+                    "HAKORUNE_TEST_ALIAS_ONLY",
+                    "NYASH_TEST_ALIAS_ONLY"
+                ));
+                assert_eq!(
+                    env_string_with_alias("HAKORUNE_TEST_ALIAS_ONLY", "NYASH_TEST_ALIAS_ONLY"),
+                    Some("on".to_string())
+                );
+            },
+        );
     }
 }
