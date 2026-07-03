@@ -76,6 +76,7 @@ STAGE-TERM-MODEA-COMPAT-ROUTE-WORDING-001
 STAGE-TERM-MODEB-HHAKO-ENTRY-WORDING-001
 STAGE-TERM-MODEB-HHAKO-COMPAT-FIXTURE-WORDING-001
 STAGE-TERM-HHAKO-COMPILER-ROUTE-WORDING-001
+STAGE-TERM-MODEB-HHAKO-HELPER-COMMENT-WORDING-001
 ```
 
 `--syntax-3` is now the frontend syntax-level spelling; `--stage3` remains a
@@ -95,9 +96,12 @@ adapter comments that defer authority to BuildBox now also say mode-B
 compatibility while keeping env names, trace strings, and Box names unchanged.
 `compiler.hako` route comments and the string-indexing diagnostic now say
 mode-A/mode-B compatibility while keeping `stage_b`, trace strings, Box names,
-and route tokens unchanged. Next safe naming work, if explicitly selected,
-must pick a different classified layer from that inventory and keep
-compatibility aliases or replacement routes in the same slice.
+and route tokens unchanged. HHako helper comments for driver guard, trace,
+main/body detection, Rune helper, and user-box declaration scanner now also say
+mode-B/mode-A compatibility while keeping `StageB*` Box names, trace strings,
+env names, file names, and route tokens unchanged. Next safe naming work, if
+explicitly selected, must pick a different classified layer from that inventory
+and keep compatibility aliases or replacement routes in the same slice.
 
 Acceptance:
 

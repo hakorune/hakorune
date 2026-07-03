@@ -2124,6 +2124,43 @@ git diff --check
 tools/checks/dev_gate.sh quick
 ```
 
+### STAGE-TERM-MODEB-HHAKO-HELPER-COMMENT-WORDING-001
+
+Status: landed HHako helper comment wording cleanup.
+
+Purpose: use `mode-B compatibility` / `mode-A compatibility` wording in HHako
+helper comments that describe mode-B/source-route responsibilities, while
+keeping compatibility names and behavior unchanged.
+
+Affected files:
+
+```text
+lang/src/compiler/entry/stageb_driver_guard_box.hako
+lang/src/compiler/entry/stageb_trace_box.hako
+lang/src/compiler/entry/stageb_main_detection_box.hako
+lang/src/compiler/entry/stageb/stageb_rune_box.hako
+lang/src/compiler/entry/stageb/stageb_user_box_decl_scanner_box.hako
+```
+
+Non-claims:
+
+```text
+StageB* Box names renamed = 0
+HAKO_STAGEB_* env names renamed = 0
+trace strings renamed = 0
+stageb_* file names renamed = 0
+runtime behavior changed = 0
+PHI / LocalSSA / variable-map internals touched = 0
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
 ### STAGE-TERM-EXISTING-NAME-MIGRATION-001
 
 Status: inventory-only; no implementation rename selected.

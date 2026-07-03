@@ -1,4 +1,4 @@
-// stageb_user_box_decl_scanner_box.hako — Stage-B user-box field declaration scanner
+// stageb_user_box_decl_scanner_box.hako — mode-B compatibility user-box field declaration scanner
 // Responsibility: source-level user_box_decls metadata for Program(JSON v0).
 // Stop line: this scanner preserves field names and declared type text only.
 

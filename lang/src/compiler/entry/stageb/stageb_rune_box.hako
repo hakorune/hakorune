@@ -1,4 +1,4 @@
-// stageb_rune_box.hako — Stage-B/source-route Rune helper
+// stageb_rune_box.hako — mode-B compatibility source-route Rune helper
 // Responsibility:
 // - Extract declaration-local method Rune lines from source text.
 // - Build a real Main.main def carrier when Rune attrs are present.

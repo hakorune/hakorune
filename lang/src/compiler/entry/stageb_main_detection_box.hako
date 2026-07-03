@@ -1,4 +1,4 @@
-// Stage-B main/body pattern detection helper.
+// mode-B compatibility main/body pattern detection helper.
 // Extracted from compiler_stageb.hako to keep the entry file adapter-shaped.
 
 static box MainDetectionHelper {
@@ -22,7 +22,7 @@ static box MainDetectionHelper {
   /// Try legacy pattern: "static method main" or "method main".
   tryLegacyPattern(src) {
     // Contract: legacy literals are compatibility boundary, not cleanup target.
-    // Removal is gated by migration-order SSOT (producer=0 + Stage-A fallback dependency=0 + gate green).
+    // Removal is gated by migration-order SSOT (producer=0 + mode-A compatibility fallback dependency=0 + gate green).
     local legacy_static_sig = "static method" + " " + "main"
     local p = me.findPattern(src, legacy_static_sig, 0)
     if p >= 0 {
@@ -39,7 +39,7 @@ static box MainDetectionHelper {
   }
 
   /// SSOT entry for legacy main-body detection.
-  /// Used by both Stage-B and Stage-A fallback paths.
+  /// Used by both mode-B and mode-A compatibility fallback paths.
   findLegacyMainBody(src) {
     return me.tryLegacyPattern(src)
   }

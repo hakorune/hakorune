@@ -1,6 +1,6 @@
-// StageBTraceBox — dev-only trace helper for Stage-B.
+// StageBTraceBox — dev-only trace helper for mode-B compatibility.
 // - Enabled when HAKO_STAGEB_TRACE=1
-// - Keeps Stage-B behavior unchanged（ログのみ追加）
+// - Keeps mode-B compatibility behavior unchanged（ログのみ追加）
 
 static box StageBTraceBox {
   log(label) {

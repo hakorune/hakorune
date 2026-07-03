@@ -300,6 +300,43 @@ trace strings renamed = 0
 --stage-b removed = 0
 ```
 
+## Landed HHako mode-B Helper Comment Wording Slice
+
+`STAGE-TERM-MODEB-HHAKO-HELPER-COMMENT-WORDING-001` changes HHako helper
+comments that describe mode-B/source-route responsibilities to
+`mode-B compatibility` wording while keeping `StageB*` Box names, env names,
+trace strings, file names, and route tokens unchanged.
+
+Scope:
+
+```text
+lang/src/compiler/entry/stageb_driver_guard_box.hako:
+  driver trace/depth guard helper comment says mode-B compatibility
+
+lang/src/compiler/entry/stageb_trace_box.hako:
+  trace helper comments say mode-B compatibility
+
+lang/src/compiler/entry/stageb_main_detection_box.hako:
+  main/body detection and fallback dependency comments say mode-A/mode-B compatibility
+
+lang/src/compiler/entry/stageb/stageb_rune_box.hako:
+  Rune helper comment says mode-B compatibility
+
+lang/src/compiler/entry/stageb/stageb_user_box_decl_scanner_box.hako:
+  user-box declaration scanner comment says mode-B compatibility
+```
+
+Non-claims:
+
+```text
+StageB* Box names renamed = 0
+HAKO_STAGEB_* env names renamed = 0
+trace strings renamed = 0
+stageb_* file names renamed = 0
+runtime behavior changed = 0
+PHI / LocalSSA / variable-map internals touched = 0
+```
+
 ## Migration Eligibility
 
 An occurrence is eligible for a future rename only if all conditions hold:
