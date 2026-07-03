@@ -1,0 +1,38 @@
+// array_string_len_window_label_formatter.hako - hand-authored len-window label formatter
+//
+// Responsibility:
+// - format narrow array string len-window mode/proof vocabulary into Rust oracle text
+// - stay pure: scalar token in, scalar text out
+//
+// Non-responsibility:
+// - array string len-window matching
+// - string corridor matching
+// - backend lowering
+// - MIR mutation
+static box ArrayStringLenWindowLabelFormatterBox {
+  format_mode(mode) {
+    if mode == "LenOnly" {
+      return "len_only"
+    }
+    if mode == "KeepGetLive" {
+      return "keep_get_live"
+    }
+    if mode == "SourceOnlyInsertMid" {
+      return "source_only_insert_mid"
+    }
+    return "unsupported_array_string_len_window_mode"
+  }
+
+  format_proof(proof) {
+    if proof == "ArrayGetLenNoLaterSourceUse" {
+      return "array_get_len_no_later_source_use"
+    }
+    if proof == "ArrayGetLenKeepSourceLive" {
+      return "array_get_len_keep_source_live"
+    }
+    if proof == "ArrayGetLenSourceOnlyDirectSet" {
+      return "array_get_len_source_only_direct_set"
+    }
+    return "unsupported_array_string_len_window_proof"
+  }
+}

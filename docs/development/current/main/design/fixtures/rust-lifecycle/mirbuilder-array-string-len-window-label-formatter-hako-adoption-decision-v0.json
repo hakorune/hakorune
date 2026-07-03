@@ -1,0 +1,35 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderArrayStringLenWindowLabelFormatterHakoAdoptionDecisionV1",
+  "token": "MIRBUILDER-ARRAY-STRING-LEN-WINDOW-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001",
+  "input_state": {
+    "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-array-string-len-window-label-formatter-rust-oracle-v0.json",
+    "hako_source": "lang/src/compiler/lib/array_string_len_window_label_formatter.hako",
+    "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_array_string_len_window_label_formatter_parity_gate.sh"
+  },
+  "decision": {
+    "kind": "Adopt",
+    "reason_token": "ArrayStringLenWindowLabelFormatterRustOracleParityGateGreen",
+    "hako_adopted": 1,
+    "selected_owner": "array_string_len_window_label_formatter",
+    "selected_next_card": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-031"
+  },
+  "accepted_scope": {
+    "surface": "Array string len-window mode and proof label vocabulary formatting",
+    "parity_rows": 6,
+    "rust_bootstrap_retained": 1,
+    "rust_oracle_retained": 1
+  },
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "generated_artifact_as_native_edit_authority": 0,
+    "array_string_len_window_matching_migration": 0,
+    "string_corridor_matching_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}
