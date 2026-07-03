@@ -1,0 +1,37 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderPlacementEffectTagFormatterHakoAdoptionDecisionV1",
+  "token": "MIRBUILDER-PLACEMENT-EFFECT-TAG-FORMATTER-HAKO-ADOPTION-DECISION-001",
+  "owner": "placement_effect_tag_formatter",
+  "decision": {
+    "kind": "Adopt",
+    "reason_token": "PlacementEffectTagFormatterRustOracleParityGateGreen",
+    "hako_adopted": 1,
+    "selected_next_card": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-002"
+  },
+  "evidence": {
+    "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-placement-effect-tag-formatter-rust-oracle-v0.json",
+    "rust_oracle_fixture_hash": "sha256:1fa3ed738652f5ff2548a196c75c67fa7ff16e9f38df1f3d1feebbb1119b769c",
+    "hako_source": "lang/src/compiler/lib/placement_effect_tag_formatter.hako",
+    "hako_source_hash": "sha256:08c9e850dc00dfe284c5764be0cc6764e3aafea8346e88719bfba5883517e740",
+    "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_placement_effect_tag_formatter_parity_gate.sh",
+    "parity_gate_hash": "sha256:6e24a2c6b3b4a12b7d1b418af22609bcf69678baa68dc589b800818d0b1fb371",
+    "parity_rows": 25,
+    "parity_status": "green"
+  },
+  "scope": {
+    "adopted_surface": "PlacementEffect enum-family + variant -> text",
+    "metadata_refresh_migration": 0,
+    "placement_effect_route_collection_migration": 0,
+    "placement_effect_route_summary_migration": 0,
+    "function_module_traversal_migration": 0
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "generated_artifact_as_native_edit_authority": 0
+  }
+}

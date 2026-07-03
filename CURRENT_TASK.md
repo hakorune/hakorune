@@ -57,6 +57,7 @@ SOURCE-SELFHOST-RUST-TO-HAKO-CONVERTER-ROLE-PIVOT-001
   -> MIRBUILDER-PLACEMENT-EFFECT-TAG-FORMATTER-HAKO-NATIVE-IMPLEMENTATION-001
   -> MIRBUILDER-PLACEMENT-EFFECT-TAG-FORMATTER-PARITY-GATE-001
   -> MIRBUILDER-PLACEMENT-EFFECT-TAG-FORMATTER-HAKO-ADOPTION-DECISION-001
+  -> MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-002
 ```
 
 Rule:
@@ -74,6 +75,7 @@ placement_effect_tag_formatter is selected as the second parity pilot; next is i
 placement_effect_tag_formatter has a 25-row Rust-oracle fixture; next is hand-authored .hako implementation
 placement_effect_tag_formatter has hand-authored .hako implementation; next is parity gate
 placement_effect_tag_formatter parity gate is green; next is HakoAdoption decision
+placement_effect_tag_formatter is HakoAdopted as the second parity pilot; next is pilot selection rerun 002
 ```
 
 ## Immediate Maintenance Slice
