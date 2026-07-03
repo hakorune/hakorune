@@ -25,6 +25,8 @@ remains unclaimed.
 StringCorridorNameVocabularyClassifier is now a narrow HakoAdopted
 Rust-oracle parity pilot owner after a green 18-row `.hako` EXE parity gate.
 Source Selfhost remains unclaimed.
+SameModuleDefinitionKindFormatter is selected as the fifth narrow
+Rust-oracle parity pilot owner; next is its Rust-oracle fixture.
 EXE/AOT remains the primary
 app/selfhost validation route; VM/interpreter lanes are not semantic owners."""
 
@@ -34,11 +36,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-STRING-CORRIDOR-NAME-VOCABULARY-HAKO-ADOPTION-DECISION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2118-MIRBUILDER-STRING-CORRIDOR-NAME-VOCABULARY-HAKO-ADOPTION-DECISION-001.md"
-latest_card_summary = """The latest card adopts
-string_corridor_name_vocabulary_classifier as the fourth narrow Rust-oracle
-parity pilot owner and chooses pilot selection rerun 004 next."""
+latest_card = "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-004"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2119-MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-004.md"
+latest_card_summary = """The latest card selects
+same_module_definition_kind_formatter as the fifth narrow Rust-oracle parity
+pilot owner and chooses its Rust-oracle fixture card next."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -49,6 +51,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-04: 2119 selects same_module_definition_kind_formatter as the fifth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
   "2026-07-04: 2118 adopts string_corridor_name_vocabulary_classifier as the fourth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
   "2026-07-04: 2117 adds the string_corridor_name_vocabulary_classifier Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
   "2026-07-04: 2116 adds the hand-authored string_corridor_name_vocabulary_classifier .hako implementation and chooses the parity gate card next.",
@@ -60,5 +63,4 @@ landed_tail = [
   "2026-07-04: 2110 creates the 8-row static_scalar_fact_classifier Rust-oracle fixture and chooses the Hako-native implementation card next.",
   "2026-07-04: 2109 selects static_scalar_fact_classifier as the third narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
   "2026-07-04: 2108 adopts placement_effect_tag_formatter as the second narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
-  "2026-07-04: 2107 adds the placement_effect_tag_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
 ]

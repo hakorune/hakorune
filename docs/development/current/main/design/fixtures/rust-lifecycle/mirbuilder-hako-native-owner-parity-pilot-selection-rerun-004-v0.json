@@ -1,0 +1,80 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderHakoNativeOwnerParityPilotSelectionRerun004V1",
+  "token": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-004",
+  "input_state": {
+    "previous_hako_adoption": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-string-corridor-name-vocabulary-hako-adoption-decision-v0.json",
+    "previous_hako_adoption_hash": "sha256:6b3e637cbd5c9cd37718bd7ca57f18a6c3bc71952f79a29db7436770a2022503",
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+  },
+  "selection_policy": {
+    "candidate_ranking_is_advisory": true,
+    "manual_target_selection_allowed": true,
+    "correctness_proof_is_parity_gate": true,
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0
+  },
+  "candidate_rows": [
+    {
+      "candidate_owner": "same_module_definition_kind_formatter",
+      "source_path": "src/mir/same_module_definition_plan.rs",
+      "source_hash": "sha256:c1176d3a315770d93d4556df5a41690613765d2154c41fd759c78effdaad301c",
+      "selected": true,
+      "positive_signals": [
+        "tiny enum-to-json-name formatter",
+        "pure scalar enum-family input to string output",
+        "json scalar input/output boundary",
+        "no MIR traversal in selected surface",
+        "no PHI or LocalSSA surface"
+      ],
+      "excluded_surface": [
+        "same-module definition closure collection",
+        "global call route traversal",
+        "user box method route traversal",
+        "MirModule mutation",
+        "backend C shim emission"
+      ],
+      "selected_next_card_if_selected": "MIRBUILDER-SAME-MODULE-DEFINITION-KIND-FORMATTER-RUST-ORACLE-FIXTURE-001"
+    },
+    {
+      "candidate_owner": "exact_numeric_backend_capability_policy",
+      "source_path": "src/mir/exact_numeric_backend_capability.rs",
+      "source_hash": "sha256:73adfc8ba1311b06d0dc809e0531e7b1c24be4b7b262040f6ca79d5d726b2e26",
+      "selected": false,
+      "reason": "Requires module-level counting and backend fail-fast error aggregation; wider than the next scalar formatter pilot."
+    },
+    {
+      "candidate_owner": "string_corridor_compat_recovery_policy",
+      "source_path": "src/mir/string_corridor_compat.rs",
+      "source_hash": "sha256:c65ea189c23af8a89beaefb7b48f6dafa44e130db8ba5956587f7a2c0176ff4a",
+      "selected": false,
+      "reason": "Depends on string corridor fact construction and MIR instruction/callee shape inspection; keep it out of narrow parity pilot scope."
+    },
+    {
+      "candidate_owner": "user_box_method_type_label_formatter",
+      "source_path": "src/mir/user_box_method_route_plan.rs",
+      "source_hash": "sha256:37d81825bba36072d819eddce73e6f1bad7648af9b18b28a0fffa0823e0c40f3",
+      "selected": false,
+      "reason": "The formatter is small, but it sits inside a larger route-plan owner; select the isolated same-module enum formatter first."
+    }
+  ],
+  "decision": {
+    "kind": "SelectPilotOwner",
+    "reason_token": "SameModuleDefinitionKindFormatterSelectedAsFifthParityPilot",
+    "selected_owner": "same_module_definition_kind_formatter",
+    "selected_rust_surface": "SameModuleDefinitionKind -> JSON name",
+    "selected_next_card": "MIRBUILDER-SAME-MODULE-DEFINITION-KIND-FORMATTER-RUST-ORACLE-FIXTURE-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "native_seed_materialization": 0,
+    "hako_generation": 0,
+    "generated_artifact_as_native_edit_authority": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "same_module_definition_closure_migration": 0,
+    "mir_module_mutation_migration": 0
+  }
+}
