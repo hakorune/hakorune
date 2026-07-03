@@ -24,13 +24,13 @@ static box MainDetectionHelper {
     // Contract: legacy literals are compatibility boundary, not cleanup target.
     // Removal is gated by migration-order SSOT (producer=0 + Stage-A fallback dependency=0 + gate green).
     local legacy_static_sig = "static method" + " " + "main"
-    local p = me.findPattern(src, legacy_static_sig)
+    local p = me.findPattern(src, legacy_static_sig, 0)
     if p >= 0 {
       return me.extractBodyFromPosition(src, p + legacy_static_sig.length()) // Skip legacy static signature
     }
 
     local legacy_method_sig = "method" + " " + "main"
-    p = me.findPattern(src, legacy_method_sig)
+    p = me.findPattern(src, legacy_method_sig, 0)
     if p >= 0 {
       return me.extractBodyFromPosition(src, p + legacy_method_sig.length()) // Skip legacy method signature
     }
@@ -47,10 +47,10 @@ static box MainDetectionHelper {
   /// Try modern pattern: "static box Main { main(" or "box Main { main(".
   tryModernPattern(src) {
     // Try "static box Main" first
-    local p = me.findPattern(src, "static box Main")
+    local p = me.findPattern(src, "static box Main", 0)
     if p < 0 {
       // Fallback: "box Main"
-      p = me.findPattern(src, "box Main")
+      p = me.findPattern(src, "box Main", 0)
     }
 
     if p >= 0 {

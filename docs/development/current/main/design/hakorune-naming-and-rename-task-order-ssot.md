@@ -902,6 +902,39 @@ git diff --check
 tools/checks/dev_gate.sh quick
 ```
 
+### HAKORUNE-MIN-OPTIN-SMOKE-BINARY-RESOLUTION-001
+
+Status: active in this slice.
+
+Scope:
+
+- make Hako minimum opt-in smokes invoke `$HAKO_BIN` instead of direct
+  `target/release/nyash`;
+- fix the HHako main detection helper arity mismatch surfaced by running those
+  opt-in smokes;
+- keep `.hako` fixtures and expected outputs unchanged in this slice;
+- add naming guard coverage so these smokes do not regress to direct legacy
+  binary calls.
+
+Affected scripts:
+
+```text
+tools/smokes/v2/profiles/quick/core/hako_min_binop_vm.sh
+tools/smokes/v2/profiles/quick/core/hako_min_if_vm.sh
+tools/smokes/v2/profiles/quick/core/index_operator_hako.sh
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+SMOKES_ENABLE_HAKO_BINOP=1 bash tools/smokes/v2/profiles/quick/core/hako_min_binop_vm.sh
+SMOKES_ENABLE_HAKO_IF=1 bash tools/smokes/v2/profiles/quick/core/hako_min_if_vm.sh
+SMOKES_ENABLE_HAKO_INDEX=1 bash tools/smokes/v2/profiles/quick/core/index_operator_hako.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
 ### STAGE-TERM-EXISTING-NAME-MIGRATION-001
 
 Status: defined, not implementation.

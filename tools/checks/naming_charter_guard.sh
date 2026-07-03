@@ -33,13 +33,16 @@ PHI_TRACE_RUN="$ROOT_DIR/tools/debug/phi/phi_trace_run.sh"
 TEST_SHLIB="$ROOT_DIR/tools/test/lib/shlib.sh"
 EMIT_MIR_ROUTE="$ROOT_DIR/tools/smokes/v2/lib/emit_mir_route.sh"
 BRIDGE_CANON_DIR="$ROOT_DIR/tools/smokes/v2/profiles/quick/core/bridge"
+HAKO_MIN_BINOP_SMOKE="$ROOT_DIR/tools/smokes/v2/profiles/quick/core/hako_min_binop_vm.sh"
+HAKO_MIN_IF_SMOKE="$ROOT_DIR/tools/smokes/v2/profiles/quick/core/hako_min_if_vm.sh"
+HAKO_MIN_INDEX_SMOKE="$ROOT_DIR/tools/smokes/v2/profiles/quick/core/index_operator_hako.sh"
 ENV_RS="$ROOT_DIR/src/config/env.rs"
 ENV_PATHS_RS="$ROOT_DIR/src/config/env/paths.rs"
 ENV_DOC="$ROOT_DIR/docs/reference/environment-variables.md"
 
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" git
-guard_require_files "$TAG" "$SSOT" "$CHECK_INDEX" "$QUICK_STEPS" "$DOCS_LAYOUT" "$CARGO_TOML" "$README_MD" "$HACO_WRAPPER" "$MAIN_RS" "$HAKORUNE_BIN_RS" "$HAKORUNE_COMPAT_BIN_RS" "$BUILD_SHARED_RS" "$BUILD_PRODUCT_RS" "$BUILD_ENGINEERING_RS" "$HAKO_CHECK_SH" "$BUILD_LLVM_PS" "$BUILD_AOT_PS" "$USING_UNRESOLVED_SMOKE" "$USING_RESOLVE_SMOKE" "$USING_STRICT_PATH_FAIL_SMOKE" "$DEV_SELFHOST_LOOP" "$ENGINEERING_PARITY" "$SELFHOST_EXE_STAGEB" "$NY_PARSER_BRIDGE_SMOKE" "$PHI_TRACE_RUN" "$TEST_SHLIB" "$EMIT_MIR_ROUTE" "$ENV_RS" "$ENV_PATHS_RS" "$ENV_DOC"
+guard_require_files "$TAG" "$SSOT" "$CHECK_INDEX" "$QUICK_STEPS" "$DOCS_LAYOUT" "$CARGO_TOML" "$README_MD" "$HACO_WRAPPER" "$MAIN_RS" "$HAKORUNE_BIN_RS" "$HAKORUNE_COMPAT_BIN_RS" "$BUILD_SHARED_RS" "$BUILD_PRODUCT_RS" "$BUILD_ENGINEERING_RS" "$HAKO_CHECK_SH" "$BUILD_LLVM_PS" "$BUILD_AOT_PS" "$USING_UNRESOLVED_SMOKE" "$USING_RESOLVE_SMOKE" "$USING_STRICT_PATH_FAIL_SMOKE" "$DEV_SELFHOST_LOOP" "$ENGINEERING_PARITY" "$SELFHOST_EXE_STAGEB" "$NY_PARSER_BRIDGE_SMOKE" "$PHI_TRACE_RUN" "$TEST_SHLIB" "$EMIT_MIR_ROUTE" "$HAKO_MIN_BINOP_SMOKE" "$HAKO_MIN_IF_SMOKE" "$HAKO_MIN_INDEX_SMOKE" "$ENV_RS" "$ENV_PATHS_RS" "$ENV_DOC"
 
 require_fixed() {
   local pattern="$1"
@@ -73,6 +76,7 @@ require_fixed "HAKORUNE-TEST-SHLIB-BINARY-RESOLUTION-001" "$SSOT"
 require_fixed "HAKORUNE-SMOKE-EMIT-MIR-ROUTE-BINARY-ALIAS-001" "$SSOT"
 require_fixed "HAKORUNE-BRIDGE-CANONICALIZE-STABLE-SMOKE-BINARY-RESOLUTION-001" "$SSOT"
 require_fixed "HAKORUNE-WRAPPER-EXECUTABLE-BIT-001" "$SSOT"
+require_fixed "HAKORUNE-MIN-OPTIN-SMOKE-BINARY-RESOLUTION-001" "$SSOT"
 require_fixed "HAKORUNE-ENV-ALIAS-INVENTORY-001" "$SSOT"
 require_fixed "HAKORUNE-ENV-ALIAS-FIRST-CUT-001" "$SSOT"
 require_fixed 'prefer `target/release/hakorune` or `$HAKO_BIN`' "$README_MD"
@@ -168,6 +172,13 @@ for bridge_script in "$BRIDGE_CANON_DIR/canonicalize_noop_method_on_vm.sh" "$BRI
   require_fixed '"$NYASH_BIN" --json-file "$json_path"' "$bridge_script"
   if rg -n 'target/release/nyash" --json-file' "$bridge_script"; then
     guard_fail "$TAG" "bridge canonicalize smoke must use shared Hakorune-first NYASH_BIN resolver"
+  fi
+done
+for hako_min_script in "$HAKO_MIN_BINOP_SMOKE" "$HAKO_MIN_IF_SMOKE" "$HAKO_MIN_INDEX_SMOKE"; do
+  require_fixed '"$HAKO_BIN" --backend vm' "$hako_min_script"
+  require_fixed '"$HAKO_BIN" --json-file "$json_path"' "$hako_min_script"
+  if rg -n 'target/release/nyash" --(backend vm|json-file)' "$hako_min_script"; then
+    guard_fail "$TAG" "Hako minimum opt-in smokes must use HAKO_BIN instead of direct legacy nyash"
   fi
 done
 require_fixed "env_bool_with_alias" "$ENV_RS"

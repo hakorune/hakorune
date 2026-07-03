@@ -196,10 +196,14 @@ static box Main {
     // expr like: [1,2,3]
     local inner = me._trim(expr.substring(1, expr.length()-1))
     if inner == "" { return me._emit_call("array.of", "") }
+    // Sentinel comma keeps the final element on the same comma-hit path as
+    // earlier elements. This avoids dropping the tail when the scan loop
+    // reaches natural termination.
+    inner = inner + ","
     local out = ""
     local i = 0
     local n = inner.length()
-    loop(i <= n) {
+    loop(i < n) {
       // find next comma or end
       local j = i
       loop(j < n) { local ch = inner.substring(j,j+1) if ch == "," { break } j = j + 1 }
@@ -221,11 +225,13 @@ static box Main {
     // expr like: {"a":1,"b":2} - Stage‑A: minimal implementation for basic key/value pairs
     local inner = me._trim(expr.substring(1, expr.length()-1))
     if inner == "" { return me._emit_call("map.of", "") }
+    // Keep the final pair on the comma-hit path, matching _parse_array.
+    inner = inner + ","
 
     local out = ""
     local i = 0
     local n = inner.length()
-    loop(i <= n) {
+    loop(i < n) {
       // find next comma or end
       local j = i
       loop(j < n) {

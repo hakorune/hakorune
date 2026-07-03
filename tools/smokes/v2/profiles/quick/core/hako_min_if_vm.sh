@@ -46,7 +46,7 @@ hako_compile_to_program_json() {
   NYASH_ENABLE_ARRAY_LITERAL=1 \
   HAKO_ALLOW_USING_FILE=1 NYASH_ALLOW_USING_FILE=1 \
   NYASH_QUIET=1 HAKO_QUIET=1 NYASH_CLI_VERBOSE=0 \
-  "$ROOT/target/release/nyash" --backend vm \
+  "$HAKO_BIN" --backend vm \
     "$ROOT/lang/src/compiler/entry/compiler.hako" -- --min-json --source "$(cat "$hako_tmp")" > "$raw" 2>&1
   awk '/"version":0/ && /"kind":"Program"/ {print; exit}' "$raw" > "$json_out"
   rm -f "$raw"
@@ -79,7 +79,7 @@ run_program_json_via_compat() {
   HAKO_QUIET=1 \
   NYASH_CLI_VERBOSE=0 \
   NYASH_NYRT_SILENT_RESULT=1 \
-  out="$("$ROOT/target/release/nyash" --json-file "$json_path" 2>&1)"
+  out="$("$HAKO_BIN" --json-file "$json_path" 2>&1)"
 
   # Filter: drop interpreter headers and Result lines; print the last meaningful line
   printf '%s\n' "$out" | awk '/^(✅|ResultType|Result:)/{next} NF{last=$0} END{ if(last) print last }'

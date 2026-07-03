@@ -41,19 +41,23 @@ the active card and task-order SSOT. Do not duplicate them here.
 
 ## Immediate Maintenance Slice
 
-Scope: Hakorune wrapper executable bit.
+Scope: Hako minimum opt-in smoke binary resolution.
 
-- make `tools/bin/hako` executable so opt-in Hako smokes do not skip only
-  because the wrapper has mode `100644`
-- keep wrapper content and Hakorune-first binary resolution unchanged in this
-  slice
-- add naming guard coverage for the executable bit
+- make Hako minimum opt-in smokes invoke `$HAKO_BIN` instead of direct
+  `target/release/nyash`
+- fix the HHako main detection helper arity mismatch surfaced by running those
+  opt-in smokes
+- keep `.hako` fixtures and expected outputs unchanged in this slice
+- add naming guard coverage so these smokes do not regress to direct legacy
+  binary calls
 
 Acceptance:
 
 ```bash
 bash tools/checks/naming_charter_guard.sh
-tools/bin/hako --version
+SMOKES_ENABLE_HAKO_BINOP=1 bash tools/smokes/v2/profiles/quick/core/hako_min_binop_vm.sh
+SMOKES_ENABLE_HAKO_IF=1 bash tools/smokes/v2/profiles/quick/core/hako_min_if_vm.sh
+SMOKES_ENABLE_HAKO_INDEX=1 bash tools/smokes/v2/profiles/quick/core/index_operator_hako.sh
 git diff --check
 tools/checks/dev_gate.sh quick
 ```
