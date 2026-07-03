@@ -1,0 +1,19 @@
+// array_text_loopcarry_len_store_proof_label_formatter.hako - hand-authored proof label formatter
+//
+// Responsibility:
+// - format narrow array text loopcarry len-store proof vocabulary into Rust oracle text
+// - stay pure: scalar proof in, scalar text out
+//
+// Non-responsibility:
+// - array text loopcarry matching
+// - string corridor matching
+// - backend lowering
+// - MIR mutation
+static box ArrayTextLoopCarryLenStoreProofLabelFormatterBox {
+  format_label(proof) {
+    if proof == "InsertMidSubrangeTrailingLen" {
+      return "insert_mid_subrange_trailing_len"
+    }
+    return "unsupported_array_text_loopcarry_len_store_proof_label"
+  }
+}

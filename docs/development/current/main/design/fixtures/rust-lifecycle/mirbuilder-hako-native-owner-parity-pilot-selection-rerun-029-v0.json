@@ -1,0 +1,32 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderHakoNativeOwnerParityPilotSelectionRerun029V1",
+  "token": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-029",
+  "input_state": {
+    "previous_adoption_decision": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-concat-const-suffix-micro-seed-proof-label-formatter-hako-adoption-decision-v0.json",
+    "previous_adoption_decision_hash": "sha256:18230ca7b7e8005e6ceaa7890b68a7729e6fe532b88236ff6140e7ac3b28a596"
+  },
+  "decision": {
+    "kind": "SelectRustOracleParityPilot",
+    "reason_token": "ArrayTextLoopCarryLenStoreProofLabelFormatterIsPureVocabularyLeaf",
+    "selected_owner": "array_text_loopcarry_len_store_proof_label_formatter",
+    "selected_next_card": "MIRBUILDER-ARRAY-TEXT-LOOPCARRY-LEN-STORE-PROOF-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001"
+  },
+  "accepted_scope": {
+    "surface": "Array text loopcarry len-store proof label vocabulary formatting",
+    "correctness_proof_required": "RustOracleParityGate",
+    "manual_target_selection_allowed": 1
+  },
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "array_text_loopcarry_matching_migration": 0,
+    "string_corridor_matching_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}
