@@ -1,4 +1,4 @@
-//! Stage-1 Using Resolver Loop Lowering (Case A)
+//! lower-resolver compatibility loop lowering (Case A)
 //!
 //! Phase 192: Extracted from generic_case_a.rs monolith.
 //!
@@ -42,7 +42,7 @@ use crate::runtime::get_global_ring0;
 
 use super::entry_builder::EntryFunctionBuilder;
 
-/// Phase 30 F-3.0.5: LoopScopeShape を直接受け取る Stage-1 UsingResolver lowerer
+/// Phase 30 F-3.0.5: LoopScopeShape を直接受け取る lower-resolver lowerer
 ///
 /// 呼び出し元で LoopScopeShape を明示的に構築し、この関数に渡す。
 /// CaseAContext::from_scope() 経由で ctx を作成。
@@ -53,7 +53,7 @@ pub(crate) fn lower_case_a_stage1_usingresolver_with_scope(
     lower_case_a_stage1_usingresolver_core(&ctx)
 }
 
-/// Stage-1 UsingResolver JoinModule 構築のコア実装
+/// lower-resolver JoinModule 構築のコア実装
 ///
 /// CaseAContext から JoinModule を構築する共通ロジック。
 /// `_for_stage1_usingresolver_minimal` と `_with_scope` の両方から呼ばれる。

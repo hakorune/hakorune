@@ -169,6 +169,18 @@ PIPELINE_V2_STAGE_COMMENT_FILES=(
   "$ROOT_DIR/lang/src/compiler/pipeline_v2/stage1_json_scanner_box.hako"
   "$ROOT_DIR/lang/src/compiler/pipeline_v2/stage1_name_args_normalizer_box.hako"
 )
+JOINIR_LOWERING_STAGE_COMMENT_FILES=(
+  "$ROOT_DIR/src/mir/join_ir/lowering/value_id_ranges.rs"
+  "$ROOT_DIR/src/mir/join_ir/lowering/mod.rs"
+  "$ROOT_DIR/src/mir/join_ir/lowering/if_lowering_router.rs"
+  "$ROOT_DIR/src/mir/join_ir/lowering/common/cfg_shape.rs"
+  "$ROOT_DIR/src/mir/join_ir/lowering/generic_case_a/stage1_using_resolver.rs"
+  "$ROOT_DIR/src/mir/join_ir/lowering/generic_case_a/mod.rs"
+  "$ROOT_DIR/src/mir/join_ir/lowering/loop_to_join/case_a_entrypoints.rs"
+  "$ROOT_DIR/src/mir/join_ir/lowering/stage1_using_resolver/dispatch.rs"
+  "$ROOT_DIR/src/mir/join_ir/lowering/stage1_using_resolver.rs"
+  "$ROOT_DIR/src/mir/join_ir/lowering/loop_view_builder.rs"
+)
 
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" git
@@ -330,6 +342,7 @@ REQUIRED_FILES=(
   "$JSON_V0_BRIDGE_PROGRAM_RS"
   "$JSON_V0_BRIDGE_BLOCK_EXPR_RS"
   "${PIPELINE_V2_STAGE_COMMENT_FILES[@]}"
+  "${JOINIR_LOWERING_STAGE_COMMENT_FILES[@]}"
 )
 guard_require_unique_values "required file" "${REQUIRED_FILES[@]}"
 guard_require_files "$TAG" "${REQUIRED_FILES[@]}"
@@ -425,6 +438,7 @@ SSOT_REQUIRED_TOKENS=(
   "STAGE-TERM-APP-SMOKE-PHASE-COMMENT-WORDING-001"
   "STAGE-TERM-STAGE0-CAPTURE-COMMENT-WORDING-001"
   "STAGE-TERM-PIPELINE-V2-COMMENT-WORDING-001"
+  "STAGE-TERM-JOINIR-LOWERING-COMMENT-WORDING-001"
 )
 guard_require_unique_values "SSOT required token" "${SSOT_REQUIRED_TOKENS[@]}"
 for ssot_token in "${SSOT_REQUIRED_TOKENS[@]}"; do
@@ -925,6 +939,18 @@ require_fixed "from phase-1 scanner" "$ROOT_DIR/lang/src/compiler/pipeline_v2/st
 if rg -n 'Stage[‑-]1 JSON|Stage[‑-]1 AST JSON|Stage[‑-]1 args JSON|Stage[‑-]1 scanner|Stage[‑-]1 names|Stage[‑-]0/Resolver|Stage Guard|Stage[‑-]2:|Stage[‑-]3:|Stage[‑-]B entry|Stage[‑-]3 acceptance' "${PIPELINE_V2_STAGE_COMMENT_FILES[@]}"; then
   guard_fail "$TAG" "pipeline_v2 comments must say phase-1 / phase-2 / phase-3, mode-B compatibility, or syntax-3"
 fi
+require_fixed "lower-resolver compatibility pass" "$ROOT_DIR/src/mir/join_ir/lowering/value_id_ranges.rs"
+require_fixed "mode-B compatibility body extractor" "$ROOT_DIR/src/mir/join_ir/lowering/value_id_ranges.rs"
+require_fixed "mode-B compatibility FuncScanner" "$ROOT_DIR/src/mir/join_ir/lowering/value_id_ranges.rs"
+require_fixed "lower-resolver compatibility entries loop lowering" "$ROOT_DIR/src/mir/join_ir/lowering/mod.rs"
+require_fixed "phase-1 compatibility 実用関数" "$ROOT_DIR/src/mir/join_ir/lowering/mod.rs"
+require_fixed "mode-B compatibility 実用関数" "$ROOT_DIR/src/mir/join_ir/lowering/mod.rs"
+require_fixed "tests / phase-1 compatibility / explicit approvals" "$ROOT_DIR/src/mir/join_ir/lowering/if_lowering_router.rs"
+require_fixed "phase-1 compatibility rollout" "$ROOT_DIR/src/mir/join_ir/lowering/if_lowering_router.rs"
+require_fixed "lower-resolver lowerer" "$ROOT_DIR/src/mir/join_ir/lowering/loop_view_builder.rs"
+if rg -n 'Stage[‑-]1 using resolver|Stage[‑-]1 UsingResolver|Stage[‑-]B body extractor|Stage[‑-]B FuncScanner|Stage[‑-]1 実用関数|Stage[‑-]B 実用関数|stage1 lowerer|stage1 用|Stage[‑-]1 rollout|Stage1 keeps' "${JOINIR_LOWERING_STAGE_COMMENT_FILES[@]}"; then
+  guard_fail "$TAG" "JoinIR lowering comments must say lower-resolver, phase-1 compatibility, or mode-B compatibility"
+fi
 require_fixed "mode-B compatibility currently emits this as a statement wrapper" "$JSON_V0_BRIDGE_AST_RS"
 require_fixed 'mode-B compatibility legacy encoding for `if !(cond) { ... }`' "$JSON_V0_BRIDGE_IF_LEGACY_RS"
 require_fixed "mode-B legacy if-not: invalid BlockExpr.tail" "$JSON_V0_BRIDGE_IF_LEGACY_RS"
@@ -1085,6 +1111,16 @@ NAMING_DIFF_ALLOWED_PATHS=(
   "lang/src/compiler/pipeline_v2/stage1_extract_flow.hako"
   "lang/src/compiler/pipeline_v2/stage1_json_scanner_box.hako"
   "lang/src/compiler/pipeline_v2/stage1_name_args_normalizer_box.hako"
+  "src/mir/join_ir/lowering/value_id_ranges.rs"
+  "src/mir/join_ir/lowering/mod.rs"
+  "src/mir/join_ir/lowering/if_lowering_router.rs"
+  "src/mir/join_ir/lowering/common/cfg_shape.rs"
+  "src/mir/join_ir/lowering/generic_case_a/stage1_using_resolver.rs"
+  "src/mir/join_ir/lowering/generic_case_a/mod.rs"
+  "src/mir/join_ir/lowering/loop_to_join/case_a_entrypoints.rs"
+  "src/mir/join_ir/lowering/stage1_using_resolver/dispatch.rs"
+  "src/mir/join_ir/lowering/stage1_using_resolver.rs"
+  "src/mir/join_ir/lowering/loop_view_builder.rs"
   "tools/selfhost/proof/run_stageb_compiler_vm.sh"
   "tools/checks/stageb_program_json_capture_caller_guard.sh"
   "tools/checks/stage1_emit_program_json_runtime_helper_guard.sh"

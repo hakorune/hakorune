@@ -9,10 +9,10 @@
 //! |-------------------------|------------|--------|--------|-------|
 //! | skip_ws                 | 3000-4999  | 3000+  | 4000+  | Skip whitespace |
 //! | funcscanner_trim        | 5000-6999  | 5000+  | 6000+  | Trim whitespace |
-//! | stage1_using_resolver   | 7000-8999  | 7000+  | 8000+  | Stage-1 using resolver |
+//! | stage1_using_resolver   | 7000-8999  | 7000+  | 8000+  | lower-resolver compatibility pass |
 //! | funcscanner_append_defs | 9000-10999 | 9000+  | 10000+ | FuncScanner append defs |
-//! | stageb_body_extract     | 11000-12999| 11000+ | 12000+ | Stage-B body extractor |
-//! | stageb_funcscanner      | 13000-14999| 13000+ | 14000+ | Stage-B FuncScanner (scan_all_boxes) |
+//! | stageb_body_extract     | 11000-12999| 11000+ | 12000+ | mode-B compatibility body extractor |
+//! | stageb_funcscanner      | 13000-14999| 13000+ | 14000+ | mode-B compatibility FuncScanner |
 //!
 //! ## Usage Example
 //!
@@ -41,16 +41,16 @@ pub mod base {
     /// funcscanner_trim: Trim whitespace loop (5000-6999)
     pub const FUNCSCANNER_TRIM: u32 = 5000;
 
-    /// stage1_using_resolver: Stage-1 using resolver entries loop (7000-8999)
+    /// stage1_using_resolver: lower-resolver compatibility entries loop (7000-8999)
     pub const STAGE1_USING_RESOLVER: u32 = 7000;
 
     /// funcscanner_append_defs: FuncScanner append defs loop (9000-10999)
     pub const FUNCSCANNER_APPEND_DEFS: u32 = 9000;
 
-    /// stageb_body_extract: Stage-B body extractor loop (11000-12999)
+    /// stageb_body_extract: mode-B compatibility body extractor loop (11000-12999)
     pub const STAGEB_BODY_EXTRACT: u32 = 11000;
 
-    /// stageb_funcscanner: Stage-B FuncScanner scan_all_boxes loop (13000-14999)
+    /// stageb_funcscanner: mode-B compatibility FuncScanner scan_all_boxes loop (13000-14999)
     pub const STAGEB_FUNCSCANNER: u32 = 13000;
 }
 
@@ -134,7 +134,7 @@ pub mod funcscanner_append_defs {
     }
 }
 
-/// ValueId helpers for Stage-B body extractor lowering module
+/// ValueId helpers for mode-B compatibility body extractor lowering module
 pub mod stageb_body_extract {
     use super::{base, id};
     use crate::mir::ValueId;
@@ -152,7 +152,7 @@ pub mod stageb_body_extract {
     }
 }
 
-/// ValueId helpers for Stage-B FuncScanner lowering module
+/// ValueId helpers for mode-B compatibility FuncScanner lowering module
 pub mod stageb_funcscanner {
     use super::{base, id};
     use crate::mir::ValueId;

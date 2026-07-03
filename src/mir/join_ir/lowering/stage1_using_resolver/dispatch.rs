@@ -1,6 +1,6 @@
 //! Route-local dispatch for `Stage1UsingResolverBox.resolve_for_source/5`.
 //!
-//! Stage1 keeps its params-length guard and diagnostics local. Do not widen the
+//! The lower-resolver route keeps its params-length guard and diagnostics local. Do not widen the
 //! shared target adapter to absorb this route-specific policy.
 
 use crate::mir::join_ir::lowering::common::{ensure_entry_has_succs, has_const_int, log_fallback};
@@ -98,8 +98,8 @@ fn try_stage1_generic_case_a(
     use crate::mir::join_ir::lowering::common::construct_simple_while_loopform;
     use crate::mir::join_ir::lowering::loop_to_join::LoopToJoinLowerer;
 
-    // Stage-1: entry_is_preheader=false (entry の succ が preheader)
-    //          has_break=false (このループに break はない)
+    // lower-resolver route: entry_is_preheader=false (entry の succ が preheader)
+    //                       has_break=false (このループに break はない)
     let Some(loop_form) = construct_simple_while_loopform(entry, query, false, false) else {
         if crate::config::env::joinir_dev::debug_enabled() {
             get_global_ring0().log.debug(

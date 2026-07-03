@@ -30,7 +30,7 @@
 //! # Control Flow
 //!
 //! - Checks toggle flags (`joinir_if_select_enabled()`)
-//! - Validates function whitelist (test/Stage-1/explicit approvals)
+//! - Validates function whitelist (tests / phase-1 compatibility / explicit approvals)
 //! - Excludes loop-lowered functions (Phase 33-9.1 separation)
 //! - Falls back to traditional if_phi on route-shape mismatch
 //!
@@ -50,8 +50,8 @@ use crate::runtime::get_global_ring0;
 /// - Only applies to whitelisted functions:
 ///   - IfSelectTest.* (Phase 33-2/33-3)
 ///   - IfMergeTest.* (Phase 33-7)
-///   - JsonShapeToMap._read_value_from_pair/1 (Phase 33-4 Stage-1)
-///   - Stage1JsonScannerBox.value_start_after_key_pos/2 (Phase 33-4 Stage-B)
+///   - JsonShapeToMap._read_value_from_pair/1 (Phase 33-4 phase-1 compatibility)
+///   - Stage1JsonScannerBox.value_start_after_key_pos/2 (Phase 33-4 mode-B compatibility)
 /// - Requires JoinIR If-select toggle (HAKO_JOINIR_IF_SELECT / joinir_if_select_enabled)
 /// - Falls back to traditional if_phi on structural mismatch
 ///
@@ -88,7 +88,7 @@ pub fn try_lower_if_to_joinir(
     let debug_level = crate::config::env::joinir_debug_level();
     let _debug = debug || debug_level >= 1;
 
-    // 2. Phase 33-8: 関数名ガード拡張（テスト + Stage-1 rollout + 明示承認）
+    // 2. Phase 33-8: 関数名ガード拡張（テスト + phase-1 compatibility rollout + 明示承認）
     let stage1_enabled = crate::config::env::joinir_stage1_enabled();
     let is_allowed =
         crate::mir::join_ir_vm_bridge_dispatch::is_if_lowering_prefix_target(

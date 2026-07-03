@@ -1,6 +1,6 @@
 //! Phase 27.12: Stage1UsingResolverBox.resolve_for_source entries ループの JoinIR lowering
 //!
-//! 目的: Stage-1 UsingResolver の最も簡単なループを JoinIR に変換
+//! 目的: lower-resolver compatibility の最も簡単なループを JoinIR に変換
 //!
 //! ## 対象ループ
 //! - ファイル: `lang/src/compiler/entry/using_resolver_box.hako`
@@ -47,7 +47,7 @@ use crate::mir::join_ir::JoinModule;
 mod builder;
 mod dispatch;
 
-/// Phase 27.12: Stage1UsingResolverBox.resolve_for_source の JoinIR lowering（public dispatcher）
+/// Phase 27.12: lower-resolver compatibility route の JoinIR lowering（public dispatcher）
 ///
 /// 環境変数 `NYASH_JOINIR_LOWER_FROM_MIR=1` に応じて、
 /// MIR-based 版または handwritten 版を選択する。

@@ -10,7 +10,7 @@ use crate::mir::{BasicBlockId, BinaryOp, ConstValue, MirInstruction};
 /// - `entry`: 関数エントリブロック
 /// - `query`: MIR クエリ
 /// - `entry_is_preheader`: true なら entry を preheader として使う（trim 用）
-///                          false なら entry の succ を preheader とする（stage1 用）
+///                          false なら entry の succ を preheader とする（lower-resolver 用）
 /// - `has_break`: true なら exit を break_targets に含める
 ///
 /// # Loop structure assumed

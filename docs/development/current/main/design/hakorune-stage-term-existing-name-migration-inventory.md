@@ -781,6 +781,39 @@ pipeline behavior changed = 0
 runtime behavior changed = 0
 ```
 
+## Landed JoinIR Lowering Comment Wording Slice
+
+`STAGE-TERM-JOINIR-LOWERING-COMMENT-WORDING-001` changes selected JoinIR
+lowering comments and dev-log wording from unqualified stage terms to
+lower-resolver, phase-1 compatibility, or mode-B compatibility wording.
+
+Scope:
+
+```text
+src/mir/join_ir/lowering/value_id_ranges.rs:
+  ValueId range notes say lower-resolver or mode-B compatibility
+
+src/mir/join_ir/lowering/mod.rs:
+  lowering target comments say lower-resolver, phase-1 compatibility, or
+  mode-B compatibility
+
+src/mir/join_ir/lowering/if_lowering_router.rs:
+  whitelist comments say phase-1 compatibility instead of Stage-1 rollout
+
+src/mir/join_ir/lowering/generic_case_a/** and loop_view_builder.rs:
+  lowerer comments/dev logs say lower-resolver lowerer
+```
+
+Non-claims:
+
+```text
+stage1_using_resolver file/module/function names renamed = 0
+stageb_body / stageb_funcscanner file/module/function names renamed = 0
+Stage1* / StageB* Box names renamed = 0
+JoinIR lowering behavior changed = 0
+PHI / LocalSSA / variable-map internals touched = 0
+```
+
 ## Migration Eligibility
 
 An occurrence is eligible for a future rename only if all conditions hold:

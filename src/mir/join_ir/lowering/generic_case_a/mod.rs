@@ -8,7 +8,7 @@
 //! - **skip_ws**: Whitespace skipping loop (Main.skip/1)
 //! - **trim**: String trimming loop (FuncScannerBox.trim/1)
 //! - **append_defs**: Array concatenation loop (FuncScannerBox.append_defs/2)
-//! - **stage1_using_resolver**: Using namespace resolution loop (Stage1UsingResolverBox.resolve_for_source/5)
+//! - **stage1_using_resolver**: lower-resolver compatibility loop (Stage1UsingResolverBox.resolve_for_source/5)
 //!
 //! ## Architecture
 //!
@@ -19,7 +19,7 @@
 //! - `skip_ws` - Skip whitespace loop lowering (~220 lines)
 //! - `trim` - String trim loop lowering (~500 lines, largest)
 //! - `append_defs` - Array append loop lowering (~170 lines)
-//! - `stage1_using_resolver` - Using resolver loop lowering (~180 lines)
+//! - `stage1_using_resolver` - lower-resolver loop lowering (~180 lines)
 //!
 //! ### Helper Modules (Shared Utilities)
 //!

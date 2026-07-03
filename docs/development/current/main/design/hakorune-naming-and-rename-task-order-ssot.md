@@ -2671,6 +2671,40 @@ frontend syntax level
 
 Only classified non-bootstrap current names may be renamed.
 
+#### STAGE-TERM-JOINIR-LOWERING-COMMENT-WORDING-001
+
+Status: landed.
+
+Scope:
+
+```text
+src/mir/join_ir/lowering/**:
+  clarify comment/dev-log wording for JoinIR lowering routes
+```
+
+Decision:
+
+```text
+stage1_using_resolver comments:
+  use lower-resolver compatibility wording
+
+Stage-1 practical function comments:
+  use phase-1 compatibility wording
+
+Stage-B practical function/body/FuncScanner comments:
+  use mode-B compatibility wording
+```
+
+Non-claims:
+
+```text
+stage1_using_resolver module names renamed = 0
+stageb_body / stageb_funcscanner module names renamed = 0
+Stage1* / StageB* Box names renamed = 0
+JoinIR lowering behavior changed = 0
+PHI / LocalSSA / variable-map internals touched = 0
+```
+
 ## Guard Policy
 
 `tools/checks/naming_charter_guard.sh` is a lightweight reusable guard. It does

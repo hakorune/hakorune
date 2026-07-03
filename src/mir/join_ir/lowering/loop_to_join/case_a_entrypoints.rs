@@ -53,7 +53,7 @@ impl LoopToJoinLowerer {
         )
     }
 
-    /// Case-A 汎用 lowerer の「Stage1UsingResolverBox.resolve_for_source/5 用」薄いラッパー。
+    /// Case-A 汎用 lowerer の「lower-resolver compatibility route 用」薄いラッパー。
     pub fn lower_case_a_for_stage1_resolver(
         &self,
         func: &MirFunction,
@@ -68,7 +68,7 @@ impl LoopToJoinLowerer {
         )
     }
 
-    /// Case-A 汎用 lowerer の「StageBBodyExtractorBox.build_body_src/2 用」薄いラッパー。
+    /// Case-A 汎用 lowerer の「mode-B compatibility body extractor 用」薄いラッパー。
     pub fn lower_case_a_for_stageb_body(
         &self,
         func: &MirFunction,
@@ -77,7 +77,7 @@ impl LoopToJoinLowerer {
         self.lower(func, loop_form, Some(STAGEB_BODY_CONTEXT_LABEL))
     }
 
-    /// Case-A 汎用 lowerer の「StageBFuncScannerBox.scan_all_boxes/1 用」薄いラッパー。
+    /// Case-A 汎用 lowerer の「mode-B compatibility FuncScanner 用」薄いラッパー。
     pub fn lower_case_a_for_stageb_funcscanner(
         &self,
         func: &MirFunction,

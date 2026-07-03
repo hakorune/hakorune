@@ -10,7 +10,7 @@
 //! - `value_id_ranges.rs`: ValueId 範囲管理（Phase 27.13+）
 //! - `skip_ws.rs`: Main.skip/1 の空白スキップ lowering（手書き版＋MIR自動解析版）
 //! - `funcscanner_trim.rs`: FuncScannerBox.trim/1 の trim lowering
-//! - `stage1_using_resolver.rs`: Stage1UsingResolverBox.resolve_for_source entries loop lowering（Phase 27.12）
+//! - `stage1_using_resolver.rs`: lower-resolver compatibility entries loop lowering（Phase 27.12）
 //! - `if_select.rs`: Phase 33 If/Else → Select lowering
 //! - `if_dry_runner.rs`: Phase 33-10 If lowering dry-run スキャナー（箱化版）
 //! - `if_lowering_router.rs`: Phase 33-12 If-expression routing (Select/IfMerge dispatcher)
@@ -85,9 +85,9 @@ pub use if_lowering_router::try_lower_if_to_joinir;
 /// - Main.skip/1: 空白スキップループ
 /// - FuncScannerBox.trim/1: 前後空白削除ループ
 /// - FuncScannerBox.append_defs/2: 配列結合ループ
-/// - Stage1UsingResolverBox.resolve_for_source/5: using解析ループ
-/// - StageBBodyExtractorBox.build_body_src/2: Stage-B本体抽出ループ
-/// - StageBFuncScannerBox.scan_all_boxes/1: Stage-B Box走査ループ
+/// - Stage1UsingResolverBox.resolve_for_source/5: lower-resolver compatibility using解析ループ
+/// - StageBBodyExtractorBox.build_body_src/2: mode-B compatibility本体抽出ループ
+/// - StageBFuncScannerBox.scan_all_boxes/1: mode-B compatibility Box走査ループ
 ///
 /// ## 将来の拡張
 /// NYASH_JOINIR_LOWER_GENERIC=1 で汎用 Case-A ループにも拡張可能
@@ -142,8 +142,8 @@ pub fn should_panic_on_joinir_failure(func_name: &str, is_loop: bool) -> bool {
 /// - IfSelectTest.*: テスト専用関数群
 /// - IfMergeTest.*: 複数変数テスト（Phase 33-7）
 /// - IfToplevelTest.*: ループ外 if テスト専用（Phase 61-4）
-/// - JsonShapeToMap._read_value_from_pair/1: Phase 33-4 Stage-1 実用関数
-/// - Stage1JsonScannerBox.value_start_after_key_pos/2: Phase 33-4 Stage-B 実用関数
+/// - JsonShapeToMap._read_value_from_pair/1: Phase 33-4 phase-1 compatibility 実用関数
+/// - Stage1JsonScannerBox.value_start_after_key_pos/2: Phase 33-4 mode-B compatibility 実用関数
 ///
 /// ## 使用方法
 /// if_form.rs から呼び出され、関数名がテーブルに含まれる場合のみ

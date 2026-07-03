@@ -88,6 +88,11 @@ STAGE-TERM-SYNTAX3-RUST-ENV-COMMENT-WORDING-001
 STAGE-TERM-HHAKO-PARSER-BUILD-COMMENT-WORDING-001
 STAGE-TERM-JSON-V0-BRIDGE-COMMENT-WORDING-001
 STAGE-TERM-HHAKO-BUILD-TEST-COMMENT-WORDING-001
+STAGE-TERM-APP-BINARY-ONLY-SMOKE-COMMENT-WORDING-001
+STAGE-TERM-APP-SMOKE-PHASE-COMMENT-WORDING-001
+STAGE-TERM-STAGE0-CAPTURE-COMMENT-WORDING-001
+STAGE-TERM-PIPELINE-V2-COMMENT-WORDING-001
+STAGE-TERM-JOINIR-LOWERING-COMMENT-WORDING-001
 ```
 
 `--syntax-3` is now the frontend syntax-level spelling; `--stage3` remains a
@@ -146,7 +151,10 @@ comments now say bootstrap capture while keeping `stage0_capture*` file,
 function, and test names unchanged. Pipeline V2 comments now use phase-1 /
 phase-2 / phase-3, syntax-3, or mode-B compatibility wording while keeping
 `Stage1*` Box names, `stage1_*` file/module names, and `lower_stage1_*` APIs
-unchanged. Next safe naming work, if explicitly selected, must pick a
+unchanged. JoinIR lowering comments now use lower-resolver, phase-1
+compatibility, or mode-B compatibility wording while keeping `stage1_*`,
+`stageb_*`, `Stage1*`, and `StageB*` compatibility identifiers unchanged. Next
+safe naming work, if explicitly selected, must pick a
 different classified layer from that inventory and keep compatibility aliases
 or replacement routes in the same slice.
 
