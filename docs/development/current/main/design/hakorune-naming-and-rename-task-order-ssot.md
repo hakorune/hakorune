@@ -1231,6 +1231,41 @@ git diff --check
 tools/checks/dev_gate.sh quick
 ```
 
+### HAKORUNE-COLLECTION-QUICK-SMOKE-BINARY-WORDING-001
+
+Status: active in this slice.
+
+Scope:
+
+- keep quick collection smoke execution behavior unchanged;
+- keep caller-provided `$NYASH_BIN` as the historical compatibility override;
+- make the missing-binary diagnostic name the current Hakorune executable;
+- add naming guard coverage so these smokes do not regress to legacy-only
+  wording.
+
+Affected scripts:
+
+```text
+tools/smokes/v2/profiles/quick/collections/map_get_shares_map.sh
+tools/smokes/v2/profiles/quick/collections/map_get_shares_array.sh
+tools/smokes/v2/profiles/quick/collections/string_size_alias.sh
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+bash -n tools/smokes/v2/profiles/quick/collections/map_get_shares_map.sh
+bash -n tools/smokes/v2/profiles/quick/collections/map_get_shares_array.sh
+bash -n tools/smokes/v2/profiles/quick/collections/string_size_alias.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
+Runtime execution of these quick collection scripts still depends on the
+currently available VM reference route. This naming slice does not alter that
+route.
+
 ### STAGE-TERM-EXISTING-NAME-MIGRATION-001
 
 Status: defined, not implementation.

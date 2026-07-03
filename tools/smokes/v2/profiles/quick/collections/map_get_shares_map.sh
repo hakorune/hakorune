@@ -2,7 +2,7 @@
 set -euo pipefail
 
 BIN="${NYASH_BIN:-./target/release/hakorune}"
-if [ ! -x "$BIN" ]; then echo "nyash binary not found: $BIN" >&2; exit 2; fi
+if [ ! -x "$BIN" ]; then echo "Hakorune binary not found: $BIN (set NYASH_BIN for compatibility override)" >&2; exit 2; fi
 
 PROG=$(mktemp /tmp/map_get_shares_map.XXXXXX.hako)
 cat >"$PROG" <<'HK'

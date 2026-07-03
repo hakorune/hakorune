@@ -51,13 +51,16 @@ SMOKE_PREFLIGHT="$ROOT_DIR/tools/smokes/v2/lib/preflight.sh"
 SMOKE_PLUGIN_MANAGER="$ROOT_DIR/tools/smokes/v2/lib/plugin_manager.sh"
 FASTMEM_SOURCE_SYNTAX_SMOKE="$ROOT_DIR/tools/hako_check/fastmem_source_syntax_smoke.sh"
 FASTMEM_TERMINAL_LADDER_SMOKE="$ROOT_DIR/tools/hako_check/fastmem_terminal_ladder_smoke.sh"
+COLLECTION_MAP_GET_SHARES_MAP_SMOKE="$ROOT_DIR/tools/smokes/v2/profiles/quick/collections/map_get_shares_map.sh"
+COLLECTION_MAP_GET_SHARES_ARRAY_SMOKE="$ROOT_DIR/tools/smokes/v2/profiles/quick/collections/map_get_shares_array.sh"
+COLLECTION_STRING_SIZE_ALIAS_SMOKE="$ROOT_DIR/tools/smokes/v2/profiles/quick/collections/string_size_alias.sh"
 ENV_RS="$ROOT_DIR/src/config/env.rs"
 ENV_PATHS_RS="$ROOT_DIR/src/config/env/paths.rs"
 ENV_DOC="$ROOT_DIR/docs/reference/environment-variables.md"
 
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" git
-guard_require_files "$TAG" "$SSOT" "$CHECK_INDEX" "$QUICK_STEPS" "$DOCS_LAYOUT" "$CARGO_TOML" "$README_MD" "$HACO_WRAPPER" "$MAIN_RS" "$HAKORUNE_BIN_RS" "$HAKORUNE_COMPAT_BIN_RS" "$BUILD_SHARED_RS" "$BUILD_PRODUCT_RS" "$BUILD_ENGINEERING_RS" "$HAKO_CHECK_SH" "$BUILD_LLVM_PS" "$BUILD_AOT_PS" "$USING_UNRESOLVED_SMOKE" "$USING_RESOLVE_SMOKE" "$USING_STRICT_PATH_FAIL_SMOKE" "$DEV_SELFHOST_LOOP" "$ENGINEERING_PARITY" "$SELFHOST_EXE_STAGEB" "$NY_PARSER_BRIDGE_SMOKE" "$PHI_TRACE_RUN" "$TEST_SHLIB" "$EMIT_MIR_ROUTE" "$HAKO_MIN_BINOP_SMOKE" "$HAKO_MIN_IF_SMOKE" "$HAKO_MIN_INDEX_SMOKE" "$HAKO_MIN_COMPILE_RETURN_SMOKE" "$HAKO_MAP_ESCAPE_SMOKE" "$GATE_C_V1_FILE_SMOKE" "$NYVM_WRAPPER_SMOKE" "$FASTMEM_PARSER_PARITY_SMOKE" "$PARSER_OPT_ANNOTATIONS_SMOKE" "$PARSER_TRY_COMPAT_SMOKE" "$GATE_C_OOB_STRICT_SMOKE" "$NY_MIR_BUILDER" "$PHASE29X_L1_CACHE" "$PHASE29X_L2_CACHE" "$SMOKE_PREFLIGHT" "$SMOKE_PLUGIN_MANAGER" "$FASTMEM_SOURCE_SYNTAX_SMOKE" "$FASTMEM_TERMINAL_LADDER_SMOKE" "$ENV_RS" "$ENV_PATHS_RS" "$ENV_DOC"
+guard_require_files "$TAG" "$SSOT" "$CHECK_INDEX" "$QUICK_STEPS" "$DOCS_LAYOUT" "$CARGO_TOML" "$README_MD" "$HACO_WRAPPER" "$MAIN_RS" "$HAKORUNE_BIN_RS" "$HAKORUNE_COMPAT_BIN_RS" "$BUILD_SHARED_RS" "$BUILD_PRODUCT_RS" "$BUILD_ENGINEERING_RS" "$HAKO_CHECK_SH" "$BUILD_LLVM_PS" "$BUILD_AOT_PS" "$USING_UNRESOLVED_SMOKE" "$USING_RESOLVE_SMOKE" "$USING_STRICT_PATH_FAIL_SMOKE" "$DEV_SELFHOST_LOOP" "$ENGINEERING_PARITY" "$SELFHOST_EXE_STAGEB" "$NY_PARSER_BRIDGE_SMOKE" "$PHI_TRACE_RUN" "$TEST_SHLIB" "$EMIT_MIR_ROUTE" "$HAKO_MIN_BINOP_SMOKE" "$HAKO_MIN_IF_SMOKE" "$HAKO_MIN_INDEX_SMOKE" "$HAKO_MIN_COMPILE_RETURN_SMOKE" "$HAKO_MAP_ESCAPE_SMOKE" "$GATE_C_V1_FILE_SMOKE" "$NYVM_WRAPPER_SMOKE" "$FASTMEM_PARSER_PARITY_SMOKE" "$PARSER_OPT_ANNOTATIONS_SMOKE" "$PARSER_TRY_COMPAT_SMOKE" "$GATE_C_OOB_STRICT_SMOKE" "$NY_MIR_BUILDER" "$PHASE29X_L1_CACHE" "$PHASE29X_L2_CACHE" "$SMOKE_PREFLIGHT" "$SMOKE_PLUGIN_MANAGER" "$FASTMEM_SOURCE_SYNTAX_SMOKE" "$FASTMEM_TERMINAL_LADDER_SMOKE" "$COLLECTION_MAP_GET_SHARES_MAP_SMOKE" "$COLLECTION_MAP_GET_SHARES_ARRAY_SMOKE" "$COLLECTION_STRING_SIZE_ALIAS_SMOKE" "$ENV_RS" "$ENV_PATHS_RS" "$ENV_DOC"
 
 require_fixed() {
   local pattern="$1"
@@ -102,6 +105,7 @@ require_fixed "HAKORUNE-PHASE29X-CACHE-HELPER-BINARY-RESOLUTION-001" "$SSOT"
 require_fixed "HAKORUNE-SMOKE-SHARED-PREFLIGHT-BINARY-RESOLUTION-001" "$SSOT"
 require_fixed "HAKORUNE-HAKO-CHECK-WRAPPER-BINARY-RESOLUTION-001" "$SSOT"
 require_fixed "HAKORUNE-FASTMEM-HAKO-CHECK-SMOKE-BINARY-RESOLUTION-001" "$SSOT"
+require_fixed "HAKORUNE-COLLECTION-QUICK-SMOKE-BINARY-WORDING-001" "$SSOT"
 require_fixed "HAKORUNE-ENV-ALIAS-INVENTORY-001" "$SSOT"
 require_fixed "HAKORUNE-ENV-ALIAS-FIRST-CUT-001" "$SSOT"
 require_fixed 'prefer `target/release/hakorune` or `$HAKO_BIN`' "$README_MD"
@@ -270,6 +274,13 @@ for fastmem_smoke in "$FASTMEM_SOURCE_SYNTAX_SMOKE" "$FASTMEM_TERMINAL_LADDER_SM
   require_fixed 'BIN="${NYASH_BIN:-$HAKORUNE_BIN}"' "$fastmem_smoke"
   if rg -n '^\s*BIN="\$ROOT/target/release/nyash"|hakorune/nyash binary not found' "$fastmem_smoke"; then
     guard_fail "$TAG" "fastmem hako_check smokes must spell Hakorune-first resolver and legacy fallback"
+  fi
+done
+for collection_smoke in "$COLLECTION_MAP_GET_SHARES_MAP_SMOKE" "$COLLECTION_MAP_GET_SHARES_ARRAY_SMOKE" "$COLLECTION_STRING_SIZE_ALIAS_SMOKE"; do
+  require_fixed 'BIN="${NYASH_BIN:-./target/release/hakorune}"' "$collection_smoke"
+  require_fixed 'Hakorune binary not found' "$collection_smoke"
+  if rg -n 'nyash binary not found|^\s*BIN="\./target/release/nyash"' "$collection_smoke"; then
+    guard_fail "$TAG" "collection quick smokes must keep Hakorune default and Hakorune-first error wording"
   fi
 done
 require_fixed "env_bool_with_alias" "$ENV_RS"
