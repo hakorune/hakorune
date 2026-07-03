@@ -1,0 +1,37 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderStaticScalarFactClassifierHakoAdoptionDecisionV1",
+  "token": "MIRBUILDER-STATIC-SCALAR-FACT-CLASSIFIER-HAKO-ADOPTION-DECISION-001",
+  "owner": "static_scalar_fact_classifier",
+  "decision": {
+    "kind": "Adopt",
+    "reason_token": "StaticScalarFactClassifierRustOracleParityGateGreen",
+    "hako_adopted": 1,
+    "selected_next_card": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-003"
+  },
+  "evidence": {
+    "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-static-scalar-fact-classifier-rust-oracle-v0.json",
+    "rust_oracle_fixture_hash": "sha256:3084840ce3dd6804ddc6c076f9f01ebf5740de7fbcdab230930c81d5cd900177",
+    "hako_source": "lang/src/compiler/lib/static_scalar_fact_classifier.hako",
+    "hako_source_hash": "sha256:c580ba3f891c40a24a8c90e6db3db0709c53fb1bbd08df786a8a5cd0ab30b6ad",
+    "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_static_scalar_fact_classifier_parity_gate.sh",
+    "parity_gate_hash": "sha256:90e5681ae71de72a6cc80ee65182330c0273fd51d8222cea5b839a6e5349a199",
+    "parity_rows": 8,
+    "parity_status": "green"
+  },
+  "scope": {
+    "adopted_surface": "normalized zero-arg return literal shape -> static scalar fact text",
+    "emit_static_scalar_fact_const_migration": 0,
+    "full_ast_json_traversal_migration": 0,
+    "method_call_dispatch_migration": 0,
+    "mirbuilder_state_mutation_migration": 0
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "generated_artifact_as_native_edit_authority": 0
+  }
+}

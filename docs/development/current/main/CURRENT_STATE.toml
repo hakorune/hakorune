@@ -19,8 +19,9 @@ now a narrow HakoAdopted mutation-frame leaf semantic owner.
 StorageClassClassifier is now a narrow HakoAdopted Rust-oracle parity pilot
 owner. PlacementEffectTagFormatter is now a narrow HakoAdopted Rust-oracle
 parity pilot owner after a green 25-row `.hako` EXE parity gate. Source Selfhost remains unclaimed.
-StaticScalarFactClassifier now has a green 8-row `.hako` EXE parity gate for
-the third narrow parity pilot.
+StaticScalarFactClassifier is now a narrow HakoAdopted Rust-oracle parity
+pilot owner after a green 8-row `.hako` EXE parity gate. Source Selfhost
+remains unclaimed.
 EXE/AOT remains the primary
 app/selfhost validation route; VM/interpreter lanes are not semantic owners."""
 
@@ -30,10 +31,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-STATIC-SCALAR-FACT-CLASSIFIER-PARITY-GATE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2112-MIRBUILDER-STATIC-SCALAR-FACT-CLASSIFIER-PARITY-GATE-001.md"
-latest_card_summary = """The latest card adds the static_scalar_fact_classifier
-Rust-oracle parity gate and chooses the HakoAdoption decision card next."""
+latest_card = "MIRBUILDER-STATIC-SCALAR-FACT-CLASSIFIER-HAKO-ADOPTION-DECISION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2113-MIRBUILDER-STATIC-SCALAR-FACT-CLASSIFIER-HAKO-ADOPTION-DECISION-001.md"
+latest_card_summary = """The latest card adopts static_scalar_fact_classifier
+as the third narrow Rust-oracle parity pilot owner and chooses pilot selection
+rerun 003 next."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -44,6 +46,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-04: 2113 adopts static_scalar_fact_classifier as the third narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
   "2026-07-04: 2112 adds the static_scalar_fact_classifier Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
   "2026-07-04: 2111 adds the hand-authored static_scalar_fact_classifier .hako scalar-shape implementation and chooses the parity gate card next.",
   "2026-07-04: 2110 creates the 8-row static_scalar_fact_classifier Rust-oracle fixture and chooses the Hako-native implementation card next.",
@@ -55,5 +58,4 @@ landed_tail = [
   "2026-07-04: 2104 selects placement_effect_tag_formatter as the second narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
   "2026-07-04: 2103 adopts storage_class_classifier as the first narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
   "2026-07-04: 2102 adds the storage_class_classifier Rust-oracle parity gate and selects the HakoAdopted decision card next.",
-  "2026-07-04: 2101 adds the hand-authored .hako storage_class_classifier implementation and selects the parity gate next.",
 ]
