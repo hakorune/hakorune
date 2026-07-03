@@ -785,6 +785,33 @@ git diff --check
 tools/checks/dev_gate.sh quick
 ```
 
+### HAKORUNE-NAMING-GUARD-SSOT-TOKEN-LIST-READABILITY-001
+
+Status: active in this slice.
+
+Scope:
+
+- split the `tools/checks/naming_charter_guard.sh` SSOT task token checks into
+  a shell array;
+- keep guard behavior unchanged;
+- make future task-token additions produce readable diffs instead of one long
+  block of repeated `require_fixed` calls.
+
+Affected script:
+
+```text
+tools/checks/naming_charter_guard.sh
+```
+
+Acceptance:
+
+```bash
+bash -n tools/checks/naming_charter_guard.sh
+bash tools/checks/naming_charter_guard.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
 ### HAKORUNE-SELFHOST-ROUTE-BINARY-DIAGNOSTICS-001
 
 Status: active in this slice.
