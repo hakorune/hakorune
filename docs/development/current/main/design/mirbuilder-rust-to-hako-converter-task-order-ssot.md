@@ -24,9 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-INDEX-TARGET-KIND-FORMATTER-HAKO-ADOPTION-DECISION-001.
-  The index_target_kind_formatter owner is HakoAdopted as the sixty-first
-  narrow Rust-oracle parity pilot; next is rerun 061.
+  MIRBUILDER-PROPERTY-GETTER-METHOD-NAME-FORMATTER-HAKO-ADOPTION-DECISION-001.
+  The property_getter_method_name_formatter owner is HakoAdopted as the
+  sixty-second narrow Rust-oracle parity pilot; next is rerun 062.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-061
+  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-062
 
 current fail-fast boundary:
   Do not re-enter full converter route selection without new non-self-signed
@@ -111,15 +111,15 @@ current fail-fast boundary:
   dominance checks, test-only copy-emission reasons, CorePlan/Facts flowbox
   classification, facts-to-feature extraction, tag emission, Freeze contract,
   stderr write, Callee/ValueId analysis, emit-guard instruction analysis,
-  emit-guard scope validation, index route selection, and route selection remain
-  Rust.
+  emit-guard scope validation, index route selection, property registry state,
+  and route selection remain Rust.
 
 latest design decision:
-  index_target_kind_formatter is now HakoAdopted as a narrow Rust-oracle parity
-  pilot owner after a green 5-row `.hako` EXE parity gate. Index target class
-  inference, route selection, FastMem handling, and MIR mutation remain Rust.
+  property_getter_method_name_formatter is now HakoAdopted as a narrow
+  Rust-oracle parity pilot owner after a green 6-row `.hako` EXE parity gate.
+  Property parsing, registry state, read lowering, and MIR mutation remain Rust.
   The selected next card is
-  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-061`.
+  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-062`.
 
 historical route-selection decision:
   Detailed landed route-selection rows are closed as provenance and live in

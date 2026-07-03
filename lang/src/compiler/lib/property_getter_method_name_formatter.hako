@@ -1,0 +1,19 @@
+// property_getter_method_name_formatter.hako
+//
+// Responsibility:
+// - format narrow MIR-side property getter method names
+// - stay pure: property kind/name tokens in, scalar text out
+//
+// Non-responsibility:
+// - property parser classification
+// - property registry state
+// - read lowering
+// - MIR mutation
+static box PropertyGetterMethodNameFormatterBox {
+  format_name(kind, prop_name) {
+    if kind == "Computed" { return "__get_" + prop_name }
+    if kind == "Once" { return "__get_once_" + prop_name }
+    if kind == "BirthOnce" { return "__get_birth_" + prop_name }
+    return "unsupported_property_getter_kind"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderPropertyGetterMethodNameFormatterHakoAdoptionDecisionV1",
+  "token": "MIRBUILDER-PROPERTY-GETTER-METHOD-NAME-FORMATTER-HAKO-ADOPTION-DECISION-001",
+  "owner": "property_getter_method_name_formatter",
+  "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-property-getter-method-name-formatter-rust-oracle-v0.json",
+  "hako_implementation": "lang/src/compiler/lib/property_getter_method_name_formatter.hako",
+  "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_property_getter_method_name_formatter_parity_gate.sh",
+  "parity_result": {
+    "parity_rows": 6,
+    "parity_status": "green"
+  },
+  "decision": {
+    "kind": "HakoAdopted",
+    "reason_token": "PropertyGetterMethodNameFormatterParityGreen",
+    "selected_next_card": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-062"
+  },
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "property_parser_migration": 0,
+    "property_registry_state_migration": 0,
+    "read_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

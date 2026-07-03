@@ -1,0 +1,31 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderPropertyGetterMethodNameFormatterRustOracleV1",
+  "token": "MIRBUILDER-PROPERTY-GETTER-METHOD-NAME-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "property_getter_method_name_formatter",
+  "rust_source": {
+    "path": "src/mir/builder/properties.rs",
+    "hash": "sha256:803d63dd2be1eb62996319c29cba4b42f57197b1c9d7bf7f4f7102d41dd2aa31",
+    "oracle_surface": "PropertyKind::getter_method_name string formatting"
+  },
+  "rows": [
+    {"kind": "Computed", "prop_name": "size", "expected": "__get_size"},
+    {"kind": "Computed", "prop_name": "enabled", "expected": "__get_enabled"},
+    {"kind": "Once", "prop_name": "token", "expected": "__get_once_token"},
+    {"kind": "Once", "prop_name": "cache_value", "expected": "__get_once_cache_value"},
+    {"kind": "BirthOnce", "prop_name": "id", "expected": "__get_birth_id"},
+    {"kind": "BirthOnce", "prop_name": "created_at", "expected": "__get_birth_created_at"}
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "property_parser_migration": 0,
+    "property_registry_state_migration": 0,
+    "read_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

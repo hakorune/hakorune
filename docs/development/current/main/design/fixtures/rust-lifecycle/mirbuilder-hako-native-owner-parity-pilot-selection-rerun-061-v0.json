@@ -1,0 +1,32 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderHakoNativeOwnerParityPilotSelectionRerun061V1",
+  "token": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-061",
+  "previous_adoption_decision": {
+    "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-index-target-kind-formatter-hako-adoption-decision-v0.json",
+    "hash": "sha256:9b8c8376b4ca69f6102fcf1e1ec64328841dc7ab6298bfb260b19217f6cbde1a"
+  },
+  "selected_owner": {
+    "owner_id": "property_getter_method_name_formatter",
+    "rust_source": "src/mir/builder/properties.rs",
+    "oracle_surface": "PropertyKind::getter_method_name string formatting",
+    "selection_reason": "Pure property getter naming owner with scalar kind/name input and no registry mutation."
+  },
+  "decision": {
+    "kind": "SelectRustOracleFixture",
+    "reason_token": "PropertyGetterMethodNameFormatterSelected",
+    "selected_next_card": "MIRBUILDER-PROPERTY-GETTER-METHOD-NAME-FORMATTER-RUST-ORACLE-FIXTURE-001"
+  },
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "property_parser_migration": 0,
+    "property_registry_state_migration": 0,
+    "read_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}
