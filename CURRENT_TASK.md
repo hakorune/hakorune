@@ -73,6 +73,7 @@ SOURCE-SELFHOST-RUST-TO-HAKO-CONVERTER-ROLE-PIVOT-001
   -> MIRBUILDER-SAME-MODULE-DEFINITION-KIND-FORMATTER-PARITY-GATE-001
   -> MIRBUILDER-SAME-MODULE-DEFINITION-KIND-FORMATTER-HAKO-ADOPTION-DECISION-001
   -> MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-005
+  -> MIRBUILDER-USER-BOX-METHOD-TYPE-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001
 ```
 
 Rule:
@@ -106,6 +107,7 @@ same_module_definition_kind_formatter has a 2-row Rust-oracle fixture; next is h
 same_module_definition_kind_formatter has hand-authored .hako implementation; next is parity gate
 same_module_definition_kind_formatter parity gate is green; next is HakoAdoption decision
 same_module_definition_kind_formatter is HakoAdopted as the fifth parity pilot; next is pilot selection rerun 005
+user_box_method_type_label_formatter is selected as the sixth parity pilot; next is its Rust-oracle fixture
 ```
 
 ## Immediate Maintenance Slice

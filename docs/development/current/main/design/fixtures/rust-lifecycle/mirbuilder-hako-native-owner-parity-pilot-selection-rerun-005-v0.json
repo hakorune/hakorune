@@ -1,0 +1,75 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderHakoNativeOwnerParityPilotSelectionRerun005V1",
+  "token": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-005",
+  "input_state": {
+    "previous_hako_adoption": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-same-module-definition-kind-formatter-hako-adoption-decision-v0.json",
+    "previous_hako_adoption_hash": "sha256:a06ee3e8cc40c417018226b52ef9e8e58fdfa2a8ee1bb80d989c954bcebb550c",
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+  },
+  "selection_policy": {
+    "candidate_ranking_is_advisory": true,
+    "manual_target_selection_allowed": true,
+    "correctness_proof_is_parity_gate": true,
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0
+  },
+  "candidate_rows": [
+    {
+      "candidate_owner": "user_box_method_type_label_formatter",
+      "source_path": "src/mir/user_box_method_route_plan.rs",
+      "source_hash": "sha256:37d81825bba36072d819eddce73e6f1bad7648af9b18b28a0fffa0823e0c40f3",
+      "selected": true,
+      "positive_signals": [
+        "tiny MirType-to-route-label formatter",
+        "pure scalar input to string output",
+        "json scalar input/output boundary",
+        "previous rerun deferred this owner until after same-module formatter",
+        "no MIR traversal in selected surface",
+        "no PHI or LocalSSA surface"
+      ],
+      "excluded_surface": [
+        "user-box method route collection",
+        "route convergence",
+        "materialization fixpoint",
+        "MirModule mutation",
+        "backend emission"
+      ],
+      "selected_next_card_if_selected": "MIRBUILDER-USER-BOX-METHOD-TYPE-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001"
+    },
+    {
+      "candidate_owner": "exact_numeric_backend_capability_policy",
+      "source_path": "src/mir/exact_numeric_backend_capability.rs",
+      "source_hash": "sha256:73adfc8ba1311b06d0dc809e0531e7b1c24be4b7b262040f6ca79d5d726b2e26",
+      "selected": false,
+      "reason": "Requires module-level counting and backend fail-fast error aggregation; wider than the next scalar formatter pilot."
+    },
+    {
+      "candidate_owner": "string_corridor_compat_recovery_policy",
+      "source_path": "src/mir/string_corridor_compat.rs",
+      "source_hash": "sha256:c65ea189c23af8a89beaefb7b48f6dafa44e130db8ba5956587f7a2c0176ff4a",
+      "selected": false,
+      "reason": "Depends on string corridor fact construction and MIR instruction/callee shape inspection; keep it out of narrow parity pilot scope."
+    }
+  ],
+  "decision": {
+    "kind": "SelectPilotOwner",
+    "reason_token": "UserBoxMethodTypeLabelFormatterSelectedAsSixthParityPilot",
+    "selected_owner": "user_box_method_type_label_formatter",
+    "selected_rust_surface": "MirType -> user-box method route type label",
+    "selected_next_card": "MIRBUILDER-USER-BOX-METHOD-TYPE-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "native_seed_materialization": 0,
+    "hako_generation": 0,
+    "generated_artifact_as_native_edit_authority": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "user_box_method_route_collection_migration": 0,
+    "route_convergence_migration": 0,
+    "mir_module_mutation_migration": 0
+  }
+}
