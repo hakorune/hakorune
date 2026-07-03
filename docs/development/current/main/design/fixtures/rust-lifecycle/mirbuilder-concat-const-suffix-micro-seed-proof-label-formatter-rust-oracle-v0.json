@@ -1,0 +1,29 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderConcatConstSuffixMicroSeedProofLabelFormatterRustOracleV1",
+  "token": "MIRBUILDER-CONCAT-CONST-SUFFIX-MICRO-SEED-PROOF-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "concat_const_suffix_micro_seed_proof_label_formatter",
+  "rust_source": {
+    "path": "src/mir/concat_const_suffix_micro_seed_plan.rs",
+    "hash": "sha256:a9a2ccffb088ea08802c498cf94ac45e9880496e83bbc1c67aa23bb77c81e2b8",
+    "oracle_surface": "ConcatConstSuffixMicroSeedProof display vocabulary"
+  },
+  "rows": [
+    {
+      "proof": "KiloMicroConcatConstSuffix5Block",
+      "expected": "kilo_micro_concat_const_suffix_5block"
+    }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "concat_const_suffix_micro_seed_matching_migration": 0,
+    "string_corridor_matching_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

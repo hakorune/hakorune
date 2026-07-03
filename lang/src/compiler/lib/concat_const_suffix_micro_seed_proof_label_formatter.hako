@@ -1,0 +1,19 @@
+// concat_const_suffix_micro_seed_proof_label_formatter.hako - hand-authored proof label formatter
+//
+// Responsibility:
+// - format narrow concat const suffix micro seed proof vocabulary into Rust oracle text
+// - stay pure: scalar proof in, scalar text out
+//
+// Non-responsibility:
+// - concat const suffix micro seed matching
+// - string corridor matching
+// - backend lowering
+// - MIR mutation
+static box ConcatConstSuffixMicroSeedProofLabelFormatterBox {
+  format_label(proof) {
+    if proof == "KiloMicroConcatConstSuffix5Block" {
+      return "kilo_micro_concat_const_suffix_5block"
+    }
+    return "unsupported_concat_const_suffix_micro_seed_proof_label"
+  }
+}
