@@ -1,4 +1,4 @@
-// StageBOutputBox - Program(JSON v0) output boundary for Stage-B entry.
+// StageBOutputBox - Program(JSON v0) output boundary for mode-B compatibility entry.
 // Keeps compiler_stageb.hako as orchestration only; BuildBox owns production.
 
 static box StageBOutputBox {

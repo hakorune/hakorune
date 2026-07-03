@@ -1,4 +1,4 @@
-// StageBBuildOptionsBox - Stage-B CLI token packaging for BuildBox env inputs.
+// StageBBuildOptionsBox - mode-B compatibility CLI token packaging for BuildBox env inputs.
 // This box does not validate bundle semantics; BuildBox owns that authority.
 
 static box StageBBuildOptionsBox {

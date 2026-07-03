@@ -212,6 +212,43 @@ function names renamed = 0
 runtime behavior changed = 0
 ```
 
+## Landed HHako mode-B Entry Wording Slice
+
+`STAGE-TERM-MODEB-HHAKO-ENTRY-WORDING-001` changes HHako compiler entry
+comments/docs to `mode-B compatibility` wording while keeping `StageB*` Box
+names, trace strings, file names, and `--stage-b` route tokens unchanged.
+
+Scope:
+
+```text
+lang/src/compiler/README.md:
+  compiler entry ownership line says mode-B compatibility
+
+lang/src/compiler/entry/compiler_stageb.hako:
+  adapter lane comments say mode-B compatibility
+
+lang/src/compiler/entry/stageb_args_box.hako:
+  args/source resolution comment says mode-B compatibility
+
+lang/src/compiler/entry/stageb_build_options_box.hako:
+  BuildBox option packaging comment says mode-B compatibility
+
+lang/src/compiler/entry/stageb_compile_adapter_box.hako:
+  BuildBox handoff comment says mode-B compatibility
+
+lang/src/compiler/entry/stageb_output_box.hako:
+  Program(JSON v0) output boundary comment says mode-B compatibility
+```
+
+Non-claims:
+
+```text
+StageB* Box names renamed = 0
+trace strings renamed = 0
+--stage-b removed = 0
+runtime behavior changed = 0
+```
+
 ## Migration Eligibility
 
 An occurrence is eligible for a future rename only if all conditions hold:

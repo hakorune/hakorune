@@ -1,4 +1,4 @@
-// StageBArgsBox — CLI args/source resolution for Stage-B entry.
+// StageBArgsBox - CLI args/source resolution for mode-B compatibility entry.
 // Extracted from compiler_stageb.hako to keep the entry file adapter-shaped.
 
 using lang.compiler.entry.stageb_trace_box as StageBTraceBox

@@ -1,4 +1,4 @@
-// StageBCompileAdapterBox — Stage-B entry-local handoff to BuildBox.
+// StageBCompileAdapterBox - mode-B compatibility entry-local handoff to BuildBox.
 // Responsibility: adapt entry/env inputs, then delegate bundle-aware source
 // preparation to BuildBundleFacadeBox. Parser/body/defs/import scanning must
 // not live here.

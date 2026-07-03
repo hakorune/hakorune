@@ -2022,6 +2022,42 @@ git diff --check
 tools/checks/dev_gate.sh quick
 ```
 
+### STAGE-TERM-MODEB-HHAKO-ENTRY-WORDING-001
+
+Status: landed HHako entry wording cleanup.
+
+Purpose: use `mode-B compatibility` wording in HHako compiler entry comments
+while keeping `StageB*` Box names, trace strings, file names, and `--stage-b`
+route tokens unchanged.
+
+Affected files:
+
+```text
+lang/src/compiler/README.md
+lang/src/compiler/entry/compiler_stageb.hako
+lang/src/compiler/entry/stageb_args_box.hako
+lang/src/compiler/entry/stageb_build_options_box.hako
+lang/src/compiler/entry/stageb_compile_adapter_box.hako
+lang/src/compiler/entry/stageb_output_box.hako
+```
+
+Non-claims:
+
+```text
+StageB* Box names renamed = 0
+trace strings renamed = 0
+--stage-b removed = 0
+runtime behavior changed = 0
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
 ### STAGE-TERM-EXISTING-NAME-MIGRATION-001
 
 Status: inventory-only; no implementation rename selected.

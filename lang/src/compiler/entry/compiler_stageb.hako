@@ -1,13 +1,13 @@
-// Stage-B compiler entry — thin adapter toward BuildBox authority
+// mode-B compatibility compiler entry — thin adapter toward BuildBox authority
 // Notes (Dev/Doc):
 // - Scope: entry adapter only. `BuildBox.emit_program_json_v0(...)` owns the current
-//   source -> Program(JSON v0) authority; this file keeps the Stage-B boundary and
+//   source -> Program(JSON v0) authority; this file keeps the mode-B compatibility boundary and
 //   thin entry tracing around that authority.
 // - Robustness: legacy fallback / body extraction helpers remain available for compat,
 //   but they are no longer the primary authority path.
-// - Policy: Program(JSON) → MIR(JSON) remains the compat bridge; Stage-B entry should
+// - Policy: Program(JSON) -> MIR(JSON) remains the compat bridge; mode-B compatibility entry should
 //   stay adapter-shaped and not grow a second compiler authority.
-// - Recommended: Dev/CI should treat this file as the Stage-B adapter lane, not the
+// - Recommended: Dev/CI should treat this file as the mode-B compatibility adapter lane, not the
 //   source of new compiler authority.
 
 using lang.compiler.entry.stageb_trace_box as StageBTraceBox

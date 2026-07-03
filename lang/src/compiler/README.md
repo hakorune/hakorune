@@ -23,7 +23,7 @@ Policy
 - VM engines live under `lang/src/vm/engines/` (Hakorune/Mini), with shared helpers in `vm/boxes/`.
 - Keep imports across these boundaries minimal and documented.
 - `BuildBox.emit_program_json_v0(...)` is the current `source -> Program(JSON v0)` authority.
-- `entry/compiler_stageb.hako` is the Stage-B emit/adapter lane and should shrink toward entry-only behavior instead of acting like a second authority.
+- `entry/compiler_stageb.hako` is the mode-B compatibility emit/adapter lane and should shrink toward entry-only behavior instead of acting like a second authority.
 
 Grammar Notes (parser parity)
 - Semicolons are accepted as optional statement separators (default ON).
