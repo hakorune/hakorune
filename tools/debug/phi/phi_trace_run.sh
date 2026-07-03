@@ -29,6 +29,20 @@ fi
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/../../.." && pwd)
 cd "$ROOT"
 
+HAKORUNE_BIN="${HAKORUNE_BIN:-$ROOT/target/release/hakorune}"
+LEGACY_NYASH_BIN="$ROOT/target/release/nyash"
+if [[ -x "$HAKORUNE_BIN" ]]; then
+  BIN="$HAKORUNE_BIN"
+else
+  BIN="$LEGACY_NYASH_BIN"
+fi
+if [[ ! -x "$BIN" ]]; then
+  echo "[phi-trace] error: hakorune binary not found: $BIN" >&2
+  echo "            compat fallback checked: $LEGACY_NYASH_BIN" >&2
+  echo "            hint: cargo build --release --features llvm --bin hakorune" >&2
+  exit 2
+fi
+
 export NYASH_LLVM_USE_HARNESS=1
 export NYASH_MIR_NO_PHI=${NYASH_MIR_NO_PHI:-1}
 export NYASH_VERIFY_ALLOW_NO_PHI=${NYASH_VERIFY_ALLOW_NO_PHI:-1}
@@ -49,10 +63,10 @@ cargo build --release -p nyash-llvm-compiler -j 8 >/dev/null
 for APP in "${APPS[@]}"; do
   echo "[phi-trace] running: $APP" >&2
   set +e
-  "$ROOT/target/release/nyash" --backend llvm "$APP"
+  "$BIN" --backend llvm "$APP"
   RC=$?
   set -e
-  echo "[phi-trace] nyash exit code: $RC (ignored for trace check)" >&2
+  echo "[phi-trace] hakorune exit code: $RC (ignored for trace check)" >&2
 done
 
 if [[ ! -s "$NYASH_LLVM_TRACE_OUT" ]]; then

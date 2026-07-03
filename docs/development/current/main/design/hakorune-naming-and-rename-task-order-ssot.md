@@ -738,6 +738,42 @@ git diff --check
 tools/checks/dev_gate.sh quick
 ```
 
+### HAKORUNE-PHI-TRACE-RUNNER-BINARY-RESOLUTION-001
+
+Status: active in this slice.
+
+Scope:
+
+- make `tools/debug/phi/phi_trace_run.sh` invoke `hakorune` before legacy
+  `nyash`;
+- keep `target/release/nyash` only behind explicit `LEGACY_NYASH_BIN`
+  fallback;
+- keep PHI trace environment and checker behavior untouched in this slice;
+- do not edit PHI lifecycle or MIR PHI construction code in this slice.
+
+Contract:
+
+```text
+primary:
+  target/release/hakorune
+
+compat fallback:
+  target/release/nyash
+  used only if primary is absent
+
+override:
+  HAKORUNE_BIN
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+bash -n tools/debug/phi/phi_trace_run.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
 ### STAGE-TERM-EXISTING-NAME-MIGRATION-001
 
 Status: defined, not implementation.

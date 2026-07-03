@@ -41,21 +41,20 @@ the active card and task-order SSOT. Do not duplicate them here.
 
 ## Immediate Maintenance Slice
 
-Scope: Hakorune parser bridge smoke binary resolution and temp-output naming.
+Scope: Hakorune PHI trace debug runner binary resolution naming.
 
-- make `tools/ny_parser_bridge_smoke.sh` use Hakorune-first resolver variable
-  names
+- make `tools/debug/phi/phi_trace_run.sh` invoke `hakorune` before legacy
+  `nyash`
 - keep `target/release/nyash` only behind explicit `LEGACY_NYASH_BIN`
   fallback
-- rename temporary smoke output files from `nyash-bridge-*` to
-  `hakorune-bridge-*`
-- keep parser bridge behavior and expected rc values untouched in this slice
+- keep PHI trace environment and checker behavior untouched in this slice
+- do not edit PHI lifecycle or MIR PHI construction code in this slice
 
 Acceptance:
 
 ```bash
 bash tools/checks/naming_charter_guard.sh
-bash tools/ny_parser_bridge_smoke.sh
+bash -n tools/debug/phi/phi_trace_run.sh
 git diff --check
 tools/checks/dev_gate.sh quick
 ```
