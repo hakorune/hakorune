@@ -1,12 +1,12 @@
 Pipeline V2 — Box‑First Extract→Emit
 
 Scope
-- Selfhost compilerの emit‑only 経路（Stage‑1 JSON → MIR(JSON v0/v1)）を、箱の責務で明確化する。
+- Selfhost compilerの emit‑only 経路（phase-1 JSON → MIR(JSON v0/v1)）を、箱の責務で明確化する。
 - Parser/Resolver/Runtime には影響しない。既定挙動は不変（devフラグ/引数でのみ起動）。
 
 Modules（責務）
 - compare_extract_box.hako
-  - 目的: Stage‑1 JSON から Compare(lhs, rhs, op) を堅牢に抽出（整数のみ）。
+  - 目的: phase-1 JSON から Compare(lhs, rhs, op) を堅牢に抽出（整数のみ）。
   - API:
     - extract_return_compare_ints(ast_json) -> {cmp,lhs,rhs} | null
     - extract_if_compare_ints(ast_json) -> {cmp,lhs,rhs} | null
@@ -28,20 +28,20 @@ Modules（責務）
   - trace: 1で最小トレース（[trace]）を出力。既定は0（静音）。
 
 I/O（最小仕様）
-- 入力: Stage‑1 JSON（Return/If/Call/Method/New の最小形）。負数/空白は RegexFlow で吸収。
-- Call/Method/New の `args` 配列は `{"type":"Int","value":…}` のみを許容する。NamedArg/DefaultArg/VarArg など Int 以外が混在した場合は Null を返し、呼び出し側で Fail‑Fast（Stage‑0/Resolver 側で脱糖すること）。
+- 入力: phase-1 JSON（Return/If/Call/Method/New の最小形）。負数/空白は RegexFlow で吸収。
+- Call/Method/New の `args` 配列は `{"type":"Int","value":…}` のみを許容する。NamedArg/DefaultArg/VarArg など Int 以外が混在した場合は Null を返し、呼び出し側で Fail‑Fast（bootstrap/Resolver 側で脱糖すること）。
 - 出力: MIR(JSON v0)。将来 v1(MirCall) への直出力は lower_stage1_to_mir_v1 を併設（dev用途）。
 
 Fail‑Fast & Fallback
 - 抽出箱は見つからない場合 null を返す。pipeline は legacy extractor（Stage1ExtractFlow）でフォールバックする。
 - 既定ONは変えない（dev引数でのみ有効）。
 
-Stage Guard（Stage‑2 / Stage‑3）
-- Stage‑2: Call/Method/New 向けの emit 手前ガード。Stage‑1 で弾いた NamedArg / DefaultArg / VarArg などが混入した場合は Null で Fail‑Fast し、呼び出し側に返す。
-- Stage‑3: MIR(JSON) 生成器。Stage‑2 の整形結果のみを受理し、`PipelineV2.lower_stage1_to_mir` が null を返した場合は Emit を実行しない。
+Pipeline Guard（phase-2 / phase-3）
+- phase-2: Call/Method/New 向けの emit 手前ガード。phase-1 で弾いた NamedArg / DefaultArg / VarArg などが混入した場合は Null で Fail‑Fast し、呼び出し側に返す。
+- phase-3: MIR(JSON) 生成器。phase-2 の整形結果のみを受理し、`PipelineV2.lower_stage1_to_mir` が null を返した場合は Emit を実行しない。
 - 代表スモーク
-  - Stage‑1 ガード: `selfhost_pipeline_v2_stage1_invalid_args_fail_vm.sh` / `..._named_default_fail_vm.sh` / `..._vararg_fail_vm.sh`
-  - Stage‑2/3 正常系: `selfhost_pipeline_v2_call_exec_vm.sh`, `selfhost_pipeline_v2_method_exec_vm.sh`, `selfhost_pipeline_v2_newbox_exec_vm.sh`
+  - phase-1 guard compatibility names: `selfhost_pipeline_v2_stage1_invalid_args_fail_vm.sh` / `..._named_default_fail_vm.sh` / `..._vararg_fail_vm.sh`
+  - phase-2/3 compatibility names: `selfhost_pipeline_v2_call_exec_vm.sh`, `selfhost_pipeline_v2_method_exec_vm.sh`, `selfhost_pipeline_v2_newbox_exec_vm.sh`
 
 Testing
 - quick/selfhost に compare/binop/call/method/new の代表スモークがある。Compare系は Return‑only と CFG をそれぞれ確認。

@@ -324,7 +324,7 @@ flow PipelineV2 {
           if j5 == null { return null }
           return LocalSSA.ensure_calls(LocalSSA.ensure_cond(j5))
         }
-        // Lightweight Stage1 scanner as tolerant fallback (method/args only)
+        // Lightweight phase-1 scanner as tolerant fallback (method/args only)
         {
           local pos_body = Stage1JsonScannerBox.find_body_start(ast_json)
           if pos_body < 0 { pos_body = 0 }
@@ -498,7 +498,7 @@ flow PipelineV2 {
           }
         }
 
-        // Prefer lightweight Stage1 scanner first（plugins OFFでも安全）
+        // Prefer lightweight phase-1 scanner first（plugins OFFでも安全）
         {
           local pos_body = Stage1JsonScannerBox.find_body_start(ast_json)
           if pos_body < 0 { pos_body = 0 }

@@ -1,5 +1,5 @@
 // alias_preflight_box.hako — AliasPreflightBox
-// Responsibility: Early check for using-alias heads in Stage‑1 names.
+// Responsibility: Early check for using-alias heads in phase-1 names.
 // Input: raw dotted label (e.g., "alias.something.method"), UsingResolverBox instance.
 // Behavior: If dotted, verify alias head is known; otherwise print a stable one-line error and return 0.
 // Non‑Responsibility: Namespace normalization or emit.

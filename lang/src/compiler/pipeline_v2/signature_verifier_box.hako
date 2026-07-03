@@ -1,7 +1,7 @@
 // signature_verifier_box.hako — SignatureVerifierBox
 // Responsibility: compile-time arity checks for common built-in methods.
 // Notes:
-// - Stage‑1 JSON at this phase does not carry receiver type, so we verify
+// - phase-1 JSON at this phase does not carry receiver type, so we verify
 //   by method name only for known methods where arity is uniform across boxes
 //   (e.g., indexOf=1 on String/Array, push=1 on Array, etc.).
 // - Unknown methods are allowed (return 1) to avoid over-blocking during bring-up.
@@ -48,7 +48,7 @@ static box SignatureVerifierBox {
     return 1
   }
 
-  // Count integer args from Stage‑1 args JSON (shape: [ {"type":"Int","value":N}, ... ])
+  // Count integer args from phase-1 args JSON (shape: [ {"type":"Int","value":N}, ... ])
   _count_int_args(args) {
     if args == null { return 0 }
     local s = "" + args

@@ -143,9 +143,12 @@ run, no-compat mainline, perf split, and shared app helpers now use phase-1 or
 mode-A compatibility wording while keeping `stage1-cli`, `stage-a-compat`,
 `stage3`, and artifact filenames unchanged. Stage0-named capture helper
 comments now say bootstrap capture while keeping `stage0_capture*` file,
-function, and test names unchanged. Next safe naming work, if explicitly
-selected, must pick a different classified layer from that inventory and keep
-compatibility aliases or replacement routes in the same slice.
+function, and test names unchanged. Pipeline V2 comments now use phase-1 /
+phase-2 / phase-3, syntax-3, or mode-B compatibility wording while keeping
+`Stage1*` Box names, `stage1_*` file/module names, and `lower_stage1_*` APIs
+unchanged. Next safe naming work, if explicitly selected, must pick a
+different classified layer from that inventory and keep compatibility aliases
+or replacement routes in the same slice.
 
 Acceptance:
 

@@ -1,5 +1,5 @@
 // stage1_json_scanner_box.hako — Stage1JsonScannerBox
-// Responsibility: Provide common scans for Stage‑1 JSON strings used by PipelineV2
+// Responsibility: Provide common scans for phase-1 JSON strings used by PipelineV2
 // - body anchor detection
 // - key search (plain/escaped/": " tolerant)
 // - value start after key

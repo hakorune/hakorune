@@ -44,7 +44,7 @@ static box PipelineHelpersBox {
     return res
   }
 
-  // Parse Compare values from Stage-1 JSON (returns [lhs, rhs, cmp])
+  // Parse Compare values from phase-1 JSON (returns [lhs, rhs, cmp])
   parse_compare_values(ast_json, start_pos) {
     if ast_json == null { return null }
     local op_pos = RegexFlow.find_from(ast_json, "\"op\":\"", start_pos)

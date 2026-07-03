@@ -1,4 +1,4 @@
-// CompareExtractBox — Stage‑1 JSON から Compare(lhs,rhs,op) を堅牢に抽出（整数のみ）
+// CompareExtractBox — phase-1 JSON から Compare(lhs,rhs,op) を堅牢に抽出（整数のみ）
 using lang.compiler.pipeline_v2.regex_flow as RegexFlow
 using selfhost.shared.common.box_helpers as BoxHelpers
 

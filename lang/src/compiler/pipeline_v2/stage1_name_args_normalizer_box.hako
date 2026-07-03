@@ -1,5 +1,5 @@
 // stage1_name_args_normalizer_box.hako — Stage1NameArgsNormalizerBox
-// Responsibility: Normalize (label, args_text) from Stage‑1 scanner into names ready for emit.
+// Responsibility: Normalize (label, args_text) from phase-1 scanner into names ready for emit.
 //  - Call: name normalization via UsingResolverBox/NamespaceBox, arity sanity via SignatureVerifierBox
 //  - Method: same as Call but for method label
 //  - New: class normalization via UsingResolverBox/NamespaceBox

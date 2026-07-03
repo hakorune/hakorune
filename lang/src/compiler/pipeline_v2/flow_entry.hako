@@ -5,7 +5,7 @@ using lang.compiler.pipeline_v2.pipeline as PipelineV2
 using selfhost.shared.json.mir_v1_adapter as MirJsonV1Adapter
 
 static box FlowEntryBox {
-  // Emit legacy v0 JSON（call/boxcall/newbox）。最小入力: Stage‑1 JSON 文字列
+  // Emit legacy v0 JSON（call/boxcall/newbox）。最小入力: phase-1 JSON 文字列
   emit_v0_from_ast(ast_json, prefer_cfg) {
     return PipelineV2.lower_stage1_to_mir(ast_json, prefer_cfg)
   }
@@ -14,7 +14,7 @@ static box FlowEntryBox {
     return PipelineV2.lower_stage1_to_mir_with_usings(ast_json, prefer_cfg, usings_json, modules_json)
   }
 
-  // Emit v0 with optional using / extern metadata（Stage‑B entry）
+  // Emit v0 with optional using / extern metadata（mode-B compatibility entry）
   emit_v0_from_ast_with_context(ast_json, prefer_cfg, usings_json, modules_json, externs_json) {
     // 1) Prefer lightweight v1→v0 経路（簡単な return/binop/compare/call/new はここで完結）
     {

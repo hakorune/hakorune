@@ -752,6 +752,35 @@ stage0_capture tests renamed = 0
 runtime behavior changed = 0
 ```
 
+## Landed Pipeline V2 Comment Wording Slice
+
+`STAGE-TERM-PIPELINE-V2-COMMENT-WORDING-001` changes Pipeline V2 comments and
+README wording from unqualified stage terms to phase-1 / phase-2 / phase-3,
+syntax-3, or mode-B compatibility wording.
+
+Scope:
+
+```text
+lang/src/compiler/pipeline_v2/README.md:
+  pipeline input / guard wording says phase-1 / phase-2 / phase-3
+  frontend parser acceptance wording says syntax-3 where relevant
+
+lang/src/compiler/pipeline_v2/*.hako:
+  comment-only wording uses phase-1 JSON/scanner/args, syntax-3 parser
+  acceptance, or mode-B compatibility entry wording
+```
+
+Non-claims:
+
+```text
+Stage1* Box names renamed = 0
+stage1_* file/module names renamed = 0
+lower_stage1_* API names renamed = 0
+stage3_flag field/argument renamed = 0
+pipeline behavior changed = 0
+runtime behavior changed = 0
+```
+
 ## Migration Eligibility
 
 An occurrence is eligible for a future rename only if all conditions hold:

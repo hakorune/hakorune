@@ -1,4 +1,4 @@
-// HeaderEmitBox — emit-only helper for minimal Stage-1 JSON header
+// HeaderEmitBox — emit-only helper for minimal phase-1 JSON header
 // Responsibility
 // - Provide a single place to emit the minimal JSON v0 header used by
 //   quiet child pipelines (e.g., --min-json). No parsing or lowering here.

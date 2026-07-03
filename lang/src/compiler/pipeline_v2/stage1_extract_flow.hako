@@ -1,7 +1,7 @@
 using lang.compiler.pipeline_v2.regex_flow as RegexFlow
 
 flow Stage1ExtractFlow {
-  // Extract minimal info from Stage‑1 JSON (Return Int / BinOp / Compare)
+  // Extract minimal info from phase-1 JSON (Return Int / BinOp / Compare)
 
   _idx(s, needle) { return RegexFlow.find_from(s, needle, 0) }
   _idx_from(s, needle, pos) { return RegexFlow.find_from(s, needle, pos) }

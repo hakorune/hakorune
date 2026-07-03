@@ -28,7 +28,7 @@ box ExecutionPipelineBox {
     return 0
   }
 
-  // Run with source text; stage3_flag=1 enables Stage‑3 acceptance in parser
+  // Run with source text; stage3_flag=1 enables syntax-3 acceptance in parser
   run_source(src, stage3_flag) {
     if src == null { src = "return 0" }
     if stage3_flag == null { stage3_flag = 0 }
@@ -41,7 +41,7 @@ box ExecutionPipelineBox {
     p.extract_externs(src)
     local externs = p.get_externs_json()
     local ast = p.parse_program2(src)
-    // Emit Stage‑1 JSON with meta.usings
+    // Emit phase-1 JSON with meta.usings
     local json = EmitterBox.emit_program(ast, usings, externs)
     if json == null || json.length() == 0 { return 1 }
     print(json)

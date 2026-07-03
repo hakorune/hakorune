@@ -492,6 +492,37 @@ git diff --check
 tools/checks/dev_gate.sh quick
 ```
 
+### STAGE-TERM-PIPELINE-V2-COMMENT-WORDING-001
+
+Status: landed Pipeline V2 comment cut.
+
+Scope:
+
+- update Pipeline V2 comments and README wording to phase-1 / phase-2 /
+  phase-3, syntax-3, or mode-B compatibility wording;
+- keep `Stage1*` Box names, `stage1_*` file/module names, `lower_stage1_*`
+  APIs, and `stage3_flag` compatibility fields unchanged;
+- do not change Pipeline V2 behavior.
+
+Contract:
+
+```text
+comments:
+  use phase-1 / phase-2 / phase-3, syntax-3, or mode-B compatibility wording
+
+compatibility surfaces:
+  Stage1* Box names, stage1_* files/modules, lower_stage1_* APIs, and
+  stage3_flag remain unchanged
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
 ### HAKORUNE-ENV-ALIAS-INVENTORY-001
 
 Status: landed foundation.

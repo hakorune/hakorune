@@ -1,12 +1,12 @@
 // stage1_args_parser_box.hako — Stage1ArgsParserBox
-// Responsibility: Parse Stage‑1 args JSON text into integers (MVP: Int only).
+// Responsibility: Parse phase-1 args JSON text into integers (MVP: Int only).
 // Non‑Responsibility: MIR emit or namespace.
 
 using lang.compiler.pipeline_v2.regex_flow as RegexFlow
 using selfhost.shared.json.core.json_cursor as JsonCursorBox
 
 static box Stage1ArgsParserBox {
-  // Count Int occurrences in Stage‑1 args JSON text.
+  // Count Int occurrences in phase-1 args JSON text.
   count_ints(args_text) {
     if args_text == null { return 0 }
     local s = "" + args_text
