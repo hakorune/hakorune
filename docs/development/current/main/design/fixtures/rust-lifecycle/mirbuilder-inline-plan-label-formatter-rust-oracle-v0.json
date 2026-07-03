@@ -1,0 +1,31 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderInlinePlanLabelFormatterRustOracleV1",
+  "token": "MIRBUILDER-INLINE-PLAN-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "inline_plan_label_formatter",
+  "rust_source": {
+    "path": "src/mir/inline_plan.rs",
+    "hash": "sha256:45277b32c172294d70865ec438580779eac8f94e9d77354560bb13539fd3a5ba",
+    "oracle_surface": "InlineRequest and InlineHotness as_str vocabulary"
+  },
+  "rows": [
+    {"kind": "request", "input": "None", "expected": "none"},
+    {"kind": "request", "input": "Prefer", "expected": "prefer"},
+    {"kind": "request", "input": "Avoid", "expected": "avoid"},
+    {"kind": "request", "input": "Required", "expected": "required"},
+    {"kind": "hotness", "input": "Hot", "expected": "hot"},
+    {"kind": "hotness", "input": "Cold", "expected": "cold"}
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "inline_plan_construction_migration": 0,
+    "inline_shape_verification_migration": 0,
+    "mir_metadata_emission_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

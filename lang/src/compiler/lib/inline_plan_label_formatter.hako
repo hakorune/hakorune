@@ -1,0 +1,26 @@
+// inline_plan_label_formatter.hako
+//
+// Responsibility:
+// - format narrow InlinePlan vocabulary into Rust oracle text
+// - stay pure: scalar token in, scalar text out
+//
+// Non-responsibility:
+// - inline plan construction
+// - inline shape verification
+// - MIR metadata emission
+// - MIR mutation
+static box InlinePlanLabelFormatterBox {
+  format_request(request) {
+    if request == "None" { return "none" }
+    if request == "Prefer" { return "prefer" }
+    if request == "Avoid" { return "avoid" }
+    if request == "Required" { return "required" }
+    return "unsupported_inline_request"
+  }
+
+  format_hotness(hotness) {
+    if hotness == "Hot" { return "hot" }
+    if hotness == "Cold" { return "cold" }
+    return "unsupported_inline_hotness"
+  }
+}

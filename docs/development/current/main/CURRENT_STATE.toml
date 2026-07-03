@@ -147,6 +147,9 @@ Source Selfhost remains unclaimed.
 EscapeBarrierLabelFormatter is now a narrow HakoAdopted Rust-oracle parity
 pilot owner after a green 7-row `.hako` EXE parity gate.
 Source Selfhost remains unclaimed.
+InlinePlanLabelFormatter is now a narrow HakoAdopted Rust-oracle parity pilot
+owner after a green 6-row `.hako` EXE parity gate.
+Source Selfhost remains unclaimed.
 EXE/AOT remains the primary
 app/selfhost validation route; VM/interpreter lanes are not semantic owners."""
 
@@ -156,11 +159,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-ESCAPE-BARRIER-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2318-MIRBUILDER-ESCAPE-BARRIER-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.md"
-latest_card_summary = """The latest card adopts
-escape_barrier_label_formatter as the forty-fourth narrow Rust-oracle parity
-pilot owner and chooses pilot selection rerun 044 next."""
+latest_card = "MIRBUILDER-INLINE-PLAN-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2323-MIRBUILDER-INLINE-PLAN-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.md"
+latest_card_summary = """The latest card adopts inline_plan_label_formatter
+as the forty-fifth narrow Rust-oracle parity pilot owner and chooses pilot
+selection rerun 045 next."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -171,14 +174,14 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-04: 2323 adopts inline_plan_label_formatter as the forty-fifth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
+  "2026-07-04: 2322 adds the inline_plan_label_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
+  "2026-07-04: 2321 adds the hand-authored inline_plan_label_formatter .hako implementation and chooses the parity gate card next.",
+  "2026-07-04: 2320 creates the 6-row inline_plan_label_formatter Rust-oracle fixture and chooses the Hako-native implementation card next.",
+  "2026-07-04: 2319 selects inline_plan_label_formatter as the forty-fifth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
   "2026-07-04: 2318 adopts escape_barrier_label_formatter as the forty-fourth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
   "2026-07-04: 2317 adds the escape_barrier_label_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
   "2026-07-04: 2316 adds the hand-authored escape_barrier_label_formatter .hako implementation and chooses the parity gate card next.",
   "2026-07-04: 2315 creates the 7-row escape_barrier_label_formatter Rust-oracle fixture and chooses the Hako-native implementation card next.",
   "2026-07-04: 2314 selects escape_barrier_label_formatter as the forty-fourth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
-  "2026-07-04: 2313 adopts string_corridor_placement_label_formatter as the forty-third narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
-  "2026-07-04: 2312 adds the string_corridor_placement_label_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
-  "2026-07-04: 2311 adds the hand-authored string_corridor_placement_label_formatter .hako implementation and chooses the parity gate card next.",
-  "2026-07-04: 2310 creates the 8-row string_corridor_placement_label_formatter Rust-oracle fixture and chooses the Hako-native implementation card next.",
-  "2026-07-04: 2309 selects string_corridor_placement_label_formatter as the forty-third narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
 ]
