@@ -1203,6 +1203,34 @@ git diff --check
 tools/checks/dev_gate.sh quick
 ```
 
+### HAKORUNE-SMOKE-AUTO-DETECT-BINARY-RESOLUTION-001
+
+Status: active in this slice.
+
+Scope:
+
+- make `tools/smokes/v2/configs/auto_detect.conf` spell CLI binary detection
+  in Hakorune-first terms;
+- keep `NYASH_BIN_RESOLVED` and `NYASH_BIN` as historical compatibility
+  overrides consumed by existing smoke config;
+- keep legacy `./target/release/nyash` only as a named compatibility fallback;
+- keep smoke auto-detection behavior unchanged.
+
+Affected file:
+
+```text
+tools/smokes/v2/configs/auto_detect.conf
+```
+
+Acceptance:
+
+```bash
+bash tools/checks/naming_charter_guard.sh
+bash -n tools/smokes/v2/configs/auto_detect.conf
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
 ### HAKORUNE-GATE-C-OOB-STRICT-SMOKE-BINARY-RESOLUTION-001
 
 Status: active in this slice.
