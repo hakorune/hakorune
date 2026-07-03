@@ -24,9 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-MIR-TYPE-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.
-  The mir_type_label_formatter owner is HakoAdopted as the nineteenth narrow
-  Rust-oracle parity pilot; next is pilot selection rerun 019.
+  MIRBUILDER-EFFECT-CAPABILITY-PLAN-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.
+  The effect_capability_plan_label_formatter owner is HakoAdopted as the
+  twentieth narrow Rust-oracle parity pilot; next is pilot selection rerun 020.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-019
+  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-020
 
 current fail-fast boundary:
   Do not re-enter full converter route selection without new non-self-signed
@@ -77,8 +77,9 @@ current fail-fast boundary:
   array-text observer executor contract enum tag formatting, and sum-local
   aggregate layout tag formatting, string-kernel plan label formatting, and
   array-text state/session residence label formatting, sum variant seed
-  label formatting, and MIR type label formatting. Metadata refresh, route
-  collection, const emission, full AST traversal, method
+  label formatting, MIR type label formatting, and effect/capability plan
+  label/source vocabulary formatting. Metadata refresh, route collection,
+  const emission, full AST traversal, method
   dispatch, string corridor fact inference, same-module definition closure
   collection, receiver origin resolution, key route classification, route
   convergence, closure callsite canonicalization, NewClosure rewrite, lowering
@@ -90,15 +91,15 @@ current fail-fast boundary:
   construction, legality analysis, publication logic, array/text route matching,
   exact-shape payload construction, session derivation, executor planning, sum
   route matching, payload extraction, helper emission, MirType tree traversal,
-  global-call route collection, and backend lowering remain Rust.
+  global-call route collection, rune profile expansion, effect/capability plan
+  construction/verification, and backend lowering remain Rust.
 
 latest design decision:
-  mir_type_label_formatter is now HakoAdopted as a narrow Rust-oracle parity
-  pilot owner after a green 13-row `.hako` EXE parity gate for MirType label
-  vocabulary/composition formatting. MirType tree traversal, global-call route
-  collection, backend lowering, and MIR mutation remain Rust.
+  effect_capability_plan_label_formatter is now HakoAdopted as a narrow
+  Rust-oracle parity pilot owner after a green 11-row `.hako` EXE parity gate.
+  Rune expansion, plan construction/verification, and MIR mutation remain Rust.
   The selected next card is
-  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-019`.
+  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-020`.
 
 historical route-selection decision:
   Detailed landed route-selection rows are closed as provenance and live in

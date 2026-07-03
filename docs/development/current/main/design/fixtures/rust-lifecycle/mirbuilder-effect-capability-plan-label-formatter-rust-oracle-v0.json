@@ -1,0 +1,36 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderEffectCapabilityPlanLabelFormatterRustOracleV1",
+  "token": "MIRBUILDER-EFFECT-CAPABILITY-PLAN-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "effect_capability_plan_label_formatter",
+  "rust_source": {
+    "path": "src/mir/effect_capability_plan.rs",
+    "hash": "sha256:9865dc947d57819f8df4b6ce9de3a470411a34a9aa784e1b60a4b6e3b7134f4a",
+    "oracle_surface": "EffectRequirement::as_str and source/capability label vocabulary"
+  },
+  "rows": [
+    { "category": "EffectRequirement", "input": "NoAlloc", "expected": "no_alloc" },
+    { "category": "EffectRequirement", "input": "NoSafepoint", "expected": "no_safepoint" },
+    { "category": "SourceKind", "input": "RuneContract", "expected": "rune_contract" },
+    { "category": "SourceKind", "input": "RuneProfile", "expected": "rune_profile" },
+    { "category": "SourceKind", "input": "SourceUses", "expected": "source_uses" },
+    { "category": "SourceKind", "input": "RuneProfilePlusSourceUses", "expected": "rune_profile+source_uses" },
+    { "category": "CapabilityUse", "input": "osvm", "expected": "hako.osvm" },
+    { "category": "CapabilityUse", "input": "atomic", "expected": "hako.atomic" },
+    { "category": "CapabilityUse", "input": "rawbuf", "expected": "hako.rawbuf" },
+    { "category": "CapabilityUse", "input": "random", "expected": "hako.random" },
+    { "category": "CapabilityUse", "input": "alloc_reclaim", "expected": "hako.alloc.reclaim" }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "rune_expansion_migration": 0,
+    "effect_capability_plan_construction_migration": 0,
+    "effect_capability_verification_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

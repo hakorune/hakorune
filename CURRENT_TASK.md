@@ -363,14 +363,14 @@ or replacement routes in the same slice.
 Latest adopted owner:
 
 ```text
-MIRBUILDER-MIR-TYPE-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001
+MIRBUILDER-EFFECT-CAPABILITY-PLAN-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001
 ```
 
 Status:
 
 ```text
-mir_type_label_formatter is HakoAdopted as the nineteenth narrow Rust-oracle
-parity pilot after a green 13-row `.hako` EXE parity gate. Source
+effect_capability_plan_label_formatter is HakoAdopted as the twentieth narrow
+Rust-oracle parity pilot after a green 11-row `.hako` EXE parity gate. Source
 Selfhost remains unclaimed.
 ```
 
@@ -378,19 +378,19 @@ Boundary:
 
 ```text
 Adopted:
-  MirType label vocabulary/composition formatting
+  effect/capability plan label and source vocabulary formatting
 
 Still Rust:
-  MirType tree traversal
-  global-call route collection
-  backend lowering
+  rune profile expansion
+  effect/capability plan construction
+  effect/capability verification
   MIR mutation
 ```
 
 Next:
 
 ```text
-MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-019
+MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-020
 ```
 
 Acceptance:

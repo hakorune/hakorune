@@ -1,0 +1,33 @@
+// effect_capability_plan_label_formatter.hako - hand-authored label formatter
+//
+// Responsibility:
+// - format narrow effect/capability plan vocabulary into Rust oracle text
+// - stay pure: scalar category/name in, scalar text out
+//
+// Non-responsibility:
+// - rune profile expansion
+// - effect/capability plan construction
+// - verification
+// - MIR mutation
+static box EffectCapabilityPlanLabelFormatterBox {
+  format_label(category, input) {
+    if category == "EffectRequirement" {
+      if input == "NoAlloc" { return "no_alloc" }
+      if input == "NoSafepoint" { return "no_safepoint" }
+    }
+    if category == "SourceKind" {
+      if input == "RuneContract" { return "rune_contract" }
+      if input == "RuneProfile" { return "rune_profile" }
+      if input == "SourceUses" { return "source_uses" }
+      if input == "RuneProfilePlusSourceUses" { return "rune_profile+source_uses" }
+    }
+    if category == "CapabilityUse" {
+      if input == "osvm" { return "hako.osvm" }
+      if input == "atomic" { return "hako.atomic" }
+      if input == "rawbuf" { return "hako.rawbuf" }
+      if input == "random" { return "hako.random" }
+      if input == "alloc_reclaim" { return "hako.alloc.reclaim" }
+    }
+    return "unsupported_effect_capability_plan_label"
+  }
+}
