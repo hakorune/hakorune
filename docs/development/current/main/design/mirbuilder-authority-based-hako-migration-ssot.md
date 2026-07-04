@@ -185,17 +185,45 @@ stop in design-consultation mode instead of implementing.
 This is the compact memory aid for the lane. Keep it stable and read it before
 choosing the next owner.
 
+- Inventory first: use the Fact track, Plan track, and Boundary track to pick
+  the next owner. Do not decide from file shape or leaf count alone.
 - One rerun adopts exactly one owner, then stops.
+- Prefer the smallest candidate that can move real authority. Read-only Fact
+  owners come first; one REGISTRY rule comes next. Do not jump to plan
+  construction, symbolic commands, or allocation unless the prior stage is
+  already green.
 - Inventory is recall-only. Do not spend a normal migration turn on inventory
   work unless the turn is explicitly about selection or reconciliation.
 - The safe owner cadence is fixed:
   `Rust oracle fixture -> hand-authored .hako implementation -> parity gate -> HakoAdopted decision`.
+- The fixture must freeze only the contract surface needed for that owner.
+  For Fact owners, keep direct AST nodes and analysis-only views; do not add
+  wrapper nodes that the owner does not observe.
+- If the candidate needs new `.hako` backend capability, MIR mutation, backend
+  lowering, route execution, or ID allocation, stop and write a failed
+  selection note instead of widening the slice.
+- During stages 1-4, Rust remains the allocation authority. `.hako` may use
+  symbolic IDs only until the command order is proven stable.
 - After a landing, sync the restart pointers in the same turn:
   `CURRENT_STATE.toml`, `latest_card_path`, `landed_tail`, and the inventory
   fixture.
 - If the next step is Fact owner migration, plan construction, symbolic command
   production, allocator movement, or a Source Selfhost claim, stop and switch
   to design-consultation mode instead of widening the slice.
+
+## Selection Procedure
+
+Use this procedure when picking the next owner.
+
+1. Read the current inventory and identify the smallest candidate that can move
+   authority.
+2. Reject candidates that need new backend capability, mutation, lowering, or
+   allocation authority.
+3. Fix the Rust oracle fixture before implementation. For read-only Fact
+   owners, keep the seed body in the post-flatten analysis view and serialize
+   only the observed contract.
+4. Land one owner, sync pointers, and stop. The next rerun may start only after
+   the state file and inventory are aligned again.
 - Keep `source_selfhost_claim = 0` until the later stages in this document are
   explicitly reached.
 
