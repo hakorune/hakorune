@@ -276,6 +276,9 @@ remains unclaimed.
 CallLoweringConstructorNameClassifier is now a narrow HakoAdopted
 Rust-oracle parity pilot owner after a green 4-row `.hako` EXE parity gate.
 Source Selfhost remains unclaimed.
+CallResolutionCommonlyShadowedMethodClassifier is now a narrow HakoAdopted
+Rust-oracle parity pilot owner after a green 5-row `.hako` EXE parity gate.
+Source Selfhost remains unclaimed.
 EXE/AOT remains the primary
 app/selfhost validation route; VM/interpreter lanes are not semantic owners."""
 
@@ -285,12 +288,12 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-CALL-LOWERING-CONSTRUCTOR-NAME-CLASSIFIER-HAKO-ADOPTION-DECISION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2672-MIRBUILDER-CALL-LOWERING-CONSTRUCTOR-NAME-CLASSIFIER-HAKO-ADOPTION-DECISION-001.md"
+latest_card = "MIRBUILDER-CALL-RESOLUTION-COMMONLY-SHADOWED-METHOD-CLASSIFIER-HAKO-ADOPTION-DECISION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2677-MIRBUILDER-CALL-RESOLUTION-COMMONLY-SHADOWED-METHOD-CLASSIFIER-HAKO-ADOPTION-DECISION-001.md"
 latest_card_summary = """The latest card adopts
-call_lowering_constructor_name_classifier as the one-hundred-fourteenth narrow
-Rust-oracle parity pilot owner after the green 4-row `.hako` EXE parity gate
-and chooses pilot selection rerun 116 next."""
+call_resolution_commonly_shadowed_method_classifier as the one-hundred-fifteenth narrow
+Rust-oracle parity pilot owner after the green 5-row `.hako` EXE parity gate
+and chooses pilot selection rerun 117 next."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -301,6 +304,11 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-04: 2677 adopts call_resolution_commonly_shadowed_method_classifier as the one-hundred-fifteenth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
+  "2026-07-04: 2676 adds the call_resolution_commonly_shadowed_method_classifier Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
+  "2026-07-04: 2675 adds the hand-authored call_resolution_commonly_shadowed_method_classifier .hako implementation and chooses the parity gate card next.",
+  "2026-07-04: 2674 creates the 5-row call_resolution_commonly_shadowed_method_classifier Rust-oracle fixture and chooses the Hako-native implementation card next.",
+  "2026-07-04: 2673 selects call_resolution_commonly_shadowed_method_classifier as the one-hundred-fifteenth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
   "2026-07-04: 2672 adopts call_lowering_constructor_name_classifier as the one-hundred-fourteenth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
   "2026-07-04: 2671 adds the call_lowering_constructor_name_classifier Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
   "2026-07-04: 2670 adds the hand-authored call_lowering_constructor_name_classifier .hako implementation and chooses the parity gate card next.",
@@ -308,8 +316,4 @@ landed_tail = [
   "2026-07-04: 2668 selects call_lowering_constructor_name_classifier as the one-hundred-fourteenth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
   "2026-07-04: 2667 adopts callee_guard_me_call_classifier as the one-hundred-thirteenth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
   "2026-07-04: 2666 adds the callee_guard_me_call_classifier Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
-  "2026-07-04: 2665 adds the hand-authored callee_guard_me_call_classifier .hako implementation and chooses the parity gate card next.",
-  "2026-07-04: 2664 creates the 4-row callee_guard_me_call_classifier Rust-oracle fixture and chooses the Hako-native implementation card next.",
-  "2026-07-04: 2663 selects callee_guard_me_call_classifier as the one-hundred-thirteenth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
-  "2026-07-04: 2662 adopts call_resolution_env_interface_classifier as the one-hundred-twelfth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
 ]

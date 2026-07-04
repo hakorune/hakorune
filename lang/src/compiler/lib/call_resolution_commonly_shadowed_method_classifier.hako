@@ -1,0 +1,20 @@
+// call_resolution_commonly_shadowed_method_classifier.hako - hand-authored commonly-shadowed-method classifier
+//
+// Responsibility:
+// - classify whether a method name is commonly shadowed
+// - stay pure: scalar method-name token in, boolean text out
+//
+// Non-responsibility:
+// - call resolution
+// - warning generation
+// - backend lowering
+// - MIR mutation
+static box CallResolutionCommonlyShadowedMethodClassifierBox {
+  is_commonly_shadowed_method(name) {
+    if name == "print" { return "true" }
+    if name == "log" { return "true" }
+    if name == "error" { return "true" }
+    if name == "toString" { return "true" }
+    return "false"
+  }
+}
