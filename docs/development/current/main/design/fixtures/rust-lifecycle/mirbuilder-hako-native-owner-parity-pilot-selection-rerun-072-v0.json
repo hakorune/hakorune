@@ -1,0 +1,31 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderHakoNativeOwnerParityPilotSelectionRerun072V1",
+  "token": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-072",
+  "previous_adoption_decision": {
+    "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-global-call-proof-json-name-formatter-hako-adoption-decision-v0.json",
+    "hash": "sha256:f392ab71ed4e6314d27225dd13f2b4c7f2c82f6cfdb3eb3d8819640ac1c6653c"
+  },
+  "selected_owner": {
+    "owner_id": "global_call_proof_result_origin_formatter",
+    "rust_source": "src/mir/global_call_route_plan/model.rs",
+    "oracle_surface": "GlobalCallProof result-origin vocabulary",
+    "selection_reason": "Pure global-call proof result-origin vocabulary with scalar enum-token input and no proof policy, definition-owner inference, or route collection."
+  },
+  "decision": {
+    "kind": "SelectRustOracleFixture",
+    "reason_token": "GlobalCallProofResultOriginFormatterSelected",
+    "selected_next_card": "MIRBUILDER-GLOBAL-CALL-PROOF-RESULT-ORIGIN-FORMATTER-RUST-ORACLE-FIXTURE-001"
+  },
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "global_call_proof_policy_migration": 0,
+    "global_call_definition_owner_inference_migration": 0,
+    "global_call_route_collection_migration": 0
+  }
+}

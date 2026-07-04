@@ -231,6 +231,9 @@ Source Selfhost remains unclaimed.
 GlobalCallProofJsonNameFormatter is now a narrow HakoAdopted Rust-oracle
 parity pilot owner after a green 17-row `.hako` EXE parity gate.
 Source Selfhost remains unclaimed.
+GlobalCallProofResultOriginFormatter is now a narrow HakoAdopted Rust-oracle
+parity pilot owner after a green 17-row `.hako` EXE parity gate.
+Source Selfhost remains unclaimed.
 EXE/AOT remains the primary
 app/selfhost validation route; VM/interpreter lanes are not semantic owners."""
 
@@ -240,11 +243,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-GLOBAL-CALL-PROOF-JSON-NAME-FORMATTER-HAKO-ADOPTION-DECISION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2458-MIRBUILDER-GLOBAL-CALL-PROOF-JSON-NAME-FORMATTER-HAKO-ADOPTION-DECISION-001.md"
+latest_card = "MIRBUILDER-GLOBAL-CALL-PROOF-RESULT-ORIGIN-FORMATTER-HAKO-ADOPTION-DECISION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2463-MIRBUILDER-GLOBAL-CALL-PROOF-RESULT-ORIGIN-FORMATTER-HAKO-ADOPTION-DECISION-001.md"
 latest_card_summary = """The latest card adopts
-global_call_proof_json_name_formatter as the seventy-second narrow
-Rust-oracle parity pilot owner and chooses pilot selection rerun 072 next."""
+global_call_proof_result_origin_formatter as the seventy-third narrow
+Rust-oracle parity pilot owner and chooses pilot selection rerun 073 next."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -255,14 +258,14 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-04: 2463 adopts global_call_proof_result_origin_formatter as the seventy-third narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
+  "2026-07-04: 2462 adds the global_call_proof_result_origin_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
+  "2026-07-04: 2461 adds the hand-authored global_call_proof_result_origin_formatter .hako implementation and chooses the parity gate card next.",
+  "2026-07-04: 2460 creates the 17-row global_call_proof_result_origin_formatter Rust-oracle fixture and chooses the Hako-native implementation card next.",
+  "2026-07-04: 2459 selects global_call_proof_result_origin_formatter as the seventy-third narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
   "2026-07-04: 2458 adopts global_call_proof_json_name_formatter as the seventy-second narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
   "2026-07-04: 2457 adds the global_call_proof_json_name_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
   "2026-07-04: 2456 adds the hand-authored global_call_proof_json_name_formatter .hako implementation and chooses the parity gate card next.",
   "2026-07-04: 2455 creates the 17-row global_call_proof_json_name_formatter Rust-oracle fixture and chooses the Hako-native implementation card next.",
   "2026-07-04: 2454 selects global_call_proof_json_name_formatter as the seventy-second narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
-  "2026-07-04: 2453 adopts global_call_target_shape_reason_label_formatter as the seventy-first narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
-  "2026-07-04: 2452 adds the global_call_target_shape_reason_label_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
-  "2026-07-04: 2451 adds the hand-authored global_call_target_shape_reason_label_formatter .hako implementation and chooses the parity gate card next.",
-  "2026-07-04: 2450 creates the 15-row global_call_target_shape_reason_label_formatter Rust-oracle fixture and chooses the Hako-native implementation card next.",
-  "2026-07-04: 2449 selects global_call_target_shape_reason_label_formatter as the seventy-first narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
 ]

@@ -1,0 +1,41 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderGlobalCallProofResultOriginFormatterRustOracleV1",
+  "token": "MIRBUILDER-GLOBAL-CALL-PROOF-RESULT-ORIGIN-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "global_call_proof_result_origin_formatter",
+  "rust_source": {
+    "path": "src/mir/global_call_route_plan/model.rs",
+    "hash": "sha256:5818fc9a9bd6906cb216cc6f1d7d99eb67847fb5cf38b6fbcedefc2bc4ffa52f",
+    "oracle_surface": "GlobalCallProof result-origin vocabulary"
+  },
+  "rows": [
+    {"kind": "result_origin", "input": "ContractMissing", "expected": "none"},
+    {"kind": "result_origin", "input": "LeafNumericI64", "expected": "none"},
+    {"kind": "result_origin", "input": "GenericPureString", "expected": "string"},
+    {"kind": "result_origin", "input": "GenericStringOrVoidSentinel", "expected": "string"},
+    {"kind": "result_origin", "input": "GenericStringVoidLogging", "expected": "none"},
+    {"kind": "result_origin", "input": "GenericI64", "expected": "none"},
+    {"kind": "result_origin", "input": "ParserProgramJson", "expected": "string"},
+    {"kind": "result_origin", "input": "\u0053tage1EmitProgramJson", "expected": "string"},
+    {"kind": "result_origin", "input": "StaticStringArray", "expected": "array_string_birth"},
+    {"kind": "result_origin", "input": "MirSchemaMapConstructor", "expected": "map_birth"},
+    {"kind": "result_origin", "input": "BoxTypeInspectorDescribe", "expected": "map_birth"},
+    {"kind": "result_origin", "input": "PatternUtilLocalValueProbe", "expected": "none"},
+    {"kind": "result_origin", "input": "SameModuleObjectHandle", "expected": "none"},
+    {"kind": "result_origin", "input": "SameModuleScalarI64", "expected": "none"},
+    {"kind": "result_origin", "input": "SameModuleVoidSentinel", "expected": "none"},
+    {"kind": "result_origin", "input": "SameModuleMixedRuntime", "expected": "none"},
+    {"kind": "result_origin", "input": "VoidSideEffect", "expected": "none"}
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "global_call_proof_policy_migration": 0,
+    "global_call_definition_owner_inference_migration": 0,
+    "global_call_route_collection_migration": 0
+  }
+}

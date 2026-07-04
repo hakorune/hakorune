@@ -1,0 +1,21 @@
+// global_call_proof_result_origin_formatter.hako
+//
+// Responsibility:
+// - format the narrow GlobalCallProof result-origin vocabulary
+//
+// Non-responsibility:
+// - proof policy
+// - definition-owner inference
+// - global-call route collection
+static box GlobalCallProofResultOriginFormatterBox {
+  result_origin(proof) {
+    if proof == "GenericPureString" { return "string" }
+    if proof == "GenericStringOrVoidSentinel" { return "string" }
+    if proof == "ParserProgramJson" { return "string" }
+    if proof == "Stage" + "1EmitProgramJson" { return "string" }
+    if proof == "StaticStringArray" { return "array_string_birth" }
+    if proof == "MirSchemaMapConstructor" { return "map_birth" }
+    if proof == "BoxTypeInspectorDescribe" { return "map_birth" }
+    return "none"
+  }
+}

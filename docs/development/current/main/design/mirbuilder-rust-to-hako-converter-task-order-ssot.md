@@ -24,9 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-GLOBAL-CALL-PROOF-JSON-NAME-FORMATTER-HAKO-ADOPTION-DECISION-001.
-  The global_call_proof_json_name_formatter owner is HakoAdopted as the
-  seventy-second narrow Rust-oracle parity pilot; next is rerun 072.
+  MIRBUILDER-GLOBAL-CALL-PROOF-RESULT-ORIGIN-FORMATTER-HAKO-ADOPTION-DECISION-001.
+  The global_call_proof_result_origin_formatter owner is HakoAdopted as the
+  seventy-third narrow Rust-oracle parity pilot; next is rerun 073.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-072
+  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-073
 
 current fail-fast boundary:
   Do not re-enter full converter route selection without new non-self-signed
@@ -120,12 +120,12 @@ current fail-fast boundary:
   definition-owner inference, route collection, and proof policy remain Rust.
 
 latest design decision:
-  global_call_proof_json_name_formatter is now HakoAdopted as a narrow
+  global_call_proof_result_origin_formatter is now HakoAdopted as a narrow
   Rust-oracle parity pilot owner after a green 17-row `.hako` EXE parity gate.
-  Global-call proof policy, result-origin mapping, definition-owner inference,
-  and route collection remain Rust.
+  Global-call proof policy, definition-owner inference, and route collection
+  remain Rust.
   The selected next card is
-  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-072`.
+  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-073`.
 
 historical route-selection decision:
   Detailed landed route-selection rows are closed as provenance and live in
