@@ -1,0 +1,28 @@
+// array_text_observer_executor_effect_formatter.hako - hand-authored effect formatter
+//
+// Responsibility:
+// - format the narrow ArrayTextObserverExecutorEffect vocabulary
+// - stay pure: scalar effect token in, scalar text out
+//
+// Non-responsibility:
+// - array/text observer route matching
+// - observer contract handling
+// - backend lowering
+// - MIR mutation
+static box ArrayTextObserverExecutorEffectFormatterBox {
+  format_effect(effect) {
+    if effect == "ObserveIndexOf" {
+      return "observe.indexof"
+    }
+    if effect == "StoreCell" {
+      return "store.cell"
+    }
+    if effect == "LengthResultCarry" {
+      return "length_result_carry"
+    }
+    if effect == "ScalarAccumulator" {
+      return "scalar_accumulator"
+    }
+    return "unsupported_array_text_observer_executor_effect"
+  }
+}

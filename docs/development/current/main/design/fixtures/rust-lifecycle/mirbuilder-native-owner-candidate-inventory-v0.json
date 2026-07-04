@@ -171,17 +171,31 @@
     },
     {
       "adoption_card": "docs/development/current/main/phases/phase-296x/2542-MIRBUILDER-ARRAY-TEXT-OBSERVER-EXECUTOR-CONSUMER-CAPABILITY-FORMATTER-HAKO-ADOPTION-DECISION-001.md",
-      "adoption_fixture": null,
+      "adoption_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-array-text-observer-executor-consumer-capability-formatter-hako-adoption-decision-v0.json",
       "candidate_kind": "formatter",
       "hako_source": "lang/src/compiler/lib/array_text_observer_executor_consumer_capability_formatter.hako",
       "logical_owner": "array_text_observer_executor_consumer_capability_formatter",
-      "missing": [
-        "adoption_fixture"
-      ],
+      "missing": [],
       "owner": "array_text_observer_executor_consumer_capability_formatter",
+      "owner_from_fixture": "array_text_observer_executor_consumer_capability_formatter",
       "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_array_text_observer_executor_consumer_capability_formatter_parity_gate.sh",
       "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-array-text-observer-executor-consumer-capability-formatter-rust-oracle-v0.json",
-      "status": "partial_artifact"
+      "selected_next_card": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-090",
+      "status": "adopted_complete"
+    },
+    {
+      "adoption_card": "docs/development/current/main/phases/phase-296x/2547-MIRBUILDER-ARRAY-TEXT-OBSERVER-EXECUTOR-EFFECT-FORMATTER-HAKO-ADOPTION-DECISION-001.md",
+      "adoption_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-array-text-observer-executor-effect-formatter-hako-adoption-decision-v0.json",
+      "candidate_kind": "formatter",
+      "hako_source": "lang/src/compiler/lib/array_text_observer_executor_effect_formatter.hako",
+      "logical_owner": "array_text_observer_executor_effect_formatter",
+      "missing": [],
+      "owner": "array_text_observer_executor_effect_formatter",
+      "owner_from_fixture": "array_text_observer_executor_effect_formatter",
+      "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_array_text_observer_executor_effect_formatter_parity_gate.sh",
+      "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-array-text-observer-executor-effect-formatter-rust-oracle-v0.json",
+      "selected_next_card": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-092",
+      "status": "adopted_complete"
     },
     {
       "adoption_card": "docs/development/current/main/phases/phase-296x/2527-MIRBUILDER-ARRAY-TEXT-OBSERVER-EXECUTOR-EXECUTION-MODE-FORMATTER-HAKO-ADOPTION-DECISION-001.md",
@@ -12061,19 +12075,18 @@
       "by_candidate_kind": {
         "classifier": 8,
         "collector": 1,
-        "formatter": 24,
+        "formatter": 25,
         "label_formatter": 48,
         "tag_formatter": 7,
         "unknown": 12,
         "vocabulary": 1
       },
       "by_status": {
-        "adopted_complete": 88,
-        "adopted_incomplete_inventory": 12,
-        "partial_artifact": 1
+        "adopted_complete": 90,
+        "adopted_incomplete_inventory": 12
       },
-      "incomplete_owner_count": 13,
-      "owner_count": 101
+      "incomplete_owner_count": 12,
+      "owner_count": 102
     },
     "source_scan": {
       "by_reject_reason": {

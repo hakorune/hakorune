@@ -273,12 +273,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-ARRAY-TEXT-OBSERVER-EXECUTOR-CONSUMER-CAPABILITY-FORMATTER-HAKO-ADOPTION-DECISION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2542-MIRBUILDER-ARRAY-TEXT-OBSERVER-EXECUTOR-CONSUMER-CAPABILITY-FORMATTER-HAKO-ADOPTION-DECISION-001.md"
+latest_card = "MIRBUILDER-ARRAY-TEXT-OBSERVER-EXECUTOR-EFFECT-FORMATTER-HAKO-ADOPTION-DECISION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2547-MIRBUILDER-ARRAY-TEXT-OBSERVER-EXECUTOR-EFFECT-FORMATTER-HAKO-ADOPTION-DECISION-001.md"
 latest_card_summary = """The latest card adopts
-array_text_observer_executor_consumer_capability_formatter as the
-eighty-ninth narrow Rust-oracle parity pilot owner and chooses pilot
-selection rerun 090 next."""
+array_text_observer_executor_effect_formatter as the ninetieth narrow
+Rust-oracle parity pilot owner and chooses pilot selection rerun 092 next."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -289,12 +288,12 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
-  "2026-07-04: 2542 adopts array_text_observer_executor_consumer_capability_formatter as the eighty-ninth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
-  "2026-07-04: 2542 adds the array_text_observer_executor_consumer_capability_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
-  "2026-07-04: 2541 adds the hand-authored array_text_observer_executor_consumer_capability_formatter .hako implementation and chooses the parity gate card next.",
-  "2026-07-04: 2540 creates the 3-row array_text_observer_executor_consumer_capability_formatter Rust-oracle fixture and chooses the Hako-native implementation card next.",
-  "2026-07-04: 2539 selects array_text_observer_executor_consumer_capability_formatter as the eighty-ninth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
-  "2026-07-04: 2538 selects array_text_observer_executor_consumer_capability_formatter as the eighty-ninth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
+  "2026-07-04: 2547 adopts array_text_observer_executor_effect_formatter as the ninetieth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
+  "2026-07-04: 2547 adds the array_text_observer_executor_effect_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
+  "2026-07-04: 2546 adds the hand-authored array_text_observer_executor_effect_formatter .hako implementation and chooses the parity gate card next.",
+  "2026-07-04: 2545 creates the 4-row array_text_observer_executor_effect_formatter Rust-oracle fixture and chooses the Hako-native implementation card next.",
+  "2026-07-04: 2544 selects array_text_observer_executor_effect_formatter as the ninetieth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
+  "2026-07-04: 2543 selects array_text_observer_executor_effect_formatter as the ninetieth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
   "2026-07-04: 2532 adopts array_text_observer_executor_carrier_formatter as the eighty-seventh narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
   "2026-07-04: 2532 adds the array_text_observer_executor_carrier_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
   "2026-07-04: 2531 adds the hand-authored array_text_observer_executor_carrier_formatter .hako implementation and chooses the parity gate card next.",
