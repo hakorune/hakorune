@@ -1,0 +1,76 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderLoopTrueEarlyExitFactsHakoAdoptedDecisionV1",
+  "token": "MIRBUILDER-LOOP-TRUE-EARLY-EXIT-FACTS-HAKOADOPTED-DECISION-001",
+  "input_state": {
+    "hako_source": "lang/src/compiler/lib/loop_true_early_exit_facts.hako",
+    "hako_source_hash": "sha256:9c2c348cd50958dd14a30ca5fe20b67f34c93306e3036706f482a6300f47ceb1",
+    "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-true-early-exit-facts-rust-oracle-v0.json",
+    "rust_oracle_fixture_hash": "sha256:8286905ef3b990cc0a25781e9b4cd0b0fcd0b9fb5bd3ca2ebf0dbd81db941de9",
+    "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_loop_true_early_exit_facts_parity_gate.sh",
+    "parity_gate_hash": "sha256:290a44a5dd4d7974b3d1725abd9939937cfa348472e90fa8563a718e1985995b"
+  },
+  "adoption_scope": {
+    "adopted_owner": "loop_true_early_exit_facts.authority_facade",
+    "rust_oracle_symbol": "try_extract_loop_true_early_exit_facts",
+    "input_contract": "BackendSafeLoopTrueEarlyExitFactsTokenSnapshotV1",
+    "native_edit_authority": "lang/src/compiler/lib/loop_true_early_exit_facts.hako",
+    "owned_semantics": [
+      "loop_true_early_exit_acceptance",
+      "loop_condition_kind_token",
+      "exit_kind_token",
+      "loop_var_token",
+      "carrier_var_token",
+      "control_flow_count_token",
+      "reject_reason_token"
+    ],
+    "excluded_semantics": [
+      "full_AST_traversal",
+      "control_flow_traversal",
+      "exit_condition_AST_construction",
+      "exit_value_AST_construction",
+      "carrier_update_AST_construction",
+      "loop_increment_extraction",
+      "recipe_construction",
+      "route_selection",
+      "backend_lowering",
+      "MIR_mutation",
+      "ID_allocation"
+    ]
+  },
+  "parity": {
+    "gate_status": "Green",
+    "oracle_row_count": 10,
+    "required_contract_fields": [
+      "accepted",
+      "exit_kind",
+      "loop_var",
+      "carrier",
+      "reason"
+    ]
+  },
+  "decision": {
+    "kind": "HakoAdoptedScoped",
+    "reason_token": "LoopTrueEarlyExitFactsAuthorityFacadeParityGreen",
+    "selected_next_card": "MIRBUILDER-FACT-OWNER-PARITY-PILOT-SELECTION-018",
+    "backlog_card": "MIRBUILDER-LOOP-TRUE-EARLY-EXIT-FULL-AST-PAYLOAD-CONSULTATION-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "full_ast_traversal_adopted": 0,
+    "control_flow_traversal_migrated": 0,
+    "exit_condition_ast_construction_migrated": 0,
+    "exit_value_ast_construction_migrated": 0,
+    "carrier_update_ast_construction_migrated": 0,
+    "loop_increment_extraction_migrated": 0,
+    "recipe_construction_migrated": 0,
+    "route_selection_migrated": 0,
+    "backend_lowering_migrated": 0,
+    "mir_mutation_migrated": 0,
+    "id_allocation_migrated": 0,
+    "hako_generation": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

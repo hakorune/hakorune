@@ -60,7 +60,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-LOOP-TRUE-EARLY-EXIT-FACTS-HAKOADOPTED-DECISION-001
+  MIRBUILDER-FACT-OWNER-PARITY-PILOT-SELECTION-018
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -83,15 +83,16 @@ normal operating rule:
   traversal, exit-condition/value AST construction, carrier-update AST
   construction, loop increment extraction, route selection, lowering, mutation,
   allocation, and Source Selfhost remain unclaimed.
-  `try_extract_loop_true_early_exit_facts` now has green authority-facade
-  parity; next is its scoped HakoAdopted decision.
+  `try_extract_loop_true_early_exit_facts` is now HakoAdoptedScoped for the
+  authority-facade DTO only; control-flow traversal and exit/carrier AST
+  construction remain separate.
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  `loop_true_early_exit_facts.authority_facade` has green 10-row parity with
-  backend-safe token snapshots; control-flow traversal, exit/carrier AST
-  construction, loop increment extraction, lowering, mutation, allocation, and
-  Source Selfhost remain unclaimed. The HakoAdopted decision is next.
+  `loop_true_early_exit_facts.authority_facade` is HakoAdoptedScoped after
+  green 10-row parity; control-flow traversal, exit/carrier AST construction,
+  loop increment extraction, lowering, mutation, allocation, and Source
+  Selfhost remain unclaimed.
   `loop_array_join_facts.authority_facade` is HakoAdoptedScoped after green
   11-row parity; separator-guard/array-append AST construction, CondProfile
   construction, loop increment extraction, lowering, mutation, allocation, and
