@@ -1,0 +1,71 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderLoopCondReturnInBodyFactsHakoAdoptedDecisionV1",
+  "token": "MIRBUILDER-LOOP-COND-RETURN-IN-BODY-FACTS-HAKOADOPTED-DECISION-001",
+  "input_state": {
+    "hako_source": "lang/src/compiler/lib/loop_cond_return_in_body_facts.hako",
+    "hako_source_hash": "sha256:8e70423bdbca6bf7053303d4c09c63dd89a2a98417597376515eb68729107fd9",
+    "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-cond-return-in-body-facts-rust-oracle-v0.json",
+    "rust_oracle_fixture_hash": "sha256:8a75015346756c61aef8bcf4e7cef064b358b0a53ef0418e28bebf54090d4d78",
+    "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_loop_cond_return_in_body_facts_parity_gate.sh",
+    "parity_gate_hash": "sha256:996d744325e556b0affe48e18293029ee1f39bfbf78d3632286a6669a3225a48"
+  },
+  "adoption_scope": {
+    "adopted_owner": "loop_cond_return_in_body_facts.authority_facade",
+    "rust_oracle_symbol": "try_extract_loop_cond_return_in_body_facts",
+    "input_contract": "BackendSafeLoopCondReturnInBodyFactsTokenSnapshotV1",
+    "native_edit_authority": "lang/src/compiler/lib/loop_cond_return_in_body_facts.hako",
+    "owned_semantics": [
+      "loop_cond_return_in_body_acceptance",
+      "condition_kind_token",
+      "control_flow_count_token",
+      "return_in_body_shape_token",
+      "reject_reason_token"
+    ],
+    "excluded_semantics": [
+      "full_AST_traversal",
+      "shape_specific_AST_traversal",
+      "balanced_depth_policy",
+      "condition_AST_payload_construction",
+      "RecipeBody_construction",
+      "RecipeItem_construction",
+      "route_selection",
+      "backend_lowering",
+      "MIR_mutation",
+      "ID_allocation"
+    ]
+  },
+  "parity": {
+    "gate_status": "Green",
+    "oracle_row_count": 13,
+    "required_contract_fields": [
+      "accepted",
+      "condition",
+      "shape",
+      "reason"
+    ]
+  },
+  "decision": {
+    "kind": "HakoAdoptedScoped",
+    "reason_token": "LoopCondReturnInBodyFactsAuthorityFacadeParityGreen",
+    "selected_next_card": "MIRBUILDER-FACT-OWNER-PARITY-PILOT-SELECTION-021",
+    "backlog_card": "MIRBUILDER-LOOP-COND-RETURN-IN-BODY-FULL-RECIPE-CONSULTATION-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "full_ast_traversal_adopted": 0,
+    "shape_specific_ast_traversal_migrated": 0,
+    "balanced_depth_policy_migrated": 0,
+    "condition_ast_payload_migrated": 0,
+    "recipe_body_construction_migrated": 0,
+    "recipe_item_construction_migrated": 0,
+    "route_selection_migrated": 0,
+    "backend_lowering_migrated": 0,
+    "mir_mutation_migrated": 0,
+    "id_allocation_migrated": 0,
+    "hako_generation": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
