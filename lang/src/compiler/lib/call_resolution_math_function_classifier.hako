@@ -1,0 +1,20 @@
+// call_resolution_math_function_classifier.hako - hand-authored math-function classifier
+//
+// Responsibility:
+// - classify whether a function name is a math function
+// - stay pure: scalar function-name token in, boolean text out
+//
+// Non-responsibility:
+// - call resolution
+// - backend lowering
+// - MIR mutation
+static box CallResolutionMathFunctionClassifierBox {
+  is_math_function(name) {
+    if name == "sin" { return "true" }
+    if name == "cos" { return "true" }
+    if name == "sqrt" { return "true" }
+    if name == "pow" { return "true" }
+    if name == "print" { return "false" }
+    return "false"
+  }
+}

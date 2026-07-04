@@ -1,0 +1,28 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderCallResolutionMathFunctionClassifierHakoAdoptionDecisionV1",
+  "token": "MIRBUILDER-CALL-RESOLUTION-MATH-FUNCTION-CLASSIFIER-HAKO-ADOPTION-DECISION-001",
+  "owner": "call_resolution_math_function_classifier",
+  "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-call-resolution-math-function-classifier-rust-oracle-v0.json",
+  "hako_implementation": "lang/src/compiler/lib/call_resolution_math_function_classifier.hako",
+  "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_call_resolution_math_function_classifier_parity_gate.sh",
+  "parity_result": {
+    "parity_rows": 5,
+    "parity_status": "green"
+  },
+  "decision": {
+    "kind": "HakoAdopted",
+    "reason_token": "CallResolutionMathFunctionClassifierParityGreen",
+    "selected_next_card": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-119"
+  },
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "call_resolution_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderCallResolutionMathFunctionClassifierRustOracleV1",
+  "token": "MIRBUILDER-CALL-RESOLUTION-MATH-FUNCTION-CLASSIFIER-RUST-ORACLE-FIXTURE-001",
+  "owner": "call_resolution_math_function_classifier",
+  "rust_source": {
+    "path": "src/mir/builder/calls/special_handlers.rs",
+    "hash": "sha256:63fe5c284a8ee968da04551276295bcdafd1cef85d71628c26c5a3977e83d9ce",
+    "oracle_surface": "Call resolution math-function classifier"
+  },
+  "rows": [
+    { "name": "sin", "expected": "true" },
+    { "name": "cos", "expected": "true" },
+    { "name": "sqrt", "expected": "true" },
+    { "name": "pow", "expected": "true" },
+    { "name": "print", "expected": "false" }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "call_resolution_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}
