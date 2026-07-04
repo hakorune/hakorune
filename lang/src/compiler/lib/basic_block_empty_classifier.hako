@@ -1,0 +1,18 @@
+// basic_block_empty_classifier.hako - hand-authored basic-block empty classifier
+//
+// Responsibility:
+// - classify whether a block is empty
+// - stay pure: scalar state tokens in, boolean text out
+//
+// Non-responsibility:
+// - BasicBlock control-flow behavior
+// - backend lowering
+// - MIR mutation
+static box BasicBlockEmptyClassifierBox {
+  is_empty(instructions_empty, terminator_present) {
+    if instructions_empty == "true" && terminator_present == "false" {
+      return "true"
+    }
+    return "false"
+  }
+}
