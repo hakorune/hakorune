@@ -1,0 +1,30 @@
+// array_text_residence_session_add_const_one_from_classifier.hako - hand-authored add-const-one classifier
+//
+// Responsibility:
+// - classify ArrayTextResidenceSession add-const-one membership
+// - stay pure: scalar pattern flags in, boolean text out
+//
+// Non-responsibility:
+// - array-text residence-session derivation
+// - backend lowering
+// - MIR mutation
+static box ArrayTextResidenceSessionAddConstOneFromClassifierBox {
+  is_add_const_one_from(
+    inst_kind,
+    dst_matches_next_value,
+    lhs_root_matches_source_value,
+    rhs_root_matches_source_value,
+    lhs_is_const_one,
+    rhs_is_const_one,
+  ) {
+    if inst_kind != "Add" { return "false" }
+    if dst_matches_next_value != "true" { return "false" }
+    if lhs_root_matches_source_value == "true" && rhs_is_const_one == "true" {
+      return "true"
+    }
+    if rhs_root_matches_source_value == "true" && lhs_is_const_one == "true" {
+      return "true"
+    }
+    return "false"
+  }
+}

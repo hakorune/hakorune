@@ -1,0 +1,69 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderArrayTextResidenceSessionAddConstOneFromClassifierRustOracleV1",
+  "token": "MIRBUILDER-ARRAY-TEXT-RESIDENCE-SESSION-ADD-CONST-ONE-FROM-CLASSIFIER-RUST-ORACLE-FIXTURE-001",
+  "owner": "array_text_residence_session_add_const_one_from_classifier",
+  "rust_source": {
+    "path": "src/mir/array_text_residence_session_plan/derive.rs",
+    "hash": "sha256:62862990afc4b3b868d58a04cfc8451353467fbb00b47ced0b35593d4b6a2ebd",
+    "oracle_surface": "is_add_const_one_from boolean classification"
+  },
+  "rows": [
+    {
+      "inst_kind": "Add",
+      "dst_matches_next_value": "true",
+      "lhs_root_matches_source_value": "true",
+      "rhs_root_matches_source_value": "false",
+      "lhs_is_const_one": "false",
+      "rhs_is_const_one": "true",
+      "expected": "true"
+    },
+    {
+      "inst_kind": "Add",
+      "dst_matches_next_value": "true",
+      "lhs_root_matches_source_value": "false",
+      "rhs_root_matches_source_value": "true",
+      "lhs_is_const_one": "true",
+      "rhs_is_const_one": "false",
+      "expected": "true"
+    },
+    {
+      "inst_kind": "Add",
+      "dst_matches_next_value": "false",
+      "lhs_root_matches_source_value": "true",
+      "rhs_root_matches_source_value": "false",
+      "lhs_is_const_one": "false",
+      "rhs_is_const_one": "true",
+      "expected": "false"
+    },
+    {
+      "inst_kind": "Copy",
+      "dst_matches_next_value": "true",
+      "lhs_root_matches_source_value": "true",
+      "rhs_root_matches_source_value": "false",
+      "lhs_is_const_one": "false",
+      "rhs_is_const_one": "true",
+      "expected": "false"
+    },
+    {
+      "inst_kind": "Add",
+      "dst_matches_next_value": "true",
+      "lhs_root_matches_source_value": "true",
+      "rhs_root_matches_source_value": "false",
+      "lhs_is_const_one": "true",
+      "rhs_is_const_one": "false",
+      "expected": "false"
+    }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "array_text_residence_session_derivation_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}
