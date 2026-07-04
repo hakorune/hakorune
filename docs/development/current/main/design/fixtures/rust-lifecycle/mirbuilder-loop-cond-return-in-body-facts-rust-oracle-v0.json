@@ -1,0 +1,147 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderLoopCondReturnInBodyFactsRustOracleV1",
+  "token": "MIRBUILDER-LOOP-COND-RETURN-IN-BODY-FACTS-RUST-ORACLE-FIXTURE-001",
+  "owner": "loop_cond_return_in_body_facts",
+  "rust_source": {
+    "path": "src/mir/builder/control_flow/facts/loop_cond_return_in_body.rs",
+    "hash": "sha256:634058b455a4e3883f1f6accc43bd59e65fffcd778a45f28c69c016c37d7ee0c",
+    "oracle_surface": "try_extract_loop_cond_return_in_body_facts"
+  },
+  "input_contract": "BackendSafeLoopCondReturnInBodyFactsTokenSnapshotV1",
+  "rows": [
+    {
+      "case_id": "accept_simple_if_return_then_step",
+      "condition_token": "CondILessLen",
+      "counts_token": "CountsContinue0Break0Return1Nested0",
+      "body_shape_token": "SimpleIfReturnThenStep",
+      "expected_accept": true,
+      "expected_shape": "simple_if_return_then_step",
+      "expected_summary": "accepted=1;condition=i_less_len;shape=simple_if_return_then_step"
+    },
+    {
+      "case_id": "accept_if_else_all_return",
+      "condition_token": "CondIndexLessSize",
+      "counts_token": "CountsContinue0Break0Return1Nested0",
+      "body_shape_token": "IfElseAllReturn",
+      "expected_accept": true,
+      "expected_shape": "if_else_all_return",
+      "expected_summary": "accepted=1;condition=index_less_size;shape=if_else_all_return"
+    },
+    {
+      "case_id": "accept_if_else_if_return",
+      "condition_token": "CondIndexLessSize",
+      "counts_token": "CountsContinue0Break0Return1Nested0",
+      "body_shape_token": "IfElseIfReturn",
+      "expected_accept": true,
+      "expected_shape": "if_else_if_return",
+      "expected_summary": "accepted=1;condition=index_less_size;shape=if_else_if_return"
+    },
+    {
+      "case_id": "accept_brace_balance",
+      "condition_token": "CondDepthGreater0",
+      "counts_token": "CountsContinue0Break0Return1Nested0",
+      "body_shape_token": "BraceBalance",
+      "expected_accept": true,
+      "expected_shape": "brace_balance",
+      "expected_summary": "accepted=1;condition=depth_gt_0;shape=brace_balance"
+    },
+    {
+      "case_id": "accept_balanced_depth_scan",
+      "condition_token": "CondDepthGreater0",
+      "counts_token": "CountsContinue0Break0Return1Nested0",
+      "body_shape_token": "BalancedDepthScan",
+      "expected_accept": true,
+      "expected_shape": "balanced_depth_scan",
+      "expected_summary": "accepted=1;condition=depth_gt_0;shape=balanced_depth_scan"
+    },
+    {
+      "case_id": "accept_scan_with_quote",
+      "condition_token": "CondILessLen",
+      "counts_token": "CountsContinue0Break0Return1Nested0",
+      "body_shape_token": "ScanWithQuote",
+      "expected_accept": true,
+      "expected_shape": "scan_with_quote",
+      "expected_summary": "accepted=1;condition=i_less_len;shape=scan_with_quote"
+    },
+    {
+      "case_id": "accept_seek_array_end",
+      "condition_token": "CondIndexLessSize",
+      "counts_token": "CountsContinue0Break0Return1Nested0",
+      "body_shape_token": "SeekArrayEnd",
+      "expected_accept": true,
+      "expected_shape": "seek_array_end",
+      "expected_summary": "accepted=1;condition=index_less_size;shape=seek_array_end"
+    },
+    {
+      "case_id": "reject_condition_not_supported",
+      "condition_token": "CondCallResult",
+      "counts_token": "CountsContinue0Break0Return1Nested0",
+      "body_shape_token": "SimpleIfReturnThenStep",
+      "expected_accept": false,
+      "expected_reason": "condition_not_supported",
+      "expected_summary": "accepted=0;reason=condition_not_supported"
+    },
+    {
+      "case_id": "reject_continue_present",
+      "condition_token": "CondILessLen",
+      "counts_token": "CountsContinue1Break0Return1Nested0",
+      "body_shape_token": "SimpleIfReturnThenStep",
+      "expected_accept": false,
+      "expected_reason": "continue_present",
+      "expected_summary": "accepted=0;reason=continue_present"
+    },
+    {
+      "case_id": "reject_break_present",
+      "condition_token": "CondILessLen",
+      "counts_token": "CountsContinue0Break1Return1Nested0",
+      "body_shape_token": "SimpleIfReturnThenStep",
+      "expected_accept": false,
+      "expected_reason": "break_present",
+      "expected_summary": "accepted=0;reason=break_present"
+    },
+    {
+      "case_id": "reject_no_return",
+      "condition_token": "CondILessLen",
+      "counts_token": "CountsContinue0Break0Return0Nested0",
+      "body_shape_token": "SimpleIfReturnThenStep",
+      "expected_accept": false,
+      "expected_reason": "no_return",
+      "expected_summary": "accepted=0;reason=no_return"
+    },
+    {
+      "case_id": "reject_nested_loop",
+      "condition_token": "CondILessLen",
+      "counts_token": "CountsContinue0Break0Return1Nested1",
+      "body_shape_token": "SimpleIfReturnThenStep",
+      "expected_accept": false,
+      "expected_reason": "nested_loop_present",
+      "expected_summary": "accepted=0;reason=nested_loop_present"
+    },
+    {
+      "case_id": "reject_body_shape_not_supported",
+      "condition_token": "CondILessLen",
+      "counts_token": "CountsContinue0Break0Return1Nested0",
+      "body_shape_token": "UnsupportedReturnBody",
+      "expected_accept": false,
+      "expected_reason": "body_shape_not_supported",
+      "expected_summary": "accepted=0;reason=body_shape_not_supported"
+    }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "full_ast_traversal_adopted": 0,
+    "shape_specific_ast_traversal_migrated": 0,
+    "balanced_depth_policy_migrated": 0,
+    "condition_ast_payload_migrated": 0,
+    "recipe_body_construction_migrated": 0,
+    "recipe_item_construction_migrated": 0,
+    "route_selection_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0,
+    "id_allocation_migration": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

@@ -1,0 +1,83 @@
+// loop_cond_return_in_body_facts.hako
+//
+// Responsibility:
+// - reduce a backend-safe loop-cond-return-in-body token snapshot into fact text
+// - mirror try_extract_loop_cond_return_in_body_facts for the narrow facade contract
+//
+// Non-responsibility:
+// - full AST traversal or shape-specific AST inspection
+// - balanced-depth policy evaluation
+// - RecipeBody/RecipeItem construction, route selection, lowering, mutation, or ID allocation
+static box LoopCondReturnInBodyFactsBox {
+  build_summary(condition_token, counts_token, body_shape_token) {
+    if me._condition_supported(condition_token) == 0 {
+      return "accepted=0;reason=condition_not_supported"
+    }
+
+    if me._counts_continue_count(counts_token) > 0 {
+      return "accepted=0;reason=continue_present"
+    }
+    if me._counts_break_count(counts_token) > 0 {
+      return "accepted=0;reason=break_present"
+    }
+    if me._counts_return_count(counts_token) == 0 {
+      return "accepted=0;reason=no_return"
+    }
+    if me._counts_has_nested_loop(counts_token) == 1 {
+      return "accepted=0;reason=nested_loop_present"
+    }
+
+    local shape = me._body_shape(body_shape_token)
+    if shape == "unsupported" {
+      return "accepted=0;reason=body_shape_not_supported"
+    }
+
+    return "accepted=1;condition=" + me._condition_kind(condition_token)
+      + ";shape=" + shape
+  }
+
+  _condition_supported(token) {
+    if token == "CondILessLen" { return 1 }
+    if token == "CondDepthGreater0" { return 1 }
+    if token == "CondIndexLessSize" { return 1 }
+    return 0
+  }
+
+  _condition_kind(token) {
+    if token == "CondDepthGreater0" { return "depth_gt_0" }
+    if token == "CondIndexLessSize" { return "index_less_size" }
+    return "i_less_len"
+  }
+
+  _counts_continue_count(token) {
+    if token == "CountsContinue1Break0Return1Nested0" { return 1 }
+    return 0
+  }
+
+  _counts_break_count(token) {
+    if token == "CountsContinue0Break1Return1Nested0" { return 1 }
+    return 0
+  }
+
+  _counts_return_count(token) {
+    if token == "CountsContinue0Break0Return0Nested0" { return 0 }
+    return 1
+  }
+
+  _counts_has_nested_loop(token) {
+    if token == "CountsContinue0Break0Return1Nested1" { return 1 }
+    return 0
+  }
+
+  _body_shape(token) {
+    if token == "SimpleIfReturnThenStep" { return "simple_if_return_then_step" }
+    if token == "IfElseAllReturn" { return "if_else_all_return" }
+    if token == "IfElseIfReturn" { return "if_else_if_return" }
+    if token == "BraceBalance" { return "brace_balance" }
+    if token == "BalancedDepthScan" { return "balanced_depth_scan" }
+    if token == "ScanWithQuote" { return "scan_with_quote" }
+    if token == "ScanWithQuoteFull" { return "scan_with_quote_full" }
+    if token == "SeekArrayEnd" { return "seek_array_end" }
+    return "unsupported"
+  }
+}

@@ -60,7 +60,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-LOOP-COND-RETURN-IN-BODY-FACTS-AUTHORITY-FACADE-PARITY-001
+  MIRBUILDER-LOOP-COND-RETURN-IN-BODY-FACTS-HAKOADOPTED-DECISION-001
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -74,10 +74,10 @@ normal operating rule:
   bool_predicate_scan_facts, accum_const_loop_facts, loop_char_map_facts,
   loop_array_join_facts, loop_true_early_exit_facts, if_phi_join_facts,
   loop_cond_continue_with_return_facts.
-  Selection-020 chooses `try_extract_loop_cond_return_in_body_facts`;
-  shape-specific AST traversal, balanced-depth policy evaluation, recipe
-  construction, lowering, mutation, allocation, and Source Selfhost remain
-  unclaimed.
+  `try_extract_loop_cond_return_in_body_facts` now has green authority-facade
+  parity; shape-specific AST traversal, balanced-depth policy evaluation,
+  recipe construction, lowering, mutation, allocation, and Source Selfhost
+  remain unclaimed. Next is its scoped HakoAdopted decision.
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
@@ -89,10 +89,10 @@ latest design decision:
   after green 10-row parity; recursive hetero-return traversal, recipe
   construction, lowering, mutation, allocation, and Source Selfhost remain
   unclaimed.
-  Selection-020 chooses `loop_cond_return_in_body_facts.authority_facade` as
-  the next fixture-backed parity pilot; shape-specific AST traversal,
+  `loop_cond_return_in_body_facts.authority_facade` has green 13-row parity
+  with backend-safe token snapshots; shape-specific AST traversal,
   balanced-depth policy, recipe construction, lowering, mutation, allocation,
-  and Source Selfhost remain unclaimed.
+  and Source Selfhost remain unclaimed. The HakoAdopted decision is next.
   `loop_true_early_exit_facts.authority_facade` is HakoAdoptedScoped after
   green 10-row parity; control-flow traversal, exit/carrier AST construction,
   loop increment extraction, lowering, mutation, allocation, and Source
