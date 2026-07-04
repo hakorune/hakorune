@@ -1,0 +1,88 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderLoopFeatureFactsRustOracleV1",
+  "token": "MIRBUILDER-LOOP-FEATURE-FACTS-RUST-ORACLE-FIXTURE-001",
+  "owner": "loop_feature_facts",
+  "rust_source": {
+    "path": "src/mir/builder/control_flow/plan/facts/feature_facts.rs",
+    "hash": "sha256:13fb27dc21cddb38e51ccee3129f832162397f436803c5123c38bd33b5b3aad5",
+    "oracle_surface": "LoopFeatureFacts owner"
+  },
+  "rows": [
+    {
+      "case_id": "if_break_continue_return",
+      "body": [
+        {
+          "kind": "If",
+          "then_body": [
+            {
+              "kind": "Break"
+            }
+          ],
+          "else_body": [
+            {
+              "kind": "Continue"
+            }
+          ]
+        },
+        {
+          "kind": "Return"
+        }
+      ],
+      "expected_exit_usage": {
+        "break": true,
+        "continue": true,
+        "return": true,
+        "unwind": false
+      },
+      "expected_nested_loop": false,
+      "expected_exit_map_kinds": [
+        "Return",
+        "Break",
+        "Continue"
+      ],
+      "expected_value_join": null,
+      "expected_cleanup": null,
+      "expected_summary": "break=1;continue=1;return=1;unwind=0;nested_loop=0;exit_map=Return,Break,Continue;value_join=none;cleanup=none"
+    },
+    {
+      "case_id": "if_hidden_nested_loop",
+      "body": [
+        {
+          "kind": "If",
+          "then_body": [
+            {
+              "kind": "Loop",
+              "body": []
+            }
+          ],
+          "else_body": null
+        }
+      ],
+      "expected_exit_usage": {
+        "break": false,
+        "continue": false,
+        "return": false,
+        "unwind": false
+      },
+      "expected_nested_loop": true,
+      "expected_exit_map_kinds": [],
+      "expected_value_join": null,
+      "expected_cleanup": null,
+      "expected_summary": "break=0;continue=0;return=0;unwind=0;nested_loop=1;exit_map=;value_join=none;cleanup=none"
+    }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "mir_type_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0,
+    "id_allocation_migration": 0,
+    "route_selection_migration": 0
+  }
+}

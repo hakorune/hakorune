@@ -60,7 +60,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-LOOP-FEATURE-FACTS-RUST-ORACLE-FIXTURE-001
+  MIRBUILDER-LOOP-FEATURE-FACTS-HAKO-ADOPTION-DECISION-CONSULTATION-001
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -68,7 +68,7 @@ normal operating rule:
   lowering/mutation/allocation/backend-capability blockers, then selects one
   smallest fixture-backed parity candidate. The first selected candidate is
   `try_extract_loop_feature_facts`.
-  The compact lane memory aid lives in
+  The first loop_feature_facts fixture/parity gate is green; the compact lane memory aid lives in
   `docs/development/current/main/design/mirbuilder-authority-based-hako-migration-ssot.md`
   under `Working Rules`.
 

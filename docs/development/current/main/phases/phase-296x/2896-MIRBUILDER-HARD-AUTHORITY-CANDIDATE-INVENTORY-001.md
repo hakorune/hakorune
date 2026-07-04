@@ -207,7 +207,9 @@ Boundary blocker evidence remains unchanged:
 
 ```text
 next_owner_candidate=try_extract_loop_feature_facts
-next_task=MIRBUILDER-LOOP-FEATURE-FACTS-RUST-ORACLE-FIXTURE-001
+implemented_task=MIRBUILDER-LOOP-FEATURE-FACTS-RUST-ORACLE-FIXTURE-001
+parity_gate=tools/checks/rust_lifecycle_mirbuilder_loop_feature_facts_parity_gate.sh
+parity_status=green
 fact_track=selected
 plan_track=held
 boundary_track=blocker_only
@@ -226,5 +228,5 @@ Do not re-enter leaf-only pilot selection as the default next step.
 
 ## Next
 
-Prepare a Rust oracle fixture for `try_extract_loop_feature_facts`, then build a
-small `.hako` implementation and parity gate for that one fact owner.
+Stop for the HakoAdopted decision consultation. Do not widen the backend-safe
+body snapshot or move plan-track owners until the adoption boundary is accepted.

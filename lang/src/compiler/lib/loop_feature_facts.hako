@@ -1,0 +1,74 @@
+// loop_feature_facts.hako
+//
+// Responsibility:
+// - extract the first loop feature facts slice from a backend-safe body snapshot
+// - keep the Rust oracle contract for exit_usage, nested_loop, and exit_map
+//
+// Non-responsibility:
+// - ScopeBox flattening
+// - full AST traversal
+// - value-join or cleanup inference
+// - route selection, backend lowering, MIR mutation, or ID allocation
+static box LoopFeatureFactsBox {
+  extract_summary(stmt0, stmt1) {
+    local has_break = me._stmt_has_break(stmt0)
+    if me._stmt_has_break(stmt1) == 1 { has_break = 1 }
+
+    local has_continue = me._stmt_has_continue(stmt0)
+    if me._stmt_has_continue(stmt1) == 1 { has_continue = 1 }
+
+    local has_return = me._stmt_has_return(stmt0)
+    if me._stmt_has_return(stmt1) == 1 { has_return = 1 }
+
+    local nested_loop = me._stmt_has_nested_loop(stmt0)
+    if me._stmt_has_nested_loop(stmt1) == 1 { nested_loop = 1 }
+
+    local exit_map = me._exit_map_kinds(has_return, has_break, has_continue, 0)
+    return "break=" + has_break
+      + ";continue=" + has_continue
+      + ";return=" + has_return
+      + ";unwind=0"
+      + ";nested_loop=" + nested_loop
+      + ";exit_map=" + exit_map
+      + ";value_join=none;cleanup=none"
+  }
+
+  _stmt_has_break(stmt) {
+    if stmt == "Break" { return 1 }
+    if stmt == "IfBreakContinue" { return 1 }
+    return 0
+  }
+
+  _stmt_has_continue(stmt) {
+    if stmt == "Continue" { return 1 }
+    if stmt == "IfBreakContinue" { return 1 }
+    return 0
+  }
+
+  _stmt_has_return(stmt) {
+    if stmt == "Return" { return 1 }
+    if stmt == "IfReturn" { return 1 }
+    return 0
+  }
+
+  _stmt_has_nested_loop(stmt) {
+    if stmt == "Loop" { return 1 }
+    if stmt == "LoopRange" { return 1 }
+    if stmt == "IfLoop" { return 1 }
+    return 0
+  }
+
+  _exit_map_kinds(has_return, has_break, has_continue, has_unwind) {
+    local out = ""
+    out = me._push_kind(out, has_return, "Return")
+    out = me._push_kind(out, has_break, "Break")
+    out = me._push_kind(out, has_continue, "Continue")
+    return me._push_kind(out, has_unwind, "Unwind")
+  }
+
+  _push_kind(current, enabled, label) {
+    if enabled != 1 { return current }
+    if current == "" { return label }
+    return current + "," + label
+  }
+}
