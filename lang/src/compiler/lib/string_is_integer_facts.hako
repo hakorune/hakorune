@@ -1,0 +1,62 @@
+// string_is_integer_facts.hako
+//
+// Responsibility:
+// - reduce a backend-safe string-is-integer token snapshot into acceptance text
+// - mirror try_extract_string_is_integer_facts for the narrow facade contract
+//
+// Non-responsibility:
+// - full AST traversal or substring expression materialization
+// - route selection, backend lowering, MIR mutation, or ID allocation
+static box StringIsIntegerFactsBox {
+  build_summary(condition_token, body_token) {
+    local bound = me._condition_bound(condition_token)
+    if bound == "bad_condition" {
+      return "accepted=0;reason=condition_not_var_less_bound"
+    }
+
+    local shape = me._body_shape(body_token)
+    if shape == "body_not_supported" {
+      return "accepted=0;reason=body_not_supported"
+    }
+    if shape == "return_not_false_or_zero" {
+      return "accepted=0;reason=return_not_false_or_zero"
+    }
+    if shape == "range_check_not_supported" {
+      return "accepted=0;reason=range_check_not_supported"
+    }
+
+    local source = me._body_source(body_token)
+    if bound != "length_var" {
+      if bound != source {
+        return "accepted=0;reason=bound_string_mismatch"
+      }
+    }
+
+    return "accepted=1;shape=" + shape
+  }
+
+  _condition_bound(token) {
+    if token == "CondILessSLength" { return "s" }
+    if token == "CondILessOtherLength" { return "other" }
+    if token == "CondILessLenVar" { return "length_var" }
+    return "bad_condition"
+  }
+
+  _body_shape(token) {
+    if token == "DirectIsDigitReturnFalseThenStep" { return "direct_is_digit" }
+    if token == "LocalSubstringRangeReturnZeroThenStep" { return "local_range" }
+    if token == "DirectIsDigitReturnFalseNoStep" { return "body_not_supported" }
+    if token == "DirectIsDigitReturnTrueThenStep" { return "return_not_false_or_zero" }
+    if token == "LocalSubstringRangeWrongCharThenStep" { return "range_check_not_supported" }
+    return "body_not_supported"
+  }
+
+  _body_source(token) {
+    if token == "DirectIsDigitReturnFalseThenStep" { return "s" }
+    if token == "LocalSubstringRangeReturnZeroThenStep" { return "s" }
+    if token == "DirectIsDigitReturnFalseNoStep" { return "s" }
+    if token == "DirectIsDigitReturnTrueThenStep" { return "s" }
+    if token == "LocalSubstringRangeWrongCharThenStep" { return "s" }
+    return "-"
+  }
+}

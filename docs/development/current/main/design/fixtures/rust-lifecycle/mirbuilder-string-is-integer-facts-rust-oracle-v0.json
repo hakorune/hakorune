@@ -1,0 +1,79 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderStringIsIntegerFactsRustOracleV1",
+  "token": "MIRBUILDER-STRING-IS-INTEGER-FACTS-RUST-ORACLE-FIXTURE-001",
+  "owner": "string_is_integer_facts",
+  "rust_source": {
+    "path": "src/mir/builder/control_flow/plan/facts/string_is_integer_facts.rs",
+    "hash": "sha256:ebbd9259f532c5ba2a1918e8e45405dd16d36617f12b6e39fb12bc62c3aa8b48",
+    "oracle_surface": "try_extract_string_is_integer_facts"
+  },
+  "input_contract": "BackendSafeStringIsIntegerFactsTokenSnapshotV1",
+  "rows": [
+    {
+      "case_id": "accept_direct_length_call_is_digit_false",
+      "condition_token": "CondILessSLength",
+      "body_token": "DirectIsDigitReturnFalseThenStep",
+      "expected_accept": true,
+      "expected_summary": "accepted=1;shape=direct_is_digit"
+    },
+    {
+      "case_id": "accept_local_range_return_zero_length_var",
+      "condition_token": "CondILessLenVar",
+      "body_token": "LocalSubstringRangeReturnZeroThenStep",
+      "expected_accept": true,
+      "expected_summary": "accepted=1;shape=local_range"
+    },
+    {
+      "case_id": "reject_condition_not_less",
+      "condition_token": "CondILeSLength",
+      "body_token": "DirectIsDigitReturnFalseThenStep",
+      "expected_accept": false,
+      "expected_reason": "condition_not_var_less_bound",
+      "expected_summary": "accepted=0;reason=condition_not_var_less_bound"
+    },
+    {
+      "case_id": "reject_bound_string_mismatch",
+      "condition_token": "CondILessOtherLength",
+      "body_token": "DirectIsDigitReturnFalseThenStep",
+      "expected_accept": false,
+      "expected_reason": "bound_string_mismatch",
+      "expected_summary": "accepted=0;reason=bound_string_mismatch"
+    },
+    {
+      "case_id": "reject_body_missing_increment",
+      "condition_token": "CondILessSLength",
+      "body_token": "DirectIsDigitReturnFalseNoStep",
+      "expected_accept": false,
+      "expected_reason": "body_not_supported",
+      "expected_summary": "accepted=0;reason=body_not_supported"
+    },
+    {
+      "case_id": "reject_return_true",
+      "condition_token": "CondILessSLength",
+      "body_token": "DirectIsDigitReturnTrueThenStep",
+      "expected_accept": false,
+      "expected_reason": "return_not_false_or_zero",
+      "expected_summary": "accepted=0;reason=return_not_false_or_zero"
+    },
+    {
+      "case_id": "reject_local_range_wrong_char",
+      "condition_token": "CondILessSLength",
+      "body_token": "LocalSubstringRangeWrongCharThenStep",
+      "expected_accept": false,
+      "expected_reason": "range_check_not_supported",
+      "expected_summary": "accepted=0;reason=range_check_not_supported"
+    }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "full_ast_traversal_adopted": 0,
+    "route_selection_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0,
+    "id_allocation_migration": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
