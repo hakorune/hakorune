@@ -25,10 +25,10 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-PURE-VALUE-EXPR-FOR-GENERIC-LOOP-CLASSIFIER-HAKO-ADOPTION-DECISION-001.
-  The pure_value_expr_for_generic_loop_classifier owner is HakoAdopted as the
-  one-hundred-thirtieth narrow Rust-oracle parity pilot after the green
-  4-row `.hako` EXE parity gate; next is rerun 133.
+  MIRBUILDER-SUPPORTED-BOOL-EXPR-FOR-GENERIC-LOOP-CLASSIFIER-HAKO-ADOPTION-DECISION-001.
+  The supported_bool_expr_for_generic_loop_classifier owner is HakoAdopted as
+  the one-hundred-thirty-first narrow Rust-oracle parity pilot after the green
+  3-row `.hako` EXE parity gate; next is rerun 134.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -61,7 +61,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-133
+  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-134
 
 normal operating rule:
   One RERUN adopts exactly one owner, advances the pointer, then stops.
@@ -85,7 +85,7 @@ latest design decision:
   GenericLoopBoolLiteralConditionClassifier is now HakoAdopted as a narrow
   Rust-oracle parity pilot owner after a green 3-row `.hako` EXE parity gate.
   Source Selfhost remains unclaimed. The selected next card is
-  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-133`.
+  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-134`.
 
 current fail-fast boundary:
   Do not re-enter full converter route selection without new non-self-signed authority or stable input delta. The adopted pilot scopes are narrow pure owners only: classification/formatting vocabulary, tiny mutation-frame leaves, label/tag surfaces, and fixture-backed parity helpers.

@@ -1,0 +1,39 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderSupportedBoolExprForGenericLoopClassifierRustOracleV1",
+  "token": "MIRBUILDER-SUPPORTED-BOOL-EXPR-FOR-GENERIC-LOOP-CLASSIFIER-RUST-ORACLE-FIXTURE-001",
+  "owner": "supported_bool_expr_for_generic_loop_classifier",
+  "rust_source": {
+    "path": "src/mir/builder/control_flow/plan/facts/expr_generic_loop.rs",
+    "hash": "sha256:138ea9a8e74ba10137330a744a6770ec51ba0bdd3143fd1d98d086c0a26586c6",
+    "oracle_surface": "is_supported_bool_expr_for_generic_loop classifier"
+  },
+  "rows": [
+    {
+      "kind": "expr_text",
+      "ast": "ASTNode::MethodCall(foo)",
+      "expected": "true"
+    },
+    {
+      "kind": "expr_text",
+      "ast": "ASTNode::Literal(Bool(true))",
+      "expected": "true"
+    },
+    {
+      "kind": "expr_text",
+      "ast": "ASTNode::BinaryOp(Equal)",
+      "expected": "true"
+    }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "supported_bool_expr_for_generic_loop_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

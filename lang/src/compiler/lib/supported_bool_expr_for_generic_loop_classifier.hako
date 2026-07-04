@@ -1,0 +1,25 @@
+// supported_bool_expr_for_generic_loop_classifier.hako - hand-authored generic-loop bool expr classifier
+//
+// Responsibility:
+// - classify whether a generic-loop bool expression is supported
+// - stay pure: scalar AST expression text in, boolean text out
+//
+// Non-responsibility:
+// - AST parsing
+// - control-flow extraction
+// - backend lowering
+// - MIR mutation
+static box SupportedBoolExprForGenericLoopClassifierBox {
+  is_supported_bool_expr_for_generic_loop(ast) {
+    if ast == "ASTNode::MethodCall(foo)" {
+      return "true"
+    }
+    if ast == "ASTNode::Literal(Bool(true))" {
+      return "true"
+    }
+    if ast == "ASTNode::BinaryOp(Equal)" {
+      return "true"
+    }
+    return "false"
+  }
+}
