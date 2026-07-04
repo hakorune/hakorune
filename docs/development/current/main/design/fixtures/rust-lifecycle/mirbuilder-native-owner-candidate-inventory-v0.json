@@ -184,6 +184,20 @@
       "status": "adopted_complete"
     },
     {
+      "adoption_card": "docs/development/current/main/phases/phase-296x/2537-MIRBUILDER-ARRAY-TEXT-OBSERVER-EXECUTOR-MATERIALIZATION-POLICY-FORMATTER-HAKO-ADOPTION-DECISION-001.md",
+      "adoption_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-array-text-observer-executor-materialization-policy-formatter-hako-adoption-decision-v0.json",
+      "candidate_kind": "formatter",
+      "hako_source": "lang/src/compiler/lib/array_text_observer_executor_materialization_policy_formatter.hako",
+      "logical_owner": "array_text_observer_executor_materialization_policy_formatter",
+      "missing": [],
+      "owner": "array_text_observer_executor_materialization_policy_formatter",
+      "owner_from_fixture": "array_text_observer_executor_materialization_policy_formatter",
+      "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_array_text_observer_executor_materialization_policy_formatter_parity_gate.sh",
+      "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-array-text-observer-executor-materialization-policy-formatter-rust-oracle-v0.json",
+      "selected_next_card": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-089",
+      "status": "adopted_complete"
+    },
+    {
       "adoption_card": "docs/development/current/main/phases/phase-296x/2522-MIRBUILDER-ARRAY-TEXT-OBSERVER-EXECUTOR-PROOF-REGION-FORMATTER-HAKO-ADOPTION-DECISION-001.md",
       "adoption_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-array-text-observer-executor-proof-region-formatter-hako-adoption-decision-v0.json",
       "candidate_kind": "formatter",
@@ -12033,18 +12047,18 @@
       "by_candidate_kind": {
         "classifier": 8,
         "collector": 1,
-        "formatter": 22,
+        "formatter": 23,
         "label_formatter": 48,
         "tag_formatter": 7,
         "unknown": 12,
         "vocabulary": 1
       },
       "by_status": {
-        "adopted_complete": 87,
+        "adopted_complete": 88,
         "adopted_incomplete_inventory": 12
       },
       "incomplete_owner_count": 12,
-      "owner_count": 99
+      "owner_count": 100
     },
     "source_scan": {
       "by_reject_reason": {

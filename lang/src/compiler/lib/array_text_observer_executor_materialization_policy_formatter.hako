@@ -1,0 +1,19 @@
+// array_text_observer_executor_materialization_policy_formatter.hako - hand-authored materialization-policy formatter
+//
+// Responsibility:
+// - format the narrow ArrayTextObserverExecutorMaterializationPolicy vocabulary
+// - stay pure: scalar policy token in, scalar text out
+//
+// Non-responsibility:
+// - array/text observer route matching
+// - observer contract handling
+// - backend lowering
+// - MIR mutation
+static box ArrayTextObserverExecutorMaterializationPolicyFormatterBox {
+  format_materialization_policy(policy) {
+    if policy == "TextResidentOrStringlikeSlot" {
+      return "text_resident_or_stringlike_slot"
+    }
+    return "unsupported_array_text_observer_executor_materialization_policy"
+  }
+}
