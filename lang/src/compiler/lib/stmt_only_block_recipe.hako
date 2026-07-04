@@ -1,0 +1,67 @@
+// stmt_only_block_recipe.hako
+//
+// Responsibility:
+// - classify a backend-safe statement token snapshot for StmtOnlyBlockRecipe
+// - keep the Rust oracle contract for accepted stmt count and block kind
+//
+// Non-responsibility:
+// - ScopeBox flattening
+// - full AST traversal or RecipeBodies materialization
+// - route selection, backend lowering, MIR mutation, or ID allocation
+static box StmtOnlyBlockRecipeBox {
+  build_summary(stmt0, stmt1) {
+    local count = me._stmt_count(stmt0, stmt1)
+    if count == 0 {
+      return "accepted=0;reason=empty_block"
+    }
+
+    local kind0 = me._stmt_kind(stmt0)
+    if kind0 == "RejectExit" {
+      return "accepted=0;reason=contains_non_local_exit"
+    }
+    if kind0 == "RejectVocab" {
+      return "accepted=0;reason=unsupported_stmt_vocab"
+    }
+
+    local kind1 = me._stmt_kind(stmt1)
+    if kind1 == "RejectExit" {
+      return "accepted=0;reason=contains_non_local_exit"
+    }
+    if kind1 == "RejectVocab" {
+      return "accepted=0;reason=unsupported_stmt_vocab"
+    }
+
+    return "accepted=1;block_contract=StmtOnly;stmt_count=" + count
+      + ";stmt_kinds=" + me._stmt_kinds(kind0, kind1)
+  }
+
+  _stmt_count(stmt0, stmt1) {
+    local count = 0
+    if stmt0 != "None" { count = count + 1 }
+    if stmt1 != "None" { count = count + 1 }
+    return count
+  }
+
+  _stmt_kinds(kind0, kind1) {
+    if kind0 == "None" { return kind1 }
+    if kind1 == "None" { return kind0 }
+    return kind0 + "," + kind1
+  }
+
+  _stmt_kind(stmt) {
+    if stmt == "None" { return "None" }
+    if stmt == "Local" { return "Local" }
+    if stmt == "Assignment" { return "Assignment" }
+    if stmt == "IfNoExit" { return "If" }
+    if stmt == "LoopNoExit" { return "Loop" }
+    if stmt == "MethodCall" { return "MethodCall" }
+    if stmt == "FunctionCall" { return "FunctionCall" }
+    if stmt == "Print" { return "Print" }
+    if stmt == "Break" { return "RejectExit" }
+    if stmt == "Continue" { return "RejectExit" }
+    if stmt == "Return" { return "RejectExit" }
+    if stmt == "IfBreak" { return "RejectExit" }
+    if stmt == "LoopBreak" { return "RejectExit" }
+    return "RejectVocab"
+  }
+}

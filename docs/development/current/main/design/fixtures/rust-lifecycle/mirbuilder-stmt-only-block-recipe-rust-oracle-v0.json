@@ -1,0 +1,104 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderStmtOnlyBlockRecipeRustOracleV1",
+  "token": "MIRBUILDER-STMT-ONLY-BLOCK-RECIPE-RUST-ORACLE-FIXTURE-001",
+  "owner": "stmt_only_block_recipe",
+  "rust_source": {
+    "path": "src/mir/builder/control_flow/facts/stmt_view.rs",
+    "hash": "sha256:b3dccdbc06c6fb4517d70e2cd50ef03cefcade553026faa73ccf3391ad650890",
+    "oracle_surface": "try_build_stmt_only_block_recipe"
+  },
+  "input_contract": "BackendSafeStmtOnlyBlockTokenSnapshotV1",
+  "rows": [
+    {
+      "case_id": "accept_local_print",
+      "tokens": [
+        "Local",
+        "Print"
+      ],
+      "expected_accept": true,
+      "expected_block_contract": "StmtOnly",
+      "expected_stmt_count": 2,
+      "expected_stmt_kinds": [
+        "Local",
+        "Print"
+      ],
+      "expected_summary": "accepted=1;block_contract=StmtOnly;stmt_count=2;stmt_kinds=Local,Print"
+    },
+    {
+      "case_id": "accept_if_no_exit",
+      "tokens": [
+        "IfNoExit"
+      ],
+      "expected_accept": true,
+      "expected_block_contract": "StmtOnly",
+      "expected_stmt_count": 1,
+      "expected_stmt_kinds": [
+        "If"
+      ],
+      "expected_summary": "accepted=1;block_contract=StmtOnly;stmt_count=1;stmt_kinds=If"
+    },
+    {
+      "case_id": "accept_loop_no_exit",
+      "tokens": [
+        "LoopNoExit"
+      ],
+      "expected_accept": true,
+      "expected_block_contract": "StmtOnly",
+      "expected_stmt_count": 1,
+      "expected_stmt_kinds": [
+        "Loop"
+      ],
+      "expected_summary": "accepted=1;block_contract=StmtOnly;stmt_count=1;stmt_kinds=Loop"
+    },
+    {
+      "case_id": "reject_empty",
+      "tokens": [],
+      "expected_accept": false,
+      "expected_reason": "empty_block",
+      "expected_summary": "accepted=0;reason=empty_block"
+    },
+    {
+      "case_id": "reject_break",
+      "tokens": [
+        "Break"
+      ],
+      "expected_accept": false,
+      "expected_reason": "contains_non_local_exit",
+      "expected_summary": "accepted=0;reason=contains_non_local_exit"
+    },
+    {
+      "case_id": "reject_if_break",
+      "tokens": [
+        "IfBreak"
+      ],
+      "expected_accept": false,
+      "expected_reason": "contains_non_local_exit",
+      "expected_summary": "accepted=0;reason=contains_non_local_exit"
+    },
+    {
+      "case_id": "reject_scopebox_not_flattened",
+      "tokens": [
+        "ScopeBoxLocal"
+      ],
+      "expected_accept": false,
+      "expected_reason": "unsupported_stmt_vocab",
+      "expected_summary": "accepted=0;reason=unsupported_stmt_vocab"
+    }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "full_ast_traversal_adopted": 0,
+    "scopebox_flattening_adopted": 0,
+    "recipe_bodies_materialization": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0,
+    "id_allocation_migration": 0,
+    "route_selection_migration": 0
+  }
+}
