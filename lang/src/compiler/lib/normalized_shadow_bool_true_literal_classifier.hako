@@ -1,0 +1,19 @@
+// normalized_shadow_bool_true_literal_classifier.hako - hand-authored bool true literal classifier
+//
+// Responsibility:
+// - classify whether a normalized-shadow helper condition is Bool(true)
+// - stay pure: scalar AST condition token in, boolean text out
+//
+// Non-responsibility:
+// - AST parsing
+// - normalized lowering
+// - backend lowering
+// - MIR mutation
+static box NormalizedShadowBoolTrueLiteralClassifierBox {
+  is_bool_true_literal(condition) {
+    if condition == "ASTNode::Literal(Bool(true))" {
+      return "true"
+    }
+    return "false"
+  }
+}

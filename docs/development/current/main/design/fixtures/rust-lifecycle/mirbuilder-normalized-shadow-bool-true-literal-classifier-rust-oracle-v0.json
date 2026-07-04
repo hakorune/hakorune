@@ -1,0 +1,39 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderNormalizedShadowBoolTrueLiteralClassifierRustOracleV1",
+  "token": "MIRBUILDER-NORMALIZED-SHADOW-BOOL-TRUE-LITERAL-CLASSIFIER-RUST-ORACLE-FIXTURE-001",
+  "owner": "normalized_shadow_bool_true_literal_classifier",
+  "rust_source": {
+    "path": "src/mir/control_tree/normalized_shadow/common/normalized_helpers.rs",
+    "hash": "sha256:0d1f4dd2c8e4fdfdfef6ab0bf2de9be34d9c1f77b42d98a4f43d9acb1ef10f3b9",
+    "oracle_surface": "is_bool_true_literal normalized shadow helper"
+  },
+  "rows": [
+    {
+      "kind": "condition_text",
+      "condition": "ASTNode::Literal(Bool(true))",
+      "expected": "true"
+    },
+    {
+      "kind": "condition_text",
+      "condition": "ASTNode::Literal(Bool(false))",
+      "expected": "false"
+    },
+    {
+      "kind": "condition_text",
+      "condition": "ASTNode::Variable(flag)",
+      "expected": "false"
+    }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "normalized_shadow_bool_true_literal_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

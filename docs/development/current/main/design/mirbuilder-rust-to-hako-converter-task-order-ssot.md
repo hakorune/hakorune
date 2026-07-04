@@ -25,10 +25,10 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-CONDITION-TRUE-LITERAL-CLASSIFIER-HAKO-ADOPTION-DECISION-001.
-  The condition_true_literal_classifier owner is HakoAdopted as the
-  one-hundred-twenty-fifth narrow Rust-oracle parity pilot after the green
-  3-row `.hako` EXE parity gate; next is rerun 128.
+  MIRBUILDER-NORMALIZED-SHADOW-BOOL-TRUE-LITERAL-CLASSIFIER-HAKO-ADOPTION-DECISION-001.
+  The normalized_shadow_bool_true_literal_classifier owner is HakoAdopted as
+  the one-hundred-twenty-sixth narrow Rust-oracle parity pilot after the green
+  3-row `.hako` EXE parity gate; next is rerun 129.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -61,7 +61,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-128
+  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-129
 
 normal operating rule:
   One RERUN adopts exactly one owner, advances the pointer, then stops.
@@ -78,8 +78,11 @@ latest design decision:
   narrow Rust-oracle parity pilot owner after a green 1-row `.hako` EXE parity
   gate. Source Selfhost remains unclaimed. ConditionTrueLiteralClassifier is
   now HakoAdopted as a narrow Rust-oracle parity pilot owner after a green
-  3-row `.hako` EXE parity gate. Source Selfhost remains unclaimed. The
-  selected next card is `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-128`.
+  3-row `.hako` EXE parity gate. Source Selfhost remains unclaimed.
+  NormalizedShadowBoolTrueLiteralClassifier is now HakoAdopted as a narrow
+  Rust-oracle parity pilot owner after a green 3-row `.hako` EXE parity gate.
+  Source Selfhost remains unclaimed. The selected next card is
+  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-129`.
 
 current fail-fast boundary:
   Do not re-enter full converter route selection without new non-self-signed authority or stable input delta. The adopted pilot scopes are narrow pure owners only: classification/formatting vocabulary, tiny mutation-frame leaves, label/tag surfaces, and fixture-backed parity helpers.
