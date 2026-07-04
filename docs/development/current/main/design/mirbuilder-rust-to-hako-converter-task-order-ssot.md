@@ -25,10 +25,10 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-SUPPORTED-BOOL-EXPR-FOR-GENERIC-LOOP-CLASSIFIER-HAKO-ADOPTION-DECISION-001.
-  The supported_bool_expr_for_generic_loop_classifier owner is HakoAdopted as
-  the one-hundred-thirty-first narrow Rust-oracle parity pilot after the green
-  3-row `.hako` EXE parity gate; next is rerun 134.
+  MIRBUILDER-PURE-VALUE-EXPR-FOR-GENERIC-LOOP-CLASSIFIER-HAKO-ADOPTION-DECISION-001.
+  The pure_value_expr_for_generic_loop_classifier owner is HakoAdopted as the
+  one-hundred-thirty-second narrow Rust-oracle parity pilot after the green
+  4-row `.hako` EXE parity gate; next is rerun 135.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -61,7 +61,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-134
+  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-135
 
 normal operating rule:
   One RERUN adopts exactly one owner, advances the pointer, then stops.

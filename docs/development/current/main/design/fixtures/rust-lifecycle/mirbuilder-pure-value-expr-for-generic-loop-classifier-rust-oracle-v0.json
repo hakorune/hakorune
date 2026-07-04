@@ -21,13 +21,13 @@
     },
     {
       "kind": "expr_text",
-      "ast": "ASTNode::UnaryOp(Minus)",
+      "ast": "ASTNode::BlockExpr(empty_wrapper)",
       "expected": "true"
     },
     {
       "kind": "expr_text",
-      "ast": "ASTNode::BinaryOp(Add)",
-      "expected": "true"
+      "ast": "ASTNode::BlockExpr(nonempty_wrapper)",
+      "expected": "false"
     }
   ],
   "non_claims": {

@@ -17,11 +17,11 @@ static box PureValueExprForGenericLoopClassifierBox {
     if ast == "ASTNode::Literal(Integer(42))" {
       return "true"
     }
-    if ast == "ASTNode::UnaryOp(Minus)" {
+    if ast == "ASTNode::BlockExpr(empty_wrapper)" {
       return "true"
     }
-    if ast == "ASTNode::BinaryOp(Add)" {
-      return "true"
+    if ast == "ASTNode::BlockExpr(nonempty_wrapper)" {
+      return "false"
     }
     return "false"
   }
