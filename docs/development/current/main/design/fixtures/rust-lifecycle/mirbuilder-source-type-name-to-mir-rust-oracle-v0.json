@@ -1,0 +1,33 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderSourceTypeNameToMirRustOracleV1",
+  "token": "MIRBUILDER-SOURCE-TYPE-NAME-TO-MIR-RUST-ORACLE-FIXTURE-001",
+  "owner": "source_type_name_to_mir",
+  "rust_source": {
+    "path": "src/mir/builder/builder_metadata.rs",
+    "hash": "sha256:acb4ae7ad6b402ac7a5e0d5fcb29a8a3c87b9d9ff2f5e27cbb1d5515b4f5b5b4",
+    "oracle_surface": "source_type_name_to_mir mapping"
+  },
+  "rows": [
+    { "name": "i64", "expected": "Integer" },
+    { "name": "IntegerBox", "expected": "Integer" },
+    { "name": "bool", "expected": "Bool" },
+    { "name": "FloatBox", "expected": "Float" },
+    { "name": "StringBox", "expected": "String" },
+    { "name": "Void", "expected": "Void" },
+    { "name": "ArrayBox", "expected": "Box(ArrayBox)" },
+    { "name": "MapBox", "expected": "Box(MapBox)" },
+    { "name": "Widget", "expected": "Box(Widget)" }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "mir_type_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

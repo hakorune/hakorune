@@ -1,0 +1,24 @@
+// source_type_name_to_mir.hako - hand-authored source-type-name to MIR mapper
+//
+// Responsibility:
+// - map source-facing type names to canonical MIR type text
+// - stay pure: scalar type-name token in, scalar MIR-kind text out
+//
+// Non-responsibility:
+// - AST analysis
+// - backend lowering
+// - MIR mutation
+static box SourceTypeNameToMirBox {
+  to_mir(name) {
+    if name == "i64" { return "Integer" }
+    if name == "IntegerBox" { return "Integer" }
+    if name == "bool" { return "Bool" }
+    if name == "BoolBox" { return "Bool" }
+    if name == "FloatBox" { return "Float" }
+    if name == "StringBox" { return "String" }
+    if name == "Void" { return "Void" }
+    if name == "ArrayBox" { return "Box(ArrayBox)" }
+    if name == "MapBox" { return "Box(MapBox)" }
+    return "Box(" + name + ")"
+  }
+}

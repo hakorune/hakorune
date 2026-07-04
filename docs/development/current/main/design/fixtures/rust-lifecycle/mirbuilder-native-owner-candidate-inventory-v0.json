@@ -1489,6 +1489,21 @@
     },
     {
       "adoption_card": null,
+      "adoption_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-source-type-name-to-mir-hako-adoption-decision-v0.json",
+      "candidate_kind": "unknown",
+      "hako_source": "lang/src/compiler/lib/source_type_name_to_mir.hako",
+      "missing": [
+        "adoption_card"
+      ],
+      "owner": "source_type_name_to_mir",
+      "owner_from_fixture": "source_type_name_to_mir",
+      "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_source_type_name_to_mir_parity_gate.sh",
+      "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-source-type-name-to-mir-rust-oracle-v0.json",
+      "selected_next_card": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-122",
+      "status": "adopted_incomplete_inventory"
+    },
+    {
+      "adoption_card": null,
       "adoption_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-statement-value-construction-box-field-initialization-hako-adoption-decision-v0.json",
       "candidate_kind": "unknown",
       "hako_source": null,
@@ -1805,6 +1820,14 @@
     "source_scan_root": "src/mir"
   },
   "source_scan_rows": [
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "source_type_name_to_mir",
+      "line": 109,
+      "path": "src/mir/builder/builder_metadata.rs",
+      "reject_reasons": [],
+      "status": "already_adopted_name_match"
+    },
     {
       "candidate_kind": "display_formatter",
       "display_target": "AggLocalScalarizationKind",
@@ -2709,14 +2732,6 @@
       "function": "is_current_block_terminated",
       "line": 412,
       "path": "src/mir/builder/builder_build.rs",
-      "reject_reasons": [],
-      "status": "candidate"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "source_type_name_to_mir",
-      "line": 109,
-      "path": "src/mir/builder/builder_metadata.rs",
       "reject_reasons": [],
       "status": "candidate"
     },
@@ -12446,15 +12461,15 @@
         "formatter": 32,
         "label_formatter": 49,
         "tag_formatter": 7,
-        "unknown": 12,
+        "unknown": 13,
         "vocabulary": 1
       },
       "by_status": {
         "adopted_complete": 117,
-        "adopted_incomplete_inventory": 12
+        "adopted_incomplete_inventory": 13
       },
-      "incomplete_owner_count": 12,
-      "owner_count": 129
+      "incomplete_owner_count": 13,
+      "owner_count": 130
     },
     "source_scan": {
       "by_reject_reason": {
@@ -12473,7 +12488,8 @@
         "takes_mut_self": 8
       },
       "by_status": {
-        "candidate": 627,
+        "already_adopted_name_match": 1,
+        "candidate": 626,
         "rejected": 516
       },
       "surface_count": 1143
