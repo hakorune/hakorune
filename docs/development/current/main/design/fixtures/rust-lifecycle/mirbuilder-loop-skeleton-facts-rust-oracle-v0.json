@@ -1,0 +1,54 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderLoopSkeletonFactsRustOracleV1",
+  "token": "MIRBUILDER-LOOP-SKELETON-FACTS-RUST-ORACLE-FIXTURE-001",
+  "owner": "loop_skeleton_facts",
+  "rust_source": {
+    "path": "src/mir/builder/control_flow/plan/facts/skeleton_facts.rs",
+    "hash": "sha256:c25fad014f856aab4b527d2f902cd5d110827dadfb9cddcaffdbfbe953cd84d4",
+    "oracle_surface": "try_extract_loop_skeleton_facts"
+  },
+  "input_contract": "BackendSafeLoopSkeletonFactsTokenSnapshotV1",
+  "rows": [
+    {
+      "case_id": "true_empty_body",
+      "condition_token": "TrueLiteral",
+      "body_token": "EmptyBody",
+      "expected_accept": true,
+      "expected_kind": "Loop",
+      "expected_feature_slots": 0,
+      "expected_summary": "accepted=1;kind=Loop;feature_slots=0"
+    },
+    {
+      "case_id": "less_condition_empty_body",
+      "condition_token": "CondILess3",
+      "body_token": "EmptyBody",
+      "expected_accept": true,
+      "expected_kind": "Loop",
+      "expected_feature_slots": 0,
+      "expected_summary": "accepted=1;kind=Loop;feature_slots=0"
+    },
+    {
+      "case_id": "true_assignment_body",
+      "condition_token": "TrueLiteral",
+      "body_token": "OneAssignment",
+      "expected_accept": true,
+      "expected_kind": "Loop",
+      "expected_feature_slots": 0,
+      "expected_summary": "accepted=1;kind=Loop;feature_slots=0"
+    }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "broad_crate_split": 0,
+    "feature_slot_inference": 0,
+    "full_ast_traversal_adopted": 0,
+    "route_selection_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0,
+    "id_allocation_migration": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

@@ -1,0 +1,17 @@
+// loop_skeleton_facts.hako
+//
+// Responsibility:
+// - reduce a backend-safe loop skeleton token snapshot into SkeletonFacts DTO text
+// - mirror try_extract_loop_skeleton_facts for the current constant Loop skeleton
+//
+// Non-responsibility:
+// - feature-slot inference
+// - full AST traversal
+// - route selection, backend lowering, MIR mutation, or ID allocation
+static box LoopSkeletonFactsBox {
+  build_summary(condition_token, body_token) {
+    local _condition = condition_token
+    local _body = body_token
+    return "accepted=1;kind=Loop;feature_slots=0"
+  }
+}
