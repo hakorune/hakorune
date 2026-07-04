@@ -1,0 +1,19 @@
+// array_text_observer_executor_execution_mode_classifier.hako - hand-authored execution-mode classifier
+//
+// Responsibility:
+// - classify ArrayTextObserverExecutorContract execution-mode membership
+// - stay pure: scalar execution-mode token in, boolean text out
+//
+// Non-responsibility:
+// - array/text observer route matching
+// - observer contract handling
+// - backend lowering
+// - MIR mutation
+static box ArrayTextObserverExecutorExecutionModeClassifierBox {
+  is_single_region_executor(execution_mode) {
+    if execution_mode == "SingleRegionExecutor" {
+      return "true"
+    }
+    return "false"
+  }
+}
