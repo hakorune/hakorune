@@ -51,6 +51,28 @@ docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-native-o
 This inventory is a recall aid and artifact consistency check. It does not
 select the next owner and does not make a Source Selfhost claim.
 
+## Progress Metric Rule
+
+Narrow parity pilots measure leaf coverage only. They do not measure hard
+MirBuilder authority migration.
+
+Treat formatter, label, tag, classifier, and tiny mutation-frame owners as
+useful vocabulary cleanup, not as progress toward Source Selfhost. The hard
+authority progress meter starts only when a slice moves one of these contracts
+to native `.hako` with a fixture-backed parity gate:
+
+```text
+Fact owner: input snapshot -> fact DTO
+Plan rule: facts -> recipe / plan DTO
+Command producer: recipe -> symbolic command list
+Allocator: symbolic command list -> allocated command list
+```
+
+Do not use pilot count as the selfhost distance metric. If a normal rerun would
+only add another formatter or classifier while the user is asking about
+MirBuilder progress, stop and select a smallest Fact-owner or REGISTRY-rule
+contract instead.
+
 ## Anti-Drift Operating Rule
 
 Normal work stays in migration mode, not inventory mode.

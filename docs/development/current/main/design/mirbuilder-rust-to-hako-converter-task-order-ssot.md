@@ -61,27 +61,25 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-162
+  MIRBUILDER-HARD-AUTHORITY-PROGRESS-METRIC-PIVOT-001
 
 normal operating rule:
-  One RERUN adopts exactly one owner, advances the pointer, then stops.
-  Inventory is recall-only unless explicitly requested; see authority SSOT.
+  Leaf pilot count is no longer a selfhost progress metric.
+  Next work selects a smallest Fact-owner or REGISTRY-rule contract.
   The compact lane memory aid lives in
   `docs/development/current/main/design/mirbuilder-authority-based-hako-migration-ssot.md`
   under `Working Rules`.
 
 latest design decision:
+  Leaf parity pilots are vocabulary coverage, not hard MirBuilder authority
+  progress. The next slice must target the smallest Fact-owner or REGISTRY-rule
+  contract with fixture-backed parity, not another formatter/classifier rerun.
   control_form_from_if_constructor is now HakoAdopted as a narrow Rust-oracle parity pilot owner after a green 2-row `.hako` EXE parity gate.
   ControlForm construction remains Rust. Backend lowering and MIR mutation remain Rust.
-  The selected next card is `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-162`.
+  The selected next card is `MIRBUILDER-HARD-AUTHORITY-PROGRESS-METRIC-PIVOT-001`.
   control_form_is_if_classifier is now HakoAdopted as a narrow Rust-oracle parity pilot owner after a green 2-row `.hako` EXE parity gate.
   ControlForm handling remains Rust. Backend lowering and MIR mutation remain Rust.
   The selected next card is `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-161`.
-  fastmem_llvm_owner_runtime_memop_kind_classifier is now HakoAdopted as a
-  narrow Rust-oracle parity pilot owner after a green 6-row `.hako` EXE
-  parity gate. FastMem dialect validation remains Rust. Backend lowering and
-  MIR mutation remain Rust. The selected next card is
-  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-151`.
   fastmem_memop_kind_name_formatter is now HakoAdopted as a narrow
   Rust-oracle parity pilot owner after a green 6-row `.hako` EXE parity gate.
   FastMem dialect validation remains Rust. Backend lowering and MIR mutation
