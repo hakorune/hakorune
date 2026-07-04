@@ -1,0 +1,134 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderLoopConditionShapeRustOracleV1",
+  "token": "MIRBUILDER-LOOP-CONDITION-SHAPE-RUST-ORACLE-FIXTURE-001",
+  "owner": "loop_condition_shape",
+  "rust_source": {
+    "path": "src/mir/builder/control_flow/plan/facts/loop_condition_shape.rs",
+    "hash": "sha256:7d31aa9c4b5e14e96d68357fc475e9fab8addd8f3268b283179c1f3002f2b255",
+    "oracle_surface": "try_extract_condition_shape"
+  },
+  "input_contract": "BackendSafeLoopConditionShapeTokenSnapshotV1",
+  "rows": [
+    {
+      "case_id": "accept_var_less_length",
+      "token": "ILessHayLength",
+      "expected_accept": true,
+      "expected_shape": "VarLessLength",
+      "expected_summary": "accepted=1;shape=VarLessLength;idx_var=i;haystack_var=hay;method=Length"
+    },
+    {
+      "case_id": "accept_var_less_size",
+      "token": "ILessHaySize",
+      "expected_accept": true,
+      "expected_shape": "VarLessLength",
+      "expected_summary": "accepted=1;shape=VarLessLength;idx_var=i;haystack_var=hay;method=Size"
+    },
+    {
+      "case_id": "accept_var_less_literal",
+      "token": "ILessLiteral3",
+      "expected_accept": true,
+      "expected_shape": "VarLessLiteral",
+      "expected_summary": "accepted=1;shape=VarLessLiteral;idx_var=i;bound=3"
+    },
+    {
+      "case_id": "accept_var_less_equal_length_minus_needle",
+      "token": "ILessEqualHayLengthMinusNeedleLength",
+      "expected_accept": true,
+      "expected_shape": "VarLessEqualLengthMinusNeedle",
+      "expected_summary": "accepted=1;shape=VarLessEqualLengthMinusNeedle;idx_var=i;haystack_var=hay;needle_var=needle;haystack_method=Length;needle_method=Length"
+    },
+    {
+      "case_id": "accept_var_greater_equal_zero",
+      "token": "IGreaterEqualZero",
+      "expected_accept": true,
+      "expected_shape": "VarGreaterEqualZero",
+      "expected_summary": "accepted=1;shape=VarGreaterEqualZero;idx_var=i"
+    },
+    {
+      "case_id": "reject_non_binary",
+      "token": "VariableOnly",
+      "expected_accept": false,
+      "expected_reason": "not_binary_op",
+      "expected_summary": "accepted=0;reason=not_binary_op"
+    },
+    {
+      "case_id": "reject_less_left_not_variable",
+      "token": "LiteralLessLength",
+      "expected_accept": false,
+      "expected_reason": "left_not_variable",
+      "expected_summary": "accepted=0;reason=left_not_variable"
+    },
+    {
+      "case_id": "reject_less_right_not_length_or_literal",
+      "token": "ILessVariable",
+      "expected_accept": false,
+      "expected_reason": "right_not_length_or_literal",
+      "expected_summary": "accepted=0;reason=right_not_length_or_literal"
+    },
+    {
+      "case_id": "reject_less_equal_right_not_subtract",
+      "token": "ILessEqualHayLength",
+      "expected_accept": false,
+      "expected_reason": "right_not_subtract",
+      "expected_summary": "accepted=0;reason=right_not_subtract"
+    },
+    {
+      "case_id": "reject_less_equal_minus_left_not_length",
+      "token": "ILessEqualVarMinusNeedleLength",
+      "expected_accept": false,
+      "expected_reason": "minus_left_not_length",
+      "expected_summary": "accepted=0;reason=minus_left_not_length"
+    },
+    {
+      "case_id": "reject_less_equal_minus_right_not_length",
+      "token": "ILessEqualHayLengthMinusVar",
+      "expected_accept": false,
+      "expected_reason": "minus_right_not_length",
+      "expected_summary": "accepted=0;reason=minus_right_not_length"
+    },
+    {
+      "case_id": "reject_greater_equal_right_not_zero",
+      "token": "IGreaterEqualOne",
+      "expected_accept": false,
+      "expected_reason": "right_not_zero",
+      "expected_summary": "accepted=0;reason=right_not_zero"
+    },
+    {
+      "case_id": "reject_unsupported_operator",
+      "token": "IEqualZero",
+      "expected_accept": false,
+      "expected_reason": "unsupported_operator",
+      "expected_summary": "accepted=0;reason=unsupported_operator"
+    },
+    {
+      "case_id": "reject_length_call_with_args",
+      "token": "ILessHayLengthWithArg",
+      "expected_accept": false,
+      "expected_reason": "length_call_has_args",
+      "expected_summary": "accepted=0;reason=length_call_has_args"
+    },
+    {
+      "case_id": "reject_unknown_length_method",
+      "token": "ILessHayCapacity",
+      "expected_accept": false,
+      "expected_reason": "unknown_length_method",
+      "expected_summary": "accepted=0;reason=unknown_length_method"
+    }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "full_ast_traversal_adopted": 0,
+    "cond_profile_migration": 0,
+    "condition_observation_unification": 0,
+    "scan_shape_matching_adopted": 0,
+    "loop_builder_adopted": 0,
+    "route_selection_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0,
+    "id_allocation_migration": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
