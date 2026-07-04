@@ -25,11 +25,10 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-ARRAY-TEXT-LOOP-SESSION-BACKEND-SESSION-LOWERING-ALLOWED-CLASSIFIER-HAKO-ADOPTION-DECISION-001.
-  The array_text_loop_session_backend_session_lowering_allowed_classifier
-  owner is HakoAdopted as the one-hundred-forty-second narrow Rust-oracle
-  parity pilot after the green 7-row `.hako` EXE parity gate; next is rerun
-  145.
+  MIRBUILDER-BUILDER-VALUE-KIND-PARAMETER-CLASSIFIER-HAKO-ADOPTION-DECISION-001.
+  The builder_value_kind_parameter_classifier owner is HakoAdopted as the
+  one-hundred-forty-third narrow Rust-oracle parity pilot after the green
+  6-row `.hako` EXE parity gate; next is rerun 147.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +61,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-145
+  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-147
 
 normal operating rule:
   One RERUN adopts exactly one owner, advances the pointer, then stops.
@@ -72,6 +71,11 @@ normal operating rule:
   under `Working Rules`.
 
 latest design decision:
+  builder_value_kind_parameter_classifier is now HakoAdopted as a narrow
+  Rust-oracle parity pilot owner after a green 6-row `.hako` EXE parity gate.
+  MirBuilder builder_value_kind parameter classification remains Rust.
+  Backend lowering and MIR mutation remain Rust. The selected next card is
+  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-147`.
   array_text_loop_session_backend_session_lowering_allowed_classifier is now
   HakoAdopted as a narrow Rust-oracle parity pilot owner after a green 7-row
   `.hako` EXE parity gate. ArrayTextLoopSessionPlan backend-session lowering
@@ -88,37 +92,6 @@ latest design decision:
   parity gate. Array-string len-window effect-tags formatting remains Rust.
   Backend lowering and MIR mutation remain Rust. The selected next card is
   `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-143`.
-  direct_step_placement_classifier is now HakoAdopted as a narrow
-  Rust-oracle parity pilot owner after a green 4-row `.hako` EXE parity gate.
-  Generic-loop direct step placement classification remains Rust. Backend
-  lowering and MIR mutation remain Rust. The selected next card is
-  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-142`.
-  break_else_if_with_increment_classifier is now HakoAdopted as a narrow
-  Rust-oracle parity pilot owner after a green 4-row `.hako` EXE parity gate.
-  Generic-loop break-else-if-with-increment classification remains Rust.
-  Backend lowering and MIR mutation remain Rust. The selected next card is
-  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-141`.
-  continue_if_with_increment_classifier is now HakoAdopted as a narrow
-  Rust-oracle parity pilot owner after a green 4-row `.hako` EXE parity gate.
-  Generic-loop continue-if-with-increment classification remains Rust.
-  Backend lowering and MIR mutation remain Rust. The selected next card is
-  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-140`.
-  supported_nested_loop_condition_classifier is now HakoAdopted as a narrow
-  Rust-oracle parity pilot owner after a green 5-row `.hako` EXE parity gate.
-  True-loop nested condition classification remains Rust. Backend lowering and
-  MIR mutation remain Rust. The selected next card is
-  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-139`.
-  supported_bool_expr_for_true_loop_classifier is now HakoAdopted as a
-  narrow Rust-oracle parity pilot owner after a green 4-row `.hako` EXE
-  parity gate. True-loop supported bool-expression classification remains
-  Rust. Backend lowering and MIR mutation remain Rust. The selected next card
-  is `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-138`.
-  supported_value_expr_for_true_loop_classifier is now HakoAdopted as a
-  narrow Rust-oracle parity pilot owner after a green 4-row `.hako` EXE
-  parity gate. True-loop supported value-expression classification remains
-  Rust. Backend lowering and MIR mutation remain Rust. The selected next card
-  is `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-137`.
-  older rows live in phase cards and git history.
 
 current fail-fast boundary:
   Do not re-enter full converter route selection without new non-self-signed authority or stable input delta. The adopted pilot scopes are narrow pure owners only: classification/formatting vocabulary, tiny mutation-frame leaves, label/tag surfaces, direct step placement classification, array-string len-window effect-tags formatting, and fixture-backed parity helpers.

@@ -1,0 +1,30 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderBuilderValueKindParameterClassifierRustOracleV1",
+  "token": "MIRBUILDER-BUILDER-VALUE-KIND-PARAMETER-CLASSIFIER-RUST-ORACLE-FIXTURE-001",
+  "owner": "builder_value_kind_parameter_classifier",
+  "rust_source": {
+    "path": "src/mir/builder/builder_value_kind.rs",
+    "hash": "sha256:ad8ec06b0d6928ee3ea8af09d31717c2b58d5f3d989e94ce2e3b0103a3b8df64",
+    "oracle_surface": "MirBuilder value-kind parameter classifier"
+  },
+  "rows": [
+    { "kind": "Parameter", "expected": "true" },
+    { "kind": "Local", "expected": "false" },
+    { "kind": "Constant", "expected": "false" },
+    { "kind": "Temporary", "expected": "false" },
+    { "kind": "Pinned", "expected": "false" },
+    { "kind": "LoopCarrier", "expected": "false" }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "mir_type_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

@@ -31,6 +31,9 @@ Source Selfhost remains unclaimed.
 ArrayTextLoopSessionBackendSessionLoweringAllowedClassifier is now a narrow
 HakoAdopted Rust-oracle parity pilot owner after a green 7-row `.hako` EXE
 parity gate. Source Selfhost remains unclaimed.
+BuilderValueKindParameterClassifier is now a narrow HakoAdopted Rust-oracle
+parity pilot owner after a green 6-row `.hako` EXE parity gate. Source
+Selfhost remains unclaimed.
 UserBoxMethodTypeLabelFormatter is selected as the sixth narrow Rust-oracle
 parity pilot owner, has a 10-row Rust-oracle fixture, and now has a
 hand-authored `.hako` implementation with a green 10-row parity gate.
@@ -318,13 +321,12 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-ARRAY-TEXT-LOOP-SESSION-BACKEND-SESSION-LOWERING-ALLOWED-CLASSIFIER-HAKO-ADOPTION-DECISION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2817-MIRBUILDER-ARRAY-TEXT-LOOP-SESSION-BACKEND-SESSION-LOWERING-ALLOWED-CLASSIFIER-HAKO-ADOPTION-DECISION-001.md"
+latest_card = "MIRBUILDER-BUILDER-VALUE-KIND-PARAMETER-CLASSIFIER-HAKO-ADOPTION-DECISION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2822-MIRBUILDER-BUILDER-VALUE-KIND-PARAMETER-CLASSIFIER-HAKO-ADOPTION-DECISION-001.md"
 latest_card_summary = """The latest card adopts
-array_text_loop_session_backend_session_lowering_allowed_classifier as the
-one-hundred-forty-second narrow Rust-oracle parity pilot owner after the
-green 7-row `.hako` EXE parity gate and chooses pilot selection rerun 145
-next."""
+builder_value_kind_parameter_classifier as the one-hundred-forty-third narrow
+Rust-oracle parity pilot owner after the green 6-row `.hako` EXE parity gate
+and chooses pilot selection rerun 147 next."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -335,6 +337,11 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-05: 2822 adopts builder_value_kind_parameter_classifier as the one-hundred-forty-third narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
+  "2026-07-05: 2821 adds the builder_value_kind_parameter_classifier Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
+  "2026-07-05: 2820 adds the hand-authored builder_value_kind_parameter_classifier .hako implementation and chooses the parity gate card next.",
+  "2026-07-05: 2819 creates the 6-row builder_value_kind_parameter_classifier Rust-oracle fixture and chooses the Hako-native implementation card next.",
+  "2026-07-05: 2818 selects builder_value_kind_parameter_classifier as the one-hundred-forty-third narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
   "2026-07-05: 2817 adopts array_text_loop_session_backend_session_lowering_allowed_classifier as the one-hundred-forty-second narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
   "2026-07-05: 2816 adds the array_text_loop_session_backend_session_lowering_allowed_classifier Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
   "2026-07-05: 2815 adds the hand-authored array_text_loop_session_backend_session_lowering_allowed_classifier .hako implementation and chooses the parity gate card next.",
@@ -342,9 +349,4 @@ landed_tail = [
   "2026-07-05: 2813 selects array_text_loop_session_backend_session_lowering_allowed_classifier as the one-hundred-forty-second narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
   "2026-07-05: 2812 adopts block_contract_kind_label_formatter as the one-hundred-forty-first narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
   "2026-07-05: 2811 adds the block_contract_kind_label_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
-  "2026-07-05: 2810 adds the hand-authored block_contract_kind_label_formatter .hako implementation and chooses the parity gate card next.",
-  "2026-07-05: 2809 creates the 4-row block_contract_kind_label_formatter Rust-oracle fixture and chooses the Hako-native implementation card next.",
-  "2026-07-05: 2808 selects block_contract_kind_label_formatter as the one-hundred-forty-first narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
-  "2026-07-05: 2807 adopts array_string_len_window_effect_tags_formatter as the one-hundred-fortieth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
-  "2026-07-05: 2806 adds the array_string_len_window_effect_tags_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
 ]

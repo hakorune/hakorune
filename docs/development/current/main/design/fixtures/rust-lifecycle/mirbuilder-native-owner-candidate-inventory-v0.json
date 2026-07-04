@@ -758,6 +758,20 @@
       "status": "adopted_complete"
     },
     {
+      "adoption_card": "docs/development/current/main/phases/phase-296x/2822-MIRBUILDER-BUILDER-VALUE-KIND-PARAMETER-CLASSIFIER-HAKO-ADOPTION-DECISION-001.md",
+      "adoption_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-builder-value-kind-parameter-classifier-hako-adoption-decision-v0.json",
+      "candidate_kind": "classifier",
+      "hako_source": "lang/src/compiler/lib/builder_value_kind_parameter_classifier.hako",
+      "logical_owner": "builder_value_kind_parameter_classifier",
+      "missing": [],
+      "owner": "builder_value_kind_parameter_classifier",
+      "owner_from_fixture": "builder_value_kind_parameter_classifier",
+      "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_builder_value_kind_parameter_classifier_parity_gate.sh",
+      "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-builder-value-kind-parameter-classifier-rust-oracle-v0.json",
+      "selected_next_card": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-146",
+      "status": "adopted_complete"
+    },
+    {
       "adoption_card": "docs/development/current/main/phases/phase-296x/2672-MIRBUILDER-CALL-LOWERING-CONSTRUCTOR-NAME-CLASSIFIER-HAKO-ADOPTION-DECISION-001.md",
       "adoption_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-call-lowering-constructor-name-classifier-hako-adoption-decision-v0.json",
       "candidate_kind": "classifier",
@@ -12763,7 +12777,7 @@
   "summary": {
     "existing_artifacts": {
       "by_candidate_kind": {
-        "classifier": 46,
+        "classifier": 47,
         "collector": 1,
         "formatter": 34,
         "label_formatter": 50,
@@ -12772,11 +12786,11 @@
         "vocabulary": 1
       },
       "by_status": {
-        "adopted_complete": 139,
+        "adopted_complete": 140,
         "adopted_incomplete_inventory": 13
       },
       "incomplete_owner_count": 13,
-      "owner_count": 152
+      "owner_count": 153
     },
     "source_scan": {
       "by_reject_reason": {

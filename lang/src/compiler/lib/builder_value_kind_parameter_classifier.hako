@@ -1,0 +1,17 @@
+// builder_value_kind_parameter_classifier.hako - hand-authored value-kind parameter classifier
+//
+// Responsibility:
+// - classify MirValueKind parameter membership
+// - stay pure: scalar kind token in, boolean text out
+//
+// Non-responsibility:
+// - ValueId registration
+// - typed-value allocation
+// - backend lowering
+// - MIR mutation
+static box BuilderValueKindParameterClassifierBox {
+  is_parameter(kind) {
+    if kind == "Parameter" { return "true" }
+    return "false"
+  }
+}
