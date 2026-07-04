@@ -25,10 +25,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-AGG-LOCAL-SCALARIZATION-INLINE-SCALAR-USER-BOX-LOCAL-BODY-CLASSIFIER-HAKO-ADOPTION-DECISION-001.
-  The agg_local_scalarization_inline_scalar_user_box_local_body_classifier
-  owner is HakoAdopted as the ninety-sixth narrow Rust-oracle parity pilot;
-  next is rerun 098.
+  MIRBUILDER-ARRAY-TEXT-COMBINED-REGION-PROOF-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.
+  The array_text_combined_region_proof_label_formatter owner is HakoAdopted
+  as the ninety-seventh narrow Rust-oracle parity pilot; next is rerun 099.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -61,7 +60,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-098
+  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-099
 
 normal operating rule:
   One RERUN adopts exactly one owner, advances the pointer, then stops.
@@ -71,13 +70,13 @@ normal operating rule:
   under `Working Rules`.
 
 latest design decision:
-  agg_local_scalarization_inline_scalar_user_box_local_body_classifier is now
-  HakoAdopted as a narrow Rust-oracle parity pilot owner after a green 4-row
-  `.hako` EXE parity gate.
+  array_text_combined_region_proof_label_formatter is now HakoAdopted as a
+  narrow Rust-oracle parity pilot owner after a green 1-row `.hako` EXE parity
+  gate.
   Array-text route matching, observer contract handling, backend lowering, and
   MIR mutation remain Rust.
   The selected next card is
-  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-098`.
+  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-099`.
 
 current fail-fast boundary:
   Do not re-enter full converter route selection without new non-self-signed authority or stable input delta. The adopted pilot scopes are narrow pure owners only: classification/formatting vocabulary, tiny mutation-frame leaves, label/tag surfaces, and fixture-backed parity helpers.
