@@ -25,10 +25,10 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-ARRAY-TEXT-COMBINED-REGION-EFFECT-FORMATTER-HAKO-ADOPTION-DECISION-001.
-  The array_text_combined_region_effect_formatter owner is HakoAdopted as the
-  one-hundred-second narrow Rust-oracle parity pilot after the green 4-row
-  `.hako` EXE parity gate; next is rerun 104.
+  MIRBUILDER-ARRAY-STRING-LEN-WINDOW-MODE-FORMATTER-HAKO-ADOPTION-DECISION-001.
+  The array_string_len_window_mode_formatter owner is HakoAdopted as the
+  one-hundred-third narrow Rust-oracle parity pilot after the green 3-row
+  `.hako` EXE parity gate; next is rerun 105.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -61,7 +61,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-104
+  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-105
 
 normal operating rule:
   One RERUN adopts exactly one owner, advances the pointer, then stops.
@@ -71,16 +71,16 @@ normal operating rule:
   under `Working Rules`.
 
 latest design decision:
-  array_text_combined_region_effect_formatter is now HakoAdopted as a narrow
-  Rust-oracle parity pilot owner after a green 4-row `.hako` EXE parity gate.
-  Array-text route matching, observer contract handling, backend lowering, and
-  MIR mutation remain Rust.
+  array_string_len_window_mode_formatter is now HakoAdopted as a narrow
+  Rust-oracle parity pilot owner after a green 3-row `.hako` EXE parity gate.
+  Array-string len-window matching, backend lowering, and MIR mutation remain
+  Rust.
   The selected next card is
-  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-104`.
+  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-105`.
 
 current fail-fast boundary:
   Do not re-enter full converter route selection without new non-self-signed authority or stable input delta. The adopted pilot scopes are narrow pure owners only: classification/formatting vocabulary, tiny mutation-frame leaves, label/tag surfaces, and fixture-backed parity helpers.
-  Recent adopted formatters cover Sum variants, MirType, effect/capability plans, route/proof labels, loop deny reasons, byte-boundary proof labels, and array-text effect labels. Metadata refresh, route collection, const emission, full AST traversal, method dispatch, string corridor fact inference, same-module definition closure collection, receiver origin resolution, key route classification, route convergence, closure callsite canonicalization, NewClosure rewrite, lowering execution, Region construction, GC retain/release, loop feature extraction, loop route classification, planner route selection, thin-entry candidate collection/selection, manifest generation, observer route derivation, region matching, combined region planning, and MirBuilder mutation remain Rust.
+  Recent adopted formatters cover Sum variants, MirType, effect/capability plans, route/proof labels, loop deny reasons, byte-boundary proof labels, array-text effect labels, and len-window modes. Metadata refresh, route collection, const emission, full AST traversal, method dispatch, string corridor fact inference, same-module definition closure collection, receiver origin resolution, key route classification, route convergence, closure callsite canonicalization, NewClosure rewrite, lowering execution, Region construction, GC retain/release, loop feature extraction, loop route classification, planner route selection, thin-entry candidate collection/selection, manifest generation, observer route derivation, region matching, combined region planning, and MirBuilder mutation remain Rust.
   Payload-type layout binding, sum placement layout refresh, string-kernel plan
   construction, legality analysis, publication logic, array/text route matching,
   exact-shape payload construction, session derivation, executor planning, sum

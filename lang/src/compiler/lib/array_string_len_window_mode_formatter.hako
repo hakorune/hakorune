@@ -1,0 +1,25 @@
+// array_string_len_window_mode_formatter.hako - hand-authored len-window mode formatter
+//
+// Responsibility:
+// - format ArrayStringLenWindowMode names into Rust oracle text
+// - stay pure: scalar mode token in, scalar text out
+//
+// Non-responsibility:
+// - array string len-window matching
+// - string corridor matching
+// - backend lowering
+// - MIR mutation
+static box ArrayStringLenWindowModeFormatterBox {
+  format_mode(mode) {
+    if mode == "LenOnly" {
+      return "len_only"
+    }
+    if mode == "KeepGetLive" {
+      return "keep_get_live"
+    }
+    if mode == "SourceOnlyInsertMid" {
+      return "source_only_insert_mid"
+    }
+    return "unsupported_array_string_len_window_mode"
+  }
+}

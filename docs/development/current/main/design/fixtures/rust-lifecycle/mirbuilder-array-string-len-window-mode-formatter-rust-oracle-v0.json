@@ -1,0 +1,36 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderArrayStringLenWindowModeFormatterRustOracleV1",
+  "token": "MIRBUILDER-ARRAY-STRING-LEN-WINDOW-MODE-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "array_string_len_window_mode_formatter",
+  "rust_source": {
+    "path": "src/mir/array_string_len_window_plan.rs",
+    "hash": "sha256:0d8aa1d6b4f9c5f74f8b7766db8a7cb29e5d3b1ddc0a6f1d2cda0b0f2a83ad1f",
+    "oracle_surface": "ArrayStringLenWindowMode formatter"
+  },
+  "rows": [
+    {
+      "mode": "LenOnly",
+      "expected": "len_only"
+    },
+    {
+      "mode": "KeepGetLive",
+      "expected": "keep_get_live"
+    },
+    {
+      "mode": "SourceOnlyInsertMid",
+      "expected": "source_only_insert_mid"
+    }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "array_string_len_window_matching_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}
