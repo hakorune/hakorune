@@ -345,13 +345,13 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-LOOP-COND-CONTINUE-WITH-RETURN-FACTS-HAKOADOPTED-DECISION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2943-MIRBUILDER-LOOP-COND-CONTINUE-WITH-RETURN-FACTS-HAKOADOPTED-DECISION-001.md"
+latest_card = "MIRBUILDER-FACT-OWNER-PARITY-PILOT-SELECTION-020"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2944-MIRBUILDER-FACT-OWNER-PARITY-PILOT-SELECTION-020.md"
 latest_card_summary = """The latest card lands
-loop_cond_continue_with_return_facts.authority_facade as a scoped HakoAdopted
-Fact owner after green 10-row parity. Recursive hetero-return traversal,
-RecipeBody/RecipeItem construction, route selection, backend lowering, MIR
-mutation, ID allocation, and Source Selfhost remain unclaimed."""
+selection-020 and chooses loop_cond_return_in_body_facts.authority_facade as
+the next fixture-backed parity pilot. Shape-specific AST traversal,
+balanced-depth policy, recipe construction, route selection, backend lowering,
+MIR mutation, ID allocation, and Source Selfhost remain unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -362,6 +362,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-05: 2944 selects try_extract_loop_cond_return_in_body_facts as the next authority-facade parity pilot; shape traversal and recipe construction remain Rust.",
   "2026-07-05: 2943 adopts loop_cond_continue_with_return_facts.authority_facade as a scoped HakoAdopted Fact owner; recursive hetero-return traversal and recipe construction remain Rust.",
   "2026-07-05: 2942 lands loop_cond_continue_with_return_facts authority-facade parity; HakoAdopted decision is next.",
   "2026-07-05: 2941 selects try_extract_loop_cond_continue_with_return_facts as the next authority-facade parity pilot; hetero-return traversal and recipe construction remain Rust.",
@@ -373,5 +374,4 @@ landed_tail = [
   "2026-07-05: 2935 selects try_extract_loop_true_early_exit_facts as the next authority-facade parity pilot; control-flow traversal and exit/carrier AST construction remain Rust.",
   "2026-07-05: 2934 adopts loop_array_join_facts.authority_facade as a scoped HakoAdopted Fact owner; separator-guard/array-append AST construction remains Rust.",
   "2026-07-05: 2933 lands loop_array_join_facts authority-facade parity; HakoAdopted decision is next.",
-  "2026-07-05: 2932 selects try_extract_loop_array_join_facts as the next authority-facade parity pilot; separator-guard/array-append AST construction remains Rust.",
 ]
