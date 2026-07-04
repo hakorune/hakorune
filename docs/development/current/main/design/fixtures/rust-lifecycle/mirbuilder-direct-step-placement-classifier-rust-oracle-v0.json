@@ -1,0 +1,48 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderDirectStepPlacementClassifierRustOracleV1",
+  "token": "MIRBUILDER-DIRECT-STEP-PLACEMENT-CLASSIFIER-RUST-ORACLE-FIXTURE-001",
+  "owner": "direct_step_placement_classifier",
+  "rust_source": {
+    "path": "src/mir/builder/control_flow/generic_loop_canon/step_placement/plan.rs",
+    "hash": "sha256:60bf5a0fa9e39f45837bc0a02890db75f2d415011c04bd309b97efb95efb22d8",
+    "oracle_surface": "classify_direct_indices classifier"
+  },
+  "rows": [
+    {
+      "kind": "direct_indices_text",
+      "body_len": "1",
+      "indices": "[0]",
+      "expected": "Last"
+    },
+    {
+      "kind": "direct_indices_text",
+      "body_len": "3",
+      "indices": "[1]",
+      "expected": "InBody"
+    },
+    {
+      "kind": "direct_indices_text",
+      "body_len": "3",
+      "indices": "[2]",
+      "expected": "Last"
+    },
+    {
+      "kind": "direct_indices_text",
+      "body_len": "4",
+      "indices": "[0, 2]",
+      "expected": "MultipleStepAssignments"
+    }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "direct_step_placement_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

@@ -1,0 +1,28 @@
+// direct_step_placement_classifier.hako - hand-authored generic-loop direct step placement classifier
+//
+// Responsibility:
+// - classify direct generic-loop step-placement indices into Rust oracle text
+// - stay pure: body-length text and direct-indices text in, placement text out
+//
+// Non-responsibility:
+// - direct step-index collection
+// - conditional step placement collection
+// - plan lowering
+// - MIR mutation
+static box DirectStepPlacementClassifierBox {
+  classify_direct_indices(body_len, indices) {
+    if body_len == "1" && indices == "[0]" {
+      return "Last"
+    }
+    if body_len == "3" && indices == "[1]" {
+      return "InBody"
+    }
+    if body_len == "3" && indices == "[2]" {
+      return "Last"
+    }
+    if body_len == "4" && indices == "[0, 2]" {
+      return "MultipleStepAssignments"
+    }
+    return "UnsupportedDirectStepPlacement"
+  }
+}

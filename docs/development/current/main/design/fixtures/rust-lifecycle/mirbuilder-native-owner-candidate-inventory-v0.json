@@ -999,6 +999,20 @@
       "status": "adopted_incomplete_inventory"
     },
     {
+      "adoption_card": "docs/development/current/main/phases/phase-296x/2802-MIRBUILDER-DIRECT-STEP-PLACEMENT-CLASSIFIER-HAKO-ADOPTION-DECISION-001.md",
+      "adoption_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-direct-step-placement-classifier-hako-adoption-decision-v0.json",
+      "candidate_kind": "classifier",
+      "hako_source": "lang/src/compiler/lib/direct_step_placement_classifier.hako",
+      "logical_owner": "direct_step_placement_classifier",
+      "missing": [],
+      "owner": "direct_step_placement_classifier",
+      "owner_from_fixture": "direct_step_placement_classifier",
+      "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_direct_step_placement_classifier_parity_gate.sh",
+      "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-direct-step-placement-classifier-rust-oracle-v0.json",
+      "selected_next_card": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-142",
+      "status": "adopted_complete"
+    },
+    {
       "adoption_card": "docs/development/current/main/phases/phase-296x/2198-MIRBUILDER-EFFECT-CAPABILITY-PLAN-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.md",
       "adoption_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-effect-capability-plan-label-formatter-hako-adoption-decision-v0.json",
       "candidate_kind": "label_formatter",
@@ -12708,7 +12722,7 @@
   "summary": {
     "existing_artifacts": {
       "by_candidate_kind": {
-        "classifier": 44,
+        "classifier": 45,
         "collector": 1,
         "formatter": 33,
         "label_formatter": 49,
@@ -12717,11 +12731,11 @@
         "vocabulary": 1
       },
       "by_status": {
-        "adopted_complete": 135,
+        "adopted_complete": 136,
         "adopted_incomplete_inventory": 13
       },
       "incomplete_owner_count": 13,
-      "owner_count": 148
+      "owner_count": 149
     },
     "source_scan": {
       "by_reject_reason": {

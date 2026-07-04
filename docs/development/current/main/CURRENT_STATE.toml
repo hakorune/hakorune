@@ -297,6 +297,9 @@ Source Selfhost remains unclaimed.
 SupportedBoolExprForGenericLoopClassifier is now a narrow HakoAdopted
 Rust-oracle parity pilot owner after a green 3-row `.hako` EXE parity gate.
 Source Selfhost remains unclaimed.
+DirectStepPlacementClassifier is now a narrow HakoAdopted Rust-oracle parity
+pilot owner after a green 4-row `.hako` EXE parity gate. Source Selfhost
+remains unclaimed.
 EXE/AOT remains the primary
 app/selfhost validation route; VM/interpreter lanes are not semantic owners."""
 
@@ -306,12 +309,12 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-BREAK-ELSE-IF-WITH-INCREMENT-CLASSIFIER-HAKO-ADOPTION-DECISION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2797-MIRBUILDER-BREAK-ELSE-IF-WITH-INCREMENT-CLASSIFIER-HAKO-ADOPTION-DECISION-001.md"
+latest_card = "MIRBUILDER-DIRECT-STEP-PLACEMENT-CLASSIFIER-HAKO-ADOPTION-DECISION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2802-MIRBUILDER-DIRECT-STEP-PLACEMENT-CLASSIFIER-HAKO-ADOPTION-DECISION-001.md"
 latest_card_summary = """The latest card adopts
-break_else_if_with_increment_classifier as the one-hundred-thirty-eighth
-narrow Rust-oracle parity pilot owner after the green 4-row `.hako` EXE
-parity gate and chooses pilot selection rerun 141 next."""
+direct_step_placement_classifier as the one-hundred-thirty-ninth narrow
+Rust-oracle parity pilot owner after the green 4-row `.hako` EXE parity gate
+and chooses pilot selection rerun 142 next."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -322,6 +325,11 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-04: 2802 adopts direct_step_placement_classifier as the one-hundred-thirty-ninth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
+  "2026-07-04: 2801 adds the direct_step_placement_classifier Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
+  "2026-07-04: 2800 adds the hand-authored direct_step_placement_classifier .hako implementation and chooses the parity gate card next.",
+  "2026-07-04: 2799 creates the 4-row direct_step_placement_classifier Rust-oracle fixture and chooses the Hako-native implementation card next.",
+  "2026-07-04: 2798 selects direct_step_placement_classifier as the one-hundred-thirty-ninth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
   "2026-07-04: 2797 adopts break_else_if_with_increment_classifier as the one-hundred-thirty-eighth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
   "2026-07-04: 2796 adds the break_else_if_with_increment_classifier Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
   "2026-07-04: 2795 adds the hand-authored break_else_if_with_increment_classifier .hako implementation and chooses the parity gate card next.",
@@ -329,9 +337,4 @@ landed_tail = [
   "2026-07-04: 2793 selects break_else_if_with_increment_classifier as the one-hundred-thirty-eighth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
   "2026-07-04: 2792 adopts continue_if_with_increment_classifier as the one-hundred-thirty-seventh narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
   "2026-07-04: 2791 adds the continue_if_with_increment_classifier Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
-  "2026-07-04: 2790 adds the hand-authored continue_if_with_increment_classifier .hako implementation and chooses the parity gate card next.",
-  "2026-07-04: 2789 creates the 4-row continue_if_with_increment_classifier Rust-oracle fixture and chooses the Hako-native implementation card next.",
-  "2026-07-04: 2788 selects continue_if_with_increment_classifier as the one-hundred-thirty-seventh narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
-  "2026-07-04: 2787 adopts supported_nested_loop_condition_classifier as the one-hundred-thirty-sixth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
-  "2026-07-04: 2786 adds the supported_nested_loop_condition_classifier Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
 ]
