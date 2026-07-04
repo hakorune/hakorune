@@ -25,10 +25,10 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-ARRAY-STRING-LEN-WINDOW-EFFECT-TAGS-FORMATTER-HAKO-ADOPTION-DECISION-001.
-  The array_string_len_window_effect_tags_formatter owner is HakoAdopted as
-  the one-hundred-fortieth narrow Rust-oracle parity pilot after the green
-  3-row `.hako` EXE parity gate; next is rerun 143.
+  MIRBUILDER-BLOCK-CONTRACT-KIND-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.
+  The block_contract_kind_label_formatter owner is HakoAdopted as the
+  one-hundred-forty-first narrow Rust-oracle parity pilot after the green
+  4-row `.hako` EXE parity gate; next is rerun 144.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -61,7 +61,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-143
+  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-144
 
 normal operating rule:
   One RERUN adopts exactly one owner, advances the pointer, then stops.
@@ -71,6 +71,11 @@ normal operating rule:
   under `Working Rules`.
 
 latest design decision:
+  block_contract_kind_label_formatter is now HakoAdopted as a narrow
+  Rust-oracle parity pilot owner after a green 4-row `.hako` EXE parity gate.
+  VerifiedRecipeBlock kind vocabulary remains Rust. Backend lowering and MIR
+  mutation remain Rust. The selected next card is
+  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-144`.
   array_string_len_window_effect_tags_formatter is now HakoAdopted as a
   narrow Rust-oracle parity pilot owner after a green 3-row `.hako` EXE
   parity gate. Array-string len-window effect-tags formatting remains Rust.

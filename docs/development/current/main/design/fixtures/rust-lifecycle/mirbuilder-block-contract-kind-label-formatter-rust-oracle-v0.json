@@ -1,0 +1,27 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderBlockContractKindLabelFormatterRustOracleV1",
+  "token": "MIRBUILDER-BLOCK-CONTRACT-KIND-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "block_contract_kind_label_formatter",
+  "rust_source": {
+    "path": "src/mir/builder/control_flow/plan/recipe_tree/verified.rs",
+    "hash": "sha256:9798a7fbd468108feb01c5fca500619e700c7aa7f5a781c2beb4b12d08985d3b",
+    "oracle_surface": "VerifiedRecipeBlock kind BlockContractKind vocabulary"
+  },
+  "rows": [
+    {"kind": "StmtOnly", "expected": "StmtOnly"},
+    {"kind": "NoExit", "expected": "NoExit"},
+    {"kind": "ExitAllowed", "expected": "ExitAllowed"},
+    {"kind": "ExitOnly", "expected": "ExitOnly"}
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "recipe_tree_verified_kind_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

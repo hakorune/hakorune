@@ -1,0 +1,20 @@
+// block_contract_kind_label_formatter.hako - hand-authored block contract kind label formatter
+//
+// Responsibility:
+// - format narrow BlockContractKind vocabulary into Rust oracle text
+// - stay pure: scalar token in, scalar text out
+//
+// Non-responsibility:
+// - RecipeBlock verification
+// - plan assembly
+// - backend lowering
+// - MIR mutation
+static box BlockContractKindLabelFormatterBox {
+  format_kind(kind) {
+    if kind == "StmtOnly" { return "StmtOnly" }
+    if kind == "NoExit" { return "NoExit" }
+    if kind == "ExitAllowed" { return "ExitAllowed" }
+    if kind == "ExitOnly" { return "ExitOnly" }
+    return "unsupported_block_contract_kind"
+  }
+}
