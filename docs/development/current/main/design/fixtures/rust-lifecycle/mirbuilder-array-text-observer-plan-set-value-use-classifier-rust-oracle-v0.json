@@ -1,0 +1,43 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderArrayTextObserverPlanSetValueUseClassifierRustOracleV1",
+  "token": "MIRBUILDER-ARRAY-TEXT-OBSERVER-PLAN-SET-VALUE-USE-CLASSIFIER-RUST-ORACLE-FIXTURE-001",
+  "owner": "array_text_observer_plan_set_value_use_classifier",
+  "rust_source": {
+    "path": "src/mir/array_text_observer_plan/diagnostic.rs",
+    "hash": "sha256:16f85f4a0410e78a89dfd0fb9a8d390c14d1f4d7bc0a1a8a45ce6e0dbd79c0c1",
+    "oracle_surface": "ArrayTextObserverPlan set-value-use classifier"
+  },
+  "rows": [
+    {
+      "method": "set",
+      "arity": 2,
+      "value_position": "rhs",
+      "expected": "true"
+    },
+    {
+      "method": "set",
+      "arity": 2,
+      "value_position": "lhs",
+      "expected": "false"
+    },
+    {
+      "method": "get",
+      "arity": 2,
+      "value_position": "rhs",
+      "expected": "false"
+    }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "array_text_route_matching_migration": 0,
+    "array_text_observer_contract_handling_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

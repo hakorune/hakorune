@@ -1,0 +1,19 @@
+// array_text_observer_plan_set_value_use_classifier.hako - hand-authored set-value-use classifier
+//
+// Responsibility:
+// - classify ArrayTextObserverPlan set-value-use membership
+// - stay pure: scalar method/shape token in, boolean text out
+//
+// Non-responsibility:
+// - array/text observer route matching
+// - observer contract handling
+// - backend lowering
+// - MIR mutation
+static box ArrayTextObserverPlanSetValueUseClassifierBox {
+  is_set_value_use(method, arity, value_position) {
+    if method == "set" && arity == "2" && value_position == "rhs" {
+      return "true"
+    }
+    return "false"
+  }
+}
