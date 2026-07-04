@@ -1,0 +1,29 @@
+// array_text_loop_session_region_payload_add_const_one_from_classifier.hako - hand-authored loop-session add-const-one classifier
+//
+// Responsibility:
+// - classify the loop-session add-const-one pattern
+// - stay pure: scalar pattern tokens in, boolean text out
+//
+// Non-responsibility:
+// - array-text loop-session planning
+// - backend lowering
+// - MIR mutation
+static box ArrayTextLoopSessionRegionPayloadAddConstOneFromClassifierBox {
+  is_add_const_one_from(
+    dst_matches_next_value,
+    source_value_matches_lhs_root,
+    source_value_matches_rhs_root,
+    rhs_is_const_one,
+    lhs_is_const_one,
+  ) {
+    if dst_matches_next_value == "true" {
+      if source_value_matches_lhs_root == "true" && rhs_is_const_one == "true" {
+        return "true"
+      }
+      if source_value_matches_rhs_root == "true" && lhs_is_const_one == "true" {
+        return "true"
+      }
+    }
+    return "false"
+  }
+}
