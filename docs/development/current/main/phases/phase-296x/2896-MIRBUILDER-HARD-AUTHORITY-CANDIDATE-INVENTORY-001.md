@@ -26,6 +26,21 @@ Why this candidate first:
 candidates. They are still part of the inventory, but they are not the first
 slice.
 
+## Worker Inventory Note
+
+The current worker scan confirmed the Fact boundary and kept the next slice
+small:
+
+- `try_extract_loop_feature_facts` is read-only and returns `LoopFeatureFacts`
+- the observable contract is `nested_loop`, `exit_usage`, `exit_map`,
+  `value_join=None`, and `cleanup=None`
+- `ScopeBox` flattening is caller-owned in `loop_builder.rs`
+- `flatten_scope_boxes` is analysis-only
+- wrapper nodes outside `If` are invisible to exit usage unless the caller has
+  already flattened them
+- `build_plan_with_facts_ctx` and `try_build_outcome` stay held until the Fact
+  slice lands
+
 ## Fixture Contract
 
 The first Rust oracle fixture for this slice should freeze the primary
