@@ -345,13 +345,13 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-LOOP-SKELETON-FACTS-AUTHORITY-FACADE-PARITY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2918-MIRBUILDER-LOOP-SKELETON-FACTS-AUTHORITY-FACADE-PARITY-001.md"
+latest_card = "MIRBUILDER-LOOP-SKELETON-FACTS-HAKOADOPTED-DECISION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2919-MIRBUILDER-LOOP-SKELETON-FACTS-HAKOADOPTED-DECISION-001.md"
 latest_card_summary = """The latest card lands
-LoopSkeletonFacts authority-facade parity for the constant loop skeleton DTO:
-accepted Loop with zero feature slots. Broad crate splitting, feature-slot
-inference, full AST traversal, route selection, backend lowering, MIR mutation,
-ID allocation, and Source Selfhost remain unclaimed."""
+loop_skeleton_facts.authority_facade as a scoped HakoAdopted Fact owner after
+green 3-row parity. Feature-slot inference, full AST traversal, broad crate
+splitting, route selection, backend lowering, MIR mutation, ID allocation, and
+Source Selfhost remain unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -362,6 +362,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-05: 2919 adopts loop_skeleton_facts.authority_facade as a scoped HakoAdopted Fact owner; feature-slot inference remains Rust/gated.",
   "2026-07-05: 2918 lands loop_skeleton_facts authority-facade parity; HakoAdopted decision is next.",
   "2026-07-05: 2917 selects try_extract_loop_skeleton_facts as the next authority-facade parity pilot; loop_feature full AST traversal remains gated.",
   "2026-07-05: 2916 fixes authority facade before crate split; next hard-authority pilot must prove DTO parity before crate extraction.",
@@ -373,5 +374,4 @@ landed_tail = [
   "2026-07-05: 2910 lands loop_condition_shape.backend_safe_token_snapshot_reducer parity for condition-root ConditionShape observation; CondProfile remains Rust.",
   "2026-07-05: 2909 adopts loop_step_shape.backend_safe_token_snapshot_reducer as a scoped HakoAdopted Fact owner; CondProfile and lowering remain Rust.",
   "2026-07-05: 2908 lands loop_step_shape.backend_safe_token_snapshot_reducer parity for last-statement var +/- 1 observation; CondProfile and lowering remain Rust.",
-  "2026-07-05: 2907 adopts no_exit_block_recipe.backend_safe_token_snapshot_reducer as a scoped HakoAdopted Fact owner; join/lowering and Source Selfhost remain unclaimed.",
 ]

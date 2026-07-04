@@ -1,0 +1,62 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderLoopSkeletonFactsHakoAdoptedDecisionV1",
+  "token": "MIRBUILDER-LOOP-SKELETON-FACTS-HAKOADOPTED-DECISION-001",
+  "input_state": {
+    "hako_source": "lang/src/compiler/lib/loop_skeleton_facts.hako",
+    "hako_source_hash": "sha256:8b1bef20252989333460f4d4b222d6ac6b905f743f02b73967d0a417715aea9f",
+    "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-skeleton-facts-rust-oracle-v0.json",
+    "rust_oracle_fixture_hash": "sha256:1431f7e78cfffe58ec1c131d31e2752142f38600845db44ca36f88268704b1ae",
+    "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_loop_skeleton_facts_parity_gate.sh",
+    "parity_gate_hash": "sha256:0dc946f892429768d56a668e1d18e8a0e375ec94bd4180371e95556dd4e21c29"
+  },
+  "adoption_scope": {
+    "adopted_owner": "loop_skeleton_facts.authority_facade",
+    "rust_oracle_symbol": "try_extract_loop_skeleton_facts",
+    "input_contract": "BackendSafeLoopSkeletonFactsTokenSnapshotV1",
+    "native_edit_authority": "lang/src/compiler/lib/loop_skeleton_facts.hako",
+    "owned_semantics": [
+      "skeleton_acceptance",
+      "skeleton_kind_loop",
+      "empty_feature_slots"
+    ],
+    "excluded_semantics": [
+      "feature_slot_inference",
+      "full_AST_traversal",
+      "broad_crate_split",
+      "route_selection",
+      "backend_lowering",
+      "MIR_mutation",
+      "ID_allocation"
+    ]
+  },
+  "parity": {
+    "gate_status": "Green",
+    "oracle_row_count": 3,
+    "required_contract_fields": [
+      "accepted",
+      "kind",
+      "feature_slots"
+    ]
+  },
+  "decision": {
+    "kind": "HakoAdoptedScoped",
+    "reason_token": "LoopSkeletonFactsAuthorityFacadeParityGreen",
+    "selected_next_card": "MIRBUILDER-FACT-OWNER-PARITY-PILOT-SELECTION-012",
+    "backlog_card": "MIRBUILDER-LOOP-SKELETON-FEATURE-SLOT-INFERENCE-CONSULTATION-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "feature_slot_inference": 0,
+    "full_ast_traversal_adopted": 0,
+    "broad_crate_split": 0,
+    "route_selection_migrated": 0,
+    "backend_lowering_migrated": 0,
+    "mir_mutation_migrated": 0,
+    "id_allocation_migrated": 0,
+    "hako_generation": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
