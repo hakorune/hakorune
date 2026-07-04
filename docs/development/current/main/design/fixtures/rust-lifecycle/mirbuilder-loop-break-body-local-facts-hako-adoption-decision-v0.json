@@ -1,0 +1,71 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderLoopBreakBodyLocalFactsHakoAdoptedDecisionV1",
+  "token": "MIRBUILDER-LOOP-BREAK-BODY-LOCAL-FACTS-HAKOADOPTED-DECISION-001",
+  "input_state": {
+    "hako_source": "lang/src/compiler/lib/loop_break_body_local_facts.hako",
+    "hako_source_hash": "sha256:bdea0672bfb7e22412dae2f60e65bb0b7f86486234e7b619650fa337f9c2d35d",
+    "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-break-body-local-facts-rust-oracle-v0.json",
+    "rust_oracle_fixture_hash": "sha256:3289c9c5ceb8f9101eda2a30e62f712a242cba0df35e5b43d40e202a4a022a2a",
+    "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_loop_break_body_local_facts_parity_gate.sh",
+    "parity_gate_hash": "sha256:6de6890323b0e932801b7c7520c3a0dff55b9e1d252eecfaae9eb2d7fc294617"
+  },
+  "adoption_scope": {
+    "adopted_owner": "loop_break_body_local_facts.authority_facade",
+    "rust_oracle_symbol": "try_extract_loop_break_body_local_facts",
+    "input_contract": "BackendSafeLoopBreakBodyLocalFactsTokenSnapshotV1",
+    "native_edit_authority": "lang/src/compiler/lib/loop_break_body_local_facts.hako",
+    "owned_semantics": [
+      "loop_break_body_local_acceptance",
+      "condition_len_loop_token",
+      "body_local_shape_token",
+      "loop_var_token",
+      "body_local_var_token",
+      "reject_reason_token"
+    ],
+    "excluded_semantics": [
+      "full_AST_traversal",
+      "loop_break_subset_dispatch",
+      "break_if_analysis",
+      "loop_increment_extraction",
+      "synthetic_break_condition_construction",
+      "route_selection",
+      "backend_lowering",
+      "MIR_mutation",
+      "ID_allocation"
+    ]
+  },
+  "parity": {
+    "gate_status": "Green",
+    "oracle_row_count": 6,
+    "required_contract_fields": [
+      "accepted",
+      "reason",
+      "loop_var",
+      "body_local_var",
+      "shape"
+    ]
+  },
+  "decision": {
+    "kind": "HakoAdoptedScoped",
+    "reason_token": "LoopBreakBodyLocalFactsAuthorityFacadeParityGreen",
+    "selected_next_card": "MIRBUILDER-FACT-OWNER-PARITY-PILOT-SELECTION-022",
+    "backlog_card": "MIRBUILDER-LOOP-BREAK-FULL-SUBSET-DISPATCH-CONSULTATION-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "full_ast_traversal_adopted": 0,
+    "loop_break_subset_dispatch_migrated": 0,
+    "break_if_analysis_migrated": 0,
+    "loop_increment_extraction_migrated": 0,
+    "synthetic_break_condition_construction_migrated": 0,
+    "route_selection_migrated": 0,
+    "backend_lowering_migrated": 0,
+    "mir_mutation_migrated": 0,
+    "id_allocation_migrated": 0,
+    "hako_generation": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
