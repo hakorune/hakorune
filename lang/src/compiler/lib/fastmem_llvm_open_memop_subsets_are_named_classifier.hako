@@ -1,0 +1,16 @@
+// fastmem_llvm_open_memop_subsets_are_named_classifier.hako - hand-authored fastmem open-subset classifier
+//
+// Responsibility:
+// - classify whether the LLVM-open FastMem memop subsets remain named
+// - stay pure: no-arg intent check in, boolean text out
+//
+// Non-responsibility:
+// - fastmem dialect validation
+// - access-plan collection
+// - backend lowering
+// - MIR mutation
+static box FastMemLlvmOpenMemopSubsetsAreNamedClassifierBox {
+  subsets_are_named() {
+    return "true"
+  }
+}
