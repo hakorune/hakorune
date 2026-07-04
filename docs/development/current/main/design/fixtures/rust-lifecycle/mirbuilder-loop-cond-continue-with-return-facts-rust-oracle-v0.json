@@ -1,0 +1,132 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderLoopCondContinueWithReturnFactsRustOracleV1",
+  "token": "MIRBUILDER-LOOP-COND-CONTINUE-WITH-RETURN-FACTS-RUST-ORACLE-FIXTURE-001",
+  "owner": "loop_cond_continue_with_return_facts",
+  "rust_source": {
+    "path": "src/mir/builder/control_flow/facts/loop_cond_continue_with_return.rs",
+    "hash": "sha256:aa27fac2cd86724de8aac4dbdcadeeb422a837312466170cddda5f0405f0b74e",
+    "oracle_surface": "try_extract_loop_cond_continue_with_return_facts"
+  },
+  "input_contract": "BackendSafeLoopCondContinueWithReturnFactsTokenSnapshotV1",
+  "rows": [
+    {
+      "case_id": "accept_depth1",
+      "gate_token": "GateEnabled",
+      "condition_token": "CondILessLen",
+      "counts_token": "CountsContinue1Break0Return1Nested0",
+      "body_token": "ContinueIfThenHeteroReturnDepth1",
+      "expected_accept": true,
+      "expected_body_shape": "continue_if+hetero_return_if",
+      "expected_return_depth": 1,
+      "expected_summary": "accepted=1;condition=i_less_len;body_shape=continue_if+hetero_return_if;return_depth=1"
+    },
+    {
+      "case_id": "accept_depth3",
+      "gate_token": "GateEnabled",
+      "condition_token": "CondIndexLessSize",
+      "counts_token": "CountsContinue1Break0Return1Nested0",
+      "body_token": "ContinueIfThenHeteroReturnDepth3",
+      "expected_accept": true,
+      "expected_body_shape": "continue_if+hetero_return_if",
+      "expected_return_depth": 3,
+      "expected_summary": "accepted=1;condition=index_less_size;body_shape=continue_if+hetero_return_if;return_depth=3"
+    },
+    {
+      "case_id": "accept_two_continue_sites",
+      "gate_token": "GateEnabled",
+      "condition_token": "CondILessLen",
+      "counts_token": "CountsContinue2Break0Return1Nested0",
+      "body_token": "TwoContinueIfThenHeteroReturnDepth1",
+      "expected_accept": true,
+      "expected_body_shape": "continue_if+hetero_return_if",
+      "expected_return_depth": 1,
+      "expected_summary": "accepted=1;condition=i_less_len;body_shape=continue_if+hetero_return_if;return_depth=1"
+    },
+    {
+      "case_id": "reject_gate_disabled",
+      "gate_token": "GateDisabled",
+      "condition_token": "CondILessLen",
+      "counts_token": "CountsContinue1Break0Return1Nested0",
+      "body_token": "ContinueIfThenHeteroReturnDepth1",
+      "expected_accept": false,
+      "expected_reason": "entry_gate_disabled",
+      "expected_summary": "accepted=0;reason=entry_gate_disabled"
+    },
+    {
+      "case_id": "reject_condition_not_supported",
+      "gate_token": "GateEnabled",
+      "condition_token": "CondCallResult",
+      "counts_token": "CountsContinue1Break0Return1Nested0",
+      "body_token": "ContinueIfThenHeteroReturnDepth1",
+      "expected_accept": false,
+      "expected_reason": "condition_not_supported",
+      "expected_summary": "accepted=0;reason=condition_not_supported"
+    },
+    {
+      "case_id": "reject_no_continue",
+      "gate_token": "GateEnabled",
+      "condition_token": "CondILessLen",
+      "counts_token": "CountsContinue0Break0Return1Nested0",
+      "body_token": "ContinueIfThenHeteroReturnDepth1",
+      "expected_accept": false,
+      "expected_reason": "no_continue",
+      "expected_summary": "accepted=0;reason=no_continue"
+    },
+    {
+      "case_id": "reject_break_present",
+      "gate_token": "GateEnabled",
+      "condition_token": "CondILessLen",
+      "counts_token": "CountsContinue1Break1Return1Nested0",
+      "body_token": "ContinueIfThenHeteroReturnDepth1",
+      "expected_accept": false,
+      "expected_reason": "break_present",
+      "expected_summary": "accepted=0;reason=break_present"
+    },
+    {
+      "case_id": "reject_no_return",
+      "gate_token": "GateEnabled",
+      "condition_token": "CondILessLen",
+      "counts_token": "CountsContinue1Break0Return0Nested0",
+      "body_token": "ContinueIfThenHeteroReturnDepth1",
+      "expected_accept": false,
+      "expected_reason": "no_return",
+      "expected_summary": "accepted=0;reason=no_return"
+    },
+    {
+      "case_id": "reject_nested_loop",
+      "gate_token": "GateEnabled",
+      "condition_token": "CondILessLen",
+      "counts_token": "CountsContinue1Break0Return1Nested1",
+      "body_token": "ContinueIfThenHeteroReturnDepth1",
+      "expected_accept": false,
+      "expected_reason": "nested_loop_present",
+      "expected_summary": "accepted=0;reason=nested_loop_present"
+    },
+    {
+      "case_id": "reject_body_shape_not_supported",
+      "gate_token": "GateEnabled",
+      "condition_token": "CondILessLen",
+      "counts_token": "CountsContinue1Break0Return1Nested0",
+      "body_token": "ContinueOnlyThenTopReturn",
+      "expected_accept": false,
+      "expected_reason": "body_shape_not_supported",
+      "expected_summary": "accepted=0;reason=body_shape_not_supported"
+    }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "full_ast_traversal_adopted": 0,
+    "recursive_hetero_return_traversal_migrated": 0,
+    "condition_ast_payload_migrated": 0,
+    "recipe_body_construction_migrated": 0,
+    "recipe_item_construction_migrated": 0,
+    "route_selection_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0,
+    "id_allocation_migration": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
