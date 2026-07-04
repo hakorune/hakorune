@@ -1,0 +1,164 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderNoExitBlockRecipeRustOracleV1",
+  "token": "MIRBUILDER-NO-EXIT-BLOCK-RECIPE-RUST-ORACLE-FIXTURE-001",
+  "owner": "no_exit_block_recipe",
+  "rust_source": {
+    "path": "src/mir/builder/control_flow/facts/no_exit_block.rs",
+    "hash": "sha256:6bf80d77b15c2921cb0f368f3ac4219d489380985b7e0a407abfbe3085a0687a",
+    "oracle_surface": "try_build_no_exit_block_recipe"
+  },
+  "input_contract": "BackendSafeNoExitBlockTokenSnapshotV1",
+  "rows": [
+    {
+      "case_id": "accept_effect_only",
+      "tokens": [
+        "Print"
+      ],
+      "expected_accept": true,
+      "expected_items": [
+        "Stmt"
+      ],
+      "expected_if_join_shapes": [],
+      "expected_loop_body_contracts": [],
+      "expected_summary": "accepted=1;block_contract=NoExit;stmt_count=1;item_kinds=Stmt;if_join_shapes=;loop_body_contracts="
+    },
+    {
+      "case_id": "accept_local_print",
+      "tokens": [
+        "Local",
+        "Print"
+      ],
+      "expected_accept": true,
+      "expected_items": [
+        "Stmt",
+        "Stmt"
+      ],
+      "expected_if_join_shapes": [],
+      "expected_loop_body_contracts": [],
+      "expected_summary": "accepted=1;block_contract=NoExit;stmt_count=2;item_kinds=Stmt,Stmt;if_join_shapes=;loop_body_contracts="
+    },
+    {
+      "case_id": "accept_if_join_else",
+      "tokens": [
+        "IfThenLocalElsePrint"
+      ],
+      "expected_accept": true,
+      "expected_items": [
+        "IfJoin"
+      ],
+      "expected_if_join_shapes": [
+        "JoinThenElse"
+      ],
+      "expected_loop_body_contracts": [],
+      "expected_summary": "accepted=1;block_contract=NoExit;stmt_count=1;item_kinds=IfJoin;if_join_shapes=JoinThenElse;loop_body_contracts="
+    },
+    {
+      "case_id": "accept_if_join_no_else",
+      "tokens": [
+        "IfThenLocalNoElse"
+      ],
+      "expected_accept": true,
+      "expected_items": [
+        "IfJoin"
+      ],
+      "expected_if_join_shapes": [
+        "JoinNoElse"
+      ],
+      "expected_loop_body_contracts": [],
+      "expected_summary": "accepted=1;block_contract=NoExit;stmt_count=1;item_kinds=IfJoin;if_join_shapes=JoinNoElse;loop_body_contracts="
+    },
+    {
+      "case_id": "accept_loop_exit_allowed_body_token",
+      "tokens": [
+        "LoopExitAllowedBody"
+      ],
+      "expected_accept": true,
+      "expected_items": [
+        "LoopV0"
+      ],
+      "expected_if_join_shapes": [],
+      "expected_loop_body_contracts": [
+        "ExitAllowed"
+      ],
+      "expected_summary": "accepted=1;block_contract=NoExit;stmt_count=1;item_kinds=LoopV0;if_join_shapes=;loop_body_contracts=ExitAllowed"
+    },
+    {
+      "case_id": "accept_scopebox_as_stmt",
+      "tokens": [
+        "ScopeBox"
+      ],
+      "expected_accept": true,
+      "expected_items": [
+        "Stmt"
+      ],
+      "expected_if_join_shapes": [],
+      "expected_loop_body_contracts": [],
+      "expected_summary": "accepted=1;block_contract=NoExit;stmt_count=1;item_kinds=Stmt;if_join_shapes=;loop_body_contracts="
+    },
+    {
+      "case_id": "reject_empty",
+      "tokens": [],
+      "expected_accept": false,
+      "expected_reason": "empty_block",
+      "expected_summary": "accepted=0;reason=empty_block"
+    },
+    {
+      "case_id": "reject_return",
+      "tokens": [
+        "Return"
+      ],
+      "expected_accept": false,
+      "expected_reason": "contains_non_local_exit",
+      "expected_summary": "accepted=0;reason=contains_non_local_exit"
+    },
+    {
+      "case_id": "reject_if_branch_return",
+      "tokens": [
+        "IfThenReturnElseLocal"
+      ],
+      "expected_accept": false,
+      "expected_reason": "contains_non_local_exit",
+      "expected_summary": "accepted=0;reason=contains_non_local_exit"
+    },
+    {
+      "case_id": "reject_unsupported_if_condition",
+      "tokens": [
+        "IfUnsupportedCondThenLocalElsePrint"
+      ],
+      "expected_accept": false,
+      "expected_reason": "unsupported_bool_expr",
+      "expected_summary": "accepted=0;reason=unsupported_bool_expr"
+    },
+    {
+      "case_id": "reject_loop_body_return",
+      "tokens": [
+        "LoopBodyReturn"
+      ],
+      "expected_accept": false,
+      "expected_reason": "contains_non_local_exit",
+      "expected_summary": "accepted=0;reason=contains_non_local_exit"
+    }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "full_ast_traversal_adopted": 0,
+    "recursive_recipe_bodies_materialization": 0,
+    "recipe_tree_materialization": 0,
+    "cond_block_view_adopted": 0,
+    "count_control_flow_adopted": 0,
+    "exit_allowed_in_arena_adopted": 0,
+    "join_if_lowering_adopted": 0,
+    "join_payload_construction_adopted": 0,
+    "join_binding_update_policy_adopted": 0,
+    "nested_loop_lowering_adopted": 0,
+    "loop_v0_lowering_adopted": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0,
+    "id_allocation_migration": 0,
+    "route_selection_migration": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

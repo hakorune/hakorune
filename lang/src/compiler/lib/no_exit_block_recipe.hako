@@ -1,0 +1,93 @@
+// no_exit_block_recipe.hako
+//
+// Responsibility:
+// - reduce a backend-safe no-exit block token snapshot into a recipe summary
+// - keep the Rust oracle contract for item sequence and structural contract tokens
+//
+// Non-responsibility:
+// - full AST traversal or recursive RecipeBodies materialization
+// - join-if lowering, LoopV0 lowering, or ExitAllowed in-arena construction
+// - backend lowering, MIR mutation, route selection, or ID allocation
+static box NoExitBlockRecipeBox {
+  build_summary(stmt0, stmt1) {
+    if stmt0 == "None" { return "accepted=0;reason=empty_block" }
+    if me._has_non_local_exit(stmt0) == 1 { return "accepted=0;reason=contains_non_local_exit" }
+    if me._has_non_local_exit(stmt1) == 1 { return "accepted=0;reason=contains_non_local_exit" }
+
+    local item0 = me._item_kind(stmt0)
+    if item0 == "Reject" { return "accepted=0;reason=" + me._reject_reason(stmt0) }
+    local item1 = me._item_kind(stmt1)
+    if item1 == "Reject" { return "accepted=0;reason=" + me._reject_reason(stmt1) }
+
+    return "accepted=1;block_contract=NoExit;stmt_count=" + me._stmt_count(stmt0, stmt1)
+      + ";item_kinds=" + me._items(item0, item1)
+      + ";if_join_shapes=" + me._if_join_shapes(stmt0, stmt1)
+      + ";loop_body_contracts=" + me._loop_contracts(stmt0, stmt1)
+  }
+
+  _has_non_local_exit(stmt) {
+    if stmt == "Break" { return 1 }
+    if stmt == "Continue" { return 1 }
+    if stmt == "Return" { return 1 }
+    if stmt == "IfThenReturnElseLocal" { return 1 }
+    if stmt == "LoopBodyReturn" { return 1 }
+    return 0
+  }
+
+  _item_kind(stmt) {
+    if stmt == "None" { return "None" }
+    if stmt == "Local" { return "Stmt" }
+    if stmt == "Print" { return "Stmt" }
+    if stmt == "ScopeBox" { return "Stmt" }
+    if stmt == "Program" { return "Stmt" }
+    if stmt == "IfThenLocalElsePrint" { return "IfJoin" }
+    if stmt == "IfThenLocalNoElse" { return "IfJoin" }
+    if stmt == "LoopExitAllowedBody" { return "LoopV0" }
+    if stmt == "IfUnsupportedCondThenLocalElsePrint" { return "Reject" }
+    if stmt == "LoopUnsupportedCond" { return "Reject" }
+    return "Reject"
+  }
+
+  _stmt_count(stmt0, stmt1) {
+    if stmt1 == "None" { return 1 }
+    return 2
+  }
+
+  _items(item0, item1) {
+    if item1 == "None" { return item0 }
+    return item0 + "," + item1
+  }
+
+  _if_join_shapes(stmt0, stmt1) {
+    local c0 = me._if_join_shape(stmt0)
+    local c1 = me._if_join_shape(stmt1)
+    if c0 == "" { return c1 }
+    if c1 == "" { return c0 }
+    return c0 + "," + c1
+  }
+
+  _if_join_shape(stmt) {
+    if stmt == "IfThenLocalElsePrint" { return "JoinThenElse" }
+    if stmt == "IfThenLocalNoElse" { return "JoinNoElse" }
+    return ""
+  }
+
+  _loop_contracts(stmt0, stmt1) {
+    local c0 = me._loop_contract(stmt0)
+    local c1 = me._loop_contract(stmt1)
+    if c0 == "" { return c1 }
+    if c1 == "" { return c0 }
+    return c0 + "," + c1
+  }
+
+  _loop_contract(stmt) {
+    if stmt == "LoopExitAllowedBody" { return "ExitAllowed" }
+    return ""
+  }
+
+  _reject_reason(stmt) {
+    if stmt == "IfUnsupportedCondThenLocalElsePrint" { return "unsupported_bool_expr" }
+    if stmt == "LoopUnsupportedCond" { return "unsupported_bool_expr" }
+    return "unsupported_stmt"
+  }
+}

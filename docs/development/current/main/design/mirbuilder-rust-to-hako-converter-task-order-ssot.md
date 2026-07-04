@@ -60,16 +60,18 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-FACT-OWNER-PARITY-PILOT-SELECTION-006
+  MIRBUILDER-NO-EXIT-BLOCK-RECIPE-TOKEN-SNAPSHOT-HAKOADOPTED-DECISION-001
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
   Next work inventories Fact-owner and REGISTRY-rule contracts, excludes
   lowering/mutation/allocation/backend-capability blockers, then selects one
   smallest fixture-backed parity candidate.
+  `try_build_no_exit_block_recipe` now has green token-snapshot parity; next is its scoped HakoAdopted decision.
   `try_build_exit_allowed_block_recipe` is now HakoAdoptedScoped for the backend-safe token snapshot reducer only; in-arena construction, NoExitBlockRecipe, join-if semantics, and lowering remain Rust.
 
 latest design decision:
+  `no_exit_block_recipe.backend_safe_token_snapshot_reducer` has green 11-row parity for symbolic Stmt / IfJoin / LoopV0 body-contract tokens; AST traversal, RecipeBodies, CondBlockView, count_control_flow, in-arena construction, lowering, mutation, allocation, and Source Selfhost remain unclaimed. The HakoAdopted decision is next.
   `exit_allowed_block_recipe.backend_safe_token_snapshot_reducer` is HakoAdoptedScoped after a green 10-row gate; recursive RecipeBodies, NoExitBlockRecipe, join-if semantics, and LoopV0 lowering are not adopted.
   `match_return_facts.backend_safe_token_snapshot_reducer` is HakoAdoptedScoped after a green 7-row gate; full AST traversal, strict/release policy, Freeze construction, BranchN composition, and return lowering are not adopted.
   `stmt_only_block_recipe.backend_safe_token_snapshot_reducer` is HakoAdoptedScoped after a green 7-row gate; ScopeBox flattening and RecipeBodies materialization are not adopted.
@@ -127,15 +129,6 @@ current fail-fast boundary:
   Recent adopted formatters cover Sum variants, MirType, effect/capability plans, route/proof labels, loop deny reasons, byte-boundary proof labels, array-text effect labels, len-window modes, observer region-contract effects, combined-region add-const-one classification, loop-session region-payload add-const-one classification, BasicBlock empty-state classification, BasicBlock terminated-state classification, BasicBlock sealed-state classification, ArrayTextResidenceSession safe-bookkeeping classification, call-lowering constructor-name classification, call-resolution commonly-shadowed-method classification, call-resolution extern-function classification, and call-resolution math-function classification. Metadata refresh, route collection, const emission, full AST traversal, method dispatch, string corridor fact inference, same-module definition closure collection, receiver origin resolution, key route classification, route convergence, closure callsite canonicalization, NewClosure rewrite, lowering execution, Region construction, GC retain/release, loop feature extraction, loop route classification, planner route selection, thin-entry candidate collection/selection, manifest generation, observer route derivation, region matching, combined region planning, and MirBuilder mutation remain Rust.
   Payload-type layout binding, sum placement layout refresh, string-kernel plan construction, legality analysis, publication logic, array/text route matching, exact-shape payload construction, session derivation, executor planning, sum route matching, payload extraction, helper emission, MirType tree traversal, global-call route collection, rune profile expansion, effect/capability plan construction/verification, FastMemory fact construction/region analysis, constructor route collection/callee classification, planner order/selection, legacy observer shadow decisions, loop route candidate collection, runtime route selection, array RMW matching, array receiver proof, array RMW add1 leaf seed matching, array get/set micro seed matching, array string-store micro seed matching, concat const suffix seed matching, array text loopcarry matching, array string length window matching, string direct-set window matching, substring views micro seed matching, UserBox loop micro seed matching, exact seed backend route selection, exact seed payload route migration, UserBox known receiver method seed matching, UserBox local scalar seed matching, seed payload migration, indexOf search micro seed matching, backend action execution, array text edit matching, edit payload migration, string corridor relation detection, sum placement fact collection, objectization policy, string corridor candidate derivation, publication policy, and backend lowering remain Rust.
   Escape use classification, operand-role policy, inline plan construction, inline shape verification, MIR metadata emission, generic-loop shape detection/resolution, loop body analysis, loop-session plan construction, region payload derivation, DirectArray plan construction/proof derivation, DirectArray lowering selection, BoxedSum ABI plan construction/site lookup, BoxedSum lowering, global-call target shape inference/route collection, lowering decision, MIR instruction traversal, receiver-origin classification, publication proof construction, LocalFastPathFact generation, publication-site MIR mutation, Copy instruction emission, dominance checks, test-only copy-emission reasons, CorePlan/Facts flowbox classification, facts-to-feature extraction, tag emission, Freeze contract, stderr write, Callee/ValueId analysis, emit-guard instruction analysis, emit-guard scope validation, index route selection, property registry state, call target resolution, MIR instruction traversal, MIR instruction display formatting, memory operation semantics, FastMem handling, function signature preparation, map lookup fusion route derivation, generic method route analysis, route selection, Freeze construction/message formatting, planner fail-fast policy, global-call target/shape/proof analysis, result-origin mapping, definition-owner inference, route collection, and proof policy remain Rust.
-
-historical design decision:
-  array_text_observer_executor_materialization_policy_formatter is now
-  HakoAdopted as a narrow Rust-oracle parity pilot owner after a green 1-row
-  `.hako` EXE parity gate.
-  Array-text route matching, observer contract handling, backend lowering, and
-  MIR mutation remain Rust.
-  The selected next card is
-  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-089`.
 
 historical route-selection decision:
   Detailed landed route-selection rows are closed as provenance and live in phase cards, fixture guards, and git history. This task-order stays a compact pointer to the active pivot and next 3 tasks.
