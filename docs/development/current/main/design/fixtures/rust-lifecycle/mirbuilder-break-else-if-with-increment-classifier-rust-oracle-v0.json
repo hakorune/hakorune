@@ -1,0 +1,44 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderBreakElseIfWithIncrementClassifierRustOracleV1",
+  "token": "MIRBUILDER-BREAK-ELSE-IF-WITH-INCREMENT-CLASSIFIER-RUST-ORACLE-FIXTURE-001",
+  "owner": "break_else_if_with_increment_classifier",
+  "rust_source": {
+    "path": "src/mir/builder/control_flow/generic_loop_canon/step_placement/facts.rs",
+    "hash": "sha256:9acf539e742533e7048de4e2dead0efd3139df7ca15cb857dea2e46c3612a059",
+    "oracle_surface": "is_break_else_if_with_increment classifier"
+  },
+  "rows": [
+    {
+      "kind": "stmt_text",
+      "stmt": "ASTNode::If(break_else_if_with_increment)",
+      "expected": "true"
+    },
+    {
+      "kind": "stmt_text",
+      "stmt": "ASTNode::If(no_else_branch)",
+      "expected": "false"
+    },
+    {
+      "kind": "stmt_text",
+      "stmt": "ASTNode::If(else_not_break)",
+      "expected": "false"
+    },
+    {
+      "kind": "stmt_text",
+      "stmt": "ASTNode::If(duplicate_increment)",
+      "expected": "false"
+    }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "break_else_if_with_increment_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

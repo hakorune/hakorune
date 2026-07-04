@@ -25,10 +25,10 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-CONTINUE-IF-WITH-INCREMENT-CLASSIFIER-HAKO-ADOPTION-DECISION-001.
-  The continue_if_with_increment_classifier owner is HakoAdopted as the
-  one-hundred-thirty-seventh narrow Rust-oracle parity pilot after the green
-  4-row `.hako` EXE parity gate; next is rerun 140.
+  MIRBUILDER-BREAK-ELSE-IF-WITH-INCREMENT-CLASSIFIER-HAKO-ADOPTION-DECISION-001.
+  The break_else_if_with_increment_classifier owner is HakoAdopted as the
+  one-hundred-thirty-eighth narrow Rust-oracle parity pilot after the green
+  4-row `.hako` EXE parity gate; next is rerun 141.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -61,7 +61,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-140
+  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-141
 
 normal operating rule:
   One RERUN adopts exactly one owner, advances the pointer, then stops.
@@ -71,6 +71,11 @@ normal operating rule:
   under `Working Rules`.
 
 latest design decision:
+  break_else_if_with_increment_classifier is now HakoAdopted as a narrow
+  Rust-oracle parity pilot owner after a green 4-row `.hako` EXE parity gate.
+  Generic-loop break-else-if-with-increment classification remains Rust.
+  Backend lowering and MIR mutation remain Rust. The selected next card is
+  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-141`.
   continue_if_with_increment_classifier is now HakoAdopted as a narrow
   Rust-oracle parity pilot owner after a green 4-row `.hako` EXE parity gate.
   Generic-loop continue-if-with-increment classification remains Rust.
