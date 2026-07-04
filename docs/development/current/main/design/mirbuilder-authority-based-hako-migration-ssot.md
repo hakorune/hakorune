@@ -236,6 +236,11 @@ MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-085
   Non-claim: no Fact owner migration yet.
 
 MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-086
+  Status: historical after rerun 086 landed.
+  Scope: kept as provenance for the prior narrow vocabulary pilot.
+  Non-claim: no Fact owner migration yet.
+
+MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-087
   Status: current next selection.
   Scope: choose one more vocabulary_leaf, boolean_classifier, or formatter
          owner from the inventory, then proceed with the existing Rust-oracle

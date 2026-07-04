@@ -1,0 +1,17 @@
+// array_text_observer_executor_execution_mode_formatter.hako - hand-authored execution-mode formatter
+//
+// Responsibility:
+// - format the narrow ArrayTextObserverExecutorExecutionMode vocabulary
+// - stay pure: scalar mode token in, scalar text out
+//
+// Non-responsibility:
+// - array/text observer route matching
+// - observer contract handling
+// - backend lowering
+// - MIR mutation
+static box ArrayTextObserverExecutorExecutionModeFormatterBox {
+  format_execution_mode(mode) {
+    if mode == "SingleRegionExecutor" { return "single_region_executor" }
+    return "unsupported_array_text_observer_executor_execution_mode"
+  }
+}
