@@ -60,6 +60,29 @@ row 2:
   exit_map = None
 ```
 
+Exact AST sketches:
+
+```text
+row 1:
+  [
+    If {
+      condition: true,
+      then_body: [Break],
+      else_body: Some([Continue]),
+    },
+    Return { value: None },
+  ]
+
+row 2:
+  [
+    If {
+      condition: true,
+      then_body: [Loop { condition: true, body: [] }],
+      else_body: None,
+    },
+  ]
+```
+
 This keeps the first fixture narrow while still proving the read-only fact owner
 distinguishes the direct exit summary from nested-loop observation.
 
