@@ -25,10 +25,10 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-SOURCE-TYPE-NAME-TO-MIR-HAKO-ADOPTION-DECISION-001.
-  The source_type_name_to_mir owner is HakoAdopted as the one-hundred-
-  nineteenth narrow Rust-oracle parity pilot after the green 9-row `.hako`
-  EXE parity gate; next is rerun 122.
+  MIRBUILDER-ARRAY-TEXT-OBSERVER-CHAIN-COPY-CLASSIFIER-HAKO-ADOPTION-DECISION-001.
+  The array_text_observer_chain_copy_classifier owner is HakoAdopted as the
+  one-hundred-twentieth narrow Rust-oracle parity pilot after the green 4-row
+  `.hako` EXE parity gate; next is rerun 123.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -61,7 +61,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-122
+  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-123
 
 normal operating rule:
   One RERUN adopts exactly one owner, advances the pointer, then stops.
@@ -71,10 +71,11 @@ normal operating rule:
   under `Working Rules`.
 
 latest design decision:
-  source_type_name_to_mir is now HakoAdopted as a narrow Rust-oracle parity
-  pilot owner after a green 9-row `.hako` EXE parity gate. MIR type mapping
-  remains Rust. Backend lowering and MIR mutation remain Rust. The selected
-  next card is `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-122`.
+  array_text_observer_chain_copy_classifier is now HakoAdopted as a narrow
+  Rust-oracle parity pilot owner after a green 4-row `.hako` EXE parity gate.
+  Array-text observer route matching remains Rust. Backend lowering and MIR
+  mutation remain Rust. The selected next card is
+  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-123`.
 
 current fail-fast boundary:
   Do not re-enter full converter route selection without new non-self-signed authority or stable input delta. The adopted pilot scopes are narrow pure owners only: classification/formatting vocabulary, tiny mutation-frame leaves, label/tag surfaces, and fixture-backed parity helpers.

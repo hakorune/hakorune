@@ -291,12 +291,12 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-SOURCE-TYPE-NAME-TO-MIR-HAKO-ADOPTION-DECISION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2697-MIRBUILDER-SOURCE-TYPE-NAME-TO-MIR-HAKO-ADOPTION-DECISION-001.md"
+latest_card = "MIRBUILDER-ARRAY-TEXT-OBSERVER-CHAIN-COPY-CLASSIFIER-HAKO-ADOPTION-DECISION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2707-MIRBUILDER-ARRAY-TEXT-OBSERVER-CHAIN-COPY-CLASSIFIER-HAKO-ADOPTION-DECISION-001.md"
 latest_card_summary = """The latest card adopts
-source_type_name_to_mir as the one-hundred-nineteenth narrow
-Rust-oracle parity pilot owner after the green 9-row `.hako` EXE parity gate
-and chooses pilot selection rerun 122 next."""
+array_text_observer_chain_copy_classifier as the one-hundred-
+twentieth narrow Rust-oracle parity pilot owner after the green 4-row `.hako`
+EXE parity gate and chooses pilot selection rerun 123 next."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -307,6 +307,11 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-04: 2707 adopts array_text_observer_chain_copy_classifier as the one-hundred-twentieth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
+  "2026-07-04: 2706 adds the array_text_observer_chain_copy_classifier Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
+  "2026-07-04: 2705 adds the hand-authored array_text_observer_chain_copy_classifier .hako implementation and chooses the parity gate card next.",
+  "2026-07-04: 2704 creates the 4-row array_text_observer_chain_copy_classifier Rust-oracle fixture and chooses the Hako-native implementation card next.",
+  "2026-07-04: 2703 selects array_text_observer_chain_copy_classifier as the one-hundred-twentieth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
   "2026-07-04: 2697 adopts source_type_name_to_mir as the one-hundred-nineteenth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
   "2026-07-04: 2696 adds the source_type_name_to_mir Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
   "2026-07-04: 2695 adds the hand-authored source_type_name_to_mir .hako implementation and chooses the parity gate card next.",
@@ -314,9 +319,4 @@ landed_tail = [
   "2026-07-04: 2693 selects source_type_name_to_mir as the one-hundred-nineteenth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
   "2026-07-04: 2692 adopts static_method_name_classifier as the one-hundred-eighteenth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
   "2026-07-04: 2691 adds the static_method_name_classifier Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
-  "2026-07-04: 2690 adds the hand-authored static_method_name_classifier .hako implementation and chooses the parity gate card next.",
-  "2026-07-04: 2689 creates the 5-row static_method_name_classifier Rust-oracle fixture and chooses the Hako-native implementation card next.",
-  "2026-07-04: 2688 selects static_method_name_classifier as the one-hundred-eighteenth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
-  "2026-07-04: 2687 adopts call_resolution_math_function_classifier as the one-hundred-seventeenth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
-  "2026-07-04: 2686 adds the call_resolution_math_function_classifier Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
 ]

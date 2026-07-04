@@ -1,0 +1,28 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderArrayTextObserverChainCopyClassifierRustOracleV1",
+  "token": "MIRBUILDER-ARRAY-TEXT-OBSERVER-CHAIN-COPY-CLASSIFIER-RUST-ORACLE-FIXTURE-001",
+  "owner": "array_text_observer_chain_copy_classifier",
+  "rust_source": {
+    "path": "src/mir/array_text_observer_plan/routes.rs",
+    "hash": "sha256:a4fbf591e84fed803223e22bfff617b3e7ec3ad8b61ac0f45be8b510528ed55d",
+    "oracle_surface": "is_observer_chain_copy boolean classification"
+  },
+  "rows": [
+    { "is_copy_inst": "true", "dst_in_chain": "true", "source_matches": "true", "expected": "true" },
+    { "is_copy_inst": "true", "dst_in_chain": "true", "source_matches": "false", "expected": "false" },
+    { "is_copy_inst": "true", "dst_in_chain": "false", "source_matches": "true", "expected": "false" },
+    { "is_copy_inst": "false", "dst_in_chain": "true", "source_matches": "true", "expected": "false" }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "array_text_observer_route_matching_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

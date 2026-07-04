@@ -1,0 +1,17 @@
+// array_text_observer_chain_copy_classifier.hako - hand-authored observer-chain copy classifier
+//
+// Responsibility:
+// - classify whether an observer-chain copy relation holds
+// - stay pure: scalar relation flags in, boolean text out
+//
+// Non-responsibility:
+// - array-text observer route matching
+// - backend lowering
+// - MIR mutation
+static box ArrayTextObserverChainCopyClassifierBox {
+  is_observer_chain_copy(is_copy_inst, dst_in_chain, source_matches) {
+    if is_copy_inst == "false" { return "false" }
+    if dst_in_chain == "true" && source_matches == "true" { return "true" }
+    return "false"
+  }
+}
