@@ -60,7 +60,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-FACT-OWNER-PARITY-PILOT-SELECTION-019
+  MIRBUILDER-LOOP-COND-CONTINUE-WITH-RETURN-FACTS-AUTHORITY-FACADE-PARITY-001
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -73,9 +73,9 @@ normal operating rule:
   Recent HakoAdoptedScoped Fact facades: string_is_integer_facts,
   bool_predicate_scan_facts, accum_const_loop_facts, loop_char_map_facts,
   loop_array_join_facts, loop_true_early_exit_facts, if_phi_join_facts.
-  `try_extract_if_phi_join_facts` is now HakoAdoptedScoped for the
-  authority-facade DTO only; if-phi parts extraction and AST payload
-  construction remain separate.
+  Selection-019 chooses `try_extract_loop_cond_continue_with_return_facts`;
+  recursive hetero-return traversal, recipe construction, route selection,
+  lowering, mutation, allocation, and Source Selfhost remain unclaimed.
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
@@ -83,6 +83,10 @@ latest design decision:
   11-row parity; if-phi parts extraction, AST payload construction,
   recipe/lowering, route selection, MIR mutation, ID allocation, and Source
   Selfhost remain unclaimed.
+  Selection-019 chooses `loop_cond_continue_with_return_facts.authority_facade`
+  as the next fixture-backed parity pilot; recursive hetero-return traversal,
+  recipe construction, lowering, mutation, allocation, and Source Selfhost
+  remain unclaimed.
   `loop_true_early_exit_facts.authority_facade` is HakoAdoptedScoped after
   green 10-row parity; control-flow traversal, exit/carrier AST construction,
   loop increment extraction, lowering, mutation, allocation, and Source
