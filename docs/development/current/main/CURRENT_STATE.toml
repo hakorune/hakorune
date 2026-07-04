@@ -345,13 +345,14 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-EXIT-ONLY-BLOCK-RECIPE-TOKEN-SNAPSHOT-HAKOADOPTED-DECISION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2903-MIRBUILDER-EXIT-ONLY-BLOCK-RECIPE-TOKEN-SNAPSHOT-HAKOADOPTED-DECISION-001.md"
+latest_card = "MIRBUILDER-EXIT-ALLOWED-BLOCK-RECIPE-TOKEN-SNAPSHOT-HAKOADOPTED-DECISION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2905-MIRBUILDER-EXIT-ALLOWED-BLOCK-RECIPE-TOKEN-SNAPSHOT-HAKOADOPTED-DECISION-001.md"
 latest_card_summary = """The latest card adopts
-exit_only_block_recipe.backend_safe_token_snapshot_reducer as a scoped
-HakoAdopted Fact owner while keeping recursive RecipeBodies materialization,
-ExitAllowedBlockRecipe, NoExitBlockRecipe, backend lowering, route selection,
-MIR mutation, ID allocation, and Source Selfhost unclaimed."""
+exit_allowed_block_recipe.backend_safe_token_snapshot_reducer as a scoped
+HakoAdopted Fact owner while keeping in-arena construction, recursive
+RecipeBodies materialization, NoExitBlockRecipe, join-if semantics, LoopV0
+lowering, route selection, MIR mutation, ID allocation, and Source Selfhost
+unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -362,6 +363,8 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-05: 2905 adopts exit_allowed_block_recipe.backend_safe_token_snapshot_reducer as a scoped HakoAdopted Fact owner; NoExit/join-if and Source Selfhost remain unclaimed.",
+  "2026-07-05: 2904 lands exit_allowed_block_recipe.backend_safe_token_snapshot_reducer parity with symbolic LoopV0 body-contract token; lowering remains Rust.",
   "2026-07-05: 2903 adopts exit_only_block_recipe.backend_safe_token_snapshot_reducer as a scoped HakoAdopted Fact owner; ExitAllowed/NoExit and Source Selfhost remain unclaimed.",
   "2026-07-05: 2902 lands exit_only_block_recipe.backend_safe_token_snapshot_reducer parity as the next Fact-owner slice; recursive RecipeBodies materialization remains Rust.",
   "2026-07-05: 2901 adopts match_return_facts.backend_safe_token_snapshot_reducer as a scoped HakoAdopted Fact owner; strict/release policy and Source Selfhost remain unclaimed.",
@@ -372,6 +375,4 @@ landed_tail = [
   "2026-07-05: 2896 selects try_extract_loop_feature_facts as the first hard-authority Fact-track candidate and keeps the plan track held.",
   "2026-07-05: 2895 fixes hard-authority selection rules: Fact/Plan/Boundary inventory first, leaf pilots and mutation/lowering/allocation blockers excluded.",
   "2026-07-05: 2894 discards the failed exit_analysis_is_single_exit_group WIP and keeps the next valid work on hard-authority contract selection.",
-  "2026-07-05: 2893 pivots the MirBuilder progress metric away from leaf pilot count and toward smallest Fact-owner or REGISTRY-rule contracts.",
-  "2026-07-05: 2892 adopts control_form_from_if_constructor as the one-hundred-fifty-seventh narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
 ]

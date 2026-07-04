@@ -1,0 +1,72 @@
+// exit_allowed_block_recipe.hako
+//
+// Responsibility:
+// - reduce a backend-safe exit-allowed block token snapshot into a recipe summary
+// - keep the Rust oracle contract for item sequence and if-mode tokens
+//
+// Non-responsibility:
+// - full AST traversal or recursive RecipeBodies materialization
+// - LoopV0 lowering, NoExitBlockRecipe, or join-if lowering
+// - backend lowering, MIR mutation, route selection, or ID allocation
+static box ExitAllowedBlockRecipeBox {
+  build_summary(stmt0, stmt1) {
+    if stmt0 == "None" { return "accepted=0;reason=empty_block" }
+    local item0 = me._item_kind(stmt0)
+    if item0 == "Reject" { return "accepted=0;reason=" + me._reject_reason(stmt0) }
+    local item1 = me._item_kind(stmt1)
+    if item1 == "Reject" { return "accepted=0;reason=" + me._reject_reason(stmt1) }
+
+    return "accepted=1;block_contract=ExitAllowed;stmt_count=" + me._stmt_count(stmt0, stmt1)
+      + ";item_kinds=" + me._items(item0, item1)
+      + ";if_modes=" + me._if_modes(stmt0, stmt1)
+  }
+
+  _item_kind(stmt) {
+    if stmt == "None" { return "None" }
+    if stmt == "Break" { return "ExitBreak" }
+    if stmt == "Continue" { return "ExitContinue" }
+    if stmt == "Return" { return "ExitReturn" }
+    if stmt == "Local" { return "Stmt" }
+    if stmt == "Print" { return "Stmt" }
+    if stmt == "ScopeBox" { return "Stmt" }
+    if stmt == "IfThenReturnElseBreak" { return "IfExitOnly" }
+    if stmt == "IfThenReturnNoElse" { return "IfExitOnly" }
+    if stmt == "IfThenReturnElseLocal" { return "IfExitAllowed" }
+    if stmt == "IfThenLocalElseReturn" { return "IfExitAllowed" }
+    if stmt == "IfThenLocalNoElse" { return "Stmt" }
+    if stmt == "IfUnsupportedCondThenReturnElseBreak" { return "Reject" }
+    if stmt == "LoopExitAllowedBody" { return "LoopV0" }
+    return "Reject"
+  }
+
+  _stmt_count(stmt0, stmt1) {
+    if stmt1 == "None" { return 1 }
+    return 2
+  }
+
+  _items(item0, item1) {
+    if item1 == "None" { return item0 }
+    return item0 + "," + item1
+  }
+
+  _if_modes(stmt0, stmt1) {
+    local mode0 = me._if_mode(stmt0)
+    local mode1 = me._if_mode(stmt1)
+    if mode0 == "" { return mode1 }
+    if mode1 == "" { return mode0 }
+    return mode0 + "," + mode1
+  }
+
+  _if_mode(stmt) {
+    if stmt == "IfThenReturnElseBreak" { return "ExitAll" }
+    if stmt == "IfThenReturnNoElse" { return "ExitIf" }
+    if stmt == "IfThenReturnElseLocal" { return "ThenOnlyExit" }
+    if stmt == "IfThenLocalElseReturn" { return "ElseOnlyExit" }
+    return ""
+  }
+
+  _reject_reason(stmt) {
+    if stmt == "IfUnsupportedCondThenReturnElseBreak" { return "unsupported_bool_expr" }
+    return "unsupported_stmt"
+  }
+}

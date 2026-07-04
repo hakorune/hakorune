@@ -1,0 +1,155 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderExitAllowedBlockRecipeRustOracleV1",
+  "token": "MIRBUILDER-EXIT-ALLOWED-BLOCK-RECIPE-RUST-ORACLE-FIXTURE-001",
+  "owner": "exit_allowed_block_recipe",
+  "rust_source": {
+    "path": "src/mir/builder/control_flow/plan/facts/exit_only_block.rs",
+    "hash": "sha256:a444c2e30e4d8786427aef44d12c52f51cc63e28554048392f77053c2b0d207a",
+    "oracle_surface": "try_build_exit_allowed_block_recipe"
+  },
+  "input_contract": "BackendSafeExitAllowedBlockTokenSnapshotV1",
+  "rows": [
+    {
+      "case_id": "accept_effect_only",
+      "tokens": [
+        "Print"
+      ],
+      "expected_accept": true,
+      "expected_items": [
+        "Stmt"
+      ],
+      "expected_if_modes": [],
+      "expected_summary": "accepted=1;block_contract=ExitAllowed;stmt_count=1;item_kinds=Stmt;if_modes="
+    },
+    {
+      "case_id": "accept_stmt_then_return",
+      "tokens": [
+        "Local",
+        "Return"
+      ],
+      "expected_accept": true,
+      "expected_items": [
+        "Stmt",
+        "ExitReturn"
+      ],
+      "expected_if_modes": [],
+      "expected_summary": "accepted=1;block_contract=ExitAllowed;stmt_count=2;item_kinds=Stmt,ExitReturn;if_modes="
+    },
+    {
+      "case_id": "accept_if_exit_all",
+      "tokens": [
+        "IfThenReturnElseBreak"
+      ],
+      "expected_accept": true,
+      "expected_items": [
+        "IfExitOnly"
+      ],
+      "expected_if_modes": [
+        "ExitAll"
+      ],
+      "expected_summary": "accepted=1;block_contract=ExitAllowed;stmt_count=1;item_kinds=IfExitOnly;if_modes=ExitAll"
+    },
+    {
+      "case_id": "accept_if_exit_if",
+      "tokens": [
+        "IfThenReturnNoElse"
+      ],
+      "expected_accept": true,
+      "expected_items": [
+        "IfExitOnly"
+      ],
+      "expected_if_modes": [
+        "ExitIf"
+      ],
+      "expected_summary": "accepted=1;block_contract=ExitAllowed;stmt_count=1;item_kinds=IfExitOnly;if_modes=ExitIf"
+    },
+    {
+      "case_id": "accept_then_only_exit",
+      "tokens": [
+        "IfThenReturnElseLocal"
+      ],
+      "expected_accept": true,
+      "expected_items": [
+        "IfExitAllowed"
+      ],
+      "expected_if_modes": [
+        "ThenOnlyExit"
+      ],
+      "expected_summary": "accepted=1;block_contract=ExitAllowed;stmt_count=1;item_kinds=IfExitAllowed;if_modes=ThenOnlyExit"
+    },
+    {
+      "case_id": "accept_else_only_exit",
+      "tokens": [
+        "IfThenLocalElseReturn"
+      ],
+      "expected_accept": true,
+      "expected_items": [
+        "IfExitAllowed"
+      ],
+      "expected_if_modes": [
+        "ElseOnlyExit"
+      ],
+      "expected_summary": "accepted=1;block_contract=ExitAllowed;stmt_count=1;item_kinds=IfExitAllowed;if_modes=ElseOnlyExit"
+    },
+    {
+      "case_id": "accept_if_fallthrough_as_stmt",
+      "tokens": [
+        "IfThenLocalNoElse"
+      ],
+      "expected_accept": true,
+      "expected_items": [
+        "Stmt"
+      ],
+      "expected_if_modes": [],
+      "expected_summary": "accepted=1;block_contract=ExitAllowed;stmt_count=1;item_kinds=Stmt;if_modes="
+    },
+    {
+      "case_id": "reject_empty",
+      "tokens": [],
+      "expected_accept": false,
+      "expected_reason": "empty_block",
+      "expected_summary": "accepted=0;reason=empty_block"
+    },
+    {
+      "case_id": "reject_unsupported_if_condition",
+      "tokens": [
+        "IfUnsupportedCondThenReturnElseBreak"
+      ],
+      "expected_accept": false,
+      "expected_reason": "unsupported_bool_expr",
+      "expected_summary": "accepted=0;reason=unsupported_bool_expr"
+    },
+    {
+      "case_id": "accept_loop_exit_allowed_body_token",
+      "tokens": [
+        "LoopExitAllowedBody"
+      ],
+      "expected_accept": true,
+      "expected_items": [
+        "LoopV0"
+      ],
+      "expected_if_modes": [],
+      "expected_loop_body_contract": "ExitAllowed",
+      "expected_summary": "accepted=1;block_contract=ExitAllowed;stmt_count=1;item_kinds=LoopV0;if_modes="
+    }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "full_ast_traversal_adopted": 0,
+    "recursive_recipe_bodies_materialization": 0,
+    "recipe_tree_materialization": 0,
+    "cond_block_view_adopted": 0,
+    "loop_v0_lowering_adopted": 0,
+    "loop_body_contract_token_snapshot": 1,
+    "no_exit_block_recipe_adopted": 0,
+    "join_if_semantics_adopted": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0,
+    "id_allocation_migration": 0,
+    "route_selection_migration": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
