@@ -1,0 +1,28 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderCallResolutionExternFunctionClassifierRustOracleV1",
+  "token": "MIRBUILDER-CALL-RESOLUTION-EXTERN-FUNCTION-CLASSIFIER-RUST-ORACLE-FIXTURE-001",
+  "owner": "call_resolution_extern_function_classifier",
+  "rust_source": {
+    "path": "src/mir/builder/calls/method_resolution.rs",
+    "hash": "sha256:6fab772aa0af49c07782d55d27de1704cec3c0bf15b60feb36f5cf7f48df05d4",
+    "oracle_surface": "Call resolution extern-function classifier"
+  },
+  "rows": [
+    { "name": "nyash.", "expected": "true" },
+    { "name": "env.", "expected": "true" },
+    { "name": "system.", "expected": "true" },
+    { "name": "print", "expected": "false" }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "call_resolution_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

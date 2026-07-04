@@ -1,0 +1,19 @@
+// call_resolution_extern_function_classifier.hako - hand-authored extern-function classifier
+//
+// Responsibility:
+// - classify whether a function name is an external/host function
+// - stay pure: scalar function-name token in, boolean text out
+//
+// Non-responsibility:
+// - call resolution
+// - warning generation
+// - backend lowering
+// - MIR mutation
+static box CallResolutionExternFunctionClassifierBox {
+  is_extern_function(name) {
+    if name == "nyash." { return "true" }
+    if name == "env." { return "true" }
+    if name == "system." { return "true" }
+    return "false"
+  }
+}
