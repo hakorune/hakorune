@@ -1,0 +1,78 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderLoopCharMapFactsHakoAdoptedDecisionV1",
+  "token": "MIRBUILDER-LOOP-CHAR-MAP-FACTS-HAKOADOPTED-DECISION-001",
+  "input_state": {
+    "hako_source": "lang/src/compiler/lib/loop_char_map_facts.hako",
+    "hako_source_hash": "sha256:634cdbdcc75470d7043c32704e77935cc7eca19b4732bf4f4f79236c70fdf84f",
+    "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-char-map-facts-rust-oracle-v0.json",
+    "rust_oracle_fixture_hash": "sha256:9d6977cb1c88f7212387e4e88d3382004124c646fd8669f31c02b40cc5ba2ec0",
+    "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_loop_char_map_facts_parity_gate.sh",
+    "parity_gate_hash": "sha256:294cbad103ed0a707fc3a377d7f8ec89d2d0068b1266e3e804cb5a4885eb3595"
+  },
+  "adoption_scope": {
+    "adopted_owner": "loop_char_map_facts.authority_facade",
+    "rust_oracle_symbol": "try_extract_loop_char_map_facts",
+    "input_contract": "BackendSafeLoopCharMapFactsTokenSnapshotV1",
+    "native_edit_authority": "lang/src/compiler/lib/loop_char_map_facts.hako",
+    "owned_semantics": [
+      "loop_char_map_acceptance",
+      "loop_var_token",
+      "haystack_var_token",
+      "result_var_token",
+      "receiver_var_token",
+      "transform_method_token",
+      "reject_reason_token"
+    ],
+    "excluded_semantics": [
+      "full_AST_traversal",
+      "substring_AST_construction",
+      "result_update_AST_construction",
+      "CondProfile_construction",
+      "ScanConditionObservation_construction",
+      "loop_increment_extraction",
+      "recipe_construction",
+      "route_selection",
+      "backend_lowering",
+      "MIR_mutation",
+      "ID_allocation"
+    ]
+  },
+  "parity": {
+    "gate_status": "Green",
+    "oracle_row_count": 10,
+    "required_contract_fields": [
+      "accepted",
+      "loop_var",
+      "haystack",
+      "result",
+      "receiver",
+      "method",
+      "reason"
+    ]
+  },
+  "decision": {
+    "kind": "HakoAdoptedScoped",
+    "reason_token": "LoopCharMapFactsAuthorityFacadeParityGreen",
+    "selected_next_card": "MIRBUILDER-FACT-OWNER-PARITY-PILOT-SELECTION-016",
+    "backlog_card": "MIRBUILDER-LOOP-CHAR-MAP-FULL-AST-PAYLOAD-CONSULTATION-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "full_ast_traversal_adopted": 0,
+    "substring_ast_construction_migrated": 0,
+    "result_update_ast_construction_migrated": 0,
+    "cond_profile_construction_migrated": 0,
+    "scan_condition_observation_migrated": 0,
+    "loop_increment_extraction_migrated": 0,
+    "recipe_construction_migrated": 0,
+    "route_selection_migrated": 0,
+    "backend_lowering_migrated": 0,
+    "mir_mutation_migrated": 0,
+    "id_allocation_migrated": 0,
+    "hako_generation": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
