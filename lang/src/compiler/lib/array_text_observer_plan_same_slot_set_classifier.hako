@@ -1,0 +1,23 @@
+// array_text_observer_plan_same_slot_set_classifier.hako - hand-authored same-slot-set classifier
+//
+// Responsibility:
+// - classify ArrayTextObserverPlan same-slot-set membership
+// - stay pure: scalar method/shape/relation tokens in, boolean text out
+//
+// Non-responsibility:
+// - array/text observer diagnostic routing
+// - observer contract handling
+// - backend lowering
+// - MIR mutation
+static box ArrayTextObserverPlanSameSlotSetClassifierBox {
+  is_same_slot_set(inst_kind, method, arity, box_name, receiver_matches, same_index, value_matches) {
+    if inst_kind != "Call" { return "false" }
+    if method != "set" { return "false" }
+    if arity != "2" { return "false" }
+    if box_name != "RuntimeDataBox" && box_name != "ArrayBox" { return "false" }
+    if receiver_matches != "true" { return "false" }
+    if same_index != "true" { return "false" }
+    if value_matches != "true" { return "false" }
+    return "true"
+  }
+}

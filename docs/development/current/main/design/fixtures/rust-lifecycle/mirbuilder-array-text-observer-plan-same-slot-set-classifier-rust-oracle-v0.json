@@ -1,0 +1,74 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderArrayTextObserverPlanSameSlotSetClassifierRustOracleV1",
+  "token": "MIRBUILDER-ARRAY-TEXT-OBSERVER-PLAN-SAME-SLOT-SET-CLASSIFIER-RUST-ORACLE-FIXTURE-001",
+  "owner": "array_text_observer_plan_same_slot_set_classifier",
+  "rust_source": {
+    "path": "src/mir/array_text_observer_plan/diagnostic.rs",
+    "hash": "sha256:03ddae59a10b458d979b0605eeff304928904b1347e596ea7979356aedeecfda",
+    "oracle_surface": "is_same_slot_set boolean classification"
+  },
+  "rows": [
+    {
+      "inst_kind": "Call",
+      "method": "set",
+      "arity": "2",
+      "box_name": "ArrayBox",
+      "receiver_matches": "true",
+      "same_index": "true",
+      "value_matches": "true",
+      "expected": "true"
+    },
+    {
+      "inst_kind": "Call",
+      "method": "set",
+      "arity": "2",
+      "box_name": "RuntimeDataBox",
+      "receiver_matches": "true",
+      "same_index": "true",
+      "value_matches": "true",
+      "expected": "true"
+    },
+    {
+      "inst_kind": "Call",
+      "method": "set",
+      "arity": "2",
+      "box_name": "ArrayBox",
+      "receiver_matches": "false",
+      "same_index": "true",
+      "value_matches": "true",
+      "expected": "false"
+    },
+    {
+      "inst_kind": "Call",
+      "method": "set",
+      "arity": "1",
+      "box_name": "ArrayBox",
+      "receiver_matches": "true",
+      "same_index": "true",
+      "value_matches": "true",
+      "expected": "false"
+    },
+    {
+      "inst_kind": "Copy",
+      "method": "set",
+      "arity": "2",
+      "box_name": "ArrayBox",
+      "receiver_matches": "true",
+      "same_index": "true",
+      "value_matches": "true",
+      "expected": "false"
+    }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "array_text_observer_diagnostic_routing_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}
