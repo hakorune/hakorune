@@ -1,0 +1,34 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderCallResolutionBuiltinFunctionClassifierRustOracleV1",
+  "token": "MIRBUILDER-CALL-RESOLUTION-BUILTIN-FUNCTION-CLASSIFIER-RUST-ORACLE-FIXTURE-001",
+  "owner": "call_resolution_builtin_function_classifier",
+  "rust_source": {
+    "path": "src/mir/builder/call_resolution.rs",
+    "hash": "sha256:358368c90e21273c6d28b69f332697e89bc6e1b58c7f218f030da15ac1b54a78",
+    "oracle_surface": "Call resolution builtin function classifier"
+  },
+  "rows": [
+    { "name": "print", "expected": "true" },
+    { "name": "error", "expected": "true" },
+    { "name": "panic", "expected": "true" },
+    { "name": "exit", "expected": "true" },
+    { "name": "now", "expected": "true" },
+    { "name": "isType", "expected": "true" },
+    { "name": "asType", "expected": "true" },
+    { "name": "abs", "expected": "true" },
+    { "name": "custom_function", "expected": "false" },
+    { "name": "nyash.console.log", "expected": "false" }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "call_resolution_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

@@ -25,10 +25,10 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-ARRAY-TEXT-RESIDENCE-SESSION-SAFE-BOOKKEEPING-CLASSIFIER-HAKO-ADOPTION-DECISION-001.
-  The array_text_residence_session_safe_bookkeeping_classifier owner is
-  HakoAdopted as the one-hundred-tenth narrow Rust-oracle parity pilot after
-  the green 5-row `.hako` EXE parity gate; next is rerun 112.
+  MIRBUILDER-CALL-RESOLUTION-BUILTIN-FUNCTION-CLASSIFIER-HAKO-ADOPTION-DECISION-001.
+  The call_resolution_builtin_function_classifier owner is HakoAdopted as the
+  one-hundred-eleventh narrow Rust-oracle parity pilot after the green 10-row
+  `.hako` EXE parity gate; next is rerun 113.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -71,11 +71,11 @@ normal operating rule:
   under `Working Rules`.
 
 latest design decision:
-  array_text_residence_session_safe_bookkeeping_classifier is now HakoAdopted
-  as a narrow Rust-oracle parity pilot owner after a green 5-row `.hako` EXE
-  parity gate. Array-text residence session derivation, backend lowering, and
-  MIR mutation remain Rust. The selected next card is
-  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-112`.
+  call_resolution_builtin_function_classifier is now HakoAdopted as a narrow
+  Rust-oracle parity pilot owner after a green 10-row `.hako` EXE parity
+  gate. Call resolution, backend lowering, and MIR mutation remain Rust. The
+  selected next card is
+  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-113`.
 
 current fail-fast boundary:
   Do not re-enter full converter route selection without new non-self-signed authority or stable input delta. The adopted pilot scopes are narrow pure owners only: classification/formatting vocabulary, tiny mutation-frame leaves, label/tag surfaces, and fixture-backed parity helpers.

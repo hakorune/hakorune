@@ -1,0 +1,25 @@
+// call_resolution_builtin_function_classifier.hako - hand-authored builtin-function classifier
+//
+// Responsibility:
+// - classify whether a function name is a builtin function
+// - stay pure: scalar function-name token in, boolean text out
+//
+// Non-responsibility:
+// - call resolution
+// - backend lowering
+// - MIR mutation
+static box CallResolutionBuiltinFunctionClassifierBox {
+  is_builtin_function(name) {
+    if name == "print" { return "true" }
+    if name == "error" { return "true" }
+    if name == "panic" { return "true" }
+    if name == "exit" { return "true" }
+    if name == "now" { return "true" }
+    if name == "isType" { return "true" }
+    if name == "asType" { return "true" }
+    if name == "abs" { return "true" }
+    if name == "min" { return "true" }
+    if name == "max" { return "true" }
+    return "false"
+  }
+}
