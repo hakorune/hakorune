@@ -1,0 +1,125 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderLoopTrueEarlyExitFactsRustOracleV1",
+  "token": "MIRBUILDER-LOOP-TRUE-EARLY-EXIT-FACTS-RUST-ORACLE-FIXTURE-001",
+  "owner": "loop_true_early_exit_facts",
+  "rust_source": {
+    "path": "src/mir/builder/control_flow/plan/facts/loop_true_early_exit_facts.rs",
+    "hash": "sha256:1fe815fafba1c81959e7046603b0fc1f6ecf35afc77554b4eb897300c69b8003",
+    "oracle_surface": "try_extract_loop_true_early_exit_facts"
+  },
+  "input_contract": "BackendSafeLoopTrueEarlyExitFactsTokenSnapshotV1",
+  "rows": [
+    {
+      "case_id": "accept_return_value",
+      "condition_token": "LoopConditionTrue",
+      "body_token": "IfReturnValueThenIPlus1",
+      "counts_token": "CountsReturn1Break0Continue0Nested0",
+      "expected_accept": true,
+      "expected_exit_kind": "return",
+      "expected_loop_var": "i",
+      "expected_carrier": "-",
+      "expected_summary": "accepted=1;exit_kind=return;loop_var=i;carrier=-"
+    },
+    {
+      "case_id": "accept_break_carrier",
+      "condition_token": "LoopConditionTrue",
+      "body_token": "IfBreakThenSumPlusIThenIPlus1",
+      "counts_token": "CountsReturn0Break1Continue0Nested0",
+      "expected_accept": true,
+      "expected_exit_kind": "break",
+      "expected_loop_var": "i",
+      "expected_carrier": "sum",
+      "expected_summary": "accepted=1;exit_kind=break;loop_var=i;carrier=sum"
+    },
+    {
+      "case_id": "reject_condition_not_true",
+      "condition_token": "LoopConditionVar",
+      "body_token": "IfReturnValueThenIPlus1",
+      "counts_token": "CountsReturn1Break0Continue0Nested0",
+      "expected_accept": false,
+      "expected_reason": "condition_not_true",
+      "expected_summary": "accepted=0;reason=condition_not_true"
+    },
+    {
+      "case_id": "reject_else_branch",
+      "condition_token": "LoopConditionTrue",
+      "body_token": "IfBreakElseThenIPlus1",
+      "counts_token": "CountsReturn0Break1Continue1Nested0",
+      "expected_accept": false,
+      "expected_reason": "exit_if_not_supported",
+      "expected_summary": "accepted=0;reason=exit_if_not_supported"
+    },
+    {
+      "case_id": "reject_nested_loop",
+      "condition_token": "LoopConditionTrue",
+      "body_token": "IfReturnValueThenIPlus1",
+      "counts_token": "CountsReturn1Break0Continue0Nested1",
+      "expected_accept": false,
+      "expected_reason": "control_flow_has_nested_loop",
+      "expected_summary": "accepted=0;reason=control_flow_has_nested_loop"
+    },
+    {
+      "case_id": "reject_continue_count",
+      "condition_token": "LoopConditionTrue",
+      "body_token": "IfBreakThenSumPlusIThenIPlus1",
+      "counts_token": "CountsReturn0Break1Continue1Nested0",
+      "expected_accept": false,
+      "expected_reason": "control_flow_has_continue",
+      "expected_summary": "accepted=0;reason=control_flow_has_continue"
+    },
+    {
+      "case_id": "reject_return_count_mismatch",
+      "condition_token": "LoopConditionTrue",
+      "body_token": "IfReturnValueThenIPlus1",
+      "counts_token": "CountsReturn2Break0Continue0Nested0",
+      "expected_accept": false,
+      "expected_reason": "return_count_mismatch",
+      "expected_summary": "accepted=0;reason=return_count_mismatch"
+    },
+    {
+      "case_id": "reject_break_count_mismatch",
+      "condition_token": "LoopConditionTrue",
+      "body_token": "IfBreakThenSumPlusIThenIPlus1",
+      "counts_token": "CountsReturn0Break2Continue0Nested0",
+      "expected_accept": false,
+      "expected_reason": "break_count_mismatch",
+      "expected_summary": "accepted=0;reason=break_count_mismatch"
+    },
+    {
+      "case_id": "reject_missing_increment_return",
+      "condition_token": "LoopConditionTrue",
+      "body_token": "IfReturnOnly",
+      "counts_token": "CountsReturn1Break0Continue0Nested0",
+      "expected_accept": false,
+      "expected_reason": "return_remaining_shape_not_supported",
+      "expected_summary": "accepted=0;reason=return_remaining_shape_not_supported"
+    },
+    {
+      "case_id": "reject_carrier_is_loop_var",
+      "condition_token": "LoopConditionTrue",
+      "body_token": "IfBreakThenIPlusSumThenIPlus1",
+      "counts_token": "CountsReturn0Break1Continue0Nested0",
+      "expected_accept": false,
+      "expected_reason": "carrier_var_is_loop_var",
+      "expected_summary": "accepted=0;reason=carrier_var_is_loop_var"
+    }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "full_ast_traversal_adopted": 0,
+    "control_flow_traversal_migrated": 0,
+    "exit_condition_ast_construction_migrated": 0,
+    "exit_value_ast_construction_migrated": 0,
+    "carrier_update_ast_construction_migrated": 0,
+    "loop_increment_extraction_migrated": 0,
+    "recipe_construction_migrated": 0,
+    "route_selection_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0,
+    "id_allocation_migration": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

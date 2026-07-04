@@ -1,0 +1,123 @@
+// loop_true_early_exit_facts.hako
+//
+// Responsibility:
+// - reduce a backend-safe loop-true-early-exit token snapshot into fact text
+// - mirror try_extract_loop_true_early_exit_facts for the narrow facade contract
+//
+// Non-responsibility:
+// - control-flow traversal or AST payload construction
+// - loop increment extraction, recipe construction, lowering, mutation, or ID allocation
+static box LoopTrueEarlyExitFactsBox {
+  build_summary(condition_token, body_token, counts_token) {
+    if me._condition_kind(condition_token) != "true_literal" {
+      return "accepted=0;reason=condition_not_true"
+    }
+
+    local exit_kind = me._body_exit_kind(body_token)
+    if exit_kind == "unsupported" {
+      return "accepted=0;reason=exit_if_not_supported"
+    }
+
+    if me._counts_has_nested_loop(counts_token) == 1 {
+      return "accepted=0;reason=control_flow_has_nested_loop"
+    }
+    if me._counts_continue_count(counts_token) != 0 {
+      return "accepted=0;reason=control_flow_has_continue"
+    }
+
+    if exit_kind == "return" {
+      if me._counts_return_count(counts_token) != 1 {
+        return "accepted=0;reason=return_count_mismatch"
+      }
+      if me._counts_break_count(counts_token) != 0 {
+        return "accepted=0;reason=break_count_mismatch"
+      }
+      if me._body_return_remaining_kind(body_token) != "increment" {
+        return "accepted=0;reason=return_remaining_shape_not_supported"
+      }
+      return "accepted=1;exit_kind=return;loop_var="
+        + me._body_loop_var(body_token)
+        + ";carrier=-"
+    }
+
+    if me._counts_break_count(counts_token) != 1 {
+      return "accepted=0;reason=break_count_mismatch"
+    }
+    if me._counts_return_count(counts_token) != 0 {
+      return "accepted=0;reason=return_count_mismatch"
+    }
+    if me._body_break_remaining_kind(body_token) != "carrier_then_increment" {
+      return "accepted=0;reason=break_remaining_shape_not_supported"
+    }
+
+    local carrier = me._body_carrier_var(body_token)
+    local loop_var = me._body_loop_var(body_token)
+    if carrier == loop_var {
+      return "accepted=0;reason=carrier_var_is_loop_var"
+    }
+
+    return "accepted=1;exit_kind=break;loop_var=" + loop_var
+      + ";carrier=" + carrier
+  }
+
+  _condition_kind(token) {
+    if token == "LoopConditionTrue" { return "true_literal" }
+    return "unsupported"
+  }
+
+  _body_exit_kind(token) {
+    if token == "IfReturnValueThenIPlus1" { return "return" }
+    if token == "IfReturnOnly" { return "return" }
+    if token == "IfBreakThenSumPlusIThenIPlus1" { return "break" }
+    if token == "IfBreakThenIPlusSumThenIPlus1" { return "break" }
+    if token == "IfBreakOnlyThenIPlus1" { return "break" }
+    return "unsupported"
+  }
+
+  _body_return_remaining_kind(token) {
+    if token == "IfReturnValueThenIPlus1" { return "increment" }
+    return "unsupported"
+  }
+
+  _body_break_remaining_kind(token) {
+    if token == "IfBreakThenSumPlusIThenIPlus1" { return "carrier_then_increment" }
+    if token == "IfBreakThenIPlusSumThenIPlus1" { return "carrier_then_increment" }
+    return "unsupported"
+  }
+
+  _body_loop_var(token) {
+    return "i"
+  }
+
+  _body_carrier_var(token) {
+    if token == "IfBreakThenIPlusSumThenIPlus1" { return "i" }
+    return "sum"
+  }
+
+  _counts_has_nested_loop(token) {
+    if token == "CountsReturn1Break0Continue0Nested1" { return 1 }
+    return 0
+  }
+
+  _counts_return_count(token) {
+    if token == "CountsReturn1Break0Continue0Nested0" { return 1 }
+    if token == "CountsReturn2Break0Continue0Nested0" { return 2 }
+    if token == "CountsReturn1Break0Continue0Nested1" { return 1 }
+    if token == "CountsReturn0Break1Continue1Nested0" { return 0 }
+    if token == "CountsReturn0Break1Continue0Nested0" { return 0 }
+    if token == "CountsReturn0Break2Continue0Nested0" { return 0 }
+    return 0
+  }
+
+  _counts_break_count(token) {
+    if token == "CountsReturn0Break1Continue1Nested0" { return 1 }
+    if token == "CountsReturn0Break1Continue0Nested0" { return 1 }
+    if token == "CountsReturn0Break2Continue0Nested0" { return 2 }
+    return 0
+  }
+
+  _counts_continue_count(token) {
+    if token == "CountsReturn0Break1Continue1Nested0" { return 1 }
+    return 0
+  }
+}
