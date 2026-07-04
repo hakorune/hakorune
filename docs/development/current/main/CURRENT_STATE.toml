@@ -291,6 +291,9 @@ remains unclaimed.
 SupportedBoolExprClassifier is now a narrow HakoAdopted Rust-oracle parity
 pilot owner after a green 4-row `.hako` EXE parity gate. Source Selfhost
 remains unclaimed.
+PureValueExprForGenericLoopClassifier is now a narrow HakoAdopted
+Rust-oracle parity pilot owner after a green 4-row `.hako` EXE parity gate.
+Source Selfhost remains unclaimed.
 EXE/AOT remains the primary
 app/selfhost validation route; VM/interpreter lanes are not semantic owners."""
 
@@ -300,12 +303,12 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-SUPPORTED-BOOL-EXPR-CLASSIFIER-HAKO-ADOPTION-DECISION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2752-MIRBUILDER-SUPPORTED-BOOL-EXPR-CLASSIFIER-HAKO-ADOPTION-DECISION-001.md"
+latest_card = "MIRBUILDER-PURE-VALUE-EXPR-FOR-GENERIC-LOOP-CLASSIFIER-HAKO-ADOPTION-DECISION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2757-MIRBUILDER-PURE-VALUE-EXPR-FOR-GENERIC-LOOP-CLASSIFIER-HAKO-ADOPTION-DECISION-001.md"
 latest_card_summary = """The latest card adopts
-supported_bool_expr_classifier as the one-hundred-twenty-ninth
+pure_value_expr_for_generic_loop_classifier as the one-hundred-thirtieth
 narrow Rust-oracle parity pilot owner after the green 4-row `.hako` EXE
-parity gate and chooses pilot selection rerun 132 next."""
+parity gate and chooses pilot selection rerun 133 next."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -316,6 +319,11 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-04: 2757 adopts pure_value_expr_for_generic_loop_classifier as the one-hundred-thirtieth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
+  "2026-07-04: 2756 adds the pure_value_expr_for_generic_loop_classifier Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
+  "2026-07-04: 2755 adds the hand-authored pure_value_expr_for_generic_loop_classifier .hako implementation and chooses the parity gate card next.",
+  "2026-07-04: 2754 creates the 4-row pure_value_expr_for_generic_loop_classifier Rust-oracle fixture and chooses the Hako-native implementation card next.",
+  "2026-07-04: 2753 selects pure_value_expr_for_generic_loop_classifier as the one-hundred-thirtieth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
   "2026-07-04: 2752 adopts supported_bool_expr_classifier as the one-hundred-twenty-ninth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
   "2026-07-04: 2751 adds the supported_bool_expr_classifier Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
   "2026-07-04: 2750 adds the hand-authored supported_bool_expr_classifier .hako implementation and chooses the parity gate card next.",
@@ -323,9 +331,4 @@ landed_tail = [
   "2026-07-04: 2748 selects supported_bool_expr_classifier as the one-hundred-twenty-ninth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
   "2026-07-04: 2747 adopts supported_value_expr_classifier as the one-hundred-twenty-eighth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
   "2026-07-04: 2746 adds the supported_value_expr_classifier Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
-  "2026-07-04: 2745 adds the hand-authored supported_value_expr_classifier .hako implementation and chooses the parity gate card next.",
-  "2026-07-04: 2744 creates the 4-row supported_value_expr_classifier Rust-oracle fixture and chooses the Hako-native implementation card next.",
-  "2026-07-04: 2743 selects supported_value_expr_classifier as the one-hundred-twenty-eighth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
-  "2026-07-04: 2742 adopts generic_loop_bool_literal_condition_classifier as the one-hundred-twenty-seventh narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
-  "2026-07-04: 2741 adds the generic_loop_bool_literal_condition_classifier Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
 ]

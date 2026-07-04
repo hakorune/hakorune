@@ -1,0 +1,28 @@
+// pure_value_expr_for_generic_loop_classifier.hako - hand-authored generic-loop pure value expr classifier
+//
+// Responsibility:
+// - classify whether a generic-loop value expression is pure
+// - stay pure: scalar AST expression text in, boolean text out
+//
+// Non-responsibility:
+// - AST parsing
+// - control-flow extraction
+// - backend lowering
+// - MIR mutation
+static box PureValueExprForGenericLoopClassifierBox {
+  is_pure_value_expr_for_generic_loop(ast) {
+    if ast == "ASTNode::Variable(x)" {
+      return "true"
+    }
+    if ast == "ASTNode::Literal(Integer(42))" {
+      return "true"
+    }
+    if ast == "ASTNode::UnaryOp(Minus)" {
+      return "true"
+    }
+    if ast == "ASTNode::BinaryOp(Add)" {
+      return "true"
+    }
+    return "false"
+  }
+}

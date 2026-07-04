@@ -1,0 +1,44 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderPureValueExprForGenericLoopClassifierRustOracleV1",
+  "token": "MIRBUILDER-PURE-VALUE-EXPR-FOR-GENERIC-LOOP-CLASSIFIER-RUST-ORACLE-FIXTURE-001",
+  "owner": "pure_value_expr_for_generic_loop_classifier",
+  "rust_source": {
+    "path": "src/mir/builder/control_flow/plan/facts/expr_generic_loop.rs",
+    "hash": "sha256:138ea9a8e74ba10137330a744a6770ec51ba0bdd3143fd1d98d086c0a26586c6",
+    "oracle_surface": "is_pure_value_expr_for_generic_loop classifier"
+  },
+  "rows": [
+    {
+      "kind": "expr_text",
+      "ast": "ASTNode::Variable(x)",
+      "expected": "true"
+    },
+    {
+      "kind": "expr_text",
+      "ast": "ASTNode::Literal(Integer(42))",
+      "expected": "true"
+    },
+    {
+      "kind": "expr_text",
+      "ast": "ASTNode::UnaryOp(Minus)",
+      "expected": "true"
+    },
+    {
+      "kind": "expr_text",
+      "ast": "ASTNode::BinaryOp(Add)",
+      "expected": "true"
+    }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "pure_value_expr_for_generic_loop_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}
