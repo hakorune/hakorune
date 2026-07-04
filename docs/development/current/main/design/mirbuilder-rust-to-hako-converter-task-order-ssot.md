@@ -60,7 +60,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-FACT-OWNER-PARITY-PILOT-SELECTION-013
+  MIRBUILDER-BOOL-PREDICATE-SCAN-FACTS-AUTHORITY-FACADE-PARITY-001
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -70,16 +70,12 @@ normal operating rule:
   Next work inventories Fact-owner and REGISTRY-rule contracts, excludes
   lowering/mutation/allocation/backend-capability blockers, then selects one
   smallest fixture-backed parity candidate.
-  Selection-011 chooses `try_extract_loop_skeleton_facts` as the next
-  authority-facade pilot. It is a read-only Fact owner with `condition/body ->
-  SkeletonFacts { kind=Loop, feature_slots=[] }`, no MIR mutation, no lowering,
-  no ID allocation, and no new `.hako` backend capability.
+  Selection-011 chooses `try_extract_loop_skeleton_facts`; it is now
+  HakoAdoptedScoped for the authority-facade DTO only.
   `try_extract_loop_skeleton_facts` is now HakoAdoptedScoped for the
   authority-facade DTO only; feature-slot inference remains separate.
-  Selection-012 chooses `try_extract_string_is_integer_facts` as the next
-  authority-facade pilot. It is a read-only unit Fact owner with
-  condition/body token snapshot -> accepted/reason DTO, no MIR mutation, no
-  lowering, no ID allocation, and no new `.hako` backend capability.
+  Selection-012 chooses `try_extract_string_is_integer_facts`; it is now
+  HakoAdoptedScoped for the authority-facade DTO only.
   `try_extract_string_is_integer_facts` is now HakoAdoptedScoped for the
   authority-facade DTO only; full AST traversal remains separate.
   `try_extract_loop_continue_only_facts` is now HakoAdoptedScoped for the backend-safe token snapshot reducer only; recipe/lowering claims remain separate.
@@ -90,6 +86,11 @@ normal operating rule:
   `try_build_exit_allowed_block_recipe` is now HakoAdoptedScoped for the backend-safe token snapshot reducer only; in-arena construction, NoExitBlockRecipe, join-if semantics, and lowering remain Rust.
 
 latest design decision:
+  `try_extract_bool_predicate_scan_facts` is selected for the next authority
+  facade parity slice. This is the first ScanConditionObservation-backed Fact
+  owner in this run; the fixture must keep observation tokens precomputed and
+  must not migrate CondProfile construction, route selection, lowering,
+  mutation, allocation, or new `.hako` backend capability.
   `string_is_integer_facts.authority_facade` is HakoAdoptedScoped after green
   7-row parity; full AST traversal, route selection, lowering, mutation,
   allocation, and Source Selfhost remain unclaimed.
