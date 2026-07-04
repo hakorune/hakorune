@@ -1848,6 +1848,20 @@
       "status": "adopted_complete"
     },
     {
+      "adoption_card": "docs/development/current/main/phases/phase-296x/2782-MIRBUILDER-SUPPORTED-BOOL-EXPR-FOR-TRUE-LOOP-CLASSIFIER-HAKO-ADOPTION-DECISION-001.md",
+      "adoption_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-supported-bool-expr-for-true-loop-classifier-hako-adoption-decision-v0.json",
+      "candidate_kind": "classifier",
+      "hako_source": "lang/src/compiler/lib/supported_bool_expr_for_true_loop_classifier.hako",
+      "logical_owner": "supported_bool_expr_for_true_loop_classifier",
+      "missing": [],
+      "owner": "supported_bool_expr_for_true_loop_classifier",
+      "owner_from_fixture": "supported_bool_expr_for_true_loop_classifier",
+      "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_supported_bool_expr_for_true_loop_classifier_parity_gate.sh",
+      "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-supported-bool-expr-for-true-loop-classifier-rust-oracle-v0.json",
+      "selected_next_card": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-138",
+      "status": "adopted_complete"
+    },
+    {
       "adoption_card": "docs/development/current/main/phases/phase-296x/2747-MIRBUILDER-SUPPORTED-VALUE-EXPR-CLASSIFIER-HAKO-ADOPTION-DECISION-001.md",
       "adoption_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-supported-value-expr-classifier-hako-adoption-decision-v0.json",
       "candidate_kind": "classifier",
@@ -12652,7 +12666,7 @@
   "summary": {
     "existing_artifacts": {
       "by_candidate_kind": {
-        "classifier": 40,
+        "classifier": 41,
         "collector": 1,
         "formatter": 33,
         "label_formatter": 49,
@@ -12661,11 +12675,11 @@
         "vocabulary": 1
       },
       "by_status": {
-        "adopted_complete": 131,
+        "adopted_complete": 132,
         "adopted_incomplete_inventory": 13
       },
       "incomplete_owner_count": 13,
-      "owner_count": 144
+      "owner_count": 145
     },
     "source_scan": {
       "by_reject_reason": {

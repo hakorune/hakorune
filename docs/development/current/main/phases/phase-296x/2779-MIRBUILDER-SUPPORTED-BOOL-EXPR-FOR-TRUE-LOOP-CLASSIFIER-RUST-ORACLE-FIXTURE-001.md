@@ -1,0 +1,26 @@
+# 2779 MIRBUILDER-SUPPORTED-BOOL-EXPR-FOR-TRUE-LOOP-CLASSIFIER-RUST-ORACLE-FIXTURE-001
+
+Status: Completed
+Date: 2026-07-04
+
+## Decision
+
+Create a 4-row Rust oracle fixture for `supported_bool_expr_for_true_loop_classifier`.
+
+## Evidence
+
+```text
+owner:
+  supported_bool_expr_for_true_loop_classifier
+```
+
+## Non-Claims
+
+- Source Selfhost remains unclaimed.
+- Rust bootstrap/oracle remains retained.
+- True-loop supported bool-expression classification remains Rust.
+- Backend lowering and MIR mutation remain Rust.
+
+## Next
+
+`MIRBUILDER-SUPPORTED-BOOL-EXPR-FOR-TRUE-LOOP-CLASSIFIER-HAKO-NATIVE-IMPLEMENTATION-001`
