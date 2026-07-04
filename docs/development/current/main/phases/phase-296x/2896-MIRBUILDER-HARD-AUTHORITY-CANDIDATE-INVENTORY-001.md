@@ -40,6 +40,14 @@ small:
   already flattened them
 - `build_plan_with_facts_ctx` and `try_build_outcome` stay held until the Fact
   slice lands
+- existing unit-test anchors are already in place:
+  `exit_usage_tracks_break_continue_return_in_if`,
+  `exit_usage_ignores_nested_loops`,
+  `nested_loop_detects_if_branch_loop`
+- `has_unwind` remains false in the current walker, so the first fixture should
+  keep it frozen as `false`
+- `value_join` and `cleanup` remain `None`; the first fixture should not try to
+  infer extra lowerer-owned meaning here
 
 ## Fixture Contract
 
