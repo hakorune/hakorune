@@ -26,6 +26,43 @@ Why this candidate first:
 candidates. They are still part of the inventory, but they are not the first
 slice.
 
+## Fixture Contract
+
+The first Rust oracle fixture for this slice should freeze the primary
+observables only:
+
+```text
+primary facts:
+  exit_usage
+  nested_loop
+
+derived fact:
+  exit_map
+
+fixed empty fields:
+  value_join = None
+  cleanup = None
+```
+
+Recommended seed rows:
+
+```text
+row 1:
+  body shape = if-with-break/continue/return
+  exit_usage = { break=true, continue=true, return=true, unwind=false }
+  nested_loop = false
+  exit_map = present with 3 kinds
+
+row 2:
+  body shape = nested loop hidden under if
+  exit_usage = default(false/false/false/false)
+  nested_loop = true
+  exit_map = None
+```
+
+This keeps the first fixture narrow while still proving the read-only fact owner
+distinguishes the direct exit summary from nested-loop observation.
+
 ## Evidence
 
 Current inventory facts:
