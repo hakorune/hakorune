@@ -1,0 +1,18 @@
+// fastmem_llvm_owner_runtime_memop_kind_classifier.hako - hand-authored fastmem owner-runtime classifier
+//
+// Responsibility:
+// - classify owner-runtime memop kinds
+// - stay pure: memop kind token in, boolean text out
+//
+// Non-responsibility:
+// - fastmem dialect validation
+// - access-plan collection
+// - backend lowering
+// - MIR mutation
+static box FastMemLlvmOwnerRuntimeMemopKindClassifierBox {
+  is_owner_runtime_memop_kind(kind) {
+    if kind == "CurrentAllocOwnerId" { return "true" }
+    if kind == "OwnerEq" { return "true" }
+    return "false"
+  }
+}
