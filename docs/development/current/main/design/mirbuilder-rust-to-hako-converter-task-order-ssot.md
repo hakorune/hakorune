@@ -96,26 +96,7 @@ latest design decision:
   parity gate. True-loop supported value-expression classification remains
   Rust. Backend lowering and MIR mutation remain Rust. The selected next card
   is `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-137`.
-  supported_value_expr_for_generic_loop_classifier is now HakoAdopted as a
-  narrow Rust-oracle parity pilot owner after a green 4-row `.hako` EXE
-  parity gate. Generic-loop supported value-expression classification remains
-  Rust. Backend lowering and MIR mutation remain Rust. The selected next card
-  is `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-136`.
-  basic_block_terminator_classifier is now HakoAdopted as a narrow Rust-oracle
-  parity pilot owner after a green 5-row `.hako` EXE parity gate. Basic-block
-  terminator classification remains Rust. Backend lowering and MIR mutation
-  remain Rust. ArrayStringStoreMicroSeedProofFormatter is now HakoAdopted as a
-  narrow Rust-oracle parity pilot owner after a green 1-row `.hako` EXE parity
-  gate. Source Selfhost remains unclaimed. ConditionTrueLiteralClassifier is
-  now HakoAdopted as a narrow Rust-oracle parity pilot owner after a green
-  3-row `.hako` EXE parity gate. Source Selfhost remains unclaimed.
-  NormalizedShadowBoolTrueLiteralClassifier is now HakoAdopted as a narrow
-  Rust-oracle parity pilot owner after a green 3-row `.hako` EXE parity gate.
-  Source Selfhost remains unclaimed.
-  GenericLoopBoolLiteralConditionClassifier is now HakoAdopted as a narrow
-  Rust-oracle parity pilot owner after a green 3-row `.hako` EXE parity gate.
-  Source Selfhost remains unclaimed. The selected next card is
-  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-134`.
+  older rows live in phase cards and git history.
 
 current fail-fast boundary:
   Do not re-enter full converter route selection without new non-self-signed authority or stable input delta. The adopted pilot scopes are narrow pure owners only: classification/formatting vocabulary, tiny mutation-frame leaves, label/tag surfaces, and fixture-backed parity helpers.
