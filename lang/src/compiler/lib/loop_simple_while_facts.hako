@@ -1,0 +1,31 @@
+// loop_simple_while_facts.hako
+//
+// Responsibility:
+// - reduce a backend-safe loop-simple-while token snapshot into a facts summary
+// - mirror the narrow acceptance/reject surface of try_extract_loop_simple_while_facts
+//
+// Non-responsibility:
+// - full AST traversal, loop builder composition, recipe construction, or lowering
+// - MIR mutation, route selection, backend lowering, or ID allocation
+static box LoopSimpleWhileFactsBox {
+  build_summary(token) {
+    if token == "CondILess3BodyStepIAdd1" { return "accepted=1;loop_var=i;increment=i_plus_1" }
+    if token == "CondJLess5BodyStepJAdd1" { return "accepted=1;loop_var=j;increment=j_plus_1" }
+    return "accepted=0;reason=" + me._reject_reason(token)
+  }
+
+  _reject_reason(token) {
+    if token == "CondILe3BodyStepIAdd1" { return "condition_not_var_less_literal" }
+    if token == "CondLiteralLess3BodyStepIAdd1" { return "condition_left_not_variable" }
+    if token == "CondILessNBodyStepIAdd1" { return "condition_right_not_literal" }
+    if token == "CondILess3BodyBreakStepIAdd1" { return "has_break" }
+    if token == "CondILess3BodyContinueStepIAdd1" { return "has_continue" }
+    if token == "CondILess3BodyReturnStepIAdd1" { return "has_return" }
+    if token == "CondILess3BodyIfElseStepIAdd1" { return "has_if_else" }
+    if token == "CondILess3BodyNestedLoopStepIAdd1" { return "has_nested_loop" }
+    if token == "CondILess3BodyNoStep" { return "missing_increment" }
+    if token == "CondILess3BodyEffectThenStep" { return "not_step_only_body" }
+    if token == "CondILess3BodyStepIAdd2" { return "increment_not_step_one" }
+    return "unsupported_token"
+  }
+}

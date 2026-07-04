@@ -1,0 +1,122 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderLoopSimpleWhileFactsRustOracleV1",
+  "token": "MIRBUILDER-LOOP-SIMPLE-WHILE-FACTS-RUST-ORACLE-FIXTURE-001",
+  "owner": "loop_simple_while_facts",
+  "rust_source": {
+    "path": "src/mir/builder/control_flow/plan/facts/loop_simple_while_facts.rs",
+    "hash": "sha256:41ec3a07334985611faea079e6e80e8e7a8a9322a38279a4510b52e1a31c8be9",
+    "oracle_surface": "try_extract_loop_simple_while_facts"
+  },
+  "input_contract": "BackendSafeLoopSimpleWhileFactsTokenSnapshotV1",
+  "rows": [
+    {
+      "case_id": "accept_i_less_3_step_one",
+      "token": "CondILess3BodyStepIAdd1",
+      "expected_accept": true,
+      "expected_loop_var": "i",
+      "expected_increment": "i_plus_1",
+      "expected_summary": "accepted=1;loop_var=i;increment=i_plus_1"
+    },
+    {
+      "case_id": "accept_j_less_5_step_one",
+      "token": "CondJLess5BodyStepJAdd1",
+      "expected_accept": true,
+      "expected_loop_var": "j",
+      "expected_increment": "j_plus_1",
+      "expected_summary": "accepted=1;loop_var=j;increment=j_plus_1"
+    },
+    {
+      "case_id": "reject_condition_not_less",
+      "token": "CondILe3BodyStepIAdd1",
+      "expected_accept": false,
+      "expected_reason": "condition_not_var_less_literal",
+      "expected_summary": "accepted=0;reason=condition_not_var_less_literal"
+    },
+    {
+      "case_id": "reject_condition_left_not_variable",
+      "token": "CondLiteralLess3BodyStepIAdd1",
+      "expected_accept": false,
+      "expected_reason": "condition_left_not_variable",
+      "expected_summary": "accepted=0;reason=condition_left_not_variable"
+    },
+    {
+      "case_id": "reject_condition_right_not_literal",
+      "token": "CondILessNBodyStepIAdd1",
+      "expected_accept": false,
+      "expected_reason": "condition_right_not_literal",
+      "expected_summary": "accepted=0;reason=condition_right_not_literal"
+    },
+    {
+      "case_id": "reject_has_break",
+      "token": "CondILess3BodyBreakStepIAdd1",
+      "expected_accept": false,
+      "expected_reason": "has_break",
+      "expected_summary": "accepted=0;reason=has_break"
+    },
+    {
+      "case_id": "reject_has_continue",
+      "token": "CondILess3BodyContinueStepIAdd1",
+      "expected_accept": false,
+      "expected_reason": "has_continue",
+      "expected_summary": "accepted=0;reason=has_continue"
+    },
+    {
+      "case_id": "reject_has_return",
+      "token": "CondILess3BodyReturnStepIAdd1",
+      "expected_accept": false,
+      "expected_reason": "has_return",
+      "expected_summary": "accepted=0;reason=has_return"
+    },
+    {
+      "case_id": "reject_has_if_else",
+      "token": "CondILess3BodyIfElseStepIAdd1",
+      "expected_accept": false,
+      "expected_reason": "has_if_else",
+      "expected_summary": "accepted=0;reason=has_if_else"
+    },
+    {
+      "case_id": "reject_nested_loop",
+      "token": "CondILess3BodyNestedLoopStepIAdd1",
+      "expected_accept": false,
+      "expected_reason": "has_nested_loop",
+      "expected_summary": "accepted=0;reason=has_nested_loop"
+    },
+    {
+      "case_id": "reject_missing_increment",
+      "token": "CondILess3BodyNoStep",
+      "expected_accept": false,
+      "expected_reason": "missing_increment",
+      "expected_summary": "accepted=0;reason=missing_increment"
+    },
+    {
+      "case_id": "reject_not_step_only_body",
+      "token": "CondILess3BodyEffectThenStep",
+      "expected_accept": false,
+      "expected_reason": "not_step_only_body",
+      "expected_summary": "accepted=0;reason=not_step_only_body"
+    },
+    {
+      "case_id": "reject_increment_not_step_one",
+      "token": "CondILess3BodyStepIAdd2",
+      "expected_accept": false,
+      "expected_reason": "increment_not_step_one",
+      "expected_summary": "accepted=0;reason=increment_not_step_one"
+    }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "full_ast_traversal_adopted": 0,
+    "loop_builder_adopted": 0,
+    "loop_simple_while_recipe_adopted": 0,
+    "step_only_body_policy_migrated": 0,
+    "loop_increment_plan_migrated": 0,
+    "route_selection_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0,
+    "id_allocation_migration": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
