@@ -1,0 +1,75 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderLoopConditionShapeHakoAdoptedDecisionV1",
+  "token": "MIRBUILDER-LOOP-CONDITION-SHAPE-HAKOADOPTED-DECISION-001",
+  "input_state": {
+    "hako_source": "lang/src/compiler/lib/loop_condition_shape.hako",
+    "hako_source_hash": "sha256:c41089ba99e60108304537294d6fbac5c16ac3700341dcd284bc89a408819dbf",
+    "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-condition-shape-rust-oracle-v0.json",
+    "rust_oracle_fixture_hash": "sha256:d33a56c2427238330a76db741692e107cc628ad542fdb23cb705f74a7067a6f9",
+    "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_loop_condition_shape_parity_gate.sh",
+    "parity_gate_hash": "sha256:93d675d91357ab6e7b6352b0fa6ffed895f8f6379b629e6608521e6699b41198"
+  },
+  "adoption_scope": {
+    "adopted_owner": "loop_condition_shape.backend_safe_token_snapshot_reducer",
+    "rust_oracle_symbol": "try_extract_condition_shape",
+    "input_contract": "BackendSafeLoopConditionShapeTokenSnapshotV1",
+    "native_edit_authority": "lang/src/compiler/lib/loop_condition_shape.hako",
+    "owned_semantics": [
+      "condition_root_shape_acceptance",
+      "condition_shape_kind_token",
+      "idx_var_token",
+      "length_method_token",
+      "bound_literal_token",
+      "length_minus_needle_tokens",
+      "reject_reason_token"
+    ],
+    "excluded_semantics": [
+      "full_AST_traversal",
+      "CondProfile_migration",
+      "condition_observation_unification",
+      "scan_shape_matching",
+      "loop_builder_composition",
+      "route_selection",
+      "backend_lowering",
+      "MIR_mutation",
+      "ID_allocation"
+    ]
+  },
+  "parity": {
+    "gate_status": "Green",
+    "oracle_row_count": 15,
+    "required_contract_fields": [
+      "accepted",
+      "shape",
+      "idx_var",
+      "haystack_var",
+      "method",
+      "bound",
+      "needle_var",
+      "reason"
+    ]
+  },
+  "decision": {
+    "kind": "HakoAdoptedScoped",
+    "reason_token": "LoopConditionShapeBackendSafeTokenSnapshotParityGreen",
+    "selected_next_card": "MIRBUILDER-FACT-OWNER-PARITY-PILOT-SELECTION-009",
+    "backlog_card": "MIRBUILDER-LOOP-CONDITION-SHAPE-CONDPROFILE-CONSULTATION-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "full_try_extract_condition_shape_ast_owner_adopted": 0,
+    "cond_profile_migration": 0,
+    "condition_observation_unification": 0,
+    "scan_shape_matching_adopted": 0,
+    "loop_builder_adopted": 0,
+    "route_selection_migrated": 0,
+    "backend_lowering_migrated": 0,
+    "mir_mutation_migrated": 0,
+    "id_allocation_migrated": 0,
+    "hako_generation": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

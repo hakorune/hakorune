@@ -345,14 +345,13 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-LOOP-CONDITION-SHAPE-PARITY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2910-MIRBUILDER-LOOP-CONDITION-SHAPE-PARITY-001.md"
-latest_card_summary = """The latest card lands
-loop_condition_shape.backend_safe_token_snapshot_reducer parity for
-condition-root ConditionShape observation while keeping CondProfile migration,
-observation unification, scan matching, loop builder composition, route
-selection, backend lowering, MIR mutation, ID allocation, and Source Selfhost
-unclaimed."""
+latest_card = "MIRBUILDER-LOOP-CONDITION-SHAPE-HAKOADOPTED-DECISION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2911-MIRBUILDER-LOOP-CONDITION-SHAPE-HAKOADOPTED-DECISION-001.md"
+latest_card_summary = """The latest card adopts
+loop_condition_shape.backend_safe_token_snapshot_reducer as a scoped
+HakoAdopted Fact owner while keeping CondProfile migration, observation
+unification, scan matching, loop builder composition, route selection, backend
+lowering, MIR mutation, ID allocation, and Source Selfhost unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -363,6 +362,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-05: 2911 adopts loop_condition_shape.backend_safe_token_snapshot_reducer as a scoped HakoAdopted Fact owner; CondProfile remains Rust.",
   "2026-07-05: 2910 lands loop_condition_shape.backend_safe_token_snapshot_reducer parity for condition-root ConditionShape observation; CondProfile remains Rust.",
   "2026-07-05: 2909 adopts loop_step_shape.backend_safe_token_snapshot_reducer as a scoped HakoAdopted Fact owner; CondProfile and lowering remain Rust.",
   "2026-07-05: 2908 lands loop_step_shape.backend_safe_token_snapshot_reducer parity for last-statement var +/- 1 observation; CondProfile and lowering remain Rust.",
@@ -374,5 +374,4 @@ landed_tail = [
   "2026-07-05: 2902 lands exit_only_block_recipe.backend_safe_token_snapshot_reducer parity as the next Fact-owner slice; recursive RecipeBodies materialization remains Rust.",
   "2026-07-05: 2901 adopts match_return_facts.backend_safe_token_snapshot_reducer as a scoped HakoAdopted Fact owner; strict/release policy and Source Selfhost remain unclaimed.",
   "2026-07-05: 2900 lands match_return_facts.backend_safe_token_snapshot_reducer parity as the next Fact-owner slice; BranchN composition and return lowering remain unclaimed.",
-  "2026-07-05: 2899 adopts stmt_only_block_recipe.backend_safe_token_snapshot_reducer as a scoped HakoAdopted Fact owner; ScopeBox flattening and Source Selfhost remain unclaimed.",
 ]
