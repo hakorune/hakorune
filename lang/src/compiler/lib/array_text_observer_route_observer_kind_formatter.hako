@@ -1,0 +1,17 @@
+// array_text_observer_route_observer_kind_formatter.hako - hand-authored route observer-kind formatter
+//
+// Responsibility:
+// - format the narrow ArrayTextObserverRoute observer-kind vocabulary
+// - stay pure: scalar kind token in, scalar text out
+//
+// Non-responsibility:
+// - array/text observer route matching
+// - observer contract handling
+// - backend lowering
+// - MIR mutation
+static box ArrayTextObserverRouteObserverKindFormatterBox {
+  format_observer_kind(kind) {
+    if kind == "IndexOf" { return "indexof" }
+    return "unsupported_array_text_observer_route_observer_kind"
+  }
+}
