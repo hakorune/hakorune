@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-07-04
+Date: 2026-07-05
 Scope: MirBuilder authority-based Rust-to-Hako migration order.
 Related:
   - docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md
@@ -28,6 +28,52 @@ ID allocation authority
 
 The migration should reduce Rust semantic authority by contract. It should not
 copy the current Rust call graph into native `.hako`.
+
+## Crate / Facade Boundary Rule
+
+Meaning-based Rust crates can make migration easier, but crate boundaries are
+not the migration authority by themselves. The durable migration boundary is
+still the authority contract:
+
+```text
+authority facade -> Rust oracle fixture -> .hako owner -> parity gate
+```
+
+Use an authority facade before a crate split:
+
+```text
+1. Cut a narrow Rust facade for one authority.
+2. Freeze its input/output DTO contract with a fixture.
+3. Prove the same contract in hand-authored `.hako`.
+4. Mark the owner HakoAdoptedScoped.
+5. Only then consider moving the proven facade into a meaning-based crate.
+```
+
+Do not start with a broad crate split. A broad split can make the Rust graph
+cleaner, but it can also preserve Rust-shaped boundaries that are not the
+target `.hako` authority boundaries. Crate extraction is allowed only when the
+authority seam is already proven or when a dedicated design card states the
+crate boundary, forbidden dependencies, and removal path.
+
+Current `.hako` capability boundary:
+
+```text
+enough now:
+  token snapshot -> fact DTO
+  facts -> small symbolic recipe / plan DTO
+  pure reducer / classifier / formatter
+
+still gated:
+  full AST traversal authority
+  MIR mutation
+  ValueId / BlockId allocation authority
+  backend lowering
+  route execution in normal compiler paths
+  broad typed-object / enum-handle / MapBox ABI use
+```
+
+Therefore the next hard-authority pilot should cut an authority facade around a
+read-only Fact owner or one REGISTRY rule, not a crate-wide physical split.
 
 ## Current Entry
 

@@ -25,9 +25,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-HARD-AUTHORITY-CANDIDATE-INVENTORY-001.
-  The first hard-authority slice is `try_extract_loop_feature_facts`; plan-track
-  and Boundary-track candidates stay held until the Fact slice lands.
+  MIRBUILDER-AUTHORITY-FACADE-HARD-AUTHORITY-PILOT-POLICY-001.
+  Broad crate splitting is held. The next hard-authority slice must first cut
+  a narrow authority facade, freeze a DTO fixture, and prove `.hako` parity.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -64,6 +64,9 @@ selected next task:
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
+  Do not start with broad meaning-based crate splitting. First prove one
+  authority facade boundary, then consider crate extraction for that proven
+  boundary only.
   Next work inventories Fact-owner and REGISTRY-rule contracts, excludes
   lowering/mutation/allocation/backend-capability blockers, then selects one
   smallest fixture-backed parity candidate.
@@ -75,6 +78,11 @@ normal operating rule:
   `try_build_exit_allowed_block_recipe` is now HakoAdoptedScoped for the backend-safe token snapshot reducer only; in-arena construction, NoExitBlockRecipe, join-if semantics, and lowering remain Rust.
 
 latest design decision:
+  Authority facade comes before crate split: Rust may be reorganized around
+  meaning units only after the authority seam is fixture-backed and parity
+  proven. The next hard-authority pilot should target Fact -> DTO or one
+  REGISTRY rule -> plan DTO without MIR mutation, lowering, ID allocation, or
+  new `.hako` backend capability.
   `loop_continue_only_facts.backend_safe_token_snapshot_reducer` is HakoAdoptedScoped after a green 11-row gate; control-flow counting, carrier update maps, recipe construction, loop builder composition, lowering, mutation, allocation, and Source Selfhost remain unclaimed.
   `loop_simple_while_facts.backend_safe_token_snapshot_reducer` is HakoAdoptedScoped after a green 13-row gate; recipe construction, loop builder composition, lowering, mutation, allocation, and Source Selfhost remain unclaimed.
   `loop_condition_shape.backend_safe_token_snapshot_reducer` is HakoAdoptedScoped after a green 15-row gate; CondProfile migration, observation unification, scan matching, loop builder composition, lowering, mutation, allocation, and Source Selfhost remain unclaimed.
@@ -93,42 +101,7 @@ latest design decision:
   Leaf parity pilots are vocabulary coverage, not hard MirBuilder authority
   progress. The next slice must target the smallest Fact-owner or REGISTRY-rule
   contract with fixture-backed parity, not another formatter/classifier rerun.
-  control_form_from_if_constructor is now HakoAdopted as a narrow Rust-oracle parity pilot owner after a green 2-row `.hako` EXE parity gate.
-  ControlForm construction remains Rust. Backend lowering and MIR mutation remain Rust.
-  control_form_is_if_classifier is now HakoAdopted as a narrow Rust-oracle parity pilot owner after a green 2-row `.hako` EXE parity gate.
-  ControlForm handling remains Rust. Backend lowering and MIR mutation remain Rust.
-  The selected next card is `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-161`.
-  agg_local_scalarization_kind_formatter is now HakoAdopted as a narrow
-  Rust-oracle parity pilot owner after a green 6-row `.hako` EXE parity gate.
-  Agg-local scalarization route collection remains Rust. Backend lowering and
-  MIR mutation remain Rust. The selected next card is
-  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-149`.
-  agg_local_scalarization_inline_scalar_user_box_local_body_classifier is now
-  HakoAdopted as a narrow Rust-oracle parity pilot owner after a green 6-row
-  `.hako` EXE parity gate. Agg-local scalarization route collection remains
-  Rust. Backend lowering and MIR mutation remain Rust. The selected next card
-  is `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-148`.
-  builder_value_kind_parameter_classifier is now HakoAdopted as a narrow
-  Rust-oracle parity pilot owner after a green 6-row `.hako` EXE parity gate.
-  MirBuilder builder_value_kind parameter classification remains Rust.
-  Backend lowering and MIR mutation remain Rust. The selected next card is
-  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-147`.
-  array_text_loop_session_backend_session_lowering_allowed_classifier is now
-  HakoAdopted as a narrow Rust-oracle parity pilot owner after a green 7-row
-  `.hako` EXE parity gate. ArrayTextLoopSessionPlan backend-session lowering
-  remains Rust. Backend lowering and MIR mutation remain Rust. The selected
-  next card is
-  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-145`.
-  block_contract_kind_label_formatter is now HakoAdopted as a narrow
-  Rust-oracle parity pilot owner after a green 4-row `.hako` EXE parity gate.
-  VerifiedRecipeBlock kind vocabulary remains Rust. Backend lowering and MIR
-  mutation remain Rust. The selected next card is
-  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-144`.
-  array_string_len_window_effect_tags_formatter is now HakoAdopted as a
-  narrow Rust-oracle parity pilot owner after a green 3-row `.hako` EXE
-  parity gate. Array-string len-window effect-tags formatting remains Rust.
-  Backend lowering and MIR mutation remain Rust. The selected next card is
-  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-143`.
+  Older leaf adoption details are archived in phase cards and git history.
 
 current fail-fast boundary:
   Do not re-enter full converter route selection without new non-self-signed authority or stable input delta. The adopted pilot scopes are narrow pure owners only: classification/formatting vocabulary, tiny mutation-frame leaves, label/tag surfaces, direct step placement classification, array-string len-window effect-tags formatting, and fixture-backed parity helpers.
