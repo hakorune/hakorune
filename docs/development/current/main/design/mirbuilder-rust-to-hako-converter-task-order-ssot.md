@@ -60,7 +60,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-ACCUM-CONST-LOOP-FACTS-HAKOADOPTED-DECISION-001
+  MIRBUILDER-FACT-OWNER-PARITY-PILOT-SELECTION-015
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -83,15 +83,15 @@ normal operating rule:
   Selection-014 chooses `try_extract_accum_const_loop_facts`; AST payload
   construction, CondProfile construction, loop increment extraction, recipe,
   lowering, mutation, allocation, and Source Selfhost remain unclaimed.
-  `try_extract_accum_const_loop_facts` now has green authority-facade parity;
-  next is its scoped HakoAdopted decision.
+  `try_extract_accum_const_loop_facts` is now HakoAdoptedScoped for the
+  authority-facade DTO only; AST payload construction remains separate.
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  `accum_const_loop_facts.authority_facade` has green 9-row parity with
-  backend-safe token snapshots; AST payload construction, CondProfile
-  construction, loop increment extraction, lowering, mutation, allocation, and
-  Source Selfhost remain unclaimed. The HakoAdopted decision is next.
+  `accum_const_loop_facts.authority_facade` is HakoAdoptedScoped after green
+  9-row parity; AST payload construction, CondProfile construction, loop
+  increment extraction, lowering, mutation, allocation, and Source Selfhost
+  remain unclaimed.
   `bool_predicate_scan_facts.authority_facade` is HakoAdoptedScoped after green
   7-row parity with precomputed observation tokens; CondProfile construction,
   lowering, mutation, allocation, and Source Selfhost remain unclaimed.
@@ -102,11 +102,6 @@ latest design decision:
   parity for SkeletonFacts `{ kind=Loop, feature_slots=[] }`; broad crate
   split, feature-slot inference, full AST traversal, lowering, mutation,
   allocation, and Source Selfhost remain unclaimed.
-  `try_extract_loop_skeleton_facts` is selected for the next authority facade
-  parity slice. `try_extract_loop_feature_facts` is not selected again because
-  its backend-safe token snapshot reducer is already HakoAdoptedScoped; full
-  AST body traversal stays in the explicit backend-capability consultation
-  backlog.
   Authority facade comes before crate split: Rust may be reorganized around
   meaning units only after the authority seam is fixture-backed and parity
   proven. The next hard-authority pilot should target Fact -> DTO or one

@@ -1,0 +1,72 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderAccumConstLoopFactsHakoAdoptedDecisionV1",
+  "token": "MIRBUILDER-ACCUM-CONST-LOOP-FACTS-HAKOADOPTED-DECISION-001",
+  "input_state": {
+    "hako_source": "lang/src/compiler/lib/accum_const_loop_facts.hako",
+    "hako_source_hash": "sha256:ad78900da33f696740dc1c833c3c7f48be5e22511c300aa68d4bdef4dbead03a",
+    "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-accum-const-loop-facts-rust-oracle-v0.json",
+    "rust_oracle_fixture_hash": "sha256:3ed11d19320210324bb71b8b26743f73a863b71868b4ccc1df42aa89b1a64dd0",
+    "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_accum_const_loop_facts_parity_gate.sh",
+    "parity_gate_hash": "sha256:ccc2d7f9ea58aba787965c39100f4cef57eecf672f3ce8be76a0d6a3029d73f1"
+  },
+  "adoption_scope": {
+    "adopted_owner": "accum_const_loop_facts.authority_facade",
+    "rust_oracle_symbol": "try_extract_accum_const_loop_facts",
+    "input_contract": "BackendSafeAccumConstLoopFactsTokenSnapshotV1",
+    "native_edit_authority": "lang/src/compiler/lib/accum_const_loop_facts.hako",
+    "owned_semantics": [
+      "accum_const_loop_acceptance",
+      "loop_var_token",
+      "accumulator_var_token",
+      "accumulator_literal_token",
+      "reject_reason_token"
+    ],
+    "excluded_semantics": [
+      "full_AST_traversal",
+      "AST_payload_construction",
+      "CondProfile_construction",
+      "ScanConditionObservation_construction",
+      "loop_increment_extraction",
+      "recipe_construction",
+      "route_selection",
+      "backend_lowering",
+      "MIR_mutation",
+      "ID_allocation"
+    ]
+  },
+  "parity": {
+    "gate_status": "Green",
+    "oracle_row_count": 9,
+    "required_contract_fields": [
+      "accepted",
+      "loop_var",
+      "acc_var",
+      "acc_lit",
+      "reason"
+    ]
+  },
+  "decision": {
+    "kind": "HakoAdoptedScoped",
+    "reason_token": "AccumConstLoopFactsAuthorityFacadeParityGreen",
+    "selected_next_card": "MIRBUILDER-FACT-OWNER-PARITY-PILOT-SELECTION-015",
+    "backlog_card": "MIRBUILDER-ACCUM-CONST-LOOP-FULL-AST-PAYLOAD-CONSULTATION-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "full_ast_traversal_adopted": 0,
+    "ast_payload_construction_migrated": 0,
+    "cond_profile_construction_migrated": 0,
+    "scan_condition_observation_migrated": 0,
+    "loop_increment_extraction_migrated": 0,
+    "recipe_construction_migrated": 0,
+    "route_selection_migrated": 0,
+    "backend_lowering_migrated": 0,
+    "mir_mutation_migrated": 0,
+    "id_allocation_migrated": 0,
+    "hako_generation": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
