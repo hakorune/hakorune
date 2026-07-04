@@ -1,0 +1,83 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderLoopStepShapeHakoAdoptedDecisionV1",
+  "token": "MIRBUILDER-LOOP-STEP-SHAPE-HAKOADOPTED-DECISION-001",
+  "input_state": {
+    "hako_source": "lang/src/compiler/lib/loop_step_shape.hako",
+    "hako_source_hash": "sha256:d729c4fe1dbf761a05e2bd69e8a070cb6324b3590297ab3dc16e47bcde63a88c",
+    "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-step-shape-rust-oracle-v0.json",
+    "rust_oracle_fixture_hash": "sha256:6436927bd84e8300068da6c9ddfdaddb25da25ed105908fecb82bdb59307bd6a",
+    "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_loop_step_shape_parity_gate.sh",
+    "parity_gate_hash": "sha256:d3d74f30874c07a1307d1331f058f0c33407b260302584aac2daa27ca382e26b"
+  },
+  "adoption_scope": {
+    "adopted_owner": "loop_step_shape.backend_safe_token_snapshot_reducer",
+    "rust_oracle_symbol": "try_extract_step_shape",
+    "input_contract": "BackendSafeLoopStepShapeTokenSnapshotV1",
+    "native_edit_authority": "lang/src/compiler/lib/loop_step_shape.hako",
+    "owned_semantics": [
+      "last_stmt_assignment_shape_acceptance",
+      "step_shape_kind_token",
+      "step_var_token",
+      "step_delta_token",
+      "reject_reason_token"
+    ],
+    "excluded_semantics": [
+      "full_AST_traversal",
+      "loop_builder_composition",
+      "ConditionShape",
+      "CondProfile",
+      "scan_shape_matching",
+      "route_selection",
+      "backend_lowering",
+      "MIR_mutation",
+      "ID_allocation"
+    ]
+  },
+  "parity": {
+    "gate_status": "Green",
+    "oracle_row_count": 11,
+    "required_contract_fields": [
+      "accepted",
+      "shape",
+      "var",
+      "k",
+      "reason"
+    ],
+    "required_rows": [
+      "accept_i_add_one",
+      "accept_i_sub_one",
+      "accept_j_add_one",
+      "reject_empty_body",
+      "reject_last_not_assignment",
+      "reject_target_not_variable",
+      "reject_value_not_binary",
+      "reject_lhs_mismatch",
+      "reject_rhs_not_integer",
+      "reject_delta_not_one",
+      "reject_unsupported_operator"
+    ]
+  },
+  "decision": {
+    "kind": "HakoAdoptedScoped",
+    "reason_token": "LoopStepShapeBackendSafeTokenSnapshotParityGreen",
+    "selected_next_card": "MIRBUILDER-FACT-OWNER-PARITY-PILOT-SELECTION-008",
+    "backlog_card": "MIRBUILDER-LOOP-STEP-SHAPE-CONDPROFILE-CONSULTATION-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "full_try_extract_step_shape_ast_owner_adopted": 0,
+    "loop_builder_adopted": 0,
+    "condition_shape_adopted": 0,
+    "cond_profile_migration": 0,
+    "scan_shape_matching_adopted": 0,
+    "route_selection_migrated": 0,
+    "backend_lowering_migrated": 0,
+    "mir_mutation_migrated": 0,
+    "id_allocation_migrated": 0,
+    "hako_generation": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
