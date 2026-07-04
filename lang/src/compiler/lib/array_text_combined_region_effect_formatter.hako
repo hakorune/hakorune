@@ -1,0 +1,27 @@
+// array_text_combined_region_effect_formatter.hako - hand-authored combined-region effect formatter
+//
+// Responsibility:
+// - format ArrayTextCombinedRegionEffect names into Rust oracle text
+// - stay pure: scalar effect token in, scalar text out
+//
+// Non-responsibility:
+// - array/text combined region planning
+// - backend lowering
+// - MIR mutation
+static box ArrayTextCombinedRegionEffectFormatterBox {
+  as_str(effect) {
+    if effect == "LenHalfInsertMidStoreCell" {
+      return "store.cell(lenhalf_insert_mid_const)"
+    }
+    if effect == "ObserveIndexOf" {
+      return "observe.indexof"
+    }
+    if effect == "ConstSuffixStoreCell" {
+      return "store.cell(const_suffix_append)"
+    }
+    if effect == "ScalarAccumulatorAddOne" {
+      return "scalar_accumulator(+1)"
+    }
+    return "unsupported_array_text_combined_region_effect"
+  }
+}
