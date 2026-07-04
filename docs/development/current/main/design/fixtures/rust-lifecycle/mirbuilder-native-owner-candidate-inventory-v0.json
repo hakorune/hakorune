@@ -10,6 +10,20 @@
   },
   "existing_owner_rows": [
     {
+      "adoption_card": "docs/development/current/main/phases/phase-296x/2572-MIRBUILDER-AGG-LOCAL-SCALARIZATION-INLINE-SCALAR-USER-BOX-LOCAL-BODY-CLASSIFIER-HAKO-ADOPTION-DECISION-001.md",
+      "adoption_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-agg-local-scalarization-inline-scalar-user-box-local-body-classifier-hako-adoption-decision-v0.json",
+      "candidate_kind": "classifier",
+      "hako_source": "lang/src/compiler/lib/agg_local_scalarization_inline_scalar_user_box_local_body_classifier.hako",
+      "logical_owner": "agg_local_scalarization_inline_scalar_user_box_local_body_classifier",
+      "missing": [],
+      "owner": "agg_local_scalarization_inline_scalar_user_box_local_body_classifier",
+      "owner_from_fixture": "agg_local_scalarization_inline_scalar_user_box_local_body_classifier",
+      "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_agg_local_scalarization_inline_scalar_user_box_local_body_classifier_parity_gate.sh",
+      "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-agg-local-scalarization-inline-scalar-user-box-local-body-classifier-rust-oracle-v0.json",
+      "selected_next_card": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-097",
+      "status": "adopted_complete"
+    },
+    {
       "adoption_card": "docs/development/current/main/phases/phase-296x/2233-MIRBUILDER-ARRAY-GETSET-MICRO-SEED-PROOF-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.md",
       "adoption_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-array-getset-micro-seed-proof-label-formatter-hako-adoption-decision-v0.json",
       "candidate_kind": "label_formatter",
@@ -12129,7 +12143,7 @@
   "summary": {
     "existing_artifacts": {
       "by_candidate_kind": {
-        "classifier": 12,
+        "classifier": 13,
         "collector": 1,
         "formatter": 25,
         "label_formatter": 48,
@@ -12138,11 +12152,11 @@
         "vocabulary": 1
       },
       "by_status": {
-        "adopted_complete": 94,
+        "adopted_complete": 95,
         "adopted_incomplete_inventory": 12
       },
       "incomplete_owner_count": 12,
-      "owner_count": 106
+      "owner_count": 107
     },
     "source_scan": {
       "by_reject_reason": {

@@ -1,0 +1,49 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderAggLocalScalarizationInlineScalarUserBoxLocalBodyClassifierRustOracleV1",
+  "token": "MIRBUILDER-AGG-LOCAL-SCALARIZATION-INLINE-SCALAR-USER-BOX-LOCAL-BODY-CLASSIFIER-RUST-ORACLE-FIXTURE-001",
+  "owner": "agg_local_scalarization_inline_scalar_user_box_local_body_classifier",
+  "rust_source": {
+    "path": "src/mir/agg_local_scalarization.rs",
+    "hash": "sha256:f3c5557c0baf663b6ebeb73051b505236c2c429bbede8e173e0ebb67bea59c7d",
+    "oracle_surface": "AggLocalScalarization inline-scalar user-box local body classifier"
+  },
+  "rows": [
+    {
+      "surface": "user_box_field_get",
+      "selected_entry": "thin_internal_entry",
+      "value_class": "inline_i64",
+      "expected": "true"
+    },
+    {
+      "surface": "user_box_field_set",
+      "selected_entry": "thin_internal_entry",
+      "value_class": "inline_bool",
+      "expected": "true"
+    },
+    {
+      "surface": "user_box_field_get",
+      "selected_entry": "public_entry",
+      "value_class": "inline_i64",
+      "expected": "false"
+    },
+    {
+      "surface": "user_box_method",
+      "selected_entry": "thin_internal_entry",
+      "value_class": "borrowed_text",
+      "expected": "false"
+    }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "array_text_route_matching_migration": 0,
+    "array_text_observer_contract_handling_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

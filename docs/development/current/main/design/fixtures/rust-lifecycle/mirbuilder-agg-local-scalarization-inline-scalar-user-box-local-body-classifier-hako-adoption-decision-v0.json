@@ -1,0 +1,29 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderAggLocalScalarizationInlineScalarUserBoxLocalBodyClassifierHakoAdoptionDecisionV1",
+  "token": "MIRBUILDER-AGG-LOCAL-SCALARIZATION-INLINE-SCALAR-USER-BOX-LOCAL-BODY-CLASSIFIER-HAKO-ADOPTION-DECISION-001",
+  "owner": "agg_local_scalarization_inline_scalar_user_box_local_body_classifier",
+  "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-agg-local-scalarization-inline-scalar-user-box-local-body-classifier-rust-oracle-v0.json",
+  "hako_implementation": "lang/src/compiler/lib/agg_local_scalarization_inline_scalar_user_box_local_body_classifier.hako",
+  "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_agg_local_scalarization_inline_scalar_user_box_local_body_classifier_parity_gate.sh",
+  "parity_result": {
+    "parity_rows": 4,
+    "parity_status": "green"
+  },
+  "decision": {
+    "kind": "HakoAdopted",
+    "reason_token": "AggLocalScalarizationInlineScalarUserBoxLocalBodyClassifierParityGreen",
+    "selected_next_card": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-097"
+  },
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "array_text_route_matching_migration": 0,
+    "array_text_observer_contract_handling_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

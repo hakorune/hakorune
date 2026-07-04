@@ -1,0 +1,23 @@
+// agg_local_scalarization_inline_scalar_user_box_local_body_classifier.hako - hand-authored thin-entry classifier
+//
+// Responsibility:
+// - classify AggLocalScalarization inline-scalar user-box local-body membership
+// - stay pure: scalar surface / entry / value-class tokens in, boolean text out
+//
+// Non-responsibility:
+// - thin-entry route matching
+// - observer contract handling
+// - backend lowering
+// - MIR mutation
+static box AggLocalScalarizationInlineScalarUserBoxLocalBodyClassifierBox {
+  is_inline_scalar_user_box_local_body(surface, selected_entry, value_class) {
+    if surface == "user_box_field_get" || surface == "user_box_field_set" {
+      if selected_entry == "thin_internal_entry" {
+        if value_class == "inline_i64" || value_class == "inline_bool" || value_class == "inline_f64" {
+          return "true"
+        }
+      }
+    }
+    return "false"
+  }
+}
