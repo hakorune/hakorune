@@ -60,7 +60,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-LOOP-FEATURE-FACTS-HAKO-ADOPTION-DECISION-CONSULTATION-001
+  MIRBUILDER-FACT-OWNER-PARITY-PILOT-SELECTION-002
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -68,13 +68,13 @@ normal operating rule:
   lowering/mutation/allocation/backend-capability blockers, then selects one
   smallest fixture-backed parity candidate. The first selected candidate is
   `try_extract_loop_feature_facts`.
-  The first loop_feature_facts fixture/parity gate is green; the compact lane memory aid lives in
+  loop_feature_facts token snapshot reducer is HakoAdoptedScoped; the compact lane memory aid lives in
   `docs/development/current/main/design/mirbuilder-authority-based-hako-migration-ssot.md`
   under `Working Rules`.
 
 latest design decision:
-  `try_extract_loop_feature_facts` is selected as the first hard-authority
-  Fact-track candidate. `build_plan_with_facts_ctx` and `try_build_outcome`
+  `loop_feature_facts.backend_safe_token_snapshot_reducer` is HakoAdoptedScoped after a green 3-row gate; full Rust AST traversal is not adopted.
+  `build_plan_with_facts_ctx` and `try_build_outcome`
   remain held as runner-up plan candidates. Backend lowering, MIR mutation,
   ID allocation, and typed-object/static-helper `ControlFormBox` helpers remain
   Rust-only blockers.

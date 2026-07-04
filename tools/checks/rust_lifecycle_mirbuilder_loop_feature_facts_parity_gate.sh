@@ -50,6 +50,9 @@ def stmt_token(stmt):
         if then_kinds == ["Break"] and else_kinds == ["Continue"]:
             return "IfBreakContinue"
         if then_kinds == ["Loop"] and not else_kinds:
+            loop_body = stmt["then_body"][0].get("body") or []
+            if [nested["kind"] for nested in loop_body] == ["Break"]:
+                return "IfLoopBreak"
             return "IfLoop"
         if then_kinds == ["Return"] and not else_kinds:
             return "IfReturn"
@@ -125,10 +128,10 @@ output_contract=rust-lifecycle-mirbuilder-loop-feature-facts-parity-gate-v0
 owner=loop_feature_facts
 rust_oracle_fixture=mirbuilder-loop-feature-facts-rust-oracle-v0.json
 hako_implementation=lang/src/compiler/lib/loop_feature_facts.hako
-parity_rows=2
+parity_rows=3
 parity_status=green
 source_selfhost_claim=0
-hako_adopted_decision=0
+hako_adopted_decision=scoped_token_snapshot_only
 route_selection_migration=0
 backend_lowering_migration=0
 mir_mutation_migration=0

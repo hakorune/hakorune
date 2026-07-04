@@ -70,6 +70,36 @@
       "expected_value_join": null,
       "expected_cleanup": null,
       "expected_summary": "break=0;continue=0;return=0;unwind=0;nested_loop=1;exit_map=;value_join=none;cleanup=none"
+    },
+    {
+      "case_id": "if_hidden_nested_loop_break_ignored",
+      "body": [
+        {
+          "kind": "If",
+          "then_body": [
+            {
+              "kind": "Loop",
+              "body": [
+                {
+                  "kind": "Break"
+                }
+              ]
+            }
+          ],
+          "else_body": null
+        }
+      ],
+      "expected_exit_usage": {
+        "break": false,
+        "continue": false,
+        "return": false,
+        "unwind": false
+      },
+      "expected_nested_loop": true,
+      "expected_exit_map_kinds": [],
+      "expected_value_join": null,
+      "expected_cleanup": null,
+      "expected_summary": "break=0;continue=0;return=0;unwind=0;nested_loop=1;exit_map=;value_join=none;cleanup=none"
     }
   ],
   "non_claims": {

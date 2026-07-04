@@ -208,6 +208,7 @@ Boundary blocker evidence remains unchanged:
 ```text
 next_owner_candidate=try_extract_loop_feature_facts
 implemented_task=MIRBUILDER-LOOP-FEATURE-FACTS-RUST-ORACLE-FIXTURE-001
+adoption_decision=MIRBUILDER-LOOP-FEATURE-FACTS-TOKEN-SNAPSHOT-HAKOADOPTED-DECISION-001
 parity_gate=tools/checks/rust_lifecycle_mirbuilder_loop_feature_facts_parity_gate.sh
 parity_status=green
 fact_track=selected
@@ -228,5 +229,5 @@ Do not re-enter leaf-only pilot selection as the default next step.
 
 ## Next
 
-Stop for the HakoAdopted decision consultation. Do not widen the backend-safe
-body snapshot or move plan-track owners until the adoption boundary is accepted.
+Continue with `MIRBUILDER-FACT-OWNER-PARITY-PILOT-SELECTION-002`. Do not widen
+the backend-safe body snapshot or move plan-track owners yet.

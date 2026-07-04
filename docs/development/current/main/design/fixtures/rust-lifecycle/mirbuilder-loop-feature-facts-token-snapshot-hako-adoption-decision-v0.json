@@ -1,0 +1,69 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderLoopFeatureFactsTokenSnapshotHakoAdoptedDecisionV1",
+  "token": "MIRBUILDER-LOOP-FEATURE-FACTS-TOKEN-SNAPSHOT-HAKOADOPTED-DECISION-001",
+  "input_state": {
+    "hako_source": "lang/src/compiler/lib/loop_feature_facts.hako",
+    "hako_source_hash": "sha256:258c356d7e2895a0851149c478ea5f84ae28b26150d6f4017cb545a03659f07c",
+    "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-feature-facts-rust-oracle-v0.json",
+    "rust_oracle_fixture_hash": "sha256:4e2bcb3bc8766c652e37fd0a654fde2729f44b6d2e3298f7eca1af31e9898721",
+    "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_loop_feature_facts_parity_gate.sh",
+    "parity_gate_hash": "sha256:97c3dccf8612c25e16f4c89a376cedb604475fa5a2d4e83cbce84e1c5c19f7ef"
+  },
+  "adoption_scope": {
+    "adopted_owner": "loop_feature_facts.backend_safe_token_snapshot_reducer",
+    "rust_oracle_symbol": "try_extract_loop_feature_facts",
+    "input_contract": "BackendSafeLoopBodySnapshotTokenV1",
+    "native_edit_authority": "lang/src/compiler/lib/loop_feature_facts.hako",
+    "owned_semantics": [
+      "exit_usage",
+      "nested_loop",
+      "derived_exit_map",
+      "value_join_none",
+      "cleanup_none"
+    ],
+    "excluded_semantics": [
+      "ASTNode_MapBox_ArrayBox_body_traversal",
+      "Rust_body_snapshot_token_materialization",
+      "MIR_mutation",
+      "backend_lowering_capability_expansion",
+      "route_selection",
+      "ID_allocation"
+    ]
+  },
+  "parity": {
+    "gate_status": "Green",
+    "oracle_row_count": 3,
+    "required_contract_fields": [
+      "exit_usage",
+      "nested_loop",
+      "exit_map",
+      "value_join",
+      "cleanup"
+    ],
+    "required_rows": [
+      "if_break_continue_return",
+      "if_hidden_nested_loop",
+      "if_hidden_nested_loop_break_ignored"
+    ]
+  },
+  "decision": {
+    "kind": "HakoAdoptedScoped",
+    "reason_token": "LoopFeatureFactsBackendSafeTokenSnapshotParityGreen",
+    "selected_next_card": "MIRBUILDER-FACT-OWNER-PARITY-PILOT-SELECTION-002",
+    "backlog_card": "MIRBUILDER-AST-BODY-SNAPSHOT-TRAVERSAL-BACKEND-CAPABILITY-CONSULTATION-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "full_try_extract_loop_feature_facts_ast_owner_adopted": 0,
+    "ast_body_snapshot_traversal_adopted": 0,
+    "backend_capability_expansion": 0,
+    "mir_mutation_migrated": 0,
+    "route_selection_migrated": 0,
+    "id_allocation_migrated": 0,
+    "hako_generation": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
