@@ -1,0 +1,44 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderSupportedValueExprForTrueLoopClassifierRustOracleV1",
+  "token": "MIRBUILDER-SUPPORTED-VALUE-EXPR-FOR-TRUE-LOOP-CLASSIFIER-RUST-ORACLE-FIXTURE-001",
+  "owner": "supported_value_expr_for_true_loop_classifier",
+  "rust_source": {
+    "path": "src/mir/builder/control_flow/plan/loop_cond/true_break_continue_helpers.rs",
+    "hash": "sha256:d6f84c8db80f6d0f5694b9f09f5e05cd70cb95a48bc5c5a8db0fca9e3f3d0d5d",
+    "oracle_surface": "is_supported_value_expr_for_true_loop classifier"
+  },
+  "rows": [
+    {
+      "kind": "expr_text",
+      "ast": "ASTNode::Variable(x)",
+      "expected": "true"
+    },
+    {
+      "kind": "expr_text",
+      "ast": "ASTNode::Literal(Integer(7))",
+      "expected": "true"
+    },
+    {
+      "kind": "expr_text",
+      "ast": "ASTNode::BinaryOp(Add)",
+      "expected": "true"
+    },
+    {
+      "kind": "expr_text",
+      "ast": "ASTNode::BinaryOp(Equal)",
+      "expected": "false"
+    }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "supported_value_expr_for_true_loop_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}
