@@ -1,0 +1,26 @@
+// fastmem_access_plan_kind_label_formatter.hako - hand-authored label formatter
+//
+// Responsibility:
+// - format the narrow FastMemAccessPlanKind vocabulary into Rust oracle text
+// - stay pure: scalar kind in, scalar text out
+//
+// Non-responsibility:
+// - FastMemory access plan construction
+// - field/table plan resolution
+// - backend lowering
+// - MIR mutation
+static box FastMemAccessPlanKindLabelFormatterBox {
+  format_label(kind) {
+    if kind == "TableIndex" { return "table_index" }
+    if kind == "FieldLoad" { return "field_load" }
+    if kind == "FieldStore" { return "field_store" }
+    if kind == "LocalFreePush" { return "local_free_push" }
+    if kind == "LocalFreePop" { return "local_free_pop" }
+    if kind == "FreeHeadPush" { return "free_head_push" }
+    if kind == "FreeHeadPop" { return "free_head_pop" }
+    if kind == "AtomicRemoteHeadPush" { return "atomic_remote_head_push" }
+    if kind == "AtomicRemoteHeadDrain" { return "atomic_remote_head_drain" }
+    if kind == "DrainRemoteListToLocal" { return "drain_remote_list_to_local" }
+    return "unsupported_fastmem_access_plan_kind_label"
+  }
+}

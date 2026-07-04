@@ -1,0 +1,36 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderHakoNativeOwnerParityPilotSelectionRerun074V1",
+  "token": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-074",
+  "previous_adoption_decision": {
+    "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-global-call-proof-directness-classifier-hako-adoption-decision-v0.json",
+    "hash": "sha256:3b5e68e5139ce2c562ad36b2b1dd9181e522022e16f75993b465c897a6bc7288"
+  },
+  "selection_rule": {
+    "name": "NarrowRustOracleParityPilotSelectionV1",
+    "manual_target_selection_allowed": true,
+    "correctness_requires_parity_gate": true,
+    "source_selfhost_claim_allowed": false
+  },
+  "selected_owner": {
+    "owner": "fastmem_access_plan_kind_label_formatter",
+    "rust_source": "src/mir/fastmem_access_plan/types.rs",
+    "rust_source_hash": "sha256:61a4e9a1330c966ef0d0753e62cc9e427b0ac37b51aee7c38fd7cb25afbaa947",
+    "oracle_surface": "FastMemAccessPlanKind::as_str label vocabulary",
+    "row_count": 10,
+    "selected_next_card": "MIRBUILDER-FASTMEM-ACCESS-PLAN-KIND-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001"
+  },
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "fastmem_access_plan_construction_migration": 0,
+    "fastmem_field_plan_resolution_migration": 0,
+    "fastmem_table_plan_resolution_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

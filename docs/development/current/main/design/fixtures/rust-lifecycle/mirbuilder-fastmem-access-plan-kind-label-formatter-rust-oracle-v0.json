@@ -1,0 +1,36 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderFastMemAccessPlanKindLabelFormatterRustOracleV1",
+  "token": "MIRBUILDER-FASTMEM-ACCESS-PLAN-KIND-LABEL-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "fastmem_access_plan_kind_label_formatter",
+  "rust_source": {
+    "path": "src/mir/fastmem_access_plan/types.rs",
+    "hash": "sha256:61a4e9a1330c966ef0d0753e62cc9e427b0ac37b51aee7c38fd7cb25afbaa947",
+    "oracle_surface": "FastMemAccessPlanKind::as_str label vocabulary"
+  },
+  "rows": [
+    { "kind": "access_plan_kind", "input": "TableIndex", "expected": "table_index" },
+    { "kind": "access_plan_kind", "input": "FieldLoad", "expected": "field_load" },
+    { "kind": "access_plan_kind", "input": "FieldStore", "expected": "field_store" },
+    { "kind": "access_plan_kind", "input": "LocalFreePush", "expected": "local_free_push" },
+    { "kind": "access_plan_kind", "input": "LocalFreePop", "expected": "local_free_pop" },
+    { "kind": "access_plan_kind", "input": "FreeHeadPush", "expected": "free_head_push" },
+    { "kind": "access_plan_kind", "input": "FreeHeadPop", "expected": "free_head_pop" },
+    { "kind": "access_plan_kind", "input": "AtomicRemoteHeadPush", "expected": "atomic_remote_head_push" },
+    { "kind": "access_plan_kind", "input": "AtomicRemoteHeadDrain", "expected": "atomic_remote_head_drain" },
+    { "kind": "access_plan_kind", "input": "DrainRemoteListToLocal", "expected": "drain_remote_list_to_local" }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "fastmem_access_plan_construction_migration": 0,
+    "fastmem_field_plan_resolution_migration": 0,
+    "fastmem_table_plan_resolution_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

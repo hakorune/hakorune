@@ -24,9 +24,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-GLOBAL-CALL-PROOF-DIRECTNESS-CLASSIFIER-HAKO-ADOPTION-DECISION-001.
-  The global_call_proof_directness_classifier owner is HakoAdopted as the
-  seventy-fourth narrow Rust-oracle parity pilot; next is rerun 074.
+  MIRBUILDER-FASTMEM-ACCESS-PLAN-KIND-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.
+  The fastmem_access_plan_kind_label_formatter owner is HakoAdopted as the
+  seventy-fifth narrow Rust-oracle parity pilot; next is rerun 075.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +62,7 @@ landed evidence pointer:
   boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-074
+  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-075
 
 current fail-fast boundary:
   Do not re-enter full converter route selection without new non-self-signed
@@ -120,12 +120,12 @@ current fail-fast boundary:
   definition-owner inference, route collection, and proof policy remain Rust.
 
 latest design decision:
-  global_call_proof_directness_classifier is now HakoAdopted as a narrow
-  Rust-oracle parity pilot owner after a green 17-row `.hako` EXE parity gate.
-  Global-call proof policy, definition-owner inference, and route collection
-  remain Rust.
+  fastmem_access_plan_kind_label_formatter is now HakoAdopted as a narrow
+  Rust-oracle parity pilot owner after a green 10-row `.hako` EXE parity gate.
+  FastMemory access plan construction, field/table plan resolution, backend
+  lowering, and MIR mutation remain Rust.
   The selected next card is
-  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-074`.
+  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-075`.
 
 historical route-selection decision:
   Detailed landed route-selection rows are closed as provenance and live in

@@ -237,6 +237,9 @@ Source Selfhost remains unclaimed.
 GlobalCallProofDirectnessClassifier is now a narrow HakoAdopted Rust-oracle
 parity pilot owner after a green 17-row `.hako` EXE parity gate.
 Source Selfhost remains unclaimed.
+FastMemAccessPlanKindLabelFormatter is now a narrow HakoAdopted Rust-oracle
+parity pilot owner after a green 10-row `.hako` EXE parity gate.
+Source Selfhost remains unclaimed.
 EXE/AOT remains the primary
 app/selfhost validation route; VM/interpreter lanes are not semantic owners."""
 
@@ -246,11 +249,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-GLOBAL-CALL-PROOF-DIRECTNESS-CLASSIFIER-HAKO-ADOPTION-DECISION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2468-MIRBUILDER-GLOBAL-CALL-PROOF-DIRECTNESS-CLASSIFIER-HAKO-ADOPTION-DECISION-001.md"
+latest_card = "MIRBUILDER-FASTMEM-ACCESS-PLAN-KIND-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2473-MIRBUILDER-FASTMEM-ACCESS-PLAN-KIND-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.md"
 latest_card_summary = """The latest card adopts
-global_call_proof_directness_classifier as the seventy-fourth narrow
-Rust-oracle parity pilot owner and chooses pilot selection rerun 074 next."""
+fastmem_access_plan_kind_label_formatter as the seventy-fifth narrow
+Rust-oracle parity pilot owner and chooses pilot selection rerun 075 next."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -261,6 +264,11 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-04: 2473 adopts fastmem_access_plan_kind_label_formatter as the seventy-fifth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
+  "2026-07-04: 2472 adds the fastmem_access_plan_kind_label_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
+  "2026-07-04: 2471 adds the hand-authored fastmem_access_plan_kind_label_formatter .hako implementation and chooses the parity gate card next.",
+  "2026-07-04: 2470 creates the 10-row fastmem_access_plan_kind_label_formatter Rust-oracle fixture and chooses the Hako-native implementation card next.",
+  "2026-07-04: 2469 selects fastmem_access_plan_kind_label_formatter as the seventy-fifth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
   "2026-07-04: 2468 adopts global_call_proof_directness_classifier as the seventy-fourth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
   "2026-07-04: 2467 adds the global_call_proof_directness_classifier Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
   "2026-07-04: 2466 adds the hand-authored global_call_proof_directness_classifier .hako implementation and chooses the parity gate card next.",
@@ -268,7 +276,4 @@ landed_tail = [
   "2026-07-04: 2464 selects global_call_proof_directness_classifier as the seventy-fourth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
   "2026-07-04: 2463 adopts global_call_proof_result_origin_formatter as the seventy-third narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
   "2026-07-04: 2462 adds the global_call_proof_result_origin_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
-  "2026-07-04: 2461 adds the hand-authored global_call_proof_result_origin_formatter .hako implementation and chooses the parity gate card next.",
-  "2026-07-04: 2460 creates the 17-row global_call_proof_result_origin_formatter Rust-oracle fixture and chooses the Hako-native implementation card next.",
-  "2026-07-04: 2459 selects global_call_proof_result_origin_formatter as the seventy-third narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
 ]
