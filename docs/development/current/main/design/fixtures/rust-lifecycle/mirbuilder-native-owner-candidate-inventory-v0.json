@@ -10,7 +10,7 @@
   },
   "existing_owner_rows": [
     {
-      "adoption_card": "docs/development/current/main/phases/phase-296x/2577-MIRBUILDER-AGG-LOCAL-SCALARIZATION-INLINE-SCALAR-USER-BOX-LOCAL-BODY-CLASSIFIER-HAKO-ADOPTION-DECISION-001.md",
+      "adoption_card": "docs/development/current/main/phases/phase-296x/2827-MIRBUILDER-AGG-LOCAL-SCALARIZATION-INLINE-SCALAR-USER-BOX-LOCAL-BODY-CLASSIFIER-HAKO-ADOPTION-DECISION-001.md",
       "adoption_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-agg-local-scalarization-inline-scalar-user-box-local-body-classifier-hako-adoption-decision-v0.json",
       "candidate_kind": "classifier",
       "hako_source": "lang/src/compiler/lib/agg_local_scalarization_inline_scalar_user_box_local_body_classifier.hako",
@@ -20,7 +20,7 @@
       "owner_from_fixture": "agg_local_scalarization_inline_scalar_user_box_local_body_classifier",
       "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_agg_local_scalarization_inline_scalar_user_box_local_body_classifier_parity_gate.sh",
       "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-agg-local-scalarization-inline-scalar-user-box-local-body-classifier-rust-oracle-v0.json",
-      "selected_next_card": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-098",
+      "selected_next_card": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-148",
       "status": "adopted_complete"
     },
     {

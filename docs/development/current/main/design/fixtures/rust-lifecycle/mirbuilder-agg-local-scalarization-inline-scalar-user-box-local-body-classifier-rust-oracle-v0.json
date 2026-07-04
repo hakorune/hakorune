@@ -5,8 +5,8 @@
   "owner": "agg_local_scalarization_inline_scalar_user_box_local_body_classifier",
   "rust_source": {
     "path": "src/mir/agg_local_scalarization.rs",
-    "hash": "sha256:f3c5557c0baf663b6ebeb73051b505236c2c429bbede8e173e0ebb67bea59c7d",
-    "oracle_surface": "AggLocalScalarization inline-scalar user-box local body classifier"
+    "hash": "sha256:babdb9b1e24babff9bd565b4f6b9d285bc63d00cc704c51f6696eadfd1195867",
+    "oracle_surface": "AggLocalScalarization inline scalar user-box local-body classifier"
   },
   "rows": [
     {
@@ -28,9 +28,21 @@
       "expected": "false"
     },
     {
-      "surface": "user_box_method",
+      "surface": "user_box_field_get",
       "selected_entry": "thin_internal_entry",
       "value_class": "borrowed_text",
+      "expected": "false"
+    },
+    {
+      "surface": "variant_make",
+      "selected_entry": "thin_internal_entry",
+      "value_class": "inline_f64",
+      "expected": "false"
+    },
+    {
+      "surface": "user_box_field_set",
+      "selected_entry": "public_entry",
+      "value_class": "inline_f64",
       "expected": "false"
     }
   ],
@@ -41,8 +53,7 @@
     "runtime_fallback": 0,
     "new_backend_route": 0,
     "new_abi": 0,
-    "array_text_route_matching_migration": 0,
-    "array_text_observer_contract_handling_migration": 0,
+    "mir_type_migration": 0,
     "backend_lowering_migration": 0,
     "mir_mutation_migration": 0
   }

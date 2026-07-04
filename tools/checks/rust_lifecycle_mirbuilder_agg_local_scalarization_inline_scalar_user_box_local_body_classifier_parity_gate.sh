@@ -13,7 +13,7 @@ HAKO_BIN="$ROOT_DIR/tools/bin/hako"
 guard_require_command "$TAG" python3
 guard_require_files "$TAG" "$FIXTURE" "$HAKO_IMPL" "$HAKO_BIN"
 
-TMP_DIR="$(mktemp -d /tmp/hakorune-agg-local-scalarization-inline-scalar-user-box-local-body.XXXXXX)"
+TMP_DIR="$(mktemp -d /tmp/hakorune-agg-local-scalarization-inline-scalar-user-box-local-body-classifier.XXXXXX)"
 cleanup() {
   rm -rf "$TMP_DIR" >/dev/null 2>&1 || true
 }
@@ -44,7 +44,8 @@ calls = []
 for row in rows:
     calls.append(
         "    print(AggLocalScalarizationInlineScalarUserBoxLocalBodyClassifierBox."
-        f"is_inline_scalar_user_box_local_body({json.dumps(row['surface'])}, {json.dumps(row['selected_entry'])}, {json.dumps(row['value_class'])}))"
+        "is_inline_scalar_user_box_local_body("
+        f"{json.dumps(row['surface'])}, {json.dumps(row['selected_entry'])}, {json.dumps(row['value_class'])}))"
     )
 
 source = "\n".join(
@@ -89,7 +90,7 @@ actual = [
 actual_path.write_text("\n".join(actual) + "\n", encoding="utf-8")
 
 if actual != expected:
-    print("[agg-local-scalarization-inline-scalar-user-box-local-body/parity] mismatch")
+    print("[agg-local-scalarization-inline-scalar-user-box-local-body-classifier/parity] mismatch")
     max_len = max(len(expected), len(actual))
     for idx in range(max_len):
         exp = expected[idx] if idx < len(expected) else "<missing>"
@@ -104,12 +105,11 @@ output_contract=rust-lifecycle-mirbuilder-agg-local-scalarization-inline-scalar-
 owner=agg_local_scalarization_inline_scalar_user_box_local_body_classifier
 rust_oracle_fixture=mirbuilder-agg-local-scalarization-inline-scalar-user-box-local-body-classifier-rust-oracle-v0.json
 hako_implementation=lang/src/compiler/lib/agg_local_scalarization_inline_scalar_user_box_local_body_classifier.hako
-parity_rows=4
+parity_rows=6
 parity_status=green
 source_selfhost_claim=0
 hako_adopted_decision=0
-thin_entry_route_matching_migration=0
-observer_contract_handling_migration=0
+mir_type_migration=0
 backend_lowering_migration=0
 mir_mutation_migration=0
 summary=ok

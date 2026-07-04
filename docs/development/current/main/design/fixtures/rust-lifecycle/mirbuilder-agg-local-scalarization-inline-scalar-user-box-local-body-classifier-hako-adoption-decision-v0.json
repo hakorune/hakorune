@@ -7,13 +7,13 @@
   "hako_implementation": "lang/src/compiler/lib/agg_local_scalarization_inline_scalar_user_box_local_body_classifier.hako",
   "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_agg_local_scalarization_inline_scalar_user_box_local_body_classifier_parity_gate.sh",
   "parity_result": {
-    "parity_rows": 4,
+    "parity_rows": 6,
     "parity_status": "green"
   },
   "decision": {
     "kind": "HakoAdopted",
     "reason_token": "AggLocalScalarizationInlineScalarUserBoxLocalBodyClassifierParityGreen",
-    "selected_next_card": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-098"
+    "selected_next_card": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-148"
   },
   "non_claims": {
     "source_selfhost_claim": 0,
