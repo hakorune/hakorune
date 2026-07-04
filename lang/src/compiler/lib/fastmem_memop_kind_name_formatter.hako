@@ -1,0 +1,33 @@
+// fastmem_memop_kind_name_formatter.hako - hand-authored fastmem memop-kind formatter
+//
+// Responsibility:
+// - format MemOpKind display-name text
+// - stay pure: memop kind token in, display text out
+//
+// Non-responsibility:
+// - fastmem dialect validation
+// - access-plan collection
+// - backend lowering
+// - MIR mutation
+static box FastMemMemopKindNameFormatterBox {
+  format_kind(kind) {
+    if kind == "AddrOf" { return "AddrOf" }
+    if kind == "LogicalShr" { return "LogicalShr" }
+    if kind == "BitAnd" { return "BitAnd" }
+    if kind == "Add" { return "Add" }
+    if kind == "Sub" { return "Sub" }
+    if kind == "TableIndex" { return "TableIndex" }
+    if kind == "FieldLoad" { return "FieldLoad" }
+    if kind == "FieldStore" { return "FieldStore" }
+    if kind == "CurrentAllocOwnerId" { return "CurrentAllocOwnerId" }
+    if kind == "OwnerEq" { return "OwnerEq" }
+    if kind == "LocalFreePush" { return "LocalFreePush" }
+    if kind == "LocalFreePop" { return "LocalFreePop" }
+    if kind == "FreeHeadPush" { return "FreeHeadPush" }
+    if kind == "FreeHeadPop" { return "FreeHeadPop" }
+    if kind == "AtomicRemoteHeadPush" { return "AtomicRemoteHeadPush" }
+    if kind == "AtomicRemoteHeadDrain" { return "AtomicRemoteHeadDrain" }
+    if kind == "DrainRemoteListToLocal" { return "DrainRemoteListToLocal" }
+    return "unsupported_fastmem_memop_kind_name"
+  }
+}

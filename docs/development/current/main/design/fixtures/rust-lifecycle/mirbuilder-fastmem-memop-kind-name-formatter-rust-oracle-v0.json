@@ -1,0 +1,30 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderFastMemMemopKindNameFormatterRustOracleV1",
+  "token": "MIRBUILDER-FASTMEM-MEMOP-KIND-NAME-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "fastmem_memop_kind_name_formatter",
+  "rust_source": {
+    "path": "src/mir/contracts/fastmem_ops.rs",
+    "hash": "sha256:a2712cc1a994ce22a15d622ed87e0de8578b9b8663b5cda1c0d0638cef2e8eee",
+    "oracle_surface": "FastMem memop kind name formatter"
+  },
+  "rows": [
+    { "kind": "AddrOf", "expected": "AddrOf" },
+    { "kind": "TableIndex", "expected": "TableIndex" },
+    { "kind": "FieldLoad", "expected": "FieldLoad" },
+    { "kind": "CurrentAllocOwnerId", "expected": "CurrentAllocOwnerId" },
+    { "kind": "LocalFreePush", "expected": "LocalFreePush" },
+    { "kind": "DrainRemoteListToLocal", "expected": "DrainRemoteListToLocal" }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "mir_type_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}
