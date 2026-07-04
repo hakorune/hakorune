@@ -1,0 +1,25 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderFastMemV0MemopKindCountIsIntentionalClassifierRustOracleV1",
+  "token": "MIRBUILDER-FASTMEM-V0-MEMOP-KIND-COUNT-IS-INTENTIONAL-CLASSIFIER-RUST-ORACLE-FIXTURE-001",
+  "owner": "fastmem_v0_memop_kind_count_is_intentional_classifier",
+  "rust_source": {
+    "path": "src/mir/contracts/fastmem_ops.rs",
+    "hash": "sha256:a2712cc1a994ce22a15d622ed87e0de8578b9b8663b5cda1c0d0638cef2e8eee",
+    "oracle_surface": "FastMem V0 memop kind count intentional classifier"
+  },
+  "rows": [
+    { "expected": "true" }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "mir_type_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

@@ -1,0 +1,16 @@
+// fastmem_v0_memop_kind_count_is_intentional_classifier.hako - hand-authored fastmem count classifier
+//
+// Responsibility:
+// - classify whether the current FastMem V0 memop-kind count remains intentional
+// - stay pure: no-arg intent check in, boolean text out
+//
+// Non-responsibility:
+// - fastmem dialect validation
+// - access-plan collection
+// - backend lowering
+// - MIR mutation
+static box FastMemV0MemopKindCountIsIntentionalClassifierBox {
+  count_is_intentional() {
+    return "true"
+  }
+}
