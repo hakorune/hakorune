@@ -60,7 +60,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-LOOP-BREAK-STEP-BEFORE-BREAK-FACTS-HAKOADOPTED-DECISION-001
+  MIRBUILDER-FACT-OWNER-PARITY-PILOT-SELECTION-023
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -72,19 +72,21 @@ normal operating rule:
   smallest fixture-backed parity candidate.
   Recent scoped Fact facades include scan/loop true/if-phi/loop-cond owners
   and `loop_break_body_local_facts`.
-  `loop_break_step_before_break_facts` now has a green 9-row authority-facade
-  parity gate; HakoAdopted decision is next. Break-if AST payload extraction,
-  loop increment payload extraction, dev/planner gate migration, lowering,
-  mutation, allocation, and Source Selfhost remain unclaimed.
+  Recent scoped Fact facades include scan/loop true/if-phi/loop-cond owners
+  and loop-break body-local / step-before-break owners.
+  Next work inventories Fact-owner and REGISTRY-rule contracts again, excludes
+  lowering/mutation/allocation/backend-capability blockers, then selects one
+  smallest fixture-backed parity candidate.
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  `loop_break_step_before_break_facts.authority_facade` has green parity for a
-  backend-safe 9-row token snapshot. Recent adopted facades remain scoped DTO
-  owners only; AST traversal, loop-break subset dispatch, break-if
-  analysis/payload extraction, loop increment payload extraction,
-  recipe/lowering, route selection, MIR mutation, ID allocation, and Source
-  Selfhost remain unclaimed unless a specific card says otherwise.
+  `loop_break_step_before_break_facts.authority_facade` is HakoAdopted as a
+  scoped Fact owner after a green backend-safe 9-row token snapshot gate.
+  Recent adopted facades remain scoped DTO owners only; AST traversal,
+  loop-break subset dispatch, break-if analysis/payload extraction, loop
+  increment payload extraction, recipe/lowering, route selection, MIR
+  mutation, ID allocation, and Source Selfhost remain unclaimed unless a
+  specific card says otherwise.
   Authority facade comes before crate split: Rust may be reorganized around
   meaning units only after the authority seam is fixture-backed and parity
   proven. The next hard-authority pilot should target Fact -> DTO or one

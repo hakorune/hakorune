@@ -1,0 +1,76 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderLoopBreakStepBeforeBreakFactsHakoAdoptedDecisionV1",
+  "token": "MIRBUILDER-LOOP-BREAK-STEP-BEFORE-BREAK-FACTS-HAKOADOPTED-DECISION-001",
+  "input_state": {
+    "hako_source": "lang/src/compiler/lib/loop_break_step_before_break_facts.hako",
+    "hako_source_hash": "sha256:e89e7795e66f9424a68591d682bfa78d1fac66850f3b3be0654d7450350e89f0",
+    "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-break-step-before-break-facts-rust-oracle-v0.json",
+    "rust_oracle_fixture_hash": "sha256:84b34810ad620b4d058abef068910b615308d6f626cbb70472f82e5cb772ead8",
+    "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_loop_break_step_before_break_facts_parity_gate.sh",
+    "parity_gate_hash": "sha256:d27902a5de5c5c3f5a815ac218227650feace09f11eaf2f713faed7a0e41af73"
+  },
+  "adoption_scope": {
+    "adopted_owner": "loop_break_step_before_break_facts.authority_facade",
+    "rust_oracle_symbol": "try_extract_loop_break_step_before_break_subset",
+    "input_contract": "BackendSafeLoopBreakStepBeforeBreakFactsTokenSnapshotV1",
+    "native_edit_authority": "lang/src/compiler/lib/loop_break_step_before_break_facts.hako",
+    "owned_semantics": [
+      "loop_break_step_before_break_acceptance",
+      "planner_gate_token",
+      "condition_plan_subset_token",
+      "control_flow_count_token",
+      "body_shape_token",
+      "loop_var_token",
+      "carrier_var_token",
+      "step_placement_token",
+      "reject_reason_token"
+    ],
+    "excluded_semantics": [
+      "full_AST_traversal",
+      "dev_planner_environment_read",
+      "break_if_AST_payload_extraction",
+      "loop_increment_AST_payload_extraction",
+      "carrier_update_AST_payload_extraction",
+      "loop_break_subset_dispatch",
+      "route_selection",
+      "backend_lowering",
+      "MIR_mutation",
+      "ID_allocation"
+    ]
+  },
+  "parity": {
+    "gate_status": "Green",
+    "oracle_row_count": 9,
+    "required_contract_fields": [
+      "accepted",
+      "reason",
+      "loop_var",
+      "carrier_var",
+      "step_placement"
+    ]
+  },
+  "decision": {
+    "kind": "HakoAdoptedScoped",
+    "reason_token": "LoopBreakStepBeforeBreakFactsAuthorityFacadeParityGreen",
+    "selected_next_card": "MIRBUILDER-FACT-OWNER-PARITY-PILOT-SELECTION-023",
+    "backlog_card": "MIRBUILDER-LOOP-BREAK-STEP-BEFORE-BREAK-FULL-PAYLOAD-CONSULTATION-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "full_ast_traversal_adopted": 0,
+    "dev_planner_gate_migrated": 0,
+    "break_if_ast_payload_migrated": 0,
+    "loop_increment_ast_payload_migrated": 0,
+    "carrier_update_ast_payload_migrated": 0,
+    "loop_break_subset_dispatch_migrated": 0,
+    "route_selection_migrated": 0,
+    "backend_lowering_migrated": 0,
+    "mir_mutation_migrated": 0,
+    "id_allocation_migrated": 0,
+    "hako_generation": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
