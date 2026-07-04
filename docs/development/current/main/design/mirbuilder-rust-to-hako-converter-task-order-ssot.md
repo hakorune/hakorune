@@ -60,7 +60,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-FACT-OWNER-PARITY-PILOT-SELECTION-018
+  MIRBUILDER-IF-PHI-JOIN-FACTS-AUTHORITY-FACADE-PARITY-001
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -72,23 +72,18 @@ normal operating rule:
   smallest fixture-backed parity candidate.
   Recent HakoAdoptedScoped Fact facades: string_is_integer_facts,
   bool_predicate_scan_facts, accum_const_loop_facts, loop_char_map_facts,
-  loop_array_join_facts.
-  `try_extract_loop_char_map_facts` is now HakoAdoptedScoped for the
-  authority-facade DTO only; substring/result-update AST construction remains
-  separate.
-  `try_extract_loop_array_join_facts` is now HakoAdoptedScoped for the
-  authority-facade DTO only; separator-guard/array-append AST construction
-  remains separate.
-  Selection-017 chooses `try_extract_loop_true_early_exit_facts`; control-flow
-  traversal, exit-condition/value AST construction, carrier-update AST
-  construction, loop increment extraction, route selection, lowering, mutation,
-  allocation, and Source Selfhost remain unclaimed.
-  `try_extract_loop_true_early_exit_facts` is now HakoAdoptedScoped for the
-  authority-facade DTO only; control-flow traversal and exit/carrier AST
-  construction remain separate.
+  loop_array_join_facts, loop_true_early_exit_facts.
+  Selection-018 chooses `try_extract_if_phi_join_facts`; if-phi parts
+  extraction, AST payload construction, loop increment extraction, route
+  selection, lowering, mutation, allocation, and Source Selfhost remain
+  unclaimed.
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
+  Selection-018 chooses `if_phi_join_facts.authority_facade` as the next
+  fixture-backed parity pilot; AST payload construction, recipe/lowering,
+  route selection, MIR mutation, ID allocation, and Source Selfhost remain
+  unclaimed.
   `loop_true_early_exit_facts.authority_facade` is HakoAdoptedScoped after
   green 10-row parity; control-flow traversal, exit/carrier AST construction,
   loop increment extraction, lowering, mutation, allocation, and Source
