@@ -1,0 +1,17 @@
+// array_text_observer_executor_carrier_formatter.hako - hand-authored carrier formatter
+//
+// Responsibility:
+// - format the narrow ArrayTextObserverExecutorCarrier vocabulary
+// - stay pure: scalar carrier token in, scalar text out
+//
+// Non-responsibility:
+// - array/text observer route matching
+// - observer contract handling
+// - backend lowering
+// - MIR mutation
+static box ArrayTextObserverExecutorCarrierFormatterBox {
+  format_carrier(carrier) {
+    if carrier == "ArrayLaneTextCell" { return "array_lane_text_cell" }
+    return "unsupported_array_text_observer_executor_carrier"
+  }
+}

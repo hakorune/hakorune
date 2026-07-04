@@ -273,11 +273,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-ARRAY-TEXT-OBSERVER-EXECUTOR-EXECUTION-MODE-FORMATTER-HAKO-ADOPTION-DECISION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2527-MIRBUILDER-ARRAY-TEXT-OBSERVER-EXECUTOR-EXECUTION-MODE-FORMATTER-HAKO-ADOPTION-DECISION-001.md"
+latest_card = "MIRBUILDER-ARRAY-TEXT-OBSERVER-EXECUTOR-CARRIER-FORMATTER-HAKO-ADOPTION-DECISION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2532-MIRBUILDER-ARRAY-TEXT-OBSERVER-EXECUTOR-CARRIER-FORMATTER-HAKO-ADOPTION-DECISION-001.md"
 latest_card_summary = """The latest card adopts
-array_text_observer_executor_execution_mode_formatter as the eighty-sixth
-narrow Rust-oracle parity pilot owner and chooses pilot selection rerun 087 next."""
+array_text_observer_executor_carrier_formatter as the eighty-seventh narrow
+Rust-oracle parity pilot owner and chooses pilot selection rerun 088 next."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -288,16 +288,16 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-04: 2532 adopts array_text_observer_executor_carrier_formatter as the eighty-seventh narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
+  "2026-07-04: 2532 adds the array_text_observer_executor_carrier_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
+  "2026-07-04: 2531 adds the hand-authored array_text_observer_executor_carrier_formatter .hako implementation and chooses the parity gate card next.",
+  "2026-07-04: 2530 creates the 1-row array_text_observer_executor_carrier_formatter Rust-oracle fixture and chooses the Hako-native implementation card next.",
+  "2026-07-04: 2529 selects array_text_observer_executor_carrier_formatter as the eighty-seventh narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
+  "2026-07-04: 2528 selects array_text_observer_executor_carrier_formatter as the eighty-seventh narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
   "2026-07-04: 2527 adopts array_text_observer_executor_execution_mode_formatter as the eighty-sixth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
   "2026-07-04: 2527 adds the array_text_observer_executor_execution_mode_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
   "2026-07-04: 2526 adds the hand-authored array_text_observer_executor_execution_mode_formatter .hako implementation and chooses the parity gate card next.",
   "2026-07-04: 2525 creates the 1-row array_text_observer_executor_execution_mode_formatter Rust-oracle fixture and chooses the Hako-native implementation card next.",
   "2026-07-04: 2524 selects array_text_observer_executor_execution_mode_formatter as the eighty-sixth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
   "2026-07-04: 2523 selects array_text_observer_executor_proof_region_formatter as the eighty-fifth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
-  "2026-07-04: 2522 adopts array_text_observer_executor_proof_region_formatter as the eighty-fifth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
-  "2026-07-04: 2521 adds the array_text_observer_executor_proof_region_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
-  "2026-07-04: 2520 adds the hand-authored array_text_observer_executor_proof_region_formatter .hako implementation and chooses the parity gate card next.",
-  "2026-07-04: 2519 creates the 1-row array_text_observer_executor_proof_region_formatter Rust-oracle fixture and chooses the Hako-native implementation card next.",
-  "2026-07-04: 2518 selects array_text_observer_executor_proof_region_formatter as the eighty-fifth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
-  "2026-07-04: 2517 adopts array_text_observer_kind_formatter as the eighty-fourth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
 ]
