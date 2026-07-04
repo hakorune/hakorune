@@ -1,0 +1,39 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderConditionTrueLiteralClassifierRustOracleV1",
+  "token": "MIRBUILDER-CONDITION-TRUE-LITERAL-CLASSIFIER-RUST-ORACLE-FIXTURE-001",
+  "owner": "condition_true_literal_classifier",
+  "rust_source": {
+    "path": "src/mir/builder/control_flow/facts/extractors/common_helpers/condition.rs",
+    "hash": "sha256:7c1760f42d81a7f6463c4a9df5d5a7e0a1abf493a2e9bf7efb5f6e4d9c2c8a62",
+    "oracle_surface": "is_true_literal condition classifier"
+  },
+  "rows": [
+    {
+      "kind": "condition_text",
+      "condition": "ASTNode::Literal(Bool(true))",
+      "expected": "true"
+    },
+    {
+      "kind": "condition_text",
+      "condition": "ASTNode::Literal(Bool(false))",
+      "expected": "false"
+    },
+    {
+      "kind": "condition_text",
+      "condition": "ASTNode::Variable(flag)",
+      "expected": "false"
+    }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "condition_true_literal_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

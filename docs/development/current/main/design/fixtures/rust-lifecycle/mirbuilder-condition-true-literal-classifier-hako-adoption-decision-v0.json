@@ -1,0 +1,28 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderConditionTrueLiteralClassifierHakoAdoptionDecisionV1",
+  "token": "MIRBUILDER-CONDITION-TRUE-LITERAL-CLASSIFIER-HAKO-ADOPTION-DECISION-001",
+  "owner": "condition_true_literal_classifier",
+  "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-condition-true-literal-classifier-rust-oracle-v0.json",
+  "hako_implementation": "lang/src/compiler/lib/condition_true_literal_classifier.hako",
+  "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_condition_true_literal_classifier_parity_gate.sh",
+  "parity_result": {
+    "parity_rows": 3,
+    "parity_status": "green"
+  },
+  "decision": {
+    "kind": "HakoAdopted",
+    "reason_token": "ConditionTrueLiteralClassifierParityGreen",
+    "selected_next_card": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-128"
+  },
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "condition_true_literal_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

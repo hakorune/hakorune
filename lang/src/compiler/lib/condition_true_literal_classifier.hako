@@ -1,0 +1,19 @@
+// condition_true_literal_classifier.hako - hand-authored true-literal classifier
+//
+// Responsibility:
+// - classify whether a condition text is the Bool(true) literal
+// - stay pure: scalar AST condition text in, boolean text out
+//
+// Non-responsibility:
+// - AST parsing
+// - control-flow extraction
+// - backend lowering
+// - MIR mutation
+static box ConditionTrueLiteralClassifierBox {
+  is_true_literal(condition) {
+    if condition == "ASTNode::Literal(Bool(true))" {
+      return "true"
+    }
+    return "false"
+  }
+}
