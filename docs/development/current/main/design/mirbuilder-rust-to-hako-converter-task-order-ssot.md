@@ -60,7 +60,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-IF-PHI-JOIN-FACTS-HAKOADOPTED-DECISION-001
+  MIRBUILDER-FACT-OWNER-PARITY-PILOT-SELECTION-019
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -72,18 +72,17 @@ normal operating rule:
   smallest fixture-backed parity candidate.
   Recent HakoAdoptedScoped Fact facades: string_is_integer_facts,
   bool_predicate_scan_facts, accum_const_loop_facts, loop_char_map_facts,
-  loop_array_join_facts, loop_true_early_exit_facts.
-  `try_extract_if_phi_join_facts` now has green authority-facade parity;
-  if-phi parts extraction, AST payload construction, loop increment extraction,
-  route selection, lowering, mutation, allocation, and Source Selfhost remain
-  unclaimed. Next is its scoped HakoAdopted decision.
+  loop_array_join_facts, loop_true_early_exit_facts, if_phi_join_facts.
+  `try_extract_if_phi_join_facts` is now HakoAdoptedScoped for the
+  authority-facade DTO only; if-phi parts extraction and AST payload
+  construction remain separate.
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  `if_phi_join_facts.authority_facade` has green 11-row parity with
-  backend-safe token snapshots; if-phi parts extraction, AST payload
-  construction, recipe/lowering, route selection, MIR mutation, ID allocation,
-  and Source Selfhost remain unclaimed. The HakoAdopted decision is next.
+  `if_phi_join_facts.authority_facade` is HakoAdoptedScoped after green
+  11-row parity; if-phi parts extraction, AST payload construction,
+  recipe/lowering, route selection, MIR mutation, ID allocation, and Source
+  Selfhost remain unclaimed.
   `loop_true_early_exit_facts.authority_facade` is HakoAdoptedScoped after
   green 10-row parity; control-flow traversal, exit/carrier AST construction,
   loop increment extraction, lowering, mutation, allocation, and Source

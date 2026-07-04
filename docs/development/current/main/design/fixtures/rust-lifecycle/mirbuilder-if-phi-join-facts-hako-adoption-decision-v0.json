@@ -1,0 +1,76 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderIfPhiJoinFactsHakoAdoptedDecisionV1",
+  "token": "MIRBUILDER-IF-PHI-JOIN-FACTS-HAKOADOPTED-DECISION-001",
+  "input_state": {
+    "hako_source": "lang/src/compiler/lib/if_phi_join_facts.hako",
+    "hako_source_hash": "sha256:c4f5efc1b07899c558da96f0e249ea4e23a4f7236f166d7042d37b0a9c7aef5e",
+    "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-if-phi-join-facts-rust-oracle-v0.json",
+    "rust_oracle_fixture_hash": "sha256:1f2270849a1b5c49b0ed4130605154b0d7218ebae296829ae543d5384041dd32",
+    "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_if_phi_join_facts_parity_gate.sh",
+    "parity_gate_hash": "sha256:e47649139dd643e692210f6c16ecbfa79b607805203a33468092b504681ffd96"
+  },
+  "adoption_scope": {
+    "adopted_owner": "if_phi_join_facts.authority_facade",
+    "rust_oracle_symbol": "try_extract_if_phi_join_facts",
+    "input_contract": "BackendSafeIfPhiJoinFactsTokenSnapshotV1",
+    "native_edit_authority": "lang/src/compiler/lib/if_phi_join_facts.hako",
+    "owned_semantics": [
+      "if_phi_join_acceptance",
+      "loop_var_token",
+      "carrier_var_token",
+      "then_update_kind_token",
+      "else_update_kind_token",
+      "reject_reason_token"
+    ],
+    "excluded_semantics": [
+      "full_AST_traversal",
+      "if_phi_parts_extractor",
+      "condition_AST_payload_construction",
+      "then_update_AST_payload_construction",
+      "else_update_AST_payload_construction",
+      "loop_increment_extraction",
+      "recipe_construction",
+      "route_selection",
+      "backend_lowering",
+      "MIR_mutation",
+      "ID_allocation"
+    ]
+  },
+  "parity": {
+    "gate_status": "Green",
+    "oracle_row_count": 11,
+    "required_contract_fields": [
+      "accepted",
+      "loop_var",
+      "carrier",
+      "then_update",
+      "else_update",
+      "reason"
+    ]
+  },
+  "decision": {
+    "kind": "HakoAdoptedScoped",
+    "reason_token": "IfPhiJoinFactsAuthorityFacadeParityGreen",
+    "selected_next_card": "MIRBUILDER-FACT-OWNER-PARITY-PILOT-SELECTION-019",
+    "backlog_card": "MIRBUILDER-IF-PHI-JOIN-FULL-AST-PAYLOAD-CONSULTATION-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "full_ast_traversal_adopted": 0,
+    "if_phi_parts_extractor_migrated": 0,
+    "condition_ast_payload_migrated": 0,
+    "then_update_ast_payload_migrated": 0,
+    "else_update_ast_payload_migrated": 0,
+    "loop_increment_extraction_migrated": 0,
+    "recipe_construction_migrated": 0,
+    "route_selection_migrated": 0,
+    "backend_lowering_migrated": 0,
+    "mir_mutation_migrated": 0,
+    "id_allocation_migrated": 0,
+    "hako_generation": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
