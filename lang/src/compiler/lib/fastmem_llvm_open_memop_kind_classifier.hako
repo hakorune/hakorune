@@ -1,0 +1,26 @@
+// fastmem_llvm_open_memop_kind_classifier.hako - hand-authored fastmem open classifier
+//
+// Responsibility:
+// - classify the LLVM-open FastMem memop vocabulary
+// - stay pure: memop kind token in, boolean text out
+//
+// Non-responsibility:
+// - fastmem dialect validation
+// - access-plan collection
+// - backend lowering
+// - MIR mutation
+static box FastMemLlvmOpenMemopKindClassifierBox {
+  is_open_memop_kind(kind) {
+    if kind == "AddrOf" { return "true" }
+    if kind == "LogicalShr" { return "true" }
+    if kind == "BitAnd" { return "true" }
+    if kind == "Add" { return "true" }
+    if kind == "Sub" { return "true" }
+    if kind == "TableIndex" { return "true" }
+    if kind == "FieldLoad" { return "true" }
+    if kind == "FieldStore" { return "true" }
+    if kind == "CurrentAllocOwnerId" { return "true" }
+    if kind == "OwnerEq" { return "true" }
+    return "false"
+  }
+}

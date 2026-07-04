@@ -25,10 +25,10 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-154.
-  The fastmem_llvm_open_memop_kind_classifier owner is selected as the
+  MIRBUILDER-FASTMEM-LLVM-OPEN-MEMOP-KIND-CLASSIFIER-HAKO-ADOPTION-DECISION-001.
+  The fastmem_llvm_open_memop_kind_classifier owner is HakoAdopted as the
   one-hundred-fifty-first narrow Rust-oracle parity pilot after the green
-  6-row `.hako` EXE parity gate; next is its Rust-oracle fixture.
+  14-row `.hako` EXE parity gate; next is rerun 155.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -61,7 +61,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-FASTMEM-LLVM-OPEN-MEMOP-KIND-CLASSIFIER-RUST-ORACLE-FIXTURE-001
+  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-155
 
 normal operating rule:
   One RERUN adopts exactly one owner, advances the pointer, then stops.
@@ -71,10 +71,10 @@ normal operating rule:
   under `Working Rules`.
 
 latest design decision:
-  fastmem_free_list_memop_kind_classifier is now HakoAdopted as a narrow
-  Rust-oracle parity pilot owner after a green 6-row `.hako` EXE parity gate.
+  fastmem_llvm_open_memop_kind_classifier is now HakoAdopted as a narrow
+  Rust-oracle parity pilot owner after a green 14-row `.hako` EXE parity gate.
   FastMem dialect validation remains Rust. Backend lowering and MIR mutation remain Rust. The selected next card is
-  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-154`.
+  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-155`.
   fastmem_llvm_value_memop_kind_classifier is now HakoAdopted as a narrow
   Rust-oracle parity pilot owner after a green 6-row `.hako` EXE parity
   gate. FastMem dialect validation remains Rust. Backend lowering and MIR
