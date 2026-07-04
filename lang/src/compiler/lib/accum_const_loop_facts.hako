@@ -1,0 +1,88 @@
+// accum_const_loop_facts.hako
+//
+// Responsibility:
+// - reduce a backend-safe accum-const-loop token snapshot into fact text
+// - mirror try_extract_accum_const_loop_facts for the narrow facade contract
+//
+// Non-responsibility:
+// - AST payload construction or full AST traversal
+// - CondProfile or ScanConditionObservation construction
+// - loop increment extraction, recipe construction, lowering, mutation, or ID allocation
+static box AccumConstLoopFactsBox {
+  build_summary(observation_token, body_token) {
+    local obs_kind = me._obs_kind(observation_token)
+    if obs_kind != "var_less_literal" {
+      return "accepted=0;reason=condition_not_var_less_literal"
+    }
+
+    local loop_var = me._obs_loop_var(observation_token)
+    local body_kind = me._body_kind(body_token)
+    if body_kind == "has_break" {
+      return "accepted=0;reason=body_has_break"
+    }
+    if body_kind == "has_continue" {
+      return "accepted=0;reason=body_has_continue"
+    }
+    if body_kind == "has_if_else" {
+      return "accepted=0;reason=body_has_if_else"
+    }
+    if body_kind != "accum_const_then_increment" {
+      return "accepted=0;reason=body_shape_not_supported"
+    }
+
+    local acc_var = me._body_acc_var(body_token)
+    if acc_var == loop_var {
+      return "accepted=0;reason=acc_var_is_loop_var"
+    }
+
+    local increment_var = me._body_increment_var(body_token)
+    if increment_var != loop_var {
+      return "accepted=0;reason=increment_var_mismatch"
+    }
+
+    return "accepted=1;loop_var=" + loop_var
+      + ";acc_var=" + acc_var
+      + ";acc_lit=" + me._body_acc_lit(body_token)
+  }
+
+  _obs_kind(token) {
+    if token == "ObsVarLessLiteralStepAdd1ITo3" { return "var_less_literal" }
+    if token == "ObsVarLessLiteralStepAdd1NTo10" { return "var_less_literal" }
+    if token == "ObsVarLessLengthStepAdd1IOverS" { return "var_less_length" }
+    return "unsupported"
+  }
+
+  _obs_loop_var(token) {
+    if token == "ObsVarLessLiteralStepAdd1NTo10" { return "n" }
+    return "i"
+  }
+
+  _body_kind(token) {
+    if token == "SumPlus1ThenIPlus1" { return "accum_const_then_increment" }
+    if token == "TotalPlus5ThenNPlus1" { return "accum_const_then_increment" }
+    if token == "IPlus1ThenIPlus1" { return "accum_const_then_increment" }
+    if token == "SumPlusVarThenIPlus1" { return "accum_var_then_increment" }
+    if token == "BreakThenIPlus1" { return "has_break" }
+    if token == "ContinueThenIPlus1" { return "has_continue" }
+    if token == "IfElseThenIPlus1" { return "has_if_else" }
+    if token == "SumPlus1ThenJPlus1" { return "accum_const_then_increment" }
+    return "unsupported"
+  }
+
+  _body_acc_var(token) {
+    if token == "TotalPlus5ThenNPlus1" { return "total" }
+    if token == "IPlus1ThenIPlus1" { return "i" }
+    return "sum"
+  }
+
+  _body_acc_lit(token) {
+    if token == "TotalPlus5ThenNPlus1" { return 5 }
+    return 1
+  }
+
+  _body_increment_var(token) {
+    if token == "TotalPlus5ThenNPlus1" { return "n" }
+    if token == "SumPlus1ThenJPlus1" { return "j" }
+    return "i"
+  }
+}

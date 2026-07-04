@@ -1,0 +1,106 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderAccumConstLoopFactsRustOracleV1",
+  "token": "MIRBUILDER-ACCUM-CONST-LOOP-FACTS-RUST-ORACLE-FIXTURE-001",
+  "owner": "accum_const_loop_facts",
+  "rust_source": {
+    "path": "src/mir/builder/control_flow/plan/facts/accum_const_loop_facts.rs",
+    "hash": "sha256:5fc6a712888dc0993fa36af9dc538afce60f479063439ace759aa8ebb0537a9b",
+    "oracle_surface": "try_extract_accum_const_loop_facts"
+  },
+  "input_contract": "BackendSafeAccumConstLoopFactsTokenSnapshotV1",
+  "rows": [
+    {
+      "case_id": "accept_sum_plus_one",
+      "observation_token": "ObsVarLessLiteralStepAdd1ITo3",
+      "body_token": "SumPlus1ThenIPlus1",
+      "expected_accept": true,
+      "expected_loop_var": "i",
+      "expected_acc_var": "sum",
+      "expected_acc_lit": 1,
+      "expected_summary": "accepted=1;loop_var=i;acc_var=sum;acc_lit=1"
+    },
+    {
+      "case_id": "accept_total_plus_five",
+      "observation_token": "ObsVarLessLiteralStepAdd1NTo10",
+      "body_token": "TotalPlus5ThenNPlus1",
+      "expected_accept": true,
+      "expected_loop_var": "n",
+      "expected_acc_var": "total",
+      "expected_acc_lit": 5,
+      "expected_summary": "accepted=1;loop_var=n;acc_var=total;acc_lit=5"
+    },
+    {
+      "case_id": "reject_condition_not_literal",
+      "observation_token": "ObsVarLessLengthStepAdd1IOverS",
+      "body_token": "SumPlus1ThenIPlus1",
+      "expected_accept": false,
+      "expected_reason": "condition_not_var_less_literal",
+      "expected_summary": "accepted=0;reason=condition_not_var_less_literal"
+    },
+    {
+      "case_id": "reject_break",
+      "observation_token": "ObsVarLessLiteralStepAdd1ITo3",
+      "body_token": "BreakThenIPlus1",
+      "expected_accept": false,
+      "expected_reason": "body_has_break",
+      "expected_summary": "accepted=0;reason=body_has_break"
+    },
+    {
+      "case_id": "reject_continue",
+      "observation_token": "ObsVarLessLiteralStepAdd1ITo3",
+      "body_token": "ContinueThenIPlus1",
+      "expected_accept": false,
+      "expected_reason": "body_has_continue",
+      "expected_summary": "accepted=0;reason=body_has_continue"
+    },
+    {
+      "case_id": "reject_if_else",
+      "observation_token": "ObsVarLessLiteralStepAdd1ITo3",
+      "body_token": "IfElseThenIPlus1",
+      "expected_accept": false,
+      "expected_reason": "body_has_if_else",
+      "expected_summary": "accepted=0;reason=body_has_if_else"
+    },
+    {
+      "case_id": "reject_var_accumulation",
+      "observation_token": "ObsVarLessLiteralStepAdd1ITo3",
+      "body_token": "SumPlusVarThenIPlus1",
+      "expected_accept": false,
+      "expected_reason": "body_shape_not_supported",
+      "expected_summary": "accepted=0;reason=body_shape_not_supported"
+    },
+    {
+      "case_id": "reject_acc_var_is_loop_var",
+      "observation_token": "ObsVarLessLiteralStepAdd1ITo3",
+      "body_token": "IPlus1ThenIPlus1",
+      "expected_accept": false,
+      "expected_reason": "acc_var_is_loop_var",
+      "expected_summary": "accepted=0;reason=acc_var_is_loop_var"
+    },
+    {
+      "case_id": "reject_increment_var_mismatch",
+      "observation_token": "ObsVarLessLiteralStepAdd1ITo3",
+      "body_token": "SumPlus1ThenJPlus1",
+      "expected_accept": false,
+      "expected_reason": "increment_var_mismatch",
+      "expected_summary": "accepted=0;reason=increment_var_mismatch"
+    }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "full_ast_traversal_adopted": 0,
+    "ast_payload_construction_migrated": 0,
+    "cond_profile_construction_migrated": 0,
+    "scan_condition_observation_migrated": 0,
+    "loop_increment_extraction_migrated": 0,
+    "recipe_construction_migrated": 0,
+    "route_selection_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0,
+    "id_allocation_migration": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
