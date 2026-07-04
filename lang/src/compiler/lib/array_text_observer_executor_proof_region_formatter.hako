@@ -1,0 +1,17 @@
+// array_text_observer_executor_proof_region_formatter.hako - hand-authored proof-region formatter
+//
+// Responsibility:
+// - format the narrow ArrayTextObserverExecutorProofRegion vocabulary
+// - stay pure: scalar region token in, scalar text out
+//
+// Non-responsibility:
+// - array/text observer route matching
+// - observer contract handling
+// - backend lowering
+// - MIR mutation
+static box ArrayTextObserverExecutorProofRegionFormatterBox {
+  format_proof_region(region) {
+    if region == "LoopBackedgeSingleBody" { return "loop_backedge_single_body" }
+    return "unsupported_array_text_observer_executor_proof_region"
+  }
+}

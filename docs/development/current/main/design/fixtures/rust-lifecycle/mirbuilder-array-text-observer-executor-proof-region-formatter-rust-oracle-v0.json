@@ -1,0 +1,29 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderArrayTextObserverExecutorProofRegionFormatterRustOracleV1",
+  "token": "MIRBUILDER-ARRAY-TEXT-OBSERVER-EXECUTOR-PROOF-REGION-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "array_text_observer_executor_proof_region_formatter",
+  "rust_source": {
+    "path": "src/mir/array_text_observer_region_contract/types.rs",
+    "hash": "sha256:54f8ccda9fd73a7bf266d0ae26d8d0e0eaa6d4966f4ec4fbf4b9f9c0c2bdb71d",
+    "oracle_surface": "ArrayTextObserverExecutorProofRegion Display label vocabulary"
+  },
+  "rows": [
+    {
+      "region": "LoopBackedgeSingleBody",
+      "expected": "loop_backedge_single_body"
+    }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "array_text_route_matching_migration": 0,
+    "array_text_observer_contract_handling_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}
