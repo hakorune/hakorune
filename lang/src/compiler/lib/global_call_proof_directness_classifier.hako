@@ -1,0 +1,15 @@
+// global_call_proof_directness_classifier.hako
+//
+// Responsibility:
+// - classify the narrow GlobalCallProof directness boolean vocabulary
+//
+// Non-responsibility:
+// - proof policy
+// - definition-owner inference
+// - global-call route collection
+static box GlobalCallProofDirectnessClassifierBox {
+  is_direct(proof) {
+    if proof == "ContractMissing" { return "false" }
+    return "true"
+  }
+}

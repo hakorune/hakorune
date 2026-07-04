@@ -1,0 +1,28 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderGlobalCallProofDirectnessClassifierHakoAdoptionDecisionV1",
+  "token": "MIRBUILDER-GLOBAL-CALL-PROOF-DIRECTNESS-CLASSIFIER-HAKO-ADOPTION-DECISION-001",
+  "owner": "global_call_proof_directness_classifier",
+  "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-global-call-proof-directness-classifier-rust-oracle-v0.json",
+  "hako_implementation": "lang/src/compiler/lib/global_call_proof_directness_classifier.hako",
+  "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_global_call_proof_directness_classifier_parity_gate.sh",
+  "parity_result": {
+    "parity_rows": 17,
+    "parity_status": "green"
+  },
+  "decision": {
+    "kind": "HakoAdopted",
+    "reason_token": "GlobalCallProofDirectnessClassifierParityGreen",
+    "selected_next_card": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-074"
+  },
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "global_call_proof_policy_migration": 0,
+    "global_call_definition_owner_inference_migration": 0,
+    "global_call_route_collection_migration": 0
+  }
+}

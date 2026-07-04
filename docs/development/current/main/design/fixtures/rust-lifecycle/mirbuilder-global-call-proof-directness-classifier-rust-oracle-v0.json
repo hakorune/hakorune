@@ -1,0 +1,41 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderGlobalCallProofDirectnessClassifierRustOracleV1",
+  "token": "MIRBUILDER-GLOBAL-CALL-PROOF-DIRECTNESS-CLASSIFIER-RUST-ORACLE-FIXTURE-001",
+  "owner": "global_call_proof_directness_classifier",
+  "rust_source": {
+    "path": "src/mir/global_call_route_plan/model.rs",
+    "hash": "sha256:5818fc9a9bd6906cb216cc6f1d7d99eb67847fb5cf38b6fbcedefc2bc4ffa52f",
+    "oracle_surface": "GlobalCallProof directness boolean vocabulary"
+  },
+  "rows": [
+    {"kind": "directness", "input": "ContractMissing", "expected": "false"},
+    {"kind": "directness", "input": "LeafNumericI64", "expected": "true"},
+    {"kind": "directness", "input": "GenericPureString", "expected": "true"},
+    {"kind": "directness", "input": "GenericStringOrVoidSentinel", "expected": "true"},
+    {"kind": "directness", "input": "GenericStringVoidLogging", "expected": "true"},
+    {"kind": "directness", "input": "GenericI64", "expected": "true"},
+    {"kind": "directness", "input": "ParserProgramJson", "expected": "true"},
+    {"kind": "directness", "input": "\u0053tage1EmitProgramJson", "expected": "true"},
+    {"kind": "directness", "input": "StaticStringArray", "expected": "true"},
+    {"kind": "directness", "input": "MirSchemaMapConstructor", "expected": "true"},
+    {"kind": "directness", "input": "BoxTypeInspectorDescribe", "expected": "true"},
+    {"kind": "directness", "input": "PatternUtilLocalValueProbe", "expected": "true"},
+    {"kind": "directness", "input": "SameModuleObjectHandle", "expected": "true"},
+    {"kind": "directness", "input": "SameModuleScalarI64", "expected": "true"},
+    {"kind": "directness", "input": "SameModuleVoidSentinel", "expected": "true"},
+    {"kind": "directness", "input": "SameModuleMixedRuntime", "expected": "true"},
+    {"kind": "directness", "input": "VoidSideEffect", "expected": "true"}
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "global_call_proof_policy_migration": 0,
+    "global_call_definition_owner_inference_migration": 0,
+    "global_call_route_collection_migration": 0
+  }
+}
