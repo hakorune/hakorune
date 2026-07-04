@@ -60,7 +60,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-FACT-OWNER-PARITY-PILOT-SELECTION-015
+  MIRBUILDER-LOOP-CHAR-MAP-FACTS-AUTHORITY-FACADE-PARITY-001
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -70,24 +70,18 @@ normal operating rule:
   Next work inventories Fact-owner and REGISTRY-rule contracts, excludes
   lowering/mutation/allocation/backend-capability blockers, then selects one
   smallest fixture-backed parity candidate.
-  Selection-011 chooses `try_extract_loop_skeleton_facts`; it is now
-  HakoAdoptedScoped for the authority-facade DTO only.
-  `try_extract_loop_skeleton_facts` is now HakoAdoptedScoped for the
-  authority-facade DTO only; feature-slot inference remains separate.
-  Selection-012 chooses `try_extract_string_is_integer_facts`; it is now
-  HakoAdoptedScoped for the authority-facade DTO only.
-  `try_extract_string_is_integer_facts` is now HakoAdoptedScoped for the
-  authority-facade DTO only; full AST traversal remains separate.
-  `try_extract_bool_predicate_scan_facts` is now HakoAdoptedScoped for the
-  authority-facade DTO only; CondProfile construction remains separate.
-  Selection-014 chooses `try_extract_accum_const_loop_facts`; AST payload
-  construction, CondProfile construction, loop increment extraction, recipe,
-  lowering, mutation, allocation, and Source Selfhost remain unclaimed.
-  `try_extract_accum_const_loop_facts` is now HakoAdoptedScoped for the
-  authority-facade DTO only; AST payload construction remains separate.
+  Recent HakoAdoptedScoped Fact facades: loop_skeleton_facts,
+  string_is_integer_facts, bool_predicate_scan_facts, accum_const_loop_facts.
+  Selection-015 chooses `try_extract_loop_char_map_facts`; substring/result
+  update AST construction, CondProfile construction, loop increment extraction,
+  route selection, lowering, mutation, allocation, and Source Selfhost remain
+  unclaimed.
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
+  `try_extract_loop_char_map_facts` is selected as the next authority-facade
+  parity slice. It may only claim token DTO acceptance/reason plus loop var,
+  haystack, result var, receiver var, and transform method.
   `accum_const_loop_facts.authority_facade` is HakoAdoptedScoped after green
   9-row parity; AST payload construction, CondProfile construction, loop
   increment extraction, lowering, mutation, allocation, and Source Selfhost
