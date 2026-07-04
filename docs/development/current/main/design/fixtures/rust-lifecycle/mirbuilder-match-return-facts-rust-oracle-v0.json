@@ -1,0 +1,155 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderMatchReturnFactsRustOracleV1",
+  "token": "MIRBUILDER-MATCH-RETURN-FACTS-RUST-ORACLE-FIXTURE-001",
+  "owner": "match_return_facts",
+  "rust_source": {
+    "path": "src/mir/builder/control_flow/plan/facts/match_return_facts.rs",
+    "hash": "sha256:a3cf668ccf03f6edde6d95a1dcf742baa79267ac3c93a6cde4db90d234c3e5d2",
+    "oracle_surface": "try_extract_match_return_facts"
+  },
+  "input_contract": "BackendSafeMatchReturnTokenSnapshotV1",
+  "rows": [
+    {
+      "case_id": "accept_var_int_returns",
+      "expr_kind": "MatchExpr",
+      "scrutinee_kind": "Var",
+      "arm_count": 2,
+      "label_kinds": [
+        "Int",
+        "Int"
+      ],
+      "return_kinds": [
+        "Int",
+        "Int"
+      ],
+      "else_kind": "Int",
+      "expected_accept": true,
+      "expected_summary": "accepted=1;scrutinee=Var;arms=2;labels=Int,Int;returns=Int,Int;else=Int"
+    },
+    {
+      "case_id": "accept_int_bool_returns",
+      "expr_kind": "MatchExpr",
+      "scrutinee_kind": "Int",
+      "arm_count": 2,
+      "label_kinds": [
+        "Bool",
+        "Bool"
+      ],
+      "return_kinds": [
+        "Bool",
+        "Int"
+      ],
+      "else_kind": "Bool",
+      "expected_accept": true,
+      "expected_summary": "accepted=1;scrutinee=Int;arms=2;labels=Bool,Bool;returns=Bool,Int;else=Bool"
+    },
+    {
+      "case_id": "skip_not_match_expr",
+      "expr_kind": "Literal",
+      "scrutinee_kind": "Var",
+      "arm_count": 2,
+      "label_kinds": [
+        "Int",
+        "Int"
+      ],
+      "return_kinds": [
+        "Int",
+        "Int"
+      ],
+      "else_kind": "Int",
+      "expected_accept": false,
+      "expected_reason": "not_match_expr",
+      "expected_summary": "accepted=0;reason=not_match_expr"
+    },
+    {
+      "case_id": "reject_scrutinee_unsupported",
+      "expr_kind": "MatchExpr",
+      "scrutinee_kind": "String",
+      "arm_count": 2,
+      "label_kinds": [
+        "Int",
+        "Int"
+      ],
+      "return_kinds": [
+        "Int",
+        "Int"
+      ],
+      "else_kind": "Int",
+      "expected_accept": false,
+      "expected_reason": "scrutinee_not_supported",
+      "expected_summary": "accepted=0;reason=scrutinee_not_supported"
+    },
+    {
+      "case_id": "reject_too_few_arms",
+      "expr_kind": "MatchExpr",
+      "scrutinee_kind": "Var",
+      "arm_count": 1,
+      "label_kinds": [
+        "Int",
+        "Int"
+      ],
+      "return_kinds": [
+        "Int",
+        "Int"
+      ],
+      "else_kind": "Int",
+      "expected_accept": false,
+      "expected_reason": "too_few_arms",
+      "expected_summary": "accepted=0;reason=too_few_arms"
+    },
+    {
+      "case_id": "reject_non_literal_arm",
+      "expr_kind": "MatchExpr",
+      "scrutinee_kind": "Var",
+      "arm_count": 2,
+      "label_kinds": [
+        "Int",
+        "Int"
+      ],
+      "return_kinds": [
+        "Var",
+        "Int"
+      ],
+      "else_kind": "Int",
+      "expected_accept": false,
+      "expected_reason": "arm_not_literal",
+      "expected_summary": "accepted=0;reason=arm_not_literal"
+    },
+    {
+      "case_id": "reject_nonliteral_else",
+      "expr_kind": "MatchExpr",
+      "scrutinee_kind": "Var",
+      "arm_count": 2,
+      "label_kinds": [
+        "Int",
+        "Int"
+      ],
+      "return_kinds": [
+        "Int",
+        "Int"
+      ],
+      "else_kind": "Var",
+      "expected_accept": false,
+      "expected_reason": "else_not_literal",
+      "expected_summary": "accepted=0;reason=else_not_literal"
+    }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "full_ast_traversal_adopted": 0,
+    "strict_release_policy_adopted": 0,
+    "freeze_construction_adopted": 0,
+    "branchn_composition_adopted": 0,
+    "return_lowering_migration": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0,
+    "id_allocation_migration": 0,
+    "route_selection_migration": 0
+  }
+}

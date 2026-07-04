@@ -1,0 +1,61 @@
+// match_return_facts.hako
+//
+// Responsibility:
+// - reduce a backend-safe match-return token snapshot into a fact summary
+// - keep the Rust oracle contract for accepted facts and reject reason tokens
+//
+// Non-responsibility:
+// - full AST traversal
+// - BranchN composition or return lowering
+// - backend lowering, MIR mutation, route selection, or ID allocation
+static box MatchReturnFactsBox {
+  extract_summary(expr_kind, scrutinee_kind, arm_count, label0_kind, return0_kind, label1_kind, return1_kind, else_kind) {
+    if expr_kind != "MatchExpr" {
+      return "accepted=0;reason=not_match_expr"
+    }
+    if me._scrutinee_supported(scrutinee_kind) != 1 {
+      return "accepted=0;reason=scrutinee_not_supported"
+    }
+    if arm_count < 2 {
+      return "accepted=0;reason=too_few_arms"
+    }
+    if me._return_literal_supported(else_kind) != 1 {
+      return "accepted=0;reason=else_not_literal"
+    }
+    if me._label_literal_supported(label0_kind) != 1 {
+      return "accepted=0;reason=arm_label_not_supported"
+    }
+    if me._label_literal_supported(label1_kind) != 1 {
+      return "accepted=0;reason=arm_label_not_supported"
+    }
+    if me._return_literal_supported(return0_kind) != 1 {
+      return "accepted=0;reason=arm_not_literal"
+    }
+    if me._return_literal_supported(return1_kind) != 1 {
+      return "accepted=0;reason=arm_not_literal"
+    }
+    return "accepted=1;scrutinee=" + scrutinee_kind
+      + ";arms=" + arm_count
+      + ";labels=" + label0_kind + "," + label1_kind
+      + ";returns=" + return0_kind + "," + return1_kind
+      + ";else=" + else_kind
+  }
+
+  _scrutinee_supported(kind) {
+    if kind == "Var" { return 1 }
+    if kind == "Int" { return 1 }
+    return 0
+  }
+
+  _label_literal_supported(kind) {
+    if kind == "Int" { return 1 }
+    if kind == "Bool" { return 1 }
+    return 0
+  }
+
+  _return_literal_supported(kind) {
+    if kind == "Int" { return 1 }
+    if kind == "Bool" { return 1 }
+    return 0
+  }
+}

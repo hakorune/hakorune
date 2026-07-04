@@ -345,13 +345,13 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-STMT-ONLY-BLOCK-RECIPE-TOKEN-SNAPSHOT-HAKOADOPTED-DECISION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2899-MIRBUILDER-STMT-ONLY-BLOCK-RECIPE-TOKEN-SNAPSHOT-HAKOADOPTED-DECISION-001.md"
+latest_card = "MIRBUILDER-MATCH-RETURN-FACTS-TOKEN-SNAPSHOT-HAKOADOPTED-DECISION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2901-MIRBUILDER-MATCH-RETURN-FACTS-TOKEN-SNAPSHOT-HAKOADOPTED-DECISION-001.md"
 latest_card_summary = """The latest card adopts
-stmt_only_block_recipe.backend_safe_token_snapshot_reducer as a scoped
-HakoAdopted Fact owner while keeping ScopeBox flattening, RecipeBodies
-materialization, backend lowering, route selection, MIR mutation, ID allocation,
-and Source Selfhost unclaimed."""
+match_return_facts.backend_safe_token_snapshot_reducer as a scoped HakoAdopted
+Fact owner while keeping strict/release policy, Freeze construction, BranchN
+composition, return lowering, route selection, MIR mutation, ID allocation, and
+Source Selfhost unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -362,6 +362,8 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-05: 2901 adopts match_return_facts.backend_safe_token_snapshot_reducer as a scoped HakoAdopted Fact owner; strict/release policy and Source Selfhost remain unclaimed.",
+  "2026-07-05: 2900 lands match_return_facts.backend_safe_token_snapshot_reducer parity as the next Fact-owner slice; BranchN composition and return lowering remain unclaimed.",
   "2026-07-05: 2899 adopts stmt_only_block_recipe.backend_safe_token_snapshot_reducer as a scoped HakoAdopted Fact owner; ScopeBox flattening and Source Selfhost remain unclaimed.",
   "2026-07-05: 2898 lands stmt_only_block_recipe.backend_safe_token_snapshot_reducer parity as the next Fact-owner slice; HakoAdopted decision and Source Selfhost remain unclaimed.",
   "2026-07-05: 2897 adopts loop_feature_facts.backend_safe_token_snapshot_reducer as a scoped HakoAdopted Fact owner after a green 3-row parity gate; full AST traversal and Source Selfhost remain unclaimed.",
@@ -372,6 +374,4 @@ landed_tail = [
   "2026-07-05: 2892 adopts control_form_from_if_constructor as the one-hundred-fifty-seventh narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
   "2026-07-05: 2891 adds the control_form_from_if_constructor Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
   "2026-07-05: 2890 adds the hand-authored control_form_from_if_constructor .hako implementation and chooses the parity gate card next.",
-  "2026-07-05: 2889 creates the 2-row control_form_from_if_constructor Rust-oracle fixture and chooses the Hako-native implementation card next.",
-  "2026-07-05: 2888 selects control_form_from_if_constructor as the one-hundred-fifty-seventh narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
 ]

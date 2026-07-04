@@ -1,0 +1,85 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderMatchReturnFactsTokenSnapshotHakoAdoptedDecisionV1",
+  "token": "MIRBUILDER-MATCH-RETURN-FACTS-TOKEN-SNAPSHOT-HAKOADOPTED-DECISION-001",
+  "input_state": {
+    "hako_source": "lang/src/compiler/lib/match_return_facts.hako",
+    "hako_source_hash": "sha256:9f354fbb92bb3780ec19311aa5810ed47bad329b14343bd6d7085e2b81c3421c",
+    "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-match-return-facts-rust-oracle-v0.json",
+    "rust_oracle_fixture_hash": "sha256:e791540c328f43bb696c9c1d1d8a6e87d0a4b2ae04546491e044e2e9fdb6ff88",
+    "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_match_return_facts_parity_gate.sh",
+    "parity_gate_hash": "sha256:f0c029c2e538ff3a4aef136f7fd1d1716390ac5f9601d9d1f2ee2ea5d395779e"
+  },
+  "adoption_scope": {
+    "adopted_owner": "match_return_facts.backend_safe_token_snapshot_reducer",
+    "rust_oracle_symbol": "try_extract_match_return_facts",
+    "input_contract": "BackendSafeMatchReturnTokenSnapshotV1",
+    "native_edit_authority": "lang/src/compiler/lib/match_return_facts.hako",
+    "owned_semantics": [
+      "match_expr_detection",
+      "scrutinee_token_support",
+      "arm_count_minimum",
+      "arm_label_literal_support",
+      "arm_return_literal_support",
+      "else_return_literal_support",
+      "reject_reason_token"
+    ],
+    "excluded_semantics": [
+      "strict_release_policy",
+      "Freeze_construction",
+      "reject_logging_handoff_tables",
+      "full_AST_traversal",
+      "BranchN_composition",
+      "return_lowering",
+      "MIR_mutation",
+      "backend_lowering_capability_expansion",
+      "route_selection",
+      "ID_allocation"
+    ]
+  },
+  "parity": {
+    "gate_status": "Green",
+    "oracle_row_count": 7,
+    "required_contract_fields": [
+      "accepted",
+      "scrutinee",
+      "arms",
+      "labels",
+      "returns",
+      "else",
+      "reason"
+    ],
+    "required_rows": [
+      "accept_var_int_returns",
+      "accept_int_bool_returns",
+      "skip_not_match_expr",
+      "reject_scrutinee_unsupported",
+      "reject_too_few_arms",
+      "reject_non_literal_arm",
+      "reject_nonliteral_else"
+    ]
+  },
+  "decision": {
+    "kind": "HakoAdoptedScoped",
+    "reason_token": "MatchReturnFactsBackendSafeTokenSnapshotParityGreen",
+    "selected_next_card": "MIRBUILDER-FACT-OWNER-PARITY-PILOT-SELECTION-004",
+    "backlog_card": "MIRBUILDER-MATCH-RETURN-FACTS-FULL-AST-AND-FREEZE-CONSULTATION-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "full_try_extract_match_return_facts_ast_owner_adopted": 0,
+    "strict_release_policy_adopted": 0,
+    "freeze_construction_adopted": 0,
+    "reject_logging_handoff_tables_adopted": 0,
+    "branchn_composition_adopted": 0,
+    "return_lowering_migrated": 0,
+    "backend_capability_expansion": 0,
+    "mir_mutation_migrated": 0,
+    "route_selection_migrated": 0,
+    "id_allocation_migrated": 0,
+    "hako_generation": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
