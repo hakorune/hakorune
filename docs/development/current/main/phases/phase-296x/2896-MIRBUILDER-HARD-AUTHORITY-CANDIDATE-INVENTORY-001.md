@@ -86,6 +86,47 @@ row 2:
 This keeps the first fixture narrow while still proving the read-only fact owner
 distinguishes the direct exit summary from nested-loop observation.
 
+Suggested JSON row schema:
+
+```text
+rows[].body:
+  AST sketch serialized as a small expression tree
+
+rows[].expected_exit_usage:
+  { break: bool, continue: bool, return: bool, unwind: bool }
+
+rows[].expected_nested_loop:
+  bool
+
+rows[].expected_exit_map_kinds:
+  ["Return" | "Break" | "Continue" | "Unwind", ...] or []
+
+rows[].expected_value_join:
+  null
+
+rows[].expected_cleanup:
+  null
+```
+
+Top-level fixture fields should follow the existing Rust-oracle pattern:
+
+```text
+schema_version = 0
+kind = MirBuilderLoopFeatureFactsRustOracleV1
+token = MIRBUILDER-LOOP-FEATURE-FACTS-RUST-ORACLE-FIXTURE-001
+owner = loop_feature_facts
+rust_source.path = src/mir/builder/control_flow/plan/facts/feature_facts.rs
+rust_source.oracle_surface = LoopFeatureFacts owner
+non_claims.source_selfhost_claim = 0
+non_claims.hako_adopted_decision = 0
+non_claims.runtime_fallback = 0
+non_claims.new_backend_route = 0
+non_claims.new_abi = 0
+non_claims.mir_type_migration = 0
+non_claims.backend_lowering_migration = 0
+non_claims.mir_mutation_migration = 0
+```
+
 ## Evidence
 
 Current inventory facts:
