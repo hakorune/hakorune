@@ -1,0 +1,27 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderControlFormFromIfConstructorHakoAdoptionDecisionV1",
+  "token": "MIRBUILDER-CONTROL-FORM-FROM-IF-CONSTRUCTOR-HAKO-ADOPTION-DECISION-001",
+  "owner": "control_form_from_if_constructor",
+  "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-control-form-from-if-constructor-rust-oracle-v0.json",
+  "hako_implementation": "lang/src/shared/mir/control_form_box.hako",
+  "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_control_form_from_if_constructor_parity_gate.sh",
+  "parity_result": {
+    "parity_rows": 2,
+    "parity_status": "green"
+  },
+  "decision": {
+    "kind": "HakoAdopted",
+    "reason_token": "ControlFormFromIfConstructorParityGreen",
+    "selected_next_card": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-162"
+  },
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

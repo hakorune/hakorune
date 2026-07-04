@@ -45,6 +45,15 @@ box ControlFormBox {
     return me.kind_name == "if"
   }
 
+  matches_if(cond_block, then_block, else_block, merge_block) {
+    return me.kind_name == "if" &&
+      me.entry == cond_block &&
+      me.if_cond == cond_block &&
+      me.if_then == then_block &&
+      me.if_else == else_block &&
+      me.if_merge == merge_block
+  }
+
   // Loop 用の ControlFormBox を簡易的に構築するヘルパーだよ。
   //
   // header_id / exit_id / body_blocks は JSON v0 由来の block id 群。
