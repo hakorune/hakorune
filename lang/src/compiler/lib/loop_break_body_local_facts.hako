@@ -1,0 +1,85 @@
+// loop_break_body_local_facts.hako
+//
+// Responsibility:
+// - reduce a backend-safe loop-break body-local token snapshot into fact text
+// - mirror try_extract_loop_break_body_local_facts for the narrow facade contract
+//
+// Non-responsibility:
+// - full loop-break subset dispatch or break-if analysis
+// - loop increment extraction or synthetic break-condition construction
+// - route selection, lowering, mutation, or ID allocation
+static box LoopBreakBodyLocalFactsBox {
+  build_summary(condition_token, body_local_token) {
+    local loop_var = me._condition_loop_var(condition_token)
+    if loop_var == "-" {
+      return "accepted=0;reason=condition_not_len_loop"
+    }
+
+    local shape = me._shape_kind(body_local_token)
+    if shape == "unsupported" {
+      return "accepted=0;reason=body_local_shape_not_supported"
+    }
+
+    local body_local_var = me._body_local_var(body_local_token)
+    if body_local_var == "-" {
+      return "accepted=0;reason=body_local_var_missing"
+    }
+
+    if shape == "trim_seg" {
+      local i_var = me._shape_i_var(body_local_token)
+      if i_var != loop_var {
+        return "accepted=0;reason=loop_var_mismatch"
+      }
+      return "accepted=1;loop_var=" + loop_var
+        + ";body_local_var=" + body_local_var
+        + ";shape=trim_seg;s_var=" + me._shape_s_var(body_local_token)
+        + ";i_var=" + i_var
+    }
+
+    return "accepted=1;loop_var=" + loop_var
+      + ";body_local_var=" + body_local_var
+      + ";shape=digit_pos;digits_var=" + me._shape_digits_var(body_local_token)
+      + ";ch_var=" + me._shape_ch_var(body_local_token)
+  }
+
+  _condition_loop_var(token) {
+    if token == "CondILessLenS" { return "i" }
+    if token == "CondPosLessLenDigits" { return "pos" }
+    return "-"
+  }
+
+  _shape_kind(token) {
+    if token == "TrimSegSAtI" { return "trim_seg" }
+    if token == "TrimSegSAtJ" { return "trim_seg" }
+    if token == "DigitPosDigitsCh" { return "digit_pos" }
+    if token == "DigitPosNumsC" { return "digit_pos" }
+    return "unsupported"
+  }
+
+  _body_local_var(token) {
+    if token == "TrimSegSAtI" { return "seg" }
+    if token == "TrimSegSAtJ" { return "seg" }
+    if token == "DigitPosDigitsCh" { return "ch" }
+    if token == "DigitPosNumsC" { return "c" }
+    return "-"
+  }
+
+  _shape_s_var(token) {
+    return "s"
+  }
+
+  _shape_i_var(token) {
+    if token == "TrimSegSAtJ" { return "j" }
+    return "i"
+  }
+
+  _shape_digits_var(token) {
+    if token == "DigitPosNumsC" { return "nums" }
+    return "digits"
+  }
+
+  _shape_ch_var(token) {
+    if token == "DigitPosNumsC" { return "c" }
+    return "ch"
+  }
+}

@@ -60,7 +60,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-LOOP-BREAK-BODY-LOCAL-FACTS-AUTHORITY-FACADE-PARITY-001
+  MIRBUILDER-LOOP-BREAK-BODY-LOCAL-FACTS-HAKOADOPTED-DECISION-001
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -72,16 +72,18 @@ normal operating rule:
   smallest fixture-backed parity candidate.
   Recent scoped Fact facades include scan/loop true/if-phi/loop-cond owners up
   through `loop_cond_return_in_body_facts`.
-  Selection-021 chooses `try_extract_loop_break_body_local_facts`; full
-  loop-break subset dispatch, break-if analysis, synthetic break-condition
+  `loop_break_body_local_facts` now has a green 6-row authority-facade parity
+  gate; HakoAdopted decision is next. Full loop-break subset dispatch,
+  break-if analysis, loop increment extraction, synthetic break-condition
   construction, lowering, mutation, allocation, and Source Selfhost remain
   unclaimed.
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  Selection-021 chooses `loop_break_body_local_facts.authority_facade` as the
-  next fixture-backed parity pilot. Recent adopted facades remain scoped DTO
-  owners only; AST traversal, recipe/lowering, route selection, MIR mutation,
+  `loop_break_body_local_facts.authority_facade` has green parity for a
+  backend-safe 6-row token snapshot. Recent adopted facades remain scoped DTO
+  owners only; AST traversal, loop-break subset dispatch, break-if analysis,
+  loop increment extraction, recipe/lowering, route selection, MIR mutation,
   ID allocation, and Source Selfhost remain unclaimed unless a specific card
   says otherwise.
   Authority facade comes before crate split: Rust may be reorganized around

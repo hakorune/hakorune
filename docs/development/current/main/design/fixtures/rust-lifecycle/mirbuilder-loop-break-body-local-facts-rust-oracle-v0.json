@@ -1,0 +1,83 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderLoopBreakBodyLocalFactsRustOracleV1",
+  "token": "MIRBUILDER-LOOP-BREAK-BODY-LOCAL-FACTS-RUST-ORACLE-FIXTURE-001",
+  "owner": "loop_break_body_local_facts",
+  "rust_source": {
+    "path": "src/mir/builder/control_flow/plan/loop_break/facts/body_local_facts.rs",
+    "hash": "sha256:e81238f5aaa6d7d6e998f6ea4253660a689122fdae36026ccd7a8fe807d99c81",
+    "oracle_surface": "try_extract_loop_break_body_local_facts"
+  },
+  "input_contract": "BackendSafeLoopBreakBodyLocalFactsTokenSnapshotV1",
+  "rows": [
+    {
+      "case_id": "accept_trim_seg",
+      "condition_token": "CondILessLenS",
+      "body_local_token": "TrimSegSAtI",
+      "expected_accept": true,
+      "expected_shape": "trim_seg",
+      "expected_loop_var": "i",
+      "expected_body_local_var": "seg",
+      "expected_summary": "accepted=1;loop_var=i;body_local_var=seg;shape=trim_seg;s_var=s;i_var=i"
+    },
+    {
+      "case_id": "accept_digit_pos",
+      "condition_token": "CondPosLessLenDigits",
+      "body_local_token": "DigitPosDigitsCh",
+      "expected_accept": true,
+      "expected_shape": "digit_pos",
+      "expected_loop_var": "pos",
+      "expected_body_local_var": "ch",
+      "expected_summary": "accepted=1;loop_var=pos;body_local_var=ch;shape=digit_pos;digits_var=digits;ch_var=ch"
+    },
+    {
+      "case_id": "accept_digit_pos_alt_names",
+      "condition_token": "CondPosLessLenDigits",
+      "body_local_token": "DigitPosNumsC",
+      "expected_accept": true,
+      "expected_shape": "digit_pos",
+      "expected_loop_var": "pos",
+      "expected_body_local_var": "c",
+      "expected_summary": "accepted=1;loop_var=pos;body_local_var=c;shape=digit_pos;digits_var=nums;ch_var=c"
+    },
+    {
+      "case_id": "reject_condition_not_len_loop",
+      "condition_token": "CondCallResult",
+      "body_local_token": "TrimSegSAtI",
+      "expected_accept": false,
+      "expected_reason": "condition_not_len_loop",
+      "expected_summary": "accepted=0;reason=condition_not_len_loop"
+    },
+    {
+      "case_id": "reject_shape_not_supported",
+      "condition_token": "CondILessLenS",
+      "body_local_token": "PlainLocalX",
+      "expected_accept": false,
+      "expected_reason": "body_local_shape_not_supported",
+      "expected_summary": "accepted=0;reason=body_local_shape_not_supported"
+    },
+    {
+      "case_id": "reject_trim_loop_var_mismatch",
+      "condition_token": "CondILessLenS",
+      "body_local_token": "TrimSegSAtJ",
+      "expected_accept": false,
+      "expected_reason": "loop_var_mismatch",
+      "expected_summary": "accepted=0;reason=loop_var_mismatch"
+    }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "full_ast_traversal_adopted": 0,
+    "loop_break_subset_dispatch_migrated": 0,
+    "break_if_analysis_migrated": 0,
+    "loop_increment_extraction_migrated": 0,
+    "synthetic_break_condition_construction_migrated": 0,
+    "route_selection_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0,
+    "id_allocation_migration": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

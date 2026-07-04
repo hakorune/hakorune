@@ -345,12 +345,12 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-FACT-OWNER-PARITY-PILOT-SELECTION-021"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2947-MIRBUILDER-FACT-OWNER-PARITY-PILOT-SELECTION-021.md"
+latest_card = "MIRBUILDER-LOOP-BREAK-BODY-LOCAL-FACTS-AUTHORITY-FACADE-PARITY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2948-MIRBUILDER-LOOP-BREAK-BODY-LOCAL-FACTS-AUTHORITY-FACADE-PARITY-001.md"
 latest_card_summary = """The latest card lands
-selection-021 and chooses loop_break_body_local_facts.authority_facade as the
-next fixture-backed parity pilot. Full loop-break subset dispatch, break-if
-analysis, synthetic break-condition construction, route selection, backend
+loop_break_body_local_facts authority-facade parity for backend-safe token
+snapshots. Full loop-break subset dispatch, break-if analysis, loop increment
+extraction, synthetic break-condition construction, route selection, backend
 lowering, MIR mutation, ID allocation, and Source Selfhost remain unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
@@ -362,6 +362,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-05: 2948 lands loop_break_body_local_facts authority-facade parity; HakoAdopted decision is next.",
   "2026-07-05: 2947 selects try_extract_loop_break_body_local_facts as the next authority-facade parity pilot; full loop-break dispatch remains Rust.",
   "2026-07-05: 2946 adopts loop_cond_return_in_body_facts.authority_facade as a scoped HakoAdopted Fact owner; shape traversal and recipe construction remain Rust.",
   "2026-07-05: 2945 lands loop_cond_return_in_body_facts authority-facade parity; HakoAdopted decision is next.",
@@ -373,5 +374,4 @@ landed_tail = [
   "2026-07-05: 2939 lands if_phi_join_facts authority-facade parity; HakoAdopted decision is next.",
   "2026-07-05: 2938 selects try_extract_if_phi_join_facts as the next authority-facade parity pilot; AST payloads, recipe/lowering, and route selection remain Rust.",
   "2026-07-05: 2937 adopts loop_true_early_exit_facts.authority_facade as a scoped HakoAdopted Fact owner; control-flow traversal and exit/carrier AST construction remain Rust.",
-  "2026-07-05: 2936 lands loop_true_early_exit_facts authority-facade parity; HakoAdopted decision is next.",
 ]
