@@ -1,0 +1,17 @@
+// array_text_observer_publication_boundary_formatter.hako - hand-authored publication-boundary formatter
+//
+// Responsibility:
+// - format the narrow ArrayTextObserverPublicationBoundary vocabulary
+// - stay pure: scalar boundary token in, scalar text out
+//
+// Non-responsibility:
+// - array/text observer route matching
+// - observer contract handling
+// - backend lowering
+// - MIR mutation
+static box ArrayTextObserverPublicationBoundaryFormatterBox {
+  format_publication_boundary(boundary) {
+    if boundary == "None" { return "none" }
+    return "unsupported_array_text_observer_publication_boundary"
+  }
+}

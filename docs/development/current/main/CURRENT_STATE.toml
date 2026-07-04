@@ -252,6 +252,9 @@ Source Selfhost remains unclaimed.
 ArrayTextObserverProofRegionFormatter is now a narrow HakoAdopted Rust-oracle
 parity pilot owner after a green 1-row `.hako` EXE parity gate.
 Source Selfhost remains unclaimed.
+ArrayTextObserverPublicationBoundaryFormatter is now a narrow HakoAdopted
+Rust-oracle parity pilot owner after a green 1-row `.hako` EXE parity gate.
+Source Selfhost remains unclaimed.
 EXE/AOT remains the primary
 app/selfhost validation route; VM/interpreter lanes are not semantic owners."""
 
@@ -261,11 +264,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-ARRAY-TEXT-OBSERVER-PROOF-REGION-FORMATTER-HAKO-ADOPTION-DECISION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2493-MIRBUILDER-ARRAY-TEXT-OBSERVER-PROOF-REGION-FORMATTER-HAKO-ADOPTION-DECISION-001.md"
+latest_card = "MIRBUILDER-ARRAY-TEXT-OBSERVER-PUBLICATION-BOUNDARY-FORMATTER-HAKO-ADOPTION-DECISION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2498-MIRBUILDER-ARRAY-TEXT-OBSERVER-PUBLICATION-BOUNDARY-FORMATTER-HAKO-ADOPTION-DECISION-001.md"
 latest_card_summary = """The latest card adopts
-array_text_observer_proof_region_formatter as the seventy-ninth narrow
-Rust-oracle parity pilot owner and chooses pilot selection rerun 080 next."""
+array_text_observer_publication_boundary_formatter as the eightieth narrow
+Rust-oracle parity pilot owner and chooses pilot selection rerun 081 next."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -276,6 +279,11 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-04: 2498 adopts array_text_observer_publication_boundary_formatter as the eightieth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
+  "2026-07-04: 2497 adds the array_text_observer_publication_boundary_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
+  "2026-07-04: 2496 adds the hand-authored array_text_observer_publication_boundary_formatter .hako implementation and chooses the parity gate card next.",
+  "2026-07-04: 2495 creates the 1-row array_text_observer_publication_boundary_formatter Rust-oracle fixture and chooses the Hako-native implementation card next.",
+  "2026-07-04: 2494 selects array_text_observer_publication_boundary_formatter as the eightieth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
   "2026-07-04: 2493 adopts array_text_observer_proof_region_formatter as the seventy-ninth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
   "2026-07-04: 2492 adds the array_text_observer_proof_region_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
   "2026-07-04: 2491 adds the hand-authored array_text_observer_proof_region_formatter .hako implementation and chooses the parity gate card next.",
@@ -283,9 +291,4 @@ landed_tail = [
   "2026-07-04: 2489 selects array_text_observer_proof_region_formatter as the seventy-ninth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
   "2026-07-04: 2488 adopts array_text_observer_arg_repr_const_utf8_classifier as the seventy-eighth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
   "2026-07-04: 2487 adds the array_text_observer_arg_repr_const_utf8_classifier Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
-  "2026-07-04: 2486 adds the hand-authored array_text_observer_arg_repr_const_utf8_classifier .hako implementation and chooses the parity gate card next.",
-  "2026-07-04: 2485 creates the 2-row array_text_observer_arg_repr_const_utf8_classifier Rust-oracle fixture and chooses the Hako-native implementation card next.",
-  "2026-07-04: 2484 selects array_text_observer_arg_repr_const_utf8_classifier as the seventy-eighth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
-  "2026-07-04: 2483 adopts array_text_observer_arg_repr_kind_formatter as the seventy-seventh narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
-  "2026-07-04: 2482 adds the array_text_observer_arg_repr_kind_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
 ]
