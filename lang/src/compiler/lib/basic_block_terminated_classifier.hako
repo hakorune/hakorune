@@ -1,0 +1,18 @@
+// basic_block_terminated_classifier.hako - hand-authored basic-block terminated classifier
+//
+// Responsibility:
+// - classify whether a block has a terminator
+// - stay pure: scalar state token in, boolean text out
+//
+// Non-responsibility:
+// - BasicBlock control-flow behavior
+// - backend lowering
+// - MIR mutation
+static box BasicBlockTerminatedClassifierBox {
+  is_terminated(terminator_present) {
+    if terminator_present == "true" {
+      return "true"
+    }
+    return "false"
+  }
+}
