@@ -1,0 +1,17 @@
+// array_text_observer_proof_region_formatter.hako - hand-authored proof-region formatter
+//
+// Responsibility:
+// - format the narrow ArrayTextObserverProofRegion vocabulary
+// - stay pure: scalar region token in, scalar text out
+//
+// Non-responsibility:
+// - array/text observer route matching
+// - observer contract handling
+// - backend lowering
+// - MIR mutation
+static box ArrayTextObserverProofRegionFormatterBox {
+  format_proof_region(region) {
+    if region == "ArrayGetReceiverIndexOf" { return "array_get_receiver_indexof" }
+    return "unsupported_array_text_observer_proof_region"
+  }
+}

@@ -1,0 +1,18 @@
+// array_text_observer_arg_repr_const_utf8_classifier.hako - hand-authored boolean classifier
+//
+// Responsibility:
+// - classify ArrayTextObserverArgRepr const-utf8 membership
+// - stay pure: scalar token in, boolean text out
+//
+// Non-responsibility:
+// - array/text observer route matching
+// - observer contract handling
+// - backend lowering
+// - MIR mutation
+static box ArrayTextObserverArgReprConstUtf8ClassifierBox {
+  is_const_utf8(kind) {
+    if kind == "Value" { return "false" }
+    if kind == "ConstUtf8" { return "true" }
+    return "unsupported_array_text_observer_arg_repr_const_utf8"
+  }
+}

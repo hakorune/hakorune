@@ -1,0 +1,30 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderArrayTextObserverConsumerShapeFormatterHakoAdoptionDecisionV1",
+  "token": "MIRBUILDER-ARRAY-TEXT-OBSERVER-CONSUMER-SHAPE-FORMATTER-HAKO-ADOPTION-DECISION-001",
+  "owner": "array_text_observer_consumer_shape_formatter",
+  "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-array-text-observer-consumer-shape-formatter-rust-oracle-v0.json",
+  "hako_implementation": "lang/src/compiler/lib/array_text_observer_consumer_shape_formatter.hako",
+  "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_array_text_observer_consumer_shape_formatter_parity_gate.sh",
+  "parity_result": {
+    "parity_rows": 2,
+    "parity_status": "green"
+  },
+  "decision": {
+    "kind": "HakoAdopted",
+    "reason_token": "ArrayTextObserverConsumerShapeFormatterParityGreen",
+    "selected_next_card": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-076"
+  },
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "array_text_route_matching_migration": 0,
+    "array_text_consumer_shape_inference_migration": 0,
+    "array_text_observer_contract_handling_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

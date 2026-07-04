@@ -10,6 +10,7 @@ Related:
   - docs/development/current/main/design/mirbuilder-ordering-capability-ssot.md
   - docs/development/current/main/design/mirbuilder-selfhost-checkpoint-roadmap-ssot.md
   - docs/development/current/main/design/rust-to-hako-converter-implementation-role-ssot.md
+  - docs/development/current/main/design/mirbuilder-authority-based-hako-migration-ssot.md
 ---
 
 # MirBuilder Rust-to-Hako Converter Task Order
@@ -24,9 +25,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-FASTMEM-ACCESS-PLAN-KIND-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.
-  The fastmem_access_plan_kind_label_formatter owner is HakoAdopted as the
-  seventy-fifth narrow Rust-oracle parity pilot; next is rerun 075.
+  MIRBUILDER-ARRAY-TEXT-OBSERVER-PROOF-REGION-FORMATTER-HAKO-ADOPTION-DECISION-001.
+  The array_text_observer_proof_region_formatter owner is HakoAdopted as the
+  seventy-ninth narrow Rust-oracle parity pilot; next is rerun 080.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -47,38 +48,36 @@ selected decision slice:
     -> MIRBUILDER-NATIVE-OWNER-SEED-PILOT-TARGET-SELECTION-001
 
 selected evidence:
-  current pointers:
-    -> docs/development/current/main/CURRENT_STATE.toml
-    -> docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-family-guard-manifest-v0.json
-    -> docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-wider-route-selection-resolution-v0.json
-    -> docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-minimal-path-mainline-readiness-resolution-v0.json
-  durable policy:
-    -> docs/development/current/main/design/mirbuilder-selfhost-checkpoint-roadmap-ssot.md
-    -> docs/development/current/main/design/derived-to-native-hako-artifact-model-ssot.md
+  current pointers: docs/development/current/main/CURRENT_STATE.toml,
+    docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-family-guard-manifest-v0.json,
+    docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-wider-route-selection-resolution-v0.json,
+    docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-minimal-path-mainline-readiness-resolution-v0.json
+  durable policy: docs/development/current/main/design/mirbuilder-selfhost-checkpoint-roadmap-ssot.md,
+    docs/development/current/main/design/derived-to-native-hako-artifact-model-ssot.md,
+    docs/development/current/main/design/mirbuilder-authority-based-hako-migration-ssot.md
 
 landed evidence pointer:
-  Detailed landed rows live in the route-selection guards, adoption cards, and
-  git history. This task-order only keeps the active blocker, fail-fast
-  boundary, and Active Next 3.
+  Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-075
+  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-080
+
+normal operating rule:
+  One RERUN adopts exactly one owner, advances the pointer, then stops.
+  Inventory is recall-only unless explicitly requested; see authority SSOT.
+
+latest design decision:
+  array_text_observer_arg_repr_const_utf8_classifier is now HakoAdopted as a
+  narrow Rust-oracle parity pilot owner after a green 2-row `.hako` EXE parity
+  gate.
+  Array-text route matching, observer contract handling, backend lowering, and
+  MIR mutation remain Rust.
+  The selected next card is
+  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-079`.
 
 current fail-fast boundary:
-  Do not re-enter full converter route selection without new non-self-signed
-  authority or stable input delta. The adopted pilot scopes are narrow pure
-  owners only: classification/formatting vocabulary, tiny mutation-frame leaves,
-  label/tag surfaces, and fixture-backed parity helpers. Recent adopted
-  formatters cover Sum variants, MirType, effect/capability plans, route/proof
-  labels, and loop deny reasons. Metadata refresh, route collection, const
-  emission, full AST traversal, method
-  dispatch, string corridor fact inference, same-module definition closure
-  collection, receiver origin resolution, key route classification, route
-  convergence, closure callsite canonicalization, NewClosure rewrite, lowering
-  execution, Region construction, GC retain/release, loop feature extraction,
-  loop route classification, planner route selection, thin-entry candidate
-  collection/selection, manifest generation, observer route derivation, region
-  matching, combined region planning, and MirBuilder mutation remain Rust.
+  Do not re-enter full converter route selection without new non-self-signed authority or stable input delta. The adopted pilot scopes are narrow pure owners only: classification/formatting vocabulary, tiny mutation-frame leaves, label/tag surfaces, and fixture-backed parity helpers.
+  Recent adopted formatters cover Sum variants, MirType, effect/capability plans, route/proof labels, and loop deny reasons. Metadata refresh, route collection, const emission, full AST traversal, method dispatch, string corridor fact inference, same-module definition closure collection, receiver origin resolution, key route classification, route convergence, closure callsite canonicalization, NewClosure rewrite, lowering execution, Region construction, GC retain/release, loop feature extraction, loop route classification, planner route selection, thin-entry candidate collection/selection, manifest generation, observer route derivation, region matching, combined region planning, and MirBuilder mutation remain Rust.
   Payload-type layout binding, sum placement layout refresh, string-kernel plan
   construction, legality analysis, publication logic, array/text route matching,
   exact-shape payload construction, session derivation, executor planning, sum
@@ -120,12 +119,12 @@ current fail-fast boundary:
   definition-owner inference, route collection, and proof policy remain Rust.
 
 latest design decision:
-  fastmem_access_plan_kind_label_formatter is now HakoAdopted as a narrow
-  Rust-oracle parity pilot owner after a green 10-row `.hako` EXE parity gate.
-  FastMemory access plan construction, field/table plan resolution, backend
-  lowering, and MIR mutation remain Rust.
+  array_text_observer_proof_region_formatter is now HakoAdopted as a narrow
+  Rust-oracle parity pilot owner after a green 1-row `.hako` EXE parity gate.
+  Array-text route matching, observer contract handling, backend lowering, and
+  MIR mutation remain Rust.
   The selected next card is
-  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-075`.
+  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-080`.
 
 historical route-selection decision:
   Detailed landed route-selection rows are closed as provenance and live in

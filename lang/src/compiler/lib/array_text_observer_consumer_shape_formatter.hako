@@ -1,0 +1,18 @@
+// array_text_observer_consumer_shape_formatter.hako - hand-authored consumer-shape formatter
+//
+// Responsibility:
+// - format the narrow ArrayTextObserverConsumerShape vocabulary
+// - stay pure: scalar kind in, scalar text out
+//
+// Non-responsibility:
+// - array/text route matching
+// - observer contract handling
+// - backend lowering
+// - MIR mutation
+static box ArrayTextObserverConsumerShapeFormatterBox {
+  format_kind(kind) {
+    if kind == "DirectScalar" { return "direct_scalar" }
+    if kind == "FoundPredicate" { return "found_predicate" }
+    return "unsupported_array_text_observer_consumer_shape"
+  }
+}
