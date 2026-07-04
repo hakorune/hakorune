@@ -180,10 +180,16 @@ Completed first Fact-track candidate:
 try_extract_loop_feature_facts
 ```
 
-Current next authority-facade candidate:
+Completed authority-facade candidate:
 
 ```text
 try_extract_loop_skeleton_facts
+```
+
+Current next authority-facade candidate:
+
+```text
+try_extract_string_is_integer_facts
 ```
 
 `try_extract_loop_feature_facts` is already HakoAdoptedScoped for the

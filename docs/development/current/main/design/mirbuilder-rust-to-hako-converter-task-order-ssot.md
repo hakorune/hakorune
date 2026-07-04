@@ -60,7 +60,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-FACT-OWNER-PARITY-PILOT-SELECTION-012
+  MIRBUILDER-STRING-IS-INTEGER-FACTS-AUTHORITY-FACADE-PARITY-001
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -76,6 +76,10 @@ normal operating rule:
   no ID allocation, and no new `.hako` backend capability.
   `try_extract_loop_skeleton_facts` is now HakoAdoptedScoped for the
   authority-facade DTO only; feature-slot inference remains separate.
+  Selection-012 chooses `try_extract_string_is_integer_facts` as the next
+  authority-facade pilot. It is a read-only unit Fact owner with
+  condition/body token snapshot -> accepted/reason DTO, no MIR mutation, no
+  lowering, no ID allocation, and no new `.hako` backend capability.
   `try_extract_loop_continue_only_facts` is now HakoAdoptedScoped for the backend-safe token snapshot reducer only; recipe/lowering claims remain separate.
   `try_extract_loop_simple_while_facts` is now HakoAdoptedScoped for the backend-safe token snapshot reducer only; recipe/lowering claims remain separate.
   `try_extract_condition_shape` is now HakoAdoptedScoped for the backend-safe token snapshot reducer only; CondProfile/scan matching claims remain separate.
@@ -84,6 +88,11 @@ normal operating rule:
   `try_build_exit_allowed_block_recipe` is now HakoAdoptedScoped for the backend-safe token snapshot reducer only; in-arena construction, NoExitBlockRecipe, join-if semantics, and lowering remain Rust.
 
 latest design decision:
+  `try_extract_string_is_integer_facts` is selected for the next authority
+  facade parity slice. `bool_predicate_scan_facts`, `accum_const_loop_facts`,
+  and `loop_array_join_facts` stay held because they depend on
+  ScanConditionObservation / CondProfile / increment extraction or broader
+  payload DTOs.
   `loop_skeleton_facts.authority_facade` is HakoAdoptedScoped after green 3-row
   parity for SkeletonFacts `{ kind=Loop, feature_slots=[] }`; broad crate
   split, feature-slot inference, full AST traversal, lowering, mutation,
@@ -104,7 +113,6 @@ latest design decision:
   `loop_step_shape.backend_safe_token_snapshot_reducer` is HakoAdoptedScoped after a green 11-row gate; ConditionShape, CondProfile, scan matching, loop builder composition, lowering, mutation, allocation, and Source Selfhost remain unclaimed.
   `no_exit_block_recipe.backend_safe_token_snapshot_reducer` is HakoAdoptedScoped after a green 11-row gate; AST traversal, RecipeBodies, CondBlockView, count_control_flow, in-arena construction, lowering, mutation, allocation, and Source Selfhost remain unclaimed.
   Older scoped Fact-owner adoptions are kept in phase cards and git history.
-  Prior scoped Fact-owner adoptions are kept in phase cards and git history.
   `build_plan_with_facts_ctx` and `try_build_outcome`
   remain held as runner-up plan candidates. Backend lowering, MIR mutation,
   ID allocation, and typed-object/static-helper `ControlFormBox` helpers remain
