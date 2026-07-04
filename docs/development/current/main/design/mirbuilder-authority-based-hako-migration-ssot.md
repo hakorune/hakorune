@@ -128,6 +128,19 @@ produce a green fixture-backed parity gate. If the candidate needs new `.hako`
 backend capability, stop and write a failed-selection card instead of widening
 the implementation.
 
+Current first candidate:
+
+```text
+try_extract_loop_feature_facts
+```
+
+Runner-up plan candidates:
+
+```text
+build_plan_with_facts_ctx
+try_build_outcome
+```
+
 ## Anti-Drift Operating Rule
 
 Normal work stays in migration mode, not inventory mode.

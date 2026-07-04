@@ -25,10 +25,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-HARD-AUTHORITY-SELECTION-RULES-001.
-  Leaf parity pilots no longer count as hard authority progress. Next work is
-  a focused Fact/Plan/Boundary inventory to select the smallest real
-  MirBuilder authority contract.
+  MIRBUILDER-HARD-AUTHORITY-CANDIDATE-INVENTORY-001.
+  The first hard-authority slice is `try_extract_loop_feature_facts`; plan-track
+  and Boundary-track candidates stay held until the Fact slice lands.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -61,18 +60,24 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-HARD-AUTHORITY-CANDIDATE-INVENTORY-001
+  MIRBUILDER-LOOP-FEATURE-FACTS-RUST-ORACLE-FIXTURE-001
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
   Next work inventories Fact-owner and REGISTRY-rule contracts, excludes
   lowering/mutation/allocation/backend-capability blockers, then selects one
-  smallest fixture-backed parity candidate.
+  smallest fixture-backed parity candidate. The first selected candidate is
+  `try_extract_loop_feature_facts`.
   The compact lane memory aid lives in
   `docs/development/current/main/design/mirbuilder-authority-based-hako-migration-ssot.md`
   under `Working Rules`.
 
 latest design decision:
+  `try_extract_loop_feature_facts` is selected as the first hard-authority
+  Fact-track candidate. `build_plan_with_facts_ctx` and `try_build_outcome`
+  remain held as runner-up plan candidates. Backend lowering, MIR mutation,
+  ID allocation, and typed-object/static-helper `ControlFormBox` helpers remain
+  Rust-only blockers.
   Hard-authority selection now uses three inventory tracks: Fact, Plan, and
   Boundary. The first implementation slice must be read-only or plan-DTO
   shaped, fixture-backed, symbolic-ID-only, and must not require MIR mutation,
@@ -82,7 +87,6 @@ latest design decision:
   contract with fixture-backed parity, not another formatter/classifier rerun.
   control_form_from_if_constructor is now HakoAdopted as a narrow Rust-oracle parity pilot owner after a green 2-row `.hako` EXE parity gate.
   ControlForm construction remains Rust. Backend lowering and MIR mutation remain Rust.
-  The selected next card is `MIRBUILDER-HARD-AUTHORITY-PROGRESS-METRIC-PIVOT-001`.
   control_form_is_if_classifier is now HakoAdopted as a narrow Rust-oracle parity pilot owner after a green 2-row `.hako` EXE parity gate.
   ControlForm handling remains Rust. Backend lowering and MIR mutation remain Rust.
   The selected next card is `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-161`.

@@ -996,6 +996,54 @@
       "status": "adopted_complete"
     },
     {
+      "adoption_card": null,
+      "adoption_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-control-form-from-if-constructor-hako-adoption-decision-v0.json",
+      "candidate_kind": "unknown",
+      "hako_source": null,
+      "missing": [
+        "hako_source",
+        "adoption_card"
+      ],
+      "owner": "control_form_from_if_constructor",
+      "owner_from_fixture": "control_form_from_if_constructor",
+      "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_control_form_from_if_constructor_parity_gate.sh",
+      "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-control-form-from-if-constructor-rust-oracle-v0.json",
+      "selected_next_card": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-162",
+      "status": "adopted_incomplete_inventory"
+    },
+    {
+      "adoption_card": "docs/development/current/main/phases/phase-296x/2887-MIRBUILDER-CONTROL-FORM-IS-IF-CLASSIFIER-HAKO-ADOPTION-DECISION-001.md",
+      "adoption_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-control-form-is-if-classifier-hako-adoption-decision-v0.json",
+      "candidate_kind": "classifier",
+      "hako_source": null,
+      "logical_owner": "control_form_is_if_classifier",
+      "missing": [
+        "hako_source"
+      ],
+      "owner": "control_form_is_if_classifier",
+      "owner_from_fixture": "control_form_is_if_classifier",
+      "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_control_form_is_if_classifier_parity_gate.sh",
+      "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-control-form-is-if-classifier-rust-oracle-v0.json",
+      "selected_next_card": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-161",
+      "status": "adopted_incomplete_inventory"
+    },
+    {
+      "adoption_card": "docs/development/current/main/phases/phase-296x/2882-MIRBUILDER-CONTROL-FORM-IS-LOOP-CLASSIFIER-HAKO-ADOPTION-DECISION-001.md",
+      "adoption_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-control-form-is-loop-classifier-hako-adoption-decision-v0.json",
+      "candidate_kind": "classifier",
+      "hako_source": null,
+      "logical_owner": "control_form_is_loop_classifier",
+      "missing": [
+        "hako_source"
+      ],
+      "owner": "control_form_is_loop_classifier",
+      "owner_from_fixture": "control_form_is_loop_classifier",
+      "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_control_form_is_loop_classifier_parity_gate.sh",
+      "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-control-form-is-loop-classifier-rust-oracle-v0.json",
+      "selected_next_card": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-160",
+      "status": "adopted_incomplete_inventory"
+    },
+    {
       "adoption_card": "docs/development/current/main/phases/phase-296x/2358-MIRBUILDER-COPY-EMIT-REASON-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.md",
       "adoption_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-copy-emit-reason-label-formatter-hako-adoption-decision-v0.json",
       "candidate_kind": "label_formatter",
@@ -1193,6 +1241,20 @@
       "status": "adopted_complete"
     },
     {
+      "adoption_card": "docs/development/current/main/phases/phase-296x/2857-MIRBUILDER-FASTMEM-FREE-LIST-MEMOP-KIND-CLASSIFIER-HAKO-ADOPTION-DECISION-001.md",
+      "adoption_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-fastmem-free-list-memop-kind-classifier-hako-adoption-decision-v0.json",
+      "candidate_kind": "classifier",
+      "hako_source": "lang/src/compiler/lib/fastmem_free_list_memop_kind_classifier.hako",
+      "logical_owner": "fastmem_free_list_memop_kind_classifier",
+      "missing": [],
+      "owner": "fastmem_free_list_memop_kind_classifier",
+      "owner_from_fixture": "fastmem_free_list_memop_kind_classifier",
+      "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_fastmem_free_list_memop_kind_classifier_parity_gate.sh",
+      "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-fastmem-free-list-memop-kind-classifier-rust-oracle-v0.json",
+      "selected_next_card": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-154",
+      "status": "adopted_complete"
+    },
+    {
       "adoption_card": "docs/development/current/main/phases/phase-296x/2852-MIRBUILDER-FASTMEM-LLVM-LAYOUT-TABLE-MEMOP-KIND-CLASSIFIER-HAKO-ADOPTION-DECISION-001.md",
       "adoption_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-fastmem-llvm-layout-table-memop-kind-classifier-hako-adoption-decision-v0.json",
       "candidate_kind": "classifier",
@@ -1204,6 +1266,34 @@
       "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_fastmem_llvm_layout_table_memop_kind_classifier_parity_gate.sh",
       "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-fastmem-llvm-layout-table-memop-kind-classifier-rust-oracle-v0.json",
       "selected_next_card": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-153",
+      "status": "adopted_complete"
+    },
+    {
+      "adoption_card": "docs/development/current/main/phases/phase-296x/2862-MIRBUILDER-FASTMEM-LLVM-OPEN-MEMOP-KIND-CLASSIFIER-HAKO-ADOPTION-DECISION-001.md",
+      "adoption_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-fastmem-llvm-open-memop-kind-classifier-hako-adoption-decision-v0.json",
+      "candidate_kind": "classifier",
+      "hako_source": "lang/src/compiler/lib/fastmem_llvm_open_memop_kind_classifier.hako",
+      "logical_owner": "fastmem_llvm_open_memop_kind_classifier",
+      "missing": [],
+      "owner": "fastmem_llvm_open_memop_kind_classifier",
+      "owner_from_fixture": "fastmem_llvm_open_memop_kind_classifier",
+      "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_fastmem_llvm_open_memop_kind_classifier_parity_gate.sh",
+      "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-fastmem-llvm-open-memop-kind-classifier-rust-oracle-v0.json",
+      "selected_next_card": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-155",
+      "status": "adopted_complete"
+    },
+    {
+      "adoption_card": "docs/development/current/main/phases/phase-296x/2877-MIRBUILDER-FASTMEM-LLVM-OPEN-MEMOP-SUBSETS-ARE-NAMED-CLASSIFIER-HAKO-ADOPTION-DECISION-001.md",
+      "adoption_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-fastmem-llvm-open-memop-subsets-are-named-classifier-hako-adoption-decision-v0.json",
+      "candidate_kind": "classifier",
+      "hako_source": "lang/src/compiler/lib/fastmem_llvm_open_memop_subsets_are_named_classifier.hako",
+      "logical_owner": "fastmem_llvm_open_memop_subsets_are_named_classifier",
+      "missing": [],
+      "owner": "fastmem_llvm_open_memop_subsets_are_named_classifier",
+      "owner_from_fixture": "fastmem_llvm_open_memop_subsets_are_named_classifier",
+      "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_fastmem_llvm_open_memop_subsets_are_named_classifier_parity_gate.sh",
+      "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-fastmem-llvm-open-memop-subsets-are-named-classifier-rust-oracle-v0.json",
+      "selected_next_card": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-159",
       "status": "adopted_complete"
     },
     {
@@ -1259,6 +1349,34 @@
       "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_fastmem_proof_kind_label_formatter_parity_gate.sh",
       "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-fastmem-proof-kind-label-formatter-rust-oracle-v0.json",
       "selected_next_card": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-021",
+      "status": "adopted_complete"
+    },
+    {
+      "adoption_card": "docs/development/current/main/phases/phase-296x/2867-MIRBUILDER-FASTMEM-V0-MEMOP-KIND-COUNT-IS-INTENTIONAL-CLASSIFIER-HAKO-ADOPTION-DECISION-001.md",
+      "adoption_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-fastmem-v0-memop-kind-count-is-intentional-classifier-hako-adoption-decision-v0.json",
+      "candidate_kind": "classifier",
+      "hako_source": "lang/src/compiler/lib/fastmem_v0_memop_kind_count_is_intentional_classifier.hako",
+      "logical_owner": "fastmem_v0_memop_kind_count_is_intentional_classifier",
+      "missing": [],
+      "owner": "fastmem_v0_memop_kind_count_is_intentional_classifier",
+      "owner_from_fixture": "fastmem_v0_memop_kind_count_is_intentional_classifier",
+      "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_fastmem_v0_memop_kind_count_is_intentional_classifier_parity_gate.sh",
+      "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-fastmem-v0-memop-kind-count-is-intentional-classifier-rust-oracle-v0.json",
+      "selected_next_card": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-156",
+      "status": "adopted_complete"
+    },
+    {
+      "adoption_card": "docs/development/current/main/phases/phase-296x/2872-MIRBUILDER-FASTMEM-V0-MEMOP-KINDS-ARE-NAMED-CLASSIFIER-HAKO-ADOPTION-DECISION-001.md",
+      "adoption_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-fastmem-v0-memop-kinds-are-named-classifier-hako-adoption-decision-v0.json",
+      "candidate_kind": "classifier",
+      "hako_source": "lang/src/compiler/lib/fastmem_v0_memop_kinds_are_named_classifier.hako",
+      "logical_owner": "fastmem_v0_memop_kinds_are_named_classifier",
+      "missing": [],
+      "owner": "fastmem_v0_memop_kinds_are_named_classifier",
+      "owner_from_fixture": "fastmem_v0_memop_kinds_are_named_classifier",
+      "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_fastmem_v0_memop_kinds_are_named_classifier_parity_gate.sh",
+      "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-fastmem-v0-memop-kinds-are-named-classifier-rust-oracle-v0.json",
+      "selected_next_card": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-157",
       "status": "adopted_complete"
     },
     {
@@ -12847,20 +12965,20 @@
   "summary": {
     "existing_artifacts": {
       "by_candidate_kind": {
-        "classifier": 50,
+        "classifier": 57,
         "collector": 1,
         "formatter": 36,
         "label_formatter": 50,
         "tag_formatter": 7,
-        "unknown": 13,
+        "unknown": 14,
         "vocabulary": 1
       },
       "by_status": {
-        "adopted_complete": 145,
-        "adopted_incomplete_inventory": 13
+        "adopted_complete": 150,
+        "adopted_incomplete_inventory": 16
       },
-      "incomplete_owner_count": 13,
-      "owner_count": 158
+      "incomplete_owner_count": 16,
+      "owner_count": 166
     },
     "source_scan": {
       "by_reject_reason": {
