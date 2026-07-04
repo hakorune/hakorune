@@ -1,0 +1,44 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderCalleeGuardMeCallClassifierRustOracleV1",
+  "token": "MIRBUILDER-CALLEE-GUARD-ME-CALL-CLASSIFIER-RUST-ORACLE-FIXTURE-001",
+  "owner": "callee_guard_me_call_classifier",
+  "rust_source": {
+    "path": "src/mir/builder/calls/guard.rs",
+    "hash": "sha256:9a60b3c2e4bf0a2e4f6fe3f7c7d3f1f2a4b8a31d8d7a3d4cb80fa7b3fca9e8e2",
+    "oracle_surface": "Callee guard me-call classifier"
+  },
+  "rows": [
+    {
+      "box_name": "StageBArgsBox",
+      "receiver_box_name": "StageBArgsBox",
+      "expected": "true"
+    },
+    {
+      "box_name": "Stage1UsingResolverBox",
+      "receiver_box_name": "StageBArgsBox",
+      "expected": "false"
+    },
+    {
+      "box_name": "StageBArgsBox",
+      "receiver_box_name": "",
+      "expected": "false"
+    },
+    {
+      "box_name": "StageBArgsBox",
+      "receiver_box_name": "Stage1UsingResolverBox",
+      "expected": "false"
+    }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "call_resolution_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

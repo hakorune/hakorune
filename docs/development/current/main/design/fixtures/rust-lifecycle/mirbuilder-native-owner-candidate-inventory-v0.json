@@ -689,6 +689,20 @@
       "status": "adopted_complete"
     },
     {
+      "adoption_card": "docs/development/current/main/phases/phase-296x/2667-MIRBUILDER-CALLEE-GUARD-ME-CALL-CLASSIFIER-HAKO-ADOPTION-DECISION-001.md",
+      "adoption_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-callee-guard-me-call-classifier-hako-adoption-decision-v0.json",
+      "candidate_kind": "classifier",
+      "hako_source": "lang/src/compiler/lib/callee_guard_me_call_classifier.hako",
+      "logical_owner": "callee_guard_me_call_classifier",
+      "missing": [],
+      "owner": "callee_guard_me_call_classifier",
+      "owner_from_fixture": "callee_guard_me_call_classifier",
+      "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_callee_guard_me_call_classifier_parity_gate.sh",
+      "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-callee-guard-me-call-classifier-rust-oracle-v0.json",
+      "selected_next_card": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-115",
+      "status": "adopted_complete"
+    },
+    {
       "adoption_card": null,
       "adoption_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-merge-assignment-hako-adoption-decision-v0.json",
       "candidate_kind": "unknown",
@@ -12357,7 +12371,7 @@
   "summary": {
     "existing_artifacts": {
       "by_candidate_kind": {
-        "classifier": 21,
+        "classifier": 22,
         "collector": 1,
         "formatter": 32,
         "label_formatter": 49,
@@ -12366,11 +12380,11 @@
         "vocabulary": 1
       },
       "by_status": {
-        "adopted_complete": 111,
+        "adopted_complete": 112,
         "adopted_incomplete_inventory": 12
       },
       "incomplete_owner_count": 12,
-      "owner_count": 123
+      "owner_count": 124
     },
     "source_scan": {
       "by_reject_reason": {

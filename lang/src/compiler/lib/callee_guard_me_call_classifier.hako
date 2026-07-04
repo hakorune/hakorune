@@ -1,0 +1,18 @@
+// callee_guard_me_call_classifier.hako - hand-authored me-call classifier
+//
+// Responsibility:
+// - classify whether a boxed method call is a me-call
+// - stay pure: scalar box-name / receiver-box-name tokens in, boolean text out
+//
+// Non-responsibility:
+// - static/runtime call normalization
+// - receiver materialization
+// - backend lowering
+// - MIR mutation
+static box CalleeGuardMeCallClassifierBox {
+  is_me_call(box_name, receiver_box_name) {
+    if receiver_box_name == "" { return "false" }
+    if receiver_box_name == box_name { return "true" }
+    return "false"
+  }
+}
