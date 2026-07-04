@@ -1,0 +1,18 @@
+// array_text_combined_region_byte_boundary_proof_formatter.hako - hand-authored combined-region byte-boundary proof formatter
+//
+// Responsibility:
+// - format ArrayTextCombinedRegionByteBoundaryProof names into Rust oracle text
+// - stay pure: scalar byte-boundary-proof token in, scalar text out
+//
+// Non-responsibility:
+// - array/text combined region planning
+// - backend lowering
+// - MIR mutation
+static box ArrayTextCombinedRegionByteBoundaryProofFormatterBox {
+  as_str(byte_boundary_proof) {
+    if byte_boundary_proof == "AsciiPreservedTextCell" {
+      return "ascii_preserved_text_cell"
+    }
+    return "unsupported_array_text_combined_region_byte_boundary_proof"
+  }
+}
