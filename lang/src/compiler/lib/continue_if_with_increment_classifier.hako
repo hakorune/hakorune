@@ -1,0 +1,28 @@
+// continue_if_with_increment_classifier.hako - hand-authored generic-loop continue-if-with-increment classifier
+//
+// Responsibility:
+// - classify whether a generic-loop continue-if-with-increment step is supported
+// - stay pure: scalar AST expression text in, boolean text out
+//
+// Non-responsibility:
+// - AST parsing
+// - control-flow extraction
+// - backend lowering
+// - MIR mutation
+static box ContinueIfWithIncrementClassifierBox {
+  is_continue_if_with_increment(stmt) {
+    if stmt == "ASTNode::If(continue_with_increment)" {
+      return "true"
+    }
+    if stmt == "ASTNode::If(no_continue)" {
+      return "false"
+    }
+    if stmt == "ASTNode::If(with_else_break)" {
+      return "false"
+    }
+    if stmt == "ASTNode::If(duplicate_increment)" {
+      return "false"
+    }
+    return "false"
+  }
+}

@@ -899,6 +899,20 @@
       "status": "adopted_complete"
     },
     {
+      "adoption_card": "docs/development/current/main/phases/phase-296x/2792-MIRBUILDER-CONTINUE-IF-WITH-INCREMENT-CLASSIFIER-HAKO-ADOPTION-DECISION-001.md",
+      "adoption_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-continue-if-with-increment-classifier-hako-adoption-decision-v0.json",
+      "candidate_kind": "classifier",
+      "hako_source": "lang/src/compiler/lib/continue_if_with_increment_classifier.hako",
+      "logical_owner": "continue_if_with_increment_classifier",
+      "missing": [],
+      "owner": "continue_if_with_increment_classifier",
+      "owner_from_fixture": "continue_if_with_increment_classifier",
+      "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_continue_if_with_increment_classifier_parity_gate.sh",
+      "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-continue-if-with-increment-classifier-rust-oracle-v0.json",
+      "selected_next_card": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-140",
+      "status": "adopted_complete"
+    },
+    {
       "adoption_card": "docs/development/current/main/phases/phase-296x/2358-MIRBUILDER-COPY-EMIT-REASON-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.md",
       "adoption_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-copy-emit-reason-label-formatter-hako-adoption-decision-v0.json",
       "candidate_kind": "label_formatter",
@@ -12680,7 +12694,7 @@
   "summary": {
     "existing_artifacts": {
       "by_candidate_kind": {
-        "classifier": 42,
+        "classifier": 43,
         "collector": 1,
         "formatter": 33,
         "label_formatter": 49,
@@ -12689,11 +12703,11 @@
         "vocabulary": 1
       },
       "by_status": {
-        "adopted_complete": 133,
+        "adopted_complete": 134,
         "adopted_incomplete_inventory": 13
       },
       "incomplete_owner_count": 13,
-      "owner_count": 146
+      "owner_count": 147
     },
     "source_scan": {
       "by_reject_reason": {
