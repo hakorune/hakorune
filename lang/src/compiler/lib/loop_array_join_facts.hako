@@ -1,0 +1,150 @@
+// loop_array_join_facts.hako
+//
+// Responsibility:
+// - reduce a backend-safe loop-array-join token snapshot into fact text
+// - mirror try_extract_loop_array_join_facts for the narrow facade contract
+//
+// Non-responsibility:
+// - separator-guard or array-append AST construction
+// - CondProfile or ScanConditionObservation construction
+// - loop increment extraction, recipe construction, lowering, mutation, or ID allocation
+static box LoopArrayJoinFactsBox {
+  build_summary(observation_token, body_token) {
+    local obs_kind = me._obs_kind(observation_token)
+    if obs_kind != "var_less_length" {
+      return "accepted=0;reason=condition_not_var_less_length"
+    }
+
+    local loop_var = me._obs_loop_var(observation_token)
+    local step_var = me._obs_step_var(observation_token)
+    if loop_var != step_var {
+      return "accepted=0;reason=step_var_mismatch"
+    }
+
+    local step = me._obs_step_lit(observation_token)
+    if step != 1 {
+      return "accepted=0;reason=step_not_one"
+    }
+
+    local body_kind = me._body_kind(body_token)
+    if body_kind == "has_break" {
+      return "accepted=0;reason=body_has_break"
+    }
+    if body_kind == "has_continue" {
+      return "accepted=0;reason=body_has_continue"
+    }
+    if body_kind == "has_return" {
+      return "accepted=0;reason=body_has_return"
+    }
+    if body_kind == "has_if_else" {
+      return "accepted=0;reason=body_has_if_else"
+    }
+    if body_kind != "separator_guard_array_append_step" {
+      return "accepted=0;reason=body_shape_not_supported"
+    }
+
+    if me._body_guard_index(body_token) != loop_var {
+      return "accepted=0;reason=separator_guard_index_mismatch"
+    }
+
+    local result_var = me._body_result_var(body_token)
+    if me._body_append_result_var(body_token) != result_var {
+      return "accepted=0;reason=append_result_var_mismatch"
+    }
+
+    local array_var = me._body_array_var(body_token)
+    if array_var != me._obs_haystack(observation_token) {
+      return "accepted=0;reason=array_var_mismatch"
+    }
+
+    if me._body_array_index(body_token) != loop_var {
+      return "accepted=0;reason=array_index_mismatch"
+    }
+
+    if me._body_increment_var(body_token) != loop_var {
+      return "accepted=0;reason=increment_var_mismatch"
+    }
+
+    return "accepted=1;loop_var=" + loop_var
+      + ";array=" + array_var
+      + ";result=" + result_var
+      + ";separator=" + me._body_separator_var(body_token)
+  }
+
+  _obs_kind(token) {
+    if token == "ObsVarLessLengthStepAdd1IOverArr" { return "var_less_length" }
+    if token == "ObsVarLessLengthStepAdd2IOverArr" { return "var_less_length" }
+    if token == "ObsVarLessLengthStepAdd1JOverArr" { return "var_less_length" }
+    if token == "ObsVarLessLiteralStepAdd1ITo3" { return "var_less_literal" }
+    return "unsupported"
+  }
+
+  _obs_loop_var(token) {
+    return "i"
+  }
+
+  _obs_step_var(token) {
+    if token == "ObsVarLessLengthStepAdd1JOverArr" { return "j" }
+    return "i"
+  }
+
+  _obs_haystack(token) {
+    if token == "ObsVarLessLengthStepAdd1IOverArr" { return "arr" }
+    if token == "ObsVarLessLengthStepAdd2IOverArr" { return "arr" }
+    if token == "ObsVarLessLengthStepAdd1JOverArr" { return "arr" }
+    return "-"
+  }
+
+  _obs_step_lit(token) {
+    if token == "ObsVarLessLengthStepAdd2IOverArr" { return 2 }
+    return 1
+  }
+
+  _body_kind(token) {
+    if token == "GuardThenAppendArrThenIPlus1" { return "separator_guard_array_append_step" }
+    if token == "GuardThenAppendItemsThenIPlus1" { return "separator_guard_array_append_step" }
+    if token == "GuardJThenAppendArrThenIPlus1" { return "separator_guard_array_append_step" }
+    if token == "GuardThenAppendOtherResultThenIPlus1" { return "separator_guard_array_append_step" }
+    if token == "GuardThenAppendArrAtJThenIPlus1" { return "separator_guard_array_append_step" }
+    if token == "GuardThenAppendArrThenJPlus1" { return "separator_guard_array_append_step" }
+    if token == "OnlyIncrement" { return "unsupported" }
+    if token == "GuardWithElseThenAppendArrThenIPlus1" { return "has_if_else" }
+    if token == "BreakThenShape" { return "has_break" }
+    if token == "ContinueThenShape" { return "has_continue" }
+    if token == "ReturnThenShape" { return "has_return" }
+    return "unsupported"
+  }
+
+  _body_guard_index(token) {
+    if token == "GuardJThenAppendArrThenIPlus1" { return "j" }
+    return "i"
+  }
+
+  _body_result_var(token) {
+    return "result"
+  }
+
+  _body_append_result_var(token) {
+    if token == "GuardThenAppendOtherResultThenIPlus1" { return "other_result" }
+    return "result"
+  }
+
+  _body_separator_var(token) {
+    return "sep"
+  }
+
+  _body_array_var(token) {
+    if token == "GuardThenAppendItemsThenIPlus1" { return "items" }
+    return "arr"
+  }
+
+  _body_array_index(token) {
+    if token == "GuardThenAppendArrAtJThenIPlus1" { return "j" }
+    return "i"
+  }
+
+  _body_increment_var(token) {
+    if token == "GuardThenAppendArrThenJPlus1" { return "j" }
+    return "i"
+  }
+}
