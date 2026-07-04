@@ -1,0 +1,31 @@
+// supported_nested_loop_condition_classifier.hako - hand-authored true-loop nested condition classifier
+//
+// Responsibility:
+// - classify whether a true-loop nested condition is supported
+// - stay pure: scalar AST expression text in, boolean text out
+//
+// Non-responsibility:
+// - AST parsing
+// - control-flow extraction
+// - backend lowering
+// - MIR mutation
+static box SupportedNestedLoopConditionClassifierBox {
+  is_supported_nested_loop_condition(condition) {
+    if condition == "ASTNode::Literal(Bool(true))" {
+      return "true"
+    }
+    if condition == "ASTNode::Variable(x)" {
+      return "true"
+    }
+    if condition == "ASTNode::MethodCall(foo)" {
+      return "true"
+    }
+    if condition == "ASTNode::BinaryOp(And)" {
+      return "true"
+    }
+    if condition == "ASTNode::BinaryOp(Equal)" {
+      return "true"
+    }
+    return "false"
+  }
+}

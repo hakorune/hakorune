@@ -1,0 +1,28 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderSupportedNestedLoopConditionClassifierHakoAdoptionDecisionV1",
+  "token": "MIRBUILDER-SUPPORTED-NESTED-LOOP-CONDITION-CLASSIFIER-HAKO-ADOPTION-DECISION-001",
+  "owner": "supported_nested_loop_condition_classifier",
+  "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-supported-nested-loop-condition-classifier-rust-oracle-v0.json",
+  "hako_implementation": "lang/src/compiler/lib/supported_nested_loop_condition_classifier.hako",
+  "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_supported_nested_loop_condition_classifier_parity_gate.sh",
+  "parity_result": {
+    "parity_rows": 5,
+    "parity_status": "green"
+  },
+  "decision": {
+    "kind": "HakoAdopted",
+    "reason_token": "SupportedNestedLoopConditionClassifierParityGreen",
+    "selected_next_card": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-139"
+  },
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "supported_nested_loop_condition_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

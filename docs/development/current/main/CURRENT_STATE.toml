@@ -306,12 +306,12 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-SUPPORTED-BOOL-EXPR-FOR-TRUE-LOOP-CLASSIFIER-HAKO-ADOPTION-DECISION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2782-MIRBUILDER-SUPPORTED-BOOL-EXPR-FOR-TRUE-LOOP-CLASSIFIER-HAKO-ADOPTION-DECISION-001.md"
+latest_card = "MIRBUILDER-SUPPORTED-NESTED-LOOP-CONDITION-CLASSIFIER-HAKO-ADOPTION-DECISION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2787-MIRBUILDER-SUPPORTED-NESTED-LOOP-CONDITION-CLASSIFIER-HAKO-ADOPTION-DECISION-001.md"
 latest_card_summary = """The latest card adopts
-supported_bool_expr_for_true_loop_classifier as the one-hundred-thirty-fifth
+supported_nested_loop_condition_classifier as the one-hundred-thirty-sixth
 narrow Rust-oracle parity pilot owner after the green 4-row `.hako` EXE
-parity gate and chooses pilot selection rerun 138 next."""
+parity gate and chooses pilot selection rerun 139 next."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -322,6 +322,11 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-04: 2787 adopts supported_nested_loop_condition_classifier as the one-hundred-thirty-sixth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
+  "2026-07-04: 2786 adds the supported_nested_loop_condition_classifier Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
+  "2026-07-04: 2785 adds the hand-authored supported_nested_loop_condition_classifier .hako implementation and chooses the parity gate card next.",
+  "2026-07-04: 2784 creates the 5-row supported_nested_loop_condition_classifier Rust-oracle fixture and chooses the Hako-native implementation card next.",
+  "2026-07-04: 2783 selects supported_nested_loop_condition_classifier as the one-hundred-thirty-sixth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
   "2026-07-04: 2782 adopts supported_bool_expr_for_true_loop_classifier as the one-hundred-thirty-fifth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
   "2026-07-04: 2781 adds the supported_bool_expr_for_true_loop_classifier Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
   "2026-07-04: 2780 adds the hand-authored supported_bool_expr_for_true_loop_classifier .hako implementation and chooses the parity gate card next.",
@@ -329,9 +334,4 @@ landed_tail = [
   "2026-07-04: 2778 selects supported_bool_expr_for_true_loop_classifier as the one-hundred-thirty-fifth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
   "2026-07-04: 2777 adopts supported_value_expr_for_true_loop_classifier as the one-hundred-thirty-fourth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
   "2026-07-04: 2776 adds the supported_value_expr_for_true_loop_classifier Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
-  "2026-07-04: 2775 adds the hand-authored supported_value_expr_for_true_loop_classifier .hako implementation and chooses the parity gate card next.",
-  "2026-07-04: 2774 creates the 4-row supported_value_expr_for_true_loop_classifier Rust-oracle fixture and chooses the Hako-native implementation card next.",
-  "2026-07-04: 2773 selects supported_value_expr_for_true_loop_classifier as the one-hundred-thirty-fourth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
-  "2026-07-04: 2772 adopts supported_value_expr_for_generic_loop_classifier as the one-hundred-thirty-third narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
-  "2026-07-04: 2771 adds the supported_value_expr_for_generic_loop_classifier Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
 ]

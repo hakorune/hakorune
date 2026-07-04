@@ -1,0 +1,49 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderSupportedNestedLoopConditionClassifierRustOracleV1",
+  "token": "MIRBUILDER-SUPPORTED-NESTED-LOOP-CONDITION-CLASSIFIER-RUST-ORACLE-FIXTURE-001",
+  "owner": "supported_nested_loop_condition_classifier",
+  "rust_source": {
+    "path": "src/mir/builder/control_flow/plan/loop_cond/true_break_continue_helpers.rs",
+    "hash": "sha256:6f514101f446ae5d1f82446ba9335ee37be4affd339f6856da7a7c24aed1b2df",
+    "oracle_surface": "is_supported_nested_loop_condition wrapper"
+  },
+  "rows": [
+    {
+      "kind": "expr_text",
+      "ast": "ASTNode::Literal(Bool(true))",
+      "expected": "true"
+    },
+    {
+      "kind": "expr_text",
+      "ast": "ASTNode::Variable(x)",
+      "expected": "true"
+    },
+    {
+      "kind": "expr_text",
+      "ast": "ASTNode::MethodCall(foo)",
+      "expected": "true"
+    },
+    {
+      "kind": "expr_text",
+      "ast": "ASTNode::BinaryOp(Equal)",
+      "expected": "true"
+    },
+    {
+      "kind": "expr_text",
+      "ast": "ASTNode::BinaryOp(Add)",
+      "expected": "false"
+    }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "supported_nested_loop_condition_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

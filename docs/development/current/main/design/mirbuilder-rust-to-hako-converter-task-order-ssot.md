@@ -25,10 +25,10 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-SUPPORTED-BOOL-EXPR-FOR-TRUE-LOOP-CLASSIFIER-HAKO-ADOPTION-DECISION-001.
-  The supported_bool_expr_for_true_loop_classifier owner is HakoAdopted as
-  the one-hundred-thirty-fifth narrow Rust-oracle parity pilot after the green
-  4-row `.hako` EXE parity gate; next is rerun 138.
+  MIRBUILDER-SUPPORTED-NESTED-LOOP-CONDITION-CLASSIFIER-HAKO-ADOPTION-DECISION-001.
+  The supported_nested_loop_condition_classifier owner is HakoAdopted as the
+  one-hundred-thirty-sixth narrow Rust-oracle parity pilot after the green
+  5-row `.hako` EXE parity gate; next is rerun 139.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -61,7 +61,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-138
+  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-139
 
 normal operating rule:
   One RERUN adopts exactly one owner, advances the pointer, then stops.
@@ -71,6 +71,11 @@ normal operating rule:
   under `Working Rules`.
 
 latest design decision:
+  supported_nested_loop_condition_classifier is now HakoAdopted as a narrow
+  Rust-oracle parity pilot owner after a green 5-row `.hako` EXE parity gate.
+  True-loop nested condition classification remains Rust. Backend lowering and
+  MIR mutation remain Rust. The selected next card is
+  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-139`.
   supported_bool_expr_for_true_loop_classifier is now HakoAdopted as a
   narrow Rust-oracle parity pilot owner after a green 4-row `.hako` EXE
   parity gate. True-loop supported bool-expression classification remains
