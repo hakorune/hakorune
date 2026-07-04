@@ -1,0 +1,16 @@
+// fastmem_v0_memop_kinds_are_named_classifier.hako - hand-authored fastmem named-kind classifier
+//
+// Responsibility:
+// - classify whether the current FastMem V0 memop kinds remain named
+// - stay pure: no-arg intent check in, boolean text out
+//
+// Non-responsibility:
+// - fastmem dialect validation
+// - access-plan collection
+// - backend lowering
+// - MIR mutation
+static box FastMemV0MemopKindsAreNamedClassifierBox {
+  kinds_are_named() {
+    return "true"
+  }
+}

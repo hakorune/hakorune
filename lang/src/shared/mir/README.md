@@ -17,5 +17,3 @@
 関連
 - `json_emit_box.hako`: Gate C JSON 出力（numbers unwrapped）。
 - `mir_schema_box.hako`: MIR(JSON) 構築ヘルパー（v0 スキーマ）。
-- `loop_form_box.hako`: LoopForm 構造の最小組み立て。
-
