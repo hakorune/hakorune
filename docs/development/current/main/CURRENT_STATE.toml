@@ -339,12 +339,12 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-FASTMEM-LLVM-OPEN-MEMOP-SUBSETS-ARE-NAMED-CLASSIFIER-HAKO-ADOPTION-DECISION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2877-MIRBUILDER-FASTMEM-LLVM-OPEN-MEMOP-SUBSETS-ARE-NAMED-CLASSIFIER-HAKO-ADOPTION-DECISION-001.md"
+latest_card = "MIRBUILDER-CONTROL-FORM-IS-LOOP-CLASSIFIER-HAKO-ADOPTION-DECISION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2882-MIRBUILDER-CONTROL-FORM-IS-LOOP-CLASSIFIER-HAKO-ADOPTION-DECISION-001.md"
 latest_card_summary = """The latest card adopts
-fastmem_llvm_open_memop_subsets_are_named_classifier as a narrow HakoAdopted
-Rust-oracle parity pilot owner after the green 1-row `.hako` EXE parity gate
-and chooses pilot selection rerun 159 next."""
+control_form_is_loop_classifier as a narrow HakoAdopted Rust-oracle parity
+pilot owner after the green 2-row `.hako` EXE parity gate and chooses pilot
+selection rerun 160 next."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -355,14 +355,13 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-05: 2882 adopts control_form_is_loop_classifier as the one-hundred-fifty-fifth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
+  "2026-07-05: 2881 adds the control_form_is_loop_classifier Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
+  "2026-07-05: 2880 adds the hand-authored control_form_is_loop_classifier .hako implementation and chooses the parity gate card next.",
+  "2026-07-05: 2879 creates the 2-row control_form_is_loop_classifier Rust-oracle fixture and chooses the Hako-native implementation card next.",
+  "2026-07-05: 2878 selects control_form_is_loop_classifier as the one-hundred-fifty-fifth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
   "2026-07-05: 2877 adopts fastmem_llvm_open_memop_subsets_are_named_classifier as the one-hundred-fifty-fourth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
   "2026-07-05: 2876 adds the fastmem_llvm_open_memop_subsets_are_named_classifier Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
   "2026-07-05: 2875 adds the hand-authored fastmem_llvm_open_memop_subsets_are_named_classifier .hako implementation and chooses the parity gate card next.",
   "2026-07-05: 2874 creates the 1-row fastmem_llvm_open_memop_subsets_are_named_classifier Rust-oracle fixture and chooses the Hako-native implementation card next.",
-  "2026-07-05: 2873 selects fastmem_llvm_open_memop_subsets_are_named_classifier as the one-hundred-fifty-fourth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
-  "2026-07-05: 2872 adopts fastmem_v0_memop_kinds_are_named_classifier as the one-hundred-fifty-third narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
-  "2026-07-05: 2871 adds the fastmem_v0_memop_kinds_are_named_classifier Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
-  "2026-07-05: 2870 adds the hand-authored fastmem_v0_memop_kinds_are_named_classifier .hako implementation and chooses the parity gate card next.",
-  "2026-07-05: 2869 creates the 1-row fastmem_v0_memop_kinds_are_named_classifier Rust-oracle fixture and chooses the Hako-native implementation card next.",
-  "2026-07-05: 2868 selects fastmem_v0_memop_kinds_are_named_classifier as the one-hundred-fifty-third narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
 ]
