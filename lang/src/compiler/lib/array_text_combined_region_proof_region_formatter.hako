@@ -1,0 +1,18 @@
+// array_text_combined_region_proof_region_formatter.hako - hand-authored combined-region proof-region formatter
+//
+// Responsibility:
+// - format ArrayTextCombinedRegionProofRegion names into Rust oracle text
+// - stay pure: scalar proof-region token in, scalar text out
+//
+// Non-responsibility:
+// - array/text combined region planning
+// - backend lowering
+// - MIR mutation
+static box ArrayTextCombinedRegionProofRegionFormatterBox {
+  as_str(proof_region) {
+    if proof_region == "OuterLoopWithPeriodicObserverStore" {
+      return "outer_loop_with_periodic_observer_store"
+    }
+    return "unsupported_array_text_combined_region_proof_region"
+  }
+}
