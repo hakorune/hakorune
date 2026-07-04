@@ -1,0 +1,71 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderLoopCondContinueWithReturnFactsHakoAdoptedDecisionV1",
+  "token": "MIRBUILDER-LOOP-COND-CONTINUE-WITH-RETURN-FACTS-HAKOADOPTED-DECISION-001",
+  "input_state": {
+    "hako_source": "lang/src/compiler/lib/loop_cond_continue_with_return_facts.hako",
+    "hako_source_hash": "sha256:64baccdb224d2f757cfaee8a3c0c7acac4ea1a042aaf85894a4d285b2d78de56",
+    "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-cond-continue-with-return-facts-rust-oracle-v0.json",
+    "rust_oracle_fixture_hash": "sha256:0ab077d156c8bb598b79d13267bd1b3f44ade22847471e06b55363b8bba3e396",
+    "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_loop_cond_continue_with_return_facts_parity_gate.sh",
+    "parity_gate_hash": "sha256:f767afceb87129c925ea1f4b88b13acbfb5bdf6dbdd500e9f4651b74d1800dc5"
+  },
+  "adoption_scope": {
+    "adopted_owner": "loop_cond_continue_with_return_facts.authority_facade",
+    "rust_oracle_symbol": "try_extract_loop_cond_continue_with_return_facts",
+    "input_contract": "BackendSafeLoopCondContinueWithReturnFactsTokenSnapshotV1",
+    "native_edit_authority": "lang/src/compiler/lib/loop_cond_continue_with_return_facts.hako",
+    "owned_semantics": [
+      "loop_cond_continue_with_return_acceptance",
+      "entry_gate_token",
+      "condition_kind_token",
+      "control_flow_count_token",
+      "continue_return_body_shape_token",
+      "reject_reason_token"
+    ],
+    "excluded_semantics": [
+      "full_AST_traversal",
+      "recursive_hetero_return_traversal",
+      "condition_AST_payload_construction",
+      "RecipeBody_construction",
+      "RecipeItem_construction",
+      "route_selection",
+      "backend_lowering",
+      "MIR_mutation",
+      "ID_allocation"
+    ]
+  },
+  "parity": {
+    "gate_status": "Green",
+    "oracle_row_count": 10,
+    "required_contract_fields": [
+      "accepted",
+      "condition",
+      "body_shape",
+      "return_depth",
+      "reason"
+    ]
+  },
+  "decision": {
+    "kind": "HakoAdoptedScoped",
+    "reason_token": "LoopCondContinueWithReturnFactsAuthorityFacadeParityGreen",
+    "selected_next_card": "MIRBUILDER-FACT-OWNER-PARITY-PILOT-SELECTION-020",
+    "backlog_card": "MIRBUILDER-LOOP-COND-CONTINUE-WITH-RETURN-FULL-RECIPE-CONSULTATION-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "full_ast_traversal_adopted": 0,
+    "recursive_hetero_return_traversal_migrated": 0,
+    "condition_ast_payload_migrated": 0,
+    "recipe_body_construction_migrated": 0,
+    "recipe_item_construction_migrated": 0,
+    "route_selection_migrated": 0,
+    "backend_lowering_migrated": 0,
+    "mir_mutation_migrated": 0,
+    "id_allocation_migrated": 0,
+    "hako_generation": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
