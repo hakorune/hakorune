@@ -1,0 +1,19 @@
+// array_text_observer_plan_copy_from_classifier.hako - hand-authored copy-from classifier
+//
+// Responsibility:
+// - classify ArrayTextObserverPlan copy-from membership
+// - stay pure: scalar instruction-kind / source-root-match tokens in, boolean text out
+//
+// Non-responsibility:
+// - array/text observer route matching
+// - observer contract handling
+// - backend lowering
+// - MIR mutation
+static box ArrayTextObserverPlanCopyFromClassifierBox {
+  is_copy_from(inst_kind, src_root_matches_source_root) {
+    if inst_kind == "Copy" && src_root_matches_source_root == "true" {
+      return "true"
+    }
+    return "false"
+  }
+}

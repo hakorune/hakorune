@@ -1,0 +1,45 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderArrayTextObserverPlanCopyFromClassifierRustOracleV1",
+  "token": "MIRBUILDER-ARRAY-TEXT-OBSERVER-PLAN-COPY-FROM-CLASSIFIER-RUST-ORACLE-FIXTURE-001",
+  "owner": "array_text_observer_plan_copy_from_classifier",
+  "rust_source": {
+    "path": "src/mir/array_text_observer_plan/diagnostic.rs",
+    "hash": "sha256:03ddae59a10b458d979b0605eeff304928904b1347e596ea7979356aedeecfda",
+    "oracle_surface": "ArrayTextObserverPlan copy-from classifier"
+  },
+  "rows": [
+    {
+      "inst_kind": "Copy",
+      "src_root_matches_source_root": "true",
+      "expected": "true"
+    },
+    {
+      "inst_kind": "Copy",
+      "src_root_matches_source_root": "false",
+      "expected": "false"
+    },
+    {
+      "inst_kind": "Call",
+      "src_root_matches_source_root": "true",
+      "expected": "false"
+    },
+    {
+      "inst_kind": "Store",
+      "src_root_matches_source_root": "false",
+      "expected": "false"
+    }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "array_text_route_matching_migration": 0,
+    "array_text_observer_contract_handling_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}
