@@ -1,0 +1,115 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderLoopBreakStepBeforeBreakFactsRustOracleV1",
+  "token": "MIRBUILDER-LOOP-BREAK-STEP-BEFORE-BREAK-FACTS-RUST-ORACLE-FIXTURE-001",
+  "owner": "loop_break_step_before_break_facts",
+  "rust_source": {
+    "path": "src/mir/builder/control_flow/plan/loop_break/facts/step_before_break.rs",
+    "hash": "sha256:a3667840dd6c7f3034b430f21b8072884b2b6d19d4324b50b664cd78dfb923f8",
+    "oracle_surface": "try_extract_loop_break_step_before_break_subset"
+  },
+  "input_contract": "BackendSafeLoopBreakStepBeforeBreakFactsTokenSnapshotV1",
+  "rows": [
+    {
+      "case_id": "accept_i_acc",
+      "planner_gate_token": "PlannerRequiredOn",
+      "condition_token": "CondIPlanSubset",
+      "body_token": "BodyStepBreakCarrierIAcc",
+      "expected_accept": true,
+      "expected_loop_var": "i",
+      "expected_carrier_var": "acc",
+      "expected_step_placement": "BeforeBreak",
+      "expected_summary": "accepted=1;loop_var=i;carrier_var=acc;step_placement=BeforeBreak;body_shape=step_break_carrier;planner_gate=planner_required"
+    },
+    {
+      "case_id": "accept_j_acc",
+      "planner_gate_token": "PlannerRequiredOn",
+      "condition_token": "CondJPlanSubset",
+      "body_token": "BodyStepBreakCarrierJAcc",
+      "expected_accept": true,
+      "expected_loop_var": "j",
+      "expected_carrier_var": "acc",
+      "expected_step_placement": "BeforeBreak",
+      "expected_summary": "accepted=1;loop_var=j;carrier_var=acc;step_placement=BeforeBreak;body_shape=step_break_carrier;planner_gate=planner_required"
+    },
+    {
+      "case_id": "reject_planner_required_disabled",
+      "planner_gate_token": "PlannerRequiredOff",
+      "condition_token": "CondIPlanSubset",
+      "body_token": "BodyStepBreakCarrierIAcc",
+      "expected_accept": false,
+      "expected_reason": "planner_required_disabled",
+      "expected_summary": "accepted=0;reason=planner_required_disabled"
+    },
+    {
+      "case_id": "reject_condition_not_plan_subset",
+      "planner_gate_token": "PlannerRequiredOn",
+      "condition_token": "CondLenOnly",
+      "body_token": "BodyStepBreakCarrierIAcc",
+      "expected_accept": false,
+      "expected_reason": "condition_not_plan_subset",
+      "expected_summary": "accepted=0;reason=condition_not_plan_subset"
+    },
+    {
+      "case_id": "reject_control_flow_count",
+      "planner_gate_token": "PlannerRequiredOn",
+      "condition_token": "CondIPlanSubset",
+      "body_token": "BodyContinuePresent",
+      "expected_accept": false,
+      "expected_reason": "control_flow_count_not_supported",
+      "expected_summary": "accepted=0;reason=control_flow_count_not_supported"
+    },
+    {
+      "case_id": "reject_body_len",
+      "planner_gate_token": "PlannerRequiredOn",
+      "condition_token": "CondIPlanSubset",
+      "body_token": "BodyLen2",
+      "expected_accept": false,
+      "expected_reason": "body_len_not_3",
+      "expected_summary": "accepted=0;reason=body_len_not_3"
+    },
+    {
+      "case_id": "reject_loop_increment_not_first",
+      "planner_gate_token": "PlannerRequiredOn",
+      "condition_token": "CondIPlanSubset",
+      "body_token": "BodyFirstStepK",
+      "expected_accept": false,
+      "expected_reason": "loop_increment_not_first",
+      "expected_summary": "accepted=0;reason=loop_increment_not_first"
+    },
+    {
+      "case_id": "reject_break_if_missing",
+      "planner_gate_token": "PlannerRequiredOn",
+      "condition_token": "CondIPlanSubset",
+      "body_token": "BodyNoBreakIf",
+      "expected_accept": false,
+      "expected_reason": "break_if_missing",
+      "expected_summary": "accepted=0;reason=break_if_missing"
+    },
+    {
+      "case_id": "reject_carrier_same_as_loop_var",
+      "planner_gate_token": "PlannerRequiredOn",
+      "condition_token": "CondIPlanSubset",
+      "body_token": "BodyStepBreakCarrierICarrierI",
+      "expected_accept": false,
+      "expected_reason": "carrier_same_as_loop_var",
+      "expected_summary": "accepted=0;reason=carrier_same_as_loop_var"
+    }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "full_ast_traversal_adopted": 0,
+    "dev_planner_gate_migrated": 0,
+    "break_if_ast_payload_migrated": 0,
+    "loop_increment_ast_payload_migrated": 0,
+    "carrier_update_ast_payload_migrated": 0,
+    "loop_break_subset_dispatch_migrated": 0,
+    "route_selection_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0,
+    "id_allocation_migration": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

@@ -1,0 +1,102 @@
+// loop_break_step_before_break_facts.hako
+//
+// Responsibility:
+// - reduce a backend-safe step-before-break token snapshot into fact text
+// - mirror try_extract_loop_break_step_before_break_subset for a narrow facade
+//
+// Non-responsibility:
+// - dev/planner environment reads
+// - break-if / loop-increment / carrier-update AST payload extraction
+// - full loop-break subset dispatch
+// - route selection, lowering, mutation, or ID allocation
+static box LoopBreakStepBeforeBreakFactsBox {
+  build_summary(planner_gate_token, condition_token, body_token) {
+    if planner_gate_token != "PlannerRequiredOn" {
+      return "accepted=0;reason=planner_required_disabled"
+    }
+
+    local loop_var = me._loop_var(condition_token)
+    if loop_var == "-" {
+      return "accepted=0;reason=condition_not_plan_subset"
+    }
+
+    if me._control_flow_ok(body_token) == "0" {
+      return "accepted=0;reason=control_flow_count_not_supported"
+    }
+
+    if me._body_len(body_token) != "3" {
+      return "accepted=0;reason=body_len_not_3"
+    }
+
+    local step_var = me._first_step_var(body_token)
+    if step_var != loop_var {
+      return "accepted=0;reason=loop_increment_not_first"
+    }
+
+    if me._has_break_if(body_token) == "0" {
+      return "accepted=0;reason=break_if_missing"
+    }
+
+    local carrier_var = me._carrier_var(body_token)
+    if carrier_var == "-" {
+      return "accepted=0;reason=carrier_update_missing"
+    }
+    if carrier_var == loop_var {
+      return "accepted=0;reason=carrier_same_as_loop_var"
+    }
+
+    return "accepted=1;loop_var=" + loop_var
+      + ";carrier_var=" + carrier_var
+      + ";step_placement=BeforeBreak"
+      + ";body_shape=step_break_carrier"
+      + ";planner_gate=planner_required"
+  }
+
+  _loop_var(token) {
+    if token == "CondIPlanSubset" { return "i" }
+    if token == "CondJPlanSubset" { return "j" }
+    return "-"
+  }
+
+  _control_flow_ok(token) {
+    if token == "BodyContinuePresent" { return "0" }
+    if token == "BodyTwoBreaks" { return "0" }
+    return "1"
+  }
+
+  _body_len(token) {
+    if token == "BodyLen2" { return "2" }
+    return "3"
+  }
+
+  _first_step_var(token) {
+    if token == "BodyStepBreakCarrierIAcc" { return "i" }
+    if token == "BodyStepBreakCarrierJAcc" { return "j" }
+    if token == "BodyStepBreakCarrierICarrierI" { return "i" }
+    if token == "BodyNoBreakIf" { return "i" }
+    if token == "BodyNoCarrierUpdate" { return "i" }
+    if token == "BodyFirstStepK" { return "k" }
+    if token == "BodyLen2" { return "i" }
+    if token == "BodyContinuePresent" { return "i" }
+    if token == "BodyTwoBreaks" { return "i" }
+    return "-"
+  }
+
+  _has_break_if(token) {
+    if token == "BodyNoBreakIf" { return "0" }
+    return "1"
+  }
+
+  _carrier_var(token) {
+    if token == "BodyStepBreakCarrierIAcc" { return "acc" }
+    if token == "BodyStepBreakCarrierJAcc" { return "acc" }
+    if token == "BodyStepBreakCarrierICarrierI" { return "i" }
+    if token == "BodyNoCarrierUpdate" { return "-" }
+    if token == "BodyFirstStepK" { return "acc" }
+    if token == "BodyLen2" { return "acc" }
+    if token == "BodyContinuePresent" { return "acc" }
+    if token == "BodyTwoBreaks" { return "acc" }
+    if token == "BodyNoBreakIf" { return "acc" }
+    return "-"
+  }
+}
