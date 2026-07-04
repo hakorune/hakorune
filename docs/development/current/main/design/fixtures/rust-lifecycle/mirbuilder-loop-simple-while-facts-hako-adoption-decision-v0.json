@@ -1,0 +1,68 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderLoopSimpleWhileFactsHakoAdoptedDecisionV1",
+  "token": "MIRBUILDER-LOOP-SIMPLE-WHILE-FACTS-HAKOADOPTED-DECISION-001",
+  "input_state": {
+    "hako_source": "lang/src/compiler/lib/loop_simple_while_facts.hako",
+    "hako_source_hash": "sha256:f814c484e40a370af02ae285e26e00d4419ef439c0cea502a19a24d6e2a1c4e2",
+    "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-simple-while-facts-rust-oracle-v0.json",
+    "rust_oracle_fixture_hash": "sha256:5854c9c609e970c46c9035bdfa60d4cac8d810644532630bdeb156e0c56fa74d",
+    "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_loop_simple_while_facts_parity_gate.sh",
+    "parity_gate_hash": "sha256:366e2936b999c3c42f32ed45753ff74272a94b40384b5e8fb2228f249de3a18e"
+  },
+  "adoption_scope": {
+    "adopted_owner": "loop_simple_while_facts.backend_safe_token_snapshot_reducer",
+    "rust_oracle_symbol": "try_extract_loop_simple_while_facts",
+    "input_contract": "BackendSafeLoopSimpleWhileFactsTokenSnapshotV1",
+    "native_edit_authority": "lang/src/compiler/lib/loop_simple_while_facts.hako",
+    "owned_semantics": [
+      "simple_while_acceptance",
+      "loop_var_token",
+      "increment_token",
+      "reject_reason_token"
+    ],
+    "excluded_semantics": [
+      "full_AST_traversal",
+      "loop_builder_composition",
+      "loop_simple_while_recipe_construction",
+      "step_only_body_policy",
+      "loop_increment_plan_extraction",
+      "route_selection",
+      "backend_lowering",
+      "MIR_mutation",
+      "ID_allocation"
+    ]
+  },
+  "parity": {
+    "gate_status": "Green",
+    "oracle_row_count": 13,
+    "required_contract_fields": [
+      "accepted",
+      "loop_var",
+      "increment",
+      "reason"
+    ]
+  },
+  "decision": {
+    "kind": "HakoAdoptedScoped",
+    "reason_token": "LoopSimpleWhileFactsBackendSafeTokenSnapshotParityGreen",
+    "selected_next_card": "MIRBUILDER-FACT-OWNER-PARITY-PILOT-SELECTION-010",
+    "backlog_card": "MIRBUILDER-LOOP-SIMPLE-WHILE-FULL-FACTS-CONSULTATION-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "full_try_extract_loop_simple_while_facts_ast_owner_adopted": 0,
+    "loop_builder_adopted": 0,
+    "loop_simple_while_recipe_adopted": 0,
+    "step_only_body_policy_migrated": 0,
+    "loop_increment_plan_migrated": 0,
+    "route_selection_migrated": 0,
+    "backend_lowering_migrated": 0,
+    "mir_mutation_migrated": 0,
+    "id_allocation_migrated": 0,
+    "hako_generation": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
