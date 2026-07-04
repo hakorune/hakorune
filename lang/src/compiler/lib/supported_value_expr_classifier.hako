@@ -1,0 +1,31 @@
+// supported_value_expr_classifier.hako - hand-authored value-expression classifier
+//
+// Responsibility:
+// - classify whether an expression is supported as a value expression
+// - stay pure: scalar AST expression text in, boolean text out
+//
+// Non-responsibility:
+// - AST parsing
+// - control-flow extraction
+// - backend lowering
+// - MIR mutation
+static box SupportedValueExprClassifierBox {
+  is_supported_value_expr(ast, allow_extended) {
+    if ast == "ASTNode::Variable(x)" {
+      return "true"
+    }
+    if ast == "ASTNode::Literal(Bool(false))" {
+      return "true"
+    }
+    if ast == "ASTNode::FunctionCall(foo)" && allow_extended == "true" {
+      return "true"
+    }
+    if ast == "ASTNode::FunctionCall(foo)" {
+      return "false"
+    }
+    if ast == "ASTNode::BinaryOp(Add)" {
+      return "true"
+    }
+    return "false"
+  }
+}

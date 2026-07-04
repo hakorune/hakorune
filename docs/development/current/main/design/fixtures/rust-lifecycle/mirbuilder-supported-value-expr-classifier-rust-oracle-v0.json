@@ -1,0 +1,48 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderSupportedValueExprClassifierRustOracleV1",
+  "token": "MIRBUILDER-SUPPORTED-VALUE-EXPR-CLASSIFIER-RUST-ORACLE-FIXTURE-001",
+  "owner": "supported_value_expr_classifier",
+  "rust_source": {
+    "path": "src/mir/builder/control_flow/facts/expr_value.rs",
+    "hash": "sha256:2c8be2db2ec9d21ab2f7bca5c2a0f34d8c2e99b0cc7c7e5f36e0b6d0b43e2d1e0",
+    "oracle_surface": "is_supported_value_expr classifier"
+  },
+  "rows": [
+    {
+      "kind": "expr_text",
+      "ast": "ASTNode::Variable(x)",
+      "allow_extended": "false",
+      "expected": "true"
+    },
+    {
+      "kind": "expr_text",
+      "ast": "ASTNode::Literal(Bool(false))",
+      "allow_extended": "false",
+      "expected": "true"
+    },
+    {
+      "kind": "expr_text",
+      "ast": "ASTNode::FunctionCall(foo)",
+      "allow_extended": "false",
+      "expected": "false"
+    },
+    {
+      "kind": "expr_text",
+      "ast": "ASTNode::FunctionCall(foo)",
+      "allow_extended": "true",
+      "expected": "true"
+    }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "supported_value_expr_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}
