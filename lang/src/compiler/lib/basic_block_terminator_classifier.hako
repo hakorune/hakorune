@@ -1,0 +1,19 @@
+// basic_block_terminator_classifier.hako - hand-authored basic-block terminator classifier
+//
+// Responsibility:
+// - classify whether an instruction is a basic-block terminator
+// - stay pure: scalar instruction-kind token in, boolean text out
+//
+// Non-responsibility:
+// - basic-block control-flow behavior
+// - backend lowering
+// - MIR mutation
+static box BasicBlockTerminatorClassifierBox {
+  is_terminator(inst_kind) {
+    if inst_kind == "Branch" { return "true" }
+    if inst_kind == "Jump" { return "true" }
+    if inst_kind == "Return" { return "true" }
+    if inst_kind == "Throw" { return "true" }
+    return "false"
+  }
+}

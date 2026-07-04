@@ -1,0 +1,29 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderBasicBlockTerminatorClassifierRustOracleV1",
+  "token": "MIRBUILDER-BASIC-BLOCK-TERMINATOR-CLASSIFIER-RUST-ORACLE-FIXTURE-001",
+  "owner": "basic_block_terminator_classifier",
+  "rust_source": {
+    "path": "src/mir/basic_block.rs",
+    "hash": "sha256:34c398c0e71be8a266736a485a0bb9788a834f6a7b84897f30e6099de22909d0",
+    "oracle_surface": "is_terminator instruction classification"
+  },
+  "rows": [
+    { "inst_kind": "Branch", "expected": "true" },
+    { "inst_kind": "Jump", "expected": "true" },
+    { "inst_kind": "Return", "expected": "true" },
+    { "inst_kind": "Throw", "expected": "true" },
+    { "inst_kind": "Copy", "expected": "false" }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "basic_block_terminator_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

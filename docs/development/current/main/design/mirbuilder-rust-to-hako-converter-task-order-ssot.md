@@ -25,10 +25,10 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-ARRAY-TEXT-RESIDENCE-SESSION-ADD-CONST-ONE-FROM-CLASSIFIER-HAKO-ADOPTION-DECISION-001.
-  The array_text_residence_session_add_const_one_from_classifier owner is
-  HakoAdopted as the one-hundred-twenty-second narrow Rust-oracle parity pilot
-  after the green 5-row `.hako` EXE parity gate; next is rerun 125.
+  MIRBUILDER-BASIC-BLOCK-TERMINATOR-CLASSIFIER-HAKO-ADOPTION-DECISION-001.
+  The basic_block_terminator_classifier owner is HakoAdopted as the
+  one-hundred-twenty-third narrow Rust-oracle parity pilot after the green
+  5-row `.hako` EXE parity gate; next is rerun 126.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -61,7 +61,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-125
+  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-126
 
 normal operating rule:
   One RERUN adopts exactly one owner, advances the pointer, then stops.
@@ -71,11 +71,11 @@ normal operating rule:
   under `Working Rules`.
 
 latest design decision:
-  array_text_residence_session_add_const_one_from_classifier is now HakoAdopted
-  as a narrow Rust-oracle parity pilot owner after a green 5-row `.hako` EXE
-  parity gate. Array-text residence-session derivation remains Rust. Backend
-  lowering and MIR mutation remain Rust. The selected next card is
-  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-125`.
+  basic_block_terminator_classifier is now HakoAdopted as a narrow Rust-oracle
+  parity pilot owner after a green 5-row `.hako` EXE parity gate. Basic-block
+  terminator classification remains Rust. Backend lowering and MIR mutation
+  remain Rust. The selected next card is
+  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-126`.
 
 current fail-fast boundary:
   Do not re-enter full converter route selection without new non-self-signed authority or stable input delta. The adopted pilot scopes are narrow pure owners only: classification/formatting vocabulary, tiny mutation-frame leaves, label/tag surfaces, and fixture-backed parity helpers.
