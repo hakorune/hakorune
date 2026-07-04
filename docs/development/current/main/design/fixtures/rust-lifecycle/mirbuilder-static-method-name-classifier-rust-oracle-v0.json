@@ -1,0 +1,29 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderStaticMethodNameClassifierRustOracleV1",
+  "token": "MIRBUILDER-STATIC-METHOD-NAME-CLASSIFIER-RUST-ORACLE-FIXTURE-001",
+  "owner": "static_method_name_classifier",
+  "rust_source": {
+    "path": "src/mir/naming.rs",
+    "hash": "sha256:c6e4d858aaf296ab146b2e6e12dce9aca2ef0610e92a750a812bf9f95e6cf51a",
+    "oracle_surface": "Static method name classifier"
+  },
+  "rows": [
+    { "func_name": "Main.main/0", "expected": "true" },
+    { "func_name": "Calculator.add/2", "expected": "true" },
+    { "func_name": "main._nop/0", "expected": "true" },
+    { "func_name": "Main.main", "expected": "false" },
+    { "func_name": "print", "expected": "false" }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "mir_naming_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}
