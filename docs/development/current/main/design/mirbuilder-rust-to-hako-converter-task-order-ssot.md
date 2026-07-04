@@ -27,8 +27,8 @@ active blocker:
 current implementation task:
   MIRBUILDER-AGG-LOCAL-SCALARIZATION-INLINE-SCALAR-USER-BOX-LOCAL-BODY-CLASSIFIER-HAKO-ADOPTION-DECISION-001.
   The agg_local_scalarization_inline_scalar_user_box_local_body_classifier
-  owner is HakoAdopted as the ninety-fifth narrow Rust-oracle parity pilot;
-  next is rerun 097.
+  owner is HakoAdopted as the ninety-sixth narrow Rust-oracle parity pilot;
+  next is rerun 098.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -61,7 +61,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-097
+  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-098
 
 normal operating rule:
   One RERUN adopts exactly one owner, advances the pointer, then stops.
@@ -77,7 +77,7 @@ latest design decision:
   Array-text route matching, observer contract handling, backend lowering, and
   MIR mutation remain Rust.
   The selected next card is
-  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-097`.
+  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-098`.
 
 current fail-fast boundary:
   Do not re-enter full converter route selection without new non-self-signed authority or stable input delta. The adopted pilot scopes are narrow pure owners only: classification/formatting vocabulary, tiny mutation-frame leaves, label/tag surfaces, and fixture-backed parity helpers.
