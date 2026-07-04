@@ -1,0 +1,20 @@
+// fastmem_free_list_memop_kind_classifier.hako - hand-authored fastmem free-list classifier
+//
+// Responsibility:
+// - classify free-list fastmem memop kinds
+// - stay pure: memop kind token in, boolean text out
+//
+// Non-responsibility:
+// - fastmem dialect validation
+// - access-plan collection
+// - backend lowering
+// - MIR mutation
+static box FastMemFreeListMemopKindClassifierBox {
+  is_free_list_memop_kind(kind) {
+    if kind == "LocalFreePush" { return "true" }
+    if kind == "LocalFreePop" { return "true" }
+    if kind == "FreeHeadPush" { return "true" }
+    if kind == "FreeHeadPop" { return "true" }
+    return "false"
+  }
+}
