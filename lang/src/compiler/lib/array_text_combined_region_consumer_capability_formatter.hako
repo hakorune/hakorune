@@ -1,0 +1,24 @@
+// array_text_combined_region_consumer_capability_formatter.hako - hand-authored combined-region consumer-capability formatter
+//
+// Responsibility:
+// - format ArrayTextCombinedRegionConsumerCapability names into Rust oracle text
+// - stay pure: scalar consumer-capability token in, scalar text out
+//
+// Non-responsibility:
+// - array/text combined region planning
+// - backend lowering
+// - MIR mutation
+static box ArrayTextCombinedRegionConsumerCapabilityFormatterBox {
+  as_str(consumer_capability) {
+    if consumer_capability == "SinkStore" {
+      return "sink_store"
+    }
+    if consumer_capability == "CompareOnly" {
+      return "compare_only"
+    }
+    if consumer_capability == "LengthOnlyResultCarry" {
+      return "length_only_result_carry"
+    }
+    return "unsupported_array_text_combined_region_consumer_capability"
+  }
+}
