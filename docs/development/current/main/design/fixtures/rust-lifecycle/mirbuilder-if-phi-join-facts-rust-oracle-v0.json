@@ -1,0 +1,125 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderIfPhiJoinFactsRustOracleV1",
+  "token": "MIRBUILDER-IF-PHI-JOIN-FACTS-RUST-ORACLE-FIXTURE-001",
+  "owner": "if_phi_join_facts",
+  "rust_source": {
+    "path": "src/mir/builder/control_flow/facts/if_phi_join_facts.rs",
+    "hash": "sha256:a03eabb986a116b9aa7aea39ecda35df6ea7218a3e85b82cbb1cd255e737c224",
+    "oracle_surface": "try_extract_if_phi_join_facts"
+  },
+  "input_contract": "BackendSafeIfPhiJoinFactsTokenSnapshotV1",
+  "rows": [
+    {
+      "case_id": "accept_sum_phi",
+      "condition_token": "CondILess3",
+      "body_token": "IfSumPlus1ElseSumPlus0ThenIPlus1",
+      "expected_accept": true,
+      "expected_loop_var": "i",
+      "expected_carrier": "sum",
+      "expected_then_update": "add_const_1",
+      "expected_else_update": "add_const_0",
+      "expected_summary": "accepted=1;loop_var=i;carrier=sum;then_update=add_const_1;else_update=add_const_0"
+    },
+    {
+      "case_id": "accept_total_phi",
+      "condition_token": "CondNLess10",
+      "body_token": "IfTotalPlus5ElseTotalPlus0ThenNPlus1",
+      "expected_accept": true,
+      "expected_loop_var": "n",
+      "expected_carrier": "total",
+      "expected_then_update": "add_const_5",
+      "expected_else_update": "add_const_0",
+      "expected_summary": "accepted=1;loop_var=n;carrier=total;then_update=add_const_5;else_update=add_const_0"
+    },
+    {
+      "case_id": "reject_condition_not_supported",
+      "condition_token": "CondCallResult",
+      "body_token": "IfSumPlus1ElseSumPlus0ThenIPlus1",
+      "expected_accept": false,
+      "expected_reason": "condition_not_supported",
+      "expected_summary": "accepted=0;reason=condition_not_supported"
+    },
+    {
+      "case_id": "reject_if_else_missing",
+      "condition_token": "CondILess3",
+      "body_token": "PlainSumThenIPlus1",
+      "expected_accept": false,
+      "expected_reason": "if_else_missing",
+      "expected_summary": "accepted=0;reason=if_else_missing"
+    },
+    {
+      "case_id": "reject_if_without_else",
+      "condition_token": "CondILess3",
+      "body_token": "IfNoElseThenIPlus1",
+      "expected_accept": false,
+      "expected_reason": "if_else_missing",
+      "expected_summary": "accepted=0;reason=if_else_missing"
+    },
+    {
+      "case_id": "reject_mismatched_carrier",
+      "condition_token": "CondILess3",
+      "body_token": "IfSumPlus1ElseAccPlus1ThenIPlus1",
+      "expected_accept": false,
+      "expected_reason": "phi_assignment_missing",
+      "expected_summary": "accepted=0;reason=phi_assignment_missing"
+    },
+    {
+      "case_id": "reject_else_update_missing",
+      "condition_token": "CondILess3",
+      "body_token": "IfElseMissingUpdateThenIPlus1",
+      "expected_accept": false,
+      "expected_reason": "else_update_missing",
+      "expected_summary": "accepted=0;reason=else_update_missing"
+    },
+    {
+      "case_id": "reject_loop_increment_missing",
+      "condition_token": "CondILess3",
+      "body_token": "IfSumPlus1ElseSumPlus0Only",
+      "expected_accept": false,
+      "expected_reason": "loop_increment_missing",
+      "expected_summary": "accepted=0;reason=loop_increment_missing"
+    },
+    {
+      "case_id": "reject_break_control_flow",
+      "condition_token": "CondILess3",
+      "body_token": "IfElseBreakThenIPlus1",
+      "expected_accept": false,
+      "expected_reason": "body_has_forbidden_control_flow",
+      "expected_summary": "accepted=0;reason=body_has_forbidden_control_flow"
+    },
+    {
+      "case_id": "reject_nested_if",
+      "condition_token": "CondILess3",
+      "body_token": "NestedIfElseThenIPlus1",
+      "expected_accept": false,
+      "expected_reason": "body_has_forbidden_control_flow",
+      "expected_summary": "accepted=0;reason=body_has_forbidden_control_flow"
+    },
+    {
+      "case_id": "reject_return_delegated",
+      "condition_token": "CondILess3",
+      "body_token": "IfElseReturnThenIPlus1",
+      "expected_accept": false,
+      "expected_reason": "body_has_return",
+      "expected_summary": "accepted=0;reason=body_has_return"
+    }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "full_ast_traversal_adopted": 0,
+    "if_phi_parts_extractor_migrated": 0,
+    "condition_ast_payload_migrated": 0,
+    "then_update_ast_payload_migrated": 0,
+    "else_update_ast_payload_migrated": 0,
+    "loop_increment_extraction_migrated": 0,
+    "recipe_construction_migrated": 0,
+    "route_selection_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0,
+    "id_allocation_migration": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

@@ -60,7 +60,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-IF-PHI-JOIN-FACTS-AUTHORITY-FACADE-PARITY-001
+  MIRBUILDER-IF-PHI-JOIN-FACTS-HAKOADOPTED-DECISION-001
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -73,17 +73,17 @@ normal operating rule:
   Recent HakoAdoptedScoped Fact facades: string_is_integer_facts,
   bool_predicate_scan_facts, accum_const_loop_facts, loop_char_map_facts,
   loop_array_join_facts, loop_true_early_exit_facts.
-  Selection-018 chooses `try_extract_if_phi_join_facts`; if-phi parts
-  extraction, AST payload construction, loop increment extraction, route
-  selection, lowering, mutation, allocation, and Source Selfhost remain
-  unclaimed.
+  `try_extract_if_phi_join_facts` now has green authority-facade parity;
+  if-phi parts extraction, AST payload construction, loop increment extraction,
+  route selection, lowering, mutation, allocation, and Source Selfhost remain
+  unclaimed. Next is its scoped HakoAdopted decision.
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  Selection-018 chooses `if_phi_join_facts.authority_facade` as the next
-  fixture-backed parity pilot; AST payload construction, recipe/lowering,
-  route selection, MIR mutation, ID allocation, and Source Selfhost remain
-  unclaimed.
+  `if_phi_join_facts.authority_facade` has green 11-row parity with
+  backend-safe token snapshots; if-phi parts extraction, AST payload
+  construction, recipe/lowering, route selection, MIR mutation, ID allocation,
+  and Source Selfhost remain unclaimed. The HakoAdopted decision is next.
   `loop_true_early_exit_facts.authority_facade` is HakoAdoptedScoped after
   green 10-row parity; control-flow traversal, exit/carrier AST construction,
   loop increment extraction, lowering, mutation, allocation, and Source

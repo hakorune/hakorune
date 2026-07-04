@@ -1,0 +1,111 @@
+// if_phi_join_facts.hako
+//
+// Responsibility:
+// - reduce a backend-safe if-phi-join token snapshot into fact text
+// - mirror try_extract_if_phi_join_facts for the narrow facade contract
+//
+// Non-responsibility:
+// - full AST traversal or extract_loop_with_if_phi_parts migration
+// - condition/update AST payload construction
+// - loop increment extraction, recipe construction, lowering, mutation, or ID allocation
+static box IfPhiJoinFactsBox {
+  build_summary(condition_token, body_token) {
+    local loop_var = me._condition_loop_var(condition_token)
+    if loop_var == "-" {
+      return "accepted=0;reason=condition_not_supported"
+    }
+
+    if me._body_has_return(body_token) == 1 {
+      return "accepted=0;reason=body_has_return"
+    }
+    if me._body_has_forbidden_control_flow(body_token) == 1 {
+      return "accepted=0;reason=body_has_forbidden_control_flow"
+    }
+    if me._body_has_if_else(body_token) == 0 {
+      return "accepted=0;reason=if_else_missing"
+    }
+
+    local carrier = me._body_carrier_var(body_token)
+    if carrier == "-" {
+      return "accepted=0;reason=phi_assignment_missing"
+    }
+    if me._body_then_update_var(body_token) != carrier {
+      return "accepted=0;reason=then_update_missing"
+    }
+    if me._body_else_update_var(body_token) != carrier {
+      return "accepted=0;reason=else_update_missing"
+    }
+    if me._body_loop_increment_var(body_token) != loop_var {
+      return "accepted=0;reason=loop_increment_missing"
+    }
+
+    return "accepted=1;loop_var=" + loop_var
+      + ";carrier=" + carrier
+      + ";then_update=" + me._body_then_update_kind(body_token)
+      + ";else_update=" + me._body_else_update_kind(body_token)
+  }
+
+  _condition_loop_var(token) {
+    if token == "CondILess3" { return "i" }
+    if token == "CondNLess10" { return "n" }
+    return "-"
+  }
+
+  _body_has_return(token) {
+    if token == "IfElseReturnThenIPlus1" { return 1 }
+    return 0
+  }
+
+  _body_has_forbidden_control_flow(token) {
+    if token == "IfElseBreakThenIPlus1" { return 1 }
+    if token == "NestedIfElseThenIPlus1" { return 1 }
+    return 0
+  }
+
+  _body_has_if_else(token) {
+    if token == "PlainSumThenIPlus1" { return 0 }
+    if token == "IfNoElseThenIPlus1" { return 0 }
+    return 1
+  }
+
+  _body_carrier_var(token) {
+    if token == "IfSumPlus1ElseSumPlus0ThenIPlus1" { return "sum" }
+    if token == "IfTotalPlus5ElseTotalPlus0ThenNPlus1" { return "total" }
+    if token == "IfSumPlus1ElseAccPlus1ThenIPlus1" { return "-" }
+    if token == "IfElseMissingUpdateThenIPlus1" { return "sum" }
+    if token == "IfSumPlus1ElseSumPlus0Only" { return "sum" }
+    return "-"
+  }
+
+  _body_then_update_var(token) {
+    if token == "IfSumPlus1ElseSumPlus0ThenIPlus1" { return "sum" }
+    if token == "IfTotalPlus5ElseTotalPlus0ThenNPlus1" { return "total" }
+    if token == "IfElseMissingUpdateThenIPlus1" { return "sum" }
+    if token == "IfSumPlus1ElseSumPlus0Only" { return "sum" }
+    return "-"
+  }
+
+  _body_else_update_var(token) {
+    if token == "IfSumPlus1ElseSumPlus0ThenIPlus1" { return "sum" }
+    if token == "IfTotalPlus5ElseTotalPlus0ThenNPlus1" { return "total" }
+    if token == "IfSumPlus1ElseSumPlus0Only" { return "sum" }
+    return "-"
+  }
+
+  _body_loop_increment_var(token) {
+    if token == "IfSumPlus1ElseSumPlus0ThenIPlus1" { return "i" }
+    if token == "IfTotalPlus5ElseTotalPlus0ThenNPlus1" { return "n" }
+    if token == "IfSumPlus1ElseAccPlus1ThenIPlus1" { return "i" }
+    if token == "IfElseMissingUpdateThenIPlus1" { return "i" }
+    return "-"
+  }
+
+  _body_then_update_kind(token) {
+    if token == "IfTotalPlus5ElseTotalPlus0ThenNPlus1" { return "add_const_5" }
+    return "add_const_1"
+  }
+
+  _body_else_update_kind(token) {
+    return "add_const_0"
+  }
+}
