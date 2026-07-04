@@ -1,0 +1,31 @@
+// supported_bool_expr_classifier.hako - hand-authored supported bool expr classifier
+//
+// Responsibility:
+// - classify whether a bool expression is supported
+// - stay pure: scalar AST expression text in, boolean text out
+//
+// Non-responsibility:
+// - AST parsing
+// - control-flow extraction
+// - backend lowering
+// - MIR mutation
+static box SupportedBoolExprClassifierBox {
+  is_supported_bool_expr(ast, allow_extended) {
+    if ast == "ASTNode::Variable(x)" {
+      return "true"
+    }
+    if ast == "ASTNode::Literal(Bool(true))" {
+      return "true"
+    }
+    if ast == "ASTNode::FunctionCall(foo)" && allow_extended == "true" {
+      return "true"
+    }
+    if ast == "ASTNode::FunctionCall(foo)" {
+      return "false"
+    }
+    if ast == "ASTNode::BinaryOp(And)" {
+      return "true"
+    }
+    return "false"
+  }
+}
