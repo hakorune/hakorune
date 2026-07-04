@@ -1,0 +1,22 @@
+// generic_loop_bool_literal_condition_classifier.hako - hand-authored bool-literal condition classifier
+//
+// Responsibility:
+// - classify whether a loop condition text is any Bool literal
+// - stay pure: scalar AST condition text in, boolean text out
+//
+// Non-responsibility:
+// - AST parsing
+// - control-flow extraction
+// - backend lowering
+// - MIR mutation
+static box GenericLoopBoolLiteralConditionClassifierBox {
+  is_bool_literal_condition(condition) {
+    if condition == "ASTNode::Literal(Bool(true))" {
+      return "true"
+    }
+    if condition == "ASTNode::Literal(Bool(false))" {
+      return "true"
+    }
+    return "false"
+  }
+}

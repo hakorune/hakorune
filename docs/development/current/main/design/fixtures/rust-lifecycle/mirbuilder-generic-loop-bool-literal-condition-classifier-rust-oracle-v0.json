@@ -1,0 +1,39 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderGenericLoopBoolLiteralConditionClassifierRustOracleV1",
+  "token": "MIRBUILDER-GENERIC-LOOP-BOOL-LITERAL-CONDITION-CLASSIFIER-RUST-ORACLE-FIXTURE-001",
+  "owner": "generic_loop_bool_literal_condition_classifier",
+  "rust_source": {
+    "path": "src/mir/builder/control_flow/plan/generic_loop/facts/extract/v1.rs",
+    "hash": "sha256:a444e08801d9cefb004c99068b5878ec51164eb63106970f1785b41d6d2586f4",
+    "oracle_surface": "is_bool_literal_condition classifier"
+  },
+  "rows": [
+    {
+      "kind": "condition_text",
+      "condition": "ASTNode::Literal(Bool(true))",
+      "expected": "true"
+    },
+    {
+      "kind": "condition_text",
+      "condition": "ASTNode::Literal(Bool(false))",
+      "expected": "true"
+    },
+    {
+      "kind": "condition_text",
+      "condition": "ASTNode::Variable(flag)",
+      "expected": "false"
+    }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "generic_loop_bool_literal_condition_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}
