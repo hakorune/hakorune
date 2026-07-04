@@ -345,14 +345,13 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-LOOP-ARRAY-JOIN-FACTS-AUTHORITY-FACADE-PARITY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2933-MIRBUILDER-LOOP-ARRAY-JOIN-FACTS-AUTHORITY-FACADE-PARITY-001.md"
+latest_card = "MIRBUILDER-LOOP-ARRAY-JOIN-FACTS-HAKOADOPTED-DECISION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2934-MIRBUILDER-LOOP-ARRAY-JOIN-FACTS-HAKOADOPTED-DECISION-001.md"
 latest_card_summary = """The latest card lands
-LoopArrayJoinFacts authority-facade parity for backend-safe token snapshots.
-Separator-guard/array-append AST construction, CondProfile construction,
-ScanConditionObservation construction, loop increment extraction, route selection,
-recipe/lowering, MIR mutation, ID allocation, and Source Selfhost remain
-unclaimed."""
+loop_array_join_facts.authority_facade as a scoped HakoAdopted Fact owner after
+green 11-row parity. Separator-guard/array-append AST construction, CondProfile
+construction, loop increment extraction, route selection, recipe/lowering, MIR
+mutation, ID allocation, and Source Selfhost remain unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -363,6 +362,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-05: 2934 adopts loop_array_join_facts.authority_facade as a scoped HakoAdopted Fact owner; separator-guard/array-append AST construction remains Rust.",
   "2026-07-05: 2933 lands loop_array_join_facts authority-facade parity; HakoAdopted decision is next.",
   "2026-07-05: 2932 selects try_extract_loop_array_join_facts as the next authority-facade parity pilot; separator-guard/array-append AST construction remains Rust.",
   "2026-07-05: 2931 adopts loop_char_map_facts.authority_facade as a scoped HakoAdopted Fact owner; substring/result-update AST construction remains Rust.",
@@ -374,5 +374,4 @@ landed_tail = [
   "2026-07-05: 2925 adopts bool_predicate_scan_facts.authority_facade as a scoped HakoAdopted Fact owner; CondProfile construction remains Rust.",
   "2026-07-05: 2924 lands bool_predicate_scan_facts authority-facade parity; HakoAdopted decision is next.",
   "2026-07-05: 2923 selects try_extract_bool_predicate_scan_facts as the next authority-facade parity pilot; CondProfile construction remains Rust.",
-  "2026-07-05: 2922 adopts string_is_integer_facts.authority_facade as a scoped HakoAdopted Fact owner; full AST traversal remains Rust/gated.",
 ]

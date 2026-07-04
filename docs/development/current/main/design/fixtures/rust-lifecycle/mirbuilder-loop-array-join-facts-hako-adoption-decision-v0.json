@@ -1,0 +1,76 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderLoopArrayJoinFactsHakoAdoptedDecisionV1",
+  "token": "MIRBUILDER-LOOP-ARRAY-JOIN-FACTS-HAKOADOPTED-DECISION-001",
+  "input_state": {
+    "hako_source": "lang/src/compiler/lib/loop_array_join_facts.hako",
+    "hako_source_hash": "sha256:4cf076d33ba0658ece1f3820f12961b8f6d4d6f490d442aa6e00eb2c19a89ebe",
+    "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-array-join-facts-rust-oracle-v0.json",
+    "rust_oracle_fixture_hash": "sha256:15d5d1a005963f32d2b58a2106065f35a6454132c53c7ed1de84bcc702477f13",
+    "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_loop_array_join_facts_parity_gate.sh",
+    "parity_gate_hash": "sha256:78e394804662b29a32eab3badbcf631353f42f2f37946851cd40f4c860b6ea2e"
+  },
+  "adoption_scope": {
+    "adopted_owner": "loop_array_join_facts.authority_facade",
+    "rust_oracle_symbol": "try_extract_loop_array_join_facts",
+    "input_contract": "BackendSafeLoopArrayJoinFactsTokenSnapshotV1",
+    "native_edit_authority": "lang/src/compiler/lib/loop_array_join_facts.hako",
+    "owned_semantics": [
+      "loop_array_join_acceptance",
+      "loop_var_token",
+      "array_var_token",
+      "result_var_token",
+      "separator_var_token",
+      "reject_reason_token"
+    ],
+    "excluded_semantics": [
+      "full_AST_traversal",
+      "separator_guard_AST_construction",
+      "array_append_AST_construction",
+      "CondProfile_construction",
+      "ScanConditionObservation_construction",
+      "loop_increment_extraction",
+      "recipe_construction",
+      "route_selection",
+      "backend_lowering",
+      "MIR_mutation",
+      "ID_allocation"
+    ]
+  },
+  "parity": {
+    "gate_status": "Green",
+    "oracle_row_count": 11,
+    "required_contract_fields": [
+      "accepted",
+      "loop_var",
+      "array",
+      "result",
+      "separator",
+      "reason"
+    ]
+  },
+  "decision": {
+    "kind": "HakoAdoptedScoped",
+    "reason_token": "LoopArrayJoinFactsAuthorityFacadeParityGreen",
+    "selected_next_card": "MIRBUILDER-FACT-OWNER-PARITY-PILOT-SELECTION-017",
+    "backlog_card": "MIRBUILDER-LOOP-ARRAY-JOIN-FULL-AST-PAYLOAD-CONSULTATION-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "full_ast_traversal_adopted": 0,
+    "separator_guard_ast_construction_migrated": 0,
+    "array_append_ast_construction_migrated": 0,
+    "cond_profile_construction_migrated": 0,
+    "scan_condition_observation_migrated": 0,
+    "loop_increment_extraction_migrated": 0,
+    "recipe_construction_migrated": 0,
+    "route_selection_migrated": 0,
+    "backend_lowering_migrated": 0,
+    "mir_mutation_migrated": 0,
+    "id_allocation_migrated": 0,
+    "hako_generation": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
