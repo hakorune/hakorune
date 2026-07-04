@@ -1,0 +1,72 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderBoolPredicateScanFactsHakoAdoptedDecisionV1",
+  "token": "MIRBUILDER-BOOL-PREDICATE-SCAN-FACTS-HAKOADOPTED-DECISION-001",
+  "input_state": {
+    "hako_source": "lang/src/compiler/lib/bool_predicate_scan_facts.hako",
+    "hako_source_hash": "sha256:b17580c102fcc3a5e553048e573b3e7af738a0cf08eafb563f71cc3b12346f40",
+    "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-bool-predicate-scan-facts-rust-oracle-v0.json",
+    "rust_oracle_fixture_hash": "sha256:c53e5d9dc9c702d11c443b7a7cde3fcfce6598151ab8a62973ec4a0db1b5754c",
+    "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_bool_predicate_scan_facts_parity_gate.sh",
+    "parity_gate_hash": "sha256:a5da9f998b7f36baef913fb54c8b2b517e07a1fa9468fef177c19a83aa86791f"
+  },
+  "adoption_scope": {
+    "adopted_owner": "bool_predicate_scan_facts.authority_facade",
+    "rust_oracle_symbol": "try_extract_bool_predicate_scan_facts",
+    "input_contract": "BackendSafeBoolPredicateScanFactsTokenSnapshotV1",
+    "native_edit_authority": "lang/src/compiler/lib/bool_predicate_scan_facts.hako",
+    "owned_semantics": [
+      "bool_predicate_scan_acceptance",
+      "loop_var_token",
+      "haystack_token",
+      "predicate_receiver_token",
+      "predicate_method_token",
+      "step_lit_token",
+      "reject_reason_token"
+    ],
+    "excluded_semantics": [
+      "CondProfile_construction",
+      "ScanConditionObservation_construction",
+      "full_AST_traversal",
+      "substring_expression_materialization",
+      "route_selection",
+      "backend_lowering",
+      "MIR_mutation",
+      "ID_allocation"
+    ]
+  },
+  "parity": {
+    "gate_status": "Green",
+    "oracle_row_count": 7,
+    "required_contract_fields": [
+      "accepted",
+      "loop_var",
+      "haystack",
+      "receiver",
+      "method",
+      "step_lit",
+      "reason"
+    ]
+  },
+  "decision": {
+    "kind": "HakoAdoptedScoped",
+    "reason_token": "BoolPredicateScanFactsAuthorityFacadeParityGreen",
+    "selected_next_card": "MIRBUILDER-FACT-OWNER-PARITY-PILOT-SELECTION-014",
+    "backlog_card": "MIRBUILDER-BOOL-PREDICATE-SCAN-FULL-AST-TRAVERSAL-CONSULTATION-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "cond_profile_construction_migrated": 0,
+    "scan_condition_observation_migrated": 0,
+    "full_ast_traversal_adopted": 0,
+    "substring_expression_materialization": 0,
+    "route_selection_migrated": 0,
+    "backend_lowering_migrated": 0,
+    "mir_mutation_migrated": 0,
+    "id_allocation_migrated": 0,
+    "hako_generation": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

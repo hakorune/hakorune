@@ -60,7 +60,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-BOOL-PREDICATE-SCAN-FACTS-HAKOADOPTED-DECISION-001
+  MIRBUILDER-FACT-OWNER-PARITY-PILOT-SELECTION-014
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -78,8 +78,8 @@ normal operating rule:
   HakoAdoptedScoped for the authority-facade DTO only.
   `try_extract_string_is_integer_facts` is now HakoAdoptedScoped for the
   authority-facade DTO only; full AST traversal remains separate.
-  `try_extract_bool_predicate_scan_facts` now has green authority-facade parity;
-  next is its scoped HakoAdopted decision.
+  `try_extract_bool_predicate_scan_facts` is now HakoAdoptedScoped for the
+  authority-facade DTO only; CondProfile construction remains separate.
   `try_extract_loop_continue_only_facts` is now HakoAdoptedScoped for the backend-safe token snapshot reducer only; recipe/lowering claims remain separate.
   `try_extract_loop_simple_while_facts` is now HakoAdoptedScoped for the backend-safe token snapshot reducer only; recipe/lowering claims remain separate.
   `try_extract_condition_shape` is now HakoAdoptedScoped for the backend-safe token snapshot reducer only; CondProfile/scan matching claims remain separate.
@@ -88,10 +88,9 @@ normal operating rule:
   `try_build_exit_allowed_block_recipe` is now HakoAdoptedScoped for the backend-safe token snapshot reducer only; in-arena construction, NoExitBlockRecipe, join-if semantics, and lowering remain Rust.
 
 latest design decision:
-  `bool_predicate_scan_facts.authority_facade` has green 7-row parity with
-  precomputed observation tokens; CondProfile construction, lowering, mutation,
-  allocation, and Source Selfhost remain unclaimed. The HakoAdopted decision is
-  next.
+  `bool_predicate_scan_facts.authority_facade` is HakoAdoptedScoped after green
+  7-row parity with precomputed observation tokens; CondProfile construction,
+  lowering, mutation, allocation, and Source Selfhost remain unclaimed.
   `string_is_integer_facts.authority_facade` is HakoAdoptedScoped after green
   7-row parity; full AST traversal, route selection, lowering, mutation,
   allocation, and Source Selfhost remain unclaimed.

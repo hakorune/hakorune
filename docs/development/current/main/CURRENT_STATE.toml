@@ -345,14 +345,13 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-BOOL-PREDICATE-SCAN-FACTS-AUTHORITY-FACADE-PARITY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2924-MIRBUILDER-BOOL-PREDICATE-SCAN-FACTS-AUTHORITY-FACADE-PARITY-001.md"
+latest_card = "MIRBUILDER-BOOL-PREDICATE-SCAN-FACTS-HAKOADOPTED-DECISION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2925-MIRBUILDER-BOOL-PREDICATE-SCAN-FACTS-HAKOADOPTED-DECISION-001.md"
 latest_card_summary = """The latest card lands
-BoolPredicateScanFacts authority-facade parity for precomputed
-ScanConditionObservation token snapshots. CondProfile construction,
-ScanConditionObservation construction, full AST traversal, route selection,
-backend lowering, MIR mutation, ID allocation, and Source Selfhost remain
-unclaimed."""
+bool_predicate_scan_facts.authority_facade as a scoped HakoAdopted Fact owner
+after green 7-row parity. CondProfile construction, ScanConditionObservation
+construction, full AST traversal, route selection, backend lowering, MIR
+mutation, ID allocation, and Source Selfhost remain unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -363,6 +362,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-05: 2925 adopts bool_predicate_scan_facts.authority_facade as a scoped HakoAdopted Fact owner; CondProfile construction remains Rust.",
   "2026-07-05: 2924 lands bool_predicate_scan_facts authority-facade parity; HakoAdopted decision is next.",
   "2026-07-05: 2923 selects try_extract_bool_predicate_scan_facts as the next authority-facade parity pilot; CondProfile construction remains Rust.",
   "2026-07-05: 2922 adopts string_is_integer_facts.authority_facade as a scoped HakoAdopted Fact owner; full AST traversal remains Rust/gated.",
@@ -374,5 +374,4 @@ landed_tail = [
   "2026-07-05: 2916 fixes authority facade before crate split; next hard-authority pilot must prove DTO parity before crate extraction.",
   "2026-07-05: 2915 adopts loop_continue_only_facts.backend_safe_token_snapshot_reducer as a scoped HakoAdopted Fact owner; recipe construction and lowering remain Rust.",
   "2026-07-05: 2914 lands loop_continue_only_facts.backend_safe_token_snapshot_reducer parity; recipe construction and lowering remain Rust.",
-  "2026-07-05: 2913 adopts loop_simple_while_facts.backend_safe_token_snapshot_reducer as a scoped HakoAdopted Fact owner; recipe construction and lowering remain Rust.",
 ]
