@@ -1,0 +1,28 @@
+// agg_local_scalarization_kind_formatter.hako - hand-authored agg-local kind formatter
+//
+// Responsibility:
+// - format AggLocalScalarizationKind text
+// - stay pure: kind token plus nested text in, display text out
+//
+// Non-responsibility:
+// - aggregate-local route collection
+// - thin-entry selection binding
+// - backend lowering
+// - MIR mutation
+static box AggLocalScalarizationKindFormatterBox {
+  format_kind(kind, nested_text) {
+    if kind == "sum_local_layout" {
+      return "sum_local_layout(" + nested_text + ")"
+    }
+    if kind == "user_box_local_body" {
+      return "user_box_local_body(" + nested_text + ")"
+    }
+    if kind == "record_local_layout" {
+      return "record_local_layout(" + nested_text + ")"
+    }
+    if kind == "typed_slot_storage" {
+      return "typed_slot_storage(" + nested_text + ")"
+    }
+    return "unsupported_agg_local_scalarization_kind"
+  }
+}

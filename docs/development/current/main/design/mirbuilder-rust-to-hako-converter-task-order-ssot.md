@@ -25,11 +25,10 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-AGG-LOCAL-SCALARIZATION-INLINE-SCALAR-USER-BOX-LOCAL-BODY-CLASSIFIER-HAKO-ADOPTION-DECISION-001.
-  The agg_local_scalarization_inline_scalar_user_box_local_body_classifier
-  owner is HakoAdopted as the one-hundred-forty-fourth narrow Rust-oracle
-  parity pilot after the green 6-row `.hako` EXE parity gate; next is rerun
-  148.
+  MIRBUILDER-AGG-LOCAL-SCALARIZATION-KIND-FORMATTER-HAKO-ADOPTION-DECISION-001.
+  The agg_local_scalarization_kind_formatter owner is HakoAdopted as the
+  one-hundred-forty-fifth narrow Rust-oracle parity pilot after the green
+  6-row `.hako` EXE parity gate; next is rerun 149.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -62,7 +61,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-148
+  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-149
 
 normal operating rule:
   One RERUN adopts exactly one owner, advances the pointer, then stops.
@@ -72,6 +71,11 @@ normal operating rule:
   under `Working Rules`.
 
 latest design decision:
+  agg_local_scalarization_kind_formatter is now HakoAdopted as a narrow
+  Rust-oracle parity pilot owner after a green 6-row `.hako` EXE parity gate.
+  Agg-local scalarization route collection remains Rust. Backend lowering and
+  MIR mutation remain Rust. The selected next card is
+  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-149`.
   agg_local_scalarization_inline_scalar_user_box_local_body_classifier is now
   HakoAdopted as a narrow Rust-oracle parity pilot owner after a green 6-row
   `.hako` EXE parity gate. Agg-local scalarization route collection remains

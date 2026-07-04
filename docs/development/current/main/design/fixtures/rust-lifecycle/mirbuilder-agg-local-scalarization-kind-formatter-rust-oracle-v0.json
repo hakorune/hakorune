@@ -1,0 +1,54 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderAggLocalScalarizationKindFormatterRustOracleV1",
+  "token": "MIRBUILDER-AGG-LOCAL-SCALARIZATION-KIND-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "agg_local_scalarization_kind_formatter",
+  "rust_source": {
+    "path": "src/mir/agg_local_scalarization.rs",
+    "hash": "sha256:f3c5557c0baf663b6ebeb73051b505236c2c429bbede8e173e0ebb67bea59c7d",
+    "oracle_surface": "AggLocalScalarizationKind display formatter"
+  },
+  "rows": [
+    {
+      "kind": "sum_local_layout",
+      "nested_text": "tag_only",
+      "expected": "sum_local_layout(tag_only)"
+    },
+    {
+      "kind": "sum_local_layout",
+      "nested_text": "tag_i64_payload",
+      "expected": "sum_local_layout(tag_i64_payload)"
+    },
+    {
+      "kind": "user_box_local_body",
+      "nested_text": "inline_i64",
+      "expected": "user_box_local_body(inline_i64)"
+    },
+    {
+      "kind": "user_box_local_body",
+      "nested_text": "inline_bool",
+      "expected": "user_box_local_body(inline_bool)"
+    },
+    {
+      "kind": "record_local_layout",
+      "nested_text": "17",
+      "expected": "record_local_layout(17)"
+    },
+    {
+      "kind": "typed_slot_storage",
+      "nested_text": "inline_f64",
+      "expected": "typed_slot_storage(inline_f64)"
+    }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "mir_type_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}
