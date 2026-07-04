@@ -73,6 +73,61 @@ only add another formatter or classifier while the user is asking about
 MirBuilder progress, stop and select a smallest Fact-owner or REGISTRY-rule
 contract instead.
 
+## Hard Authority Selection Rule
+
+Before moving another MirBuilder owner, run a focused inventory for hard
+authority candidates. The inventory is not a broad source crawl; it is a
+selection pass for the first contract that can move real compiler authority
+without crossing mutation or allocation boundaries.
+
+Use three independent inventory tracks:
+
+```text
+Fact track:
+  src/mir/builder/**
+  find read-only fact owners with JSON snapshot input and DTO output
+
+Plan track:
+  src/mir/builder/control_flow/plan/**
+  src/mir/builder/control_flow/plan/REGISTRY.md
+  find one-rule plan/recipe owners with facts -> DTO output
+
+Boundary track:
+  find exclusions and missing .hako/backend capabilities
+  list mutation, lowering, route execution, typed-object, and allocator blockers
+```
+
+Do not include these as first hard-authority candidates:
+
+```text
+formatter / label / tag / classifier leaf
+backend lowering
+MIR mutation
+route execution
+ID allocation
+typed-object/static-helper backend support
+Rust executor / verifier movement
+Source Selfhost claim
+```
+
+Rank candidates by this checklist:
+
+```text
+read_only = 1
+dto_output = 1
+rust_oracle_json_fixture_possible = 1
+symbolic_ids_only = 1
+no_mir_mutation = 1
+no_backend_lowering = 1
+no_id_allocation = 1
+no_new_hako_backend_capability = 1
+```
+
+The first implementation slice must be the highest-ranked candidate that can
+produce a green fixture-backed parity gate. If the candidate needs new `.hako`
+backend capability, stop and write a failed-selection card instead of widening
+the implementation.
+
 ## Anti-Drift Operating Rule
 
 Normal work stays in migration mode, not inventory mode.
