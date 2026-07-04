@@ -1,0 +1,29 @@
+// loop_step_shape.hako
+//
+// Responsibility:
+// - reduce a backend-safe loop step token snapshot into a StepShape summary
+// - mirror try_extract_step_shape for the narrow last-stmt assignment shape
+//
+// Non-responsibility:
+// - full AST traversal, ConditionShape, CondProfile migration, or scan matching
+// - loop builder composition, backend lowering, MIR mutation, route selection, or ID allocation
+static box LoopStepShapeBox {
+  build_summary(token) {
+    if token == "AssignSelfAdd1I" { return "accepted=1;shape=AssignAddConst;var=i;k=1" }
+    if token == "AssignSelfSub1I" { return "accepted=1;shape=AssignAddConst;var=i;k=-1" }
+    if token == "AssignSelfAdd1J" { return "accepted=1;shape=AssignAddConst;var=j;k=1" }
+    return "accepted=0;reason=" + me._reject_reason(token)
+  }
+
+  _reject_reason(token) {
+    if token == "EmptyBody" { return "empty_body" }
+    if token == "LastPrint" { return "last_not_assignment" }
+    if token == "TargetField" { return "target_not_variable" }
+    if token == "ValueLiteral" { return "value_not_binary" }
+    if token == "AssignOtherAdd1" { return "lhs_mismatch" }
+    if token == "AssignSelfAddVar" { return "rhs_not_integer" }
+    if token == "AssignSelfAdd2" { return "delta_not_one" }
+    if token == "AssignSelfMul1" { return "unsupported_operator" }
+    return "unsupported_token"
+  }
+}

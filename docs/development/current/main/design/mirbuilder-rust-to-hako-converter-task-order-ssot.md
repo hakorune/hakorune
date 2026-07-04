@@ -60,17 +60,19 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-FACT-OWNER-PARITY-PILOT-SELECTION-007
+  MIRBUILDER-LOOP-STEP-SHAPE-HAKOADOPTED-DECISION-001
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
   Next work inventories Fact-owner and REGISTRY-rule contracts, excludes
   lowering/mutation/allocation/backend-capability blockers, then selects one
   smallest fixture-backed parity candidate.
+  `try_extract_step_shape` now has green token-snapshot parity; next is its scoped HakoAdopted decision.
   `try_build_no_exit_block_recipe` is now HakoAdoptedScoped for the backend-safe token snapshot reducer only; join/lowering claims remain separate.
   `try_build_exit_allowed_block_recipe` is now HakoAdoptedScoped for the backend-safe token snapshot reducer only; in-arena construction, NoExitBlockRecipe, join-if semantics, and lowering remain Rust.
 
 latest design decision:
+  `loop_step_shape.backend_safe_token_snapshot_reducer` has green 11-row parity for last-statement `var = var +/- 1` StepShape observation; ConditionShape, CondProfile, scan matching, loop builder composition, lowering, mutation, allocation, and Source Selfhost remain unclaimed. The HakoAdopted decision is next.
   `no_exit_block_recipe.backend_safe_token_snapshot_reducer` is HakoAdoptedScoped after a green 11-row gate; AST traversal, RecipeBodies, CondBlockView, count_control_flow, in-arena construction, lowering, mutation, allocation, and Source Selfhost remain unclaimed.
   `exit_allowed_block_recipe.backend_safe_token_snapshot_reducer` is HakoAdoptedScoped after a green 10-row gate; recursive RecipeBodies, NoExitBlockRecipe, join-if semantics, and LoopV0 lowering are not adopted.
   `match_return_facts.backend_safe_token_snapshot_reducer` is HakoAdoptedScoped after a green 7-row gate; full AST traversal, strict/release policy, Freeze construction, BranchN composition, and return lowering are not adopted.

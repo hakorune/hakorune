@@ -1,0 +1,109 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderLoopStepShapeRustOracleV1",
+  "token": "MIRBUILDER-LOOP-STEP-SHAPE-RUST-ORACLE-FIXTURE-001",
+  "owner": "loop_step_shape",
+  "rust_source": {
+    "path": "src/mir/builder/control_flow/plan/facts/loop_step_shape.rs",
+    "hash": "sha256:e36f9d64aa31cbd64d28bf580e936a7133ce684091fe2c832a76b776efce64f8",
+    "oracle_surface": "try_extract_step_shape"
+  },
+  "input_contract": "BackendSafeLoopStepShapeTokenSnapshotV1",
+  "rows": [
+    {
+      "case_id": "accept_i_add_one",
+      "token": "AssignSelfAdd1I",
+      "expected_accept": true,
+      "expected_var": "i",
+      "expected_k": 1,
+      "expected_summary": "accepted=1;shape=AssignAddConst;var=i;k=1"
+    },
+    {
+      "case_id": "accept_i_sub_one",
+      "token": "AssignSelfSub1I",
+      "expected_accept": true,
+      "expected_var": "i",
+      "expected_k": -1,
+      "expected_summary": "accepted=1;shape=AssignAddConst;var=i;k=-1"
+    },
+    {
+      "case_id": "accept_j_add_one",
+      "token": "AssignSelfAdd1J",
+      "expected_accept": true,
+      "expected_var": "j",
+      "expected_k": 1,
+      "expected_summary": "accepted=1;shape=AssignAddConst;var=j;k=1"
+    },
+    {
+      "case_id": "reject_empty_body",
+      "token": "EmptyBody",
+      "expected_accept": false,
+      "expected_reason": "empty_body",
+      "expected_summary": "accepted=0;reason=empty_body"
+    },
+    {
+      "case_id": "reject_last_not_assignment",
+      "token": "LastPrint",
+      "expected_accept": false,
+      "expected_reason": "last_not_assignment",
+      "expected_summary": "accepted=0;reason=last_not_assignment"
+    },
+    {
+      "case_id": "reject_target_not_variable",
+      "token": "TargetField",
+      "expected_accept": false,
+      "expected_reason": "target_not_variable",
+      "expected_summary": "accepted=0;reason=target_not_variable"
+    },
+    {
+      "case_id": "reject_value_not_binary",
+      "token": "ValueLiteral",
+      "expected_accept": false,
+      "expected_reason": "value_not_binary",
+      "expected_summary": "accepted=0;reason=value_not_binary"
+    },
+    {
+      "case_id": "reject_lhs_mismatch",
+      "token": "AssignOtherAdd1",
+      "expected_accept": false,
+      "expected_reason": "lhs_mismatch",
+      "expected_summary": "accepted=0;reason=lhs_mismatch"
+    },
+    {
+      "case_id": "reject_rhs_not_integer",
+      "token": "AssignSelfAddVar",
+      "expected_accept": false,
+      "expected_reason": "rhs_not_integer",
+      "expected_summary": "accepted=0;reason=rhs_not_integer"
+    },
+    {
+      "case_id": "reject_delta_not_one",
+      "token": "AssignSelfAdd2",
+      "expected_accept": false,
+      "expected_reason": "delta_not_one",
+      "expected_summary": "accepted=0;reason=delta_not_one"
+    },
+    {
+      "case_id": "reject_unsupported_operator",
+      "token": "AssignSelfMul1",
+      "expected_accept": false,
+      "expected_reason": "unsupported_operator",
+      "expected_summary": "accepted=0;reason=unsupported_operator"
+    }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "full_ast_traversal_adopted": 0,
+    "loop_builder_adopted": 0,
+    "condition_shape_adopted": 0,
+    "cond_profile_migration": 0,
+    "scan_shape_matching_adopted": 0,
+    "route_selection_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0,
+    "id_allocation_migration": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
