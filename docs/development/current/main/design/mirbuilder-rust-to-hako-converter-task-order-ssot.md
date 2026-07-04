@@ -60,7 +60,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-FACT-OWNER-PARITY-PILOT-SELECTION-011
+  MIRBUILDER-LOOP-SKELETON-FACTS-AUTHORITY-FACADE-PARITY-001
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -70,6 +70,10 @@ normal operating rule:
   Next work inventories Fact-owner and REGISTRY-rule contracts, excludes
   lowering/mutation/allocation/backend-capability blockers, then selects one
   smallest fixture-backed parity candidate.
+  Selection-011 chooses `try_extract_loop_skeleton_facts` as the next
+  authority-facade pilot. It is a read-only Fact owner with `condition/body ->
+  SkeletonFacts { kind=Loop, feature_slots=[] }`, no MIR mutation, no lowering,
+  no ID allocation, and no new `.hako` backend capability.
   `try_extract_loop_continue_only_facts` is now HakoAdoptedScoped for the backend-safe token snapshot reducer only; recipe/lowering claims remain separate.
   `try_extract_loop_simple_while_facts` is now HakoAdoptedScoped for the backend-safe token snapshot reducer only; recipe/lowering claims remain separate.
   `try_extract_condition_shape` is now HakoAdoptedScoped for the backend-safe token snapshot reducer only; CondProfile/scan matching claims remain separate.
@@ -78,6 +82,11 @@ normal operating rule:
   `try_build_exit_allowed_block_recipe` is now HakoAdoptedScoped for the backend-safe token snapshot reducer only; in-arena construction, NoExitBlockRecipe, join-if semantics, and lowering remain Rust.
 
 latest design decision:
+  `try_extract_loop_skeleton_facts` is selected for the next authority facade
+  parity slice. `try_extract_loop_feature_facts` is not selected again because
+  its backend-safe token snapshot reducer is already HakoAdoptedScoped; full
+  AST body traversal stays in the explicit backend-capability consultation
+  backlog.
   Authority facade comes before crate split: Rust may be reorganized around
   meaning units only after the authority seam is fixture-backed and parity
   proven. The next hard-authority pilot should target Fact -> DTO or one

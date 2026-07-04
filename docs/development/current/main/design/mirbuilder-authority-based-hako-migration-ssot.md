@@ -174,11 +174,21 @@ produce a green fixture-backed parity gate. If the candidate needs new `.hako`
 backend capability, stop and write a failed-selection card instead of widening
 the implementation.
 
-Current first candidate:
+Completed first Fact-track candidate:
 
 ```text
 try_extract_loop_feature_facts
 ```
+
+Current next authority-facade candidate:
+
+```text
+try_extract_loop_skeleton_facts
+```
+
+`try_extract_loop_feature_facts` is already HakoAdoptedScoped for the
+backend-safe token snapshot reducer. Do not select it again unless the task is
+the explicitly gated full AST body traversal backlog.
 
 Runner-up plan candidates:
 
