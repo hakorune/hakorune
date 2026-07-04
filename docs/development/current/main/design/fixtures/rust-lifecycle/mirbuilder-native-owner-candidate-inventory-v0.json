@@ -557,6 +557,20 @@
       "status": "adopted_complete"
     },
     {
+      "adoption_card": "docs/development/current/main/phases/phase-296x/2652-MIRBUILDER-ARRAY-TEXT-RESIDENCE-SESSION-SAFE-BOOKKEEPING-CLASSIFIER-HAKO-ADOPTION-DECISION-001.md",
+      "adoption_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-array-text-residence-session-safe-bookkeeping-classifier-hako-adoption-decision-v0.json",
+      "candidate_kind": "classifier",
+      "hako_source": "lang/src/compiler/lib/array_text_residence_session_safe_bookkeeping_classifier.hako",
+      "logical_owner": "array_text_residence_session_safe_bookkeeping_classifier",
+      "missing": [],
+      "owner": "array_text_residence_session_safe_bookkeeping_classifier",
+      "owner_from_fixture": "array_text_residence_session_safe_bookkeeping_classifier",
+      "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_array_text_residence_session_safe_bookkeeping_classifier_parity_gate.sh",
+      "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-array-text-residence-session-safe-bookkeeping-classifier-rust-oracle-v0.json",
+      "selected_next_card": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-112",
+      "status": "adopted_complete"
+    },
+    {
       "adoption_card": "docs/development/current/main/phases/phase-296x/2178-MIRBUILDER-ARRAY-TEXT-STATE-RESIDENCE-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.md",
       "adoption_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-array-text-state-residence-label-formatter-hako-adoption-decision-v0.json",
       "candidate_kind": "label_formatter",
@@ -12315,7 +12329,7 @@
   "summary": {
     "existing_artifacts": {
       "by_candidate_kind": {
-        "classifier": 18,
+        "classifier": 19,
         "collector": 1,
         "formatter": 32,
         "label_formatter": 49,
@@ -12324,11 +12338,11 @@
         "vocabulary": 1
       },
       "by_status": {
-        "adopted_complete": 108,
+        "adopted_complete": 109,
         "adopted_incomplete_inventory": 12
       },
       "incomplete_owner_count": 12,
-      "owner_count": 120
+      "owner_count": 121
     },
     "source_scan": {
       "by_reject_reason": {

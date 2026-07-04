@@ -1,0 +1,19 @@
+// array_text_residence_session_safe_bookkeeping_classifier.hako - hand-authored session-safe bookkeeping classifier
+//
+// Responsibility:
+// - classify whether an instruction is session-safe bookkeeping
+// - stay pure: scalar instruction kind in, boolean text out
+//
+// Non-responsibility:
+// - residence session derivation
+// - backend lowering
+// - MIR mutation
+static box ArrayTextResidenceSessionSafeBookkeepingClassifierBox {
+  is_session_safe_bookkeeping(kind) {
+    if kind == "Const" { return "true" }
+    if kind == "Copy" { return "true" }
+    if kind == "BinOp" { return "true" }
+    if kind == "Compare" { return "true" }
+    return "false"
+  }
+}
