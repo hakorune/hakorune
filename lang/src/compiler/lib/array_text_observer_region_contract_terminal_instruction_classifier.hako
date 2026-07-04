@@ -1,0 +1,19 @@
+// array_text_observer_region_contract_terminal_instruction_classifier.hako - hand-authored terminal-instruction classifier
+//
+// Responsibility:
+// - classify ArrayTextObserverRegionContract terminal instruction membership
+// - stay pure: scalar instruction kind in, boolean text out
+//
+// Non-responsibility:
+// - array/text observer route matching
+// - observer contract handling
+// - backend lowering
+// - MIR mutation
+static box ArrayTextObserverRegionContractTerminalInstructionClassifierBox {
+  is_terminal_instruction(kind) {
+    if kind == "Jump" { return "true" }
+    if kind == "Branch" { return "true" }
+    if kind == "Return" { return "true" }
+    return "false"
+  }
+}

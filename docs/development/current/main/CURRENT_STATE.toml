@@ -273,12 +273,12 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-ARRAY-TEXT-OBSERVER-EXECUTOR-EXECUTION-MODE-CLASSIFIER-HAKO-ADOPTION-DECISION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2552-MIRBUILDER-ARRAY-TEXT-OBSERVER-EXECUTOR-EXECUTION-MODE-CLASSIFIER-HAKO-ADOPTION-DECISION-001.md"
+latest_card = "MIRBUILDER-ARRAY-TEXT-OBSERVER-REGION-CONTRACT-TERMINAL-INSTRUCTION-CLASSIFIER-HAKO-ADOPTION-DECISION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2557-MIRBUILDER-ARRAY-TEXT-OBSERVER-REGION-CONTRACT-TERMINAL-INSTRUCTION-CLASSIFIER-HAKO-ADOPTION-DECISION-001.md"
 latest_card_summary = """The latest card adopts
-array_text_observer_executor_execution_mode_classifier as the ninety-first
-narrow Rust-oracle parity pilot owner and chooses pilot selection rerun 093
-next."""
+array_text_observer_region_contract_terminal_instruction_classifier as the
+ninety-second narrow Rust-oracle parity pilot owner and chooses pilot
+selection rerun 094 next."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -289,12 +289,12 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
-  "2026-07-04: 2552 adopts array_text_observer_executor_execution_mode_classifier as the ninety-first narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
-  "2026-07-04: 2552 adds the array_text_observer_executor_execution_mode_classifier Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
-  "2026-07-04: 2551 adds the hand-authored array_text_observer_executor_execution_mode_classifier .hako implementation and chooses the parity gate card next.",
-  "2026-07-04: 2550 creates the 1-row array_text_observer_executor_execution_mode_classifier Rust-oracle fixture and chooses the Hako-native implementation card next.",
-  "2026-07-04: 2549 selects array_text_observer_executor_execution_mode_classifier as the ninety-first narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
-  "2026-07-04: 2548 selects array_text_observer_executor_execution_mode_classifier as the ninety-first narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
+  "2026-07-04: 2557 adopts array_text_observer_region_contract_terminal_instruction_classifier as the ninety-second narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
+  "2026-07-04: 2557 adds the array_text_observer_region_contract_terminal_instruction_classifier Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
+  "2026-07-04: 2556 adds the hand-authored array_text_observer_region_contract_terminal_instruction_classifier .hako implementation and chooses the parity gate card next.",
+  "2026-07-04: 2555 creates the 4-row array_text_observer_region_contract_terminal_instruction_classifier Rust-oracle fixture and chooses the Hako-native implementation card next.",
+  "2026-07-04: 2554 selects array_text_observer_region_contract_terminal_instruction_classifier as the ninety-second narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
+  "2026-07-04: 2553 selects array_text_observer_region_contract_terminal_instruction_classifier as the ninety-second narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
   "2026-07-04: 2532 adopts array_text_observer_executor_carrier_formatter as the eighty-seventh narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
   "2026-07-04: 2532 adds the array_text_observer_executor_carrier_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
   "2026-07-04: 2531 adds the hand-authored array_text_observer_executor_carrier_formatter .hako implementation and chooses the parity gate card next.",

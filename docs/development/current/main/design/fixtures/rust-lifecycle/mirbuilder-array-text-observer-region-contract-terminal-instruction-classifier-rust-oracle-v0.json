@@ -1,0 +1,41 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderArrayTextObserverRegionContractTerminalInstructionClassifierRustOracleV1",
+  "token": "MIRBUILDER-ARRAY-TEXT-OBSERVER-REGION-CONTRACT-TERMINAL-INSTRUCTION-CLASSIFIER-RUST-ORACLE-FIXTURE-001",
+  "owner": "array_text_observer_region_contract_terminal_instruction_classifier",
+  "rust_source": {
+    "path": "src/mir/array_text_observer_region_contract/matcher.rs",
+    "hash": "sha256:ab0fb815f23f7dbf71a4cfb0b0b13a65b7a2c8f83c31e2bf9757cd2a47f8f0a6",
+    "oracle_surface": "ArrayTextObserverRegionContract terminal instruction classifier"
+  },
+  "rows": [
+    {
+      "kind": "Jump",
+      "expected": "true"
+    },
+    {
+      "kind": "Branch",
+      "expected": "true"
+    },
+    {
+      "kind": "Return",
+      "expected": "true"
+    },
+    {
+      "kind": "Const",
+      "expected": "false"
+    }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "array_text_route_matching_migration": 0,
+    "array_text_observer_contract_handling_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}
