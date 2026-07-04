@@ -1,0 +1,91 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderBoolPredicateScanFactsRustOracleV1",
+  "token": "MIRBUILDER-BOOL-PREDICATE-SCAN-FACTS-RUST-ORACLE-FIXTURE-001",
+  "owner": "bool_predicate_scan_facts",
+  "rust_source": {
+    "path": "src/mir/builder/control_flow/plan/facts/bool_predicate_scan_facts.rs",
+    "hash": "sha256:924c07cc95e24ffb0b6958f6a82100c32c4363c98834a80caea45315c27ccbc1",
+    "oracle_surface": "try_extract_bool_predicate_scan_facts"
+  },
+  "input_contract": "BackendSafeBoolPredicateScanFactsTokenSnapshotV1",
+  "rows": [
+    {
+      "case_id": "accept_this_is_digit",
+      "observation_token": "ObsVarLessLengthStepAdd1IOverS",
+      "body_token": "IfNotThisIsDigitSubstringReturnFalseThenStep",
+      "expected_accept": true,
+      "expected_loop_var": "i",
+      "expected_haystack": "s",
+      "expected_receiver": "me",
+      "expected_method": "is_digit",
+      "expected_step_lit": 1,
+      "expected_summary": "accepted=1;loop_var=i;haystack=s;receiver=me;method=is_digit;step_lit=1"
+    },
+    {
+      "case_id": "accept_checker_is_digit",
+      "observation_token": "ObsVarLessLengthStepAdd1IOverS",
+      "body_token": "IfNotCheckerIsDigitSubstringReturnFalseThenStep",
+      "expected_accept": true,
+      "expected_loop_var": "i",
+      "expected_haystack": "s",
+      "expected_receiver": "checker",
+      "expected_method": "is_digit",
+      "expected_step_lit": 1,
+      "expected_summary": "accepted=1;loop_var=i;haystack=s;receiver=checker;method=is_digit;step_lit=1"
+    },
+    {
+      "case_id": "reject_wrong_step",
+      "observation_token": "ObsVarLessLengthStepAdd2IOverS",
+      "body_token": "IfNotMeIsDigitSubstringReturnFalseThenStep2",
+      "expected_accept": false,
+      "expected_reason": "step_not_one",
+      "expected_summary": "accepted=0;reason=step_not_one"
+    },
+    {
+      "case_id": "reject_else_branch",
+      "observation_token": "ObsVarLessLengthStepAdd1IOverS",
+      "body_token": "IfWithElseReturnFalseThenStep",
+      "expected_accept": false,
+      "expected_reason": "predicate_if_not_supported",
+      "expected_summary": "accepted=0;reason=predicate_if_not_supported"
+    },
+    {
+      "case_id": "reject_condition_not_length",
+      "observation_token": "ObsVarLessLiteralStepAdd1I",
+      "body_token": "IfNotMeIsDigitSubstringReturnFalseThenStep",
+      "expected_accept": false,
+      "expected_reason": "condition_not_var_less_length",
+      "expected_summary": "accepted=0;reason=condition_not_var_less_length"
+    },
+    {
+      "case_id": "reject_loop_var_mismatch",
+      "observation_token": "ObsVarLessLengthStepAdd1JOverS",
+      "body_token": "IfNotMeIsDigitSubstringReturnFalseThenStep",
+      "expected_accept": false,
+      "expected_reason": "step_var_mismatch",
+      "expected_summary": "accepted=0;reason=step_var_mismatch"
+    },
+    {
+      "case_id": "reject_substring_wrong_haystack",
+      "observation_token": "ObsVarLessLengthStepAdd1IOverS",
+      "body_token": "IfNotMeIsDigitOtherSubstringReturnFalseThenStep",
+      "expected_accept": false,
+      "expected_reason": "substring_haystack_mismatch",
+      "expected_summary": "accepted=0;reason=substring_haystack_mismatch"
+    }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "cond_profile_construction_migrated": 0,
+    "scan_condition_observation_migrated": 0,
+    "full_ast_traversal_adopted": 0,
+    "route_selection_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0,
+    "id_allocation_migration": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

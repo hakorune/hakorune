@@ -1,0 +1,99 @@
+// bool_predicate_scan_facts.hako
+//
+// Responsibility:
+// - reduce a backend-safe bool-predicate-scan token snapshot into fact text
+// - mirror try_extract_bool_predicate_scan_facts for the narrow facade contract
+//
+// Non-responsibility:
+// - CondProfile or ScanConditionObservation construction
+// - full AST traversal or substring expression materialization
+// - route selection, backend lowering, MIR mutation, or ID allocation
+static box BoolPredicateScanFactsBox {
+  build_summary(observation_token, body_token) {
+    local obs_kind = me._obs_kind(observation_token)
+    if obs_kind != "var_less_length" {
+      return "accepted=0;reason=condition_not_var_less_length"
+    }
+
+    local loop_var = me._obs_loop_var(observation_token)
+    local step_var = me._obs_step_var(observation_token)
+    if loop_var != step_var {
+      return "accepted=0;reason=step_var_mismatch"
+    }
+
+    local step = me._obs_step_lit(observation_token)
+    if step != 1 {
+      return "accepted=0;reason=step_not_one"
+    }
+
+    local body_kind = me._body_kind(body_token)
+    if body_kind != "predicate_if" {
+      return "accepted=0;reason=predicate_if_not_supported"
+    }
+
+    local haystack = me._obs_haystack(observation_token)
+    local body_haystack = me._body_haystack(body_token)
+    if body_haystack != haystack {
+      return "accepted=0;reason=substring_haystack_mismatch"
+    }
+
+    return "accepted=1;loop_var=" + loop_var
+      + ";haystack=" + haystack
+      + ";receiver=" + me._body_receiver(body_token)
+      + ";method=" + me._body_method(body_token)
+      + ";step_lit=" + step
+  }
+
+  _obs_kind(token) {
+    if token == "ObsVarLessLengthStepAdd1IOverS" { return "var_less_length" }
+    if token == "ObsVarLessLengthStepAdd2IOverS" { return "var_less_length" }
+    if token == "ObsVarLessLengthStepAdd1JOverS" { return "var_less_length" }
+    return "unsupported"
+  }
+
+  _obs_loop_var(token) {
+    if token == "ObsVarLessLengthStepAdd1JOverS" { return "i" }
+    return "i"
+  }
+
+  _obs_step_var(token) {
+    if token == "ObsVarLessLengthStepAdd1JOverS" { return "j" }
+    return "i"
+  }
+
+  _obs_haystack(token) {
+    if token == "ObsVarLessLengthStepAdd1IOverS" { return "s" }
+    if token == "ObsVarLessLengthStepAdd2IOverS" { return "s" }
+    if token == "ObsVarLessLengthStepAdd1JOverS" { return "s" }
+    return "-"
+  }
+
+  _obs_step_lit(token) {
+    if token == "ObsVarLessLengthStepAdd2IOverS" { return 2 }
+    if token == "ObsVarLessLiteralStepAdd1I" { return 1 }
+    return 1
+  }
+
+  _body_kind(token) {
+    if token == "IfNotMeIsDigitSubstringReturnFalseThenStep" { return "predicate_if" }
+    if token == "IfNotThisIsDigitSubstringReturnFalseThenStep" { return "predicate_if" }
+    if token == "IfNotCheckerIsDigitSubstringReturnFalseThenStep" { return "predicate_if" }
+    if token == "IfNotMeIsDigitSubstringReturnFalseThenStep2" { return "predicate_if" }
+    if token == "IfNotMeIsDigitOtherSubstringReturnFalseThenStep" { return "predicate_if" }
+    return "unsupported"
+  }
+
+  _body_receiver(token) {
+    if token == "IfNotCheckerIsDigitSubstringReturnFalseThenStep" { return "checker" }
+    return "me"
+  }
+
+  _body_method(token) {
+    return "is_digit"
+  }
+
+  _body_haystack(token) {
+    if token == "IfNotMeIsDigitOtherSubstringReturnFalseThenStep" { return "other" }
+    return "s"
+  }
+}
