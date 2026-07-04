@@ -6,7 +6,7 @@
 # - Let tools/checks/current_state_pointer_guard.sh catch stale pointers.
 
 status = "Active"
-date = "2026-07-04"
+date = "2026-07-05"
 
 active_lane = "RUST-SUBSET-TO-HAKO-APP-FRONT compiler construction / selfhost app front"
 active_lane_status = """Source Selfhost is intentionally stopped at the wider
@@ -300,6 +300,9 @@ Source Selfhost remains unclaimed.
 DirectStepPlacementClassifier is now a narrow HakoAdopted Rust-oracle parity
 pilot owner after a green 4-row `.hako` EXE parity gate. Source Selfhost
 remains unclaimed.
+ArrayStringLenWindowEffectTagsFormatter is now a narrow HakoAdopted
+Rust-oracle parity pilot owner after a green 3-row `.hako` EXE parity gate.
+Source Selfhost remains unclaimed.
 EXE/AOT remains the primary
 app/selfhost validation route; VM/interpreter lanes are not semantic owners."""
 
@@ -309,12 +312,12 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-DIRECT-STEP-PLACEMENT-CLASSIFIER-HAKO-ADOPTION-DECISION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2802-MIRBUILDER-DIRECT-STEP-PLACEMENT-CLASSIFIER-HAKO-ADOPTION-DECISION-001.md"
+latest_card = "MIRBUILDER-ARRAY-STRING-LEN-WINDOW-EFFECT-TAGS-FORMATTER-HAKO-ADOPTION-DECISION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2807-MIRBUILDER-ARRAY-STRING-LEN-WINDOW-EFFECT-TAGS-FORMATTER-HAKO-ADOPTION-DECISION-001.md"
 latest_card_summary = """The latest card adopts
-direct_step_placement_classifier as the one-hundred-thirty-ninth narrow
-Rust-oracle parity pilot owner after the green 4-row `.hako` EXE parity gate
-and chooses pilot selection rerun 142 next."""
+array_string_len_window_effect_tags_formatter as the one-hundred-fortieth
+narrow Rust-oracle parity pilot owner after the green 3-row `.hako` EXE
+parity gate and chooses pilot selection rerun 143 next."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -325,16 +328,14 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-05: 2807 adopts array_string_len_window_effect_tags_formatter as the one-hundred-fortieth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
+  "2026-07-05: 2806 adds the array_string_len_window_effect_tags_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
+  "2026-07-05: 2805 adds the hand-authored array_string_len_window_effect_tags_formatter .hako implementation and chooses the parity gate card next.",
+  "2026-07-05: 2804 creates the 3-row array_string_len_window_effect_tags_formatter Rust-oracle fixture and chooses the Hako-native implementation card next.",
+  "2026-07-05: 2803 selects array_string_len_window_effect_tags_formatter as the one-hundred-fortieth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
   "2026-07-04: 2802 adopts direct_step_placement_classifier as the one-hundred-thirty-ninth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
   "2026-07-04: 2801 adds the direct_step_placement_classifier Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
   "2026-07-04: 2800 adds the hand-authored direct_step_placement_classifier .hako implementation and chooses the parity gate card next.",
   "2026-07-04: 2799 creates the 4-row direct_step_placement_classifier Rust-oracle fixture and chooses the Hako-native implementation card next.",
   "2026-07-04: 2798 selects direct_step_placement_classifier as the one-hundred-thirty-ninth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
-  "2026-07-04: 2797 adopts break_else_if_with_increment_classifier as the one-hundred-thirty-eighth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
-  "2026-07-04: 2796 adds the break_else_if_with_increment_classifier Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
-  "2026-07-04: 2795 adds the hand-authored break_else_if_with_increment_classifier .hako implementation and chooses the parity gate card next.",
-  "2026-07-04: 2794 creates the 4-row break_else_if_with_increment_classifier Rust-oracle fixture and chooses the Hako-native implementation card next.",
-  "2026-07-04: 2793 selects break_else_if_with_increment_classifier as the one-hundred-thirty-eighth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
-  "2026-07-04: 2792 adopts continue_if_with_increment_classifier as the one-hundred-thirty-seventh narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
-  "2026-07-04: 2791 adds the continue_if_with_increment_classifier Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
 ]

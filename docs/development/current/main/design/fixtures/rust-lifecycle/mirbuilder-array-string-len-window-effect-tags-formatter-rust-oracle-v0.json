@@ -1,0 +1,39 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderArrayStringLenWindowEffectTagsFormatterRustOracleV1",
+  "token": "MIRBUILDER-ARRAY-STRING-LEN-WINDOW-EFFECT-TAGS-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "array_string_len_window_effect_tags_formatter",
+  "rust_source": {
+    "path": "src/mir/array_string_len_window_plan.rs",
+    "hash": "sha256:d82d5e54dd170baff26a6830d24c0d4ca49fbed687a768a7dc4aa6c64e19f020",
+    "oracle_surface": "ArrayStringLenWindowMode effect_tags formatter"
+  },
+  "rows": [
+    {
+      "kind": "mode_text",
+      "mode": "LenOnly",
+      "expected": "load.cell,observe.len"
+    },
+    {
+      "kind": "mode_text",
+      "mode": "KeepGetLive",
+      "expected": "load.cell,observe.len,keep.source.live"
+    },
+    {
+      "kind": "mode_text",
+      "mode": "SourceOnlyInsertMid",
+      "expected": "load.cell,observe.len,publish.source.ref"
+    }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "array_string_len_window_effect_tags_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

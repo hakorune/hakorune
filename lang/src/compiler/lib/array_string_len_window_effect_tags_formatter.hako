@@ -1,0 +1,25 @@
+// array_string_len_window_effect_tags_formatter.hako - hand-authored len-window effect tags formatter
+//
+// Responsibility:
+// - format ArrayStringLenWindowMode effect tags into Rust oracle text
+// - stay pure: scalar mode token in, joined tag text out
+//
+// Non-responsibility:
+// - array string len-window matching
+// - string corridor matching
+// - backend lowering
+// - MIR mutation
+static box ArrayStringLenWindowEffectTagsFormatterBox {
+  format_effect_tags(mode) {
+    if mode == "LenOnly" {
+      return "load.cell,observe.len"
+    }
+    if mode == "KeepGetLive" {
+      return "load.cell,observe.len,keep.source.live"
+    }
+    if mode == "SourceOnlyInsertMid" {
+      return "load.cell,observe.len,publish.source.ref"
+    }
+    return "unsupported_array_string_len_window_effect_tags"
+  }
+}
