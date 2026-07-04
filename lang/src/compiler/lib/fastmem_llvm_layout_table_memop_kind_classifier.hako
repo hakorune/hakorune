@@ -1,0 +1,19 @@
+// fastmem_llvm_layout_table_memop_kind_classifier.hako - hand-authored fastmem layout-table classifier
+//
+// Responsibility:
+// - classify layout/table fastmem memop kinds
+// - stay pure: memop kind token in, boolean text out
+//
+// Non-responsibility:
+// - fastmem dialect validation
+// - access-plan collection
+// - backend lowering
+// - MIR mutation
+static box FastMemLlvmLayoutTableMemopKindClassifierBox {
+  is_layout_table_memop_kind(kind) {
+    if kind == "TableIndex" { return "true" }
+    if kind == "FieldLoad" { return "true" }
+    if kind == "FieldStore" { return "true" }
+    return "false"
+  }
+}
