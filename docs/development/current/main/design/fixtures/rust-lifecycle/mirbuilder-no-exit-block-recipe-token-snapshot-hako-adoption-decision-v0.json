@@ -1,0 +1,99 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderNoExitBlockRecipeTokenSnapshotHakoAdoptedDecisionV1",
+  "token": "MIRBUILDER-NO-EXIT-BLOCK-RECIPE-TOKEN-SNAPSHOT-HAKOADOPTED-DECISION-001",
+  "input_state": {
+    "hako_source": "lang/src/compiler/lib/no_exit_block_recipe.hako",
+    "hako_source_hash": "sha256:3ce448f07be1b57e8ebaaf30faa7a1c28385d8b59d42d231ff03aadfbddaae6b",
+    "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-no-exit-block-recipe-rust-oracle-v0.json",
+    "rust_oracle_fixture_hash": "sha256:9246c56cba99d4f0a756a358cca79b3002446612fd2814b142e5d1b600e7ff78",
+    "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_no_exit_block_recipe_parity_gate.sh",
+    "parity_gate_hash": "sha256:0582df0ce7be5aeb0bfa0af8b8ea28374bd6afdfd5e30477195ab5c1dca9c195"
+  },
+  "adoption_scope": {
+    "adopted_owner": "no_exit_block_recipe.backend_safe_token_snapshot_reducer",
+    "rust_oracle_symbol": "try_build_no_exit_block_recipe",
+    "input_contract": "BackendSafeNoExitBlockTokenSnapshotV1",
+    "native_edit_authority": "lang/src/compiler/lib/no_exit_block_recipe.hako",
+    "owned_semantics": [
+      "no_exit_acceptance",
+      "block_contract_token",
+      "stmt_count",
+      "item_kind_sequence",
+      "if_join_shape_sequence",
+      "loop_body_contract_token_snapshot",
+      "reject_reason_token"
+    ],
+    "excluded_semantics": [
+      "full_AST_traversal",
+      "recursive_RecipeBodies_materialization",
+      "RecipeTree_materialization",
+      "CondBlockView_materialization",
+      "count_control_flow",
+      "ExitAllowedBlockRecipe_in_arena_construction",
+      "join_if_lowering",
+      "join_payload_construction",
+      "join_binding_update_policy",
+      "nested_loop_lowering",
+      "LoopV0_lowering",
+      "backend_lowering_capability_expansion",
+      "MIR_mutation",
+      "route_selection",
+      "ID_allocation"
+    ]
+  },
+  "parity": {
+    "gate_status": "Green",
+    "oracle_row_count": 11,
+    "required_contract_fields": [
+      "accepted",
+      "block_contract",
+      "stmt_count",
+      "item_kinds",
+      "if_join_shapes",
+      "loop_body_contracts",
+      "reason"
+    ],
+    "required_rows": [
+      "accept_effect_only",
+      "accept_local_print",
+      "accept_if_join_else",
+      "accept_if_join_no_else",
+      "accept_loop_exit_allowed_body_token",
+      "accept_scopebox_as_stmt",
+      "reject_empty",
+      "reject_return",
+      "reject_if_branch_return",
+      "reject_unsupported_if_condition",
+      "reject_loop_body_return"
+    ]
+  },
+  "decision": {
+    "kind": "HakoAdoptedScoped",
+    "reason_token": "NoExitBlockRecipeBackendSafeTokenSnapshotParityGreen",
+    "selected_next_card": "MIRBUILDER-FACT-OWNER-PARITY-PILOT-SELECTION-007",
+    "backlog_card": "MIRBUILDER-NO-EXIT-BLOCK-RECIPE-FULL-AST-AND-JOIN-LOWERING-CONSULTATION-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "full_try_build_no_exit_block_recipe_ast_owner_adopted": 0,
+    "recipe_bodies_materialization": 0,
+    "recipe_tree_materialization": 0,
+    "cond_block_view_adopted": 0,
+    "count_control_flow_adopted": 0,
+    "exit_allowed_in_arena_adopted": 0,
+    "join_if_lowering_adopted": 0,
+    "join_payload_construction_adopted": 0,
+    "join_binding_update_policy_adopted": 0,
+    "nested_loop_lowering_adopted": 0,
+    "loop_v0_lowering_adopted": 0,
+    "backend_capability_expansion": 0,
+    "mir_mutation_migrated": 0,
+    "route_selection_migrated": 0,
+    "id_allocation_migrated": 0,
+    "hako_generation": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
