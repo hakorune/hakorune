@@ -291,12 +291,12 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-BASIC-BLOCK-TERMINATOR-CLASSIFIER-HAKO-ADOPTION-DECISION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2722-MIRBUILDER-BASIC-BLOCK-TERMINATOR-CLASSIFIER-HAKO-ADOPTION-DECISION-001.md"
+latest_card = "MIRBUILDER-ARRAY-STRING-STORE-MICRO-SEED-PROOF-FORMATTER-HAKO-ADOPTION-DECISION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2727-MIRBUILDER-ARRAY-STRING-STORE-MICRO-SEED-PROOF-FORMATTER-HAKO-ADOPTION-DECISION-001.md"
 latest_card_summary = """The latest card adopts
-basic_block_terminator_classifier as the one-hundred-twenty-third narrow
-Rust-oracle parity pilot owner after the green 5-row `.hako` EXE parity gate
-and chooses pilot selection rerun 126 next."""
+array_string_store_micro_seed_proof_formatter as the one-hundred-twenty-fourth
+narrow Rust-oracle parity pilot owner after the green 1-row `.hako` EXE parity
+gate and chooses pilot selection rerun 127 next."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -307,6 +307,11 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-04: 2727 adopts array_string_store_micro_seed_proof_formatter as the one-hundred-twenty-fourth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
+  "2026-07-04: 2726 adds the array_string_store_micro_seed_proof_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
+  "2026-07-04: 2725 adds the hand-authored array_string_store_micro_seed_proof_formatter .hako implementation and chooses the parity gate card next.",
+  "2026-07-04: 2724 creates the 1-row array_string_store_micro_seed_proof_formatter Rust-oracle fixture and chooses the Hako-native implementation card next.",
+  "2026-07-04: 2723 selects array_string_store_micro_seed_proof_formatter as the one-hundred-twenty-fourth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
   "2026-07-04: 2722 adopts basic_block_terminator_classifier as the one-hundred-twenty-third narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
   "2026-07-04: 2721 adds the basic_block_terminator_classifier Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
   "2026-07-04: 2720 adds the hand-authored basic_block_terminator_classifier .hako implementation and chooses the parity gate card next.",
@@ -314,9 +319,4 @@ landed_tail = [
   "2026-07-04: 2718 selects basic_block_terminator_classifier as the one-hundred-twenty-third narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
   "2026-07-04: 2717 adopts array_text_residence_session_add_const_one_from_classifier as the one-hundred-twenty-second narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
   "2026-07-04: 2716 adds the array_text_residence_session_add_const_one_from_classifier Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
-  "2026-07-04: 2715 adds the hand-authored array_text_residence_session_add_const_one_from_classifier .hako implementation and chooses the parity gate card next.",
-  "2026-07-04: 2714 creates the 5-row array_text_residence_session_add_const_one_from_classifier Rust-oracle fixture and chooses the Hako-native implementation card next.",
-  "2026-07-04: 2713 selects array_text_residence_session_add_const_one_from_classifier as the one-hundred-twenty-second narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
-  "2026-07-04: 2712 adopts array_text_observer_plan_same_slot_set_classifier as the one-hundred-twenty-first narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
-  "2026-07-04: 2711 adds the array_text_observer_plan_same_slot_set_classifier Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
 ]

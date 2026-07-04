@@ -1,0 +1,29 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderArrayStringStoreMicroSeedProofFormatterRustOracleV1",
+  "token": "MIRBUILDER-ARRAY-STRING-STORE-MICRO-SEED-PROOF-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "array_string_store_micro_seed_proof_formatter",
+  "rust_source": {
+    "path": "src/mir/array_string_store_micro_seed_plan.rs",
+    "hash": "sha256:7191feed407ac8fef1d305d50b8e622d362d476f989acb6fcce1f10390856c62",
+    "oracle_surface": "ArrayStringStoreMicroSeedProof formatter"
+  },
+  "rows": [
+    {
+      "kind": "proof_text",
+      "proof": "KiloMicroArrayStringStore8Block",
+      "expected": "kilo_micro_array_string_store_8block"
+    }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "array_string_store_micro_seed_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

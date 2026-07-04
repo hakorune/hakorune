@@ -1,0 +1,18 @@
+// array_string_store_micro_seed_proof_formatter.hako - hand-authored micro seed proof formatter
+//
+// Responsibility:
+// - format the narrow array/string-store micro seed proof vocabulary
+// - stay pure: proof token in, display text out
+//
+// Non-responsibility:
+// - array/string-store route matching
+// - backend lowering
+// - MIR mutation
+static box ArrayStringStoreMicroSeedProofFormatterBox {
+  format_proof(proof) {
+    if proof == "KiloMicroArrayStringStore8Block" {
+      return "kilo_micro_array_string_store_8block"
+    }
+    return "unsupported_array_string_store_micro_seed_proof"
+  }
+}
