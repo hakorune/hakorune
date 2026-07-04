@@ -1,0 +1,113 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderLoopContinueOnlyFactsRustOracleV1",
+  "token": "MIRBUILDER-LOOP-CONTINUE-ONLY-FACTS-RUST-ORACLE-FIXTURE-001",
+  "owner": "loop_continue_only_facts",
+  "rust_source": {
+    "path": "src/mir/builder/control_flow/plan/facts/loop_continue_only_facts.rs",
+    "hash": "sha256:ac87519c7e8c2d305082192ab3a1432ac12c7ada53eb32d872d8523213371c90",
+    "oracle_surface": "try_extract_loop_continue_only_facts"
+  },
+  "input_contract": "BackendSafeLoopContinueOnlyFactsTokenSnapshotV1",
+  "rows": [
+    {
+      "case_id": "accept_single_continue_one_carrier",
+      "token": "CondILess6ContinueFirstSumUpdateStep",
+      "expected_accept": true,
+      "expected_loop_var": "i",
+      "expected_continue_if_index": 0,
+      "expected_carrier_count": 1,
+      "expected_increment": "i_plus_1",
+      "expected_summary": "accepted=1;loop_var=i;continue_if_idx=0;carrier_count=1;increment=i_plus_1"
+    },
+    {
+      "case_id": "accept_single_continue_two_carriers",
+      "token": "CondILess6ContinueFirstTwoCarrierUpdatesStep",
+      "expected_accept": true,
+      "expected_loop_var": "i",
+      "expected_continue_if_index": 0,
+      "expected_carrier_count": 2,
+      "expected_increment": "i_plus_1",
+      "expected_summary": "accepted=1;loop_var=i;continue_if_idx=0;carrier_count=2;increment=i_plus_1"
+    },
+    {
+      "case_id": "reject_condition_not_subset",
+      "token": "CondILe6ContinueFirstSumUpdateStep",
+      "expected_accept": false,
+      "expected_reason": "condition_not_var_less_literal",
+      "expected_summary": "accepted=0;reason=condition_not_var_less_literal"
+    },
+    {
+      "case_id": "reject_no_continue",
+      "token": "CondILess6NoContinueSumUpdateStep",
+      "expected_accept": false,
+      "expected_reason": "continue_count_not_one",
+      "expected_summary": "accepted=0;reason=continue_count_not_one"
+    },
+    {
+      "case_id": "reject_multiple_continue_sites",
+      "token": "CondILess6TwoContinueSitesSumUpdateStep",
+      "expected_accept": false,
+      "expected_reason": "continue_count_not_one",
+      "expected_summary": "accepted=0;reason=continue_count_not_one"
+    },
+    {
+      "case_id": "reject_has_break",
+      "token": "CondILess6BreakAndContinueSumUpdateStep",
+      "expected_accept": false,
+      "expected_reason": "has_break",
+      "expected_summary": "accepted=0;reason=has_break"
+    },
+    {
+      "case_id": "reject_continue_not_if",
+      "token": "CondILess6BareContinueSumUpdateStep",
+      "expected_accept": false,
+      "expected_reason": "missing_continue_if",
+      "expected_summary": "accepted=0;reason=missing_continue_if"
+    },
+    {
+      "case_id": "reject_continue_if_not_first",
+      "token": "CondILess6UpdateThenContinueIfStep",
+      "expected_accept": false,
+      "expected_reason": "continue_if_not_first",
+      "expected_summary": "accepted=0;reason=continue_if_not_first"
+    },
+    {
+      "case_id": "reject_continue_in_else",
+      "token": "CondILess6ContinueInElseSumUpdateStep",
+      "expected_accept": false,
+      "expected_reason": "continue_in_else",
+      "expected_summary": "accepted=0;reason=continue_in_else"
+    },
+    {
+      "case_id": "reject_empty_carrier_updates",
+      "token": "CondILess6ContinueFirstStepOnly",
+      "expected_accept": false,
+      "expected_reason": "empty_carrier_updates",
+      "expected_summary": "accepted=0;reason=empty_carrier_updates"
+    },
+    {
+      "case_id": "reject_missing_increment",
+      "token": "CondILess6ContinueFirstSumUpdateNoStep",
+      "expected_accept": false,
+      "expected_reason": "missing_increment",
+      "expected_summary": "accepted=0;reason=missing_increment"
+    }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "full_ast_traversal_adopted": 0,
+    "control_flow_counting_migrated": 0,
+    "carrier_update_map_migrated": 0,
+    "loop_increment_plan_migrated": 0,
+    "loop_continue_only_recipe_adopted": 0,
+    "loop_builder_adopted": 0,
+    "route_selection_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0,
+    "id_allocation_migration": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

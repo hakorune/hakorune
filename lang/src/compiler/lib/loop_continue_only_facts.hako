@@ -1,0 +1,33 @@
+// loop_continue_only_facts.hako
+//
+// Responsibility:
+// - reduce a backend-safe loop-continue-only token snapshot into a facts summary
+// - mirror the narrow acceptance/reject surface of try_extract_loop_continue_only_facts
+//
+// Non-responsibility:
+// - full AST traversal, control-flow counting implementation, carrier update maps, or recipes
+// - loop builder composition, backend lowering, MIR mutation, route selection, or ID allocation
+static box LoopContinueOnlyFactsBox {
+  build_summary(token) {
+    if token == "CondILess6ContinueFirstSumUpdateStep" {
+      return "accepted=1;loop_var=i;continue_if_idx=0;carrier_count=1;increment=i_plus_1"
+    }
+    if token == "CondILess6ContinueFirstTwoCarrierUpdatesStep" {
+      return "accepted=1;loop_var=i;continue_if_idx=0;carrier_count=2;increment=i_plus_1"
+    }
+    return "accepted=0;reason=" + me._reject_reason(token)
+  }
+
+  _reject_reason(token) {
+    if token == "CondILe6ContinueFirstSumUpdateStep" { return "condition_not_var_less_literal" }
+    if token == "CondILess6NoContinueSumUpdateStep" { return "continue_count_not_one" }
+    if token == "CondILess6TwoContinueSitesSumUpdateStep" { return "continue_count_not_one" }
+    if token == "CondILess6BreakAndContinueSumUpdateStep" { return "has_break" }
+    if token == "CondILess6BareContinueSumUpdateStep" { return "missing_continue_if" }
+    if token == "CondILess6UpdateThenContinueIfStep" { return "continue_if_not_first" }
+    if token == "CondILess6ContinueInElseSumUpdateStep" { return "continue_in_else" }
+    if token == "CondILess6ContinueFirstStepOnly" { return "empty_carrier_updates" }
+    if token == "CondILess6ContinueFirstSumUpdateNoStep" { return "missing_increment" }
+    return "unsupported_token"
+  }
+}
