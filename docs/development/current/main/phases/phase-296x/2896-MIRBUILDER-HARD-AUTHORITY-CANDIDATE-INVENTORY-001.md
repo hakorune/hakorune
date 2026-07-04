@@ -99,13 +99,28 @@ rows[].expected_nested_loop:
   bool
 
 rows[].expected_exit_map_kinds:
-  ["Return" | "Break" | "Continue" | "Unwind", ...] or []
+  ordered list using the enum order
+  [Return, Break, Continue, Unwind] filtered to present kinds, or []
 
 rows[].expected_value_join:
   null
 
 rows[].expected_cleanup:
   null
+```
+
+For the two seed rows, the expected names are:
+
+```text
+row 1:
+  expected_exit_usage = { break=true, continue=true, return=true, unwind=false }
+  expected_nested_loop = false
+  expected_exit_map_kinds = [Return, Break, Continue]
+
+row 2:
+  expected_exit_usage = { break=false, continue=false, return=false, unwind=false }
+  expected_nested_loop = true
+  expected_exit_map_kinds = []
 ```
 
 Top-level fixture fields should follow the existing Rust-oracle pattern:
