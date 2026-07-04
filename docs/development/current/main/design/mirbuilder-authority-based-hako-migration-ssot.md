@@ -227,6 +227,10 @@ MIRBUILDER-NATIVE-OWNER-CANDIDATE-INVENTORY-001
   Non-claim: no next owner selected.
 
 MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-084
+  Status: historical after rerun 084 landed.
+  Scope: kept as provenance for the prior narrow vocabulary pilot.
+
+MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-085
   Status: current next selection.
   Scope: choose one more vocabulary_leaf, boolean_classifier, or formatter
          owner from the inventory, then proceed with the existing Rust-oracle

@@ -170,6 +170,20 @@
       "status": "adopted_complete"
     },
     {
+      "adoption_card": "docs/development/current/main/phases/phase-296x/2517-MIRBUILDER-ARRAY-TEXT-OBSERVER-KIND-FORMATTER-HAKO-ADOPTION-DECISION-001.md",
+      "adoption_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-array-text-observer-kind-formatter-hako-adoption-decision-v0.json",
+      "candidate_kind": "formatter",
+      "hako_source": "lang/src/compiler/lib/array_text_observer_kind_formatter.hako",
+      "logical_owner": "array_text_observer_kind_formatter",
+      "missing": [],
+      "owner": "array_text_observer_kind_formatter",
+      "owner_from_fixture": "array_text_observer_kind_formatter",
+      "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_array_text_observer_kind_formatter_parity_gate.sh",
+      "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-array-text-observer-kind-formatter-rust-oracle-v0.json",
+      "selected_next_card": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-085",
+      "status": "adopted_complete"
+    },
+    {
       "adoption_card": "docs/development/current/main/phases/phase-296x/2493-MIRBUILDER-ARRAY-TEXT-OBSERVER-PROOF-REGION-FORMATTER-HAKO-ADOPTION-DECISION-001.md",
       "adoption_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-array-text-observer-proof-region-formatter-hako-adoption-decision-v0.json",
       "candidate_kind": "formatter",
@@ -11977,18 +11991,18 @@
       "by_candidate_kind": {
         "classifier": 8,
         "collector": 1,
-        "formatter": 18,
+        "formatter": 19,
         "label_formatter": 48,
         "tag_formatter": 7,
         "unknown": 12,
         "vocabulary": 1
       },
       "by_status": {
-        "adopted_complete": 83,
+        "adopted_complete": 84,
         "adopted_incomplete_inventory": 12
       },
       "incomplete_owner_count": 12,
-      "owner_count": 95
+      "owner_count": 96
     },
     "source_scan": {
       "by_reject_reason": {
