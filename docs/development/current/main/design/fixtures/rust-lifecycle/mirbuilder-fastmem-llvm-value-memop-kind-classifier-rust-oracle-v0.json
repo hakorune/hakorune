@@ -1,0 +1,30 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderFastMemLlvmValueMemopKindClassifierRustOracleV1",
+  "token": "MIRBUILDER-FASTMEM-LLVM-VALUE-MEMOP-KIND-CLASSIFIER-RUST-ORACLE-FIXTURE-001",
+  "owner": "fastmem_llvm_value_memop_kind_classifier",
+  "rust_source": {
+    "path": "src/mir/contracts/fastmem_ops.rs",
+    "hash": "sha256:a2712cc1a994ce22a15d622ed87e0de8578b9b8663b5cda1c0d0638cef2e8eee",
+    "oracle_surface": "FastMem LLVM value memop kind classifier"
+  },
+  "rows": [
+    { "kind": "AddrOf", "expected": "true" },
+    { "kind": "LogicalShr", "expected": "true" },
+    { "kind": "BitAnd", "expected": "true" },
+    { "kind": "Add", "expected": "true" },
+    { "kind": "Sub", "expected": "true" },
+    { "kind": "TableIndex", "expected": "false" }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "mir_type_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

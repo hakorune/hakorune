@@ -1,0 +1,21 @@
+// fastmem_llvm_value_memop_kind_classifier.hako - hand-authored fastmem value-only classifier
+//
+// Responsibility:
+// - classify value-only fastmem memop kinds
+// - stay pure: memop kind token in, boolean text out
+//
+// Non-responsibility:
+// - fastmem dialect validation
+// - access-plan collection
+// - backend lowering
+// - MIR mutation
+static box FastMemLlvmValueMemopKindClassifierBox {
+  is_value_memop_kind(kind) {
+    if kind == "AddrOf" { return "true" }
+    if kind == "LogicalShr" { return "true" }
+    if kind == "BitAnd" { return "true" }
+    if kind == "Add" { return "true" }
+    if kind == "Sub" { return "true" }
+    return "false"
+  }
+}
