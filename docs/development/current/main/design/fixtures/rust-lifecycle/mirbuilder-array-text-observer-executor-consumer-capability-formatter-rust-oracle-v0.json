@@ -1,0 +1,37 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderArrayTextObserverExecutorConsumerCapabilityFormatterRustOracleV1",
+  "token": "MIRBUILDER-ARRAY-TEXT-OBSERVER-EXECUTOR-CONSUMER-CAPABILITY-FORMATTER-RUST-ORACLE-FIXTURE-001",
+  "owner": "array_text_observer_executor_consumer_capability_formatter",
+  "rust_source": {
+    "path": "src/mir/array_text_observer_region_contract/types.rs",
+    "hash": "sha256:e82a2a3eafacff054c1165971f60b151b714d03b60f0a0fc2d42ecac29ff1dbd",
+    "oracle_surface": "ArrayTextObserverExecutorConsumerCapability Display label vocabulary"
+  },
+  "rows": [
+    {
+      "consumer_capability": "CompareOnly",
+      "expected": "compare_only"
+    },
+    {
+      "consumer_capability": "SinkStore",
+      "expected": "sink_store"
+    },
+    {
+      "consumer_capability": "SinkStoreLenSum",
+      "expected": "sink_store_len_sum"
+    }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "array_text_route_matching_migration": 0,
+    "array_text_observer_contract_handling_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

@@ -25,10 +25,10 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-ARRAY-TEXT-OBSERVER-EXECUTOR-MATERIALIZATION-POLICY-FORMATTER-HAKO-ADOPTION-DECISION-001.
-  The array_text_observer_executor_materialization_policy_formatter owner is
-  HakoAdopted as the eighty-eighth narrow Rust-oracle parity pilot; next is
-  rerun 089.
+  MIRBUILDER-ARRAY-TEXT-OBSERVER-EXECUTOR-CONSUMER-CAPABILITY-FORMATTER-HAKO-ADOPTION-DECISION-001.
+  The array_text_observer_executor_consumer_capability_formatter owner is
+  HakoAdopted as the eighty-ninth narrow Rust-oracle parity pilot; next is
+  rerun 090.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -61,20 +61,23 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-089
+  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-090
 
 normal operating rule:
   One RERUN adopts exactly one owner, advances the pointer, then stops.
   Inventory is recall-only unless explicitly requested; see authority SSOT.
+  The compact lane memory aid lives in
+  `docs/development/current/main/design/mirbuilder-authority-based-hako-migration-ssot.md`
+  under `Working Rules`.
 
 latest design decision:
-  array_text_observer_arg_repr_const_utf8_classifier is now HakoAdopted as a
-  narrow Rust-oracle parity pilot owner after a green 2-row `.hako` EXE parity
-  gate.
+  array_text_observer_executor_consumer_capability_formatter is now
+  HakoAdopted as a narrow Rust-oracle parity pilot owner after a green 3-row
+  `.hako` EXE parity gate.
   Array-text route matching, observer contract handling, backend lowering, and
   MIR mutation remain Rust.
   The selected next card is
-  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-079`.
+  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-090`.
 
 current fail-fast boundary:
   Do not re-enter full converter route selection without new non-self-signed authority or stable input delta. The adopted pilot scopes are narrow pure owners only: classification/formatting vocabulary, tiny mutation-frame leaves, label/tag surfaces, and fixture-backed parity helpers.

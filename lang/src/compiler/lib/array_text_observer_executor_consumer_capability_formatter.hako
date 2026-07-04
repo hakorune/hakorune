@@ -1,0 +1,25 @@
+// array_text_observer_executor_consumer_capability_formatter.hako - hand-authored consumer-capability formatter
+//
+// Responsibility:
+// - format the narrow ArrayTextObserverExecutorConsumerCapability vocabulary
+// - stay pure: scalar capability token in, scalar text out
+//
+// Non-responsibility:
+// - array/text observer route matching
+// - observer contract handling
+// - backend lowering
+// - MIR mutation
+static box ArrayTextObserverExecutorConsumerCapabilityFormatterBox {
+  format_consumer_capability(capability) {
+    if capability == "CompareOnly" {
+      return "compare_only"
+    }
+    if capability == "SinkStore" {
+      return "sink_store"
+    }
+    if capability == "SinkStoreLenSum" {
+      return "sink_store_len_sum"
+    }
+    return "unsupported_array_text_observer_executor_consumer_capability"
+  }
+}

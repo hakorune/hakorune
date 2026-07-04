@@ -90,6 +90,25 @@ If the next useful step would be Fact owner migration, plan construction,
 symbolic command production, allocator movement, or a Source Selfhost claim,
 stop in design-consultation mode instead of implementing.
 
+## Working Rules
+
+This is the compact memory aid for the lane. Keep it stable and read it before
+choosing the next owner.
+
+- One rerun adopts exactly one owner, then stops.
+- Inventory is recall-only. Do not spend a normal migration turn on inventory
+  work unless the turn is explicitly about selection or reconciliation.
+- The safe owner cadence is fixed:
+  `Rust oracle fixture -> hand-authored .hako implementation -> parity gate -> HakoAdopted decision`.
+- After a landing, sync the restart pointers in the same turn:
+  `CURRENT_STATE.toml`, `latest_card_path`, `landed_tail`, and the inventory
+  fixture.
+- If the next step is Fact owner migration, plan construction, symbolic command
+  production, allocator movement, or a Source Selfhost claim, stop and switch
+  to design-consultation mode instead of widening the slice.
+- Keep `source_selfhost_claim = 0` until the later stages in this document are
+  explicitly reached.
+
 ## Pointer Sync Rule
 
 When a rerun lands, keep the restart pointers synchronized in the same turn:
@@ -250,7 +269,7 @@ MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-088
   Scope: kept as provenance for the prior narrow vocabulary pilot.
   Non-claim: no Fact owner migration yet.
 
-MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-089
+MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-090
   Status: current next selection.
   Scope: choose one more vocabulary_leaf, boolean_classifier, or formatter
          owner from the inventory, then proceed with the existing Rust-oracle
