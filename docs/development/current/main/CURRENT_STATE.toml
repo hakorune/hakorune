@@ -342,11 +342,12 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-HARD-AUTHORITY-PROGRESS-METRIC-PIVOT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2893-MIRBUILDER-HARD-AUTHORITY-PROGRESS-METRIC-PIVOT-001.md"
-latest_card_summary = """The latest card stops treating narrow leaf parity
-pilot count as hard MirBuilder authority migration progress and directs the
-next slice to select a smallest Fact-owner or REGISTRY-rule contract."""
+latest_card = "MIRBUILDER-EXIT-ANALYSIS-SINGLE-EXIT-GROUP-FAILED-WIP-DISPOSAL-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2894-MIRBUILDER-EXIT-ANALYSIS-SINGLE-EXIT-GROUP-FAILED-WIP-DISPOSAL-001.md"
+latest_card_summary = """The latest card discards the failed
+exit_analysis_is_single_exit_group WIP after its `.hako` EXE parity gate hit
+backend recipe/static-helper boundaries; next valid work remains selecting a
+smallest Fact-owner or REGISTRY-rule contract."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -357,6 +358,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-05: 2894 discards the failed exit_analysis_is_single_exit_group WIP and keeps the next valid work on hard-authority contract selection.",
   "2026-07-05: 2893 pivots the MirBuilder progress metric away from leaf pilot count and toward smallest Fact-owner or REGISTRY-rule contracts.",
   "2026-07-05: 2892 adopts control_form_from_if_constructor as the one-hundred-fifty-seventh narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
   "2026-07-05: 2891 adds the control_form_from_if_constructor Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
@@ -368,5 +370,4 @@ landed_tail = [
   "2026-07-05: 2885 adds the hand-authored control_form_is_if_classifier .hako implementation and chooses the parity gate card next.",
   "2026-07-05: 2884 creates the 2-row control_form_is_if_classifier Rust-oracle fixture and chooses the Hako-native implementation card next.",
   "2026-07-05: 2883 selects control_form_is_if_classifier as the one-hundred-fifty-sixth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
-  "2026-07-05: 2882 adopts control_form_is_loop_classifier as the one-hundred-fifty-fifth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
 ]
