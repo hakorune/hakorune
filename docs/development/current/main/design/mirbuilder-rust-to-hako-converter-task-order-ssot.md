@@ -60,7 +60,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-FACT-OWNER-PARITY-PILOT-SELECTION-021
+  MIRBUILDER-LOOP-BREAK-BODY-LOCAL-FACTS-AUTHORITY-FACADE-PARITY-001
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -70,40 +70,20 @@ normal operating rule:
   Next work inventories Fact-owner and REGISTRY-rule contracts, excludes
   lowering/mutation/allocation/backend-capability blockers, then selects one
   smallest fixture-backed parity candidate.
-  Recent HakoAdoptedScoped Fact facades: string_is_integer_facts,
-  bool_predicate_scan_facts, accum_const_loop_facts, loop_char_map_facts,
-  loop_array_join_facts, loop_true_early_exit_facts, if_phi_join_facts,
-  loop_cond_continue_with_return_facts, loop_cond_return_in_body_facts.
-  `try_extract_loop_cond_return_in_body_facts` is now HakoAdoptedScoped for
-  the authority-facade DTO only; shape traversal, balanced-depth policy, and
-  recipe construction remain separate.
+  Recent scoped Fact facades include scan/loop true/if-phi/loop-cond owners up
+  through `loop_cond_return_in_body_facts`.
+  Selection-021 chooses `try_extract_loop_break_body_local_facts`; full
+  loop-break subset dispatch, break-if analysis, synthetic break-condition
+  construction, lowering, mutation, allocation, and Source Selfhost remain
+  unclaimed.
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  `if_phi_join_facts.authority_facade` is HakoAdoptedScoped after green
-  11-row parity; if-phi parts extraction, AST payload construction,
-  recipe/lowering, route selection, MIR mutation, ID allocation, and Source
-  Selfhost remain unclaimed.
-  `loop_cond_continue_with_return_facts.authority_facade` is HakoAdoptedScoped
-  after green 10-row parity; recursive hetero-return traversal, recipe
-  construction, lowering, mutation, allocation, and Source Selfhost remain
-  unclaimed.
-  `loop_cond_return_in_body_facts.authority_facade` is HakoAdoptedScoped after
-  green 13-row parity; shape-specific AST traversal, balanced-depth policy,
-  recipe construction, lowering, mutation, allocation, and Source Selfhost
-  remain unclaimed.
-  `loop_true_early_exit_facts.authority_facade` is HakoAdoptedScoped after
-  green 10-row parity; control-flow traversal, exit/carrier AST construction,
-  loop increment extraction, lowering, mutation, allocation, and Source
-  Selfhost remain unclaimed.
-  `loop_array_join_facts.authority_facade` is HakoAdoptedScoped after green
-  11-row parity; separator-guard/array-append AST construction, CondProfile
-  construction, loop increment extraction, lowering, mutation, allocation, and
-  Source Selfhost remain unclaimed.
-  `loop_char_map_facts.authority_facade` is HakoAdoptedScoped after green
-  10-row parity; substring/result-update AST construction, CondProfile
-  construction, loop increment extraction, lowering, mutation, allocation, and
-  Source Selfhost remain unclaimed.
+  Selection-021 chooses `loop_break_body_local_facts.authority_facade` as the
+  next fixture-backed parity pilot. Recent adopted facades remain scoped DTO
+  owners only; AST traversal, recipe/lowering, route selection, MIR mutation,
+  ID allocation, and Source Selfhost remain unclaimed unless a specific card
+  says otherwise.
   Authority facade comes before crate split: Rust may be reorganized around
   meaning units only after the authority seam is fixture-backed and parity
   proven. The next hard-authority pilot should target Fact -> DTO or one
