@@ -1,0 +1,24 @@
+// call_resolution_env_interface_classifier.hako - hand-authored env-interface classifier
+//
+// Responsibility:
+// - classify whether a function name is an environment interface
+// - stay pure: scalar function-name token in, boolean text out
+//
+// Non-responsibility:
+// - call resolution
+// - backend lowering
+// - MIR mutation
+static box CallResolutionEnvInterfaceClassifierBox {
+  is_env_interface(name) {
+    if name == "env" { return "true" }
+    if name == "env.console" { return "true" }
+    if name == "env.codegen" { return "true" }
+    if name == "env.fs" { return "true" }
+    if name == "env.net" { return "true" }
+    if name == "env.canvas" { return "true" }
+    if name == "env.task" { return "true" }
+    if name == "env.future" { return "true" }
+    if name == "env.process" { return "true" }
+    return "false"
+  }
+}
