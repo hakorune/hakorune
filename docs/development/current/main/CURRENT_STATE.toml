@@ -273,11 +273,12 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-ARRAY-TEXT-COMBINED-REGION-PROOF-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2582-MIRBUILDER-ARRAY-TEXT-COMBINED-REGION-PROOF-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.md"
+latest_card = "MIRBUILDER-ARRAY-TEXT-COMBINED-REGION-EXECUTION-MODE-FORMATTER-HAKO-ADOPTION-DECISION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2587-MIRBUILDER-ARRAY-TEXT-COMBINED-REGION-EXECUTION-MODE-FORMATTER-HAKO-ADOPTION-DECISION-001.md"
 latest_card_summary = """The latest card adopts
-array_text_combined_region_proof_label_formatter as the ninety-seventh narrow
-Rust-oracle parity pilot owner and chooses pilot selection rerun 099 next."""
+array_text_combined_region_execution_mode_formatter as the ninety-eighth
+narrow Rust-oracle parity pilot owner and chooses pilot selection rerun 100
+next."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -288,6 +289,11 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-04: 2587 adopts array_text_combined_region_execution_mode_formatter as the ninety-eighth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
+  "2026-07-04: 2586 adds the array_text_combined_region_execution_mode_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
+  "2026-07-04: 2585 adds the hand-authored array_text_combined_region_execution_mode_formatter .hako implementation and chooses the parity gate card next.",
+  "2026-07-04: 2584 creates the 1-row array_text_combined_region_execution_mode_formatter Rust-oracle fixture and chooses the Hako-native implementation card next.",
+  "2026-07-04: 2583 selects array_text_combined_region_execution_mode_formatter as the ninety-eighth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
   "2026-07-04: 2582 adopts array_text_combined_region_proof_label_formatter as the ninety-seventh narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
   "2026-07-04: 2581 adds the array_text_combined_region_proof_label_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
   "2026-07-04: 2580 adds the hand-authored array_text_combined_region_proof_label_formatter .hako implementation and chooses the parity gate card next.",
@@ -295,9 +301,4 @@ landed_tail = [
   "2026-07-04: 2578 selects array_text_combined_region_proof_label_formatter as the ninety-seventh narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
   "2026-07-04: 2577 adopts agg_local_scalarization_inline_scalar_user_box_local_body_classifier as the ninety-sixth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
   "2026-07-04: 2576 adds the agg_local_scalarization_inline_scalar_user_box_local_body_classifier Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
-  "2026-07-04: 2575 adds the hand-authored agg_local_scalarization_inline_scalar_user_box_local_body_classifier .hako implementation and chooses the parity gate card next.",
-  "2026-07-04: 2574 creates the 4-row agg_local_scalarization_inline_scalar_user_box_local_body_classifier Rust-oracle fixture and chooses the Hako-native implementation card next.",
-  "2026-07-04: 2573 selects agg_local_scalarization_inline_scalar_user_box_local_body_classifier as the ninety-sixth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
-  "2026-07-04: 2572 adopts agg_local_scalarization_inline_scalar_user_box_local_body_classifier as the ninety-fifth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
-  "2026-07-04: 2571 adds the agg_local_scalarization_inline_scalar_user_box_local_body_classifier Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
 ]

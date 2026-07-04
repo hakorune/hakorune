@@ -1,0 +1,18 @@
+// array_text_combined_region_execution_mode_formatter.hako - hand-authored combined-region execution-mode formatter
+//
+// Responsibility:
+// - format ArrayTextCombinedRegionExecutionMode names into Rust oracle text
+// - stay pure: scalar execution-mode token in, scalar text out
+//
+// Non-responsibility:
+// - array/text combined region planning
+// - backend lowering
+// - MIR mutation
+static box ArrayTextCombinedRegionExecutionModeFormatterBox {
+  as_str(execution_mode) {
+    if execution_mode == "SingleRegionExecutor" {
+      return "single_region_executor"
+    }
+    return "unsupported_array_text_combined_region_execution_mode"
+  }
+}
