@@ -1,0 +1,28 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderCallLoweringConstructorNameClassifierRustOracleV1",
+  "token": "MIRBUILDER-CALL-LOWERING-CONSTRUCTOR-NAME-CLASSIFIER-RUST-ORACLE-FIXTURE-001",
+  "owner": "call_lowering_constructor_name_classifier",
+  "rust_source": {
+    "path": "src/mir/builder/calls/lowering.rs",
+    "hash": "sha256:51a8cec8c89b327ad7e0adebfd7fcddf30628fc10eec8905c65dfa0576aa7144",
+    "oracle_surface": "Call lowering constructor-name classifier"
+  },
+  "rows": [
+    { "func_name": "main.birth/1", "expected": "true" },
+    { "func_name": "main.init/2", "expected": "true" },
+    { "func_name": "main.pack/3", "expected": "true" },
+    { "func_name": "main.run/1", "expected": "false" }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "call_lowering_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

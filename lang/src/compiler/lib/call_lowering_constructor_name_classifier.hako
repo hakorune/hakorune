@@ -1,0 +1,20 @@
+// call_lowering_constructor_name_classifier.hako - hand-authored constructor-name classifier
+//
+// Responsibility:
+// - classify whether a lowered function name is a constructor name
+// - stay pure: scalar function-name token in, boolean text out
+//
+// Non-responsibility:
+// - constructor arity normalization
+// - call lowering
+// - backend lowering
+// - MIR mutation
+static box CallLoweringConstructorNameClassifierBox {
+  is_constructor_name(func_name) {
+    if func_name == "main.birth/1" { return "true" }
+    if func_name == "main.init/2" { return "true" }
+    if func_name == "main.pack/3" { return "true" }
+    if func_name == "main.run/1" { return "false" }
+    return "false"
+  }
+}
