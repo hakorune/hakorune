@@ -1,0 +1,74 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderLoopContinueOnlyFactsHakoAdoptedDecisionV1",
+  "token": "MIRBUILDER-LOOP-CONTINUE-ONLY-FACTS-HAKOADOPTED-DECISION-001",
+  "input_state": {
+    "hako_source": "lang/src/compiler/lib/loop_continue_only_facts.hako",
+    "hako_source_hash": "sha256:ae3fec2055d30830a12d2334b7ba7049e24fc062f9ba86c89999059130dd60c8",
+    "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-continue-only-facts-rust-oracle-v0.json",
+    "rust_oracle_fixture_hash": "sha256:fcdcc20bf98c130cfa45bcf9017ab4be5563dc5542c2b661251d0a05f04642fe",
+    "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_loop_continue_only_facts_parity_gate.sh",
+    "parity_gate_hash": "sha256:6c8daa1b42bca324426fdc6d317880f84d4d118d11dccb7e6ea847f1371e92a5"
+  },
+  "adoption_scope": {
+    "adopted_owner": "loop_continue_only_facts.backend_safe_token_snapshot_reducer",
+    "rust_oracle_symbol": "try_extract_loop_continue_only_facts",
+    "input_contract": "BackendSafeLoopContinueOnlyFactsTokenSnapshotV1",
+    "native_edit_authority": "lang/src/compiler/lib/loop_continue_only_facts.hako",
+    "owned_semantics": [
+      "continue_only_acceptance",
+      "loop_var_token",
+      "continue_if_index_token",
+      "carrier_count_token",
+      "increment_token",
+      "reject_reason_token"
+    ],
+    "excluded_semantics": [
+      "full_AST_traversal",
+      "control_flow_counting",
+      "carrier_update_map_extraction",
+      "loop_increment_plan_extraction",
+      "loop_continue_only_recipe_construction",
+      "loop_builder_composition",
+      "route_selection",
+      "backend_lowering",
+      "MIR_mutation",
+      "ID_allocation"
+    ]
+  },
+  "parity": {
+    "gate_status": "Green",
+    "oracle_row_count": 11,
+    "required_contract_fields": [
+      "accepted",
+      "loop_var",
+      "continue_if_idx",
+      "carrier_count",
+      "increment",
+      "reason"
+    ]
+  },
+  "decision": {
+    "kind": "HakoAdoptedScoped",
+    "reason_token": "LoopContinueOnlyFactsBackendSafeTokenSnapshotParityGreen",
+    "selected_next_card": "MIRBUILDER-FACT-OWNER-PARITY-PILOT-SELECTION-011",
+    "backlog_card": "MIRBUILDER-LOOP-CONTINUE-ONLY-FULL-FACTS-CONSULTATION-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "full_try_extract_loop_continue_only_facts_ast_owner_adopted": 0,
+    "control_flow_counting_migrated": 0,
+    "carrier_update_map_migrated": 0,
+    "loop_increment_plan_migrated": 0,
+    "loop_builder_adopted": 0,
+    "loop_continue_only_recipe_adopted": 0,
+    "route_selection_migrated": 0,
+    "backend_lowering_migrated": 0,
+    "mir_mutation_migrated": 0,
+    "id_allocation_migrated": 0,
+    "hako_generation": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

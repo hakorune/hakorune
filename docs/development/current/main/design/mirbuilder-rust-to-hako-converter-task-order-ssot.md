@@ -60,14 +60,14 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-LOOP-CONTINUE-ONLY-FACTS-HAKOADOPTED-DECISION-001
+  MIRBUILDER-FACT-OWNER-PARITY-PILOT-SELECTION-011
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
   Next work inventories Fact-owner and REGISTRY-rule contracts, excludes
   lowering/mutation/allocation/backend-capability blockers, then selects one
   smallest fixture-backed parity candidate.
-  `try_extract_loop_continue_only_facts` now has green token-snapshot parity; next is its scoped HakoAdopted decision.
+  `try_extract_loop_continue_only_facts` is now HakoAdoptedScoped for the backend-safe token snapshot reducer only; recipe/lowering claims remain separate.
   `try_extract_loop_simple_while_facts` is now HakoAdoptedScoped for the backend-safe token snapshot reducer only; recipe/lowering claims remain separate.
   `try_extract_condition_shape` is now HakoAdoptedScoped for the backend-safe token snapshot reducer only; CondProfile/scan matching claims remain separate.
   `try_extract_step_shape` is now HakoAdoptedScoped for the backend-safe token snapshot reducer only; CondProfile/scan matching claims remain separate.
@@ -75,7 +75,7 @@ normal operating rule:
   `try_build_exit_allowed_block_recipe` is now HakoAdoptedScoped for the backend-safe token snapshot reducer only; in-arena construction, NoExitBlockRecipe, join-if semantics, and lowering remain Rust.
 
 latest design decision:
-  `loop_continue_only_facts.backend_safe_token_snapshot_reducer` has green 11-row parity for single-continue loop fact observation; control-flow counting, carrier update maps, recipe construction, loop builder composition, lowering, mutation, allocation, and Source Selfhost remain unclaimed. The HakoAdopted decision is next.
+  `loop_continue_only_facts.backend_safe_token_snapshot_reducer` is HakoAdoptedScoped after a green 11-row gate; control-flow counting, carrier update maps, recipe construction, loop builder composition, lowering, mutation, allocation, and Source Selfhost remain unclaimed.
   `loop_simple_while_facts.backend_safe_token_snapshot_reducer` is HakoAdoptedScoped after a green 13-row gate; recipe construction, loop builder composition, lowering, mutation, allocation, and Source Selfhost remain unclaimed.
   `loop_condition_shape.backend_safe_token_snapshot_reducer` is HakoAdoptedScoped after a green 15-row gate; CondProfile migration, observation unification, scan matching, loop builder composition, lowering, mutation, allocation, and Source Selfhost remain unclaimed.
   `loop_step_shape.backend_safe_token_snapshot_reducer` is HakoAdoptedScoped after a green 11-row gate; ConditionShape, CondProfile, scan matching, loop builder composition, lowering, mutation, allocation, and Source Selfhost remain unclaimed.
