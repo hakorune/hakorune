@@ -103,6 +103,18 @@
       "status": "adopted_complete"
     },
     {
+      "adoption_card": "docs/development/current/main/phases/phase-296x/2627-MIRBUILDER-ARRAY-TEXT-COMBINED-REGION-ADD-CONST-ONE-FROM-CLASSIFIER-HAKO-ADOPTION-DECISION-001.md",
+      "adoption_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-array-text-combined-region-add-const-one-from-classifier-hako-adoption-decision-v0.json",
+      "candidate_kind": "classifier",
+      "hako_source": "lang/src/compiler/lib/array_text_combined_region_add_const_one_from_classifier.hako",
+      "logical_owner": "array_text_combined_region_add_const_one_from_classifier",
+      "missing": [],
+      "owner": "array_text_combined_region_add_const_one_from_classifier",
+      "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_array_text_combined_region_add_const_one_from_classifier_parity_gate.sh",
+      "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-array-text-combined-region-add-const-one-from-classifier-rust-oracle-v0.json",
+      "status": "adopted_complete"
+    },
+    {
       "adoption_card": "docs/development/current/main/phases/phase-296x/2602-MIRBUILDER-ARRAY-TEXT-COMBINED-REGION-BYTE-BOUNDARY-PROOF-FORMATTER-HAKO-ADOPTION-DECISION-001.md",
       "adoption_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-array-text-combined-region-byte-boundary-proof-formatter-hako-adoption-decision-v0.json",
       "candidate_kind": "formatter",
@@ -447,6 +459,20 @@
       "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_array_text_observer_publication_boundary_formatter_parity_gate.sh",
       "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-array-text-observer-publication-boundary-formatter-rust-oracle-v0.json",
       "selected_next_card": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-081",
+      "status": "adopted_complete"
+    },
+    {
+      "adoption_card": "docs/development/current/main/phases/phase-296x/2622-MIRBUILDER-ARRAY-TEXT-OBSERVER-REGION-CONTRACT-EFFECT-FORMATTER-HAKO-ADOPTION-DECISION-001.md",
+      "adoption_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-array-text-observer-region-contract-effect-formatter-hako-adoption-decision-v0.json",
+      "candidate_kind": "formatter",
+      "hako_source": "lang/src/compiler/lib/array_text_observer_region_contract_effect_formatter.hako",
+      "logical_owner": "array_text_observer_region_contract_effect_formatter",
+      "missing": [],
+      "owner": "array_text_observer_region_contract_effect_formatter",
+      "owner_from_fixture": "array_text_observer_region_contract_effect_formatter",
+      "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_array_text_observer_region_contract_effect_formatter_parity_gate.sh",
+      "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-array-text-observer-region-contract-effect-formatter-rust-oracle-v0.json",
+      "selected_next_card": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-106",
       "status": "adopted_complete"
     },
     {
@@ -12241,20 +12267,20 @@
   "summary": {
     "existing_artifacts": {
       "by_candidate_kind": {
-        "classifier": 13,
+        "classifier": 14,
         "collector": 1,
-        "formatter": 31,
+        "formatter": 32,
         "label_formatter": 49,
         "tag_formatter": 7,
         "unknown": 12,
         "vocabulary": 1
       },
       "by_status": {
-        "adopted_complete": 102,
+        "adopted_complete": 104,
         "adopted_incomplete_inventory": 12
       },
       "incomplete_owner_count": 12,
-      "owner_count": 114
+      "owner_count": 116
     },
     "source_scan": {
       "by_reject_reason": {

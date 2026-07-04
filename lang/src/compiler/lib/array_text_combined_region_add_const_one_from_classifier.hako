@@ -1,0 +1,29 @@
+// array_text_combined_region_add_const_one_from_classifier.hako - hand-authored combined-region add-const-one classifier
+//
+// Responsibility:
+// - classify the combined-region add-const-one pattern
+// - stay pure: scalar pattern tokens in, boolean text out
+//
+// Non-responsibility:
+// - array-text combined region planning
+// - backend lowering
+// - MIR mutation
+static box ArrayTextCombinedRegionAddConstOneFromClassifierBox {
+  is_add_const_one_from(
+    dst_matches_next_value,
+    lhs_root_matches_source_value,
+    rhs_root_matches_source_value,
+    lhs_is_const_one,
+    rhs_is_const_one,
+  ) {
+    if dst_matches_next_value == "true" {
+      if lhs_root_matches_source_value == "true" && rhs_is_const_one == "true" {
+        return "true"
+      }
+      if rhs_root_matches_source_value == "true" && lhs_is_const_one == "true" {
+        return "true"
+      }
+    }
+    return "false"
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderArrayTextCombinedRegionAddConstOneFromClassifierRustOracleV1",
+  "token": "MIRBUILDER-ARRAY-TEXT-COMBINED-REGION-ADD-CONST-ONE-FROM-CLASSIFIER-RUST-ORACLE-FIXTURE-001",
+  "owner": "array_text_combined_region_add_const_one_from_classifier",
+  "rust_source": {
+    "path": "src/mir/array_text_combined_region_plan.rs",
+    "hash": "sha256:8f28cd4247923ac96c220302d4b29b0b71e167d547504c7fd62fb890c1a3fd5e",
+    "oracle_surface": "ArrayTextCombinedRegionPlan add-const-one classifier"
+  },
+  "rows": [
+    {
+      "dst_matches_next_value": "true",
+      "lhs_root_matches_source_value": "true",
+      "rhs_root_matches_source_value": "false",
+      "lhs_is_const_one": "false",
+      "rhs_is_const_one": "true",
+      "expected": "true"
+    },
+    {
+      "dst_matches_next_value": "true",
+      "lhs_root_matches_source_value": "false",
+      "rhs_root_matches_source_value": "true",
+      "lhs_is_const_one": "true",
+      "rhs_is_const_one": "false",
+      "expected": "true"
+    },
+    {
+      "dst_matches_next_value": "true",
+      "lhs_root_matches_source_value": "false",
+      "rhs_root_matches_source_value": "false",
+      "lhs_is_const_one": "true",
+      "rhs_is_const_one": "false",
+      "expected": "false"
+    },
+    {
+      "dst_matches_next_value": "false",
+      "lhs_root_matches_source_value": "true",
+      "rhs_root_matches_source_value": "false",
+      "lhs_is_const_one": "false",
+      "rhs_is_const_one": "true",
+      "expected": "false"
+    }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "array_text_combined_region_planning_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

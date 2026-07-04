@@ -273,12 +273,12 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-ARRAY-STRING-LEN-WINDOW-MODE-FORMATTER-HAKO-ADOPTION-DECISION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2617-MIRBUILDER-ARRAY-STRING-LEN-WINDOW-MODE-FORMATTER-HAKO-ADOPTION-DECISION-001.md"
+latest_card = "MIRBUILDER-ARRAY-TEXT-COMBINED-REGION-ADD-CONST-ONE-FROM-CLASSIFIER-HAKO-ADOPTION-DECISION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2627-MIRBUILDER-ARRAY-TEXT-COMBINED-REGION-ADD-CONST-ONE-FROM-CLASSIFIER-HAKO-ADOPTION-DECISION-001.md"
 latest_card_summary = """The latest card adopts
-array_string_len_window_mode_formatter as the one-hundred-third narrow
-Rust-oracle parity pilot owner after the green 3-row `.hako` EXE parity gate
-and chooses pilot selection rerun 105 next."""
+array_text_combined_region_add_const_one_from_classifier as the one-hundred-
+fifth narrow Rust-oracle parity pilot owner after the green 4-row `.hako`
+EXE parity gate and chooses pilot selection rerun 107 next."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -289,16 +289,16 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-04: 2627 adopts array_text_combined_region_add_const_one_from_classifier as the one-hundred-fifth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
+  "2026-07-04: 2626 adds the array_text_combined_region_add_const_one_from_classifier Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
+  "2026-07-04: 2625 adds the hand-authored array_text_combined_region_add_const_one_from_classifier .hako implementation and chooses the parity gate card next.",
+  "2026-07-04: 2624 creates the 4-row array_text_combined_region_add_const_one_from_classifier Rust-oracle fixture and chooses the Hako-native implementation card next.",
+  "2026-07-04: 2623 selects array_text_combined_region_add_const_one_from_classifier as the one-hundred-fifth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
+  "2026-07-04: 2622 adopts array_text_observer_region_contract_effect_formatter as the one-hundred-fourth narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
+  "2026-07-04: 2621 adds the array_text_observer_region_contract_effect_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
+  "2026-07-04: 2620 adds the hand-authored array_text_observer_region_contract_effect_formatter .hako implementation and chooses the parity gate card next.",
+  "2026-07-04: 2619 creates the 4-row array_text_observer_region_contract_effect_formatter Rust-oracle fixture and chooses the Hako-native implementation card next.",
+  "2026-07-04: 2618 selects array_text_observer_region_contract_effect_formatter as the one-hundred-fourth narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
   "2026-07-04: 2617 adopts array_string_len_window_mode_formatter as the one-hundred-third narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
   "2026-07-04: 2616 adds the array_string_len_window_mode_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
-  "2026-07-04: 2615 adds the hand-authored array_string_len_window_mode_formatter .hako implementation and chooses the parity gate card next.",
-  "2026-07-04: 2614 creates the 3-row array_string_len_window_mode_formatter Rust-oracle fixture and chooses the Hako-native implementation card next.",
-  "2026-07-04: 2613 selects array_string_len_window_mode_formatter as the one-hundred-third narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
-  "2026-07-04: 2607 adopts array_text_combined_region_effect_formatter as the one-hundred-second narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
-  "2026-07-04: 2606 adds the array_text_combined_region_effect_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
-  "2026-07-04: 2605 adds the hand-authored array_text_combined_region_effect_formatter .hako implementation and chooses the parity gate card next.",
-  "2026-07-04: 2604 creates the 4-row array_text_combined_region_effect_formatter Rust-oracle fixture and chooses the Hako-native implementation card next.",
-  "2026-07-04: 2603 selects array_text_combined_region_effect_formatter as the one-hundred-second narrow Rust-oracle parity pilot owner and chooses its Rust-oracle fixture card next.",
-  "2026-07-04: 2602 adopts array_text_combined_region_byte_boundary_proof_formatter as the one-hundred-first narrow Rust-oracle parity pilot owner while keeping Source Selfhost unclaimed.",
-  "2026-07-04: 2601 adds the array_text_combined_region_byte_boundary_proof_formatter Rust-oracle parity gate and chooses the HakoAdoption decision card next.",
 ]

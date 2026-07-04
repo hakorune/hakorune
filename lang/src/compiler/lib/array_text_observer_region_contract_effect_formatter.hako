@@ -1,0 +1,27 @@
+// array_text_observer_region_contract_effect_formatter.hako - hand-authored observer region-contract effect formatter
+//
+// Responsibility:
+// - format ArrayTextObserverExecutorEffect names into Rust oracle text
+// - stay pure: scalar effect token in, scalar text out
+//
+// Non-responsibility:
+// - array-text observer region-contract matching
+// - backend lowering
+// - MIR mutation
+static box ArrayTextObserverRegionContractEffectFormatterBox {
+  as_str(effect) {
+    if effect == "ObserveIndexOf" {
+      return "observe.indexof"
+    }
+    if effect == "StoreCell" {
+      return "store.cell"
+    }
+    if effect == "LengthResultCarry" {
+      return "length_result_carry"
+    }
+    if effect == "ScalarAccumulator" {
+      return "scalar_accumulator"
+    }
+    return "unsupported_array_text_observer_region_contract_effect"
+  }
+}
