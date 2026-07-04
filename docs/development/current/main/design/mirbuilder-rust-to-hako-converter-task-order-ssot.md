@@ -25,10 +25,10 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-BASIC-BLOCK-TERMINATED-CLASSIFIER-HAKO-ADOPTION-DECISION-001.
-  The basic_block_terminated_classifier owner is HakoAdopted as the
-  one-hundred-eighth narrow Rust-oracle parity pilot after the green 4-row
-  `.hako` EXE parity gate; next is rerun 110.
+  MIRBUILDER-BASIC-BLOCK-SEALED-CLASSIFIER-HAKO-ADOPTION-DECISION-001.
+  The basic_block_sealed_classifier owner is HakoAdopted as the one-hundred-
+  ninth narrow Rust-oracle parity pilot after the green 4-row `.hako` EXE
+  parity gate; next is rerun 111.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -61,7 +61,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-110
+  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-111
 
 normal operating rule:
   One RERUN adopts exactly one owner, advances the pointer, then stops.
@@ -71,14 +71,14 @@ normal operating rule:
   under `Working Rules`.
 
 latest design decision:
-  basic_block_terminated_classifier is now HakoAdopted as a narrow Rust-oracle
+  basic_block_sealed_classifier is now HakoAdopted as a narrow Rust-oracle
   parity pilot owner after a green 4-row `.hako` EXE parity gate. BasicBlock
   control-flow behavior, backend lowering, and MIR mutation remain Rust. The
-  selected next card is `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-110`.
+  selected next card is `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-111`.
 
 current fail-fast boundary:
   Do not re-enter full converter route selection without new non-self-signed authority or stable input delta. The adopted pilot scopes are narrow pure owners only: classification/formatting vocabulary, tiny mutation-frame leaves, label/tag surfaces, and fixture-backed parity helpers.
-  Recent adopted formatters cover Sum variants, MirType, effect/capability plans, route/proof labels, loop deny reasons, byte-boundary proof labels, array-text effect labels, len-window modes, observer region-contract effects, combined-region add-const-one classification, loop-session region-payload add-const-one classification, BasicBlock empty-state classification, and BasicBlock terminated-state classification. Metadata refresh, route collection, const emission, full AST traversal, method dispatch, string corridor fact inference, same-module definition closure collection, receiver origin resolution, key route classification, route convergence, closure callsite canonicalization, NewClosure rewrite, lowering execution, Region construction, GC retain/release, loop feature extraction, loop route classification, planner route selection, thin-entry candidate collection/selection, manifest generation, observer route derivation, region matching, combined region planning, and MirBuilder mutation remain Rust.
+  Recent adopted formatters cover Sum variants, MirType, effect/capability plans, route/proof labels, loop deny reasons, byte-boundary proof labels, array-text effect labels, len-window modes, observer region-contract effects, combined-region add-const-one classification, loop-session region-payload add-const-one classification, BasicBlock empty-state classification, BasicBlock terminated-state classification, and BasicBlock sealed-state classification. Metadata refresh, route collection, const emission, full AST traversal, method dispatch, string corridor fact inference, same-module definition closure collection, receiver origin resolution, key route classification, route convergence, closure callsite canonicalization, NewClosure rewrite, lowering execution, Region construction, GC retain/release, loop feature extraction, loop route classification, planner route selection, thin-entry candidate collection/selection, manifest generation, observer route derivation, region matching, combined region planning, and MirBuilder mutation remain Rust.
   Payload-type layout binding, sum placement layout refresh, string-kernel plan construction, legality analysis, publication logic, array/text route matching, exact-shape payload construction, session derivation, executor planning, sum route matching, payload extraction, helper emission, MirType tree traversal, global-call route collection, rune profile expansion, effect/capability plan construction/verification, FastMemory fact construction/region analysis, constructor route collection/callee classification, planner order/selection, legacy observer shadow decisions, loop route candidate collection, runtime route selection, array RMW matching, array receiver proof, array RMW add1 leaf seed matching, array get/set micro seed matching, array string-store micro seed matching, concat const suffix seed matching, array text loopcarry matching, array string length window matching, string direct-set window matching, substring views micro seed matching, UserBox loop micro seed matching, exact seed backend route selection, exact seed payload route migration, UserBox known receiver method seed matching, UserBox local scalar seed matching, seed payload migration, indexOf search micro seed matching, backend action execution, array text edit matching, edit payload migration, string corridor relation detection, sum placement fact collection, objectization policy, string corridor candidate derivation, publication policy, and backend lowering remain Rust.
   Escape use classification, operand-role policy, inline plan construction, inline shape verification, MIR metadata emission, generic-loop shape detection/resolution, loop body analysis, loop-session plan construction, region payload derivation, DirectArray plan construction/proof derivation, DirectArray lowering selection, BoxedSum ABI plan construction/site lookup, BoxedSum lowering, global-call target shape inference/route collection, lowering decision, MIR instruction traversal, receiver-origin classification, publication proof construction, LocalFastPathFact generation, publication-site MIR mutation, Copy instruction emission, dominance checks, test-only copy-emission reasons, CorePlan/Facts flowbox classification, facts-to-feature extraction, tag emission, Freeze contract, stderr write, Callee/ValueId analysis, emit-guard instruction analysis, emit-guard scope validation, index route selection, property registry state, call target resolution, MIR instruction traversal, MIR instruction display formatting, memory operation semantics, FastMem handling, function signature preparation, map lookup fusion route derivation, generic method route analysis, route selection, Freeze construction/message formatting, planner fail-fast policy, global-call target/shape/proof analysis, result-origin mapping, definition-owner inference, route collection, and proof policy remain Rust.
 

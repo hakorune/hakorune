@@ -1,0 +1,18 @@
+// basic_block_sealed_classifier.hako - hand-authored basic-block sealed classifier
+//
+// Responsibility:
+// - classify whether a block is sealed
+// - stay pure: scalar state token in, boolean text out
+//
+// Non-responsibility:
+// - BasicBlock control-flow behavior
+// - backend lowering
+// - MIR mutation
+static box BasicBlockSealedClassifierBox {
+  is_sealed(sealed_present) {
+    if sealed_present == "true" {
+      return "true"
+    }
+    return "false"
+  }
+}
