@@ -86,6 +86,15 @@ row 2:
 This keeps the first fixture narrow while still proving the read-only fact owner
 distinguishes the direct exit summary from nested-loop observation.
 
+Construction rule:
+
+```text
+Use direct AST nodes only.
+Do not wrap the seed rows in ScopeBox, Program, TryCatch, or LoopRange.
+The fixture should match the post-flatten analysis view that
+try_extract_loop_feature_facts observes.
+```
+
 Suggested JSON row schema:
 
 ```text
