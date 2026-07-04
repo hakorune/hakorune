@@ -1,0 +1,18 @@
+// array_text_observer_route_observer_arg0_repr_kind_formatter.hako - hand-authored route arg0-repr kind formatter
+//
+// Responsibility:
+// - format the narrow ArrayTextObserverRoute observer_arg0_repr_kind vocabulary
+// - stay pure: scalar kind token in, scalar text out
+//
+// Non-responsibility:
+// - array/text observer route matching
+// - observer contract handling
+// - backend lowering
+// - MIR mutation
+static box ArrayTextObserverRouteObserverArg0ReprKindFormatterBox {
+  format_observer_arg0_repr_kind(kind) {
+    if kind == "Value" { return "value" }
+    if kind == "ConstUtf8" { return "const_utf8" }
+    return "unsupported_array_text_observer_route_observer_arg0_repr_kind"
+  }
+}

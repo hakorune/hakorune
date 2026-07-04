@@ -90,6 +90,21 @@ If the next useful step would be Fact owner migration, plan construction,
 symbolic command production, allocator movement, or a Source Selfhost claim,
 stop in design-consultation mode instead of implementing.
 
+## Pointer Sync Rule
+
+When a rerun lands, keep the restart pointers synchronized in the same turn:
+
+```text
+CURRENT_STATE.toml.latest_card
+CURRENT_STATE.toml.latest_card_path
+CURRENT_STATE.toml.landed_tail
+mirbuilder-native-owner-candidate-inventory-v0.json
+```
+
+Do not leave `latest_card_path` pointing at a missing file. The generated
+inventory fixture is the recall source for next-owner selection, but the current
+state file remains the restart SSOT.
+
 ## Stages
 
 ### 1. Vocabulary Leaf
@@ -211,7 +226,7 @@ MIRBUILDER-NATIVE-OWNER-CANDIDATE-INVENTORY-001
          advisory Rust source candidates.
   Non-claim: no next owner selected.
 
-MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-083
+MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-084
   Status: current next selection.
   Scope: choose one more vocabulary_leaf, boolean_classifier, or formatter
          owner from the inventory, then proceed with the existing Rust-oracle
