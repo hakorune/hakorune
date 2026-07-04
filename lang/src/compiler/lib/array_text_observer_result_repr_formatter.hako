@@ -1,0 +1,17 @@
+// array_text_observer_result_repr_formatter.hako - hand-authored result-repr formatter
+//
+// Responsibility:
+// - format the narrow ArrayTextObserverResultRepr vocabulary
+// - stay pure: scalar repr token in, scalar text out
+//
+// Non-responsibility:
+// - array/text observer route matching
+// - observer contract handling
+// - backend lowering
+// - MIR mutation
+static box ArrayTextObserverResultReprFormatterBox {
+  format_result_repr(repr) {
+    if repr == "ScalarI64" { return "scalar_i64" }
+    return "unsupported_array_text_observer_result_repr"
+  }
+}

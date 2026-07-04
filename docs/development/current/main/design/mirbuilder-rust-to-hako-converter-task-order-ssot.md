@@ -25,9 +25,9 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-ARRAY-TEXT-OBSERVER-PUBLICATION-BOUNDARY-FORMATTER-HAKO-ADOPTION-DECISION-001.
-  The array_text_observer_publication_boundary_formatter owner is HakoAdopted
-  as the eightieth narrow Rust-oracle parity pilot; next is rerun 081.
+  MIRBUILDER-ARRAY-TEXT-OBSERVER-RESULT-REPR-FORMATTER-HAKO-ADOPTION-DECISION-001.
+  The array_text_observer_result_repr_formatter owner is HakoAdopted as the
+  eighty-first narrow Rust-oracle parity pilot; next is rerun 082.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -60,7 +60,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-081
+  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-082
 
 normal operating rule:
   One RERUN adopts exactly one owner, advances the pointer, then stops.
@@ -119,13 +119,12 @@ current fail-fast boundary:
   definition-owner inference, route collection, and proof policy remain Rust.
 
 latest design decision:
-  array_text_observer_publication_boundary_formatter is now HakoAdopted as a
-  narrow Rust-oracle parity pilot owner after a green 1-row `.hako` EXE parity
-  gate.
+  array_text_observer_result_repr_formatter is now HakoAdopted as a narrow
+  Rust-oracle parity pilot owner after a green 1-row `.hako` EXE parity gate.
   Array-text route matching, observer contract handling, backend lowering, and
   MIR mutation remain Rust.
   The selected next card is
-  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-081`.
+  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-082`.
 
 historical route-selection decision:
   Detailed landed route-selection rows are closed as provenance and live in
