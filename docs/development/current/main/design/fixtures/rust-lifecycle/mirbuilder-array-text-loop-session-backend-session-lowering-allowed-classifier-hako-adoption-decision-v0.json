@@ -1,0 +1,27 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderArrayTextLoopSessionBackendSessionLoweringAllowedClassifierHakoAdoptionDecisionV1",
+  "token": "MIRBUILDER-ARRAY-TEXT-LOOP-SESSION-BACKEND-SESSION-LOWERING-ALLOWED-CLASSIFIER-HAKO-ADOPTION-DECISION-001",
+  "owner": "array_text_loop_session_backend_session_lowering_allowed_classifier",
+  "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-array-text-loop-session-backend-session-lowering-allowed-classifier-rust-oracle-v0.json",
+  "hako_implementation": "lang/src/compiler/lib/array_text_loop_session_backend_session_lowering_allowed_classifier.hako",
+  "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_array_text_loop_session_backend_session_lowering_allowed_classifier_parity_gate.sh",
+  "parity_result": {
+    "parity_rows": 7,
+    "parity_status": "green"
+  },
+  "decision": {
+    "kind": "HakoAdopted",
+    "reason_token": "ArrayTextLoopSessionBackendSessionLoweringAllowedClassifierParityGreen",
+    "selected_next_card": "MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-145"
+  },
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}

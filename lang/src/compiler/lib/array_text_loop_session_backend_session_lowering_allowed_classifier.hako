@@ -1,0 +1,22 @@
+// array_text_loop_session_backend_session_lowering_allowed_classifier.hako - hand-authored backend-session lowering allowed classifier
+//
+// Responsibility:
+// - classify ArrayTextLoopSessionPlan backend-session lowering allowance
+// - stay pure: scalar flags/count in, boolean text out
+//
+// Non-responsibility:
+// - backend lowering
+// - MIR mutation
+// - loop-session route derivation
+// - runtime helper selection
+static box ArrayTextLoopSessionBackendSessionLoweringAllowedClassifierBox {
+  is_backend_session_lowering_allowed(len_call_count, same_array_handle, read_only_region, no_mutation_region, no_drop_or_publication_boundary, index_domain_guarded) {
+    if len_call_count == "0" { return "false" }
+    if same_array_handle != "true" { return "false" }
+    if read_only_region != "true" { return "false" }
+    if no_mutation_region != "true" { return "false" }
+    if no_drop_or_publication_boundary != "true" { return "false" }
+    if index_domain_guarded != "true" { return "false" }
+    return "true"
+  }
+}

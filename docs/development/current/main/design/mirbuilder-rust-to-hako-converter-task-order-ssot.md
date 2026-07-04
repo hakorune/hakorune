@@ -25,10 +25,11 @@ active blocker:
   SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 current implementation task:
-  MIRBUILDER-BLOCK-CONTRACT-KIND-LABEL-FORMATTER-HAKO-ADOPTION-DECISION-001.
-  The block_contract_kind_label_formatter owner is HakoAdopted as the
-  one-hundred-forty-first narrow Rust-oracle parity pilot after the green
-  4-row `.hako` EXE parity gate; next is rerun 144.
+  MIRBUILDER-ARRAY-TEXT-LOOP-SESSION-BACKEND-SESSION-LOWERING-ALLOWED-CLASSIFIER-HAKO-ADOPTION-DECISION-001.
+  The array_text_loop_session_backend_session_lowering_allowed_classifier
+  owner is HakoAdopted as the one-hundred-forty-second narrow Rust-oracle
+  parity pilot after the green 7-row `.hako` EXE parity gate; next is rerun
+  145.
 
 selected decision slice:
   source_selfhost.adoption_plan
@@ -61,7 +62,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-144
+  MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-145
 
 normal operating rule:
   One RERUN adopts exactly one owner, advances the pointer, then stops.
@@ -71,6 +72,12 @@ normal operating rule:
   under `Working Rules`.
 
 latest design decision:
+  array_text_loop_session_backend_session_lowering_allowed_classifier is now
+  HakoAdopted as a narrow Rust-oracle parity pilot owner after a green 7-row
+  `.hako` EXE parity gate. ArrayTextLoopSessionPlan backend-session lowering
+  remains Rust. Backend lowering and MIR mutation remain Rust. The selected
+  next card is
+  `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-145`.
   block_contract_kind_label_formatter is now HakoAdopted as a narrow
   Rust-oracle parity pilot owner after a green 4-row `.hako` EXE parity gate.
   VerifiedRecipeBlock kind vocabulary remains Rust. Backend lowering and MIR
@@ -129,9 +136,7 @@ historical design decision:
   `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-089`.
 
 historical route-selection decision:
-  Detailed landed route-selection rows are closed as provenance and live in
-  phase cards, fixture guards, and git history. This task-order stays a compact
-  pointer to the active pivot and next 3 tasks.
+  Detailed landed route-selection rows are closed as provenance and live in phase cards, fixture guards, and git history. This task-order stays a compact pointer to the active pivot and next 3 tasks.
 
 ## Converter Completion Task Inventory
 

@@ -1,0 +1,86 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderArrayTextLoopSessionBackendSessionLoweringAllowedClassifierRustOracleV1",
+  "token": "MIRBUILDER-ARRAY-TEXT-LOOP-SESSION-BACKEND-SESSION-LOWERING-ALLOWED-CLASSIFIER-RUST-ORACLE-FIXTURE-001",
+  "owner": "array_text_loop_session_backend_session_lowering_allowed_classifier",
+  "rust_source": {
+    "path": "src/mir/array_text_loop_session_plan.rs",
+    "hash": "sha256:ffee406a5e9b58eaccd6a6410020244450721dfb32b18609805b6383f090f23b",
+    "oracle_surface": "ArrayTextLoopSessionPlan backend_session_lowering_allowed classifier"
+  },
+  "rows": [
+    {
+      "len_call_count": "1",
+      "same_array_handle": "true",
+      "read_only_region": "true",
+      "no_mutation_region": "true",
+      "no_drop_or_publication_boundary": "true",
+      "index_domain_guarded": "true",
+      "expected": "true"
+    },
+    {
+      "len_call_count": "0",
+      "same_array_handle": "true",
+      "read_only_region": "true",
+      "no_mutation_region": "true",
+      "no_drop_or_publication_boundary": "true",
+      "index_domain_guarded": "true",
+      "expected": "false"
+    },
+    {
+      "len_call_count": "1",
+      "same_array_handle": "false",
+      "read_only_region": "true",
+      "no_mutation_region": "true",
+      "no_drop_or_publication_boundary": "true",
+      "index_domain_guarded": "true",
+      "expected": "false"
+    },
+    {
+      "len_call_count": "1",
+      "same_array_handle": "true",
+      "read_only_region": "false",
+      "no_mutation_region": "true",
+      "no_drop_or_publication_boundary": "true",
+      "index_domain_guarded": "true",
+      "expected": "false"
+    },
+    {
+      "len_call_count": "1",
+      "same_array_handle": "true",
+      "read_only_region": "true",
+      "no_mutation_region": "false",
+      "no_drop_or_publication_boundary": "true",
+      "index_domain_guarded": "true",
+      "expected": "false"
+    },
+    {
+      "len_call_count": "1",
+      "same_array_handle": "true",
+      "read_only_region": "true",
+      "no_mutation_region": "true",
+      "no_drop_or_publication_boundary": "false",
+      "index_domain_guarded": "true",
+      "expected": "false"
+    },
+    {
+      "len_call_count": "1",
+      "same_array_handle": "true",
+      "read_only_region": "true",
+      "no_mutation_region": "true",
+      "no_drop_or_publication_boundary": "true",
+      "index_domain_guarded": "false",
+      "expected": "false"
+    }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_deletion": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0
+  }
+}
