@@ -90,9 +90,10 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  3072 lands the covered ExprTernaryShapeSnapshotV1 ProgramJSON traversal
-  slice as a scoped Rust ASTNode projector retire-candidate. Next work returns
-  to ProgramJSON capability-batch continuation.
+  3073 lands real `.hako` ProgramJsonExprPeekShapeScanV1 ProgramJSON traversal
+  for covered Expr.expr Peek shapes with 9-row AOT parity. Active work is
+  3074: mark only those covered rows as a scoped Rust ASTNode projector
+  retire-candidate.
   Selection-only ProgramJSON cards remain forbidden unless the next capability
   is genuinely ambiguous.
   2997 stabilized the AOT/MIR value-type publication contract only for the
@@ -403,19 +404,19 @@ Detailed evidence lives in phase cards, fixtures, and git history.
 
 ## Active Next 3
 ```text
-1. MIRBUILDER-PROGRAMJSON-EXPR-TERNARY-SHAPE-SCAN-CAPABILITY-001
-   status=landed; boundary=real `.hako` ProgramJSON Expr.expr Ternary traversal
-   only; no Select lowering or ternary evaluation semantics
+1. MIRBUILDER-PROGRAMJSON-EXPR-PEEK-SHAPE-SCAN-CAPABILITY-001
+   status=landed; boundary=real `.hako` ProgramJSON Expr.expr Peek traversal
+   only; no PeekParse lowering or pattern semantics
 
-2. MIRBUILDER-PROGRAMJSON-EXPR-TERNARY-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
-   status=landed; boundary=covered ExprTernaryShapeSnapshotV1 rows only
+2. MIRBUILDER-PROGRAMJSON-EXPR-PEEK-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+   status=active; boundary=covered ExprPeekShapeSnapshotV1 rows only
 
-3. MIRBUILDER-PROGRAMJSON-CAPABILITY-BATCH-CONTINUATION
-   status=active; boundary=select and implement next concrete ProgramJSON traversal capability
+3. HAKO-AOT/MIR-TYPING-DEBT-TRIGGER-QUEUE
+   status=parked-until-triggered; boundary=only open if the active ProgramJSON gate or direct AOT regression hits the route
 
 next active:
-  MIRBUILDER-PROGRAMJSON-CAPABILITY-BATCH-CONTINUATION
-  status=active; boundary=select and implement next concrete ProgramJSON traversal capability
+  MIRBUILDER-PROGRAMJSON-EXPR-PEEK-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+  status=active; boundary=covered ExprPeekShapeSnapshotV1 rows only
 
 trigger-based AOT/MIR typing debt:
   status=parked-until-triggered; items=Float Sub/Mul/Div, string relational
@@ -423,10 +424,10 @@ trigger-based AOT/MIR typing debt:
   scalar_i64_or_missing_zero, PHI dst_type, mir_call dst_type
 
 next_documented_task =
-  MIRBUILDER-PROGRAMJSON-CAPABILITY-BATCH-CONTINUATION
+  MIRBUILDER-PROGRAMJSON-EXPR-PEEK-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
 
 next_after_active_3 =
-  select next covered retire-candidate after green parity
+  select next ProgramJSON traversal capability after 3074 lands
 
 task discipline =
   Each ProgramJSON capability card must land real `.hako` traversal, a fixture,
