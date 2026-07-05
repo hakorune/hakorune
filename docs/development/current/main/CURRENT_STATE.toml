@@ -345,15 +345,14 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PROGRAMJSON-CAPABILITY-BATCH-MIGRATION-POLICY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2994-MIRBUILDER-PROGRAMJSON-CAPABILITY-BATCH-MIGRATION-POLICY-001.md"
-latest_card_summary = """The latest card stops the 1-shape ProgramJSON cadence
-and makes capability-batch migration the active policy. Next work is
-MIRBUILDER-PROGRAMJSON-LOOP-BODY-CONTROL-FLOW-SCAN-CAPABILITY-001:
-.hako implementation plus parity gate plus multiple rows plus at least one
-Rust ASTNode projector retire-candidate. Full projector retirement,
-HakoAdoption, ProgramJSON full parser, MIR mutation, lowering, ID allocation,
-and Source Selfhost remain unclaimed."""
+latest_card = "MIRBUILDER-PROGRAMJSON-LOOP-BODY-CONTROL-FLOW-SCAN-CAPABILITY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2995-MIRBUILDER-PROGRAMJSON-LOOP-BODY-CONTROL-FLOW-SCAN-CAPABILITY-001.md"
+latest_card_summary = """The latest card implements ProgramJsonLoopBodyControlFlowScanV1
+as a `.hako` ProgramJSON traversal capability and proves 10-row AOT parity
+against the Rust ASTNode-token oracle. The covered LoopBodyControlFlowSnapshotV1
+slice is now a retire-candidate input for the next card only. Full projector
+retirement, HakoAdoption, ProgramJSON full parser, MIR mutation, lowering,
+ID allocation, route selection, and Source Selfhost remain unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -364,6 +363,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-05: 2995 adds ProgramJsonLoopBodyControlFlowScanV1 as a 10-row `.hako` ProgramJSON traversal capability and marks the covered LoopBodyControlFlowSnapshotV1 slice as the next Rust ASTNode projector retire-candidate; full retirement and selfhost remain unclaimed.",
   "2026-07-05: 2994 stops the one-shape ProgramJSON cadence and selects Loop.body control-flow scan as the next implementation-capability batch; selfhost and full projector retirement remain unclaimed.",
   "2026-07-05: 2993 adds ProgramJSON second-stmt-not-return reject snapshot parity and marks LoopCondContinueSecondStmtNotReturnRejectV1 as a one-shape Rust ASTNode projector retire-candidate; runtime dependency removal remains unclaimed.",
   "2026-07-05: 2992 adds ProgramJSON no-return if-only reject snapshot parity and marks LoopCondContinueNoReturnIfOnlyRejectV1 as a one-shape Rust ASTNode projector retire-candidate; runtime dependency removal remains unclaimed.",
@@ -375,5 +375,4 @@ landed_tail = [
   "2026-07-05: 2986 marks LoopCondContinueIfElseNotNullRejectV1 as a one-shape Rust ASTNode projector retire-candidate; runtime dependency removal remains unclaimed.",
   "2026-07-05: 2985 marks LoopCondContinueNestedLoopRejectV1 as a one-shape Rust ASTNode projector retire-candidate; runtime dependency removal remains unclaimed.",
   "2026-07-05: 2984 marks LoopCondContinueBreakPresentRejectV1 as a one-shape Rust ASTNode projector retire-candidate; runtime dependency removal remains unclaimed.",
-  "2026-07-05: 2983 marks LoopCondContinueNoReturnRejectV1 as a one-shape Rust ASTNode projector retire-candidate; runtime dependency removal remains unclaimed.",
 ]

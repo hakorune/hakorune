@@ -60,7 +60,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-LOOP-BODY-CONTROL-FLOW-SCAN-CAPABILITY-001
+  MIRBUILDER-PROGRAMJSON-LOOP-BODY-CONTROL-FLOW-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -90,14 +90,15 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  ProgramJSON migration now uses capability batches, not one-shape cards. The
-  next card is Loop.body control-flow scan: .hako implementation + parity gate
-  + multiple rows + at least one Rust ASTNode projector retire-candidate. Policy
-  SSOT: docs/development/current/main/design/mirbuilder-programjson-capability-batch-migration-policy-ssot.md.
-  Do not add another one-shape ProgramJSON card unless this capability exposes a
-  concrete HHako expressivity blocker. Full projector retirement, HakoAdoption,
-  ProgramJSON full parser, MIR mutation, lowering, ID allocation, and Source
-  Selfhost remain unclaimed.
+  ProgramJSON migration uses capability batches, not one-shape cards. Loop.body
+  control-flow scan is green as a 10-row `.hako` ProgramJSON traversal capability:
+  empty/return/continue/break/continue-return/if-continue/nested-loop/unsupported
+  rows now match the Rust ASTNode-token oracle. Next card may mark only the
+  covered LoopBodyControlFlowSnapshotV1 slice as a Rust ASTNode projector
+  retire-candidate. Policy SSOT:
+  docs/development/current/main/design/mirbuilder-programjson-capability-batch-migration-policy-ssot.md.
+  Do not claim full projector retirement, HakoAdoption, ProgramJSON full parser,
+  MIR mutation, lowering, ID allocation, route selection, or Source Selfhost.
   Rust ASTNode-to-token snapshot adapters are non-authority temporary projection
   ABI for MirBuilder-first migration. They must not invent semantic policy or a
   hidden token taxonomy, and must be removable when HHako ProgramJSON can feed
