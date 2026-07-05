@@ -1,0 +1,51 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderSinglePlannerFreezeRequiredNoneMessageRustOracleV1",
+  "token": "MIRBUILDER-SINGLE-PLANNER-FREEZE-REQUIRED-NONE-MESSAGE-RUST-ORACLE-FIXTURE-001",
+  "owner": "single_planner_freeze_required_none_message",
+  "rust_sources": [
+    {
+      "path": "src/mir/builder/control_flow/plan/single_planner/rules.rs",
+      "oracle_surface": "freeze_planner_required_none message/hint formatting"
+    }
+  ],
+  "input_contract": "BackendSafeSinglePlannerFreezeRequiredNoneMessageTokenSnapshotV1",
+  "rows": [
+    {
+      "case_id": "format_without_reject_detail",
+      "func_name": "main",
+      "condition_kind": "If",
+      "body_len": "3",
+      "reject_detail_token": "RejectDetailAbsent",
+      "expected_summary": "accepted=1;message=planner required, but planner returned None (legacy fallback forbidden): func=main cond=If body_len=3;hint=Disable HAKO_JOINIR_PLANNER_REQUIRED, or extend Facts->Planner coverage for this case."
+    },
+    {
+      "case_id": "format_with_reject_detail",
+      "func_name": "scan",
+      "condition_kind": "BinaryOp",
+      "body_len": "5",
+      "reject_detail_token": "RejectDetailPresent",
+      "expected_summary": "accepted=1;message=planner required, but planner returned None (legacy fallback forbidden): func=scan cond=BinaryOp body_len=5;detail=present;hint=Disable HAKO_JOINIR_PLANNER_REQUIRED, or extend Facts->Planner coverage for this case."
+    },
+    {
+      "case_id": "reject_bad_detail_token",
+      "func_name": "main",
+      "condition_kind": "If",
+      "body_len": "3",
+      "reject_detail_token": "RejectDetailUnknown",
+      "expected_summary": "accepted=0;reason=unsupported_reject_detail_token"
+    }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "reject_detail_retrieval_migrated": 0,
+    "freeze_construction_migrated": 0,
+    "route_execution_migrated": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0,
+    "id_allocation_migration": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

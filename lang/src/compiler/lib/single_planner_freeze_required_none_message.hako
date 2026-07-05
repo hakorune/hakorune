@@ -1,0 +1,22 @@
+// single_planner_freeze_required_none_message.hako
+//
+// Responsibility:
+// - format the planner-required None freeze message DTO
+//
+// Non-responsibility:
+// - planner reject detail retrieval
+// - Freeze construction, route execution, lowering, MIR mutation, or ID allocation
+static box SinglePlannerFreezeRequiredNoneMessageBox {
+  build_summary(func_name, condition_kind, body_len, reject_detail_token) {
+    if reject_detail_token != "RejectDetailAbsent" && reject_detail_token != "RejectDetailPresent" {
+      return "accepted=0;reason=unsupported_reject_detail_token"
+    }
+    local message = "planner required, but planner returned None (legacy fallback forbidden): func="
+      + func_name + " cond=" + condition_kind + " body_len=" + body_len
+    if reject_detail_token == "RejectDetailPresent" {
+      message = message + ";detail=present"
+    }
+    return "accepted=1;message=" + message
+      + ";hint=Disable HAKO_JOINIR_PLANNER_REQUIRED, or extend Facts->Planner coverage for this case."
+  }
+}
