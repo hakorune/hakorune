@@ -96,8 +96,9 @@ latest design decision:
   Expr statement Binary ProgramJSON structure.
   Selection-only ProgramJSON cards remain forbidden unless the next capability
   is genuinely ambiguous.
-  3002 records later dynamic typing hint inventory for Float binops, PHI
-  roundtrip, mir_call dst_type, and string relational compare policy.
+  3002 records trigger-based dynamic typing hint debt for Float binops, PHI
+  roundtrip, mir_call dst_type, and string relational compare policy; it is not
+  a guard-only detour unless the active ProgramJSON gate hits that route.
   ProgramJSON migration remains capability-batch based; full projector
   retirement, HakoAdoption, ProgramJSON full parser, MIR mutation, lowering,
   ID allocation, route selection, and Source Selfhost remain unclaimed.
@@ -401,19 +402,24 @@ Detailed evidence lives in phase cards, fixtures, and git history.
 ## Active Next 3
 ```text
 1. MIRBUILDER-PROGRAMJSON-EXPR-BINARY-SHAPE-SCAN-CAPABILITY-001
-   status=active; boundary=ProgramJSON Expr.expr Binary shape scan only
+   status=active; boundary=.hako implementation + fixture + AOT parity gate
 
 2. MIRBUILDER-PROGRAMJSON-EXPR-BINARY-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
-   status=pending; boundary=no full projector retirement, parser claim, lowering, mutation, ID allocation, or Source Selfhost
+   status=pending; boundary=covered ExprBinaryShapeSnapshotV1 rows only
 
 3. MIR JSON dynamic typing hint inventory follow-up
-   status=parked; boundary=3002 Tier-2/Tier-3 inventory only
+   status=trigger-based; boundary=3002 Tier-2/Tier-3, no guard-only detour
 
 next_documented_task =
   MIRBUILDER-PROGRAMJSON-EXPR-BINARY-SHAPE-SCAN-CAPABILITY-001
 
 next_after_active_3 =
   return to ProgramJSON capability-batch retire-candidate continuation
+
+task discipline =
+  Each ProgramJSON capability card must land real `.hako` traversal, a fixture,
+  and an AOT parity gate together. If it only adds a guard or selection row,
+  stop and rewrite the card before continuing.
 ```
 
 ## Landed Converter Capability Summary

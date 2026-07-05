@@ -8,6 +8,16 @@ Track non-Tier-1 dynamic typing gaps discovered while reviewing 2996/2997.
 This is not a blocker for the route/helper preflight queue unless a ProgramJSON
 gate hits one of these paths.
 
+Follow-up queue:
+
+```text
+3022-MIR-JSON-DYNAMIC-TYPING-HINT-DEBT-TRIAGE-001
+```
+
+Rule: do not put this inventory ahead of a real ProgramJSON `.hako`
+implementation card unless the active parity gate fails on one of these exact
+routes.
+
 ## Inventory
 
 ```text
@@ -38,6 +48,10 @@ B / Tier-3 user_box_method single-observation helper input protection:
 
 A#3 / Tier-3 scalar_i64_or_missing_zero:
   3000 MIR-ROUTE-GENERIC-METHOD-SCALAR-RETURN-VALUE-TYPE-PUBLICATION-001
+
+B / Tier-3 receiver-call helper single-observation extension:
+  Parked in 3022 unless an active ProgramJSON capability gate reaches a
+  receiver-call helper input path.
 ```
 
 ## Non-Claims
