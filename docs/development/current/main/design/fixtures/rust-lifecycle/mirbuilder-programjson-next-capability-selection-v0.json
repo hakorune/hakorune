@@ -1,0 +1,73 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonNextCapabilitySelectionV1",
+  "token": "MIRBUILDER-PROGRAMJSON-NEXT-CAPABILITY-SELECTION-001",
+  "input_state": {
+    "previous_retire_candidate_card": "MIRBUILDER-PROGRAMJSON-LOOP-BODY-CONTROL-FLOW-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001",
+    "previous_retire_candidate_guard": "tools/checks/rust_lifecycle_mirbuilder_programjson_loop_body_control_flow_retire_rust_astnode_projector_candidate_guard.sh",
+    "policy": "docs/development/current/main/design/mirbuilder-programjson-capability-batch-migration-policy-ssot.md",
+    "dynamic_typing_inventory": "docs/development/current/main/phases/phase-296x/3002-MIR-JSON-DYNAMIC-TYPING-HINT-COVERAGE-INVENTORY-001.md"
+  },
+  "selected_capability": {
+    "name": "ProgramJsonConditionShapeScanV1",
+    "next_card": "MIRBUILDER-PROGRAMJSON-CONDITION-SHAPE-SCAN-CAPABILITY-001",
+    "input": "ProgramJSON v0",
+    "output": "ConditionShapeSnapshotV1",
+    "target_projector_slice": "condition-shape token projection for loop and if conditions",
+    "why_this_next": [
+      "LoopBodyControlFlowSnapshotV1 covers control-flow counts but not condition expression structure",
+      "Loop.cond and If.cond are required by loop_cond_continue_with_return and related loop fact owners",
+      "existing .hako recipe-control code already distinguishes VarEqInt and VarLtInt condition facts",
+      "the slice can include multiple rows while staying below RecipeMatcher, route selection, lowering, mutation, and ID allocation"
+    ]
+  },
+  "minimum_parity_rows": [
+    "loop_cond_compare_var_lt_int",
+    "loop_cond_compare_var_eq_int",
+    "loop_cond_bool_true",
+    "loop_cond_var_bool",
+    "if_cond_compare_var_eq_int",
+    "if_cond_compare_var_lt_int",
+    "if_cond_bool_true",
+    "unsupported_call_condition"
+  ],
+  "acceptance": {
+    "consumes_programjson_structure": 1,
+    "string_only_facade": 0,
+    "minimum_parity_row_count": 8,
+    "retire_candidate_required": 1,
+    "implementation_card_required": 1,
+    "parity_gate_required": 1
+  },
+  "stop_conditions": {
+    "prebuilt_token_snapshot_input": 1,
+    "source_contains_or_regex_proof": 1,
+    "rust_astnode_projector_used_as_target_input": 1,
+    "mir_mutation_or_lowering_added": 1,
+    "recipe_matcher_execution_added": 1,
+    "unsupported_condition_silently_ignored": 1
+  },
+  "decision": {
+    "kind": "SelectProgramJsonTraversalCapability",
+    "reason_token": "ConditionShapeScanIsNextRetireCandidateSliceAfterLoopBodyControlFlow",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-CONDITION-SHAPE-SCAN-CAPABILITY-001"
+  },
+  "claims": {
+    "implementation_done": 0,
+    "parity_gate_green": 0,
+    "rust_astnode_projector_retire_candidate": 0,
+    "rust_astnode_projector_retired": 0,
+    "full_astnode_projector_retired": 0,
+    "programjson_full_parser_claim": 0,
+    "programjson_all_shapes_supported": 0,
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "recipe_matching_migrated": 0,
+    "route_selection_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0,
+    "id_allocation_migration": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

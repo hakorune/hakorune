@@ -60,7 +60,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-NEXT-CAPABILITY-SELECTION-001
+  MIRBUILDER-PROGRAMJSON-CONDITION-SHAPE-SCAN-CAPABILITY-001
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -90,13 +90,12 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  2998 is green: the covered LoopBodyControlFlowSnapshotV1 ProgramJSON
-  traversal slice is now a scoped Rust ASTNode projector retire-candidate.
-  Runtime dependency removal, full projector retirement, ProgramJSON full
-  parser, HakoAdoption, lowering, mutation, route selection, ID allocation, and
-  Source Selfhost remain unclaimed. Next select one ProgramJSON traversal
-  capability that can retire-candidate another concrete Rust ASTNode projector
-  slice without returning to string-only facade expansion.
+  3003 selected ProgramJsonConditionShapeScanV1 as the next ProgramJSON
+  traversal capability. It must consume Loop.cond and If.cond ProgramJSON
+  structure directly, produce ConditionShapeSnapshotV1, include at least 8
+  parity rows, and stay below RecipeMatcher, route selection, lowering,
+  mutation, ID allocation, new ABI, ProgramJSON full parser, HakoAdoption, full
+  projector retirement, and Source Selfhost claims.
   3002 records later dynamic typing hint inventory for Float binops, PHI
   roundtrip, mir_call dst_type, and string relational compare policy.
   ProgramJSON migration remains capability-batch based; full projector
@@ -401,8 +400,8 @@ Detailed evidence lives in phase cards, fixtures, and git history.
 
 ## Active Next 3
 ```text
-1. MIRBUILDER-PROGRAMJSON-NEXT-CAPABILITY-SELECTION-001
-   status=active; boundary=select one ProgramJSON traversal capability only
+1. MIRBUILDER-PROGRAMJSON-CONDITION-SHAPE-SCAN-CAPABILITY-001
+   status=active; boundary=ProgramJSON Loop.cond / If.cond shape scan only
 
 2. ProgramJSON retire-candidate continuation
    status=pending; boundary=no full projector retirement, parser claim, lowering, mutation, ID allocation, or Source Selfhost
@@ -411,7 +410,7 @@ Detailed evidence lives in phase cards, fixtures, and git history.
    status=parked; boundary=3002 Tier-2/Tier-3 inventory only
 
 next_documented_task =
-  MIRBUILDER-PROGRAMJSON-NEXT-CAPABILITY-SELECTION-001
+  MIRBUILDER-PROGRAMJSON-CONDITION-SHAPE-SCAN-CAPABILITY-001
 
 next_after_active_3 =
   return to ProgramJSON capability-batch retire-candidate continuation

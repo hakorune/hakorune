@@ -1,6 +1,6 @@
 # 3003 - MIRBUILDER-PROGRAMJSON-NEXT-CAPABILITY-SELECTION-001
 
-Status: active
+Status: landed
 
 ## Scope
 
@@ -41,3 +41,25 @@ Choose one capability that:
 
 Name one implementation-capability card and its parity gate shape, or stop for
 design consultation if no capability can meet the selection rule.
+
+## Decision
+
+```text
+selected_capability=ProgramJsonConditionShapeScanV1
+selected_next_card=MIRBUILDER-PROGRAMJSON-CONDITION-SHAPE-SCAN-CAPABILITY-001
+output_contract=ConditionShapeSnapshotV1
+minimum_parity_rows=8
+```
+
+## Evidence
+
+```text
+bash tools/checks/rust_lifecycle_mirbuilder_programjson_next_capability_selection_guard.sh
+
+consumes_programjson_structure=1
+string_only_facade=0
+implementation_done=0
+parity_gate_green=0
+rust_astnode_projector_retire_candidate=0
+source_selfhost_claim=0
+```
