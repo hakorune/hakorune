@@ -60,7 +60,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-FUNCTION-DECLARATION-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+  MIRBUILDER-PROGRAMJSON-CAPABILITY-CANDIDATE-VALIDATION
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -90,9 +90,9 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  3083 lands real ProgramJsonFunctionDeclarationShapeScanV1 ProgramJSON
-  traversal for covered FunctionDeclaration shapes with 10-row AOT parity. Next
-  work marks only those rows as a scoped retire-candidate.
+  3084 lands the covered FunctionDeclarationShapeSnapshotV1 ProgramJSON
+  traversal slice as a scoped Rust ASTNode projector retire-candidate. Next
+  work returns to ProgramJSON capability-batch continuation.
   Selection-only ProgramJSON cards remain forbidden.
   2997 stabilized the AOT/MIR value-type publication contract only for the
   proven route families. 3002 remains a trigger-based debt queue for Float
@@ -402,18 +402,19 @@ Detailed evidence lives in phase cards, fixtures, and git history.
 
 ## Active Next 3
 ```text
-1. MIRBUILDER-PROGRAMJSON-CONTEXT-SCOPE-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
-   status=landed; boundary=only the covered ContextScopeShapeSnapshotV1 rows
-
-2. MIRBUILDER-PROGRAMJSON-FUNCTION-DECLARATION-SHAPE-SCAN-CAPABILITY-001
+1. MIRBUILDER-PROGRAMJSON-FUNCTION-DECLARATION-SHAPE-SCAN-CAPABILITY-001
    status=landed; boundary=real `.hako` ProgramJSON FunctionDeclaration traversal
 
-3. MIRBUILDER-PROGRAMJSON-FUNCTION-DECLARATION-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
-   status=active; boundary=only the covered FunctionDeclarationShapeSnapshotV1 rows
+2. MIRBUILDER-PROGRAMJSON-FUNCTION-DECLARATION-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+   status=landed; boundary=only the covered FunctionDeclarationShapeSnapshotV1 rows
+
+3. MIRBUILDER-PROGRAMJSON-CAPABILITY-BATCH-CONTINUATION
+   status=active; boundary=validate actual ProgramJSON v0 evidence, then
+   implement one `.hako` traversal with fixture + AOT parity gate
 
 next active:
-  MIRBUILDER-PROGRAMJSON-FUNCTION-DECLARATION-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
-  status=active; boundary=covered function-declaration snapshot retire-candidate only
+  MIRBUILDER-PROGRAMJSON-CAPABILITY-CANDIDATE-VALIDATION
+  status=active-no-card; boundary=prove actual ProgramJSON v0 shape first
 
 trigger-based AOT/MIR typing debt:
   status=parked-until-triggered; items=Float Sub/Mul/Div, string relational
@@ -421,7 +422,7 @@ trigger-based AOT/MIR typing debt:
   scalar_i64_or_missing_zero, PHI dst_type, mir_call dst_type
 
 next_documented_task =
-  MIRBUILDER-PROGRAMJSON-FUNCTION-DECLARATION-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+  MIRBUILDER-PROGRAMJSON-CAPABILITY-CANDIDATE-VALIDATION
 
 next_after_active_3 =
   MIRBUILDER-PROGRAMJSON-CAPABILITY-CANDIDATE-VALIDATION
