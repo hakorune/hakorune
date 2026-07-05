@@ -1,0 +1,86 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonAssignmentValueShapeScanParityV1",
+  "token": "MIRBUILDER-PROGRAMJSON-ASSIGNMENT-VALUE-SHAPE-SCAN-CAPABILITY-001",
+  "capability": {
+    "name": "ProgramJsonAssignmentValueShapeScanV1",
+    "input": "ProgramJSON v0",
+    "output": "AssignmentValueShapeSnapshotV1"
+  },
+  "routes": {
+    "rust_oracle_route": "source -> RHako parser -> Rust ASTNode -> Rust assignment-value token snapshot",
+    "hako_programjson_route": "source -> HHako parser -> ProgramJSON -> HHako assignment-value token snapshot"
+  },
+  "rows": [
+    {
+      "row_id": "local_i_expr_i_add_1",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "Local", "type": "Local", "name": "i", "expr": {"type": "Binary", "op": "Add", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 1}}}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=AssignmentValueShapeSnapshotV1;top_assignment_value_shape_kind=SelfAddIntRhs;if_then_assignment_value_shape_kind=Missing;if_else_assignment_value_shape_kind=Missing;self_increment_candidate_count=1;self_decrement_candidate_count=0;unsupported_value_count=0"}
+    },
+    {
+      "row_id": "local_i_expr_1_add_i",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "Local", "type": "Local", "name": "i", "expr": {"type": "Binary", "op": "Add", "lhs": {"type": "Int", "value": 1}, "rhs": {"type": "Var", "name": "i"}}}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=AssignmentValueShapeSnapshotV1;top_assignment_value_shape_kind=SelfAddIntLhs;if_then_assignment_value_shape_kind=Missing;if_else_assignment_value_shape_kind=Missing;self_increment_candidate_count=1;self_decrement_candidate_count=0;unsupported_value_count=0"}
+    },
+    {
+      "row_id": "local_i_expr_i_sub_1",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "Local", "type": "Local", "name": "i", "expr": {"type": "Binary", "op": "Sub", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 1}}}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=AssignmentValueShapeSnapshotV1;top_assignment_value_shape_kind=SelfSubIntRhs;if_then_assignment_value_shape_kind=Missing;if_else_assignment_value_shape_kind=Missing;self_increment_candidate_count=0;self_decrement_candidate_count=1;unsupported_value_count=0"}
+    },
+    {
+      "row_id": "local_i_expr_j_add_1_not_self",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "Local", "type": "Local", "name": "i", "expr": {"type": "Binary", "op": "Add", "lhs": {"type": "Var", "name": "j"}, "rhs": {"type": "Int", "value": 1}}}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=AssignmentValueShapeSnapshotV1;top_assignment_value_shape_kind=Unsupported;if_then_assignment_value_shape_kind=Missing;if_else_assignment_value_shape_kind=Missing;self_increment_candidate_count=0;self_decrement_candidate_count=0;unsupported_value_count=1"}
+    },
+    {
+      "row_id": "local_i_expr_i_mul_1_unsupported",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "Local", "type": "Local", "name": "i", "expr": {"type": "Binary", "op": "Mul", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 1}}}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=AssignmentValueShapeSnapshotV1;top_assignment_value_shape_kind=Unsupported;if_then_assignment_value_shape_kind=Missing;if_else_assignment_value_shape_kind=Missing;self_increment_candidate_count=0;self_decrement_candidate_count=0;unsupported_value_count=1"}
+    },
+    {
+      "row_id": "local_i_expr_call_unsupported",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "Local", "type": "Local", "name": "i", "expr": {"type": "Call", "callee": "next", "args": []}}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=AssignmentValueShapeSnapshotV1;top_assignment_value_shape_kind=Unsupported;if_then_assignment_value_shape_kind=Missing;if_else_assignment_value_shape_kind=Missing;self_increment_candidate_count=0;self_decrement_candidate_count=0;unsupported_value_count=1"}
+    },
+    {
+      "row_id": "if_then_local_i_expr_i_add_1",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "If", "cond": {"type": "Bool", "value": true}, "then": [{"kind": "Local", "type": "Local", "name": "i", "expr": {"type": "Binary", "op": "Add", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 1}}}], "else": null}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=AssignmentValueShapeSnapshotV1;top_assignment_value_shape_kind=Missing;if_then_assignment_value_shape_kind=SelfAddIntRhs;if_else_assignment_value_shape_kind=Missing;self_increment_candidate_count=1;self_decrement_candidate_count=0;unsupported_value_count=0"}
+    },
+    {
+      "row_id": "if_else_local_i_expr_i_sub_1",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "If", "cond": {"type": "Bool", "value": true}, "then": [], "else": [{"kind": "Local", "type": "Local", "name": "i", "expr": {"type": "Binary", "op": "Sub", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 1}}}]}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=AssignmentValueShapeSnapshotV1;top_assignment_value_shape_kind=Missing;if_then_assignment_value_shape_kind=Missing;if_else_assignment_value_shape_kind=SelfSubIntRhs;self_increment_candidate_count=0;self_decrement_candidate_count=1;unsupported_value_count=0"}
+    },
+    {
+      "row_id": "first_stmt_not_local_unsupported",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Return", "expr": {"type": "Int", "value": 1}}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=AssignmentValueShapeSnapshotV1;top_assignment_value_shape_kind=Unsupported;if_then_assignment_value_shape_kind=Missing;if_else_assignment_value_shape_kind=Missing;self_increment_candidate_count=0;self_decrement_candidate_count=0;unsupported_value_count=1"}
+    }
+  ],
+  "summary": {
+    "parity_row_count": 9,
+    "programjson_traversal_used": 1,
+    "string_only_facade": 0,
+    "rust_astnode_projector_retire_candidate": 1
+  },
+  "decision": {
+    "kind": "ProgramJsonAssignmentValueShapeScanParityGreen",
+    "reason_token": "AssignmentValueShapeProgramJsonSnapshotMatchesRustAstNodeOracle",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-ASSIGNMENT-VALUE-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "programjson_full_parser_claim": 0,
+    "hako_adopted_for_full_owner": 0,
+    "legacy_assign_proof": 0
+  }
+}

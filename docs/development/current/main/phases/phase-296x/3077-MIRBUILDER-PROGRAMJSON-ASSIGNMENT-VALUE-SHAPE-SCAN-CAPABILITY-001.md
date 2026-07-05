@@ -1,6 +1,6 @@
 # 3077 - MIRBUILDER-PROGRAMJSON-ASSIGNMENT-VALUE-SHAPE-SCAN-CAPABILITY-001
 
-Status: selected
+Status: landed
 
 ## Scope
 
@@ -54,6 +54,42 @@ unsupported_value_count=...
 - card lands implementation, fixture, and AOT parity gate together;
 - next card may mark only covered `AssignmentValueShapeSnapshotV1` rows as a
   Rust ASTNode projector retire-candidate.
+
+## Implementation
+
+```text
+lang/src/compiler/mirbuilder/program_json_assignment_value_shape_scan.hako
+```
+
+The owner consumes ProgramJSON structure and emits
+`AssignmentValueShapeSnapshotV1` for covered top-level `Local`, `If.then[0]`
+`Local`, and `If.else[0]` `Local` assignment-value shapes. It observes
+`Local.name`, `Local.expr`, `Binary.op`, `Binary.lhs`, and `Binary.rhs` only.
+
+## Evidence
+
+```bash
+bash tools/checks/rust_lifecycle_mirbuilder_programjson_assignment_value_shape_scan_parity_gate.sh
+```
+
+Result:
+
+```text
+owner=ProgramJsonAssignmentValueShapeScanV1
+parity_rows=9
+aot_execution_status=green
+token_snapshot_parity=green
+programjson_traversal_used=1
+string_only_facade=0
+rust_astnode_projector_retire_candidate=1
+legacy_assign_proof=0
+source_selfhost_claim=0
+mir_mutation=0
+id_allocation=0
+backend_lowering=0
+full_recipe_matcher_execution=0
+route_selection=0
+```
 
 ## Forbidden
 
