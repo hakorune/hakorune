@@ -90,11 +90,9 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  3041 lands real `.hako` ProgramJsonLocalStringLiteralShapeScanV1 traversal
-  for covered Local.expr string literal ProgramJSON structure with a 9-row AOT
-  parity gate. 3042 is active to mark only covered
-  LocalStringLiteralShapeSnapshotV1 rows as Rust ASTNode projector
-  retire-candidate.
+  3042 lands the covered LocalStringLiteralShapeSnapshotV1 ProgramJSON
+  traversal slice as a scoped Rust ASTNode projector retire-candidate. Next
+  work returns to ProgramJSON capability-batch continuation.
   Selection-only ProgramJSON cards remain forbidden unless the next capability
   is genuinely ambiguous.
   3002 records trigger-based dynamic typing hint debt for Float binops, PHI
@@ -409,20 +407,20 @@ Detailed evidence lives in phase cards, fixtures, and git history.
    status=landed; boundary=Local.expr string traversal, no StringBox materialization
 
 3. MIRBUILDER-PROGRAMJSON-LOCAL-STRING-LITERAL-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
-   status=active; boundary=covered LocalStringLiteralShapeSnapshotV1 rows only
+   status=landed; boundary=covered LocalStringLiteralShapeSnapshotV1 rows only
 
 next active:
-  MIRBUILDER-PROGRAMJSON-LOCAL-STRING-LITERAL-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
-  status=active; boundary=covered LocalStringLiteralShapeSnapshotV1 rows only
+  MIRBUILDER-PROGRAMJSON-CAPABILITY-BATCH-CONTINUATION
+  status=active; boundary=select and implement next concrete ProgramJSON traversal capability
 
 trigger-based: MIR JSON dynamic typing hint inventory follow-up
    status=trigger-based; boundary=3002 Tier-2/Tier-3, no guard-only detour
 
 next_documented_task =
-  MIRBUILDER-PROGRAMJSON-LOCAL-STRING-LITERAL-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+  MIRBUILDER-PROGRAMJSON-CAPABILITY-BATCH-CONTINUATION
 
 next_after_active_3 =
-  return to ProgramJSON capability-batch continuation
+  select next covered retire-candidate after green parity
 
 task discipline =
   Each ProgramJSON capability card must land real `.hako` traversal, a fixture,
