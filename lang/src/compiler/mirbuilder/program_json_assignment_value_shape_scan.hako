@@ -25,20 +25,30 @@ static box ProgramJsonAssignmentValueShapeScanBox {
     local first = me._first_object_in_array(program_json, body)
     if first < 0 { return me._fail("cap_missing_first_stmt") }
 
-    local top_kind = "Missing"
-    local then_kind = "Missing"
-    local else_kind = "Missing"
     local first_type = me._node_type_at(program_json, first)
 
     if first_type == "Local" {
-      top_kind = me._local_assignment_value_kind(program_json, first)
-    } else if first_type == "If" {
-      then_kind = me._first_local_assignment_value_kind_in_array_field(program_json, first, "then")
-      else_kind = me._first_local_assignment_value_kind_in_else(program_json, first)
-    } else {
-      top_kind = "Unsupported"
+      local top_kind = me._local_assignment_value_kind(program_json, first)
+      return me._summary_for("top", top_kind)
     }
 
+    if first_type == "If" {
+      local then_kind = me._first_local_assignment_value_kind_in_array_field(program_json, first, "then")
+      local else_kind = me._first_local_assignment_value_kind_in_else(program_json, first)
+      return me._summary("Missing", then_kind, else_kind)
+    }
+
+    return me._summary_for("top", "Unsupported")
+  }
+
+  _summary_for(slot, kind) {
+    if slot == "top" { return me._summary(kind, "Missing", "Missing") }
+    if slot == "then" { return me._summary("Missing", kind, "Missing") }
+    if slot == "else" { return me._summary("Missing", "Missing", kind) }
+    return me._summary("Unsupported", "Missing", "Missing")
+  }
+
+  _summary(top_kind, then_kind, else_kind) {
     local inc = me._self_increment_count(top_kind)
       + me._self_increment_count(then_kind)
       + me._self_increment_count(else_kind)
@@ -48,10 +58,6 @@ static box ProgramJsonAssignmentValueShapeScanBox {
     local unsupported = me._shape_unsupported_count(top_kind)
       + me._shape_unsupported_count(then_kind)
       + me._shape_unsupported_count(else_kind)
-    return me._summary(top_kind, then_kind, else_kind, inc, dec, unsupported)
-  }
-
-  _summary(top_kind, then_kind, else_kind, inc, dec, unsupported) {
     return "snapshot_kind=AssignmentValueShapeSnapshotV1"
       + ";top_assignment_value_shape_kind=" + top_kind
       + ";if_then_assignment_value_shape_kind=" + then_kind

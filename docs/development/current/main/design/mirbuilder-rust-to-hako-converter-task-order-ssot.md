@@ -90,10 +90,9 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  3077 lands real `.hako` ProgramJsonAssignmentValueShapeScanV1 traversal for
-  covered current ProgramJSON Local.name + Local.expr assignment-value shapes
-  with 9-row AOT parity. 3078 is active for the scoped projector
-  retire-candidate.
+  3078 lands the covered AssignmentValueShapeSnapshotV1 ProgramJSON traversal
+  slice as a scoped Rust ASTNode projector retire-candidate. Next work returns
+  to ProgramJSON capability-batch continuation.
   Selection-only ProgramJSON cards remain forbidden unless the next capability
   is genuinely ambiguous.
   2997 stabilized the AOT/MIR value-type publication contract only for the
@@ -409,14 +408,14 @@ Detailed evidence lives in phase cards, fixtures, and git history.
    traversal for assignment-value shape snapshots; not legacy Assign proof
 
 2. MIRBUILDER-PROGRAMJSON-ASSIGNMENT-VALUE-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
-   status=active; boundary=only the covered AssignmentValueShapeSnapshotV1 rows
+   status=landed; boundary=only the covered AssignmentValueShapeSnapshotV1 rows
 
 3. MIRBUILDER-PROGRAMJSON-CAPABILITY-BATCH-CONTINUATION
-   status=queued; boundary=select the next concrete traversal only after 1+2 land
+   status=active; boundary=select and implement next concrete ProgramJSON traversal capability
 
 next active:
-  MIRBUILDER-PROGRAMJSON-ASSIGNMENT-VALUE-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
-  status=active; boundary=covered AssignmentValueShapeSnapshotV1 rows only
+  MIRBUILDER-PROGRAMJSON-CAPABILITY-BATCH-CONTINUATION
+  status=active; boundary=select and implement next concrete ProgramJSON traversal capability
 
 trigger-based AOT/MIR typing debt:
   status=parked-until-triggered; items=Float Sub/Mul/Div, string relational
@@ -424,10 +423,10 @@ trigger-based AOT/MIR typing debt:
   scalar_i64_or_missing_zero, PHI dst_type, mir_call dst_type
 
 next_documented_task =
-  MIRBUILDER-PROGRAMJSON-ASSIGNMENT-VALUE-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+  MIRBUILDER-PROGRAMJSON-CAPABILITY-BATCH-CONTINUATION
 
 next_after_active_3 =
-  MIRBUILDER-PROGRAMJSON-ASSIGNMENT-VALUE-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+  select next covered retire-candidate after green parity
 
 task discipline =
   Each ProgramJSON capability card must land real `.hako` traversal, a fixture,
