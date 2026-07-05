@@ -94,6 +94,7 @@ phase-1 compatibility Program(JSON) compat execution helper.
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_expr_logical_shape_retire_rust_astnode_projector_candidate_guard.sh` | Retire-candidate guard for the covered `ExprLogicalShapeSnapshotV1` ProgramJSON traversal slice. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_local_array_literal_shape_scan_parity_gate.sh` | Capability-batch parity for `.hako` `ProgramJsonLocalArrayLiteralShapeScanV1`. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_local_array_literal_shape_retire_rust_astnode_projector_candidate_guard.sh` | Retire-candidate guard for the covered `LocalArrayLiteralShapeSnapshotV1` ProgramJSON traversal slice. |
+| `tools/checks/rust_lifecycle_mirbuilder_programjson_print_call_shape_scan_parity_gate.sh` | Capability-batch parity for `.hako` `ProgramJsonPrintCallShapeScanV1`. |
 | `tools/checks/hako_aot_dynamic_string_eq_and_int_to_str_correctness_gate.sh` | AOT dynamic string equality and scanner-fed `StringHelpers.int_to_str` correctness gate. |
 | `tools/checks/hako_aot_route_value_type_publication_contract_gate.sh` | AOT/MIR route value-type publication contract gate for 2997. |
 
