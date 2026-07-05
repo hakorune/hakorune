@@ -90,9 +90,10 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  3032 lands the covered ThrowExprShapeSnapshotV1 ProgramJSON traversal rows as
-  a scoped Rust ASTNode projector retire-candidate. Next work returns to
-  ProgramJSON capability-batch continuation.
+  3033 lands real `.hako` ProgramJsonLoopRangeShapeScanV1 traversal for covered
+  LoopRange ProgramJSON statement structure with a 9-row AOT parity gate. 3034
+  is active to mark only covered LoopRangeShapeSnapshotV1 rows as Rust ASTNode
+  projector retire-candidate.
   Selection-only ProgramJSON cards remain forbidden unless the next capability
   is genuinely ambiguous.
   3002 records trigger-based dynamic typing hint debt for Float binops, PHI
@@ -406,20 +407,18 @@ Detailed evidence lives in phase cards, fixtures, and git history.
 2. MIRBUILDER-PROGRAMJSON-THROW-EXPR-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
    status=landed; boundary=covered ThrowExprShapeSnapshotV1 rows only
 
-3. MIRBUILDER-PROGRAMJSON-CAPABILITY-BATCH-CONTINUATION
-   status=active; boundary=choose next real traversal capability and implement it
+3. MIRBUILDER-PROGRAMJSON-LOOPRANGE-SHAPE-SCAN-CAPABILITY-001
+   status=landed; boundary=LoopRange traversal, no loop lowering/runtime semantics
 
 next active:
-  Select the next ProgramJSON traversal capability only as implementation prep,
-  then land the `.hako` traversal, fixture rows, and AOT parity gate together.
-  Do not land a standalone guard/doc-only progress row unless capability choice
-  is genuinely ambiguous.
+  MIRBUILDER-PROGRAMJSON-LOOPRANGE-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+  status=active; boundary=covered LoopRangeShapeSnapshotV1 rows only
 
 trigger-based: MIR JSON dynamic typing hint inventory follow-up
    status=trigger-based; boundary=3002 Tier-2/Tier-3, no guard-only detour
 
 next_documented_task =
-  MIRBUILDER-PROGRAMJSON-CAPABILITY-BATCH-CONTINUATION
+  MIRBUILDER-PROGRAMJSON-LOOPRANGE-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
 
 next_after_active_3 =
   return to ProgramJSON capability-batch retire-candidate continuation

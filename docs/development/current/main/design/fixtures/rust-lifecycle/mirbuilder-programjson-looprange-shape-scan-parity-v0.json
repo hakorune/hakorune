@@ -1,0 +1,105 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonLoopRangeShapeScanParityV1",
+  "token": "MIRBUILDER-PROGRAMJSON-LOOPRANGE-SHAPE-SCAN-CAPABILITY-001",
+  "capability": {
+    "name": "ProgramJsonLoopRangeShapeScanV1",
+    "input": "ProgramJSON v0",
+    "output": "LoopRangeShapeSnapshotV1"
+  },
+  "routes": {
+    "rust_oracle_route": "source -> RHako parser -> Rust ASTNode -> Rust LoopRange token snapshot",
+    "hako_programjson_route": "source -> HHako parser -> ProgramJSON -> HHako LoopRange token snapshot"
+  },
+  "rows": [
+    {
+      "row_id": "top_looprange_int_to_int_empty_body",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "LoopRange", "var_name": "i", "start": {"type": "Int", "value": 0}, "end": {"type": "Int", "value": 3}, "body": []}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LoopRangeShapeSnapshotV1;top_looprange_shape_kind=IntToIntEmptyBody;if_then_looprange_shape_kind=Missing;if_else_looprange_shape_kind=Missing;supported_looprange_count=1;unsupported_looprange_count=0"
+      }
+    },
+    {
+      "row_id": "top_looprange_var_to_int_continue_body",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "LoopRange", "var_name": "i", "start": {"type": "Var", "name": "start"}, "end": {"type": "Int", "value": 3}, "body": [{"type": "Continue"}]}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LoopRangeShapeSnapshotV1;top_looprange_shape_kind=VarToIntContinueBody;if_then_looprange_shape_kind=Missing;if_else_looprange_shape_kind=Missing;supported_looprange_count=1;unsupported_looprange_count=0"
+      }
+    },
+    {
+      "row_id": "top_looprange_int_to_var_return_body",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "LoopRange", "var_name": "i", "start": {"type": "Int", "value": 0}, "end": {"type": "Var", "name": "limit"}, "body": [{"type": "Return", "expr": {"type": "Int", "value": 1}}]}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LoopRangeShapeSnapshotV1;top_looprange_shape_kind=IntToVarReturnBody;if_then_looprange_shape_kind=Missing;if_else_looprange_shape_kind=Missing;supported_looprange_count=1;unsupported_looprange_count=0"
+      }
+    },
+    {
+      "row_id": "top_looprange_var_to_var_break_body",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "LoopRange", "var_name": "i", "start": {"type": "Var", "name": "start"}, "end": {"type": "Var", "name": "limit"}, "body": [{"type": "Break"}]}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LoopRangeShapeSnapshotV1;top_looprange_shape_kind=VarToVarBreakBody;if_then_looprange_shape_kind=Missing;if_else_looprange_shape_kind=Missing;supported_looprange_count=1;unsupported_looprange_count=0"
+      }
+    },
+    {
+      "row_id": "if_then_looprange_int_to_int_empty_body",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "If", "cond": {"type": "Bool", "value": true}, "then": [{"type": "LoopRange", "var_name": "i", "start": {"type": "Int", "value": 0}, "end": {"type": "Int", "value": 3}, "body": []}], "else": null}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LoopRangeShapeSnapshotV1;top_looprange_shape_kind=Missing;if_then_looprange_shape_kind=IntToIntEmptyBody;if_else_looprange_shape_kind=Missing;supported_looprange_count=1;unsupported_looprange_count=0"
+      }
+    },
+    {
+      "row_id": "if_else_looprange_var_to_int_continue_body",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "If", "cond": {"type": "Bool", "value": true}, "then": [], "else": [{"type": "LoopRange", "var_name": "i", "start": {"type": "Var", "name": "start"}, "end": {"type": "Int", "value": 3}, "body": [{"type": "Continue"}]}]}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LoopRangeShapeSnapshotV1;top_looprange_shape_kind=Missing;if_then_looprange_shape_kind=Missing;if_else_looprange_shape_kind=VarToIntContinueBody;supported_looprange_count=1;unsupported_looprange_count=0"
+      }
+    },
+    {
+      "row_id": "top_looprange_float_bound_unsupported",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "LoopRange", "var_name": "i", "start": {"type": "Float", "value": 0.0}, "end": {"type": "Int", "value": 3}, "body": []}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LoopRangeShapeSnapshotV1;top_looprange_shape_kind=Unsupported;if_then_looprange_shape_kind=Missing;if_else_looprange_shape_kind=Missing;supported_looprange_count=0;unsupported_looprange_count=1"
+      }
+    },
+    {
+      "row_id": "top_looprange_nested_loop_unsupported",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "LoopRange", "var_name": "i", "start": {"type": "Int", "value": 0}, "end": {"type": "Int", "value": 3}, "body": [{"type": "Loop", "cond": {"type": "Bool", "value": true}, "body": []}]}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LoopRangeShapeSnapshotV1;top_looprange_shape_kind=Unsupported;if_then_looprange_shape_kind=Missing;if_else_looprange_shape_kind=Missing;supported_looprange_count=0;unsupported_looprange_count=1"
+      }
+    },
+    {
+      "row_id": "first_stmt_not_looprange_unsupported",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Return", "expr": {"type": "Int", "value": 1}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LoopRangeShapeSnapshotV1;top_looprange_shape_kind=Unsupported;if_then_looprange_shape_kind=Missing;if_else_looprange_shape_kind=Missing;supported_looprange_count=0;unsupported_looprange_count=1"
+      }
+    }
+  ],
+  "summary": {
+    "parity_row_count": 9,
+    "programjson_traversal_used": 1,
+    "string_only_facade": 0,
+    "rust_astnode_projector_retire_candidate": 1
+  },
+  "decision": {
+    "kind": "ProgramJsonLoopRangeShapeScanParityGreen",
+    "reason_token": "LoopRangeShapeProgramJsonSnapshotMatchesRustAstNodeOracle",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-LOOPRANGE-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "programjson_full_parser_claim": 0,
+    "hako_adopted_for_full_owner": 0,
+    "looprange_lowering": 0,
+    "iterator_runtime_semantics": 0
+  }
+}

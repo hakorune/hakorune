@@ -60,9 +60,12 @@ static box ProgramJsonV0ScannerBox {
     if key == "op" { return "\"op\":" }
     if key == "recv" { return "\"recv\":" }
     if key == "rhs" { return "\"rhs\":" }
+    if key == "start" { return "\"start\":" }
     if key == "then" { return "\"then\":" }
     if key == "type" { return "\"type\":" }
     if key == "value" { return "\"value\":" }
+    if key == "var_name" { return "\"var_name\":" }
+    if key == "end" { return "\"end\":" }
     return "\"" + key + "\":"
   }
 
