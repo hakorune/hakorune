@@ -19,6 +19,15 @@ static box ProgramJsonV0ScannerBox {
     return -1
   }
 
+  _result_ok(value, next) {
+    return %{"ok" => 1, "value" => value, "next" => next, "reason" => ""}
+  }
+
+  _result_err(reason) {
+    me._fail(reason)
+    return %{"ok" => 0, "value" => "", "next" => -1, "reason" => reason}
+  }
+
   _read_char(s, i) {
     if s == null { return "" }
     if i < 0 { return "" }
@@ -155,12 +164,18 @@ static box ProgramJsonV0ScannerBox {
   seek_obj_field_value_start(s, key, obj_start) {
     if s == null { me._fail("input is null")  return -1 }
     if key == null || ("" + key) == "" { me._fail("key is empty")  return -1 }
+    local p = me._try_obj_field_value_start(s, key, obj_start)
+    if p < 0 { me._fail("missing field: " + key)  return -1 }
+    return p
+  }
+
+  _try_obj_field_value_start(s, key, obj_start) {
     local end = me.seek_obj_end_unescaped(s, obj_start)
     if end < 0 { return -1 }
     local obj = s.substring(obj_start, end)
     local needle = me._field_needle(key)
     local p = StringHelpers.index_of(obj, 0, needle)
-    if p < 0 || (obj_start + p) >= end { me._fail("missing field: " + key)  return -1 }
+    if p < 0 || (obj_start + p) >= end { return -1 }
     return obj_start + p + needle.length()
   }
 
@@ -246,6 +261,19 @@ static box ProgramJsonV0ScannerBox {
     return %{"value" => obj.substring(vstart, vend), "next" => obj_start + vend + 1}
   }
 
+  read_string_field_last_in_obj_result(s, key, obj_start) {
+    if s == null { return me._result_err("input is null") }
+    if key == null || ("" + key) == "" { return me._result_err("key is empty") }
+    local vstart = me._try_obj_field_value_start(s, key, obj_start)
+    if vstart < 0 { return me._result_err("missing field: " + key) }
+    vstart = StringHelpers.skip_ws(s, vstart)
+    if me._read_char(s, vstart) != "\"" { return me._result_err("field is not a string: " + key) }
+    vstart = vstart + 1
+    local vend = StringHelpers.index_of(s, vstart, "\"")
+    if vend < 0 { return me._result_err("unterminated string for field: " + key) }
+    return me._result_ok(s.substring(vstart, vend), vend + 1)
+  }
+
   // read_int_field_in_obj(s, key, obj_start) -> %{ "value" => int, "next" => idx }
   read_int_field_in_obj(s, key, obj_start) {
     if s == null { me._fail("input is null")  return null }
@@ -253,7 +281,7 @@ static box ProgramJsonV0ScannerBox {
     local end = me.seek_obj_end_unescaped(s, obj_start)
     if end < 0 { return null }
     local obj = s.substring(obj_start, end)
-    local needle = "\"" + ("" + key) + "\":"
+    local needle = me._field_needle(key)
     local p = StringHelpers.index_of(obj, 0, needle)
     if p < 0 { me._fail("missing field: " + key)  return null }
     local vpos = StringHelpers.skip_ws(obj, p + needle.length())
@@ -264,6 +292,21 @@ static box ProgramJsonV0ScannerBox {
     local digits = obj.substring(vpos, end_pos)
     if digits == null || digits.length() == 0 { me._fail("int field is empty: " + key)  return null }
     return %{"value" => StringHelpers.to_i64(digits), "next" => obj_start + end_pos}
+  }
+
+  read_int_field_in_obj_result(s, key, obj_start) {
+    if s == null { return me._result_err("input is null") }
+    if key == null || ("" + key) == "" { return me._result_err("key is empty") }
+    local vpos = me._try_obj_field_value_start(s, key, obj_start)
+    if vpos < 0 { return me._result_err("missing field: " + key) }
+    vpos = StringHelpers.skip_ws(s, vpos)
+    local end_brace = StringHelpers.index_of(s, vpos, "}")
+    local end_comma = StringHelpers.index_of(s, vpos, ",")
+    local end_pos = me._min_pos(end_brace, end_comma)
+    if end_pos < 0 { return me._result_err("int field has no delimiter: " + key) }
+    local digits = s.substring(vpos, end_pos)
+    if digits == null || digits.length() == 0 { return me._result_err("int field is empty: " + key) }
+    return me._result_ok(StringHelpers.to_i64(digits), end_pos)
   }
 
   // read_int_field_at(s, key, from_idx) -> %{ "value" => int, "next" => idx }

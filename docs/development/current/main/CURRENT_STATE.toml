@@ -347,12 +347,12 @@ latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-t
 
 latest_card = "HAKO-PROGRAMJSON-SCANNER-RESULT-MAP-RETURN-CONTRACT-001"
 latest_card_path = "docs/development/current/main/phases/phase-296x/3109-HAKO-PROGRAMJSON-SCANNER-RESULT-MAP-RETURN-CONTRACT-001.md"
-latest_card_summary = """3109 selects approach B for the next PhaseState parse
-blocker: fix the `.hako` ProgramJSON scanner helper return surface to use
-total result-map helpers instead of widening AOT void-signature object returns.
+latest_card_summary = """3109 is green for the next PhaseState parse blocker:
+the `.hako` ProgramJSON scanner helper return surface now uses total
+result-map helpers instead of widening AOT void-signature object returns.
 Generic void object-return reject remains; body proof alone must not publish
-object returns. After the scanner result-map contract is green, resume loop
-Recipe DTO parity. Layer4 parity green, runtime route switch, full projector
+object returns. Next selected task is loop Recipe DTO parity. Layer4 parity
+green, runtime route switch, full projector
 retirement, HakoAdoption, Source Selfhost, RecipeMatcher, route selection,
 lowering, mutation, ID allocation, and new ABI remain unclaimed."""
 

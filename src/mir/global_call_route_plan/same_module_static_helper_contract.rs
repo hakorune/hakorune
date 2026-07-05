@@ -10,6 +10,9 @@ pub(super) fn infer_same_module_static_helper_return_contract(
     function: &MirFunction,
     typed_plan_type_ids: &BTreeMap<String, u32>,
 ) -> Option<(GlobalCallProof, GlobalCallReturnContract)> {
+    if same_module_static_helper_legacy_no_new_consumer(&function.signature.name) {
+        return None;
+    }
     let mut inferred = same_module_static_helper_return_type_contract(
         &function.signature.return_type,
         typed_plan_type_ids,
@@ -51,10 +54,10 @@ pub(super) fn infer_same_module_static_helper_return_contract(
                     }
                 }
                 MirInstruction::NewBox { dst, box_type, .. } => {
-                    if same_module_static_helper_builtin_handle_return(box_type)
-                        || typed_plan_type_ids.contains_key(box_type)
+                    if let Some(contract) =
+                        same_module_static_helper_box_return_contract(box_type, typed_plan_type_ids)
                     {
-                        result_contracts.insert(*dst, GlobalCallReturnContract::ObjectHandle);
+                        result_contracts.insert(*dst, contract);
                     }
                 }
                 MirInstruction::VariantMake { dst, .. } => {
@@ -128,6 +131,12 @@ pub(super) fn same_module_static_helper_contract_allowed(
                 MirType::Box(_) | MirType::Unknown
             )
         }
+        GlobalCallReturnContract::MapHandle => {
+            matches!(
+                function.signature.return_type,
+                MirType::Box(_) | MirType::Unknown
+            )
+        }
         GlobalCallReturnContract::MixedRuntimeI64OrHandle => {
             matches!(
                 function.signature.return_type,
@@ -173,18 +182,33 @@ fn same_module_static_helper_return_type_contract(
     match return_type {
         MirType::Integer | MirType::Bool => Some(GlobalCallReturnContract::ScalarI64),
         MirType::Void => Some(GlobalCallReturnContract::VoidSentinelI64Zero),
-        MirType::Box(name)
-            if same_module_static_helper_builtin_handle_return(name)
-                || typed_plan_type_ids.contains_key(name) =>
-        {
+        MirType::Box(name) => {
+            same_module_static_helper_box_return_contract(name, typed_plan_type_ids)
+        }
+        _ => None,
+    }
+}
+
+fn same_module_static_helper_box_return_contract(
+    box_name: &str,
+    typed_plan_type_ids: &BTreeMap<String, u32>,
+) -> Option<GlobalCallReturnContract> {
+    match box_name {
+        "MapBox" => Some(GlobalCallReturnContract::MapHandle),
+        "ArrayBox" | "DirectArrayI64" => Some(GlobalCallReturnContract::ObjectHandle),
+        _ if typed_plan_type_ids.contains_key(box_name) => {
             Some(GlobalCallReturnContract::ObjectHandle)
         }
         _ => None,
     }
 }
 
-fn same_module_static_helper_builtin_handle_return(box_name: &str) -> bool {
-    matches!(box_name, "ArrayBox" | "DirectArrayI64" | "MapBox")
+fn same_module_static_helper_legacy_no_new_consumer(symbol: &str) -> bool {
+    matches!(
+        symbol,
+        "ProgramJsonV0ScannerBox.read_int_field_in_obj/3"
+            | "ProgramJsonV0ScannerBox.read_string_field_last_in_obj/3"
+    )
 }
 
 fn same_module_static_helper_route_return_contract(
@@ -197,6 +221,7 @@ fn same_module_static_helper_route_return_contract(
             Some(GlobalCallReturnContract::MixedRuntimeI64OrHandle)
         }
         Some("object_handle") => Some(GlobalCallReturnContract::ObjectHandle),
+        Some("map_handle") => Some(GlobalCallReturnContract::MapHandle),
         _ => None,
     }
 }
@@ -285,6 +310,10 @@ fn merge_same_module_static_helper_contract(
             Some(GlobalCallReturnContract::ObjectHandle),
         )
         | (
+            Some(GlobalCallReturnContract::MixedRuntimeI64OrHandle),
+            Some(GlobalCallReturnContract::MapHandle),
+        )
+        | (
             Some(GlobalCallReturnContract::VoidSentinelI64Zero),
             Some(GlobalCallReturnContract::MixedRuntimeI64OrHandle),
         ) => Some(Some(GlobalCallReturnContract::MixedRuntimeI64OrHandle)),
@@ -295,9 +324,16 @@ fn merge_same_module_static_helper_contract(
         | (
             Some(GlobalCallReturnContract::ObjectHandle),
             Some(GlobalCallReturnContract::MixedRuntimeI64OrHandle),
+        )
+        | (
+            Some(GlobalCallReturnContract::MapHandle),
+            Some(GlobalCallReturnContract::MixedRuntimeI64OrHandle),
         ) => Some(Some(GlobalCallReturnContract::MixedRuntimeI64OrHandle)),
         (Some(GlobalCallReturnContract::ObjectHandle), None) => {
             Some(Some(GlobalCallReturnContract::ObjectHandle))
+        }
+        (Some(GlobalCallReturnContract::MapHandle), None) => {
+            Some(Some(GlobalCallReturnContract::MapHandle))
         }
         (Some(_), None) | (None, None) => None,
         (Some(_), Some(_)) => None,
@@ -308,7 +344,9 @@ fn same_module_static_helper_contract_proof(contract: GlobalCallReturnContract) 
     match contract {
         GlobalCallReturnContract::ScalarI64 => GlobalCallProof::SameModuleScalarI64,
         GlobalCallReturnContract::VoidSentinelI64Zero => GlobalCallProof::SameModuleVoidSentinel,
-        GlobalCallReturnContract::ObjectHandle => GlobalCallProof::SameModuleObjectHandle,
+        GlobalCallReturnContract::MapHandle | GlobalCallReturnContract::ObjectHandle => {
+            GlobalCallProof::SameModuleObjectHandle
+        }
         GlobalCallReturnContract::MixedRuntimeI64OrHandle => {
             GlobalCallProof::SameModuleMixedRuntime
         }

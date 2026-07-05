@@ -1,6 +1,6 @@
 # 3109 - HAKO-PROGRAMJSON-SCANNER-RESULT-MAP-RETURN-CONTRACT-001
 
-Status: active
+Status: green
 
 ## Scope
 
@@ -24,6 +24,15 @@ alone.
    use result-map helpers.
 5. Add a guard that verifies runtime rows and MIR route metadata.
 
+## Boundary Note
+
+The AOT smoke for this card verifies `ok` success/failure rows through
+`MapBox.get`. Full `value` field comparison is intentionally not claimed here:
+`MapBox.get` value-type precision for scalar/string payloads remains covered by
+the existing route publication follow-up tasks. This card owns the scanner
+helper return contract and `map_handle` publication, not general MapBox value
+typing.
+
 ## Acceptance
 
 ```text
@@ -41,6 +50,21 @@ read_int_field_in_obj_result_success
 read_int_field_in_obj_result_missing
 read_string_field_last_in_obj_result_success
 read_string_field_last_in_obj_result_missing
+```
+
+Public guard:
+
+```bash
+bash tools/checks/hako_programjson_scanner_result_map_return_contract_guard.sh
+```
+
+Green evidence:
+
+```text
+hako_programjson_scanner_result_map_return_contract_guard=green
+hako_aot_dynamic_string_eq_and_int_to_str_correctness_gate=green
+hako_aot_same_module_object_handle_contract_guard=green
+current_state_pointer_guard=green
 ```
 
 ## Decision

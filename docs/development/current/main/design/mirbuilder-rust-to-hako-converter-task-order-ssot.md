@@ -60,7 +60,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  HAKO-PROGRAMJSON-SCANNER-RESULT-MAP-RETURN-CONTRACT-001
+  MIRBUILDER-PROGRAMJSON-LAYER4-RECIPE-DTO-PARITY-001
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -90,10 +90,10 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  3109 selects approach B: fix `.hako` ProgramJSON scanner helpers to return
+  3109 is green for approach B: `.hako` ProgramJSON scanner helpers now return
   total result maps instead of widening AOT void-signature object returns.
   Generic void object-return reject remains; body proof alone must not publish
-  object returns. After this is green, resume loop Recipe DTO parity.
+  object returns. Next selected task is loop Recipe DTO parity.
   2997 stabilized the AOT/MIR value-type publication contract only for the
   proven route families. 3002 remains a trigger-based debt queue for Float
   Sub/Mul/Div, string Lt/Gt/Le/Ge policy, user-box single-observation
