@@ -78,7 +78,9 @@ use value_type_publish::{
 };
 use void_side_effect_body::is_void_side_effect_body_function;
 
-use crate::mir::same_module_body_shape::{same_module_body_supported, supported_backend_global};
+use crate::mir::same_module_body_shape::{
+    same_module_body_supported_with_global_targets, supported_backend_global,
+};
 
 // Module-wide route convergence is owned by route_fixpoint.rs. Keep this
 // family-local refresh bounded so large Stage-B modules do not multiply
@@ -253,7 +255,11 @@ fn classify_global_call_target_shape(
             if let Some((proof, return_contract)) =
                 infer_same_module_static_helper_return_contract(function, typed_plan_type_ids)
             {
-                if same_module_body_supported(function, typed_plan_type_ids)
+                if same_module_body_supported_with_current_targets(
+                    function,
+                    typed_plan_type_ids,
+                    targets,
+                )
                     && same_module_static_helper_contract_allowed(
                         function,
                         return_contract,
@@ -317,7 +323,11 @@ fn classify_global_call_target_shape(
             if reject.reason
                 == GlobalCallTargetShapeReason::GenericStringReturnObjectAbiNotHandleCompatible
             {
-                if same_module_body_supported(function, typed_plan_type_ids) {
+                if same_module_body_supported_with_current_targets(
+                    function,
+                    typed_plan_type_ids,
+                    targets,
+                ) {
                     if let Some((proof, return_contract)) =
                         infer_same_module_static_helper_return_contract(
                             function,
@@ -362,7 +372,7 @@ fn classify_global_call_target_shape(
             GlobalCallReturnContract::VoidSentinelI64Zero,
         );
     }
-    if same_module_body_supported(function, typed_plan_type_ids) {
+    if same_module_body_supported_with_current_targets(function, typed_plan_type_ids, targets) {
         if let Some((proof, return_contract)) =
             infer_same_module_static_helper_return_contract(function, typed_plan_type_ids)
         {
@@ -389,6 +399,42 @@ fn classify_global_call_target_shape(
         }
     } else {
         GlobalCallTargetClassification::direct(GlobalCallTargetShape::GenericPureStringBody)
+    }
+}
+
+fn same_module_body_supported_with_current_targets(
+    function: &MirFunction,
+    typed_plan_type_ids: &BTreeMap<String, u32>,
+    targets: &BTreeMap<String, GlobalCallTargetFacts>,
+) -> bool {
+    same_module_body_supported_with_global_targets(
+        function,
+        typed_plan_type_ids,
+        &|name, _, _| {
+            targets.get(name).is_some_and(|target| {
+                if target.return_contract().is_some() && target.shape_reason().is_none() {
+                    return true;
+                }
+                same_module_declared_return_type_is_directabi_candidate(
+                    target.return_type(),
+                    typed_plan_type_ids,
+                )
+            })
+        },
+    )
+}
+
+fn same_module_declared_return_type_is_directabi_candidate(
+    return_type: Option<&MirType>,
+    typed_plan_type_ids: &BTreeMap<String, u32>,
+) -> bool {
+    match return_type {
+        Some(MirType::Integer | MirType::Bool | MirType::Void | MirType::String) => true,
+        Some(MirType::Box(name)) => {
+            matches!(name.as_str(), "MapBox" | "ArrayBox" | "DirectArrayI64")
+                || typed_plan_type_ids.contains_key(name)
+        }
+        _ => false,
     }
 }
 

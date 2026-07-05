@@ -42,8 +42,8 @@ static box PrintStmtHandler {
       }
     }
 
-    local expr_info = ProgramJsonV0ScannerBox.read_node_type_at(program_json, expr_start)
-    if expr_info == null {
+    local expr_info = ProgramJsonV0ScannerBox.read_node_type_at_result(program_json, expr_start)
+    if BoxHelpers.map_get(expr_info, "ok") != 1 {
       return %{
         "err" => 1,
         "err_line" => tag + "[cap_missing/program_json_v0] Print expr node scan failed",
@@ -63,8 +63,8 @@ static box PrintStmtHandler {
   }
 
   _consume_expr_for_print(program_json, expr_start, next_idx, tag, has_print, printv, print_kind, print_var_name) {
-    local expr_info = ProgramJsonV0ScannerBox.read_node_type_at(program_json, expr_start)
-    if expr_info == null {
+    local expr_info = ProgramJsonV0ScannerBox.read_node_type_at_result(program_json, expr_start)
+    if BoxHelpers.map_get(expr_info, "ok") != 1 {
       return %{
         "err" => 1,
         "err_line" => tag + "[cap_missing/program_json_v0] Print expr node scan failed",
@@ -78,8 +78,8 @@ static box PrintStmtHandler {
     local expr_type = "" + BoxHelpers.map_get(expr_info, "type")
 
     if expr_type == "Int" {
-      local out = ProgramJsonV0ScannerBox.read_int_field_in_obj(program_json, "value", expr_start)
-      if out == null {
+      local out = ProgramJsonV0ScannerBox.read_int_field_in_obj_result(program_json, "value", expr_start)
+      if BoxHelpers.map_get(out, "ok") != 1 {
         return %{
           "err" => 1,
           "err_line" => tag + "[cap_missing/program_json_v0] Print Int missing value",
@@ -104,8 +104,8 @@ static box PrintStmtHandler {
     }
 
     if expr_type == "Var" {
-      local out = ProgramJsonV0ScannerBox.read_string_field_first_in_obj(program_json, "name", expr_start)
-      if out == null {
+      local out = ProgramJsonV0ScannerBox.read_string_field_first_in_obj_result(program_json, "name", expr_start)
+      if BoxHelpers.map_get(out, "ok") != 1 {
         return %{
           "err" => 1,
           "err_line" => tag + "[cap_missing/program_json_v0] Print Var missing name",
@@ -156,8 +156,8 @@ static box PrintStmtHandler {
   }
 
   _consume_call(program_json, expr_start, next_idx, tag, has_print, printv, print_kind, print_var_name) {
-    local name_out = ProgramJsonV0ScannerBox.read_string_field_last_in_obj(program_json, "name", expr_start)
-    if name_out == null {
+    local name_out = ProgramJsonV0ScannerBox.read_string_field_last_in_obj_result(program_json, "name", expr_start)
+    if BoxHelpers.map_get(name_out, "ok") != 1 {
       return %{
         "err" => 1,
         "err_line" => tag + "[cap_missing/program_json_v0] Expr(Call) missing name",
@@ -222,8 +222,8 @@ static box PrintStmtHandler {
   }
 
   _consume_binary(program_json, expr_start, next_idx, tag, has_print, printv, print_kind, print_var_name) {
-    local op_out = ProgramJsonV0ScannerBox.read_string_field_first_in_obj(program_json, "op", expr_start)
-    if op_out == null {
+    local op_out = ProgramJsonV0ScannerBox.read_string_field_first_in_obj_result(program_json, "op", expr_start)
+    if BoxHelpers.map_get(op_out, "ok") != 1 {
       return %{
         "err" => 1,
         "err_line" => tag + "[cap_missing/program_json_v0] Print Binary missing op",
@@ -259,8 +259,8 @@ static box PrintStmtHandler {
         "print_var_name" => print_var_name
       }
     }
-    local lhs_info = ProgramJsonV0ScannerBox.read_node_type_at(program_json, lhs_start)
-    if lhs_info == null {
+    local lhs_info = ProgramJsonV0ScannerBox.read_node_type_at_result(program_json, lhs_start)
+    if BoxHelpers.map_get(lhs_info, "ok") != 1 {
       return %{
         "err" => 1,
         "err_line" => tag + "[cap_missing/program_json_v0] Print Binary lhs node scan failed",
@@ -283,8 +283,8 @@ static box PrintStmtHandler {
         "print_var_name" => print_var_name
       }
     }
-    local lhs_name_out = ProgramJsonV0ScannerBox.read_string_field_first_in_obj(program_json, "name", lhs_start)
-    if lhs_name_out == null {
+    local lhs_name_out = ProgramJsonV0ScannerBox.read_string_field_first_in_obj_result(program_json, "name", lhs_start)
+    if BoxHelpers.map_get(lhs_name_out, "ok") != 1 {
       return %{
         "err" => 1,
         "err_line" => tag + "[cap_missing/program_json_v0] Print Binary lhs missing name",
@@ -320,8 +320,8 @@ static box PrintStmtHandler {
         "print_var_name" => print_var_name
       }
     }
-    local rhs_info = ProgramJsonV0ScannerBox.read_node_type_at(program_json, rhs_start)
-    if rhs_info == null {
+    local rhs_info = ProgramJsonV0ScannerBox.read_node_type_at_result(program_json, rhs_start)
+    if BoxHelpers.map_get(rhs_info, "ok") != 1 {
       return %{
         "err" => 1,
         "err_line" => tag + "[cap_missing/program_json_v0] Print Binary rhs node scan failed",
@@ -344,8 +344,8 @@ static box PrintStmtHandler {
         "print_var_name" => print_var_name
       }
     }
-    local rhs_out = ProgramJsonV0ScannerBox.read_int_field_in_obj(program_json, "value", rhs_start)
-    if rhs_out == null {
+    local rhs_out = ProgramJsonV0ScannerBox.read_int_field_in_obj_result(program_json, "value", rhs_start)
+    if BoxHelpers.map_get(rhs_out, "ok") != 1 {
       return %{
         "err" => 1,
         "err_line" => tag + "[cap_missing/program_json_v0] Print Binary rhs Int missing value",

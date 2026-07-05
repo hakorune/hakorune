@@ -46,8 +46,8 @@ static box ReturnStmtHandler {
       }
     }
 
-    local expr_info = ProgramJsonV0ScannerBox.read_node_type_at(program_json, expr_start)
-    if expr_info == null {
+    local expr_info = ProgramJsonV0ScannerBox.read_node_type_at_result(program_json, expr_start)
+    if BoxHelpers.map_get(expr_info, "ok") != 1 {
       return %{
         "err" => 1,
         "err_line" => tag + "[cap_missing/program_json_v0] Return expr node scan failed",
@@ -67,8 +67,8 @@ static box ReturnStmtHandler {
     }
 
     if expr_type == "Call" {
-      local call_name_out = ProgramJsonV0ScannerBox.read_string_field_first_in_obj(program_json, "name", expr_start)
-      if call_name_out == null {
+      local call_name_out = ProgramJsonV0ScannerBox.read_string_field_first_in_obj_result(program_json, "name", expr_start)
+      if BoxHelpers.map_get(call_name_out, "ok") != 1 {
         return %{
           "err" => 1,
           "err_line" => tag + "[cap_missing/program_json_v0] Return Call missing name",
@@ -151,8 +151,8 @@ static box ReturnStmtHandler {
         }
       }
 
-      local call_arg_info = ProgramJsonV0ScannerBox.read_node_type_at(program_json, p)
-      if call_arg_info == null {
+      local call_arg_info = ProgramJsonV0ScannerBox.read_node_type_at_result(program_json, p)
+      if BoxHelpers.map_get(call_arg_info, "ok") != 1 {
         return %{
           "err" => 1,
           "err_line" => tag + "[cap_missing/program_json_v0] Return Call arg node scan failed",
@@ -177,8 +177,8 @@ static box ReturnStmtHandler {
           "ret_box_type" => ret_box_type
         }
       }
-      local call_arg_out = ProgramJsonV0ScannerBox.read_int_field_in_obj(program_json, "value", p)
-      if call_arg_out == null {
+      local call_arg_out = ProgramJsonV0ScannerBox.read_int_field_in_obj_result(program_json, "value", p)
+      if BoxHelpers.map_get(call_arg_out, "ok") != 1 {
         return %{
           "err" => 1,
           "err_line" => tag + "[cap_missing/program_json_v0] Return Call Int arg missing value",
@@ -239,8 +239,8 @@ static box ReturnStmtHandler {
     }
 
     if expr_type == "Method" {
-      local method_out = ProgramJsonV0ScannerBox.read_string_field_first_in_obj(program_json, "method", expr_start)
-      if method_out == null {
+      local method_out = ProgramJsonV0ScannerBox.read_string_field_first_in_obj_result(program_json, "method", expr_start)
+      if BoxHelpers.map_get(method_out, "ok") != 1 {
         return %{
           "err" => 1,
           "err_line" => tag + "[cap_missing/program_json_v0] Return Method missing method",
@@ -319,8 +319,8 @@ static box ReturnStmtHandler {
             "ret_box_type" => ret_box_type
           }
         }
-        local method_arg_info = ProgramJsonV0ScannerBox.read_node_type_at(program_json, p_method_args)
-        if method_arg_info == null {
+        local method_arg_info = ProgramJsonV0ScannerBox.read_node_type_at_result(program_json, p_method_args)
+        if BoxHelpers.map_get(method_arg_info, "ok") != 1 {
           return %{
             "err" => 1,
             "err_line" => tag + "[cap_missing/program_json_v0] Return Method indexOf arg node scan failed",
@@ -345,8 +345,8 @@ static box ReturnStmtHandler {
             "ret_box_type" => ret_box_type
           }
         }
-        local method_arg_val_out = ProgramJsonV0ScannerBox.read_string_field_first_in_obj(program_json, "value", p_method_args)
-        if method_arg_val_out == null {
+        local method_arg_val_out = ProgramJsonV0ScannerBox.read_string_field_first_in_obj_result(program_json, "value", p_method_args)
+        if BoxHelpers.map_get(method_arg_val_out, "ok") != 1 {
           return %{
             "err" => 1,
             "err_line" => tag + "[cap_missing/program_json_v0] Return Method indexOf Str arg missing value",
@@ -400,8 +400,8 @@ static box ReturnStmtHandler {
           "ret_box_type" => ret_box_type
         }
       }
-      local recv_info = ProgramJsonV0ScannerBox.read_node_type_at(program_json, recv_start)
-      if recv_info == null {
+      local recv_info = ProgramJsonV0ScannerBox.read_node_type_at_result(program_json, recv_start)
+      if BoxHelpers.map_get(recv_info, "ok") != 1 {
         return %{
           "err" => 1,
           "err_line" => tag + "[cap_missing/program_json_v0] Return Method recv node scan failed",
@@ -427,8 +427,8 @@ static box ReturnStmtHandler {
         }
       }
 
-      local recv_class_out = ProgramJsonV0ScannerBox.read_string_field_first_in_obj(program_json, "class", recv_start)
-      if recv_class_out == null {
+      local recv_class_out = ProgramJsonV0ScannerBox.read_string_field_first_in_obj_result(program_json, "class", recv_start)
+      if BoxHelpers.map_get(recv_class_out, "ok") != 1 {
         return %{
           "err" => 1,
           "err_line" => tag + "[cap_missing/program_json_v0] Return Method recv New missing class",
@@ -495,8 +495,8 @@ static box ReturnStmtHandler {
           "ret_box_type" => ret_box_type
         }
       }
-      local recv_arg_info = ProgramJsonV0ScannerBox.read_node_type_at(program_json, first_recv_arg_pos)
-      if recv_arg_info == null {
+      local recv_arg_info = ProgramJsonV0ScannerBox.read_node_type_at_result(program_json, first_recv_arg_pos)
+      if BoxHelpers.map_get(recv_arg_info, "ok") != 1 {
         return %{
           "err" => 1,
           "err_line" => tag + "[cap_missing/program_json_v0] Return Method recv New arg node scan failed",
@@ -521,8 +521,8 @@ static box ReturnStmtHandler {
           "ret_box_type" => ret_box_type
         }
       }
-      local recv_arg_val_out = ProgramJsonV0ScannerBox.read_string_field_first_in_obj(program_json, "value", first_recv_arg_pos)
-      if recv_arg_val_out == null {
+      local recv_arg_val_out = ProgramJsonV0ScannerBox.read_string_field_first_in_obj_result(program_json, "value", first_recv_arg_pos)
+      if BoxHelpers.map_get(recv_arg_val_out, "ok") != 1 {
         return %{
           "err" => 1,
           "err_line" => tag + "[cap_missing/program_json_v0] Return Method recv New Str arg missing value",
@@ -584,8 +584,8 @@ static box ReturnStmtHandler {
     }
 
     if expr_type == "New" {
-      local class_out = ProgramJsonV0ScannerBox.read_string_field_first_in_obj(program_json, "class", expr_start)
-      if class_out == null {
+      local class_out = ProgramJsonV0ScannerBox.read_string_field_first_in_obj_result(program_json, "class", expr_start)
+      if BoxHelpers.map_get(class_out, "ok") != 1 {
         return %{
           "err" => 1,
           "err_line" => tag + "[cap_missing/program_json_v0] Return New missing class",
@@ -681,8 +681,8 @@ static box ReturnStmtHandler {
         }
       }
 
-      local new_arg_info = ProgramJsonV0ScannerBox.read_node_type_at(program_json, p)
-      if new_arg_info == null {
+      local new_arg_info = ProgramJsonV0ScannerBox.read_node_type_at_result(program_json, p)
+      if BoxHelpers.map_get(new_arg_info, "ok") != 1 {
         return %{
           "err" => 1,
           "err_line" => tag + "[cap_missing/program_json_v0] Return New arg node scan failed",
@@ -708,8 +708,8 @@ static box ReturnStmtHandler {
         }
       }
 
-      local new_arg_val_out = ProgramJsonV0ScannerBox.read_string_field_first_in_obj(program_json, "value", p)
-      if new_arg_val_out == null {
+      local new_arg_val_out = ProgramJsonV0ScannerBox.read_string_field_first_in_obj_result(program_json, "value", p)
+      if BoxHelpers.map_get(new_arg_val_out, "ok") != 1 {
         return %{
           "err" => 1,
           "err_line" => tag + "[cap_missing/program_json_v0] Return New Str arg missing value",

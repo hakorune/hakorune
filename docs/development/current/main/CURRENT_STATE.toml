@@ -345,17 +345,17 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "HAKO-AOT-PROGRAMJSON-PHASE-STATE-SCAN-BODY-LOCAL-RESULT-CONTRACT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3111-HAKO-AOT-PROGRAMJSON-PHASE-STATE-SCAN-BODY-LOCAL-RESULT-CONTRACT-001.md"
-latest_card_summary = """3111 is green for the PhaseState scan-body local
-contract cleanup: node-type reads now use total result maps and the local
-recipe append helpers now return total result maps with DirectAbi map_handle
-routes. The active blocker advances to
-`ProgramJsonV0PhaseStateConsumerBox.consume_stmt/4`; next selected task is
-HAKO-AOT-PROGRAMJSON-PHASE-STATE-CONSUME-STMT-RESULT-CONTRACT-001. Layer4
-parity green, runtime route switch, full projector retirement, HakoAdoption,
-Source Selfhost, RecipeMatcher, route selection, lowering, mutation, ID
-allocation, and new ABI remain unclaimed."""
+latest_card = "HAKO-AOT-PROGRAMJSON-PHASE-STATE-CONSUME-STMT-NON-CONTROL-RESULT-CONTRACT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3112-HAKO-AOT-PROGRAMJSON-PHASE-STATE-CONSUME-STMT-NON-CONTROL-RESULT-CONTRACT-001.md"
+latest_card_summary = """3112 is green for the PhaseState consume-stmt
+non-control result contract: stmt handlers now use total scanner result maps,
+RecipeFactsBox.from_stmt/4 is a DirectAbi map_handle route, and the
+non-control consumer path is DirectAbi map_handle. The active blocker advances
+to the control/try nullable helper path; next selected task is
+HAKO-AOT-PROGRAMJSON-PHASE-STATE-CONSUME-STMT-CONTROL-TRY-RESULT-CONTRACT-001.
+Layer4 parity green, runtime route switch, full projector retirement,
+HakoAdoption, Source Selfhost, RecipeMatcher, route selection, lowering,
+mutation, ID allocation, and new ABI remain unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -366,13 +366,13 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-06: 3112 lands the PhaseState consume-stmt non-control result contract; remaining blocker is control/try nullable helper cleanup before consume_stmt can become AOT-callable.",
   "2026-07-06: 3107 records the Layer4 PhaseState AOT call blocker for ProgramJsonV0PhaseStateBox.parse/2; next work fixes the AOT parse call contract before loop Recipe DTO parity.",
   "2026-07-06: 3106 selects ProgramJsonLoopRecipeDtoPilotV1 as the first layer-4 ProgramJSON structured Plan/Recipe DTO pilot; next work is loop Recipe DTO parity, not another layer-1 snapshot.",
   "2026-07-06: 3105 lands the covered TryCatchShapeSnapshotV1 ProgramJSON traversal slice as a scoped Rust ASTNode projector retire-candidate; next work selects the layer-4 structured Plan/Recipe DTO pilot.",
   "2026-07-06: 3104 lands real `.hako` ProgramJsonTryCatchShapeScanV1 ProgramJSON traversal for covered TryCatch shapes with 8-row AOT parity; 3105 is active for the scoped trycatch projector retire-candidate.",
   "2026-07-06: 3103 lands the covered BlockExprShapeSnapshotV1 ProgramJSON traversal slice as a scoped Rust ASTNode projector retire-candidate; next work returns to ProgramJSON capability-batch continuation.",
   "2026-07-06: 3102 lands real `.hako` ProgramJsonBlockExprShapeScanV1 ProgramJSON traversal for covered top-level BlockExpr shapes with 10-row AOT parity; 3103 is active for the scoped block-expr projector retire-candidate.",
-  "2026-07-06: 3101 lands the covered BrandDeclarationShapeSnapshotV1 ProgramJSON traversal slice as a scoped Rust ASTNode projector retire-candidate; next work returns to ProgramJSON capability-batch continuation.",
   "2026-07-06: 3100 lands real `.hako` ProgramJsonBrandDeclarationShapeScanV1 ProgramJSON traversal for covered BrandDeclaration shapes with 8-row AOT parity; 3101 is active for the scoped brand-declaration projector retire-candidate.",
   "2026-07-06: 3099 lands the covered IfBranchOccupancyShapeSnapshotV1 ProgramJSON traversal slice as a scoped Rust ASTNode projector retire-candidate; next work returns to ProgramJSON capability-batch continuation.",
   "2026-07-06: 3098 lands real `.hako` ProgramJsonIfBranchOccupancyShapeScanV1 ProgramJSON traversal for covered top-level If branch occupancy shapes with 10-row AOT parity; 3099 is active for the scoped if-branch-occupancy projector retire-candidate.",

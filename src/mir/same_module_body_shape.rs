@@ -10,6 +10,14 @@ pub(crate) fn same_module_body_supported(
     function: &MirFunction,
     typed_plan_type_ids: &BTreeMap<String, u32>,
 ) -> bool {
+    same_module_body_supported_with_global_targets(function, typed_plan_type_ids, &|_, _, _| false)
+}
+
+pub(crate) fn same_module_body_supported_with_global_targets(
+    function: &MirFunction,
+    typed_plan_type_ids: &BTreeMap<String, u32>,
+    global_target_supported: &dyn Fn(&str, BasicBlockId, usize) -> bool,
+) -> bool {
     if function.blocks.is_empty() {
         return false;
     }
@@ -26,6 +34,7 @@ pub(crate) fn same_module_body_supported(
                         instruction_index,
                         instruction,
                         typed_plan_type_ids,
+                        global_target_supported,
                     )
                 });
         let terminator_supported = block
@@ -49,6 +58,7 @@ fn same_module_instruction_supported(
     instruction_index: usize,
     instruction: &MirInstruction,
     typed_plan_type_ids: &BTreeMap<String, u32>,
+    global_target_supported: &dyn Fn(&str, BasicBlockId, usize) -> bool,
 ) -> bool {
     match instruction {
         MirInstruction::Const { value, .. } => matches!(
@@ -83,6 +93,7 @@ fn same_module_instruction_supported(
         } => {
             name == &function.signature.name
                 || supported_backend_global(name)
+                || global_target_supported(name, block_id, instruction_index)
                 || function.metadata.global_call_routes.iter().any(|route| {
                     route.block() == block_id
                         && route.instruction_index() == instruction_index
@@ -103,6 +114,7 @@ fn same_module_instruction_supported(
             function.metadata.generic_method_routes.iter().any(|route| {
                 route.block() == block_id && route.instruction_index() == instruction_index
             }) || known_collection_birth_method_call(box_name, method, args)
+                || known_collection_push_method_call(box_name, method, args)
                 || is_self_recursive_method_call(function, box_name, method, args.len())
                 || function
                     .metadata
@@ -215,6 +227,47 @@ mod tests {
 
         assert!(same_module_body_supported(&function, &BTreeMap::new()));
     }
+
+    #[test]
+    fn same_module_body_accepts_array_push_side_effect_call() {
+        assert_same_module_body_accepts_push_side_effect_call("ArrayBox");
+        assert_same_module_body_accepts_push_side_effect_call("RuntimeDataBox");
+    }
+
+    fn assert_same_module_body_accepts_push_side_effect_call(box_name: &str) {
+        let entry = BasicBlockId::new(0);
+        let signature = FunctionSignature {
+            name: format!("{box_name}Appender.push_one/1"),
+            params: vec![MirType::Box(box_name.to_string())],
+            return_type: MirType::Integer,
+            effects: EffectMask::PURE,
+        };
+        let mut function = MirFunction::new(signature, entry);
+        let mut block = BasicBlock::new(entry);
+        block.instructions.push(MirInstruction::Const {
+            dst: ValueId::new(1),
+            value: ConstValue::String("name".to_string()),
+        });
+        block.instructions.push(MirInstruction::Call {
+            dst: None,
+            func: ValueId::new(0),
+            callee: Some(Callee::Method {
+                box_name: box_name.to_string(),
+                method: "push".to_string(),
+                receiver: Some(ValueId::new(0)),
+                certainty: crate::mir::definitions::call_unified::TypeCertainty::Known,
+                box_kind: crate::mir::definitions::call_unified::CalleeBoxKind::RuntimeData,
+            }),
+            args: vec![ValueId::new(1)],
+            effects: EffectMask::PURE,
+        });
+        block.instructions.push(MirInstruction::Return {
+            value: Some(ValueId::new(1)),
+        });
+        function.blocks.insert(entry, block);
+
+        assert!(same_module_body_supported(&function, &BTreeMap::new()));
+    }
 }
 
 fn known_same_module_typed_method_call(
@@ -246,6 +299,16 @@ fn known_collection_birth_method_call(
     method == "birth"
         && args.len() <= 1
         && matches!(box_name, "ArrayBox" | "DirectArrayI64" | "MapBox")
+}
+
+fn known_collection_push_method_call(
+    box_name: &str,
+    method: &str,
+    args: &[crate::mir::ValueId],
+) -> bool {
+    method == "push"
+        && (args.len() == 1 || args.len() == 2)
+        && matches!(box_name, "ArrayBox" | "RuntimeDataBox")
 }
 
 fn is_self_recursive_method_call(

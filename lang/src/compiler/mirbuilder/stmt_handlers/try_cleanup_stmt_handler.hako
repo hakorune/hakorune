@@ -293,8 +293,8 @@ static box TryCleanupStmtHandler {
     local try_stmt_start = StringHelpers.to_i64(BoxHelpers.map_get(try_stmt, "obj_start"))
     local finally_stmt_start = StringHelpers.to_i64(BoxHelpers.map_get(finally_stmt, "obj_start"))
 
-    local try_stmt_info = ProgramJsonV0ScannerBox.read_node_type_at(program_json, try_stmt_start)
-    if try_stmt_info == null {
+    local try_stmt_info = ProgramJsonV0ScannerBox.read_node_type_at_result(program_json, try_stmt_start)
+    if BoxHelpers.map_get(try_stmt_info, "ok") != 1 {
       return me._err(
         tag,
         "[cap_missing/program_json_v0] Try try stmt node scan failed",
@@ -338,8 +338,8 @@ static box TryCleanupStmtHandler {
       )
     }
 
-    local finally_stmt_info = ProgramJsonV0ScannerBox.read_node_type_at(program_json, finally_stmt_start)
-    if finally_stmt_info == null {
+    local finally_stmt_info = ProgramJsonV0ScannerBox.read_node_type_at_result(program_json, finally_stmt_start)
+    if BoxHelpers.map_get(finally_stmt_info, "ok") != 1 {
       return me._err(
         tag,
         "[cap_missing/program_json_v0] Try finally stmt node scan failed",

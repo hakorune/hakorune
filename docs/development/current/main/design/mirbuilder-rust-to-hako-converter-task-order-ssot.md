@@ -60,7 +60,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  HAKO-AOT-PROGRAMJSON-PHASE-STATE-CONSUME-STMT-RESULT-CONTRACT-001
+  HAKO-AOT-PROGRAMJSON-PHASE-STATE-CONSUME-STMT-CONTROL-TRY-RESULT-CONTRACT-001
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -90,10 +90,10 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  3111 is green for PhaseState scan-body local result contracts: node-type
-  reads and recipe append helpers now use total result-map DirectAbi map_handle
-  routes. The active blocker advances to
-  `ProgramJsonV0PhaseStateConsumerBox.consume_stmt/4`.
+  3112 is green for PhaseState consume-stmt non-control result contracts:
+  stmt handlers, RecipeFactsBox.from_stmt/4, and the non-control consumer path
+  now use total result-map DirectAbi map_handle routes. The active blocker
+  advances to the control/try nullable helper path.
   2997 stabilized the AOT/MIR value-type publication contract only for the
   proven route families. 3002 remains a trigger-based debt queue for Float
   Sub/Mul/Div, string Lt/Gt/Le/Ge policy, user-box single-observation

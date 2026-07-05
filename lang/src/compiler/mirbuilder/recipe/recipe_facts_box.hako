@@ -12,7 +12,7 @@ static box RecipeFactsBox {
     return "" + tag
   }
 
-  _err(tag, msg) {
+  _err(tag, msg): MapBox {
     return %{
       "err" => 1,
       "err_line" => me._tag(tag) + msg,
@@ -21,7 +21,7 @@ static box RecipeFactsBox {
     }
   }
 
-  _ok(facts, recipe_item) {
+  _ok(facts, recipe_item): MapBox {
     return %{
       "err" => 0,
       "err_line" => "",
@@ -30,12 +30,12 @@ static box RecipeFactsBox {
     }
   }
 
-  _ok_stmt(stmt_kind, facts) {
+  _ok_stmt(stmt_kind, facts): MapBox {
     local recipe_item = me._build_stmt_recipe(stmt_kind, facts)
     return me._ok(facts, recipe_item)
   }
 
-  _new_facts(stmt_kind) {
+  _new_facts(stmt_kind): MapBox {
     local facts = new MapBox()
     facts.set("stmt_kind", "" + stmt_kind)
     facts.set("defs", [])
@@ -44,10 +44,10 @@ static box RecipeFactsBox {
     return facts
   }
 
-  _contains_name(arr, name) {
+  _contains_name(arr, name): i64 {
     if arr == null || BoxHelpers.is_array(arr) != 1 { return 0 }
     local i = 0
-    local n = BoxHelpers.array_len(arr)
+    local n = arr.length()
     loop(i < n) {
       if ("" + BoxHelpers.array_get(arr, i)) == name { return 1 }
       i = i + 1
@@ -55,15 +55,15 @@ static box RecipeFactsBox {
     return 0
   }
 
-  _push_name(arr, name) {
-    if name == null || ("" + name) == "" { return arr }
-    if arr == null || BoxHelpers.is_array(arr) != 1 { arr = [] }
+  _push_name(arr, name): i64 {
+    if name == null || ("" + name) == "" { return 0 }
+    if arr == null || BoxHelpers.is_array(arr) != 1 { return 0 }
     name = "" + name
     if me._contains_name(arr, name) == 0 { arr.push(name) }
-    return arr
+    return 1
   }
 
-  _build_stmt_recipe(stmt_kind, facts) {
+  _build_stmt_recipe(stmt_kind, facts): MapBox {
     local item = RecipeItemBox.seq([])
     item.set("leaf_kind", "Stmt")
     item.set("stmt_kind", "" + stmt_kind)
@@ -71,7 +71,7 @@ static box RecipeFactsBox {
     return item
   }
 
-  _from_print(state_after, tag) {
+  _from_print(state_after, tag): MapBox {
     local stmt_kind = "Print"
     local facts = me._new_facts(stmt_kind)
     local print_kind = "" + BoxHelpers.map_get(state_after, "print_kind")
@@ -80,35 +80,35 @@ static box RecipeFactsBox {
       if print_var_name == "" {
         return me._err(tag, "[recipe_facts][stmt:Print] missing print_var_name for variable print")
       }
-      facts.set("uses", me._push_name(BoxHelpers.map_get(facts, "uses"), print_var_name))
+      me._push_name(BoxHelpers.map_get(facts, "uses"), print_var_name)
     }
     return me._ok_stmt(stmt_kind, facts)
   }
 
-  _from_local(state_after, tag) {
+  _from_local(state_after, tag): MapBox {
     local stmt_kind = "Local"
     local facts = me._new_facts(stmt_kind)
     local local_name = "" + BoxHelpers.map_get(state_after, "local_name")
     if local_name == "" {
       return me._err(tag, "[recipe_facts][stmt:Local] missing local_name")
     }
-    facts.set("defs", me._push_name(BoxHelpers.map_get(facts, "defs"), local_name))
-    facts.set("updates", me._push_name(BoxHelpers.map_get(facts, "updates"), local_name))
+    me._push_name(BoxHelpers.map_get(facts, "defs"), local_name)
+    me._push_name(BoxHelpers.map_get(facts, "updates"), local_name)
     return me._ok_stmt(stmt_kind, facts)
   }
 
-  _from_assignment(state_after, tag) {
+  _from_assignment(state_after, tag): MapBox {
     local stmt_kind = "Assignment"
     local facts = me._new_facts(stmt_kind)
     local assign_name = "" + BoxHelpers.map_get(state_after, "assign_name")
     if assign_name == "" {
       return me._err(tag, "[recipe_facts][stmt:Assignment] missing assign_name")
     }
-    facts.set("updates", me._push_name(BoxHelpers.map_get(facts, "updates"), assign_name))
+    me._push_name(BoxHelpers.map_get(facts, "updates"), assign_name)
     return me._ok_stmt(stmt_kind, facts)
   }
 
-  _from_return(state_after, tag) {
+  _from_return(state_after, tag): MapBox {
     local stmt_kind = "Return"
     local facts = me._new_facts(stmt_kind)
     local return_kind = "" + BoxHelpers.map_get(state_after, "return_kind")
@@ -120,12 +120,12 @@ static box RecipeFactsBox {
       if ret_var_name == "" {
         return me._err(tag, "[recipe_facts][stmt:Return] missing ret_var_name for Return(Var)")
       }
-      facts.set("uses", me._push_name(BoxHelpers.map_get(facts, "uses"), ret_var_name))
+      me._push_name(BoxHelpers.map_get(facts, "uses"), ret_var_name)
     }
     return me._ok_stmt(stmt_kind, facts)
   }
 
-  from_stmt(stmt_kind, state_before, state_after, tag) {
+  from_stmt(stmt_kind, state_before, state_after, tag): MapBox {
     tag = me._tag(tag)
     if stmt_kind == null || ("" + stmt_kind) == "" {
       return me._err(tag, "[recipe_facts] missing stmt kind")

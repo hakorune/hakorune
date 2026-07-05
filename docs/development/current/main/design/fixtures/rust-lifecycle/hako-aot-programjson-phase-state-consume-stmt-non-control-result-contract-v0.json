@@ -1,0 +1,74 @@
+{
+  "schema_version": 0,
+  "kind": "HakoAotProgramJsonPhaseStateConsumeStmtNonControlResultContractV1",
+  "token": "HAKO-AOT-PROGRAMJSON-PHASE-STATE-CONSUME-STMT-NON-CONTROL-RESULT-CONTRACT-001",
+  "contract_rule": {
+    "stmt_handlers_use_scanner_result_helpers": true,
+    "stmt_handlers_legacy_null_sentinel_scanner_removed": true,
+    "recipe_facts_from_stmt_return_shape": "map_handle",
+    "consumer_non_control_result_return_shape": "map_handle",
+    "same_module_array_push_side_effect_allowed": true,
+    "remaining_control_try_nullable_helpers": true
+  },
+  "expected_direct_routes": [
+    {
+      "caller": "ProgramJsonV0PhaseStateConsumerBox._dispatch_or_unsupported/6",
+      "callee": "ProgramJsonV0PhaseStateConsumerBox._handle_non_control_stmt_result/6",
+      "return_shape": "map_handle"
+    },
+    {
+      "caller": "ProgramJsonV0PhaseStateConsumerBox._handle_non_control_stmt_result/6",
+      "callee": "ProgramJsonV0PhaseStateConsumerBox._non_control_handler_out_result/6",
+      "return_shape": "map_handle"
+    },
+    {
+      "caller": "ProgramJsonV0PhaseStateConsumerBox._handle_non_control_stmt_result/6",
+      "callee": "ProgramJsonV0PhaseStateConsumerBox._emit_non_control_stmt_or_handler_error/5",
+      "return_shape": "map_handle"
+    },
+    {
+      "caller": "ProgramJsonV0PhaseStateConsumerBox._emit_non_control_stmt_or_handler_error/5",
+      "callee": "RecipeFactsBox.from_stmt/4",
+      "return_shape": "map_handle"
+    }
+  ],
+  "expected_handler_routes": [
+    "PrintStmtHandler.handle/5",
+    "LocalStmtHandler.handle/5",
+    "AssignmentStmtHandler.handle/5",
+    "ReturnStmtHandler.handle/5",
+    "IfStmtHandler.handle/5",
+    "LoopStmtHandler.handle/5",
+    "TryCleanupStmtHandler.handle/5"
+  ],
+  "expected_remaining_blockers": [
+    {
+      "caller": "ProgramJsonV0PhaseStateConsumerBox._dispatch_or_unsupported/6",
+      "callee": "ProgramJsonV0PhaseStateConsumerBox._handle_try_cleanup_stmt_or_null/6",
+      "reason": "missing_multi_function_emitter"
+    },
+    {
+      "caller": "ProgramJsonV0PhaseStateConsumerBox._dispatch_or_unsupported/6",
+      "callee": "ProgramJsonV0PhaseStateConsumerBox._handle_control_stmt_or_null/6",
+      "reason": "missing_multi_function_emitter"
+    }
+  ],
+  "decision": {
+    "kind": "SelectPhaseStateConsumeStmtControlTryResultContract",
+    "reason_token": "ConsumeStmtNonControlResultContractStabilized",
+    "selected_next_card": "HAKO-AOT-PROGRAMJSON-PHASE-STATE-CONSUME-STMT-CONTROL-TRY-RESULT-CONTRACT-001"
+  },
+  "claims": {
+    "phase_state_parse_aot_call_fixed": 0,
+    "consume_stmt_full_aot_call_fixed": 0,
+    "layer4_recipe_dto_parity_green": 0,
+    "source_selfhost_claim": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering_claim": 0,
+    "route_selection_migration": 0,
+    "runtime_route_switch": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
