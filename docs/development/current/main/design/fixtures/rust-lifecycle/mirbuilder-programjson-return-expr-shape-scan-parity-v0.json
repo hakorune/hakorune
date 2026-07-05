@@ -1,0 +1,96 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonReturnExprShapeScanParityV1",
+  "token": "MIRBUILDER-PROGRAMJSON-RETURN-EXPR-SHAPE-SCAN-CAPABILITY-001",
+  "capability": {
+    "name": "ProgramJsonReturnExprShapeScanV1",
+    "input": "ProgramJSON v0",
+    "output": "ReturnExprShapeSnapshotV1"
+  },
+  "routes": {
+    "rust_oracle_route": "source -> RHako parser -> Rust ASTNode -> Rust return-expr token snapshot",
+    "hako_programjson_route": "source -> HHako parser -> ProgramJSON -> HHako return-expr token snapshot"
+  },
+  "rows": [
+    {
+      "row_id": "top_return_int",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Return", "expr": {"type": "Int", "value": 1}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=ReturnExprShapeSnapshotV1;top_return_expr_kind=Int;if_then_return_expr_kind=Missing;if_else_return_expr_kind=Missing;supported_return_expr_count=1;unsupported_return_expr_count=0"
+      }
+    },
+    {
+      "row_id": "top_return_var",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Return", "expr": {"type": "Var", "name": "value"}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=ReturnExprShapeSnapshotV1;top_return_expr_kind=Var;if_then_return_expr_kind=Missing;if_else_return_expr_kind=Missing;supported_return_expr_count=1;unsupported_return_expr_count=0"
+      }
+    },
+    {
+      "row_id": "top_return_bool_true",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Return", "expr": {"type": "Bool", "value": true}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=ReturnExprShapeSnapshotV1;top_return_expr_kind=BoolTrue;if_then_return_expr_kind=Missing;if_else_return_expr_kind=Missing;supported_return_expr_count=1;unsupported_return_expr_count=0"
+      }
+    },
+    {
+      "row_id": "top_return_compare_var_lt_int",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Return", "expr": {"type": "Compare", "op": "Lt", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 10}}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=ReturnExprShapeSnapshotV1;top_return_expr_kind=CompareVarLtInt;if_then_return_expr_kind=Missing;if_else_return_expr_kind=Missing;supported_return_expr_count=1;unsupported_return_expr_count=0"
+      }
+    },
+    {
+      "row_id": "top_return_compare_var_eq_int",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Return", "expr": {"type": "Compare", "op": "Eq", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 0}}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=ReturnExprShapeSnapshotV1;top_return_expr_kind=CompareVarEqInt;if_then_return_expr_kind=Missing;if_else_return_expr_kind=Missing;supported_return_expr_count=1;unsupported_return_expr_count=0"
+      }
+    },
+    {
+      "row_id": "top_return_call_unsupported",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Return", "expr": {"type": "Call", "callee": "id", "args": []}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=ReturnExprShapeSnapshotV1;top_return_expr_kind=Unsupported;if_then_return_expr_kind=Missing;if_else_return_expr_kind=Missing;supported_return_expr_count=0;unsupported_return_expr_count=1"
+      }
+    },
+    {
+      "row_id": "if_then_return_int",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "If", "cond": {"type": "Bool", "value": true}, "then": [{"type": "Return", "expr": {"type": "Int", "value": 1}}], "else": null}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=ReturnExprShapeSnapshotV1;top_return_expr_kind=Missing;if_then_return_expr_kind=Int;if_else_return_expr_kind=Missing;supported_return_expr_count=1;unsupported_return_expr_count=0"
+      }
+    },
+    {
+      "row_id": "if_else_return_var",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "If", "cond": {"type": "Bool", "value": true}, "then": [], "else": [{"type": "Return", "expr": {"type": "Var", "name": "value"}}]}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=ReturnExprShapeSnapshotV1;top_return_expr_kind=Missing;if_then_return_expr_kind=Missing;if_else_return_expr_kind=Var;supported_return_expr_count=1;unsupported_return_expr_count=0"
+      }
+    }
+  ],
+  "summary": {
+    "parity_row_count": 8,
+    "programjson_traversal_used": 1,
+    "string_only_facade": 0,
+    "rust_astnode_projector_retire_candidate": 1
+  },
+  "decision": {
+    "kind": "ProgramJsonReturnExprShapeScanParityGreen",
+    "reason_token": "ReturnExprShapeProgramJsonSnapshotMatchesRustAstNodeOracle",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-RETURN-EXPR-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "programjson_full_parser_claim": 0,
+    "hako_adopted_for_full_owner": 0
+  }
+}

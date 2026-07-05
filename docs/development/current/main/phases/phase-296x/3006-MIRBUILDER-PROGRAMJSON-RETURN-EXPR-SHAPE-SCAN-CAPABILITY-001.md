@@ -1,6 +1,6 @@
 # 3006 - MIRBUILDER-PROGRAMJSON-RETURN-EXPR-SHAPE-SCAN-CAPABILITY-001
 
-Status: active
+Status: landed
 
 ## Scope
 
@@ -42,6 +42,46 @@ unsupported_return_expr_count=...
 - unsupported return expressions are reported with a stable token;
 - the card can name a concrete return-expr Rust ASTNode projector slice as
   retire-candidate after parity is green.
+
+## Implementation
+
+```text
+lang/src/compiler/mirbuilder/program_json_return_expr_shape_scan.hako
+```
+
+The owner consumes ProgramJSON structure and emits `ReturnExprShapeSnapshotV1`
+for covered top-level `Return.expr`, `If.then[0].Return.expr`, and
+`If.else[0].Return.expr` shapes.
+
+## Evidence
+
+```bash
+bash tools/checks/rust_lifecycle_mirbuilder_programjson_return_expr_shape_scan_parity_gate.sh
+```
+
+Result:
+
+```text
+owner=ProgramJsonReturnExprShapeScanV1
+parity_rows=8
+aot_execution_status=green
+token_snapshot_parity=green
+programjson_traversal_used=1
+string_only_facade=0
+rust_astnode_projector_retire_candidate=1
+source_selfhost_claim=0
+mir_mutation=0
+id_allocation=0
+backend_lowering=0
+full_recipe_matcher_execution=0
+route_selection=0
+```
+
+## Next
+
+```text
+MIRBUILDER-PROGRAMJSON-RETURN-EXPR-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+```
 
 ## Forbidden
 
