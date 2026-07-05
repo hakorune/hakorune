@@ -60,7 +60,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-LAYER4-RECIPE-DTO-PARITY-001
+  HAKO-AOT-PROGRAMJSON-PHASE-STATE-SCAN-BODY-REC-CONTRACT-001
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -90,10 +90,11 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  3109 is green for approach B: `.hako` ProgramJSON scanner helpers now return
-  total result maps instead of widening AOT void-signature object returns.
-  Generic void object-return reject remains; body proof alone must not publish
-  object returns. Next selected task is loop Recipe DTO parity.
+  3110 is green for the next PhaseState parse blocker: RuneAttrs now exposes a
+  total result-map helper, PhaseState parse consumes it directly, scanner
+  first-string/array result helpers publish map_handle, legacy nullable scanner
+  helpers stay no-new-consumer, and the active blocker advances to
+  `ProgramJsonV0PhaseStateBox._scan_body_rec/8`.
   2997 stabilized the AOT/MIR value-type publication contract only for the
   proven route families. 3002 remains a trigger-based debt queue for Float
   Sub/Mul/Div, string Lt/Gt/Le/Ge policy, user-box single-observation
@@ -112,7 +113,6 @@ current fail-fast boundary:
 
 historical route-selection decision:
   Detailed landed route-selection rows are closed as provenance and live in phase cards, fixture guards, and git history. This task-order stays a compact pointer to the active pivot and next 3 tasks.
-
 ## Converter Completion Task Inventory
 
 ```text

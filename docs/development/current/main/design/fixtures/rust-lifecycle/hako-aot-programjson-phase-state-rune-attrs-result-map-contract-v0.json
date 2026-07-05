@@ -1,0 +1,29 @@
+{
+  "schema_version": 0,
+  "kind": "HakoAotProgramJsonPhaseStateRuneAttrsResultMapContractV1",
+  "token": "HAKO-AOT-PROGRAMJSON-PHASE-STATE-RUNE-ATTRS-RESULT-MAP-CONTRACT-001",
+  "contract_rule": {
+    "scanner_first_string_result_helper_return_shape": "map_handle",
+    "scanner_array_result_helper_return_shape": "map_handle",
+    "rune_attrs_result_helper_return_shape": "map_handle",
+    "phase_state_parse_uses_rune_attrs_result_helper": true,
+    "legacy_nullable_scanner_helpers_not_widened": true
+  },
+  "expected_remaining_blocker": {
+    "callee_symbol": "ProgramJsonV0PhaseStateBox._scan_body_rec/8",
+    "reason": "missing_multi_function_emitter",
+    "next_card": "HAKO-AOT-PROGRAMJSON-PHASE-STATE-SCAN-BODY-REC-CONTRACT-001"
+  },
+  "claims": {
+    "phase_state_parse_aot_call_fixed": 0,
+    "layer4_recipe_dto_parity_green": 0,
+    "source_selfhost_claim": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering_claim": 0,
+    "route_selection_migration": 0,
+    "runtime_route_switch": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

@@ -51,11 +51,27 @@ static box ProgramJsonV0PhaseStateBox {
     // Allowed order (with optional skips): Local → Assignment → Print → Return
     local order_stage = 0
     local order_last = ""
-    local function_runes_map = ProgramJsonV0RuneAttrsBox.read_function_runes_map(program_json, tag)
+    local function_runes_out = ProgramJsonV0RuneAttrsBox.read_function_runes_map_result(program_json, tag)
+    if me._out_i64(function_runes_out, "err") != 0 {
+      return me._emit_out_with_state(
+        1,
+        me._out_s(function_runes_out, "err_line"),
+        -1,
+        me._state_map(
+          0, 0, 0, 0,
+          0, "", "",
+          "", 0,
+          "", 0, "",
+          "", 0, "", "",
+          new MapBox()
+        )
+      )
+    }
+    local function_runes_map = BoxHelpers.map_get(function_runes_out, "value")
     if BoxHelpers.is_map(function_runes_map) != 1 {
       return me._emit_out_with_state(
         1,
-        "" + function_runes_map,
+        tag + "[cap_missing/rune_attrs] function runes result is not map",
         -1,
         me._state_map(
           0, 0, 0, 0,
@@ -104,7 +120,7 @@ static box ProgramJsonV0PhaseStateBox {
     order_last,
     recipe_items,
     state
-  ) {
+  ): MapBox {
     local current_state = state
 
     idx = StringHelpers.skip_ws(program_json, idx)
@@ -197,7 +213,7 @@ static box ProgramJsonV0PhaseStateBox {
       )
     }
 
-    local recipe_item = me._out_box(out, "recipe_verified_item")
+    local recipe_item = BoxHelpers.map_get(out, "recipe_verified_item")
     if recipe_item == null || BoxHelpers.is_map(recipe_item) != 1 {
       return me._emit_scan_error(
         tag,
@@ -220,19 +236,19 @@ static box ProgramJsonV0PhaseStateBox {
       me._out_i64(out, "has_local"),
       me._out_i64(out, "has_assignment"),
       me._out_i64(out, "has_return"),
-      me._out_box(out, "printv"),
+      BoxHelpers.map_get(out, "printv"),
       me._out_s(out, "print_kind"),
       me._out_s(out, "print_var_name"),
       me._out_s(out, "local_name"),
-      me._out_box(out, "local_init"),
+      BoxHelpers.map_get(out, "local_init"),
       me._out_s(out, "assign_name"),
-      me._out_box(out, "assign_rhs"),
+      BoxHelpers.map_get(out, "assign_rhs"),
       me._out_s(out, "assign_rhs_kind"),
       me._out_s(out, "return_kind"),
-      me._out_box(out, "retv"),
+      BoxHelpers.map_get(out, "retv"),
       me._out_s(out, "ret_var_name"),
       me._out_s(out, "ret_box_type"),
-      me._out_box(out, "function_runes_map")
+      BoxHelpers.map_get(out, "function_runes_map")
     )
 
     return me._scan_body_rec(
@@ -320,7 +336,7 @@ static box ProgramJsonV0PhaseStateBox {
     ret_var_name,
     ret_box_type,
     function_runes_map
-  ) {
+  ): MapBox {
     return ProgramJsonV0StateBox.state_map(
       has_print,
       has_local,
@@ -346,25 +362,21 @@ static box ProgramJsonV0PhaseStateBox {
     return StringHelpers.to_i64(BoxHelpers.map_get(out, key))
   }
 
-  _out_box(out, key) {
-    return BoxHelpers.map_get(out, key)
-  }
-
   _out_s(out, key) {
     return "" + BoxHelpers.map_get(out, key)
   }
 
-  _emit_scan_error(tag, msg, next_idx, state) {
+  _emit_scan_error(tag, msg, next_idx, state): MapBox {
     return me._emit_out_with_state(1, tag + msg, next_idx, state)
   }
 
-  _emit_scan_done(next_idx, state, recipe_items) {
+  _emit_scan_done(next_idx, state, recipe_items): MapBox {
     local out = me._emit_out_with_state(0, "", next_idx, state)
     out.set("recipe_root", RecipeItemBox.seq(recipe_items))
     return out
   }
 
-  _emit_out_with_state(err, err_line, next_idx, state) {
+  _emit_out_with_state(err, err_line, next_idx, state): MapBox {
     return ProgramJsonV0PhaseStateConsumerBox._emit_out_with_state(
       err,
       err_line,

@@ -118,6 +118,7 @@ phase-1 compatibility Program(JSON) compat execution helper.
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_layer4_phase_state_aot_call_blocker_guard.sh` | Repro guard for the Layer4 blocker where AOT cannot call `ProgramJsonV0PhaseStateBox.parse/2` from an imported `.hako` app. |
 | `tools/checks/hako_aot_same_module_object_handle_contract_guard.sh` | AOT route contract guard for same-module object-handle helper calls used by ProgramJSON Layer4 Recipe DTO work. |
 | `tools/checks/hako_programjson_scanner_result_map_return_contract_guard.sh` | Contract guard for ProgramJSON scanner result-map helpers and legacy null-sentinel no-new-consumer policy. |
+| `tools/checks/hako_aot_programjson_phase_state_rune_attrs_result_map_contract_guard.sh` | Contract guard for PhaseState parse consuming RuneAttrs total result maps while keeping legacy scanner helpers closed. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_assign_shape_scan_parity_gate.sh` | Capability-batch parity for `.hako` `ProgramJsonAssignShapeScanV1`. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_assign_shape_retire_rust_astnode_projector_candidate_guard.sh` | Retire-candidate guard for the covered `AssignShapeSnapshotV1` ProgramJSON traversal slice. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_enum_match_shape_scan_parity_gate.sh` | Capability-batch parity for `.hako` `ProgramJsonEnumMatchShapeScanV1`. |

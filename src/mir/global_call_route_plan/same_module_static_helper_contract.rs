@@ -208,6 +208,8 @@ fn same_module_static_helper_legacy_no_new_consumer(symbol: &str) -> bool {
         symbol,
         "ProgramJsonV0ScannerBox.read_int_field_in_obj/3"
             | "ProgramJsonV0ScannerBox.read_string_field_last_in_obj/3"
+            | "ProgramJsonV0ScannerBox.read_string_field_first_in_obj/3"
+            | "ProgramJsonV0ScannerBox.read_array_field_first_in_obj/3"
     )
 }
 

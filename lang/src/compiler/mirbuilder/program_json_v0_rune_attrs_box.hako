@@ -27,12 +27,44 @@ static box ProgramJsonV0RuneAttrsBox {
 
   empty_map() { return new MapBox() }
 
+  _result_ok(value) {
+    return %{"err" => 0, "err_line" => "", "value" => value}
+  }
+
+  _result_err(tag, msg) {
+    return %{"err" => 1, "err_line" => me._fail(tag, msg), "value" => new MapBox()}
+  }
+
+  _result_existing_err(err_line) {
+    return %{"err" => 1, "err_line" => err_line, "value" => new MapBox()}
+  }
+
+  _unit_ok() {
+    return %{"err" => 0, "err_line" => ""}
+  }
+
+  _unit_err(tag, msg) {
+    return %{"err" => 1, "err_line" => me._fail(tag, msg)}
+  }
+
+  _unit_existing_err(err_line) {
+    return %{"err" => 1, "err_line" => err_line}
+  }
+
   read_function_runes_map(program_json, tag) {
+    local out = me.read_function_runes_map_result(program_json, tag)
+    if BoxHelpers.map_get(out, "err") != 0 { return "" + BoxHelpers.map_get(out, "err_line") }
+    return BoxHelpers.map_get(out, "value")
+  }
+
+  read_function_runes_map_result(program_json, tag) {
     tag = me._tag(tag)
-    if program_json == null || ("" + program_json) == "" { return new MapBox() }
+    if program_json == null || ("" + program_json) == "" { return me._result_ok(new MapBox()) }
 
     local defs_json = JsonUtilsBox.extract_value(program_json, "defs")
-    if defs_json == null || defs_json == "" || defs_json == "[]" { return new MapBox() }
+    if defs_json == null || defs_json == "" || defs_json == "[]" {
+      return me._result_ok(new MapBox())
+    }
 
     local out = new MapBox()
     local pos = 0
@@ -43,32 +75,42 @@ static box ProgramJsonV0RuneAttrsBox {
 
       local obj_end = ProgramJsonV0ScannerBox.seek_obj_end_unescaped(defs_json, obj_start)
       if obj_end < 0 {
-        return me._fail(tag, "[cap_missing/rune_attrs] failed to scan defs object")
+        return me._result_err(tag, "[cap_missing/rune_attrs] failed to scan defs object")
       }
 
       local def_obj = defs_json.substring(obj_start, obj_end)
-      local err = me._append_def_runes_or_error(out, def_obj, tag)
-      if err != "" { return err }
+      local append_out = me._append_def_runes_result(out, def_obj, tag)
+      if BoxHelpers.map_get(append_out, "err") != 0 {
+        return me._result_existing_err("" + BoxHelpers.map_get(append_out, "err_line"))
+      }
       pos = obj_end
     }
-    return out
+    return me._result_ok(out)
   }
 
   _append_def_runes_or_error(out, def_obj, tag) {
-    local attrs_start = me._find_optional_obj_field_start(def_obj, "attrs", 0)
-    if attrs_start < 0 { return "" }
+    local result = me._append_def_runes_result(out, def_obj, tag)
+    if BoxHelpers.map_get(result, "err") != 0 { return "" + BoxHelpers.map_get(result, "err_line") }
+    return ""
+  }
 
-    local runes_arr = me._read_optional_array_field_in_obj(def_obj, "runes", attrs_start)
-    if runes_arr == null { return "" }
+  _append_def_runes_result(out, def_obj, tag) {
+    local attrs_start = me._find_optional_obj_field_start(def_obj, "attrs", 0)
+    if attrs_start < 0 { return me._unit_ok() }
+
+    local runes_arr = ProgramJsonV0ScannerBox.read_array_field_first_in_obj_result(def_obj, "runes", attrs_start)
+    if BoxHelpers.map_get(runes_arr, "ok") != 1 { return me._unit_ok() }
 
     local runes_json = "" + BoxHelpers.map_get(runes_arr, "value")
-    if runes_json == "" || runes_json == "[]" { return "" }
+    if runes_json == "" || runes_json == "[]" { return me._unit_ok() }
 
-    local name_out = ProgramJsonV0ScannerBox.read_string_field_first_in_obj(def_obj, "name", 0)
-    local box_out = ProgramJsonV0ScannerBox.read_string_field_first_in_obj(def_obj, "box", 0)
-    local params_out = ProgramJsonV0ScannerBox.read_array_field_first_in_obj(def_obj, "params", 0)
-    if name_out == null || box_out == null || params_out == null {
-      return me._fail(tag, "[cap_missing/rune_attrs] attrs.runes def must keep name/box/params")
+    local name_out = ProgramJsonV0ScannerBox.read_string_field_first_in_obj_result(def_obj, "name", 0)
+    local box_out = ProgramJsonV0ScannerBox.read_string_field_first_in_obj_result(def_obj, "box", 0)
+    local params_out = ProgramJsonV0ScannerBox.read_array_field_first_in_obj_result(def_obj, "params", 0)
+    if BoxHelpers.map_get(name_out, "ok") != 1
+        || BoxHelpers.map_get(box_out, "ok") != 1
+        || BoxHelpers.map_get(params_out, "ok") != 1 {
+      return me._unit_err(tag, "[cap_missing/rune_attrs] attrs.runes def must keep name/box/params")
     }
 
     local function_name = me._normalize_function_name_or_error(
@@ -77,10 +119,10 @@ static box ProgramJsonV0RuneAttrsBox {
       "" + BoxHelpers.map_get(params_out, "value"),
       tag
     )
-    if me.is_freeze_tag(function_name) == 1 { return function_name }
+    if me.is_freeze_tag(function_name) == 1 { return me._unit_existing_err(function_name) }
 
     out.set(function_name, runes_json)
-    return ""
+    return me._unit_ok()
   }
 
   _normalize_function_name_or_error(name, box_name, params_json, tag) {
@@ -160,7 +202,9 @@ static box ProgramJsonV0RuneAttrsBox {
     local needle = "\"" + ("" + key) + "\":"
     local p = StringHelpers.index_of(obj, 0, needle)
     if p < 0 { return null }
-    return ProgramJsonV0ScannerBox.read_array_field_first_in_obj(s, key, obj_start)
+    local out = ProgramJsonV0ScannerBox.read_array_field_first_in_obj_result(s, key, obj_start)
+    if BoxHelpers.map_get(out, "ok") != 1 { return null }
+    return %{"value" => BoxHelpers.map_get(out, "value"), "next" => BoxHelpers.map_get(out, "next")}
   }
 }
 

@@ -81,7 +81,8 @@ fn same_module_instruction_supported(
             callee: Some(Callee::Global(name)),
             ..
         } => {
-            supported_backend_global(name)
+            name == &function.signature.name
+                || supported_backend_global(name)
                 || function.metadata.global_call_routes.iter().any(|route| {
                     route.block() == block_id
                         && route.instruction_index() == instruction_index
