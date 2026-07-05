@@ -90,10 +90,11 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  3035 lands real `.hako` ProgramJsonTryShapeScanV1 traversal for covered Try
-  ProgramJSON statement structure with a 9-row AOT parity gate. 3036 is active
-  to mark only covered TryShapeSnapshotV1 rows as Rust ASTNode projector
-  retire-candidate.
+  3036 lands the covered TryShapeSnapshotV1 ProgramJSON traversal slice as a
+  scoped Rust ASTNode projector retire-candidate. Exception runtime semantics,
+  catch matching, finally execution semantics, full projector retirement,
+  ProgramJSON full parser, HakoAdoption, Source Selfhost, RecipeMatcher, route
+  selection, lowering, mutation, ID allocation, and new ABI remain unclaimed.
   Selection-only ProgramJSON cards remain forbidden unless the next capability
   is genuinely ambiguous.
   3002 records trigger-based dynamic typing hint debt for Float binops, PHI
@@ -401,27 +402,28 @@ Detailed evidence lives in phase cards, fixtures, and git history.
 
 ## Active Next 3
 ```text
-1. MIRBUILDER-PROGRAMJSON-LOOPRANGE-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
-   status=landed; boundary=covered LoopRangeShapeSnapshotV1 rows only
-
-2. MIRBUILDER-PROGRAMJSON-TRY-SHAPE-SCAN-CAPABILITY-001
+1. MIRBUILDER-PROGRAMJSON-TRY-SHAPE-SCAN-CAPABILITY-001
    status=landed; boundary=Try traversal, no exception runtime semantics
 
-3. MIRBUILDER-PROGRAMJSON-TRY-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
-   status=active; boundary=covered TryShapeSnapshotV1 rows only
+2. MIRBUILDER-PROGRAMJSON-TRY-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+   status=landed; boundary=covered TryShapeSnapshotV1 rows only
+
+3. MIRBUILDER-PROGRAMJSON-CAPABILITY-BATCH-CONTINUATION
+   status=active; boundary=select next real traversal capability and implement it
 
 next active:
-  MIRBUILDER-PROGRAMJSON-TRY-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
-  status=active; boundary=covered TryShapeSnapshotV1 rows only
+  MIRBUILDER-PROGRAMJSON-CAPABILITY-BATCH-CONTINUATION
+  status=active; boundary=implementation prep for the next real `.hako`
+  ProgramJSON traversal capability
 
 trigger-based: MIR JSON dynamic typing hint inventory follow-up
    status=trigger-based; boundary=3002 Tier-2/Tier-3, no guard-only detour
 
 next_documented_task =
-  MIRBUILDER-PROGRAMJSON-TRY-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+  MIRBUILDER-PROGRAMJSON-CAPABILITY-BATCH-CONTINUATION
 
 next_after_active_3 =
-  return to ProgramJSON capability-batch retire-candidate continuation
+  select next covered Rust ASTNode projector retire-candidate after green parity
 
 task discipline =
   Each ProgramJSON capability card must land real `.hako` traversal, a fixture,
