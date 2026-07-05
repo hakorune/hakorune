@@ -1,0 +1,111 @@
+// program_json_type_alias_declaration_shape_scan.hako
+//
+// Responsibility:
+// - Traverse covered Program(JSON v0) TypeAliasDeclaration objects structurally.
+// - Emit TypeAliasDeclarationShapeSnapshotV1 summaries for MirBuilder migration parity.
+//
+// Non-responsibility:
+// - Full JSON parsing, source text matching, Rust ASTNode projection, type
+//   resolution, alias expansion, MIR mutation, backend lowering, ID allocation,
+//   or parser integration.
+
+using selfhost.shared.common.string_helpers as StringHelpers
+using lang.compiler.mirbuilder.program_json_v0_scanner_box as ProgramJsonV0ScannerBox
+
+static box ProgramJsonTypeAliasDeclarationShapeScanBox {
+  build_summary(program_json) {
+    if program_json == null || ("" + program_json) == "" {
+      return me._fail("missing_program_json")
+    }
+    program_json = "" + program_json
+
+    local body = me._array_field_start(program_json, "body", 0)
+    if body < 0 { return me._fail("cap_missing_program_body") }
+
+    local first = me._first_object_in_array(program_json, body)
+    if first < 0 { return me._fail("cap_missing_first_stmt") }
+
+    if me._kind_at(program_json, first) != "TypeAliasDeclaration" {
+      return me._summary("Unsupported", 0, 1)
+    }
+
+    local kind = me._type_alias_kind(program_json, first)
+    return me._summary(kind, me._supported_count(kind), me._unsupported_count(kind))
+  }
+
+  _summary(kind, supported, unsupported) {
+    return "snapshot_kind=TypeAliasDeclarationShapeSnapshotV1"
+      + ";top_type_alias_declaration_shape_kind=" + kind
+      + ";supported_type_alias_declaration_count=" + me._count_token(supported)
+      + ";unsupported_type_alias_declaration_count=" + me._count_token(unsupported)
+  }
+
+  _type_alias_kind(s, alias_start) {
+    local name = me._string_field_at(s, "name", alias_start)
+    if name == "" { return "Unsupported" }
+    local target = me._string_field_at(s, "target_type", alias_start)
+    if target == "" { return "Unsupported" }
+    return "AliasTarget" + me._target_kind(target)
+  }
+
+  _target_kind(target) {
+    if target == "I64" || target == "Int" { return "Integer" }
+    if target == "String" || target == "StringBox" { return "String" }
+    if target == "Bool" { return "Bool" }
+    if target == "Array" || target == "ArrayBox" { return "Array" }
+    if target == "Map" || target == "MapBox" { return "Map" }
+    return "Other"
+  }
+
+  _supported_count(kind) {
+    if kind == "Unsupported" { return 0 }
+    return 1
+  }
+
+  _unsupported_count(kind) {
+    if kind == "Unsupported" { return 1 }
+    return 0
+  }
+
+  _count_token(n) {
+    if n <= 0 { return "0" }
+    if n == 1 { return "1" }
+    return "many"
+  }
+
+  _fail(reason) {
+    return "accepted=0;reason=" + reason
+  }
+
+  _array_field_start(s, key, obj_start) {
+    if obj_start < 0 { return -1 }
+    local p = ProgramJsonV0ScannerBox.seek_obj_field_value_start(s, key, obj_start)
+    if p < 0 { return -1 }
+    p = StringHelpers.skip_ws(s, p)
+    if ProgramJsonV0ScannerBox._read_char(s, p) != "[" { return -1 }
+    return p
+  }
+
+  _first_object_in_array(s, array_start) {
+    if array_start < 0 { return -1 }
+    local p = StringHelpers.skip_ws(s, array_start + 1)
+    if ProgramJsonV0ScannerBox._read_char(s, p) != "{" { return -1 }
+    return p
+  }
+
+  _kind_at(s, obj_start) {
+    return me._string_field_at(s, "kind", obj_start)
+  }
+
+  _string_field_at(s, key, obj_start) {
+    local p = ProgramJsonV0ScannerBox.seek_obj_field_value_start(s, key, obj_start)
+    if p < 0 { return "" }
+    p = StringHelpers.skip_ws(s, p)
+    if ProgramJsonV0ScannerBox._read_char(s, p) != "\"" { return "" }
+    local end_quote = StringHelpers.index_of(s, p + 1, "\"")
+    if end_quote < 0 { return "" }
+    return s.substring(p + 1, end_quote)
+  }
+}
+
+static box ProgramJsonTypeAliasDeclarationShapeScanMain { main() { return 0 } }

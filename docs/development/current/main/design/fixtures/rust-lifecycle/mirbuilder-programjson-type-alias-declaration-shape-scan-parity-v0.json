@@ -1,0 +1,88 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonTypeAliasDeclarationShapeScanParityV1",
+  "token": "MIRBUILDER-PROGRAMJSON-TYPE-ALIAS-DECLARATION-SHAPE-SCAN-CAPABILITY-001",
+  "capability": {
+    "name": "ProgramJsonTypeAliasDeclarationShapeScanV1",
+    "input": "ProgramJSON v0",
+    "output": "TypeAliasDeclarationShapeSnapshotV1"
+  },
+  "routes": {
+    "rust_oracle_route": "source -> RHako parser -> Rust ASTNode -> Rust TypeAliasDeclaration token snapshot",
+    "hako_programjson_route": "source -> HHako parser -> ProgramJSON -> HHako TypeAliasDeclaration token snapshot"
+  },
+  "programjson_emit_evidence": {
+    "source": "src/macro/ast_json/joinir_compat.rs",
+    "node_kind": "TypeAliasDeclaration",
+    "node_type": null,
+    "fields": ["name", "target_type"]
+  },
+  "rows": [
+    {
+      "row_id": "alias_i64",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "TypeAliasDeclaration", "name": "Count", "target_type": "I64"}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=TypeAliasDeclarationShapeSnapshotV1;top_type_alias_declaration_shape_kind=AliasTargetInteger;supported_type_alias_declaration_count=1;unsupported_type_alias_declaration_count=0"}
+    },
+    {
+      "row_id": "alias_string",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "TypeAliasDeclaration", "name": "Text", "target_type": "String"}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=TypeAliasDeclarationShapeSnapshotV1;top_type_alias_declaration_shape_kind=AliasTargetString;supported_type_alias_declaration_count=1;unsupported_type_alias_declaration_count=0"}
+    },
+    {
+      "row_id": "alias_bool",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "TypeAliasDeclaration", "name": "Flag", "target_type": "Bool"}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=TypeAliasDeclarationShapeSnapshotV1;top_type_alias_declaration_shape_kind=AliasTargetBool;supported_type_alias_declaration_count=1;unsupported_type_alias_declaration_count=0"}
+    },
+    {
+      "row_id": "alias_arraybox",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "TypeAliasDeclaration", "name": "Items", "target_type": "ArrayBox"}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=TypeAliasDeclarationShapeSnapshotV1;top_type_alias_declaration_shape_kind=AliasTargetArray;supported_type_alias_declaration_count=1;unsupported_type_alias_declaration_count=0"}
+    },
+    {
+      "row_id": "alias_mapbox",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "TypeAliasDeclaration", "name": "Dict", "target_type": "MapBox"}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=TypeAliasDeclarationShapeSnapshotV1;top_type_alias_declaration_shape_kind=AliasTargetMap;supported_type_alias_declaration_count=1;unsupported_type_alias_declaration_count=0"}
+    },
+    {
+      "row_id": "alias_custom_other",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "TypeAliasDeclaration", "name": "User", "target_type": "UserBox"}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=TypeAliasDeclarationShapeSnapshotV1;top_type_alias_declaration_shape_kind=AliasTargetOther;supported_type_alias_declaration_count=1;unsupported_type_alias_declaration_count=0"}
+    },
+    {
+      "row_id": "alias_missing_target_unsupported",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "TypeAliasDeclaration", "name": "Broken", "target_type": null}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=TypeAliasDeclarationShapeSnapshotV1;top_type_alias_declaration_shape_kind=Unsupported;supported_type_alias_declaration_count=0;unsupported_type_alias_declaration_count=1"}
+    },
+    {
+      "row_id": "first_stmt_local_unsupported",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "Local", "type": "Local", "name": "i", "expr": {"type": "Int", "value": 0}}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=TypeAliasDeclarationShapeSnapshotV1;top_type_alias_declaration_shape_kind=Unsupported;supported_type_alias_declaration_count=0;unsupported_type_alias_declaration_count=1"}
+    }
+  ],
+  "summary": {
+    "parity_row_count": 8,
+    "programjson_traversal_used": 1,
+    "string_only_facade": 0,
+    "rust_astnode_projector_retire_candidate": 1
+  },
+  "decision": {
+    "kind": "ProgramJsonTypeAliasDeclarationShapeScanParityGreen",
+    "reason_token": "TypeAliasDeclarationShapeProgramJsonSnapshotMatchesRustAstNodeOracle",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-TYPE-ALIAS-DECLARATION-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "programjson_full_parser_claim": 0,
+    "hako_adopted_for_full_owner": 0,
+    "type_resolution": 0,
+    "alias_expansion": 0
+  }
+}
