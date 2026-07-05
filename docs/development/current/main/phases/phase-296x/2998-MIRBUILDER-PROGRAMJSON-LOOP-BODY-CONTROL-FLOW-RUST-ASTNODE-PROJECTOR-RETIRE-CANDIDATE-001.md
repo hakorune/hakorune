@@ -1,6 +1,6 @@
 # 2998 - MIRBUILDER-PROGRAMJSON-LOOP-BODY-CONTROL-FLOW-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
 
-Status: active
+Status: held
 
 ## Scope
 
@@ -15,9 +15,19 @@ full MirBuilder owner.
 
 ```text
 HAKO-AOT-ROUTE-VALUE-TYPE-PUBLICATION-CONTRACT-001 = green
+HAKO-AOT-HELPER-PARAM-PUBLICATION-POLYMORPHIC-INPUT-CONTRACT-001 = green
+MIR-ROUTE-GENERIC-METHOD-SCALAR-RETURN-VALUE-TYPE-PUBLICATION-001 = green
+MIR-ROUTE-EXTERN-CALL-RETURN-VALUE-TYPE-PUBLICATION-001 = green
 tools/checks/hako_aot_dynamic_string_eq_and_int_to_str_correctness_gate.sh = green
 tools/checks/rust_lifecycle_mirbuilder_programjson_loop_body_control_flow_scan_parity_gate.sh = green
 ```
+
+## Hold Reason
+
+2997 landed the right shared contract shape, but worker review found confirmed
+same-root publication gaps in helper param policy, generic-method scalar route
+results, and extern-call route results. Close those cleanup slices before this
+retire-candidate card resumes.
 
 ## Candidate Scope
 

@@ -345,17 +345,16 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PROGRAMJSON-LOOP-BODY-CONTROL-FLOW-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2998-MIRBUILDER-PROGRAMJSON-LOOP-BODY-CONTROL-FLOW-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001.md"
-latest_card_summary = """2997 landed the AOT/MIR route value-type publication
-contract cleanup: RouteReturnShapeValueTypePublisherV1 and
-HelperParamTypePublicationPolicyV1 are fixture-backed and guarded, including
-the 2996 AOT correctness regression and ProgramJSON Loop.body parity
-regression. 2998 is now active to mark only the covered
-LoopBodyControlFlowSnapshotV1 ProgramJSON traversal slice as a Rust ASTNode
-projector retire-candidate. Full projector retirement, HakoAdoption,
-ProgramJSON full parser, route selection, backend lowering, MIR mutation, ID
-allocation, new ABI, and Source Selfhost remain unclaimed."""
+latest_card = "HAKO-AOT-HELPER-PARAM-PUBLICATION-POLYMORPHIC-INPUT-CONTRACT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2999-HAKO-AOT-HELPER-PARAM-PUBLICATION-POLYMORPHIC-INPUT-CONTRACT-001.md"
+latest_card_summary = """Worker review found confirmed 2997 cleanup gaps, so
+2998 is held. The active card is 2999: extend HelperParamTypePublicationPolicyV1
+for known polymorphic helper inputs, including StringHelpers.int_to_str/1
+param0, and wire the policy into helper-like receiver publication without
+route-family unification. Then run 3000 generic-method scalar return
+publication and 3001 extern-call return publication before resuming 2998.
+3002 records later dynamic typing hint inventory. No backend lowering, ABI,
+ProgramJSON traversal, projector retirement, or Source Selfhost claim is made."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -366,6 +365,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-05: Worker review holds 2998 and opens 2999-3001 as AOT/MIR publication cleanup before ProgramJSON projector retire-candidate resumes.",
   "2026-07-05: 2997 lands the AOT/MIR route value-type publication contract guard; 2998 is active as the ProgramJSON Loop.body Rust ASTNode projector retire-candidate continuation.",
   "2026-07-05: 2996 fixes AOT dynamic string equality and dynamic StringHelpers.int_to_str correctness for scanner-fed values; ProgramJSON Loop.body scan remains green and selfhost remains unclaimed.",
   "2026-07-05: 2995 adds ProgramJsonLoopBodyControlFlowScanV1 as a 10-row `.hako` ProgramJSON traversal capability and marks the covered LoopBodyControlFlowSnapshotV1 slice as the next Rust ASTNode projector retire-candidate; full retirement and selfhost remain unclaimed.",
@@ -376,5 +376,4 @@ landed_tail = [
   "2026-07-05: 2990 adds ProgramJSON empty-body no-continue reject snapshot parity and marks LoopCondContinueNoContinueEmptyBodyRejectV1 as a one-shape Rust ASTNode projector retire-candidate; runtime dependency removal remains unclaimed.",
   "2026-07-05: 2989 adds ProgramJSON return-only no-continue reject snapshot parity and marks LoopCondContinueNoContinueReturnOnlyRejectV1 as a one-shape Rust ASTNode projector retire-candidate; runtime dependency removal remains unclaimed.",
   "2026-07-05: 2988 adds ProgramJSON no-continue reject snapshot parity and marks LoopCondContinueNoContinueRejectV1 as a one-shape Rust ASTNode projector retire-candidate; runtime dependency removal remains unclaimed.",
-  "2026-07-05: 2987 marks LoopCondContinueConditionNotSupportedRejectV1 as a one-shape Rust ASTNode projector retire-candidate; runtime dependency removal remains unclaimed.",
 ]

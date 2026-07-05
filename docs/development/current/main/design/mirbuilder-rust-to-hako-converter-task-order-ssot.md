@@ -60,7 +60,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-LOOP-BODY-CONTROL-FLOW-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+  HAKO-AOT-HELPER-PARAM-PUBLICATION-POLYMORPHIC-INPUT-CONTRACT-001
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -90,45 +90,17 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  ProgramJSON migration uses capability batches, not one-shape cards. The
-  2997 AOT/MIR contract cleanup is green: RouteReturnShapeValueTypePublisherV1
-  plus HelperParamTypePublicationPolicyV1 are fixture-backed and guarded by
-  the 2996 AOT correctness regression and ProgramJSON Loop.body parity
-  regression. The next card is the ProgramJSON Loop.body retire-candidate:
-  mark only the covered LoopBodyControlFlowSnapshotV1 slice as a Rust ASTNode
-  projector retire-candidate.
-  Loop.body control-flow scan remains green as a 10-row `.hako` ProgramJSON
-  traversal capability. Policy SSOT:
-  docs/development/current/main/design/mirbuilder-programjson-capability-batch-migration-policy-ssot.md.
-  Do not claim full projector retirement, HakoAdoption, ProgramJSON full parser,
-  MIR mutation, lowering, ID allocation, route selection, or Source Selfhost.
-  Rust ASTNode-to-token snapshot adapters are non-authority temporary projection
-  ABI for MirBuilder-first migration. They must not invent semantic policy or a
-  hidden token taxonomy, and must be removable when HHako ProgramJSON can feed
-  the same snapshot/facade contract.
-  `loop_cond_continue_with_return_plan_rule.authority_facade` is HakoAdopted
-  as the first scoped facts-to-plan DTO owner. Full `build_plan_with_facts_ctx`,
-  full `try_build_outcome`, recipe matching, route execution, MIR mutation, ID
-  allocation, and Source Selfhost remain unclaimed unless a specific card says
-  otherwise.
-  Authority facade comes before crate split: Rust may be reorganized around
-  meaning units only after the authority seam is fixture-backed and parity
-  proven. The next hard-authority pilot should target Fact -> DTO or one
-  REGISTRY rule -> plan DTO without MIR mutation, lowering, ID allocation, or
-  new `.hako` backend capability.
-  Older scoped Fact-owner adoptions are kept in phase cards and git history.
-  `build_plan_with_facts_ctx` and `try_build_outcome`
-  remain held as runner-up plan candidates. Backend lowering, MIR mutation,
-  ID allocation, and typed-object/static-helper `ControlFormBox` helpers remain
-  Rust-only blockers.
-  Hard-authority selection now uses three inventory tracks: Fact, Plan, and
-  Boundary. The first implementation slice must be read-only or plan-DTO
-  shaped, fixture-backed, symbolic-ID-only, and must not require MIR mutation,
-  backend lowering, ID allocation, or new `.hako` backend capability.
-  Leaf parity pilots are vocabulary coverage, not hard MirBuilder authority
-  progress. The next slice must target the smallest Fact-owner or REGISTRY-rule
-  contract with fixture-backed parity, not another formatter/classifier rerun.
-  Older leaf adoption details are archived in phase cards and git history.
+  2998 is held until 2999-3001 close the confirmed 2997 publication gaps:
+  helper polymorphic inputs, generic-method scalar return publication, and
+  extern-call return publication. These are preflight cleanup cards, not
+  route-family unification, backend lowering, ABI changes, or ProgramJSON
+  capability claims. After 3001 is green, resume 2998 for the covered
+  LoopBodyControlFlowSnapshotV1 Rust ASTNode projector retire-candidate.
+  3002 records later dynamic typing hint inventory for Float binops, PHI
+  roundtrip, mir_call dst_type, and string relational compare policy.
+  ProgramJSON migration remains capability-batch based; full projector
+  retirement, HakoAdoption, ProgramJSON full parser, MIR mutation, lowering,
+  ID allocation, route selection, and Source Selfhost remain unclaimed.
 
 current fail-fast boundary:
   Do not re-enter full converter route selection without new non-self-signed authority or stable input delta. The adopted pilot scopes are narrow pure owners only: classification/formatting vocabulary, tiny mutation-frame leaves, label/tag surfaces, direct step placement classification, array-string len-window effect-tags formatting, and fixture-backed parity helpers.
