@@ -60,45 +60,26 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-LOOP-COND-CONTINUE-WITH-RETURN-PLAN-RULE-PARITY-001
+  MIRBUILDER-LOOP-COND-CONTINUE-WITH-RETURN-PLAN-RULE-HAKOADOPTED-DECISION-001
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
   Do not start with broad meaning-based crate splitting. First prove one
   authority facade boundary, then consider crate extraction for that proven
   boundary only.
-  Next work inventories Fact-owner and REGISTRY-rule contracts, excludes
-  lowering/mutation/allocation/backend-capability blockers, then selects one
-  smallest fixture-backed parity candidate.
-  Recent scoped Fact facades include scan/loop true/if-phi/loop-cond owners
-  and loop-break body-local / step-before-break owners.
-  Selection-023 is superseded because `loop_step_shape` was already
-  parity-landed and HakoAdopted in phase cards 2908/2909. Selection-024 must
-  first exclude existing parity/adoption owners from check-scripts index,
-  phase cards, and `lang/src/compiler/lib`, then choose one smallest remaining
-  fixture-backed candidate.
-  Fact-to-Plan promotion threshold is now active: after selection-024, only
-  two additional Fact facade adoptions are allowed before the first
-  REGISTRY-rule plan DTO pilot. Selection-024 must compare
-  `build_plan_with_facts_ctx` / `try_build_outcome`; if no non-adopted Fact
-  owner is strictly smaller than those plan runner-ups, promote to Plan track
-  immediately.
-  Selection-024 promotes to Plan track: no remaining non-adopted Fact owner is
-  strictly smaller than the runner-up Plan candidates. The next slice must
-  select one REGISTRY/single-planner rule as a facts-to-plan DTO parity pilot.
-  Plan selection-001 chooses the active `LoopCondContinueWithReturn`
-  single-planner rule. The next slice may only produce a facts-to-plan DTO
-  parity gate; `build_plan_with_facts_ctx`, full `try_build_outcome`, recipe
-  matching, route execution, lowering, mutation, and allocation remain Rust.
+  Fact-to-Plan threshold has fired: selection-024 closed the Fact-facade
+  cadence and Plan selection-001 chose the active
+  `LoopCondContinueWithReturn` single-planner rule.
+  `loop_cond_continue_with_return_plan_rule` now has a green 5-row
+  facts-to-plan DTO parity gate; HakoAdopted decision is next.
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  Plan selection-001 chooses `LoopCondContinueWithReturn` as the first
-  facts-to-plan DTO pilot because it is the only active `PLAN_RULE_ORDER` item.
-  Recent adopted facades remain scoped DTO owners only; AST traversal,
-  nested-loop minimal composition, route execution, MIR mutation, ID
-  allocation, and Source Selfhost remain unclaimed unless a specific card says
-  otherwise.
+  `loop_cond_continue_with_return_plan_rule.authority_facade` has green parity
+  for a backend-safe 5-row facts-to-plan DTO snapshot. Full
+  `build_plan_with_facts_ctx`, full `try_build_outcome`, recipe matching,
+  route execution, MIR mutation, ID allocation, and Source Selfhost remain
+  unclaimed unless a specific card says otherwise.
   Authority facade comes before crate split: Rust may be reorganized around
   meaning units only after the authority seam is fixture-backed and parity
   proven. The next hard-authority pilot should target Fact -> DTO or one

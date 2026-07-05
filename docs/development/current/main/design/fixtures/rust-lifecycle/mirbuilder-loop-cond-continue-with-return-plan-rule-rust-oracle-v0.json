@@ -1,0 +1,83 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderLoopCondContinueWithReturnPlanRuleRustOracleV1",
+  "token": "MIRBUILDER-LOOP-COND-CONTINUE-WITH-RETURN-PLAN-RULE-RUST-ORACLE-FIXTURE-001",
+  "owner": "loop_cond_continue_with_return_plan_rule",
+  "rust_sources": [
+    {
+      "path": "src/mir/builder/control_flow/plan/single_planner/rules.rs",
+      "hash": "sha256:8c730381df99871bf8380052b4ce2cc06cade661becd1a427f08af80120db4f7",
+      "oracle_surface": "planner_matches_rule_kind / is_recipe_only_rule"
+    },
+    {
+      "path": "src/mir/builder/control_flow/plan/single_planner/rule_order.rs",
+      "hash": "sha256:15ee9c8c3ab4b3b921c7e5d48a6583f5aeaa2fe3c0da98f7ac440f356b22cede",
+      "oracle_surface": "PLAN_RULE_ORDER / planner_rule_labels"
+    }
+  ],
+  "input_contract": "BackendSafeLoopCondContinueWithReturnPlanRuleTokenSnapshotV1",
+  "rows": [
+    {
+      "case_id": "accept_active_rule",
+      "rule_order_token": "OrderOnlyLoopCondContinueWithReturn",
+      "planner_present_token": "PlannerPresent",
+      "candidate_rule_token": "LoopCondContinueWithReturn",
+      "recipe_only_token": "RecipeOnly",
+      "expected_accept": true,
+      "expected_summary": "accepted=1;rule=LoopCondContinueWithReturn;tag=LoopCondContinueWithReturn;display=LoopContinueWithReturn;route=loop_cond_continue_with_return;recipe_only=1"
+    },
+    {
+      "case_id": "reject_rule_order_not_active",
+      "rule_order_token": "OrderEmpty",
+      "planner_present_token": "PlannerPresent",
+      "candidate_rule_token": "LoopCondContinueWithReturn",
+      "recipe_only_token": "RecipeOnly",
+      "expected_accept": false,
+      "expected_reason": "rule_order_not_active",
+      "expected_summary": "accepted=0;reason=rule_order_not_active"
+    },
+    {
+      "case_id": "reject_candidate_rule_not_active",
+      "rule_order_token": "OrderOnlyLoopCondContinueWithReturn",
+      "planner_present_token": "PlannerPresent",
+      "candidate_rule_token": "LoopBreakRecipe",
+      "recipe_only_token": "RecipeOnly",
+      "expected_accept": false,
+      "expected_reason": "candidate_rule_not_active",
+      "expected_summary": "accepted=0;reason=candidate_rule_not_active"
+    },
+    {
+      "case_id": "reject_planner_absent",
+      "rule_order_token": "OrderOnlyLoopCondContinueWithReturn",
+      "planner_present_token": "PlannerAbsent",
+      "candidate_rule_token": "LoopCondContinueWithReturn",
+      "recipe_only_token": "RecipeOnly",
+      "expected_accept": false,
+      "expected_reason": "planner_not_present",
+      "expected_summary": "accepted=0;reason=planner_not_present"
+    },
+    {
+      "case_id": "reject_not_recipe_only",
+      "rule_order_token": "OrderOnlyLoopCondContinueWithReturn",
+      "planner_present_token": "PlannerPresent",
+      "candidate_rule_token": "LoopCondContinueWithReturn",
+      "recipe_only_token": "NotRecipeOnly",
+      "expected_accept": false,
+      "expected_reason": "rule_not_recipe_only",
+      "expected_summary": "accepted=0;reason=rule_not_recipe_only"
+    }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "build_plan_with_facts_ctx_migrated": 0,
+    "try_build_outcome_migrated": 0,
+    "recipe_matching_migrated": 0,
+    "route_execution_migrated": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0,
+    "id_allocation_migration": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

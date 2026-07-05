@@ -1,0 +1,37 @@
+// loop_cond_continue_with_return_plan_rule.hako
+//
+// Responsibility:
+// - reduce a backend-safe single-planner rule token snapshot into a plan-rule DTO
+// - mirror the active PLAN_RULE_ORDER + planner_matches_rule_kind slice
+//
+// Non-responsibility:
+// - build_plan_with_facts_ctx or full try_build_outcome migration
+// - recipe matching, router execution, lowering, MIR mutation, or ID allocation
+using lang.compiler.lib.planner_rule_label_formatter as PlannerRuleLabelFormatterBox
+
+static box LoopCondContinueWithReturnPlanRuleBox {
+  build_summary(rule_order_token, planner_present_token, candidate_rule_token, recipe_only_token) {
+    if rule_order_token != "OrderOnlyLoopCondContinueWithReturn" {
+      return "accepted=0;reason=rule_order_not_active"
+    }
+    if candidate_rule_token != "LoopCondContinueWithReturn" {
+      return "accepted=0;reason=candidate_rule_not_active"
+    }
+    if planner_present_token != "PlannerPresent" {
+      return "accepted=0;reason=planner_not_present"
+    }
+    if recipe_only_token != "RecipeOnly" {
+      return "accepted=0;reason=rule_not_recipe_only"
+    }
+
+    local tag = PlannerRuleLabelFormatterBox.format_label(candidate_rule_token, "tag_rule")
+    local display = PlannerRuleLabelFormatterBox.format_label(candidate_rule_token, "display_label")
+    local route = PlannerRuleLabelFormatterBox.format_label(candidate_rule_token, "route_label")
+
+    return "accepted=1;rule=" + candidate_rule_token
+      + ";tag=" + tag
+      + ";display=" + display
+      + ";route=" + route
+      + ";recipe_only=1"
+  }
+}
