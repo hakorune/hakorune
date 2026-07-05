@@ -1,6 +1,6 @@
 # 3000 - MIR-ROUTE-GENERIC-METHOD-SCALAR-RETURN-VALUE-TYPE-PUBLICATION-001
 
-Status: active
+Status: landed
 
 ## Scope
 
@@ -31,6 +31,17 @@ fixture and guard.
 - `mixed_runtime_i64_or_handle` remains unpublished;
 - existing generic box-origin publication remains separate;
 - no route-selection or lowering behavior is changed.
+
+## Evidence
+
+```text
+cargo test -q generic_scalar_return_shapes_publish_integer_value_type --lib
+bash tools/checks/hako_aot_route_value_type_publication_contract_gate.sh
+
+scalar_i64_or_missing_zero_publication=Integer
+mixed_runtime_i64_or_handle_publication=DoNotPublishAmbiguous
+programjson_loop_body_control_flow_scan_regression=green
+```
 
 ## Forbidden
 

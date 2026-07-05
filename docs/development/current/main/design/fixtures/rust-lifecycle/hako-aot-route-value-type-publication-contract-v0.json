@@ -13,6 +13,11 @@
       "publication_state": "Publish"
     },
     {
+      "return_shape": "scalar_i64_or_missing_zero",
+      "published_value_type": "Integer",
+      "publication_state": "Publish"
+    },
+    {
       "return_shape": "string_handle",
       "published_value_type": "StringBox",
       "publication_state": "Publish"

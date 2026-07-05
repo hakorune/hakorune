@@ -115,7 +115,22 @@ pub(super) fn publish_user_box_route_result_value_types(module: &mut MirModule) 
 pub(super) fn publish_generic_route_result_value_types(module: &mut MirModule) -> bool {
     let mut changed = false;
     for function in module.functions.values_mut() {
-        let facts = function
+        let shape_facts = function
+            .metadata
+            .generic_method_routes
+            .iter()
+            .filter_map(|route| {
+                Some((
+                    route.result_value()?,
+                    route_return_shape_value_type(Some(route.return_shape()?.as_metadata_name()))?,
+                ))
+            })
+            .collect::<Vec<_>>();
+        for (value, ty) in shape_facts {
+            changed |= publish_value_type(function, value, ty);
+        }
+
+        let box_facts = function
             .metadata
             .generic_method_routes
             .iter()
@@ -126,7 +141,7 @@ pub(super) fn publish_generic_route_result_value_types(module: &mut MirModule) -
                 ))
             })
             .collect::<Vec<_>>();
-        for (value, box_name) in facts {
+        for (value, box_name) in box_facts {
             changed |= publish_value_box_type(function, value, &box_name);
         }
     }
@@ -257,6 +272,46 @@ fn publish_function_param_box_type(
 
 fn publish_value_box_type(function: &mut MirFunction, value: ValueId, box_name: &str) -> bool {
     publish_value_type(function, value, MirType::Box(box_name.to_string()))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::mir::generic_method_route_plan::test_support;
+    use crate::mir::{BasicBlockId, EffectMask, FunctionSignature};
+
+    fn make_function() -> MirFunction {
+        MirFunction::new(
+            FunctionSignature {
+                name: "main".to_string(),
+                params: vec![],
+                return_type: MirType::Void,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        )
+    }
+
+    #[test]
+    fn generic_scalar_return_shapes_publish_integer_value_type() {
+        let mut module = MirModule::new("generic-scalar-publication-test".to_string());
+        let mut function = make_function();
+        function.metadata.generic_method_routes.push(
+            test_support::runtime_data_map_get_scalar_i64_same_key(0, 0, 1, 2, 3),
+        );
+        function.metadata.generic_method_routes.push(
+            test_support::runtime_data_map_get_mixed_i64_key(0, 1, 1, 2, 4),
+        );
+        module.add_function(function);
+
+        assert!(publish_generic_route_result_value_types(&mut module));
+        let function = module.get_function("main").unwrap();
+        assert_eq!(
+            function.metadata.value_types.get(&ValueId::new(3)),
+            Some(&MirType::Integer)
+        );
+        assert_eq!(function.metadata.value_types.get(&ValueId::new(4)), None);
+    }
 }
 
 fn publish_value_type(function: &mut MirFunction, value: ValueId, ty: MirType) -> bool {

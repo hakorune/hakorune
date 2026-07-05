@@ -40,9 +40,10 @@ pub(crate) fn helper_param_type_publication_policy(
 
 pub(crate) fn route_return_shape_value_type(return_shape: Option<&str>) -> Option<MirType> {
     match return_shape {
-        Some("ScalarI64") | Some("scalar_i64") | Some("void_sentinel_i64_zero") => {
-            Some(MirType::Integer)
-        }
+        Some("ScalarI64")
+        | Some("scalar_i64")
+        | Some("scalar_i64_or_missing_zero")
+        | Some("void_sentinel_i64_zero") => Some(MirType::Integer),
         Some("string_handle") | Some("string_handle_or_null") => {
             Some(MirType::Box("StringBox".to_string()))
         }
@@ -65,6 +66,10 @@ mod tests {
         );
         assert_eq!(
             route_return_shape_value_type(Some("scalar_i64")),
+            Some(MirType::Integer)
+        );
+        assert_eq!(
+            route_return_shape_value_type(Some("scalar_i64_or_missing_zero")),
             Some(MirType::Integer)
         );
         assert_eq!(

@@ -60,7 +60,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIR-ROUTE-GENERIC-METHOD-SCALAR-RETURN-VALUE-TYPE-PUBLICATION-001
+  MIR-ROUTE-EXTERN-CALL-RETURN-VALUE-TYPE-PUBLICATION-001
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -90,10 +90,13 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  2999 is green. 2998 remains held until 3000-3001 close the remaining 2997
-  publication gaps: generic-method scalar return publication and extern-call
-  return publication. These are preflight cleanup cards, not route-family
-  unification, backend lowering, ABI changes, or ProgramJSON capability claims.
+  3000 is green: generic-method scalar return publication now uses
+  RouteReturnShapeValueTypePublisherV1, including scalar_i64_or_missing_zero
+  -> Integer, while mixed_runtime_i64_or_handle remains unpublished and
+  box-origin publication stays separate. 2998 remains held until 3001 closes
+  extern-call return publication. These are preflight cleanup cards, not
+  route-family unification, backend lowering, ABI changes, or ProgramJSON
+  capability claims.
   After 3001 is green, resume 2998 for the covered LoopBodyControlFlowSnapshotV1
   Rust ASTNode projector retire-candidate.
   3002 records later dynamic typing hint inventory for Float binops, PHI
@@ -400,17 +403,17 @@ Detailed evidence lives in phase cards, fixtures, and git history.
 
 ## Active Next 3
 ```text
-1. HAKO-AOT-ROUTE-VALUE-TYPE-PUBLICATION-CONTRACT-001
-   status=active; boundary=RouteReturnShapeValueTypePublisherV1 + HelperParamTypePublicationPolicyV1
+1. MIR-ROUTE-EXTERN-CALL-RETURN-VALUE-TYPE-PUBLICATION-001
+   status=active; boundary=extern-call return-shape value-type publication only
 
 2. MIRBUILDER-PROGRAMJSON-LOOP-BODY-CONTROL-FLOW-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
-   status=pending; boundary=covered LoopBodyControlFlowSnapshotV1 slice only
+   status=held until 3001 green; boundary=covered LoopBodyControlFlowSnapshotV1 slice only
 
 3. ProgramJSON retire-candidate continuation
    status=held; boundary=no full projector retirement, parser claim, lowering, mutation, ID allocation, or Source Selfhost
 
 next_documented_task =
-  HAKO-AOT-ROUTE-VALUE-TYPE-PUBLICATION-CONTRACT-001
+  MIR-ROUTE-EXTERN-CALL-RETURN-VALUE-TYPE-PUBLICATION-001
 
 next_after_active_3 =
   return to ProgramJSON capability-batch retire-candidate continuation

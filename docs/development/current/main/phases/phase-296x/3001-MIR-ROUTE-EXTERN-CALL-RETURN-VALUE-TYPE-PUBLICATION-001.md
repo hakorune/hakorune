@@ -1,6 +1,6 @@
 # 3001 - MIR-ROUTE-EXTERN-CALL-RETURN-VALUE-TYPE-PUBLICATION-001
 
-Status: pending
+Status: active
 
 ## Scope
 
@@ -40,4 +40,3 @@ ambiguous / unsupported shapes -> DoNotPublishAmbiguous
 ```text
 MIRBUILDER-PROGRAMJSON-LOOP-BODY-CONTROL-FLOW-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
 ```
-

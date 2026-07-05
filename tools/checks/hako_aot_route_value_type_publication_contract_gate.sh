@@ -51,6 +51,7 @@ rows = {
 }
 expected_rows = {
     "ScalarI64": ("Integer", "Publish"),
+    "scalar_i64_or_missing_zero": ("Integer", "Publish"),
     "string_handle": ("StringBox", "Publish"),
     "object_handle": (None, "DoNotPublishAmbiguous"),
     "mixed_runtime_i64_or_handle": (None, "DoNotPublishAmbiguous"),
@@ -141,7 +142,7 @@ required_policy_needles = [
     'pub(crate) const MIR_SCHEMA_BOX_EXPECT_I64: &str = "MirSchemaBox._expect_i64/2";',
     "POLYMORPHIC_HELPER_PARAM0_INPUTS",
     "PolymorphicInputDoNotPublishFromSingleObservation",
-    'Some("ScalarI64") | Some("scalar_i64") | Some("void_sentinel_i64_zero")',
+    'Some("scalar_i64_or_missing_zero")',
     'Some("string_handle") | Some("string_handle_or_null")',
     'Some("object_handle") | Some("mixed_runtime_i64_or_handle") | None => None',
 ]
@@ -168,6 +169,8 @@ for needle in [
     "route_return_shape_value_type",
     "helper_param_type_publication_policy",
     "HelperParamTypePublicationPolicy",
+    "publish_generic_route_result_value_types",
+    "route.return_shape()?.as_metadata_name()",
 ]:
     if needle not in userbox_src:
         raise SystemExit(f"user-box route publisher missing shared policy: {needle}")
@@ -199,6 +202,7 @@ fixture=hako-aot-route-value-type-publication-contract-v0.json
 policy_owner=RouteReturnShapeValueTypePublisherV1
 helper_policy_owner=HelperParamTypePublicationPolicyV1
 scalar_i64_publication=Integer
+scalar_i64_or_missing_zero_publication=Integer
 string_handle_publication=StringBox
 object_handle_publication=DoNotPublishAmbiguous
 mixed_runtime_i64_or_handle_publication=DoNotPublishAmbiguous

@@ -345,16 +345,16 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIR-ROUTE-GENERIC-METHOD-SCALAR-RETURN-VALUE-TYPE-PUBLICATION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3000-MIR-ROUTE-GENERIC-METHOD-SCALAR-RETURN-VALUE-TYPE-PUBLICATION-001.md"
-latest_card_summary = """2999 landed the helper polymorphic input publication
-contract: HelperParamTypePublicationPolicyV1 now covers six known param0
-helpers, including StringHelpers.int_to_str/1, and both global-call and
-helper-like user-box publication consult the shared policy. 3000 is active to
-publish generic-method stable scalar return shapes through
-RouteReturnShapeValueTypePublisherV1 before extern-call publication and 2998
-resume. No route-family unification, backend lowering, ABI, ProgramJSON
-traversal, projector retirement, or Source Selfhost claim is made."""
+latest_card = "MIR-ROUTE-EXTERN-CALL-RETURN-VALUE-TYPE-PUBLICATION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3001-MIR-ROUTE-EXTERN-CALL-RETURN-VALUE-TYPE-PUBLICATION-001.md"
+latest_card_summary = """3000 landed generic-method stable scalar return
+publication through RouteReturnShapeValueTypePublisherV1:
+scalar_i64_or_missing_zero now publishes Integer while
+mixed_runtime_i64_or_handle remains unpublished, and generic box-origin
+publication remains separate. 3001 is active to apply the same shared
+return-shape publication contract to extern-call routes before 2998 resumes.
+No route-family unification, backend lowering, ABI, ProgramJSON traversal,
+projector retirement, or Source Selfhost claim is made."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -365,6 +365,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-05: 3000 lands generic-method scalar return value-type publication through RouteReturnShapeValueTypePublisherV1; 3001 is active for extern-call return publication.",
   "2026-07-05: 2999 lands helper polymorphic input publication policy for six known param0 helpers; 3000 is active for generic-method scalar return value-type publication.",
   "2026-07-05: Worker review holds 2998 and opens 2999-3001 as AOT/MIR publication cleanup before ProgramJSON projector retire-candidate resumes.",
   "2026-07-05: 2997 lands the AOT/MIR route value-type publication contract guard; 2998 is active as the ProgramJSON Loop.body Rust ASTNode projector retire-candidate continuation.",
@@ -375,5 +376,4 @@ landed_tail = [
   "2026-07-05: 2992 adds ProgramJSON no-return if-only reject snapshot parity and marks LoopCondContinueNoReturnIfOnlyRejectV1 as a one-shape Rust ASTNode projector retire-candidate; runtime dependency removal remains unclaimed.",
   "2026-07-05: 2991 adds ProgramJSON first-stmt-not-if reject snapshot parity and marks LoopCondContinueFirstStmtNotIfRejectV1 as a one-shape Rust ASTNode projector retire-candidate; runtime dependency removal remains unclaimed.",
   "2026-07-05: 2990 adds ProgramJSON empty-body no-continue reject snapshot parity and marks LoopCondContinueNoContinueEmptyBodyRejectV1 as a one-shape Rust ASTNode projector retire-candidate; runtime dependency removal remains unclaimed.",
-  "2026-07-05: 2989 adds ProgramJSON return-only no-continue reject snapshot parity and marks LoopCondContinueNoContinueReturnOnlyRejectV1 as a one-shape Rust ASTNode projector retire-candidate; runtime dependency removal remains unclaimed.",
 ]
