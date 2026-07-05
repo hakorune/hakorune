@@ -436,6 +436,13 @@
           }
           return 1;
         }
+        if (!strcmp(op, "typeop")) {
+          const char* kind = read_str(ins, "operation");
+          if (!kind) kind = read_str(ins, "op_kind");
+          if (!(kind && (!strcmp(kind, "check") || !strcmp(kind, "Check")))) return 0;
+          set_type(read_int(ins, "dst"), T_I64);
+          return 1;
+        }
         if (!strcmp(op, "mir_call") ||
             !strcmp(op, "call") ||
             !strcmp(op, "boxcall")) {

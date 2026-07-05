@@ -455,6 +455,9 @@
         if (!strcmp(op, "binop")) {
           return same_module_function_emit_binop(ins);
         }
+        if (!strcmp(op, "typeop")) {
+          return same_module_function_emit_typeop(ins);
+        }
         if (!strcmp(op, "branch")) {
           return same_module_function_emit_branch_instruction(ins);
         }

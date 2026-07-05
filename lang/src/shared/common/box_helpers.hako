@@ -48,12 +48,16 @@ static box BoxHelpers {
 
   // MapBox型判定
   is_map(val) {
-    return BoxTypeInspectorBox.is_map(val)
+    if val == null { return 0 }
+    if val.is("MapBox") { return 1 }
+    return 0
   }
 
   // ArrayBox型判定
   is_array(val) {
-    return BoxTypeInspectorBox.is_array(val)
+    if val == null { return 0 }
+    if val.is("ArrayBox") { return 1 }
+    return 0
   }
 
   // Fail-fast helpers (Phase 31.3+)

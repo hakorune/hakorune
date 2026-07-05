@@ -462,6 +462,9 @@
               emit_string_compare(dst, p2, lhs, rhs);
               continue;
             }
+            if (emit_dynamic_string_or_icmp(dst, p2, lhs, rhs)) {
+              continue;
+            }
             int boxed_sum_compare_emit = emit_boxed_sum_unit_compare(
                 bid,
                 ii,
@@ -553,6 +556,47 @@
             if (then_scan != ORG_NONE && then_scan == else_scan) set_scan_origin(dst, then_scan);
             continue;
           }
+          if (strcmp(op, "typeop")==0) {
+            const char* kind = read_str(ins, "operation");
+            const char* target_type = read_str(ins, "target_type");
+            long long dst = read_int(ins, "dst");
+            long long src = read_int(ins, "src");
+            long long src_base = 0;
+            const char* type_global = NULL;
+            size_t type_global_len = 0;
+            if (!kind) kind = read_str(ins, "op_kind");
+            if (!src) src = read_int(ins, "value");
+            if (!(kind && (!strcmp(kind, "check") || !strcmp(kind, "Check")) &&
+                  target_type && dst)) {
+              note_pure_unsupported_shape(bid, ii, op, "unsupported_typeop_shape", NULL);
+              yyjson_doc_free(d);
+              goto GEN_ABORT;
+            }
+            if (!strcmp(target_type, "MapBox")) {
+              type_global = "@.hako_type_MapBox";
+              type_global_len = 7;
+            } else if (!strcmp(target_type, "ArrayBox")) {
+              type_global = "@.hako_type_ArrayBox";
+              type_global_len = 9;
+            }
+            else if (!strcmp(target_type, "StringBox") || !strcmp(target_type, "String")) {
+              type_global = "@.hako_type_StringBox";
+              type_global_len = 10;
+            }
+            if (!type_global) {
+              note_pure_unsupported_shape(bid, ii, op, "unsupported_typeop_target", target_type);
+              yyjson_doc_free(d);
+              goto GEN_ABORT;
+            }
+            src_base = resolve_copy_source_reg(src);
+            EMIT("  %%r%lld = call i64 @\"nyash.any.is_type_h\"(i64 %%r%lld, ptr getelementptr inbounds ([%zu x i8], ptr %s, i64 0, i64 0))\n",
+                 dst,
+                 src_base,
+                 type_global_len,
+                 type_global);
+            set_type(dst, T_I64);
+            continue;
+          }
           if (strcmp(op, "branch")==0) { long long cond=read_int(ins, "cond"); long long th=read_int(ins,"then"); long long el=read_int(ins,"else"); if(!el) el=read_int(ins,"else_id"); emit_branch(cond, th, el); continue; }
           if (strcmp(op, "jump")==0) { long long tgt=read_int(ins, "target"); EMIT("  br label %%bb%lld\n", tgt); continue; }
           if (strcmp(op, "ret")==0) {
@@ -589,9 +633,14 @@
               yyjson_doc_free(d); goto GEN_ABORT;
             }
             long long dst = read_int(ins, "dst"); long long lhs = read_int(ins, "lhs"); long long rhs = read_int(ins, "rhs");
+            yyjson_val* dst_type = yyjson_obj_get(ins, "dst_type");
+            const char* dst_type_box = dst_type && yyjson_is_obj(dst_type)
+                ? read_str(dst_type, "box_type")
+                : NULL;
             if (!strcmp(irop, "add") &&
                 (generic_pure_value_has_string_origin(lhs) ||
-                 generic_pure_value_has_string_origin(rhs))) {
+                 generic_pure_value_has_string_origin(rhs) ||
+                 (dst_type_box && !strcmp(dst_type_box, "StringBox")))) {
               emit_string_concat_pair_by_policy(f, ii, ilen, insts, dst, lhs, rhs);
               continue;
             }

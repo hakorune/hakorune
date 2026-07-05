@@ -98,6 +98,11 @@ latest design decision:
   Runtime parity remains unclaimed because PhaseState parse returns err=1 for
   the covered DTO rows; 3121 is selected to fix or isolate that parse runtime
   contract.
+  2026-07-06 scanner-return consultation reconfirms approach B as the active
+  contract: scanner helpers should return total result maps, not `MapBox |
+  null` through void signatures. Approach A (body proof alone publishes object
+  or mixed-runtime return) is forbidden. Approach C is bridge-only and requires
+  a declared helper contract, `remove_after`, and `new_consumers_allowed = false`.
   3109 already fixes the ProgramJSON scanner helper contract with total
   result-map returns. Treat it as the prerequisite for Layer4 work, not as a
   reopened design question: if scanner nullable returns regress, repair 3109

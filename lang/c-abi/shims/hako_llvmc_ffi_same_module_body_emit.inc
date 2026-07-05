@@ -363,6 +363,41 @@
         return 1;
       }
 
+      auto int same_module_function_emit_typeop(yyjson_val* ins) {
+        const char* kind = read_str(ins, "operation");
+        const char* target_type = read_str(ins, "target_type");
+        long long dst = read_int(ins, "dst");
+        long long src = read_int(ins, "src");
+        long long src_base = 0;
+        const char* type_global = NULL;
+        size_t type_global_len = 0;
+        if (!kind) kind = read_str(ins, "op_kind");
+        if (!src) src = read_int(ins, "value");
+        if (!(kind && (!strcmp(kind, "check") || !strcmp(kind, "Check")) &&
+              target_type && dst)) {
+          return 0;
+        }
+        if (!strcmp(target_type, "MapBox")) {
+          type_global = "@.hako_type_MapBox";
+          type_global_len = 7;
+        } else if (!strcmp(target_type, "ArrayBox")) {
+          type_global = "@.hako_type_ArrayBox";
+          type_global_len = 9;
+        } else if (!strcmp(target_type, "StringBox") || !strcmp(target_type, "String")) {
+          type_global = "@.hako_type_StringBox";
+          type_global_len = 10;
+        }
+        if (!type_global) return 0;
+        src_base = resolve_copy_source_reg(src);
+        EMIT("  %%r%lld = call i64 @\"nyash.any.is_type_h\"(i64 %%r%lld, ptr getelementptr inbounds ([%zu x i8], ptr %s, i64 0, i64 0))\n",
+             dst,
+             src_base,
+             type_global_len,
+             type_global);
+        set_type(dst, T_I64);
+        return 1;
+      }
+
       #include "hako_llvmc_ffi_same_module_typed_object_emit.inc"
       #include "hako_llvmc_ffi_same_module_generic_method_emit.inc"
       #include "hako_llvmc_ffi_same_module_direct_state_emit.inc"

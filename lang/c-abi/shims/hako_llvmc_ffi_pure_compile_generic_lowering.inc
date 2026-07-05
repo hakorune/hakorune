@@ -410,6 +410,42 @@
         }
         set_type(dst, T_I1);
       }
+      auto int emit_dynamic_string_or_icmp(long long dst, const char* pred, long long lhs_reg, long long rhs_reg){
+        if (!(pred && (!strcmp(pred, "eq") || !strcmp(pred, "ne")))) return 0;
+        long long lhs_base = resolve_copy_source_reg(lhs_reg);
+        long long rhs_base = resolve_copy_source_reg(rhs_reg);
+        long long vL, vR;
+        int lc = has_const(lhs_base, &vL);
+        int rc = has_const(rhs_base, &vR);
+        EMIT("  %%dyn_lhs_is_str_%lld = call i64 @\"nyash.any.is_type_h\"(i64 %s%lld%s, ptr getelementptr inbounds ([10 x i8], ptr @.hako_type_StringBox, i64 0, i64 0))\n",
+             dst, lc ? "" : "%r", lc ? vL : lhs_base, lc ? "" : "");
+        EMIT("  %%dyn_rhs_is_str_%lld = call i64 @\"nyash.any.is_type_h\"(i64 %s%lld%s, ptr getelementptr inbounds ([10 x i8], ptr @.hako_type_StringBox, i64 0, i64 0))\n",
+             dst, rc ? "" : "%r", rc ? vR : rhs_base, rc ? "" : "");
+        EMIT("  %%dyn_lhs_is_str_i1_%lld = icmp ne i64 %%dyn_lhs_is_str_%lld, 0\n", dst, dst);
+        EMIT("  %%dyn_rhs_is_str_i1_%lld = icmp ne i64 %%dyn_rhs_is_str_%lld, 0\n", dst, dst);
+        EMIT("  %%dyn_both_str_%lld = and i1 %%dyn_lhs_is_str_i1_%lld, %%dyn_rhs_is_str_i1_%lld\n", dst, dst, dst);
+        EMIT("  %%dyn_str_eq_%lld = call i64 @\"nyash.string.eq_hh\"(i64 %s%lld%s, i64 %s%lld%s)\n",
+             dst,
+             lc ? "" : "%r", lc ? vL : lhs_base, lc ? "" : "",
+             rc ? "" : "%r", rc ? vR : rhs_base, rc ? "" : "");
+        if (!strcmp(pred, "eq")) {
+          EMIT("  %%dyn_str_cmp_%lld = icmp ne i64 %%dyn_str_eq_%lld, 0\n", dst, dst);
+          EMIT("  %%dyn_int_cmp_%lld = icmp eq i64 %s%lld%s, %s%lld%s\n",
+               dst,
+               lc ? "" : "%r", lc ? vL : lhs_base, lc ? "" : "",
+               rc ? "" : "%r", rc ? vR : rhs_base, rc ? "" : "");
+        } else {
+          EMIT("  %%dyn_str_cmp_%lld = icmp eq i64 %%dyn_str_eq_%lld, 0\n", dst, dst);
+          EMIT("  %%dyn_int_cmp_%lld = icmp ne i64 %s%lld%s, %s%lld%s\n",
+               dst,
+               lc ? "" : "%r", lc ? vL : lhs_base, lc ? "" : "",
+               rc ? "" : "%r", rc ? vR : rhs_base, rc ? "" : "");
+        }
+        EMIT("  %%r%lld = select i1 %%dyn_both_str_%lld, i1 %%dyn_str_cmp_%lld, i1 %%dyn_int_cmp_%lld\n",
+             dst, dst, dst, dst);
+        set_type(dst, T_I1);
+        return 1;
+      }
       #include "hako_llvmc_ffi_pure_compile_boxed_sum_emit.inc"
       #include "hako_llvmc_ffi_same_module_function_emit.inc"
       if (hako_llvmc_emit_static_data_globals_for_root(f, root) < 0) {

@@ -7,6 +7,12 @@ Status: green
 Stabilize the ProgramJSON scanner helper return contract before resuming
 Layer4 Recipe DTO parity.
 
+2026-07-06 reconfirmation: this card is the canonical task for the
+ProgramJSON scanner return-shape cleanup. Do not create a parallel nullable
+out-map bridge card unless the bridge is explicitly temporary, declares
+`remove_after = HAKO-PROGRAMJSON-SCANNER-RESULT-MAP-RETURN-CONTRACT-001`, and
+forbids new consumers.
+
 The selected design is approach B: fix the `.hako` scanner helper surface so
 new field-read helpers return a total result map. Do not widen AOT so a `void`
 signature can publish object or mixed-runtime handle returns from body proof
@@ -27,6 +33,20 @@ bridge if a future card declares `remove_after` and forbids new consumers.
 4. Update PhaseState/Layer4 consumers that need AOT-safe scanner results to
    use result-map helpers.
 5. Add a guard that verifies runtime rows and MIR route metadata.
+6. If a later PhaseState or Layer4 row hits a scanner helper returning
+   `MapBox | null`, fix it by moving that call site to a result-map helper.
+   Do not publish scanner out-map returns as `mixed_runtime_i64_or_handle`.
+
+## Bridge Policy
+
+```text
+preferred = TotalResultMapReturnContractV1
+temporary_bridge = DeclaredScannerOutMapOrNullReturnContractV1 only with remove_after
+forbidden = body proof alone
+forbidden = generic void object return
+forbidden = mixed_runtime_i64_or_handle for scanner out-map helpers
+forbidden = name-only allowlist without declared helper contract
+```
 
 ## Boundary Note
 

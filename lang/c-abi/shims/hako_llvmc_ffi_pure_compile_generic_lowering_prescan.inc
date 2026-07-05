@@ -278,6 +278,13 @@
                 }
               }
             }
+          } else if (strcmp(op, "typeop")==0) {
+            long long dst = read_int(ins, "dst");
+            const char* kind = read_str(ins, "operation");
+            if (!kind) kind = read_str(ins, "op_kind");
+            if (dst && kind && (!strcmp(kind, "check") || !strcmp(kind, "Check"))) {
+              set_type(dst, T_I64);
+            }
           } else if (strcmp(op, "phi")==0) {
             struct BlockPhi* pb = ensure_phi_block(bid); if (!pb) { yyjson_doc_free(d); goto GEN_END; }
             struct PhiRec pr; pr.dst = read_int(ins, "dst"); pr.in_n=0; pr.explicit_type=0;

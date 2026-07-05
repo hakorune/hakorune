@@ -57,22 +57,12 @@ static box BoxTypeInspectorBox {
       me._trace("Null", 0, 0)
       return 0
     }
-
-    local repr = "" + value
-    if repr.indexOf("MapBox(") == 0 || repr.indexOf("{") == 0 {
+    if value.is("MapBox") {
       me._trace("MapBox", 1, 0)
       return 1
     }
-    if repr.indexOf("ArrayBox(") == 0 || repr.indexOf("[") == 0 {
+    if value.is("ArrayBox") {
       me._trace("ArrayBox", 0, 1)
-      return 0
-    }
-    if repr.indexOf("StringBox(") == 0 {
-      me._trace("StringBox", 0, 0)
-      return 0
-    }
-    if repr.indexOf("IntegerBox(") == 0 {
-      me._trace("IntegerBox", 0, 0)
       return 0
     }
     me._trace("Unknown", 0, 0)
@@ -84,23 +74,13 @@ static box BoxTypeInspectorBox {
       me._trace("Null", 0, 0)
       return 0
     }
-
-    local repr = "" + value
-    if repr.indexOf("MapBox(") == 0 || repr.indexOf("{") == 0 {
+    if value.is("MapBox") {
       me._trace("MapBox", 1, 0)
       return 0
     }
-    if repr.indexOf("ArrayBox(") == 0 || repr.indexOf("[") == 0 {
+    if value.is("ArrayBox") {
       me._trace("ArrayBox", 0, 1)
       return 1
-    }
-    if repr.indexOf("StringBox(") == 0 {
-      me._trace("StringBox", 0, 0)
-      return 0
-    }
-    if repr.indexOf("IntegerBox(") == 0 {
-      me._trace("IntegerBox", 0, 0)
-      return 0
     }
     me._trace("Unknown", 0, 0)
     return 0

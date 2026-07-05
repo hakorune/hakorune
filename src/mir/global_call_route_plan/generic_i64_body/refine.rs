@@ -16,7 +16,8 @@ use super::value_class::{
 use crate::mir::extern_call_route_plan::{classify_extern_call_route, ExternCallRouteKind};
 use crate::mir::same_module_body_shape::supported_backend_global;
 use crate::mir::{
-    BasicBlockId, BinaryOp, Callee, ConstValue, MirFunction, MirInstruction, UnaryOp, ValueId,
+    BasicBlockId, BinaryOp, Callee, ConstValue, MirFunction, MirInstruction, TypeOpKind, UnaryOp,
+    ValueId,
 };
 use std::collections::BTreeMap;
 
@@ -164,6 +165,9 @@ pub(super) fn generic_i64_body_refine_instruction(
                 | (GenericI64ValueClass::VoidSentinel, GenericI64ValueClass::String)
                 | (GenericI64ValueClass::StringOrVoid, GenericI64ValueClass::VoidSentinel)
                 | (GenericI64ValueClass::VoidSentinel, GenericI64ValueClass::StringOrVoid) => eq_ne,
+                (GenericI64ValueClass::Object, GenericI64ValueClass::VoidSentinel)
+                | (GenericI64ValueClass::VoidSentinel, GenericI64ValueClass::Object) => eq_ne,
+                (GenericI64ValueClass::VoidSentinel, GenericI64ValueClass::VoidSentinel) => eq_ne,
                 (GenericI64ValueClass::I64, GenericI64ValueClass::I64) => true,
                 (GenericI64ValueClass::Object, GenericI64ValueClass::I64)
                 | (GenericI64ValueClass::I64, GenericI64ValueClass::Object) => {
@@ -194,6 +198,30 @@ pub(super) fn generic_i64_body_refine_instruction(
             }
             set_generic_i64_value_class(values, *dst, GenericI64ValueClass::Bool, changed)
         }
+        MirInstruction::TypeOp {
+            dst,
+            op: TypeOpKind::Check,
+            value,
+            ..
+        } => {
+            let value_class = generic_i64_value_class(values, *value);
+            if value_class == GenericI64ValueClass::Unknown {
+                return true;
+            }
+            if !matches!(
+                value_class,
+                GenericI64ValueClass::I64
+                    | GenericI64ValueClass::Bool
+                    | GenericI64ValueClass::String
+                    | GenericI64ValueClass::StringOrVoid
+                    | GenericI64ValueClass::Object
+                    | GenericI64ValueClass::VoidSentinel
+            ) {
+                return false;
+            }
+            set_generic_i64_value_class(values, *dst, GenericI64ValueClass::Bool, changed)
+        }
+        MirInstruction::TypeOp { .. } => false,
         MirInstruction::Phi {
             dst,
             inputs,

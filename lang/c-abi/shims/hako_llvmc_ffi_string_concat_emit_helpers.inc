@@ -254,6 +254,24 @@
                get_scan_origin(base) == ORG_STRING;
       }
 
+      auto int string_concat_arg_may_be_runtime_handle(long long reg) {
+        long long base = resolve_copy_source_reg(reg);
+        int org = get_origin(reg);
+        int scan = get_scan_origin(reg);
+        int base_org = get_origin(base);
+        int base_scan = get_scan_origin(base);
+        return org == ORG_MAP_BIRTH || scan == ORG_MAP_BIRTH ||
+               base_org == ORG_MAP_BIRTH || base_scan == ORG_MAP_BIRTH ||
+               org == ORG_ARRAY_BIRTH || scan == ORG_ARRAY_BIRTH ||
+               base_org == ORG_ARRAY_BIRTH || base_scan == ORG_ARRAY_BIRTH ||
+               org == ORG_ARRAY_STRING_BIRTH || scan == ORG_ARRAY_STRING_BIRTH ||
+               base_org == ORG_ARRAY_STRING_BIRTH || base_scan == ORG_ARRAY_STRING_BIRTH ||
+               org == ORG_TYPED_OBJECT || scan == ORG_TYPED_OBJECT ||
+               base_org == ORG_TYPED_OBJECT || base_scan == ORG_TYPED_OBJECT ||
+               org == ORG_FILEBOX || scan == ORG_FILEBOX ||
+               base_org == ORG_FILEBOX || base_scan == ORG_FILEBOX;
+      }
+
       auto void append_string_concat_marshaled_arg_ref(
           FILE* f,
           char* out,
@@ -266,6 +284,7 @@
         long long cv = 0;
         int ty = get_type(reg);
         int base_ty = get_type(base);
+        int dynamic_handle = string_concat_arg_may_be_runtime_handle(reg);
         char buf[128];
         ensure_string_concat_pair_materialized(f, reg);
         base = resolve_copy_source_reg(reg);
@@ -316,6 +335,24 @@
               base,
               side,
               base);
+          if (dynamic_handle) {
+            fprintf(
+                f,
+                "  %%str_arg_is_string_raw_%lld_%lld_%s = call i64 @\"nyash.any.is_type_h\"(i64 %%r%lld, ptr getelementptr inbounds ([10 x i8], ptr @.hako_type_StringBox, i64 0, i64 0))\n",
+                dst,
+                base,
+                side,
+                base);
+            fprintf(
+                f,
+                "  %%str_arg_is_string_%lld_%lld_%s = icmp ne i64 %%str_arg_is_string_raw_%lld_%lld_%s, 0\n",
+                dst,
+                base,
+                side,
+                dst,
+                base,
+                side);
+          }
         }
         fprintf(
             f,
@@ -326,6 +363,31 @@
             dst,
             base,
             side);
+        if (dynamic_handle && ty != T_I1 && base_ty != T_I1 && !has_const(base, &cv)) {
+          fprintf(
+              f,
+              "  %%str_arg_text_sel_%lld_%lld_%s = select i1 %%str_arg_is_string_%lld_%lld_%s, i64 %%r%lld, i64 %%str_arg_text_%lld_%lld_%s\n",
+              dst,
+              base,
+              side,
+              dst,
+              base,
+              side,
+              base,
+              dst,
+              base,
+              side);
+          snprintf(
+              buf,
+              sizeof(buf),
+              "%si64 %%str_arg_text_sel_%lld_%lld_%s",
+              first ? "" : ", ",
+              dst,
+              base,
+              side);
+          strncat(out, buf, out_cap - strlen(out) - 1);
+          return;
+        }
         snprintf(
             buf,
             sizeof(buf),

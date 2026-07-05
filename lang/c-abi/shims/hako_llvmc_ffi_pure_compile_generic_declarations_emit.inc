@@ -28,6 +28,7 @@
         fprintf(f, "declare i64 @\"nyash.any.length_h\"(i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
       if (needs.any_handle_live || module_has_planned_same_module_function_definition())
         fprintf(f, "declare i64 @\"nyash.any.handle_live_h\"(i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
+      fprintf(f, "declare i64 @\"nyash.any.is_type_h\"(i64, ptr)%s\n", HAKO_LLVM_READONLY_ATTRS);
       if (needs.env_get || module_has_planned_same_module_function_definition())
         fprintf(f, "declare i64 @\"nyash.env.get\"(i64)\n");
       if (needs.env_set || module_has_planned_same_module_function_definition())
@@ -109,6 +110,9 @@
         fprintf(f, "\\00\", align 1\n");
       }
       fprintf(f, "@.hako_type_FileBox = private unnamed_addr constant [8 x i8] c\"FileBox\\00\", align 1\n");
+      fprintf(f, "@.hako_type_MapBox = private unnamed_addr constant [7 x i8] c\"MapBox\\00\", align 1\n");
+      fprintf(f, "@.hako_type_ArrayBox = private unnamed_addr constant [9 x i8] c\"ArrayBox\\00\", align 1\n");
+      fprintf(f, "@.hako_type_StringBox = private unnamed_addr constant [10 x i8] c\"StringBox\\00\", align 1\n");
       if (object_storage_plan_selected_alignment_result_ready()) {
         if (emit_object_storage_plan_key_globals(f) < 0) return -1;
       }
