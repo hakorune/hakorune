@@ -50,6 +50,7 @@ static box ProgramJsonV0ScannerBox {
     if key == "body" { return "\"body\":" }
     if key == "brand" { return "\"brand\":" }
     if key == "catches" { return "\"catches\":" }
+    if key == "class" { return "\"class\":" }
     if key == "cond" { return "\"cond\":" }
     if key == "contract" { return "\"contract\":" }
     if key == "declared_type" { return "\"declared_type\":" }
@@ -59,6 +60,8 @@ static box ProgramJsonV0ScannerBox {
     if key == "enum" { return "\"enum\":" }
     if key == "entries" { return "\"entries\":" }
     if key == "expr" { return "\"expr\":" }
+    if key == "field" { return "\"field\":" }
+    if key == "field_initializers" { return "\"field_initializers\":" }
     if key == "finally" { return "\"finally\":" }
     if key == "fields" { return "\"fields\":" }
     if key == "kind" { return "\"kind\":" }

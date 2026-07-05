@@ -1,0 +1,92 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonNewFieldInitializerShapeScanParityV1",
+  "token": "MIRBUILDER-PROGRAMJSON-NEW-FIELD-INITIALIZER-SHAPE-SCAN-CAPABILITY-001",
+  "capability": {
+    "name": "ProgramJsonNewFieldInitializerShapeScanV1",
+    "input": "ProgramJSON v0",
+    "output": "NewFieldInitializerShapeSnapshotV1"
+  },
+  "routes": {
+    "rust_oracle_route": "source -> RHako parser -> Rust ASTNode -> Rust New field-initializer token snapshot",
+    "hako_programjson_route": "source -> HHako parser -> ProgramJSON -> HHako New field-initializer token snapshot"
+  },
+  "rows": [
+    {
+      "row_id": "local_no_field_initializers",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "x", "expr": {"type": "New", "class": "Point", "args": [], "field_initializers": []}}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=NewFieldInitializerShapeSnapshotV1;top_new_field_initializer_shape_kind=NoFieldInitializers;if_then_new_field_initializer_shape_kind=Missing;if_else_new_field_initializer_shape_kind=Missing;supported_new_field_initializer_count=1;unsupported_new_field_initializer_count=0"}
+    },
+    {
+      "row_id": "local_one_int_field_init",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "x", "expr": {"type": "New", "class": "Point", "args": [], "field_initializers": [{"field": "x", "value": {"type": "Int", "value": 1}}]}}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=NewFieldInitializerShapeSnapshotV1;top_new_field_initializer_shape_kind=OneIntFieldInit;if_then_new_field_initializer_shape_kind=Missing;if_else_new_field_initializer_shape_kind=Missing;supported_new_field_initializer_count=1;unsupported_new_field_initializer_count=0"}
+    },
+    {
+      "row_id": "local_one_str_field_init",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "x", "expr": {"type": "New", "class": "User", "args": [], "field_initializers": [{"field": "name", "value": {"type": "Str", "value": "tomo"}}]}}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=NewFieldInitializerShapeSnapshotV1;top_new_field_initializer_shape_kind=OneStrFieldInit;if_then_new_field_initializer_shape_kind=Missing;if_else_new_field_initializer_shape_kind=Missing;supported_new_field_initializer_count=1;unsupported_new_field_initializer_count=0"}
+    },
+    {
+      "row_id": "local_one_bool_field_init",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "x", "expr": {"type": "New", "class": "FlagBox", "args": [], "field_initializers": [{"field": "flag", "value": {"type": "Bool", "value": true}}]}}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=NewFieldInitializerShapeSnapshotV1;top_new_field_initializer_shape_kind=OneBoolFieldInit;if_then_new_field_initializer_shape_kind=Missing;if_else_new_field_initializer_shape_kind=Missing;supported_new_field_initializer_count=1;unsupported_new_field_initializer_count=0"}
+    },
+    {
+      "row_id": "local_one_var_field_init",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "x", "expr": {"type": "New", "class": "Point", "args": [], "field_initializers": [{"field": "x", "value": {"type": "Var", "name": "v"}}]}}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=NewFieldInitializerShapeSnapshotV1;top_new_field_initializer_shape_kind=OneVarFieldInit;if_then_new_field_initializer_shape_kind=Missing;if_else_new_field_initializer_shape_kind=Missing;supported_new_field_initializer_count=1;unsupported_new_field_initializer_count=0"}
+    },
+    {
+      "row_id": "expr_one_new_field_init",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Expr", "expr": {"type": "New", "class": "Wrapper", "args": [], "field_initializers": [{"field": "inner", "value": {"type": "New", "class": "Inner", "args": [], "field_initializers": []}}]}}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=NewFieldInitializerShapeSnapshotV1;top_new_field_initializer_shape_kind=OneNewFieldInit;if_then_new_field_initializer_shape_kind=Missing;if_else_new_field_initializer_shape_kind=Missing;supported_new_field_initializer_count=1;unsupported_new_field_initializer_count=0"}
+    },
+    {
+      "row_id": "return_two_int_field_inits",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Return", "expr": {"type": "New", "class": "Point", "args": [], "field_initializers": [{"field": "x", "value": {"type": "Int", "value": 1}}, {"field": "y", "value": {"type": "Int", "value": 2}}]}}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=NewFieldInitializerShapeSnapshotV1;top_new_field_initializer_shape_kind=TwoIntFieldInits;if_then_new_field_initializer_shape_kind=Missing;if_else_new_field_initializer_shape_kind=Missing;supported_new_field_initializer_count=1;unsupported_new_field_initializer_count=0"}
+    },
+    {
+      "row_id": "local_two_var_field_inits",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "x", "expr": {"type": "New", "class": "Pair", "args": [], "field_initializers": [{"field": "a", "value": {"type": "Var", "name": "a"}}, {"field": "b", "value": {"type": "Var", "name": "b"}}]}}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=NewFieldInitializerShapeSnapshotV1;top_new_field_initializer_shape_kind=TwoVarFieldInits;if_then_new_field_initializer_shape_kind=Missing;if_else_new_field_initializer_shape_kind=Missing;supported_new_field_initializer_count=1;unsupported_new_field_initializer_count=0"}
+    },
+    {
+      "row_id": "if_then_one_int_field_init",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "If", "cond": {"type": "Bool", "value": true}, "then": [{"type": "Local", "name": "x", "expr": {"type": "New", "class": "Point", "args": [], "field_initializers": [{"field": "x", "value": {"type": "Int", "value": 1}}]}}], "else": null}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=NewFieldInitializerShapeSnapshotV1;top_new_field_initializer_shape_kind=Missing;if_then_new_field_initializer_shape_kind=OneIntFieldInit;if_else_new_field_initializer_shape_kind=Missing;supported_new_field_initializer_count=1;unsupported_new_field_initializer_count=0"}
+    },
+    {
+      "row_id": "if_else_one_var_field_init",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "If", "cond": {"type": "Bool", "value": true}, "then": [], "else": [{"type": "Local", "name": "x", "expr": {"type": "New", "class": "Point", "args": [], "field_initializers": [{"field": "x", "value": {"type": "Var", "name": "v"}}]}}]}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=NewFieldInitializerShapeSnapshotV1;top_new_field_initializer_shape_kind=Missing;if_then_new_field_initializer_shape_kind=Missing;if_else_new_field_initializer_shape_kind=OneVarFieldInit;supported_new_field_initializer_count=1;unsupported_new_field_initializer_count=0"}
+    }
+  ],
+  "summary": {
+    "parity_row_count": 10,
+    "programjson_traversal_used": 1,
+    "string_only_facade": 0,
+    "rust_astnode_projector_retire_candidate": 1
+  },
+  "decision": {
+    "kind": "ProgramJsonNewFieldInitializerShapeScanParityGreen",
+    "reason_token": "NewFieldInitializerShapeProgramJsonSnapshotMatchesRustAstNodeOracle",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-NEW-FIELD-INITIALIZER-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "programjson_full_parser_claim": 0,
+    "hako_adopted_for_full_owner": 0,
+    "box_field_initializer_lowering": 0,
+    "object_allocation": 0
+  }
+}
