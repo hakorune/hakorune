@@ -1,0 +1,118 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonLayer4StructuredPlanRecipeDtoPilotSelectionV1",
+  "token": "MIRBUILDER-PROGRAMJSON-LAYER4-STRUCTURED-PLAN-RECIPE-DTO-PILOT-SELECTION-001",
+  "input_state": {
+    "previous_card": "MIRBUILDER-PROGRAMJSON-TRYCATCH-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001",
+    "previous_guard": "tools/checks/rust_lifecycle_mirbuilder_programjson_trycatch_shape_retire_rust_astnode_projector_candidate_guard.sh",
+    "recipe_tree_ssot": "docs/development/current/main/design/recipe-tree-and-parts-ssot.md",
+    "task_order": "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
+  },
+  "selection_policy": {
+    "stop_layer1_expansion_without_layer4_need": true,
+    "source_code_line_cap": 800,
+    "layer4_scope": "ProgramJSON snapshot or shape facts to structured Plan/Recipe DTO",
+    "layer4_not_scope": [
+      "MIR mutation",
+      "backend lowering",
+      "ID allocation",
+      "route selection",
+      "full RecipeMatcher execution",
+      "runtime route switch"
+    ]
+  },
+  "candidates": [
+    {
+      "name": "ProgramJsonLoopRecipeDtoPilotV1",
+      "decision": "selected",
+      "why": [
+        "uses existing ProgramJSON loop traversal",
+        "builds structured RecipeItemBox.loop_item DTO",
+        "passes through RecipeVerifierBox before any lowering claim",
+        "exercises the layer4 seam without MIR mutation or route switching"
+      ],
+      "existing_hako_owners": [
+        "lang/src/compiler/mirbuilder/program_json_v0_phase_state_box.hako",
+        "lang/src/compiler/mirbuilder/program_json_v0_phase_state_consumer_box.hako",
+        "lang/src/compiler/mirbuilder/stmt_handlers/loop_stmt_handler.hako",
+        "lang/src/compiler/mirbuilder/recipe/recipe_item_box.hako",
+        "lang/src/compiler/mirbuilder/recipe/recipe_verifier_box.hako"
+      ]
+    },
+    {
+      "name": "ProgramJsonIfRecipeDtoPilotV1",
+      "decision": "defer",
+      "why": [
+        "branch DTO is useful but loop recipe is closer to current MirBuilder authority seam",
+        "branch parity should follow after the loop Recipe DTO proof establishes the gate shape"
+      ]
+    },
+    {
+      "name": "ProgramJsonTryCleanupRecipeDtoPilotV1",
+      "decision": "defer",
+      "why": [
+        "try/catch traversal was just proven at layer1",
+        "exception runtime semantics and cleanup execution remain unclaimed"
+      ]
+    }
+  ],
+  "selected_pilot": {
+    "name": "ProgramJsonLoopRecipeDtoPilotV1",
+    "input": "ProgramJSON v0",
+    "output": "RecipeItemBox loop DTO plus RecipeVerifierBox verified recipe token",
+    "target_existing_route": "ProgramJsonV0PhaseStateBox -> ProgramJsonV0PhaseStateConsumerBox -> LoopStmtHandler -> RecipeItemBox -> RecipeVerifierBox",
+    "minimum_rows": [
+      "loop_empty_body",
+      "loop_assignment_body",
+      "loop_if_return_body",
+      "local_loop_return_program"
+    ],
+    "next_card": "MIRBUILDER-PROGRAMJSON-LAYER4-LOOP-RECIPE-DTO-PARITY-001"
+  },
+  "acceptance": {
+    "must_consume_programjson_structure": 1,
+    "must_construct_structured_recipe_dto": 1,
+    "must_use_recipe_verifier": 1,
+    "must_include_aot_or_exe_gate": 1,
+    "minimum_parity_row_count": 4,
+    "token_snapshot_only": 0,
+    "string_only_facade": 0,
+    "implementation_card_required": 1,
+    "parity_gate_required": 1
+  },
+  "stop_conditions": {
+    "prebuilt_token_snapshot_input": 1,
+    "source_contains_or_regex_proof": 1,
+    "rust_astnode_projector_used_as_target_input": 1,
+    "mir_mutation_or_lowering_added": 1,
+    "route_selection_added": 1,
+    "recipe_matcher_execution_added": 1,
+    "unverified_recipe_lowered": 1,
+    "unsupported_shape_silently_ignored": 1
+  },
+  "decision": {
+    "kind": "SelectLayer4StructuredRecipeDtoPilot",
+    "reason_token": "ProgramJsonLoopRecipeDtoUsesExistingHakoRecipeAndVerifierOwners",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-LAYER4-LOOP-RECIPE-DTO-PARITY-001"
+  },
+  "claims": {
+    "implementation_done": 0,
+    "parity_gate_green": 0,
+    "recipe_dto_migration_done": 0,
+    "runtime_route_switch": 0,
+    "rust_bootstrap_deleted": 0,
+    "rust_astnode_projector_retired": 0,
+    "full_astnode_projector_retired": 0,
+    "programjson_full_parser_claim": 0,
+    "programjson_all_shapes_supported": 0,
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0,
+    "id_allocation_migration": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

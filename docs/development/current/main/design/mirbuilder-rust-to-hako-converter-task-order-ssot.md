@@ -60,7 +60,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-CAPABILITY-CANDIDATE-VALIDATION
+  MIRBUILDER-PROGRAMJSON-LAYER4-LOOP-RECIPE-DTO-PARITY-001
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -90,9 +90,8 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  3105 lands the covered TryCatchShapeSnapshotV1 ProgramJSON traversal slice as
-  a scoped Rust ASTNode projector retire-candidate. Next work selects the
-  layer-4 structured snapshot-to-Plan/Recipe DTO pilot.
+  3106 selects ProgramJsonLoopRecipeDtoPilotV1 as the first layer-4 structured
+  ProgramJSON-to-Recipe DTO pilot. Next work must prove ProgramJSON loop rows construct a structured RecipeItemBox loop DTO and pass RecipeVerifierBox; do not add another layer-1 snapshot unless that layer-4 proof exposes a missing traversal capability.
   2997 stabilized the AOT/MIR value-type publication contract only for the
   proven route families. 3002 remains a trigger-based debt queue for Float
   Sub/Mul/Div, string Lt/Gt/Le/Ge policy, user-box single-observation
