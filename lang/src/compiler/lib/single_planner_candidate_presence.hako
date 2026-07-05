@@ -1,0 +1,30 @@
+// single_planner_candidate_presence.hako
+//
+// Responsibility:
+// - reduce PlanBuildOutcome fact-slot tokens into the single_planner candidate
+//   presence DTO used by try_build_outcome
+//
+// Non-responsibility:
+// - build_plan_with_facts_ctx migration
+// - fact extraction, recipe matching, route execution, lowering, MIR mutation, or ID allocation
+static box SinglePlannerCandidatePresenceBox {
+  build_summary(outcome_facts_token, loop_cond_continue_with_return_facts_token) {
+    if outcome_facts_token != "FactsPresent" && outcome_facts_token != "FactsNone" {
+      return "accepted=0;reason=unsupported_outcome_facts_token"
+    }
+    if loop_cond_continue_with_return_facts_token != "LoopCondContinueWithReturnFactsPresent"
+        && loop_cond_continue_with_return_facts_token != "LoopCondContinueWithReturnFactsAbsent" {
+      return "accepted=0;reason=unsupported_candidate_facts_token"
+    }
+    if outcome_facts_token == "FactsNone" {
+      if loop_cond_continue_with_return_facts_token == "LoopCondContinueWithReturnFactsPresent" {
+        return "accepted=0;reason=inconsistent_snapshot"
+      }
+      return "accepted=1;planner_present=0;planner_present_token=PlannerAbsent"
+    }
+    if loop_cond_continue_with_return_facts_token == "LoopCondContinueWithReturnFactsPresent" {
+      return "accepted=1;planner_present=1;planner_present_token=PlannerPresent"
+    }
+    return "accepted=1;planner_present=0;planner_present_token=PlannerAbsent"
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderSinglePlannerCandidatePresenceRustOracleV1",
+  "token": "MIRBUILDER-SINGLE-PLANNER-CANDIDATE-PRESENCE-RUST-ORACLE-FIXTURE-001",
+  "owner": "single_planner_candidate_presence",
+  "rust_sources": [
+    {
+      "path": "src/mir/builder/control_flow/plan/single_planner/rules.rs",
+      "oracle_surface": "planner_candidate_present"
+    }
+  ],
+  "input_contract": "BackendSafeSinglePlannerCandidatePresenceTokenSnapshotV1",
+  "rows": [
+    {
+      "case_id": "present_when_loop_cond_continue_with_return_facts_present",
+      "outcome_facts_token": "FactsPresent",
+      "loop_cond_continue_with_return_facts_token": "LoopCondContinueWithReturnFactsPresent",
+      "expected_summary": "accepted=1;planner_present=1;planner_present_token=PlannerPresent"
+    },
+    {
+      "case_id": "absent_when_outcome_facts_present_but_candidate_absent",
+      "outcome_facts_token": "FactsPresent",
+      "loop_cond_continue_with_return_facts_token": "LoopCondContinueWithReturnFactsAbsent",
+      "expected_summary": "accepted=1;planner_present=0;planner_present_token=PlannerAbsent"
+    },
+    {
+      "case_id": "absent_when_outcome_facts_none",
+      "outcome_facts_token": "FactsNone",
+      "loop_cond_continue_with_return_facts_token": "LoopCondContinueWithReturnFactsAbsent",
+      "expected_summary": "accepted=1;planner_present=0;planner_present_token=PlannerAbsent"
+    },
+    {
+      "case_id": "reject_inconsistent_facts_none_with_candidate_present",
+      "outcome_facts_token": "FactsNone",
+      "loop_cond_continue_with_return_facts_token": "LoopCondContinueWithReturnFactsPresent",
+      "expected_summary": "accepted=0;reason=inconsistent_snapshot"
+    },
+    {
+      "case_id": "reject_bad_outcome_facts_token",
+      "outcome_facts_token": "FactsUnknown",
+      "loop_cond_continue_with_return_facts_token": "LoopCondContinueWithReturnFactsPresent",
+      "expected_summary": "accepted=0;reason=unsupported_outcome_facts_token"
+    },
+    {
+      "case_id": "reject_bad_candidate_facts_token",
+      "outcome_facts_token": "FactsPresent",
+      "loop_cond_continue_with_return_facts_token": "LoopCondContinueWithReturnFactsUnknown",
+      "expected_summary": "accepted=0;reason=unsupported_candidate_facts_token"
+    }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "build_plan_with_facts_ctx_migrated": 0,
+    "full_try_build_outcome_migrated": 0,
+    "fact_extraction_migrated": 0,
+    "recipe_matching_migrated": 0,
+    "route_execution_migrated": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0,
+    "id_allocation_migration": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
