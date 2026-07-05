@@ -1,0 +1,88 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonBrandDeclarationShapeScanParityV1",
+  "token": "MIRBUILDER-PROGRAMJSON-BRAND-DECLARATION-SHAPE-SCAN-CAPABILITY-001",
+  "capability": {
+    "name": "ProgramJsonBrandDeclarationShapeScanV1",
+    "input": "ProgramJSON v0",
+    "output": "BrandDeclarationShapeSnapshotV1"
+  },
+  "routes": {
+    "rust_oracle_route": "source -> RHako parser -> Rust ASTNode -> Rust BrandDeclaration token snapshot",
+    "hako_programjson_route": "source -> HHako parser -> ProgramJSON -> HHako BrandDeclaration token snapshot"
+  },
+  "programjson_emit_evidence": {
+    "source": "src/macro/ast_json/joinir_compat.rs",
+    "node_kind": "BrandDeclaration",
+    "node_type": null,
+    "fields": ["name", "underlying_type"]
+  },
+  "rows": [
+    {
+      "row_id": "brand_i64",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "BrandDeclaration", "name": "UserId", "underlying_type": "I64"}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=BrandDeclarationShapeSnapshotV1;top_brand_declaration_shape_kind=BrandUnderlyingInteger;supported_brand_declaration_count=1;unsupported_brand_declaration_count=0"}
+    },
+    {
+      "row_id": "brand_string",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "BrandDeclaration", "name": "Slug", "underlying_type": "String"}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=BrandDeclarationShapeSnapshotV1;top_brand_declaration_shape_kind=BrandUnderlyingString;supported_brand_declaration_count=1;unsupported_brand_declaration_count=0"}
+    },
+    {
+      "row_id": "brand_bool",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "BrandDeclaration", "name": "Flag", "underlying_type": "Bool"}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=BrandDeclarationShapeSnapshotV1;top_brand_declaration_shape_kind=BrandUnderlyingBool;supported_brand_declaration_count=1;unsupported_brand_declaration_count=0"}
+    },
+    {
+      "row_id": "brand_arraybox",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "BrandDeclaration", "name": "Items", "underlying_type": "ArrayBox"}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=BrandDeclarationShapeSnapshotV1;top_brand_declaration_shape_kind=BrandUnderlyingArray;supported_brand_declaration_count=1;unsupported_brand_declaration_count=0"}
+    },
+    {
+      "row_id": "brand_mapbox",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "BrandDeclaration", "name": "Dict", "underlying_type": "MapBox"}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=BrandDeclarationShapeSnapshotV1;top_brand_declaration_shape_kind=BrandUnderlyingMap;supported_brand_declaration_count=1;unsupported_brand_declaration_count=0"}
+    },
+    {
+      "row_id": "brand_custom_other",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "BrandDeclaration", "name": "Domain", "underlying_type": "DomainBox"}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=BrandDeclarationShapeSnapshotV1;top_brand_declaration_shape_kind=BrandUnderlyingOther;supported_brand_declaration_count=1;unsupported_brand_declaration_count=0"}
+    },
+    {
+      "row_id": "brand_missing_underlying_unsupported",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "BrandDeclaration", "name": "Broken", "underlying_type": null}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=BrandDeclarationShapeSnapshotV1;top_brand_declaration_shape_kind=Unsupported;supported_brand_declaration_count=0;unsupported_brand_declaration_count=1"}
+    },
+    {
+      "row_id": "first_stmt_local_unsupported",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "Local", "type": "Local", "name": "i", "expr": {"type": "Int", "value": 0}}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=BrandDeclarationShapeSnapshotV1;top_brand_declaration_shape_kind=Unsupported;supported_brand_declaration_count=0;unsupported_brand_declaration_count=1"}
+    }
+  ],
+  "summary": {
+    "parity_row_count": 8,
+    "programjson_traversal_used": 1,
+    "string_only_facade": 0,
+    "rust_astnode_projector_retire_candidate": 1
+  },
+  "decision": {
+    "kind": "ProgramJsonBrandDeclarationShapeScanParityGreen",
+    "reason_token": "BrandDeclarationShapeProgramJsonSnapshotMatchesRustAstNodeOracle",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-BRAND-DECLARATION-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "programjson_full_parser_claim": 0,
+    "hako_adopted_for_full_owner": 0,
+    "brand_type_resolution": 0,
+    "brand_lowering": 0
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonBrandDeclarationShapeRustAstNodeProjectorRetireCandidateV1",
+  "token": "MIRBUILDER-PROGRAMJSON-BRAND-DECLARATION-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001",
+  "evidence": {
+    "hako_snapshot_source": "lang/src/compiler/mirbuilder/program_json_brand_declaration_shape_scan.hako",
+    "hako_snapshot_source_hash": "sha256:789cb6d64de5e7f86e7ef0ebd8721d007f853ddcd9c4403f15b683afc48bf909",
+    "parity_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-programjson-brand-declaration-shape-scan-parity-v0.json",
+    "parity_fixture_hash": "sha256:48f03f5eea87f313673624d0da127d0f78a7eb93cdc2362d783bfea88d5dec5e",
+    "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_programjson_brand_declaration_shape_scan_parity_gate.sh",
+    "parity_gate_hash": "sha256:029c614e838ead027cc6ea40d506b81490e2c7ce491f0e925ebc9cee9ef763fc"
+  },
+  "retire_candidate_scope": {
+    "retire_candidate": "BrandDeclarationShapeSnapshotV1",
+    "shape_scope": "covered ProgramJSON BrandDeclaration rows",
+    "programjson_snapshot_owner": "ProgramJsonBrandDeclarationShapeScanV1",
+    "covered_rows": [
+      "brand_i64",
+      "brand_string",
+      "brand_bool",
+      "brand_arraybox",
+      "brand_mapbox",
+      "brand_custom_other",
+      "brand_missing_underlying_unsupported",
+      "first_stmt_local_unsupported"
+    ],
+    "rust_projector_runtime_dependency_removed": 0,
+    "rust_projector_oracle_only": 1,
+    "full_astnode_projector_retired": 0
+  },
+  "criteria": {
+    "programjson_snapshot_parity_gate": "Green",
+    "programjson_route_traverses_programjson": 1,
+    "programjson_route_uses_string_only_facade": 0,
+    "covered_row_count": 8,
+    "brand_type_resolution": 0,
+    "brand_lowering": 0
+  },
+  "decision": {
+    "kind": "RetireCandidateScoped",
+    "reason_token": "BrandDeclarationShapeSnapshotV1ProgramJsonCapabilityParityGreen",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-CAPABILITY-BATCH-CONTINUATION"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering": 0,
+    "route_selection": 0,
+    "full_recipe_matcher_execution": 0,
+    "brand_type_resolution": 0,
+    "brand_lowering": 0,
+    "hako_adopted_decision": 0,
+    "programjson_full_parser_claim": 0,
+    "programjson_all_shapes_supported": 0,
+    "rust_astnode_projector_fully_retired": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

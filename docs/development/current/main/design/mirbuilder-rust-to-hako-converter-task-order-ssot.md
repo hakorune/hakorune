@@ -90,7 +90,7 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  3099 lands the covered IfBranchOccupancyShapeSnapshotV1 ProgramJSON traversal
+  3101 lands the covered BrandDeclarationShapeSnapshotV1 ProgramJSON traversal
   slice as a scoped Rust ASTNode projector retire-candidate. Next work returns
   to capability-batch continuation.
   2997 stabilized the AOT/MIR value-type publication contract only for the
@@ -402,13 +402,13 @@ Detailed evidence lives in phase cards, fixtures, and git history.
 ## Active Next 3
 ```text
 1. MIRBUILDER-PROGRAMJSON-CAPABILITY-CANDIDATE-VALIDATION-001
-   status=landed; boundary=selected if-branch occupancy scan from emitted evidence
+   status=landed; boundary=selected brand-declaration scan from emitted evidence
 
-2. MIRBUILDER-PROGRAMJSON-IF-BRANCH-OCCUPANCY-SHAPE-SCAN-CAPABILITY-001
-   status=landed; boundary=real `.hako` ProgramJSON If branch occupancy traversal
+2. MIRBUILDER-PROGRAMJSON-BRAND-DECLARATION-SHAPE-SCAN-CAPABILITY-001
+   status=landed; boundary=real `.hako` ProgramJSON BrandDeclaration traversal
 
-3. MIRBUILDER-PROGRAMJSON-IF-BRANCH-OCCUPANCY-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
-   status=landed; boundary=only the covered IfBranchOccupancyShapeSnapshotV1 rows
+3. MIRBUILDER-PROGRAMJSON-BRAND-DECLARATION-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+   status=landed; boundary=only the covered BrandDeclarationShapeSnapshotV1 rows
 
 next active:
   MIRBUILDER-PROGRAMJSON-CAPABILITY-CANDIDATE-VALIDATION
