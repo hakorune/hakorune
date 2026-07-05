@@ -401,22 +401,28 @@ static box ProgramJsonV0ScannerBox {
   // read_node_type_at(s, from_idx) -> %{ "type" => "...", "next" => idx }
   // - `from_idx` must point at '{' of the node object.
   read_node_type_at(s, from_idx) {
-    if s == null { me._fail("input is null")  return null }
-    if from_idx < 0 || from_idx >= s.length() { me._fail("from_idx out of range")  return null }
-    if me._read_char(s, from_idx) != "{" { me._fail("node must start with '{'")  return null }
+    local out = me.read_node_type_at_result(s, from_idx)
+    if BoxHelpers.map_get(out, "ok") != 1 { return null }
+    return %{"type" => BoxHelpers.map_get(out, "type"), "next" => BoxHelpers.map_get(out, "next")}
+  }
+
+  read_node_type_at_result(s, from_idx): MapBox {
+    if s == null { return me._result_err("input is null") }
+    if from_idx < 0 || from_idx >= s.length() { return me._result_err("from_idx out of range") }
+    if me._read_char(s, from_idx) != "{" { return me._result_err("node must start with '{'") }
 
     local end = me.seek_obj_end_unescaped(s, from_idx)
-    if end < 0 { return null }
+    if end < 0 { return me._result_err("failed to scan node object") }
 
     local obj = s.substring(from_idx, end)
     local type_key = "\"type\":\""
     local tp = StringHelpers.last_index_of(obj, type_key)
-    if tp < 0 { me._fail("node has no type")  return null }
+    if tp < 0 { return me._result_err("node has no type") }
     local start = tp + type_key.length()
     local endq = StringHelpers.index_of(obj, start, "\"")
-    if endq < 0 { me._fail("node type missing closing quote")  return null }
+    if endq < 0 { return me._result_err("node type missing closing quote") }
     local t = obj.substring(start, endq)
-    return %{"type" => t, "next" => end}
+    return %{"ok" => 1, "reason" => "", "type" => t, "next" => end}
   }
 }
 

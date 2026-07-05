@@ -345,18 +345,17 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "HAKO-AOT-PROGRAMJSON-PHASE-STATE-RUNE-ATTRS-RESULT-MAP-CONTRACT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3110-HAKO-AOT-PROGRAMJSON-PHASE-STATE-RUNE-ATTRS-RESULT-MAP-CONTRACT-001.md"
-latest_card_summary = """3110 is green for the next PhaseState parse blocker:
-`ProgramJsonV0RuneAttrsBox.read_function_runes_map_result/2` now returns a
-total result map, PhaseState parse consumes it directly, scanner first-string
-and first-array result helpers publish map_handle, and legacy nullable scanner
-helpers remain no-new-consumer. The active blocker advances to
-`ProgramJsonV0PhaseStateBox._scan_body_rec/8`; next selected task is
-HAKO-AOT-PROGRAMJSON-PHASE-STATE-SCAN-BODY-REC-CONTRACT-001. Layer4 parity
-green, runtime route switch, full projector retirement, HakoAdoption, Source
-Selfhost, RecipeMatcher, route selection, lowering, mutation, ID allocation,
-and new ABI remain unclaimed."""
+latest_card = "HAKO-AOT-PROGRAMJSON-PHASE-STATE-SCAN-BODY-LOCAL-RESULT-CONTRACT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3111-HAKO-AOT-PROGRAMJSON-PHASE-STATE-SCAN-BODY-LOCAL-RESULT-CONTRACT-001.md"
+latest_card_summary = """3111 is green for the PhaseState scan-body local
+contract cleanup: node-type reads now use total result maps and the local
+recipe append helpers now return total result maps with DirectAbi map_handle
+routes. The active blocker advances to
+`ProgramJsonV0PhaseStateConsumerBox.consume_stmt/4`; next selected task is
+HAKO-AOT-PROGRAMJSON-PHASE-STATE-CONSUME-STMT-RESULT-CONTRACT-001. Layer4
+parity green, runtime route switch, full projector retirement, HakoAdoption,
+Source Selfhost, RecipeMatcher, route selection, lowering, mutation, ID
+allocation, and new ABI remain unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

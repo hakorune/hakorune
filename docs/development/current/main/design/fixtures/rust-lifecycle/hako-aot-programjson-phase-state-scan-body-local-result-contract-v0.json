@@ -1,0 +1,29 @@
+{
+  "schema_version": 0,
+  "kind": "HakoAotProgramJsonPhaseStateScanBodyLocalResultContractV1",
+  "token": "HAKO-AOT-PROGRAMJSON-PHASE-STATE-SCAN-BODY-LOCAL-RESULT-CONTRACT-001",
+  "contract_rule": {
+    "scanner_read_node_type_result_return_shape": "map_handle",
+    "phase_state_append_recipe_item_result_return_shape": "map_handle",
+    "phase_state_append_recipe_children_result_return_shape": "map_handle",
+    "legacy_nullable_append_helpers_removed": true,
+    "scan_body_uses_node_type_result_helper": true
+  },
+  "expected_remaining_blocker": {
+    "callee_symbol": "ProgramJsonV0PhaseStateConsumerBox.consume_stmt/4",
+    "reason": "missing_multi_function_emitter",
+    "next_card": "HAKO-AOT-PROGRAMJSON-PHASE-STATE-CONSUME-STMT-RESULT-CONTRACT-001"
+  },
+  "claims": {
+    "phase_state_parse_aot_call_fixed": 0,
+    "layer4_recipe_dto_parity_green": 0,
+    "source_selfhost_claim": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering_claim": 0,
+    "route_selection_migration": 0,
+    "runtime_route_switch": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

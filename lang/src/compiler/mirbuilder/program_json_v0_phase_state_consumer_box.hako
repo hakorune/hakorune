@@ -517,8 +517,8 @@ static box ProgramJsonV0PhaseStateConsumerBox {
   }
 
   _read_stmt_node_info_or_error(program_json, idx, tag, current_state) {
-    local node = ProgramJsonV0ScannerBox.read_node_type_at(program_json, idx)
-    if node == null {
+    local node = ProgramJsonV0ScannerBox.read_node_type_at_result(program_json, idx)
+    if BoxHelpers.map_get(node, "ok") != 1 {
       return %{
         "err" => 1,
         "out" => me._emit_out_from_state(

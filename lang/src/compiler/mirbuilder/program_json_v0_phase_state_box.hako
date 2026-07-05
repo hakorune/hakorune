@@ -170,8 +170,8 @@ static box ProgramJsonV0PhaseStateBox {
 
     // Order check (fail-fast): determine stmt type first (cheap scan), then validate.
     // Note: full stmt consumption is delegated to ProgramJsonV0PhaseStateConsumerBox (single SSOT for fields).
-    local node_peek = ProgramJsonV0ScannerBox.read_node_type_at(program_json, idx)
-    if node_peek == null {
+    local node_peek = ProgramJsonV0ScannerBox.read_node_type_at_result(program_json, idx)
+    if BoxHelpers.map_get(node_peek, "ok") != 1 {
       return me._emit_scan_error(
         tag,
         "[cap_missing/program_json_v0] failed to read stmt node type",
@@ -222,14 +222,16 @@ static box ProgramJsonV0PhaseStateBox {
         current_state
       )
     }
-    local recipe_append_error = me._append_recipe_item_or_error(
+    local recipe_append_out = me._append_recipe_item_result(
       recipe_items,
       recipe_item,
       tag,
       next_idx,
       current_state
     )
-    if recipe_append_error != null { return recipe_append_error }
+    if me._out_i64(recipe_append_out, "ok") != 1 {
+      return BoxHelpers.map_get(recipe_append_out, "out")
+    }
 
     local next_state = me._state_map(
       me._out_i64(out, "has_print"),
@@ -263,59 +265,75 @@ static box ProgramJsonV0PhaseStateBox {
     )
   }
 
-  _append_recipe_children_rec(recipe_items, children, i, tag, next_idx, state) {
-    local n = BoxHelpers.array_len(children)
-    if i >= n { return null }
+  _append_ok(): MapBox {
+    return %{"ok" => 1, "out" => null}
+  }
+
+  _append_err(out): MapBox {
+    return %{"ok" => 0, "out" => out}
+  }
+
+  _append_recipe_children_result(recipe_items, children, i, tag, next_idx, state): MapBox {
+    local n = children.length()
+    if i >= n { return me._append_ok() }
 
     local child = BoxHelpers.array_get(children, i)
     if child == null || BoxHelpers.is_map(child) != 1 {
-      return me._emit_scan_error(
-        tag,
-        "[cap_missing/recipe_verifier] composite recipe child is not map",
-        next_idx,
-        state
+      return me._append_err(
+        me._emit_scan_error(
+          tag,
+          "[cap_missing/recipe_verifier] composite recipe child is not map",
+          next_idx,
+          state
+        )
       )
     }
     if RecipeItemBox.kind_of(child) != "Seq" || ("" + BoxHelpers.map_get(child, "leaf_kind")) != "Stmt" {
-      return me._emit_scan_error(
-        tag,
-        "[cap_missing/recipe_verifier] composite recipe child must be Stmt leaf",
-        next_idx,
-        state
+      return me._append_err(
+        me._emit_scan_error(
+          tag,
+          "[cap_missing/recipe_verifier] composite recipe child must be Stmt leaf",
+          next_idx,
+          state
+        )
       )
     }
 
     recipe_items.push(child)
-    return me._append_recipe_children_rec(recipe_items, children, i + 1, tag, next_idx, state)
+    return me._append_recipe_children_result(recipe_items, children, i + 1, tag, next_idx, state)
   }
 
-  _append_recipe_item_or_error(recipe_items, recipe_item, tag, next_idx, state) {
+  _append_recipe_item_result(recipe_items, recipe_item, tag, next_idx, state): MapBox {
     local kind = RecipeItemBox.kind_of(recipe_item)
     local leaf_kind = "" + BoxHelpers.map_get(recipe_item, "leaf_kind")
 
     if kind == "Seq" && leaf_kind != "Stmt" {
       local children = BoxHelpers.map_get(recipe_item, "items")
       if children == null || BoxHelpers.is_array(children) != 1 {
-        return me._emit_scan_error(
-          tag,
-          "[cap_missing/recipe_verifier] composite recipe item missing items",
-          next_idx,
-          state
+        return me._append_err(
+          me._emit_scan_error(
+            tag,
+            "[cap_missing/recipe_verifier] composite recipe item missing items",
+            next_idx,
+            state
+          )
         )
       }
-      if BoxHelpers.array_len(children) == 0 {
-        return me._emit_scan_error(
-          tag,
-          "[cap_missing/recipe_verifier] composite recipe item must contain stmt children",
-          next_idx,
-          state
+      if children.length() == 0 {
+        return me._append_err(
+          me._emit_scan_error(
+            tag,
+            "[cap_missing/recipe_verifier] composite recipe item must contain stmt children",
+            next_idx,
+            state
+          )
         )
       }
-      return me._append_recipe_children_rec(recipe_items, children, 0, tag, next_idx, state)
+      return me._append_recipe_children_result(recipe_items, children, 0, tag, next_idx, state)
     }
 
     recipe_items.push(recipe_item)
-    return null
+    return me._append_ok()
   }
 
   _state_map(
