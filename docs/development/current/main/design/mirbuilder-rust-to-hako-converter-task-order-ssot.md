@@ -60,7 +60,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  HAKO-AOT-PROGRAMJSON-PHASE-STATE-PARSE-CALL-CONTRACT-001
+  HAKO-PROGRAMJSON-SCANNER-RESULT-MAP-RETURN-CONTRACT-001
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -90,9 +90,10 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  3107 records the first layer-4 blocker: imported AOT calls to
-  ProgramJsonV0PhaseStateBox.parse/2 fail with module_generic_prepass_failed.
-  Next work fixes that AOT parse call contract, then resumes loop Recipe DTO parity.
+  3109 selects approach B: fix `.hako` ProgramJSON scanner helpers to return
+  total result maps instead of widening AOT void-signature object returns.
+  Generic void object-return reject remains; body proof alone must not publish
+  object returns. After this is green, resume loop Recipe DTO parity.
   2997 stabilized the AOT/MIR value-type publication contract only for the
   proven route families. 3002 remains a trigger-based debt queue for Float
   Sub/Mul/Div, string Lt/Gt/Le/Ge policy, user-box single-observation
