@@ -345,15 +345,15 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PROGRAMJSON-TOKEN-SNAPSHOT-RETIRE-RUST-ASTNODE-PROJECTOR-CANDIDATE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2981-MIRBUILDER-PROGRAMJSON-TOKEN-SNAPSHOT-RETIRE-RUST-ASTNODE-PROJECTOR-CANDIDATE-001.md"
-latest_card_summary = """The latest card marks only
-LoopCondContinueThenReturnMinimalV1 / LoopCondContinueWithReturnTokenSnapshotV1
-as a Rust ASTNode projector retire-candidate. Runtime dependency removal,
-full projector retirement, HakoAdoption, ProgramJSON full parser, and Source
-Selfhost remain unclaimed. Next work is selecting the next ProgramJSON
-traversal shape only if it retires another projector slice or exposes a
-concrete HHako traversal capability."""
+latest_card = "MIRBUILDER-PROGRAMJSON-NO-RETURN-REJECT-SNAPSHOT-PARITY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2982-MIRBUILDER-PROGRAMJSON-NO-RETURN-REJECT-SNAPSHOT-PARITY-001.md"
+latest_card_summary = """The latest card proves the next ProgramJSON traversal
+shape, LoopCondContinueNoReturnRejectV1, against the Rust ASTNode-token oracle
+under AOT. It adds no new facade and no new scanner capability; the existing
+ProgramJsonLoopCondContinueWithReturnSnapshotV1 owner emits
+accepted=0;reason=no_return. Source Selfhost, HakoAdoption, ProgramJSON full
+parser, and Rust ASTNode projector retirement remain unclaimed. Next work is a
+one-shape retire-candidate guard for this no-return reject slice."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -364,6 +364,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-05: 2982 proves ProgramJSON no-return reject snapshot parity for LoopCondContinueNoReturnRejectV1; projector retirement remains unclaimed.",
   "2026-07-05: 2981 marks LoopCondContinueThenReturnMinimalV1 as a one-shape Rust ASTNode projector retire-candidate; runtime dependency removal remains unclaimed.",
   "2026-07-05: 2980 proves ProgramJSON token snapshot parity against the Rust ASTNode-token oracle for LoopCondContinueThenReturnMinimalV1; projector retirement remains unclaimed.",
   "2026-07-05: 2979 runs ProgramJsonLoopCondContinueWithReturnSnapshotV1 through AOT runtime parity for LoopCondContinueThenReturnMinimalV1; projector retirement remains unclaimed.",
@@ -375,5 +376,4 @@ landed_tail = [
   "2026-07-05: 2973 stops Plan-track tiny DTO expansion before full single_planner outcome consultation.",
   "2026-07-05: 2972 adopts single_planner freeze-required-none message as scoped HakoAdopted Plan DTO owner.",
   "2026-07-05: 2971 lands single_planner freeze-required-none message parity; Freeze construction remains Rust.",
-  "2026-07-05: 2970 adopts single_planner promotion hint tag as scoped HakoAdopted Plan DTO owner.",
 ]

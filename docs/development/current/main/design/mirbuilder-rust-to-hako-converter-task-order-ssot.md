@@ -60,7 +60,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-NEXT-SHAPE-SELECTION-001
+  MIRBUILDER-PROGRAMJSON-NO-RETURN-REJECT-RETIRE-RUST-ASTNODE-PROJECTOR-CANDIDATE-001
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -90,12 +90,11 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  LoopCondContinueThenReturnMinimalV1 / LoopCondContinueWithReturnTokenSnapshotV1
-  is now a one-shape Rust ASTNode projector retire-candidate. Runtime
-  dependency removal, full projector retirement, HakoAdoption, ProgramJSON full
-  parser, and Source Selfhost remain unclaimed. Next work is selecting the next
-  ProgramJSON traversal shape only if it reduces another Rust ASTNode projection
-  slice or exposes a concrete missing HHako traversal capability.
+  LoopCondContinueNoReturnRejectV1 now has AOT ProgramJSON snapshot parity
+  against the Rust ASTNode-token oracle. This used the existing
+  ProgramJsonLoopCondContinueWithReturnSnapshotV1 owner and added no new facade
+  or scanner capability. Next work is a one-shape retire-candidate guard for
+  this no-return reject slice, not full projector retirement.
   Rust ASTNode-to-token snapshot adapters are non-authority temporary projection
   ABI for MirBuilder-first migration. They must not invent semantic policy or a
   hidden token taxonomy, and must be removable when HHako ProgramJSON can feed
