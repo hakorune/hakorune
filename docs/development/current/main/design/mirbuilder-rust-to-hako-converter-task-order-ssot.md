@@ -60,7 +60,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PLAN-TRACK-NEXT-PILOT-SELECTION-007
+  MIRBUILDER-SINGLE-PLANNER-FULL-OUTCOME-CONSULTATION-001
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -83,18 +83,17 @@ normal operating rule:
   `single_planner_candidate_presence` is now HakoAdopted for the active
   LoopCondContinueWithReturn fact-slot presence DTO.
   HakoAdopted Plan DTO owners now include rule acceptance, outcome disposition,
-  candidate presence, gate mode, and recipe-match gate. RecipeMatcher execution
-  remains Rust.
-  `single_planner_promotion_hint_tag` and
-  `single_planner_freeze_required_none_message` are now HakoAdopted.
-  Reject-detail retrieval and Freeze construction remain Rust.
+  candidate presence, gate mode, recipe-match gate, promotion hint tag, and
+  freeze-required-none message. Tiny DTO expansion is stopped; remaining
+  single_planner surfaces are duplicate rule-hit wrappers or logging side
+  effects.
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  `single_planner_freeze_required_none_message.authority_facade` is
-  HakoAdopted. It owns no reject-detail retrieval, Freeze construction,
-  lowering, mutation, allocation, or full `try_build_outcome`; next work
-  selects Plan-track pilot 007.
+  Plan-track pilot 007 is a design stop. Next work must consult before choosing
+  recipe matcher execution, a single_planner outcome phase pipeline, or
+  build_plan_with_facts_ctx as the next owner. Do not add more tiny log/trace
+  wrapper facades.
   Rust ASTNode-to-token snapshot adapters are non-authority temporary projection
   ABI for MirBuilder-first migration. They must not invent semantic policy or a
   hidden token taxonomy, and must be removable when HHako ProgramJSON can feed

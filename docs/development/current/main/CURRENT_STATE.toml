@@ -345,12 +345,13 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-SINGLE-PLANNER-FREEZE-REQUIRED-NONE-MESSAGE-HAKOADOPTED-DECISION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2972-MIRBUILDER-SINGLE-PLANNER-FREEZE-REQUIRED-NONE-MESSAGE-HAKOADOPTED-DECISION-001.md"
-latest_card_summary = """The latest card adopts the single_planner
-planner-required None freeze message DTO. Reject-detail retrieval, Freeze
-construction, lowering, MIR mutation, ID allocation, and Source Selfhost remain
-unclaimed."""
+latest_card = "MIRBUILDER-PLAN-TRACK-NEXT-PILOT-SELECTION-007-DESIGN-STOP-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2973-MIRBUILDER-PLAN-TRACK-NEXT-PILOT-SELECTION-007-DESIGN-STOP-001.md"
+latest_card_summary = """The latest card stops Plan-track tiny DTO expansion:
+remaining single_planner surfaces are duplicate rule-hit wrappers or logging
+side effects. Next work requires consultation before full try_build_outcome,
+RecipeMatcher execution, build_plan_with_facts_ctx, logging side effects,
+lowering, MIR mutation, or ID allocation are migrated."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -361,6 +362,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-05: 2973 stops Plan-track tiny DTO expansion before full single_planner outcome consultation.",
   "2026-07-05: 2972 adopts single_planner freeze-required-none message as scoped HakoAdopted Plan DTO owner.",
   "2026-07-05: 2971 lands single_planner freeze-required-none message parity; Freeze construction remains Rust.",
   "2026-07-05: 2970 adopts single_planner promotion hint tag as scoped HakoAdopted Plan DTO owner.",
@@ -372,5 +374,4 @@ landed_tail = [
   "2026-07-05: 2964 adopts single_planner candidate presence as scoped HakoAdopted Plan DTO owner.",
   "2026-07-05: 2963 lands single_planner candidate presence parity for the LoopCondContinueWithReturn fact slot.",
   "2026-07-05: 2962 adopts single_planner outcome disposition as scoped HakoAdopted Plan DTO owner.",
-  "2026-07-05: 2961 lands single_planner outcome disposition parity for planner-required None freeze vs return-outcome DTO.",
 ]
