@@ -1,0 +1,64 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderSinglePlannerFreezeRequiredNoneMessageHakoAdoptedDecisionV1",
+  "token": "MIRBUILDER-SINGLE-PLANNER-FREEZE-REQUIRED-NONE-MESSAGE-HAKOADOPTED-DECISION-001",
+  "input_state": {
+    "hako_source": "lang/src/compiler/lib/single_planner_freeze_required_none_message.hako",
+    "hako_source_hash": "sha256:c6d96f41d4b9f27f45873bcd35344cad47392b24fd43a1e494a9b6fb1deee4b0",
+    "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-single-planner-freeze-required-none-message-rust-oracle-v0.json",
+    "rust_oracle_fixture_hash": "sha256:e19a67255ce6dafb555b8048e4de109b1299411aee6d9884560b4197d7b86142",
+    "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_single_planner_freeze_required_none_message_parity_gate.sh",
+    "parity_gate_hash": "sha256:9b987adb97812de90d8f044a480682cde2a0955290bdf259dee56665fdeae815"
+  },
+  "adoption_scope": {
+    "adopted_owner": "single_planner_freeze_required_none_message.authority_facade",
+    "input_contract": "BackendSafeSinglePlannerFreezeRequiredNoneMessageTokenSnapshotV1",
+    "native_edit_authority": "lang/src/compiler/lib/single_planner_freeze_required_none_message.hako",
+    "owned_semantics": [
+      "func_name_token",
+      "condition_kind_token",
+      "body_len_token",
+      "reject_detail_presence_token",
+      "freeze_message_text",
+      "freeze_hint_text",
+      "unsupported_token_reject_reason"
+    ],
+    "excluded_semantics": [
+      "reject_detail_retrieval",
+      "Freeze_construction",
+      "route_execution",
+      "backend_lowering",
+      "MIR_mutation",
+      "ID_allocation"
+    ]
+  },
+  "parity": {
+    "gate_status": "Green",
+    "oracle_row_count": 3,
+    "required_contract_fields": [
+      "accepted",
+      "message",
+      "hint",
+      "reason"
+    ]
+  },
+  "decision": {
+    "kind": "HakoAdoptedScoped",
+    "reason_token": "SinglePlannerFreezeRequiredNoneMessageParityGreen",
+    "selected_next_card": "MIRBUILDER-PLAN-TRACK-NEXT-PILOT-SELECTION-007",
+    "backlog_card": "MIRBUILDER-SINGLE-PLANNER-FULL-OUTCOME-CONSULTATION-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "reject_detail_retrieval_migrated": 0,
+    "freeze_construction_migrated": 0,
+    "route_execution_migrated": 0,
+    "backend_lowering_migrated": 0,
+    "mir_mutation_migrated": 0,
+    "id_allocation_migrated": 0,
+    "hako_generation": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

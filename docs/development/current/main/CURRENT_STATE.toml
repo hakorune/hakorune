@@ -345,9 +345,9 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-SINGLE-PLANNER-FREEZE-REQUIRED-NONE-MESSAGE-PARITY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2971-MIRBUILDER-SINGLE-PLANNER-FREEZE-REQUIRED-NONE-MESSAGE-PARITY-001.md"
-latest_card_summary = """The latest card lands parity for the single_planner
+latest_card = "MIRBUILDER-SINGLE-PLANNER-FREEZE-REQUIRED-NONE-MESSAGE-HAKOADOPTED-DECISION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2972-MIRBUILDER-SINGLE-PLANNER-FREEZE-REQUIRED-NONE-MESSAGE-HAKOADOPTED-DECISION-001.md"
+latest_card_summary = """The latest card adopts the single_planner
 planner-required None freeze message DTO. Reject-detail retrieval, Freeze
 construction, lowering, MIR mutation, ID allocation, and Source Selfhost remain
 unclaimed."""
@@ -361,6 +361,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-05: 2972 adopts single_planner freeze-required-none message as scoped HakoAdopted Plan DTO owner.",
   "2026-07-05: 2971 lands single_planner freeze-required-none message parity; Freeze construction remains Rust.",
   "2026-07-05: 2970 adopts single_planner promotion hint tag as scoped HakoAdopted Plan DTO owner.",
   "2026-07-05: 2969 lands single_planner promotion hint tag parity; shape extraction and log emission remain Rust.",
@@ -372,5 +373,4 @@ landed_tail = [
   "2026-07-05: 2963 lands single_planner candidate presence parity for the LoopCondContinueWithReturn fact slot.",
   "2026-07-05: 2962 adopts single_planner outcome disposition as scoped HakoAdopted Plan DTO owner.",
   "2026-07-05: 2961 lands single_planner outcome disposition parity for planner-required None freeze vs return-outcome DTO.",
-  "2026-07-05: 2960 fixes Rust ASTNode-to-token snapshots as temporary non-authority projection ABI with ProgramJSON sunset.",
 ]
