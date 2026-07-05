@@ -60,7 +60,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PLAN-TRACK-NEXT-PILOT-SELECTION-003
+  MIRBUILDER-SINGLE-PLANNER-GATE-MODE-HAKOADOPTED-DECISION-001
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -82,9 +82,15 @@ normal operating rule:
   planner-required None freeze vs return-outcome DTO.
   `single_planner_candidate_presence` is now HakoAdopted for the active
   LoopCondContinueWithReturn fact-slot presence DTO.
+  `single_planner_gate_mode` parity is green for strict_or_dev /
+  planner_required DTO construction; environment access remains Rust.
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
+  `single_planner_gate_mode.authority_facade` has parity only; the next task is
+  its scoped HakoAdopted decision. It owns no environment access, recipe
+  matching, route execution, lowering, mutation, allocation, or full
+  `try_build_outcome`.
   `single_planner_candidate_presence.authority_facade` is HakoAdopted. It owns
   no fact extraction, recipe matching, route execution, lowering, mutation,
   allocation, or full `try_build_outcome`; next work selects Plan-track pilot

@@ -1,0 +1,40 @@
+// single_planner_gate_mode.hako
+//
+// Responsibility:
+// - reduce PlannerGate input tokens into strict_or_dev / planner_required DTO
+//
+// Non-responsibility:
+// - environment access
+// - build_plan_with_facts_ctx, recipe matching, route execution, lowering, MIR mutation, or ID allocation
+static box SinglePlannerGateModeBox {
+  build_summary(strict_token, dev_token, planner_required_env_token) {
+    if strict_token != "StrictEnabled" && strict_token != "StrictDisabled" {
+      return "accepted=0;reason=unsupported_strict_token"
+    }
+    if dev_token != "JoinIrDevEnabled" && dev_token != "JoinIrDevDisabled" {
+      return "accepted=0;reason=unsupported_dev_token"
+    }
+    if planner_required_env_token != "PlannerRequiredEnvEnabled"
+        && planner_required_env_token != "PlannerRequiredEnvDisabled" {
+      return "accepted=0;reason=unsupported_planner_required_env_token"
+    }
+
+    local strict_or_dev = "0"
+    if strict_token == "StrictEnabled" {
+      strict_or_dev = "1"
+    }
+    if dev_token == "JoinIrDevEnabled" {
+      strict_or_dev = "1"
+    }
+
+    local planner_required = "0"
+    if strict_or_dev == "1" {
+      if planner_required_env_token == "PlannerRequiredEnvEnabled" {
+        planner_required = "1"
+      }
+    }
+
+    return "accepted=1;strict_or_dev=" + strict_or_dev
+      + ";planner_required=" + planner_required
+  }
+}

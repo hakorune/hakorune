@@ -1,0 +1,78 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderSinglePlannerGateModeRustOracleV1",
+  "token": "MIRBUILDER-SINGLE-PLANNER-GATE-MODE-RUST-ORACLE-FIXTURE-001",
+  "owner": "single_planner_gate_mode",
+  "rust_sources": [
+    {
+      "path": "src/mir/builder/control_flow/plan/single_planner/rules.rs",
+      "oracle_surface": "PlannerGate::new boolean reduction"
+    }
+  ],
+  "input_contract": "BackendSafeSinglePlannerGateModeTokenSnapshotV1",
+  "rows": [
+    {
+      "case_id": "strict_required_enabled",
+      "strict_token": "StrictEnabled",
+      "dev_token": "JoinIrDevDisabled",
+      "planner_required_env_token": "PlannerRequiredEnvEnabled",
+      "expected_summary": "accepted=1;strict_or_dev=1;planner_required=1"
+    },
+    {
+      "case_id": "dev_required_enabled",
+      "strict_token": "StrictDisabled",
+      "dev_token": "JoinIrDevEnabled",
+      "planner_required_env_token": "PlannerRequiredEnvEnabled",
+      "expected_summary": "accepted=1;strict_or_dev=1;planner_required=1"
+    },
+    {
+      "case_id": "strict_required_env_disabled",
+      "strict_token": "StrictEnabled",
+      "dev_token": "JoinIrDevDisabled",
+      "planner_required_env_token": "PlannerRequiredEnvDisabled",
+      "expected_summary": "accepted=1;strict_or_dev=1;planner_required=0"
+    },
+    {
+      "case_id": "optional_when_no_strict_or_dev",
+      "strict_token": "StrictDisabled",
+      "dev_token": "JoinIrDevDisabled",
+      "planner_required_env_token": "PlannerRequiredEnvEnabled",
+      "expected_summary": "accepted=1;strict_or_dev=0;planner_required=0"
+    },
+    {
+      "case_id": "reject_bad_strict_token",
+      "strict_token": "StrictUnknown",
+      "dev_token": "JoinIrDevEnabled",
+      "planner_required_env_token": "PlannerRequiredEnvEnabled",
+      "expected_summary": "accepted=0;reason=unsupported_strict_token"
+    },
+    {
+      "case_id": "reject_bad_dev_token",
+      "strict_token": "StrictEnabled",
+      "dev_token": "JoinIrDevUnknown",
+      "planner_required_env_token": "PlannerRequiredEnvEnabled",
+      "expected_summary": "accepted=0;reason=unsupported_dev_token"
+    },
+    {
+      "case_id": "reject_bad_planner_required_env_token",
+      "strict_token": "StrictEnabled",
+      "dev_token": "JoinIrDevEnabled",
+      "planner_required_env_token": "PlannerRequiredEnvUnknown",
+      "expected_summary": "accepted=0;reason=unsupported_planner_required_env_token"
+    }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "environment_access_migrated": 0,
+    "build_plan_with_facts_ctx_migrated": 0,
+    "full_try_build_outcome_migrated": 0,
+    "recipe_matching_migrated": 0,
+    "route_execution_migrated": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0,
+    "id_allocation_migration": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
