@@ -1,0 +1,162 @@
+// program_json_if_branch_occupancy_shape_scan.hako
+//
+// Responsibility:
+// - Traverse covered Program(JSON v0) If statement branch occupancy.
+// - Classify then/else as empty, one statement, many statements, null, or missing.
+//
+// Non-responsibility:
+// - If lowering, branch recipe construction, condition analysis, MIR mutation,
+//   backend output, ID allocation, or parser integration.
+
+using selfhost.shared.common.string_helpers as StringHelpers
+using lang.compiler.mirbuilder.program_json_v0_scanner_box as ProgramJsonV0ScannerBox
+
+static box ProgramJsonIfBranchOccupancyShapeScanBox {
+  build_summary(program_json) {
+    if program_json == null || ("" + program_json) == "" {
+      return me._fail("missing_program_json")
+    }
+    program_json = "" + program_json
+
+    local body = me._array_field_start(program_json, "body", 0)
+    if body < 0 { return me._fail("cap_missing_program_body") }
+
+    local first = me._first_object_in_array(program_json, body)
+    if first < 0 { return me._fail("cap_missing_first_stmt") }
+
+    local top_kind = "Unsupported"
+    if me._node_name_at(program_json, first) == "If" {
+      top_kind = me._if_branch_kind(program_json, first)
+    }
+
+    local supported = me._supported_count(top_kind)
+    local unsupported = me._unsupported_count(top_kind)
+    return me._summary(top_kind, supported, unsupported)
+  }
+
+  _summary(top_kind, supported, unsupported) {
+    return "snapshot_kind=IfBranchOccupancyShapeSnapshotV1"
+      + ";top_if_branch_occupancy_kind=" + top_kind
+      + ";supported_if_branch_occupancy_count=" + me._count_token(supported)
+      + ";unsupported_if_branch_occupancy_count=" + me._count_token(unsupported)
+  }
+
+  _if_branch_kind(s, if_start) {
+    local then_array = me._array_field_start(s, "then", if_start)
+    if then_array < 0 { return "Unsupported" }
+    local then_count = me._object_count_token_in_array(s, then_array)
+    local else_state = me._else_state(s, if_start)
+    if else_state == "Missing" { return "Unsupported" }
+    return "Then" + then_count + "Else" + else_state
+  }
+
+  _else_state(s, if_start) {
+    local p = ProgramJsonV0ScannerBox.seek_obj_field_value_start(s, "else", if_start)
+    if p < 0 { return "Missing" }
+    p = StringHelpers.skip_ws(s, p)
+    if s.substring(p, p + 4) == "null" { return "Null" }
+    if ProgramJsonV0ScannerBox._read_char(s, p) != "[" { return "Unsupported" }
+    return me._object_count_token_in_array(s, p)
+  }
+
+  _object_count_token_in_array(s, array_start) {
+    local first = me._first_object_in_array(s, array_start)
+    if first < 0 { return "Empty" }
+    local second = me._next_object_in_array(s, array_start, first)
+    if second < 0 { return "One" }
+    local third = me._next_object_in_array(s, array_start, second)
+    if third < 0 { return "Two" }
+    return "Many"
+  }
+
+  _supported_count(kind) {
+    if kind == "ThenEmptyElseNull" { return 1 }
+    if kind == "ThenOneElseNull" { return 1 }
+    if kind == "ThenEmptyElseEmpty" { return 1 }
+    if kind == "ThenEmptyElseOne" { return 1 }
+    if kind == "ThenOneElseOne" { return 1 }
+    if kind == "ThenTwoElseNull" { return 1 }
+    if kind == "ThenOneElseTwo" { return 1 }
+    if kind == "ThenManyElseNull" { return 1 }
+    return 0
+  }
+
+  _unsupported_count(kind) {
+    if me._supported_count(kind) > 0 { return 0 }
+    return 1
+  }
+
+  _count_token(n) {
+    if n <= 0 { return "0" }
+    if n == 1 { return "1" }
+    if n == 2 { return "2" }
+    return "many"
+  }
+
+  _fail(reason) {
+    return "accepted=0;reason=" + reason
+  }
+
+  _node_name_at(s, obj_start) {
+    local ty = me._string_field_at_quiet(s, "type", obj_start)
+    if ty != "" { return ty }
+    return me._string_field_at_quiet(s, "kind", obj_start)
+  }
+
+  _array_field_start(s, key, obj_start) {
+    if obj_start < 0 { return -1 }
+    local p = ProgramJsonV0ScannerBox.seek_obj_field_value_start(s, key, obj_start)
+    if p < 0 { return -1 }
+    p = StringHelpers.skip_ws(s, p)
+    if ProgramJsonV0ScannerBox._read_char(s, p) != "[" { return -1 }
+    return p
+  }
+
+  _first_object_in_array(s, array_start) {
+    if array_start < 0 { return -1 }
+    local p = StringHelpers.skip_ws(s, array_start + 1)
+    if ProgramJsonV0ScannerBox._read_char(s, p) != "{" { return -1 }
+    return p
+  }
+
+  _next_object_in_array(s, array_start, previous_start) {
+    if array_start < 0 || previous_start < 0 { return -1 }
+    local previous_end = ProgramJsonV0ScannerBox.seek_obj_end_unescaped(s, previous_start)
+    if previous_end < 0 { return -1 }
+    local p = StringHelpers.skip_ws(s, previous_end)
+    if ProgramJsonV0ScannerBox._read_char(s, p) != "," { return -1 }
+    p = StringHelpers.skip_ws(s, p + 1)
+    if ProgramJsonV0ScannerBox._read_char(s, p) != "{" { return -1 }
+    return p
+  }
+
+  _string_field_at_quiet(s, key, obj_start) {
+    local p = me._quiet_obj_field_value_start(s, key, obj_start)
+    if p < 0 { return "" }
+    p = StringHelpers.skip_ws(s, p)
+    if ProgramJsonV0ScannerBox._read_char(s, p) != "\"" { return "" }
+    local end_quote = StringHelpers.index_of(s, p + 1, "\"")
+    if end_quote < 0 { return "" }
+    return s.substring(p + 1, end_quote)
+  }
+
+  _quiet_obj_field_value_start(s, key, obj_start) {
+    if s == null { return -1 }
+    if obj_start < 0 { return -1 }
+    local end = ProgramJsonV0ScannerBox.seek_obj_end_unescaped(s, obj_start)
+    if end < 0 { return -1 }
+    local obj = s.substring(obj_start, end)
+    local needle = me._quiet_field_needle(key)
+    local p = StringHelpers.index_of(obj, 0, needle)
+    if p < 0 || (obj_start + p) >= end { return -1 }
+    return obj_start + p + needle.length()
+  }
+
+  _quiet_field_needle(key) {
+    if key == "kind" { return "\"kind\":" }
+    if key == "type" { return "\"type\":" }
+    return "\"" + ("" + key) + "\":"
+  }
+}
+
+static box ProgramJsonIfBranchOccupancyShapeScanMain { main() { return 0 } }

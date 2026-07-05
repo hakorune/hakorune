@@ -90,7 +90,7 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  3097 lands the covered DispatchSupportShapeSnapshotV1 ProgramJSON traversal
+  3099 lands the covered IfBranchOccupancyShapeSnapshotV1 ProgramJSON traversal
   slice as a scoped Rust ASTNode projector retire-candidate. Next work returns
   to capability-batch continuation.
   2997 stabilized the AOT/MIR value-type publication contract only for the
@@ -402,13 +402,13 @@ Detailed evidence lives in phase cards, fixtures, and git history.
 ## Active Next 3
 ```text
 1. MIRBUILDER-PROGRAMJSON-CAPABILITY-CANDIDATE-VALIDATION-001
-   status=landed; boundary=selected dispatch-support scan from emitted evidence
+   status=landed; boundary=selected if-branch occupancy scan from emitted evidence
 
-2. MIRBUILDER-PROGRAMJSON-DISPATCH-SUPPORT-SHAPE-SCAN-CAPABILITY-001
-   status=landed; boundary=real `.hako` ProgramJSON dispatch-support traversal
+2. MIRBUILDER-PROGRAMJSON-IF-BRANCH-OCCUPANCY-SHAPE-SCAN-CAPABILITY-001
+   status=landed; boundary=real `.hako` ProgramJSON If branch occupancy traversal
 
-3. MIRBUILDER-PROGRAMJSON-DISPATCH-SUPPORT-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
-   status=landed; boundary=only the covered DispatchSupportShapeSnapshotV1 rows
+3. MIRBUILDER-PROGRAMJSON-IF-BRANCH-OCCUPANCY-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+   status=landed; boundary=only the covered IfBranchOccupancyShapeSnapshotV1 rows
 
 next active:
   MIRBUILDER-PROGRAMJSON-CAPABILITY-CANDIDATE-VALIDATION
@@ -416,10 +416,10 @@ next active:
   `.hako` scan implementation card
 
 trigger-based AOT/MIR typing debt:
-  status=parked-until-triggered; items=Float Sub/Mul/Div, string relational
-  compare policy, user-box single-observation protection,
-  scalar_i64_or_missing_zero, PHI dst_type, mir_call dst_type
-
+  status=parked-until-triggered; order=2999/3000/3001 landed, then 3022 queue
+  only when an active ProgramJSON gate hits Float Sub/Mul/Div, string relational
+  compare, PHI dst_type, mir_call dst_type, or receiver-helper
+  single-observation protection
 next_documented_task =
   MIRBUILDER-PROGRAMJSON-CAPABILITY-CANDIDATE-VALIDATION
 
@@ -430,6 +430,8 @@ task discipline =
   Each ProgramJSON capability card must land real `.hako` traversal, a fixture,
   and an AOT parity gate together. If it only adds a guard or selection row,
   stop and rewrite the card before continuing.
+  Capability is the unit: one `.hako` implementation can cover N parity rows;
+  guard-only, fixture-only, or one-shape paperwork does not count as progress.
   Candidate validation must check actual ProgramJSON v0 emission first; legacy
   AST/Rust fixture names alone cannot select a capability.
   Validation output must be a named ProgramJson*ScanV1 implementation card with

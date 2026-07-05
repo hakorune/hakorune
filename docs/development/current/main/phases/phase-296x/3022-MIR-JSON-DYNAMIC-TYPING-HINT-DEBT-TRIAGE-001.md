@@ -12,6 +12,22 @@ implementation card only when a ProgramJSON capability gate hits the route, or
 when 3020/3021 are closed and the next ProgramJSON capability would depend on
 the same value-type publication path.
 
+## Operating Rule
+
+```text
+primary lane:
+  ProgramJSON capability = real `.hako` implementation + fixture + AOT parity
+  gate + scoped retire-candidate
+
+debt lane:
+  opened only by an active failure or direct dependency
+
+forbidden:
+  guard-only cleanup before a missing `.hako` traversal implementation
+  broad route-family unification
+  silent fallback for dynamic typing ambiguity
+```
+
 ## Queue
 
 ```text
@@ -34,6 +50,16 @@ MIR-CALL-DST-TYPE-PUBLICATION-001
 USER-BOX-METHOD-SINGLE-OBSERVATION-PROTECTION-EXTENSION-001
   Tier-3. Extend the 2999 helper-param publication policy to receiver-call
   helper inputs if an active gate reaches those paths.
+```
+
+Implementation order when triggered:
+
+```text
+1. If a ProgramJSON gate fails on a concrete route, open only that route's
+   implementation card and keep the existing ProgramJSON card blocked.
+2. If no gate fails, continue the next ProgramJSON capability implementation.
+3. If string Lt/Gt/Le/Ge is reached, stop for reference-spec decision before
+   implementation.
 ```
 
 ## Stop Conditions

@@ -18,6 +18,25 @@ Rule: do not put this inventory ahead of a real ProgramJSON `.hako`
 implementation card unless the active parity gate fails on one of these exact
 routes.
 
+## Current Ordering
+
+```text
+Tier-1 preflight:
+  2999 helper-param polymorphic input contract = landed
+  3000 generic-method scalar return publication = landed
+  3001 extern-call return publication = landed
+
+Active migration rule:
+  continue ProgramJSON capability implementation cards first
+  do not open a new AOT guard-only detour while the active blocker is missing
+  `.hako` ProgramJSON traversal
+
+Triggered debt:
+  open one 3022 implementation card only when an active ProgramJSON gate reaches
+  that exact dynamic typing path, or when the next selected capability directly
+  depends on it
+```
+
 ## Inventory
 
 ```text
@@ -45,13 +64,11 @@ Already covered by pre-2998 active/pending cards:
 ```text
 B / Tier-3 user_box_method single-observation helper input protection:
   2999 HAKO-AOT-HELPER-PARAM-PUBLICATION-POLYMORPHIC-INPUT-CONTRACT-001
+  covers known helper-like receiver inputs listed there; broader receiver-call
+  extension remains trigger-based
 
 A#3 / Tier-3 scalar_i64_or_missing_zero:
   3000 MIR-ROUTE-GENERIC-METHOD-SCALAR-RETURN-VALUE-TYPE-PUBLICATION-001
-
-B / Tier-3 receiver-call helper single-observation extension:
-  Parked in 3022 unless an active ProgramJSON capability gate reaches a
-  receiver-call helper input path.
 ```
 
 ## Non-Claims

@@ -1,0 +1,63 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonIfBranchOccupancyShapeRustAstNodeProjectorRetireCandidateV1",
+  "token": "MIRBUILDER-PROGRAMJSON-IF-BRANCH-OCCUPANCY-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001",
+  "evidence": {
+    "hako_snapshot_source": "lang/src/compiler/mirbuilder/program_json_if_branch_occupancy_shape_scan.hako",
+    "hako_snapshot_source_hash": "sha256:2cff5c771d2cd69de22019fbb03c146a2715bfb64646041ffe6090dc2a49a754",
+    "parity_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-programjson-if-branch-occupancy-shape-scan-parity-v0.json",
+    "parity_fixture_hash": "sha256:bb475b3fe0ed02264e5c1f712cb46b9a427008e42dee561ca116c0dfc9bfd8e0",
+    "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_programjson_if_branch_occupancy_shape_scan_parity_gate.sh",
+    "parity_gate_hash": "sha256:4dc382c4a80d255ec01f740a46233608e25e4a4c4fcf0fead2a38b8e2e666ec3"
+  },
+  "retire_candidate_scope": {
+    "retire_candidate": "IfBranchOccupancyShapeSnapshotV1",
+    "shape_scope": "covered ProgramJSON If branch occupancy rows",
+    "programjson_snapshot_owner": "ProgramJsonIfBranchOccupancyShapeScanV1",
+    "covered_rows": [
+      "then_empty_else_null",
+      "then_one_else_null",
+      "then_empty_else_empty",
+      "then_empty_else_one",
+      "then_one_else_one",
+      "then_two_else_null",
+      "then_one_else_two",
+      "then_many_else_null",
+      "first_stmt_return_unsupported",
+      "if_else_scalar_unsupported"
+    ],
+    "rust_projector_runtime_dependency_removed": 0,
+    "rust_projector_oracle_only": 1,
+    "full_astnode_projector_retired": 0
+  },
+  "criteria": {
+    "programjson_snapshot_parity_gate": "Green",
+    "programjson_route_traverses_programjson": 1,
+    "programjson_route_uses_string_only_facade": 0,
+    "covered_row_count": 10,
+    "if_lowering": 0,
+    "branch_recipe_construction": 0
+  },
+  "decision": {
+    "kind": "RetireCandidateScoped",
+    "reason_token": "IfBranchOccupancyShapeSnapshotV1ProgramJsonCapabilityParityGreen",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-CAPABILITY-BATCH-CONTINUATION"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering": 0,
+    "route_selection": 0,
+    "full_recipe_matcher_execution": 0,
+    "if_lowering": 0,
+    "branch_recipe_construction": 0,
+    "hako_adopted_decision": 0,
+    "programjson_full_parser_claim": 0,
+    "programjson_all_shapes_supported": 0,
+    "rust_astnode_projector_fully_retired": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
