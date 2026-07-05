@@ -59,30 +59,40 @@ before implementation continues.
 Select one already-adopted MirBuilder facade input contract and feed it from
 ProgramJSON instead of Rust ASTNode projection.
 
-Recommended first target:
+Consultation result:
 
 ```text
 target_facade=loop_cond_continue_with_return_plan_rule.authority_facade
-reason=smallest active Plan DTO; no lowering, MIR mutation, ID allocation, or RecipeMatcher execution
+minimal_shape=Program.body[0]=Loop(cond, body=[If(cond, then=[Continue], else=null), Return(Int)])
+reason=first real ProgramJSON traversal below MIR mutation, ID allocation, backend lowering, and full RecipeMatcher execution
 ```
 
-Alternative target:
+The pilot must traverse real ProgramJSON structure:
 
 ```text
-target_facade=single_planner_candidate_presence.authority_facade
-reason=small Plan DTO over fact-slot presence, but still depends on PlanBuildOutcome shape
+Program -> body
+Loop -> cond + body
+If -> cond + then + else
+Continue
+Return
 ```
 
 ## Required Task Order
 
-1. Inventory the existing HHako ProgramJSON shape for one minimal source fixture.
-2. Choose one ProgramJSON path that can be traversed in `.hako` without new MIR
-   mutation or lowering vocabulary.
-3. Add a `.hako` ProgramJSON snapshot projector that emits the same token
-   contract as the selected existing facade.
-4. Add parity against the Rust ASTNode-token oracle for that one fixture.
-5. If parity is green, mark the corresponding Rust projector slice as
-   retire-candidate only, not retired.
+1. `MIRBUILDER-PROGRAMJSON-LOOP-COND-CONTINUE-WITH-RETURN-SNAPSHOT-BASIS-001`
+   defines `ProgramJsonLoopCondContinueWithReturnSnapshotV1` vocabulary.
+2. `MIRBUILDER-PROGRAMJSON-LOOP-COND-CONTINUE-WITH-RETURN-SNAPSHOT-IMPLEMENTATION-001`
+   implements `.hako` ProgramJSON -> token snapshot traversal.
+3. `MIRBUILDER-PROGRAMJSON-LOOP-COND-CONTINUE-WITH-RETURN-SNAPSHOT-PARITY-001`
+   compares Rust ASTNode-token oracle vs HHako ProgramJSON-token snapshot.
+4. `MIRBUILDER-PROGRAMJSON-TOKEN-SNAPSHOT-RETIRE-RUST-ASTNODE-PROJECTOR-CANDIDATE-001`
+   marks only this one shape/snapshot as retire-candidate.
+
+First success claim:
+
+```text
+ProgramJSON traversal for LoopCondContinueThenReturnMinimalV1 token snapshot is parity-green.
+```
 
 ## Allowed Implementation Slice
 
@@ -91,6 +101,26 @@ allowed=ProgramJSON read-only traversal
 allowed=string/list field extraction needed for one fixture
 allowed=existing token snapshot output
 allowed=parity gate against existing Rust oracle
+```
+
+Smallest traversal vocabulary:
+
+```text
+program_body_array
+field_value_start / field_object_start / field_array_start_or_null
+node_type_at
+find_first_top_level_loop
+read_loop_cond / read_loop_body
+scan_loop_body_for_control_flow
+if_then_tail_is_continue
+if_else_is_null
+```
+
+Initial supported node tokens:
+
+```text
+supported=Program,Loop,If,Continue,Break,Return,Int,Var,Compare
+unsupported=LoopRange,Try,Throw,ScopeBox,TaskScope,Match,Array,MapBox traversal,RecipeMatcher
 ```
 
 ## Forbidden Claims
@@ -107,6 +137,33 @@ mir_mutation_migrated=0
 id_allocation_migrated=0
 new_backend_route=0
 new_abi=0
+```
+
+## Stop Conditions
+
+```text
+stop=implementation accepts only precomputed token strings
+stop=source string contains / regex / route-name matching is used
+stop=MIR, IDs, blocks, route decisions, or backend output are constructed
+stop=full RecipeMatcher execution starts
+stop=unsupported ProgramJSON shapes are silently ignored
+stop=parity is green only because Rust ASTNode token snapshot is still target input
+stop=a second facade is added before one Rust ASTNode projector slice becomes retire-candidate
+```
+
+The ProgramJSON route must produce its own snapshot, and parity must compare
+canonical fields rather than raw JSON strings.
+
+## Retire Candidate Scope
+
+If parity is green, only this may become retire-candidate:
+
+```text
+retire_candidate=LoopCondContinueWithReturnTokenSnapshotV1
+shape_scope=LoopCondContinueThenReturnMinimalV1
+rust_projector_runtime_dependency_removed=0
+rust_projector_oracle_only=1
+full_astnode_projector_retired=0
 ```
 
 ## Questions For ChatGPT Pro
@@ -148,5 +205,5 @@ or full RecipeMatcher migration in the first slice.
 ## Next
 
 ```text
-Ask ChatGPT Pro with the question above before implementation.
+MIRBUILDER-PROGRAMJSON-LOOP-COND-CONTINUE-WITH-RETURN-SNAPSHOT-BASIS-001
 ```
