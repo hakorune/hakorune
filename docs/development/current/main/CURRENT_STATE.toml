@@ -345,15 +345,14 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PROGRAMJSON-EXTERN-STMT-SHAPE-SCAN-CAPABILITY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3075-MIRBUILDER-PROGRAMJSON-EXTERN-STMT-SHAPE-SCAN-CAPABILITY-001.md"
-latest_card_summary = """3075 lands real `.hako`
-ProgramJsonExternStmtShapeScanV1 ProgramJSON traversal for covered Extern
-statement shapes with 10-row AOT parity. 3076 is active for the scoped Extern
-stmt projector retire-candidate. Extern route lowering/publication, full
-projector retirement, ProgramJSON full parser, HakoAdoption, Source Selfhost,
-RecipeMatcher, route selection, lowering, mutation, ID allocation, and new ABI
-remain unclaimed."""
+latest_card = "MIRBUILDER-PROGRAMJSON-EXTERN-STMT-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3076-MIRBUILDER-PROGRAMJSON-EXTERN-STMT-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001.md"
+latest_card_summary = """3076 marks only the covered ExternStmtShapeSnapshotV1
+ProgramJSON traversal rows as a scoped Rust ASTNode projector
+retire-candidate. Next work returns to ProgramJSON capability-batch
+continuation. Extern route lowering/publication, full projector retirement,
+ProgramJSON full parser, HakoAdoption, Source Selfhost, RecipeMatcher, route
+selection, lowering, mutation, ID allocation, and new ABI remain unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -364,6 +363,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-05: 3076 lands the covered ExternStmtShapeSnapshotV1 ProgramJSON traversal slice as a scoped Rust ASTNode projector retire-candidate; next work returns to ProgramJSON capability-batch continuation.",
   "2026-07-05: 3075 lands real `.hako` ProgramJsonExternStmtShapeScanV1 ProgramJSON traversal for covered Extern statement shapes with 10-row AOT parity; 3076 is active for the scoped Extern stmt projector retire-candidate.",
   "2026-07-05: 3074 lands the covered ExprPeekShapeSnapshotV1 ProgramJSON traversal slice as a scoped Rust ASTNode projector retire-candidate; next work returns to ProgramJSON capability-batch continuation.",
   "2026-07-05: 3073 lands real `.hako` ProgramJsonExprPeekShapeScanV1 ProgramJSON traversal for covered Expr.expr Peek shapes with 9-row AOT parity; 3074 is active for the scoped Peek projector retire-candidate.",
@@ -375,5 +375,4 @@ landed_tail = [
   "2026-07-05: 3067 lands real `.hako` ProgramJsonNewFieldInitializerShapeScanV1 ProgramJSON traversal for covered New.field_initializers shapes with 10-row AOT parity; 3068 is active for the scoped new field-initializer projector retire-candidate.",
   "2026-07-05: 3066 lands the covered EnumCtorShapeSnapshotV1 ProgramJSON traversal slice as a scoped Rust ASTNode projector retire-candidate; next work returns to ProgramJSON capability-batch continuation.",
   "2026-07-05: 3065 lands real `.hako` ProgramJsonEnumCtorShapeScanV1 ProgramJSON traversal for covered EnumCtor expression shapes with 10-row AOT parity; 3066 is active for the scoped EnumCtor projector retire-candidate.",
-  "2026-07-05: 3064 lands the covered BrandExprShapeSnapshotV1 ProgramJSON traversal slice as a scoped Rust ASTNode projector retire-candidate; next work returns to ProgramJSON capability-batch continuation.",
 ]
