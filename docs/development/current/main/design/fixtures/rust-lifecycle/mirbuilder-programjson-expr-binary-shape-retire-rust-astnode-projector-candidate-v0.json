@@ -1,0 +1,63 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonExprBinaryShapeRustAstNodeProjectorRetireCandidateV1",
+  "token": "MIRBUILDER-PROGRAMJSON-EXPR-BINARY-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001",
+  "input_state": {
+    "hako_snapshot_source": "lang/src/compiler/mirbuilder/program_json_expr_binary_shape_scan.hako",
+    "hako_snapshot_source_hash": "sha256:30e0d161de96fb338d73ea5e23ea3f6990947055be3cecc8ad645b64f6cbad94",
+    "parity_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-programjson-expr-binary-shape-scan-parity-v0.json",
+    "parity_fixture_hash": "sha256:b0a282cff891fae6f75be8cccf44c0553bb313fd7dd09fdd0ffd905ca20cb303",
+    "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_programjson_expr_binary_shape_scan_parity_gate.sh",
+    "parity_gate_hash": "sha256:93004c924d134b3bfd26d1bf1e2f9d9f8bceb89f3880714b8a99e9c07becdb2b"
+  },
+  "retire_candidate_scope": {
+    "retire_candidate": "ExprBinaryShapeSnapshotV1",
+    "shape_scope": "covered ProgramJSON Expr.expr Binary rows",
+    "programjson_snapshot_owner": "ProgramJsonExprBinaryShapeScanV1",
+    "covered_rows": [
+      "expr_binary_var_add_int",
+      "expr_binary_int_sub_var",
+      "expr_binary_var_mul_int",
+      "expr_binary_var_div_int",
+      "expr_binary_nested_unsupported",
+      "if_then_expr_binary_var_add_int",
+      "if_else_expr_binary_int_sub_var",
+      "compare_expr_unsupported",
+      "first_stmt_not_expr_unsupported"
+    ],
+    "rust_projector_runtime_dependency_removed": 0,
+    "rust_projector_oracle_only": 1,
+    "full_astnode_projector_retired": 0
+  },
+  "criteria": {
+    "programjson_snapshot_parity_gate": "Green",
+    "programjson_route_traverses_programjson": 1,
+    "programjson_route_uses_string_only_facade": 0,
+    "covered_row_count": 9,
+    "runtime_path_uses_programjson_snapshot": 1,
+    "rust_astnode_projector_runtime_dependency_removed": 0,
+    "rust_astnode_projector_kept_for_oracle_generation": 1
+  },
+  "decision": {
+    "kind": "RetireCandidateScoped",
+    "reason_token": "ExprBinaryShapeSnapshotV1ProgramJsonCapabilityParityGreen",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-EXPR-COMPARE-SHAPE-SCAN-CAPABILITY-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_astnode_projector_retired": 0,
+    "rust_astnode_projector_fully_retired": 0,
+    "full_astnode_projector_retired": 0,
+    "programjson_full_parser_claim": 0,
+    "programjson_all_shapes_supported": 0,
+    "recipe_matching_migrated": 0,
+    "route_selection_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0,
+    "id_allocation_migration": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

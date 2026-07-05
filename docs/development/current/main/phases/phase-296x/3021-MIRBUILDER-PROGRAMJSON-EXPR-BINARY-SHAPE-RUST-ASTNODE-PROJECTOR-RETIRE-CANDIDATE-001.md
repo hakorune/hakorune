@@ -1,6 +1,6 @@
 # 3021 - MIRBUILDER-PROGRAMJSON-EXPR-BINARY-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
 
-Status: active
+Status: landed
 
 ## Scope
 
@@ -48,3 +48,22 @@ ExprBinaryShapeSnapshotV1 for covered Expr.expr Binary ProgramJSON rows
 - guard requires 3020 parity green;
 - runtime Rust projector dependency removal remains `0`;
 - Rust projector remains oracle-only.
+
+## Evidence
+
+```bash
+bash tools/checks/rust_lifecycle_mirbuilder_programjson_expr_binary_shape_retire_rust_astnode_projector_candidate_guard.sh
+```
+
+Decision fixture:
+
+```text
+docs/development/current/main/design/fixtures/rust-lifecycle/
+  mirbuilder-programjson-expr-binary-shape-retire-rust-astnode-projector-candidate-v0.json
+```
+
+## Next
+
+```text
+MIRBUILDER-PROGRAMJSON-EXPR-COMPARE-SHAPE-SCAN-CAPABILITY-001
+```
