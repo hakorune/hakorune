@@ -9,10 +9,12 @@
     "phase_state_parse_uses_rune_attrs_result_helper": true,
     "legacy_nullable_scanner_helpers_not_widened": true
   },
-  "expected_remaining_blocker": {
-    "callee_symbol": "ProgramJsonV0PhaseStateBox._scan_body_rec/8",
-    "reason": "missing_multi_function_emitter",
-    "next_card": "HAKO-AOT-PROGRAMJSON-PHASE-STATE-SCAN-BODY-REC-CONTRACT-001"
+  "downstream_route_contract": {
+    "owned_by_later_cards": true,
+    "current_guards": [
+      "hako_aot_programjson_phase_state_scan_body_local_result_contract_guard.sh",
+      "hako_aot_programjson_phase_state_consume_stmt_control_try_result_contract_guard.sh"
+    ]
   },
   "claims": {
     "phase_state_parse_aot_call_fixed": 0,

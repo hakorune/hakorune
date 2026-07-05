@@ -1,0 +1,66 @@
+{
+  "schema_version": 0,
+  "kind": "HakoAotProgramJsonPhaseStateConsumeStmtControlTryResultContractV1",
+  "token": "HAKO-AOT-PROGRAMJSON-PHASE-STATE-CONSUME-STMT-CONTROL-TRY-RESULT-CONTRACT-001",
+  "contract_rule": {
+    "consumer_control_try_helpers_return_total_result_maps": true,
+    "consumer_nullable_control_try_helpers_removed": true,
+    "consumer_dispatch_return_shape": "map_handle",
+    "consumer_consume_stmt_return_shape": "map_handle",
+    "phase_state_scan_body_consume_stmt_return_shape": "map_handle"
+  },
+  "expected_direct_routes": [
+    {
+      "caller": "ProgramJsonV0PhaseStateBox._scan_body_rec/8",
+      "callee": "ProgramJsonV0PhaseStateConsumerBox.consume_stmt/4",
+      "return_shape": "map_handle"
+    },
+    {
+      "caller": "ProgramJsonV0PhaseStateConsumerBox.consume_stmt/4",
+      "callee": "ProgramJsonV0PhaseStateConsumerBox._dispatch_or_unsupported/6",
+      "return_shape": "map_handle"
+    },
+    {
+      "caller": "ProgramJsonV0PhaseStateConsumerBox._dispatch_or_unsupported/6",
+      "callee": "ProgramJsonV0PhaseStateConsumerBox._emit_try_cleanup_stmt/5",
+      "return_shape": "map_handle"
+    },
+    {
+      "caller": "ProgramJsonV0PhaseStateConsumerBox._dispatch_or_unsupported/6",
+      "callee": "ProgramJsonV0PhaseStateConsumerBox._handle_control_stmt_result/6",
+      "return_shape": "map_handle"
+    },
+    {
+      "caller": "ProgramJsonV0PhaseStateConsumerBox._dispatch_or_unsupported/6",
+      "callee": "ProgramJsonV0PhaseStateConsumerBox._emit_control_stmt/6",
+      "return_shape": "map_handle"
+    },
+    {
+      "caller": "ProgramJsonV0PhaseStateConsumerBox._emit_control_stmt/6",
+      "callee": "ProgramJsonV0PhaseStateConsumerBox._emit_control_recipe_or_error/5",
+      "return_shape": "map_handle"
+    }
+  ],
+  "expected_next_blocker_family": [
+    "RecipeVerifierBox",
+    "RecipePortSigBox"
+  ],
+  "decision": {
+    "kind": "SelectRecipeVerifierPortSigResultContract",
+    "reason_token": "PhaseStateConsumerControlTryResultContractStabilized",
+    "selected_next_card": "HAKO-AOT-PROGRAMJSON-RECIPE-VERIFIER-PORT-SIG-RESULT-CONTRACT-001"
+  },
+  "claims": {
+    "phase_state_consumer_aot_call_fixed": 1,
+    "phase_state_parse_aot_call_fixed": 0,
+    "layer4_recipe_dto_parity_green": 0,
+    "source_selfhost_claim": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering_claim": 0,
+    "route_selection_migration": 0,
+    "runtime_route_switch": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

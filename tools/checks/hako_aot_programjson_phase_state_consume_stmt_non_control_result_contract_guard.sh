@@ -50,7 +50,7 @@ required = {
     "recipe_facts_from_stmt_return_shape": "map_handle",
     "consumer_non_control_result_return_shape": "map_handle",
     "same_module_array_push_side_effect_allowed": True,
-    "remaining_control_try_nullable_helpers": True,
+    "remaining_control_try_nullable_helpers": False,
 }
 for key, expected in required.items():
     if rule.get(key) != expected:
@@ -227,7 +227,7 @@ token=HAKO-AOT-PROGRAMJSON-PHASE-STATE-CONSUME-STMT-NON-CONTROL-RESULT-CONTRACT-
 stmt_handlers_use_scanner_result_helpers=1
 recipe_facts_from_stmt_return_shape=map_handle
 consumer_non_control_result_return_shape=map_handle
-remaining_blocker=control_try_nullable_helpers
+remaining_blocker=none
 phase_state_parse_aot_call_fixed=0
 consume_stmt_full_aot_call_fixed=0
 layer4_recipe_dto_parity_green=0

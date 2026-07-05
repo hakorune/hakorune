@@ -261,6 +261,18 @@ static box ProgramJsonV0PhaseStateConsumerBox {
     return %{"ok" => 1, "out" => out, "state" => null, "stmt_name" => "", "result" => null}
   }
 
+  _control_no_match(): MapBox {
+    return %{"ok" => 0, "out" => null, "handler_label" => "", "result" => null}
+  }
+
+  _control_handler_ok(handler_label, result): MapBox {
+    return %{"ok" => 1, "out" => null, "handler_label" => handler_label, "result" => result}
+  }
+
+  _control_out_ok(out): MapBox {
+    return %{"ok" => 1, "out" => out, "handler_label" => "", "result" => null}
+  }
+
   _non_control_handler_state_result(stmt_name, current_state): MapBox {
     local base = me._state_base(current_state)
     if stmt_name == "Print" {
@@ -439,9 +451,7 @@ static box ProgramJsonV0PhaseStateConsumerBox {
     ))
   }
 
-  _handle_try_cleanup_stmt_or_null(node_type, program_json, idx, next_idx, tag, current_state) {
-    if node_type != "Try" { return null }
-
+  _emit_try_cleanup_stmt(program_json, idx, next_idx, tag, current_state): MapBox {
     local base = me._state_base(current_state)
     local state = %{
       "has_local" => me._map_i64(base, "has_local"),
@@ -460,8 +470,15 @@ static box ProgramJsonV0PhaseStateConsumerBox {
     local out_next_idx = me._map_i64(result, "next_idx")
     if out_next_idx < 0 { out_next_idx = next_idx }
 
-    local error_out = me._emit_handler_error_or_null_at(result, out_next_idx, current_state)
-    if error_out != null { return error_out }
+    local handler_err = me._map_i64(result, "err")
+    if handler_err != 0 {
+      return me._emit_out_from_state(
+        1,
+        me._map_s(result, "err_line"),
+        out_next_idx,
+        current_state
+      )
+    }
 
     local after_assignment = me._state_with_assignment(
       current_state,
@@ -497,11 +514,25 @@ static box ProgramJsonV0PhaseStateConsumerBox {
     return me._verify_recipe_and_emit(recipe_out, after_state, out_next_idx, tag)
   }
 
-  _emit_control_recipe_or_error(handler_label, result, fallback_next_idx, tag, current_state) {
+  _handle_try_cleanup_stmt_result(node_type, program_json, idx, next_idx, tag, current_state): MapBox {
+    if node_type != "Try" { return me._control_no_match() }
+    return me._control_out_ok(
+      me._emit_try_cleanup_stmt(program_json, idx, next_idx, tag, current_state)
+    )
+  }
+
+  _emit_control_recipe_or_error(handler_label, result, fallback_next_idx, tag, current_state): MapBox {
     local out_next_idx = me._map_i64(result, "next_idx")
     if out_next_idx < 0 { out_next_idx = fallback_next_idx }
-    local error_out = me._emit_handler_error_or_null_at(result, out_next_idx, current_state)
-    if error_out != null { return error_out }
+    local handler_err = me._map_i64(result, "err")
+    if handler_err != 0 {
+      return me._emit_out_from_state(
+        1,
+        me._map_s(result, "err_line"),
+        out_next_idx,
+        current_state
+      )
+    }
 
     local recipe_item = BoxHelpers.map_get(result, "recipe_item")
     if recipe_item == null || BoxHelpers.is_map(recipe_item) != 1 {
@@ -522,23 +553,23 @@ static box ProgramJsonV0PhaseStateConsumerBox {
     return me._verify_recipe_and_emit(recipe_out, current_state, out_next_idx, tag)
   }
 
-  _control_handler_out_or_null(node_type, program_json, idx, next_idx, tag, state) {
+  _control_handler_out_result(node_type, program_json, idx, next_idx, tag, state): MapBox {
     if node_type == "If" {
-      return %{
-        "handler_label" => "IfStmtHandler",
-        "result" => IfStmtHandler.handle(program_json, idx, next_idx, tag, state)
-      }
+      return me._control_handler_ok(
+        "IfStmtHandler",
+        IfStmtHandler.handle(program_json, idx, next_idx, tag, state)
+      )
     }
     if node_type == "Loop" {
-      return %{
-        "handler_label" => "LoopStmtHandler",
-        "result" => LoopStmtHandler.handle(program_json, idx, next_idx, tag, state)
-      }
+      return me._control_handler_ok(
+        "LoopStmtHandler",
+        LoopStmtHandler.handle(program_json, idx, next_idx, tag, state)
+      )
     }
-    return null
+    return me._control_no_match()
   }
 
-  _handle_control_stmt_or_null(node_type, program_json, idx, next_idx, tag, current_state) {
+  _emit_control_stmt(node_type, program_json, idx, next_idx, tag, current_state): MapBox {
     local base = me._state_base(current_state)
     local state = %{
       "has_print" => me._map_i64(base, "has_print"),
@@ -547,8 +578,15 @@ static box ProgramJsonV0PhaseStateConsumerBox {
       "has_return" => me._map_i64(base, "has_return"),
       "local_name" => BoxHelpers.map_get(base, "local_name")
     }
-    local handler_out = me._control_handler_out_or_null(node_type, program_json, idx, next_idx, tag, state)
-    if handler_out == null { return null }
+    local handler_out = me._control_handler_out_result(node_type, program_json, idx, next_idx, tag, state)
+    if me._map_i64(handler_out, "ok") != 1 {
+      return me._emit_out_from_state(
+        1,
+        tag + "[cap_missing/stmt:" + node_type + "] unsupported stmt in Program(JSON v0)",
+        next_idx,
+        current_state
+      )
+    }
     return me._emit_control_recipe_or_error(
       me._map_s(handler_out, "handler_label"),
       BoxHelpers.map_get(handler_out, "result"),
@@ -558,7 +596,21 @@ static box ProgramJsonV0PhaseStateConsumerBox {
     )
   }
 
-  _read_stmt_node_info_or_error(program_json, idx, tag, current_state) {
+  _handle_control_stmt_result(node_type, program_json, idx, next_idx, tag, current_state): MapBox {
+    local base = me._state_base(current_state)
+    local state = %{
+      "has_print" => me._map_i64(base, "has_print"),
+      "has_local" => me._map_i64(base, "has_local"),
+      "has_assignment" => me._map_i64(base, "has_assignment"),
+      "has_return" => me._map_i64(base, "has_return"),
+      "local_name" => BoxHelpers.map_get(base, "local_name")
+    }
+    local handler_out = me._control_handler_out_result(node_type, program_json, idx, next_idx, tag, state)
+    if me._map_i64(handler_out, "ok") != 1 { return me._control_no_match() }
+    return handler_out
+  }
+
+  _read_stmt_node_info_or_error(program_json, idx, tag, current_state): MapBox {
     local node = ProgramJsonV0ScannerBox.read_node_type_at_result(program_json, idx)
     if BoxHelpers.map_get(node, "ok") != 1 {
       return %{
@@ -581,8 +633,8 @@ static box ProgramJsonV0PhaseStateConsumerBox {
     }
   }
 
-  _dispatch_or_unsupported(node_type, program_json, idx, next_idx, tag, current_state) {
-    local non_control = me._handle_non_control_stmt_result(
+  _dispatch_or_unsupported(node_type, program_json, idx, next_idx, tag, current_state): MapBox {
+    local non_control = me._non_control_handler_out_result(
       node_type,
       program_json,
       idx,
@@ -590,19 +642,21 @@ static box ProgramJsonV0PhaseStateConsumerBox {
       tag,
       current_state
     )
-    if me._map_i64(non_control, "ok") == 1 { return BoxHelpers.map_get(non_control, "out") }
+    if me._map_i64(non_control, "ok") == 1 {
+      return me._emit_non_control_stmt_or_handler_error(
+        me._map_s(non_control, "stmt_name"),
+        BoxHelpers.map_get(non_control, "result"),
+        next_idx,
+        tag,
+        current_state
+      )
+    }
 
-    local try_cleanup = me._handle_try_cleanup_stmt_or_null(
-      node_type,
-      program_json,
-      idx,
-      next_idx,
-      tag,
-      current_state
-    )
-    if try_cleanup != null { return try_cleanup }
+    if node_type == "Try" {
+      return me._emit_try_cleanup_stmt(program_json, idx, next_idx, tag, current_state)
+    }
 
-    local control = me._handle_control_stmt_or_null(
+    local control = me._handle_control_stmt_result(
       node_type,
       program_json,
       idx,
@@ -610,7 +664,9 @@ static box ProgramJsonV0PhaseStateConsumerBox {
       tag,
       current_state
     )
-    if control != null { return control }
+    if me._map_i64(control, "ok") == 1 {
+      return me._emit_control_stmt(node_type, program_json, idx, next_idx, tag, current_state)
+    }
 
     return me._emit_out_from_state(
       1,
@@ -620,7 +676,7 @@ static box ProgramJsonV0PhaseStateConsumerBox {
     )
   }
 
-  consume_stmt(program_json, idx, tag, state) {
+  consume_stmt(program_json, idx, tag, state): MapBox {
     if state == null || BoxHelpers.is_map(state) != 1 {
       return me._emit_out_from_state(
         1,
@@ -638,10 +694,15 @@ static box ProgramJsonV0PhaseStateConsumerBox {
     }
     local node_info = me._read_stmt_node_info_or_error(program_json, idx, tag, state)
     if me._map_i64(node_info, "err") != 0 {
-      return BoxHelpers.map_get(node_info, "out")
+      return me._emit_out_from_state(
+        1,
+        tag + "[cap_missing/program_json_v0] failed to read stmt node type",
+        idx,
+        state
+      )
     }
 
-    return me._dispatch_or_unsupported(
+    local dispatch_out = me._dispatch_or_unsupported(
       me._map_s(node_info, "node_type"),
       program_json,
       idx,
@@ -649,6 +710,7 @@ static box ProgramJsonV0PhaseStateConsumerBox {
       tag,
       state
     )
+    return dispatch_out
   }
 }
 

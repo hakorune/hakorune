@@ -9,10 +9,11 @@
     "legacy_nullable_append_helpers_removed": true,
     "scan_body_uses_node_type_result_helper": true
   },
-  "expected_remaining_blocker": {
+  "expected_scan_body_consume_stmt_route": {
     "callee_symbol": "ProgramJsonV0PhaseStateConsumerBox.consume_stmt/4",
-    "reason": "missing_multi_function_emitter",
-    "next_card": "HAKO-AOT-PROGRAMJSON-PHASE-STATE-CONSUME-STMT-RESULT-CONTRACT-001"
+    "tier": "DirectAbi",
+    "return_shape": "map_handle",
+    "landed_by": "HAKO-AOT-PROGRAMJSON-PHASE-STATE-CONSUME-STMT-CONTROL-TRY-RESULT-CONTRACT-001"
   },
   "claims": {
     "phase_state_parse_aot_call_fixed": 0,

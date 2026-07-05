@@ -15,6 +15,8 @@ HAKO_BIN="$ROOT_DIR/tools/bin/hako"
 guard_require_command "$TAG" python3
 guard_require_files "$TAG" "$FIXTURE" "$SCANNER_IMPL" "$CONSUMER_IMPL" "$PHASE_STATE_IMPL" "$HAKO_BIN"
 
+rm -rf "$ROOT_DIR/target/hako-cache"
+
 TMP_DIR="$(mktemp -d /tmp/hakorune-phase-state-scan-body-local-contract.XXXXXX)"
 cleanup() { rm -rf "$TMP_DIR" >/dev/null 2>&1 || true; }
 if [[ "${HAKO_KEEP_TMP:-0}" == "1" ]]; then
@@ -66,7 +68,7 @@ source = "\n".join([
     "static box Main {",
     "  main() {",
     "    local out = ProgramJsonV0PhaseStateBox.parse(",
-    "      \"{\\\"version\\\":0,\\\"kind\\\":\\\"Program\\\",\\\"type\\\":\\\"Program\\\",\\\"body\\\":[]}\",",
+    "      \"{\\\"version\\\":0,\\\"kind\\\":\\\"Program\\\",\\\"type\\\":\\\"Program\\\",\\\"body\\\":[{\\\"type\\\":\\\"If\\\",\\\"cond\\\":{\\\"type\\\":\\\"Bool\\\",\\\"value\\\":1},\\\"then\\\":[{\\\"type\\\":\\\"Return\\\",\\\"value\\\":{\\\"type\\\":\\\"Int\\\",\\\"value\\\":1}}],\\\"else\\\":null}]}\",",
     "      \"[test]\"",
     "    )",
     "    print(\"err=\" + (\"\" + BoxHelpers.map_get(out, \"err\")))",
@@ -95,7 +97,7 @@ from pathlib import Path
 fixture = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
 data = json.loads(Path(sys.argv[2]).read_text(encoding="utf-8"))
 phase_state_src = Path(sys.argv[3]).read_text(encoding="utf-8")
-remaining = fixture.get("expected_remaining_blocker") or {}
+expected_consume_route = fixture.get("expected_scan_body_consume_stmt_route") or {}
 
 if "_append_recipe_item_or_error" in phase_state_src:
     raise SystemExit("legacy nullable append item helper still present")
@@ -108,7 +110,7 @@ seen = {
     "read_node_type_result_map": 0,
     "append_item_result_map": 0,
     "append_children_result_map": 0,
-    "scan_body_remaining_consume_stmt": 0,
+    "scan_body_consume_stmt_route_observed": 0,
 }
 forbidden = []
 
@@ -125,9 +127,12 @@ for fn in data.get("functions", []):
         if symbol == "ProgramJsonV0PhaseStateBox._append_recipe_children_result/6":
             if route.get("tier") == "DirectAbi" and route.get("return_shape") == "map_handle":
                 seen["append_children_result_map"] += 1
-        if name == "ProgramJsonV0PhaseStateBox._scan_body_rec/8" and symbol == remaining.get("callee_symbol"):
-            if route.get("reason") == remaining.get("reason"):
-                seen["scan_body_remaining_consume_stmt"] += 1
+        if name == "ProgramJsonV0PhaseStateBox._scan_body_rec/8" and symbol == expected_consume_route.get("callee_symbol"):
+            if (
+                route.get("tier") == expected_consume_route.get("tier")
+                and route.get("return_shape") == expected_consume_route.get("return_shape")
+            ):
+                seen["scan_body_consume_stmt_route_observed"] += 1
         if symbol in {
             "ProgramJsonV0PhaseStateBox._append_recipe_item_result/5",
             "ProgramJsonV0PhaseStateBox._append_recipe_children_result/6",
@@ -149,7 +154,7 @@ token=HAKO-AOT-PROGRAMJSON-PHASE-STATE-SCAN-BODY-LOCAL-RESULT-CONTRACT-001
 scanner_read_node_type_result_return_shape=map_handle
 phase_state_append_recipe_item_result_return_shape=map_handle
 phase_state_append_recipe_children_result_return_shape=map_handle
-remaining_blocker=ProgramJsonV0PhaseStateConsumerBox.consume_stmt/4
+scan_body_consume_stmt_return_shape=map_handle
 phase_state_parse_aot_call_fixed=0
 layer4_recipe_dto_parity_green=0
 source_selfhost_claim=0

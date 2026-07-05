@@ -15,6 +15,8 @@ HAKO_BIN="$ROOT_DIR/tools/bin/hako"
 guard_require_command "$TAG" python3
 guard_require_files "$TAG" "$FIXTURE" "$SCANNER_IMPL" "$RUNE_ATTRS_IMPL" "$PHASE_STATE_IMPL" "$HAKO_BIN"
 
+rm -rf "$ROOT_DIR/target/hako-cache"
+
 TMP_DIR="$(mktemp -d /tmp/hakorune-phase-state-rune-attrs-contract.XXXXXX)"
 cleanup() { rm -rf "$TMP_DIR" >/dev/null 2>&1 || true; }
 if [[ "${HAKO_KEEP_TMP:-0}" == "1" ]]; then
@@ -92,14 +94,15 @@ from pathlib import Path
 
 fixture = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
 data = json.loads(Path(sys.argv[2]).read_text(encoding="utf-8"))
-remaining = fixture.get("expected_remaining_blocker") or {}
+downstream = fixture.get("downstream_route_contract") or {}
+if downstream.get("owned_by_later_cards") is not True:
+    raise SystemExit("downstream route contract must be delegated")
 
 seen = {
     "parse_calls_rune_attrs_result": 0,
     "rune_attrs_result_map_handle": 0,
     "scanner_first_string_result_map_handle": 0,
     "scanner_array_result_map_handle": 0,
-    "parse_remaining_scan_body_rec": 0,
 }
 forbidden = []
 
@@ -117,9 +120,6 @@ for fn in data.get("functions", []):
         if symbol == "ProgramJsonV0ScannerBox.read_array_field_first_in_obj_result/3":
             if route.get("tier") == "DirectAbi" and route.get("return_shape") == "map_handle":
                 seen["scanner_array_result_map_handle"] += 1
-        if name == "ProgramJsonV0PhaseStateBox.parse/2" and symbol == remaining.get("callee_symbol"):
-            if route.get("reason") == remaining.get("reason"):
-                seen["parse_remaining_scan_body_rec"] += 1
         if symbol == "ProgramJsonV0RuneAttrsBox.read_function_runes_map_result/2":
             if route.get("tier") == "Unsupported" or route.get("reason"):
                 forbidden.append(f"rune attrs result unsupported in {name}")
@@ -144,7 +144,7 @@ rune_attrs_result_helper_return_shape=map_handle
 scanner_first_string_result_helper_return_shape=map_handle
 scanner_array_result_helper_return_shape=map_handle
 phase_state_parse_uses_rune_attrs_result_helper=1
-remaining_blocker=ProgramJsonV0PhaseStateBox._scan_body_rec/8
+downstream_route_contract=delegated
 phase_state_parse_aot_call_fixed=0
 layer4_recipe_dto_parity_green=0
 source_selfhost_claim=0

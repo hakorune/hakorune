@@ -8,12 +8,12 @@
     "recipe_facts_from_stmt_return_shape": "map_handle",
     "consumer_non_control_result_return_shape": "map_handle",
     "same_module_array_push_side_effect_allowed": true,
-    "remaining_control_try_nullable_helpers": true
+    "remaining_control_try_nullable_helpers": false
   },
   "expected_direct_routes": [
     {
       "caller": "ProgramJsonV0PhaseStateConsumerBox._dispatch_or_unsupported/6",
-      "callee": "ProgramJsonV0PhaseStateConsumerBox._handle_non_control_stmt_result/6",
+      "callee": "ProgramJsonV0PhaseStateConsumerBox._non_control_handler_out_result/6",
       "return_shape": "map_handle"
     },
     {
@@ -41,18 +41,7 @@
     "LoopStmtHandler.handle/5",
     "TryCleanupStmtHandler.handle/5"
   ],
-  "expected_remaining_blockers": [
-    {
-      "caller": "ProgramJsonV0PhaseStateConsumerBox._dispatch_or_unsupported/6",
-      "callee": "ProgramJsonV0PhaseStateConsumerBox._handle_try_cleanup_stmt_or_null/6",
-      "reason": "missing_multi_function_emitter"
-    },
-    {
-      "caller": "ProgramJsonV0PhaseStateConsumerBox._dispatch_or_unsupported/6",
-      "callee": "ProgramJsonV0PhaseStateConsumerBox._handle_control_stmt_or_null/6",
-      "reason": "missing_multi_function_emitter"
-    }
-  ],
+  "expected_remaining_blockers": [],
   "decision": {
     "kind": "SelectPhaseStateConsumeStmtControlTryResultContract",
     "reason_token": "ConsumeStmtNonControlResultContractStabilized",
