@@ -1,0 +1,112 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonFastMemRegionShapeScanParityV1",
+  "token": "MIRBUILDER-PROGRAMJSON-FASTMEM-REGION-SHAPE-SCAN-CAPABILITY-001",
+  "capability": {
+    "name": "ProgramJsonFastMemRegionShapeScanV1",
+    "input": "ProgramJSON v0",
+    "output": "FastMemRegionShapeSnapshotV1"
+  },
+  "routes": {
+    "rust_oracle_route": "source -> RHako parser -> Rust ASTNode -> Rust FastMemRegion token snapshot",
+    "hako_programjson_route": "source -> HHako parser -> ProgramJSON -> HHako FastMemRegion token snapshot"
+  },
+  "rows": [
+    {
+      "row_id": "top_fastmem_empty",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "FastMemRegion", "contract": "rawbuf", "body": []}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=FastMemRegionShapeSnapshotV1;top_fastmem_region_shape_kind=FastMemBodyEmpty;if_then_fastmem_region_shape_kind=Missing;if_else_fastmem_region_shape_kind=Missing;supported_fastmem_region_count=1;unsupported_fastmem_region_count=0"
+      }
+    },
+    {
+      "row_id": "top_fastmem_local",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "FastMemRegion", "contract": "rawbuf", "body": [{"type": "Local", "name": "i", "expr": {"type": "Int", "value": 1}}]}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=FastMemRegionShapeSnapshotV1;top_fastmem_region_shape_kind=FastMemBodyLocal;if_then_fastmem_region_shape_kind=Missing;if_else_fastmem_region_shape_kind=Missing;supported_fastmem_region_count=1;unsupported_fastmem_region_count=0"
+      }
+    },
+    {
+      "row_id": "top_fastmem_return",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "FastMemRegion", "contract": "rawbuf", "body": [{"type": "Return", "expr": {"type": "Int", "value": 1}}]}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=FastMemRegionShapeSnapshotV1;top_fastmem_region_shape_kind=FastMemBodyReturn;if_then_fastmem_region_shape_kind=Missing;if_else_fastmem_region_shape_kind=Missing;supported_fastmem_region_count=1;unsupported_fastmem_region_count=0"
+      }
+    },
+    {
+      "row_id": "top_fastmem_break",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "FastMemRegion", "contract": "rawbuf", "body": [{"type": "Break"}]}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=FastMemRegionShapeSnapshotV1;top_fastmem_region_shape_kind=FastMemBodyBreak;if_then_fastmem_region_shape_kind=Missing;if_else_fastmem_region_shape_kind=Missing;supported_fastmem_region_count=1;unsupported_fastmem_region_count=0"
+      }
+    },
+    {
+      "row_id": "top_fastmem_continue",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "FastMemRegion", "contract": "rawbuf", "body": [{"type": "Continue"}]}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=FastMemRegionShapeSnapshotV1;top_fastmem_region_shape_kind=FastMemBodyContinue;if_then_fastmem_region_shape_kind=Missing;if_else_fastmem_region_shape_kind=Missing;supported_fastmem_region_count=1;unsupported_fastmem_region_count=0"
+      }
+    },
+    {
+      "row_id": "top_fastmem_loop",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "FastMemRegion", "contract": "rawbuf", "body": [{"type": "Loop", "cond": {"type": "Bool", "value": true}, "body": []}]}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=FastMemRegionShapeSnapshotV1;top_fastmem_region_shape_kind=FastMemBodyLoop;if_then_fastmem_region_shape_kind=Missing;if_else_fastmem_region_shape_kind=Missing;supported_fastmem_region_count=1;unsupported_fastmem_region_count=0"
+      }
+    },
+    {
+      "row_id": "top_fastmem_expr",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "FastMemRegion", "contract": "rawbuf", "body": [{"type": "Expr", "expr": {"type": "Int", "value": 1}}]}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=FastMemRegionShapeSnapshotV1;top_fastmem_region_shape_kind=FastMemBodyExpr;if_then_fastmem_region_shape_kind=Missing;if_else_fastmem_region_shape_kind=Missing;supported_fastmem_region_count=1;unsupported_fastmem_region_count=0"
+      }
+    },
+    {
+      "row_id": "if_then_fastmem_local",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "If", "cond": {"type": "Bool", "value": true}, "then": [{"type": "FastMemRegion", "contract": "rawbuf", "body": [{"type": "Local", "name": "i", "expr": {"type": "Int", "value": 1}}]}], "else": null}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=FastMemRegionShapeSnapshotV1;top_fastmem_region_shape_kind=Missing;if_then_fastmem_region_shape_kind=FastMemBodyLocal;if_else_fastmem_region_shape_kind=Missing;supported_fastmem_region_count=1;unsupported_fastmem_region_count=0"
+      }
+    },
+    {
+      "row_id": "if_else_fastmem_empty",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "If", "cond": {"type": "Bool", "value": true}, "then": [], "else": [{"type": "FastMemRegion", "contract": "rawbuf", "body": []}]}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=FastMemRegionShapeSnapshotV1;top_fastmem_region_shape_kind=Missing;if_then_fastmem_region_shape_kind=Missing;if_else_fastmem_region_shape_kind=FastMemBodyEmpty;supported_fastmem_region_count=1;unsupported_fastmem_region_count=0"
+      }
+    },
+    {
+      "row_id": "first_stmt_local_unsupported",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "i", "expr": {"type": "Int", "value": 0}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=FastMemRegionShapeSnapshotV1;top_fastmem_region_shape_kind=Unsupported;if_then_fastmem_region_shape_kind=Missing;if_else_fastmem_region_shape_kind=Missing;supported_fastmem_region_count=0;unsupported_fastmem_region_count=1"
+      }
+    }
+  ],
+  "summary": {
+    "parity_row_count": 10,
+    "programjson_traversal_used": 1,
+    "string_only_facade": 0,
+    "rust_astnode_projector_retire_candidate": 1
+  },
+  "decision": {
+    "kind": "ProgramJsonFastMemRegionShapeScanParityGreen",
+    "reason_token": "FastMemRegionShapeProgramJsonSnapshotMatchesRustAstNodeOracle",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-FASTMEM-REGION-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "programjson_full_parser_claim": 0,
+    "hako_adopted_for_full_owner": 0,
+    "fastmem_lowering": 0,
+    "contract_execution": 0
+  }
+}
