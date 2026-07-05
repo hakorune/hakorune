@@ -1,0 +1,47 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderSinglePlannerPromotionHintTagRustOracleV1",
+  "token": "MIRBUILDER-SINGLE-PLANNER-PROMOTION-HINT-TAG-RUST-ORACLE-FIXTURE-001",
+  "owner": "single_planner_promotion_hint_tag",
+  "rust_sources": [
+    {
+      "path": "src/mir/builder/control_flow/plan/single_planner/rules.rs",
+      "oracle_surface": "promotion_hint_tag / emit_loop_break_promotion_hint_tag"
+    }
+  ],
+  "input_contract": "BackendSafeSinglePlannerPromotionHintTagTokenSnapshotV1",
+  "rows": [
+    {
+      "case_id": "skip_no_promotion_shape",
+      "promotion_shape_token": "NoPromotionShape",
+      "expected_summary": "accepted=1;action=skip;reason=no_promotion_shape"
+    },
+    {
+      "case_id": "emit_trim_seg_tag",
+      "promotion_shape_token": "TrimSeg",
+      "expected_summary": "accepted=1;action=emit;tag=[plan/loop_break/promotion_hint:TrimSeg]"
+    },
+    {
+      "case_id": "emit_digit_pos_tag",
+      "promotion_shape_token": "DigitPos",
+      "expected_summary": "accepted=1;action=emit;tag=[plan/loop_break/promotion_hint:DigitPos]"
+    },
+    {
+      "case_id": "reject_unknown_shape",
+      "promotion_shape_token": "UnknownPromotionShape",
+      "expected_summary": "accepted=0;reason=unsupported_promotion_shape_token"
+    }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "promotion_shape_extraction_migrated": 0,
+    "log_emission_migrated": 0,
+    "route_execution_migrated": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0,
+    "id_allocation_migration": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

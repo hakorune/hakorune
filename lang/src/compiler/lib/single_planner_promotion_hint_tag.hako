@@ -1,0 +1,22 @@
+// single_planner_promotion_hint_tag.hako
+//
+// Responsibility:
+// - reduce loop-break promotion shape tokens into single_planner hint tag DTO
+//
+// Non-responsibility:
+// - promotion shape extraction
+// - log emission, route execution, lowering, MIR mutation, or ID allocation
+static box SinglePlannerPromotionHintTagBox {
+  build_summary(promotion_shape_token) {
+    if promotion_shape_token == "NoPromotionShape" {
+      return "accepted=1;action=skip;reason=no_promotion_shape"
+    }
+    if promotion_shape_token == "TrimSeg" {
+      return "accepted=1;action=emit;tag=[plan/loop_break/promotion_hint:TrimSeg]"
+    }
+    if promotion_shape_token == "DigitPos" {
+      return "accepted=1;action=emit;tag=[plan/loop_break/promotion_hint:DigitPos]"
+    }
+    return "accepted=0;reason=unsupported_promotion_shape_token"
+  }
+}
