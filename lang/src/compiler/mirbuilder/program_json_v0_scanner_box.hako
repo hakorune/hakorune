@@ -52,6 +52,7 @@ static box ProgramJsonV0ScannerBox {
     if key == "catches" { return "\"catches\":" }
     if key == "class" { return "\"class\":" }
     if key == "cond" { return "\"cond\":" }
+    if key == "constructors" { return "\"constructors\":" }
     if key == "contract" { return "\"contract\":" }
     if key == "declared_type" { return "\"declared_type\":" }
     if key == "else" { return "\"else\":" }
@@ -61,16 +62,21 @@ static box ProgramJsonV0ScannerBox {
     if key == "entries" { return "\"entries\":" }
     if key == "expr" { return "\"expr\":" }
     if key == "field" { return "\"field\":" }
+    if key == "field_decls" { return "\"field_decls\":" }
     if key == "field_initializers" { return "\"field_initializers\":" }
     if key == "finally" { return "\"finally\":" }
     if key == "fields" { return "\"fields\":" }
     if key == "iface" { return "\"iface\":" }
     if key == "index" { return "\"index\":" }
+    if key == "is_interface" { return "\"is_interface\":" }
+    if key == "is_record" { return "\"is_record\":" }
+    if key == "is_static" { return "\"is_static\":" }
     if key == "kind" { return "\"kind\":" }
     if key == "k" { return "\"k\":" }
     if key == "label" { return "\"label\":" }
     if key == "lhs" { return "\"lhs\":" }
     if key == "method" { return "\"method\":" }
+    if key == "methods" { return "\"methods\":" }
     if key == "name" { return "\"name\":" }
     if key == "object" { return "\"object\":" }
     if key == "op" { return "\"op\":" }
@@ -84,6 +90,7 @@ static box ProgramJsonV0ScannerBox {
     if key == "scrutinee" { return "\"scrutinee\":" }
     if key == "spelling" { return "\"spelling\":" }
     if key == "start" { return "\"start\":" }
+    if key == "static_init" { return "\"static_init\":" }
     if key == "target" { return "\"target\":" }
     if key == "target_type" { return "\"target_type\":" }
     if key == "tail" { return "\"tail\":" }

@@ -1,0 +1,94 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonBoxDeclarationShapeScanParityV1",
+  "token": "MIRBUILDER-PROGRAMJSON-BOX-DECLARATION-SHAPE-SCAN-CAPABILITY-001",
+  "capability": {
+    "name": "ProgramJsonBoxDeclarationShapeScanV1",
+    "input": "ProgramJSON v0",
+    "output": "BoxDeclarationShapeSnapshotV1"
+  },
+  "routes": {
+    "rust_oracle_route": "source -> RHako parser -> Rust ASTNode -> Rust BoxDeclaration token snapshot",
+    "hako_programjson_route": "source -> HHako parser -> ProgramJSON -> HHako BoxDeclaration token snapshot"
+  },
+  "programjson_emit_evidence": {
+    "source": "src/macro/ast_json/joinir_compat.rs",
+    "node_kind": "BoxDeclaration",
+    "node_type": null,
+    "fields": ["name", "field_decls", "methods", "constructors", "is_interface", "is_record", "is_static", "static_init"]
+  },
+  "rows": [
+    {
+      "row_id": "plain_box",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "BoxDeclaration", "name": "Cell", "fields": [], "field_decls": [], "methods": [], "constructors": [], "is_interface": false, "is_record": false, "is_static": false, "static_init": null}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=BoxDeclarationShapeSnapshotV1;top_box_declaration_shape_kind=PlainBox;supported_box_declaration_count=1;unsupported_box_declaration_count=0"}
+    },
+    {
+      "row_id": "interface_box",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "BoxDeclaration", "name": "Reader", "fields": [], "field_decls": [], "methods": [], "constructors": [], "is_interface": true, "is_record": false, "is_static": false, "static_init": null}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=BoxDeclarationShapeSnapshotV1;top_box_declaration_shape_kind=InterfaceBox;supported_box_declaration_count=1;unsupported_box_declaration_count=0"}
+    },
+    {
+      "row_id": "record_box",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "BoxDeclaration", "name": "Point", "fields": [], "field_decls": [], "methods": [], "constructors": [], "is_interface": false, "is_record": true, "is_static": false, "static_init": null}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=BoxDeclarationShapeSnapshotV1;top_box_declaration_shape_kind=RecordBox;supported_box_declaration_count=1;unsupported_box_declaration_count=0"}
+    },
+    {
+      "row_id": "static_box",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "BoxDeclaration", "name": "Globals", "fields": [], "field_decls": [], "methods": [], "constructors": [], "is_interface": false, "is_record": false, "is_static": true, "static_init": null}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=BoxDeclarationShapeSnapshotV1;top_box_declaration_shape_kind=StaticBox;supported_box_declaration_count=1;unsupported_box_declaration_count=0"}
+    },
+    {
+      "row_id": "box_with_field_decl",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "BoxDeclaration", "name": "Cell", "fields": ["value"], "field_decls": [{"name": "value", "declared_type": "I64", "is_weak": false, "default_value": null}], "methods": [], "constructors": [], "is_interface": false, "is_record": false, "is_static": false, "static_init": null}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=BoxDeclarationShapeSnapshotV1;top_box_declaration_shape_kind=BoxWithFieldDecl;supported_box_declaration_count=1;unsupported_box_declaration_count=0"}
+    },
+    {
+      "row_id": "box_with_method",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "BoxDeclaration", "name": "Cell", "fields": [], "field_decls": [], "methods": [{"key": "get", "decl": {"kind": "FunctionDeclaration", "name": "get", "params": [], "body": [], "return_type": "I64"}}], "constructors": [], "is_interface": false, "is_record": false, "is_static": false, "static_init": null}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=BoxDeclarationShapeSnapshotV1;top_box_declaration_shape_kind=BoxWithMethod;supported_box_declaration_count=1;unsupported_box_declaration_count=0"}
+    },
+    {
+      "row_id": "box_with_constructor",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "BoxDeclaration", "name": "Cell", "fields": [], "field_decls": [], "methods": [], "constructors": [{"key": "init", "decl": {"kind": "FunctionDeclaration", "name": "init", "params": [], "body": [], "return_type": null}}], "is_interface": false, "is_record": false, "is_static": false, "static_init": null}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=BoxDeclarationShapeSnapshotV1;top_box_declaration_shape_kind=BoxWithConstructor;supported_box_declaration_count=1;unsupported_box_declaration_count=0"}
+    },
+    {
+      "row_id": "box_with_static_init",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "BoxDeclaration", "name": "Cache", "fields": [], "field_decls": [], "methods": [], "constructors": [], "is_interface": false, "is_record": false, "is_static": false, "static_init": [{"kind": "Return", "type": "Return", "value": null}]}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=BoxDeclarationShapeSnapshotV1;top_box_declaration_shape_kind=BoxWithStaticInit;supported_box_declaration_count=1;unsupported_box_declaration_count=0"}
+    },
+    {
+      "row_id": "first_stmt_enum_unsupported",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "EnumDeclaration", "name": "E", "variants": [], "type_parameters": [], "attrs": {}}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=BoxDeclarationShapeSnapshotV1;top_box_declaration_shape_kind=Unsupported;supported_box_declaration_count=0;unsupported_box_declaration_count=1"}
+    }
+  ],
+  "summary": {
+    "parity_row_count": 9,
+    "programjson_traversal_used": 1,
+    "string_only_facade": 0,
+    "rust_astnode_projector_retire_candidate": 1
+  },
+  "decision": {
+    "kind": "ProgramJsonBoxDeclarationShapeScanParityGreen",
+    "reason_token": "BoxDeclarationShapeProgramJsonSnapshotMatchesRustAstNodeOracle",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-BOX-DECLARATION-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "programjson_full_parser_claim": 0,
+    "hako_adopted_for_full_owner": 0,
+    "box_lowering": 0,
+    "method_lowering": 0,
+    "field_layout": 0
+  }
+}

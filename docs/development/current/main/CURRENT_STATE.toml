@@ -345,14 +345,14 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PROGRAMJSON-ENUM-DECLARATION-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3088-MIRBUILDER-PROGRAMJSON-ENUM-DECLARATION-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001.md"
-latest_card_summary = """3088 marks only the covered
-EnumDeclarationShapeSnapshotV1 ProgramJSON traversal rows as a scoped Rust
-ASTNode projector retire-candidate. Next work returns to ProgramJSON
-capability-batch continuation. Full projector retirement, ProgramJSON full
-parser, HakoAdoption, Source Selfhost, RecipeMatcher, route selection, lowering,
-mutation, ID allocation, and new ABI remain unclaimed."""
+latest_card = "MIRBUILDER-PROGRAMJSON-BOX-DECLARATION-SHAPE-SCAN-CAPABILITY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3089-MIRBUILDER-PROGRAMJSON-BOX-DECLARATION-SHAPE-SCAN-CAPABILITY-001.md"
+latest_card_summary = """3089 lands real `.hako`
+ProgramJsonBoxDeclarationShapeScanV1 ProgramJSON traversal for covered
+BoxDeclaration shapes with 9-row AOT parity. 3090 is active for the scoped
+box-declaration projector retire-candidate. Full projector retirement,
+ProgramJSON full parser, HakoAdoption, Source Selfhost, RecipeMatcher, route
+selection, lowering, mutation, ID allocation, and new ABI remain unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -363,6 +363,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-06: 3089 lands real `.hako` ProgramJsonBoxDeclarationShapeScanV1 ProgramJSON traversal for covered BoxDeclaration shapes with 9-row AOT parity; 3090 is active for the scoped box-declaration projector retire-candidate.",
   "2026-07-06: 3088 lands the covered EnumDeclarationShapeSnapshotV1 ProgramJSON traversal slice as a scoped Rust ASTNode projector retire-candidate; next work returns to ProgramJSON capability-batch continuation.",
   "2026-07-06: 3087 lands real `.hako` ProgramJsonEnumDeclarationShapeScanV1 ProgramJSON traversal for covered EnumDeclaration shapes with 8-row AOT parity; 3088 is active for the scoped enum-declaration projector retire-candidate.",
   "2026-07-06: 3086 lands the covered TypeAliasDeclarationShapeSnapshotV1 ProgramJSON traversal slice as a scoped Rust ASTNode projector retire-candidate; next work returns to ProgramJSON capability-batch continuation.",
@@ -374,5 +375,4 @@ landed_tail = [
   "2026-07-06: 3080 lands the covered ExprIndexShapeSnapshotV1 ProgramJSON traversal slice as a scoped Rust ASTNode projector retire-candidate; next work returns to ProgramJSON capability-batch continuation.",
   "2026-07-06: 3079 lands real `.hako` ProgramJsonExprIndexShapeScanV1 ProgramJSON traversal for covered Expr.expr Index shapes with 9-row AOT parity; 3080 is active for the scoped expr-index projector retire-candidate.",
   "2026-07-05: 3078 lands the covered AssignmentValueShapeSnapshotV1 ProgramJSON traversal slice as a scoped Rust ASTNode projector retire-candidate; next work returns to ProgramJSON capability-batch continuation.",
-  "2026-07-05: 3077 lands real `.hako` ProgramJsonAssignmentValueShapeScanV1 ProgramJSON traversal for covered Local.name + Local.expr assignment-value shapes with 9-row AOT parity; 3078 is active for the scoped assignment-value projector retire-candidate.",
 ]
