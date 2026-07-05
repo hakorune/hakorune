@@ -345,15 +345,15 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PROGRAMJSON-LOCAL-NULL-LITERAL-SHAPE-SCAN-CAPABILITY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3043-MIRBUILDER-PROGRAMJSON-LOCAL-NULL-LITERAL-SHAPE-SCAN-CAPABILITY-001.md"
-latest_card_summary = """3043 lands real `.hako`
-ProgramJsonLocalNullLiteralShapeScanV1 ProgramJSON traversal for covered
-Local.expr Null literal shapes with 9-row AOT parity. 3044 is active for the
-scoped local null literal projector retire-candidate. Null lowering, option
-semantics, full projector retirement, ProgramJSON full parser, HakoAdoption,
-Source Selfhost, RecipeMatcher, route selection, lowering, mutation, ID
-allocation, and new ABI remain unclaimed."""
+latest_card = "MIRBUILDER-PROGRAMJSON-LOCAL-NULL-LITERAL-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3044-MIRBUILDER-PROGRAMJSON-LOCAL-NULL-LITERAL-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001.md"
+latest_card_summary = """3044 marks only the covered
+LocalNullLiteralShapeSnapshotV1 ProgramJSON traversal rows as a scoped Rust
+ASTNode projector retire-candidate. Next work returns to ProgramJSON
+capability-batch continuation. Null lowering, option semantics, full projector
+retirement, ProgramJSON full parser, HakoAdoption, Source Selfhost,
+RecipeMatcher, route selection, lowering, mutation, ID allocation, and new ABI
+remain unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -364,6 +364,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-05: 3044 lands the covered LocalNullLiteralShapeSnapshotV1 ProgramJSON traversal slice as a scoped Rust ASTNode projector retire-candidate; next work returns to ProgramJSON capability-batch continuation.",
   "2026-07-05: 3043 lands real `.hako` ProgramJsonLocalNullLiteralShapeScanV1 ProgramJSON traversal for Local.expr Null literal shapes with 9-row AOT parity; 3044 is active for the scoped local null literal projector retire-candidate.",
   "2026-07-05: 3042 lands the covered LocalStringLiteralShapeSnapshotV1 ProgramJSON traversal slice as a scoped Rust ASTNode projector retire-candidate; next work returns to ProgramJSON capability-batch continuation.",
   "2026-07-05: 3041 lands real `.hako` ProgramJsonLocalStringLiteralShapeScanV1 ProgramJSON traversal for Local.expr string literal shapes with 9-row AOT parity; 3042 is active for the scoped local string literal projector retire-candidate.",
@@ -375,5 +376,4 @@ landed_tail = [
   "2026-07-05: 3035 lands real `.hako` ProgramJsonTryShapeScanV1 ProgramJSON traversal for Try statement shapes with 9-row AOT parity; 3036 is active for the scoped Try projector retire-candidate.",
   "2026-07-05: 3034 lands the covered LoopRangeShapeSnapshotV1 ProgramJSON traversal slice as a scoped Rust ASTNode projector retire-candidate; next work returns to ProgramJSON capability-batch continuation.",
   "2026-07-05: 3033 lands real `.hako` ProgramJsonLoopRangeShapeScanV1 ProgramJSON traversal for LoopRange statement shapes with 9-row AOT parity; 3034 is active for the scoped LoopRange projector retire-candidate.",
-  "2026-07-05: 3032 lands the covered ThrowExprShapeSnapshotV1 ProgramJSON traversal slice as a scoped Rust ASTNode projector retire-candidate; next work returns to ProgramJSON capability-batch continuation.",
 ]

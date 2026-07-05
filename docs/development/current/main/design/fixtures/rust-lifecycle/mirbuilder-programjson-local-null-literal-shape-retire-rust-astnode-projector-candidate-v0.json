@@ -1,0 +1,67 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonLocalNullLiteralShapeRustAstNodeProjectorRetireCandidateV1",
+  "token": "MIRBUILDER-PROGRAMJSON-LOCAL-NULL-LITERAL-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001",
+  "input_state": {
+    "hako_snapshot_source": "lang/src/compiler/mirbuilder/program_json_local_null_literal_shape_scan.hako",
+    "hako_snapshot_source_hash": "sha256:cedad070b6f0c34e5d665943f5e2c5c7f3eb15185535f3fa41786e608b34c72f",
+    "parity_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-programjson-local-null-literal-shape-scan-parity-v0.json",
+    "parity_fixture_hash": "sha256:288a4061e0d87c07ae7db2775c3572342a5c1ea5f862286313ab2e49380a2ae5",
+    "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_programjson_local_null_literal_shape_scan_parity_gate.sh",
+    "parity_gate_hash": "sha256:d1bf68cc737d67786a9c0ce366fc39d3f180ec9fea91d774ca12cd0eacaf0537"
+  },
+  "retire_candidate_scope": {
+    "retire_candidate": "LocalNullLiteralShapeSnapshotV1",
+    "shape_scope": "covered ProgramJSON Local.expr Null literal rows",
+    "programjson_snapshot_owner": "ProgramJsonLocalNullLiteralShapeScanV1",
+    "covered_rows": [
+      "top_local_null_explicit",
+      "top_local_null_declared_box",
+      "top_local_null_no_initializer_projection",
+      "top_local_int_unsupported",
+      "top_local_str_unsupported",
+      "if_then_local_null",
+      "if_else_local_null",
+      "if_then_return_unsupported",
+      "first_stmt_not_local_unsupported"
+    ],
+    "rust_projector_runtime_dependency_removed": 0,
+    "rust_projector_oracle_only": 1,
+    "full_astnode_projector_retired": 0
+  },
+  "criteria": {
+    "programjson_snapshot_parity_gate": "Green",
+    "programjson_route_traverses_programjson": 1,
+    "programjson_route_uses_string_only_facade": 0,
+    "covered_row_count": 9,
+    "runtime_path_uses_programjson_snapshot": 1,
+    "rust_astnode_projector_runtime_dependency_removed": 0,
+    "rust_astnode_projector_kept_for_oracle_generation": 1,
+    "null_lowering": 0,
+    "option_semantics": 0
+  },
+  "decision": {
+    "kind": "RetireCandidateScoped",
+    "reason_token": "LocalNullLiteralShapeSnapshotV1ProgramJsonCapabilityParityGreen",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-CAPABILITY-BATCH-CONTINUATION"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_astnode_projector_retired": 0,
+    "rust_astnode_projector_fully_retired": 0,
+    "full_astnode_projector_retired": 0,
+    "programjson_full_parser_claim": 0,
+    "programjson_all_shapes_supported": 0,
+    "recipe_matching_migrated": 0,
+    "route_selection_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0,
+    "id_allocation_migration": 0,
+    "null_lowering": 0,
+    "option_semantics": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
