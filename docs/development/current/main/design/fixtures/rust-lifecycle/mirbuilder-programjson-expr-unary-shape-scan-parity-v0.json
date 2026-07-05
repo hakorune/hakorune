@@ -1,0 +1,87 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonExprUnaryShapeScanParityV1",
+  "token": "MIRBUILDER-PROGRAMJSON-EXPR-UNARY-SHAPE-SCAN-CAPABILITY-001",
+  "capability": {
+    "name": "ProgramJsonExprUnaryShapeScanV1",
+    "input": "ProgramJSON v0",
+    "output": "ExprUnaryShapeSnapshotV1"
+  },
+  "routes": {
+    "rust_oracle_route": "source -> RHako parser -> Rust ASTNode -> Rust ExprUnary token snapshot",
+    "hako_programjson_route": "source -> HHako parser -> ProgramJSON -> HHako ExprUnary token snapshot"
+  },
+  "programjson_emit_evidence": {
+    "source": "src/macro/ast_json/joinir_compat.rs",
+    "node_kind": "UnaryOp",
+    "node_type": "Unary",
+    "fields": ["op", "operand"]
+  },
+  "rows": [
+    {
+      "row_id": "top_minus_int",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "Expr", "type": "Expr", "expr": {"kind": "UnaryOp", "type": "Unary", "op": "-", "operand": {"type": "Int", "value": 1}}}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=ExprUnaryShapeSnapshotV1;top_expr_unary_shape_kind=MinusInt;if_then_expr_unary_shape_kind=Missing;if_else_expr_unary_shape_kind=Missing;supported_expr_unary_count=1;unsupported_expr_unary_count=0"}
+    },
+    {
+      "row_id": "top_not_bool",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "Expr", "type": "Expr", "expr": {"kind": "UnaryOp", "type": "Unary", "op": "!", "operand": {"type": "Bool", "value": true}}}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=ExprUnaryShapeSnapshotV1;top_expr_unary_shape_kind=NotBool;if_then_expr_unary_shape_kind=Missing;if_else_expr_unary_shape_kind=Missing;supported_expr_unary_count=1;unsupported_expr_unary_count=0"}
+    },
+    {
+      "row_id": "top_bitnot_var",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "Expr", "type": "Expr", "expr": {"kind": "UnaryOp", "type": "Unary", "op": "~", "operand": {"type": "Var", "name": "mask"}}}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=ExprUnaryShapeSnapshotV1;top_expr_unary_shape_kind=BitNotVar;if_then_expr_unary_shape_kind=Missing;if_else_expr_unary_shape_kind=Missing;supported_expr_unary_count=1;unsupported_expr_unary_count=0"}
+    },
+    {
+      "row_id": "top_weak_var",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "Expr", "type": "Expr", "expr": {"kind": "UnaryOp", "type": "Unary", "op": "weak", "operand": {"type": "Var", "name": "obj"}}}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=ExprUnaryShapeSnapshotV1;top_expr_unary_shape_kind=WeakVar;if_then_expr_unary_shape_kind=Missing;if_else_expr_unary_shape_kind=Missing;supported_expr_unary_count=1;unsupported_expr_unary_count=0"}
+    },
+    {
+      "row_id": "if_then_minus_var_else_null",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "If", "type": "If", "cond": {"type": "Bool", "value": true}, "then": [{"kind": "Expr", "type": "Expr", "expr": {"kind": "UnaryOp", "type": "Unary", "op": "-", "operand": {"type": "Var", "name": "x"}}}], "else": null}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=ExprUnaryShapeSnapshotV1;top_expr_unary_shape_kind=Missing;if_then_expr_unary_shape_kind=MinusVar;if_else_expr_unary_shape_kind=Missing;supported_expr_unary_count=1;unsupported_expr_unary_count=0"}
+    },
+    {
+      "row_id": "if_else_not_var",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "If", "type": "If", "cond": {"type": "Bool", "value": false}, "then": [], "else": [{"kind": "Expr", "type": "Expr", "expr": {"kind": "UnaryOp", "type": "Unary", "op": "!", "operand": {"type": "Var", "name": "flag"}}}]}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=ExprUnaryShapeSnapshotV1;top_expr_unary_shape_kind=Missing;if_then_expr_unary_shape_kind=Missing;if_else_expr_unary_shape_kind=NotVar;supported_expr_unary_count=1;unsupported_expr_unary_count=0"}
+    },
+    {
+      "row_id": "top_unknown_op_unsupported",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "Expr", "type": "Expr", "expr": {"kind": "UnaryOp", "type": "Unary", "op": "??", "operand": {"type": "Var", "name": "x"}}}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=ExprUnaryShapeSnapshotV1;top_expr_unary_shape_kind=Unsupported;if_then_expr_unary_shape_kind=Missing;if_else_expr_unary_shape_kind=Missing;supported_expr_unary_count=0;unsupported_expr_unary_count=1"}
+    },
+    {
+      "row_id": "first_stmt_box_unsupported",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "BoxDeclaration", "name": "Cell", "fields": [], "field_decls": [], "methods": [], "constructors": [], "is_interface": false, "is_record": false, "is_static": false, "static_init": null}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=ExprUnaryShapeSnapshotV1;top_expr_unary_shape_kind=Unsupported;if_then_expr_unary_shape_kind=Missing;if_else_expr_unary_shape_kind=Missing;supported_expr_unary_count=0;unsupported_expr_unary_count=1"}
+    }
+  ],
+  "summary": {
+    "parity_row_count": 8,
+    "programjson_traversal_used": 1,
+    "string_only_facade": 0,
+    "rust_astnode_projector_retire_candidate": 1
+  },
+  "decision": {
+    "kind": "ProgramJsonExprUnaryShapeScanParityGreen",
+    "reason_token": "ExprUnaryShapeProgramJsonSnapshotMatchesRustAstNodeOracle",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-EXPR-UNARY-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "programjson_full_parser_claim": 0,
+    "hako_adopted_for_full_owner": 0,
+    "unary_lowering": 0
+  }
+}
