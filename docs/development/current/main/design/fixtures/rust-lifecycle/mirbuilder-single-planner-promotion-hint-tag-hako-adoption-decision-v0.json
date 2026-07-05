@@ -1,0 +1,61 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderSinglePlannerPromotionHintTagHakoAdoptedDecisionV1",
+  "token": "MIRBUILDER-SINGLE-PLANNER-PROMOTION-HINT-TAG-HAKOADOPTED-DECISION-001",
+  "input_state": {
+    "hako_source": "lang/src/compiler/lib/single_planner_promotion_hint_tag.hako",
+    "hako_source_hash": "sha256:96935c5212a6f33aac66bfd85299a0c0e40430a83b6314d5d6b5e535e3185ffe",
+    "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-single-planner-promotion-hint-tag-rust-oracle-v0.json",
+    "rust_oracle_fixture_hash": "sha256:365351a6a5ba1b00dd35669c39cff0ae95baea372985bcf0887766971f3e1170",
+    "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_single_planner_promotion_hint_tag_parity_gate.sh",
+    "parity_gate_hash": "sha256:3c4e761a0f78cde5f1236555a65bf6afd743a6d47c779097221ca3acc536601a"
+  },
+  "adoption_scope": {
+    "adopted_owner": "single_planner_promotion_hint_tag.authority_facade",
+    "input_contract": "BackendSafeSinglePlannerPromotionHintTagTokenSnapshotV1",
+    "native_edit_authority": "lang/src/compiler/lib/single_planner_promotion_hint_tag.hako",
+    "owned_semantics": [
+      "promotion_shape_token",
+      "promotion_hint_tag",
+      "skip_without_promotion_shape",
+      "unsupported_token_reject_reason"
+    ],
+    "excluded_semantics": [
+      "promotion_shape_extraction",
+      "log_emission",
+      "route_execution",
+      "backend_lowering",
+      "MIR_mutation",
+      "ID_allocation"
+    ]
+  },
+  "parity": {
+    "gate_status": "Green",
+    "oracle_row_count": 4,
+    "required_contract_fields": [
+      "accepted",
+      "action",
+      "tag",
+      "reason"
+    ]
+  },
+  "decision": {
+    "kind": "HakoAdoptedScoped",
+    "reason_token": "SinglePlannerPromotionHintTagParityGreen",
+    "selected_next_card": "MIRBUILDER-PLAN-TRACK-NEXT-PILOT-SELECTION-006",
+    "backlog_card": "MIRBUILDER-SINGLE-PLANNER-FULL-OUTCOME-CONSULTATION-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "promotion_shape_extraction_migrated": 0,
+    "log_emission_migrated": 0,
+    "route_execution_migrated": 0,
+    "backend_lowering_migrated": 0,
+    "mir_mutation_migrated": 0,
+    "id_allocation_migrated": 0,
+    "hako_generation": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
