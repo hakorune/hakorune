@@ -1,0 +1,98 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonDispatchSupportShapeScanParityV1",
+  "token": "MIRBUILDER-PROGRAMJSON-DISPATCH-SUPPORT-SHAPE-SCAN-CAPABILITY-001",
+  "capability": {
+    "name": "ProgramJsonDispatchSupportShapeScanV1",
+    "input": "ProgramJSON v0",
+    "output": "DispatchSupportShapeSnapshotV1"
+  },
+  "routes": {
+    "rust_oracle_route": "source -> RHako parser -> Rust ASTNode -> Rust dispatch support token snapshot",
+    "hako_programjson_route": "source -> HHako parser -> ProgramJSON -> HHako dispatch support token snapshot"
+  },
+  "programjson_emit_evidence": {
+    "source": "src/macro/ast_json/joinir_compat.rs",
+    "consumer": "lang/src/compiler/mirbuilder/program_json_v0_phase_state_consumer_box.hako",
+    "type_field_nodes": ["Local", "Expr", "Return", "If", "Loop", "Try", "Break", "Continue", "Extern", "ContextScope", "LoopRange"],
+    "kind_field_nodes": ["FunctionDeclaration", "EnumDeclaration", "TypeAliasDeclaration", "BoxDeclaration"]
+  },
+  "rows": [
+    {
+      "row_id": "top_local_dispatchable",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "i", "expr": {"type": "Int", "value": 1}}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=DispatchSupportShapeSnapshotV1;top_dispatch_shape_kind=DispatchableNonControl;if_then_dispatch_shape_kind=Missing;if_else_dispatch_shape_kind=Missing;dispatch_supported_count=1;dispatch_unsupported_count=0"}
+    },
+    {
+      "row_id": "top_loop_dispatchable",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Loop", "cond": {"type": "Bool", "value": true}, "body": []}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=DispatchSupportShapeSnapshotV1;top_dispatch_shape_kind=DispatchableControl;if_then_dispatch_shape_kind=Missing;if_else_dispatch_shape_kind=Missing;dispatch_supported_count=1;dispatch_unsupported_count=0"}
+    },
+    {
+      "row_id": "top_try_dispatchable_cleanup",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Try", "try": [], "catches": [], "finally": []}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=DispatchSupportShapeSnapshotV1;top_dispatch_shape_kind=DispatchableTryCleanup;if_then_dispatch_shape_kind=Missing;if_else_dispatch_shape_kind=Missing;dispatch_supported_count=1;dispatch_unsupported_count=0"}
+    },
+    {
+      "row_id": "top_break_unsupported_exit",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Break"}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=DispatchSupportShapeSnapshotV1;top_dispatch_shape_kind=UnsupportedExitMarker;if_then_dispatch_shape_kind=Missing;if_else_dispatch_shape_kind=Missing;dispatch_supported_count=0;dispatch_unsupported_count=1"}
+    },
+    {
+      "row_id": "top_context_scope_unsupported",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "ContextScope", "spelling": "using", "name": "ctx", "declared_type": "Ctx", "value": {"type": "Var", "name": "source"}, "body": []}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=DispatchSupportShapeSnapshotV1;top_dispatch_shape_kind=UnsupportedScope;if_then_dispatch_shape_kind=Missing;if_else_dispatch_shape_kind=Missing;dispatch_supported_count=0;dispatch_unsupported_count=1"}
+    },
+    {
+      "row_id": "top_extern_unsupported",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Extern", "iface": "env.console", "method": "log", "args": [{"type": "Int", "value": 1}]}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=DispatchSupportShapeSnapshotV1;top_dispatch_shape_kind=UnsupportedExternal;if_then_dispatch_shape_kind=Missing;if_else_dispatch_shape_kind=Missing;dispatch_supported_count=0;dispatch_unsupported_count=1"}
+    },
+    {
+      "row_id": "top_function_declaration_kind_only_unsupported",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "FunctionDeclaration", "name": "f", "params": [], "return_type": null, "body": []}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=DispatchSupportShapeSnapshotV1;top_dispatch_shape_kind=UnsupportedDeclaration;if_then_dispatch_shape_kind=Missing;if_else_dispatch_shape_kind=Missing;dispatch_supported_count=0;dispatch_unsupported_count=1"}
+    },
+    {
+      "row_id": "top_looprange_unsupported_other",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "LoopRange", "var_name": "i", "start": {"type": "Int", "value": 0}, "end": {"type": "Int", "value": 3}, "body": []}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=DispatchSupportShapeSnapshotV1;top_dispatch_shape_kind=UnsupportedOther;if_then_dispatch_shape_kind=Missing;if_else_dispatch_shape_kind=Missing;dispatch_supported_count=0;dispatch_unsupported_count=1"}
+    },
+    {
+      "row_id": "if_then_return_else_break",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "If", "cond": {"type": "Bool", "value": true}, "then": [{"type": "Return", "expr": {"type": "Int", "value": 1}}], "else": [{"type": "Break"}]}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=DispatchSupportShapeSnapshotV1;top_dispatch_shape_kind=DispatchableControl;if_then_dispatch_shape_kind=DispatchableNonControl;if_else_dispatch_shape_kind=UnsupportedExitMarker;dispatch_supported_count=2;dispatch_unsupported_count=1"}
+    },
+    {
+      "row_id": "if_then_task_scope_else_local",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "If", "cond": {"type": "Bool", "value": true}, "then": [{"type": "TaskScope", "spelling": "task", "body": []}], "else": [{"type": "Local", "name": "i", "expr": {"type": "Int", "value": 1}}]}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=DispatchSupportShapeSnapshotV1;top_dispatch_shape_kind=DispatchableControl;if_then_dispatch_shape_kind=UnsupportedScope;if_else_dispatch_shape_kind=DispatchableNonControl;dispatch_supported_count=2;dispatch_unsupported_count=1"}
+    }
+  ],
+  "summary": {
+    "parity_row_count": 10,
+    "programjson_traversal_used": 1,
+    "string_only_facade": 0,
+    "rust_astnode_projector_retire_candidate": 1
+  },
+  "decision": {
+    "kind": "ProgramJsonDispatchSupportShapeScanParityGreen",
+    "reason_token": "DispatchSupportShapeProgramJsonSnapshotMatchesRustAstNodeOracle",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-DISPATCH-SUPPORT-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "programjson_full_parser_claim": 0,
+    "hako_adopted_for_full_owner": 0,
+    "dispatch_support_added": 0,
+    "unsupported_stmt_resolved": 0
+  }
+}

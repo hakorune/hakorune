@@ -90,11 +90,9 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  3094 lands the covered ExprMeShapeSnapshotV1 ProgramJSON traversal slice as a
-  scoped Rust ASTNode projector retire-candidate. Next work returns to
-  capability-batch continuation.
-  Candidate validation is only a preflight to name the next `.hako`
-  implementation card; selection-only ProgramJSON work is not progress.
+  3097 lands the covered DispatchSupportShapeSnapshotV1 ProgramJSON traversal
+  slice as a scoped Rust ASTNode projector retire-candidate. Next work returns
+  to capability-batch continuation.
   2997 stabilized the AOT/MIR value-type publication contract only for the
   proven route families. 3002 remains a trigger-based debt queue for Float
   Sub/Mul/Div, string Lt/Gt/Le/Ge policy, user-box single-observation
@@ -403,14 +401,14 @@ Detailed evidence lives in phase cards, fixtures, and git history.
 
 ## Active Next 3
 ```text
-1. MIRBUILDER-PROGRAMJSON-EXPR-UNARY-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
-   status=landed; boundary=only the covered ExprUnaryShapeSnapshotV1 rows
+1. MIRBUILDER-PROGRAMJSON-CAPABILITY-CANDIDATE-VALIDATION-001
+   status=landed; boundary=selected dispatch-support scan from emitted evidence
 
-2. MIRBUILDER-PROGRAMJSON-EXPR-ME-SHAPE-SCAN-CAPABILITY-001
-   status=landed; boundary=real `.hako` ProgramJSON Expr.expr Me traversal
+2. MIRBUILDER-PROGRAMJSON-DISPATCH-SUPPORT-SHAPE-SCAN-CAPABILITY-001
+   status=landed; boundary=real `.hako` ProgramJSON dispatch-support traversal
 
-3. MIRBUILDER-PROGRAMJSON-EXPR-ME-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
-   status=landed; boundary=only the covered ExprMeShapeSnapshotV1 rows
+3. MIRBUILDER-PROGRAMJSON-DISPATCH-SUPPORT-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+   status=landed; boundary=only the covered DispatchSupportShapeSnapshotV1 rows
 
 next active:
   MIRBUILDER-PROGRAMJSON-CAPABILITY-CANDIDATE-VALIDATION

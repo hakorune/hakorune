@@ -1,6 +1,6 @@
 # 3095 - MIRBUILDER-PROGRAMJSON-CAPABILITY-CANDIDATE-VALIDATION-001
 
-Status: active
+Status: landed
 
 ## Scope
 
@@ -13,11 +13,24 @@ This is not a migration step by itself. It exists only to name the next
 ## Required Output
 
 ```text
-selected_next_card = MIRBUILDER-PROGRAMJSON-*-SHAPE-SCAN-CAPABILITY-001
-owner = ProgramJson*ScanV1
-snapshot = *ShapeSnapshotV1
-covered_rows = N named parity rows
-retire_candidate_target = covered Rust ASTNode projector slice
+selected_next_card = MIRBUILDER-PROGRAMJSON-DISPATCH-SUPPORT-SHAPE-SCAN-CAPABILITY-001
+owner = ProgramJsonDispatchSupportShapeScanV1
+snapshot = DispatchSupportShapeSnapshotV1
+covered_rows = 10 named parity rows
+retire_candidate_target = covered dispatch-support Rust ASTNode projector slice
+```
+
+## Decision
+
+ProgramJSON v0 phase-state consumer dispatch currently accepts
+`Print/Expr/Local/Assignment/Return/If/Loop/Try` and rejects other emitted
+statement families through `unsupported stmt in Program(JSON v0)`.
+
+The next capability therefore observes dispatch support as data, without adding
+dispatch support:
+
+```text
+MIRBUILDER-PROGRAMJSON-DISPATCH-SUPPORT-SHAPE-SCAN-CAPABILITY-001
 ```
 
 ## Acceptance
@@ -31,7 +44,7 @@ retire_candidate_target = covered Rust ASTNode projector slice
 
 ## Non-Claims
 
-- no `.hako` implementation landed by this card;
+- no `.hako` implementation landed by this selection card;
 - no ProgramJSON traversal capability claim;
 - no Rust ASTNode projector retirement;
 - no HakoAdoption, ProgramJSON full parser, MIR mutation, lowering, route
