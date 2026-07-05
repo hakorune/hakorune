@@ -345,13 +345,14 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PROGRAMJSON-LOOP-COND-CONTINUE-WITH-RETURN-SNAPSHOT-IMPLEMENTATION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2976-MIRBUILDER-PROGRAMJSON-LOOP-COND-CONTINUE-WITH-RETURN-SNAPSHOT-IMPLEMENTATION-001.md"
-latest_card_summary = """The latest card implements ProgramJsonLoopCondContinueWithReturnSnapshotV1
-as a read-only ProgramJSON traversal owner for LoopCondContinueThenReturnMinimalV1.
-The implementation and generated fixture app verify as MIR. Runtime parity is
-not claimed yet because existing ProgramJsonV0ScannerBox execution stops in AOT
-lowering at seek_obj_field_value_start/3 with module_generic_prepass_failed."""
+latest_card = "MIRBUILDER-PROGRAMJSON-V0-SCANNER-AOT-LOWERING-BLOCKER-INVENTORY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2977-MIRBUILDER-PROGRAMJSON-V0-SCANNER-AOT-LOWERING-BLOCKER-INVENTORY-001.md"
+latest_card_summary = """The latest card inventories the ProgramJsonV0ScannerBox
+AOT execution blocker. Scanner helpers verify as MIR, but minimal probes stop
+in AOT lowering with module_generic_prepass_failed, including _read_char/2,
+seek_obj_end_unescaped/2, seek_obj_field_value_start/3, and
+seek_obj_field_obj_start/3. ProgramJSON snapshot runtime parity remains
+unclaimed until a parity runner route is selected."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -362,6 +363,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-05: 2977 inventories ProgramJsonV0ScannerBox AOT blockers; parity runner route selection is now required before runtime parity.",
   "2026-07-05: 2976 implements ProgramJsonLoopCondContinueWithReturnSnapshotV1; MIR verify is green, runtime parity remains blocked by scanner AOT lowering.",
   "2026-07-05: 2975 defines ProgramJsonLoopCondContinueWithReturnSnapshotV1 basis for the first ProgramJSON traversal pilot.",
   "2026-07-05: 2974 selects LoopCondContinueThenReturnMinimalV1 ProgramJSON traversal as the first snapshot pilot.",
@@ -373,5 +375,4 @@ landed_tail = [
   "2026-07-05: 2969 lands single_planner promotion hint tag parity; shape extraction and log emission remain Rust.",
   "2026-07-05: 2968 adopts single_planner recipe-match gate as scoped HakoAdopted Plan DTO owner.",
   "2026-07-05: 2967 lands single_planner recipe-match gate parity; RecipeMatcher execution remains Rust.",
-  "2026-07-05: 2966 adopts single_planner gate mode as scoped HakoAdopted Plan DTO owner.",
 ]

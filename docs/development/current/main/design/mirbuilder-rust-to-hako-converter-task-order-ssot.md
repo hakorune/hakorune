@@ -60,7 +60,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-V0-SCANNER-AOT-LOWERING-BLOCKER-INVENTORY-001
+  MIRBUILDER-PROGRAMJSON-SNAPSHOT-PARITY-RUNNER-ROUTE-DECISION-001
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -90,13 +90,12 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  ProgramJsonLoopCondContinueWithReturnSnapshotV1 is implemented as the first
-  read-only ProgramJSON traversal owner for Program.body[0]=Loop(cond,
-  body=[If(cond, then=[Continue], else=null), Return(Int)]). MIR verification is
-  green, but runtime parity is not claimed because the existing ProgramJSON v0
-  scanner stops AOT lowering at seek_obj_field_value_start/3
-  (module_generic_prepass_failed). Next work inventories that scanner execution
-  blocker before the parity card.
+  ProgramJsonLoopCondContinueWithReturnSnapshotV1 is implemented and MIR
+  verification is green, but runtime parity is held. ProgramJsonV0ScannerBox
+  AOT probes stop at module_generic_prepass_failed for _read_char/2,
+  seek_obj_end_unescaped/2, seek_obj_field_value_start/3, and
+  seek_obj_field_obj_start/3. Next work is a route decision: unblock scanner
+  AOT execution or define an explicit non-AOT parity runner scope.
   Rust ASTNode-to-token snapshot adapters are non-authority temporary projection
   ABI for MirBuilder-first migration. They must not invent semantic policy or a
   hidden token taxonomy, and must be removable when HHako ProgramJSON can feed
