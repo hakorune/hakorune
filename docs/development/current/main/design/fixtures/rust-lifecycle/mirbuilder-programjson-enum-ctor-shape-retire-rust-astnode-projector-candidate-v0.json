@@ -1,0 +1,68 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonEnumCtorShapeRustAstNodeProjectorRetireCandidateV1",
+  "token": "MIRBUILDER-PROGRAMJSON-ENUM-CTOR-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001",
+  "input_state": {
+    "hako_snapshot_source": "lang/src/compiler/mirbuilder/program_json_enum_ctor_shape_scan.hako",
+    "hako_snapshot_source_hash": "sha256:d4b2b55e0533616557dc648fdfd0b4cccda9988fe3554800737d8e8ed1e47ed9",
+    "parity_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-programjson-enum-ctor-shape-scan-parity-v0.json",
+    "parity_fixture_hash": "sha256:8bd166a0393d74d07148f55fd7d491450c1dd91442acbafe197f08b3702512f4",
+    "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_programjson_enum_ctor_shape_scan_parity_gate.sh",
+    "parity_gate_hash": "sha256:baa9e0d1fddb45e554c8b15a577effb810f338dd6a01e4176d73cb2ab4271c76"
+  },
+  "retire_candidate_scope": {
+    "retire_candidate": "EnumCtorShapeSnapshotV1",
+    "shape_scope": "covered ProgramJSON EnumCtor expression rows",
+    "programjson_snapshot_owner": "ProgramJsonEnumCtorShapeScanV1",
+    "covered_rows": [
+      "local_no_payload",
+      "local_one_int_payload",
+      "local_one_str_payload",
+      "local_one_bool_payload",
+      "local_one_var_payload",
+      "return_two_int_payloads",
+      "expr_two_var_payloads",
+      "local_compat_box_one_payload",
+      "if_then_one_int_payload",
+      "if_else_one_var_payload"
+    ],
+    "rust_projector_runtime_dependency_removed": 0,
+    "rust_projector_oracle_only": 1,
+    "full_astnode_projector_retired": 0
+  },
+  "criteria": {
+    "programjson_snapshot_parity_gate": "Green",
+    "programjson_route_traverses_programjson": 1,
+    "programjson_route_uses_string_only_facade": 0,
+    "covered_row_count": 10,
+    "runtime_path_uses_programjson_snapshot": 1,
+    "rust_astnode_projector_runtime_dependency_removed": 0,
+    "rust_astnode_projector_kept_for_oracle_generation": 1,
+    "enum_lowering": 0,
+    "payload_abi_materialization": 0
+  },
+  "decision": {
+    "kind": "RetireCandidateScoped",
+    "reason_token": "EnumCtorShapeSnapshotV1ProgramJsonCapabilityParityGreen",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-CAPABILITY-BATCH-CONTINUATION"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_astnode_projector_retired": 0,
+    "rust_astnode_projector_fully_retired": 0,
+    "full_astnode_projector_retired": 0,
+    "programjson_full_parser_claim": 0,
+    "programjson_all_shapes_supported": 0,
+    "recipe_matching_migrated": 0,
+    "route_selection_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0,
+    "id_allocation_migration": 0,
+    "enum_lowering": 0,
+    "payload_abi_materialization": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

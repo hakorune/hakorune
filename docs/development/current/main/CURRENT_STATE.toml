@@ -345,15 +345,15 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PROGRAMJSON-ENUM-CTOR-SHAPE-SCAN-CAPABILITY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3065-MIRBUILDER-PROGRAMJSON-ENUM-CTOR-SHAPE-SCAN-CAPABILITY-001.md"
-latest_card_summary = """3065 lands real `.hako`
-ProgramJsonEnumCtorShapeScanV1 ProgramJSON traversal for covered EnumCtor
-expression shapes with 10-row AOT parity. 3066 is active for the scoped
-EnumCtor projector retire-candidate. Enum lowering, payload ABI materialization,
-full projector retirement, ProgramJSON full parser, HakoAdoption, Source
-Selfhost, RecipeMatcher, route selection, lowering, mutation, ID allocation,
-and new ABI remain unclaimed."""
+latest_card = "MIRBUILDER-PROGRAMJSON-ENUM-CTOR-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3066-MIRBUILDER-PROGRAMJSON-ENUM-CTOR-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001.md"
+latest_card_summary = """3066 marks only the covered
+EnumCtorShapeSnapshotV1 ProgramJSON traversal rows as a scoped Rust ASTNode
+projector retire-candidate. Next work returns to ProgramJSON capability-batch
+continuation. Enum lowering, payload ABI materialization, full projector
+retirement, ProgramJSON full parser, HakoAdoption, Source Selfhost,
+RecipeMatcher, route selection, lowering, mutation, ID allocation, and new ABI
+remain unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -364,6 +364,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-05: 3066 lands the covered EnumCtorShapeSnapshotV1 ProgramJSON traversal slice as a scoped Rust ASTNode projector retire-candidate; next work returns to ProgramJSON capability-batch continuation.",
   "2026-07-05: 3065 lands real `.hako` ProgramJsonEnumCtorShapeScanV1 ProgramJSON traversal for covered EnumCtor expression shapes with 10-row AOT parity; 3066 is active for the scoped EnumCtor projector retire-candidate.",
   "2026-07-05: 3064 lands the covered BrandExprShapeSnapshotV1 ProgramJSON traversal slice as a scoped Rust ASTNode projector retire-candidate; next work returns to ProgramJSON capability-batch continuation.",
   "2026-07-05: 3063 lands real `.hako` ProgramJsonBrandExprShapeScanV1 ProgramJSON traversal for covered BrandConstruct/BrandUnwrap expression shapes with 10-row AOT parity; 3064 is active for the scoped brand expr projector retire-candidate.",
@@ -375,5 +376,4 @@ landed_tail = [
   "2026-07-05: 3057 lands real `.hako` ProgramJsonLocalRecordUpdateShapeScanV1 ProgramJSON traversal for covered Local.expr RecordUpdate shapes with 10-row AOT parity; 3058 is active for the scoped local record update projector retire-candidate.",
   "2026-07-05: 3056 lands the covered FastMemRegionShapeSnapshotV1 ProgramJSON traversal slice as a scoped Rust ASTNode projector retire-candidate; next work returns to ProgramJSON capability-batch continuation.",
   "2026-07-05: 3055 lands real `.hako` ProgramJsonFastMemRegionShapeScanV1 ProgramJSON traversal for covered FastMemRegion statement body shapes with 10-row AOT parity; 3056 is active for the scoped fastmem-region projector retire-candidate.",
-  "2026-07-05: 3054 lands the covered TaskScopeShapeSnapshotV1 ProgramJSON traversal slice as a scoped Rust ASTNode projector retire-candidate; next work returns to ProgramJSON capability-batch continuation.",
 ]

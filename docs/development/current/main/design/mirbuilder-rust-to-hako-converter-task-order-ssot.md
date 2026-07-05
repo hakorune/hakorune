@@ -90,10 +90,9 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  3065 lands real `.hako` ProgramJsonEnumCtorShapeScanV1 ProgramJSON traversal
-  for covered EnumCtor expression shapes with 10-row AOT parity. Active work is
-  3066: mark only those covered rows as a scoped Rust ASTNode projector
-  retire-candidate.
+  3066 lands the covered EnumCtorShapeSnapshotV1 ProgramJSON traversal slice
+  as a scoped Rust ASTNode projector retire-candidate. Next work returns to
+  ProgramJSON capability-batch continuation.
   Selection-only ProgramJSON cards remain forbidden unless the next capability
   is genuinely ambiguous.
   2997 stabilized the AOT/MIR value-type publication contract only for the
@@ -409,14 +408,14 @@ Detailed evidence lives in phase cards, fixtures, and git history.
    enum/variant/payload_type/args only; no enum lowering or payload ABI
 
 2. MIRBUILDER-PROGRAMJSON-ENUM-CTOR-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
-   status=active; boundary=covered EnumCtorShapeSnapshotV1 rows only
+   status=landed; boundary=covered EnumCtorShapeSnapshotV1 rows only
 
-3. HAKO-AOT/MIR-TYPING-DEBT-TRIGGER-QUEUE
-   status=parked-until-triggered; boundary=only open if the active ProgramJSON gate or direct AOT regression hits the route
+3. MIRBUILDER-PROGRAMJSON-CAPABILITY-BATCH-CONTINUATION
+   status=active; boundary=select and implement next concrete ProgramJSON traversal capability
 
 next active:
-  MIRBUILDER-PROGRAMJSON-ENUM-CTOR-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
-  status=active; boundary=covered EnumCtorShapeSnapshotV1 rows only
+  MIRBUILDER-PROGRAMJSON-CAPABILITY-BATCH-CONTINUATION
+  status=active; boundary=select and implement next concrete ProgramJSON traversal capability
 
 trigger-based AOT/MIR typing debt:
   status=parked-until-triggered; items=Float Sub/Mul/Div, string relational
@@ -424,10 +423,10 @@ trigger-based AOT/MIR typing debt:
   scalar_i64_or_missing_zero, PHI dst_type, mir_call dst_type
 
 next_documented_task =
-  MIRBUILDER-PROGRAMJSON-ENUM-CTOR-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+  MIRBUILDER-PROGRAMJSON-CAPABILITY-BATCH-CONTINUATION
 
 next_after_active_3 =
-  select next ProgramJSON traversal capability after 3066 lands
+  select next covered retire-candidate after green parity
 
 task discipline =
   Each ProgramJSON capability card must land real `.hako` traversal, a fixture,
