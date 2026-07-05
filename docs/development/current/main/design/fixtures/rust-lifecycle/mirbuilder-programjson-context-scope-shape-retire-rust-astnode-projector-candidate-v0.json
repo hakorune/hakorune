@@ -1,0 +1,68 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonContextScopeShapeRustAstNodeProjectorRetireCandidateV1",
+  "token": "MIRBUILDER-PROGRAMJSON-CONTEXT-SCOPE-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001",
+  "input_state": {
+    "hako_snapshot_source": "lang/src/compiler/mirbuilder/program_json_context_scope_shape_scan.hako",
+    "hako_snapshot_source_hash": "sha256:dedff82d22b3ebbdfc47618bae7634b7dd6f827541247d24cb06c9ddc047a076",
+    "parity_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-programjson-context-scope-shape-scan-parity-v0.json",
+    "parity_fixture_hash": "sha256:de1656fc3fe83bb5f59b946a7dbbf07ead55b5b1c0942b4dd2bc5e5ed2f0c91a",
+    "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_programjson_context_scope_shape_scan_parity_gate.sh",
+    "parity_gate_hash": "sha256:4bc164f2d6b3e1d51b87eb0c2dbaae6af4bc3aa8f23ff070b18f6c89bd21b8ab"
+  },
+  "retire_candidate_scope": {
+    "retire_candidate": "ContextScopeShapeSnapshotV1",
+    "shape_scope": "covered ProgramJSON ContextScope statement rows",
+    "programjson_snapshot_owner": "ProgramJsonContextScopeShapeScanV1",
+    "covered_rows": [
+      "top_context_var_empty",
+      "top_context_int_local",
+      "top_context_str_return",
+      "top_context_bool_expr",
+      "top_context_var_loop",
+      "top_context_call_value_unsupported",
+      "top_context_body_break_unsupported",
+      "if_then_context_int_local",
+      "if_else_context_var_empty",
+      "first_stmt_local_unsupported"
+    ],
+    "rust_projector_runtime_dependency_removed": 0,
+    "rust_projector_oracle_only": 1,
+    "full_astnode_projector_retired": 0
+  },
+  "criteria": {
+    "programjson_snapshot_parity_gate": "Green",
+    "programjson_route_traverses_programjson": 1,
+    "programjson_route_uses_string_only_facade": 0,
+    "covered_row_count": 10,
+    "runtime_path_uses_programjson_snapshot": 1,
+    "rust_astnode_projector_runtime_dependency_removed": 0,
+    "rust_astnode_projector_kept_for_oracle_generation": 1,
+    "context_lowering": 0,
+    "context_runtime_semantics": 0
+  },
+  "decision": {
+    "kind": "RetireCandidateScoped",
+    "reason_token": "ContextScopeShapeSnapshotV1ProgramJsonCapabilityParityGreen",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-CAPABILITY-BATCH-CONTINUATION"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_astnode_projector_retired": 0,
+    "rust_astnode_projector_fully_retired": 0,
+    "full_astnode_projector_retired": 0,
+    "programjson_full_parser_claim": 0,
+    "programjson_all_shapes_supported": 0,
+    "recipe_matching_migrated": 0,
+    "route_selection_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0,
+    "id_allocation_migration": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "context_lowering": 0,
+    "context_runtime_semantics": 0
+  }
+}
