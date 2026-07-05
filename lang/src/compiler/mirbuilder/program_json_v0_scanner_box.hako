@@ -55,10 +55,12 @@ static box ProgramJsonV0ScannerBox {
     if key == "element_type" { return "\"element_type\":" }
     if key == "elements" { return "\"elements\":" }
     if key == "enum" { return "\"enum\":" }
+    if key == "entries" { return "\"entries\":" }
     if key == "expr" { return "\"expr\":" }
     if key == "finally" { return "\"finally\":" }
     if key == "fields" { return "\"fields\":" }
     if key == "kind" { return "\"kind\":" }
+    if key == "k" { return "\"k\":" }
     if key == "lhs" { return "\"lhs\":" }
     if key == "name" { return "\"name\":" }
     if key == "op" { return "\"op\":" }
@@ -75,6 +77,7 @@ static box ProgramJsonV0ScannerBox {
     if key == "type" { return "\"type\":" }
     if key == "value" { return "\"value\":" }
     if key == "var_name" { return "\"var_name\":" }
+    if key == "v" { return "\"v\":" }
     if key == "end" { return "\"end\":" }
     if key == "arms" { return "\"arms\":" }
     if key == "variant" { return "\"variant\":" }
