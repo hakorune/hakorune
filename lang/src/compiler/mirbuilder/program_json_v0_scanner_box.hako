@@ -82,8 +82,10 @@ static box ProgramJsonV0ScannerBox {
     if key == "v" { return "\"v\":" }
     if key == "end" { return "\"end\":" }
     if key == "arms" { return "\"arms\":" }
+    if key == "base" { return "\"base\":" }
     if key == "variant" { return "\"variant\":" }
     if key == "bind" { return "\"bind\":" }
+    if key == "updates" { return "\"updates\":" }
     return "\"" + key + "\":"
   }
 

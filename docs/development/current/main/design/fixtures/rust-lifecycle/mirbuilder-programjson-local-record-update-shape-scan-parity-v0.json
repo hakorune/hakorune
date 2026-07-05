@@ -1,0 +1,112 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonLocalRecordUpdateShapeScanParityV1",
+  "token": "MIRBUILDER-PROGRAMJSON-LOCAL-RECORD-UPDATE-SHAPE-SCAN-CAPABILITY-001",
+  "capability": {
+    "name": "ProgramJsonLocalRecordUpdateShapeScanV1",
+    "input": "ProgramJSON v0",
+    "output": "LocalRecordUpdateShapeSnapshotV1"
+  },
+  "routes": {
+    "rust_oracle_route": "source -> RHako parser -> Rust ASTNode -> Rust Local RecordUpdate token snapshot",
+    "hako_programjson_route": "source -> HHako parser -> ProgramJSON -> HHako Local RecordUpdate token snapshot"
+  },
+  "rows": [
+    {
+      "row_id": "top_point_no_updates",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "p2", "expr": {"type": "RecordUpdate", "record": "Point", "base": {"type": "Var", "name": "p"}, "updates": []}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalRecordUpdateShapeSnapshotV1;top_local_record_update_shape_kind=PointNoUpdates;if_then_local_record_update_shape_kind=Missing;if_else_local_record_update_shape_kind=Missing;supported_local_record_update_count=1;unsupported_local_record_update_count=0"
+      }
+    },
+    {
+      "row_id": "top_point_one_int_update",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "p2", "expr": {"type": "RecordUpdate", "record": "Point", "base": {"type": "Var", "name": "p"}, "updates": [{"name": "x", "field_index": 0, "declared_type": "Integer", "value": {"type": "Int", "value": 1}}]}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalRecordUpdateShapeSnapshotV1;top_local_record_update_shape_kind=PointOneIntUpdate;if_then_local_record_update_shape_kind=Missing;if_else_local_record_update_shape_kind=Missing;supported_local_record_update_count=1;unsupported_local_record_update_count=0"
+      }
+    },
+    {
+      "row_id": "top_config_one_str_update",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "c2", "expr": {"type": "RecordUpdate", "record": "Config", "base": {"type": "Var", "name": "c"}, "updates": [{"name": "name", "field_index": 0, "declared_type": "String", "value": {"type": "Str", "value": "dev"}}]}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalRecordUpdateShapeSnapshotV1;top_local_record_update_shape_kind=ConfigOneStrUpdate;if_then_local_record_update_shape_kind=Missing;if_else_local_record_update_shape_kind=Missing;supported_local_record_update_count=1;unsupported_local_record_update_count=0"
+      }
+    },
+    {
+      "row_id": "top_other_one_bool_update",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "f2", "expr": {"type": "RecordUpdate", "record": "Flag", "base": {"type": "Var", "name": "f"}, "updates": [{"name": "enabled", "field_index": 0, "declared_type": "Bool", "value": {"type": "Bool", "value": true}}]}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalRecordUpdateShapeSnapshotV1;top_local_record_update_shape_kind=OtherRecordOneBoolUpdate;if_then_local_record_update_shape_kind=Missing;if_else_local_record_update_shape_kind=Missing;supported_local_record_update_count=1;unsupported_local_record_update_count=0"
+      }
+    },
+    {
+      "row_id": "top_other_one_var_update",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "r2", "expr": {"type": "RecordUpdate", "record": "Row", "base": {"type": "Var", "name": "r"}, "updates": [{"name": "next", "field_index": 0, "declared_type": "Integer", "value": {"type": "Var", "name": "n"}}]}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalRecordUpdateShapeSnapshotV1;top_local_record_update_shape_kind=OtherRecordOneUpdate;if_then_local_record_update_shape_kind=Missing;if_else_local_record_update_shape_kind=Missing;supported_local_record_update_count=1;unsupported_local_record_update_count=0"
+      }
+    },
+    {
+      "row_id": "top_point_two_int_updates",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "p2", "expr": {"type": "RecordUpdate", "record": "Point", "base": {"type": "Var", "name": "p"}, "updates": [{"name": "x", "field_index": 0, "declared_type": "Integer", "value": {"type": "Int", "value": 1}}, {"name": "y", "field_index": 1, "declared_type": "Integer", "value": {"type": "Int", "value": 2}}]}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalRecordUpdateShapeSnapshotV1;top_local_record_update_shape_kind=PointTwoIntUpdates;if_then_local_record_update_shape_kind=Missing;if_else_local_record_update_shape_kind=Missing;supported_local_record_update_count=1;unsupported_local_record_update_count=0"
+      }
+    },
+    {
+      "row_id": "top_config_str_bool_updates",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "c2", "expr": {"type": "RecordUpdate", "record": "Config", "base": {"type": "Var", "name": "c"}, "updates": [{"name": "name", "field_index": 0, "declared_type": "String", "value": {"type": "Str", "value": "dev"}}, {"name": "enabled", "field_index": 1, "declared_type": "Bool", "value": {"type": "Bool", "value": true}}]}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalRecordUpdateShapeSnapshotV1;top_local_record_update_shape_kind=ConfigStrBoolUpdates;if_then_local_record_update_shape_kind=Missing;if_else_local_record_update_shape_kind=Missing;supported_local_record_update_count=1;unsupported_local_record_update_count=0"
+      }
+    },
+    {
+      "row_id": "if_then_point_one_int_update",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "If", "cond": {"type": "Bool", "value": true}, "then": [{"type": "Local", "name": "p2", "expr": {"type": "RecordUpdate", "record": "Point", "base": {"type": "Var", "name": "p"}, "updates": [{"name": "x", "field_index": 0, "declared_type": "Integer", "value": {"type": "Int", "value": 1}}]}}], "else": null}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalRecordUpdateShapeSnapshotV1;top_local_record_update_shape_kind=Missing;if_then_local_record_update_shape_kind=PointOneIntUpdate;if_else_local_record_update_shape_kind=Missing;supported_local_record_update_count=1;unsupported_local_record_update_count=0"
+      }
+    },
+    {
+      "row_id": "if_else_point_no_updates",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "If", "cond": {"type": "Bool", "value": true}, "then": [], "else": [{"type": "Local", "name": "p2", "expr": {"type": "RecordUpdate", "record": "Point", "base": {"type": "Var", "name": "p"}, "updates": []}}]}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalRecordUpdateShapeSnapshotV1;top_local_record_update_shape_kind=Missing;if_then_local_record_update_shape_kind=Missing;if_else_local_record_update_shape_kind=PointNoUpdates;supported_local_record_update_count=1;unsupported_local_record_update_count=0"
+      }
+    },
+    {
+      "row_id": "first_stmt_return_unsupported",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Return", "expr": {"type": "Int", "value": 0}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalRecordUpdateShapeSnapshotV1;top_local_record_update_shape_kind=Unsupported;if_then_local_record_update_shape_kind=Missing;if_else_local_record_update_shape_kind=Missing;supported_local_record_update_count=0;unsupported_local_record_update_count=1"
+      }
+    }
+  ],
+  "summary": {
+    "parity_row_count": 10,
+    "programjson_traversal_used": 1,
+    "string_only_facade": 0,
+    "rust_astnode_projector_retire_candidate": 1
+  },
+  "decision": {
+    "kind": "ProgramJsonLocalRecordUpdateShapeScanParityGreen",
+    "reason_token": "LocalRecordUpdateShapeProgramJsonSnapshotMatchesRustAstNodeOracle",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-LOCAL-RECORD-UPDATE-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "programjson_full_parser_claim": 0,
+    "hako_adopted_for_full_owner": 0,
+    "record_lowering": 0,
+    "field_layout_semantics": 0
+  }
+}

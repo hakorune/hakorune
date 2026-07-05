@@ -60,7 +60,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-CAPABILITY-BATCH-CONTINUATION
+  MIRBUILDER-PROGRAMJSON-LOCAL-RECORD-UPDATE-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -90,9 +90,10 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  3056 lands the covered FastMemRegionShapeSnapshotV1 ProgramJSON traversal
-  slice as a scoped Rust ASTNode projector retire-candidate. Next work returns
-  to ProgramJSON capability-batch continuation.
+  3057 lands real `.hako` ProgramJsonLocalRecordUpdateShapeScanV1 ProgramJSON
+  traversal for covered Local.expr RecordUpdate shapes with 10-row AOT parity.
+  3058 is active for the scoped LocalRecordUpdateShapeSnapshotV1
+  retire-candidate.
   Selection-only ProgramJSON cards remain forbidden unless the next capability
   is genuinely ambiguous.
   2997 stabilized the AOT/MIR value-type publication contract only for the
@@ -403,19 +404,19 @@ Detailed evidence lives in phase cards, fixtures, and git history.
 
 ## Active Next 3
 ```text
-1. MIRBUILDER-PROGRAMJSON-FASTMEM-REGION-SHAPE-SCAN-CAPABILITY-001
-   status=landed; boundary=real `.hako` ProgramJSON FastMemRegion traversal,
-   no fastmem lowering, contract execution, route selection, or MIR mutation
+1. MIRBUILDER-PROGRAMJSON-LOCAL-RECORD-UPDATE-SHAPE-SCAN-CAPABILITY-001
+   status=landed; boundary=real `.hako` ProgramJSON Local.expr RecordUpdate traversal,
+   no record lowering, field layout semantics, route selection, or MIR mutation
 
-2. MIRBUILDER-PROGRAMJSON-FASTMEM-REGION-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
-   status=landed; boundary=covered FastMemRegionShapeSnapshotV1 rows only
+2. MIRBUILDER-PROGRAMJSON-LOCAL-RECORD-UPDATE-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+   status=active; boundary=covered LocalRecordUpdateShapeSnapshotV1 rows only
 
 3. MIRBUILDER-PROGRAMJSON-CAPABILITY-BATCH-CONTINUATION
-   status=active; boundary=select and implement next concrete ProgramJSON traversal capability
+   status=pending-after-3058; boundary=select and implement next concrete ProgramJSON traversal capability
 
 next active:
-  MIRBUILDER-PROGRAMJSON-CAPABILITY-BATCH-CONTINUATION
-  status=active; boundary=select and implement next concrete ProgramJSON traversal capability
+  MIRBUILDER-PROGRAMJSON-LOCAL-RECORD-UPDATE-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+  status=active; boundary=mark only covered LocalRecordUpdateShapeSnapshotV1 rows as retire-candidate
 
 trigger-based AOT/MIR typing debt:
   status=parked-until-triggered; items=Float Sub/Mul/Div, string relational
@@ -423,10 +424,10 @@ trigger-based AOT/MIR typing debt:
   scalar_i64_or_missing_zero, PHI dst_type, mir_call dst_type
 
 next_documented_task =
-  MIRBUILDER-PROGRAMJSON-CAPABILITY-BATCH-CONTINUATION
+  MIRBUILDER-PROGRAMJSON-LOCAL-RECORD-UPDATE-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
 
 next_after_active_3 =
-  select next covered retire-candidate after green parity
+  MIRBUILDER-PROGRAMJSON-CAPABILITY-BATCH-CONTINUATION
 
 task discipline =
   Each ProgramJSON capability card must land real `.hako` traversal, a fixture,
