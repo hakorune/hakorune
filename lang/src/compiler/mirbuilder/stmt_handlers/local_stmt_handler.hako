@@ -40,7 +40,7 @@ static box LocalStmtHandler {
       }
     }
 
-    local expr_type = "" + BoxHelpers.map_get(expr_info, "type")
+    local expr_type = BoxHelpers.map_get(expr_info, "type")
     if expr_type == "Int" {
       local out = ProgramJsonV0ScannerBox.read_int_field_in_obj_result(program_json, "value", expr_start)
       if BoxHelpers.map_get(out, "ok") != 1 {
@@ -66,7 +66,7 @@ static box LocalStmtHandler {
           "local_init" => local_init
         }
       }
-      local src_name = "" + BoxHelpers.map_get(out, "value")
+      local src_name = BoxHelpers.map_get(out, "value")
       if src_name == "" {
         return %{
           "err" => 1,
@@ -120,7 +120,7 @@ static box LocalStmtHandler {
       }
     }
 
-    local local_value = "" + BoxHelpers.map_get(out2, "value")
+    local local_value = BoxHelpers.map_get(out2, "value")
     if local_value == "" {
       return %{
         "err" => 1,

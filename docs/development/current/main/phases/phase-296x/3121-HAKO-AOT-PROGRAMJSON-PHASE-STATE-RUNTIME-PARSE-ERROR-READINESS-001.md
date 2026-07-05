@@ -1,6 +1,6 @@
 # 3121 - HAKO-AOT-PROGRAMJSON-PHASE-STATE-RUNTIME-PARSE-ERROR-READINESS-001
 
-Status: selected-next
+Status: active-partial
 
 ## Scope
 
@@ -64,4 +64,55 @@ runtime_parity_green = 1 only if executable output matches canonical DTO summari
 if runtime parity is still blocked, exact_first_blocker names the next owner
 void_signature_object_return_widening = 0
 source_selfhost_claim = 0
+```
+
+## 2026-07-06 Progress
+
+Implemented the first narrow cleanup for the EXE-only parse failure:
+
+```text
+owner = ProgramJsonV0PhaseStateBox / ProgramJsonV0PhaseStateConsumerBox
+fix = keep scanner-derived string tokens as raw StringBox values for dispatch
+      and recipe classification; avoid `"" + map_get(...)` handle-id
+      canonicalization on known Program(JSON v0) enum tokens.
+```
+
+Validated sub-rows under EXE:
+
+```text
+LocalStmtHandler.handle(Local Int) = err=0
+RecipeFactsBox.from_stmt("Local") = err=0
+RecipeVerifierBox.verify(Local recipe item) = err=0
+```
+
+The public heavy guard remains bounded and non-claiming:
+
+```text
+bash tools/checks/rust_lifecycle_mirbuilder_programjson_layer4_loop_recipe_dto_heavy_exe_readiness_gate.sh
+heavy_emit_exe_probe=green
+runtime_parity_green=0
+exact_first_blocker=phase_state_parse_runtime_parse_error
+```
+
+## Follow-up Task
+
+```text
+next_card:
+  HAKO-AOT-PROGRAMJSON-PHASE-STATE-POSITIVE-PATH-HELPER-ROUTE-READINESS-001
+
+reason:
+  Once Local consumption reaches the positive append/summary path, AOT exposes
+  helper-call route gaps such as PhaseState recipe append and DTO summary
+  helper calls. Do not paper over them with scanner void widening or
+  mixed_runtime_i64_or_handle.
+
+allowed:
+  make same-module positive-path helper calls publish narrow map_handle or
+  string_handle return shapes, or refactor helpers only where it keeps source
+  files under line limits and preserves DTO behavior.
+
+forbidden:
+  no body-proof object return publication
+  no scanner nullable bridge
+  no MIR mutation/lowering/id allocation/new ABI/runtime route switch
 ```

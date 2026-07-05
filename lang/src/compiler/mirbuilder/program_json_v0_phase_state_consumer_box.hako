@@ -407,8 +407,28 @@ static box ProgramJsonV0PhaseStateConsumerBox {
     }
     local after_state = BoxHelpers.map_get(after_state_out, "state")
 
-    local recipe_out = RecipeFactsBox.from_stmt(stmt_name, current_state, after_state, tag)
-    return me._verify_recipe_and_emit(recipe_out, after_state, next_idx, tag)
+    if stmt_name == "Print" {
+      local recipe_out = RecipeFactsBox.from_stmt("Print", current_state, after_state, tag)
+      return me._verify_recipe_and_emit(recipe_out, after_state, next_idx, tag)
+    }
+    if stmt_name == "Local" {
+      local recipe_out = RecipeFactsBox.from_stmt("Local", current_state, after_state, tag)
+      return me._verify_recipe_and_emit(recipe_out, after_state, next_idx, tag)
+    }
+    if stmt_name == "Assignment" {
+      local recipe_out = RecipeFactsBox.from_stmt("Assignment", current_state, after_state, tag)
+      return me._verify_recipe_and_emit(recipe_out, after_state, next_idx, tag)
+    }
+    if stmt_name == "Return" {
+      local recipe_out = RecipeFactsBox.from_stmt("Return", current_state, after_state, tag)
+      return me._verify_recipe_and_emit(recipe_out, after_state, next_idx, tag)
+    }
+    return me._emit_out_from_state(
+      1,
+      tag + "[cap_missing/stmt:" + stmt_name + "] unsupported non-control stmt",
+      next_idx,
+      current_state
+    )
   }
 
   _non_control_handler_out_result(node_type, program_json, idx, next_idx, tag, current_state): MapBox {
@@ -443,7 +463,7 @@ static box ProgramJsonV0PhaseStateConsumerBox {
     local handler_out = me._non_control_handler_out_result(node_type, program_json, idx, next_idx, tag, current_state)
     if me._map_i64(handler_out, "ok") != 1 { return me._non_control_no_match() }
     return me._non_control_out_ok(me._emit_non_control_stmt_or_handler_error(
-      me._map_s(handler_out, "stmt_name"),
+      node_type,
       BoxHelpers.map_get(handler_out, "result"),
       next_idx,
       tag,
@@ -628,7 +648,7 @@ static box ProgramJsonV0PhaseStateConsumerBox {
     return %{
       "err" => 0,
       "out" => null,
-      "node_type" => me._map_s(node, "type"),
+      "node_type" => BoxHelpers.map_get(node, "type"),
       "next_idx" => me._map_i64(node, "next")
     }
   }
@@ -703,7 +723,7 @@ static box ProgramJsonV0PhaseStateConsumerBox {
     }
 
     local dispatch_out = me._dispatch_or_unsupported(
-      me._map_s(node_info, "node_type"),
+      BoxHelpers.map_get(node_info, "node_type"),
       program_json,
       idx,
       me._map_i64(node_info, "next_idx"),

@@ -111,7 +111,7 @@ static box RecipeFactsBox {
 
   from_stmt(stmt_kind, state_before, state_after, tag): MapBox {
     tag = me._tag(tag)
-    if stmt_kind == null || ("" + stmt_kind) == "" {
+    if stmt_kind == null || stmt_kind == "" {
       return me._err(tag, "[recipe_facts] missing stmt kind")
     }
     if state_before == null || BoxHelpers.is_map(state_before) != 1 {
@@ -121,7 +121,6 @@ static box RecipeFactsBox {
       return me._err(tag, "[recipe_facts] missing state_after map")
     }
 
-    stmt_kind = "" + stmt_kind
     if stmt_kind == "Print" { return me._from_print(state_after, tag) }
     if stmt_kind == "Local" { return me._from_local(state_after, tag) }
     if stmt_kind == "Assignment" { return me._from_assignment(state_after, tag) }

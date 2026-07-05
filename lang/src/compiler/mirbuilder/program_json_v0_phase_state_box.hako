@@ -248,7 +248,7 @@ static box ProgramJsonV0PhaseStateBox {
       out.set("ok", 0)
       return out
     }
-    if RecipeItemBox.kind_of(child) != "Seq" || ("" + BoxHelpers.map_get(child, "leaf_kind")) != "Stmt" {
+    if BoxHelpers.map_get(child, "kind") != "Seq" || BoxHelpers.map_get(child, "leaf_kind") != "Stmt" {
       local out = me._emit_scan_error(
         tag,
         "[cap_missing/recipe_verifier] composite recipe child must be Stmt leaf",
@@ -264,8 +264,8 @@ static box ProgramJsonV0PhaseStateBox {
   }
 
   _append_recipe_item_result(recipe_items, recipe_item, tag, next_idx, state): MapBox {
-    local kind = RecipeItemBox.kind_of(recipe_item)
-    local leaf_kind = "" + BoxHelpers.map_get(recipe_item, "leaf_kind")
+    local kind = BoxHelpers.map_get(recipe_item, "kind")
+    local leaf_kind = BoxHelpers.map_get(recipe_item, "leaf_kind")
 
     if kind == "Seq" && leaf_kind != "Stmt" {
       local children = BoxHelpers.map_get(recipe_item, "items")
