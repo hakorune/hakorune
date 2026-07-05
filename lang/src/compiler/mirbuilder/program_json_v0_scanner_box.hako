@@ -65,12 +65,14 @@ static box ProgramJsonV0ScannerBox {
     if key == "finally" { return "\"finally\":" }
     if key == "fields" { return "\"fields\":" }
     if key == "iface" { return "\"iface\":" }
+    if key == "index" { return "\"index\":" }
     if key == "kind" { return "\"kind\":" }
     if key == "k" { return "\"k\":" }
     if key == "label" { return "\"label\":" }
     if key == "lhs" { return "\"lhs\":" }
     if key == "method" { return "\"method\":" }
     if key == "name" { return "\"name\":" }
+    if key == "object" { return "\"object\":" }
     if key == "op" { return "\"op\":" }
     if key == "param" { return "\"param\":" }
     if key == "payload_type" { return "\"payload_type\":" }
