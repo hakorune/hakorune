@@ -345,16 +345,15 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PROGRAMJSON-LOOP-BODY-CONTROL-FLOW-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2998-MIRBUILDER-PROGRAMJSON-LOOP-BODY-CONTROL-FLOW-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001.md"
-latest_card_summary = """3001 landed extern-call return value-type
-publication through RouteReturnShapeValueTypePublisherV1: stable scalar/string
-extern returns now publish value_types while native pointer / ambiguous shapes
-remain unpublished. 2998 is active again to mark only the covered
-LoopBodyControlFlowSnapshotV1 ProgramJSON traversal slice as a Rust ASTNode
-projector retire-candidate. No full projector retirement, route-family
-unification, backend lowering, ABI, ProgramJSON full parser, MIR mutation,
-ID allocation, or Source Selfhost claim is made."""
+latest_card = "MIRBUILDER-PROGRAMJSON-NEXT-CAPABILITY-SELECTION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3003-MIRBUILDER-PROGRAMJSON-NEXT-CAPABILITY-SELECTION-001.md"
+latest_card_summary = """2998 landed the scoped Rust ASTNode projector
+retire-candidate for the covered LoopBodyControlFlowSnapshotV1 ProgramJSON
+traversal slice: 10 covered rows are candidate-only, runtime dependency removal
+remains 0, and full projector retirement remains 0. 3003 is active to select
+the next ProgramJSON traversal capability. No full projector retirement,
+route-family unification, backend lowering, ABI, ProgramJSON full parser, MIR
+mutation, ID allocation, or Source Selfhost claim is made."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -365,6 +364,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-05: 2998 lands the covered LoopBodyControlFlowSnapshotV1 ProgramJSON traversal slice as a scoped Rust ASTNode projector retire-candidate; 3003 is active for next capability selection.",
   "2026-07-05: 3001 lands extern-call return value-type publication through RouteReturnShapeValueTypePublisherV1; 2998 is active again for the covered ProgramJSON Loop.body Rust ASTNode projector retire-candidate.",
   "2026-07-05: 3000 lands generic-method scalar return value-type publication through RouteReturnShapeValueTypePublisherV1; 3001 is active for extern-call return publication.",
   "2026-07-05: 2999 lands helper polymorphic input publication policy for six known param0 helpers; 3000 is active for generic-method scalar return value-type publication.",
@@ -375,5 +375,4 @@ landed_tail = [
   "2026-07-05: 2994 stops the one-shape ProgramJSON cadence and selects Loop.body control-flow scan as the next implementation-capability batch; selfhost and full projector retirement remain unclaimed.",
   "2026-07-05: 2993 adds ProgramJSON second-stmt-not-return reject snapshot parity and marks LoopCondContinueSecondStmtNotReturnRejectV1 as a one-shape Rust ASTNode projector retire-candidate; runtime dependency removal remains unclaimed.",
   "2026-07-05: 2992 adds ProgramJSON no-return if-only reject snapshot parity and marks LoopCondContinueNoReturnIfOnlyRejectV1 as a one-shape Rust ASTNode projector retire-candidate; runtime dependency removal remains unclaimed.",
-  "2026-07-05: 2991 adds ProgramJSON first-stmt-not-if reject snapshot parity and marks LoopCondContinueFirstStmtNotIfRejectV1 as a one-shape Rust ASTNode projector retire-candidate; runtime dependency removal remains unclaimed.",
 ]

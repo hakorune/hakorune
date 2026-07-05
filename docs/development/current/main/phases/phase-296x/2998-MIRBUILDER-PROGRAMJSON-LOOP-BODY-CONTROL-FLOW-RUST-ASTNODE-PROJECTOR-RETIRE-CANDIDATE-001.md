@@ -1,6 +1,6 @@
 # 2998 - MIRBUILDER-PROGRAMJSON-LOOP-BODY-CONTROL-FLOW-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
 
-Status: active
+Status: landed
 
 ## Scope
 
@@ -45,6 +45,20 @@ covered_shapes:
   if_hidden_nested_loop
   if_then_continue_no_return
   second_stmt_not_return
+```
+
+## Evidence
+
+```text
+bash tools/checks/rust_lifecycle_mirbuilder_programjson_loop_body_control_flow_retire_rust_astnode_projector_candidate_guard.sh
+
+retire_candidate=LoopBodyControlFlowSnapshotV1
+covered_rows=10
+rust_projector_runtime_dependency_removed=0
+rust_projector_oracle_only=1
+full_astnode_projector_retired=0
+source_selfhost_claim=0
+programjson_full_parser_claim=0
 ```
 
 ## Not Retired

@@ -60,7 +60,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-LOOP-BODY-CONTROL-FLOW-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+  MIRBUILDER-PROGRAMJSON-NEXT-CAPABILITY-SELECTION-001
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -90,12 +90,13 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  3001 is green: extern-call return publication now uses
-  RouteReturnShapeValueTypePublisherV1 for stable scalar/string shapes while
-  native pointer and ambiguous shapes remain unpublished. 2999-3001 closed the
-  AOT/MIR publication cleanup required before ProgramJSON retirement work.
-  Resume 2998 for the covered LoopBodyControlFlowSnapshotV1 Rust ASTNode
-  projector retire-candidate.
+  2998 is green: the covered LoopBodyControlFlowSnapshotV1 ProgramJSON
+  traversal slice is now a scoped Rust ASTNode projector retire-candidate.
+  Runtime dependency removal, full projector retirement, ProgramJSON full
+  parser, HakoAdoption, lowering, mutation, route selection, ID allocation, and
+  Source Selfhost remain unclaimed. Next select one ProgramJSON traversal
+  capability that can retire-candidate another concrete Rust ASTNode projector
+  slice without returning to string-only facade expansion.
   3002 records later dynamic typing hint inventory for Float binops, PHI
   roundtrip, mir_call dst_type, and string relational compare policy.
   ProgramJSON migration remains capability-batch based; full projector
@@ -400,8 +401,8 @@ Detailed evidence lives in phase cards, fixtures, and git history.
 
 ## Active Next 3
 ```text
-1. MIRBUILDER-PROGRAMJSON-LOOP-BODY-CONTROL-FLOW-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
-   status=active; boundary=covered LoopBodyControlFlowSnapshotV1 slice only
+1. MIRBUILDER-PROGRAMJSON-NEXT-CAPABILITY-SELECTION-001
+   status=active; boundary=select one ProgramJSON traversal capability only
 
 2. ProgramJSON retire-candidate continuation
    status=pending; boundary=no full projector retirement, parser claim, lowering, mutation, ID allocation, or Source Selfhost
@@ -410,7 +411,7 @@ Detailed evidence lives in phase cards, fixtures, and git history.
    status=parked; boundary=3002 Tier-2/Tier-3 inventory only
 
 next_documented_task =
-  MIRBUILDER-PROGRAMJSON-LOOP-BODY-CONTROL-FLOW-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+  MIRBUILDER-PROGRAMJSON-NEXT-CAPABILITY-SELECTION-001
 
 next_after_active_3 =
   return to ProgramJSON capability-batch retire-candidate continuation
