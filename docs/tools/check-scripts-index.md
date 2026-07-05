@@ -97,6 +97,7 @@ phase-1 compatibility Program(JSON) compat execution helper.
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_expr_logical_shape_scan_parity_gate.sh` | Capability-batch parity for `.hako` `ProgramJsonExprLogicalShapeScanV1`. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_expr_logical_shape_retire_rust_astnode_projector_candidate_guard.sh` | Retire-candidate guard for the covered `ExprLogicalShapeSnapshotV1` ProgramJSON traversal slice. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_expr_unary_shape_scan_parity_gate.sh` | Capability-batch parity for `.hako` `ProgramJsonExprUnaryShapeScanV1`. |
+| `tools/checks/rust_lifecycle_mirbuilder_programjson_expr_unary_shape_retire_rust_astnode_projector_candidate_guard.sh` | Retire-candidate guard for the covered `ExprUnaryShapeSnapshotV1` ProgramJSON traversal slice. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_local_array_literal_shape_scan_parity_gate.sh` | Capability-batch parity for `.hako` `ProgramJsonLocalArrayLiteralShapeScanV1`. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_local_array_literal_shape_retire_rust_astnode_projector_candidate_guard.sh` | Retire-candidate guard for the covered `LocalArrayLiteralShapeSnapshotV1` ProgramJSON traversal slice. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_print_call_shape_scan_parity_gate.sh` | Capability-batch parity for `.hako` `ProgramJsonPrintCallShapeScanV1`. |
