@@ -1,6 +1,6 @@
 # 3024 - MIRBUILDER-PROGRAMJSON-EXPR-COMPARE-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
 
-Status: active
+Status: landed
 
 ## Scope
 
@@ -51,3 +51,22 @@ ExprCompareShapeSnapshotV1 for covered Expr.expr Compare ProgramJSON rows
 - runtime Rust projector dependency removal remains `0`;
 - Rust projector remains oracle-only;
 - string relational ordering semantics remains unclaimed.
+
+## Evidence
+
+```bash
+bash tools/checks/rust_lifecycle_mirbuilder_programjson_expr_compare_shape_retire_rust_astnode_projector_candidate_guard.sh
+```
+
+Decision fixture:
+
+```text
+docs/development/current/main/design/fixtures/rust-lifecycle/
+  mirbuilder-programjson-expr-compare-shape-retire-rust-astnode-projector-candidate-v0.json
+```
+
+## Next
+
+```text
+MIRBUILDER-PROGRAMJSON-EXPR-LOGICAL-SHAPE-SCAN-CAPABILITY-001
+```
