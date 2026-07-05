@@ -1,0 +1,105 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonLocalFloatLiteralShapeScanParityV1",
+  "token": "MIRBUILDER-PROGRAMJSON-LOCAL-FLOAT-LITERAL-SHAPE-SCAN-CAPABILITY-001",
+  "capability": {
+    "name": "ProgramJsonLocalFloatLiteralShapeScanV1",
+    "input": "ProgramJSON v0",
+    "output": "LocalFloatLiteralShapeSnapshotV1"
+  },
+  "routes": {
+    "rust_oracle_route": "source -> RHako parser -> Rust ASTNode -> Rust Local float literal token snapshot",
+    "hako_programjson_route": "source -> HHako parser -> ProgramJSON -> HHako Local float literal token snapshot"
+  },
+  "rows": [
+    {
+      "row_id": "top_local_float_zero",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "x", "expr": {"type": "Float", "value": 0.0}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalFloatLiteralShapeSnapshotV1;top_local_float_literal_shape_kind=FloatZero;if_then_local_float_literal_shape_kind=Missing;if_else_local_float_literal_shape_kind=Missing;supported_local_float_literal_count=1;unsupported_local_float_literal_count=0"
+      }
+    },
+    {
+      "row_id": "top_local_float_one_point_five",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "ratio", "expr": {"type": "Float", "value": 1.5}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalFloatLiteralShapeSnapshotV1;top_local_float_literal_shape_kind=FloatOnePointFive;if_then_local_float_literal_shape_kind=Missing;if_else_local_float_literal_shape_kind=Missing;supported_local_float_literal_count=1;unsupported_local_float_literal_count=0"
+      }
+    },
+    {
+      "row_id": "top_local_float_negative",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "delta", "expr": {"type": "Float", "value": -2.25}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalFloatLiteralShapeSnapshotV1;top_local_float_literal_shape_kind=FloatNegativeTwoPointTwoFive;if_then_local_float_literal_shape_kind=Missing;if_else_local_float_literal_shape_kind=Missing;supported_local_float_literal_count=1;unsupported_local_float_literal_count=0"
+      }
+    },
+    {
+      "row_id": "top_local_float_other",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "weight", "expr": {"type": "Float", "value": 3.75}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalFloatLiteralShapeSnapshotV1;top_local_float_literal_shape_kind=FloatOther;if_then_local_float_literal_shape_kind=Missing;if_else_local_float_literal_shape_kind=Missing;supported_local_float_literal_count=1;unsupported_local_float_literal_count=0"
+      }
+    },
+    {
+      "row_id": "top_local_int_unsupported",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "n", "expr": {"type": "Int", "value": 1}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalFloatLiteralShapeSnapshotV1;top_local_float_literal_shape_kind=Unsupported;if_then_local_float_literal_shape_kind=Missing;if_else_local_float_literal_shape_kind=Missing;supported_local_float_literal_count=0;unsupported_local_float_literal_count=1"
+      }
+    },
+    {
+      "row_id": "top_local_str_unsupported",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "s", "expr": {"type": "Str", "value": "hello"}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalFloatLiteralShapeSnapshotV1;top_local_float_literal_shape_kind=Unsupported;if_then_local_float_literal_shape_kind=Missing;if_else_local_float_literal_shape_kind=Missing;supported_local_float_literal_count=0;unsupported_local_float_literal_count=1"
+      }
+    },
+    {
+      "row_id": "if_then_local_float",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "If", "cond": {"type": "Bool", "value": true}, "then": [{"type": "Local", "name": "ratio", "expr": {"type": "Float", "value": 1.5}}], "else": null}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalFloatLiteralShapeSnapshotV1;top_local_float_literal_shape_kind=Missing;if_then_local_float_literal_shape_kind=FloatOnePointFive;if_else_local_float_literal_shape_kind=Missing;supported_local_float_literal_count=1;unsupported_local_float_literal_count=0"
+      }
+    },
+    {
+      "row_id": "if_else_local_float",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "If", "cond": {"type": "Bool", "value": true}, "then": [], "else": [{"type": "Local", "name": "delta", "expr": {"type": "Float", "value": -2.25}}]}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalFloatLiteralShapeSnapshotV1;top_local_float_literal_shape_kind=Missing;if_then_local_float_literal_shape_kind=Missing;if_else_local_float_literal_shape_kind=FloatNegativeTwoPointTwoFive;supported_local_float_literal_count=1;unsupported_local_float_literal_count=0"
+      }
+    },
+    {
+      "row_id": "first_stmt_not_local_unsupported",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Return", "expr": {"type": "Float", "value": 1.5}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalFloatLiteralShapeSnapshotV1;top_local_float_literal_shape_kind=Unsupported;if_then_local_float_literal_shape_kind=Missing;if_else_local_float_literal_shape_kind=Missing;supported_local_float_literal_count=0;unsupported_local_float_literal_count=1"
+      }
+    }
+  ],
+  "summary": {
+    "parity_row_count": 9,
+    "programjson_traversal_used": 1,
+    "string_only_facade": 0,
+    "rust_astnode_projector_retire_candidate": 1
+  },
+  "decision": {
+    "kind": "ProgramJsonLocalFloatLiteralShapeScanParityGreen",
+    "reason_token": "LocalFloatLiteralShapeProgramJsonSnapshotMatchesRustAstNodeOracle",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-LOCAL-FLOAT-LITERAL-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "programjson_full_parser_claim": 0,
+    "hako_adopted_for_full_owner": 0,
+    "float_lowering": 0,
+    "dynamic_numeric_typing": 0
+  }
+}
