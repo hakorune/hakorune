@@ -1,0 +1,96 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonLocalBindingShapeScanParityV1",
+  "token": "MIRBUILDER-PROGRAMJSON-LOCAL-BINDING-SHAPE-SCAN-CAPABILITY-001",
+  "capability": {
+    "name": "ProgramJsonLocalBindingShapeScanV1",
+    "input": "ProgramJSON v0",
+    "output": "LocalBindingShapeSnapshotV1"
+  },
+  "routes": {
+    "rust_oracle_route": "source -> RHako parser -> Rust ASTNode -> Rust local-binding token snapshot",
+    "hako_programjson_route": "source -> HHako parser -> ProgramJSON -> HHako local-binding token snapshot"
+  },
+  "rows": [
+    {
+      "row_id": "local_int_then_return_var",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "value", "expr": {"type": "Int", "value": 1}}, {"type": "Return", "expr": {"type": "Var", "name": "value"}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalBindingShapeSnapshotV1;top_local_init_kind=Int;if_then_local_init_kind=Missing;if_else_local_init_kind=Missing;supported_local_init_count=1;unsupported_local_init_count=0"
+      }
+    },
+    {
+      "row_id": "local_bool_then_return_var",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "flag", "expr": {"type": "Bool", "value": true}}, {"type": "Return", "expr": {"type": "Var", "name": "flag"}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalBindingShapeSnapshotV1;top_local_init_kind=BoolTrue;if_then_local_init_kind=Missing;if_else_local_init_kind=Missing;supported_local_init_count=1;unsupported_local_init_count=0"
+      }
+    },
+    {
+      "row_id": "local_var_alias_then_return_var",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "copy", "expr": {"type": "Var", "name": "input"}}, {"type": "Return", "expr": {"type": "Var", "name": "copy"}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalBindingShapeSnapshotV1;top_local_init_kind=Var;if_then_local_init_kind=Missing;if_else_local_init_kind=Missing;supported_local_init_count=1;unsupported_local_init_count=0"
+      }
+    },
+    {
+      "row_id": "local_compare_var_lt_int_then_return_var",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "ok", "expr": {"type": "Compare", "op": "Lt", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 10}}}, {"type": "Return", "expr": {"type": "Var", "name": "ok"}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalBindingShapeSnapshotV1;top_local_init_kind=CompareVarLtInt;if_then_local_init_kind=Missing;if_else_local_init_kind=Missing;supported_local_init_count=1;unsupported_local_init_count=0"
+      }
+    },
+    {
+      "row_id": "local_compare_var_eq_int_then_return_var",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "ok", "expr": {"type": "Compare", "op": "Eq", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 0}}}, {"type": "Return", "expr": {"type": "Var", "name": "ok"}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalBindingShapeSnapshotV1;top_local_init_kind=CompareVarEqInt;if_then_local_init_kind=Missing;if_else_local_init_kind=Missing;supported_local_init_count=1;unsupported_local_init_count=0"
+      }
+    },
+    {
+      "row_id": "local_call_unsupported_then_return_var",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "value", "expr": {"type": "Call", "callee": "id", "args": []}}, {"type": "Return", "expr": {"type": "Var", "name": "value"}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalBindingShapeSnapshotV1;top_local_init_kind=Unsupported;if_then_local_init_kind=Missing;if_else_local_init_kind=Missing;supported_local_init_count=0;unsupported_local_init_count=1"
+      }
+    },
+    {
+      "row_id": "if_then_local_int_then_return_var",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "If", "cond": {"type": "Bool", "value": true}, "then": [{"type": "Local", "name": "value", "expr": {"type": "Int", "value": 1}}, {"type": "Return", "expr": {"type": "Var", "name": "value"}}], "else": null}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalBindingShapeSnapshotV1;top_local_init_kind=Missing;if_then_local_init_kind=Int;if_else_local_init_kind=Missing;supported_local_init_count=1;unsupported_local_init_count=0"
+      }
+    },
+    {
+      "row_id": "if_else_local_var_then_return_var",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "If", "cond": {"type": "Bool", "value": true}, "then": [], "else": [{"type": "Local", "name": "copy", "expr": {"type": "Var", "name": "input"}}, {"type": "Return", "expr": {"type": "Var", "name": "copy"}}]}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalBindingShapeSnapshotV1;top_local_init_kind=Missing;if_then_local_init_kind=Missing;if_else_local_init_kind=Var;supported_local_init_count=1;unsupported_local_init_count=0"
+      }
+    }
+  ],
+  "summary": {
+    "parity_row_count": 8,
+    "programjson_traversal_used": 1,
+    "string_only_facade": 0,
+    "rust_astnode_projector_retire_candidate": 1
+  },
+  "decision": {
+    "kind": "ProgramJsonLocalBindingShapeScanParityGreen",
+    "reason_token": "LocalBindingShapeProgramJsonSnapshotMatchesRustAstNodeOracle",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-LOCAL-BINDING-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "programjson_full_parser_claim": 0,
+    "hako_adopted_for_full_owner": 0
+  }
+}
