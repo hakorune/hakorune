@@ -60,7 +60,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-LOOP-STEP-SHAPE-AUTHORITY-FACADE-PARITY-001
+  MIRBUILDER-FACT-OWNER-PARITY-PILOT-SELECTION-024
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -74,17 +74,19 @@ normal operating rule:
   and `loop_break_body_local_facts`.
   Recent scoped Fact facades include scan/loop true/if-phi/loop-cond owners
   and loop-break body-local / step-before-break owners.
-  Selection-023 chooses `try_extract_step_shape`; loop condition shape,
-  nested-loop minimal composition, lowering, mutation, allocation, and Source
-  Selfhost remain unclaimed.
+  Selection-023 is superseded because `loop_step_shape` was already
+  parity-landed and HakoAdopted in phase cards 2908/2909. Selection-024 must
+  first exclude existing parity/adoption owners from check-scripts index,
+  phase cards, and `lang/src/compiler/lib`, then choose one smallest remaining
+  fixture-backed candidate.
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  Selection-023 chooses `loop_step_shape.authority_facade` as the next
-  fixture-backed parity pilot. Recent adopted facades remain scoped DTO owners
-  only; AST traversal, loop condition shape extraction, nested-loop minimal
-  composition, route selection, MIR mutation, ID allocation, and Source
-  Selfhost remain unclaimed unless a specific card says otherwise.
+  Selection-023 correction: already HakoAdopted owners are not valid next
+  implementation targets. Recent adopted facades remain scoped DTO owners
+  only; AST traversal, nested-loop minimal composition, route selection, MIR
+  mutation, ID allocation, and Source Selfhost remain unclaimed unless a
+  specific card says otherwise.
   Authority facade comes before crate split: Rust may be reorganized around
   meaning units only after the authority seam is fixture-backed and parity
   proven. The next hard-authority pilot should target Fact -> DTO or one
