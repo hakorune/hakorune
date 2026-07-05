@@ -112,6 +112,8 @@ phase-1 compatibility Program(JSON) compat execution helper.
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_looprange_shape_retire_rust_astnode_projector_candidate_guard.sh` | Retire-candidate guard for the covered `LoopRangeShapeSnapshotV1` ProgramJSON traversal slice. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_try_shape_scan_parity_gate.sh` | Capability-batch parity for `.hako` `ProgramJsonTryShapeScanV1`. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_try_shape_retire_rust_astnode_projector_candidate_guard.sh` | Retire-candidate guard for the covered `TryShapeSnapshotV1` ProgramJSON traversal slice. |
+| `tools/checks/rust_lifecycle_mirbuilder_programjson_trycatch_shape_scan_parity_gate.sh` | Capability-batch parity for `.hako` `ProgramJsonTryCatchShapeScanV1`. |
+| `tools/checks/rust_lifecycle_mirbuilder_programjson_trycatch_shape_retire_rust_astnode_projector_candidate_guard.sh` | Retire-candidate guard for the covered `TryCatchShapeSnapshotV1` ProgramJSON traversal slice. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_assign_shape_scan_parity_gate.sh` | Capability-batch parity for `.hako` `ProgramJsonAssignShapeScanV1`. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_assign_shape_retire_rust_astnode_projector_candidate_guard.sh` | Retire-candidate guard for the covered `AssignShapeSnapshotV1` ProgramJSON traversal slice. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_enum_match_shape_scan_parity_gate.sh` | Capability-batch parity for `.hako` `ProgramJsonEnumMatchShapeScanV1`. |

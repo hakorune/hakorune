@@ -1,0 +1,197 @@
+// program_json_trycatch_shape_scan.hako
+//
+// Responsibility:
+// - Traverse covered Program(JSON v0) TryCatch objects structurally.
+// - Emit TryCatchShapeSnapshotV1 summaries for MirBuilder migration parity.
+//
+// Non-responsibility:
+// - Exception runtime semantics, catch matching, cleanup/finally execution
+//   semantics, RecipeMatcher execution, route selection, MIR mutation, backend
+//   lowering, ID allocation, source text matching, or parser integration.
+
+using selfhost.shared.common.string_helpers as StringHelpers
+using lang.compiler.mirbuilder.program_json_v0_scanner_box as ProgramJsonV0ScannerBox
+
+static box ProgramJsonTryCatchShapeScanBox {
+  build_summary(program_json) {
+    if program_json == null || ("" + program_json) == "" {
+      return me._fail("missing_program_json")
+    }
+    program_json = "" + program_json
+
+    local body = me._array_field_start(program_json, "body", 0)
+    if body < 0 { return me._fail("cap_missing_program_body") }
+
+    local first = me._first_object_in_array(program_json, body)
+    if first < 0 { return me._fail("cap_missing_first_stmt") }
+
+    if me._kind_at(program_json, first) != "TryCatch" {
+      return me._summary("Unsupported", 0, 1)
+    }
+
+    local kind = me._trycatch_kind(program_json, first)
+    return me._summary(kind, me._supported_count(kind), me._unsupported_count(kind))
+  }
+
+  _summary(kind, supported, unsupported) {
+    return "snapshot_kind=TryCatchShapeSnapshotV1"
+      + ";top_trycatch_shape_kind=" + kind
+      + ";supported_trycatch_count=" + me._count_token(supported)
+      + ";unsupported_trycatch_count=" + me._count_token(unsupported)
+  }
+
+  _trycatch_kind(s, try_start) {
+    local try_array = me._array_field_start(s, "try", try_start)
+    local catch_array = me._array_field_start(s, "catch", try_start)
+    if try_array < 0 || catch_array < 0 { return "Unsupported" }
+
+    local try_kind = me._array_first_stmt_kind(s, try_array)
+    local catch_kind = me._catch_array_kind(s, catch_array)
+    local cleanup_kind = me._cleanup_kind(s, try_start)
+
+    if try_kind == "Throw" && catch_kind == "NoCatch" && cleanup_kind == "Missing" {
+      return "TryThrowNoCatchNoCleanup"
+    }
+    if try_kind == "Return" && catch_kind == "OneCatchReturn" && cleanup_kind == "Missing" {
+      return "TryReturnOneCatchNoCleanup"
+    }
+    if try_kind == "Expr" && catch_kind == "OneCatchEmpty" && cleanup_kind == "Expr" {
+      return "TryExprOneCatchCleanupExpr"
+    }
+    if try_kind == "Empty" && catch_kind == "ManyCatches" && cleanup_kind == "Missing" {
+      return "TryEmptyManyCatchesNoCleanup"
+    }
+    if try_kind == "Return" && catch_kind == "NoCatch" && cleanup_kind == "Return" {
+      return "TryReturnNoCatchCleanupReturn"
+    }
+    return "Unsupported"
+  }
+
+  _cleanup_kind(s, try_start) {
+    local p = ProgramJsonV0ScannerBox.seek_obj_field_value_start(s, "cleanup", try_start)
+    if p < 0 { return "Missing" }
+    p = StringHelpers.skip_ws(s, p)
+    if s.substring(p, p + 4) == "null" { return "Missing" }
+    if ProgramJsonV0ScannerBox._read_char(s, p) != "[" { return "Unsupported" }
+    return me._array_first_stmt_kind(s, p)
+  }
+
+  _catch_array_kind(s, array_start) {
+    local p = StringHelpers.skip_ws(s, array_start + 1)
+    if ProgramJsonV0ScannerBox._read_char(s, p) == "]" { return "NoCatch" }
+
+    local first = me._first_object_in_array(s, array_start)
+    if first < 0 { return "Unsupported" }
+    local first_end = ProgramJsonV0ScannerBox.seek_obj_end_unescaped(s, first)
+    if first_end < 0 { return "Unsupported" }
+    local after_first = StringHelpers.skip_ws(s, first_end)
+    if ProgramJsonV0ScannerBox._read_char(s, after_first) == "," { return "ManyCatches" }
+
+    local catch_body = me._array_field_start(s, "body", first)
+    if catch_body < 0 { return "Unsupported" }
+    local body_kind = me._array_first_stmt_kind(s, catch_body)
+    if body_kind == "Return" { return "OneCatchReturn" }
+    if body_kind == "Throw" { return "OneCatchThrow" }
+    if body_kind == "Empty" { return "OneCatchEmpty" }
+    return "Unsupported"
+  }
+
+  _array_first_stmt_kind(s, array_start) {
+    local p = StringHelpers.skip_ws(s, array_start + 1)
+    if ProgramJsonV0ScannerBox._read_char(s, p) == "]" { return "Empty" }
+    local first = me._first_object_in_array(s, array_start)
+    if first < 0 { return "Unsupported" }
+    local ty = me._stmt_type_at(s, first)
+    if ty == "Throw" { return "Throw" }
+    if ty == "Return" { return "Return" }
+    if ty == "Expr" { return "Expr" }
+    if ty == "TryCatch" { return "NestedTryCatchUnsupported" }
+    return "Unsupported"
+  }
+
+  _supported_count(kind) {
+    if kind == "Unsupported" { return 0 }
+    return 1
+  }
+
+  _unsupported_count(kind) {
+    if kind == "Unsupported" { return 1 }
+    return 0
+  }
+
+  _count_token(n) {
+    if n <= 0 { return "0" }
+    if n == 1 { return "1" }
+    return "many"
+  }
+
+  _fail(reason) {
+    return "accepted=0;reason=" + reason
+  }
+
+  _array_field_start(s, key, obj_start) {
+    if obj_start < 0 { return -1 }
+    local p = ProgramJsonV0ScannerBox.seek_obj_field_value_start(s, key, obj_start)
+    if p < 0 { return -1 }
+    p = StringHelpers.skip_ws(s, p)
+    if ProgramJsonV0ScannerBox._read_char(s, p) != "[" { return -1 }
+    return p
+  }
+
+  _first_object_in_array(s, array_start) {
+    if array_start < 0 { return -1 }
+    local p = StringHelpers.skip_ws(s, array_start + 1)
+    if ProgramJsonV0ScannerBox._read_char(s, p) != "{" { return -1 }
+    return p
+  }
+
+  _kind_at(s, obj_start) {
+    return me._string_field_at(s, "kind", obj_start)
+  }
+
+  _stmt_type_at(s, obj_start) {
+    local ty = me._string_field_at_quiet(s, "type", obj_start)
+    if ty != "" { return ty }
+    return me._string_field_at_quiet(s, "kind", obj_start)
+  }
+
+  _string_field_at(s, key, obj_start) {
+    local p = ProgramJsonV0ScannerBox.seek_obj_field_value_start(s, key, obj_start)
+    if p < 0 { return "" }
+    p = StringHelpers.skip_ws(s, p)
+    if ProgramJsonV0ScannerBox._read_char(s, p) != "\"" { return "" }
+    local end_quote = StringHelpers.index_of(s, p + 1, "\"")
+    if end_quote < 0 { return "" }
+    return s.substring(p + 1, end_quote)
+  }
+
+  _string_field_at_quiet(s, key, obj_start) {
+    local p = me._quiet_obj_field_value_start(s, key, obj_start)
+    if p < 0 { return "" }
+    p = StringHelpers.skip_ws(s, p)
+    if ProgramJsonV0ScannerBox._read_char(s, p) != "\"" { return "" }
+    local end_quote = StringHelpers.index_of(s, p + 1, "\"")
+    if end_quote < 0 { return "" }
+    return s.substring(p + 1, end_quote)
+  }
+
+  _quiet_obj_field_value_start(s, key, obj_start) {
+    if s == null { return -1 }
+    if obj_start < 0 { return -1 }
+    local end = ProgramJsonV0ScannerBox.seek_obj_end_unescaped(s, obj_start)
+    if end < 0 { return -1 }
+    local obj = s.substring(obj_start, end)
+    local needle = me._quiet_field_needle(key)
+    local p = StringHelpers.index_of(obj, 0, needle)
+    if p < 0 || (obj_start + p) >= end { return -1 }
+    return obj_start + p + needle.length()
+  }
+
+  _quiet_field_needle(key) {
+    if key == "kind" { return "\"kind\":" }
+    if key == "type" { return "\"type\":" }
+    return "\"" + ("" + key) + "\":"
+  }
+}
+
+static box ProgramJsonTryCatchShapeScanMain { main() { return 0 } }

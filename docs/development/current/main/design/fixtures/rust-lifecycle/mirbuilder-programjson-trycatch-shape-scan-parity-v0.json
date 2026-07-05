@@ -1,0 +1,89 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonTryCatchShapeScanParityV1",
+  "token": "MIRBUILDER-PROGRAMJSON-TRYCATCH-SHAPE-SCAN-CAPABILITY-001",
+  "capability": {
+    "name": "ProgramJsonTryCatchShapeScanV1",
+    "input": "ProgramJSON v0",
+    "output": "TryCatchShapeSnapshotV1"
+  },
+  "routes": {
+    "rust_oracle_route": "source -> RHako parser -> Rust ASTNode -> Rust TryCatch token snapshot",
+    "hako_programjson_route": "source -> HHako parser -> ProgramJSON -> HHako TryCatch token snapshot"
+  },
+  "programjson_emit_evidence": {
+    "source": "src/macro/ast_json/joinir_compat.rs",
+    "node_kind": "TryCatch",
+    "node_type": null,
+    "fields": ["try", "catch", "cleanup"]
+  },
+  "rows": [
+    {
+      "row_id": "try_throw_no_catch_no_cleanup",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "TryCatch", "try": [{"type": "Throw", "expr": {"type": "Int", "value": 1}}], "catch": [], "cleanup": null}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=TryCatchShapeSnapshotV1;top_trycatch_shape_kind=TryThrowNoCatchNoCleanup;supported_trycatch_count=1;unsupported_trycatch_count=0"}
+    },
+    {
+      "row_id": "try_return_one_catch_no_cleanup",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "TryCatch", "try": [{"type": "Return", "value": {"type": "Var", "name": "x"}}], "catch": [{"type": "Error", "var": "e", "body": [{"type": "Return", "value": {"type": "Int", "value": 1}}]}], "cleanup": null}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=TryCatchShapeSnapshotV1;top_trycatch_shape_kind=TryReturnOneCatchNoCleanup;supported_trycatch_count=1;unsupported_trycatch_count=0"}
+    },
+    {
+      "row_id": "try_expr_one_catch_cleanup_expr",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "TryCatch", "try": [{"type": "Expr", "expr": {"type": "Call", "name": "work", "args": []}}], "catch": [{"type": "Error", "var": "e", "body": []}], "cleanup": [{"type": "Expr", "expr": {"type": "Call", "name": "cleanup", "args": []}}]}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=TryCatchShapeSnapshotV1;top_trycatch_shape_kind=TryExprOneCatchCleanupExpr;supported_trycatch_count=1;unsupported_trycatch_count=0"}
+    },
+    {
+      "row_id": "try_empty_many_catches_no_cleanup",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "TryCatch", "try": [], "catch": [{"type": "E", "var": "e", "body": []}, {"type": "F", "var": "f", "body": []}], "cleanup": null}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=TryCatchShapeSnapshotV1;top_trycatch_shape_kind=TryEmptyManyCatchesNoCleanup;supported_trycatch_count=1;unsupported_trycatch_count=0"}
+    },
+    {
+      "row_id": "try_return_no_catch_cleanup_return",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "TryCatch", "try": [{"type": "Return", "value": {"type": "Int", "value": 1}}], "catch": [], "cleanup": [{"type": "Return", "value": {"type": "Int", "value": 2}}]}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=TryCatchShapeSnapshotV1;top_trycatch_shape_kind=TryReturnNoCatchCleanupReturn;supported_trycatch_count=1;unsupported_trycatch_count=0"}
+    },
+    {
+      "row_id": "nested_trycatch_unsupported",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "TryCatch", "try": [{"kind": "TryCatch", "try": [], "catch": [], "cleanup": null}], "catch": [], "cleanup": null}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=TryCatchShapeSnapshotV1;top_trycatch_shape_kind=Unsupported;supported_trycatch_count=0;unsupported_trycatch_count=1"}
+    },
+    {
+      "row_id": "cleanup_scalar_unsupported",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "TryCatch", "try": [], "catch": [], "cleanup": 1}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=TryCatchShapeSnapshotV1;top_trycatch_shape_kind=Unsupported;supported_trycatch_count=0;unsupported_trycatch_count=1"}
+    },
+    {
+      "row_id": "first_stmt_local_unsupported",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "Local", "type": "Local", "name": "i", "expr": {"type": "Int", "value": 0}}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=TryCatchShapeSnapshotV1;top_trycatch_shape_kind=Unsupported;supported_trycatch_count=0;unsupported_trycatch_count=1"}
+    }
+  ],
+  "summary": {
+    "parity_row_count": 8,
+    "programjson_traversal_used": 1,
+    "string_only_facade": 0,
+    "rust_astnode_projector_retire_candidate": 1
+  },
+  "decision": {
+    "kind": "ProgramJsonTryCatchShapeScanParityGreen",
+    "reason_token": "TryCatchShapeProgramJsonSnapshotMatchesRustAstNodeOracle",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-TRYCATCH-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "programjson_full_parser_claim": 0,
+    "hako_adopted_for_full_owner": 0,
+    "exception_runtime_semantics": 0,
+    "catch_matching": 0,
+    "cleanup_execution_semantics": 0
+  }
+}

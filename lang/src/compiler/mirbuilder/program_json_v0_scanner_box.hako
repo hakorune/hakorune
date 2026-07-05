@@ -49,8 +49,10 @@ static box ProgramJsonV0ScannerBox {
     if key == "args" { return "\"args\":" }
     if key == "body" { return "\"body\":" }
     if key == "brand" { return "\"brand\":" }
+    if key == "catch" { return "\"catch\":" }
     if key == "catches" { return "\"catches\":" }
     if key == "class" { return "\"class\":" }
+    if key == "cleanup" { return "\"cleanup\":" }
     if key == "cond" { return "\"cond\":" }
     if key == "constructors" { return "\"constructors\":" }
     if key == "contract" { return "\"contract\":" }

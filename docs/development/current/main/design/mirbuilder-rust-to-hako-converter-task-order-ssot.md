@@ -90,10 +90,9 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  3103 lands the covered BlockExprShapeSnapshotV1 ProgramJSON traversal
-  slice as a scoped Rust ASTNode projector retire-candidate. Next selected
-  capability is actual ProgramJSON v0 `TryCatch` emit evidence
-  (`kind=TryCatch`, fields `try`/`catch`/`cleanup`), not legacy `Try`.
+  3105 lands the covered TryCatchShapeSnapshotV1 ProgramJSON traversal slice as
+  a scoped Rust ASTNode projector retire-candidate. Next work selects the
+  layer-4 structured snapshot-to-Plan/Recipe DTO pilot.
   2997 stabilized the AOT/MIR value-type publication contract only for the
   proven route families. 3002 remains a trigger-based debt queue for Float
   Sub/Mul/Div, string Lt/Gt/Le/Ge policy, user-box single-observation
@@ -406,14 +405,14 @@ Detailed evidence lives in phase cards, fixtures, and git history.
    status=landed; boundary=selected TryCatch scan from emitted evidence
 
 2. MIRBUILDER-PROGRAMJSON-TRYCATCH-SHAPE-SCAN-CAPABILITY-001
-   status=active; boundary=real `.hako` TryCatch traversal + fixture + gate
+   status=landed; boundary=real `.hako` TryCatch traversal + fixture + gate
 
 3. MIRBUILDER-PROGRAMJSON-TRYCATCH-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
-   status=pending; boundary=only the covered TryCatchShapeSnapshotV1 rows
+   status=landed; boundary=only the covered TryCatchShapeSnapshotV1 rows
 
 next active:
-  MIRBUILDER-PROGRAMJSON-TRYCATCH-SHAPE-SCAN-CAPABILITY-001
-  status=active; boundary=fix and prove ProgramJsonTryCatchShapeScanV1 parity
+  MIRBUILDER-PROGRAMJSON-LAYER4-STRUCTURED-PLAN-RECIPE-DTO-PILOT-SELECTION
+  status=active; boundary=select the first structured snapshot-to-Plan/Recipe DTO pilot
 
 trigger-based AOT/MIR typing debt:
   status=parked-until-triggered; order=2999/3000/3001 landed, then 3022 queue
@@ -421,7 +420,7 @@ trigger-based AOT/MIR typing debt:
   compare, PHI dst_type, mir_call dst_type, or receiver-helper
   single-observation protection
 next_documented_task =
-  MIRBUILDER-PROGRAMJSON-TRYCATCH-SHAPE-SCAN-CAPABILITY-001
+  MIRBUILDER-PROGRAMJSON-LAYER4-STRUCTURED-PLAN-RECIPE-DTO-PILOT-SELECTION
 
 next_after_active_3 =
   MIRBUILDER-PROGRAMJSON-LAYER4-STRUCTURED-PLAN-RECIPE-DTO-PILOT-SELECTION
