@@ -1,6 +1,6 @@
 # 3028 - MIRBUILDER-PROGRAMJSON-LOCAL-ARRAY-LITERAL-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
 
-Status: active
+Status: landed
 
 ## Scope
 
@@ -78,3 +78,35 @@ new ABI
 - Rust projector runtime dependency removal remains `0`;
 - Rust projector oracle-only state remains documented;
 - Array lowering and runtime allocation semantics remain explicitly unclaimed.
+
+## Evidence
+
+```bash
+bash tools/checks/rust_lifecycle_mirbuilder_programjson_local_array_literal_shape_retire_rust_astnode_projector_candidate_guard.sh
+```
+
+Decision fixture:
+
+```text
+docs/development/current/main/design/fixtures/rust-lifecycle/
+  mirbuilder-programjson-local-array-literal-shape-retire-rust-astnode-projector-candidate-v0.json
+```
+
+Result:
+
+```text
+decision=RetireCandidateScoped
+retire_candidate=LocalArrayLiteralShapeSnapshotV1
+covered_rows=10
+rust_projector_runtime_dependency_removed=0
+rust_projector_oracle_only=1
+full_astnode_projector_retired=0
+array_lowering_semantics=0
+runtime_array_allocation_semantics=0
+```
+
+## Next
+
+```text
+MIRBUILDER-PROGRAMJSON-CAPABILITY-BATCH-CONTINUATION
+```
