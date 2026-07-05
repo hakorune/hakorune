@@ -92,6 +92,11 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
+  3109 already fixes the ProgramJSON scanner helper contract with total
+  result-map returns. Treat it as the prerequisite for Layer4 work, not as a
+  reopened design question: if scanner nullable returns regress, repair 3109
+  first; do not use body proof alone, generic void-object publication, or
+  mixed_runtime_i64_or_handle to unblock Layer4.
   3119 adds ProgramJsonLoopRecipeDtoSnapshotV1 and a lightweight Layer4 loop
   Recipe DTO guard. The guard proves ProgramJSON-derived PhaseState recipe_root
   projection to canonical loop DTO fields and DirectAbi/string_handle route
