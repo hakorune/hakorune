@@ -60,7 +60,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-SINGLE-PLANNER-GATE-MODE-HAKOADOPTED-DECISION-001
+  MIRBUILDER-PLAN-TRACK-NEXT-PILOT-SELECTION-004
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -82,22 +82,17 @@ normal operating rule:
   planner-required None freeze vs return-outcome DTO.
   `single_planner_candidate_presence` is now HakoAdopted for the active
   LoopCondContinueWithReturn fact-slot presence DTO.
-  `single_planner_gate_mode` parity is green for strict_or_dev /
-  planner_required DTO construction; environment access remains Rust.
+  HakoAdopted Plan DTO owners now include: rule acceptance, outcome
+  disposition, candidate presence, and gate mode. Full planner outcome,
+  recipe matching, lowering, mutation, allocation, and Source Selfhost remain
+  unclaimed.
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  `single_planner_gate_mode.authority_facade` has parity only; the next task is
-  its scoped HakoAdopted decision. It owns no environment access, recipe
-  matching, route execution, lowering, mutation, allocation, or full
-  `try_build_outcome`.
-  `single_planner_candidate_presence.authority_facade` is HakoAdopted. It owns
-  no fact extraction, recipe matching, route execution, lowering, mutation,
+  `single_planner_gate_mode.authority_facade` is HakoAdopted. It owns no
+  environment access, recipe matching, route execution, lowering, mutation,
   allocation, or full `try_build_outcome`; next work selects Plan-track pilot
-  003.
-  `single_planner_outcome_disposition.authority_facade` is HakoAdopted. It owns
-  no recipe matching, logging, route execution, lowering, mutation, allocation,
-  or full `try_build_outcome`; next work selects Plan-track pilot 002.
+  004.
   Rust ASTNode-to-token snapshot adapters are non-authority temporary projection
   ABI for MirBuilder-first migration. They must not invent semantic policy or a
   hidden token taxonomy, and must be removable when HHako ProgramJSON can feed

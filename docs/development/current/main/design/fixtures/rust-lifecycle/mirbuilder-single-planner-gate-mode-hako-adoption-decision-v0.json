@@ -1,0 +1,69 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderSinglePlannerGateModeHakoAdoptedDecisionV1",
+  "token": "MIRBUILDER-SINGLE-PLANNER-GATE-MODE-HAKOADOPTED-DECISION-001",
+  "input_state": {
+    "hako_source": "lang/src/compiler/lib/single_planner_gate_mode.hako",
+    "hako_source_hash": "sha256:a37ab72c319d1b50cf1fcd697c91178e5918575ba092a655cf3ece9ee4ff824b",
+    "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-single-planner-gate-mode-rust-oracle-v0.json",
+    "rust_oracle_fixture_hash": "sha256:72514f80239bd1debce4a2f8ea2f81a9d0cea71e8e3d3c6d39eddac874827daf",
+    "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_single_planner_gate_mode_parity_gate.sh",
+    "parity_gate_hash": "sha256:57a213c3a89b3230657b054baa96aefead43b207f846502d37a9dec28fd116df"
+  },
+  "adoption_scope": {
+    "adopted_owner": "single_planner_gate_mode.authority_facade",
+    "input_contract": "BackendSafeSinglePlannerGateModeTokenSnapshotV1",
+    "native_edit_authority": "lang/src/compiler/lib/single_planner_gate_mode.hako",
+    "owned_semantics": [
+      "strict_token",
+      "dev_token",
+      "planner_required_env_token",
+      "strict_or_dev_dto",
+      "planner_required_dto",
+      "unsupported_token_reject_reason"
+    ],
+    "excluded_semantics": [
+      "environment_access",
+      "build_plan_with_facts_ctx",
+      "full_try_build_outcome",
+      "recipe_matching",
+      "router_execution",
+      "route_execution",
+      "backend_lowering",
+      "MIR_mutation",
+      "ID_allocation"
+    ]
+  },
+  "parity": {
+    "gate_status": "Green",
+    "oracle_row_count": 7,
+    "required_contract_fields": [
+      "accepted",
+      "strict_or_dev",
+      "planner_required",
+      "reason"
+    ]
+  },
+  "decision": {
+    "kind": "HakoAdoptedScoped",
+    "reason_token": "SinglePlannerGateModeParityGreen",
+    "selected_next_card": "MIRBUILDER-PLAN-TRACK-NEXT-PILOT-SELECTION-004",
+    "backlog_card": "MIRBUILDER-SINGLE-PLANNER-FULL-OUTCOME-CONSULTATION-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "environment_access_migrated": 0,
+    "build_plan_with_facts_ctx_migrated": 0,
+    "full_try_build_outcome_migrated": 0,
+    "recipe_matching_migrated": 0,
+    "router_execution_migrated": 0,
+    "route_execution_migrated": 0,
+    "backend_lowering_migrated": 0,
+    "mir_mutation_migrated": 0,
+    "id_allocation_migrated": 0,
+    "hako_generation": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
