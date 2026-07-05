@@ -1,0 +1,130 @@
+// program_json_function_declaration_shape_scan.hako
+//
+// Responsibility:
+// - Traverse covered Program(JSON v0) FunctionDeclaration objects structurally.
+// - Emit FunctionDeclarationShapeSnapshotV1 summaries for MirBuilder migration parity.
+//
+// Non-responsibility:
+// - Full JSON parsing, source text matching, Rust ASTNode projection, function
+//   lowering, route selection, MIR mutation, backend lowering, ID allocation,
+//   or parser integration.
+
+using selfhost.shared.common.string_helpers as StringHelpers
+using lang.compiler.mirbuilder.program_json_v0_scanner_box as ProgramJsonV0ScannerBox
+
+static box ProgramJsonFunctionDeclarationShapeScanBox {
+  build_summary(program_json) {
+    if program_json == null || ("" + program_json) == "" {
+      return me._fail("missing_program_json")
+    }
+    program_json = "" + program_json
+
+    local body = me._array_field_start(program_json, "body", 0)
+    if body < 0 { return me._fail("cap_missing_program_body") }
+
+    local first = me._first_object_in_array(program_json, body)
+    if first < 0 { return me._fail("cap_missing_first_stmt") }
+
+    if me._kind_at(program_json, first) != "FunctionDeclaration" {
+      return me._summary("Unsupported", 0, 1)
+    }
+
+    local kind = me._function_decl_kind(program_json, first)
+    return me._summary(kind, me._supported_count(kind), me._unsupported_count(kind))
+  }
+
+  _summary(kind, supported, unsupported) {
+    return "snapshot_kind=FunctionDeclarationShapeSnapshotV1"
+      + ";top_function_declaration_shape_kind=" + kind
+      + ";supported_function_declaration_count=" + me._count_token(supported)
+      + ";unsupported_function_declaration_count=" + me._count_token(unsupported)
+  }
+
+  _function_decl_kind(s, fn_start) {
+    if me._string_field_at(s, "name", fn_start) == "" { return "Unsupported" }
+    local ret_kind = me._return_type_kind(s, fn_start)
+    if ret_kind == "Unsupported" { return "Unsupported" }
+    local body = me._array_field_start(s, "body", fn_start)
+    if body < 0 { return "Unsupported" }
+    local body_kind = me._body_first_kind(s, body)
+    if body_kind == "Unsupported" { return "Unsupported" }
+    return "Fn" + ret_kind + "Body" + body_kind
+  }
+
+  _return_type_kind(s, fn_start) {
+    local p = ProgramJsonV0ScannerBox.seek_obj_field_value_start(s, "return_type", fn_start)
+    if p < 0 { return "Unsupported" }
+    p = StringHelpers.skip_ws(s, p)
+    if s.substring(p, p + 4) == "null" { return "NoRet" }
+    if ProgramJsonV0ScannerBox._read_char(s, p) == "\"" { return "Ret" }
+    return "Unsupported"
+  }
+
+  _body_first_kind(s, body_start) {
+    local first = me._first_object_in_array(s, body_start)
+    if first < 0 { return "Empty" }
+    local ty = me._type_at(s, first)
+    if ty == "Local" { return "Local" }
+    if ty == "Return" { return "Return" }
+    if ty == "Expr" { return "Expr" }
+    if ty == "Loop" { return "Loop" }
+    if ty == "If" { return "If" }
+    return "Unsupported"
+  }
+
+  _supported_count(kind) {
+    if kind == "Unsupported" { return 0 }
+    return 1
+  }
+
+  _unsupported_count(kind) {
+    if kind == "Unsupported" { return 1 }
+    return 0
+  }
+
+  _count_token(n) {
+    if n <= 0 { return "0" }
+    if n == 1 { return "1" }
+    return "many"
+  }
+
+  _fail(reason) {
+    return "accepted=0;reason=" + reason
+  }
+
+  _array_field_start(s, key, obj_start) {
+    if obj_start < 0 { return -1 }
+    local p = ProgramJsonV0ScannerBox.seek_obj_field_value_start(s, key, obj_start)
+    if p < 0 { return -1 }
+    p = StringHelpers.skip_ws(s, p)
+    if ProgramJsonV0ScannerBox._read_char(s, p) != "[" { return -1 }
+    return p
+  }
+
+  _first_object_in_array(s, array_start) {
+    if array_start < 0 { return -1 }
+    local p = StringHelpers.skip_ws(s, array_start + 1)
+    if ProgramJsonV0ScannerBox._read_char(s, p) != "{" { return -1 }
+    return p
+  }
+
+  _kind_at(s, obj_start) {
+    return me._string_field_at(s, "kind", obj_start)
+  }
+
+  _type_at(s, obj_start) {
+    return me._string_field_at(s, "type", obj_start)
+  }
+
+  _string_field_at(s, key, obj_start) {
+    local p = ProgramJsonV0ScannerBox.seek_obj_field_value_start(s, key, obj_start)
+    if p < 0 { return "" }
+    p = StringHelpers.skip_ws(s, p)
+    if ProgramJsonV0ScannerBox._read_char(s, p) != "\"" { return "" }
+    local end_quote = StringHelpers.index_of(s, p + 1, "\"")
+    if end_quote < 0 { return "" }
+    return s.substring(p + 1, end_quote)
+  }
+}
+
+static box ProgramJsonFunctionDeclarationShapeScanMain { main() { return 0 } }

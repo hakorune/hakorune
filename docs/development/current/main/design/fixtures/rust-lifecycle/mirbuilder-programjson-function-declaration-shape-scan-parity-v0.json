@@ -1,0 +1,98 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonFunctionDeclarationShapeScanParityV1",
+  "token": "MIRBUILDER-PROGRAMJSON-FUNCTION-DECLARATION-SHAPE-SCAN-CAPABILITY-001",
+  "capability": {
+    "name": "ProgramJsonFunctionDeclarationShapeScanV1",
+    "input": "ProgramJSON v0",
+    "output": "FunctionDeclarationShapeSnapshotV1"
+  },
+  "routes": {
+    "rust_oracle_route": "source -> RHako parser -> Rust ASTNode -> Rust FunctionDeclaration token snapshot",
+    "hako_programjson_route": "source -> HHako parser -> ProgramJSON -> HHako FunctionDeclaration token snapshot"
+  },
+  "programjson_emit_evidence": {
+    "source": "src/macro/ast_json/joinir_compat.rs",
+    "node_kind": "FunctionDeclaration",
+    "node_type": null,
+    "fields": ["name", "params", "return_type", "body"]
+  },
+  "rows": [
+    {
+      "row_id": "fn_no_ret_empty",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "FunctionDeclaration", "name": "f", "params": [], "return_type": null, "body": []}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=FunctionDeclarationShapeSnapshotV1;top_function_declaration_shape_kind=FnNoRetBodyEmpty;supported_function_declaration_count=1;unsupported_function_declaration_count=0"}
+    },
+    {
+      "row_id": "fn_ret_empty",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "FunctionDeclaration", "name": "f", "params": [], "return_type": "I64", "body": []}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=FunctionDeclarationShapeSnapshotV1;top_function_declaration_shape_kind=FnRetBodyEmpty;supported_function_declaration_count=1;unsupported_function_declaration_count=0"}
+    },
+    {
+      "row_id": "fn_no_ret_local",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "FunctionDeclaration", "name": "f", "params": [], "return_type": null, "body": [{"type": "Local", "name": "i", "expr": {"type": "Int", "value": 1}}]}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=FunctionDeclarationShapeSnapshotV1;top_function_declaration_shape_kind=FnNoRetBodyLocal;supported_function_declaration_count=1;unsupported_function_declaration_count=0"}
+    },
+    {
+      "row_id": "fn_ret_return",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "FunctionDeclaration", "name": "f", "params": [], "return_type": "I64", "body": [{"type": "Return", "value": {"type": "Int", "value": 1}}]}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=FunctionDeclarationShapeSnapshotV1;top_function_declaration_shape_kind=FnRetBodyReturn;supported_function_declaration_count=1;unsupported_function_declaration_count=0"}
+    },
+    {
+      "row_id": "fn_no_ret_expr",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "FunctionDeclaration", "name": "f", "params": [], "return_type": null, "body": [{"type": "Expr", "expr": {"type": "Var", "name": "x"}}]}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=FunctionDeclarationShapeSnapshotV1;top_function_declaration_shape_kind=FnNoRetBodyExpr;supported_function_declaration_count=1;unsupported_function_declaration_count=0"}
+    },
+    {
+      "row_id": "fn_no_ret_loop",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "FunctionDeclaration", "name": "f", "params": [], "return_type": null, "body": [{"type": "Loop", "cond": {"type": "Bool", "value": true}, "body": []}]}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=FunctionDeclarationShapeSnapshotV1;top_function_declaration_shape_kind=FnNoRetBodyLoop;supported_function_declaration_count=1;unsupported_function_declaration_count=0"}
+    },
+    {
+      "row_id": "fn_ret_if",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "FunctionDeclaration", "name": "f", "params": [], "return_type": "I64", "body": [{"type": "If", "cond": {"type": "Bool", "value": true}, "then": [], "else": null}]}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=FunctionDeclarationShapeSnapshotV1;top_function_declaration_shape_kind=FnRetBodyIf;supported_function_declaration_count=1;unsupported_function_declaration_count=0"}
+    },
+    {
+      "row_id": "fn_missing_name_unsupported",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "FunctionDeclaration", "name": "", "params": [], "return_type": null, "body": []}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=FunctionDeclarationShapeSnapshotV1;top_function_declaration_shape_kind=Unsupported;supported_function_declaration_count=0;unsupported_function_declaration_count=1"}
+    },
+    {
+      "row_id": "fn_body_break_unsupported",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "FunctionDeclaration", "name": "f", "params": [], "return_type": null, "body": [{"type": "Break"}]}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=FunctionDeclarationShapeSnapshotV1;top_function_declaration_shape_kind=Unsupported;supported_function_declaration_count=0;unsupported_function_declaration_count=1"}
+    },
+    {
+      "row_id": "first_stmt_local_unsupported",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "Local", "type": "Local", "name": "i", "expr": {"type": "Int", "value": 0}}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=FunctionDeclarationShapeSnapshotV1;top_function_declaration_shape_kind=Unsupported;supported_function_declaration_count=0;unsupported_function_declaration_count=1"}
+    }
+  ],
+  "summary": {
+    "parity_row_count": 10,
+    "programjson_traversal_used": 1,
+    "string_only_facade": 0,
+    "rust_astnode_projector_retire_candidate": 1
+  },
+  "decision": {
+    "kind": "ProgramJsonFunctionDeclarationShapeScanParityGreen",
+    "reason_token": "FunctionDeclarationShapeProgramJsonSnapshotMatchesRustAstNodeOracle",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-FUNCTION-DECLARATION-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "programjson_full_parser_claim": 0,
+    "hako_adopted_for_full_owner": 0,
+    "function_lowering": 0,
+    "function_route_selection": 0
+  }
+}
