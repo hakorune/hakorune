@@ -90,10 +90,10 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  3010 lands real `.hako` ProgramJsonExprCallShapeScanV1 traversal for covered
-  Expr statement Call ProgramJSON structure, producing ExprCallShapeSnapshotV1
-  with a 9-row AOT parity gate. 3011 is active to mark only those covered rows
-  as a Rust ASTNode projector retire-candidate. Selection-only ProgramJSON cards
+  3011 lands the covered ExprCallShapeSnapshotV1 ProgramJSON traversal rows as
+  a scoped Rust ASTNode projector retire-candidate. 3012 is active to implement
+  real `.hako` ProgramJsonExprMethodShapeScanV1 traversal for covered Expr
+  statement method-call ProgramJSON structure. Selection-only ProgramJSON cards
   remain forbidden unless the next capability is genuinely ambiguous.
   3002 records later dynamic typing hint inventory for Float binops, PHI
   roundtrip, mir_call dst_type, and string relational compare policy.
@@ -399,17 +399,17 @@ Detailed evidence lives in phase cards, fixtures, and git history.
 
 ## Active Next 3
 ```text
-1. MIRBUILDER-PROGRAMJSON-CONDITION-SHAPE-SCAN-CAPABILITY-001
-   status=active; boundary=ProgramJSON Loop.cond / If.cond shape scan only
+1. MIRBUILDER-PROGRAMJSON-EXPR-METHOD-SHAPE-SCAN-CAPABILITY-001
+   status=active; boundary=ProgramJSON Expr.expr Method shape scan only
 
-2. ProgramJSON retire-candidate continuation
+2. MIRBUILDER-PROGRAMJSON-EXPR-METHOD-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
    status=pending; boundary=no full projector retirement, parser claim, lowering, mutation, ID allocation, or Source Selfhost
 
 3. MIR JSON dynamic typing hint inventory follow-up
    status=parked; boundary=3002 Tier-2/Tier-3 inventory only
 
 next_documented_task =
-  MIRBUILDER-PROGRAMJSON-CONDITION-SHAPE-SCAN-CAPABILITY-001
+  MIRBUILDER-PROGRAMJSON-EXPR-METHOD-SHAPE-SCAN-CAPABILITY-001
 
 next_after_active_3 =
   return to ProgramJSON capability-batch retire-candidate continuation

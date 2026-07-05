@@ -1,0 +1,63 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonExprCallShapeRustAstNodeProjectorRetireCandidateV1",
+  "token": "MIRBUILDER-PROGRAMJSON-EXPR-CALL-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001",
+  "input_state": {
+    "hako_snapshot_source": "lang/src/compiler/mirbuilder/program_json_expr_call_shape_scan.hako",
+    "hako_snapshot_source_hash": "sha256:f316b1fad5dcde0d1e0bd0109e7e9075a40449d8a60da1864c1f9be3744d6556",
+    "parity_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-programjson-expr-call-shape-scan-parity-v0.json",
+    "parity_fixture_hash": "sha256:2473420ed9cabae0883a2504ca8bb5360faad8756eae937d81d6dbe499b95f6e",
+    "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_programjson_expr_call_shape_scan_parity_gate.sh",
+    "parity_gate_hash": "sha256:92e60d617199a74bc7952394930b6681b5ee477fffce6a24b790486389e4ffcc"
+  },
+  "retire_candidate_scope": {
+    "retire_candidate": "ExprCallShapeSnapshotV1",
+    "shape_scope": "covered ProgramJSON Expr.expr Call rows",
+    "programjson_snapshot_owner": "ProgramJsonExprCallShapeScanV1",
+    "covered_rows": [
+      "expr_call_no_args",
+      "expr_call_int_arg",
+      "expr_call_var_arg",
+      "expr_call_bool_arg",
+      "expr_call_compare_var_lt_int_arg",
+      "expr_call_compare_var_eq_int_arg",
+      "expr_call_call_arg_unsupported",
+      "if_then_expr_call_int_arg",
+      "if_else_expr_call_var_arg"
+    ],
+    "rust_projector_runtime_dependency_removed": 0,
+    "rust_projector_oracle_only": 1,
+    "full_astnode_projector_retired": 0
+  },
+  "criteria": {
+    "programjson_snapshot_parity_gate": "Green",
+    "programjson_route_traverses_programjson": 1,
+    "programjson_route_uses_string_only_facade": 0,
+    "covered_row_count": 9,
+    "runtime_path_uses_programjson_snapshot": 1,
+    "rust_astnode_projector_runtime_dependency_removed": 0,
+    "rust_astnode_projector_kept_for_oracle_generation": 1
+  },
+  "decision": {
+    "kind": "RetireCandidateScoped",
+    "reason_token": "ExprCallShapeSnapshotV1ProgramJsonCapabilityParityGreen",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-EXPR-METHOD-SHAPE-SCAN-CAPABILITY-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_astnode_projector_retired": 0,
+    "rust_astnode_projector_fully_retired": 0,
+    "full_astnode_projector_retired": 0,
+    "programjson_full_parser_claim": 0,
+    "programjson_all_shapes_supported": 0,
+    "recipe_matching_migrated": 0,
+    "route_selection_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0,
+    "id_allocation_migration": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
