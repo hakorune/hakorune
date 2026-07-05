@@ -1,0 +1,110 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonAssignShapeScanParityV1",
+  "token": "MIRBUILDER-PROGRAMJSON-ASSIGN-SHAPE-SCAN-CAPABILITY-001",
+  "capability": {
+    "name": "ProgramJsonAssignShapeScanV1",
+    "input": "ProgramJSON v0",
+    "output": "AssignShapeSnapshotV1"
+  },
+  "routes": {
+    "rust_oracle_route": "source -> RHako parser -> Rust ASTNode -> Rust Assign token snapshot",
+    "hako_programjson_route": "source -> HHako parser -> ProgramJSON -> HHako Assign token snapshot"
+  },
+  "rows": [
+    {
+      "row_id": "top_assign_var_int",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "Assign", "type": "Assign", "target": {"type": "Var", "name": "x"}, "value": {"type": "Int", "value": 1}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=AssignShapeSnapshotV1;top_assign_shape_kind=AssignVarInt;if_then_assign_shape_kind=Missing;if_else_assign_shape_kind=Missing;supported_assign_count=1;unsupported_assign_count=0"
+      }
+    },
+    {
+      "row_id": "top_assign_var_var",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "Assign", "type": "Assign", "target": {"type": "Var", "name": "x"}, "value": {"type": "Var", "name": "y"}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=AssignShapeSnapshotV1;top_assign_shape_kind=AssignVarVar;if_then_assign_shape_kind=Missing;if_else_assign_shape_kind=Missing;supported_assign_count=1;unsupported_assign_count=0"
+      }
+    },
+    {
+      "row_id": "top_assign_var_bool_true",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "Assign", "type": "Assign", "target": {"type": "Var", "name": "flag"}, "value": {"type": "Bool", "value": true}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=AssignShapeSnapshotV1;top_assign_shape_kind=AssignVarBoolTrue;if_then_assign_shape_kind=Missing;if_else_assign_shape_kind=Missing;supported_assign_count=1;unsupported_assign_count=0"
+      }
+    },
+    {
+      "row_id": "top_assign_var_compare_lt",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "Assign", "type": "Assign", "target": {"type": "Var", "name": "ok"}, "value": {"type": "Compare", "op": "Lt", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 10}}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=AssignShapeSnapshotV1;top_assign_shape_kind=AssignVarCompareVarLtInt;if_then_assign_shape_kind=Missing;if_else_assign_shape_kind=Missing;supported_assign_count=1;unsupported_assign_count=0"
+      }
+    },
+    {
+      "row_id": "top_assign_var_binary_add",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "Assign", "type": "Assign", "target": {"type": "Var", "name": "x"}, "value": {"type": "Binary", "op": "Add", "lhs": {"type": "Var", "name": "x"}, "rhs": {"type": "Int", "value": 1}}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=AssignShapeSnapshotV1;top_assign_shape_kind=AssignVarBinaryVarAddInt;if_then_assign_shape_kind=Missing;if_else_assign_shape_kind=Missing;supported_assign_count=1;unsupported_assign_count=0"
+      }
+    },
+    {
+      "row_id": "top_assign_target_field_unsupported",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "Assign", "type": "Assign", "target": {"type": "Field", "recv": {"type": "Var", "name": "box"}, "name": "field"}, "value": {"type": "Int", "value": 1}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=AssignShapeSnapshotV1;top_assign_shape_kind=Unsupported;if_then_assign_shape_kind=Missing;if_else_assign_shape_kind=Missing;supported_assign_count=0;unsupported_assign_count=1"
+      }
+    },
+    {
+      "row_id": "top_assign_call_unsupported",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "Assign", "type": "Assign", "target": {"type": "Var", "name": "x"}, "value": {"type": "Call", "callee": "next", "args": []}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=AssignShapeSnapshotV1;top_assign_shape_kind=Unsupported;if_then_assign_shape_kind=Missing;if_else_assign_shape_kind=Missing;supported_assign_count=0;unsupported_assign_count=1"
+      }
+    },
+    {
+      "row_id": "if_then_assign_var_int",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "If", "cond": {"type": "Bool", "value": true}, "then": [{"kind": "Assign", "type": "Assign", "target": {"type": "Var", "name": "x"}, "value": {"type": "Int", "value": 1}}], "else": null}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=AssignShapeSnapshotV1;top_assign_shape_kind=Missing;if_then_assign_shape_kind=AssignVarInt;if_else_assign_shape_kind=Missing;supported_assign_count=1;unsupported_assign_count=0"
+      }
+    },
+    {
+      "row_id": "if_else_assign_var_var",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "If", "cond": {"type": "Bool", "value": true}, "then": [], "else": [{"kind": "Assign", "type": "Assign", "target": {"type": "Var", "name": "x"}, "value": {"type": "Var", "name": "y"}}]}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=AssignShapeSnapshotV1;top_assign_shape_kind=Missing;if_then_assign_shape_kind=Missing;if_else_assign_shape_kind=AssignVarVar;supported_assign_count=1;unsupported_assign_count=0"
+      }
+    },
+    {
+      "row_id": "first_stmt_not_assign_unsupported",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Return", "expr": {"type": "Int", "value": 1}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=AssignShapeSnapshotV1;top_assign_shape_kind=Unsupported;if_then_assign_shape_kind=Missing;if_else_assign_shape_kind=Missing;supported_assign_count=0;unsupported_assign_count=1"
+      }
+    }
+  ],
+  "summary": {
+    "parity_row_count": 10,
+    "programjson_traversal_used": 1,
+    "string_only_facade": 0,
+    "rust_astnode_projector_retire_candidate": 1
+  },
+  "decision": {
+    "kind": "ProgramJsonAssignShapeScanParityGreen",
+    "reason_token": "AssignShapeProgramJsonSnapshotMatchesRustAstNodeOracle",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-ASSIGN-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "programjson_full_parser_claim": 0,
+    "hako_adopted_for_full_owner": 0
+  }
+}

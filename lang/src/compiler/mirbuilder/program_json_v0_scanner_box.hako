@@ -64,6 +64,7 @@ static box ProgramJsonV0ScannerBox {
     if key == "recv" { return "\"recv\":" }
     if key == "rhs" { return "\"rhs\":" }
     if key == "start" { return "\"start\":" }
+    if key == "target" { return "\"target\":" }
     if key == "then" { return "\"then\":" }
     if key == "try" { return "\"try\":" }
     if key == "typeHint" { return "\"typeHint\":" }
