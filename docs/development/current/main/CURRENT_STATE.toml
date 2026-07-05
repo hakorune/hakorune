@@ -345,14 +345,15 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PROGRAMJSON-EXPR-FIELD-SHAPE-SCAN-CAPABILITY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3016-MIRBUILDER-PROGRAMJSON-EXPR-FIELD-SHAPE-SCAN-CAPABILITY-001.md"
-latest_card_summary = """3015 lands the covered ExprNewShapeSnapshotV1
-ProgramJSON traversal rows as a scoped Rust ASTNode projector retire-candidate.
-3016 is active to implement real `.hako` ProgramJSON traversal for covered Expr
-statement field access shapes; full projector retirement, ProgramJSON full
-parser, HakoAdoption, Source Selfhost, RecipeMatcher, route selection,
-lowering, mutation, ID allocation, and new ABI remain unclaimed."""
+latest_card = "MIRBUILDER-PROGRAMJSON-EXPR-FIELD-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3017-MIRBUILDER-PROGRAMJSON-EXPR-FIELD-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001.md"
+latest_card_summary = """3016 lands ProgramJsonExprFieldShapeScanV1 as a
+real `.hako` ProgramJSON traversal capability for covered Expr statement field
+access shapes with a 9-row AOT parity gate. 3017 is active to mark only the
+covered ExprFieldShapeSnapshotV1 rows as a Rust ASTNode projector
+retire-candidate; full projector retirement, ProgramJSON full parser,
+HakoAdoption, Source Selfhost, RecipeMatcher, route selection, lowering,
+mutation, ID allocation, and new ABI remain unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -363,6 +364,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-05: 3016 lands real `.hako` ProgramJsonExprFieldShapeScanV1 ProgramJSON traversal for Expr statement field access shapes with 9-row AOT parity; 3017 is active for the scoped expr-field projector retire-candidate.",
   "2026-07-05: 3015 lands the covered ExprNewShapeSnapshotV1 ProgramJSON traversal slice as a scoped Rust ASTNode projector retire-candidate; 3016 is active for real `.hako` Expr statement field access traversal.",
   "2026-07-05: 3014 lands real `.hako` ProgramJsonExprNewShapeScanV1 ProgramJSON traversal for Expr statement constructor shapes with 9-row AOT parity; 3015 is active for the scoped expr-new projector retire-candidate.",
   "2026-07-05: 3013 lands the covered ExprMethodShapeSnapshotV1 ProgramJSON traversal slice as a scoped Rust ASTNode projector retire-candidate; 3014 is active for real `.hako` Expr statement constructor traversal.",
@@ -374,5 +376,4 @@ landed_tail = [
   "2026-07-05: 3007 lands the covered ReturnExprShapeSnapshotV1 ProgramJSON traversal slice as a scoped Rust ASTNode projector retire-candidate; 3008 is active for real `.hako` local-binding shape traversal.",
   "2026-07-05: 3006 lands real `.hako` ProgramJsonReturnExprShapeScanV1 ProgramJSON traversal for Return.expr shapes with 8-row AOT parity; 3007 is active for the scoped return-expr projector retire-candidate.",
   "2026-07-05: 3005 lands the covered ConditionShapeSnapshotV1 ProgramJSON traversal slice as a scoped Rust ASTNode projector retire-candidate; 3006 is active for real `.hako` Return.expr shape traversal.",
-  "2026-07-05: 3004 lands real `.hako` ProgramJsonConditionShapeScanV1 ProgramJSON traversal for Loop.cond and If.cond with 8-row AOT parity; 3005 is active for the scoped condition-shape projector retire-candidate.",
 ]

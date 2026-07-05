@@ -1,6 +1,6 @@
 # 3016 - MIRBUILDER-PROGRAMJSON-EXPR-FIELD-SHAPE-SCAN-CAPABILITY-001
 
-Status: active
+Status: landed
 
 ## Scope
 
@@ -44,6 +44,31 @@ unsupported_expr_field_count=...
 - unsupported receiver shapes are reported with a stable token;
 - the card can name a concrete expr-field Rust ASTNode projector slice as
   retire-candidate after parity is green.
+
+## Evidence
+
+```bash
+bash tools/checks/rust_lifecycle_mirbuilder_programjson_expr_field_shape_scan_parity_gate.sh
+```
+
+Implementation:
+
+```text
+lang/src/compiler/mirbuilder/program_json_expr_field_shape_scan.hako
+```
+
+Fixture:
+
+```text
+docs/development/current/main/design/fixtures/rust-lifecycle/
+  mirbuilder-programjson-expr-field-shape-scan-parity-v0.json
+```
+
+## Next
+
+```text
+MIRBUILDER-PROGRAMJSON-EXPR-FIELD-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+```
 
 ## Forbidden
 
