@@ -60,7 +60,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  HAKO-AOT-HELPER-PARAM-PUBLICATION-POLYMORPHIC-INPUT-CONTRACT-001
+  MIR-ROUTE-GENERIC-METHOD-SCALAR-RETURN-VALUE-TYPE-PUBLICATION-001
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -90,12 +90,12 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  2998 is held until 2999-3001 close the confirmed 2997 publication gaps:
-  helper polymorphic inputs, generic-method scalar return publication, and
-  extern-call return publication. These are preflight cleanup cards, not
-  route-family unification, backend lowering, ABI changes, or ProgramJSON
-  capability claims. After 3001 is green, resume 2998 for the covered
-  LoopBodyControlFlowSnapshotV1 Rust ASTNode projector retire-candidate.
+  2999 is green. 2998 remains held until 3000-3001 close the remaining 2997
+  publication gaps: generic-method scalar return publication and extern-call
+  return publication. These are preflight cleanup cards, not route-family
+  unification, backend lowering, ABI changes, or ProgramJSON capability claims.
+  After 3001 is green, resume 2998 for the covered LoopBodyControlFlowSnapshotV1
+  Rust ASTNode projector retire-candidate.
   3002 records later dynamic typing hint inventory for Float binops, PHI
   roundtrip, mir_call dst_type, and string relational compare policy.
   ProgramJSON migration remains capability-batch based; full projector

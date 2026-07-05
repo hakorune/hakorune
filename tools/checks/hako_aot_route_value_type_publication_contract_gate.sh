@@ -65,23 +65,32 @@ for shape, (value_type, state) in expected_rows.items():
         raise SystemExit(f"bad publication state for {shape}")
 
 helper_rows = fixture.get("helper_param_type_publication_policy") or []
-helper = next(
-    (
-        row
-        for row in helper_rows
-        if row.get("helper_id") == "StringHelpers.to_i64/1"
-        and row.get("param_index") == 0
-    ),
-    None,
-)
-if not helper:
-    raise SystemExit("missing StringHelpers.to_i64/1 param0 policy")
-if helper.get("policy") != "PolymorphicInputDoNotPublishFromSingleObservation":
-    raise SystemExit("bad to_i64 param0 publication policy")
-if helper.get("accepted_value_kinds") != ["Integer", "NumericLikeStringBox"]:
-    raise SystemExit("bad to_i64 accepted value kinds")
-if helper.get("result_published_value_type") != "Integer":
-    raise SystemExit("bad to_i64 result published type")
+helper_by_id = {
+    (row.get("helper_id"), row.get("param_index")): row
+    for row in helper_rows
+}
+expected_helper_rows = {
+    "StringHelpers.to_i64/1": "Integer",
+    "StringHelpers.int_to_str/1": "StringBox",
+    "BoxHelpers.value_i64/1": "Integer",
+    "BoxHelpers.expect_i64/2": "Integer",
+    "MirJsonEmitBox._expect_i64/2": "Integer",
+    "MirSchemaBox._expect_i64/2": "Integer",
+}
+for helper_id, result_type in expected_helper_rows.items():
+    helper = helper_by_id.get((helper_id, 0))
+    if not helper:
+        raise SystemExit(f"missing {helper_id} param0 policy")
+    if helper.get("policy") != "PolymorphicInputDoNotPublishFromSingleObservation":
+        raise SystemExit(f"bad {helper_id} param0 publication policy")
+    if "Integer" not in (helper.get("accepted_value_kinds") or []):
+        raise SystemExit(f"bad {helper_id} accepted value kinds")
+    if helper_id.startswith("StringHelpers.") and "NumericLikeStringBox" not in (
+        helper.get("accepted_value_kinds") or []
+    ):
+        raise SystemExit(f"bad {helper_id} accepted value kinds")
+    if helper.get("result_published_value_type") != result_type:
+        raise SystemExit(f"bad {helper_id} result published type")
 
 hint = fixture.get("mir_json_hint_policy") or {}
 string_compare = hint.get("string_compare") or {}
@@ -125,6 +134,12 @@ required_policy_needles = [
     "pub(crate) fn helper_param_type_publication_policy",
     "pub(crate) fn route_return_shape_value_type",
     'pub(crate) const STRING_HELPERS_TO_I64: &str = "StringHelpers.to_i64/1";',
+    'pub(crate) const STRING_HELPERS_INT_TO_STR: &str = "StringHelpers.int_to_str/1";',
+    'pub(crate) const BOX_HELPERS_VALUE_I64: &str = "BoxHelpers.value_i64/1";',
+    'pub(crate) const BOX_HELPERS_EXPECT_I64: &str = "BoxHelpers.expect_i64/2";',
+    'pub(crate) const MIR_JSON_EMIT_BOX_EXPECT_I64: &str = "MirJsonEmitBox._expect_i64/2";',
+    'pub(crate) const MIR_SCHEMA_BOX_EXPECT_I64: &str = "MirSchemaBox._expect_i64/2";',
+    "POLYMORPHIC_HELPER_PARAM0_INPUTS",
     "PolymorphicInputDoNotPublishFromSingleObservation",
     'Some("ScalarI64") | Some("scalar_i64") | Some("void_sentinel_i64_zero")',
     'Some("string_handle") | Some("string_handle_or_null")',
@@ -149,8 +164,13 @@ if 'target_symbol == "StringHelpers.to_i64/1"' in global_src:
 if "fn value_type_from_return_shape" in global_src:
     raise SystemExit("global route publisher must not keep local return-shape mapper")
 
-if "route_return_shape_value_type" not in userbox_src:
-    raise SystemExit("user-box route publisher must use shared return-shape mapper")
+for needle in [
+    "route_return_shape_value_type",
+    "helper_param_type_publication_policy",
+    "HelperParamTypePublicationPolicy",
+]:
+    if needle not in userbox_src:
+        raise SystemExit(f"user-box route publisher missing shared policy: {needle}")
 if "fn value_type_from_return_shape" in userbox_src:
     raise SystemExit("user-box route publisher must not keep local return-shape mapper")
 
@@ -169,7 +189,7 @@ for needle in required_mir_json_needles:
 PY
 
 cargo test -q route_return_shape_publication_contract --lib
-cargo test -q to_i64_param0_is_polymorphic_input_policy --lib
+cargo test -q polymorphic_helper_param0_inputs_do_not_publish_from_single_observation --lib
 bash "$AOT_REGRESSION"
 bash "$PROGRAMJSON_REGRESSION"
 
@@ -182,7 +202,8 @@ scalar_i64_publication=Integer
 string_handle_publication=StringBox
 object_handle_publication=DoNotPublishAmbiguous
 mixed_runtime_i64_or_handle_publication=DoNotPublishAmbiguous
-to_i64_param0_policy=PolymorphicInputDoNotPublishFromSingleObservation
+polymorphic_helper_param0_policy=PolymorphicInputDoNotPublishFromSingleObservation
+polymorphic_helper_param0_count=6
 mir_json_string_compare_hint=green
 mir_json_string_concat_hint=green
 aot_dynamic_string_eq_and_int_to_str_regression=green

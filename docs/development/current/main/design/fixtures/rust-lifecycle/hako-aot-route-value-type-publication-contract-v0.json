@@ -38,6 +38,60 @@
         "NumericLikeStringBox"
       ],
       "result_published_value_type": "Integer"
+    },
+    {
+      "helper_id": "StringHelpers.int_to_str/1",
+      "param_index": 0,
+      "policy": "PolymorphicInputDoNotPublishFromSingleObservation",
+      "accepted_value_kinds": [
+        "Integer",
+        "NumericLikeStringBox"
+      ],
+      "result_published_value_type": "StringBox"
+    },
+    {
+      "helper_id": "BoxHelpers.value_i64/1",
+      "param_index": 0,
+      "policy": "PolymorphicInputDoNotPublishFromSingleObservation",
+      "accepted_value_kinds": [
+        "Integer",
+        "NumericLikeStringBox",
+        "RuntimeDataBox"
+      ],
+      "result_published_value_type": "Integer"
+    },
+    {
+      "helper_id": "BoxHelpers.expect_i64/2",
+      "param_index": 0,
+      "policy": "PolymorphicInputDoNotPublishFromSingleObservation",
+      "accepted_value_kinds": [
+        "Integer",
+        "NumericLikeStringBox",
+        "RuntimeDataBox"
+      ],
+      "result_published_value_type": "Integer"
+    },
+    {
+      "helper_id": "MirJsonEmitBox._expect_i64/2",
+      "param_index": 0,
+      "policy": "PolymorphicInputDoNotPublishFromSingleObservation",
+      "accepted_value_kinds": [
+        "Integer",
+        "NumericLikeStringBox",
+        "RuntimeDataBox"
+      ],
+      "result_published_value_type": "Integer"
+    },
+    {
+      "helper_id": "MirSchemaBox._expect_i64/2",
+      "param_index": 0,
+      "policy": "PolymorphicInputDoNotPublishFromSingleObservation",
+      "accepted_value_kinds": [
+        "Integer",
+        "NumericLikeStringBox",
+        "RuntimeDataBox"
+      ],
+      "result_published_value_type": "Integer"
     }
   ],
   "mir_json_hint_policy": {

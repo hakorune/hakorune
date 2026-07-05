@@ -1,4 +1,7 @@
-use crate::mir::route_value_type_publication::route_return_shape_value_type;
+use crate::mir::route_value_type_publication::{
+    helper_param_type_publication_policy, route_return_shape_value_type,
+    HelperParamTypePublicationPolicy,
+};
 use crate::mir::value_origin::build_value_def_map;
 use crate::mir::{MirFunction, MirInstruction, MirModule, MirType, ValueId};
 
@@ -41,11 +44,12 @@ pub(super) fn publish_user_box_route_param_value_types(
             .iter()
             .filter(|route| route.reason().is_none())
         {
-            facts.push((
-                route.target_symbol().to_string(),
-                0,
-                route.box_name().to_string(),
-            ));
+            let target_symbol = route.target_symbol();
+            if helper_param_type_publication_policy(target_symbol, 0)
+                != HelperParamTypePublicationPolicy::PolymorphicInputDoNotPublishFromSingleObservation
+            {
+                facts.push((target_symbol.to_string(), 0, route.box_name().to_string()));
+            }
             let Some(block) = function.blocks.get(&route.block()) else {
                 continue;
             };
@@ -55,6 +59,12 @@ pub(super) fn publish_user_box_route_param_value_types(
                 continue;
             };
             for (arg_index, arg) in args.iter().enumerate() {
+                let target_param_index = arg_index + 1;
+                if helper_param_type_publication_policy(target_symbol, target_param_index)
+                    == HelperParamTypePublicationPolicy::PolymorphicInputDoNotPublishFromSingleObservation
+                {
+                    continue;
+                }
                 let Some(box_name) = user_box_value_box_name(
                     function,
                     &def_map,
@@ -65,7 +75,7 @@ pub(super) fn publish_user_box_route_param_value_types(
                 ) else {
                     continue;
                 };
-                facts.push((route.target_symbol().to_string(), arg_index + 1, box_name));
+                facts.push((target_symbol.to_string(), target_param_index, box_name));
             }
         }
     }

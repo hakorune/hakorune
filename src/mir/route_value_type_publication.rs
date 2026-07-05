@@ -6,7 +6,21 @@
 
 use crate::mir::MirType;
 
+pub(crate) const BOX_HELPERS_EXPECT_I64: &str = "BoxHelpers.expect_i64/2";
+pub(crate) const BOX_HELPERS_VALUE_I64: &str = "BoxHelpers.value_i64/1";
+pub(crate) const MIR_JSON_EMIT_BOX_EXPECT_I64: &str = "MirJsonEmitBox._expect_i64/2";
+pub(crate) const MIR_SCHEMA_BOX_EXPECT_I64: &str = "MirSchemaBox._expect_i64/2";
+pub(crate) const STRING_HELPERS_INT_TO_STR: &str = "StringHelpers.int_to_str/1";
 pub(crate) const STRING_HELPERS_TO_I64: &str = "StringHelpers.to_i64/1";
+
+pub(crate) const POLYMORPHIC_HELPER_PARAM0_INPUTS: &[&str] = &[
+    STRING_HELPERS_TO_I64,
+    STRING_HELPERS_INT_TO_STR,
+    BOX_HELPERS_VALUE_I64,
+    BOX_HELPERS_EXPECT_I64,
+    MIR_JSON_EMIT_BOX_EXPECT_I64,
+    MIR_SCHEMA_BOX_EXPECT_I64,
+];
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum HelperParamTypePublicationPolicy {
@@ -18,7 +32,7 @@ pub(crate) fn helper_param_type_publication_policy(
     helper_id: &str,
     param_index: usize,
 ) -> HelperParamTypePublicationPolicy {
-    if helper_id == STRING_HELPERS_TO_I64 && param_index == 0 {
+    if param_index == 0 && POLYMORPHIC_HELPER_PARAM0_INPUTS.contains(&helper_id) {
         return HelperParamTypePublicationPolicy::PolymorphicInputDoNotPublishFromSingleObservation;
     }
     HelperParamTypePublicationPolicy::PublishFromObservation
@@ -65,11 +79,14 @@ mod tests {
     }
 
     #[test]
-    fn to_i64_param0_is_polymorphic_input_policy() {
-        assert_eq!(
-            helper_param_type_publication_policy(STRING_HELPERS_TO_I64, 0),
-            HelperParamTypePublicationPolicy::PolymorphicInputDoNotPublishFromSingleObservation
-        );
+    fn polymorphic_helper_param0_inputs_do_not_publish_from_single_observation() {
+        for helper_id in POLYMORPHIC_HELPER_PARAM0_INPUTS {
+            assert_eq!(
+                helper_param_type_publication_policy(helper_id, 0),
+                HelperParamTypePublicationPolicy::PolymorphicInputDoNotPublishFromSingleObservation,
+                "helper_id={helper_id}"
+            );
+        }
         assert_eq!(
             helper_param_type_publication_policy(STRING_HELPERS_TO_I64, 1),
             HelperParamTypePublicationPolicy::PublishFromObservation

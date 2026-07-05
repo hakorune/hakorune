@@ -1,6 +1,6 @@
 # 3000 - MIR-ROUTE-GENERIC-METHOD-SCALAR-RETURN-VALUE-TYPE-PUBLICATION-001
 
-Status: pending
+Status: active
 
 ## Scope
 
@@ -43,4 +43,3 @@ fixture and guard.
 ```text
 MIR-ROUTE-EXTERN-CALL-RETURN-VALUE-TYPE-PUBLICATION-001
 ```
-

@@ -1,6 +1,6 @@
 # 2999 - HAKO-AOT-HELPER-PARAM-PUBLICATION-POLYMORPHIC-INPUT-CONTRACT-001
 
-Status: active
+Status: landed
 
 ## Scope
 
@@ -36,6 +36,23 @@ unchanged.
 - `StringHelpers.int_to_str/1 param0` is explicitly guarded;
 - the 2997 AOT route value-type publication contract gate remains green.
 
+## Evidence
+
+Fixture / guard:
+
+```text
+docs/development/current/main/design/fixtures/rust-lifecycle/hako-aot-route-value-type-publication-contract-v0.json
+tools/checks/hako_aot_route_value_type_publication_contract_gate.sh
+```
+
+Green output contract:
+
+```text
+polymorphic_helper_param0_policy=PolymorphicInputDoNotPublishFromSingleObservation
+polymorphic_helper_param0_count=6
+summary=ok
+```
+
 ## Forbidden
 
 - route-family unification;
@@ -49,4 +66,3 @@ unchanged.
 ```text
 MIR-ROUTE-GENERIC-METHOD-SCALAR-RETURN-VALUE-TYPE-PUBLICATION-001
 ```
-
