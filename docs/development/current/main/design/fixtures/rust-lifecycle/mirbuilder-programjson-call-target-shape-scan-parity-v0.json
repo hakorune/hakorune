@@ -1,0 +1,92 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonCallTargetShapeScanParityV1",
+  "token": "MIRBUILDER-PROGRAMJSON-CALL-TARGET-SHAPE-SCAN-CAPABILITY-001",
+  "capability": {
+    "name": "ProgramJsonCallTargetShapeScanV1",
+    "input": "ProgramJSON v0",
+    "output": "CallTargetShapeSnapshotV1"
+  },
+  "routes": {
+    "rust_oracle_route": "source -> RHako parser -> Rust ASTNode -> Rust Call target token snapshot",
+    "hako_programjson_route": "source -> HHako parser -> ProgramJSON -> HHako Call target token snapshot"
+  },
+  "rows": [
+    {
+      "row_id": "expr_env_console_log_one_arg",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Expr", "expr": {"type": "Call", "name": "env.console.log", "args": [{"type": "Var", "name": "x"}]}}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=CallTargetShapeSnapshotV1;top_call_target_shape_kind=EnvConsoleLogOneArg;if_then_call_target_shape_kind=Missing;if_else_call_target_shape_kind=Missing;supported_call_target_count=1;unsupported_call_target_count=0"}
+    },
+    {
+      "row_id": "local_simple_no_args",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "x", "expr": {"type": "Call", "name": "makeValue", "args": []}}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=CallTargetShapeSnapshotV1;top_call_target_shape_kind=SimpleFunctionNoArgs;if_then_call_target_shape_kind=Missing;if_else_call_target_shape_kind=Missing;supported_call_target_count=1;unsupported_call_target_count=0"}
+    },
+    {
+      "row_id": "local_simple_one_arg",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "x", "expr": {"type": "Call", "name": "inc", "args": [{"type": "Int", "value": 1}]}}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=CallTargetShapeSnapshotV1;top_call_target_shape_kind=SimpleFunctionOneArg;if_then_call_target_shape_kind=Missing;if_else_call_target_shape_kind=Missing;supported_call_target_count=1;unsupported_call_target_count=0"}
+    },
+    {
+      "row_id": "return_simple_two_args",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Return", "expr": {"type": "Call", "name": "sum", "args": [{"type": "Int", "value": 1}, {"type": "Int", "value": 2}]}}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=CallTargetShapeSnapshotV1;top_call_target_shape_kind=SimpleFunctionTwoArgs;if_then_call_target_shape_kind=Missing;if_else_call_target_shape_kind=Missing;supported_call_target_count=1;unsupported_call_target_count=0"}
+    },
+    {
+      "row_id": "local_dotted_static_no_args",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "x", "expr": {"type": "Call", "name": "Math.now", "args": []}}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=CallTargetShapeSnapshotV1;top_call_target_shape_kind=DottedStaticNoArgs;if_then_call_target_shape_kind=Missing;if_else_call_target_shape_kind=Missing;supported_call_target_count=1;unsupported_call_target_count=0"}
+    },
+    {
+      "row_id": "local_dotted_static_two_args",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "x", "expr": {"type": "Call", "name": "Math.add", "args": [{"type": "Var", "name": "a"}, {"type": "Var", "name": "b"}]}}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=CallTargetShapeSnapshotV1;top_call_target_shape_kind=DottedStaticTwoArgs;if_then_call_target_shape_kind=Missing;if_else_call_target_shape_kind=Missing;supported_call_target_count=1;unsupported_call_target_count=0"}
+    },
+    {
+      "row_id": "local_to_i64_one_arg",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "x", "expr": {"type": "Call", "name": "StringHelpers.to_i64", "args": [{"type": "Var", "name": "s"}]}}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=CallTargetShapeSnapshotV1;top_call_target_shape_kind=StringHelpersToI64OneArg;if_then_call_target_shape_kind=Missing;if_else_call_target_shape_kind=Missing;supported_call_target_count=1;unsupported_call_target_count=0"}
+    },
+    {
+      "row_id": "local_int_to_str_one_arg",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "x", "expr": {"type": "Call", "name": "StringHelpers.int_to_str", "args": [{"type": "Int", "value": 9}]}}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=CallTargetShapeSnapshotV1;top_call_target_shape_kind=StringHelpersIntToStrOneArg;if_then_call_target_shape_kind=Missing;if_else_call_target_shape_kind=Missing;supported_call_target_count=1;unsupported_call_target_count=0"}
+    },
+    {
+      "row_id": "if_then_simple_one_arg",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "If", "cond": {"type": "Bool", "value": true}, "then": [{"type": "Local", "name": "x", "expr": {"type": "Call", "name": "inc", "args": [{"type": "Int", "value": 1}]}}], "else": null}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=CallTargetShapeSnapshotV1;top_call_target_shape_kind=Missing;if_then_call_target_shape_kind=SimpleFunctionOneArg;if_else_call_target_shape_kind=Missing;supported_call_target_count=1;unsupported_call_target_count=0"}
+    },
+    {
+      "row_id": "if_else_dotted_static_one_arg",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "If", "cond": {"type": "Bool", "value": true}, "then": [], "else": [{"type": "Local", "name": "x", "expr": {"type": "Call", "name": "Math.abs", "args": [{"type": "Var", "name": "v"}]}}]}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=CallTargetShapeSnapshotV1;top_call_target_shape_kind=Missing;if_then_call_target_shape_kind=Missing;if_else_call_target_shape_kind=DottedStaticOneArg;supported_call_target_count=1;unsupported_call_target_count=0"}
+    }
+  ],
+  "summary": {
+    "parity_row_count": 10,
+    "programjson_traversal_used": 1,
+    "string_only_facade": 0,
+    "rust_astnode_projector_retire_candidate": 1
+  },
+  "decision": {
+    "kind": "ProgramJsonCallTargetShapeScanParityGreen",
+    "reason_token": "CallTargetShapeProgramJsonSnapshotMatchesRustAstNodeOracle",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-CALL-TARGET-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "programjson_full_parser_claim": 0,
+    "hako_adopted_for_full_owner": 0,
+    "call_resolution": 0,
+    "dispatch_selection": 0
+  }
+}

@@ -1,0 +1,242 @@
+// program_json_call_target_shape_scan.hako
+//
+// Responsibility:
+// - Traverse covered Program(JSON v0) Call target/arity shapes structurally.
+// - Emit CallTargetShapeSnapshotV1 summaries for MirBuilder migration parity.
+//
+// Non-responsibility:
+// - Full JSON parsing, source text matching, Rust ASTNode projection, call resolution,
+//   dispatch selection, route selection, MIR mutation, backend lowering, ID allocation,
+//   or parser integration.
+
+using selfhost.shared.common.string_helpers as StringHelpers
+using lang.compiler.mirbuilder.program_json_v0_scanner_box as ProgramJsonV0ScannerBox
+
+static box ProgramJsonCallTargetShapeScanBox {
+  build_summary(program_json) {
+    if program_json == null || ("" + program_json) == "" {
+      return me._fail("missing_program_json")
+    }
+    program_json = "" + program_json
+
+    local body = me._array_field_start(program_json, "body", 0)
+    if body < 0 { return me._fail("cap_missing_program_body") }
+
+    local first = me._first_object_in_array(program_json, body)
+    if first < 0 { return me._fail("cap_missing_first_stmt") }
+
+    local first_type = me._node_type_at(program_json, first)
+    if first_type == "Local" || first_type == "Expr" || first_type == "Return" {
+      return me._summary_from_kinds(me._stmt_call_target_shape_kind(program_json, first), "Missing", "Missing")
+    }
+    if first_type == "If" {
+      return me._summary_from_kinds(
+        "Missing",
+        me._first_call_target_shape_kind_in_array_field(program_json, first, "then"),
+        me._first_call_target_shape_kind_in_else(program_json, first)
+      )
+    }
+    return me._summary_from_kinds("Unsupported", "Missing", "Missing")
+  }
+
+  _summary_from_kinds(top_kind, then_kind, else_kind) {
+    local supported = me._shape_supported_count(top_kind)
+      + me._shape_supported_count(then_kind)
+      + me._shape_supported_count(else_kind)
+    local unsupported = me._shape_unsupported_count(top_kind)
+      + me._shape_unsupported_count(then_kind)
+      + me._shape_unsupported_count(else_kind)
+    return me._summary(top_kind, then_kind, else_kind, supported, unsupported)
+  }
+
+  _summary(top_kind, then_kind, else_kind, supported, unsupported) {
+    return "snapshot_kind=CallTargetShapeSnapshotV1"
+      + ";top_call_target_shape_kind=" + top_kind
+      + ";if_then_call_target_shape_kind=" + then_kind
+      + ";if_else_call_target_shape_kind=" + else_kind
+      + ";supported_call_target_count=" + me._count_token(supported)
+      + ";unsupported_call_target_count=" + me._count_token(unsupported)
+  }
+
+  _stmt_call_target_shape_kind(s, stmt_start) {
+    local expr = ProgramJsonV0ScannerBox.seek_obj_field_obj_start(s, "expr", stmt_start)
+    if expr < 0 { return "Unsupported" }
+    return me._call_target_kind(s, expr)
+  }
+
+  _call_target_kind(s, expr_start) {
+    if me._node_type_at(s, expr_start) != "Call" { return "Unsupported" }
+    local name = me._string_field_at(s, "name", expr_start)
+    if name == "" { return "Unsupported" }
+    local args_start = me._array_field_start(s, "args", expr_start)
+    if args_start < 0 { return "Unsupported" }
+    local argc = me._count_objects_in_array(s, args_start)
+    if argc < 0 { return "Unsupported" }
+    if argc > 2 { return "Unsupported" }
+
+    local family = me._target_family(name)
+    if family == "Unsupported" { return "Unsupported" }
+    return family + me._arity_suffix(argc)
+  }
+
+  _target_family(name) {
+    if name == "env.console.log" { return "EnvConsoleLog" }
+    if name == "StringHelpers.to_i64" { return "StringHelpersToI64" }
+    if name == "StringHelpers.int_to_str" { return "StringHelpersIntToStr" }
+    if StringHelpers.index_of(name, 0, ".") >= 0 { return "DottedStatic" }
+    return "SimpleFunction"
+  }
+
+  _arity_suffix(argc) {
+    if argc == 0 { return "NoArgs" }
+    if argc == 1 { return "OneArg" }
+    if argc == 2 { return "TwoArgs" }
+    return "ManyArgs"
+  }
+
+  _first_call_target_shape_kind_in_array_field(s, if_start, key) {
+    local array_start = me._array_field_start(s, key, if_start)
+    if array_start < 0 { return "Missing" }
+    return me._first_call_target_shape_kind_in_array(s, array_start)
+  }
+
+  _first_call_target_shape_kind_in_else(s, if_start) {
+    local p = me._if_direct_else_value_start(s, if_start)
+    if p < 0 { return "Missing" }
+    p = StringHelpers.skip_ws(s, p)
+    if s.substring(p, p + 4) == "null" { return "Missing" }
+    if ProgramJsonV0ScannerBox._read_char(s, p) != "[" { return "Unsupported" }
+    return me._first_call_target_shape_kind_in_array(s, p)
+  }
+
+  _first_call_target_shape_kind_in_array(s, array_start) {
+    local first = me._first_object_in_array(s, array_start)
+    if first < 0 { return "Missing" }
+    local first_type = me._node_type_at(s, first)
+    if first_type != "Local" && first_type != "Expr" && first_type != "Return" { return "Unsupported" }
+    return me._stmt_call_target_shape_kind(s, first)
+  }
+
+  _shape_supported_count(kind) {
+    if kind == "Missing" { return 0 }
+    if kind == "Unsupported" { return 0 }
+    return 1
+  }
+
+  _shape_unsupported_count(kind) {
+    if kind == "Unsupported" { return 1 }
+    return 0
+  }
+
+  _count_token(n) {
+    if n <= 0 { return "0" }
+    if n == 1 { return "1" }
+    if n == 2 { return "2" }
+    return "many"
+  }
+
+  _fail(reason) {
+    return "accepted=0;reason=" + reason
+  }
+
+  _array_field_start(s, key, obj_start) {
+    if obj_start < 0 { return -1 }
+    local p = ProgramJsonV0ScannerBox.seek_obj_field_value_start(s, key, obj_start)
+    if p < 0 { return -1 }
+    p = StringHelpers.skip_ws(s, p)
+    if ProgramJsonV0ScannerBox._read_char(s, p) != "[" { return -1 }
+    return p
+  }
+
+  _first_object_in_array(s, array_start) {
+    if array_start < 0 { return -1 }
+    local p = StringHelpers.skip_ws(s, array_start + 1)
+    if ProgramJsonV0ScannerBox._read_char(s, p) != "{" { return -1 }
+    return p
+  }
+
+  _next_object_in_array(s, array_start, previous_start) {
+    if array_start < 0 || previous_start < 0 { return -1 }
+    local previous_end = ProgramJsonV0ScannerBox.seek_obj_end_unescaped(s, previous_start)
+    if previous_end < 0 { return -1 }
+    local p = StringHelpers.skip_ws(s, previous_end)
+    if ProgramJsonV0ScannerBox._read_char(s, p) != "," { return -1 }
+    p = StringHelpers.skip_ws(s, p + 1)
+    if ProgramJsonV0ScannerBox._read_char(s, p) != "{" { return -1 }
+    return p
+  }
+
+  _count_objects_in_array(s, array_start) {
+    local first = me._first_object_in_array(s, array_start)
+    if first < 0 {
+      local p = StringHelpers.skip_ws(s, array_start + 1)
+      if ProgramJsonV0ScannerBox._read_char(s, p) == "]" { return 0 }
+      return -1
+    }
+    local second = me._next_object_in_array(s, array_start, first)
+    if second < 0 { return 1 }
+    local third = me._next_object_in_array(s, array_start, second)
+    if third < 0 { return 2 }
+    return 3
+  }
+
+  _if_direct_else_value_start(s, if_start) {
+    local then_start = me._array_field_start(s, "then", if_start)
+    if then_start < 0 { return -1 }
+    local then_end = me._array_end_unescaped(s, then_start)
+    if then_end < 0 { return -1 }
+    local p = StringHelpers.index_of(s, then_end, "\"else\":")
+    if p < 0 { return -1 }
+    local if_end = ProgramJsonV0ScannerBox.seek_obj_end_unescaped(s, if_start)
+    if if_end < 0 || p >= if_end { return -1 }
+    return p + 7
+  }
+
+  _array_end_unescaped(s, array_start) {
+    if array_start < 0 { return -1 }
+    local n = s.length()
+    local i = array_start
+    local depth = 0
+    local in_str = 0
+    local esc = 0
+    loop(i < n) {
+      local ch = s.substring(i, i + 1)
+      if in_str == 1 {
+        if esc == 1 {
+          esc = 0
+        } else if ch == "\\" {
+          esc = 1
+        } else if ch == "\"" {
+          in_str = 0
+        }
+      } else {
+        if ch == "\"" {
+          in_str = 1
+        } else if ch == "[" {
+          depth = depth + 1
+        } else if ch == "]" {
+          depth = depth - 1
+          if depth == 0 { return i + 1 }
+        }
+      }
+      i = i + 1
+    }
+    return -1
+  }
+
+  _node_type_at(s, obj_start) {
+    return me._string_field_at(s, "type", obj_start)
+  }
+
+  _string_field_at(s, key, obj_start) {
+    local p = ProgramJsonV0ScannerBox.seek_obj_field_value_start(s, key, obj_start)
+    if p < 0 { return "" }
+    p = StringHelpers.skip_ws(s, p)
+    if ProgramJsonV0ScannerBox._read_char(s, p) != "\"" { return "" }
+    local end_quote = StringHelpers.index_of(s, p + 1, "\"")
+    if end_quote < 0 { return "" }
+    return s.substring(p + 1, end_quote)
+  }
+}
+
+static box ProgramJsonCallTargetShapeScanMain { main() { return 0 } }
