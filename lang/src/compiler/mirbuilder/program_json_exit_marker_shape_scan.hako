@@ -1,0 +1,147 @@
+// program_json_exit_marker_shape_scan.hako
+//
+// Responsibility:
+// - Traverse covered Program(JSON v0) Break/Continue statement markers structurally.
+// - Emit ExitMarkerShapeSnapshotV1 summaries for MirBuilder migration parity.
+//
+// Non-responsibility:
+// - Full JSON parsing, source text matching, Rust ASTNode projection, CFG construction,
+//   exit lowering, route selection, MIR mutation, backend lowering, ID allocation,
+//   or parser integration.
+
+using selfhost.shared.common.string_helpers as StringHelpers
+using lang.compiler.mirbuilder.program_json_v0_scanner_box as ProgramJsonV0ScannerBox
+
+static box ProgramJsonExitMarkerShapeScanBox {
+  build_summary(program_json) {
+    if program_json == null || ("" + program_json) == "" {
+      return me._fail("missing_program_json")
+    }
+    program_json = "" + program_json
+
+    local body = me._array_field_start(program_json, "body", 0)
+    if body < 0 { return me._fail("cap_missing_program_body") }
+
+    local first = me._first_object_in_array(program_json, body)
+    if first < 0 { return me._fail("cap_missing_first_stmt") }
+
+    local top_kind = "Missing"
+    local loop_kind = "Missing"
+    local then_kind = "Missing"
+    local else_kind = "Missing"
+    local first_type = me._node_type_at(program_json, first)
+
+    if first_type == "Break" || first_type == "Continue" {
+      top_kind = first_type
+    } else if first_type == "Loop" {
+      loop_kind = me._first_exit_marker_kind_in_array_field(program_json, first, "body")
+    } else if first_type == "If" {
+      then_kind = me._first_exit_marker_kind_in_array_field(program_json, first, "then")
+      else_kind = me._first_exit_marker_kind_in_else(program_json, first)
+    } else {
+      top_kind = "Unsupported"
+    }
+
+    local break_count = me._marker_count(top_kind, "Break")
+      + me._marker_count(loop_kind, "Break")
+      + me._marker_count(then_kind, "Break")
+      + me._marker_count(else_kind, "Break")
+    local continue_count = me._marker_count(top_kind, "Continue")
+      + me._marker_count(loop_kind, "Continue")
+      + me._marker_count(then_kind, "Continue")
+      + me._marker_count(else_kind, "Continue")
+    local unsupported = me._unsupported_count(top_kind)
+      + me._unsupported_count(loop_kind)
+      + me._unsupported_count(then_kind)
+      + me._unsupported_count(else_kind)
+    return me._summary(top_kind, loop_kind, then_kind, else_kind, break_count, continue_count, unsupported)
+  }
+
+  _summary(top_kind, loop_kind, then_kind, else_kind, break_count, continue_count, unsupported) {
+    return "snapshot_kind=ExitMarkerShapeSnapshotV1"
+      + ";top_exit_marker_kind=" + top_kind
+      + ";loop_body_exit_marker_kind=" + loop_kind
+      + ";if_then_exit_marker_kind=" + then_kind
+      + ";if_else_exit_marker_kind=" + else_kind
+      + ";break_count=" + me._count_token(break_count)
+      + ";continue_count=" + me._count_token(continue_count)
+      + ";unsupported_exit_marker_count=" + me._count_token(unsupported)
+  }
+
+  _first_exit_marker_kind_in_array_field(s, obj_start, key) {
+    local array_start = me._array_field_start(s, key, obj_start)
+    if array_start < 0 { return "Missing" }
+    return me._first_exit_marker_kind_in_array(s, array_start)
+  }
+
+  _first_exit_marker_kind_in_else(s, if_start) {
+    local p = ProgramJsonV0ScannerBox.seek_obj_field_value_start(s, "else", if_start)
+    if p < 0 { return "Missing" }
+    p = StringHelpers.skip_ws(s, p)
+    if s.substring(p, p + 4) == "null" { return "Missing" }
+    if ProgramJsonV0ScannerBox._read_char(s, p) != "[" { return "Unsupported" }
+    return me._first_exit_marker_kind_in_array(s, p)
+  }
+
+  _first_exit_marker_kind_in_array(s, array_start) {
+    local first = me._first_object_in_array(s, array_start)
+    if first < 0 { return "Missing" }
+    local ty = me._node_type_at(s, first)
+    if ty == "Break" { return "Break" }
+    if ty == "Continue" { return "Continue" }
+    return "Unsupported"
+  }
+
+  _marker_count(kind, expected) {
+    if kind == expected { return 1 }
+    return 0
+  }
+
+  _unsupported_count(kind) {
+    if kind == "Unsupported" { return 1 }
+    return 0
+  }
+
+  _count_token(n) {
+    if n <= 0 { return "0" }
+    if n == 1 { return "1" }
+    if n == 2 { return "2" }
+    return "many"
+  }
+
+  _fail(reason) {
+    return "accepted=0;reason=" + reason
+  }
+
+  _array_field_start(s, key, obj_start) {
+    if obj_start < 0 { return -1 }
+    local p = ProgramJsonV0ScannerBox.seek_obj_field_value_start(s, key, obj_start)
+    if p < 0 { return -1 }
+    p = StringHelpers.skip_ws(s, p)
+    if ProgramJsonV0ScannerBox._read_char(s, p) != "[" { return -1 }
+    return p
+  }
+
+  _first_object_in_array(s, array_start) {
+    if array_start < 0 { return -1 }
+    local p = StringHelpers.skip_ws(s, array_start + 1)
+    if ProgramJsonV0ScannerBox._read_char(s, p) != "{" { return -1 }
+    return p
+  }
+
+  _node_type_at(s, obj_start) {
+    return me._string_field_at(s, "type", obj_start)
+  }
+
+  _string_field_at(s, key, obj_start) {
+    local p = ProgramJsonV0ScannerBox.seek_obj_field_value_start(s, key, obj_start)
+    if p < 0 { return "" }
+    p = StringHelpers.skip_ws(s, p)
+    if ProgramJsonV0ScannerBox._read_char(s, p) != "\"" { return "" }
+    local end_quote = StringHelpers.index_of(s, p + 1, "\"")
+    if end_quote < 0 { return "" }
+    return s.substring(p + 1, end_quote)
+  }
+}
+
+static box ProgramJsonExitMarkerShapeScanMain { main() { return 0 } }

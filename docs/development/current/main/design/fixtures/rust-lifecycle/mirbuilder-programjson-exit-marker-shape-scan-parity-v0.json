@@ -1,0 +1,112 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonExitMarkerShapeScanParityV1",
+  "token": "MIRBUILDER-PROGRAMJSON-EXIT-MARKER-SHAPE-SCAN-CAPABILITY-001",
+  "capability": {
+    "name": "ProgramJsonExitMarkerShapeScanV1",
+    "input": "ProgramJSON v0",
+    "output": "ExitMarkerShapeSnapshotV1"
+  },
+  "routes": {
+    "rust_oracle_route": "source -> RHako parser -> Rust ASTNode -> Rust exit-marker token snapshot",
+    "hako_programjson_route": "source -> HHako parser -> ProgramJSON -> HHako exit-marker token snapshot"
+  },
+  "rows": [
+    {
+      "row_id": "top_break",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Break"}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=ExitMarkerShapeSnapshotV1;top_exit_marker_kind=Break;loop_body_exit_marker_kind=Missing;if_then_exit_marker_kind=Missing;if_else_exit_marker_kind=Missing;break_count=1;continue_count=0;unsupported_exit_marker_count=0"
+      }
+    },
+    {
+      "row_id": "top_continue",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Continue"}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=ExitMarkerShapeSnapshotV1;top_exit_marker_kind=Continue;loop_body_exit_marker_kind=Missing;if_then_exit_marker_kind=Missing;if_else_exit_marker_kind=Missing;break_count=0;continue_count=1;unsupported_exit_marker_count=0"
+      }
+    },
+    {
+      "row_id": "top_return_unsupported",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Return", "expr": {"type": "Int", "value": 1}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=ExitMarkerShapeSnapshotV1;top_exit_marker_kind=Unsupported;loop_body_exit_marker_kind=Missing;if_then_exit_marker_kind=Missing;if_else_exit_marker_kind=Missing;break_count=0;continue_count=0;unsupported_exit_marker_count=1"
+      }
+    },
+    {
+      "row_id": "loop_body_break",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Loop", "cond": {"type": "Bool", "value": true}, "body": [{"type": "Break"}]}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=ExitMarkerShapeSnapshotV1;top_exit_marker_kind=Missing;loop_body_exit_marker_kind=Break;if_then_exit_marker_kind=Missing;if_else_exit_marker_kind=Missing;break_count=1;continue_count=0;unsupported_exit_marker_count=0"
+      }
+    },
+    {
+      "row_id": "loop_body_continue",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Loop", "cond": {"type": "Bool", "value": true}, "body": [{"type": "Continue"}]}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=ExitMarkerShapeSnapshotV1;top_exit_marker_kind=Missing;loop_body_exit_marker_kind=Continue;if_then_exit_marker_kind=Missing;if_else_exit_marker_kind=Missing;break_count=0;continue_count=1;unsupported_exit_marker_count=0"
+      }
+    },
+    {
+      "row_id": "loop_body_local_unsupported",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Loop", "cond": {"type": "Bool", "value": true}, "body": [{"type": "Local", "name": "i", "expr": {"type": "Int", "value": 0}}]}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=ExitMarkerShapeSnapshotV1;top_exit_marker_kind=Missing;loop_body_exit_marker_kind=Unsupported;if_then_exit_marker_kind=Missing;if_else_exit_marker_kind=Missing;break_count=0;continue_count=0;unsupported_exit_marker_count=1"
+      }
+    },
+    {
+      "row_id": "if_then_break",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "If", "cond": {"type": "Bool", "value": true}, "then": [{"type": "Break"}], "else": null}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=ExitMarkerShapeSnapshotV1;top_exit_marker_kind=Missing;loop_body_exit_marker_kind=Missing;if_then_exit_marker_kind=Break;if_else_exit_marker_kind=Missing;break_count=1;continue_count=0;unsupported_exit_marker_count=0"
+      }
+    },
+    {
+      "row_id": "if_else_continue",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "If", "cond": {"type": "Bool", "value": true}, "then": [], "else": [{"type": "Continue"}]}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=ExitMarkerShapeSnapshotV1;top_exit_marker_kind=Missing;loop_body_exit_marker_kind=Missing;if_then_exit_marker_kind=Missing;if_else_exit_marker_kind=Continue;break_count=0;continue_count=1;unsupported_exit_marker_count=0"
+      }
+    },
+    {
+      "row_id": "if_then_continue_else_break",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "If", "cond": {"type": "Bool", "value": true}, "then": [{"type": "Continue"}], "else": [{"type": "Break"}]}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=ExitMarkerShapeSnapshotV1;top_exit_marker_kind=Missing;loop_body_exit_marker_kind=Missing;if_then_exit_marker_kind=Continue;if_else_exit_marker_kind=Break;break_count=1;continue_count=1;unsupported_exit_marker_count=0"
+      }
+    },
+    {
+      "row_id": "first_stmt_local_unsupported",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "i", "expr": {"type": "Int", "value": 0}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=ExitMarkerShapeSnapshotV1;top_exit_marker_kind=Unsupported;loop_body_exit_marker_kind=Missing;if_then_exit_marker_kind=Missing;if_else_exit_marker_kind=Missing;break_count=0;continue_count=0;unsupported_exit_marker_count=1"
+      }
+    }
+  ],
+  "summary": {
+    "parity_row_count": 10,
+    "programjson_traversal_used": 1,
+    "string_only_facade": 0,
+    "rust_astnode_projector_retire_candidate": 1
+  },
+  "decision": {
+    "kind": "ProgramJsonExitMarkerShapeScanParityGreen",
+    "reason_token": "ExitMarkerShapeProgramJsonSnapshotMatchesRustAstNodeOracle",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-EXIT-MARKER-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "programjson_full_parser_claim": 0,
+    "hako_adopted_for_full_owner": 0,
+    "cfg_construction": 0,
+    "exit_lowering": 0
+  }
+}

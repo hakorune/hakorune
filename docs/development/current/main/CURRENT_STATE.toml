@@ -345,15 +345,15 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PROGRAMJSON-LOCAL-MAP-LITERAL-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3050-MIRBUILDER-PROGRAMJSON-LOCAL-MAP-LITERAL-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001.md"
-latest_card_summary = """3050 marks only the covered
-LocalMapLiteralShapeSnapshotV1 ProgramJSON traversal rows as a scoped Rust
-ASTNode projector retire-candidate. Next work returns to ProgramJSON
-capability-batch continuation. MapBox lowering, map allocation semantics, full
-projector retirement, ProgramJSON full parser, HakoAdoption, Source Selfhost,
-RecipeMatcher, route selection, lowering, mutation, ID allocation, and new ABI
-remain unclaimed."""
+latest_card = "MIRBUILDER-PROGRAMJSON-EXIT-MARKER-SHAPE-SCAN-CAPABILITY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3051-MIRBUILDER-PROGRAMJSON-EXIT-MARKER-SHAPE-SCAN-CAPABILITY-001.md"
+latest_card_summary = """3051 lands real `.hako`
+ProgramJsonExitMarkerShapeScanV1 ProgramJSON traversal for covered
+Break/Continue exit-marker shapes with 10-row AOT parity. Next work is the
+scoped ExitMarkerShapeSnapshotV1 Rust ASTNode projector retire-candidate. CFG
+construction, exit lowering, full projector retirement, ProgramJSON full
+parser, HakoAdoption, Source Selfhost, RecipeMatcher, route selection,
+lowering, mutation, ID allocation, and new ABI remain unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -364,6 +364,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-05: 3051 lands real `.hako` ProgramJsonExitMarkerShapeScanV1 ProgramJSON traversal for covered Break/Continue exit-marker shapes with 10-row AOT parity; 3052 is active for the scoped exit-marker projector retire-candidate.",
   "2026-07-05: 3050 lands the covered LocalMapLiteralShapeSnapshotV1 ProgramJSON traversal slice as a scoped Rust ASTNode projector retire-candidate; next work returns to ProgramJSON capability-batch continuation.",
   "2026-07-05: 3049 lands real `.hako` ProgramJsonLocalMapLiteralShapeScanV1 ProgramJSON traversal for covered Local.expr Map literal shapes with 10-row AOT parity; 3050 is active for the scoped local map literal projector retire-candidate.",
   "2026-07-05: 3048 lands the covered LocalRecordLiteralShapeSnapshotV1 ProgramJSON traversal slice as a scoped Rust ASTNode projector retire-candidate; next work returns to ProgramJSON capability-batch continuation.",
@@ -375,5 +376,4 @@ landed_tail = [
   "2026-07-05: 3042 lands the covered LocalStringLiteralShapeSnapshotV1 ProgramJSON traversal slice as a scoped Rust ASTNode projector retire-candidate; next work returns to ProgramJSON capability-batch continuation.",
   "2026-07-05: 3041 lands real `.hako` ProgramJsonLocalStringLiteralShapeScanV1 ProgramJSON traversal for Local.expr string literal shapes with 9-row AOT parity; 3042 is active for the scoped local string literal projector retire-candidate.",
   "2026-07-05: 3040 lands the covered EnumMatchShapeSnapshotV1 ProgramJSON traversal slice as a scoped Rust ASTNode projector retire-candidate; next work returns to ProgramJSON capability-batch continuation.",
-  "2026-07-05: 3039 lands real `.hako` ProgramJsonEnumMatchShapeScanV1 ProgramJSON traversal for EnumMatch shapes with 9-row AOT parity; 3040 is active for the scoped EnumMatch projector retire-candidate.",
 ]
