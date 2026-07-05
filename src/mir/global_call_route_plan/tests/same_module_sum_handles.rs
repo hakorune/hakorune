@@ -91,6 +91,47 @@ fn refresh_module_global_call_routes_accepts_builtin_map_handle_return() {
 }
 
 #[test]
+fn refresh_module_global_call_routes_accepts_unknown_signature_builtin_array_handle_return() {
+    let mut module = MirModule::new("global_call_unknown_array_return_test".to_string());
+    let caller = make_function_with_global_call_args(
+        "Helper.array_or_empty/0",
+        Some(ValueId::new(7)),
+        vec![],
+    );
+    let mut callee = MirFunction::new(
+        FunctionSignature {
+            name: "Helper.array_or_empty/0".to_string(),
+            params: vec![],
+            return_type: MirType::Unknown,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    let entry = callee.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
+    entry.instructions.push(MirInstruction::NewBox {
+        dst: ValueId::new(1),
+        box_type: "ArrayBox".to_string(),
+        args: vec![],
+    });
+    entry.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(1)),
+    });
+    module.functions.insert("main".to_string(), caller);
+    module
+        .functions
+        .insert("Helper.array_or_empty/0".to_string(), callee);
+
+    refresh_module_global_call_routes(&mut module);
+
+    let route = &module.functions["main"].metadata.global_call_routes[0];
+    assert_eq!(route.reason(), None, "{route:?}");
+    assert_eq!(route.return_shape(), Some("object_handle"));
+    assert_eq!(route.target_result_box_name(), None);
+    assert_eq!(route.definition_owner(), "uniform_mir");
+    assert_eq!(route.proof(), "typed_global_call_same_module_object_handle");
+}
+
+#[test]
 fn refresh_module_global_call_routes_accepts_same_module_variant_handle_return() {
     let mut module =
         MirModule::new("global_call_same_module_variant_handle_return_test".to_string());

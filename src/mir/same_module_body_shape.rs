@@ -101,7 +101,8 @@ fn same_module_instruction_supported(
         } => {
             function.metadata.generic_method_routes.iter().any(|route| {
                 route.block() == block_id && route.instruction_index() == instruction_index
-            }) || is_self_recursive_method_call(function, box_name, method, args.len())
+            }) || known_collection_birth_method_call(box_name, method, args)
+                || is_self_recursive_method_call(function, box_name, method, args.len())
                 || function
                     .metadata
                     .user_box_method_routes
@@ -176,6 +177,43 @@ mod tests {
 
         assert!(same_module_body_supported(&function, &BTreeMap::new()));
     }
+
+    #[test]
+    fn same_module_body_accepts_collection_birth_receiver_only_call() {
+        let entry = BasicBlockId::new(0);
+        let signature = FunctionSignature {
+            name: "ArrayFactory.make/0".to_string(),
+            params: vec![],
+            return_type: MirType::Box("ArrayBox".to_string()),
+            effects: EffectMask::PURE,
+        };
+        let mut function = MirFunction::new(signature, entry);
+        let mut block = BasicBlock::new(entry);
+        block.instructions.push(MirInstruction::NewBox {
+            dst: ValueId::new(1),
+            box_type: "ArrayBox".to_string(),
+            args: vec![],
+        });
+        block.instructions.push(MirInstruction::Call {
+            dst: None,
+            func: ValueId::new(0),
+            callee: Some(Callee::Method {
+                box_name: "ArrayBox".to_string(),
+                method: "birth".to_string(),
+                receiver: Some(ValueId::new(1)),
+                certainty: crate::mir::definitions::call_unified::TypeCertainty::Known,
+                box_kind: crate::mir::definitions::call_unified::CalleeBoxKind::RuntimeData,
+            }),
+            args: vec![ValueId::new(1)],
+            effects: EffectMask::PURE,
+        });
+        block.instructions.push(MirInstruction::Return {
+            value: Some(ValueId::new(1)),
+        });
+        function.blocks.insert(entry, block);
+
+        assert!(same_module_body_supported(&function, &BTreeMap::new()));
+    }
 }
 
 fn known_same_module_typed_method_call(
@@ -197,6 +235,16 @@ fn known_user_defined_method_call(instruction: &MirInstruction) -> bool {
             ..
         }
     )
+}
+
+fn known_collection_birth_method_call(
+    box_name: &str,
+    method: &str,
+    args: &[crate::mir::ValueId],
+) -> bool {
+    method == "birth"
+        && args.len() <= 1
+        && matches!(box_name, "ArrayBox" | "DirectArrayI64" | "MapBox")
 }
 
 fn is_self_recursive_method_call(

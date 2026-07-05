@@ -1,0 +1,47 @@
+{
+  "schema_version": 0,
+  "kind": "HakoAotSameModuleObjectHandleContractV1",
+  "token": "HAKO-AOT-SAME-MODULE-OBJECT-HANDLE-CONTRACT-001",
+  "scope": {
+    "previous_blocker": "MIRBUILDER-PROGRAMJSON-LAYER4-PHASE-STATE-AOT-CALL-BLOCKER-001",
+    "reason": "same-module object-handle helpers were classified as missing multi-function emitter before the AOT route metadata contract could prove their uniform MIR ABI"
+  },
+  "required_routes": [
+    {
+      "symbol": "RecipeItemBox._array_or_empty/1",
+      "tier": "DirectAbi",
+      "emit_kind": "direct_function_call",
+      "return_shape": "object_handle",
+      "proof": "typed_global_call_same_module_object_handle",
+      "reason": null
+    },
+    {
+      "symbol": "RecipeItemBox.seq/1",
+      "tier": "DirectAbi",
+      "emit_kind": "direct_function_call",
+      "return_shape": "map_handle",
+      "proof": "typed_global_call_mir_schema_map_constructor",
+      "reason": null
+    }
+  ],
+  "regression_tests": [
+    "same_module_body_accepts_collection_birth_receiver_only_call",
+    "infers_object_handle_from_builtin_newbox_with_unknown_signature",
+    "refresh_module_global_call_routes_accepts_unknown_signature_builtin_array_handle_return"
+  ],
+  "decision": {
+    "kind": "ContinuePhaseStateParseAotCallContract",
+    "selected_next_card": "HAKO-AOT-PROGRAMJSON-PHASE-STATE-DEEP-OBJECT-HELPER-CALL-CONTRACT-001",
+    "resume_after_green": "MIRBUILDER-PROGRAMJSON-LAYER4-LOOP-RECIPE-DTO-PARITY-001"
+  },
+  "claims": {
+    "phase_state_parse_aot_call_fixed": 0,
+    "layer4_recipe_dto_parity_green": 0,
+    "source_selfhost_claim": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering_claim": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

@@ -345,12 +345,15 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PROGRAMJSON-LAYER4-PHASE-STATE-AOT-CALL-BLOCKER-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3107-MIRBUILDER-PROGRAMJSON-LAYER4-PHASE-STATE-AOT-CALL-BLOCKER-001.md"
-latest_card_summary = """3107 records the first Layer4 blocker: imported AOT
-calls to ProgramJsonV0PhaseStateBox.parse/2 fail with
-module_generic_prepass_failed. Next work is the AOT PhaseState parse call
-contract; after that is green, resume ProgramJSON loop Recipe DTO parity.
+latest_card = "HAKO-AOT-SAME-MODULE-OBJECT-HANDLE-CONTRACT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3108-HAKO-AOT-SAME-MODULE-OBJECT-HANDLE-CONTRACT-001.md"
+latest_card_summary = """3108 fixes the first AOT route metadata contract gap
+under the PhaseState parse blocker: same-module helper bodies that return
+collection handles through NewBox / collection birth / proven object-handle
+child routes now publish a uniform MIR object-handle contract. RecipeItemBox
+_array_or_empty/1 and seq/1 are DirectAbi. ProgramJsonV0PhaseStateBox.parse/2
+is still blocked by deeper object-helper calls; next work is
+HAKO-AOT-PROGRAMJSON-PHASE-STATE-DEEP-OBJECT-HELPER-CALL-CONTRACT-001.
 Layer4 parity green, runtime route switch, full projector retirement,
 HakoAdoption, Source Selfhost, RecipeMatcher, route selection, lowering,
 mutation, ID allocation, and new ABI remain unclaimed."""

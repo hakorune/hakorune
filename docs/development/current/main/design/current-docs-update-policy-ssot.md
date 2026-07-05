@@ -104,6 +104,26 @@ Rules:
 - no fast path lane opens unless current mimalloc perf evidence names a
   concrete owner family and a positive-net implementation path.
 
+## Active Docs Size Policy
+
+The 800-line hard cap applies to source code files. It is not an active-docs
+line cap.
+
+Active restart / workstream / task-order / design docs should still stay
+small enough to scan. Use these rules instead of a hard 800-line markdown
+limit:
+
+- keep active entry docs as pointers, current decisions, and next-action
+  queues;
+- move landed history, full inventories, and probe transcripts into phase
+  cards, fixtures, ledgers, or investigation notes;
+- when an active markdown file grows past roughly 1000 lines, open a docs-slim
+  task or archive split before adding more historical prose;
+- long archive / fixture / investigation docs may exceed that size when they
+  are not restart entrypoints;
+- do not split a doc just to satisfy a line count if the split would hide the
+  SSOT or make the next action harder to find.
+
 Immediate cleanup policy for phase-296x:
 
 - keep rows through the current card as history;
