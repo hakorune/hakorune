@@ -2,6 +2,21 @@ use serde_json::json;
 
 use crate::mir::{BinaryOp, CompareOp, ConstValue, MirType, TypeOpKind, UnaryOp, ValueId};
 
+fn mir_type_is_string_like(ty: Option<&MirType>) -> bool {
+    match ty {
+        Some(MirType::String) => true,
+        Some(MirType::Box(bt)) if bt == "StringBox" => true,
+        _ => false,
+    }
+}
+
+fn mir_type_allows_string_compare(ty: Option<&MirType>) -> bool {
+    match ty {
+        None | Some(MirType::Unknown) => true,
+        other => mir_type_is_string_like(other),
+    }
+}
+
 pub(crate) fn emit_copy(dst: &ValueId, src: &ValueId) -> serde_json::Value {
     json!({"op":"copy","dst": dst.as_u32(), "src": src.as_u32()})
 }
@@ -114,6 +129,13 @@ pub(crate) fn emit_bin_op(
     // Phase 131-15-P1: dst_type only when type is KNOWN (not Unknown)
     // Operand TypeFacts take priority over dst_type hint in Python
     if matches!(op, BinaryOp::Add) {
+        if mir_type_is_string_like(value_types.get(lhs))
+            || mir_type_is_string_like(value_types.get(rhs))
+        {
+            obj["dst_type"] = json!({"kind":"handle","box_type":"StringBox"});
+            return obj;
+        }
+
         let dst_type = value_types.get(dst);
         match dst_type {
             Some(MirType::Box(bt)) if bt == "StringBox" => {
@@ -154,17 +176,13 @@ pub(crate) fn emit_compare(
     let mut obj = json!({"op":"compare","operation": op_s, "lhs": lhs.as_u32(), "rhs": rhs.as_u32(), "dst": dst.as_u32()});
     // cmp_kind hint for string equality
     if matches!(op, CompareOp::Eq | CompareOp::Ne) {
-        let lhs_is_str = match value_types.get(lhs) {
-            Some(MirType::String) => true,
-            Some(MirType::Box(bt)) if bt == "StringBox" => true,
-            _ => false,
-        };
-        let rhs_is_str = match value_types.get(rhs) {
-            Some(MirType::String) => true,
-            Some(MirType::Box(bt)) if bt == "StringBox" => true,
-            _ => false,
-        };
-        if lhs_is_str && rhs_is_str {
+        let lhs_ty = value_types.get(lhs);
+        let rhs_ty = value_types.get(rhs);
+        let lhs_is_str = mir_type_is_string_like(lhs_ty);
+        let rhs_is_str = mir_type_is_string_like(rhs_ty);
+        if (lhs_is_str && mir_type_allows_string_compare(rhs_ty))
+            || (rhs_is_str && mir_type_allows_string_compare(lhs_ty))
+        {
             obj["cmp_kind"] = json!("string");
         }
     }

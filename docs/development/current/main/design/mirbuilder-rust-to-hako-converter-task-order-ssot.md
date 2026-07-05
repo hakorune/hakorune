@@ -90,11 +90,13 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  ProgramJSON migration uses capability batches, not one-shape cards. Loop.body
-  control-flow scan is green as a 10-row `.hako` ProgramJSON traversal capability:
-  empty/return/continue/break/continue-return/if-continue/nested-loop/unsupported
-  rows now match the Rust ASTNode-token oracle. Next card may mark only the
-  covered LoopBodyControlFlowSnapshotV1 slice as a Rust ASTNode projector
+  ProgramJSON migration uses capability batches, not one-shape cards. Before
+  the retire-candidate follow-up, AOT correctness for dynamic `node_type ==
+  "Return"` and dynamic `StringHelpers.int_to_str(scanner_i64)` was fixed in
+  HAKO-AOT-DYNAMIC-STRING-EQ-AND-INT-TO-STR-CORRECTNESS-001. Loop.body
+  control-flow scan remains green as a 10-row `.hako` ProgramJSON traversal
+  capability, and the next card may mark only the covered
+  LoopBodyControlFlowSnapshotV1 slice as a Rust ASTNode projector
   retire-candidate. Policy SSOT:
   docs/development/current/main/design/mirbuilder-programjson-capability-batch-migration-policy-ssot.md.
   Do not claim full projector retirement, HakoAdoption, ProgramJSON full parser,

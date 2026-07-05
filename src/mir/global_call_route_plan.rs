@@ -71,6 +71,7 @@ use static_string_array_body::is_static_string_array_body_function;
 use string_return_profile::GenericStringReturnProfileCache;
 use value_type_publish::{
     propagate_global_call_box_value_types, publish_global_call_route_param_value_types,
+    publish_global_call_route_result_value_types,
 };
 use void_side_effect_body::is_void_side_effect_body_function;
 
@@ -110,6 +111,7 @@ pub fn refresh_module_global_call_routes(module: &mut MirModule) {
         for function in module.functions.values_mut() {
             refresh_function_global_call_routes_with_targets(function, &targets);
         }
+        let result_value_type_changed = publish_global_call_route_result_value_types(module);
         let param_value_type_changed = publish_global_call_route_param_value_types(module);
         let propagated_value_type_changed = propagate_global_call_box_value_types(module);
         let route_changed = module.functions.iter().any(|(name, function)| {
@@ -117,7 +119,11 @@ pub fn refresh_module_global_call_routes(module: &mut MirModule) {
                 routes != &function.metadata.global_call_routes
             })
         });
-        if !(route_changed || param_value_type_changed || propagated_value_type_changed) {
+        if !(route_changed
+            || param_value_type_changed
+            || result_value_type_changed
+            || propagated_value_type_changed)
+        {
             break;
         }
     }

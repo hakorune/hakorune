@@ -1,0 +1,62 @@
+{
+  "schema_version": 0,
+  "kind": "HakoAotDynamicStringEqAndIntToStrCorrectnessV1",
+  "token": "HAKO-AOT-DYNAMIC-STRING-EQ-AND-INT-TO-STR-CORRECTNESS-001",
+  "scope": {
+    "responsibility": "AOT correctness for dynamic string equality and dynamic integer-to-string conversion used by .hako ProgramJSON traversal helpers",
+    "route": ".hako source -> MIR JSON -> AOT executable",
+    "implementation_owner": "Rust MIR JSON emit / AOT typing hints",
+    "hako_surface": "ordinary .hako libraries and scanner helpers"
+  },
+  "rows": [
+    {
+      "row_id": "programjson_node_type_dynamic_string_equality",
+      "program_json": {
+        "kind": "Program",
+        "type": "Program",
+        "body": [
+          {
+            "kind": "Loop",
+            "type": "Loop",
+            "cond": {"type": "Compare"},
+            "body": [
+              {
+                "kind": "Return",
+                "type": "Return",
+                "value": {"type": "Int", "value": 1}
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "node_type": "Return",
+        "dynamic_string_eq": 1,
+        "return_count_by_dynamic_eq": 1,
+        "return_count_by_char_probe": 1,
+        "int_to_str_of_dynamic_count": "1",
+        "count_token_of_dynamic_count": "1"
+      }
+    }
+  ],
+  "mir_json_contract": {
+    "string_equality_compare_requires_cmp_kind_string": 1,
+    "string_concat_add_requires_stringbox_dst_type": 1
+  },
+  "decision": {
+    "kind": "AotCorrectnessBeforeNextProgramJsonRetireCandidate",
+    "reason_token": "DynamicStringEqualityAndIntToStrMustBeStableBeforeProgramJsonTraversalExpansion",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-LOOP-BODY-CONTROL-FLOW-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
+  },
+  "claims": {
+    "hako_syntax_change": 0,
+    "new_hako_library_api": 0,
+    "programjson_traversal_capability": 0,
+    "source_selfhost_claim": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering_claim": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

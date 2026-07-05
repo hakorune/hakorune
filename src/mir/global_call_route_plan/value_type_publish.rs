@@ -6,9 +6,17 @@
 
 use crate::mir::value_origin::{build_value_def_map, resolve_value_origin, ValueDefMap};
 use crate::mir::{ConstValue, MirFunction, MirInstruction, MirModule, MirType, ValueId};
+use std::collections::BTreeMap;
+
+#[derive(Default)]
+struct ParamObservation {
+    box_name: Option<String>,
+    scalar_type: Option<MirType>,
+    has_scalar_or_mixed: bool,
+}
 
 pub(super) fn publish_global_call_route_param_value_types(module: &mut MirModule) -> bool {
-    let mut facts = Vec::<(String, usize, String)>::new();
+    let mut observations = BTreeMap::<(String, usize), ParamObservation>::new();
     for function in module.functions.values() {
         let def_map = build_value_def_map(function);
         for route in function
@@ -20,26 +28,84 @@ pub(super) fn publish_global_call_route_param_value_types(module: &mut MirModule
             let Some(target_symbol) = route.target_symbol() else {
                 continue;
             };
+            // `to_i64` is intentionally polymorphic: callers pass both i64
+            // values and numeric strings. Do not freeze its param as StringBox
+            // from scanner-only observations.
+            if target_symbol == "StringHelpers.to_i64/1" {
+                continue;
+            }
             let Some(MirInstruction::Call { args, .. }) =
                 route_instruction(function, route.block(), route.instruction_index())
             else {
                 continue;
             };
             for (arg_index, arg) in args.iter().enumerate() {
-                let Some(box_name) = value_box_name(function, &def_map, *arg) else {
-                    continue;
-                };
-                facts.push((target_symbol.to_string(), arg_index, box_name));
+                let observation = observations
+                    .entry((target_symbol.to_string(), arg_index))
+                    .or_default();
+                if let Some(box_name) = value_box_name(function, &def_map, *arg) {
+                    if observation.scalar_type.is_some() {
+                        observation.has_scalar_or_mixed = true;
+                    }
+                    match &observation.box_name {
+                        None => observation.box_name = Some(box_name),
+                        Some(existing) if existing == &box_name => {}
+                        Some(_) => observation.has_scalar_or_mixed = true,
+                    }
+                } else if let Some(scalar_type) =
+                    value_scalar_or_mixed_type_for_value(function, &def_map, *arg)
+                {
+                    if observation.box_name.is_some() {
+                        observation.has_scalar_or_mixed = true;
+                    }
+                    match &observation.scalar_type {
+                        None => observation.scalar_type = Some(scalar_type),
+                        Some(existing) if existing == &scalar_type => {}
+                        Some(_) => observation.has_scalar_or_mixed = true,
+                    }
+                }
             }
         }
     }
 
     let mut changed = false;
-    for (function_name, index, box_name) in facts {
+    for ((function_name, index), observation) in observations {
+        if observation.has_scalar_or_mixed {
+            continue;
+        }
         let Some(function) = module.functions.get_mut(&function_name) else {
             continue;
         };
-        changed |= publish_function_param_box_type(function, index, &box_name);
+        if let Some(box_name) = observation.box_name {
+            changed |= publish_function_param_box_type(function, index, &box_name);
+        } else if let Some(scalar_type) = observation.scalar_type {
+            changed |= publish_function_param_type(function, index, scalar_type);
+        }
+    }
+    changed
+}
+
+pub(super) fn publish_global_call_route_result_value_types(module: &mut MirModule) -> bool {
+    let mut changed = false;
+    for function in module.functions.values_mut() {
+        let mut facts = Vec::<(ValueId, MirType)>::new();
+        for route in function
+            .metadata
+            .global_call_routes
+            .iter()
+            .chain(function.metadata.builtin_global_call_routes.iter())
+        {
+            let Some(value) = route.result_value() else {
+                continue;
+            };
+            let Some(ty) = value_type_from_return_shape(route.return_shape()) else {
+                continue;
+            };
+            facts.push((value, ty));
+        }
+        for (value, ty) in facts {
+            changed |= publish_value_type(function, value, ty);
+        }
     }
     changed
 }
@@ -98,6 +164,30 @@ pub(super) fn propagate_global_call_box_value_types(module: &mut MirModule) -> b
         }
     }
     changed
+}
+
+fn value_type_from_return_shape(return_shape: Option<&str>) -> Option<MirType> {
+    match return_shape {
+        Some("ScalarI64") | Some("void_sentinel_i64_zero") => Some(MirType::Integer),
+        Some("string_handle") | Some("string_handle_or_null") => {
+            Some(MirType::Box("StringBox".to_string()))
+        }
+        Some("array_handle") => Some(MirType::Box("ArrayBox".to_string())),
+        Some("map_handle") => Some(MirType::Box("MapBox".to_string())),
+        Some("object_handle") | Some("mixed_runtime_i64_or_handle") => None,
+        _ => None,
+    }
+}
+
+fn value_scalar_or_mixed_type_for_value(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    value: ValueId,
+) -> Option<MirType> {
+    value_scalar_or_mixed_type(function.metadata.value_types.get(&value)).or_else(|| {
+        let origin = resolve_value_origin(function, def_map, value);
+        value_scalar_or_mixed_type(function.metadata.value_types.get(&origin))
+    })
 }
 
 fn route_instruction(
@@ -162,14 +252,17 @@ fn publish_function_param_box_type(
     index: usize,
     box_name: &str,
 ) -> bool {
+    publish_function_param_type(function, index, MirType::Box(box_name.to_string()))
+}
+
+fn publish_function_param_type(function: &mut MirFunction, index: usize, ty: MirType) -> bool {
     let Some(param) = function.params.get(index).copied() else {
         return false;
     };
-    publish_value_box_type(function, param, box_name)
+    publish_value_type(function, param, ty)
 }
 
-fn publish_value_box_type(function: &mut MirFunction, value: ValueId, box_name: &str) -> bool {
-    let ty = MirType::Box(box_name.to_string());
+fn publish_value_type(function: &mut MirFunction, value: ValueId, ty: MirType) -> bool {
     match function.metadata.value_types.get(&value) {
         Some(existing) if existing == &ty => false,
         Some(existing) if can_refine_placeholder_to_box_type(existing, &ty) => {
@@ -181,6 +274,19 @@ fn publish_value_box_type(function: &mut MirFunction, value: ValueId, box_name: 
             true
         }
         Some(_) => false,
+    }
+}
+
+fn value_scalar_or_mixed_type(ty: Option<&MirType>) -> Option<MirType> {
+    match ty {
+        Some(MirType::Integer) => Some(MirType::Integer),
+        Some(MirType::Float) => Some(MirType::Float),
+        Some(MirType::Bool) => Some(MirType::Bool),
+        Some(MirType::Void) => Some(MirType::Void),
+        Some(MirType::WeakRef) | Some(MirType::Array(_)) | Some(MirType::Future(_)) => {
+            Some(MirType::Unknown)
+        }
+        Some(MirType::String) | Some(MirType::Box(_)) | Some(MirType::Unknown) | None => None,
     }
 }
 

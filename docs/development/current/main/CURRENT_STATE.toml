@@ -345,14 +345,15 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PROGRAMJSON-LOOP-BODY-CONTROL-FLOW-SCAN-CAPABILITY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2995-MIRBUILDER-PROGRAMJSON-LOOP-BODY-CONTROL-FLOW-SCAN-CAPABILITY-001.md"
-latest_card_summary = """The latest card implements ProgramJsonLoopBodyControlFlowScanV1
-as a `.hako` ProgramJSON traversal capability and proves 10-row AOT parity
-against the Rust ASTNode-token oracle. The covered LoopBodyControlFlowSnapshotV1
-slice is now a retire-candidate input for the next card only. Full projector
-retirement, HakoAdoption, ProgramJSON full parser, MIR mutation, lowering,
-ID allocation, route selection, and Source Selfhost remain unclaimed."""
+latest_card = "HAKO-AOT-DYNAMIC-STRING-EQ-AND-INT-TO-STR-CORRECTNESS-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2996-HAKO-AOT-DYNAMIC-STRING-EQ-AND-INT-TO-STR-CORRECTNESS-001.md"
+latest_card_summary = """The latest card fixes the AOT correctness blocker for
+dynamic string equality and dynamic `StringHelpers.int_to_str` on scanner-fed
+i64 values. It updates MIR route value-type publication and MIR JSON string
+operation hints, proves the new AOT gate green, and keeps the prior ProgramJSON
+Loop.body control-flow scan parity gate green. No `.hako` syntax/API,
+ProgramJSON traversal capability, backend route, ABI, or Source Selfhost claim
+is opened."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -363,6 +364,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-05: 2996 fixes AOT dynamic string equality and dynamic StringHelpers.int_to_str correctness for scanner-fed values; ProgramJSON Loop.body scan remains green and selfhost remains unclaimed.",
   "2026-07-05: 2995 adds ProgramJsonLoopBodyControlFlowScanV1 as a 10-row `.hako` ProgramJSON traversal capability and marks the covered LoopBodyControlFlowSnapshotV1 slice as the next Rust ASTNode projector retire-candidate; full retirement and selfhost remain unclaimed.",
   "2026-07-05: 2994 stops the one-shape ProgramJSON cadence and selects Loop.body control-flow scan as the next implementation-capability batch; selfhost and full projector retirement remain unclaimed.",
   "2026-07-05: 2993 adds ProgramJSON second-stmt-not-return reject snapshot parity and marks LoopCondContinueSecondStmtNotReturnRejectV1 as a one-shape Rust ASTNode projector retire-candidate; runtime dependency removal remains unclaimed.",
@@ -374,5 +376,4 @@ landed_tail = [
   "2026-07-05: 2987 marks LoopCondContinueConditionNotSupportedRejectV1 as a one-shape Rust ASTNode projector retire-candidate; runtime dependency removal remains unclaimed.",
   "2026-07-05: 2986 marks LoopCondContinueIfElseNotNullRejectV1 as a one-shape Rust ASTNode projector retire-candidate; runtime dependency removal remains unclaimed.",
   "2026-07-05: 2985 marks LoopCondContinueNestedLoopRejectV1 as a one-shape Rust ASTNode projector retire-candidate; runtime dependency removal remains unclaimed.",
-  "2026-07-05: 2984 marks LoopCondContinueBreakPresentRejectV1 as a one-shape Rust ASTNode projector retire-candidate; runtime dependency removal remains unclaimed.",
 ]
