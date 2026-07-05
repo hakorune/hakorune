@@ -127,7 +127,7 @@ for fn in data.get("functions", []):
         if symbol == "ProgramJsonV0PhaseStateBox._append_recipe_children_result/6":
             if route.get("tier") == "DirectAbi" and route.get("return_shape") == "map_handle":
                 seen["append_children_result_map"] += 1
-        if name == "ProgramJsonV0PhaseStateBox._scan_body_rec/8" and symbol == expected_consume_route.get("callee_symbol"):
+        if name == "ProgramJsonV0PhaseStateBox.parse/2" and symbol == expected_consume_route.get("callee_symbol"):
             if (
                 route.get("tier") == expected_consume_route.get("tier")
                 and route.get("return_shape") == expected_consume_route.get("return_shape")

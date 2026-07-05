@@ -60,7 +60,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  HAKO-AOT-PROGRAMJSON-PHASE-STATE-SCAN-BODY-REC-RESULT-CONTRACT-001
+  HAKO-AOT-PROGRAMJSON-RUNE-ATTRS-FUNCTION-NAME-NORMALIZATION-RESULT-CONTRACT-001
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -90,9 +90,10 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
+  3115 is green for the PhaseState scan-body result contract:
+  `_scan_body_rec` is loop-local and `parse/2` reaches it as a DirectAbi map-handle route. The active blocker advances to ProgramJsonV0RuneAttrsBox function-name normalization.
   3114 is green for RecipeVerifier / RecipePortSig result contracts:
-  RecipeVerifierBox and RecipePortSigBox routes are DirectAbi; PortSig is CountOnlyPortSigV1. The active blocker advances to ProgramJsonV0PhaseStateBox scan-body recursion plus ProgramJsonV0RuneAttrsBox normalization.
-  3113 is green for PhaseState consume-stmt control/try result contracts.
+  RecipeVerifierBox and RecipePortSigBox routes are DirectAbi; PortSig is CountOnlyPortSigV1.
   2997 stabilized the AOT/MIR value-type publication contract only for the
   proven route families. 3002 remains a trigger-based debt queue for Float
   Sub/Mul/Div, string Lt/Gt/Le/Ge policy, user-box single-observation

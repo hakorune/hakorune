@@ -91,6 +91,7 @@ phase-1 compatibility Program(JSON) compat execution helper.
 | `tools/checks/hako_aot_programjson_phase_state_consume_stmt_non_control_result_contract_guard.sh` | PhaseState consume-stmt non-control result-map AOT route contract gate. |
 | `tools/checks/hako_aot_programjson_phase_state_consume_stmt_control_try_result_contract_guard.sh` | PhaseState consume-stmt control/try result-map AOT route contract gate. |
 | `tools/checks/hako_aot_programjson_recipe_verifier_port_sig_result_contract_guard.sh` | RecipeVerifier / RecipePortSig result-map AOT route contract gate. |
+| `tools/checks/hako_aot_programjson_phase_state_scan_body_rec_result_contract_guard.sh` | PhaseState scan-body helper AOT route contract gate. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_dispatch_support_shape_scan_parity_gate.sh` | Capability-batch parity for `.hako` `ProgramJsonDispatchSupportShapeScanV1`. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_dispatch_support_shape_retire_rust_astnode_projector_candidate_guard.sh` | Retire-candidate guard for the covered `DispatchSupportShapeSnapshotV1` ProgramJSON traversal slice. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_expr_index_shape_scan_parity_gate.sh` | Capability-batch parity for `.hako` `ProgramJsonExprIndexShapeScanV1`. |

@@ -1,0 +1,36 @@
+{
+  "schema_version": 0,
+  "kind": "HakoAotProgramJsonPhaseStateScanBodyRecResultContractV1",
+  "token": "HAKO-AOT-PROGRAMJSON-PHASE-STATE-SCAN-BODY-REC-RESULT-CONTRACT-001",
+  "contract_rule": {
+    "scan_body_implementation": "ParseLocalLoopScanBodyV1",
+    "scan_body_helper_call_removed": true,
+    "scan_body_string_args_removed": true,
+    "scan_body_self_recursive_calls_removed": true,
+    "parse_scan_body_unsupported_route_count": 0
+  },
+  "forbidden_unsupported_route_symbols": [
+    "ProgramJsonV0PhaseStateBox._scan_body_rec"
+  ],
+  "expected_next_blocker_family": [
+    "ProgramJsonV0RuneAttrsBox"
+  ],
+  "decision": {
+    "kind": "SelectRuneAttrsFunctionNameNormalizationContract",
+    "reason_token": "PhaseStateScanBodyRecResultContractStabilized",
+    "selected_next_card": "HAKO-AOT-PROGRAMJSON-RUNE-ATTRS-FUNCTION-NAME-NORMALIZATION-RESULT-CONTRACT-001"
+  },
+  "claims": {
+    "phase_state_scan_body_rec_aot_call_fixed": 1,
+    "phase_state_parse_aot_call_fixed": 0,
+    "layer4_recipe_dto_parity_green": 0,
+    "source_selfhost_claim": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering_claim": 0,
+    "route_selection_migration": 0,
+    "runtime_route_switch": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

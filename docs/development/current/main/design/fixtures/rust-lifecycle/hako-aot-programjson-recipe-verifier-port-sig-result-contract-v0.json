@@ -56,7 +56,6 @@
     "RecipePortSigBox"
   ],
   "expected_next_blocker_family": [
-    "ProgramJsonV0PhaseStateBox",
     "ProgramJsonV0RuneAttrsBox"
   ],
   "decision": {

@@ -345,15 +345,15 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "HAKO-AOT-PROGRAMJSON-RECIPE-VERIFIER-PORT-SIG-RESULT-CONTRACT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3114-HAKO-AOT-PROGRAMJSON-RECIPE-VERIFIER-PORT-SIG-RESULT-CONTRACT-001.md"
-latest_card_summary = """3114 is green for the RecipeVerifier / RecipePortSig
-result contract: RecipeVerifierBox and RecipePortSigBox route metadata now stay
-DirectAbi with scalar or map-handle return shapes, and PortSig is narrowed to
-CountOnlyPortSigV1 for this AOT-safe contract. Full PhaseState parse remains
-unclaimed; the next blocker family is ProgramJsonV0PhaseStateBox scan-body
-recursion plus ProgramJsonV0RuneAttrsBox function-name normalization. Next
-selected task is HAKO-AOT-PROGRAMJSON-PHASE-STATE-SCAN-BODY-REC-RESULT-CONTRACT-001.
+latest_card = "HAKO-AOT-PROGRAMJSON-PHASE-STATE-SCAN-BODY-REC-RESULT-CONTRACT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3115-HAKO-AOT-PROGRAMJSON-PHASE-STATE-SCAN-BODY-REC-RESULT-CONTRACT-001.md"
+latest_card_summary = """3115 is green for the PhaseState scan-body result
+contract: `_scan_body_rec` keeps its continuity name but is now loop-local,
+uses a scan context map instead of string parameters, and `parse/2` reaches it
+as a DirectAbi map-handle route. Full PhaseState parse remains unclaimed; the
+next blocker family is ProgramJsonV0RuneAttrsBox function-name normalization.
+Next selected task is
+HAKO-AOT-PROGRAMJSON-RUNE-ATTRS-FUNCTION-NAME-NORMALIZATION-RESULT-CONTRACT-001.
 Layer4 parity green, runtime route switch, full projector retirement,
 HakoAdoption, Source Selfhost, RecipeMatcher, route selection, lowering,
 mutation, ID allocation, and new ABI remain unclaimed."""
@@ -367,6 +367,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-06: 3115 lands the PhaseState scan-body rec result contract; _scan_body_rec is loop-local and parse reaches it as DirectAbi, leaving RuneAttrs function-name normalization as the next blocker.",
   "2026-07-06: 3114 lands the RecipeVerifier / RecipePortSig result contract; Recipe family routes are DirectAbi and the next blocker family is ProgramJsonV0PhaseStateBox scan-body recursion plus ProgramJsonV0RuneAttrsBox normalization.",
   "2026-07-06: 3113 lands the PhaseState consume-stmt control/try result contract; the consumer probe now exposes RecipeVerifierBox / RecipePortSigBox as the next result-contract blocker family while full PhaseState parse remains unclaimed.",
   "2026-07-06: 3112 lands the PhaseState consume-stmt non-control result contract; remaining blocker is control/try nullable helper cleanup before consume_stmt can become AOT-callable.",
@@ -377,5 +378,4 @@ landed_tail = [
   "2026-07-06: 3103 lands the covered BlockExprShapeSnapshotV1 ProgramJSON traversal slice as a scoped Rust ASTNode projector retire-candidate; next work returns to ProgramJSON capability-batch continuation.",
   "2026-07-06: 3102 lands real `.hako` ProgramJsonBlockExprShapeScanV1 ProgramJSON traversal for covered top-level BlockExpr shapes with 10-row AOT parity; 3103 is active for the scoped block-expr projector retire-candidate.",
   "2026-07-06: 3100 lands real `.hako` ProgramJsonBrandDeclarationShapeScanV1 ProgramJSON traversal for covered BrandDeclaration shapes with 8-row AOT parity; 3101 is active for the scoped brand-declaration projector retire-candidate.",
-  "2026-07-06: 3099 lands the covered IfBranchOccupancyShapeSnapshotV1 ProgramJSON traversal slice as a scoped Rust ASTNode projector retire-candidate; next work returns to ProgramJSON capability-batch continuation.",
 ]

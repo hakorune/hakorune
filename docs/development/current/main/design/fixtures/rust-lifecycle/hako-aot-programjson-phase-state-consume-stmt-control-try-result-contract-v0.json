@@ -11,7 +11,7 @@
   },
   "expected_direct_routes": [
     {
-      "caller": "ProgramJsonV0PhaseStateBox._scan_body_rec/8",
+      "caller": "ProgramJsonV0PhaseStateBox.parse/2",
       "callee": "ProgramJsonV0PhaseStateConsumerBox.consume_stmt/4",
       "return_shape": "map_handle"
     },
