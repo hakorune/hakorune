@@ -60,6 +60,11 @@ implementation capability. They must not introduce new acceptance rows.
 Selection-only cards are allowed only when the next traversal capability is
 genuinely ambiguous. If the capability is already named, merge selection into
 the implementation card; do not land docs/guard-only selection as progress.
+When validation is needed, it is a preflight task: it must inspect actual
+ProgramJSON v0 emitted shape evidence and end by naming the next
+`ProgramJson*ScanV1` implementation card, its snapshot contract, covered parity
+rows, and retire-candidate target. A validation row without that output is not
+an accepted migration step.
 
 Each implementation capability card must include `.hako` implementation,
 fixture rows, a parity gate, and a retire-candidate decision for at least one

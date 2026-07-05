@@ -87,6 +87,7 @@ phase-1 compatibility Program(JSON) compat execution helper.
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_expr_field_shape_scan_parity_gate.sh` | Capability-batch parity for `.hako` `ProgramJsonExprFieldShapeScanV1`. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_expr_field_shape_retire_rust_astnode_projector_candidate_guard.sh` | Retire-candidate guard for the covered `ExprFieldShapeSnapshotV1` ProgramJSON traversal slice. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_expr_me_shape_scan_parity_gate.sh` | Capability-batch parity for `.hako` `ProgramJsonExprMeShapeScanV1`. |
+| `tools/checks/rust_lifecycle_mirbuilder_programjson_expr_me_shape_retire_rust_astnode_projector_candidate_guard.sh` | Retire-candidate guard for the covered `ExprMeShapeSnapshotV1` ProgramJSON traversal slice. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_expr_index_shape_scan_parity_gate.sh` | Capability-batch parity for `.hako` `ProgramJsonExprIndexShapeScanV1`. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_expr_index_shape_retire_rust_astnode_projector_candidate_guard.sh` | Retire-candidate guard for the covered `ExprIndexShapeSnapshotV1` ProgramJSON traversal slice. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_expr_recordfield_shape_scan_parity_gate.sh` | Capability-batch parity for `.hako` `ProgramJsonExprRecordFieldShapeScanV1`. |
