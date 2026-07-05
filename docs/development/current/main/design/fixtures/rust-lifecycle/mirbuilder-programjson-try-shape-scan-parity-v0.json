@@ -1,0 +1,106 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonTryShapeScanParityV1",
+  "token": "MIRBUILDER-PROGRAMJSON-TRY-SHAPE-SCAN-CAPABILITY-001",
+  "capability": {
+    "name": "ProgramJsonTryShapeScanV1",
+    "input": "ProgramJSON v0",
+    "output": "TryShapeSnapshotV1"
+  },
+  "routes": {
+    "rust_oracle_route": "source -> RHako parser -> Rust ASTNode -> Rust Try token snapshot",
+    "hako_programjson_route": "source -> HHako parser -> ProgramJSON -> HHako Try token snapshot"
+  },
+  "rows": [
+    {
+      "row_id": "top_try_throw_no_catch_no_finally",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Try", "try": [{"type": "Throw", "expr": {"type": "Int", "value": 1}}], "catches": [], "finally": []}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=TryShapeSnapshotV1;top_try_shape_kind=TryThrowNoCatchNoFinally;if_then_try_shape_kind=Missing;if_else_try_shape_kind=Missing;supported_try_count=1;unsupported_try_count=0"
+      }
+    },
+    {
+      "row_id": "top_try_return_one_catch_no_finally",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Try", "try": [{"type": "Return", "expr": {"type": "Var", "name": "x"}}], "catches": [{"param": "e", "typeHint": null, "body": [{"type": "Return", "expr": {"type": "Int", "value": 1}}]}], "finally": []}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=TryShapeSnapshotV1;top_try_shape_kind=TryReturnOneCatchNoFinally;if_then_try_shape_kind=Missing;if_else_try_shape_kind=Missing;supported_try_count=1;unsupported_try_count=0"
+      }
+    },
+    {
+      "row_id": "top_try_expr_one_catch_finally_expr",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Try", "try": [{"type": "Expr", "expr": {"type": "Call", "name": "work", "args": []}}], "catches": [{"param": "e", "typeHint": "Error", "body": []}], "finally": [{"type": "Expr", "expr": {"type": "Call", "name": "cleanup", "args": []}}]}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=TryShapeSnapshotV1;top_try_shape_kind=TryExprOneCatchFinallyExpr;if_then_try_shape_kind=Missing;if_else_try_shape_kind=Missing;supported_try_count=1;unsupported_try_count=0"
+      }
+    },
+    {
+      "row_id": "top_try_empty_many_catches_no_finally",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Try", "try": [], "catches": [{"param": "e", "typeHint": null, "body": []}, {"param": "f", "typeHint": null, "body": []}], "finally": []}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=TryShapeSnapshotV1;top_try_shape_kind=TryEmptyManyCatchesNoFinally;if_then_try_shape_kind=Missing;if_else_try_shape_kind=Missing;supported_try_count=1;unsupported_try_count=0"
+      }
+    },
+    {
+      "row_id": "top_try_return_no_catch_finally_return",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Try", "try": [{"type": "Return", "expr": {"type": "Int", "value": 1}}], "catches": [], "finally": [{"type": "Return", "expr": {"type": "Int", "value": 2}}]}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=TryShapeSnapshotV1;top_try_shape_kind=TryReturnNoCatchFinallyReturn;if_then_try_shape_kind=Missing;if_else_try_shape_kind=Missing;supported_try_count=1;unsupported_try_count=0"
+      }
+    },
+    {
+      "row_id": "if_then_try_throw_no_catch_no_finally",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "If", "cond": {"type": "Bool", "value": true}, "then": [{"type": "Try", "try": [{"type": "Throw", "expr": {"type": "Int", "value": 1}}], "catches": [], "finally": []}], "else": null}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=TryShapeSnapshotV1;top_try_shape_kind=Missing;if_then_try_shape_kind=TryThrowNoCatchNoFinally;if_else_try_shape_kind=Missing;supported_try_count=1;unsupported_try_count=0"
+      }
+    },
+    {
+      "row_id": "if_else_try_return_one_catch_no_finally",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "If", "cond": {"type": "Bool", "value": true}, "then": [], "else": [{"type": "Try", "try": [{"type": "Return", "expr": {"type": "Var", "name": "x"}}], "catches": [{"param": "e", "typeHint": null, "body": [{"type": "Return", "expr": {"type": "Int", "value": 1}}]}], "finally": []}]}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=TryShapeSnapshotV1;top_try_shape_kind=Missing;if_then_try_shape_kind=Missing;if_else_try_shape_kind=TryReturnOneCatchNoFinally;supported_try_count=1;unsupported_try_count=0"
+      }
+    },
+    {
+      "row_id": "top_try_nested_try_unsupported",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Try", "try": [{"type": "Try", "try": [], "catches": [], "finally": []}], "catches": [], "finally": []}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=TryShapeSnapshotV1;top_try_shape_kind=Unsupported;if_then_try_shape_kind=Missing;if_else_try_shape_kind=Missing;supported_try_count=0;unsupported_try_count=1"
+      }
+    },
+    {
+      "row_id": "first_stmt_not_try_unsupported",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Return", "expr": {"type": "Int", "value": 1}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=TryShapeSnapshotV1;top_try_shape_kind=Unsupported;if_then_try_shape_kind=Missing;if_else_try_shape_kind=Missing;supported_try_count=0;unsupported_try_count=1"
+      }
+    }
+  ],
+  "summary": {
+    "parity_row_count": 9,
+    "programjson_traversal_used": 1,
+    "string_only_facade": 0,
+    "rust_astnode_projector_retire_candidate": 1
+  },
+  "decision": {
+    "kind": "ProgramJsonTryShapeScanParityGreen",
+    "reason_token": "TryShapeProgramJsonSnapshotMatchesRustAstNodeOracle",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-TRY-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "programjson_full_parser_claim": 0,
+    "hako_adopted_for_full_owner": 0,
+    "exception_runtime_semantics": 0,
+    "catch_matching": 0,
+    "finally_execution_semantics": 0
+  }
+}

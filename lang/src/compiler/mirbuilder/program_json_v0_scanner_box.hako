@@ -48,20 +48,25 @@ static box ProgramJsonV0ScannerBox {
     key = "" + key
     if key == "args" { return "\"args\":" }
     if key == "body" { return "\"body\":" }
+    if key == "catches" { return "\"catches\":" }
     if key == "cond" { return "\"cond\":" }
     if key == "declared_type" { return "\"declared_type\":" }
     if key == "else" { return "\"else\":" }
     if key == "element_type" { return "\"element_type\":" }
     if key == "elements" { return "\"elements\":" }
     if key == "expr" { return "\"expr\":" }
+    if key == "finally" { return "\"finally\":" }
     if key == "kind" { return "\"kind\":" }
     if key == "lhs" { return "\"lhs\":" }
     if key == "name" { return "\"name\":" }
     if key == "op" { return "\"op\":" }
+    if key == "param" { return "\"param\":" }
     if key == "recv" { return "\"recv\":" }
     if key == "rhs" { return "\"rhs\":" }
     if key == "start" { return "\"start\":" }
     if key == "then" { return "\"then\":" }
+    if key == "try" { return "\"try\":" }
+    if key == "typeHint" { return "\"typeHint\":" }
     if key == "type" { return "\"type\":" }
     if key == "value" { return "\"value\":" }
     if key == "var_name" { return "\"var_name\":" }
