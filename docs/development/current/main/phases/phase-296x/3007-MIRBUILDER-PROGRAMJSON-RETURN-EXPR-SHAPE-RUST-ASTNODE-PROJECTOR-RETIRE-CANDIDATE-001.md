@@ -1,6 +1,6 @@
 # 3007 - MIRBUILDER-PROGRAMJSON-RETURN-EXPR-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
 
-Status: active
+Status: landed
 
 ## Scope
 
@@ -55,3 +55,28 @@ Source Selfhost
 - guard requires the 3006 ProgramJSON return-expr parity gate to be green;
 - runtime Rust projector dependency removal remains `0`;
 - Rust projector remains oracle-only for this covered slice.
+
+## Evidence
+
+```bash
+bash tools/checks/rust_lifecycle_mirbuilder_programjson_return_expr_shape_retire_rust_astnode_projector_candidate_guard.sh
+```
+
+Result:
+
+```text
+retire_candidate=ReturnExprShapeSnapshotV1
+covered_rows=8
+decision=RetireCandidateScoped
+parity_gate=green
+rust_projector_runtime_dependency_removed=0
+rust_projector_oracle_only=1
+full_astnode_projector_retired=0
+source_selfhost_claim=0
+```
+
+## Next
+
+```text
+MIRBUILDER-PROGRAMJSON-LOCAL-BINDING-SHAPE-SCAN-CAPABILITY-001
+```

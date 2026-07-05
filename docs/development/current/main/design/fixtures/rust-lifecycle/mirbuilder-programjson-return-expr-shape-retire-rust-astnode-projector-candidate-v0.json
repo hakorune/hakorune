@@ -1,0 +1,62 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonReturnExprShapeRustAstNodeProjectorRetireCandidateV1",
+  "token": "MIRBUILDER-PROGRAMJSON-RETURN-EXPR-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001",
+  "input_state": {
+    "hako_snapshot_source": "lang/src/compiler/mirbuilder/program_json_return_expr_shape_scan.hako",
+    "hako_snapshot_source_hash": "sha256:179bb2c31a63ede091ccad07a248b8c43e7645aa230053d0a46385e005008ec1",
+    "parity_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-programjson-return-expr-shape-scan-parity-v0.json",
+    "parity_fixture_hash": "sha256:c1b338a84745895a728d1432dc1ba8595648e47acb403d443dc33c155a6862d5",
+    "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_programjson_return_expr_shape_scan_parity_gate.sh",
+    "parity_gate_hash": "sha256:5d9857f911c17bda79d018b1121f4a5de0983894c6d00ad3fbd2b4056b4d9360"
+  },
+  "retire_candidate_scope": {
+    "retire_candidate": "ReturnExprShapeSnapshotV1",
+    "shape_scope": "covered ProgramJSON Return.expr rows",
+    "programjson_snapshot_owner": "ProgramJsonReturnExprShapeScanV1",
+    "covered_rows": [
+      "top_return_int",
+      "top_return_var",
+      "top_return_bool_true",
+      "top_return_compare_var_lt_int",
+      "top_return_compare_var_eq_int",
+      "top_return_call_unsupported",
+      "if_then_return_int",
+      "if_else_return_var"
+    ],
+    "rust_projector_runtime_dependency_removed": 0,
+    "rust_projector_oracle_only": 1,
+    "full_astnode_projector_retired": 0
+  },
+  "criteria": {
+    "programjson_snapshot_parity_gate": "Green",
+    "programjson_route_traverses_programjson": 1,
+    "programjson_route_uses_string_only_facade": 0,
+    "covered_row_count": 8,
+    "runtime_path_uses_programjson_snapshot": 1,
+    "rust_astnode_projector_runtime_dependency_removed": 0,
+    "rust_astnode_projector_kept_for_oracle_generation": 1
+  },
+  "decision": {
+    "kind": "RetireCandidateScoped",
+    "reason_token": "ReturnExprShapeSnapshotV1ProgramJsonCapabilityParityGreen",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-LOCAL-BINDING-SHAPE-SCAN-CAPABILITY-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_astnode_projector_retired": 0,
+    "rust_astnode_projector_fully_retired": 0,
+    "full_astnode_projector_retired": 0,
+    "programjson_full_parser_claim": 0,
+    "programjson_all_shapes_supported": 0,
+    "recipe_matching_migrated": 0,
+    "route_selection_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0,
+    "id_allocation_migration": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
