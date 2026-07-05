@@ -1,0 +1,150 @@
+// program_json_loop_cond_continue_with_return_snapshot.hako
+//
+// Responsibility:
+// - Traverse the first LoopCondContinueThenReturnMinimalV1 Program(JSON v0) shape.
+// - Emit canonical token-snapshot text for the existing loop_cond_continue_with_return facades.
+//
+// Non-responsibility:
+// - Full JSON parsing, Rust ASTNode projection, RecipeMatcher execution, lowering,
+//   MIR mutation, ID allocation, or parser integration.
+
+using selfhost.shared.common.string_helpers as StringHelpers
+using lang.compiler.mirbuilder.program_json_v0_scanner_box as ProgramJsonV0ScannerBox
+
+static box ProgramJsonLoopCondContinueWithReturnSnapshotBox {
+  build_summary(program_json) {
+    if program_json == null || ("" + program_json) == "" {
+      return me._fail("missing_program_json")
+    }
+    program_json = "" + program_json
+
+    local body_start = me._array_field_start(program_json, "body", 0)
+    if body_start < 0 { return me._fail("cap_missing_program_body") }
+
+    local loop_start = me._first_object_in_array(program_json, body_start)
+    if loop_start < 0 { return me._fail("cap_missing_top_level_loop") }
+    if me._node_type_at(program_json, loop_start) != "Loop" {
+      return me._fail("unsupported_shape_top_level")
+    }
+
+    local cond_start = ProgramJsonV0ScannerBox.seek_obj_field_obj_start(program_json, "cond", loop_start)
+    if cond_start < 0 { return me._fail("condition_not_supported") }
+    if me._node_type_at(program_json, cond_start) != "Compare" {
+      return me._fail("condition_not_supported")
+    }
+
+    local loop_body_start = me._array_field_start(program_json, "body", loop_start)
+    if loop_body_start < 0 { return me._fail("cap_missing_loop_body") }
+
+    return me._scan_minimal_loop_body(program_json, loop_body_start)
+  }
+
+  _scan_minimal_loop_body(program_json, loop_body_start) {
+    local first_start = me._first_object_in_array(program_json, loop_body_start)
+    if first_start < 0 { return me._fail("continue_if_shape_not_supported") }
+    if me._node_type_at(program_json, first_start) != "If" {
+      return me._fail("continue_if_shape_not_supported")
+    }
+    if me.if_else_is_null(program_json, first_start) != 1 {
+      return me._fail("if_else_not_null")
+    }
+    if me.if_then_tail_is_continue(program_json, first_start) != 1 {
+      return me._fail("continue_if_shape_not_supported")
+    }
+
+    local first_end = ProgramJsonV0ScannerBox.seek_obj_end_unescaped(program_json, first_start)
+    if first_end < 0 { return me._fail("unsupported_shape") }
+    local second_start = me.next_object_in_array(program_json, first_end)
+    if second_start == -2 { return me._fail("no_return") }
+    if second_start < 0 { return me._fail("unsupported_shape") }
+
+    local second_type = me._node_type_at(program_json, second_start)
+    if second_type == "Break" { return me._fail("break_present") }
+    if second_type == "Loop" { return me._fail("nested_loop_present") }
+    if second_type != "Return" { return me._fail("unsupported_shape") }
+
+    local second_end = ProgramJsonV0ScannerBox.seek_obj_end_unescaped(program_json, second_start)
+    if second_end < 0 { return me._fail("unsupported_shape") }
+    local after_second = StringHelpers.skip_ws(program_json, second_end)
+    if ProgramJsonV0ScannerBox._read_char(program_json, after_second) != "]" {
+      return me._fail("unsupported_shape")
+    }
+
+    return "snapshot_kind=LoopCondContinueWithReturnProgramJsonSnapshotV1"
+      + ";loop_condition_valid=1"
+      + ";continue_count=1"
+      + ";break_count=0"
+      + ";return_count=1"
+      + ";has_nested_loop=0"
+      + ";continue_if_count=1"
+      + ";then_tail_continue=1"
+      + ";else_is_null=1"
+      + ";hetero_return_if_count=0"
+      + ";unsupported_node_count=0"
+  }
+
+  _fail(reason) {
+    return "accepted=0;reason=" + reason
+  }
+
+  _array_field_start(s, key, obj_start) {
+    local p = ProgramJsonV0ScannerBox.seek_obj_field_value_start(s, key, obj_start)
+    if p < 0 { return -1 }
+    p = StringHelpers.skip_ws(s, p)
+    if ProgramJsonV0ScannerBox._read_char(s, p) != "[" { return -1 }
+    return p
+  }
+
+  _first_object_in_array(s, array_start) {
+    local p = StringHelpers.skip_ws(s, array_start + 1)
+    if ProgramJsonV0ScannerBox._read_char(s, p) != "{" { return -1 }
+    return p
+  }
+
+  next_object_in_array(s, previous_end) {
+    local p = StringHelpers.skip_ws(s, previous_end)
+    local ch = ProgramJsonV0ScannerBox._read_char(s, p)
+    if ch == "]" { return -2 }
+    if ch != "," { return -1 }
+    p = StringHelpers.skip_ws(s, p + 1)
+    if ProgramJsonV0ScannerBox._read_char(s, p) != "{" { return -1 }
+    return p
+  }
+
+  _node_type_at(s, obj_start) {
+    return me._string_field_at(s, "type", obj_start)
+  }
+
+  _string_field_at(s, key, obj_start) {
+    local p = ProgramJsonV0ScannerBox.seek_obj_field_value_start(s, key, obj_start)
+    if p < 0 { return "" }
+    p = StringHelpers.skip_ws(s, p)
+    if ProgramJsonV0ScannerBox._read_char(s, p) != "\"" { return "" }
+    local end_quote = StringHelpers.index_of(s, p + 1, "\"")
+    if end_quote < 0 { return "" }
+    return s.substring(p + 1, end_quote)
+  }
+
+  if_else_is_null(s, if_start) {
+    local p = ProgramJsonV0ScannerBox.seek_obj_field_value_start(s, "else", if_start)
+    if p < 0 { return 0 }
+    p = StringHelpers.skip_ws(s, p)
+    if s.substring(p, p + 4) == "null" { return 1 }
+    return 0
+  }
+
+  if_then_tail_is_continue(s, if_start) {
+    local then_start = me._array_field_start(s, "then", if_start)
+    if then_start < 0 { return 0 }
+    local first = me._first_object_in_array(s, then_start)
+    if first < 0 { return 0 }
+    if me._node_type_at(s, first) != "Continue" { return 0 }
+    local first_end = ProgramJsonV0ScannerBox.seek_obj_end_unescaped(s, first)
+    if first_end < 0 { return 0 }
+    local after = StringHelpers.skip_ws(s, first_end)
+    if ProgramJsonV0ScannerBox._read_char(s, after) != "]" { return 0 }
+    return 1
+  }
+}
+
+static box ProgramJsonLoopCondContinueWithReturnSnapshotMain { main() { return 0 } }

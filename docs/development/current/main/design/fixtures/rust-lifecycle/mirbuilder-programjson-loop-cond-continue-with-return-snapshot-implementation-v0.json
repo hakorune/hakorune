@@ -1,0 +1,139 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonLoopCondContinueWithReturnSnapshotImplementationV1",
+  "token": "MIRBUILDER-PROGRAMJSON-LOOP-COND-CONTINUE-WITH-RETURN-SNAPSHOT-IMPLEMENTATION-001",
+  "owner": "ProgramJsonLoopCondContinueWithReturnSnapshotV1",
+  "target_facade": "loop_cond_continue_with_return_plan_rule",
+  "rows": [
+    {
+      "case_id": "accept_loop_if_continue_then_return",
+      "program_json": {
+        "kind": "Program",
+        "type": "Program",
+        "body": [
+          {
+            "kind": "Loop",
+            "type": "Loop",
+            "cond": {
+              "type": "Compare",
+              "op": "<",
+              "lhs": {"type": "Var", "name": "i"},
+              "rhs": {"type": "Int", "value": 10}
+            },
+            "body": [
+              {
+                "kind": "If",
+                "type": "If",
+                "cond": {
+                  "type": "Compare",
+                  "op": "==",
+                  "lhs": {"type": "Var", "name": "i"},
+                  "rhs": {"type": "Int", "value": 3}
+                },
+                "then": [{"kind": "Continue", "type": "Continue"}],
+                "else": null
+              },
+              {
+                "kind": "Return",
+                "type": "Return",
+                "value": {"type": "Int", "value": 1}
+              }
+            ]
+          }
+        ]
+      },
+      "expected_summary": "snapshot_kind=LoopCondContinueWithReturnProgramJsonSnapshotV1;loop_condition_valid=1;continue_count=1;break_count=0;return_count=1;has_nested_loop=0;continue_if_count=1;then_tail_continue=1;else_is_null=1;hetero_return_if_count=0;unsupported_node_count=0"
+    },
+    {
+      "case_id": "reject_break_present",
+      "program_json": {
+        "kind": "Program",
+        "type": "Program",
+        "body": [
+          {
+            "kind": "Loop",
+            "type": "Loop",
+            "cond": {"type": "Compare", "op": "<", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 10}},
+            "body": [
+              {"kind": "If", "type": "If", "cond": {"type": "Compare", "op": "==", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 3}}, "then": [{"kind": "Continue", "type": "Continue"}], "else": null},
+              {"kind": "Break", "type": "Break"},
+              {"kind": "Return", "type": "Return", "value": {"type": "Int", "value": 1}}
+            ]
+          }
+        ]
+      },
+      "expected_summary": "accepted=0;reason=break_present"
+    },
+    {
+      "case_id": "reject_nested_loop",
+      "program_json": {
+        "kind": "Program",
+        "type": "Program",
+        "body": [
+          {
+            "kind": "Loop",
+            "type": "Loop",
+            "cond": {"type": "Compare", "op": "<", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 10}},
+            "body": [
+              {"kind": "If", "type": "If", "cond": {"type": "Compare", "op": "==", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 3}}, "then": [{"kind": "Continue", "type": "Continue"}], "else": null},
+              {"kind": "Loop", "type": "Loop", "cond": {"type": "Compare", "op": "<", "lhs": {"type": "Var", "name": "j"}, "rhs": {"type": "Int", "value": 2}}, "body": []},
+              {"kind": "Return", "type": "Return", "value": {"type": "Int", "value": 1}}
+            ]
+          }
+        ]
+      },
+      "expected_summary": "accepted=0;reason=nested_loop_present"
+    },
+    {
+      "case_id": "reject_if_else_not_null",
+      "program_json": {
+        "kind": "Program",
+        "type": "Program",
+        "body": [
+          {
+            "kind": "Loop",
+            "type": "Loop",
+            "cond": {"type": "Compare", "op": "<", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 10}},
+            "body": [
+              {"kind": "If", "type": "If", "cond": {"type": "Compare", "op": "==", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 3}}, "then": [{"kind": "Continue", "type": "Continue"}], "else": [{"kind": "Return", "type": "Return", "value": {"type": "Int", "value": 0}}]},
+              {"kind": "Return", "type": "Return", "value": {"type": "Int", "value": 1}}
+            ]
+          }
+        ]
+      },
+      "expected_summary": "accepted=0;reason=if_else_not_null"
+    },
+    {
+      "case_id": "reject_condition_not_supported",
+      "program_json": {
+        "kind": "Program",
+        "type": "Program",
+        "body": [
+          {
+            "kind": "Loop",
+            "type": "Loop",
+            "cond": {"type": "Bool", "value": true},
+            "body": [
+              {"kind": "If", "type": "If", "cond": {"type": "Compare", "op": "==", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 3}}, "then": [{"kind": "Continue", "type": "Continue"}], "else": null},
+              {"kind": "Return", "type": "Return", "value": {"type": "Int", "value": 1}}
+            ]
+          }
+        ]
+      },
+      "expected_summary": "accepted=0;reason=condition_not_supported"
+    }
+  ],
+  "claims": {
+    "programjson_traversal_for_shape_scope": 1,
+    "source_selfhost_claim": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "rust_astnode_projector_fully_retired": 0,
+    "programjson_full_parser_claim": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
