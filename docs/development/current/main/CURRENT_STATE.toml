@@ -350,8 +350,9 @@ latest_card_path = "docs/development/current/main/phases/phase-296x/2974-MIRBUIL
 latest_card_summary = """The latest card reframes the next MirBuilder step as a
 ProgramJSON-to-token-snapshot consultation. More string-only facades remain
 stopped; next work should prove one HHako ProgramJSON traversal path or expose
-the missing .hako expressivity before RecipeMatcher execution, lowering, MIR
-mutation, ID allocation, or parser integration are claimed."""
+whether the blocker is a library/data-model gap or a true .hako feature gap
+before RecipeMatcher execution, lowering, MIR mutation, ID allocation, or
+parser integration are claimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

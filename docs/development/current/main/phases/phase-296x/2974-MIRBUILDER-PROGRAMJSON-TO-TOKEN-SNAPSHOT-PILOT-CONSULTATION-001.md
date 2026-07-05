@@ -21,6 +21,39 @@ More string-only facade work is stopped. The next meaningful selfhost step
 should prove one minimal ProgramJSON traversal path, or identify the missing
 `.hako` expressivity that blocks it.
 
+## Gap Classification
+
+Default assumption: the next blocker is library/data-model work, not syntax.
+
+```text
+ProgramJSON_AST_traversal=library_gap_first
+Recipe_Plan_construction=data_model_and_builder_library_gap_first
+FailFast_Freeze_contract=contract_library_gap_first
+```
+
+Examples of library/data-model work:
+
+```text
+program_json_cursor=object/array/field access helpers
+stmt_traversal=block/list visitor helpers
+recipe_plan_builder=RecipeItem/RecipeBody/Plan DTO builders
+contract_result=accepted/reason/hint structured result helpers
+```
+
+Escalate to `.hako` language/runtime feature work only if the pilot proves one
+of these cannot be expressed cleanly as libraries:
+
+```text
+feature_gap=recursive traversal cannot be expressed
+feature_gap=variable-length list iteration/append cannot be expressed
+feature_gap=nested object access cannot be made safe
+feature_gap=builder-style accumulation cannot be represented
+feature_gap=fail-fast early return/result propagation cannot be expressed
+```
+
+This consultation must classify any blocker as `LibraryGap` or `FeatureGap`
+before implementation continues.
+
 ## Proposed Pilot
 
 Select one already-adopted MirBuilder facade input contract and feed it from
@@ -90,6 +123,7 @@ target_probe=source -> HHako parser -> ProgramJSON -> HHako token snapshot -> sa
 already_adopted=loop_cond_continue_with_return_plan_rule, single_planner_* small DTOs
 forbidden_now=MIR mutation, ID allocation, backend lowering, full RecipeMatcher execution
 goal=prove the first ProgramJSON traversal path and identify missing .hako expressivity
+default_assumption=library/data-model gap first, not syntax; escalate to feature gap only if recursion/list traversal/nested access/builder accumulation/fail-fast result cannot be expressed as libraries
 ```
 
 Question:
