@@ -55,9 +55,7 @@
     "RecipeVerifierBox",
     "RecipePortSigBox"
   ],
-  "expected_next_blocker_family": [
-    "ProgramJsonV0RuneAttrsBox"
-  ],
+  "expected_next_blocker_family": [],
   "decision": {
     "kind": "SelectPhaseStateScanBodyRecResultContract",
     "reason_token": "RecipeVerifierPortSigResultContractsStabilized",

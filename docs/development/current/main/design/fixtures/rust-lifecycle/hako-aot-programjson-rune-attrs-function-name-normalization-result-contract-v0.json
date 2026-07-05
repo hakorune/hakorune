@@ -1,0 +1,39 @@
+{
+  "schema_version": 0,
+  "kind": "HakoAotProgramJsonRuneAttrsFunctionNameNormalizationResultContractV1",
+  "token": "HAKO-AOT-PROGRAMJSON-RUNE-ATTRS-FUNCTION-NAME-NORMALIZATION-RESULT-CONTRACT-001",
+  "contract_rule": {
+    "normalization_helper": "ProgramJsonV0RuneAttrsBox._normalize_function_name_result/4",
+    "normalization_return_shape": "map_handle",
+    "legacy_string_or_error_normalizer_removed": true,
+    "freeze_tag_string_probe_removed_from_caller": true
+  },
+  "expected_direct_routes": [
+    {
+      "caller": "ProgramJsonV0RuneAttrsBox._append_def_runes_result/3",
+      "callee": "ProgramJsonV0RuneAttrsBox._normalize_function_name_result/4",
+      "return_shape": "map_handle"
+    }
+  ],
+  "forbidden_unsupported_route_families": [
+    "ProgramJsonV0RuneAttrsBox"
+  ],
+  "decision": {
+    "kind": "SelectPhaseStateParseAotCallReadinessCheck",
+    "reason_token": "RuneAttrsFunctionNameNormalizationResultContractStabilized",
+    "selected_next_card": "HAKO-AOT-PROGRAMJSON-PHASE-STATE-PARSE-AOT-CALL-READINESS-001"
+  },
+  "claims": {
+    "rune_attrs_normalization_aot_call_fixed": 1,
+    "phase_state_parse_aot_call_fixed": 0,
+    "layer4_recipe_dto_parity_green": 0,
+    "source_selfhost_claim": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering_claim": 0,
+    "route_selection_migration": 0,
+    "runtime_route_switch": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

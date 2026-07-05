@@ -41,9 +41,7 @@
       "return_shape": "map_handle"
     }
   ],
-  "expected_next_blocker_family": [
-    "ProgramJsonV0RuneAttrsBox"
-  ],
+  "expected_next_blocker_family": [],
   "decision": {
     "kind": "SelectRecipeVerifierPortSigResultContract",
     "reason_token": "PhaseStateConsumerControlTryResultContractStabilized",

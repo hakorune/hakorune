@@ -12,9 +12,7 @@
   "forbidden_unsupported_route_symbols": [
     "ProgramJsonV0PhaseStateBox._scan_body_rec"
   ],
-  "expected_next_blocker_family": [
-    "ProgramJsonV0RuneAttrsBox"
-  ],
+  "expected_next_blocker_family": [],
   "decision": {
     "kind": "SelectRuneAttrsFunctionNameNormalizationContract",
     "reason_token": "PhaseStateScanBodyRecResultContractStabilized",
