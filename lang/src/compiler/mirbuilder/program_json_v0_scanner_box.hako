@@ -84,6 +84,7 @@ static box ProgramJsonV0ScannerBox {
     if key == "param" { return "\"param\":" }
     if key == "payload_type" { return "\"payload_type\":" }
     if key == "prelude" { return "\"prelude\":" }
+    if key == "prelude_stmts" { return "\"prelude_stmts\":" }
     if key == "record" { return "\"record\":" }
     if key == "recv" { return "\"recv\":" }
     if key == "return_type" { return "\"return_type\":" }
@@ -95,6 +96,7 @@ static box ProgramJsonV0ScannerBox {
     if key == "target" { return "\"target\":" }
     if key == "target_type" { return "\"target_type\":" }
     if key == "tail" { return "\"tail\":" }
+    if key == "tail_expr" { return "\"tail_expr\":" }
     if key == "then" { return "\"then\":" }
     if key == "try" { return "\"try\":" }
     if key == "tuple_payload_types" { return "\"tuple_payload_types\":" }

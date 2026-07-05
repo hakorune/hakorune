@@ -1,0 +1,98 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonBlockExprShapeScanParityV1",
+  "token": "MIRBUILDER-PROGRAMJSON-BLOCK-EXPR-SHAPE-SCAN-CAPABILITY-001",
+  "capability": {
+    "name": "ProgramJsonBlockExprShapeScanV1",
+    "input": "ProgramJSON v0",
+    "output": "BlockExprShapeSnapshotV1"
+  },
+  "routes": {
+    "rust_oracle_route": "source -> RHako parser -> Rust ASTNode -> Rust BlockExpr token snapshot",
+    "hako_programjson_route": "source -> HHako parser -> ProgramJSON -> HHako BlockExpr token snapshot"
+  },
+  "programjson_emit_evidence": {
+    "source": "src/macro/ast_json/joinir_compat.rs",
+    "node_kind": "BlockExpr",
+    "node_type": null,
+    "fields": ["prelude_stmts", "tail_expr"]
+  },
+  "rows": [
+    {
+      "row_id": "empty_prelude_tail_int",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "BlockExpr", "prelude_stmts": [], "tail_expr": {"kind": "Literal", "type": "Int", "value": 1}}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=BlockExprShapeSnapshotV1;top_block_expr_shape_kind=EmptyPreludeTailInt;supported_block_expr_count=1;unsupported_block_expr_count=0"}
+    },
+    {
+      "row_id": "empty_prelude_tail_string",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "BlockExpr", "prelude_stmts": [], "tail_expr": {"kind": "Literal", "type": "String", "value": "ok"}}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=BlockExprShapeSnapshotV1;top_block_expr_shape_kind=EmptyPreludeTailString;supported_block_expr_count=1;unsupported_block_expr_count=0"}
+    },
+    {
+      "row_id": "empty_prelude_tail_bool",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "BlockExpr", "prelude_stmts": [], "tail_expr": {"kind": "Literal", "type": "Bool", "value": true}}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=BlockExprShapeSnapshotV1;top_block_expr_shape_kind=EmptyPreludeTailBool;supported_block_expr_count=1;unsupported_block_expr_count=0"}
+    },
+    {
+      "row_id": "local_prelude_tail_int",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "BlockExpr", "prelude_stmts": [{"type": "Local", "name": "tmp", "expr": {"type": "Int", "value": 1}}], "tail_expr": {"kind": "Literal", "type": "Int", "value": 2}}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=BlockExprShapeSnapshotV1;top_block_expr_shape_kind=LocalPreludeTailInt;supported_block_expr_count=1;unsupported_block_expr_count=0"}
+    },
+    {
+      "row_id": "expr_prelude_tail_string",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "BlockExpr", "prelude_stmts": [{"type": "Expr", "expr": {"type": "Call", "name": "touch", "args": []}}], "tail_expr": {"kind": "Literal", "type": "String", "value": "done"}}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=BlockExprShapeSnapshotV1;top_block_expr_shape_kind=ExprPreludeTailString;supported_block_expr_count=1;unsupported_block_expr_count=0"}
+    },
+    {
+      "row_id": "return_prelude_tail_var",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "BlockExpr", "prelude_stmts": [{"type": "Return", "value": {"type": "Int", "value": 1}}], "tail_expr": {"type": "Var", "name": "x"}}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=BlockExprShapeSnapshotV1;top_block_expr_shape_kind=ReturnPreludeTailValue;supported_block_expr_count=1;unsupported_block_expr_count=0"}
+    },
+    {
+      "row_id": "local_expr_prelude_tail_var",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "BlockExpr", "prelude_stmts": [{"type": "Local", "name": "tmp", "expr": {"type": "Int", "value": 1}}, {"type": "Expr", "expr": {"type": "Call", "name": "touch", "args": []}}], "tail_expr": {"type": "Var", "name": "tmp"}}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=BlockExprShapeSnapshotV1;top_block_expr_shape_kind=LocalExprPreludeTailVar;supported_block_expr_count=1;unsupported_block_expr_count=0"}
+    },
+    {
+      "row_id": "many_prelude_tail_int",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "BlockExpr", "prelude_stmts": [{"type": "Local", "name": "a", "expr": {"type": "Int", "value": 1}}, {"type": "Expr", "expr": {"type": "Call", "name": "touch", "args": []}}, {"type": "Local", "name": "b", "expr": {"type": "Int", "value": 2}}], "tail_expr": {"kind": "Literal", "type": "Int", "value": 3}}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=BlockExprShapeSnapshotV1;top_block_expr_shape_kind=ManyPreludeTailValue;supported_block_expr_count=1;unsupported_block_expr_count=0"}
+    },
+    {
+      "row_id": "tail_unsupported",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "BlockExpr", "prelude_stmts": [], "tail_expr": {"type": "Call", "name": "f", "args": []}}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=BlockExprShapeSnapshotV1;top_block_expr_shape_kind=Unsupported;supported_block_expr_count=0;unsupported_block_expr_count=1"}
+    },
+    {
+      "row_id": "first_stmt_local_unsupported",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "Local", "type": "Local", "name": "i", "expr": {"type": "Int", "value": 0}}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=BlockExprShapeSnapshotV1;top_block_expr_shape_kind=Unsupported;supported_block_expr_count=0;unsupported_block_expr_count=1"}
+    }
+  ],
+  "summary": {
+    "parity_row_count": 10,
+    "programjson_traversal_used": 1,
+    "string_only_facade": 0,
+    "rust_astnode_projector_retire_candidate": 1
+  },
+  "decision": {
+    "kind": "ProgramJsonBlockExprShapeScanParityGreen",
+    "reason_token": "BlockExprShapeProgramJsonSnapshotMatchesRustAstNodeOracle",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-BLOCK-EXPR-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "programjson_full_parser_claim": 0,
+    "hako_adopted_for_full_owner": 0,
+    "block_expr_lowering": 0,
+    "prelude_execution_semantics": 0
+  }
+}

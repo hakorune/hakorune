@@ -166,6 +166,8 @@ phase-1 compatibility Program(JSON) compat execution helper.
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_if_branch_occupancy_shape_retire_rust_astnode_projector_candidate_guard.sh` | Retire-candidate guard for the covered `IfBranchOccupancyShapeSnapshotV1` ProgramJSON traversal slice. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_brand_declaration_shape_scan_parity_gate.sh` | Capability-batch parity for `.hako` `ProgramJsonBrandDeclarationShapeScanV1`. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_brand_declaration_shape_retire_rust_astnode_projector_candidate_guard.sh` | Retire-candidate guard for the covered `BrandDeclarationShapeSnapshotV1` ProgramJSON traversal slice. |
+| `tools/checks/rust_lifecycle_mirbuilder_programjson_block_expr_shape_scan_parity_gate.sh` | Capability-batch parity for `.hako` `ProgramJsonBlockExprShapeScanV1`. |
+| `tools/checks/rust_lifecycle_mirbuilder_programjson_block_expr_shape_retire_rust_astnode_projector_candidate_guard.sh` | Retire-candidate guard for the covered `BlockExprShapeSnapshotV1` ProgramJSON traversal slice. |
 | `tools/checks/hako_aot_dynamic_string_eq_and_int_to_str_correctness_gate.sh` | AOT dynamic string equality and scanner-fed `StringHelpers.int_to_str` correctness gate. |
 | `tools/checks/hako_aot_route_value_type_publication_contract_gate.sh` | AOT/MIR route value-type publication contract gate for 2997. |
 

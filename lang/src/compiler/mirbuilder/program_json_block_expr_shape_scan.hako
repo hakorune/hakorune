@@ -1,0 +1,216 @@
+// program_json_block_expr_shape_scan.hako
+//
+// Responsibility:
+// - Traverse covered Program(JSON v0) top-level BlockExpr objects structurally.
+// - Emit BlockExprShapeSnapshotV1 summaries for MirBuilder migration parity.
+//
+// Non-responsibility:
+// - Block expression lowering, prelude execution semantics, type resolution,
+//   MIR mutation, backend lowering, ID allocation, or parser integration.
+
+using selfhost.shared.common.string_helpers as StringHelpers
+using lang.compiler.mirbuilder.program_json_v0_scanner_box as ProgramJsonV0ScannerBox
+
+static box ProgramJsonBlockExprShapeScanBox {
+  build_summary(program_json) {
+    if program_json == null || ("" + program_json) == "" {
+      return me._fail("missing_program_json")
+    }
+    program_json = "" + program_json
+
+    local body = me._array_field_start(program_json, "body", 0)
+    if body < 0 { return me._fail("cap_missing_program_body") }
+
+    local first = me._first_object_in_array(program_json, body)
+    if first < 0 { return me._fail("cap_missing_first_stmt") }
+
+    if me._kind_at(program_json, first) != "BlockExpr" {
+      return me._summary("Unsupported", 0, 1)
+    }
+
+    local kind = me._block_expr_kind(program_json, first)
+    return me._summary(kind, me._supported_count(kind), me._unsupported_count(kind))
+  }
+
+  _summary(kind, supported, unsupported) {
+    return "snapshot_kind=BlockExprShapeSnapshotV1"
+      + ";top_block_expr_shape_kind=" + kind
+      + ";supported_block_expr_count=" + me._count_token(supported)
+      + ";unsupported_block_expr_count=" + me._count_token(unsupported)
+  }
+
+  _block_expr_kind(s, block_start) {
+    local prelude = me._array_field_start(s, "prelude_stmts", block_start)
+    if prelude < 0 { return "Unsupported" }
+    local tail = me._object_field_start(s, "tail_expr", block_start)
+    if tail < 0 { return "Unsupported" }
+    local tail_kind = me._value_kind(s, tail)
+    if tail_kind == "Unsupported" { return "Unsupported" }
+
+    local first = me._first_object_in_array(s, prelude)
+    if first < 0 { return me._empty_prelude_kind(tail_kind) }
+    local first_kind = me._stmt_kind(s, first)
+    if first_kind == "Unsupported" { return "Unsupported" }
+
+    local second = me._next_object_in_array(s, prelude, first)
+    if second < 0 { return me._one_prelude_kind(first_kind, tail_kind) }
+    local second_kind = me._stmt_kind(s, second)
+    if second_kind == "Unsupported" { return "Unsupported" }
+
+    local third = me._next_object_in_array(s, prelude, second)
+    if third >= 0 { return "ManyPreludeTailValue" }
+    return me._two_prelude_kind(first_kind, second_kind, tail_kind)
+  }
+
+  _empty_prelude_kind(tail_kind) {
+    if tail_kind == "Int" { return "EmptyPreludeTailInt" }
+    if tail_kind == "String" { return "EmptyPreludeTailString" }
+    if tail_kind == "Bool" { return "EmptyPreludeTailBool" }
+    if tail_kind == "Var" { return "EmptyPreludeTailVar" }
+    return "EmptyPreludeTailValue"
+  }
+
+  _one_prelude_kind(first_kind, tail_kind) {
+    if first_kind == "Local" && tail_kind == "Int" { return "LocalPreludeTailInt" }
+    if first_kind == "Expr" && tail_kind == "String" { return "ExprPreludeTailString" }
+    if first_kind == "Return" { return "ReturnPreludeTailValue" }
+    return "OnePreludeTailValue"
+  }
+
+  _two_prelude_kind(first_kind, second_kind, tail_kind) {
+    if first_kind == "Local" && second_kind == "Expr" && tail_kind == "Var" { return "LocalExprPreludeTailVar" }
+    if first_kind == "Local" && second_kind == "Return" { return "LocalReturnPreludeTailValue" }
+    return "TwoPreludeTailValue"
+  }
+
+  _stmt_kind(s, stmt_start) {
+    local ty = me._stmt_type_at(s, stmt_start)
+    if ty == "Local" { return "Local" }
+    if ty == "Expr" { return "Expr" }
+    if ty == "Return" { return "Return" }
+    if ty == "Break" { return "Break" }
+    if ty == "Continue" { return "Continue" }
+    return "Unsupported"
+  }
+
+  _value_kind(s, obj_start) {
+    local ty = me._value_type_at(s, obj_start)
+    if ty == "Int" { return "Int" }
+    if ty == "String" { return "String" }
+    if ty == "Bool" { return "Bool" }
+    if ty == "Var" { return "Var" }
+    return "Unsupported"
+  }
+
+  _supported_count(kind) {
+    if kind == "Unsupported" { return 0 }
+    return 1
+  }
+
+  _unsupported_count(kind) {
+    if kind == "Unsupported" { return 1 }
+    return 0
+  }
+
+  _count_token(n) {
+    if n <= 0 { return "0" }
+    if n == 1 { return "1" }
+    return "many"
+  }
+
+  _fail(reason) {
+    return "accepted=0;reason=" + reason
+  }
+
+  _array_field_start(s, key, obj_start) {
+    if obj_start < 0 { return -1 }
+    local p = ProgramJsonV0ScannerBox.seek_obj_field_value_start(s, key, obj_start)
+    if p < 0 { return -1 }
+    p = StringHelpers.skip_ws(s, p)
+    if ProgramJsonV0ScannerBox._read_char(s, p) != "[" { return -1 }
+    return p
+  }
+
+  _first_object_in_array(s, array_start) {
+    if array_start < 0 { return -1 }
+    local p = StringHelpers.skip_ws(s, array_start + 1)
+    if ProgramJsonV0ScannerBox._read_char(s, p) != "{" { return -1 }
+    return p
+  }
+
+  _object_field_start(s, key, obj_start) {
+    if obj_start < 0 { return -1 }
+    local p = ProgramJsonV0ScannerBox.seek_obj_field_value_start(s, key, obj_start)
+    if p < 0 { return -1 }
+    p = StringHelpers.skip_ws(s, p)
+    if ProgramJsonV0ScannerBox._read_char(s, p) != "{" { return -1 }
+    return p
+  }
+
+  _next_object_in_array(s, array_start, previous_start) {
+    if array_start < 0 || previous_start < 0 { return -1 }
+    local previous_end = ProgramJsonV0ScannerBox.seek_obj_end_unescaped(s, previous_start)
+    if previous_end < 0 { return -1 }
+    local p = StringHelpers.skip_ws(s, previous_end)
+    if ProgramJsonV0ScannerBox._read_char(s, p) != "," { return -1 }
+    p = StringHelpers.skip_ws(s, p + 1)
+    if ProgramJsonV0ScannerBox._read_char(s, p) != "{" { return -1 }
+    return p
+  }
+
+  _node_name_at(s, obj_start) {
+    local kind = me._string_field_at_quiet(s, "kind", obj_start)
+    if kind != "" { return kind }
+    return me._string_field_at_quiet(s, "type", obj_start)
+  }
+
+  _kind_at(s, obj_start) {
+    return me._string_field_at(s, "kind", obj_start)
+  }
+
+  _value_type_at(s, obj_start) {
+    local ty = me._string_field_at(s, "type", obj_start)
+    if ty != "" { return ty }
+    return me._string_field_at_quiet(s, "kind", obj_start)
+  }
+
+  _stmt_type_at(s, obj_start) {
+    local ty = me._string_field_at(s, "type", obj_start)
+    if ty != "" { return ty }
+    return me._string_field_at_quiet(s, "kind", obj_start)
+  }
+
+  _string_field_at(s, key, obj_start) {
+    local p = ProgramJsonV0ScannerBox.seek_obj_field_value_start(s, key, obj_start)
+    if p < 0 { return "" }
+    p = StringHelpers.skip_ws(s, p)
+    if ProgramJsonV0ScannerBox._read_char(s, p) != "\"" { return "" }
+    local end_quote = StringHelpers.index_of(s, p + 1, "\"")
+    if end_quote < 0 { return "" }
+    return s.substring(p + 1, end_quote)
+  }
+
+  _string_field_at_quiet(s, key, obj_start) {
+    local p = me._quiet_obj_field_value_start(s, key, obj_start)
+    if p < 0 { return "" }
+    p = StringHelpers.skip_ws(s, p)
+    if ProgramJsonV0ScannerBox._read_char(s, p) != "\"" { return "" }
+    local end_quote = StringHelpers.index_of(s, p + 1, "\"")
+    if end_quote < 0 { return "" }
+    return s.substring(p + 1, end_quote)
+  }
+
+  _quiet_obj_field_value_start(s, key, obj_start) {
+    if s == null { return -1 }
+    if obj_start < 0 { return -1 }
+    local end = ProgramJsonV0ScannerBox.seek_obj_end_unescaped(s, obj_start)
+    if end < 0 { return -1 }
+    local obj = s.substring(obj_start, end)
+    local needle = "\"" + ("" + key) + "\":"
+    local p = StringHelpers.index_of(obj, 0, needle)
+    if p < 0 || (obj_start + p) >= end { return -1 }
+    return obj_start + p + needle.length()
+  }
+}
+
+static box ProgramJsonBlockExprShapeScanMain { main() { return 0 } }

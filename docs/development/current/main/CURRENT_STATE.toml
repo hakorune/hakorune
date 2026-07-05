@@ -345,14 +345,14 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PROGRAMJSON-BRAND-DECLARATION-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3101-MIRBUILDER-PROGRAMJSON-BRAND-DECLARATION-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001.md"
-latest_card_summary = """3101 marks only the covered
-BrandDeclarationShapeSnapshotV1 ProgramJSON traversal rows as a scoped Rust
-ASTNode projector retire-candidate. Brand type resolution, brand lowering, full
-projector retirement, ProgramJSON full parser, HakoAdoption, Source Selfhost,
-RecipeMatcher, route selection, lowering, mutation, ID allocation, and new ABI
-remain unclaimed."""
+latest_card = "MIRBUILDER-PROGRAMJSON-BLOCK-EXPR-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3103-MIRBUILDER-PROGRAMJSON-BLOCK-EXPR-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001.md"
+latest_card_summary = """3103 marks only the covered
+BlockExprShapeSnapshotV1 ProgramJSON traversal rows as a scoped Rust ASTNode
+projector retire-candidate. Block expression lowering, prelude execution
+semantics, full projector retirement, ProgramJSON full parser, HakoAdoption,
+Source Selfhost, RecipeMatcher, route selection, lowering, mutation, ID
+allocation, and new ABI remain unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -363,6 +363,8 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-06: 3103 lands the covered BlockExprShapeSnapshotV1 ProgramJSON traversal slice as a scoped Rust ASTNode projector retire-candidate; next work returns to ProgramJSON capability-batch continuation.",
+  "2026-07-06: 3102 lands real `.hako` ProgramJsonBlockExprShapeScanV1 ProgramJSON traversal for covered top-level BlockExpr shapes with 10-row AOT parity; 3103 is active for the scoped block-expr projector retire-candidate.",
   "2026-07-06: 3101 lands the covered BrandDeclarationShapeSnapshotV1 ProgramJSON traversal slice as a scoped Rust ASTNode projector retire-candidate; next work returns to ProgramJSON capability-batch continuation.",
   "2026-07-06: 3100 lands real `.hako` ProgramJsonBrandDeclarationShapeScanV1 ProgramJSON traversal for covered BrandDeclaration shapes with 8-row AOT parity; 3101 is active for the scoped brand-declaration projector retire-candidate.",
   "2026-07-06: 3099 lands the covered IfBranchOccupancyShapeSnapshotV1 ProgramJSON traversal slice as a scoped Rust ASTNode projector retire-candidate; next work returns to ProgramJSON capability-batch continuation.",
@@ -372,6 +374,4 @@ landed_tail = [
   "2026-07-06: 3095 validates actual ProgramJSON v0 dispatch evidence and selects ProgramJsonDispatchSupportShapeScanV1 as the next implementation capability.",
   "2026-07-06: 3094 lands the covered ExprMeShapeSnapshotV1 ProgramJSON traversal slice as a scoped Rust ASTNode projector retire-candidate; next work returns to ProgramJSON capability-batch continuation.",
   "2026-07-06: 3093 lands real `.hako` ProgramJsonExprMeShapeScanV1 ProgramJSON traversal for covered Expr.expr Me shapes with 8-row AOT parity; 3094 is active for the scoped expr-me projector retire-candidate.",
-  "2026-07-06: 3092 lands the covered ExprUnaryShapeSnapshotV1 ProgramJSON traversal slice as a scoped Rust ASTNode projector retire-candidate; next work returns to ProgramJSON capability-batch continuation.",
-  "2026-07-06: 3091 lands real `.hako` ProgramJsonExprUnaryShapeScanV1 ProgramJSON traversal for covered Expr.expr Unary shapes with 8-row AOT parity; 3092 is active for the scoped expr-unary projector retire-candidate.",
 ]
