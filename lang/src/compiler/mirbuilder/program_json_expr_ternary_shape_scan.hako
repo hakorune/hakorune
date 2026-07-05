@@ -1,0 +1,221 @@
+// program_json_expr_ternary_shape_scan.hako
+//
+// Responsibility:
+// - Traverse covered Program(JSON v0) Expr.expr Ternary objects structurally.
+// - Emit ExprTernaryShapeSnapshotV1 summaries for MirBuilder migration parity.
+//
+// Non-responsibility:
+// - Full JSON parsing, source text matching, Rust ASTNode projection, Select lowering,
+//   RecipeMatcher execution, route selection, MIR mutation, backend lowering, ID allocation,
+//   or ternary evaluation semantics.
+
+using selfhost.shared.common.string_helpers as StringHelpers
+using lang.compiler.mirbuilder.program_json_v0_scanner_box as ProgramJsonV0ScannerBox
+
+static box ProgramJsonExprTernaryShapeScanBox {
+  build_summary(program_json) {
+    if program_json == null || ("" + program_json) == "" {
+      return me._fail("missing_program_json")
+    }
+    program_json = "" + program_json
+
+    local body = me._array_field_start(program_json, "body", 0)
+    if body < 0 { return me._fail("cap_missing_program_body") }
+
+    local first = me._first_object_in_array(program_json, body)
+    if first < 0 { return me._fail("cap_missing_first_stmt") }
+
+    local top_kind = "Missing"
+    local then_kind = "Missing"
+    local else_kind = "Missing"
+    local first_type = me._node_type_at(program_json, first)
+
+    if first_type == "Expr" {
+      top_kind = me._expr_ternary_shape_kind(program_json, first)
+    } else if first_type == "If" {
+      then_kind = me._first_expr_ternary_shape_kind_in_array_field(program_json, first, "then")
+      else_kind = me._first_expr_ternary_shape_kind_in_else(program_json, first)
+    } else {
+      top_kind = "Unsupported"
+    }
+
+    local supported = me._supported_count(top_kind)
+      + me._supported_count(then_kind)
+      + me._supported_count(else_kind)
+    local unsupported = me._unsupported_count(top_kind)
+      + me._unsupported_count(then_kind)
+      + me._unsupported_count(else_kind)
+    return me._summary(top_kind, then_kind, else_kind, supported, unsupported)
+  }
+
+  _summary(top_kind, then_kind, else_kind, supported, unsupported) {
+    return "snapshot_kind=ExprTernaryShapeSnapshotV1"
+      + ";top_expr_ternary_shape_kind=" + top_kind
+      + ";if_then_expr_ternary_shape_kind=" + then_kind
+      + ";if_else_expr_ternary_shape_kind=" + else_kind
+      + ";supported_expr_ternary_count=" + me._count_token(supported)
+      + ";unsupported_expr_ternary_count=" + me._count_token(unsupported)
+  }
+
+  _expr_ternary_shape_kind(s, expr_stmt_start) {
+    local expr = ProgramJsonV0ScannerBox.seek_obj_field_obj_start(s, "expr", expr_stmt_start)
+    if expr < 0 { return "Unsupported" }
+    if me._node_type_at(s, expr) != "Ternary" { return "Unsupported" }
+    return me._ternary_kind(s, expr)
+  }
+
+  _ternary_kind(s, ternary_start) {
+    local cond = ProgramJsonV0ScannerBox.seek_obj_field_obj_start(s, "cond", ternary_start)
+    local then_expr = ProgramJsonV0ScannerBox.seek_obj_field_obj_start(s, "then", ternary_start)
+    local else_expr = ProgramJsonV0ScannerBox.seek_obj_field_obj_start(s, "else", ternary_start)
+    if cond < 0 || then_expr < 0 || else_expr < 0 { return "Unsupported" }
+
+    local cond_kind = me._operand_kind(s, cond)
+    local then_kind = me._operand_kind(s, then_expr)
+    local else_kind = me._operand_kind(s, else_expr)
+
+    if cond_kind == "Bool" && then_kind == "Int" && else_kind == "Int" {
+      return "BoolThenIntElseInt"
+    }
+    if cond_kind == "Var" && then_kind == "Var" && else_kind == "Var" {
+      return "VarThenVarElseVar"
+    }
+    if cond_kind == "Compare" && then_kind == "Int" && else_kind == "Int" {
+      return "CompareThenIntElseInt"
+    }
+    if cond_kind == "Var" && then_kind == "Str" && else_kind == "Str" {
+      return "VarThenStrElseStr"
+    }
+    return "Unsupported"
+  }
+
+  _operand_kind(s, obj_start) {
+    local ty = me._node_type_at(s, obj_start)
+    if ty == "Bool" { return "Bool" }
+    if ty == "Var" { return "Var" }
+    if ty == "Int" { return "Int" }
+    if ty == "Str" { return "Str" }
+    if ty == "Compare" { return "Compare" }
+    return "Unsupported"
+  }
+
+  _first_expr_ternary_shape_kind_in_array_field(s, if_start, key) {
+    local array_start = me._array_field_start(s, key, if_start)
+    if array_start < 0 { return "Missing" }
+    return me._first_expr_ternary_shape_kind_in_array(s, array_start)
+  }
+
+  _first_expr_ternary_shape_kind_in_else(s, if_start) {
+    local p = me._if_direct_else_value_start(s, if_start)
+    if p < 0 { return "Missing" }
+    p = StringHelpers.skip_ws(s, p)
+    if s.substring(p, p + 4) == "null" { return "Missing" }
+    if ProgramJsonV0ScannerBox._read_char(s, p) != "[" { return "Unsupported" }
+    return me._first_expr_ternary_shape_kind_in_array(s, p)
+  }
+
+  _first_expr_ternary_shape_kind_in_array(s, array_start) {
+    local first = me._first_object_in_array(s, array_start)
+    if first < 0 { return "Missing" }
+    if me._node_type_at(s, first) != "Expr" { return "Unsupported" }
+    return me._expr_ternary_shape_kind(s, first)
+  }
+
+  _supported_count(kind) {
+    if kind == "Missing" { return 0 }
+    if kind == "Unsupported" { return 0 }
+    return 1
+  }
+
+  _unsupported_count(kind) {
+    if kind == "Unsupported" { return 1 }
+    return 0
+  }
+
+  _count_token(n) {
+    if n <= 0 { return "0" }
+    if n == 1 { return "1" }
+    if n == 2 { return "2" }
+    return "many"
+  }
+
+  _fail(reason) {
+    return "accepted=0;reason=" + reason
+  }
+
+  _array_field_start(s, key, obj_start) {
+    if obj_start < 0 { return -1 }
+    local p = ProgramJsonV0ScannerBox.seek_obj_field_value_start(s, key, obj_start)
+    if p < 0 { return -1 }
+    p = StringHelpers.skip_ws(s, p)
+    if ProgramJsonV0ScannerBox._read_char(s, p) != "[" { return -1 }
+    return p
+  }
+
+  _first_object_in_array(s, array_start) {
+    if array_start < 0 { return -1 }
+    local p = StringHelpers.skip_ws(s, array_start + 1)
+    if ProgramJsonV0ScannerBox._read_char(s, p) != "{" { return -1 }
+    return p
+  }
+
+  _if_direct_else_value_start(s, if_start) {
+    local then_start = me._array_field_start(s, "then", if_start)
+    if then_start < 0 { return -1 }
+    local then_end = me._array_end_unescaped(s, then_start)
+    if then_end < 0 { return -1 }
+    local p = StringHelpers.index_of(s, then_end, "\"else\":")
+    if p < 0 { return -1 }
+    local if_end = ProgramJsonV0ScannerBox.seek_obj_end_unescaped(s, if_start)
+    if if_end < 0 || p >= if_end { return -1 }
+    return p + 7
+  }
+
+  _array_end_unescaped(s, array_start) {
+    if array_start < 0 { return -1 }
+    local n = s.length()
+    local i = array_start
+    local depth = 0
+    local in_str = 0
+    local esc = 0
+    loop(i < n) {
+      local ch = s.substring(i, i + 1)
+      if in_str == 1 {
+        if esc == 1 {
+          esc = 0
+        } else if ch == "\\" {
+          esc = 1
+        } else if ch == "\"" {
+          in_str = 0
+        }
+      } else {
+        if ch == "\"" {
+          in_str = 1
+        } else if ch == "[" {
+          depth = depth + 1
+        } else if ch == "]" {
+          depth = depth - 1
+          if depth == 0 { return i + 1 }
+        }
+      }
+      i = i + 1
+    }
+    return -1
+  }
+
+  _node_type_at(s, obj_start) {
+    return me._string_field_at(s, "type", obj_start)
+  }
+
+  _string_field_at(s, key, obj_start) {
+    local p = ProgramJsonV0ScannerBox.seek_obj_field_value_start(s, key, obj_start)
+    if p < 0 { return "" }
+    p = StringHelpers.skip_ws(s, p)
+    if ProgramJsonV0ScannerBox._read_char(s, p) != "\"" { return "" }
+    local end_quote = StringHelpers.index_of(s, p + 1, "\"")
+    if end_quote < 0 { return "" }
+    return s.substring(p + 1, end_quote)
+  }
+}
+
+static box ProgramJsonExprTernaryShapeScanMain { main() { return 0 } }

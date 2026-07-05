@@ -1,0 +1,259 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonExprTernaryShapeScanParityV1",
+  "token": "MIRBUILDER-PROGRAMJSON-EXPR-TERNARY-SHAPE-SCAN-CAPABILITY-001",
+  "capability": {
+    "name": "ProgramJsonExprTernaryShapeScanV1",
+    "input": "ProgramJSON v0",
+    "output": "ExprTernaryShapeSnapshotV1"
+  },
+  "routes": {
+    "rust_oracle_route": "source -> RHako parser -> Rust ASTNode -> Rust expr-ternary token snapshot",
+    "hako_programjson_route": "source -> HHako parser -> ProgramJSON -> HHako expr-ternary token snapshot"
+  },
+  "rows": [
+    {
+      "row_id": "expr_ternary_bool_int_int",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "type": "Program",
+        "body": [
+          {
+            "type": "Expr",
+            "expr": {
+              "type": "Ternary",
+              "cond": { "type": "Bool", "value": true },
+              "then": { "type": "Int", "value": 1 },
+              "else": { "type": "Int", "value": 0 }
+            }
+          }
+        ]
+      },
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=ExprTernaryShapeSnapshotV1;top_expr_ternary_shape_kind=BoolThenIntElseInt;if_then_expr_ternary_shape_kind=Missing;if_else_expr_ternary_shape_kind=Missing;supported_expr_ternary_count=1;unsupported_expr_ternary_count=0"
+      }
+    },
+    {
+      "row_id": "expr_ternary_var_var_var",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "type": "Program",
+        "body": [
+          {
+            "type": "Expr",
+            "expr": {
+              "type": "Ternary",
+              "cond": { "type": "Var", "name": "flag" },
+              "then": { "type": "Var", "name": "a" },
+              "else": { "type": "Var", "name": "b" }
+            }
+          }
+        ]
+      },
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=ExprTernaryShapeSnapshotV1;top_expr_ternary_shape_kind=VarThenVarElseVar;if_then_expr_ternary_shape_kind=Missing;if_else_expr_ternary_shape_kind=Missing;supported_expr_ternary_count=1;unsupported_expr_ternary_count=0"
+      }
+    },
+    {
+      "row_id": "expr_ternary_compare_int_int",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "type": "Program",
+        "body": [
+          {
+            "type": "Expr",
+            "expr": {
+              "type": "Ternary",
+              "cond": {
+                "type": "Compare",
+                "op": "<",
+                "lhs": { "type": "Var", "name": "i" },
+                "rhs": { "type": "Int", "value": 10 }
+              },
+              "then": { "type": "Int", "value": 1 },
+              "else": { "type": "Int", "value": 0 }
+            }
+          }
+        ]
+      },
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=ExprTernaryShapeSnapshotV1;top_expr_ternary_shape_kind=CompareThenIntElseInt;if_then_expr_ternary_shape_kind=Missing;if_else_expr_ternary_shape_kind=Missing;supported_expr_ternary_count=1;unsupported_expr_ternary_count=0"
+      }
+    },
+    {
+      "row_id": "expr_ternary_var_str_str",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "type": "Program",
+        "body": [
+          {
+            "type": "Expr",
+            "expr": {
+              "type": "Ternary",
+              "cond": { "type": "Var", "name": "flag" },
+              "then": { "type": "Str", "value": "yes" },
+              "else": { "type": "Str", "value": "no" }
+            }
+          }
+        ]
+      },
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=ExprTernaryShapeSnapshotV1;top_expr_ternary_shape_kind=VarThenStrElseStr;if_then_expr_ternary_shape_kind=Missing;if_else_expr_ternary_shape_kind=Missing;supported_expr_ternary_count=1;unsupported_expr_ternary_count=0"
+      }
+    },
+    {
+      "row_id": "expr_ternary_array_else_unsupported",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "type": "Program",
+        "body": [
+          {
+            "type": "Expr",
+            "expr": {
+              "type": "Ternary",
+              "cond": { "type": "Var", "name": "flag" },
+              "then": { "type": "Int", "value": 1 },
+              "else": {
+                "type": "Call",
+                "name": "array.of",
+                "args": [
+                  { "type": "Int", "value": 2 }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=ExprTernaryShapeSnapshotV1;top_expr_ternary_shape_kind=Unsupported;if_then_expr_ternary_shape_kind=Missing;if_else_expr_ternary_shape_kind=Missing;supported_expr_ternary_count=0;unsupported_expr_ternary_count=1"
+      }
+    },
+    {
+      "row_id": "if_then_expr_ternary_bool_int_int",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "type": "Program",
+        "body": [
+          {
+            "type": "If",
+            "cond": { "type": "Bool", "value": true },
+            "then": [
+              {
+                "type": "Expr",
+                "expr": {
+                  "type": "Ternary",
+                  "cond": { "type": "Bool", "value": true },
+                  "then": { "type": "Int", "value": 1 },
+                  "else": { "type": "Int", "value": 0 }
+                }
+              }
+            ],
+            "else": null
+          }
+        ]
+      },
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=ExprTernaryShapeSnapshotV1;top_expr_ternary_shape_kind=Missing;if_then_expr_ternary_shape_kind=BoolThenIntElseInt;if_else_expr_ternary_shape_kind=Missing;supported_expr_ternary_count=1;unsupported_expr_ternary_count=0"
+      }
+    },
+    {
+      "row_id": "if_else_expr_ternary_var_var_var",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "type": "Program",
+        "body": [
+          {
+            "type": "If",
+            "cond": { "type": "Bool", "value": true },
+            "then": [],
+            "else": [
+              {
+                "type": "Expr",
+                "expr": {
+                  "type": "Ternary",
+                  "cond": { "type": "Var", "name": "flag" },
+                  "then": { "type": "Var", "name": "a" },
+                  "else": { "type": "Var", "name": "b" }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=ExprTernaryShapeSnapshotV1;top_expr_ternary_shape_kind=Missing;if_then_expr_ternary_shape_kind=Missing;if_else_expr_ternary_shape_kind=VarThenVarElseVar;supported_expr_ternary_count=1;unsupported_expr_ternary_count=0"
+      }
+    },
+    {
+      "row_id": "expr_binary_unsupported",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "type": "Program",
+        "body": [
+          {
+            "type": "Expr",
+            "expr": {
+              "type": "Binary",
+              "op": "+",
+              "lhs": { "type": "Int", "value": 1 },
+              "rhs": { "type": "Int", "value": 2 }
+            }
+          }
+        ]
+      },
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=ExprTernaryShapeSnapshotV1;top_expr_ternary_shape_kind=Unsupported;if_then_expr_ternary_shape_kind=Missing;if_else_expr_ternary_shape_kind=Missing;supported_expr_ternary_count=0;unsupported_expr_ternary_count=1"
+      }
+    },
+    {
+      "row_id": "first_stmt_not_expr_unsupported",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "type": "Program",
+        "body": [
+          {
+            "type": "Return",
+            "expr": { "type": "Int", "value": 0 }
+          }
+        ]
+      },
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=ExprTernaryShapeSnapshotV1;top_expr_ternary_shape_kind=Unsupported;if_then_expr_ternary_shape_kind=Missing;if_else_expr_ternary_shape_kind=Missing;supported_expr_ternary_count=0;unsupported_expr_ternary_count=1"
+      }
+    }
+  ],
+  "summary": {
+    "parity_row_count": 9,
+    "programjson_traversal_used": 1,
+    "string_only_facade": 0,
+    "rust_astnode_projector_retire_candidate": 1
+  },
+  "decision": {
+    "kind": "ProgramJsonTraversalCapabilityParityGreen",
+    "reason_token": "ExprTernaryShapeProgramJsonSnapshotMatchesRustAstNodeOracle",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-EXPR-TERNARY-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "programjson_full_parser_claim": 0,
+    "hako_adopted_for_full_owner": 0,
+    "ternary_select_lowering_semantics": 0
+  }
+}
