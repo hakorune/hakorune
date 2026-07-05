@@ -60,7 +60,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-LOOP-COND-CONTINUE-WITH-RETURN-PLAN-RULE-HAKOADOPTED-DECISION-001
+  MIRBUILDER-PLAN-TRACK-NEXT-PILOT-SELECTION-001
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -70,16 +70,18 @@ normal operating rule:
   Fact-to-Plan threshold has fired: selection-024 closed the Fact-facade
   cadence and Plan selection-001 chose the active
   `LoopCondContinueWithReturn` single-planner rule.
-  `loop_cond_continue_with_return_plan_rule` now has a green 5-row
-  facts-to-plan DTO parity gate; HakoAdopted decision is next.
+  `loop_cond_continue_with_return_plan_rule` is now HakoAdopted as the first
+  scoped Plan DTO owner. Next work selects the next Plan-track pilot without
+  claiming full planner outcome, recipe matching, route execution, lowering,
+  mutation, allocation, or Source Selfhost.
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  `loop_cond_continue_with_return_plan_rule.authority_facade` has green parity
-  for a backend-safe 5-row facts-to-plan DTO snapshot. Full
-  `build_plan_with_facts_ctx`, full `try_build_outcome`, recipe matching,
-  route execution, MIR mutation, ID allocation, and Source Selfhost remain
-  unclaimed unless a specific card says otherwise.
+  `loop_cond_continue_with_return_plan_rule.authority_facade` is HakoAdopted
+  as the first scoped facts-to-plan DTO owner. Full `build_plan_with_facts_ctx`,
+  full `try_build_outcome`, recipe matching, route execution, MIR mutation, ID
+  allocation, and Source Selfhost remain unclaimed unless a specific card says
+  otherwise.
   Authority facade comes before crate split: Rust may be reorganized around
   meaning units only after the authority seam is fixture-backed and parity
   proven. The next hard-authority pilot should target Fact -> DTO or one

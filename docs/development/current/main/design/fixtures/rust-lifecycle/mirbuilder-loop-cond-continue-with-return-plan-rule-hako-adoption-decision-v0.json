@@ -1,0 +1,72 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderLoopCondContinueWithReturnPlanRuleHakoAdoptedDecisionV1",
+  "token": "MIRBUILDER-LOOP-COND-CONTINUE-WITH-RETURN-PLAN-RULE-HAKOADOPTED-DECISION-001",
+  "input_state": {
+    "hako_source": "lang/src/compiler/lib/loop_cond_continue_with_return_plan_rule.hako",
+    "hako_source_hash": "sha256:2e471ed849c24c2fdba97b83492629e1f9949fdc1d39290e62da960b8e0d7add",
+    "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-cond-continue-with-return-plan-rule-rust-oracle-v0.json",
+    "rust_oracle_fixture_hash": "sha256:1702d267111e4c30c82748c618bb811f40e376314f6be3e701a70893ed51a182",
+    "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_loop_cond_continue_with_return_plan_rule_parity_gate.sh",
+    "parity_gate_hash": "sha256:e3b36535d206eaa8931b00b00839b2044319f8b9f6178d8d26fa71eeccdb21ca"
+  },
+  "adoption_scope": {
+    "adopted_owner": "loop_cond_continue_with_return_plan_rule.authority_facade",
+    "input_contract": "BackendSafeLoopCondContinueWithReturnPlanRuleTokenSnapshotV1",
+    "native_edit_authority": "lang/src/compiler/lib/loop_cond_continue_with_return_plan_rule.hako",
+    "owned_semantics": [
+      "plan_rule_acceptance",
+      "active_rule_order_token",
+      "planner_present_token",
+      "recipe_only_token",
+      "planner_rule_tag_label",
+      "planner_rule_display_label",
+      "planner_rule_route_label",
+      "reject_reason_token"
+    ],
+    "excluded_semantics": [
+      "build_plan_with_facts_ctx",
+      "full_try_build_outcome",
+      "recipe_matching",
+      "router_execution",
+      "route_execution",
+      "backend_lowering",
+      "MIR_mutation",
+      "ID_allocation"
+    ]
+  },
+  "parity": {
+    "gate_status": "Green",
+    "oracle_row_count": 5,
+    "required_contract_fields": [
+      "accepted",
+      "reason",
+      "rule",
+      "tag",
+      "display",
+      "route",
+      "recipe_only"
+    ]
+  },
+  "decision": {
+    "kind": "HakoAdoptedScoped",
+    "reason_token": "LoopCondContinueWithReturnPlanRuleParityGreen",
+    "selected_next_card": "MIRBUILDER-PLAN-TRACK-NEXT-PILOT-SELECTION-001",
+    "backlog_card": "MIRBUILDER-SINGLE-PLANNER-FULL-OUTCOME-CONSULTATION-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "build_plan_with_facts_ctx_migrated": 0,
+    "try_build_outcome_migrated": 0,
+    "recipe_matching_migrated": 0,
+    "router_execution_migrated": 0,
+    "route_execution_migrated": 0,
+    "backend_lowering_migrated": 0,
+    "mir_mutation_migrated": 0,
+    "id_allocation_migrated": 0,
+    "hako_generation": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
