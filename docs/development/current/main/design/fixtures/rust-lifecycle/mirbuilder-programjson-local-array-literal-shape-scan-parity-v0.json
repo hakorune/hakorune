@@ -1,0 +1,311 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonLocalArrayLiteralShapeScanParityV1",
+  "token": "MIRBUILDER-PROGRAMJSON-LOCAL-ARRAY-LITERAL-SHAPE-SCAN-CAPABILITY-001",
+  "capability": {
+    "name": "ProgramJsonLocalArrayLiteralShapeScanV1",
+    "input": "ProgramJSON v0",
+    "output": "LocalArrayLiteralShapeSnapshotV1"
+  },
+  "routes": {
+    "rust_oracle_route": "source -> RHako parser -> Rust ASTNode -> Rust local-array-literal token snapshot",
+    "hako_programjson_route": "source -> HHako parser -> ProgramJSON -> HHako local-array-literal token snapshot"
+  },
+  "rows": [
+    {
+      "row_id": "local_array_int_empty",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "type": "Program",
+        "body": [
+          {
+            "type": "Local",
+            "name": "xs",
+            "declared_type": "Array<Int>",
+            "expr": {
+              "type": "ArrayLiteral",
+              "declared_type": "Array<Int>",
+              "element_type": "Int",
+              "elements": []
+            }
+          }
+        ]
+      },
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalArrayLiteralShapeSnapshotV1;top_local_array_literal_shape_kind=ArrayIntEmpty;if_then_local_array_literal_shape_kind=Missing;if_else_local_array_literal_shape_kind=Missing;supported_local_array_literal_count=1;unsupported_local_array_literal_count=0"
+      }
+    },
+    {
+      "row_id": "local_array_int_one",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "type": "Program",
+        "body": [
+          {
+            "type": "Local",
+            "name": "xs",
+            "declared_type": "Array<Int>",
+            "expr": {
+              "type": "ArrayLiteral",
+              "declared_type": "Array<Int>",
+              "element_type": "Int",
+              "elements": [
+                { "type": "Int", "value": 1 }
+              ]
+            }
+          }
+        ]
+      },
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalArrayLiteralShapeSnapshotV1;top_local_array_literal_shape_kind=ArrayIntOne;if_then_local_array_literal_shape_kind=Missing;if_else_local_array_literal_shape_kind=Missing;supported_local_array_literal_count=1;unsupported_local_array_literal_count=0"
+      }
+    },
+    {
+      "row_id": "local_array_int_two",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "type": "Program",
+        "body": [
+          {
+            "type": "Local",
+            "name": "xs",
+            "declared_type": "Array<Int>",
+            "expr": {
+              "type": "ArrayLiteral",
+              "declared_type": "Array<Int>",
+              "element_type": "Int",
+              "elements": [
+                { "type": "Int", "value": 1 },
+                { "type": "Int", "value": 2 }
+              ]
+            }
+          }
+        ]
+      },
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalArrayLiteralShapeSnapshotV1;top_local_array_literal_shape_kind=ArrayIntTwo;if_then_local_array_literal_shape_kind=Missing;if_else_local_array_literal_shape_kind=Missing;supported_local_array_literal_count=1;unsupported_local_array_literal_count=0"
+      }
+    },
+    {
+      "row_id": "local_array_bool_one",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "type": "Program",
+        "body": [
+          {
+            "type": "Local",
+            "name": "flags",
+            "declared_type": "Array<Bool>",
+            "expr": {
+              "type": "ArrayLiteral",
+              "declared_type": "Array<Bool>",
+              "element_type": "Bool",
+              "elements": [
+                { "type": "Bool", "value": true }
+              ]
+            }
+          }
+        ]
+      },
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalArrayLiteralShapeSnapshotV1;top_local_array_literal_shape_kind=ArrayBoolOne;if_then_local_array_literal_shape_kind=Missing;if_else_local_array_literal_shape_kind=Missing;supported_local_array_literal_count=1;unsupported_local_array_literal_count=0"
+      }
+    },
+    {
+      "row_id": "local_array_str_one",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "type": "Program",
+        "body": [
+          {
+            "type": "Local",
+            "name": "names",
+            "declared_type": "Array<String>",
+            "expr": {
+              "type": "ArrayLiteral",
+              "declared_type": "Array<String>",
+              "element_type": "String",
+              "elements": [
+                { "type": "Str", "value": "a" }
+              ]
+            }
+          }
+        ]
+      },
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalArrayLiteralShapeSnapshotV1;top_local_array_literal_shape_kind=ArrayStrOne;if_then_local_array_literal_shape_kind=Missing;if_else_local_array_literal_shape_kind=Missing;supported_local_array_literal_count=1;unsupported_local_array_literal_count=0"
+      }
+    },
+    {
+      "row_id": "local_array_nested_unsupported",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "type": "Program",
+        "body": [
+          {
+            "type": "Local",
+            "name": "xs",
+            "declared_type": "Array<Int>",
+            "expr": {
+              "type": "ArrayLiteral",
+              "declared_type": "Array<Int>",
+              "element_type": "Int",
+              "elements": [
+                {
+                  "type": "ArrayLiteral",
+                  "declared_type": "Array<Int>",
+                  "element_type": "Int",
+                  "elements": [
+                    { "type": "Int", "value": 1 }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalArrayLiteralShapeSnapshotV1;top_local_array_literal_shape_kind=Unsupported;if_then_local_array_literal_shape_kind=Missing;if_else_local_array_literal_shape_kind=Missing;supported_local_array_literal_count=0;unsupported_local_array_literal_count=1"
+      }
+    },
+    {
+      "row_id": "if_then_local_array_int_one",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "type": "Program",
+        "body": [
+          {
+            "type": "If",
+            "cond": { "type": "Bool", "value": true },
+            "then": [
+              {
+                "type": "Local",
+                "name": "xs",
+                "declared_type": "Array<Int>",
+                "expr": {
+                  "type": "ArrayLiteral",
+                  "declared_type": "Array<Int>",
+                  "element_type": "Int",
+                  "elements": [
+                    { "type": "Int", "value": 1 }
+                  ]
+                }
+              }
+            ],
+            "else": null
+          }
+        ]
+      },
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalArrayLiteralShapeSnapshotV1;top_local_array_literal_shape_kind=Missing;if_then_local_array_literal_shape_kind=ArrayIntOne;if_else_local_array_literal_shape_kind=Missing;supported_local_array_literal_count=1;unsupported_local_array_literal_count=0"
+      }
+    },
+    {
+      "row_id": "if_else_local_array_bool_one",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "type": "Program",
+        "body": [
+          {
+            "type": "If",
+            "cond": { "type": "Bool", "value": true },
+            "then": [],
+            "else": [
+              {
+                "type": "Local",
+                "name": "flags",
+                "declared_type": "Array<Bool>",
+                "expr": {
+                  "type": "ArrayLiteral",
+                  "declared_type": "Array<Bool>",
+                  "element_type": "Bool",
+                  "elements": [
+                    { "type": "Bool", "value": false }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalArrayLiteralShapeSnapshotV1;top_local_array_literal_shape_kind=Missing;if_then_local_array_literal_shape_kind=Missing;if_else_local_array_literal_shape_kind=ArrayBoolOne;supported_local_array_literal_count=1;unsupported_local_array_literal_count=0"
+      }
+    },
+    {
+      "row_id": "expr_array_literal_unsupported",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "type": "Program",
+        "body": [
+          {
+            "type": "Expr",
+            "expr": {
+              "type": "ArrayLiteral",
+              "declared_type": "Array<Int>",
+              "element_type": "Int",
+              "elements": [
+                { "type": "Int", "value": 1 }
+              ]
+            }
+          }
+        ]
+      },
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalArrayLiteralShapeSnapshotV1;top_local_array_literal_shape_kind=Unsupported;if_then_local_array_literal_shape_kind=Missing;if_else_local_array_literal_shape_kind=Missing;supported_local_array_literal_count=0;unsupported_local_array_literal_count=1"
+      }
+    },
+    {
+      "row_id": "first_stmt_not_local_unsupported",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "type": "Program",
+        "body": [
+          {
+            "type": "Return",
+            "expr": { "type": "Int", "value": 1 }
+          }
+        ]
+      },
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalArrayLiteralShapeSnapshotV1;top_local_array_literal_shape_kind=Unsupported;if_then_local_array_literal_shape_kind=Missing;if_else_local_array_literal_shape_kind=Missing;supported_local_array_literal_count=0;unsupported_local_array_literal_count=1"
+      }
+    }
+  ],
+  "summary": {
+    "parity_row_count": 10,
+    "programjson_traversal_used": 1,
+    "string_only_facade": 0,
+    "rust_astnode_projector_retire_candidate": 1
+  },
+  "decision": {
+    "kind": "ProgramJsonTraversalCapabilityParityGreen",
+    "reason_token": "LocalArrayLiteralShapeProgramJsonSnapshotMatchesRustAstNodeOracle",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-LOCAL-ARRAY-LITERAL-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "programjson_full_parser_claim": 0,
+    "hako_adopted_for_full_owner": 0,
+    "array_lowering_semantics": 0,
+    "runtime_array_allocation_semantics": 0
+  }
+}
