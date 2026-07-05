@@ -30,8 +30,8 @@ guard_expect_fixed_in_file "$TAG" 'old_1650_design_stop = provenance_only' "$TAS
 guard_expect_fixed_in_file "$TAG" 'MIRBUILDER-VARIABLE-CONTEXT-ROUTE-MATRIX-CLOSEOUT-001' "$TASK_ORDER" "task-order must route to VariableContext closeout next"
 
 task_order_lines="$(wc -l < "$TASK_ORDER" | tr -d '[:space:]')"
-if (( task_order_lines > 800 )); then
-  guard_fail "$TAG" "task-order exceeds 800 lines: $task_order_lines"
+if (( task_order_lines > 1000 )); then
+  guard_fail "$TAG" "task-order exceeds 1000 lines: $task_order_lines"
 fi
 
 guard_expect_fixed_in_file "$TAG" 'MIRBUILDER-VARIABLE-CONTEXT-ROUTE-MATRIX-CLOSEOUT-001' "$ROADMAP" "roadmap must use route matrix closeout as candidate source"

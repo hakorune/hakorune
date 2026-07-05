@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 TAG="current-state-pointer-guard"
 source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
-MAX_TASK_ORDER_LINES=800
+MAX_ACTIVE_DOC_LINES=1000
 MAX_LANDED_TAIL_ROWS=12
 
 STATE_DOC="$ROOT_DIR/docs/development/current/main/CURRENT_STATE.toml"
@@ -109,8 +109,8 @@ if [[ -n "$latest_workstream_card" ]]; then
   require_repo_file "$latest_workstream_card" "latest_workstream_card"
   if [[ "$latest_workstream_card" == *task-order* ]]; then
     task_order_lines="$(wc -l < "$ROOT_DIR/$latest_workstream_card" | tr -d '[:space:]')"
-    if (( task_order_lines > MAX_TASK_ORDER_LINES )); then
-      guard_fail "$TAG" "latest_workstream_card exceeds ${MAX_TASK_ORDER_LINES} lines: $latest_workstream_card has $task_order_lines"
+    if (( task_order_lines > MAX_ACTIVE_DOC_LINES )); then
+      guard_fail "$TAG" "latest_workstream_card exceeds ${MAX_ACTIVE_DOC_LINES} lines: $latest_workstream_card has $task_order_lines"
     fi
   fi
 fi

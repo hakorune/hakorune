@@ -200,6 +200,7 @@ Rule:
 - do not let `CURRENT_TASK.md` or `10-Now.md` regrow into landed-history ledgers.
 - do not let `05-Restart-Quick-Resume.md` or `15-Workstream-Map.md` regrow into landed-history ledgers either.
 - if a block already has a better owner, replace it with a short summary plus a link.
+- keep the 800-line hard cap for source code files, not active docs.
 - if an active entry/workstream/taskboard/design doc grows past roughly 1000
   lines, add a docs-slim task or archive split before adding more historical
   prose. Archive and investigation docs may remain long; active restart docs

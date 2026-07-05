@@ -294,7 +294,8 @@ Do:
   close one execution edge per slice
   keep source facts complete
   require body-wide return-contract agreement
-  keep task-order below 800 lines
+  keep touched source code below 800 lines
+  keep active task-order compact; docs-slim near 1000 lines
   stop for design selection before opening a new owner
 ```
 
