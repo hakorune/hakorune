@@ -345,15 +345,15 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PROGRAMJSON-LOOP-COND-CONTINUE-WITH-RETURN-SNAPSHOT-AOT-RUNTIME-PARITY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2979-MIRBUILDER-PROGRAMJSON-LOOP-COND-CONTINUE-WITH-RETURN-SNAPSHOT-AOT-RUNTIME-PARITY-001.md"
-latest_card_summary = """The latest card promotes the first ProgramJSON
-traversal pilot from MIR-verify-only to AOT runtime parity. The scanner
-inventory now checks runtime output, all selected ProgramJsonV0ScannerBox
-helpers are green, and ProgramJsonLoopCondContinueWithReturnSnapshotV1 matches
-the five-row fixture summaries under AOT. Source Selfhost, HakoAdoption, and
-Rust ASTNode projector retirement remain unclaimed. Next work is Rust
-ASTNode-token oracle parity for the same narrow shape."""
+latest_card = "MIRBUILDER-PROGRAMJSON-LOOP-COND-CONTINUE-WITH-RETURN-SNAPSHOT-PARITY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2980-MIRBUILDER-PROGRAMJSON-LOOP-COND-CONTINUE-WITH-RETURN-SNAPSHOT-PARITY-001.md"
+latest_card_summary = """The latest card proves the first ProgramJSON-produced
+token snapshot against the Rust ASTNode-token oracle for
+LoopCondContinueThenReturnMinimalV1. The AOT parity gate compares five
+canonical snapshot rows and the accepted row's existing
+loop_cond_continue_with_return_plan_rule facade output. Source Selfhost,
+HakoAdoption, and Rust ASTNode projector retirement remain unclaimed. Next work
+is a one-shape Rust ASTNode projector retire-candidate card."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -364,6 +364,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-05: 2980 proves ProgramJSON token snapshot parity against the Rust ASTNode-token oracle for LoopCondContinueThenReturnMinimalV1; projector retirement remains unclaimed.",
   "2026-07-05: 2979 runs ProgramJsonLoopCondContinueWithReturnSnapshotV1 through AOT runtime parity for LoopCondContinueThenReturnMinimalV1; projector retirement remains unclaimed.",
   "2026-07-05: 2977 inventories ProgramJsonV0ScannerBox AOT blockers; parity runner route selection is now required before runtime parity.",
   "2026-07-05: 2976 implements ProgramJsonLoopCondContinueWithReturnSnapshotV1; MIR verify is green, runtime parity remains blocked by scanner AOT lowering.",
@@ -375,5 +376,4 @@ landed_tail = [
   "2026-07-05: 2971 lands single_planner freeze-required-none message parity; Freeze construction remains Rust.",
   "2026-07-05: 2970 adopts single_planner promotion hint tag as scoped HakoAdopted Plan DTO owner.",
   "2026-07-05: 2969 lands single_planner promotion hint tag parity; shape extraction and log emission remain Rust.",
-  "2026-07-05: 2968 adopts single_planner recipe-match gate as scoped HakoAdopted Plan DTO owner.",
 ]

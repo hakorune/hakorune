@@ -1,0 +1,166 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonLoopCondContinueWithReturnSnapshotParityV1",
+  "token": "MIRBUILDER-PROGRAMJSON-LOOP-COND-CONTINUE-WITH-RETURN-SNAPSHOT-PARITY-001",
+  "target_facade": "loop_cond_continue_with_return_plan_rule",
+  "input_shape": {
+    "shape_id": "LoopCondContinueThenReturnMinimalV1",
+    "source_route": "source -> RHako parser -> Rust ASTNode -> Rust token snapshot -> HHako facade",
+    "target_route": "source -> HHako parser -> ProgramJSON -> HHako token snapshot -> same HHako facade"
+  },
+  "rows": [
+    {
+      "row_id": "loop_cond_continue_then_return_minimal",
+      "program_json": {
+        "kind": "Program",
+        "type": "Program",
+        "body": [
+          {
+            "kind": "Loop",
+            "type": "Loop",
+            "cond": {
+              "type": "Compare",
+              "op": "<",
+              "lhs": {"type": "Var", "name": "i"},
+              "rhs": {"type": "Int", "value": 10}
+            },
+            "body": [
+              {
+                "kind": "If",
+                "type": "If",
+                "cond": {
+                  "type": "Compare",
+                  "op": "==",
+                  "lhs": {"type": "Var", "name": "i"},
+                  "rhs": {"type": "Int", "value": 3}
+                },
+                "then": [{"kind": "Continue", "type": "Continue"}],
+                "else": null
+              },
+              {
+                "kind": "Return",
+                "type": "Return",
+                "value": {"type": "Int", "value": 1}
+              }
+            ]
+          }
+        ]
+      },
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LoopCondContinueWithReturnProgramJsonSnapshotV1;loop_condition_valid=1;continue_count=1;break_count=0;return_count=1;has_nested_loop=0;continue_if_count=1;then_tail_continue=1;else_is_null=1;hetero_return_if_count=0;unsupported_node_count=0"
+      },
+      "facade_tokens": {
+        "rule_order_token": "OrderOnlyLoopCondContinueWithReturn",
+        "planner_present_token": "PlannerPresent",
+        "candidate_rule_token": "LoopCondContinueWithReturn",
+        "recipe_only_token": "RecipeOnly"
+      },
+      "rust_astnode_facade_oracle": {
+        "expected_summary": "accepted=1;rule=LoopCondContinueWithReturn;tag=LoopCondContinueWithReturn;display=LoopContinueWithReturn;route=loop_cond_continue_with_return;recipe_only=1"
+      }
+    },
+    {
+      "row_id": "reject_break_present",
+      "program_json": {
+        "kind": "Program",
+        "type": "Program",
+        "body": [
+          {
+            "kind": "Loop",
+            "type": "Loop",
+            "cond": {"type": "Compare", "op": "<", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 10}},
+            "body": [
+              {"kind": "If", "type": "If", "cond": {"type": "Compare", "op": "==", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 3}}, "then": [{"kind": "Continue", "type": "Continue"}], "else": null},
+              {"kind": "Break", "type": "Break"},
+              {"kind": "Return", "type": "Return", "value": {"type": "Int", "value": 1}}
+            ]
+          }
+        ]
+      },
+      "rust_astnode_token_oracle": {
+        "expected_summary": "accepted=0;reason=break_present"
+      }
+    },
+    {
+      "row_id": "reject_nested_loop",
+      "program_json": {
+        "kind": "Program",
+        "type": "Program",
+        "body": [
+          {
+            "kind": "Loop",
+            "type": "Loop",
+            "cond": {"type": "Compare", "op": "<", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 10}},
+            "body": [
+              {"kind": "If", "type": "If", "cond": {"type": "Compare", "op": "==", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 3}}, "then": [{"kind": "Continue", "type": "Continue"}], "else": null},
+              {"kind": "Loop", "type": "Loop", "cond": {"type": "Compare", "op": "<", "lhs": {"type": "Var", "name": "j"}, "rhs": {"type": "Int", "value": 2}}, "body": []},
+              {"kind": "Return", "type": "Return", "value": {"type": "Int", "value": 1}}
+            ]
+          }
+        ]
+      },
+      "rust_astnode_token_oracle": {
+        "expected_summary": "accepted=0;reason=nested_loop_present"
+      }
+    },
+    {
+      "row_id": "reject_if_else_not_null",
+      "program_json": {
+        "kind": "Program",
+        "type": "Program",
+        "body": [
+          {
+            "kind": "Loop",
+            "type": "Loop",
+            "cond": {"type": "Compare", "op": "<", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 10}},
+            "body": [
+              {"kind": "If", "type": "If", "cond": {"type": "Compare", "op": "==", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 3}}, "then": [{"kind": "Continue", "type": "Continue"}], "else": [{"kind": "Return", "type": "Return", "value": {"type": "Int", "value": 0}}]},
+              {"kind": "Return", "type": "Return", "value": {"type": "Int", "value": 1}}
+            ]
+          }
+        ]
+      },
+      "rust_astnode_token_oracle": {
+        "expected_summary": "accepted=0;reason=if_else_not_null"
+      }
+    },
+    {
+      "row_id": "reject_condition_not_supported",
+      "program_json": {
+        "kind": "Program",
+        "type": "Program",
+        "body": [
+          {
+            "kind": "Loop",
+            "type": "Loop",
+            "cond": {"type": "Bool", "value": true},
+            "body": [
+              {"kind": "If", "type": "If", "cond": {"type": "Compare", "op": "==", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 3}}, "then": [{"kind": "Continue", "type": "Continue"}], "else": null},
+              {"kind": "Return", "type": "Return", "value": {"type": "Int", "value": 1}}
+            ]
+          }
+        ]
+      },
+      "rust_astnode_token_oracle": {
+        "expected_summary": "accepted=0;reason=condition_not_supported"
+      }
+    }
+  ],
+  "claims": {
+    "programjson_traversal_for_shape_scope": 1,
+    "programjson_snapshot_matches_rust_astnode_oracle": 1,
+    "same_facade_output_equal_for_accept_shape": 1,
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_astnode_projector_retired": 0,
+    "rust_astnode_projector_fully_retired": 0,
+    "programjson_full_parser_claim": 0,
+    "backend_lowering": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
