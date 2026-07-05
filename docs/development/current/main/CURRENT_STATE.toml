@@ -345,15 +345,15 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PROGRAMJSON-LOCAL-BLOCK-EXPR-SHAPE-SCAN-CAPABILITY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3059-MIRBUILDER-PROGRAMJSON-LOCAL-BLOCK-EXPR-SHAPE-SCAN-CAPABILITY-001.md"
-latest_card_summary = """3059 lands real `.hako`
-ProgramJsonLocalBlockExprShapeScanV1 ProgramJSON traversal for covered
-Local.expr BlockExpr shapes with 10-row AOT parity. 3060 is active for the
-scoped LocalBlockExprShapeSnapshotV1 projector retire-candidate. Block
-expression lowering, prelude execution semantics, full projector retirement,
-ProgramJSON full parser, HakoAdoption, Source Selfhost, RecipeMatcher, route
-selection, lowering, mutation, ID allocation, and new ABI remain unclaimed."""
+latest_card = "MIRBUILDER-PROGRAMJSON-LOCAL-BLOCK-EXPR-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3060-MIRBUILDER-PROGRAMJSON-LOCAL-BLOCK-EXPR-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001.md"
+latest_card_summary = """3060 marks only the covered
+LocalBlockExprShapeSnapshotV1 ProgramJSON traversal rows as a scoped Rust
+ASTNode projector retire-candidate. Next work returns to ProgramJSON
+capability-batch continuation. Block expression lowering, prelude execution
+semantics, full projector retirement, ProgramJSON full parser, HakoAdoption,
+Source Selfhost, RecipeMatcher, route selection, lowering, mutation, ID
+allocation, and new ABI remain unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -364,6 +364,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-05: 3060 lands the covered LocalBlockExprShapeSnapshotV1 ProgramJSON traversal slice as a scoped Rust ASTNode projector retire-candidate; next work returns to ProgramJSON capability-batch continuation.",
   "2026-07-05: 3059 lands real `.hako` ProgramJsonLocalBlockExprShapeScanV1 ProgramJSON traversal for covered Local.expr BlockExpr shapes with 10-row AOT parity; 3060 is active for the scoped local block expr projector retire-candidate.",
   "2026-07-05: 3058 lands the covered LocalRecordUpdateShapeSnapshotV1 ProgramJSON traversal slice as a scoped Rust ASTNode projector retire-candidate; next work returns to ProgramJSON capability-batch continuation.",
   "2026-07-05: 3057 lands real `.hako` ProgramJsonLocalRecordUpdateShapeScanV1 ProgramJSON traversal for covered Local.expr RecordUpdate shapes with 10-row AOT parity; 3058 is active for the scoped local record update projector retire-candidate.",
@@ -375,5 +376,4 @@ landed_tail = [
   "2026-07-05: 3051 lands real `.hako` ProgramJsonExitMarkerShapeScanV1 ProgramJSON traversal for covered Break/Continue exit-marker shapes with 10-row AOT parity; 3052 is active for the scoped exit-marker projector retire-candidate.",
   "2026-07-05: 3050 lands the covered LocalMapLiteralShapeSnapshotV1 ProgramJSON traversal slice as a scoped Rust ASTNode projector retire-candidate; next work returns to ProgramJSON capability-batch continuation.",
   "2026-07-05: 3049 lands real `.hako` ProgramJsonLocalMapLiteralShapeScanV1 ProgramJSON traversal for covered Local.expr Map literal shapes with 10-row AOT parity; 3050 is active for the scoped local map literal projector retire-candidate.",
-  "2026-07-05: 3048 lands the covered LocalRecordLiteralShapeSnapshotV1 ProgramJSON traversal slice as a scoped Rust ASTNode projector retire-candidate; next work returns to ProgramJSON capability-batch continuation.",
 ]
