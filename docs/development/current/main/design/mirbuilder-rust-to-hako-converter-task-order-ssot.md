@@ -60,9 +60,9 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  HAKO-AOT-PROGRAMJSON-PHASE-STATE-RUNTIME-PARSE-ERROR-READINESS-001
+  HAKO-AOT-PROGRAMJSON-PHASE-STATE-POSITIVE-PATH-HELPER-ROUTE-READINESS-001
 selected next card:
-  docs/development/current/main/phases/phase-296x/3121-HAKO-AOT-PROGRAMJSON-PHASE-STATE-RUNTIME-PARSE-ERROR-READINESS-001.md
+  docs/development/current/main/phases/phase-296x/3122-HAKO-AOT-PROGRAMJSON-PHASE-STATE-POSITIVE-PATH-HELPER-ROUTE-READINESS-001.md
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -92,6 +92,12 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
+  3122 selects the direct/map responsibility split exposed by 3121: scanner
+  result-map and raw ProgramJSON token preservation stay `.hako` contracts,
+  while the next active implementation boundary is same-module positive-path
+  helper route readiness. First target is the PhaseState recipe append helper
+  family; DTO summary helpers follow only if reached. Do not inline helpers
+  merely to hide route gaps, and do not reopen scanner void/object widening.
   3120 closes the Layer4 loop Recipe DTO heavy EXE compile-cost blocker:
   the FFI `opt -> llc` O0 path now uses `mem2reg` only instead of
   `always-inline,default<O3>`, and the bounded heavy guard emits/runs the EXE.

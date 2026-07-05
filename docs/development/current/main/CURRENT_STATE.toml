@@ -345,20 +345,18 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "HAKO-AOT-PROGRAMJSON-PHASE-STATE-RUNTIME-PARSE-ERROR-READINESS-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3121-HAKO-AOT-PROGRAMJSON-PHASE-STATE-RUNTIME-PARSE-ERROR-READINESS-001.md"
-latest_card_summary = """3121 begins the EXE-only PhaseState parse runtime
-cleanup exposed by 3120. Scanner-derived Program(JSON v0) enum tokens are kept
-as raw StringBox values through PhaseState consumer dispatch, Local handling,
-RecipeFacts classification, and RecipeItem validation instead of being
-canonicalized through `"" + map_get(...)` into handle-id strings. Narrow EXE
-sub-rows now prove Local handler, Local RecipeFacts, and Local RecipeVerifier
-green. The public heavy guard remains bounded with runtime_parity_green=0 and
-exact_first_blocker=phase_state_parse_runtime_parse_error; follow-up is
-HAKO-AOT-PROGRAMJSON-PHASE-STATE-POSITIVE-PATH-HELPER-ROUTE-READINESS-001.
-Full RecipeMatcher, MIR mutation, lowering, ID allocation, runtime route
-switch, HakoAdoption, Source Selfhost, full projector retirement, route
-selection, and new ABI remain unclaimed."""
+latest_card = "HAKO-AOT-PROGRAMJSON-PHASE-STATE-POSITIVE-PATH-HELPER-ROUTE-READINESS-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3122-HAKO-AOT-PROGRAMJSON-PHASE-STATE-POSITIVE-PATH-HELPER-ROUTE-READINESS-001.md"
+latest_card_summary = """3122 selects the clean responsibility boundary for
+the direct/map slowdown exposed by 3121. Scanner result-map and raw ProgramJSON
+token handling remain .hako-side contracts already covered by 3109/3121. The
+next active implementation boundary is same-module positive-path helper route
+readiness: first PhaseState recipe append helpers, then DTO summary helpers if
+reached. The owner is Rust MIR route publication or C same-module prepass/body
+emit only when the route is already published. Do not hide this by inlining
+append/summary helpers, scanner void widening, mixed_runtime_i64_or_handle
+scanner bridges, body-proof object returns, new ABI, MIR mutation/lowering,
+runtime route switch, HakoAdoption, or Source Selfhost claims."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -369,6 +367,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-06: 3122 selects the same-module positive-path helper route readiness boundary for PhaseState append and DTO summary helpers; scanner result-map and raw token contracts remain separate.",
   "2026-07-06: 3121 narrows the PhaseState EXE parse failure by preserving Program(JSON v0) string tokens as raw StringBox values through Local/Recipe classification; heavy guard remains non-claiming with runtime_parity_green=0 pending positive-path helper route readiness.",
   "2026-07-06: 3120 closes the Layer4 loop Recipe DTO heavy EXE compile-cost blocker by making the FFI O0 opt path mem2reg-only; runtime parity remains unclaimed pending PhaseState parse runtime err=1 investigation.",
   "2026-07-06: 3119 adds ProgramJsonLoopRecipeDtoSnapshotV1 and a lightweight Layer4 loop Recipe DTO route guard; runtime parity remains unclaimed pending heavy emit-exe readiness.",
@@ -380,5 +379,4 @@ landed_tail = [
   "2026-07-06: 3113 lands the PhaseState consume-stmt control/try result contract; the consumer probe now exposes RecipeVerifierBox / RecipePortSigBox as the next result-contract blocker family while full PhaseState parse remains unclaimed.",
   "2026-07-06: 3112 lands the PhaseState consume-stmt non-control result contract; remaining blocker is control/try nullable helper cleanup before consume_stmt can become AOT-callable.",
   "2026-07-06: 3107 records the Layer4 PhaseState AOT call blocker for ProgramJsonV0PhaseStateBox.parse/2; next work fixes the AOT parse call contract before loop Recipe DTO parity.",
-  "2026-07-06: 3106 selects ProgramJsonLoopRecipeDtoPilotV1 as the first layer-4 ProgramJSON structured Plan/Recipe DTO pilot; next work is loop Recipe DTO parity, not another layer-1 snapshot.",
 ]
