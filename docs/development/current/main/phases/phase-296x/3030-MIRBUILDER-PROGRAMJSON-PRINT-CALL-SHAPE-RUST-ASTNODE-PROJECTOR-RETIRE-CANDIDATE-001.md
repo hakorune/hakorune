@@ -1,6 +1,6 @@
 # 3030 - MIRBUILDER-PROGRAMJSON-PRINT-CALL-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
 
-Status: active
+Status: landed
 
 ## Scope
 
@@ -79,3 +79,36 @@ new ABI
 - Rust projector oracle-only state remains documented;
 - general call ownership and backend print lowering remain explicitly
   unclaimed.
+
+## Evidence
+
+```bash
+bash tools/checks/rust_lifecycle_mirbuilder_programjson_print_call_shape_retire_rust_astnode_projector_candidate_guard.sh
+```
+
+Decision fixture:
+
+```text
+docs/development/current/main/design/fixtures/rust-lifecycle/
+  mirbuilder-programjson-print-call-shape-retire-rust-astnode-projector-candidate-v0.json
+```
+
+Result:
+
+```text
+decision=RetireCandidateScoped
+retire_candidate=PrintCallShapeSnapshotV1
+covered_rows=9
+rust_projector_runtime_dependency_removed=0
+rust_projector_oracle_only=1
+full_astnode_projector_retired=0
+general_expr_call_ownership=0
+console_log_route_execution=0
+backend_print_lowering=0
+```
+
+## Next
+
+```text
+MIRBUILDER-PROGRAMJSON-CAPABILITY-BATCH-CONTINUATION
+```

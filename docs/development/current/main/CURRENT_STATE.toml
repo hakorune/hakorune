@@ -347,14 +347,13 @@ latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-t
 
 latest_card = "MIRBUILDER-PROGRAMJSON-PRINT-CALL-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
 latest_card_path = "docs/development/current/main/phases/phase-296x/3030-MIRBUILDER-PROGRAMJSON-PRINT-CALL-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001.md"
-latest_card_summary = """3029 lands ProgramJsonPrintCallShapeScanV1 as real
-`.hako` ProgramJSON traversal for covered print-lowered
-Expr.expr Call(name="env.console.log") shapes with a 9-row AOT parity gate.
-3030 is active to mark only covered PrintCallShapeSnapshotV1 rows as Rust
-ASTNode projector retire-candidate; general Expr.expr Call ownership,
-console/log route execution, backend print lowering, full projector retirement,
-ProgramJSON full parser, HakoAdoption, Source Selfhost, RecipeMatcher, route
-selection, lowering, mutation, ID allocation, and new ABI remain unclaimed."""
+latest_card_summary = """3030 lands the covered PrintCallShapeSnapshotV1
+ProgramJSON traversal rows as a scoped Rust ASTNode projector retire-candidate.
+General Expr.expr Call ownership, console/log route execution, backend print
+lowering, full projector retirement, ProgramJSON full parser, HakoAdoption,
+Source Selfhost, RecipeMatcher, route selection, lowering, mutation, ID
+allocation, and new ABI remain unclaimed. Next work returns to ProgramJSON
+capability-batch continuation."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -365,6 +364,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-05: 3030 lands the covered PrintCallShapeSnapshotV1 ProgramJSON traversal slice as a scoped Rust ASTNode projector retire-candidate; next work returns to ProgramJSON capability-batch continuation.",
   "2026-07-05: 3029 lands real `.hako` ProgramJsonPrintCallShapeScanV1 ProgramJSON traversal for print-lowered Expr.expr Call(name=env.console.log) shapes with 9-row AOT parity; 3030 is active for the scoped print-call projector retire-candidate.",
   "2026-07-05: 3028 lands the covered LocalArrayLiteralShapeSnapshotV1 ProgramJSON traversal slice as a scoped Rust ASTNode projector retire-candidate; next work returns to ProgramJSON capability-batch continuation.",
   "2026-07-05: 3027 lands real `.hako` ProgramJsonLocalArrayLiteralShapeScanV1 ProgramJSON traversal for Local.expr ArrayLiteral initializer shapes with 10-row AOT parity; 3028 is active for the scoped local-array-literal projector retire-candidate.",
@@ -376,5 +376,4 @@ landed_tail = [
   "2026-07-05: 3020 lands real `.hako` ProgramJsonExprBinaryShapeScanV1 ProgramJSON traversal for Expr statement binary expression shapes with 9-row AOT parity; 3021 is active for the scoped expr-binary projector retire-candidate.",
   "2026-07-05: 3019 lands the covered ExprRecordFieldShapeSnapshotV1 ProgramJSON traversal slice as a scoped Rust ASTNode projector retire-candidate; 3020 is active for real `.hako` Expr statement Binary traversal.",
   "2026-07-05: 3018 lands real `.hako` ProgramJsonExprRecordFieldShapeScanV1 ProgramJSON traversal for Expr statement record field access shapes with 9-row AOT parity; 3019 is active for the scoped expr-recordfield projector retire-candidate.",
-  "2026-07-05: 3017 lands the covered ExprFieldShapeSnapshotV1 ProgramJSON traversal slice as a scoped Rust ASTNode projector retire-candidate; 3018 is active for real `.hako` Expr statement record field access traversal.",
 ]
