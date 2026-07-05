@@ -1,6 +1,6 @@
 # 3012 - MIRBUILDER-PROGRAMJSON-EXPR-METHOD-SHAPE-SCAN-CAPABILITY-001
 
-Status: active
+Status: landed
 
 ## Scope
 
@@ -44,6 +44,31 @@ unsupported_expr_method_count=...
 - unsupported method argument shapes are reported with a stable token;
 - the card can name a concrete expr-method Rust ASTNode projector slice as
   retire-candidate after parity is green.
+
+## Evidence
+
+```bash
+bash tools/checks/rust_lifecycle_mirbuilder_programjson_expr_method_shape_scan_parity_gate.sh
+```
+
+Implementation:
+
+```text
+lang/src/compiler/mirbuilder/program_json_expr_method_shape_scan.hako
+```
+
+Fixture:
+
+```text
+docs/development/current/main/design/fixtures/rust-lifecycle/
+  mirbuilder-programjson-expr-method-shape-scan-parity-v0.json
+```
+
+## Next
+
+```text
+MIRBUILDER-PROGRAMJSON-EXPR-METHOD-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+```
 
 ## Forbidden
 

@@ -345,14 +345,15 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PROGRAMJSON-EXPR-METHOD-SHAPE-SCAN-CAPABILITY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3012-MIRBUILDER-PROGRAMJSON-EXPR-METHOD-SHAPE-SCAN-CAPABILITY-001.md"
-latest_card_summary = """3011 lands the covered ExprCallShapeSnapshotV1
-ProgramJSON traversal rows as a scoped Rust ASTNode projector retire-candidate.
-3012 is active to implement real `.hako` ProgramJSON traversal for covered Expr
-statement method-call shapes; full projector retirement, ProgramJSON full
-parser, HakoAdoption, Source Selfhost, RecipeMatcher, route selection,
-lowering, mutation, ID allocation, and new ABI remain unclaimed."""
+latest_card = "MIRBUILDER-PROGRAMJSON-EXPR-METHOD-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3013-MIRBUILDER-PROGRAMJSON-EXPR-METHOD-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001.md"
+latest_card_summary = """3012 lands ProgramJsonExprMethodShapeScanV1 as a
+real `.hako` ProgramJSON traversal capability for covered Expr statement
+method-call shapes with a 9-row AOT parity gate. 3013 is active to mark only
+the covered ExprMethodShapeSnapshotV1 rows as a Rust ASTNode projector
+retire-candidate; full projector retirement, ProgramJSON full parser,
+HakoAdoption, Source Selfhost, RecipeMatcher, route selection, lowering,
+mutation, ID allocation, and new ABI remain unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -363,6 +364,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-05: 3012 lands real `.hako` ProgramJsonExprMethodShapeScanV1 ProgramJSON traversal for Expr statement method-call shapes with 9-row AOT parity; 3013 is active for the scoped expr-method projector retire-candidate.",
   "2026-07-05: 3011 lands the covered ExprCallShapeSnapshotV1 ProgramJSON traversal slice as a scoped Rust ASTNode projector retire-candidate; 3012 is active for real `.hako` Expr statement method-call traversal.",
   "2026-07-05: 3010 lands real `.hako` ProgramJsonExprCallShapeScanV1 ProgramJSON traversal for Expr statement call shapes with 9-row AOT parity; 3011 is active for the scoped expr-call projector retire-candidate.",
   "2026-07-05: 3009 lands the covered LocalBindingShapeSnapshotV1 ProgramJSON traversal slice as a scoped Rust ASTNode projector retire-candidate; 3010 is active for real `.hako` Expr statement call-shape traversal.",
@@ -374,5 +376,4 @@ landed_tail = [
   "2026-07-05: 3003 selects ProgramJsonConditionShapeScanV1 as the next ProgramJSON traversal capability; 3004 is active for ConditionShapeSnapshotV1 implementation.",
   "2026-07-05: 2998 lands the covered LoopBodyControlFlowSnapshotV1 ProgramJSON traversal slice as a scoped Rust ASTNode projector retire-candidate; 3003 is active for next capability selection.",
   "2026-07-05: 3001 lands extern-call return value-type publication through RouteReturnShapeValueTypePublisherV1; 2998 is active again for the covered ProgramJSON Loop.body Rust ASTNode projector retire-candidate.",
-  "2026-07-05: 3000 lands generic-method scalar return value-type publication through RouteReturnShapeValueTypePublisherV1; 3001 is active for extern-call return publication.",
 ]
