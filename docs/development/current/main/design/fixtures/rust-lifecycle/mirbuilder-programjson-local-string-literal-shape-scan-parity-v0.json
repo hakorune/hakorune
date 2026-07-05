@@ -1,0 +1,105 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonLocalStringLiteralShapeScanParityV1",
+  "token": "MIRBUILDER-PROGRAMJSON-LOCAL-STRING-LITERAL-SHAPE-SCAN-CAPABILITY-001",
+  "capability": {
+    "name": "ProgramJsonLocalStringLiteralShapeScanV1",
+    "input": "ProgramJSON v0",
+    "output": "LocalStringLiteralShapeSnapshotV1"
+  },
+  "routes": {
+    "rust_oracle_route": "source -> RHako parser -> Rust ASTNode -> Rust Local string literal token snapshot",
+    "hako_programjson_route": "source -> HHako parser -> ProgramJSON -> HHako Local string literal token snapshot"
+  },
+  "rows": [
+    {
+      "row_id": "top_local_str_hello",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "s", "expr": {"type": "Str", "value": "hello"}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalStringLiteralShapeSnapshotV1;top_local_string_literal_shape_kind=StrAsciiHello;if_then_local_string_literal_shape_kind=Missing;if_else_local_string_literal_shape_kind=Missing;supported_local_string_literal_count=1;unsupported_local_string_literal_count=0"
+      }
+    },
+    {
+      "row_id": "top_local_str_empty",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "s", "expr": {"type": "Str", "value": ""}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalStringLiteralShapeSnapshotV1;top_local_string_literal_shape_kind=StrEmpty;if_then_local_string_literal_shape_kind=Missing;if_else_local_string_literal_shape_kind=Missing;supported_local_string_literal_count=1;unsupported_local_string_literal_count=0"
+      }
+    },
+    {
+      "row_id": "top_local_str_err",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "message", "expr": {"type": "Str", "value": "err"}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalStringLiteralShapeSnapshotV1;top_local_string_literal_shape_kind=StrAsciiErr;if_then_local_string_literal_shape_kind=Missing;if_else_local_string_literal_shape_kind=Missing;supported_local_string_literal_count=1;unsupported_local_string_literal_count=0"
+      }
+    },
+    {
+      "row_id": "top_local_str_other",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "label", "expr": {"type": "Str", "value": "label"}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalStringLiteralShapeSnapshotV1;top_local_string_literal_shape_kind=StrOther;if_then_local_string_literal_shape_kind=Missing;if_else_local_string_literal_shape_kind=Missing;supported_local_string_literal_count=1;unsupported_local_string_literal_count=0"
+      }
+    },
+    {
+      "row_id": "top_local_int_unsupported",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "n", "expr": {"type": "Int", "value": 1}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalStringLiteralShapeSnapshotV1;top_local_string_literal_shape_kind=Unsupported;if_then_local_string_literal_shape_kind=Missing;if_else_local_string_literal_shape_kind=Missing;supported_local_string_literal_count=0;unsupported_local_string_literal_count=1"
+      }
+    },
+    {
+      "row_id": "top_local_var_unsupported",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "s", "expr": {"type": "Var", "name": "input"}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalStringLiteralShapeSnapshotV1;top_local_string_literal_shape_kind=Unsupported;if_then_local_string_literal_shape_kind=Missing;if_else_local_string_literal_shape_kind=Missing;supported_local_string_literal_count=0;unsupported_local_string_literal_count=1"
+      }
+    },
+    {
+      "row_id": "if_then_local_str_hello",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "If", "cond": {"type": "Bool", "value": true}, "then": [{"type": "Local", "name": "s", "expr": {"type": "Str", "value": "hello"}}], "else": null}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalStringLiteralShapeSnapshotV1;top_local_string_literal_shape_kind=Missing;if_then_local_string_literal_shape_kind=StrAsciiHello;if_else_local_string_literal_shape_kind=Missing;supported_local_string_literal_count=1;unsupported_local_string_literal_count=0"
+      }
+    },
+    {
+      "row_id": "if_else_local_str_err",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "If", "cond": {"type": "Bool", "value": true}, "then": [], "else": [{"type": "Local", "name": "message", "expr": {"type": "Str", "value": "err"}}]}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalStringLiteralShapeSnapshotV1;top_local_string_literal_shape_kind=Missing;if_then_local_string_literal_shape_kind=Missing;if_else_local_string_literal_shape_kind=StrAsciiErr;supported_local_string_literal_count=1;unsupported_local_string_literal_count=0"
+      }
+    },
+    {
+      "row_id": "first_stmt_not_local_unsupported",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Return", "expr": {"type": "Str", "value": "hello"}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalStringLiteralShapeSnapshotV1;top_local_string_literal_shape_kind=Unsupported;if_then_local_string_literal_shape_kind=Missing;if_else_local_string_literal_shape_kind=Missing;supported_local_string_literal_count=0;unsupported_local_string_literal_count=1"
+      }
+    }
+  ],
+  "summary": {
+    "parity_row_count": 9,
+    "programjson_traversal_used": 1,
+    "string_only_facade": 0,
+    "rust_astnode_projector_retire_candidate": 1
+  },
+  "decision": {
+    "kind": "ProgramJsonLocalStringLiteralShapeScanParityGreen",
+    "reason_token": "LocalStringLiteralShapeProgramJsonSnapshotMatchesRustAstNodeOracle",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-LOCAL-STRING-LITERAL-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "programjson_full_parser_claim": 0,
+    "hako_adopted_for_full_owner": 0,
+    "stringbox_materialization": 0,
+    "string_literal_lowering": 0
+  }
+}
