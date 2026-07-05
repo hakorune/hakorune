@@ -117,6 +117,119 @@ fn refresh_module_global_call_routes_marks_string_scan_generic_i64_body() {
 }
 
 #[test]
+fn refresh_module_global_call_routes_accepts_self_recursive_generic_i64_body() {
+    let mut module = MirModule::new("global_call_self_recursive_i64_body_test".to_string());
+    let caller = make_function_with_global_call_args(
+        "Helper.seek_step/3",
+        Some(ValueId::new(20)),
+        vec![ValueId::new(1), ValueId::new(2), ValueId::new(3)],
+    );
+    let mut callee = MirFunction::new(
+        FunctionSignature {
+            name: "Helper.seek_step/3".to_string(),
+            params: vec![MirType::Unknown, MirType::Unknown, MirType::Unknown],
+            return_type: MirType::Unknown,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    callee.params = vec![ValueId::new(0), ValueId::new(1), ValueId::new(2)];
+    let entry = callee.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
+    entry.instructions.extend([
+        MirInstruction::Call {
+            dst: Some(ValueId::new(3)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Method {
+                box_name: "RuntimeDataBox".to_string(),
+                method: "length".to_string(),
+                receiver: Some(ValueId::new(0)),
+                certainty: TypeCertainty::Union,
+                box_kind: CalleeBoxKind::RuntimeData,
+            }),
+            args: vec![],
+            effects: EffectMask::PURE,
+        },
+        MirInstruction::Compare {
+            dst: ValueId::new(4),
+            op: CompareOp::Ge,
+            lhs: ValueId::new(1),
+            rhs: ValueId::new(3),
+        },
+    ]);
+    entry.set_terminator(MirInstruction::Branch {
+        condition: ValueId::new(4),
+        then_bb: BasicBlockId::new(1),
+        else_bb: BasicBlockId::new(2),
+        then_edge_args: None,
+        else_edge_args: None,
+    });
+
+    let mut done_block = BasicBlock::new(BasicBlockId::new(1));
+    done_block.instructions.push(MirInstruction::Const {
+        dst: ValueId::new(5),
+        value: ConstValue::Integer(-1),
+    });
+    done_block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(5)),
+    });
+
+    let mut step_block = BasicBlock::new(BasicBlockId::new(2));
+    step_block.instructions.extend([
+        MirInstruction::Const {
+            dst: ValueId::new(6),
+            value: ConstValue::Integer(1),
+        },
+        MirInstruction::BinOp {
+            dst: ValueId::new(7),
+            op: BinaryOp::Add,
+            lhs: ValueId::new(1),
+            rhs: ValueId::new(6),
+        },
+        MirInstruction::BinOp {
+            dst: ValueId::new(8),
+            op: BinaryOp::Sub,
+            lhs: ValueId::new(2),
+            rhs: ValueId::new(6),
+        },
+        MirInstruction::Call {
+            dst: Some(ValueId::new(9)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Global("Helper.seek_step/3".to_string())),
+            args: vec![ValueId::new(0), ValueId::new(7), ValueId::new(8)],
+            effects: EffectMask::PURE,
+        },
+    ]);
+    step_block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(9)),
+    });
+    callee.blocks.insert(BasicBlockId::new(1), done_block);
+    callee.blocks.insert(BasicBlockId::new(2), step_block);
+    module.functions.insert("main".to_string(), caller);
+    module
+        .functions
+        .insert("Helper.seek_step/3".to_string(), callee);
+
+    refresh_module_global_call_routes(&mut module);
+
+    let route = &module.functions["main"].metadata.global_call_routes[0];
+    assert_eq!(
+        route.target_shape(),
+        Some("generic_i64_body"),
+        "reason={:?} blocker={:?}/{:?}",
+        route.target_shape_reason(),
+        route.target_shape_blocker_symbol(),
+        route.target_shape_blocker_reason()
+    );
+    assert_eq!(route.target_shape_reason(), None);
+    assert_eq!(route.proof(), "typed_global_call_generic_i64");
+    assert_eq!(route.return_shape(), Some("ScalarI64"));
+    let self_route = &module.functions["Helper.seek_step/3"]
+        .metadata
+        .global_call_routes[0];
+    assert_eq!(self_route.target_shape(), Some("generic_i64_body"));
+}
+
+#[test]
 fn refresh_module_global_call_routes_accepts_generic_i64_select_flow() {
     let mut module = MirModule::new("global_call_generic_i64_select_test".to_string());
     let caller = make_function_with_global_call_args(

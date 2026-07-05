@@ -2,7 +2,7 @@ use crate::mir::generic_method_route_plan::GenericMethodRoute;
 use crate::mir::{BasicBlockId, MirFunction, MirType};
 
 use super::generic_string_facts::GenericPureValueClass;
-use super::model::GlobalCallTargetFacts;
+use super::model::{GlobalCallReturnContract, GlobalCallTargetFacts, GlobalCallTargetShape};
 
 pub(super) fn generic_pure_string_route_value_class(
     function: &MirFunction,
@@ -160,6 +160,11 @@ fn generic_pure_string_get_route_value_class(
 pub(super) fn generic_pure_string_generic_i64_target_value_class(
     target: &GlobalCallTargetFacts,
 ) -> GenericPureValueClass {
+    if target.shape() == GlobalCallTargetShape::GenericI64Body
+        || target.return_contract() == Some(GlobalCallReturnContract::ScalarI64)
+    {
+        return GenericPureValueClass::I64;
+    }
     match target.return_type() {
         Some(MirType::Bool) => GenericPureValueClass::Bool,
         Some(MirType::Unknown | MirType::Void) => GenericPureValueClass::ScalarOrVoid,
