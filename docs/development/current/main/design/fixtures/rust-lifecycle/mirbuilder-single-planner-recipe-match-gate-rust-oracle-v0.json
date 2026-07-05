@@ -1,0 +1,100 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderSinglePlannerRecipeMatchGateRustOracleV1",
+  "token": "MIRBUILDER-SINGLE-PLANNER-RECIPE-MATCH-GATE-RUST-ORACLE-FIXTURE-001",
+  "owner": "single_planner_recipe_match_gate",
+  "rust_sources": [
+    {
+      "path": "src/mir/builder/control_flow/plan/single_planner/rules.rs",
+      "oracle_surface": "try_build_outcome recipe matcher gate"
+    }
+  ],
+  "input_contract": "BackendSafeSinglePlannerRecipeMatchGateTokenSnapshotV1",
+  "rows": [
+    {
+      "case_id": "required_facts_present_runs_matcher",
+      "planner_required_token": "PlannerRequired",
+      "strict_or_dev_token": "StrictOrDev",
+      "outcome_facts_token": "FactsPresent",
+      "legacy_recipe_candidate_token": "LegacyRecipeCandidateAbsent",
+      "expected_summary": "accepted=1;action=match_required"
+    },
+    {
+      "case_id": "optional_strict_legacy_candidate_runs_strict",
+      "planner_required_token": "PlannerOptional",
+      "strict_or_dev_token": "StrictOrDev",
+      "outcome_facts_token": "FactsPresent",
+      "legacy_recipe_candidate_token": "LegacyRecipeCandidatePresent",
+      "expected_summary": "accepted=1;action=match_strict_or_dev"
+    },
+    {
+      "case_id": "optional_release_legacy_candidate_runs_best_effort",
+      "planner_required_token": "PlannerOptional",
+      "strict_or_dev_token": "ReleaseDefault",
+      "outcome_facts_token": "FactsPresent",
+      "legacy_recipe_candidate_token": "LegacyRecipeCandidatePresent",
+      "expected_summary": "accepted=1;action=match_best_effort"
+    },
+    {
+      "case_id": "optional_no_legacy_candidate_skips",
+      "planner_required_token": "PlannerOptional",
+      "strict_or_dev_token": "StrictOrDev",
+      "outcome_facts_token": "FactsPresent",
+      "legacy_recipe_candidate_token": "LegacyRecipeCandidateAbsent",
+      "expected_summary": "accepted=1;action=skip;reason=no_legacy_recipe_candidate"
+    },
+    {
+      "case_id": "facts_none_skips",
+      "planner_required_token": "PlannerRequired",
+      "strict_or_dev_token": "StrictOrDev",
+      "outcome_facts_token": "FactsNone",
+      "legacy_recipe_candidate_token": "LegacyRecipeCandidatePresent",
+      "expected_summary": "accepted=1;action=skip;reason=no_facts"
+    },
+    {
+      "case_id": "reject_bad_required_token",
+      "planner_required_token": "PlannerMaybe",
+      "strict_or_dev_token": "StrictOrDev",
+      "outcome_facts_token": "FactsPresent",
+      "legacy_recipe_candidate_token": "LegacyRecipeCandidatePresent",
+      "expected_summary": "accepted=0;reason=unsupported_planner_required_token"
+    },
+    {
+      "case_id": "reject_bad_strict_or_dev_token",
+      "planner_required_token": "PlannerOptional",
+      "strict_or_dev_token": "StrictUnknown",
+      "outcome_facts_token": "FactsPresent",
+      "legacy_recipe_candidate_token": "LegacyRecipeCandidatePresent",
+      "expected_summary": "accepted=0;reason=unsupported_strict_or_dev_token"
+    },
+    {
+      "case_id": "reject_bad_facts_token",
+      "planner_required_token": "PlannerOptional",
+      "strict_or_dev_token": "StrictOrDev",
+      "outcome_facts_token": "FactsUnknown",
+      "legacy_recipe_candidate_token": "LegacyRecipeCandidatePresent",
+      "expected_summary": "accepted=0;reason=unsupported_outcome_facts_token"
+    },
+    {
+      "case_id": "reject_bad_legacy_candidate_token",
+      "planner_required_token": "PlannerOptional",
+      "strict_or_dev_token": "StrictOrDev",
+      "outcome_facts_token": "FactsPresent",
+      "legacy_recipe_candidate_token": "LegacyRecipeCandidateUnknown",
+      "expected_summary": "accepted=0;reason=unsupported_legacy_recipe_candidate_token"
+    }
+  ],
+  "non_claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "recipe_matcher_execution_migrated": 0,
+    "build_plan_with_facts_ctx_migrated": 0,
+    "full_try_build_outcome_migrated": 0,
+    "route_execution_migrated": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0,
+    "id_allocation_migration": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

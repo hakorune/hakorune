@@ -1,0 +1,39 @@
+// single_planner_recipe_match_gate.hako
+//
+// Responsibility:
+// - reduce single_planner recipe-match routing tokens into a read-only DTO
+//
+// Non-responsibility:
+// - RecipeMatcher execution
+// - build_plan_with_facts_ctx, route execution, lowering, MIR mutation, or ID allocation
+static box SinglePlannerRecipeMatchGateBox {
+  build_summary(planner_required_token, strict_or_dev_token, outcome_facts_token, legacy_recipe_candidate_token) {
+    if planner_required_token != "PlannerRequired" && planner_required_token != "PlannerOptional" {
+      return "accepted=0;reason=unsupported_planner_required_token"
+    }
+    if strict_or_dev_token != "StrictOrDev" && strict_or_dev_token != "ReleaseDefault" {
+      return "accepted=0;reason=unsupported_strict_or_dev_token"
+    }
+    if outcome_facts_token != "FactsPresent" && outcome_facts_token != "FactsNone" {
+      return "accepted=0;reason=unsupported_outcome_facts_token"
+    }
+    if legacy_recipe_candidate_token != "LegacyRecipeCandidatePresent"
+        && legacy_recipe_candidate_token != "LegacyRecipeCandidateAbsent" {
+      return "accepted=0;reason=unsupported_legacy_recipe_candidate_token"
+    }
+
+    if outcome_facts_token == "FactsNone" {
+      return "accepted=1;action=skip;reason=no_facts"
+    }
+    if planner_required_token == "PlannerRequired" {
+      return "accepted=1;action=match_required"
+    }
+    if legacy_recipe_candidate_token == "LegacyRecipeCandidateAbsent" {
+      return "accepted=1;action=skip;reason=no_legacy_recipe_candidate"
+    }
+    if strict_or_dev_token == "StrictOrDev" {
+      return "accepted=1;action=match_strict_or_dev"
+    }
+    return "accepted=1;action=match_best_effort"
+  }
+}

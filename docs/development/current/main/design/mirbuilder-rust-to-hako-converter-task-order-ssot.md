@@ -60,7 +60,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PLAN-TRACK-NEXT-PILOT-SELECTION-004
+  MIRBUILDER-SINGLE-PLANNER-RECIPE-MATCH-GATE-HAKOADOPTED-DECISION-001
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -82,17 +82,15 @@ normal operating rule:
   planner-required None freeze vs return-outcome DTO.
   `single_planner_candidate_presence` is now HakoAdopted for the active
   LoopCondContinueWithReturn fact-slot presence DTO.
-  HakoAdopted Plan DTO owners now include: rule acceptance, outcome
-  disposition, candidate presence, and gate mode. Full planner outcome,
-  recipe matching, lowering, mutation, allocation, and Source Selfhost remain
-  unclaimed.
+  HakoAdopted Plan DTO owners now include rule acceptance, outcome
+  disposition, candidate presence, and gate mode. Recipe-match gate parity is
+  green; RecipeMatcher execution remains Rust.
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  `single_planner_gate_mode.authority_facade` is HakoAdopted. It owns no
-  environment access, recipe matching, route execution, lowering, mutation,
-  allocation, or full `try_build_outcome`; next work selects Plan-track pilot
-  004.
+  `single_planner_recipe_match_gate.authority_facade` has parity only; next is
+  its scoped HakoAdopted decision. It owns no RecipeMatcher execution, lowering,
+  mutation, allocation, or full `try_build_outcome`.
   Rust ASTNode-to-token snapshot adapters are non-authority temporary projection
   ABI for MirBuilder-first migration. They must not invent semantic policy or a
   hidden token taxonomy, and must be removable when HHako ProgramJSON can feed
