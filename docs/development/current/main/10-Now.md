@@ -21,6 +21,8 @@ Related:
   now narrows the remaining work to family-by-family `HakoAdopted` decisions,
   the Python SemanticProjector freeze, and consultation-gated ABI / syntax
   boundaries.
+- ProgramJSON migration policy:
+  `docs/development/current/main/design/mirbuilder-programjson-capability-batch-migration-policy-ssot.md`
 
 ## Rule
 
