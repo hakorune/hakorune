@@ -4,6 +4,8 @@
   "token": "HAKO-PROGRAMJSON-SCANNER-RESULT-MAP-RETURN-CONTRACT-001",
   "decision": {
     "selected_approach": "B",
+    "approach_a_body_proof_void_object_widening": "Avoid",
+    "approach_c_nullable_out_map_bridge": "TemporaryBridgeOnlyWithRemovalCard",
     "summary": ".hako scanner helpers must publish an explicit total result-map return contract instead of widening void-signature object returns in AOT.",
     "selected_next_card": "HAKO-PROGRAMJSON-SCANNER-RESULT-MAP-RETURN-CONTRACT-001",
     "resume_after_green": "MIRBUILDER-PROGRAMJSON-LAYER4-RECIPE-DTO-PARITY-001"
@@ -55,6 +57,8 @@
     "void_signature_object_return": "Reject",
     "map_handle_result_map": "PublishMapHandle",
     "nullable_out_map_bridge": "ForbiddenUnlessDeclaredTemporaryBridge",
+    "nullable_out_map_bridge_requires_remove_after": true,
+    "nullable_out_map_bridge_new_consumers_allowed": false,
     "mixed_runtime_i64_or_handle_for_scanner_out_map": "Forbidden"
   },
   "runtime_rows": [

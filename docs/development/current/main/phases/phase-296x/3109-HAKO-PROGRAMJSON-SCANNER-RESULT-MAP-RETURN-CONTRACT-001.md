@@ -12,6 +12,10 @@ new field-read helpers return a total result map. Do not widen AOT so a `void`
 signature can publish object or mixed-runtime handle returns from body proof
 alone.
 
+Approach A remains forbidden: body proof alone cannot turn a void signature
+into an object or mixed-runtime return contract. Approach C is only a temporary
+bridge if a future card declares `remove_after` and forbids new consumers.
+
 ## Implementation Tasks
 
 1. Add result-map scanner helpers in
@@ -40,6 +44,8 @@ generic_void_object_return_reject_remains = true
 body_proof_alone_cannot_publish_object_return = true
 legacy_null_sentinel_helpers_new_consumers_allowed = false
 result_helpers_return_shape = map_handle
+approach_a_body_proof_void_object_widening = Avoid
+approach_c_nullable_out_map_bridge = TemporaryBridgeOnlyWithRemovalCard
 mixed_runtime_i64_or_handle_for_scanner_out_map = forbidden
 ```
 

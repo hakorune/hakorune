@@ -53,12 +53,23 @@ for key in [
         raise SystemExit(f"contract rule drift: {key}")
 
 policy = fixture.get("aot_publication_policy") or {}
+decision = fixture.get("decision") or {}
+if decision.get("selected_approach") != "B":
+    raise SystemExit("scanner result-map contract must select approach B")
+if decision.get("approach_a_body_proof_void_object_widening") != "Avoid":
+    raise SystemExit("approach A must remain forbidden")
+if decision.get("approach_c_nullable_out_map_bridge") != "TemporaryBridgeOnlyWithRemovalCard":
+    raise SystemExit("approach C bridge policy drift")
 if policy.get("void_signature_object_return") != "Reject":
     raise SystemExit("void signature object return policy drift")
 if policy.get("map_handle_result_map") != "PublishMapHandle":
     raise SystemExit("map handle publication policy drift")
 if policy.get("mixed_runtime_i64_or_handle_for_scanner_out_map") != "Forbidden":
     raise SystemExit("scanner out-map mixed runtime policy drift")
+if policy.get("nullable_out_map_bridge_requires_remove_after") is not True:
+    raise SystemExit("nullable bridge must require remove_after")
+if policy.get("nullable_out_map_bridge_new_consumers_allowed") is not False:
+    raise SystemExit("nullable bridge must not allow new consumers")
 
 helpers = {h.get("helper_id"): h for h in fixture.get("result_map_helpers") or []}
 for helper_id in [

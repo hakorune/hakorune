@@ -349,9 +349,11 @@ latest_card = "HAKO-AOT-PROGRAMJSON-RUNE-ATTRS-FUNCTION-NAME-NORMALIZATION-RESUL
 latest_card_path = "docs/development/current/main/phases/phase-296x/3116-HAKO-AOT-PROGRAMJSON-RUNE-ATTRS-FUNCTION-NAME-NORMALIZATION-RESULT-CONTRACT-001.md"
 latest_card_summary = """3116 is green for the RuneAttrs function-name
 normalization result contract: `_normalize_function_name_result/4` now returns
-a total result map instead of mixing normalized names with freeze-tag error
-strings, and RuneAttrs routes are DirectAbi map-handle routes. Full PhaseState
-parse remains unclaimed; the next blocker is the public
+a total result map and RuneAttrs routes are DirectAbi. 3109 remains the
+scanner return-contract prerequisite: approach B total result-map helpers are
+required, approach A body-proof void/object widening is forbidden, and approach
+C is only a declared temporary bridge with removal card and no new consumers.
+Full PhaseState parse remains unclaimed; the next blocker is the public
 `ProgramJsonV0PhaseStateBox.parse/2` AOT call boundary. Next selected task is
 HAKO-AOT-PROGRAMJSON-PHASE-STATE-PARSE-AOT-CALL-READINESS-001.
 Layer4 parity green, runtime route switch, full projector retirement,
