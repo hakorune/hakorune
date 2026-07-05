@@ -60,7 +60,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-SINGLE-PLANNER-FULL-OUTCOME-CONSULTATION-001
+  MIRBUILDER-PROGRAMJSON-TO-TOKEN-SNAPSHOT-PILOT-CONSULTATION-001
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -90,10 +90,10 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  Plan-track pilot 007 is a design stop. Next work must consult before choosing
-  recipe matcher execution, a single_planner outcome phase pipeline, or
-  build_plan_with_facts_ctx as the next owner. Do not add more tiny log/trace
-  wrapper facades.
+  Plan-track pilot 007 stopped tiny DTO expansion. Next consultation asks
+  whether the first real next slice should be HHako ProgramJSON traversal into
+  an existing token-snapshot facade, instead of more string-only facades or full
+  RecipeMatcher / build_plan_with_facts_ctx migration.
   Rust ASTNode-to-token snapshot adapters are non-authority temporary projection
   ABI for MirBuilder-first migration. They must not invent semantic policy or a
   hidden token taxonomy, and must be removable when HHako ProgramJSON can feed
