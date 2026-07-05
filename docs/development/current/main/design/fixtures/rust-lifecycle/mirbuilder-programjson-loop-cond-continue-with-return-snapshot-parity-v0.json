@@ -103,6 +103,26 @@
       }
     },
     {
+      "row_id": "reject_no_continue_return_only",
+      "program_json": {
+        "kind": "Program",
+        "type": "Program",
+        "body": [
+          {
+            "kind": "Loop",
+            "type": "Loop",
+            "cond": {"type": "Compare", "op": "<", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 10}},
+            "body": [
+              {"kind": "Return", "type": "Return", "value": {"type": "Int", "value": 1}}
+            ]
+          }
+        ]
+      },
+      "rust_astnode_token_oracle": {
+        "expected_summary": "accepted=0;reason=no_continue"
+      }
+    },
+    {
       "row_id": "reject_nested_loop",
       "program_json": {
         "kind": "Program",

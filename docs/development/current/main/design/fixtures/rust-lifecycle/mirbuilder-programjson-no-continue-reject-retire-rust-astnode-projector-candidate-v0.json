@@ -4,11 +4,11 @@
   "token": "MIRBUILDER-PROGRAMJSON-NO-CONTINUE-REJECT-RETIRE-RUST-ASTNODE-PROJECTOR-CANDIDATE-001",
   "input_state": {
     "hako_snapshot_source": "lang/src/compiler/mirbuilder/program_json_loop_cond_continue_with_return_snapshot.hako",
-    "hako_snapshot_source_hash": "sha256:692461f14445773a3553661d8edcbc3dbfe7652fe0036790ed27eaa84333656e",
+    "hako_snapshot_source_hash": "sha256:df84670db31a361fbaaeae49eb4736defba0878d945229e84a002219f0a489e4",
     "parity_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-programjson-loop-cond-continue-with-return-snapshot-parity-v0.json",
-    "parity_fixture_hash": "sha256:0284a35cccae78775f37c85c0b18e46c06dc668dd570aa7834024aef96ba3cd2",
+    "parity_fixture_hash": "sha256:34ad0fe2d5613ed5d84734c46d8fe0dd124ee8d6f67633ea23ee460e727a2ede",
     "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_programjson_loop_cond_continue_with_return_snapshot_parity_gate.sh",
-    "parity_gate_hash": "sha256:466dafe5db15485db444e7f7c840d020a447953288dbf55857a4c1e21e5310e3"
+    "parity_gate_hash": "sha256:cae0ff12b0fd8cda60ecba94b6186133b75ea4fcb667258a82bfbd332b86d5e6"
   },
   "retire_candidate_scope": {
     "retire_candidate": "LoopCondContinueNoContinueRejectTokenSnapshotV1",

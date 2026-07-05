@@ -42,7 +42,9 @@ static box ProgramJsonLoopCondContinueWithReturnSnapshotBox {
   _scan_minimal_loop_body(program_json, loop_body_start) {
     local first_start = me._first_object_in_array(program_json, loop_body_start)
     if first_start < 0 { return me._fail("continue_if_shape_not_supported") }
-    if me._node_type_at(program_json, first_start) != "If" {
+    local first_type = me._node_type_at(program_json, first_start)
+    if first_type == "Return" { return me._fail("no_continue") }
+    if first_type != "If" {
       return me._fail("continue_if_shape_not_supported")
     }
     if me.if_else_is_null(program_json, first_start) != 1 {

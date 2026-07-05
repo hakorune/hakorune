@@ -4,7 +4,7 @@
   "token": "MIRBUILDER-PROGRAMJSON-NO-RETURN-REJECT-RETIRE-RUST-ASTNODE-PROJECTOR-CANDIDATE-001",
   "input_state": {
     "hako_snapshot_source": "lang/src/compiler/mirbuilder/program_json_loop_cond_continue_with_return_snapshot.hako",
-    "hako_snapshot_source_hash": "sha256:692461f14445773a3553661d8edcbc3dbfe7652fe0036790ed27eaa84333656e",
+    "hako_snapshot_source_hash": "sha256:df84670db31a361fbaaeae49eb4736defba0878d945229e84a002219f0a489e4",
     "parity_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-programjson-loop-cond-continue-with-return-no-return-reject-snapshot-parity-v0.json",
     "parity_fixture_hash": "sha256:a9477ea92162290a732cd61014022e8013c57035d042006207041bb042dad72b",
     "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_programjson_loop_cond_continue_with_return_no_return_reject_snapshot_parity_gate.sh",
