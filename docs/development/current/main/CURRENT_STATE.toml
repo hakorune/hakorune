@@ -345,13 +345,13 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-FACT-TO-PLAN-PROMOTION-THRESHOLD-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2955-MIRBUILDER-FACT-TO-PLAN-PROMOTION-THRESHOLD-001.md"
+latest_card = "MIRBUILDER-FACT-OWNER-PARITY-PILOT-SELECTION-024"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2956-MIRBUILDER-FACT-OWNER-PARITY-PILOT-SELECTION-024.md"
 latest_card_summary = """The latest card lands
-the Fact-to-Plan promotion threshold. Selection-024 may choose at most one
-strictly smaller non-adopted Fact owner after comparing plan runner-ups; after
-two additional Fact facade adoptions, or if no strictly smaller Fact is proven,
-the lane must promote to a REGISTRY-rule plan DTO pilot."""
+selection-024 and promotes the lane to Plan track because no remaining
+non-adopted Fact owner is strictly smaller than the plan runner-ups. The next
+task is REGISTRY-rule plan parity pilot selection; Source Selfhost remains
+unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -362,6 +362,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-05: 2956 promotes to Plan track; no non-adopted Fact owner is strictly smaller than build_plan_with_facts_ctx / try_build_outcome.",
   "2026-07-05: 2955 sets Fact-to-Plan promotion threshold: selection-024 must compare plan runner-ups; at most two more Fact facade adoptions before Plan track.",
   "2026-07-05: 2954 supersedes selection-023 because loop_step_shape was already HakoAdopted; selection-024 must exclude existing adoption owners first.",
   "2026-07-05: 2953 selects try_extract_step_shape as the next authority-facade parity pilot; condition shape and nested-loop composition remain Rust.",
@@ -373,5 +374,4 @@ landed_tail = [
   "2026-07-05: 2947 selects try_extract_loop_break_body_local_facts as the next authority-facade parity pilot; full loop-break dispatch remains Rust.",
   "2026-07-05: 2946 adopts loop_cond_return_in_body_facts.authority_facade as a scoped HakoAdopted Fact owner; shape traversal and recipe construction remain Rust.",
   "2026-07-05: 2945 lands loop_cond_return_in_body_facts authority-facade parity; HakoAdopted decision is next.",
-  "2026-07-05: 2944 selects try_extract_loop_cond_return_in_body_facts as the next authority-facade parity pilot; shape traversal and recipe construction remain Rust.",
 ]

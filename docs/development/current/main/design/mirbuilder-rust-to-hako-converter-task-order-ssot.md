@@ -60,7 +60,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-FACT-OWNER-PARITY-PILOT-SELECTION-024
+  MIRBUILDER-REGISTRY-RULE-PLAN-PARITY-PILOT-SELECTION-001
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -85,15 +85,17 @@ normal operating rule:
   `build_plan_with_facts_ctx` / `try_build_outcome`; if no non-adopted Fact
   owner is strictly smaller than those plan runner-ups, promote to Plan track
   immediately.
+  Selection-024 promotes to Plan track: no remaining non-adopted Fact owner is
+  strictly smaller than the runner-up Plan candidates. The next slice must
+  select one REGISTRY/single-planner rule as a facts-to-plan DTO parity pilot.
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  Fact-to-Plan promotion threshold: Fact facade work may continue only under a
-  two-adoption budget and only when the candidate is strictly smaller than the
-  runner-up Plan candidates. Recent adopted facades remain scoped DTO owners
-  only; AST traversal, nested-loop minimal composition, route selection, MIR
-  mutation, ID allocation, and Source Selfhost remain unclaimed unless a
-  specific card says otherwise.
+  Selection-024 closes the current Fact-facade cadence and promotes to Plan
+  track. Recent adopted facades remain scoped DTO owners only; AST traversal,
+  nested-loop minimal composition, route selection, MIR mutation, ID
+  allocation, and Source Selfhost remain unclaimed unless a specific card says
+  otherwise.
   Authority facade comes before crate split: Rust may be reorganized around
   meaning units only after the authority seam is fixture-backed and parity
   proven. The next hard-authority pilot should target Fact -> DTO or one
