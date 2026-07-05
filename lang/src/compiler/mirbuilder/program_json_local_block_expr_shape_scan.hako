@@ -25,20 +25,22 @@ static box ProgramJsonLocalBlockExprShapeScanBox {
     local first = me._first_object_in_array(program_json, body)
     if first < 0 { return me._fail("cap_missing_first_stmt") }
 
-    local top_kind = "Missing"
-    local then_kind = "Missing"
-    local else_kind = "Missing"
     local first_type = me._node_type_at(program_json, first)
 
     if first_type == "Local" {
-      top_kind = me._local_block_expr_shape_kind(program_json, first)
-    } else if first_type == "If" {
-      then_kind = me._first_local_block_expr_shape_kind_in_array_field(program_json, first, "then")
-      else_kind = me._first_local_block_expr_shape_kind_in_else(program_json, first)
-    } else {
-      top_kind = "Unsupported"
+      return me._summary_from_kinds(me._local_block_expr_shape_kind(program_json, first), "Missing", "Missing")
     }
+    if first_type == "If" {
+      return me._summary_from_kinds(
+        "Missing",
+        me._first_local_block_expr_shape_kind_in_array_field(program_json, first, "then"),
+        me._first_local_block_expr_shape_kind_in_else(program_json, first)
+      )
+    }
+    return me._summary_from_kinds("Unsupported", "Missing", "Missing")
+  }
 
+  _summary_from_kinds(top_kind, then_kind, else_kind) {
     local supported = me._shape_supported_count(top_kind)
       + me._shape_supported_count(then_kind)
       + me._shape_supported_count(else_kind)
