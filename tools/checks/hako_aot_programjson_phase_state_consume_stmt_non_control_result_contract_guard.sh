@@ -49,7 +49,8 @@ required = {
     "stmt_handlers_legacy_null_sentinel_scanner_removed": True,
     "recipe_facts_from_stmt_return_shape": "map_handle",
     "consumer_non_control_result_return_shape": "map_handle",
-    "same_module_array_push_side_effect_allowed": True,
+    "recipe_facts_name_arrays_use_literals": True,
+    "recipe_facts_push_name_helper_removed": True,
     "remaining_control_try_nullable_helpers": False,
 }
 for key, expected in required.items():
@@ -122,13 +123,20 @@ for required in [
 facts = (root / "lang/src/compiler/mirbuilder/recipe/recipe_facts_box.hako").read_text(encoding="utf-8")
 for required in [
     "from_stmt(stmt_kind, state_before, state_after, tag): MapBox",
-    "_push_name(arr, name): i64",
-    "arr.push(name)",
+    "_new_facts_with(stmt_kind, defs, updates, uses): MapBox",
+    "facts = me._new_facts_with(stmt_kind, [local_name], [local_name], [])",
+    "facts = me._new_facts_with(stmt_kind, [], [assign_name], [])",
+    "facts = me._new_facts_with(stmt_kind, [], [], [ret_var_name])",
 ]:
     if required not in facts:
         raise SystemExit(f"missing RecipeFacts result-map contract surface: {required}")
-if 'facts.set("local_names", me._push_name' in facts:
-    raise SystemExit("RecipeFacts still treats _push_name as a returned array")
+for forbidden in [
+    "_push_name(",
+    "_contains_name(",
+    "arr.push(name)",
+]:
+    if forbidden in facts:
+        raise SystemExit(f"RecipeFacts still exposes push-name helper boundary: {forbidden}")
 
 shape = (root / "src/mir/same_module_body_shape.rs").read_text(encoding="utf-8")
 for required in [
@@ -226,6 +234,8 @@ output_contract=hako-aot-programjson-phase-state-consume-stmt-non-control-result
 token=HAKO-AOT-PROGRAMJSON-PHASE-STATE-CONSUME-STMT-NON-CONTROL-RESULT-CONTRACT-001
 stmt_handlers_use_scanner_result_helpers=1
 recipe_facts_from_stmt_return_shape=map_handle
+recipe_facts_name_arrays_use_literals=1
+recipe_facts_push_name_helper_removed=1
 consumer_non_control_result_return_shape=map_handle
 remaining_blocker=none
 phase_state_parse_aot_call_fixed=0

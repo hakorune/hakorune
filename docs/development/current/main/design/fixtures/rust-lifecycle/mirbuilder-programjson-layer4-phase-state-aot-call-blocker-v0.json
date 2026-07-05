@@ -11,7 +11,7 @@
     "kind": "AotImportedModuleCallBlocked",
     "callee_symbol": "ProgramJsonV0PhaseStateBox.parse/2",
     "owner_hint": "backend_lowering",
-    "reason": "module_generic_prepass_failed",
+    "reason": "missing_multi_function_emitter",
     "first_op": "mir_call",
     "layer4_effect": "ProgramJSON loop Recipe DTO parity cannot run under AOT until PhaseState parse is callable from an imported .hako owner."
   },
@@ -19,7 +19,6 @@
     "name": "HAKO-AOT-PROGRAMJSON-PHASE-STATE-PARSE-CALL-CONTRACT-001",
     "allowed": [
       "AOT/MIR route metadata or call lowering contract for ProgramJsonV0PhaseStateBox.parse",
-      "thin one-argument public wrapper only if AOT proves it can call the wrapper and preserve parse semantics",
       "regression row that calls PhaseState parse from an imported .hako app"
     ],
     "forbidden": [
@@ -34,7 +33,7 @@
   },
   "decision": {
     "kind": "SelectAotPhaseStateParseCallContractBeforeLayer4Parity",
-    "selected_next_card": "HAKO-AOT-PROGRAMJSON-PHASE-STATE-PARSE-CALL-CONTRACT-001",
+    "selected_next_card": "HAKO-AOT-PROGRAMJSON-PHASE-STATE-PARSE-AOT-CALL-READINESS-001",
     "resume_after_green": "MIRBUILDER-PROGRAMJSON-LAYER4-LOOP-RECIPE-DTO-PARITY-001"
   },
   "claims": {

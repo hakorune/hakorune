@@ -90,9 +90,8 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  3109 remains prerequisite: use approach B (total result-map helpers), forbid
-  approach A, and allow approach C only as a declared bridge with removal card
-  and no new consumers. 3116 is green; the active blocker is parse/2 AOT.
+  3117 removed RecipeFacts _push_name/2 from the PhaseState parse path; active
+  blocker is now public ProgramJsonV0PhaseStateBox.parse/2 AOT readiness.
   3115 scan-body helper calls are retired; 3114 RecipeVerifier / RecipePortSig routes are DirectAbi.
   2997 stabilized the AOT/MIR value-type publication contract only for the
   proven route families. 3002 remains a trigger-based debt queue for Float

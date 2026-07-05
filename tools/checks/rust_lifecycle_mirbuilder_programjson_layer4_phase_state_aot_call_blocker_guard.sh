@@ -37,11 +37,11 @@ if fixture.get("token") != "MIRBUILDER-PROGRAMJSON-LAYER4-PHASE-STATE-AOT-CALL-B
 blocker = fixture.get("blocker") or {}
 if blocker.get("callee_symbol") != "ProgramJsonV0PhaseStateBox.parse/2":
     raise SystemExit("bad blocker callee")
-if blocker.get("reason") != "module_generic_prepass_failed":
+if blocker.get("reason") != "missing_multi_function_emitter":
     raise SystemExit("bad blocker reason")
 
 decision = fixture.get("decision") or {}
-if decision.get("selected_next_card") != "HAKO-AOT-PROGRAMJSON-PHASE-STATE-PARSE-CALL-CONTRACT-001":
+if decision.get("selected_next_card") != "HAKO-AOT-PROGRAMJSON-PHASE-STATE-PARSE-AOT-CALL-READINESS-001":
     raise SystemExit("bad selected next card")
 
 claims = fixture.get("claims") or {}
@@ -81,8 +81,8 @@ fi
 
 grep -q "callee_symbol=ProgramJsonV0PhaseStateBox.parse/2" "$EMIT_LOG" \
   || guard_fail "$TAG" "missing expected callee_symbol in AOT blocker log"
-grep -q "reason=module_generic_prepass_failed" "$EMIT_LOG" \
-  || guard_fail "$TAG" "missing expected module_generic_prepass_failed reason"
+grep -q "reason=missing_multi_function_emitter" "$EMIT_LOG" \
+  || guard_fail "$TAG" "missing expected missing_multi_function_emitter reason"
 grep -q "first_op=mir_call" "$EMIT_LOG" \
   || guard_fail "$TAG" "missing expected mir_call first_op"
 
@@ -91,9 +91,9 @@ output_contract=rust-lifecycle-mirbuilder-programjson-layer4-phase-state-aot-cal
 token=MIRBUILDER-PROGRAMJSON-LAYER4-PHASE-STATE-AOT-CALL-BLOCKER-001
 blocked_callee=ProgramJsonV0PhaseStateBox.parse/2
 owner_hint=backend_lowering
-reason=module_generic_prepass_failed
+reason=missing_multi_function_emitter
 first_op=mir_call
-selected_next_card=HAKO-AOT-PROGRAMJSON-PHASE-STATE-PARSE-CALL-CONTRACT-001
+selected_next_card=HAKO-AOT-PROGRAMJSON-PHASE-STATE-PARSE-AOT-CALL-READINESS-001
 resume_after_green=MIRBUILDER-PROGRAMJSON-LAYER4-LOOP-RECIPE-DTO-PARITY-001
 layer4_recipe_dto_parity_green=0
 phase_state_aot_call_fixed=0

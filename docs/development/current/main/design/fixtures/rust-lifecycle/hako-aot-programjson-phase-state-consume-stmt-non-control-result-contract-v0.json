@@ -7,7 +7,8 @@
     "stmt_handlers_legacy_null_sentinel_scanner_removed": true,
     "recipe_facts_from_stmt_return_shape": "map_handle",
     "consumer_non_control_result_return_shape": "map_handle",
-    "same_module_array_push_side_effect_allowed": true,
+    "recipe_facts_name_arrays_use_literals": true,
+    "recipe_facts_push_name_helper_removed": true,
     "remaining_control_try_nullable_helpers": false
   },
   "expected_direct_routes": [

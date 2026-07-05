@@ -36,31 +36,16 @@ static box RecipeFactsBox {
   }
 
   _new_facts(stmt_kind): MapBox {
+    return me._new_facts_with(stmt_kind, [], [], [])
+  }
+
+  _new_facts_with(stmt_kind, defs, updates, uses): MapBox {
     local facts = new MapBox()
     facts.set("stmt_kind", "" + stmt_kind)
-    facts.set("defs", [])
-    facts.set("updates", [])
-    facts.set("uses", [])
+    facts.set("defs", defs)
+    facts.set("updates", updates)
+    facts.set("uses", uses)
     return facts
-  }
-
-  _contains_name(arr, name): i64 {
-    if arr == null || BoxHelpers.is_array(arr) != 1 { return 0 }
-    local i = 0
-    local n = arr.length()
-    loop(i < n) {
-      if ("" + BoxHelpers.array_get(arr, i)) == name { return 1 }
-      i = i + 1
-    }
-    return 0
-  }
-
-  _push_name(arr, name): i64 {
-    if name == null || ("" + name) == "" { return 0 }
-    if arr == null || BoxHelpers.is_array(arr) != 1 { return 0 }
-    name = "" + name
-    if me._contains_name(arr, name) == 0 { arr.push(name) }
-    return 1
   }
 
   _build_stmt_recipe(stmt_kind, facts): MapBox {
@@ -80,7 +65,7 @@ static box RecipeFactsBox {
       if print_var_name == "" {
         return me._err(tag, "[recipe_facts][stmt:Print] missing print_var_name for variable print")
       }
-      me._push_name(BoxHelpers.map_get(facts, "uses"), print_var_name)
+      facts = me._new_facts_with(stmt_kind, [], [], [print_var_name])
     }
     return me._ok_stmt(stmt_kind, facts)
   }
@@ -92,8 +77,7 @@ static box RecipeFactsBox {
     if local_name == "" {
       return me._err(tag, "[recipe_facts][stmt:Local] missing local_name")
     }
-    me._push_name(BoxHelpers.map_get(facts, "defs"), local_name)
-    me._push_name(BoxHelpers.map_get(facts, "updates"), local_name)
+    facts = me._new_facts_with(stmt_kind, [local_name], [local_name], [])
     return me._ok_stmt(stmt_kind, facts)
   }
 
@@ -104,7 +88,7 @@ static box RecipeFactsBox {
     if assign_name == "" {
       return me._err(tag, "[recipe_facts][stmt:Assignment] missing assign_name")
     }
-    me._push_name(BoxHelpers.map_get(facts, "updates"), assign_name)
+    facts = me._new_facts_with(stmt_kind, [], [assign_name], [])
     return me._ok_stmt(stmt_kind, facts)
   }
 
@@ -120,7 +104,7 @@ static box RecipeFactsBox {
       if ret_var_name == "" {
         return me._err(tag, "[recipe_facts][stmt:Return] missing ret_var_name for Return(Var)")
       }
-      me._push_name(BoxHelpers.map_get(facts, "uses"), ret_var_name)
+      facts = me._new_facts_with(stmt_kind, [], [], [ret_var_name])
     }
     return me._ok_stmt(stmt_kind, facts)
   }

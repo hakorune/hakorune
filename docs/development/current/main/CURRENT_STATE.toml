@@ -345,16 +345,13 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "HAKO-AOT-PROGRAMJSON-RUNE-ATTRS-FUNCTION-NAME-NORMALIZATION-RESULT-CONTRACT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3116-HAKO-AOT-PROGRAMJSON-RUNE-ATTRS-FUNCTION-NAME-NORMALIZATION-RESULT-CONTRACT-001.md"
-latest_card_summary = """3116 is green for the RuneAttrs function-name
-normalization result contract: `_normalize_function_name_result/4` now returns
-a total result map and RuneAttrs routes are DirectAbi. 3109 remains the
-scanner return-contract prerequisite: approach B total result-map helpers are
-required, approach A body-proof void/object widening is forbidden, and approach
-C is only a declared temporary bridge with removal card and no new consumers.
-Full PhaseState parse remains unclaimed; the next blocker is the public
-`ProgramJsonV0PhaseStateBox.parse/2` AOT call boundary. Next selected task is
+latest_card = "HAKO-AOT-PROGRAMJSON-RECIPE-FACTS-NAME-ARRAY-LITERAL-CONTRACT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3117-HAKO-AOT-PROGRAMJSON-RECIPE-FACTS-NAME-ARRAY-LITERAL-CONTRACT-001.md"
+latest_card_summary = """3117 is green for the RecipeFacts name-array literal
+contract: `_push_name/2` is removed from the ProgramJSON PhaseState parse path,
+and stmt fact names are built as literal arrays. The current first blocker is
+again the public `ProgramJsonV0PhaseStateBox.parse/2` AOT call boundary with
+reason `missing_multi_function_emitter`. Next selected task is
 HAKO-AOT-PROGRAMJSON-PHASE-STATE-PARSE-AOT-CALL-READINESS-001.
 Layer4 parity green, runtime route switch, full projector retirement,
 HakoAdoption, Source Selfhost, RecipeMatcher, route selection, lowering,
@@ -369,6 +366,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-06: 3117 removes the RecipeFacts _push_name/2 helper boundary; PhaseState parse now reaches the public parse/2 AOT call blocker again.",
   "2026-07-06: 3116 lands the RuneAttrs function-name normalization result contract; RuneAttrs internal routes are DirectAbi, leaving the public ProgramJsonV0PhaseStateBox.parse/2 AOT call boundary as the next blocker.",
   "2026-07-06: 3115 lands the PhaseState scan-body rec result contract; _scan_body_rec is loop-local and parse reaches it as DirectAbi, leaving RuneAttrs function-name normalization as the next blocker.",
   "2026-07-06: 3114 lands the RecipeVerifier / RecipePortSig result contract; Recipe family routes are DirectAbi and the next blocker family is ProgramJsonV0PhaseStateBox scan-body recursion plus ProgramJsonV0RuneAttrsBox normalization.",

@@ -16,7 +16,8 @@ the remaining blocker is now the control/try statement dispatch path.
 - Switched statement handlers to the result-map `ProgramJsonV0ScannerBox`
   helpers for node type, int field, and string field reads.
 - Gave `RecipeFactsBox.from_stmt/4` and its internal helpers explicit result
-  shapes, and kept local-name accumulation as an ArrayBox push side effect.
+  shapes. Follow-up cleanup now builds per-stmt name arrays as literals, so no
+  public `_push_name` helper boundary is needed for AOT.
 - Allowed same-module AOT body proof for known `ArrayBox.push` /
   `RuntimeDataBox.push` side-effect calls.
 - Replaced the non-control consumer nullable helpers with total result-map
