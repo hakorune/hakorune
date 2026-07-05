@@ -1,0 +1,112 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonTaskScopeShapeScanParityV1",
+  "token": "MIRBUILDER-PROGRAMJSON-TASK-SCOPE-SHAPE-SCAN-CAPABILITY-001",
+  "capability": {
+    "name": "ProgramJsonTaskScopeShapeScanV1",
+    "input": "ProgramJSON v0",
+    "output": "TaskScopeShapeSnapshotV1"
+  },
+  "routes": {
+    "rust_oracle_route": "source -> RHako parser -> Rust ASTNode -> Rust TaskScope token snapshot",
+    "hako_programjson_route": "source -> HHako parser -> ProgramJSON -> HHako TaskScope token snapshot"
+  },
+  "rows": [
+    {
+      "row_id": "top_task_empty",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "TaskScope", "spelling": "task", "body": []}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=TaskScopeShapeSnapshotV1;top_task_scope_shape_kind=TaskBodyEmpty;if_then_task_scope_shape_kind=Missing;if_else_task_scope_shape_kind=Missing;supported_task_scope_count=1;unsupported_task_scope_count=0"
+      }
+    },
+    {
+      "row_id": "top_task_local",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "TaskScope", "spelling": "task", "body": [{"type": "Local", "name": "i", "expr": {"type": "Int", "value": 1}}]}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=TaskScopeShapeSnapshotV1;top_task_scope_shape_kind=TaskBodyLocal;if_then_task_scope_shape_kind=Missing;if_else_task_scope_shape_kind=Missing;supported_task_scope_count=1;unsupported_task_scope_count=0"
+      }
+    },
+    {
+      "row_id": "top_task_return",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "TaskScope", "spelling": "task", "body": [{"type": "Return", "expr": {"type": "Int", "value": 1}}]}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=TaskScopeShapeSnapshotV1;top_task_scope_shape_kind=TaskBodyReturn;if_then_task_scope_shape_kind=Missing;if_else_task_scope_shape_kind=Missing;supported_task_scope_count=1;unsupported_task_scope_count=0"
+      }
+    },
+    {
+      "row_id": "top_task_break",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "TaskScope", "spelling": "task", "body": [{"type": "Break"}]}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=TaskScopeShapeSnapshotV1;top_task_scope_shape_kind=TaskBodyBreak;if_then_task_scope_shape_kind=Missing;if_else_task_scope_shape_kind=Missing;supported_task_scope_count=1;unsupported_task_scope_count=0"
+      }
+    },
+    {
+      "row_id": "top_task_continue",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "TaskScope", "spelling": "task", "body": [{"type": "Continue"}]}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=TaskScopeShapeSnapshotV1;top_task_scope_shape_kind=TaskBodyContinue;if_then_task_scope_shape_kind=Missing;if_else_task_scope_shape_kind=Missing;supported_task_scope_count=1;unsupported_task_scope_count=0"
+      }
+    },
+    {
+      "row_id": "top_task_loop",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "TaskScope", "spelling": "task", "body": [{"type": "Loop", "cond": {"type": "Bool", "value": true}, "body": []}]}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=TaskScopeShapeSnapshotV1;top_task_scope_shape_kind=TaskBodyLoop;if_then_task_scope_shape_kind=Missing;if_else_task_scope_shape_kind=Missing;supported_task_scope_count=1;unsupported_task_scope_count=0"
+      }
+    },
+    {
+      "row_id": "top_task_expr",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "TaskScope", "spelling": "task", "body": [{"type": "Expr", "expr": {"type": "Int", "value": 1}}]}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=TaskScopeShapeSnapshotV1;top_task_scope_shape_kind=TaskBodyExpr;if_then_task_scope_shape_kind=Missing;if_else_task_scope_shape_kind=Missing;supported_task_scope_count=1;unsupported_task_scope_count=0"
+      }
+    },
+    {
+      "row_id": "if_then_task_local",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "If", "cond": {"type": "Bool", "value": true}, "then": [{"type": "TaskScope", "spelling": "task", "body": [{"type": "Local", "name": "i", "expr": {"type": "Int", "value": 1}}]}], "else": null}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=TaskScopeShapeSnapshotV1;top_task_scope_shape_kind=Missing;if_then_task_scope_shape_kind=TaskBodyLocal;if_else_task_scope_shape_kind=Missing;supported_task_scope_count=1;unsupported_task_scope_count=0"
+      }
+    },
+    {
+      "row_id": "if_else_task_empty",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "If", "cond": {"type": "Bool", "value": true}, "then": [], "else": [{"type": "TaskScope", "spelling": "task", "body": []}]}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=TaskScopeShapeSnapshotV1;top_task_scope_shape_kind=Missing;if_then_task_scope_shape_kind=Missing;if_else_task_scope_shape_kind=TaskBodyEmpty;supported_task_scope_count=1;unsupported_task_scope_count=0"
+      }
+    },
+    {
+      "row_id": "first_stmt_local_unsupported",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "i", "expr": {"type": "Int", "value": 0}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=TaskScopeShapeSnapshotV1;top_task_scope_shape_kind=Unsupported;if_then_task_scope_shape_kind=Missing;if_else_task_scope_shape_kind=Missing;supported_task_scope_count=0;unsupported_task_scope_count=1"
+      }
+    }
+  ],
+  "summary": {
+    "parity_row_count": 10,
+    "programjson_traversal_used": 1,
+    "string_only_facade": 0,
+    "rust_astnode_projector_retire_candidate": 1
+  },
+  "decision": {
+    "kind": "ProgramJsonTaskScopeShapeScanParityGreen",
+    "reason_token": "TaskScopeShapeProgramJsonSnapshotMatchesRustAstNodeOracle",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-TASK-SCOPE-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "programjson_full_parser_claim": 0,
+    "hako_adopted_for_full_owner": 0,
+    "task_lowering": 0,
+    "concurrency_semantics": 0
+  }
+}
