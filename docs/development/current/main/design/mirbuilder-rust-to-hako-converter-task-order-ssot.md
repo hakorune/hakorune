@@ -60,7 +60,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-SINGLE-PLANNER-OUTCOME-DISPOSITION-HAKOADOPTED-DECISION-001
+  MIRBUILDER-PLAN-TRACK-NEXT-PILOT-SELECTION-002
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -78,15 +78,14 @@ normal operating rule:
   authority layer. The authority remains the HHako facade DTO owner, and the
   sunset target is HHako ProgramJSON-to-snapshot/facade input during parser
   integration.
-  `single_planner_outcome_disposition` parity is green for the read-only
+  `single_planner_outcome_disposition` is now HakoAdopted for the read-only
   planner-required None freeze vs return-outcome DTO.
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  `single_planner_outcome_disposition.authority_facade` has parity only; the
-  next task is its scoped HakoAdopted decision. It owns no recipe matching,
-  logging, route execution, lowering, mutation, allocation, or full
-  `try_build_outcome`.
+  `single_planner_outcome_disposition.authority_facade` is HakoAdopted. It owns
+  no recipe matching, logging, route execution, lowering, mutation, allocation,
+  or full `try_build_outcome`; next work selects Plan-track pilot 002.
   Rust ASTNode-to-token snapshot adapters are non-authority temporary projection
   ABI for MirBuilder-first migration. They must not invent semantic policy or a
   hidden token taxonomy, and must be removable when HHako ProgramJSON can feed

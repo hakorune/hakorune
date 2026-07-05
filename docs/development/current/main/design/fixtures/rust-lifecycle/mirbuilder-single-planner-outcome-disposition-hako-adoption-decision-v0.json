@@ -1,0 +1,71 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderSinglePlannerOutcomeDispositionHakoAdoptedDecisionV1",
+  "token": "MIRBUILDER-SINGLE-PLANNER-OUTCOME-DISPOSITION-HAKOADOPTED-DECISION-001",
+  "input_state": {
+    "hako_source": "lang/src/compiler/lib/single_planner_outcome_disposition.hako",
+    "hako_source_hash": "sha256:c59dec06414c736e47c3a42cc7871b9d413ae591b29c5e5d04f90550884cbf9a",
+    "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-single-planner-outcome-disposition-rust-oracle-v0.json",
+    "rust_oracle_fixture_hash": "sha256:cae0688a7b5f11e90043247cbfbf8a55b1d47eba0fd7cbd6c55b8a9a9f135b90",
+    "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_single_planner_outcome_disposition_parity_gate.sh",
+    "parity_gate_hash": "sha256:4d20ff29d33b467d16fc0ea7ef7ddca4f15ed664ec10fba204ede0fb61c8ade2"
+  },
+  "adoption_scope": {
+    "adopted_owner": "single_planner_outcome_disposition.authority_facade",
+    "input_contract": "BackendSafeSinglePlannerOutcomeDispositionTokenSnapshotV1",
+    "native_edit_authority": "lang/src/compiler/lib/single_planner_outcome_disposition.hako",
+    "owned_semantics": [
+      "planner_required_token",
+      "planner_present_token",
+      "outcome_facts_token",
+      "planner_required_none_freeze_disposition",
+      "return_outcome_disposition",
+      "unsupported_token_reject_reason"
+    ],
+    "excluded_semantics": [
+      "build_plan_with_facts_ctx",
+      "full_try_build_outcome",
+      "recipe_matching",
+      "logging",
+      "router_execution",
+      "route_execution",
+      "backend_lowering",
+      "MIR_mutation",
+      "ID_allocation"
+    ]
+  },
+  "parity": {
+    "gate_status": "Green",
+    "oracle_row_count": 7,
+    "required_contract_fields": [
+      "accepted",
+      "disposition",
+      "reason",
+      "planner_required",
+      "planner_present",
+      "facts_present"
+    ]
+  },
+  "decision": {
+    "kind": "HakoAdoptedScoped",
+    "reason_token": "SinglePlannerOutcomeDispositionParityGreen",
+    "selected_next_card": "MIRBUILDER-PLAN-TRACK-NEXT-PILOT-SELECTION-002",
+    "backlog_card": "MIRBUILDER-SINGLE-PLANNER-FULL-OUTCOME-CONSULTATION-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "build_plan_with_facts_ctx_migrated": 0,
+    "full_try_build_outcome_migrated": 0,
+    "recipe_matching_migrated": 0,
+    "logging_migrated": 0,
+    "router_execution_migrated": 0,
+    "route_execution_migrated": 0,
+    "backend_lowering_migrated": 0,
+    "mir_mutation_migrated": 0,
+    "id_allocation_migrated": 0,
+    "hako_generation": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
