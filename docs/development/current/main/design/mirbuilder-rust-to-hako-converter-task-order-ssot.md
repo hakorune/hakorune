@@ -79,11 +79,18 @@ normal operating rule:
   first exclude existing parity/adoption owners from check-scripts index,
   phase cards, and `lang/src/compiler/lib`, then choose one smallest remaining
   fixture-backed candidate.
+  Fact-to-Plan promotion threshold is now active: after selection-024, only
+  two additional Fact facade adoptions are allowed before the first
+  REGISTRY-rule plan DTO pilot. Selection-024 must compare
+  `build_plan_with_facts_ctx` / `try_build_outcome`; if no non-adopted Fact
+  owner is strictly smaller than those plan runner-ups, promote to Plan track
+  immediately.
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  Selection-023 correction: already HakoAdopted owners are not valid next
-  implementation targets. Recent adopted facades remain scoped DTO owners
+  Fact-to-Plan promotion threshold: Fact facade work may continue only under a
+  two-adoption budget and only when the candidate is strictly smaller than the
+  runner-up Plan candidates. Recent adopted facades remain scoped DTO owners
   only; AST traversal, nested-loop minimal composition, route selection, MIR
   mutation, ID allocation, and Source Selfhost remain unclaimed unless a
   specific card says otherwise.
