@@ -1,0 +1,74 @@
+{
+  "schema_version": 0,
+  "kind": "HakoAotRouteValueTypePublicationContractV1",
+  "token": "HAKO-AOT-ROUTE-VALUE-TYPE-PUBLICATION-CONTRACT-001",
+  "input_state": {
+    "previous_card": "HAKO-AOT-DYNAMIC-STRING-EQ-AND-INT-TO-STR-CORRECTNESS-001",
+    "aot_correctness_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/hako-aot-dynamic-string-eq-and-int-to-str-correctness-v0.json"
+  },
+  "return_shape_value_type_publication": [
+    {
+      "return_shape": "ScalarI64",
+      "published_value_type": "Integer",
+      "publication_state": "Publish"
+    },
+    {
+      "return_shape": "string_handle",
+      "published_value_type": "StringBox",
+      "publication_state": "Publish"
+    },
+    {
+      "return_shape": "object_handle",
+      "published_value_type": null,
+      "publication_state": "DoNotPublishAmbiguous"
+    },
+    {
+      "return_shape": "mixed_runtime_i64_or_handle",
+      "published_value_type": null,
+      "publication_state": "DoNotPublishAmbiguous"
+    }
+  ],
+  "helper_param_type_publication_policy": [
+    {
+      "helper_id": "StringHelpers.to_i64/1",
+      "param_index": 0,
+      "policy": "PolymorphicInputDoNotPublishFromSingleObservation",
+      "accepted_value_kinds": [
+        "Integer",
+        "NumericLikeStringBox"
+      ],
+      "result_published_value_type": "Integer"
+    }
+  ],
+  "mir_json_hint_policy": {
+    "string_compare": {
+      "eq_ne_only": true,
+      "one_side_string_like_required": true,
+      "other_side_string_like_or_unknown_required": true,
+      "stringbox_vs_void_null_forbidden": true
+    },
+    "string_concat": {
+      "add_with_any_string_like_operand_emits_stringbox_dst_type": true
+    }
+  },
+  "required_regression_gates": [
+    "tools/checks/hako_aot_dynamic_string_eq_and_int_to_str_correctness_gate.sh",
+    "tools/checks/rust_lifecycle_mirbuilder_programjson_loop_body_control_flow_scan_parity_gate.sh"
+  ],
+  "decision": {
+    "kind": "SelectProgramJsonLoopBodyControlFlowRetireCandidate",
+    "reason_token": "AotRouteValueTypePublicationContractStabilized",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-LOOP-BODY-CONTROL-FLOW-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
+  },
+  "claims": {
+    "hako_syntax_change": 0,
+    "new_hako_library_api": 0,
+    "programjson_traversal_capability": 0,
+    "source_selfhost_claim": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering_claim": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

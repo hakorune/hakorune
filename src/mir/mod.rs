@@ -123,6 +123,7 @@ pub mod record_layout_plan; // MIR-owned record layout plan metadata
 pub mod record_state_residence_plan; // metadata-only box-private record-state candidates
 pub mod region; // Phase 25.1l: Region/GC観測レイヤ（LoopForm v2 × RefKind）
 pub mod route_fixpoint; // module-level route convergence owner
+pub mod route_value_type_publication;
 pub mod rune_plan_refresh; // SSOT refresh entry for rune-derived MIR plans
 pub(crate) mod same_module_body_shape; // shared body-shape facts for same-module route planners
 pub mod same_module_fusion_plan; // MIR-owned same-module fusion window plans

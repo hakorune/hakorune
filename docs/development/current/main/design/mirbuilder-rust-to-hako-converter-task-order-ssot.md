@@ -60,7 +60,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  HAKO-AOT-ROUTE-VALUE-TYPE-PUBLICATION-CONTRACT-001
+  MIRBUILDER-PROGRAMJSON-LOOP-BODY-CONTROL-FLOW-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -91,13 +91,12 @@ normal operating rule:
 
 latest design decision:
   ProgramJSON migration uses capability batches, not one-shape cards. The
-  2996 AOT correctness fix exposed a small MIR/AOT metadata contract boundary,
-  so the next card is HAKO-AOT-ROUTE-VALUE-TYPE-PUBLICATION-CONTRACT-001:
-  RouteReturnShapeValueTypePublisherV1 plus
-  HelperParamTypePublicationPolicyV1. This contract cleanup must stay below
-  route-family unification, backend lowering, MIR mutation, ID allocation,
-  new ABI, `.hako` syntax/API expansion, and ProgramJSON capability claims.
-  After it is green, return to the ProgramJSON Loop.body retire-candidate.
+  2997 AOT/MIR contract cleanup is green: RouteReturnShapeValueTypePublisherV1
+  plus HelperParamTypePublicationPolicyV1 are fixture-backed and guarded by
+  the 2996 AOT correctness regression and ProgramJSON Loop.body parity
+  regression. The next card is the ProgramJSON Loop.body retire-candidate:
+  mark only the covered LoopBodyControlFlowSnapshotV1 slice as a Rust ASTNode
+  projector retire-candidate.
   Loop.body control-flow scan remains green as a 10-row `.hako` ProgramJSON
   traversal capability. Policy SSOT:
   docs/development/current/main/design/mirbuilder-programjson-capability-batch-migration-policy-ssot.md.

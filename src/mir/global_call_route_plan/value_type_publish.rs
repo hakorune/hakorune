@@ -4,6 +4,10 @@
 //! call seam. It does not infer app-specific `JsonLine` / `StringHelpers`
 //! semantics or teach the backend new source-level rules.
 
+use crate::mir::route_value_type_publication::{
+    helper_param_type_publication_policy, route_return_shape_value_type,
+    HelperParamTypePublicationPolicy,
+};
 use crate::mir::value_origin::{build_value_def_map, resolve_value_origin, ValueDefMap};
 use crate::mir::{ConstValue, MirFunction, MirInstruction, MirModule, MirType, ValueId};
 use std::collections::BTreeMap;
@@ -28,18 +32,17 @@ pub(super) fn publish_global_call_route_param_value_types(module: &mut MirModule
             let Some(target_symbol) = route.target_symbol() else {
                 continue;
             };
-            // `to_i64` is intentionally polymorphic: callers pass both i64
-            // values and numeric strings. Do not freeze its param as StringBox
-            // from scanner-only observations.
-            if target_symbol == "StringHelpers.to_i64/1" {
-                continue;
-            }
             let Some(MirInstruction::Call { args, .. }) =
                 route_instruction(function, route.block(), route.instruction_index())
             else {
                 continue;
             };
             for (arg_index, arg) in args.iter().enumerate() {
+                if helper_param_type_publication_policy(target_symbol, arg_index)
+                    == HelperParamTypePublicationPolicy::PolymorphicInputDoNotPublishFromSingleObservation
+                {
+                    continue;
+                }
                 let observation = observations
                     .entry((target_symbol.to_string(), arg_index))
                     .or_default();
@@ -98,7 +101,7 @@ pub(super) fn publish_global_call_route_result_value_types(module: &mut MirModul
             let Some(value) = route.result_value() else {
                 continue;
             };
-            let Some(ty) = value_type_from_return_shape(route.return_shape()) else {
+            let Some(ty) = route_return_shape_value_type(route.return_shape()) else {
                 continue;
             };
             facts.push((value, ty));
@@ -164,19 +167,6 @@ pub(super) fn propagate_global_call_box_value_types(module: &mut MirModule) -> b
         }
     }
     changed
-}
-
-fn value_type_from_return_shape(return_shape: Option<&str>) -> Option<MirType> {
-    match return_shape {
-        Some("ScalarI64") | Some("void_sentinel_i64_zero") => Some(MirType::Integer),
-        Some("string_handle") | Some("string_handle_or_null") => {
-            Some(MirType::Box("StringBox".to_string()))
-        }
-        Some("array_handle") => Some(MirType::Box("ArrayBox".to_string())),
-        Some("map_handle") => Some(MirType::Box("MapBox".to_string())),
-        Some("object_handle") | Some("mixed_runtime_i64_or_handle") => None,
-        _ => None,
-    }
 }
 
 fn value_scalar_or_mixed_type_for_value(

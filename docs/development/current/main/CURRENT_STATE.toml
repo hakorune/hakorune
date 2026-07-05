@@ -345,15 +345,17 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "HAKO-AOT-ROUTE-VALUE-TYPE-PUBLICATION-CONTRACT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2997-HAKO-AOT-ROUTE-VALUE-TYPE-PUBLICATION-CONTRACT-001.md"
-latest_card_summary = """The latest card cuts the follow-up AOT/MIR metadata
-contract cleanup before ProgramJSON projector retirement: define
-RouteReturnShapeValueTypePublisherV1 and HelperParamTypePublicationPolicyV1,
-prove the 2996 AOT correctness gate and ProgramJSON Loop.body parity gate as
-regressions, and keep route-family unification, `.hako` syntax/API,
-ProgramJSON traversal capability, backend route, ABI, MIR mutation, ID
-allocation, backend lowering, and Source Selfhost unclaimed."""
+latest_card = "MIRBUILDER-PROGRAMJSON-LOOP-BODY-CONTROL-FLOW-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2998-MIRBUILDER-PROGRAMJSON-LOOP-BODY-CONTROL-FLOW-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001.md"
+latest_card_summary = """2997 landed the AOT/MIR route value-type publication
+contract cleanup: RouteReturnShapeValueTypePublisherV1 and
+HelperParamTypePublicationPolicyV1 are fixture-backed and guarded, including
+the 2996 AOT correctness regression and ProgramJSON Loop.body parity
+regression. 2998 is now active to mark only the covered
+LoopBodyControlFlowSnapshotV1 ProgramJSON traversal slice as a Rust ASTNode
+projector retire-candidate. Full projector retirement, HakoAdoption,
+ProgramJSON full parser, route selection, backend lowering, MIR mutation, ID
+allocation, new ABI, and Source Selfhost remain unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -364,7 +366,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
-  "2026-07-05: 2997 is active as AOT/MIR value-type publication contract cleanup; 2998 is the pending ProgramJSON Loop.body Rust ASTNode projector retire-candidate continuation.",
+  "2026-07-05: 2997 lands the AOT/MIR route value-type publication contract guard; 2998 is active as the ProgramJSON Loop.body Rust ASTNode projector retire-candidate continuation.",
   "2026-07-05: 2996 fixes AOT dynamic string equality and dynamic StringHelpers.int_to_str correctness for scanner-fed values; ProgramJSON Loop.body scan remains green and selfhost remains unclaimed.",
   "2026-07-05: 2995 adds ProgramJsonLoopBodyControlFlowScanV1 as a 10-row `.hako` ProgramJSON traversal capability and marks the covered LoopBodyControlFlowSnapshotV1 slice as the next Rust ASTNode projector retire-candidate; full retirement and selfhost remain unclaimed.",
   "2026-07-05: 2994 stops the one-shape ProgramJSON cadence and selects Loop.body control-flow scan as the next implementation-capability batch; selfhost and full projector retirement remain unclaimed.",
@@ -375,5 +377,4 @@ landed_tail = [
   "2026-07-05: 2989 adds ProgramJSON return-only no-continue reject snapshot parity and marks LoopCondContinueNoContinueReturnOnlyRejectV1 as a one-shape Rust ASTNode projector retire-candidate; runtime dependency removal remains unclaimed.",
   "2026-07-05: 2988 adds ProgramJSON no-continue reject snapshot parity and marks LoopCondContinueNoContinueRejectV1 as a one-shape Rust ASTNode projector retire-candidate; runtime dependency removal remains unclaimed.",
   "2026-07-05: 2987 marks LoopCondContinueConditionNotSupportedRejectV1 as a one-shape Rust ASTNode projector retire-candidate; runtime dependency removal remains unclaimed.",
-  "2026-07-05: 2986 marks LoopCondContinueIfElseNotNullRejectV1 as a one-shape Rust ASTNode projector retire-candidate; runtime dependency removal remains unclaimed.",
 ]

@@ -1,6 +1,6 @@
 # 2997 - HAKO-AOT-ROUTE-VALUE-TYPE-PUBLICATION-CONTRACT-001
 
-Status: active
+Status: landed
 
 ## Scope
 
@@ -93,6 +93,33 @@ mixed_runtime_i64_or_handle -> DoNotPublishAmbiguous
 StringHelpers.to_i64/1 param0 = PolymorphicInputDoNotPublishFromSingleObservation
 stringbox_vs_void_null_forbidden = true
 add_with_any_string_like_operand_emits_stringbox_dst_type = true
+```
+
+## Evidence
+
+Fixture:
+
+```text
+docs/development/current/main/design/fixtures/rust-lifecycle/hako-aot-route-value-type-publication-contract-v0.json
+```
+
+Guard:
+
+```text
+tools/checks/hako_aot_route_value_type_publication_contract_gate.sh
+```
+
+Green output contract:
+
+```text
+output_contract=hako-aot-route-value-type-publication-contract-gate-v0
+policy_owner=RouteReturnShapeValueTypePublisherV1
+helper_policy_owner=HelperParamTypePublicationPolicyV1
+object_handle_publication=DoNotPublishAmbiguous
+to_i64_param0_policy=PolymorphicInputDoNotPublishFromSingleObservation
+aot_dynamic_string_eq_and_int_to_str_regression=green
+programjson_loop_body_control_flow_scan_regression=green
+summary=ok
 ```
 
 ## Next

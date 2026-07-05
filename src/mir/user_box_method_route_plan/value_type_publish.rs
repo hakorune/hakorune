@@ -1,3 +1,4 @@
+use crate::mir::route_value_type_publication::route_return_shape_value_type;
 use crate::mir::value_origin::build_value_def_map;
 use crate::mir::{MirFunction, MirInstruction, MirModule, MirType, ValueId};
 
@@ -87,7 +88,12 @@ pub(super) fn publish_user_box_route_result_value_types(module: &mut MirModule) 
             .user_box_method_routes
             .iter()
             .filter(|route| route.reason().is_none())
-            .filter_map(|route| Some((route.result_value()?, value_type_from_return_shape(route)?)))
+            .filter_map(|route| {
+                Some((
+                    route.result_value()?,
+                    route_return_shape_value_type(route.return_shape())?,
+                ))
+            })
             .collect::<Vec<_>>();
         for (value, ty) in facts {
             changed |= publish_value_type(function, value, ty);
@@ -255,18 +261,6 @@ fn publish_value_type(function: &mut MirFunction, value: ValueId, ty: MirType) -
             true
         }
         Some(_) => false,
-    }
-}
-
-fn value_type_from_return_shape(route: &super::UserBoxMethodRoute) -> Option<MirType> {
-    match route.return_shape() {
-        Some("scalar_i64") | Some("void_sentinel_i64_zero") => Some(MirType::Integer),
-        Some("string_handle") => Some(MirType::Box("StringBox".to_string())),
-        Some("object_handle") => route
-            .target_result_box_name()
-            .map(|box_name| MirType::Box(box_name.to_string())),
-        Some("mixed_runtime_i64_or_handle") | None => None,
-        Some(_) => None,
     }
 }
 
