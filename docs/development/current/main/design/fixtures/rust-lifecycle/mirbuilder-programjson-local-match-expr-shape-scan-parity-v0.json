@@ -1,0 +1,112 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonLocalMatchExprShapeScanParityV1",
+  "token": "MIRBUILDER-PROGRAMJSON-LOCAL-MATCH-EXPR-SHAPE-SCAN-CAPABILITY-001",
+  "capability": {
+    "name": "ProgramJsonLocalMatchExprShapeScanV1",
+    "input": "ProgramJSON v0",
+    "output": "LocalMatchExprShapeSnapshotV1"
+  },
+  "routes": {
+    "rust_oracle_route": "source -> RHako parser -> Rust ASTNode -> Rust Local Match token snapshot",
+    "hako_programjson_route": "source -> HHako parser -> ProgramJSON -> HHako Local Match token snapshot"
+  },
+  "rows": [
+    {
+      "row_id": "top_var_one_int_arm_else_int",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "x", "expr": {"type": "Match", "scrutinee": {"type": "Var", "name": "n"}, "arms": [{"label": "0", "expr": {"type": "Int", "value": 1}}], "else": {"type": "Int", "value": 2}}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalMatchExprShapeSnapshotV1;top_local_match_expr_shape_kind=VarOneIntArmElseInt;if_then_local_match_expr_shape_kind=Missing;if_else_local_match_expr_shape_kind=Missing;supported_local_match_expr_count=1;unsupported_local_match_expr_count=0"
+      }
+    },
+    {
+      "row_id": "top_int_one_str_arm_else_str",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "x", "expr": {"type": "Match", "scrutinee": {"type": "Int", "value": 1}, "arms": [{"label": "1", "expr": {"type": "Str", "value": "one"}}], "else": {"type": "Str", "value": "other"}}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalMatchExprShapeSnapshotV1;top_local_match_expr_shape_kind=IntOneStrArmElseStr;if_then_local_match_expr_shape_kind=Missing;if_else_local_match_expr_shape_kind=Missing;supported_local_match_expr_count=1;unsupported_local_match_expr_count=0"
+      }
+    },
+    {
+      "row_id": "top_one_arm_else_value",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "x", "expr": {"type": "Match", "scrutinee": {"type": "Var", "name": "n"}, "arms": [{"label": "2", "expr": {"type": "Bool", "value": true}}], "else": {"type": "Bool", "value": false}}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalMatchExprShapeSnapshotV1;top_local_match_expr_shape_kind=OneArmElseValue;if_then_local_match_expr_shape_kind=Missing;if_else_local_match_expr_shape_kind=Missing;supported_local_match_expr_count=1;unsupported_local_match_expr_count=0"
+      }
+    },
+    {
+      "row_id": "top_var_two_int_arms_else_int",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "x", "expr": {"type": "Match", "scrutinee": {"type": "Var", "name": "n"}, "arms": [{"label": "0", "expr": {"type": "Int", "value": 1}}, {"label": "1", "expr": {"type": "Int", "value": 2}}], "else": {"type": "Int", "value": 3}}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalMatchExprShapeSnapshotV1;top_local_match_expr_shape_kind=VarTwoIntArmsElseInt;if_then_local_match_expr_shape_kind=Missing;if_else_local_match_expr_shape_kind=Missing;supported_local_match_expr_count=1;unsupported_local_match_expr_count=0"
+      }
+    },
+    {
+      "row_id": "top_var_bool_arms_else_bool",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "x", "expr": {"type": "Match", "scrutinee": {"type": "Var", "name": "flag"}, "arms": [{"label": "true", "expr": {"type": "Bool", "value": true}}, {"label": "false", "expr": {"type": "Bool", "value": false}}], "else": {"type": "Bool", "value": false}}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalMatchExprShapeSnapshotV1;top_local_match_expr_shape_kind=VarBoolArmsElseBool;if_then_local_match_expr_shape_kind=Missing;if_else_local_match_expr_shape_kind=Missing;supported_local_match_expr_count=1;unsupported_local_match_expr_count=0"
+      }
+    },
+    {
+      "row_id": "top_two_arms_else_value",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "x", "expr": {"type": "Match", "scrutinee": {"type": "Var", "name": "n"}, "arms": [{"label": "a", "expr": {"type": "Str", "value": "a"}}, {"label": "b", "expr": {"type": "Str", "value": "b"}}], "else": {"type": "Null"}}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalMatchExprShapeSnapshotV1;top_local_match_expr_shape_kind=TwoArmsElseValue;if_then_local_match_expr_shape_kind=Missing;if_else_local_match_expr_shape_kind=Missing;supported_local_match_expr_count=1;unsupported_local_match_expr_count=0"
+      }
+    },
+    {
+      "row_id": "top_three_arms_unsupported",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "x", "expr": {"type": "Match", "scrutinee": {"type": "Var", "name": "n"}, "arms": [{"label": "0", "expr": {"type": "Int", "value": 1}}, {"label": "1", "expr": {"type": "Int", "value": 2}}, {"label": "2", "expr": {"type": "Int", "value": 3}}], "else": {"type": "Int", "value": 4}}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalMatchExprShapeSnapshotV1;top_local_match_expr_shape_kind=Unsupported;if_then_local_match_expr_shape_kind=Missing;if_else_local_match_expr_shape_kind=Missing;supported_local_match_expr_count=0;unsupported_local_match_expr_count=1"
+      }
+    },
+    {
+      "row_id": "if_then_var_one_int_arm_else_int",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "If", "cond": {"type": "Bool", "value": true}, "then": [{"type": "Local", "name": "x", "expr": {"type": "Match", "scrutinee": {"type": "Var", "name": "n"}, "arms": [{"label": "0", "expr": {"type": "Int", "value": 1}}], "else": {"type": "Int", "value": 2}}}], "else": null}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalMatchExprShapeSnapshotV1;top_local_match_expr_shape_kind=Missing;if_then_local_match_expr_shape_kind=VarOneIntArmElseInt;if_else_local_match_expr_shape_kind=Missing;supported_local_match_expr_count=1;unsupported_local_match_expr_count=0"
+      }
+    },
+    {
+      "row_id": "if_else_int_one_str_arm_else_str",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "If", "cond": {"type": "Bool", "value": true}, "then": [], "else": [{"type": "Local", "name": "x", "expr": {"type": "Match", "scrutinee": {"type": "Int", "value": 1}, "arms": [{"label": "1", "expr": {"type": "Str", "value": "one"}}], "else": {"type": "Str", "value": "other"}}}]}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalMatchExprShapeSnapshotV1;top_local_match_expr_shape_kind=Missing;if_then_local_match_expr_shape_kind=Missing;if_else_local_match_expr_shape_kind=IntOneStrArmElseStr;supported_local_match_expr_count=1;unsupported_local_match_expr_count=0"
+      }
+    },
+    {
+      "row_id": "first_stmt_return_unsupported",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Return", "expr": {"type": "Int", "value": 0}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalMatchExprShapeSnapshotV1;top_local_match_expr_shape_kind=Unsupported;if_then_local_match_expr_shape_kind=Missing;if_else_local_match_expr_shape_kind=Missing;supported_local_match_expr_count=0;unsupported_local_match_expr_count=1"
+      }
+    }
+  ],
+  "summary": {
+    "parity_row_count": 10,
+    "programjson_traversal_used": 1,
+    "string_only_facade": 0,
+    "rust_astnode_projector_retire_candidate": 1
+  },
+  "decision": {
+    "kind": "ProgramJsonLocalMatchExprShapeScanParityGreen",
+    "reason_token": "LocalMatchExprShapeProgramJsonSnapshotMatchesRustAstNodeOracle",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-LOCAL-MATCH-EXPR-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "programjson_full_parser_claim": 0,
+    "hako_adopted_for_full_owner": 0,
+    "match_lowering": 0,
+    "branch_execution_semantics": 0
+  }
+}

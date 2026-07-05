@@ -62,6 +62,7 @@ static box ProgramJsonV0ScannerBox {
     if key == "fields" { return "\"fields\":" }
     if key == "kind" { return "\"kind\":" }
     if key == "k" { return "\"k\":" }
+    if key == "label" { return "\"label\":" }
     if key == "lhs" { return "\"lhs\":" }
     if key == "name" { return "\"name\":" }
     if key == "op" { return "\"op\":" }
