@@ -345,13 +345,13 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-SINGLE-PLANNER-CANDIDATE-PRESENCE-PARITY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2963-MIRBUILDER-SINGLE-PLANNER-CANDIDATE-PRESENCE-PARITY-001.md"
-latest_card_summary = """The latest card lands parity for
-planner_candidate_present as a scoped Plan DTO owner over the
-LoopCondContinueWithReturn fact slot. build_plan_with_facts_ctx, full
-try_build_outcome, fact extraction, recipe matching, lowering, MIR mutation, ID
-allocation, and Source Selfhost remain unclaimed."""
+latest_card = "MIRBUILDER-SINGLE-PLANNER-CANDIDATE-PRESENCE-HAKOADOPTED-DECISION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2964-MIRBUILDER-SINGLE-PLANNER-CANDIDATE-PRESENCE-HAKOADOPTED-DECISION-001.md"
+latest_card_summary = """The latest card adopts planner_candidate_present as a
+scoped Plan DTO owner over the LoopCondContinueWithReturn fact slot.
+build_plan_with_facts_ctx, full try_build_outcome, fact extraction, recipe
+matching, lowering, MIR mutation, ID allocation, and Source Selfhost remain
+unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -362,6 +362,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-05: 2964 adopts single_planner candidate presence as scoped HakoAdopted Plan DTO owner.",
   "2026-07-05: 2963 lands single_planner candidate presence parity for the LoopCondContinueWithReturn fact slot.",
   "2026-07-05: 2962 adopts single_planner outcome disposition as scoped HakoAdopted Plan DTO owner.",
   "2026-07-05: 2961 lands single_planner outcome disposition parity for planner-required None freeze vs return-outcome DTO.",
@@ -373,5 +374,4 @@ landed_tail = [
   "2026-07-05: 2955 sets Fact-to-Plan promotion threshold: selection-024 must compare plan runner-ups; at most two more Fact facade adoptions before Plan track.",
   "2026-07-05: 2954 supersedes selection-023 because loop_step_shape was already HakoAdopted; selection-024 must exclude existing adoption owners first.",
   "2026-07-05: 2953 selects try_extract_step_shape as the next authority-facade parity pilot; condition shape and nested-loop composition remain Rust.",
-  "2026-07-05: 2952 adopts loop_break_step_before_break_facts.authority_facade as a scoped HakoAdopted Fact owner; break-if payloads remain Rust.",
 ]
