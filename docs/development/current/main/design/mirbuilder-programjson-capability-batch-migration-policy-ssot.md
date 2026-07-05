@@ -43,6 +43,10 @@ This is not a basis-only or inventory-only row. The card must include `.hako`
 implementation, fixture rows, a parity gate, and a retire-candidate decision
 for at least one Rust ASTNode projector slice.
 
+Selection-only cards are allowed only when the next traversal capability is
+genuinely ambiguous. If the capability is already named, merge selection into
+the implementation card; do not land docs/guard-only selection as progress.
+
 ## Capability
 
 Owner:

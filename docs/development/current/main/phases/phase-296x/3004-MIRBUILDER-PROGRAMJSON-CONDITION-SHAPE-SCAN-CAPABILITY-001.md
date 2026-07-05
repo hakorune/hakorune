@@ -1,6 +1,6 @@
 # 3004 - MIRBUILDER-PROGRAMJSON-CONDITION-SHAPE-SCAN-CAPABILITY-001
 
-Status: active
+Status: landed
 
 ## Scope
 
@@ -41,6 +41,47 @@ unsupported_condition_count=...
 - unsupported conditions fail fast with a stable token;
 - the card can name a concrete condition-shape Rust ASTNode projector slice as
   retire-candidate after parity is green.
+
+## Implementation
+
+```text
+lang/src/compiler/mirbuilder/program_json_condition_shape_scan.hako
+```
+
+The owner consumes ProgramJSON structure and emits
+`ConditionShapeSnapshotV1` for covered Loop/If condition shapes. It reads
+`Loop.cond`, optional first/second `If.cond`, `Compare.lhs`, `Compare.rhs`,
+`Compare.op`, and `Bool.value` through ProgramJSON field helpers.
+
+## Evidence
+
+```bash
+bash tools/checks/rust_lifecycle_mirbuilder_programjson_condition_shape_scan_parity_gate.sh
+```
+
+Result:
+
+```text
+owner=ProgramJsonConditionShapeScanV1
+parity_rows=8
+aot_execution_status=green
+token_snapshot_parity=green
+programjson_traversal_used=1
+string_only_facade=0
+rust_astnode_projector_retire_candidate=1
+source_selfhost_claim=0
+mir_mutation=0
+id_allocation=0
+backend_lowering=0
+full_recipe_matcher_execution=0
+route_selection=0
+```
+
+## Next
+
+```text
+MIRBUILDER-PROGRAMJSON-CONDITION-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+```
 
 ## Forbidden
 

@@ -1,0 +1,167 @@
+// program_json_condition_shape_scan.hako
+//
+// Responsibility:
+// - Traverse covered Program(JSON v0) Loop.cond and If.cond objects structurally.
+// - Emit ConditionShapeSnapshotV1 summaries for MirBuilder migration parity.
+//
+// Non-responsibility:
+// - Full JSON parsing, source text matching, Rust ASTNode projection, RecipeMatcher execution,
+//   route selection, MIR mutation, backend lowering, ID allocation, or parser integration.
+
+using selfhost.shared.common.string_helpers as StringHelpers
+using lang.compiler.mirbuilder.program_json_v0_scanner_box as ProgramJsonV0ScannerBox
+
+static box ProgramJsonConditionShapeScanBox {
+  build_summary(program_json) {
+    if program_json == null || ("" + program_json) == "" {
+      return me._fail("missing_program_json")
+    }
+    program_json = "" + program_json
+
+    local program_body = me._array_field_start(program_json, "body", 0)
+    if program_body < 0 { return me._fail("cap_missing_program_body") }
+
+    local loop_start = me._first_object_in_array(program_json, program_body)
+    if loop_start < 0 { return me._fail("cap_missing_top_level_loop") }
+    if me._node_type_at(program_json, loop_start) != "Loop" {
+      return me._fail("unsupported_shape_top_level")
+    }
+
+    local loop_cond_start = ProgramJsonV0ScannerBox.seek_obj_field_obj_start(program_json, "cond", loop_start)
+    if loop_cond_start < 0 { return me._fail("cap_missing_loop_cond") }
+    local loop_kind = me._cond_kind(program_json, loop_cond_start)
+
+    local if_kind = "Missing"
+    local loop_body = me._array_field_start(program_json, "body", loop_start)
+    if loop_body >= 0 {
+      local if_start = me._first_if_in_loop_body(program_json, loop_body)
+      if if_start >= 0 {
+        local if_cond_start = ProgramJsonV0ScannerBox.seek_obj_field_obj_start(program_json, "cond", if_start)
+        if if_cond_start >= 0 {
+          if_kind = me._cond_kind(program_json, if_cond_start)
+        } else {
+          if_kind = "Unsupported"
+        }
+      }
+    }
+
+    local supported = me._cond_supported_count(loop_kind) + me._cond_supported_count(if_kind)
+    local unsupported = me._cond_unsupported_count(loop_kind) + me._cond_unsupported_count(if_kind)
+    return me._summary(loop_kind, if_kind, supported, unsupported)
+  }
+
+  _summary(loop_kind, if_kind, supported, unsupported) {
+    return "snapshot_kind=ConditionShapeSnapshotV1"
+      + ";loop_cond_kind=" + loop_kind
+      + ";if_cond_kind=" + if_kind
+      + ";supported_condition_count=" + me._count_token(supported)
+      + ";unsupported_condition_count=" + me._count_token(unsupported)
+  }
+
+  _cond_kind(s, cond_start) {
+    local ty = me._node_type_at(s, cond_start)
+    if ty == "Compare" { return me._compare_kind(s, cond_start) }
+    if ty == "Bool" { return me._bool_kind(s, cond_start) }
+    if ty == "Var" { return "VarBool" }
+    return "Unsupported"
+  }
+
+  _compare_kind(s, cond_start) {
+    local lhs = ProgramJsonV0ScannerBox.seek_obj_field_obj_start(s, "lhs", cond_start)
+    local rhs = ProgramJsonV0ScannerBox.seek_obj_field_obj_start(s, "rhs", cond_start)
+    if lhs < 0 || rhs < 0 { return "Unsupported" }
+    if me._node_type_at(s, lhs) != "Var" { return "Unsupported" }
+    if me._node_type_at(s, rhs) != "Int" { return "Unsupported" }
+
+    local op = me._string_field_at(s, "op", cond_start)
+    if op == "Lt" || op == "<" || op == "Less" { return "CompareVarLtInt" }
+    if op == "Eq" || op == "==" || op == "Equal" { return "CompareVarEqInt" }
+    return "Unsupported"
+  }
+
+  _bool_kind(s, cond_start) {
+    local p = ProgramJsonV0ScannerBox.seek_obj_field_value_start(s, "value", cond_start)
+    if p < 0 { return "Unsupported" }
+    p = StringHelpers.skip_ws(s, p)
+    if s.substring(p, p + 4) == "true" { return "BoolTrue" }
+    if s.substring(p, p + 5) == "false" { return "BoolFalse" }
+    return "Unsupported"
+  }
+
+  _cond_supported_count(kind) {
+    if kind == "Missing" { return 0 }
+    if kind == "Unsupported" { return 0 }
+    return 1
+  }
+
+  _cond_unsupported_count(kind) {
+    if kind == "Unsupported" { return 1 }
+    return 0
+  }
+
+  _count_token(n) {
+    if n <= 0 { return "0" }
+    if n == 1 { return "1" }
+    if n == 2 { return "2" }
+    return "many"
+  }
+
+  _first_if_in_loop_body(s, array_start) {
+    local first = me._first_object_in_array(s, array_start)
+    if first < 0 { return -1 }
+    if me._node_type_at(s, first) == "If" { return first }
+
+    local first_end = ProgramJsonV0ScannerBox.seek_obj_end_unescaped(s, first)
+    if first_end < 0 { return -1 }
+    local second = me._next_object_in_array(s, first_end)
+    if second < 0 { return -1 }
+    if me._node_type_at(s, second) == "If" { return second }
+    return -1
+  }
+
+  _fail(reason) {
+    return "accepted=0;reason=" + reason
+  }
+
+  _array_field_start(s, key, obj_start) {
+    if obj_start < 0 { return -1 }
+    local p = ProgramJsonV0ScannerBox.seek_obj_field_value_start(s, key, obj_start)
+    if p < 0 { return -1 }
+    p = StringHelpers.skip_ws(s, p)
+    if ProgramJsonV0ScannerBox._read_char(s, p) != "[" { return -1 }
+    return p
+  }
+
+  _first_object_in_array(s, array_start) {
+    if array_start < 0 { return -1 }
+    local p = StringHelpers.skip_ws(s, array_start + 1)
+    if ProgramJsonV0ScannerBox._read_char(s, p) != "{" { return -1 }
+    return p
+  }
+
+  _next_object_in_array(s, previous_end) {
+    local p = StringHelpers.skip_ws(s, previous_end)
+    local ch = ProgramJsonV0ScannerBox._read_char(s, p)
+    if ch == "]" { return -2 }
+    if ch != "," { return -1 }
+    p = StringHelpers.skip_ws(s, p + 1)
+    if ProgramJsonV0ScannerBox._read_char(s, p) != "{" { return -1 }
+    return p
+  }
+
+  _node_type_at(s, obj_start) {
+    return me._string_field_at(s, "type", obj_start)
+  }
+
+  _string_field_at(s, key, obj_start) {
+    local p = ProgramJsonV0ScannerBox.seek_obj_field_value_start(s, key, obj_start)
+    if p < 0 { return "" }
+    p = StringHelpers.skip_ws(s, p)
+    if ProgramJsonV0ScannerBox._read_char(s, p) != "\"" { return "" }
+    local end_quote = StringHelpers.index_of(s, p + 1, "\"")
+    if end_quote < 0 { return "" }
+    return s.substring(p + 1, end_quote)
+  }
+}
+
+static box ProgramJsonConditionShapeScanMain { main() { return 0 } }
