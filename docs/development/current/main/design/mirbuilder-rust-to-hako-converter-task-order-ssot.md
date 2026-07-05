@@ -90,10 +90,10 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  3017 lands the covered ExprFieldShapeSnapshotV1 ProgramJSON traversal rows
-  as a scoped Rust ASTNode projector retire-candidate. 3018 is active to
-  implement real `.hako` ProgramJsonExprRecordFieldShapeScanV1 traversal for
-  covered Expr statement RecordField ProgramJSON structure.
+  3018 lands real `.hako` ProgramJsonExprRecordFieldShapeScanV1 traversal for
+  covered Expr statement RecordField ProgramJSON structure, producing
+  ExprRecordFieldShapeSnapshotV1 with a 9-row AOT parity gate. 3019 is active
+  to mark only those covered rows as a Rust ASTNode projector retire-candidate.
   Selection-only ProgramJSON cards remain forbidden unless the next capability
   is genuinely ambiguous.
   3002 records later dynamic typing hint inventory for Float binops, PHI
@@ -400,17 +400,17 @@ Detailed evidence lives in phase cards, fixtures, and git history.
 
 ## Active Next 3
 ```text
-1. MIRBUILDER-PROGRAMJSON-EXPR-RECORDFIELD-SHAPE-SCAN-CAPABILITY-001
-   status=active; boundary=ProgramJSON Expr.expr RecordField shape scan only
+1. MIRBUILDER-PROGRAMJSON-EXPR-RECORDFIELD-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+   status=active; boundary=covered ProgramJSON Expr.expr RecordField shape rows only
 
-2. MIRBUILDER-PROGRAMJSON-EXPR-RECORDFIELD-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
-   status=pending; boundary=no full projector retirement, parser claim, lowering, mutation, ID allocation, or Source Selfhost
+2. ProgramJSON next capability continuation
+   status=pending; boundary=no selection-only card unless the next traversal capability is genuinely ambiguous
 
 3. MIR JSON dynamic typing hint inventory follow-up
    status=parked; boundary=3002 Tier-2/Tier-3 inventory only
 
 next_documented_task =
-  MIRBUILDER-PROGRAMJSON-EXPR-RECORDFIELD-SHAPE-SCAN-CAPABILITY-001
+  MIRBUILDER-PROGRAMJSON-EXPR-RECORDFIELD-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
 
 next_after_active_3 =
   return to ProgramJSON capability-batch retire-candidate continuation
