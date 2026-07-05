@@ -118,6 +118,25 @@
       "expected_summary": "accepted=0;reason=no_continue"
     },
     {
+      "case_id": "reject_first_stmt_not_if",
+      "program_json": {
+        "kind": "Program",
+        "type": "Program",
+        "body": [
+          {
+            "kind": "Loop",
+            "type": "Loop",
+            "cond": {"type": "Compare", "op": "<", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 10}},
+            "body": [
+              {"kind": "Assign", "type": "Assign", "target": {"type": "Var", "name": "x"}, "value": {"type": "Int", "value": 0}},
+              {"kind": "Return", "type": "Return", "value": {"type": "Int", "value": 1}}
+            ]
+          }
+        ]
+      },
+      "expected_summary": "accepted=0;reason=continue_if_shape_not_supported"
+    },
+    {
       "case_id": "reject_nested_loop",
       "program_json": {
         "kind": "Program",

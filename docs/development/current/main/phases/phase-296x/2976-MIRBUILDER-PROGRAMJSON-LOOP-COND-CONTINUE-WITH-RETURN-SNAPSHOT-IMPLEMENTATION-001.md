@@ -52,7 +52,7 @@ Result:
 
 ```text
 mir_verify_status=green
-implementation_rows=8
+implementation_rows=9
 execution_backend=not_run
 aot_execution_status=blocked_by_existing_program_json_v0_scanner_lowering
 parity_status=not_claimed

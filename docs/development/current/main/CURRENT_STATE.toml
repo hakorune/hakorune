@@ -345,11 +345,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PROGRAMJSON-NO-CONTINUE-EMPTY-BODY-REJECT-RETIRE-RUST-ASTNODE-PROJECTOR-CANDIDATE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2990-MIRBUILDER-PROGRAMJSON-NO-CONTINUE-EMPTY-BODY-REJECT-RETIRE-RUST-ASTNODE-PROJECTOR-CANDIDATE-001.md"
+latest_card = "MIRBUILDER-PROGRAMJSON-FIRST-STMT-NOT-IF-REJECT-RETIRE-RUST-ASTNODE-PROJECTOR-CANDIDATE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2991-MIRBUILDER-PROGRAMJSON-FIRST-STMT-NOT-IF-REJECT-RETIRE-RUST-ASTNODE-PROJECTOR-CANDIDATE-001.md"
 latest_card_summary = """The latest card marks only
-LoopCondContinueNoContinueEmptyBodyRejectV1 /
-LoopCondContinueNoContinueEmptyBodyRejectTokenSnapshotV1 as a Rust ASTNode
+LoopCondContinueFirstStmtNotIfRejectV1 /
+LoopCondContinueFirstStmtNotIfRejectTokenSnapshotV1 as a Rust ASTNode
 projector retire-candidate. Runtime dependency removal, full projector
 retirement, HakoAdoption, ProgramJSON full parser, and Source Selfhost remain
 unclaimed. Next work is selecting the next ProgramJSON traversal shape only if
@@ -365,6 +365,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-05: 2991 adds ProgramJSON first-stmt-not-if reject snapshot parity and marks LoopCondContinueFirstStmtNotIfRejectV1 as a one-shape Rust ASTNode projector retire-candidate; runtime dependency removal remains unclaimed.",
   "2026-07-05: 2990 adds ProgramJSON empty-body no-continue reject snapshot parity and marks LoopCondContinueNoContinueEmptyBodyRejectV1 as a one-shape Rust ASTNode projector retire-candidate; runtime dependency removal remains unclaimed.",
   "2026-07-05: 2989 adds ProgramJSON return-only no-continue reject snapshot parity and marks LoopCondContinueNoContinueReturnOnlyRejectV1 as a one-shape Rust ASTNode projector retire-candidate; runtime dependency removal remains unclaimed.",
   "2026-07-05: 2988 adds ProgramJSON no-continue reject snapshot parity and marks LoopCondContinueNoContinueRejectV1 as a one-shape Rust ASTNode projector retire-candidate; runtime dependency removal remains unclaimed.",
@@ -376,5 +377,4 @@ landed_tail = [
   "2026-07-05: 2982 proves ProgramJSON no-return reject snapshot parity for LoopCondContinueNoReturnRejectV1; projector retirement remains unclaimed.",
   "2026-07-05: 2981 marks LoopCondContinueThenReturnMinimalV1 as a one-shape Rust ASTNode projector retire-candidate; runtime dependency removal remains unclaimed.",
   "2026-07-05: 2980 proves ProgramJSON token snapshot parity against the Rust ASTNode-token oracle for LoopCondContinueThenReturnMinimalV1; projector retirement remains unclaimed.",
-  "2026-07-05: 2979 runs ProgramJsonLoopCondContinueWithReturnSnapshotV1 through AOT runtime parity for LoopCondContinueThenReturnMinimalV1; projector retirement remains unclaimed.",
 ]

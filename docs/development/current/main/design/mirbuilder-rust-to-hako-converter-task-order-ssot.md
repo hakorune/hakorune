@@ -60,7 +60,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-NEXT-SHAPE-SELECTION-009
+  MIRBUILDER-PROGRAMJSON-NEXT-SHAPE-SELECTION-010
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -90,10 +90,10 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  LoopCondContinueNoContinueEmptyBodyRejectV1 /
-  LoopCondContinueNoContinueEmptyBodyRejectTokenSnapshotV1 is now a one-shape
+  LoopCondContinueFirstStmtNotIfRejectV1 /
+  LoopCondContinueFirstStmtNotIfRejectTokenSnapshotV1 is now a one-shape
   Rust ASTNode projector retire-candidate, extending ProgramJSON snapshot parity
-  to 8 rows. Runtime dependency removal, full projector retirement,
+  to 9 rows. Runtime dependency removal, full projector retirement,
   HakoAdoption, ProgramJSON full parser, and Source Selfhost remain unclaimed.
   Next work selects a new ProgramJSON traversal shape only if it reduces a Rust
   ASTNode projection slice or exposes a concrete missing HHako capability.

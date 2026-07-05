@@ -1,7 +1,7 @@
 {
   "schema_version": 0,
-  "kind": "MirBuilderProgramJsonBreakPresentRejectRustAstNodeProjectorRetireCandidateV1",
-  "token": "MIRBUILDER-PROGRAMJSON-BREAK-PRESENT-REJECT-RETIRE-RUST-ASTNODE-PROJECTOR-CANDIDATE-001",
+  "kind": "MirBuilderProgramJsonFirstStmtNotIfRejectRustAstNodeProjectorRetireCandidateV1",
+  "token": "MIRBUILDER-PROGRAMJSON-FIRST-STMT-NOT-IF-REJECT-RETIRE-RUST-ASTNODE-PROJECTOR-CANDIDATE-001",
   "input_state": {
     "hako_snapshot_source": "lang/src/compiler/mirbuilder/program_json_loop_cond_continue_with_return_snapshot.hako",
     "hako_snapshot_source_hash": "sha256:9cd3210a91d56c68c4a8f7f424f29a81bfa07b12c915a333892424761bc1afe0",
@@ -11,10 +11,10 @@
     "parity_gate_hash": "sha256:2f036211e0545df394388185c49a09e15e2d4ac09c759074ff5cce0a1ddee4c4"
   },
   "retire_candidate_scope": {
-    "retire_candidate": "LoopCondContinueBreakPresentRejectTokenSnapshotV1",
-    "shape_scope": "LoopCondContinueBreakPresentRejectV1",
+    "retire_candidate": "LoopCondContinueFirstStmtNotIfRejectTokenSnapshotV1",
+    "shape_scope": "LoopCondContinueFirstStmtNotIfRejectV1",
     "programjson_snapshot_owner": "ProgramJsonLoopCondContinueWithReturnSnapshotV1",
-    "parity_row_id": "reject_break_present",
+    "parity_row_id": "reject_first_stmt_not_if",
     "rust_projector_runtime_dependency_removed": 0,
     "rust_projector_oracle_only": 1,
     "full_astnode_projector_retired": 0
@@ -22,15 +22,15 @@
   "criteria": {
     "programjson_snapshot_parity_gate": "Green",
     "programjson_route_traverses_programjson": 1,
-    "programjson_route_observes_break_node": 1,
+    "programjson_route_observes_first_stmt_type": 1,
     "runtime_path_uses_programjson_snapshot": 1,
     "rust_astnode_projector_runtime_dependency_removed": 0,
     "rust_astnode_projector_kept_for_oracle_generation": 1
   },
   "decision": {
     "kind": "RetireCandidateScoped",
-    "reason_token": "LoopCondContinueBreakPresentRejectV1ProgramJsonSnapshotParityGreen",
-    "selected_next_card": "MIRBUILDER-PROGRAMJSON-NEXT-SHAPE-SELECTION-003"
+    "reason_token": "LoopCondContinueFirstStmtNotIfRejectV1ProgramJsonSnapshotParityGreen",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-NEXT-SHAPE-SELECTION-010"
   },
   "claims": {
     "source_selfhost_claim": 0,
