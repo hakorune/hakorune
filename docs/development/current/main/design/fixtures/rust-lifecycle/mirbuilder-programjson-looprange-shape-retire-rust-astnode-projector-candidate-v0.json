@@ -1,0 +1,67 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonLoopRangeShapeRustAstNodeProjectorRetireCandidateV1",
+  "token": "MIRBUILDER-PROGRAMJSON-LOOPRANGE-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001",
+  "input_state": {
+    "hako_snapshot_source": "lang/src/compiler/mirbuilder/program_json_looprange_shape_scan.hako",
+    "hako_snapshot_source_hash": "sha256:b8461a45bfd84699d854516d026568033246e1ac5d40fdd9fa84fa8cc217620b",
+    "parity_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-programjson-looprange-shape-scan-parity-v0.json",
+    "parity_fixture_hash": "sha256:980b7a41fc2a14aacb0e57b1c9c3214d4670451251ccfe8bf5e93648f67788e7",
+    "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_programjson_looprange_shape_scan_parity_gate.sh",
+    "parity_gate_hash": "sha256:a42bc0971db0f29cea98dc1b3bf4170274592232ad2c659735cc8d75236afd86"
+  },
+  "retire_candidate_scope": {
+    "retire_candidate": "LoopRangeShapeSnapshotV1",
+    "shape_scope": "covered ProgramJSON LoopRange statement rows",
+    "programjson_snapshot_owner": "ProgramJsonLoopRangeShapeScanV1",
+    "covered_rows": [
+      "top_looprange_int_to_int_empty_body",
+      "top_looprange_var_to_int_continue_body",
+      "top_looprange_int_to_var_return_body",
+      "top_looprange_var_to_var_break_body",
+      "if_then_looprange_int_to_int_empty_body",
+      "if_else_looprange_var_to_int_continue_body",
+      "top_looprange_float_bound_unsupported",
+      "top_looprange_nested_loop_unsupported",
+      "first_stmt_not_looprange_unsupported"
+    ],
+    "rust_projector_runtime_dependency_removed": 0,
+    "rust_projector_oracle_only": 1,
+    "full_astnode_projector_retired": 0
+  },
+  "criteria": {
+    "programjson_snapshot_parity_gate": "Green",
+    "programjson_route_traverses_programjson": 1,
+    "programjson_route_uses_string_only_facade": 0,
+    "covered_row_count": 9,
+    "runtime_path_uses_programjson_snapshot": 1,
+    "rust_astnode_projector_runtime_dependency_removed": 0,
+    "rust_astnode_projector_kept_for_oracle_generation": 1,
+    "looprange_lowering": 0,
+    "iterator_runtime_semantics": 0
+  },
+  "decision": {
+    "kind": "RetireCandidateScoped",
+    "reason_token": "LoopRangeShapeSnapshotV1ProgramJsonCapabilityParityGreen",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-CAPABILITY-BATCH-CONTINUATION"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_astnode_projector_retired": 0,
+    "rust_astnode_projector_fully_retired": 0,
+    "full_astnode_projector_retired": 0,
+    "programjson_full_parser_claim": 0,
+    "programjson_all_shapes_supported": 0,
+    "recipe_matching_migrated": 0,
+    "route_selection_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0,
+    "id_allocation_migration": 0,
+    "looprange_lowering": 0,
+    "iterator_runtime_semantics": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
