@@ -48,6 +48,7 @@ static box ProgramJsonV0ScannerBox {
     key = "" + key
     if key == "args" { return "\"args\":" }
     if key == "body" { return "\"body\":" }
+    if key == "brand" { return "\"brand\":" }
     if key == "catches" { return "\"catches\":" }
     if key == "cond" { return "\"cond\":" }
     if key == "contract" { return "\"contract\":" }
@@ -80,6 +81,7 @@ static box ProgramJsonV0ScannerBox {
     if key == "try" { return "\"try\":" }
     if key == "typeHint" { return "\"typeHint\":" }
     if key == "type" { return "\"type\":" }
+    if key == "underlying_type" { return "\"underlying_type\":" }
     if key == "value" { return "\"value\":" }
     if key == "var_name" { return "\"var_name\":" }
     if key == "v" { return "\"v\":" }

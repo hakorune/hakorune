@@ -90,9 +90,10 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  3062 lands the covered LocalMatchExprShapeSnapshotV1 ProgramJSON traversal
-  slice as a scoped Rust ASTNode projector retire-candidate. Next work returns
-  to ProgramJSON capability-batch continuation.
+  3063 lands real `.hako` ProgramJsonBrandExprShapeScanV1 ProgramJSON
+  traversal for covered BrandConstruct/BrandUnwrap expression shapes with
+  10-row AOT parity. Active work is 3064: mark only those covered rows as a
+  scoped Rust ASTNode projector retire-candidate.
   Selection-only ProgramJSON cards remain forbidden unless the next capability
   is genuinely ambiguous.
   2997 stabilized the AOT/MIR value-type publication contract only for the
@@ -403,20 +404,19 @@ Detailed evidence lives in phase cards, fixtures, and git history.
 
 ## Active Next 3
 ```text
-1. MIRBUILDER-PROGRAMJSON-LOCAL-MATCH-EXPR-SHAPE-SCAN-CAPABILITY-001
-   status=landed; boundary=real `.hako` ProgramJSON Local.expr Match traversal
-   over scrutinee/arms/else only; no match lowering, branch execution
-   semantics, route selection, or MIR mutation
+1. MIRBUILDER-PROGRAMJSON-BRAND-EXPR-SHAPE-SCAN-CAPABILITY-001
+   status=landed; boundary=real `.hako` ProgramJSON BrandConstruct/BrandUnwrap
+   traversal over brand/underlying_type/value only; no brand lowering or runtime semantics
 
-2. MIRBUILDER-PROGRAMJSON-LOCAL-MATCH-EXPR-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
-   status=landed; boundary=covered LocalMatchExprShapeSnapshotV1 rows only
+2. MIRBUILDER-PROGRAMJSON-BRAND-EXPR-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+   status=active; boundary=covered BrandExprShapeSnapshotV1 rows only
 
-3. MIRBUILDER-PROGRAMJSON-CAPABILITY-BATCH-CONTINUATION
-   status=active; boundary=select and implement next concrete ProgramJSON traversal capability
+3. HAKO-AOT/MIR-TYPING-DEBT-TRIGGER-QUEUE
+   status=parked-until-triggered; boundary=only open if the active ProgramJSON gate or direct AOT regression hits the route
 
 next active:
-  MIRBUILDER-PROGRAMJSON-CAPABILITY-BATCH-CONTINUATION
-  status=active; boundary=select and implement next concrete ProgramJSON traversal capability
+  MIRBUILDER-PROGRAMJSON-BRAND-EXPR-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+  status=active; boundary=covered BrandExprShapeSnapshotV1 rows only
 
 trigger-based AOT/MIR typing debt:
   status=parked-until-triggered; items=Float Sub/Mul/Div, string relational
@@ -424,10 +424,10 @@ trigger-based AOT/MIR typing debt:
   scalar_i64_or_missing_zero, PHI dst_type, mir_call dst_type
 
 next_documented_task =
-  MIRBUILDER-PROGRAMJSON-CAPABILITY-BATCH-CONTINUATION
+  MIRBUILDER-PROGRAMJSON-BRAND-EXPR-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
 
 next_after_active_3 =
-  select next covered retire-candidate after green parity
+  select next ProgramJSON traversal capability after 3064 lands
 
 task discipline =
   Each ProgramJSON capability card must land real `.hako` traversal, a fixture,

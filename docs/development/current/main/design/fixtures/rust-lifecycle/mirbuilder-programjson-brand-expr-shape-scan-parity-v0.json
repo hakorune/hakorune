@@ -1,0 +1,92 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonBrandExprShapeScanParityV1",
+  "token": "MIRBUILDER-PROGRAMJSON-BRAND-EXPR-SHAPE-SCAN-CAPABILITY-001",
+  "capability": {
+    "name": "ProgramJsonBrandExprShapeScanV1",
+    "input": "ProgramJSON v0",
+    "output": "BrandExprShapeSnapshotV1"
+  },
+  "routes": {
+    "rust_oracle_route": "source -> RHako parser -> Rust ASTNode -> Rust Brand expr token snapshot",
+    "hako_programjson_route": "source -> HHako parser -> ProgramJSON -> HHako Brand expr token snapshot"
+  },
+  "rows": [
+    {
+      "row_id": "local_construct_i64_from_int",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "x", "expr": {"type": "BrandConstruct", "brand": "UserId", "underlying_type": "i64", "value": {"type": "Int", "value": 42}}}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=BrandExprShapeSnapshotV1;top_brand_expr_shape_kind=ConstructI64FromInt;if_then_brand_expr_shape_kind=Missing;if_else_brand_expr_shape_kind=Missing;supported_brand_expr_count=1;unsupported_brand_expr_count=0"}
+    },
+    {
+      "row_id": "local_construct_string_from_str",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "x", "expr": {"type": "BrandConstruct", "brand": "UserName", "underlying_type": "StringBox", "value": {"type": "Str", "value": "tomo"}}}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=BrandExprShapeSnapshotV1;top_brand_expr_shape_kind=ConstructStringFromStr;if_then_brand_expr_shape_kind=Missing;if_else_brand_expr_shape_kind=Missing;supported_brand_expr_count=1;unsupported_brand_expr_count=0"}
+    },
+    {
+      "row_id": "local_construct_bool_from_bool",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "x", "expr": {"type": "BrandConstruct", "brand": "Flag", "underlying_type": "Bool", "value": {"type": "Bool", "value": true}}}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=BrandExprShapeSnapshotV1;top_brand_expr_shape_kind=ConstructBoolFromBool;if_then_brand_expr_shape_kind=Missing;if_else_brand_expr_shape_kind=Missing;supported_brand_expr_count=1;unsupported_brand_expr_count=0"}
+    },
+    {
+      "row_id": "local_construct_from_var",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "x", "expr": {"type": "BrandConstruct", "brand": "UserId", "underlying_type": "i64", "value": {"type": "Var", "name": "raw"}}}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=BrandExprShapeSnapshotV1;top_brand_expr_shape_kind=ConstructFromVar;if_then_brand_expr_shape_kind=Missing;if_else_brand_expr_shape_kind=Missing;supported_brand_expr_count=1;unsupported_brand_expr_count=0"}
+    },
+    {
+      "row_id": "local_unwrap_i64_from_var",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "x", "expr": {"type": "BrandUnwrap", "brand": "UserId", "underlying_type": "i64", "value": {"type": "Var", "name": "id"}}}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=BrandExprShapeSnapshotV1;top_brand_expr_shape_kind=UnwrapI64FromVar;if_then_brand_expr_shape_kind=Missing;if_else_brand_expr_shape_kind=Missing;supported_brand_expr_count=1;unsupported_brand_expr_count=0"}
+    },
+    {
+      "row_id": "local_unwrap_string_from_var",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "x", "expr": {"type": "BrandUnwrap", "brand": "UserName", "underlying_type": "StringBox", "value": {"type": "Var", "name": "name"}}}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=BrandExprShapeSnapshotV1;top_brand_expr_shape_kind=UnwrapStringFromVar;if_then_brand_expr_shape_kind=Missing;if_else_brand_expr_shape_kind=Missing;supported_brand_expr_count=1;unsupported_brand_expr_count=0"}
+    },
+    {
+      "row_id": "expr_unwrap_bool_from_var",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Expr", "expr": {"type": "BrandUnwrap", "brand": "Flag", "underlying_type": "Bool", "value": {"type": "Var", "name": "flag"}}}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=BrandExprShapeSnapshotV1;top_brand_expr_shape_kind=UnwrapBoolFromVar;if_then_brand_expr_shape_kind=Missing;if_else_brand_expr_shape_kind=Missing;supported_brand_expr_count=1;unsupported_brand_expr_count=0"}
+    },
+    {
+      "row_id": "if_then_construct_i64_from_int",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "If", "cond": {"type": "Bool", "value": true}, "then": [{"type": "Local", "name": "x", "expr": {"type": "BrandConstruct", "brand": "UserId", "underlying_type": "i64", "value": {"type": "Int", "value": 1}}}], "else": null}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=BrandExprShapeSnapshotV1;top_brand_expr_shape_kind=Missing;if_then_brand_expr_shape_kind=ConstructI64FromInt;if_else_brand_expr_shape_kind=Missing;supported_brand_expr_count=1;unsupported_brand_expr_count=0"}
+    },
+    {
+      "row_id": "if_else_unwrap_i64_from_var",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "If", "cond": {"type": "Bool", "value": true}, "then": [], "else": [{"type": "Local", "name": "x", "expr": {"type": "BrandUnwrap", "brand": "UserId", "underlying_type": "i64", "value": {"type": "Var", "name": "id"}}}]}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=BrandExprShapeSnapshotV1;top_brand_expr_shape_kind=Missing;if_then_brand_expr_shape_kind=Missing;if_else_brand_expr_shape_kind=UnwrapI64FromVar;supported_brand_expr_count=1;unsupported_brand_expr_count=0"}
+    },
+    {
+      "row_id": "first_stmt_return_unsupported",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Return", "expr": {"type": "Int", "value": 0}}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=BrandExprShapeSnapshotV1;top_brand_expr_shape_kind=Unsupported;if_then_brand_expr_shape_kind=Missing;if_else_brand_expr_shape_kind=Missing;supported_brand_expr_count=0;unsupported_brand_expr_count=1"}
+    }
+  ],
+  "summary": {
+    "parity_row_count": 10,
+    "programjson_traversal_used": 1,
+    "string_only_facade": 0,
+    "rust_astnode_projector_retire_candidate": 1
+  },
+  "decision": {
+    "kind": "ProgramJsonBrandExprShapeScanParityGreen",
+    "reason_token": "BrandExprShapeProgramJsonSnapshotMatchesRustAstNodeOracle",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-BRAND-EXPR-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "programjson_full_parser_claim": 0,
+    "hako_adopted_for_full_owner": 0,
+    "brand_lowering": 0,
+    "brand_runtime_semantics": 0
+  }
+}
