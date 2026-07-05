@@ -345,12 +345,12 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-SINGLE-PLANNER-RECIPE-MATCH-GATE-PARITY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2967-MIRBUILDER-SINGLE-PLANNER-RECIPE-MATCH-GATE-PARITY-001.md"
-latest_card_summary = """The latest card lands parity for the read-only
-single_planner recipe-match gate DTO. RecipeMatcher execution,
-build_plan_with_facts_ctx, full try_build_outcome, lowering, MIR mutation, ID
-allocation, and Source Selfhost remain unclaimed."""
+latest_card = "MIRBUILDER-SINGLE-PLANNER-RECIPE-MATCH-GATE-HAKOADOPTED-DECISION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2968-MIRBUILDER-SINGLE-PLANNER-RECIPE-MATCH-GATE-HAKOADOPTED-DECISION-001.md"
+latest_card_summary = """The latest card adopts the read-only single_planner
+recipe-match gate DTO. RecipeMatcher execution, build_plan_with_facts_ctx, full
+try_build_outcome, lowering, MIR mutation, ID allocation, and Source Selfhost
+remain unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -361,6 +361,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-05: 2968 adopts single_planner recipe-match gate as scoped HakoAdopted Plan DTO owner.",
   "2026-07-05: 2967 lands single_planner recipe-match gate parity; RecipeMatcher execution remains Rust.",
   "2026-07-05: 2966 adopts single_planner gate mode as scoped HakoAdopted Plan DTO owner.",
   "2026-07-05: 2965 lands single_planner gate mode parity for strict_or_dev / planner_required DTO construction.",
@@ -372,5 +373,4 @@ landed_tail = [
   "2026-07-05: 2959 adopts LoopCondContinueWithReturn plan-rule DTO as the first scoped HakoAdopted Plan owner.",
   "2026-07-05: 2958 lands LoopCondContinueWithReturn plan-rule DTO parity; HakoAdopted decision is next.",
   "2026-07-05: 2957 selects LoopCondContinueWithReturn single-planner rule as the first Plan-track facts-to-plan DTO parity pilot.",
-  "2026-07-05: 2956 promotes to Plan track; no non-adopted Fact owner is strictly smaller than build_plan_with_facts_ctx / try_build_outcome.",
 ]
