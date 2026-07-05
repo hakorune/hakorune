@@ -30,56 +30,21 @@ MIR mutation, and ID allocation.
 ## Current Queue
 
 ```text
-3005:
-  MIRBUILDER-PROGRAMJSON-CONDITION-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+landed batch:
+  2995 Loop.body control-flow scan
+  3004..3032 condition/return/local/call/method/new/field/record-field/
+    binary/compare/logical/local-array/print/throw scan and scoped
+    retire-candidate pairs
 
-3006:
-  MIRBUILDER-PROGRAMJSON-RETURN-EXPR-SHAPE-SCAN-CAPABILITY-001
+next batch:
+  MIRBUILDER-PROGRAMJSON-CAPABILITY-BATCH-CONTINUATION
 
-3007:
-  MIRBUILDER-PROGRAMJSON-RETURN-EXPR-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
-
-3008:
-  MIRBUILDER-PROGRAMJSON-LOCAL-BINDING-SHAPE-SCAN-CAPABILITY-001
-
-3009:
-  MIRBUILDER-PROGRAMJSON-LOCAL-BINDING-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
-
-3010:
-  MIRBUILDER-PROGRAMJSON-EXPR-CALL-SHAPE-SCAN-CAPABILITY-001
-
-3011:
-  MIRBUILDER-PROGRAMJSON-EXPR-CALL-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
-
-3012:
-  MIRBUILDER-PROGRAMJSON-EXPR-METHOD-SHAPE-SCAN-CAPABILITY-001
-
-3013:
-  MIRBUILDER-PROGRAMJSON-EXPR-METHOD-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
-
-3014:
-  MIRBUILDER-PROGRAMJSON-EXPR-NEW-SHAPE-SCAN-CAPABILITY-001
-
-3015:
-  MIRBUILDER-PROGRAMJSON-EXPR-NEW-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
-
-3016:
-  MIRBUILDER-PROGRAMJSON-EXPR-FIELD-SHAPE-SCAN-CAPABILITY-001
-
-3017:
-  MIRBUILDER-PROGRAMJSON-EXPR-FIELD-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
-
-3018:
-  MIRBUILDER-PROGRAMJSON-EXPR-RECORDFIELD-SHAPE-SCAN-CAPABILITY-001
-
-3019:
-  MIRBUILDER-PROGRAMJSON-EXPR-RECORDFIELD-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
-
-3020:
-  MIRBUILDER-PROGRAMJSON-EXPR-BINARY-SHAPE-SCAN-CAPABILITY-001
-
-3021:
-  MIRBUILDER-PROGRAMJSON-EXPR-BINARY-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+required shape:
+  1. select the next concrete ProgramJSON traversal capability;
+  2. land `.hako` implementation, parity fixture rows, and AOT parity gate in
+     the implementation card;
+  3. immediately follow with the scoped Rust ASTNode projector retire-candidate
+     for only the covered snapshot rows.
 ```
 
 Default implementation card type:
@@ -191,31 +156,40 @@ The parity gate must compare canonical fields, not raw JSON strings.
 
 ## Next Implementation Capability
 
-After the active 3005 retire-candidate closeout, return to implementation with:
+After 3032, choose the next concrete capability from actual ProgramJSON
+projector surface. Selection is implementation prep, not progress by itself.
+If the capability is clear, do not add a standalone selection-only card.
+
+The next implementation card must name:
 
 ```text
-ProgramJsonReturnExprShapeScanV1
+ProgramJson*ScanV1 owner
+SnapshotV1 output contract
+covered parity rows
+retire-candidate target projector slice
 ```
 
-Minimum scope:
+Minimum implementation scope:
 
 ```text
-Return.expr = Int
-Return.expr = Var
-Return.expr = Compare(Var, Int)
-Return.expr = Bool
-Return.expr = Call unsupported
-If.then/else first Return.expr when structurally present
+real `.hako` ProgramJSON traversal
+fixture rows that prove structural field traversal
+AOT parity gate
+unsupported rows fail fast or return explicit unsupported tokens
 ```
 
-Output:
+Do not count these as progress:
 
 ```text
-ReturnExprShapeSnapshotV1
+guard-only card
+docs-only selection row
+string-only facade expansion
+prebuilt token snapshot pass-through
 ```
 
 The purpose is to continue replacing Rust ASTNode projection with HHako
-ProgramJSON traversal. Do not add another selection-only card for this slice.
+ProgramJSON traversal while keeping the work below RecipeMatcher execution,
+route selection, lowering, MIR mutation, and ID allocation.
 
 ## Gate
 

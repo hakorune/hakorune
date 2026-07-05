@@ -1,6 +1,6 @@
 # 3032 - MIRBUILDER-PROGRAMJSON-THROW-EXPR-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
 
-Status: active
+Status: landed
 
 ## Scope
 
@@ -76,3 +76,35 @@ new ABI
 - Rust projector oracle-only state remains documented;
 - exception runtime semantics and catch/finally matching remain explicitly
   unclaimed.
+
+## Evidence
+
+```bash
+bash tools/checks/rust_lifecycle_mirbuilder_programjson_throw_expr_shape_retire_rust_astnode_projector_candidate_guard.sh
+```
+
+Decision fixture:
+
+```text
+docs/development/current/main/design/fixtures/rust-lifecycle/
+  mirbuilder-programjson-throw-expr-shape-retire-rust-astnode-projector-candidate-v0.json
+```
+
+Result:
+
+```text
+decision=RetireCandidateScoped
+retire_candidate=ThrowExprShapeSnapshotV1
+covered_rows=9
+rust_projector_runtime_dependency_removed=0
+rust_projector_oracle_only=1
+full_astnode_projector_retired=0
+exception_runtime_semantics=0
+catch_finally_matching=0
+```
+
+## Next
+
+```text
+MIRBUILDER-PROGRAMJSON-CAPABILITY-BATCH-CONTINUATION
+```

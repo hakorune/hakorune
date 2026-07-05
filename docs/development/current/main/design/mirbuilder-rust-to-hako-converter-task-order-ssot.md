@@ -60,7 +60,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-CONDITION-SHAPE-SCAN-CAPABILITY-001
+  MIRBUILDER-PROGRAMJSON-CAPABILITY-BATCH-CONTINUATION
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -90,10 +90,9 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  3031 lands real `.hako` ProgramJsonThrowExprShapeScanV1 traversal for
-  covered Throw.expr ProgramJSON structure with a 9-row AOT parity gate. 3032
-  is active to mark only covered ThrowExprShapeSnapshotV1 rows as Rust ASTNode
-  projector retire-candidate.
+  3032 lands the covered ThrowExprShapeSnapshotV1 ProgramJSON traversal rows as
+  a scoped Rust ASTNode projector retire-candidate. Next work returns to
+  ProgramJSON capability-batch continuation.
   Selection-only ProgramJSON cards remain forbidden unless the next capability
   is genuinely ambiguous.
   3002 records trigger-based dynamic typing hint debt for Float binops, PHI
@@ -401,24 +400,26 @@ Detailed evidence lives in phase cards, fixtures, and git history.
 
 ## Active Next 3
 ```text
-1. MIRBUILDER-PROGRAMJSON-PRINT-CALL-SHAPE-SCAN-CAPABILITY-001
-   status=landed; boundary=print-lowered Call traversal, no backend print lowering
-
-2. MIRBUILDER-PROGRAMJSON-PRINT-CALL-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
-   status=landed; boundary=covered PrintCallShapeSnapshotV1 rows only
-
-3. MIRBUILDER-PROGRAMJSON-THROW-EXPR-SHAPE-SCAN-CAPABILITY-001
+1. MIRBUILDER-PROGRAMJSON-THROW-EXPR-SHAPE-SCAN-CAPABILITY-001
    status=landed; boundary=Throw.expr traversal, no exception runtime semantics
 
+2. MIRBUILDER-PROGRAMJSON-THROW-EXPR-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+   status=landed; boundary=covered ThrowExprShapeSnapshotV1 rows only
+
+3. MIRBUILDER-PROGRAMJSON-CAPABILITY-BATCH-CONTINUATION
+   status=active; boundary=choose next real traversal capability and implement it
+
 next active:
-  MIRBUILDER-PROGRAMJSON-THROW-EXPR-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
-  status=active; boundary=covered ThrowExprShapeSnapshotV1 rows only
+  Select the next ProgramJSON traversal capability only as implementation prep,
+  then land the `.hako` traversal, fixture rows, and AOT parity gate together.
+  Do not land a standalone guard/doc-only progress row unless capability choice
+  is genuinely ambiguous.
 
 trigger-based: MIR JSON dynamic typing hint inventory follow-up
    status=trigger-based; boundary=3002 Tier-2/Tier-3, no guard-only detour
 
 next_documented_task =
-  MIRBUILDER-PROGRAMJSON-THROW-EXPR-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+  MIRBUILDER-PROGRAMJSON-CAPABILITY-BATCH-CONTINUATION
 
 next_after_active_3 =
   return to ProgramJSON capability-batch retire-candidate continuation
@@ -427,6 +428,10 @@ task discipline =
   Each ProgramJSON capability card must land real `.hako` traversal, a fixture,
   and an AOT parity gate together. If it only adds a guard or selection row,
   stop and rewrite the card before continuing.
+  The follow-up retire-candidate card must name only the covered snapshot rows;
+  full Rust ASTNode projector retirement, HakoAdoption, ProgramJSON full parser,
+  MIR mutation, lowering, route selection, ID allocation, and Source Selfhost
+  remain unclaimed.
 ```
 
 ## Landed Converter Capability Summary
