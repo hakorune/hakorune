@@ -1,0 +1,118 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonContextScopeShapeScanParityV1",
+  "token": "MIRBUILDER-PROGRAMJSON-CONTEXT-SCOPE-SHAPE-SCAN-CAPABILITY-001",
+  "capability": {
+    "name": "ProgramJsonContextScopeShapeScanV1",
+    "input": "ProgramJSON v0",
+    "output": "ContextScopeShapeSnapshotV1"
+  },
+  "routes": {
+    "rust_oracle_route": "source -> RHako parser -> Rust ASTNode -> Rust ContextScope token snapshot",
+    "hako_programjson_route": "source -> HHako parser -> ProgramJSON -> HHako ContextScope token snapshot"
+  },
+  "programjson_emit_evidence": {
+    "source": "src/macro/ast_json/joinir_compat.rs",
+    "node_kind": "ContextScope",
+    "node_type": "ContextScope",
+    "fields": ["spelling", "name", "declared_type", "value", "body"]
+  },
+  "rows": [
+    {
+      "row_id": "top_context_var_empty",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "ContextScope", "spelling": "using", "name": "ctx", "declared_type": "Ctx", "value": {"type": "Var", "name": "source"}, "body": []}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=ContextScopeShapeSnapshotV1;top_context_scope_shape_kind=ContextValueVarBodyEmpty;if_then_context_scope_shape_kind=Missing;if_else_context_scope_shape_kind=Missing;supported_context_scope_count=1;unsupported_context_scope_count=0"
+      }
+    },
+    {
+      "row_id": "top_context_int_local",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "ContextScope", "spelling": "using", "name": "ctx", "declared_type": "Ctx", "value": {"type": "Int", "value": 1}, "body": [{"type": "Local", "name": "i", "expr": {"type": "Int", "value": 1}}]}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=ContextScopeShapeSnapshotV1;top_context_scope_shape_kind=ContextValueIntBodyLocal;if_then_context_scope_shape_kind=Missing;if_else_context_scope_shape_kind=Missing;supported_context_scope_count=1;unsupported_context_scope_count=0"
+      }
+    },
+    {
+      "row_id": "top_context_str_return",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "ContextScope", "spelling": "using", "name": "ctx", "declared_type": "Ctx", "value": {"type": "Str", "value": "name"}, "body": [{"type": "Return", "value": {"type": "Int", "value": 1}}]}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=ContextScopeShapeSnapshotV1;top_context_scope_shape_kind=ContextValueStrBodyReturn;if_then_context_scope_shape_kind=Missing;if_else_context_scope_shape_kind=Missing;supported_context_scope_count=1;unsupported_context_scope_count=0"
+      }
+    },
+    {
+      "row_id": "top_context_bool_expr",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "ContextScope", "spelling": "using", "name": "ctx", "declared_type": "Ctx", "value": {"type": "Bool", "value": true}, "body": [{"type": "Expr", "expr": {"type": "Var", "name": "ctx"}}]}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=ContextScopeShapeSnapshotV1;top_context_scope_shape_kind=ContextValueBoolBodyExpr;if_then_context_scope_shape_kind=Missing;if_else_context_scope_shape_kind=Missing;supported_context_scope_count=1;unsupported_context_scope_count=0"
+      }
+    },
+    {
+      "row_id": "top_context_var_loop",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "ContextScope", "spelling": "using", "name": "ctx", "declared_type": "Ctx", "value": {"type": "Var", "name": "source"}, "body": [{"type": "Loop", "cond": {"type": "Bool", "value": true}, "body": []}]}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=ContextScopeShapeSnapshotV1;top_context_scope_shape_kind=ContextValueVarBodyLoop;if_then_context_scope_shape_kind=Missing;if_else_context_scope_shape_kind=Missing;supported_context_scope_count=1;unsupported_context_scope_count=0"
+      }
+    },
+    {
+      "row_id": "top_context_call_value_unsupported",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "ContextScope", "spelling": "using", "name": "ctx", "declared_type": "Ctx", "value": {"type": "Call", "name": "make", "args": []}, "body": []}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=ContextScopeShapeSnapshotV1;top_context_scope_shape_kind=Unsupported;if_then_context_scope_shape_kind=Missing;if_else_context_scope_shape_kind=Missing;supported_context_scope_count=0;unsupported_context_scope_count=1"
+      }
+    },
+    {
+      "row_id": "top_context_body_break_unsupported",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "ContextScope", "spelling": "using", "name": "ctx", "declared_type": "Ctx", "value": {"type": "Var", "name": "source"}, "body": [{"type": "Break"}]}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=ContextScopeShapeSnapshotV1;top_context_scope_shape_kind=Unsupported;if_then_context_scope_shape_kind=Missing;if_else_context_scope_shape_kind=Missing;supported_context_scope_count=0;unsupported_context_scope_count=1"
+      }
+    },
+    {
+      "row_id": "if_then_context_int_local",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "If", "cond": {"type": "Bool", "value": true}, "then": [{"type": "ContextScope", "spelling": "using", "name": "ctx", "declared_type": "Ctx", "value": {"type": "Int", "value": 1}, "body": [{"type": "Local", "name": "i", "expr": {"type": "Int", "value": 1}}]}], "else": null}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=ContextScopeShapeSnapshotV1;top_context_scope_shape_kind=Missing;if_then_context_scope_shape_kind=ContextValueIntBodyLocal;if_else_context_scope_shape_kind=Missing;supported_context_scope_count=1;unsupported_context_scope_count=0"
+      }
+    },
+    {
+      "row_id": "if_else_context_var_empty",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "If", "cond": {"type": "Bool", "value": true}, "then": [], "else": [{"type": "ContextScope", "spelling": "using", "name": "ctx", "declared_type": "Ctx", "value": {"type": "Var", "name": "source"}, "body": []}]}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=ContextScopeShapeSnapshotV1;top_context_scope_shape_kind=Missing;if_then_context_scope_shape_kind=Missing;if_else_context_scope_shape_kind=ContextValueVarBodyEmpty;supported_context_scope_count=1;unsupported_context_scope_count=0"
+      }
+    },
+    {
+      "row_id": "first_stmt_local_unsupported",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "i", "expr": {"type": "Int", "value": 0}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=ContextScopeShapeSnapshotV1;top_context_scope_shape_kind=Unsupported;if_then_context_scope_shape_kind=Missing;if_else_context_scope_shape_kind=Missing;supported_context_scope_count=0;unsupported_context_scope_count=1"
+      }
+    }
+  ],
+  "summary": {
+    "parity_row_count": 10,
+    "programjson_traversal_used": 1,
+    "string_only_facade": 0,
+    "rust_astnode_projector_retire_candidate": 1
+  },
+  "decision": {
+    "kind": "ProgramJsonContextScopeShapeScanParityGreen",
+    "reason_token": "ContextScopeShapeProgramJsonSnapshotMatchesRustAstNodeOracle",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-CONTEXT-SCOPE-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "programjson_full_parser_claim": 0,
+    "hako_adopted_for_full_owner": 0,
+    "context_lowering": 0,
+    "context_runtime_semantics": 0
+  }
+}

@@ -72,6 +72,7 @@ phase-1 compatibility Program(JSON) compat execution helper.
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_next_capability_selection_guard.sh` | Selection guard for the next ProgramJSON traversal capability after Loop.body control-flow. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_condition_shape_scan_parity_gate.sh` | Capability-batch parity for `.hako` `ProgramJsonConditionShapeScanV1`. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_condition_shape_retire_rust_astnode_projector_candidate_guard.sh` | Retire-candidate guard for the covered `ConditionShapeSnapshotV1` ProgramJSON traversal slice. |
+| `tools/checks/rust_lifecycle_mirbuilder_programjson_context_scope_shape_scan_parity_gate.sh` | Capability-batch parity for `.hako` `ProgramJsonContextScopeShapeScanV1`. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_return_expr_shape_scan_parity_gate.sh` | Capability-batch parity for `.hako` `ProgramJsonReturnExprShapeScanV1`. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_return_expr_shape_retire_rust_astnode_projector_candidate_guard.sh` | Retire-candidate guard for the covered `ReturnExprShapeSnapshotV1` ProgramJSON traversal slice. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_local_binding_shape_scan_parity_gate.sh` | Capability-batch parity for `.hako` `ProgramJsonLocalBindingShapeScanV1`. |
