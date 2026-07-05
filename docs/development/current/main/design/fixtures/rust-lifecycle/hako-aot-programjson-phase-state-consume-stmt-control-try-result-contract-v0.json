@@ -42,8 +42,7 @@
     }
   ],
   "expected_next_blocker_family": [
-    "RecipeVerifierBox",
-    "RecipePortSigBox"
+    "ProgramJsonV0RuneAttrsBox"
   ],
   "decision": {
     "kind": "SelectRecipeVerifierPortSigResultContract",

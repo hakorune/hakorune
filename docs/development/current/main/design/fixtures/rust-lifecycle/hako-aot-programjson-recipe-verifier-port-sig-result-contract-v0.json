@@ -1,0 +1,80 @@
+{
+  "schema_version": 0,
+  "kind": "HakoAotProgramJsonRecipeVerifierPortSigResultContractV1",
+  "token": "HAKO-AOT-PROGRAMJSON-RECIPE-VERIFIER-PORT-SIG-RESULT-CONTRACT-001",
+  "contract_rule": {
+    "recipe_verifier_helpers_return_total_result_maps": true,
+    "recipe_port_sig_helpers_return_total_result_maps": true,
+    "recipe_port_sig_representation": "CountOnlyPortSigV1",
+    "recipe_port_sig_dynamic_object_handle_republication": false,
+    "recipe_verifier_boxhelpers_array_len_route_removed": true
+  },
+  "expected_direct_routes": [
+    {
+      "caller": "ProgramJsonV0PhaseStateConsumerBox._verify_recipe/2",
+      "callee": "RecipeVerifierBox.verify/2",
+      "return_shape": "map_handle"
+    },
+    {
+      "caller": "RecipeVerifierBox._apply_facts/2",
+      "callee": "RecipeVerifierBox._apply_names/3",
+      "return_shape": "map_handle"
+    },
+    {
+      "caller": "RecipeVerifierBox._apply_names/3",
+      "callee": "RecipePortSigBox.mark_def/2",
+      "return_shape": "map_handle"
+    },
+    {
+      "caller": "RecipeVerifierBox._apply_names/3",
+      "callee": "RecipePortSigBox.mark_update/2",
+      "return_shape": "map_handle"
+    },
+    {
+      "caller": "RecipeVerifierBox._verify_seq/3",
+      "callee": "RecipePortSigBox.merge/2",
+      "return_shape": "map_handle"
+    },
+    {
+      "caller": "RecipePortSigBox.mark_def/2",
+      "callee": "RecipePortSigBox._ensure_sig/1",
+      "return_shape": "map_handle"
+    },
+    {
+      "caller": "RecipePortSigBox.merge/2",
+      "callee": "RecipePortSigBox._ensure_sig/1",
+      "return_shape": "map_handle"
+    },
+    {
+      "caller": "RecipePortSigBox.snapshot/1",
+      "callee": "RecipePortSigBox._count_bucket/1",
+      "return_shape": "ScalarI64"
+    }
+  ],
+  "forbidden_unsupported_route_families": [
+    "RecipeVerifierBox",
+    "RecipePortSigBox"
+  ],
+  "expected_next_blocker_family": [
+    "ProgramJsonV0PhaseStateBox",
+    "ProgramJsonV0RuneAttrsBox"
+  ],
+  "decision": {
+    "kind": "SelectPhaseStateScanBodyRecResultContract",
+    "reason_token": "RecipeVerifierPortSigResultContractsStabilized",
+    "selected_next_card": "HAKO-AOT-PROGRAMJSON-PHASE-STATE-SCAN-BODY-REC-RESULT-CONTRACT-001"
+  },
+  "claims": {
+    "recipe_verifier_port_sig_aot_call_fixed": 1,
+    "phase_state_parse_aot_call_fixed": 0,
+    "layer4_recipe_dto_parity_green": 0,
+    "source_selfhost_claim": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering_claim": 0,
+    "route_selection_migration": 0,
+    "runtime_route_switch": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
