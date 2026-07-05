@@ -1,0 +1,312 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonExprBinaryShapeScanParityV1",
+  "token": "MIRBUILDER-PROGRAMJSON-EXPR-BINARY-SHAPE-SCAN-CAPABILITY-001",
+  "capability": {
+    "name": "ProgramJsonExprBinaryShapeScanV1",
+    "input": "ProgramJSON v0",
+    "output": "ExprBinaryShapeSnapshotV1"
+  },
+  "routes": {
+    "rust_oracle_route": "source -> RHako parser -> Rust ASTNode -> Rust expr-binary token snapshot",
+    "hako_programjson_route": "source -> HHako parser -> ProgramJSON -> HHako expr-binary token snapshot"
+  },
+  "rows": [
+    {
+      "row_id": "expr_binary_var_add_int",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "type": "Program",
+        "body": [
+          {
+            "type": "Expr",
+            "expr": {
+              "type": "Binary",
+              "op": "+",
+              "lhs": {
+                "type": "Var",
+                "name": "i"
+              },
+              "rhs": {
+                "type": "Int",
+                "value": 1
+              }
+            }
+          }
+        ]
+      },
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=ExprBinaryShapeSnapshotV1;top_expr_binary_shape_kind=VarAddInt;if_then_expr_binary_shape_kind=Missing;if_else_expr_binary_shape_kind=Missing;supported_expr_binary_count=1;unsupported_expr_binary_count=0"
+      }
+    },
+    {
+      "row_id": "expr_binary_int_sub_var",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "type": "Program",
+        "body": [
+          {
+            "type": "Expr",
+            "expr": {
+              "type": "Binary",
+              "op": "-",
+              "lhs": {
+                "type": "Int",
+                "value": 1
+              },
+              "rhs": {
+                "type": "Var",
+                "name": "i"
+              }
+            }
+          }
+        ]
+      },
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=ExprBinaryShapeSnapshotV1;top_expr_binary_shape_kind=IntSubVar;if_then_expr_binary_shape_kind=Missing;if_else_expr_binary_shape_kind=Missing;supported_expr_binary_count=1;unsupported_expr_binary_count=0"
+      }
+    },
+    {
+      "row_id": "expr_binary_var_mul_int",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "type": "Program",
+        "body": [
+          {
+            "type": "Expr",
+            "expr": {
+              "type": "Binary",
+              "op": "*",
+              "lhs": {
+                "type": "Var",
+                "name": "i"
+              },
+              "rhs": {
+                "type": "Int",
+                "value": 2
+              }
+            }
+          }
+        ]
+      },
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=ExprBinaryShapeSnapshotV1;top_expr_binary_shape_kind=VarMulInt;if_then_expr_binary_shape_kind=Missing;if_else_expr_binary_shape_kind=Missing;supported_expr_binary_count=1;unsupported_expr_binary_count=0"
+      }
+    },
+    {
+      "row_id": "expr_binary_var_div_int",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "type": "Program",
+        "body": [
+          {
+            "type": "Expr",
+            "expr": {
+              "type": "Binary",
+              "op": "/",
+              "lhs": {
+                "type": "Var",
+                "name": "i"
+              },
+              "rhs": {
+                "type": "Int",
+                "value": 2
+              }
+            }
+          }
+        ]
+      },
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=ExprBinaryShapeSnapshotV1;top_expr_binary_shape_kind=VarDivInt;if_then_expr_binary_shape_kind=Missing;if_else_expr_binary_shape_kind=Missing;supported_expr_binary_count=1;unsupported_expr_binary_count=0"
+      }
+    },
+    {
+      "row_id": "expr_binary_nested_unsupported",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "type": "Program",
+        "body": [
+          {
+            "type": "Expr",
+            "expr": {
+              "type": "Binary",
+              "op": "+",
+              "lhs": {
+                "type": "Binary",
+                "op": "+",
+                "lhs": {
+                  "type": "Var",
+                  "name": "i"
+                },
+                "rhs": {
+                  "type": "Int",
+                  "value": 1
+                }
+              },
+              "rhs": {
+                "type": "Int",
+                "value": 1
+              }
+            }
+          }
+        ]
+      },
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=ExprBinaryShapeSnapshotV1;top_expr_binary_shape_kind=Unsupported;if_then_expr_binary_shape_kind=Missing;if_else_expr_binary_shape_kind=Missing;supported_expr_binary_count=0;unsupported_expr_binary_count=1"
+      }
+    },
+    {
+      "row_id": "if_then_expr_binary_var_add_int",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "type": "Program",
+        "body": [
+          {
+            "type": "If",
+            "cond": {
+              "type": "Bool",
+              "value": true
+            },
+            "then": [
+              {
+                "type": "Expr",
+                "expr": {
+                  "type": "Binary",
+                  "op": "+",
+                  "lhs": {
+                    "type": "Var",
+                    "name": "i"
+                  },
+                  "rhs": {
+                    "type": "Int",
+                    "value": 1
+                  }
+                }
+              }
+            ],
+            "else": null
+          }
+        ]
+      },
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=ExprBinaryShapeSnapshotV1;top_expr_binary_shape_kind=Missing;if_then_expr_binary_shape_kind=VarAddInt;if_else_expr_binary_shape_kind=Missing;supported_expr_binary_count=1;unsupported_expr_binary_count=0"
+      }
+    },
+    {
+      "row_id": "if_else_expr_binary_int_sub_var",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "type": "Program",
+        "body": [
+          {
+            "type": "If",
+            "cond": {
+              "type": "Bool",
+              "value": true
+            },
+            "then": [],
+            "else": [
+              {
+                "type": "Expr",
+                "expr": {
+                  "type": "Binary",
+                  "op": "-",
+                  "lhs": {
+                    "type": "Int",
+                    "value": 1
+                  },
+                  "rhs": {
+                    "type": "Var",
+                    "name": "i"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=ExprBinaryShapeSnapshotV1;top_expr_binary_shape_kind=Missing;if_then_expr_binary_shape_kind=Missing;if_else_expr_binary_shape_kind=IntSubVar;supported_expr_binary_count=1;unsupported_expr_binary_count=0"
+      }
+    },
+    {
+      "row_id": "compare_expr_unsupported",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "type": "Program",
+        "body": [
+          {
+            "type": "Expr",
+            "expr": {
+              "type": "Compare",
+              "op": "<",
+              "lhs": {
+                "type": "Var",
+                "name": "i"
+              },
+              "rhs": {
+                "type": "Int",
+                "value": 1
+              }
+            }
+          }
+        ]
+      },
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=ExprBinaryShapeSnapshotV1;top_expr_binary_shape_kind=Unsupported;if_then_expr_binary_shape_kind=Missing;if_else_expr_binary_shape_kind=Missing;supported_expr_binary_count=0;unsupported_expr_binary_count=1"
+      }
+    },
+    {
+      "row_id": "first_stmt_not_expr_unsupported",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "type": "Program",
+        "body": [
+          {
+            "type": "Return",
+            "expr": {
+              "type": "Int",
+              "value": 1
+            }
+          }
+        ]
+      },
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=ExprBinaryShapeSnapshotV1;top_expr_binary_shape_kind=Unsupported;if_then_expr_binary_shape_kind=Missing;if_else_expr_binary_shape_kind=Missing;supported_expr_binary_count=0;unsupported_expr_binary_count=1"
+      }
+    }
+  ],
+  "summary": {
+    "parity_row_count": 9,
+    "programjson_traversal_used": 1,
+    "string_only_facade": 0,
+    "rust_astnode_projector_retire_candidate": 1
+  },
+  "decision": {
+    "kind": "ProgramJsonExprBinaryShapeScanParityGreen",
+    "reason_token": "ExprBinaryShapeProgramJsonSnapshotMatchesRustAstNodeOracle",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-EXPR-BINARY-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "programjson_full_parser_claim": 0,
+    "hako_adopted_for_full_owner": 0
+  }
+}

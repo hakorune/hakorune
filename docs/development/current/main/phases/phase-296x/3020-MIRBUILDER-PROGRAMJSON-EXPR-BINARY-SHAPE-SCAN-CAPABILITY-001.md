@@ -1,6 +1,6 @@
 # 3020 - MIRBUILDER-PROGRAMJSON-EXPR-BINARY-SHAPE-SCAN-CAPABILITY-001
 
-Status: active
+Status: landed
 
 ## Scope
 
@@ -44,6 +44,44 @@ unsupported_expr_binary_count=...
 - unsupported binary operand shapes are reported with a stable token;
 - the card can name a concrete expr-binary Rust ASTNode projector slice as
   retire-candidate after parity is green.
+
+## Evidence
+
+```text
+bash tools/checks/rust_lifecycle_mirbuilder_programjson_expr_binary_shape_scan_parity_gate.sh
+```
+
+Result:
+
+```text
+owner=ProgramJsonExprBinaryShapeScanV1
+output_contract=ExprBinaryShapeSnapshotV1
+parity_rows=9
+execution_backend=aot
+aot_execution_status=green
+token_snapshot_parity=green
+programjson_traversal_used=1
+string_only_facade=0
+rust_astnode_projector_retire_candidate=1
+```
+
+Implementation:
+
+```text
+lang/src/compiler/mirbuilder/program_json_expr_binary_shape_scan.hako
+```
+
+Fixture:
+
+```text
+docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-programjson-expr-binary-shape-scan-parity-v0.json
+```
+
+Next:
+
+```text
+MIRBUILDER-PROGRAMJSON-EXPR-BINARY-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+```
 
 ## Forbidden
 
