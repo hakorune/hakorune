@@ -6,9 +6,9 @@
     "hako_snapshot_source": "lang/src/compiler/mirbuilder/program_json_loop_cond_continue_with_return_snapshot.hako",
     "hako_snapshot_source_hash": "sha256:9cd3210a91d56c68c4a8f7f424f29a81bfa07b12c915a333892424761bc1afe0",
     "parity_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-programjson-loop-cond-continue-with-return-snapshot-parity-v0.json",
-    "parity_fixture_hash": "sha256:8dd4f2bfb1ec8c53dacc2dfbb65b4f2c4b6b78800cfa157627db0426957526e7",
+    "parity_fixture_hash": "sha256:80a404d691a9e6cceace64a7e9484223335d24b52edbc2bbb62eb2e6bd0db6c0",
     "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_programjson_loop_cond_continue_with_return_snapshot_parity_gate.sh",
-    "parity_gate_hash": "sha256:2f036211e0545df394388185c49a09e15e2d4ac09c759074ff5cce0a1ddee4c4"
+    "parity_gate_hash": "sha256:c738a015701778e770674ee738974dcf3b6581a672a82b53bc2cba1620736f89"
   },
   "retire_candidate_scope": {
     "retire_candidate": "LoopCondContinueNestedLoopRejectTokenSnapshotV1",

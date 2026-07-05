@@ -162,6 +162,26 @@
       }
     },
     {
+      "row_id": "reject_no_return_if_only",
+      "program_json": {
+        "kind": "Program",
+        "type": "Program",
+        "body": [
+          {
+            "kind": "Loop",
+            "type": "Loop",
+            "cond": {"type": "Compare", "op": "<", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 10}},
+            "body": [
+              {"kind": "If", "type": "If", "cond": {"type": "Compare", "op": "==", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 3}}, "then": [{"kind": "Continue", "type": "Continue"}], "else": null}
+            ]
+          }
+        ]
+      },
+      "rust_astnode_token_oracle": {
+        "expected_summary": "accepted=0;reason=no_return"
+      }
+    },
+    {
       "row_id": "reject_nested_loop",
       "program_json": {
         "kind": "Program",
