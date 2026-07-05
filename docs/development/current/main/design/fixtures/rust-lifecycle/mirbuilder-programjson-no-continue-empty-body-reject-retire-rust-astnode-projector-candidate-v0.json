@@ -1,7 +1,7 @@
 {
   "schema_version": 0,
-  "kind": "MirBuilderProgramJsonIfElseNotNullRejectRustAstNodeProjectorRetireCandidateV1",
-  "token": "MIRBUILDER-PROGRAMJSON-IF-ELSE-NOT-NULL-REJECT-RETIRE-RUST-ASTNODE-PROJECTOR-CANDIDATE-001",
+  "kind": "MirBuilderProgramJsonNoContinueEmptyBodyRejectRustAstNodeProjectorRetireCandidateV1",
+  "token": "MIRBUILDER-PROGRAMJSON-NO-CONTINUE-EMPTY-BODY-REJECT-RETIRE-RUST-ASTNODE-PROJECTOR-CANDIDATE-001",
   "input_state": {
     "hako_snapshot_source": "lang/src/compiler/mirbuilder/program_json_loop_cond_continue_with_return_snapshot.hako",
     "hako_snapshot_source_hash": "sha256:9cd3210a91d56c68c4a8f7f424f29a81bfa07b12c915a333892424761bc1afe0",
@@ -11,10 +11,10 @@
     "parity_gate_hash": "sha256:33e1860a55f1b4ebbcecea5835260ffc121792cb6856eb32bbd8279e70c53fb0"
   },
   "retire_candidate_scope": {
-    "retire_candidate": "LoopCondContinueIfElseNotNullRejectTokenSnapshotV1",
-    "shape_scope": "LoopCondContinueIfElseNotNullRejectV1",
+    "retire_candidate": "LoopCondContinueNoContinueEmptyBodyRejectTokenSnapshotV1",
+    "shape_scope": "LoopCondContinueNoContinueEmptyBodyRejectV1",
     "programjson_snapshot_owner": "ProgramJsonLoopCondContinueWithReturnSnapshotV1",
-    "parity_row_id": "reject_if_else_not_null",
+    "parity_row_id": "reject_no_continue_empty_body",
     "rust_projector_runtime_dependency_removed": 0,
     "rust_projector_oracle_only": 1,
     "full_astnode_projector_retired": 0
@@ -22,15 +22,15 @@
   "criteria": {
     "programjson_snapshot_parity_gate": "Green",
     "programjson_route_traverses_programjson": 1,
-    "programjson_route_observes_if_else_non_null": 1,
+    "programjson_route_observes_empty_body_missing_continue": 1,
     "runtime_path_uses_programjson_snapshot": 1,
     "rust_astnode_projector_runtime_dependency_removed": 0,
     "rust_astnode_projector_kept_for_oracle_generation": 1
   },
   "decision": {
     "kind": "RetireCandidateScoped",
-    "reason_token": "LoopCondContinueIfElseNotNullRejectV1ProgramJsonSnapshotParityGreen",
-    "selected_next_card": "MIRBUILDER-PROGRAMJSON-NEXT-SHAPE-SELECTION-005"
+    "reason_token": "LoopCondContinueNoContinueEmptyBodyRejectV1ProgramJsonSnapshotParityGreen",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-NEXT-SHAPE-SELECTION-009"
   },
   "claims": {
     "source_selfhost_claim": 0,

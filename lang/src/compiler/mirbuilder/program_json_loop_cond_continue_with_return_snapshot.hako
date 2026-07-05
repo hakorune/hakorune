@@ -40,6 +40,9 @@ static box ProgramJsonLoopCondContinueWithReturnSnapshotBox {
   }
 
   _scan_minimal_loop_body(program_json, loop_body_start) {
+    if me._array_is_empty(program_json, loop_body_start) == 1 {
+      return me._fail("no_continue")
+    }
     local first_start = me._first_object_in_array(program_json, loop_body_start)
     if first_start < 0 { return me._fail("continue_if_shape_not_supported") }
     local first_type = me._node_type_at(program_json, first_start)
@@ -101,6 +104,12 @@ static box ProgramJsonLoopCondContinueWithReturnSnapshotBox {
     local p = StringHelpers.skip_ws(s, array_start + 1)
     if ProgramJsonV0ScannerBox._read_char(s, p) != "{" { return -1 }
     return p
+  }
+
+  _array_is_empty(s, array_start) {
+    local p = StringHelpers.skip_ws(s, array_start + 1)
+    if ProgramJsonV0ScannerBox._read_char(s, p) == "]" { return 1 }
+    return 0
   }
 
   next_object_in_array(s, previous_end) {

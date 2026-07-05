@@ -102,6 +102,22 @@
       "expected_summary": "accepted=0;reason=no_continue"
     },
     {
+      "case_id": "reject_no_continue_empty_body",
+      "program_json": {
+        "kind": "Program",
+        "type": "Program",
+        "body": [
+          {
+            "kind": "Loop",
+            "type": "Loop",
+            "cond": {"type": "Compare", "op": "<", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 10}},
+            "body": []
+          }
+        ]
+      },
+      "expected_summary": "accepted=0;reason=no_continue"
+    },
+    {
       "case_id": "reject_nested_loop",
       "program_json": {
         "kind": "Program",
