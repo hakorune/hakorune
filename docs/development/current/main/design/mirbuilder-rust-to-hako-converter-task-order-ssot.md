@@ -60,7 +60,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-ASSIGNMENT-VALUE-SHAPE-SCAN-CAPABILITY-001
+  MIRBUILDER-PROGRAMJSON-CAPABILITY-CANDIDATE-VALIDATION
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -91,10 +91,10 @@ normal operating rule:
 
 latest design decision:
   3078 lands the covered AssignmentValueShapeSnapshotV1 ProgramJSON traversal
-  slice as a scoped Rust ASTNode projector retire-candidate. Next work returns
-  to ProgramJSON capability-batch continuation.
-  Selection-only ProgramJSON cards remain forbidden unless the next capability
-  is genuinely ambiguous.
+  slice as a scoped Rust ASTNode projector retire-candidate. Next work validates
+  actual ProgramJSON v0 emit/schema evidence before selecting a concrete
+  capability. Selection-only ProgramJSON cards remain forbidden; candidate
+  validation is a no-card process step unless it hits a design stop.
   2997 stabilized the AOT/MIR value-type publication contract only for the
   proven route families. 3002 remains a trigger-based debt queue for Float
   Sub/Mul/Div, string Lt/Gt/Le/Ge policy, user-box single-observation
@@ -411,11 +411,12 @@ Detailed evidence lives in phase cards, fixtures, and git history.
    status=landed; boundary=only the covered AssignmentValueShapeSnapshotV1 rows
 
 3. MIRBUILDER-PROGRAMJSON-CAPABILITY-BATCH-CONTINUATION
-   status=active; boundary=select and implement next concrete ProgramJSON traversal capability
+   status=active; boundary=validate actual ProgramJSON v0 evidence, then
+   implement one `.hako` traversal with fixture + AOT parity gate
 
 next active:
-  MIRBUILDER-PROGRAMJSON-CAPABILITY-BATCH-CONTINUATION
-  status=active; boundary=select and implement next concrete ProgramJSON traversal capability
+  MIRBUILDER-PROGRAMJSON-CAPABILITY-CANDIDATE-VALIDATION
+  status=active-no-card; boundary=prove actual ProgramJSON v0 shape first
 
 trigger-based AOT/MIR typing debt:
   status=parked-until-triggered; items=Float Sub/Mul/Div, string relational
@@ -423,15 +424,18 @@ trigger-based AOT/MIR typing debt:
   scalar_i64_or_missing_zero, PHI dst_type, mir_call dst_type
 
 next_documented_task =
-  MIRBUILDER-PROGRAMJSON-CAPABILITY-BATCH-CONTINUATION
+  MIRBUILDER-PROGRAMJSON-CAPABILITY-CANDIDATE-VALIDATION
 
 next_after_active_3 =
-  select next covered retire-candidate after green parity
+  MIRBUILDER-PROGRAMJSON-<SELECTED-SHAPE>-SHAPE-SCAN-CAPABILITY-001
+  then covered retire-candidate after green parity
 
 task discipline =
   Each ProgramJSON capability card must land real `.hako` traversal, a fixture,
   and an AOT parity gate together. If it only adds a guard or selection row,
   stop and rewrite the card before continuing.
+  Candidate validation must check actual ProgramJSON v0 emission first; legacy
+  AST/Rust fixture names alone cannot select a capability.
   Capability order is `.hako` implementation first, then parity, then one
   covered retire-candidate. Do not advance via guard-only paperwork.
   The follow-up retire-candidate card must name only the covered snapshot rows;
