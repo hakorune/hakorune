@@ -74,9 +74,17 @@ normal operating rule:
   scoped Plan DTO owner. Next work selects the next Plan-track pilot without
   claiming full planner outcome, recipe matching, route execution, lowering,
   mutation, allocation, or Source Selfhost.
+  Rust ASTNode-to-token snapshots are temporary projection ABI only, not an
+  authority layer. The authority remains the HHako facade DTO owner, and the
+  sunset target is HHako ProgramJSON-to-snapshot/facade input during parser
+  integration.
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
+  Rust ASTNode-to-token snapshot adapters are non-authority temporary projection
+  ABI for MirBuilder-first migration. They must not invent semantic policy or a
+  hidden token taxonomy, and must be removable when HHako ProgramJSON can feed
+  the same snapshot/facade contract.
   `loop_cond_continue_with_return_plan_rule.authority_facade` is HakoAdopted
   as the first scoped facts-to-plan DTO owner. Full `build_plan_with_facts_ctx`,
   full `try_build_outcome`, recipe matching, route execution, MIR mutation, ID
