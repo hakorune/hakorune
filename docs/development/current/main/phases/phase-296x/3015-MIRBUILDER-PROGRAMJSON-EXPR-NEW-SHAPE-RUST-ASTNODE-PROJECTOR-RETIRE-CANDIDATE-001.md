@@ -1,6 +1,6 @@
 # 3015 - MIRBUILDER-PROGRAMJSON-EXPR-NEW-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
 
-Status: active
+Status: landed
 
 ## Scope
 
@@ -55,3 +55,22 @@ Source Selfhost
 - guard requires the 3014 ProgramJSON expr-new parity gate to be green;
 - runtime Rust projector dependency removal remains `0`;
 - Rust projector remains oracle-only for this covered slice.
+
+## Evidence
+
+```bash
+bash tools/checks/rust_lifecycle_mirbuilder_programjson_expr_new_shape_retire_rust_astnode_projector_candidate_guard.sh
+```
+
+Decision fixture:
+
+```text
+docs/development/current/main/design/fixtures/rust-lifecycle/
+  mirbuilder-programjson-expr-new-shape-retire-rust-astnode-projector-candidate-v0.json
+```
+
+## Next
+
+```text
+MIRBUILDER-PROGRAMJSON-EXPR-FIELD-SHAPE-SCAN-CAPABILITY-001
+```
