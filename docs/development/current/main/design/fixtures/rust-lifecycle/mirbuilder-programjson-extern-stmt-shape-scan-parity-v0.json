@@ -1,0 +1,265 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonExternStmtShapeScanParityV1",
+  "token": "MIRBUILDER-PROGRAMJSON-EXTERN-STMT-SHAPE-SCAN-CAPABILITY-001",
+  "capability": {
+    "name": "ProgramJsonExternStmtShapeScanV1",
+    "input": "ProgramJSON v0",
+    "output": "ExternStmtShapeSnapshotV1"
+  },
+  "routes": {
+    "rust_oracle_route": "source -> RHako parser -> Rust ASTNode -> Rust extern-stmt token snapshot",
+    "hako_programjson_route": "source -> HHako parser -> ProgramJSON -> HHako extern-stmt token snapshot"
+  },
+  "rows": [
+    {
+      "row_id": "extern_console_log_int_arg",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "type": "Program",
+        "body": [
+          {
+            "type": "Extern",
+            "iface": "env.console",
+            "method": "log",
+            "args": [
+              { "type": "Int", "value": 1 }
+            ]
+          }
+        ]
+      },
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=ExternStmtShapeSnapshotV1;top_extern_stmt_shape_kind=EnvConsoleLogIntArg;if_then_extern_stmt_shape_kind=Missing;if_else_extern_stmt_shape_kind=Missing;supported_extern_stmt_count=1;unsupported_extern_stmt_count=0"
+      }
+    },
+    {
+      "row_id": "extern_console_log_var_arg",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "type": "Program",
+        "body": [
+          {
+            "type": "Extern",
+            "iface": "env.console",
+            "method": "log",
+            "args": [
+              { "type": "Var", "name": "x" }
+            ]
+          }
+        ]
+      },
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=ExternStmtShapeSnapshotV1;top_extern_stmt_shape_kind=EnvConsoleLogVarArg;if_then_extern_stmt_shape_kind=Missing;if_else_extern_stmt_shape_kind=Missing;supported_extern_stmt_count=1;unsupported_extern_stmt_count=0"
+      }
+    },
+    {
+      "row_id": "extern_console_warn_str_arg",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "type": "Program",
+        "body": [
+          {
+            "type": "Extern",
+            "iface": "env.console",
+            "method": "warn",
+            "args": [
+              { "type": "Str", "value": "warn" }
+            ]
+          }
+        ]
+      },
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=ExternStmtShapeSnapshotV1;top_extern_stmt_shape_kind=EnvConsoleWarnStrArg;if_then_extern_stmt_shape_kind=Missing;if_else_extern_stmt_shape_kind=Missing;supported_extern_stmt_count=1;unsupported_extern_stmt_count=0"
+      }
+    },
+    {
+      "row_id": "extern_console_error_bool_arg",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "type": "Program",
+        "body": [
+          {
+            "type": "Extern",
+            "iface": "env.console",
+            "method": "error",
+            "args": [
+              { "type": "Bool", "value": false }
+            ]
+          }
+        ]
+      },
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=ExternStmtShapeSnapshotV1;top_extern_stmt_shape_kind=EnvConsoleErrorBoolArg;if_then_extern_stmt_shape_kind=Missing;if_else_extern_stmt_shape_kind=Missing;supported_extern_stmt_count=1;unsupported_extern_stmt_count=0"
+      }
+    },
+    {
+      "row_id": "extern_console_log_no_arg",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "type": "Program",
+        "body": [
+          {
+            "type": "Extern",
+            "iface": "env.console",
+            "method": "log",
+            "args": []
+          }
+        ]
+      },
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=ExternStmtShapeSnapshotV1;top_extern_stmt_shape_kind=EnvConsoleLogNoArg;if_then_extern_stmt_shape_kind=Missing;if_else_extern_stmt_shape_kind=Missing;supported_extern_stmt_count=1;unsupported_extern_stmt_count=0"
+      }
+    },
+    {
+      "row_id": "extern_console_log_two_arg_unsupported",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "type": "Program",
+        "body": [
+          {
+            "type": "Extern",
+            "iface": "env.console",
+            "method": "log",
+            "args": [
+              { "type": "Int", "value": 1 },
+              { "type": "Int", "value": 2 }
+            ]
+          }
+        ]
+      },
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=ExternStmtShapeSnapshotV1;top_extern_stmt_shape_kind=Unsupported;if_then_extern_stmt_shape_kind=Missing;if_else_extern_stmt_shape_kind=Missing;supported_extern_stmt_count=0;unsupported_extern_stmt_count=1"
+      }
+    },
+    {
+      "row_id": "extern_env_time_unsupported",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "type": "Program",
+        "body": [
+          {
+            "type": "Extern",
+            "iface": "env.time",
+            "method": "now_ms",
+            "args": []
+          }
+        ]
+      },
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=ExternStmtShapeSnapshotV1;top_extern_stmt_shape_kind=Unsupported;if_then_extern_stmt_shape_kind=Missing;if_else_extern_stmt_shape_kind=Missing;supported_extern_stmt_count=0;unsupported_extern_stmt_count=1"
+      }
+    },
+    {
+      "row_id": "if_then_extern_console_log_int_arg",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "type": "Program",
+        "body": [
+          {
+            "type": "If",
+            "cond": { "type": "Bool", "value": true },
+            "then": [
+              {
+                "type": "Extern",
+                "iface": "env.console",
+                "method": "log",
+                "args": [
+                  { "type": "Int", "value": 1 }
+                ]
+              }
+            ],
+            "else": null
+          }
+        ]
+      },
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=ExternStmtShapeSnapshotV1;top_extern_stmt_shape_kind=Missing;if_then_extern_stmt_shape_kind=EnvConsoleLogIntArg;if_else_extern_stmt_shape_kind=Missing;supported_extern_stmt_count=1;unsupported_extern_stmt_count=0"
+      }
+    },
+    {
+      "row_id": "if_else_extern_console_warn_str_arg",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "type": "Program",
+        "body": [
+          {
+            "type": "If",
+            "cond": { "type": "Bool", "value": true },
+            "then": [],
+            "else": [
+              {
+                "type": "Extern",
+                "iface": "env.console",
+                "method": "warn",
+                "args": [
+                  { "type": "Str", "value": "warn" }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=ExternStmtShapeSnapshotV1;top_extern_stmt_shape_kind=Missing;if_then_extern_stmt_shape_kind=Missing;if_else_extern_stmt_shape_kind=EnvConsoleWarnStrArg;supported_extern_stmt_count=1;unsupported_extern_stmt_count=0"
+      }
+    },
+    {
+      "row_id": "expr_call_unsupported",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "type": "Program",
+        "body": [
+          {
+            "type": "Expr",
+            "expr": {
+              "type": "Call",
+              "name": "env.console.log",
+              "args": [
+                { "type": "Int", "value": 1 }
+              ]
+            }
+          }
+        ]
+      },
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=ExternStmtShapeSnapshotV1;top_extern_stmt_shape_kind=Unsupported;if_then_extern_stmt_shape_kind=Missing;if_else_extern_stmt_shape_kind=Missing;supported_extern_stmt_count=0;unsupported_extern_stmt_count=1"
+      }
+    }
+  ],
+  "summary": {
+    "parity_row_count": 10,
+    "programjson_traversal_used": 1,
+    "string_only_facade": 0,
+    "rust_astnode_projector_retire_candidate": 1
+  },
+  "decision": {
+    "kind": "ProgramJsonTraversalCapabilityParityGreen",
+    "reason_token": "ExternStmtShapeProgramJsonSnapshotMatchesRustAstNodeOracle",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-EXTERN-STMT-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "programjson_full_parser_claim": 0,
+    "hako_adopted_for_full_owner": 0,
+    "extern_route_lowering": 0,
+    "extern_route_publication": 0
+  }
+}
