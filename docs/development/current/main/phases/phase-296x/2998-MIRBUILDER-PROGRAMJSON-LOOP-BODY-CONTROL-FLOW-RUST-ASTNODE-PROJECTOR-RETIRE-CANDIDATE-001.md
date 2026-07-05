@@ -1,6 +1,6 @@
 # 2998 - MIRBUILDER-PROGRAMJSON-LOOP-BODY-CONTROL-FLOW-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
 
-Status: held
+Status: active
 
 ## Scope
 
@@ -24,10 +24,9 @@ tools/checks/rust_lifecycle_mirbuilder_programjson_loop_body_control_flow_scan_p
 
 ## Hold Reason
 
-2997 landed the right shared contract shape, but worker review found confirmed
-same-root publication gaps in helper param policy, generic-method scalar route
-results, and extern-call route results. Close those cleanup slices before this
-retire-candidate card resumes.
+Resolved. 2999-3001 closed the helper param policy, generic-method scalar
+route result, and extern-call route result publication gaps before this
+retire-candidate card resumed.
 
 ## Candidate Scope
 

@@ -1,6 +1,6 @@
 # 3001 - MIR-ROUTE-EXTERN-CALL-RETURN-VALUE-TYPE-PUBLICATION-001
 
-Status: active
+Status: landed
 
 ## Scope
 
@@ -28,6 +28,17 @@ ambiguous / unsupported shapes -> DoNotPublishAmbiguous
   stable scalar/string externs receive value-type metadata;
 - ambiguous/native-pointer/object cases remain unpublished;
 - global-call, user-box, and generic routes are not reorganized.
+
+## Evidence
+
+```text
+cargo test -q extern_call_return_shapes_publish_stable_value_types --lib
+cargo test -q extern_call_native_pointer_return_shape_stays_unpublished --lib
+bash tools/checks/hako_aot_route_value_type_publication_contract_gate.sh
+
+extern_call_return_publication=green
+programjson_loop_body_control_flow_scan_regression=green
+```
 
 ## Forbidden
 

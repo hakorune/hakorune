@@ -1,7 +1,8 @@
-use super::super::{BasicBlockId, Callee, MirFunction, MirInstruction, ValueId};
+use super::super::{BasicBlockId, Callee, MirFunction, MirInstruction, MirType, ValueId};
 use super::route_spec::{
     classify_extern_call_route, is_hostbridge_extern_invoke_symbol, ExternCallRouteKind,
 };
+use crate::mir::route_value_type_publication::route_return_shape_value_type;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct ExternCallRouteSite {
@@ -158,4 +159,113 @@ pub(super) fn refresh_function_extern_call_routes(function: &mut MirFunction) {
     }
 
     function.metadata.extern_call_routes = routes;
+    publish_extern_call_route_result_value_types(function);
+}
+
+fn publish_extern_call_route_result_value_types(function: &mut MirFunction) -> bool {
+    let facts = function
+        .metadata
+        .extern_call_routes
+        .iter()
+        .filter_map(|route| {
+            Some((
+                route.result_value_opt()?,
+                route_return_shape_value_type(Some(route.return_shape()))?,
+            ))
+        })
+        .collect::<Vec<_>>();
+
+    let mut changed = false;
+    for (value, ty) in facts {
+        changed |= publish_value_type(function, value, ty);
+    }
+    changed
+}
+
+fn publish_value_type(function: &mut MirFunction, value: ValueId, ty: MirType) -> bool {
+    match function.metadata.value_types.get(&value) {
+        Some(existing) if existing == &ty => false,
+        Some(MirType::Unknown) | None => {
+            function.metadata.value_types.insert(value, ty);
+            true
+        }
+        Some(_) => false,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::mir::{
+        BasicBlock, ConstValue, EffectMask, FunctionSignature, MirInstruction, MirType,
+    };
+
+    fn function_with_extern_call(
+        symbol: &str,
+        args: Vec<ValueId>,
+        dst: Option<ValueId>,
+    ) -> MirFunction {
+        let mut function = MirFunction::new(
+            FunctionSignature {
+                name: "main".to_string(),
+                params: vec![],
+                return_type: MirType::Integer,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        let mut block = BasicBlock::new(BasicBlockId::new(0));
+        block.instructions.push(MirInstruction::Const {
+            dst: ValueId::new(1),
+            value: ConstValue::String("KEY".to_string()),
+        });
+        block.instructions.push(MirInstruction::Call {
+            dst,
+            func: ValueId::INVALID,
+            callee: Some(Callee::Extern(symbol.to_string())),
+            args,
+            effects: EffectMask::PURE,
+        });
+        function.blocks.insert(BasicBlockId::new(0), block);
+        function
+    }
+
+    #[test]
+    fn extern_call_return_shapes_publish_stable_value_types() {
+        let mut string_function =
+            function_with_extern_call("env.get/1", vec![ValueId::new(1)], Some(ValueId::new(2)));
+        refresh_function_extern_call_routes(&mut string_function);
+        assert_eq!(
+            string_function.metadata.value_types.get(&ValueId::new(2)),
+            Some(&MirType::Box("StringBox".to_string()))
+        );
+
+        let mut scalar_function = function_with_extern_call(
+            "env.set/2",
+            vec![ValueId::new(1), ValueId::new(2)],
+            Some(ValueId::new(3)),
+        );
+        refresh_function_extern_call_routes(&mut scalar_function);
+        assert_eq!(
+            scalar_function.metadata.value_types.get(&ValueId::new(3)),
+            Some(&MirType::Integer)
+        );
+    }
+
+    #[test]
+    fn extern_call_native_pointer_return_shape_stays_unpublished() {
+        let mut function = function_with_extern_call(
+            "hako_mem_alloc",
+            vec![ValueId::new(1)],
+            Some(ValueId::new(2)),
+        );
+        refresh_function_extern_call_routes(&mut function);
+
+        assert_eq!(function.metadata.extern_call_routes.len(), 1);
+        assert_eq!(
+            function.metadata.extern_call_routes[0].return_shape(),
+            "native_ptr_nullable"
+        );
+        assert_eq!(function.metadata.value_types.get(&ValueId::new(2)), None);
+    }
 }

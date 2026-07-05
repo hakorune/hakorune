@@ -11,6 +11,7 @@ POLICY_SRC="$ROOT_DIR/src/mir/route_value_type_publication.rs"
 MIR_MOD="$ROOT_DIR/src/mir/mod.rs"
 GLOBAL_SRC="$ROOT_DIR/src/mir/global_call_route_plan/value_type_publish.rs"
 USERBOX_SRC="$ROOT_DIR/src/mir/user_box_method_route_plan/value_type_publish.rs"
+EXTERN_SRC="$ROOT_DIR/src/mir/extern_call_route_plan/route.rs"
 MIR_JSON_SRC="$ROOT_DIR/src/runner/mir_json_emit/emitters/basic.rs"
 AOT_REGRESSION="$ROOT_DIR/tools/checks/hako_aot_dynamic_string_eq_and_int_to_str_correctness_gate.sh"
 PROGRAMJSON_REGRESSION="$ROOT_DIR/tools/checks/rust_lifecycle_mirbuilder_programjson_loop_body_control_flow_scan_parity_gate.sh"
@@ -23,21 +24,23 @@ guard_require_files "$TAG" \
   "$MIR_MOD" \
   "$GLOBAL_SRC" \
   "$USERBOX_SRC" \
+  "$EXTERN_SRC" \
   "$MIR_JSON_SRC" \
   "$AOT_REGRESSION" \
   "$PROGRAMJSON_REGRESSION"
 
-python3 - "$FIXTURE" "$POLICY_SRC" "$MIR_MOD" "$GLOBAL_SRC" "$USERBOX_SRC" "$MIR_JSON_SRC" <<'PY'
+python3 - "$FIXTURE" "$POLICY_SRC" "$MIR_MOD" "$GLOBAL_SRC" "$USERBOX_SRC" "$EXTERN_SRC" "$MIR_JSON_SRC" <<'PY'
 import json
 import sys
 from pathlib import Path
 
-fixture_path, policy_path, mir_mod_path, global_path, userbox_path, mir_json_path = map(Path, sys.argv[1:])
+fixture_path, policy_path, mir_mod_path, global_path, userbox_path, extern_path, mir_json_path = map(Path, sys.argv[1:])
 fixture = json.loads(fixture_path.read_text(encoding="utf-8"))
 policy_src = policy_path.read_text(encoding="utf-8")
 mir_mod_src = mir_mod_path.read_text(encoding="utf-8")
 global_src = global_path.read_text(encoding="utf-8")
 userbox_src = userbox_path.read_text(encoding="utf-8")
+extern_src = extern_path.read_text(encoding="utf-8")
 mir_json_src = mir_json_path.read_text(encoding="utf-8")
 
 if fixture.get("kind") != "HakoAotRouteValueTypePublicationContractV1":
@@ -177,6 +180,17 @@ for needle in [
 if "fn value_type_from_return_shape" in userbox_src:
     raise SystemExit("user-box route publisher must not keep local return-shape mapper")
 
+for needle in [
+    "route_return_shape_value_type",
+    "publish_extern_call_route_result_value_types",
+    "route.result_value_opt()?",
+    "route.return_shape()",
+]:
+    if needle not in extern_src:
+        raise SystemExit(f"extern route publisher missing shared policy: {needle}")
+if "fn value_type_from_return_shape" in extern_src:
+    raise SystemExit("extern route publisher must not keep local return-shape mapper")
+
 required_mir_json_needles = [
     "matches!(op, BinaryOp::Add)",
     "mir_type_is_string_like(value_types.get(lhs))",
@@ -193,6 +207,8 @@ PY
 
 cargo test -q route_return_shape_publication_contract --lib
 cargo test -q polymorphic_helper_param0_inputs_do_not_publish_from_single_observation --lib
+cargo test -q extern_call_return_shapes_publish_stable_value_types --lib
+cargo test -q extern_call_native_pointer_return_shape_stays_unpublished --lib
 bash "$AOT_REGRESSION"
 bash "$PROGRAMJSON_REGRESSION"
 
@@ -206,6 +222,7 @@ scalar_i64_or_missing_zero_publication=Integer
 string_handle_publication=StringBox
 object_handle_publication=DoNotPublishAmbiguous
 mixed_runtime_i64_or_handle_publication=DoNotPublishAmbiguous
+extern_call_return_publication=green
 polymorphic_helper_param0_policy=PolymorphicInputDoNotPublishFromSingleObservation
 polymorphic_helper_param0_count=6
 mir_json_string_compare_hint=green

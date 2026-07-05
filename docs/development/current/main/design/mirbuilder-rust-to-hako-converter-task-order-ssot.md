@@ -60,7 +60,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIR-ROUTE-EXTERN-CALL-RETURN-VALUE-TYPE-PUBLICATION-001
+  MIRBUILDER-PROGRAMJSON-LOOP-BODY-CONTROL-FLOW-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -90,15 +90,12 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  3000 is green: generic-method scalar return publication now uses
-  RouteReturnShapeValueTypePublisherV1, including scalar_i64_or_missing_zero
-  -> Integer, while mixed_runtime_i64_or_handle remains unpublished and
-  box-origin publication stays separate. 2998 remains held until 3001 closes
-  extern-call return publication. These are preflight cleanup cards, not
-  route-family unification, backend lowering, ABI changes, or ProgramJSON
-  capability claims.
-  After 3001 is green, resume 2998 for the covered LoopBodyControlFlowSnapshotV1
-  Rust ASTNode projector retire-candidate.
+  3001 is green: extern-call return publication now uses
+  RouteReturnShapeValueTypePublisherV1 for stable scalar/string shapes while
+  native pointer and ambiguous shapes remain unpublished. 2999-3001 closed the
+  AOT/MIR publication cleanup required before ProgramJSON retirement work.
+  Resume 2998 for the covered LoopBodyControlFlowSnapshotV1 Rust ASTNode
+  projector retire-candidate.
   3002 records later dynamic typing hint inventory for Float binops, PHI
   roundtrip, mir_call dst_type, and string relational compare policy.
   ProgramJSON migration remains capability-batch based; full projector
@@ -403,17 +400,17 @@ Detailed evidence lives in phase cards, fixtures, and git history.
 
 ## Active Next 3
 ```text
-1. MIR-ROUTE-EXTERN-CALL-RETURN-VALUE-TYPE-PUBLICATION-001
-   status=active; boundary=extern-call return-shape value-type publication only
+1. MIRBUILDER-PROGRAMJSON-LOOP-BODY-CONTROL-FLOW-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+   status=active; boundary=covered LoopBodyControlFlowSnapshotV1 slice only
 
-2. MIRBUILDER-PROGRAMJSON-LOOP-BODY-CONTROL-FLOW-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
-   status=held until 3001 green; boundary=covered LoopBodyControlFlowSnapshotV1 slice only
+2. ProgramJSON retire-candidate continuation
+   status=pending; boundary=no full projector retirement, parser claim, lowering, mutation, ID allocation, or Source Selfhost
 
-3. ProgramJSON retire-candidate continuation
-   status=held; boundary=no full projector retirement, parser claim, lowering, mutation, ID allocation, or Source Selfhost
+3. MIR JSON dynamic typing hint inventory follow-up
+   status=parked; boundary=3002 Tier-2/Tier-3 inventory only
 
 next_documented_task =
-  MIR-ROUTE-EXTERN-CALL-RETURN-VALUE-TYPE-PUBLICATION-001
+  MIRBUILDER-PROGRAMJSON-LOOP-BODY-CONTROL-FLOW-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
 
 next_after_active_3 =
   return to ProgramJSON capability-batch retire-candidate continuation
