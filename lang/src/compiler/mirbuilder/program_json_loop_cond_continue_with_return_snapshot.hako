@@ -49,7 +49,7 @@ static box ProgramJsonLoopCondContinueWithReturnSnapshotBox {
       return me._fail("if_else_not_null")
     }
     if me.if_then_tail_is_continue(program_json, first_start) != 1 {
-      return me._fail("continue_if_shape_not_supported")
+      return me._fail("no_continue")
     }
 
     local first_end = ProgramJsonV0ScannerBox.seek_obj_end_unescaped(program_json, first_start)

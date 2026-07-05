@@ -1,19 +1,20 @@
 {
   "schema_version": 0,
-  "kind": "MirBuilderProgramJsonNoReturnRejectRustAstNodeProjectorRetireCandidateV1",
-  "token": "MIRBUILDER-PROGRAMJSON-NO-RETURN-REJECT-RETIRE-RUST-ASTNODE-PROJECTOR-CANDIDATE-001",
+  "kind": "MirBuilderProgramJsonNoContinueRejectRustAstNodeProjectorRetireCandidateV1",
+  "token": "MIRBUILDER-PROGRAMJSON-NO-CONTINUE-REJECT-RETIRE-RUST-ASTNODE-PROJECTOR-CANDIDATE-001",
   "input_state": {
     "hako_snapshot_source": "lang/src/compiler/mirbuilder/program_json_loop_cond_continue_with_return_snapshot.hako",
     "hako_snapshot_source_hash": "sha256:692461f14445773a3553661d8edcbc3dbfe7652fe0036790ed27eaa84333656e",
-    "parity_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-programjson-loop-cond-continue-with-return-no-return-reject-snapshot-parity-v0.json",
-    "parity_fixture_hash": "sha256:a9477ea92162290a732cd61014022e8013c57035d042006207041bb042dad72b",
-    "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_programjson_loop_cond_continue_with_return_no_return_reject_snapshot_parity_gate.sh",
-    "parity_gate_hash": "sha256:588cbbdd9b1f20727ffe408e1720c2e6ec5ab1502d7fd8e0186025b9086118d9"
+    "parity_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-programjson-loop-cond-continue-with-return-snapshot-parity-v0.json",
+    "parity_fixture_hash": "sha256:0284a35cccae78775f37c85c0b18e46c06dc668dd570aa7834024aef96ba3cd2",
+    "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_programjson_loop_cond_continue_with_return_snapshot_parity_gate.sh",
+    "parity_gate_hash": "sha256:466dafe5db15485db444e7f7c840d020a447953288dbf55857a4c1e21e5310e3"
   },
   "retire_candidate_scope": {
-    "retire_candidate": "LoopCondContinueNoReturnRejectTokenSnapshotV1",
-    "shape_scope": "LoopCondContinueNoReturnRejectV1",
+    "retire_candidate": "LoopCondContinueNoContinueRejectTokenSnapshotV1",
+    "shape_scope": "LoopCondContinueNoContinueRejectV1",
     "programjson_snapshot_owner": "ProgramJsonLoopCondContinueWithReturnSnapshotV1",
+    "parity_row_id": "reject_no_continue",
     "rust_projector_runtime_dependency_removed": 0,
     "rust_projector_oracle_only": 1,
     "full_astnode_projector_retired": 0
@@ -21,14 +22,15 @@
   "criteria": {
     "programjson_snapshot_parity_gate": "Green",
     "programjson_route_traverses_programjson": 1,
+    "programjson_route_observes_missing_continue": 1,
     "runtime_path_uses_programjson_snapshot": 1,
     "rust_astnode_projector_runtime_dependency_removed": 0,
     "rust_astnode_projector_kept_for_oracle_generation": 1
   },
   "decision": {
     "kind": "RetireCandidateScoped",
-    "reason_token": "LoopCondContinueNoReturnRejectV1ProgramJsonSnapshotParityGreen",
-    "selected_next_card": "MIRBUILDER-PROGRAMJSON-NEXT-SHAPE-SELECTION-002"
+    "reason_token": "LoopCondContinueNoContinueRejectV1ProgramJsonSnapshotParityGreen",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-NEXT-SHAPE-SELECTION-007"
   },
   "claims": {
     "source_selfhost_claim": 0,

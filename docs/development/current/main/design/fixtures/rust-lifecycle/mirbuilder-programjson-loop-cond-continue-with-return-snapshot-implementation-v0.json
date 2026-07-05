@@ -65,6 +65,25 @@
       "expected_summary": "accepted=0;reason=break_present"
     },
     {
+      "case_id": "reject_no_continue",
+      "program_json": {
+        "kind": "Program",
+        "type": "Program",
+        "body": [
+          {
+            "kind": "Loop",
+            "type": "Loop",
+            "cond": {"type": "Compare", "op": "<", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 10}},
+            "body": [
+              {"kind": "If", "type": "If", "cond": {"type": "Compare", "op": "==", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 3}}, "then": [{"kind": "Return", "type": "Return", "value": {"type": "Int", "value": 0}}], "else": null},
+              {"kind": "Return", "type": "Return", "value": {"type": "Int", "value": 1}}
+            ]
+          }
+        ]
+      },
+      "expected_summary": "accepted=0;reason=no_continue"
+    },
+    {
       "case_id": "reject_nested_loop",
       "program_json": {
         "kind": "Program",
