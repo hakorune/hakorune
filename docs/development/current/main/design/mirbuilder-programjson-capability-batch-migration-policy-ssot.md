@@ -32,12 +32,12 @@ MIR mutation, and ID allocation.
 ```text
 landed batch:
   2995 Loop.body control-flow scan
-  3004..3039 condition/return/local/call/method/new/field/record-field/
+  3004..3040 condition/return/local/call/method/new/field/record-field/
     binary/compare/logical/local-array/print/throw/LoopRange scan and scoped
-    retire-candidate pairs, plus Try and Assign scan/retire pairs, and EnumMatch scan
+    retire-candidate pairs, plus Try/Assign/EnumMatch scan-retire pairs
 
 next batch:
-  MIRBUILDER-PROGRAMJSON-ENUM-MATCH-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+  MIRBUILDER-PROGRAMJSON-CAPABILITY-BATCH-CONTINUATION
 
 required shape:
   1. select the next concrete ProgramJSON traversal capability;

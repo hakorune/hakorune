@@ -345,15 +345,14 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PROGRAMJSON-ENUM-MATCH-SHAPE-SCAN-CAPABILITY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3039-MIRBUILDER-PROGRAMJSON-ENUM-MATCH-SHAPE-SCAN-CAPABILITY-001.md"
-latest_card_summary = """3039 lands real `.hako`
-ProgramJsonEnumMatchShapeScanV1 ProgramJSON traversal for covered EnumMatch
-shapes with 9-row AOT parity. 3040 is active for the scoped EnumMatch projector
-retire-candidate. Match lowering, enum runtime semantics, full projector
-retirement, ProgramJSON full parser, HakoAdoption, Source Selfhost,
-RecipeMatcher, route selection, lowering, mutation, ID allocation, and new ABI
-remain unclaimed."""
+latest_card = "MIRBUILDER-PROGRAMJSON-ENUM-MATCH-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3040-MIRBUILDER-PROGRAMJSON-ENUM-MATCH-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001.md"
+latest_card_summary = """3040 lands covered EnumMatchShapeSnapshotV1 rows as a
+scoped Rust ASTNode projector retire-candidate. Match lowering, enum runtime
+semantics, full projector retirement, ProgramJSON full parser, HakoAdoption,
+Source Selfhost, RecipeMatcher, route selection, lowering, mutation, ID
+allocation, and new ABI remain unclaimed. Next work returns to ProgramJSON
+capability-batch continuation."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -364,6 +363,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-05: 3040 lands the covered EnumMatchShapeSnapshotV1 ProgramJSON traversal slice as a scoped Rust ASTNode projector retire-candidate; next work returns to ProgramJSON capability-batch continuation.",
   "2026-07-05: 3039 lands real `.hako` ProgramJsonEnumMatchShapeScanV1 ProgramJSON traversal for EnumMatch shapes with 9-row AOT parity; 3040 is active for the scoped EnumMatch projector retire-candidate.",
   "2026-07-05: 3038 lands the covered AssignShapeSnapshotV1 ProgramJSON traversal slice as a scoped Rust ASTNode projector retire-candidate; next work returns to ProgramJSON capability-batch continuation.",
   "2026-07-05: 3037 lands real `.hako` ProgramJsonAssignShapeScanV1 ProgramJSON traversal for Assign statement shapes with 10-row AOT parity; 3038 is active for the scoped Assign projector retire-candidate.",
@@ -375,5 +375,4 @@ landed_tail = [
   "2026-07-05: 3031 lands real `.hako` ProgramJsonThrowExprShapeScanV1 ProgramJSON traversal for Throw.expr shapes with 9-row AOT parity; 3032 is active for the scoped throw-expr projector retire-candidate.",
   "2026-07-05: 3030 lands the covered PrintCallShapeSnapshotV1 ProgramJSON traversal slice as a scoped Rust ASTNode projector retire-candidate; next work returns to ProgramJSON capability-batch continuation.",
   "2026-07-05: 3029 lands real `.hako` ProgramJsonPrintCallShapeScanV1 ProgramJSON traversal for print-lowered Expr.expr Call(name=env.console.log) shapes with 9-row AOT parity; 3030 is active for the scoped print-call projector retire-candidate.",
-  "2026-07-05: 3028 lands the covered LocalArrayLiteralShapeSnapshotV1 ProgramJSON traversal slice as a scoped Rust ASTNode projector retire-candidate; next work returns to ProgramJSON capability-batch continuation.",
 ]
