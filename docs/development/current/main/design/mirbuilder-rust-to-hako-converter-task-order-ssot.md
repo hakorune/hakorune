@@ -90,14 +90,12 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  3004 lands real `.hako` ProgramJsonConditionShapeScanV1 traversal for
-  Loop.cond and If.cond ProgramJSON structure, producing ConditionShapeSnapshotV1
-  with an 8-row AOT parity gate. 3005 is active to mark only those covered rows
-  as a Rust ASTNode projector retire-candidate. Selection-only ProgramJSON cards
-  are no longer allowed unless the next capability is genuinely ambiguous.
-  After 3005, go directly to
-  MIRBUILDER-PROGRAMJSON-RETURN-EXPR-SHAPE-SCAN-CAPABILITY-001 as an
-  implementation-capability card, then its scoped retire-candidate.
+  3005 lands the covered ConditionShapeSnapshotV1 ProgramJSON traversal rows as
+  a scoped Rust ASTNode projector retire-candidate. 3006 is active as the next
+  implementation-capability card:
+  MIRBUILDER-PROGRAMJSON-RETURN-EXPR-SHAPE-SCAN-CAPABILITY-001. Selection-only
+  ProgramJSON cards are no longer allowed unless the next capability is
+  genuinely ambiguous.
   3002 records later dynamic typing hint inventory for Float binops, PHI
   roundtrip, mir_call dst_type, and string relational compare policy.
   ProgramJSON migration remains capability-batch based; full projector

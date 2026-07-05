@@ -345,15 +345,14 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PROGRAMJSON-CONDITION-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3005-MIRBUILDER-PROGRAMJSON-CONDITION-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001.md"
-latest_card_summary = """3004 lands ProgramJsonConditionShapeScanV1 as a
-real `.hako` ProgramJSON traversal capability for Loop.cond and If.cond with
-an 8-row AOT parity gate. 3005 is active to mark only the covered
-ConditionShapeSnapshotV1 rows as a Rust ASTNode projector retire-candidate;
-full projector retirement, ProgramJSON full parser, HakoAdoption, Source
-Selfhost, RecipeMatcher, route selection, lowering, mutation, ID allocation,
-and new ABI remain unclaimed."""
+latest_card = "MIRBUILDER-PROGRAMJSON-RETURN-EXPR-SHAPE-SCAN-CAPABILITY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3006-MIRBUILDER-PROGRAMJSON-RETURN-EXPR-SHAPE-SCAN-CAPABILITY-001.md"
+latest_card_summary = """3005 lands the covered ConditionShapeSnapshotV1
+ProgramJSON traversal rows as a scoped Rust ASTNode projector retire-candidate.
+3006 is active to implement real `.hako` ProgramJSON traversal for covered
+Return.expr shapes. Full projector retirement, ProgramJSON full parser,
+HakoAdoption, Source Selfhost, RecipeMatcher, route selection, lowering,
+mutation, ID allocation, and new ABI remain unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -364,6 +363,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-05: 3005 lands the covered ConditionShapeSnapshotV1 ProgramJSON traversal slice as a scoped Rust ASTNode projector retire-candidate; 3006 is active for real `.hako` Return.expr shape traversal.",
   "2026-07-05: 3004 lands real `.hako` ProgramJsonConditionShapeScanV1 ProgramJSON traversal for Loop.cond and If.cond with 8-row AOT parity; 3005 is active for the scoped condition-shape projector retire-candidate.",
   "2026-07-05: 3003 selects ProgramJsonConditionShapeScanV1 as the next ProgramJSON traversal capability; 3004 is active for ConditionShapeSnapshotV1 implementation.",
   "2026-07-05: 2998 lands the covered LoopBodyControlFlowSnapshotV1 ProgramJSON traversal slice as a scoped Rust ASTNode projector retire-candidate; 3003 is active for next capability selection.",
@@ -375,5 +375,4 @@ landed_tail = [
   "2026-07-05: 2996 fixes AOT dynamic string equality and dynamic StringHelpers.int_to_str correctness for scanner-fed values; ProgramJSON Loop.body scan remains green and selfhost remains unclaimed.",
   "2026-07-05: 2995 adds ProgramJsonLoopBodyControlFlowScanV1 as a 10-row `.hako` ProgramJSON traversal capability and marks the covered LoopBodyControlFlowSnapshotV1 slice as the next Rust ASTNode projector retire-candidate; full retirement and selfhost remain unclaimed.",
   "2026-07-05: 2994 stops the one-shape ProgramJSON cadence and selects Loop.body control-flow scan as the next implementation-capability batch; selfhost and full projector retirement remain unclaimed.",
-  "2026-07-05: 2993 adds ProgramJSON second-stmt-not-return reject snapshot parity and marks LoopCondContinueSecondStmtNotReturnRejectV1 as a one-shape Rust ASTNode projector retire-candidate; runtime dependency removal remains unclaimed.",
 ]
