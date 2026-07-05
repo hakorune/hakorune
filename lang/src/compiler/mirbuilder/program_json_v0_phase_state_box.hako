@@ -194,7 +194,7 @@ static box ProgramJsonV0PhaseStateBox {
           current_state
         )
         if me._out_i64(recipe_append_out, "ok") != 1 {
-          return BoxHelpers.map_get(recipe_append_out, "out")
+          return recipe_append_out
         }
 
         local next_state = me._state_map(
@@ -230,11 +230,7 @@ static box ProgramJsonV0PhaseStateBox {
   }
 
   _append_ok(): MapBox {
-    return %{"ok" => 1, "out" => null}
-  }
-
-  _append_err(out): MapBox {
-    return %{"ok" => 0, "out" => out}
+    return %{"ok" => 1}
   }
 
   _append_recipe_children_result(recipe_items, children, i, tag, next_idx, state): MapBox {
@@ -243,24 +239,24 @@ static box ProgramJsonV0PhaseStateBox {
 
     local child = BoxHelpers.array_get(children, i)
     if child == null || BoxHelpers.is_map(child) != 1 {
-      return me._append_err(
-        me._emit_scan_error(
-          tag,
-          "[cap_missing/recipe_verifier] composite recipe child is not map",
-          next_idx,
-          state
-        )
+      local out = me._emit_scan_error(
+        tag,
+        "[cap_missing/recipe_verifier] composite recipe child is not map",
+        next_idx,
+        state
       )
+      out.set("ok", 0)
+      return out
     }
     if RecipeItemBox.kind_of(child) != "Seq" || ("" + BoxHelpers.map_get(child, "leaf_kind")) != "Stmt" {
-      return me._append_err(
-        me._emit_scan_error(
-          tag,
-          "[cap_missing/recipe_verifier] composite recipe child must be Stmt leaf",
-          next_idx,
-          state
-        )
+      local out = me._emit_scan_error(
+        tag,
+        "[cap_missing/recipe_verifier] composite recipe child must be Stmt leaf",
+        next_idx,
+        state
       )
+      out.set("ok", 0)
+      return out
     }
 
     recipe_items.push(child)
@@ -274,24 +270,24 @@ static box ProgramJsonV0PhaseStateBox {
     if kind == "Seq" && leaf_kind != "Stmt" {
       local children = BoxHelpers.map_get(recipe_item, "items")
       if children == null || BoxHelpers.is_array(children) != 1 {
-        return me._append_err(
-          me._emit_scan_error(
-            tag,
-            "[cap_missing/recipe_verifier] composite recipe item missing items",
-            next_idx,
-            state
-          )
+        local out = me._emit_scan_error(
+          tag,
+          "[cap_missing/recipe_verifier] composite recipe item missing items",
+          next_idx,
+          state
         )
+        out.set("ok", 0)
+        return out
       }
       if children.length() == 0 {
-        return me._append_err(
-          me._emit_scan_error(
-            tag,
-            "[cap_missing/recipe_verifier] composite recipe item must contain stmt children",
-            next_idx,
-            state
-          )
+        local out = me._emit_scan_error(
+          tag,
+          "[cap_missing/recipe_verifier] composite recipe item must contain stmt children",
+          next_idx,
+          state
         )
+        out.set("ok", 0)
+        return out
       }
       return me._append_recipe_children_result(recipe_items, children, 0, tag, next_idx, state)
     }

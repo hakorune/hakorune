@@ -345,17 +345,20 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "HAKO-AOT-PROGRAMJSON-RECIPE-FACTS-NAME-ARRAY-LITERAL-CONTRACT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3117-HAKO-AOT-PROGRAMJSON-RECIPE-FACTS-NAME-ARRAY-LITERAL-CONTRACT-001.md"
-latest_card_summary = """3117 is green for the RecipeFacts name-array literal
-contract: `_push_name/2` is removed from the ProgramJSON PhaseState parse path,
-and stmt fact names are built as literal arrays. The current first blocker is
-again the public `ProgramJsonV0PhaseStateBox.parse/2` AOT call boundary with
-reason `missing_multi_function_emitter`. Next selected task is
-HAKO-AOT-PROGRAMJSON-PHASE-STATE-PARSE-AOT-CALL-READINESS-001.
-Layer4 parity green, runtime route switch, full projector retirement,
-HakoAdoption, Source Selfhost, RecipeMatcher, route selection, lowering,
-mutation, ID allocation, and new ABI remain unclaimed."""
+latest_card = "HAKO-AOT-PROGRAMJSON-PHASE-STATE-PARSE-AOT-CALL-READINESS-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3118-HAKO-AOT-PROGRAMJSON-PHASE-STATE-PARSE-AOT-CALL-READINESS-001.md"
+latest_card_summary = """3118 is green for the lightweight PhaseState parse
+AOT call readiness contract: imported `ProgramJsonV0PhaseStateBox.parse/2`
+publishes DirectAbi / map_handle in emitted MIR JSON, and the old
+missing_multi_function_emitter mir_call blocker is closed. The triggered PHI
+bool/i64 typing slice is normalized for the observed BoxTypeInspector shape and
+covered by Python PHI wiring tests. The full imported parse executable remains
+an unclaimed heavy readiness probe because the large closure can spend minutes
+in LLVM opt. Next selected task returns to
+MIRBUILDER-PROGRAMJSON-LAYER4-LOOP-RECIPE-DTO-PARITY-001. Layer4 parity green,
+runtime route switch, full projector retirement, HakoAdoption, Source Selfhost,
+RecipeMatcher, route selection, lowering, mutation, ID allocation, and new ABI
+remain unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -366,6 +369,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-06: 3118 lands lightweight PhaseState parse AOT call readiness; ProgramJsonV0PhaseStateBox.parse/2 is DirectAbi/map_handle in MIR JSON, while full imported parse executable green remains a heavy unclaimed probe.",
   "2026-07-06: 3117 removes the RecipeFacts _push_name/2 helper boundary; PhaseState parse now reaches the public parse/2 AOT call blocker again.",
   "2026-07-06: 3116 lands the RuneAttrs function-name normalization result contract; RuneAttrs internal routes are DirectAbi, leaving the public ProgramJsonV0PhaseStateBox.parse/2 AOT call boundary as the next blocker.",
   "2026-07-06: 3115 lands the PhaseState scan-body rec result contract; _scan_body_rec is loop-local and parse reaches it as DirectAbi, leaving RuneAttrs function-name normalization as the next blocker.",
@@ -377,5 +381,4 @@ landed_tail = [
   "2026-07-06: 3105 lands the covered TryCatchShapeSnapshotV1 ProgramJSON traversal slice as a scoped Rust ASTNode projector retire-candidate; next work selects the layer-4 structured Plan/Recipe DTO pilot.",
   "2026-07-06: 3104 lands real `.hako` ProgramJsonTryCatchShapeScanV1 ProgramJSON traversal for covered TryCatch shapes with 8-row AOT parity; 3105 is active for the scoped trycatch projector retire-candidate.",
   "2026-07-06: 3103 lands the covered BlockExprShapeSnapshotV1 ProgramJSON traversal slice as a scoped Rust ASTNode projector retire-candidate; next work returns to ProgramJSON capability-batch continuation.",
-  "2026-07-06: 3102 lands real `.hako` ProgramJsonBlockExprShapeScanV1 ProgramJSON traversal for covered top-level BlockExpr shapes with 10-row AOT parity; 3103 is active for the scoped block-expr projector retire-candidate.",
 ]

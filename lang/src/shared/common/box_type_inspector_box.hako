@@ -4,6 +4,18 @@
 //   - Avoid hard dependency on hostbridge extern trampoline at load time.
 
 static box BoxTypeInspectorBox {
+  method _trace(kind, is_map, is_array) {
+    if env.get("HAKO_BOX_INTROSPECT_TRACE") == "1" {
+      local is_map_text = "0"
+      if is_map == 1 { is_map_text = "1" }
+      local is_array_text = "0"
+      if is_array == 1 { is_array_text = "1" }
+      print("[box_introspect:hako] kind=" + kind +
+            " is_map=" + is_map_text +
+            " is_array=" + is_array_text)
+    }
+  }
+
   method _describe(value) {
     local info = new MapBox()
     local kind = "Unknown"
@@ -29,15 +41,7 @@ static box BoxTypeInspectorBox {
     info.set("kind", kind)
     info.set("is_map", is_map)
     info.set("is_array", is_array)
-    if env.get("HAKO_BOX_INTROSPECT_TRACE") == "1" {
-      local is_map_text = "0"
-      if is_map { is_map_text = "1" }
-      local is_array_text = "0"
-      if is_array { is_array_text = "1" }
-      print("[box_introspect:hako] kind=" + kind +
-            " is_map=" + is_map_text +
-            " is_array=" + is_array_text)
-    }
+    me._trace(kind, is_map, is_array)
     return info
   }
 
@@ -49,69 +53,57 @@ static box BoxTypeInspectorBox {
   }
 
   method is_map(value) {
-    local kind = "Unknown"
-    local is_map = 0
-    local is_array = 0
-
     if value == null {
-      kind = "Null"
-    } else {
-      local repr = "" + value
-      if repr.indexOf("MapBox(") == 0 || repr.indexOf("{") == 0 {
-        kind = "MapBox"
-        is_map = 1
-      } else { if repr.indexOf("ArrayBox(") == 0 || repr.indexOf("[") == 0 {
-        kind = "ArrayBox"
-        is_array = 1
-      } else {
-        if repr.indexOf("StringBox(") == 0 { kind = "StringBox" }
-        else { if repr.indexOf("IntegerBox(") == 0 { kind = "IntegerBox" } }
-      }}
+      me._trace("Null", 0, 0)
+      return 0
     }
 
-    if env.get("HAKO_BOX_INTROSPECT_TRACE") == "1" {
-      local is_map_text = "0"
-      if is_map { is_map_text = "1" }
-      local is_array_text = "0"
-      if is_array { is_array_text = "1" }
-      print("[box_introspect:hako] kind=" + kind +
-            " is_map=" + is_map_text +
-            " is_array=" + is_array_text)
+    local repr = "" + value
+    if repr.indexOf("MapBox(") == 0 || repr.indexOf("{") == 0 {
+      me._trace("MapBox", 1, 0)
+      return 1
     }
-    return is_map
+    if repr.indexOf("ArrayBox(") == 0 || repr.indexOf("[") == 0 {
+      me._trace("ArrayBox", 0, 1)
+      return 0
+    }
+    if repr.indexOf("StringBox(") == 0 {
+      me._trace("StringBox", 0, 0)
+      return 0
+    }
+    if repr.indexOf("IntegerBox(") == 0 {
+      me._trace("IntegerBox", 0, 0)
+      return 0
+    }
+    me._trace("Unknown", 0, 0)
+    return 0
   }
 
   method is_array(value) {
-    local kind = "Unknown"
-    local is_map = 0
-    local is_array = 0
-
     if value == null {
-      kind = "Null"
-    } else {
-      local repr = "" + value
-      if repr.indexOf("MapBox(") == 0 || repr.indexOf("{") == 0 {
-        kind = "MapBox"
-        is_map = 1
-      } else { if repr.indexOf("ArrayBox(") == 0 || repr.indexOf("[") == 0 {
-        kind = "ArrayBox"
-        is_array = 1
-      } else {
-        if repr.indexOf("StringBox(") == 0 { kind = "StringBox" }
-        else { if repr.indexOf("IntegerBox(") == 0 { kind = "IntegerBox" } }
-      }}
+      me._trace("Null", 0, 0)
+      return 0
     }
 
-    if env.get("HAKO_BOX_INTROSPECT_TRACE") == "1" {
-      local is_map_text = "0"
-      if is_map { is_map_text = "1" }
-      local is_array_text = "0"
-      if is_array { is_array_text = "1" }
-      print("[box_introspect:hako] kind=" + kind +
-            " is_map=" + is_map_text +
-            " is_array=" + is_array_text)
+    local repr = "" + value
+    if repr.indexOf("MapBox(") == 0 || repr.indexOf("{") == 0 {
+      me._trace("MapBox", 1, 0)
+      return 0
     }
-    return is_array
+    if repr.indexOf("ArrayBox(") == 0 || repr.indexOf("[") == 0 {
+      me._trace("ArrayBox", 0, 1)
+      return 1
+    }
+    if repr.indexOf("StringBox(") == 0 {
+      me._trace("StringBox", 0, 0)
+      return 0
+    }
+    if repr.indexOf("IntegerBox(") == 0 {
+      me._trace("IntegerBox", 0, 0)
+      return 0
+    }
+    me._trace("Unknown", 0, 0)
+    return 0
   }
 
   method describe(value) {

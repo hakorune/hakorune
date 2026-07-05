@@ -1,44 +1,44 @@
 {
   "schema_version": 0,
-  "kind": "MirBuilderProgramJsonLayer4PhaseStateAotCallBlockerV1",
-  "token": "MIRBUILDER-PROGRAMJSON-LAYER4-PHASE-STATE-AOT-CALL-BLOCKER-001",
+  "kind": "MirBuilderProgramJsonLayer4PhaseStateAotCallReadinessV1",
+  "token": "HAKO-AOT-PROGRAMJSON-PHASE-STATE-PARSE-AOT-CALL-READINESS-001",
   "input_state": {
-    "previous_card": "MIRBUILDER-PROGRAMJSON-LAYER4-STRUCTURED-PLAN-RECIPE-DTO-PILOT-SELECTION-001",
+    "previous_blocker_card": "MIRBUILDER-PROGRAMJSON-LAYER4-PHASE-STATE-AOT-CALL-BLOCKER-001",
     "attempted_next_card": "MIRBUILDER-PROGRAMJSON-LAYER4-LOOP-RECIPE-DTO-PARITY-001",
     "target_owner": "lang/src/compiler/mirbuilder/program_json_v0_phase_state_box.hako"
   },
-  "blocker": {
+  "closed_blocker": {
     "kind": "AotImportedModuleCallBlocked",
     "callee_symbol": "ProgramJsonV0PhaseStateBox.parse/2",
-    "owner_hint": "backend_lowering",
-    "reason": "missing_multi_function_emitter",
-    "first_op": "mir_call",
-    "layer4_effect": "ProgramJSON loop Recipe DTO parity cannot run under AOT until PhaseState parse is callable from an imported .hako owner."
+    "old_reason": "missing_multi_function_emitter",
+    "old_first_op": "mir_call",
+    "closed_by": "ProgramJsonV0PhaseStateBox.parse/2 publishes a DirectAbi map_handle route in emitted MIR JSON."
   },
-  "required_fix_scope": {
-    "name": "HAKO-AOT-PROGRAMJSON-PHASE-STATE-PARSE-CALL-CONTRACT-001",
-    "allowed": [
-      "AOT/MIR route metadata or call lowering contract for ProgramJsonV0PhaseStateBox.parse",
-      "regression row that calls PhaseState parse from an imported .hako app"
-    ],
-    "forbidden": [
-      "source string contains or regex proof",
-      "token-snapshot-only facade",
-      "MIR mutation",
-      "backend lowering claim for Recipe DTO",
-      "route selection migration",
-      "runtime route switch",
-      "Source Selfhost claim"
-    ]
+  "readiness_contract": {
+    "callee_symbol": "ProgramJsonV0PhaseStateBox.parse/2",
+    "required_tier": "DirectAbi",
+    "required_return_shape": "map_handle",
+    "required_result_box": "MapBox",
+    "required_target_return_type": "box<MapBox>",
+    "old_missing_multi_function_emitter_blocker_closed": true,
+    "mir_json_readiness_green": true,
+    "full_aot_executable_green": 0,
+    "full_aot_executable_status": "unclaimed_heavy_emit_exe_probe_pending"
+  },
+  "guard_policy": {
+    "lightweight_guard": "tools/checks/rust_lifecycle_mirbuilder_programjson_layer4_phase_state_aot_call_blocker_guard.sh",
+    "lightweight_guard_uses": "emit-mir-json",
+    "full_emit_exe_is_not_daily_guard": true,
+    "reason": "The full imported parse executable can spend minutes in opt for this large imported closure; daily readiness is the route metadata contract."
   },
   "decision": {
-    "kind": "SelectAotPhaseStateParseCallContractBeforeLayer4Parity",
-    "selected_next_card": "HAKO-AOT-PROGRAMJSON-PHASE-STATE-PARSE-AOT-CALL-READINESS-001",
-    "resume_after_green": "MIRBUILDER-PROGRAMJSON-LAYER4-LOOP-RECIPE-DTO-PARITY-001"
+    "kind": "SelectProgramJsonLayer4LoopRecipeDtoParityAfterPhaseStateReadiness",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-LAYER4-LOOP-RECIPE-DTO-PARITY-001",
+    "resume_condition": "Layer4 parity may resume with this route-readiness guard as prerequisite; full imported parse executable green remains a separate heavy readiness item."
   },
   "claims": {
+    "full_aot_executable_green": 0,
     "layer4_recipe_dto_parity_green": 0,
-    "phase_state_aot_call_fixed": 0,
     "source_selfhost_claim": 0,
     "mir_mutation": 0,
     "id_allocation": 0,

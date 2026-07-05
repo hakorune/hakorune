@@ -21,6 +21,7 @@ class DummyContext:
 class DummyResolver:
     def __init__(self, i64: ir.IntType):
         self.i64 = i64
+        self.i1 = ir.IntType(1)
 
     def resolve_incoming(self, _pred_bid: int, vs: int, context=None):
         # 100/200 are "missing" (simulate snapshot miss -> failure -> synthesized 0).
@@ -30,6 +31,8 @@ class DummyResolver:
             return ir.Constant(self.i64, 9)
         if int(vs) == 301:
             return 11
+        if int(vs) == 401:
+            return ir.Constant(self.i1, 1)
         return None
 
 
@@ -88,6 +91,15 @@ class TestPhiWiringSelection(unittest.TestCase):
         wire_incomings(self.builder, 2, dst_vid, [(1, 301)], context=self.ctx)
         self.assertIn(dst_vid, self.builder.vmap)
         self.assertEqual(self._phi_incoming_values(dst_vid), [11])
+
+    def test_coerces_i1_incoming_to_i64_phi(self):
+        dst_vid = 503
+        wire_incomings(self.builder, 2, dst_vid, [(1, 401)], context=self.ctx)
+        phi = self.builder.vmap[dst_vid]
+        incoming = list(getattr(phi, "incomings", []))
+        self.assertEqual(len(incoming), 1)
+        self.assertEqual(str(incoming[0][0].type), "i64")
+        self.assertEqual(self._phi_incoming_values(dst_vid), [1])
 
 
 if __name__ == "__main__":

@@ -266,6 +266,33 @@ def _record_chosen_incoming(
         chosen[pred_match] = value
 
 
+def _coerce_phi_incoming_type(builder, phi, val: ir.Value, pred_bb: ir.Block, dst_vid: int) -> ir.Value:
+    """Coerce integer PHI incoming values to the PHI's LLVM type in pred_bb."""
+    phi_ty = getattr(phi, "type", None)
+    val_ty = getattr(val, "type", None)
+    if phi_ty == val_ty:
+        return val
+    if not (isinstance(phi_ty, ir.IntType) and isinstance(val_ty, ir.IntType)):
+        return val
+
+    if isinstance(val, ir.Constant):
+        try:
+            return ir.Constant(phi_ty, int(getattr(val, "constant", 0)))
+        except (TypeError, ValueError):
+            return ir.Constant(phi_ty, 0)
+
+    pb = ir.IRBuilder(pred_bb)
+    if pred_bb.terminator is not None:
+        pb.position_before(pred_bb.terminator)
+    else:
+        pb.position_at_end(pred_bb)
+    if val_ty.width < phi_ty.width:
+        return pb.zext(val, phi_ty, name=f"phi_in_{dst_vid}_zext")
+    if val_ty.width > phi_ty.width:
+        return pb.trunc(val, phi_ty, name=f"phi_in_{dst_vid}_trunc")
+    return val
+
+
 def wire_incomings(builder, block_id: int, dst_vid: int, incoming: List[Tuple[int, int]], context=None):
     """Wire PHI incoming edges for (block_id, dst_vid) using declared (decl_b, v_src) pairs.
 
@@ -336,6 +363,7 @@ def wire_incomings(builder, block_id: int, dst_vid: int, incoming: List[Tuple[in
         pred_bb = builder.bb_map.get(pred_bid)
         if pred_bb is None:
             continue
+        val = _coerce_phi_incoming_type(builder, phi, val, pred_bb, dst_vid)
         # llvmlite requires (value, block) of correct types
         phi.add_incoming(val, pred_bb)
         trace({"phi": "add_incoming", "dst": int(dst_vid), "pred": int(pred_bid)})

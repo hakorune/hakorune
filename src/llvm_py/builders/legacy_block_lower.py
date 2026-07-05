@@ -5,6 +5,7 @@ from trace import debug as trace_debug
 from trace import phi as trace_phi
 from trace import phi_json as trace_phi_json
 from phi_wiring import ensure_phi as _ensure_phi
+from phi_wiring.wiring import _coerce_phi_incoming_type
 
 
 def _safe_int(value) -> Optional[int]:
@@ -158,8 +159,9 @@ def _safe_value_at_end(builder, src_vid: int, pred_match: int):
         return None
 
 
-def _safe_add_incoming(phi, value, pred_bb) -> None:
+def _safe_add_incoming(builder, phi, value, pred_bb, dst_vid: int) -> None:
     try:
+        value = _coerce_phi_incoming_type(builder, phi, value, pred_bb, dst_vid)
         phi.add_incoming(value, pred_bb)
     except (AttributeError, KeyError, RuntimeError, TypeError, ValueError):
         pass
@@ -426,4 +428,4 @@ def finalize_phis(builder):
                     val = ir.Constant(builder.i64, 0)
                 chosen[pred] = val
             for pred in preds_list:
-                _safe_add_incoming(phi, chosen[pred], builder.bb_map[pred])
+                _safe_add_incoming(builder, phi, chosen[pred], builder.bb_map[pred], int(dst_vid))
