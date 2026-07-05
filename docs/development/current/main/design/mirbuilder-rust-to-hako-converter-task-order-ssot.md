@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-07-04
+Date: 2026-07-05
 Scope: MirBuilder-only Rust-to-Hako converter task order.
 Related:
   - docs/development/current/main/design/derived-to-native-hako-artifact-model-ssot.md
@@ -60,7 +60,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-SNAPSHOT-PARITY-RUNNER-ROUTE-DECISION-001
+  MIRBUILDER-PROGRAMJSON-V0-SCANNER-SEEK-OBJ-END-UNESCAPED-AOT-LOWERING-001
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -91,11 +91,12 @@ normal operating rule:
 
 latest design decision:
   ProgramJsonLoopCondContinueWithReturnSnapshotV1 is implemented and MIR
-  verification is green, but runtime parity is held. ProgramJsonV0ScannerBox
-  AOT probes stop at module_generic_prepass_failed for _read_char/2,
-  seek_obj_end_unescaped/2, seek_obj_field_value_start/3, and
-  seek_obj_field_obj_start/3. Next work is a route decision: unblock scanner
-  AOT execution or define an explicit non-AOT parity runner scope.
+  verification is green, but runtime parity is held until the scanner AOT path
+  can execute. ProgramJsonV0ScannerBox _read_char/2 now emits through AOT, and
+  the existing inventory also reports seek_after green. Remaining scanner AOT
+  blockers start at seek_obj_end_unescaped/2, followed by field value/object
+  scanners. Next work is the seek_obj_end_unescaped/2 lowering slice, not
+  another string-only facade.
   Rust ASTNode-to-token snapshot adapters are non-authority temporary projection
   ABI for MirBuilder-first migration. They must not invent semantic policy or a
   hidden token taxonomy, and must be removable when HHako ProgramJSON can feed

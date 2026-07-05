@@ -345,14 +345,13 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PROGRAMJSON-V0-SCANNER-AOT-LOWERING-BLOCKER-INVENTORY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2977-MIRBUILDER-PROGRAMJSON-V0-SCANNER-AOT-LOWERING-BLOCKER-INVENTORY-001.md"
-latest_card_summary = """The latest card inventories the ProgramJsonV0ScannerBox
-AOT execution blocker. Scanner helpers verify as MIR, but minimal probes stop
-in AOT lowering with module_generic_prepass_failed, including _read_char/2,
-seek_obj_end_unescaped/2, seek_obj_field_value_start/3, and
-seek_obj_field_obj_start/3. ProgramJSON snapshot runtime parity remains
-unclaimed until a parity runner route is selected."""
+latest_card = "MIRBUILDER-PROGRAMJSON-V0-SCANNER-READ-CHAR-AOT-LOWERING-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2978-MIRBUILDER-PROGRAMJSON-V0-SCANNER-READ-CHAR-AOT-LOWERING-001.md"
+latest_card_summary = """The latest card unblocks the first ProgramJsonV0ScannerBox
+AOT helper. _read_char/2 now reaches AOT emit through generic string null-guard
+compare support and the same-module string_substring rule fix; the scanner
+inventory also reports seek_after green. ProgramJSON snapshot runtime parity
+remains unclaimed. Next scanner AOT blocker is seek_obj_end_unescaped/2."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

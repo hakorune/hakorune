@@ -143,7 +143,7 @@
                       "StringBox",
                       SAME_MODULE_METHOD_VIEW_RECEIVER_EXACT,
                       NULL,
-                      SAME_MODULE_METHOD_VIEW_STRING_REQUIRED,
+                      SAME_MODULE_METHOD_VIEW_STRING_OPTIONAL,
                       "read_ref",
                       SAME_MODULE_METHOD_VIEW_STRING_REQUIRED,
                       NULL,

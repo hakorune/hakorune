@@ -90,6 +90,222 @@ fn refresh_module_semantic_metadata_accepts_read_char_unknown_receiver_from_stri
 }
 
 #[test]
+fn refresh_module_semantic_metadata_accepts_read_char_null_guard_string_body() {
+    let mut module = MirModule::new("global_call_program_json_read_char_guard_test".to_string());
+    let caller = make_function_with_global_call_args(
+        "ProgramJsonV0ScannerBox._read_char/2",
+        Some(ValueId::new(30)),
+        vec![ValueId::new(10), ValueId::new(11)],
+    );
+    let mut read_char = MirFunction::new(
+        FunctionSignature {
+            name: "ProgramJsonV0ScannerBox._read_char/2".to_string(),
+            params: vec![MirType::Unknown, MirType::Unknown],
+            return_type: MirType::String,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    read_char.params = vec![ValueId::new(0), ValueId::new(1)];
+    let entry = read_char.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
+    entry.instructions.extend([
+        MirInstruction::Const {
+            dst: ValueId::new(2),
+            value: ConstValue::Void,
+        },
+        MirInstruction::Compare {
+            dst: ValueId::new(3),
+            op: CompareOp::Eq,
+            lhs: ValueId::new(0),
+            rhs: ValueId::new(2),
+        },
+    ]);
+    entry.set_terminator(MirInstruction::Branch {
+        condition: ValueId::new(3),
+        then_bb: BasicBlockId::new(1),
+        else_bb: BasicBlockId::new(2),
+        then_edge_args: None,
+        else_edge_args: None,
+    });
+
+    let mut null_receiver_block = BasicBlock::new(BasicBlockId::new(1));
+    null_receiver_block
+        .instructions
+        .push(MirInstruction::Const {
+            dst: ValueId::new(4),
+            value: ConstValue::String(String::new()),
+        });
+    null_receiver_block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(4)),
+    });
+
+    let mut index_guard_block = BasicBlock::new(BasicBlockId::new(2));
+    index_guard_block.instructions.extend([
+        MirInstruction::Const {
+            dst: ValueId::new(5),
+            value: ConstValue::Void,
+        },
+        MirInstruction::Compare {
+            dst: ValueId::new(6),
+            op: CompareOp::Eq,
+            lhs: ValueId::new(1),
+            rhs: ValueId::new(5),
+        },
+    ]);
+    index_guard_block.set_terminator(MirInstruction::Branch {
+        condition: ValueId::new(6),
+        then_bb: BasicBlockId::new(3),
+        else_bb: BasicBlockId::new(4),
+        then_edge_args: None,
+        else_edge_args: None,
+    });
+
+    let mut null_index_block = BasicBlock::new(BasicBlockId::new(3));
+    null_index_block.instructions.push(MirInstruction::Const {
+        dst: ValueId::new(7),
+        value: ConstValue::String(String::new()),
+    });
+    null_index_block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(7)),
+    });
+
+    let mut negative_guard_block = BasicBlock::new(BasicBlockId::new(4));
+    negative_guard_block.instructions.extend([
+        MirInstruction::Const {
+            dst: ValueId::new(8),
+            value: ConstValue::Integer(0),
+        },
+        MirInstruction::Compare {
+            dst: ValueId::new(9),
+            op: CompareOp::Lt,
+            lhs: ValueId::new(1),
+            rhs: ValueId::new(8),
+        },
+    ]);
+    negative_guard_block.set_terminator(MirInstruction::Branch {
+        condition: ValueId::new(9),
+        then_bb: BasicBlockId::new(5),
+        else_bb: BasicBlockId::new(6),
+        then_edge_args: None,
+        else_edge_args: None,
+    });
+
+    let mut negative_index_block = BasicBlock::new(BasicBlockId::new(5));
+    negative_index_block
+        .instructions
+        .push(MirInstruction::Const {
+            dst: ValueId::new(10),
+            value: ConstValue::String(String::new()),
+        });
+    negative_index_block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(10)),
+    });
+
+    let mut bounds_guard_block = BasicBlock::new(BasicBlockId::new(6));
+    bounds_guard_block.instructions.extend([
+        MirInstruction::Call {
+            dst: Some(ValueId::new(11)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Method {
+                box_name: "RuntimeDataBox".to_string(),
+                method: "length".to_string(),
+                receiver: Some(ValueId::new(0)),
+                certainty: TypeCertainty::Union,
+                box_kind: CalleeBoxKind::RuntimeData,
+            }),
+            args: vec![],
+            effects: EffectMask::PURE,
+        },
+        MirInstruction::Compare {
+            dst: ValueId::new(12),
+            op: CompareOp::Ge,
+            lhs: ValueId::new(1),
+            rhs: ValueId::new(11),
+        },
+    ]);
+    bounds_guard_block.set_terminator(MirInstruction::Branch {
+        condition: ValueId::new(12),
+        then_bb: BasicBlockId::new(7),
+        else_bb: BasicBlockId::new(8),
+        then_edge_args: None,
+        else_edge_args: None,
+    });
+
+    let mut out_of_bounds_block = BasicBlock::new(BasicBlockId::new(7));
+    out_of_bounds_block
+        .instructions
+        .push(MirInstruction::Const {
+            dst: ValueId::new(13),
+            value: ConstValue::String(String::new()),
+        });
+    out_of_bounds_block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(13)),
+    });
+
+    let mut slice_block = BasicBlock::new(BasicBlockId::new(8));
+    slice_block.instructions.extend([
+        MirInstruction::Const {
+            dst: ValueId::new(14),
+            value: ConstValue::Integer(1),
+        },
+        MirInstruction::BinOp {
+            dst: ValueId::new(15),
+            op: BinaryOp::Add,
+            lhs: ValueId::new(1),
+            rhs: ValueId::new(14),
+        },
+        MirInstruction::Call {
+            dst: Some(ValueId::new(16)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Method {
+                box_name: "RuntimeDataBox".to_string(),
+                method: "substring".to_string(),
+                receiver: Some(ValueId::new(0)),
+                certainty: TypeCertainty::Union,
+                box_kind: CalleeBoxKind::RuntimeData,
+            }),
+            args: vec![ValueId::new(1), ValueId::new(15)],
+            effects: EffectMask::PURE,
+        },
+    ]);
+    slice_block.set_terminator(MirInstruction::Return {
+        value: Some(ValueId::new(16)),
+    });
+
+    for block in [
+        null_receiver_block,
+        index_guard_block,
+        null_index_block,
+        negative_guard_block,
+        negative_index_block,
+        bounds_guard_block,
+        out_of_bounds_block,
+        slice_block,
+    ] {
+        read_char.blocks.insert(block.id, block);
+    }
+    module.functions.insert("main".to_string(), caller);
+    module.functions.insert(
+        "ProgramJsonV0ScannerBox._read_char/2".to_string(),
+        read_char,
+    );
+
+    refresh_module_semantic_metadata(&mut module);
+
+    let route = &module.functions["main"].metadata.global_call_routes[0];
+    assert_eq!(
+        route.target_shape(),
+        Some("generic_pure_string_body"),
+        "reason={:?} blocker={:?}/{:?}",
+        route.target_shape_reason(),
+        route.target_shape_blocker_symbol(),
+        route.target_shape_blocker_reason()
+    );
+    assert_eq!(route.target_shape_reason(), None);
+    assert_eq!(route.proof(), "typed_global_call_generic_pure_string");
+}
+
+#[test]
 fn refresh_module_global_call_routes_accepts_print_in_generic_pure_string_body() {
     let mut module = MirModule::new("global_call_string_print_method_test".to_string());
     let caller = make_function_with_global_call_args(
