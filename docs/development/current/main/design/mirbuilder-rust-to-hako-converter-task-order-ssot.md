@@ -60,7 +60,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-LOOP-BODY-CONTROL-FLOW-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+  HAKO-AOT-ROUTE-VALUE-TYPE-PUBLICATION-CONTRACT-001
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -90,14 +90,16 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  ProgramJSON migration uses capability batches, not one-shape cards. Before
-  the retire-candidate follow-up, AOT correctness for dynamic `node_type ==
-  "Return"` and dynamic `StringHelpers.int_to_str(scanner_i64)` was fixed in
-  HAKO-AOT-DYNAMIC-STRING-EQ-AND-INT-TO-STR-CORRECTNESS-001. Loop.body
-  control-flow scan remains green as a 10-row `.hako` ProgramJSON traversal
-  capability, and the next card may mark only the covered
-  LoopBodyControlFlowSnapshotV1 slice as a Rust ASTNode projector
-  retire-candidate. Policy SSOT:
+  ProgramJSON migration uses capability batches, not one-shape cards. The
+  2996 AOT correctness fix exposed a small MIR/AOT metadata contract boundary,
+  so the next card is HAKO-AOT-ROUTE-VALUE-TYPE-PUBLICATION-CONTRACT-001:
+  RouteReturnShapeValueTypePublisherV1 plus
+  HelperParamTypePublicationPolicyV1. This contract cleanup must stay below
+  route-family unification, backend lowering, MIR mutation, ID allocation,
+  new ABI, `.hako` syntax/API expansion, and ProgramJSON capability claims.
+  After it is green, return to the ProgramJSON Loop.body retire-candidate.
+  Loop.body control-flow scan remains green as a 10-row `.hako` ProgramJSON
+  traversal capability. Policy SSOT:
   docs/development/current/main/design/mirbuilder-programjson-capability-batch-migration-policy-ssot.md.
   Do not claim full projector retirement, HakoAdoption, ProgramJSON full parser,
   MIR mutation, lowering, ID allocation, route selection, or Source Selfhost.
@@ -427,20 +429,20 @@ Detailed evidence lives in phase cards, fixtures, and git history.
 
 ## Active Next 3
 ```text
-1. SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-011
-   status=closed; boundary=NoMachineDerivedPostMissingProjectionPolicyWiderLane
+1. HAKO-AOT-ROUTE-VALUE-TYPE-PUBLICATION-CONTRACT-001
+   status=active; boundary=RouteReturnShapeValueTypePublisherV1 + HelperParamTypePublicationPolicyV1
 
-2. SOURCE-SELFHOST-LOCAL-CANDIDATE-SELECTION-POLICY-001
-   status=closed; boundary=SourceSelfhostLocalCandidateSelectionPolicyDefined
+2. MIRBUILDER-PROGRAMJSON-LOOP-BODY-CONTROL-FLOW-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+   status=pending; boundary=covered LoopBodyControlFlowSnapshotV1 slice only
 
-3. SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-CLOSEOUT-001
-   status=closed; boundary=SourceSelfhostRouteSelectionExhaustedNoMachineDerivedNextLane
+3. ProgramJSON retire-candidate continuation
+   status=held; boundary=no full projector retirement, parser claim, lowering, mutation, ID allocation, or Source Selfhost
 
 next_documented_task =
-  stopped at Source Selfhost wider route-selection design stop
+  HAKO-AOT-ROUTE-VALUE-TYPE-PUBLICATION-CONTRACT-001
 
 next_after_active_3 =
-  reentry requires new non-self-signed authority or stable input delta
+  return to ProgramJSON capability-batch retire-candidate continuation
 ```
 
 ## Landed Converter Capability Summary
