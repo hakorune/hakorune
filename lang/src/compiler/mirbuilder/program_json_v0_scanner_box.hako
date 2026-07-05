@@ -68,6 +68,7 @@ static box ProgramJsonV0ScannerBox {
     if key == "name" { return "\"name\":" }
     if key == "op" { return "\"op\":" }
     if key == "param" { return "\"param\":" }
+    if key == "payload_type" { return "\"payload_type\":" }
     if key == "prelude" { return "\"prelude\":" }
     if key == "record" { return "\"record\":" }
     if key == "recv" { return "\"recv\":" }
