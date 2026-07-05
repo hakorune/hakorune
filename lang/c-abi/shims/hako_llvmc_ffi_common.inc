@@ -393,6 +393,22 @@ static const char* hako_llvmc_llc_flags(void) {
   return "-O3 -mcpu=native";
 }
 
+static const char* hako_llvmc_opt_level(void) {
+  const char* value = getenv("NYASH_LLVM_OPT_LEVEL");
+  if (value && value[0]) return value;
+  value = getenv("HAKO_LLVM_OPT_LEVEL");
+  if (value && value[0]) return value;
+  return "0";
+}
+
+static const char* hako_llvmc_mem2reg_opt_passes(void) {
+  const char* level = hako_llvmc_opt_level();
+  if (level && level[0] == '3') return "always-inline,default<O3>";
+  if (level && level[0] == '2') return "always-inline,default<O2>";
+  if (level && level[0] == '1') return "always-inline,default<O1>";
+  return "mem2reg";
+}
+
 static int hako_llvmc_mem2reg_canonicalize_and_llc(
     const char* llpath,
     const char* obj_out) {
@@ -402,6 +418,7 @@ static int hako_llvmc_mem2reg_canonicalize_and_llc(
   const char* opt_tool;
   const char* llc_tool;
   const char* llc_flags;
+  const char* opt_passes;
   int n;
   int rc;
 
@@ -434,6 +451,7 @@ static int hako_llvmc_mem2reg_canonicalize_and_llc(
   opt_tool = hako_llvmc_resolve_tool("NYASH_NY_LLVM_OPT_TOOL", "opt", "opt-18");
   llc_tool = hako_llvmc_resolve_tool("NYASH_NY_LLVM_LLC_TOOL", "llc", "llc-18");
   llc_flags = hako_llvmc_llc_flags();
+  opt_passes = hako_llvmc_mem2reg_opt_passes();
   if (!opt_tool) {
     hako_llvmc_emit_route_trace("mem2reg", "fail", "opt-missing", llpath);
     return -1;
@@ -448,8 +466,9 @@ static int hako_llvmc_mem2reg_canonicalize_and_llc(
   n = snprintf(
       cmd,
       sizeof(cmd),
-      "%s -passes='always-inline,default<O3>' -S -o \"%s\" \"%s\" 2>\"%s\"",
+      "%s -passes='%s' -S -o \"%s\" \"%s\" 2>\"%s\"",
       opt_tool,
+      opt_passes,
       canon_ll,
       llpath,
       opt_err);

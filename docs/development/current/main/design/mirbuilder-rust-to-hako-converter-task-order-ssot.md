@@ -60,9 +60,9 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  HAKO-AOT-PROGRAMJSON-LAYER4-LOOP-RECIPE-DTO-HEAVY-EXE-READINESS-001
+  HAKO-AOT-PROGRAMJSON-PHASE-STATE-RUNTIME-PARSE-ERROR-READINESS-001
 selected next card:
-  docs/development/current/main/phases/phase-296x/3120-HAKO-AOT-PROGRAMJSON-LAYER4-LOOP-RECIPE-DTO-HEAVY-EXE-READINESS-001.md
+  docs/development/current/main/phases/phase-296x/3121-HAKO-AOT-PROGRAMJSON-PHASE-STATE-RUNTIME-PARSE-ERROR-READINESS-001.md
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -92,6 +92,12 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
+  3120 closes the Layer4 loop Recipe DTO heavy EXE compile-cost blocker:
+  the FFI `opt -> llc` O0 path now uses `mem2reg` only instead of
+  `always-inline,default<O3>`, and the bounded heavy guard emits/runs the EXE.
+  Runtime parity remains unclaimed because PhaseState parse returns err=1 for
+  the covered DTO rows; 3121 is selected to fix or isolate that parse runtime
+  contract.
   3109 already fixes the ProgramJSON scanner helper contract with total
   result-map returns. Treat it as the prerequisite for Layer4 work, not as a
   reopened design question: if scanner nullable returns regress, repair 3109

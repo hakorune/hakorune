@@ -1,6 +1,6 @@
 # 3120 - HAKO-AOT-PROGRAMJSON-LAYER4-LOOP-RECIPE-DTO-HEAVY-EXE-READINESS-001
 
-Status: selected-next
+Status: green-first-blocker-documented
 
 ## Scope
 
@@ -76,3 +76,49 @@ source_selfhost_claim = 0
 
 If the exact first blocker is an opt-cost timeout with no semantic failure, keep
 it as a heavy readiness performance task instead of widening compiler contracts.
+
+## Green Evidence
+
+Implementation:
+
+```text
+lang/c-abi/shims/hako_llvmc_ffi_common.inc
+  O0 opt path now uses mem2reg only.
+  O1/O2/O3 keep explicit always-inline + default<O*> paths.
+```
+
+The original 120s timeout was caused by the FFI shared library's O0 path still
+running `always-inline,default<O3>` through the `opt -> llc` fallback. The
+`always-inline,mem2reg` probe expanded the 1.3MB imported-closure IR into a
+432MB canonical IR, and `llc` then timed out. The fixed O0 path keeps the
+formal `llpath canonical emit` contract as `mem2reg` only.
+
+Public guard:
+
+```bash
+bash tools/checks/rust_lifecycle_mirbuilder_programjson_layer4_loop_recipe_dto_heavy_exe_readiness_gate.sh
+```
+
+Current output:
+
+```text
+heavy_emit_exe_probe=green
+ffi_o0_opt_pass=mem2reg
+runtime_parity_green=0
+exact_first_blocker=phase_state_parse_runtime_parse_error
+void_signature_object_return_widening=0
+mixed_runtime_i64_or_handle_for_scanner_out_map=0
+source_selfhost_claim=0
+```
+
+## Decision
+
+The compile-cost blocker is closed for the 3119 probe. Runtime parity is still
+not claimed: the executable now runs, but `ProgramJsonV0PhaseStateBox.parse`
+returns `err=1` for the covered Layer4 loop DTO rows.
+
+Selected next card:
+
+```text
+HAKO-AOT-PROGRAMJSON-PHASE-STATE-RUNTIME-PARSE-ERROR-READINESS-001
+```
