@@ -345,12 +345,13 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-TOKEN-SNAPSHOT-ADAPTER-SUNSET-POLICY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2960-MIRBUILDER-TOKEN-SNAPSHOT-ADAPTER-SUNSET-POLICY-001.md"
-latest_card_summary = """The latest card fixes Rust ASTNode to token snapshots
-as a temporary projection ABI for MirBuilder-first migration. The projector is
-non-authority, HHako facade DTOs remain the authority owners, and the sunset
-target is HHako ProgramJSON to snapshot/facade input during parser integration."""
+latest_card = "MIRBUILDER-SINGLE-PLANNER-OUTCOME-DISPOSITION-PARITY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2961-MIRBUILDER-SINGLE-PLANNER-OUTCOME-DISPOSITION-PARITY-001.md"
+latest_card_summary = """The latest card lands parity for the read-only
+single_planner outcome disposition boundary that decides planner-required None
+freeze vs returning the existing outcome. build_plan_with_facts_ctx, full
+try_build_outcome, recipe matching, logging, lowering, MIR mutation, ID
+allocation, and Source Selfhost remain unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -361,6 +362,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-05: 2961 lands single_planner outcome disposition parity for planner-required None freeze vs return-outcome DTO.",
   "2026-07-05: 2960 fixes Rust ASTNode-to-token snapshots as temporary non-authority projection ABI with ProgramJSON sunset.",
   "2026-07-05: 2959 adopts LoopCondContinueWithReturn plan-rule DTO as the first scoped HakoAdopted Plan owner.",
   "2026-07-05: 2958 lands LoopCondContinueWithReturn plan-rule DTO parity; HakoAdopted decision is next.",
@@ -372,5 +374,4 @@ landed_tail = [
   "2026-07-05: 2952 adopts loop_break_step_before_break_facts.authority_facade as a scoped HakoAdopted Fact owner; break-if payloads remain Rust.",
   "2026-07-05: 2951 lands loop_break_step_before_break_facts authority-facade parity; HakoAdopted decision is next.",
   "2026-07-05: 2950 selects try_extract_loop_break_step_before_break_subset as the next authority-facade parity pilot; break-if payloads remain Rust.",
-  "2026-07-05: 2949 adopts loop_break_body_local_facts.authority_facade as a scoped HakoAdopted Fact owner; loop-break subset dispatch remains Rust.",
 ]

@@ -1,0 +1,43 @@
+// single_planner_outcome_disposition.hako
+//
+// Responsibility:
+// - reduce planner-required / planner-present / facts-present tokens into a
+//   read-only single_planner outcome disposition DTO
+// - mirror the planner_required None freeze boundary in try_build_outcome
+//
+// Non-responsibility:
+// - build_plan_with_facts_ctx migration
+// - recipe matching, logging, route execution, lowering, MIR mutation, or ID allocation
+static box SinglePlannerOutcomeDispositionBox {
+  build_summary(planner_required_token, planner_present_token, outcome_facts_token) {
+    if planner_required_token != "PlannerRequired" && planner_required_token != "PlannerOptional" {
+      return "accepted=0;reason=unsupported_planner_required_token"
+    }
+    if planner_present_token != "PlannerPresent" && planner_present_token != "PlannerAbsent" {
+      return "accepted=0;reason=unsupported_planner_present_token"
+    }
+    if outcome_facts_token != "FactsPresent" && outcome_facts_token != "FactsNone" {
+      return "accepted=0;reason=unsupported_outcome_facts_token"
+    }
+
+    if planner_required_token == "PlannerRequired" {
+      if planner_present_token == "PlannerAbsent" {
+        if outcome_facts_token == "FactsNone" {
+          return "accepted=1;disposition=freeze_required_none;reason=planner_required_none"
+        }
+      }
+    }
+
+    return "accepted=1;disposition=return_outcome"
+      + ";planner_required=" + me.bool_token(planner_required_token, "PlannerRequired")
+      + ";planner_present=" + me.bool_token(planner_present_token, "PlannerPresent")
+      + ";facts_present=" + me.bool_token(outcome_facts_token, "FactsPresent")
+  }
+
+  bool_token(actual, true_token) {
+    if actual == true_token {
+      return "1"
+    }
+    return "0"
+  }
+}
