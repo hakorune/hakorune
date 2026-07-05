@@ -1,0 +1,120 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonLayer4LoopRecipeDtoParityV1",
+  "token": "MIRBUILDER-PROGRAMJSON-LAYER4-LOOP-RECIPE-DTO-PARITY-001",
+  "capability": {
+    "name": "ProgramJsonLoopRecipeDtoSnapshotV1",
+    "input": "ProgramJSON v0",
+    "output": "LoopRecipeDtoSnapshotV1",
+    "implementation": "lang/src/compiler/mirbuilder/program_json_loop_recipe_dto_snapshot.hako"
+  },
+  "routes": {
+    "programjson_route": "ProgramJSON -> ProgramJsonV0PhaseStateBox.parse/2 -> recipe_root -> ProgramJsonLoopRecipeDtoSnapshotBox.build_summary/1",
+    "rust_oracle_route": "Rust MirBuilder loop recipe oracle canonical fields",
+    "runtime_parity_status": "unclaimed_heavy_emit_exe_timeout_pending"
+  },
+  "rows": [
+    {
+      "row_id": "local_loop_assignment_return_var",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "body": [
+          {"type": "Local", "name": "i", "expr": {"type": "Int", "value": 0}},
+          {
+            "type": "Loop",
+            "cond": {"type": "Compare", "op": "<", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 2}},
+            "body": [
+              {"type": "Local", "name": "i", "expr": {"type": "Binary", "op": "+", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 1}}}
+            ]
+          },
+          {"type": "Return", "expr": {"type": "Var", "name": "i"}}
+        ]
+      },
+      "rust_oracle_expected_summary": "snapshot_kind=LoopRecipeDtoSnapshotV1;err=0;matched=1;root_len=3;local_name=i;return_kind=Var;return_value=i;return_facts_kind=Return;loop_cond_kind=VarLtInt;loop_cond_var=i;loop_cond_rhs_int=2;loop_body_len=1;shape_kind=phase11_local_loop_varltint_body_inc_return_var_or_int;loop_body_kind=assignment_only;loop_step_int=1;loop_if_cond_rhs_int=;loop_if_then_retv="
+    },
+    {
+      "row_id": "local_loop_assignment_return_int",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "body": [
+          {"type": "Local", "name": "i", "expr": {"type": "Int", "value": 0}},
+          {
+            "type": "Loop",
+            "cond": {"type": "Compare", "op": "<", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 4}},
+            "body": [
+              {"type": "Local", "name": "i", "expr": {"type": "Binary", "op": "+", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 2}}}
+            ]
+          },
+          {"type": "Return", "expr": {"type": "Int", "value": 7}}
+        ]
+      },
+      "rust_oracle_expected_summary": "snapshot_kind=LoopRecipeDtoSnapshotV1;err=0;matched=1;root_len=3;local_name=i;return_kind=Int;return_value=7;return_facts_kind=Return;loop_cond_kind=VarLtInt;loop_cond_var=i;loop_cond_rhs_int=4;loop_body_len=1;shape_kind=phase11_local_loop_varltint_body_inc_return_var_or_int;loop_body_kind=assignment_only;loop_step_int=2;loop_if_cond_rhs_int=;loop_if_then_retv="
+    },
+    {
+      "row_id": "local_loop_if_then_assignment_return_var",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "body": [
+          {"type": "Local", "name": "i", "expr": {"type": "Int", "value": 0}},
+          {
+            "type": "Loop",
+            "cond": {"type": "Compare", "op": "<", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 5}},
+            "body": [
+              {
+                "type": "If",
+                "cond": {"type": "Compare", "op": "<", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 3}},
+                "then": [{"type": "Return", "expr": {"type": "Int", "value": 9}}],
+                "else": null
+              },
+              {"type": "Local", "name": "i", "expr": {"type": "Binary", "op": "+", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 1}}}
+            ]
+          },
+          {"type": "Return", "expr": {"type": "Var", "name": "i"}}
+        ]
+      },
+      "rust_oracle_expected_summary": "snapshot_kind=LoopRecipeDtoSnapshotV1;err=0;matched=1;root_len=3;local_name=i;return_kind=Var;return_value=i;return_facts_kind=Return;loop_cond_kind=VarLtInt;loop_cond_var=i;loop_cond_rhs_int=5;loop_body_len=2;shape_kind=phase21_local_loop_if_varltint_then_return_int_body_inc_return_var_or_int;loop_body_kind=if_then_assignment;loop_step_int=1;loop_if_cond_rhs_int=3;loop_if_then_retv=9"
+    },
+    {
+      "row_id": "loop_without_local_reject",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "body": [
+          {
+            "type": "Loop",
+            "cond": {"type": "Compare", "op": "<", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 2}},
+            "body": []
+          }
+        ]
+      },
+      "rust_oracle_expected_summary": "snapshot_kind=LoopRecipeDtoSnapshotV1;err=1;reason=parse_error"
+    }
+  ],
+  "acceptance": {
+    "programjson_traversal_used": 1,
+    "structured_recipe_dto_constructed": 1,
+    "prebuilt_token_snapshot_input": 0,
+    "string_only_facade": 0,
+    "mir_json_route_green": 1,
+    "runtime_parity_green": 0
+  },
+  "decision": {
+    "kind": "SplitHeavyAotReadinessBeforeRuntimeParityClaim",
+    "selected_next_card": "HAKO-AOT-PROGRAMJSON-LAYER4-LOOP-RECIPE-DTO-HEAVY-EXE-READINESS-001",
+    "reason_token": "LoopRecipeDtoSnapshotRouteGreenButEmitExeTimeout"
+  },
+  "claims": {
+    "runtime_parity_green": 0,
+    "full_recipe_matcher_execution": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering_claim": 0,
+    "runtime_route_switch": 0,
+    "source_selfhost_claim": 0,
+    "programjson_all_shapes_supported": 0,
+    "full_imported_parse_executable_green": 0
+  }
+}

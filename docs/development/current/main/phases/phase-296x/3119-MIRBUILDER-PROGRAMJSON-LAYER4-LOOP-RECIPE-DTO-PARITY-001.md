@@ -1,6 +1,6 @@
 # 3119 - MIRBUILDER-PROGRAMJSON-LAYER4-LOOP-RECIPE-DTO-PARITY-001
 
-Status: selected-next
+Status: active-progress
 
 ## Scope
 
@@ -8,6 +8,47 @@ Resume the first Layer4 ProgramJSON structured Plan/Recipe DTO parity slice
 after the PhaseState parse route-readiness contract landed in 3118.
 
 This is an implementation-capability card, not another guard-only detour.
+
+## Progress
+
+Implemented:
+
+```text
+ProgramJsonLoopRecipeDtoSnapshotV1
+  ProgramJSON -> PhaseState parse -> recipe_root -> canonical Loop DTO summary
+```
+
+Guard:
+
+```bash
+bash tools/checks/rust_lifecycle_mirbuilder_programjson_layer4_loop_recipe_dto_parity_gate.sh
+```
+
+Green claims from this guard:
+
+```text
+programjson_traversal_used = 1
+structured_recipe_dto_constructed = 1
+snapshot_route = DirectAbi
+snapshot_return_shape = string_handle
+phase_state_parse_route = DirectAbi
+phase_state_parse_return_shape = map_handle
+mir_json_route_green = 1
+```
+
+Not claimed:
+
+```text
+runtime_parity_green = 0
+full_emit_exe_status = unclaimed_heavy_timeout_pending
+```
+
+The full `emit-exe` probe for this imported closure timed out at 120 seconds,
+so runtime parity is split to the selected heavy readiness follow-up:
+
+```text
+HAKO-AOT-PROGRAMJSON-LAYER4-LOOP-RECIPE-DTO-HEAVY-EXE-READINESS-001
+```
 
 ## Prerequisites
 

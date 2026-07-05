@@ -60,9 +60,9 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-LAYER4-LOOP-RECIPE-DTO-PARITY-001
+  HAKO-AOT-PROGRAMJSON-LAYER4-LOOP-RECIPE-DTO-HEAVY-EXE-READINESS-001
 selected next card:
-  docs/development/current/main/phases/phase-296x/3119-MIRBUILDER-PROGRAMJSON-LAYER4-LOOP-RECIPE-DTO-PARITY-001.md
+  docs/development/current/main/phases/phase-296x/3120-HAKO-AOT-PROGRAMJSON-LAYER4-LOOP-RECIPE-DTO-HEAVY-EXE-READINESS-001.md
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -92,6 +92,11 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
+  3119 adds ProgramJsonLoopRecipeDtoSnapshotV1 and a lightweight Layer4 loop
+  Recipe DTO guard. The guard proves ProgramJSON-derived PhaseState recipe_root
+  projection to canonical loop DTO fields and DirectAbi/string_handle route
+  metadata. Runtime parity remains unclaimed because full emit-exe timed out;
+  next work is the heavy AOT readiness split.
   3118 closes the lightweight public ProgramJsonV0PhaseStateBox.parse/2 AOT
   call readiness blocker: emitted MIR JSON now proves DirectAbi / map_handle
   route metadata for the imported parse app. Full emit-exe green remains a
