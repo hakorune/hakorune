@@ -345,14 +345,15 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PROGRAMJSON-TO-TOKEN-SNAPSHOT-PILOT-CONSULTATION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2974-MIRBUILDER-PROGRAMJSON-TO-TOKEN-SNAPSHOT-PILOT-CONSULTATION-001.md"
-latest_card_summary = """The latest card reframes the next MirBuilder step as a
-ProgramJSON-to-token-snapshot consultation. More string-only facades remain
-stopped; the selected first pilot is LoopCondContinueThenReturnMinimalV1:
-HHako ProgramJSON traversal into loop_cond_continue_with_return_plan_rule token
-snapshot parity. RecipeMatcher execution, lowering, MIR mutation, ID
-allocation, and parser integration remain unclaimed."""
+latest_card = "MIRBUILDER-PROGRAMJSON-LOOP-COND-CONTINUE-WITH-RETURN-SNAPSHOT-BASIS-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2975-MIRBUILDER-PROGRAMJSON-LOOP-COND-CONTINUE-WITH-RETURN-SNAPSHOT-BASIS-001.md"
+latest_card_summary = """The latest card defines ProgramJsonLoopCondContinueWithReturnSnapshotV1
+as the first read-only ProgramJSON traversal basis. The selected shape is
+LoopCondContinueThenReturnMinimalV1 feeding the existing
+loop_cond_continue_with_return_plan_rule facade after canonical snapshot
+parity against the Rust ASTNode-token oracle. RecipeMatcher execution,
+lowering, MIR mutation, ID allocation, parser integration, and full projector
+retirement remain unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -363,6 +364,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-05: 2975 defines ProgramJsonLoopCondContinueWithReturnSnapshotV1 basis for the first ProgramJSON traversal pilot.",
   "2026-07-05: 2974 selects LoopCondContinueThenReturnMinimalV1 ProgramJSON traversal as the first snapshot pilot.",
   "2026-07-05: 2974 opens ProgramJSON-to-token-snapshot pilot consultation and ChatGPT Pro question.",
   "2026-07-05: 2973 stops Plan-track tiny DTO expansion before full single_planner outcome consultation.",
@@ -374,5 +376,4 @@ landed_tail = [
   "2026-07-05: 2967 lands single_planner recipe-match gate parity; RecipeMatcher execution remains Rust.",
   "2026-07-05: 2966 adopts single_planner gate mode as scoped HakoAdopted Plan DTO owner.",
   "2026-07-05: 2965 lands single_planner gate mode parity for strict_or_dev / planner_required DTO construction.",
-  "2026-07-05: 2964 adopts single_planner candidate presence as scoped HakoAdopted Plan DTO owner.",
 ]

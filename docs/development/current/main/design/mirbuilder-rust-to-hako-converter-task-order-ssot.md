@@ -60,7 +60,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-LOOP-COND-CONTINUE-WITH-RETURN-SNAPSHOT-BASIS-001
+  MIRBUILDER-PROGRAMJSON-LOOP-COND-CONTINUE-WITH-RETURN-SNAPSHOT-IMPLEMENTATION-001
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -90,12 +90,13 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  ProgramJSON consultation selected LoopCondContinueThenReturnMinimalV1 as the
-  first real traversal pilot: Program.body[0]=Loop(cond, body=[If(cond,
-  then=[Continue], else=null), Return(Int)]) feeding the existing
-  loop_cond_continue_with_return_plan_rule facade. Next task defines snapshot
-  vocabulary; RecipeMatcher execution, lowering, mutation, allocation, and
-  parser integration remain unclaimed.
+  ProgramJsonLoopCondContinueWithReturnSnapshotV1 is the first real traversal
+  basis: Program.body[0]=Loop(cond, body=[If(cond, then=[Continue], else=null),
+  Return(Int)]) feeding the existing loop_cond_continue_with_return_plan_rule
+  facade after canonical snapshot parity. Next task implements the read-only
+  ProgramJSON -> snapshot traversal through ProgramJsonV0ScannerBox; token-only
+  facades, RecipeMatcher, lowering, mutation, allocation, and parser
+  integration remain stopped/unclaimed.
   Rust ASTNode-to-token snapshot adapters are non-authority temporary projection
   ABI for MirBuilder-first migration. They must not invent semantic policy or a
   hidden token taxonomy, and must be removable when HHako ProgramJSON can feed
