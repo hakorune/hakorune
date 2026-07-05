@@ -60,7 +60,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-NEXT-SHAPE-SELECTION-005
+  MIRBUILDER-PROGRAMJSON-NEXT-SHAPE-SELECTION-006
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -90,13 +90,14 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  LoopCondContinueIfElseNotNullRejectV1 /
-  LoopCondContinueIfElseNotNullRejectTokenSnapshotV1 is now a one-shape Rust
-  ASTNode projector retire-candidate. Runtime dependency removal, full
-  projector retirement, HakoAdoption, ProgramJSON full parser, and Source
-  Selfhost remain unclaimed. Next work selects another ProgramJSON traversal
-  shape only if it reduces a Rust ASTNode projection slice or exposes a concrete
-  missing HHako traversal capability.
+  LoopCondContinueConditionNotSupportedRejectV1 /
+  LoopCondContinueConditionNotSupportedRejectTokenSnapshotV1 is now a one-shape
+  Rust ASTNode projector retire-candidate. The initial 5-row ProgramJSON
+  snapshot parity queue is exhausted. Runtime dependency removal, full projector
+  retirement, HakoAdoption, ProgramJSON full parser, and Source Selfhost remain
+  unclaimed. Next work selects a new ProgramJSON traversal shape only if it
+  reduces a Rust ASTNode projection slice or exposes a concrete missing HHako
+  traversal capability.
   Rust ASTNode-to-token snapshot adapters are non-authority temporary projection
   ABI for MirBuilder-first migration. They must not invent semantic policy or a
   hidden token taxonomy, and must be removable when HHako ProgramJSON can feed
