@@ -90,10 +90,10 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  3021 lands the covered ExprBinaryShapeSnapshotV1 ProgramJSON traversal rows
-  as a scoped Rust ASTNode projector retire-candidate. 3023 is active to
-  implement real `.hako` ProgramJsonExprCompareShapeScanV1 traversal for
-  covered Expr statement Compare ProgramJSON structure.
+  3023 lands real `.hako` ProgramJsonExprCompareShapeScanV1 traversal for
+  covered Expr statement Compare ProgramJSON structure with a 10-row AOT parity
+  gate. 3024 is active to mark only the covered ExprCompareShapeSnapshotV1 rows
+  as a scoped Rust ASTNode projector retire-candidate.
   Selection-only ProgramJSON cards remain forbidden unless the next capability
   is genuinely ambiguous.
   3002 records trigger-based dynamic typing hint debt for Float binops, PHI
@@ -401,17 +401,17 @@ Detailed evidence lives in phase cards, fixtures, and git history.
 
 ## Active Next 3
 ```text
-1. MIRBUILDER-PROGRAMJSON-EXPR-COMPARE-SHAPE-SCAN-CAPABILITY-001
-   status=active; boundary=.hako implementation + fixture + AOT parity gate
+1. MIRBUILDER-PROGRAMJSON-EXPR-COMPARE-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+   status=active; boundary=covered ExprCompareShapeSnapshotV1 rows only
 
-2. MIRBUILDER-PROGRAMJSON-EXPR-COMPARE-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
-   status=pending; boundary=covered ExprCompareShapeSnapshotV1 rows only
+2. ProgramJSON next capability continuation
+   status=pending; boundary=no selection-only card unless next traversal capability is genuinely ambiguous
 
 3. MIR JSON dynamic typing hint inventory follow-up
    status=trigger-based; boundary=3002 Tier-2/Tier-3, no guard-only detour
 
 next_documented_task =
-  MIRBUILDER-PROGRAMJSON-EXPR-COMPARE-SHAPE-SCAN-CAPABILITY-001
+  MIRBUILDER-PROGRAMJSON-EXPR-COMPARE-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
 
 next_after_active_3 =
   return to ProgramJSON capability-batch retire-candidate continuation
