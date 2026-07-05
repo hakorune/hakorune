@@ -124,6 +124,7 @@ phase-1 compatibility Program(JSON) compat execution helper.
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_exit_marker_shape_retire_rust_astnode_projector_candidate_guard.sh` | Retire-candidate guard for the covered `ExitMarkerShapeSnapshotV1` ProgramJSON traversal slice. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_task_scope_shape_scan_parity_gate.sh` | Capability-batch parity for `.hako` `ProgramJsonTaskScopeShapeScanV1`. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_task_scope_shape_retire_rust_astnode_projector_candidate_guard.sh` | Retire-candidate guard for the covered `TaskScopeShapeSnapshotV1` ProgramJSON traversal slice. |
+| `tools/checks/rust_lifecycle_mirbuilder_programjson_enum_declaration_shape_scan_parity_gate.sh` | Capability-batch parity for `.hako` `ProgramJsonEnumDeclarationShapeScanV1`. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_type_alias_declaration_shape_scan_parity_gate.sh` | Capability-batch parity for `.hako` `ProgramJsonTypeAliasDeclarationShapeScanV1`. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_type_alias_declaration_shape_retire_rust_astnode_projector_candidate_guard.sh` | Retire-candidate guard for the covered `TypeAliasDeclarationShapeSnapshotV1` ProgramJSON traversal slice. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_fastmem_region_shape_scan_parity_gate.sh` | Capability-batch parity for `.hako` `ProgramJsonFastMemRegionShapeScanV1`. |

@@ -1,0 +1,89 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonEnumDeclarationShapeScanParityV1",
+  "token": "MIRBUILDER-PROGRAMJSON-ENUM-DECLARATION-SHAPE-SCAN-CAPABILITY-001",
+  "capability": {
+    "name": "ProgramJsonEnumDeclarationShapeScanV1",
+    "input": "ProgramJSON v0",
+    "output": "EnumDeclarationShapeSnapshotV1"
+  },
+  "routes": {
+    "rust_oracle_route": "source -> RHako parser -> Rust ASTNode -> Rust EnumDeclaration token snapshot",
+    "hako_programjson_route": "source -> HHako parser -> ProgramJSON -> HHako EnumDeclaration token snapshot"
+  },
+  "programjson_emit_evidence": {
+    "source": "src/macro/ast_json/joinir_compat.rs",
+    "node_kind": "EnumDeclaration",
+    "node_type": null,
+    "fields": ["name", "variants", "type_parameters", "attrs"],
+    "variant_fields": ["name", "payload_type", "tuple_payload_types", "record_fields"]
+  },
+  "rows": [
+    {
+      "row_id": "enum_empty_variants",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "EnumDeclaration", "name": "Empty", "variants": [], "type_parameters": [], "attrs": {}}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=EnumDeclarationShapeSnapshotV1;top_enum_declaration_shape_kind=EnumNoVariants;supported_enum_declaration_count=1;unsupported_enum_declaration_count=0"}
+    },
+    {
+      "row_id": "enum_unit_first_variant",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "EnumDeclaration", "name": "Maybe", "variants": [{"name": "None", "payload_type": null, "tuple_payload_types": [], "record_fields": []}], "type_parameters": [], "attrs": {}}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=EnumDeclarationShapeSnapshotV1;top_enum_declaration_shape_kind=EnumFirstUnitVariant;supported_enum_declaration_count=1;unsupported_enum_declaration_count=0"}
+    },
+    {
+      "row_id": "enum_payload_first_variant",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "EnumDeclaration", "name": "Maybe", "variants": [{"name": "Some", "payload_type": "I64", "tuple_payload_types": [], "record_fields": []}], "type_parameters": [], "attrs": {}}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=EnumDeclarationShapeSnapshotV1;top_enum_declaration_shape_kind=EnumFirstPayloadVariant;supported_enum_declaration_count=1;unsupported_enum_declaration_count=0"}
+    },
+    {
+      "row_id": "enum_tuple_first_variant",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "EnumDeclaration", "name": "Pair", "variants": [{"name": "Both", "payload_type": null, "tuple_payload_types": ["I64", "String"], "record_fields": []}], "type_parameters": [], "attrs": {}}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=EnumDeclarationShapeSnapshotV1;top_enum_declaration_shape_kind=EnumFirstTupleVariant;supported_enum_declaration_count=1;unsupported_enum_declaration_count=0"}
+    },
+    {
+      "row_id": "enum_record_first_variant",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "EnumDeclaration", "name": "Event", "variants": [{"name": "Moved", "payload_type": null, "tuple_payload_types": [], "record_fields": [{"name": "x", "declared_type": "I64", "is_weak": false, "default_value": null}]}], "type_parameters": [], "attrs": {}}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=EnumDeclarationShapeSnapshotV1;top_enum_declaration_shape_kind=EnumFirstRecordVariant;supported_enum_declaration_count=1;unsupported_enum_declaration_count=0"}
+    },
+    {
+      "row_id": "enum_missing_name_unsupported",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "EnumDeclaration", "name": "", "variants": [{"name": "A", "payload_type": null, "tuple_payload_types": [], "record_fields": []}], "type_parameters": [], "attrs": {}}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=EnumDeclarationShapeSnapshotV1;top_enum_declaration_shape_kind=Unsupported;supported_enum_declaration_count=0;unsupported_enum_declaration_count=1"}
+    },
+    {
+      "row_id": "enum_missing_variant_name_unsupported",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "EnumDeclaration", "name": "Broken", "variants": [{"name": "", "payload_type": null, "tuple_payload_types": [], "record_fields": []}], "type_parameters": [], "attrs": {}}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=EnumDeclarationShapeSnapshotV1;top_enum_declaration_shape_kind=EnumFirstUnsupported;supported_enum_declaration_count=0;unsupported_enum_declaration_count=1"}
+    },
+    {
+      "row_id": "first_stmt_type_alias_unsupported",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"kind": "TypeAliasDeclaration", "name": "Count", "target_type": "I64"}]},
+      "rust_astnode_token_oracle": {"expected_summary": "snapshot_kind=EnumDeclarationShapeSnapshotV1;top_enum_declaration_shape_kind=Unsupported;supported_enum_declaration_count=0;unsupported_enum_declaration_count=1"}
+    }
+  ],
+  "summary": {
+    "parity_row_count": 8,
+    "programjson_traversal_used": 1,
+    "string_only_facade": 0,
+    "rust_astnode_projector_retire_candidate": 1
+  },
+  "decision": {
+    "kind": "ProgramJsonEnumDeclarationShapeScanParityGreen",
+    "reason_token": "EnumDeclarationShapeProgramJsonSnapshotMatchesRustAstNodeOracle",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-ENUM-DECLARATION-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "programjson_full_parser_claim": 0,
+    "hako_adopted_for_full_owner": 0,
+    "enum_lowering": 0,
+    "variant_resolution": 0
+  }
+}

@@ -89,6 +89,7 @@ static box ProgramJsonV0ScannerBox {
     if key == "tail" { return "\"tail\":" }
     if key == "then" { return "\"then\":" }
     if key == "try" { return "\"try\":" }
+    if key == "tuple_payload_types" { return "\"tuple_payload_types\":" }
     if key == "typeHint" { return "\"typeHint\":" }
     if key == "type" { return "\"type\":" }
     if key == "underlying_type" { return "\"underlying_type\":" }
@@ -99,6 +100,7 @@ static box ProgramJsonV0ScannerBox {
     if key == "arms" { return "\"arms\":" }
     if key == "base" { return "\"base\":" }
     if key == "variant" { return "\"variant\":" }
+    if key == "variants" { return "\"variants\":" }
     if key == "bind" { return "\"bind\":" }
     if key == "updates" { return "\"updates\":" }
     return "\"" + key + "\":"
