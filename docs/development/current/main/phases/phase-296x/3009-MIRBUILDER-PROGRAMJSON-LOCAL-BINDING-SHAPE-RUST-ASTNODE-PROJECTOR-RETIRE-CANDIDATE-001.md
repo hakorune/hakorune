@@ -1,6 +1,6 @@
 # 3009 - MIRBUILDER-PROGRAMJSON-LOCAL-BINDING-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
 
-Status: active
+Status: landed
 
 ## Scope
 
@@ -55,3 +55,28 @@ Source Selfhost
 - guard requires the 3008 ProgramJSON local-binding parity gate to be green;
 - runtime Rust projector dependency removal remains `0`;
 - Rust projector remains oracle-only for this covered slice.
+
+## Evidence
+
+```bash
+bash tools/checks/rust_lifecycle_mirbuilder_programjson_local_binding_shape_retire_rust_astnode_projector_candidate_guard.sh
+```
+
+Result:
+
+```text
+retire_candidate=LocalBindingShapeSnapshotV1
+covered_rows=8
+decision=RetireCandidateScoped
+parity_gate=green
+rust_projector_runtime_dependency_removed=0
+rust_projector_oracle_only=1
+full_astnode_projector_retired=0
+source_selfhost_claim=0
+```
+
+## Next
+
+```text
+MIRBUILDER-PROGRAMJSON-ASSIGNMENT-VALUE-SHAPE-SCAN-CAPABILITY-001
+```

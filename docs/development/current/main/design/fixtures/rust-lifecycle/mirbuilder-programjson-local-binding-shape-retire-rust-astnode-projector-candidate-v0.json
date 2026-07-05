@@ -1,0 +1,62 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonLocalBindingShapeRustAstNodeProjectorRetireCandidateV1",
+  "token": "MIRBUILDER-PROGRAMJSON-LOCAL-BINDING-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001",
+  "input_state": {
+    "hako_snapshot_source": "lang/src/compiler/mirbuilder/program_json_local_binding_shape_scan.hako",
+    "hako_snapshot_source_hash": "sha256:118ad86946c2dd298c9152a0741e2f3f67a6e6f56ebdc9e4bd5e3de798d6299e",
+    "parity_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-programjson-local-binding-shape-scan-parity-v0.json",
+    "parity_fixture_hash": "sha256:13c925c75754fa1caf94b3c2078def611568818dbabf0a378cccd43abe8c6e84",
+    "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_programjson_local_binding_shape_scan_parity_gate.sh",
+    "parity_gate_hash": "sha256:f386c19dc2338b9a0dc6804fb2212761af7339448fec5d28ebbbe7cf51ed6fff"
+  },
+  "retire_candidate_scope": {
+    "retire_candidate": "LocalBindingShapeSnapshotV1",
+    "shape_scope": "covered ProgramJSON Local.expr rows",
+    "programjson_snapshot_owner": "ProgramJsonLocalBindingShapeScanV1",
+    "covered_rows": [
+      "local_int_then_return_var",
+      "local_bool_then_return_var",
+      "local_var_alias_then_return_var",
+      "local_compare_var_lt_int_then_return_var",
+      "local_compare_var_eq_int_then_return_var",
+      "local_call_unsupported_then_return_var",
+      "if_then_local_int_then_return_var",
+      "if_else_local_var_then_return_var"
+    ],
+    "rust_projector_runtime_dependency_removed": 0,
+    "rust_projector_oracle_only": 1,
+    "full_astnode_projector_retired": 0
+  },
+  "criteria": {
+    "programjson_snapshot_parity_gate": "Green",
+    "programjson_route_traverses_programjson": 1,
+    "programjson_route_uses_string_only_facade": 0,
+    "covered_row_count": 8,
+    "runtime_path_uses_programjson_snapshot": 1,
+    "rust_astnode_projector_runtime_dependency_removed": 0,
+    "rust_astnode_projector_kept_for_oracle_generation": 1
+  },
+  "decision": {
+    "kind": "RetireCandidateScoped",
+    "reason_token": "LocalBindingShapeSnapshotV1ProgramJsonCapabilityParityGreen",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-ASSIGNMENT-VALUE-SHAPE-SCAN-CAPABILITY-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "rust_astnode_projector_retired": 0,
+    "rust_astnode_projector_fully_retired": 0,
+    "full_astnode_projector_retired": 0,
+    "programjson_full_parser_claim": 0,
+    "programjson_all_shapes_supported": 0,
+    "recipe_matching_migrated": 0,
+    "route_selection_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0,
+    "id_allocation_migration": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
