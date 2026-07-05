@@ -111,6 +111,7 @@ phase-1 compatibility Program(JSON) compat execution helper.
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_local_null_literal_shape_scan_parity_gate.sh` | Capability-batch parity for `.hako` `ProgramJsonLocalNullLiteralShapeScanV1`. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_local_null_literal_shape_retire_rust_astnode_projector_candidate_guard.sh` | Retire-candidate guard for the covered `LocalNullLiteralShapeSnapshotV1` ProgramJSON traversal slice. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_local_float_literal_shape_scan_parity_gate.sh` | Capability-batch parity for `.hako` `ProgramJsonLocalFloatLiteralShapeScanV1`. |
+| `tools/checks/rust_lifecycle_mirbuilder_programjson_local_float_literal_shape_retire_rust_astnode_projector_candidate_guard.sh` | Retire-candidate guard for the covered `LocalFloatLiteralShapeSnapshotV1` ProgramJSON traversal slice. |
 | `tools/checks/hako_aot_dynamic_string_eq_and_int_to_str_correctness_gate.sh` | AOT dynamic string equality and scanner-fed `StringHelpers.int_to_str` correctness gate. |
 | `tools/checks/hako_aot_route_value_type_publication_contract_gate.sh` | AOT/MIR route value-type publication contract gate for 2997. |
 
