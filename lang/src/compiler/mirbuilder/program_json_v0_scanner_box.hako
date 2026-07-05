@@ -66,6 +66,7 @@ static box ProgramJsonV0ScannerBox {
     if key == "name" { return "\"name\":" }
     if key == "op" { return "\"op\":" }
     if key == "param" { return "\"param\":" }
+    if key == "prelude" { return "\"prelude\":" }
     if key == "record" { return "\"record\":" }
     if key == "recv" { return "\"recv\":" }
     if key == "rhs" { return "\"rhs\":" }
@@ -73,6 +74,7 @@ static box ProgramJsonV0ScannerBox {
     if key == "spelling" { return "\"spelling\":" }
     if key == "start" { return "\"start\":" }
     if key == "target" { return "\"target\":" }
+    if key == "tail" { return "\"tail\":" }
     if key == "then" { return "\"then\":" }
     if key == "try" { return "\"try\":" }
     if key == "typeHint" { return "\"typeHint\":" }

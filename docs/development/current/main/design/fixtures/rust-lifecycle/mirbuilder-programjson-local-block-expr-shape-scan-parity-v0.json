@@ -1,0 +1,112 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonLocalBlockExprShapeScanParityV1",
+  "token": "MIRBUILDER-PROGRAMJSON-LOCAL-BLOCK-EXPR-SHAPE-SCAN-CAPABILITY-001",
+  "capability": {
+    "name": "ProgramJsonLocalBlockExprShapeScanV1",
+    "input": "ProgramJSON v0",
+    "output": "LocalBlockExprShapeSnapshotV1"
+  },
+  "routes": {
+    "rust_oracle_route": "source -> RHako parser -> Rust ASTNode -> Rust Local BlockExpr token snapshot",
+    "hako_programjson_route": "source -> HHako parser -> ProgramJSON -> HHako Local BlockExpr token snapshot"
+  },
+  "rows": [
+    {
+      "row_id": "top_empty_prelude_tail_int",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "x", "expr": {"type": "BlockExpr", "prelude": [], "tail": {"type": "Expr", "expr": {"type": "Int", "value": 1}}}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalBlockExprShapeSnapshotV1;top_local_block_expr_shape_kind=EmptyPreludeTailInt;if_then_local_block_expr_shape_kind=Missing;if_else_local_block_expr_shape_kind=Missing;supported_local_block_expr_count=1;unsupported_local_block_expr_count=0"
+      }
+    },
+    {
+      "row_id": "top_empty_prelude_tail_str",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "x", "expr": {"type": "BlockExpr", "prelude": [], "tail": {"type": "Expr", "expr": {"type": "Str", "value": "ok"}}}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalBlockExprShapeSnapshotV1;top_local_block_expr_shape_kind=EmptyPreludeTailStr;if_then_local_block_expr_shape_kind=Missing;if_else_local_block_expr_shape_kind=Missing;supported_local_block_expr_count=1;unsupported_local_block_expr_count=0"
+      }
+    },
+    {
+      "row_id": "top_empty_prelude_tail_bool",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "x", "expr": {"type": "BlockExpr", "prelude": [], "tail": {"type": "Expr", "expr": {"type": "Bool", "value": true}}}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalBlockExprShapeSnapshotV1;top_local_block_expr_shape_kind=EmptyPreludeTailBool;if_then_local_block_expr_shape_kind=Missing;if_else_local_block_expr_shape_kind=Missing;supported_local_block_expr_count=1;unsupported_local_block_expr_count=0"
+      }
+    },
+    {
+      "row_id": "top_local_prelude_tail_int",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "x", "expr": {"type": "BlockExpr", "prelude": [{"type": "Local", "name": "tmp", "expr": {"type": "Int", "value": 1}}], "tail": {"type": "Expr", "expr": {"type": "Int", "value": 2}}}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalBlockExprShapeSnapshotV1;top_local_block_expr_shape_kind=LocalPreludeTailInt;if_then_local_block_expr_shape_kind=Missing;if_else_local_block_expr_shape_kind=Missing;supported_local_block_expr_count=1;unsupported_local_block_expr_count=0"
+      }
+    },
+    {
+      "row_id": "top_expr_prelude_tail_str",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "x", "expr": {"type": "BlockExpr", "prelude": [{"type": "Expr", "expr": {"type": "Call", "name": "touch", "args": []}}], "tail": {"type": "Expr", "expr": {"type": "Str", "value": "done"}}}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalBlockExprShapeSnapshotV1;top_local_block_expr_shape_kind=ExprPreludeTailStr;if_then_local_block_expr_shape_kind=Missing;if_else_local_block_expr_shape_kind=Missing;supported_local_block_expr_count=1;unsupported_local_block_expr_count=0"
+      }
+    },
+    {
+      "row_id": "top_return_prelude_tail_var",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "x", "expr": {"type": "BlockExpr", "prelude": [{"type": "Return", "expr": {"type": "Int", "value": 1}}], "tail": {"type": "Expr", "expr": {"type": "Var", "name": "x"}}}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalBlockExprShapeSnapshotV1;top_local_block_expr_shape_kind=ReturnPreludeTailValue;if_then_local_block_expr_shape_kind=Missing;if_else_local_block_expr_shape_kind=Missing;supported_local_block_expr_count=1;unsupported_local_block_expr_count=0"
+      }
+    },
+    {
+      "row_id": "top_local_expr_prelude_tail_var",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Local", "name": "x", "expr": {"type": "BlockExpr", "prelude": [{"type": "Local", "name": "tmp", "expr": {"type": "Int", "value": 1}}, {"type": "Expr", "expr": {"type": "Call", "name": "touch", "args": []}}], "tail": {"type": "Expr", "expr": {"type": "Var", "name": "tmp"}}}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalBlockExprShapeSnapshotV1;top_local_block_expr_shape_kind=LocalExprPreludeTailVar;if_then_local_block_expr_shape_kind=Missing;if_else_local_block_expr_shape_kind=Missing;supported_local_block_expr_count=1;unsupported_local_block_expr_count=0"
+      }
+    },
+    {
+      "row_id": "if_then_local_prelude_tail_int",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "If", "cond": {"type": "Bool", "value": true}, "then": [{"type": "Local", "name": "x", "expr": {"type": "BlockExpr", "prelude": [{"type": "Local", "name": "tmp", "expr": {"type": "Int", "value": 1}}], "tail": {"type": "Expr", "expr": {"type": "Int", "value": 2}}}}], "else": null}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalBlockExprShapeSnapshotV1;top_local_block_expr_shape_kind=Missing;if_then_local_block_expr_shape_kind=LocalPreludeTailInt;if_else_local_block_expr_shape_kind=Missing;supported_local_block_expr_count=1;unsupported_local_block_expr_count=0"
+      }
+    },
+    {
+      "row_id": "if_else_empty_prelude_tail_int",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "If", "cond": {"type": "Bool", "value": true}, "then": [], "else": [{"type": "Local", "name": "x", "expr": {"type": "BlockExpr", "prelude": [], "tail": {"type": "Expr", "expr": {"type": "Int", "value": 1}}}}]}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalBlockExprShapeSnapshotV1;top_local_block_expr_shape_kind=Missing;if_then_local_block_expr_shape_kind=Missing;if_else_local_block_expr_shape_kind=EmptyPreludeTailInt;supported_local_block_expr_count=1;unsupported_local_block_expr_count=0"
+      }
+    },
+    {
+      "row_id": "first_stmt_return_unsupported",
+      "program_json": {"version": 0, "kind": "Program", "type": "Program", "body": [{"type": "Return", "expr": {"type": "Int", "value": 0}}]},
+      "rust_astnode_token_oracle": {
+        "expected_summary": "snapshot_kind=LocalBlockExprShapeSnapshotV1;top_local_block_expr_shape_kind=Unsupported;if_then_local_block_expr_shape_kind=Missing;if_else_local_block_expr_shape_kind=Missing;supported_local_block_expr_count=0;unsupported_local_block_expr_count=1"
+      }
+    }
+  ],
+  "summary": {
+    "parity_row_count": 10,
+    "programjson_traversal_used": 1,
+    "string_only_facade": 0,
+    "rust_astnode_projector_retire_candidate": 1
+  },
+  "decision": {
+    "kind": "ProgramJsonLocalBlockExprShapeScanParityGreen",
+    "reason_token": "LocalBlockExprShapeProgramJsonSnapshotMatchesRustAstNodeOracle",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-LOCAL-BLOCK-EXPR-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "programjson_full_parser_claim": 0,
+    "hako_adopted_for_full_owner": 0,
+    "block_expr_lowering": 0,
+    "prelude_execution_semantics": 0
+  }
+}
