@@ -91,8 +91,9 @@ normal operating rule:
 
 latest design decision:
   3103 lands the covered BlockExprShapeSnapshotV1 ProgramJSON traversal
-  slice as a scoped Rust ASTNode projector retire-candidate. Next work returns
-  to capability-batch continuation.
+  slice as a scoped Rust ASTNode projector retire-candidate. Next selected
+  capability is actual ProgramJSON v0 `TryCatch` emit evidence
+  (`kind=TryCatch`, fields `try`/`catch`/`cleanup`), not legacy `Try`.
   2997 stabilized the AOT/MIR value-type publication contract only for the
   proven route families. 3002 remains a trigger-based debt queue for Float
   Sub/Mul/Div, string Lt/Gt/Le/Ge policy, user-box single-observation
@@ -100,8 +101,8 @@ latest design decision:
   Do not open those as guard-only detours unless the active ProgramJSON gate or
   a direct AOT regression hits that route.
   ProgramJSON migration remains capability-batch based; full projector
-  retirement, HakoAdoption, ProgramJSON full parser, MIR mutation, lowering,
-  ID allocation, route selection, and Source Selfhost remain unclaimed.
+  retirement is runtime route switch, not Rust bootstrap/oracle deletion.
+  HakoAdoption, full parser, MIR mutation/lowering/ID allocation, route selection, and Source Selfhost remain unclaimed.
 
 current fail-fast boundary:
   Do not re-enter full converter route selection without new non-self-signed authority or stable input delta. The adopted pilot scopes are narrow pure owners only: classification/formatting vocabulary, tiny mutation-frame leaves, label/tag surfaces, direct step placement classification, array-string len-window effect-tags formatting, and fixture-backed parity helpers.
@@ -402,18 +403,17 @@ Detailed evidence lives in phase cards, fixtures, and git history.
 ## Active Next 3
 ```text
 1. MIRBUILDER-PROGRAMJSON-CAPABILITY-CANDIDATE-VALIDATION-001
-   status=landed; boundary=selected block-expr scan from emitted evidence
+   status=landed; boundary=selected TryCatch scan from emitted evidence
 
-2. MIRBUILDER-PROGRAMJSON-BLOCK-EXPR-SHAPE-SCAN-CAPABILITY-001
-   status=landed; boundary=real `.hako` ProgramJSON BlockExpr traversal
+2. MIRBUILDER-PROGRAMJSON-TRYCATCH-SHAPE-SCAN-CAPABILITY-001
+   status=active; boundary=real `.hako` TryCatch traversal + fixture + gate
 
-3. MIRBUILDER-PROGRAMJSON-BLOCK-EXPR-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
-   status=landed; boundary=only the covered BlockExprShapeSnapshotV1 rows
+3. MIRBUILDER-PROGRAMJSON-TRYCATCH-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+   status=pending; boundary=only the covered TryCatchShapeSnapshotV1 rows
 
 next active:
-  MIRBUILDER-PROGRAMJSON-CAPABILITY-CANDIDATE-VALIDATION
-  status=active; boundary=use emitted ProgramJSON v0 evidence to name the next
-  `.hako` scan implementation card
+  MIRBUILDER-PROGRAMJSON-TRYCATCH-SHAPE-SCAN-CAPABILITY-001
+  status=active; boundary=fix and prove ProgramJsonTryCatchShapeScanV1 parity
 
 trigger-based AOT/MIR typing debt:
   status=parked-until-triggered; order=2999/3000/3001 landed, then 3022 queue
@@ -421,17 +421,15 @@ trigger-based AOT/MIR typing debt:
   compare, PHI dst_type, mir_call dst_type, or receiver-helper
   single-observation protection
 next_documented_task =
-  MIRBUILDER-PROGRAMJSON-CAPABILITY-CANDIDATE-VALIDATION
+  MIRBUILDER-PROGRAMJSON-TRYCATCH-SHAPE-SCAN-CAPABILITY-001
 
 next_after_active_3 =
-  MIRBUILDER-PROGRAMJSON-CAPABILITY-CANDIDATE-VALIDATION
+  MIRBUILDER-PROGRAMJSON-LAYER4-STRUCTURED-PLAN-RECIPE-DTO-PILOT-SELECTION
 
 task discipline =
-  Each ProgramJSON capability card must land real `.hako` traversal, a fixture,
-  and an AOT parity gate together. If it only adds a guard or selection row,
-  stop and rewrite the card before continuing.
+  Each ProgramJSON capability card must land real `.hako` traversal + fixture
+  + AOT parity gate together; guard-only or selection-only is not progress.
   Capability is the unit: one `.hako` implementation can cover N parity rows;
-  guard-only, fixture-only, or one-shape paperwork does not count as progress.
   Candidate validation must check actual ProgramJSON v0 emission first; legacy
   AST/Rust fixture names alone cannot select a capability.
   Validation output must be a named ProgramJson*ScanV1 implementation card with
@@ -442,6 +440,9 @@ task discipline =
   full Rust ASTNode projector retirement, HakoAdoption, ProgramJSON full parser,
   MIR mutation, lowering, route selection, ID allocation, and Source Selfhost
   remain unclaimed.
+  After TryCatch scan/retire, stop layer-1 expansion unless layer-4 needs it.
+  Layer-4 is structured snapshot-to-Plan/Recipe DTO construction;
+  layer-5 MIR mutation/lowering/ID allocation needs a design-stop card.
 ```
 
 ## Landed Converter Capability Summary
