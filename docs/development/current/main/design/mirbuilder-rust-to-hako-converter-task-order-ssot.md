@@ -60,7 +60,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-REGISTRY-RULE-PLAN-PARITY-PILOT-SELECTION-001
+  MIRBUILDER-LOOP-COND-CONTINUE-WITH-RETURN-PLAN-RULE-PARITY-001
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -70,8 +70,6 @@ normal operating rule:
   Next work inventories Fact-owner and REGISTRY-rule contracts, excludes
   lowering/mutation/allocation/backend-capability blockers, then selects one
   smallest fixture-backed parity candidate.
-  Recent scoped Fact facades include scan/loop true/if-phi/loop-cond owners
-  and `loop_break_body_local_facts`.
   Recent scoped Fact facades include scan/loop true/if-phi/loop-cond owners
   and loop-break body-local / step-before-break owners.
   Selection-023 is superseded because `loop_step_shape` was already
@@ -88,12 +86,17 @@ normal operating rule:
   Selection-024 promotes to Plan track: no remaining non-adopted Fact owner is
   strictly smaller than the runner-up Plan candidates. The next slice must
   select one REGISTRY/single-planner rule as a facts-to-plan DTO parity pilot.
+  Plan selection-001 chooses the active `LoopCondContinueWithReturn`
+  single-planner rule. The next slice may only produce a facts-to-plan DTO
+  parity gate; `build_plan_with_facts_ctx`, full `try_build_outcome`, recipe
+  matching, route execution, lowering, mutation, and allocation remain Rust.
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  Selection-024 closes the current Fact-facade cadence and promotes to Plan
-  track. Recent adopted facades remain scoped DTO owners only; AST traversal,
-  nested-loop minimal composition, route selection, MIR mutation, ID
+  Plan selection-001 chooses `LoopCondContinueWithReturn` as the first
+  facts-to-plan DTO pilot because it is the only active `PLAN_RULE_ORDER` item.
+  Recent adopted facades remain scoped DTO owners only; AST traversal,
+  nested-loop minimal composition, route execution, MIR mutation, ID
   allocation, and Source Selfhost remain unclaimed unless a specific card says
   otherwise.
   Authority facade comes before crate split: Rust may be reorganized around
