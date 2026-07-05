@@ -95,6 +95,9 @@ latest design decision:
   with an 8-row AOT parity gate. 3005 is active to mark only those covered rows
   as a Rust ASTNode projector retire-candidate. Selection-only ProgramJSON cards
   are no longer allowed unless the next capability is genuinely ambiguous.
+  After 3005, go directly to
+  MIRBUILDER-PROGRAMJSON-RETURN-EXPR-SHAPE-SCAN-CAPABILITY-001 as an
+  implementation-capability card, then its scoped retire-candidate.
   3002 records later dynamic typing hint inventory for Float binops, PHI
   roundtrip, mir_call dst_type, and string relational compare policy.
   ProgramJSON migration remains capability-batch based; full projector

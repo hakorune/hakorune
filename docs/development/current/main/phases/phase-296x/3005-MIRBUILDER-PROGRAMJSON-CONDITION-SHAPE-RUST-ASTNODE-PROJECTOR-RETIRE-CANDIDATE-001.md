@@ -55,3 +55,16 @@ Source Selfhost
 - guard requires the 3004 ProgramJSON condition-shape parity gate to be green;
 - runtime Rust projector dependency removal remains `0`;
 - Rust projector remains oracle-only for this covered slice.
+
+## Next Task
+
+After this closeout, return directly to implementation:
+
+```text
+MIRBUILDER-PROGRAMJSON-RETURN-EXPR-SHAPE-SCAN-CAPABILITY-001
+```
+
+The next card should add `.hako` ProgramJSON traversal for covered
+`Return.expr` shapes, with fixture rows and an AOT parity gate in the same
+slice. Do not insert another selection-only card unless the implementation
+capability becomes genuinely ambiguous.

@@ -27,27 +27,42 @@ capability batches that are large enough to reduce Rust ASTNode projector
 surface, but still below RecipeMatcher execution, route execution, lowering,
 MIR mutation, and ID allocation.
 
-## Next Card
+## Current Queue
 
 ```text
-MIRBUILDER-PROGRAMJSON-LOOP-BODY-CONTROL-FLOW-SCAN-CAPABILITY-001
+3005:
+  MIRBUILDER-PROGRAMJSON-CONDITION-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+
+3006:
+  MIRBUILDER-PROGRAMJSON-RETURN-EXPR-SHAPE-SCAN-CAPABILITY-001
+
+3007:
+  MIRBUILDER-PROGRAMJSON-RETURN-EXPR-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+
+3008:
+  select the next implementation capability only if the 3006/3007 slice is green
 ```
 
-Card type:
+Default implementation card type:
 
 ```text
 implementation-capability + parity gate
 ```
 
-This is not a basis-only or inventory-only row. The card must include `.hako`
-implementation, fixture rows, a parity gate, and a retire-candidate decision
-for at least one Rust ASTNode projector slice.
+Retire-candidate cards are allowed only immediately after a green
+implementation capability. They must not introduce new acceptance rows.
 
 Selection-only cards are allowed only when the next traversal capability is
 genuinely ambiguous. If the capability is already named, merge selection into
 the implementation card; do not land docs/guard-only selection as progress.
 
+Each implementation capability card must include `.hako` implementation,
+fixture rows, a parity gate, and a retire-candidate decision for at least one
+Rust ASTNode projector slice.
+
 ## Capability
+
+Landed baseline:
 
 Owner:
 
@@ -134,6 +149,34 @@ second_stmt_not_return
 ```
 
 The parity gate must compare canonical fields, not raw JSON strings.
+
+## Next Implementation Capability
+
+After the active 3005 retire-candidate closeout, return to implementation with:
+
+```text
+ProgramJsonReturnExprShapeScanV1
+```
+
+Minimum scope:
+
+```text
+Return.expr = Int
+Return.expr = Var
+Return.expr = Compare(Var, Int)
+Return.expr = Bool
+Return.expr = Call unsupported
+If.then/else first Return.expr when structurally present
+```
+
+Output:
+
+```text
+ReturnExprShapeSnapshotV1
+```
+
+The purpose is to continue replacing Rust ASTNode projection with HHako
+ProgramJSON traversal. Do not add another selection-only card for this slice.
 
 ## Gate
 
