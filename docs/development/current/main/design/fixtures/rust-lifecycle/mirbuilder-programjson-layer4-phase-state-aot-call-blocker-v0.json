@@ -1,0 +1,52 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonLayer4PhaseStateAotCallBlockerV1",
+  "token": "MIRBUILDER-PROGRAMJSON-LAYER4-PHASE-STATE-AOT-CALL-BLOCKER-001",
+  "input_state": {
+    "previous_card": "MIRBUILDER-PROGRAMJSON-LAYER4-STRUCTURED-PLAN-RECIPE-DTO-PILOT-SELECTION-001",
+    "attempted_next_card": "MIRBUILDER-PROGRAMJSON-LAYER4-LOOP-RECIPE-DTO-PARITY-001",
+    "target_owner": "lang/src/compiler/mirbuilder/program_json_v0_phase_state_box.hako"
+  },
+  "blocker": {
+    "kind": "AotImportedModuleCallBlocked",
+    "callee_symbol": "ProgramJsonV0PhaseStateBox.parse/2",
+    "owner_hint": "backend_lowering",
+    "reason": "module_generic_prepass_failed",
+    "first_op": "mir_call",
+    "layer4_effect": "ProgramJSON loop Recipe DTO parity cannot run under AOT until PhaseState parse is callable from an imported .hako owner."
+  },
+  "required_fix_scope": {
+    "name": "HAKO-AOT-PROGRAMJSON-PHASE-STATE-PARSE-CALL-CONTRACT-001",
+    "allowed": [
+      "AOT/MIR route metadata or call lowering contract for ProgramJsonV0PhaseStateBox.parse",
+      "thin one-argument public wrapper only if AOT proves it can call the wrapper and preserve parse semantics",
+      "regression row that calls PhaseState parse from an imported .hako app"
+    ],
+    "forbidden": [
+      "source string contains or regex proof",
+      "token-snapshot-only facade",
+      "MIR mutation",
+      "backend lowering claim for Recipe DTO",
+      "route selection migration",
+      "runtime route switch",
+      "Source Selfhost claim"
+    ]
+  },
+  "decision": {
+    "kind": "SelectAotPhaseStateParseCallContractBeforeLayer4Parity",
+    "selected_next_card": "HAKO-AOT-PROGRAMJSON-PHASE-STATE-PARSE-CALL-CONTRACT-001",
+    "resume_after_green": "MIRBUILDER-PROGRAMJSON-LAYER4-LOOP-RECIPE-DTO-PARITY-001"
+  },
+  "claims": {
+    "layer4_recipe_dto_parity_green": 0,
+    "phase_state_aot_call_fixed": 0,
+    "source_selfhost_claim": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering_claim": 0,
+    "route_selection_migration": 0,
+    "runtime_route_switch": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
