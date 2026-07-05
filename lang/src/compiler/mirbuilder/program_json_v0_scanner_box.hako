@@ -57,11 +57,13 @@ static box ProgramJsonV0ScannerBox {
     if key == "enum" { return "\"enum\":" }
     if key == "expr" { return "\"expr\":" }
     if key == "finally" { return "\"finally\":" }
+    if key == "fields" { return "\"fields\":" }
     if key == "kind" { return "\"kind\":" }
     if key == "lhs" { return "\"lhs\":" }
     if key == "name" { return "\"name\":" }
     if key == "op" { return "\"op\":" }
     if key == "param" { return "\"param\":" }
+    if key == "record" { return "\"record\":" }
     if key == "recv" { return "\"recv\":" }
     if key == "rhs" { return "\"rhs\":" }
     if key == "scrutinee" { return "\"scrutinee\":" }

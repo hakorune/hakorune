@@ -90,14 +90,18 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  3046 lands the covered LocalFloatLiteralShapeSnapshotV1 ProgramJSON traversal
-  slice as a scoped Rust ASTNode projector retire-candidate. Next work returns
-  to ProgramJSON capability-batch continuation.
+  3047 lands real `.hako` ProgramJsonLocalRecordLiteralShapeScanV1 ProgramJSON
+  traversal for covered `Local.expr RecordLiteral` shapes with 9-row AOT
+  parity. 3048 is active for the scoped LocalRecordLiteralShapeSnapshotV1
+  Rust ASTNode projector retire-candidate.
   Selection-only ProgramJSON cards remain forbidden unless the next capability
   is genuinely ambiguous.
-  3002 records trigger-based dynamic typing hint debt for Float binops, PHI
-  roundtrip, mir_call dst_type, and string relational compare policy; it is not
-  a guard-only detour unless the active ProgramJSON gate hits that route.
+  2997 stabilized the AOT/MIR value-type publication contract only for the
+  proven route families. 3002 remains a trigger-based debt queue for Float
+  Sub/Mul/Div, string Lt/Gt/Le/Ge policy, user-box single-observation
+  protection, scalar_i64_or_missing_zero, PHI dst_type, and mir_call dst_type.
+  Do not open those as guard-only detours unless the active ProgramJSON gate or
+  a direct AOT regression hits that route.
   ProgramJSON migration remains capability-batch based; full projector
   retirement, HakoAdoption, ProgramJSON full parser, MIR mutation, lowering,
   ID allocation, route selection, and Source Selfhost remain unclaimed.
@@ -400,32 +404,37 @@ Detailed evidence lives in phase cards, fixtures, and git history.
 
 ## Active Next 3
 ```text
-1. MIRBUILDER-PROGRAMJSON-LOCAL-NULL-LITERAL-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
-   status=landed; boundary=covered LocalNullLiteralShapeSnapshotV1 rows only
-
-2. MIRBUILDER-PROGRAMJSON-LOCAL-FLOAT-LITERAL-SHAPE-SCAN-CAPABILITY-001
-   status=landed; boundary=Local.expr Float traversal, no float lowering or dynamic numeric typing
-
-3. MIRBUILDER-PROGRAMJSON-LOCAL-FLOAT-LITERAL-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+1. MIRBUILDER-PROGRAMJSON-LOCAL-FLOAT-LITERAL-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
    status=landed; boundary=covered LocalFloatLiteralShapeSnapshotV1 rows only
 
-next active:
-  MIRBUILDER-PROGRAMJSON-CAPABILITY-BATCH-CONTINUATION
-  status=active; boundary=select and implement next concrete ProgramJSON traversal capability
+2. MIRBUILDER-PROGRAMJSON-LOCAL-RECORD-LITERAL-SHAPE-SCAN-CAPABILITY-001
+   status=landed; boundary=real `.hako` ProgramJSON Local.expr RecordLiteral traversal,
+   no record lowering, field-layout semantics, route selection, or MIR mutation
 
-trigger-based: MIR JSON dynamic typing hint inventory follow-up
-   status=trigger-based; boundary=3002 Tier-2/Tier-3, no guard-only detour
+3. MIRBUILDER-PROGRAMJSON-LOCAL-RECORD-LITERAL-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+   status=active; boundary=covered LocalRecordLiteralShapeSnapshotV1 rows only
+
+next active:
+  MIRBUILDER-PROGRAMJSON-LOCAL-RECORD-LITERAL-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+  status=active; boundary=mark covered rows retire-candidate only
+
+trigger-based AOT/MIR typing debt:
+  status=parked-until-triggered; items=Float Sub/Mul/Div, string relational
+  compare policy, user-box single-observation protection,
+  scalar_i64_or_missing_zero, PHI dst_type, mir_call dst_type
 
 next_documented_task =
-  MIRBUILDER-PROGRAMJSON-CAPABILITY-BATCH-CONTINUATION
+  MIRBUILDER-PROGRAMJSON-LOCAL-RECORD-LITERAL-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
 
 next_after_active_3 =
-  select next covered retire-candidate after green parity
+  MIRBUILDER-PROGRAMJSON-CAPABILITY-BATCH-CONTINUATION
 
 task discipline =
   Each ProgramJSON capability card must land real `.hako` traversal, a fixture,
   and an AOT parity gate together. If it only adds a guard or selection row,
   stop and rewrite the card before continuing.
+  Capability order is `.hako` implementation first, then parity, then one
+  covered retire-candidate. Do not advance via guard-only paperwork.
   The follow-up retire-candidate card must name only the covered snapshot rows;
   full Rust ASTNode projector retirement, HakoAdoption, ProgramJSON full parser,
   MIR mutation, lowering, route selection, ID allocation, and Source Selfhost
