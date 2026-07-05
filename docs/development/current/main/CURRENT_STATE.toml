@@ -345,15 +345,15 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PROGRAMJSON-FASTMEM-REGION-SHAPE-SCAN-CAPABILITY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3055-MIRBUILDER-PROGRAMJSON-FASTMEM-REGION-SHAPE-SCAN-CAPABILITY-001.md"
-latest_card_summary = """3055 lands real `.hako`
-ProgramJsonFastMemRegionShapeScanV1 ProgramJSON traversal for covered
-FastMemRegion statement body shapes with 10-row AOT parity. 3056 is active for
-the scoped FastMemRegionShapeSnapshotV1 projector retire-candidate. Fastmem
-lowering, contract execution, full projector retirement, ProgramJSON full
-parser, HakoAdoption, Source Selfhost, RecipeMatcher, route selection,
-lowering, mutation, ID allocation, and new ABI remain unclaimed."""
+latest_card = "MIRBUILDER-PROGRAMJSON-FASTMEM-REGION-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3056-MIRBUILDER-PROGRAMJSON-FASTMEM-REGION-SHAPE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001.md"
+latest_card_summary = """3056 marks only the covered
+FastMemRegionShapeSnapshotV1 ProgramJSON traversal rows as a scoped Rust
+ASTNode projector retire-candidate. Next work returns to ProgramJSON
+capability-batch continuation. Fastmem lowering, contract execution, full
+projector retirement, ProgramJSON full parser, HakoAdoption, Source Selfhost,
+RecipeMatcher, route selection, lowering, mutation, ID allocation, and new ABI
+remain unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -364,6 +364,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-05: 3056 lands the covered FastMemRegionShapeSnapshotV1 ProgramJSON traversal slice as a scoped Rust ASTNode projector retire-candidate; next work returns to ProgramJSON capability-batch continuation.",
   "2026-07-05: 3055 lands real `.hako` ProgramJsonFastMemRegionShapeScanV1 ProgramJSON traversal for covered FastMemRegion statement body shapes with 10-row AOT parity; 3056 is active for the scoped fastmem-region projector retire-candidate.",
   "2026-07-05: 3054 lands the covered TaskScopeShapeSnapshotV1 ProgramJSON traversal slice as a scoped Rust ASTNode projector retire-candidate; next work returns to ProgramJSON capability-batch continuation.",
   "2026-07-05: 3053 lands real `.hako` ProgramJsonTaskScopeShapeScanV1 ProgramJSON traversal for covered TaskScope statement body shapes with 10-row AOT parity; 3054 is active for the scoped TaskScope projector retire-candidate.",
@@ -375,5 +376,4 @@ landed_tail = [
   "2026-07-05: 3047 lands real `.hako` ProgramJsonLocalRecordLiteralShapeScanV1 ProgramJSON traversal for covered Local.expr RecordLiteral shapes with 9-row AOT parity; 3048 is active for the scoped local record literal projector retire-candidate.",
   "2026-07-05: 3046 lands the covered LocalFloatLiteralShapeSnapshotV1 ProgramJSON traversal slice as a scoped Rust ASTNode projector retire-candidate; next work returns to ProgramJSON capability-batch continuation.",
   "2026-07-05: 3045 lands real `.hako` ProgramJsonLocalFloatLiteralShapeScanV1 ProgramJSON traversal for Local.expr Float literal shapes with 9-row AOT parity; 3046 is active for the scoped local float literal projector retire-candidate.",
-  "2026-07-05: 3044 lands the covered LocalNullLiteralShapeSnapshotV1 ProgramJSON traversal slice as a scoped Rust ASTNode projector retire-candidate; next work returns to ProgramJSON capability-batch continuation.",
 ]
