@@ -1,0 +1,55 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonRecipeBodiesOneShapeArenaBuilderRustAstNodeProjectorRetireCandidateV1",
+  "token": "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-ONE-SHAPE-ARENA-BUILDER-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001",
+  "input_state": {
+    "previous_card": "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-ONE-SHAPE-ARENA-BUILDER-PARITY-001",
+    "parity_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-programjson-recipebodies-one-shape-arena-builder-parity-v0.json",
+    "programjson_owner": "ProgramJsonRecipeBodiesOneShapeArenaBuilderBox",
+    "snapshot_kind": "ProgramJsonRecipeBodiesOneShapeArenaBuilderV1"
+  },
+  "retire_candidate": {
+    "name": "ProgramJsonRecipeBodiesOneShapeArenaBuilderV1 Rust ASTNode projector slice",
+    "scope": "covered StmtOnly one-shape arena DTO rows with snapshot-local BodyId/StmtRef",
+    "covered_rows": [
+      "empty_stmt_only_body",
+      "single_local_stmt_body",
+      "local_then_print_stmt_body"
+    ],
+    "rust_projector_runtime_dependency_removed": 0,
+    "rust_projector_oracle_only_candidate": 1,
+    "full_astnode_projector_retired": 0
+  },
+  "evidence": {
+    "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_programjson_recipebodies_one_shape_arena_builder_parity_gate.sh",
+    "runtime_parity_green": 1,
+    "programjson_traversal_used": 1,
+    "recipe_root_used": 1,
+    "structured_result_map_built": 1,
+    "bodyid_stmtref_tokens_emitted": 1,
+    "directabi_route_publication_claim": 0
+  },
+  "next_card": {
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-AFTER-ONE-SHAPE-ARENA-NEXT-CONTRACT-SELECTION-001",
+    "reason_token": "OneShapeArenaBuilderRetireCandidateGreenSelectNextRecipeBodiesContract"
+  },
+  "claims": {
+    "retire_candidate_recorded": 1,
+    "runtime_dependency_removed": 0,
+    "full_astnode_projector_retired": 0,
+    "recipe_bodies_materialization": 0,
+    "runtime_recipe_bodies_arena": 0,
+    "full_recipe_matcher_execution": 0,
+    "verifier_policy_reimplementation": 0,
+    "route_selection": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering_claim": 0,
+    "directabi_route_publication_claim": 0,
+    "runtime_route_switch": 0,
+    "source_selfhost_claim": 0,
+    "programjson_full_parser_claim": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
