@@ -16,6 +16,19 @@ static box MirJsonV0ShapeRecipeSeq {
     return ""
   }
 
+  _recipe_child_token(child) {
+    if child == null || BoxHelpers.is_map(child) != 1 { return "" }
+    if RecipeItemBox.kind_is(child, "Seq") == 1 {
+      local leaf_kind = BoxHelpers.map_get(child, "leaf_kind")
+      if BoxHelpers.same_token(leaf_kind, "Stmt") != 1 { return "" }
+      return me._stmt_token(BoxHelpers.map_get(child, "stmt_kind"))
+    }
+    if RecipeItemBox.kind_is(child, "If") == 1 { return "If" }
+    if RecipeItemBox.kind_is(child, "Loop") == 1 { return "Loop" }
+    if RecipeItemBox.kind_is(child, "Exit") == 1 { return "Exit" }
+    return ""
+  }
+
   _len(arr) {
     if arr == null { return 0 }
     local n = 0
@@ -45,22 +58,12 @@ static box MirJsonV0ShapeRecipeSeq {
       if child == null {
         return "err=0;matched=1;item_count=" + StringHelpers.int_to_str(i) + ";seq_sig=" + sig
       }
-      if child == null || BoxHelpers.is_map(child) != 1 {
-        return "err=1;reason=recipe_child_not_map"
-      }
-      if RecipeItemBox.kind_is(child, "Seq") != 1 {
-        return "err=1;reason=recipe_child_not_seq"
-      }
-      local leaf_kind = BoxHelpers.map_get(child, "leaf_kind")
-      if BoxHelpers.same_token(leaf_kind, "Stmt") != 1 {
-        return "err=1;reason=recipe_child_not_stmt"
-      }
-      local stmt_kind = me._stmt_token(BoxHelpers.map_get(child, "stmt_kind"))
-      if BoxHelpers.same_token(stmt_kind, "") == 1 {
-        return "err=1;reason=recipe_child_missing_stmt_kind"
+      local child_kind = me._recipe_child_token(child)
+      if BoxHelpers.same_token(child_kind, "") == 1 {
+        return "err=1;reason=recipe_child_missing_kind"
       }
       if i > 0 { sig = sig + ">" }
-      sig = sig + stmt_kind
+      sig = sig + child_kind
       i = i + 1
     }
     return "err=1;reason=recipe_stmt_seq_too_long"

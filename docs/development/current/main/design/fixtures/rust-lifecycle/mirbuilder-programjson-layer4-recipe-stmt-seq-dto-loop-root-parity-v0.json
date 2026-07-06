@@ -1,0 +1,60 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonLayer4RecipeStmtSeqDtoLoopRootParityV1",
+  "token": "MIRBUILDER-PROGRAMJSON-LAYER4-RECIPE-STMT-SEQ-DTO-LOOP-ROOT-PARITY-001",
+  "capability": {
+    "name": "ProgramJsonRecipeStmtSeqDtoSnapshotV1",
+    "input": "ProgramJSON v0",
+    "output": "RecipeStmtSeqDtoSnapshotV1",
+    "implementation": "lang/src/compiler/mirbuilder/program_json_recipe_stmt_seq_dto_snapshot.hako",
+    "support_implementation": "lang/src/compiler/mirbuilder/mir_json_v0_shape_box_recipe_seq.hako"
+  },
+  "selection": {
+    "previous_checkpoint": "MIRBUILDER-PROGRAMJSON-LAYER4-LOOP-RECIPE-DTO-EXPANDED-RETURN-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001",
+    "selected_reason": "LoopRecipeDtoSnapshotV1 now covers expanded loop-body If.then payload rows; RecipeStmtSeqDtoSnapshotV1 is the next parent DTO that must observe root Seq children as Local>Loop>Return instead of stmt-only children."
+  },
+  "source_rows": {
+    "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-programjson-layer4-loop-recipe-dto-expanded-return-parity-v0.json",
+    "fixture_hash": "sha256:67a4ccac9172fbe57b5109656590c6dffc7e90febdf98602e94db499aa9b5589",
+    "covered_rows": [
+      "loop_if_then_return_new_stringbox_abc_assignment_final_return_var",
+      "loop_if_then_return_call_id0_assignment_final_return_var",
+      "loop_if_then_return_call_id1_int9_assignment_final_return_var",
+      "loop_if_then_return_call_id1_int7_assignment_final_return_var",
+      "loop_if_then_return_method_stringbox_length_abc_assignment_final_return_var",
+      "loop_if_then_return_method_stringbox_indexof_b_abc_assignment_final_return_var"
+    ],
+    "expected_summary": "snapshot_kind=RecipeStmtSeqDtoSnapshotV1;err=0;matched=1;item_count=3;seq_sig=Local>Loop>Return"
+  },
+  "acceptance": {
+    "programjson_traversal_used": 1,
+    "structured_recipe_dto_constructed": 1,
+    "recipe_verifier_used": 1,
+    "recipe_root_seq_scanner_used": 1,
+    "loop_root_children_supported": 1,
+    "shape_kind_selection": 0,
+    "prebuilt_token_snapshot_input": 0,
+    "string_only_facade": 0,
+    "mir_json_route_green": 1,
+    "runtime_parity_green": 1,
+    "expanded_rows": 6,
+    "expanded_loop_payload_prerequisite_green": 1
+  },
+  "decision": {
+    "kind": "SelectRecipeStmtSeqDtoLoopRootRetireCandidateNext",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-LAYER4-RECIPE-STMT-SEQ-DTO-LOOP-ROOT-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001",
+    "reason_token": "RecipeStmtSeqDtoLoopRootRuntimeParityGreen"
+  },
+  "claims": {
+    "shape_kind_selection": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering_claim": 0,
+    "runtime_route_switch": 0,
+    "source_selfhost_claim": 0,
+    "programjson_all_shapes_supported": 0,
+    "full_imported_parse_executable_green": 0
+  }
+}

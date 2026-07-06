@@ -60,9 +60,9 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-LAYER4-NEXT-RECIPE-DTO-CAPABILITY-SELECTION-001
+  MIRBUILDER-PROGRAMJSON-LAYER4-RECIPE-STMT-SEQ-DTO-LOOP-ROOT-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
 selected next card:
-  not-yet-created; select the next concrete Layer4 Recipe DTO ProgramJSON capability after 3150.
+  not-yet-created; mark covered RecipeStmtSeqDtoSnapshotV1 Local>Loop>Return rows as a scoped Rust ASTNode projector retire-candidate.
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -92,6 +92,8 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
+  3151 expands RecipeStmtSeqDtoSnapshotV1 summary with covered
+  Local>Loop>Return root sequence rows; shape_kind selection remains stmt-only.
   3150 marks expanded Return payload LoopRecipeDtoSnapshotV1 rows from 3149 as
   a scoped Rust ASTNode projector retire-candidate; covered rows are 6 and no
   rows are deferred.
@@ -99,12 +101,8 @@ latest design decision:
   rows; LoopStmtHandler now forwards ReturnStmtHandler payloads.
   3148-3147 cover expanded IfRecipeDtoSnapshotV1 Return payload parity and its
   scoped retire-candidate checkpoint.
-  3146 marks expanded Return payload ExitRecipeDtoSnapshotV1 rows from 3145 as
-  a scoped Rust ASTNode projector retire-candidate; covered rows are 6 and no
-  rows are deferred.
-  3145 expands ExitRecipeDtoSnapshotV1 with 6 branch-exit payload rows for the
-  expanded Return-only vocabulary; IfStmtHandler now forwards Return handler
-  payloads into Exit payloads instead of forcing then Return(Int).
+  3146-3145 cover expanded ExitRecipeDtoSnapshotV1 Return payload parity and
+  its scoped retire-candidate checkpoint.
   3144-3141 cover expanded Seq/RecipeShapeKind Return-only rows and their
   scoped retire-candidate checkpoints; parity is green.
   3140-3139 are the base RecipeShapeKindDtoSnapshotV1 parity and retire
