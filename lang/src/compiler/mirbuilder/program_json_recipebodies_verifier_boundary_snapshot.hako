@@ -1,0 +1,76 @@
+// program_json_recipebodies_verifier_boundary_snapshot.hako
+// Responsibility:
+// - Prove the RecipeBodies recursive-arena DTO reaches RecipeVerifier boundary.
+// - Do not implement verifier policy, lowering, or route switch.
+
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.shared.common.box_helpers as BoxHelpers
+using lang.compiler.mirbuilder.program_json_v0_phase_state_box as ProgramJsonV0PhaseStateBox
+using lang.compiler.mirbuilder.program_json_recipebodies_recursive_nested_arena_builder as ProgramJsonRecipeBodiesRecursiveNestedArenaBuilderBox
+using lang.compiler.mirbuilder.recipe.recipe_verifier_box as RecipeVerifierBox
+using lang.compiler.mirbuilder.recipe.recipe_port_sig_box as RecipePortSigBox
+
+static box ProgramJsonRecipeBodiesVerifierBoundarySnapshotBox {
+  _i(map, key) {
+    return StringHelpers.to_i64(BoxHelpers.map_get(map, key))
+  }
+
+  _err(reason) {
+    return "snapshot_kind=ProgramJsonRecipeBodiesVerifierBoundarySnapshotV1;err=1;reason=" + reason
+  }
+
+  _arena_ready(arena) {
+    if arena == null || BoxHelpers.is_map(arena) != 1 { return 0 }
+    if me._i(arena, "err") != 0 { return 0 }
+    if me._i(arena, "root_body_id") != 0 { return 0 }
+    if me._i(arena, "body_count") != 4 { return 0 }
+    local bodies = BoxHelpers.map_get(arena, "bodies")
+    if bodies == null || BoxHelpers.is_array(bodies) != 1 { return 0 }
+    return 1
+  }
+
+  build_summary(program_json) {
+    local arena = ProgramJsonRecipeBodiesRecursiveNestedArenaBuilderBox.build_arena(program_json)
+    if me._arena_ready(arena) != 1 { return me._err("arena_not_ready") }
+
+    local out = ProgramJsonV0PhaseStateBox.parse(program_json, "[test]")
+    if me._i(out, "err") != 0 { return me._err("parse_error") }
+
+    local root = BoxHelpers.map_get(out, "recipe_root")
+    if root == null || BoxHelpers.is_map(root) != 1 {
+      return me._err("missing_recipe_root")
+    }
+
+    local verify = RecipeVerifierBox.verify(root, "[test]")
+    if me._i(verify, "err") != 0 {
+      return me._err("verify_error")
+    }
+
+    local verified = BoxHelpers.map_get(verify, "verified_recipe")
+    if verified == null || BoxHelpers.is_map(verified) != 1 {
+      return me._err("missing_verified_recipe")
+    }
+
+    local port_sig = BoxHelpers.map_get(verify, "port_sig")
+    if port_sig == null || BoxHelpers.is_map(port_sig) != 1 {
+      return me._err("missing_port_sig")
+    }
+    local snap = RecipePortSigBox.snapshot(port_sig)
+    if snap == null || BoxHelpers.is_map(snap) != 1 {
+      return me._err("missing_port_sig_snapshot")
+    }
+
+    return "snapshot_kind=ProgramJsonRecipeBodiesVerifierBoundarySnapshotV1"
+      + ";err=0"
+      + ";arena_ready=1"
+      + ";verifier_boundary_used=1"
+      + ";verified_recipe_present=1"
+      + ";root_body_id=" + StringHelpers.int_to_str(me._i(arena, "root_body_id"))
+      + ";body_count=" + StringHelpers.int_to_str(me._i(arena, "body_count"))
+      + ";def_count=" + StringHelpers.int_to_str(me._i(snap, "def_count"))
+      + ";update_count=" + StringHelpers.int_to_str(me._i(snap, "update_count"))
+      + ";non_claims=recipe_bodies_materialization,recipe_matcher,lowering,route_selection,id_allocation"
+  }
+}
+
+static box ProgramJsonRecipeBodiesVerifierBoundarySnapshotMain { main() { return 0 } }

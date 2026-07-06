@@ -1,0 +1,73 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonRecipeBodiesVerifierBoundaryParityV1",
+  "token": "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-VERIFIER-BOUNDARY-PARITY-001",
+  "capability": {
+    "name": "ProgramJsonRecipeBodiesVerifierBoundarySnapshotV1",
+    "input": "ProgramJSON v0",
+    "output": "verifier-boundary token snapshot",
+    "implementation": "lang/src/compiler/mirbuilder/program_json_recipebodies_verifier_boundary_snapshot.hako"
+  },
+  "rows": [
+    {
+      "row_id": "local_loop_body_if_branch_return",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "body": [
+          {"type": "Local", "name": "i", "expr": {"type": "Int", "value": 0}},
+          {
+            "type": "Loop",
+            "cond": {"type": "Compare", "op": "<", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 3}},
+            "body": [
+              {
+                "type": "If",
+                "cond": {"type": "Compare", "op": "<", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 2}},
+                "then": [
+                  {"type": "Return", "expr": {"type": "Int", "value": 9}}
+                ],
+                "else": null
+              },
+              {"type": "Assignment", "name": "i", "expr": {"type": "Binary", "op": "+", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 1}}}
+            ]
+          },
+          {"type": "Return", "expr": {"type": "Var", "name": "i"}}
+        ]
+      },
+      "rust_oracle_expected_summary": "snapshot_kind=ProgramJsonRecipeBodiesVerifierBoundarySnapshotV1;err=0;arena_ready=1;verifier_boundary_used=1;verified_recipe_present=1;root_body_id=0;body_count=4;def_count=1;update_count=2;non_claims=recipe_bodies_materialization,recipe_matcher,lowering,route_selection,id_allocation"
+    }
+  ],
+  "acceptance": {
+    "recursive_nested_arena_used": 1,
+    "arena_ready_required": 1,
+    "recipe_verifier_boundary_used": 1,
+    "verified_recipe_present": 1,
+    "recipe_port_sig_snapshot_used": 1,
+    "body_count": 4,
+    "runtime_parity_green": 1,
+    "mir_json_route_observed": 1,
+    "programjson_builder_verifier_policy_free": 1
+  },
+  "decision": {
+    "kind": "SelectRecipeBodiesVerifierBoundaryRetireCandidateNext",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-VERIFIER-BOUNDARY-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001",
+    "reason_token": "RecipeBodiesVerifierBoundaryRuntimeParityGreen"
+  },
+  "claims": {
+    "recipe_bodies_verifier_boundary_implemented": 1,
+    "recipe_bodies_materialization": 0,
+    "runtime_recipe_bodies_arena": 0,
+    "full_recipe_matcher_execution": 0,
+    "verifier_policy_reimplementation": 0,
+    "route_selection": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering_claim": 0,
+    "directabi_route_publication_claim": 0,
+    "runtime_route_switch": 0,
+    "source_selfhost_claim": 0,
+    "programjson_full_parser_claim": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
