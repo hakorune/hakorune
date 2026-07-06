@@ -1,6 +1,6 @@
 # 3122 - HAKO-AOT-PROGRAMJSON-PHASE-STATE-POSITIVE-PATH-HELPER-ROUTE-READINESS-001
 
-Status: selected-next
+Status: complete
 
 ## Scope
 
@@ -527,4 +527,63 @@ runtime_route_switch = 0
 new_backend_route = 0
 new_abi = 0
 scanner_nullable_bridge = 0
+```
+
+## 2026-07-06 Completion Note
+
+Status: complete.
+
+Resolved within this slice:
+
+```text
+BoxHelpers exposes typed result-map readers for ok/err/i64 fields so
+ProgramJSON result maps do not compare boxed i64 handles directly against raw
+integer literals under AOT.
+
+BoxHelpers.same_token/2 is the shared ProgramJSON token equality helper used by
+the PhaseState/Recipe DTO path.  The pilot replaces local/raw token comparisons
+only where needed for this Layer4 DTO path.
+
+RecipeItemBox.kind_is/2 is the Recipe item kind predicate used by validators and
+DTO summary extraction.  It avoids routing Recipe item kind checks through
+stringification when AOT already carries StringBox values.
+
+Same-module function definitions are emitted dependency-first, so a
+module-generic caller such as
+ProgramJsonLoopRecipeDtoSnapshotBox.build_summary/1 no longer precedes its
+transitive DirectAbi callees such as ProgramJsonV0PhaseStateBox.parse/2.
+
+LoopStmtHandler reads the Loop node's direct cond field through
+ProgramJsonV0ScannerBox.seek_obj_field_obj_start instead of using a broad
+last_index_of over the whole Loop object.  This prevents nested If.cond from
+being mistaken for the Loop.cond in the covered if-then loop row.
+```
+
+Observed green gates:
+
+```bash
+bash tools/checks/hako_programjson_scanner_result_map_return_contract_guard.sh
+bash tools/checks/hako_aot_mapbox_set_plain_i64_value_contract_guard.sh
+bash tools/checks/rust_lifecycle_mirbuilder_programjson_layer4_loop_recipe_dto_parity_gate.sh
+bash tools/checks/rust_lifecycle_mirbuilder_programjson_layer4_loop_recipe_dto_heavy_exe_readiness_gate.sh
+```
+
+Heavy readiness result:
+
+```text
+runtime_parity_green=1
+exact_first_blocker=none
+void_signature_object_return_widening=0
+mixed_runtime_i64_or_handle_for_scanner_out_map=0
+source_selfhost_claim=0
+```
+
+Non-claims remain:
+
+```text
+no scanner nullable bridge
+no generic void object return widening
+no mixed_runtime_i64_or_handle scanner out-map bridge
+no MIR mutation, ID allocation, backend lowering, route switch, new ABI,
+HakoAdoption, or Source Selfhost claim
 ```

@@ -51,7 +51,7 @@ static box AssignmentStmtHandler {
     }
 
     local out2 = ProgramJsonV0ScannerBox.read_string_field_last_in_obj_result(program_json, "name", idx)
-    if BoxHelpers.map_get(out2, "ok") != 1 {
+    if BoxHelpers.result_ok(out2) != 1 {
       return %{
         "err" => 1,
         "err_line" => tag + "[cap_missing/program_json_v0] Assignment missing name",
@@ -86,7 +86,7 @@ static box AssignmentStmtHandler {
     }
 
     local expr_info = ProgramJsonV0ScannerBox.read_node_type_at_result(program_json, expr_start)
-    if BoxHelpers.map_get(expr_info, "ok") != 1 {
+    if BoxHelpers.result_ok(expr_info) != 1 {
       return %{
         "err" => 1,
         "err_line" => tag + "[cap_missing/program_json_v0] Assignment expr node scan failed",
@@ -98,7 +98,7 @@ static box AssignmentStmtHandler {
     }
 
     local expr_type = "" + BoxHelpers.map_get(expr_info, "type")
-    if expr_type == "Binary" {
+    if BoxHelpers.same_token(expr_type, "Binary") == 1 {
       return me._consume_binary(
         program_json,
         expr_start,
@@ -109,7 +109,7 @@ static box AssignmentStmtHandler {
         assign_rhs_kind
       )
     }
-    if expr_type == "Int" {
+    if BoxHelpers.same_token(expr_type, "Int") == 1 {
       return me._consume_int(
         program_json,
         expr_start,
@@ -133,7 +133,7 @@ static box AssignmentStmtHandler {
 
   _consume_int(program_json, expr_start, next_idx, tag, assign_name, assign_rhs, assign_rhs_kind) {
     local rhs_out = ProgramJsonV0ScannerBox.read_int_field_in_obj_result(program_json, "value", expr_start)
-    if BoxHelpers.map_get(rhs_out, "ok") != 1 {
+    if BoxHelpers.result_ok(rhs_out) != 1 {
       return %{
         "err" => 1,
         "err_line" => tag + "[cap_missing/program_json_v0] Assignment Int missing value",
@@ -158,7 +158,7 @@ static box AssignmentStmtHandler {
 
   _consume_binary(program_json, expr_start, next_idx, tag, assign_name, assign_rhs, assign_rhs_kind) {
     local op_out = ProgramJsonV0ScannerBox.read_string_field_first_in_obj_result(program_json, "op", expr_start)
-    if BoxHelpers.map_get(op_out, "ok") != 1 {
+    if BoxHelpers.result_ok(op_out) != 1 {
       return %{
         "err" => 1,
         "err_line" => tag + "[cap_missing/program_json_v0] Assignment Binary missing op",
@@ -193,7 +193,7 @@ static box AssignmentStmtHandler {
     }
 
     local lhs_info = ProgramJsonV0ScannerBox.read_node_type_at_result(program_json, lhs_start)
-    if BoxHelpers.map_get(lhs_info, "ok") != 1 {
+    if BoxHelpers.result_ok(lhs_info) != 1 {
       return %{
         "err" => 1,
         "err_line" => tag + "[cap_missing/program_json_v0] Assignment lhs node scan failed",
@@ -205,7 +205,7 @@ static box AssignmentStmtHandler {
     }
 
     local lhs_type = "" + BoxHelpers.map_get(lhs_info, "type")
-    if lhs_type != "Var" {
+    if BoxHelpers.same_token(lhs_type, "Var") != 1 {
       return %{
         "err" => 1,
         "err_line" => tag + "[cap_missing/expr:Var] Assignment lhs is not Var",
@@ -217,7 +217,7 @@ static box AssignmentStmtHandler {
     }
 
     local lhs_name_out = ProgramJsonV0ScannerBox.read_string_field_first_in_obj_result(program_json, "name", lhs_start)
-    if BoxHelpers.map_get(lhs_name_out, "ok") != 1 {
+    if BoxHelpers.result_ok(lhs_name_out) != 1 {
       return %{
         "err" => 1,
         "err_line" => tag + "[cap_missing/program_json_v0] Assignment lhs missing name",
@@ -253,7 +253,7 @@ static box AssignmentStmtHandler {
     }
 
     local rhs_info = ProgramJsonV0ScannerBox.read_node_type_at_result(program_json, rhs_start)
-    if BoxHelpers.map_get(rhs_info, "ok") != 1 {
+    if BoxHelpers.result_ok(rhs_info) != 1 {
       return %{
         "err" => 1,
         "err_line" => tag + "[cap_missing/program_json_v0] Assignment rhs node scan failed",
@@ -265,7 +265,7 @@ static box AssignmentStmtHandler {
     }
 
     local rhs_type = "" + BoxHelpers.map_get(rhs_info, "type")
-    if rhs_type != "Int" {
+    if BoxHelpers.same_token(rhs_type, "Int") != 1 {
       return %{
         "err" => 1,
         "err_line" => tag + "[cap_missing/expr:Int] Assignment rhs is not Int",
@@ -277,7 +277,7 @@ static box AssignmentStmtHandler {
     }
 
     local rhs_out = ProgramJsonV0ScannerBox.read_int_field_in_obj_result(program_json, "value", rhs_start)
-    if BoxHelpers.map_get(rhs_out, "ok") != 1 {
+    if BoxHelpers.result_ok(rhs_out) != 1 {
       return %{
         "err" => 1,
         "err_line" => tag + "[cap_missing/program_json_v0] Assignment rhs Int missing value",

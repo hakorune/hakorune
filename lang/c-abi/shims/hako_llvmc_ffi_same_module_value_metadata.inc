@@ -96,9 +96,11 @@
             set_type(reg, T_I1);
             return 1;
           }
-          if (scalar_type &&
-              (!strcmp(scalar_type, "i64") ||
-               !strcmp(scalar_type, "void"))) {
+          if (scalar_type && !strcmp(scalar_type, "i64")) {
+            publish_plain_i64_value(reg);
+            return 1;
+          }
+          if (scalar_type && !strcmp(scalar_type, "void")) {
             set_type(reg, T_I64);
             return 1;
           }

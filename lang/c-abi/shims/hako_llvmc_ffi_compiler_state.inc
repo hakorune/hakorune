@@ -157,6 +157,12 @@
       }
       auto void set_origin(long long r,int k){ for(size_t i=0;i<origin_n;i++){ if(origin[i].reg==r){ origin[i].kind=k; return;} } if(origin_n<ARR_LEN(origin)){ origin[origin_n].reg=r; origin[origin_n].kind=k; origin_n++; } else { note_generic_capacity_overflow("generic_origin_inventory_full"); } }
       auto void promote_origin_kind(int from, int to){ for(size_t i=0;i<origin_n;i++){ if(origin[i].kind==from) origin[i].kind=to; } }
+      auto void publish_plain_i64_value(long long r){
+        if (!r) return;
+        set_type(r, T_I64);
+        set_origin(r, ORG_NONE);
+        set_scan_origin(r, ORG_NONE);
+      }
       auto int get_type(long long r) {
         for (size_t i=0;i<types_n;i++){ if (types[i].reg==r) return types[i].ty; }
         long long base = resolve_copy_source_reg(r);

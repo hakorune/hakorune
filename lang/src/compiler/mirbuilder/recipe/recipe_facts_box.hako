@@ -61,7 +61,7 @@ static box RecipeFactsBox {
     local facts = me._new_facts(stmt_kind)
     local print_kind = BoxHelpers.map_get(state_after, "print_kind")
     local print_var_name = BoxHelpers.map_get(state_after, "print_var_name")
-    if print_kind == "Var" || print_kind == "BinaryVarInt" {
+    if BoxHelpers.same_token(print_kind, "Var") == 1 || BoxHelpers.same_token(print_kind, "BinaryVarInt") == 1 {
       if print_var_name == "" {
         return me._err(tag, "[recipe_facts][stmt:Print] missing print_var_name for variable print")
       }
@@ -99,7 +99,7 @@ static box RecipeFactsBox {
     if return_kind == "" {
       return me._err(tag, "[recipe_facts][stmt:Return] missing return_kind")
     }
-    if return_kind == "Var" {
+    if BoxHelpers.same_token(return_kind, "Var") == 1 {
       local ret_var_name = BoxHelpers.map_get(state_after, "ret_var_name")
       if ret_var_name == "" {
         return me._err(tag, "[recipe_facts][stmt:Return] missing ret_var_name for Return(Var)")
@@ -121,10 +121,10 @@ static box RecipeFactsBox {
       return me._err(tag, "[recipe_facts] missing state_after map")
     }
 
-    if stmt_kind == "Print" { return me._from_print(state_after, tag) }
-    if stmt_kind == "Local" { return me._from_local(state_after, tag) }
-    if stmt_kind == "Assignment" { return me._from_assignment(state_after, tag) }
-    if stmt_kind == "Return" { return me._from_return(state_after, tag) }
+    if BoxHelpers.same_token(stmt_kind, "Print") == 1 { return me._from_print(state_after, tag) }
+    if BoxHelpers.same_token(stmt_kind, "Local") == 1 { return me._from_local(state_after, tag) }
+    if BoxHelpers.same_token(stmt_kind, "Assignment") == 1 { return me._from_assignment(state_after, tag) }
+    if BoxHelpers.same_token(stmt_kind, "Return") == 1 { return me._from_return(state_after, tag) }
     return me._err(tag, "[recipe_facts][stmt:" + stmt_kind + "] unsupported stmt kind")
   }
 }

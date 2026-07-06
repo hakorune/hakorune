@@ -52,11 +52,11 @@ static box IfStmtHandler {
     }
 
     local then_stmt = ProgramJsonV0ScannerBox.read_node_type_at_result(program_json, then_start)
-    if BoxHelpers.map_get(then_stmt, "ok") != 1 {
+    if BoxHelpers.result_ok(then_stmt) != 1 {
       return me._err(tag, "[cap_missing/program_json_v0] If then stmt type scan failed", then_start)
     }
     local then_type = "" + BoxHelpers.map_get(then_stmt, "type")
-    if then_type != "Return" {
+    if BoxHelpers.same_token(then_type, "Return") != 1 {
       return me._err(tag, "[cap_missing/stmt:If] If then must be Return(Int)", then_start)
     }
 
@@ -72,7 +72,7 @@ static box IfStmtHandler {
       return me._err(tag, "" + BoxHelpers.map_get(ret_out, "err_line"), then_start)
     }
     local ret_kind = "" + BoxHelpers.map_get(ret_out, "return_kind")
-    if ret_kind != "Int" {
+    if BoxHelpers.same_token(ret_kind, "Int") != 1 {
       return me._err(tag, "[cap_missing/stmt:If] If then Return must be Int", then_start)
     }
 
@@ -85,16 +85,16 @@ static box IfStmtHandler {
 
   _read_assignment_int_stmt(program_json, stmt_start, local_name, tag, context_label) {
     local stmt_info = ProgramJsonV0ScannerBox.read_node_type_at_result(program_json, stmt_start)
-    if BoxHelpers.map_get(stmt_info, "ok") != 1 {
+    if BoxHelpers.result_ok(stmt_info) != 1 {
       return me._err(tag, "[cap_missing/program_json_v0] If " + context_label + " stmt type scan failed", stmt_start)
     }
     local stmt_type = "" + BoxHelpers.map_get(stmt_info, "type")
-    if stmt_type != "Assignment" {
+    if BoxHelpers.same_token(stmt_type, "Assignment") != 1 {
       return me._err(tag, "[cap_missing/stmt:If] If " + context_label + " must be Assignment(Int)", stmt_start)
     }
 
     local stmt_name_out = ProgramJsonV0ScannerBox.read_string_field_last_in_obj_result(program_json, "name", stmt_start)
-    if BoxHelpers.map_get(stmt_name_out, "ok") != 1 {
+    if BoxHelpers.result_ok(stmt_name_out) != 1 {
       return me._err(tag, "[cap_missing/program_json_v0] If " + context_label + " Assignment missing name", stmt_start)
     }
     local stmt_name = "" + BoxHelpers.map_get(stmt_name_out, "value")
@@ -107,15 +107,15 @@ static box IfStmtHandler {
       return me._err(tag, "[cap_missing/program_json_v0] If " + context_label + " Assignment missing expr object", stmt_start)
     }
     local expr_info = ProgramJsonV0ScannerBox.read_node_type_at_result(program_json, expr_start)
-    if BoxHelpers.map_get(expr_info, "ok") != 1 {
+    if BoxHelpers.result_ok(expr_info) != 1 {
       return me._err(tag, "[cap_missing/program_json_v0] If " + context_label + " Assignment expr node scan failed", stmt_start)
     }
     local expr_type = "" + BoxHelpers.map_get(expr_info, "type")
-    if expr_type != "Int" {
+    if BoxHelpers.same_token(expr_type, "Int") != 1 {
       return me._err(tag, "[cap_missing/expr:Int] If " + context_label + " Assignment expr must be Int", stmt_start)
     }
     local rhs_out = ProgramJsonV0ScannerBox.read_int_field_in_obj_result(program_json, "value", expr_start)
-    if BoxHelpers.map_get(rhs_out, "ok") != 1 {
+    if BoxHelpers.result_ok(rhs_out) != 1 {
       return me._err(tag, "[cap_missing/program_json_v0] If " + context_label + " Assignment Int missing value", stmt_start)
     }
 
@@ -214,16 +214,16 @@ static box IfStmtHandler {
       return me._err(tag, "[cap_missing/program_json_v0] If missing cond object", next_idx)
     }
     local cond_info = ProgramJsonV0ScannerBox.read_node_type_at_result(program_json, cond_start)
-    if BoxHelpers.map_get(cond_info, "ok") != 1 {
+    if BoxHelpers.result_ok(cond_info) != 1 {
       return me._err(tag, "[cap_missing/program_json_v0] If cond node scan failed", next_idx)
     }
     local cond_type = "" + BoxHelpers.map_get(cond_info, "type")
-    if cond_type != "Compare" {
+    if BoxHelpers.same_token(cond_type, "Compare") != 1 {
       return me._err(tag, "[cap_missing/expr:Compare] If cond must be Compare", next_idx)
     }
 
     local op_out = ProgramJsonV0ScannerBox.read_string_field_first_in_obj_result(program_json, "op", cond_start)
-    if BoxHelpers.map_get(op_out, "ok") != 1 {
+    if BoxHelpers.result_ok(op_out) != 1 {
       return me._err(tag, "[cap_missing/program_json_v0] If Compare missing op", next_idx)
     }
     local op = "" + BoxHelpers.map_get(op_out, "value")
@@ -236,15 +236,15 @@ static box IfStmtHandler {
       return me._err(tag, "[cap_missing/program_json_v0] If Compare missing lhs", next_idx)
     }
     local lhs_info = ProgramJsonV0ScannerBox.read_node_type_at_result(program_json, lhs_start)
-    if BoxHelpers.map_get(lhs_info, "ok") != 1 {
+    if BoxHelpers.result_ok(lhs_info) != 1 {
       return me._err(tag, "[cap_missing/program_json_v0] If lhs node scan failed", next_idx)
     }
     local lhs_type = "" + BoxHelpers.map_get(lhs_info, "type")
-    if lhs_type != "Var" {
+    if BoxHelpers.same_token(lhs_type, "Var") != 1 {
       return me._err(tag, "[cap_missing/expr:Var] If Compare lhs must be Var", next_idx)
     }
     local lhs_name_out = ProgramJsonV0ScannerBox.read_string_field_first_in_obj_result(program_json, "name", lhs_start)
-    if BoxHelpers.map_get(lhs_name_out, "ok") != 1 {
+    if BoxHelpers.result_ok(lhs_name_out) != 1 {
       return me._err(tag, "[cap_missing/program_json_v0] If Compare lhs Var missing name", next_idx)
     }
     local lhs_name = "" + BoxHelpers.map_get(lhs_name_out, "value")
@@ -257,15 +257,15 @@ static box IfStmtHandler {
       return me._err(tag, "[cap_missing/program_json_v0] If Compare missing rhs", next_idx)
     }
     local rhs_info = ProgramJsonV0ScannerBox.read_node_type_at_result(program_json, rhs_start)
-    if BoxHelpers.map_get(rhs_info, "ok") != 1 {
+    if BoxHelpers.result_ok(rhs_info) != 1 {
       return me._err(tag, "[cap_missing/program_json_v0] If rhs node scan failed", next_idx)
     }
     local rhs_type = "" + BoxHelpers.map_get(rhs_info, "type")
-    if rhs_type != "Int" {
+    if BoxHelpers.same_token(rhs_type, "Int") != 1 {
       return me._err(tag, "[cap_missing/expr:Int] If Compare rhs must be Int", next_idx)
     }
     local rhs_out = ProgramJsonV0ScannerBox.read_int_field_in_obj_result(program_json, "value", rhs_start)
-    if BoxHelpers.map_get(rhs_out, "ok") != 1 {
+    if BoxHelpers.result_ok(rhs_out) != 1 {
       return me._err(tag, "[cap_missing/program_json_v0] If Compare rhs Int missing value", next_idx)
     }
     local rhs_int = BoxHelpers.map_get(rhs_out, "value")

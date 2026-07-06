@@ -57,31 +57,21 @@ fn definition_closure(
     immediate: &BTreeMap<String, Vec<SameModuleDefinitionPlan>>,
 ) -> Vec<SameModuleDefinitionPlan> {
     let mut out = Vec::new();
-    let mut seen = BTreeSet::<String>::new();
-    let mut cursor = 0;
+    let mut visiting = BTreeSet::<String>::new();
+    let mut emitted = BTreeSet::<String>::new();
     if let Some(edges) = immediate.get(root) {
         for edge in edges {
-            push_unique(edge.clone(), &mut seen, &mut out);
-        }
-    }
-    while cursor < out.len() {
-        let edge = out[cursor].clone();
-        cursor += 1;
-        if edge.definition_kind != SameModuleDefinitionKind::Function {
-            continue;
-        }
-        if let Some(edges) = immediate.get(&edge.target_symbol) {
-            for child in edges {
-                push_unique(child.clone(), &mut seen, &mut out);
-            }
+            visit_definition_edge(edge, immediate, &mut visiting, &mut emitted, &mut out);
         }
     }
     out
 }
 
-fn push_unique(
-    edge: SameModuleDefinitionPlan,
-    seen: &mut BTreeSet<String>,
+fn visit_definition_edge(
+    edge: &SameModuleDefinitionPlan,
+    immediate: &BTreeMap<String, Vec<SameModuleDefinitionPlan>>,
+    visiting: &mut BTreeSet<String>,
+    emitted: &mut BTreeSet<String>,
     out: &mut Vec<SameModuleDefinitionPlan>,
 ) {
     let key = format!(
@@ -89,8 +79,23 @@ fn push_unique(
         edge.definition_kind.as_json_name(),
         edge.target_symbol
     );
-    if seen.insert(key) {
-        out.push(edge);
+    if emitted.contains(&key) {
+        return;
+    }
+    if visiting.contains(&key) {
+        return;
+    }
+    if edge.definition_kind == SameModuleDefinitionKind::Function {
+        visiting.insert(key.clone());
+        if let Some(children) = immediate.get(&edge.target_symbol) {
+            for child in children {
+                visit_definition_edge(child, immediate, visiting, emitted, out);
+            }
+        }
+        visiting.remove(&key);
+    }
+    if emitted.insert(key) {
+        out.push(edge.clone());
     }
 }
 
@@ -161,5 +166,64 @@ fn definition_row(
         definition_kind,
         definition_owner: definition_owner.to_string(),
         source: source.to_string(),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn row(symbol: &str, owner: &str) -> SameModuleDefinitionPlan {
+        definition_row(
+            symbol,
+            SameModuleDefinitionKind::Function,
+            owner,
+            "global_call_routes",
+        )
+    }
+
+    #[test]
+    fn closure_orders_dependencies_before_dependents() {
+        let mut immediate = BTreeMap::<String, Vec<SameModuleDefinitionPlan>>::new();
+        immediate.insert("main".to_string(), vec![row("Summary.build/1", "module_generic")]);
+        immediate.insert(
+            "Summary.build/1".to_string(),
+            vec![row("PhaseState.parse/2", "uniform_mir")],
+        );
+        immediate.insert(
+            "PhaseState.parse/2".to_string(),
+            vec![row("Consumer.consume/4", "uniform_mir")],
+        );
+
+        let plans = definition_closure("main", &immediate);
+        let symbols = plans
+            .iter()
+            .map(|plan| plan.target_symbol.as_str())
+            .collect::<Vec<_>>();
+
+        assert_eq!(
+            symbols,
+            vec![
+                "Consumer.consume/4",
+                "PhaseState.parse/2",
+                "Summary.build/1"
+            ]
+        );
+    }
+
+    #[test]
+    fn closure_keeps_cycles_finite() {
+        let mut immediate = BTreeMap::<String, Vec<SameModuleDefinitionPlan>>::new();
+        immediate.insert("main".to_string(), vec![row("A/0", "uniform_mir")]);
+        immediate.insert("A/0".to_string(), vec![row("B/0", "uniform_mir")]);
+        immediate.insert("B/0".to_string(), vec![row("A/0", "uniform_mir")]);
+
+        let plans = definition_closure("main", &immediate);
+        let symbols = plans
+            .iter()
+            .map(|plan| plan.target_symbol.as_str())
+            .collect::<Vec<_>>();
+
+        assert_eq!(symbols, vec!["B/0", "A/0"]);
     }
 }

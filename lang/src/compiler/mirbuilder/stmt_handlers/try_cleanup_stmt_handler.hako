@@ -294,7 +294,7 @@ static box TryCleanupStmtHandler {
     local finally_stmt_start = StringHelpers.to_i64(BoxHelpers.map_get(finally_stmt, "obj_start"))
 
     local try_stmt_info = ProgramJsonV0ScannerBox.read_node_type_at_result(program_json, try_stmt_start)
-    if BoxHelpers.map_get(try_stmt_info, "ok") != 1 {
+    if BoxHelpers.result_ok(try_stmt_info) != 1 {
       return me._err(
         tag,
         "[cap_missing/program_json_v0] Try try stmt node scan failed",
@@ -309,7 +309,7 @@ static box TryCleanupStmtHandler {
       )
     }
     local try_stmt_type = "" + BoxHelpers.map_get(try_stmt_info, "type")
-    if try_stmt_type == "Loop" {
+    if BoxHelpers.same_token(try_stmt_type, "Loop") == 1 {
       return me._err(
         tag,
         "[cap_missing/stmt:Loop] Try(cleanup) with Loop body is not supported in M7-min-1",
@@ -323,7 +323,7 @@ static box TryCleanupStmtHandler {
         print_var_name
       )
     }
-    if try_stmt_type != "Local" {
+    if BoxHelpers.same_token(try_stmt_type, "Local") != 1 {
       return me._err(
         tag,
         "[cap_missing/stmt:Try] Try try stmt must be Local in M7-min-1",
@@ -339,7 +339,7 @@ static box TryCleanupStmtHandler {
     }
 
     local finally_stmt_info = ProgramJsonV0ScannerBox.read_node_type_at_result(program_json, finally_stmt_start)
-    if BoxHelpers.map_get(finally_stmt_info, "ok") != 1 {
+    if BoxHelpers.result_ok(finally_stmt_info) != 1 {
       return me._err(
         tag,
         "[cap_missing/program_json_v0] Try finally stmt node scan failed",
@@ -354,7 +354,7 @@ static box TryCleanupStmtHandler {
       )
     }
     local finally_stmt_type = "" + BoxHelpers.map_get(finally_stmt_info, "type")
-    if finally_stmt_type != "Expr" && finally_stmt_type != "Local" {
+    if BoxHelpers.same_token(finally_stmt_type, "Expr") != 1 && BoxHelpers.same_token(finally_stmt_type, "Local") != 1 {
       return me._err(
         tag,
         "[cap_missing/stmt:Try] Try finally stmt must be Expr or Local in M7-min-3",
@@ -392,7 +392,7 @@ static box TryCleanupStmtHandler {
       )
     }
 
-    if finally_stmt_type == "Expr" {
+    if BoxHelpers.same_token(finally_stmt_type, "Expr") == 1 {
       local print_state = me._state_for_print(has_print, printv, print_kind, print_var_name)
       local print_out = PrintStmtHandler.handle(program_json, finally_stmt_start, next_idx, tag, print_state)
       if StringHelpers.to_i64(BoxHelpers.map_get(print_out, "err")) == 1 {

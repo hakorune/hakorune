@@ -600,7 +600,7 @@
           }
         } else if (same_module_function_read_i64_const(ins, &ival)) {
           put_const(dst, ival);
-          set_type(dst, T_I64);
+          publish_plain_i64_value(dst);
         } else if (same_module_function_read_void_sentinel_const(ins)) {
           same_module_function_publish_void_sentinel_const(dst);
         } else {

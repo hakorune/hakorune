@@ -29,7 +29,7 @@ static box LocalStmtHandler {
     }
 
     local expr_info = ProgramJsonV0ScannerBox.read_node_type_at_result(program_json, expr_start)
-    if BoxHelpers.map_get(expr_info, "ok") != 1 {
+    if BoxHelpers.result_ok(expr_info) != 1 {
       return %{
         "err" => 1,
         "err_line" => tag + "[cap_missing/program_json_v0] Local expr node scan failed",
@@ -41,9 +41,9 @@ static box LocalStmtHandler {
     }
 
     local expr_type = BoxHelpers.map_get(expr_info, "type")
-    if expr_type == "Int" {
+    if BoxHelpers.same_token(expr_type, "Int") == 1 {
       local out = ProgramJsonV0ScannerBox.read_int_field_in_obj_result(program_json, "value", expr_start)
-      if BoxHelpers.map_get(out, "ok") != 1 {
+      if BoxHelpers.result_ok(out) != 1 {
         return %{
           "err" => 1,
           "err_line" => tag + "[cap_missing/program_json_v0] Local Int missing value",
@@ -54,9 +54,9 @@ static box LocalStmtHandler {
         }
       }
       local_init = BoxHelpers.map_get(out, "value")
-    } else if expr_type == "Var" {
+    } else if BoxHelpers.same_token(expr_type, "Var") == 1 {
       local out = ProgramJsonV0ScannerBox.read_string_field_first_in_obj_result(program_json, "name", expr_start)
-      if BoxHelpers.map_get(out, "ok") != 1 {
+      if BoxHelpers.result_ok(out) != 1 {
         return %{
           "err" => 1,
           "err_line" => tag + "[cap_missing/program_json_v0] Local Var missing name",
@@ -87,7 +87,7 @@ static box LocalStmtHandler {
           "local_init" => local_init
         }
       }
-      if src_name != local_name {
+      if BoxHelpers.same_token(src_name, local_name) != 1 {
         return %{
           "err" => 1,
           "err_line" => tag + "[cap_missing/expr:Var] Local Var must reference previous Local var: " + local_name,
@@ -109,7 +109,7 @@ static box LocalStmtHandler {
     }
 
     local out2 = ProgramJsonV0ScannerBox.read_string_field_last_in_obj_result(program_json, "name", idx)
-    if BoxHelpers.map_get(out2, "ok") != 1 {
+    if BoxHelpers.result_ok(out2) != 1 {
       return %{
         "err" => 1,
         "err_line" => tag + "[cap_missing/program_json_v0] Local missing name",

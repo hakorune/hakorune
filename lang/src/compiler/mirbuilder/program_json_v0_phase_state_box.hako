@@ -134,7 +134,7 @@ static box ProgramJsonV0PhaseStateBox {
         // Order check (fail-fast): determine stmt type first (cheap scan), then validate.
         // Note: full stmt consumption is delegated to ProgramJsonV0PhaseStateConsumerBox (single SSOT for fields).
         local node_peek = ProgramJsonV0ScannerBox.read_node_type_at_result(program_json, idx)
-        if BoxHelpers.map_get(node_peek, "ok") != 1 {
+        if BoxHelpers.result_ok(node_peek) != 1 {
           return me._emit_scan_error(
             tag,
             "[cap_missing/program_json_v0] failed to read stmt node type",
@@ -247,7 +247,7 @@ static box ProgramJsonV0PhaseStateBox {
       out.set("ok", 0)
       return out
     }
-    if BoxHelpers.map_get(child, "kind") != "Seq" || BoxHelpers.map_get(child, "leaf_kind") != "Stmt" {
+    if BoxHelpers.same_token(BoxHelpers.map_get(child, "kind"), "Seq") != 1 || BoxHelpers.same_token(BoxHelpers.map_get(child, "leaf_kind"), "Stmt") != 1 {
       local out = me._emit_scan_error(
         tag,
         "[cap_missing/recipe_verifier] composite recipe child must be Stmt leaf",
@@ -266,7 +266,7 @@ static box ProgramJsonV0PhaseStateBox {
     local kind = BoxHelpers.map_get(recipe_item, "kind")
     local leaf_kind = BoxHelpers.map_get(recipe_item, "leaf_kind")
 
-    if kind == "Seq" && leaf_kind != "Stmt" {
+    if BoxHelpers.same_token(kind, "Seq") == 1 && BoxHelpers.same_token(leaf_kind, "Stmt") != 1 {
       local children = BoxHelpers.map_get(recipe_item, "items")
       if children == null || BoxHelpers.is_array(children) != 1 {
         local out = me._emit_scan_error(

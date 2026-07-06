@@ -59,11 +59,16 @@ static box RecipeItemBox {
     return "" + BoxHelpers.map_get(item, "kind")
   }
 
+  kind_is(item, token) {
+    if item == null { return 0 }
+    return BoxHelpers.same_token(BoxHelpers.map_get(item, "kind"), token)
+  }
+
   is_supported_kind(kind) {
-    if kind == "Seq" { return 1 }
-    if kind == "If" { return 1 }
-    if kind == "Loop" { return 1 }
-    if kind == "Exit" { return 1 }
+    if BoxHelpers.same_token(kind, "Seq") == 1 { return 1 }
+    if BoxHelpers.same_token(kind, "If") == 1 { return 1 }
+    if BoxHelpers.same_token(kind, "Loop") == 1 { return 1 }
+    if BoxHelpers.same_token(kind, "Exit") == 1 { return 1 }
     return 0
   }
 
@@ -72,30 +77,30 @@ static box RecipeItemBox {
     local kind = BoxHelpers.map_get(item, "kind")
     if me.is_supported_kind(kind) != 1 { return 0 }
 
-    if kind == "Seq" {
+    if me.kind_is(item, "Seq") == 1 {
       local items = BoxHelpers.map_get(item, "items")
       if items == null || BoxHelpers.is_array(items) != 1 { return 0 }
       return 1
     }
 
-    if kind == "If" {
+    if me.kind_is(item, "If") == 1 {
       local then_item = BoxHelpers.map_get(item, "then_item")
       local else_item = BoxHelpers.map_get(item, "else_item")
       if then_item == null || BoxHelpers.is_map(then_item) != 1 { return 0 }
       if else_item == null || BoxHelpers.is_map(else_item) != 1 { return 0 }
-      if me.is_supported_kind(BoxHelpers.map_get(then_item, "kind")) != 1 { return 0 }
-      if me.is_supported_kind(BoxHelpers.map_get(else_item, "kind")) != 1 { return 0 }
+      if me.kind_is(then_item, "Seq") != 1 && me.kind_is(then_item, "If") != 1 && me.kind_is(then_item, "Loop") != 1 && me.kind_is(then_item, "Exit") != 1 { return 0 }
+      if me.kind_is(else_item, "Seq") != 1 && me.kind_is(else_item, "If") != 1 && me.kind_is(else_item, "Loop") != 1 && me.kind_is(else_item, "Exit") != 1 { return 0 }
       return 1
     }
 
-    if kind == "Loop" {
+    if me.kind_is(item, "Loop") == 1 {
       local body_item = BoxHelpers.map_get(item, "body_item")
       if body_item == null || BoxHelpers.is_map(body_item) != 1 { return 0 }
-      if me.is_supported_kind(BoxHelpers.map_get(body_item, "kind")) != 1 { return 0 }
+      if me.kind_is(body_item, "Seq") != 1 && me.kind_is(body_item, "If") != 1 && me.kind_is(body_item, "Loop") != 1 && me.kind_is(body_item, "Exit") != 1 { return 0 }
       return 1
     }
 
-    if kind == "Exit" {
+    if me.kind_is(item, "Exit") == 1 {
       local exit_kind = BoxHelpers.map_get(item, "exit_kind")
       if exit_kind == "" { return 0 }
       return 1

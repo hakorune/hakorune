@@ -120,7 +120,7 @@ text = Path(sys.argv[1]).read_text(encoding="utf-8")
 required = [
     "ProgramJsonV0PhaseStateBox.parse(program_json",
     "recipe_root",
-    "RecipeItemBox.kind_of",
+    "RecipeItemBox.kind_is",
     "loop_cond_rhs_int",
     "loop_step_int",
     "loop_if_cond_rhs_int",

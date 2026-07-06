@@ -23,9 +23,11 @@
             set_type(reg, T_I1);
             return 1;
           }
-          if (scalar_type &&
-              (!strcmp(scalar_type, "i64") ||
-               !strcmp(scalar_type, "void"))) {
+          if (scalar_type && !strcmp(scalar_type, "i64")) {
+            publish_plain_i64_value(reg);
+            return 1;
+          }
+          if (scalar_type && !strcmp(scalar_type, "void")) {
             set_type(reg, T_I64);
             return 1;
           }
@@ -116,7 +118,8 @@
               }
             } else {
               long long v = vobj? (long long)yyjson_get_sint(yyjson_obj_get(vobj, "value")) : 0;
-              put_const(dst, v); set_type(dst, T_I64);
+              put_const(dst, v);
+              publish_plain_i64_value(dst);
             }
           } else if (strcmp(op, "newbox")==0) {
             long long dst = read_int(ins, "dst");

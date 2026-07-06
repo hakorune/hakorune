@@ -47,7 +47,7 @@ static box ReturnStmtHandler {
     }
 
     local expr_info = ProgramJsonV0ScannerBox.read_node_type_at_result(program_json, expr_start)
-    if BoxHelpers.map_get(expr_info, "ok") != 1 {
+    if BoxHelpers.result_ok(expr_info) != 1 {
       return %{
         "err" => 1,
         "err_line" => tag + "[cap_missing/program_json_v0] Return expr node scan failed",
@@ -62,13 +62,13 @@ static box ReturnStmtHandler {
 
     local expr_type = BoxHelpers.map_get(expr_info, "type")
 
-    if expr_type == "Int" || expr_type == "Var" {
+    if BoxHelpers.same_token(expr_type, "Int") == 1 || BoxHelpers.same_token(expr_type, "Var") == 1 {
       return ReturnStmtHandlerSimpleBox.handle(program_json, next_idx, tag, state, expr_start, expr_type)
     }
 
     if expr_type == "Call" {
       local call_name_out = ProgramJsonV0ScannerBox.read_string_field_first_in_obj_result(program_json, "name", expr_start)
-      if BoxHelpers.map_get(call_name_out, "ok") != 1 {
+      if BoxHelpers.result_ok(call_name_out) != 1 {
         return %{
           "err" => 1,
           "err_line" => tag + "[cap_missing/program_json_v0] Return Call missing name",
@@ -152,7 +152,7 @@ static box ReturnStmtHandler {
       }
 
       local call_arg_info = ProgramJsonV0ScannerBox.read_node_type_at_result(program_json, p)
-      if BoxHelpers.map_get(call_arg_info, "ok") != 1 {
+      if BoxHelpers.result_ok(call_arg_info) != 1 {
         return %{
           "err" => 1,
           "err_line" => tag + "[cap_missing/program_json_v0] Return Call arg node scan failed",
@@ -165,7 +165,7 @@ static box ReturnStmtHandler {
         }
       }
       local call_arg_type = "" + BoxHelpers.map_get(call_arg_info, "type")
-      if call_arg_type != "Int" {
+      if BoxHelpers.same_token(call_arg_type, "Int") != 1 {
         return %{
           "err" => 1,
           "err_line" => tag + "[cap_missing/expr:Call] Return Call arg must be Int(9|7)",
@@ -178,7 +178,7 @@ static box ReturnStmtHandler {
         }
       }
       local call_arg_out = ProgramJsonV0ScannerBox.read_int_field_in_obj_result(program_json, "value", p)
-      if BoxHelpers.map_get(call_arg_out, "ok") != 1 {
+      if BoxHelpers.result_ok(call_arg_out) != 1 {
         return %{
           "err" => 1,
           "err_line" => tag + "[cap_missing/program_json_v0] Return Call Int arg missing value",
@@ -240,7 +240,7 @@ static box ReturnStmtHandler {
 
     if expr_type == "Method" {
       local method_out = ProgramJsonV0ScannerBox.read_string_field_first_in_obj_result(program_json, "method", expr_start)
-      if BoxHelpers.map_get(method_out, "ok") != 1 {
+      if BoxHelpers.result_ok(method_out) != 1 {
         return %{
           "err" => 1,
           "err_line" => tag + "[cap_missing/program_json_v0] Return Method missing method",
@@ -320,7 +320,7 @@ static box ReturnStmtHandler {
           }
         }
         local method_arg_info = ProgramJsonV0ScannerBox.read_node_type_at_result(program_json, p_method_args)
-        if BoxHelpers.map_get(method_arg_info, "ok") != 1 {
+        if BoxHelpers.result_ok(method_arg_info) != 1 {
           return %{
             "err" => 1,
             "err_line" => tag + "[cap_missing/program_json_v0] Return Method indexOf arg node scan failed",
@@ -346,7 +346,7 @@ static box ReturnStmtHandler {
           }
         }
         local method_arg_val_out = ProgramJsonV0ScannerBox.read_string_field_first_in_obj_result(program_json, "value", p_method_args)
-        if BoxHelpers.map_get(method_arg_val_out, "ok") != 1 {
+        if BoxHelpers.result_ok(method_arg_val_out) != 1 {
           return %{
             "err" => 1,
             "err_line" => tag + "[cap_missing/program_json_v0] Return Method indexOf Str arg missing value",
@@ -401,7 +401,7 @@ static box ReturnStmtHandler {
         }
       }
       local recv_info = ProgramJsonV0ScannerBox.read_node_type_at_result(program_json, recv_start)
-      if BoxHelpers.map_get(recv_info, "ok") != 1 {
+      if BoxHelpers.result_ok(recv_info) != 1 {
         return %{
           "err" => 1,
           "err_line" => tag + "[cap_missing/program_json_v0] Return Method recv node scan failed",
@@ -428,7 +428,7 @@ static box ReturnStmtHandler {
       }
 
       local recv_class_out = ProgramJsonV0ScannerBox.read_string_field_first_in_obj_result(program_json, "class", recv_start)
-      if BoxHelpers.map_get(recv_class_out, "ok") != 1 {
+      if BoxHelpers.result_ok(recv_class_out) != 1 {
         return %{
           "err" => 1,
           "err_line" => tag + "[cap_missing/program_json_v0] Return Method recv New missing class",
@@ -496,7 +496,7 @@ static box ReturnStmtHandler {
         }
       }
       local recv_arg_info = ProgramJsonV0ScannerBox.read_node_type_at_result(program_json, first_recv_arg_pos)
-      if BoxHelpers.map_get(recv_arg_info, "ok") != 1 {
+      if BoxHelpers.result_ok(recv_arg_info) != 1 {
         return %{
           "err" => 1,
           "err_line" => tag + "[cap_missing/program_json_v0] Return Method recv New arg node scan failed",
@@ -522,7 +522,7 @@ static box ReturnStmtHandler {
         }
       }
       local recv_arg_val_out = ProgramJsonV0ScannerBox.read_string_field_first_in_obj_result(program_json, "value", first_recv_arg_pos)
-      if BoxHelpers.map_get(recv_arg_val_out, "ok") != 1 {
+      if BoxHelpers.result_ok(recv_arg_val_out) != 1 {
         return %{
           "err" => 1,
           "err_line" => tag + "[cap_missing/program_json_v0] Return Method recv New Str arg missing value",
@@ -585,7 +585,7 @@ static box ReturnStmtHandler {
 
     if expr_type == "New" {
       local class_out = ProgramJsonV0ScannerBox.read_string_field_first_in_obj_result(program_json, "class", expr_start)
-      if BoxHelpers.map_get(class_out, "ok") != 1 {
+      if BoxHelpers.result_ok(class_out) != 1 {
         return %{
           "err" => 1,
           "err_line" => tag + "[cap_missing/program_json_v0] Return New missing class",
@@ -682,7 +682,7 @@ static box ReturnStmtHandler {
       }
 
       local new_arg_info = ProgramJsonV0ScannerBox.read_node_type_at_result(program_json, p)
-      if BoxHelpers.map_get(new_arg_info, "ok") != 1 {
+      if BoxHelpers.result_ok(new_arg_info) != 1 {
         return %{
           "err" => 1,
           "err_line" => tag + "[cap_missing/program_json_v0] Return New arg node scan failed",
@@ -709,7 +709,7 @@ static box ReturnStmtHandler {
       }
 
       local new_arg_val_out = ProgramJsonV0ScannerBox.read_string_field_first_in_obj_result(program_json, "value", p)
-      if BoxHelpers.map_get(new_arg_val_out, "ok") != 1 {
+      if BoxHelpers.result_ok(new_arg_val_out) != 1 {
         return %{
           "err" => 1,
           "err_line" => tag + "[cap_missing/program_json_v0] Return New Str arg missing value",

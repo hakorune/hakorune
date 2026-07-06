@@ -66,16 +66,16 @@ static box RecipeVerifierBox {
     }
 
     local kind = RecipeItemBox.kind_of(item)
-    if kind == "Seq" {
+    if RecipeItemBox.kind_is(item, "Seq") == 1 {
       return me._verify_seq(item, tag, depth)
     }
-    if kind == "If" {
+    if RecipeItemBox.kind_is(item, "If") == 1 {
       return me._verify_if(item, tag, depth)
     }
-    if kind == "Loop" {
+    if RecipeItemBox.kind_is(item, "Loop") == 1 {
       return me._verify_loop(item, tag, depth)
     }
-    if kind == "Exit" {
+    if RecipeItemBox.kind_is(item, "Exit") == 1 {
       return me._verify_exit(item, tag)
     }
     return me._err(tag, "[recipe_verifier] unsupported recipe kind: " + kind)
@@ -150,7 +150,7 @@ static box RecipeVerifierBox {
     local n = names.length()
     loop(i < n) {
       local name = "" + BoxHelpers.array_get(names, i)
-      if mode == "def" { sig = RecipePortSigBox.mark_def(sig, name) }
+      if BoxHelpers.same_token(mode, "def") == 1 { sig = RecipePortSigBox.mark_def(sig, name) }
       else { sig = RecipePortSigBox.mark_update(sig, name) }
       i = i + 1
     }

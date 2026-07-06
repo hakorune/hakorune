@@ -275,7 +275,7 @@ static box ProgramJsonV0PhaseStateConsumerBox {
 
   _non_control_handler_state_result(stmt_name, current_state): MapBox {
     local base = me._state_base(current_state)
-    if stmt_name == "Print" {
+    if BoxHelpers.same_token(stmt_name, "Print") == 1 {
       return me._non_control_state_ok(%{
         "has_print" => me._map_i64(base, "has_print"),
         "printv" => BoxHelpers.map_get(base, "printv"),
@@ -283,14 +283,14 @@ static box ProgramJsonV0PhaseStateConsumerBox {
         "print_var_name" => BoxHelpers.map_get(base, "print_var_name")
       })
     }
-    if stmt_name == "Local" {
+    if BoxHelpers.same_token(stmt_name, "Local") == 1 {
       return me._non_control_state_ok(%{
         "has_local" => me._map_i64(base, "has_local"),
         "local_name" => BoxHelpers.map_get(base, "local_name"),
         "local_init" => BoxHelpers.map_get(base, "local_init")
       })
     }
-    if stmt_name == "Assignment" {
+    if BoxHelpers.same_token(stmt_name, "Assignment") == 1 {
       return me._non_control_state_ok(%{
         "has_assignment" => me._map_i64(base, "has_assignment"),
         "has_print" => me._map_i64(base, "has_print"),
@@ -300,7 +300,7 @@ static box ProgramJsonV0PhaseStateConsumerBox {
         "assign_rhs_kind" => BoxHelpers.map_get(base, "assign_rhs_kind")
       })
     }
-    if stmt_name == "Return" {
+    if BoxHelpers.same_token(stmt_name, "Return") == 1 {
       return me._non_control_state_ok(%{
         "has_return" => me._map_i64(base, "has_return"),
         "return_kind" => BoxHelpers.map_get(base, "return_kind"),
@@ -338,7 +338,7 @@ static box ProgramJsonV0PhaseStateConsumerBox {
   }
 
   _after_state_from_non_control_result(stmt_name, result, current_state): MapBox {
-    if stmt_name == "Print" {
+    if BoxHelpers.same_token(stmt_name, "Print") == 1 {
       return me._after_state_ok(
         me._state_with_print(
           current_state,
@@ -349,7 +349,7 @@ static box ProgramJsonV0PhaseStateConsumerBox {
         )
       )
     }
-    if stmt_name == "Local" {
+    if BoxHelpers.same_token(stmt_name, "Local") == 1 {
       return me._after_state_ok(
         me._state_with_local(
           current_state,
@@ -359,7 +359,7 @@ static box ProgramJsonV0PhaseStateConsumerBox {
         )
       )
     }
-    if stmt_name == "Assignment" {
+    if BoxHelpers.same_token(stmt_name, "Assignment") == 1 {
       return me._after_state_ok(
         me._state_with_assignment(
           current_state,
@@ -370,7 +370,7 @@ static box ProgramJsonV0PhaseStateConsumerBox {
         )
       )
     }
-    if stmt_name == "Return" {
+    if BoxHelpers.same_token(stmt_name, "Return") == 1 {
       return me._after_state_ok(
         me._state_with_return(
           current_state,
@@ -412,25 +412,25 @@ static box ProgramJsonV0PhaseStateConsumerBox {
   }
 
   _non_control_handler_out_result(node_type, program_json, idx, next_idx, tag, current_state): MapBox {
-    if node_type == "Print" || node_type == "Expr" {
+    if BoxHelpers.same_token(node_type, "Print") == 1 || BoxHelpers.same_token(node_type, "Expr") == 1 {
       local state_out = me._non_control_handler_state_result("Print", current_state)
       if me._map_i64(state_out, "ok") != 1 { return me._non_control_no_match() }
       local state = BoxHelpers.map_get(state_out, "state")
       return me._non_control_handler_ok("Print", PrintStmtHandler.handle(program_json, idx, next_idx, tag, state))
     }
-    if node_type == "Local" {
+    if BoxHelpers.same_token(node_type, "Local") == 1 {
       local state_out = me._non_control_handler_state_result("Local", current_state)
       if me._map_i64(state_out, "ok") != 1 { return me._non_control_no_match() }
       local state = BoxHelpers.map_get(state_out, "state")
       return me._non_control_handler_ok("Local", LocalStmtHandler.handle(program_json, idx, next_idx, tag, state))
     }
-    if node_type == "Assignment" {
+    if BoxHelpers.same_token(node_type, "Assignment") == 1 {
       local state_out = me._non_control_handler_state_result("Assignment", current_state)
       if me._map_i64(state_out, "ok") != 1 { return me._non_control_no_match() }
       local state = BoxHelpers.map_get(state_out, "state")
       return me._non_control_handler_ok("Assignment", AssignmentStmtHandler.handle(program_json, idx, next_idx, tag, state))
     }
-    if node_type == "Return" {
+    if BoxHelpers.same_token(node_type, "Return") == 1 {
       local state_out = me._non_control_handler_state_result("Return", current_state)
       if me._map_i64(state_out, "ok") != 1 { return me._non_control_no_match() }
       local state = BoxHelpers.map_get(state_out, "state")
@@ -515,7 +515,7 @@ static box ProgramJsonV0PhaseStateConsumerBox {
   }
 
   _handle_try_cleanup_stmt_result(node_type, program_json, idx, next_idx, tag, current_state): MapBox {
-    if node_type != "Try" { return me._control_no_match() }
+    if BoxHelpers.same_token(node_type, "Try") != 1 { return me._control_no_match() }
     return me._control_out_ok(
       me._emit_try_cleanup_stmt(program_json, idx, next_idx, tag, current_state)
     )
@@ -554,13 +554,13 @@ static box ProgramJsonV0PhaseStateConsumerBox {
   }
 
   _control_handler_out_result(node_type, program_json, idx, next_idx, tag, state): MapBox {
-    if node_type == "If" {
+    if BoxHelpers.same_token(node_type, "If") == 1 {
       return me._control_handler_ok(
         "IfStmtHandler",
         IfStmtHandler.handle(program_json, idx, next_idx, tag, state)
       )
     }
-    if node_type == "Loop" {
+    if BoxHelpers.same_token(node_type, "Loop") == 1 {
       return me._control_handler_ok(
         "LoopStmtHandler",
         LoopStmtHandler.handle_state_values(
@@ -622,7 +622,7 @@ static box ProgramJsonV0PhaseStateConsumerBox {
 
   _read_stmt_node_info_or_error(program_json, idx, tag, current_state): MapBox {
     local node = ProgramJsonV0ScannerBox.read_node_type_at_result(program_json, idx)
-    if BoxHelpers.map_get(node, "ok") != 1 {
+    if BoxHelpers.result_ok(node) != 1 {
       return %{
         "err" => 1,
         "out" => me._emit_out_from_state(
@@ -662,7 +662,7 @@ static box ProgramJsonV0PhaseStateConsumerBox {
       )
     }
 
-    if node_type == "Try" {
+    if BoxHelpers.same_token(node_type, "Try") == 1 {
       return me._emit_try_cleanup_stmt(program_json, idx, next_idx, tag, current_state)
     }
 

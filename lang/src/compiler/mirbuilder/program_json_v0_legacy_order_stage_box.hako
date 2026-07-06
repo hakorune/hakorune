@@ -3,12 +3,14 @@
 // - SSOT for legacy stmt order stage classification used by ProgramJsonV0PhaseStateBox.
 // - Keep order gate fallback logic isolated from recipe-first scanner recursion.
 
+using selfhost.shared.common.box_helpers as BoxHelpers
+
 static box ProgramJsonV0LegacyOrderStageBox {
   classify(node_type) {
-    if node_type == "Local" { return 1 }
-    if node_type == "Assignment" { return 2 }
-    if node_type == "Print" { return 3 }
-    if node_type == "Return" { return 4 }
+    if BoxHelpers.same_token(node_type, "Local") == 1 { return 1 }
+    if BoxHelpers.same_token(node_type, "Assignment") == 1 { return 2 }
+    if BoxHelpers.same_token(node_type, "Print") == 1 { return 3 }
+    if BoxHelpers.same_token(node_type, "Return") == 1 { return 4 }
     return 0
   }
 }

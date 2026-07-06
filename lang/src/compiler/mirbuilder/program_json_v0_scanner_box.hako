@@ -353,13 +353,19 @@ static box ProgramJsonV0ScannerBox {
     local vpos = me._try_obj_field_value_start(s, key, obj_start)
     if vpos < 0 { return me._result_err("missing field: " + key) }
     vpos = StringHelpers.skip_ws(s, vpos)
-    local end_brace = StringHelpers.index_of(s, vpos, "}")
-    local end_comma = StringHelpers.index_of(s, vpos, ",")
-    local end_pos = me._min_pos(end_brace, end_comma)
-    if end_pos < 0 { return me._result_err("int field has no delimiter: " + key) }
-    local digits = s.substring(vpos, end_pos)
-    if digits == null || digits.length() == 0 { return me._result_err("int field is empty: " + key) }
-    return me._result_ok(StringHelpers.to_i64(digits), end_pos)
+    local value = 0
+    local i = vpos
+    local seen = 0
+    loop(i < s.length()) {
+      local ch = s.substring(i, i + 1)
+      local d = StringHelpers._digit_value(ch)
+      if d < 0 { break }
+      value = value * 10 + d
+      seen = 1
+      i = i + 1
+    }
+    if seen == 0 { return me._result_err("int field is empty: " + key) }
+    return %{"ok" => 1, "value" => value, "next" => i, "reason" => ""}
   }
 
   // read_int_field_at(s, key, from_idx) -> %{ "value" => int, "next" => idx }
@@ -402,7 +408,7 @@ static box ProgramJsonV0ScannerBox {
   // - `from_idx` must point at '{' of the node object.
   read_node_type_at(s, from_idx) {
     local out = me.read_node_type_at_result(s, from_idx)
-    if BoxHelpers.map_get(out, "ok") != 1 { return null }
+    if BoxHelpers.result_ok(out) != 1 { return null }
     return %{"type" => BoxHelpers.map_get(out, "type"), "next" => BoxHelpers.map_get(out, "next")}
   }
 

@@ -456,6 +456,7 @@
         }
         if (!same_module_function_read_arg_reg(args, key_index, &key)) return 0;
         if (!same_module_function_read_arg_reg(args, value_index, &value)) return 0;
+        if (value) (void)same_module_function_publish_reg_metadata(value);
         is_array_set = same_module_method_view_is_direct_array_set(method_view);
         should_box_map_i64_value = !is_array_set && value && is_plain_i64_value(value);
         append_i64_arg_ref(ab, sizeof(ab), recv, 1);

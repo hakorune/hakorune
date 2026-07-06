@@ -869,6 +869,7 @@
 
         switch (emit_kind) {
           case HAKO_LLVMC_GENERIC_METHOD_EMIT_SET: {
+            if (a1) (void)generic_pure_publish_reg_metadata(a1);
             int array_set_plain_i64 = a1 && is_plain_i64_value(a1);
             int array_set_string_handle = plan.value_is_string_handle;
             enum GenericMethodSetRouteKind set_route = plan.set_route;

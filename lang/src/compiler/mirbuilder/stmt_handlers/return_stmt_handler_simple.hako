@@ -12,9 +12,9 @@ static box ReturnStmtHandlerSimpleBox {
     local ret_var_name = BoxHelpers.map_get(state, "ret_var_name")
     local ret_box_type = BoxHelpers.map_get(state, "ret_box_type")
 
-    if expr_type == "Int" {
+    if BoxHelpers.same_token(expr_type, "Int") == 1 {
       local out = ProgramJsonV0ScannerBox.read_int_field_in_obj_result(program_json, "value", expr_start)
-      if BoxHelpers.map_get(out, "ok") != 1 {
+      if BoxHelpers.result_ok(out) != 1 {
         return %{
           "err" => 1,
           "err_line" => tag + "[cap_missing/program_json_v0] Return Int missing value",
@@ -42,9 +42,9 @@ static box ReturnStmtHandlerSimpleBox {
       }
     }
 
-    if expr_type == "Var" {
+    if BoxHelpers.same_token(expr_type, "Var") == 1 {
       local out = ProgramJsonV0ScannerBox.read_string_field_first_in_obj_result(program_json, "name", expr_start)
-      if BoxHelpers.map_get(out, "ok") != 1 {
+      if BoxHelpers.result_ok(out) != 1 {
         return %{
           "err" => 1,
           "err_line" => tag + "[cap_missing/program_json_v0] Return Var missing name",

@@ -114,6 +114,7 @@ for key in [
 
 obj = json.dumps({"value": 42, "name": "x"}, separators=(",", ":"), ensure_ascii=False)
 source = f'''using lang.compiler.mirbuilder.program_json_v0_scanner_box as ProgramJsonV0ScannerBox
+using selfhost.shared.common.string_helpers as StringHelpers
 
 static box Main {{
   main() {{
@@ -123,10 +124,10 @@ static box Main {{
     local s = ProgramJsonV0ScannerBox.read_string_field_last_in_obj_result(obj, "name", 0)
     local sm = ProgramJsonV0ScannerBox.read_string_field_last_in_obj_result(obj, "missing", 0)
     print("scanner_result_map:"
-      + "int_ok=" + i.get("ok")
-      + ";int_missing=" + im.get("ok")
-      + ";str_ok=" + s.get("ok")
-      + ";str_missing=" + sm.get("ok"))
+      + "int_ok=" + StringHelpers.int_to_str(i.get("ok"))
+      + ";int_missing=" + StringHelpers.int_to_str(im.get("ok"))
+      + ";str_ok=" + StringHelpers.int_to_str(s.get("ok"))
+      + ";str_missing=" + StringHelpers.int_to_str(sm.get("ok")))
     return 0
   }}
 }}
