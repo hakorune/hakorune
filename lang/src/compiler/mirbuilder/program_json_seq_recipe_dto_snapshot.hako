@@ -69,8 +69,18 @@ static box ProgramJsonSeqRecipeDtoSnapshotBox {
     return me._s(item, "stmt_kind")
   }
 
+  _item_token(item) {
+    local stmt_kind = me._stmt_kind(item)
+    if stmt_kind != "" { return stmt_kind }
+    if item == null || BoxHelpers.is_map(item) != 1 { return "" }
+    if RecipeItemBox.kind_is(item, "If") == 1 { return "If" }
+    if RecipeItemBox.kind_is(item, "Loop") == 1 { return "Loop" }
+    if RecipeItemBox.kind_is(item, "Exit") == 1 { return "Exit" }
+    return ""
+  }
+
   _stmt_kind_at(items, idx) {
-    return me._stmt_kind(BoxHelpers.array_get(items, idx))
+    return me._item_token(BoxHelpers.array_get(items, idx))
   }
 
   _seq_sig(items, n) {
@@ -122,6 +132,9 @@ static box ProgramJsonSeqRecipeDtoSnapshotBox {
       if BoxHelpers.same_token(assign_rhs_kind, "AddVarInt") == 1 || assign_rhs_kind == "" {
         return "phase2_inc_return_var"
       }
+    }
+    if seq_sig == "Local>Loop>Return" && BoxHelpers.same_token(return_kind, "Var") == 1 {
+      return "phase21_local_loop_if_varltint_then_return_int_body_inc_return_var_or_int"
     }
     if seq_sig == "Local>Print>Return" && BoxHelpers.same_token(print_kind, "Var") == 1 {
       if BoxHelpers.same_token(return_kind, "Int") == 1 { return "phase4_local_print_var_return_int" }
