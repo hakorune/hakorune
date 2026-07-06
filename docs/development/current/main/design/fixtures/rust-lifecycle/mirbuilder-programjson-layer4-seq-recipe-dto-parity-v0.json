@@ -11,7 +11,7 @@
   "selection": {
     "previous_checkpoint": "MIRBUILDER-PROGRAMJSON-LAYER4-IF-RECIPE-DTO-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001",
     "selected_reason": "Root Seq is the parent DTO for stmt-only Recipe rows and is already the common root for the proven Loop and If DTO paths.",
-    "assignment_print_deferred_reason": "Top-level Assignment/Print PhaseState parse is not yet runtime-green in this Layer4 route and should be handled as a separate PhaseState consumer capability."
+    "assignment_print_consumer_prerequisite": "HAKO-AOT-PROGRAMJSON-PHASE-STATE-ASSIGNMENT-PRINT-CONSUMER-CAPABILITY-001"
   },
   "routes": {
     "programjson_route": "ProgramJSON -> ProgramJsonV0PhaseStateBox.parse/2 -> recipe_root -> ProgramJsonSeqRecipeDtoSnapshotBox.build_summary/1",
@@ -52,6 +52,58 @@
         ]
       },
       "rust_oracle_expected_summary": "snapshot_kind=SeqRecipeDtoSnapshotV1;err=0;matched=1;item_count=2;seq_sig=Local>Return;stmt0=Local;stmt1=Return;stmt2=;stmt3=;has_local=1;has_assignment=;has_print=;has_return=1;local_name=i;assign_rhs_kind=;assign_rhs=;print_kind=;print_var_name=;return_kind=Var;return_value=i;shape_kind=phase2_local_return_var"
+    },
+    {
+      "row_id": "local_assignment_int_return_var",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "body": [
+          {"type": "Local", "name": "i", "expr": {"type": "Int", "value": 1}},
+          {"type": "Assignment", "name": "i", "expr": {"type": "Int", "value": 4}},
+          {"type": "Return", "expr": {"type": "Var", "name": "i"}}
+        ]
+      },
+      "rust_oracle_expected_summary": "snapshot_kind=SeqRecipeDtoSnapshotV1;err=0;matched=1;item_count=3;seq_sig=Local>Assignment>Return;stmt0=Local;stmt1=Assignment;stmt2=Return;stmt3=;has_local=1;has_assignment=1;has_print=;has_return=1;local_name=i;assign_rhs_kind=Int;assign_rhs=4;print_kind=;print_var_name=;return_kind=Var;return_value=i;shape_kind=phase20_store_assignment_int_return_var"
+    },
+    {
+      "row_id": "local_assignment_add_return_var",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "body": [
+          {"type": "Local", "name": "i", "expr": {"type": "Int", "value": 1}},
+          {"type": "Assignment", "name": "i", "expr": {"type": "Binary", "op": "+", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 2}}},
+          {"type": "Return", "expr": {"type": "Var", "name": "i"}}
+        ]
+      },
+      "rust_oracle_expected_summary": "snapshot_kind=SeqRecipeDtoSnapshotV1;err=0;matched=1;item_count=3;seq_sig=Local>Assignment>Return;stmt0=Local;stmt1=Assignment;stmt2=Return;stmt3=;has_local=1;has_assignment=1;has_print=;has_return=1;local_name=i;assign_rhs_kind=AddVarInt;assign_rhs=2;print_kind=;print_var_name=;return_kind=Var;return_value=i;shape_kind=phase2_inc_return_var"
+    },
+    {
+      "row_id": "local_print_var_return_int",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "body": [
+          {"type": "Local", "name": "i", "expr": {"type": "Int", "value": 1}},
+          {"type": "Print", "expr": {"type": "Var", "name": "i"}},
+          {"type": "Return", "expr": {"type": "Int", "value": 0}}
+        ]
+      },
+      "rust_oracle_expected_summary": "snapshot_kind=SeqRecipeDtoSnapshotV1;err=0;matched=1;item_count=3;seq_sig=Local>Print>Return;stmt0=Local;stmt1=Print;stmt2=Return;stmt3=;has_local=1;has_assignment=;has_print=1;has_return=1;local_name=i;assign_rhs_kind=;assign_rhs=;print_kind=Var;print_var_name=i;return_kind=Int;return_value=;shape_kind=phase4_local_print_var_return_int"
+    },
+    {
+      "row_id": "local_print_binary_return_int",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "body": [
+          {"type": "Local", "name": "i", "expr": {"type": "Int", "value": 1}},
+          {"type": "Print", "expr": {"type": "Binary", "op": "+", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 2}}},
+          {"type": "Return", "expr": {"type": "Int", "value": 0}}
+        ]
+      },
+      "rust_oracle_expected_summary": "snapshot_kind=SeqRecipeDtoSnapshotV1;err=0;matched=1;item_count=3;seq_sig=Local>Print>Return;stmt0=Local;stmt1=Print;stmt2=Return;stmt3=;has_local=1;has_assignment=;has_print=1;has_return=1;local_name=i;assign_rhs_kind=;assign_rhs=;print_kind=BinaryVarInt;print_var_name=i;return_kind=Int;return_value=;shape_kind=phase9_print_binop_return0"
     },
     {
       "row_id": "empty_body_reject",

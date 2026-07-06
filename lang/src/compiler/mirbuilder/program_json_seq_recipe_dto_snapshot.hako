@@ -107,6 +107,12 @@ static box ProgramJsonSeqRecipeDtoSnapshotBox {
       if BoxHelpers.same_token(return_kind, "Int") == 1 { return "phase4_local_print_var_return_int" }
       if BoxHelpers.same_token(return_kind, "Var") == 1 { return "phase5_local_print_var_return_var" }
     }
+    if seq_sig == "Local>Print>Return" && BoxHelpers.same_token(print_kind, "BinaryVarInt") == 1 {
+      if BoxHelpers.same_token(return_kind, "Int") == 1 {
+        if me._i(out, "retv") == 0 { return "phase9_print_binop_return0" }
+        return "phase9_print_binop_return_int"
+      }
+    }
     return "Unsupported"
   }
 

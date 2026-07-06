@@ -60,8 +60,8 @@ for key, value in required_acceptance.items():
         raise SystemExit(f"bad acceptance field: {key}")
 
 selection = fixture.get("selection") or {}
-if "assignment_print_deferred_reason" not in selection:
-    raise SystemExit("Assignment/Print deferral reason must be explicit")
+if selection.get("assignment_print_consumer_prerequisite") != "HAKO-AOT-PROGRAMJSON-PHASE-STATE-ASSIGNMENT-PRINT-CONSUMER-CAPABILITY-001":
+    raise SystemExit("Assignment/Print consumer prerequisite must be explicit")
 
 claims = fixture.get("claims") or {}
 for key, value in claims.items():
@@ -120,6 +120,8 @@ required = [
     "phase1_return_int",
     "phase12_return_newbox",
     "phase2_local_return_var",
+    "phase20_store_assignment_int_return_var",
+    "phase9_print_binop_return0",
 ]
 for needle in required:
     if needle not in text:

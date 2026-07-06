@@ -60,10 +60,9 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-LAYER4-SEQ-RECIPE-DTO-ASSIGNMENT-PRINT-PARITY-001
+  MIRBUILDER-PROGRAMJSON-LAYER4-SEQ-RECIPE-DTO-EXPANDED-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
 selected next card:
-  not-yet-created; add the Seq Recipe DTO Assignment/Print rows now that 3128
-  made the covered PhaseState Assignment/Print consumer path runtime-green.
+  not-yet-created; mark the expanded 3129 Seq Recipe DTO rows as a scoped Rust ASTNode projector retire-candidate.
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -93,6 +92,10 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
+  3129 expands ProgramJsonSeqRecipeDtoSnapshotV1 parity with Assignment/Print
+  rows now that 3128 made the covered PhaseState consumer path runtime-green.
+  The Seq DTO gate covers assignment int/add and print var/binary rows; runtime
+  route switch and full selfhost/backend claims remain unclaimed.
   3128 closes the deferred PhaseState consumer blocker for covered top-level
   Assignment/Print ProgramJSON rows: handlers preserve raw scanner tokens and
   use same_token; assign_rhs_kind survives consumer handoff. The new AOT guard
