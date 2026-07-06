@@ -276,12 +276,31 @@ no source_selfhost, lowering, mutation, route-selection, ABI, or backend claims
 Cleanliness backlog after Phase A.1/B.1:
 
 ```text
-1. pure_compile exact-seed dispatcher extraction
+1. done: pure_compile exact-seed dispatcher extraction
 2. ORG_* enum/state ownership extraction without changing integer values
 3. same-module method view registry drift guard against generated route rows
 4. map lookup fusion route-shape vs site/register matcher split
 5. BoxTypeInspectorBox predicate publication inventory
 6. shared same-token helper pilot
+```
+
+Phase B.2 - pure_compile exact-seed dispatcher extraction:
+
+```text
+status: done
+owner file:
+  lang/c-abi/shims/hako_llvmc_ffi_pure_compile.inc
+new include:
+  lang/c-abi/shims/hako_llvmc_ffi_exact_seed_backend_route_dispatch.inc
+
+boundary:
+  registry remains the only acceptance table for tag/source/proof tuples
+  dispatcher maps an already-accepted tag to the existing seed consumer
+  compile_json_compat_pure no longer carries the 12-branch seed dispatcher
+
+non-claims:
+  no supported exact-seed tags added
+  no route acceptance, fallback, ABI, lowering, or Source Selfhost claim
 ```
 
 Phase B.1 - DirectArray metadata include extraction:
