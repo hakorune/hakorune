@@ -224,9 +224,10 @@ Acceptance for Phase A:
 
 ```text
 BoxHelpers.map_get/2 remains MapBox receiver
-BoxHelpers.array_len/1 and array_get/2 remain parked until caller inventory
-proves receiver narrowing
-BoxHelpers.map_set/3 remains parked until null-creation callers are audited
+BoxHelpers.array_len/1 and array_get/2 are selected as the next small receiver
+annotation slice; they are early-return array readers like map_get/2
+BoxHelpers.map_set/3 remains parked as the special nullable-builder helper
+because it creates a new MapBox when obj is null
 BoxHelpers.is_map/1 and is_array/1 are polymorphic predicate inputs in Rust
 route metadata policy
 BoxTypeInspectorBox predicate publication remains parked until route/caller
@@ -235,6 +236,50 @@ inventory proves it does not regress the heavy EXE path
 no scanner nullable bridge
 no generic void object return widening
 no new backend route or ABI
+```
+
+Phase A.1 - Array receiver annotation:
+
+```text
+card type: BoxShape-only helper contract cleanup
+owner file:
+  lang/src/shared/common/box_helpers.hako
+
+annotate:
+  BoxHelpers.array_len(arr: ArrayBox)
+  BoxHelpers.array_get(arr: ArrayBox, idx)
+
+do not annotate:
+  BoxHelpers.map_set/3
+
+why:
+  array_len/array_get are read helpers with null early-return behavior,
+  matching the already-accepted map_get receiver contract pattern.
+  map_set is different: it treats null as a request to allocate a new MapBox,
+  so receiver narrowing would change the helper's declared nullable-builder
+  contract.
+```
+
+Acceptance for Phase A.1:
+
+```text
+box_helpers.hako MIR verify stays green
+current AOT route value-type publication contract stays green
+Layer4 heavy EXE readiness keeps exact_first_blocker =
+  phase_state_parse_runtime_parse_error
+map_set remains untyped and no nullable scanner bridge is introduced
+no source_selfhost, lowering, mutation, route-selection, ABI, or backend claims
+```
+
+Cleanliness backlog after Phase A.1/B.1:
+
+```text
+1. pure_compile exact-seed dispatcher extraction
+2. ORG_* enum/state ownership extraction without changing integer values
+3. same-module method view registry drift guard against generated route rows
+4. map lookup fusion route-shape vs site/register matcher split
+5. BoxTypeInspectorBox predicate publication inventory
+6. shared same-token helper pilot
 ```
 
 Phase B.1 - DirectArray metadata include extraction:
