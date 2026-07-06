@@ -60,17 +60,19 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-NO-EXIT-BLOCK-RECIPE-JOIN-THEN-ELSE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+  MIRBUILDER-PROGRAMJSON-BLOCK-RECIPE-AFTER-JOIN-THEN-ELSE-NEXT-CONTRACT-SELECTION-001
 selected next card:
-  mark only the covered then-local/else-print JoinThenElse ProgramJSON row as a
-  scoped Rust ASTNode projector retire-candidate. Keep full projector removal,
-  RecipeBodies, RecipeMatcher, route selection, MIR mutation/lowering, ID
-  allocation, and runtime route switch unclaimed.
+  select the next ProgramJSON-fed block recipe contract after JoinThenElse.
+  Candidate priority is additional ExitAllowed if-modes versus stopping at the
+  recursive RecipeBodies boundary. Name the missing ProgramJSON producer
+  boundary and keep full projector removal, RecipeMatcher, route selection, MIR
+  mutation/lowering, ID allocation, and runtime route switch unclaimed.
 
 post-3180 block recipe task order:
   1. selected: JoinThenElse after LoopV0.
   2. parity: JoinThenElse ProgramJSON block contract is green.
-  3. retire-candidate: mark only covered rows after parity is green.
+  3. retire-candidate: JoinThenElse row is scoped retire-candidate.
+  4. selection: choose additional ExitAllowed if-modes or stop at RecipeBodies.
   design-stop trigger:
     stop before recursive RecipeBodies, full RecipeMatcher, route selection,
     MIR mutation/lowering, ID allocation, runtime route switch, or Source
@@ -86,6 +88,9 @@ normal operating rule:
   history.
 
 latest design decision:
+  3183 marks the covered parseable then-local/else-print JoinThenElse row as a
+  scoped Rust ASTNode projector retire-candidate; this is not runtime route
+  switching or full projector retirement.
   3182 proves ProgramJsonNoExitBlockRecipeJoinThenElseSnapshotV1 for the
   parseable then-local/else-print row by extending IfStmtHandler's ProgramJSON
   producer and projecting IfThenLocalElsePrint into NoExitBlockRecipeBox.
