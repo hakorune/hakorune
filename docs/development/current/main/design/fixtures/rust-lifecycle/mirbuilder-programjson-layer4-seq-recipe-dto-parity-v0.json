@@ -1,0 +1,89 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonLayer4SeqRecipeDtoParityV1",
+  "token": "MIRBUILDER-PROGRAMJSON-LAYER4-SEQ-RECIPE-DTO-PARITY-001",
+  "capability": {
+    "name": "ProgramJsonSeqRecipeDtoSnapshotV1",
+    "input": "ProgramJSON v0",
+    "output": "SeqRecipeDtoSnapshotV1",
+    "implementation": "lang/src/compiler/mirbuilder/program_json_seq_recipe_dto_snapshot.hako"
+  },
+  "selection": {
+    "previous_checkpoint": "MIRBUILDER-PROGRAMJSON-LAYER4-IF-RECIPE-DTO-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001",
+    "selected_reason": "Root Seq is the parent DTO for stmt-only Recipe rows and is already the common root for the proven Loop and If DTO paths.",
+    "assignment_print_deferred_reason": "Top-level Assignment/Print PhaseState parse is not yet runtime-green in this Layer4 route and should be handled as a separate PhaseState consumer capability."
+  },
+  "routes": {
+    "programjson_route": "ProgramJSON -> ProgramJsonV0PhaseStateBox.parse/2 -> recipe_root -> ProgramJsonSeqRecipeDtoSnapshotBox.build_summary/1",
+    "rust_oracle_route": "Rust MirBuilder root Seq recipe oracle canonical fields",
+    "runtime_parity_status": "green"
+  },
+  "rows": [
+    {
+      "row_id": "return_int",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "body": [
+          {"type": "Return", "expr": {"type": "Int", "value": 7}}
+        ]
+      },
+      "rust_oracle_expected_summary": "snapshot_kind=SeqRecipeDtoSnapshotV1;err=0;matched=1;item_count=1;seq_sig=Return;stmt0=Return;stmt1=;stmt2=;stmt3=;has_local=;has_assignment=;has_print=;has_return=1;local_name=;assign_rhs_kind=;assign_rhs=;print_kind=;print_var_name=;return_kind=Int;return_value=7;shape_kind=phase1_return_int"
+    },
+    {
+      "row_id": "return_new_box",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "body": [
+          {"type": "Return", "expr": {"type": "New", "class": "Box", "args": []}}
+        ]
+      },
+      "rust_oracle_expected_summary": "snapshot_kind=SeqRecipeDtoSnapshotV1;err=0;matched=1;item_count=1;seq_sig=Return;stmt0=Return;stmt1=;stmt2=;stmt3=;has_local=;has_assignment=;has_print=;has_return=1;local_name=;assign_rhs_kind=;assign_rhs=;print_kind=;print_var_name=;return_kind=NewBox;return_value=;shape_kind=phase12_return_newbox"
+    },
+    {
+      "row_id": "local_return_var",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "body": [
+          {"type": "Local", "name": "i", "expr": {"type": "Int", "value": 1}},
+          {"type": "Return", "expr": {"type": "Var", "name": "i"}}
+        ]
+      },
+      "rust_oracle_expected_summary": "snapshot_kind=SeqRecipeDtoSnapshotV1;err=0;matched=1;item_count=2;seq_sig=Local>Return;stmt0=Local;stmt1=Return;stmt2=;stmt3=;has_local=1;has_assignment=;has_print=;has_return=1;local_name=i;assign_rhs_kind=;assign_rhs=;print_kind=;print_var_name=;return_kind=Var;return_value=i;shape_kind=phase2_local_return_var"
+    },
+    {
+      "row_id": "empty_body_reject",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "body": []
+      },
+      "rust_oracle_expected_summary": "snapshot_kind=SeqRecipeDtoSnapshotV1;err=1;reason=empty_or_non_stmt_seq"
+    }
+  ],
+  "acceptance": {
+    "programjson_traversal_used": 1,
+    "structured_recipe_dto_constructed": 1,
+    "prebuilt_token_snapshot_input": 0,
+    "string_only_facade": 0,
+    "mir_json_route_green": 1,
+    "runtime_parity_green": 1
+  },
+  "decision": {
+    "kind": "SelectSeqRecipeDtoRetireCandidateNext",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-LAYER4-SEQ-RECIPE-DTO-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001",
+    "reason_token": "SeqRecipeDtoSnapshotRuntimeParityGreen"
+  },
+  "claims": {
+    "full_recipe_matcher_execution": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering_claim": 0,
+    "runtime_route_switch": 0,
+    "source_selfhost_claim": 0,
+    "programjson_all_shapes_supported": 0,
+    "full_imported_parse_executable_green": 0
+  }
+}

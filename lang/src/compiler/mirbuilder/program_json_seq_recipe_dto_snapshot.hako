@@ -1,0 +1,154 @@
+// program_json_seq_recipe_dto_snapshot.hako
+// Responsibility:
+// - Build a canonical Layer4 Seq Recipe DTO snapshot from Program(JSON v0).
+// - Consume PhaseState result maps and RecipeItem data only; no lowering.
+
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.shared.common.box_helpers as BoxHelpers
+using lang.compiler.mirbuilder.program_json_v0_phase_state_box as ProgramJsonV0PhaseStateBox
+using lang.compiler.mirbuilder.recipe.recipe_item_box as RecipeItemBox
+
+static box ProgramJsonSeqRecipeDtoSnapshotBox {
+  _i(map, key) {
+    return StringHelpers.to_i64(BoxHelpers.map_get(map, key))
+  }
+
+  _s(map, key) {
+    local v = BoxHelpers.map_get(map, key)
+    if v == null { return "" }
+    return me._token_out(v)
+  }
+
+  _token_out(v) {
+    if v == null { return "" }
+    if BoxHelpers.same_token(v, "Seq") == 1 { return "Seq" }
+    if BoxHelpers.same_token(v, "Stmt") == 1 { return "Stmt" }
+    if BoxHelpers.same_token(v, "Print") == 1 { return "Print" }
+    if BoxHelpers.same_token(v, "Local") == 1 { return "Local" }
+    if BoxHelpers.same_token(v, "Assignment") == 1 { return "Assignment" }
+    if BoxHelpers.same_token(v, "Return") == 1 { return "Return" }
+    if BoxHelpers.same_token(v, "Int") == 1 { return "Int" }
+    if BoxHelpers.same_token(v, "Var") == 1 { return "Var" }
+    if BoxHelpers.same_token(v, "NewBox") == 1 { return "NewBox" }
+    if BoxHelpers.same_token(v, "NewBoxStringAbc") == 1 { return "NewBoxStringAbc" }
+    if BoxHelpers.same_token(v, "AddVarInt") == 1 { return "AddVarInt" }
+    if BoxHelpers.same_token(v, "BinaryVarInt") == 1 { return "BinaryVarInt" }
+    if BoxHelpers.same_token(v, "i") == 1 { return "i" }
+    return ""
+  }
+
+  _ival(map, key) {
+    local v = BoxHelpers.map_get(map, key)
+    if v == null { return "" }
+    return "" + v
+  }
+
+  _len(arr) {
+    if arr == null { return 0 }
+    local n = 0
+    loop(n < 16) {
+      if BoxHelpers.array_get(arr, n) == null { return n }
+      n = n + 1
+    }
+    return n
+  }
+
+  _err(reason) {
+    return "snapshot_kind=SeqRecipeDtoSnapshotV1;err=1;reason=" + reason
+  }
+
+  _stmt_kind(item) {
+    if item == null || BoxHelpers.is_map(item) != 1 { return "" }
+    if RecipeItemBox.kind_is(item, "Seq") != 1 { return "" }
+    if BoxHelpers.same_token(BoxHelpers.map_get(item, "leaf_kind"), "Stmt") != 1 { return "" }
+    return me._s(item, "stmt_kind")
+  }
+
+  _stmt_kind_at(items, idx) {
+    return me._stmt_kind(BoxHelpers.array_get(items, idx))
+  }
+
+  _seq_sig(items, n) {
+    local s = ""
+    local i = 0
+    loop(i < n) {
+      if i > 0 { s = s + ">" }
+      s = s + me._stmt_kind_at(items, i)
+      i = i + 1
+    }
+    return s
+  }
+
+  _shape_kind(seq_sig, out) {
+    local print_kind = me._s(out, "print_kind")
+    local return_kind = me._s(out, "return_kind")
+    local assign_rhs_kind = me._s(out, "assign_rhs_kind")
+    if seq_sig == "Return" && BoxHelpers.same_token(return_kind, "Int") == 1 {
+      return "phase1_return_int"
+    }
+    if seq_sig == "Return" && BoxHelpers.same_token(return_kind, "NewBox") == 1 {
+      return "phase12_return_newbox"
+    }
+    if seq_sig == "Return" && BoxHelpers.same_token(return_kind, "NewBoxStringAbc") == 1 {
+      return "phase16_return_newbox_stringbox_abc"
+    }
+    if seq_sig == "Local>Return" && BoxHelpers.same_token(return_kind, "Var") == 1 {
+      return "phase2_local_return_var"
+    }
+    if seq_sig == "Local>Assignment>Return" && BoxHelpers.same_token(return_kind, "Var") == 1 {
+      if BoxHelpers.same_token(assign_rhs_kind, "Int") == 1 {
+        return "phase20_store_assignment_int_return_var"
+      }
+      if BoxHelpers.same_token(assign_rhs_kind, "AddVarInt") == 1 || assign_rhs_kind == "" {
+        return "phase2_inc_return_var"
+      }
+    }
+    if seq_sig == "Local>Print>Return" && BoxHelpers.same_token(print_kind, "Var") == 1 {
+      if BoxHelpers.same_token(return_kind, "Int") == 1 { return "phase4_local_print_var_return_int" }
+      if BoxHelpers.same_token(return_kind, "Var") == 1 { return "phase5_local_print_var_return_var" }
+    }
+    return "Unsupported"
+  }
+
+  build_summary(program_json) {
+    local out = ProgramJsonV0PhaseStateBox.parse(program_json, "[test]")
+    if me._i(out, "err") != 0 { return me._err("parse_error") }
+    local root = BoxHelpers.map_get(out, "recipe_root")
+    if root == null || BoxHelpers.is_map(root) != 1 { return me._err("missing_recipe_root") }
+    if RecipeItemBox.kind_is(root, "Seq") != 1 { return me._err("recipe_root_not_seq") }
+    local items = BoxHelpers.map_get(root, "items")
+    if items == null || BoxHelpers.is_array(items) != 1 { return me._err("recipe_root_items_missing") }
+    local n = me._len(items)
+    local seq_sig = me._seq_sig(items, n)
+    if seq_sig == "" { return me._err("empty_or_non_stmt_seq") }
+    local shape_kind = me._shape_kind(seq_sig, out)
+    if BoxHelpers.same_token(shape_kind, "Unsupported") == 1 { return me._err("unsupported_seq_shape") }
+    local return_value = me._ival(out, "retv")
+    local return_kind = me._s(out, "return_kind")
+    if BoxHelpers.same_token(return_kind, "Var") == 1 { return_value = me._s(out, "ret_var_name") }
+
+    return "snapshot_kind=SeqRecipeDtoSnapshotV1"
+      + ";err=0"
+      + ";matched=1"
+      + ";item_count=" + StringHelpers.int_to_str(n)
+      + ";seq_sig=" + seq_sig
+      + ";stmt0=" + me._stmt_kind_at(items, 0)
+      + ";stmt1=" + me._stmt_kind_at(items, 1)
+      + ";stmt2=" + me._stmt_kind_at(items, 2)
+      + ";stmt3=" + me._stmt_kind_at(items, 3)
+      + ";has_local=" + me._ival(out, "has_local")
+      + ";has_assignment=" + me._ival(out, "has_assignment")
+      + ";has_print=" + me._ival(out, "has_print")
+      + ";has_return=" + me._ival(out, "has_return")
+      + ";local_name=" + me._s(out, "local_name")
+      + ";assign_rhs_kind=" + me._s(out, "assign_rhs_kind")
+      + ";assign_rhs=" + me._ival(out, "assign_rhs")
+      + ";print_kind=" + me._s(out, "print_kind")
+      + ";print_var_name=" + me._s(out, "print_var_name")
+      + ";return_kind=" + return_kind
+      + ";return_value=" + return_value
+      + ";shape_kind=" + shape_kind
+  }
+}
+
+static box ProgramJsonSeqRecipeDtoSnapshotMain { main() { return 0 } }
