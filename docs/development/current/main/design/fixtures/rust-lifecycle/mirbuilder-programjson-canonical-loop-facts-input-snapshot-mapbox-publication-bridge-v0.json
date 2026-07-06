@@ -1,0 +1,72 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonCanonicalLoopFactsInputSnapshotMapboxPublicationBridgeV1",
+  "token": "MIRBUILDER-PROGRAMJSON-CANONICAL-LOOP-FACTS-INPUT-SNAPSHOT-MAPBOX-PUBLICATION-BRIDGE-001",
+  "input_state": {
+    "design_stop": "MIRBUILDER-PROGRAMJSON-CANONICAL-LOOP-FACTS-INPUT-SNAPSHOT-AOT-BOUNDARY-DESIGN-STOP-001",
+    "recipe_bodies_publication_bridge_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-programjson-recipebodies-runtime-publication-bridge-v0.json",
+    "expanded_dto_coverage_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-programjson-recipebodies-verifier-boundary-expanded-dto-coverage-parity-v0.json",
+    "snapshot_owner": "lang/src/compiler/mirbuilder/program_json_canonical_loop_facts_input_snapshot.hako"
+  },
+  "publication_contract": {
+    "name": "ProgramJsonCanonicalLoopFactsInputSnapshotPublicationBridgeV1",
+    "base_contract": "ProgramJsonReadOnlyMapSnapshotPublicationContractV1",
+    "input": "verified_recipe from ProgramJSON RecipeBodies verifier boundary",
+    "output": "ProgramJsonCanonicalLoopFactsInputSnapshotV1",
+    "output_container": "MapBox",
+    "publication_mode": "read_only_snapshot",
+    "source": "verified_recipe",
+    "result_map_required": true,
+    "directabi_allowed": true,
+    "directabi_scope": "explicit result-map / map-handle publication only",
+    "runtime_route_switch": false,
+    "recipe_matcher_execution": false
+  },
+  "rows": [
+    {
+      "row_id": "local_loop_body_if_branch_return",
+      "expected_summary": "snapshot_kind=ProgramJsonCanonicalLoopFactsInputSnapshotV1;ok=1;source=verified_recipe;matcher_input_present=1;exit_has_continue=0;exit_has_return=1;exit_has_break=0;has_nested_loop=0;loop_cond_continue_with_return_present=0;loop_cond_return_in_body_present=1;cond_kind=VarLtInt;loop_var=i;loop_bound_int=3;update_kind=AddVarInt;update_target=i;step_int=1;recipe_matcher_executed=0"
+    },
+    {
+      "row_id": "local_loop_body_if_branch_return_alt_names",
+      "expected_summary": "snapshot_kind=ProgramJsonCanonicalLoopFactsInputSnapshotV1;ok=1;source=verified_recipe;matcher_input_present=1;exit_has_continue=0;exit_has_return=1;exit_has_break=0;has_nested_loop=0;loop_cond_continue_with_return_present=0;loop_cond_return_in_body_present=1;cond_kind=VarLtInt;loop_var=count;loop_bound_int=8;update_kind=AddVarInt;update_target=count;step_int=2;recipe_matcher_executed=0"
+    }
+  ],
+  "guard_contract": {
+    "aot_required": true,
+    "vm_only_main_acceptance": false,
+    "mapbox_result_contract_required": true,
+    "directabi_map_handle_required": true,
+    "no_object_or_void_widening": true,
+    "no_complex_string_summary_boundary": true,
+    "no_runtime_fallback": true,
+    "no_recipe_matcher_execution": true,
+    "no_route_selection": true,
+    "no_mir_lowering": true,
+    "no_mir_mutation": true,
+    "no_id_allocation": true
+  },
+  "decision": {
+    "kind": "CanonicalLoopFactsInputSnapshotPublicationBridgeGreen",
+    "reason_token": "ProgramJsonVerifiedRecipeCanPublishCanonicalLoopFactsInputSnapshot",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-EXECUTION-BOUNDARY-MINIMAL-001"
+  },
+  "claims": {
+    "canonical_loop_facts_input_snapshot_publication_bridge": 1,
+    "read_only_canonical_loop_facts_input_snapshot": 1,
+    "directabi_map_handle_publication": 1,
+    "recipe_matcher_execution": 0,
+    "full_recipe_matcher_execution": 0,
+    "recipe_matcher_input_authority": 0,
+    "route_selection": 0,
+    "mir_lowering": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "runtime_route_switch": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "vm_only_proof_as_main_acceptance": 0
+  }
+}

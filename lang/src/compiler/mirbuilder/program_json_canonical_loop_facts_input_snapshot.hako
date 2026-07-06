@@ -1,0 +1,304 @@
+// program_json_canonical_loop_facts_input_snapshot.hako
+// Responsibility:
+// - Publish a read-only CanonicalLoopFacts input snapshot from verified Program(JSON v0).
+// - Keep this as a RecipeMatcher input boundary; do not execute RecipeMatcher or lower MIR.
+
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.shared.common.box_helpers as BoxHelpers
+using lang.compiler.mirbuilder.program_json_v0_scanner_box as ProgramJsonV0ScannerBox
+using lang.compiler.mirbuilder.program_json_v0_phase_state_box as ProgramJsonV0PhaseStateBox
+using lang.compiler.mirbuilder.recipe.recipe_verifier_box as RecipeVerifierBox
+
+static box ProgramJsonCanonicalLoopFactsInputSnapshotBox {
+  _i(map, key) {
+    return StringHelpers.to_i64(BoxHelpers.map_get(map, key))
+  }
+
+  _err(reason): MapBox {
+    return %{
+      "ok" => 0,
+      "reason_code" => me._reason_code(reason),
+      "source_code" => 1,
+      "matcher_input_present" => 0,
+      "exit_has_continue" => 0,
+      "exit_has_return" => 0,
+      "exit_has_break" => 0,
+      "has_nested_loop" => 0,
+      "loop_cond_continue_with_return_present" => 0,
+      "loop_cond_return_in_body_present" => 0,
+      "cond_kind_code" => 0,
+      "loop_var_code" => 0,
+      "loop_bound_int" => 0,
+      "update_kind_code" => 0,
+      "update_target_code" => 0,
+      "step_int" => 0,
+      "readonly" => 1,
+      "recipe_matcher_executed" => 0
+    }
+  }
+
+  build_snapshot(program_json): MapBox {
+    if me._verified_recipe_present(program_json) != 1 {
+      return me._err("verified_recipe_missing")
+    }
+
+    local body = me._array_field_start(program_json, "body", 0)
+    if body < 0 { return me._err("missing_program_body") }
+    local first = me._first_object_in_array(program_json, body)
+    if first < 0 { return me._err("missing_first_stmt") }
+    local second = me._next_object_after(program_json, first)
+    if second < 0 { return me._err("missing_loop_stmt") }
+    local third = me._next_object_after(program_json, second)
+    if third < 0 { return me._err("missing_final_return") }
+    if me._token_eq(me._node_type(program_json, second), "Loop") != 1 { return me._err("second_stmt_not_loop") }
+    if me._token_eq(me._node_type(program_json, third), "Return") != 1 { return me._err("final_stmt_not_return") }
+
+    local cond = ProgramJsonV0ScannerBox.seek_obj_field_obj_start(program_json, "cond", second)
+    if cond < 0 { return me._err("missing_loop_cond") }
+    local cond_snap = me._read_var_lt_int(program_json, cond)
+    if me._i(cond_snap, "ok") != 1 { return me._err("unsupported_loop_cond") }
+
+    local loop_body = me._array_field_start(program_json, "body", second)
+    if loop_body < 0 { return me._err("missing_loop_body") }
+    local loop_first = me._first_object_in_array(program_json, loop_body)
+    if loop_first < 0 { return me._err("missing_loop_body_first_stmt") }
+    local loop_second = me._next_object_after(program_json, loop_first)
+    if loop_second < 0 { return me._err("missing_loop_body_update") }
+    if me._token_eq(me._node_type(program_json, loop_first), "If") != 1 { return me._err("loop_first_not_if") }
+    if me._token_eq(me._node_type(program_json, loop_second), "Assignment") != 1 { return me._err("loop_second_not_assignment") }
+
+    local update_snap = me._read_add_var_int_assignment(program_json, loop_second)
+    if me._i(update_snap, "ok") != 1 { return me._err("unsupported_loop_update") }
+
+    return %{
+      "ok" => 1,
+      "reason" => "",
+      "source_code" => 1,
+      "matcher_input_present" => 1,
+      "exit_has_continue" => me._loop_has_type(program_json, loop_body, "Continue"),
+      "exit_has_return" => 1,
+      "exit_has_break" => me._loop_has_type(program_json, loop_body, "Break"),
+      "has_nested_loop" => me._loop_has_type(program_json, loop_body, "Loop"),
+      "loop_cond_continue_with_return_present" => 0,
+      "loop_cond_return_in_body_present" => me._if_then_has_return(program_json, loop_first),
+      "cond_kind_code" => 1,
+      "loop_var_code" => me._i(cond_snap, "var_code"),
+      "loop_bound_int" => me._i(cond_snap, "bound"),
+      "update_kind_code" => 1,
+      "update_target_code" => me._i(update_snap, "target_code"),
+      "step_int" => me._i(update_snap, "step"),
+      "readonly" => 1,
+      "recipe_matcher_executed" => 0
+    }
+  }
+
+  _verified_recipe_present(program_json) {
+    local out = ProgramJsonV0PhaseStateBox.parse(program_json, "[test]")
+    if me._i(out, "err") != 0 { return 0 }
+    local root = BoxHelpers.map_get(out, "recipe_root")
+    if root == null || BoxHelpers.is_map(root) != 1 { return 0 }
+    local verify = RecipeVerifierBox.verify(root, "[test]")
+    if me._i(verify, "err") != 0 { return 0 }
+    local verified = BoxHelpers.map_get(verify, "verified_recipe")
+    if verified == null || BoxHelpers.is_map(verified) != 1 { return 0 }
+    return 1
+  }
+
+  _read_var_lt_int(s, cond): MapBox {
+    if me._token_eq(me._node_type(s, cond), "Compare") != 1 { return %{"ok" => 0, "var_code" => 0, "bound" => 0} }
+    if me._token_eq(me._string_field(s, "op", cond), "<") != 1 { return %{"ok" => 0, "var_code" => 0, "bound" => 0} }
+    local lhs = ProgramJsonV0ScannerBox.seek_obj_field_obj_start(s, "lhs", cond)
+    local rhs = ProgramJsonV0ScannerBox.seek_obj_field_obj_start(s, "rhs", cond)
+    if lhs < 0 || rhs < 0 { return %{"ok" => 0, "var_code" => 0, "bound" => 0} }
+    if me._token_eq(me._node_type(s, lhs), "Var") != 1 { return %{"ok" => 0, "var_code" => 0, "bound" => 0} }
+    if me._token_eq(me._node_type(s, rhs), "Int") != 1 { return %{"ok" => 0, "var_code" => 0, "bound" => 0} }
+    return %{"ok" => 1, "var_code" => me._name_code(me._string_field(s, "name", lhs)), "bound" => me._int_field(s, "value", rhs)}
+  }
+
+  _read_add_var_int_assignment(s, stmt): MapBox {
+    local target = me._string_field(s, "name", stmt)
+    local expr = ProgramJsonV0ScannerBox.seek_obj_field_obj_start(s, "expr", stmt)
+    if expr < 0 { return %{"ok" => 0, "target_code" => 0, "step" => 0} }
+    if me._token_eq(me._node_type(s, expr), "Binary") != 1 { return %{"ok" => 0, "target_code" => 0, "step" => 0} }
+    if me._token_eq(me._string_field(s, "op", expr), "+") != 1 { return %{"ok" => 0, "target_code" => 0, "step" => 0} }
+    local lhs = ProgramJsonV0ScannerBox.seek_obj_field_obj_start(s, "lhs", expr)
+    local rhs = ProgramJsonV0ScannerBox.seek_obj_field_obj_start(s, "rhs", expr)
+    if lhs < 0 || rhs < 0 { return %{"ok" => 0, "target_code" => 0, "step" => 0} }
+    if me._token_eq(me._node_type(s, lhs), "Var") != 1 { return %{"ok" => 0, "target_code" => 0, "step" => 0} }
+    if me._token_eq(me._node_type(s, rhs), "Int") != 1 { return %{"ok" => 0, "target_code" => 0, "step" => 0} }
+    if me._token_eq(me._string_field(s, "name", lhs), target) != 1 { return %{"ok" => 0, "target_code" => 0, "step" => 0} }
+    return %{"ok" => 1, "target_code" => me._name_code(target), "step" => me._int_field(s, "value", rhs)}
+  }
+
+  _if_then_has_return(s, if_start) {
+    local then_start = me._array_field_start(s, "then", if_start)
+    local first = me._first_object_in_array(s, then_start)
+    if first < 0 { return 0 }
+    if me._token_eq(me._node_type(s, first), "Return") == 1 { return 1 }
+    return 0
+  }
+
+  _loop_has_type(s, array_start, expected) {
+    local first = me._first_object_in_array(s, array_start)
+    if first < 0 { return 0 }
+    if me._token_eq(me._node_type(s, first), expected) == 1 { return 1 }
+    if me._if_branch_has_type(s, first, expected) == 1 { return 1 }
+    local second = me._next_object_after(s, first)
+    if second < 0 { return 0 }
+    if me._token_eq(me._node_type(s, second), expected) == 1 { return 1 }
+    if me._if_branch_has_type(s, second, expected) == 1 { return 1 }
+    return 0
+  }
+
+  _if_branch_has_type(s, stmt, expected) {
+    if me._token_eq(me._node_type(s, stmt), "If") != 1 { return 0 }
+    local then_start = me._array_field_start(s, "then", stmt)
+    local then_first = me._first_object_in_array(s, then_start)
+    if then_first >= 0 && me._token_eq(me._node_type(s, then_first), expected) == 1 { return 1 }
+    return 0
+  }
+
+  _array_field_start(s, key, obj_start) {
+    local p = ProgramJsonV0ScannerBox.seek_obj_field_value_start(s, key, obj_start)
+    if p < 0 { return -1 }
+    p = StringHelpers.skip_ws(s, p)
+    if ProgramJsonV0ScannerBox._read_char(s, p) != "[" { return -1 }
+    return p
+  }
+
+  _first_object_in_array(s, array_start) {
+    if array_start < 0 { return -1 }
+    local p = StringHelpers.skip_ws(s, array_start + 1)
+    if ProgramJsonV0ScannerBox._read_char(s, p) != "{" { return -1 }
+    return p
+  }
+
+  _next_object_after(s, obj_start) {
+    local end = ProgramJsonV0ScannerBox.seek_obj_end_unescaped(s, obj_start)
+    if end < 0 { return -1 }
+    local p = StringHelpers.skip_ws(s, end)
+    if ProgramJsonV0ScannerBox._read_char(s, p) != "," { return -1 }
+    p = StringHelpers.skip_ws(s, p + 1)
+    if ProgramJsonV0ScannerBox._read_char(s, p) != "{" { return -1 }
+    return p
+  }
+
+  _node_type(s, obj_start) {
+    return me._string_field(s, "type", obj_start)
+  }
+
+  _token_eq(lhs, rhs) {
+    return BoxHelpers.same_token(lhs, rhs)
+  }
+
+  _string_field(s, key, obj_start) {
+    local p = ProgramJsonV0ScannerBox.seek_obj_field_value_start(s, key, obj_start)
+    if p < 0 { return "" }
+    p = StringHelpers.skip_ws(s, p)
+    if ProgramJsonV0ScannerBox._read_char(s, p) != "\"" { return "" }
+    local end_quote = StringHelpers.index_of(s, p + 1, "\"")
+    if end_quote < 0 { return "" }
+    return s.substring(p + 1, end_quote)
+  }
+
+  _int_field(s, key, obj_start) {
+    local out = ProgramJsonV0ScannerBox.read_int_field_in_obj_result(s, key, obj_start)
+    if BoxHelpers.result_ok(out) != 1 { return 0 }
+    return StringHelpers.to_i64(BoxHelpers.map_get(out, "value"))
+  }
+
+  _name_code(name) {
+    if me._token_eq(name, "i") == 1 { return 1 }
+    if me._token_eq(name, "count") == 1 { return 2 }
+    return 0
+  }
+
+  _name_from_code(code) {
+    if code == 1 { return "i" }
+    if code == 2 { return "count" }
+    return "Unsupported"
+  }
+
+  _source_from_code(code) {
+    if code == 1 { return "verified_recipe" }
+    return "unsupported_source"
+  }
+
+  _cond_kind_from_code(code) {
+    if code == 1 { return "VarLtInt" }
+    return "Unsupported"
+  }
+
+  _update_kind_from_code(code) {
+    if code == 1 { return "AddVarInt" }
+    return "Unsupported"
+  }
+
+  _reason_code(reason) {
+    if reason == "verified_recipe_missing" { return 1 }
+    if reason == "missing_program_body" { return 2 }
+    if reason == "missing_first_stmt" { return 3 }
+    if reason == "missing_loop_stmt" { return 4 }
+    if reason == "missing_final_return" { return 5 }
+    if reason == "second_stmt_not_loop" { return 6 }
+    if reason == "final_stmt_not_return" { return 7 }
+    if reason == "missing_loop_cond" { return 8 }
+    if reason == "unsupported_loop_cond" { return 9 }
+    if reason == "missing_loop_body" { return 10 }
+    if reason == "missing_loop_body_first_stmt" { return 11 }
+    if reason == "missing_loop_body_update" { return 12 }
+    if reason == "loop_first_not_if" { return 13 }
+    if reason == "loop_second_not_assignment" { return 14 }
+    if reason == "unsupported_loop_update" { return 15 }
+    return 99
+  }
+
+  _reason_from_code(code) {
+    if code == 1 { return "verified_recipe_missing" }
+    if code == 2 { return "missing_program_body" }
+    if code == 3 { return "missing_first_stmt" }
+    if code == 4 { return "missing_loop_stmt" }
+    if code == 5 { return "missing_final_return" }
+    if code == 6 { return "second_stmt_not_loop" }
+    if code == 7 { return "final_stmt_not_return" }
+    if code == 8 { return "missing_loop_cond" }
+    if code == 9 { return "unsupported_loop_cond" }
+    if code == 10 { return "missing_loop_body" }
+    if code == 11 { return "missing_loop_body_first_stmt" }
+    if code == 12 { return "missing_loop_body_update" }
+    if code == 13 { return "loop_first_not_if" }
+    if code == 14 { return "loop_second_not_assignment" }
+    if code == 15 { return "unsupported_loop_update" }
+    return "unknown"
+  }
+
+  snapshot_summary(snapshot) {
+    if snapshot == null || BoxHelpers.is_map(snapshot) != 1 {
+      return "snapshot_kind=ProgramJsonCanonicalLoopFactsInputSnapshotV1;ok=0;reason=missing_snapshot"
+    }
+    local reason = ""
+    if me._i(snapshot, "ok") != 1 {
+      reason = ";reason=" + me._reason_from_code(me._i(snapshot, "reason_code"))
+    }
+    return "snapshot_kind=ProgramJsonCanonicalLoopFactsInputSnapshotV1"
+      + ";ok=" + StringHelpers.int_to_str(me._i(snapshot, "ok"))
+      + reason
+      + ";source=" + me._source_from_code(me._i(snapshot, "source_code"))
+      + ";matcher_input_present=" + StringHelpers.int_to_str(me._i(snapshot, "matcher_input_present"))
+      + ";exit_has_continue=" + StringHelpers.int_to_str(me._i(snapshot, "exit_has_continue"))
+      + ";exit_has_return=" + StringHelpers.int_to_str(me._i(snapshot, "exit_has_return"))
+      + ";exit_has_break=" + StringHelpers.int_to_str(me._i(snapshot, "exit_has_break"))
+      + ";has_nested_loop=" + StringHelpers.int_to_str(me._i(snapshot, "has_nested_loop"))
+      + ";loop_cond_continue_with_return_present=" + StringHelpers.int_to_str(me._i(snapshot, "loop_cond_continue_with_return_present"))
+      + ";loop_cond_return_in_body_present=" + StringHelpers.int_to_str(me._i(snapshot, "loop_cond_return_in_body_present"))
+      + ";cond_kind=" + me._cond_kind_from_code(me._i(snapshot, "cond_kind_code"))
+      + ";loop_var=" + me._name_from_code(me._i(snapshot, "loop_var_code"))
+      + ";loop_bound_int=" + StringHelpers.int_to_str(me._i(snapshot, "loop_bound_int"))
+      + ";update_kind=" + me._update_kind_from_code(me._i(snapshot, "update_kind_code"))
+      + ";update_target=" + me._name_from_code(me._i(snapshot, "update_target_code"))
+      + ";step_int=" + StringHelpers.int_to_str(me._i(snapshot, "step_int"))
+      + ";recipe_matcher_executed=" + StringHelpers.int_to_str(me._i(snapshot, "recipe_matcher_executed"))
+  }
+}
+
+static box ProgramJsonCanonicalLoopFactsInputSnapshotMain { main() { return 0 } }

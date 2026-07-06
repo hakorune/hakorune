@@ -259,13 +259,11 @@ fn classify_global_call_target_shape(
                     function,
                     typed_plan_type_ids,
                     targets,
-                )
-                    && same_module_static_helper_contract_allowed(
-                        function,
-                        return_contract,
-                        typed_plan_type_ids,
-                    )
-                {
+                ) && same_module_static_helper_contract_allowed(
+                    function,
+                    return_contract,
+                    typed_plan_type_ids,
+                ) {
                     return GlobalCallTargetClassification::direct_contract(proof, return_contract);
                 }
             }
@@ -303,6 +301,12 @@ fn classify_global_call_target_shape(
         return GlobalCallTargetClassification::direct_contract(
             GlobalCallProof::GenericStringOrVoidSentinel,
             GlobalCallReturnContract::StringHandleOrNull,
+        );
+    }
+    if is_program_json_readonly_map_snapshot_publication_bridge(function) {
+        return GlobalCallTargetClassification::direct_contract(
+            GlobalCallProof::SameModuleObjectHandle,
+            GlobalCallReturnContract::MapHandle,
         );
     }
     if string_or_void_sentinel_return_type_candidate(&function.signature.return_type) {
@@ -407,21 +411,17 @@ fn same_module_body_supported_with_current_targets(
     typed_plan_type_ids: &BTreeMap<String, u32>,
     targets: &BTreeMap<String, GlobalCallTargetFacts>,
 ) -> bool {
-    same_module_body_supported_with_global_targets(
-        function,
-        typed_plan_type_ids,
-        &|name, _, _| {
-            targets.get(name).is_some_and(|target| {
-                if target.return_contract().is_some() && target.shape_reason().is_none() {
-                    return true;
-                }
-                same_module_declared_return_type_is_directabi_candidate(
-                    target.return_type(),
-                    typed_plan_type_ids,
-                )
-            })
-        },
-    )
+    same_module_body_supported_with_global_targets(function, typed_plan_type_ids, &|name, _, _| {
+        targets.get(name).is_some_and(|target| {
+            if target.return_contract().is_some() && target.shape_reason().is_none() {
+                return true;
+            }
+            same_module_declared_return_type_is_directabi_candidate(
+                target.return_type(),
+                typed_plan_type_ids,
+            )
+        })
+    })
 }
 
 fn same_module_declared_return_type_is_directabi_candidate(
@@ -436,6 +436,21 @@ fn same_module_declared_return_type_is_directabi_candidate(
         }
         _ => false,
     }
+}
+
+fn is_program_json_readonly_map_snapshot_publication_bridge(function: &MirFunction) -> bool {
+    if function.signature.params.len() != 1
+        || function.params.len() != 1
+        || function.signature.params.first() != Some(&MirType::String)
+        || function.signature.return_type != MirType::Box("MapBox".to_string())
+    {
+        return false;
+    }
+    matches!(
+        function.signature.name.as_str(),
+        "ProgramJsonRecipeBodiesRuntimePublicationBridgeBox.build_publication/1"
+            | "ProgramJsonCanonicalLoopFactsInputSnapshotBox.build_snapshot/1"
+    )
 }
 
 fn is_numeric_i64_leaf_function(function: &MirFunction) -> bool {
