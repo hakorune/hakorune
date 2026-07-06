@@ -65,40 +65,36 @@ selected next card:
   not yet created; mark only the covered ProgramJSON-fed LoopNoExit projection
   row as a scoped Rust ASTNode projector retire-candidate.
 
+post-3166 block recipe task order:
+  1. retire-candidate: covered `local_loop_no_exit` row only.
+  2. implement: parseable `IfNoExit` projection for then/else assignment If;
+     PhaseState already parses this shape, but the block snapshot lacks
+     `If -> IfNoExit` projection.
+  3. unblock later: then-local/no-else If; current If handler returns
+     parse_error and needs a dedicated handler capability.
+  4. defer: NoExit / ExitAllowed recursive block contracts until If/Loop
+     token projection is stable.
+  design-stop trigger:
+    stop before recursive RecipeBodies, full RecipeMatcher, route selection,
+    MIR mutation/lowering, ID allocation, runtime route switch, or Source
+    Selfhost claims.
+
 normal operating rule:
-  Leaf pilot count is no longer a selfhost progress metric.
-  Do not start with broad meaning-based crate splitting. First prove one
-  authority facade boundary, then consider crate extraction for that proven
-  boundary only.
-  Fact-to-Plan threshold has fired: selection-024 closed the Fact-facade
-  cadence and Plan selection-001 chose the active
-  `LoopCondContinueWithReturn` single-planner rule.
-  `loop_cond_continue_with_return_plan_rule` is now HakoAdopted as the first
-  scoped Plan DTO owner. Next work selects the next Plan-track pilot without
-  claiming full planner outcome, recipe matching, route execution, lowering,
-  mutation, allocation, or Source Selfhost.
-  Rust ASTNode-to-token snapshots are temporary projection ABI only, not an
-  authority layer. The authority remains the HHako facade DTO owner, and the
-  sunset target is HHako ProgramJSON-to-snapshot/facade input during parser
-  integration.
-  `single_planner_outcome_disposition` is now HakoAdopted for the read-only
-  planner-required None freeze vs return-outcome DTO.
-  `single_planner_candidate_presence` is now HakoAdopted for the active
-  LoopCondContinueWithReturn fact-slot presence DTO.
-  HakoAdopted Plan DTO owners now include rule acceptance, outcome disposition,
-  candidate presence, gate mode, recipe-match gate, promotion hint tag, and
-  freeze-required-none message. Tiny DTO expansion is stopped; remaining
-  single_planner surfaces are duplicate rule-hit wrappers or logging side
-  effects.
-  Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
+  Leaf pilot count is no longer a selfhost progress metric. Rust
+  ASTNode-to-token snapshots are temporary projection ABI only, not authority.
+  HakoAdopted Plan DTO owners cover scoped DTO/freeze surfaces only; full
+  planner outcome, recipe matching, route execution, lowering, mutation,
+  allocation, and Source Selfhost remain unclaimed.
+  Older scoped Fact/Plan/Recipe adoptions are kept in phase cards and git
+  history.
 
 latest design decision:
   3166 proves ProgramJsonStmtOnlyBlockRecipeSnapshotV1 can project one
   ProgramJSON-fed LoopNoExit row into the existing HakoAdopted
   StmtOnlyBlockRecipeBox token reducer; next is a scoped retire-candidate for
-  that row only. 3165 selected this capability; IfNoExit remains deferred
-  because the current ProgramJSON PhaseState route returns parse_error for the
-  probe. 3164 marks direct stmt rows from 3163 as a scoped retire-candidate.
+  that row only. Worker inventory split IfNoExit into a parseable then/else
+  assignment projection gap and a then-local/no-else parse_error gap. 3164
+  marks direct stmt rows from 3163 as a scoped retire-candidate.
   3162 selected that ProgramJSON-fed block recipe bridge. 3161-3151 cover
   Local>Loop>Return loop-root propagation through
   RecipeStmtSeqDtoSnapshotV1, RecipeShapeKindDtoSnapshotV1,
