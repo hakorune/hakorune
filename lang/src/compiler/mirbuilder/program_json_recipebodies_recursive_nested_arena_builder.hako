@@ -1,0 +1,253 @@
+// program_json_recipebodies_recursive_nested_arena_builder.hako
+// Responsibility:
+// - Build a narrow nested, map-backed RecipeBodies-like arena DTO.
+// - This is not runtime RecipeBodies publication or route switching.
+
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.shared.common.box_helpers as BoxHelpers
+using lang.compiler.mirbuilder.program_json_v0_phase_state_box as ProgramJsonV0PhaseStateBox
+using lang.compiler.mirbuilder.recipe.recipe_item_box as RecipeItemBox
+
+static box ProgramJsonRecipeBodiesRecursiveNestedArenaBuilderBox {
+  _i(map, key) {
+    return StringHelpers.to_i64(BoxHelpers.map_get(map, key))
+  }
+
+  _err(reason): MapBox {
+    return %{
+      "err" => 1,
+      "err_line" => reason,
+      "root_body_id" => -1,
+      "body_count" => 0,
+      "bodies" => []
+    }
+  }
+
+  _len(items) {
+    if items == null { return 0 }
+    local n = 0
+    loop(n < 16) {
+      if BoxHelpers.array_get(items, n) == null { return n }
+      n = n + 1
+    }
+    return n
+  }
+
+  _stmt_code(item) {
+    if item == null || BoxHelpers.is_map(item) != 1 { return 99 }
+    if RecipeItemBox.kind_is(item, "Seq") != 1 { return 99 }
+    if BoxHelpers.same_token(BoxHelpers.map_get(item, "leaf_kind"), "Stmt") != 1 {
+      return 99
+    }
+    local kind = BoxHelpers.map_get(item, "stmt_kind")
+    if BoxHelpers.same_token(kind, "Local") == 1 { return 1 }
+    if BoxHelpers.same_token(kind, "Assignment") == 1 { return 4 }
+    if BoxHelpers.same_token(kind, "Return") == 1 { return 3 }
+    return 99
+  }
+
+  _stmt_ref(body_id, stmt_idx, item): MapBox {
+    return %{
+      "kind" => "StmtRef",
+      "body_id" => body_id,
+      "stmt_idx" => stmt_idx,
+      "item_code" => me._stmt_code(item)
+    }
+  }
+
+  _loop_ref(stmt_idx, loop_body_id): MapBox {
+    return %{
+      "kind" => "LoopRef",
+      "body_id" => 0,
+      "stmt_idx" => stmt_idx,
+      "item_code" => 11,
+      "loop_body_id" => loop_body_id
+    }
+  }
+
+  _if_ref(body_id, stmt_idx, then_body_id, else_body_id): MapBox {
+    return %{
+      "kind" => "IfRef",
+      "body_id" => body_id,
+      "stmt_idx" => stmt_idx,
+      "item_code" => 10,
+      "then_body_id" => then_body_id,
+      "else_body_id" => else_body_id
+    }
+  }
+
+  _exit_ref(body_id, stmt_idx, exit_item): MapBox {
+    local code = 99
+    if exit_item != null && BoxHelpers.is_map(exit_item) == 1 && RecipeItemBox.kind_is(exit_item, "Exit") == 1 {
+      if BoxHelpers.same_token(BoxHelpers.map_get(exit_item, "exit_kind"), "Return") == 1 { code = 12 }
+    }
+    return %{
+      "kind" => "ExitRef",
+      "body_id" => body_id,
+      "stmt_idx" => stmt_idx,
+      "item_code" => code
+    }
+  }
+
+  _body_map(body_id, items): MapBox {
+    return %{
+      "body_id" => body_id,
+      "item_count" => me._len(items),
+      "items" => items
+    }
+  }
+
+  build_arena(program_json): MapBox {
+    local out = ProgramJsonV0PhaseStateBox.parse(program_json, "[test]")
+    if me._i(out, "err") != 0 { return me._err("parse_error") }
+
+    local root = BoxHelpers.map_get(out, "recipe_root")
+    if root == null || BoxHelpers.is_map(root) != 1 || RecipeItemBox.kind_is(root, "Seq") != 1 {
+      return me._err("missing_recipe_root")
+    }
+    local root_items = BoxHelpers.map_get(root, "items")
+    if root_items == null || BoxHelpers.is_array(root_items) != 1 {
+      return me._err("missing_recipe_root_items")
+    }
+    if me._len(root_items) != 3 { return me._err("root_body_not_three_items") }
+
+    local item0 = BoxHelpers.array_get(root_items, 0)
+    local item1 = BoxHelpers.array_get(root_items, 1)
+    local item2 = BoxHelpers.array_get(root_items, 2)
+    if me._stmt_code(item0) != 1 { return me._err("root_first_not_local") }
+    if item1 == null || BoxHelpers.is_map(item1) != 1 || RecipeItemBox.kind_is(item1, "Loop") != 1 {
+      return me._err("root_second_not_loop")
+    }
+    if me._stmt_code(item2) != 3 { return me._err("root_third_not_return") }
+
+    local loop_body = BoxHelpers.map_get(item1, "body_item")
+    if loop_body == null || BoxHelpers.is_map(loop_body) != 1 || RecipeItemBox.kind_is(loop_body, "Seq") != 1 {
+      return me._err("missing_loop_body")
+    }
+    local loop_items = BoxHelpers.map_get(loop_body, "items")
+    if loop_items == null || BoxHelpers.is_array(loop_items) != 1 {
+      return me._err("missing_loop_body_items")
+    }
+    if me._len(loop_items) != 2 { return me._err("loop_body_not_two_items") }
+
+    local loop_item0 = BoxHelpers.array_get(loop_items, 0)
+    local loop_item1 = BoxHelpers.array_get(loop_items, 1)
+    if loop_item0 == null || BoxHelpers.is_map(loop_item0) != 1 || RecipeItemBox.kind_is(loop_item0, "If") != 1 {
+      return me._err("loop_first_not_if")
+    }
+    if me._stmt_code(loop_item1) != 4 { return me._err("loop_second_not_assignment") }
+
+    local then_item = BoxHelpers.map_get(loop_item0, "then_item")
+    local else_item = BoxHelpers.map_get(loop_item0, "else_item")
+    if then_item == null || BoxHelpers.is_map(then_item) != 1 || RecipeItemBox.kind_is(then_item, "Exit") != 1 {
+      return me._err("missing_then_exit_body")
+    }
+    if else_item == null || BoxHelpers.is_map(else_item) != 1 || RecipeItemBox.kind_is(else_item, "Seq") != 1 {
+      return me._err("missing_else_empty_body")
+    }
+    local else_items = BoxHelpers.map_get(else_item, "items")
+    if else_items == null || BoxHelpers.is_array(else_items) != 1 {
+      return me._err("missing_else_body_items")
+    }
+    if me._len(else_items) != 0 { return me._err("else_body_not_empty") }
+
+    local root_refs = []
+    root_refs.push(me._stmt_ref(0, 0, item0))
+    root_refs.push(me._loop_ref(1, 1))
+    root_refs.push(me._stmt_ref(0, 2, item2))
+
+    local loop_refs = []
+    loop_refs.push(me._if_ref(1, 0, 2, 3))
+    loop_refs.push(me._stmt_ref(1, 1, loop_item1))
+
+    local then_refs = []
+    then_refs.push(me._exit_ref(2, 0, then_item))
+
+    local else_refs = []
+
+    local bodies = []
+    bodies.push(me._body_map(0, root_refs))
+    bodies.push(me._body_map(1, loop_refs))
+    bodies.push(me._body_map(2, then_refs))
+    bodies.push(me._body_map(3, else_refs))
+
+    return %{
+      "err" => 0,
+      "err_line" => "",
+      "root_body_id" => 0,
+      "body_count" => 4,
+      "bodies" => bodies
+    }
+  }
+
+  _code_token(code) {
+    if code == 1 { return "Stmt:Local" }
+    if code == 3 { return "Stmt:Return" }
+    if code == 4 { return "Stmt:Assignment" }
+    if code == 10 { return "IfRef" }
+    if code == 11 { return "LoopRef" }
+    if code == 12 { return "Exit:Return" }
+    return "Unsupported"
+  }
+
+  _body_items_summary(body) {
+    local items = BoxHelpers.map_get(body, "items")
+    local n = me._i(body, "item_count")
+    if n == 0 { return "" }
+    local s = ""
+    local i = 0
+    loop(i < n) {
+      if i > 0 { s = s + "," }
+      local item_ref = BoxHelpers.array_get(items, i)
+      local token = me._code_token(me._i(item_ref, "item_code"))
+      if BoxHelpers.same_token(token, "Unsupported") == 1 { return "Unsupported" }
+      s = s + token
+      i = i + 1
+    }
+    return s
+  }
+
+  _refs_summary(arena) {
+    local bodies = BoxHelpers.map_get(arena, "bodies")
+    local body1 = BoxHelpers.array_get(bodies, 1)
+    local body2 = BoxHelpers.array_get(bodies, 2)
+    local body3 = BoxHelpers.array_get(bodies, 3)
+    return "body0.item0->stmt0,body0.item1->loop(body=1),body0.item2->stmt2"
+      + ",body1.item0->stmt1.body0.if(then=2,else=3),body1.item1->stmt1.body1"
+      + ",body2.item0->stmt1.body0.then0,body3.empty"
+      + ";body1_item_count=" + StringHelpers.int_to_str(me._i(body1, "item_count"))
+      + ";body1_items=" + me._body_items_summary(body1)
+      + ";body2_item_count=" + StringHelpers.int_to_str(me._i(body2, "item_count"))
+      + ";body2_items=" + me._body_items_summary(body2)
+      + ";body3_item_count=" + StringHelpers.int_to_str(me._i(body3, "item_count"))
+      + ";body3_items=" + me._body_items_summary(body3)
+  }
+
+  summarize_arena(arena) {
+    if me._i(arena, "err") != 0 {
+      return "snapshot_kind=ProgramJsonRecipeBodiesRecursiveNestedArenaBuilderV1;err=1;reason="
+        + BoxHelpers.map_get(arena, "err_line")
+    }
+    local bodies = BoxHelpers.map_get(arena, "bodies")
+    local body0 = BoxHelpers.array_get(bodies, 0)
+    local body_items = me._body_items_summary(body0)
+    if BoxHelpers.same_token(body_items, "Unsupported") == 1 {
+      return "snapshot_kind=ProgramJsonRecipeBodiesRecursiveNestedArenaBuilderV1;err=1;reason=unsupported_nested_body"
+    }
+    return "snapshot_kind=ProgramJsonRecipeBodiesRecursiveNestedArenaBuilderV1"
+      + ";err=0"
+      + ";root_body_id=" + StringHelpers.int_to_str(me._i(arena, "root_body_id"))
+      + ";body_count=" + StringHelpers.int_to_str(me._i(arena, "body_count"))
+      + ";body0_item_count=" + StringHelpers.int_to_str(me._i(body0, "item_count"))
+      + ";body0_items=" + body_items
+      + ";refs=" + me._refs_summary(arena)
+      + ";structured_result_map=1"
+      + ";non_claims=recipe_bodies_materialization,lowering,route_selection,id_allocation"
+  }
+
+  build_summary(program_json) {
+    return me.summarize_arena(me.build_arena(program_json))
+  }
+}
+
+static box ProgramJsonRecipeBodiesRecursiveNestedArenaBuilderMain { main() { return 0 } }

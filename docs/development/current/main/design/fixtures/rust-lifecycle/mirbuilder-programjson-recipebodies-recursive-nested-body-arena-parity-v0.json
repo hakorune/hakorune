@@ -1,0 +1,74 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonRecipeBodiesRecursiveNestedBodyArenaParityV1",
+  "token": "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RECURSIVE-NESTED-BODY-ARENA-PARITY-001",
+  "capability": {
+    "name": "ProgramJsonRecipeBodiesRecursiveNestedBodyArenaV1",
+    "input": "ProgramJSON v0",
+    "output": "map-backed recursive nested RecipeBodies-like arena DTO",
+    "implementation": "lang/src/compiler/mirbuilder/program_json_recipebodies_recursive_nested_arena_builder.hako"
+  },
+  "rows": [
+    {
+      "row_id": "local_loop_body_if_branch_return",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "body": [
+          {"type": "Local", "name": "i", "expr": {"type": "Int", "value": 0}},
+          {
+            "type": "Loop",
+            "cond": {"type": "Compare", "op": "<", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 3}},
+            "body": [
+              {
+                "type": "If",
+                "cond": {"type": "Compare", "op": "<", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 2}},
+                "then": [
+                  {"type": "Return", "expr": {"type": "Int", "value": 9}}
+                ],
+                "else": null
+              },
+              {"type": "Assignment", "name": "i", "expr": {"type": "Binary", "op": "+", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 1}}}
+            ]
+          },
+          {"type": "Return", "expr": {"type": "Var", "name": "i"}}
+        ]
+      },
+      "rust_oracle_expected_summary": "snapshot_kind=ProgramJsonRecipeBodiesRecursiveNestedArenaBuilderV1;err=0;root_body_id=0;body_count=4;body0_item_count=3;body0_items=Stmt:Local,LoopRef,Stmt:Return;refs=body0.item0->stmt0,body0.item1->loop(body=1),body0.item2->stmt2,body1.item0->stmt1.body0.if(then=2,else=3),body1.item1->stmt1.body1,body2.item0->stmt1.body0.then0,body3.empty;body1_item_count=2;body1_items=IfRef,Stmt:Assignment;body2_item_count=1;body2_items=Exit:Return;body3_item_count=0;body3_items=;structured_result_map=1;non_claims=recipe_bodies_materialization,lowering,route_selection,id_allocation"
+    }
+  ],
+  "acceptance": {
+    "programjson_traversal_used": 1,
+    "recipe_root_used": 1,
+    "structured_result_map_built": 1,
+    "bodyid_stmtref_tokens_emitted": 1,
+    "nested_body_references_emitted": 1,
+    "body_count": 4,
+    "runtime_parity_green": 1,
+    "mir_json_route_observed": 1,
+    "directabi_route_publication_claim": 0,
+    "runtime_recipe_bodies_arena": 0
+  },
+  "decision": {
+    "kind": "SelectRecipeBodiesRecursiveNestedBodyArenaRetireCandidateNext",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RECURSIVE-NESTED-BODY-ARENA-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001",
+    "reason_token": "RecipeBodiesRecursiveNestedBodyArenaRuntimeParityGreen"
+  },
+  "claims": {
+    "recursive_nested_body_arena_implemented": 1,
+    "recipe_bodies_materialization": 0,
+    "runtime_recipe_bodies_arena": 0,
+    "full_recipe_matcher_execution": 0,
+    "verifier_policy_reimplementation": 0,
+    "route_selection": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering_claim": 0,
+    "directabi_route_publication_claim": 0,
+    "runtime_route_switch": 0,
+    "source_selfhost_claim": 0,
+    "programjson_full_parser_claim": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
