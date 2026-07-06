@@ -60,9 +60,9 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-INPUT-BOUNDARY-CONSULTATION-001
+  MIRBUILDER-PROGRAMJSON-CANONICAL-LOOP-FACTS-INPUT-SNAPSHOT-001
 selected next card:
-  choose ProgramJSON-to-CanonicalLoopFacts projection or publication-snapshot matcher input adapter before any RecipeMatcher execution claim.
+  implement a read-only ProgramJSON verified_recipe -> CanonicalLoopFacts input snapshot before any RecipeMatcher execution claim.
 
 post-3180 block recipe task order:
   completed: JoinThenElse, ElseOnlyExit, ThenOnlyExit, and ExitAll are scoped
@@ -84,24 +84,24 @@ normal operating rule:
   history.
 
 latest design decision:
+  3225 selects ProgramJsonCanonicalLoopFactsInputSnapshotV1 as the next
+  Layer4 input-boundary task; RecipeBodiesPublicationSnapshotV1 is not enough.
   3224 records RecipeMatcher input-boundary design stop: Rust consumes CanonicalLoopFacts, not RecipeBodiesPublicationSnapshotV1.
-  3223 implements read-only runtime RecipeBodies publication bridge.
-  3222 selects runtime RecipeBodies publication bridge as the next contract.
+  3223 implements MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-PUBLICATION-BRIDGE-001.
+  3222 selects runtime RecipeBodies publication bridge as the next contract:
+  MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-PUBLICATION-BRIDGE-001.
   3221 marks the expanded RecipeBodies verifier-boundary DTO coverage rows as scoped Rust ASTNode projector retire-candidates; 3220 expands coverage to two rows.
   3219 selects more DTO coverage rows after the post-verifier consultation.
-  3218 prepares the post-verifier RecipeBodies consultation; recommended
-  default is more DTO coverage rows, while runtime publication and full
-  RecipeMatcher require a new decision.
+  3218 prepares the post-verifier RecipeBodies consultation; runtime
+  publication and full RecipeMatcher still require decisions.
   3217 records the post-verifier RecipeBodies design stop and requires
   consultation before runtime publication or full RecipeMatcher execution.
   3216 marks the covered RecipeBodies verifier-boundary snapshot row as a
   scoped Rust ASTNode projector retire-candidate.
   3215 implements RecipeBodies verifier boundary parity and selects its
   retire-candidate. 3214 selects RecipeBodies verifier boundary parity.
-  3213 marks the covered ProgramJsonRecipeBodiesRecursiveNestedArenaBuilderV1 row
-  as a scoped Rust ASTNode projector retire-candidate:
-  MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RECURSIVE-NESTED-BODY-ARENA-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001.
-  3212 implemented recursive nested RecipeBodies arena parity; 3211 selected it.
+  3213 marks the recursive nested RecipeBodies arena row as a scoped
+  retire-candidate. 3212 implemented it; 3211 selected it.
   3208-3210 cleaned If/Loop result-map and raw array-helper AOT contracts.
   Runtime RecipeBodies publication, full RecipeMatcher, route switch, lowering,
   mutation, ID allocation, and Source Selfhost remain unclaimed.
@@ -402,18 +402,18 @@ Detailed evidence lives in phase cards, fixtures, and git history.
 
 ## Active Next 3
 ```text
-1. MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-PUBLICATION-BRIDGE-001
-   status=landed; boundary=read-only publication snapshot + DirectAbi/map_handle EXE gate
+1. MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-INPUT-BOUNDARY-CONSULTATION-001
+   status=landed; boundary=select CanonicalLoopFacts input snapshot, not publication-summary adapter
 
-2. MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-EXECUTION-BOUNDARY-MINIMAL-001
-   status=held; boundary=blocked until matcher input contract is selected
+2. MIRBUILDER-PROGRAMJSON-CANONICAL-LOOP-FACTS-INPUT-SNAPSHOT-001
+   status=active; boundary=read verified_recipe path and emit matcher-input snapshot only
 
-3. MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-INPUT-BOUNDARY-CONSULTATION-001
-   status=active; boundary=select CanonicalLoopFacts projection or publication adapter
+3. MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-EXECUTION-BOUNDARY-MINIMAL-001
+   status=held; boundary=requires canonical loop facts input snapshot first
 
 next active:
-  MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-INPUT-BOUNDARY-CONSULTATION-001
-  status=active; boundary=design stop; RecipeMatcher execution, route selection, lowering, mutation, ID allocation, route switch, and Source Selfhost remain unclaimed
+  MIRBUILDER-PROGRAMJSON-CANONICAL-LOOP-FACTS-INPUT-SNAPSHOT-001
+  status=active; boundary=Layer4 matcher-input materialization proof; RecipeMatcher execution, route selection, lowering, mutation, ID allocation, route switch, and Source Selfhost remain unclaimed
 
 trigger-based AOT/MIR typing debt:
   status=parked-until-triggered; order=2999/3000/3001 landed, then 3022 queue
@@ -421,7 +421,7 @@ trigger-based AOT/MIR typing debt:
   compare, PHI dst_type, mir_call dst_type, or receiver-helper
   single-observation protection
 next_documented_task =
-  MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-INPUT-BOUNDARY-CONSULTATION-001
+  MIRBUILDER-PROGRAMJSON-CANONICAL-LOOP-FACTS-INPUT-SNAPSHOT-001
 
 next_after_active_3 =
   MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-EXECUTION-BOUNDARY-MINIMAL-001

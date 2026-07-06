@@ -1,0 +1,73 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonRecipeMatcherInputBoundaryConsultationV1",
+  "token": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-INPUT-BOUNDARY-CONSULTATION-001",
+  "input_state": {
+    "previous_card": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-EXECUTION-BOUNDARY-INPUT-DESIGN-STOP-001",
+    "design_stop_guard": "tools/checks/rust_lifecycle_mirbuilder_programjson_recipematcher_execution_boundary_input_design_stop_guard.sh",
+    "runtime_publication_bridge_gate": "tools/checks/rust_lifecycle_mirbuilder_programjson_recipebodies_runtime_publication_bridge_gate.sh"
+  },
+  "worker_inventory": {
+    "rust_matcher_input": "CanonicalLoopFacts",
+    "publication_output": "RecipeBodiesPublicationSnapshotV1",
+    "publication_snapshot_enough_for_matcher_input": false,
+    "verified_recipe_path_has_narrow_input_data": true
+  },
+  "candidate_next_contracts": [
+    {
+      "id": "A_PROGRAMJSON_TO_CANONICAL_LOOP_FACTS_INPUT_SNAPSHOT",
+      "state": "SelectedNext",
+      "reason": "Matches Rust matcher input authority without executing RecipeMatcher",
+      "selected_next_card_if_eligible": "MIRBUILDER-PROGRAMJSON-CANONICAL-LOOP-FACTS-INPUT-SNAPSHOT-001"
+    },
+    {
+      "id": "B_PUBLICATION_SNAPSHOT_TO_MATCHER_INPUT_ADAPTER",
+      "state": "RejectedForNow",
+      "reason": "Publication snapshot has only counts and presence bits"
+    },
+    {
+      "id": "C_MINIMAL_HAKO_RECIPEMATCHER_OVER_PUBLICATION_SNAPSHOT",
+      "state": "RejectedForNow",
+      "reason": "Would create fake RecipeMatcher authority over the wrong input"
+    }
+  ],
+  "selected_snapshot_contract": {
+    "name": "ProgramJsonCanonicalLoopFactsInputSnapshotV1",
+    "source": "verified_recipe",
+    "fields": [
+      "ok",
+      "reason",
+      "readonly",
+      "source",
+      "matcher_input_present",
+      "exit_has_continue",
+      "exit_has_return",
+      "exit_has_break",
+      "loop_cond_continue_with_return_present",
+      "cond_kind",
+      "loop_var",
+      "loop_bound_int",
+      "update_kind",
+      "update_target",
+      "step_int",
+      "non_claims"
+    ]
+  },
+  "decision": {
+    "kind": "SelectProgramJsonCanonicalLoopFactsInputSnapshot",
+    "reason_token": "VerifiedRecipePathCanMaterializeCanonicalLoopFactsInputSnapshot",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-CANONICAL-LOOP-FACTS-INPUT-SNAPSHOT-001"
+  },
+  "claims": {
+    "next_contract_selected": 1,
+    "canonical_loop_facts_input_snapshot_implemented": 0,
+    "recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "mir_lowering": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "runtime_route_switch": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  }
+}
