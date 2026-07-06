@@ -62,6 +62,25 @@ static box ProgramJsonStmtOnlyBlockRecipeSnapshotBox {
         }
       }
     }
+    else if RecipeItemBox.kind_is(item0, "If") == 1 {
+      local then0 = BoxHelpers.map_get(item0, "then_item")
+      local else0 = BoxHelpers.map_get(item0, "else_item")
+      if then0 != null && else0 != null && RecipeItemBox.kind_is(then0, "Seq") == 1 && RecipeItemBox.kind_is(else0, "Seq") == 1 {
+        local then_items0 = BoxHelpers.map_get(then0, "items")
+        local else_items0 = BoxHelpers.map_get(else0, "items")
+        if then_items0 != null && else_items0 != null && BoxHelpers.is_array(then_items0) == 1 && BoxHelpers.is_array(else_items0) == 1 {
+          local then_stmt0 = BoxHelpers.array_get(then_items0, 0)
+          local then_tail0 = BoxHelpers.array_get(then_items0, 1)
+          local else_stmt0 = BoxHelpers.array_get(else_items0, 0)
+          local else_tail0 = BoxHelpers.array_get(else_items0, 1)
+          if then_stmt0 != null && else_stmt0 != null && then_tail0 == null && else_tail0 == null && RecipeItemBox.kind_is(then_stmt0, "Seq") == 1 && RecipeItemBox.kind_is(else_stmt0, "Seq") == 1 {
+            local then_kind0 = BoxHelpers.map_get(then_stmt0, "stmt_kind")
+            local else_kind0 = BoxHelpers.map_get(else_stmt0, "stmt_kind")
+            if BoxHelpers.same_token(then_kind0, "Assignment") == 1 && BoxHelpers.same_token(else_kind0, "Assignment") == 1 { stmt0 = "IfNoExit" }
+          }
+        }
+      }
+    }
 
     if item1 == null { stmt1 = "None" }
     else if RecipeItemBox.kind_is(item1, "Exit") == 1 { stmt1 = "Return" }
@@ -84,6 +103,25 @@ static box ProgramJsonStmtOnlyBlockRecipeSnapshotBox {
             if BoxHelpers.same_token(body_kind1, "Local") == 1 { stmt1 = "LoopNoExit" }
             else if BoxHelpers.same_token(body_kind1, "Assignment") == 1 { stmt1 = "LoopNoExit" }
             else if BoxHelpers.same_token(body_kind1, "Print") == 1 { stmt1 = "LoopNoExit" }
+          }
+        }
+      }
+    }
+    else if RecipeItemBox.kind_is(item1, "If") == 1 {
+      local then1 = BoxHelpers.map_get(item1, "then_item")
+      local else1 = BoxHelpers.map_get(item1, "else_item")
+      if then1 != null && else1 != null && RecipeItemBox.kind_is(then1, "Seq") == 1 && RecipeItemBox.kind_is(else1, "Seq") == 1 {
+        local then_items1 = BoxHelpers.map_get(then1, "items")
+        local else_items1 = BoxHelpers.map_get(else1, "items")
+        if then_items1 != null && else_items1 != null && BoxHelpers.is_array(then_items1) == 1 && BoxHelpers.is_array(else_items1) == 1 {
+          local then_stmt1 = BoxHelpers.array_get(then_items1, 0)
+          local then_tail1 = BoxHelpers.array_get(then_items1, 1)
+          local else_stmt1 = BoxHelpers.array_get(else_items1, 0)
+          local else_tail1 = BoxHelpers.array_get(else_items1, 1)
+          if then_stmt1 != null && else_stmt1 != null && then_tail1 == null && else_tail1 == null && RecipeItemBox.kind_is(then_stmt1, "Seq") == 1 && RecipeItemBox.kind_is(else_stmt1, "Seq") == 1 {
+            local then_kind1 = BoxHelpers.map_get(then_stmt1, "stmt_kind")
+            local else_kind1 = BoxHelpers.map_get(else_stmt1, "stmt_kind")
+            if BoxHelpers.same_token(then_kind1, "Assignment") == 1 && BoxHelpers.same_token(else_kind1, "Assignment") == 1 { stmt1 = "IfNoExit" }
           }
         }
       }
