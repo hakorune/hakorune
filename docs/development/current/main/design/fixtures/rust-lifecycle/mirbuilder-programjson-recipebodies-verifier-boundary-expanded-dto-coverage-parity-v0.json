@@ -1,0 +1,97 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonRecipeBodiesVerifierBoundaryExpandedDtoCoverageParityV1",
+  "token": "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-VERIFIER-BOUNDARY-EXPANDED-DTO-COVERAGE-PARITY-001",
+  "capability": {
+    "name": "ProgramJsonRecipeBodiesVerifierBoundaryExpandedDtoCoverageV1",
+    "input": "ProgramJSON v0",
+    "output": "verifier-boundary token snapshot rows",
+    "implementation": "lang/src/compiler/mirbuilder/program_json_recipebodies_verifier_boundary_snapshot.hako"
+  },
+  "rows": [
+    {
+      "row_id": "local_loop_body_if_branch_return",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "body": [
+          {"type": "Local", "name": "i", "expr": {"type": "Int", "value": 0}},
+          {
+            "type": "Loop",
+            "cond": {"type": "Compare", "op": "<", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 3}},
+            "body": [
+              {
+                "type": "If",
+                "cond": {"type": "Compare", "op": "<", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 2}},
+                "then": [
+                  {"type": "Return", "expr": {"type": "Int", "value": 9}}
+                ],
+                "else": null
+              },
+              {"type": "Assignment", "name": "i", "expr": {"type": "Binary", "op": "+", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 1}}}
+            ]
+          },
+          {"type": "Return", "expr": {"type": "Var", "name": "i"}}
+        ]
+      },
+      "rust_oracle_expected_summary": "snapshot_kind=ProgramJsonRecipeBodiesVerifierBoundarySnapshotV1;err=0;arena_ready=1;verifier_boundary_used=1;verified_recipe_present=1;root_body_id=0;body_count=4;def_count=1;update_count=2;non_claims=recipe_bodies_materialization,recipe_matcher,lowering,route_selection,id_allocation"
+    },
+    {
+      "row_id": "local_loop_body_if_branch_return_alt_names",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "body": [
+          {"type": "Local", "name": "count", "expr": {"type": "Int", "value": 4}},
+          {
+            "type": "Loop",
+            "cond": {"type": "Compare", "op": "<", "lhs": {"type": "Var", "name": "count"}, "rhs": {"type": "Int", "value": 8}},
+            "body": [
+              {
+                "type": "If",
+                "cond": {"type": "Compare", "op": "<", "lhs": {"type": "Var", "name": "count"}, "rhs": {"type": "Int", "value": 6}},
+                "then": [
+                  {"type": "Return", "expr": {"type": "Int", "value": 12}}
+                ],
+                "else": null
+              },
+              {"type": "Assignment", "name": "count", "expr": {"type": "Binary", "op": "+", "lhs": {"type": "Var", "name": "count"}, "rhs": {"type": "Int", "value": 2}}}
+            ]
+          },
+          {"type": "Return", "expr": {"type": "Var", "name": "count"}}
+        ]
+      },
+      "rust_oracle_expected_summary": "snapshot_kind=ProgramJsonRecipeBodiesVerifierBoundarySnapshotV1;err=0;arena_ready=1;verifier_boundary_used=1;verified_recipe_present=1;root_body_id=0;body_count=4;def_count=1;update_count=2;non_claims=recipe_bodies_materialization,recipe_matcher,lowering,route_selection,id_allocation"
+    }
+  ],
+  "acceptance": {
+    "decision_guard_green": 1,
+    "existing_snapshot_owner_reused": 1,
+    "expanded_dto_coverage_rows": 2,
+    "runtime_parity_green": 1,
+    "runtime_recipe_bodies_publication": 0,
+    "full_recipe_matcher_execution": 0,
+    "runtime_route_switch": 0
+  },
+  "decision": {
+    "kind": "SelectExpandedDtoCoverageRetireCandidateNext",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-VERIFIER-BOUNDARY-EXPANDED-DTO-COVERAGE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001",
+    "reason_token": "ExpandedRecipeBodiesVerifierBoundaryDtoCoverageParityGreen"
+  },
+  "claims": {
+    "expanded_dto_coverage_parity_green": 1,
+    "runtime_recipe_bodies_publication": 0,
+    "recipe_bodies_bodies_direct_access": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering_claim": 0,
+    "directabi_route_publication_claim": 0,
+    "runtime_route_switch": 0,
+    "source_selfhost_claim": 0,
+    "programjson_full_parser_claim": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
