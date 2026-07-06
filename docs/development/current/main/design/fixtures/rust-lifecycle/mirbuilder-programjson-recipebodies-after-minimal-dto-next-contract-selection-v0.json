@@ -1,0 +1,84 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonRecipeBodiesAfterMinimalDtoNextContractSelectionV1",
+  "token": "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-AFTER-MINIMAL-DTO-NEXT-CONTRACT-SELECTION-001",
+  "input_state": {
+    "previous_card": "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-MINIMAL-DTO-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001",
+    "previous_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-programjson-recipebodies-minimal-dto-retire-rust-astnode-projector-candidate-v0.json",
+    "minimal_dto_snapshot_kind": "ProgramJsonRecipeBodiesMinimalDtoV1",
+    "covered_rows": [
+      "empty_stmt_only_body",
+      "single_local_stmt_body",
+      "local_then_print_stmt_body"
+    ]
+  },
+  "candidate_contracts": [
+    {
+      "id": "A_DTO_ONLY_STMT_ONLY_BODYID_STMTREF_SNAPSHOT",
+      "state": "CompletedAsRetireCandidate",
+      "claim": "snapshot-local BodyId/StmtRef DTO parity only"
+    },
+    {
+      "id": "B_ONE_SHAPE_ARENA_BUILDER_PARITY",
+      "state": "SelectedNext",
+      "claim": "one StmtOnly RecipeBodies-like arena DTO parity, still no runtime route switch"
+    },
+    {
+      "id": "C_VERIFIER_FIRST_BOUNDARY",
+      "state": "Deferred",
+      "claim": "do not recreate verifier policy before the arena reference surface is explicit"
+    }
+  ],
+  "decision": {
+    "kind": "SelectOneShapeArenaBuilderParity",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-ONE-SHAPE-ARENA-BUILDER-PARITY-001",
+    "reason_token": "MinimalDtoReferenceBoundaryGreenNowProveOneShapeArenaBuilder",
+    "selected_shape": "StmtOnlyLocalOrPrintMinimal",
+    "arena_scope": "single root body with snapshot-local BodyId=0 and StmtRef indexes"
+  },
+  "acceptance_for_next_card": {
+    "must_consume_programjson": 1,
+    "must_build_structured_result_map": 1,
+    "must_expose_root_body_id": 1,
+    "must_expose_body_item_refs": 1,
+    "must_compare_against_minimal_dto_oracle": 1,
+    "must_keep_runtime_route_switch_zero": 1,
+    "minimum_rows": [
+      "empty_stmt_only_body",
+      "single_local_stmt_body",
+      "local_then_print_stmt_body"
+    ]
+  },
+  "forbidden_in_next_card": {
+    "full_recipe_bodies_runtime_publication": 1,
+    "recipe_bodies_bodies_direct_access": 1,
+    "full_recipe_matcher_execution": 1,
+    "verifier_policy_reimplementation": 1,
+    "route_selection": 1,
+    "mir_mutation": 1,
+    "id_allocation": 1,
+    "backend_lowering": 1,
+    "runtime_route_switch": 1,
+    "source_selfhost_claim": 1,
+    "programjson_full_parser_claim": 1,
+    "new_backend_route": 1,
+    "new_abi": 1
+  },
+  "claims": {
+    "next_contract_selected": 1,
+    "one_shape_arena_builder_implemented": 0,
+    "runtime_dependency_removed": 0,
+    "full_astnode_projector_retired": 0,
+    "recipe_bodies_materialization": 0,
+    "runtime_recipe_bodies_arena": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering_claim": 0,
+    "runtime_route_switch": 0,
+    "source_selfhost_claim": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

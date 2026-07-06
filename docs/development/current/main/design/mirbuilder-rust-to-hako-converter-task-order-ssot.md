@@ -60,11 +60,12 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-RECIPEBODIES-AFTER-MINIMAL-DTO-NEXT-CONTRACT-SELECTION-001
+  MIRBUILDER-PROGRAMJSON-RECIPEBODIES-ONE-SHAPE-ARENA-BUILDER-PARITY-001
 selected next card:
-  select the next RecipeBodies contract after the minimal DTO retire-candidate.
-  DirectAbi route publication and real RecipeBodies arena materialization stay
-  unclaimed unless explicitly selected.
+  implement one-shape RecipeBodies arena-builder parity for the three covered
+  StmtOnly rows. Runtime route switch, full RecipeMatcher, DirectAbi route
+  publication, lowering, mutation, ID allocation, and Source Selfhost stay
+  unclaimed.
 
 post-3180 block recipe task order:
   completed: JoinThenElse, ElseOnlyExit, ThenOnlyExit, and ExitAll are scoped
@@ -86,25 +87,12 @@ normal operating rule:
   history.
 
 latest design decision:
-  3198 marks the covered ProgramJsonRecipeBodiesMinimalDtoV1 rows as a scoped
-  Rust ASTNode projector retire-candidate. Runtime dependency removal, full
-  projector retirement, real RecipeBodies materialization, DirectAbi route
-  publication, and Source Selfhost remain unclaimed.
-  3197 implements ProgramJsonRecipeBodiesMinimalDtoSnapshotBox and proves three
-  DTO-only snapshot-local BodyId/StmtRef ProgramJSON rows at runtime. DirectAbi
-  route publication remains unclaimed.
-  3196 selects ProgramJsonRecipeBodiesMinimalDtoSnapshotBox in
-  lang/src/compiler/mirbuilder/program_json_recipebodies_minimal_dto_snapshot.hako
-  as the DTO-only ProgramJsonRecipeBodiesMinimalDtoV1 owner.
-  3195 selects DTO-only snapshot-local BodyId/StmtRef as the first
-  RecipeBodies-facing ProgramJsonRecipeBodiesMinimalDtoV1 slice. It selects the
-  next implementation-selection card only; real RecipeBodies arena
-  materialization remains unclaimed.
-  3194 prepared the RecipeBodies minimal-basis consultation and recommended A.
-  3193 documents the RecipeBodies design stop after covered flat block recipe
-  if-mode rows. RecipeBlock + RecipeItem remain the public structural truth;
-  RecipeBodies/RecipeBody remain internal arena storage behind BodyId/StmtRef.
-  Recommended first post-consultation slice is ProgramJsonRecipeBodiesMinimalDtoV1.
+  3199 selects one-shape RecipeBodies arena-builder parity as the next
+  RecipeBodies contract after the minimal DTO retire-candidate. 3198/3197
+  covered the ProgramJsonRecipeBodiesMinimalDtoV1 proof and retire-candidate.
+  3198 marks the covered ProgramJsonRecipeBodiesMinimalDtoV1 rows.
+  3196 selects ProgramJsonRecipeBodiesMinimalDtoSnapshotBox. 3195-3194 selected that
+  DTO path after the 3193 RecipeBodies design stop.
   3192-3181 cover ExitAll, ThenOnlyExit, ElseOnlyExit, and JoinThenElse scoped
   ProgramJSON proofs and retire-candidates. 3180-3123 cover prior checkpoints.
   Earlier Layer4 and scanner/AOT details live in cards 3109 and 3114-3122.

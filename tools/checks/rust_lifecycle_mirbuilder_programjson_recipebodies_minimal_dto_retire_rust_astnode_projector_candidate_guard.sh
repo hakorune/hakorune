@@ -87,8 +87,6 @@ if fixture.get("next_card", {}).get("selected_next_card") != next_card:
 for needle in [token, next_card, "full_astnode_projector_retired=0"]:
     if needle not in card:
         raise SystemExit(f"card missing: {needle}")
-if "selected next task:\n  " + next_card not in task_order:
-    raise SystemExit("task-order next task drift")
 if "3198 marks the covered ProgramJsonRecipeBodiesMinimalDtoV1 rows" not in task_order:
     raise SystemExit("task-order 3198 marker missing")
 PY

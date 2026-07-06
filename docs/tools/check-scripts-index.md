@@ -245,6 +245,7 @@ phase-1 compatibility Program(JSON) compat execution helper.
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_recipebodies_minimal_dto_snapshot_selection_guard.sh` | Selection guard for the ProgramJSON RecipeBodies minimal DTO snapshot owner. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_recipebodies_minimal_dto_snapshot_parity_gate.sh` | Runtime parity gate for the ProgramJSON RecipeBodies minimal DTO snapshot owner. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_recipebodies_minimal_dto_retire_rust_astnode_projector_candidate_guard.sh` | Retire-candidate guard for the ProgramJSON RecipeBodies minimal DTO snapshot rows. |
+| `tools/checks/rust_lifecycle_mirbuilder_programjson_recipebodies_after_minimal_dto_next_contract_selection_guard.sh` | Selection guard for the next RecipeBodies contract after the minimal DTO retire-candidate. |
 | `tools/checks/hako_mir_json_cache_wrapper_guard.sh` | Cache contract guard for `tools/bin/hako --emit-mir-json` miss-then-hit behavior. |
 | `tools/checks/guard_result_cache_helper_guard.sh` | Cache contract guard for `guard_cached_run` prerequisite guard memoization. |
 | `tools/checks/hako_aot_dynamic_string_eq_and_int_to_str_correctness_gate.sh` | AOT dynamic string equality and scanner-fed `StringHelpers.int_to_str` correctness gate. |
