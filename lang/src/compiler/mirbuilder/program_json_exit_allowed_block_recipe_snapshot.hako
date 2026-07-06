@@ -60,6 +60,13 @@ static box ProgramJsonExitAllowedBlockRecipeSnapshotBox {
       local then_exit_kind = BoxHelpers.map_get(then_item, "exit_kind")
       if BoxHelpers.same_token(then_exit_kind, "Return") == 1 { return "IfThenReturnElseLocal" }
     }
+    if RecipeItemBox.kind_is(then_item, "Exit") == 1 && RecipeItemBox.kind_is(else_item, "Exit") == 1 {
+      local then_exit_kind2 = BoxHelpers.map_get(then_item, "exit_kind")
+      local else_exit_kind2 = BoxHelpers.map_get(else_item, "exit_kind")
+      if BoxHelpers.same_token(then_exit_kind2, "Return") == 1 && BoxHelpers.same_token(else_exit_kind2, "Break") == 1 {
+        return "IfThenReturnElseBreak"
+      }
+    }
     if BoxHelpers.same_token(me._single_seq_kind(then_item), "Local") == 1 && RecipeItemBox.kind_is(else_item, "Exit") == 1 {
       local else_exit_kind = BoxHelpers.map_get(else_item, "exit_kind")
       if BoxHelpers.same_token(else_exit_kind, "Return") == 1 { return "IfThenLocalElseReturn" }

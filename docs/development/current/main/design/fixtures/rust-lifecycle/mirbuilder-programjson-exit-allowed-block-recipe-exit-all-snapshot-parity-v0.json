@@ -1,0 +1,62 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonExitAllowedBlockRecipeExitAllSnapshotParityV1",
+  "token": "MIRBUILDER-PROGRAMJSON-EXIT-ALLOWED-BLOCK-RECIPE-EXIT-ALL-SNAPSHOT-PARITY-001",
+  "capability": {
+    "name": "ProgramJsonExitAllowedBlockRecipeExitAllSnapshotV1",
+    "input": "ProgramJSON v0",
+    "output": "ExitAllowedBlockRecipeBox ExitAll token snapshot summary",
+    "implementation": "lang/src/compiler/mirbuilder/program_json_exit_allowed_block_recipe_snapshot.hako",
+    "producer": "lang/src/compiler/mirbuilder/stmt_handlers/if_stmt_handler.hako",
+    "target_existing_reducer": "lang/src/compiler/lib/exit_allowed_block_recipe.hako"
+  },
+  "selection": {
+    "previous_checkpoint": "MIRBUILDER-PROGRAMJSON-BLOCK-RECIPE-AFTER-THEN-ONLY-EXIT-NEXT-CONTRACT-SELECTION-001",
+    "selected_reason": "ExitAllowedBlockRecipeBox already supports IfThenReturnElseBreak; the remaining gap is the IfStmtHandler ProgramJSON producer."
+  },
+  "rows": [
+    {
+      "row_id": "local_if_then_return_else_break_final_return_var",
+      "program_json": {"version": 0, "kind": "Program", "body": [
+        {"type": "Local", "name": "i", "expr": {"type": "Int", "value": 0}},
+        {"type": "If", "cond": {"type": "Compare", "op": "==", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 3}}, "then": [
+          {"type": "Return", "expr": {"type": "Var", "name": "i"}}
+        ], "else": [
+          {"type": "Break"}
+        ]},
+        {"type": "Return", "expr": {"type": "Var", "name": "i"}}
+      ]},
+      "rust_oracle_expected_summary": "snapshot_kind=ProgramJsonExitAllowedBlockRecipeIfExitOnlySnapshotV1;err=0;accepted=1;block_contract=ExitAllowed;stmt_count=2;item_kinds=Stmt,IfExitOnly;if_modes=ExitAll"
+    }
+  ],
+  "acceptance": {
+    "programjson_traversal_used": 1,
+    "recipe_root_traversal_used": 1,
+    "if_stmt_handler_producer_extended": 1,
+    "exit_allowed_reducer_called": 1,
+    "exit_all_token_projected": 1,
+    "prebuilt_token_snapshot_input": 0,
+    "string_only_facade": 0,
+    "mir_json_route_green": 1,
+    "runtime_parity_green": 1,
+    "row_count": 1,
+    "selection_prerequisite_green": 1
+  },
+  "decision": {
+    "kind": "SelectExitAllRetireCandidateNext",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-EXIT-ALLOWED-BLOCK-RECIPE-EXIT-ALL-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001",
+    "reason_token": "ProgramJsonExitAllowedBlockRecipeExitAllSnapshotRuntimeParityGreen"
+  },
+  "claims": {
+    "recipe_bodies_materialization": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering_claim": 0,
+    "runtime_route_switch": 0,
+    "source_selfhost_claim": 0,
+    "programjson_all_shapes_supported": 0,
+    "full_imported_parse_executable_green": 0
+  }
+}

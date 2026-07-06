@@ -413,6 +413,23 @@ static box IfStmtHandler {
     return me._ok(else_start, me._local_stmt_item(else_local_name))
   }
 
+  _read_else_break_item(program_json, idx, tag) {
+    local else_out = me._else_stmt_start_result(program_json, idx, tag)
+    local else_err = StringHelpers.to_i64(BoxHelpers.map_get(else_out, "err"))
+    if else_err != 0 { return else_out }
+    local else_start = StringHelpers.to_i64(BoxHelpers.map_get(else_out, "next_idx"))
+
+    local stmt_info = ProgramJsonV0ScannerBox.read_node_type_at_result(program_json, else_start)
+    if BoxHelpers.result_ok(stmt_info) != 1 {
+      return me._err(tag, "[cap_missing/program_json_v0] If else Break stmt type scan failed", else_start)
+    }
+    if BoxHelpers.same_token(BoxHelpers.map_get(stmt_info, "type"), "Break") != 1 {
+      return me._err(tag, "[cap_missing/stmt:If] If else must be Break", else_start)
+    }
+
+    return me._ok(else_start, RecipeItemBox.exit_item("Break", %{}))
+  }
+
   _assignment_stmt_item(local_name, assign_rhs_int) {
     local facts = new MapBox()
     facts.set("stmt_kind", "Assignment")
@@ -598,6 +615,23 @@ static box IfStmtHandler {
           RecipeItemBox.seq([BoxHelpers.map_get(else_local_out, "recipe_item")])
         )
         return me._ok(next_idx, if_then_only_exit)
+      }
+
+      local else_break_out = me._read_else_break_item(program_json, idx, tag)
+      local else_break_err = StringHelpers.to_i64(BoxHelpers.map_get(else_break_out, "err"))
+      if else_break_err == 0 {
+        local then_break_payload = new MapBox()
+        then_break_payload.set("return_kind", BoxHelpers.map_get(then_return_out, "then_return_kind"))
+        then_break_payload.set("retv", BoxHelpers.map_get(then_return_out, "then_retv"))
+        then_break_payload.set("ret_var_name", BoxHelpers.map_get(then_return_out, "then_ret_var_name"))
+        then_break_payload.set("ret_box_type", BoxHelpers.map_get(then_return_out, "then_ret_box_type"))
+
+        local if_exit_all = RecipeItemBox.if_item(
+          cond_facts,
+          RecipeItemBox.exit_item("Return", then_break_payload),
+          BoxHelpers.map_get(else_break_out, "recipe_item")
+        )
+        return me._ok(next_idx, if_exit_all)
       }
     }
 

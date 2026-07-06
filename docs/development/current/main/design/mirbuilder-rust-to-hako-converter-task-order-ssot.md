@@ -60,18 +60,17 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-EXIT-ALLOWED-BLOCK-RECIPE-EXIT-ALL-SNAPSHOT-PARITY-001
+  MIRBUILDER-PROGRAMJSON-EXIT-ALLOWED-BLOCK-RECIPE-EXIT-ALL-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
 selected next card:
-  implement the selected ExitAll ProgramJSON block recipe slice. Extend
-  IfStmtHandler for then-return/else-break recipe_root rows, prove the
-  ExitAllowed reducer emits IfExitOnly/ExitAll, and keep RecipeBodies,
-  RecipeMatcher, route selection, MIR mutation/lowering, ID allocation, and
-  runtime route switch unclaimed.
+  mark only the covered then-return/else-break ExitAll ProgramJSON row as a
+  scoped Rust ASTNode projector retire-candidate. Keep full projector removal,
+  RecipeBodies, RecipeMatcher, route selection, MIR mutation/lowering, ID
+  allocation, and runtime route switch unclaimed.
 
 post-3180 block recipe task order:
   completed: JoinThenElse, ElseOnlyExit, and ThenOnlyExit are scoped
     retire-candidates.
-  active: ExitAll selected; parity and retire-candidate are next.
+  active: ExitAll parity is green; retire-candidate is next.
   next selection: stop at RecipeBodies unless a smaller producer remains.
   design-stop trigger:
     stop before recursive RecipeBodies, full RecipeMatcher, route selection,
@@ -88,6 +87,9 @@ normal operating rule:
   history.
 
 latest design decision:
+  3191 proves ProgramJsonExitAllowedBlockRecipeExitAllSnapshotV1 for the
+  parseable then-return/else-break row by extending IfStmtHandler's ProgramJSON
+  producer and projecting IfThenReturnElseBreak into ExitAllowedBlockRecipeBox.
   3190 selects ProgramJsonExitAllowedBlockRecipeExitAllSnapshotV1 next because
   ExitAllowedBlockRecipeBox already supports IfThenReturnElseBreak ->
   IfExitOnly / ExitAll and only the IfStmtHandler then-return/else-break
