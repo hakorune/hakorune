@@ -15,7 +15,7 @@ guard_require_command "$TAG" python3
 guard_require_command "$TAG" timeout
 guard_require_files "$TAG" "$FIXTURE" "$SNAPSHOT_IMPL" "$BASE_GATE" "$HAKO_BIN"
 
-BASE_OUT="$(bash "$BASE_GATE")"
+BASE_OUT="$(guard_cached_run "$TAG" bash "$BASE_GATE")"
 if ! grep -q '^runtime_parity_green=1$' <<<"$BASE_OUT"; then
   printf '%s\n' "$BASE_OUT" >&2
   guard_fail "$TAG" "base Recipe shape-kind DTO parity is not green"

@@ -18,13 +18,13 @@ guard_require_command "$TAG" python3
 guard_require_command "$TAG" timeout
 guard_require_files "$TAG" "$FIXTURE" "$SOURCE_FIXTURE" "$SNAPSHOT_IMPL" "$SHAPE_SEQ_IMPL" "$SELECTION_GUARD" "$EXPANDED_SHAPE_KIND_GATE" "$HAKO_BIN"
 
-SELECTION_OUT="$(bash "$SELECTION_GUARD")"
+SELECTION_OUT="$(guard_cached_run "$TAG" bash "$SELECTION_GUARD")"
 if ! grep -q '^summary=ok$' <<<"$SELECTION_OUT"; then
   printf '%s\n' "$SELECTION_OUT" >&2
   guard_fail "$TAG" "next Recipe DTO capability selection is not green"
 fi
 
-EXPANDED_OUT="$(bash "$EXPANDED_SHAPE_KIND_GATE")"
+EXPANDED_OUT="$(guard_cached_run "$TAG" bash "$EXPANDED_SHAPE_KIND_GATE")"
 if ! grep -q '^runtime_parity_green=1$' <<<"$EXPANDED_OUT"; then
   printf '%s\n' "$EXPANDED_OUT" >&2
   guard_fail "$TAG" "expanded Recipe shape-kind DTO prerequisite is not green"

@@ -17,13 +17,13 @@ guard_require_command "$TAG" python3
 guard_require_command "$TAG" timeout
 guard_require_files "$TAG" "$FIXTURE" "$SOURCE_FIXTURE" "$SNAPSHOT_IMPL" "$SELECTION_GUARD" "$SHAPE_KIND_LOOP_ROOT_GUARD" "$HAKO_BIN"
 
-SELECTION_OUT="$(bash "$SELECTION_GUARD")"
+SELECTION_OUT="$(guard_cached_run "$TAG" bash "$SELECTION_GUARD")"
 if ! grep -q '^summary=ok$' <<<"$SELECTION_OUT"; then
   printf '%s\n' "$SELECTION_OUT" >&2
   guard_fail "$TAG" "Seq loop-root capability selection is not green"
 fi
 
-SHAPE_OUT="$(bash "$SHAPE_KIND_LOOP_ROOT_GUARD")"
+SHAPE_OUT="$(guard_cached_run "$TAG" bash "$SHAPE_KIND_LOOP_ROOT_GUARD")"
 if ! grep -q '^summary=ok$' <<<"$SHAPE_OUT"; then
   printf '%s\n' "$SHAPE_OUT" >&2
   guard_fail "$TAG" "Recipe shape-kind loop-root prerequisite is not green"

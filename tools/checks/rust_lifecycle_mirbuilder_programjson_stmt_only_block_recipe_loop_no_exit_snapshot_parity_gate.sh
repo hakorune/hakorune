@@ -15,7 +15,7 @@ guard_require_command "$TAG" python3
 guard_require_command "$TAG" timeout
 guard_require_files "$TAG" "$FIXTURE" "$SNAPSHOT_IMPL" "$SELECTION_GUARD" "$HAKO_BIN"
 
-SELECTION_OUT="$(bash "$SELECTION_GUARD")"
+SELECTION_OUT="$(guard_cached_run "$TAG" bash "$SELECTION_GUARD")"
 if ! grep -q '^summary=ok$' <<<"$SELECTION_OUT"; then
   printf '%s\n' "$SELECTION_OUT" >&2
   guard_fail "$TAG" "ProgramJSON LoopNoExit block recipe selection is not green"

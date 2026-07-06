@@ -12,7 +12,7 @@ PARITY_GATE="$ROOT_DIR/tools/checks/rust_lifecycle_mirbuilder_programjson_layer4
 guard_require_command "$TAG" python3
 guard_require_files "$TAG" "$FIXTURE" "$PARITY_GATE"
 
-PARITY_OUT="$(bash "$PARITY_GATE")"
+PARITY_OUT="$(guard_cached_run "$TAG" bash "$PARITY_GATE")"
 if ! grep -q '^runtime_parity_green=1$' <<<"$PARITY_OUT"; then
   printf '%s\n' "$PARITY_OUT" >&2
   guard_fail "$TAG" "Recipe stmt-seq DTO runtime parity is not green"

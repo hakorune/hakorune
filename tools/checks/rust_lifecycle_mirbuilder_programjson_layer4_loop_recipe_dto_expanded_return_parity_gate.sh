@@ -17,13 +17,13 @@ guard_require_command "$TAG" python3
 guard_require_command "$TAG" timeout
 guard_require_files "$TAG" "$FIXTURE" "$SNAPSHOT_IMPL" "$LOOP_HANDLER" "$BASE_GATE" "$LEGACY_LOOP_GATE" "$HAKO_BIN"
 
-BASE_OUT="$(bash "$BASE_GATE")"
+BASE_OUT="$(guard_cached_run "$TAG" bash "$BASE_GATE")"
 if ! grep -q '^summary=ok$' <<<"$BASE_OUT"; then
   printf '%s\n' "$BASE_OUT" >&2
   guard_fail "$TAG" "expanded If Recipe DTO retire-candidate prerequisite is not green"
 fi
 
-LEGACY_OUT="$(bash "$LEGACY_LOOP_GATE")"
+LEGACY_OUT="$(guard_cached_run "$TAG" bash "$LEGACY_LOOP_GATE")"
 if ! grep -q '^mir_json_route_green=1$' <<<"$LEGACY_OUT"; then
   printf '%s\n' "$LEGACY_OUT" >&2
   guard_fail "$TAG" "legacy Loop Recipe DTO MIR JSON route guard is not green"

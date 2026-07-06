@@ -16,7 +16,7 @@ guard_require_command "$TAG" python3
 guard_require_command "$TAG" timeout
 guard_require_files "$TAG" "$FIXTURE" "$SNAPSHOT_IMPL" "$SHAPE_SEQ_IMPL" "$STMT_SEQ_GATE" "$HAKO_BIN"
 
-STMT_SEQ_OUT="$(bash "$STMT_SEQ_GATE")"
+STMT_SEQ_OUT="$(guard_cached_run "$TAG" bash "$STMT_SEQ_GATE")"
 if ! grep -q '^runtime_parity_green=1$' <<<"$STMT_SEQ_OUT"; then
   printf '%s\n' "$STMT_SEQ_OUT" >&2
   guard_fail "$TAG" "Recipe stmt-seq prerequisite is not green"

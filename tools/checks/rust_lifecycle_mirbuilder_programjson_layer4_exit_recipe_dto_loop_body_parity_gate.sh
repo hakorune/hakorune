@@ -16,7 +16,7 @@ guard_require_command "$TAG" python3
 guard_require_command "$TAG" timeout
 guard_require_files "$TAG" "$FIXTURE" "$SNAPSHOT_IMPL" "$LOOP_HANDLER" "$LEGACY_PARITY_GATE" "$HAKO_BIN"
 
-LEGACY_OUT="$(bash "$LEGACY_PARITY_GATE")"
+LEGACY_OUT="$(guard_cached_run "$TAG" bash "$LEGACY_PARITY_GATE")"
 if ! grep -q '^runtime_parity_green=1$' <<<"$LEGACY_OUT"; then
   printf '%s\n' "$LEGACY_OUT" >&2
   guard_fail "$TAG" "legacy Exit Recipe DTO parity guard is not green"

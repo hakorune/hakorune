@@ -13,7 +13,7 @@ EXISTING_REDUCER="$ROOT_DIR/lang/src/compiler/lib/stmt_only_block_recipe.hako"
 guard_require_command "$TAG" python3
 guard_require_files "$TAG" "$FIXTURE" "$PREVIOUS_GUARD" "$EXISTING_REDUCER"
 
-PREVIOUS_OUT="$(bash "$PREVIOUS_GUARD")"
+PREVIOUS_OUT="$(guard_cached_run "$TAG" bash "$PREVIOUS_GUARD")"
 for required in \
   '^summary=ok$' \
   '^retire_candidate=RecipePortSigDtoSnapshotV1$' \

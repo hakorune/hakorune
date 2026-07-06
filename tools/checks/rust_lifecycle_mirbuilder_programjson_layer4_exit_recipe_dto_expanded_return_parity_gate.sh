@@ -17,19 +17,19 @@ guard_require_command "$TAG" python3
 guard_require_command "$TAG" timeout
 guard_require_files "$TAG" "$FIXTURE" "$SNAPSHOT_IMPL" "$BASE_GATE" "$LEGACY_EXIT_GATE" "$LOOP_EXIT_GATE" "$HAKO_BIN"
 
-BASE_OUT="$(bash "$BASE_GATE")"
+BASE_OUT="$(guard_cached_run "$TAG" bash "$BASE_GATE")"
 if ! grep -q '^summary=ok$' <<<"$BASE_OUT"; then
   printf '%s\n' "$BASE_OUT" >&2
   guard_fail "$TAG" "expanded Seq Recipe DTO retire-candidate prerequisite is not green"
 fi
 
-LEGACY_OUT="$(bash "$LEGACY_EXIT_GATE")"
+LEGACY_OUT="$(guard_cached_run "$TAG" bash "$LEGACY_EXIT_GATE")"
 if ! grep -q '^runtime_parity_green=1$' <<<"$LEGACY_OUT"; then
   printf '%s\n' "$LEGACY_OUT" >&2
   guard_fail "$TAG" "legacy Exit Recipe DTO parity guard is not green"
 fi
 
-LOOP_OUT="$(bash "$LOOP_EXIT_GATE")"
+LOOP_OUT="$(guard_cached_run "$TAG" bash "$LOOP_EXIT_GATE")"
 if ! grep -q '^runtime_parity_green=1$' <<<"$LOOP_OUT"; then
   printf '%s\n' "$LOOP_OUT" >&2
   guard_fail "$TAG" "loop-body Exit Recipe DTO parity guard is not green"

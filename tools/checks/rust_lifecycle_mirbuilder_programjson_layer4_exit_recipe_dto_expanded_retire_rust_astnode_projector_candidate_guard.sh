@@ -13,7 +13,7 @@ LOOP_PARITY_GATE="$ROOT_DIR/tools/checks/rust_lifecycle_mirbuilder_programjson_l
 guard_require_command "$TAG" python3
 guard_require_files "$TAG" "$FIXTURE" "$ROOT_PARITY_GATE" "$LOOP_PARITY_GATE"
 
-ROOT_OUT="$(bash "$ROOT_PARITY_GATE")"
+ROOT_OUT="$(guard_cached_run "$TAG" bash "$ROOT_PARITY_GATE")"
 if ! grep -q '^runtime_parity_green=1$' <<<"$ROOT_OUT"; then
   printf '%s\n' "$ROOT_OUT" >&2
   guard_fail "$TAG" "root Exit Recipe DTO runtime parity is not green"
@@ -23,7 +23,7 @@ if ! grep -q '^mir_json_route_green=1$' <<<"$ROOT_OUT"; then
   guard_fail "$TAG" "root Exit Recipe DTO MIR JSON route is not green"
 fi
 
-LOOP_OUT="$(bash "$LOOP_PARITY_GATE")"
+LOOP_OUT="$(guard_cached_run "$TAG" bash "$LOOP_PARITY_GATE")"
 if ! grep -q '^runtime_parity_green=1$' <<<"$LOOP_OUT"; then
   printf '%s\n' "$LOOP_OUT" >&2
   guard_fail "$TAG" "loop-body Exit Recipe DTO runtime parity is not green"

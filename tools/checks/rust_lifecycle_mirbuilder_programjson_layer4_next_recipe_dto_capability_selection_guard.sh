@@ -12,7 +12,7 @@ PREVIOUS_GUARD="$ROOT_DIR/tools/checks/rust_lifecycle_mirbuilder_programjson_lay
 guard_require_command "$TAG" python3
 guard_require_files "$TAG" "$FIXTURE" "$PREVIOUS_GUARD"
 
-PREVIOUS_OUT="$(bash "$PREVIOUS_GUARD")"
+PREVIOUS_OUT="$(guard_cached_run "$TAG" bash "$PREVIOUS_GUARD")"
 for required in \
   '^summary=ok$' \
   '^retire_candidate=RecipeStmtSeqDtoSnapshotV1$' \

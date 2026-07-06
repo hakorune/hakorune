@@ -14,7 +14,7 @@ guard_require_command "$TAG" python3
 guard_require_files "$TAG" "$FIXTURE" "$PARITY_GATE" "$HEAVY_GATE"
 
 bash "$PARITY_GATE" >/dev/null
-HEAVY_OUT="$(bash "$HEAVY_GATE")"
+HEAVY_OUT="$(guard_cached_run "$TAG" bash "$HEAVY_GATE")"
 if ! grep -q '^runtime_parity_green=1$' <<<"$HEAVY_OUT"; then
   printf '%s\n' "$HEAVY_OUT" >&2
   guard_fail "$TAG" "heavy runtime parity is not green"
