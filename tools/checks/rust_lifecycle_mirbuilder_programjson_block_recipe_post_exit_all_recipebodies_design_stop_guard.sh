@@ -91,7 +91,7 @@ for key, value in claims.items():
 
 if "3193 documents the RecipeBodies design stop" not in task_order:
     raise SystemExit("task-order design stop marker missing")
-if "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-MINIMAL-BASIS" not in task_order:
+if "ProgramJsonRecipeBodiesMinimalDtoV1" not in task_order:
     raise SystemExit("task-order RecipeBodies follow-up missing")
 PY
 

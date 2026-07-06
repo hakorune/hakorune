@@ -345,14 +345,13 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-MINIMAL-BASIS-CONSULTATION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3194-MIRBUILDER-PROGRAMJSON-RECIPEBODIES-MINIMAL-BASIS-CONSULTATION-001.md"
-latest_card_summary = """3194 prepares the RecipeBodies minimal-basis
-consultation. Recommended first slice is DTO-only snapshot-local BodyId/StmtRef
-for ProgramJsonRecipeBodiesMinimalDtoV1; implementation remains unselected.
-RecipeBodies materialization, full RecipeMatcher, route switch, MIR
-mutation/lowering, ID allocation, ProgramJSON full parser, new ABI, and Source
-Selfhost remain unclaimed."""
+latest_card = "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-MINIMAL-BASIS-DECISION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3195-MIRBUILDER-PROGRAMJSON-RECIPEBODIES-MINIMAL-BASIS-DECISION-001.md"
+latest_card_summary = """3195 selects the first RecipeBodies-facing slice:
+DTO-only snapshot-local BodyId/StmtRef for ProgramJsonRecipeBodiesMinimalDtoV1.
+The next card is the DTO snapshot selection. RecipeBodies materialization, full
+RecipeMatcher, route switch, MIR mutation/lowering, ID allocation, ProgramJSON
+full parser, new ABI, and Source Selfhost remain unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -363,6 +362,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-07: 3195 selects DTO-only snapshot-local BodyId/StmtRef as the first RecipeBodies-facing ProgramJsonRecipeBodiesMinimalDtoV1 slice while real RecipeBodies materialization and Source Selfhost remain unclaimed.",
   "2026-07-07: 3194 prepares the RecipeBodies minimal-basis consultation and recommends DTO-only snapshot-local BodyId/StmtRef as the first ProgramJsonRecipeBodiesMinimalDtoV1 slice while implementation remains unselected.",
   "2026-07-07: 3193 stops at the RecipeBodies design boundary after covered flat block recipe if-mode rows while RecipeBodies materialization, full RecipeMatcher, route switch, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3192 marks the covered parseable then-return/else-break ProgramJsonExitAllowedBlockRecipeExitAllSnapshotV1 row as a scoped Rust ASTNode projector retire-candidate while RecipeBodies, route switch, and Source Selfhost remain unclaimed.",
@@ -371,5 +371,4 @@ landed_tail = [
   "2026-07-07: 3189 marks the covered parseable then-return/else-local ProgramJsonExitAllowedBlockRecipeThenOnlyExitSnapshotV1 row as a scoped Rust ASTNode projector retire-candidate while ExitAll, RecipeBodies, route switch, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3188 proves ProgramJsonExitAllowedBlockRecipeThenOnlyExitSnapshotV1 for the parseable then-return/else-local ProgramJSON row through ExitAllowedBlockRecipeBox while ExitAll, RecipeBodies, route switch, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3187 selects ProgramJsonExitAllowedBlockRecipeThenOnlyExitSnapshotV1 as the next ProgramJSON-fed block recipe contract while ExitAll, RecipeBodies, route switch, and Source Selfhost remain unclaimed.",
-  "2026-07-07: 3186 marks the covered parseable then-local/else-return ProgramJsonExitAllowedBlockRecipeElseOnlyExitSnapshotV1 row as a scoped Rust ASTNode projector retire-candidate while ThenOnlyExit, ExitAll, RecipeBodies, route switch, and Source Selfhost remain unclaimed.",
 ]

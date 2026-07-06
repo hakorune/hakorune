@@ -60,14 +60,11 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-RECIPEBODIES-MINIMAL-BASIS-DECISION-001
+  MIRBUILDER-PROGRAMJSON-RECIPEBODIES-MINIMAL-DTO-SNAPSHOT-SELECTION-001
 selected next card:
-  await consultation decision for the first minimal `.hako` RecipeBodies
-  surface. 3194 recommends DTO-only snapshot-local BodyId/StmtRef for
-  ProgramJsonRecipeBodiesMinimalDtoV1 before any real arena materialization.
-  Recursive RecipeBodies materialization, full RecipeMatcher, route selection,
-  MIR mutation/lowering, ID allocation, runtime route switch, and Source
-  Selfhost remain unclaimed.
+  select the DTO-only ProgramJsonRecipeBodiesMinimalDtoV1 snapshot owner.
+  The selected surface is snapshot-local BodyId/StmtRef over StmtOnly rows;
+  real RecipeBodies arena materialization stays forbidden.
 
 post-3180 block recipe task order:
   completed: JoinThenElse, ElseOnlyExit, ThenOnlyExit, and ExitAll are scoped
@@ -89,10 +86,11 @@ normal operating rule:
   history.
 
 latest design decision:
-  3194 prepares the RecipeBodies minimal-basis consultation. It recommends the
-  first post-stop slice be a DTO-only StmtOnly BodyId/StmtRef snapshot:
-  ProgramJsonRecipeBodiesMinimalDtoV1. Implementation remains unselected until
-  the consultation decision is recorded.
+  3195 selects DTO-only snapshot-local BodyId/StmtRef as the first
+  RecipeBodies-facing ProgramJsonRecipeBodiesMinimalDtoV1 slice. It selects the
+  next implementation-selection card only; real RecipeBodies arena
+  materialization remains unclaimed.
+  3194 prepared the RecipeBodies minimal-basis consultation and recommended A.
   3193 documents the RecipeBodies design stop after covered flat block recipe
   if-mode rows. RecipeBlock + RecipeItem remain the public structural truth;
   RecipeBodies/RecipeBody remain internal arena storage behind BodyId/StmtRef.

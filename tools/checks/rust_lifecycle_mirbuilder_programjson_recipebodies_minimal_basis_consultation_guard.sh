@@ -107,10 +107,10 @@ if recommended not in card:
     raise SystemExit("card recommended option missing")
 if "implementation_selected=0" not in card:
     raise SystemExit("card must keep implementation unselected")
-if "selected next task:\n  MIRBUILDER-PROGRAMJSON-RECIPEBODIES-MINIMAL-BASIS-DECISION-001" not in task_order:
-    raise SystemExit("task-order must wait for RecipeBodies decision")
-if "3194 prepares the RecipeBodies minimal-basis consultation" not in task_order:
+if "3194 prepared the RecipeBodies minimal-basis consultation" not in task_order:
     raise SystemExit("task-order 3194 marker missing")
+if "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-MINIMAL" not in task_order:
+    raise SystemExit("task-order RecipeBodies minimal follow-up missing")
 PY
 
 cat <<'REPORT'

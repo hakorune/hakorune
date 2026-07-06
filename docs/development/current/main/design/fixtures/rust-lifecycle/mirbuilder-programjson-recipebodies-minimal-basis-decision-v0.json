@@ -1,0 +1,79 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonRecipeBodiesMinimalBasisDecisionV1",
+  "token": "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-MINIMAL-BASIS-DECISION-001",
+  "input_state": {
+    "previous_card": "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-MINIMAL-BASIS-CONSULTATION-001",
+    "consultation_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-programjson-recipebodies-minimal-basis-consultation-v0.json",
+    "selected_option_id": "A_DTO_ONLY_STMT_ONLY_BODYID_STMTREF_SNAPSHOT",
+    "source_authority": "docs/development/current/main/design/recipe-tree-and-parts-ssot.md"
+  },
+  "decision": {
+    "kind": "SelectDtoOnlySnapshotLocalBodyIdStmtRef",
+    "reason_token": "ProvesReferenceBoundaryBeforeRealRecipeBodiesArena",
+    "selected_first_slice": "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-MINIMAL-DTO-SNAPSHOT-SELECTION-001",
+    "snapshot_kind": "ProgramJsonRecipeBodiesMinimalDtoV1",
+    "row_scope": "StmtOnlyLocalOrPrintMinimal"
+  },
+  "selected_contract": {
+    "body_id_contract": "snapshot-local token only; not a public RecipeBodies arena ID",
+    "stmt_ref_contract": "snapshot-local token only; indexes within the DTO body item summary",
+    "output_is_string_snapshot": 1,
+    "output_is_runtime_arena": 0,
+    "requires_new_hako_syntax": 0,
+    "requires_new_hako_library_api": 0
+  },
+  "first_slice_acceptance": {
+    "must_consume_programjson": 1,
+    "must_use_existing_recipe_root_or_programjson_scan": 1,
+    "must_emit_bodyid_stmtref_tokens": 1,
+    "must_compare_against_rust_oracle": 1,
+    "must_name_non_claims_in_output": 1,
+    "minimum_rows": [
+      "empty_stmt_only_body",
+      "single_local_stmt_body",
+      "local_then_print_stmt_body"
+    ]
+  },
+  "deferred_options": [
+    {
+      "id": "B_ONE_SHAPE_ARENA_BUILDER_PARITY",
+      "defer_reason": "real arena semantics after DTO boundary parity"
+    },
+    {
+      "id": "C_VERIFIER_FIRST_BOUNDARY",
+      "defer_reason": "verifier-first may recreate Rust policy before reference surface"
+    }
+  ],
+  "forbidden_in_first_slice": {
+    "real_recipe_bodies_arena_publication": 1,
+    "recipe_bodies_bodies_direct_access": 1,
+    "full_recipe_matcher_execution": 1,
+    "route_selection": 1,
+    "mir_mutation": 1,
+    "id_allocation": 1,
+    "backend_lowering": 1,
+    "runtime_route_switch": 1,
+    "source_selfhost_claim": 1,
+    "programjson_full_parser_claim": 1,
+    "new_hako_syntax": 1,
+    "new_hako_library_api": 1,
+    "new_backend_route": 1,
+    "new_abi": 1
+  },
+  "claims": {
+    "consultation_decision_recorded": 1,
+    "implementation_selected": 1,
+    "recipe_bodies_materialization": 0,
+    "runtime_recipe_bodies_arena": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering": 0,
+    "runtime_route_switch": 0,
+    "source_selfhost_claim": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
