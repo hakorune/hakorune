@@ -1,0 +1,72 @@
+# 3149 - MIRBUILDER-PROGRAMJSON-LAYER4-LOOP-RECIPE-DTO-EXPANDED-RETURN-PARITY-001
+
+Status: landed
+
+## Scope
+
+Expand `ProgramJsonLoopRecipeDtoSnapshotV1` so `Loop.body[0].If.then`
+`Return(payload)` is forwarded through the same Return payload vocabulary already
+covered by Seq, Exit, and If DTOs.
+
+The implementation removes the `LoopStmtHandler` Int-only payload construction
+for the loop-body If path and delegates the then Return statement to
+`ReturnStmtHandler`.
+
+Covered rows:
+
+```text
+loop_if_then_return_new_stringbox_abc_assignment_final_return_var
+loop_if_then_return_call_id0_assignment_final_return_var
+loop_if_then_return_call_id1_int9_assignment_final_return_var
+loop_if_then_return_call_id1_int7_assignment_final_return_var
+loop_if_then_return_method_stringbox_length_abc_assignment_final_return_var
+loop_if_then_return_method_stringbox_indexof_b_abc_assignment_final_return_var
+```
+
+This is a Layer4 Recipe DTO parity expansion only. It does not switch the runtime
+route away from Rust, execute RecipeMatcher, select backend routes, lower MIR,
+mutate MIR, allocate IDs, or claim Source Selfhost.
+
+## Evidence
+
+```bash
+bash tools/checks/rust_lifecycle_mirbuilder_programjson_layer4_loop_recipe_dto_expanded_return_parity_gate.sh
+```
+
+Expected guard result:
+
+```text
+owner=ProgramJsonLoopRecipeDtoSnapshotV1
+expanded_rows=6
+programjson_traversal_used=1
+structured_recipe_dto_constructed=1
+mir_json_route_green=1
+runtime_parity_green=1
+legacy_loop_parity_guard_still_green=1
+expanded_if_payload_prerequisite_green=1
+full_recipe_matcher_execution=0
+route_selection=0
+mir_mutation=0
+id_allocation=0
+backend_lowering_claim=0
+source_selfhost_claim=0
+```
+
+## Non-Claims
+
+```text
+runtime route switch
+full RecipeMatcher execution
+route selection
+MIR lowering
+MIR mutation
+ID allocation
+ProgramJSON full parser
+Source Selfhost
+```
+
+## Next
+
+```text
+MIRBUILDER-PROGRAMJSON-LAYER4-LOOP-RECIPE-DTO-EXPANDED-RETURN-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+```

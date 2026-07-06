@@ -345,15 +345,16 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PROGRAMJSON-LAYER4-IF-RECIPE-DTO-EXPANDED-RETURN-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3148-MIRBUILDER-PROGRAMJSON-LAYER4-IF-RECIPE-DTO-EXPANDED-RETURN-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001.md"
-latest_card_summary = """3148 marks expanded Return payload
-IfRecipeDtoSnapshotV1 rows from 3147 as a scoped Rust ASTNode projector
-retire-candidate. Covered rows are 6 with no deferred rows. Runtime route
-switch, full ASTNode projector retirement, full RecipeMatcher execution, route
-selection, MIR mutation/lowering, ID allocation, ProgramJSON full parser, new
-ABI, and Source Selfhost remain unclaimed. Next active work selects the next
-concrete Layer4 Recipe DTO ProgramJSON capability."""
+latest_card = "MIRBUILDER-PROGRAMJSON-LAYER4-LOOP-RECIPE-DTO-EXPANDED-RETURN-PARITY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3149-MIRBUILDER-PROGRAMJSON-LAYER4-LOOP-RECIPE-DTO-EXPANDED-RETURN-PARITY-001.md"
+latest_card_summary = """3149 expands ProgramJsonLoopRecipeDtoSnapshotV1
+with 6 loop-body If.then Return payload rows for the expanded Return-only
+vocabulary already proven by If DTO. LoopStmtHandler now forwards
+ReturnStmtHandler payloads instead of forcing Int. Runtime route switch, full
+ASTNode projector retirement, full RecipeMatcher execution, route selection,
+MIR mutation/lowering, ID allocation, ProgramJSON full parser, new ABI, and
+Source Selfhost remain unclaimed. Next active work marks the expanded Loop DTO
+rows as a scoped Rust ASTNode projector retire-candidate."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -364,6 +365,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-06: 3149 expands ProgramJsonLoopRecipeDtoSnapshotV1 with 6 loop-body If.then Return payload rows; LoopStmtHandler now forwards ReturnStmtHandler payloads instead of forcing Int while runtime route switch / Source Selfhost remain unclaimed.",
   "2026-07-06: 3148 marks expanded Return payload IfRecipeDtoSnapshotV1 rows from 3147 as a scoped Rust ASTNode projector retire-candidate; covered rows are 6 with no deferred rows while runtime route switch / Source Selfhost remain unclaimed.",
   "2026-07-06: 3147 expands ProgramJsonIfRecipeDtoSnapshotV1 with 6 then_item=Exit payload rows for the expanded Return-only vocabulary while runtime route switch / Source Selfhost remain unclaimed.",
   "2026-07-06: 3146 marks expanded Return payload ExitRecipeDtoSnapshotV1 rows from 3145 as a scoped Rust ASTNode projector retire-candidate; covered rows are 6 with no deferred rows while runtime route switch / Source Selfhost remain unclaimed.",
@@ -375,5 +377,4 @@ landed_tail = [
   "2026-07-06: 3140 marks covered RecipeShapeKindDtoSnapshotV1 ProgramJSON Layer4 rows as a scoped Rust ASTNode projector retire-candidate; covered rows are 7 with no deferred rows while runtime route switch / full ASTNode projector retirement / Source Selfhost remain unclaimed.",
   "2026-07-06: 3139 adds ProgramJsonRecipeShapeKindDtoSnapshotV1 with green MIR JSON and AOT runtime parity for 7 stmt-only ProgramJSON rows; shape_kind selection is covered while route selection / Source Selfhost remain unclaimed.",
   "2026-07-06: 3138 marks covered RecipeStmtSeqDtoSnapshotV1 ProgramJSON Layer4 rows as a scoped Rust ASTNode projector retire-candidate; covered rows are 7 with no deferred rows while shape_kind selection / Source Selfhost remain unclaimed.",
-  "2026-07-06: 3137 adds ProgramJsonRecipeStmtSeqDtoSnapshotV1 with green MIR JSON and AOT runtime parity for 7 stmt-only ProgramJSON rows; MirJsonV0ShapeRecipeSeq now avoids array_len on this AOT boundary and shape_kind selection / Source Selfhost remain unclaimed.",
 ]

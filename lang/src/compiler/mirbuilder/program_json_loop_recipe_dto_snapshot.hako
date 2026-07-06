@@ -27,6 +27,12 @@ static box ProgramJsonLoopRecipeDtoSnapshotBox {
     if BoxHelpers.same_token(v, "Var") == 1 { return "Var" }
     if BoxHelpers.same_token(v, "Int") == 1 { return "Int" }
     if BoxHelpers.same_token(v, "VarLtInt") == 1 { return "VarLtInt" }
+    if BoxHelpers.same_token(v, "NewBoxStringAbc") == 1 { return "NewBoxStringAbc" }
+    if BoxHelpers.same_token(v, "CallId0") == 1 { return "CallId0" }
+    if BoxHelpers.same_token(v, "CallId1Int9") == 1 { return "CallId1Int9" }
+    if BoxHelpers.same_token(v, "CallId1Int7") == 1 { return "CallId1Int7" }
+    if BoxHelpers.same_token(v, "MethodStringBoxLengthAbc") == 1 { return "MethodStringBoxLengthAbc" }
+    if BoxHelpers.same_token(v, "MethodStringBoxIndexOfBAbc") == 1 { return "MethodStringBoxIndexOfBAbc" }
     if BoxHelpers.same_token(v, "i") == 1 { return "i" }
     return ""
   }
@@ -110,16 +116,25 @@ static box ProgramJsonLoopRecipeDtoSnapshotBox {
     if RecipeItemBox.kind_is(then_item, "Exit") != 1 { return me._err("loop_if_then_not_exit") }
     local payload = BoxHelpers.map_get(then_item, "payload")
     if payload == null || BoxHelpers.is_map(payload) != 1 { return me._err("loop_if_then_payload_missing") }
+    local then_return_kind = me._s(payload, "return_kind")
+    local then_return_value = me._ival(payload, "retv")
+    if BoxHelpers.same_token(then_return_kind, "Var") == 1 { then_return_value = me._s(payload, "ret_var_name") }
     if me._stmt_ok(assign_stmt, "Assignment") != 1 { return me._err("loop_if_assignment_missing") }
     local facts = BoxHelpers.map_get(assign_stmt, "facts")
     if facts == null || BoxHelpers.is_map(facts) != 1 { return me._err("loop_if_assignment_facts_missing") }
 
-    return summary
+    local out = summary
       + ";shape_kind=phase21_local_loop_if_varltint_then_return_int_body_inc_return_var_or_int"
       + ";loop_body_kind=if_then_assignment"
       + ";loop_step_int=" + me._ival(facts, "step_int")
       + ";loop_if_cond_rhs_int=" + me._ival(if_cond, "cond_rhs_int")
       + ";loop_if_then_retv=" + me._ival(payload, "retv")
+    if BoxHelpers.same_token(then_return_kind, "Int") != 1 {
+      out = out
+        + ";loop_if_then_return_kind=" + then_return_kind
+        + ";loop_if_then_return_value=" + then_return_value
+    }
+    return out
   }
 
   build_summary(program_json) {

@@ -38,7 +38,7 @@ if fixture.get("token") != "MIRBUILDER-PROGRAMJSON-LAYER4-LOOP-RECIPE-DTO-RUST-A
 
 evidence = fixture.get("evidence") or {}
 expected_hashes = {
-    "hako_snapshot_source_hash": "sha256:962397e5a9f7ed415f3d30999e15f3631011ef1bac04b7d7b183e57d91d5e1c2",
+    "hako_snapshot_source_hash": "sha256:55936df225b43256df55023d83c4ed486ab3f9e7a70b4d43b7935ef482327c68",
     "parity_fixture_hash": "sha256:8387e9cf31bd857182a75de4db57059f314c137df515f99e3ad98d1dd52a645a",
     "parity_gate_hash": "sha256:84fbbe77e419e07b68d22fba1dc8dae3eaf7ec08a3ca74ca6200caf770066168",
     "heavy_readiness_gate_hash": "sha256:db42d7a96b21eb6349369311e5ab748740bf2aecb873599ac75ebf9e7a2fb7f1",
