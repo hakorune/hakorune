@@ -60,12 +60,13 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-EXIT-ALLOWED-BLOCK-RECIPE-ELSE-ONLY-EXIT-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+  MIRBUILDER-PROGRAMJSON-BLOCK-RECIPE-AFTER-ELSE-ONLY-EXIT-NEXT-CONTRACT-SELECTION-001
 selected next card:
-  mark only the covered then-local/else-return ElseOnlyExit ProgramJSON row as
-  a scoped Rust ASTNode projector retire-candidate. Keep full projector
-  removal, RecipeBodies, RecipeMatcher, route selection, MIR mutation/lowering,
-  ID allocation, and runtime route switch unclaimed.
+  select the next ProgramJSON-fed block recipe contract after ElseOnlyExit.
+  Candidate priority is ThenOnlyExit, ExitAll, or stopping at the recursive
+  RecipeBodies boundary. Name the missing ProgramJSON producer boundary and
+  keep full projector removal, RecipeMatcher, route selection, MIR
+  mutation/lowering, ID allocation, and runtime route switch unclaimed.
 
 post-3180 block recipe task order:
   1. selected: JoinThenElse after LoopV0.
@@ -73,7 +74,8 @@ post-3180 block recipe task order:
   3. retire-candidate: JoinThenElse row is scoped retire-candidate.
   4. selected: ElseOnlyExit after JoinThenElse.
   5. parity: ElseOnlyExit ProgramJSON block contract is green.
-  6. retire-candidate: mark only covered rows after parity is green.
+  6. retire-candidate: ElseOnlyExit row is scoped retire-candidate.
+  7. selection: choose ThenOnlyExit, ExitAll, or stop at RecipeBodies.
   design-stop trigger:
     stop before recursive RecipeBodies, full RecipeMatcher, route selection,
     MIR mutation/lowering, ID allocation, runtime route switch, or Source
@@ -89,6 +91,9 @@ normal operating rule:
   history.
 
 latest design decision:
+  3186 marks the covered parseable then-local/else-return ElseOnlyExit row as a
+  scoped Rust ASTNode projector retire-candidate; this is not runtime route
+  switching or full projector retirement.
   3185 proves ProgramJsonExitAllowedBlockRecipeElseOnlyExitSnapshotV1 for the
   parseable then-local/else-return row by extending IfStmtHandler's ProgramJSON
   producer and projecting IfThenLocalElseReturn into ExitAllowedBlockRecipeBox.
