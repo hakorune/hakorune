@@ -872,12 +872,41 @@
             int array_set_plain_i64 = a1 && is_plain_i64_value(a1);
             int array_set_string_handle = plan.value_is_string_handle;
             enum GenericMethodSetRouteKind set_route = plan.set_route;
+            int map_set_plain_i64 =
+                a1 && is_plain_i64_value(a1) &&
+                (set_route == HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_MAP_STORE_I64 ||
+                 set_route == HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_MAP_STORE_ANY);
             (void)array_set_plain_i64;
             (void)array_set_string_handle;
             ab[0] = '\0';
             if (recv) append_i64_arg_ref(ab, ab_cap, recv, 1);
             if (a0) append_i64_arg_ref(ab, ab_cap, a0, ab[0]=='\0');
-            if (a1) append_i64_arg_ref(ab, ab_cap, a1, 0);
+            if (map_set_plain_i64) {
+              char value_ref[64];
+              long long value_const = 0;
+              long long value_base = resolve_copy_source_reg(a1);
+              size_t used = strlen(ab);
+              if (has_const(value_base, &value_const)) {
+                snprintf(value_ref, sizeof(value_ref), "%lld", value_const);
+              } else {
+                snprintf(value_ref, sizeof(value_ref), "%%r%lld", value_base);
+              }
+              fprintf(f,
+                      "  %%map_set_i64_value_box_%lld_%zu = call i64 @\"nyash.box.from_i64\"(i64 %s)\n",
+                      bid,
+                      ii,
+                      value_ref);
+              if (used < ab_cap) {
+                snprintf(
+                    ab + used,
+                    ab_cap - used,
+                    ", i64 %%map_set_i64_value_box_%lld_%zu",
+                    bid,
+                    ii);
+              }
+            } else if (a1) {
+              append_i64_arg_ref(ab, ab_cap, a1, 0);
+            }
             switch (set_route) {
               case HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_MAP_STORE_I64:
                 if (dst) {

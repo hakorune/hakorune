@@ -187,6 +187,54 @@ Keep generic void object return widening = 0.
 Keep scanner nullable bridge = 0.
 ```
 
+## 2026-07-06 MapBox Plain-I64 Value Carrier Guard
+
+Status: support contract green, 3122 still not green.
+
+This slice closed a nearby AOT carrier ambiguity exposed while probing the
+PhaseState parse heavy EXE path:
+
+```text
+MapBox.set value operands that are known plain i64 are boxed with
+nyash.box.from_i64 before calling nyash.map.slot_store_hhh/hih.
+```
+
+Why this is a support contract, not a ProgramJSON capability claim:
+
+```text
+The issue was in AOT MapBox value carrier lowering, where a positive raw i64
+could alias an existing runtime handle number under write_any storage.  The fix
+keeps generic void object return widening at 0, keeps scanner nullable bridge at
+0, and does not add a new backend route or ABI.
+```
+
+Guard:
+
+```bash
+bash tools/checks/hako_aot_mapbox_set_plain_i64_value_contract_guard.sh
+```
+
+Observed gate state after the fix:
+
+```text
+hako_aot_mapbox_set_plain_i64_value_contract_guard = green
+hako_programjson_scanner_result_map_return_contract_guard = green
+hako_aot_route_value_type_publication_contract_gate = green
+rust_lifecycle_mirbuilder_programjson_layer4_loop_recipe_dto_parity_gate = green
+rust_lifecycle_mirbuilder_programjson_layer4_loop_recipe_dto_heavy_exe_readiness_gate = completed with:
+  heavy_emit_exe_probe=green
+  runtime_parity_green=0
+  exact_first_blocker=phase_state_parse_runtime_parse_error
+```
+
+Next owner remains:
+
+```text
+ProgramJsonV0PhaseStateBox.parse/2 heavy EXE runtime path.
+Do not select a new ProgramJSON traversal owner until this blocker is closed or
+the heavy gate reports a narrower exact_first_blocker.
+```
+
 ## 2026-07-06 Cleanup Phase Split
 
 Claude/worker review found that the same root issue appears in three places:

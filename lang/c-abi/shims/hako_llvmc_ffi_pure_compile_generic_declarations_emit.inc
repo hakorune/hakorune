@@ -90,6 +90,7 @@
           module_has_planned_same_module_function_definition())
         fprintf(f, "declare i64 @\"nyash.stage1.emit_mir_from_program_json_v0_h\"(i64)\n");
       if (needs.string_concat || needs.string_substring || needs.arr_get ||
+          needs.map_set ||
           needs.arr_string_indexof || module_has_planned_same_module_function_definition()) {
         fprintf(f, "declare i64 @\"nyash.box.from_i64\"(i64)\n");
         fprintf(f, "declare i64 @\"nyash.box.from_bool\"(i64)\n");

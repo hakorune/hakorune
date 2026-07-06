@@ -184,6 +184,7 @@ phase-1 compatibility Program(JSON) compat execution helper.
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_block_expr_shape_retire_rust_astnode_projector_candidate_guard.sh` | Retire-candidate guard for the covered `BlockExprShapeSnapshotV1` ProgramJSON traversal slice. |
 | `tools/checks/hako_aot_dynamic_string_eq_and_int_to_str_correctness_gate.sh` | AOT dynamic string equality and scanner-fed `StringHelpers.int_to_str` correctness gate. |
 | `tools/checks/hako_aot_route_value_type_publication_contract_gate.sh` | AOT/MIR route value-type publication contract gate for 2997. |
+| `tools/checks/hako_aot_mapbox_set_plain_i64_value_contract_guard.sh` | AOT MapBox.set plain-i64 value preservation guard for same-function literals and same-module MapBox returns. |
 
 ## Phase-296x Family Quick Index
 

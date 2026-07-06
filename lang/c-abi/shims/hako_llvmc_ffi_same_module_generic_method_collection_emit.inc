@@ -431,6 +431,8 @@
         size_t argc = 0;
         size_t key_index = 0;
         size_t value_index = 1;
+        int is_array_set = 0;
+        int should_box_map_i64_value = 0;
         (void)f;
         (void)bid;
         (void)ii;
@@ -454,10 +456,29 @@
         }
         if (!same_module_function_read_arg_reg(args, key_index, &key)) return 0;
         if (!same_module_function_read_arg_reg(args, value_index, &value)) return 0;
+        is_array_set = same_module_method_view_is_direct_array_set(method_view);
+        should_box_map_i64_value = !is_array_set && value && is_plain_i64_value(value);
         append_i64_arg_ref(ab, sizeof(ab), recv, 1);
         append_i64_arg_ref(ab, sizeof(ab), key, 0);
-        append_i64_arg_ref(ab, sizeof(ab), value, 0);
-        if (same_module_method_view_is_direct_array_set(method_view)) {
+        if (should_box_map_i64_value) {
+          char value_ref[64];
+          size_t used = strlen(ab);
+          same_module_function_format_i64_ref(value_ref, sizeof(value_ref), value);
+          EMIT("  %%map_set_i64_value_box_%lld_%zu = call i64 @\"nyash.box.from_i64\"(i64 %s)\n",
+               bid,
+               ii,
+               value_ref);
+          if (used >= sizeof(ab)) return 0;
+          snprintf(
+              ab + used,
+              sizeof(ab) - used,
+              ", i64 %%map_set_i64_value_box_%lld_%zu",
+              bid,
+              ii);
+        } else {
+          append_i64_arg_ref(ab, sizeof(ab), value, 0);
+        }
+        if (is_array_set) {
           int value_is_i64 = value && is_plain_i64_value(value);
           int value_is_string_handle = value && get_origin(value) == ORG_STRING;
           enum HakoLlvmcArraySlotEmitDemand demand =
