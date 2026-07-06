@@ -60,11 +60,10 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-LAYER4-SEQ-RECIPE-DTO-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+  MIRBUILDER-PROGRAMJSON-LAYER4-NEXT-RECIPE-DTO-CAPABILITY-SELECTION-001
 selected next card:
-  not-yet-created; next slice should mark only the covered
-  SeqRecipeDtoSnapshotV1 rows as a scoped Rust ASTNode projector
-  retire-candidate after the 3126 parity checkpoint.
+  not-yet-created; next slice must select the next concrete Layer4 Recipe DTO
+  ProgramJSON capability after the 3127 retire-candidate checkpoint.
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -94,6 +93,14 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
+  3127 marks the covered SeqRecipeDtoSnapshotV1 ProgramJSON Layer4 rows as a
+  scoped Rust ASTNode projector retire-candidate after 3126 parity is green.
+  Top-level Assignment/Print rows remain deferred to a separate PhaseState
+  consumer capability. This is a future runtime route-switch candidate, not
+  Rust bootstrap/oracle deletion. Runtime route switch, HakoAdoption,
+  ProgramJSON full parser, full RecipeMatcher execution, route selection, MIR
+  mutation/lowering, ID allocation, and Source Selfhost remain unclaimed. Next
+  work selects the next concrete Layer4 Recipe DTO ProgramJSON capability.
   3126 selects and implements ProgramJsonSeqRecipeDtoSnapshotV1 as the next
   concrete Layer4 ProgramJSON Recipe DTO capability after the 3125 If DTO
   retire-candidate checkpoint. The `.hako` owner consumes Program(JSON v0)
@@ -101,16 +108,12 @@ latest design decision:
   JSON route and AOT runtime parity on four covered stmt-only Seq rows.
   Top-level Assignment/Print rows are explicitly deferred to a separate
   PhaseState consumer capability because they are not yet runtime-green in this
-  Layer4 route. Runtime route switch, full RecipeMatcher execution, route
-  selection, MIR mutation/lowering, ID allocation, HakoAdoption, ProgramJSON
-  full parser, and Source Selfhost remain unclaimed.
+  Layer4 route.
   3125 is the analogous scoped retire-candidate for covered
   IfRecipeDtoSnapshotV1 rows.
   3124/3123 are the analogous If/Loop Layer4 DTO parity and retire-candidate
   checkpoints.
-  Earlier Layer4 and scanner/AOT contract details live in cards 3109 and
-  3114-3122 plus their guards. This task-order keeps only the active next
-  pointer and the current non-claims.
+  Earlier Layer4 and scanner/AOT details live in cards 3109 and 3114-3122.
   2997 stabilized the AOT/MIR value-type publication contract only for the
   proven route families. 3002 remains a trigger-based debt queue for Float
   Sub/Mul/Div, string Lt/Gt/Le/Ge policy, user-box single-observation
