@@ -1,0 +1,160 @@
+// program_json_if_recipe_dto_snapshot.hako
+// Responsibility:
+// - Build a canonical Layer4 If Recipe DTO snapshot from Program(JSON v0).
+// - Consume PhaseState result maps and RecipeItem data only; no lowering.
+
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.shared.common.box_helpers as BoxHelpers
+using lang.compiler.mirbuilder.program_json_v0_phase_state_box as ProgramJsonV0PhaseStateBox
+using lang.compiler.mirbuilder.recipe.recipe_item_box as RecipeItemBox
+
+static box ProgramJsonIfRecipeDtoSnapshotBox {
+  _i(map, key) {
+    return StringHelpers.to_i64(BoxHelpers.map_get(map, key))
+  }
+
+  _s(map, key) {
+    local v = BoxHelpers.map_get(map, key)
+    if v == null { return "" }
+    return me._token_out(v)
+  }
+
+  _token_out(v) {
+    if v == null { return "" }
+    if BoxHelpers.same_token(v, "Local") == 1 { return "Local" }
+    if BoxHelpers.same_token(v, "Assignment") == 1 { return "Assignment" }
+    if BoxHelpers.same_token(v, "Return") == 1 { return "Return" }
+    if BoxHelpers.same_token(v, "Var") == 1 { return "Var" }
+    if BoxHelpers.same_token(v, "Int") == 1 { return "Int" }
+    if BoxHelpers.same_token(v, "VarEqInt") == 1 { return "VarEqInt" }
+    if BoxHelpers.same_token(v, "i") == 1 { return "i" }
+    return ""
+  }
+
+  _ival(map, key) {
+    local v = BoxHelpers.map_get(map, key)
+    if v == null { return "" }
+    return "" + v
+  }
+
+  _len(arr) {
+    if arr == null { return 0 }
+    local n = 0
+    loop(n < 64) {
+      if BoxHelpers.array_get(arr, n) == null { return n }
+      n = n + 1
+    }
+    return n
+  }
+
+  _err(reason) {
+    return "snapshot_kind=IfRecipeDtoSnapshotV1;err=1;reason=" + reason
+  }
+
+  _item_kind(item) {
+    if RecipeItemBox.kind_is(item, "Seq") == 1 { return "Seq" }
+    if RecipeItemBox.kind_is(item, "If") == 1 { return "If" }
+    if RecipeItemBox.kind_is(item, "Loop") == 1 { return "Loop" }
+    if RecipeItemBox.kind_is(item, "Exit") == 1 { return "Exit" }
+    return "Unsupported"
+  }
+
+  _stmt_ok(item, stmt_kind) {
+    if item == null || BoxHelpers.is_map(item) != 1 { return 0 }
+    if RecipeItemBox.kind_is(item, "Seq") != 1 { return 0 }
+    if BoxHelpers.same_token(BoxHelpers.map_get(item, "leaf_kind"), "Stmt") != 1 { return 0 }
+    if BoxHelpers.same_token(BoxHelpers.map_get(item, "stmt_kind"), stmt_kind) != 1 { return 0 }
+    return 1
+  }
+
+  _summary_base(out, items, if_item, final_return_stmt) {
+    local cond = BoxHelpers.map_get(if_item, "cond_facts")
+    if cond == null || BoxHelpers.is_map(cond) != 1 { return me._err("missing_if_cond_facts") }
+    local final_facts = BoxHelpers.map_get(final_return_stmt, "facts")
+    local return_kind = me._s(out, "return_kind")
+    local ret_value = me._ival(out, "retv")
+    if BoxHelpers.same_token(return_kind, "Var") == 1 { ret_value = me._s(out, "ret_var_name") }
+
+    return "snapshot_kind=IfRecipeDtoSnapshotV1"
+      + ";err=0"
+      + ";matched=1"
+      + ";root_len=" + StringHelpers.int_to_str(me._len(items))
+      + ";local_name=" + me._s(out, "local_name")
+      + ";return_kind=" + return_kind
+      + ";return_value=" + ret_value
+      + ";return_facts_kind=" + me._s(final_facts, "stmt_kind")
+      + ";if_cond_kind=" + me._s(cond, "cond_kind")
+      + ";if_cond_var=" + me._s(cond, "cond_var_name")
+      + ";if_cond_rhs_int=" + me._ival(cond, "cond_rhs_int")
+  }
+
+  _exit_tail(summary, then_item, else_item) {
+    if RecipeItemBox.kind_is(then_item, "Exit") != 1 { return me._err("then_not_exit") }
+    if RecipeItemBox.kind_is(else_item, "Seq") != 1 { return me._err("else_not_seq") }
+    local payload = BoxHelpers.map_get(then_item, "payload")
+    if payload == null || BoxHelpers.is_map(payload) != 1 { return me._err("then_payload_missing") }
+    return summary
+      + ";then_kind=Exit"
+      + ";else_kind=Seq"
+      + ";then_return_kind=" + me._s(payload, "return_kind")
+      + ";then_return_value=" + me._ival(payload, "retv")
+      + ";then_assign_rhs="
+      + ";else_assign_rhs="
+      + ";shape_kind=phase_if_then_return_else_null_return"
+  }
+
+  _assignment_tail(summary, then_item, else_item) {
+    if then_item == null || BoxHelpers.is_map(then_item) != 1 { return me._err("then_seq_missing") }
+    if else_item == null || BoxHelpers.is_map(else_item) != 1 { return me._err("else_seq_missing") }
+    if RecipeItemBox.kind_is(then_item, "Seq") != 1 { return me._err("then_not_seq") }
+    if RecipeItemBox.kind_is(else_item, "Seq") != 1 { return me._err("else_not_seq") }
+    local then_items = BoxHelpers.map_get(then_item, "items")
+    local else_items = BoxHelpers.map_get(else_item, "items")
+    if then_items == null || BoxHelpers.is_array(then_items) != 1 { return me._err("then_seq_items_missing") }
+    if else_items == null || BoxHelpers.is_array(else_items) != 1 { return me._err("else_seq_items_missing") }
+    local then_stmt = BoxHelpers.array_get(then_items, 0)
+    local else_stmt = BoxHelpers.array_get(else_items, 0)
+    if me._stmt_ok(then_stmt, "Assignment") != 1 { return me._err("then_assignment_missing") }
+    if me._stmt_ok(else_stmt, "Assignment") != 1 { return me._err("else_assignment_missing") }
+    local then_facts = BoxHelpers.map_get(then_stmt, "facts")
+    local else_facts = BoxHelpers.map_get(else_stmt, "facts")
+    return summary
+      + ";then_kind=Seq"
+      + ";else_kind=Seq"
+      + ";then_return_kind="
+      + ";then_return_value="
+      + ";then_assign_rhs=" + me._ival(then_facts, "assign_rhs")
+      + ";else_assign_rhs=" + me._ival(else_facts, "assign_rhs")
+      + ";shape_kind=phase_if_then_else_assignment_return_var"
+  }
+
+  build_summary(program_json) {
+    local out = ProgramJsonV0PhaseStateBox.parse(program_json, "[test]")
+    if me._i(out, "err") != 0 { return me._err("parse_error") }
+    local root = BoxHelpers.map_get(out, "recipe_root")
+    if root == null || BoxHelpers.is_map(root) != 1 { return me._err("missing_recipe_root") }
+    if RecipeItemBox.kind_is(root, "Seq") != 1 { return me._err("recipe_root_not_seq") }
+    local items = BoxHelpers.map_get(root, "items")
+    if items == null || BoxHelpers.is_array(items) != 1 { return me._err("recipe_root_items_missing") }
+    if me._len(items) != 3 { return me._err("recipe_root_len_not_3") }
+
+    local local_stmt = BoxHelpers.array_get(items, 0)
+    local if_item = BoxHelpers.array_get(items, 1)
+    local final_return_stmt = BoxHelpers.array_get(items, 2)
+    if me._stmt_ok(local_stmt, "Local") != 1 { return me._err("first_stmt_not_local") }
+    if if_item == null || BoxHelpers.is_map(if_item) != 1 { return me._err("if_item_missing") }
+    if RecipeItemBox.kind_is(if_item, "If") != 1 { return me._err("second_item_not_if") }
+    if me._stmt_ok(final_return_stmt, "Return") != 1 { return me._err("third_stmt_not_return") }
+
+    local then_item = BoxHelpers.map_get(if_item, "then_item")
+    local else_item = BoxHelpers.map_get(if_item, "else_item")
+    local summary = me._summary_base(out, items, if_item, final_return_stmt)
+    if summary.indexOf("err=1") >= 0 { return summary }
+    local then_kind = me._item_kind(then_item)
+    if BoxHelpers.same_token(then_kind, "Exit") == 1 { return me._exit_tail(summary, then_item, else_item) }
+    if BoxHelpers.same_token(then_kind, "Seq") == 1 { return me._assignment_tail(summary, then_item, else_item) }
+    return me._err("unsupported_if_shape")
+  }
+}
+
+static box ProgramJsonIfRecipeDtoSnapshotMain { main() { return 0 } }

@@ -60,10 +60,11 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-LAYER4-NEXT-RECIPE-DTO-CAPABILITY-SELECTION-001
+  MIRBUILDER-PROGRAMJSON-LAYER4-IF-RECIPE-DTO-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
 selected next card:
-  not-yet-created; next slice must select the next concrete Layer4 Recipe DTO
-  ProgramJSON capability after the 3123 retire-candidate checkpoint.
+  not-yet-created; next slice should mark only the covered
+  IfRecipeDtoSnapshotV1 rows as a scoped Rust ASTNode projector
+  retire-candidate after the 3124 parity checkpoint.
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -93,6 +94,16 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
+  3124 selects and implements ProgramJsonIfRecipeDtoSnapshotV1 as the next
+  concrete Layer4 ProgramJSON Recipe DTO capability after the 3123 loop DTO
+  retire-candidate checkpoint. The new `.hako` owner consumes Program(JSON v0)
+  through PhaseState parse, emits canonical If Recipe DTO summaries, and is
+  green for MIR JSON route and AOT runtime parity on four covered rows. It also
+  fixes IfStmtHandler dynamic token equality by using raw scanner tokens plus
+  BoxHelpers.same_token instead of stringified comparison. Runtime route switch,
+  full RecipeMatcher execution, route selection, MIR mutation/lowering, ID
+  allocation, HakoAdoption, ProgramJSON full parser, and Source Selfhost remain
+  unclaimed. Next work is the scoped IfRecipeDtoSnapshotV1 retire-candidate.
   3123 marks the covered LoopRecipeDtoSnapshotV1 ProgramJSON Layer4 loop
   Recipe DTO rows as a scoped Rust ASTNode projector retire-candidate after
   3119 parity and 3122 heavy EXE readiness are green. This is a future runtime
@@ -101,39 +112,9 @@ latest design decision:
   route selection, MIR mutation/lowering, ID allocation, and Source Selfhost
   remain unclaimed. Next work selects the next concrete Layer4 Recipe DTO
   ProgramJSON capability.
-  3122 completes the direct/map responsibility split exposed by 3121: scanner
-  result-map and raw ProgramJSON token preservation stay `.hako` contracts,
-  while same-module positive-path helper route readiness is now heavy-runtime
-  parity green for the covered Layer4 loop Recipe DTO rows. Do not inline
-  helpers merely to hide route gaps, and do not reopen scanner void/object
-  widening.
-  3120 closes the Layer4 loop Recipe DTO heavy EXE compile-cost blocker:
-  the FFI `opt -> llc` O0 path now uses `mem2reg` only instead of
-  `always-inline,default<O3>`, and the bounded heavy guard emits/runs the EXE.
-  Runtime parity remains unclaimed because PhaseState parse returns err=1 for
-  the covered DTO rows; 3121 is selected to fix or isolate that parse runtime
-  contract.
-  2026-07-06 scanner-return consultation reconfirms approach B as the active
-  contract: scanner helpers should return total result maps, not `MapBox |
-  null` through void signatures. Approach A (body proof alone publishes object
-  or mixed-runtime return) is forbidden. Approach C is bridge-only and requires
-  a declared helper contract, `remove_after`, and `new_consumers_allowed = false`.
-  3109 already fixes the ProgramJSON scanner helper contract with total
-  result-map returns. Treat it as the prerequisite for Layer4 work, not as a
-  reopened design question: if scanner nullable returns regress, repair 3109
-  first; do not use body proof alone, generic void-object publication, or
-  mixed_runtime_i64_or_handle to unblock Layer4.
-  3119 adds ProgramJsonLoopRecipeDtoSnapshotV1 and a lightweight Layer4 loop
-  Recipe DTO guard. The guard proves ProgramJSON-derived PhaseState recipe_root
-  projection to canonical loop DTO fields and DirectAbi/string_handle route
-  metadata. Runtime parity remains unclaimed because full emit-exe timed out;
-  next work is the heavy AOT readiness split.
-  3118 closes the lightweight public ProgramJsonV0PhaseStateBox.parse/2 AOT
-  call readiness blocker: emitted MIR JSON now proves DirectAbi / map_handle
-  route metadata for the imported parse app. Full emit-exe green remains a
-  separate heavy readiness probe; do not claim it from the lightweight guard.
-  Next work returns to Layer4 loop Recipe DTO parity.
-  3115 scan-body helper calls are retired; 3114 RecipeVerifier / RecipePortSig routes are DirectAbi.
+  Earlier Layer4 and scanner/AOT contract details live in cards 3109 and
+  3114-3122 plus their guards. This task-order keeps only the active next
+  pointer and the current non-claims.
   2997 stabilized the AOT/MIR value-type publication contract only for the
   proven route families. 3002 remains a trigger-based debt queue for Float
   Sub/Mul/Div, string Lt/Gt/Le/Ge policy, user-box single-observation
@@ -204,29 +185,9 @@ latest_diagnostics:
   domain_object_id_subaxis_mechanical_selector_basis = defined
 
 completed:
-  VariableContext returned read borrow -> OwnedReadSnapshotProjection
-  VariableContext returned mutable borrow -> ExplicitMutationApiOnly
-  ReturnEmission / FunctionRegionStackPop / SlotRegistryRelease HakoAdopted
-  projection descriptor queue exhausted
-  Other shape queue exhausted
-  strict-deny near-miss projection clusters exhausted
-  returned mutable borrow cluster -> BoundedWithMapOperation policy
-  current_bindings bounded mutation-frame descriptor
-  multi-axis diagnostic cluster resolution
-  carrier/type transport policy inventory
-  strict converter emission probe
-  native-owner seed capability rerun 003
-  strict-emission -> native seed bridge policy
-  strict-emission native seed candidate selection
-  core_context native source seed
-  core_context HakoAdopted decision
-  native-owner seed capability rerun 004
-  metadata_context native source seed
-  metadata_context HakoAdopted decision
-  native-owner seed capability rerun 005
-  type_context native source seed
-  type_context HakoAdopted decision
-  native-owner seed capability rerun 006
+  Earlier VariableContext, bridge-policy, native-owner seed, and descriptor
+  exhaustion rows live in their phase cards and guards. This file no longer
+  expands that landed history.
 
 bridge_progression_summary:
   post_rerun_006_basis -> unconverted_report_rerun_002 -> native_seed_rerun_007
