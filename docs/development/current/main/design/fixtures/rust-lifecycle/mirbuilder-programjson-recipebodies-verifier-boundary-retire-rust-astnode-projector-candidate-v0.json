@@ -1,0 +1,55 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonRecipeBodiesVerifierBoundaryRustAstNodeProjectorRetireCandidateV1",
+  "token": "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-VERIFIER-BOUNDARY-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001",
+  "input_state": {
+    "previous_card": "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-VERIFIER-BOUNDARY-PARITY-001",
+    "parity_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-programjson-recipebodies-verifier-boundary-parity-v0.json",
+    "programjson_owner": "ProgramJsonRecipeBodiesVerifierBoundarySnapshotBox",
+    "snapshot_kind": "ProgramJsonRecipeBodiesVerifierBoundarySnapshotV1"
+  },
+  "retire_candidate": {
+    "name": "ProgramJsonRecipeBodiesVerifierBoundarySnapshotV1 Rust ASTNode projector slice",
+    "scope": "covered recursive nested arena DTO row validated through RecipeVerifierBox.verify/2",
+    "covered_rows": [
+      "local_loop_body_if_branch_return"
+    ],
+    "rust_projector_runtime_dependency_removed": 0,
+    "rust_projector_oracle_only_candidate": 1,
+    "full_astnode_projector_retired": 0
+  },
+  "evidence": {
+    "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_programjson_recipebodies_verifier_boundary_parity_gate.sh",
+    "runtime_parity_green": 1,
+    "recursive_nested_arena_used": 1,
+    "arena_ready_required": 1,
+    "recipe_verifier_boundary_used": 1,
+    "verified_recipe_present": 1,
+    "recipe_port_sig_snapshot_used": 1,
+    "body_count": 4,
+    "directabi_route_publication_claim": 0
+  },
+  "next_card": {
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-AFTER-VERIFIER-BOUNDARY-NEXT-CONTRACT-SELECTION-001",
+    "reason_token": "RecipeBodiesVerifierBoundaryRetireCandidateGreenSelectNextRecipeBodiesContract"
+  },
+  "claims": {
+    "retire_candidate_recorded": 1,
+    "runtime_dependency_removed": 0,
+    "full_astnode_projector_retired": 0,
+    "recipe_bodies_materialization": 0,
+    "runtime_recipe_bodies_arena": 0,
+    "full_recipe_matcher_execution": 0,
+    "verifier_policy_reimplementation": 0,
+    "route_selection": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering_claim": 0,
+    "directabi_route_publication_claim": 0,
+    "runtime_route_switch": 0,
+    "source_selfhost_claim": 0,
+    "programjson_full_parser_claim": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

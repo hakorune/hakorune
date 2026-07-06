@@ -1,0 +1,67 @@
+# 3216 - MIRBUILDER-PROGRAMJSON-RECIPEBODIES-VERIFIER-BOUNDARY-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+
+Status: active
+
+## Scope
+
+Mark the covered `ProgramJsonRecipeBodiesVerifierBoundarySnapshotV1` row as a
+scoped Rust ASTNode projector retire-candidate.
+
+Covered row:
+
+```text
+local_loop_body_if_branch_return
+```
+
+This means the ProgramJSON route can build the recursive nested arena DTO and
+validate the same covered shape through the existing `RecipeVerifierBox.verify/2`
+result-map boundary.
+
+It does not mean runtime route switching, runtime `RecipeBodies` publication,
+full RecipeMatcher execution, or full Rust projector removal.
+
+## Evidence
+
+```bash
+bash tools/checks/rust_lifecycle_mirbuilder_programjson_recipebodies_verifier_boundary_parity_gate.sh
+bash tools/checks/rust_lifecycle_mirbuilder_programjson_recipebodies_verifier_boundary_retire_rust_astnode_projector_candidate_guard.sh
+```
+
+Expected result:
+
+```text
+retire_candidate_recorded=1
+rust_projector_runtime_dependency_removed=0
+full_astnode_projector_retired=0
+recipe_bodies_verifier_boundary_implemented=1
+recipe_bodies_materialization=0
+runtime_route_switch=0
+source_selfhost_claim=0
+```
+
+## Non-Claims
+
+```text
+runtime dependency removal
+full Rust ASTNode projector retirement
+runtime RecipeBodies arena
+RecipeBodies::bodies access
+full RecipeMatcher execution
+verifier policy reimplementation
+route selection
+MIR lowering
+MIR mutation
+ID allocation
+DirectAbi route publication expansion
+runtime route switch
+ProgramJSON full parser
+new backend route
+new ABI
+Source Selfhost
+```
+
+## Next
+
+```text
+MIRBUILDER-PROGRAMJSON-RECIPEBODIES-AFTER-VERIFIER-BOUNDARY-NEXT-CONTRACT-SELECTION-001
+```

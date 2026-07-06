@@ -60,12 +60,11 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-RECIPEBODIES-VERIFIER-BOUNDARY-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+  MIRBUILDER-PROGRAMJSON-RECIPEBODIES-AFTER-VERIFIER-BOUNDARY-NEXT-CONTRACT-SELECTION-001
 selected next card:
-  mark the covered RecipeBodies verifier-boundary snapshot row as a scoped
-  Rust ASTNode projector retire-candidate. Runtime route switch, full
-  RecipeMatcher, lowering, mutation, ID allocation, and Source Selfhost stay
-  unclaimed.
+  select the next RecipeBodies contract after the verifier-boundary
+  retire-candidate. Runtime route switch, full RecipeMatcher, lowering,
+  mutation, ID allocation, and Source Selfhost stay unclaimed.
 
 post-3180 block recipe task order:
   completed: JoinThenElse, ElseOnlyExit, ThenOnlyExit, and ExitAll are scoped
@@ -87,6 +86,8 @@ normal operating rule:
   history.
 
 latest design decision:
+  3216 marks the covered RecipeBodies verifier-boundary snapshot row as a
+  scoped Rust ASTNode projector retire-candidate.
   3215 implements RecipeBodies verifier boundary parity and selects its
   retire-candidate. 3214 selects RecipeBodies verifier boundary parity.
   3213 marks the covered ProgramJsonRecipeBodiesRecursiveNestedArenaBuilderV1 row
