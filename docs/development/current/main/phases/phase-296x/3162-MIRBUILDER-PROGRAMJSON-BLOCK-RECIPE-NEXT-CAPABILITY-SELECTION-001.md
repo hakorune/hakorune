@@ -30,6 +30,8 @@ Reason:
 StmtOnlyBlockRecipeBox is already HakoAdopted for backend-safe token snapshots.
 The next small movement is to feed that reducer from ProgramJSON/recipe_root
 instead of a prebuilt token snapshot.
+The first parity rows are limited to direct stmt items: Local, Print,
+Assignment, and Return. If/Loop block-contract projection is a later slice.
 ```
 
 ## Evidence

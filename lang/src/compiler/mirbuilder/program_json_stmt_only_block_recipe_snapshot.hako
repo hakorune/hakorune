@@ -1,0 +1,65 @@
+// program_json_stmt_only_block_recipe_snapshot.hako
+// Responsibility:
+// - Bridge Program(JSON v0) recipe_root to the existing StmtOnlyBlockRecipeBox token reducer.
+// - Keep this as a snapshot/proof owner only; no lowering, route selection, or MIR mutation.
+
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.shared.common.box_helpers as BoxHelpers
+using lang.compiler.mirbuilder.program_json_v0_phase_state_box as ProgramJsonV0PhaseStateBox
+using lang.compiler.mirbuilder.recipe.recipe_item_box as RecipeItemBox
+using lang.compiler.lib.stmt_only_block_recipe as StmtOnlyBlockRecipeBox
+
+static box ProgramJsonStmtOnlyBlockRecipeSnapshotBox {
+  _i(map, key) {
+    return StringHelpers.to_i64(BoxHelpers.map_get(map, key))
+  }
+
+  _err(reason) {
+    return "snapshot_kind=ProgramJsonStmtOnlyBlockRecipeSnapshotV1;err=1;reason=" + reason
+  }
+
+  build_summary(program_json) {
+    local out = ProgramJsonV0PhaseStateBox.parse(program_json, "[test]")
+    if me._i(out, "err") != 0 { return me._err("parse_error") }
+
+    local root = BoxHelpers.map_get(out, "recipe_root")
+    if root == null || RecipeItemBox.kind_is(root, "Seq") != 1 {
+      return me._err("missing_recipe_root")
+    }
+
+    local items = BoxHelpers.map_get(root, "items")
+    if items == null || BoxHelpers.is_array(items) != 1 {
+      return me._err("missing_recipe_items")
+    }
+
+    local item0 = BoxHelpers.array_get(items, 0)
+    local item1 = BoxHelpers.array_get(items, 1)
+    local stmt0 = "Unsupported"
+    local stmt1 = "Unsupported"
+
+    if item0 == null { stmt0 = "None" }
+    else if RecipeItemBox.kind_is(item0, "Exit") == 1 { stmt0 = "Return" }
+    else if RecipeItemBox.kind_is(item0, "Seq") == 1 {
+      local kind0 = BoxHelpers.map_get(item0, "stmt_kind")
+      if BoxHelpers.same_token(kind0, "Local") == 1 { stmt0 = "Local" }
+      else if BoxHelpers.same_token(kind0, "Assignment") == 1 { stmt0 = "Assignment" }
+      else if BoxHelpers.same_token(kind0, "Print") == 1 { stmt0 = "Print" }
+      else if BoxHelpers.same_token(kind0, "Return") == 1 { stmt0 = "Return" }
+    }
+
+    if item1 == null { stmt1 = "None" }
+    else if RecipeItemBox.kind_is(item1, "Exit") == 1 { stmt1 = "Return" }
+    else if RecipeItemBox.kind_is(item1, "Seq") == 1 {
+      local kind1 = BoxHelpers.map_get(item1, "stmt_kind")
+      if BoxHelpers.same_token(kind1, "Local") == 1 { stmt1 = "Local" }
+      else if BoxHelpers.same_token(kind1, "Assignment") == 1 { stmt1 = "Assignment" }
+      else if BoxHelpers.same_token(kind1, "Print") == 1 { stmt1 = "Print" }
+      else if BoxHelpers.same_token(kind1, "Return") == 1 { stmt1 = "Return" }
+    }
+
+    return "snapshot_kind=ProgramJsonStmtOnlyBlockRecipeSnapshotV1;err=0;"
+      + StmtOnlyBlockRecipeBox.build_summary(stmt0, stmt1)
+  }
+}
+
+static box ProgramJsonStmtOnlyBlockRecipeSnapshotMain { main() { return 0 } }

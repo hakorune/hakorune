@@ -63,9 +63,9 @@
     "target_existing_reducer": "lang/src/compiler/lib/stmt_only_block_recipe.hako",
     "source_rows": [
       "local_print",
+      "local_assignment",
       "local_return_reject",
-      "if_no_exit",
-      "loop_no_exit"
+      "return_only_reject"
     ],
     "next_card": "MIRBUILDER-PROGRAMJSON-STMT-ONLY-BLOCK-RECIPE-SNAPSHOT-PARITY-001"
   },

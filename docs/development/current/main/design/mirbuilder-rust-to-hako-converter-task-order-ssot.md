@@ -60,11 +60,11 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-STMT-ONLY-BLOCK-RECIPE-SNAPSHOT-PARITY-001
+  MIRBUILDER-PROGRAMJSON-STMT-ONLY-BLOCK-RECIPE-SNAPSHOT-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
 selected next card:
-  docs/development/current/main/phases/phase-296x/3163-MIRBUILDER-PROGRAMJSON-STMT-ONLY-BLOCK-RECIPE-SNAPSHOT-PARITY-001.md
-  (not yet created); implement and prove ProgramJSON/recipe_root to
-  StmtOnlyBlockRecipeBox backend-safe token snapshot parity.
+  docs/development/current/main/phases/phase-296x/3164-MIRBUILDER-PROGRAMJSON-STMT-ONLY-BLOCK-RECIPE-SNAPSHOT-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001.md
+  (not yet created); mark the covered ProgramJsonStmtOnlyBlockRecipeSnapshotV1
+  rows from 3163 as a scoped retire-candidate.
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -94,20 +94,14 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  3162 selects ProgramJsonStmtOnlyBlockRecipeSnapshotV1 as the next
-  ProgramJSON-fed block recipe capability, bridging recipe_root traversal to
-  the existing HakoAdopted StmtOnlyBlockRecipeBox token reducer.
-  3161 marks covered RecipePortSigDtoSnapshotV1 Local>Loop>Return loop-root
-  rows as a scoped Rust ASTNode projector retire-candidate.
-  3160 proves RecipePortSigDtoSnapshotV1 over covered Local>Loop>Return
-  loop-root rows via ProgramJSON -> PhaseState -> RecipeVerifier -> PortSig
-  snapshot, with 6-row runtime parity green.
-  3159 selects ProgramJsonRecipePortSigLoopRootV1 as the next ProgramJSON
-  Layer4 Recipe DTO capability after SeqRecipeDtoSnapshotV1 loop-root
-  retire-candidate.
-  3158-3151 cover Local>Loop>Return loop-root propagation through
-  RecipeStmtSeqDtoSnapshotV1, RecipeShapeKindDtoSnapshotV1, and
-  SeqRecipeDtoSnapshotV1, including scoped retire checkpoints.
+  3163 proves ProgramJsonStmtOnlyBlockRecipeSnapshotV1 over 4 direct stmt rows,
+  bridging ProgramJSON/recipe_root traversal to the existing HakoAdopted
+  StmtOnlyBlockRecipeBox token reducer.
+  3162 selected that ProgramJSON-fed block recipe bridge.
+  3161-3151 cover Local>Loop>Return loop-root propagation through
+  RecipeStmtSeqDtoSnapshotV1, RecipeShapeKindDtoSnapshotV1,
+  SeqRecipeDtoSnapshotV1, and RecipePortSigDtoSnapshotV1, including scoped
+  retire checkpoints.
   3150-3135 cover expanded/base Recipe DTO parity and scoped retire
   checkpoints; parity is green.
   3134-3123 cover Exit/Seq/If/Loop Layer4 DTO parity and retire checkpoints.
