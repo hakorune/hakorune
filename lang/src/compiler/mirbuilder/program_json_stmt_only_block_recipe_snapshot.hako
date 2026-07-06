@@ -46,6 +46,22 @@ static box ProgramJsonStmtOnlyBlockRecipeSnapshotBox {
       else if BoxHelpers.same_token(kind0, "Print") == 1 { stmt0 = "Print" }
       else if BoxHelpers.same_token(kind0, "Return") == 1 { stmt0 = "Return" }
     }
+    else if RecipeItemBox.kind_is(item0, "Loop") == 1 {
+      local body0 = BoxHelpers.map_get(item0, "body_item")
+      if body0 != null && RecipeItemBox.kind_is(body0, "Seq") == 1 {
+        local body_items0 = BoxHelpers.map_get(body0, "items")
+        if body_items0 != null && BoxHelpers.is_array(body_items0) == 1 {
+          local body_stmt0 = BoxHelpers.array_get(body_items0, 0)
+          local body_tail0 = BoxHelpers.array_get(body_items0, 1)
+          if body_stmt0 != null && body_tail0 == null && RecipeItemBox.kind_is(body_stmt0, "Seq") == 1 {
+            local body_kind0 = BoxHelpers.map_get(body_stmt0, "stmt_kind")
+            if BoxHelpers.same_token(body_kind0, "Local") == 1 { stmt0 = "LoopNoExit" }
+            else if BoxHelpers.same_token(body_kind0, "Assignment") == 1 { stmt0 = "LoopNoExit" }
+            else if BoxHelpers.same_token(body_kind0, "Print") == 1 { stmt0 = "LoopNoExit" }
+          }
+        }
+      }
+    }
 
     if item1 == null { stmt1 = "None" }
     else if RecipeItemBox.kind_is(item1, "Exit") == 1 { stmt1 = "Return" }
@@ -55,6 +71,22 @@ static box ProgramJsonStmtOnlyBlockRecipeSnapshotBox {
       else if BoxHelpers.same_token(kind1, "Assignment") == 1 { stmt1 = "Assignment" }
       else if BoxHelpers.same_token(kind1, "Print") == 1 { stmt1 = "Print" }
       else if BoxHelpers.same_token(kind1, "Return") == 1 { stmt1 = "Return" }
+    }
+    else if RecipeItemBox.kind_is(item1, "Loop") == 1 {
+      local body1 = BoxHelpers.map_get(item1, "body_item")
+      if body1 != null && RecipeItemBox.kind_is(body1, "Seq") == 1 {
+        local body_items1 = BoxHelpers.map_get(body1, "items")
+        if body_items1 != null && BoxHelpers.is_array(body_items1) == 1 {
+          local body_stmt1 = BoxHelpers.array_get(body_items1, 0)
+          local body_tail1 = BoxHelpers.array_get(body_items1, 1)
+          if body_stmt1 != null && body_tail1 == null && RecipeItemBox.kind_is(body_stmt1, "Seq") == 1 {
+            local body_kind1 = BoxHelpers.map_get(body_stmt1, "stmt_kind")
+            if BoxHelpers.same_token(body_kind1, "Local") == 1 { stmt1 = "LoopNoExit" }
+            else if BoxHelpers.same_token(body_kind1, "Assignment") == 1 { stmt1 = "LoopNoExit" }
+            else if BoxHelpers.same_token(body_kind1, "Print") == 1 { stmt1 = "LoopNoExit" }
+          }
+        }
+      }
     }
 
     return "snapshot_kind=ProgramJsonStmtOnlyBlockRecipeSnapshotV1;err=0;"

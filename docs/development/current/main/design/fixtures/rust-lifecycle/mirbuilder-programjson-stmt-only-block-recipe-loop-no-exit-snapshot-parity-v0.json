@@ -1,0 +1,57 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonStmtOnlyBlockRecipeLoopNoExitSnapshotParityV1",
+  "token": "MIRBUILDER-PROGRAMJSON-STMT-ONLY-BLOCK-RECIPE-LOOP-NO-EXIT-SNAPSHOT-PARITY-001",
+  "capability": {
+    "name": "ProgramJsonStmtOnlyBlockRecipeLoopNoExitSnapshotV1",
+    "input": "ProgramJSON v0",
+    "output": "StmtOnlyBlockRecipeBox backend-safe LoopNoExit token snapshot summary",
+    "implementation": "lang/src/compiler/mirbuilder/program_json_stmt_only_block_recipe_snapshot.hako",
+    "target_existing_reducer": "lang/src/compiler/lib/stmt_only_block_recipe.hako"
+  },
+  "selection": {
+    "previous_checkpoint": "MIRBUILDER-PROGRAMJSON-BLOCK-RECIPE-NEXT-CAPABILITY-SELECTION-RERUN-001",
+    "selected_reason": "ProgramJSON Loop rows already produce structured recipe_root; this card projects a no-exit Loop body to the existing StmtOnlyBlockRecipeBox LoopNoExit token."
+  },
+  "rows": [
+    {
+      "row_id": "local_loop_no_exit",
+      "program_json": {"version": 0, "kind": "Program", "body": [
+        {"type": "Local", "name": "i", "expr": {"type": "Int", "value": 0}},
+        {"type": "Loop", "cond": {"type": "Compare", "op": "<", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 5}}, "body": [
+          {"type": "Local", "name": "i", "expr": {"type": "Binary", "op": "+", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 1}}}
+        ]}
+      ]},
+      "rust_oracle_expected_summary": "snapshot_kind=ProgramJsonStmtOnlyBlockRecipeSnapshotV1;err=0;accepted=1;block_contract=StmtOnly;stmt_count=2;stmt_kinds=Local,Loop"
+    }
+  ],
+  "acceptance": {
+    "programjson_traversal_used": 1,
+    "recipe_root_traversal_used": 1,
+    "stmt_only_reducer_called": 1,
+    "loop_no_exit_token_projected": 1,
+    "prebuilt_token_snapshot_input": 0,
+    "string_only_facade": 0,
+    "mir_json_route_green": 1,
+    "runtime_parity_green": 1,
+    "row_count": 1,
+    "selection_prerequisite_green": 1
+  },
+  "decision": {
+    "kind": "SelectStmtOnlyBlockRecipeLoopNoExitSnapshotRetireCandidateNext",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-STMT-ONLY-BLOCK-RECIPE-LOOP-NO-EXIT-SNAPSHOT-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001",
+    "reason_token": "ProgramJsonStmtOnlyBlockRecipeLoopNoExitSnapshotRuntimeParityGreen"
+  },
+  "claims": {
+    "recipe_bodies_materialization": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering_claim": 0,
+    "runtime_route_switch": 0,
+    "source_selfhost_claim": 0,
+    "programjson_all_shapes_supported": 0,
+    "full_imported_parse_executable_green": 0
+  }
+}
