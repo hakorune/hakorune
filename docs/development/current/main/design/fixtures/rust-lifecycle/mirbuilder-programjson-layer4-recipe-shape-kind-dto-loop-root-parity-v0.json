@@ -1,0 +1,61 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonLayer4RecipeShapeKindDtoLoopRootParityV1",
+  "token": "MIRBUILDER-PROGRAMJSON-LAYER4-RECIPE-SHAPE-KIND-DTO-LOOP-ROOT-PARITY-001",
+  "capability": {
+    "name": "ProgramJsonRecipeShapeKindDtoLoopRootV1",
+    "input": "ProgramJSON v0",
+    "output": "RecipeShapeKindDtoSnapshotV1",
+    "implementation": "lang/src/compiler/mirbuilder/program_json_recipe_shape_kind_dto_snapshot.hako",
+    "support_implementation": "lang/src/compiler/mirbuilder/mir_json_v0_shape_box_recipe_seq.hako"
+  },
+  "selection": {
+    "previous_checkpoint": "MIRBUILDER-PROGRAMJSON-LAYER4-NEXT-RECIPE-DTO-CAPABILITY-SELECTION-001",
+    "selected_reason": "RecipeStmtSeqDtoSnapshotV1 now observes covered Local>Loop>Return root rows; RecipeShapeKindDtoSnapshotV1 is the next parent DTO boundary."
+  },
+  "source_rows": {
+    "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-programjson-layer4-loop-recipe-dto-expanded-return-parity-v0.json",
+    "fixture_hash": "sha256:67a4ccac9172fbe57b5109656590c6dffc7e90febdf98602e94db499aa9b5589",
+    "covered_rows": [
+      "loop_if_then_return_new_stringbox_abc_assignment_final_return_var",
+      "loop_if_then_return_call_id0_assignment_final_return_var",
+      "loop_if_then_return_call_id1_int9_assignment_final_return_var",
+      "loop_if_then_return_call_id1_int7_assignment_final_return_var",
+      "loop_if_then_return_method_stringbox_length_abc_assignment_final_return_var",
+      "loop_if_then_return_method_stringbox_indexof_b_abc_assignment_final_return_var"
+    ],
+    "expected_summary": "snapshot_kind=RecipeShapeKindDtoSnapshotV1;err=0;matched=1;shape_kind=phase21_local_loop_if_varltint_then_return_int_body_inc_return_var_or_int;has_print=0;has_local=1;has_assignment=1;has_return=1"
+  },
+  "acceptance": {
+    "programjson_traversal_used": 1,
+    "structured_recipe_dto_constructed": 1,
+    "recipe_verifier_used": 1,
+    "recipe_root_seq_scanner_used": 1,
+    "loop_root_children_supported": 1,
+    "shape_kind_selection": 1,
+    "route_selection": 0,
+    "prebuilt_token_snapshot_input": 0,
+    "string_only_facade": 0,
+    "mir_json_route_green": 1,
+    "runtime_parity_green": 1,
+    "expanded_rows": 6,
+    "selection_prerequisite_green": 1,
+    "expanded_shape_kind_prerequisite_green": 1
+  },
+  "decision": {
+    "kind": "SelectRecipeShapeKindDtoLoopRootRetireCandidateNext",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-LAYER4-RECIPE-SHAPE-KIND-DTO-LOOP-ROOT-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001",
+    "reason_token": "RecipeShapeKindDtoLoopRootRuntimeParityGreen"
+  },
+  "claims": {
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering_claim": 0,
+    "runtime_route_switch": 0,
+    "source_selfhost_claim": 0,
+    "programjson_all_shapes_supported": 0,
+    "full_imported_parse_executable_green": 0
+  }
+}

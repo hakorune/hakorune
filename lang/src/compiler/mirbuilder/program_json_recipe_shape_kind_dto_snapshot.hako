@@ -61,6 +61,13 @@ static box ProgramJsonRecipeShapeKindDtoSnapshotBox {
       return me._shape_err_summary("local_assignment_return_requires_var")
     }
 
+    if BoxHelpers.same_token(seq_sig, "Local>Loop>Return") == 1 {
+      if BoxHelpers.same_token(return_kind, "Var") == 1 {
+        return me._shape_ok_summary("phase21_local_loop_if_varltint_then_return_int_body_inc_return_var_or_int", 0, 1, 1, 1)
+      }
+      return me._shape_err_summary("local_loop_return_requires_var")
+    }
+
     if BoxHelpers.same_token(seq_sig, "Local>Print>Return") == 1 {
       if BoxHelpers.same_token(print_kind, "Var") == 1 {
         if BoxHelpers.same_token(return_kind, "Var") == 1 { return me._shape_ok_summary("phase5_local_print_var_return_var", 1, 1, 0, 1) }

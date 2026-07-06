@@ -80,11 +80,7 @@ static box MirJsonV0ShapeRecipeSeq {
     loop(i < 64) {
       local child = BoxHelpers.array_get(items, i)
       if child == null { return sig }
-      if child == null || BoxHelpers.is_map(child) != 1 { return "" }
-      if RecipeItemBox.kind_is(child, "Seq") != 1 { return "" }
-      local leaf_kind = BoxHelpers.map_get(child, "leaf_kind")
-      if BoxHelpers.same_token(leaf_kind, "Stmt") != 1 { return "" }
-      local stmt_kind = me._stmt_token(BoxHelpers.map_get(child, "stmt_kind"))
+      local stmt_kind = me._recipe_child_token(child)
       if BoxHelpers.same_token(stmt_kind, "") == 1 { return "" }
       if i > 0 { sig = sig + ">" }
       sig = sig + stmt_kind
