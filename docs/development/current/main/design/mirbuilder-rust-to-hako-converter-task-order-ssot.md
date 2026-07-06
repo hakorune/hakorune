@@ -60,11 +60,10 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-RECIPEBODIES-POST-VERIFIER-BOUNDARY-CONSULTATION-001
+  MIRBUILDER-PROGRAMJSON-RECIPEBODIES-POST-VERIFIER-BOUNDARY-DECISION-001
 selected next card:
-  consult the post-verifier RecipeBodies boundary before runtime publication,
-  full RecipeMatcher, route switch, lowering, mutation, ID allocation, or
-  Source Selfhost claims.
+  decide the post-verifier RecipeBodies seam. Recommended default is more DTO
+  coverage rows unless runtime route-switch authority is approved.
 
 post-3180 block recipe task order:
   completed: JoinThenElse, ElseOnlyExit, ThenOnlyExit, and ExitAll are scoped
@@ -86,6 +85,9 @@ normal operating rule:
   history.
 
 latest design decision:
+  3218 prepares the post-verifier RecipeBodies consultation; recommended
+  default is more DTO coverage rows, while runtime publication and full
+  RecipeMatcher require a new decision.
   3217 records the post-verifier RecipeBodies design stop and requires
   consultation before runtime publication or full RecipeMatcher execution.
   3216 marks the covered RecipeBodies verifier-boundary snapshot row as a

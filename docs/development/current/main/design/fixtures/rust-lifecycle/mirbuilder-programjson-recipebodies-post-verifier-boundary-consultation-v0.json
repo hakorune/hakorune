@@ -1,0 +1,71 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonRecipeBodiesPostVerifierBoundaryConsultationV1",
+  "token": "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-POST-VERIFIER-BOUNDARY-CONSULTATION-001",
+  "input_state": {
+    "previous_card": "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-POST-VERIFIER-BOUNDARY-DESIGN-STOP-001",
+    "previous_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-programjson-recipebodies-post-verifier-boundary-design-stop-v0.json",
+    "covered_row": "local_loop_body_if_branch_return"
+  },
+  "consultation": {
+    "question": "After RecipeBodies verifier-boundary parity is green, which next seam should be opened?",
+    "recommended_option": "A_MORE_DTO_COVERAGE_ROWS",
+    "recommended_reason": "Keep movement inside the proven ProgramJSON DTO/verifier boundary until runtime route-switch authority is approved."
+  },
+  "options": [
+    {
+      "id": "A_MORE_DTO_COVERAGE_ROWS",
+      "state": "Recommended",
+      "allowed_claim": "increase ProgramJSON RecipeBodies DTO/parity row coverage",
+      "forbidden": [
+        "runtime_recipe_bodies_publication",
+        "full_recipe_matcher_execution",
+        "runtime_route_switch"
+      ]
+    },
+    {
+      "id": "B_RUNTIME_RECIPEBODIES_PUBLICATION_BRIDGE",
+      "state": "RequiresDecision",
+      "required_contract": [
+        "runtime_publication_shape",
+        "bridge_owner",
+        "removal_condition",
+        "fallback_policy",
+        "directabi_publication_policy"
+      ]
+    },
+    {
+      "id": "C_FULL_RECIPEMATCHER_EXECUTION",
+      "state": "RequiresDecision",
+      "required_contract": [
+        "matched_contract_kind_surface",
+        "input_recipe_authority",
+        "failure_freeze_behavior",
+        "route_selection_boundary",
+        "lowering_mutation_id_allocation_non_claims"
+      ]
+    }
+  ],
+  "decision": {
+    "kind": "PreparePostVerifierRecipeBodiesDecision",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-POST-VERIFIER-BOUNDARY-DECISION-001",
+    "implementation_selected": 0
+  },
+  "claims": {
+    "consultation_prepared": 1,
+    "implementation_selected": 0,
+    "runtime_recipe_bodies_publication": 0,
+    "recipe_bodies_bodies_direct_access": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering_claim": 0,
+    "directabi_route_publication_claim": 0,
+    "runtime_route_switch": 0,
+    "source_selfhost_claim": 0,
+    "programjson_full_parser_claim": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
