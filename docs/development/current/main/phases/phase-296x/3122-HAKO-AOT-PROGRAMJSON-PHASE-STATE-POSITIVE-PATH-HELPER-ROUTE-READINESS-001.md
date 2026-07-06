@@ -237,6 +237,44 @@ no generic void object return widening
 no new backend route or ABI
 ```
 
+Phase B.1 - DirectArray metadata include extraction:
+
+```text
+card type: BoxShape-only mechanical refactor
+owner file:
+  lang/c-abi/shims/hako_llvmc_ffi_lowering_plan_metadata.inc
+new include:
+  lang/c-abi/shims/hako_llvmc_ffi_lowering_plan_direct_array_access_metadata.inc
+  lang/c-abi/shims/hako_llvmc_ffi_lowering_plan_view_types.inc
+  lang/c-abi/shims/hako_llvmc_ffi_lowering_plan_extern_call_metadata.inc
+
+move only:
+  lowering-plan view struct declarations
+  LoweringPlanDirectArrayAccessView
+  read_lowering_plan_direct_array_access_view
+  lowering_plan_direct_array_access_view_* predicates
+  lowering_plan_direct_array_access_site_* matchers
+  LoweringPlanExternCallView read/match/result-origin helpers
+
+do not change:
+  route metadata fields
+  accepted DirectArray routes
+  fallback policy
+  receiver/value/result register matching
+  generic method, same-module, extern, or user-box metadata
+```
+
+Acceptance for Phase B.1:
+
+```text
+lowering_plan_metadata.inc keeps the common tier/view helpers and includes the
+DirectArray-specific file after common site lookup helpers are defined
+the new includes are below the 800-line source limit
+lowering_plan_metadata.inc is reduced below the 800-line source limit
+all existing DirectArray call sites continue to call the same function names
+no source_selfhost, lowering, mutation, route-selection, ABI, or backend claims
+```
+
 ## Required Guards
 
 ```bash
