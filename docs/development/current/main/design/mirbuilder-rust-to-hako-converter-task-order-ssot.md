@@ -60,9 +60,9 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-LAYER4-IF-RECIPE-DTO-EXPANDED-RETURN-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+  MIRBUILDER-PROGRAMJSON-LAYER4-NEXT-RECIPE-DTO-CAPABILITY-SELECTION-001
 selected next card:
-  not-yet-created; mark expanded If Recipe DTO then-exit payload rows as a scoped Rust ASTNode projector retire-candidate.
+  not-yet-created; select the next concrete Layer4 Recipe DTO ProgramJSON capability after 3148.
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -92,6 +92,9 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
+  3148 marks expanded Return payload IfRecipeDtoSnapshotV1 rows from 3147 as
+  a scoped Rust ASTNode projector retire-candidate; covered rows are 6 and no
+  rows are deferred.
   3147 expands IfRecipeDtoSnapshotV1 with 6 then_item=Exit payload rows for the
   expanded Return-only vocabulary; parity is green.
   3146 marks expanded Return payload ExitRecipeDtoSnapshotV1 rows from 3145 as
@@ -100,15 +103,8 @@ latest design decision:
   3145 expands ExitRecipeDtoSnapshotV1 with 6 branch-exit payload rows for the
   expanded Return-only vocabulary; IfStmtHandler now forwards Return handler
   payloads into Exit payloads instead of forcing then Return(Int).
-  3144 marks expanded SeqRecipeDtoSnapshotV1 Return-only rows from 3143 as a
-  scoped Rust ASTNode projector retire-candidate; covered rows are 6 and no
-  rows are deferred.
-  3143 expands SeqRecipeDtoSnapshotV1 with the 6 Return-only rows from the
-  shape-kind expanded checkpoint; parity is green.
-  3142 marks expanded RecipeShapeKindDtoSnapshotV1 rows as a scoped Rust
-  ASTNode projector retire-candidate; covered rows are 6 and no rows are deferred.
-  3141 expands RecipeShapeKindDtoSnapshotV1 with 6 Return-only rows for
-  StringBox New, id() calls, and StringBox methods; parity is green.
+  3144-3141 cover expanded Seq/RecipeShapeKind Return-only rows and their
+  scoped retire-candidate checkpoints; parity is green.
   3140-3139 are the base RecipeShapeKindDtoSnapshotV1 parity and retire
   checkpoints; 3138-3135 are RecipeStmtSeq and RecipePortSig checkpoints.
   3134-3123 cover Exit/Seq/If/Loop Layer4 DTO parity and retire checkpoints.
