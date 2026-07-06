@@ -60,10 +60,10 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-RECIPEBODIES-IF-BRANCH-MULTI-BODY-ARENA-PARITY-001
+  MIRBUILDER-PROGRAMJSON-RECIPEBODIES-IF-BRANCH-MULTI-BODY-ARENA-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
 selected next card:
-  implement If branch multi-body RecipeBodies arena parity for a root body with
-  then/else BodyId references. Runtime route switch, full RecipeMatcher,
+  mark only the covered If branch multi-body arena DTO row as a scoped Rust
+  ASTNode projector retire-candidate. Runtime route switch, full RecipeMatcher,
   lowering, mutation, ID allocation, and Source Selfhost stay unclaimed.
 
 post-3180 block recipe task order:
@@ -86,6 +86,8 @@ normal operating rule:
   history.
 
 latest design decision:
+  3203 implements ProgramJsonRecipeBodiesIfBranchArenaBuilderBox and proves a
+  map-backed If branch multi-body arena DTO for one row.
   3202 selects If branch multi-body RecipeBodies arena parity as the next
   contract after the one-shape arena-builder retire-candidate.
   3201 marks the covered ProgramJsonRecipeBodiesOneShapeArenaBuilderV1 rows as
