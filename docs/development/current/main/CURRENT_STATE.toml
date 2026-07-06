@@ -345,18 +345,18 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PROGRAMJSON-LAYER4-EXIT-RECIPE-DTO-LOOP-BODY-PARITY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3133-MIRBUILDER-PROGRAMJSON-LAYER4-EXIT-RECIPE-DTO-LOOP-BODY-PARITY-001.md"
-latest_card_summary = """3133 promotes the previously deferred
-Loop.body[0].If.then_item=Exit Recipe DTO row for
-ProgramJsonExitRecipeDtoSnapshotV1. LoopStmtHandler now uses stable
-BoxHelpers.same_token checks for covered dynamic scanner strings in the
-If+Assignment loop-body path, and the new MIR JSON plus AOT runtime parity gate
-is green while the 3131 root Exit guard remains green. Runtime route switch,
-full ASTNode projector retirement, full RecipeMatcher execution, MIR
-mutation/lowering, ID allocation, HakoAdoption, ProgramJSON full parser, new
-ABI, and Source Selfhost remain unclaimed. Next active work is the expanded
-Exit DTO Rust ASTNode projector retire-candidate."""
+latest_card = "MIRBUILDER-PROGRAMJSON-LAYER4-EXIT-RECIPE-DTO-EXPANDED-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3134-MIRBUILDER-PROGRAMJSON-LAYER4-EXIT-RECIPE-DTO-EXPANDED-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001.md"
+latest_card_summary = """3134 marks the expanded ExitRecipeDtoSnapshotV1
+ProgramJSON Layer4 rows as a scoped Rust ASTNode projector retire-candidate.
+The candidate now covers the 3131 root If Exit rows plus the 3133
+Loop.body[0].If.then_item=Exit row, with no deferred Exit DTO rows in this
+scope. This remains a future runtime route-switch candidate only; Rust remains
+bootstrap/oracle. Runtime route switch, full ASTNode projector retirement, full
+RecipeMatcher execution, MIR mutation/lowering, ID allocation, HakoAdoption,
+ProgramJSON full parser, new ABI, and Source Selfhost remain unclaimed. Next
+active work is selecting the next concrete Layer4 Recipe DTO ProgramJSON
+capability."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -367,6 +367,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-06: 3134 marks expanded ExitRecipeDtoSnapshotV1 ProgramJSON Layer4 rows as a scoped Rust ASTNode projector retire-candidate; covered rows are now 4 with no deferred Exit DTO rows in scope, while runtime route switch / Source Selfhost remain unclaimed.",
   "2026-07-06: 3133 promotes the deferred Loop.body If.then_item=Exit row for ProgramJsonExitRecipeDtoSnapshotV1; LoopStmtHandler dynamic scanner string checks now use same_token in the covered If+Assignment path and runtime route switch / Source Selfhost remain unclaimed.",
   "2026-07-06: 3132 marks covered ExitRecipeDtoSnapshotV1 ProgramJSON Layer4 rows from 3131 as a scoped Rust ASTNode projector retire-candidate; loop-body Exit and runtime route switch / Source Selfhost remain unclaimed.",
   "2026-07-06: 3131 adds ProgramJsonExitRecipeDtoSnapshotV1 for covered If.then_item=Exit payload rows with green MIR JSON route and AOT runtime parity; loop-body Exit and runtime route switch / Source Selfhost remain unclaimed.",
@@ -378,5 +379,4 @@ landed_tail = [
   "2026-07-06: 3125 marks covered IfRecipeDtoSnapshotV1 ProgramJSON Layer4 rows as a scoped Rust ASTNode projector retire-candidate after 3124 MIR JSON and AOT runtime parity are green; runtime route switch and Source Selfhost remain unclaimed.",
   "2026-07-06: 3124 adds ProgramJsonIfRecipeDtoSnapshotV1 and a green four-row MIR JSON + AOT runtime parity gate; IfStmtHandler dynamic token equality now uses raw scanner tokens plus same_token; runtime route switch and Source Selfhost remain unclaimed.",
   "2026-07-06: 3123 marks covered LoopRecipeDtoSnapshotV1 ProgramJSON Layer4 rows as a scoped Rust ASTNode projector retire-candidate after 3119 parity and 3122 heavy runtime parity are green; runtime route switch and Source Selfhost remain unclaimed.",
-  "2026-07-06: 3122 completes Layer4 loop Recipe DTO heavy EXE readiness with runtime_parity_green=1; fixes result-map readers, shared token equality, Recipe kind predicates, dependency-first same-module definition emission, and direct Loop.cond scanning without scanner nullable bridges or Source Selfhost claims.",
 ]

@@ -60,9 +60,9 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-LAYER4-EXIT-RECIPE-DTO-EXPANDED-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+  MIRBUILDER-PROGRAMJSON-LAYER4-NEXT-RECIPE-DTO-CAPABILITY-SELECTION-001
 selected next card:
-  not-yet-created; mark the expanded Exit Recipe DTO rows as a scoped Rust ASTNode projector retire-candidate.
+  not-yet-created; select the next concrete Layer4 Recipe DTO ProgramJSON capability after 3134.
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -92,6 +92,9 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
+  3134 marks expanded ExitRecipeDtoSnapshotV1 rows as a scoped Rust ASTNode
+  projector retire-candidate; covered rows are now 4 and no Exit DTO rows are
+  deferred in scope.
   3133 promotes the deferred Loop.body If.then_item=Exit row for
   ProgramJsonExitRecipeDtoSnapshotV1 after LoopStmtHandler scanner string
   checks moved to same_token. 3132/3131 are the root Exit DTO retire-candidate
