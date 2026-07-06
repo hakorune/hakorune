@@ -60,22 +60,18 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-BLOCK-RECIPE-AFTER-ELSE-ONLY-EXIT-NEXT-CONTRACT-SELECTION-001
+  MIRBUILDER-PROGRAMJSON-EXIT-ALLOWED-BLOCK-RECIPE-THEN-ONLY-EXIT-SNAPSHOT-PARITY-001
 selected next card:
-  select the next ProgramJSON-fed block recipe contract after ElseOnlyExit.
-  Candidate priority is ThenOnlyExit, ExitAll, or stopping at the recursive
-  RecipeBodies boundary. Name the missing ProgramJSON producer boundary and
-  keep full projector removal, RecipeMatcher, route selection, MIR
-  mutation/lowering, ID allocation, and runtime route switch unclaimed.
+  implement the selected ThenOnlyExit ProgramJSON block recipe slice. Extend
+  the IfStmtHandler producer for then-return/else-local recipe_root rows, prove
+  the ExitAllowed reducer emits IfExitAllowed/ThenOnlyExit, and keep
+  RecipeBodies, RecipeMatcher, route selection, MIR mutation/lowering, ID
+  allocation, and runtime route switch unclaimed.
 
 post-3180 block recipe task order:
-  1. selected: JoinThenElse after LoopV0.
-  2. parity: JoinThenElse ProgramJSON block contract is green.
-  3. retire-candidate: JoinThenElse row is scoped retire-candidate.
-  4. selected: ElseOnlyExit after JoinThenElse.
-  5. parity: ElseOnlyExit ProgramJSON block contract is green.
-  6. retire-candidate: ElseOnlyExit row is scoped retire-candidate.
-  7. selection: choose ThenOnlyExit, ExitAll, or stop at RecipeBodies.
+  completed: JoinThenElse and ElseOnlyExit are scoped retire-candidates.
+  active: ThenOnlyExit selected; parity and retire-candidate are next.
+  next selection: choose ExitAll or stop at RecipeBodies.
   design-stop trigger:
     stop before recursive RecipeBodies, full RecipeMatcher, route selection,
     MIR mutation/lowering, ID allocation, runtime route switch, or Source
@@ -91,24 +87,16 @@ normal operating rule:
   history.
 
 latest design decision:
+  3187 selects ProgramJsonExitAllowedBlockRecipeThenOnlyExitSnapshotV1 next
+  because ExitAllowedBlockRecipeBox already supports IfThenReturnElseLocal ->
+  IfExitAllowed / ThenOnlyExit and only the IfStmtHandler then-return/else-local
+  ProgramJSON producer is missing. ExitAll and RecipeBodies stay held.
   3186 marks the covered parseable then-local/else-return ElseOnlyExit row as a
   scoped Rust ASTNode projector retire-candidate; this is not runtime route
   switching or full projector retirement.
-  3185 proves ProgramJsonExitAllowedBlockRecipeElseOnlyExitSnapshotV1 for the
-  parseable then-local/else-return row by extending IfStmtHandler's ProgramJSON
-  producer and projecting IfThenLocalElseReturn into ExitAllowedBlockRecipeBox.
-  3184 selects ProgramJsonExitAllowedBlockRecipeElseOnlyExitSnapshotV1 next
-  because ExitAllowedBlockRecipeBox already supports IfThenLocalElseReturn ->
-  IfExitAllowed / ElseOnlyExit and only the IfStmtHandler then-local/else-return
-  ProgramJSON producer is missing. ThenOnlyExit, ExitAll, and RecipeBodies stay held.
-  3183 marks the covered parseable then-local/else-print JoinThenElse row as a
-  scoped Rust ASTNode projector retire-candidate; this is not runtime route
-  switching or full projector retirement.
-  3182 proves ProgramJsonNoExitBlockRecipeJoinThenElseSnapshotV1 for the
-  parseable then-local/else-print row by extending IfStmtHandler's ProgramJSON
-  producer and projecting IfThenLocalElsePrint into NoExitBlockRecipeBox.
-  3181 selected JoinThenElse; 3180-3123 cover prior block/recipe DTO scoped
-  proofs and retire checkpoints in phase cards.
+  3185-3181 cover ElseOnlyExit and JoinThenElse scoped ProgramJSON proofs and
+  retire-candidates. 3180-3123 cover prior block/recipe DTO checkpoints in
+  phase cards.
   Earlier Layer4 and scanner/AOT details live in cards 3109 and 3114-3122.
   2997 stabilized the AOT/MIR value-type publication contract only for the
   proven route families. 3002 remains a trigger-based debt queue for Float

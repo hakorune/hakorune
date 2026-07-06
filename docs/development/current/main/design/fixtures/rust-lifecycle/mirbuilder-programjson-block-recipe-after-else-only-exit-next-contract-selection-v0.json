@@ -1,0 +1,86 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonBlockRecipeAfterElseOnlyExitNextContractSelectionV1",
+  "token": "MIRBUILDER-PROGRAMJSON-BLOCK-RECIPE-AFTER-ELSE-ONLY-EXIT-NEXT-CONTRACT-SELECTION-001",
+  "input_state": {
+    "previous_card": "MIRBUILDER-PROGRAMJSON-EXIT-ALLOWED-BLOCK-RECIPE-ELSE-ONLY-EXIT-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001",
+    "covered_previous_capability": "ProgramJsonExitAllowedBlockRecipeElseOnlyExitSnapshotV1",
+    "remaining_candidates": [
+      "ProgramJsonExitAllowedBlockRecipeThenOnlyExitSnapshotV1",
+      "ProgramJsonExitAllowedBlockRecipeExitAllSnapshotV1",
+      "ProgramJsonRecipeBodiesMaterializationV1"
+    ]
+  },
+  "candidates": [
+    {
+      "capability": "ProgramJsonExitAllowedBlockRecipeThenOnlyExitSnapshotV1",
+      "target_reducer": "ExitAllowedBlockRecipeBox",
+      "status": "Selected",
+      "first_rows": [
+        "local_if_then_return_else_local_final_return_var"
+      ],
+      "producer_boundary": "IfStmtHandler must produce If.then Exit(Return) / If.else Seq([Local]) recipe_root rows from ProgramJSON.",
+      "reason": "ExitAllowedBlockRecipeBox already supports IfThenReturnElseLocal -> IfExitAllowed/ThenOnlyExit; this is the symmetric narrow producer extension after ElseOnlyExit"
+    },
+    {
+      "capability": "ProgramJsonExitAllowedBlockRecipeExitAllSnapshotV1",
+      "target_reducer": "ExitAllowedBlockRecipeBox",
+      "status": "Held",
+      "producer_boundary": "Requires Break or another else-exit producer boundary.",
+      "held_reason": "Break/ExitAll producer inventory is separate from ThenOnlyExit"
+    },
+    {
+      "capability": "ProgramJsonRecipeBodiesMaterializationV1",
+      "target_reducer": "RecipeBodies/RecipeMatcher",
+      "status": "DesignStop",
+      "producer_boundary": "Recursive RecipeBodies materialization is a larger Layer4 boundary.",
+      "held_reason": "must not be hidden inside the next ThenOnlyExit row"
+    }
+  ],
+  "selected_capability": {
+    "name": "ProgramJsonExitAllowedBlockRecipeThenOnlyExitSnapshotV1",
+    "target_reducer": "ExitAllowedBlockRecipeBox",
+    "input": "ProgramJSON recipe_root",
+    "output": "ExitAllowedBlockRecipeSummaryV1",
+    "required_programjson_producer": "IfStmtHandler then-return/else-local recipe_root projection",
+    "required_projection_tokens": [
+      "IfThenReturnElseLocal"
+    ],
+    "required_reducer_outputs": [
+      "IfExitAllowed",
+      "ThenOnlyExit"
+    ],
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-EXIT-ALLOWED-BLOCK-RECIPE-THEN-ONLY-EXIT-SNAPSHOT-PARITY-001"
+  },
+  "stop_conditions": {
+    "exit_all_mode": 0,
+    "recursive_recipe_bodies_materialization": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering": 0,
+    "runtime_route_switch": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "SelectProgramJsonExitAllowedThenOnlyExitAfterElseOnlyExit",
+    "reason_token": "ThenOnlyExitHasReducerSupportAndSingleProgramJsonProducerGap",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-EXIT-ALLOWED-BLOCK-RECIPE-THEN-ONLY-EXIT-SNAPSHOT-PARITY-001"
+  },
+  "claims": {
+    "programjson_then_only_exit_parity_green": 0,
+    "exit_all_mode": 0,
+    "recursive_recipe_bodies_materialization": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering": 0,
+    "runtime_route_switch": 0,
+    "source_selfhost_claim": 0,
+    "programjson_full_parser_claim": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
