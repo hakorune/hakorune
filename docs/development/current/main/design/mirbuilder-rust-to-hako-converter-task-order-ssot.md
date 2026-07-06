@@ -60,10 +60,11 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-LAYER4-NEXT-RECIPE-DTO-CAPABILITY-SELECTION-001
+  MIRBUILDER-PROGRAMJSON-STMT-ONLY-BLOCK-RECIPE-SNAPSHOT-PARITY-001
 selected next card:
-  not-yet-created; select the next concrete structured ProgramJSON-to-Recipe
-  DTO capability after RecipePortSigDtoSnapshotV1 loop-root retire-candidate.
+  docs/development/current/main/phases/phase-296x/3163-MIRBUILDER-PROGRAMJSON-STMT-ONLY-BLOCK-RECIPE-SNAPSHOT-PARITY-001.md
+  (not yet created); implement and prove ProgramJSON/recipe_root to
+  StmtOnlyBlockRecipeBox backend-safe token snapshot parity.
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -93,6 +94,9 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
+  3162 selects ProgramJsonStmtOnlyBlockRecipeSnapshotV1 as the next
+  ProgramJSON-fed block recipe capability, bridging recipe_root traversal to
+  the existing HakoAdopted StmtOnlyBlockRecipeBox token reducer.
   3161 marks covered RecipePortSigDtoSnapshotV1 Local>Loop>Return loop-root
   rows as a scoped Rust ASTNode projector retire-candidate.
   3160 proves RecipePortSigDtoSnapshotV1 over covered Local>Loop>Return

@@ -1,0 +1,116 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonBlockRecipeNextCapabilitySelectionV1",
+  "token": "MIRBUILDER-PROGRAMJSON-BLOCK-RECIPE-NEXT-CAPABILITY-SELECTION-001",
+  "input_state": {
+    "previous_card": "MIRBUILDER-PROGRAMJSON-LAYER4-RECIPE-PORT-SIG-DTO-LOOP-ROOT-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001",
+    "previous_guard": "tools/checks/rust_lifecycle_mirbuilder_programjson_layer4_recipe_port_sig_dto_loop_root_retire_rust_astnode_projector_candidate_guard.sh",
+    "task_order": "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
+  },
+  "selection_policy": {
+    "capability_batch_required": true,
+    "source_code_line_cap": 800,
+    "scope": "ProgramJSON recipe_root to backend-safe block recipe token snapshot",
+    "not_scope": [
+      "MIR mutation",
+      "backend lowering",
+      "ID allocation",
+      "route selection",
+      "RecipeBodies materialization",
+      "full RecipeMatcher execution",
+      "runtime route switch"
+    ]
+  },
+  "candidates": [
+    {
+      "name": "ProgramJsonStmtOnlyBlockRecipeSnapshotV1",
+      "decision": "selected",
+      "why": [
+        "StmtOnlyBlockRecipeBox is already HakoAdopted for backend-safe token snapshots",
+        "ProgramJSON Layer4 Recipe DTO loop-root coverage now proves structured recipe_root traversal through RecipeVerifier",
+        "this bridge moves one step from token snapshot reducers toward ProgramJSON-fed block contract reducers",
+        "the first slice can stay below NoExit/ExitAllowed recursion, RecipeBodies materialization, route selection, lowering, mutation, and ID allocation"
+      ],
+      "implementation_owner": "lang/src/compiler/mirbuilder/program_json_stmt_only_block_recipe_snapshot.hako"
+    },
+    {
+      "name": "ProgramJsonNoExitBlockRecipeSnapshotV1",
+      "decision": "defer",
+      "why": [
+        "NoExit needs recursive if/loop contract tokens and should follow after the simpler StmtOnly bridge proves the ProgramJSON-to-block-token shape"
+      ]
+    },
+    {
+      "name": "ProgramJsonExitAllowedBlockRecipeSnapshotV1",
+      "decision": "defer",
+      "why": [
+        "ExitAllowed needs exit-shape if-mode tokens and should follow after the StmtOnly bridge"
+      ]
+    },
+    {
+      "name": "ProgramJsonBlockRecipeRuntimeRouteSwitchV1",
+      "decision": "forbidden_now",
+      "why": [
+        "runtime route switch requires later Layer4/Layer5 coverage",
+        "full projector retirement and Source Selfhost remain unclaimed"
+      ]
+    }
+  ],
+  "selected_capability": {
+    "name": "ProgramJsonStmtOnlyBlockRecipeSnapshotV1",
+    "input": "ProgramJSON v0",
+    "output": "StmtOnlyBlockRecipeBox backend-safe token snapshot summary",
+    "target_existing_reducer": "lang/src/compiler/lib/stmt_only_block_recipe.hako",
+    "source_rows": [
+      "local_print",
+      "local_return_reject",
+      "if_no_exit",
+      "loop_no_exit"
+    ],
+    "next_card": "MIRBUILDER-PROGRAMJSON-STMT-ONLY-BLOCK-RECIPE-SNAPSHOT-PARITY-001"
+  },
+  "acceptance": {
+    "must_consume_programjson_structure": 1,
+    "must_traverse_recipe_root": 1,
+    "must_call_existing_stmt_only_reducer": 1,
+    "minimum_parity_row_count": 4,
+    "implementation_card_required": 1,
+    "parity_gate_required": 1,
+    "token_snapshot_only": 0,
+    "string_only_facade": 0
+  },
+  "stop_conditions": {
+    "prebuilt_token_snapshot_input": 1,
+    "source_contains_or_regex_proof": 1,
+    "rust_astnode_projector_used_as_target_input": 1,
+    "mir_mutation_or_lowering_added": 1,
+    "route_selection_added": 1,
+    "recipe_bodies_materialized": 1,
+    "recipe_matcher_execution_added": 1,
+    "unsupported_shape_silently_ignored": 1
+  },
+  "decision": {
+    "kind": "SelectProgramJsonBlockRecipeCapability",
+    "reason_token": "StmtOnlyBlockRecipeIsSmallestProgramJsonFedBlockContractBridge",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-STMT-ONLY-BLOCK-RECIPE-SNAPSHOT-PARITY-001"
+  },
+  "claims": {
+    "implementation_done": 0,
+    "parity_gate_green": 0,
+    "recipe_bodies_materialization": 0,
+    "runtime_route_switch": 0,
+    "rust_astnode_projector_retired": 0,
+    "full_astnode_projector_retired": 0,
+    "programjson_full_parser_claim": 0,
+    "programjson_all_shapes_supported": 0,
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0,
+    "id_allocation_migration": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
