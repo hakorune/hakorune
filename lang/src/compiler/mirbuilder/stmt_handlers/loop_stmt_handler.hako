@@ -2,8 +2,10 @@
 // Responsibility: SSOT handler for minimal Loop shape parsing and recipe item construction.
 //
 // R5 minimal (M6-min-1):
-// - accept only: Local(Int) -> Loop(Var < Int, body: single Assignment-like stmt) -> Return(Var|Int)
-// - no nested Loop / If in body
+// - accept only:
+//   Local(Int) -> Loop(Var < Int, body: Assignment-like stmt) -> Return(Var|Int)
+//   Local(Int) -> Loop(Var < Int, body: If(Return Int) + Assignment-like stmt) -> Return(Var|Int)
+// - no nested Loop in body
 // - no break/continue/cleanup mixing
 
 using selfhost.shared.common.string_helpers as StringHelpers
@@ -54,7 +56,7 @@ static box LoopStmtHandler {
       return me._err(tag, "[cap_missing/program_json_v0] Loop Compare missing op", next_idx)
     }
     local op = BoxHelpers.map_get(op_out, "value")
-    if op != "<" {
+    if BoxHelpers.same_token(op, "<") != 1 {
       return me._err(tag, "[cap_missing/expr:Compare] Loop cond Compare op must be '<'", next_idx)
     }
 
@@ -140,7 +142,7 @@ static box LoopStmtHandler {
       return me._err(tag, "[cap_missing/program_json_v0] Loop body assignment Binary missing op", stmt_start)
     }
     local op = BoxHelpers.map_get(op_out, "value")
-    if op != "+" {
+    if BoxHelpers.same_token(op, "+") != 1 {
       return me._err(tag, "[cap_missing/expr:Binary] Loop body assignment Binary op must be '+'", stmt_start)
     }
 
@@ -220,7 +222,7 @@ static box LoopStmtHandler {
       return me._err(tag, "[cap_missing/program_json_v0] Loop If Compare missing op", stmt_start)
     }
     local op = BoxHelpers.map_get(op_out, "value")
-    if op != "<" {
+    if BoxHelpers.same_token(op, "<") != 1 {
       return me._err(tag, "[cap_missing/expr:Compare] Loop If cond Compare op must be '<'", stmt_start)
     }
 
@@ -268,7 +270,7 @@ static box LoopStmtHandler {
       return me._err(tag, "[cap_missing/program_json_v0] Loop If missing else field", stmt_start)
     }
     else_start = StringHelpers.skip_ws(program_json, else_start)
-    if program_json.substring(else_start, else_start + 4) != "null" {
+    if BoxHelpers.same_token(program_json.substring(else_start, else_start + 4), "null") != 1 {
       return me._err(tag, "[cap_missing/stmt:Loop] Loop If else must be null", stmt_start)
     }
 
@@ -278,7 +280,7 @@ static box LoopStmtHandler {
       return me._err(tag, "[cap_missing/program_json_v0] Loop If missing then array", stmt_start)
     }
     local then_start = StringHelpers.skip_ws(program_json, p_then + then_key.length())
-    if ProgramJsonV0ScannerBox._read_char(program_json, then_start) != "{" {
+    if BoxHelpers.same_token(ProgramJsonV0ScannerBox._read_char(program_json, then_start), "{") != 1 {
       return me._err(tag, "[cap_missing/stmt:Loop] Loop If then must contain exactly one stmt", then_start)
     }
     local then_stmt_end = ProgramJsonV0ScannerBox.seek_obj_end_unescaped(program_json, then_start)
@@ -286,7 +288,7 @@ static box LoopStmtHandler {
       return me._err(tag, "[cap_missing/program_json_v0] Loop If then stmt object is invalid", then_start)
     }
     local after_then = StringHelpers.skip_ws(program_json, then_stmt_end)
-    if ProgramJsonV0ScannerBox._read_char(program_json, after_then) != "]" {
+    if BoxHelpers.same_token(ProgramJsonV0ScannerBox._read_char(program_json, after_then), "]") != 1 {
       return me._err(tag, "[cap_missing/stmt:Loop] Loop If then supports exactly one stmt", after_then)
     }
     local then_stmt_info = ProgramJsonV0ScannerBox.read_node_type_at_result(program_json, then_start)
@@ -330,7 +332,7 @@ static box LoopStmtHandler {
       return me._err(tag, "[cap_missing/program_json_v0] Loop missing body array", next_idx)
     }
     local first_start = StringHelpers.skip_ws(program_json, p_body + body_key.length())
-    if ProgramJsonV0ScannerBox._read_char(program_json, first_start) != "{" {
+    if BoxHelpers.same_token(ProgramJsonV0ScannerBox._read_char(program_json, first_start), "{") != 1 {
       return me._err(tag, "[cap_missing/stmt:Loop] Loop body must contain stmt object(s)", first_start)
     }
     local first_end = ProgramJsonV0ScannerBox.seek_obj_end_unescaped(program_json, first_start)
@@ -340,7 +342,7 @@ static box LoopStmtHandler {
     local after_first = StringHelpers.skip_ws(program_json, first_end)
     local after_first_ch = ProgramJsonV0ScannerBox._read_char(program_json, after_first)
 
-    if after_first_ch == "]" {
+    if BoxHelpers.same_token(after_first_ch, "]") == 1 {
       local assign_out = me._read_loop_body_assignment_stmt(program_json, first_start, local_name, tag, next_idx)
       local assign_err = StringHelpers.to_i64(BoxHelpers.map_get(assign_out, "err"))
       if assign_err != 0 {
@@ -355,11 +357,11 @@ static box LoopStmtHandler {
       }
     }
 
-    if after_first_ch != "," {
+    if BoxHelpers.same_token(after_first_ch, ",") != 1 {
       return me._err(tag, "[cap_missing/stmt:Loop] Loop body supports Assignment or If+Assignment", after_first)
     }
     local second_start = StringHelpers.skip_ws(program_json, after_first + 1)
-    if ProgramJsonV0ScannerBox._read_char(program_json, second_start) != "{" {
+    if BoxHelpers.same_token(ProgramJsonV0ScannerBox._read_char(program_json, second_start), "{") != 1 {
       return me._err(tag, "[cap_missing/program_json_v0] Loop second body stmt object is invalid", second_start)
     }
     local second_end = ProgramJsonV0ScannerBox.seek_obj_end_unescaped(program_json, second_start)
@@ -367,7 +369,7 @@ static box LoopStmtHandler {
       return me._err(tag, "[cap_missing/program_json_v0] Loop second body stmt object is invalid", second_start)
     }
     local after_second = StringHelpers.skip_ws(program_json, second_end)
-    if ProgramJsonV0ScannerBox._read_char(program_json, after_second) != "]" {
+    if BoxHelpers.same_token(ProgramJsonV0ScannerBox._read_char(program_json, after_second), "]") != 1 {
       return me._err(tag, "[cap_missing/stmt:Loop] Loop body supports exactly two stmts for If+Assignment", after_second)
     }
 
@@ -452,7 +454,7 @@ static box LoopStmtHandler {
     body_stmt.set("facts", body_facts)
 
     local body_seq = RecipeItemBox.seq([body_stmt])
-    if body_kind == "if_then_assignment" {
+    if BoxHelpers.same_token(body_kind, "if_then_assignment") == 1 {
       local if_cond_facts = new MapBox()
       if_cond_facts.set("cond_kind", "VarLtInt")
       if_cond_facts.set("cond_var_name", local_name)
