@@ -345,13 +345,12 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PROGRAMJSON-IF-HANDLER-THEN-LOCAL-NO-ELSE-CAPABILITY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3170-MIRBUILDER-PROGRAMJSON-IF-HANDLER-THEN-LOCAL-NO-ELSE-CAPABILITY-001.md"
-latest_card_summary = """3170 extends IfStmtHandler with a narrow
-then-local/no-else capability and proves the row through the ProgramJSON
-StmtOnly block recipe bridge. NoExit/ExitAllowed contracts, route switch, MIR
-mutation/lowering, ID allocation, ProgramJSON full parser, new ABI, and Source
-Selfhost remain unclaimed."""
+latest_card = "MIRBUILDER-PROGRAMJSON-IF-HANDLER-THEN-LOCAL-NO-ELSE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3171-MIRBUILDER-PROGRAMJSON-IF-HANDLER-THEN-LOCAL-NO-ELSE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001.md"
+latest_card_summary = """3171 marks the covered then-local/no-else If row as a
+scoped Rust ASTNode projector retire-candidate. NoExit/ExitAllowed recursive
+contracts, route switch, MIR mutation/lowering, ID allocation, ProgramJSON full
+parser, new ABI, and Source Selfhost remain unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -362,6 +361,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-06: 3171 marks the covered then-local/no-else If row as a scoped Rust ASTNode projector retire-candidate while recursive block contracts, route switch, and Source Selfhost remain unclaimed.",
   "2026-07-06: 3170 extends IfStmtHandler with a narrow then-local/no-else capability and proves the row through the ProgramJSON StmtOnly block recipe bridge while Source Selfhost remains unclaimed.",
   "2026-07-06: 3169 marks the covered parseable then/else assignment IfNoExit row as a scoped Rust ASTNode projector retire-candidate while route switch and Source Selfhost remain unclaimed.",
   "2026-07-06: 3168 proves one ProgramJSON-fed IfNoExit projection row for the parseable then/else assignment If shape while route switch and Source Selfhost remain unclaimed.",
@@ -370,5 +370,4 @@ landed_tail = [
   "2026-07-06: 3165 selects ProgramJsonStmtOnlyBlockRecipeLoopNoExitSnapshotV1 as the next ProgramJSON-fed block recipe capability while implementation/parity and Source Selfhost remain unclaimed.",
   "2026-07-06: 3164 marks covered ProgramJsonStmtOnlyBlockRecipeSnapshotV1 direct stmt rows as a scoped Rust ASTNode projector retire-candidate while If/Loop block rows and Source Selfhost remain unclaimed.",
   "2026-07-06: 3163 proves ProgramJsonStmtOnlyBlockRecipeSnapshotV1 over 4 ProgramJSON/recipe_root direct stmt rows while Source Selfhost remains unclaimed.",
-  "2026-07-06: 3162 selects ProgramJsonStmtOnlyBlockRecipeSnapshotV1 as the next ProgramJSON-fed block recipe capability while implementation/parity and Source Selfhost remain unclaimed.",
 ]

@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-07-05
+Date: 2026-07-06
 Scope: MirBuilder-only Rust-to-Hako converter task order.
 Related:
   - docs/development/current/main/design/derived-to-native-hako-artifact-model-ssot.md
@@ -60,15 +60,19 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-IF-HANDLER-THEN-LOCAL-NO-ELSE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+  MIRBUILDER-PROGRAMJSON-BLOCK-RECIPE-RECURSIVE-CONTRACT-CAPABILITY-SELECTION-001
 selected next card:
-  not yet created; mark only the covered then-local/no-else If row as a scoped
-  Rust ASTNode projector retire-candidate.
+  not yet created; choose the next recursive block recipe contract capability
+  from the remaining NoExit / ExitAllowed gap without opening RecipeBodies,
+  RecipeMatcher, route selection, MIR mutation/lowering, ID allocation, or a
+  runtime route switch.
 
-post-3170 block recipe task order:
-  1. retire-candidate: covered then-local/no-else If row only.
-  2. defer: NoExit / ExitAllowed recursive block contracts until If/Loop
-     token projection is stable.
+post-3171 block recipe task order:
+  1. selection: choose NoExit-vs-ExitAllowed recursive block recipe contract.
+  2. capability: implement one ProgramJSON-fed recursive block contract with
+     fixture-backed parity and scoped non-claims.
+  3. retire-candidate: mark only the covered Rust ASTNode projector slice as
+     retire-candidate after the capability gate is green.
   design-stop trigger:
     stop before recursive RecipeBodies, full RecipeMatcher, route selection,
     MIR mutation/lowering, ID allocation, runtime route switch, or Source
@@ -84,11 +88,11 @@ normal operating rule:
   history.
 
 latest design decision:
-  3170 extends IfStmtHandler with then-local/no-else support and proves the row
-  through the ProgramJSON StmtOnly block bridge. Next is a scoped
-  retire-candidate for that row. 3169 marks parseable then/else assignment
-  IfNoExit as scoped, 3167 marks LoopNoExit as scoped, and 3164 marks direct
-  stmt rows from 3163 as scoped.
+  3171 marks the covered then-local/no-else If row as a scoped Rust ASTNode
+  projector retire-candidate. 3170 proves that row through the ProgramJSON
+  StmtOnly block bridge. 3169 marks parseable then/else assignment IfNoExit as
+  scoped, 3167 marks LoopNoExit as scoped, and 3164 marks direct stmt rows from
+  3163 as scoped.
   3162 selected that ProgramJSON-fed block recipe bridge. 3161-3151 cover
   Local>Loop>Return loop-root propagation through
   RecipeStmtSeqDtoSnapshotV1, RecipeShapeKindDtoSnapshotV1,

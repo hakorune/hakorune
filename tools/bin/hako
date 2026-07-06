@@ -16,4 +16,73 @@ if [[ ! -x "$BIN" ]]; then
   cargo build --release -q
 fi
 
+if [[ "${HAKO_MIR_JSON_CACHE:-1}" != "0" ]]; then
+  emit_out=""
+  emit_seen=0
+  for arg in "$@"; do
+    if [[ "$emit_seen" -eq 1 ]]; then
+      emit_out="$arg"
+      break
+    fi
+    if [[ "$arg" == "--emit-mir-json" ]]; then
+      emit_seen=1
+    fi
+  done
+
+  if [[ -n "$emit_out" && "$#" -gt 0 ]]; then
+    input="${!#}"
+    if [[ -f "$input" ]]; then
+      cache_root="${HAKO_MIR_JSON_CACHE_DIR:-$ROOT_DIR/target/hako-mir-json-cache/v1}"
+      bin_fingerprint="$(stat -c '%n:%s:%Y' "$BIN" 2>/dev/null || printf '%s' "$BIN")"
+      input_hash="$(sha256sum "$input" | awk '{ print $1 }')"
+      canonical_args=()
+      skip_next=0
+      for arg in "$@"; do
+        if [[ "$skip_next" -eq 1 ]]; then
+          canonical_args+=("<emit-out>")
+          skip_next=0
+          continue
+        fi
+        case "$arg" in
+          --emit-mir-json)
+            canonical_args+=("$arg")
+            skip_next=1
+            ;;
+          *)
+            if [[ "$arg" == "$input" ]]; then
+              canonical_args+=("<input>")
+            else
+              canonical_args+=("$arg")
+            fi
+            ;;
+        esac
+      done
+      args_key="$(printf '%s\0' "${canonical_args[@]}" | sha256sum | awk '{ print $1 }')"
+      env_key="$(env | LC_ALL=C sort | awk '/^(HAKO|NYASH)_/' | sha256sum | awk '{ print $1 }')"
+      key="$(printf '%s\n%s\n%s\n%s\n' \
+        "$bin_fingerprint" "$input_hash" "$args_key" "$env_key" \
+        | sha256sum | awk '{ print $1 }')"
+      cache_path="$cache_root/${key}.mir.json"
+
+      if [[ -s "$cache_path" ]]; then
+        mkdir -p "$(dirname "$emit_out")"
+        cp "$cache_path" "$emit_out"
+        exit 0
+      fi
+
+      set +e
+      "$BIN" "$@"
+      rc=$?
+      set -e
+      if [[ "$rc" -eq 0 && -s "$emit_out" ]]; then
+        mkdir -p "$cache_root"
+        tmp_cache="$cache_path.$$"
+        cp "$emit_out" "$tmp_cache"
+        mv "$tmp_cache" "$cache_path"
+      fi
+      exit "$rc"
+    fi
+  fi
+fi
+
 exec "$BIN" "$@"

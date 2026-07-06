@@ -28,6 +28,8 @@ compat を直接読む実装を増やさないこと。
 | `NYASH_VM_TRACE_LOG=1` | OFF | VM | VM トレースをファイルへ追記。`1` の場合は `__mir__.log`、それ以外は指定パス。 |
 | `HAKO_VM_ERROR_LOC=1` | OFF | VM | VM エラー時に簡易位置を 1行で出す（`[vm/error/loc] ...`）。 |
 | `NYASH_DUMP_JSON_IR=1` | OFF | Any | JSON IR をダンプ |
+| `HAKO_MIR_JSON_CACHE={0\|1}` | `1` | tools/bin/hako | `tools/bin/hako --emit-mir-json` の入力ハッシュキャッシュ。`0` で無効化。キャッシュ先は `target/hako-mir-json-cache/v1`。 |
+| `HAKO_MIR_JSON_CACHE_DIR=/path` | `target/hako-mir-json-cache/v1` | tools/bin/hako | `tools/bin/hako --emit-mir-json` キャッシュの保存先を上書きする。CI/一時検証では tmpdir 指定を推奨。 |
 | `NYASH_DEBUG_STACK_OVERFLOW=1` | OFF | Any | スタックオーバーフロー時に backtrace を有効化 |
 | `NYASH_BINOP_REPROP_DEBUG=1` | OFF | Any | BinOp 型再伝播（MIR）をトレース |
 | `NYASH_LEAK_LOG=1` | OFF | VM (full), LLVM (parent process roots only) | プログラム終了時に残存する強参照を報告（サマリー） |
