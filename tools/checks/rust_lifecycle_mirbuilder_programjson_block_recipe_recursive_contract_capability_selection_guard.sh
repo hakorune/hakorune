@@ -74,14 +74,16 @@ if selected.get("target_reducer") != "NoExitBlockRecipeBox":
     raise SystemExit("bad selected reducer")
 if selected.get("selected_next_card") != "MIRBUILDER-PROGRAMJSON-NO-EXIT-BLOCK-RECIPE-IF-JOIN-SNAPSHOT-PARITY-001":
     raise SystemExit("bad next card")
-if selected.get("required_projection_tokens") != ["IfThenLocalNoElse", "IfThenLocalElsePrint"]:
+if selected.get("required_projection_tokens") != ["IfThenLocalNoElse"]:
     raise SystemExit("projection token drift")
-if selected.get("required_reducer_outputs") != ["IfJoin", "JoinNoElse", "JoinThenElse"]:
+if selected.get("required_reducer_outputs") != ["IfJoin", "JoinNoElse"]:
     raise SystemExit("reducer output drift")
 
 candidates = {row.get("capability"): row for row in fixture.get("candidates", [])}
 if candidates.get("ProgramJsonNoExitBlockRecipeIfJoinSnapshotV1", {}).get("status") != "Selected":
     raise SystemExit("NoExit IfJoin candidate must be selected")
+if candidates.get("ProgramJsonNoExitBlockRecipeJoinThenElseSnapshotV1", {}).get("status") != "Held":
+    raise SystemExit("NoExit JoinThenElse candidate must be held")
 if candidates.get("ProgramJsonExitAllowedBlockRecipeSnapshotV1", {}).get("status") != "Held":
     raise SystemExit("ExitAllowed candidate must be held")
 if candidates.get("ProgramJsonNoExitBlockRecipeLoopV0SnapshotV1", {}).get("status") != "Held":
@@ -106,11 +108,13 @@ token=MIRBUILDER-PROGRAMJSON-BLOCK-RECIPE-RECURSIVE-CONTRACT-CAPABILITY-SELECTIO
 selected_capability=ProgramJsonNoExitBlockRecipeIfJoinSnapshotV1
 selected_reducer=NoExitBlockRecipeBox
 held_capability=ProgramJsonExitAllowedBlockRecipeSnapshotV1
+held_join_then_else_capability=ProgramJsonNoExitBlockRecipeJoinThenElseSnapshotV1
 held_loop_capability=ProgramJsonNoExitBlockRecipeLoopV0SnapshotV1
-selected_projection_tokens=IfThenLocalNoElse,IfThenLocalElsePrint
-selected_reducer_outputs=IfJoin,JoinNoElse,JoinThenElse
-no_exit_if_join_rows=2
+selected_projection_tokens=IfThenLocalNoElse
+selected_reducer_outputs=IfJoin,JoinNoElse
+no_exit_if_join_rows=1
 exit_allowed_held=1
+join_then_else_held=1
 loop_v0_held=1
 programjson_no_exit_if_join_parity_green=0
 recursive_recipe_bodies_materialization=0

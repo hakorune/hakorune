@@ -1,0 +1,61 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonNoExitBlockRecipeIfJoinSnapshotParityV1",
+  "token": "MIRBUILDER-PROGRAMJSON-NO-EXIT-BLOCK-RECIPE-IF-JOIN-SNAPSHOT-PARITY-001",
+  "capability": {
+    "name": "ProgramJsonNoExitBlockRecipeIfJoinSnapshotV1",
+    "input": "ProgramJSON v0",
+    "output": "NoExitBlockRecipeBox IfJoin token snapshot summary",
+    "implementation": "lang/src/compiler/mirbuilder/program_json_no_exit_block_recipe_snapshot.hako",
+    "target_existing_reducer": "lang/src/compiler/lib/no_exit_block_recipe.hako"
+  },
+  "selection": {
+    "previous_checkpoint": "MIRBUILDER-PROGRAMJSON-BLOCK-RECIPE-RECURSIVE-CONTRACT-CAPABILITY-SELECTION-001",
+    "selected_reason": "NoExit IfJoin is the smallest recursive block contract after the StmtOnly ProgramJSON bridge."
+  },
+  "rows": [
+    {
+      "row_id": "if_then_local_no_else",
+      "program_json": {"version": 0, "kind": "Program", "body": [
+        {"type": "Local", "name": "i", "expr": {"type": "Int", "value": 0}},
+        {"type": "If", "cond": {"type": "Compare", "op": "==", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 3}}, "then": [
+          {"type": "Local", "name": "j", "expr": {"type": "Int", "value": 4}}
+        ], "else": null},
+        {"type": "Return", "expr": {"type": "Var", "name": "i"}}
+      ]},
+      "rust_oracle_expected_summary": "snapshot_kind=ProgramJsonNoExitBlockRecipeIfJoinSnapshotV1;err=0;accepted=1;block_contract=NoExit;stmt_count=2;item_kinds=Stmt,IfJoin;if_join_shapes=JoinNoElse;loop_body_contracts="
+    }
+  ],
+  "acceptance": {
+    "programjson_traversal_used": 1,
+    "recipe_root_traversal_used": 1,
+    "no_exit_reducer_called": 1,
+    "if_join_token_projected": 1,
+    "prebuilt_token_snapshot_input": 0,
+    "string_only_facade": 0,
+    "mir_json_route_green": 1,
+    "runtime_parity_green": 1,
+    "row_count": 1,
+    "selection_prerequisite_green": 1
+  },
+  "decision": {
+    "kind": "SelectNoExitIfJoinRetireCandidateNext",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-NO-EXIT-BLOCK-RECIPE-IF-JOIN-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001",
+    "reason_token": "ProgramJsonNoExitBlockRecipeIfJoinSnapshotRuntimeParityGreen"
+  },
+  "claims": {
+    "exit_allowed_contract": 0,
+    "join_then_else_contract": 0,
+    "loop_v0_contract": 0,
+    "recipe_bodies_materialization": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering_claim": 0,
+    "runtime_route_switch": 0,
+    "source_selfhost_claim": 0,
+    "programjson_all_shapes_supported": 0,
+    "full_imported_parse_executable_green": 0
+  }
+}

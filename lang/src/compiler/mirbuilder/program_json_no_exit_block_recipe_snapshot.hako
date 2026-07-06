@@ -1,0 +1,81 @@
+// program_json_no_exit_block_recipe_snapshot.hako
+// Responsibility:
+// - Bridge Program(JSON v0) recipe_root IfJoin rows to NoExitBlockRecipeBox.
+// - Keep this as a snapshot/proof owner only; no recipe tree materialization, lowering, or MIR mutation.
+
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.shared.common.box_helpers as BoxHelpers
+using lang.compiler.mirbuilder.program_json_v0_phase_state_box as ProgramJsonV0PhaseStateBox
+using lang.compiler.mirbuilder.recipe.recipe_item_box as RecipeItemBox
+using lang.compiler.lib.no_exit_block_recipe as NoExitBlockRecipeBox
+
+static box ProgramJsonNoExitBlockRecipeSnapshotBox {
+  _i(map, key) {
+    return StringHelpers.to_i64(BoxHelpers.map_get(map, key))
+  }
+
+  _err(reason) {
+    return "snapshot_kind=ProgramJsonNoExitBlockRecipeIfJoinSnapshotV1;err=1;reason=" + reason
+  }
+
+  _seq_stmt_kind(item) {
+    if item == null { return "None" }
+    if RecipeItemBox.kind_is(item, "Seq") != 1 { return "Unsupported" }
+    local kind = BoxHelpers.map_get(item, "stmt_kind")
+    if BoxHelpers.same_token(kind, "Local") == 1 { return "Local" }
+    if BoxHelpers.same_token(kind, "Print") == 1 { return "Print" }
+    if BoxHelpers.same_token(kind, "ScopeBox") == 1 { return "ScopeBox" }
+    if BoxHelpers.same_token(kind, "Program") == 1 { return "Program" }
+    if BoxHelpers.same_token(kind, "Return") == 1 { return "Return" }
+    return "Unsupported"
+  }
+
+  _single_seq_kind(seq_item) {
+    if seq_item == null || RecipeItemBox.kind_is(seq_item, "Seq") != 1 { return "Unsupported" }
+    local items = BoxHelpers.map_get(seq_item, "items")
+    if items == null || BoxHelpers.is_array(items) != 1 { return "Unsupported" }
+    local stmt0 = BoxHelpers.array_get(items, 0)
+    local stmt1 = BoxHelpers.array_get(items, 1)
+    if stmt0 == null && stmt1 == null { return "None" }
+    if stmt0 == null || stmt1 != null { return "Unsupported" }
+    return me._seq_stmt_kind(stmt0)
+  }
+
+  _if_join_token(item) {
+    if item == null || RecipeItemBox.kind_is(item, "If") != 1 { return "Unsupported" }
+    local then_kind = me._single_seq_kind(BoxHelpers.map_get(item, "then_item"))
+    local else_kind = me._single_seq_kind(BoxHelpers.map_get(item, "else_item"))
+    if BoxHelpers.same_token(then_kind, "Local") == 1 && BoxHelpers.same_token(else_kind, "None") == 1 {
+      return "IfThenLocalNoElse"
+    }
+    return "Unsupported"
+  }
+
+  _stmt_token(item) {
+    if item == null { return "None" }
+    if RecipeItemBox.kind_is(item, "If") == 1 { return me._if_join_token(item) }
+    return me._seq_stmt_kind(item)
+  }
+
+  build_summary(program_json) {
+    local out = ProgramJsonV0PhaseStateBox.parse(program_json, "[test]")
+    if me._i(out, "err") != 0 { return me._err("parse_error") }
+
+    local root = BoxHelpers.map_get(out, "recipe_root")
+    if root == null || RecipeItemBox.kind_is(root, "Seq") != 1 {
+      return me._err("missing_recipe_root")
+    }
+
+    local items = BoxHelpers.map_get(root, "items")
+    if items == null || BoxHelpers.is_array(items) != 1 {
+      return me._err("missing_recipe_items")
+    }
+
+    local stmt0 = me._stmt_token(BoxHelpers.array_get(items, 0))
+    local stmt1 = me._stmt_token(BoxHelpers.array_get(items, 1))
+    return "snapshot_kind=ProgramJsonNoExitBlockRecipeIfJoinSnapshotV1;err=0;"
+      + NoExitBlockRecipeBox.build_summary(stmt0, stmt1)
+  }
+}
+
+static box ProgramJsonNoExitBlockRecipeSnapshotMain { main() { return 0 } }

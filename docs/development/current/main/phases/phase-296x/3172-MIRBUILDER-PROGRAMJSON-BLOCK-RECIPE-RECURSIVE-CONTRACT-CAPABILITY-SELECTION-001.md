@@ -15,12 +15,12 @@ ProgramJsonNoExitBlockRecipeIfJoinSnapshotV1
   reducer: NoExitBlockRecipeBox
   first rows:
     if_then_local_no_else
-    if_then_local_else_print
 ```
 
 Held:
 
 ```text
+ProgramJsonNoExitBlockRecipeJoinThenElseSnapshotV1
 ProgramJsonExitAllowedBlockRecipeSnapshotV1
 ProgramJsonNoExitBlockRecipeLoopV0SnapshotV1
 ```
@@ -43,7 +43,7 @@ Expected guard result:
 selected_capability=ProgramJsonNoExitBlockRecipeIfJoinSnapshotV1
 selected_reducer=NoExitBlockRecipeBox
 held_capability=ProgramJsonExitAllowedBlockRecipeSnapshotV1
-no_exit_if_join_rows=2
+no_exit_if_join_rows=1
 exit_allowed_held=1
 recursive_recipe_bodies_materialization=0
 route_selection=0

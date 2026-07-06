@@ -16,10 +16,15 @@
       "target_reducer": "NoExitBlockRecipeBox",
       "status": "Selected",
       "first_rows": [
-        "if_then_local_no_else",
-        "if_then_local_else_print"
+        "if_then_local_no_else"
       ],
-      "reason": "extends the proven StmtOnly ProgramJSON bridge into the NoExit block contract and exercises IfJoin without opening explicit non-local exits"
+      "reason": "extends the proven StmtOnly ProgramJSON bridge into the NoExit block contract and exercises parseable IfJoin without opening explicit non-local exits"
+    },
+    {
+      "capability": "ProgramJsonNoExitBlockRecipeJoinThenElseSnapshotV1",
+      "target_reducer": "NoExitBlockRecipeBox",
+      "status": "Held",
+      "held_reason": "NoExit reducer supports JoinThenElse, but ProgramJSON PhaseState does not yet produce the then-local/else-print recipe_root row"
     },
     {
       "capability": "ProgramJsonExitAllowedBlockRecipeSnapshotV1",
@@ -40,13 +45,11 @@
     "input": "ProgramJSON recipe_root",
     "output": "NoExitBlockRecipeSummaryV1",
     "required_projection_tokens": [
-      "IfThenLocalNoElse",
-      "IfThenLocalElsePrint"
+      "IfThenLocalNoElse"
     ],
     "required_reducer_outputs": [
       "IfJoin",
-      "JoinNoElse",
-      "JoinThenElse"
+      "JoinNoElse"
     ],
     "selected_next_card": "MIRBUILDER-PROGRAMJSON-NO-EXIT-BLOCK-RECIPE-IF-JOIN-SNAPSHOT-PARITY-001"
   },
