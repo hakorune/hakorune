@@ -1,0 +1,71 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonRecipeBodiesPostVerifierBoundaryDesignStopV1",
+  "token": "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-POST-VERIFIER-BOUNDARY-DESIGN-STOP-001",
+  "input_state": {
+    "previous_card": "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-VERIFIER-BOUNDARY-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001",
+    "previous_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-programjson-recipebodies-verifier-boundary-retire-rust-astnode-projector-candidate-v0.json",
+    "covered_row": "local_loop_body_if_branch_return"
+  },
+  "boundary": {
+    "kind": "DesignStop",
+    "reason_token": "VerifierBoundaryGreenNextRequiresRuntimePublicationOrRecipeMatcherDecision",
+    "implementation_allowed_now": 0,
+    "source_authority": "docs/development/current/main/design/recipe-tree-and-parts-ssot.md",
+    "current_hako_claim": "ProgramJSON can build and verify a covered recursive nested arena DTO shape.",
+    "next_policy_boundary": "runtime RecipeBodies publication, full RecipeMatcher execution, or route-switch authority"
+  },
+  "consultation": {
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-POST-VERIFIER-BOUNDARY-CONSULTATION-001",
+    "question": "After verifier-boundary parity is green, which next seam is allowed: more DTO rows, a narrow runtime RecipeBodies publication bridge, or full RecipeMatcher execution consultation?",
+    "recommended_default": "A_MORE_DTO_COVERAGE_ROWS_UNLESS_ROUTE_SWITCH_AUTHORITY_IS_APPROVED"
+  },
+  "candidate_next_seams": [
+    {
+      "id": "A_MORE_DTO_COVERAGE_ROWS",
+      "state": "AllowedAfterConsultation",
+      "claim": "increase ProgramJSON RecipeBodies DTO row coverage without runtime publication"
+    },
+    {
+      "id": "B_RUNTIME_RECIPEBODIES_PUBLICATION_BRIDGE",
+      "state": "RequiresConsultation",
+      "claim": "define a narrow runtime RecipeBodies publication bridge and removal condition"
+    },
+    {
+      "id": "C_FULL_RECIPEMATCHER_EXECUTION",
+      "state": "RequiresConsultation",
+      "claim": "start full RecipeMatcher execution migration design"
+    }
+  ],
+  "forbidden_without_new_decision": {
+    "runtime_recipe_bodies_publication": 1,
+    "recipe_bodies_bodies_direct_access": 1,
+    "full_recipe_matcher_execution": 1,
+    "route_selection": 1,
+    "mir_mutation": 1,
+    "id_allocation": 1,
+    "backend_lowering": 1,
+    "directabi_route_publication_expansion": 1,
+    "runtime_route_switch": 1,
+    "source_selfhost_claim": 1,
+    "programjson_full_parser_claim": 1,
+    "new_backend_route": 1,
+    "new_abi": 1
+  },
+  "claims": {
+    "design_stop_recorded": 1,
+    "implementation_allowed_now": 0,
+    "recipe_bodies_materialization": 0,
+    "runtime_recipe_bodies_arena": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering_claim": 0,
+    "runtime_route_switch": 0,
+    "source_selfhost_claim": 0,
+    "programjson_full_parser_claim": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

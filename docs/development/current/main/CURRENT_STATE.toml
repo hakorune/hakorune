@@ -345,12 +345,12 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-VERIFIER-BOUNDARY-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3216-MIRBUILDER-PROGRAMJSON-RECIPEBODIES-VERIFIER-BOUNDARY-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001.md"
-latest_card_summary = """3216 marks the covered RecipeBodies
-verifier-boundary snapshot row as a scoped Rust ASTNode projector
-retire-candidate. Runtime dependency removal, full projector retirement,
-runtime RecipeBodies publication, and Source Selfhost remain unclaimed."""
+latest_card = "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-POST-VERIFIER-BOUNDARY-DESIGN-STOP-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3217-MIRBUILDER-PROGRAMJSON-RECIPEBODIES-POST-VERIFIER-BOUNDARY-DESIGN-STOP-001.md"
+latest_card_summary = """3217 records the post-verifier RecipeBodies design
+stop. Runtime RecipeBodies publication, full RecipeMatcher execution, route
+switch, lowering, mutation, ID allocation, and Source Selfhost remain
+unclaimed pending consultation."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -361,6 +361,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-07: 3217 records the post-verifier RecipeBodies design stop while runtime RecipeBodies publication, full RecipeMatcher execution, route switch, lowering, mutation, ID allocation, and Source Selfhost remain unclaimed pending consultation.",
   "2026-07-07: 3216 marks the covered RecipeBodies verifier-boundary snapshot row as a scoped Rust ASTNode projector retire-candidate while runtime dependency removal, full projector retirement, runtime RecipeBodies publication, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3215 implements RecipeBodies verifier boundary parity for the covered recursive nested arena row while runtime RecipeBodies publication, full RecipeMatcher, route switch, lowering, mutation, ID allocation, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3214 selects RecipeBodies verifier boundary parity as the next contract after the recursive nested arena retire-candidate while runtime RecipeBodies publication, full RecipeMatcher, route switch, lowering, mutation, ID allocation, and Source Selfhost remain unclaimed.",
@@ -372,5 +373,4 @@ landed_tail = [
   "2026-07-07: 3208 stabilizes IfStmtHandler result-map contracts while AOT dynamic string widening, by-name exceptions, new ProgramJSON shapes, runtime RecipeBodies publication, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3207 marks the covered ProgramJsonRecipeBodiesLoopBodyArenaBuilderV1 row as a scoped Rust ASTNode projector retire-candidate while runtime dependency removal, full projector retirement, runtime RecipeBodies publication, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3206 implements ProgramJsonRecipeBodiesLoopBodyArenaBuilderBox and proves a map-backed Loop-body multi-body arena DTO while runtime RecipeBodies publication, route switch, full RecipeMatcher, lowering, mutation, ID allocation, and Source Selfhost remain unclaimed.",
-  "2026-07-07: 3205 selects Loop body multi-body RecipeBodies arena parity as the next contract while runtime RecipeBodies publication, route switch, full RecipeMatcher, lowering, mutation, ID allocation, and Source Selfhost remain unclaimed.",
 ]

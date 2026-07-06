@@ -60,11 +60,11 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-RECIPEBODIES-AFTER-VERIFIER-BOUNDARY-NEXT-CONTRACT-SELECTION-001
+  MIRBUILDER-PROGRAMJSON-RECIPEBODIES-POST-VERIFIER-BOUNDARY-CONSULTATION-001
 selected next card:
-  select the next RecipeBodies contract after the verifier-boundary
-  retire-candidate. Runtime route switch, full RecipeMatcher, lowering,
-  mutation, ID allocation, and Source Selfhost stay unclaimed.
+  consult the post-verifier RecipeBodies boundary before runtime publication,
+  full RecipeMatcher, route switch, lowering, mutation, ID allocation, or
+  Source Selfhost claims.
 
 post-3180 block recipe task order:
   completed: JoinThenElse, ElseOnlyExit, ThenOnlyExit, and ExitAll are scoped
@@ -86,6 +86,8 @@ normal operating rule:
   history.
 
 latest design decision:
+  3217 records the post-verifier RecipeBodies design stop and requires
+  consultation before runtime publication or full RecipeMatcher execution.
   3216 marks the covered RecipeBodies verifier-boundary snapshot row as a
   scoped Rust ASTNode projector retire-candidate.
   3215 implements RecipeBodies verifier boundary parity and selects its
