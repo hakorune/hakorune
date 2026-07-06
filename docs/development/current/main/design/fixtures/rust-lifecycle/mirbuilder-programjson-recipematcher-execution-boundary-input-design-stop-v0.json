@@ -1,0 +1,56 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonRecipeMatcherExecutionBoundaryInputDesignStopV1",
+  "token": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-EXECUTION-BOUNDARY-INPUT-DESIGN-STOP-001",
+  "input_state": {
+    "previous_card": "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-PUBLICATION-BRIDGE-001",
+    "attempted_next_card": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-EXECUTION-BOUNDARY-MINIMAL-001",
+    "runtime_publication_bridge_gate": "tools/checks/rust_lifecycle_mirbuilder_programjson_recipebodies_runtime_publication_bridge_gate.sh"
+  },
+  "source_authority": {
+    "rust_matcher": "src/mir/builder/control_flow/plan/recipe_tree/matcher/mod.rs",
+    "rust_contract": "src/mir/builder/control_flow/plan/recipe_tree/contracts.rs",
+    "planner_call_site": "src/mir/builder/control_flow/plan/single_planner/rules.rs",
+    "matcher_input": "CanonicalLoopFacts",
+    "matcher_output": "RecipeContractKind::LoopWithExit"
+  },
+  "current_programjson_boundary": {
+    "publication_owner": "ProgramJsonRecipeBodiesRuntimePublicationBridgeBox",
+    "publication_output": "RecipeBodiesPublicationSnapshotV1",
+    "publication_is_read_only": 1,
+    "publication_snapshot_is_not_matcher_input": 1
+  },
+  "candidate_next_contracts": [
+    {
+      "id": "A_PROGRAMJSON_TO_CANONICAL_LOOP_FACTS_PROJECTION_BRIDGE",
+      "state": "ConsultationRequired",
+      "reason": "Matches Rust RecipeMatcher input authority directly"
+    },
+    {
+      "id": "B_PUBLICATION_SNAPSHOT_TO_MATCHER_INPUT_ADAPTER",
+      "state": "ConsultationRequired",
+      "reason": "Keeps publication as runtime boundary but must define exact matcher input equivalence"
+    },
+    {
+      "id": "C_MINIMAL_HAKO_RECIPEMATCHER_OVER_PUBLICATION_SNAPSHOT",
+      "state": "Risky",
+      "reason": "Would not match Rust RecipeMatcher input unless explicitly renamed and scoped"
+    }
+  ],
+  "decision": {
+    "kind": "DesignStopRecipeMatcherInputBoundary",
+    "reason_token": "RustRecipeMatcherConsumesCanonicalLoopFactsNotRecipeBodiesPublicationSnapshot",
+    "selected_next_card": "CONSULTATION_REQUIRED"
+  },
+  "claims": {
+    "design_stop": 1,
+    "recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "mir_lowering": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "runtime_route_switch": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  }
+}

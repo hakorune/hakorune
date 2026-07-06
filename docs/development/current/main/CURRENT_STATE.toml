@@ -345,11 +345,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-PUBLICATION-BRIDGE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3223-MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-PUBLICATION-BRIDGE-001.md"
-latest_card_summary = """3223 implements a read-only runtime RecipeBodies
-publication bridge with DirectAbi/map_handle parity while RecipeMatcher, route
-switch, lowering, mutation, ID allocation, and Source Selfhost remain unclaimed."""
+latest_card = "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-EXECUTION-BOUNDARY-INPUT-DESIGN-STOP-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3224-MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-EXECUTION-BOUNDARY-INPUT-DESIGN-STOP-001.md"
+latest_card_summary = """3224 records the RecipeMatcher input-boundary design
+stop: Rust RecipeMatcher consumes CanonicalLoopFacts while ProgramJSON currently
+publishes RecipeBodiesPublicationSnapshotV1."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -360,6 +360,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-07: 3224 records the RecipeMatcher input-boundary design stop: Rust RecipeMatcher consumes CanonicalLoopFacts while ProgramJSON currently publishes RecipeBodiesPublicationSnapshotV1.",
   "2026-07-07: 3223 implements a read-only runtime RecipeBodies publication bridge with DirectAbi/map_handle parity while RecipeMatcher, route switch, lowering, mutation, ID allocation, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3222 selects the runtime RecipeBodies publication bridge as the next contract while RecipeMatcher, route switch, lowering, mutation, ID allocation, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3221 marks the expanded RecipeBodies verifier-boundary DTO coverage rows as scoped Rust ASTNode projector retire-candidates while runtime dependency removal remains unclaimed.",
@@ -371,5 +372,4 @@ landed_tail = [
   "2026-07-07: 3215 implements RecipeBodies verifier boundary parity for the covered recursive nested arena row while runtime RecipeBodies publication, full RecipeMatcher, route switch, lowering, mutation, ID allocation, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3214 selects RecipeBodies verifier boundary parity as the next contract after the recursive nested arena retire-candidate while runtime RecipeBodies publication, full RecipeMatcher, route switch, lowering, mutation, ID allocation, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3213 marks the covered recursive nested RecipeBodies arena row as a scoped Rust ASTNode projector retire-candidate while runtime dependency removal, full projector retirement, runtime RecipeBodies publication, and Source Selfhost remain unclaimed.",
-  "2026-07-07: 3212 implements recursive nested RecipeBodies arena parity while runtime RecipeBodies publication, full RecipeMatcher execution, route switch, lowering, mutation, ID allocation, and Source Selfhost remain unclaimed.",
 ]
