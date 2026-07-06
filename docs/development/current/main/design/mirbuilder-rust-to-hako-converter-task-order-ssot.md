@@ -60,9 +60,9 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-CANONICAL-LOOP-FACTS-INPUT-SNAPSHOT-001
+  MIRBUILDER-PROGRAMJSON-CANONICAL-LOOP-FACTS-INPUT-SNAPSHOT-AOT-BOUNDARY-CONSULTATION-001
 selected next card:
-  implement a read-only ProgramJSON verified_recipe -> CanonicalLoopFacts input snapshot before any RecipeMatcher execution claim.
+  choose MapBox snapshot publication bridge or complex string-summary AOT route before implementing CanonicalLoopFacts input snapshot.
 
 post-3180 block recipe task order:
   completed: JoinThenElse, ElseOnlyExit, ThenOnlyExit, and ExitAll are scoped
@@ -84,6 +84,8 @@ normal operating rule:
   history.
 
 latest design decision:
+  3226 records CanonicalLoopFacts input snapshot AOT boundary design stop;
+  recommended=A_MAPBOX_SNAPSHOT_PUBLICATION_BRIDGE, alternative=B_COMPLEX_STRING_SUMMARY_AOT_ROUTE, rejected=C_VM_ONLY_TRAVERSAL_GATE.
   3225 selects ProgramJsonCanonicalLoopFactsInputSnapshotV1 as the next
   Layer4 input-boundary task; RecipeBodiesPublicationSnapshotV1 is not enough.
   3224 records RecipeMatcher input-boundary design stop: Rust consumes CanonicalLoopFacts, not RecipeBodiesPublicationSnapshotV1.
@@ -94,10 +96,8 @@ latest design decision:
   3219 selects more DTO coverage rows after the post-verifier consultation.
   3218 prepares the post-verifier RecipeBodies consultation; runtime
   publication and full RecipeMatcher still require decisions.
-  3217 records the post-verifier RecipeBodies design stop and requires
-  consultation before runtime publication or full RecipeMatcher execution.
-  3216 marks the covered RecipeBodies verifier-boundary snapshot row as a
-  scoped Rust ASTNode projector retire-candidate.
+  3217 records the post-verifier RecipeBodies design stop. 3216 marks the
+  verifier-boundary snapshot row as a scoped retire-candidate.
   3215 implements RecipeBodies verifier boundary parity and selects its
   retire-candidate. 3214 selects RecipeBodies verifier boundary parity.
   3213 marks the recursive nested RecipeBodies arena row as a scoped
@@ -406,14 +406,14 @@ Detailed evidence lives in phase cards, fixtures, and git history.
    status=landed; boundary=select CanonicalLoopFacts input snapshot, not publication-summary adapter
 
 2. MIRBUILDER-PROGRAMJSON-CANONICAL-LOOP-FACTS-INPUT-SNAPSHOT-001
-   status=active; boundary=read verified_recipe path and emit matcher-input snapshot only
+   status=held; boundary=AOT public boundary consultation required first
 
-3. MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-EXECUTION-BOUNDARY-MINIMAL-001
-   status=held; boundary=requires canonical loop facts input snapshot first
+3. MIRBUILDER-PROGRAMJSON-CANONICAL-LOOP-FACTS-INPUT-SNAPSHOT-AOT-BOUNDARY-DESIGN-STOP-001
+   status=active; boundary=CONSULTATION_REQUIRED; recommended=A_MAPBOX_SNAPSHOT_PUBLICATION_BRIDGE
 
 next active:
-  MIRBUILDER-PROGRAMJSON-CANONICAL-LOOP-FACTS-INPUT-SNAPSHOT-001
-  status=active; boundary=Layer4 matcher-input materialization proof; RecipeMatcher execution, route selection, lowering, mutation, ID allocation, route switch, and Source Selfhost remain unclaimed
+  MIRBUILDER-PROGRAMJSON-CANONICAL-LOOP-FACTS-INPUT-SNAPSHOT-AOT-BOUNDARY-CONSULTATION-001
+  status=design-stop; boundary=select AOT public boundary; RecipeMatcher execution, route selection, lowering, mutation, ID allocation, route switch, and Source Selfhost remain unclaimed
 
 trigger-based AOT/MIR typing debt:
   status=parked-until-triggered; order=2999/3000/3001 landed, then 3022 queue
@@ -421,7 +421,7 @@ trigger-based AOT/MIR typing debt:
   compare, PHI dst_type, mir_call dst_type, or receiver-helper
   single-observation protection
 next_documented_task =
-  MIRBUILDER-PROGRAMJSON-CANONICAL-LOOP-FACTS-INPUT-SNAPSHOT-001
+  MIRBUILDER-PROGRAMJSON-CANONICAL-LOOP-FACTS-INPUT-SNAPSHOT-AOT-BOUNDARY-CONSULTATION-001
 
 next_after_active_3 =
   MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-EXECUTION-BOUNDARY-MINIMAL-001

@@ -345,12 +345,12 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-INPUT-BOUNDARY-CONSULTATION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3225-MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-INPUT-BOUNDARY-CONSULTATION-001.md"
-latest_card_summary = """3225 selects ProgramJsonCanonicalLoopFactsInputSnapshotV1
-as the next Layer4 input-boundary task after worker inventory showed Rust
-RecipeMatcher consumes CanonicalLoopFacts and the RecipeBodies publication
-snapshot is not enough by itself."""
+latest_card = "MIRBUILDER-PROGRAMJSON-CANONICAL-LOOP-FACTS-INPUT-SNAPSHOT-AOT-BOUNDARY-DESIGN-STOP-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3226-MIRBUILDER-PROGRAMJSON-CANONICAL-LOOP-FACTS-INPUT-SNAPSHOT-AOT-BOUNDARY-DESIGN-STOP-001.md"
+latest_card_summary = """3226 records the CanonicalLoopFacts input snapshot AOT
+boundary design stop: the traversal task is valid, but the public boundary must
+choose between a MapBox snapshot publication bridge and complex string-summary
+AOT route support before implementation continues."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -361,6 +361,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-07: 3226 records the CanonicalLoopFacts input snapshot AOT boundary design stop and recommends a scoped MapBox snapshot publication bridge; RecipeMatcher execution and Source Selfhost remain unclaimed.",
   "2026-07-07: 3225 selects ProgramJsonCanonicalLoopFactsInputSnapshotV1 as the next RecipeMatcher input-boundary task; RecipeMatcher execution, route switch, lowering, mutation, ID allocation, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3224 records the RecipeMatcher input-boundary design stop: Rust RecipeMatcher consumes CanonicalLoopFacts while ProgramJSON currently publishes RecipeBodiesPublicationSnapshotV1.",
   "2026-07-07: 3223 implements a read-only runtime RecipeBodies publication bridge with DirectAbi/map_handle parity while RecipeMatcher, route switch, lowering, mutation, ID allocation, and Source Selfhost remain unclaimed.",
@@ -372,5 +373,4 @@ landed_tail = [
   "2026-07-07: 3217 records the post-verifier RecipeBodies design stop while runtime RecipeBodies publication, full RecipeMatcher execution, route switch, lowering, mutation, ID allocation, and Source Selfhost remain unclaimed pending consultation.",
   "2026-07-07: 3216 marks the covered RecipeBodies verifier-boundary snapshot row as a scoped Rust ASTNode projector retire-candidate while runtime dependency removal, full projector retirement, runtime RecipeBodies publication, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3215 implements RecipeBodies verifier boundary parity for the covered recursive nested arena row while runtime RecipeBodies publication, full RecipeMatcher, route switch, lowering, mutation, ID allocation, and Source Selfhost remain unclaimed.",
-  "2026-07-07: 3214 selects RecipeBodies verifier boundary parity as the next contract after the recursive nested arena retire-candidate while runtime RecipeBodies publication, full RecipeMatcher, route switch, lowering, mutation, ID allocation, and Source Selfhost remain unclaimed.",
 ]

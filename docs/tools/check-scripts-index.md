@@ -269,6 +269,7 @@ phase-1 compatibility Program(JSON) compat execution helper.
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_recipebodies_runtime_publication_bridge_gate.sh` | Runtime parity gate for the read-only ProgramJSON RecipeBodies publication bridge. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_recipematcher_execution_boundary_input_design_stop_guard.sh` | Design-stop guard for the RecipeMatcher input-boundary mismatch after RecipeBodies publication. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_recipematcher_input_boundary_consultation_guard.sh` | Consultation guard selecting ProgramJsonCanonicalLoopFactsInputSnapshotV1 after RecipeMatcher input-boundary worker inventory. |
+| `tools/checks/rust_lifecycle_mirbuilder_programjson_canonical_loop_facts_input_snapshot_aot_boundary_design_stop_guard.sh` | Design-stop guard for the CanonicalLoopFacts input snapshot AOT public-boundary selection. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_if_handler_result_map_contract_guard.sh` | Result-map contract guard for `IfStmtHandler.handle/5` and helper return paths. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_loop_handler_result_map_contract_guard.sh` | Result-map contract guard for `LoopStmtHandler.handle/5` and helper return paths. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_recipebodies_array_helper_total_map_contract_guard.sh` | Contract guard preventing raw array-helper returns on the one-shape RecipeBodies arena path. |

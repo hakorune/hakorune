@@ -1,0 +1,51 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonCanonicalLoopFactsInputSnapshotAotBoundaryDesignStopV1",
+  "token": "MIRBUILDER-PROGRAMJSON-CANONICAL-LOOP-FACTS-INPUT-SNAPSHOT-AOT-BOUNDARY-DESIGN-STOP-001",
+  "input_state": {
+    "previous_card": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-INPUT-BOUNDARY-CONSULTATION-001",
+    "selected_task": "MIRBUILDER-PROGRAMJSON-CANONICAL-LOOP-FACTS-INPUT-SNAPSHOT-001",
+    "wip_stash": "wip/3226-canonical-loop-facts-input-snapshot-aot-boundary-design-stop"
+  },
+  "observed_blocker": {
+    "kind": "AotBoundarySelectionRequired",
+    "string_summary_failure": "module_generic_prepass_failed for ProgramJsonCanonicalLoopFactsInputSnapshotBox.build_summary/1",
+    "mapbox_snapshot_boundary": "requires scoped map_handle publication contract",
+    "recipe_matcher_input_task_still_valid": true
+  },
+  "candidate_decisions": [
+    {
+      "id": "A_MAPBOX_SNAPSHOT_PUBLICATION_BRIDGE",
+      "state": "RecommendedDefault",
+      "reason": "Matches the RecipeBodies runtime publication bridge precedent and preserves structured snapshot data",
+      "selected_next_card_if_accepted": "MIRBUILDER-PROGRAMJSON-CANONICAL-LOOP-FACTS-INPUT-SNAPSHOT-MAPBOX-PUBLICATION-BRIDGE-001"
+    },
+    {
+      "id": "B_COMPLEX_STRING_SUMMARY_AOT_ROUTE",
+      "state": "ConsultationAlternative",
+      "reason": "Would require AOT support for this complex same-module string-return helper"
+    },
+    {
+      "id": "C_VM_ONLY_TRAVERSAL_GATE",
+      "state": "RejectedForNow",
+      "reason": "Would avoid the AOT boundary instead of fixing it"
+    }
+  ],
+  "decision": {
+    "kind": "ConsultationRequired",
+    "reason_token": "CanonicalLoopFactsInputSnapshotAotBoundaryNeedsSelection",
+    "selected_next_card": "CONSULTATION_REQUIRED"
+  },
+  "claims": {
+    "design_stop": 1,
+    "canonical_loop_facts_input_snapshot_implemented": 0,
+    "recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "mir_lowering": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "runtime_route_switch": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  }
+}
