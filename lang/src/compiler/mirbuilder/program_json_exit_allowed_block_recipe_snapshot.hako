@@ -37,6 +37,17 @@ static box ProgramJsonExitAllowedBlockRecipeSnapshotBox {
     return 0
   }
 
+  _single_seq_kind(item) {
+    if item == null || RecipeItemBox.kind_is(item, "Seq") != 1 { return "Unsupported" }
+    local items = BoxHelpers.map_get(item, "items")
+    if items == null || BoxHelpers.is_array(items) != 1 { return "Unsupported" }
+    local stmt0 = BoxHelpers.array_get(items, 0)
+    local stmt1 = BoxHelpers.array_get(items, 1)
+    if stmt0 == null && stmt1 == null { return "None" }
+    if stmt0 == null || stmt1 != null { return "Unsupported" }
+    return me._seq_stmt_kind(stmt0)
+  }
+
   _if_exit_token(item) {
     if item == null || RecipeItemBox.kind_is(item, "If") != 1 { return "Unsupported" }
     local then_item = BoxHelpers.map_get(item, "then_item")
@@ -44,6 +55,10 @@ static box ProgramJsonExitAllowedBlockRecipeSnapshotBox {
     if RecipeItemBox.kind_is(then_item, "Exit") == 1 && me._empty_seq(else_item) == 1 {
       local exit_kind = BoxHelpers.map_get(then_item, "exit_kind")
       if BoxHelpers.same_token(exit_kind, "Return") == 1 { return "IfThenReturnNoElse" }
+    }
+    if BoxHelpers.same_token(me._single_seq_kind(then_item), "Local") == 1 && RecipeItemBox.kind_is(else_item, "Exit") == 1 {
+      local else_exit_kind = BoxHelpers.map_get(else_item, "exit_kind")
+      if BoxHelpers.same_token(else_exit_kind, "Return") == 1 { return "IfThenLocalElseReturn" }
     }
     return "Unsupported"
   }

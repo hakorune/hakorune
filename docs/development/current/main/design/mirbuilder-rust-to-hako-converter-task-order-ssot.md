@@ -60,20 +60,20 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-EXIT-ALLOWED-BLOCK-RECIPE-ELSE-ONLY-EXIT-SNAPSHOT-PARITY-001
+  MIRBUILDER-PROGRAMJSON-EXIT-ALLOWED-BLOCK-RECIPE-ELSE-ONLY-EXIT-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
 selected next card:
-  implement the selected ElseOnlyExit ProgramJSON block recipe slice. Extend
-  the IfStmtHandler producer for then-local/else-return recipe_root rows, prove
-  the ExitAllowed reducer emits IfExitAllowed/ElseOnlyExit, and keep
-  RecipeBodies, RecipeMatcher, route selection, MIR mutation/lowering, ID
-  allocation, and runtime route switch unclaimed.
+  mark only the covered then-local/else-return ElseOnlyExit ProgramJSON row as
+  a scoped Rust ASTNode projector retire-candidate. Keep full projector
+  removal, RecipeBodies, RecipeMatcher, route selection, MIR mutation/lowering,
+  ID allocation, and runtime route switch unclaimed.
 
 post-3180 block recipe task order:
   1. selected: JoinThenElse after LoopV0.
   2. parity: JoinThenElse ProgramJSON block contract is green.
   3. retire-candidate: JoinThenElse row is scoped retire-candidate.
   4. selected: ElseOnlyExit after JoinThenElse.
-  5. parity: prove the selected ElseOnlyExit contract.
+  5. parity: ElseOnlyExit ProgramJSON block contract is green.
+  6. retire-candidate: mark only covered rows after parity is green.
   design-stop trigger:
     stop before recursive RecipeBodies, full RecipeMatcher, route selection,
     MIR mutation/lowering, ID allocation, runtime route switch, or Source
@@ -89,6 +89,9 @@ normal operating rule:
   history.
 
 latest design decision:
+  3185 proves ProgramJsonExitAllowedBlockRecipeElseOnlyExitSnapshotV1 for the
+  parseable then-local/else-return row by extending IfStmtHandler's ProgramJSON
+  producer and projecting IfThenLocalElseReturn into ExitAllowedBlockRecipeBox.
   3184 selects ProgramJsonExitAllowedBlockRecipeElseOnlyExitSnapshotV1 next
   because ExitAllowedBlockRecipeBox already supports IfThenLocalElseReturn ->
   IfExitAllowed / ElseOnlyExit and only the IfStmtHandler then-local/else-return
