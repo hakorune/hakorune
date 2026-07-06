@@ -60,11 +60,11 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-LAYER4-RECIPE-PORT-SIG-DTO-LOOP-ROOT-PARITY-001
+  MIRBUILDER-PROGRAMJSON-LAYER4-RECIPE-PORT-SIG-DTO-LOOP-ROOT-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
 selected next card:
-  docs/development/current/main/phases/phase-296x/3160-MIRBUILDER-PROGRAMJSON-LAYER4-RECIPE-PORT-SIG-DTO-LOOP-ROOT-PARITY-001.md
-  (not yet created); prove RecipePortSigDtoSnapshotV1 over the covered
-  Local>Loop>Return loop-root rows selected by 3159.
+  docs/development/current/main/phases/phase-296x/3161-MIRBUILDER-PROGRAMJSON-LAYER4-RECIPE-PORT-SIG-DTO-LOOP-ROOT-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001.md
+  (not yet created); mark the covered RecipePortSigDtoSnapshotV1 loop-root
+  rows from 3160 as a scoped retire-candidate.
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -94,6 +94,9 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
+  3160 proves RecipePortSigDtoSnapshotV1 over covered Local>Loop>Return
+  loop-root rows via ProgramJSON -> PhaseState -> RecipeVerifier -> PortSig
+  snapshot, with 6-row runtime parity green.
   3159 selects ProgramJsonRecipePortSigLoopRootV1 as the next ProgramJSON
   Layer4 Recipe DTO capability after SeqRecipeDtoSnapshotV1 loop-root
   retire-candidate.

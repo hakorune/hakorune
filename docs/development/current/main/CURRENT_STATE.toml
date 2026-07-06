@@ -345,14 +345,14 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PROGRAMJSON-LAYER4-NEXT-RECIPE-DTO-CAPABILITY-SELECTION-RERUN-002"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3159-MIRBUILDER-PROGRAMJSON-LAYER4-NEXT-RECIPE-DTO-CAPABILITY-SELECTION-RERUN-002.md"
-latest_card_summary = """3159 selects ProgramJsonRecipePortSigLoopRootV1
-as the next ProgramJSON Layer4 Recipe DTO capability after the covered
-SeqRecipeDtoSnapshotV1 loop-root retire-candidate. Implementation/parity,
-runtime route switch, full ASTNode projector retirement, full RecipeMatcher
-execution, route selection, MIR mutation/lowering, ID allocation, ProgramJSON
-full parser, new ABI, and Source Selfhost remain unclaimed."""
+latest_card = "MIRBUILDER-PROGRAMJSON-LAYER4-RECIPE-PORT-SIG-DTO-LOOP-ROOT-PARITY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3160-MIRBUILDER-PROGRAMJSON-LAYER4-RECIPE-PORT-SIG-DTO-LOOP-ROOT-PARITY-001.md"
+latest_card_summary = """3160 proves RecipePortSigDtoSnapshotV1 over the
+covered Local>Loop>Return loop-root rows. Existing ProgramJSON -> PhaseState
+-> RecipeVerifier -> RecipePortSig snapshot path is green for 6 rows. Runtime
+route switch, full ASTNode projector retirement, full RecipeMatcher execution,
+route selection, MIR mutation/lowering, ID allocation, ProgramJSON full
+parser, new ABI, and Source Selfhost remain unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -363,6 +363,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-06: 3160 proves RecipePortSigDtoSnapshotV1 over covered Local>Loop>Return loop-root rows while route selection / Source Selfhost remain unclaimed.",
   "2026-07-06: 3159 selects ProgramJsonRecipePortSigLoopRootV1 as the next ProgramJSON Layer4 Recipe DTO capability while implementation/parity and Source Selfhost remain unclaimed.",
   "2026-07-06: 3158 marks covered SeqRecipeDtoSnapshotV1 Local>Loop>Return root rows as a scoped Rust ASTNode projector retire-candidate while route selection / Source Selfhost remain unclaimed.",
   "2026-07-06: 3157 expands SeqRecipeDtoSnapshotV1 with covered Local>Loop>Return root rows and phase21 shape_kind parity while route selection / Source Selfhost remain unclaimed.",
@@ -371,5 +372,4 @@ landed_tail = [
   "2026-07-06: 3154 expands RecipeShapeKindDtoSnapshotV1 with covered Local>Loop>Return root rows and phase21 shape_kind parity while route selection / Source Selfhost remain unclaimed.",
   "2026-07-06: 3153 selects ProgramJsonRecipeShapeKindDtoLoopRootV1 as the next ProgramJSON Layer4 Recipe DTO capability while implementation/parity and Source Selfhost remain unclaimed.",
   "2026-07-06: 3152 marks covered RecipeStmtSeqDtoSnapshotV1 Local>Loop>Return root recipe sequence rows as a scoped Rust ASTNode projector retire-candidate while runtime route switch / Source Selfhost remain unclaimed.",
-  "2026-07-06: 3151 expands RecipeStmtSeqDtoSnapshotV1 summary with covered Local>Loop>Return root recipe sequence rows while shape_kind selection / runtime route switch / Source Selfhost remain unclaimed.",
 ]
