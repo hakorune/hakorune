@@ -236,6 +236,7 @@ phase-1 compatibility Program(JSON) compat execution helper.
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_block_recipe_after_else_only_exit_next_contract_selection_guard.sh` | Selection guard for the next ProgramJSON block recipe contract after ElseOnlyExit. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_exit_allowed_block_recipe_then_only_exit_snapshot_parity_gate.sh` | Runtime parity gate for the covered ProgramJSON ExitAllowed ThenOnlyExit block recipe row. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_exit_allowed_block_recipe_then_only_exit_retire_rust_astnode_projector_candidate_guard.sh` | Retire-candidate guard for the covered ProgramJSON ExitAllowed ThenOnlyExit block recipe row. |
+| `tools/checks/rust_lifecycle_mirbuilder_programjson_block_recipe_after_then_only_exit_next_contract_selection_guard.sh` | Selection guard for the next ProgramJSON block recipe contract after ThenOnlyExit. |
 | `tools/checks/hako_mir_json_cache_wrapper_guard.sh` | Cache contract guard for `tools/bin/hako --emit-mir-json` miss-then-hit behavior. |
 | `tools/checks/guard_result_cache_helper_guard.sh` | Cache contract guard for `guard_cached_run` prerequisite guard memoization. |
 | `tools/checks/hako_aot_dynamic_string_eq_and_int_to_str_correctness_gate.sh` | AOT dynamic string equality and scanner-fed `StringHelpers.int_to_str` correctness gate. |
