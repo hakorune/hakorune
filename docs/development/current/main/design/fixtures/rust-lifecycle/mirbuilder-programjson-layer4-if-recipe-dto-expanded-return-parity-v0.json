@@ -1,0 +1,102 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonLayer4IfRecipeDtoExpandedReturnParityV1",
+  "token": "MIRBUILDER-PROGRAMJSON-LAYER4-IF-RECIPE-DTO-EXPANDED-RETURN-PARITY-001",
+  "capability": {
+    "name": "ProgramJsonIfRecipeDtoSnapshotV1",
+    "input": "ProgramJSON v0",
+    "output": "IfRecipeDtoSnapshotV1",
+    "implementation": "lang/src/compiler/mirbuilder/program_json_if_recipe_dto_snapshot.hako"
+  },
+  "selection": {
+    "previous_checkpoint": "MIRBUILDER-PROGRAMJSON-LAYER4-EXIT-RECIPE-DTO-EXPANDED-RETURN-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001",
+    "selected_reason": "Exit DTO now proves the expanded Return payload vocabulary; If DTO is the next parent owner that snapshots then_item=Exit payload fields."
+  },
+  "routes": {
+    "programjson_route": "ProgramJSON -> ProgramJsonV0PhaseStateBox.parse/2 -> recipe_root -> If.then_item Exit -> ProgramJsonIfRecipeDtoSnapshotBox.build_summary/1",
+    "rust_oracle_route": "Rust MirBuilder If recipe oracle canonical fields",
+    "runtime_parity_status": "green"
+  },
+  "rows": [
+    {
+      "row_id": "if_then_return_new_stringbox_abc_final_return_int",
+      "program_json": {"version": 0, "kind": "Program", "body": [
+        {"type": "Local", "name": "i", "expr": {"type": "Int", "value": 0}},
+        {"type": "If", "cond": {"type": "Compare", "op": "==", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 2}}, "then": [{"type": "Return", "expr": {"type": "New", "class": "StringBox", "args": [{"type": "Str", "value": "abc"}]}}], "else": null},
+        {"type": "Return", "expr": {"type": "Int", "value": 7}}
+      ]},
+      "rust_oracle_expected_summary": "snapshot_kind=IfRecipeDtoSnapshotV1;err=0;matched=1;root_len=3;local_name=i;return_kind=Int;return_value=7;return_facts_kind=Return;if_cond_kind=VarEqInt;if_cond_var=i;if_cond_rhs_int=2;then_kind=Exit;else_kind=Seq;then_return_kind=NewBoxStringAbc;then_return_value=;then_assign_rhs=;else_assign_rhs=;shape_kind=phase_if_then_return_else_null_return"
+    },
+    {
+      "row_id": "if_then_return_call_id0_final_return_int",
+      "program_json": {"version": 0, "kind": "Program", "body": [
+        {"type": "Local", "name": "i", "expr": {"type": "Int", "value": 0}},
+        {"type": "If", "cond": {"type": "Compare", "op": "==", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 2}}, "then": [{"type": "Return", "expr": {"type": "Call", "name": "id", "args": []}}], "else": null},
+        {"type": "Return", "expr": {"type": "Int", "value": 7}}
+      ]},
+      "rust_oracle_expected_summary": "snapshot_kind=IfRecipeDtoSnapshotV1;err=0;matched=1;root_len=3;local_name=i;return_kind=Int;return_value=7;return_facts_kind=Return;if_cond_kind=VarEqInt;if_cond_var=i;if_cond_rhs_int=2;then_kind=Exit;else_kind=Seq;then_return_kind=CallId0;then_return_value=;then_assign_rhs=;else_assign_rhs=;shape_kind=phase_if_then_return_else_null_return"
+    },
+    {
+      "row_id": "if_then_return_call_id1_int9_final_return_int",
+      "program_json": {"version": 0, "kind": "Program", "body": [
+        {"type": "Local", "name": "i", "expr": {"type": "Int", "value": 0}},
+        {"type": "If", "cond": {"type": "Compare", "op": "==", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 2}}, "then": [{"type": "Return", "expr": {"type": "Call", "name": "id", "args": [{"type": "Int", "value": 9}]}}], "else": null},
+        {"type": "Return", "expr": {"type": "Int", "value": 7}}
+      ]},
+      "rust_oracle_expected_summary": "snapshot_kind=IfRecipeDtoSnapshotV1;err=0;matched=1;root_len=3;local_name=i;return_kind=Int;return_value=7;return_facts_kind=Return;if_cond_kind=VarEqInt;if_cond_var=i;if_cond_rhs_int=2;then_kind=Exit;else_kind=Seq;then_return_kind=CallId1Int9;then_return_value=9;then_assign_rhs=;else_assign_rhs=;shape_kind=phase_if_then_return_else_null_return"
+    },
+    {
+      "row_id": "if_then_return_call_id1_int7_final_return_int",
+      "program_json": {"version": 0, "kind": "Program", "body": [
+        {"type": "Local", "name": "i", "expr": {"type": "Int", "value": 0}},
+        {"type": "If", "cond": {"type": "Compare", "op": "==", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 2}}, "then": [{"type": "Return", "expr": {"type": "Call", "name": "id", "args": [{"type": "Int", "value": 7}]}}], "else": null},
+        {"type": "Return", "expr": {"type": "Int", "value": 7}}
+      ]},
+      "rust_oracle_expected_summary": "snapshot_kind=IfRecipeDtoSnapshotV1;err=0;matched=1;root_len=3;local_name=i;return_kind=Int;return_value=7;return_facts_kind=Return;if_cond_kind=VarEqInt;if_cond_var=i;if_cond_rhs_int=2;then_kind=Exit;else_kind=Seq;then_return_kind=CallId1Int7;then_return_value=7;then_assign_rhs=;else_assign_rhs=;shape_kind=phase_if_then_return_else_null_return"
+    },
+    {
+      "row_id": "if_then_return_method_stringbox_length_abc_final_return_int",
+      "program_json": {"version": 0, "kind": "Program", "body": [
+        {"type": "Local", "name": "i", "expr": {"type": "Int", "value": 0}},
+        {"type": "If", "cond": {"type": "Compare", "op": "==", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 2}}, "then": [{"type": "Return", "expr": {"type": "Method", "args": [], "method": "length", "recv": {"type": "New", "class": "StringBox", "args": [{"type": "Str", "value": "abc"}]}}}], "else": null},
+        {"type": "Return", "expr": {"type": "Int", "value": 7}}
+      ]},
+      "rust_oracle_expected_summary": "snapshot_kind=IfRecipeDtoSnapshotV1;err=0;matched=1;root_len=3;local_name=i;return_kind=Int;return_value=7;return_facts_kind=Return;if_cond_kind=VarEqInt;if_cond_var=i;if_cond_rhs_int=2;then_kind=Exit;else_kind=Seq;then_return_kind=MethodStringBoxLengthAbc;then_return_value=;then_assign_rhs=;else_assign_rhs=;shape_kind=phase_if_then_return_else_null_return"
+    },
+    {
+      "row_id": "if_then_return_method_stringbox_indexof_b_abc_final_return_int",
+      "program_json": {"version": 0, "kind": "Program", "body": [
+        {"type": "Local", "name": "i", "expr": {"type": "Int", "value": 0}},
+        {"type": "If", "cond": {"type": "Compare", "op": "==", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 2}}, "then": [{"type": "Return", "expr": {"type": "Method", "args": [{"type": "Str", "value": "b"}], "method": "indexOf", "recv": {"type": "New", "class": "StringBox", "args": [{"type": "Str", "value": "abc"}]}}}], "else": null},
+        {"type": "Return", "expr": {"type": "Int", "value": 7}}
+      ]},
+      "rust_oracle_expected_summary": "snapshot_kind=IfRecipeDtoSnapshotV1;err=0;matched=1;root_len=3;local_name=i;return_kind=Int;return_value=7;return_facts_kind=Return;if_cond_kind=VarEqInt;if_cond_var=i;if_cond_rhs_int=2;then_kind=Exit;else_kind=Seq;then_return_kind=MethodStringBoxIndexOfBAbc;then_return_value=;then_assign_rhs=;else_assign_rhs=;shape_kind=phase_if_then_return_else_null_return"
+    }
+  ],
+  "acceptance": {
+    "programjson_traversal_used": 1,
+    "structured_recipe_dto_constructed": 1,
+    "prebuilt_token_snapshot_input": 0,
+    "string_only_facade": 0,
+    "mir_json_route_green": 1,
+    "runtime_parity_green": 1,
+    "expanded_rows": 6,
+    "legacy_if_parity_guard_still_green": 1,
+    "expanded_exit_payload_prerequisite_green": 1
+  },
+  "decision": {
+    "kind": "SelectIfRecipeDtoExpandedReturnRetireCandidateNext",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-LAYER4-IF-RECIPE-DTO-EXPANDED-RETURN-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001",
+    "reason_token": "IfRecipeDtoExpandedReturnRuntimeParityGreen"
+  },
+  "claims": {
+    "full_recipe_matcher_execution": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering_claim": 0,
+    "runtime_route_switch": 0,
+    "source_selfhost_claim": 0,
+    "programjson_all_shapes_supported": 0,
+    "full_imported_parse_executable_green": 0
+  }
+}
