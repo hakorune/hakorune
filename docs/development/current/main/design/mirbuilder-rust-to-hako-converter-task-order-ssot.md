@@ -60,17 +60,21 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-BLOCK-RECIPE-POST-EXIT-ALL-RECIPEBODIES-DESIGN-STOP-001
+  MIRBUILDER-PROGRAMJSON-RECIPEBODIES-MINIMAL-BASIS-CONSULTATION-001
 selected next card:
-  stop and document the next Layer4 boundary after covered flat block recipe
-  if-mode rows. Recursive RecipeBodies materialization, full RecipeMatcher,
-  route selection, MIR mutation/lowering, ID allocation, runtime route switch,
-  and Source Selfhost remain unclaimed.
+  design consultation required. RecipeBodies design stop reached after covered
+  flat block recipe if-mode rows. Decide the first minimal `.hako`
+  RecipeBodies surface before implementation: DTO-only BodyId/StmtRef snapshot,
+  one-shape arena builder parity, or verifier-first boundary. Recursive
+  RecipeBodies materialization, full RecipeMatcher, route selection, MIR
+  mutation/lowering, ID allocation, runtime route switch, and Source Selfhost
+  remain unclaimed.
 
 post-3180 block recipe task order:
   completed: JoinThenElse, ElseOnlyExit, ThenOnlyExit, and ExitAll are scoped
     retire-candidates.
-  next: RecipeBodies design stop before recursive materialization.
+  current: RecipeBodies design stop; implementation is held pending
+    consultation.
   design-stop trigger:
     stop before recursive RecipeBodies, full RecipeMatcher, route selection,
     MIR mutation/lowering, ID allocation, runtime route switch, or Source
@@ -86,6 +90,10 @@ normal operating rule:
   history.
 
 latest design decision:
+  3193 documents the RecipeBodies design stop after covered flat block recipe
+  if-mode rows. RecipeBlock + RecipeItem remain the public structural truth;
+  RecipeBodies/RecipeBody remain internal arena storage behind BodyId/StmtRef.
+  Recommended first post-consultation slice is ProgramJsonRecipeBodiesMinimalDtoV1.
   3192 marks the covered parseable then-return/else-break ExitAll row as a
   scoped Rust ASTNode projector retire-candidate; this is not runtime route
   switching or full projector retirement.

@@ -1,0 +1,63 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonBlockRecipePostExitAllRecipeBodiesDesignStopV1",
+  "token": "MIRBUILDER-PROGRAMJSON-BLOCK-RECIPE-POST-EXIT-ALL-RECIPEBODIES-DESIGN-STOP-001",
+  "input_state": {
+    "previous_card": "MIRBUILDER-PROGRAMJSON-EXIT-ALLOWED-BLOCK-RECIPE-EXIT-ALL-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001",
+    "covered_flat_block_rows": [
+      "IfThenLocalNoElse",
+      "IfThenLocalElsePrint",
+      "IfThenReturnNoElse",
+      "IfThenLocalElseReturn",
+      "IfThenReturnElseLocal",
+      "IfThenReturnElseBreak",
+      "LoopExitAllowedBody"
+    ]
+  },
+  "boundary": {
+    "kind": "DesignStop",
+    "reason_token": "FlatBlockRecipeIfModesCoveredNextRequiresRecipeBodies",
+    "source_authority": "docs/development/current/main/design/recipe-tree-and-parts-ssot.md",
+    "recipe_tree_public_boundary": "RecipeBlock + RecipeItem are public structural truth.",
+    "recipe_bodies_internal_boundary": "RecipeBodies/RecipeBody are arena storage and must remain internal except through BodyId/StmtRef references.",
+    "hako_current_state": "ProgramJSON flat block snapshots emit token summaries only; no .hako RecipeBodies materialization exists.",
+    "implementation_allowed_now": 0
+  },
+  "next_consultation": {
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-MINIMAL-BASIS-CONSULTATION-001",
+    "question": "Which minimal RecipeBodies surface should be exposed to .hako first: DTO-only BodyId/StmtRef snapshot, one-shape arena builder parity, or a different verifier-first boundary?",
+    "recommended_first_slice_if_approved": "ProgramJsonRecipeBodiesMinimalDtoV1",
+    "first_slice_scope": "one parseable ProgramJSON row that emits RecipeBlock items plus BodyId/StmtRef references without lowering or full RecipeMatcher execution"
+  },
+  "allowed_after_consultation": {
+    "recipebodies_minimal_dto": 1,
+    "body_id_stmt_ref_snapshot": 1,
+    "one_shape_arena_builder_parity": 1,
+    "verifier_contract_fixture": 1
+  },
+  "forbidden_without_new_decision": {
+    "full_recipe_matcher_execution": 1,
+    "route_selection": 1,
+    "mir_mutation": 1,
+    "id_allocation": 1,
+    "backend_lowering": 1,
+    "runtime_route_switch": 1,
+    "source_selfhost_claim": 1,
+    "programjson_full_parser_claim": 1,
+    "recipe_bodies_public_payload_exposure": 1,
+    "recipe_bodies_bodies_direct_access": 1
+  },
+  "claims": {
+    "recipe_bodies_materialization": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering": 0,
+    "runtime_route_switch": 0,
+    "source_selfhost_claim": 0,
+    "programjson_full_parser_claim": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
