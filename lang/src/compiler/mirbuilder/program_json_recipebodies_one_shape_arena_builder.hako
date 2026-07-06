@@ -1,0 +1,168 @@
+// program_json_recipebodies_one_shape_arena_builder.hako
+// Responsibility:
+// - Build a one-shape, map-backed RecipeBodies-like arena DTO from Program(JSON v0).
+// - This is not runtime RecipeBodies publication or route switching.
+
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.shared.common.box_helpers as BoxHelpers
+using lang.compiler.mirbuilder.program_json_v0_phase_state_box as ProgramJsonV0PhaseStateBox
+using lang.compiler.mirbuilder.recipe.recipe_item_box as RecipeItemBox
+
+static box ProgramJsonRecipeBodiesOneShapeArenaBuilderBox {
+  _i(map, key) {
+    return StringHelpers.to_i64(BoxHelpers.map_get(map, key))
+  }
+
+  _err(reason): MapBox {
+    return %{
+      "err" => 1,
+      "err_line" => reason,
+      "root_body_id" => -1,
+      "body_count" => 0,
+      "bodies" => []
+    }
+  }
+
+  _len(items) {
+    if items == null { return 0 }
+    local n = 0
+    loop(n < 16) {
+      if BoxHelpers.array_get(items, n) == null { return n }
+      n = n + 1
+    }
+    return n
+  }
+
+  _stmt_token(item) {
+    if item == null || BoxHelpers.is_map(item) != 1 { return "Unsupported" }
+    if RecipeItemBox.kind_is(item, "Seq") != 1 { return "Unsupported" }
+    if BoxHelpers.same_token(BoxHelpers.map_get(item, "leaf_kind"), "Stmt") != 1 {
+      return "Unsupported"
+    }
+    local kind = BoxHelpers.map_get(item, "stmt_kind")
+    if BoxHelpers.same_token(kind, "Local") == 1 { return "Stmt:Local" }
+    if BoxHelpers.same_token(kind, "Print") == 1 { return "Stmt:Print" }
+    return "Unsupported"
+  }
+
+  _item_ref(item, idx): MapBox {
+    local token = me._stmt_token(item)
+    local code = 9
+    if BoxHelpers.same_token(token, "Stmt:Local") == 1 { code = 1 }
+    if BoxHelpers.same_token(token, "Stmt:Print") == 1 { code = 2 }
+    return %{
+      "kind" => "StmtRef",
+      "body_id" => 0,
+      "stmt_idx" => idx,
+      "item_code" => code
+    }
+  }
+
+  _build_body_items(items, n) {
+    local out = []
+    local i = 0
+    loop(i < n) {
+      out.push(me._item_ref(BoxHelpers.array_get(items, i), i))
+      i = i + 1
+    }
+    return out
+  }
+
+  _body_map(items, n): MapBox {
+    return %{
+      "body_id" => 0,
+      "item_count" => n,
+      "items" => me._build_body_items(items, n)
+    }
+  }
+
+  build_arena(program_json): MapBox {
+    local out = ProgramJsonV0PhaseStateBox.parse(program_json, "[test]")
+    if me._i(out, "err") != 0 { return me._err("parse_error") }
+
+    local root = BoxHelpers.map_get(out, "recipe_root")
+    if root == null || RecipeItemBox.kind_is(root, "Seq") != 1 {
+      return me._err("missing_recipe_root")
+    }
+
+    local items = BoxHelpers.map_get(root, "items")
+    if items == null || BoxHelpers.is_array(items) != 1 {
+      return me._err("missing_recipe_items")
+    }
+
+    local n = me._len(items)
+    local body = me._body_map(items, n)
+    local bodies = []
+    bodies.push(body)
+
+    return %{
+      "err" => 0,
+      "err_line" => "",
+      "root_body_id" => 0,
+      "body_count" => 1,
+      "bodies" => bodies
+    }
+  }
+
+  _body_items_summary(body) {
+    local items = BoxHelpers.map_get(body, "items")
+    local n = me._i(body, "item_count")
+    if n == 0 { return "" }
+    local s = ""
+    local i = 0
+    loop(i < n) {
+      if i > 0 { s = s + "," }
+      local item_ref = BoxHelpers.array_get(items, i)
+      local code = me._i(item_ref, "item_code")
+      if code == 1 { s = s + "Stmt:Local" }
+      else {
+        if code == 2 { s = s + "Stmt:Print" }
+        else { return "Unsupported" }
+      }
+      i = i + 1
+    }
+    return s
+  }
+
+  _refs_summary(body) {
+    local n = me._i(body, "item_count")
+    if n == 0 { return "" }
+    local s = ""
+    local i = 0
+    loop(i < n) {
+      if i > 0 { s = s + "," }
+      local idx = StringHelpers.int_to_str(i)
+      s = s + "body0.item" + idx + "->stmt" + idx
+      i = i + 1
+    }
+    return s
+  }
+
+  summarize_arena(arena) {
+    if me._i(arena, "err") != 0 {
+      return "snapshot_kind=ProgramJsonRecipeBodiesOneShapeArenaBuilderV1;err=1;reason="
+        + BoxHelpers.map_get(arena, "err_line")
+    }
+    local bodies = BoxHelpers.map_get(arena, "bodies")
+    local body0 = BoxHelpers.array_get(bodies, 0)
+    local body_items = me._body_items_summary(body0)
+    if BoxHelpers.same_token(body_items, "Unsupported") == 1 {
+      return "snapshot_kind=ProgramJsonRecipeBodiesOneShapeArenaBuilderV1;err=1;reason=unsupported_stmt_only_body"
+    }
+    return "snapshot_kind=ProgramJsonRecipeBodiesOneShapeArenaBuilderV1"
+      + ";err=0"
+      + ";root_body_id=" + StringHelpers.int_to_str(me._i(arena, "root_body_id"))
+      + ";body_count=" + StringHelpers.int_to_str(me._i(arena, "body_count"))
+      + ";body0_item_count=" + StringHelpers.int_to_str(me._i(body0, "item_count"))
+      + ";body0_items=" + body_items
+      + ";refs=" + me._refs_summary(body0)
+      + ";structured_result_map=1"
+      + ";non_claims=recipe_bodies_materialization,lowering,route_selection,id_allocation"
+  }
+
+  build_summary(program_json) {
+    return me.summarize_arena(me.build_arena(program_json))
+  }
+}
+
+static box ProgramJsonRecipeBodiesOneShapeArenaBuilderMain { main() { return 0 } }

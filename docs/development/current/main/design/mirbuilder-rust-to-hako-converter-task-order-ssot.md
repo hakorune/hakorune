@@ -60,12 +60,11 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-RECIPEBODIES-ONE-SHAPE-ARENA-BUILDER-PARITY-001
+  MIRBUILDER-PROGRAMJSON-RECIPEBODIES-ONE-SHAPE-ARENA-BUILDER-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
 selected next card:
-  implement one-shape RecipeBodies arena-builder parity for the three covered
-  StmtOnly rows. Runtime route switch, full RecipeMatcher, DirectAbi route
-  publication, lowering, mutation, ID allocation, and Source Selfhost stay
-  unclaimed.
+  mark the covered one-shape RecipeBodies arena-builder rows as a scoped Rust
+  ASTNode projector retire-candidate. Runtime route switch and Source Selfhost
+  stay unclaimed.
 
 post-3180 block recipe task order:
   completed: JoinThenElse, ElseOnlyExit, ThenOnlyExit, and ExitAll are scoped
@@ -87,6 +86,8 @@ normal operating rule:
   history.
 
 latest design decision:
+  3200 implements ProgramJsonRecipeBodiesOneShapeArenaBuilderBox and proves a
+  map-backed one-shape arena DTO for the three covered StmtOnly rows.
   3199 selects one-shape RecipeBodies arena-builder parity as the next
   RecipeBodies contract after the minimal DTO retire-candidate. 3198/3197
   covered the ProgramJsonRecipeBodiesMinimalDtoV1 proof and retire-candidate.
