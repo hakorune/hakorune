@@ -1,0 +1,100 @@
+// program_json_recipe_shape_kind_dto_snapshot.hako
+// Responsibility:
+// - Build a canonical Layer4 Recipe shape-kind DTO snapshot from Program(JSON v0).
+// - Consume PhaseState recipe_root, RecipeVerifier, and stmt-only shape selection; no lowering.
+
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.shared.common.box_helpers as BoxHelpers
+using lang.compiler.mirbuilder.program_json_v0_phase_state_box as ProgramJsonV0PhaseStateBox
+using lang.compiler.mirbuilder.recipe.recipe_verifier_box as RecipeVerifierBox
+using lang.compiler.mirbuilder.mir_json_v0_shape_box_recipe_seq as MirJsonV0ShapeRecipeSeq
+
+static box ProgramJsonRecipeShapeKindDtoSnapshotBox {
+  _i(map, key) {
+    return StringHelpers.to_i64(BoxHelpers.map_get(map, key))
+  }
+
+  _err(reason) {
+    return "snapshot_kind=RecipeShapeKindDtoSnapshotV1;err=1;reason=" + reason
+  }
+
+  _shape_ok_summary(shape_kind, has_print, has_local, has_assignment, has_return) {
+    return "err=0;matched=1"
+      + ";shape_kind=" + shape_kind
+      + ";has_print=" + StringHelpers.int_to_str(has_print)
+      + ";has_local=" + StringHelpers.int_to_str(has_local)
+      + ";has_assignment=" + StringHelpers.int_to_str(has_assignment)
+      + ";has_return=" + StringHelpers.int_to_str(has_return)
+  }
+
+  _shape_err_summary(reason) {
+    return "err=1;reason=" + reason
+  }
+
+  _shape_kind_summary(seq_sig, print_kind, return_kind, assign_rhs_kind, retv) {
+    if BoxHelpers.same_token(assign_rhs_kind, "null") == 1 { assign_rhs_kind = "" }
+
+    if BoxHelpers.same_token(seq_sig, "Return") == 1 {
+      if BoxHelpers.same_token(return_kind, "Int") == 1 { return me._shape_ok_summary("phase1_return_int", 0, 0, 0, 1) }
+      if BoxHelpers.same_token(return_kind, "NewBox") == 1 { return me._shape_ok_summary("phase12_return_newbox", 0, 0, 0, 1) }
+      return me._shape_err_summary("return_seq_unsupported")
+    }
+
+    if BoxHelpers.same_token(seq_sig, "Local>Return") == 1 {
+      if BoxHelpers.same_token(return_kind, "Var") == 1 { return me._shape_ok_summary("phase2_local_return_var", 0, 1, 0, 1) }
+      return me._shape_err_summary("local_return_requires_var")
+    }
+
+    if BoxHelpers.same_token(seq_sig, "Local>Assignment>Return") == 1 {
+      if BoxHelpers.same_token(return_kind, "Var") == 1 {
+        if BoxHelpers.same_token(assign_rhs_kind, "Int") == 1 { return me._shape_ok_summary("phase20_store_assignment_int_return_var", 0, 1, 1, 1) }
+        if BoxHelpers.same_token(assign_rhs_kind, "") == 1 { return me._shape_ok_summary("phase2_inc_return_var", 0, 1, 1, 1) }
+        if BoxHelpers.same_token(assign_rhs_kind, "AddVarInt") == 1 { return me._shape_ok_summary("phase2_inc_return_var", 0, 1, 1, 1) }
+        return me._shape_err_summary("local_assignment_rhs_unsupported")
+      }
+      return me._shape_err_summary("local_assignment_return_requires_var")
+    }
+
+    if BoxHelpers.same_token(seq_sig, "Local>Print>Return") == 1 {
+      if BoxHelpers.same_token(print_kind, "Var") == 1 {
+        if BoxHelpers.same_token(return_kind, "Var") == 1 { return me._shape_ok_summary("phase5_local_print_var_return_var", 1, 1, 0, 1) }
+        if BoxHelpers.same_token(return_kind, "Int") == 1 {
+          if StringHelpers.to_i64(retv) == 0 { return me._shape_ok_summary("phase4_local_print_var_return0", 1, 1, 0, 1) }
+          return me._shape_ok_summary("phase4_local_print_var_return_int", 1, 1, 0, 1)
+        }
+      }
+      if BoxHelpers.same_token(print_kind, "BinaryVarInt") == 1 {
+        if BoxHelpers.same_token(return_kind, "Int") == 1 {
+          if StringHelpers.to_i64(retv) == 0 { return me._shape_ok_summary("phase9_print_binop_return0", 1, 1, 0, 1) }
+          return me._shape_ok_summary("phase9_print_binop_return_int", 1, 1, 0, 1)
+        }
+      }
+      return me._shape_err_summary("local_print_return_unsupported")
+    }
+
+    return me._shape_err_summary("unsupported_recipe_stmt_sequence")
+  }
+
+  build_summary(program_json) {
+    local out = ProgramJsonV0PhaseStateBox.parse(program_json, "[test]")
+    if me._i(out, "err") != 0 { return me._err("parse_error") }
+    local root = BoxHelpers.map_get(out, "recipe_root")
+    if root == null || BoxHelpers.is_map(root) != 1 { return me._err("missing_recipe_root") }
+
+    local verify = RecipeVerifierBox.verify(root, "[test]")
+    if me._i(verify, "err") != 0 { return me._err("verify_error") }
+
+    local seq_sig = MirJsonV0ShapeRecipeSeq._recipe_stmt_seq_sig(root, "[test]")
+    if BoxHelpers.same_token(seq_sig, "") == 1 { return me._err("recipe_stmt_seq_error") }
+    local shape_summary = me._shape_kind_summary(
+      seq_sig,
+      BoxHelpers.map_get(out, "print_kind"),
+      BoxHelpers.map_get(out, "return_kind"),
+      BoxHelpers.map_get(out, "assign_rhs_kind"),
+      BoxHelpers.map_get(out, "retv")
+    )
+    return "snapshot_kind=RecipeShapeKindDtoSnapshotV1;" + shape_summary
+  }
+}
+
+static box ProgramJsonRecipeShapeKindDtoSnapshotMain { main() { return 0 } }

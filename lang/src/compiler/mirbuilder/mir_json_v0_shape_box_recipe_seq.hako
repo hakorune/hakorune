@@ -66,6 +66,30 @@ static box MirJsonV0ShapeRecipeSeq {
     return "err=1;reason=recipe_stmt_seq_too_long"
   }
 
+  _recipe_stmt_seq_sig(recipe_root, tag) {
+    if recipe_root == null || BoxHelpers.is_map(recipe_root) != 1 { return "" }
+    if RecipeItemBox.kind_is(recipe_root, "Seq") != 1 { return "" }
+    local items = BoxHelpers.map_get(recipe_root, "items")
+    if items == null || BoxHelpers.is_array(items) != 1 { return "" }
+
+    local sig = ""
+    local i = 0
+    loop(i < 64) {
+      local child = BoxHelpers.array_get(items, i)
+      if child == null { return sig }
+      if child == null || BoxHelpers.is_map(child) != 1 { return "" }
+      if RecipeItemBox.kind_is(child, "Seq") != 1 { return "" }
+      local leaf_kind = BoxHelpers.map_get(child, "leaf_kind")
+      if BoxHelpers.same_token(leaf_kind, "Stmt") != 1 { return "" }
+      local stmt_kind = me._stmt_token(BoxHelpers.map_get(child, "stmt_kind"))
+      if BoxHelpers.same_token(stmt_kind, "") == 1 { return "" }
+      if i > 0 { sig = sig + ">" }
+      sig = sig + stmt_kind
+      i = i + 1
+    }
+    return ""
+  }
+
   _recipe_stmt_seq(recipe_root, tag) {
     if recipe_root == null || BoxHelpers.is_map(recipe_root) != 1 {
       return MirJsonV0ShapeHelpers._seq_result(1, tag + "[cap_missing/recipe_root] missing recipe root", MirJsonV0ShapeHelpers._empty_array())
