@@ -1,0 +1,86 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonBlockRecipeRecursiveContractCapabilitySelectionV1",
+  "token": "MIRBUILDER-PROGRAMJSON-BLOCK-RECIPE-RECURSIVE-CONTRACT-CAPABILITY-SELECTION-001",
+  "input_state": {
+    "previous_card": "MIRBUILDER-PROGRAMJSON-IF-HANDLER-THEN-LOCAL-NO-ELSE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001",
+    "stmt_only_bridge": "ProgramJsonStmtOnlyBlockRecipeSnapshotV1",
+    "available_reducers": [
+      "NoExitBlockRecipeBox",
+      "ExitAllowedBlockRecipeBox"
+    ]
+  },
+  "candidates": [
+    {
+      "capability": "ProgramJsonNoExitBlockRecipeIfJoinSnapshotV1",
+      "target_reducer": "NoExitBlockRecipeBox",
+      "status": "Selected",
+      "first_rows": [
+        "if_then_local_no_else",
+        "if_then_local_else_print"
+      ],
+      "reason": "extends the proven StmtOnly ProgramJSON bridge into the NoExit block contract and exercises IfJoin without opening explicit non-local exits"
+    },
+    {
+      "capability": "ProgramJsonExitAllowedBlockRecipeSnapshotV1",
+      "target_reducer": "ExitAllowedBlockRecipeBox",
+      "status": "Held",
+      "held_reason": "opens Break/Continue/Return and exit-mode contracts; select after NoExit IfJoin parity and retire-candidate proof"
+    },
+    {
+      "capability": "ProgramJsonNoExitBlockRecipeLoopV0SnapshotV1",
+      "target_reducer": "NoExitBlockRecipeBox",
+      "status": "Held",
+      "held_reason": "requires LoopExitAllowedBody token handoff; select after the first NoExit IfJoin contract is parity-green"
+    }
+  ],
+  "selected_capability": {
+    "name": "ProgramJsonNoExitBlockRecipeIfJoinSnapshotV1",
+    "target_reducer": "NoExitBlockRecipeBox",
+    "input": "ProgramJSON recipe_root",
+    "output": "NoExitBlockRecipeSummaryV1",
+    "required_projection_tokens": [
+      "IfThenLocalNoElse",
+      "IfThenLocalElsePrint"
+    ],
+    "required_reducer_outputs": [
+      "IfJoin",
+      "JoinNoElse",
+      "JoinThenElse"
+    ],
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-NO-EXIT-BLOCK-RECIPE-IF-JOIN-SNAPSHOT-PARITY-001"
+  },
+  "stop_conditions": {
+    "recursive_recipe_bodies_materialization": 0,
+    "full_recipe_matcher_execution": 0,
+    "exit_allowed_contract": 0,
+    "loop_v0_lowering": 0,
+    "route_selection": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering": 0,
+    "runtime_route_switch": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "SelectProgramJsonNoExitIfJoinBeforeExitAllowed",
+    "reason_token": "NoExitIfJoinIsSmallestRecursiveBlockContractAfterStmtOnlyBridge",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-NO-EXIT-BLOCK-RECIPE-IF-JOIN-SNAPSHOT-PARITY-001"
+  },
+  "claims": {
+    "programjson_no_exit_if_join_parity_green": 0,
+    "exit_allowed_contract": 0,
+    "loop_v0_contract": 0,
+    "recursive_recipe_bodies_materialization": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering": 0,
+    "runtime_route_switch": 0,
+    "source_selfhost_claim": 0,
+    "programjson_full_parser_claim": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

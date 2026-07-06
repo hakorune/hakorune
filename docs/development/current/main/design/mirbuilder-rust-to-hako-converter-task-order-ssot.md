@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-07-06
+Date: 2026-07-07
 Scope: MirBuilder-only Rust-to-Hako converter task order.
 Related:
   - docs/development/current/main/design/derived-to-native-hako-artifact-model-ssot.md
@@ -60,19 +60,19 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-BLOCK-RECIPE-RECURSIVE-CONTRACT-CAPABILITY-SELECTION-001
+  MIRBUILDER-PROGRAMJSON-NO-EXIT-BLOCK-RECIPE-IF-JOIN-SNAPSHOT-PARITY-001
 selected next card:
-  not yet created; choose the next recursive block recipe contract capability
-  from the remaining NoExit / ExitAllowed gap without opening RecipeBodies,
-  RecipeMatcher, route selection, MIR mutation/lowering, ID allocation, or a
-  runtime route switch.
+  not yet created; implement ProgramJsonNoExitBlockRecipeIfJoinSnapshotV1 as
+  the first ProgramJSON-fed recursive block contract capability. It must feed
+  IfThenLocalNoElse and IfThenLocalElsePrint tokens into NoExitBlockRecipeBox
+  and keep ExitAllowed, LoopV0, RecipeBodies, RecipeMatcher, route selection,
+  MIR mutation/lowering, ID allocation, and runtime route switch unclaimed.
 
-post-3171 block recipe task order:
-  1. selection: choose NoExit-vs-ExitAllowed recursive block recipe contract.
-  2. capability: implement one ProgramJSON-fed recursive block contract with
-     fixture-backed parity and scoped non-claims.
-  3. retire-candidate: mark only the covered Rust ASTNode projector slice as
-     retire-candidate after the capability gate is green.
+post-3172 block recipe task order:
+  1. capability: implement NoExit IfJoin ProgramJSON snapshot parity.
+  2. retire-candidate: mark only covered NoExit IfJoin projector rows.
+  3. selection: choose the next ExitAllowed or LoopV0 contract only after the
+     NoExit IfJoin proof is green.
   design-stop trigger:
     stop before recursive RecipeBodies, full RecipeMatcher, route selection,
     MIR mutation/lowering, ID allocation, runtime route switch, or Source
@@ -88,6 +88,9 @@ normal operating rule:
   history.
 
 latest design decision:
+  3172 selects ProgramJsonNoExitBlockRecipeIfJoinSnapshotV1 as the smallest
+  recursive block recipe contract after the StmtOnly bridge. It enters
+  NoExitBlockRecipeBox through IfJoin rows before ExitAllowed and LoopV0.
   3171 marks the covered then-local/no-else If row as a scoped Rust ASTNode
   projector retire-candidate. 3170 proves that row through the ProgramJSON
   StmtOnly block bridge. 3169 marks parseable then/else assignment IfNoExit as
