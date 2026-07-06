@@ -16,7 +16,7 @@ guard_require_command "$TAG" python3
 guard_require_command "$TAG" timeout
 guard_require_files "$TAG" "$FIXTURE" "$IF_HANDLER" "$SNAPSHOT_IMPL" "$PREREQ_GUARD" "$HAKO_BIN"
 
-PREREQ_OUT="$(bash "$PREREQ_GUARD")"
+PREREQ_OUT="$(guard_cached_run "$TAG" bash "$PREREQ_GUARD")"
 if ! grep -q '^summary=ok$' <<<"$PREREQ_OUT"; then
   printf '%s\n' "$PREREQ_OUT" >&2
   guard_fail "$TAG" "ProgramJSON IfNoExit retire-candidate prerequisite is not green"

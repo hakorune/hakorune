@@ -12,7 +12,7 @@ CAPABILITY_GATE="$ROOT_DIR/tools/checks/rust_lifecycle_mirbuilder_programjson_if
 guard_require_command "$TAG" python3
 guard_require_files "$TAG" "$FIXTURE" "$CAPABILITY_GATE"
 
-CAPABILITY_OUT="$(bash "$CAPABILITY_GATE")"
+CAPABILITY_OUT="$(guard_cached_run "$TAG" bash "$CAPABILITY_GATE")"
 for required in \
   '^runtime_parity_green=1$' \
   '^mir_json_route_green=1$' \

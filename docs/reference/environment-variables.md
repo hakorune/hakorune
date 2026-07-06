@@ -30,6 +30,9 @@ compat を直接読む実装を増やさないこと。
 | `NYASH_DUMP_JSON_IR=1` | OFF | Any | JSON IR をダンプ |
 | `HAKO_MIR_JSON_CACHE={0\|1}` | `1` | tools/bin/hako | `tools/bin/hako --emit-mir-json` の入力ハッシュキャッシュ。`0` で無効化。キャッシュ先は `target/hako-mir-json-cache/v1`。 |
 | `HAKO_MIR_JSON_CACHE_DIR=/path` | `target/hako-mir-json-cache/v1` | tools/bin/hako | `tools/bin/hako --emit-mir-json` キャッシュの保存先を上書きする。CI/一時検証では tmpdir 指定を推奨。 |
+| `HAKO_GUARD_RESULT_CACHE={0\|1}` | `1` | tools/checks | `guard_cached_run` 経由の prerequisite guard 結果キャッシュ。clean worktree の同一 HEAD / 同一 binary fingerprint だけを再利用する。`0` で無効化。 |
+| `HAKO_GUARD_RESULT_CACHE_DIR=/path` | `target/guard-result-cache/v1` | tools/checks | guard 結果キャッシュの保存先を上書きする。 |
+| `HAKO_GUARD_RESULT_CACHE_ALLOW_DIRTY=1` | OFF | tools/checks | guard 結果キャッシュのテスト専用。dirty diff を cache key に含めるが、untracked file がある場合は再利用しない。通常運用では使わない。 |
 | `NYASH_DEBUG_STACK_OVERFLOW=1` | OFF | Any | スタックオーバーフロー時に backtrace を有効化 |
 | `NYASH_BINOP_REPROP_DEBUG=1` | OFF | Any | BinOp 型再伝播（MIR）をトレース |
 | `NYASH_LEAK_LOG=1` | OFF | VM (full), LLVM (parent process roots only) | プログラム終了時に残存する強参照を報告（サマリー） |

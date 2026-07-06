@@ -186,3 +186,110 @@ guard_timeout_run() {
     fi
     return "$rc"
 }
+
+guard_worktree_clean_for_cache() {
+    local root_dir="$1"
+
+    git -C "$root_dir" diff --quiet --ignore-submodules -- &&
+        git -C "$root_dir" diff --cached --quiet --ignore-submodules -- &&
+        [[ -z "$(git -C "$root_dir" ls-files --others --exclude-standard)" ]]
+}
+
+guard_cached_run() {
+    local tag="$1"
+    shift
+
+    if [[ "$#" -eq 0 ]]; then
+        guard_fail "$tag" "guard_cached_run requires a command"
+    fi
+
+    if [[ "${HAKO_GUARD_RESULT_CACHE:-1}" == "0" ]]; then
+        "$@"
+        return $?
+    fi
+
+    local root_dir
+    root_dir="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+    local dirty_digest="clean"
+    if ! guard_worktree_clean_for_cache "$root_dir"; then
+        if [[ "${HAKO_GUARD_RESULT_CACHE_ALLOW_DIRTY:-0}" != "1" ]]; then
+            "$@"
+            return $?
+        fi
+        dirty_digest="$({
+            git -C "$root_dir" status --porcelain=v1
+            git -C "$root_dir" diff --binary
+            git -C "$root_dir" diff --cached --binary
+        } | sha256sum | awk '{ print $1 }')"
+    fi
+
+    if [[ "$dirty_digest" != "clean" && -n "$(git -C "$root_dir" ls-files --others --exclude-standard)" ]]; then
+        "$@"
+        return $?
+    fi
+
+    local head
+    head="$(git -C "$root_dir" rev-parse HEAD 2>/dev/null || printf 'no-head')"
+
+    local command_digest
+    command_digest="$(printf '%s\0' "$@" | sha256sum | awk '{ print $1 }')"
+
+    local script_digest="no-script"
+    if [[ -f "$1" ]]; then
+        script_digest="$(sha256sum "$1" | awk '{ print $1 }')"
+    fi
+
+    local bin_fingerprint="no-bin"
+    if [[ -x "$root_dir/target/release/hakorune" ]]; then
+        bin_fingerprint="$(stat -c '%n:%s:%Y' "$root_dir/target/release/hakorune" 2>/dev/null || printf 'hakorune')"
+    fi
+
+    local env_digest
+    env_digest="$(env | LC_ALL=C sort | awk '/^(HAKO|NYASH)_/' | sha256sum | awk '{ print $1 }')"
+
+    local key
+    key="$(printf '%s\n%s\n%s\n%s\n%s\n%s\n' \
+        "$head" "$dirty_digest" "$command_digest" "$script_digest" "$bin_fingerprint" "$env_digest" \
+        | sha256sum | awk '{ print $1 }')"
+
+    local cache_root cache_out cache_meta
+    cache_root="${HAKO_GUARD_RESULT_CACHE_DIR:-$root_dir/target/guard-result-cache/v1}"
+    cache_out="$cache_root/$key.out"
+    cache_meta="$cache_root/$key.meta"
+
+    if [[ -s "$cache_out" && -s "$cache_meta" ]]; then
+        cat "$cache_out"
+        return 0
+    fi
+
+    mkdir -p "$cache_root"
+    local tmp_out tmp_err rc
+    tmp_out="$(mktemp "$cache_root/${key}.out.XXXXXX")"
+    tmp_err="$(mktemp "$cache_root/${key}.err.XXXXXX")"
+
+    set +e
+    "$@" >"$tmp_out" 2>"$tmp_err"
+    rc=$?
+    set -e
+
+    if [[ "$rc" -eq 0 ]]; then
+        cat >"$cache_meta.$$" <<EOF
+head=$head
+dirty_digest=$dirty_digest
+command_digest=$command_digest
+script_digest=$script_digest
+bin_fingerprint=$bin_fingerprint
+env_digest=$env_digest
+EOF
+        mv "$tmp_out" "$cache_out"
+        mv "$cache_meta.$$" "$cache_meta"
+        rm -f "$tmp_err"
+        cat "$cache_out"
+        return 0
+    fi
+
+    cat "$tmp_out"
+    cat "$tmp_err" >&2
+    rm -f "$tmp_out" "$tmp_err"
+    return "$rc"
+}
