@@ -86,13 +86,11 @@ normal operating rule:
   history.
 
 latest design decision:
-  3212 implements recursive nested RecipeBodies arena parity:
-  MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RECURSIVE-NESTED-BODY-ARENA-PARITY-001.
-  3211 selects recursive nested RecipeBodies arena parity after branch and
-  loop body references were green. 3208-3210 cleaned If/Loop result-map and raw
-  array-helper AOT-sensitive contracts:
-  HAKO-PROGRAMJSON-LOOP-HANDLER-RESULT-MAP-CONTRACT-001,
-  HAKO-PROGRAMJSON-RECIPEBODIES-ARRAY-HELPER-TOTAL-MAP-CONTRACT-001.
+  3213 marks the covered ProgramJsonRecipeBodiesRecursiveNestedArenaBuilderV1 row
+  as a scoped Rust ASTNode projector retire-candidate:
+  MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RECURSIVE-NESTED-BODY-ARENA-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001.
+  3212 implemented recursive nested RecipeBodies arena parity; 3211 selected it.
+  3208-3210 cleaned If/Loop result-map and raw array-helper AOT contracts.
   Runtime RecipeBodies publication, full RecipeMatcher, route switch, lowering,
   mutation, ID allocation, and Source Selfhost remain unclaimed.
   Parked same-family cleanup queue: TryCleanup handler result-map, Return
