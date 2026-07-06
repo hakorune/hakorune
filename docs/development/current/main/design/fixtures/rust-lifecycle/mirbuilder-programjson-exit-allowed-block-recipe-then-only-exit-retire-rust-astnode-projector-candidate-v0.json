@@ -1,0 +1,58 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonExitAllowedBlockRecipeThenOnlyExitRustAstNodeProjectorRetireCandidateV1",
+  "token": "MIRBUILDER-PROGRAMJSON-EXIT-ALLOWED-BLOCK-RECIPE-THEN-ONLY-EXIT-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001",
+  "input_state": {
+    "previous_card": "MIRBUILDER-PROGRAMJSON-EXIT-ALLOWED-BLOCK-RECIPE-THEN-ONLY-EXIT-SNAPSHOT-PARITY-001",
+    "capability_gate": "tools/checks/rust_lifecycle_mirbuilder_programjson_exit_allowed_block_recipe_then_only_exit_snapshot_parity_gate.sh"
+  },
+  "retire_candidate_scope": {
+    "retire_candidate": "ProgramJsonExitAllowedBlockRecipeThenOnlyExitSnapshotV1",
+    "shape_scope": "parseable ProgramJSON then-return/else-local row through ExitAllowedBlockRecipeBox",
+    "covered_rows": ["local_if_then_return_else_local_final_return_var"],
+    "deferred_rows": ["exit_all_mode", "recipe_bodies_materialization"],
+    "deferred_reason": "Only the parseable ThenOnlyExit row is parity-green; ExitAll and RecipeBodies remain separate producer/contract cards.",
+    "rust_projector_runtime_dependency_removed": 0,
+    "rust_projector_oracle_only": 1,
+    "full_astnode_projector_retired": 0
+  },
+  "criteria": {
+    "programjson_then_only_exit_snapshot_parity_gate": "Green",
+    "programjson_runtime_parity_green": 1,
+    "recipe_root_traversal_used": 1,
+    "if_stmt_handler_producer_extended": 1,
+    "exit_allowed_reducer_called": 1,
+    "then_only_exit_token_projected": 1,
+    "covered_row_count": 1,
+    "exit_all_mode": 0,
+    "recipe_bodies_materialization": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering": 0
+  },
+  "decision": {
+    "kind": "RetireCandidateScoped",
+    "reason_token": "ProgramJsonExitAllowedBlockRecipeThenOnlyExitSnapshotRuntimeParityGreen",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-BLOCK-RECIPE-AFTER-THEN-ONLY-EXIT-NEXT-CONTRACT-SELECTION-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering": 0,
+    "route_selection": 0,
+    "full_recipe_matcher_execution": 0,
+    "runtime_route_switch": 0,
+    "recipe_bodies_materialization": 0,
+    "exit_all_mode": 0,
+    "hako_adopted_decision": 0,
+    "programjson_full_parser_claim": 0,
+    "programjson_all_shapes_supported": 0,
+    "rust_astnode_projector_fully_retired": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

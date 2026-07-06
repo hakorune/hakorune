@@ -60,16 +60,17 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-EXIT-ALLOWED-BLOCK-RECIPE-THEN-ONLY-EXIT-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+  MIRBUILDER-PROGRAMJSON-BLOCK-RECIPE-AFTER-THEN-ONLY-EXIT-NEXT-CONTRACT-SELECTION-001
 selected next card:
-  mark only the covered then-return/else-local ThenOnlyExit ProgramJSON row as
-  a scoped Rust ASTNode projector retire-candidate. Keep full projector
-  removal, RecipeBodies, RecipeMatcher, route selection, MIR mutation/lowering,
-  ID allocation, and runtime route switch unclaimed.
+  select the next ProgramJSON-fed block recipe contract after ThenOnlyExit.
+  Candidate priority is ExitAll versus stopping at the recursive RecipeBodies
+  boundary. Name the missing ProgramJSON producer boundary and keep full
+  projector removal, RecipeMatcher, route selection, MIR mutation/lowering, ID
+  allocation, and runtime route switch unclaimed.
 
 post-3180 block recipe task order:
-  completed: JoinThenElse and ElseOnlyExit are scoped retire-candidates.
-  active: ThenOnlyExit parity is green; retire-candidate is next.
+  completed: JoinThenElse, ElseOnlyExit, and ThenOnlyExit are scoped
+    retire-candidates.
   next selection: choose ExitAll or stop at RecipeBodies.
   design-stop trigger:
     stop before recursive RecipeBodies, full RecipeMatcher, route selection,
@@ -86,6 +87,9 @@ normal operating rule:
   history.
 
 latest design decision:
+  3189 marks the covered parseable then-return/else-local ThenOnlyExit row as a
+  scoped Rust ASTNode projector retire-candidate; this is not runtime route
+  switching or full projector retirement.
   3188 proves ProgramJsonExitAllowedBlockRecipeThenOnlyExitSnapshotV1 for the
   parseable then-return/else-local row by extending IfStmtHandler's ProgramJSON
   producer and projecting IfThenReturnElseLocal into ExitAllowedBlockRecipeBox.
