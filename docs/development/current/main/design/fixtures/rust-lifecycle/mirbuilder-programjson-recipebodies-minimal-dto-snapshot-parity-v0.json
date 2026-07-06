@@ -1,0 +1,58 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonRecipeBodiesMinimalDtoSnapshotParityV1",
+  "token": "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-MINIMAL-DTO-SNAPSHOT-PARITY-001",
+  "capability": {
+    "name": "ProgramJsonRecipeBodiesMinimalDtoV1",
+    "input": "ProgramJSON v0",
+    "output": "snapshot-local BodyId/StmtRef DTO string",
+    "implementation": "lang/src/compiler/mirbuilder/program_json_recipebodies_minimal_dto_snapshot.hako"
+  },
+  "rows": [
+    {
+      "row_id": "empty_stmt_only_body",
+      "program_json": {"version": 0, "kind": "Program", "body": []},
+      "rust_oracle_expected_summary": "snapshot_kind=ProgramJsonRecipeBodiesMinimalDtoV1;err=0;root_body_id=0;body_count=1;body0_item_count=0;body0_items=;refs=;non_claims=recipe_bodies_materialization,lowering,route_selection,id_allocation"
+    },
+    {
+      "row_id": "single_local_stmt_body",
+      "program_json": {"version": 0, "kind": "Program", "body": [{"type": "Local", "name": "i", "expr": {"type": "Int", "value": 1}}]},
+      "rust_oracle_expected_summary": "snapshot_kind=ProgramJsonRecipeBodiesMinimalDtoV1;err=0;root_body_id=0;body_count=1;body0_item_count=1;body0_items=Stmt:Local;refs=body0.item0->stmt0;non_claims=recipe_bodies_materialization,lowering,route_selection,id_allocation"
+    },
+    {
+      "row_id": "local_then_print_stmt_body",
+      "program_json": {"version": 0, "kind": "Program", "body": [{"type": "Local", "name": "i", "expr": {"type": "Int", "value": 1}}, {"type": "Print", "expr": {"type": "Var", "name": "i"}}]},
+      "rust_oracle_expected_summary": "snapshot_kind=ProgramJsonRecipeBodiesMinimalDtoV1;err=0;root_body_id=0;body_count=1;body0_item_count=2;body0_items=Stmt:Local,Stmt:Print;refs=body0.item0->stmt0,body0.item1->stmt1;non_claims=recipe_bodies_materialization,lowering,route_selection,id_allocation"
+    }
+  ],
+  "acceptance": {
+    "programjson_traversal_used": 1,
+    "recipe_root_used": 1,
+    "bodyid_stmtref_tokens_emitted": 1,
+    "runtime_parity_green": 1,
+    "mir_json_route_observed": 1,
+    "directabi_route_publication_claim": 0,
+    "prebuilt_token_snapshot_input": 0,
+    "runtime_recipe_bodies_arena": 0
+  },
+  "decision": {
+    "kind": "SelectRecipeBodiesMinimalDtoRetireCandidateNext",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-MINIMAL-DTO-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001",
+    "reason_token": "RecipeBodiesMinimalDtoSnapshotRuntimeParityGreen"
+  },
+  "claims": {
+    "recipe_bodies_materialization": 0,
+    "runtime_recipe_bodies_arena": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering_claim": 0,
+    "directabi_route_publication_claim": 0,
+    "runtime_route_switch": 0,
+    "source_selfhost_claim": 0,
+    "programjson_full_parser_claim": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

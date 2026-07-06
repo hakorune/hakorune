@@ -1,0 +1,107 @@
+// program_json_recipebodies_minimal_dto_snapshot.hako
+// Responsibility:
+// - Emit DTO-only snapshot-local BodyId/StmtRef summaries from Program(JSON v0).
+// - This is not RecipeBodies runtime arena materialization.
+
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.shared.common.box_helpers as BoxHelpers
+using lang.compiler.mirbuilder.program_json_v0_phase_state_box as ProgramJsonV0PhaseStateBox
+using lang.compiler.mirbuilder.recipe.recipe_item_box as RecipeItemBox
+
+static box ProgramJsonRecipeBodiesMinimalDtoSnapshotBox {
+  _i(map, key) {
+    return StringHelpers.to_i64(BoxHelpers.map_get(map, key))
+  }
+
+  _err(reason) {
+    return "snapshot_kind=ProgramJsonRecipeBodiesMinimalDtoV1;err=1;reason=" + reason
+  }
+
+  _len(items) {
+    if items == null { return 0 }
+    local n = 0
+    loop(n < 16) {
+      if BoxHelpers.array_get(items, n) == null { return n }
+      n = n + 1
+    }
+    return n
+  }
+
+  _stmt_token(item) {
+    if item == null || BoxHelpers.is_map(item) != 1 { return "Unsupported" }
+    if RecipeItemBox.kind_is(item, "Seq") != 1 { return "Unsupported" }
+    if BoxHelpers.same_token(BoxHelpers.map_get(item, "leaf_kind"), "Stmt") != 1 {
+      return "Unsupported"
+    }
+    local kind = BoxHelpers.map_get(item, "stmt_kind")
+    if BoxHelpers.same_token(kind, "Local") == 1 { return "Stmt:Local" }
+    if BoxHelpers.same_token(kind, "Print") == 1 { return "Stmt:Print" }
+    return "Unsupported"
+  }
+
+  _body_items(items, n) {
+    if n == 0 { return "" }
+    local s = ""
+    local i = 0
+    loop(i < n) {
+      if i > 0 { s = s + "," }
+      s = s + me._stmt_token(BoxHelpers.array_get(items, i))
+      i = i + 1
+    }
+    return s
+  }
+
+  _has_unsupported(items, n) {
+    local i = 0
+    loop(i < n) {
+      if BoxHelpers.same_token(me._stmt_token(BoxHelpers.array_get(items, i)), "Unsupported") == 1 {
+        return 1
+      }
+      i = i + 1
+    }
+    return 0
+  }
+
+  _refs(n) {
+    if n == 0 { return "" }
+    local s = ""
+    local i = 0
+    loop(i < n) {
+      if i > 0 { s = s + "," }
+      local idx = StringHelpers.int_to_str(i)
+      s = s + "body0.item" + idx + "->stmt" + idx
+      i = i + 1
+    }
+    return s
+  }
+
+  build_summary(program_json) {
+    local out = ProgramJsonV0PhaseStateBox.parse(program_json, "[test]")
+    if me._i(out, "err") != 0 { return me._err("parse_error") }
+
+    local root = BoxHelpers.map_get(out, "recipe_root")
+    if root == null || RecipeItemBox.kind_is(root, "Seq") != 1 {
+      return me._err("missing_recipe_root")
+    }
+
+    local items = BoxHelpers.map_get(root, "items")
+    if items == null || BoxHelpers.is_array(items) != 1 {
+      return me._err("missing_recipe_items")
+    }
+
+    local n = me._len(items)
+    if me._has_unsupported(items, n) == 1 { return me._err("unsupported_stmt_only_body") }
+    local body_items = me._body_items(items, n)
+
+    return "snapshot_kind=ProgramJsonRecipeBodiesMinimalDtoV1"
+      + ";err=0"
+      + ";root_body_id=0"
+      + ";body_count=1"
+      + ";body0_item_count=" + StringHelpers.int_to_str(n)
+      + ";body0_items=" + body_items
+      + ";refs=" + me._refs(n)
+      + ";non_claims=recipe_bodies_materialization,lowering,route_selection,id_allocation"
+  }
+}
+
+static box ProgramJsonRecipeBodiesMinimalDtoSnapshotMain { main() { return 0 } }
