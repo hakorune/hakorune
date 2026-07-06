@@ -2,7 +2,7 @@
 // Responsibility: SSOT handler for minimal If shape parsing and recipe item construction.
 //
 // R4/R6 (minimal):
-// - R4: Local -> If(Var==Int, then Return(Int), else null) -> Return(Int)
+// - R4: Local -> If(Var==Int, then Return(payload), else null) -> Return(Int)
 // - R6: Local -> If(Var==Int, then Assignment(Int), else Assignment(Int)) -> Return(Var)
 // - parser/grammar expansion is out of scope.
 
@@ -31,7 +31,7 @@ static box IfStmtHandler {
     }
   }
 
-  _then_return_int(program_json, idx, tag) {
+  _then_return_payload(program_json, idx, tag) {
     local then_key = "\"then\":["
     local p_then = StringHelpers.index_of(program_json, idx, then_key)
     if p_then < 0 {
@@ -57,7 +57,7 @@ static box IfStmtHandler {
     }
     local then_type = BoxHelpers.map_get(then_stmt, "type")
     if BoxHelpers.same_token(then_type, "Return") != 1 {
-      return me._err(tag, "[cap_missing/stmt:If] If then must be Return(Int)", then_start)
+      return me._err(tag, "[cap_missing/stmt:If] If then must be Return", then_start)
     }
 
     local ret_state = %{
@@ -71,15 +71,13 @@ static box IfStmtHandler {
     if ret_err != 0 {
       return me._err(tag, "" + BoxHelpers.map_get(ret_out, "err_line"), then_start)
     }
-    local ret_kind = BoxHelpers.map_get(ret_out, "return_kind")
-    if BoxHelpers.same_token(ret_kind, "Int") != 1 {
-      return me._err(tag, "[cap_missing/stmt:If] If then Return must be Int", then_start)
-    }
-
     return %{
       "err" => 0,
       "err_line" => "",
-      "then_retv" => BoxHelpers.map_get(ret_out, "retv")
+      "then_return_kind" => BoxHelpers.map_get(ret_out, "return_kind"),
+      "then_retv" => BoxHelpers.map_get(ret_out, "retv"),
+      "then_ret_var_name" => BoxHelpers.map_get(ret_out, "ret_var_name"),
+      "then_ret_box_type" => BoxHelpers.map_get(ret_out, "ret_box_type")
     }
   }
 
@@ -281,16 +279,17 @@ static box IfStmtHandler {
     cond_facts.set("cond_rhs_int", rhs_int)
 
     if program_json.substring(else_start, else_start + 4) == "null" {
-      local then_out = me._then_return_int(program_json, idx, tag)
+      local then_out = me._then_return_payload(program_json, idx, tag)
       local then_err = StringHelpers.to_i64(BoxHelpers.map_get(then_out, "err"))
       if then_err != 0 {
         return me._err(tag, "" + BoxHelpers.map_get(then_out, "err_line"), next_idx)
       }
-      local then_retv = BoxHelpers.map_get(then_out, "then_retv")
 
       local exit_payload = new MapBox()
-      exit_payload.set("return_kind", "Int")
-      exit_payload.set("retv", then_retv)
+      exit_payload.set("return_kind", BoxHelpers.map_get(then_out, "then_return_kind"))
+      exit_payload.set("retv", BoxHelpers.map_get(then_out, "then_retv"))
+      exit_payload.set("ret_var_name", BoxHelpers.map_get(then_out, "then_ret_var_name"))
+      exit_payload.set("ret_box_type", BoxHelpers.map_get(then_out, "then_ret_box_type"))
 
       local then_item = RecipeItemBox.exit_item("Return", exit_payload)
       local else_item = RecipeItemBox.seq([])

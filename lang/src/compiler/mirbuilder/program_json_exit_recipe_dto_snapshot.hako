@@ -24,6 +24,12 @@ static box ProgramJsonExitRecipeDtoSnapshotBox {
     if BoxHelpers.same_token(v, "Return") == 1 { return "Return" }
     if BoxHelpers.same_token(v, "Int") == 1 { return "Int" }
     if BoxHelpers.same_token(v, "Var") == 1 { return "Var" }
+    if BoxHelpers.same_token(v, "NewBoxStringAbc") == 1 { return "NewBoxStringAbc" }
+    if BoxHelpers.same_token(v, "CallId0") == 1 { return "CallId0" }
+    if BoxHelpers.same_token(v, "CallId1Int9") == 1 { return "CallId1Int9" }
+    if BoxHelpers.same_token(v, "CallId1Int7") == 1 { return "CallId1Int7" }
+    if BoxHelpers.same_token(v, "MethodStringBoxLengthAbc") == 1 { return "MethodStringBoxLengthAbc" }
+    if BoxHelpers.same_token(v, "MethodStringBoxIndexOfBAbc") == 1 { return "MethodStringBoxIndexOfBAbc" }
     if BoxHelpers.same_token(v, "i") == 1 { return "i" }
     return ""
   }
