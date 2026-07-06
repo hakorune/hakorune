@@ -60,18 +60,18 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-NO-EXIT-BLOCK-RECIPE-LOOP-V0-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+  MIRBUILDER-PROGRAMJSON-BLOCK-RECIPE-POST-LOOP-V0-NEXT-CONTRACT-SELECTION-001
 selected next card:
-  not yet created; mark only the parseable Loop.body If.then Return +
-  Assignment ProgramJsonNoExitBlockRecipeLoopV0SnapshotV1 row as a scoped Rust
-  ASTNode projector retire-candidate. Keep JoinThenElse, additional ExitAllowed
-  if-modes, RecipeBodies, RecipeMatcher, route selection, MIR mutation/lowering,
-  ID allocation, and runtime route switch unclaimed.
+  not yet created; select the next block recipe contract after the scoped
+  LoopV0 proof. Remaining candidates are JoinThenElse and additional
+  ExitAllowed if-modes; the selection must name the missing ProgramJSON
+  producer boundary and keep RecipeBodies, RecipeMatcher, route selection,
+  MIR mutation/lowering, ID allocation, and runtime route switch unclaimed.
 
-post-3179 block recipe task order:
-  1. retire-candidate: mark only covered LoopV0 projector row.
-  2. selection: choose JoinThenElse or additional ExitAllowed if-modes.
-  3. capability: implement the selected next block contract.
+post-3180 block recipe task order:
+  1. selection: choose JoinThenElse or additional ExitAllowed if-modes.
+  2. capability: implement the selected next block contract.
+  3. retire-candidate: mark only covered rows after parity is green.
   design-stop trigger:
     stop before recursive RecipeBodies, full RecipeMatcher, route selection,
     MIR mutation/lowering, ID allocation, runtime route switch, or Source
@@ -87,6 +87,8 @@ normal operating rule:
   history.
 
 latest design decision:
+  3180 marks the covered parseable LoopV0 row as a scoped Rust ASTNode
+  projector retire-candidate.
   3179 proves ProgramJsonNoExitBlockRecipeLoopV0SnapshotV1 for the parseable
   Loop.body If.then Return + Assignment row through NoExitBlockRecipeBox.
   3178 selects NoExit LoopV0 next because LoopStmtHandler already produces
