@@ -78,6 +78,8 @@ expected_helper_rows = {
     "StringHelpers.int_to_str/1": "StringBox",
     "BoxHelpers.value_i64/1": "Integer",
     "BoxHelpers.expect_i64/2": "Integer",
+    "BoxHelpers.is_map/1": "Integer",
+    "BoxHelpers.is_array/1": "Integer",
     "MirJsonEmitBox._expect_i64/2": "Integer",
     "MirSchemaBox._expect_i64/2": "Integer",
 }
@@ -87,12 +89,16 @@ for helper_id, result_type in expected_helper_rows.items():
         raise SystemExit(f"missing {helper_id} param0 policy")
     if helper.get("policy") != "PolymorphicInputDoNotPublishFromSingleObservation":
         raise SystemExit(f"bad {helper_id} param0 publication policy")
-    if "Integer" not in (helper.get("accepted_value_kinds") or []):
-        raise SystemExit(f"bad {helper_id} accepted value kinds")
-    if helper_id.startswith("StringHelpers.") and "NumericLikeStringBox" not in (
-        helper.get("accepted_value_kinds") or []
-    ):
-        raise SystemExit(f"bad {helper_id} accepted value kinds")
+    accepted = helper.get("accepted_value_kinds") or []
+    if helper_id.endswith(".is_map/1") or helper_id.endswith(".is_array/1"):
+        for kind in ["Null", "MapBox", "ArrayBox", "Unknown"]:
+            if kind not in accepted:
+                raise SystemExit(f"bad {helper_id} accepted value kinds")
+    else:
+        if "Integer" not in accepted:
+            raise SystemExit(f"bad {helper_id} accepted value kinds")
+        if helper_id.startswith("StringHelpers.") and "NumericLikeStringBox" not in accepted:
+            raise SystemExit(f"bad {helper_id} accepted value kinds")
     if helper.get("result_published_value_type") != result_type:
         raise SystemExit(f"bad {helper_id} result published type")
 
@@ -139,6 +145,8 @@ required_policy_needles = [
     "pub(crate) fn route_return_shape_value_type",
     'pub(crate) const STRING_HELPERS_TO_I64: &str = "StringHelpers.to_i64/1";',
     'pub(crate) const STRING_HELPERS_INT_TO_STR: &str = "StringHelpers.int_to_str/1";',
+    'pub(crate) const BOX_HELPERS_IS_ARRAY: &str = "BoxHelpers.is_array/1";',
+    'pub(crate) const BOX_HELPERS_IS_MAP: &str = "BoxHelpers.is_map/1";',
     'pub(crate) const BOX_HELPERS_VALUE_I64: &str = "BoxHelpers.value_i64/1";',
     'pub(crate) const BOX_HELPERS_EXPECT_I64: &str = "BoxHelpers.expect_i64/2";',
     'pub(crate) const MIR_JSON_EMIT_BOX_EXPECT_I64: &str = "MirJsonEmitBox._expect_i64/2";',
@@ -224,7 +232,7 @@ object_handle_publication=DoNotPublishAmbiguous
 mixed_runtime_i64_or_handle_publication=DoNotPublishAmbiguous
 extern_call_return_publication=green
 polymorphic_helper_param0_policy=PolymorphicInputDoNotPublishFromSingleObservation
-polymorphic_helper_param0_count=6
+polymorphic_helper_param0_count=8
 mir_json_string_compare_hint=green
 mir_json_string_concat_hint=green
 aot_dynamic_string_eq_and_int_to_str_regression=green

@@ -77,6 +77,30 @@
       "result_published_value_type": "Integer"
     },
     {
+      "helper_id": "BoxHelpers.is_map/1",
+      "param_index": 0,
+      "policy": "PolymorphicInputDoNotPublishFromSingleObservation",
+      "accepted_value_kinds": [
+        "Null",
+        "MapBox",
+        "ArrayBox",
+        "Unknown"
+      ],
+      "result_published_value_type": "Integer"
+    },
+    {
+      "helper_id": "BoxHelpers.is_array/1",
+      "param_index": 0,
+      "policy": "PolymorphicInputDoNotPublishFromSingleObservation",
+      "accepted_value_kinds": [
+        "Null",
+        "MapBox",
+        "ArrayBox",
+        "Unknown"
+      ],
+      "result_published_value_type": "Integer"
+    },
+    {
       "helper_id": "MirJsonEmitBox._expect_i64/2",
       "param_index": 0,
       "policy": "PolymorphicInputDoNotPublishFromSingleObservation",

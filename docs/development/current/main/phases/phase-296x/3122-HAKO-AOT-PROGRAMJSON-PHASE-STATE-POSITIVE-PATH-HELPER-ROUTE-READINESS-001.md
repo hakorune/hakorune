@@ -187,6 +187,56 @@ Keep generic void object return widening = 0.
 Keep scanner nullable bridge = 0.
 ```
 
+## 2026-07-06 Cleanup Phase Split
+
+Claude/worker review found that the same root issue appears in three places:
+`.hako` helper contracts, Rust route metadata publication, and C `.inc`
+mirrors. Keep these as separate BoxShape phases; do not mix them with new
+ProgramJSON acceptance rows.
+
+Phase A - helper route metadata hygiene (this card):
+
+```text
+normalize collection receiver contracts already used by ProgramJSON helpers
+protect polymorphic predicate helpers from single-observation type publication
+keep array_len/array_get untyped until caller inventory proves receiver narrowing
+keep map_set untyped until its null-creates-new-MapBox contract is audited
+```
+
+Phase B - C `.inc` responsibility cleanup (next BoxShape series):
+
+```text
+extract DirectArray metadata out of lowering_plan_metadata.inc
+move ORG_* enum/state ownership into compiler_state.inc
+table-drive pure_compile exact_seed dispatch
+deduplicate same_module method view registry against generated route registry
+```
+
+Phase C - token/origin preservation follow-up:
+
+```text
+audit remaining ORG_STRING/StringBox mirrors
+audit receiver contract strings baked into map/direct metadata includes
+add guards only where they prevent drift; do not add another docs-only loop
+```
+
+Acceptance for Phase A:
+
+```text
+BoxHelpers.map_get/2 remains MapBox receiver
+BoxHelpers.array_len/1 and array_get/2 remain parked until caller inventory
+proves receiver narrowing
+BoxHelpers.map_set/3 remains parked until null-creation callers are audited
+BoxHelpers.is_map/1 and is_array/1 are polymorphic predicate inputs in Rust
+route metadata policy
+BoxTypeInspectorBox predicate publication remains parked until route/caller
+inventory proves it does not regress the heavy EXE path
+
+no scanner nullable bridge
+no generic void object return widening
+no new backend route or ABI
+```
+
 ## Required Guards
 
 ```bash

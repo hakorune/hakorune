@@ -22,6 +22,8 @@ BoxHelpers.value_i64/1 param0
 BoxHelpers.expect_i64/2 param0
 MirJsonEmitBox._expect_i64/2 param0
 MirSchemaBox._expect_i64/2 param0
+BoxHelpers.is_map/1 param0
+BoxHelpers.is_array/1 param0
 ```
 
 Wire the policy into user-box / receiver-style param publication where the
@@ -49,8 +51,17 @@ Green output contract:
 
 ```text
 polymorphic_helper_param0_policy=PolymorphicInputDoNotPublishFromSingleObservation
-polymorphic_helper_param0_count=6
+polymorphic_helper_param0_count=8
 summary=ok
+```
+
+2026-07-06 extension:
+
+```text
+BoxHelpers predicate helpers are also polymorphic inputs. They must accept null,
+MapBox, ArrayBox, and unknown values without publishing a false receiver type
+from one observed call site. BoxTypeInspectorBox predicate publication is not
+included in this card because it needs a separate route/caller inventory first.
 ```
 
 ## Forbidden
