@@ -1,0 +1,61 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonExitAllowedBlockRecipeIfExitOnlyRustAstNodeProjectorRetireCandidateV1",
+  "token": "MIRBUILDER-PROGRAMJSON-EXIT-ALLOWED-BLOCK-RECIPE-IF-EXIT-ONLY-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001",
+  "input_state": {
+    "previous_card": "MIRBUILDER-PROGRAMJSON-EXIT-ALLOWED-BLOCK-RECIPE-IF-EXIT-ONLY-SNAPSHOT-PARITY-001",
+    "capability_gate": "tools/checks/rust_lifecycle_mirbuilder_programjson_exit_allowed_block_recipe_if_exit_only_snapshot_parity_gate.sh"
+  },
+  "retire_candidate_scope": {
+    "retire_candidate": "ProgramJsonExitAllowedBlockRecipeIfExitOnlySnapshotV1",
+    "shape_scope": "parseable ProgramJSON IfThenReturnNoElse row through ExitAllowedBlockRecipeBox",
+    "covered_rows": ["if_then_return_no_else"],
+    "deferred_rows": ["join_then_else", "loop_v0_block", "exit_allowed_then_else_modes"],
+    "deferred_reason": "Only the parseable IfThenReturnNoElse row is parity-green; other ExitAllowed if-modes, JoinThenElse, and LoopV0 remain separate contracts.",
+    "rust_projector_runtime_dependency_removed": 0,
+    "rust_projector_oracle_only": 1,
+    "full_astnode_projector_retired": 0
+  },
+  "criteria": {
+    "programjson_exit_allowed_if_exit_only_snapshot_parity_gate": "Green",
+    "programjson_runtime_parity_green": 1,
+    "recipe_root_traversal_used": 1,
+    "exit_allowed_reducer_called": 1,
+    "if_exit_only_token_projected": 1,
+    "covered_row_count": 1,
+    "join_then_else_contract": 0,
+    "loop_v0_contract": 0,
+    "exit_allowed_then_else_modes": 0,
+    "recipe_bodies_materialization": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering": 0
+  },
+  "decision": {
+    "kind": "RetireCandidateScoped",
+    "reason_token": "ProgramJsonExitAllowedBlockRecipeIfExitOnlySnapshotRuntimeParityGreen",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-BLOCK-RECIPE-POST-EXIT-ALLOWED-NEXT-CONTRACT-SELECTION-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering": 0,
+    "route_selection": 0,
+    "full_recipe_matcher_execution": 0,
+    "runtime_route_switch": 0,
+    "recipe_bodies_materialization": 0,
+    "join_then_else_contract": 0,
+    "loop_v0_contract": 0,
+    "exit_allowed_then_else_modes": 0,
+    "hako_adopted_decision": 0,
+    "programjson_full_parser_claim": 0,
+    "programjson_all_shapes_supported": 0,
+    "rust_astnode_projector_fully_retired": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
