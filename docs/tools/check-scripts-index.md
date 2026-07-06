@@ -252,6 +252,7 @@ phase-1 compatibility Program(JSON) compat execution helper.
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_recipebodies_if_branch_multi_body_arena_parity_gate.sh` | Runtime parity gate for the ProgramJSON RecipeBodies If-branch multi-body arena DTO owner. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_recipebodies_if_branch_multi_body_arena_retire_rust_astnode_projector_candidate_guard.sh` | Retire-candidate guard for the ProgramJSON RecipeBodies If-branch multi-body arena DTO row. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_recipebodies_after_if_branch_arena_next_contract_selection_guard.sh` | Selection guard for the next RecipeBodies contract after the If-branch arena retire-candidate. |
+| `tools/checks/rust_lifecycle_mirbuilder_programjson_recipebodies_loop_body_multi_body_arena_parity_gate.sh` | Runtime parity gate for the ProgramJSON RecipeBodies Loop-body multi-body arena DTO owner. |
 | `tools/checks/hako_mir_json_cache_wrapper_guard.sh` | Cache contract guard for `tools/bin/hako --emit-mir-json` miss-then-hit behavior. |
 | `tools/checks/guard_result_cache_helper_guard.sh` | Cache contract guard for `guard_cached_run` prerequisite guard memoization. |
 | `tools/checks/hako_aot_dynamic_string_eq_and_int_to_str_correctness_gate.sh` | AOT dynamic string equality and scanner-fed `StringHelpers.int_to_str` correctness gate. |
