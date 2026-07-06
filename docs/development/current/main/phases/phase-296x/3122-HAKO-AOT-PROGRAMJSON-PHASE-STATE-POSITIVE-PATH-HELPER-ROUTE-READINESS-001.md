@@ -279,7 +279,7 @@ Cleanliness backlog after Phase A.1/B.1:
 1. done: pure_compile exact-seed dispatcher extraction
 2. done-for-structure: ORG_* enum and GenericPure state exposure extraction
 3. done: same-module method view registry drift guard against generated route rows
-4. map lookup fusion route-shape vs site/register matcher split
+4. done: map lookup fusion route-shape vs site/register matcher split
 5. BoxTypeInspectorBox predicate publication inventory
 6. shared same-token helper pilot
 ```
@@ -299,6 +299,35 @@ boundary:
 non-claims:
   no route-family unification
   no same-module route acceptance change
+  no ABI, lowering, backend, or Source Selfhost claim
+```
+
+Phase B.5 - map lookup fusion metadata matcher split:
+
+```text
+status: done
+owner:
+  lang/c-abi/shims/hako_llvmc_ffi_map_lookup_fusion_metadata.inc
+
+boundary:
+  route metadata array ownership stays in the shared reader seam
+  route site matching is separated from route-shape validation
+  register/result matching is separated from route-shape validation
+  match_map_lookup_fusion_route_metadata remains the only exported consumer API
+
+acceptance:
+  tools/checks/map_lookup_fusion_reader_boundary_guard.sh green
+  tools/checks/rust_lifecycle_mirbuilder_programjson_layer4_loop_recipe_dto_heavy_exe_readiness_gate.sh green
+  cargo check -q green
+
+note:
+  tools/checks/k2_wide_phase296x_map_get_dynamic_covered_i64_scalar_proof_implementation_guard.sh
+  is currently stale because its phase card path moved to archive; it was not
+  used as the acceptance source for this BoxShape-only split.
+
+non-claims:
+  no map lookup route acceptance change
+  no missing-key behavior change
   no ABI, lowering, backend, or Source Selfhost claim
 ```
 
