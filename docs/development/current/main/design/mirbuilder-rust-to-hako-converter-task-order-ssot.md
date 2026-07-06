@@ -60,9 +60,9 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-LAYER4-RECIPE-PORT-SIG-DTO-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+  MIRBUILDER-PROGRAMJSON-LAYER4-NEXT-RECIPE-DTO-CAPABILITY-SELECTION-001
 selected next card:
-  not-yet-created; mark covered Recipe PortSig DTO rows as a scoped Rust ASTNode projector retire-candidate.
+  not-yet-created; select the next concrete Layer4 Recipe DTO ProgramJSON capability after 3136.
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -92,24 +92,15 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
+  3136 marks covered RecipePortSigDtoSnapshotV1 rows as a scoped Rust ASTNode
+  projector retire-candidate; covered rows are 5 and no rows are deferred.
   3135 adds ProgramJsonRecipePortSigDtoSnapshotV1 with green MIR JSON and AOT
   runtime parity; RecipeVerifier runtime array traversal now uses array_get
   until null for Seq children and name buckets.
-  3134 marks expanded ExitRecipeDtoSnapshotV1 rows as a scoped Rust ASTNode
-  projector retire-candidate; covered rows are now 4 and no Exit DTO rows are
-  deferred in scope.
-  3133 promotes the deferred Loop.body If.then_item=Exit row for
-  ProgramJsonExitRecipeDtoSnapshotV1 after LoopStmtHandler scanner string
-  checks moved to same_token. 3132/3131 are the root Exit DTO retire-candidate
-  and parity checkpoints.
-  3130-3126 are the expanded SeqRecipeDtoSnapshotV1 parity and scoped
-  retire-candidate checkpoints; Assignment/Print consumer details live in
-  cards 3128-3129.
-  3125 is the analogous scoped retire-candidate for covered
-  IfRecipeDtoSnapshotV1 rows.
-  3124/3123 are the analogous If/Loop Layer4 DTO parity and retire-candidate
-  checkpoints.
-  Earlier Layer4 and scanner/AOT details live in cards 3109 and 3114-3122.
+  3134/3133/3132/3131 are the expanded/root ExitRecipeDtoSnapshotV1 parity and
+  scoped retire-candidate checkpoints; 3130-3123 are the Seq/If/Loop Layer4 DTO
+  parity and retire-candidate checkpoints. Earlier Layer4 and scanner/AOT
+  details live in cards 3109 and 3114-3122.
   2997 stabilized the AOT/MIR value-type publication contract only for the
   proven route families. 3002 remains a trigger-based debt queue for Float
   Sub/Mul/Div, string Lt/Gt/Le/Ge policy, user-box single-observation
