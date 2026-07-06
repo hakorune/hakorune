@@ -49,6 +49,9 @@ static box ProgramJsonNoExitBlockRecipeSnapshotBox {
     if BoxHelpers.same_token(then_kind, "Local") == 1 && BoxHelpers.same_token(else_kind, "None") == 1 {
       return "IfThenLocalNoElse"
     }
+    if BoxHelpers.same_token(then_kind, "Local") == 1 && BoxHelpers.same_token(else_kind, "Print") == 1 {
+      return "IfThenLocalElsePrint"
+    }
     return "Unsupported"
   }
 
