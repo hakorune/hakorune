@@ -1,0 +1,68 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonLayer4SeqRecipeDtoLoopRootRustAstNodeProjectorRetireCandidateV1",
+  "token": "MIRBUILDER-PROGRAMJSON-LAYER4-SEQ-RECIPE-DTO-LOOP-ROOT-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001",
+  "evidence": {
+    "hako_snapshot_source": "lang/src/compiler/mirbuilder/program_json_seq_recipe_dto_snapshot.hako",
+    "hako_snapshot_source_hash": "sha256:9229f9d5b29a64fec56b849c39931d041141d93c49834ff65d0f175f0313bc8a",
+    "parity_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-programjson-layer4-seq-recipe-dto-loop-root-parity-v0.json",
+    "parity_fixture_hash": "sha256:1a2f9b6367194f4c0217fdefd5ec1c5e724482a2a8c90ba1edd268d5c1376314",
+    "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_programjson_layer4_seq_recipe_dto_loop_root_parity_gate.sh",
+    "parity_gate_hash": "sha256:43e062d076132d15923723ad4af5d040df260786fad4cc54665d09849cd0b048"
+  },
+  "retire_candidate_scope": {
+    "retire_candidate": "SeqRecipeDtoSnapshotV1",
+    "shape_scope": "covered ProgramJSON Layer4 Seq Recipe DTO loop-root rows",
+    "programjson_snapshot_owner": "ProgramJsonSeqRecipeDtoSnapshotV1",
+    "covered_rows": [
+      "loop_if_then_return_new_stringbox_abc_assignment_final_return_var",
+      "loop_if_then_return_call_id0_assignment_final_return_var",
+      "loop_if_then_return_call_id1_int9_assignment_final_return_var",
+      "loop_if_then_return_call_id1_int7_assignment_final_return_var",
+      "loop_if_then_return_method_stringbox_length_abc_assignment_final_return_var",
+      "loop_if_then_return_method_stringbox_indexof_b_abc_assignment_final_return_var"
+    ],
+    "deferred_rows": [],
+    "deferred_reason": "",
+    "rust_projector_runtime_dependency_removed": 0,
+    "rust_projector_oracle_only": 1,
+    "full_astnode_projector_retired": 0
+  },
+  "criteria": {
+    "seq_recipe_loop_root_parity_gate": "Green",
+    "programjson_runtime_parity_green": 1,
+    "programjson_route_traverses_programjson": 1,
+    "structured_recipe_dto_constructed": 1,
+    "root_sequence_scanner_used": 1,
+    "loop_root_children_supported": 1,
+    "shape_kind_included": 1,
+    "route_selection": 0,
+    "programjson_route_uses_string_only_facade": 0,
+    "covered_row_count": 6,
+    "full_recipe_matcher_execution": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering": 0
+  },
+  "decision": {
+    "kind": "RetireCandidateScoped",
+    "reason_token": "SeqRecipeDtoLoopRootProgramJsonLayer4RuntimeParityGreen",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-LAYER4-NEXT-RECIPE-DTO-CAPABILITY-SELECTION-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering": 0,
+    "route_selection": 0,
+    "full_recipe_matcher_execution": 0,
+    "runtime_route_switch": 0,
+    "hako_adopted_decision": 0,
+    "programjson_full_parser_claim": 0,
+    "programjson_all_shapes_supported": 0,
+    "rust_astnode_projector_fully_retired": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
