@@ -1,0 +1,87 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonBlockRecipeNextContractCapabilitySelectionV1",
+  "token": "MIRBUILDER-PROGRAMJSON-BLOCK-RECIPE-NEXT-CONTRACT-CAPABILITY-SELECTION-001",
+  "input_state": {
+    "previous_card": "MIRBUILDER-PROGRAMJSON-NO-EXIT-BLOCK-RECIPE-IF-JOIN-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001",
+    "covered_previous_capability": "ProgramJsonNoExitBlockRecipeIfJoinSnapshotV1",
+    "remaining_candidates": [
+      "ProgramJsonNoExitBlockRecipeJoinThenElseSnapshotV1",
+      "ProgramJsonExitAllowedBlockRecipeIfExitOnlySnapshotV1",
+      "ProgramJsonNoExitBlockRecipeLoopV0SnapshotV1"
+    ]
+  },
+  "candidates": [
+    {
+      "capability": "ProgramJsonExitAllowedBlockRecipeIfExitOnlySnapshotV1",
+      "target_reducer": "ExitAllowedBlockRecipeBox",
+      "status": "Selected",
+      "first_rows": [
+        "if_then_return_no_else"
+      ],
+      "producer_boundary": "ProgramJsonV0PhaseStateBox already produces If.then_item Exit with empty else Seq for parseable then-return/no-else rows.",
+      "reason": "opens the ExitAllowed contract using an already parseable recipe_root shape while staying below LoopV0, RecipeBodies, RecipeMatcher, route selection, lowering, mutation, and ID allocation"
+    },
+    {
+      "capability": "ProgramJsonNoExitBlockRecipeJoinThenElseSnapshotV1",
+      "target_reducer": "NoExitBlockRecipeBox",
+      "status": "Held",
+      "producer_boundary": "NoExitBlockRecipeBox supports JoinThenElse, but ProgramJsonV0PhaseStateBox does not yet produce then-local/else-print recipe_root rows.",
+      "held_reason": "requires a PhaseState producer extension before a clean reducer parity card"
+    },
+    {
+      "capability": "ProgramJsonNoExitBlockRecipeLoopV0SnapshotV1",
+      "target_reducer": "NoExitBlockRecipeBox",
+      "status": "Held",
+      "producer_boundary": "LoopV0 requires LoopExitAllowedBody token handoff from a loop-body ExitAllowed contract.",
+      "held_reason": "select after the first ExitAllowed block contract proof"
+    }
+  ],
+  "selected_capability": {
+    "name": "ProgramJsonExitAllowedBlockRecipeIfExitOnlySnapshotV1",
+    "target_reducer": "ExitAllowedBlockRecipeBox",
+    "input": "ProgramJSON recipe_root",
+    "output": "ExitAllowedBlockRecipeSummaryV1",
+    "required_projection_tokens": [
+      "IfThenReturnNoElse"
+    ],
+    "required_reducer_outputs": [
+      "IfExitOnly",
+      "ExitIf"
+    ],
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-EXIT-ALLOWED-BLOCK-RECIPE-IF-EXIT-ONLY-SNAPSHOT-PARITY-001"
+  },
+  "stop_conditions": {
+    "join_then_else_contract": 0,
+    "loop_v0_contract": 0,
+    "recursive_recipe_bodies_materialization": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering": 0,
+    "runtime_route_switch": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "SelectProgramJsonExitAllowedIfExitOnlyBeforeJoinThenElseAndLoopV0",
+    "reason_token": "ExitAllowedIfThenReturnNoElseHasExistingProgramJsonProducer",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-EXIT-ALLOWED-BLOCK-RECIPE-IF-EXIT-ONLY-SNAPSHOT-PARITY-001"
+  },
+  "claims": {
+    "programjson_exit_allowed_if_exit_only_parity_green": 0,
+    "join_then_else_contract": 0,
+    "loop_v0_contract": 0,
+    "recursive_recipe_bodies_materialization": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering": 0,
+    "runtime_route_switch": 0,
+    "source_selfhost_claim": 0,
+    "programjson_full_parser_claim": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

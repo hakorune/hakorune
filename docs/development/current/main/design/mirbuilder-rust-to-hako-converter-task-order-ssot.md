@@ -60,17 +60,18 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-BLOCK-RECIPE-NEXT-CONTRACT-CAPABILITY-SELECTION-001
+  MIRBUILDER-PROGRAMJSON-EXIT-ALLOWED-BLOCK-RECIPE-IF-EXIT-ONLY-SNAPSHOT-PARITY-001
 selected next card:
-  not yet created; select the next block recipe contract from JoinThenElse,
-  ExitAllowed, or LoopV0. The selection must name the missing producer/reducer
-  boundary and keep RecipeBodies, RecipeMatcher, route selection, MIR
-  mutation/lowering, ID allocation, and runtime route switch unclaimed.
+  not yet created; implement ProgramJsonExitAllowedBlockRecipeIfExitOnlySnapshotV1
+  for the parseable IfThenReturnNoElse recipe_root row. It must feed
+  IfThenReturnNoElse into ExitAllowedBlockRecipeBox and keep JoinThenElse,
+  LoopV0, RecipeBodies, RecipeMatcher, route selection, MIR mutation/lowering,
+  ID allocation, and runtime route switch unclaimed.
 
-post-3174 block recipe task order:
-  1. selection: choose JoinThenElse-vs-ExitAllowed-vs-LoopV0.
-  2. capability: implement the selected next block contract.
-  3. retire-candidate: mark only covered rows after the capability gate is green.
+post-3175 block recipe task order:
+  1. capability: implement ExitAllowed IfExitOnly ProgramJSON snapshot parity.
+  2. retire-candidate: mark only covered IfThenReturnNoElse projector row.
+  3. selection: choose JoinThenElse or LoopV0 after the scoped proof is green.
   design-stop trigger:
     stop before recursive RecipeBodies, full RecipeMatcher, route selection,
     MIR mutation/lowering, ID allocation, runtime route switch, or Source
@@ -86,19 +87,13 @@ normal operating rule:
   history.
 
 latest design decision:
-  3174 marks the covered parseable IfThenLocalNoElse NoExit IfJoin row as a
-  scoped Rust ASTNode projector retire-candidate.
-  3173 proves ProgramJsonNoExitBlockRecipeIfJoinSnapshotV1 for the parseable
-  IfThenLocalNoElse row through NoExitBlockRecipeBox. JoinThenElse is held
-  because PhaseState does not yet produce the then-local/else-print recipe_root
-  row; ExitAllowed and LoopV0 remain held.
-  3172 selects NoExit IfJoin as the smallest recursive block recipe contract
-  after the StmtOnly bridge.
-  3171 marks the covered then-local/no-else If row as a scoped Rust ASTNode
-  projector retire-candidate. 3170 proves that row through the ProgramJSON
-  StmtOnly block bridge. 3169 marks parseable then/else assignment IfNoExit as
-  scoped, 3167 marks LoopNoExit as scoped, and 3164 marks direct stmt rows from
-  3163 as scoped.
+  3175 selects ExitAllowed IfExitOnly next because PhaseState already produces
+  If.then_item Exit / else Seq([]) for parseable IfThenReturnNoElse rows.
+  3174-3172 cover the scoped NoExit IfThenLocalNoElse proof and retire-candidate;
+  JoinThenElse remains held until a PhaseState producer exists, and LoopV0 remains
+  held until an ExitAllowed body handoff is proven.
+  3171-3163 cover prior StmtOnly direct/Loop/If bridge proofs and scoped retire
+  checkpoints.
   3162 selected that ProgramJSON-fed block recipe bridge. 3161-3151 cover
   Local>Loop>Return loop-root propagation through
   RecipeStmtSeqDtoSnapshotV1, RecipeShapeKindDtoSnapshotV1,

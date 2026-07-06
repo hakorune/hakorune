@@ -345,13 +345,13 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PROGRAMJSON-NO-EXIT-BLOCK-RECIPE-IF-JOIN-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3174-MIRBUILDER-PROGRAMJSON-NO-EXIT-BLOCK-RECIPE-IF-JOIN-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001.md"
-latest_card_summary = """3174 marks the covered parseable IfThenLocalNoElse
-ProgramJsonNoExitBlockRecipeIfJoinSnapshotV1 row as a scoped Rust ASTNode
-projector retire-candidate. JoinThenElse, ExitAllowed, LoopV0, route switch,
-MIR mutation/lowering, ID allocation, ProgramJSON full parser, new ABI, and
-Source Selfhost remain unclaimed."""
+latest_card = "MIRBUILDER-PROGRAMJSON-BLOCK-RECIPE-NEXT-CONTRACT-CAPABILITY-SELECTION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3175-MIRBUILDER-PROGRAMJSON-BLOCK-RECIPE-NEXT-CONTRACT-CAPABILITY-SELECTION-001.md"
+latest_card_summary = """3175 selects ProgramJsonExitAllowedBlockRecipeIfExitOnlySnapshotV1
+as the next ProgramJSON-fed block recipe contract capability. JoinThenElse,
+LoopV0, RecipeBodies materialization, route switch, MIR mutation/lowering, ID
+allocation, ProgramJSON full parser, new ABI, and Source Selfhost remain
+unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -362,6 +362,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-07: 3175 selects ProgramJsonExitAllowedBlockRecipeIfExitOnlySnapshotV1 as the next ProgramJSON-fed block recipe contract capability while JoinThenElse, LoopV0, route switch, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3174 marks the covered parseable IfThenLocalNoElse ProgramJsonNoExitBlockRecipeIfJoinSnapshotV1 row as a scoped Rust ASTNode projector retire-candidate while JoinThenElse, ExitAllowed, LoopV0, route switch, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3173 proves ProgramJsonNoExitBlockRecipeIfJoinSnapshotV1 for the parseable IfThenLocalNoElse ProgramJSON row through NoExitBlockRecipeBox while JoinThenElse, ExitAllowed, LoopV0, route switch, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3172 selects ProgramJsonNoExitBlockRecipeIfJoinSnapshotV1 as the next ProgramJSON-fed recursive block contract capability while ExitAllowed, LoopV0, route switch, and Source Selfhost remain unclaimed.",
@@ -370,5 +371,4 @@ landed_tail = [
   "2026-07-06: 3169 marks the covered parseable then/else assignment IfNoExit row as a scoped Rust ASTNode projector retire-candidate while route switch and Source Selfhost remain unclaimed.",
   "2026-07-06: 3168 proves one ProgramJSON-fed IfNoExit projection row for the parseable then/else assignment If shape while route switch and Source Selfhost remain unclaimed.",
   "2026-07-06: 3167 marks the covered ProgramJSON-fed LoopNoExit row as a scoped Rust ASTNode projector retire-candidate while route switch and Source Selfhost remain unclaimed.",
-  "2026-07-06: 3165 selects ProgramJsonStmtOnlyBlockRecipeLoopNoExitSnapshotV1 as the next ProgramJSON-fed block recipe capability while implementation/parity and Source Selfhost remain unclaimed.",
 ]
