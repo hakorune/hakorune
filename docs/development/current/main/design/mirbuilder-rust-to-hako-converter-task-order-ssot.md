@@ -60,10 +60,10 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-RECIPEBODIES-POST-VERIFIER-BOUNDARY-DECISION-001
+  MIRBUILDER-PROGRAMJSON-RECIPEBODIES-VERIFIER-BOUNDARY-EXPANDED-DTO-COVERAGE-PARITY-001
 selected next card:
-  decide the post-verifier RecipeBodies seam. Recommended default is more DTO
-  coverage rows unless runtime route-switch authority is approved.
+  add more ProgramJSON RecipeBodies verifier-boundary DTO coverage rows while
+  runtime publication and full RecipeMatcher remain unclaimed.
 
 post-3180 block recipe task order:
   completed: JoinThenElse, ElseOnlyExit, ThenOnlyExit, and ExitAll are scoped
@@ -85,6 +85,7 @@ normal operating rule:
   history.
 
 latest design decision:
+  3219 selects more DTO coverage rows after the post-verifier consultation.
   3218 prepares the post-verifier RecipeBodies consultation; recommended
   default is more DTO coverage rows, while runtime publication and full
   RecipeMatcher require a new decision.
