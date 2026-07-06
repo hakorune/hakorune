@@ -60,18 +60,17 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-EXIT-ALLOWED-BLOCK-RECIPE-EXIT-ALL-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+  MIRBUILDER-PROGRAMJSON-BLOCK-RECIPE-POST-EXIT-ALL-RECIPEBODIES-DESIGN-STOP-001
 selected next card:
-  mark only the covered then-return/else-break ExitAll ProgramJSON row as a
-  scoped Rust ASTNode projector retire-candidate. Keep full projector removal,
-  RecipeBodies, RecipeMatcher, route selection, MIR mutation/lowering, ID
-  allocation, and runtime route switch unclaimed.
+  stop and document the next Layer4 boundary after covered flat block recipe
+  if-mode rows. Recursive RecipeBodies materialization, full RecipeMatcher,
+  route selection, MIR mutation/lowering, ID allocation, runtime route switch,
+  and Source Selfhost remain unclaimed.
 
 post-3180 block recipe task order:
-  completed: JoinThenElse, ElseOnlyExit, and ThenOnlyExit are scoped
+  completed: JoinThenElse, ElseOnlyExit, ThenOnlyExit, and ExitAll are scoped
     retire-candidates.
-  active: ExitAll parity is green; retire-candidate is next.
-  next selection: stop at RecipeBodies unless a smaller producer remains.
+  next: RecipeBodies design stop before recursive materialization.
   design-stop trigger:
     stop before recursive RecipeBodies, full RecipeMatcher, route selection,
     MIR mutation/lowering, ID allocation, runtime route switch, or Source
@@ -87,6 +86,9 @@ normal operating rule:
   history.
 
 latest design decision:
+  3192 marks the covered parseable then-return/else-break ExitAll row as a
+  scoped Rust ASTNode projector retire-candidate; this is not runtime route
+  switching or full projector retirement.
   3191 proves ProgramJsonExitAllowedBlockRecipeExitAllSnapshotV1 for the
   parseable then-return/else-break row by extending IfStmtHandler's ProgramJSON
   producer and projecting IfThenReturnElseBreak into ExitAllowedBlockRecipeBox.
