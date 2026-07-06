@@ -1,0 +1,70 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonStmtOnlyBlockRecipeIfNoExitSnapshotRustAstNodeProjectorRetireCandidateV1",
+  "token": "MIRBUILDER-PROGRAMJSON-STMT-ONLY-BLOCK-RECIPE-IF-NO-EXIT-SNAPSHOT-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001",
+  "evidence": {
+    "hako_snapshot_source": "lang/src/compiler/mirbuilder/program_json_stmt_only_block_recipe_snapshot.hako",
+    "hako_snapshot_source_hash": "sha256:d96fe3ddc1e7f60ec36a2521836aa5a0968b2b249a33ac08422f0bf1ef649731",
+    "target_reducer_source": "lang/src/compiler/lib/stmt_only_block_recipe.hako",
+    "target_reducer_source_hash": "sha256:09bd9913e8cc9b3ecfb70b6f83973ed666d160d050b85e81e24f983ddbf80e3a",
+    "parity_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-programjson-stmt-only-block-recipe-if-no-exit-snapshot-parity-v0.json",
+    "parity_fixture_hash": "sha256:ae480b40200b753adb32e7ed7ef3268a0185cfb9889282131deba7e7950423fd",
+    "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_programjson_stmt_only_block_recipe_if_no_exit_snapshot_parity_gate.sh",
+    "parity_gate_hash": "sha256:9b077cf06104258f23703a9912445b9cf9fb7d46de6b17be92f7fccb3eaadee8"
+  },
+  "retire_candidate_scope": {
+    "retire_candidate": "ProgramJsonStmtOnlyBlockRecipeIfNoExitSnapshotV1",
+    "shape_scope": "covered ProgramJSON stmt-only block recipe IfNoExit row",
+    "programjson_snapshot_owner": "ProgramJsonStmtOnlyBlockRecipeSnapshotV1",
+    "covered_rows": [
+      "local_if_assignment_no_exit"
+    ],
+    "deferred_rows": [
+      "then_local_no_else_if",
+      "no_exit_block",
+      "exit_allowed_block"
+    ],
+    "deferred_reason": "IfNoExit projection is proven for the parseable then/else assignment If row only; then-local/no-else If still parse-errors and recursive block contracts remain separate capability cards",
+    "rust_projector_runtime_dependency_removed": 0,
+    "rust_projector_oracle_only": 1,
+    "full_astnode_projector_retired": 0
+  },
+  "criteria": {
+    "programjson_if_no_exit_snapshot_parity_gate": "Green",
+    "programjson_runtime_parity_green": 1,
+    "programjson_route_traverses_programjson": 1,
+    "recipe_root_traversal_used": 1,
+    "stmt_only_reducer_called": 1,
+    "if_no_exit_token_projected": 1,
+    "programjson_route_uses_string_only_facade": 0,
+    "covered_row_count": 1,
+    "recipe_bodies_materialization": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering": 0
+  },
+  "decision": {
+    "kind": "RetireCandidateScoped",
+    "reason_token": "ProgramJsonStmtOnlyBlockRecipeIfNoExitSnapshotRuntimeParityGreen",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-IF-HANDLER-THEN-LOCAL-NO-ELSE-CAPABILITY-001"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering": 0,
+    "route_selection": 0,
+    "full_recipe_matcher_execution": 0,
+    "runtime_route_switch": 0,
+    "recipe_bodies_materialization": 0,
+    "hako_adopted_decision": 0,
+    "programjson_full_parser_claim": 0,
+    "programjson_all_shapes_supported": 0,
+    "rust_astnode_projector_fully_retired": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
