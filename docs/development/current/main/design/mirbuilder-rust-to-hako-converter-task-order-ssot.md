@@ -86,32 +86,24 @@ normal operating rule:
   history.
 
 latest design decision:
+  3210 HAKO-PROGRAMJSON-RECIPEBODIES-ARRAY-HELPER-TOTAL-MAP-CONTRACT-001
+  removes the one-shape RecipeBodies raw array-return helper; 3209
+  HAKO-PROGRAMJSON-LOOP-HANDLER-RESULT-MAP-CONTRACT-001 stabilizes Loop
+  result-map contracts. Both keep AOT widening, new ProgramJSON shapes,
+  runtime RecipeBodies publication, and Source Selfhost unclaimed.
   3208 stabilizes IfStmtHandler result-map contracts before the next
   RecipeBodies expansion. It does not add a new ProgramJSON shape and does not
   widen AOT dynamic string returns.
+  Parked same-family cleanup queue: TryCleanup handler result-map, Return
+  handler result-map, RecipeItem strict constructor contract.
   3207 marks the covered ProgramJsonRecipeBodiesLoopBodyArenaBuilderV1 row as
   a scoped Rust ASTNode projector retire-candidate.
   3206 implements ProgramJsonRecipeBodiesLoopBodyArenaBuilderBox and proves a
   map-backed Loop body multi-body arena DTO for one row.
   3205 selects Loop body multi-body RecipeBodies arena parity after the If
   branch arena retire-candidate. 3204/3203 proved If branch arena parity.
-  3202 selected If branch multi-body RecipeBodies arena parity after the
-  one-shape arena-builder retire-candidate.
-  3201 marks the covered ProgramJsonRecipeBodiesOneShapeArenaBuilderV1 rows as
-  a scoped Rust ASTNode projector retire-candidate. Runtime dependency removal,
-  full projector retirement, runtime RecipeBodies publication, and Source
-  Selfhost remain unclaimed.
-  3200 implements ProgramJsonRecipeBodiesOneShapeArenaBuilderBox and proves a
-  map-backed one-shape arena DTO for the three covered StmtOnly rows.
-  3199 selects one-shape RecipeBodies arena-builder parity as the next
-  RecipeBodies contract after the minimal DTO retire-candidate. 3198/3197
-  covered the ProgramJsonRecipeBodiesMinimalDtoV1 proof and retire-candidate.
-  3198 marks the covered ProgramJsonRecipeBodiesMinimalDtoV1 rows.
-  3196 selects ProgramJsonRecipeBodiesMinimalDtoSnapshotBox. 3195-3194 selected that
-  DTO path after the 3193 RecipeBodies design stop.
-  3192-3181 cover ExitAll, ThenOnlyExit, ElseOnlyExit, and JoinThenElse scoped
-  ProgramJSON proofs and retire-candidates. 3180-3123 cover prior checkpoints.
-  Earlier Layer4 and scanner/AOT details live in cards 3109 and 3114-3122.
+  3202-3194 cover If-branch, one-shape, and minimal RecipeBodies proofs and
+  retire-candidates. 3192-3123 cover prior Layer4/scanner/AOT checkpoints.
   2997 stabilized the AOT/MIR value-type publication contract only for the
   proven route families. 3002 remains a trigger-based debt queue for Float
   Sub/Mul/Div, string Lt/Gt/Le/Ge policy, user-box single-observation

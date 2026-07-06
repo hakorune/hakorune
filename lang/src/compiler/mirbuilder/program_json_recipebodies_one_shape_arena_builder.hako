@@ -58,21 +58,17 @@ static box ProgramJsonRecipeBodiesOneShapeArenaBuilderBox {
     }
   }
 
-  _build_body_items(items, n) {
+  _body_map(items, n): MapBox {
     local out = []
     local i = 0
     loop(i < n) {
       out.push(me._item_ref(BoxHelpers.array_get(items, i), i))
       i = i + 1
     }
-    return out
-  }
-
-  _body_map(items, n): MapBox {
     return %{
       "body_id" => 0,
       "item_count" => n,
-      "items" => me._build_body_items(items, n)
+      "items" => out
     }
   }
 

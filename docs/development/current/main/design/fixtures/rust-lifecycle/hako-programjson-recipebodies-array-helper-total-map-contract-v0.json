@@ -1,0 +1,43 @@
+{
+  "schema_version": 0,
+  "kind": "HakoProgramJsonRecipeBodiesArrayHelperTotalMapContractV1",
+  "token": "HAKO-PROGRAMJSON-RECIPEBODIES-ARRAY-HELPER-TOTAL-MAP-CONTRACT-001",
+  "input_state": {
+    "trigger": "Post-3208 inventory found an unannotated helper returning a freshly allocated array on the one-shape RecipeBodies AOT path",
+    "owner": "lang/src/compiler/mirbuilder/program_json_recipebodies_one_shape_arena_builder.hako",
+    "previous_card": "HAKO-PROGRAMJSON-LOOP-HANDLER-RESULT-MAP-CONTRACT-001"
+  },
+  "contract_rule": {
+    "name": "RecipeBodiesArrayHelperTotalMapContractV1",
+    "raw_array_helper_return_removed": true,
+    "body_builder_returns_mapbox": true,
+    "one_shape_arena_contract_unchanged": true,
+    "aot_array_return_widening": "Forbidden",
+    "by_name_aot_exception": "Forbidden"
+  },
+  "removed_helpers": [
+    "_build_body_items(items, n)"
+  ],
+  "decision": {
+    "kind": "ReturnToRecipeBodiesAfterLoopBodyArenaSelection",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-AFTER-LOOP-BODY-ARENA-NEXT-CONTRACT-SELECTION-001",
+    "reason_token": "RecipeBodiesArrayHelperNoLongerPublishesRawArrayReturn"
+  },
+  "claims": {
+    "recipebodies_array_helper_contract": 1,
+    "aot_array_return_widening": 0,
+    "by_name_aot_exception": 0,
+    "programjson_new_shape": 0,
+    "recipe_bodies_materialization": 0,
+    "runtime_recipe_bodies_arena": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering_claim": 0,
+    "runtime_route_switch": 0,
+    "source_selfhost_claim": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

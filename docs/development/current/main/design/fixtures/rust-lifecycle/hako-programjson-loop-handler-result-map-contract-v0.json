@@ -1,0 +1,50 @@
+{
+  "schema_version": 0,
+  "kind": "HakoProgramJsonLoopHandlerResultMapContractV1",
+  "token": "HAKO-PROGRAMJSON-LOOP-HANDLER-RESULT-MAP-CONTRACT-001",
+  "input_state": {
+    "trigger": "Post-3208 inventory found the same result-map and dynamic err_line family in LoopStmtHandler.handle/5",
+    "owner": "lang/src/compiler/mirbuilder/stmt_handlers/loop_stmt_handler.hako",
+    "previous_card": "HAKO-PROGRAMJSON-IF-HANDLER-RESULT-MAP-CONTRACT-001"
+  },
+  "contract_rule": {
+    "name": "LoopStmtHandlerResultMapContractV1",
+    "handler_returns_total_result_map": true,
+    "helper_result_maps_annotated": true,
+    "dynamic_err_line_rewrap_forbidden": true,
+    "aot_dynamic_string_return_widening": "Forbidden",
+    "by_name_aot_exception": "Forbidden"
+  },
+  "required_annotations": [
+    "_err(tag, msg, next_idx): MapBox",
+    "_ok(next_idx, recipe_item): MapBox",
+    "_read_cond_compare_lt(program_json, idx, local_name, tag, next_idx): MapBox",
+    "_read_loop_body_assignment_stmt(program_json, stmt_start, local_name, tag, next_idx): MapBox",
+    "_read_loop_if_then_return_payload(program_json, stmt_start, local_name, tag, next_idx): MapBox",
+    "_read_loop_body(program_json, idx, local_name, tag, next_idx): MapBox",
+    "): MapBox {",
+    "handle(program_json, idx, next_idx, tag, state): MapBox"
+  ],
+  "decision": {
+    "kind": "SelectRecipeBodiesArrayHelperContract",
+    "selected_next_card": "HAKO-PROGRAMJSON-RECIPEBODIES-ARRAY-HELPER-TOTAL-MAP-CONTRACT-001",
+    "reason_token": "LoopHandlerResultMapContractStabilizedBeforeNextRecipeBodiesExpansion"
+  },
+  "claims": {
+    "loop_handler_result_map_contract": 1,
+    "aot_dynamic_string_return_widening": 0,
+    "by_name_aot_exception": 0,
+    "programjson_new_shape": 0,
+    "recipe_bodies_materialization": 0,
+    "runtime_recipe_bodies_arena": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering_claim": 0,
+    "runtime_route_switch": 0,
+    "source_selfhost_claim": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

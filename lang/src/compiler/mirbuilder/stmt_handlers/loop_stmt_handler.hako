@@ -15,7 +15,7 @@ using lang.compiler.mirbuilder.stmt_handlers.return_stmt_handler as ReturnStmtHa
 using lang.compiler.mirbuilder.recipe.recipe_item_box as RecipeItemBox
 
 static box LoopStmtHandler {
-  _err(tag, msg, next_idx) {
+  _err(tag, msg, next_idx): MapBox {
     return %{
       "err" => 1,
       "err_line" => tag + msg,
@@ -24,7 +24,7 @@ static box LoopStmtHandler {
     }
   }
 
-  _ok(next_idx, recipe_item) {
+  _ok(next_idx, recipe_item): MapBox {
     return %{
       "err" => 0,
       "err_line" => "",
@@ -33,7 +33,7 @@ static box LoopStmtHandler {
     }
   }
 
-  _read_cond_compare_lt(program_json, idx, local_name, tag, next_idx) {
+  _read_cond_compare_lt(program_json, idx, local_name, tag, next_idx): MapBox {
     local loop_end = ProgramJsonV0ScannerBox.seek_obj_end_unescaped(program_json, idx)
     if loop_end < 0 {
       return me._err(tag, "[cap_missing/program_json_v0] Loop stmt object is invalid", next_idx)
@@ -106,7 +106,7 @@ static box LoopStmtHandler {
     }
   }
 
-  _read_loop_body_assignment_stmt(program_json, stmt_start, local_name, tag, next_idx) {
+  _read_loop_body_assignment_stmt(program_json, stmt_start, local_name, tag, next_idx): MapBox {
     local stmt_info = ProgramJsonV0ScannerBox.read_node_type_at_result(program_json, stmt_start)
     if BoxHelpers.result_ok(stmt_info) != 1 {
       return me._err(tag, "[cap_missing/program_json_v0] Loop body stmt type scan failed", stmt_start)
@@ -196,7 +196,7 @@ static box LoopStmtHandler {
     }
   }
 
-  _read_loop_if_then_return_payload(program_json, stmt_start, local_name, tag, next_idx) {
+  _read_loop_if_then_return_payload(program_json, stmt_start, local_name, tag, next_idx): MapBox {
     local stmt_info = ProgramJsonV0ScannerBox.read_node_type_at_result(program_json, stmt_start)
     if BoxHelpers.result_ok(stmt_info) != 1 {
       return me._err(tag, "[cap_missing/program_json_v0] Loop If stmt type scan failed", stmt_start)
@@ -309,7 +309,7 @@ static box LoopStmtHandler {
     }
     local then_out = ReturnStmtHandler.handle(program_json, then_start, then_stmt_end, tag, ret_state)
     if StringHelpers.to_i64(BoxHelpers.map_get(then_out, "err")) != 0 {
-      return me._err(tag, "" + BoxHelpers.map_get(then_out, "err_line"), then_start)
+      return me._err(tag, "[cap_missing/stmt:Loop] Loop If then Return payload scan failed", then_start)
     }
 
     return %{
@@ -323,7 +323,7 @@ static box LoopStmtHandler {
     }
   }
 
-  _read_loop_body(program_json, idx, local_name, tag, next_idx) {
+  _read_loop_body(program_json, idx, local_name, tag, next_idx): MapBox {
     local body_key = "\"body\":["
     local p_body = StringHelpers.index_of(program_json, idx, body_key)
     if p_body < 0 {
@@ -408,7 +408,7 @@ static box LoopStmtHandler {
     has_assignment,
     has_return,
     local_name
-  ) {
+  ): MapBox {
     if has_local != 1 || local_name == "" {
       return me._err(tag, "[cap_missing/stmt:Loop] Loop requires Local before Loop", next_idx)
     }
@@ -478,7 +478,7 @@ static box LoopStmtHandler {
     return me._ok(next_idx, loop_item)
   }
 
-  handle(program_json, idx, next_idx, tag, state) {
+  handle(program_json, idx, next_idx, tag, state): MapBox {
     return me.handle_state_values(
       program_json,
       idx,
