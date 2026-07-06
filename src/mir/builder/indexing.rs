@@ -14,7 +14,7 @@ impl super::MirBuilder {
             .get(&target_val)
             .and_then(|ty| match ty {
                 MirType::Box(name) => Some(name.clone()),
-                MirType::String => Some("String".to_string()),
+                MirType::String => Some("StringBox".to_string()),
                 MirType::Integer => Some("Integer".to_string()),
                 MirType::Float => Some("Float".to_string()),
                 _ => None,
