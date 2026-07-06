@@ -31,14 +31,14 @@ fixture = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
 
 if fixture.get("kind") != "MirBuilderProgramJsonLayer4SeqRecipeDtoRustAstNodeProjectorRetireCandidateV1":
     raise SystemExit("bad fixture kind")
-if fixture.get("token") != "MIRBUILDER-PROGRAMJSON-LAYER4-SEQ-RECIPE-DTO-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001":
+if fixture.get("token") != "MIRBUILDER-PROGRAMJSON-LAYER4-SEQ-RECIPE-DTO-EXPANDED-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001":
     raise SystemExit("bad fixture token")
 
 evidence = fixture.get("evidence") or {}
 expected_hashes = {
-    "hako_snapshot_source_hash": "sha256:86ce1fa2ffef20eb788ae8f7ed57a7674355fd573f295531b95be6a39fd29406",
-    "parity_fixture_hash": "sha256:bf6b14da5239ed8d326aa8f36f7473fe3f81ba9ab84f7546357b75eb68eba0f0",
-    "parity_gate_hash": "sha256:42fdbe57f50f350803e405bba282d65acbdfad6f6402f0bd09fa02a6a63d13ba",
+    "hako_snapshot_source_hash": "sha256:4ec966079afb3366e44e1fb8b386a9e0848e08c9d0d070892786b4be522bb1eb",
+    "parity_fixture_hash": "sha256:6507829fd17585e7831e264ffe14392c5f76866fc705f578982e4f6dbe7a64e3",
+    "parity_gate_hash": "sha256:d733b77ee1fb62c43616e16a54ae9bee89f63f5acc8dd9d78f60527136a48dd2",
 }
 for key, expected in expected_hashes.items():
     if evidence.get(key) != expected:
@@ -56,14 +56,16 @@ expected_rows = [
     "return_int",
     "return_new_box",
     "local_return_var",
+    "local_assignment_int_return_var",
+    "local_assignment_add_return_var",
+    "local_print_var_return_int",
+    "local_print_binary_return_int",
     "empty_body_reject",
 ]
 if scope.get("covered_rows") != expected_rows:
     raise SystemExit("covered rows drift")
-if scope.get("deferred_rows") != ["top_level_assignment", "top_level_print"]:
+if scope.get("deferred_rows") != []:
     raise SystemExit("deferred rows drift")
-if "PhaseState consumer" not in (scope.get("deferred_reason") or ""):
-    raise SystemExit("deferred reason must point to PhaseState consumer work")
 if scope.get("rust_projector_runtime_dependency_removed") != 0:
     raise SystemExit("runtime dependency removal must stay unclaimed")
 if scope.get("rust_projector_oracle_only") != 1:
@@ -78,7 +80,7 @@ expected_criteria = {
     "programjson_route_traverses_programjson": 1,
     "structured_recipe_dto_constructed": 1,
     "programjson_route_uses_string_only_facade": 0,
-    "covered_row_count": 4,
+    "covered_row_count": 8,
     "full_recipe_matcher_execution": 0,
     "route_selection": 0,
     "mir_mutation": 0,
@@ -118,11 +120,11 @@ PY
 
 cat <<'REPORT'
 output_contract=rust-lifecycle-mirbuilder-programjson-layer4-seq-recipe-dto-retire-rust-astnode-projector-candidate-guard-v0
-token=MIRBUILDER-PROGRAMJSON-LAYER4-SEQ-RECIPE-DTO-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+token=MIRBUILDER-PROGRAMJSON-LAYER4-SEQ-RECIPE-DTO-EXPANDED-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
 retire_candidate=SeqRecipeDtoSnapshotV1
 shape_scope=covered ProgramJSON Layer4 Seq Recipe DTO rows
-covered_rows=4
-deferred_rows=top_level_assignment,top_level_print
+covered_rows=8
+deferred_rows=
 decision=RetireCandidateScoped
 parity_gate=green
 programjson_runtime_parity_green=1
