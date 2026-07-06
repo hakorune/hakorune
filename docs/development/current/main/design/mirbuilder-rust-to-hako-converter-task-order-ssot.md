@@ -60,10 +60,10 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-LAYER4-NEXT-RECIPE-DTO-CAPABILITY-SELECTION-001
+  MIRBUILDER-PROGRAMJSON-LAYER4-RECIPE-SHAPE-KIND-DTO-LOOP-ROOT-PARITY-001
 selected next card:
-  not-yet-created; select the next concrete structured ProgramJSON-to-Recipe
-  DTO capability after RecipeStmtSeqDtoSnapshotV1 loop-root retire-candidate.
+  not-yet-created; implement ProgramJsonRecipeShapeKindDtoLoopRootV1 parity for
+  covered Local>Loop>Return root rows.
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -93,6 +93,8 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
+  3153 selects ProgramJsonRecipeShapeKindDtoLoopRootV1 as the next ProgramJSON
+  Layer4 Recipe DTO capability after stmt-seq loop-root retire-candidate.
   3152 marks covered RecipeStmtSeqDtoSnapshotV1 Local>Loop>Return root
   sequence rows as a scoped Rust ASTNode projector retire-candidate.
   3151 expands RecipeStmtSeqDtoSnapshotV1 summary with covered
@@ -104,8 +106,8 @@ latest design decision:
   rows; LoopStmtHandler now forwards ReturnStmtHandler payloads.
   3148-3141 cover expanded If/Exit/Seq/RecipeShapeKind Return payload parity
   and their scoped retire-candidate checkpoints; parity is green.
-  3140-3139 are the base RecipeShapeKindDtoSnapshotV1 parity and retire
-  checkpoints; 3138-3135 are RecipeStmtSeq and RecipePortSig checkpoints.
+  3140-3135 cover base RecipeShapeKind, RecipeStmtSeq, and RecipePortSig
+  parity plus scoped retire checkpoints.
   3134-3123 cover Exit/Seq/If/Loop Layer4 DTO parity and retire checkpoints.
   Earlier Layer4 and scanner/AOT details live in cards 3109 and 3114-3122.
   2997 stabilized the AOT/MIR value-type publication contract only for the
