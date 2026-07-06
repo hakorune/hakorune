@@ -37,6 +37,12 @@ static box ProgramJsonRecipeShapeKindDtoSnapshotBox {
     if BoxHelpers.same_token(seq_sig, "Return") == 1 {
       if BoxHelpers.same_token(return_kind, "Int") == 1 { return me._shape_ok_summary("phase1_return_int", 0, 0, 0, 1) }
       if BoxHelpers.same_token(return_kind, "NewBox") == 1 { return me._shape_ok_summary("phase12_return_newbox", 0, 0, 0, 1) }
+      if BoxHelpers.same_token(return_kind, "NewBoxStringAbc") == 1 { return me._shape_ok_summary("phase16_return_newbox_stringbox_abc", 0, 0, 0, 1) }
+      if BoxHelpers.same_token(return_kind, "CallId0") == 1 { return me._shape_ok_summary("phase13_return_call_id0", 0, 0, 0, 1) }
+      if BoxHelpers.same_token(return_kind, "CallId1Int9") == 1 { return me._shape_ok_summary("phase15_return_call_id1_int9", 0, 0, 0, 1) }
+      if BoxHelpers.same_token(return_kind, "CallId1Int7") == 1 { return me._shape_ok_summary("phase18_return_call_id1_int7", 0, 0, 0, 1) }
+      if BoxHelpers.same_token(return_kind, "MethodStringBoxLengthAbc") == 1 { return me._shape_ok_summary("phase14_return_boxcall_stringbox_length_abc", 0, 0, 0, 1) }
+      if BoxHelpers.same_token(return_kind, "MethodStringBoxIndexOfBAbc") == 1 { return me._shape_ok_summary("phase17_return_boxcall_stringbox_indexof_b_abc", 0, 0, 0, 1) }
       return me._shape_err_summary("return_seq_unsupported")
     }
 

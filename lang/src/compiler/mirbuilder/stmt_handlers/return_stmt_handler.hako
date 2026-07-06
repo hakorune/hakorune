@@ -9,6 +9,13 @@ using lang.compiler.mirbuilder.program_json_v0_scanner_box as ProgramJsonV0Scann
 using lang.compiler.mirbuilder.stmt_handlers.return_stmt_handler_simple as ReturnStmtHandlerSimpleBox
 
 static box ReturnStmtHandler {
+  _char_is(s, idx, token) {
+    if s == null { return 0 }
+    if idx < 0 { return 0 }
+    if idx >= s.length() { return 0 }
+    return BoxHelpers.same_token(s.substring(idx, idx + 1), token)
+  }
+
   // Handle Return statement node and return updated state map.
   // Parameters are aligned with consumer boxes:
   //   program_json, idx, next_idx, tag, state
@@ -66,7 +73,7 @@ static box ReturnStmtHandler {
       return ReturnStmtHandlerSimpleBox.handle(program_json, next_idx, tag, state, expr_start, expr_type)
     }
 
-    if expr_type == "Call" {
+    if BoxHelpers.same_token(expr_type, "Call") == 1 {
       local call_name_out = ProgramJsonV0ScannerBox.read_string_field_first_in_obj_result(program_json, "name", expr_start)
       if BoxHelpers.result_ok(call_name_out) != 1 {
         return %{
@@ -80,8 +87,8 @@ static box ReturnStmtHandler {
           "ret_box_type" => ret_box_type
         }
       }
-      local call_name = "" + BoxHelpers.map_get(call_name_out, "value")
-      if call_name != "id" {
+      local call_name = BoxHelpers.map_get(call_name_out, "value")
+      if BoxHelpers.same_token(call_name, "id") != 1 {
         return %{
           "err" => 1,
           "err_line" => tag + "[cap_missing/expr:Call] Return Call supports name=id only",
@@ -108,7 +115,7 @@ static box ReturnStmtHandler {
         }
       }
       local p = StringHelpers.skip_ws(program_json, args_pos)
-      if p >= program_json.length() || program_json.substring(p, p + 1) != "[" {
+      if me._char_is(program_json, p, "[") != 1 {
         return %{
           "err" => 1,
           "err_line" => tag + "[cap_missing/expr:Call] Return Call args is not array",
@@ -121,7 +128,7 @@ static box ReturnStmtHandler {
         }
       }
       p = StringHelpers.skip_ws(program_json, p + 1)
-      if p < program_json.length() && program_json.substring(p, p + 1) == "]" {
+      if me._char_is(program_json, p, "]") == 1 {
         return_kind = "CallId0"
         ret_var_name = ""
         ret_box_type = ""
@@ -138,7 +145,7 @@ static box ReturnStmtHandler {
         }
       }
 
-      if p >= program_json.length() || program_json.substring(p, p + 1) != "{" {
+      if me._char_is(program_json, p, "{") != 1 {
         return %{
           "err" => 1,
           "err_line" => tag + "[cap_missing/expr:Call] Return Call supports args=[] or args=[Int(9|7)] only",
@@ -164,7 +171,7 @@ static box ReturnStmtHandler {
           "ret_box_type" => ret_box_type
         }
       }
-      local call_arg_type = "" + BoxHelpers.map_get(call_arg_info, "type")
+      local call_arg_type = BoxHelpers.map_get(call_arg_info, "type")
       if BoxHelpers.same_token(call_arg_type, "Int") != 1 {
         return %{
           "err" => 1,
@@ -205,7 +212,7 @@ static box ReturnStmtHandler {
       }
       local call_arg_after = StringHelpers.to_i64(BoxHelpers.map_get(call_arg_info, "next"))
       call_arg_after = StringHelpers.skip_ws(program_json, call_arg_after)
-      if call_arg_after >= program_json.length() || program_json.substring(call_arg_after, call_arg_after + 1) != "]" {
+      if me._char_is(program_json, call_arg_after, "]") != 1 {
         return %{
           "err" => 1,
           "err_line" => tag + "[cap_missing/expr:Call] Return Call supports exactly one Int arg",
@@ -238,7 +245,7 @@ static box ReturnStmtHandler {
       }
     }
 
-    if expr_type == "Method" {
+    if BoxHelpers.same_token(expr_type, "Method") == 1 {
       local method_out = ProgramJsonV0ScannerBox.read_string_field_first_in_obj_result(program_json, "method", expr_start)
       if BoxHelpers.result_ok(method_out) != 1 {
         return %{
@@ -252,8 +259,8 @@ static box ReturnStmtHandler {
           "ret_box_type" => ret_box_type
         }
       }
-      local method_name = "" + BoxHelpers.map_get(method_out, "value")
-      if method_name != "length" && method_name != "indexOf" {
+      local method_name = BoxHelpers.map_get(method_out, "value")
+      if BoxHelpers.same_token(method_name, "length") != 1 && BoxHelpers.same_token(method_name, "indexOf") != 1 {
         return %{
           "err" => 1,
           "err_line" => tag + "[cap_missing/expr:Method] Return Method supports method=length|indexOf only",
@@ -280,7 +287,7 @@ static box ReturnStmtHandler {
         }
       }
       local p_method_args = StringHelpers.skip_ws(program_json, method_args_pos)
-      if p_method_args >= program_json.length() || program_json.substring(p_method_args, p_method_args + 1) != "[" {
+      if me._char_is(program_json, p_method_args, "[") != 1 {
         return %{
           "err" => 1,
           "err_line" => tag + "[cap_missing/expr:Method] Return Method args is not array",
@@ -293,8 +300,8 @@ static box ReturnStmtHandler {
         }
       }
       p_method_args = StringHelpers.skip_ws(program_json, p_method_args + 1)
-      if method_name == "length" {
-        if p_method_args >= program_json.length() || program_json.substring(p_method_args, p_method_args + 1) != "]" {
+      if BoxHelpers.same_token(method_name, "length") == 1 {
+        if me._char_is(program_json, p_method_args, "]") != 1 {
           return %{
             "err" => 1,
             "err_line" => tag + "[cap_missing/expr:Method] Return Method length supports empty args only",
@@ -307,7 +314,7 @@ static box ReturnStmtHandler {
           }
         }
       } else {
-        if p_method_args >= program_json.length() || program_json.substring(p_method_args, p_method_args + 1) != "{" {
+        if me._char_is(program_json, p_method_args, "{") != 1 {
           return %{
             "err" => 1,
             "err_line" => tag + "[cap_missing/expr:Method] Return Method indexOf requires one Str arg",
@@ -332,8 +339,8 @@ static box ReturnStmtHandler {
             "ret_box_type" => ret_box_type
           }
         }
-        local method_arg_type = "" + BoxHelpers.map_get(method_arg_info, "type")
-        if method_arg_type != "Str" {
+        local method_arg_type = BoxHelpers.map_get(method_arg_info, "type")
+        if BoxHelpers.same_token(method_arg_type, "Str") != 1 {
           return %{
             "err" => 1,
             "err_line" => tag + "[cap_missing/expr:Method] Return Method indexOf arg must be Str(\"b\")",
@@ -358,8 +365,8 @@ static box ReturnStmtHandler {
             "ret_box_type" => ret_box_type
           }
         }
-        local method_arg_val = "" + BoxHelpers.map_get(method_arg_val_out, "value")
-        if method_arg_val != "b" {
+        local method_arg_val = BoxHelpers.map_get(method_arg_val_out, "value")
+        if BoxHelpers.same_token(method_arg_val, "b") != 1 {
           return %{
             "err" => 1,
             "err_line" => tag + "[cap_missing/expr:Method] Return Method indexOf Str arg must be \"b\"",
@@ -373,7 +380,7 @@ static box ReturnStmtHandler {
         }
         local method_arg_after = StringHelpers.to_i64(BoxHelpers.map_get(method_arg_info, "next"))
         method_arg_after = StringHelpers.skip_ws(program_json, method_arg_after)
-        if method_arg_after >= program_json.length() || program_json.substring(method_arg_after, method_arg_after + 1) != "]" {
+        if me._char_is(program_json, method_arg_after, "]") != 1 {
           return %{
             "err" => 1,
             "err_line" => tag + "[cap_missing/expr:Method] Return Method indexOf supports exactly one Str arg",
@@ -413,8 +420,8 @@ static box ReturnStmtHandler {
           "ret_box_type" => ret_box_type
         }
       }
-      local recv_type = "" + BoxHelpers.map_get(recv_info, "type")
-      if recv_type != "New" {
+      local recv_type = BoxHelpers.map_get(recv_info, "type")
+      if BoxHelpers.same_token(recv_type, "New") != 1 {
         return %{
           "err" => 1,
           "err_line" => tag + "[cap_missing/expr:Method] Return Method recv must be New(StringBox(\"abc\"))",
@@ -440,8 +447,8 @@ static box ReturnStmtHandler {
           "ret_box_type" => ret_box_type
         }
       }
-      local recv_class_name = "" + BoxHelpers.map_get(recv_class_out, "value")
-      if recv_class_name != "StringBox" {
+      local recv_class_name = BoxHelpers.map_get(recv_class_out, "value")
+      if BoxHelpers.same_token(recv_class_name, "StringBox") != 1 {
         return %{
           "err" => 1,
           "err_line" => tag + "[cap_missing/expr:Method] Return Method recv class must be StringBox",
@@ -469,7 +476,7 @@ static box ReturnStmtHandler {
       }
 
       local p_recv_args = StringHelpers.skip_ws(program_json, recv_args_pos)
-      if p_recv_args >= program_json.length() || program_json.substring(p_recv_args, p_recv_args + 1) != "[" {
+      if me._char_is(program_json, p_recv_args, "[") != 1 {
         return %{
           "err" => 1,
           "err_line" => tag + "[cap_missing/expr:Method] Return Method recv New args is not array",
@@ -483,7 +490,7 @@ static box ReturnStmtHandler {
       }
 
       local first_recv_arg_pos = StringHelpers.skip_ws(program_json, p_recv_args + 1)
-      if first_recv_arg_pos >= program_json.length() || program_json.substring(first_recv_arg_pos, first_recv_arg_pos + 1) != "{" {
+      if me._char_is(program_json, first_recv_arg_pos, "{") != 1 {
         return %{
           "err" => 1,
           "err_line" => tag + "[cap_missing/expr:Method] Return Method recv New requires one Str arg",
@@ -508,8 +515,8 @@ static box ReturnStmtHandler {
           "ret_box_type" => ret_box_type
         }
       }
-      local recv_arg_type = "" + BoxHelpers.map_get(recv_arg_info, "type")
-      if recv_arg_type != "Str" {
+      local recv_arg_type = BoxHelpers.map_get(recv_arg_info, "type")
+      if BoxHelpers.same_token(recv_arg_type, "Str") != 1 {
         return %{
           "err" => 1,
           "err_line" => tag + "[cap_missing/expr:Method] Return Method recv New arg must be Str",
@@ -534,8 +541,8 @@ static box ReturnStmtHandler {
           "ret_box_type" => ret_box_type
         }
       }
-      local recv_arg_val = "" + BoxHelpers.map_get(recv_arg_val_out, "value")
-      if recv_arg_val != "abc" {
+      local recv_arg_val = BoxHelpers.map_get(recv_arg_val_out, "value")
+      if BoxHelpers.same_token(recv_arg_val, "abc") != 1 {
         return %{
           "err" => 1,
           "err_line" => tag + "[cap_missing/expr:Method] Return Method recv New Str arg must be \"abc\"",
@@ -550,7 +557,7 @@ static box ReturnStmtHandler {
 
       local recv_arg_after = StringHelpers.to_i64(BoxHelpers.map_get(recv_arg_info, "next"))
       recv_arg_after = StringHelpers.skip_ws(program_json, recv_arg_after)
-      if recv_arg_after >= program_json.length() || program_json.substring(recv_arg_after, recv_arg_after + 1) != "]" {
+      if me._char_is(program_json, recv_arg_after, "]") != 1 {
         return %{
           "err" => 1,
           "err_line" => tag + "[cap_missing/expr:Method] Return Method recv New supports exactly one Str arg",
@@ -563,7 +570,7 @@ static box ReturnStmtHandler {
         }
       }
 
-      if method_name == "length" {
+      if BoxHelpers.same_token(method_name, "length") == 1 {
         return_kind = "MethodStringBoxLengthAbc"
       } else {
         return_kind = "MethodStringBoxIndexOfBAbc"
@@ -583,7 +590,7 @@ static box ReturnStmtHandler {
       }
     }
 
-    if expr_type == "New" {
+    if BoxHelpers.same_token(expr_type, "New") == 1 {
       local class_out = ProgramJsonV0ScannerBox.read_string_field_first_in_obj_result(program_json, "class", expr_start)
       if BoxHelpers.result_ok(class_out) != 1 {
         return %{
@@ -597,8 +604,8 @@ static box ReturnStmtHandler {
           "ret_box_type" => ret_box_type
         }
       }
-      local class_name = "" + BoxHelpers.map_get(class_out, "value")
-      if class_name == "" {
+      local class_name = BoxHelpers.map_get(class_out, "value")
+      if BoxHelpers.same_token(class_name, "") == 1 {
         return %{
           "err" => 1,
           "err_line" => tag + "[cap_missing/expr:New] Return New class is empty",
@@ -625,7 +632,7 @@ static box ReturnStmtHandler {
         }
       }
       local p = StringHelpers.skip_ws(program_json, args_pos)
-      if p >= program_json.length() || program_json.substring(p, p + 1) != "[" {
+      if me._char_is(program_json, p, "[") != 1 {
         return %{
           "err" => 1,
           "err_line" => tag + "[cap_missing/expr:New] Return New args is not array",
@@ -638,7 +645,7 @@ static box ReturnStmtHandler {
         }
       }
       p = StringHelpers.skip_ws(program_json, p + 1)
-      if p < program_json.length() && program_json.substring(p, p + 1) == "]" {
+      if me._char_is(program_json, p, "]") == 1 {
         return_kind = "NewBox"
         ret_box_type = class_name
         ret_var_name = ""
@@ -655,7 +662,7 @@ static box ReturnStmtHandler {
         }
       }
 
-      if p >= program_json.length() || program_json.substring(p, p + 1) != "{" {
+      if me._char_is(program_json, p, "{") != 1 {
         return %{
           "err" => 1,
           "err_line" => tag + "[cap_missing/expr:New] Return New supports args=[] or args=[Str(\"abc\")] only",
@@ -668,7 +675,7 @@ static box ReturnStmtHandler {
         }
       }
 
-      if class_name != "StringBox" {
+      if BoxHelpers.same_token(class_name, "StringBox") != 1 {
         return %{
           "err" => 1,
           "err_line" => tag + "[cap_missing/expr:New] Return New one-arg form supports class=StringBox only",
@@ -694,8 +701,8 @@ static box ReturnStmtHandler {
           "ret_box_type" => ret_box_type
         }
       }
-      local new_arg_type = "" + BoxHelpers.map_get(new_arg_info, "type")
-      if new_arg_type != "Str" {
+      local new_arg_type = BoxHelpers.map_get(new_arg_info, "type")
+      if BoxHelpers.same_token(new_arg_type, "Str") != 1 {
         return %{
           "err" => 1,
           "err_line" => tag + "[cap_missing/expr:New] Return New one-arg form requires Str(\"abc\")",
@@ -721,8 +728,8 @@ static box ReturnStmtHandler {
           "ret_box_type" => ret_box_type
         }
       }
-      local new_arg_val = "" + BoxHelpers.map_get(new_arg_val_out, "value")
-      if new_arg_val != "abc" {
+      local new_arg_val = BoxHelpers.map_get(new_arg_val_out, "value")
+      if BoxHelpers.same_token(new_arg_val, "abc") != 1 {
         return %{
           "err" => 1,
           "err_line" => tag + "[cap_missing/expr:New] Return New Str arg must be \"abc\"",
@@ -737,7 +744,7 @@ static box ReturnStmtHandler {
 
       local new_arg_after = StringHelpers.to_i64(BoxHelpers.map_get(new_arg_info, "next"))
       new_arg_after = StringHelpers.skip_ws(program_json, new_arg_after)
-      if new_arg_after >= program_json.length() || program_json.substring(new_arg_after, new_arg_after + 1) != "]" {
+      if me._char_is(program_json, new_arg_after, "]") != 1 {
         return %{
           "err" => 1,
           "err_line" => tag + "[cap_missing/expr:New] Return New one-arg form supports exactly one Str arg",

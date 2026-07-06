@@ -60,9 +60,9 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-LAYER4-NEXT-RECIPE-DTO-CAPABILITY-SELECTION-001
+  MIRBUILDER-PROGRAMJSON-LAYER4-RECIPE-SHAPE-KIND-DTO-EXPANDED-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
 selected next card:
-  not-yet-created; select the next concrete Layer4 Recipe DTO ProgramJSON capability after 3140.
+  not-yet-created; mark expanded Recipe shape-kind DTO rows as a scoped Rust ASTNode projector retire-candidate.
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -92,6 +92,8 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
+  3141 expands RecipeShapeKindDtoSnapshotV1 with 6 Return-only rows for
+  StringBox New, id() calls, and StringBox methods; parity is green.
   3140 marks covered RecipeShapeKindDtoSnapshotV1 rows as a scoped Rust ASTNode
   projector retire-candidate; covered rows are 7 and no rows are deferred.
   3139 adds ProgramJsonRecipeShapeKindDtoSnapshotV1 with green MIR JSON and AOT
