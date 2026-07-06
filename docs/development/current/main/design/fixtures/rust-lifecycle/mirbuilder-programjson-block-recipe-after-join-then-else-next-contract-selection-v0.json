@@ -1,0 +1,96 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonBlockRecipeAfterJoinThenElseNextContractSelectionV1",
+  "token": "MIRBUILDER-PROGRAMJSON-BLOCK-RECIPE-AFTER-JOIN-THEN-ELSE-NEXT-CONTRACT-SELECTION-001",
+  "input_state": {
+    "previous_card": "MIRBUILDER-PROGRAMJSON-NO-EXIT-BLOCK-RECIPE-JOIN-THEN-ELSE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001",
+    "covered_previous_capability": "ProgramJsonNoExitBlockRecipeJoinThenElseSnapshotV1",
+    "remaining_candidates": [
+      "ProgramJsonExitAllowedBlockRecipeElseOnlyExitSnapshotV1",
+      "ProgramJsonExitAllowedBlockRecipeThenOnlyExitSnapshotV1",
+      "ProgramJsonExitAllowedBlockRecipeExitAllSnapshotV1",
+      "ProgramJsonRecipeBodiesMaterializationV1"
+    ]
+  },
+  "candidates": [
+    {
+      "capability": "ProgramJsonExitAllowedBlockRecipeElseOnlyExitSnapshotV1",
+      "target_reducer": "ExitAllowedBlockRecipeBox",
+      "status": "Selected",
+      "first_rows": [
+        "local_if_then_local_else_return_final_return_var"
+      ],
+      "producer_boundary": "IfStmtHandler must produce If.then Seq([Local]) / If.else Exit(Return) recipe_root rows from ProgramJSON.",
+      "reason": "ExitAllowedBlockRecipeBox already supports IfThenLocalElseReturn -> IfExitAllowed/ElseOnlyExit; this is a narrow producer extension and does not require recursive RecipeBodies"
+    },
+    {
+      "capability": "ProgramJsonExitAllowedBlockRecipeThenOnlyExitSnapshotV1",
+      "target_reducer": "ExitAllowedBlockRecipeBox",
+      "status": "Held",
+      "producer_boundary": "Requires a separate If.then Exit(Return) / If.else Seq([Local]) producer slice.",
+      "held_reason": "keep one additional ExitAllowed if-mode per capability card"
+    },
+    {
+      "capability": "ProgramJsonExitAllowedBlockRecipeExitAllSnapshotV1",
+      "target_reducer": "ExitAllowedBlockRecipeBox",
+      "status": "Held",
+      "producer_boundary": "Requires Break or another else-exit producer boundary.",
+      "held_reason": "Break producer inventory is separate from ElseOnlyExit"
+    },
+    {
+      "capability": "ProgramJsonRecipeBodiesMaterializationV1",
+      "target_reducer": "RecipeBodies/RecipeMatcher",
+      "status": "DesignStop",
+      "producer_boundary": "Recursive RecipeBodies materialization is a larger Layer4 boundary.",
+      "held_reason": "must not be hidden inside the next ExitAllowed row"
+    }
+  ],
+  "selected_capability": {
+    "name": "ProgramJsonExitAllowedBlockRecipeElseOnlyExitSnapshotV1",
+    "target_reducer": "ExitAllowedBlockRecipeBox",
+    "input": "ProgramJSON recipe_root",
+    "output": "ExitAllowedBlockRecipeSummaryV1",
+    "required_programjson_producer": "IfStmtHandler then-local/else-return recipe_root projection",
+    "required_projection_tokens": [
+      "IfThenLocalElseReturn"
+    ],
+    "required_reducer_outputs": [
+      "IfExitAllowed",
+      "ElseOnlyExit"
+    ],
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-EXIT-ALLOWED-BLOCK-RECIPE-ELSE-ONLY-EXIT-SNAPSHOT-PARITY-001"
+  },
+  "stop_conditions": {
+    "then_only_exit_mode": 0,
+    "exit_all_mode": 0,
+    "recursive_recipe_bodies_materialization": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering": 0,
+    "runtime_route_switch": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "SelectProgramJsonExitAllowedElseOnlyExitAfterJoinThenElse",
+    "reason_token": "ElseOnlyExitHasReducerSupportAndSingleProgramJsonProducerGap",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-EXIT-ALLOWED-BLOCK-RECIPE-ELSE-ONLY-EXIT-SNAPSHOT-PARITY-001"
+  },
+  "claims": {
+    "programjson_else_only_exit_parity_green": 0,
+    "then_only_exit_mode": 0,
+    "exit_all_mode": 0,
+    "recursive_recipe_bodies_materialization": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering": 0,
+    "runtime_route_switch": 0,
+    "source_selfhost_claim": 0,
+    "programjson_full_parser_claim": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
