@@ -345,13 +345,12 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "HAKO-PROGRAMJSON-RECIPEBODIES-ARRAY-HELPER-TOTAL-MAP-CONTRACT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3210-HAKO-PROGRAMJSON-RECIPEBODIES-ARRAY-HELPER-TOTAL-MAP-CONTRACT-001.md"
-latest_card_summary = """3210 removes the one-shape RecipeBodies raw
-array-return helper after 3209 stabilized LoopStmtHandler result-map
-contracts. AOT widening, by-name exceptions, new ProgramJSON shapes, runtime
-RecipeBodies publication, route switch, lowering, mutation, ID allocation, and
-Source Selfhost remain unclaimed."""
+latest_card = "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-AFTER-LOOP-BODY-ARENA-NEXT-CONTRACT-SELECTION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3211-MIRBUILDER-PROGRAMJSON-RECIPEBODIES-AFTER-LOOP-BODY-ARENA-NEXT-CONTRACT-SELECTION-001.md"
+latest_card_summary = """3211 selects recursive nested RecipeBodies arena
+parity as the next contract after branch and loop body references are green.
+Runtime RecipeBodies publication, full RecipeMatcher execution, route switch,
+lowering, mutation, ID allocation, and Source Selfhost remain unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -362,6 +361,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-07: 3211 selects recursive nested RecipeBodies arena parity while runtime RecipeBodies publication, full RecipeMatcher execution, route switch, lowering, mutation, ID allocation, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3210 removes the one-shape RecipeBodies raw array-return helper while AOT widening, new ProgramJSON shapes, runtime RecipeBodies publication, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3209 stabilizes LoopStmtHandler result-map contracts while AOT dynamic string widening, by-name exceptions, new ProgramJSON shapes, runtime RecipeBodies publication, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3208 stabilizes IfStmtHandler result-map contracts while AOT dynamic string widening, by-name exceptions, new ProgramJSON shapes, runtime RecipeBodies publication, and Source Selfhost remain unclaimed.",
@@ -373,5 +373,4 @@ landed_tail = [
   "2026-07-07: 3202 selects If branch multi-body RecipeBodies arena parity as the next contract while runtime RecipeBodies publication, route switch, full RecipeMatcher, lowering, mutation, ID allocation, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3201 marks the covered ProgramJsonRecipeBodiesOneShapeArenaBuilderV1 rows as a scoped Rust ASTNode projector retire-candidate while runtime dependency removal, full projector retirement, runtime RecipeBodies publication, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3200 proves ProgramJsonRecipeBodiesOneShapeArenaBuilderV1 for the three covered StmtOnly rows while runtime RecipeBodies publication, route switch, full RecipeMatcher, lowering, mutation, ID allocation, and Source Selfhost remain unclaimed.",
-  "2026-07-07: 3199 selects one-shape RecipeBodies arena-builder parity as the next RecipeBodies contract while runtime RecipeBodies publication, route switch, lowering, mutation, ID allocation, and Source Selfhost remain unclaimed.",
 ]

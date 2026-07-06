@@ -254,6 +254,7 @@ phase-1 compatibility Program(JSON) compat execution helper.
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_recipebodies_after_if_branch_arena_next_contract_selection_guard.sh` | Selection guard for the next RecipeBodies contract after the If-branch arena retire-candidate. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_recipebodies_loop_body_multi_body_arena_parity_gate.sh` | Runtime parity gate for the ProgramJSON RecipeBodies Loop-body multi-body arena DTO owner. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_recipebodies_loop_body_multi_body_arena_retire_rust_astnode_projector_candidate_guard.sh` | Retire-candidate guard for the ProgramJSON RecipeBodies Loop-body multi-body arena DTO row. |
+| `tools/checks/rust_lifecycle_mirbuilder_programjson_recipebodies_after_loop_body_arena_next_contract_selection_guard.sh` | Selection guard for the next RecipeBodies contract after the Loop-body arena retire-candidate. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_if_handler_result_map_contract_guard.sh` | Result-map contract guard for `IfStmtHandler.handle/5` and helper return paths. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_loop_handler_result_map_contract_guard.sh` | Result-map contract guard for `LoopStmtHandler.handle/5` and helper return paths. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_recipebodies_array_helper_total_map_contract_guard.sh` | Contract guard preventing raw array-helper returns on the one-shape RecipeBodies arena path. |

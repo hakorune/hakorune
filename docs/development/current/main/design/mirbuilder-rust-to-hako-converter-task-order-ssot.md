@@ -86,14 +86,13 @@ normal operating rule:
   history.
 
 latest design decision:
-  3210 HAKO-PROGRAMJSON-RECIPEBODIES-ARRAY-HELPER-TOTAL-MAP-CONTRACT-001
-  removes the one-shape RecipeBodies raw array-return helper; 3209
-  HAKO-PROGRAMJSON-LOOP-HANDLER-RESULT-MAP-CONTRACT-001 stabilizes Loop
-  result-map contracts. Both keep AOT widening, new ProgramJSON shapes,
-  runtime RecipeBodies publication, and Source Selfhost unclaimed.
-  3208 stabilizes IfStmtHandler result-map contracts before the next
-  RecipeBodies expansion. It does not add a new ProgramJSON shape and does not
-  widen AOT dynamic string returns.
+  3211 selects recursive nested RecipeBodies arena parity:
+  MIRBUILDER-PROGRAMJSON-RECIPEBODIES-AFTER-LOOP-BODY-ARENA-NEXT-CONTRACT-SELECTION-001
+  -> MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RECURSIVE-NESTED-BODY-ARENA-PARITY-001.
+  3210 removes the one-shape RecipeBodies raw array-return helper; 3209
+  stabilizes Loop result-map contracts; 3208 stabilizes If result-map
+  contracts. These keep AOT widening, new ProgramJSON shapes, runtime
+  RecipeBodies publication, and Source Selfhost unclaimed.
   Parked same-family cleanup queue: TryCleanup handler result-map, Return
   handler result-map, RecipeItem strict constructor contract.
   3207 marks the covered ProgramJsonRecipeBodiesLoopBodyArenaBuilderV1 row as
