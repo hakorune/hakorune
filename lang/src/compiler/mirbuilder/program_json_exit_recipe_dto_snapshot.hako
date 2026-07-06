@@ -1,0 +1,96 @@
+// program_json_exit_recipe_dto_snapshot.hako
+// Responsibility:
+// - Build a canonical Layer4 Exit Recipe DTO snapshot from Program(JSON v0).
+// - Consume PhaseState result maps and RecipeItem data only; no lowering.
+
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.shared.common.box_helpers as BoxHelpers
+using lang.compiler.mirbuilder.program_json_v0_phase_state_box as ProgramJsonV0PhaseStateBox
+using lang.compiler.mirbuilder.recipe.recipe_item_box as RecipeItemBox
+
+static box ProgramJsonExitRecipeDtoSnapshotBox {
+  _i(map, key) {
+    return StringHelpers.to_i64(BoxHelpers.map_get(map, key))
+  }
+
+  _s(map, key) {
+    local v = BoxHelpers.map_get(map, key)
+    if v == null { return "" }
+    return me._token_out(v)
+  }
+
+  _token_out(v) {
+    if v == null { return "" }
+    if BoxHelpers.same_token(v, "Return") == 1 { return "Return" }
+    if BoxHelpers.same_token(v, "Int") == 1 { return "Int" }
+    if BoxHelpers.same_token(v, "Var") == 1 { return "Var" }
+    if BoxHelpers.same_token(v, "i") == 1 { return "i" }
+    return ""
+  }
+
+  _ival(map, key) {
+    local v = BoxHelpers.map_get(map, key)
+    if v == null { return "" }
+    return "" + v
+  }
+
+  _err(reason) {
+    return "snapshot_kind=ExitRecipeDtoSnapshotV1;err=1;reason=" + reason
+  }
+
+  _exit_summary(exit_item, path) {
+    if exit_item == null || BoxHelpers.is_map(exit_item) != 1 { return me._err("exit_item_missing") }
+    if RecipeItemBox.kind_is(exit_item, "Exit") != 1 { return me._err("item_not_exit") }
+    local payload = BoxHelpers.map_get(exit_item, "payload")
+    if payload == null || BoxHelpers.is_map(payload) != 1 { return me._err("exit_payload_missing") }
+    local return_kind = me._s(payload, "return_kind")
+    local return_value = me._ival(payload, "retv")
+    if BoxHelpers.same_token(return_kind, "Var") == 1 { return_value = me._s(payload, "ret_var_name") }
+
+    return "snapshot_kind=ExitRecipeDtoSnapshotV1"
+      + ";err=0"
+      + ";matched=1"
+      + ";exit_path=" + path
+      + ";exit_kind=" + me._s(exit_item, "exit_kind")
+      + ";payload_return_kind=" + return_kind
+      + ";payload_return_value=" + return_value
+  }
+
+  _root_if_exit(items) {
+    local if_item = BoxHelpers.array_get(items, 1)
+    if if_item == null || BoxHelpers.is_map(if_item) != 1 { return me._err("root_if_missing") }
+    if RecipeItemBox.kind_is(if_item, "If") != 1 { return me._err("root_second_not_if") }
+    return me._exit_summary(BoxHelpers.map_get(if_item, "then_item"), "root.if.then")
+  }
+
+  _loop_if_exit(items) {
+    local loop_item = BoxHelpers.array_get(items, 1)
+    if loop_item == null || BoxHelpers.is_map(loop_item) != 1 { return me._err("root_loop_missing") }
+    if RecipeItemBox.kind_is(loop_item, "Loop") != 1 { return me._err("root_second_not_loop") }
+    local body = BoxHelpers.map_get(loop_item, "body_item")
+    if body == null || BoxHelpers.is_map(body) != 1 { return me._err("loop_body_missing") }
+    if RecipeItemBox.kind_is(body, "Seq") != 1 { return me._err("loop_body_not_seq") }
+    local body_items = BoxHelpers.map_get(body, "items")
+    if body_items == null || BoxHelpers.is_array(body_items) != 1 { return me._err("loop_body_items_missing") }
+    local if_item = BoxHelpers.array_get(body_items, 0)
+    if if_item == null || BoxHelpers.is_map(if_item) != 1 { return me._err("loop_if_missing") }
+    if RecipeItemBox.kind_is(if_item, "If") != 1 { return me._err("loop_body0_not_if") }
+    return me._exit_summary(BoxHelpers.map_get(if_item, "then_item"), "root.loop.body0.if.then")
+  }
+
+  build_summary(program_json) {
+    local out = ProgramJsonV0PhaseStateBox.parse(program_json, "[test]")
+    if me._i(out, "err") != 0 { return me._err("parse_error") }
+    local root = BoxHelpers.map_get(out, "recipe_root")
+    if root == null || BoxHelpers.is_map(root) != 1 { return me._err("missing_recipe_root") }
+    if RecipeItemBox.kind_is(root, "Seq") != 1 { return me._err("recipe_root_not_seq") }
+    local items = BoxHelpers.map_get(root, "items")
+    if items == null || BoxHelpers.is_array(items) != 1 { return me._err("recipe_root_items_missing") }
+    local second = BoxHelpers.array_get(items, 1)
+    if RecipeItemBox.kind_is(second, "If") == 1 { return me._root_if_exit(items) }
+    if RecipeItemBox.kind_is(second, "Loop") == 1 { return me._loop_if_exit(items) }
+    return me._err("no_exit_found")
+  }
+}
+
+static box ProgramJsonExitRecipeDtoSnapshotMain { main() { return 0 } }

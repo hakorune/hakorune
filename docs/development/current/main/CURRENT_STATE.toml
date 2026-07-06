@@ -345,17 +345,16 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PROGRAMJSON-LAYER4-SEQ-RECIPE-DTO-EXPANDED-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3130-MIRBUILDER-PROGRAMJSON-LAYER4-SEQ-RECIPE-DTO-EXPANDED-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001.md"
-latest_card_summary = """3130 marks the expanded SeqRecipeDtoSnapshotV1
-ProgramJSON Layer4 rows from 3129 as a scoped Rust ASTNode projector
-retire-candidate. Covered rows now include return, local-return, assignment
-int/add, print var/binary, and empty-body reject rows. This is a future runtime
-route-switch candidate only; Rust remains bootstrap/oracle. Runtime route
-switch, full ASTNode projector retirement, full RecipeMatcher execution, MIR
-mutation/lowering, ID allocation, HakoAdoption, ProgramJSON full parser, new
-ABI, and Source Selfhost remain unclaimed. Next active work is selecting the
-next concrete Layer4 Recipe DTO ProgramJSON capability."""
+latest_card = "MIRBUILDER-PROGRAMJSON-LAYER4-EXIT-RECIPE-DTO-PARITY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3131-MIRBUILDER-PROGRAMJSON-LAYER4-EXIT-RECIPE-DTO-PARITY-001.md"
+latest_card_summary = """3131 adds ProgramJsonExitRecipeDtoSnapshotV1 as the next
+Layer4 ProgramJSON Recipe DTO capability. The owner consumes PhaseState parse,
+reads recipe_root, and extracts covered If.then_item=Exit payloads with green
+MIR JSON route and AOT runtime parity. Loop-body Exit remains deferred because
+that DTO route currently reaches parse_error. Runtime route switch, full
+RecipeMatcher execution, MIR mutation/lowering, ID allocation, HakoAdoption,
+ProgramJSON full parser, new ABI, and Source Selfhost remain unclaimed. Next
+active work is the scoped Exit DTO Rust ASTNode projector retire-candidate."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -366,6 +365,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-06: 3131 adds ProgramJsonExitRecipeDtoSnapshotV1 for covered If.then_item=Exit payload rows with green MIR JSON route and AOT runtime parity; loop-body Exit and runtime route switch / Source Selfhost remain unclaimed.",
   "2026-07-06: 3130 marks the expanded SeqRecipeDtoSnapshotV1 ProgramJSON Layer4 rows from 3129 as a scoped Rust ASTNode projector retire-candidate; covered rows are now 8 and runtime route switch / full ASTNode projector retirement / Source Selfhost remain unclaimed.",
   "2026-07-06: 3129 expands ProgramJsonSeqRecipeDtoSnapshotV1 parity with Assignment/Print rows after 3128 made the covered PhaseState consumer path runtime-green; the Seq DTO gate remains green and runtime route switch / Source Selfhost remain unclaimed.",
   "2026-07-06: 3128 closes the PhaseState consumer blocker for covered top-level Assignment/Print ProgramJSON rows; handler dynamic token comparisons now preserve raw scanner tokens and use same_token, assign_rhs_kind is preserved through consumer handoff, and the new AOT guard is green while Seq DTO Assignment/Print rows remain unclaimed.",
@@ -377,5 +377,4 @@ landed_tail = [
   "2026-07-06: 3122 completes Layer4 loop Recipe DTO heavy EXE readiness with runtime_parity_green=1; fixes result-map readers, shared token equality, Recipe kind predicates, dependency-first same-module definition emission, and direct Loop.cond scanning without scanner nullable bridges or Source Selfhost claims.",
   "2026-07-06: 3121 narrows the PhaseState EXE parse failure by preserving Program(JSON v0) string tokens as raw StringBox values through Local/Recipe classification; heavy guard remains non-claiming with runtime_parity_green=0 pending positive-path helper route readiness.",
   "2026-07-06: 3120 closes the Layer4 loop Recipe DTO heavy EXE compile-cost blocker by making the FFI O0 opt path mem2reg-only; runtime parity remains unclaimed pending PhaseState parse runtime err=1 investigation.",
-  "2026-07-06: 3119 adds ProgramJsonLoopRecipeDtoSnapshotV1 and a lightweight Layer4 loop Recipe DTO route guard; runtime parity remains unclaimed pending heavy emit-exe readiness.",
 ]

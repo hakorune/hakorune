@@ -1,0 +1,86 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonLayer4ExitRecipeDtoParityV1",
+  "token": "MIRBUILDER-PROGRAMJSON-LAYER4-EXIT-RECIPE-DTO-PARITY-001",
+  "capability": {
+    "name": "ProgramJsonExitRecipeDtoSnapshotV1",
+    "input": "ProgramJSON v0",
+    "output": "ExitRecipeDtoSnapshotV1",
+    "implementation": "lang/src/compiler/mirbuilder/program_json_exit_recipe_dto_snapshot.hako"
+  },
+  "selection": {
+    "previous_checkpoint": "MIRBUILDER-PROGRAMJSON-LAYER4-SEQ-RECIPE-DTO-EXPANDED-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001",
+    "selected_reason": "RecipeItemBox already defines Exit and the proven If Recipe DTO rows construct then_item=Exit payloads.",
+    "loop_exit_deferred_reason": "Loop-body If Exit currently remains parse_error in this DTO route and is not claimed by this card."
+  },
+  "routes": {
+    "programjson_route": "ProgramJSON -> ProgramJsonV0PhaseStateBox.parse/2 -> recipe_root -> If.then_item Exit -> ProgramJsonExitRecipeDtoSnapshotBox.build_summary/1",
+    "rust_oracle_route": "Rust MirBuilder Exit recipe oracle canonical fields",
+    "runtime_parity_status": "green"
+  },
+  "rows": [
+    {
+      "row_id": "local_if_then_return_int_final_return_int",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "body": [
+          {"type": "Local", "name": "i", "expr": {"type": "Int", "value": 0}},
+          {"type": "If", "cond": {"type": "Compare", "op": "==", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 2}}, "then": [{"type": "Return", "expr": {"type": "Int", "value": 9}}], "else": null},
+          {"type": "Return", "expr": {"type": "Int", "value": 7}}
+        ]
+      },
+      "rust_oracle_expected_summary": "snapshot_kind=ExitRecipeDtoSnapshotV1;err=0;matched=1;exit_path=root.if.then;exit_kind=Return;payload_return_kind=Int;payload_return_value=9"
+    },
+    {
+      "row_id": "local_if_then_return_int_final_return_var",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "body": [
+          {"type": "Local", "name": "i", "expr": {"type": "Int", "value": 0}},
+          {"type": "If", "cond": {"type": "Compare", "op": "==", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 4}}, "then": [{"type": "Return", "expr": {"type": "Int", "value": 8}}], "else": null},
+          {"type": "Return", "expr": {"type": "Var", "name": "i"}}
+        ]
+      },
+      "rust_oracle_expected_summary": "snapshot_kind=ExitRecipeDtoSnapshotV1;err=0;matched=1;exit_path=root.if.then;exit_kind=Return;payload_return_kind=Int;payload_return_value=8"
+    },
+    {
+      "row_id": "local_if_then_else_assignment_no_exit_reject",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "body": [
+          {"type": "Local", "name": "i", "expr": {"type": "Int", "value": 0}},
+          {"type": "If", "cond": {"type": "Compare", "op": "==", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 3}}, "then": [{"type": "Assignment", "name": "i", "expr": {"type": "Int", "value": 4}}], "else": [{"type": "Assignment", "name": "i", "expr": {"type": "Int", "value": 5}}]},
+          {"type": "Return", "expr": {"type": "Var", "name": "i"}}
+        ]
+      },
+      "rust_oracle_expected_summary": "snapshot_kind=ExitRecipeDtoSnapshotV1;err=1;reason=item_not_exit"
+    }
+  ],
+  "acceptance": {
+    "programjson_traversal_used": 1,
+    "structured_recipe_dto_constructed": 1,
+    "prebuilt_token_snapshot_input": 0,
+    "string_only_facade": 0,
+    "mir_json_route_green": 1,
+    "runtime_parity_green": 1
+  },
+  "decision": {
+    "kind": "SelectExitRecipeDtoRetireCandidateNext",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-LAYER4-EXIT-RECIPE-DTO-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001",
+    "reason_token": "ExitRecipeDtoSnapshotRuntimeParityGreen"
+  },
+  "claims": {
+    "loop_exit_dto_green": 0,
+    "full_recipe_matcher_execution": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering_claim": 0,
+    "runtime_route_switch": 0,
+    "source_selfhost_claim": 0,
+    "programjson_all_shapes_supported": 0,
+    "full_imported_parse_executable_green": 0
+  }
+}
