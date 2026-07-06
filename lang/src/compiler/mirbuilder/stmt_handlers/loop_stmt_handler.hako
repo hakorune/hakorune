@@ -30,14 +30,6 @@ static box LoopStmtHandler {
     }
   }
 
-  _same_token(lhs, rhs) {
-    if lhs == null || rhs == null { return 0 }
-    if lhs == "" || rhs == "" { return 0 }
-    if lhs.length() != rhs.length() { return 0 }
-    if StringHelpers.index_of(lhs, 0, rhs) == 0 { return 1 }
-    return 0
-  }
-
   _read_cond_compare_lt(program_json, idx, local_name, tag, next_idx) {
     local loop_end = ProgramJsonV0ScannerBox.seek_obj_end_unescaped(program_json, idx)
     if loop_end < 0 {
@@ -89,7 +81,7 @@ static box LoopStmtHandler {
       return me._err(tag, "[cap_missing/program_json_v0] Loop Compare lhs Var missing name", next_idx)
     }
     local lhs_name = BoxHelpers.map_get(lhs_name_out, "value")
-    if me._same_token(lhs_name, local_name) != 1 {
+    if BoxHelpers.same_token(lhs_name, local_name) != 1 {
       return me._err(tag, "[cap_missing/stmt:Loop] Loop cond lhs must be the Local var", next_idx)
     }
 
@@ -132,7 +124,7 @@ static box LoopStmtHandler {
       return me._err(tag, "[cap_missing/program_json_v0] Loop body assignment missing name", stmt_start)
     }
     local stmt_name = BoxHelpers.map_get(stmt_name_out, "value")
-    if me._same_token(stmt_name, local_name) != 1 {
+    if BoxHelpers.same_token(stmt_name, local_name) != 1 {
       return me._err(tag, "[cap_missing/stmt:Loop] Loop body assignment must target the Local var", stmt_start)
     }
 
@@ -175,7 +167,7 @@ static box LoopStmtHandler {
       return me._err(tag, "[cap_missing/program_json_v0] Loop body assignment lhs Var missing name", stmt_start)
     }
     local lhs_name = BoxHelpers.map_get(lhs_name_out, "value")
-    if me._same_token(lhs_name, local_name) != 1 {
+    if BoxHelpers.same_token(lhs_name, local_name) != 1 {
       return me._err(tag, "[cap_missing/stmt:Loop] Loop body assignment lhs Var must match Local var", stmt_start)
     }
 
@@ -255,7 +247,7 @@ static box LoopStmtHandler {
       return me._err(tag, "[cap_missing/program_json_v0] Loop If lhs Var missing name", stmt_start)
     }
     local lhs_name = BoxHelpers.map_get(lhs_name_out, "value")
-    if me._same_token(lhs_name, local_name) != 1 {
+    if BoxHelpers.same_token(lhs_name, local_name) != 1 {
       return me._err(tag, "[cap_missing/stmt:Loop] Loop If cond lhs must be the Local var", stmt_start)
     }
 

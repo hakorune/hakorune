@@ -281,7 +281,7 @@ Cleanliness backlog after Phase A.1/B.1:
 3. done: same-module method view registry drift guard against generated route rows
 4. done: map lookup fusion route-shape vs site/register matcher split
 5. done: BoxTypeInspectorBox predicate publication inventory
-6. shared same-token helper pilot
+6. done: shared same-token helper pilot
 ```
 
 Phase B.4 - same-module method view registry drift guard:
@@ -349,6 +349,31 @@ boundary:
 non-claims:
   no BoxTypeInspectorBox predicate publication
   no route-family unification
+  no backend lowering, ABI, or Source Selfhost claim
+```
+
+Phase B.7 - shared same-token helper pilot:
+
+```text
+status: done
+owner:
+  lang/src/shared/common/box_helpers.hako
+pilot consumer:
+  lang/src/compiler/mirbuilder/stmt_handlers/loop_stmt_handler.hako
+
+boundary:
+  BoxHelpers.same_token/2 owns null/empty/length/exact-token equality
+  LoopStmtHandler no longer owns a local _same_token helper
+  pilot does not migrate other handlers or shape scans yet
+
+acceptance:
+  tools/checks/rust_lifecycle_mirbuilder_programjson_layer4_loop_recipe_dto_parity_gate.sh green
+  tools/checks/rust_lifecycle_mirbuilder_programjson_layer4_loop_recipe_dto_heavy_exe_readiness_gate.sh green
+  cargo check -q green
+
+non-claims:
+  no broad token-preservation cleanup
+  no additional handler migration
   no backend lowering, ABI, or Source Selfhost claim
 ```
 
