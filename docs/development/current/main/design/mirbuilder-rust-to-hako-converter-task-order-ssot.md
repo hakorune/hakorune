@@ -60,11 +60,10 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-STMT-ONLY-BLOCK-RECIPE-SNAPSHOT-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+  MIRBUILDER-PROGRAMJSON-BLOCK-RECIPE-NEXT-CAPABILITY-SELECTION-001
 selected next card:
-  docs/development/current/main/phases/phase-296x/3164-MIRBUILDER-PROGRAMJSON-STMT-ONLY-BLOCK-RECIPE-SNAPSHOT-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001.md
-  (not yet created); mark the covered ProgramJsonStmtOnlyBlockRecipeSnapshotV1
-  rows from 3163 as a scoped retire-candidate.
+  not-yet-created; select the next ProgramJSON-fed block recipe bridge after
+  ProgramJsonStmtOnlyBlockRecipeSnapshotV1 direct stmt retire-candidate.
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -94,11 +93,14 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
+  3164 marks the covered ProgramJsonStmtOnlyBlockRecipeSnapshotV1 direct stmt
+  rows from 3163 as a scoped Rust ASTNode projector retire-candidate; If/Loop,
+  NoExit, and ExitAllowed block rows remain deferred.
   3163 proves ProgramJsonStmtOnlyBlockRecipeSnapshotV1 over 4 direct stmt rows,
   bridging ProgramJSON/recipe_root traversal to the existing HakoAdopted
   StmtOnlyBlockRecipeBox token reducer.
-  3162 selected that ProgramJSON-fed block recipe bridge.
-  3161-3151 cover Local>Loop>Return loop-root propagation through
+  3162 selected that ProgramJSON-fed block recipe bridge. 3161-3151 cover
+  Local>Loop>Return loop-root propagation through
   RecipeStmtSeqDtoSnapshotV1, RecipeShapeKindDtoSnapshotV1,
   SeqRecipeDtoSnapshotV1, and RecipePortSigDtoSnapshotV1, including scoped
   retire checkpoints.
