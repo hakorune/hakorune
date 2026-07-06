@@ -1,0 +1,81 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonRecipeBodiesAfterRecursiveNestedArenaNextContractSelectionV1",
+  "token": "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-AFTER-RECURSIVE-NESTED-ARENA-NEXT-CONTRACT-SELECTION-001",
+  "input_state": {
+    "previous_card": "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RECURSIVE-NESTED-BODY-ARENA-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001",
+    "previous_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-programjson-recipebodies-recursive-nested-body-arena-retire-rust-astnode-projector-candidate-v0.json",
+    "previous_snapshot_kind": "ProgramJsonRecipeBodiesRecursiveNestedArenaBuilderV1",
+    "verifier_prerequisite": "HAKO-AOT-PROGRAMJSON-RECIPE-VERIFIER-PORT-SIG-RESULT-CONTRACT-001"
+  },
+  "candidate_contracts": [
+    {
+      "id": "A_RECIPEBODIES_VERIFIER_BOUNDARY_PARITY",
+      "state": "SelectedNext",
+      "claim": "validate the covered recursive nested arena DTO through the existing RecipeVerifierBox.verify/2 boundary"
+    },
+    {
+      "id": "B_RUNTIME_RECIPEBODIES_PUBLICATION",
+      "state": "Forbidden",
+      "claim": "runtime RecipeBodies publication is a later route-switch phase"
+    },
+    {
+      "id": "C_FULL_RECIPEMATCHER_EXECUTION",
+      "state": "Forbidden",
+      "claim": "full RecipeMatcher execution is after verifier boundary parity and route-switch design"
+    }
+  ],
+  "decision": {
+    "kind": "SelectRecipeBodiesVerifierBoundaryParity",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-VERIFIER-BOUNDARY-PARITY-001",
+    "reason_token": "RecursiveNestedArenaRetireCandidateGreenNowValidateThroughRecipeVerifierBoundary",
+    "selected_shape": "LocalLoopBodyIfBranchReturnMinimal",
+    "boundary_scope": "ProgramJSON recursive nested arena DTO -> existing RecipeVerifierBox.verify/2 result-map boundary"
+  },
+  "acceptance_for_next_card": {
+    "must_consume_recursive_nested_arena_dto": 1,
+    "must_call_existing_recipe_verifier_boundary": 1,
+    "must_prove_result_map_output": 1,
+    "must_keep_programjson_builder_policy_free": 1,
+    "must_keep_runtime_recipe_bodies_publication_zero": 1,
+    "minimum_rows": [
+      "local_loop_body_if_branch_return"
+    ]
+  },
+  "forbidden_in_next_card": {
+    "full_recipe_bodies_runtime_publication": 1,
+    "recipe_bodies_bodies_direct_access": 1,
+    "full_recipe_matcher_execution": 1,
+    "verifier_policy_reimplementation_inside_programjson_builder": 1,
+    "route_selection": 1,
+    "mir_mutation": 1,
+    "id_allocation": 1,
+    "backend_lowering": 1,
+    "runtime_route_switch": 1,
+    "directabi_route_publication_expansion": 1,
+    "source_selfhost_claim": 1,
+    "programjson_full_parser_claim": 1,
+    "new_backend_route": 1,
+    "new_abi": 1
+  },
+  "claims": {
+    "next_contract_selected": 1,
+    "recipe_bodies_verifier_boundary_implemented": 0,
+    "runtime_dependency_removed": 0,
+    "full_astnode_projector_retired": 0,
+    "recipe_bodies_materialization": 0,
+    "runtime_recipe_bodies_arena": 0,
+    "full_recipe_matcher_execution": 0,
+    "verifier_policy_reimplementation": 0,
+    "route_selection": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering_claim": 0,
+    "directabi_route_publication_claim": 0,
+    "runtime_route_switch": 0,
+    "source_selfhost_claim": 0,
+    "programjson_full_parser_claim": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
