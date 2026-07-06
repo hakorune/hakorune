@@ -31,6 +31,11 @@ static box ProgramJsonSeqRecipeDtoSnapshotBox {
     if BoxHelpers.same_token(v, "Var") == 1 { return "Var" }
     if BoxHelpers.same_token(v, "NewBox") == 1 { return "NewBox" }
     if BoxHelpers.same_token(v, "NewBoxStringAbc") == 1 { return "NewBoxStringAbc" }
+    if BoxHelpers.same_token(v, "CallId0") == 1 { return "CallId0" }
+    if BoxHelpers.same_token(v, "CallId1Int9") == 1 { return "CallId1Int9" }
+    if BoxHelpers.same_token(v, "CallId1Int7") == 1 { return "CallId1Int7" }
+    if BoxHelpers.same_token(v, "MethodStringBoxLengthAbc") == 1 { return "MethodStringBoxLengthAbc" }
+    if BoxHelpers.same_token(v, "MethodStringBoxIndexOfBAbc") == 1 { return "MethodStringBoxIndexOfBAbc" }
     if BoxHelpers.same_token(v, "AddVarInt") == 1 { return "AddVarInt" }
     if BoxHelpers.same_token(v, "BinaryVarInt") == 1 { return "BinaryVarInt" }
     if BoxHelpers.same_token(v, "i") == 1 { return "i" }
@@ -91,6 +96,21 @@ static box ProgramJsonSeqRecipeDtoSnapshotBox {
     }
     if seq_sig == "Return" && BoxHelpers.same_token(return_kind, "NewBoxStringAbc") == 1 {
       return "phase16_return_newbox_stringbox_abc"
+    }
+    if seq_sig == "Return" && BoxHelpers.same_token(return_kind, "CallId0") == 1 {
+      return "phase13_return_call_id0"
+    }
+    if seq_sig == "Return" && BoxHelpers.same_token(return_kind, "CallId1Int9") == 1 {
+      return "phase15_return_call_id1_int9"
+    }
+    if seq_sig == "Return" && BoxHelpers.same_token(return_kind, "CallId1Int7") == 1 {
+      return "phase18_return_call_id1_int7"
+    }
+    if seq_sig == "Return" && BoxHelpers.same_token(return_kind, "MethodStringBoxLengthAbc") == 1 {
+      return "phase14_return_boxcall_stringbox_length_abc"
+    }
+    if seq_sig == "Return" && BoxHelpers.same_token(return_kind, "MethodStringBoxIndexOfBAbc") == 1 {
+      return "phase17_return_boxcall_stringbox_indexof_b_abc"
     }
     if seq_sig == "Local>Return" && BoxHelpers.same_token(return_kind, "Var") == 1 {
       return "phase2_local_return_var"

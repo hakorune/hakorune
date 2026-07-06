@@ -1,0 +1,75 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonLayer4SeqRecipeDtoExpandedReturnParityV1",
+  "token": "MIRBUILDER-PROGRAMJSON-LAYER4-SEQ-RECIPE-DTO-EXPANDED-RETURN-PARITY-001",
+  "capability": {
+    "name": "ProgramJsonSeqRecipeDtoSnapshotV1",
+    "input": "ProgramJSON v0",
+    "output": "SeqRecipeDtoSnapshotV1",
+    "implementation": "lang/src/compiler/mirbuilder/program_json_seq_recipe_dto_snapshot.hako"
+  },
+  "selection": {
+    "previous_checkpoint": "MIRBUILDER-PROGRAMJSON-LAYER4-RECIPE-SHAPE-KIND-DTO-EXPANDED-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001",
+    "selected_reason": "The parent Seq DTO must recognize the same Return-only StringBox/call/method rows already proven by RecipeShapeKindDtoSnapshotV1."
+  },
+  "routes": {
+    "programjson_route": "ProgramJSON -> ProgramJsonV0PhaseStateBox.parse/2 -> recipe_root -> ProgramJsonSeqRecipeDtoSnapshotBox.build_summary/1",
+    "rust_oracle_route": "Rust MirBuilder root Seq recipe oracle canonical fields",
+    "runtime_parity_status": "green"
+  },
+  "rows": [
+    {
+      "row_id": "return_new_stringbox_abc",
+      "program_json": {"version": 0, "kind": "Program", "body": [{"type": "Return", "expr": {"type": "New", "class": "StringBox", "args": [{"type": "Str", "value": "abc"}]}}]},
+      "rust_oracle_expected_summary": "snapshot_kind=SeqRecipeDtoSnapshotV1;err=0;matched=1;item_count=1;seq_sig=Return;stmt0=Return;stmt1=;stmt2=;stmt3=;has_local=;has_assignment=;has_print=;has_return=1;local_name=;assign_rhs_kind=;assign_rhs=;print_kind=;print_var_name=;return_kind=NewBoxStringAbc;return_value=;shape_kind=phase16_return_newbox_stringbox_abc"
+    },
+    {
+      "row_id": "return_call_id0",
+      "program_json": {"version": 0, "kind": "Program", "body": [{"type": "Return", "expr": {"type": "Call", "name": "id", "args": []}}]},
+      "rust_oracle_expected_summary": "snapshot_kind=SeqRecipeDtoSnapshotV1;err=0;matched=1;item_count=1;seq_sig=Return;stmt0=Return;stmt1=;stmt2=;stmt3=;has_local=;has_assignment=;has_print=;has_return=1;local_name=;assign_rhs_kind=;assign_rhs=;print_kind=;print_var_name=;return_kind=CallId0;return_value=;shape_kind=phase13_return_call_id0"
+    },
+    {
+      "row_id": "return_call_id1_int9",
+      "program_json": {"version": 0, "kind": "Program", "body": [{"type": "Return", "expr": {"type": "Call", "name": "id", "args": [{"type": "Int", "value": 9}]}}]},
+      "rust_oracle_expected_summary": "snapshot_kind=SeqRecipeDtoSnapshotV1;err=0;matched=1;item_count=1;seq_sig=Return;stmt0=Return;stmt1=;stmt2=;stmt3=;has_local=;has_assignment=;has_print=;has_return=1;local_name=;assign_rhs_kind=;assign_rhs=;print_kind=;print_var_name=;return_kind=CallId1Int9;return_value=9;shape_kind=phase15_return_call_id1_int9"
+    },
+    {
+      "row_id": "return_call_id1_int7",
+      "program_json": {"version": 0, "kind": "Program", "body": [{"type": "Return", "expr": {"type": "Call", "name": "id", "args": [{"type": "Int", "value": 7}]}}]},
+      "rust_oracle_expected_summary": "snapshot_kind=SeqRecipeDtoSnapshotV1;err=0;matched=1;item_count=1;seq_sig=Return;stmt0=Return;stmt1=;stmt2=;stmt3=;has_local=;has_assignment=;has_print=;has_return=1;local_name=;assign_rhs_kind=;assign_rhs=;print_kind=;print_var_name=;return_kind=CallId1Int7;return_value=7;shape_kind=phase18_return_call_id1_int7"
+    },
+    {
+      "row_id": "return_method_stringbox_length_abc",
+      "program_json": {"version": 0, "kind": "Program", "body": [{"type": "Return", "expr": {"type": "Method", "args": [], "method": "length", "recv": {"type": "New", "class": "StringBox", "args": [{"type": "Str", "value": "abc"}]}}}]},
+      "rust_oracle_expected_summary": "snapshot_kind=SeqRecipeDtoSnapshotV1;err=0;matched=1;item_count=1;seq_sig=Return;stmt0=Return;stmt1=;stmt2=;stmt3=;has_local=;has_assignment=;has_print=;has_return=1;local_name=;assign_rhs_kind=;assign_rhs=;print_kind=;print_var_name=;return_kind=MethodStringBoxLengthAbc;return_value=;shape_kind=phase14_return_boxcall_stringbox_length_abc"
+    },
+    {
+      "row_id": "return_method_stringbox_indexof_b_abc",
+      "program_json": {"version": 0, "kind": "Program", "body": [{"type": "Return", "expr": {"type": "Method", "args": [{"type": "Str", "value": "b"}], "method": "indexOf", "recv": {"type": "New", "class": "StringBox", "args": [{"type": "Str", "value": "abc"}]}}}]},
+      "rust_oracle_expected_summary": "snapshot_kind=SeqRecipeDtoSnapshotV1;err=0;matched=1;item_count=1;seq_sig=Return;stmt0=Return;stmt1=;stmt2=;stmt3=;has_local=;has_assignment=;has_print=;has_return=1;local_name=;assign_rhs_kind=;assign_rhs=;print_kind=;print_var_name=;return_kind=MethodStringBoxIndexOfBAbc;return_value=;shape_kind=phase17_return_boxcall_stringbox_indexof_b_abc"
+    }
+  ],
+  "acceptance": {
+    "programjson_traversal_used": 1,
+    "structured_recipe_dto_constructed": 1,
+    "prebuilt_token_snapshot_input": 0,
+    "string_only_facade": 0,
+    "mir_json_route_green": 1,
+    "runtime_parity_green": 1
+  },
+  "decision": {
+    "kind": "SelectSeqRecipeDtoExpandedReturnRetireCandidateNext",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-LAYER4-SEQ-RECIPE-DTO-EXPANDED-RETURN-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001",
+    "reason_token": "SeqRecipeDtoExpandedReturnRuntimeParityGreen"
+  },
+  "claims": {
+    "full_recipe_matcher_execution": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering_claim": 0,
+    "runtime_route_switch": 0,
+    "source_selfhost_claim": 0,
+    "programjson_all_shapes_supported": 0,
+    "full_imported_parse_executable_green": 0
+  }
+}

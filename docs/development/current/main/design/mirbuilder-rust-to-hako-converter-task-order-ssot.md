@@ -60,9 +60,9 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-LAYER4-NEXT-RECIPE-DTO-CAPABILITY-SELECTION-001
+  MIRBUILDER-PROGRAMJSON-LAYER4-SEQ-RECIPE-DTO-EXPANDED-RETURN-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
 selected next card:
-  not-yet-created; select the next concrete Layer4 Recipe DTO ProgramJSON capability after 3142.
+  not-yet-created; mark expanded Seq Recipe DTO Return-only rows as a scoped Rust ASTNode projector retire-candidate.
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -92,26 +92,16 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
+  3143 expands SeqRecipeDtoSnapshotV1 with the 6 Return-only rows from the
+  shape-kind expanded checkpoint; parity is green.
   3142 marks expanded RecipeShapeKindDtoSnapshotV1 rows as a scoped Rust
   ASTNode projector retire-candidate; covered rows are 6 and no rows are deferred.
   3141 expands RecipeShapeKindDtoSnapshotV1 with 6 Return-only rows for
   StringBox New, id() calls, and StringBox methods; parity is green.
-  3140 marks covered RecipeShapeKindDtoSnapshotV1 rows as a scoped Rust ASTNode
-  projector retire-candidate; covered rows are 7 and no rows are deferred.
-  3139 adds ProgramJsonRecipeShapeKindDtoSnapshotV1 with green MIR JSON and AOT
-  runtime parity for 7 stmt-only ProgramJSON rows; shape_kind selection is
-  covered while route selection remains unclaimed.
-  3138 marks covered RecipeStmtSeqDtoSnapshotV1 rows as a scoped Rust ASTNode
-  projector retire-candidate; covered rows are 7 and no rows are deferred.
-  3137 adds ProgramJsonRecipeStmtSeqDtoSnapshotV1 with green MIR JSON and AOT
-  runtime parity for 7 stmt-only ProgramJSON rows. MirJsonV0ShapeRecipeSeq now
-  avoids array_len on this AOT boundary and preserves raw tokens for same_token.
-  3138/3137/3136/3135 are the RecipeStmtSeqDtoSnapshotV1 and
-  RecipePortSigDtoSnapshotV1 parity and scoped retire-candidate checkpoints.
-  3134/3133/3132/3131 are the expanded/root ExitRecipeDtoSnapshotV1 parity and
-  scoped retire-candidate checkpoints; 3130-3123 are the Seq/If/Loop Layer4 DTO
-  parity and retire-candidate checkpoints. Earlier Layer4 and scanner/AOT
-  details live in cards 3109 and 3114-3122.
+  3140-3139 are the base RecipeShapeKindDtoSnapshotV1 parity and retire
+  checkpoints; 3138-3135 are RecipeStmtSeq and RecipePortSig checkpoints.
+  3134-3123 cover Exit/Seq/If/Loop Layer4 DTO parity and retire checkpoints.
+  Earlier Layer4 and scanner/AOT details live in cards 3109 and 3114-3122.
   2997 stabilized the AOT/MIR value-type publication contract only for the
   proven route families. 3002 remains a trigger-based debt queue for Float
   Sub/Mul/Div, string Lt/Gt/Le/Ge policy, user-box single-observation
