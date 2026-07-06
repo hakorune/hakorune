@@ -60,14 +60,13 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-IF-HANDLER-THEN-LOCAL-NO-ELSE-CAPABILITY-001
+  MIRBUILDER-PROGRAMJSON-IF-HANDLER-THEN-LOCAL-NO-ELSE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
 selected next card:
-  not yet created; investigate and implement the narrow If handler capability
-  for then-local/no-else If, currently blocked by parse_error.
+  not yet created; mark only the covered then-local/no-else If row as a scoped
+  Rust ASTNode projector retire-candidate.
 
-post-3169 block recipe task order:
-  1. unblock: then-local/no-else If; current If handler returns
-     parse_error and needs a dedicated handler capability.
+post-3170 block recipe task order:
+  1. retire-candidate: covered then-local/no-else If row only.
   2. defer: NoExit / ExitAllowed recursive block contracts until If/Loop
      token projection is stable.
   design-stop trigger:
@@ -85,10 +84,11 @@ normal operating rule:
   history.
 
 latest design decision:
-  3169 marks the parseable then/else assignment IfNoExit row as a scoped
-  retire-candidate. The remaining If gap is then-local/no-else parse_error in
-  the If handler. 3167 marks LoopNoExit as scoped, and 3164 marks direct stmt
-  rows from 3163 as scoped.
+  3170 extends IfStmtHandler with then-local/no-else support and proves the row
+  through the ProgramJSON StmtOnly block bridge. Next is a scoped
+  retire-candidate for that row. 3169 marks parseable then/else assignment
+  IfNoExit as scoped, 3167 marks LoopNoExit as scoped, and 3164 marks direct
+  stmt rows from 3163 as scoped.
   3162 selected that ProgramJSON-fed block recipe bridge. 3161-3151 cover
   Local>Loop>Return loop-root propagation through
   RecipeStmtSeqDtoSnapshotV1, RecipeShapeKindDtoSnapshotV1,

@@ -1,0 +1,61 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonIfHandlerThenLocalNoElseCapabilityV1",
+  "token": "MIRBUILDER-PROGRAMJSON-IF-HANDLER-THEN-LOCAL-NO-ELSE-CAPABILITY-001",
+  "capability": {
+    "name": "ProgramJsonIfHandlerThenLocalNoElseV1",
+    "input": "ProgramJSON v0 If(cond Var==Int, then [Local(Int)], else null)",
+    "output": "RecipeItemBox.If with then Seq(Local) and else empty Seq, projected as StmtOnly IfNoExit",
+    "handler": "lang/src/compiler/mirbuilder/stmt_handlers/if_stmt_handler.hako",
+    "projection": "lang/src/compiler/mirbuilder/program_json_stmt_only_block_recipe_snapshot.hako"
+  },
+  "selection": {
+    "previous_checkpoint": "MIRBUILDER-PROGRAMJSON-STMT-ONLY-BLOCK-RECIPE-IF-NO-EXIT-SNAPSHOT-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001",
+    "selected_reason": "The parseable IfNoExit bridge is proven; the remaining IfNoExit gap is then-local/no-else parse_error in the If handler."
+  },
+  "rows": [
+    {
+      "row_id": "local_if_then_local_no_else",
+      "program_json": {"version": 0, "kind": "Program", "body": [
+        {"type": "Local", "name": "i", "expr": {"type": "Int", "value": 0}},
+        {"type": "If", "cond": {"type": "Compare", "op": "==", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 3}}, "then": [
+          {"type": "Local", "name": "j", "expr": {"type": "Int", "value": 4}}
+        ], "else": null},
+        {"type": "Return", "expr": {"type": "Var", "name": "i"}}
+      ]},
+      "expected_summary": "snapshot_kind=ProgramJsonStmtOnlyBlockRecipeSnapshotV1;err=0;accepted=1;block_contract=StmtOnly;stmt_count=2;stmt_kinds=Local,If"
+    }
+  ],
+  "acceptance": {
+    "programjson_traversal_used": 1,
+    "if_handler_then_local_no_else_supported": 1,
+    "recipe_root_traversal_used": 1,
+    "stmt_only_reducer_called": 1,
+    "if_no_exit_token_projected": 1,
+    "prebuilt_token_snapshot_input": 0,
+    "string_only_facade": 0,
+    "mir_json_route_green": 1,
+    "runtime_parity_green": 1,
+    "row_count": 1,
+    "if_no_exit_retire_candidate_prerequisite_green": 1
+  },
+  "decision": {
+    "kind": "SelectThenLocalNoElseIfRetireCandidateNext",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-IF-HANDLER-THEN-LOCAL-NO-ELSE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001",
+    "reason_token": "ProgramJsonIfHandlerThenLocalNoElseRuntimeParityGreen"
+  },
+  "claims": {
+    "no_exit_block_contract": 0,
+    "exit_allowed_block_contract": 0,
+    "recipe_bodies_materialization": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering_claim": 0,
+    "runtime_route_switch": 0,
+    "source_selfhost_claim": 0,
+    "programjson_all_shapes_supported": 0,
+    "full_imported_parse_executable_green": 0
+  }
+}

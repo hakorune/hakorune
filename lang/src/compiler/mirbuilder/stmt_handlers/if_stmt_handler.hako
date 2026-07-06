@@ -147,6 +147,86 @@ static box IfStmtHandler {
     return me._read_assignment_int_stmt(program_json, then_start, local_name, tag, "then")
   }
 
+  _then_stmt_start_result(program_json, idx, tag) {
+    local then_key = "\"then\":["
+    local p_then = StringHelpers.index_of(program_json, idx, then_key)
+    if p_then < 0 {
+      return me._err(tag, "[cap_missing/program_json_v0] If missing then array", idx)
+    }
+    local then_start = StringHelpers.skip_ws(program_json, p_then + then_key.length())
+    if ProgramJsonV0ScannerBox._read_char(program_json, then_start) != "{" {
+      return me._err(tag, "[cap_missing/stmt:If] If then must contain exactly one stmt", then_start)
+    }
+
+    local then_stmt_end = ProgramJsonV0ScannerBox.seek_obj_end_unescaped(program_json, then_start)
+    if then_stmt_end < 0 {
+      return me._err(tag, "[cap_missing/program_json_v0] If then stmt object is invalid", then_start)
+    }
+    local after_then = StringHelpers.skip_ws(program_json, then_stmt_end)
+    if ProgramJsonV0ScannerBox._read_char(program_json, after_then) != "]" {
+      return me._err(tag, "[cap_missing/stmt:If] If then supports exactly one stmt", after_then)
+    }
+
+    return %{
+      "err" => 0,
+      "err_line" => "",
+      "next_idx" => then_start,
+      "recipe_item" => RecipeItemBox.seq([])
+    }
+  }
+
+  _local_stmt_item(local_name) {
+    local facts = new MapBox()
+    facts.set("stmt_kind", "Local")
+    facts.set("defs", [local_name])
+    facts.set("updates", [local_name])
+    facts.set("uses", [])
+
+    local stmt = RecipeItemBox.seq([])
+    stmt.set("leaf_kind", "Stmt")
+    stmt.set("stmt_kind", "Local")
+    stmt.set("facts", facts)
+    return stmt
+  }
+
+  _then_local_int_item(program_json, idx, tag) {
+    local then_out = me._then_stmt_start_result(program_json, idx, tag)
+    local then_err = StringHelpers.to_i64(BoxHelpers.map_get(then_out, "err"))
+    if then_err != 0 { return then_out }
+    local then_start = StringHelpers.to_i64(BoxHelpers.map_get(then_out, "next_idx"))
+
+    local then_stmt = ProgramJsonV0ScannerBox.read_node_type_at_result(program_json, then_start)
+    if BoxHelpers.result_ok(then_stmt) != 1 {
+      return me._err(tag, "[cap_missing/program_json_v0] If then stmt type scan failed", then_start)
+    }
+    local then_type = BoxHelpers.map_get(then_stmt, "type")
+    if BoxHelpers.same_token(then_type, "Local") != 1 {
+      return me._err(tag, "[cap_missing/stmt:If] If then must be Local(Int)", then_start)
+    }
+
+    local expr_start = ProgramJsonV0ScannerBox.seek_obj_field_obj_start(program_json, "expr", then_start)
+    if expr_start < 0 {
+      return me._err(tag, "[cap_missing/program_json_v0] If then Local missing expr object", then_start)
+    }
+    local expr_info = ProgramJsonV0ScannerBox.read_node_type_at_result(program_json, expr_start)
+    if BoxHelpers.result_ok(expr_info) != 1 {
+      return me._err(tag, "[cap_missing/program_json_v0] If then Local expr scan failed", then_start)
+    }
+    if BoxHelpers.same_token(BoxHelpers.map_get(expr_info, "type"), "Int") != 1 {
+      return me._err(tag, "[cap_missing/expr:Int] If then Local expr must be Int", then_start)
+    }
+
+    local name_out = ProgramJsonV0ScannerBox.read_string_field_last_in_obj_result(program_json, "name", then_start)
+    if BoxHelpers.result_ok(name_out) != 1 {
+      return me._err(tag, "[cap_missing/program_json_v0] If then Local missing name", then_start)
+    }
+    local then_local_name = BoxHelpers.map_get(name_out, "value")
+    if then_local_name == "" {
+      return me._err(tag, "[cap_missing/stmt:If] If then Local name is empty", then_start)
+    }
+    return me._ok(then_start, me._local_stmt_item(then_local_name))
+  }
+
   _read_else_assignment_int(program_json, idx, local_name, tag) {
     local else_start = ProgramJsonV0ScannerBox.seek_obj_field_value_start(program_json, "else", idx)
     if else_start < 0 {
@@ -279,6 +359,17 @@ static box IfStmtHandler {
     cond_facts.set("cond_rhs_int", rhs_int)
 
     if program_json.substring(else_start, else_start + 4) == "null" {
+      local then_local_out = me._then_local_int_item(program_json, idx, tag)
+      local then_local_err = StringHelpers.to_i64(BoxHelpers.map_get(then_local_out, "err"))
+      if then_local_err == 0 {
+        local if_item_local = RecipeItemBox.if_item(
+          cond_facts,
+          RecipeItemBox.seq([BoxHelpers.map_get(then_local_out, "recipe_item")]),
+          RecipeItemBox.seq([])
+        )
+        return me._ok(next_idx, if_item_local)
+      }
+
       local then_out = me._then_return_payload(program_json, idx, tag)
       local then_err = StringHelpers.to_i64(BoxHelpers.map_get(then_out, "err"))
       if then_err != 0 {

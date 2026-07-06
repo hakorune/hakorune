@@ -73,7 +73,11 @@ static box ProgramJsonStmtOnlyBlockRecipeSnapshotBox {
           local then_tail0 = BoxHelpers.array_get(then_items0, 1)
           local else_stmt0 = BoxHelpers.array_get(else_items0, 0)
           local else_tail0 = BoxHelpers.array_get(else_items0, 1)
-          if then_stmt0 != null && else_stmt0 != null && then_tail0 == null && else_tail0 == null && RecipeItemBox.kind_is(then_stmt0, "Seq") == 1 && RecipeItemBox.kind_is(else_stmt0, "Seq") == 1 {
+          if then_stmt0 != null && else_stmt0 == null && then_tail0 == null && else_tail0 == null && RecipeItemBox.kind_is(then_stmt0, "Seq") == 1 {
+            local then_kind0_only = BoxHelpers.map_get(then_stmt0, "stmt_kind")
+            if BoxHelpers.same_token(then_kind0_only, "Local") == 1 { stmt0 = "IfNoExit" }
+          }
+          else if then_stmt0 != null && else_stmt0 != null && then_tail0 == null && else_tail0 == null && RecipeItemBox.kind_is(then_stmt0, "Seq") == 1 && RecipeItemBox.kind_is(else_stmt0, "Seq") == 1 {
             local then_kind0 = BoxHelpers.map_get(then_stmt0, "stmt_kind")
             local else_kind0 = BoxHelpers.map_get(else_stmt0, "stmt_kind")
             if BoxHelpers.same_token(then_kind0, "Assignment") == 1 && BoxHelpers.same_token(else_kind0, "Assignment") == 1 { stmt0 = "IfNoExit" }
@@ -118,7 +122,11 @@ static box ProgramJsonStmtOnlyBlockRecipeSnapshotBox {
           local then_tail1 = BoxHelpers.array_get(then_items1, 1)
           local else_stmt1 = BoxHelpers.array_get(else_items1, 0)
           local else_tail1 = BoxHelpers.array_get(else_items1, 1)
-          if then_stmt1 != null && else_stmt1 != null && then_tail1 == null && else_tail1 == null && RecipeItemBox.kind_is(then_stmt1, "Seq") == 1 && RecipeItemBox.kind_is(else_stmt1, "Seq") == 1 {
+          if then_stmt1 != null && else_stmt1 == null && then_tail1 == null && else_tail1 == null && RecipeItemBox.kind_is(then_stmt1, "Seq") == 1 {
+            local then_kind1_only = BoxHelpers.map_get(then_stmt1, "stmt_kind")
+            if BoxHelpers.same_token(then_kind1_only, "Local") == 1 { stmt1 = "IfNoExit" }
+          }
+          else if then_stmt1 != null && else_stmt1 != null && then_tail1 == null && else_tail1 == null && RecipeItemBox.kind_is(then_stmt1, "Seq") == 1 && RecipeItemBox.kind_is(else_stmt1, "Seq") == 1 {
             local then_kind1 = BoxHelpers.map_get(then_stmt1, "stmt_kind")
             local else_kind1 = BoxHelpers.map_get(else_stmt1, "stmt_kind")
             if BoxHelpers.same_token(then_kind1, "Assignment") == 1 && BoxHelpers.same_token(else_kind1, "Assignment") == 1 { stmt1 = "IfNoExit" }
