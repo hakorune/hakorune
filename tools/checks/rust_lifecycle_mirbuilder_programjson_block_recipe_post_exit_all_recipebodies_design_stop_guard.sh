@@ -89,10 +89,10 @@ for key, value in claims.items():
     if value != 0:
         raise SystemExit(f"forbidden claim drift: {key}")
 
-if "selected next task:\n  MIRBUILDER-PROGRAMJSON-RECIPEBODIES-MINIMAL-BASIS-CONSULTATION-001" not in task_order:
-    raise SystemExit("task-order next task is not the RecipeBodies consultation")
-if "RecipeBodies design stop reached" not in task_order:
+if "3193 documents the RecipeBodies design stop" not in task_order:
     raise SystemExit("task-order design stop marker missing")
+if "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-MINIMAL-BASIS" not in task_order:
+    raise SystemExit("task-order RecipeBodies follow-up missing")
 PY
 
 cat <<'REPORT'

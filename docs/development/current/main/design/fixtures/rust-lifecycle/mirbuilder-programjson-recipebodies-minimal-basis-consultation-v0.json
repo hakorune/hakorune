@@ -1,0 +1,107 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonRecipeBodiesMinimalBasisConsultationV1",
+  "token": "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-MINIMAL-BASIS-CONSULTATION-001",
+  "input_state": {
+    "previous_card": "MIRBUILDER-PROGRAMJSON-BLOCK-RECIPE-POST-EXIT-ALL-RECIPEBODIES-DESIGN-STOP-001",
+    "source_authority": "docs/development/current/main/design/recipe-tree-and-parts-ssot.md",
+    "rust_structure_authority": "src/mir/builder/control_flow/plan/recipe_tree/block.rs",
+    "hako_recipe_item_authority": "lang/src/compiler/mirbuilder/recipe/recipe_item_box.hako",
+    "hako_current_state": "ProgramJSON path emits inline RecipeItem maps and token summaries; it does not materialize RecipeBodies/RecipeBody/BodyId/StmtRef."
+  },
+  "consultation_question": {
+    "question": "Which minimal RecipeBodies surface should be exposed to .hako first after the flat block recipe rows: DTO-only snapshot-local BodyId/StmtRef, one-shape arena builder parity, or verifier-first boundary?",
+    "recommended_option_id": "A_DTO_ONLY_STMT_ONLY_BODYID_STMTREF_SNAPSHOT",
+    "reason_token": "StmtOnlyDtoProvesReferenceBoundaryWithoutRecursiveArenaOrLowering"
+  },
+  "options": [
+    {
+      "id": "A_DTO_ONLY_STMT_ONLY_BODYID_STMTREF_SNAPSHOT",
+      "status": "recommended",
+      "scope": "one parseable ProgramJSON StmtOnly row emits snapshot-local BodyId/StmtRef tokens plus RecipeBlock item summary",
+      "output_shape": "ProgramJsonRecipeBodiesMinimalDtoV1",
+      "requires_new_hako_syntax": 0,
+      "requires_new_hako_library_api": 0,
+      "recipe_bodies_runtime_materialization": 0,
+      "full_recipe_matcher_execution": 0,
+      "backend_lowering": 0
+    },
+    {
+      "id": "B_ONE_SHAPE_ARENA_BUILDER_PARITY",
+      "status": "defer_until_A_green_or_explicit_decision",
+      "scope": "build one actual RecipeBodies-like arena shape in .hako and compare against Rust oracle",
+      "risk_token": "RealArenaSemanticsBeforeDtoBoundary"
+    },
+    {
+      "id": "C_VERIFIER_FIRST_BOUNDARY",
+      "status": "defer_until_A_green_or_explicit_decision",
+      "scope": "route DTO through verifier-like checks before exposing BodyId/StmtRef surface",
+      "risk_token": "VerifierBeforeReferenceSurfaceMayRecreateRustPolicy"
+    }
+  ],
+  "recommended_first_slice": {
+    "card": "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-MINIMAL-DTO-SNAPSHOT-SELECTION-001",
+    "snapshot_kind": "ProgramJsonRecipeBodiesMinimalDtoV1",
+    "row_scope": "StmtOnlyLocalOrPrintMinimal",
+    "fields": [
+      "snapshot_kind",
+      "err",
+      "root_body_id",
+      "body_count",
+      "body0_item_count",
+      "body0_items",
+      "refs",
+      "non_claims"
+    ],
+    "body_id_contract": "snapshot-local token only; not a public RecipeBodies arena ID",
+    "stmt_ref_contract": "snapshot-local token only; indexes within the DTO body item summary",
+    "parity_oracle": "Rust StmtOnly RecipeBlock/RecipeBodies construction through existing RecipeBody/BodyId/StmtRef authority"
+  },
+  "evidence": {
+    "rust": [
+      "src/mir/builder/control_flow/recipes/body.rs",
+      "src/mir/builder/control_flow/recipes/refs.rs",
+      "src/mir/builder/control_flow/plan/recipe_tree/block.rs",
+      "src/mir/builder/control_flow/plan/recipe_tree/mod.rs",
+      "src/mir/builder/control_flow/plan/recipe_tree/verified.rs",
+      "src/mir/builder/control_flow/plan/parts/entry.rs",
+      "src/mir/builder/control_flow/plan/parts/verify.rs"
+    ],
+    "hako": [
+      "lang/src/compiler/mirbuilder/recipe/recipe_item_box.hako",
+      "lang/src/compiler/mirbuilder/recipe/recipe_verifier_box.hako",
+      "lang/src/compiler/mirbuilder/program_json_v0_phase_state_box.hako",
+      "lang/src/compiler/mirbuilder/program_json_no_exit_block_recipe_snapshot.hako",
+      "lang/src/compiler/mirbuilder/program_json_exit_allowed_block_recipe_snapshot.hako"
+    ]
+  },
+  "forbidden_without_new_decision": {
+    "real_recipe_bodies_arena_publication": 1,
+    "recipe_bodies_bodies_direct_access": 1,
+    "full_recipe_matcher_execution": 1,
+    "route_selection": 1,
+    "mir_mutation": 1,
+    "id_allocation": 1,
+    "backend_lowering": 1,
+    "runtime_route_switch": 1,
+    "source_selfhost_claim": 1,
+    "programjson_full_parser_claim": 1,
+    "new_hako_syntax": 1,
+    "new_backend_route": 1,
+    "new_abi": 1
+  },
+  "claims": {
+    "consultation_prepared": 1,
+    "implementation_selected": 0,
+    "recipe_bodies_materialization": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering": 0,
+    "runtime_route_switch": 0,
+    "source_selfhost_claim": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

@@ -60,15 +60,14 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-RECIPEBODIES-MINIMAL-BASIS-CONSULTATION-001
+  MIRBUILDER-PROGRAMJSON-RECIPEBODIES-MINIMAL-BASIS-DECISION-001
 selected next card:
-  design consultation required. RecipeBodies design stop reached after covered
-  flat block recipe if-mode rows. Decide the first minimal `.hako`
-  RecipeBodies surface before implementation: DTO-only BodyId/StmtRef snapshot,
-  one-shape arena builder parity, or verifier-first boundary. Recursive
-  RecipeBodies materialization, full RecipeMatcher, route selection, MIR
-  mutation/lowering, ID allocation, runtime route switch, and Source Selfhost
-  remain unclaimed.
+  await consultation decision for the first minimal `.hako` RecipeBodies
+  surface. 3194 recommends DTO-only snapshot-local BodyId/StmtRef for
+  ProgramJsonRecipeBodiesMinimalDtoV1 before any real arena materialization.
+  Recursive RecipeBodies materialization, full RecipeMatcher, route selection,
+  MIR mutation/lowering, ID allocation, runtime route switch, and Source
+  Selfhost remain unclaimed.
 
 post-3180 block recipe task order:
   completed: JoinThenElse, ElseOnlyExit, ThenOnlyExit, and ExitAll are scoped
@@ -90,24 +89,15 @@ normal operating rule:
   history.
 
 latest design decision:
+  3194 prepares the RecipeBodies minimal-basis consultation. It recommends the
+  first post-stop slice be a DTO-only StmtOnly BodyId/StmtRef snapshot:
+  ProgramJsonRecipeBodiesMinimalDtoV1. Implementation remains unselected until
+  the consultation decision is recorded.
   3193 documents the RecipeBodies design stop after covered flat block recipe
   if-mode rows. RecipeBlock + RecipeItem remain the public structural truth;
   RecipeBodies/RecipeBody remain internal arena storage behind BodyId/StmtRef.
   Recommended first post-consultation slice is ProgramJsonRecipeBodiesMinimalDtoV1.
-  3192 marks the covered parseable then-return/else-break ExitAll row as a
-  scoped Rust ASTNode projector retire-candidate; this is not runtime route
-  switching or full projector retirement.
-  3191 proves ProgramJsonExitAllowedBlockRecipeExitAllSnapshotV1 for the
-  parseable then-return/else-break row by extending IfStmtHandler's ProgramJSON
-  producer and projecting IfThenReturnElseBreak into ExitAllowedBlockRecipeBox.
-  3190 selects ProgramJsonExitAllowedBlockRecipeExitAllSnapshotV1 next because
-  ExitAllowedBlockRecipeBox already supports IfThenReturnElseBreak ->
-  IfExitOnly / ExitAll and only the IfStmtHandler then-return/else-break
-  ProgramJSON producer is missing. RecipeBodies stays held.
-  3189 marks the covered parseable then-return/else-local ThenOnlyExit row as a
-  scoped Rust ASTNode projector retire-candidate; this is not runtime route
-  switching or full projector retirement.
-  3188-3181 cover ThenOnlyExit, ElseOnlyExit, and JoinThenElse scoped
+  3192-3181 cover ExitAll, ThenOnlyExit, ElseOnlyExit, and JoinThenElse scoped
   ProgramJSON proofs and retire-candidates. 3180-3123 cover prior checkpoints.
   Earlier Layer4 and scanner/AOT details live in cards 3109 and 3114-3122.
   2997 stabilized the AOT/MIR value-type publication contract only for the
