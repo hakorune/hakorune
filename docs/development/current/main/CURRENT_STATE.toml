@@ -345,14 +345,14 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PROGRAMJSON-STMT-ONLY-BLOCK-RECIPE-SNAPSHOT-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3164-MIRBUILDER-PROGRAMJSON-STMT-ONLY-BLOCK-RECIPE-SNAPSHOT-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001.md"
-latest_card_summary = """3164 marks the covered
-ProgramJsonStmtOnlyBlockRecipeSnapshotV1 direct stmt rows from 3163 as a
-scoped Rust ASTNode projector retire-candidate. If/Loop/NoExit/ExitAllowed
-block rows remain deferred. RecipeBodies materialization, runtime route switch,
-route selection, MIR mutation/lowering, ID allocation, ProgramJSON full parser,
-new ABI, and Source Selfhost remain unclaimed."""
+latest_card = "MIRBUILDER-PROGRAMJSON-BLOCK-RECIPE-NEXT-CAPABILITY-SELECTION-RERUN-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3165-MIRBUILDER-PROGRAMJSON-BLOCK-RECIPE-NEXT-CAPABILITY-SELECTION-RERUN-001.md"
+latest_card_summary = """3165 selects
+ProgramJsonStmtOnlyBlockRecipeLoopNoExitSnapshotV1 as the next ProgramJSON-fed
+block recipe capability. Implementation/parity, If/NoExit/ExitAllowed block
+rows, RecipeBodies materialization, runtime route switch, route selection, MIR
+mutation/lowering, ID allocation, ProgramJSON full parser, new ABI, and Source
+Selfhost remain unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -363,6 +363,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-06: 3165 selects ProgramJsonStmtOnlyBlockRecipeLoopNoExitSnapshotV1 as the next ProgramJSON-fed block recipe capability while implementation/parity and Source Selfhost remain unclaimed.",
   "2026-07-06: 3164 marks covered ProgramJsonStmtOnlyBlockRecipeSnapshotV1 direct stmt rows as a scoped Rust ASTNode projector retire-candidate while If/Loop block rows and Source Selfhost remain unclaimed.",
   "2026-07-06: 3163 proves ProgramJsonStmtOnlyBlockRecipeSnapshotV1 over 4 ProgramJSON/recipe_root direct stmt rows while Source Selfhost remains unclaimed.",
   "2026-07-06: 3162 selects ProgramJsonStmtOnlyBlockRecipeSnapshotV1 as the next ProgramJSON-fed block recipe capability while implementation/parity and Source Selfhost remain unclaimed.",
@@ -371,5 +372,4 @@ landed_tail = [
   "2026-07-06: 3159 selects ProgramJsonRecipePortSigLoopRootV1 as the next ProgramJSON Layer4 Recipe DTO capability while implementation/parity and Source Selfhost remain unclaimed.",
   "2026-07-06: 3158 marks covered SeqRecipeDtoSnapshotV1 Local>Loop>Return root rows as a scoped Rust ASTNode projector retire-candidate while route selection / Source Selfhost remain unclaimed.",
   "2026-07-06: 3157 expands SeqRecipeDtoSnapshotV1 with covered Local>Loop>Return root rows and phase21 shape_kind parity while route selection / Source Selfhost remain unclaimed.",
-  "2026-07-06: 3156 selects ProgramJsonSeqRecipeDtoLoopRootV1 as the next ProgramJSON Layer4 Recipe DTO capability while implementation/parity and Source Selfhost remain unclaimed.",
 ]

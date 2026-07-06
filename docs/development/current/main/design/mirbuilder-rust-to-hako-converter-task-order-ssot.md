@@ -60,10 +60,11 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-BLOCK-RECIPE-NEXT-CAPABILITY-SELECTION-001
+  MIRBUILDER-PROGRAMJSON-STMT-ONLY-BLOCK-RECIPE-LOOP-NO-EXIT-SNAPSHOT-PARITY-001
 selected next card:
-  not-yet-created; select the next ProgramJSON-fed block recipe bridge after
-  ProgramJsonStmtOnlyBlockRecipeSnapshotV1 direct stmt retire-candidate.
+  docs/development/current/main/phases/phase-296x/3166-MIRBUILDER-PROGRAMJSON-STMT-ONLY-BLOCK-RECIPE-LOOP-NO-EXIT-SNAPSHOT-PARITY-001.md
+  (not yet created); add LoopNoExit token projection to
+  ProgramJsonStmtOnlyBlockRecipeSnapshotV1 and prove one-row parity.
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -93,6 +94,9 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
+  3165 selects ProgramJsonStmtOnlyBlockRecipeLoopNoExitSnapshotV1 as the next
+  ProgramJSON-fed block recipe capability; IfNoExit remains deferred because
+  the current ProgramJSON PhaseState route returns parse_error for the probe.
   3164 marks the covered ProgramJsonStmtOnlyBlockRecipeSnapshotV1 direct stmt
   rows from 3163 as a scoped Rust ASTNode projector retire-candidate; If/Loop,
   NoExit, and ExitAllowed block rows remain deferred.

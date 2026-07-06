@@ -1,0 +1,114 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonBlockRecipeNextCapabilitySelectionRerun001V1",
+  "token": "MIRBUILDER-PROGRAMJSON-BLOCK-RECIPE-NEXT-CAPABILITY-SELECTION-RERUN-001",
+  "input_state": {
+    "previous_card": "MIRBUILDER-PROGRAMJSON-STMT-ONLY-BLOCK-RECIPE-SNAPSHOT-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001",
+    "previous_guard": "tools/checks/rust_lifecycle_mirbuilder_programjson_stmt_only_block_recipe_snapshot_retire_rust_astnode_projector_candidate_guard.sh",
+    "task_order": "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
+  },
+  "selection_policy": {
+    "capability_batch_required": true,
+    "source_code_line_cap": 800,
+    "scope": "ProgramJSON recipe_root to backend-safe block recipe token snapshot",
+    "not_scope": [
+      "MIR mutation",
+      "backend lowering",
+      "ID allocation",
+      "route selection",
+      "RecipeBodies materialization",
+      "full RecipeMatcher execution",
+      "runtime route switch"
+    ]
+  },
+  "candidates": [
+    {
+      "name": "ProgramJsonStmtOnlyBlockRecipeLoopNoExitSnapshotV1",
+      "decision": "selected",
+      "why": [
+        "ProgramJSON Loop rows already produce structured recipe_root and RecipeStmtSeqDtoSnapshotV1 observes Local>Loop",
+        "StmtOnlyBlockRecipeBox already accepts the backend-safe LoopNoExit token",
+        "the current ProgramJsonStmtOnlyBlockRecipeSnapshotV1 bridge defers loop_no_exit only because it lacks Loop token projection",
+        "the slice stays below NoExit/ExitAllowed recursion, RecipeBodies materialization, route selection, lowering, mutation, and ID allocation"
+      ],
+      "implementation_owner": "lang/src/compiler/mirbuilder/program_json_stmt_only_block_recipe_snapshot.hako"
+    },
+    {
+      "name": "ProgramJsonStmtOnlyBlockRecipeIfNoExitSnapshotV1",
+      "decision": "defer",
+      "why": [
+        "the current ProgramJSON PhaseState route still returns parse_error for the candidate IfNoExit probe",
+        "IfNoExit should follow a dedicated If handler capability instead of being hidden in the block bridge"
+      ]
+    },
+    {
+      "name": "ProgramJsonNoExitBlockRecipeSnapshotV1",
+      "decision": "defer",
+      "why": [
+        "NoExit needs recursive if/loop contract tokens and should follow the simpler LoopNoExit StmtOnly projection"
+      ]
+    },
+    {
+      "name": "ProgramJsonExitAllowedBlockRecipeSnapshotV1",
+      "decision": "defer",
+      "why": [
+        "ExitAllowed needs exit-shape if-mode tokens and should follow after NoExit/LoopNoExit projection"
+      ]
+    }
+  ],
+  "selected_capability": {
+    "name": "ProgramJsonStmtOnlyBlockRecipeLoopNoExitSnapshotV1",
+    "input": "ProgramJSON v0",
+    "output": "StmtOnlyBlockRecipeBox backend-safe LoopNoExit token snapshot summary",
+    "target_existing_reducer": "lang/src/compiler/lib/stmt_only_block_recipe.hako",
+    "implementation_owner": "lang/src/compiler/mirbuilder/program_json_stmt_only_block_recipe_snapshot.hako",
+    "source_rows": [
+      "local_loop_no_exit"
+    ],
+    "next_card": "MIRBUILDER-PROGRAMJSON-STMT-ONLY-BLOCK-RECIPE-LOOP-NO-EXIT-SNAPSHOT-PARITY-001"
+  },
+  "acceptance": {
+    "must_consume_programjson_structure": 1,
+    "must_traverse_recipe_root": 1,
+    "must_call_existing_stmt_only_reducer": 1,
+    "minimum_parity_row_count": 1,
+    "implementation_card_required": 1,
+    "parity_gate_required": 1,
+    "token_snapshot_only": 0,
+    "string_only_facade": 0
+  },
+  "stop_conditions": {
+    "prebuilt_token_snapshot_input": 1,
+    "source_contains_or_regex_proof": 1,
+    "rust_astnode_projector_used_as_target_input": 1,
+    "mir_mutation_or_lowering_added": 1,
+    "route_selection_added": 1,
+    "recipe_bodies_materialized": 1,
+    "recipe_matcher_execution_added": 1,
+    "unsupported_shape_silently_ignored": 1
+  },
+  "decision": {
+    "kind": "SelectProgramJsonBlockRecipeCapability",
+    "reason_token": "LoopNoExitIsNextSmallestProgramJsonFedStmtOnlyBlockProjection",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-STMT-ONLY-BLOCK-RECIPE-LOOP-NO-EXIT-SNAPSHOT-PARITY-001"
+  },
+  "claims": {
+    "implementation_done": 0,
+    "parity_gate_green": 0,
+    "recipe_bodies_materialization": 0,
+    "runtime_route_switch": 0,
+    "rust_astnode_projector_retired": 0,
+    "full_astnode_projector_retired": 0,
+    "programjson_full_parser_claim": 0,
+    "programjson_all_shapes_supported": 0,
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0,
+    "id_allocation_migration": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
