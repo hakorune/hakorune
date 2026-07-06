@@ -1,0 +1,52 @@
+// program_json_recipe_port_sig_dto_snapshot.hako
+// Responsibility:
+// - Build a canonical Layer4 Recipe PortSig DTO snapshot from Program(JSON v0).
+// - Consume PhaseState recipe_root and RecipeVerifier output only; no lowering.
+
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.shared.common.box_helpers as BoxHelpers
+using lang.compiler.mirbuilder.program_json_v0_phase_state_box as ProgramJsonV0PhaseStateBox
+using lang.compiler.mirbuilder.recipe.recipe_verifier_box as RecipeVerifierBox
+using lang.compiler.mirbuilder.recipe.recipe_port_sig_box as RecipePortSigBox
+
+static box ProgramJsonRecipePortSigDtoSnapshotBox {
+  _i(map, key) {
+    return StringHelpers.to_i64(BoxHelpers.map_get(map, key))
+  }
+
+  _err(reason) {
+    return "snapshot_kind=RecipePortSigDtoSnapshotV1;err=1;reason=" + reason
+  }
+
+  build_summary(program_json) {
+    local out = ProgramJsonV0PhaseStateBox.parse(program_json, "[test]")
+    if me._i(out, "err") != 0 { return me._err("parse_error") }
+
+    local root = BoxHelpers.map_get(out, "recipe_root")
+    if root == null || BoxHelpers.is_map(root) != 1 {
+      return me._err("missing_recipe_root")
+    }
+
+    local verify = RecipeVerifierBox.verify(root, "[test]")
+    if me._i(verify, "err") != 0 {
+      return me._err("verify_error")
+    }
+
+    local port_sig = BoxHelpers.map_get(verify, "port_sig")
+    if port_sig == null || BoxHelpers.is_map(port_sig) != 1 {
+      return me._err("missing_port_sig")
+    }
+    local snap = RecipePortSigBox.snapshot(port_sig)
+    if snap == null || BoxHelpers.is_map(snap) != 1 {
+      return me._err("missing_port_sig_snapshot")
+    }
+
+    return "snapshot_kind=RecipePortSigDtoSnapshotV1"
+      + ";err=0"
+      + ";matched=1"
+      + ";def_count=" + StringHelpers.int_to_str(me._i(snap, "def_count"))
+      + ";update_count=" + StringHelpers.int_to_str(me._i(snap, "update_count"))
+  }
+}
+
+static box ProgramJsonRecipePortSigDtoSnapshotMain { main() { return 0 } }

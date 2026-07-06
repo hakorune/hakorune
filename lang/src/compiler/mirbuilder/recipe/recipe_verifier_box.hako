@@ -88,9 +88,9 @@ static box RecipeVerifierBox {
     if items == null || BoxHelpers.is_array(items) != 1 { return me._ok(sig) }
 
     local i = 0
-    local n = items.length()
-    loop(i < n) {
+    loop(i < 256) {
       local child = BoxHelpers.array_get(items, i)
+      if child == null { return me._ok(sig) }
       local child_res = me._verify_item(child, tag, depth + 1)
       if StringHelpers.to_i64(BoxHelpers.map_get(child_res, "err")) == 1 {
         return child_res
@@ -147,9 +147,9 @@ static box RecipeVerifierBox {
   _apply_names(sig, names, mode): MapBox {
     if names == null || BoxHelpers.is_array(names) != 1 { return sig }
     local i = 0
-    local n = names.length()
-    loop(i < n) {
-      local name = "" + BoxHelpers.array_get(names, i)
+    loop(i < 64) {
+      local name = BoxHelpers.array_get(names, i)
+      if name == null { return sig }
       if BoxHelpers.same_token(mode, "def") == 1 { sig = RecipePortSigBox.mark_def(sig, name) }
       else { sig = RecipePortSigBox.mark_update(sig, name) }
       i = i + 1

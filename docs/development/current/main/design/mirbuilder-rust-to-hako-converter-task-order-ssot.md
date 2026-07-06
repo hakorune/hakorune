@@ -60,9 +60,9 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-LAYER4-NEXT-RECIPE-DTO-CAPABILITY-SELECTION-001
+  MIRBUILDER-PROGRAMJSON-LAYER4-RECIPE-PORT-SIG-DTO-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
 selected next card:
-  not-yet-created; select the next concrete Layer4 Recipe DTO ProgramJSON capability after 3134.
+  not-yet-created; mark covered Recipe PortSig DTO rows as a scoped Rust ASTNode projector retire-candidate.
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -92,6 +92,9 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
+  3135 adds ProgramJsonRecipePortSigDtoSnapshotV1 with green MIR JSON and AOT
+  runtime parity; RecipeVerifier runtime array traversal now uses array_get
+  until null for Seq children and name buckets.
   3134 marks expanded ExitRecipeDtoSnapshotV1 rows as a scoped Rust ASTNode
   projector retire-candidate; covered rows are now 4 and no Exit DTO rows are
   deferred in scope.
@@ -99,17 +102,9 @@ latest design decision:
   ProgramJsonExitRecipeDtoSnapshotV1 after LoopStmtHandler scanner string
   checks moved to same_token. 3132/3131 are the root Exit DTO retire-candidate
   and parity checkpoints.
-  3130 marks the expanded SeqRecipeDtoSnapshotV1 ProgramJSON Layer4 rows from
-  3129 as a scoped Rust ASTNode projector retire-candidate. Covered rows are now
-  8; runtime route switch, full ASTNode projector retirement, and full
-  selfhost/backend claims remain unclaimed.
-  3129 expands SeqRecipeDtoSnapshotV1 parity with Assignment/Print rows after
-  3128 made the covered PhaseState consumer path runtime-green.
-  3128 closes the deferred PhaseState Assignment/Print consumer blocker with
-  raw scanner tokens, same_token comparisons, and assign_rhs_kind preservation.
-  3127 marks the initial SeqRecipeDtoSnapshotV1 rows as a scoped retire-candidate.
-  3126 implements ProgramJsonSeqRecipeDtoSnapshotV1 through PhaseState parse and
-  is green for MIR JSON route and AOT runtime parity on four stmt-only Seq rows.
+  3130-3126 are the expanded SeqRecipeDtoSnapshotV1 parity and scoped
+  retire-candidate checkpoints; Assignment/Print consumer details live in
+  cards 3128-3129.
   3125 is the analogous scoped retire-candidate for covered
   IfRecipeDtoSnapshotV1 rows.
   3124/3123 are the analogous If/Loop Layer4 DTO parity and retire-candidate
