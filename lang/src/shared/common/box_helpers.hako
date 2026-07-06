@@ -7,7 +7,7 @@ using selfhost.shared.common.box_type_inspector as BoxTypeInspectorBox
 
 static box BoxHelpers {
   // ArrayBox.size/1 の結果unwrap (MapBox-wrapped integer対応)
-  array_len(arr) {
+  array_len(arr: ArrayBox) {
     if arr == null { return 0 }
     local size_val = arr.length()
     if BoxTypeInspectorBox.is_map(size_val) {
@@ -18,7 +18,7 @@ static box BoxHelpers {
   }
 
   // ArrayBox.get/2 の安全呼び出し
-  array_get(arr, idx) {
+  array_get(arr: ArrayBox, idx) {
     if arr == null { return null }
     return arr.get(idx)
   }
