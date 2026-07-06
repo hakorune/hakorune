@@ -60,11 +60,10 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-LAYER4-IF-RECIPE-DTO-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+  MIRBUILDER-PROGRAMJSON-LAYER4-NEXT-RECIPE-DTO-CAPABILITY-SELECTION-001
 selected next card:
-  not-yet-created; next slice should mark only the covered
-  IfRecipeDtoSnapshotV1 rows as a scoped Rust ASTNode projector
-  retire-candidate after the 3124 parity checkpoint.
+  not-yet-created; next slice must select the next concrete Layer4 Recipe DTO
+  ProgramJSON capability after the 3125 retire-candidate checkpoint.
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -94,6 +93,13 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
+  3125 marks the covered IfRecipeDtoSnapshotV1 ProgramJSON Layer4 rows as a
+  scoped Rust ASTNode projector retire-candidate after 3124 parity is green.
+  This is a future runtime route-switch candidate, not Rust bootstrap/oracle
+  deletion. Runtime route switch, HakoAdoption, ProgramJSON full parser, full
+  RecipeMatcher execution, route selection, MIR mutation/lowering, ID
+  allocation, and Source Selfhost remain unclaimed. Next work selects the next
+  concrete Layer4 Recipe DTO ProgramJSON capability.
   3124 selects and implements ProgramJsonIfRecipeDtoSnapshotV1 as the next
   concrete Layer4 ProgramJSON Recipe DTO capability after the 3123 loop DTO
   retire-candidate checkpoint. The new `.hako` owner consumes Program(JSON v0)
@@ -104,14 +110,8 @@ latest design decision:
   full RecipeMatcher execution, route selection, MIR mutation/lowering, ID
   allocation, HakoAdoption, ProgramJSON full parser, and Source Selfhost remain
   unclaimed. Next work is the scoped IfRecipeDtoSnapshotV1 retire-candidate.
-  3123 marks the covered LoopRecipeDtoSnapshotV1 ProgramJSON Layer4 loop
-  Recipe DTO rows as a scoped Rust ASTNode projector retire-candidate after
-  3119 parity and 3122 heavy EXE readiness are green. This is a future runtime
-  route-switch candidate, not Rust bootstrap/oracle deletion. Runtime route
-  switch, HakoAdoption, ProgramJSON full parser, full RecipeMatcher execution,
-  route selection, MIR mutation/lowering, ID allocation, and Source Selfhost
-  remain unclaimed. Next work selects the next concrete Layer4 Recipe DTO
-  ProgramJSON capability.
+  3123 is the analogous scoped retire-candidate for covered
+  LoopRecipeDtoSnapshotV1 rows.
   Earlier Layer4 and scanner/AOT contract details live in cards 3109 and
   3114-3122 plus their guards. This task-order keeps only the active next
   pointer and the current non-claims.
