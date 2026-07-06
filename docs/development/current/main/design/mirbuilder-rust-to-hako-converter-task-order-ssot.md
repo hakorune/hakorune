@@ -60,10 +60,10 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-RECIPEBODIES-VERIFIER-BOUNDARY-EXPANDED-DTO-COVERAGE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+  MIRBUILDER-PROGRAMJSON-RECIPEBODIES-AFTER-EXPANDED-DTO-COVERAGE-NEXT-CONTRACT-SELECTION-001
 selected next card:
-  mark only the covered expanded verifier-boundary DTO coverage rows as scoped
-  Rust ASTNode projector retire-candidates.
+  select more verifier-boundary DTO coverage or stop for runtime RecipeBodies
+  publication / RecipeMatcher consultation.
 
 post-3180 block recipe task order:
   completed: JoinThenElse, ElseOnlyExit, ThenOnlyExit, and ExitAll are scoped
@@ -85,7 +85,7 @@ normal operating rule:
   history.
 
 latest design decision:
-  3220 expands RecipeBodies verifier-boundary DTO coverage to two rows through the existing snapshot owner.
+  3221 marks the expanded RecipeBodies verifier-boundary DTO coverage rows as scoped Rust ASTNode projector retire-candidates; 3220 expands coverage to two rows.
   3219 selects more DTO coverage rows after the post-verifier consultation.
   3218 prepares the post-verifier RecipeBodies consultation; recommended
   default is more DTO coverage rows, while runtime publication and full
@@ -404,16 +404,16 @@ Detailed evidence lives in phase cards, fixtures, and git history.
    status=landed; boundary=two verifier-boundary DTO rows through the existing snapshot owner + EXE gate
 
 2. MIRBUILDER-PROGRAMJSON-RECIPEBODIES-VERIFIER-BOUNDARY-EXPANDED-DTO-COVERAGE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
-   status=active; boundary=mark only the covered expanded DTO rows as scoped
+   status=landed; boundary=mark only the covered expanded DTO rows as scoped
    Rust ASTNode projector retire-candidates
 
 3. MIRBUILDER-PROGRAMJSON-RECIPEBODIES-AFTER-EXPANDED-DTO-COVERAGE-NEXT-CONTRACT-SELECTION-001
-   status=queued; boundary=select more verifier-boundary DTO rows or stop for
+   status=active; boundary=select more verifier-boundary DTO rows or stop for
    runtime RecipeBodies publication / RecipeMatcher consultation
 
 next active:
-  MIRBUILDER-PROGRAMJSON-RECIPEBODIES-VERIFIER-BOUNDARY-EXPANDED-DTO-COVERAGE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
-  status=active; boundary=scoped retire-candidate only; runtime publication, RecipeMatcher, lowering, mutation, ID allocation, route switch, and Source Selfhost remain unclaimed
+  MIRBUILDER-PROGRAMJSON-RECIPEBODIES-AFTER-EXPANDED-DTO-COVERAGE-NEXT-CONTRACT-SELECTION-001
+  status=active; boundary=selection only; runtime publication, RecipeMatcher, lowering, mutation, ID allocation, route switch, and Source Selfhost remain unclaimed
 
 trigger-based AOT/MIR typing debt:
   status=parked-until-triggered; order=2999/3000/3001 landed, then 3022 queue
@@ -421,7 +421,7 @@ trigger-based AOT/MIR typing debt:
   compare, PHI dst_type, mir_call dst_type, or receiver-helper
   single-observation protection
 next_documented_task =
-  MIRBUILDER-PROGRAMJSON-RECIPEBODIES-VERIFIER-BOUNDARY-EXPANDED-DTO-COVERAGE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+  MIRBUILDER-PROGRAMJSON-RECIPEBODIES-AFTER-EXPANDED-DTO-COVERAGE-NEXT-CONTRACT-SELECTION-001
 
 next_after_active_3 =
   MIRBUILDER-PROGRAMJSON-RECIPEBODIES-AFTER-EXPANDED-DTO-COVERAGE-NEXT-CONTRACT-SELECTION-001
