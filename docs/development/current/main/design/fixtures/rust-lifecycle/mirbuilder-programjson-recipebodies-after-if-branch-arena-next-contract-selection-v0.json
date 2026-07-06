@@ -1,0 +1,78 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonRecipeBodiesAfterIfBranchArenaNextContractSelectionV1",
+  "token": "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-AFTER-IF-BRANCH-ARENA-NEXT-CONTRACT-SELECTION-001",
+  "input_state": {
+    "previous_card": "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-IF-BRANCH-MULTI-BODY-ARENA-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001",
+    "previous_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-programjson-recipebodies-if-branch-multi-body-arena-retire-rust-astnode-projector-candidate-v0.json",
+    "previous_snapshot_kind": "ProgramJsonRecipeBodiesIfBranchArenaBuilderV1"
+  },
+  "candidate_contracts": [
+    {
+      "id": "A_LOOP_BODY_MULTI_BODY_ARENA_PARITY",
+      "state": "SelectedNext",
+      "claim": "root BodyId plus LoopRef body_id reference for one Loop row"
+    },
+    {
+      "id": "B_RECURSIVE_NESTED_BODY_ARENA_PARITY",
+      "state": "Deferred",
+      "claim": "nested branch/loop body references after root loop body reference is proven"
+    },
+    {
+      "id": "C_VERIFIER_FIRST_BOUNDARY",
+      "state": "Deferred",
+      "claim": "do not expand verifier policy before both branch and loop body reference surfaces"
+    }
+  ],
+  "decision": {
+    "kind": "SelectLoopBodyMultiBodyArenaParity",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-LOOP-BODY-MULTI-BODY-ARENA-PARITY-001",
+    "reason_token": "IfBranchArenaGreenNowProveLoopBodyIdReference",
+    "selected_shape": "LocalLoopBodyAssignmentReturnMinimal",
+    "arena_scope": "root body with LoopRef to loop_body_id=1"
+  },
+  "acceptance_for_next_card": {
+    "must_consume_programjson": 1,
+    "must_build_structured_result_map": 1,
+    "must_expose_root_body_id": 1,
+    "must_expose_loop_body_id": 1,
+    "must_emit_two_bodies": 1,
+    "must_keep_runtime_route_switch_zero": 1,
+    "minimum_rows": [
+      "local_loop_body_assignment_return"
+    ]
+  },
+  "forbidden_in_next_card": {
+    "full_recipe_bodies_runtime_publication": 1,
+    "recipe_bodies_bodies_direct_access": 1,
+    "full_recipe_matcher_execution": 1,
+    "verifier_policy_reimplementation": 1,
+    "recursive_nested_body_arena_claim": 1,
+    "route_selection": 1,
+    "mir_mutation": 1,
+    "id_allocation": 1,
+    "backend_lowering": 1,
+    "runtime_route_switch": 1,
+    "source_selfhost_claim": 1,
+    "programjson_full_parser_claim": 1,
+    "new_backend_route": 1,
+    "new_abi": 1
+  },
+  "claims": {
+    "next_contract_selected": 1,
+    "loop_body_multi_body_arena_implemented": 0,
+    "runtime_dependency_removed": 0,
+    "full_astnode_projector_retired": 0,
+    "recipe_bodies_materialization": 0,
+    "runtime_recipe_bodies_arena": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering_claim": 0,
+    "runtime_route_switch": 0,
+    "source_selfhost_claim": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

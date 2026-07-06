@@ -60,10 +60,10 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-RECIPEBODIES-AFTER-IF-BRANCH-ARENA-NEXT-CONTRACT-SELECTION-001
+  MIRBUILDER-PROGRAMJSON-RECIPEBODIES-LOOP-BODY-MULTI-BODY-ARENA-PARITY-001
 selected next card:
-  select the next RecipeBodies contract after the If branch multi-body arena
-  retire-candidate. Runtime route switch, full RecipeMatcher, lowering,
+  implement Loop body multi-body RecipeBodies arena parity for a root body with
+  a loop BodyId reference. Runtime route switch, full RecipeMatcher, lowering,
   mutation, ID allocation, and Source Selfhost stay unclaimed.
 
 post-3180 block recipe task order:
@@ -86,12 +86,12 @@ normal operating rule:
   history.
 
 latest design decision:
-  3204 marks the covered ProgramJsonRecipeBodiesIfBranchArenaBuilderV1 row as
-  a scoped Rust ASTNode projector retire-candidate.
-  3203 implements ProgramJsonRecipeBodiesIfBranchArenaBuilderBox and proves a
-  map-backed If branch multi-body arena DTO for one row.
-  3202 selects If branch multi-body RecipeBodies arena parity as the next
-  contract after the one-shape arena-builder retire-candidate.
+  3205 selects Loop body multi-body RecipeBodies arena parity as the next
+  contract after the If branch arena retire-candidate.
+  3204/3203 proved the ProgramJsonRecipeBodiesIfBranchArenaBuilderV1 row and
+  marked it as a scoped Rust ASTNode projector retire-candidate.
+  3202 selected If branch multi-body RecipeBodies arena parity after the
+  one-shape arena-builder retire-candidate.
   3201 marks the covered ProgramJsonRecipeBodiesOneShapeArenaBuilderV1 rows as
   a scoped Rust ASTNode projector retire-candidate. Runtime dependency removal,
   full projector retirement, runtime RecipeBodies publication, and Source
