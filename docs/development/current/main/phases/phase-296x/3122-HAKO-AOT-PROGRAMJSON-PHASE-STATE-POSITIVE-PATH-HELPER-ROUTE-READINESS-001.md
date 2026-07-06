@@ -226,8 +226,8 @@ Acceptance for Phase A:
 BoxHelpers.map_get/2 remains MapBox receiver
 BoxHelpers.array_len/1 and array_get/2 are selected as the next small receiver
 annotation slice; they are early-return array readers like map_get/2
-BoxHelpers.map_set/3 remains parked as the special nullable-builder helper
-because it creates a new MapBox when obj is null
+BoxHelpers.map_set/3 is split into a typed mutation helper while the old
+nullable-builder behavior is named BoxHelpers.map_put_or_new/3
 BoxHelpers.is_map/1 and is_array/1 are polymorphic predicate inputs in Rust
 route metadata policy
 BoxTypeInspectorBox predicate publication remains parked until route/caller
@@ -249,15 +249,15 @@ annotate:
   BoxHelpers.array_len(arr: ArrayBox)
   BoxHelpers.array_get(arr: ArrayBox, idx)
 
-do not annotate:
-  BoxHelpers.map_set/3
+split:
+  BoxHelpers.map_set(obj: MapBox, key, val)
+  BoxHelpers.map_put_or_new(obj, key, val)
 
 why:
   array_len/array_get are read helpers with null early-return behavior,
   matching the already-accepted map_get receiver contract pattern.
-  map_set is different: it treats null as a request to allocate a new MapBox,
-  so receiver narrowing would change the helper's declared nullable-builder
-  contract.
+  map_set is now the typed mutation helper. map_put_or_new is the explicit
+  nullable builder helper for callers that want null -> new MapBox behavior.
 ```
 
 Acceptance for Phase A.1:
@@ -267,7 +267,9 @@ box_helpers.hako MIR verify stays green
 current AOT route value-type publication contract stays green
 Layer4 heavy EXE readiness keeps exact_first_blocker =
   phase_state_parse_runtime_parse_error
-map_set remains untyped and no nullable scanner bridge is introduced
+map_set is typed as MapBox receiver
+map_put_or_new carries the nullable-builder contract
+no nullable scanner bridge is introduced
 no source_selfhost, lowering, mutation, route-selection, ABI, or backend claims
 ```
 

@@ -29,8 +29,15 @@ static box BoxHelpers {
     return obj.get(key)
   }
 
-  // MapBox.set/3 の安全呼び出し（形だけ統一）
-  map_set(obj, key, val) {
+  // MapBox.set/3 の typed mutation helper
+  map_set(obj: MapBox, key, val) {
+    if obj == null { return obj }
+    obj.set(key, val)
+    return obj
+  }
+
+  // Nullable builder helper: null receiver means "create a new MapBox".
+  map_put_or_new(obj, key, val) {
     if obj == null { obj = new MapBox() }
     obj.set(key, val)
     return obj
