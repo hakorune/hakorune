@@ -60,17 +60,16 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-EXIT-ALLOWED-BLOCK-RECIPE-THEN-ONLY-EXIT-SNAPSHOT-PARITY-001
+  MIRBUILDER-PROGRAMJSON-EXIT-ALLOWED-BLOCK-RECIPE-THEN-ONLY-EXIT-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
 selected next card:
-  implement the selected ThenOnlyExit ProgramJSON block recipe slice. Extend
-  the IfStmtHandler producer for then-return/else-local recipe_root rows, prove
-  the ExitAllowed reducer emits IfExitAllowed/ThenOnlyExit, and keep
-  RecipeBodies, RecipeMatcher, route selection, MIR mutation/lowering, ID
-  allocation, and runtime route switch unclaimed.
+  mark only the covered then-return/else-local ThenOnlyExit ProgramJSON row as
+  a scoped Rust ASTNode projector retire-candidate. Keep full projector
+  removal, RecipeBodies, RecipeMatcher, route selection, MIR mutation/lowering,
+  ID allocation, and runtime route switch unclaimed.
 
 post-3180 block recipe task order:
   completed: JoinThenElse and ElseOnlyExit are scoped retire-candidates.
-  active: ThenOnlyExit selected; parity and retire-candidate are next.
+  active: ThenOnlyExit parity is green; retire-candidate is next.
   next selection: choose ExitAll or stop at RecipeBodies.
   design-stop trigger:
     stop before recursive RecipeBodies, full RecipeMatcher, route selection,
@@ -87,6 +86,9 @@ normal operating rule:
   history.
 
 latest design decision:
+  3188 proves ProgramJsonExitAllowedBlockRecipeThenOnlyExitSnapshotV1 for the
+  parseable then-return/else-local row by extending IfStmtHandler's ProgramJSON
+  producer and projecting IfThenReturnElseLocal into ExitAllowedBlockRecipeBox.
   3187 selects ProgramJsonExitAllowedBlockRecipeThenOnlyExitSnapshotV1 next
   because ExitAllowedBlockRecipeBox already supports IfThenReturnElseLocal ->
   IfExitAllowed / ThenOnlyExit and only the IfStmtHandler then-return/else-local

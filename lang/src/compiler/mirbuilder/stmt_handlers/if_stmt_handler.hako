@@ -376,6 +376,43 @@ static box IfStmtHandler {
     }
   }
 
+  _read_else_local_int_item(program_json, idx, tag) {
+    local else_out = me._else_stmt_start_result(program_json, idx, tag)
+    local else_err = StringHelpers.to_i64(BoxHelpers.map_get(else_out, "err"))
+    if else_err != 0 { return else_out }
+    local else_start = StringHelpers.to_i64(BoxHelpers.map_get(else_out, "next_idx"))
+
+    local stmt_info = ProgramJsonV0ScannerBox.read_node_type_at_result(program_json, else_start)
+    if BoxHelpers.result_ok(stmt_info) != 1 {
+      return me._err(tag, "[cap_missing/program_json_v0] If else Local stmt type scan failed", else_start)
+    }
+    if BoxHelpers.same_token(BoxHelpers.map_get(stmt_info, "type"), "Local") != 1 {
+      return me._err(tag, "[cap_missing/stmt:If] If else must be Local(Int)", else_start)
+    }
+
+    local expr_start = ProgramJsonV0ScannerBox.seek_obj_field_obj_start(program_json, "expr", else_start)
+    if expr_start < 0 {
+      return me._err(tag, "[cap_missing/program_json_v0] If else Local missing expr object", else_start)
+    }
+    local expr_info = ProgramJsonV0ScannerBox.read_node_type_at_result(program_json, expr_start)
+    if BoxHelpers.result_ok(expr_info) != 1 {
+      return me._err(tag, "[cap_missing/program_json_v0] If else Local expr scan failed", else_start)
+    }
+    if BoxHelpers.same_token(BoxHelpers.map_get(expr_info, "type"), "Int") != 1 {
+      return me._err(tag, "[cap_missing/expr:Int] If else Local expr must be Int", else_start)
+    }
+
+    local name_out = ProgramJsonV0ScannerBox.read_string_field_last_in_obj_result(program_json, "name", else_start)
+    if BoxHelpers.result_ok(name_out) != 1 {
+      return me._err(tag, "[cap_missing/program_json_v0] If else Local missing name", else_start)
+    }
+    local else_local_name = BoxHelpers.map_get(name_out, "value")
+    if else_local_name == "" {
+      return me._err(tag, "[cap_missing/stmt:If] If else Local name is empty", else_start)
+    }
+    return me._ok(else_start, me._local_stmt_item(else_local_name))
+  }
+
   _assignment_stmt_item(local_name, assign_rhs_int) {
     local facts = new MapBox()
     facts.set("stmt_kind", "Assignment")
@@ -540,6 +577,27 @@ static box IfStmtHandler {
           RecipeItemBox.exit_item("Return", exit_payload)
         )
         return me._ok(next_idx, if_else_only_exit)
+      }
+    }
+
+    local then_return_out = me._then_return_payload(program_json, idx, tag)
+    local then_return_err = StringHelpers.to_i64(BoxHelpers.map_get(then_return_out, "err"))
+    if then_return_err == 0 {
+      local else_local_out = me._read_else_local_int_item(program_json, idx, tag)
+      local else_local_err = StringHelpers.to_i64(BoxHelpers.map_get(else_local_out, "err"))
+      if else_local_err == 0 {
+        local then_exit_payload = new MapBox()
+        then_exit_payload.set("return_kind", BoxHelpers.map_get(then_return_out, "then_return_kind"))
+        then_exit_payload.set("retv", BoxHelpers.map_get(then_return_out, "then_retv"))
+        then_exit_payload.set("ret_var_name", BoxHelpers.map_get(then_return_out, "then_ret_var_name"))
+        then_exit_payload.set("ret_box_type", BoxHelpers.map_get(then_return_out, "then_ret_box_type"))
+
+        local if_then_only_exit = RecipeItemBox.if_item(
+          cond_facts,
+          RecipeItemBox.exit_item("Return", then_exit_payload),
+          RecipeItemBox.seq([BoxHelpers.map_get(else_local_out, "recipe_item")])
+        )
+        return me._ok(next_idx, if_then_only_exit)
       }
     }
 
