@@ -1,0 +1,58 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonRecipeBodiesRuntimePublicationBridgeV1",
+  "token": "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-PUBLICATION-BRIDGE-001",
+  "input_state": {
+    "verifier_boundary_snapshot_owner": "lang/src/compiler/mirbuilder/program_json_recipebodies_verifier_boundary_snapshot.hako",
+    "publication_bridge_owner": "lang/src/compiler/mirbuilder/program_json_recipebodies_runtime_publication_bridge.hako",
+    "expanded_dto_coverage_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-programjson-recipebodies-verifier-boundary-expanded-dto-coverage-parity-v0.json"
+  },
+  "publication_contract": {
+    "name": "RecipeBodiesRuntimePublicationBridgeV1",
+    "input": "ProgramJsonRecipeBodiesVerifierBoundarySnapshotV1",
+    "output": "RecipeBodiesPublicationSnapshotV1",
+    "publication_mode": "read_only_snapshot",
+    "result_map_required": true,
+    "directabi_allowed": true,
+    "directabi_scope": "explicit result-map / map-handle publication only",
+    "runtime_route_switch": false
+  },
+  "rows": [
+    {
+      "row_id": "local_loop_body_if_branch_return",
+      "expected_summary": "snapshot_kind=RecipeBodiesPublicationSnapshotV1;ok=1;publication_id=1;verified_recipe_present=1;verifier_boundary_used=1;body_count=4;def_count=1;update_count=2;readonly=1;recipe_matcher_executed=0;non_claims=recipe_matcher,route_selection,lowering,mutation,id_allocation,runtime_route_switch"
+    },
+    {
+      "row_id": "local_loop_body_if_branch_return_alt_names",
+      "expected_summary": "snapshot_kind=RecipeBodiesPublicationSnapshotV1;ok=1;publication_id=1;verified_recipe_present=1;verifier_boundary_used=1;body_count=4;def_count=1;update_count=2;readonly=1;recipe_matcher_executed=0;non_claims=recipe_matcher,route_selection,lowering,mutation,id_allocation,runtime_route_switch"
+    }
+  ],
+  "guard_contract": {
+    "aot_required": true,
+    "mapbox_result_contract_required": true,
+    "no_object_or_void_widening": true,
+    "no_runtime_fallback": true,
+    "no_recipe_matcher_execution": true,
+    "no_route_selection": true
+  },
+  "decision": {
+    "kind": "RuntimeRecipeBodiesPublicationBridgeGreen",
+    "reason_token": "RecipeBodiesVerifierBoundaryCanPublishReadonlyRuntimeSnapshot",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-EXECUTION-BOUNDARY-MINIMAL-001"
+  },
+  "claims": {
+    "runtime_recipe_bodies_publication_bridge": 1,
+    "read_only_publication_snapshot": 1,
+    "runtime_recipe_bodies_authority": 0,
+    "recipe_bodies_runtime_route_switch": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "mir_lowering": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

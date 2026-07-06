@@ -118,8 +118,8 @@ for needle in [token, next_card, "B_RUNTIME_RECIPEBODIES_PUBLICATION_BRIDGE"]:
     if needle not in card:
         raise SystemExit(f"card missing: {needle}")
 for needle in [
-    token,
-    "status=active; boundary=read-only publication bridge only",
+    "3222 selects runtime RecipeBodies publication bridge as the next contract",
+    "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-PUBLICATION-BRIDGE-001",
     "3221 marks the expanded RecipeBodies verifier-boundary DTO coverage rows",
 ]:
     if needle not in task_order:
@@ -127,6 +127,7 @@ for needle in [
 allowed_latest = [
     'latest_card = "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-VERIFIER-BOUNDARY-EXPANDED-DTO-COVERAGE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"',
     f'latest_card = "{token}"',
+    'latest_card = "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-PUBLICATION-BRIDGE-001"',
 ]
 if not any(needle in current_state for needle in allowed_latest):
     raise SystemExit("current state latest card drift")
