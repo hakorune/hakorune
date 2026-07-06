@@ -278,10 +278,28 @@ Cleanliness backlog after Phase A.1/B.1:
 ```text
 1. done: pure_compile exact-seed dispatcher extraction
 2. done-for-structure: ORG_* enum and GenericPure state exposure extraction
-3. same-module method view registry drift guard against generated route rows
+3. done: same-module method view registry drift guard against generated route rows
 4. map lookup fusion route-shape vs site/register matcher split
 5. BoxTypeInspectorBox predicate publication inventory
 6. shared same-token helper pilot
+```
+
+Phase B.4 - same-module method view registry drift guard:
+
+```text
+status: done
+guard:
+  tools/checks/hako_aot_same_module_method_view_registry_drift_guard.sh
+
+boundary:
+  generated generic method route registry remains the route tuple source
+  same-module static rules may keep receiver/value-shape matching details
+  guard compares route_id/core_op/route_kind/helper/proof/tier only
+
+non-claims:
+  no route-family unification
+  no same-module route acceptance change
+  no ABI, lowering, backend, or Source Selfhost claim
 ```
 
 Phase B.2 - pure_compile exact-seed dispatcher extraction:
