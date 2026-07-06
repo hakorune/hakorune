@@ -33,14 +33,6 @@ static box ProgramJsonRecipeBodiesLoopBodyArenaBuilderBox {
     return n
   }
 
-  _seq_items(seq_item): ArrayBox {
-    if seq_item == null || BoxHelpers.is_map(seq_item) != 1 { return [] }
-    if RecipeItemBox.kind_is(seq_item, "Seq") != 1 { return [] }
-    local items = BoxHelpers.map_get(seq_item, "items")
-    if items == null || BoxHelpers.is_array(items) != 1 { return [] }
-    return items
-  }
-
   _stmt_code(item) {
     if item == null || BoxHelpers.is_map(item) != 1 { return 99 }
     if RecipeItemBox.kind_is(item, "Seq") != 1 { return 99 }
@@ -86,7 +78,13 @@ static box ProgramJsonRecipeBodiesLoopBodyArenaBuilderBox {
     if me._i(out, "err") != 0 { return me._err("parse_error") }
 
     local root = BoxHelpers.map_get(out, "recipe_root")
-    local root_items = me._seq_items(root)
+    if root == null || BoxHelpers.is_map(root) != 1 || RecipeItemBox.kind_is(root, "Seq") != 1 {
+      return me._err("missing_recipe_root")
+    }
+    local root_items = BoxHelpers.map_get(root, "items")
+    if root_items == null || BoxHelpers.is_array(root_items) != 1 {
+      return me._err("missing_recipe_root_items")
+    }
     if me._len(root_items) != 3 { return me._err("root_body_not_three_items") }
 
     local item0 = BoxHelpers.array_get(root_items, 0)
@@ -99,7 +97,13 @@ static box ProgramJsonRecipeBodiesLoopBodyArenaBuilderBox {
     if me._stmt_code(item2) != 3 { return me._err("root_third_not_return") }
 
     local body_item = BoxHelpers.map_get(item1, "body_item")
-    local loop_items = me._seq_items(body_item)
+    if body_item == null || BoxHelpers.is_map(body_item) != 1 || RecipeItemBox.kind_is(body_item, "Seq") != 1 {
+      return me._err("missing_loop_body")
+    }
+    local loop_items = BoxHelpers.map_get(body_item, "items")
+    if loop_items == null || BoxHelpers.is_array(loop_items) != 1 {
+      return me._err("missing_loop_body_items")
+    }
     if me._len(loop_items) != 1 { return me._err("loop_body_not_one_item") }
 
     local loop0 = BoxHelpers.array_get(loop_items, 0)
