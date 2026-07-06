@@ -86,6 +86,9 @@ normal operating rule:
   history.
 
 latest design decision:
+  3208 stabilizes IfStmtHandler result-map contracts before the next
+  RecipeBodies expansion. It does not add a new ProgramJSON shape and does not
+  widen AOT dynamic string returns.
   3207 marks the covered ProgramJsonRecipeBodiesLoopBodyArenaBuilderV1 row as
   a scoped Rust ASTNode projector retire-candidate.
   3206 implements ProgramJsonRecipeBodiesLoopBodyArenaBuilderBox and proves a

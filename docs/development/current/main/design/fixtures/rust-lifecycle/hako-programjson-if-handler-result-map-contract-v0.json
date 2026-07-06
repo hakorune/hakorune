@@ -1,0 +1,62 @@
+{
+  "schema_version": 0,
+  "kind": "HakoProgramJsonIfHandlerResultMapContractV1",
+  "token": "HAKO-PROGRAMJSON-IF-HANDLER-RESULT-MAP-CONTRACT-001",
+  "input_state": {
+    "trigger": "AOT rejected a dynamic string return path through IfStmtHandler.handle/5",
+    "owner": "lang/src/compiler/mirbuilder/stmt_handlers/if_stmt_handler.hako",
+    "previous_card": "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-LOOP-BODY-MULTI-BODY-ARENA-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
+  },
+  "contract_rule": {
+    "name": "IfStmtHandlerResultMapContractV1",
+    "handler_returns_total_result_map": true,
+    "helper_result_maps_annotated": true,
+    "recipe_item_helpers_return_mapbox": true,
+    "dynamic_err_line_rewrap_forbidden": true,
+    "aot_dynamic_string_return_widening": "Forbidden",
+    "by_name_aot_exception": "Forbidden"
+  },
+  "required_annotations": [
+    "_err(tag, msg, next_idx): MapBox",
+    "_ok(next_idx, recipe_item): MapBox",
+    "_then_return_payload(program_json, idx, tag): MapBox",
+    "_read_assignment_int_stmt(program_json, stmt_start, local_name, tag, context_label): MapBox",
+    "_read_then_assignment_int(program_json, idx, local_name, tag): MapBox",
+    "_then_stmt_start_result(program_json, idx, tag): MapBox",
+    "_then_local_int_item(program_json, idx, tag): MapBox",
+    "_read_else_assignment_int(program_json, idx, local_name, tag): MapBox",
+    "_else_stmt_start_result(program_json, idx, tag): MapBox",
+    "_read_else_print_var_item(program_json, idx, tag): MapBox",
+    "_read_else_return_payload(program_json, idx, tag): MapBox",
+    "_read_else_local_int_item(program_json, idx, tag): MapBox",
+    "_read_else_break_item(program_json, idx, tag): MapBox",
+    "handle(program_json, idx, next_idx, tag, state): MapBox"
+  ],
+  "guarded_regressions": [
+    "tools/checks/rust_lifecycle_mirbuilder_programjson_if_handler_result_map_contract_guard.sh",
+    "tools/checks/rust_lifecycle_mirbuilder_programjson_if_handler_then_local_no_else_capability_gate.sh",
+    "tools/checks/rust_lifecycle_mirbuilder_programjson_recipebodies_if_branch_multi_body_arena_parity_gate.sh"
+  ],
+  "decision": {
+    "kind": "ReturnToRecipeBodiesAfterLoopBodyArenaSelection",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-AFTER-LOOP-BODY-ARENA-NEXT-CONTRACT-SELECTION-001",
+    "reason_token": "IfHandlerResultMapContractStabilizedBeforeNextRecipeBodiesExpansion"
+  },
+  "claims": {
+    "if_handler_result_map_contract": 1,
+    "aot_dynamic_string_return_widening": 0,
+    "by_name_aot_exception": 0,
+    "programjson_new_shape": 0,
+    "recipe_bodies_materialization": 0,
+    "runtime_recipe_bodies_arena": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering_claim": 0,
+    "runtime_route_switch": 0,
+    "source_selfhost_claim": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

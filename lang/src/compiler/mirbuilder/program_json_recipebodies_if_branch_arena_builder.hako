@@ -74,20 +74,18 @@ static box ProgramJsonRecipeBodiesIfBranchArenaBuilderBox {
     }
   }
 
-  _seq_items(seq_item): ArrayBox {
-    if seq_item == null || BoxHelpers.is_map(seq_item) != 1 { return [] }
-    if RecipeItemBox.kind_is(seq_item, "Seq") != 1 { return [] }
-    local items = BoxHelpers.map_get(seq_item, "items")
-    if items == null || BoxHelpers.is_array(items) != 1 { return [] }
-    return items
-  }
-
   build_arena(program_json): MapBox {
     local out = ProgramJsonV0PhaseStateBox.parse(program_json, "[test]")
     if me._i(out, "err") != 0 { return me._err("parse_error") }
 
     local root = BoxHelpers.map_get(out, "recipe_root")
-    local root_items = me._seq_items(root)
+    if root == null || BoxHelpers.is_map(root) != 1 || RecipeItemBox.kind_is(root, "Seq") != 1 {
+      return me._err("missing_recipe_root")
+    }
+    local root_items = BoxHelpers.map_get(root, "items")
+    if root_items == null || BoxHelpers.is_array(root_items) != 1 {
+      return me._err("missing_recipe_root_items")
+    }
     if me._len(root_items) != 3 { return me._err("root_body_not_three_items") }
 
     local item0 = BoxHelpers.array_get(root_items, 0)
@@ -101,8 +99,20 @@ static box ProgramJsonRecipeBodiesIfBranchArenaBuilderBox {
 
     local then_item = BoxHelpers.map_get(item1, "then_item")
     local else_item = BoxHelpers.map_get(item1, "else_item")
-    local then_items = me._seq_items(then_item)
-    local else_items = me._seq_items(else_item)
+    if then_item == null || BoxHelpers.is_map(then_item) != 1 || RecipeItemBox.kind_is(then_item, "Seq") != 1 {
+      return me._err("missing_then_body")
+    }
+    if else_item == null || BoxHelpers.is_map(else_item) != 1 || RecipeItemBox.kind_is(else_item, "Seq") != 1 {
+      return me._err("missing_else_body")
+    }
+    local then_items = BoxHelpers.map_get(then_item, "items")
+    local else_items = BoxHelpers.map_get(else_item, "items")
+    if then_items == null || BoxHelpers.is_array(then_items) != 1 {
+      return me._err("missing_then_body_items")
+    }
+    if else_items == null || BoxHelpers.is_array(else_items) != 1 {
+      return me._err("missing_else_body_items")
+    }
     if me._len(then_items) != 1 { return me._err("then_body_not_one_item") }
     if me._len(else_items) != 1 { return me._err("else_body_not_one_item") }
 

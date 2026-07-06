@@ -13,7 +13,7 @@ using lang.compiler.mirbuilder.stmt_handlers.return_stmt_handler as ReturnStmtHa
 using lang.compiler.mirbuilder.recipe.recipe_item_box as RecipeItemBox
 
 static box IfStmtHandler {
-  _err(tag, msg, next_idx) {
+  _err(tag, msg, next_idx): MapBox {
     return %{
       "err" => 1,
       "err_line" => tag + msg,
@@ -22,7 +22,7 @@ static box IfStmtHandler {
     }
   }
 
-  _ok(next_idx, recipe_item) {
+  _ok(next_idx, recipe_item): MapBox {
     return %{
       "err" => 0,
       "err_line" => "",
@@ -31,7 +31,7 @@ static box IfStmtHandler {
     }
   }
 
-  _then_return_payload(program_json, idx, tag) {
+  _then_return_payload(program_json, idx, tag): MapBox {
     local then_key = "\"then\":["
     local p_then = StringHelpers.index_of(program_json, idx, then_key)
     if p_then < 0 {
@@ -69,7 +69,7 @@ static box IfStmtHandler {
     local ret_out = ReturnStmtHandler.handle(program_json, then_start, then_stmt_end, tag, ret_state)
     local ret_err = StringHelpers.to_i64(BoxHelpers.map_get(ret_out, "err"))
     if ret_err != 0 {
-      return me._err(tag, "" + BoxHelpers.map_get(ret_out, "err_line"), then_start)
+      return me._err(tag, "[cap_missing/stmt:If] If then Return payload scan failed", then_start)
     }
     return %{
       "err" => 0,
@@ -81,7 +81,7 @@ static box IfStmtHandler {
     }
   }
 
-  _read_assignment_int_stmt(program_json, stmt_start, local_name, tag, context_label) {
+  _read_assignment_int_stmt(program_json, stmt_start, local_name, tag, context_label): MapBox {
     local stmt_info = ProgramJsonV0ScannerBox.read_node_type_at_result(program_json, stmt_start)
     if BoxHelpers.result_ok(stmt_info) != 1 {
       return me._err(tag, "[cap_missing/program_json_v0] If " + context_label + " stmt type scan failed", stmt_start)
@@ -124,7 +124,7 @@ static box IfStmtHandler {
     }
   }
 
-  _read_then_assignment_int(program_json, idx, local_name, tag) {
+  _read_then_assignment_int(program_json, idx, local_name, tag): MapBox {
     local then_key = "\"then\":["
     local p_then = StringHelpers.index_of(program_json, idx, then_key)
     if p_then < 0 {
@@ -147,7 +147,7 @@ static box IfStmtHandler {
     return me._read_assignment_int_stmt(program_json, then_start, local_name, tag, "then")
   }
 
-  _then_stmt_start_result(program_json, idx, tag) {
+  _then_stmt_start_result(program_json, idx, tag): MapBox {
     local then_key = "\"then\":["
     local p_then = StringHelpers.index_of(program_json, idx, then_key)
     if p_then < 0 {
@@ -175,7 +175,7 @@ static box IfStmtHandler {
     }
   }
 
-  _local_stmt_item(local_name) {
+  _local_stmt_item(local_name): MapBox {
     local facts = new MapBox()
     facts.set("stmt_kind", "Local")
     facts.set("defs", [local_name])
@@ -189,7 +189,7 @@ static box IfStmtHandler {
     return stmt
   }
 
-  _print_stmt_item(print_var_name) {
+  _print_stmt_item(print_var_name): MapBox {
     local facts = new MapBox()
     facts.set("stmt_kind", "Print")
     facts.set("defs", [])
@@ -205,7 +205,7 @@ static box IfStmtHandler {
     return stmt
   }
 
-  _then_local_int_item(program_json, idx, tag) {
+  _then_local_int_item(program_json, idx, tag): MapBox {
     local then_out = me._then_stmt_start_result(program_json, idx, tag)
     local then_err = StringHelpers.to_i64(BoxHelpers.map_get(then_out, "err"))
     if then_err != 0 { return then_out }
@@ -243,7 +243,7 @@ static box IfStmtHandler {
     return me._ok(then_start, me._local_stmt_item(then_local_name))
   }
 
-  _read_else_assignment_int(program_json, idx, local_name, tag) {
+  _read_else_assignment_int(program_json, idx, local_name, tag): MapBox {
     local else_start = ProgramJsonV0ScannerBox.seek_obj_field_value_start(program_json, "else", idx)
     if else_start < 0 {
       return me._err(tag, "[cap_missing/program_json_v0] If missing else field", idx)
@@ -269,7 +269,7 @@ static box IfStmtHandler {
     return me._read_assignment_int_stmt(program_json, else_stmt_start, local_name, tag, "else")
   }
 
-  _else_stmt_start_result(program_json, idx, tag) {
+  _else_stmt_start_result(program_json, idx, tag): MapBox {
     local else_start = ProgramJsonV0ScannerBox.seek_obj_field_value_start(program_json, "else", idx)
     if else_start < 0 {
       return me._err(tag, "[cap_missing/program_json_v0] If missing else field", idx)
@@ -300,7 +300,7 @@ static box IfStmtHandler {
     }
   }
 
-  _read_else_print_var_item(program_json, idx, tag) {
+  _read_else_print_var_item(program_json, idx, tag): MapBox {
     local else_out = me._else_stmt_start_result(program_json, idx, tag)
     local else_err = StringHelpers.to_i64(BoxHelpers.map_get(else_out, "err"))
     if else_err != 0 { return else_out }
@@ -337,7 +337,7 @@ static box IfStmtHandler {
     return me._ok(else_start, me._print_stmt_item(print_var_name))
   }
 
-  _read_else_return_payload(program_json, idx, tag) {
+  _read_else_return_payload(program_json, idx, tag): MapBox {
     local else_out = me._else_stmt_start_result(program_json, idx, tag)
     local else_err = StringHelpers.to_i64(BoxHelpers.map_get(else_out, "err"))
     if else_err != 0 { return else_out }
@@ -364,7 +364,7 @@ static box IfStmtHandler {
     local ret_out = ReturnStmtHandler.handle(program_json, else_start, else_stmt_end, tag, ret_state)
     local ret_err = StringHelpers.to_i64(BoxHelpers.map_get(ret_out, "err"))
     if ret_err != 0 {
-      return me._err(tag, "" + BoxHelpers.map_get(ret_out, "err_line"), else_start)
+      return me._err(tag, "[cap_missing/stmt:If] If else Return payload scan failed", else_start)
     }
     return %{
       "err" => 0,
@@ -376,7 +376,7 @@ static box IfStmtHandler {
     }
   }
 
-  _read_else_local_int_item(program_json, idx, tag) {
+  _read_else_local_int_item(program_json, idx, tag): MapBox {
     local else_out = me._else_stmt_start_result(program_json, idx, tag)
     local else_err = StringHelpers.to_i64(BoxHelpers.map_get(else_out, "err"))
     if else_err != 0 { return else_out }
@@ -413,7 +413,7 @@ static box IfStmtHandler {
     return me._ok(else_start, me._local_stmt_item(else_local_name))
   }
 
-  _read_else_break_item(program_json, idx, tag) {
+  _read_else_break_item(program_json, idx, tag): MapBox {
     local else_out = me._else_stmt_start_result(program_json, idx, tag)
     local else_err = StringHelpers.to_i64(BoxHelpers.map_get(else_out, "err"))
     if else_err != 0 { return else_out }
@@ -430,7 +430,7 @@ static box IfStmtHandler {
     return me._ok(else_start, RecipeItemBox.exit_item("Break", %{}))
   }
 
-  _assignment_stmt_item(local_name, assign_rhs_int) {
+  _assignment_stmt_item(local_name, assign_rhs_int): MapBox {
     local facts = new MapBox()
     facts.set("stmt_kind", "Assignment")
     facts.set("defs", [])
@@ -447,7 +447,7 @@ static box IfStmtHandler {
     return stmt
   }
 
-  handle(program_json, idx, next_idx, tag, state) {
+  handle(program_json, idx, next_idx, tag, state): MapBox {
     local has_local = StringHelpers.to_i64(BoxHelpers.map_get(state, "has_local"))
     local has_return = StringHelpers.to_i64(BoxHelpers.map_get(state, "has_return"))
     local has_print = StringHelpers.to_i64(BoxHelpers.map_get(state, "has_print"))
@@ -550,7 +550,7 @@ static box IfStmtHandler {
       local then_out = me._then_return_payload(program_json, idx, tag)
       local then_err = StringHelpers.to_i64(BoxHelpers.map_get(then_out, "err"))
       if then_err != 0 {
-        return me._err(tag, "" + BoxHelpers.map_get(then_out, "err_line"), next_idx)
+        return me._err(tag, "[cap_missing/stmt:If] If then null-else branch unsupported", next_idx)
       }
 
       local exit_payload = new MapBox()
@@ -638,12 +638,12 @@ static box IfStmtHandler {
     local then_assign_out = me._read_then_assignment_int(program_json, idx, local_name, tag)
     local then_assign_err = StringHelpers.to_i64(BoxHelpers.map_get(then_assign_out, "err"))
     if then_assign_err != 0 {
-      return me._err(tag, "" + BoxHelpers.map_get(then_assign_out, "err_line"), next_idx)
+      return me._err(tag, "[cap_missing/stmt:If] If then assignment branch unsupported", next_idx)
     }
     local else_assign_out = me._read_else_assignment_int(program_json, idx, local_name, tag)
     local else_assign_err = StringHelpers.to_i64(BoxHelpers.map_get(else_assign_out, "err"))
     if else_assign_err != 0 {
-      return me._err(tag, "" + BoxHelpers.map_get(else_assign_out, "err_line"), next_idx)
+      return me._err(tag, "[cap_missing/stmt:If] If else assignment branch unsupported", next_idx)
     }
 
     local then_stmt = me._assignment_stmt_item(local_name, BoxHelpers.map_get(then_assign_out, "assign_rhs_int"))
