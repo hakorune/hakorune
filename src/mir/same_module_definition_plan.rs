@@ -185,7 +185,10 @@ mod tests {
     #[test]
     fn closure_orders_dependencies_before_dependents() {
         let mut immediate = BTreeMap::<String, Vec<SameModuleDefinitionPlan>>::new();
-        immediate.insert("main".to_string(), vec![row("Summary.build/1", "module_generic")]);
+        immediate.insert(
+            "main".to_string(),
+            vec![row("Summary.build/1", "module_generic")],
+        );
         immediate.insert(
             "Summary.build/1".to_string(),
             vec![row("PhaseState.parse/2", "uniform_mir")],

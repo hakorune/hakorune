@@ -260,9 +260,9 @@ impl LoopViewBuilder {
             }
             CaseAMinimalTargetKind::Stage1UsingResolver => {
                 if self.debug {
-                    get_global_ring0()
-                        .log
-                        .debug("[LoopViewBuilder] [fallback] dispatching to lower-resolver lowerer");
+                    get_global_ring0().log.debug(
+                        "[LoopViewBuilder] [fallback] dispatching to lower-resolver lowerer",
+                    );
                 }
                 generic_case_a::lower_case_a_stage1_usingresolver_with_scope(scope)
             }
