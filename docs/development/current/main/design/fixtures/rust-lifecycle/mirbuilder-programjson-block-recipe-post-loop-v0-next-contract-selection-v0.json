@@ -1,0 +1,78 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonBlockRecipePostLoopV0NextContractSelectionV1",
+  "token": "MIRBUILDER-PROGRAMJSON-BLOCK-RECIPE-POST-LOOP-V0-NEXT-CONTRACT-SELECTION-001",
+  "input_state": {
+    "previous_card": "MIRBUILDER-PROGRAMJSON-NO-EXIT-BLOCK-RECIPE-LOOP-V0-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001",
+    "covered_previous_capability": "ProgramJsonNoExitBlockRecipeLoopV0SnapshotV1",
+    "remaining_candidates": [
+      "ProgramJsonNoExitBlockRecipeJoinThenElseSnapshotV1",
+      "ProgramJsonExitAllowedBlockRecipeThenElseModeSnapshotV1"
+    ]
+  },
+  "candidates": [
+    {
+      "capability": "ProgramJsonNoExitBlockRecipeJoinThenElseSnapshotV1",
+      "target_reducer": "NoExitBlockRecipeBox",
+      "status": "Selected",
+      "first_rows": [
+        "local_if_then_local_else_print_final_return_var"
+      ],
+      "producer_boundary": "IfStmtHandler must produce If.then Seq([Local]) / If.else Seq([Print]) recipe_root rows from ProgramJSON.",
+      "reason": "NoExitBlockRecipeBox already supports IfThenLocalElsePrint -> IfJoin/JoinThenElse; this slice removes the remaining producer gap without opening recursive RecipeBodies, RecipeMatcher, route selection, lowering, mutation, or ID allocation"
+    },
+    {
+      "capability": "ProgramJsonExitAllowedBlockRecipeThenElseModeSnapshotV1",
+      "target_reducer": "ExitAllowedBlockRecipeBox",
+      "status": "Held",
+      "producer_boundary": "ExitAllowedBlockRecipeBox supports ThenOnlyExit/ElseOnlyExit/ExitAll tokens, but ProgramJSON producers for those rows are still not isolated.",
+      "held_reason": "requires a separate producer inventory after JoinThenElse"
+    }
+  ],
+  "selected_capability": {
+    "name": "ProgramJsonNoExitBlockRecipeJoinThenElseSnapshotV1",
+    "target_reducer": "NoExitBlockRecipeBox",
+    "input": "ProgramJSON recipe_root",
+    "output": "NoExitBlockRecipeSummaryV1",
+    "required_programjson_producer": "IfStmtHandler then-local/else-print recipe_root projection",
+    "required_projection_tokens": [
+      "IfThenLocalElsePrint"
+    ],
+    "required_reducer_outputs": [
+      "IfJoin",
+      "JoinThenElse"
+    ],
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-NO-EXIT-BLOCK-RECIPE-JOIN-THEN-ELSE-SNAPSHOT-PARITY-001"
+  },
+  "stop_conditions": {
+    "additional_exit_allowed_if_modes": 0,
+    "recursive_recipe_bodies_materialization": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering": 0,
+    "runtime_route_switch": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "SelectProgramJsonNoExitJoinThenElseAfterLoopV0",
+    "reason_token": "JoinThenElseHasReducerSupportAndSingleProgramJsonProducerGap",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-NO-EXIT-BLOCK-RECIPE-JOIN-THEN-ELSE-SNAPSHOT-PARITY-001"
+  },
+  "claims": {
+    "programjson_join_then_else_parity_green": 0,
+    "additional_exit_allowed_if_modes": 0,
+    "recursive_recipe_bodies_materialization": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering": 0,
+    "runtime_route_switch": 0,
+    "source_selfhost_claim": 0,
+    "programjson_full_parser_claim": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

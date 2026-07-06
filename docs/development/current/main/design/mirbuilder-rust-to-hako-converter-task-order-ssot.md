@@ -60,16 +60,16 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-BLOCK-RECIPE-POST-LOOP-V0-NEXT-CONTRACT-SELECTION-001
+  MIRBUILDER-PROGRAMJSON-NO-EXIT-BLOCK-RECIPE-JOIN-THEN-ELSE-SNAPSHOT-PARITY-001
 selected next card:
-  not yet created; select the next block recipe contract after the scoped
-  LoopV0 proof. Remaining candidates are JoinThenElse and additional
-  ExitAllowed if-modes; the selection must name the missing ProgramJSON
-  producer boundary and keep RecipeBodies, RecipeMatcher, route selection,
-  MIR mutation/lowering, ID allocation, and runtime route switch unclaimed.
+  implement the selected JoinThenElse ProgramJSON block recipe slice. Extend
+  the IfStmtHandler producer for then-local/else-print recipe_root rows, prove
+  the NoExit reducer emits IfJoin/JoinThenElse, and keep RecipeBodies,
+  RecipeMatcher, route selection, MIR mutation/lowering, ID allocation, and
+  runtime route switch unclaimed.
 
 post-3180 block recipe task order:
-  1. selection: choose JoinThenElse or additional ExitAllowed if-modes.
+  1. selected: JoinThenElse after LoopV0.
   2. capability: implement the selected next block contract.
   3. retire-candidate: mark only covered rows after parity is green.
   design-stop trigger:
@@ -87,25 +87,13 @@ normal operating rule:
   history.
 
 latest design decision:
+  3181 selects ProgramJsonNoExitBlockRecipeJoinThenElseSnapshotV1 next because
+  NoExitBlockRecipeBox already supports IfThenLocalElsePrint -> IfJoin /
+  JoinThenElse and only the IfStmtHandler then-local/else-print ProgramJSON
+  producer is missing. Additional ExitAllowed if-modes remain held.
   3180 marks the covered parseable LoopV0 row as a scoped Rust ASTNode
-  projector retire-candidate.
-  3179 proves ProgramJsonNoExitBlockRecipeLoopV0SnapshotV1 for the parseable
-  Loop.body If.then Return + Assignment row through NoExitBlockRecipeBox.
-  3178 selects NoExit LoopV0 next because LoopStmtHandler already produces
-  Loop.body Seq([If.then Exit, Assignment]) and 3176-3177 proved the
-  IfThenReturnNoElse body contract. 3177-3172 cover scoped NoExit/ExitAllowed
-  block proofs and retire-candidates; JoinThenElse remains held until a
-  PhaseState producer exists.
-  3171-3163 cover prior StmtOnly direct/Loop/If bridge proofs and scoped retire
-  checkpoints.
-  3162 selected that ProgramJSON-fed block recipe bridge. 3161-3151 cover
-  Local>Loop>Return loop-root propagation through
-  RecipeStmtSeqDtoSnapshotV1, RecipeShapeKindDtoSnapshotV1,
-  SeqRecipeDtoSnapshotV1, and RecipePortSigDtoSnapshotV1, including scoped
-  retire checkpoints.
-  3150-3135 cover expanded/base Recipe DTO parity and scoped retire
-  checkpoints; parity is green.
-  3134-3123 cover Exit/Seq/If/Loop Layer4 DTO parity and retire checkpoints.
+  projector retire-candidate after 3179 proved NoExit LoopV0. 3178-3123 cover
+  prior block/recipe DTO scoped proofs and retire checkpoints in phase cards.
   Earlier Layer4 and scanner/AOT details live in cards 3109 and 3114-3122.
   2997 stabilized the AOT/MIR value-type publication contract only for the
   proven route families. 3002 remains a trigger-based debt queue for Float
