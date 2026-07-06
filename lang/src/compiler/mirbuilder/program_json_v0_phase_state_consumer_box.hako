@@ -200,7 +200,7 @@ static box ProgramJsonV0PhaseStateConsumerBox {
       BoxHelpers.map_get(current_state, "local_init"),
       BoxHelpers.map_get(current_state, "assign_name"),
       BoxHelpers.map_get(current_state, "assign_rhs"),
-      me._map_s_or_empty(current_state, "assign_rhs_kind"),
+      BoxHelpers.map_get(current_state, "assign_rhs_kind"),
       BoxHelpers.map_get(current_state, "return_kind"),
       BoxHelpers.map_get(current_state, "retv"),
       BoxHelpers.map_get(current_state, "ret_var_name"),
@@ -366,7 +366,7 @@ static box ProgramJsonV0PhaseStateConsumerBox {
           me._map_i64(result, "has_assignment"),
           BoxHelpers.map_get(result, "assign_name"),
           BoxHelpers.map_get(result, "assign_rhs"),
-          me._map_s_or_empty(result, "assign_rhs_kind")
+          BoxHelpers.map_get(result, "assign_rhs_kind")
         )
       )
     }

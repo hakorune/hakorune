@@ -345,17 +345,18 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PROGRAMJSON-LAYER4-SEQ-RECIPE-DTO-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3127-MIRBUILDER-PROGRAMJSON-LAYER4-SEQ-RECIPE-DTO-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001.md"
-latest_card_summary = """3127 marks only the covered SeqRecipeDtoSnapshotV1
-ProgramJSON Layer4 Seq Recipe DTO rows as a scoped Rust ASTNode projector
-retire-candidate after 3126 MIR JSON and AOT runtime parity are green. Top-level
-Assignment/Print rows are deferred to a separate PhaseState consumer capability.
-This is a future runtime route-switch candidate, not Rust bootstrap/oracle
-deletion. Do not claim full ASTNode projector retirement, full RecipeMatcher
-execution, route selection, MIR mutation/lowering, ID allocation, HakoAdoption,
-ProgramJSON full parser, new ABI, or Source Selfhost. Next active work is
-selecting the next concrete Layer4 Recipe DTO ProgramJSON capability."""
+latest_card = "HAKO-AOT-PROGRAMJSON-PHASE-STATE-ASSIGNMENT-PRINT-CONSUMER-CAPABILITY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3128-HAKO-AOT-PROGRAMJSON-PHASE-STATE-ASSIGNMENT-PRINT-CONSUMER-CAPABILITY-001.md"
+latest_card_summary = """3128 closes the PhaseState consumer blocker that 3126/3127
+deferred for covered top-level Assignment/Print rows. AssignmentStmtHandler and
+PrintStmtHandler now preserve scanner string tokens as raw StringBox values and
+use same_token for dynamic comparisons; PhaseState consumer preserves
+assign_rhs_kind through handoff. The new AOT guard proves four Assignment/Print
+consumer rows runtime-green and re-runs the existing Seq Recipe DTO parity gate.
+Seq Recipe DTO Assignment/Print rows, runtime route switch, full RecipeMatcher
+execution, MIR mutation/lowering, ID allocation, HakoAdoption, ProgramJSON full
+parser, new ABI, and Source Selfhost remain unclaimed. Next active work is
+adding the Seq Recipe DTO Assignment/Print parity rows."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -366,8 +367,9 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
-  "2026-07-06: 3127 marks covered SeqRecipeDtoSnapshotV1 ProgramJSON Layer4 rows as a scoped Rust ASTNode projector retire-candidate after 3126 MIR JSON and AOT runtime parity are green; Assignment/Print rows remain deferred; runtime route switch and Source Selfhost remain unclaimed.",
-  "2026-07-06: 3126 adds ProgramJsonSeqRecipeDtoSnapshotV1 and a green four-row MIR JSON + AOT runtime parity gate for covered stmt-only root Seq rows; Assignment/Print rows are deferred to a separate PhaseState consumer capability; runtime route switch and Source Selfhost remain unclaimed.",
+  "2026-07-06: 3128 closes the PhaseState consumer blocker for covered top-level Assignment/Print ProgramJSON rows; handler dynamic token comparisons now preserve raw scanner tokens and use same_token, assign_rhs_kind is preserved through consumer handoff, and the new AOT guard is green while Seq DTO Assignment/Print rows remain unclaimed.",
+  "2026-07-06: 3127 marks covered SeqRecipeDtoSnapshotV1 ProgramJSON Layer4 rows as a scoped Rust ASTNode projector retire-candidate after 3126 MIR JSON and AOT runtime parity are green; runtime route switch and Source Selfhost remain unclaimed.",
+  "2026-07-06: 3126 adds ProgramJsonSeqRecipeDtoSnapshotV1 and a green four-row MIR JSON + AOT runtime parity gate for covered stmt-only root Seq rows; runtime route switch and Source Selfhost remain unclaimed.",
   "2026-07-06: 3125 marks covered IfRecipeDtoSnapshotV1 ProgramJSON Layer4 rows as a scoped Rust ASTNode projector retire-candidate after 3124 MIR JSON and AOT runtime parity are green; runtime route switch and Source Selfhost remain unclaimed.",
   "2026-07-06: 3124 adds ProgramJsonIfRecipeDtoSnapshotV1 and a green four-row MIR JSON + AOT runtime parity gate; IfStmtHandler dynamic token equality now uses raw scanner tokens plus same_token; runtime route switch and Source Selfhost remain unclaimed.",
   "2026-07-06: 3123 marks covered LoopRecipeDtoSnapshotV1 ProgramJSON Layer4 rows as a scoped Rust ASTNode projector retire-candidate after 3119 parity and 3122 heavy runtime parity are green; runtime route switch and Source Selfhost remain unclaimed.",
@@ -377,5 +379,4 @@ landed_tail = [
   "2026-07-06: 3119 adds ProgramJsonLoopRecipeDtoSnapshotV1 and a lightweight Layer4 loop Recipe DTO route guard; runtime parity remains unclaimed pending heavy emit-exe readiness.",
   "2026-07-06: 3118 lands lightweight PhaseState parse AOT call readiness; ProgramJsonV0PhaseStateBox.parse/2 is DirectAbi/map_handle in MIR JSON, while full imported parse executable green remains a heavy unclaimed probe.",
   "2026-07-06: 3117 removes the RecipeFacts _push_name/2 helper boundary; PhaseState parse now reaches the public parse/2 AOT call blocker again.",
-  "2026-07-06: 3115 lands the PhaseState scan-body rec result contract; _scan_body_rec is loop-local and parse reaches it as DirectAbi, leaving RuneAttrs function-name normalization as the next blocker.",
 ]

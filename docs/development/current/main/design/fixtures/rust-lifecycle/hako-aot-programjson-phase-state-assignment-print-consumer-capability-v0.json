@@ -1,0 +1,117 @@
+{
+  "schema_version": 0,
+  "kind": "HakoAotProgramJsonPhaseStateAssignmentPrintConsumerCapabilityV1",
+  "token": "HAKO-AOT-PROGRAMJSON-PHASE-STATE-ASSIGNMENT-PRINT-CONSUMER-CAPABILITY-001",
+  "capability": {
+    "name": "ProgramJsonPhaseStateAssignmentPrintConsumerCapabilityV1",
+    "input": "ProgramJSON v0",
+    "output": "PhaseState map",
+    "implementation": [
+      "lang/src/compiler/mirbuilder/stmt_handlers/assignment_stmt_handler.hako",
+      "lang/src/compiler/mirbuilder/stmt_handlers/print_stmt_handler.hako",
+      "lang/src/compiler/mirbuilder/program_json_v0_phase_state_consumer_box.hako"
+    ]
+  },
+  "contract_rule": {
+    "scanner_string_tokens_preserved_as_raw_stringbox": true,
+    "dynamic_token_comparison_uses_same_token": true,
+    "assignment_rhs_kind_preserved_through_phase_state": true,
+    "top_level_assignment_runtime_green": true,
+    "top_level_print_runtime_green": true,
+    "seq_recipe_dto_assignment_print_rows_unclaimed": true
+  },
+  "rows": [
+    {
+      "row_id": "local_assignment_int_return_var",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "body": [
+          {"type": "Local", "name": "i", "expr": {"type": "Int", "value": 1}},
+          {"type": "Assignment", "name": "i", "expr": {"type": "Int", "value": 4}},
+          {"type": "Return", "expr": {"type": "Var", "name": "i"}}
+        ]
+      },
+      "expected": {
+        "err": 0,
+        "shape_kind": "phase2_inc_return_var",
+        "assign_rhs_kind": "Int",
+        "return_kind": "Var"
+      }
+    },
+    {
+      "row_id": "local_assignment_add_return_var",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "body": [
+          {"type": "Local", "name": "i", "expr": {"type": "Int", "value": 1}},
+          {"type": "Assignment", "name": "i", "expr": {"type": "Binary", "op": "+", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 2}}},
+          {"type": "Return", "expr": {"type": "Var", "name": "i"}}
+        ]
+      },
+      "expected": {
+        "err": 0,
+        "shape_kind": "phase2_inc_return_var",
+        "assign_rhs_kind": "AddVarInt",
+        "return_kind": "Var"
+      }
+    },
+    {
+      "row_id": "local_print_var_return_int",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "body": [
+          {"type": "Local", "name": "i", "expr": {"type": "Int", "value": 1}},
+          {"type": "Print", "expr": {"type": "Var", "name": "i"}},
+          {"type": "Return", "expr": {"type": "Int", "value": 0}}
+        ]
+      },
+      "expected": {
+        "err": 0,
+        "shape_kind": "phase4_local_print_var_return0",
+        "print_kind": "Var",
+        "return_kind": "Int"
+      }
+    },
+    {
+      "row_id": "local_print_binary_return_int",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "body": [
+          {"type": "Local", "name": "i", "expr": {"type": "Int", "value": 1}},
+          {"type": "Print", "expr": {"type": "Binary", "op": "+", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 2}}},
+          {"type": "Return", "expr": {"type": "Int", "value": 0}}
+        ]
+      },
+      "expected": {
+        "err": 0,
+        "shape_kind": "phase9_print_binop_return0",
+        "print_kind": "BinaryVarInt",
+        "return_kind": "Int"
+      }
+    }
+  ],
+  "required_regression_gates": [
+    "tools/checks/rust_lifecycle_mirbuilder_programjson_layer4_seq_recipe_dto_parity_gate.sh"
+  ],
+  "decision": {
+    "kind": "SelectSeqRecipeDtoAssignmentPrintRowsNext",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-LAYER4-SEQ-RECIPE-DTO-ASSIGNMENT-PRINT-PARITY-001",
+    "reason_token": "PhaseStateAssignmentPrintConsumerRuntimeGreen"
+  },
+  "claims": {
+    "seq_recipe_dto_assignment_print_rows_green": 0,
+    "runtime_route_switch": 0,
+    "full_recipe_matcher_execution": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering_claim": 0,
+    "source_selfhost_claim": 0,
+    "programjson_all_shapes_supported": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

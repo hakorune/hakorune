@@ -14,8 +14,8 @@ static box PrintStmtHandler {
   handle(program_json, idx, next_idx, tag, state) {
     local has_print = StringHelpers.to_i64(BoxHelpers.map_get(state, "has_print"))
     local printv = BoxHelpers.map_get(state, "printv")
-    local print_kind = "" + BoxHelpers.map_get(state, "print_kind")
-    local print_var_name = "" + BoxHelpers.map_get(state, "print_var_name")
+    local print_kind = BoxHelpers.map_get(state, "print_kind")
+    local print_var_name = BoxHelpers.map_get(state, "print_var_name")
 
     if has_print == 1 {
       return %{
@@ -55,8 +55,8 @@ static box PrintStmtHandler {
       }
     }
 
-    local expr_type = "" + BoxHelpers.map_get(expr_info, "type")
-    if expr_type == "Call" {
+    local expr_type = BoxHelpers.map_get(expr_info, "type")
+    if BoxHelpers.same_token(expr_type, "Call") == 1 {
       return me._consume_call(program_json, expr_start, next_idx, tag, has_print, printv, print_kind, print_var_name)
     }
     return me._consume_expr_for_print(program_json, expr_start, next_idx, tag, has_print, printv, print_kind, print_var_name)
@@ -75,7 +75,7 @@ static box PrintStmtHandler {
         "print_var_name" => print_var_name
       }
     }
-    local expr_type = "" + BoxHelpers.map_get(expr_info, "type")
+    local expr_type = BoxHelpers.map_get(expr_info, "type")
 
     if BoxHelpers.same_token(expr_type, "Int") == 1 {
       local out = ProgramJsonV0ScannerBox.read_int_field_in_obj_result(program_json, "value", expr_start)
@@ -116,7 +116,7 @@ static box PrintStmtHandler {
           "print_var_name" => print_var_name
         }
       }
-      print_var_name = "" + BoxHelpers.map_get(out, "value")
+      print_var_name = BoxHelpers.map_get(out, "value")
       if print_var_name == "" {
         return %{
           "err" => 1,
@@ -168,8 +168,8 @@ static box PrintStmtHandler {
         "print_var_name" => print_var_name
       }
     }
-    local call_name = "" + BoxHelpers.map_get(name_out, "value")
-    if call_name != "env.console.log" {
+    local call_name = BoxHelpers.map_get(name_out, "value")
+    if BoxHelpers.same_token(call_name, "env.console.log") != 1 {
       return %{
         "err" => 1,
         "err_line" => tag + "[cap_missing/stmt:Expr] only env.console.log(...) is supported",
@@ -234,8 +234,8 @@ static box PrintStmtHandler {
         "print_var_name" => print_var_name
       }
     }
-    local op = "" + BoxHelpers.map_get(op_out, "value")
-    if op != "+" {
+    local op = BoxHelpers.map_get(op_out, "value")
+    if BoxHelpers.same_token(op, "+") != 1 {
       return %{
         "err" => 1,
         "err_line" => tag + "[cap_missing/expr:Binary] Print Binary op is not '+'",
@@ -271,7 +271,7 @@ static box PrintStmtHandler {
         "print_var_name" => print_var_name
       }
     }
-    local lhs_type = "" + BoxHelpers.map_get(lhs_info, "type")
+    local lhs_type = BoxHelpers.map_get(lhs_info, "type")
     if BoxHelpers.same_token(lhs_type, "Var") != 1 {
       return %{
         "err" => 1,
@@ -295,7 +295,7 @@ static box PrintStmtHandler {
         "print_var_name" => print_var_name
       }
     }
-    local lhs_name = "" + BoxHelpers.map_get(lhs_name_out, "value")
+    local lhs_name = BoxHelpers.map_get(lhs_name_out, "value")
     if lhs_name == "" {
       return %{
         "err" => 1,
@@ -332,7 +332,7 @@ static box PrintStmtHandler {
         "print_var_name" => print_var_name
       }
     }
-    local rhs_type = "" + BoxHelpers.map_get(rhs_info, "type")
+    local rhs_type = BoxHelpers.map_get(rhs_info, "type")
     if BoxHelpers.same_token(rhs_type, "Int") != 1 {
       return %{
         "err" => 1,
