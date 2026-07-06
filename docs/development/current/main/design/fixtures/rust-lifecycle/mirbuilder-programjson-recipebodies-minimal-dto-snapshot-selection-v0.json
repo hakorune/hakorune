@@ -1,0 +1,102 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonRecipeBodiesMinimalDtoSnapshotSelectionV1",
+  "token": "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-MINIMAL-DTO-SNAPSHOT-SELECTION-001",
+  "input_state": {
+    "previous_card": "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-MINIMAL-BASIS-DECISION-001",
+    "selected_contract": "DTO-only snapshot-local BodyId/StmtRef",
+    "snapshot_kind": "ProgramJsonRecipeBodiesMinimalDtoV1"
+  },
+  "selected_owner": {
+    "name": "ProgramJsonRecipeBodiesMinimalDtoSnapshotBox",
+    "path": "lang/src/compiler/mirbuilder/program_json_recipebodies_minimal_dto_snapshot.hako",
+    "responsibility": "Emit a DTO-only snapshot-local BodyId/StmtRef summary from ProgramJSON recipe_root StmtOnly rows.",
+    "reuses": [
+      "ProgramJsonV0PhaseStateBox.parse",
+      "RecipeItemBox",
+      "BoxHelpers",
+      "StringHelpers"
+    ],
+    "does_not_reuse": [
+      "StmtOnlyBlockRecipeBox",
+      "ExitAllowedBlockRecipeBox",
+      "NoExitBlockRecipeBox"
+    ]
+  },
+  "selected_rows": [
+    {
+      "row_id": "empty_stmt_only_body",
+      "programjson_shape": "Program.body=[]",
+      "expected_body_count": 1,
+      "expected_body0_item_count": 0,
+      "expected_refs": ""
+    },
+    {
+      "row_id": "single_local_stmt_body",
+      "programjson_shape": "Program.body=[Local]",
+      "expected_body_count": 1,
+      "expected_body0_item_count": 1,
+      "expected_refs": "body0.item0->stmt0"
+    },
+    {
+      "row_id": "local_then_print_stmt_body",
+      "programjson_shape": "Program.body=[Local,Print]",
+      "expected_body_count": 1,
+      "expected_body0_item_count": 2,
+      "expected_refs": "body0.item0->stmt0,body0.item1->stmt1"
+    }
+  ],
+  "output_contract": {
+    "snapshot_kind": "ProgramJsonRecipeBodiesMinimalDtoV1",
+    "root_body_id": "0",
+    "body_id_contract": "snapshot-local token only; not a public RecipeBodies arena ID",
+    "stmt_ref_contract": "snapshot-local token only; indexes within the DTO body item summary",
+    "required_fields": [
+      "snapshot_kind",
+      "err",
+      "root_body_id",
+      "body_count",
+      "body0_item_count",
+      "body0_items",
+      "refs",
+      "non_claims"
+    ],
+    "non_claims_field_required": 1
+  },
+  "next_card": {
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-MINIMAL-DTO-SNAPSHOT-PARITY-001",
+    "card_type": "implementation + parity gate",
+    "guard_name": "tools/checks/rust_lifecycle_mirbuilder_programjson_recipebodies_minimal_dto_snapshot_parity_gate.sh"
+  },
+  "forbidden_in_next_card": {
+    "runtime_recipe_bodies_arena": 1,
+    "recipe_bodies_bodies_direct_access": 1,
+    "full_recipe_matcher_execution": 1,
+    "route_selection": 1,
+    "mir_mutation": 1,
+    "id_allocation": 1,
+    "backend_lowering": 1,
+    "runtime_route_switch": 1,
+    "source_selfhost_claim": 1,
+    "programjson_full_parser_claim": 1,
+    "new_hako_syntax": 1,
+    "new_hako_library_api": 1,
+    "new_backend_route": 1,
+    "new_abi": 1
+  },
+  "claims": {
+    "owner_selected": 1,
+    "implementation_green": 0,
+    "recipe_bodies_materialization": 0,
+    "runtime_recipe_bodies_arena": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering": 0,
+    "runtime_route_switch": 0,
+    "source_selfhost_claim": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

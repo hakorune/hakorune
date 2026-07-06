@@ -88,10 +88,10 @@ for key, value in claims.items():
 for needle in [token, selected, next_card, "BodyId = snapshot-local token only"]:
     if needle not in card:
         raise SystemExit(f"card missing: {needle}")
-if "selected next task:\n  " + next_card not in task_order:
-    raise SystemExit("task-order next task drift")
 if "3195 selects DTO-only snapshot-local BodyId/StmtRef" not in task_order:
     raise SystemExit("task-order 3195 marker missing")
+if "ProgramJsonRecipeBodiesMinimalDtoV1" not in task_order:
+    raise SystemExit("task-order RecipeBodies DTO follow-up missing")
 PY
 
 cat <<'REPORT'

@@ -242,6 +242,7 @@ phase-1 compatibility Program(JSON) compat execution helper.
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_block_recipe_post_exit_all_recipebodies_design_stop_guard.sh` | Design-stop guard for the RecipeBodies boundary after covered ProgramJSON flat block recipe rows. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_recipebodies_minimal_basis_consultation_guard.sh` | Consultation guard for the first minimal ProgramJSON RecipeBodies surface decision. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_recipebodies_minimal_basis_decision_guard.sh` | Decision guard selecting DTO-only snapshot-local BodyId/StmtRef as the first RecipeBodies-facing slice. |
+| `tools/checks/rust_lifecycle_mirbuilder_programjson_recipebodies_minimal_dto_snapshot_selection_guard.sh` | Selection guard for the ProgramJSON RecipeBodies minimal DTO snapshot owner. |
 | `tools/checks/hako_mir_json_cache_wrapper_guard.sh` | Cache contract guard for `tools/bin/hako --emit-mir-json` miss-then-hit behavior. |
 | `tools/checks/guard_result_cache_helper_guard.sh` | Cache contract guard for `guard_cached_run` prerequisite guard memoization. |
 | `tools/checks/hako_aot_dynamic_string_eq_and_int_to_str_correctness_gate.sh` | AOT dynamic string equality and scanner-fed `StringHelpers.int_to_str` correctness gate. |
