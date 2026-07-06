@@ -8,11 +8,69 @@ using lang.compiler.mirbuilder.recipe.recipe_item_box as RecipeItemBox
 using lang.compiler.mirbuilder.mir_json_v0_shape_box_helpers as MirJsonV0ShapeHelpers
 
 static box MirJsonV0ShapeRecipeSeq {
+  _stmt_token(v) {
+    if BoxHelpers.same_token(v, "Local") == 1 { return "Local" }
+    if BoxHelpers.same_token(v, "Assignment") == 1 { return "Assignment" }
+    if BoxHelpers.same_token(v, "Print") == 1 { return "Print" }
+    if BoxHelpers.same_token(v, "Return") == 1 { return "Return" }
+    return ""
+  }
+
+  _len(arr) {
+    if arr == null { return 0 }
+    local n = 0
+    loop(n < 64) {
+      if BoxHelpers.array_get(arr, n) == null { return n }
+      n = n + 1
+    }
+    return n
+  }
+
+  _recipe_stmt_seq_summary(recipe_root, tag) {
+    if recipe_root == null || BoxHelpers.is_map(recipe_root) != 1 {
+      return "err=1;reason=missing_recipe_root"
+    }
+    if RecipeItemBox.kind_is(recipe_root, "Seq") != 1 {
+      return "err=1;reason=recipe_root_not_seq"
+    }
+    local items = BoxHelpers.map_get(recipe_root, "items")
+    if items == null || BoxHelpers.is_array(items) != 1 {
+      return "err=1;reason=recipe_root_items_missing"
+    }
+
+    local sig = ""
+    local i = 0
+    loop(i < 64) {
+      local child = BoxHelpers.array_get(items, i)
+      if child == null {
+        return "err=0;matched=1;item_count=" + StringHelpers.int_to_str(i) + ";seq_sig=" + sig
+      }
+      if child == null || BoxHelpers.is_map(child) != 1 {
+        return "err=1;reason=recipe_child_not_map"
+      }
+      if RecipeItemBox.kind_is(child, "Seq") != 1 {
+        return "err=1;reason=recipe_child_not_seq"
+      }
+      local leaf_kind = BoxHelpers.map_get(child, "leaf_kind")
+      if BoxHelpers.same_token(leaf_kind, "Stmt") != 1 {
+        return "err=1;reason=recipe_child_not_stmt"
+      }
+      local stmt_kind = me._stmt_token(BoxHelpers.map_get(child, "stmt_kind"))
+      if BoxHelpers.same_token(stmt_kind, "") == 1 {
+        return "err=1;reason=recipe_child_missing_stmt_kind"
+      }
+      if i > 0 { sig = sig + ">" }
+      sig = sig + stmt_kind
+      i = i + 1
+    }
+    return "err=1;reason=recipe_stmt_seq_too_long"
+  }
+
   _recipe_stmt_seq(recipe_root, tag) {
     if recipe_root == null || BoxHelpers.is_map(recipe_root) != 1 {
       return MirJsonV0ShapeHelpers._seq_result(1, tag + "[cap_missing/recipe_root] missing recipe root", MirJsonV0ShapeHelpers._empty_array())
     }
-    if RecipeItemBox.kind_of(recipe_root) != "Seq" {
+    if RecipeItemBox.kind_is(recipe_root, "Seq") != 1 {
       return MirJsonV0ShapeHelpers._seq_result(1, tag + "[cap_missing/recipe_root] recipe root must be Seq", MirJsonV0ShapeHelpers._empty_array())
     }
 
@@ -23,21 +81,21 @@ static box MirJsonV0ShapeRecipeSeq {
 
     local seq = MirJsonV0ShapeHelpers._empty_array()
     local i = 0
-    local n = BoxHelpers.array_len(items)
-    loop(i < n) {
+    loop(i < 64) {
       local child = BoxHelpers.array_get(items, i)
+      if child == null { return MirJsonV0ShapeHelpers._seq_result(0, "", seq) }
       if child == null || BoxHelpers.is_map(child) != 1 {
         return MirJsonV0ShapeHelpers._seq_result(1, tag + "[cap_missing/recipe_root] recipe child is not a map", MirJsonV0ShapeHelpers._empty_array())
       }
-      if RecipeItemBox.kind_of(child) != "Seq" {
+      if RecipeItemBox.kind_is(child, "Seq") != 1 {
         return MirJsonV0ShapeHelpers._seq_result(1, tag + "[cap_missing/recipe_root] recipe child kind must be Seq", MirJsonV0ShapeHelpers._empty_array())
       }
-      local leaf_kind = "" + BoxHelpers.map_get(child, "leaf_kind")
-      if leaf_kind != "Stmt" {
+      local leaf_kind = BoxHelpers.map_get(child, "leaf_kind")
+      if BoxHelpers.same_token(leaf_kind, "Stmt") != 1 {
         return MirJsonV0ShapeHelpers._seq_result(1, tag + "[cap_missing/recipe_root] recipe child leaf_kind must be Stmt", MirJsonV0ShapeHelpers._empty_array())
       }
-      local stmt_kind = "" + BoxHelpers.map_get(child, "stmt_kind")
-      if stmt_kind == "" {
+      local stmt_kind = me._stmt_token(BoxHelpers.map_get(child, "stmt_kind"))
+      if BoxHelpers.same_token(stmt_kind, "") == 1 {
         return MirJsonV0ShapeHelpers._seq_result(1, tag + "[cap_missing/recipe_root] recipe child missing stmt_kind", MirJsonV0ShapeHelpers._empty_array())
       }
       seq.push(stmt_kind)
@@ -50,7 +108,7 @@ static box MirJsonV0ShapeRecipeSeq {
     if seq == null || BoxHelpers.is_array(seq) != 1 { return "" }
     local s = ""
     local i = 0
-    local n = BoxHelpers.array_len(seq)
+    local n = me._len(seq)
     loop(i < n) {
       if i > 0 { s = s + ">" }
       s = s + ("" + BoxHelpers.array_get(seq, i))

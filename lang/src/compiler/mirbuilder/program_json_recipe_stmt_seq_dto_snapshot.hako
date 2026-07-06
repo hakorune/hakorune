@@ -1,0 +1,35 @@
+// program_json_recipe_stmt_seq_dto_snapshot.hako
+// Responsibility:
+// - Build a canonical Layer4 Recipe stmt-sequence DTO snapshot from Program(JSON v0).
+// - Consume PhaseState recipe_root, RecipeVerifier, and recipe seq scanner only; no lowering.
+
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.shared.common.box_helpers as BoxHelpers
+using lang.compiler.mirbuilder.program_json_v0_phase_state_box as ProgramJsonV0PhaseStateBox
+using lang.compiler.mirbuilder.recipe.recipe_verifier_box as RecipeVerifierBox
+using lang.compiler.mirbuilder.mir_json_v0_shape_box_recipe_seq as MirJsonV0ShapeRecipeSeq
+
+static box ProgramJsonRecipeStmtSeqDtoSnapshotBox {
+  _i(map, key) {
+    return StringHelpers.to_i64(BoxHelpers.map_get(map, key))
+  }
+
+  _err(reason) {
+    return "snapshot_kind=RecipeStmtSeqDtoSnapshotV1;err=1;reason=" + reason
+  }
+
+  build_summary(program_json) {
+    local out = ProgramJsonV0PhaseStateBox.parse(program_json, "[test]")
+    if me._i(out, "err") != 0 { return me._err("parse_error") }
+    local root = BoxHelpers.map_get(out, "recipe_root")
+    if root == null || BoxHelpers.is_map(root) != 1 { return me._err("missing_recipe_root") }
+
+    local verify = RecipeVerifierBox.verify(root, "[test]")
+    if me._i(verify, "err") != 0 { return me._err("verify_error") }
+
+    return "snapshot_kind=RecipeStmtSeqDtoSnapshotV1;"
+      + MirJsonV0ShapeRecipeSeq._recipe_stmt_seq_summary(root, "[test]")
+  }
+}
+
+static box ProgramJsonRecipeStmtSeqDtoSnapshotMain { main() { return 0 } }

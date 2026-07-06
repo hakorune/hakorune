@@ -1,0 +1,85 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonLayer4RecipeStmtSeqDtoParityV1",
+  "token": "MIRBUILDER-PROGRAMJSON-LAYER4-RECIPE-STMT-SEQ-DTO-PARITY-001",
+  "capability": {
+    "name": "ProgramJsonRecipeStmtSeqDtoSnapshotV1",
+    "input": "ProgramJSON v0",
+    "output": "RecipeStmtSeqDtoSnapshotV1",
+    "implementation": "lang/src/compiler/mirbuilder/program_json_recipe_stmt_seq_dto_snapshot.hako"
+  },
+  "selection": {
+    "previous_checkpoint": "MIRBUILDER-PROGRAMJSON-LAYER4-RECIPE-PORT-SIG-DTO-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001",
+    "selected_reason": "PortSig proves RecipeVerifier output; the next safe Layer4 seam is the stmt-only Recipe sequence scanner before shape_kind selection or backend lowering."
+  },
+  "routes": {
+    "programjson_route": "ProgramJSON -> ProgramJsonV0PhaseStateBox.parse/2 -> recipe_root -> RecipeVerifierBox.verify/2 -> MirJsonV0ShapeRecipeSeq._recipe_stmt_seq_summary/2",
+    "rust_oracle_route": "Rust MirBuilder stmt sequence oracle canonical signature",
+    "runtime_parity_status": "green"
+  },
+  "rows": [
+    {
+      "row_id": "return_int",
+      "program_json": {"version": 0, "kind": "Program", "body": [{"type": "Return", "expr": {"type": "Int", "value": 7}}]},
+      "rust_oracle_expected_summary": "snapshot_kind=RecipeStmtSeqDtoSnapshotV1;err=0;matched=1;item_count=1;seq_sig=Return"
+    },
+    {
+      "row_id": "return_new_box",
+      "program_json": {"version": 0, "kind": "Program", "body": [{"type": "Return", "expr": {"type": "New", "class": "Box", "args": []}}]},
+      "rust_oracle_expected_summary": "snapshot_kind=RecipeStmtSeqDtoSnapshotV1;err=0;matched=1;item_count=1;seq_sig=Return"
+    },
+    {
+      "row_id": "local_return_var",
+      "program_json": {"version": 0, "kind": "Program", "body": [{"type": "Local", "name": "i", "expr": {"type": "Int", "value": 1}}, {"type": "Return", "expr": {"type": "Var", "name": "i"}}]},
+      "rust_oracle_expected_summary": "snapshot_kind=RecipeStmtSeqDtoSnapshotV1;err=0;matched=1;item_count=2;seq_sig=Local>Return"
+    },
+    {
+      "row_id": "local_assignment_int_return_var",
+      "program_json": {"version": 0, "kind": "Program", "body": [{"type": "Local", "name": "i", "expr": {"type": "Int", "value": 1}}, {"type": "Assignment", "name": "i", "expr": {"type": "Int", "value": 4}}, {"type": "Return", "expr": {"type": "Var", "name": "i"}}]},
+      "rust_oracle_expected_summary": "snapshot_kind=RecipeStmtSeqDtoSnapshotV1;err=0;matched=1;item_count=3;seq_sig=Local>Assignment>Return"
+    },
+    {
+      "row_id": "local_assignment_add_return_var",
+      "program_json": {"version": 0, "kind": "Program", "body": [{"type": "Local", "name": "i", "expr": {"type": "Int", "value": 1}}, {"type": "Assignment", "name": "i", "expr": {"type": "Binary", "op": "+", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 2}}}, {"type": "Return", "expr": {"type": "Var", "name": "i"}}]},
+      "rust_oracle_expected_summary": "snapshot_kind=RecipeStmtSeqDtoSnapshotV1;err=0;matched=1;item_count=3;seq_sig=Local>Assignment>Return"
+    },
+    {
+      "row_id": "local_print_var_return_int",
+      "program_json": {"version": 0, "kind": "Program", "body": [{"type": "Local", "name": "i", "expr": {"type": "Int", "value": 1}}, {"type": "Print", "expr": {"type": "Var", "name": "i"}}, {"type": "Return", "expr": {"type": "Int", "value": 0}}]},
+      "rust_oracle_expected_summary": "snapshot_kind=RecipeStmtSeqDtoSnapshotV1;err=0;matched=1;item_count=3;seq_sig=Local>Print>Return"
+    },
+    {
+      "row_id": "local_print_binary_return_int",
+      "program_json": {"version": 0, "kind": "Program", "body": [{"type": "Local", "name": "i", "expr": {"type": "Int", "value": 1}}, {"type": "Print", "expr": {"type": "Binary", "op": "+", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 2}}}, {"type": "Return", "expr": {"type": "Int", "value": 0}}]},
+      "rust_oracle_expected_summary": "snapshot_kind=RecipeStmtSeqDtoSnapshotV1;err=0;matched=1;item_count=3;seq_sig=Local>Print>Return"
+    }
+  ],
+  "acceptance": {
+    "programjson_traversal_used": 1,
+    "structured_recipe_dto_constructed": 1,
+    "recipe_verifier_used": 1,
+    "recipe_stmt_seq_scanner_used": 1,
+    "shape_kind_selection": 0,
+    "prebuilt_token_snapshot_input": 0,
+    "string_only_facade": 0,
+    "mir_json_route_green": 1,
+    "runtime_parity_green": 1
+  },
+  "decision": {
+    "kind": "SelectRecipeStmtSeqDtoRetireCandidateNext",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-LAYER4-RECIPE-STMT-SEQ-DTO-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001",
+    "reason_token": "RecipeStmtSeqDtoSnapshotRuntimeParityGreen"
+  },
+  "claims": {
+    "shape_kind_selection": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering_claim": 0,
+    "runtime_route_switch": 0,
+    "source_selfhost_claim": 0,
+    "programjson_all_shapes_supported": 0,
+    "full_imported_parse_executable_green": 0
+  }
+}
