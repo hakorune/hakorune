@@ -60,10 +60,10 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-RECIPEBODIES-AFTER-EXPANDED-DTO-COVERAGE-NEXT-CONTRACT-SELECTION-001
+  MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-PUBLICATION-BRIDGE-001
 selected next card:
-  select more verifier-boundary DTO coverage or stop for runtime RecipeBodies
-  publication / RecipeMatcher consultation.
+  publish a read-only RecipeBodiesPublicationSnapshotV1 bridge; RecipeMatcher,
+  route switch, lowering, mutation, ID allocation, and Source Selfhost remain 0.
 
 post-3180 block recipe task order:
   completed: JoinThenElse, ElseOnlyExit, ThenOnlyExit, and ExitAll are scoped
@@ -85,6 +85,7 @@ normal operating rule:
   history.
 
 latest design decision:
+  3222 selects runtime RecipeBodies publication bridge as the next contract.
   3221 marks the expanded RecipeBodies verifier-boundary DTO coverage rows as scoped Rust ASTNode projector retire-candidates; 3220 expands coverage to two rows.
   3219 selects more DTO coverage rows after the post-verifier consultation.
   3218 prepares the post-verifier RecipeBodies consultation; recommended
@@ -408,12 +409,11 @@ Detailed evidence lives in phase cards, fixtures, and git history.
    Rust ASTNode projector retire-candidates
 
 3. MIRBUILDER-PROGRAMJSON-RECIPEBODIES-AFTER-EXPANDED-DTO-COVERAGE-NEXT-CONTRACT-SELECTION-001
-   status=active; boundary=select more verifier-boundary DTO rows or stop for
-   runtime RecipeBodies publication / RecipeMatcher consultation
+   status=landed; boundary=select runtime RecipeBodies publication bridge
 
 next active:
-  MIRBUILDER-PROGRAMJSON-RECIPEBODIES-AFTER-EXPANDED-DTO-COVERAGE-NEXT-CONTRACT-SELECTION-001
-  status=active; boundary=selection only; runtime publication, RecipeMatcher, lowering, mutation, ID allocation, route switch, and Source Selfhost remain unclaimed
+  MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-PUBLICATION-BRIDGE-001
+  status=active; boundary=read-only publication bridge only; RecipeMatcher, lowering, mutation, ID allocation, route switch, and Source Selfhost remain unclaimed
 
 trigger-based AOT/MIR typing debt:
   status=parked-until-triggered; order=2999/3000/3001 landed, then 3022 queue
@@ -421,10 +421,10 @@ trigger-based AOT/MIR typing debt:
   compare, PHI dst_type, mir_call dst_type, or receiver-helper
   single-observation protection
 next_documented_task =
-  MIRBUILDER-PROGRAMJSON-RECIPEBODIES-AFTER-EXPANDED-DTO-COVERAGE-NEXT-CONTRACT-SELECTION-001
+  MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-PUBLICATION-BRIDGE-001
 
 next_after_active_3 =
-  MIRBUILDER-PROGRAMJSON-RECIPEBODIES-AFTER-EXPANDED-DTO-COVERAGE-NEXT-CONTRACT-SELECTION-001
+  MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-EXECUTION-BOUNDARY-MINIMAL-001
 
 task discipline =
   Each ProgramJSON capability card must land real `.hako` traversal + fixture

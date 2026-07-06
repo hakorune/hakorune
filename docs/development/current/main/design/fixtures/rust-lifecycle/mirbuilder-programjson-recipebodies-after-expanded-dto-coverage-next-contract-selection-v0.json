@@ -1,0 +1,90 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonRecipeBodiesAfterExpandedDtoCoverageNextContractSelectionV1",
+  "token": "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-AFTER-EXPANDED-DTO-COVERAGE-NEXT-CONTRACT-SELECTION-001",
+  "input_state": {
+    "current_latest": "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-VERIFIER-BOUNDARY-EXPANDED-DTO-COVERAGE-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001",
+    "expanded_dto_coverage_parity_gate": "tools/checks/rust_lifecycle_mirbuilder_programjson_recipebodies_verifier_boundary_expanded_dto_coverage_parity_gate.sh",
+    "retire_candidate_guard": "tools/checks/rust_lifecycle_mirbuilder_programjson_recipebodies_verifier_boundary_expanded_dto_coverage_retire_rust_astnode_projector_candidate_guard.sh"
+  },
+  "previous_state": {
+    "expanded_dto_coverage_rows": 2,
+    "retire_candidate_recorded": 1,
+    "runtime_dependency_removed": 0,
+    "runtime_recipe_bodies_publication": 0,
+    "full_recipe_matcher_execution": 0,
+    "runtime_route_switch": 0,
+    "source_selfhost_claim": 0
+  },
+  "candidate_next_contracts": [
+    {
+      "contract": "MoreVerifierBoundaryDtoCoverage",
+      "selection_eligible": false,
+      "reason": "Coverage rows are useful but no longer reduce runtime dependency by themselves"
+    },
+    {
+      "contract": "RuntimeRecipeBodiesPublicationBridge",
+      "selection_eligible": true,
+      "reason": "Next required boundary before RecipeMatcher execution or runtime route switch",
+      "selected_next_card_if_eligible": "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-PUBLICATION-BRIDGE-001"
+    },
+    {
+      "contract": "FullRecipeMatcherExecutionMinimal",
+      "selection_eligible": false,
+      "reason": "Requires runtime RecipeBodies publication first"
+    },
+    {
+      "contract": "DesignCleanupOnly",
+      "selection_eligible": false,
+      "reason": "Must be folded into implementation-facing publication bridge"
+    }
+  ],
+  "decision": {
+    "kind": "SelectRuntimeRecipeBodiesPublicationBridge",
+    "reason_token": "RuntimePublicationBridgeIsNextBoundaryAfterVerifierDtoCoverage",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-PUBLICATION-BRIDGE-001"
+  },
+  "acceptance_for_next_card": {
+    "must_publish_recipe_bodies_publication_snapshot_v1": 1,
+    "must_use_readonly_result_map_or_map_handle_boundary": 1,
+    "must_preserve_verifier_boundary_used": 1,
+    "must_preserve_verified_recipe_present": 1,
+    "must_keep_recipe_matcher_executed_zero": 1,
+    "must_keep_runtime_route_switch_zero": 1,
+    "covered_rows": [
+      "local_loop_body_if_branch_return",
+      "local_loop_body_if_branch_return_alt_names"
+    ]
+  },
+  "forbidden_in_next_card": {
+    "runtime_recipe_bodies_authority": 1,
+    "recipe_bodies_bodies_runtime_access_authority": 1,
+    "full_recipe_matcher_execution": 1,
+    "route_selection": 1,
+    "mir_lowering": 1,
+    "mir_mutation": 1,
+    "id_allocation": 1,
+    "runtime_route_switch": 1,
+    "runtime_fallback": 1,
+    "new_backend_route": 1,
+    "new_abi": 1,
+    "source_selfhost_claim": 1,
+    "full_astnode_projector_retirement": 1
+  },
+  "claims": {
+    "next_contract_selected": 1,
+    "runtime_recipe_bodies_publication_bridge": 0,
+    "read_only_publication_snapshot": 0,
+    "runtime_recipe_bodies_authority": 0,
+    "recipe_bodies_runtime_route_switch": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "mir_lowering": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "source_selfhost_claim": 0
+  }
+}
