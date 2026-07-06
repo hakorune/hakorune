@@ -345,14 +345,13 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-MINIMAL-DTO-SNAPSHOT-PARITY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3197-MIRBUILDER-PROGRAMJSON-RECIPEBODIES-MINIMAL-DTO-SNAPSHOT-PARITY-001.md"
-latest_card_summary = """3197 implements ProgramJsonRecipeBodiesMinimalDtoSnapshotBox
-and proves three DTO-only snapshot-local BodyId/StmtRef ProgramJSON rows at
-runtime. DirectAbi route publication is not claimed. RecipeBodies
-materialization, full RecipeMatcher, route switch, MIR mutation/lowering, ID
-allocation, ProgramJSON full parser, new ABI, and Source Selfhost remain
-unclaimed."""
+latest_card = "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-MINIMAL-DTO-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3198-MIRBUILDER-PROGRAMJSON-RECIPEBODIES-MINIMAL-DTO-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001.md"
+latest_card_summary = """3198 marks the three covered
+ProgramJsonRecipeBodiesMinimalDtoV1 rows as a scoped Rust ASTNode projector
+retire-candidate. Runtime dependency removal, full projector retirement, real
+RecipeBodies materialization, DirectAbi route publication, route switch, and
+Source Selfhost remain unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -363,6 +362,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-07: 3198 marks the covered ProgramJsonRecipeBodiesMinimalDtoV1 rows as a scoped Rust ASTNode projector retire-candidate while runtime dependency removal, full projector retirement, real RecipeBodies materialization, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3197 proves ProgramJsonRecipeBodiesMinimalDtoV1 for three DTO-only snapshot-local BodyId/StmtRef rows while DirectAbi route publication, real RecipeBodies materialization, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3196 selects ProgramJsonRecipeBodiesMinimalDtoSnapshotBox as the DTO-only ProgramJsonRecipeBodiesMinimalDtoV1 owner while real RecipeBodies materialization and Source Selfhost remain unclaimed.",
   "2026-07-07: 3195 selects DTO-only snapshot-local BodyId/StmtRef as the first RecipeBodies-facing ProgramJsonRecipeBodiesMinimalDtoV1 slice while real RecipeBodies materialization and Source Selfhost remain unclaimed.",
@@ -371,5 +371,4 @@ landed_tail = [
   "2026-07-07: 3192 marks the covered parseable then-return/else-break ProgramJsonExitAllowedBlockRecipeExitAllSnapshotV1 row as a scoped Rust ASTNode projector retire-candidate while RecipeBodies, route switch, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3191 proves ProgramJsonExitAllowedBlockRecipeExitAllSnapshotV1 for the parseable then-return/else-break ProgramJSON row through ExitAllowedBlockRecipeBox while RecipeBodies, route switch, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3190 selects ProgramJsonExitAllowedBlockRecipeExitAllSnapshotV1 as the next ProgramJSON-fed block recipe contract while RecipeBodies, route switch, and Source Selfhost remain unclaimed.",
-  "2026-07-07: 3189 marks the covered parseable then-return/else-local ProgramJsonExitAllowedBlockRecipeThenOnlyExitSnapshotV1 row as a scoped Rust ASTNode projector retire-candidate while ExitAll, RecipeBodies, route switch, and Source Selfhost remain unclaimed.",
 ]
