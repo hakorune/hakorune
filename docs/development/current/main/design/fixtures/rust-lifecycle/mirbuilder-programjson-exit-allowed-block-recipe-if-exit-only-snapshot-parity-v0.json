@@ -1,0 +1,60 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonExitAllowedBlockRecipeIfExitOnlySnapshotParityV1",
+  "token": "MIRBUILDER-PROGRAMJSON-EXIT-ALLOWED-BLOCK-RECIPE-IF-EXIT-ONLY-SNAPSHOT-PARITY-001",
+  "capability": {
+    "name": "ProgramJsonExitAllowedBlockRecipeIfExitOnlySnapshotV1",
+    "input": "ProgramJSON v0",
+    "output": "ExitAllowedBlockRecipeBox IfExitOnly token snapshot summary",
+    "implementation": "lang/src/compiler/mirbuilder/program_json_exit_allowed_block_recipe_snapshot.hako",
+    "target_existing_reducer": "lang/src/compiler/lib/exit_allowed_block_recipe.hako"
+  },
+  "selection": {
+    "previous_checkpoint": "MIRBUILDER-PROGRAMJSON-BLOCK-RECIPE-NEXT-CONTRACT-CAPABILITY-SELECTION-001",
+    "selected_reason": "IfThenReturnNoElse already has a ProgramJSON PhaseState producer and exercises the ExitAllowed IfExitOnly contract."
+  },
+  "rows": [
+    {
+      "row_id": "if_then_return_no_else",
+      "program_json": {"version": 0, "kind": "Program", "body": [
+        {"type": "Local", "name": "i", "expr": {"type": "Int", "value": 0}},
+        {"type": "If", "cond": {"type": "Compare", "op": "==", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 3}}, "then": [
+          {"type": "Return", "expr": {"type": "Int", "value": 9}}
+        ], "else": null},
+        {"type": "Return", "expr": {"type": "Int", "value": 7}}
+      ]},
+      "rust_oracle_expected_summary": "snapshot_kind=ProgramJsonExitAllowedBlockRecipeIfExitOnlySnapshotV1;err=0;accepted=1;block_contract=ExitAllowed;stmt_count=2;item_kinds=Stmt,IfExitOnly;if_modes=ExitIf"
+    }
+  ],
+  "acceptance": {
+    "programjson_traversal_used": 1,
+    "recipe_root_traversal_used": 1,
+    "exit_allowed_reducer_called": 1,
+    "if_exit_only_token_projected": 1,
+    "prebuilt_token_snapshot_input": 0,
+    "string_only_facade": 0,
+    "mir_json_route_green": 1,
+    "runtime_parity_green": 1,
+    "row_count": 1,
+    "selection_prerequisite_green": 1
+  },
+  "decision": {
+    "kind": "SelectExitAllowedIfExitOnlyRetireCandidateNext",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-EXIT-ALLOWED-BLOCK-RECIPE-IF-EXIT-ONLY-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001",
+    "reason_token": "ProgramJsonExitAllowedBlockRecipeIfExitOnlySnapshotRuntimeParityGreen"
+  },
+  "claims": {
+    "join_then_else_contract": 0,
+    "loop_v0_contract": 0,
+    "recipe_bodies_materialization": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering_claim": 0,
+    "runtime_route_switch": 0,
+    "source_selfhost_claim": 0,
+    "programjson_all_shapes_supported": 0,
+    "full_imported_parse_executable_green": 0
+  }
+}

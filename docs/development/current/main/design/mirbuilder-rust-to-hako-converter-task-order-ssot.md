@@ -60,18 +60,18 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-EXIT-ALLOWED-BLOCK-RECIPE-IF-EXIT-ONLY-SNAPSHOT-PARITY-001
+  MIRBUILDER-PROGRAMJSON-EXIT-ALLOWED-BLOCK-RECIPE-IF-EXIT-ONLY-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
 selected next card:
-  not yet created; implement ProgramJsonExitAllowedBlockRecipeIfExitOnlySnapshotV1
-  for the parseable IfThenReturnNoElse recipe_root row. It must feed
-  IfThenReturnNoElse into ExitAllowedBlockRecipeBox and keep JoinThenElse,
-  LoopV0, RecipeBodies, RecipeMatcher, route selection, MIR mutation/lowering,
-  ID allocation, and runtime route switch unclaimed.
+  not yet created; mark only the parseable IfThenReturnNoElse
+  ProgramJsonExitAllowedBlockRecipeIfExitOnlySnapshotV1 row as a scoped Rust
+  ASTNode projector retire-candidate. Keep JoinThenElse, LoopV0, RecipeBodies,
+  RecipeMatcher, route selection, MIR mutation/lowering, ID allocation, and
+  runtime route switch unclaimed.
 
-post-3175 block recipe task order:
-  1. capability: implement ExitAllowed IfExitOnly ProgramJSON snapshot parity.
-  2. retire-candidate: mark only covered IfThenReturnNoElse projector row.
-  3. selection: choose JoinThenElse or LoopV0 after the scoped proof is green.
+post-3176 block recipe task order:
+  1. retire-candidate: mark only covered IfThenReturnNoElse projector row.
+  2. selection: choose JoinThenElse or LoopV0 after the scoped proof is green.
+  3. capability: implement the selected next block contract.
   design-stop trigger:
     stop before recursive RecipeBodies, full RecipeMatcher, route selection,
     MIR mutation/lowering, ID allocation, runtime route switch, or Source
@@ -87,6 +87,8 @@ normal operating rule:
   history.
 
 latest design decision:
+  3176 proves ProgramJsonExitAllowedBlockRecipeIfExitOnlySnapshotV1 for the
+  parseable IfThenReturnNoElse row through ExitAllowedBlockRecipeBox.
   3175 selects ExitAllowed IfExitOnly next because PhaseState already produces
   If.then_item Exit / else Seq([]) for parseable IfThenReturnNoElse rows.
   3174-3172 cover the scoped NoExit IfThenLocalNoElse proof and retire-candidate;
