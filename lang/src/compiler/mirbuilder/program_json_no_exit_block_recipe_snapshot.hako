@@ -23,6 +23,7 @@ static box ProgramJsonNoExitBlockRecipeSnapshotBox {
     if RecipeItemBox.kind_is(item, "Seq") != 1 { return "Unsupported" }
     local kind = BoxHelpers.map_get(item, "stmt_kind")
     if BoxHelpers.same_token(kind, "Local") == 1 { return "Local" }
+    if BoxHelpers.same_token(kind, "Assignment") == 1 { return "Assignment" }
     if BoxHelpers.same_token(kind, "Print") == 1 { return "Print" }
     if BoxHelpers.same_token(kind, "ScopeBox") == 1 { return "ScopeBox" }
     if BoxHelpers.same_token(kind, "Program") == 1 { return "Program" }
@@ -51,9 +52,40 @@ static box ProgramJsonNoExitBlockRecipeSnapshotBox {
     return "Unsupported"
   }
 
+  _if_exit_only_token(item) {
+    if item == null || RecipeItemBox.kind_is(item, "If") != 1 { return "Unsupported" }
+    local then_item = BoxHelpers.map_get(item, "then_item")
+    local else_kind = me._single_seq_kind(BoxHelpers.map_get(item, "else_item"))
+    if RecipeItemBox.kind_is(then_item, "Exit") == 1 && BoxHelpers.same_token(else_kind, "None") == 1 {
+      local exit_kind = BoxHelpers.map_get(then_item, "exit_kind")
+      if BoxHelpers.same_token(exit_kind, "Return") == 1 { return "IfThenReturnNoElse" }
+    }
+    return "Unsupported"
+  }
+
+  _loop_token(item) {
+    if item == null || RecipeItemBox.kind_is(item, "Loop") != 1 { return "Unsupported" }
+    local body = BoxHelpers.map_get(item, "body_item")
+    if body == null || RecipeItemBox.kind_is(body, "Seq") != 1 { return "Unsupported" }
+    local items = BoxHelpers.map_get(body, "items")
+    if items == null || BoxHelpers.is_array(items) != 1 { return "Unsupported" }
+    local body0 = BoxHelpers.array_get(items, 0)
+    local body1 = BoxHelpers.array_get(items, 1)
+    local body2 = BoxHelpers.array_get(items, 2)
+    if body0 == null || body1 == null || body2 != null { return "Unsupported" }
+    if BoxHelpers.same_token(me._if_exit_only_token(body0), "IfThenReturnNoElse") != 1 {
+      return "Unsupported"
+    }
+    if BoxHelpers.same_token(me._seq_stmt_kind(body1), "Assignment") != 1 {
+      return "Unsupported"
+    }
+    return "LoopExitAllowedBody"
+  }
+
   _stmt_token(item) {
     if item == null { return "None" }
     if RecipeItemBox.kind_is(item, "If") == 1 { return me._if_join_token(item) }
+    if RecipeItemBox.kind_is(item, "Loop") == 1 { return me._loop_token(item) }
     return me._seq_stmt_kind(item)
   }
 

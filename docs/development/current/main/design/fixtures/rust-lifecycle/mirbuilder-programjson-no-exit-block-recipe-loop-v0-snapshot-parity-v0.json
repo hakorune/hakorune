@@ -1,0 +1,64 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonNoExitBlockRecipeLoopV0SnapshotParityV1",
+  "token": "MIRBUILDER-PROGRAMJSON-NO-EXIT-BLOCK-RECIPE-LOOP-V0-SNAPSHOT-PARITY-001",
+  "capability": {
+    "name": "ProgramJsonNoExitBlockRecipeLoopV0SnapshotV1",
+    "input": "ProgramJSON v0",
+    "output": "NoExitBlockRecipeBox LoopV0 token snapshot summary",
+    "implementation": "lang/src/compiler/mirbuilder/program_json_no_exit_block_recipe_snapshot.hako",
+    "target_existing_reducer": "lang/src/compiler/lib/no_exit_block_recipe.hako"
+  },
+  "selection": {
+    "previous_checkpoint": "MIRBUILDER-PROGRAMJSON-BLOCK-RECIPE-POST-EXIT-ALLOWED-NEXT-CONTRACT-SELECTION-001",
+    "selected_reason": "LoopStmtHandler already produces Loop.body Seq([If.then Exit, Assignment]); IfThenReturnNoElse body proof is green."
+  },
+  "rows": [
+    {
+      "row_id": "local_loop_if_then_return_assignment_final_return_var",
+      "program_json": {"version": 0, "kind": "Program", "body": [
+        {"type": "Local", "name": "i", "expr": {"type": "Int", "value": 0}},
+        {"type": "Loop", "cond": {"type": "Compare", "op": "<", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 5}}, "body": [
+          {"type": "If", "cond": {"type": "Compare", "op": "<", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 3}}, "then": [
+            {"type": "Return", "expr": {"type": "Int", "value": 9}}
+          ], "else": null},
+          {"type": "Local", "name": "i", "expr": {"type": "Binary", "op": "+", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 1}}}
+        ]},
+        {"type": "Return", "expr": {"type": "Var", "name": "i"}}
+      ]},
+      "rust_oracle_expected_summary": "snapshot_kind=ProgramJsonNoExitBlockRecipeIfJoinSnapshotV1;err=0;accepted=1;block_contract=NoExit;stmt_count=2;item_kinds=Stmt,LoopV0;if_join_shapes=;loop_body_contracts=ExitAllowed"
+    }
+  ],
+  "acceptance": {
+    "programjson_traversal_used": 1,
+    "recipe_root_traversal_used": 1,
+    "no_exit_reducer_called": 1,
+    "loop_v0_token_projected": 1,
+    "exit_allowed_body_shape_observed": 1,
+    "prebuilt_token_snapshot_input": 0,
+    "string_only_facade": 0,
+    "mir_json_route_green": 1,
+    "runtime_parity_green": 1,
+    "row_count": 1,
+    "selection_prerequisite_green": 1
+  },
+  "decision": {
+    "kind": "SelectLoopV0RetireCandidateNext",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-NO-EXIT-BLOCK-RECIPE-LOOP-V0-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001",
+    "reason_token": "ProgramJsonNoExitBlockRecipeLoopV0SnapshotRuntimeParityGreen"
+  },
+  "claims": {
+    "join_then_else_contract": 0,
+    "additional_exit_allowed_if_modes": 0,
+    "recipe_bodies_materialization": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering_claim": 0,
+    "runtime_route_switch": 0,
+    "source_selfhost_claim": 0,
+    "programjson_all_shapes_supported": 0,
+    "full_imported_parse_executable_green": 0
+  }
+}
