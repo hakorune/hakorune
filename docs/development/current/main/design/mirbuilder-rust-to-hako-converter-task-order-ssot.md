@@ -60,16 +60,16 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-STMT-ONLY-BLOCK-RECIPE-LOOP-NO-EXIT-SNAPSHOT-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001
+  MIRBUILDER-PROGRAMJSON-STMT-ONLY-BLOCK-RECIPE-IF-NO-EXIT-SNAPSHOT-PARITY-001
 selected next card:
-  not yet created; mark only the covered ProgramJSON-fed LoopNoExit projection
-  row as a scoped Rust ASTNode projector retire-candidate.
+  not yet created; add parseable then/else assignment If projection to
+  ProgramJsonStmtOnlyBlockRecipeSnapshotV1 and prove one-row parity.
 
-post-3166 block recipe task order:
-  1. retire-candidate: covered `local_loop_no_exit` row only.
-  2. implement: parseable `IfNoExit` projection for then/else assignment If;
+post-3167 block recipe task order:
+  1. implement: parseable `IfNoExit` projection for then/else assignment If;
      PhaseState already parses this shape, but the block snapshot lacks
      `If -> IfNoExit` projection.
+  2. retire-candidate: covered parseable IfNoExit row only.
   3. unblock later: then-local/no-else If; current If handler returns
      parse_error and needs a dedicated handler capability.
   4. defer: NoExit / ExitAllowed recursive block contracts until If/Loop
@@ -89,12 +89,11 @@ normal operating rule:
   history.
 
 latest design decision:
-  3166 proves ProgramJsonStmtOnlyBlockRecipeSnapshotV1 can project one
-  ProgramJSON-fed LoopNoExit row into the existing HakoAdopted
-  StmtOnlyBlockRecipeBox token reducer; next is a scoped retire-candidate for
-  that row only. Worker inventory split IfNoExit into a parseable then/else
-  assignment projection gap and a then-local/no-else parse_error gap. 3164
-  marks direct stmt rows from 3163 as a scoped retire-candidate.
+  3167 marks the covered ProgramJSON-fed LoopNoExit row as a scoped retire
+  candidate. Next is parseable then/else assignment IfNoExit projection.
+  Worker inventory split IfNoExit into a parseable projection gap and a
+  then-local/no-else parse_error gap. 3164 marks direct stmt rows from 3163 as
+  a scoped retire-candidate.
   3162 selected that ProgramJSON-fed block recipe bridge. 3161-3151 cover
   Local>Loop>Return loop-root propagation through
   RecipeStmtSeqDtoSnapshotV1, RecipeShapeKindDtoSnapshotV1,
