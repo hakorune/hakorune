@@ -14,10 +14,10 @@ static box ReturnStmtHandler {
   //   program_json, idx, next_idx, tag, state
   handle(program_json, idx, next_idx, tag, state) {
     local has_return = StringHelpers.to_i64(BoxHelpers.map_get(state, "has_return"))
-    local return_kind = "" + BoxHelpers.map_get(state, "return_kind")
+    local return_kind = BoxHelpers.map_get(state, "return_kind")
     local retv = BoxHelpers.map_get(state, "retv")
-    local ret_var_name = "" + BoxHelpers.map_get(state, "ret_var_name")
-    local ret_box_type = "" + BoxHelpers.map_get(state, "ret_box_type")
+    local ret_var_name = BoxHelpers.map_get(state, "ret_var_name")
+    local ret_box_type = BoxHelpers.map_get(state, "ret_box_type")
 
     if has_return == 1 {
       return %{
@@ -60,7 +60,7 @@ static box ReturnStmtHandler {
       }
     }
 
-    local expr_type = "" + BoxHelpers.map_get(expr_info, "type")
+    local expr_type = BoxHelpers.map_get(expr_info, "type")
 
     if expr_type == "Int" || expr_type == "Var" {
       return ReturnStmtHandlerSimpleBox.handle(program_json, next_idx, tag, state, expr_start, expr_type)

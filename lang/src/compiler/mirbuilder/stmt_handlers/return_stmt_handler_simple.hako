@@ -7,10 +7,10 @@ using lang.compiler.mirbuilder.program_json_v0_scanner_box as ProgramJsonV0Scann
 static box ReturnStmtHandlerSimpleBox {
   handle(program_json, next_idx, tag, state, expr_start, expr_type) {
     local has_return = StringHelpers.to_i64(BoxHelpers.map_get(state, "has_return"))
-    local return_kind = "" + BoxHelpers.map_get(state, "return_kind")
+    local return_kind = BoxHelpers.map_get(state, "return_kind")
     local retv = BoxHelpers.map_get(state, "retv")
-    local ret_var_name = "" + BoxHelpers.map_get(state, "ret_var_name")
-    local ret_box_type = "" + BoxHelpers.map_get(state, "ret_box_type")
+    local ret_var_name = BoxHelpers.map_get(state, "ret_var_name")
+    local ret_box_type = BoxHelpers.map_get(state, "ret_box_type")
 
     if expr_type == "Int" {
       local out = ProgramJsonV0ScannerBox.read_int_field_in_obj_result(program_json, "value", expr_start)
@@ -56,7 +56,7 @@ static box ReturnStmtHandlerSimpleBox {
           "ret_box_type" => ret_box_type
         }
       }
-      local v = "" + BoxHelpers.map_get(out, "value")
+      local v = BoxHelpers.map_get(out, "value")
       if v == "" {
         return %{
           "err" => 1,

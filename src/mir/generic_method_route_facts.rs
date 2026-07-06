@@ -110,6 +110,23 @@ pub(crate) fn receiver_origin_box_name(
     receiver: ValueId,
 ) -> Option<String> {
     let origin = resolve_value_origin(function, def_map, receiver);
+    if let Some(box_name) = function
+        .metadata
+        .value_types
+        .get(&origin)
+        .and_then(box_name_from_mir_type)
+    {
+        return Some(box_name.to_string());
+    }
+    if let Some(box_name) = function
+        .params
+        .iter()
+        .position(|param| *param == origin)
+        .and_then(|index| function.signature.params.get(index))
+        .and_then(box_name_from_mir_type)
+    {
+        return Some(box_name.to_string());
+    }
     let (block_id, instruction_index) = def_map.get(&origin).copied()?;
     let block = function.blocks.get(&block_id)?;
     match block.instructions.get(instruction_index)? {
@@ -137,6 +154,7 @@ pub(crate) fn receiver_origin_box_name(
 
 fn box_name_from_mir_type(ty: &MirType) -> Option<&str> {
     match ty {
+        MirType::String => Some("StringBox"),
         MirType::Box(name) => Some(name.as_str()),
         _ => None,
     }

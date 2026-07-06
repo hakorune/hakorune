@@ -24,7 +24,7 @@ static box BoxHelpers {
   }
 
   // MapBox.get/2 の安全呼び出し
-  map_get(obj, key) {
+  map_get(obj: MapBox, key) {
     if obj == null { return null }
     return obj.get(key)
   }

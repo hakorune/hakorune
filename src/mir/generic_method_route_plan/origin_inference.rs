@@ -512,6 +512,7 @@ fn method_receiver_box_name(symbol: &str) -> Option<String> {
 
 fn box_name_from_mir_type(ty: &MirType) -> Option<&str> {
     match ty {
+        MirType::String => Some("StringBox"),
         MirType::Box(name) => Some(name.as_str()),
         _ => None,
     }

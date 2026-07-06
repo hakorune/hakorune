@@ -30,6 +30,14 @@ static box LoopStmtHandler {
     }
   }
 
+  _same_token(lhs, rhs) {
+    if lhs == null || rhs == null { return 0 }
+    if lhs == "" || rhs == "" { return 0 }
+    if lhs.length() != rhs.length() { return 0 }
+    if StringHelpers.index_of(lhs, 0, rhs) == 0 { return 1 }
+    return 0
+  }
+
   _read_cond_compare_lt(program_json, idx, local_name, tag, next_idx) {
     local loop_end = ProgramJsonV0ScannerBox.seek_obj_end_unescaped(program_json, idx)
     if loop_end < 0 {
@@ -50,7 +58,7 @@ static box LoopStmtHandler {
     if BoxHelpers.map_get(cond_info, "ok") != 1 {
       return me._err(tag, "[cap_missing/program_json_v0] Loop cond node scan failed", next_idx)
     }
-    local cond_type = "" + BoxHelpers.map_get(cond_info, "type")
+    local cond_type = BoxHelpers.map_get(cond_info, "type")
     if cond_type != "Compare" {
       return me._err(tag, "[cap_missing/expr:Compare] Loop cond must be Compare", next_idx)
     }
@@ -59,7 +67,7 @@ static box LoopStmtHandler {
     if BoxHelpers.map_get(op_out, "ok") != 1 {
       return me._err(tag, "[cap_missing/program_json_v0] Loop Compare missing op", next_idx)
     }
-    local op = "" + BoxHelpers.map_get(op_out, "value")
+    local op = BoxHelpers.map_get(op_out, "value")
     if op != "<" {
       return me._err(tag, "[cap_missing/expr:Compare] Loop cond Compare op must be '<'", next_idx)
     }
@@ -72,7 +80,7 @@ static box LoopStmtHandler {
     if BoxHelpers.map_get(lhs_info, "ok") != 1 {
       return me._err(tag, "[cap_missing/program_json_v0] Loop lhs node scan failed", next_idx)
     }
-    local lhs_type = "" + BoxHelpers.map_get(lhs_info, "type")
+    local lhs_type = BoxHelpers.map_get(lhs_info, "type")
     if lhs_type != "Var" {
       return me._err(tag, "[cap_missing/expr:Var] Loop Compare lhs must be Var", next_idx)
     }
@@ -80,8 +88,8 @@ static box LoopStmtHandler {
     if BoxHelpers.map_get(lhs_name_out, "ok") != 1 {
       return me._err(tag, "[cap_missing/program_json_v0] Loop Compare lhs Var missing name", next_idx)
     }
-    local lhs_name = "" + BoxHelpers.map_get(lhs_name_out, "value")
-    if lhs_name == "" || lhs_name != local_name {
+    local lhs_name = BoxHelpers.map_get(lhs_name_out, "value")
+    if me._same_token(lhs_name, local_name) != 1 {
       return me._err(tag, "[cap_missing/stmt:Loop] Loop cond lhs must be the Local var", next_idx)
     }
 
@@ -93,7 +101,7 @@ static box LoopStmtHandler {
     if BoxHelpers.map_get(rhs_info, "ok") != 1 {
       return me._err(tag, "[cap_missing/program_json_v0] Loop rhs node scan failed", next_idx)
     }
-    local rhs_type = "" + BoxHelpers.map_get(rhs_info, "type")
+    local rhs_type = BoxHelpers.map_get(rhs_info, "type")
     if rhs_type != "Int" {
       return me._err(tag, "[cap_missing/expr:Int] Loop Compare rhs must be Int", next_idx)
     }
@@ -114,7 +122,7 @@ static box LoopStmtHandler {
     if BoxHelpers.map_get(stmt_info, "ok") != 1 {
       return me._err(tag, "[cap_missing/program_json_v0] Loop body stmt type scan failed", stmt_start)
     }
-    local stmt_type = "" + BoxHelpers.map_get(stmt_info, "type")
+    local stmt_type = BoxHelpers.map_get(stmt_info, "type")
     if stmt_type != "Local" && stmt_type != "Assignment" {
       return me._err(tag, "[cap_missing/stmt:Loop] Loop body assignment stmt must be Local/Assignment", stmt_start)
     }
@@ -123,8 +131,8 @@ static box LoopStmtHandler {
     if BoxHelpers.map_get(stmt_name_out, "ok") != 1 {
       return me._err(tag, "[cap_missing/program_json_v0] Loop body assignment missing name", stmt_start)
     }
-    local stmt_name = "" + BoxHelpers.map_get(stmt_name_out, "value")
-    if stmt_name == "" || stmt_name != local_name {
+    local stmt_name = BoxHelpers.map_get(stmt_name_out, "value")
+    if me._same_token(stmt_name, local_name) != 1 {
       return me._err(tag, "[cap_missing/stmt:Loop] Loop body assignment must target the Local var", stmt_start)
     }
 
@@ -136,7 +144,7 @@ static box LoopStmtHandler {
     if BoxHelpers.map_get(expr_info, "ok") != 1 {
       return me._err(tag, "[cap_missing/program_json_v0] Loop body assignment expr node scan failed", stmt_start)
     }
-    local expr_type = "" + BoxHelpers.map_get(expr_info, "type")
+    local expr_type = BoxHelpers.map_get(expr_info, "type")
     if expr_type != "Binary" {
       return me._err(tag, "[cap_missing/expr:Binary] Loop body assignment must be Binary", stmt_start)
     }
@@ -145,7 +153,7 @@ static box LoopStmtHandler {
     if BoxHelpers.map_get(op_out, "ok") != 1 {
       return me._err(tag, "[cap_missing/program_json_v0] Loop body assignment Binary missing op", stmt_start)
     }
-    local op = "" + BoxHelpers.map_get(op_out, "value")
+    local op = BoxHelpers.map_get(op_out, "value")
     if op != "+" {
       return me._err(tag, "[cap_missing/expr:Binary] Loop body assignment Binary op must be '+'", stmt_start)
     }
@@ -158,7 +166,7 @@ static box LoopStmtHandler {
     if BoxHelpers.map_get(lhs_info, "ok") != 1 {
       return me._err(tag, "[cap_missing/program_json_v0] Loop body assignment lhs node scan failed", stmt_start)
     }
-    local lhs_type = "" + BoxHelpers.map_get(lhs_info, "type")
+    local lhs_type = BoxHelpers.map_get(lhs_info, "type")
     if lhs_type != "Var" {
       return me._err(tag, "[cap_missing/expr:Var] Loop body assignment lhs must be Var", stmt_start)
     }
@@ -166,8 +174,8 @@ static box LoopStmtHandler {
     if BoxHelpers.map_get(lhs_name_out, "ok") != 1 {
       return me._err(tag, "[cap_missing/program_json_v0] Loop body assignment lhs Var missing name", stmt_start)
     }
-    local lhs_name = "" + BoxHelpers.map_get(lhs_name_out, "value")
-    if lhs_name == "" || lhs_name != local_name {
+    local lhs_name = BoxHelpers.map_get(lhs_name_out, "value")
+    if me._same_token(lhs_name, local_name) != 1 {
       return me._err(tag, "[cap_missing/stmt:Loop] Loop body assignment lhs Var must match Local var", stmt_start)
     }
 
@@ -179,7 +187,7 @@ static box LoopStmtHandler {
     if BoxHelpers.map_get(rhs_info, "ok") != 1 {
       return me._err(tag, "[cap_missing/program_json_v0] Loop body assignment rhs node scan failed", stmt_start)
     }
-    local rhs_type = "" + BoxHelpers.map_get(rhs_info, "type")
+    local rhs_type = BoxHelpers.map_get(rhs_info, "type")
     if rhs_type != "Int" {
       return me._err(tag, "[cap_missing/expr:Int] Loop body assignment rhs must be Int", stmt_start)
     }
@@ -204,7 +212,7 @@ static box LoopStmtHandler {
     if BoxHelpers.map_get(stmt_info, "ok") != 1 {
       return me._err(tag, "[cap_missing/program_json_v0] Loop If stmt type scan failed", stmt_start)
     }
-    local stmt_type = "" + BoxHelpers.map_get(stmt_info, "type")
+    local stmt_type = BoxHelpers.map_get(stmt_info, "type")
     if stmt_type != "If" {
       return me._err(tag, "[cap_missing/stmt:Loop] Loop first body stmt must be If", stmt_start)
     }
@@ -217,7 +225,7 @@ static box LoopStmtHandler {
     if BoxHelpers.map_get(cond_info, "ok") != 1 {
       return me._err(tag, "[cap_missing/program_json_v0] Loop If cond node scan failed", stmt_start)
     }
-    local cond_type = "" + BoxHelpers.map_get(cond_info, "type")
+    local cond_type = BoxHelpers.map_get(cond_info, "type")
     if cond_type != "Compare" {
       return me._err(tag, "[cap_missing/expr:Compare] Loop If cond must be Compare", stmt_start)
     }
@@ -225,7 +233,7 @@ static box LoopStmtHandler {
     if BoxHelpers.map_get(op_out, "ok") != 1 {
       return me._err(tag, "[cap_missing/program_json_v0] Loop If Compare missing op", stmt_start)
     }
-    local op = "" + BoxHelpers.map_get(op_out, "value")
+    local op = BoxHelpers.map_get(op_out, "value")
     if op != "<" {
       return me._err(tag, "[cap_missing/expr:Compare] Loop If cond Compare op must be '<'", stmt_start)
     }
@@ -238,7 +246,7 @@ static box LoopStmtHandler {
     if BoxHelpers.map_get(lhs_info, "ok") != 1 {
       return me._err(tag, "[cap_missing/program_json_v0] Loop If lhs node scan failed", stmt_start)
     }
-    local lhs_type = "" + BoxHelpers.map_get(lhs_info, "type")
+    local lhs_type = BoxHelpers.map_get(lhs_info, "type")
     if lhs_type != "Var" {
       return me._err(tag, "[cap_missing/expr:Var] Loop If Compare lhs must be Var", stmt_start)
     }
@@ -246,8 +254,8 @@ static box LoopStmtHandler {
     if BoxHelpers.map_get(lhs_name_out, "ok") != 1 {
       return me._err(tag, "[cap_missing/program_json_v0] Loop If lhs Var missing name", stmt_start)
     }
-    local lhs_name = "" + BoxHelpers.map_get(lhs_name_out, "value")
-    if lhs_name == "" || lhs_name != local_name {
+    local lhs_name = BoxHelpers.map_get(lhs_name_out, "value")
+    if me._same_token(lhs_name, local_name) != 1 {
       return me._err(tag, "[cap_missing/stmt:Loop] Loop If cond lhs must be the Local var", stmt_start)
     }
 
@@ -259,7 +267,7 @@ static box LoopStmtHandler {
     if BoxHelpers.map_get(rhs_info, "ok") != 1 {
       return me._err(tag, "[cap_missing/program_json_v0] Loop If rhs node scan failed", stmt_start)
     }
-    local rhs_type = "" + BoxHelpers.map_get(rhs_info, "type")
+    local rhs_type = BoxHelpers.map_get(rhs_info, "type")
     if rhs_type != "Int" {
       return me._err(tag, "[cap_missing/expr:Int] Loop If Compare rhs must be Int", stmt_start)
     }
@@ -299,7 +307,7 @@ static box LoopStmtHandler {
     if BoxHelpers.map_get(then_stmt_info, "ok") != 1 {
       return me._err(tag, "[cap_missing/program_json_v0] Loop If then stmt type scan failed", then_start)
     }
-    local then_stmt_type = "" + BoxHelpers.map_get(then_stmt_info, "type")
+    local then_stmt_type = BoxHelpers.map_get(then_stmt_info, "type")
     if then_stmt_type != "Return" {
       return me._err(tag, "[cap_missing/stmt:Loop] Loop If then must be Return(Int)", then_start)
     }
@@ -311,7 +319,7 @@ static box LoopStmtHandler {
     if BoxHelpers.map_get(then_expr_info, "ok") != 1 {
       return me._err(tag, "[cap_missing/program_json_v0] Loop If Return expr node scan failed", then_start)
     }
-    local then_expr_type = "" + BoxHelpers.map_get(then_expr_info, "type")
+    local then_expr_type = BoxHelpers.map_get(then_expr_info, "type")
     if then_expr_type != "Int" {
       return me._err(tag, "[cap_missing/stmt:Loop] Loop If Return expr must be Int", then_start)
     }
@@ -350,7 +358,8 @@ static box LoopStmtHandler {
       local assign_out = me._read_loop_body_assignment_stmt(program_json, first_start, local_name, tag, next_idx)
       local assign_err = StringHelpers.to_i64(BoxHelpers.map_get(assign_out, "err"))
       if assign_err != 0 {
-        return me._err(tag, "" + BoxHelpers.map_get(assign_out, "err_line"), next_idx)
+        assign_out.set("next_idx", next_idx)
+        return assign_out
       }
       return %{
         "err" => 0,
@@ -379,13 +388,15 @@ static box LoopStmtHandler {
     local if_out = me._read_loop_if_then_return_int(program_json, first_start, local_name, tag, next_idx)
     local if_err = StringHelpers.to_i64(BoxHelpers.map_get(if_out, "err"))
     if if_err != 0 {
-      return me._err(tag, "" + BoxHelpers.map_get(if_out, "err_line"), next_idx)
+      if_out.set("next_idx", next_idx)
+      return if_out
     }
 
     local assign_out = me._read_loop_body_assignment_stmt(program_json, second_start, local_name, tag, next_idx)
     local assign_err = StringHelpers.to_i64(BoxHelpers.map_get(assign_out, "err"))
     if assign_err != 0 {
-      return me._err(tag, "" + BoxHelpers.map_get(assign_out, "err_line"), next_idx)
+      assign_out.set("next_idx", next_idx)
+      return assign_out
     }
 
     return %{
@@ -398,13 +409,17 @@ static box LoopStmtHandler {
     }
   }
 
-  handle(program_json, idx, next_idx, tag, state) {
-    local has_print = StringHelpers.to_i64(BoxHelpers.map_get(state, "has_print"))
-    local has_local = StringHelpers.to_i64(BoxHelpers.map_get(state, "has_local"))
-    local has_assignment = StringHelpers.to_i64(BoxHelpers.map_get(state, "has_assignment"))
-    local has_return = StringHelpers.to_i64(BoxHelpers.map_get(state, "has_return"))
-    local local_name = "" + BoxHelpers.map_get(state, "local_name")
-
+  handle_state_values(
+    program_json,
+    idx,
+    next_idx,
+    tag,
+    has_print,
+    has_local,
+    has_assignment,
+    has_return,
+    local_name
+  ) {
     if has_local != 1 || local_name == "" {
       return me._err(tag, "[cap_missing/stmt:Loop] Loop requires Local before Loop", next_idx)
     }
@@ -418,16 +433,18 @@ static box LoopStmtHandler {
     local cond_out = me._read_cond_compare_lt(program_json, idx, local_name, tag, next_idx)
     local cond_err = StringHelpers.to_i64(BoxHelpers.map_get(cond_out, "err"))
     if cond_err != 0 {
-      return me._err(tag, "" + BoxHelpers.map_get(cond_out, "err_line"), next_idx)
+      cond_out.set("next_idx", next_idx)
+      return cond_out
     }
     local cond_rhs_int = BoxHelpers.map_get(cond_out, "cond_rhs_int")
 
     local body_out = me._read_loop_body(program_json, idx, local_name, tag, next_idx)
     local body_err = StringHelpers.to_i64(BoxHelpers.map_get(body_out, "err"))
     if body_err != 0 {
-      return me._err(tag, "" + BoxHelpers.map_get(body_out, "err_line"), next_idx)
+      body_out.set("next_idx", next_idx)
+      return body_out
     }
-    local body_kind = "" + BoxHelpers.map_get(body_out, "body_kind")
+    local body_kind = BoxHelpers.map_get(body_out, "body_kind")
     local step_int = BoxHelpers.map_get(body_out, "step_int")
 
     local cond_facts = new MapBox()
@@ -468,6 +485,20 @@ static box LoopStmtHandler {
     }
     local loop_item = RecipeItemBox.loop_item(cond_facts, body_seq)
     return me._ok(next_idx, loop_item)
+  }
+
+  handle(program_json, idx, next_idx, tag, state) {
+    return me.handle_state_values(
+      program_json,
+      idx,
+      next_idx,
+      tag,
+      StringHelpers.to_i64(BoxHelpers.map_get(state, "has_print")),
+      StringHelpers.to_i64(BoxHelpers.map_get(state, "has_local")),
+      StringHelpers.to_i64(BoxHelpers.map_get(state, "has_assignment")),
+      StringHelpers.to_i64(BoxHelpers.map_get(state, "has_return")),
+      BoxHelpers.map_get(state, "local_name")
+    )
   }
 }
 

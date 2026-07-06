@@ -36,10 +36,9 @@ static box ProgramJsonV0PhaseStateBox {
   // parse(program_json, tag) -> %{ err, err_line, ...state... }
   parse(program_json, tag) {
     if tag == null || ("" + tag) == "" { tag = "[freeze:contract][hako_mirbuilder]" }
-    if program_json == null || ("" + program_json) == "" {
+    if program_json == null || program_json == "" {
       return me._fail(tag, "missing Program(JSON v0) input")
     }
-    program_json = "" + program_json
 
     local n = program_json.length()
     local idx = ProgramJsonV0ScannerBox.seek_after(program_json, "\"body\":[", 0)
@@ -53,7 +52,7 @@ static box ProgramJsonV0PhaseStateBox {
     if me._out_i64(function_runes_out, "err") != 0 {
       return me._emit_out_with_state(
         1,
-        me._out_s(function_runes_out, "err_line"),
+          BoxHelpers.map_get(function_runes_out, "err_line"),
         -1,
         me._state_map(
           0, 0, 0, 0,
@@ -143,7 +142,7 @@ static box ProgramJsonV0PhaseStateBox {
             current_state
           )
         }
-        local peek_type = "" + BoxHelpers.map_get(node_peek, "type")
+        local peek_type = BoxHelpers.map_get(node_peek, "type")
         local peek_stage = ProgramJsonV0LegacyOrderStageBox.classify(peek_type)
         if peek_stage != 0 {
           if peek_stage < order_stage {
@@ -165,7 +164,7 @@ static box ProgramJsonV0PhaseStateBox {
 
         local next_idx = me._out_i64(out, "next_idx")
         if me._out_i64(out, "err") == 1 {
-          local err_line = me._out_s(out, "err_line")
+          local err_line = BoxHelpers.map_get(out, "err_line")
           if err_line == "" {
             err_line = tag + " internal error in Program(JSON v0) scanner"
           }
@@ -203,17 +202,17 @@ static box ProgramJsonV0PhaseStateBox {
           me._out_i64(out, "has_assignment"),
           me._out_i64(out, "has_return"),
           BoxHelpers.map_get(out, "printv"),
-          me._out_s(out, "print_kind"),
-          me._out_s(out, "print_var_name"),
-          me._out_s(out, "local_name"),
+          BoxHelpers.map_get(out, "print_kind"),
+          BoxHelpers.map_get(out, "print_var_name"),
+          BoxHelpers.map_get(out, "local_name"),
           BoxHelpers.map_get(out, "local_init"),
-          me._out_s(out, "assign_name"),
+          BoxHelpers.map_get(out, "assign_name"),
           BoxHelpers.map_get(out, "assign_rhs"),
-          me._out_s(out, "assign_rhs_kind"),
-          me._out_s(out, "return_kind"),
+          BoxHelpers.map_get(out, "assign_rhs_kind"),
+          BoxHelpers.map_get(out, "return_kind"),
           BoxHelpers.map_get(out, "retv"),
-          me._out_s(out, "ret_var_name"),
-          me._out_s(out, "ret_box_type"),
+          BoxHelpers.map_get(out, "ret_var_name"),
+          BoxHelpers.map_get(out, "ret_box_type"),
           BoxHelpers.map_get(out, "function_runes_map")
         )
 

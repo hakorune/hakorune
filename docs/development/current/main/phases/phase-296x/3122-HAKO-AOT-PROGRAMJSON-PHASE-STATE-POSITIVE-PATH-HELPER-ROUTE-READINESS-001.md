@@ -106,6 +106,87 @@ void_signature_object_return_widening = 0
 mixed_runtime_i64_or_handle_for_scanner_out_map = 0
 ```
 
+## 2026-07-06 Progress Note
+
+Status: active, not green.
+
+Resolved within this slice:
+
+```text
+ProgramJsonV0ScannerBox.read_node_type_at_result now reads the node object's
+own top-level "type" field instead of the last nested "type" field.
+
+PhaseState/handler state propagation now preserves known ProgramJSON token
+StringBox values instead of routing them through "" + map_get at state seams.
+
+LoopStmtHandler now has a scalar state-value entry for the Loop positive path,
+so the Loop handler does not depend on a broad state MapBox argument for the
+minimal Local -> Loop route.
+
+Loop token comparisons use a local token equality helper for ProgramJSON
+identifier tokens.
+
+PhaseStateBox.parse no longer stringifies the ProgramJSON input at entry.
+
+Rust map value metadata now keeps per-literal-key value facts even when the
+broad MapBox value type is heterogeneous.
+
+BoxHelpers.map_get/2 now declares its receiver as MapBox, so the helper's own
+internal get route is a MapBox read instead of an untyped RuntimeData fallback.
+
+Generic method origin publication now treats MirType::String as StringBox for
+handle-origin purposes, and receiver origin lookup now checks metadata value
+types before requiring an origin instruction. This is intentionally kept in
+generic method route metadata, not in scanner nullable bridges or C by-name
+special cases.
+```
+
+Observed green probes:
+
+```text
+ProgramJsonV0PhaseStateBox.parse(row0 positive fixture) = err=0, next_idx=396
+LocalStmtHandler positive consume = err=0
+Loop cond lhs mismatch blocker = closed for direct PhaseState parse
+RecipeItemBox.kind_of/1 route is string_handle, and BoxHelpers.map_get/2 uses
+MapBox get metadata in the inspected heavy probe.
+```
+
+Remaining blocker:
+
+```text
+ProgramJsonLoopRecipeDtoSnapshotBox.build_summary/1 still returns
+snapshot_kind=LoopRecipeDtoSnapshotV1;err=1;reason=parse_error when called
+through the heavy EXE route.
+
+The intermediate recipe_root_not_seq failure is closed. The heavy EXE readiness
+gate now classifies the exact first blocker as
+phase_state_parse_runtime_parse_error, while the route metadata guards remain
+green:
+
+  phase_state_parse_route = DirectAbi
+  phase_state_parse_return_shape = map_handle
+  snapshot_route = DirectAbi
+  snapshot_return_shape = string_handle
+
+This points back at the PhaseState parse runtime path under the heavy EXE
+caller, not at RecipeItem kind token comparison and not at ProgramJSON scanner
+result-map returns.
+```
+
+Next owner to inspect:
+
+```text
+PhaseState parse heavy EXE runtime path after MapBox/string token route cleanup:
+  ProgramJsonV0PhaseStateBox.parse/2
+  ProgramJsonV0PhaseStateConsumerBox.consume_next_state/5
+  lang/c-abi/shims/hako_llvmc_ffi_mir_call_shell.inc
+  lang/c-abi/shims/hako_llvmc_ffi_lowering_plan_metadata.inc
+  src/mir/global_call_route_plan/value_type_publish.rs
+
+Keep generic void object return widening = 0.
+Keep scanner nullable bridge = 0.
+```
+
 ## Required Guards
 
 ```bash
