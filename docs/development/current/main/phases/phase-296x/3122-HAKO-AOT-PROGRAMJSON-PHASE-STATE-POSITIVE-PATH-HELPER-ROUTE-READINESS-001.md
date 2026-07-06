@@ -277,7 +277,7 @@ Cleanliness backlog after Phase A.1/B.1:
 
 ```text
 1. done: pure_compile exact-seed dispatcher extraction
-2. in-progress: ORG_* enum/state ownership extraction without changing integer values
+2. done-for-structure: ORG_* enum and GenericPure state exposure extraction
 3. same-module method view registry drift guard against generated route rows
 4. map lookup fusion route-shape vs site/register matcher split
 5. BoxTypeInspectorBox predicate publication inventory
@@ -303,20 +303,22 @@ non-claims:
   no route acceptance, fallback, ABI, lowering, or Source Selfhost claim
 ```
 
-Phase B.3 - ORG vocabulary extraction:
+Phase B.3 - ORG vocabulary and generic pure state exposure extraction:
 
 ```text
-status: partial
+status: done-for-structure
 owner file:
   lang/c-abi/shims/hako_llvmc_ffi_pure_compile.inc
 new include:
   lang/c-abi/shims/hako_llvmc_ffi_origin_kind_vocabulary.inc
+  lang/c-abi/shims/hako_llvmc_ffi_generic_pure_lowering_state.inc
 
 done:
   ORG_* enum values are moved to one include with integer values unchanged
+  GenericPureFunctionLoweringState and its historical macro exposure are moved
+    to one include with macro names and reset defaults unchanged
 
 still pending:
-  GenericPureFunctionLoweringState ownership/macro exposure cleanup
   ORG_STRING -> ORG_STRINGBOX naming decision is not part of this slice
 
 non-claims:
