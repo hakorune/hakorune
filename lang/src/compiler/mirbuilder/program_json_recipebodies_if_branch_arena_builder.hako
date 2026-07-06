@@ -74,25 +74,12 @@ static box ProgramJsonRecipeBodiesIfBranchArenaBuilderBox {
     }
   }
 
-  _seq_items(seq_item) {
-    if seq_item == null || BoxHelpers.is_map(seq_item) != 1 { return null }
-    if RecipeItemBox.kind_is(seq_item, "Seq") != 1 { return null }
+  _seq_items(seq_item): ArrayBox {
+    if seq_item == null || BoxHelpers.is_map(seq_item) != 1 { return [] }
+    if RecipeItemBox.kind_is(seq_item, "Seq") != 1 { return [] }
     local items = BoxHelpers.map_get(seq_item, "items")
-    if items == null || BoxHelpers.is_array(items) != 1 { return null }
+    if items == null || BoxHelpers.is_array(items) != 1 { return [] }
     return items
-  }
-
-  _branch_body(body_id, branch_item): MapBox {
-    local branch_items = me._seq_items(branch_item)
-    if branch_items == null { return me._body_map(body_id, []) }
-    local n = me._len(branch_items)
-    local refs = []
-    local i = 0
-    loop(i < n) {
-      refs.push(me._stmt_ref(body_id, i, BoxHelpers.array_get(branch_items, i)))
-      i = i + 1
-    }
-    return me._body_map(body_id, refs)
   }
 
   build_arena(program_json): MapBox {
@@ -101,7 +88,6 @@ static box ProgramJsonRecipeBodiesIfBranchArenaBuilderBox {
 
     local root = BoxHelpers.map_get(out, "recipe_root")
     local root_items = me._seq_items(root)
-    if root_items == null { return me._err("missing_recipe_root") }
     if me._len(root_items) != 3 { return me._err("root_body_not_three_items") }
 
     local item0 = BoxHelpers.array_get(root_items, 0)
@@ -115,16 +101,29 @@ static box ProgramJsonRecipeBodiesIfBranchArenaBuilderBox {
 
     local then_item = BoxHelpers.map_get(item1, "then_item")
     local else_item = BoxHelpers.map_get(item1, "else_item")
+    local then_items = me._seq_items(then_item)
+    local else_items = me._seq_items(else_item)
+    if me._len(then_items) != 1 { return me._err("then_body_not_one_item") }
+    if me._len(else_items) != 1 { return me._err("else_body_not_one_item") }
+
+    local then0 = BoxHelpers.array_get(then_items, 0)
+    local else0 = BoxHelpers.array_get(else_items, 0)
+    if me._stmt_code(then0) != 1 { return me._err("then_first_not_local") }
+    if me._stmt_code(else0) != 2 { return me._err("else_first_not_print") }
 
     local root_refs = []
     root_refs.push(me._stmt_ref(0, 0, item0))
     root_refs.push(me._if_ref(1, 1, 2))
     root_refs.push(me._stmt_ref(0, 2, item2))
+    local then_refs = []
+    then_refs.push(me._stmt_ref(1, 0, then0))
+    local else_refs = []
+    else_refs.push(me._stmt_ref(2, 0, else0))
 
     local bodies = []
     bodies.push(me._body_map(0, root_refs))
-    bodies.push(me._branch_body(1, then_item))
-    bodies.push(me._branch_body(2, else_item))
+    bodies.push(me._body_map(1, then_refs))
+    bodies.push(me._body_map(2, else_refs))
 
     return %{
       "err" => 0,
