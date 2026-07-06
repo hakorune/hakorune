@@ -345,18 +345,16 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "HAKO-AOT-PROGRAMJSON-PHASE-STATE-POSITIVE-PATH-HELPER-ROUTE-READINESS-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3122-HAKO-AOT-PROGRAMJSON-PHASE-STATE-POSITIVE-PATH-HELPER-ROUTE-READINESS-001.md"
-latest_card_summary = """3122 is complete. Layer4 loop Recipe DTO heavy EXE
-readiness is now runtime-parity green for the covered ProgramJSON rows. The
-slice fixed the supporting AOT/ProgramJSON contracts without scanner nullable
-bridges or generic void object return widening: result-map ok/err readers,
-shared ProgramJSON token equality, RecipeItem kind predicates, dependency-first
-same-module function definition emission, and direct Loop.cond field scanning.
-Do not claim MIR mutation/lowering, route switch, new ABI, HakoAdoption, or
-Source Selfhost. The migration lane may resume from the next concrete
-ProgramJSON/Layer4 owner while preserving the wider route-selection design stop
-for source selfhost."""
+latest_card = "MIRBUILDER-PROGRAMJSON-LAYER4-LOOP-RECIPE-DTO-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3123-MIRBUILDER-PROGRAMJSON-LAYER4-LOOP-RECIPE-DTO-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001.md"
+latest_card_summary = """3123 marks only the covered LoopRecipeDtoSnapshotV1
+ProgramJSON Layer4 loop Recipe DTO rows as a scoped Rust ASTNode projector
+retire-candidate after 3119 parity and 3122 heavy EXE readiness are green. This
+is a future runtime route-switch candidate, not Rust bootstrap/oracle deletion.
+Do not claim full ASTNode projector retirement, full RecipeMatcher execution,
+route selection, MIR mutation/lowering, ID allocation, HakoAdoption,
+ProgramJSON full parser, new ABI, or Source Selfhost. Next active work is
+selecting the next concrete Layer4 Recipe DTO ProgramJSON capability."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -367,6 +365,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-06: 3123 marks covered LoopRecipeDtoSnapshotV1 ProgramJSON Layer4 rows as a scoped Rust ASTNode projector retire-candidate after 3119 parity and 3122 heavy runtime parity are green; runtime route switch and Source Selfhost remain unclaimed.",
   "2026-07-06: 3122 completes Layer4 loop Recipe DTO heavy EXE readiness with runtime_parity_green=1; fixes result-map readers, shared token equality, Recipe kind predicates, dependency-first same-module definition emission, and direct Loop.cond scanning without scanner nullable bridges or Source Selfhost claims.",
   "2026-07-06: 3121 narrows the PhaseState EXE parse failure by preserving Program(JSON v0) string tokens as raw StringBox values through Local/Recipe classification; heavy guard remains non-claiming with runtime_parity_green=0 pending positive-path helper route readiness.",
   "2026-07-06: 3120 closes the Layer4 loop Recipe DTO heavy EXE compile-cost blocker by making the FFI O0 opt path mem2reg-only; runtime parity remains unclaimed pending PhaseState parse runtime err=1 investigation.",
@@ -377,6 +376,5 @@ landed_tail = [
   "2026-07-06: 3115 lands the PhaseState scan-body rec result contract; _scan_body_rec is loop-local and parse reaches it as DirectAbi, leaving RuneAttrs function-name normalization as the next blocker.",
   "2026-07-06: 3114 lands the RecipeVerifier / RecipePortSig result contract; Recipe family routes are DirectAbi and the next blocker family is ProgramJsonV0PhaseStateBox scan-body recursion plus ProgramJsonV0RuneAttrsBox normalization.",
   "2026-07-06: 3113 lands the PhaseState consume-stmt control/try result contract; the consumer probe now exposes RecipeVerifierBox / RecipePortSigBox as the next result-contract blocker family while full PhaseState parse remains unclaimed.",
-  "2026-07-06: 3112 lands the PhaseState consume-stmt non-control result contract; remaining blocker is control/try nullable helper cleanup before consume_stmt can become AOT-callable.",
   "2026-07-06: 3107 records the Layer4 PhaseState AOT call blocker for ProgramJsonV0PhaseStateBox.parse/2; next work fixes the AOT parse call contract before loop Recipe DTO parity.",
 ]

@@ -60,9 +60,10 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  HAKO-AOT-PROGRAMJSON-PHASE-STATE-POSITIVE-PATH-HELPER-ROUTE-READINESS-001
+  MIRBUILDER-PROGRAMJSON-LAYER4-NEXT-RECIPE-DTO-CAPABILITY-SELECTION-001
 selected next card:
-  docs/development/current/main/phases/phase-296x/3122-HAKO-AOT-PROGRAMJSON-PHASE-STATE-POSITIVE-PATH-HELPER-ROUTE-READINESS-001.md
+  not-yet-created; next slice must select the next concrete Layer4 Recipe DTO
+  ProgramJSON capability after the 3123 retire-candidate checkpoint.
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -92,12 +93,20 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  3122 selects the direct/map responsibility split exposed by 3121: scanner
+  3123 marks the covered LoopRecipeDtoSnapshotV1 ProgramJSON Layer4 loop
+  Recipe DTO rows as a scoped Rust ASTNode projector retire-candidate after
+  3119 parity and 3122 heavy EXE readiness are green. This is a future runtime
+  route-switch candidate, not Rust bootstrap/oracle deletion. Runtime route
+  switch, HakoAdoption, ProgramJSON full parser, full RecipeMatcher execution,
+  route selection, MIR mutation/lowering, ID allocation, and Source Selfhost
+  remain unclaimed. Next work selects the next concrete Layer4 Recipe DTO
+  ProgramJSON capability.
+  3122 completes the direct/map responsibility split exposed by 3121: scanner
   result-map and raw ProgramJSON token preservation stay `.hako` contracts,
-  while the next active implementation boundary is same-module positive-path
-  helper route readiness. First target is the PhaseState recipe append helper
-  family; DTO summary helpers follow only if reached. Do not inline helpers
-  merely to hide route gaps, and do not reopen scanner void/object widening.
+  while same-module positive-path helper route readiness is now heavy-runtime
+  parity green for the covered Layer4 loop Recipe DTO rows. Do not inline
+  helpers merely to hide route gaps, and do not reopen scanner void/object
+  widening.
   3120 closes the Layer4 loop Recipe DTO heavy EXE compile-cost blocker:
   the FFI `opt -> llc` O0 path now uses `mem2reg` only instead of
   `always-inline,default<O3>`, and the bounded heavy guard emits/runs the EXE.
@@ -442,8 +451,8 @@ Detailed evidence lives in phase cards, fixtures, and git history.
    status=landed; boundary=only the covered TryCatchShapeSnapshotV1 rows
 
 next active:
-  MIRBUILDER-PROGRAMJSON-LAYER4-STRUCTURED-PLAN-RECIPE-DTO-PILOT-SELECTION
-  status=active; boundary=select the first structured snapshot-to-Plan/Recipe DTO pilot
+  MIRBUILDER-PROGRAMJSON-LAYER4-NEXT-RECIPE-DTO-CAPABILITY-SELECTION-001
+  status=active; boundary=select the next concrete structured ProgramJSON-to-Recipe DTO capability after LoopRecipeDtoSnapshotV1 retire-candidate
 
 trigger-based AOT/MIR typing debt:
   status=parked-until-triggered; order=2999/3000/3001 landed, then 3022 queue
@@ -451,10 +460,10 @@ trigger-based AOT/MIR typing debt:
   compare, PHI dst_type, mir_call dst_type, or receiver-helper
   single-observation protection
 next_documented_task =
-  MIRBUILDER-PROGRAMJSON-LAYER4-STRUCTURED-PLAN-RECIPE-DTO-PILOT-SELECTION
+  MIRBUILDER-PROGRAMJSON-LAYER4-NEXT-RECIPE-DTO-CAPABILITY-SELECTION-001
 
 next_after_active_3 =
-  MIRBUILDER-PROGRAMJSON-LAYER4-STRUCTURED-PLAN-RECIPE-DTO-PILOT-SELECTION
+  MIRBUILDER-PROGRAMJSON-LAYER4-NEXT-RECIPE-DTO-CAPABILITY-SELECTION-001
 
 task discipline =
   Each ProgramJSON capability card must land real `.hako` traversal + fixture
