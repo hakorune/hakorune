@@ -1,0 +1,104 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonLayer4NextRecipeDtoCapabilitySelectionRerun002V1",
+  "token": "MIRBUILDER-PROGRAMJSON-LAYER4-NEXT-RECIPE-DTO-CAPABILITY-SELECTION-RERUN-002",
+  "input_state": {
+    "previous_card": "MIRBUILDER-PROGRAMJSON-LAYER4-SEQ-RECIPE-DTO-LOOP-ROOT-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001",
+    "previous_guard": "tools/checks/rust_lifecycle_mirbuilder_programjson_layer4_seq_recipe_dto_loop_root_retire_rust_astnode_projector_candidate_guard.sh",
+    "task_order": "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
+  },
+  "selection_policy": {
+    "capability_batch_required": true,
+    "source_code_line_cap": 800,
+    "layer4_scope": "ProgramJSON recipe_root to structured Recipe DTO or Recipe metadata snapshot",
+    "layer4_not_scope": [
+      "MIR mutation",
+      "backend lowering",
+      "ID allocation",
+      "route selection",
+      "full RecipeMatcher execution",
+      "runtime route switch"
+    ]
+  },
+  "candidates": [
+    {
+      "name": "ProgramJsonRecipePortSigLoopRootV1",
+      "decision": "selected",
+      "why": [
+        "RecipePortSigDtoSnapshotV1 already has base Layer4 parity but loop-root rows were deferred behind Seq DTO root-child coverage",
+        "SeqRecipeDtoSnapshotV1 now proves Local>Loop>Return loop-root rows and marks them as a scoped retire-candidate",
+        "RecipeVerifierBox.verify/2 aggregates the same structured recipe_root into count-only RecipePortSigBox output",
+        "the slice stays below route selection, MIR mutation, lowering, ID allocation, and RecipeMatcher execution"
+      ],
+      "implementation_owner": "lang/src/compiler/mirbuilder/program_json_recipe_port_sig_dto_snapshot.hako"
+    },
+    {
+      "name": "ProgramJsonLayer4RuntimeRouteSwitchV1",
+      "decision": "forbidden_now",
+      "why": [
+        "runtime route switch requires later Layer4/Layer5 coverage",
+        "full projector retirement and Source Selfhost remain unclaimed"
+      ]
+    }
+  ],
+  "selected_capability": {
+    "name": "ProgramJsonRecipePortSigLoopRootV1",
+    "input": "ProgramJSON v0",
+    "output": "RecipePortSigDtoSnapshotV1 for covered Local>Loop>Return root rows",
+    "source_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-programjson-layer4-loop-recipe-dto-expanded-return-parity-v0.json",
+    "source_rows": [
+      "loop_if_then_return_new_stringbox_abc_assignment_final_return_var",
+      "loop_if_then_return_call_id0_assignment_final_return_var",
+      "loop_if_then_return_call_id1_int9_assignment_final_return_var",
+      "loop_if_then_return_call_id1_int7_assignment_final_return_var",
+      "loop_if_then_return_method_stringbox_length_abc_assignment_final_return_var",
+      "loop_if_then_return_method_stringbox_indexof_b_abc_assignment_final_return_var"
+    ],
+    "expected_port_sig": "def_count=1;update_count=2",
+    "next_card": "MIRBUILDER-PROGRAMJSON-LAYER4-RECIPE-PORT-SIG-DTO-LOOP-ROOT-PARITY-001"
+  },
+  "acceptance": {
+    "must_consume_programjson_structure": 1,
+    "must_construct_structured_recipe_dto": 1,
+    "must_use_recipe_verifier": 1,
+    "must_use_recipe_port_sig_snapshot": 1,
+    "minimum_parity_row_count": 6,
+    "implementation_card_required": 0,
+    "parity_gate_required": 1,
+    "token_snapshot_only": 0,
+    "string_only_facade": 0
+  },
+  "stop_conditions": {
+    "prebuilt_token_snapshot_input": 1,
+    "source_contains_or_regex_proof": 1,
+    "rust_astnode_projector_used_as_target_input": 1,
+    "mir_mutation_or_lowering_added": 1,
+    "route_selection_added": 1,
+    "recipe_matcher_execution_added": 1,
+    "unsupported_shape_silently_ignored": 1
+  },
+  "decision": {
+    "kind": "SelectLayer4RecipeDtoCapability",
+    "reason_token": "RecipePortSigLoopRootIsNextMetadataBoundaryAfterSeqLoopRoot",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-LAYER4-RECIPE-PORT-SIG-DTO-LOOP-ROOT-PARITY-001"
+  },
+  "claims": {
+    "implementation_done": 0,
+    "parity_gate_green": 0,
+    "recipe_dto_migration_done": 0,
+    "runtime_route_switch": 0,
+    "rust_astnode_projector_retired": 0,
+    "full_astnode_projector_retired": 0,
+    "programjson_full_parser_claim": 0,
+    "programjson_all_shapes_supported": 0,
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection_migration": 0,
+    "backend_lowering_migration": 0,
+    "mir_mutation_migration": 0,
+    "id_allocation_migration": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

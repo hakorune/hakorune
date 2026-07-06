@@ -60,10 +60,11 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-LAYER4-NEXT-RECIPE-DTO-CAPABILITY-SELECTION-001
+  MIRBUILDER-PROGRAMJSON-LAYER4-RECIPE-PORT-SIG-DTO-LOOP-ROOT-PARITY-001
 selected next card:
-  not-yet-created; select the next concrete structured ProgramJSON-to-Recipe
-  DTO capability after SeqRecipeDtoSnapshotV1 loop-root retire-candidate.
+  docs/development/current/main/phases/phase-296x/3160-MIRBUILDER-PROGRAMJSON-LAYER4-RECIPE-PORT-SIG-DTO-LOOP-ROOT-PARITY-001.md
+  (not yet created); prove RecipePortSigDtoSnapshotV1 over the covered
+  Local>Loop>Return loop-root rows selected by 3159.
 
 normal operating rule:
   Leaf pilot count is no longer a selfhost progress metric.
@@ -93,22 +94,12 @@ normal operating rule:
   Older scoped Fact/Recipe adoptions are kept in phase cards and git history.
 
 latest design decision:
-  3158 marks covered SeqRecipeDtoSnapshotV1 Local>Loop>Return root rows as a
-  scoped Rust ASTNode projector retire-candidate.
-  3157 expands SeqRecipeDtoSnapshotV1 with covered Local>Loop>Return root rows
-  and phase21 shape_kind parity.
-  3156 selects ProgramJsonSeqRecipeDtoLoopRootV1 as the next ProgramJSON
-  Layer4 Recipe DTO capability after shape-kind loop-root retire-candidate.
-  3155 marks covered RecipeShapeKindDtoSnapshotV1 Local>Loop>Return root rows
-  as a scoped Rust ASTNode projector retire-candidate.
-  3154 expands RecipeShapeKindDtoSnapshotV1 with covered Local>Loop>Return
-  root rows and phase21 shape_kind parity.
-  3153 selects ProgramJsonRecipeShapeKindDtoLoopRootV1 as the next ProgramJSON
-  Layer4 Recipe DTO capability after stmt-seq loop-root retire-candidate.
-  3152 marks covered RecipeStmtSeqDtoSnapshotV1 Local>Loop>Return root
-  sequence rows as a scoped Rust ASTNode projector retire-candidate.
-  3151 expands RecipeStmtSeqDtoSnapshotV1 summary with covered
-  Local>Loop>Return root sequence rows; shape_kind selection remains stmt-only.
+  3159 selects ProgramJsonRecipePortSigLoopRootV1 as the next ProgramJSON
+  Layer4 Recipe DTO capability after SeqRecipeDtoSnapshotV1 loop-root
+  retire-candidate.
+  3158-3151 cover Local>Loop>Return loop-root propagation through
+  RecipeStmtSeqDtoSnapshotV1, RecipeShapeKindDtoSnapshotV1, and
+  SeqRecipeDtoSnapshotV1, including scoped retire checkpoints.
   3150-3135 cover expanded/base Recipe DTO parity and scoped retire
   checkpoints; parity is green.
   3134-3123 cover Exit/Seq/If/Loop Layer4 DTO parity and retire checkpoints.
