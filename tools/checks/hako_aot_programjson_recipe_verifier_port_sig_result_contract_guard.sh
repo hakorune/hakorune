@@ -96,6 +96,8 @@ port_sig = Path(sys.argv[2]).read_text(encoding="utf-8")
 for required in [
     "verify(recipe_root, tag): MapBox",
     "_verify_item(item, tag, depth): MapBox",
+    "local result = me._verify_item(recipe_root, tag, 0)",
+    'result.set("verified_recipe", recipe_root)',
     "_apply_names(sig, names, mode): MapBox",
     "_apply_facts(sig, facts): MapBox",
 ]:

@@ -49,12 +49,12 @@ static box RecipeVerifierBox {
       }
     }
 
-    return %{
-      "err" => 0,
-      "err_line" => "",
-      "port_sig" => RecipePortSigBox.create(),
-      "verified_recipe" => recipe_root
+    local result = me._verify_item(recipe_root, tag, 0)
+    if StringHelpers.to_i64(BoxHelpers.map_get(result, "err")) == 1 {
+      return result
     }
+    result.set("verified_recipe", recipe_root)
+    return result
   }
 
   _verify_item(item, tag, depth): MapBox {

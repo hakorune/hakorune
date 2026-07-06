@@ -14,6 +14,9 @@ remains unclaimed.
 ## Implementation
 
 - Annotated RecipeVerifier result-map helpers as `MapBox`.
+- Connected `RecipeVerifierBox.verify/2` to `_verify_item(...)` so the public
+  verifier runs the recursive structure/PortSig validation instead of only
+  checking the outer item shape.
 - Annotated RecipePortSig helpers as `MapBox` / `i64`.
 - Replaced dynamic-name map publication in PortSig with `CountOnlyPortSigV1`.
 - Removed RecipeVerifier `BoxHelpers.array_len/1` routes in favor of local
