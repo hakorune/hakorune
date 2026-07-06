@@ -1,0 +1,78 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonRecipeBodiesAfterOneShapeArenaNextContractSelectionV1",
+  "token": "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-AFTER-ONE-SHAPE-ARENA-NEXT-CONTRACT-SELECTION-001",
+  "input_state": {
+    "previous_card": "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-ONE-SHAPE-ARENA-BUILDER-RUST-ASTNODE-PROJECTOR-RETIRE-CANDIDATE-001",
+    "previous_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-programjson-recipebodies-one-shape-arena-builder-retire-rust-astnode-projector-candidate-v0.json",
+    "previous_snapshot_kind": "ProgramJsonRecipeBodiesOneShapeArenaBuilderV1"
+  },
+  "candidate_contracts": [
+    {
+      "id": "A_IF_BRANCH_MULTI_BODY_ARENA_PARITY",
+      "state": "SelectedNext",
+      "claim": "root BodyId plus then/else BodyId references for one If row"
+    },
+    {
+      "id": "B_LOOP_BODY_MULTI_BODY_ARENA_PARITY",
+      "state": "Deferred",
+      "claim": "loop body BodyId reference after If branch body references are proven"
+    },
+    {
+      "id": "C_VERIFIER_FIRST_BOUNDARY",
+      "state": "Deferred",
+      "claim": "do not expand verifier policy before multi-body reference surface"
+    }
+  ],
+  "decision": {
+    "kind": "SelectIfBranchMultiBodyArenaParity",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-IF-BRANCH-MULTI-BODY-ARENA-PARITY-001",
+    "reason_token": "OneShapeArenaGreenNowProveBranchBodyIdReferences",
+    "selected_shape": "LocalIfThenLocalElsePrintReturnMinimal",
+    "arena_scope": "root body with IfRef to then_body_id=1 and else_body_id=2"
+  },
+  "acceptance_for_next_card": {
+    "must_consume_programjson": 1,
+    "must_build_structured_result_map": 1,
+    "must_expose_root_body_id": 1,
+    "must_expose_if_then_else_body_ids": 1,
+    "must_emit_three_bodies": 1,
+    "must_keep_runtime_route_switch_zero": 1,
+    "minimum_rows": [
+      "local_if_then_local_else_print_return"
+    ]
+  },
+  "forbidden_in_next_card": {
+    "full_recipe_bodies_runtime_publication": 1,
+    "recipe_bodies_bodies_direct_access": 1,
+    "full_recipe_matcher_execution": 1,
+    "verifier_policy_reimplementation": 1,
+    "loop_body_arena_claim": 1,
+    "route_selection": 1,
+    "mir_mutation": 1,
+    "id_allocation": 1,
+    "backend_lowering": 1,
+    "runtime_route_switch": 1,
+    "source_selfhost_claim": 1,
+    "programjson_full_parser_claim": 1,
+    "new_backend_route": 1,
+    "new_abi": 1
+  },
+  "claims": {
+    "next_contract_selected": 1,
+    "if_branch_multi_body_arena_implemented": 0,
+    "runtime_dependency_removed": 0,
+    "full_astnode_projector_retired": 0,
+    "recipe_bodies_materialization": 0,
+    "runtime_recipe_bodies_arena": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "backend_lowering_claim": 0,
+    "runtime_route_switch": 0,
+    "source_selfhost_claim": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

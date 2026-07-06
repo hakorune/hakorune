@@ -60,12 +60,11 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-RECIPEBODIES-AFTER-ONE-SHAPE-ARENA-NEXT-CONTRACT-SELECTION-001
+  MIRBUILDER-PROGRAMJSON-RECIPEBODIES-IF-BRANCH-MULTI-BODY-ARENA-PARITY-001
 selected next card:
-  select the next RecipeBodies contract after the one-shape arena-builder
-  retire-candidate. Runtime route switch, full RecipeMatcher, lowering,
-  mutation, ID allocation, and Source Selfhost stay unclaimed unless explicitly
-  selected.
+  implement If branch multi-body RecipeBodies arena parity for a root body with
+  then/else BodyId references. Runtime route switch, full RecipeMatcher,
+  lowering, mutation, ID allocation, and Source Selfhost stay unclaimed.
 
 post-3180 block recipe task order:
   completed: JoinThenElse, ElseOnlyExit, ThenOnlyExit, and ExitAll are scoped
@@ -87,6 +86,8 @@ normal operating rule:
   history.
 
 latest design decision:
+  3202 selects If branch multi-body RecipeBodies arena parity as the next
+  contract after the one-shape arena-builder retire-candidate.
   3201 marks the covered ProgramJsonRecipeBodiesOneShapeArenaBuilderV1 rows as
   a scoped Rust ASTNode projector retire-candidate. Runtime dependency removal,
   full projector retirement, runtime RecipeBodies publication, and Source
