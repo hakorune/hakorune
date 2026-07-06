@@ -280,7 +280,7 @@ Cleanliness backlog after Phase A.1/B.1:
 2. done-for-structure: ORG_* enum and GenericPure state exposure extraction
 3. done: same-module method view registry drift guard against generated route rows
 4. done: map lookup fusion route-shape vs site/register matcher split
-5. BoxTypeInspectorBox predicate publication inventory
+5. done: BoxTypeInspectorBox predicate publication inventory
 6. shared same-token helper pilot
 ```
 
@@ -329,6 +329,27 @@ non-claims:
   no map lookup route acceptance change
   no missing-key behavior change
   no ABI, lowering, backend, or Source Selfhost claim
+```
+
+Phase B.6 - BoxTypeInspectorBox predicate publication inventory:
+
+```text
+status: done
+guard:
+  tools/checks/hako_aot_box_type_inspector_predicate_publication_inventory_guard.sh
+
+boundary:
+  BoxHelpers.is_map/1 and BoxHelpers.is_array/1 remain the published
+    polymorphic predicate helper surface
+  BoxTypeInspectorBox.is_map/1 and is_array/1 stay parked until direct caller
+    route behavior is promoted by a separate implementation card
+  MirSchemaBox and LegacyEmitObjectBridgeBox direct predicate callers are
+    inventoried so they cannot be mistaken for already-promoted publication
+
+non-claims:
+  no BoxTypeInspectorBox predicate publication
+  no route-family unification
+  no backend lowering, ABI, or Source Selfhost claim
 ```
 
 Phase B.2 - pure_compile exact-seed dispatcher extraction:
