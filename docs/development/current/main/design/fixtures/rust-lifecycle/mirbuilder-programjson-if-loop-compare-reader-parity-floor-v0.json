@@ -1,0 +1,63 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonIfLoopCompareReaderParityFloorV1",
+  "token": "MIRBUILDER-PROGRAMJSON-IF-LOOP-COMPARE-READER-PARITY-FLOOR-001",
+  "prerequisite": "MIRBUILDER-BOOL-RECIPE-COMPARE-PUBLICATION-PARITY-001",
+  "owner": "ProgramJsonCompareReaderBox plus IfStmtHandler/LoopStmtHandler cond_recipe producers",
+  "contract": {
+    "direct_reader": "ProgramJsonCompareReaderBox.read_var_int_compare",
+    "producer_output": "RecipeItem.cond_recipe BoolRecipe::Compare",
+    "scope": "covered If, top-level Loop, and Loop-body nested If rows",
+    "analysis_only": true,
+    "lowering": false
+  },
+  "rows": [
+    {
+      "row_id": "top_level_if_var_ne_int",
+      "target": "top_level_if",
+      "compare_json": "{\"type\":\"Compare\",\"op\":\"!=\",\"lhs\":{\"type\":\"Var\",\"name\":\"i\"},\"rhs\":{\"type\":\"Int\",\"value\":3}}",
+      "program_json": "{\"version\":0,\"kind\":\"Program\",\"body\":[{\"type\":\"Local\",\"name\":\"i\",\"expr\":{\"type\":\"Int\",\"value\":0}},{\"type\":\"If\",\"cond\":{\"type\":\"Compare\",\"op\":\"!=\",\"lhs\":{\"type\":\"Var\",\"name\":\"i\"},\"rhs\":{\"type\":\"Int\",\"value\":3}},\"then\":[{\"type\":\"Return\",\"expr\":{\"type\":\"Int\",\"value\":7}}],\"else\":null},{\"type\":\"Return\",\"expr\":{\"type\":\"Int\",\"value\":9}}]}",
+      "expected_reader_summary": "snapshot_kind=ProgramJsonCompareReaderCodeMapV1;ok=1;reason_code=0;lhs_symbol_id=1;legacy_loop_var_code=1;cmp_code=6;bound_kind_code=1;bound_i64=3;bound_symbol_id=0;original_direction_code=1;constant_compare=0;analysis_only=1",
+      "expected_recipe_summary": "cond_recipe_present=1;bool_recipe_kind=Compare;lhs_kind=Symbol;lhs_symbol_id=1;cmp=Ne;cmp_code=6;bound_kind=LiteralI64;bound_kind_code=1;bound_i64=3;bound_symbol_id=0;haystack_symbol_id=0;needle_symbol_id=0;analysis_only=1;lowering_executed=0"
+    },
+    {
+      "row_id": "top_level_loop_var_lt_int",
+      "target": "top_level_loop",
+      "compare_json": "{\"type\":\"Compare\",\"op\":\"<\",\"lhs\":{\"type\":\"Var\",\"name\":\"i\"},\"rhs\":{\"type\":\"Int\",\"value\":5}}",
+      "program_json": "{\"version\":0,\"kind\":\"Program\",\"body\":[{\"type\":\"Local\",\"name\":\"i\",\"expr\":{\"type\":\"Int\",\"value\":0}},{\"type\":\"Loop\",\"cond\":{\"type\":\"Compare\",\"op\":\"<\",\"lhs\":{\"type\":\"Var\",\"name\":\"i\"},\"rhs\":{\"type\":\"Int\",\"value\":5}},\"body\":[{\"type\":\"Assignment\",\"name\":\"i\",\"expr\":{\"type\":\"Binary\",\"op\":\"+\",\"lhs\":{\"type\":\"Var\",\"name\":\"i\"},\"rhs\":{\"type\":\"Int\",\"value\":1}}}]},{\"type\":\"Return\",\"expr\":{\"type\":\"Var\",\"name\":\"i\"}}]}",
+      "expected_reader_summary": "snapshot_kind=ProgramJsonCompareReaderCodeMapV1;ok=1;reason_code=0;lhs_symbol_id=1;legacy_loop_var_code=1;cmp_code=1;bound_kind_code=1;bound_i64=5;bound_symbol_id=0;original_direction_code=1;constant_compare=0;analysis_only=1",
+      "expected_recipe_summary": "cond_recipe_present=1;bool_recipe_kind=Compare;lhs_kind=Symbol;lhs_symbol_id=1;cmp=Lt;cmp_code=1;bound_kind=LiteralI64;bound_kind_code=1;bound_i64=5;bound_symbol_id=0;haystack_symbol_id=0;needle_symbol_id=0;analysis_only=1;lowering_executed=0"
+    },
+    {
+      "row_id": "loop_body_nested_if_var_lt_int",
+      "target": "loop_body_nested_if",
+      "compare_json": "{\"type\":\"Compare\",\"op\":\"<\",\"lhs\":{\"type\":\"Var\",\"name\":\"i\"},\"rhs\":{\"type\":\"Int\",\"value\":3}}",
+      "program_json": "{\"version\":0,\"kind\":\"Program\",\"body\":[{\"type\":\"Local\",\"name\":\"i\",\"expr\":{\"type\":\"Int\",\"value\":0}},{\"type\":\"Loop\",\"cond\":{\"type\":\"Compare\",\"op\":\"<\",\"lhs\":{\"type\":\"Var\",\"name\":\"i\"},\"rhs\":{\"type\":\"Int\",\"value\":5}},\"body\":[{\"type\":\"If\",\"cond\":{\"type\":\"Compare\",\"op\":\"<\",\"lhs\":{\"type\":\"Var\",\"name\":\"i\"},\"rhs\":{\"type\":\"Int\",\"value\":3}},\"then\":[{\"type\":\"Return\",\"expr\":{\"type\":\"Int\",\"value\":7}}],\"else\":null},{\"type\":\"Assignment\",\"name\":\"i\",\"expr\":{\"type\":\"Binary\",\"op\":\"+\",\"lhs\":{\"type\":\"Var\",\"name\":\"i\"},\"rhs\":{\"type\":\"Int\",\"value\":1}}}]},{\"type\":\"Return\",\"expr\":{\"type\":\"Var\",\"name\":\"i\"}}]}",
+      "expected_reader_summary": "snapshot_kind=ProgramJsonCompareReaderCodeMapV1;ok=1;reason_code=0;lhs_symbol_id=1;legacy_loop_var_code=1;cmp_code=1;bound_kind_code=1;bound_i64=3;bound_symbol_id=0;original_direction_code=1;constant_compare=0;analysis_only=1",
+      "expected_recipe_summary": "cond_recipe_present=1;bool_recipe_kind=Compare;lhs_kind=Symbol;lhs_symbol_id=1;cmp=Lt;cmp_code=1;bound_kind=LiteralI64;bound_kind_code=1;bound_i64=3;bound_symbol_id=0;haystack_symbol_id=0;needle_symbol_id=0;analysis_only=1;lowering_executed=0"
+    }
+  ],
+  "decision": {
+    "kind": "IfLoopCompareReaderParityFloorGreen",
+    "reason_token": "DirectCompareReaderAndRecipeItemCondRecipeAgreeForCoveredIfLoopRows",
+    "selected_next_card": "MIRBUILDER-BOOL-RECIPE-COMPARE-LOWERING-BOUNDARY-CONSULTATION-001"
+  },
+  "claims": {
+    "if_loop_compare_reader_parity_floor": 1,
+    "direct_reader_matches_recipe_cond_recipe": 1,
+    "top_level_if_row": 1,
+    "top_level_loop_row": 1,
+    "loop_body_nested_if_row": 1,
+    "if_accepts_all_6_compare_operators": 0,
+    "loop_nested_if_operator_expansion": 0,
+    "recipe_matcher_input_authority": 0,
+    "bool_recipe_lowering": 0,
+    "mir_cmp_emission": 0,
+    "branch_emission": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_route_authority": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  }
+}
