@@ -1,0 +1,113 @@
+// bool_recipe_compare_lowering_intent_snapshot.hako
+//
+// Responsibility:
+// - Project BoolRecipe::Compare into a read-only lowering intent snapshot.
+// - Preserve numeric cmp/bound codes for a later MIR lowering consultation.
+//
+// Non-responsibility:
+// - MIR Compare/Branch emission, BasicBlock mutation, ValueId allocation,
+//   route selection, runtime route switch, runtime fallback, or Source Selfhost.
+
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.shared.common.box_helpers as BoxHelpers
+using lang.compiler.mirbuilder.recipe.bool_recipe_box as BoolRecipeBox
+using lang.compiler.mirbuilder.program_json_bool_recipe_compare_publication as ProgramJsonBoolRecipeComparePublicationBox
+
+static box BoolRecipeCompareLoweringIntentSnapshotBox {
+  _i(map, key) {
+    return StringHelpers.to_i64(BoxHelpers.map_get(map, key))
+  }
+
+  _err(reason_code): MapBox {
+    return %{
+      "ok" => 0,
+      "reason_code" => reason_code,
+      "lowering_intent_ready" => 0,
+      "lhs_symbol_id" => 0,
+      "cmp_code" => 0,
+      "mir_compare_op_code" => 0,
+      "rhs_bound_kind_code" => 99,
+      "rhs_bound_i64" => 0,
+      "rhs_bound_symbol_id" => 0,
+      "analysis_only" => 1,
+      "lowering_executed" => 0,
+      "mir_cmp_emission" => 0,
+      "branch_emission" => 0,
+      "basic_block_mutation" => 0,
+      "value_id_allocation" => 0,
+      "route_selection" => 0,
+      "runtime_route_switch" => 0,
+      "source_selfhost_claim" => 0
+    }
+  }
+
+  build_intent(program_json): MapBox {
+    local publication = ProgramJsonBoolRecipeComparePublicationBox.build_publication(program_json)
+    if publication == null || BoxHelpers.is_map(publication) != 1 { return me._err(1) }
+    if me._i(publication, "ok") != 1 { return me._err(2) }
+    if me._i(publication, "bool_recipe_present") != 1 { return me._err(3) }
+    return me.build_intent_from_recipe(BoxHelpers.map_get(publication, "bool_recipe"))
+  }
+
+  build_intent_from_recipe(recipe): MapBox {
+    if BoolRecipeBox.is_valid_compare(recipe) != 1 { return me._err(4) }
+    local cmp = me._i(recipe, "cmp_code")
+    return %{
+      "ok" => 1,
+      "reason_code" => 0,
+      "lowering_intent_ready" => 1,
+      "lhs_symbol_id" => me._i(recipe, "lhs_symbol_id"),
+      "cmp_code" => cmp,
+      "mir_compare_op_code" => cmp,
+      "rhs_bound_kind_code" => me._i(recipe, "rhs_bound_kind_code"),
+      "rhs_bound_i64" => me._i(recipe, "rhs_bound_i64"),
+      "rhs_bound_symbol_id" => me._i(recipe, "rhs_bound_symbol_id"),
+      "analysis_only" => 1,
+      "lowering_executed" => 0,
+      "mir_cmp_emission" => 0,
+      "branch_emission" => 0,
+      "basic_block_mutation" => 0,
+      "value_id_allocation" => 0,
+      "route_selection" => 0,
+      "runtime_route_switch" => 0,
+      "source_selfhost_claim" => 0
+    }
+  }
+
+  intent_summary(intent) {
+    if intent == null || BoxHelpers.is_map(intent) != 1 {
+      return "snapshot_kind=BoolRecipeCompareLoweringIntentSnapshotV1;ok=0;reason=missing_intent"
+    }
+    return "snapshot_kind=BoolRecipeCompareLoweringIntentSnapshotV1"
+      + ";ok=" + StringHelpers.int_to_str(me._i(intent, "ok"))
+      + ";lowering_intent_ready=" + StringHelpers.int_to_str(me._i(intent, "lowering_intent_ready"))
+      + ";lhs_symbol_id=" + StringHelpers.int_to_str(me._i(intent, "lhs_symbol_id"))
+      + ";cmp=" + BoolRecipeBox.cmp_name(me._i(intent, "cmp_code"))
+      + ";cmp_code=" + StringHelpers.int_to_str(me._i(intent, "cmp_code"))
+      + ";mir_compare_op=" + BoolRecipeBox.cmp_name(me._i(intent, "mir_compare_op_code"))
+      + ";mir_compare_op_code=" + StringHelpers.int_to_str(me._i(intent, "mir_compare_op_code"))
+      + ";bound_kind=" + me._bound_kind_name(me._i(intent, "rhs_bound_kind_code"))
+      + ";bound_kind_code=" + StringHelpers.int_to_str(me._i(intent, "rhs_bound_kind_code"))
+      + ";bound_i64=" + StringHelpers.int_to_str(me._i(intent, "rhs_bound_i64"))
+      + ";bound_symbol_id=" + StringHelpers.int_to_str(me._i(intent, "rhs_bound_symbol_id"))
+      + ";analysis_only=" + StringHelpers.int_to_str(me._i(intent, "analysis_only"))
+      + ";lowering_executed=" + StringHelpers.int_to_str(me._i(intent, "lowering_executed"))
+      + ";mir_cmp_emission=" + StringHelpers.int_to_str(me._i(intent, "mir_cmp_emission"))
+      + ";branch_emission=" + StringHelpers.int_to_str(me._i(intent, "branch_emission"))
+      + ";basic_block_mutation=" + StringHelpers.int_to_str(me._i(intent, "basic_block_mutation"))
+      + ";value_id_allocation=" + StringHelpers.int_to_str(me._i(intent, "value_id_allocation"))
+      + ";route_selection=" + StringHelpers.int_to_str(me._i(intent, "route_selection"))
+      + ";runtime_route_switch=" + StringHelpers.int_to_str(me._i(intent, "runtime_route_switch"))
+      + ";source_selfhost_claim=" + StringHelpers.int_to_str(me._i(intent, "source_selfhost_claim"))
+  }
+
+  _bound_kind_name(kind_code) {
+    if kind_code == 1 { return "LiteralI64" }
+    if kind_code == 2 { return "SymbolRef" }
+    if kind_code == 3 { return "LengthOfSymbol" }
+    if kind_code == 4 { return "LengthMinusSymbol" }
+    return "Unsupported"
+  }
+}
+
+static box BoolRecipeCompareLoweringIntentSnapshotMain { main() { return 0 } }
