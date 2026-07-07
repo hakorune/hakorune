@@ -33,3 +33,23 @@ switch runtime authority.
 ```bash
 bash tools/checks/rust_lifecycle_mirbuilder_compare_mir_compare_emission_bridge_gate.sh
 ```
+
+## Closeout
+
+Guard result: green.
+
+```text
+output_contract=rust-lifecycle-mirbuilder-compare-mir-compare-emission-bridge-v0
+compare_mir_compare_emission_bridge=1
+mir_compare_emission=1
+compare_result_valueid_allocated=1
+bool_result_type_publication=1
+mir_branch_emission=0
+branch_condition_consumption=0
+route_selection=0
+runtime_route_switch=0
+programjson_runtime_authority=0
+runtime_fallback=0
+source_selfhost_claim=0
+selected_next_card=MIRBUILDER-COMPARE-BRANCH-EMISSION-DESIGN-STOP-001
+```

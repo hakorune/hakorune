@@ -31,3 +31,22 @@ MIRBUILDER-COMPARE-BRANCH-EMISSION-BRIDGE-001
 ```bash
 bash tools/checks/rust_lifecycle_mirbuilder_compare_branch_emission_design_stop_guard.sh
 ```
+
+## Closeout
+
+Guard result: green.
+
+```text
+output_contract=rust-lifecycle-mirbuilder-compare-branch-emission-design-stop-v0
+decision=SelectBranchEmissionBridgeFirst
+compare_branch_emission_design_stop=1
+branch_emission_bridge_selected=1
+branch_emission_execution=0
+branch_condition_consumption=0
+route_selection=0
+runtime_route_switch=0
+programjson_runtime_authority=0
+runtime_fallback=0
+source_selfhost_claim=0
+selected_next_card=MIRBUILDER-COMPARE-BRANCH-EMISSION-BRIDGE-001
+```
