@@ -9,11 +9,12 @@ source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
 FIXTURE="$ROOT_DIR/docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-programjson-loop-nested-if-cond-recipe-relational-row-batch-v0.json"
 LOOP_HANDLER="$ROOT_DIR/lang/src/compiler/mirbuilder/stmt_handlers/loop_stmt_handler.hako"
 BRIDGE="$ROOT_DIR/lang/src/compiler/mirbuilder/stmt_handlers/loop_nested_if_cond_recipe_bridge_box.hako"
+COND_SCAN="$ROOT_DIR/lang/src/compiler/mirbuilder/stmt_handlers/loop_nested_if_cond_scan_box.hako"
 PREV_GATE="$ROOT_DIR/tools/checks/rust_lifecycle_mirbuilder_programjson_if_cond_recipe_relational_row_batch_gate.sh"
 HAKO_BIN="$ROOT_DIR/tools/bin/hako"
 
 guard_require_command "$TAG" python3
-guard_require_files "$TAG" "$FIXTURE" "$LOOP_HANDLER" "$BRIDGE" "$PREV_GATE" "$HAKO_BIN"
+guard_require_files "$TAG" "$FIXTURE" "$LOOP_HANDLER" "$BRIDGE" "$COND_SCAN" "$PREV_GATE" "$HAKO_BIN"
 
 PREV_OUT="$(guard_cached_run "$TAG" bash "$PREV_GATE")"
 if ! grep -q '^if_cond_recipe_relational_row_batch=1$' <<<"$PREV_OUT"; then
@@ -21,7 +22,7 @@ if ! grep -q '^if_cond_recipe_relational_row_batch=1$' <<<"$PREV_OUT"; then
   guard_fail "$TAG" "If relational row batch prerequisite is not green"
 fi
 
-python3 - "$FIXTURE" "$LOOP_HANDLER" "$BRIDGE" <<'PY'
+python3 - "$FIXTURE" "$LOOP_HANDLER" "$BRIDGE" "$COND_SCAN" <<'PY'
 import json
 import sys
 from pathlib import Path
@@ -29,6 +30,7 @@ from pathlib import Path
 fixture = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
 loop_impl = Path(sys.argv[2]).read_text(encoding="utf-8")
 bridge = Path(sys.argv[3]).read_text(encoding="utf-8")
+cond_scan = Path(sys.argv[4]).read_text(encoding="utf-8")
 
 def need(condition, message):
     if not condition:
@@ -65,9 +67,10 @@ for key in [
 
 for needle in [
     "LoopNestedIfCondRecipeBridgeBox.if_item(",
-    "If cond Compare op is unsupported",
+    "LoopNestedIfCondScanBox.read_int_rhs(",
 ]:
     need(needle in loop_impl, f"LoopStmtHandler missing token: {needle}")
+need("cond Compare op is unsupported" in cond_scan, "cond scan owner missing unsupported op contract")
 for needle in [
     'if cmp == 1 { cond_facts.set("cond_kind", "VarLtInt") }',
     'if cmp == 2 { cond_facts.set("cond_kind", "VarLeInt") }',

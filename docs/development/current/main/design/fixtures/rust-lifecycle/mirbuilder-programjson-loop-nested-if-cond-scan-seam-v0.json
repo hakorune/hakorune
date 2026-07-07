@@ -1,0 +1,47 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonLoopNestedIfCondScanSeamV1",
+  "token": "MIRBUILDER-PROGRAMJSON-LOOP-NESTED-IF-COND-SCAN-SEAM-001",
+  "prerequisite": "MIRBUILDER-PROGRAMJSON-VAR-RHS-PRODUCER-FOLLOWON-SELECTION-001",
+  "owner": "LoopNestedIfCondScanBox",
+  "moved_from": "LoopStmtHandler",
+  "contract": {
+    "scope": "Loop-body nested If Compare condition scan",
+    "legacy_output": "if_cond_rhs_int and if_cond_start",
+    "accepted_row_added": false,
+    "var_rhs_support": false,
+    "loop_stmt_handler_max_lines": 799,
+    "analysis_only": true
+  },
+  "guarded_existing_rows": [
+    "loop_body_if_var_lt_int_then_return_assignment",
+    "loop_body_if_var_le_int_then_return_assignment",
+    "loop_body_if_var_gt_int_then_return_assignment",
+    "loop_body_if_var_ge_int_then_return_assignment"
+  ],
+  "decision": {
+    "kind": "LoopNestedIfCondScanSeamGreen",
+    "reason_token": "NestedIfCondScanIsIsolatedBeforeVarRhsBoxCount",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-LOOP-NESTED-IF-VAR-RHS-BOUND-ROW-001"
+  },
+  "claims": {
+    "loop_nested_if_cond_scan_seam": 1,
+    "loop_nested_if_cond_scan_owner_extracted": 1,
+    "loop_stmt_handler_below_800_lines": 1,
+    "existing_loop_nested_if_rows_preserved": 1,
+    "accepted_row_added": 0,
+    "loop_nested_if_var_rhs_row_implemented": 0,
+    "top_level_loop_var_rhs_row_selected": 0,
+    "length_bound_producer_selected": 0,
+    "bool_recipe_lowering_executed": 0,
+    "mir_cmp_emission": 0,
+    "branch_emission": 0,
+    "basic_block_mutation": 0,
+    "value_id_allocation": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_route_authority": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  }
+}

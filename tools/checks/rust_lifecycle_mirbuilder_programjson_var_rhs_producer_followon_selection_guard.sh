@@ -9,6 +9,7 @@ source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
 FIXTURE="$ROOT_DIR/docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-programjson-var-rhs-producer-followon-selection-v0.json"
 LOOP_HANDLER="$ROOT_DIR/lang/src/compiler/mirbuilder/stmt_handlers/loop_stmt_handler.hako"
 BRIDGE="$ROOT_DIR/lang/src/compiler/mirbuilder/stmt_handlers/loop_nested_if_cond_recipe_bridge_box.hako"
+COND_SCAN="$ROOT_DIR/lang/src/compiler/mirbuilder/stmt_handlers/loop_nested_if_cond_scan_box.hako"
 PREV_GATE="$ROOT_DIR/tools/checks/rust_lifecycle_mirbuilder_programjson_if_cond_recipe_var_rhs_bound_row_gate.sh"
 
 guard_require_command "$TAG" python3
@@ -21,7 +22,7 @@ if ! grep -q '^if_cond_recipe_var_rhs_bound_row=1$' <<<"$PREV_OUT"; then
   guard_fail "$TAG" "If Var rhs producer row prerequisite is not green"
 fi
 
-python3 - "$FIXTURE" "$LOOP_HANDLER" "$BRIDGE" <<'PY'
+python3 - "$FIXTURE" "$LOOP_HANDLER" "$BRIDGE" "$COND_SCAN" <<'PY'
 import json
 import sys
 from pathlib import Path
@@ -29,6 +30,9 @@ from pathlib import Path
 fixture = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
 loop_impl = Path(sys.argv[2]).read_text(encoding="utf-8")
 bridge = Path(sys.argv[3]).read_text(encoding="utf-8")
+cond_scan = ""
+if len(sys.argv) > 4 and Path(sys.argv[4]).exists():
+    cond_scan = Path(sys.argv[4]).read_text(encoding="utf-8")
 
 def need(condition, message):
     if not condition:
@@ -87,9 +91,9 @@ for key in [
 ]:
     need(claims.get(key) == 0, f"forbidden claim drift: {key}")
 
-need("Loop If Compare rhs must be Int" in loop_impl, "Loop nested If still must be Int-bound before seam card")
+need("Loop If Compare rhs must be Int" in loop_impl or "cond rhs must be Int" in cond_scan, "Loop nested If still must be Int-bound before row card")
 need("Loop Compare rhs must be Int" in loop_impl, "Top-level Loop must remain Int-bound")
-need("if_cond_rhs_int" in loop_impl, "Loop body scan int rhs surface must still be visible")
+need("if_cond_rhs_int" in loop_impl or "if_cond_rhs_int" in cond_scan, "Loop body scan int rhs surface must still be visible")
 need("LoopNestedIfCondRecipeBridgeBox.if_item(" in loop_impl, "Loop nested If bridge call missing")
 need("ProgramJsonCompareReaderBox.read_var_int_compare(program_json, cond_start)" in bridge, "bridge must use shared reader")
 PY

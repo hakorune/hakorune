@@ -9,6 +9,7 @@ source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
 FIXTURE="$ROOT_DIR/docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-programjson-compare-reader-var-rhs-producer-row-selection-v0.json"
 IF_HANDLER="$ROOT_DIR/lang/src/compiler/mirbuilder/stmt_handlers/if_stmt_handler.hako"
 LOOP_HANDLER="$ROOT_DIR/lang/src/compiler/mirbuilder/stmt_handlers/loop_stmt_handler.hako"
+COND_SCAN="$ROOT_DIR/lang/src/compiler/mirbuilder/stmt_handlers/loop_nested_if_cond_scan_box.hako"
 PREV_GATE="$ROOT_DIR/tools/checks/rust_lifecycle_mirbuilder_programjson_compare_reader_var_rhs_bound_parity_gate.sh"
 
 guard_require_command "$TAG" python3
@@ -20,7 +21,7 @@ if ! grep -q '^compare_reader_var_rhs_bound_parity=1$' <<<"$PREV_OUT"; then
   guard_fail "$TAG" "Var rhs bound parity prerequisite is not green"
 fi
 
-python3 - "$FIXTURE" "$IF_HANDLER" "$LOOP_HANDLER" <<'PY'
+python3 - "$FIXTURE" "$IF_HANDLER" "$LOOP_HANDLER" "$COND_SCAN" <<'PY'
 import json
 import sys
 from pathlib import Path
@@ -28,6 +29,9 @@ from pathlib import Path
 fixture = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
 if_handler = Path(sys.argv[2]).read_text(encoding="utf-8")
 loop_handler = Path(sys.argv[3]).read_text(encoding="utf-8")
+cond_scan = ""
+if len(sys.argv) > 4 and Path(sys.argv[4]).exists():
+    cond_scan = Path(sys.argv[4]).read_text(encoding="utf-8")
 
 def need(condition, message):
     if not condition:
@@ -79,7 +83,7 @@ for key in [
     need(claims.get(key) == 0, f"forbidden claim drift: {key}")
 
 need("ProgramJsonCompareReaderBox.read_var_int_compare(program_json, cond_start)" in if_handler, "If handler must use shared reader")
-need("Loop If Compare rhs must be Int" in loop_handler, "Loop nested If must remain Int-bound before its card")
+need("Loop If Compare rhs must be Int" in loop_handler or "cond rhs must be Int" in cond_scan, "Loop nested If must remain Int-bound before its card")
 need("Loop Compare rhs must be Int" in loop_handler, "Top-level Loop must remain Int-bound before its card")
 PY
 
