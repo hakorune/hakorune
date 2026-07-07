@@ -102,6 +102,7 @@ for needle in [token, next_token, "snapshot-boundary decouple"]:
 allowed_latest = {
     token,
     next_token,
+    "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-REJECT-FLOOR-EXPANSION-SELECTION-001",
 }
 if not any(f'latest_card = "{allowed}"' in current_state for allowed in allowed_latest):
     raise SystemExit("CURRENT_STATE latest card drift")

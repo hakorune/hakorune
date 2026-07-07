@@ -345,13 +345,13 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-NESTED-LOOP-REJECT-BOUNDARY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3253-MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-NESTED-LOOP-REJECT-BOUNDARY-001.md"
-latest_card_summary = """3253 implements the ProgramJSON RecipeMatcher
-nested-loop reject boundary: snapshots with has_nested_loop=1 return
-matched=0 with reason nested_loop_present. ProgramJSON remains shadow-only;
-runtime authority, route switch, route selection, lowering, mutation, ID
-allocation, fallback, and Source Selfhost remain unclaimed."""
+latest_card = "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-REJECT-FLOOR-EXPANSION-SELECTION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3254-MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-REJECT-FLOOR-EXPANSION-SELECTION-001.md"
+latest_card_summary = """3254 selects unsupported_condition_operator as the
+next ProgramJSON RecipeMatcher reject-floor row after missing verified recipe
+and nested-loop rejection. The next card must prove unsupported_loop_cond then
+snapshot_not_ok; runtime authority, route switch, route selection, lowering,
+mutation, ID allocation, fallback, and Source Selfhost remain unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -362,6 +362,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-07: 3254 selects unsupported_condition_operator as the next ProgramJSON RecipeMatcher reject-floor row; runtime authority remains Rust and Source Selfhost remains unclaimed.",
   "2026-07-07: 3253 implements the ProgramJSON RecipeMatcher nested-loop reject boundary with matched=0 and reason=nested_loop_present; runtime authority remains Rust and Source Selfhost remains unclaimed.",
   "2026-07-07: 3252 selects nested-loop reject-boundary implementation instead of a nested-loop accepted matcher row; runtime authority remains Rust and Source Selfhost remains unclaimed.",
   "2026-07-07: 3251 records authority switch is not ready after field-floor parity and selects nested-loop decision consultation next; runtime authority remains Rust and Source Selfhost remains unclaimed.",
@@ -373,5 +374,4 @@ landed_tail = [
   "2026-07-07: 3245 decouples final top-level Return presence from loop-body exit usage at the CanonicalLoopFacts snapshot boundary; accepted-floor support and runtime authority remain unclaimed.",
   "2026-07-07: 3244 adds the Return-absent scan-only diagnostic proving final top-level Return is not loop-body has_return evidence; accepted-floor support and runtime authority remain unclaimed.",
   "2026-07-07: 3243 resolves the Return-absent consultation by selecting B defer and queues the scan-only diagnostic; accepted-floor support and runtime authority remain unclaimed.",
-  "2026-07-07: 3242 records the Return-absent decision stop; accepted-floor support is deferred to route-release consultation while runtime authority remains Rust and Source Selfhost remains unclaimed.",
 ]
