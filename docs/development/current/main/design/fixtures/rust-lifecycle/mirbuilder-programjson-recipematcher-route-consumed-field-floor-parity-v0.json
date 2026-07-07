@@ -1,0 +1,80 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonRecipeMatcherRouteConsumedFieldFloorParityV1",
+  "token": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-ROUTE-CONSUMED-FIELD-FLOOR-PARITY-001",
+  "input_state": {
+    "previous_card": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-ROUTE-CONSUMED-FIELD-FLOOR-SELECTION-001",
+    "runtime_authority": "rust_astnode",
+    "programjson_route": "shadow_only"
+  },
+  "rows": [
+    {
+      "row_id": "break_present_fields",
+      "source_fixture": "mirbuilder-programjson-recipematcher-break-present-verified-recipe-support-v0.json",
+      "expected_snapshot": {
+        "ok": 1,
+        "matcher_input_present": 1,
+        "exit_has_break": 1,
+        "exit_has_continue": 0,
+        "exit_has_return": 1,
+        "has_nested_loop": 0,
+        "loop_cond_return_in_body_present": 0,
+        "cond_kind": "VarLtInt",
+        "loop_var": "i",
+        "loop_bound_int": 4,
+        "update_kind": "AddVarInt",
+        "update_target": "i",
+        "step_int": 1
+      },
+      "expected_match": {
+        "ok": 1,
+        "matched": 1,
+        "contract_kind": "LoopWithExit",
+        "has_break": 1,
+        "has_continue": 0,
+        "has_return": 1
+      }
+    },
+    {
+      "row_id": "break_continue_present_fields",
+      "source_fixture": "mirbuilder-programjson-recipematcher-break-continue-present-verified-recipe-support-v0.json",
+      "expected_snapshot": {
+        "ok": 1,
+        "matcher_input_present": 1,
+        "exit_has_break": 1,
+        "exit_has_continue": 1,
+        "exit_has_return": 1,
+        "has_nested_loop": 0,
+        "loop_cond_return_in_body_present": 0,
+        "cond_kind": "VarLtInt",
+        "loop_var": "i",
+        "loop_bound_int": 5,
+        "update_kind": "AddVarInt",
+        "update_target": "i",
+        "step_int": 1
+      },
+      "expected_match": {
+        "ok": 1,
+        "matched": 1,
+        "contract_kind": "LoopWithExit",
+        "has_break": 1,
+        "has_continue": 1,
+        "has_return": 1
+      }
+    }
+  ],
+  "claims": {
+    "route_consumed_field_floor_parity_green": 1,
+    "accepted_rows_field_floor_checked": 1,
+    "programjson_shadow_checked": 1,
+    "programjson_runtime_route_authority": 0,
+    "runtime_route_switch": 0,
+    "recipe_matcher_input_authority": 0,
+    "route_selection": 0,
+    "mir_lowering": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  }
+}
