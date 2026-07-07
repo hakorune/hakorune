@@ -406,10 +406,10 @@ Detailed evidence lives in phase cards, fixtures, and git history.
 
 ## Active Next 3
 ```text
-landed summary: 3264..3298 cond_recipe/compare chain includes BoolRecipe sidecar bridge, ProgramJSON Loop/If cond_recipe producer wiring, verifier validate-only, matcher observe-only input snapshot, shared compare reader, If/Loop relational rows, BoolRecipe lowering observation/consultation, Var rhs reader parity, and If/nested-If/top-level Loop Var rhs owner-direct rows.
+landed summary: 3264..3299 cond_recipe/compare chain includes BoolRecipe sidecar bridge, ProgramJSON Loop/If cond_recipe producer wiring, verifier validate-only, matcher observe-only input snapshot, shared compare reader, If/Loop relational rows, BoolRecipe lowering observation/consultation, Var rhs reader parity, If/nested-If/top-level Loop Var rhs owner-direct rows, and Var-rhs producer closeout.
 
 next active:
-  MIRBUILDER-PROGRAMJSON-TOP-LEVEL-LOOP-VAR-RHS-BOUND-ROW-001; status=landed; one exact top-level Loop Var rhs row; next=MIRBUILDER-PROGRAMJSON-VAR-RHS-PRODUCER-CLOSEOUT-001; status=next; unit=closeout guard; full_phase_state=0; length bounds=0; lowering=0; route_selection=0; runtime_authority=rust_astnode
+  MIRBUILDER-PROGRAMJSON-VAR-RHS-PRODUCER-CLOSEOUT-001; status=landed; If/nested-If/top-level Loop Var rhs producer rows closed; next=MIRBUILDER-COMPARE-LOWERING-MUTATION-OWNER-SELECTION-001; status=next; unit=selection guard; length bounds=0; lowering=0; route_selection=0; runtime_authority=rust_astnode
 
 trigger-based AOT/MIR typing debt:
   status=parked-until-triggered; order=2999/3000/3001 landed, then 3022 queue
@@ -417,7 +417,7 @@ trigger-based AOT/MIR typing debt:
   compare, PHI dst_type, mir_call dst_type, or receiver-helper
   single-observation protection
 next_documented_task =
-  MIRBUILDER-PROGRAMJSON-VAR-RHS-PRODUCER-CLOSEOUT-001
+  MIRBUILDER-COMPARE-LOWERING-MUTATION-OWNER-SELECTION-001
 
 next_after_active_3 =
   MIRBUILDER-COMPARE-LOWERING-MUTATION-OWNER-SELECTION-001 -> MIRBUILDER-COMPARE-LOWERING-MUTATION-OWNER-PILOT-001

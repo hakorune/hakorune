@@ -1,0 +1,46 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonVarRhsProducerCloseoutV1",
+  "token": "MIRBUILDER-PROGRAMJSON-VAR-RHS-PRODUCER-CLOSEOUT-001",
+  "prerequisite": "MIRBUILDER-PROGRAMJSON-TOP-LEVEL-LOOP-VAR-RHS-BOUND-ROW-001",
+  "closeout_subject": "Close the first Var-rhs compare producer surface across top-level If, Loop nested-If, and top-level Loop owner-direct rows.",
+  "covered_rows": [
+    "MIRBUILDER-PROGRAMJSON-IF-COND-RECIPE-VAR-RHS-BOUND-ROW-001",
+    "MIRBUILDER-PROGRAMJSON-LOOP-NESTED-IF-VAR-RHS-BOUND-ROW-001",
+    "MIRBUILDER-PROGRAMJSON-TOP-LEVEL-LOOP-VAR-RHS-BOUND-ROW-001"
+  ],
+  "closeout_contract": {
+    "var_rhs_producer_surface_closed": true,
+    "guard_route": "owner-direct AOT rows only",
+    "legacy_loop_dto_lowering_boundary": "legacy cond_rhs_int consumers remain unchanged",
+    "full_phase_state_dispatcher_authority": false,
+    "analysis_only": true
+  },
+  "decision": {
+    "kind": "VarRhsProducerSurfaceClosed",
+    "reason_token": "IfNestedIfAndTopLevelLoopVarRhsRowsAreGreen",
+    "selected_next_card": "MIRBUILDER-COMPARE-LOWERING-MUTATION-OWNER-SELECTION-001"
+  },
+  "claims": {
+    "var_rhs_producer_closeout": 1,
+    "var_rhs_producer_surface_closed": 1,
+    "top_level_if_var_rhs_row_green": 1,
+    "loop_nested_if_var_rhs_row_green": 1,
+    "top_level_loop_var_rhs_row_green": 1,
+    "owner_direct_observe_only": 1,
+    "full_phase_state_dispatcher_authority": 0,
+    "legacy_loop_dto_lowering_updated": 0,
+    "length_bound_producer_selected": 0,
+    "reversed_var_var_context_aware": 0,
+    "bool_recipe_lowering_executed": 0,
+    "mir_cmp_emission": 0,
+    "branch_emission": 0,
+    "basic_block_mutation": 0,
+    "value_id_allocation": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_route_authority": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  }
+}
