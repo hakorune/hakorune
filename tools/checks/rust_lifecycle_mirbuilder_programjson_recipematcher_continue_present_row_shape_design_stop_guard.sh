@@ -97,7 +97,11 @@ for needle in [
 for needle in [token, "CONSULTATION_REQUIRED", "A_CONTINUE_PLUS_IN_BODY_RETURN_PLUS_ASSIGNMENT"]:
     if needle not in task_order:
         raise SystemExit(f"task-order missing: {needle}")
-if f'latest_card = "{token}"' not in current_state:
+allowed_latest = {
+    token,
+    "MIRBUILDER-PROGRAMJSON-LOOP-BODY-IFCONTINUE-IFRETURN-ASSIGNMENT-BOXCOUNT-ACCEPTED-FLOOR-001",
+}
+if not any(f'latest_card = "{allowed}"' in current_state for allowed in allowed_latest):
     raise SystemExit("CURRENT_STATE latest card drift")
 for key in [
     "accepted_floor_matrix=1",

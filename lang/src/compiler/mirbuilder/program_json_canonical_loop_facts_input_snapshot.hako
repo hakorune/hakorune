@@ -64,22 +64,27 @@ static box ProgramJsonCanonicalLoopFactsInputSnapshotBox {
     if loop_first < 0 { return me._err("missing_loop_body_first_stmt") }
     local loop_second = me._next_object_after(program_json, loop_first)
     if loop_second < 0 { return me._err("missing_loop_body_update") }
+    local loop_third = me._next_object_after(program_json, loop_second)
     if me._token_eq(me._node_type(program_json, loop_first), "If") != 1 { return me._err("loop_first_not_if") }
-    if me._token_eq(me._node_type(program_json, loop_second), "Assignment") != 1 { return me._err("loop_second_not_assignment") }
+    local update_stmt = loop_second
+    if loop_third >= 0 { update_stmt = loop_third }
+    if me._token_eq(me._node_type(program_json, update_stmt), "Assignment") != 1 { return me._err("loop_second_not_assignment") }
 
-    local update_snap = me._read_add_var_int_assignment(program_json, loop_second)
+    local update_snap = me._read_add_var_int_assignment(program_json, update_stmt)
     if me._i(update_snap, "ok") != 1 { return me._err("unsupported_loop_update") }
 
+    local has_continue = me._loop_has_type(program_json, loop_body, "Continue")
+    local has_return = me._loop_has_type(program_json, loop_body, "Return")
     return %{
       "ok" => 1,
       "reason" => "",
       "source_code" => 1,
       "matcher_input_present" => 1,
-      "exit_has_continue" => me._loop_has_type(program_json, loop_body, "Continue"),
-      "exit_has_return" => 1,
+      "exit_has_continue" => has_continue,
+      "exit_has_return" => has_return,
       "exit_has_break" => me._loop_has_type(program_json, loop_body, "Break"),
       "has_nested_loop" => me._loop_has_type(program_json, loop_body, "Loop"),
-      "loop_cond_continue_with_return_present" => 0,
+      "loop_cond_continue_with_return_present" => has_continue * has_return,
       "loop_cond_return_in_body_present" => me._if_then_has_return(program_json, loop_first),
       "cond_kind_code" => 1,
       "loop_var_code" => me._i(cond_snap, "var_code"),
@@ -147,6 +152,10 @@ static box ProgramJsonCanonicalLoopFactsInputSnapshotBox {
     if second < 0 { return 0 }
     if me._token_eq(me._node_type(s, second), expected) == 1 { return 1 }
     if me._if_branch_has_type(s, second, expected) == 1 { return 1 }
+    local third = me._next_object_after(s, second)
+    if third < 0 { return 0 }
+    if me._token_eq(me._node_type(s, third), expected) == 1 { return 1 }
+    if me._if_branch_has_type(s, third, expected) == 1 { return 1 }
     return 0
   }
 

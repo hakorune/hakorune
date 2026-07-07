@@ -60,7 +60,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  CONSULTATION_REQUIRED for MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-CONTINUE-PRESENT-ROW-SHAPE-DESIGN-STOP-001.
+  MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-BREAK-PRESENT-VERIFIED-RECIPE-SUPPORT-001.
 
 post-3180 block recipe task order:
   completed: JoinThenElse, ElseOnlyExit, ThenOnlyExit, and ExitAll are scoped
@@ -82,17 +82,17 @@ normal operating rule:
   history.
 
 latest design decision:
+  3239 implements MIRBUILDER-PROGRAMJSON-LOOP-BODY-IFCONTINUE-IFRETURN-ASSIGNMENT-BOXCOUNT-ACCEPTED-FLOOR-001: exact IfContinue+IfReturn+Assignment BoxCount row is green; ProgramJSON remains shadow-only.
   3238 records MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-CONTINUE-PRESENT-ROW-SHAPE-DESIGN-STOP-001: final top-level Return cannot satisfy Rust loop-body has_return; recommended_default=A_CONTINUE_PLUS_IN_BODY_RETURN_PLUS_ASSIGNMENT; selected_next=CONSULTATION_REQUIRED.
-  3237 records MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-ACCEPTED-FLOOR-MATRIX-001 after MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-AUTHORITY-SWITCH-COVERAGE-FLOOR-SELECTION-001: four return-only rows green; selected MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-CONTINUE-PRESENT-VERIFIED-RECIPE-SUPPORT-001 before 3238 design-stop.
+  3237 records MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-ACCEPTED-FLOOR-MATRIX-001 after MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-AUTHORITY-SWITCH-COVERAGE-FLOOR-SELECTION-001; selected MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-CONTINUE-PRESENT-VERIFIED-RECIPE-SUPPORT-001 before 3238.
   3233 selects B_RUNTIME_ROUTE_ADJACENT_SHADOW_GUARD; C authority switch is rejected for now, D coverage floor is deferred before any later C.
   3232 implements MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-SHADOW-PARITY-EXPANDED-ROWS-001: four LoopWithExit rows now match Rust oracle fields; runtime authority remains Rust.
   3231 implements MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RUNTIME-DUAL-RUN-SHADOW-GUARD-001: Rust ASTNode remains runtime authority while ProgramJSON matcher result is checked as shadow-only dual-run evidence.
   3230 records MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-ROUTE-SHADOW-SWITCH-DESIGN-STOP-001; recommended=A_SHADOW_ONLY_DUAL_RUN_GUARD, rejected=B_DIRECT_RUNTIME_ROUTE_SWITCH, alternative=C_MORE_DTO_OR_MATCHER_ROWS_BEFORE_SWITCH, selected_next=CONSULTATION_REQUIRED.
   3229 implements MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-SHADOW-PARITY-001: Rust ASTNode LoopWithExit oracle and ProgramJSON matcher-result snapshots match for two rows; route switch and Source Selfhost remain unclaimed.
-  3228 implements MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-EXECUTION-BOUNDARY-MINIMAL-001: observe-only LoopWithExit matcher result from CanonicalLoopFacts MapBox snapshots; RecipeMatcher authority, route selection, lowering, mutation, ID allocation, route switch, and Source Selfhost remain unclaimed.
   3227 implements the CanonicalLoopFacts input snapshot MapBox publication bridge with DirectAbi/map_handle AOT parity for two verified-recipe rows; RecipeMatcher, route selection, lowering, mutation, ID allocation, route switch, and Source Selfhost remain unclaimed.
   3226 records MIRBUILDER-PROGRAMJSON-CANONICAL-LOOP-FACTS-INPUT-SNAPSHOT-AOT-BOUNDARY-DESIGN-STOP-001;
-  recommended=A_MAPBOX_SNAPSHOT_PUBLICATION_BRIDGE, alternative=B_COMPLEX_STRING_SUMMARY_AOT_ROUTE, rejected=C_VM_ONLY_TRAVERSAL_GATE, selected_next=CONSULTATION_REQUIRED.
+  recommended=A_MAPBOX_SNAPSHOT_PUBLICATION_BRIDGE, alternative=B_COMPLEX_STRING_SUMMARY_AOT_ROUTE, rejected=C_VM_ONLY_TRAVERSAL_GATE; attempted MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-EXECUTION-BOUNDARY-MINIMAL-001 requires consultation; selected_next=CONSULTATION_REQUIRED.
   3225 MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-INPUT-BOUNDARY-CONSULTATION-001 selects ProgramJsonCanonicalLoopFactsInputSnapshotV1 as the next
   Layer4 input-boundary task; RecipeBodiesPublicationSnapshotV1 is not enough.
   3224 records RecipeMatcher input-boundary design stop: Rust consumes CanonicalLoopFacts, not RecipeBodiesPublicationSnapshotV1.
@@ -410,10 +410,10 @@ Detailed evidence lives in phase cards, fixtures, and git history.
 ```text
 1. MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-ROUTE-SHADOW-SWITCH-CONSULTATION-002; status=landed; boundary=select B, no authority switch
 2. MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RUNTIME-ROUTE-ADJACENT-SHADOW-GUARD-001; status=landed; boundary=after try_build_outcome before registry
-3. MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-CONTINUE-PRESENT-ROW-SHAPE-DESIGN-STOP-001; status=landed; boundary=continue-present row shape requires consultation
+3. MIRBUILDER-PROGRAMJSON-LOOP-BODY-IFCONTINUE-IFRETURN-ASSIGNMENT-BOXCOUNT-ACCEPTED-FLOOR-001; status=landed; boundary=continue-present exact BoxCount row green
 
 next active:
-  CONSULTATION_REQUIRED; recommended_default=A_CONTINUE_PLUS_IN_BODY_RETURN_PLUS_ASSIGNMENT; runtime_authority=rust_astnode; programjson_runtime_route_authority=0; runtime_route_switch=0
+  MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-BREAK-PRESENT-VERIFIED-RECIPE-SUPPORT-001; status=next; accepted_floor_axis=break_present; unit=one BoxCount row; runtime_authority=rust_astnode; programjson_runtime_route_authority=0; runtime_route_switch=0
 
 trigger-based AOT/MIR typing debt:
   status=parked-until-triggered; order=2999/3000/3001 landed, then 3022 queue
@@ -421,10 +421,10 @@ trigger-based AOT/MIR typing debt:
   compare, PHI dst_type, mir_call dst_type, or receiver-helper
   single-observation protection
 next_documented_task =
-  CONSULTATION_REQUIRED
+  MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-BREAK-PRESENT-VERIFIED-RECIPE-SUPPORT-001
 
 next_after_active_3 =
-  CONSULTATION_REQUIRED
+  MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-BREAK-PRESENT-VERIFIED-RECIPE-SUPPORT-001
 
 task discipline =
   Each ProgramJSON capability card must land real `.hako` traversal + fixture
