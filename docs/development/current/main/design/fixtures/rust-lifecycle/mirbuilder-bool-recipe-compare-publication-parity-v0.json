@@ -1,0 +1,56 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderBoolRecipeComparePublicationParityV1",
+  "token": "MIRBUILDER-BOOL-RECIPE-COMPARE-PUBLICATION-PARITY-001",
+  "owner": "ProgramJsonBoolRecipeComparePublicationBox",
+  "hako_source": "lang/src/compiler/mirbuilder/program_json_bool_recipe_compare_publication.hako",
+  "input_contract": "ProgramJSON verified CanonicalLoopFacts NumericCompare consume snapshot",
+  "output_contract": "BoolRecipeComparePublicationV1",
+  "rows": [
+    {
+      "row_id": "var_le_literal",
+      "source_program_row": "local_loop_body_if_branch_return",
+      "loop_condition_patch": {
+        "type": "Compare",
+        "op": "<=",
+        "lhs": { "type": "Var", "name": "i" },
+        "rhs": { "type": "Int", "value": 3 }
+      },
+      "expected_publication_summary": "snapshot_kind=BoolRecipeComparePublicationV1;ok=1;bool_recipe_present=1;bool_recipe_kind=Compare;lhs_kind=Symbol;lhs_symbol_id=1;cmp=Le;cmp_code=2;bound_kind=LiteralI64;bound_kind_code=1;bound_i64=3;bound_symbol_id=0;haystack_symbol_id=0;needle_symbol_id=0;analysis_only=1;lowering_executed=0;analysis_only=1;recipe_matcher_executed=0;route_selection=0;runtime_route_switch=0;source_selfhost_claim=0"
+    }
+  ],
+  "summary": {
+    "publication_rows": 1,
+    "bool_recipe_compare_publication_parity": 1,
+    "canonical_loop_facts_numeric_compare_consume_required": 1,
+    "analysis_only": 1,
+    "recipe_item_attachment": 0,
+    "recipe_matcher_input_authority": 0,
+    "bool_recipe_lowering": 0,
+    "mir_cmp_emission": 0,
+    "branch_emission": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_route_authority": 0,
+    "source_selfhost_claim": 0
+  },
+  "claims": {
+    "bool_recipe_compare_publication_parity": 1,
+    "read_only_bool_recipe_compare_publication": 1,
+    "analysis_only": 1,
+    "recipe_item_attachment": 0,
+    "recipe_matcher_input_authority": 0,
+    "bool_recipe_lowering": 0,
+    "mir_cmp_emission": 0,
+    "branch_emission": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_route_authority": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "BoolRecipeComparePublicationParityGreen",
+    "selected_next_card": "MIRBUILDER-RECIPEITEM-CONDITION-SLOT-BOOL-RECIPE-BRIDGE-SELECTION-001"
+  }
+}

@@ -1,0 +1,77 @@
+// program_json_bool_recipe_compare_publication.hako
+//
+// Responsibility:
+// - Publish a read-only BoolRecipeCompareV1 from the CanonicalLoopFacts
+//   NumericCompare consume snapshot.
+//
+// Non-responsibility:
+// - Reading raw AST/ProgramJSON Compare spelling, attaching RecipeItem,
+//   RecipeMatcher authority, MIR Compare/Branch emission, lowering, mutation,
+//   ID allocation, route selection, runtime route switch, or Source Selfhost.
+
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.shared.common.box_helpers as BoxHelpers
+using lang.compiler.mirbuilder.program_json_canonical_loop_facts_input_snapshot as ProgramJsonCanonicalLoopFactsInputSnapshotBox
+using lang.compiler.mirbuilder.recipe.bool_recipe_box as BoolRecipeBox
+
+static box ProgramJsonBoolRecipeComparePublicationBox {
+  _i(map, key) {
+    return StringHelpers.to_i64(BoxHelpers.map_get(map, key))
+  }
+
+  _err(reason_code): MapBox {
+    return %{
+      "ok" => 0,
+      "reason_code" => reason_code,
+      "bool_recipe_present" => 0,
+      "analysis_only" => 1,
+      "lowering_executed" => 0,
+      "recipe_matcher_executed" => 0,
+      "route_selection" => 0,
+      "runtime_route_switch" => 0,
+      "source_selfhost_claim" => 0,
+      "bool_recipe" => BoolRecipeBox.unsupported(reason_code)
+    }
+  }
+
+  build_publication(program_json): MapBox {
+    local snapshot = ProgramJsonCanonicalLoopFactsInputSnapshotBox.build_snapshot(program_json)
+    if snapshot == null || BoxHelpers.is_map(snapshot) != 1 { return me._err(1) }
+    if me._i(snapshot, "ok") != 1 { return me._err(2) }
+    if me._i(snapshot, "numeric_compare_canon_consumed") != 1 { return me._err(3) }
+    if me._i(snapshot, "bool_recipe_compare_ready") != 1 { return me._err(4) }
+
+    local recipe = BoolRecipeBox.from_numeric_compare_code_map(snapshot)
+    if BoolRecipeBox.is_valid_compare(recipe) != 1 { return me._err(5) }
+    return %{
+      "ok" => 1,
+      "reason_code" => 0,
+      "bool_recipe_present" => 1,
+      "analysis_only" => 1,
+      "lowering_executed" => 0,
+      "recipe_matcher_executed" => 0,
+      "route_selection" => 0,
+      "runtime_route_switch" => 0,
+      "source_selfhost_claim" => 0,
+      "bool_recipe" => recipe
+    }
+  }
+
+  publication_summary(publication) {
+    if publication == null || BoxHelpers.is_map(publication) != 1 {
+      return "snapshot_kind=BoolRecipeComparePublicationV1;ok=0;reason=missing_publication"
+    }
+    local recipe = BoxHelpers.map_get(publication, "bool_recipe")
+    return "snapshot_kind=BoolRecipeComparePublicationV1"
+      + ";ok=" + StringHelpers.int_to_str(me._i(publication, "ok"))
+      + ";bool_recipe_present=" + StringHelpers.int_to_str(me._i(publication, "bool_recipe_present"))
+      + ";" + BoolRecipeBox.summary(recipe)
+      + ";analysis_only=" + StringHelpers.int_to_str(me._i(publication, "analysis_only"))
+      + ";recipe_matcher_executed=" + StringHelpers.int_to_str(me._i(publication, "recipe_matcher_executed"))
+      + ";route_selection=" + StringHelpers.int_to_str(me._i(publication, "route_selection"))
+      + ";runtime_route_switch=" + StringHelpers.int_to_str(me._i(publication, "runtime_route_switch"))
+      + ";source_selfhost_claim=" + StringHelpers.int_to_str(me._i(publication, "source_selfhost_claim"))
+  }
+}
+
+static box ProgramJsonBoolRecipeComparePublicationMain { main() { return 0 } }

@@ -406,10 +406,10 @@ Detailed evidence lives in phase cards, fixtures, and git history.
 
 ## Active Next 3
 ```text
-landed summary: 3254..3262 moved unsupported condition handling into Rust-first numeric compare canon, mirrored ProgramJSON Compare, defined data-only BoolRecipeCompareV1, and made CanonicalLoopFacts consume NumericCompare code-map fields for the covered verified snapshot row
+landed summary: 3254..3263 moved unsupported condition handling into Rust-first numeric compare canon, mirrored ProgramJSON Compare, defined data-only BoolRecipeCompareV1, made CanonicalLoopFacts consume NumericCompare code-map fields, and published a read-only BoolRecipeCompareV1 for the covered verified snapshot row
 
 next active:
-  MIRBUILDER-BOOL-RECIPE-COMPARE-PUBLICATION-PARITY-001; status=next; unit=ProgramJSON consume to BoolRecipe publication; consume the BoolRecipe-ready numeric fields without attaching RecipeItem or lowering; raw_rewrite=0; lowering_change=0; runtime_authority=rust_astnode; programjson_runtime_route_authority=0; runtime_route_switch=0
+  MIRBUILDER-RECIPEITEM-CONDITION-SLOT-BOOL-RECIPE-BRIDGE-SELECTION-001; status=next; unit=selection/design; select the first condition-slot bridge after BoolRecipe publication; recipe_item_attachment still 0 until selected implementation card; lowering_change=0; runtime_authority=rust_astnode; programjson_runtime_route_authority=0; runtime_route_switch=0
 
 trigger-based AOT/MIR typing debt:
   status=parked-until-triggered; order=2999/3000/3001 landed, then 3022 queue
@@ -417,10 +417,10 @@ trigger-based AOT/MIR typing debt:
   compare, PHI dst_type, mir_call dst_type, or receiver-helper
   single-observation protection
 next_documented_task =
-  MIRBUILDER-BOOL-RECIPE-COMPARE-PUBLICATION-PARITY-001
+  MIRBUILDER-RECIPEITEM-CONDITION-SLOT-BOOL-RECIPE-BRIDGE-SELECTION-001
 
 next_after_active_3 =
-  select first RecipeItem condition-slot bridge only after BoolRecipe publication parity is green
+  select implementation card only after condition-slot bridge selection is green
 
 follow_on_after_consume = select first BoolRecipe publication parity row only after consume gate is green
 
