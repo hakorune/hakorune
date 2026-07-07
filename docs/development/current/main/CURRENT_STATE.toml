@@ -345,12 +345,12 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-COMPARE-RHS-LITERAL-I64-CONSTANT-EMISSION-BRIDGE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3311-MIRBUILDER-COMPARE-RHS-LITERAL-I64-CONSTANT-EMISSION-BRIDGE-001.md"
-latest_card_summary = """3311 opens scoped actual RHS ValueId
-resolution for LiteralI64 only by emitting one integer Const through the
-existing emission SSOT. Symbol lookup, LocalSSA, MIR Compare/Branch, runtime
-authority, and Source Selfhost remain unclaimed."""
+latest_card = "MIRBUILDER-COMPARE-RHS-SYMBOLREF-LOOKUP-CONTRACT-CONSULTATION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3312-MIRBUILDER-COMPARE-RHS-SYMBOLREF-LOOKUP-CONTRACT-CONSULTATION-001.md"
+latest_card_summary = """3312 selects SymbolRefResolutionContractV1 before
+actual SymbolRef lookup. C-style Rust oracle evidence is folded into the 3313
+guard; actual lookup, LocalSSA, MIR Compare/Branch, runtime authority, and
+Source Selfhost remain unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -361,6 +361,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-07: 3312 selects SymbolRefResolutionContractV1 before actual SymbolRef lookup and folds C-style Rust oracle evidence into 3313; actual lookup, LocalSSA, MIR Compare/Branch, runtime authority, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3311 opens scoped LiteralI64 RHS ValueId resolution by emitting one integer Const through the existing emission SSOT; symbol lookup, LocalSSA, MIR Compare/Branch, runtime authority, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3310 fixes the RHS ValueId resolution request/response ABI and request snapshot before actual LiteralI64 constant emission; actual RHS ValueId resolution, symbol lookup, LocalSSA, MIR emission, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3309 selects the RHS ValueId resolution request/response ABI before actual LiteralI64 constant emission; actual RHS ValueId resolution, symbol lookup, LocalSSA, MIR emission, and Source Selfhost remain unclaimed.",
@@ -372,5 +373,4 @@ landed_tail = [
   "2026-07-07: 3303 selects a read-only RHS materialization intent pilot after symbolic command parity; RHS ValueId resolution, runtime materialization, MIR emission, mutation, allocation, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3302 proves intent-to-symbolic-command field parity for literal and SymbolRef rhs compare rows; MIR emission, mutation, allocation, full dispatcher authority, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3301 publishes a read-only symbolic compare lowering command snapshot from intent-map inputs; MIR emission, mutation, allocation, full dispatcher authority, and Source Selfhost remain unclaimed.",
-  "2026-07-07: 3300 selects a read-only symbolic compare lowering command pilot after Var-rhs producer closeout; MIR emission, mutation, allocation, and Source Selfhost remain unclaimed.",
 ]

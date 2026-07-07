@@ -1,0 +1,87 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderCompareRhsSymbolRefLookupContractConsultationV1",
+  "token": "MIRBUILDER-COMPARE-RHS-SYMBOLREF-LOOKUP-CONTRACT-CONSULTATION-001",
+  "prerequisite": "MIRBUILDER-COMPARE-RHS-LITERAL-I64-CONSTANT-EMISSION-BRIDGE-001",
+  "decision_context": {
+    "current_boundary": "CompareRhsValueIdResolutionResponseV1",
+    "literal_i64_status": "actual ValueId resolution open for const-only mutation",
+    "symbol_ref_status": "not claimed",
+    "risk": "ProgramJSON symbol_id must map to Rust variable_ctx/current ValueId without name fallback"
+  },
+  "candidates": [
+    {
+      "name": "NameBasedNarrowBridge",
+      "selected": false,
+      "reason": "May be used internally after contract verification, but must not be the public API or fallback authority"
+    },
+    {
+      "name": "SymbolTableContractFirst",
+      "selected": true,
+      "reason": "Fix symbol_id -> source_name -> expected Rust variable key before actual lookup",
+      "selected_next_card": "MIRBUILDER-COMPARE-RHS-SYMBOLREF-LOOKUP-CONTRACT-PARITY-001"
+    },
+    {
+      "name": "RuntimeAdjacentRustOracleShadow",
+      "selected": false,
+      "reason": "Fold read-only oracle evidence into the contract parity guard instead of selecting a separate lane"
+    },
+    {
+      "name": "OpenSymbolRefLookupImmediately",
+      "selected": false,
+      "reason": "Too implicit around scope, shadowing, and current ValueId"
+    }
+  ],
+  "required_contract": {
+    "name": "SymbolRefResolutionContractV1",
+    "fields": [
+      "ok",
+      "reason_code",
+      "symbol_id",
+      "source_name",
+      "expected_rust_variable_key",
+      "rust_variable_key_present",
+      "rust_current_valueid_present",
+      "rust_current_valueid_nonzero",
+      "scope_contract_kind",
+      "shadowing_claimed",
+      "current_ssa_claimed",
+      "local_ssa_materialization_claimed",
+      "readonly"
+    ],
+    "scope_contract_kinds": {
+      "1": "same_function_local_no_shadow",
+      "2": "renamed_local_no_shadow",
+      "3": "shadowed_name_not_claimed",
+      "99": "unsupported"
+    }
+  },
+  "selected_sequence": [
+    "MIRBUILDER-COMPARE-RHS-SYMBOLREF-LOOKUP-CONTRACT-PARITY-001",
+    "MIRBUILDER-COMPARE-RHS-SYMBOLREF-LOOKUP-BRIDGE-001",
+    "MIRBUILDER-COMPARE-LOCALSSA-FINALIZE-COMPARE-DESIGN-STOP-001"
+  ],
+  "claims": {
+    "symbolref_lookup_contract_consultation": 1,
+    "symbol_table_contract_first_selected": 1,
+    "c_style_oracle_evidence_folded_into_3313": 1,
+    "symbolref_actual_lookup": 0,
+    "symbol_ref_valueid_resolution": 0,
+    "symbol_lookup_execution": 0,
+    "name_fallback_authority": 0,
+    "shadowing_symbol_lookup": 0,
+    "current_ssa_authority": 0,
+    "local_ssa_finalize_compare": 0,
+    "mir_compare_emission": 0,
+    "mir_branch_emission": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_authority": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "SelectSymbolTableContractFirst",
+    "selected_next_card": "MIRBUILDER-COMPARE-RHS-SYMBOLREF-LOOKUP-CONTRACT-PARITY-001"
+  }
+}

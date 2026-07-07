@@ -19,6 +19,11 @@ observation.
 MIRBUILDER-COMPARE-RHS-SYMBOLREF-LOOKUP-CONTRACT-PARITY-001
 ```
 
+## Rejected For Now
+- name-based lookup as public API / fallback authority
+- separate runtime-adjacent oracle-shadow lane
+- immediate actual SymbolRef lookup
+
 ## Required Contract
 `SymbolRefResolutionContractV1` must include:
 
@@ -42,3 +47,8 @@ MIRBUILDER-COMPARE-RHS-SYMBOLREF-LOOKUP-CONTRACT-PARITY-001
 - route selection / runtime route switch: `0`
 - ProgramJSON runtime authority / runtime fallback: `0`
 - Source Selfhost: `0`
+
+## Guard
+```bash
+bash tools/checks/rust_lifecycle_mirbuilder_compare_rhs_symbolref_lookup_contract_consultation_guard.sh
+```
