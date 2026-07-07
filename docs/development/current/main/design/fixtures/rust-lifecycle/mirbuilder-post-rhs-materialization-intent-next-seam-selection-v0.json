@@ -1,0 +1,61 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderPostRhsMaterializationIntentNextSeamSelectionV1",
+  "token": "MIRBUILDER-POST-RHS-MATERIALIZATION-INTENT-NEXT-SEAM-SELECTION-001",
+  "output_contract": "rust-lifecycle-mirbuilder-post-rhs-materialization-intent-next-seam-selection-v0",
+  "current_state": {
+    "latest_card": "MIRBUILDER-POST-RHS-MATERIALIZATION-INTENT-NEXT-SEAM-SELECTION-001",
+    "current_blocker_token": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+  },
+  "input_state": {
+    "previous_card": "MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-MATERIALIZATION-INTENT-001",
+    "previous_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-hard-authority-pilot-compare-rhs-materialization-intent-v0.json",
+    "candidate_evidence_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-compare-rhs-materialization-readonly-resolution-parity-v0.json",
+    "candidate_evidence_guard": "tools/checks/rust_lifecycle_mirbuilder_compare_rhs_materialization_readonly_resolution_parity_gate.sh"
+  },
+  "selected_next_seam": {
+    "candidate_id": "CompareRhsValueIdResolutionPlanBoundary",
+    "owner_id": "CompareRhsValueIdResolutionPlanSnapshotBox",
+    "seam_kind": "ReadOnlyRhsValueIdResolutionPlan",
+    "input_surface": "CompareRhsMaterializationIntentSnapshotV1",
+    "output_surface": "CompareRhsValueIdResolutionPlanSnapshotV1",
+    "downstream_consumer": "CompareRhsValueIdResolutionRequestSnapshotBox",
+    "rust_oracle_available": 1,
+    "hako_impl_available": 1,
+    "aot_guard_available": 1,
+    "downstream_consumer_available": 1,
+    "mutation_required": 0,
+    "route_selection_required": 0,
+    "runtime_switch_required": 0,
+    "source_selfhost_claim_required": 0,
+    "support_lane_projector": 0,
+    "string_only_facade": 0,
+    "eligible_as_next_hard_authority_seam": 1
+  },
+  "decision": {
+    "kind": "SelectNextHardAuthoritySeam",
+    "reason_token": "CompareRhsValueIdResolutionPlanIsDirectReadOnlyDownstreamSeam",
+    "selected_next_card": "MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-VALUEID-RESOLUTION-PLAN-001"
+  },
+  "claims": {
+    "post_rhs_materialization_intent_next_seam_selected": 1,
+    "first_rhs_intent_pilot_evidence_consumed": 1,
+    "compare_rhs_valueid_resolution_plan_selected": 1,
+    "next_seam_implemented": 0,
+    "hako_adopted_decision": 0,
+    "source_selfhost_claim": 0,
+    "native_seed_materialization": 0,
+    "rhs_value_id_resolution": 0,
+    "literal_constant_value_id_allocation": 0,
+    "constant_mir_emission": 0,
+    "runtime_helper_emission": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_route_authority": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

@@ -345,13 +345,13 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-MATERIALIZATION-INTENT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3329-MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-MATERIALIZATION-INTENT-001.md"
-latest_card_summary = """3329 implements CompareRhsMaterializationIntentBoundary
-as a `.hako` read-only semantic intent hard-authority pilot. Actual RHS ValueId
-resolution, runtime materialization, constant/helper emission, Source Selfhost,
-Hako adoption, MIR mutation, ID allocation, and route/runtime authority remain
-0."""
+latest_card = "MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-VALUEID-RESOLUTION-PLAN-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3331-MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-VALUEID-RESOLUTION-PLAN-001.md"
+latest_card_summary = """3331 implements CompareRhsValueIdResolutionPlanBoundary
+as a `.hako` read-only semantic plan hard-authority pilot. Actual RHS ValueId
+resolution, literal allocation, constant/helper emission, symbol lookup, Source
+Selfhost, Hako adoption, MIR mutation, ID allocation, and route/runtime
+authority remain 0."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -362,6 +362,8 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-08: 3331 implements CompareRhsValueIdResolutionPlanBoundary as a `.hako` read-only semantic plan hard-authority pilot; actual RHS ValueId resolution, literal allocation, constant/helper emission, symbol lookup, Source Selfhost, Hako adoption, MIR mutation, ID allocation, and route/runtime authority remain unclaimed.",
+  "2026-07-08: 3330 consumes the RHS materialization intent pilot evidence and selects CompareRhsValueIdResolutionPlanBoundary as the next read-only hard-authority seam; the seam is not implemented in the selection card, and Source Selfhost plus route/runtime authority remain unclaimed.",
   "2026-07-08: 3329 implements CompareRhsMaterializationIntentBoundary as a `.hako` read-only semantic intent hard-authority pilot; actual RHS ValueId resolution, runtime materialization, constant/helper emission, Source Selfhost, Hako adoption, MIR mutation, ID allocation, and route/runtime authority remain unclaimed.",
   "2026-07-08: 3328 consumes the first hard-authority pilot evidence and selects CompareRhsMaterializationIntentBoundary as the next read-only hard-authority seam; the seam is not implemented yet, and Source Selfhost, Hako adoption, MIR mutation, ID allocation, and route/runtime authority remain unclaimed.",
   "2026-07-08: 3327 implements the first registry-selected hard authority pilot by fixing BoolRecipeCompareSemanticCommandBoundary as a `.hako` semantic command seam with AOT/EXE evidence and downstream boundary proof; Source Selfhost, Hako adoption, MIR mutation, ID allocation, and route/runtime authority remain unclaimed.",
@@ -372,6 +374,4 @@ landed_tail = [
   "2026-07-08: 3322 reconfirms the runtime-adjacent ProgramJSON shadow guard as green after Compare/Branch closeout and returns the lane to Source Selfhost wider route selection design-stop; runtime authority remains Rust ASTNode, and route selection, runtime fallback, and Source Selfhost remain unclaimed.",
   "2026-07-08: 3321 keeps the closed Compare/Branch bridge chain out of runtime route authority and selects the runtime-adjacent ProgramJSON shadow guard before any route authority switch; route selection, runtime fallback, and Source Selfhost remain unclaimed.",
   "2026-07-08: 3320 closes the scoped BoolRecipe-to-MIR Compare/Branch bridge chain through RHS ValueId resolution, LocalSSA finalize_compare, MIR Compare emission, and Branch emission; route selection, runtime authority, runtime fallback, and Source Selfhost remain unclaimed.",
-  "2026-07-08: 3319 opens scoped Branch emission from a Compare result ValueId; route selection, runtime authority, runtime fallback, and Source Selfhost remain unclaimed.",
-  "2026-07-08: 3318 selects a scoped Branch emission bridge after Compare emission; Branch emission execution, branch condition consumption, route/runtime authority, and Source Selfhost remain unclaimed.",
 ]
