@@ -1,0 +1,97 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderCompareRhsValueIdResolutionOwnerSelectionV1",
+  "token": "MIRBUILDER-COMPARE-RHS-VALUEID-RESOLUTION-OWNER-SELECTION-001",
+  "prerequisite": "MIRBUILDER-COMPARE-RHS-MATERIALIZATION-INTENT-PARITY-001",
+  "source_authority": {
+    "rust_compare_owner": "src/mir/builder/ops/comparison.rs::build_comparison_op",
+    "rust_local_ssa_owner": "src/mir/builder/ssa/local.rs::finalize_compare",
+    "rust_compare_emit_owner": "src/mir/builder/emission/compare.rs::emit_to",
+    "hako_intent_owner": "lang/src/compiler/mirbuilder/compare_rhs_materialization_intent_snapshot.hako"
+  },
+  "candidates": [
+    {
+      "name": "ReadOnlyRhsValueIdResolutionPlanPilot",
+      "selected": true,
+      "reason": "Next boundary can classify LiteralI64 vs SymbolRef RHS ValueId resolution requirements without allocating or emitting values",
+      "selected_next_card": "MIRBUILDER-COMPARE-RHS-MATERIALIZATION-READONLY-RESOLUTION-PILOT-001"
+    },
+    {
+      "name": "ResolveRhsValueIdNow",
+      "selected": false,
+      "reason": "Would require actual symbol lookup / constant ValueId production before read-only plan parity is fixed"
+    },
+    {
+      "name": "EmitLiteralConstantNow",
+      "selected": false,
+      "reason": "Constant MIR emission is mutation-bearing and must remain Rust-owned for this selection"
+    },
+    {
+      "name": "ExecuteSymbolLookupNow",
+      "selected": false,
+      "reason": "Runtime/local symbol lookup authority is not yet exposed to the ProgramJSON path"
+    },
+    {
+      "name": "EmitCompareWithResolvedRhsNow",
+      "selected": false,
+      "reason": "Compare emission requires operand ValueIds and belongs after resolution plan parity"
+    }
+  ],
+  "selected_boundary": {
+    "name": "CompareRhsValueIdResolutionPlanSnapshotV1",
+    "input": "CompareRhsMaterializationIntentSnapshotV1",
+    "output": "read-only RHS ValueId resolution plan snapshot",
+    "allowed_fields": [
+      "rhs_materialization_kind_code",
+      "rhs_bound_kind_code",
+      "rhs_bound_i64",
+      "rhs_bound_symbol_id",
+      "resolution_plan_kind_code",
+      "literal_constant_required",
+      "symbol_lookup_required",
+      "analysis_only"
+    ],
+    "forbidden_actions": [
+      "symbol to ValueId resolution",
+      "literal constant ValueId allocation",
+      "constant MIR emission",
+      "runtime helper emission",
+      "MIR Compare emission",
+      "MIR Branch emission",
+      "LocalSSA finalize_compare execution",
+      "BasicBlock mutation",
+      "ValueId allocation",
+      "route selection",
+      "runtime route switch",
+      "ProgramJSON runtime route authority",
+      "runtime fallback"
+    ]
+  },
+  "claims": {
+    "compare_rhs_valueid_resolution_owner_selection": 1,
+    "readonly_rhs_valueid_resolution_plan_pilot_selected": 1,
+    "rhs_value_id_resolution_selected": 0,
+    "literal_constant_emission_selected": 0,
+    "symbol_lookup_execution_selected": 0,
+    "compare_emission_selected": 0,
+    "rhs_value_id_resolution": 0,
+    "literal_constant_value_id_allocation": 0,
+    "constant_mir_emission": 0,
+    "runtime_helper_emission": 0,
+    "local_ssa_finalize_compare_execution": 0,
+    "mir_cmp_emission": 0,
+    "branch_emission": 0,
+    "basic_block_mutation": 0,
+    "value_id_allocation": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_route_authority": 0,
+    "programjson_var_rhs_full_dispatcher_authority": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "SelectReadOnlyRhsValueIdResolutionPlanPilot",
+    "selected_next_card": "MIRBUILDER-COMPARE-RHS-MATERIALIZATION-READONLY-RESOLUTION-PILOT-001"
+  }
+}
