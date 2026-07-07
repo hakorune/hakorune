@@ -1,0 +1,102 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonRecipeBodiesRuntimeRouteShadowSwitchConsultationV2",
+  "token": "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-ROUTE-SHADOW-SWITCH-CONSULTATION-002",
+  "input_state": {
+    "previous_card": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-SHADOW-PARITY-EXPANDED-ROWS-001",
+    "expanded_rows_gate": "tools/checks/rust_lifecycle_mirbuilder_programjson_recipematcher_shadow_parity_expanded_rows_gate.sh",
+    "dual_run_guard": "tools/checks/rust_lifecycle_mirbuilder_programjson_recipematcher_runtime_dual_run_shadow_guard.sh",
+    "runtime_authority": "Rust ASTNode route",
+    "programjson_state": "shadow-only evidence"
+  },
+  "candidate_decisions": [
+    {
+      "id": "A_SHADOW_ONLY_CONTINUE",
+      "state": "NotSelectedAsPrimary",
+      "reason": "3231 and 3232 already provide shadow-only evidence; continuing only coverage risks a coverage loop"
+    },
+    {
+      "id": "B_RUNTIME_ROUTE_ADJACENT_SHADOW_GUARD",
+      "state": "Selected",
+      "selected_next_card": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RUNTIME-ROUTE-ADJACENT-SHADOW-GUARD-001",
+      "reason": "Move the comparison adjacent to runtime route selection while keeping Rust authority"
+    },
+    {
+      "id": "C_LIMITED_PROGRAMJSON_AUTHORITY_SWITCH",
+      "state": "RejectedForNow",
+      "reason": "ProgramJSON matcher fields and reject rows are not yet sufficient for authority"
+    },
+    {
+      "id": "D_MORE_COVERAGE_BEFORE_ANY_RUNTIME_ADJACENT_WORK",
+      "state": "DeferredAsCoverageFloorBeforeC",
+      "reason": "More coverage is needed before C, but does not replace the runtime-adjacent shadow guard"
+    }
+  ],
+  "selected_contract": {
+    "name": "RuntimeRouteAdjacentShadowGuardV1",
+    "mode": "runtime_route_adjacent_shadow_only",
+    "boundary": "after try_build_outcome(ctx), before registry candidate selection",
+    "runtime_authority": "Rust ASTNode route",
+    "shadow": "ProgramJSON matcher result",
+    "comparison": "canonical matcher result fields plus route-consumed semantic fields when available",
+    "mismatch_policy": "fail_fast",
+    "writes_downstream": false,
+    "runtime_route_switch": false,
+    "programjson_runtime_route_authority": false,
+    "recipe_matcher_input_authority": false,
+    "route_selection": false,
+    "mir_lowering": false,
+    "mir_mutation": false,
+    "id_allocation": false,
+    "runtime_fallback": false
+  },
+  "forbidden_until_later_design_approval": [
+    "write ProgramJSON result into PlanBuildOutcome.recipe_contract",
+    "pass ProgramJSON result to route registry or predicates",
+    "compose CorePlan from ProgramJSON result",
+    "lower MIR from ProgramJSON result",
+    "mutate MIR from ProgramJSON result",
+    "allocate IDs from ProgramJSON result",
+    "fallback to Rust on ProgramJSON mismatch",
+    "claim ProgramJSON runtime route authority",
+    "claim runtime route switch",
+    "claim Source Selfhost"
+  ],
+  "coverage_floor_before_c": [
+    "break in loop body",
+    "continue in loop body",
+    "nested loop in loop body",
+    "no in-body return",
+    "no final return",
+    "unsupported condition operator",
+    "unsupported condition shape",
+    "unsupported update operator",
+    "update target mismatch",
+    "unsupported variable name",
+    "malformed or missing verified recipe",
+    "extra statement or swapped body order"
+  ],
+  "decision": {
+    "kind": "SelectRuntimeRouteAdjacentShadowGuard",
+    "reason_token": "RuntimeAdjacentShadowGuardIsNextAfterDualRunAndExpandedRows",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RUNTIME-ROUTE-ADJACENT-SHADOW-GUARD-001"
+  },
+  "claims": {
+    "consultation_decision_recorded": 1,
+    "selected_b_runtime_route_adjacent_shadow_guard": 1,
+    "runtime_authority_remains_rust_astnode": 1,
+    "programjson_runtime_route_authority": 0,
+    "runtime_route_switch": 0,
+    "recipe_matcher_input_authority": 0,
+    "limited_programjson_authority_switch": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "mir_lowering": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
