@@ -1,0 +1,89 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonRecipeMatcherAcceptedFloorMatrixV1",
+  "token": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-ACCEPTED-FLOOR-MATRIX-001",
+  "input_state": {
+    "previous_selection": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-AUTHORITY-SWITCH-COVERAGE-FLOOR-SELECTION-001",
+    "current_green_rows": [
+      "local_loop_body_if_branch_return",
+      "local_loop_body_if_branch_return_alt_names",
+      "local_loop_body_if_branch_return_i_wide_step",
+      "local_loop_body_if_branch_return_count_wide_step"
+    ],
+    "current_green_row_count": 4,
+    "current_green_contract_kind": "LoopWithExit"
+  },
+  "accepted_floor_matrix": [
+    {
+      "axis": "current_return_only_shape",
+      "status": "green",
+      "matched": 1,
+      "contract_kind": "LoopWithExit",
+      "has_break": 0,
+      "has_continue": 0,
+      "has_return": 1
+    },
+    {
+      "axis": "continue_present",
+      "status": "blocked_verified_recipe_missing",
+      "current_observation_owner": "ProgramJsonLoopBodyControlFlowScanV1",
+      "missing_owner": "LoopStmtHandler Exit(Continue) verified recipe producer"
+    },
+    {
+      "axis": "break_present",
+      "status": "blocked_verified_recipe_missing",
+      "current_observation_owner": "ProgramJsonLoopBodyControlFlowScanV1",
+      "missing_owner": "LoopStmtHandler Exit(Break) verified recipe producer"
+    },
+    {
+      "axis": "break_and_continue_present",
+      "status": "blocked_on_break_and_continue_verified_recipe_support",
+      "missing_owner": "LoopStmtHandler combined Exit(Break)/Exit(Continue) verified recipe producer"
+    },
+    {
+      "axis": "return_absent_decision_row",
+      "status": "decision_required",
+      "reason": "CanonicalLoopFacts snapshot currently requires final Return and hardcodes accepted has_return=1"
+    },
+    {
+      "axis": "nested_loop_decision_row",
+      "status": "decision_required",
+      "reason": "Nested Loop is observable but rejected before RecipeMatcher input"
+    }
+  ],
+  "selected_next": {
+    "kind": "ContinuePresentVerifiedRecipeSupport",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-CONTINUE-PRESENT-VERIFIED-RECIPE-SUPPORT-001",
+    "reason_token": "ContinuePresentIsSmallestAcceptedFloorBoxCountAfterReturnOnlyRows",
+    "box_count_slice": true,
+    "single_axis_only": "continue_present"
+  },
+  "next_sequence": [
+    "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-CONTINUE-PRESENT-VERIFIED-RECIPE-SUPPORT-001",
+    "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-BREAK-PRESENT-VERIFIED-RECIPE-SUPPORT-001",
+    "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-BREAK-CONTINUE-PRESENT-VERIFIED-RECIPE-SUPPORT-001",
+    "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RETURN-ABSENT-DECISION-ROW-001",
+    "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-NESTED-LOOP-DECISION-ROW-001",
+    "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-REJECT-FLOOR-001"
+  ],
+  "claims": {
+    "accepted_floor_matrix": 1,
+    "current_green_return_only_rows": 4,
+    "continue_present_green": 0,
+    "break_present_green": 0,
+    "break_and_continue_present_green": 0,
+    "return_absent_decision_green": 0,
+    "nested_loop_decision_green": 0,
+    "programjson_runtime_route_authority": 0,
+    "runtime_route_switch": 0,
+    "recipe_matcher_input_authority": 0,
+    "route_selection": 0,
+    "mir_lowering": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
