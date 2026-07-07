@@ -1,0 +1,39 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderCompareBranchEmissionBridgeV1",
+  "token": "MIRBUILDER-COMPARE-BRANCH-EMISSION-BRIDGE-001",
+  "owner": "CompareBranchEmissionBridge",
+  "rust_source": "src/mir/builder/compare_branch_emission_bridge.rs",
+  "prerequisite": "MIRBUILDER-COMPARE-BRANCH-EMISSION-DESIGN-STOP-001",
+  "input_contract": "Compare result ValueId with Bool type publication",
+  "output_contract": "CompareBranchEmissionResponseV1",
+  "rows": [
+    {
+      "row_id": "compare_result_to_conditional_branch",
+      "expected": {
+        "ok": 1,
+        "branch_condition_consumed": 1,
+        "localssa_finalize_branch_cond_executed": 1,
+        "branch_emission_executed": 1,
+        "route_selection": 0,
+        "runtime_route_switch": 0
+      }
+    }
+  ],
+  "claims": {
+    "compare_branch_emission_bridge": 1,
+    "branch_condition_consumption": 1,
+    "localssa_finalize_branch_cond_execution": 1,
+    "branch_emission_execution": 1,
+    "compare_result_to_conditional_branch": 1,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_authority": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "CompareBranchEmissionBridgeGreen",
+    "selected_next_card": "MIRBUILDER-COMPARE-BOOLRECIPE-TO-MIR-COMPARE-BRANCH-CLOSEOUT-001"
+  }
+}
