@@ -83,6 +83,7 @@ phase-1 compatibility Program(JSON) compat execution helper.
 | `tools/checks/rust_lifecycle_mirbuilder_recipeitem_cond_recipe_diagnostic_summary_observation_gate.sh` | AOT gate for diagnostic deep observation of RecipeItem `cond_recipe` sidecar contents. |
 | `tools/checks/rust_lifecycle_mirbuilder_recipeitem_cond_recipe_consume_boundary_selection_guard.sh` | Selects RecipeVerifier validate-only as the first non-diagnostic consumer of RecipeItem `cond_recipe`. |
 | `tools/checks/rust_lifecycle_mirbuilder_recipeverifier_cond_recipe_validate_only_consume_gate.sh` | AOT gate for RecipeVerifier validate-only consumption of optional RecipeItem `cond_recipe`. |
+| `tools/checks/rust_lifecycle_mirbuilder_recipematcher_cond_recipe_input_consume_boundary_selection_guard.sh` | Selects observe-only snapshot projection as the first RecipeMatcher-adjacent `cond_recipe` boundary. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_condition_shape_retire_rust_astnode_projector_candidate_guard.sh` | Retire-candidate guard for the covered `ConditionShapeSnapshotV1` ProgramJSON traversal slice. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_context_scope_shape_scan_parity_gate.sh` | Capability-batch parity for `.hako` `ProgramJsonContextScopeShapeScanV1`. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_context_scope_shape_retire_rust_astnode_projector_candidate_guard.sh` | Retire-candidate guard for the covered `ContextScopeShapeSnapshotV1` ProgramJSON traversal slice. |

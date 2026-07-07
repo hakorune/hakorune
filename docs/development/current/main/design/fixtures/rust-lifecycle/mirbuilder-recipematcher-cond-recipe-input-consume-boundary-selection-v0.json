@@ -1,0 +1,66 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderRecipeMatcherCondRecipeInputConsumeBoundarySelectionV1",
+  "token": "MIRBUILDER-RECIPEMATCHER-COND-RECIPE-INPUT-CONSUME-BOUNDARY-SELECTION-001",
+  "prerequisite": "MIRBUILDER-RECIPEVERIFIER-COND-RECIPE-VALIDATE-ONLY-CONSUME-001",
+  "input_state": {
+    "recipe_verifier_validates_cond_recipe": true,
+    "recipe_matcher_current_input": "CanonicalLoopFacts read-only snapshot",
+    "shape_control_current_input": "legacy cond_facts",
+    "lowering_current_input": "none"
+  },
+  "candidate_consumers": [
+    {
+      "candidate": "ObserveOnlyCondRecipeMatcherInputSnapshot",
+      "selected": true,
+      "reason": "The next safe RecipeMatcher boundary is a read-only snapshot projection from verified cond_recipe. It can compare matcher-facing facts without route selection or lowering authority.",
+      "selected_next_card": "MIRBUILDER-RECIPEMATCHER-COND-RECIPE-OBSERVE-ONLY-INPUT-SNAPSHOT-001"
+    },
+    {
+      "candidate": "DirectRecipeMatcherCondRecipeAuthority",
+      "selected": false,
+      "reason": "Direct authority would skip the read-only snapshot boundary and claim RecipeMatcher input authority too early."
+    },
+    {
+      "candidate": "ShapeControlCondRecipeConsumer",
+      "selected": false,
+      "reason": "Shape control is lowering-adjacent and must stay on legacy cond_facts until a separate lowering boundary is selected."
+    },
+    {
+      "candidate": "RouteSelectionCondRecipeConsumer",
+      "selected": false,
+      "reason": "Route selection remains Rust-authority and must not consume ProgramJSON cond_recipe yet."
+    }
+  ],
+  "selected_contract": {
+    "consumer": "ProgramJsonRecipeMatcherExecutionBoundaryBox",
+    "mode": "observe_only_input_snapshot",
+    "input": "verified RecipeItem cond_recipe projected to matcher-facing read-only snapshot",
+    "allowed_effect": "produce compare-only matcher input snapshot",
+    "recipe_matcher_input_authority": false,
+    "full_recipe_matcher_execution": false,
+    "route_selection_change": false,
+    "lowering_behavior_change": false,
+    "runtime_route_switch": false
+  },
+  "decision": {
+    "kind": "SelectObserveOnlyCondRecipeMatcherInputSnapshot",
+    "reason_token": "CondRecipeMayEnterRecipeMatcherOnlyThroughReadOnlyObserveOnlySnapshot",
+    "selected_next_card": "MIRBUILDER-RECIPEMATCHER-COND-RECIPE-OBSERVE-ONLY-INPUT-SNAPSHOT-001"
+  },
+  "claims": {
+    "recipematcher_cond_recipe_input_consume_boundary_selection": 1,
+    "selected_observe_only_cond_recipe_input_snapshot": 1,
+    "direct_recipematcher_cond_recipe_authority": 0,
+    "recipe_matcher_input_authority": 0,
+    "full_recipe_matcher_execution": 0,
+    "bool_recipe_lowering": 0,
+    "mir_cmp_emission": 0,
+    "branch_emission": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_route_authority": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  }
+}
