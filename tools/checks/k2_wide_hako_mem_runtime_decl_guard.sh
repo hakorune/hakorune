@@ -157,6 +157,7 @@ import sys
 ROOT = pathlib.Path.cwd()
 SHIMS = ROOT / "lang/c-abi/shims"
 ALLOWED_ROUTE_FACT_CONSUMERS = {
+    "hako_llvmc_ffi_lowering_plan_extern_call_metadata.inc",
     "hako_llvmc_ffi_lowering_plan_metadata.inc",
     "hako_llvmc_ffi_mir_call_shell.inc",
     "hako_llvmc_ffi_mir_call_shell_extern_emit.inc",
