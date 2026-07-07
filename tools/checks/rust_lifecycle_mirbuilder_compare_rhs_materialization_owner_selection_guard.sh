@@ -126,6 +126,7 @@ allowed_latest = [
     'latest_card = "MIRBUILDER-COMPARE-RHS-VALUEID-RESOLUTION-REQUEST-RESPONSE-ABI-001"',
     'latest_card = "MIRBUILDER-COMPARE-RHS-LITERAL-I64-CONSTANT-EMISSION-BRIDGE-001"',
     'latest_card = "MIRBUILDER-COMPARE-RHS-SYMBOLREF-LOOKUP-CONTRACT-CONSULTATION-001"',
+    'latest_card = "MIRBUILDER-COMPARE-RHS-SYMBOLREF-LOOKUP-CONTRACT-PARITY-001"',
 ]
 need(any(entry in current_state for entry in allowed_latest), "CURRENT_STATE latest card must point to selection or selected pilot")
 need(

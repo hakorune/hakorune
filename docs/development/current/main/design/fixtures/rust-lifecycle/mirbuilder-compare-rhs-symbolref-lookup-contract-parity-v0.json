@@ -1,0 +1,81 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderCompareRhsSymbolRefLookupContractParityV1",
+  "token": "MIRBUILDER-COMPARE-RHS-SYMBOLREF-LOOKUP-CONTRACT-PARITY-001",
+  "owner": "CompareRhsSymbolRefContractObserver",
+  "rust_source": "src/mir/builder/compare_rhs_symbolref_contract.rs",
+  "prerequisite": "MIRBUILDER-COMPARE-RHS-SYMBOLREF-LOOKUP-CONTRACT-CONSULTATION-001",
+  "contract": "SymbolRefResolutionContractV1",
+  "rows": [
+    {
+      "row_id": "simple_local_i",
+      "symbol_id": 1,
+      "source_name": "i",
+      "expected_rust_variable_key": "i",
+      "scope_contract_kind": "same_function_local_no_shadow",
+      "expected": {
+        "ok": 1,
+        "rust_variable_key_present": 1,
+        "rust_current_valueid_present": 1,
+        "rust_current_valueid_nonzero": 1,
+        "readonly": 1
+      }
+    },
+    {
+      "row_id": "renamed_local_count",
+      "symbol_id": 3,
+      "source_name": "count",
+      "expected_rust_variable_key": "count",
+      "scope_contract_kind": "renamed_local_no_shadow",
+      "expected": {
+        "ok": 1,
+        "rust_variable_key_present": 1,
+        "rust_current_valueid_present": 1,
+        "rust_current_valueid_nonzero": 1,
+        "readonly": 1
+      }
+    },
+    {
+      "row_id": "shadowed_name_not_claimed",
+      "symbol_id": 4,
+      "source_name": "i",
+      "expected_rust_variable_key": "i",
+      "scope_contract_kind": "shadowed_name_not_claimed",
+      "expected": {
+        "ok": 0,
+        "shadowing_claimed": 0,
+        "readonly": 1
+      }
+    }
+  ],
+  "claims": {
+    "symbol_ref_resolution_contract_v1": 1,
+    "symbol_id_to_source_name_mapping": 1,
+    "source_name_to_expected_rust_variable_key_mapping": 1,
+    "rust_variable_key_readonly_observed": 1,
+    "rust_current_valueid_readonly_observed": 1,
+    "contract_verified_rows": 2,
+    "simple_local_row": 1,
+    "renamed_local_row": 1,
+    "shadowed_name_not_claimed_row": 1,
+    "rust_oracle_current_valueid_observed": 1,
+    "programjson_symbol_contract_matches_rust_observation": 1,
+    "symbol_lookup_execution": 0,
+    "symbol_ref_valueid_resolution": 0,
+    "existing_valueid_returned_as_bridge_response": 0,
+    "valueid_allocated": 0,
+    "constant_mir_emission": 0,
+    "local_ssa_finalize_compare": 0,
+    "mir_compare_emission": 0,
+    "mir_branch_emission": 0,
+    "basicblock_mutation": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_authority": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "SymbolRefLookupContractParityGreen",
+    "selected_next_card": "MIRBUILDER-COMPARE-RHS-SYMBOLREF-LOOKUP-BRIDGE-001"
+  }
+}

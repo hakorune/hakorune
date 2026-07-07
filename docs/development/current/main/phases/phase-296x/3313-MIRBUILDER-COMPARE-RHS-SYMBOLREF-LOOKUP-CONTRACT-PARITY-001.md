@@ -6,7 +6,7 @@ Prove the read-only SymbolRef resolution contract before any actual lookup.
 ## Rows
 - `simple_local_i`
 - `renamed_local_count`
-- `shadowed_name_not_claimed` or explicit `not_representable_in_current_fixture`
+- `shadowed_name_not_claimed`
 
 ## Positive Claims
 - `symbol_ref_resolution_contract_v1 = 1`
@@ -39,4 +39,9 @@ Optional read-only oracle evidence:
 ## Selected Next
 ```text
 MIRBUILDER-COMPARE-RHS-SYMBOLREF-LOOKUP-BRIDGE-001
+```
+
+## Guard
+```bash
+bash tools/checks/rust_lifecycle_mirbuilder_compare_rhs_symbolref_lookup_contract_parity_gate.sh
 ```

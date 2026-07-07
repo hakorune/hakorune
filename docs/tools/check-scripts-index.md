@@ -114,6 +114,7 @@ phase-1 compatibility Program(JSON) compat execution helper.
 | `tools/checks/rust_lifecycle_mirbuilder_compare_rhs_valueid_resolution_request_response_abi_gate.sh` | AOT gate fixing RHS ValueId resolution request rows and response schema before actual mutation. |
 | `tools/checks/rust_lifecycle_mirbuilder_compare_rhs_literal_i64_constant_emission_bridge_gate.sh` | Rust gate proving scoped LiteralI64 RHS ValueId resolution emits one integer Const and keeps SymbolRef/Compare/Branch/runtime authority closed. |
 | `tools/checks/rust_lifecycle_mirbuilder_compare_rhs_symbolref_lookup_contract_consultation_guard.sh` | Design-stop guard selecting SymbolRefResolutionContractV1 before actual SymbolRef lookup. |
+| `tools/checks/rust_lifecycle_mirbuilder_compare_rhs_symbolref_lookup_contract_parity_gate.sh` | Rust gate proving read-only SymbolRef contract parity for simple/renamed no-shadow locals before actual lookup. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_condition_shape_retire_rust_astnode_projector_candidate_guard.sh` | Retire-candidate guard for the covered `ConditionShapeSnapshotV1` ProgramJSON traversal slice. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_context_scope_shape_scan_parity_gate.sh` | Capability-batch parity for `.hako` `ProgramJsonContextScopeShapeScanV1`. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_context_scope_shape_retire_rust_astnode_projector_candidate_guard.sh` | Retire-candidate guard for the covered `ContextScopeShapeSnapshotV1` ProgramJSON traversal slice. |
