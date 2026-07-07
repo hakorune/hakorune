@@ -345,14 +345,13 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-GUARD-CHAIN-CACHE-PREFLIGHT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3339-MIRBUILDER-GUARD-CHAIN-CACHE-PREFLIGHT-001.md"
-latest_card_summary = """3339 runs a narrow guard-chain cache preflight before
-resuming LocalSSA finalize_compare. Existing guard result memoization, dirty
-cache opt-in behavior, and Hako MIR/EXE cache wrapper guards are proven green;
-the LocalSSA resume target is recorded, but no cache implementation,
-dirty-cache default change, compiler semantics, LocalSSA, MIR Compare/Branch,
-Source Selfhost, Hako adoption, or route/runtime authority is claimed."""
+latest_card = "MIRBUILDER-COMPARE-LOCALSSA-FINALIZE-COMPARE-BRIDGE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3316-MIRBUILDER-COMPARE-LOCALSSA-FINALIZE-COMPARE-BRIDGE-001.md"
+latest_card_summary = """3316 runs the scoped LocalSSA finalize_compare bridge
+for resolved lhs/rhs ValueIds. The bridge finalizes operands through the Rust
+LocalSSA owner but does not emit MIR Compare, emit Branch, publish a Bool
+result type, claim Source Selfhost/Hako adoption, or switch route/runtime
+authority."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -363,6 +362,8 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-08: 3316 runs the scoped LocalSSA finalize_compare bridge for resolved lhs/rhs ValueIds; lhs/rhs operands are finalized through the Rust LocalSSA owner, while MIR Compare, Branch, Bool publication, Source Selfhost, Hako adoption, and route/runtime authority remain unclaimed.",
+  "2026-07-08: 3315 resumes the compare lowering chain after guard-cache preflight and selects the scoped LocalSSA finalize_compare bridge before MIR Compare/Branch emission; LocalSSA execution, MIR Compare, Branch, Bool publication, Source Selfhost, Hako adoption, and route/runtime authority remain unclaimed.",
   "2026-07-08: 3339 runs a guard-chain cache preflight before resuming LocalSSA finalize_compare; guard result memoization, dirty-cache opt-in behavior, and Hako MIR/EXE cache wrapper guards are green and the LocalSSA resume target is recorded, while cache implementation, dirty-cache default changes, compiler semantics, LocalSSA, MIR Compare/Branch, Source Selfhost, Hako adoption, and route/runtime authority remain unclaimed.",
   "2026-07-08: 3338 selects a guard-chain cache preflight before reopening LocalSSA finalize_compare; existing guard result memoization and Hako MIR/EXE cache wrapper guards are recorded as prerequisites, while cache implementation, dirty-cache default changes, compiler semantics, LocalSSA, MIR Compare/Branch, Source Selfhost, Hako adoption, and route/runtime authority remain unclaimed.",
   "2026-07-08: 3337 connects the no-shadow SymbolRef lookup bridge to the current hard-authority pilot chain; existing ValueId return is claimed only for contract-verified no-shadow local rows, while general SymbolRef authority, shadowing/current SSA, allocation, mutation, LocalSSA, MIR Compare/Branch, Source Selfhost, Hako adoption, and route/runtime authority remain unclaimed.",
@@ -373,6 +374,4 @@ landed_tail = [
   "2026-07-08: 3332 consumes the RHS ValueId resolution plan pilot evidence and selects CompareRhsValueIdResolutionRequestAbiBoundary as the next read-only hard-authority seam; the seam is not implemented in the selection card, and Source Selfhost plus route/runtime authority remain unclaimed.",
   "2026-07-08: 3331 implements CompareRhsValueIdResolutionPlanBoundary as a `.hako` read-only semantic plan hard-authority pilot; actual RHS ValueId resolution, literal allocation, constant/helper emission, symbol lookup, Source Selfhost, Hako adoption, MIR mutation, ID allocation, and route/runtime authority remain unclaimed.",
   "2026-07-08: 3330 consumes the RHS materialization intent pilot evidence and selects CompareRhsValueIdResolutionPlanBoundary as the next read-only hard-authority seam; the seam is not implemented in the selection card, and Source Selfhost plus route/runtime authority remain unclaimed.",
-  "2026-07-08: 3329 implements CompareRhsMaterializationIntentBoundary as a `.hako` read-only semantic intent hard-authority pilot; actual RHS ValueId resolution, runtime materialization, constant/helper emission, Source Selfhost, Hako adoption, MIR mutation, ID allocation, and route/runtime authority remain unclaimed.",
-  "2026-07-08: 3328 consumes the first hard-authority pilot evidence and selects CompareRhsMaterializationIntentBoundary as the next read-only hard-authority seam; the seam is not implemented yet, and Source Selfhost, Hako adoption, MIR mutation, ID allocation, and route/runtime authority remain unclaimed.",
 ]
