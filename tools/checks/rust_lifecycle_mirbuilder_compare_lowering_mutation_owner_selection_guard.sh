@@ -118,7 +118,8 @@ need(
     or 'latest_card = "MIRBUILDER-COMPARE-LOWERING-SYMBOLIC-COMMAND-PILOT-001"' in current_state
     or 'latest_card = "MIRBUILDER-COMPARE-LOWERING-SYMBOLIC-COMMAND-PARITY-001"' in current_state
     or 'latest_card = "MIRBUILDER-COMPARE-RHS-MATERIALIZATION-OWNER-SELECTION-001"' in current_state
-    or 'latest_card = "MIRBUILDER-COMPARE-RHS-MATERIALIZATION-INTENT-PILOT-001"' in current_state,
+    or 'latest_card = "MIRBUILDER-COMPARE-RHS-MATERIALIZATION-INTENT-PILOT-001"' in current_state
+    or 'latest_card = "MIRBUILDER-COMPARE-RHS-MATERIALIZATION-INTENT-PARITY-001"' in current_state,
     "CURRENT_STATE latest card must point to selection or a selected follow-on",
 )
 need(

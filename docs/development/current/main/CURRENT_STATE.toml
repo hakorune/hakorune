@@ -345,10 +345,10 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-COMPARE-RHS-MATERIALIZATION-INTENT-PILOT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3304-MIRBUILDER-COMPARE-RHS-MATERIALIZATION-INTENT-PILOT-001.md"
-latest_card_summary = """3304 publishes read-only RHS materialization intent
-snapshots for LiteralI64 and SymbolRef compare RHS rows. RHS ValueId
+latest_card = "MIRBUILDER-COMPARE-RHS-MATERIALIZATION-INTENT-PARITY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3305-MIRBUILDER-COMPARE-RHS-MATERIALIZATION-INTENT-PARITY-001.md"
+latest_card_summary = """3305 proves command-to-intent field parity for
+LiteralI64 and SymbolRef compare RHS materialization rows. RHS ValueId
 resolution, runtime materialization, MIR Compare/Branch emission, mutation,
 allocation, runtime authority, and Source Selfhost remain unclaimed."""
 
@@ -361,6 +361,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-07: 3305 proves command-to-intent field parity for LiteralI64 and SymbolRef compare RHS materialization rows; RHS ValueId resolution, runtime materialization, MIR emission, mutation, allocation, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3304 publishes read-only RHS materialization intent snapshots for LiteralI64 and SymbolRef compare RHS rows; RHS ValueId resolution, runtime materialization, MIR emission, mutation, allocation, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3303 selects a read-only RHS materialization intent pilot after symbolic command parity; RHS ValueId resolution, runtime materialization, MIR emission, mutation, allocation, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3302 proves intent-to-symbolic-command field parity for literal and SymbolRef rhs compare rows; MIR emission, mutation, allocation, full dispatcher authority, and Source Selfhost remain unclaimed.",
@@ -372,5 +373,4 @@ landed_tail = [
   "2026-07-07: 3296 opens one exact Loop nested-If Var rhs cond_recipe producer row through LoopNestedIfCondScanBox; top-level Loop Var rhs, MIR emission, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3295 extracts Loop nested-If Compare condition scan into LoopNestedIfCondScanBox; accepted rows, MIR emission, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3294 selects Loop nested-If condition scan seam cleanup before the next Var rhs producer row; accepted rows, MIR emission, and Source Selfhost remain unclaimed.",
-  "2026-07-07: 3293 opens one exact top-level If Var rhs cond_recipe producer row through the shared ProgramJSON Compare reader; Loop rows, MIR emission, and Source Selfhost remain unclaimed.",
 ]

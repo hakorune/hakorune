@@ -406,10 +406,10 @@ Detailed evidence lives in phase cards, fixtures, and git history.
 
 ## Active Next 3
 ```text
-landed summary: 3264..3304 cond_recipe/compare chain includes BoolRecipe sidecar bridge, ProgramJSON Loop/If cond_recipe producer wiring, verifier validate-only, matcher observe-only input snapshot, shared compare reader, If/Loop relational rows, BoolRecipe lowering observation/consultation, Var rhs reader parity, If/nested-If/top-level Loop Var rhs owner-direct rows, Var-rhs producer closeout, symbolic compare lowering command owner selection, intent-map symbolic command pilot, symbolic command parity, RHS materialization owner selection, and RHS materialization intent pilot.
+landed summary: 3264..3305 cond_recipe/compare chain includes BoolRecipe sidecar bridge, ProgramJSON Loop/If cond_recipe producer wiring, verifier validate-only, matcher observe-only input snapshot, shared compare reader, If/Loop relational rows, BoolRecipe lowering observation/consultation, Var rhs reader parity, If/nested-If/top-level Loop Var rhs owner-direct rows, Var-rhs producer closeout, symbolic compare lowering command owner selection, intent-map symbolic command pilot, symbolic command parity, RHS materialization owner selection, RHS materialization intent pilot, and RHS materialization intent parity.
 
 next active:
-  MIRBUILDER-COMPARE-RHS-MATERIALIZATION-INTENT-PILOT-001; status=landed; LiteralI64/SymbolRef RHS materialization intent rows green; next=MIRBUILDER-COMPARE-RHS-MATERIALIZATION-INTENT-PARITY-001; status=next; unit=parity gate; RHS ValueId resolution=0; runtime materialization=0; MIR emission=0; allocation=0; runtime_authority=rust_astnode
+  MIRBUILDER-COMPARE-RHS-MATERIALIZATION-INTENT-PARITY-001; status=landed; command-to-intent parity rows green; next=MIRBUILDER-COMPARE-RHS-VALUEID-RESOLUTION-OWNER-SELECTION-001; status=next; unit=selection guard; RHS ValueId resolution=0; runtime materialization=0; MIR emission=0; allocation=0; runtime_authority=rust_astnode
 
 trigger-based AOT/MIR typing debt:
   status=parked-until-triggered; order=2999/3000/3001 landed, then 3022 queue
@@ -417,10 +417,10 @@ trigger-based AOT/MIR typing debt:
   compare, PHI dst_type, mir_call dst_type, or receiver-helper
   single-observation protection
 next_documented_task =
-  MIRBUILDER-COMPARE-RHS-MATERIALIZATION-INTENT-PARITY-001
+  MIRBUILDER-COMPARE-RHS-VALUEID-RESOLUTION-OWNER-SELECTION-001
 
 next_after_active_3 =
-  MIRBUILDER-COMPARE-RHS-MATERIALIZATION-INTENT-PARITY-001 -> MIRBUILDER-COMPARE-RHS-VALUEID-RESOLUTION-OWNER-SELECTION-001
+  MIRBUILDER-COMPARE-RHS-VALUEID-RESOLUTION-OWNER-SELECTION-001 -> MIRBUILDER-COMPARE-RHS-MATERIALIZATION-READONLY-RESOLUTION-PILOT-001
 
 follow_on_after_consume = select first BoolRecipe publication parity row only after consume gate is green
 
