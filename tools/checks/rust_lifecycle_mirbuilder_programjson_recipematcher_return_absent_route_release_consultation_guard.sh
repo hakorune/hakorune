@@ -109,7 +109,11 @@ for needle in [
 for needle in [token, next_token, "return_absent_scan_only_diagnostic"]:
     if needle not in task_order:
         raise SystemExit(f"task-order missing: {needle}")
-if f'latest_card = "{token}"' not in current_state:
+allowed_latest = {
+    token,
+    next_token,
+}
+if not any(f'latest_card = "{allowed}"' in current_state for allowed in allowed_latest):
     raise SystemExit("CURRENT_STATE latest card drift")
 for needle in [
     "return_absent_green=0",

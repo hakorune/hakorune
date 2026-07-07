@@ -121,6 +121,7 @@ for needle in [token, "CONSULTATION_REQUIRED", "B_DEFER_RETURN_ABSENT_TO_ROUTE_R
 allowed_latest = {
     token,
     "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RETURN-ABSENT-ROUTE-RELEASE-CONSULTATION-001",
+    "MIRBUILDER-PROGRAMJSON-LOOP-BODY-RETURN-ABSENT-SCAN-ONLY-DIAGNOSTIC-001",
 }
 if not any(f'latest_card = "{allowed}"' in current_state for allowed in allowed_latest):
     raise SystemExit("CURRENT_STATE latest card drift")

@@ -1,0 +1,102 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonLoopBodyReturnAbsentScanOnlyDiagnosticV1",
+  "token": "MIRBUILDER-PROGRAMJSON-LOOP-BODY-RETURN-ABSENT-SCAN-ONLY-DIAGNOSTIC-001",
+  "input_state": {
+    "previous_card": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RETURN-ABSENT-ROUTE-RELEASE-CONSULTATION-001",
+    "selected_path": "scan_only_diagnostic",
+    "accepted_floor": false,
+    "matcher_result_parity": false
+  },
+  "row": {
+    "row_id": "loop_body_if_break_if_continue_assignment_final_return_present",
+    "program_json": {
+      "version": 0,
+      "kind": "Program",
+      "type": "Program",
+      "body": [
+        {"type": "Local", "name": "i", "expr": {"type": "Int", "value": 0}},
+        {
+          "type": "Loop",
+          "cond": {
+            "type": "Compare",
+            "op": "<",
+            "lhs": {"type": "Var", "name": "i"},
+            "rhs": {"type": "Int", "value": 5}
+          },
+          "body": [
+            {
+              "type": "If",
+              "cond": {
+                "type": "Compare",
+                "op": "<",
+                "lhs": {"type": "Var", "name": "i"},
+                "rhs": {"type": "Int", "value": 1}
+              },
+              "then": [{"type": "Break"}],
+              "else": null
+            },
+            {
+              "type": "If",
+              "cond": {
+                "type": "Compare",
+                "op": "<",
+                "lhs": {"type": "Var", "name": "i"},
+                "rhs": {"type": "Int", "value": 2}
+              },
+              "then": [{"type": "Continue"}],
+              "else": null
+            },
+            {
+              "type": "Assignment",
+              "name": "i",
+              "expr": {
+                "type": "Binary",
+                "op": "+",
+                "lhs": {"type": "Var", "name": "i"},
+                "rhs": {"type": "Int", "value": 1}
+              }
+            }
+          ]
+        },
+        {"type": "Return", "expr": {"type": "Var", "name": "i"}}
+      ]
+    },
+    "expected_diagnostic": {
+      "ok": 1,
+      "loop_body_has_break": 1,
+      "loop_body_has_continue": 1,
+      "loop_body_has_return": 0,
+      "final_top_level_return_present": 1,
+      "final_top_level_return_used_for_loop_body_has_return": 0,
+      "return_absent_scan_only_diagnostic": 1,
+      "return_absent_accepted_floor": 0,
+      "matcher_result_equal": 0,
+      "recipe_matcher_executed": 0
+    }
+  },
+  "claims": {
+    "return_absent_scan_only_diagnostic": 1,
+    "loop_body_control_flow_scan_used": 1,
+    "loop_body_has_return": 0,
+    "loop_body_has_break": 1,
+    "loop_body_has_continue": 1,
+    "final_top_level_return_present": 1,
+    "final_top_level_return_used_for_loop_body_has_return": 0,
+    "return_absent_green": 0,
+    "return_absent_accepted_floor": 0,
+    "matcher_result_equal": 0,
+    "recipe_matcher_accepted_floor": 0,
+    "programjson_runtime_route_authority": 0,
+    "runtime_route_switch": 0,
+    "recipe_matcher_input_authority": 0,
+    "route_selection": 0,
+    "mir_lowering": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

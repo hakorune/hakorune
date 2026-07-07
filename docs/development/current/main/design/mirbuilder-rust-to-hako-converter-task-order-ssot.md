@@ -60,7 +60,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-LOOP-BODY-RETURN-ABSENT-SCAN-ONLY-DIAGNOSTIC-001.
+  MIRBUILDER-PROGRAMJSON-CANONICAL-LOOP-FACTS-FINAL-TOPLEVEL-RETURN-DECOUPLE-SNAPSHOT-BOUNDARY-001.
 
 post-3180 block recipe task order:
   completed: JoinThenElse, ElseOnlyExit, ThenOnlyExit, and ExitAll are scoped
@@ -82,6 +82,7 @@ normal operating rule:
   history.
 
 latest design decision:
+  3244 implements MIRBUILDER-PROGRAMJSON-LOOP-BODY-RETURN-ABSENT-SCAN-ONLY-DIAGNOSTIC-001: return_absent_scan_only_diagnostic proves final top-level Return does not set loop-body has_return; accepted-floor remains 0.
   3243 records MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RETURN-ABSENT-ROUTE-RELEASE-CONSULTATION-001: B_DEFER_RETURN_ABSENT_TO_ROUTE_RELEASE_CONSULTATION is selected; next is a scan-only diagnostic, not accepted-floor.
   3242 records MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RETURN-ABSENT-DECISION-ROW-001: Return-absent accepted-floor support is deferred to route-release consultation; recommended_default=B_DEFER_RETURN_ABSENT_TO_ROUTE_RELEASE_CONSULTATION; selected_next=CONSULTATION_REQUIRED.
   3241 implements MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-BREAK-CONTINUE-PRESENT-VERIFIED-RECIPE-SUPPORT-001: exact IfBreak+IfContinue+IfReturn+Assignment BoxCount row is green; ProgramJSON remains shadow-only.
@@ -406,10 +407,10 @@ Detailed evidence lives in phase cards, fixtures, and git history.
 ```text
 1. MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-ROUTE-SHADOW-SWITCH-CONSULTATION-002; status=landed; boundary=select B, no authority switch
 2. MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RUNTIME-ROUTE-ADJACENT-SHADOW-GUARD-001; status=landed; boundary=after try_build_outcome before registry
-3. MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RETURN-ABSENT-ROUTE-RELEASE-CONSULTATION-001; status=landed; boundary=B defer selected, scan-only diagnostic queued
+3. MIRBUILDER-PROGRAMJSON-LOOP-BODY-RETURN-ABSENT-SCAN-ONLY-DIAGNOSTIC-001; status=landed; boundary=scan-only final Return separation proof
 
 next active:
-  MIRBUILDER-PROGRAMJSON-LOOP-BODY-RETURN-ABSENT-SCAN-ONLY-DIAGNOSTIC-001; status=next; unit=return_absent_scan_only_diagnostic; return_absent_accepted_floor=0; matcher_result_equal=0; runtime_authority=rust_astnode; programjson_runtime_route_authority=0; runtime_route_switch=0
+  MIRBUILDER-PROGRAMJSON-CANONICAL-LOOP-FACTS-FINAL-TOPLEVEL-RETURN-DECOUPLE-SNAPSHOT-BOUNDARY-001; status=next; unit=snapshot-boundary decouple; final_top_level_return_decoupled_from_loop_body_exit_usage=target; return_absent_accepted_floor=0; runtime_authority=rust_astnode; programjson_runtime_route_authority=0; runtime_route_switch=0
 
 trigger-based AOT/MIR typing debt:
   status=parked-until-triggered; order=2999/3000/3001 landed, then 3022 queue
@@ -417,10 +418,10 @@ trigger-based AOT/MIR typing debt:
   compare, PHI dst_type, mir_call dst_type, or receiver-helper
   single-observation protection
 next_documented_task =
-  MIRBUILDER-PROGRAMJSON-LOOP-BODY-RETURN-ABSENT-SCAN-ONLY-DIAGNOSTIC-001
+  MIRBUILDER-PROGRAMJSON-CANONICAL-LOOP-FACTS-FINAL-TOPLEVEL-RETURN-DECOUPLE-SNAPSHOT-BOUNDARY-001
 
 next_after_active_3 =
-  MIRBUILDER-PROGRAMJSON-CANONICAL-LOOP-FACTS-FINAL-TOPLEVEL-RETURN-DECOUPLE-SNAPSHOT-BOUNDARY-001
+  MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RETURN-ABSENT-ACCEPTED-FLOOR-001
 
 task discipline =
   Each ProgramJSON capability card must land real `.hako` traversal + fixture

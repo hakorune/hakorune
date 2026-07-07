@@ -100,6 +100,59 @@ static box ProgramJsonCanonicalLoopFactsInputSnapshotBox {
     }
   }
 
+  build_return_absent_scan_only_diagnostic(program_json): MapBox {
+    local body = me._array_field_start(program_json, "body", 0)
+    if body < 0 { return me._return_absent_diag_err("missing_program_body") }
+    local first = me._first_object_in_array(program_json, body)
+    if first < 0 { return me._return_absent_diag_err("missing_first_stmt") }
+    local second = me._next_object_after(program_json, first)
+    if second < 0 { return me._return_absent_diag_err("missing_loop_stmt") }
+    if me._token_eq(me._node_type(program_json, second), "Loop") != 1 {
+      return me._return_absent_diag_err("second_stmt_not_loop")
+    }
+
+    local third = me._next_object_after(program_json, second)
+    local final_return_present = 0
+    if third >= 0 {
+      if me._token_eq(me._node_type(program_json, third), "Return") == 1 {
+        final_return_present = 1
+      }
+    }
+
+    local loop_body = me._array_field_start(program_json, "body", second)
+    if loop_body < 0 { return me._return_absent_diag_err("missing_loop_body") }
+    local has_return = me._loop_has_type(program_json, loop_body, "Return")
+    return %{
+      "ok" => 1,
+      "reason_code" => 0,
+      "loop_body_has_break" => me._loop_has_type(program_json, loop_body, "Break"),
+      "loop_body_has_continue" => me._loop_has_type(program_json, loop_body, "Continue"),
+      "loop_body_has_return" => has_return,
+      "final_top_level_return_present" => final_return_present,
+      "final_top_level_return_used_for_loop_body_has_return" => 0,
+      "return_absent_scan_only_diagnostic" => 1,
+      "return_absent_accepted_floor" => 0,
+      "matcher_result_equal" => 0,
+      "recipe_matcher_executed" => 0
+    }
+  }
+
+  _return_absent_diag_err(reason): MapBox {
+    return %{
+      "ok" => 0,
+      "reason_code" => me._reason_code(reason),
+      "loop_body_has_break" => 0,
+      "loop_body_has_continue" => 0,
+      "loop_body_has_return" => 0,
+      "final_top_level_return_present" => 0,
+      "final_top_level_return_used_for_loop_body_has_return" => 0,
+      "return_absent_scan_only_diagnostic" => 1,
+      "return_absent_accepted_floor" => 0,
+      "matcher_result_equal" => 0,
+      "recipe_matcher_executed" => 0
+    }
+  }
+
   _verified_recipe_present(program_json) {
     local out = ProgramJsonV0PhaseStateBox.parse(program_json, "[test]")
     if me._i(out, "err") != 0 { return 0 }
@@ -314,6 +367,28 @@ static box ProgramJsonCanonicalLoopFactsInputSnapshotBox {
       + ";update_target=" + me._name_from_code(me._i(snapshot, "update_target_code"))
       + ";step_int=" + StringHelpers.int_to_str(me._i(snapshot, "step_int"))
       + ";recipe_matcher_executed=" + StringHelpers.int_to_str(me._i(snapshot, "recipe_matcher_executed"))
+  }
+
+  return_absent_scan_only_diagnostic_summary(diag) {
+    if diag == null || BoxHelpers.is_map(diag) != 1 {
+      return "snapshot_kind=ProgramJsonReturnAbsentScanOnlyDiagnosticV1;ok=0;reason=missing_snapshot"
+    }
+    local reason = ""
+    if me._i(diag, "ok") != 1 {
+      reason = ";reason=" + me._reason_from_code(me._i(diag, "reason_code"))
+    }
+    return "snapshot_kind=ProgramJsonReturnAbsentScanOnlyDiagnosticV1"
+      + ";ok=" + StringHelpers.int_to_str(me._i(diag, "ok"))
+      + reason
+      + ";loop_body_has_break=" + StringHelpers.int_to_str(me._i(diag, "loop_body_has_break"))
+      + ";loop_body_has_continue=" + StringHelpers.int_to_str(me._i(diag, "loop_body_has_continue"))
+      + ";loop_body_has_return=" + StringHelpers.int_to_str(me._i(diag, "loop_body_has_return"))
+      + ";final_top_level_return_present=" + StringHelpers.int_to_str(me._i(diag, "final_top_level_return_present"))
+      + ";final_top_level_return_used_for_loop_body_has_return=" + StringHelpers.int_to_str(me._i(diag, "final_top_level_return_used_for_loop_body_has_return"))
+      + ";return_absent_scan_only_diagnostic=" + StringHelpers.int_to_str(me._i(diag, "return_absent_scan_only_diagnostic"))
+      + ";return_absent_accepted_floor=" + StringHelpers.int_to_str(me._i(diag, "return_absent_accepted_floor"))
+      + ";matcher_result_equal=" + StringHelpers.int_to_str(me._i(diag, "matcher_result_equal"))
+      + ";recipe_matcher_executed=" + StringHelpers.int_to_str(me._i(diag, "recipe_matcher_executed"))
   }
 }
 
