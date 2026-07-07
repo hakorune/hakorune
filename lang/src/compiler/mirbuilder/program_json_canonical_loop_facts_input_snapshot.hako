@@ -65,9 +65,12 @@ static box ProgramJsonCanonicalLoopFactsInputSnapshotBox {
     local loop_second = me._next_object_after(program_json, loop_first)
     if loop_second < 0 { return me._err("missing_loop_body_update") }
     local loop_third = me._next_object_after(program_json, loop_second)
+    local loop_fourth = -1
+    if loop_third >= 0 { loop_fourth = me._next_object_after(program_json, loop_third) }
     if me._token_eq(me._node_type(program_json, loop_first), "If") != 1 { return me._err("loop_first_not_if") }
     local update_stmt = loop_second
     if loop_third >= 0 { update_stmt = loop_third }
+    if loop_fourth >= 0 { update_stmt = loop_fourth }
     if me._token_eq(me._node_type(program_json, update_stmt), "Assignment") != 1 { return me._err("loop_second_not_assignment") }
 
     local update_snap = me._read_add_var_int_assignment(program_json, update_stmt)
@@ -156,6 +159,10 @@ static box ProgramJsonCanonicalLoopFactsInputSnapshotBox {
     if third < 0 { return 0 }
     if me._token_eq(me._node_type(s, third), expected) == 1 { return 1 }
     if me._if_branch_has_type(s, third, expected) == 1 { return 1 }
+    local fourth = me._next_object_after(s, third)
+    if fourth < 0 { return 0 }
+    if me._token_eq(me._node_type(s, fourth), expected) == 1 { return 1 }
+    if me._if_branch_has_type(s, fourth, expected) == 1 { return 1 }
     return 0
   }
 

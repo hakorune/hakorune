@@ -2,15 +2,15 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
-TAG="rust-lifecycle-mirbuilder-programjson-loop-body-ifcontinue-ifreturn-assignment-boxcount-accepted-floor"
+TAG="rust-lifecycle-mirbuilder-programjson-recipematcher-break-continue-present-verified-recipe-support"
 
 source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
 
-FIXTURE="$ROOT_DIR/docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-programjson-loop-body-ifcontinue-ifreturn-assignment-boxcount-accepted-floor-v0.json"
-CARD="$ROOT_DIR/docs/development/current/main/phases/phase-296x/3239-MIRBUILDER-PROGRAMJSON-LOOP-BODY-IFCONTINUE-IFRETURN-ASSIGNMENT-BOXCOUNT-ACCEPTED-FLOOR-001.md"
+FIXTURE="$ROOT_DIR/docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-programjson-recipematcher-break-continue-present-verified-recipe-support-v0.json"
+CARD="$ROOT_DIR/docs/development/current/main/phases/phase-296x/3241-MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-BREAK-CONTINUE-PRESENT-VERIFIED-RECIPE-SUPPORT-001.md"
 TASK_ORDER="$ROOT_DIR/docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 CURRENT_STATE="$ROOT_DIR/docs/development/current/main/CURRENT_STATE.toml"
-DESIGN_GUARD="$ROOT_DIR/tools/checks/rust_lifecycle_mirbuilder_programjson_recipematcher_continue_present_row_shape_design_stop_guard.sh"
+PREV_GUARD="$ROOT_DIR/tools/checks/rust_lifecycle_mirbuilder_programjson_recipematcher_break_present_verified_recipe_support_gate.sh"
 SNAPSHOT_IMPL="$ROOT_DIR/lang/src/compiler/mirbuilder/program_json_canonical_loop_facts_input_snapshot.hako"
 LOOP_HANDLER="$ROOT_DIR/lang/src/compiler/mirbuilder/stmt_handlers/loop_stmt_handler.hako"
 MATCHER_IMPL="$ROOT_DIR/lang/src/compiler/mirbuilder/program_json_recipematcher_execution_boundary.hako"
@@ -18,15 +18,15 @@ HAKO_BIN="$ROOT_DIR/tools/bin/hako"
 
 guard_require_command "$TAG" python3
 guard_require_command "$TAG" timeout
-guard_require_files "$TAG" "$FIXTURE" "$CARD" "$TASK_ORDER" "$CURRENT_STATE" "$DESIGN_GUARD" "$SNAPSHOT_IMPL" "$LOOP_HANDLER" "$MATCHER_IMPL" "$HAKO_BIN"
+guard_require_files "$TAG" "$FIXTURE" "$CARD" "$TASK_ORDER" "$CURRENT_STATE" "$PREV_GUARD" "$SNAPSHOT_IMPL" "$LOOP_HANDLER" "$MATCHER_IMPL" "$HAKO_BIN"
 
-DESIGN_OUT="$(HAKO_GUARD_RESULT_CACHE_ALLOW_DIRTY=1 guard_cached_run "$TAG-design" bash "$DESIGN_GUARD")"
-if ! grep -q '^design_stop=1$' <<<"$DESIGN_OUT"; then
-  printf '%s\n' "$DESIGN_OUT" >&2
-  guard_fail "$TAG" "continue-present design-stop prerequisite is not green"
+PREV_OUT="$(HAKO_GUARD_RESULT_CACHE_ALLOW_DIRTY=1 guard_cached_run "$TAG-prev" bash "$PREV_GUARD")"
+if ! grep -q '^if_break_if_return_assignment_supported=1$' <<<"$PREV_OUT"; then
+  printf '%s\n' "$PREV_OUT" >&2
+  guard_fail "$TAG" "break-present prerequisite is not green"
 fi
 
-TMP_DIR="$(mktemp -d /tmp/hakorune-ifcontinue-ifreturn.XXXXXX)"
+TMP_DIR="$(mktemp -d /tmp/hakorune-ifbreak-ifcontinue.XXXXXX)"
 cleanup() { rm -rf "$TMP_DIR" >/dev/null 2>&1 || true; }
 trap cleanup EXIT
 
@@ -53,22 +53,22 @@ loop_impl = Path(loop_path).read_text(encoding="utf-8")
 matcher_impl = Path(matcher_path).read_text(encoding="utf-8")
 app = Path(app_path)
 
-token = "MIRBUILDER-PROGRAMJSON-LOOP-BODY-IFCONTINUE-IFRETURN-ASSIGNMENT-BOXCOUNT-ACCEPTED-FLOOR-001"
-if fixture.get("kind") != "MirBuilderProgramJsonLoopBodyIfContinueIfReturnAssignmentBoxcountAcceptedFloorV1":
+token = "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-BREAK-CONTINUE-PRESENT-VERIFIED-RECIPE-SUPPORT-001"
+if fixture.get("kind") != "MirBuilderProgramJsonRecipeMatcherBreakContinuePresentVerifiedRecipeSupportV1":
     raise SystemExit("bad fixture kind")
 if fixture.get("token") != token:
     raise SystemExit("bad fixture token")
 row = fixture.get("row") or {}
-if row.get("row_id") != "local_loop_body_if_continue_if_return_assignment":
+if row.get("row_id") != "local_loop_body_if_break_if_continue_if_return_assignment":
     raise SystemExit("bad row id")
-expected = {"matched": 1, "contract_kind": "LoopWithExit", "has_break": 0, "has_continue": 1, "has_return": 1}
+expected = {"matched": 1, "contract_kind": "LoopWithExit", "has_break": 1, "has_continue": 1, "has_return": 1}
 if row.get("rust_astnode_route_oracle") != expected or row.get("programjson_route_expected") != expected:
     raise SystemExit("matcher oracle drift")
 snapshot = row.get("expected_snapshot") or {}
 for key, value in {
+    "exit_has_break": 1,
     "exit_has_continue": 1,
     "exit_has_return": 1,
-    "exit_has_break": 0,
     "loop_cond_continue_with_return_present": 1,
     "loop_cond_return_in_body_present": 0,
 }.items():
@@ -76,36 +76,50 @@ for key, value in {
         raise SystemExit(f"snapshot expectation drift: {key}")
 
 for needle in [
-    "if_exit_if_return_assignment",
-    "_read_loop_if_then_continue",
-    "RecipeItemBox.exit_item(BoxHelpers.map_get(body_out, \"first_exit_kind\"), %{})",
-    "RecipeItemBox.seq([first_exit_item, if_item, body_stmt])",
+    "if_break_if_continue_if_return_assignment",
+    "RecipeItemBox.exit_item(\"Break\", %{})",
+    "RecipeItemBox.exit_item(\"Continue\", %{})",
+    "RecipeItemBox.seq([break_item, continue_item, if_item, body_stmt])",
 ]:
     if needle not in loop_impl:
         raise SystemExit(f"loop handler missing: {needle}")
 for needle in [
-    "local has_return = me._loop_has_type(program_json, loop_body, \"Return\")",
-    "\"exit_has_return\" => has_return",
-    "\"loop_cond_continue_with_return_present\" => has_continue * has_return",
+    "local loop_fourth = -1",
+    "if loop_fourth >= 0 { update_stmt = loop_fourth }",
+    "local fourth = me._next_object_after(s, third)",
 ]:
     if needle not in snapshot_impl:
         raise SystemExit(f"snapshot impl missing: {needle}")
-for forbidden in ["RecipeComposer", "PlanLowerer", "IdAllocator", "runtime route switch"]:
+for forbidden in ["PlanLowerer", "IdAllocator", "runtime route switch"]:
     if forbidden in loop_impl or forbidden in snapshot_impl or forbidden in matcher_impl:
         raise SystemExit(f"forbidden implementation token: {forbidden}")
 for needle in [token, "general_loop_body_sequence_owner = 0", "runtime_route_switch = 0"]:
     if needle not in card:
         raise SystemExit(f"card missing: {needle}")
-for needle in [token, "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-CONTINUE-PRESENT-ROW-SHAPE-DESIGN-STOP-001"]:
+for needle in [token, "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-BREAK-PRESENT-VERIFIED-RECIPE-SUPPORT-001"]:
     if needle not in task_order:
         raise SystemExit(f"task-order missing: {needle}")
-allowed_latest = {
-    token,
-    "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-BREAK-PRESENT-VERIFIED-RECIPE-SUPPORT-001",
-    "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-BREAK-CONTINUE-PRESENT-VERIFIED-RECIPE-SUPPORT-001",
-}
-if not any(f'latest_card = "{allowed}"' in current_state for allowed in allowed_latest):
+if f'latest_card = "{token}"' not in current_state:
     raise SystemExit("CURRENT_STATE latest card drift")
+
+claims = fixture.get("claims") or {}
+positive = {
+    "programjson_recipematcher_accepted_floor_break_continue_present_row",
+    "if_break_if_continue_if_return_assignment_boxcount",
+    "verified_recipe_four_stmt_loop_body_snapshot",
+    "canonical_loop_facts_break_continue_return_snapshot",
+    "matcher_result_equal_for_break_continue_present",
+    "programjson_shadow_checked",
+    "runtime_authority_remains_rust_astnode",
+}
+for key in positive:
+    if claims.get(key) != 1:
+        raise SystemExit(f"missing positive claim: {key}")
+for key, value in claims.items():
+    if key in positive:
+        continue
+    if value != 0:
+        raise SystemExit(f"forbidden claim drift: {key}")
 
 program_json = json.dumps(row["program_json"], separators=(",", ":"), ensure_ascii=False)
 app.write_text("\n".join([
@@ -212,7 +226,7 @@ checks = {
     "matcher_input_present": "1",
     "exit_has_continue": "1",
     "exit_has_return": "1",
-    "exit_has_break": "0",
+    "exit_has_break": "1",
     "has_nested_loop": "0",
     "loop_cond_continue_with_return_present": "1",
     "loop_cond_return_in_body_present": "0",
@@ -245,20 +259,17 @@ for key, value in {
 PY
 
 cat <<'REPORT'
-output_contract=rust-lifecycle-mirbuilder-programjson-loop-body-ifcontinue-ifreturn-assignment-boxcount-accepted-floor-v0
-token=MIRBUILDER-PROGRAMJSON-LOOP-BODY-IFCONTINUE-IFRETURN-ASSIGNMENT-BOXCOUNT-ACCEPTED-FLOOR-001
+output_contract=rust-lifecycle-mirbuilder-programjson-recipematcher-break-continue-present-verified-recipe-support-v0
+token=MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-BREAK-CONTINUE-PRESENT-VERIFIED-RECIPE-SUPPORT-001
 row_count=1
-row_id=local_loop_body_if_continue_if_return_assignment
-loop_body_three_stmt_boxcount=1
-if_continue_if_return_assignment_supported=1
+row_id=local_loop_body_if_break_if_continue_if_return_assignment
+if_break_if_continue_if_return_assignment_supported=1
 verified_recipe_present=1
 canonical_loop_facts_snapshot_ok=1
-loop_cond_continue_with_return_present=1
-loop_cond_return_in_body_present=0
 matcher_result_equal=1
 matched=1
 contract_kind=LoopWithExit
-has_break=0
+has_break=1
 has_continue=1
 has_return=1
 runtime_authority=rust_astnode
