@@ -1,0 +1,81 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderBoolRecipeCompareLoweringEmissionConsultationV1",
+  "token": "MIRBUILDER-BOOL-RECIPE-COMPARE-LOWERING-EMISSION-CONSULTATION-001",
+  "prerequisites": [
+    "MIRBUILDER-BOOL-RECIPE-COMPARE-LOWERING-OBSERVE-ONLY-PILOT-001",
+    "MIRBUILDER-PROGRAMJSON-LOOP-NESTED-IF-COND-RECIPE-RELATIONAL-ROW-BATCH-001"
+  ],
+  "consultation_subject": "Decide whether BoolRecipe::Compare lowering intent may start MIR Compare/Branch emission after If and Loop nested-If relational rows.",
+  "current_evidence": {
+    "intent_boundary": "BoolRecipeCompareLoweringIntentSnapshotV1 is green and read-only",
+    "if_rows": "top-level If < <= > >= rows are green through shared reader and cond_recipe",
+    "loop_nested_if_rows": "Loop-body nested If < <= > >= rows are green through shared reader and cond_recipe",
+    "emission_gap": "MIR emission still needs operand ValueId resolution, rhs bound materialization, compare dst allocation, branch target ownership, and control-flow mutation ownership."
+  },
+  "candidates": [
+    {
+      "name": "EmitMirCompareNow",
+      "selected": false,
+      "reason": "Compare-only emission would allocate a MIR value without proving branch consumption, block ownership, or route/lowering integration."
+    },
+    {
+      "name": "EmitMirCompareAndBranchNow",
+      "selected": false,
+      "reason": "Would mix BoolRecipe lowering with BasicBlock mutation, ValueId allocation, route selection, and runtime authority."
+    },
+    {
+      "name": "CloseIfLoopCompareRowBatchBeforeEmission",
+      "selected": true,
+      "reason": "The producer/read-only intent path should be closed out before opening the first mutation-bearing lowering owner.",
+      "selected_next_card": "MIRBUILDER-PROGRAMJSON-IF-LOOP-COMPARE-ROW-BATCH-CLOSEOUT-001"
+    },
+    {
+      "name": "SelectMutationBearingLoweringOwner",
+      "selected": false,
+      "reason": "Requires a fresh owner split after closeout: value resolution, compare emission, and branch emission must not be claimed by BoolRecipeBox."
+    }
+  ],
+  "selected_boundary": {
+    "name": "CompareRowBatchCloseoutBeforeEmission",
+    "allowed_next": "MIRBUILDER-PROGRAMJSON-IF-LOOP-COMPARE-ROW-BATCH-CLOSEOUT-001",
+    "emission_owner_status": "deferred",
+    "forbidden_actions": [
+      "MIR Compare emission",
+      "MIR Branch emission",
+      "BasicBlock mutation",
+      "ValueId allocation",
+      "route selection",
+      "runtime route switch",
+      "ProgramJSON runtime route authority",
+      "runtime fallback"
+    ],
+    "future_emission_owner_requirements": [
+      "explicit operand ValueId resolution boundary",
+      "rhs bound materialization boundary",
+      "compare dst ValueId allocation owner",
+      "branch target BasicBlock ownership",
+      "observe-only parity before runtime authority"
+    ]
+  },
+  "decision": {
+    "kind": "DeferBoolRecipeCompareMirEmissionSelectRowBatchCloseout",
+    "reason_token": "CompareIntentReadyButMutationBearingLoweringOwnerNotSplit",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-IF-LOOP-COMPARE-ROW-BATCH-CLOSEOUT-001"
+  },
+  "claims": {
+    "lowering_emission_consultation": 1,
+    "compare_row_batch_closeout_next": 1,
+    "bool_recipe_compare_emission_deferred": 1,
+    "bool_recipe_lowering_executed": 0,
+    "mir_cmp_emission": 0,
+    "branch_emission": 0,
+    "basic_block_mutation": 0,
+    "value_id_allocation": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_route_authority": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  }
+}
