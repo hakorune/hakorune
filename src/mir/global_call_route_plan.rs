@@ -439,18 +439,22 @@ fn same_module_declared_return_type_is_directabi_candidate(
 }
 
 fn is_program_json_readonly_map_snapshot_publication_bridge(function: &MirFunction) -> bool {
-    if function.signature.params.len() != 1
-        || function.params.len() != 1
-        || function.signature.params.first() != Some(&MirType::String)
-        || function.signature.return_type != MirType::Box("MapBox".to_string())
-    {
+    if function.signature.params.len() != 1 || function.params.len() != 1 {
         return false;
     }
-    matches!(
-        function.signature.name.as_str(),
+    if function.signature.return_type != MirType::Box("MapBox".to_string()) {
+        return false;
+    }
+    match function.signature.name.as_str() {
         "ProgramJsonRecipeBodiesRuntimePublicationBridgeBox.build_publication/1"
-            | "ProgramJsonCanonicalLoopFactsInputSnapshotBox.build_snapshot/1"
-    )
+        | "ProgramJsonCanonicalLoopFactsInputSnapshotBox.build_snapshot/1" => {
+            function.signature.params.first() == Some(&MirType::String)
+        }
+        "ProgramJsonRecipeMatcherExecutionBoundaryBox.match_snapshot/1" => {
+            function.signature.params.first() == Some(&MirType::Box("MapBox".to_string()))
+        }
+        _ => false,
+    }
 }
 
 fn is_numeric_i64_leaf_function(function: &MirFunction) -> bool {

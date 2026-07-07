@@ -60,9 +60,9 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-EXECUTION-BOUNDARY-MINIMAL-001
+  MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-SHADOW-PARITY-001
 selected next card:
-  execute RecipeMatcher observe-only from CanonicalLoopFacts input snapshot; no route selection, lowering, mutation, ID allocation, or route switch.
+  compare Rust ASTNode route vs ProgramJSON route matcher result snapshot; no route selection, lowering, mutation, ID allocation, or route switch.
 
 post-3180 block recipe task order:
   completed: JoinThenElse, ElseOnlyExit, ThenOnlyExit, and ExitAll are scoped
@@ -84,10 +84,11 @@ normal operating rule:
   history.
 
 latest design decision:
+  3228 implements MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-EXECUTION-BOUNDARY-MINIMAL-001: observe-only LoopWithExit matcher result from CanonicalLoopFacts MapBox snapshots; RecipeMatcher authority, route selection, lowering, mutation, ID allocation, route switch, and Source Selfhost remain unclaimed.
   3227 implements the CanonicalLoopFacts input snapshot MapBox publication bridge with DirectAbi/map_handle AOT parity for two verified-recipe rows; RecipeMatcher, route selection, lowering, mutation, ID allocation, route switch, and Source Selfhost remain unclaimed.
   3226 records MIRBUILDER-PROGRAMJSON-CANONICAL-LOOP-FACTS-INPUT-SNAPSHOT-AOT-BOUNDARY-DESIGN-STOP-001;
   recommended=A_MAPBOX_SNAPSHOT_PUBLICATION_BRIDGE, alternative=B_COMPLEX_STRING_SUMMARY_AOT_ROUTE, rejected=C_VM_ONLY_TRAVERSAL_GATE, selected_next=CONSULTATION_REQUIRED.
-  3225 selects ProgramJsonCanonicalLoopFactsInputSnapshotV1 as the next
+  3225 MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-INPUT-BOUNDARY-CONSULTATION-001 selects ProgramJsonCanonicalLoopFactsInputSnapshotV1 as the next
   Layer4 input-boundary task; RecipeBodiesPublicationSnapshotV1 is not enough.
   3224 records RecipeMatcher input-boundary design stop: Rust consumes CanonicalLoopFacts, not RecipeBodiesPublicationSnapshotV1.
   3223 implements MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-PUBLICATION-BRIDGE-001.
@@ -114,8 +115,8 @@ latest design decision:
   map-backed Loop body multi-body arena DTO for one row.
   3205 selects Loop body multi-body RecipeBodies arena parity after the If
   branch arena retire-candidate. 3204/3203 proved If branch arena parity.
-  3202-3194 cover If-branch, one-shape, and minimal RecipeBodies proofs and
-  retire-candidates. 3192-3123 cover prior Layer4/scanner/AOT checkpoints.
+  3202-3194 cover If-branch, one-shape, and minimal RecipeBodies proofs.
+  3192-3123 cover prior Layer4/scanner/AOT checkpoints.
   2997 stabilized the AOT/MIR value-type publication contract only for the
   proven route families. 3002 remains a trigger-based debt queue for Float
   Sub/Mul/Div, string Lt/Gt/Le/Ge policy, user-box single-observation
@@ -403,17 +404,16 @@ Detailed evidence lives in phase cards, fixtures, and git history.
 
 ## Active Next 3
 ```text
-1. MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-INPUT-BOUNDARY-CONSULTATION-001
-   status=landed; boundary=select CanonicalLoopFacts input snapshot, not publication-summary adapter
+1. MIRBUILDER-PROGRAMJSON-CANONICAL-LOOP-FACTS-INPUT-SNAPSHOT-MAPBOX-PUBLICATION-BRIDGE-001
+   status=landed; boundary=read-only MapBox publication bridge
 
-2. MIRBUILDER-PROGRAMJSON-CANONICAL-LOOP-FACTS-INPUT-SNAPSHOT-001
-   status=landed; boundary=DirectAbi/map_handle CanonicalLoopFacts input snapshot
-3. MIRBUILDER-PROGRAMJSON-CANONICAL-LOOP-FACTS-INPUT-SNAPSHOT-MAPBOX-PUBLICATION-BRIDGE-001
-   status=landed; boundary=read-only MapBox publication bridge; RecipeMatcher still not executed
+2. MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-EXECUTION-BOUNDARY-MINIMAL-001
+   status=landed; boundary=observe-only LoopWithExit matcher result; no route selection/lowering
+3. MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-SHADOW-PARITY-001; status=selected; boundary=Rust ASTNode route vs ProgramJSON route matcher result parity
 
 next active:
-  MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-EXECUTION-BOUNDARY-MINIMAL-001
-  status=selected; boundary=observe-only RecipeMatcher; route selection, lowering, mutation, ID allocation, route switch, and Source Selfhost remain unclaimed
+  MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-SHADOW-PARITY-001
+  status=selected; boundary=shadow matcher-result parity; route selection, lowering, mutation, ID allocation, route switch, and Source Selfhost remain unclaimed
 
 trigger-based AOT/MIR typing debt:
   status=parked-until-triggered; order=2999/3000/3001 landed, then 3022 queue
@@ -421,7 +421,7 @@ trigger-based AOT/MIR typing debt:
   compare, PHI dst_type, mir_call dst_type, or receiver-helper
   single-observation protection
 next_documented_task =
-  MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-EXECUTION-BOUNDARY-MINIMAL-001
+  MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-SHADOW-PARITY-001
 
 next_after_active_3 =
   MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-SHADOW-PARITY-001

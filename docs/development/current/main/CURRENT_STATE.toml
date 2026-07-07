@@ -345,13 +345,13 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PROGRAMJSON-CANONICAL-LOOP-FACTS-INPUT-SNAPSHOT-MAPBOX-PUBLICATION-BRIDGE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3227-MIRBUILDER-PROGRAMJSON-CANONICAL-LOOP-FACTS-INPUT-SNAPSHOT-MAPBOX-PUBLICATION-BRIDGE-001.md"
-latest_card_summary = """3227 implements the CanonicalLoopFacts input snapshot
-MapBox publication bridge: ProgramJSON verified-recipe rows publish a read-only
-DirectAbi/map_handle matcher-input snapshot. RecipeMatcher execution, route
-selection, lowering, mutation, ID allocation, route switch, and Source Selfhost
-remain unclaimed."""
+latest_card = "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-EXECUTION-BOUNDARY-MINIMAL-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3228-MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-EXECUTION-BOUNDARY-MINIMAL-001.md"
+latest_card_summary = """3228 implements the minimal observe-only
+RecipeMatcher execution boundary: ProgramJSON CanonicalLoopFacts MapBox
+snapshot rows publish a LoopWithExit matcher result. RecipeMatcher authority,
+route selection, lowering, mutation, ID allocation, route switch, and Source
+Selfhost remain unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -362,6 +362,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-07: 3228 implements the minimal observe-only RecipeMatcher execution boundary over CanonicalLoopFacts MapBox snapshots while RecipeMatcher authority, route selection, lowering, mutation, ID allocation, route switch, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3227 implements the CanonicalLoopFacts input snapshot MapBox publication bridge with DirectAbi/map_handle AOT parity while RecipeMatcher execution, route switch, lowering, mutation, ID allocation, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3226 records the CanonicalLoopFacts input snapshot AOT boundary design stop and recommends a scoped MapBox snapshot publication bridge; RecipeMatcher execution and Source Selfhost remain unclaimed.",
   "2026-07-07: 3225 selects ProgramJsonCanonicalLoopFactsInputSnapshotV1 as the next RecipeMatcher input-boundary task; RecipeMatcher execution, route switch, lowering, mutation, ID allocation, and Source Selfhost remain unclaimed.",
@@ -373,5 +374,4 @@ landed_tail = [
   "2026-07-07: 3219 selects more DTO coverage rows after the post-verifier consultation while runtime RecipeBodies publication and full RecipeMatcher execution remain unclaimed and require a new decision.",
   "2026-07-07: 3218 prepares the post-verifier RecipeBodies consultation with more DTO coverage rows as the recommended default while runtime RecipeBodies publication and full RecipeMatcher execution require a new decision.",
   "2026-07-07: 3217 records the post-verifier RecipeBodies design stop while runtime RecipeBodies publication, full RecipeMatcher execution, route switch, lowering, mutation, ID allocation, and Source Selfhost remain unclaimed pending consultation.",
-  "2026-07-07: 3216 marks the covered RecipeBodies verifier-boundary snapshot row as a scoped Rust ASTNode projector retire-candidate while runtime dependency removal, full projector retirement, runtime RecipeBodies publication, and Source Selfhost remain unclaimed.",
 ]

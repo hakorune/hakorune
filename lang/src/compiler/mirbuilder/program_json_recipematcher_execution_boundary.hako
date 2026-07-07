@@ -1,0 +1,118 @@
+// program_json_recipematcher_execution_boundary.hako
+// Responsibility:
+// - Observe-match a read-only CanonicalLoopFacts input snapshot.
+// - Do not select routes, lower, mutate MIR, allocate IDs, or switch runtime routes.
+
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.shared.common.box_helpers as BoxHelpers
+
+static box ProgramJsonRecipeMatcherExecutionBoundaryBox {
+  _i(map, key) {
+    return StringHelpers.to_i64(BoxHelpers.map_get(map, key))
+  }
+
+  _err(reason): MapBox {
+    return %{
+      "ok" => 0,
+      "reason_code" => me._reason_code(reason),
+      "matcher_input_consumed" => 0,
+      "matched" => 0,
+      "contract_kind_code" => 0,
+      "has_break" => 0,
+      "has_continue" => 0,
+      "has_return" => 0,
+      "observe_only" => 1,
+      "recipe_matcher_executed" => 0,
+      "full_recipe_matcher_execution" => 0,
+      "route_selection" => 0,
+      "mir_lowering" => 0,
+      "mir_mutation" => 0,
+      "id_allocation" => 0,
+      "runtime_route_switch" => 0
+    }
+  }
+
+  match_snapshot(snapshot): MapBox {
+    if snapshot == null || BoxHelpers.is_map(snapshot) != 1 {
+      return me._err("missing_snapshot")
+    }
+    if me._i(snapshot, "ok") != 1 {
+      return me._err("snapshot_not_ok")
+    }
+    if me._i(snapshot, "matcher_input_present") != 1 {
+      return me._err("matcher_input_missing")
+    }
+    if me._i(snapshot, "readonly") != 1 {
+      return me._err("snapshot_not_readonly")
+    }
+
+    return %{
+      "ok" => 1,
+      "reason_code" => 0,
+      "matcher_input_consumed" => 1,
+      "matched" => 1,
+      "contract_kind_code" => 1,
+      "has_break" => me._i(snapshot, "exit_has_break"),
+      "has_continue" => me._i(snapshot, "exit_has_continue"),
+      "has_return" => me._i(snapshot, "exit_has_return"),
+      "observe_only" => 1,
+      "recipe_matcher_executed" => 1,
+      "full_recipe_matcher_execution" => 0,
+      "route_selection" => 0,
+      "mir_lowering" => 0,
+      "mir_mutation" => 0,
+      "id_allocation" => 0,
+      "runtime_route_switch" => 0
+    }
+  }
+
+  match_summary(result) {
+    if result == null || BoxHelpers.is_map(result) != 1 {
+      return "snapshot_kind=ProgramJsonRecipeMatcherExecutionBoundaryResultV1;ok=0;reason=missing_result"
+    }
+    local reason = ""
+    if me._i(result, "ok") != 1 {
+      reason = ";reason=" + me._reason_from_code(me._i(result, "reason_code"))
+    }
+    return "snapshot_kind=ProgramJsonRecipeMatcherExecutionBoundaryResultV1"
+      + ";ok=" + StringHelpers.int_to_str(me._i(result, "ok"))
+      + reason
+      + ";matcher_input_consumed=" + StringHelpers.int_to_str(me._i(result, "matcher_input_consumed"))
+      + ";matched=" + StringHelpers.int_to_str(me._i(result, "matched"))
+      + ";contract_kind=" + me._contract_kind_from_code(me._i(result, "contract_kind_code"))
+      + ";has_break=" + StringHelpers.int_to_str(me._i(result, "has_break"))
+      + ";has_continue=" + StringHelpers.int_to_str(me._i(result, "has_continue"))
+      + ";has_return=" + StringHelpers.int_to_str(me._i(result, "has_return"))
+      + ";observe_only=" + StringHelpers.int_to_str(me._i(result, "observe_only"))
+      + ";recipe_matcher_executed=" + StringHelpers.int_to_str(me._i(result, "recipe_matcher_executed"))
+      + ";full_recipe_matcher_execution=" + StringHelpers.int_to_str(me._i(result, "full_recipe_matcher_execution"))
+      + ";route_selection=" + StringHelpers.int_to_str(me._i(result, "route_selection"))
+      + ";mir_lowering=" + StringHelpers.int_to_str(me._i(result, "mir_lowering"))
+      + ";mir_mutation=" + StringHelpers.int_to_str(me._i(result, "mir_mutation"))
+      + ";id_allocation=" + StringHelpers.int_to_str(me._i(result, "id_allocation"))
+      + ";runtime_route_switch=" + StringHelpers.int_to_str(me._i(result, "runtime_route_switch"))
+  }
+
+  _contract_kind_from_code(code) {
+    if code == 1 { return "LoopWithExit" }
+    return "Unsupported"
+  }
+
+  _reason_code(reason) {
+    if reason == "missing_snapshot" { return 1 }
+    if reason == "snapshot_not_ok" { return 2 }
+    if reason == "matcher_input_missing" { return 3 }
+    if reason == "snapshot_not_readonly" { return 4 }
+    return 99
+  }
+
+  _reason_from_code(code) {
+    if code == 1 { return "missing_snapshot" }
+    if code == 2 { return "snapshot_not_ok" }
+    if code == 3 { return "matcher_input_missing" }
+    if code == 4 { return "snapshot_not_readonly" }
+    return "unknown"
+  }
+}
+
+static box ProgramJsonRecipeMatcherExecutionBoundaryMain { main() { return 0 } }
