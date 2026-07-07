@@ -60,7 +60,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RETURN-ABSENT-DECISION-ROW-001.
+  CONSULTATION_REQUIRED for MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RETURN-ABSENT-DECISION-ROW-001.
 
 post-3180 block recipe task order:
   completed: JoinThenElse, ElseOnlyExit, ThenOnlyExit, and ExitAll are scoped
@@ -82,6 +82,7 @@ normal operating rule:
   history.
 
 latest design decision:
+  3242 records MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RETURN-ABSENT-DECISION-ROW-001: Return-absent accepted-floor support is deferred to route-release consultation; recommended_default=B_DEFER_RETURN_ABSENT_TO_ROUTE_RELEASE_CONSULTATION; selected_next=CONSULTATION_REQUIRED.
   3241 implements MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-BREAK-CONTINUE-PRESENT-VERIFIED-RECIPE-SUPPORT-001: exact IfBreak+IfContinue+IfReturn+Assignment BoxCount row is green; ProgramJSON remains shadow-only.
   3240 implements MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-BREAK-PRESENT-VERIFIED-RECIPE-SUPPORT-001: exact IfBreak+IfReturn+Assignment BoxCount row is green; ProgramJSON remains shadow-only.
   3239 implements MIRBUILDER-PROGRAMJSON-LOOP-BODY-IFCONTINUE-IFRETURN-ASSIGNMENT-BOXCOUNT-ACCEPTED-FLOOR-001: exact IfContinue+IfReturn+Assignment BoxCount row is green; ProgramJSON remains shadow-only.
@@ -104,8 +105,6 @@ latest design decision:
   3219 selects more DTO coverage rows after the post-verifier consultation.
   3218 prepares the post-verifier RecipeBodies consultation; runtime
   publication and full RecipeMatcher still require decisions.
-  3217 records the post-verifier RecipeBodies design stop. 3216 marks the
-  verifier-boundary snapshot row as a scoped retire-candidate.
   3208-3210 cleaned If/Loop result-map and raw array-helper AOT contracts.
   Runtime RecipeBodies publication, full RecipeMatcher, route switch, lowering,
   mutation, ID allocation, and Source Selfhost remain unclaimed.
@@ -408,10 +407,10 @@ Detailed evidence lives in phase cards, fixtures, and git history.
 ```text
 1. MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-ROUTE-SHADOW-SWITCH-CONSULTATION-002; status=landed; boundary=select B, no authority switch
 2. MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RUNTIME-ROUTE-ADJACENT-SHADOW-GUARD-001; status=landed; boundary=after try_build_outcome before registry
-3. MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-BREAK-CONTINUE-PRESENT-VERIFIED-RECIPE-SUPPORT-001; status=landed; boundary=break+continue-present exact BoxCount row green
+3. MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RETURN-ABSENT-DECISION-ROW-001; status=landed; boundary=return-absent deferred to route-release consultation
 
 next active:
-  MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RETURN-ABSENT-DECISION-ROW-001; status=next; accepted_floor_axis=return_absent_decision_row; unit=decision row; runtime_authority=rust_astnode; programjson_runtime_route_authority=0; runtime_route_switch=0
+  CONSULTATION_REQUIRED; recommended_default=B_DEFER_RETURN_ABSENT_TO_ROUTE_RELEASE_CONSULTATION; runtime_authority=rust_astnode; programjson_runtime_route_authority=0; runtime_route_switch=0
 
 trigger-based AOT/MIR typing debt:
   status=parked-until-triggered; order=2999/3000/3001 landed, then 3022 queue
@@ -419,10 +418,10 @@ trigger-based AOT/MIR typing debt:
   compare, PHI dst_type, mir_call dst_type, or receiver-helper
   single-observation protection
 next_documented_task =
-  MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RETURN-ABSENT-DECISION-ROW-001
+  CONSULTATION_REQUIRED
 
 next_after_active_3 =
-  MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RETURN-ABSENT-DECISION-ROW-001
+  CONSULTATION_REQUIRED
 
 task discipline =
   Each ProgramJSON capability card must land real `.hako` traversal + fixture

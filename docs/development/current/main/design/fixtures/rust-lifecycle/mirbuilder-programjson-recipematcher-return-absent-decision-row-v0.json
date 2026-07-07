@@ -1,0 +1,57 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonRecipeMatcherReturnAbsentDecisionRowV1",
+  "token": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RETURN-ABSENT-DECISION-ROW-001",
+  "input_state": {
+    "previous_card": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-BREAK-CONTINUE-PRESENT-VERIFIED-RECIPE-SUPPORT-001",
+    "rust_matcher_contract": "RecipeContractKind::LoopWithExit { has_break, has_continue, has_return }",
+    "rust_has_return_scope": "loop body statements only",
+    "programjson_snapshot_currently_requires_final_return": true,
+    "runtime_release_boundary_depends_on_break_continue_without_return": true
+  },
+  "observed_boundary": {
+    "kind": "ReturnAbsentDecisionRequired",
+    "why_not_boxcount": "has_return=false is representable by RecipeMatcher but intersects runtime route release gating and final-return publication shape",
+    "unsafe_shortcut_rejected": true,
+    "unsafe_shortcut": "Treat final top-level Return absence/presence as equivalent to loop-body has_return=false",
+    "route_release_condition": "facts.exit_usage.has_break && facts.exit_usage.has_continue && !facts.exit_usage.has_return"
+  },
+  "candidate_decisions": [
+    {
+      "id": "A_ACCEPT_RETURN_ABSENT_ACCEPTED_FLOOR_NOW",
+      "state": "RejectedForNow",
+      "reason": "Would turn a route-release-sensitive shape into accepted floor without a runtime route authority decision"
+    },
+    {
+      "id": "B_DEFER_RETURN_ABSENT_TO_ROUTE_RELEASE_CONSULTATION",
+      "state": "RecommendedDefault",
+      "reason": "Keeps accepted floor shadow-only and avoids mixing RecipeMatcher evidence with runtime release/switch semantics"
+    },
+    {
+      "id": "C_SCAN_ONLY_RETURN_ABSENT_DIAGNOSTIC",
+      "state": "ConsultationAlternative",
+      "reason": "Useful as diagnostic evidence but not accepted-floor authority evidence"
+    }
+  ],
+  "decision": {
+    "kind": "ConsultationRequired",
+    "recommended_default": "B_DEFER_RETURN_ABSENT_TO_ROUTE_RELEASE_CONSULTATION",
+    "selected_next_card": "CONSULTATION_REQUIRED"
+  },
+  "claims": {
+    "design_stop": 1,
+    "return_absent_green": 0,
+    "return_absent_accepted_floor": 0,
+    "programjson_runtime_route_authority": 0,
+    "runtime_route_switch": 0,
+    "recipe_matcher_input_authority": 0,
+    "route_selection": 0,
+    "mir_lowering": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
