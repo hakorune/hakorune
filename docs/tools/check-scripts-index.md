@@ -363,6 +363,7 @@ phase-1 compatibility Program(JSON) compat execution helper.
 | `tools/checks/smoke_inventory_report.sh` | Smoke subtree density report with suite-aware coverage summary. |
 | `tools/checks/windows_wsl_cmd_smoke.sh` | Windows WSL-to-CMD route maintenance smoke. |
 | `tools/checks/macos_portability_guard.sh` | macOS portability guard. |
+| `tools/checks/rust_lifecycle_mirbuilder_programjson_compare_reader_followon_selection_guard.sh` | Active MirBuilder compare-reader follow-on selection guard. |
 
 ## Update Policy
 

@@ -1,0 +1,74 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonCompareReaderFollowonSelectionV1",
+  "token": "MIRBUILDER-PROGRAMJSON-COMPARE-READER-FOLLOWON-SELECTION-001",
+  "prerequisite": "MIRBUILDER-PROGRAMJSON-IF-LOOP-COMPARE-ROW-BATCH-CLOSEOUT-001",
+  "selection_subject": "Choose the next ProgramJSON Compare reader axis after closing If/Loop Var op Int relational rows.",
+  "current_reader_surface": {
+    "owner": "ProgramJsonCompareReaderBox.read_var_int_compare",
+    "covered_shape": "Compare(lhs=Var, op=< <= > >= == !=, rhs=Int)",
+    "bound_kind_code": 1,
+    "bound_kind_name": "LiteralI64",
+    "analysis_only": true
+  },
+  "downstream_capacity": {
+    "bool_recipe_bound_expr_supports_symbol_ref": true,
+    "bool_recipe_bound_expr_supports_length_of_symbol": true,
+    "bool_recipe_bound_expr_supports_length_minus_symbol": true,
+    "lowering_emission_deferred": true
+  },
+  "candidates": [
+    {
+      "name": "VarRhsBound",
+      "selected": true,
+      "reason": "This opens common source shapes such as i < n without context-sensitive loop-variable inference, and maps directly to existing BoundExpr::SymbolRef vocabulary.",
+      "selected_next_card": "MIRBUILDER-PROGRAMJSON-COMPARE-READER-VAR-RHS-BOUND-PARITY-001"
+    },
+    {
+      "name": "LengthBound",
+      "selected": false,
+      "reason": "Useful after SymbolRef, but length and length-minus require method-call/member-shape parsing beyond the current Var op Int reader."
+    },
+    {
+      "name": "ReversedVarVarContextAware",
+      "selected": false,
+      "reason": "Shapes like n >= i require update-target or loop-variable context; condition-only compare reader must not choose the index variable by guess."
+    },
+    {
+      "name": "MutationBearingLoweringOwner",
+      "selected": false,
+      "reason": "MIR Compare/Branch emission still needs operand ValueId resolution, rhs materialization, allocation, and block ownership boundaries."
+    }
+  ],
+  "selected_boundary": {
+    "name": "ProgramJsonCompareReaderVarRhsBoundParityV1",
+    "input_shape": "Compare(lhs=Var, op=< <= > >= == !=, rhs=Var)",
+    "output_shape": "ProgramJsonCompareReaderCodeMapV1 with bound_kind_code=2 and bound_symbol_id>0",
+    "scope": "reader-only parity; producers and lowering unchanged",
+    "reversed_var_var_without_context": "not_claimed",
+    "length_bounds": "not_claimed",
+    "lowering": false
+  },
+  "decision": {
+    "kind": "SelectProgramJsonCompareReaderVarRhsBoundParity",
+    "reason_token": "VarRhsBoundIsNextCommonAnalysisOnlyCompareReaderAxis",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-COMPARE-READER-VAR-RHS-BOUND-PARITY-001"
+  },
+  "claims": {
+    "compare_reader_followon_selection": 1,
+    "var_rhs_bound_selected": 1,
+    "var_rhs_bound_implemented": 0,
+    "length_bound_selected": 0,
+    "reversed_var_var_context_aware_selected": 0,
+    "bool_recipe_lowering_executed": 0,
+    "mir_cmp_emission": 0,
+    "branch_emission": 0,
+    "basic_block_mutation": 0,
+    "value_id_allocation": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_route_authority": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  }
+}

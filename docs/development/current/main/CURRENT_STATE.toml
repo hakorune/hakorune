@@ -345,11 +345,12 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PROGRAMJSON-IF-LOOP-COMPARE-ROW-BATCH-CLOSEOUT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3289-MIRBUILDER-PROGRAMJSON-IF-LOOP-COMPARE-ROW-BATCH-CLOSEOUT-001.md"
-latest_card_summary = """3289 closes the shared If/Loop ProgramJSON compare
-row batch before mutation-bearing lowering owner selection. MIR emission,
-runtime authority, and Source Selfhost remain unclaimed."""
+latest_card = "MIRBUILDER-PROGRAMJSON-COMPARE-READER-FOLLOWON-SELECTION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3290-MIRBUILDER-PROGRAMJSON-COMPARE-READER-FOLLOWON-SELECTION-001.md"
+latest_card_summary = """3290 selects Var rhs bound parity as the next
+ProgramJSON Compare reader follow-on after the If/Loop row batch closeout.
+Implementation, MIR emission, runtime authority, and Source Selfhost remain
+unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -360,6 +361,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-07: 3290 selects Var rhs bound parity as the next ProgramJSON Compare reader follow-on; implementation, MIR emission, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3289 closes the shared If/Loop ProgramJSON compare row batch; MIR emission and Source Selfhost remain unclaimed.",
   "2026-07-07: 3288 defers BoolRecipe Compare MIR Compare/Branch emission and selects compare row batch closeout; MIR emission and Source Selfhost remain unclaimed.",
   "2026-07-07: 3287 opens Loop-body nested If < <= > >= Compare rows through shared reader and cond_recipe; MIR emission and Source Selfhost remain unclaimed.",
@@ -371,5 +373,4 @@ landed_tail = [
   "2026-07-07: 3281 defers CondSkeleton::IfCond and selects BoolRecipe compare publication parity next; lowering and Source Selfhost remain unclaimed.",
   "2026-07-07: 3280 extends Rust loop_condition_shape numeric compare canon to Eq/Ne as analysis-only VarCompareBound rows; Hako/ProgramJSON consumers, lowering, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3279 replaces top-level Loop manual cond_recipe mutation with the dedicated loop_item_with_cond_recipe constructor; new Loop operators, lowering, and Source Selfhost remain unclaimed.",
-  "2026-07-07: 3278 attaches cond_recipe sidecars to Loop-body nested If RecipeItems through the shared compare reader; operator expansion, lowering, and Source Selfhost remain unclaimed.",
 ]
