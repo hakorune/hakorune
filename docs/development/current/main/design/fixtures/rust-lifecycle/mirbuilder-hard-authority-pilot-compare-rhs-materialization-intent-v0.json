@@ -1,0 +1,65 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderHardAuthorityPilotCompareRhsMaterializationIntentV1",
+  "token": "MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-MATERIALIZATION-INTENT-001",
+  "output_contract": "rust-lifecycle-mirbuilder-hard-authority-pilot-compare-rhs-materialization-intent-v0",
+  "current_state": {
+    "latest_card": "MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-MATERIALIZATION-INTENT-001",
+    "latest_card_path": "docs/development/current/main/phases/phase-296x/3329-MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-MATERIALIZATION-INTENT-001.md",
+    "current_blocker_token": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+  },
+  "input_state": {
+    "previous_latest_card": "MIRBUILDER-POST-HARD-AUTHORITY-PILOT-NEXT-SEAM-SELECTION-001",
+    "selection_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-post-hard-authority-pilot-next-seam-selection-v0.json",
+    "rhs_materialization_intent_parity": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-compare-rhs-materialization-intent-parity-v0.json"
+  },
+  "pilot": {
+    "candidate_id": "CompareRhsMaterializationIntentBoundary",
+    "owner_id": "CompareRhsMaterializationIntentSnapshotBox",
+    "seam_kind": "ReadOnlyRhsMaterializationIntent",
+    "input_surface": "CompareLoweringSymbolicCommandSnapshotV1",
+    "output_surface": "CompareRhsMaterializationIntentSnapshotV1",
+    "downstream_consumer": "CompareRhsValueIdResolutionPlanSnapshotBox",
+    "claim_ceiling": "scoped_hard_authority_pilot"
+  },
+  "hako_sources": [
+    "lang/src/compiler/mirbuilder/compare_rhs_materialization_intent_snapshot.hako"
+  ],
+  "guard_evidence": {
+    "selection_guard": "tools/checks/rust_lifecycle_mirbuilder_post_hard_authority_pilot_next_seam_selection_guard.sh",
+    "source_guarded_rows": [
+      "command_literal_i64",
+      "command_symbol_ref"
+    ],
+    "aot_exe_required": true
+  },
+  "decision": {
+    "kind": "HardAuthorityPilotImplemented",
+    "reason_token": "CompareRhsMaterializationIntentBoundaryHasHakoAotParityAndDownstreamConsumer",
+    "selected_next_card": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+  },
+  "claims": {
+    "hard_authority_pilot_implemented": 1,
+    "compare_rhs_materialization_intent_owner": 1,
+    "hako_semantic_intent_surface": 1,
+    "rust_oracle_parity": 1,
+    "aot_exe_guard": 1,
+    "downstream_boundary_present": 1,
+    "scoped_hard_authority_pilot": 1,
+    "hako_adopted_decision": 0,
+    "source_selfhost_claim": 0,
+    "native_seed_materialization": 0,
+    "rhs_value_id_resolution": 0,
+    "rhs_runtime_materialization": 0,
+    "constant_mir_emission": 0,
+    "runtime_helper_emission": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_route_authority": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

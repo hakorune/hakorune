@@ -57,6 +57,7 @@ token = "MIRBUILDER-POST-HARD-AUTHORITY-PILOT-NEXT-SEAM-SELECTION-001"
 output_contract = "rust-lifecycle-mirbuilder-post-hard-authority-pilot-next-seam-selection-v0"
 blocker = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 selected_card = "MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-MATERIALIZATION-INTENT-001"
+selected_card_path = "docs/development/current/main/phases/phase-296x/3329-MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-MATERIALIZATION-INTENT-001.md"
 selected_candidate = "CompareRhsMaterializationIntentBoundary"
 
 need(f"# 3328 - {token}" in card, "card token drift")
@@ -134,8 +135,8 @@ for key in [
 ]:
     need(claims.get(key) == 0, f"forbidden claim drift: {key}")
 
-need(state.get("latest_card") == token, "CURRENT_STATE latest card drift")
-need(state.get("latest_card_path") == str(card_path), "CURRENT_STATE latest path drift")
+need(state.get("latest_card") in [token, selected_card], "CURRENT_STATE latest card drift")
+need(state.get("latest_card_path") in [str(card_path), selected_card_path], "CURRENT_STATE latest path drift")
 need(state.get("current_blocker_token") == blocker, "CURRENT_STATE blocker drift")
 
 for needle in [
