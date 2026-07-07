@@ -406,10 +406,10 @@ Detailed evidence lives in phase cards, fixtures, and git history.
 
 ## Active Next 3
 ```text
-landed summary: 3219 selects more DTO coverage rows; 3222 selects runtime RecipeBodies publication bridge as the next contract; 3264..3323 cond_recipe/compare chain closes scoped BoolRecipe-to-MIR Compare/Branch, refreshes the runtime-adjacent ProgramJSON shadow guard, and refreshes MachineDerivedRouteRepair evidence for Source Selfhost wider route selection.
+landed summary: 3219 selects more DTO coverage rows; 3222 selects runtime RecipeBodies publication bridge as the next contract; 3264..3324 closes scoped BoolRecipe-to-MIR Compare/Branch, refreshes MachineDerivedRouteRepair evidence, and registers HardAuthoritySeamProofAxis as consultation-gated selector input.
 
 next active:
-  SOURCE-SELFHOST-MACHINE-DERIVED-ROUTE-REPAIR-AUDIT-REFRESH-001; status=landed; output_contract=rust-lifecycle-source-selfhost-machine-derived-route-repair-audit-refresh-v0; audited_repair_fixture_count = 5; current_unblock_repair_count = 0; route_matrix_concrete_inconsistency_count = 0; reason_token=NoCurrentMachineDerivedRouteRepairCandidate; next=SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001; status=next; unit=design-stop frontier; output_contract=rust-lifecycle-source-selfhost-wider-route-selection-design-stop-v0; decision=KeepSourceSelfhostStopped; reason_token=NoEligibleNativeAdoptionCandidate; next_action=DesignConsultationRequired; resume_condition=ConsultationGatedWiderRouteSelectionOrMachineDerivedRouteRepair; manual_family_selection = 0; consultation_gated_wider_route_selection = 1; machine_derived_route_repair_allowed = 1; route/runtime authority=0
+  SOURCE-SELFHOST-EXPLICIT-AUTHORITY-REGISTRY-BASIS-001; status=landed; output_contract=rust-lifecycle-source-selfhost-explicit-authority-registry-basis-v0; consultation_gated_wider_route_selection = 1; new_proof_axis_registered = 1; registered_axis=HardAuthoritySeamProofAxis; source_selfhost_claim = 0; route/runtime authority=0; current_design_stop=SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001; output_contract=rust-lifecycle-source-selfhost-wider-route-selection-design-stop-v0; decision=KeepSourceSelfhostStopped; reason_token=NoEligibleNativeAdoptionCandidate; next_action=DesignConsultationRequired; resume_condition=ConsultationGatedWiderRouteSelectionOrMachineDerivedRouteRepair; manual_family_selection = 0; consultation_gated_wider_route_selection = 1; machine_derived_route_repair_allowed = 1; next=MIRBUILDER-MINIMAL-PATH-COMPOSED-CLOSURE-NATIVE-SLICE-DECOMPOSITION-001; status=next; unit=selector-ready decomposition; route_membership_alone_as_proof = 0; coverage_percentage_as_proof = 0
 
 trigger-based AOT/MIR typing debt:
   status=parked-until-triggered; order=2999/3000/3001 landed, then 3022 queue
@@ -417,10 +417,10 @@ trigger-based AOT/MIR typing debt:
   compare, PHI dst_type, mir_call dst_type, or receiver-helper
   single-observation protection
 next_documented_task =
-  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+  MIRBUILDER-MINIMAL-PATH-COMPOSED-CLOSURE-NATIVE-SLICE-DECOMPOSITION-001
 
 next_after_active_3 =
-  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001 -> SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-007 -> SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-RESOLUTION-001
+  MIRBUILDER-MINIMAL-PATH-COMPOSED-CLOSURE-NATIVE-SLICE-DECOMPOSITION-001 -> MIRBUILDER-AUTHORITY-FACADE-HARD-AUTHORITY-PILOT-POLICY-001 -> MIRBUILDER-HARD-AUTHORITY-PILOT-BOOLRECIPE-COMPARE-SEMANTIC-COMMAND-001
 
 follow_on_after_consume = select first BoolRecipe publication parity row only after consume gate is green
 

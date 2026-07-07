@@ -1,0 +1,102 @@
+{
+  "schema_version": 0,
+  "kind": "SourceSelfhostExplicitAuthorityRegistryBasisV1",
+  "token": "SOURCE-SELFHOST-EXPLICIT-AUTHORITY-REGISTRY-BASIS-001",
+  "output_contract": "rust-lifecycle-source-selfhost-explicit-authority-registry-basis-v0",
+  "current_state": {
+    "latest_card": "SOURCE-SELFHOST-EXPLICIT-AUTHORITY-REGISTRY-BASIS-001",
+    "latest_card_path": "docs/development/current/main/phases/phase-296x/3324-SOURCE-SELFHOST-EXPLICIT-AUTHORITY-REGISTRY-BASIS-001.md",
+    "current_blocker_token": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+  },
+  "input_state": {
+    "previous_latest_card": "SOURCE-SELFHOST-MACHINE-DERIVED-ROUTE-REPAIR-AUDIT-REFRESH-001",
+    "design_stop_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-wider-route-selection-design-stop-v0.json",
+    "machine_derived_repair_audit": "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-machine-derived-route-repair-audit-refresh-v0.json",
+    "local_candidate_selection_policy": "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-local-candidate-selection-policy-v0.json",
+    "consultation_result": "C first, then B, then A"
+  },
+  "registry_entries": [
+    {
+      "authority_source_kind": "HardAuthoritySeamProofAxis",
+      "proof_type": "RustOracleParityWithAotExeGuard",
+      "allowed_selection_use": "HardAuthorityCandidateSelectorInputOnly",
+      "claim_ceiling": "candidate_basis_only",
+      "selection_mode": "exactly_one_or_none",
+      "evidence_freshness": "current",
+      "reentry_condition": "ConsultationGatedWiderRouteSelection",
+      "retirement_condition": "HardAuthorityPilotPolicySelectedOrRejected",
+      "downstream_consumer_required": true,
+      "negative_guard_required": true,
+      "mutation_allowed": false,
+      "required_fields": [
+        "owner_id",
+        "seam_kind",
+        "input_surface",
+        "output_surface",
+        "rust_oracle_available",
+        "hako_impl_available",
+        "aot_guard_available",
+        "downstream_consumer"
+      ],
+      "forbidden_selection_use": [
+        "DirectSourceSelfhostClaim",
+        "DirectHakoAdoptedDecision",
+        "DirectRuntimeRouteSwitch",
+        "ManualFamilySelection",
+        "RouteMembershipAlone",
+        "CoveragePercentage",
+        "BundleSize",
+        "SupportLaneProjectorAsAdoptionCandidate",
+        "StringOnlyFacade"
+      ],
+      "forbidden_claims": {
+        "source_selfhost_claim": 0,
+        "hako_adopted_decision": 0,
+        "native_seed_materialization": 0,
+        "route_selection": 0,
+        "runtime_route_switch": 0,
+        "programjson_runtime_route_authority": 0,
+        "runtime_fallback": 0,
+        "new_backend_route": 0,
+        "new_abi": 0
+      }
+    }
+  ],
+  "explicitly_rejected_authority_sources": [
+    "ManualFamilySelection",
+    "RouteMembershipAlone",
+    "CoveragePercentage",
+    "BundleSize",
+    "SupportLaneProjectorAsAdoptionCandidate",
+    "StringOnlyFacade",
+    "HistoricalPreference",
+    "OwnerNameImportance"
+  ],
+  "decision": {
+    "kind": "RegisterExplicitAuthorityProofAxis",
+    "reason_token": "ConsultationApprovedHardAuthoritySeamProofAxis",
+    "selected_axis": "HardAuthoritySeamProofAxis",
+    "selected_next_card": "MIRBUILDER-MINIMAL-PATH-COMPOSED-CLOSURE-NATIVE-SLICE-DECOMPOSITION-001"
+  },
+  "claims": {
+    "consultation_gated_wider_route_selection": 1,
+    "new_proof_axis_registered": 1,
+    "hard_authority_seam_proof_axis_registered": 1,
+    "candidate_selector_input_only": 1,
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "native_seed_materialization": 0,
+    "manual_family_selection": 0,
+    "route_membership_alone_as_proof": 0,
+    "coverage_percentage_as_proof": 0,
+    "bundle_size_as_proof": 0,
+    "support_lane_projector_as_adoption_candidate": 0,
+    "string_only_facade_as_authority": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_route_authority": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

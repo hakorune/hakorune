@@ -345,13 +345,12 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "SOURCE-SELFHOST-MACHINE-DERIVED-ROUTE-REPAIR-AUDIT-REFRESH-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3323-SOURCE-SELFHOST-MACHINE-DERIVED-ROUTE-REPAIR-AUDIT-REFRESH-001.md"
-latest_card_summary = """3323 refreshes the allowed MachineDerivedRouteRepair
-side of the Source Selfhost wider route-selection design stop after the
-runtime-adjacent shadow guard. Current checked-in repair fixtures are
-historical/consumed lanes, current_unblock_repair_count remains 0, and the
-lane returns to DesignConsultationRequired."""
+latest_card = "SOURCE-SELFHOST-EXPLICIT-AUTHORITY-REGISTRY-BASIS-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3324-SOURCE-SELFHOST-EXPLICIT-AUTHORITY-REGISTRY-BASIS-001.md"
+latest_card_summary = """3324 registers the consultation-approved
+HardAuthoritySeamProofAxis as candidate selector input only. Source Selfhost,
+HakoAdopted, route selection, runtime switch, fallback, backend route, and ABI
+claims remain 0; next selected task is minimal path native slice decomposition."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -362,6 +361,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-08: 3324 registers the consultation-approved HardAuthoritySeamProofAxis as candidate selector input only and selects minimal path native slice decomposition next; Source Selfhost and route/runtime authority remain unclaimed.",
   "2026-07-08: 3323 refreshes MachineDerivedRouteRepair evidence for the Source Selfhost wider route-selection design stop; audited historical repair fixtures do not expose a current unblock repair, current_unblock_repair_count remains 0, and Source Selfhost remains unclaimed.",
   "2026-07-08: 3322 reconfirms the runtime-adjacent ProgramJSON shadow guard as green after Compare/Branch closeout and returns the lane to Source Selfhost wider route selection design-stop; runtime authority remains Rust ASTNode, and route selection, runtime fallback, and Source Selfhost remain unclaimed.",
   "2026-07-08: 3321 keeps the closed Compare/Branch bridge chain out of runtime route authority and selects the runtime-adjacent ProgramJSON shadow guard before any route authority switch; route selection, runtime fallback, and Source Selfhost remain unclaimed.",
@@ -373,5 +373,4 @@ landed_tail = [
   "2026-07-07: 3315 selects a scoped LocalSSA finalize_compare bridge before MIR Compare/Branch emission; LocalSSA execution, Bool result publication, runtime authority, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3314 opens actual SymbolRef lookup for contract-verified no-shadow locals only and returns existing ValueIds; allocation, mutation, LocalSSA, MIR Compare/Branch, runtime authority, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3313 proves SymbolRefResolutionContractV1 read-only parity for simple/renamed no-shadow locals and keeps shadowing, actual lookup, LocalSSA, MIR Compare/Branch, runtime authority, and Source Selfhost unclaimed.",
-  "2026-07-07: 3312 selects SymbolRefResolutionContractV1 before actual SymbolRef lookup and folds C-style Rust oracle evidence into 3313; actual lookup, LocalSSA, MIR Compare/Branch, runtime authority, and Source Selfhost remain unclaimed.",
 ]
