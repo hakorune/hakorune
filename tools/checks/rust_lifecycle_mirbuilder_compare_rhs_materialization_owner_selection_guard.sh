@@ -115,7 +115,11 @@ for key in [
 ]:
     need(claims.get(key) == 0, f"forbidden claim drift: {key}")
 
-need('latest_card = "MIRBUILDER-COMPARE-RHS-MATERIALIZATION-OWNER-SELECTION-001"' in current_state, "CURRENT_STATE latest card must point to selection")
+allowed_latest = [
+    'latest_card = "MIRBUILDER-COMPARE-RHS-MATERIALIZATION-OWNER-SELECTION-001"',
+    'latest_card = "MIRBUILDER-COMPARE-RHS-MATERIALIZATION-INTENT-PILOT-001"',
+]
+need(any(entry in current_state for entry in allowed_latest), "CURRENT_STATE latest card must point to selection or selected pilot")
 need("MIRBUILDER-COMPARE-RHS-MATERIALIZATION-INTENT-PILOT-001" in task_order, "task-order must name selected pilot")
 need("build_command_from_intent(intent): MapBox" in symbolic_impl, "symbolic command owner missing")
 need("rhs_bound_kind_code" in symbolic_impl and "rhs_bound_symbol_id" in symbolic_impl, "symbolic command rhs fields missing")

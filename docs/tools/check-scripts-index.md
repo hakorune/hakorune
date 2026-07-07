@@ -105,6 +105,7 @@ phase-1 compatibility Program(JSON) compat execution helper.
 | `tools/checks/rust_lifecycle_mirbuilder_compare_lowering_symbolic_command_pilot_gate.sh` | AOT gate publishing read-only symbolic compare lowering command snapshots from intent-map inputs, without MIR mutation or allocation. |
 | `tools/checks/rust_lifecycle_mirbuilder_compare_lowering_symbolic_command_parity_gate.sh` | AOT parity gate proving symbolic compare lowering command fields preserve the lowering intent fields without mutation. |
 | `tools/checks/rust_lifecycle_mirbuilder_compare_rhs_materialization_owner_selection_guard.sh` | Selection guard choosing a read-only RHS materialization intent pilot before ValueId resolution or runtime materialization. |
+| `tools/checks/rust_lifecycle_mirbuilder_compare_rhs_materialization_intent_pilot_gate.sh` | AOT gate publishing read-only RHS materialization intent snapshots for LiteralI64 and SymbolRef compare RHS rows. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_condition_shape_retire_rust_astnode_projector_candidate_guard.sh` | Retire-candidate guard for the covered `ConditionShapeSnapshotV1` ProgramJSON traversal slice. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_context_scope_shape_scan_parity_gate.sh` | Capability-batch parity for `.hako` `ProgramJsonContextScopeShapeScanV1`. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_context_scope_shape_retire_rust_astnode_projector_candidate_guard.sh` | Retire-candidate guard for the covered `ContextScopeShapeSnapshotV1` ProgramJSON traversal slice. |
