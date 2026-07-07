@@ -1,0 +1,65 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonRecipeMatcherRejectFloorSelectionV1",
+  "token": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-REJECT-FLOOR-SELECTION-001",
+  "input_state": {
+    "previous_card": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RETURN-ABSENT-ACCEPTED-FLOOR-001",
+    "runtime_authority": "rust_astnode",
+    "programjson_route": "shadow_only"
+  },
+  "reject_floor_axes": [
+    {
+      "axis": "unsupported_condition_operator",
+      "selected_first": false,
+      "reason": "Current PhaseState/Verifier rejects unsupported loop condition operators before CanonicalLoopFacts can publish unsupported_loop_cond."
+    },
+    {
+      "axis": "unsupported_update_operator",
+      "selected_first": false,
+      "reason": "Existing snapshot has unsupported_loop_update, but it is a better second row after condition rejection is green."
+    },
+    {
+      "axis": "update_target_mismatch",
+      "selected_first": false,
+      "reason": "Existing assignment scanner folds mismatch into unsupported_loop_update; split reason naming can follow later."
+    },
+    {
+      "axis": "malformed_or_missing_verified_recipe",
+      "selected_first": true,
+      "reason": "This is the first reachable reject boundary today: build_snapshot fail-fasts as verified_recipe_missing and RecipeMatcher observes snapshot_not_ok."
+    },
+    {
+      "axis": "extra_statement_or_swapped_body_order_or_non_null_else",
+      "selected_first": false,
+      "reason": "Needs wider body-shape policy naming before it becomes the first reject-floor row."
+    }
+  ],
+  "selected_next": {
+    "card": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-MISSING-VERIFIED-RECIPE-REJECT-ROW-001",
+    "row_id": "missing_verified_recipe_reject",
+    "expected_snapshot": {
+      "ok": 0,
+      "reason": "verified_recipe_missing",
+      "matcher_input_present": 0
+    },
+    "expected_matcher_result": {
+      "ok": 0,
+      "reason": "snapshot_not_ok",
+      "matched": 0
+    }
+  },
+  "claims": {
+    "reject_floor_selection": 1,
+    "selected_missing_verified_recipe_first": 1,
+    "reject_row_green": 0,
+    "programjson_runtime_route_authority": 0,
+    "runtime_route_switch": 0,
+    "recipe_matcher_input_authority": 0,
+    "route_selection": 0,
+    "mir_lowering": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  }
+}
