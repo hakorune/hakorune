@@ -1,0 +1,75 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonRecipeMatcherAuthoritySwitchReadinessConsultationV1",
+  "token": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-AUTHORITY-SWITCH-READINESS-CONSULTATION-001",
+  "input_state": {
+    "previous_card": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-ROUTE-CONSUMED-FIELD-FLOOR-PARITY-001",
+    "runtime_authority": "rust_astnode",
+    "programjson_route": "shadow_only"
+  },
+  "readiness_state": {
+    "accepted_floor": {
+      "current_return_only_shape": "green",
+      "continue_present": "green",
+      "break_present": "green",
+      "break_and_continue_present": "green",
+      "return_absent_decision_row": "green",
+      "nested_loop_decision_row": "decision_required"
+    },
+    "reject_floor": {
+      "missing_verified_recipe": "green",
+      "unsupported_condition_operator": "pending",
+      "unsupported_condition_shape": "pending",
+      "unsupported_update_operator": "pending",
+      "update_target_mismatch": "pending",
+      "unsupported_variable_name": "pending",
+      "extra_statement": "pending",
+      "swapped_body_order": "pending",
+      "non_null_else_branch": "pending",
+      "no_final_return": "pending",
+      "no_in_body_return": "pending"
+    },
+    "field_floor": {
+      "route_consumed_field_floor_parity": "green"
+    }
+  },
+  "candidate_next_steps": [
+    {
+      "option": "A_LIMITED_AUTHORITY_SWITCH_NOW",
+      "eligible": false,
+      "reason": "Coverage floors are not complete; nested-loop decision and most reject axes remain unresolved."
+    },
+    {
+      "option": "B_NESTED_LOOP_DECISION_ROW_NEXT",
+      "eligible": true,
+      "reason": "It closes the remaining accepted-floor decision axis before expanding reject-floor rows.",
+      "selected_next_card": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-NESTED-LOOP-DECISION-ROW-CONSULTATION-001"
+    },
+    {
+      "option": "C_REJECT_FLOOR_EXPANSION_NEXT",
+      "eligible": true,
+      "reason": "Required after nested-loop decision; not selected first because accepted-floor still has a decision_required axis."
+    }
+  ],
+  "decision": {
+    "kind": "DeferAuthoritySwitchSelectNestedLoopDecision",
+    "reason_token": "AuthoritySwitchNotReadyUntilNestedLoopDecisionAndRejectFloorExpansion",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-NESTED-LOOP-DECISION-ROW-CONSULTATION-001"
+  },
+  "claims": {
+    "authority_switch_readiness_consultation": 1,
+    "authority_switch_ready": 0,
+    "selected_nested_loop_decision_next": 1,
+    "programjson_runtime_route_authority": 0,
+    "runtime_route_switch": 0,
+    "recipe_matcher_input_authority": 0,
+    "route_selection": 0,
+    "mir_lowering": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

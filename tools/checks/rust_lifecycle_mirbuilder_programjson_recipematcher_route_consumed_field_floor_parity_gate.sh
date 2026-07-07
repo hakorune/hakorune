@@ -92,7 +92,11 @@ for needle in [
 for needle in [token, "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-AUTHORITY-SWITCH-READINESS-CONSULTATION-001"]:
     if needle not in task_order:
         raise SystemExit(f"task-order missing: {needle}")
-if f'latest_card = "{token}"' not in current_state:
+allowed_latest = {
+    token,
+    "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-AUTHORITY-SWITCH-READINESS-CONSULTATION-001",
+}
+if not any(f'latest_card = "{allowed}"' in current_state for allowed in allowed_latest):
     raise SystemExit("CURRENT_STATE latest card drift")
 
 program_json_0 = json.dumps(json.dumps(source_by_id["break_present_fields"], separators=(",", ":"), ensure_ascii=False))

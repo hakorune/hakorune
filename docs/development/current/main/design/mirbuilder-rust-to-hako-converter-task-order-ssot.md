@@ -82,6 +82,7 @@ normal operating rule:
   history.
 
 latest design decision:
+  3251 records MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-AUTHORITY-SWITCH-READINESS-CONSULTATION-001: authority switch is not ready after field-floor parity; selected next is MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-NESTED-LOOP-DECISION-ROW-CONSULTATION-001.
   3250 implements MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-ROUTE-CONSUMED-FIELD-FLOOR-PARITY-001: route-consumed field floor parity is green for break-present and break+continue-present rows; ProgramJSON remains shadow-only.
   3249 records MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-ROUTE-CONSUMED-FIELD-FLOOR-SELECTION-001: selected hard matcher fields plus route-adjacent snapshot facts; next card is MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-ROUTE-CONSUMED-FIELD-FLOOR-PARITY-001.
   3248 implements MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-MISSING-VERIFIED-RECIPE-REJECT-ROW-001: empty ProgramJSON rejects as verified_recipe_missing -> snapshot_not_ok with matched=0; ProgramJSON remains shadow-only.
@@ -107,7 +108,6 @@ latest design decision:
   3224 records RecipeMatcher input-boundary design stop: Rust consumes CanonicalLoopFacts, not RecipeBodiesPublicationSnapshotV1.
   3223 implements MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-PUBLICATION-BRIDGE-001.
   3221 marks the expanded RecipeBodies verifier-boundary DTO coverage rows as scoped Rust ASTNode projector retire-candidates; 3220 expands coverage to two rows.
-  3219 selects more DTO coverage rows after the post-verifier consultation.
   3208-3210 cleaned If/Loop result-map and raw array-helper AOT contracts.
   Runtime RecipeBodies publication, full RecipeMatcher, route switch, lowering,
   mutation, ID allocation, and Source Selfhost remain unclaimed.
@@ -408,12 +408,12 @@ Detailed evidence lives in phase cards, fixtures, and git history.
 
 ## Active Next 3
 ```text
-1. MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-MISSING-VERIFIED-RECIPE-REJECT-ROW-001; status=landed; reject_floor_row_green=1
-2. MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-ROUTE-CONSUMED-FIELD-FLOOR-SELECTION-001; status=landed; selected field floor
-3. MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-ROUTE-CONSUMED-FIELD-FLOOR-PARITY-001; status=landed; field_floor_parity_green=1
+1. MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-ROUTE-CONSUMED-FIELD-FLOOR-SELECTION-001; status=landed; selected field floor
+2. MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-ROUTE-CONSUMED-FIELD-FLOOR-PARITY-001; status=landed; field_floor_parity_green=1
+3. MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-AUTHORITY-SWITCH-READINESS-CONSULTATION-001; status=landed; authority_switch_ready=0
 
 next active:
-  MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-AUTHORITY-SWITCH-READINESS-CONSULTATION-001; status=next; unit=authority-switch readiness consultation; runtime_authority=rust_astnode; programjson_runtime_route_authority=0; runtime_route_switch=0
+  MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-NESTED-LOOP-DECISION-ROW-CONSULTATION-001; status=next; unit=nested-loop decision row consultation; runtime_authority=rust_astnode; programjson_runtime_route_authority=0; runtime_route_switch=0
 
 trigger-based AOT/MIR typing debt:
   status=parked-until-triggered; order=2999/3000/3001 landed, then 3022 queue
@@ -421,10 +421,10 @@ trigger-based AOT/MIR typing debt:
   compare, PHI dst_type, mir_call dst_type, or receiver-helper
   single-observation protection
 next_documented_task =
-  MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-AUTHORITY-SWITCH-READINESS-CONSULTATION-001
+  MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-NESTED-LOOP-DECISION-ROW-CONSULTATION-001
 
 next_after_active_3 =
-  MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-AUTHORITY-SWITCH-READINESS-CONSULTATION-001
+  MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-NESTED-LOOP-DECISION-ROW-CONSULTATION-001
 
 task discipline =
   Each ProgramJSON capability card must land real `.hako` traversal + fixture
