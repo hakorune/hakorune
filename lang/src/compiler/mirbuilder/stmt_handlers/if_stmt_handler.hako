@@ -9,8 +9,10 @@
 using selfhost.shared.common.string_helpers as StringHelpers
 using selfhost.shared.common.box_helpers as BoxHelpers
 using lang.compiler.mirbuilder.program_json_v0_scanner_box as ProgramJsonV0ScannerBox
+using lang.compiler.mirbuilder.program_json_compare_reader_box as ProgramJsonCompareReaderBox
 using lang.compiler.mirbuilder.stmt_handlers.return_stmt_handler as ReturnStmtHandler
 using lang.compiler.mirbuilder.recipe.recipe_item_box as RecipeItemBox
+using lang.compiler.mirbuilder.recipe.bool_recipe_box as BoolRecipeBox
 
 static box IfStmtHandler {
   _err(tag, msg, next_idx): MapBox {
@@ -447,6 +449,13 @@ static box IfStmtHandler {
     return stmt
   }
 
+  _if_item(cond_facts, cond_recipe, then_item, else_item): MapBox {
+    if BoolRecipeBox.is_valid_compare(cond_recipe) == 1 {
+      return RecipeItemBox.if_item_with_cond_recipe(cond_facts, cond_recipe, then_item, else_item)
+    }
+    return RecipeItemBox.if_item(cond_facts, then_item, else_item)
+  }
+
   handle(program_json, idx, next_idx, tag, state): MapBox {
     local has_local = StringHelpers.to_i64(BoxHelpers.map_get(state, "has_local"))
     local has_return = StringHelpers.to_i64(BoxHelpers.map_get(state, "has_return"))
@@ -534,13 +543,16 @@ static box IfStmtHandler {
     cond_facts.set("cond_kind", "VarEqInt")
     cond_facts.set("cond_var_name", lhs_name)
     cond_facts.set("cond_rhs_int", rhs_int)
+    local cond_reader = ProgramJsonCompareReaderBox.read_var_int_compare(program_json, cond_start)
+    local cond_recipe = BoolRecipeBox.from_numeric_compare_code_map(cond_reader)
 
     if program_json.substring(else_start, else_start + 4) == "null" {
       local then_local_out = me._then_local_int_item(program_json, idx, tag)
       local then_local_err = StringHelpers.to_i64(BoxHelpers.map_get(then_local_out, "err"))
       if then_local_err == 0 {
-        local if_item_local = RecipeItemBox.if_item(
+        local if_item_local = me._if_item(
           cond_facts,
+          cond_recipe,
           RecipeItemBox.seq([BoxHelpers.map_get(then_local_out, "recipe_item")]),
           RecipeItemBox.seq([])
         )
@@ -561,7 +573,7 @@ static box IfStmtHandler {
 
       local then_item = RecipeItemBox.exit_item("Return", exit_payload)
       local else_item = RecipeItemBox.seq([])
-      local if_item = RecipeItemBox.if_item(cond_facts, then_item, else_item)
+      local if_item = me._if_item(cond_facts, cond_recipe, then_item, else_item)
       return me._ok(next_idx, if_item)
     }
 
@@ -571,8 +583,9 @@ static box IfStmtHandler {
       local else_print_out = me._read_else_print_var_item(program_json, idx, tag)
       local else_print_err = StringHelpers.to_i64(BoxHelpers.map_get(else_print_out, "err"))
       if else_print_err == 0 {
-        local if_join_else_print = RecipeItemBox.if_item(
+        local if_join_else_print = me._if_item(
           cond_facts,
+          cond_recipe,
           RecipeItemBox.seq([BoxHelpers.map_get(then_local_out, "recipe_item")]),
           RecipeItemBox.seq([BoxHelpers.map_get(else_print_out, "recipe_item")])
         )
@@ -588,8 +601,9 @@ static box IfStmtHandler {
         exit_payload.set("ret_var_name", BoxHelpers.map_get(else_return_out, "else_ret_var_name"))
         exit_payload.set("ret_box_type", BoxHelpers.map_get(else_return_out, "else_ret_box_type"))
 
-        local if_else_only_exit = RecipeItemBox.if_item(
+        local if_else_only_exit = me._if_item(
           cond_facts,
+          cond_recipe,
           RecipeItemBox.seq([BoxHelpers.map_get(then_local_out, "recipe_item")]),
           RecipeItemBox.exit_item("Return", exit_payload)
         )
@@ -609,8 +623,9 @@ static box IfStmtHandler {
         then_exit_payload.set("ret_var_name", BoxHelpers.map_get(then_return_out, "then_ret_var_name"))
         then_exit_payload.set("ret_box_type", BoxHelpers.map_get(then_return_out, "then_ret_box_type"))
 
-        local if_then_only_exit = RecipeItemBox.if_item(
+        local if_then_only_exit = me._if_item(
           cond_facts,
+          cond_recipe,
           RecipeItemBox.exit_item("Return", then_exit_payload),
           RecipeItemBox.seq([BoxHelpers.map_get(else_local_out, "recipe_item")])
         )
@@ -626,8 +641,9 @@ static box IfStmtHandler {
         then_break_payload.set("ret_var_name", BoxHelpers.map_get(then_return_out, "then_ret_var_name"))
         then_break_payload.set("ret_box_type", BoxHelpers.map_get(then_return_out, "then_ret_box_type"))
 
-        local if_exit_all = RecipeItemBox.if_item(
+        local if_exit_all = me._if_item(
           cond_facts,
+          cond_recipe,
           RecipeItemBox.exit_item("Return", then_break_payload),
           BoxHelpers.map_get(else_break_out, "recipe_item")
         )
@@ -648,8 +664,9 @@ static box IfStmtHandler {
 
     local then_stmt = me._assignment_stmt_item(local_name, BoxHelpers.map_get(then_assign_out, "assign_rhs_int"))
     local else_stmt = me._assignment_stmt_item(local_name, BoxHelpers.map_get(else_assign_out, "assign_rhs_int"))
-    local if_item = RecipeItemBox.if_item(
+    local if_item = me._if_item(
       cond_facts,
+      cond_recipe,
       RecipeItemBox.seq([then_stmt]),
       RecipeItemBox.seq([else_stmt])
     )

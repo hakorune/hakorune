@@ -345,13 +345,13 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PROGRAMJSON-COMPARE-READER-SHARED-CANON-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3275-MIRBUILDER-PROGRAMJSON-COMPARE-READER-SHARED-CANON-001.md"
-latest_card_summary = """3275 adds ProgramJsonCompareReaderBox.read_var_int_compare
-as a shared ProgramJSON Var-op-Int Compare reader with six comparison op codes.
-It is reader-only: If cond_recipe attachment, If operator expansion, Loop
-nested If bridge, lowering, runtime authority, and Source Selfhost remain
-unclaimed."""
+latest_card = "MIRBUILDER-PROGRAMJSON-IF-COND-RECIPE-EQ-BEHAVIOR-PRESERVING-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3276-MIRBUILDER-PROGRAMJSON-IF-COND-RECIPE-EQ-BEHAVIOR-PRESERVING-001.md"
+latest_card_summary = """3276 wires IfStmtHandler existing Var == Int rows to
+attach optional cond_recipe through the shared ProgramJSON compare reader while
+preserving legacy VarEqInt cond_facts and existing non-== rejection. If operator
+expansion, Loop nested If bridge, lowering, runtime authority, and Source
+Selfhost remain unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -362,6 +362,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-07: 3276 wires IfStmtHandler existing Var == Int rows to attach cond_recipe while preserving legacy cond_facts; operator expansion, lowering, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3275 adds a shared ProgramJSON Var-op-Int Compare reader with six op codes; consumers, lowering, runtime authority, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3274 taskizes the shared ProgramJSON compare reader sequence before If/Loop condition row expansion; implementation and Source Selfhost remain unclaimed.",
   "2026-07-07: 3273 projects verified RecipeItem cond_recipe into a read-only matcher-facing input snapshot; matcher authority/lowering and Source Selfhost remain unclaimed.",
@@ -372,6 +373,5 @@ landed_tail = [
   "2026-07-07: 3268 selects diagnostic summary as the first observer allowed to read RecipeItem cond_recipe sidecar contents; verifier/matcher/lowering and Source Selfhost remain unclaimed.",
   "2026-07-07: 3267 wires LoopStmtHandler to attach BoolRecipe cond_recipe sidecar to Loop RecipeItems; lowering and Source Selfhost remain unclaimed.",
   "2026-07-07: 3266 selects LoopStmtHandler as the first ProgramJSON producer for the optional RecipeItem cond_recipe sidecar; implementation and Source Selfhost remain unclaimed.",
-  "2026-07-07: 3265 adds the optional RecipeItem cond_recipe sidecar bridge while keeping cond_facts required; verifier/lowering behavior and Source Selfhost remain unclaimed.",
   "2026-07-07: 3263 publishes a read-only BoolRecipeCompareV1 from the ProgramJSON CanonicalLoopFacts numeric-compare consume snapshot; lowering and Source Selfhost remain unclaimed.",
 ]
