@@ -1,0 +1,54 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderCompareRhsLiteralI64ConstantEmissionBridgeV1",
+  "token": "MIRBUILDER-COMPARE-RHS-LITERAL-I64-CONSTANT-EMISSION-BRIDGE-001",
+  "owner": "CompareRhsConstantEmissionBridge",
+  "rust_source": "src/mir/builder/compare_rhs_valueid_resolution_bridge.rs",
+  "prerequisite": "MIRBUILDER-COMPARE-RHS-VALUEID-RESOLUTION-REQUEST-RESPONSE-ABI-001",
+  "input_contract": "CompareRhsValueIdResolutionRequestSnapshotV1",
+  "response_contract": "CompareRhsValueIdResolutionResponseV1",
+  "row": {
+    "row_id": "literal_i64_3",
+    "request_kind": "LiteralConstantResolution",
+    "bound_kind": "LiteralI64",
+    "bound_i64": 3,
+    "expected_response": {
+      "ok": 1,
+      "rhs_value_id_present": 1,
+      "rhs_value_id_nonzero": 1,
+      "valueid_allocated": 1,
+      "allocated_valueid_delta": 1,
+      "constant_mir_emission": 1,
+      "const_instruction_count_delta": 1,
+      "const_kind": "Integer",
+      "const_i64": 3,
+      "type_ctx_integer": 1,
+      "mutation_performed_const_only": 1
+    }
+  },
+  "claims": {
+    "actual_rhs_valueid_resolution_literal_i64": 1,
+    "literal_i64_constant_emission_bridge": 1,
+    "literal_constant_valueid_allocation": 1,
+    "constant_mir_emission": 1,
+    "integer_type_publication": 1,
+    "rhs_value_id_present": 1,
+    "mutation_performed_const_only": 1,
+    "actual_rhs_valueid_resolution_general": 0,
+    "symbol_ref_valueid_resolution": 0,
+    "symbol_lookup_execution": 0,
+    "local_ssa_finalize_compare": 0,
+    "mir_compare_emission": 0,
+    "mir_branch_emission": 0,
+    "basicblock_control_flow_mutation": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_route_authority": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "CompareRhsLiteralI64ConstantEmissionBridgeGreen",
+    "selected_next_card": "MIRBUILDER-COMPARE-RHS-SYMBOLREF-LOOKUP-CONTRACT-CONSULTATION-001"
+  }
+}
