@@ -345,12 +345,12 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PROGRAMJSON-IF-LOOP-COMPARE-READER-PARITY-FLOOR-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3282-MIRBUILDER-PROGRAMJSON-IF-LOOP-COMPARE-READER-PARITY-FLOOR-001.md"
-latest_card_summary = """3282 proves the shared ProgramJSON compare reader and
-actual If/Loop RecipeItem cond_recipe producers agree for covered If, Loop, and
-nested-If rows. Operator expansion, lowering, runtime authority, and Source
-Selfhost remain unclaimed."""
+latest_card = "MIRBUILDER-BOOL-RECIPE-COMPARE-LOWERING-BOUNDARY-CONSULTATION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3283-MIRBUILDER-BOOL-RECIPE-COMPARE-LOWERING-BOUNDARY-CONSULTATION-001.md"
+latest_card_summary = """3283 selects observe-only BoolRecipe Compare lowering
+intent as the next boundary before any MIR Compare/Branch emission. Actual
+lowering, route selection, runtime authority, and Source Selfhost remain
+unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -361,6 +361,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-07: 3283 selects observe-only BoolRecipe Compare lowering intent as the next boundary before MIR Compare/Branch emission; lowering and Source Selfhost remain unclaimed.",
   "2026-07-07: 3282 proves shared ProgramJSON compare reader parity against actual If/Loop cond_recipe producers for covered rows; lowering and Source Selfhost remain unclaimed.",
   "2026-07-07: 3281 defers CondSkeleton::IfCond and selects BoolRecipe compare publication parity next; lowering and Source Selfhost remain unclaimed.",
   "2026-07-07: 3280 extends Rust loop_condition_shape numeric compare canon to Eq/Ne as analysis-only VarCompareBound rows; Hako/ProgramJSON consumers, lowering, and Source Selfhost remain unclaimed.",
@@ -372,5 +373,4 @@ landed_tail = [
   "2026-07-07: 3271 makes RecipeVerifier validate optional RecipeItem cond_recipe sidecars while preserving port-sig counts; matcher/lowering and Source Selfhost remain unclaimed.",
   "2026-07-07: 3269 proves AOT diagnostic deep observation of RecipeItem cond_recipe sidecar contents; verifier/matcher/lowering and Source Selfhost remain unclaimed.",
   "2026-07-07: 3268 selects diagnostic summary as the first observer allowed to read RecipeItem cond_recipe sidecar contents; verifier/matcher/lowering and Source Selfhost remain unclaimed.",
-  "2026-07-07: 3263 publishes a read-only BoolRecipeCompareV1 from the ProgramJSON CanonicalLoopFacts numeric-compare consume snapshot; lowering and Source Selfhost remain unclaimed.",
 ]

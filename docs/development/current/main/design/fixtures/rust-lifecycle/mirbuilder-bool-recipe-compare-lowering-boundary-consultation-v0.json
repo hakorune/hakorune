@@ -1,0 +1,75 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderBoolRecipeCompareLoweringBoundaryConsultationV1",
+  "token": "MIRBUILDER-BOOL-RECIPE-COMPARE-LOWERING-BOUNDARY-CONSULTATION-001",
+  "prerequisite": "MIRBUILDER-PROGRAMJSON-IF-LOOP-COMPARE-READER-PARITY-FLOOR-001",
+  "consultation_subject": "Select the first BoolRecipe::Compare lowering-facing boundary after If/Loop cond_recipe parity, without opening MIR Compare/Branch emission.",
+  "inventory": {
+    "bool_recipe_surface": "BoolRecipe::Compare is data-only and analysis_only",
+    "current_publication_surface": "BoolRecipeCompareV1 read-only publication snapshot",
+    "rust_compare_emission_owner": "src/mir/builder/ops/comparison.rs plus src/mir/builder/emission/compare.rs",
+    "rust_branch_emission_owner": "src/mir/builder/emission/branch.rs and control-flow normalizer entries",
+    "reason": "Actual MIR Compare/Branch emission requires value resolution, block ownership, ID allocation, and route/lowering integration."
+  },
+  "candidates": [
+    {
+      "name": "LowerBoolRecipeCompareToMirNow",
+      "selected": false,
+      "reason": "Would mix BoolRecipe publication with MIR Compare/Branch emission, mutation, block ownership, and ID allocation."
+    },
+    {
+      "name": "SelectObserveOnlyLoweringIntentPilot",
+      "selected": true,
+      "reason": "Defines the lowering-facing operator/bound intent while preserving analysis-only, read-only, no-mutation boundaries.",
+      "selected_next_card": "MIRBUILDER-BOOL-RECIPE-COMPARE-LOWERING-OBSERVE-ONLY-PILOT-001"
+    },
+    {
+      "name": "ExpandIfLoopOperatorsBeforeLoweringIntent",
+      "selected": false,
+      "reason": "Operator expansion should build on a stable lowering-intent boundary, not duplicate lowering semantics in producer gates."
+    }
+  ],
+  "selected_boundary": {
+    "name": "BoolRecipeCompareLoweringIntentSnapshotV1",
+    "input": "BoolRecipe::Compare",
+    "output": "read-only lowering intent snapshot",
+    "allowed_fields": [
+      "lhs_symbol_id",
+      "cmp_code",
+      "rhs_bound_kind_code",
+      "rhs_bound_i64",
+      "rhs_bound_symbol_id",
+      "analysis_only",
+      "lowering_intent_ready"
+    ],
+    "forbidden_actions": [
+      "MIR Compare emission",
+      "MIR Branch emission",
+      "BasicBlock mutation",
+      "ValueId allocation",
+      "route selection",
+      "runtime route switch",
+      "runtime fallback"
+    ]
+  },
+  "decision": {
+    "kind": "SelectBoolRecipeCompareObserveOnlyLoweringIntentPilot",
+    "reason_token": "BoolRecipeCompareNeedsIntentBoundaryBeforeMirEmission",
+    "selected_next_card": "MIRBUILDER-BOOL-RECIPE-COMPARE-LOWERING-OBSERVE-ONLY-PILOT-001"
+  },
+  "claims": {
+    "lowering_boundary_consultation": 1,
+    "observe_only_lowering_intent_next": 1,
+    "bool_recipe_compare_lowering_intent_selected": 1,
+    "bool_recipe_lowering_executed": 0,
+    "mir_cmp_emission": 0,
+    "branch_emission": 0,
+    "basic_block_mutation": 0,
+    "value_id_allocation": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_route_authority": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  }
+}

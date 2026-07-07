@@ -94,6 +94,7 @@ phase-1 compatibility Program(JSON) compat execution helper.
 | `tools/checks/rust_lifecycle_mirbuilder_rust_loop_condition_shape_eq_ne_canon_guard.sh` | Rust guard proving `loop_condition_shape` accepts Eq/Ne as analysis-only `VarCompareBound` rows. |
 | `tools/checks/rust_lifecycle_mirbuilder_condskeleton_ifcond_consultation_guard.sh` | Consultation guard deferring `CondSkeleton::IfCond` and selecting BoolRecipe compare publication parity. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_if_loop_compare_reader_parity_floor_gate.sh` | AOT gate proving direct ProgramJSON compare-reader output matches covered If/Loop `cond_recipe` producers. |
+| `tools/checks/rust_lifecycle_mirbuilder_bool_recipe_compare_lowering_boundary_consultation_guard.sh` | Consultation guard selecting observe-only BoolRecipe Compare lowering intent before any MIR Compare/Branch emission. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_condition_shape_retire_rust_astnode_projector_candidate_guard.sh` | Retire-candidate guard for the covered `ConditionShapeSnapshotV1` ProgramJSON traversal slice. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_context_scope_shape_scan_parity_gate.sh` | Capability-batch parity for `.hako` `ProgramJsonContextScopeShapeScanV1`. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_context_scope_shape_retire_rust_astnode_projector_candidate_guard.sh` | Retire-candidate guard for the covered `ContextScopeShapeSnapshotV1` ProgramJSON traversal slice. |
