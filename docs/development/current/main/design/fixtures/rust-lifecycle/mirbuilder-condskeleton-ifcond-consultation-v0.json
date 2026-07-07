@@ -1,0 +1,55 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderCondSkeletonIfCondConsultationV1",
+  "token": "MIRBUILDER-CONDSKELETON-IFCOND-CONSULTATION-001",
+  "prerequisite": "MIRBUILDER-RUST-LOOP-CONDITION-SHAPE-EQ-NE-CANON-001",
+  "consultation_subject": "Whether CondSkeleton should gain IfCond now that If/Loop cond_recipe producers share compare vocabulary.",
+  "inventory": {
+    "rust_cond_skeleton_current": "LoopCond only",
+    "rust_cond_profile_primary_consumer": "Loop analysis profile",
+    "hako_condition_recipe_surface": "BoolRecipe::Compare sidecar on RecipeItem",
+    "if_loop_shared_reader_status": "ProgramJSON shared compare reader is active for If and Loop producers",
+    "recipe_verifier_status": "cond_recipe validate-only consumer is active",
+    "matcher_facing_status": "cond_recipe observe-only read-only snapshot is active"
+  },
+  "candidates": [
+    {
+      "name": "AddCondSkeletonIfCondNow",
+      "selected": false,
+      "reason": "Would extend Rust CondProfile authority before any Rust If condition consumer needs it."
+    },
+    {
+      "name": "DeferIfCondAndContinueBoolRecipePublication",
+      "selected": true,
+      "reason": "BoolRecipe / RecipeItem cond_recipe already represents If and Loop conditions without expanding Rust CondSkeleton authority.",
+      "selected_next_card": "MIRBUILDER-BOOL-RECIPE-COMPARE-PUBLICATION-PARITY-001"
+    },
+    {
+      "name": "UseIfCondAsProgramJsonParitySurface",
+      "selected": false,
+      "reason": "Would mix Rust profile vocabulary with ProgramJSON parity even though ProgramJSON already has BoolRecipe compare snapshots."
+    }
+  ],
+  "decision": {
+    "kind": "DeferCondSkeletonIfCond",
+    "reason_token": "BoolRecipeCondRecipeIsSufficientForCurrentIfLoopParity",
+    "selected_next_card": "MIRBUILDER-BOOL-RECIPE-COMPARE-PUBLICATION-PARITY-001"
+  },
+  "claims": {
+    "condskeleton_ifcond_added": 0,
+    "condskeleton_ifcond_deferred": 1,
+    "bool_recipe_publication_next": 1,
+    "rust_cond_profile_authority_expanded": 0,
+    "hako_consumer_change": 0,
+    "programjson_consumer_change": 0,
+    "recipe_matcher_input_authority": 0,
+    "bool_recipe_lowering": 0,
+    "mir_cmp_emission": 0,
+    "branch_emission": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_route_authority": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  }
+}

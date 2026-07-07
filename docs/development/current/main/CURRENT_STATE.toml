@@ -345,11 +345,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-RUST-LOOP-CONDITION-SHAPE-EQ-NE-CANON-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3280-MIRBUILDER-RUST-LOOP-CONDITION-SHAPE-EQ-NE-CANON-001.md"
-latest_card_summary = """3280 extends Rust loop_condition_shape numeric compare
-canon to include Eq/Ne as analysis-only VarCompareBound rows. Hako consumers,
-ProgramJSON consumers, lowering, runtime authority, and Source Selfhost remain
+latest_card = "MIRBUILDER-CONDSKELETON-IFCOND-CONSULTATION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3281-MIRBUILDER-CONDSKELETON-IFCOND-CONSULTATION-001.md"
+latest_card_summary = """3281 defers CondSkeleton::IfCond and keeps Rust
+CondProfile authority LoopCond-only while continuing through BoolRecipe compare
+publication parity. Lowering, runtime authority, and Source Selfhost remain
 unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
@@ -361,13 +361,13 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-07: 3281 defers CondSkeleton::IfCond and selects BoolRecipe compare publication parity next; lowering and Source Selfhost remain unclaimed.",
   "2026-07-07: 3280 extends Rust loop_condition_shape numeric compare canon to Eq/Ne as analysis-only VarCompareBound rows; Hako/ProgramJSON consumers, lowering, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3279 replaces top-level Loop manual cond_recipe mutation with the dedicated loop_item_with_cond_recipe constructor; new Loop operators, lowering, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3278 attaches cond_recipe sidecars to Loop-body nested If RecipeItems through the shared compare reader; operator expansion, lowering, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3277 opens the first non-== If condition row, Var != Int, through the shared compare reader; all-six If support, lowering, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3276 wires IfStmtHandler existing Var == Int rows to attach cond_recipe while preserving legacy cond_facts; operator expansion, lowering, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3275 adds a shared ProgramJSON Var-op-Int Compare reader with six op codes; consumers, lowering, runtime authority, and Source Selfhost remain unclaimed.",
-  "2026-07-07: 3274 taskizes the shared ProgramJSON compare reader sequence before If/Loop condition row expansion; implementation and Source Selfhost remain unclaimed.",
   "2026-07-07: 3272 selects observe-only read-only snapshot projection as the first RecipeMatcher-adjacent cond_recipe boundary; matcher authority/lowering and Source Selfhost remain unclaimed.",
   "2026-07-07: 3271 makes RecipeVerifier validate optional RecipeItem cond_recipe sidecars while preserving port-sig counts; matcher/lowering and Source Selfhost remain unclaimed.",
   "2026-07-07: 3269 proves AOT diagnostic deep observation of RecipeItem cond_recipe sidecar contents; verifier/matcher/lowering and Source Selfhost remain unclaimed.",
