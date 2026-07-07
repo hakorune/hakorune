@@ -78,7 +78,8 @@ for key in [
 ]:
     need(claims.get(key) == 0, f"forbidden claim drift: {key}")
 
-need("If cond Compare op must be '=='" in if_handler, "If handler baseline asymmetry missing")
+need("ProgramJsonCompareReaderBox.read_var_int_compare(program_json, cond_start)" in if_handler, "If handler shared reader wiring missing")
+need("_cond_kind_from_reader(cond_reader)" in if_handler, "If handler cond_kind reader bridge missing")
 need("RecipeItemBox.if_item(" in if_handler, "If handler baseline RecipeItem call missing")
 need(
     "loop_item.set(\"cond_recipe\", cond_recipe)" in loop_handler

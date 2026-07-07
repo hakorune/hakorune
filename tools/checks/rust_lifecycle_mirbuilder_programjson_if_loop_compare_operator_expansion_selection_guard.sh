@@ -82,7 +82,8 @@ for key in [
 
 for op in ['"<"', '"<="', '">"', '">="', '"=="', '"!="']:
     need(op in reader, f"shared reader missing op {op}")
-need("If cond Compare op must be '==' or '!='" in if_handler, "If current operator gap missing")
+need("ProgramJsonCompareReaderBox.read_var_int_compare(program_json, cond_start)" in if_handler, "If handler missing shared reader")
+need("_cond_kind_from_reader(cond_reader)" in if_handler, "If handler missing cond_kind reader bridge")
 need("MIRBUILDER-PROGRAMJSON-IF-COND-RECIPE-RELATIONAL-ROW-BATCH-001" in task_order, "task-order missing selected next")
 PY
 

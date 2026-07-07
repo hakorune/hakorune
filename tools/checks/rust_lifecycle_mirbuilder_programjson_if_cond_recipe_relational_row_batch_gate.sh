@@ -2,24 +2,23 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
-TAG="rust-lifecycle-mirbuilder-programjson-if-cond-recipe-eq-behavior-preserving-gate"
+TAG="rust-lifecycle-mirbuilder-programjson-if-cond-recipe-relational-row-batch-gate"
 
 source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
 
-FIXTURE="$ROOT_DIR/docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-programjson-if-cond-recipe-eq-behavior-preserving-v0.json"
+FIXTURE="$ROOT_DIR/docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-programjson-if-cond-recipe-relational-row-batch-v0.json"
 IF_HANDLER="$ROOT_DIR/lang/src/compiler/mirbuilder/stmt_handlers/if_stmt_handler.hako"
-COMPARE_READER="$ROOT_DIR/lang/src/compiler/mirbuilder/program_json_compare_reader_box.hako"
-PREV_GATE="$ROOT_DIR/tools/checks/rust_lifecycle_mirbuilder_programjson_compare_reader_shared_canon_gate.sh"
+SELECTION_GATE="$ROOT_DIR/tools/checks/rust_lifecycle_mirbuilder_programjson_if_loop_compare_operator_expansion_selection_guard.sh"
 TASK_ORDER="$ROOT_DIR/docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 HAKO_BIN="$ROOT_DIR/tools/bin/hako"
 
 guard_require_command "$TAG" python3
-guard_require_files "$TAG" "$FIXTURE" "$IF_HANDLER" "$COMPARE_READER" "$PREV_GATE" "$TASK_ORDER" "$HAKO_BIN"
+guard_require_files "$TAG" "$FIXTURE" "$IF_HANDLER" "$SELECTION_GATE" "$TASK_ORDER" "$HAKO_BIN"
 
-PREV_OUT="$(guard_cached_run "$TAG" bash "$PREV_GATE")"
-if ! grep -q '^programjson_shared_compare_reader=1$' <<<"$PREV_OUT"; then
-  printf '%s\n' "$PREV_OUT" >&2
-  guard_fail "$TAG" "shared compare reader prerequisite is not green"
+SELECTION_OUT="$(guard_cached_run "$TAG" bash "$SELECTION_GATE")"
+if ! grep -q '^top_level_if_relational_batch_selected=1$' <<<"$SELECTION_OUT"; then
+  printf '%s\n' "$SELECTION_OUT" >&2
+  guard_fail "$TAG" "If relational batch selection prerequisite is not green"
 fi
 
 python3 - "$FIXTURE" "$IF_HANDLER" "$TASK_ORDER" <<'PY'
@@ -36,31 +35,28 @@ def need(condition, message):
         raise SystemExit(message)
 
 need(fixture.get("schema_version") == 0, "bad schema_version")
-need(fixture.get("kind") == "MirBuilderProgramJsonIfCondRecipeEqBehaviorPreservingV1", "bad kind")
-need(fixture.get("token") == "MIRBUILDER-PROGRAMJSON-IF-COND-RECIPE-EQ-BEHAVIOR-PRESERVING-001", "bad token")
-need(fixture.get("prerequisite") == "MIRBUILDER-PROGRAMJSON-COMPARE-READER-SHARED-CANON-001", "bad prerequisite")
-need(fixture.get("owner") == "IfStmtHandler", "bad owner")
-
-contract = fixture.get("wiring_contract") or {}
-need(contract.get("source_reader") == "ProgramJsonCompareReaderBox.read_var_int_compare", "bad source reader")
-need(contract.get("target_attachment") == "RecipeItem.cond_recipe sidecar field", "bad target attachment")
-need(contract.get("legacy_cond_facts_preserved") is True, "legacy cond_facts must be preserved")
-need(contract.get("accepted_operator_expansion") is False, "operator expansion must remain false")
-need(contract.get("lowering_behavior_change") is False, "lowering must not change")
+need(fixture.get("kind") == "MirBuilderProgramJsonIfCondRecipeRelationalRowBatchV1", "bad kind")
+need(fixture.get("token") == "MIRBUILDER-PROGRAMJSON-IF-COND-RECIPE-RELATIONAL-ROW-BATCH-001", "bad token")
+need(fixture.get("prerequisite") == "MIRBUILDER-PROGRAMJSON-IF-LOOP-COMPARE-OPERATOR-EXPANSION-SELECTION-001", "bad prerequisite")
+need([row.get("row_id") for row in fixture.get("rows") or []] == [
+    "if_var_lt_int_then_return_else_null",
+    "if_var_le_int_then_return_else_null",
+    "if_var_gt_int_then_return_else_null",
+    "if_var_ge_int_then_return_else_null",
+], "row set drift")
 
 claims = fixture.get("claims") or {}
 for key in [
-    "if_cond_recipe_attached",
-    "if_eq_behavior_preserved",
-    "legacy_cond_facts_preserved",
+    "if_cond_recipe_relational_row_batch",
     "shared_compare_reader_used",
+    "legacy_cond_facts_relational",
+    "if_accepts_all_6_compare_operators",
 ]:
     need(claims.get(key) == 1, f"missing positive claim: {key}")
+need(claims.get("if_relational_rows") == 4, "bad relational row count")
 for key in [
-    "if_compare_operator_expansion",
-    "loop_nested_if_cond_recipe",
-    "rust_loop_condition_shape_eq_ne",
-    "condskeleton_ifcond",
+    "loop_nested_if_operator_expansion",
+    "top_level_loop_route_semantics_changed",
     "recipe_matcher_input_authority",
     "bool_recipe_lowering",
     "mir_cmp_emission",
@@ -74,32 +70,28 @@ for key in [
     need(claims.get(key) == 0, f"forbidden claim drift: {key}")
 
 for needle in [
-    "using lang.compiler.mirbuilder.program_json_compare_reader_box as ProgramJsonCompareReaderBox",
-    "using lang.compiler.mirbuilder.recipe.bool_recipe_box as BoolRecipeBox",
+    'if cmp_code == 1 { return "VarLtInt" }',
+    'if cmp_code == 2 { return "VarLeInt" }',
+    'if cmp_code == 3 { return "VarGtInt" }',
+    'if cmp_code == 4 { return "VarGeInt" }',
+    "_op_supported(op)",
+    "If cond Compare op is unsupported",
     "ProgramJsonCompareReaderBox.read_var_int_compare(program_json, cond_start)",
-    "BoolRecipeBox.from_numeric_compare_code_map(cond_reader)",
-    "RecipeItemBox.if_item_with_cond_recipe",
-    "_cond_kind_from_reader(cond_reader)",
-    'if cmp_code == 5 { return "VarEqInt" }',
 ]:
     need(needle in impl, f"IfStmtHandler missing token: {needle}")
-for forbidden in ["RecipeMatcherBox", "PlanLowerer", "route_registry", "emit_mir"]:
+for forbidden in ["PlanLowerer", "route_registry", "emit_mir"]:
     need(forbidden not in impl, f"forbidden implementation token: {forbidden}")
-for needle in [
-    "MIRBUILDER-PROGRAMJSON-IF-COND-RECIPE-EQ-BEHAVIOR-PRESERVING-001",
-    "MIRBUILDER-PROGRAMJSON-IF-COND-RECIPE-FIRST-NON-EQ-ROW-001",
-]:
-    need(needle in task_order, f"task-order missing: {needle}")
+need("MIRBUILDER-PROGRAMJSON-LOOP-NESTED-IF-COND-RECIPE-RELATIONAL-ROW-BATCH-001" in task_order, "task-order missing next")
 PY
 
-TMP_DIR="$(mktemp -d /tmp/hakorune-if-cond-recipe-eq.XXXXXX)"
+TMP_DIR="$(mktemp -d /tmp/hakorune-if-cond-recipe-rel.XXXXXX)"
 cleanup() { rm -rf "$TMP_DIR" >/dev/null 2>&1 || true; }
 trap cleanup EXIT
 
-APP="$TMP_DIR/if_cond_recipe_eq.hako"
+APP="$TMP_DIR/if_cond_recipe_rel.hako"
 EXPECTED="$TMP_DIR/expected.txt"
 ACTUAL="$TMP_DIR/actual.txt"
-EXE="$TMP_DIR/if_cond_recipe_eq.exe"
+EXE="$TMP_DIR/if_cond_recipe_rel.exe"
 EMIT_LOG="$TMP_DIR/emit.log"
 
 python3 - "$FIXTURE" "$APP" "$EXPECTED" <<'PY'
@@ -127,6 +119,7 @@ for idx, row in enumerate(fixture["rows"]):
     items = f"items_{idx}"
     if_item = f"if_item_{idx}"
     facts = f"facts_{idx}"
+    expected_kind = row["expected_cond_kind"]
     lines.extend([
         f"    local {out} = ProgramJsonV0PhaseStateBox.parse({json.dumps(row['program_json'])}, \"[test]\")",
         f"    local {root} = BoxHelpers.map_get({out}, \"recipe_root\")",
@@ -134,18 +127,13 @@ for idx, row in enumerate(fixture["rows"]):
         f"    local {if_item} = BoxHelpers.array_get({items}, 1)",
         f"    local {facts} = BoxHelpers.map_get({if_item}, \"cond_facts\")",
         f"    print(\"{row['row_id']}:err=\" + StringHelpers.int_to_str(BoxHelpers.map_get({out}, \"err\"))",
-        f"      + \";cond_facts_map=\" + StringHelpers.int_to_str(BoxHelpers.is_map({facts}))",
+        f"      + \";cond_kind_match=\" + StringHelpers.int_to_str(BoxHelpers.same_token(BoxHelpers.map_get({facts}, \"cond_kind\"), {json.dumps(expected_kind)}))",
         f"      + \";cond_rhs_int=\" + StringHelpers.int_to_str(BoxHelpers.map_get({facts}, \"cond_rhs_int\"))",
         f"      + \";cond_recipe_present=\" + StringHelpers.int_to_str(RecipeItemBox.cond_recipe_present({if_item}))",
         f"      + \";\" + RecipeItemBox.cond_recipe_summary({if_item}))",
     ])
     expected_lines.append(row["expected_summary"])
-lines.extend([
-    "    return 0",
-    "  }",
-    "}",
-    "",
-])
+lines.extend(["    return 0", "  }", "}", ""])
 app.write_text("\n".join(lines), encoding="utf-8")
 expected.write_text("\n".join(expected_lines) + "\n", encoding="utf-8")
 PY
@@ -153,7 +141,7 @@ PY
 bash "$HAKO_BIN" --backend mir --verify "$IF_HANDLER" >/dev/null
 if ! bash "$HAKO_BIN" --backend mir --emit-exe "$EXE" "$APP" >"$EMIT_LOG" 2>&1; then
   tail -n 160 "$EMIT_LOG" || true
-  guard_fail "$TAG" "failed to emit If cond_recipe Eq executable"
+  guard_fail "$TAG" "failed to emit If cond_recipe relational executable"
 fi
 
 chmod +x "$EXE"
@@ -169,7 +157,7 @@ actual_path = Path(sys.argv[3])
 actual = [line.strip() for line in raw if line.strip() and not line.startswith("Result:")]
 actual_path.write_text("\n".join(actual) + "\n", encoding="utf-8")
 if actual != expected:
-    print("[if-stmt/cond-recipe-eq-behavior-preserving] mismatch")
+    print("[if-stmt/cond-recipe-relational-row-batch] mismatch")
     for idx in range(max(len(expected), len(actual))):
         exp = expected[idx] if idx < len(expected) else "<missing>"
         got = actual[idx] if idx < len(actual) else "<missing>"
@@ -179,23 +167,26 @@ if actual != expected:
 PY
 
 cat <<'REPORT'
-output_contract=rust-lifecycle-mirbuilder-programjson-if-cond-recipe-eq-behavior-preserving-gate-v0
-token=MIRBUILDER-PROGRAMJSON-IF-COND-RECIPE-EQ-BEHAVIOR-PRESERVING-001
+output_contract=rust-lifecycle-mirbuilder-programjson-if-cond-recipe-relational-row-batch-gate-v0
+token=MIRBUILDER-PROGRAMJSON-IF-COND-RECIPE-RELATIONAL-ROW-BATCH-001
 owner=IfStmtHandler
-row_count=2
-if_cond_recipe_attached=1
-if_eq_behavior_preserved=1
-legacy_cond_facts_preserved=1
+row_count=4
+if_cond_recipe_relational_row_batch=1
+if_relational_rows=4
 shared_compare_reader_used=1
-if_compare_operator_expansion=0
-loop_nested_if_cond_recipe=0
-rust_loop_condition_shape_eq_ne=0
+legacy_cond_facts_relational=1
+if_accepts_all_6_compare_operators=1
+loop_nested_if_operator_expansion=0
+top_level_loop_route_semantics_changed=0
 recipe_matcher_input_authority=0
 bool_recipe_lowering=0
+mir_cmp_emission=0
+branch_emission=0
 route_selection=0
 runtime_route_switch=0
 programjson_runtime_route_authority=0
 runtime_fallback=0
 source_selfhost_claim=0
+selected_next_card=MIRBUILDER-PROGRAMJSON-LOOP-NESTED-IF-COND-RECIPE-RELATIONAL-ROW-BATCH-001
 summary=ok
 REPORT

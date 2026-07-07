@@ -458,9 +458,23 @@ static box IfStmtHandler {
 
   _cond_kind_from_reader(reader) {
     local cmp_code = StringHelpers.to_i64(BoxHelpers.map_get(reader, "cmp_code"))
+    if cmp_code == 1 { return "VarLtInt" }
+    if cmp_code == 2 { return "VarLeInt" }
+    if cmp_code == 3 { return "VarGtInt" }
+    if cmp_code == 4 { return "VarGeInt" }
     if cmp_code == 5 { return "VarEqInt" }
     if cmp_code == 6 { return "VarNeInt" }
     return "UnsupportedCompare"
+  }
+
+  _op_supported(op) {
+    if BoxHelpers.same_token(op, "<") == 1 { return 1 }
+    if BoxHelpers.same_token(op, "<=") == 1 { return 1 }
+    if BoxHelpers.same_token(op, ">") == 1 { return 1 }
+    if BoxHelpers.same_token(op, ">=") == 1 { return 1 }
+    if BoxHelpers.same_token(op, "==") == 1 { return 1 }
+    if BoxHelpers.same_token(op, "!=") == 1 { return 1 }
+    return 0
   }
 
   handle(program_json, idx, next_idx, tag, state): MapBox {
@@ -498,8 +512,8 @@ static box IfStmtHandler {
       return me._err(tag, "[cap_missing/program_json_v0] If Compare missing op", next_idx)
     }
     local op = BoxHelpers.map_get(op_out, "value")
-    if BoxHelpers.same_token(op, "==") != 1 && BoxHelpers.same_token(op, "!=") != 1 {
-      return me._err(tag, "[cap_missing/expr:Compare] If cond Compare op must be '==' or '!='", next_idx)
+    if me._op_supported(op) != 1 {
+      return me._err(tag, "[cap_missing/expr:Compare] If cond Compare op is unsupported", next_idx)
     }
 
     local lhs_start = ProgramJsonV0ScannerBox.seek_obj_field_obj_start(program_json, "lhs", cond_start)
