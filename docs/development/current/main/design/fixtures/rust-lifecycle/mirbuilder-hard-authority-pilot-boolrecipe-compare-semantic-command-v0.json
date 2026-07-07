@@ -1,0 +1,69 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderHardAuthorityPilotBoolRecipeCompareSemanticCommandV1",
+  "token": "MIRBUILDER-HARD-AUTHORITY-PILOT-BOOLRECIPE-COMPARE-SEMANTIC-COMMAND-001",
+  "output_contract": "rust-lifecycle-mirbuilder-hard-authority-pilot-boolrecipe-compare-semantic-command-v0",
+  "current_state": {
+    "latest_card": "MIRBUILDER-HARD-AUTHORITY-PILOT-BOOLRECIPE-COMPARE-SEMANTIC-COMMAND-001",
+    "latest_card_path": "docs/development/current/main/phases/phase-296x/3327-MIRBUILDER-HARD-AUTHORITY-PILOT-BOOLRECIPE-COMPARE-SEMANTIC-COMMAND-001.md",
+    "current_blocker_token": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+  },
+  "input_state": {
+    "previous_latest_card": "MIRBUILDER-AUTHORITY-FACADE-HARD-AUTHORITY-PILOT-POLICY-001",
+    "policy_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-authority-facade-hard-authority-pilot-policy-v0.json",
+    "publication_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-bool-recipe-compare-publication-parity-v0.json",
+    "lowering_intent_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-bool-recipe-compare-lowering-observe-only-pilot-v0.json",
+    "symbolic_command_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-compare-lowering-symbolic-command-parity-v0.json",
+    "downstream_closeout_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-compare-boolrecipe-to-mir-compare-branch-closeout-v0.json"
+  },
+  "pilot": {
+    "candidate_id": "BoolRecipeCompareSemanticCommandBoundary",
+    "owner_id": "BoolRecipeCompareLoweringIntentSnapshotBox",
+    "supporting_owner_id": "CompareLoweringSymbolicCommandSnapshotBox",
+    "seam_kind": "LoweringFacingSemanticCommand",
+    "input_surface": "BoolRecipeComparePublicationV1",
+    "output_surface": "BoolRecipeCompareLoweringIntentSnapshotV1",
+    "semantic_command_surface": "CompareLoweringSymbolicCommandSnapshotV1",
+    "downstream_consumer": "Compare RHS materialization / ValueId resolution / Compare emission chain",
+    "claim_ceiling": "scoped_hard_authority_pilot"
+  },
+  "hako_sources": [
+    "lang/src/compiler/mirbuilder/program_json_bool_recipe_compare_publication.hako",
+    "lang/src/compiler/mirbuilder/bool_recipe_compare_lowering_intent_snapshot.hako",
+    "lang/src/compiler/mirbuilder/compare_lowering_symbolic_command_snapshot.hako"
+  ],
+  "guard_evidence": {
+    "policy_guard": "tools/checks/rust_lifecycle_mirbuilder_authority_facade_hard_authority_pilot_policy_guard.sh",
+    "intent_aot_exe_guard": "tools/checks/rust_lifecycle_mirbuilder_bool_recipe_compare_lowering_observe_only_pilot_gate.sh",
+    "symbolic_command_rows": [
+      "intent_var_le_literal",
+      "intent_var_lt_symbol"
+    ],
+    "downstream_closeout_claim": "compare_branch_lowering_bridge_chain_green"
+  },
+  "decision": {
+    "kind": "HardAuthorityPilotImplemented",
+    "reason_token": "BoolRecipeCompareSemanticCommandBoundaryHasHakoAotParityAndDownstreamConsumer",
+    "selected_next_card": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+  },
+  "claims": {
+    "hard_authority_pilot_implemented": 1,
+    "boolrecipe_compare_semantic_command_owner": 1,
+    "hako_semantic_command_surface": 1,
+    "rust_oracle_parity": 1,
+    "aot_exe_guard": 1,
+    "downstream_boundary_present": 1,
+    "scoped_hard_authority_pilot": 1,
+    "hako_adopted_decision": 0,
+    "source_selfhost_claim": 0,
+    "native_seed_materialization": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_route_authority": 0,
+    "runtime_fallback": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
