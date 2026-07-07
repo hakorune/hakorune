@@ -93,6 +93,7 @@ allowed_latest = [
     'latest_card = "MIRBUILDER-COMPARE-RHS-SYMBOLREF-LOOKUP-CONTRACT-CONSULTATION-001"',
     'latest_card = "MIRBUILDER-COMPARE-RHS-SYMBOLREF-LOOKUP-CONTRACT-PARITY-001"',
     'latest_card = "MIRBUILDER-COMPARE-RHS-SYMBOLREF-LOOKUP-BRIDGE-001"',
+    'latest_card = "MIRBUILDER-COMPARE-LOCALSSA-FINALIZE-COMPARE-DESIGN-STOP-001"',
 ]
 need(any(entry in current_state for entry in allowed_latest), "CURRENT_STATE latest card must point to prerequisite or design-stop")
 need(

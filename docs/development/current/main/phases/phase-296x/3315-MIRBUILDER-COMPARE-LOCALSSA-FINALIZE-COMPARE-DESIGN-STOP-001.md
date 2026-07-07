@@ -24,3 +24,19 @@ without opening MIR Compare / Branch emission in the same slice.
 - route selection / runtime route switch: `0`
 - ProgramJSON runtime authority / runtime fallback: `0`
 - Source Selfhost: `0`
+
+## Decision
+Selected:
+
+```text
+MIRBUILDER-COMPARE-LOCALSSA-FINALIZE-COMPARE-BRIDGE-001
+```
+
+The selected next card may call Rust `ssa::local::finalize_compare` as a
+scoped bridge, but must not emit MIR Compare / Branch or publish the Bool result
+type.
+
+## Guard
+```bash
+bash tools/checks/rust_lifecycle_mirbuilder_compare_localssa_finalize_compare_design_stop_guard.sh
+```

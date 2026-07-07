@@ -128,7 +128,8 @@ need(
     or 'latest_card = "MIRBUILDER-COMPARE-RHS-LITERAL-I64-CONSTANT-EMISSION-BRIDGE-001"' in current_state
     or 'latest_card = "MIRBUILDER-COMPARE-RHS-SYMBOLREF-LOOKUP-CONTRACT-CONSULTATION-001"' in current_state
     or 'latest_card = "MIRBUILDER-COMPARE-RHS-SYMBOLREF-LOOKUP-CONTRACT-PARITY-001"' in current_state
-    or 'latest_card = "MIRBUILDER-COMPARE-RHS-SYMBOLREF-LOOKUP-BRIDGE-001"' in current_state,
+    or 'latest_card = "MIRBUILDER-COMPARE-RHS-SYMBOLREF-LOOKUP-BRIDGE-001"' in current_state
+    or 'latest_card = "MIRBUILDER-COMPARE-LOCALSSA-FINALIZE-COMPARE-DESIGN-STOP-001"' in current_state,
     "CURRENT_STATE latest card must point to selection or a selected follow-on",
 )
 need(

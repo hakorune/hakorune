@@ -1,0 +1,61 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderCompareLocalSsaFinalizeCompareDesignStopV1",
+  "token": "MIRBUILDER-COMPARE-LOCALSSA-FINALIZE-COMPARE-DESIGN-STOP-001",
+  "prerequisite": "MIRBUILDER-COMPARE-RHS-SYMBOLREF-LOOKUP-BRIDGE-001",
+  "decision_context": {
+    "current_boundary": "lhs/rhs ValueId availability",
+    "literal_i64_rhs": "new integer Const ValueId",
+    "symbol_ref_rhs": "existing no-shadow local ValueId",
+    "rust_owner": "ssa::local::finalize_compare",
+    "risk": "LocalSSA operand materialization is adjacent to MIR Compare emission in build_comparison_op"
+  },
+  "candidates": [
+    {
+      "name": "LocalSsaFinalizeCompareBridgeFirst",
+      "selected": true,
+      "reason": "Expose operand finalization separately before MIR Compare/Branch emission",
+      "selected_next_card": "MIRBUILDER-COMPARE-LOCALSSA-FINALIZE-COMPARE-BRIDGE-001"
+    },
+    {
+      "name": "CombineFinalizeAndCompareEmission",
+      "selected": false,
+      "reason": "Would mix LocalSSA materialization with Compare emission and Bool result typing"
+    },
+    {
+      "name": "SkipLocalSsaForNoShadowValues",
+      "selected": false,
+      "reason": "Would diverge from Rust build_comparison_op semantics before proving equivalence"
+    },
+    {
+      "name": "OpenBranchEmissionNow",
+      "selected": false,
+      "reason": "Branch emission consumes Compare result and belongs after Compare emission"
+    }
+  ],
+  "selected_sequence": [
+    "MIRBUILDER-COMPARE-LOCALSSA-FINALIZE-COMPARE-BRIDGE-001",
+    "MIRBUILDER-COMPARE-MIR-COMPARE-EMISSION-BRIDGE-001",
+    "MIRBUILDER-COMPARE-BRANCH-EMISSION-DESIGN-STOP-001"
+  ],
+  "claims": {
+    "compare_localssa_finalize_compare_design_stop": 1,
+    "localssa_finalize_compare_bridge_selected": 1,
+    "compare_emission_selected_now": 0,
+    "branch_emission_selected_now": 0,
+    "localssa_finalize_compare_execution": 0,
+    "mir_compare_emission": 0,
+    "mir_branch_emission": 0,
+    "bool_result_type_publication": 0,
+    "basicblock_mutation": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_authority": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "SelectLocalSsaFinalizeCompareBridgeFirst",
+    "selected_next_card": "MIRBUILDER-COMPARE-LOCALSSA-FINALIZE-COMPARE-BRIDGE-001"
+  }
+}
