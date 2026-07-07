@@ -115,10 +115,15 @@ for key in [
 
 need(
     'latest_card = "MIRBUILDER-COMPARE-LOWERING-MUTATION-OWNER-SELECTION-001"' in current_state
-    or 'latest_card = "MIRBUILDER-COMPARE-LOWERING-SYMBOLIC-COMMAND-PILOT-001"' in current_state,
-    "CURRENT_STATE latest card must point to selection or its selected pilot",
+    or 'latest_card = "MIRBUILDER-COMPARE-LOWERING-SYMBOLIC-COMMAND-PILOT-001"' in current_state
+    or 'latest_card = "MIRBUILDER-COMPARE-LOWERING-SYMBOLIC-COMMAND-PARITY-001"' in current_state,
+    "CURRENT_STATE latest card must point to selection or a selected follow-on",
 )
-need("MIRBUILDER-COMPARE-LOWERING-SYMBOLIC-COMMAND-PILOT-001" in task_order, "task-order must name selected pilot")
+need(
+    "MIRBUILDER-COMPARE-LOWERING-SYMBOLIC-COMMAND-PILOT-001" in task_order
+    or "intent-map symbolic command pilot" in task_order,
+    "task-order must retain selected pilot evidence",
+)
 need(
     "MIRBUILDER-COMPARE-LOWERING-MUTATION-OWNER-SELECTION-001; status=landed" in task_order
     or "symbolic compare lowering command owner selection" in task_order,
