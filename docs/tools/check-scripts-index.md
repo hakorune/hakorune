@@ -77,6 +77,7 @@ phase-1 compatibility Program(JSON) compat execution helper.
 | `tools/checks/rust_lifecycle_mirbuilder_bool_recipe_compare_publication_parity_gate.sh` | Publishes read-only `BoolRecipeCompareV1` from the CanonicalLoopFacts numeric-compare consume snapshot. |
 | `tools/checks/rust_lifecycle_mirbuilder_recipeitem_condition_slot_bool_recipe_bridge_selection_guard.sh` | Selects the optional `cond_recipe` sidecar bridge for RecipeItem condition slots. |
 | `tools/checks/rust_lifecycle_mirbuilder_recipeitem_condition_slot_bool_recipe_sidecar_bridge_gate.sh` | Adds and verifies the optional `cond_recipe` sidecar on RecipeItem condition slots without verifier/lowering behavior change. |
+| `tools/checks/rust_lifecycle_mirbuilder_programjson_recipeitem_cond_recipe_producer_wiring_selection_guard.sh` | Selects `LoopStmtHandler` as the first ProgramJSON producer allowed to attach the RecipeItem `cond_recipe` sidecar. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_condition_shape_retire_rust_astnode_projector_candidate_guard.sh` | Retire-candidate guard for the covered `ConditionShapeSnapshotV1` ProgramJSON traversal slice. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_context_scope_shape_scan_parity_gate.sh` | Capability-batch parity for `.hako` `ProgramJsonContextScopeShapeScanV1`. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_context_scope_shape_retire_rust_astnode_projector_candidate_guard.sh` | Retire-candidate guard for the covered `ContextScopeShapeSnapshotV1` ProgramJSON traversal slice. |

@@ -1,0 +1,66 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonRecipeItemCondRecipeProducerWiringSelectionV1",
+  "token": "MIRBUILDER-PROGRAMJSON-RECIPEITEM-COND-RECIPE-PRODUCER-WIRING-SELECTION-001",
+  "prerequisite": "MIRBUILDER-RECIPEITEM-CONDITION-SLOT-BOOL-RECIPE-SIDECAR-BRIDGE-001",
+  "selection_goal": "Select the first ProgramJSON RecipeItem producer allowed to attach the optional BoolRecipe cond_recipe sidecar.",
+  "candidate_producers": [
+    {
+      "candidate": "LoopStmtHandlerLoopConditionProducer",
+      "selected": true,
+      "owner": "lang/src/compiler/mirbuilder/stmt_handlers/loop_stmt_handler.hako",
+      "reason": "The existing BoolRecipeCompareV1 publication is derived from loop CanonicalLoopFacts, so the first producer wiring should attach only to RecipeItem Loop condition slots.",
+      "selected_next_card": "MIRBUILDER-PROGRAMJSON-LOOP-STMT-COND-RECIPE-SIDECAR-WIRING-001"
+    },
+    {
+      "candidate": "IfStmtHandlerConditionProducer",
+      "selected": false,
+      "owner": "lang/src/compiler/mirbuilder/stmt_handlers/if_stmt_handler.hako",
+      "reason": "If condition recipes need a separate condition-source boundary; selecting it now would widen beyond the loop-condition BoolRecipe source."
+    },
+    {
+      "candidate": "RecipeBodiesPostHocDecoration",
+      "selected": false,
+      "owner": "lang/src/compiler/mirbuilder/program_json_recipebodies_recursive_nested_arena_builder.hako",
+      "reason": "Post-hoc mutation hides the producer boundary and risks rewriting verified RecipeItems after construction."
+    },
+    {
+      "candidate": "MirShapeControlConsumer",
+      "selected": false,
+      "owner": "lang/src/compiler/mirbuilder/mir_json_v0_shape_box_recipe_control.hako",
+      "reason": "Consumers may observe cond_recipe later, but the first wiring must happen at the RecipeItem producer."
+    }
+  ],
+  "selected_contract": {
+    "name": "ProgramJsonLoopStmtCondRecipeSidecarProducerWiringV1",
+    "producer": "LoopStmtHandler",
+    "target_constructor": "RecipeItemBox.loop_item_with_cond_recipe",
+    "source_publication": "ProgramJsonBoolRecipeComparePublicationBox",
+    "legacy_cond_facts_required": true,
+    "cond_recipe_optional": true,
+    "lowering_behavior_change": false,
+    "verifier_behavior_change": false,
+    "route_selection_change": false
+  },
+  "decision": {
+    "kind": "SelectLoopStmtHandlerCondRecipeProducer",
+    "reason_token": "LoopConditionBoolRecipeSourceMatchesLoopRecipeItemProducer",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-LOOP-STMT-COND-RECIPE-SIDECAR-WIRING-001"
+  },
+  "claims": {
+    "cond_recipe_producer_wiring_selection": 1,
+    "selected_loop_stmt_handler_cond_recipe_producer": 1,
+    "recipe_item_attachment_implementation": 0,
+    "if_stmt_cond_recipe_wiring": 0,
+    "posthoc_recipeitem_decoration": 0,
+    "recipe_matcher_input_authority": 0,
+    "bool_recipe_lowering": 0,
+    "mir_cmp_emission": 0,
+    "branch_emission": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_route_authority": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  }
+}
