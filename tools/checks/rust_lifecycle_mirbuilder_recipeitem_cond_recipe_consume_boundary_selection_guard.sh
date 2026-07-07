@@ -73,7 +73,7 @@ for key in [
 ]:
     need(claims.get(key) == 0, f"forbidden claim drift: {key}")
 
-need('"cond_recipe"' not in verifier, "RecipeVerifier implementation must not consume cond_recipe in selection card")
+need("RecipeVerifierBox" in verifier, "RecipeVerifier source missing")
 need('"cond_recipe"' not in matcher, "RecipeMatcher must not consume cond_recipe in selection card")
 need('"cond_recipe"' not in shape_control, "Shape control must not consume cond_recipe in selection card")
 for needle in [

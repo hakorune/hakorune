@@ -5,6 +5,7 @@
 
 using selfhost.shared.common.string_helpers as StringHelpers
 using selfhost.shared.common.box_helpers as BoxHelpers
+using lang.compiler.mirbuilder.recipe.bool_recipe_box as BoolRecipeBox
 using lang.compiler.mirbuilder.recipe.recipe_item_box as RecipeItemBox
 using lang.compiler.mirbuilder.recipe.recipe_port_sig_box as RecipePortSigBox
 
@@ -102,6 +103,11 @@ static box RecipeVerifierBox {
   }
 
   _verify_if(item, tag, depth): MapBox {
+    local cond_res = me._verify_cond_recipe(item, tag)
+    if StringHelpers.to_i64(BoxHelpers.map_get(cond_res, "err")) == 1 {
+      return cond_res
+    }
+
     local then_item = BoxHelpers.map_get(item, "then_item")
     local else_item = BoxHelpers.map_get(item, "else_item")
 
@@ -123,6 +129,11 @@ static box RecipeVerifierBox {
   }
 
   _verify_loop(item, tag, depth): MapBox {
+    local cond_res = me._verify_cond_recipe(item, tag)
+    if StringHelpers.to_i64(BoxHelpers.map_get(cond_res, "err")) == 1 {
+      return cond_res
+    }
+
     local body_item = BoxHelpers.map_get(item, "body_item")
     local body_res = me._verify_item(body_item, tag, depth + 1)
     if StringHelpers.to_i64(BoxHelpers.map_get(body_res, "err")) == 1 {
@@ -131,6 +142,15 @@ static box RecipeVerifierBox {
     local sig = BoxHelpers.map_get(body_res, "port_sig")
     sig = me._apply_facts(sig, BoxHelpers.map_get(item, "cond_facts"))
     return me._ok(sig)
+  }
+
+  _verify_cond_recipe(item, tag): MapBox {
+    local cond_recipe = BoxHelpers.map_get(item, "cond_recipe")
+    if cond_recipe == null { return me._ok(RecipePortSigBox.create()) }
+    if BoolRecipeBox.is_valid_compare(cond_recipe) != 1 {
+      return me._err(tag, "[recipe_verifier] invalid cond_recipe")
+    }
+    return me._ok(RecipePortSigBox.create())
   }
 
   _verify_exit(item, tag): MapBox {

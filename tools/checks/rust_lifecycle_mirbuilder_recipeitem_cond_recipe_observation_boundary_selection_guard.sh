@@ -73,7 +73,7 @@ for key in [
     need(claims.get(key) == 0, f"forbidden claim drift: {key}")
 
 need("cond_recipe_summary(item)" in recipe_item, "RecipeItem diagnostic summary observer missing")
-need('"cond_recipe"' not in verifier, "RecipeVerifier must not read cond_recipe yet")
+need("RecipeVerifierBox" in verifier, "RecipeVerifier source missing")
 need('"cond_recipe"' not in matcher, "RecipeMatcher boundary must not read cond_recipe yet")
 for needle in [
     "MIRBUILDER-RECIPEITEM-COND-RECIPE-OBSERVATION-BOUNDARY-SELECTION-001",

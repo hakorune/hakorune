@@ -1,0 +1,69 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderRecipeVerifierCondRecipeValidateOnlyConsumeV1",
+  "token": "MIRBUILDER-RECIPEVERIFIER-COND-RECIPE-VALIDATE-ONLY-CONSUME-001",
+  "prerequisite": "MIRBUILDER-RECIPEITEM-COND-RECIPE-CONSUME-BOUNDARY-SELECTION-001",
+  "owner": "RecipeVerifierBox._verify_cond_recipe",
+  "implementation_contract": {
+    "consumer": "RecipeVerifierBox",
+    "input": "optional RecipeItem cond_recipe sidecar",
+    "allowed_effect": "reject malformed cond_recipe only",
+    "legacy_items_without_cond_recipe_still_valid": true,
+    "valid_cond_recipe_does_not_change_port_sig": true,
+    "recipe_matcher_input_authority": false,
+    "lowering_behavior_change": false,
+    "route_selection_change": false
+  },
+  "rows": [
+    {
+      "row_id": "legacy_loop_without_cond_recipe_still_valid",
+      "expected": {
+        "err": 0,
+        "def_count": 0,
+        "update_count": 0
+      }
+    },
+    {
+      "row_id": "loop_with_valid_cond_recipe_is_verified",
+      "expected": {
+        "err": 0,
+        "def_count": 0,
+        "update_count": 0
+      }
+    },
+    {
+      "row_id": "loop_with_malformed_cond_recipe_rejected",
+      "expected": {
+        "err": 1,
+        "err_line": "[test][recipe_verifier] invalid cond_recipe"
+      }
+    },
+    {
+      "row_id": "if_with_malformed_cond_recipe_rejected",
+      "expected": {
+        "err": 1,
+        "err_line": "[test][recipe_verifier] invalid cond_recipe"
+      }
+    }
+  ],
+  "decision": {
+    "kind": "RecipeVerifierCondRecipeValidateOnlyConsumeGreen",
+    "reason_token": "RecipeVerifierCanRejectMalformedCondRecipeWithoutChangingDownstreamAuthority",
+    "selected_next_card": "MIRBUILDER-RECIPEMATCHER-COND-RECIPE-INPUT-CONSUME-BOUNDARY-SELECTION-001"
+  },
+  "claims": {
+    "recipeverifier_cond_recipe_validate_only_consume": 1,
+    "malformed_cond_recipe_rejected": 1,
+    "legacy_recipeitem_without_cond_recipe_still_valid": 1,
+    "valid_cond_recipe_port_sig_unchanged": 1,
+    "recipe_matcher_input_authority": 0,
+    "bool_recipe_lowering": 0,
+    "mir_cmp_emission": 0,
+    "branch_emission": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_route_authority": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  }
+}
