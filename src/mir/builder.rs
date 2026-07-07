@@ -23,6 +23,7 @@ mod builder_value_kind;
 mod call_resolution; // ChatGPT5 Pro: Type-safe call resolution utilities
 mod calls; // Call system modules (refactored from builder_calls)
 mod collection_literals; // ArrayLiteral / MapLiteral lowering
+mod compare_localssa_finalize_compare_bridge;
 mod compare_rhs_symbolref_contract;
 mod compare_rhs_symbolref_lookup_bridge;
 mod compare_rhs_valueid_resolution_bridge;

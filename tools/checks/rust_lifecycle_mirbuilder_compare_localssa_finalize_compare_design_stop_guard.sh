@@ -94,6 +94,7 @@ need("value_types.insert(dst, MirType::Bool)" in emit_compare_rs, "Bool type pub
 allowed_latest = [
     'latest_card = "MIRBUILDER-COMPARE-RHS-SYMBOLREF-LOOKUP-BRIDGE-001"',
     'latest_card = "MIRBUILDER-COMPARE-LOCALSSA-FINALIZE-COMPARE-DESIGN-STOP-001"',
+    'latest_card = "MIRBUILDER-COMPARE-LOCALSSA-FINALIZE-COMPARE-BRIDGE-001"',
 ]
 need(any(entry in current_state for entry in allowed_latest), "CURRENT_STATE latest card must point to prerequisite or 3315")
 need("MIRBUILDER-COMPARE-LOCALSSA-FINALIZE-COMPARE-BRIDGE-001" in task_order, "task-order must name selected LocalSSA bridge")
