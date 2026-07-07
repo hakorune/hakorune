@@ -1,0 +1,166 @@
+// program_json_compare_reader_box.hako
+//
+// Responsibility:
+// - Read one Program(JSON v0) Compare object from a known object start.
+// - Publish a shared, analysis-only Var op Int compare code map for If/Loop producers.
+//
+// Non-responsibility:
+// - Attaching cond_recipe to RecipeItem, expanding If accepted operators,
+//   changing Loop nested-If behavior, lowering BoolRecipe, route selection,
+//   runtime route switch, MIR mutation, ID allocation, or Source Selfhost claims.
+
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.shared.common.box_helpers as BoxHelpers
+using lang.compiler.mirbuilder.program_json_v0_scanner_box as ProgramJsonV0ScannerBox
+
+static box ProgramJsonCompareReaderBox {
+  read_var_int_compare(program_json, compare_start): MapBox {
+    if program_json == null || ("" + program_json) == "" {
+      return me._err_map("missing_program_json")
+    }
+    program_json = "" + program_json
+    if compare_start < 0 {
+      return me._err_map("bad_compare_start")
+    }
+    if me._token_eq(me._node_type_at(program_json, compare_start), "Compare") != 1 {
+      return me._err_map("not_compare")
+    }
+
+    local op = me._string_field_at(program_json, "op", compare_start)
+    local cmp_code = me._cmp_code(op)
+    if cmp_code == 0 {
+      return me._err_map("unsupported_operator")
+    }
+
+    local lhs = ProgramJsonV0ScannerBox.seek_obj_field_obj_start(program_json, "lhs", compare_start)
+    local rhs = ProgramJsonV0ScannerBox.seek_obj_field_obj_start(program_json, "rhs", compare_start)
+    if lhs < 0 || rhs < 0 {
+      return me._err_map("missing_operands")
+    }
+    if me._token_eq(me._node_type_at(program_json, lhs), "Var") != 1 {
+      return me._err_map("lhs_not_var")
+    }
+    if me._token_eq(me._node_type_at(program_json, rhs), "Int") != 1 {
+      return me._err_map("rhs_not_int")
+    }
+
+    local lhs_name = me._string_field_at(program_json, "name", lhs)
+    local lhs_symbol_id = me._symbol_id(lhs_name)
+    if lhs_symbol_id == 0 {
+      return me._err_map("unknown_lhs_symbol")
+    }
+
+    return %{
+      "ok" => 1,
+      "reason_code" => 0,
+      "lhs_symbol_id" => lhs_symbol_id,
+      "legacy_loop_var_code" => me._legacy_name_code(lhs_name),
+      "cmp_code" => cmp_code,
+      "bound_kind_code" => 1,
+      "bound_i64" => me._int_field_at(program_json, "value", rhs),
+      "bound_symbol_id" => 0,
+      "original_direction_code" => 1,
+      "constant_compare" => 0,
+      "analysis_only" => 1
+    }
+  }
+
+  code_map_summary(fields) {
+    if fields == null || BoxHelpers.is_map(fields) != 1 {
+      return "snapshot_kind=ProgramJsonCompareReaderCodeMapV1;ok=0;reason=missing_fields"
+    }
+    return "snapshot_kind=ProgramJsonCompareReaderCodeMapV1"
+      + ";ok=" + StringHelpers.int_to_str(me._map_i(fields, "ok"))
+      + ";reason_code=" + StringHelpers.int_to_str(me._map_i(fields, "reason_code"))
+      + ";lhs_symbol_id=" + StringHelpers.int_to_str(me._map_i(fields, "lhs_symbol_id"))
+      + ";legacy_loop_var_code=" + StringHelpers.int_to_str(me._map_i(fields, "legacy_loop_var_code"))
+      + ";cmp_code=" + StringHelpers.int_to_str(me._map_i(fields, "cmp_code"))
+      + ";bound_kind_code=" + StringHelpers.int_to_str(me._map_i(fields, "bound_kind_code"))
+      + ";bound_i64=" + StringHelpers.int_to_str(me._map_i(fields, "bound_i64"))
+      + ";bound_symbol_id=" + StringHelpers.int_to_str(me._map_i(fields, "bound_symbol_id"))
+      + ";original_direction_code=" + StringHelpers.int_to_str(me._map_i(fields, "original_direction_code"))
+      + ";constant_compare=" + StringHelpers.int_to_str(me._map_i(fields, "constant_compare"))
+      + ";analysis_only=" + StringHelpers.int_to_str(me._map_i(fields, "analysis_only"))
+  }
+
+  _err_map(reason): MapBox {
+    return %{
+      "ok" => 0,
+      "reason_code" => me._reason_code(reason),
+      "lhs_symbol_id" => 0,
+      "legacy_loop_var_code" => 0,
+      "cmp_code" => 0,
+      "bound_kind_code" => 99,
+      "bound_i64" => 0,
+      "bound_symbol_id" => 0,
+      "original_direction_code" => 0,
+      "constant_compare" => 0,
+      "analysis_only" => 1
+    }
+  }
+
+  _node_type_at(s, obj_start) {
+    return me._string_field_at(s, "type", obj_start)
+  }
+
+  _string_field_at(s, key, obj_start) {
+    local p = ProgramJsonV0ScannerBox.seek_obj_field_value_start(s, key, obj_start)
+    if p < 0 { return "" }
+    p = StringHelpers.skip_ws(s, p)
+    if ProgramJsonV0ScannerBox._read_char(s, p) != "\"" { return "" }
+    local end_quote = StringHelpers.index_of(s, p + 1, "\"")
+    if end_quote < 0 { return "" }
+    return s.substring(p + 1, end_quote)
+  }
+
+  _int_field_at(s, key, obj_start) {
+    local out = ProgramJsonV0ScannerBox.read_int_field_in_obj_result(s, key, obj_start)
+    if BoxHelpers.result_ok(out) != 1 { return 0 }
+    return StringHelpers.to_i64(BoxHelpers.map_get(out, "value"))
+  }
+
+  _map_i(map, key) {
+    return StringHelpers.to_i64(BoxHelpers.map_get(map, key))
+  }
+
+  _cmp_code(op) {
+    if me._token_eq(op, "<") == 1 { return 1 }
+    if me._token_eq(op, "<=") == 1 { return 2 }
+    if me._token_eq(op, ">") == 1 { return 3 }
+    if me._token_eq(op, ">=") == 1 { return 4 }
+    if me._token_eq(op, "==") == 1 { return 5 }
+    if me._token_eq(op, "!=") == 1 { return 6 }
+    return 0
+  }
+
+  _symbol_id(name) {
+    if me._token_eq(name, "i") == 1 { return 1 }
+    if me._token_eq(name, "n") == 1 { return 2 }
+    if me._token_eq(name, "count") == 1 { return 3 }
+    return 0
+  }
+
+  _legacy_name_code(name) {
+    if me._token_eq(name, "i") == 1 { return 1 }
+    if me._token_eq(name, "count") == 1 { return 2 }
+    return 0
+  }
+
+  _reason_code(reason) {
+    if reason == "missing_program_json" { return 1 }
+    if reason == "bad_compare_start" { return 2 }
+    if reason == "not_compare" { return 3 }
+    if reason == "unsupported_operator" { return 4 }
+    if reason == "missing_operands" { return 5 }
+    if reason == "lhs_not_var" { return 6 }
+    if reason == "rhs_not_int" { return 7 }
+    if reason == "unknown_lhs_symbol" { return 8 }
+    return 99
+  }
+
+  _token_eq(lhs, rhs) {
+    return BoxHelpers.same_token(lhs, rhs)
+  }
+}
+
+static box ProgramJsonCompareReaderBoxMain { main() { return 0 } }

@@ -1,0 +1,73 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonCompareReaderSharedCanonV1",
+  "token": "MIRBUILDER-PROGRAMJSON-COMPARE-READER-SHARED-CANON-001",
+  "prerequisite": "MIRBUILDER-PROGRAMJSON-COMPARE-READER-SHARED-CANON-TASK-SEQUENCE-001",
+  "owner": "ProgramJsonCompareReaderBox.read_var_int_compare",
+  "contract": {
+    "input": "ProgramJSON v0 Compare object at a known object start",
+    "output": "ProgramJsonCompareReaderCodeMapV1",
+    "scope": "Var op Int only",
+    "operators": ["<", "<=", ">", ">=", "==", "!="],
+    "analysis_only": true,
+    "consumer_change": false
+  },
+  "rows": [
+    {
+      "row_id": "var_lt_int",
+      "compare_json": "{\"type\":\"Compare\",\"op\":\"<\",\"lhs\":{\"type\":\"Var\",\"name\":\"i\"},\"rhs\":{\"type\":\"Int\",\"value\":3}}",
+      "expected_summary": "snapshot_kind=ProgramJsonCompareReaderCodeMapV1;ok=1;reason_code=0;lhs_symbol_id=1;legacy_loop_var_code=1;cmp_code=1;bound_kind_code=1;bound_i64=3;bound_symbol_id=0;original_direction_code=1;constant_compare=0;analysis_only=1"
+    },
+    {
+      "row_id": "var_le_int",
+      "compare_json": "{\"type\":\"Compare\",\"op\":\"<=\",\"lhs\":{\"type\":\"Var\",\"name\":\"i\"},\"rhs\":{\"type\":\"Int\",\"value\":3}}",
+      "expected_summary": "snapshot_kind=ProgramJsonCompareReaderCodeMapV1;ok=1;reason_code=0;lhs_symbol_id=1;legacy_loop_var_code=1;cmp_code=2;bound_kind_code=1;bound_i64=3;bound_symbol_id=0;original_direction_code=1;constant_compare=0;analysis_only=1"
+    },
+    {
+      "row_id": "var_gt_int",
+      "compare_json": "{\"type\":\"Compare\",\"op\":\">\",\"lhs\":{\"type\":\"Var\",\"name\":\"i\"},\"rhs\":{\"type\":\"Int\",\"value\":3}}",
+      "expected_summary": "snapshot_kind=ProgramJsonCompareReaderCodeMapV1;ok=1;reason_code=0;lhs_symbol_id=1;legacy_loop_var_code=1;cmp_code=3;bound_kind_code=1;bound_i64=3;bound_symbol_id=0;original_direction_code=1;constant_compare=0;analysis_only=1"
+    },
+    {
+      "row_id": "var_ge_int",
+      "compare_json": "{\"type\":\"Compare\",\"op\":\">=\",\"lhs\":{\"type\":\"Var\",\"name\":\"i\"},\"rhs\":{\"type\":\"Int\",\"value\":3}}",
+      "expected_summary": "snapshot_kind=ProgramJsonCompareReaderCodeMapV1;ok=1;reason_code=0;lhs_symbol_id=1;legacy_loop_var_code=1;cmp_code=4;bound_kind_code=1;bound_i64=3;bound_symbol_id=0;original_direction_code=1;constant_compare=0;analysis_only=1"
+    },
+    {
+      "row_id": "var_eq_int",
+      "compare_json": "{\"type\":\"Compare\",\"op\":\"==\",\"lhs\":{\"type\":\"Var\",\"name\":\"i\"},\"rhs\":{\"type\":\"Int\",\"value\":3}}",
+      "expected_summary": "snapshot_kind=ProgramJsonCompareReaderCodeMapV1;ok=1;reason_code=0;lhs_symbol_id=1;legacy_loop_var_code=1;cmp_code=5;bound_kind_code=1;bound_i64=3;bound_symbol_id=0;original_direction_code=1;constant_compare=0;analysis_only=1"
+    },
+    {
+      "row_id": "var_ne_int",
+      "compare_json": "{\"type\":\"Compare\",\"op\":\"!=\",\"lhs\":{\"type\":\"Var\",\"name\":\"i\"},\"rhs\":{\"type\":\"Int\",\"value\":3}}",
+      "expected_summary": "snapshot_kind=ProgramJsonCompareReaderCodeMapV1;ok=1;reason_code=0;lhs_symbol_id=1;legacy_loop_var_code=1;cmp_code=6;bound_kind_code=1;bound_i64=3;bound_symbol_id=0;original_direction_code=1;constant_compare=0;analysis_only=1"
+    }
+  ],
+  "decision": {
+    "kind": "SharedProgramJsonCompareReaderCanonGreen",
+    "reason_token": "VarOpIntCompareReaderProvidesSixOperatorAnalysisOnlyCodeMap",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-IF-COND-RECIPE-EQ-BEHAVIOR-PRESERVING-001"
+  },
+  "claims": {
+    "programjson_shared_compare_reader": 1,
+    "compare_reader_var_op_int": 1,
+    "cmp_code_6_vocab_present": 1,
+    "analysis_only_compare_view": 1,
+    "consumer_change": 0,
+    "if_cond_recipe_attached": 0,
+    "if_compare_operator_expansion": 0,
+    "loop_nested_if_cond_recipe": 0,
+    "rust_loop_condition_shape_eq_ne": 0,
+    "condskeleton_ifcond": 0,
+    "recipe_matcher_input_authority": 0,
+    "bool_recipe_lowering": 0,
+    "mir_cmp_emission": 0,
+    "branch_emission": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_route_authority": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  }
+}

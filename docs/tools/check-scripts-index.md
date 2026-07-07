@@ -86,6 +86,7 @@ phase-1 compatibility Program(JSON) compat execution helper.
 | `tools/checks/rust_lifecycle_mirbuilder_recipematcher_cond_recipe_input_consume_boundary_selection_guard.sh` | Selects observe-only snapshot projection as the first RecipeMatcher-adjacent `cond_recipe` boundary. |
 | `tools/checks/rust_lifecycle_mirbuilder_recipematcher_cond_recipe_observe_only_input_snapshot_gate.sh` | AOT gate for projecting verified RecipeItem `cond_recipe` into a read-only matcher-facing snapshot. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_compare_reader_shared_canon_task_sequence_guard.sh` | Selects the shared ProgramJSON compare reader sequence before If/Loop condition row expansion. |
+| `tools/checks/rust_lifecycle_mirbuilder_programjson_compare_reader_shared_canon_gate.sh` | AOT gate for the shared ProgramJSON Var-op-Int compare reader code map; no consumers changed. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_condition_shape_retire_rust_astnode_projector_candidate_guard.sh` | Retire-candidate guard for the covered `ConditionShapeSnapshotV1` ProgramJSON traversal slice. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_context_scope_shape_scan_parity_gate.sh` | Capability-batch parity for `.hako` `ProgramJsonContextScopeShapeScanV1`. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_context_scope_shape_retire_rust_astnode_projector_candidate_guard.sh` | Retire-candidate guard for the covered `ContextScopeShapeSnapshotV1` ProgramJSON traversal slice. |
