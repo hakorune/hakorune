@@ -99,6 +99,7 @@ for needle in [token, "MIRBUILDER-PROGRAMJSON-CANONICAL-LOOP-FACTS-FINAL-TOPLEVE
 allowed_latest = {
     token,
     "MIRBUILDER-PROGRAMJSON-CANONICAL-LOOP-FACTS-FINAL-TOPLEVEL-RETURN-DECOUPLE-SNAPSHOT-BOUNDARY-001",
+    "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RETURN-ABSENT-ACCEPTED-FLOOR-001",
 }
 if not any(f'latest_card = "{allowed}"' in current_state for allowed in allowed_latest):
     raise SystemExit("CURRENT_STATE latest card drift")

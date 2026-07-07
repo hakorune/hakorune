@@ -345,15 +345,14 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PROGRAMJSON-CANONICAL-LOOP-FACTS-FINAL-TOPLEVEL-RETURN-DECOUPLE-SNAPSHOT-BOUNDARY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3245-MIRBUILDER-PROGRAMJSON-CANONICAL-LOOP-FACTS-FINAL-TOPLEVEL-RETURN-DECOUPLE-SNAPSHOT-BOUNDARY-001.md"
-latest_card_summary = """3245 decouples final top-level Return presence from
-loop-body exit usage at the CanonicalLoopFacts snapshot boundary. The snapshot
-now publishes final_top_level_return_present and keeps
-final_top_level_return_used_for_loop_body_has_return=0; loop-body
-exit_has_return remains derived from loop-body scan only. Return-absent
-accepted-floor, matcher result parity, producer final-Return acceptance,
-ProgramJSON runtime authority, route switch, lowering, mutation, ID allocation,
+latest_card = "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RETURN-ABSENT-ACCEPTED-FLOOR-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3246-MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RETURN-ABSENT-ACCEPTED-FLOOR-001.md"
+latest_card_summary = """3246 implements the scoped ProgramJSON Return-absent
+accepted-floor row for IfBreak + IfContinue + Assignment loop bodies with a
+final top-level Return present. The ProgramJSON shadow matcher now matches the
+Rust oracle as LoopWithExit with has_break=1, has_continue=1, and has_return=0.
+ProgramJSON runtime authority, route switch, recipe matcher input authority,
+route release authority, route selection, lowering, mutation, ID allocation,
 fallback, and Source Selfhost remain unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
@@ -365,6 +364,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-07: 3246 implements the ProgramJSON Return-absent accepted-floor row for IfBreak+IfContinue+Assignment with final top-level Return present; matcher parity is green while runtime authority remains Rust and Source Selfhost remains unclaimed.",
   "2026-07-07: 3245 decouples final top-level Return presence from loop-body exit usage at the CanonicalLoopFacts snapshot boundary; accepted-floor support and runtime authority remain unclaimed.",
   "2026-07-07: 3244 adds the Return-absent scan-only diagnostic proving final top-level Return is not loop-body has_return evidence; accepted-floor support and runtime authority remain unclaimed.",
   "2026-07-07: 3243 resolves the Return-absent consultation by selecting B defer and queues the scan-only diagnostic; accepted-floor support and runtime authority remain unclaimed.",
@@ -376,5 +376,4 @@ landed_tail = [
   "2026-07-07: 3237 records the ProgramJSON RecipeMatcher accepted-floor matrix, keeps the four return-only rows green, marks Break/Continue rows blocked on verified-recipe producer support, and selects Continue-present support next; runtime authority remains Rust and Source Selfhost remains unclaimed.",
   "2026-07-07: 3236 selects the accepted matrix, reject floor, and route-adjacent field floor required before any ProgramJSON RecipeMatcher authority switch; runtime authority remains Rust and Source Selfhost remains unclaimed.",
   "2026-07-07: 3235 adds tools/bin/hako --emit-exe caching and dirty-worktree guard result memo support for untracked file contents; ProgramJSON migration semantics and Source Selfhost remain unchanged.",
-  "2026-07-07: 3234 installs the runtime-adjacent ProgramJSON shadow guard boundary after try_build_outcome and before route registry candidate selection; Rust remains authority and runtime route switch, route selection, lowering, mutation, ID allocation, and Source Selfhost remain unclaimed.",
 ]

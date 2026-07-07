@@ -1,0 +1,111 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonRecipeMatcherReturnAbsentAcceptedFloorV1",
+  "token": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RETURN-ABSENT-ACCEPTED-FLOOR-001",
+  "input_state": {
+    "previous_card": "MIRBUILDER-PROGRAMJSON-CANONICAL-LOOP-FACTS-FINAL-TOPLEVEL-RETURN-DECOUPLE-SNAPSHOT-BOUNDARY-001",
+    "runtime_authority": "rust_astnode",
+    "programjson_route": "shadow_only"
+  },
+  "row": {
+    "row_id": "local_loop_body_if_break_if_continue_assignment_return_absent",
+    "program_json": {
+      "version": 0,
+      "kind": "Program",
+      "type": "Program",
+      "body": [
+        {"type": "Local", "name": "i", "expr": {"type": "Int", "value": 0}},
+        {
+          "type": "Loop",
+          "cond": {
+            "type": "Compare",
+            "op": "<",
+            "lhs": {"type": "Var", "name": "i"},
+            "rhs": {"type": "Int", "value": 5}
+          },
+          "body": [
+            {
+              "type": "If",
+              "cond": {
+                "type": "Compare",
+                "op": "<",
+                "lhs": {"type": "Var", "name": "i"},
+                "rhs": {"type": "Int", "value": 1}
+              },
+              "then": [{"type": "Break"}],
+              "else": null
+            },
+            {
+              "type": "If",
+              "cond": {
+                "type": "Compare",
+                "op": "<",
+                "lhs": {"type": "Var", "name": "i"},
+                "rhs": {"type": "Int", "value": 2}
+              },
+              "then": [{"type": "Continue"}],
+              "else": null
+            },
+            {
+              "type": "Assignment",
+              "name": "i",
+              "expr": {
+                "type": "Binary",
+                "op": "+",
+                "lhs": {"type": "Var", "name": "i"},
+                "rhs": {"type": "Int", "value": 1}
+              }
+            }
+          ]
+        },
+        {"type": "Return", "expr": {"type": "Var", "name": "i"}}
+      ]
+    },
+    "expected_snapshot": {
+      "ok": 1,
+      "matcher_input_present": 1,
+      "exit_has_break": 1,
+      "exit_has_continue": 1,
+      "exit_has_return": 0,
+      "final_top_level_return_present": 1,
+      "final_top_level_return_used_for_loop_body_has_return": 0,
+      "recipe_matcher_executed": 0
+    },
+    "rust_astnode_route_oracle": {
+      "matched": 1,
+      "contract_kind": "LoopWithExit",
+      "has_break": 1,
+      "has_continue": 1,
+      "has_return": 0
+    },
+    "programjson_route_expected": {
+      "matched": 1,
+      "contract_kind": "LoopWithExit",
+      "has_break": 1,
+      "has_continue": 1,
+      "has_return": 0
+    }
+  },
+  "claims": {
+    "return_absent_accepted_floor": 1,
+    "loop_body_return_absent": 1,
+    "matcher_result_equal": 1,
+    "matched": 1,
+    "contract_kind_loop_with_exit": 1,
+    "has_return_false": 1,
+    "programjson_shadow_checked": 1,
+    "runtime_authority_remains_rust_astnode": 1,
+    "programjson_runtime_route_authority": 0,
+    "runtime_route_switch": 0,
+    "recipe_matcher_input_authority": 0,
+    "route_release_authority": 0,
+    "route_selection": 0,
+    "mir_lowering": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
