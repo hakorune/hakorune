@@ -113,9 +113,17 @@ for key in [
 ]:
     need(claims.get(key) == 0, f"forbidden claim drift: {key}")
 
-need('latest_card = "MIRBUILDER-COMPARE-LOWERING-MUTATION-OWNER-SELECTION-001"' in current_state, "CURRENT_STATE latest card must point to selection")
+need(
+    'latest_card = "MIRBUILDER-COMPARE-LOWERING-MUTATION-OWNER-SELECTION-001"' in current_state
+    or 'latest_card = "MIRBUILDER-COMPARE-LOWERING-SYMBOLIC-COMMAND-PILOT-001"' in current_state,
+    "CURRENT_STATE latest card must point to selection or its selected pilot",
+)
 need("MIRBUILDER-COMPARE-LOWERING-SYMBOLIC-COMMAND-PILOT-001" in task_order, "task-order must name selected pilot")
-need("MIRBUILDER-COMPARE-LOWERING-MUTATION-OWNER-SELECTION-001; status=landed" in task_order, "task-order must mark selection landed")
+need(
+    "MIRBUILDER-COMPARE-LOWERING-MUTATION-OWNER-SELECTION-001; status=landed" in task_order
+    or "symbolic compare lowering command owner selection" in task_order,
+    "task-order must retain selection landed evidence",
+)
 
 for snippet in [
     "BoolRecipeCompareLoweringIntentSnapshotV1",

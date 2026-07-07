@@ -1,0 +1,136 @@
+// compare_lowering_symbolic_command_snapshot.hako
+//
+// Responsibility:
+// - Project BoolRecipe Compare lowering intent into a read-only symbolic
+//   compare-lowering command snapshot.
+// - Name the later destination-allocation and branch-target policies without
+//   allocating ids or mutating MIR.
+//
+// Non-responsibility:
+// - Operand ValueId resolution, rhs runtime materialization,
+//   MIR Compare/Branch emission, BasicBlock mutation, ValueId allocation,
+//   route selection, runtime route switch, runtime fallback, or Source Selfhost.
+
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.shared.common.box_helpers as BoxHelpers
+using lang.compiler.mirbuilder.recipe.bool_recipe_box as BoolRecipeBox
+using lang.compiler.mirbuilder.bool_recipe_compare_lowering_intent_snapshot as BoolRecipeCompareLoweringIntentSnapshotBox
+
+static box CompareLoweringSymbolicCommandSnapshotBox {
+  _i(map, key) {
+    return StringHelpers.to_i64(BoxHelpers.map_get(map, key))
+  }
+
+  _err(reason_code): MapBox {
+    return %{
+      "ok" => 0,
+      "reason_code" => reason_code,
+      "symbolic_command_ready" => 0,
+      "lhs_symbol_id" => 0,
+      "mir_compare_op_code" => 0,
+      "rhs_bound_kind_code" => 99,
+      "rhs_bound_i64" => 0,
+      "rhs_bound_symbol_id" => 0,
+      "dst_policy_code" => 0,
+      "branch_target_policy_code" => 0,
+      "analysis_only" => 1,
+      "lowering_executed" => 0,
+      "operand_value_id_resolution" => 0,
+      "rhs_runtime_materialization" => 0,
+      "mir_cmp_emission" => 0,
+      "branch_emission" => 0,
+      "basic_block_mutation" => 0,
+      "value_id_allocation" => 0,
+      "route_selection" => 0,
+      "runtime_route_switch" => 0,
+      "source_selfhost_claim" => 0
+    }
+  }
+
+  build_command(program_json): MapBox {
+    local intent = BoolRecipeCompareLoweringIntentSnapshotBox.build_intent(program_json)
+    return me.build_command_from_intent(intent)
+  }
+
+  build_command_from_intent(intent): MapBox {
+    if intent == null || BoxHelpers.is_map(intent) != 1 { return me._err(1) }
+    if me._i(intent, "ok") != 1 { return me._err(2) }
+    if me._i(intent, "lowering_intent_ready") != 1 { return me._err(3) }
+    if me._i(intent, "analysis_only") != 1 { return me._err(4) }
+    if me._i(intent, "lowering_executed") != 0 { return me._err(5) }
+    return %{
+      "ok" => 1,
+      "reason_code" => 0,
+      "symbolic_command_ready" => 1,
+      "lhs_symbol_id" => me._i(intent, "lhs_symbol_id"),
+      "mir_compare_op_code" => me._i(intent, "mir_compare_op_code"),
+      "rhs_bound_kind_code" => me._i(intent, "rhs_bound_kind_code"),
+      "rhs_bound_i64" => me._i(intent, "rhs_bound_i64"),
+      "rhs_bound_symbol_id" => me._i(intent, "rhs_bound_symbol_id"),
+      "dst_policy_code" => 1,
+      "branch_target_policy_code" => 1,
+      "analysis_only" => 1,
+      "lowering_executed" => 0,
+      "operand_value_id_resolution" => 0,
+      "rhs_runtime_materialization" => 0,
+      "mir_cmp_emission" => 0,
+      "branch_emission" => 0,
+      "basic_block_mutation" => 0,
+      "value_id_allocation" => 0,
+      "route_selection" => 0,
+      "runtime_route_switch" => 0,
+      "source_selfhost_claim" => 0
+    }
+  }
+
+  command_summary(command) {
+    if command == null || BoxHelpers.is_map(command) != 1 {
+      return "snapshot_kind=CompareLoweringSymbolicCommandSnapshotV1;ok=0;reason=missing_command"
+    }
+    return "snapshot_kind=CompareLoweringSymbolicCommandSnapshotV1"
+      + ";ok=" + StringHelpers.int_to_str(me._i(command, "ok"))
+      + ";symbolic_command_ready=" + StringHelpers.int_to_str(me._i(command, "symbolic_command_ready"))
+      + ";lhs_symbol_id=" + StringHelpers.int_to_str(me._i(command, "lhs_symbol_id"))
+      + ";mir_compare_op=" + BoolRecipeBox.cmp_name(me._i(command, "mir_compare_op_code"))
+      + ";mir_compare_op_code=" + StringHelpers.int_to_str(me._i(command, "mir_compare_op_code"))
+      + ";bound_kind=" + me._bound_kind_name(me._i(command, "rhs_bound_kind_code"))
+      + ";bound_kind_code=" + StringHelpers.int_to_str(me._i(command, "rhs_bound_kind_code"))
+      + ";bound_i64=" + StringHelpers.int_to_str(me._i(command, "rhs_bound_i64"))
+      + ";bound_symbol_id=" + StringHelpers.int_to_str(me._i(command, "rhs_bound_symbol_id"))
+      + ";dst_policy=" + me._dst_policy_name(me._i(command, "dst_policy_code"))
+      + ";dst_policy_code=" + StringHelpers.int_to_str(me._i(command, "dst_policy_code"))
+      + ";branch_target_policy=" + me._branch_policy_name(me._i(command, "branch_target_policy_code"))
+      + ";branch_target_policy_code=" + StringHelpers.int_to_str(me._i(command, "branch_target_policy_code"))
+      + ";analysis_only=" + StringHelpers.int_to_str(me._i(command, "analysis_only"))
+      + ";lowering_executed=" + StringHelpers.int_to_str(me._i(command, "lowering_executed"))
+      + ";operand_value_id_resolution=" + StringHelpers.int_to_str(me._i(command, "operand_value_id_resolution"))
+      + ";rhs_runtime_materialization=" + StringHelpers.int_to_str(me._i(command, "rhs_runtime_materialization"))
+      + ";mir_cmp_emission=" + StringHelpers.int_to_str(me._i(command, "mir_cmp_emission"))
+      + ";branch_emission=" + StringHelpers.int_to_str(me._i(command, "branch_emission"))
+      + ";basic_block_mutation=" + StringHelpers.int_to_str(me._i(command, "basic_block_mutation"))
+      + ";value_id_allocation=" + StringHelpers.int_to_str(me._i(command, "value_id_allocation"))
+      + ";route_selection=" + StringHelpers.int_to_str(me._i(command, "route_selection"))
+      + ";runtime_route_switch=" + StringHelpers.int_to_str(me._i(command, "runtime_route_switch"))
+      + ";source_selfhost_claim=" + StringHelpers.int_to_str(me._i(command, "source_selfhost_claim"))
+  }
+
+  _bound_kind_name(kind_code) {
+    if kind_code == 1 { return "LiteralI64" }
+    if kind_code == 2 { return "SymbolRef" }
+    if kind_code == 3 { return "LengthOfSymbol" }
+    if kind_code == 4 { return "LengthMinusSymbol" }
+    return "Unsupported"
+  }
+
+  _dst_policy_name(policy_code) {
+    if policy_code == 1 { return "FreshCompareValueIdRequired" }
+    return "Unsupported"
+  }
+
+  _branch_policy_name(policy_code) {
+    if policy_code == 1 { return "ExternalBasicBlockTargetsRequired" }
+    return "Unsupported"
+  }
+}
+
+static box CompareLoweringSymbolicCommandSnapshotMain { main() { return 0 } }

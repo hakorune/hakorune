@@ -1,0 +1,67 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderCompareLoweringSymbolicCommandPilotV1",
+  "token": "MIRBUILDER-COMPARE-LOWERING-SYMBOLIC-COMMAND-PILOT-001",
+  "owner": "CompareLoweringSymbolicCommandSnapshotBox",
+  "hako_source": "lang/src/compiler/mirbuilder/compare_lowering_symbolic_command_snapshot.hako",
+  "input_contract": "BoolRecipeCompareLoweringIntentSnapshotV1",
+  "output_contract": "CompareLoweringSymbolicCommandSnapshotV1",
+  "prerequisite": "MIRBUILDER-COMPARE-LOWERING-MUTATION-OWNER-SELECTION-001",
+  "rows": [
+    {
+      "row_id": "intent_var_le_literal",
+      "input_kind": "intent_map",
+      "intent": {
+        "ok": 1,
+        "lowering_intent_ready": 1,
+        "lhs_symbol_id": 1,
+        "mir_compare_op_code": 2,
+        "rhs_bound_kind_code": 1,
+        "rhs_bound_i64": 3,
+        "rhs_bound_symbol_id": 0,
+        "analysis_only": 1,
+        "lowering_executed": 0
+      },
+      "expected_command_summary": "snapshot_kind=CompareLoweringSymbolicCommandSnapshotV1;ok=1;symbolic_command_ready=1;lhs_symbol_id=1;mir_compare_op=Le;mir_compare_op_code=2;bound_kind=LiteralI64;bound_kind_code=1;bound_i64=3;bound_symbol_id=0;dst_policy=FreshCompareValueIdRequired;dst_policy_code=1;branch_target_policy=ExternalBasicBlockTargetsRequired;branch_target_policy_code=1;analysis_only=1;lowering_executed=0;operand_value_id_resolution=0;rhs_runtime_materialization=0;mir_cmp_emission=0;branch_emission=0;basic_block_mutation=0;value_id_allocation=0;route_selection=0;runtime_route_switch=0;source_selfhost_claim=0"
+    },
+    {
+      "row_id": "intent_var_lt_symbol",
+      "input_kind": "intent_map",
+      "intent": {
+        "ok": 1,
+        "lowering_intent_ready": 1,
+        "lhs_symbol_id": 1,
+        "mir_compare_op_code": 1,
+        "rhs_bound_kind_code": 2,
+        "rhs_bound_i64": 0,
+        "rhs_bound_symbol_id": 3,
+        "analysis_only": 1,
+        "lowering_executed": 0
+      },
+      "expected_command_summary": "snapshot_kind=CompareLoweringSymbolicCommandSnapshotV1;ok=1;symbolic_command_ready=1;lhs_symbol_id=1;mir_compare_op=Lt;mir_compare_op_code=1;bound_kind=SymbolRef;bound_kind_code=2;bound_i64=0;bound_symbol_id=3;dst_policy=FreshCompareValueIdRequired;dst_policy_code=1;branch_target_policy=ExternalBasicBlockTargetsRequired;branch_target_policy_code=1;analysis_only=1;lowering_executed=0;operand_value_id_resolution=0;rhs_runtime_materialization=0;mir_cmp_emission=0;branch_emission=0;basic_block_mutation=0;value_id_allocation=0;route_selection=0;runtime_route_switch=0;source_selfhost_claim=0"
+    }
+  ],
+  "claims": {
+    "compare_lowering_symbolic_command_pilot": 1,
+    "symbolic_command_snapshot": 1,
+    "intent_map_input_boundary": 1,
+    "analysis_only": 1,
+    "bool_recipe_lowering_executed": 0,
+    "operand_value_id_resolution": 0,
+    "rhs_runtime_materialization": 0,
+    "mir_cmp_emission": 0,
+    "branch_emission": 0,
+    "basic_block_mutation": 0,
+    "value_id_allocation": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_route_authority": 0,
+    "programjson_var_rhs_full_dispatcher_authority": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "CompareLoweringSymbolicCommandPilotGreen",
+    "selected_next_card": "MIRBUILDER-COMPARE-LOWERING-SYMBOLIC-COMMAND-PARITY-001"
+  }
+}
