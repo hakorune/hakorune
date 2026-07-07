@@ -345,13 +345,14 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-REJECT-FLOOR-EXPANSION-SELECTION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3254-MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-REJECT-FLOOR-EXPANSION-SELECTION-001.md"
-latest_card_summary = """3254 selects unsupported_condition_operator as the
-next ProgramJSON RecipeMatcher reject-floor row after missing verified recipe
-and nested-loop rejection. The next card must prove unsupported_loop_cond then
-snapshot_not_ok; runtime authority, route switch, route selection, lowering,
-mutation, ID allocation, fallback, and Source Selfhost remain unclaimed."""
+latest_card = "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-UNSUPPORTED-CONDITION-OPERATOR-REJECT-ROW-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3255-MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-UNSUPPORTED-CONDITION-OPERATOR-REJECT-ROW-001.md"
+latest_card_summary = """3255 implements the ProgramJSON RecipeMatcher
+unsupported condition operator reject row. A structurally valid <= loop
+condition may publish a verified Recipe DTO, but CanonicalLoopFacts rejects it
+as unsupported_loop_cond and the observe-only matcher returns snapshot_not_ok;
+runtime authority, route switch, route selection, lowering, mutation, ID
+allocation, fallback, and Source Selfhost remain unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -362,6 +363,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-07: 3255 implements the ProgramJSON unsupported condition operator reject row as unsupported_loop_cond then snapshot_not_ok; runtime authority remains Rust and Source Selfhost remains unclaimed.",
   "2026-07-07: 3254 selects unsupported_condition_operator as the next ProgramJSON RecipeMatcher reject-floor row; runtime authority remains Rust and Source Selfhost remains unclaimed.",
   "2026-07-07: 3253 implements the ProgramJSON RecipeMatcher nested-loop reject boundary with matched=0 and reason=nested_loop_present; runtime authority remains Rust and Source Selfhost remains unclaimed.",
   "2026-07-07: 3252 selects nested-loop reject-boundary implementation instead of a nested-loop accepted matcher row; runtime authority remains Rust and Source Selfhost remains unclaimed.",
@@ -373,5 +375,4 @@ landed_tail = [
   "2026-07-07: 3246 implements the ProgramJSON Return-absent accepted-floor row for IfBreak+IfContinue+Assignment with final top-level Return present; matcher parity is green while runtime authority remains Rust and Source Selfhost remains unclaimed.",
   "2026-07-07: 3245 decouples final top-level Return presence from loop-body exit usage at the CanonicalLoopFacts snapshot boundary; accepted-floor support and runtime authority remain unclaimed.",
   "2026-07-07: 3244 adds the Return-absent scan-only diagnostic proving final top-level Return is not loop-body has_return evidence; accepted-floor support and runtime authority remain unclaimed.",
-  "2026-07-07: 3243 resolves the Return-absent consultation by selecting B defer and queues the scan-only diagnostic; accepted-floor support and runtime authority remain unclaimed.",
 ]

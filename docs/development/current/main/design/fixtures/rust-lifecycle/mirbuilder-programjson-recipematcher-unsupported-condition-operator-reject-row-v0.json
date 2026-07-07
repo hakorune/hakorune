@@ -1,0 +1,58 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonRecipeMatcherUnsupportedConditionOperatorRejectRowV1",
+  "token": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-UNSUPPORTED-CONDITION-OPERATOR-REJECT-ROW-001",
+  "input_state": {
+    "previous_card": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-REJECT-FLOOR-EXPANSION-SELECTION-001",
+    "runtime_authority": "rust_astnode",
+    "programjson_route": "shadow_only"
+  },
+  "row": {
+    "row_id": "unsupported_condition_operator_reject",
+    "program_json": {
+      "version": 0,
+      "kind": "Program",
+      "body": [
+        {"type": "Local", "name": "i", "expr": {"type": "Int", "value": 0}},
+        {
+          "type": "Loop",
+          "cond": {"type": "Compare", "op": "<=", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 3}},
+          "body": [
+            {"type": "If", "cond": {"type": "Compare", "op": "<", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 2}}, "then": [{"type": "Return", "expr": {"type": "Int", "value": 9}}], "else": null},
+            {"type": "Assignment", "name": "i", "expr": {"type": "Binary", "op": "+", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 1}}}
+          ]
+        },
+        {"type": "Return", "expr": {"type": "Var", "name": "i"}}
+      ]
+    },
+    "expected_snapshot": {
+      "ok": 0,
+      "reason": "unsupported_loop_cond",
+      "matcher_input_present": 0,
+      "recipe_matcher_executed": 0
+    },
+    "expected_matcher_result": {
+      "ok": 0,
+      "reason": "snapshot_not_ok",
+      "matcher_input_consumed": 0,
+      "matched": 0,
+      "contract_kind": "Unsupported"
+    }
+  },
+  "claims": {
+    "unsupported_condition_operator_reject_row_green": 1,
+    "reject_floor_row_green": 1,
+    "phase_state_allows_verified_recipe_for_unsupported_loop_cond": 1,
+    "matcher_refuses_bad_snapshot": 1,
+    "programjson_shadow_checked": 1,
+    "programjson_runtime_route_authority": 0,
+    "runtime_route_switch": 0,
+    "recipe_matcher_input_authority": 0,
+    "route_selection": 0,
+    "mir_lowering": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  }
+}

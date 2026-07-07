@@ -57,8 +57,9 @@ static box LoopStmtHandler {
       return me._err(tag, "[cap_missing/program_json_v0] Loop Compare missing op", next_idx)
     }
     local op = BoxHelpers.map_get(op_out, "value")
+    local cond_kind = "VarLtInt"
     if BoxHelpers.same_token(op, "<") != 1 {
-      return me._err(tag, "[cap_missing/expr:Compare] Loop cond Compare op must be '<'", next_idx)
+      cond_kind = "UnsupportedCompare"
     }
 
     local lhs_start = ProgramJsonV0ScannerBox.seek_obj_field_obj_start(program_json, "lhs", cond_start)
@@ -102,6 +103,7 @@ static box LoopStmtHandler {
     return %{
       "err" => 0,
       "err_line" => "",
+      "cond_kind" => cond_kind,
       "cond_rhs_int" => BoxHelpers.map_get(rhs_out, "value")
     }
   }
@@ -639,7 +641,7 @@ static box LoopStmtHandler {
     local step_int = BoxHelpers.map_get(body_out, "step_int")
 
     local cond_facts = new MapBox()
-    cond_facts.set("cond_kind", "VarLtInt")
+    cond_facts.set("cond_kind", BoxHelpers.map_get(cond_out, "cond_kind"))
     cond_facts.set("cond_var_name", local_name)
     cond_facts.set("cond_rhs_int", cond_rhs_int)
 
