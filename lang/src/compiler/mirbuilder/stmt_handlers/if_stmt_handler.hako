@@ -546,14 +546,28 @@ static box IfStmtHandler {
       return me._err(tag, "[cap_missing/program_json_v0] If rhs node scan failed", next_idx)
     }
     local rhs_type = BoxHelpers.map_get(rhs_info, "type")
-    if BoxHelpers.same_token(rhs_type, "Int") != 1 {
-      return me._err(tag, "[cap_missing/expr:Int] If Compare rhs must be Int", next_idx)
+    local rhs_kind = "Unsupported"
+    local rhs_int = 0
+    local rhs_var_name = ""
+    if BoxHelpers.same_token(rhs_type, "Int") == 1 {
+      local rhs_out = ProgramJsonV0ScannerBox.read_int_field_in_obj_result(program_json, "value", rhs_start)
+      if BoxHelpers.result_ok(rhs_out) != 1 {
+        return me._err(tag, "[cap_missing/program_json_v0] If Compare rhs Int missing value", next_idx)
+      }
+      rhs_kind = "Int"
+      rhs_int = BoxHelpers.map_get(rhs_out, "value")
+    } else {
+      if BoxHelpers.same_token(rhs_type, "Var") == 1 {
+        local rhs_name_out = ProgramJsonV0ScannerBox.read_string_field_first_in_obj_result(program_json, "name", rhs_start)
+        if BoxHelpers.result_ok(rhs_name_out) != 1 {
+          return me._err(tag, "[cap_missing/program_json_v0] If Compare rhs Var missing name", next_idx)
+        }
+        rhs_kind = "Var"
+        rhs_var_name = BoxHelpers.map_get(rhs_name_out, "value")
+      } else {
+        return me._err(tag, "[cap_missing/expr:IntOrVar] If Compare rhs must be Int or Var", next_idx)
+      }
     }
-    local rhs_out = ProgramJsonV0ScannerBox.read_int_field_in_obj_result(program_json, "value", rhs_start)
-    if BoxHelpers.result_ok(rhs_out) != 1 {
-      return me._err(tag, "[cap_missing/program_json_v0] If Compare rhs Int missing value", next_idx)
-    }
-    local rhs_int = BoxHelpers.map_get(rhs_out, "value")
 
     local else_start = ProgramJsonV0ScannerBox.seek_obj_field_value_start(program_json, "else", idx)
     if else_start < 0 {
@@ -561,11 +575,22 @@ static box IfStmtHandler {
     }
     else_start = StringHelpers.skip_ws(program_json, else_start)
     local cond_reader = ProgramJsonCompareReaderBox.read_var_int_compare(program_json, cond_start)
+    if StringHelpers.to_i64(BoxHelpers.map_get(cond_reader, "ok")) != 1 {
+      return me._err(tag, "[cap_missing/expr:Compare] If cond Compare reader failed", next_idx)
+    }
     local cond_recipe = BoolRecipeBox.from_numeric_compare_code_map(cond_reader)
     local cond_facts = new MapBox()
     cond_facts.set("cond_kind", me._cond_kind_from_reader(cond_reader))
     cond_facts.set("cond_var_name", lhs_name)
-    cond_facts.set("cond_rhs_int", rhs_int)
+    cond_facts.set("cond_rhs_kind", rhs_kind)
+    cond_facts.set("cond_rhs_kind_code", BoxHelpers.map_get(cond_reader, "bound_kind_code"))
+    if BoxHelpers.same_token(rhs_kind, "Int") == 1 {
+      cond_facts.set("cond_rhs_int", rhs_int)
+    }
+    if BoxHelpers.same_token(rhs_kind, "Var") == 1 {
+      cond_facts.set("cond_rhs_var_name", rhs_var_name)
+      cond_facts.set("cond_rhs_symbol_id", BoxHelpers.map_get(cond_reader, "bound_symbol_id"))
+    }
 
     if program_json.substring(else_start, else_start + 4) == "null" {
       local then_local_out = me._then_local_int_item(program_json, idx, tag)

@@ -1,0 +1,48 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonIfCondRecipeVarRhsBoundRowV1",
+  "token": "MIRBUILDER-PROGRAMJSON-IF-COND-RECIPE-VAR-RHS-BOUND-ROW-001",
+  "prerequisite": "MIRBUILDER-PROGRAMJSON-COMPARE-READER-VAR-RHS-PRODUCER-ROW-SELECTION-001",
+  "owner": "IfStmtHandler",
+  "row_scope": {
+    "shape": "Top-level If Compare(lhs=Var, op=<, rhs=Var), then Return, else null",
+    "producer_scope": "one exact top-level If row",
+    "legacy_cond_facts_boundary": "cond_rhs_kind_code=2 and cond_rhs_symbol_id are published; cond_rhs_int is not published for this row",
+    "analysis_only": true
+  },
+  "rows": [
+    {
+      "row_id": "if_var_lt_var_then_return_else_null",
+      "program_json": "{\"version\":0,\"kind\":\"Program\",\"body\":[{\"type\":\"Local\",\"name\":\"i\",\"expr\":{\"type\":\"Int\",\"value\":0}},{\"type\":\"If\",\"cond\":{\"type\":\"Compare\",\"op\":\"<\",\"lhs\":{\"type\":\"Var\",\"name\":\"i\"},\"rhs\":{\"type\":\"Var\",\"name\":\"n\"}},\"then\":[{\"type\":\"Return\",\"expr\":{\"type\":\"Int\",\"value\":7}}],\"else\":null},{\"type\":\"Return\",\"expr\":{\"type\":\"Int\",\"value\":9}}]}",
+      "expected_cond_kind": "VarLtInt",
+      "expected_summary": "if_var_lt_var_then_return_else_null:err=0;cond_kind_match=1;cond_rhs_kind_code=2;cond_rhs_symbol_id=2;cond_rhs_int_missing=1;cond_recipe_present=1;cond_recipe_present=1;bool_recipe_kind=Compare;lhs_kind=Symbol;lhs_symbol_id=1;cmp=Lt;cmp_code=1;bound_kind=SymbolRef;bound_kind_code=2;bound_i64=0;bound_symbol_id=2;haystack_symbol_id=0;needle_symbol_id=0;analysis_only=1;lowering_executed=0"
+    }
+  ],
+  "claims": {
+    "if_cond_recipe_var_rhs_bound_row": 1,
+    "top_level_if_var_rhs_row_implemented": 1,
+    "row_count": 1,
+    "shared_compare_reader_used": 1,
+    "cond_rhs_symbol_ref_published": 1,
+    "cond_rhs_kind_code_published": 1,
+    "cond_rhs_int_not_published_for_var_rhs": 1,
+    "loop_nested_if_var_rhs_row_selected": 0,
+    "top_level_loop_var_rhs_row_selected": 0,
+    "length_bound_producer_selected": 0,
+    "reversed_var_var_context_aware": 0,
+    "bool_recipe_lowering_executed": 0,
+    "mir_cmp_emission": 0,
+    "branch_emission": 0,
+    "basic_block_mutation": 0,
+    "value_id_allocation": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_route_authority": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "IfCondRecipeVarRhsBoundRowGreen",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-VAR-RHS-PRODUCER-FOLLOWON-SELECTION-001"
+  }
+}

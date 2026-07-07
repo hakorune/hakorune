@@ -345,11 +345,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PROGRAMJSON-COMPARE-READER-VAR-RHS-PRODUCER-ROW-SELECTION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3292-MIRBUILDER-PROGRAMJSON-COMPARE-READER-VAR-RHS-PRODUCER-ROW-SELECTION-001.md"
-latest_card_summary = """3292 selects one exact top-level If Var rhs
-cond_recipe producer row as the next ProgramJSON Compare reader consumer.
-Implementation, Loop rows, MIR emission, runtime authority, and Source
+latest_card = "MIRBUILDER-PROGRAMJSON-IF-COND-RECIPE-VAR-RHS-BOUND-ROW-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3293-MIRBUILDER-PROGRAMJSON-IF-COND-RECIPE-VAR-RHS-BOUND-ROW-001.md"
+latest_card_summary = """3293 opens one exact top-level If Var rhs
+cond_recipe producer row through the shared ProgramJSON Compare reader.
+Loop rows, length bounds, MIR emission, runtime authority, and Source
 Selfhost remain unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
@@ -361,6 +361,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-07: 3293 opens one exact top-level If Var rhs cond_recipe producer row through the shared ProgramJSON Compare reader; Loop rows, MIR emission, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3292 selects one exact top-level If Var rhs cond_recipe producer row as the next ProgramJSON Compare reader consumer; implementation, Loop rows, MIR emission, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3291 extends the shared ProgramJSON Compare reader to publish SymbolRef rhs bounds for Var op Var rows; producer rows, MIR emission, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3290 selects Var rhs bound parity as the next ProgramJSON Compare reader follow-on; implementation, MIR emission, and Source Selfhost remain unclaimed.",
@@ -372,5 +373,4 @@ landed_tail = [
   "2026-07-07: 3284 projects BoolRecipe::Compare into a read-only lowering intent snapshot through AOT/EXE; MIR emission and Source Selfhost remain unclaimed.",
   "2026-07-07: 3283 selects observe-only BoolRecipe Compare lowering intent as the next boundary before MIR Compare/Branch emission; lowering and Source Selfhost remain unclaimed.",
   "2026-07-07: 3282 proves shared ProgramJSON compare reader parity against actual If/Loop cond_recipe producers for covered rows; lowering and Source Selfhost remain unclaimed.",
-  "2026-07-07: 3281 defers CondSkeleton::IfCond and selects BoolRecipe compare publication parity next; lowering and Source Selfhost remain unclaimed.",
 ]
