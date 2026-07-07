@@ -345,13 +345,13 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-ROUTE-SHADOW-SWITCH-DESIGN-STOP-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3230-MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-ROUTE-SHADOW-SWITCH-DESIGN-STOP-001.md"
-latest_card_summary = """3230 records the runtime route shadow-switch
-design stop after ProgramJSON RecipeMatcher shadow parity. Rust ASTNode route
-remains authority; ProgramJSON route remains shadow-only evidence. Runtime
-route switch, route selection, lowering, mutation, ID allocation, and Source
-Selfhost remain unclaimed pending consultation."""
+latest_card = "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RUNTIME-DUAL-RUN-SHADOW-GUARD-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3231-MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RUNTIME-DUAL-RUN-SHADOW-GUARD-001.md"
+latest_card_summary = """3231 implements the ProgramJSON RecipeMatcher
+runtime dual-run shadow guard. Rust ASTNode route remains runtime authority;
+ProgramJSON matcher result is checked as shadow-only evidence. Runtime route
+switch, route selection, lowering, mutation, ID allocation, fallback, and
+Source Selfhost remain unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

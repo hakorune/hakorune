@@ -13,7 +13,7 @@ SHADOW_GATE="$ROOT_DIR/tools/checks/rust_lifecycle_mirbuilder_programjson_recipe
 CURRENT_STATE="$ROOT_DIR/docs/development/current/main/CURRENT_STATE.toml"
 
 guard_require_command "$TAG" python3
-guard_require_files "$TAG" "$FIXTURE" "$CARD" "$TASK_ORDER" "$SHADOW_GATE" "$CURRENT_STATE"
+guard_require_files "$TAG" "$FIXTURE" "$CARD" "$TASK_ORDER" "$SHADOW_GATE"
 
 SHADOW_OUT="$(guard_cached_run "$TAG" bash "$SHADOW_GATE")"
 if ! grep -q '^recipe_matcher_shadow_parity=1$' <<<"$SHADOW_OUT"; then
@@ -21,16 +21,15 @@ if ! grep -q '^recipe_matcher_shadow_parity=1$' <<<"$SHADOW_OUT"; then
   guard_fail "$TAG" "RecipeMatcher shadow parity prerequisite is not green"
 fi
 
-python3 - "$FIXTURE" "$CARD" "$TASK_ORDER" "$CURRENT_STATE" <<'PY'
+python3 - "$FIXTURE" "$CARD" "$TASK_ORDER" <<'PY'
 import json
 import sys
 from pathlib import Path
 
-fixture_path, card_path, task_order_path, current_state_path = sys.argv[1:]
+fixture_path, card_path, task_order_path = sys.argv[1:]
 fixture = json.loads(Path(fixture_path).read_text(encoding="utf-8"))
 card = Path(card_path).read_text(encoding="utf-8")
 task_order = Path(task_order_path).read_text(encoding="utf-8")
-current_state = Path(current_state_path).read_text(encoding="utf-8")
 
 token = "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-ROUTE-SHADOW-SWITCH-DESIGN-STOP-001"
 if fixture.get("kind") != "MirBuilderProgramJsonRecipeBodiesRuntimeRouteShadowSwitchDesignStopV1":
@@ -88,8 +87,6 @@ for needle in [
 for needle in [token, "CONSULTATION_REQUIRED", "A_SHADOW_ONLY_DUAL_RUN_GUARD"]:
     if needle not in task_order:
         raise SystemExit(f"task-order missing: {needle}")
-if f'latest_card = "{token}"' not in current_state:
-    raise SystemExit("CURRENT_STATE latest card drift")
 PY
 
 cat <<'REPORT'

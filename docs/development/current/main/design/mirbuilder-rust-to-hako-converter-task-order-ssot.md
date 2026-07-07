@@ -60,15 +60,14 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-ROUTE-SHADOW-SWITCH-DESIGN-STOP-001
+  MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-SHADOW-PARITY-EXPANDED-ROWS-001
 selected next card:
-  CONSULTATION_REQUIRED; recommended default is A_SHADOW_ONLY_DUAL_RUN_GUARD.
+  MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-SHADOW-PARITY-EXPANDED-ROWS-001.
 
 post-3180 block recipe task order:
   completed: JoinThenElse, ElseOnlyExit, ThenOnlyExit, and ExitAll are scoped
     retire-candidates.
-  current: RecipeBodies design stop; implementation is held pending
-    consultation.
+  current: expanded RecipeMatcher shadow parity rows next; runtime route switch remains held.
   design-stop trigger:
     stop before recursive RecipeBodies, full RecipeMatcher, route selection,
     MIR mutation/lowering, ID allocation, runtime route switch, or Source
@@ -84,6 +83,8 @@ normal operating rule:
   history.
 
 latest design decision:
+  3231 implements MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RUNTIME-DUAL-RUN-SHADOW-GUARD-001: Rust ASTNode remains runtime authority while ProgramJSON matcher result is checked as shadow-only dual-run evidence.
+  3230 worker inventory selects A_SHADOW_ONLY_DUAL_RUN_GUARD as the next task: implement a shadow-only dual-run guard before any runtime route switch.
   3230 records MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-ROUTE-SHADOW-SWITCH-DESIGN-STOP-001; recommended=A_SHADOW_ONLY_DUAL_RUN_GUARD, rejected=B_DIRECT_RUNTIME_ROUTE_SWITCH, alternative=C_MORE_DTO_OR_MATCHER_ROWS_BEFORE_SWITCH, selected_next=CONSULTATION_REQUIRED.
   3229 implements MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-SHADOW-PARITY-001: Rust ASTNode LoopWithExit oracle and ProgramJSON matcher-result snapshots match for two rows; route switch and Source Selfhost remain unclaimed.
   3228 implements MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-EXECUTION-BOUNDARY-MINIMAL-001: observe-only LoopWithExit matcher result from CanonicalLoopFacts MapBox snapshots; RecipeMatcher authority, route selection, lowering, mutation, ID allocation, route switch, and Source Selfhost remain unclaimed.
@@ -406,14 +407,13 @@ Detailed evidence lives in phase cards, fixtures, and git history.
 
 ## Active Next 3
 ```text
-1. MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-EXECUTION-BOUNDARY-MINIMAL-001
-   status=landed; boundary=observe-only LoopWithExit matcher result
+1. MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-ROUTE-SHADOW-SWITCH-DESIGN-STOP-001; status=landed; boundary=consult before runtime route switch
 
-2. MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-SHADOW-PARITY-001; status=landed; boundary=Rust ASTNode route vs ProgramJSON route matcher result parity
-3. MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-ROUTE-SHADOW-SWITCH-DESIGN-STOP-001; status=landed; boundary=consult before runtime route switch
+2. MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RUNTIME-DUAL-RUN-SHADOW-GUARD-001; status=landed; boundary=shadow-only guard, no authority switch
+3. MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-SHADOW-PARITY-EXPANDED-ROWS-001; status=next; boundary=more matcher rows, no switch
 
 next active:
-  MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-ROUTE-SHADOW-SWITCH-DESIGN-STOP-001; status=design-stop; selected_next=CONSULTATION_REQUIRED; recommended=A_SHADOW_ONLY_DUAL_RUN_GUARD
+  MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-SHADOW-PARITY-EXPANDED-ROWS-001; status=next; runtime_authority=rust_astnode; programjson_runtime_route_authority=0; runtime_route_switch=0
 
 trigger-based AOT/MIR typing debt:
   status=parked-until-triggered; order=2999/3000/3001 landed, then 3022 queue
@@ -421,14 +421,14 @@ trigger-based AOT/MIR typing debt:
   compare, PHI dst_type, mir_call dst_type, or receiver-helper
   single-observation protection
 next_documented_task =
-  CONSULTATION_REQUIRED
+  MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-SHADOW-PARITY-EXPANDED-ROWS-001
 
 next_after_active_3 =
-  CONSULTATION_REQUIRED
+  MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-ROUTE-SHADOW-SWITCH-CONSULTATION-002
 
 task discipline =
   Each ProgramJSON capability card must land real `.hako` traversal + fixture
-  + AOT parity gate together; guard-only or selection-only is not progress.
+  + AOT parity gate together; guard-only is allowed only for explicit authority-boundary dual-run stop guards.
   Capability is the unit: one `.hako` implementation can cover N parity rows;
   Candidate validation must check actual ProgramJSON v0 emission first; legacy
   AST/Rust fixture names alone cannot select a capability.

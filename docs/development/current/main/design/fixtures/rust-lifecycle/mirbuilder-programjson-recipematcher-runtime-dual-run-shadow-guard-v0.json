@@ -1,0 +1,104 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonRecipeMatcherRuntimeDualRunShadowGuardV1",
+  "token": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RUNTIME-DUAL-RUN-SHADOW-GUARD-001",
+  "input_state": {
+    "previous_card": "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-ROUTE-SHADOW-SWITCH-DESIGN-STOP-001",
+    "shadow_parity_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-programjson-recipematcher-shadow-parity-v0.json",
+    "shadow_parity_gate": "tools/checks/rust_lifecycle_mirbuilder_programjson_recipematcher_shadow_parity_gate.sh",
+    "rust_authority": "RecipeMatcher::try_match_loop -> PlanBuildOutcome.recipe_contract",
+    "programjson_shadow_owner": "ProgramJsonRecipeMatcherExecutionBoundaryBox.match_snapshot/1"
+  },
+  "dual_run_contract": {
+    "name": "ProgramJsonRecipeMatcherRuntimeDualRunShadowGuardV1",
+    "mode": "shadow_only_dual_run",
+    "runtime_authority": "Rust ASTNode route",
+    "shadow_route": "ProgramJSON matcher result",
+    "comparison": "canonical matcher result fields",
+    "mismatch_policy": "fail_fast_gate_only",
+    "runtime_route_switch": false,
+    "programjson_runtime_route_authority": false,
+    "recipe_matcher_input_authority": false,
+    "route_selection": false,
+    "mir_lowering": false
+  },
+  "rows": [
+    {
+      "row_id": "local_loop_body_if_branch_return",
+      "authority_expected": {
+        "matched": 1,
+        "contract_kind": "LoopWithExit",
+        "has_break": 0,
+        "has_continue": 0,
+        "has_return": 1
+      },
+      "shadow_expected": {
+        "matched": 1,
+        "contract_kind": "LoopWithExit",
+        "has_break": 0,
+        "has_continue": 0,
+        "has_return": 1
+      },
+      "parity": {
+        "dual_run_match": 1
+      }
+    },
+    {
+      "row_id": "local_loop_body_if_branch_return_alt_names",
+      "authority_expected": {
+        "matched": 1,
+        "contract_kind": "LoopWithExit",
+        "has_break": 0,
+        "has_continue": 0,
+        "has_return": 1
+      },
+      "shadow_expected": {
+        "matched": 1,
+        "contract_kind": "LoopWithExit",
+        "has_break": 0,
+        "has_continue": 0,
+        "has_return": 1
+      },
+      "parity": {
+        "dual_run_match": 1
+      }
+    }
+  ],
+  "guard_contract": {
+    "aot_required": true,
+    "vm_only_main_acceptance": false,
+    "shadow_parity_gate_required": true,
+    "design_stop_guard_required": true,
+    "rust_authority_route_required": true,
+    "programjson_shadow_route_required": true,
+    "canonical_field_compare_required": true,
+    "mismatch_fails_gate": true,
+    "no_runtime_route_switch": true,
+    "no_programjson_runtime_authority": true,
+    "no_hidden_route_selection": true,
+    "no_runtime_fallback": true
+  },
+  "decision": {
+    "kind": "RecipeMatcherRuntimeDualRunShadowGuardGreen",
+    "reason_token": "ProgramJsonMatcherResultRunsBesideRustAuthorityWithoutSwitch",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-SHADOW-PARITY-EXPANDED-ROWS-001"
+  },
+  "claims": {
+    "dual_run_shadow_guard": 1,
+    "runtime_authority_remains_rust_astnode": 1,
+    "programjson_shadow_checked": 1,
+    "programjson_runtime_route_authority": 0,
+    "runtime_route_switch": 0,
+    "recipe_matcher_input_authority": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "mir_lowering": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "vm_only_proof_as_main_acceptance": 0
+  }
+}
