@@ -456,6 +456,13 @@ static box IfStmtHandler {
     return RecipeItemBox.if_item(cond_facts, then_item, else_item)
   }
 
+  _cond_kind_from_reader(reader) {
+    local cmp_code = StringHelpers.to_i64(BoxHelpers.map_get(reader, "cmp_code"))
+    if cmp_code == 5 { return "VarEqInt" }
+    if cmp_code == 6 { return "VarNeInt" }
+    return "UnsupportedCompare"
+  }
+
   handle(program_json, idx, next_idx, tag, state): MapBox {
     local has_local = StringHelpers.to_i64(BoxHelpers.map_get(state, "has_local"))
     local has_return = StringHelpers.to_i64(BoxHelpers.map_get(state, "has_return"))
@@ -491,8 +498,8 @@ static box IfStmtHandler {
       return me._err(tag, "[cap_missing/program_json_v0] If Compare missing op", next_idx)
     }
     local op = BoxHelpers.map_get(op_out, "value")
-    if BoxHelpers.same_token(op, "==") != 1 {
-      return me._err(tag, "[cap_missing/expr:Compare] If cond Compare op must be '=='", next_idx)
+    if BoxHelpers.same_token(op, "==") != 1 && BoxHelpers.same_token(op, "!=") != 1 {
+      return me._err(tag, "[cap_missing/expr:Compare] If cond Compare op must be '==' or '!='", next_idx)
     }
 
     local lhs_start = ProgramJsonV0ScannerBox.seek_obj_field_obj_start(program_json, "lhs", cond_start)
@@ -539,12 +546,12 @@ static box IfStmtHandler {
       return me._err(tag, "[cap_missing/program_json_v0] If missing else field", next_idx)
     }
     else_start = StringHelpers.skip_ws(program_json, else_start)
-    local cond_facts = new MapBox()
-    cond_facts.set("cond_kind", "VarEqInt")
-    cond_facts.set("cond_var_name", lhs_name)
-    cond_facts.set("cond_rhs_int", rhs_int)
     local cond_reader = ProgramJsonCompareReaderBox.read_var_int_compare(program_json, cond_start)
     local cond_recipe = BoolRecipeBox.from_numeric_compare_code_map(cond_reader)
+    local cond_facts = new MapBox()
+    cond_facts.set("cond_kind", me._cond_kind_from_reader(cond_reader))
+    cond_facts.set("cond_var_name", lhs_name)
+    cond_facts.set("cond_rhs_int", rhs_int)
 
     if program_json.substring(else_start, else_start + 4) == "null" {
       local then_local_out = me._then_local_int_item(program_json, idx, tag)

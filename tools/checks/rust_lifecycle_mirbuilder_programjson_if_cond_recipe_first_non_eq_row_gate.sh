@@ -2,24 +2,23 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
-TAG="rust-lifecycle-mirbuilder-programjson-if-cond-recipe-eq-behavior-preserving-gate"
+TAG="rust-lifecycle-mirbuilder-programjson-if-cond-recipe-first-non-eq-row-gate"
 
 source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
 
-FIXTURE="$ROOT_DIR/docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-programjson-if-cond-recipe-eq-behavior-preserving-v0.json"
+FIXTURE="$ROOT_DIR/docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-programjson-if-cond-recipe-first-non-eq-row-v0.json"
 IF_HANDLER="$ROOT_DIR/lang/src/compiler/mirbuilder/stmt_handlers/if_stmt_handler.hako"
-COMPARE_READER="$ROOT_DIR/lang/src/compiler/mirbuilder/program_json_compare_reader_box.hako"
-PREV_GATE="$ROOT_DIR/tools/checks/rust_lifecycle_mirbuilder_programjson_compare_reader_shared_canon_gate.sh"
+PREV_GATE="$ROOT_DIR/tools/checks/rust_lifecycle_mirbuilder_programjson_if_cond_recipe_eq_behavior_preserving_gate.sh"
 TASK_ORDER="$ROOT_DIR/docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 HAKO_BIN="$ROOT_DIR/tools/bin/hako"
 
 guard_require_command "$TAG" python3
-guard_require_files "$TAG" "$FIXTURE" "$IF_HANDLER" "$COMPARE_READER" "$PREV_GATE" "$TASK_ORDER" "$HAKO_BIN"
+guard_require_files "$TAG" "$FIXTURE" "$IF_HANDLER" "$PREV_GATE" "$TASK_ORDER" "$HAKO_BIN"
 
 PREV_OUT="$(guard_cached_run "$TAG" bash "$PREV_GATE")"
-if ! grep -q '^programjson_shared_compare_reader=1$' <<<"$PREV_OUT"; then
+if ! grep -q '^if_eq_behavior_preserved=1$' <<<"$PREV_OUT"; then
   printf '%s\n' "$PREV_OUT" >&2
-  guard_fail "$TAG" "shared compare reader prerequisite is not green"
+  guard_fail "$TAG" "If Eq behavior-preserving prerequisite is not green"
 fi
 
 python3 - "$FIXTURE" "$IF_HANDLER" "$TASK_ORDER" <<'PY'
@@ -36,28 +35,25 @@ def need(condition, message):
         raise SystemExit(message)
 
 need(fixture.get("schema_version") == 0, "bad schema_version")
-need(fixture.get("kind") == "MirBuilderProgramJsonIfCondRecipeEqBehaviorPreservingV1", "bad kind")
-need(fixture.get("token") == "MIRBUILDER-PROGRAMJSON-IF-COND-RECIPE-EQ-BEHAVIOR-PRESERVING-001", "bad token")
-need(fixture.get("prerequisite") == "MIRBUILDER-PROGRAMJSON-COMPARE-READER-SHARED-CANON-001", "bad prerequisite")
-need(fixture.get("owner") == "IfStmtHandler", "bad owner")
+need(fixture.get("kind") == "MirBuilderProgramJsonIfCondRecipeFirstNonEqRowV1", "bad kind")
+need(fixture.get("token") == "MIRBUILDER-PROGRAMJSON-IF-COND-RECIPE-FIRST-NON-EQ-ROW-001", "bad token")
+need(fixture.get("prerequisite") == "MIRBUILDER-PROGRAMJSON-IF-COND-RECIPE-EQ-BEHAVIOR-PRESERVING-001", "bad prerequisite")
 
-contract = fixture.get("wiring_contract") or {}
-need(contract.get("source_reader") == "ProgramJsonCompareReaderBox.read_var_int_compare", "bad source reader")
-need(contract.get("target_attachment") == "RecipeItem.cond_recipe sidecar field", "bad target attachment")
-need(contract.get("legacy_cond_facts_preserved") is True, "legacy cond_facts must be preserved")
-need(contract.get("accepted_operator_expansion") is False, "operator expansion must remain false")
-need(contract.get("lowering_behavior_change") is False, "lowering must not change")
+scope = fixture.get("row_scope") or {}
+need(scope.get("operator") == "!=", "first non-Eq operator must be !=")
+need(scope.get("other_non_eq_operators_claimed") is False, "other non-Eq ops must remain unclaimed")
 
 claims = fixture.get("claims") or {}
 for key in [
-    "if_cond_recipe_attached",
-    "if_eq_behavior_preserved",
-    "legacy_cond_facts_preserved",
+    "if_cond_recipe_ne_row",
+    "if_first_non_eq_row",
     "shared_compare_reader_used",
+    "legacy_cond_facts_var_ne_int",
 ]:
     need(claims.get(key) == 1, f"missing positive claim: {key}")
 for key in [
-    "if_compare_operator_expansion",
+    "if_accepts_all_6_compare_operators",
+    "if_lt_le_gt_ge_rows",
     "loop_nested_if_cond_recipe",
     "rust_loop_condition_shape_eq_ne",
     "condskeleton_ifcond",
@@ -74,33 +70,29 @@ for key in [
     need(claims.get(key) == 0, f"forbidden claim drift: {key}")
 
 for needle in [
-    "using lang.compiler.mirbuilder.program_json_compare_reader_box as ProgramJsonCompareReaderBox",
-    "using lang.compiler.mirbuilder.recipe.bool_recipe_box as BoolRecipeBox",
+    "BoxHelpers.same_token(op, \"!=\")",
+    'if cmp_code == 6 { return "VarNeInt" }',
     "ProgramJsonCompareReaderBox.read_var_int_compare(program_json, cond_start)",
     "BoolRecipeBox.from_numeric_compare_code_map(cond_reader)",
-    "RecipeItemBox.if_item_with_cond_recipe",
-    "_cond_kind_from_reader(cond_reader)",
-    "If cond Compare op must be '==' or '!='",
-    'if cmp_code == 5 { return "VarEqInt" }',
 ]:
     need(needle in impl, f"IfStmtHandler missing token: {needle}")
-for forbidden in ["RecipeMatcherBox", "PlanLowerer", "route_registry", "emit_mir"]:
+for forbidden in ["PlanLowerer", "route_registry", "emit_mir"]:
     need(forbidden not in impl, f"forbidden implementation token: {forbidden}")
 for needle in [
-    "MIRBUILDER-PROGRAMJSON-IF-COND-RECIPE-EQ-BEHAVIOR-PRESERVING-001",
     "MIRBUILDER-PROGRAMJSON-IF-COND-RECIPE-FIRST-NON-EQ-ROW-001",
+    "MIRBUILDER-PROGRAMJSON-LOOP-NESTED-IF-COND-RECIPE-BRIDGE-001",
 ]:
     need(needle in task_order, f"task-order missing: {needle}")
 PY
 
-TMP_DIR="$(mktemp -d /tmp/hakorune-if-cond-recipe-eq.XXXXXX)"
+TMP_DIR="$(mktemp -d /tmp/hakorune-if-cond-recipe-ne.XXXXXX)"
 cleanup() { rm -rf "$TMP_DIR" >/dev/null 2>&1 || true; }
 trap cleanup EXIT
 
-APP="$TMP_DIR/if_cond_recipe_eq.hako"
+APP="$TMP_DIR/if_cond_recipe_ne.hako"
 EXPECTED="$TMP_DIR/expected.txt"
 ACTUAL="$TMP_DIR/actual.txt"
-EXE="$TMP_DIR/if_cond_recipe_eq.exe"
+EXE="$TMP_DIR/if_cond_recipe_ne.exe"
 EMIT_LOG="$TMP_DIR/emit.log"
 
 python3 - "$FIXTURE" "$APP" "$EXPECTED" <<'PY'
@@ -135,7 +127,7 @@ for idx, row in enumerate(fixture["rows"]):
         f"    local {if_item} = BoxHelpers.array_get({items}, 1)",
         f"    local {facts} = BoxHelpers.map_get({if_item}, \"cond_facts\")",
         f"    print(\"{row['row_id']}:err=\" + StringHelpers.int_to_str(BoxHelpers.map_get({out}, \"err\"))",
-        f"      + \";cond_facts_map=\" + StringHelpers.int_to_str(BoxHelpers.is_map({facts}))",
+        f"      + \";cond_kind_ne=\" + StringHelpers.int_to_str(BoxHelpers.same_token(BoxHelpers.map_get({facts}, \"cond_kind\"), \"VarNeInt\"))",
         f"      + \";cond_rhs_int=\" + StringHelpers.int_to_str(BoxHelpers.map_get({facts}, \"cond_rhs_int\"))",
         f"      + \";cond_recipe_present=\" + StringHelpers.int_to_str(RecipeItemBox.cond_recipe_present({if_item}))",
         f"      + \";\" + RecipeItemBox.cond_recipe_summary({if_item}))",
@@ -154,7 +146,7 @@ PY
 bash "$HAKO_BIN" --backend mir --verify "$IF_HANDLER" >/dev/null
 if ! bash "$HAKO_BIN" --backend mir --emit-exe "$EXE" "$APP" >"$EMIT_LOG" 2>&1; then
   tail -n 160 "$EMIT_LOG" || true
-  guard_fail "$TAG" "failed to emit If cond_recipe Eq executable"
+  guard_fail "$TAG" "failed to emit If cond_recipe first non-Eq executable"
 fi
 
 chmod +x "$EXE"
@@ -170,7 +162,7 @@ actual_path = Path(sys.argv[3])
 actual = [line.strip() for line in raw if line.strip() and not line.startswith("Result:")]
 actual_path.write_text("\n".join(actual) + "\n", encoding="utf-8")
 if actual != expected:
-    print("[if-stmt/cond-recipe-eq-behavior-preserving] mismatch")
+    print("[if-stmt/cond-recipe-first-non-eq-row] mismatch")
     for idx in range(max(len(expected), len(actual))):
         exp = expected[idx] if idx < len(expected) else "<missing>"
         got = actual[idx] if idx < len(actual) else "<missing>"
@@ -180,15 +172,16 @@ if actual != expected:
 PY
 
 cat <<'REPORT'
-output_contract=rust-lifecycle-mirbuilder-programjson-if-cond-recipe-eq-behavior-preserving-gate-v0
-token=MIRBUILDER-PROGRAMJSON-IF-COND-RECIPE-EQ-BEHAVIOR-PRESERVING-001
+output_contract=rust-lifecycle-mirbuilder-programjson-if-cond-recipe-first-non-eq-row-gate-v0
+token=MIRBUILDER-PROGRAMJSON-IF-COND-RECIPE-FIRST-NON-EQ-ROW-001
 owner=IfStmtHandler
-row_count=2
-if_cond_recipe_attached=1
-if_eq_behavior_preserved=1
-legacy_cond_facts_preserved=1
+row_count=1
+if_cond_recipe_ne_row=1
+if_first_non_eq_row=1
 shared_compare_reader_used=1
-if_compare_operator_expansion=0
+legacy_cond_facts_var_ne_int=1
+if_accepts_all_6_compare_operators=0
+if_lt_le_gt_ge_rows=0
 loop_nested_if_cond_recipe=0
 rust_loop_condition_shape_eq_ne=0
 recipe_matcher_input_authority=0
