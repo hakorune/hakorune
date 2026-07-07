@@ -60,12 +60,13 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RUNTIME-ROUTE-ADJACENT-SHADOW-GUARD-001.
+  MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-AUTHORITY-SWITCH-COVERAGE-FLOOR-SELECTION-001.
 
 post-3180 block recipe task order:
   completed: JoinThenElse, ElseOnlyExit, ThenOnlyExit, and ExitAll are scoped
     retire-candidates.
-  current: runtime-route-adjacent shadow guard next; runtime route switch remains held.
+  current: runtime-route-adjacent shadow guard landed; coverage floor
+    selection is next before any authority switch.
   design-stop trigger:
     stop before recursive RecipeBodies, full RecipeMatcher, route selection,
     MIR mutation/lowering, ID allocation, runtime route switch, or Source
@@ -81,6 +82,7 @@ normal operating rule:
   history.
 
 latest design decision:
+  3234 implements MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RUNTIME-ROUTE-ADJACENT-SHADOW-GUARD-001: a read-only guard boundary after try_build_outcome and before registry candidate selection; Rust ASTNode remains runtime authority and ProgramJSON remains shadow-only lifecycle evidence.
   3233 selects B_RUNTIME_ROUTE_ADJACENT_SHADOW_GUARD; C authority switch is rejected for now, D coverage floor is deferred before any later C.
   3232 implements MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-SHADOW-PARITY-EXPANDED-ROWS-001: four LoopWithExit rows now match Rust oracle fields; runtime authority remains Rust.
   3231 implements MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RUNTIME-DUAL-RUN-SHADOW-GUARD-001: Rust ASTNode remains runtime authority while ProgramJSON matcher result is checked as shadow-only dual-run evidence.
@@ -407,12 +409,11 @@ Detailed evidence lives in phase cards, fixtures, and git history.
 ## Active Next 3
 ```text
 1. MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-SHADOW-PARITY-EXPANDED-ROWS-001; status=landed; boundary=four matcher rows, no switch
-
 2. MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-ROUTE-SHADOW-SWITCH-CONSULTATION-002; status=landed; boundary=select B, no authority switch
-3. MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RUNTIME-ROUTE-ADJACENT-SHADOW-GUARD-001; status=next; boundary=after try_build_outcome before registry
+3. MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RUNTIME-ROUTE-ADJACENT-SHADOW-GUARD-001; status=landed; boundary=after try_build_outcome before registry
 
 next active:
-  MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RUNTIME-ROUTE-ADJACENT-SHADOW-GUARD-001; status=next; runtime_authority=rust_astnode; programjson_runtime_route_authority=0; runtime_route_switch=0
+  MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-AUTHORITY-SWITCH-COVERAGE-FLOOR-SELECTION-001; status=next; coverage_floor_required_before_any_authority_switch=1; runtime_authority=rust_astnode; programjson_runtime_route_authority=0; runtime_route_switch=0
 
 trigger-based AOT/MIR typing debt:
   status=parked-until-triggered; order=2999/3000/3001 landed, then 3022 queue
@@ -420,10 +421,10 @@ trigger-based AOT/MIR typing debt:
   compare, PHI dst_type, mir_call dst_type, or receiver-helper
   single-observation protection
 next_documented_task =
-  MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RUNTIME-ROUTE-ADJACENT-SHADOW-GUARD-001
+  MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-AUTHORITY-SWITCH-COVERAGE-FLOOR-SELECTION-001
 
 next_after_active_3 =
-  CONSULTATION_REQUIRED
+  MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-AUTHORITY-SWITCH-COVERAGE-FLOOR-SELECTION-001
 
 task discipline =
   Each ProgramJSON capability card must land real `.hako` traversal + fixture

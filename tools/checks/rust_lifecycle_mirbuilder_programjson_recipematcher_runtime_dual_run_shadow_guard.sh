@@ -159,6 +159,7 @@ allowed_latest = [
     f'latest_card = "{token}"',
     'latest_card = "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-SHADOW-PARITY-EXPANDED-ROWS-001"',
     'latest_card = "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-ROUTE-SHADOW-SWITCH-CONSULTATION-002"',
+    'latest_card = "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RUNTIME-ROUTE-ADJACENT-SHADOW-GUARD-001"',
 ]
 if not any(needle in current_state for needle in allowed_latest):
     raise SystemExit("CURRENT_STATE latest card drift")

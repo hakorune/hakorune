@@ -277,6 +277,7 @@ phase-1 compatibility Program(JSON) compat execution helper.
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_recipematcher_runtime_dual_run_shadow_guard.sh` | Runtime authority guard proving ProgramJSON RecipeMatcher remains shadow-only beside Rust authority. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_recipematcher_shadow_parity_expanded_rows_gate.sh` | Expanded-row shadow parity gate comparing four ProgramJSON RecipeMatcher rows against the Rust LoopWithExit oracle. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_recipebodies_runtime_route_shadow_switch_consultation_002_guard.sh` | Consultation guard selecting the runtime-route-adjacent ProgramJSON shadow guard without authority switch. |
+| `tools/checks/rust_lifecycle_mirbuilder_programjson_recipematcher_runtime_route_adjacent_shadow_guard.sh` | Runtime-adjacent shadow guard proving the read-only boundary after `try_build_outcome(ctx)` and before route registry selection. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_if_handler_result_map_contract_guard.sh` | Result-map contract guard for `IfStmtHandler.handle/5` and helper return paths. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_loop_handler_result_map_contract_guard.sh` | Result-map contract guard for `LoopStmtHandler.handle/5` and helper return paths. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_recipebodies_array_helper_total_map_contract_guard.sh` | Contract guard preventing raw array-helper returns on the one-shape RecipeBodies arena path. |

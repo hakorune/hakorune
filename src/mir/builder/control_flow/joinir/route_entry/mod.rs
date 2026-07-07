@@ -29,6 +29,7 @@
 //!
 pub(in crate::mir::builder) mod registry;
 pub(in crate::mir::builder) mod router;
+pub(in crate::mir::builder) mod runtime_adjacent_shadow_guard;
 
 // Re-export router for convenience
 pub(in crate::mir::builder) use router::{route_loop, LoopRouteContext};

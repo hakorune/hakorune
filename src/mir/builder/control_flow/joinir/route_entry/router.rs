@@ -23,6 +23,7 @@ use crate::mir::loop_route_detection::LoopRouteKind;
 
 // Phase 273 P1: Import Plan components (facts/recipe outcome -> verifier -> lowerer)
 use super::registry;
+use super::runtime_adjacent_shadow_guard;
 use crate::mir::builder::control_flow::lower::expectations;
 use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
 use crate::mir::builder::control_flow::lower::{
@@ -205,6 +206,14 @@ pub(crate) fn route_loop(
 
     // Phase 29ai P5: Single entrypoint for plan extraction (router has no rule table).
     let outcome = try_build_outcome(ctx)?;
+    let shadow_guard_report =
+        runtime_adjacent_shadow_guard::observe_after_try_build_outcome_before_registry(&outcome);
+    debug_assert!(shadow_guard_report.runtime_authority_is_rust_astnode);
+    debug_assert!(!shadow_guard_report.programjson_runtime_route_authority);
+    debug_assert!(!shadow_guard_report.runtime_route_switch);
+    debug_assert!(!shadow_guard_report.recipe_matcher_input_authority);
+    debug_assert!(!shadow_guard_report.writes_downstream);
+    debug_assert!(!shadow_guard_report.runtime_fallback);
     let strict_or_dev = crate::config::env::joinir_dev::strict_enabled()
         || crate::config::env::joinir_dev_enabled();
     let planner_required =

@@ -1,0 +1,74 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonRecipeMatcherRuntimeRouteAdjacentShadowGuardV1",
+  "token": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RUNTIME-ROUTE-ADJACENT-SHADOW-GUARD-001",
+  "input_state": {
+    "previous_card": "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-ROUTE-SHADOW-SWITCH-CONSULTATION-002",
+    "consultation_guard": "tools/checks/rust_lifecycle_mirbuilder_programjson_recipebodies_runtime_route_shadow_switch_consultation_002_guard.sh",
+    "expanded_rows_gate": "tools/checks/rust_lifecycle_mirbuilder_programjson_recipematcher_shadow_parity_expanded_rows_gate.sh",
+    "runtime_seam": "src/mir/builder/control_flow/joinir/route_entry/router.rs",
+    "guard_owner": "src/mir/builder/control_flow/joinir/route_entry/runtime_adjacent_shadow_guard.rs"
+  },
+  "runtime_adjacent_contract": {
+    "name": "RuntimeRouteAdjacentShadowGuardV1",
+    "mode": "runtime_route_adjacent_shadow_only",
+    "boundary": "after try_build_outcome(ctx), before registry candidate selection",
+    "runtime_authority": "Rust ASTNode route",
+    "shadow": "ProgramJSON matcher result verified by lifecycle gates",
+    "mismatch_policy": "fail_fast_gate_only",
+    "writes_downstream": false,
+    "programjson_input_in_loop_route_context": false,
+    "runtime_route_switch": false,
+    "programjson_runtime_route_authority": false,
+    "recipe_matcher_input_authority": false,
+    "route_selection": false,
+    "mir_lowering": false,
+    "mir_mutation": false,
+    "id_allocation": false,
+    "runtime_fallback": false
+  },
+  "static_order_contract": {
+    "must_appear_after": "let outcome = try_build_outcome(ctx)?;",
+    "must_call": "runtime_adjacent_shadow_guard::observe_after_try_build_outcome_before_registry(&outcome)",
+    "must_appear_before_any": [
+      "registry::collect_candidates",
+      "registry::try_route_recipe_first_with_success"
+    ]
+  },
+  "report_contract": {
+    "runtime_authority_is_rust_astnode": true,
+    "boundary_after_try_build_outcome": true,
+    "boundary_before_route_candidate_selection": true,
+    "programjson_runtime_route_authority": false,
+    "runtime_route_switch": false,
+    "recipe_matcher_input_authority": false,
+    "writes_downstream": false,
+    "runtime_fallback": false
+  },
+  "decision": {
+    "kind": "RuntimeRouteAdjacentShadowGuardGreen",
+    "reason_token": "ReadOnlyShadowGuardInstalledAfterTryBuildOutcomeBeforeRegistry",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-AUTHORITY-SWITCH-COVERAGE-FLOOR-SELECTION-001"
+  },
+  "claims": {
+    "runtime_route_adjacent_shadow_guard": 1,
+    "boundary_after_try_build_outcome_before_route_candidate_selection": 1,
+    "runtime_authority_remains_rust_astnode": 1,
+    "programjson_shadow_checked_by_lifecycle_gate": 1,
+    "no_downstream_write": 1,
+    "programjson_input_in_loop_route_context": 0,
+    "programjson_runtime_route_authority": 0,
+    "runtime_route_switch": 0,
+    "recipe_matcher_input_authority": 0,
+    "limited_programjson_authority_switch": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "mir_lowering": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
