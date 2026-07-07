@@ -53,7 +53,7 @@ need(fixture.get("moved_from") == "LoopStmtHandler", "bad moved_from")
 
 contract = fixture.get("contract") or {}
 need(contract.get("accepted_row_added") is False, "accepted row must not be added")
-need(contract.get("var_rhs_support") is False, "Var rhs support must remain false")
+need(contract.get("var_rhs_support") is False, "historical fixture must remain pre-Var-rhs")
 need(contract.get("legacy_output") == "if_cond_rhs_int and if_cond_start", "bad legacy output")
 
 claims = fixture.get("claims") or {}
@@ -89,7 +89,7 @@ for needle in [
     "read_int_rhs(program_json, stmt_start, local_name, tag, label): MapBox",
     "Loop If",
     "cond Compare op is unsupported",
-    "cond rhs must be Int",
+    "if_cond_rhs_kind_code",
     '"if_cond_rhs_int"',
     '"if_cond_start"',
 ]:

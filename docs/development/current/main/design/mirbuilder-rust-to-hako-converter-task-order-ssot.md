@@ -406,10 +406,10 @@ Detailed evidence lives in phase cards, fixtures, and git history.
 
 ## Active Next 3
 ```text
-landed summary: 3264..3295 cond_recipe/compare chain includes BoolRecipe sidecar bridge, ProgramJSON Loop/If cond_recipe producer wiring, verifier validate-only, matcher observe-only input snapshot, shared compare reader, If/Loop relational rows, BoolRecipe lowering observation/consultation, Var rhs reader parity, top-level If Var rhs row, Loop nested-If condition scan seam selection, and LoopNestedIfCondScanBox extraction.
+landed summary: 3264..3296 cond_recipe/compare chain includes BoolRecipe sidecar bridge, ProgramJSON Loop/If cond_recipe producer wiring, verifier validate-only, matcher observe-only input snapshot, shared compare reader, If/Loop relational rows, BoolRecipe lowering observation/consultation, Var rhs reader parity, top-level If Var rhs row, LoopNestedIfCondScanBox extraction, and one Loop nested-If Var rhs row.
 
 next active:
-  MIRBUILDER-PROGRAMJSON-LOOP-NESTED-IF-COND-SCAN-SEAM-001; status=landed; extracted Loop nested-If Compare condition scan owner; next=MIRBUILDER-PROGRAMJSON-LOOP-NESTED-IF-VAR-RHS-BOUND-ROW-001; status=next; unit=implementation+parity gate; one exact Loop nested If Var rhs row; top_level_loop=0; length bounds=0; lowering=0; route_selection=0; runtime_authority=rust_astnode
+  MIRBUILDER-PROGRAMJSON-LOOP-NESTED-IF-VAR-RHS-BOUND-ROW-001; status=landed; one exact Loop nested If Var rhs row; next=MIRBUILDER-PROGRAMJSON-VAR-RHS-PRODUCER-NEXT-SELECTION-001; status=next; unit=selection guard; choose top-level Loop Var rhs vs closeout/design-stop; length bounds=0; lowering=0; route_selection=0; runtime_authority=rust_astnode
 
 trigger-based AOT/MIR typing debt:
   status=parked-until-triggered; order=2999/3000/3001 landed, then 3022 queue
@@ -417,7 +417,7 @@ trigger-based AOT/MIR typing debt:
   compare, PHI dst_type, mir_call dst_type, or receiver-helper
   single-observation protection
 next_documented_task =
-  MIRBUILDER-PROGRAMJSON-LOOP-NESTED-IF-VAR-RHS-BOUND-ROW-001
+  MIRBUILDER-PROGRAMJSON-VAR-RHS-PRODUCER-NEXT-SELECTION-001
 
 next_after_active_3 =
   MIRBUILDER-COMPARE-LOWERING-MUTATION-OWNER-SELECTION-001 -> MIRBUILDER-COMPARE-LOWERING-MUTATION-OWNER-PILOT-001

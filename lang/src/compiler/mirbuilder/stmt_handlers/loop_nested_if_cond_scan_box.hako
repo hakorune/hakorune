@@ -2,16 +2,16 @@
 //
 // Responsibility:
 // - Scan Loop-body nested If Compare conditions from Program(JSON v0).
-// - Publish the legacy Int-rhs condition payload used by LoopStmtHandler.
+// - Publish the nested If condition payload used by LoopStmtHandler.
 //
 // Non-responsibility:
-// - Building RecipeItems, attaching cond_recipe, opening Var rhs rows,
-//   top-level Loop route semantics, lowering, mutation, ID allocation, or
-//   runtime authority.
+// - Building RecipeItems, attaching cond_recipe, top-level Loop route
+//   semantics, lowering, mutation, ID allocation, or runtime authority.
 
 using selfhost.shared.common.string_helpers as StringHelpers
 using selfhost.shared.common.box_helpers as BoxHelpers
 using lang.compiler.mirbuilder.program_json_v0_scanner_box as ProgramJsonV0ScannerBox
+using lang.compiler.mirbuilder.program_json_compare_reader_box as ProgramJsonCompareReaderBox
 
 static box LoopNestedIfCondScanBox {
   read_int_rhs(program_json, stmt_start, local_name, tag, label): MapBox {
@@ -47,19 +47,30 @@ static box LoopNestedIfCondScanBox {
     if BoxHelpers.result_ok(lhs_info) != 1 || BoxHelpers.same_token(BoxHelpers.map_get(lhs_info, "type"), "Var") != 1 {
       return me._err(tag, "[cap_missing/stmt:Loop] " + prefix + " cond lhs must be Var", stmt_start)
     }
-    if BoxHelpers.result_ok(rhs_info) != 1 || BoxHelpers.same_token(BoxHelpers.map_get(rhs_info, "type"), "Int") != 1 {
-      return me._err(tag, "[cap_missing/stmt:Loop] " + prefix + " cond rhs must be Int", stmt_start)
+    if BoxHelpers.result_ok(rhs_info) != 1 {
+      return me._err(tag, "[cap_missing/stmt:Loop] " + prefix + " cond rhs scan failed", stmt_start)
     }
+    local rhs_type = BoxHelpers.map_get(rhs_info, "type")
 
     local lhs_name_out = ProgramJsonV0ScannerBox.read_string_field_first_in_obj_result(program_json, "name", lhs_start)
     if BoxHelpers.result_ok(lhs_name_out) != 1 || BoxHelpers.same_token(BoxHelpers.map_get(lhs_name_out, "value"), local_name) != 1 {
       return me._err(tag, "[cap_missing/stmt:Loop] " + prefix + " cond lhs must be Local var", stmt_start)
     }
-    local rhs_out = ProgramJsonV0ScannerBox.read_int_field_in_obj_result(program_json, "value", rhs_start)
-    if BoxHelpers.result_ok(rhs_out) != 1 {
-      return me._err(tag, "[cap_missing/program_json_v0] " + prefix + " rhs Int missing value", stmt_start)
+    if BoxHelpers.same_token(rhs_type, "Int") == 1 {
+      local rhs_out = ProgramJsonV0ScannerBox.read_int_field_in_obj_result(program_json, "value", rhs_start)
+      if BoxHelpers.result_ok(rhs_out) != 1 {
+        return me._err(tag, "[cap_missing/program_json_v0] " + prefix + " rhs Int missing value", stmt_start)
+      }
+      return %{"err" => 0, "err_line" => "", "if_cond_rhs_kind_code" => 1, "if_cond_rhs_int" => BoxHelpers.map_get(rhs_out, "value"), "if_cond_rhs_symbol_id" => 0, "if_cond_start" => cond_start}
     }
-    return %{"err" => 0, "err_line" => "", "if_cond_rhs_int" => BoxHelpers.map_get(rhs_out, "value"), "if_cond_start" => cond_start}
+    if BoxHelpers.same_token(rhs_type, "Var") == 1 {
+      local cond_reader = ProgramJsonCompareReaderBox.read_var_int_compare(program_json, cond_start)
+      if BoxHelpers.result_ok(cond_reader) != 1 {
+        return me._err(tag, "[cap_missing/stmt:Loop] " + prefix + " rhs Var compare reader failed", stmt_start)
+      }
+      return %{"err" => 0, "err_line" => "", "if_cond_rhs_kind_code" => 2, "if_cond_rhs_int" => 0, "if_cond_rhs_symbol_id" => BoxHelpers.map_get(cond_reader, "bound_symbol_id"), "if_cond_start" => cond_start}
+    }
+    return me._err(tag, "[cap_missing/stmt:Loop] " + prefix + " cond rhs must be Int or Var", stmt_start)
   }
 
   _err(tag, msg, next_idx): MapBox {
