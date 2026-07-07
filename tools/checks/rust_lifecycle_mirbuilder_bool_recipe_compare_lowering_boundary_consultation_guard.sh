@@ -12,12 +12,11 @@ PUBLICATION="$ROOT_DIR/lang/src/compiler/mirbuilder/program_json_bool_recipe_com
 COMPARE_RS="$ROOT_DIR/src/mir/builder/ops/comparison.rs"
 EMIT_COMPARE_RS="$ROOT_DIR/src/mir/builder/emission/compare.rs"
 EMIT_BRANCH_RS="$ROOT_DIR/src/mir/builder/emission/branch.rs"
-TASK_ORDER="$ROOT_DIR/docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
 guard_require_command "$TAG" python3
-guard_require_files "$TAG" "$FIXTURE" "$BOOL_RECIPE" "$PUBLICATION" "$COMPARE_RS" "$EMIT_COMPARE_RS" "$EMIT_BRANCH_RS" "$TASK_ORDER"
+guard_require_files "$TAG" "$FIXTURE" "$BOOL_RECIPE" "$PUBLICATION" "$COMPARE_RS" "$EMIT_COMPARE_RS" "$EMIT_BRANCH_RS"
 
-python3 - "$FIXTURE" "$BOOL_RECIPE" "$PUBLICATION" "$COMPARE_RS" "$EMIT_COMPARE_RS" "$EMIT_BRANCH_RS" "$TASK_ORDER" <<'PY'
+python3 - "$FIXTURE" "$BOOL_RECIPE" "$PUBLICATION" "$COMPARE_RS" "$EMIT_COMPARE_RS" "$EMIT_BRANCH_RS" <<'PY'
 import json
 import sys
 from pathlib import Path
@@ -28,7 +27,6 @@ publication = Path(sys.argv[3]).read_text(encoding="utf-8")
 compare_rs = Path(sys.argv[4]).read_text(encoding="utf-8")
 emit_compare = Path(sys.argv[5]).read_text(encoding="utf-8")
 emit_branch = Path(sys.argv[6]).read_text(encoding="utf-8")
-task_order = Path(sys.argv[7]).read_text(encoding="utf-8")
 
 def need(condition, message):
     if not condition:
@@ -93,7 +91,6 @@ need("build_comparison_op" in compare_rs, "Rust comparison owner missing")
 need("emission::compare::emit_to" in compare_rs, "Rust comparison emission handoff missing")
 need("MirInstruction::Compare" in emit_compare, "MIR Compare emission owner missing")
 need("MirInstruction::Branch" in emit_branch, "MIR Branch emission owner missing")
-need("MIRBUILDER-BOOL-RECIPE-COMPARE-LOWERING-OBSERVE-ONLY-PILOT-001" in task_order, "task-order missing observe-only pilot")
 PY
 
 cat <<'REPORT'

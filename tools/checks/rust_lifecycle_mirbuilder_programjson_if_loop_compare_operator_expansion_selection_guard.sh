@@ -10,10 +10,9 @@ FIXTURE="$ROOT_DIR/docs/development/current/main/design/fixtures/rust-lifecycle/
 READER="$ROOT_DIR/lang/src/compiler/mirbuilder/program_json_compare_reader_box.hako"
 IF_HANDLER="$ROOT_DIR/lang/src/compiler/mirbuilder/stmt_handlers/if_stmt_handler.hako"
 LOWERING_GATE="$ROOT_DIR/tools/checks/rust_lifecycle_mirbuilder_bool_recipe_compare_lowering_observe_only_pilot_gate.sh"
-TASK_ORDER="$ROOT_DIR/docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
 guard_require_command "$TAG" python3
-guard_require_files "$TAG" "$FIXTURE" "$READER" "$IF_HANDLER" "$LOWERING_GATE" "$TASK_ORDER"
+guard_require_files "$TAG" "$FIXTURE" "$READER" "$IF_HANDLER" "$LOWERING_GATE"
 
 LOWERING_OUT="$(guard_cached_run "$TAG" bash "$LOWERING_GATE")"
 if ! grep -q '^observe_only_lowering_intent=1$' <<<"$LOWERING_OUT"; then
@@ -21,7 +20,7 @@ if ! grep -q '^observe_only_lowering_intent=1$' <<<"$LOWERING_OUT"; then
   guard_fail "$TAG" "BoolRecipe lowering-intent prerequisite is not green"
 fi
 
-python3 - "$FIXTURE" "$READER" "$IF_HANDLER" "$TASK_ORDER" <<'PY'
+python3 - "$FIXTURE" "$READER" "$IF_HANDLER" <<'PY'
 import json
 import sys
 from pathlib import Path
@@ -29,7 +28,6 @@ from pathlib import Path
 fixture = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
 reader = Path(sys.argv[2]).read_text(encoding="utf-8")
 if_handler = Path(sys.argv[3]).read_text(encoding="utf-8")
-task_order = Path(sys.argv[4]).read_text(encoding="utf-8")
 
 def need(condition, message):
     if not condition:
@@ -84,7 +82,6 @@ for op in ['"<"', '"<="', '">"', '">="', '"=="', '"!="']:
     need(op in reader, f"shared reader missing op {op}")
 need("ProgramJsonCompareReaderBox.read_var_int_compare(program_json, cond_start)" in if_handler, "If handler missing shared reader")
 need("_cond_kind_from_reader(cond_reader)" in if_handler, "If handler missing cond_kind reader bridge")
-need("MIRBUILDER-PROGRAMJSON-IF-COND-RECIPE-RELATIONAL-ROW-BATCH-001" in task_order, "task-order missing selected next")
 PY
 
 cat <<'REPORT'

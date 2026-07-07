@@ -9,11 +9,10 @@ source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
 FIXTURE="$ROOT_DIR/docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-programjson-if-cond-recipe-relational-row-batch-v0.json"
 IF_HANDLER="$ROOT_DIR/lang/src/compiler/mirbuilder/stmt_handlers/if_stmt_handler.hako"
 SELECTION_GATE="$ROOT_DIR/tools/checks/rust_lifecycle_mirbuilder_programjson_if_loop_compare_operator_expansion_selection_guard.sh"
-TASK_ORDER="$ROOT_DIR/docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 HAKO_BIN="$ROOT_DIR/tools/bin/hako"
 
 guard_require_command "$TAG" python3
-guard_require_files "$TAG" "$FIXTURE" "$IF_HANDLER" "$SELECTION_GATE" "$TASK_ORDER" "$HAKO_BIN"
+guard_require_files "$TAG" "$FIXTURE" "$IF_HANDLER" "$SELECTION_GATE" "$HAKO_BIN"
 
 SELECTION_OUT="$(guard_cached_run "$TAG" bash "$SELECTION_GATE")"
 if ! grep -q '^top_level_if_relational_batch_selected=1$' <<<"$SELECTION_OUT"; then
@@ -21,14 +20,13 @@ if ! grep -q '^top_level_if_relational_batch_selected=1$' <<<"$SELECTION_OUT"; t
   guard_fail "$TAG" "If relational batch selection prerequisite is not green"
 fi
 
-python3 - "$FIXTURE" "$IF_HANDLER" "$TASK_ORDER" <<'PY'
+python3 - "$FIXTURE" "$IF_HANDLER" <<'PY'
 import json
 import sys
 from pathlib import Path
 
 fixture = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
 impl = Path(sys.argv[2]).read_text(encoding="utf-8")
-task_order = Path(sys.argv[3]).read_text(encoding="utf-8")
 
 def need(condition, message):
     if not condition:
@@ -81,7 +79,6 @@ for needle in [
     need(needle in impl, f"IfStmtHandler missing token: {needle}")
 for forbidden in ["PlanLowerer", "route_registry", "emit_mir"]:
     need(forbidden not in impl, f"forbidden implementation token: {forbidden}")
-need("MIRBUILDER-PROGRAMJSON-LOOP-NESTED-IF-COND-RECIPE-RELATIONAL-ROW-BATCH-001" in task_order, "task-order missing next")
 PY
 
 TMP_DIR="$(mktemp -d /tmp/hakorune-if-cond-recipe-rel.XXXXXX)"

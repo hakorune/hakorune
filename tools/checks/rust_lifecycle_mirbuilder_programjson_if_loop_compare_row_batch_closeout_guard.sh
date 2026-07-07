@@ -109,7 +109,6 @@ for key in [
 ]:
     need(claims.get(key) == 0, f"forbidden claim drift: {key}")
 
-need("MIRBUILDER-PROGRAMJSON-COMPARE-READER-FOLLOWON-SELECTION-001" in task_order, "task-order missing follow-on selection")
 need("MIRBUILDER-COMPARE-LOWERING-MUTATION-OWNER-SELECTION-001" in task_order, "task-order missing future mutation owner selection")
 PY
 

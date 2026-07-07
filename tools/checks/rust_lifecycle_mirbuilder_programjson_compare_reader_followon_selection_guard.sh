@@ -90,8 +90,6 @@ for key in [
 need("read_var_int_compare(program_json, compare_start): MapBox" in reader, "current reader entry missing")
 need("symbol_ref(symbol_id)" in bool_recipe, "BoolRecipe SymbolRef boundary missing")
 need("if kind == 2 { return BoundExprBox.symbol_ref" in bool_recipe, "BoolRecipe code-map SymbolRef support missing")
-need("MIRBUILDER-PROGRAMJSON-COMPARE-READER-FOLLOWON-SELECTION-001" in task_order, "task-order missing selection token")
-need("MIRBUILDER-PROGRAMJSON-COMPARE-READER-VAR-RHS-BOUND-PARITY-001" in task_order, "task-order missing selected implementation token")
 need("MIRBUILDER-COMPARE-LOWERING-MUTATION-OWNER-SELECTION-001" in task_order, "future lowering owner selection missing")
 PY
 

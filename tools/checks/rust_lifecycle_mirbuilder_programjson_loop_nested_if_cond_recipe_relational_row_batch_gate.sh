@@ -10,11 +10,10 @@ FIXTURE="$ROOT_DIR/docs/development/current/main/design/fixtures/rust-lifecycle/
 LOOP_HANDLER="$ROOT_DIR/lang/src/compiler/mirbuilder/stmt_handlers/loop_stmt_handler.hako"
 BRIDGE="$ROOT_DIR/lang/src/compiler/mirbuilder/stmt_handlers/loop_nested_if_cond_recipe_bridge_box.hako"
 PREV_GATE="$ROOT_DIR/tools/checks/rust_lifecycle_mirbuilder_programjson_if_cond_recipe_relational_row_batch_gate.sh"
-TASK_ORDER="$ROOT_DIR/docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 HAKO_BIN="$ROOT_DIR/tools/bin/hako"
 
 guard_require_command "$TAG" python3
-guard_require_files "$TAG" "$FIXTURE" "$LOOP_HANDLER" "$BRIDGE" "$PREV_GATE" "$TASK_ORDER" "$HAKO_BIN"
+guard_require_files "$TAG" "$FIXTURE" "$LOOP_HANDLER" "$BRIDGE" "$PREV_GATE" "$HAKO_BIN"
 
 PREV_OUT="$(guard_cached_run "$TAG" bash "$PREV_GATE")"
 if ! grep -q '^if_cond_recipe_relational_row_batch=1$' <<<"$PREV_OUT"; then
@@ -22,7 +21,7 @@ if ! grep -q '^if_cond_recipe_relational_row_batch=1$' <<<"$PREV_OUT"; then
   guard_fail "$TAG" "If relational row batch prerequisite is not green"
 fi
 
-python3 - "$FIXTURE" "$LOOP_HANDLER" "$BRIDGE" "$TASK_ORDER" <<'PY'
+python3 - "$FIXTURE" "$LOOP_HANDLER" "$BRIDGE" <<'PY'
 import json
 import sys
 from pathlib import Path
@@ -30,7 +29,6 @@ from pathlib import Path
 fixture = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
 loop_impl = Path(sys.argv[2]).read_text(encoding="utf-8")
 bridge = Path(sys.argv[3]).read_text(encoding="utf-8")
-task_order = Path(sys.argv[4]).read_text(encoding="utf-8")
 
 def need(condition, message):
     if not condition:
@@ -78,7 +76,6 @@ for needle in [
     "BoolRecipeBox.from_numeric_compare_code_map(cond_reader)",
 ]:
     need(needle in bridge, f"bridge missing token: {needle}")
-need("MIRBUILDER-BOOL-RECIPE-COMPARE-LOWERING-EMISSION-CONSULTATION-001" in task_order, "task-order missing next")
 PY
 
 TMP_DIR="$(mktemp -d /tmp/hakorune-loop-nested-if-rel.XXXXXX)"

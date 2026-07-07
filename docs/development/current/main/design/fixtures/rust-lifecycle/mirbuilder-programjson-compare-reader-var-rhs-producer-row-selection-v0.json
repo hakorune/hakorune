@@ -1,0 +1,75 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonCompareReaderVarRhsProducerRowSelectionV1",
+  "token": "MIRBUILDER-PROGRAMJSON-COMPARE-READER-VAR-RHS-PRODUCER-ROW-SELECTION-001",
+  "prerequisite": "MIRBUILDER-PROGRAMJSON-COMPARE-READER-VAR-RHS-BOUND-PARITY-001",
+  "selection_subject": "Choose the first producer row that consumes the shared compare reader's Var rhs SymbolRef output.",
+  "input_state": {
+    "reader_owner": "ProgramJsonCompareReaderBox.read_var_int_compare",
+    "reader_bound_kind_code": 2,
+    "reader_bound_kind_name": "SymbolRef",
+    "producer_change_available": true,
+    "lowering_emission_deferred": true
+  },
+  "candidates": [
+    {
+      "name": "TopLevelIfVarRhsCondRecipeRow",
+      "selected": true,
+      "reason": "Top-level If is the narrowest producer: it can attach a SymbolRef BoolRecipe sidecar without loop route/release or body-shape semantics.",
+      "selected_next_card": "MIRBUILDER-PROGRAMJSON-IF-COND-RECIPE-VAR-RHS-BOUND-ROW-001"
+    },
+    {
+      "name": "LoopNestedIfVarRhsCondRecipeRow",
+      "selected": false,
+      "reason": "Loop-body nested If still has multiple cond_rhs_int body-shape consumers; open it after the top-level If sidecar row proves the producer boundary."
+    },
+    {
+      "name": "TopLevelLoopVarRhsCondRecipeRow",
+      "selected": false,
+      "reason": "Top-level Loop condition feeds route-sensitive loop facts and existing cond_rhs_int route surfaces; it is not the first producer row."
+    },
+    {
+      "name": "LengthBoundProducerRows",
+      "selected": false,
+      "reason": "Length and length-minus bounds are not yet supported by the shared reader."
+    },
+    {
+      "name": "MutationBearingLoweringOwner",
+      "selected": false,
+      "reason": "MIR Compare/Branch emission remains deferred until producer rows and operand/materialization boundaries are stable."
+    }
+  ],
+  "selected_boundary": {
+    "name": "ProgramJsonIfCondRecipeVarRhsBoundRowV1",
+    "owner": "IfStmtHandler",
+    "shape": "Top-level If Compare(lhs=Var, op=<, rhs=Var), then Return, else null",
+    "expected_publication": "RecipeItem cond_recipe BoolRecipe::Compare with bound_kind=SymbolRef",
+    "legacy_cond_facts": "may add symbol metadata for this row; must not pretend cond_rhs_int exists",
+    "producer_scope": "one exact top-level If row",
+    "lowering": false,
+    "route_selection": false
+  },
+  "decision": {
+    "kind": "SelectTopLevelIfVarRhsCondRecipeProducerRow",
+    "reason_token": "TopLevelIfIsNarrowestVarRhsSymbolRefProducer",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-IF-COND-RECIPE-VAR-RHS-BOUND-ROW-001"
+  },
+  "claims": {
+    "var_rhs_producer_row_selection": 1,
+    "top_level_if_var_rhs_row_selected": 1,
+    "top_level_if_var_rhs_row_implemented": 0,
+    "loop_nested_if_var_rhs_row_selected": 0,
+    "top_level_loop_var_rhs_row_selected": 0,
+    "length_bound_producer_selected": 0,
+    "bool_recipe_lowering_executed": 0,
+    "mir_cmp_emission": 0,
+    "branch_emission": 0,
+    "basic_block_mutation": 0,
+    "value_id_allocation": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_route_authority": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  }
+}

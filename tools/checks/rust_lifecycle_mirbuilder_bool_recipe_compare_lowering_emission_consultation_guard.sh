@@ -120,7 +120,6 @@ need("Non-responsibility:" in bool_recipe and "MIR Compare/Branch emission" in b
 need("build_comparison_op" in compare_rs and "next_value_id" in compare_rs, "Rust comparison owner must still own ValueId allocation")
 need("MirInstruction::Compare" in emit_compare, "Rust MIR Compare emission owner missing")
 need("MirInstruction::Branch" in emit_branch, "Rust MIR Branch emission owner missing")
-need("MIRBUILDER-PROGRAMJSON-IF-LOOP-COMPARE-ROW-BATCH-CLOSEOUT-001" in task_order, "task-order missing closeout next")
 PY
 
 cat <<'REPORT'

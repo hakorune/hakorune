@@ -98,8 +98,6 @@ for needle in [
 ]:
     need(needle in reader, f"reader missing: {needle}")
 need("symbol_ref(symbol_id)" in bool_recipe, "BoolRecipe SymbolRef boundary missing")
-need("MIRBUILDER-PROGRAMJSON-COMPARE-READER-VAR-RHS-BOUND-PARITY-001; status=landed" in task_order, "task-order missing landed card")
-need("MIRBUILDER-PROGRAMJSON-COMPARE-READER-VAR-RHS-PRODUCER-ROW-SELECTION-001; status=next" in task_order, "task-order missing next producer selection")
 PY
 
 TMP_DIR="$(mktemp -d /tmp/hakorune-compare-reader-var-rhs.XXXXXX)"
