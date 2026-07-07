@@ -16,7 +16,18 @@ if [[ ! -x "$BIN" ]]; then
   cargo build --release -q
 fi
 
-if [[ "${HAKO_MIR_JSON_CACHE:-1}" != "0" ]]; then
+run_cached_emit() {
+  local emit_flag="$1"
+  local cache_enabled="$2"
+  local cache_root="$3"
+  local cache_suffix="$4"
+  local executable_out="$5"
+  shift 5
+
+  if [[ "$cache_enabled" == "0" ]]; then
+    return 1
+  fi
+
   emit_out=""
   emit_seen=0
   for arg in "$@"; do
@@ -24,7 +35,7 @@ if [[ "${HAKO_MIR_JSON_CACHE:-1}" != "0" ]]; then
       emit_out="$arg"
       break
     fi
-    if [[ "$arg" == "--emit-mir-json" ]]; then
+    if [[ "$arg" == "$emit_flag" ]]; then
       emit_seen=1
     fi
   done
@@ -32,7 +43,6 @@ if [[ "${HAKO_MIR_JSON_CACHE:-1}" != "0" ]]; then
   if [[ -n "$emit_out" && "$#" -gt 0 ]]; then
     input="${!#}"
     if [[ -f "$input" ]]; then
-      cache_root="${HAKO_MIR_JSON_CACHE_DIR:-$ROOT_DIR/target/hako-mir-json-cache/v1}"
       bin_fingerprint="$(stat -c '%n:%s:%Y' "$BIN" 2>/dev/null || printf '%s' "$BIN")"
       input_hash="$(sha256sum "$input" | awk '{ print $1 }')"
       canonical_args=()
@@ -44,7 +54,7 @@ if [[ "${HAKO_MIR_JSON_CACHE:-1}" != "0" ]]; then
           continue
         fi
         case "$arg" in
-          --emit-mir-json)
+          "$emit_flag")
             canonical_args+=("$arg")
             skip_next=1
             ;;
@@ -62,11 +72,14 @@ if [[ "${HAKO_MIR_JSON_CACHE:-1}" != "0" ]]; then
       key="$(printf '%s\n%s\n%s\n%s\n' \
         "$bin_fingerprint" "$input_hash" "$args_key" "$env_key" \
         | sha256sum | awk '{ print $1 }')"
-      cache_path="$cache_root/${key}.mir.json"
+      cache_path="$cache_root/${key}.${cache_suffix}"
 
       if [[ -s "$cache_path" ]]; then
         mkdir -p "$(dirname "$emit_out")"
         cp "$cache_path" "$emit_out"
+        if [[ "$executable_out" == "1" ]]; then
+          chmod +x "$emit_out"
+        fi
         exit 0
       fi
 
@@ -78,10 +91,38 @@ if [[ "${HAKO_MIR_JSON_CACHE:-1}" != "0" ]]; then
         mkdir -p "$cache_root"
         tmp_cache="$cache_path.$$"
         cp "$emit_out" "$tmp_cache"
+        if [[ "$executable_out" == "1" ]]; then
+          chmod +x "$tmp_cache"
+        fi
         mv "$tmp_cache" "$cache_path"
       fi
       exit "$rc"
     fi
+  fi
+  return 1
+}
+
+if [[ "${HAKO_MIR_JSON_CACHE:-1}" != "0" ]]; then
+  if run_cached_emit \
+    "--emit-mir-json" \
+    "${HAKO_MIR_JSON_CACHE:-1}" \
+    "${HAKO_MIR_JSON_CACHE_DIR:-$ROOT_DIR/target/hako-mir-json-cache/v1}" \
+    "mir.json" \
+    "0" \
+    "$@"; then
+    exit 0
+  fi
+fi
+
+if [[ "${HAKO_EMIT_EXE_CACHE:-1}" != "0" ]]; then
+  if run_cached_emit \
+    "--emit-exe" \
+    "${HAKO_EMIT_EXE_CACHE:-1}" \
+    "${HAKO_EMIT_EXE_CACHE_DIR:-$ROOT_DIR/target/hako-emit-exe-cache/v1}" \
+    "exe" \
+    "1" \
+    "$@"; then
+    exit 0
   fi
 fi
 

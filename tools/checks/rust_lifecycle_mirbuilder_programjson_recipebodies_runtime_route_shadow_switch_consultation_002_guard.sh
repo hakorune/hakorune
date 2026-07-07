@@ -149,6 +149,7 @@ for needle in [token, next_card, "CONSULTATION_REQUIRED"]:
 allowed_latest = [
     f'latest_card = "{token}"',
     'latest_card = "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RUNTIME-ROUTE-ADJACENT-SHADOW-GUARD-001"',
+    'latest_card = "GUARD-CACHE-EMIT-EXE-AND-DIRTY-MEMO-001"',
 ]
 if not any(needle in current_state for needle in allowed_latest):
     raise SystemExit("CURRENT_STATE latest card drift")

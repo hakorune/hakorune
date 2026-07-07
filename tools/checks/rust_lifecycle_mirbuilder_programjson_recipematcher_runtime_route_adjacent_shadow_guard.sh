@@ -175,7 +175,11 @@ for needle in [
 for needle in [token, next_card]:
     if needle not in task_order:
         raise SystemExit(f"task-order missing: {needle}")
-if f'latest_card = "{token}"' not in current_state:
+allowed_latest = [
+    f'latest_card = "{token}"',
+    'latest_card = "GUARD-CACHE-EMIT-EXE-AND-DIRTY-MEMO-001"',
+]
+if not any(needle in current_state for needle in allowed_latest):
     raise SystemExit("CURRENT_STATE latest card drift")
 PY
 

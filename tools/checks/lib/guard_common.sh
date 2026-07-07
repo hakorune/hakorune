@@ -195,6 +195,28 @@ guard_worktree_clean_for_cache() {
         [[ -z "$(git -C "$root_dir" ls-files --others --exclude-standard)" ]]
 }
 
+guard_dirty_digest_for_cache() {
+    local root_dir="$1"
+
+    {
+        git -C "$root_dir" status --porcelain=v1
+        git -C "$root_dir" diff --binary
+        git -C "$root_dir" diff --cached --binary
+        git -C "$root_dir" ls-files --others --exclude-standard -z |
+            LC_ALL=C sort -z |
+            while IFS= read -r -d '' path; do
+                printf 'untracked:%s\0' "$path"
+                if [[ -f "$root_dir/$path" ]]; then
+                    sha256sum "$root_dir/$path"
+                elif [[ -d "$root_dir/$path" ]]; then
+                    printf 'directory:%s\n' "$path"
+                else
+                    printf 'other:%s\n' "$path"
+                fi
+            done
+    } | sha256sum | awk '{ print $1 }'
+}
+
 guard_cached_run() {
     local tag="$1"
     shift
@@ -216,16 +238,7 @@ guard_cached_run() {
             "$@"
             return $?
         fi
-        dirty_digest="$({
-            git -C "$root_dir" status --porcelain=v1
-            git -C "$root_dir" diff --binary
-            git -C "$root_dir" diff --cached --binary
-        } | sha256sum | awk '{ print $1 }')"
-    fi
-
-    if [[ "$dirty_digest" != "clean" && -n "$(git -C "$root_dir" ls-files --others --exclude-standard)" ]]; then
-        "$@"
-        return $?
+        dirty_digest="$(guard_dirty_digest_for_cache "$root_dir")"
     fi
 
     local head
