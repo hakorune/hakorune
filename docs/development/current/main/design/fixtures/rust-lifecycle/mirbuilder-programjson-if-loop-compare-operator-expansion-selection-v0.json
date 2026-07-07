@@ -1,0 +1,70 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonIfLoopCompareOperatorExpansionSelectionV1",
+  "token": "MIRBUILDER-PROGRAMJSON-IF-LOOP-COMPARE-OPERATOR-EXPANSION-SELECTION-001",
+  "prerequisite": "MIRBUILDER-BOOL-RECIPE-COMPARE-LOWERING-OBSERVE-ONLY-PILOT-001",
+  "consultation_subject": "Choose the next visible Compare operator expansion row after shared reader and lowering-intent boundaries are green.",
+  "inventory": {
+    "shared_reader": "ProgramJsonCompareReaderBox supports Var op Int for < <= > >= == !=",
+    "top_level_if_current": "IfStmtHandler currently accepts == and != only",
+    "top_level_loop_current": "LoopStmtHandler can attach cond_recipe for six cmp codes but loop route/release semantics remain separate",
+    "nested_if_current": "Loop-body nested If uses shared reader for cond_recipe but legacy cond_facts are still VarLtInt-shaped"
+  },
+  "candidates": [
+    {
+      "name": "TopLevelIfRelationalBatch",
+      "selected": true,
+      "reason": "Directly fixes the remaining top-level If user-visible gap without route release, loop body, or MIR lowering semantics.",
+      "selected_next_card": "MIRBUILDER-PROGRAMJSON-IF-COND-RECIPE-RELATIONAL-ROW-BATCH-001"
+    },
+    {
+      "name": "LoopNestedIfRelationalExitBatch",
+      "selected": false,
+      "reason": "Useful, but Loop-body exit rows also need legacy cond_facts and route-sensitive body-shape care."
+    },
+    {
+      "name": "TopLevelLoopRelationalRuntimeRows",
+      "selected": false,
+      "reason": "Loop route/release semantics must stay separate from Compare producer expansion."
+    },
+    {
+      "name": "MIRLoweringEmissionNow",
+      "selected": false,
+      "reason": "MIR Compare/Branch emission is still a later consultation after producer rows and lowering intent are stable."
+    }
+  ],
+  "selected_batch": {
+    "name": "IfCondRecipeRelationalRowBatchV1",
+    "owner": "IfStmtHandler",
+    "rows": [
+      "if_var_lt_int_then_return_else_null",
+      "if_var_le_int_then_return_else_null",
+      "if_var_gt_int_then_return_else_null",
+      "if_var_ge_int_then_return_else_null"
+    ],
+    "scope": "Top-level If Compare(Var relational Int) cond_recipe sidecar and legacy cond_facts only",
+    "lowering": false,
+    "route_selection": false,
+    "runtime_route_switch": false
+  },
+  "decision": {
+    "kind": "SelectTopLevelIfRelationalBatch",
+    "reason_token": "IfRelationalOperatorsAreNextUserVisibleGapAfterSharedReader",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-IF-COND-RECIPE-RELATIONAL-ROW-BATCH-001"
+  },
+  "claims": {
+    "operator_expansion_selection": 1,
+    "top_level_if_relational_batch_selected": 1,
+    "if_accepts_all_6_compare_operators": 0,
+    "loop_nested_if_operator_expansion": 0,
+    "top_level_loop_route_semantics_changed": 0,
+    "bool_recipe_lowering_executed": 0,
+    "mir_cmp_emission": 0,
+    "branch_emission": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_route_authority": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  }
+}
