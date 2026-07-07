@@ -1,0 +1,53 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderGuardChainCacheThroughputTaskSelectionV1",
+  "token": "MIRBUILDER-GUARD-CHAIN-CACHE-THROUGHPUT-TASK-SELECTION-001",
+  "current_state": {
+    "previous_card": "MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-SYMBOLREF-LOOKUP-BRIDGE-001",
+    "current_blocker_token": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+  },
+  "observed_problem": {
+    "kind": "DeepGuardChainRepeatedPrerequisiteExecution",
+    "examples": [
+      "SymbolRef contract parity hard-authority guard",
+      "SymbolRef lookup bridge hard-authority guard"
+    ],
+    "dirty_worktree_cache_default": "disabled",
+    "clean_worktree_cache_available": true
+  },
+  "existing_cache_primitives": [
+    {
+      "name": "guard_cached_run",
+      "guard": "tools/checks/guard_result_cache_helper_guard.sh"
+    },
+    {
+      "name": "hako_mir_json_cache_wrapper",
+      "guard": "tools/checks/hako_mir_json_cache_wrapper_guard.sh"
+    },
+    {
+      "name": "hako_emit_exe_cache_wrapper",
+      "guard": "tools/checks/hako_emit_exe_cache_wrapper_guard.sh"
+    }
+  ],
+  "decision": {
+    "kind": "SelectGuardChainCachePreflight",
+    "selected_next_card": "MIRBUILDER-GUARD-CHAIN-CACHE-PREFLIGHT-001",
+    "resume_after": "MIRBUILDER-COMPARE-LOCALSSA-FINALIZE-COMPARE-DESIGN-STOP-001"
+  },
+  "claims": {
+    "guard_chain_cache_task_selected": 1,
+    "existing_guard_result_cache_available": 1,
+    "existing_hako_mir_json_cache_wrapper_available": 1,
+    "existing_hako_emit_exe_cache_wrapper_available": 1,
+    "cache_implementation_changed": 0,
+    "dirty_cache_default_changed": 0,
+    "localssa_finalize_compare_execution": 0,
+    "mir_compare_emission": 0,
+    "mir_branch_emission": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_authority": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  }
+}

@@ -373,6 +373,7 @@ phase-1 compatibility Program(JSON) compat execution helper.
 | `tools/checks/hako_mir_json_cache_wrapper_guard.sh` | Cache contract guard for `tools/bin/hako --emit-mir-json` miss-then-hit behavior. |
 | `tools/checks/hako_emit_exe_cache_wrapper_guard.sh` | Cache contract guard for `tools/bin/hako --emit-exe` miss-then-hit behavior. |
 | `tools/checks/guard_result_cache_helper_guard.sh` | Cache contract guard for `guard_cached_run` prerequisite guard memoization. |
+| `tools/checks/rust_lifecycle_mirbuilder_guard_chain_cache_throughput_task_selection_guard.sh` | Selection guard taskizing guard-chain cache preflight before LocalSSA compare finalization. |
 | `tools/checks/guard_result_cache_dirty_untracked_memo_guard.sh` | Cache contract guard for opt-in dirty worktree memoization with untracked file content. |
 | `tools/checks/hako_aot_dynamic_string_eq_and_int_to_str_correctness_gate.sh` | AOT dynamic string equality and scanner-fed `StringHelpers.int_to_str` correctness gate. |
 | `tools/checks/hako_aot_route_value_type_publication_contract_gate.sh` | AOT/MIR route value-type publication contract gate for 2997. |
