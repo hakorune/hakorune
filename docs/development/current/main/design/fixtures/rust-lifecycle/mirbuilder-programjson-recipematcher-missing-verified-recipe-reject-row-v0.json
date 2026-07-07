@@ -1,0 +1,45 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonRecipeMatcherMissingVerifiedRecipeRejectRowV1",
+  "token": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-MISSING-VERIFIED-RECIPE-REJECT-ROW-001",
+  "input_state": {
+    "previous_card": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-REJECT-FLOOR-SELECTION-001",
+    "runtime_authority": "rust_astnode",
+    "programjson_route": "shadow_only"
+  },
+  "row": {
+    "row_id": "missing_verified_recipe_reject",
+    "program_json": {},
+    "expected_snapshot": {
+      "ok": 0,
+      "reason": "verified_recipe_missing",
+      "matcher_input_present": 0,
+      "exit_has_break": 0,
+      "exit_has_continue": 0,
+      "exit_has_return": 0,
+      "recipe_matcher_executed": 0
+    },
+    "expected_matcher_result": {
+      "ok": 0,
+      "reason": "snapshot_not_ok",
+      "matcher_input_consumed": 0,
+      "matched": 0,
+      "contract_kind": "Unsupported"
+    }
+  },
+  "claims": {
+    "missing_verified_recipe_reject_row_green": 1,
+    "reject_floor_row_green": 1,
+    "matcher_refuses_bad_snapshot": 1,
+    "programjson_shadow_checked": 1,
+    "programjson_runtime_route_authority": 0,
+    "runtime_route_switch": 0,
+    "recipe_matcher_input_authority": 0,
+    "route_selection": 0,
+    "mir_lowering": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  }
+}

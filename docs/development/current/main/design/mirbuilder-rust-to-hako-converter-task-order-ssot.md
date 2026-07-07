@@ -82,6 +82,7 @@ normal operating rule:
   history.
 
 latest design decision:
+  3248 implements MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-MISSING-VERIFIED-RECIPE-REJECT-ROW-001: empty ProgramJSON rejects as verified_recipe_missing -> snapshot_not_ok with matched=0; ProgramJSON remains shadow-only.
   3247 records MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-REJECT-FLOOR-SELECTION-001: selected first reachable reject row is malformed_or_missing_verified_recipe, next card is MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-MISSING-VERIFIED-RECIPE-REJECT-ROW-001.
   3246 implements MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RETURN-ABSENT-ACCEPTED-FLOOR-001: exact IfBreak+IfContinue+Assignment Return-absent row is green with final top-level Return present; ProgramJSON remains shadow-only.
   3245 implements MIRBUILDER-PROGRAMJSON-CANONICAL-LOOP-FACTS-FINAL-TOPLEVEL-RETURN-DECOUPLE-SNAPSHOT-BOUNDARY-001: snapshot-boundary decouple publishes final_top_level_return_present while loop-body exit_has_return uses loop-body scan only.
@@ -407,12 +408,12 @@ Detailed evidence lives in phase cards, fixtures, and git history.
 
 ## Active Next 3
 ```text
-1. MIRBUILDER-PROGRAMJSON-CANONICAL-LOOP-FACTS-FINAL-TOPLEVEL-RETURN-DECOUPLE-SNAPSHOT-BOUNDARY-001; status=landed; boundary=snapshot-boundary final Return decoupled
-2. MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RETURN-ABSENT-ACCEPTED-FLOOR-001; status=landed; unit=IfBreak+IfContinue+Assignment Return-absent shadow row
-3. MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-REJECT-FLOOR-SELECTION-001; status=landed; selected_first_axis=malformed_or_missing_verified_recipe
+1. MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RETURN-ABSENT-ACCEPTED-FLOOR-001; status=landed; unit=IfBreak+IfContinue+Assignment Return-absent shadow row
+2. MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-REJECT-FLOOR-SELECTION-001; status=landed; selected_first_axis=malformed_or_missing_verified_recipe
+3. MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-MISSING-VERIFIED-RECIPE-REJECT-ROW-001; status=landed; reject_floor_row_green=1
 
 next active:
-  MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-MISSING-VERIFIED-RECIPE-REJECT-ROW-001; status=next; unit=reject-floor row; expected_snapshot_reason=verified_recipe_missing; expected_matcher_reason=snapshot_not_ok
+  MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-ROUTE-CONSUMED-FIELD-FLOOR-SELECTION-001; status=next; unit=route-consumed field floor selection; runtime_authority=rust_astnode; programjson_runtime_route_authority=0; runtime_route_switch=0
 
 trigger-based AOT/MIR typing debt:
   status=parked-until-triggered; order=2999/3000/3001 landed, then 3022 queue
@@ -420,10 +421,10 @@ trigger-based AOT/MIR typing debt:
   compare, PHI dst_type, mir_call dst_type, or receiver-helper
   single-observation protection
 next_documented_task =
-  MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-MISSING-VERIFIED-RECIPE-REJECT-ROW-001
+  MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-ROUTE-CONSUMED-FIELD-FLOOR-SELECTION-001
 
 next_after_active_3 =
-  MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-ROUTE-CONSUMED-FIELD-FLOOR-SELECTION-001
+  MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-AUTHORITY-SWITCH-READINESS-CONSULTATION-001
 
 task discipline =
   Each ProgramJSON capability card must land real `.hako` traversal + fixture

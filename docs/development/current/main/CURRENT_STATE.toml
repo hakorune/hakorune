@@ -345,15 +345,14 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-REJECT-FLOOR-SELECTION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3247-MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-REJECT-FLOOR-SELECTION-001.md"
-latest_card_summary = """3247 selects malformed_or_missing_verified_recipe as the
-first reachable ProgramJSON RecipeMatcher reject-floor row. The selected next card is
-MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-MISSING-VERIFIED-RECIPE-REJECT-ROW-001,
-which will check verified_recipe_missing -> snapshot_not_ok with matched=0.
-Reject row green, ProgramJSON runtime authority, route switch, route selection,
-lowering, mutation, ID allocation, fallback, and Source Selfhost remain
-unclaimed."""
+latest_card = "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-MISSING-VERIFIED-RECIPE-REJECT-ROW-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3248-MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-MISSING-VERIFIED-RECIPE-REJECT-ROW-001.md"
+latest_card_summary = """3248 implements the first reachable ProgramJSON
+RecipeMatcher reject-floor row. An empty ProgramJSON input fail-fasts as
+verified_recipe_missing at the CanonicalLoopFacts snapshot boundary, then the
+observe-only RecipeMatcher rejects it as snapshot_not_ok with matched=0.
+ProgramJSON runtime authority, route switch, route selection, lowering,
+mutation, ID allocation, fallback, and Source Selfhost remain unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -364,6 +363,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-07: 3248 implements the missing verified recipe reject-floor row; snapshot_not_ok keeps matched=0 while runtime authority remains Rust and Source Selfhost remains unclaimed.",
   "2026-07-07: 3247 selects malformed_or_missing_verified_recipe as the first reachable ProgramJSON RecipeMatcher reject-floor row; reject row green and runtime authority remain unclaimed.",
   "2026-07-07: 3246 implements the ProgramJSON Return-absent accepted-floor row for IfBreak+IfContinue+Assignment with final top-level Return present; matcher parity is green while runtime authority remains Rust and Source Selfhost remains unclaimed.",
   "2026-07-07: 3245 decouples final top-level Return presence from loop-body exit usage at the CanonicalLoopFacts snapshot boundary; accepted-floor support and runtime authority remain unclaimed.",
@@ -375,5 +375,4 @@ landed_tail = [
   "2026-07-07: 3239 implements the ProgramJSON IfContinue+IfReturn+Assignment exact BoxCount accepted-floor row with verified-recipe and matcher-result parity; runtime authority remains Rust and Source Selfhost remains unclaimed.",
   "2026-07-07: 3238 records the Continue-present accepted-row shape design stop; final top-level Return cannot satisfy Rust loop-body has_return, so implementation pauses for consultation while runtime authority remains Rust and Source Selfhost remains unclaimed.",
   "2026-07-07: 3237 records the ProgramJSON RecipeMatcher accepted-floor matrix, keeps the four return-only rows green, marks Break/Continue rows blocked on verified-recipe producer support, and selects Continue-present support next; runtime authority remains Rust and Source Selfhost remains unclaimed.",
-  "2026-07-07: 3236 selects the accepted matrix, reject floor, and route-adjacent field floor required before any ProgramJSON RecipeMatcher authority switch; runtime authority remains Rust and Source Selfhost remains unclaimed.",
 ]
