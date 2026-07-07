@@ -1,0 +1,28 @@
+// loop_nested_if_cond_recipe_bridge_box.hako
+//
+// Responsibility:
+// - Attach optional cond_recipe sidecars to Loop-body nested If RecipeItems.
+// - Use the shared ProgramJSON Compare reader.
+
+using selfhost.shared.common.box_helpers as BoxHelpers
+using lang.compiler.mirbuilder.program_json_compare_reader_box as ProgramJsonCompareReaderBox
+using lang.compiler.mirbuilder.recipe.bool_recipe_box as BoolRecipeBox
+using lang.compiler.mirbuilder.recipe.recipe_item_box as RecipeItemBox
+
+static box LoopNestedIfCondRecipeBridgeBox {
+  if_item(program_json, cond_start, cond_facts, then_item, else_item): MapBox {
+    local cond_reader = ProgramJsonCompareReaderBox.read_var_int_compare(program_json, cond_start)
+    local cond_recipe = BoolRecipeBox.from_numeric_compare_code_map(cond_reader)
+    if BoolRecipeBox.is_valid_compare(cond_recipe) == 1 {
+      return RecipeItemBox.if_item_with_cond_recipe(cond_facts, cond_recipe, then_item, else_item)
+    }
+    return RecipeItemBox.if_item(cond_facts, then_item, else_item)
+  }
+
+  cond_recipe_present(item) {
+    if item == null || BoxHelpers.is_map(item) != 1 { return 0 }
+    return RecipeItemBox.cond_recipe_present(item)
+  }
+}
+
+static box LoopNestedIfCondRecipeBridgeBoxMain { main() { return 0 } }
