@@ -1,0 +1,54 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderCompareBranchEmissionDesignStopV1",
+  "token": "MIRBUILDER-COMPARE-BRANCH-EMISSION-DESIGN-STOP-001",
+  "prerequisite": "MIRBUILDER-COMPARE-MIR-COMPARE-EMISSION-BRIDGE-001",
+  "decision_context": {
+    "current_boundary": "Compare result ValueId availability",
+    "rust_branch_condition_owner": "ssa::local::finalize_branch_cond",
+    "rust_branch_emission_owner": "emission::branch::emit_conditional",
+    "risk": "Branch emission consumes the Compare result and writes a terminator"
+  },
+  "candidates": [
+    {
+      "name": "BranchEmissionBridgeFirst",
+      "selected": true,
+      "reason": "Expose branch condition finalization plus conditional branch emission separately before route/runtime authority",
+      "selected_next_card": "MIRBUILDER-COMPARE-BRANCH-EMISSION-BRIDGE-001"
+    },
+    {
+      "name": "CombineBranchEmissionWithRouteSelection",
+      "selected": false,
+      "reason": "Would mix terminator emission with route authority"
+    },
+    {
+      "name": "SkipFinalizeBranchCondForCompareResult",
+      "selected": false,
+      "reason": "Would diverge from existing Rust branch semantics before proving equivalence"
+    },
+    {
+      "name": "OpenProgramJsonRuntimeAuthorityNow",
+      "selected": false,
+      "reason": "Runtime authority switch remains out of scope"
+    }
+  ],
+  "selected_sequence": [
+    "MIRBUILDER-COMPARE-BRANCH-EMISSION-BRIDGE-001",
+    "MIRBUILDER-COMPARE-BOOLRECIPE-TO-MIR-COMPARE-BRANCH-CLOSEOUT-001"
+  ],
+  "claims": {
+    "compare_branch_emission_design_stop": 1,
+    "branch_emission_bridge_selected": 1,
+    "branch_emission_execution": 0,
+    "branch_condition_consumption": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_authority": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "SelectBranchEmissionBridgeFirst",
+    "selected_next_card": "MIRBUILDER-COMPARE-BRANCH-EMISSION-BRIDGE-001"
+  }
+}

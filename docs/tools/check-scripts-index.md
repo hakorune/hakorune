@@ -119,6 +119,7 @@ phase-1 compatibility Program(JSON) compat execution helper.
 | `tools/checks/rust_lifecycle_mirbuilder_compare_localssa_finalize_compare_design_stop_guard.sh` | Design-stop guard selecting a scoped LocalSSA finalize_compare bridge before MIR Compare/Branch emission. |
 | `tools/checks/rust_lifecycle_mirbuilder_compare_localssa_finalize_compare_bridge_gate.sh` | Rust gate proving scoped LocalSSA finalize_compare execution for resolved lhs/rhs ValueIds without MIR Compare/Branch emission or Bool result publication. |
 | `tools/checks/rust_lifecycle_mirbuilder_compare_mir_compare_emission_bridge_gate.sh` | Rust gate proving scoped MIR Compare emission from finalized operands without Branch emission or route/runtime authority. |
+| `tools/checks/rust_lifecycle_mirbuilder_compare_branch_emission_design_stop_guard.sh` | Design-stop guard selecting scoped Branch emission after MIR Compare emission while keeping route/runtime authority unclaimed. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_condition_shape_retire_rust_astnode_projector_candidate_guard.sh` | Retire-candidate guard for the covered `ConditionShapeSnapshotV1` ProgramJSON traversal slice. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_context_scope_shape_scan_parity_gate.sh` | Capability-batch parity for `.hako` `ProgramJsonContextScopeShapeScanV1`. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_context_scope_shape_retire_rust_astnode_projector_candidate_guard.sh` | Retire-candidate guard for the covered `ContextScopeShapeSnapshotV1` ProgramJSON traversal slice. |
