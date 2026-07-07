@@ -1,0 +1,75 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonVarRhsProducerFollowonSelectionV1",
+  "token": "MIRBUILDER-PROGRAMJSON-VAR-RHS-PRODUCER-FOLLOWON-SELECTION-001",
+  "prerequisite": "MIRBUILDER-PROGRAMJSON-IF-COND-RECIPE-VAR-RHS-BOUND-ROW-001",
+  "selection_subject": "Choose the next boundary after the top-level If Var rhs cond_recipe row.",
+  "input_state": {
+    "if_var_rhs_row_green": true,
+    "loop_stmt_handler_line_count_near_limit": true,
+    "loop_nested_if_bridge_exists": true,
+    "top_level_loop_route_sensitive": true,
+    "lowering_emission_deferred": true
+  },
+  "candidates": [
+    {
+      "name": "LoopNestedIfVarRhsRowDirect",
+      "selected": false,
+      "reason": "This is the right semantic direction, but direct row implementation would edit the 791-line LoopStmtHandler body scan and risk mixing BoxShape with BoxCount."
+    },
+    {
+      "name": "LoopNestedIfCondScanSeam",
+      "selected": true,
+      "reason": "Extract the Loop nested-If condition scan boundary first, keeping the next accepted row small and below the source line limit.",
+      "selected_next_card": "MIRBUILDER-PROGRAMJSON-LOOP-NESTED-IF-COND-SCAN-SEAM-001"
+    },
+    {
+      "name": "TopLevelLoopVarRhsRow",
+      "selected": false,
+      "reason": "Top-level Loop condition feeds route-sensitive cond_rhs_int surfaces and should wait until nested-If producer seam is stable."
+    },
+    {
+      "name": "LengthBoundProducerRows",
+      "selected": false,
+      "reason": "Length and length-minus bounds are not yet supported by the shared compare reader."
+    },
+    {
+      "name": "StopForExternalConsultation",
+      "selected": false,
+      "reason": "No design stop is required; the next safe engineering step is a narrow BoxShape seam before the next BoxCount row."
+    }
+  ],
+  "selected_boundary": {
+    "name": "LoopNestedIfCondScanSeamV1",
+    "owner": "LoopStmtHandler",
+    "kind": "BoxShape cleanup before BoxCount row",
+    "scope": "isolate nested If Compare condition scan output from loop body shape assembly",
+    "accepted_row_added": false,
+    "line_limit_guard": "LoopStmtHandler must remain under 800 lines",
+    "lowering": false,
+    "route_selection": false
+  },
+  "decision": {
+    "kind": "SelectLoopNestedIfCondScanSeamBeforeVarRhsRow",
+    "reason_token": "LoopNestedIfIsNextButNeedsBodyScanSeamBeforeBoxCount",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-LOOP-NESTED-IF-COND-SCAN-SEAM-001"
+  },
+  "claims": {
+    "var_rhs_producer_followon_selection": 1,
+    "loop_nested_if_cond_scan_seam_selected": 1,
+    "loop_nested_if_var_rhs_row_implemented": 0,
+    "top_level_loop_var_rhs_row_selected": 0,
+    "length_bound_producer_selected": 0,
+    "accepted_row_added": 0,
+    "bool_recipe_lowering_executed": 0,
+    "mir_cmp_emission": 0,
+    "branch_emission": 0,
+    "basic_block_mutation": 0,
+    "value_id_allocation": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_route_authority": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  }
+}

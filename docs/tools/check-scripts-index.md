@@ -367,6 +367,7 @@ phase-1 compatibility Program(JSON) compat execution helper.
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_compare_reader_var_rhs_bound_parity_gate.sh` | Active MirBuilder compare-reader Var rhs bound parity gate. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_compare_reader_var_rhs_producer_row_selection_guard.sh` | Selects the first producer row for ProgramJSON Compare reader Var rhs bounds. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_if_cond_recipe_var_rhs_bound_row_gate.sh` | Active MirBuilder top-level If Var rhs cond_recipe producer row gate. |
+| `tools/checks/rust_lifecycle_mirbuilder_programjson_var_rhs_producer_followon_selection_guard.sh` | Selects Loop nested-If condition scan seam before the next Var rhs producer row. |
 
 ## Update Policy
 
