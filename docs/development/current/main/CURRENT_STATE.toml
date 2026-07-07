@@ -345,15 +345,16 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PROGRAMJSON-LOOP-BODY-RETURN-ABSENT-SCAN-ONLY-DIAGNOSTIC-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3244-MIRBUILDER-PROGRAMJSON-LOOP-BODY-RETURN-ABSENT-SCAN-ONLY-DIAGNOSTIC-001.md"
-latest_card_summary = """3244 adds a scan-only ProgramJSON diagnostic proving
-that final top-level Return is not loop-body has_return evidence. The covered
-row has IfBreak + IfContinue + Assignment in the loop body and final top-level
-Return present; loop_body_has_return=0 and final_top_level_return_used_for_loop_body_has_return=0.
-Return-absent accepted-floor, matcher result parity, ProgramJSON runtime
-authority, runtime route switch, route selection, lowering, mutation, ID
-allocation, fallback, and Source Selfhost remain unclaimed."""
+latest_card = "MIRBUILDER-PROGRAMJSON-CANONICAL-LOOP-FACTS-FINAL-TOPLEVEL-RETURN-DECOUPLE-SNAPSHOT-BOUNDARY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3245-MIRBUILDER-PROGRAMJSON-CANONICAL-LOOP-FACTS-FINAL-TOPLEVEL-RETURN-DECOUPLE-SNAPSHOT-BOUNDARY-001.md"
+latest_card_summary = """3245 decouples final top-level Return presence from
+loop-body exit usage at the CanonicalLoopFacts snapshot boundary. The snapshot
+now publishes final_top_level_return_present and keeps
+final_top_level_return_used_for_loop_body_has_return=0; loop-body
+exit_has_return remains derived from loop-body scan only. Return-absent
+accepted-floor, matcher result parity, producer final-Return acceptance,
+ProgramJSON runtime authority, route switch, lowering, mutation, ID allocation,
+fallback, and Source Selfhost remain unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -364,6 +365,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-07: 3245 decouples final top-level Return presence from loop-body exit usage at the CanonicalLoopFacts snapshot boundary; accepted-floor support and runtime authority remain unclaimed.",
   "2026-07-07: 3244 adds the Return-absent scan-only diagnostic proving final top-level Return is not loop-body has_return evidence; accepted-floor support and runtime authority remain unclaimed.",
   "2026-07-07: 3243 resolves the Return-absent consultation by selecting B defer and queues the scan-only diagnostic; accepted-floor support and runtime authority remain unclaimed.",
   "2026-07-07: 3242 records the Return-absent decision stop; accepted-floor support is deferred to route-release consultation while runtime authority remains Rust and Source Selfhost remains unclaimed.",
@@ -375,5 +377,4 @@ landed_tail = [
   "2026-07-07: 3236 selects the accepted matrix, reject floor, and route-adjacent field floor required before any ProgramJSON RecipeMatcher authority switch; runtime authority remains Rust and Source Selfhost remains unclaimed.",
   "2026-07-07: 3235 adds tools/bin/hako --emit-exe caching and dirty-worktree guard result memo support for untracked file contents; ProgramJSON migration semantics and Source Selfhost remain unchanged.",
   "2026-07-07: 3234 installs the runtime-adjacent ProgramJSON shadow guard boundary after try_build_outcome and before route registry candidate selection; Rust remains authority and runtime route switch, route selection, lowering, mutation, ID allocation, and Source Selfhost remain unclaimed.",
-  "2026-07-07: 3230 records the runtime route shadow-switch design stop after ProgramJSON RecipeMatcher shadow parity; Rust remains authority and runtime route switch, route selection, lowering, mutation, ID allocation, and Source Selfhost remain unclaimed pending consultation.",
 ]

@@ -287,6 +287,7 @@ phase-1 compatibility Program(JSON) compat execution helper.
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_recipematcher_return_absent_decision_row_guard.sh` | Decision-stop guard for Return-absent accepted-floor support and route-release consultation boundary. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_recipematcher_return_absent_route_release_consultation_guard.sh` | Consultation-resolution guard selecting B defer for Return-absent and queueing scan-only diagnostic work. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_loop_body_return_absent_scan_only_diagnostic_gate.sh` | AOT/EXE scan-only diagnostic proving final top-level Return does not set loop-body has_return. |
+| `tools/checks/rust_lifecycle_mirbuilder_programjson_canonical_loop_facts_final_toplevel_return_decouple_snapshot_boundary_gate.sh` | AOT/EXE gate proving CanonicalLoopFacts snapshot publishes final top-level Return presence without using it for loop-body exit_has_return. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_if_handler_result_map_contract_guard.sh` | Result-map contract guard for `IfStmtHandler.handle/5` and helper return paths. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_loop_handler_result_map_contract_guard.sh` | Result-map contract guard for `LoopStmtHandler.handle/5` and helper return paths. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_recipebodies_array_helper_total_map_contract_guard.sh` | Contract guard preventing raw array-helper returns on the one-shape RecipeBodies arena path. |

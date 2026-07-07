@@ -26,6 +26,8 @@ static box ProgramJsonCanonicalLoopFactsInputSnapshotBox {
       "has_nested_loop" => 0,
       "loop_cond_continue_with_return_present" => 0,
       "loop_cond_return_in_body_present" => 0,
+      "final_top_level_return_present" => 0,
+      "final_top_level_return_used_for_loop_body_has_return" => 0,
       "cond_kind_code" => 0,
       "loop_var_code" => 0,
       "loop_bound_int" => 0,
@@ -49,9 +51,8 @@ static box ProgramJsonCanonicalLoopFactsInputSnapshotBox {
     local second = me._next_object_after(program_json, first)
     if second < 0 { return me._err("missing_loop_stmt") }
     local third = me._next_object_after(program_json, second)
-    if third < 0 { return me._err("missing_final_return") }
     if me._token_eq(me._node_type(program_json, second), "Loop") != 1 { return me._err("second_stmt_not_loop") }
-    if me._token_eq(me._node_type(program_json, third), "Return") != 1 { return me._err("final_stmt_not_return") }
+    local final_return_present = me._final_top_level_return_present(program_json, third)
 
     local cond = ProgramJsonV0ScannerBox.seek_obj_field_obj_start(program_json, "cond", second)
     if cond < 0 { return me._err("missing_loop_cond") }
@@ -89,6 +90,8 @@ static box ProgramJsonCanonicalLoopFactsInputSnapshotBox {
       "has_nested_loop" => me._loop_has_type(program_json, loop_body, "Loop"),
       "loop_cond_continue_with_return_present" => has_continue * has_return,
       "loop_cond_return_in_body_present" => me._if_then_has_return(program_json, loop_first),
+      "final_top_level_return_present" => final_return_present,
+      "final_top_level_return_used_for_loop_body_has_return" => 0,
       "cond_kind_code" => 1,
       "loop_var_code" => me._i(cond_snap, "var_code"),
       "loop_bound_int" => me._i(cond_snap, "bound"),
@@ -112,12 +115,7 @@ static box ProgramJsonCanonicalLoopFactsInputSnapshotBox {
     }
 
     local third = me._next_object_after(program_json, second)
-    local final_return_present = 0
-    if third >= 0 {
-      if me._token_eq(me._node_type(program_json, third), "Return") == 1 {
-        final_return_present = 1
-      }
-    }
+    local final_return_present = me._final_top_level_return_present(program_json, third)
 
     local loop_body = me._array_field_start(program_json, "body", second)
     if loop_body < 0 { return me._return_absent_diag_err("missing_loop_body") }
@@ -151,6 +149,12 @@ static box ProgramJsonCanonicalLoopFactsInputSnapshotBox {
       "matcher_result_equal" => 0,
       "recipe_matcher_executed" => 0
     }
+  }
+
+  _final_top_level_return_present(program_json, stmt_start) {
+    if stmt_start < 0 { return 0 }
+    if me._token_eq(me._node_type(program_json, stmt_start), "Return") == 1 { return 1 }
+    return 0
   }
 
   _verified_recipe_present(program_json) {
@@ -360,6 +364,8 @@ static box ProgramJsonCanonicalLoopFactsInputSnapshotBox {
       + ";has_nested_loop=" + StringHelpers.int_to_str(me._i(snapshot, "has_nested_loop"))
       + ";loop_cond_continue_with_return_present=" + StringHelpers.int_to_str(me._i(snapshot, "loop_cond_continue_with_return_present"))
       + ";loop_cond_return_in_body_present=" + StringHelpers.int_to_str(me._i(snapshot, "loop_cond_return_in_body_present"))
+      + ";final_top_level_return_present=" + StringHelpers.int_to_str(me._i(snapshot, "final_top_level_return_present"))
+      + ";final_top_level_return_used_for_loop_body_has_return=" + StringHelpers.int_to_str(me._i(snapshot, "final_top_level_return_used_for_loop_body_has_return"))
       + ";cond_kind=" + me._cond_kind_from_code(me._i(snapshot, "cond_kind_code"))
       + ";loop_var=" + me._name_from_code(me._i(snapshot, "loop_var_code"))
       + ";loop_bound_int=" + StringHelpers.int_to_str(me._i(snapshot, "loop_bound_int"))

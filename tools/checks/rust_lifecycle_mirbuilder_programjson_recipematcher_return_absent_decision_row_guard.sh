@@ -97,13 +97,18 @@ for needle in [
 ]:
     if needle not in router:
         raise SystemExit(f"router source missing: {needle}")
-for needle in [
+old_final_return_requirement = all(needle in snapshot for needle in [
     "if third < 0 { return me._err(\"missing_final_return\") }",
     "if me._token_eq(me._node_type(program_json, third), \"Return\") != 1 { return me._err(\"final_stmt_not_return\") }",
-    "local has_return = me._loop_has_type(program_json, loop_body, \"Return\")",
-]:
-    if needle not in snapshot:
-        raise SystemExit(f"snapshot source missing: {needle}")
+])
+decoupled_final_return_boundary = all(needle in snapshot for needle in [
+    "_final_top_level_return_present",
+    "\"final_top_level_return_used_for_loop_body_has_return\" => 0",
+])
+if not old_final_return_requirement and not decoupled_final_return_boundary:
+    raise SystemExit("snapshot final-return boundary marker missing")
+if "local has_return = me._loop_has_type(program_json, loop_body, \"Return\")" not in snapshot:
+    raise SystemExit("snapshot loop-body has_return source missing")
 
 for needle in [
     token,
@@ -122,6 +127,7 @@ allowed_latest = {
     token,
     "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RETURN-ABSENT-ROUTE-RELEASE-CONSULTATION-001",
     "MIRBUILDER-PROGRAMJSON-LOOP-BODY-RETURN-ABSENT-SCAN-ONLY-DIAGNOSTIC-001",
+    "MIRBUILDER-PROGRAMJSON-CANONICAL-LOOP-FACTS-FINAL-TOPLEVEL-RETURN-DECOUPLE-SNAPSHOT-BOUNDARY-001",
 }
 if not any(f'latest_card = "{allowed}"' in current_state for allowed in allowed_latest):
     raise SystemExit("CURRENT_STATE latest card drift")
