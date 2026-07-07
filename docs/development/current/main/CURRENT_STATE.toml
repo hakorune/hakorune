@@ -345,12 +345,13 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-RECIPEITEM-COND-RECIPE-DIAGNOSTIC-SUMMARY-OBSERVATION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3269-MIRBUILDER-RECIPEITEM-COND-RECIPE-DIAGNOSTIC-SUMMARY-OBSERVATION-001.md"
-latest_card_summary = """3269 proves AOT diagnostic deep observation of
-RecipeItem `cond_recipe` sidecar contents. Verifier observation, RecipeMatcher
-input authority, lowering, route selection, runtime switch, ProgramJSON
-authority, fallback, and Source Selfhost remain unclaimed."""
+latest_card = "MIRBUILDER-RECIPEITEM-COND-RECIPE-CONSUME-BOUNDARY-SELECTION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3270-MIRBUILDER-RECIPEITEM-COND-RECIPE-CONSUME-BOUNDARY-SELECTION-001.md"
+latest_card_summary = """3270 selects RecipeVerifierValidateOnlyConsumer as
+the first non-diagnostic consumer allowed to inspect RecipeItem `cond_recipe`.
+Implementation, RecipeMatcher input authority, lowering, route selection,
+runtime switch, ProgramJSON authority, fallback, and Source Selfhost remain
+unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -361,6 +362,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-07: 3270 selects RecipeVerifier validate-only as the first non-diagnostic cond_recipe consumer; implementation and Source Selfhost remain unclaimed.",
   "2026-07-07: 3269 proves AOT diagnostic deep observation of RecipeItem cond_recipe sidecar contents; verifier/matcher/lowering and Source Selfhost remain unclaimed.",
   "2026-07-07: 3268 selects diagnostic summary as the first observer allowed to read RecipeItem cond_recipe sidecar contents; verifier/matcher/lowering and Source Selfhost remain unclaimed.",
   "2026-07-07: 3267 wires LoopStmtHandler to attach BoolRecipe cond_recipe sidecar to Loop RecipeItems; lowering and Source Selfhost remain unclaimed.",
@@ -372,5 +374,4 @@ landed_tail = [
   "2026-07-07: 3261 defines data-only BoolRecipeCompareV1 and BoundExpr vocabulary using resolved symbol ids and numeric cmp/bound codes; lowering and Source Selfhost remain unclaimed.",
   "2026-07-07: 3260 implements ProgramJSON Compare to NumericCompareCanonSnapshotV1 parity for 4 rows; CanonicalLoopFacts consume, BoolRecipe lowering, runtime authority, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3259 taskizes the numeric compare canon follow-on sequence as ProgramJSON parity, BoolRecipe design, CanonicalLoopFacts consume, then BoolRecipe publication parity; Source Selfhost remains unclaimed.",
-  "2026-07-07: 3258 widens Rust condition authority with analysis-only VarCompareBound numeric compare canon; ProgramJSON consume and Source Selfhost remain unclaimed.",
 ]

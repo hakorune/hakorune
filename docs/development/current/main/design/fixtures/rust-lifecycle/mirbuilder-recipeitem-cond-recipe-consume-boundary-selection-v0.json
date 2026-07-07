@@ -1,0 +1,63 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderRecipeItemCondRecipeConsumeBoundarySelectionV1",
+  "token": "MIRBUILDER-RECIPEITEM-COND-RECIPE-CONSUME-BOUNDARY-SELECTION-001",
+  "prerequisite": "MIRBUILDER-RECIPEITEM-COND-RECIPE-DIAGNOSTIC-SUMMARY-OBSERVATION-001",
+  "selection_goal": "Select the first non-diagnostic consumer allowed to inspect RecipeItem cond_recipe.",
+  "candidate_consumers": [
+    {
+      "candidate": "RecipeVerifierValidateOnlyConsumer",
+      "selected": true,
+      "owner": "RecipeVerifierBox",
+      "reason": "Verifier is the narrowest non-diagnostic boundary: it can reject malformed optional cond_recipe without making it RecipeMatcher input authority or lowering input.",
+      "selected_next_card": "MIRBUILDER-RECIPEVERIFIER-COND-RECIPE-VALIDATE-ONLY-CONSUME-001"
+    },
+    {
+      "candidate": "RecipeMatcherInputConsumer",
+      "selected": false,
+      "owner": "ProgramJsonRecipeMatcherExecutionBoundaryBox",
+      "reason": "RecipeMatcher consume would claim matcher input authority too early."
+    },
+    {
+      "candidate": "MirShapeControlConsumer",
+      "selected": false,
+      "owner": "MirJsonV0ShapeBoxRecipeControl",
+      "reason": "Shape control remains a legacy cond_facts consumer until verifier validates cond_recipe."
+    },
+    {
+      "candidate": "LoweringConsumer",
+      "selected": false,
+      "owner": "MIR lowering",
+      "reason": "Lowering must not consume cond_recipe before an explicit lowering boundary."
+    }
+  ],
+  "selected_contract": {
+    "name": "RecipeVerifierCondRecipeValidateOnlyConsumeV1",
+    "consumer": "RecipeVerifierBox",
+    "reads": "optional RecipeItem.cond_recipe",
+    "allowed_effect": "reject malformed cond_recipe only",
+    "port_sig_behavior_change": false,
+    "recipe_matcher_input_authority": false,
+    "lowering_behavior_change": false,
+    "route_selection_change": false
+  },
+  "decision": {
+    "kind": "SelectRecipeVerifierValidateOnlyCondRecipeConsumer",
+    "reason_token": "VerifierValidateOnlyIsFirstSafeNonDiagnosticCondRecipeConsumer",
+    "selected_next_card": "MIRBUILDER-RECIPEVERIFIER-COND-RECIPE-VALIDATE-ONLY-CONSUME-001"
+  },
+  "claims": {
+    "cond_recipe_consume_boundary_selection": 1,
+    "selected_recipeverifier_validate_only_consumer": 1,
+    "recipeverifier_cond_recipe_consume_implementation": 0,
+    "recipe_matcher_input_authority": 0,
+    "bool_recipe_lowering": 0,
+    "mir_cmp_emission": 0,
+    "branch_emission": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_route_authority": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  }
+}
