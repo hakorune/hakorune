@@ -345,13 +345,13 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PROGRAMJSON-LOOP-STMT-COND-RECIPE-SIDECAR-WIRING-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3267-MIRBUILDER-PROGRAMJSON-LOOP-STMT-COND-RECIPE-SIDECAR-WIRING-001.md"
-latest_card_summary = """3267 wires LoopStmtHandler to attach the optional
-BoolRecipe `cond_recipe` sidecar to Loop RecipeItems while keeping legacy
-`cond_facts` required. IfStmtHandler wiring, RecipeMatcher authority, lowering,
-route selection, runtime switch, ProgramJSON authority, fallback, and Source
-Selfhost remain unclaimed."""
+latest_card = "MIRBUILDER-RECIPEITEM-COND-RECIPE-OBSERVATION-BOUNDARY-SELECTION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3268-MIRBUILDER-RECIPEITEM-COND-RECIPE-OBSERVATION-BOUNDARY-SELECTION-001.md"
+latest_card_summary = """3268 selects RecipeItemDiagnosticSummaryObserver as
+the first observer allowed to read RecipeItem `cond_recipe` sidecar contents.
+Verifier observation, RecipeMatcher input authority, lowering, route selection,
+runtime switch, ProgramJSON authority, fallback, and Source Selfhost remain
+unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -362,6 +362,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-07: 3268 selects diagnostic summary as the first observer allowed to read RecipeItem cond_recipe sidecar contents; verifier/matcher/lowering and Source Selfhost remain unclaimed.",
   "2026-07-07: 3267 wires LoopStmtHandler to attach BoolRecipe cond_recipe sidecar to Loop RecipeItems; lowering and Source Selfhost remain unclaimed.",
   "2026-07-07: 3266 selects LoopStmtHandler as the first ProgramJSON producer for the optional RecipeItem cond_recipe sidecar; implementation and Source Selfhost remain unclaimed.",
   "2026-07-07: 3265 adds the optional RecipeItem cond_recipe sidecar bridge while keeping cond_facts required; verifier/lowering behavior and Source Selfhost remain unclaimed.",
@@ -373,5 +374,4 @@ landed_tail = [
   "2026-07-07: 3259 taskizes the numeric compare canon follow-on sequence as ProgramJSON parity, BoolRecipe design, CanonicalLoopFacts consume, then BoolRecipe publication parity; Source Selfhost remains unclaimed.",
   "2026-07-07: 3258 widens Rust condition authority with analysis-only VarCompareBound numeric compare canon; ProgramJSON consume and Source Selfhost remain unclaimed.",
   "2026-07-07: 3257 selects Rust-first numeric compare canon support and supersedes the immediate unsupported-update reject row; runtime authority remains Rust and Source Selfhost remains unclaimed.",
-  "2026-07-07: 3256 selects unsupported_update_operator as the next ProgramJSON RecipeMatcher reject-floor row; runtime authority remains Rust and Source Selfhost remains unclaimed.",
 ]

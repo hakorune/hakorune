@@ -1,0 +1,63 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderRecipeItemCondRecipeObservationBoundarySelectionV1",
+  "token": "MIRBUILDER-RECIPEITEM-COND-RECIPE-OBSERVATION-BOUNDARY-SELECTION-001",
+  "prerequisite": "MIRBUILDER-PROGRAMJSON-LOOP-STMT-COND-RECIPE-SIDECAR-WIRING-001",
+  "selection_goal": "Select the first reader allowed to observe the RecipeItem cond_recipe sidecar.",
+  "candidate_observers": [
+    {
+      "candidate": "RecipeItemDiagnosticSummaryObserver",
+      "selected": true,
+      "owner": "RecipeItemBox.cond_recipe_summary",
+      "reason": "Diagnostic observation can prove the sidecar contents without changing verifier, RecipeMatcher input authority, route selection, or lowering.",
+      "selected_next_card": "MIRBUILDER-RECIPEITEM-COND-RECIPE-DIAGNOSTIC-SUMMARY-OBSERVATION-001"
+    },
+    {
+      "candidate": "RecipeVerifierObserver",
+      "selected": false,
+      "owner": "RecipeVerifierBox",
+      "reason": "Reading cond_recipe in verifier would change the verified_recipe boundary."
+    },
+    {
+      "candidate": "RecipeMatcherInputObserver",
+      "selected": false,
+      "owner": "ProgramJsonRecipeMatcherExecutionBoundaryBox",
+      "reason": "Reading cond_recipe in RecipeMatcher-adjacent input would claim matcher input authority too early."
+    },
+    {
+      "candidate": "LoweringObserver",
+      "selected": false,
+      "owner": "MIR lowering",
+      "reason": "Lowering must only read BoolRecipe after an explicit lowering boundary card."
+    }
+  ],
+  "selected_contract": {
+    "name": "RecipeItemCondRecipeDiagnosticSummaryObservationV1",
+    "observer": "RecipeItemDiagnosticSummaryObserver",
+    "reads": "RecipeItem.cond_recipe sidecar contents",
+    "requires": "sidecar map present",
+    "verifier_behavior_change": false,
+    "recipe_matcher_input_authority": false,
+    "lowering_behavior_change": false
+  },
+  "decision": {
+    "kind": "SelectRecipeItemCondRecipeDiagnosticSummaryObserver",
+    "reason_token": "DiagnosticObserverCanReadCondRecipeBeforeAuthorityConsumers",
+    "selected_next_card": "MIRBUILDER-RECIPEITEM-COND-RECIPE-DIAGNOSTIC-SUMMARY-OBSERVATION-001"
+  },
+  "claims": {
+    "cond_recipe_observation_boundary_selection": 1,
+    "selected_diagnostic_summary_observer": 1,
+    "cond_recipe_deep_observation_implementation": 0,
+    "verifier_cond_recipe_observer": 0,
+    "recipe_matcher_input_authority": 0,
+    "bool_recipe_lowering": 0,
+    "mir_cmp_emission": 0,
+    "branch_emission": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_route_authority": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  }
+}
