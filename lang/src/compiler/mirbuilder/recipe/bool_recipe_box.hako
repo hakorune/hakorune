@@ -1,0 +1,169 @@
+// bool_recipe_box.hako
+//
+// Responsibility:
+// - Data-only lowering-facing boolean recipe vocabulary.
+// - Use resolved symbol ids and numeric operator/bound codes as the authority.
+//
+// Non-responsibility:
+// - Reading raw AST/ProgramJSON, string-name interning, RecipeItem attachment,
+//   RecipeMatcher authority, MIR Compare/Branch emission, lowering, mutation,
+//   ID allocation, or route switch.
+
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.shared.common.box_helpers as BoxHelpers
+
+static box BoundExprBox {
+  literal_i64(value) {
+    return %{"kind_code" => 1, "i64" => value, "symbol_id" => 0, "haystack_id" => 0, "needle_id" => 0}
+  }
+
+  symbol_ref(symbol_id) {
+    return %{"kind_code" => 2, "i64" => 0, "symbol_id" => symbol_id, "haystack_id" => 0, "needle_id" => 0}
+  }
+
+  length_of_symbol(symbol_id) {
+    return %{"kind_code" => 3, "i64" => 0, "symbol_id" => 0, "haystack_id" => symbol_id, "needle_id" => 0}
+  }
+
+  length_minus_symbol(haystack_id, needle_id) {
+    return %{"kind_code" => 4, "i64" => 0, "symbol_id" => 0, "haystack_id" => haystack_id, "needle_id" => needle_id}
+  }
+
+  unknown() {
+    return %{"kind_code" => 99, "i64" => 0, "symbol_id" => 0, "haystack_id" => 0, "needle_id" => 0}
+  }
+
+  is_valid(bound) {
+    if bound == null || BoxHelpers.is_map(bound) != 1 { return 0 }
+    local kind = me._i(bound, "kind_code")
+    if kind == 1 { return 1 }
+    if kind == 2 { if me._i(bound, "symbol_id") > 0 { return 1 } }
+    if kind == 3 { if me._i(bound, "haystack_id") > 0 { return 1 } }
+    if kind == 4 {
+      if me._i(bound, "haystack_id") > 0 && me._i(bound, "needle_id") > 0 { return 1 }
+    }
+    return 0
+  }
+
+  summary(bound) {
+    if me.is_valid(bound) != 1 {
+      return "bound_kind=Unsupported;bound_kind_code=99;bound_i64=0;bound_symbol_id=0;haystack_symbol_id=0;needle_symbol_id=0"
+    }
+    return "bound_kind=" + me.kind_name(me._i(bound, "kind_code"))
+      + ";bound_kind_code=" + StringHelpers.int_to_str(me._i(bound, "kind_code"))
+      + ";bound_i64=" + StringHelpers.int_to_str(me._i(bound, "i64"))
+      + ";bound_symbol_id=" + StringHelpers.int_to_str(me._i(bound, "symbol_id"))
+      + ";haystack_symbol_id=" + StringHelpers.int_to_str(me._i(bound, "haystack_id"))
+      + ";needle_symbol_id=" + StringHelpers.int_to_str(me._i(bound, "needle_id"))
+  }
+
+  kind_name(kind_code) {
+    if kind_code == 1 { return "LiteralI64" }
+    if kind_code == 2 { return "SymbolRef" }
+    if kind_code == 3 { return "LengthOfSymbol" }
+    if kind_code == 4 { return "LengthMinusSymbol" }
+    return "Unsupported"
+  }
+
+  _i(map, key) {
+    return StringHelpers.to_i64(BoxHelpers.map_get(map, key))
+  }
+}
+
+static box BoolRecipeBox {
+  // cmp_code: 1=Lt, 2=Le, 3=Gt, 4=Ge, 5=Eq, 6=Ne.
+  compare_symbol_bound(lhs_symbol_id, cmp_code, bound) {
+    return %{
+      "kind_code" => 1,
+      "lhs_kind_code" => 1,
+      "lhs_symbol_id" => lhs_symbol_id,
+      "cmp_code" => cmp_code,
+      "rhs_bound" => bound,
+      "analysis_only" => 1,
+      "lowering_executed" => 0,
+      "reason_code" => 0
+    }
+  }
+
+  unsupported(reason_code) {
+    return %{
+      "kind_code" => 99,
+      "lhs_kind_code" => 0,
+      "lhs_symbol_id" => 0,
+      "cmp_code" => 0,
+      "rhs_bound" => BoundExprBox.unknown(),
+      "analysis_only" => 1,
+      "lowering_executed" => 0,
+      "reason_code" => reason_code
+    }
+  }
+
+  from_numeric_compare_codes(ok, lhs_symbol_id, cmp_code, bound_kind_code, bound_i64, bound_symbol_id) {
+    if StringHelpers.to_i64(ok) != 1 { return me.unsupported(1) }
+    local bound = me._bound_from_codes(bound_kind_code, bound_i64, bound_symbol_id)
+    return me.compare_symbol_bound(lhs_symbol_id, cmp_code, bound)
+  }
+
+  from_numeric_compare_code_map(fields) {
+    if fields == null || BoxHelpers.is_map(fields) != 1 { return me.unsupported(1) }
+    if me._i(fields, "ok") != 1 { return me.unsupported(1) }
+    local bound = me._bound_from_codes(
+      me._i(fields, "bound_kind_code"),
+      me._i(fields, "bound_i64"),
+      me._i(fields, "bound_symbol_id")
+    )
+    return me.compare_symbol_bound(me._i(fields, "lhs_symbol_id"), me._i(fields, "cmp_code"), bound)
+  }
+
+  is_valid_compare(recipe) {
+    if recipe == null || BoxHelpers.is_map(recipe) != 1 { return 0 }
+    if me._i(recipe, "kind_code") != 1 { return 0 }
+    if me._i(recipe, "lhs_kind_code") != 1 { return 0 }
+    if me._i(recipe, "lhs_symbol_id") <= 0 { return 0 }
+    if me._cmp_supported(me._i(recipe, "cmp_code")) != 1 { return 0 }
+    return BoundExprBox.is_valid(BoxHelpers.map_get(recipe, "rhs_bound"))
+  }
+
+  summary(recipe) {
+    if me.is_valid_compare(recipe) != 1 {
+      return "bool_recipe_kind=Unsupported;reason_code=" + StringHelpers.int_to_str(me._i(recipe, "reason_code"))
+        + ";analysis_only=1;lowering_executed=0"
+    }
+    return "bool_recipe_kind=Compare"
+      + ";lhs_kind=Symbol"
+      + ";lhs_symbol_id=" + StringHelpers.int_to_str(me._i(recipe, "lhs_symbol_id"))
+      + ";cmp=" + me.cmp_name(me._i(recipe, "cmp_code"))
+      + ";cmp_code=" + StringHelpers.int_to_str(me._i(recipe, "cmp_code"))
+      + ";" + BoundExprBox.summary(BoxHelpers.map_get(recipe, "rhs_bound"))
+      + ";analysis_only=1"
+      + ";lowering_executed=0"
+  }
+
+  cmp_name(cmp_code) {
+    if cmp_code == 1 { return "Lt" }
+    if cmp_code == 2 { return "Le" }
+    if cmp_code == 3 { return "Gt" }
+    if cmp_code == 4 { return "Ge" }
+    if cmp_code == 5 { return "Eq" }
+    if cmp_code == 6 { return "Ne" }
+    return "Unsupported"
+  }
+
+  _bound_from_codes(bound_kind_code, bound_i64, bound_symbol_id) {
+    local kind = StringHelpers.to_i64(bound_kind_code)
+    if kind == 1 { return BoundExprBox.literal_i64(StringHelpers.to_i64(bound_i64)) }
+    if kind == 2 { return BoundExprBox.symbol_ref(StringHelpers.to_i64(bound_symbol_id)) }
+    return BoundExprBox.unknown()
+  }
+
+  _cmp_supported(cmp_code) {
+    if cmp_code >= 1 && cmp_code <= 6 { return 1 }
+    return 0
+  }
+
+  _i(map, key) {
+    return StringHelpers.to_i64(BoxHelpers.map_get(map, key))
+  }
+}
+
+static box BoolRecipeMain { main() { return 0 } }

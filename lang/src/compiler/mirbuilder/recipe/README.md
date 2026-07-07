@@ -6,6 +6,7 @@ Responsibility:
 
 Current scope (R0-R3):
 - `recipe_item_box.hako`: `Seq` / `If` / `Loop` / `Exit` item constructors.
+- `bool_recipe_box.hako`: data-only `BoolRecipe::Compare` / `BoundExpr` boundary using resolved symbol ids and numeric operator/bound codes.
 - `recipe_port_sig_box.hako`: minimal count-only def/update tracking (`PortSig`).
 - `recipe_verifier_box.hako`: verifier skeleton (structure + PortSig aggregation).
 - `recipe_facts_box.hako`: stmt-4 facts extractor (`Print` / `Local` / `Assignment` / `Return`).

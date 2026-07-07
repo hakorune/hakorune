@@ -406,10 +406,10 @@ Detailed evidence lives in phase cards, fixtures, and git history.
 
 ## Active Next 3
 ```text
-landed summary: 3254..3260 moved unsupported condition handling into Rust-first numeric compare canon, then mirrored ProgramJSON Compare into NumericCompareCanonSnapshotV1 parity; CanonicalLoopFacts consume remains 0
+landed summary: 3254..3261 moved unsupported condition handling into Rust-first numeric compare canon, mirrored ProgramJSON Compare, and defined data-only BoolRecipeCompareV1; CanonicalLoopFacts consume remains 0
 
 next active:
-  MIRBUILDER-BOOL-RECIPE-COMPARE-BOUNDARY-DESIGN-001; status=next; unit=design+fixture boundary; define lowering-facing BoolRecipe::Compare from NumericCompareCanonSnapshotV1 without MIR cmp emission; raw_rewrite=0; lowering_change=0; runtime_authority=rust_astnode; programjson_runtime_route_authority=0; runtime_route_switch=0
+  MIRBUILDER-CANONICAL-LOOP-FACTS-NUMERIC-COMPARE-CANON-CONSUME-001; status=next; unit=ProgramJSON consume; resolve NumericCompareCanonSnapshotV1 names to symbol ids and feed BoolRecipeCompareV1-ready facts; raw_rewrite=0; lowering_change=0; runtime_authority=rust_astnode; programjson_runtime_route_authority=0; runtime_route_switch=0
 
 trigger-based AOT/MIR typing debt:
   status=parked-until-triggered; order=2999/3000/3001 landed, then 3022 queue
@@ -417,13 +417,12 @@ trigger-based AOT/MIR typing debt:
   compare, PHI dst_type, mir_call dst_type, or receiver-helper
   single-observation protection
 next_documented_task =
-  MIRBUILDER-BOOL-RECIPE-COMPARE-BOUNDARY-DESIGN-001
-
-next_after_active_3 =
   MIRBUILDER-CANONICAL-LOOP-FACTS-NUMERIC-COMPARE-CANON-CONSUME-001
 
-follow_on_after_bool_recipe_design =
+next_after_active_3 =
   MIRBUILDER-BOOL-RECIPE-COMPARE-PUBLICATION-PARITY-001
+
+follow_on_after_consume = select first BoolRecipe publication parity row only after consume gate is green
 
 task discipline =
   Each ProgramJSON capability card must land real `.hako` traversal + fixture

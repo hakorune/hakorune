@@ -345,14 +345,13 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PROGRAMJSON-LOOP-CONDITION-NUMERIC-COMPARE-CANON-PARITY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3260-MIRBUILDER-PROGRAMJSON-LOOP-CONDITION-NUMERIC-COMPARE-CANON-PARITY-001.md"
-latest_card_summary = """3260 implements ProgramJSON Compare to
-NumericCompareCanonSnapshotV1 parity for 4 rows against the Rust
-ConditionShape::VarCompareBound oracle. The owner is analysis-only; raw
-ProgramJSON rewrite, CanonicalLoopFacts consume, BoolRecipe lowering, route
-selection, runtime switch, ProgramJSON authority, fallback, and Source Selfhost
-remain unclaimed."""
+latest_card = "MIRBUILDER-BOOL-RECIPE-COMPARE-BOUNDARY-DESIGN-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3261-MIRBUILDER-BOOL-RECIPE-COMPARE-BOUNDARY-DESIGN-001.md"
+latest_card_summary = """3261 defines data-only BoolRecipeCompareV1 and
+BoundExpr vocabulary using resolved symbol ids and numeric cmp/bound codes.
+RecipeItem attachment, CanonicalLoopFacts consume, RecipeMatcher authority,
+MIR compare/branch emission, route selection, runtime switch, ProgramJSON
+authority, fallback, and Source Selfhost remain unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -363,6 +362,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-07: 3261 defines data-only BoolRecipeCompareV1 and BoundExpr vocabulary using resolved symbol ids and numeric cmp/bound codes; lowering and Source Selfhost remain unclaimed.",
   "2026-07-07: 3260 implements ProgramJSON Compare to NumericCompareCanonSnapshotV1 parity for 4 rows; CanonicalLoopFacts consume, BoolRecipe lowering, runtime authority, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3259 taskizes the numeric compare canon follow-on sequence as ProgramJSON parity, BoolRecipe design, CanonicalLoopFacts consume, then BoolRecipe publication parity; Source Selfhost remains unclaimed.",
   "2026-07-07: 3258 widens Rust condition authority with analysis-only VarCompareBound numeric compare canon; ProgramJSON consume and Source Selfhost remain unclaimed.",
@@ -374,5 +374,4 @@ landed_tail = [
   "2026-07-07: 3252 selects nested-loop reject-boundary implementation instead of a nested-loop accepted matcher row; runtime authority remains Rust and Source Selfhost remains unclaimed.",
   "2026-07-07: 3251 records authority switch is not ready after field-floor parity and selects nested-loop decision consultation next; runtime authority remains Rust and Source Selfhost remains unclaimed.",
   "2026-07-07: 3250 proves the ProgramJSON RecipeMatcher route-consumed field floor for break-present and break+continue-present accepted rows; runtime authority remains Rust and Source Selfhost remains unclaimed.",
-  "2026-07-07: 3249 selects the ProgramJSON RecipeMatcher route-consumed field floor; parity and runtime authority remain unclaimed.",
 ]

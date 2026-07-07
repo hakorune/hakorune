@@ -1,0 +1,85 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderBoolRecipeCompareBoundaryV1",
+  "token": "MIRBUILDER-BOOL-RECIPE-COMPARE-BOUNDARY-DESIGN-001",
+  "owner": "BoolRecipeBox",
+  "hako_source": "lang/src/compiler/mirbuilder/recipe/bool_recipe_box.hako",
+  "input_contract": "NumericCompareCanonSnapshotV1 semantic fields after symbol resolution",
+  "output_contract": "BoolRecipeCompareV1",
+  "code_contract": {
+    "lhs_kind_code": { "1": "Symbol" },
+    "cmp_code": { "1": "Lt", "2": "Le", "3": "Gt", "4": "Ge", "5": "Eq", "6": "Ne" },
+    "bound_kind_code": { "1": "LiteralI64", "2": "SymbolRef", "3": "LengthOfSymbol", "4": "LengthMinusSymbol" },
+    "reason_code": { "1": "SnapshotNotOk" }
+  },
+  "rows": [
+    {
+      "row_id": "var_le_bound_var",
+      "input_codes": {
+        "ok": 1,
+        "lhs_symbol_id": 1,
+        "cmp_code": 2,
+        "bound_kind_code": 2,
+        "bound_i64": 0,
+        "bound_symbol_id": 2
+      },
+      "expected_summary": "bool_recipe_kind=Compare;lhs_kind=Symbol;lhs_symbol_id=1;cmp=Le;cmp_code=2;bound_kind=SymbolRef;bound_kind_code=2;bound_i64=0;bound_symbol_id=2;haystack_symbol_id=0;needle_symbol_id=0;analysis_only=1;lowering_executed=0"
+    },
+    {
+      "row_id": "var_le_literal",
+      "input_codes": {
+        "ok": 1,
+        "lhs_symbol_id": 1,
+        "cmp_code": 2,
+        "bound_kind_code": 1,
+        "bound_i64": 3,
+        "bound_symbol_id": 0
+      },
+      "expected_summary": "bool_recipe_kind=Compare;lhs_kind=Symbol;lhs_symbol_id=1;cmp=Le;cmp_code=2;bound_kind=LiteralI64;bound_kind_code=1;bound_i64=3;bound_symbol_id=0;haystack_symbol_id=0;needle_symbol_id=0;analysis_only=1;lowering_executed=0"
+    },
+    {
+      "row_id": "literal_ge_var",
+      "input_codes": {
+        "ok": 1,
+        "lhs_symbol_id": 1,
+        "cmp_code": 2,
+        "bound_kind_code": 1,
+        "bound_i64": 3,
+        "bound_symbol_id": 0
+      },
+      "expected_summary": "bool_recipe_kind=Compare;lhs_kind=Symbol;lhs_symbol_id=1;cmp=Le;cmp_code=2;bound_kind=LiteralI64;bound_kind_code=1;bound_i64=3;bound_symbol_id=0;haystack_symbol_id=0;needle_symbol_id=0;analysis_only=1;lowering_executed=0"
+    },
+    {
+      "row_id": "snapshot_not_ok",
+      "input_codes": {
+        "ok": 0,
+        "lhs_symbol_id": 0,
+        "cmp_code": 0,
+        "bound_kind_code": 99,
+        "bound_i64": 0,
+        "bound_symbol_id": 0
+      },
+      "expected_summary": "bool_recipe_kind=Unsupported;reason_code=1;analysis_only=1;lowering_executed=0"
+    }
+  ],
+  "claims": {
+    "bool_recipe_compare_boundary": 1,
+    "numeric_compare_canon_fields_consumed_after_symbol_resolution": 1,
+    "bound_expr_shared": 1,
+    "analysis_only": 1,
+    "raw_variable_name_map_authority": 0,
+    "recipe_item_attachment": 0,
+    "canonical_loop_facts_consume": 0,
+    "recipe_matcher_input_authority": 0,
+    "mir_cmp_emission": 0,
+    "branch_emission": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_route_authority": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "BoolRecipeCompareBoundaryGreen",
+    "selected_next_card": "MIRBUILDER-CANONICAL-LOOP-FACTS-NUMERIC-COMPARE-CANON-CONSUME-001"
+  }
+}
