@@ -1,0 +1,72 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonVarRhsProducerNextSelectionV1",
+  "token": "MIRBUILDER-PROGRAMJSON-VAR-RHS-PRODUCER-NEXT-SELECTION-001",
+  "prerequisite": "MIRBUILDER-PROGRAMJSON-LOOP-NESTED-IF-VAR-RHS-BOUND-ROW-001",
+  "selection_subject": "Choose the next Var-rhs compare producer after top-level If and Loop nested-If rows are green.",
+  "input_state": {
+    "top_level_if_var_rhs_row_green": true,
+    "loop_nested_if_var_rhs_row_green": true,
+    "shared_compare_reader_var_rhs_green": true,
+    "top_level_loop_legacy_rhs_int_consumers_exist": true,
+    "recipe_verifier_cond_recipe_accepts_symbol_ref": true,
+    "full_phase_state_dispatcher_authority": false
+  },
+  "candidates": [
+    {
+      "name": "TopLevelLoopVarRhsOwnerDirectRow",
+      "selected": true,
+      "reason": "This completes the first If/Loop Var-rhs producer surface, but must stay owner-direct and observe-only because legacy Loop DTO/lowering consumers still require loop_cond_rhs_int.",
+      "selected_next_card": "MIRBUILDER-PROGRAMJSON-TOP-LEVEL-LOOP-VAR-RHS-BOUND-ROW-001"
+    },
+    {
+      "name": "LengthBoundProducerRows",
+      "selected": false,
+      "reason": "Length and length-minus bounds are not yet supported by the shared compare reader."
+    },
+    {
+      "name": "CloseoutOnly",
+      "selected": false,
+      "reason": "Var-rhs coverage is not closed while top-level Loop cond_recipe still lacks a SymbolRef row."
+    },
+    {
+      "name": "ExternalDesignStop",
+      "selected": false,
+      "reason": "No new semantic authority decision is needed; the selected row is observe-only and keeps route/lowering claims at zero."
+    }
+  ],
+  "selected_boundary": {
+    "name": "TopLevelLoopVarRhsOwnerDirectRowV1",
+    "owner": "LoopStmtHandler",
+    "kind": "BoxCount row with strict non-claims",
+    "guard_route": "ProgramJSON -> LoopStmtHandler.handle_state_values owner-direct AOT",
+    "legacy_loop_cond_rhs_int_consumers_unchanged": true,
+    "full_phase_state_dispatcher_authority": false,
+    "lowering": false,
+    "route_selection": false
+  },
+  "decision": {
+    "kind": "SelectTopLevelLoopVarRhsOwnerDirectRow",
+    "reason_token": "LoopCondRecipeCanCarrySymbolRefButLegacyLoopLoweringStillRequiresInt",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-TOP-LEVEL-LOOP-VAR-RHS-BOUND-ROW-001"
+  },
+  "claims": {
+    "var_rhs_producer_next_selection": 1,
+    "top_level_loop_var_rhs_row_selected": 1,
+    "top_level_loop_var_rhs_row_implemented": 0,
+    "owner_direct_observe_only_required": 1,
+    "legacy_loop_cond_rhs_int_consumers_preserved": 1,
+    "length_bound_producer_selected": 0,
+    "full_phase_state_dispatcher_authority": 0,
+    "bool_recipe_lowering_executed": 0,
+    "mir_cmp_emission": 0,
+    "branch_emission": 0,
+    "basic_block_mutation": 0,
+    "value_id_allocation": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_route_authority": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  }
+}
