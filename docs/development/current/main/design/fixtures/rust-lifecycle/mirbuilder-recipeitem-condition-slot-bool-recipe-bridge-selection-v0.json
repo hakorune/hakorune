@@ -1,0 +1,55 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderRecipeItemConditionSlotBoolRecipeBridgeSelectionV1",
+  "token": "MIRBUILDER-RECIPEITEM-CONDITION-SLOT-BOOL-RECIPE-BRIDGE-SELECTION-001",
+  "input_state": {
+    "latest_card": "MIRBUILDER-BOOL-RECIPE-COMPARE-PUBLICATION-PARITY-001",
+    "recipe_item_owner": "lang/src/compiler/mirbuilder/recipe/recipe_item_box.hako",
+    "bool_recipe_publication_owner": "lang/src/compiler/mirbuilder/program_json_bool_recipe_compare_publication.hako"
+  },
+  "candidate_bridges": [
+    {
+      "candidate": "ReplaceCondFactsWithBoolRecipe",
+      "selected": false,
+      "reason": "cond_facts is still consumed by RecipeVerifier and MIR shape control; replacing it would mix bridge and lowering migration"
+    },
+    {
+      "candidate": "OptionalCondRecipeSidecar",
+      "selected": true,
+      "reason": "adds BoolRecipe data beside existing cond_facts without changing RecipeVerifier, lowering, route selection, or runtime authority",
+      "selected_next_card": "MIRBUILDER-RECIPEITEM-CONDITION-SLOT-BOOL-RECIPE-SIDECAR-BRIDGE-001"
+    },
+    {
+      "candidate": "LoweringReadsBoolRecipeNow",
+      "selected": false,
+      "reason": "MIR compare/branch emission and lowering remain explicitly unclaimed"
+    }
+  ],
+  "selected_contract": {
+    "name": "RecipeItemConditionSlotBoolRecipeSidecarBridgeV1",
+    "recipe_item_fields_added": ["cond_recipe"],
+    "legacy_cond_facts_required": true,
+    "cond_recipe_optional": true,
+    "if_item_support": true,
+    "loop_item_support": true,
+    "verifier_behavior_change": false,
+    "lowering_behavior_change": false
+  },
+  "claims": {
+    "condition_slot_bridge_selection": 1,
+    "selected_optional_cond_recipe_sidecar": 1,
+    "recipe_item_attachment": 0,
+    "recipe_matcher_input_authority": 0,
+    "bool_recipe_lowering": 0,
+    "mir_cmp_emission": 0,
+    "branch_emission": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_route_authority": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "SelectOptionalCondRecipeSidecarBridge",
+    "selected_next_card": "MIRBUILDER-RECIPEITEM-CONDITION-SLOT-BOOL-RECIPE-SIDECAR-BRIDGE-001"
+  }
+}
