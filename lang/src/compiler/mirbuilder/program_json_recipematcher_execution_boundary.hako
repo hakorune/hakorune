@@ -45,6 +45,9 @@ static box ProgramJsonRecipeMatcherExecutionBoundaryBox {
     if me._i(snapshot, "readonly") != 1 {
       return me._err("snapshot_not_readonly")
     }
+    if me._i(snapshot, "has_nested_loop") == 1 {
+      return me._err("nested_loop_present")
+    }
 
     return %{
       "ok" => 1,
@@ -103,6 +106,7 @@ static box ProgramJsonRecipeMatcherExecutionBoundaryBox {
     if reason == "snapshot_not_ok" { return 2 }
     if reason == "matcher_input_missing" { return 3 }
     if reason == "snapshot_not_readonly" { return 4 }
+    if reason == "nested_loop_present" { return 5 }
     return 99
   }
 
@@ -111,6 +115,7 @@ static box ProgramJsonRecipeMatcherExecutionBoundaryBox {
     if code == 2 { return "snapshot_not_ok" }
     if code == 3 { return "matcher_input_missing" }
     if code == 4 { return "snapshot_not_readonly" }
+    if code == 5 { return "nested_loop_present" }
     return "unknown"
   }
 }

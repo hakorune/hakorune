@@ -1,0 +1,44 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonRecipeMatcherNestedLoopRejectBoundaryV1",
+  "token": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-NESTED-LOOP-REJECT-BOUNDARY-001",
+  "input_state": {
+    "previous_card": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-NESTED-LOOP-DECISION-ROW-CONSULTATION-001",
+    "runtime_authority": "rust_astnode",
+    "programjson_route": "shadow_only"
+  },
+  "row": {
+    "row_id": "nested_loop_reject_boundary",
+    "input_snapshot": {
+      "ok": 1,
+      "matcher_input_present": 1,
+      "readonly": 1,
+      "has_nested_loop": 1,
+      "exit_has_break": 1,
+      "exit_has_return": 1,
+      "exit_has_continue": 0,
+      "recipe_matcher_executed": 0
+    },
+    "expected_matcher_result": {
+      "ok": 0,
+      "reason": "nested_loop_present",
+      "matcher_input_consumed": 0,
+      "matched": 0,
+      "contract_kind": "Unsupported"
+    }
+  },
+  "claims": {
+    "nested_loop_reject_boundary_green": 1,
+    "nested_loop_accepted_floor": 0,
+    "programjson_shadow_checked": 1,
+    "programjson_runtime_route_authority": 0,
+    "runtime_route_switch": 0,
+    "recipe_matcher_input_authority": 0,
+    "route_selection": 0,
+    "mir_lowering": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  }
+}

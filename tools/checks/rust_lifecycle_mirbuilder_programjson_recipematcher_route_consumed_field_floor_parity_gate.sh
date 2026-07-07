@@ -96,6 +96,7 @@ allowed_latest = {
     token,
     "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-AUTHORITY-SWITCH-READINESS-CONSULTATION-001",
     "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-NESTED-LOOP-DECISION-ROW-CONSULTATION-001",
+    "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-NESTED-LOOP-REJECT-BOUNDARY-001",
 }
 if not any(f'latest_card = "{allowed}"' in current_state for allowed in allowed_latest):
     raise SystemExit("CURRENT_STATE latest card drift")

@@ -63,8 +63,8 @@ if obs.get("current_matcher_boundary_rejects_nested_loop") != 0:
 
 if '"has_nested_loop" => me._loop_has_type(program_json, loop_body, "Loop")' not in snapshot_impl:
     raise SystemExit("snapshot does not publish has_nested_loop from loop-body scan")
-if 'me._i(snapshot, "has_nested_loop")' in matcher_impl:
-    raise SystemExit("matcher boundary already consumes has_nested_loop; consultation stale")
+if 'me._i(snapshot, "has_nested_loop")' in matcher_impl and 'nested_loop_present' not in matcher_impl:
+    raise SystemExit("matcher boundary consumes has_nested_loop without stable nested_loop_present reject")
 
 options = {row.get("option"): row for row in fixture.get("candidate_next_steps") or []}
 if options.get("A_ACCEPT_NESTED_LOOP_MATCHER_ROW", {}).get("eligible") is not False:
@@ -105,7 +105,11 @@ for needle in [
 for needle in [token, next_card]:
     if needle not in task_order:
         raise SystemExit(f"task-order missing: {needle}")
-if f'latest_card = "{token}"' not in current_state:
+allowed_latest = {
+    token,
+    "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-NESTED-LOOP-REJECT-BOUNDARY-001",
+}
+if not any(f'latest_card = "{allowed}"' in current_state for allowed in allowed_latest):
     raise SystemExit("CURRENT_STATE latest card drift")
 for key in [
     "authority_switch_ready=0",
