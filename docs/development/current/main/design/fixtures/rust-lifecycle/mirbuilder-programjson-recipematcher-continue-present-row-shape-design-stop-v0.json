@@ -1,0 +1,60 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonRecipeMatcherContinuePresentRowShapeDesignStopV1",
+  "token": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-CONTINUE-PRESENT-ROW-SHAPE-DESIGN-STOP-001",
+  "input_state": {
+    "previous_card": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-ACCEPTED-FLOOR-MATRIX-001",
+    "selected_but_paused_card": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-CONTINUE-PRESENT-VERIFIED-RECIPE-SUPPORT-001",
+    "rust_semantic_owner": "LoopFeatureFacts.exit_usage.has_return",
+    "rust_has_return_scope": "loop body statements only"
+  },
+  "observed_boundary": {
+    "kind": "ContinuePresentRowShapeDecisionRequired",
+    "reason_token": "FinalTopLevelReturnDoesNotSatisfyLoopBodyHasReturn",
+    "current_green_shape": "Loop.body=[If(then Return, else null), Assignment]; Program final Return",
+    "unsafe_shortcut": "Loop.body=[If(then Continue, else null), Assignment]; Program final Return",
+    "unsafe_shortcut_rejected": true
+  },
+  "candidate_shapes": [
+    {
+      "id": "A_CONTINUE_PLUS_IN_BODY_RETURN_PLUS_ASSIGNMENT",
+      "state": "RecommendedDefault",
+      "program_body_shape": "Local, Loop(IfContinue, IfReturn, Assignment), Return",
+      "reason": "Preserves Rust loop-body has_return semantics while making Continue accepted-floor evidence real"
+    },
+    {
+      "id": "B_RETURN_PLUS_CONTINUE_PLUS_ASSIGNMENT",
+      "state": "ConsultationAlternative",
+      "program_body_shape": "Local, Loop(IfReturn, IfContinue, Assignment), Return",
+      "reason": "Also preserves has_return semantics but changes statement-order expectations"
+    },
+    {
+      "id": "C_SCAN_ONLY_CONTINUE_ROW",
+      "state": "RejectedForAcceptedFloor",
+      "program_body_shape": "Observation-only ProgramJsonLoopBodyControlFlowScan row",
+      "reason": "Does not advance RecipeMatcher accepted floor or verified-recipe producer support"
+    }
+  ],
+  "decision": {
+    "kind": "ConsultationRequired",
+    "recommended_default": "A_CONTINUE_PLUS_IN_BODY_RETURN_PLUS_ASSIGNMENT",
+    "selected_next_card": "CONSULTATION_REQUIRED"
+  },
+  "claims": {
+    "design_stop": 1,
+    "continue_present_green": 0,
+    "break_present_green": 0,
+    "break_and_continue_present_green": 0,
+    "programjson_runtime_route_authority": 0,
+    "runtime_route_switch": 0,
+    "recipe_matcher_input_authority": 0,
+    "route_selection": 0,
+    "mir_lowering": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
