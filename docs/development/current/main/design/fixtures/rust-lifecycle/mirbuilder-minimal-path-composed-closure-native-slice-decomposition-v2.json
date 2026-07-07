@@ -1,0 +1,211 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderMinimalPathComposedClosureNativeSliceDecompositionV2",
+  "token": "MIRBUILDER-MINIMAL-PATH-COMPOSED-CLOSURE-NATIVE-SLICE-DECOMPOSITION-001",
+  "output_contract": "rust-lifecycle-mirbuilder-minimal-path-composed-closure-native-slice-decomposition-v2",
+  "current_state": {
+    "latest_card": "MIRBUILDER-MINIMAL-PATH-COMPOSED-CLOSURE-NATIVE-SLICE-DECOMPOSITION-001",
+    "latest_card_path": "docs/development/current/main/phases/phase-296x/3325-MIRBUILDER-MINIMAL-PATH-COMPOSED-CLOSURE-NATIVE-SLICE-DECOMPOSITION-001.md",
+    "current_blocker_token": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+  },
+  "input_state": {
+    "previous_latest_card": "SOURCE-SELFHOST-EXPLICIT-AUTHORITY-REGISTRY-BASIS-001",
+    "authority_registry": "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-explicit-authority-registry-basis-v0.json",
+    "bool_recipe_compare_boundary": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-bool-recipe-compare-boundary-v0.json",
+    "bool_recipe_compare_publication": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-bool-recipe-compare-publication-parity-v0.json",
+    "bool_recipe_lowering_intent": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-bool-recipe-compare-lowering-observe-only-pilot-v0.json",
+    "compare_symbolic_command": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-compare-lowering-symbolic-command-parity-v0.json",
+    "compare_branch_closeout": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-compare-boolrecipe-to-mir-compare-branch-closeout-v0.json"
+  },
+  "authority_seams": [
+    {
+      "seam_id": "BoolRecipeCompareSemanticCommandBoundary",
+      "owner_id": "BoolRecipeCompareLoweringIntentSnapshotBox",
+      "seam_kind": "LoweringFacingSemanticCommand",
+      "input_surface": "BoolRecipeComparePublicationV1",
+      "output_surface": "BoolRecipeCompareLoweringIntentSnapshotV1 -> CompareLoweringSymbolicCommandSnapshotV1",
+      "downstream_consumer": "Compare RHS materialization / ValueId resolution / Compare emission chain",
+      "hard_authority_axis": "HardAuthoritySeamProofAxis"
+    },
+    {
+      "seam_id": "RecipeMatcherObserveOnlyBoundary",
+      "owner_id": "ProgramJsonRecipeMatcherObserveOnly",
+      "seam_kind": "MatcherObservation",
+      "input_surface": "CanonicalLoopFacts snapshot",
+      "output_surface": "MatcherResult snapshot",
+      "downstream_consumer": "runtime-adjacent shadow guard",
+      "hard_authority_axis": "HardAuthoritySeamProofAxis"
+    },
+    {
+      "seam_id": "ProgramJsonTraversalCapability",
+      "owner_id": "ProgramJson traversal owners",
+      "seam_kind": "TraversalCapability",
+      "input_surface": "ProgramJSON v0",
+      "output_surface": "token / DTO snapshots",
+      "downstream_consumer": "RecipeBodies / CanonicalLoopFacts DTO gates",
+      "hard_authority_axis": "HardAuthoritySeamProofAxis"
+    },
+    {
+      "seam_id": "SupportLaneProjector",
+      "owner_id": "Hako projector stage state",
+      "seam_kind": "SupportLaneProjector",
+      "input_surface": "Rust-derived artifact",
+      "output_surface": "projector proof",
+      "downstream_consumer": "support lane only",
+      "hard_authority_axis": "Rejected"
+    }
+  ],
+  "owner_dependency_graph": [
+    {
+      "owner_id": "BoolRecipeCompareLoweringIntentSnapshotBox",
+      "depends_on": [
+        "ProgramJsonBoolRecipeComparePublicationBox",
+        "BoolRecipeBox"
+      ],
+      "feeds": [
+        "CompareLoweringSymbolicCommandSnapshotBox"
+      ]
+    },
+    {
+      "owner_id": "CompareLoweringSymbolicCommandSnapshotBox",
+      "depends_on": [
+        "BoolRecipeCompareLoweringIntentSnapshotBox"
+      ],
+      "feeds": [
+        "CompareRhsValueIdResolutionBridge",
+        "LocalSsaFinalizeCompareBridge",
+        "MirCompareEmissionBridge",
+        "BranchEmissionBridge"
+      ]
+    }
+  ],
+  "minimal_path_required_owner_set": [
+    "ProgramJsonBoolRecipeComparePublicationBox",
+    "BoolRecipeCompareLoweringIntentSnapshotBox",
+    "CompareLoweringSymbolicCommandSnapshotBox",
+    "CompareRhsValueIdResolutionBridge",
+    "LocalSsaFinalizeCompareBridge",
+    "MirCompareEmissionBridge",
+    "BranchEmissionBridge"
+  ],
+  "first_hard_authority_candidate_selector_input": [
+    {
+      "candidate_id": "BoolRecipeCompareSemanticCommandBoundary",
+      "owner_id": "BoolRecipeCompareLoweringIntentSnapshotBox",
+      "seam_kind": "LoweringFacingSemanticCommand",
+      "input_surface": "BoolRecipeComparePublicationV1",
+      "output_surface": "BoolRecipeCompareLoweringIntentSnapshotV1",
+      "downstream_consumer": "CompareLoweringSymbolicCommandSnapshotV1",
+      "rust_oracle_available": 1,
+      "hako_impl_available": 1,
+      "aot_guard_available": 1,
+      "mutation_required": 0,
+      "route_selection_required": 0,
+      "runtime_switch_required": 0,
+      "source_selfhost_claim_required": 0,
+      "support_lane_projector": 0,
+      "string_only_facade": 0,
+      "manual_family_selection": 0,
+      "eligible_as_hard_authority_candidate": 1,
+      "rejection_reason": null
+    },
+    {
+      "candidate_id": "RecipeMatcherObserveOnlyBoundary",
+      "owner_id": "ProgramJsonRecipeMatcherObserveOnly",
+      "seam_kind": "MatcherObservation",
+      "input_surface": "CanonicalLoopFacts snapshot",
+      "output_surface": "MatcherResult snapshot",
+      "downstream_consumer": "runtime-adjacent shadow guard",
+      "rust_oracle_available": 1,
+      "hako_impl_available": 1,
+      "aot_guard_available": 1,
+      "mutation_required": 0,
+      "route_selection_required": 1,
+      "runtime_switch_required": 0,
+      "source_selfhost_claim_required": 0,
+      "support_lane_projector": 0,
+      "string_only_facade": 0,
+      "manual_family_selection": 0,
+      "eligible_as_hard_authority_candidate": 0,
+      "rejection_reason": "TooCloseToRouteAuthorityBeforeHardAuthorityPilotPolicy"
+    },
+    {
+      "candidate_id": "ProgramJsonTraversalCapability",
+      "owner_id": "ProgramJson traversal owners",
+      "seam_kind": "TraversalCapability",
+      "input_surface": "ProgramJSON v0",
+      "output_surface": "token / DTO snapshots",
+      "downstream_consumer": "RecipeBodies / CanonicalLoopFacts DTO gates",
+      "rust_oracle_available": 1,
+      "hako_impl_available": 1,
+      "aot_guard_available": 1,
+      "mutation_required": 0,
+      "route_selection_required": 0,
+      "runtime_switch_required": 0,
+      "source_selfhost_claim_required": 0,
+      "support_lane_projector": 0,
+      "string_only_facade": 0,
+      "manual_family_selection": 0,
+      "eligible_as_hard_authority_candidate": 0,
+      "rejection_reason": "CapabilityTooBroadNotOneAuthoritySeam"
+    },
+    {
+      "candidate_id": "SupportLaneProjector",
+      "owner_id": "Hako projector stage state",
+      "seam_kind": "SupportLaneProjector",
+      "input_surface": "Rust-derived artifact",
+      "output_surface": "projector proof",
+      "downstream_consumer": "support lane only",
+      "rust_oracle_available": 1,
+      "hako_impl_available": 1,
+      "aot_guard_available": 1,
+      "mutation_required": 0,
+      "route_selection_required": 0,
+      "runtime_switch_required": 0,
+      "source_selfhost_claim_required": 0,
+      "support_lane_projector": 1,
+      "string_only_facade": 0,
+      "manual_family_selection": 0,
+      "eligible_as_hard_authority_candidate": 0,
+      "rejection_reason": "SupportLaneProjectorNotAdoptionCandidate"
+    }
+  ],
+  "selector_summary": {
+    "candidate_row_count": 4,
+    "eligible_hard_authority_candidate_count": 1,
+    "rejected_candidate_count": 3,
+    "selected_candidate_for_policy": "BoolRecipeCompareSemanticCommandBoundary",
+    "manual_family_selection": 0,
+    "route_membership_alone_as_proof": 0,
+    "coverage_percentage_as_proof": 0,
+    "support_lane_projector_as_adoption_candidate": 0
+  },
+  "decision": {
+    "kind": "SelectHardAuthorityPilotPolicy",
+    "reason_token": "ExactlyOneHardAuthoritySeamCandidateFromRegistryDecomposition",
+    "selected_candidate_for_policy": "BoolRecipeCompareSemanticCommandBoundary",
+    "selected_next_card": "MIRBUILDER-AUTHORITY-FACADE-HARD-AUTHORITY-PILOT-POLICY-001"
+  },
+  "claims": {
+    "minimal_path_native_slice_decomposition": 1,
+    "selector_ready_decomposition": 1,
+    "exactly_one_hard_authority_candidate_for_policy": 1,
+    "hard_authority_pilot_selected": 0,
+    "hard_authority_pilot_implemented": 0,
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "native_seed_materialization": 0,
+    "manual_family_selection": 0,
+    "route_membership_alone_as_proof": 0,
+    "coverage_percentage_as_proof": 0,
+    "support_lane_projector_as_adoption_candidate": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_route_authority": 0,
+    "runtime_fallback": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

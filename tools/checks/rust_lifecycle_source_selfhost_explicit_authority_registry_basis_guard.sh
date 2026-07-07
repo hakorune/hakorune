@@ -164,9 +164,11 @@ need((repair_audit.get("audit_summary") or {}).get("current_unblock_repair_count
 need((repair_audit.get("audit_summary") or {}).get("route_matrix_concrete_inconsistency_count") == 0, "repair inconsistency drift")
 need((local_policy.get("policy_rule") or {}).get("external_consultation_only_for_new_authority") is True, "local policy external gate drift")
 
-need(state.get("latest_card") == token, "CURRENT_STATE latest card drift")
-need(state.get("latest_card_path") == str(card_path), "CURRENT_STATE latest path drift")
 need(state.get("current_blocker_token") == design_stop_token, "CURRENT_STATE blocker drift")
+latest_card = state.get("latest_card")
+latest_path = state.get("latest_card_path")
+need(isinstance(latest_card, str) and latest_card, "CURRENT_STATE latest card missing")
+need(isinstance(latest_path, str) and Path(latest_path).exists(), "CURRENT_STATE latest path missing")
 
 for needle in [
     token,
