@@ -29,6 +29,7 @@ pub(super) fn try_extract_scan_with_init_facts(
                 (Some(haystack_var.as_str()), false, Some(1))
             }
             ConditionShape::VarLessLiteral { .. } => (None, false, None),
+            ConditionShape::VarCompareBound { .. } => (None, false, None),
             ConditionShape::VarLessEqualLengthMinusNeedle { haystack_var, .. } => {
                 (Some(haystack_var.as_str()), true, Some(1))
             }

@@ -52,7 +52,7 @@ need(scope.get("rust_oracle_symbol") == "try_extract_condition_shape", "bad symb
 need(scope.get("input_contract") == "BackendSafeLoopConditionShapeTokenSnapshotV1", "bad input contract")
 
 owned = set(scope.get("owned_semantics") or [])
-for field in ["condition_root_shape_acceptance", "condition_shape_kind_token", "idx_var_token", "length_method_token", "bound_literal_token", "length_minus_needle_tokens", "reject_reason_token"]:
+for field in ["condition_root_shape_acceptance", "condition_shape_kind_token", "idx_var_token", "length_method_token", "bound_literal_token", "bound_var_token", "cmp_token", "length_minus_needle_tokens", "reject_reason_token"]:
     need(field in owned, f"missing owned semantic: {field}")
 
 excluded = set(scope.get("excluded_semantics") or [])
@@ -61,12 +61,16 @@ for field in ["full_AST_traversal", "CondProfile_migration", "condition_observat
 
 parity = decision.get("parity") or {}
 need(parity.get("gate_status") == "Green", "parity must be Green")
-need(parity.get("oracle_row_count") == 15, "row count must be 15")
+need(parity.get("oracle_row_count") == 19, "row count must be 19")
 rows = {row.get("case_id"): row for row in oracle.get("rows") or []}
 need(rows["accept_var_less_length"]["expected_shape"] == "VarLessLength", "length shape drift")
 need(rows["accept_var_less_literal"]["expected_shape"] == "VarLessLiteral", "literal shape drift")
+need(rows["accept_var_less_equal_bound_var"]["expected_shape"] == "VarCompareBound", "le var bound shape drift")
+need(rows["accept_var_less_equal_literal"]["expected_shape"] == "VarCompareBound", "le literal shape drift")
+need(rows["accept_literal_greater_equal_var"]["expected_shape"] == "VarCompareBound", "literal ge var shape drift")
 need(rows["accept_var_less_equal_length_minus_needle"]["expected_shape"] == "VarLessEqualLengthMinusNeedle", "minus shape drift")
 need(rows["accept_var_greater_equal_zero"]["expected_shape"] == "VarGreaterEqualZero", "ge-zero shape drift")
+need(rows["reject_constant_numeric_compare_no_loop_var"]["expected_reason"] == "no_loop_var", "constant compare reject drift")
 need(rows["reject_unknown_length_method"]["expected_reason"] == "unknown_length_method", "method reject drift")
 
 decision_row = decision.get("decision") or {}
@@ -86,7 +90,7 @@ token=MIRBUILDER-LOOP-CONDITION-SHAPE-HAKOADOPTED-DECISION-001
 owner=loop_condition_shape.backend_safe_token_snapshot_reducer
 decision=HakoAdoptedScoped
 parity_gate=green
-oracle_rows=15
+oracle_rows=19
 source_selfhost_claim=0
 full_ast_traversal_adopted=0
 cond_profile_migration=0

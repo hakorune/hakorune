@@ -402,7 +402,6 @@ forbidden:
 ```
 
 ## Evidence Pointers
-
 Detailed evidence lives in phase cards, fixtures, and git history.
 
 ## Active Next 3
@@ -411,9 +410,10 @@ Detailed evidence lives in phase cards, fixtures, and git history.
 2. MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-UNSUPPORTED-CONDITION-OPERATOR-REJECT-ROW-001; status=landed; snapshot_reason=unsupported_loop_cond; matcher_reason=snapshot_not_ok
 3. MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-REJECT-FLOOR-UPDATE-AXIS-SELECTION-001; status=landed; selected_next_axis=unsupported_update_operator
 4. MIRBUILDER-LOOP-CONDITION-NUMERIC-COMPARE-CANON-SELECTION-001; status=landed; selected_next=rust_condition_numeric_compare_canon_authority; unsupported_update_operator_next_superseded=1
+5. MIRBUILDER-RUST-CONDITION-NUMERIC-COMPARE-CANON-AUTHORITY-001; status=landed; unit=Rust authority widening; condition_shape=VarCompareBound; programjson_consume=0
 
 next active:
-  MIRBUILDER-RUST-CONDITION-NUMERIC-COMPARE-CANON-AUTHORITY-001; status=next; unit=Rust authority widening; add analysis-only numeric compare canon before ProgramJSON consumes it; raw_rewrite=0; lowering_change=0; runtime_authority=rust_astnode; programjson_runtime_route_authority=0; runtime_route_switch=0
+  MIRBUILDER-PROGRAMJSON-LOOP-CONDITION-NUMERIC-COMPARE-CANON-PARITY-001; status=next; unit=ProgramJSON parity; mirror Rust VarCompareBound numeric compare canon before CanonicalLoopFacts consumes it; raw_rewrite=0; lowering_change=0; runtime_authority=rust_astnode; programjson_runtime_route_authority=0; runtime_route_switch=0
 
 trigger-based AOT/MIR typing debt:
   status=parked-until-triggered; order=2999/3000/3001 landed, then 3022 queue
@@ -421,10 +421,10 @@ trigger-based AOT/MIR typing debt:
   compare, PHI dst_type, mir_call dst_type, or receiver-helper
   single-observation protection
 next_documented_task =
-  MIRBUILDER-RUST-CONDITION-NUMERIC-COMPARE-CANON-AUTHORITY-001
+  MIRBUILDER-PROGRAMJSON-LOOP-CONDITION-NUMERIC-COMPARE-CANON-PARITY-001
 
 next_after_active_3 =
-  MIRBUILDER-PROGRAMJSON-LOOP-CONDITION-NUMERIC-COMPARE-CANON-PARITY-001
+  MIRBUILDER-PROGRAMJSON-CANONICAL-LOOP-FACTS-NUMERIC-COMPARE-CANON-CONSUME-001
 
 task discipline =
   Each ProgramJSON capability card must land real `.hako` traversal + fixture

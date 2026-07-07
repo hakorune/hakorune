@@ -18,6 +18,15 @@ static box LoopConditionShapeBox {
     if token == "ILessLiteral3" {
       return "accepted=1;shape=VarLessLiteral;idx_var=i;bound=3"
     }
+    if token == "ILessEqualVarN" {
+      return "accepted=1;shape=VarCompareBound;idx_var=i;cmp=Le;bound_kind=Var;bound_var=n"
+    }
+    if token == "ILessEqualLiteral3" {
+      return "accepted=1;shape=VarCompareBound;idx_var=i;cmp=Le;bound_kind=LiteralI64;bound=3"
+    }
+    if token == "Literal3GreaterEqualI" {
+      return "accepted=1;shape=VarCompareBound;idx_var=i;cmp=Le;bound_kind=LiteralI64;bound=3"
+    }
     if token == "ILessEqualHayLengthMinusNeedleLength" {
       return "accepted=1;shape=VarLessEqualLengthMinusNeedle;idx_var=i;haystack_var=hay;needle_var=needle;haystack_method=Length;needle_method=Length"
     }
@@ -36,6 +45,7 @@ static box LoopConditionShapeBox {
     if token == "ILessEqualHayLengthMinusVar" { return "minus_right_not_length" }
     if token == "IGreaterEqualOne" { return "right_not_zero" }
     if token == "IEqualZero" { return "unsupported_operator" }
+    if token == "Literal1LessEqualLiteral3" { return "no_loop_var" }
     if token == "ILessHayLengthWithArg" { return "length_call_has_args" }
     if token == "ILessHayCapacity" { return "unknown_length_method" }
     return "unsupported_token"

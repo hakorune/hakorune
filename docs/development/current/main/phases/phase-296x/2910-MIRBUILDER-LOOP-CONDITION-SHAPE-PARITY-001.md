@@ -34,7 +34,7 @@ This is not a HakoAdopted decision yet.
 rust_oracle_fixture=docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-loop-condition-shape-rust-oracle-v0.json
 hako_source=lang/src/compiler/lib/loop_condition_shape.hako
 parity_gate=tools/checks/rust_lifecycle_mirbuilder_loop_condition_shape_parity_gate.sh
-oracle_rows=15
+oracle_rows=19
 parity_status=green
 ```
 

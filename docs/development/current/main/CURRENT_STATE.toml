@@ -345,13 +345,13 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-LOOP-CONDITION-NUMERIC-COMPARE-CANON-SELECTION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3257-MIRBUILDER-LOOP-CONDITION-NUMERIC-COMPARE-CANON-SELECTION-001.md"
-latest_card_summary = """3257 replaces ad-hoc numeric compare reject-floor
-expansion with Rust-first numeric compare canon support work. The next card
-must widen Rust condition authority before ProgramJSON consumes it; runtime
-authority, route switch, route selection, lowering, mutation, ID allocation,
-fallback, and Source Selfhost remain unclaimed."""
+latest_card = "MIRBUILDER-RUST-CONDITION-NUMERIC-COMPARE-CANON-AUTHORITY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3258-MIRBUILDER-RUST-CONDITION-NUMERIC-COMPARE-CANON-AUTHORITY-001.md"
+latest_card_summary = """3258 widens Rust condition authority with
+analysis-only VarCompareBound numeric compare canon for i <= n, i <= 3, and
+3 >= i, while keeping ProgramJSON consume, route selection, lowering,
+mutation, ID allocation, runtime switch, fallback, and Source Selfhost
+unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -362,6 +362,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-07: 3258 widens Rust condition authority with analysis-only VarCompareBound numeric compare canon; ProgramJSON consume and Source Selfhost remain unclaimed.",
   "2026-07-07: 3257 selects Rust-first numeric compare canon support and supersedes the immediate unsupported-update reject row; runtime authority remains Rust and Source Selfhost remains unclaimed.",
   "2026-07-07: 3256 selects unsupported_update_operator as the next ProgramJSON RecipeMatcher reject-floor row; runtime authority remains Rust and Source Selfhost remains unclaimed.",
   "2026-07-07: 3255 implements the ProgramJSON unsupported condition operator reject row as unsupported_loop_cond then snapshot_not_ok; runtime authority remains Rust and Source Selfhost remains unclaimed.",
@@ -373,5 +374,4 @@ landed_tail = [
   "2026-07-07: 3249 selects the ProgramJSON RecipeMatcher route-consumed field floor; parity and runtime authority remain unclaimed.",
   "2026-07-07: 3248 implements the missing verified recipe reject-floor row; snapshot_not_ok keeps matched=0 while runtime authority remains Rust and Source Selfhost remains unclaimed.",
   "2026-07-07: 3247 selects malformed_or_missing_verified_recipe as the first reachable ProgramJSON RecipeMatcher reject-floor row; reject row green and runtime authority remain unclaimed.",
-  "2026-07-07: 3246 implements the ProgramJSON Return-absent accepted-floor row for IfBreak+IfContinue+Assignment with final top-level Return present; matcher parity is green while runtime authority remains Rust and Source Selfhost remains unclaimed.",
 ]

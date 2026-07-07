@@ -5,7 +5,7 @@
   "owner": "loop_condition_shape",
   "rust_source": {
     "path": "src/mir/builder/control_flow/plan/facts/loop_condition_shape.rs",
-    "hash": "sha256:7d31aa9c4b5e14e96d68357fc475e9fab8addd8f3268b283179c1f3002f2b255",
+    "hash": "sha256:0867a60848344b0f1e6512fe632198e98b9355c2a28b8138fc303842386ed086",
     "oracle_surface": "try_extract_condition_shape"
   },
   "input_contract": "BackendSafeLoopConditionShapeTokenSnapshotV1",
@@ -30,6 +30,27 @@
       "expected_accept": true,
       "expected_shape": "VarLessLiteral",
       "expected_summary": "accepted=1;shape=VarLessLiteral;idx_var=i;bound=3"
+    },
+    {
+      "case_id": "accept_var_less_equal_bound_var",
+      "token": "ILessEqualVarN",
+      "expected_accept": true,
+      "expected_shape": "VarCompareBound",
+      "expected_summary": "accepted=1;shape=VarCompareBound;idx_var=i;cmp=Le;bound_kind=Var;bound_var=n"
+    },
+    {
+      "case_id": "accept_var_less_equal_literal",
+      "token": "ILessEqualLiteral3",
+      "expected_accept": true,
+      "expected_shape": "VarCompareBound",
+      "expected_summary": "accepted=1;shape=VarCompareBound;idx_var=i;cmp=Le;bound_kind=LiteralI64;bound=3"
+    },
+    {
+      "case_id": "accept_literal_greater_equal_var",
+      "token": "Literal3GreaterEqualI",
+      "expected_accept": true,
+      "expected_shape": "VarCompareBound",
+      "expected_summary": "accepted=1;shape=VarCompareBound;idx_var=i;cmp=Le;bound_kind=LiteralI64;bound=3"
     },
     {
       "case_id": "accept_var_less_equal_length_minus_needle",
@@ -100,6 +121,13 @@
       "expected_accept": false,
       "expected_reason": "unsupported_operator",
       "expected_summary": "accepted=0;reason=unsupported_operator"
+    },
+    {
+      "case_id": "reject_constant_numeric_compare_no_loop_var",
+      "token": "Literal1LessEqualLiteral3",
+      "expected_accept": false,
+      "expected_reason": "no_loop_var",
+      "expected_summary": "accepted=0;reason=no_loop_var"
     },
     {
       "case_id": "reject_length_call_with_args",

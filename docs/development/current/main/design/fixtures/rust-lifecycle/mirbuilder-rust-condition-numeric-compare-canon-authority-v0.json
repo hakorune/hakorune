@@ -1,0 +1,63 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderRustConditionNumericCompareCanonAuthorityV1",
+  "token": "MIRBUILDER-RUST-CONDITION-NUMERIC-COMPARE-CANON-AUTHORITY-001",
+  "authority": {
+    "rust_condition_shape": "ConditionShape::VarCompareBound",
+    "rust_cond_profile": "CondParam::Cmp + CondParam::Bound",
+    "analysis_only": true,
+    "raw_ast_rewrite": false,
+    "raw_programjson_rewrite": false
+  },
+  "rows": [
+    {
+      "row_id": "var_le_bound_var",
+      "source_shape": "i <= n",
+      "expected_condition_shape": "VarCompareBound",
+      "expected_loop_var": "i",
+      "expected_cmp": "Le",
+      "expected_bound_kind": "Var",
+      "expected_bound_var": "n"
+    },
+    {
+      "row_id": "var_le_literal",
+      "source_shape": "i <= 3",
+      "expected_condition_shape": "VarCompareBound",
+      "expected_loop_var": "i",
+      "expected_cmp": "Le",
+      "expected_bound_kind": "LiteralI64",
+      "expected_bound": 3
+    },
+    {
+      "row_id": "literal_ge_var",
+      "source_shape": "3 >= i",
+      "expected_condition_shape": "VarCompareBound",
+      "expected_loop_var": "i",
+      "expected_cmp": "Le",
+      "expected_bound_kind": "LiteralI64",
+      "expected_bound": 3
+    },
+    {
+      "row_id": "constant_compare_no_loop_var",
+      "source_shape": "1 <= 3",
+      "expected_condition_shape": null,
+      "expected_reason": "no_loop_var"
+    }
+  ],
+  "non_claims": {
+    "variable_variable_reversed_without_update_context": 0,
+    "programjson_consume": 0,
+    "route_selection": 0,
+    "mir_lowering": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_route_authority": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "RustConditionNumericCompareCanonAuthorityGreen",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-LOOP-CONDITION-NUMERIC-COMPARE-CANON-PARITY-001"
+  }
+}

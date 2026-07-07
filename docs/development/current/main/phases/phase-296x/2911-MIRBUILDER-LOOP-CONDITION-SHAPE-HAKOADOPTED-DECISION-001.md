@@ -28,7 +28,7 @@ rust_oracle_fixture=docs/development/current/main/design/fixtures/rust-lifecycle
 hako_source=lang/src/compiler/lib/loop_condition_shape.hako
 parity_gate=tools/checks/rust_lifecycle_mirbuilder_loop_condition_shape_parity_gate.sh
 adoption_guard=tools/checks/rust_lifecycle_mirbuilder_loop_condition_shape_hako_adoption_decision_guard.sh
-oracle_rows=15
+oracle_rows=19
 parity_status=green
 ```
 
@@ -40,6 +40,8 @@ condition_shape_kind_token
 idx_var_token
 length_method_token
 bound_literal_token
+bound_var_token
+cmp_token
 length_minus_needle_tokens
 reject_reason_token
 ```

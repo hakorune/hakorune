@@ -25,6 +25,11 @@ pub(in crate::mir::builder) enum ConditionShape {
         idx_var: String,
         bound: i64,
     },
+    VarCompareBound {
+        idx_var: String,
+        cmp: CmpOp,
+        bound: BoundExpr,
+    },
     VarLessEqualLengthMinusNeedle {
         idx_var: String,
         haystack_var: String,
@@ -204,6 +209,10 @@ pub(in crate::mir::builder) fn cond_profile_from_scan_shapes(
             params.push(CondParam::LoopVar(idx_var.clone()));
             Some(BoundExpr::LiteralI64(*bound))
         }
+        ConditionShape::VarCompareBound { idx_var, bound, .. } => {
+            params.push(CondParam::LoopVar(idx_var.clone()));
+            Some(bound.clone())
+        }
         ConditionShape::VarGreaterEqualZero { idx_var } => {
             params.push(CondParam::LoopVar(idx_var.clone()));
             Some(BoundExpr::LiteralI64(0))
@@ -219,6 +228,7 @@ pub(in crate::mir::builder) fn cond_profile_from_scan_shapes(
         ConditionShape::VarLessLength { .. } => Some(CmpOp::Lt),
         ConditionShape::VarLessEqualLengthMinusNeedle { .. } => Some(CmpOp::Le),
         ConditionShape::VarLessLiteral { .. } => Some(CmpOp::Lt),
+        ConditionShape::VarCompareBound { cmp, .. } => Some(*cmp),
         ConditionShape::VarGreaterEqualZero { .. } => Some(CmpOp::Ge),
         ConditionShape::Unknown => None,
     };
