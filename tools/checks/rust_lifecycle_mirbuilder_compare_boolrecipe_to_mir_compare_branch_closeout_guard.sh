@@ -78,9 +78,21 @@ for key in [
 
 need("route selection / runtime route switch: `0`" in card, "card must keep route/runtime unclaimed")
 need("Source Selfhost: `0`" in card, "card must keep Source Selfhost unclaimed")
-need(f'latest_card = "{token}"' in current_state, "CURRENT_STATE latest card drift")
-need(f"next_documented_task =\n  {next_card}" in task_order, "task-order next task drift")
-need(f"{next_card} -> MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RUNTIME-ROUTE-ADJACENT-SHADOW-GUARD-001" in task_order, "task-order next chain drift")
+allowed_latest = [
+    f'latest_card = "{token}"',
+    'latest_card = "MIRBUILDER-COMPARE-RUNTIME-ROUTE-AUTHORITY-DESIGN-STOP-001"',
+]
+need(any(entry in current_state for entry in allowed_latest), "CURRENT_STATE latest card drift")
+allowed_next_tasks = [
+    f"next_documented_task =\n  {next_card}",
+    "next_documented_task =\n  MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RUNTIME-ROUTE-ADJACENT-SHADOW-GUARD-001",
+]
+need(any(entry in task_order for entry in allowed_next_tasks), "task-order next task drift")
+allowed_next_chains = [
+    f"{next_card} -> MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RUNTIME-ROUTE-ADJACENT-SHADOW-GUARD-001",
+    "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RUNTIME-ROUTE-ADJACENT-SHADOW-GUARD-001 -> SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+]
+need(any(entry in task_order for entry in allowed_next_chains), "task-order next chain drift")
 PY
 
 cat <<'REPORT'

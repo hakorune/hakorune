@@ -1,0 +1,48 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderCompareRuntimeRouteAuthorityDesignStopV1",
+  "token": "MIRBUILDER-COMPARE-RUNTIME-ROUTE-AUTHORITY-DESIGN-STOP-001",
+  "prerequisite": "MIRBUILDER-COMPARE-BOOLRECIPE-TO-MIR-COMPARE-BRANCH-CLOSEOUT-001",
+  "decision_context": {
+    "compare_branch_bridge_chain_green": true,
+    "runtime_authority": "Rust ASTNode route",
+    "programjson_route": "shadow_only",
+    "runtime_route_switch_requested": false
+  },
+  "candidates": [
+    {
+      "name": "DirectRuntimeRouteAuthoritySwitchNow",
+      "selected": false,
+      "reason": "Compare/Branch bridge closure proves scoped MIR mutation only; it does not prove ProgramJSON runtime route authority, route selection, fallback policy, or shadow parity at the runtime seam."
+    },
+    {
+      "name": "RuntimeAdjacentShadowGuardFirst",
+      "selected": true,
+      "reason": "The next authority-adjacent boundary must remain read-only and compare ProgramJSON evidence beside the Rust authority route before any runtime route switch.",
+      "selected_next_card": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RUNTIME-ROUTE-ADJACENT-SHADOW-GUARD-001"
+    },
+    {
+      "name": "SourceSelfhostWiderRouteSelectionNow",
+      "selected": false,
+      "reason": "Wider route selection requires the runtime-adjacent shadow boundary to stay green and still needs separate design approval."
+    }
+  ],
+  "claims": {
+    "compare_runtime_route_authority_design_stop": 1,
+    "runtime_adjacent_shadow_guard_selected": 1,
+    "direct_runtime_route_authority_switch": 0,
+    "programjson_runtime_route_authority": 0,
+    "runtime_route_switch": 0,
+    "recipe_matcher_input_authority": 0,
+    "route_selection": 0,
+    "mir_lowering_authority": 0,
+    "mir_mutation_authority": 0,
+    "id_allocation": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "SelectRuntimeAdjacentShadowGuardBeforeAuthoritySwitch",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RUNTIME-ROUTE-ADJACENT-SHADOW-GUARD-001"
+  }
+}

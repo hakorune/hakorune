@@ -109,7 +109,7 @@ latest design decision:
   Layer4 input-boundary task; RecipeBodiesPublicationSnapshotV1 is not enough.
   3224 records RecipeMatcher input-boundary design stop: Rust consumes CanonicalLoopFacts, not RecipeBodiesPublicationSnapshotV1.
   3223 implements MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-PUBLICATION-BRIDGE-001.
-  3221 marks expanded RecipeBodies verifier-boundary DTO rows as scoped retire-candidates; Runtime RecipeBodies publication, full RecipeMatcher, route switch, lowering, mutation, ID allocation, and Source Selfhost remain unclaimed.
+  3221 marks the expanded RecipeBodies verifier-boundary DTO coverage rows as scoped retire-candidates; Runtime RecipeBodies publication, full RecipeMatcher, route switch, lowering, mutation, ID allocation, and Source Selfhost remain unclaimed.
   Parked same-family cleanup queue: TryCleanup handler result-map, Return
   handler result-map, RecipeItem strict constructor contract.
   3207 marks the covered ProgramJsonRecipeBodiesLoopBodyArenaBuilderV1 row as
@@ -406,10 +406,10 @@ Detailed evidence lives in phase cards, fixtures, and git history.
 
 ## Active Next 3
 ```text
-landed summary: 3264..3320 cond_recipe/compare chain includes BoolRecipe sidecar bridge, ProgramJSON Loop/If cond_recipe producer wiring, verifier validate-only, matcher observe-only input snapshot, shared compare reader, If/Loop relational rows, BoolRecipe lowering observation/consultation, Var rhs reader parity, If/nested-If/top-level Loop Var rhs owner-direct rows, Var-rhs producer closeout, symbolic compare lowering command owner selection, intent-map symbolic command pilot/parity, RHS materialization intent pilot/parity, RHS ValueId resolution owner selection, read-only RHS ValueId resolution plan pilot/parity, actual RHS ValueId resolution design-stop, request/response ABI, LiteralI64 constant emission bridge, MIRBUILDER-COMPARE-RHS-SYMBOLREF-LOOKUP-CONTRACT-PARITY-001, MIRBUILDER-COMPARE-RHS-SYMBOLREF-LOOKUP-BRIDGE-001, MIRBUILDER-COMPARE-LOCALSSA-FINALIZE-COMPARE-BRIDGE-001, MIR Compare emission bridge, Branch design-stop, MIRBUILDER-COMPARE-BRANCH-EMISSION-BRIDGE-001, and BoolRecipe-to-MIR Compare/Branch closeout.
+landed summary: 3219 selects more DTO coverage rows; 3222 selects runtime RecipeBodies publication bridge as the next contract; 3264..3321 cond_recipe/compare chain includes BoolRecipe sidecar bridge, ProgramJSON Loop/If cond_recipe producer wiring, verifier validate-only, MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RUNTIME-DUAL-RUN-SHADOW-GUARD-001, MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-SHADOW-PARITY-EXPANDED-ROWS-001, matcher observe-only input snapshot, shared compare reader, If/Loop relational rows, BoolRecipe lowering observation/consultation, Var rhs reader parity, If/nested-If/top-level Loop Var rhs owner-direct rows, Var-rhs producer closeout, symbolic compare lowering command owner selection, intent-map symbolic command pilot/parity, RHS materialization intent pilot/parity, RHS ValueId resolution owner selection, read-only RHS ValueId resolution plan pilot/parity, actual RHS ValueId resolution design-stop, request/response ABI, LiteralI64 constant emission bridge, MIRBUILDER-COMPARE-RHS-SYMBOLREF-LOOKUP-CONTRACT-PARITY-001, MIRBUILDER-COMPARE-RHS-SYMBOLREF-LOOKUP-BRIDGE-001, MIRBUILDER-COMPARE-LOCALSSA-FINALIZE-COMPARE-BRIDGE-001, MIR Compare emission bridge, Branch design-stop, MIRBUILDER-COMPARE-BRANCH-EMISSION-BRIDGE-001, BoolRecipe-to-MIR Compare/Branch closeout, and MIRBUILDER-COMPARE-RUNTIME-ROUTE-AUTHORITY-DESIGN-STOP-001.
 
 next active:
-  MIRBUILDER-COMPARE-BOOLRECIPE-TO-MIR-COMPARE-BRANCH-CLOSEOUT-001; status=landed; closed the scoped BoolRecipe-to-MIR Compare/Branch bridge chain through Branch emission; next=MIRBUILDER-COMPARE-RUNTIME-ROUTE-AUTHORITY-DESIGN-STOP-001; status=next; unit=design-stop; route/runtime authority=0
+  MIRBUILDER-COMPARE-RUNTIME-ROUTE-AUTHORITY-DESIGN-STOP-001; status=landed; selected runtime-adjacent ProgramJSON shadow guard before any runtime route authority switch; next=MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RUNTIME-ROUTE-ADJACENT-SHADOW-GUARD-001; status=next; unit=runtime-adjacent shadow guard; route/runtime authority=0
 
 trigger-based AOT/MIR typing debt:
   status=parked-until-triggered; order=2999/3000/3001 landed, then 3022 queue
@@ -417,10 +417,10 @@ trigger-based AOT/MIR typing debt:
   compare, PHI dst_type, mir_call dst_type, or receiver-helper
   single-observation protection
 next_documented_task =
-  MIRBUILDER-COMPARE-RUNTIME-ROUTE-AUTHORITY-DESIGN-STOP-001
+  MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RUNTIME-ROUTE-ADJACENT-SHADOW-GUARD-001
 
 next_after_active_3 =
-  MIRBUILDER-COMPARE-RUNTIME-ROUTE-AUTHORITY-DESIGN-STOP-001 -> MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RUNTIME-ROUTE-ADJACENT-SHADOW-GUARD-001 -> SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+  MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RUNTIME-ROUTE-ADJACENT-SHADOW-GUARD-001 -> SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001 -> SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-007
 
 follow_on_after_consume = select first BoolRecipe publication parity row only after consume gate is green
 
