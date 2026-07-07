@@ -1,0 +1,81 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderAuthorityFacadeHardAuthorityPilotPolicyV1",
+  "token": "MIRBUILDER-AUTHORITY-FACADE-HARD-AUTHORITY-PILOT-POLICY-001",
+  "output_contract": "rust-lifecycle-mirbuilder-authority-facade-hard-authority-pilot-policy-v0",
+  "current_state": {
+    "latest_card": "MIRBUILDER-AUTHORITY-FACADE-HARD-AUTHORITY-PILOT-POLICY-001",
+    "latest_card_path": "docs/development/current/main/phases/phase-296x/3326-MIRBUILDER-AUTHORITY-FACADE-HARD-AUTHORITY-PILOT-POLICY-001.md",
+    "current_blocker_token": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+  },
+  "input_state": {
+    "previous_latest_card": "MIRBUILDER-MINIMAL-PATH-COMPOSED-CLOSURE-NATIVE-SLICE-DECOMPOSITION-001",
+    "authority_registry": "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-explicit-authority-registry-basis-v0.json",
+    "minimal_path_decomposition": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-minimal-path-composed-closure-native-slice-decomposition-v2.json"
+  },
+  "selected_pilot": {
+    "candidate_id": "BoolRecipeCompareSemanticCommandBoundary",
+    "owner_id": "BoolRecipeCompareLoweringIntentSnapshotBox",
+    "seam_kind": "LoweringFacingSemanticCommand",
+    "input_surface": "BoolRecipeComparePublicationV1",
+    "output_surface": "BoolRecipeCompareLoweringIntentSnapshotV1",
+    "downstream_consumer": "CompareLoweringSymbolicCommandSnapshotV1",
+    "claim_ceiling": "scoped_hard_authority_pilot",
+    "rust_oracle_available": 1,
+    "hako_impl_available": 1,
+    "aot_guard_available": 1,
+    "mutation_required": 0,
+    "route_selection_required": 0,
+    "runtime_switch_required": 0,
+    "source_selfhost_claim_required": 0,
+    "support_lane_projector": 0,
+    "string_only_facade": 0,
+    "manual_family_selection": 0
+  },
+  "selection_basis": {
+    "registry_axis": "HardAuthoritySeamProofAxis",
+    "decomposition_candidate_count": 4,
+    "eligible_hard_authority_candidate_count": 1,
+    "manual_family_selection": 0,
+    "route_membership_alone_as_proof": 0,
+    "coverage_percentage_as_proof": 0,
+    "support_lane_projector_as_adoption_candidate": 0
+  },
+  "pilot_policy": {
+    "authority_facade_required": true,
+    "rust_oracle_fixture_required": true,
+    "hako_owner_required": true,
+    "aot_exe_parity_gate_required": true,
+    "downstream_consumer_required": true,
+    "implementation_card_required": true,
+    "hako_adopted_decision_forbidden_in_policy_card": true,
+    "source_selfhost_claim_forbidden": true
+  },
+  "decision": {
+    "kind": "SelectHardAuthorityPilot",
+    "reason_token": "BoolRecipeCompareSemanticCommandIsExactlyOneEligibleHardAuthorityCandidate",
+    "selected_candidate": "BoolRecipeCompareSemanticCommandBoundary",
+    "selected_next_card": "MIRBUILDER-HARD-AUTHORITY-PILOT-BOOLRECIPE-COMPARE-SEMANTIC-COMMAND-001"
+  },
+  "claims": {
+    "hard_authority_pilot_policy_selected": 1,
+    "hard_authority_pilot_selected": 1,
+    "boolrecipe_compare_semantic_command_selected": 1,
+    "hard_authority_pilot_implemented": 0,
+    "source_selfhost_claim": 0,
+    "hako_adopted_decision": 0,
+    "native_seed_materialization": 0,
+    "manual_family_selection": 0,
+    "route_membership_alone_as_proof": 0,
+    "coverage_percentage_as_proof": 0,
+    "support_lane_projector_as_adoption_candidate": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_route_authority": 0,
+    "runtime_fallback": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

@@ -354,6 +354,7 @@ phase-1 compatibility Program(JSON) compat execution helper.
 | `tools/checks/rust_lifecycle_mirbuilder_numeric_compare_canon_followon_task_sequence_guard.sh` | Task-sequence guard fixing ProgramJSON canon parity before BoolRecipe design and CanonicalLoopFacts consume. |
 | `tools/checks/rust_lifecycle_source_selfhost_explicit_authority_registry_basis_guard.sh` | Registry guard for the consultation-approved HardAuthoritySeamProofAxis candidate selector input. |
 | `tools/checks/rust_lifecycle_mirbuilder_minimal_path_composed_closure_native_slice_decomposition_v2_guard.sh` | Selector-ready decomposition guard for the minimal path composed closure hard-authority candidate rows. |
+| `tools/checks/rust_lifecycle_mirbuilder_authority_facade_hard_authority_pilot_policy_guard.sh` | Policy guard selecting BoolRecipeCompareSemanticCommandBoundary as the first hard-authority pilot target. |
 | `tools/checks/rust_lifecycle_source_selfhost_machine_derived_route_repair_audit_refresh_guard.sh` | Refresh guard proving current checked-in repair fixtures do not expose a machine-derived Source Selfhost unblock repair. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_if_handler_result_map_contract_guard.sh` | Result-map contract guard for `IfStmtHandler.handle/5` and helper return paths. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_loop_handler_result_map_contract_guard.sh` | Result-map contract guard for `LoopStmtHandler.handle/5` and helper return paths. |

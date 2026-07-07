@@ -406,10 +406,10 @@ Detailed evidence lives in phase cards, fixtures, and git history.
 
 ## Active Next 3
 ```text
-landed summary: 3219 selects more DTO coverage rows; 3222 selects runtime RecipeBodies publication bridge as the next contract; 3264..3325 closes scoped BoolRecipe-to-MIR Compare/Branch, lands SOURCE-SELFHOST-EXPLICIT-AUTHORITY-REGISTRY-BASIS-001 / rust-lifecycle-source-selfhost-explicit-authority-registry-basis-v0 with HardAuthoritySeamProofAxis, consultation_gated_wider_route_selection = 1, new_proof_axis_registered = 1, source_selfhost_claim = 0, and decomposes minimal path into selector-ready hard-authority rows.
+landed summary: 3219 selects more DTO coverage rows; 3222 selects runtime RecipeBodies publication bridge as the next contract; 3264..3326 closes scoped BoolRecipe-to-MIR Compare/Branch, lands SOURCE-SELFHOST-EXPLICIT-AUTHORITY-REGISTRY-BASIS-001 / rust-lifecycle-source-selfhost-explicit-authority-registry-basis-v0 with HardAuthoritySeamProofAxis, consultation_gated_wider_route_selection = 1, new_proof_axis_registered = 1, source_selfhost_claim = 0, decomposes minimal path into selector-ready hard-authority rows, and selects BoolRecipeCompareSemanticCommandBoundary as the first hard-authority pilot policy target.
 
 next active:
-  MIRBUILDER-MINIMAL-PATH-COMPOSED-CLOSURE-NATIVE-SLICE-DECOMPOSITION-001; status=landed; output_contract=rust-lifecycle-mirbuilder-minimal-path-composed-closure-native-slice-decomposition-v2; selector_ready_decomposition = 1; eligible_hard_authority_candidate_count = 1; selected_candidate_for_policy=BoolRecipeCompareSemanticCommandBoundary; hard_authority_pilot_selected = 0; source_selfhost_claim = 0; current_design_stop=SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001; output_contract=rust-lifecycle-source-selfhost-wider-route-selection-design-stop-v0; decision=KeepSourceSelfhostStopped; reason_token=NoEligibleNativeAdoptionCandidate; next_action=DesignConsultationRequired; resume_condition=ConsultationGatedWiderRouteSelectionOrMachineDerivedRouteRepair; consultation_gated_wider_route_selection = 1; machine_derived_route_repair_allowed = 1; manual_family_selection = 0; route_membership_alone_as_proof = 0; coverage_percentage_as_proof = 0; support_lane_projector_as_adoption_candidate = 0; runtime_fallback = 0; new_backend_route = 0; new_abi = 0; next=MIRBUILDER-AUTHORITY-FACADE-HARD-AUTHORITY-PILOT-POLICY-001; status=next; unit=hard-authority pilot policy; route/runtime authority=0
+  MIRBUILDER-AUTHORITY-FACADE-HARD-AUTHORITY-PILOT-POLICY-001; status=landed; output_contract=rust-lifecycle-mirbuilder-authority-facade-hard-authority-pilot-policy-v0; prior=MIRBUILDER-MINIMAL-PATH-COMPOSED-CLOSURE-NATIVE-SLICE-DECOMPOSITION-001 / rust-lifecycle-mirbuilder-minimal-path-composed-closure-native-slice-decomposition-v2; selector_ready_decomposition = 1; eligible_hard_authority_candidate_count = 1; selected_candidate_for_policy=BoolRecipeCompareSemanticCommandBoundary; 3325_hard_authority_pilot_selected = 0; hard_authority_pilot_selected = 1; hard_authority_pilot_implemented = 0; source_selfhost_claim = 0; current_design_stop=SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001; output_contract=rust-lifecycle-source-selfhost-wider-route-selection-design-stop-v0; decision=KeepSourceSelfhostStopped; reason_token=NoEligibleNativeAdoptionCandidate; next_action=DesignConsultationRequired; resume_condition=ConsultationGatedWiderRouteSelectionOrMachineDerivedRouteRepair; consultation_gated_wider_route_selection = 1; machine_derived_route_repair_allowed = 1; manual_family_selection = 0; route_membership_alone_as_proof = 0; coverage_percentage_as_proof = 0; support_lane_projector_as_adoption_candidate = 0; runtime_fallback = 0; new_backend_route = 0; new_abi = 0; next=MIRBUILDER-HARD-AUTHORITY-PILOT-BOOLRECIPE-COMPARE-SEMANTIC-COMMAND-001; status=next; unit=hard-authority pilot implementation; route/runtime authority=0
 
 trigger-based AOT/MIR typing debt:
   status=parked-until-triggered; order=2999/3000/3001 landed, then 3022 queue
@@ -417,10 +417,10 @@ trigger-based AOT/MIR typing debt:
   compare, PHI dst_type, mir_call dst_type, or receiver-helper
   single-observation protection
 next_documented_task =
-  MIRBUILDER-AUTHORITY-FACADE-HARD-AUTHORITY-PILOT-POLICY-001
+  MIRBUILDER-HARD-AUTHORITY-PILOT-BOOLRECIPE-COMPARE-SEMANTIC-COMMAND-001
 
 next_after_active_3 =
-  MIRBUILDER-AUTHORITY-FACADE-HARD-AUTHORITY-PILOT-POLICY-001 -> MIRBUILDER-HARD-AUTHORITY-PILOT-BOOLRECIPE-COMPARE-SEMANTIC-COMMAND-001 -> SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+  MIRBUILDER-HARD-AUTHORITY-PILOT-BOOLRECIPE-COMPARE-SEMANTIC-COMMAND-001 -> SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001 -> consultation-gated next hard-authority seam only after pilot guard is green
 
 follow_on_after_consume = select first BoolRecipe publication parity row only after consume gate is green
 
