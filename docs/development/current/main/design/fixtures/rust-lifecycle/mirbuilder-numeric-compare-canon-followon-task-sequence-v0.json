@@ -1,0 +1,53 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderNumericCompareCanonFollowonTaskSequenceV1",
+  "token": "MIRBUILDER-NUMERIC-COMPARE-CANON-FOLLOWON-TASK-SEQUENCE-001",
+  "pipeline": [
+    "source AST / ProgramJSON Compare",
+    "NumericCompareCanonSnapshotV1",
+    "CanonicalLoopFacts",
+    "BoolRecipe::Compare",
+    "MIR Cmp",
+    "Branch"
+  ],
+  "selected_sequence": [
+    "MIRBUILDER-PROGRAMJSON-LOOP-CONDITION-NUMERIC-COMPARE-CANON-PARITY-001",
+    "MIRBUILDER-BOOL-RECIPE-COMPARE-BOUNDARY-DESIGN-001",
+    "MIRBUILDER-CANONICAL-LOOP-FACTS-NUMERIC-COMPARE-CANON-CONSUME-001",
+    "MIRBUILDER-BOOL-RECIPE-COMPARE-PUBLICATION-PARITY-001"
+  ],
+  "next_card": {
+    "token": "MIRBUILDER-PROGRAMJSON-LOOP-CONDITION-NUMERIC-COMPARE-CANON-PARITY-001",
+    "input": "ProgramJSON Compare",
+    "output": "NumericCompareCanonSnapshotV1",
+    "rust_oracle": "ConditionShape::VarCompareBound",
+    "analysis_only": true
+  },
+  "next_card_allowed_claims": {
+    "numeric_compare_canon_snapshot_v1": 1,
+    "programjson_compare_to_numeric_compare_canon": 1,
+    "rust_oracle_parity_for_numeric_compare_canon": 1,
+    "bound_expr_shared": 1,
+    "analysis_only": 1
+  },
+  "next_card_forbidden_claims": {
+    "canonical_loop_facts_consume": 0,
+    "recipe_matcher_input_authority": 0,
+    "bool_recipe_lowering": 0,
+    "mir_cmp_emission": 0,
+    "branch_emission": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_route_authority": 0,
+    "source_selfhost_claim": 0
+  },
+  "guardrails": {
+    "raw_ast_rewrite": 0,
+    "raw_programjson_rewrite": 0,
+    "i_le_3_to_i_lt_4_rewrite": 0,
+    "canonical_loop_facts_reads_raw_compare": 0,
+    "bool_recipe_carries_parser_offsets": 0,
+    "variable_variable_reversed_without_context_claim": 0,
+    "literal_only_bound_kind_design": 0
+  }
+}

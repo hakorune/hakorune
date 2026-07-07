@@ -406,11 +406,7 @@ Detailed evidence lives in phase cards, fixtures, and git history.
 
 ## Active Next 3
 ```text
-1. MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-REJECT-FLOOR-EXPANSION-SELECTION-001; status=landed; selected_next_axis=unsupported_condition_operator
-2. MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-UNSUPPORTED-CONDITION-OPERATOR-REJECT-ROW-001; status=landed; snapshot_reason=unsupported_loop_cond; matcher_reason=snapshot_not_ok
-3. MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-REJECT-FLOOR-UPDATE-AXIS-SELECTION-001; status=landed; selected_next_axis=unsupported_update_operator
-4. MIRBUILDER-LOOP-CONDITION-NUMERIC-COMPARE-CANON-SELECTION-001; status=landed; selected_next=rust_condition_numeric_compare_canon_authority; unsupported_update_operator_next_superseded=1
-5. MIRBUILDER-RUST-CONDITION-NUMERIC-COMPARE-CANON-AUTHORITY-001; status=landed; unit=Rust authority widening; condition_shape=VarCompareBound; programjson_consume=0
+landed summary: 3254..3258 moved unsupported condition handling into Rust-first numeric compare canon; Rust authority now has VarCompareBound; ProgramJSON consume remains 0
 
 next active:
   MIRBUILDER-PROGRAMJSON-LOOP-CONDITION-NUMERIC-COMPARE-CANON-PARITY-001; status=next; unit=ProgramJSON parity; mirror Rust VarCompareBound numeric compare canon before CanonicalLoopFacts consumes it; raw_rewrite=0; lowering_change=0; runtime_authority=rust_astnode; programjson_runtime_route_authority=0; runtime_route_switch=0
@@ -424,7 +420,11 @@ next_documented_task =
   MIRBUILDER-PROGRAMJSON-LOOP-CONDITION-NUMERIC-COMPARE-CANON-PARITY-001
 
 next_after_active_3 =
-  MIRBUILDER-PROGRAMJSON-CANONICAL-LOOP-FACTS-NUMERIC-COMPARE-CANON-CONSUME-001
+  MIRBUILDER-BOOL-RECIPE-COMPARE-BOUNDARY-DESIGN-001
+
+follow_on_after_bool_recipe_design =
+  MIRBUILDER-CANONICAL-LOOP-FACTS-NUMERIC-COMPARE-CANON-CONSUME-001
+  MIRBUILDER-BOOL-RECIPE-COMPARE-PUBLICATION-PARITY-001
 
 task discipline =
   Each ProgramJSON capability card must land real `.hako` traversal + fixture
