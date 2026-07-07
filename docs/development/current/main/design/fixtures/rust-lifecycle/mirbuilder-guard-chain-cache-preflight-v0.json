@@ -1,0 +1,38 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderGuardChainCachePreflightV1",
+  "token": "MIRBUILDER-GUARD-CHAIN-CACHE-PREFLIGHT-001",
+  "prerequisite": "MIRBUILDER-GUARD-CHAIN-CACHE-THROUGHPUT-TASK-SELECTION-001",
+  "cache_contracts": {
+    "guard_result_cache_helper": "tools/checks/guard_result_cache_helper_guard.sh",
+    "dirty_untracked_cache_helper": "tools/checks/guard_result_cache_dirty_untracked_memo_guard.sh",
+    "hako_mir_json_cache_wrapper": "tools/checks/hako_mir_json_cache_wrapper_guard.sh",
+    "hako_emit_exe_cache_wrapper": "tools/checks/hako_emit_exe_cache_wrapper_guard.sh"
+  },
+  "resume_contract": {
+    "resume_after": "MIRBUILDER-COMPARE-LOCALSSA-FINALIZE-COMPARE-DESIGN-STOP-001",
+    "localssa_design_stop_guard_runs_after_current_moves_to_resume_card": true
+  },
+  "claims": {
+    "guard_chain_cache_preflight": 1,
+    "guard_cached_run_miss_then_hit": 1,
+    "dirty_cache_remains_opt_in": 1,
+    "hako_mir_json_cache_wrapper_green": 1,
+    "hako_emit_exe_cache_wrapper_green": 1,
+    "localssa_design_stop_resume_target_recorded": 1,
+    "cache_implementation_changed": 0,
+    "dirty_cache_default_changed": 0,
+    "localssa_finalize_compare_execution": 0,
+    "mir_compare_emission": 0,
+    "mir_branch_emission": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_authority": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "GuardChainCachePreflightGreen",
+    "selected_next_card": "MIRBUILDER-COMPARE-LOCALSSA-FINALIZE-COMPARE-DESIGN-STOP-001"
+  }
+}
