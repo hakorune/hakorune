@@ -62,7 +62,7 @@ landed evidence pointer:
 selected next task:
   MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-ROUTE-SHADOW-SWITCH-DESIGN-STOP-001
 selected next card:
-  design-stop for runtime route shadow switch authority; do not switch routes before consultation.
+  CONSULTATION_REQUIRED; recommended default is A_SHADOW_ONLY_DUAL_RUN_GUARD.
 
 post-3180 block recipe task order:
   completed: JoinThenElse, ElseOnlyExit, ThenOnlyExit, and ExitAll are scoped
@@ -84,6 +84,7 @@ normal operating rule:
   history.
 
 latest design decision:
+  3230 records MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-ROUTE-SHADOW-SWITCH-DESIGN-STOP-001; recommended=A_SHADOW_ONLY_DUAL_RUN_GUARD, rejected=B_DIRECT_RUNTIME_ROUTE_SWITCH, alternative=C_MORE_DTO_OR_MATCHER_ROWS_BEFORE_SWITCH, selected_next=CONSULTATION_REQUIRED.
   3229 implements MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-SHADOW-PARITY-001: Rust ASTNode LoopWithExit oracle and ProgramJSON matcher-result snapshots match for two rows; route switch and Source Selfhost remain unclaimed.
   3228 implements MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-EXECUTION-BOUNDARY-MINIMAL-001: observe-only LoopWithExit matcher result from CanonicalLoopFacts MapBox snapshots; RecipeMatcher authority, route selection, lowering, mutation, ID allocation, route switch, and Source Selfhost remain unclaimed.
   3227 implements the CanonicalLoopFacts input snapshot MapBox publication bridge with DirectAbi/map_handle AOT parity for two verified-recipe rows; RecipeMatcher, route selection, lowering, mutation, ID allocation, route switch, and Source Selfhost remain unclaimed.
@@ -409,11 +410,10 @@ Detailed evidence lives in phase cards, fixtures, and git history.
    status=landed; boundary=observe-only LoopWithExit matcher result
 
 2. MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-SHADOW-PARITY-001; status=landed; boundary=Rust ASTNode route vs ProgramJSON route matcher result parity
-3. MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-ROUTE-SHADOW-SWITCH-DESIGN-STOP-001; status=selected; boundary=consult before runtime route switch
+3. MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-ROUTE-SHADOW-SWITCH-DESIGN-STOP-001; status=landed; boundary=consult before runtime route switch
 
 next active:
-  MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-ROUTE-SHADOW-SWITCH-DESIGN-STOP-001
-  status=selected; boundary=design-stop for runtime route switch; route selection, lowering, mutation, ID allocation, route switch, and Source Selfhost remain unclaimed
+  MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-ROUTE-SHADOW-SWITCH-DESIGN-STOP-001; status=design-stop; selected_next=CONSULTATION_REQUIRED; recommended=A_SHADOW_ONLY_DUAL_RUN_GUARD
 
 trigger-based AOT/MIR typing debt:
   status=parked-until-triggered; order=2999/3000/3001 landed, then 3022 queue
@@ -421,7 +421,7 @@ trigger-based AOT/MIR typing debt:
   compare, PHI dst_type, mir_call dst_type, or receiver-helper
   single-observation protection
 next_documented_task =
-  MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-ROUTE-SHADOW-SWITCH-DESIGN-STOP-001
+  CONSULTATION_REQUIRED
 
 next_after_active_3 =
   CONSULTATION_REQUIRED

@@ -1,0 +1,63 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonRecipeBodiesRuntimeRouteShadowSwitchDesignStopV1",
+  "token": "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-ROUTE-SHADOW-SWITCH-DESIGN-STOP-001",
+  "input_state": {
+    "previous_card": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-SHADOW-PARITY-001",
+    "shadow_parity_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-programjson-recipematcher-shadow-parity-v0.json",
+    "shadow_parity_gate": "tools/checks/rust_lifecycle_mirbuilder_programjson_recipematcher_shadow_parity_gate.sh"
+  },
+  "observed_boundary": {
+    "kind": "RuntimeRouteSwitchAuthoritySelectionRequired",
+    "programjson_shadow_parity_green": true,
+    "programjson_runtime_route_authority": false,
+    "rust_astnode_route_remains_authority": true,
+    "reason": "Switching runtime authority crosses the wider route-selection design-stop boundary"
+  },
+  "candidate_decisions": [
+    {
+      "id": "A_SHADOW_ONLY_DUAL_RUN_GUARD",
+      "state": "RecommendedDefault",
+      "reason": "Run ProgramJSON route beside the Rust ASTNode authority and fail on mismatch without changing runtime authority",
+      "selected_next_card_if_accepted": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RUNTIME-DUAL-RUN-SHADOW-GUARD-001"
+    },
+    {
+      "id": "B_DIRECT_RUNTIME_ROUTE_SWITCH",
+      "state": "RejectedForNow",
+      "reason": "Would change runtime authority before a dual-run mismatch guard and wider route-selection approval"
+    },
+    {
+      "id": "C_MORE_DTO_OR_MATCHER_ROWS_BEFORE_SWITCH",
+      "state": "ConsultationAlternative",
+      "reason": "May increase confidence but does not itself answer the runtime authority switch boundary"
+    }
+  ],
+  "consultation_question": {
+    "question": "After RecipeMatcher shadow parity is green for the covered rows, should the next slice add a dual-run shadow guard while Rust remains authority, or require more matcher rows before any runtime route switch work?",
+    "recommended_default": "A_SHADOW_ONLY_DUAL_RUN_GUARD",
+    "must_not_select_without_consultation": [
+      "B_DIRECT_RUNTIME_ROUTE_SWITCH"
+    ]
+  },
+  "decision": {
+    "kind": "ConsultationRequired",
+    "reason_token": "RuntimeRouteSwitchAuthorityRequiresWiderRouteSelectionDecision",
+    "selected_next_card": "CONSULTATION_REQUIRED"
+  },
+  "claims": {
+    "design_stop": 1,
+    "programjson_shadow_parity_green": 1,
+    "runtime_route_switch": 0,
+    "programjson_runtime_route_authority": 0,
+    "recipe_matcher_input_authority": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "mir_lowering": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

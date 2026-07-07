@@ -134,6 +134,7 @@ allowed_latest = [
     'latest_card = "MIRBUILDER-PROGRAMJSON-CANONICAL-LOOP-FACTS-INPUT-SNAPSHOT-MAPBOX-PUBLICATION-BRIDGE-001"',
     'latest_card = "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-EXECUTION-BOUNDARY-MINIMAL-001"',
     'latest_card = "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-SHADOW-PARITY-001"',
+    'latest_card = "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-ROUTE-SHADOW-SWITCH-DESIGN-STOP-001"',
 ]
 if not any(needle in current_state for needle in allowed_latest):
     raise SystemExit("current state latest card drift")

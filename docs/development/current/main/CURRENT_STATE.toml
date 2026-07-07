@@ -345,12 +345,13 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-SHADOW-PARITY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3229-MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-SHADOW-PARITY-001.md"
-latest_card_summary = """3229 proves shadow parity between the Rust ASTNode
-RecipeMatcher LoopWithExit oracle and the ProgramJSON matcher result snapshot
-for two rows. RecipeMatcher authority, route selection, lowering, mutation, ID
-allocation, route switch, and Source Selfhost remain unclaimed."""
+latest_card = "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-ROUTE-SHADOW-SWITCH-DESIGN-STOP-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3230-MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-ROUTE-SHADOW-SWITCH-DESIGN-STOP-001.md"
+latest_card_summary = """3230 records the runtime route shadow-switch
+design stop after ProgramJSON RecipeMatcher shadow parity. Rust ASTNode route
+remains authority; ProgramJSON route remains shadow-only evidence. Runtime
+route switch, route selection, lowering, mutation, ID allocation, and Source
+Selfhost remain unclaimed pending consultation."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -361,6 +362,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-07: 3230 records the runtime route shadow-switch design stop after ProgramJSON RecipeMatcher shadow parity; Rust remains authority and runtime route switch, route selection, lowering, mutation, ID allocation, and Source Selfhost remain unclaimed pending consultation.",
   "2026-07-07: 3229 proves shadow parity between the Rust ASTNode RecipeMatcher LoopWithExit oracle and ProgramJSON matcher result snapshots while RecipeMatcher authority, route selection, lowering, mutation, ID allocation, route switch, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3228 implements the minimal observe-only RecipeMatcher execution boundary over CanonicalLoopFacts MapBox snapshots while RecipeMatcher authority, route selection, lowering, mutation, ID allocation, route switch, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3227 implements the CanonicalLoopFacts input snapshot MapBox publication bridge with DirectAbi/map_handle AOT parity while RecipeMatcher execution, route switch, lowering, mutation, ID allocation, and Source Selfhost remain unclaimed.",
@@ -372,5 +374,4 @@ landed_tail = [
   "2026-07-07: 3221 marks the expanded RecipeBodies verifier-boundary DTO coverage rows as scoped Rust ASTNode projector retire-candidates while runtime dependency removal remains unclaimed.",
   "2026-07-07: 3220 expands RecipeBodies verifier-boundary DTO coverage to two rows through the existing snapshot owner while runtime RecipeBodies publication and full RecipeMatcher execution remain unclaimed.",
   "2026-07-07: 3219 selects more DTO coverage rows after the post-verifier consultation while runtime RecipeBodies publication and full RecipeMatcher execution remain unclaimed and require a new decision.",
-  "2026-07-07: 3218 prepares the post-verifier RecipeBodies consultation with more DTO coverage rows as the recommended default while runtime RecipeBodies publication and full RecipeMatcher execution require a new decision.",
 ]
