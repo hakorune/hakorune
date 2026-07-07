@@ -2,7 +2,7 @@
 //
 // Responsibility:
 // - Read one Program(JSON v0) Compare object from a known object start.
-// - Publish a shared, analysis-only Var op Int compare code map for If/Loop producers.
+// - Publish a shared, analysis-only Var op bound compare code map for If/Loop producers.
 //
 // Non-responsibility:
 // - Attaching cond_recipe to RecipeItem, expanding If accepted operators,
@@ -40,14 +40,29 @@ static box ProgramJsonCompareReaderBox {
     if me._token_eq(me._node_type_at(program_json, lhs), "Var") != 1 {
       return me._err_map("lhs_not_var")
     }
-    if me._token_eq(me._node_type_at(program_json, rhs), "Int") != 1 {
-      return me._err_map("rhs_not_int")
-    }
-
     local lhs_name = me._string_field_at(program_json, "name", lhs)
     local lhs_symbol_id = me._symbol_id(lhs_name)
     if lhs_symbol_id == 0 {
       return me._err_map("unknown_lhs_symbol")
+    }
+
+    local rhs_type = me._node_type_at(program_json, rhs)
+    local bound_kind = 0
+    local bound_i64 = 0
+    local bound_symbol_id = 0
+    if me._token_eq(rhs_type, "Int") == 1 {
+      bound_kind = 1
+      bound_i64 = me._int_field_at(program_json, "value", rhs)
+    } else {
+      if me._token_eq(rhs_type, "Var") == 1 {
+        bound_kind = 2
+        bound_symbol_id = me._symbol_id(me._string_field_at(program_json, "name", rhs))
+        if bound_symbol_id == 0 {
+          return me._err_map("unknown_rhs_symbol")
+        }
+      } else {
+        return me._err_map("rhs_not_int")
+      }
     }
 
     return %{
@@ -56,9 +71,9 @@ static box ProgramJsonCompareReaderBox {
       "lhs_symbol_id" => lhs_symbol_id,
       "legacy_loop_var_code" => me._legacy_name_code(lhs_name),
       "cmp_code" => cmp_code,
-      "bound_kind_code" => 1,
-      "bound_i64" => me._int_field_at(program_json, "value", rhs),
-      "bound_symbol_id" => 0,
+      "bound_kind_code" => bound_kind,
+      "bound_i64" => bound_i64,
+      "bound_symbol_id" => bound_symbol_id,
       "original_direction_code" => 1,
       "constant_compare" => 0,
       "analysis_only" => 1
@@ -155,6 +170,7 @@ static box ProgramJsonCompareReaderBox {
     if reason == "lhs_not_var" { return 6 }
     if reason == "rhs_not_int" { return 7 }
     if reason == "unknown_lhs_symbol" { return 8 }
+    if reason == "unknown_rhs_symbol" { return 9 }
     return 99
   }
 

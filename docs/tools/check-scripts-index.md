@@ -364,6 +364,7 @@ phase-1 compatibility Program(JSON) compat execution helper.
 | `tools/checks/windows_wsl_cmd_smoke.sh` | Windows WSL-to-CMD route maintenance smoke. |
 | `tools/checks/macos_portability_guard.sh` | macOS portability guard. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_compare_reader_followon_selection_guard.sh` | Active MirBuilder compare-reader follow-on selection guard. |
+| `tools/checks/rust_lifecycle_mirbuilder_programjson_compare_reader_var_rhs_bound_parity_gate.sh` | Active MirBuilder compare-reader Var rhs bound parity gate. |
 
 ## Update Policy
 

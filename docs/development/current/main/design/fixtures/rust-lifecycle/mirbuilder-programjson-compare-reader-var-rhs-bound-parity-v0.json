@@ -1,0 +1,79 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonCompareReaderVarRhsBoundParityV1",
+  "token": "MIRBUILDER-PROGRAMJSON-COMPARE-READER-VAR-RHS-BOUND-PARITY-001",
+  "prerequisite": "MIRBUILDER-PROGRAMJSON-COMPARE-READER-FOLLOWON-SELECTION-001",
+  "owner": "ProgramJsonCompareReaderBox.read_var_int_compare",
+  "contract": {
+    "input": "ProgramJSON v0 Compare object at a known object start",
+    "output": "ProgramJsonCompareReaderCodeMapV1",
+    "scope": "Var op Var rhs bound only",
+    "operators": ["<", "<=", ">", ">=", "==", "!="],
+    "bound_kind_code": 2,
+    "bound_kind_name": "SymbolRef",
+    "analysis_only": true,
+    "producer_change": false
+  },
+  "rows": [
+    {
+      "row_id": "var_lt_var",
+      "compare_json": "{\"type\":\"Compare\",\"op\":\"<\",\"lhs\":{\"type\":\"Var\",\"name\":\"i\"},\"rhs\":{\"type\":\"Var\",\"name\":\"n\"}}",
+      "expected_reader_summary": "snapshot_kind=ProgramJsonCompareReaderCodeMapV1;ok=1;reason_code=0;lhs_symbol_id=1;legacy_loop_var_code=1;cmp_code=1;bound_kind_code=2;bound_i64=0;bound_symbol_id=2;original_direction_code=1;constant_compare=0;analysis_only=1",
+      "expected_recipe_summary": "bool_recipe_kind=Compare;lhs_kind=Symbol;lhs_symbol_id=1;cmp=Lt;cmp_code=1;bound_kind=SymbolRef;bound_kind_code=2;bound_i64=0;bound_symbol_id=2;haystack_symbol_id=0;needle_symbol_id=0;analysis_only=1;lowering_executed=0"
+    },
+    {
+      "row_id": "var_le_var",
+      "compare_json": "{\"type\":\"Compare\",\"op\":\"<=\",\"lhs\":{\"type\":\"Var\",\"name\":\"i\"},\"rhs\":{\"type\":\"Var\",\"name\":\"n\"}}",
+      "expected_reader_summary": "snapshot_kind=ProgramJsonCompareReaderCodeMapV1;ok=1;reason_code=0;lhs_symbol_id=1;legacy_loop_var_code=1;cmp_code=2;bound_kind_code=2;bound_i64=0;bound_symbol_id=2;original_direction_code=1;constant_compare=0;analysis_only=1",
+      "expected_recipe_summary": "bool_recipe_kind=Compare;lhs_kind=Symbol;lhs_symbol_id=1;cmp=Le;cmp_code=2;bound_kind=SymbolRef;bound_kind_code=2;bound_i64=0;bound_symbol_id=2;haystack_symbol_id=0;needle_symbol_id=0;analysis_only=1;lowering_executed=0"
+    },
+    {
+      "row_id": "var_gt_var",
+      "compare_json": "{\"type\":\"Compare\",\"op\":\">\",\"lhs\":{\"type\":\"Var\",\"name\":\"i\"},\"rhs\":{\"type\":\"Var\",\"name\":\"n\"}}",
+      "expected_reader_summary": "snapshot_kind=ProgramJsonCompareReaderCodeMapV1;ok=1;reason_code=0;lhs_symbol_id=1;legacy_loop_var_code=1;cmp_code=3;bound_kind_code=2;bound_i64=0;bound_symbol_id=2;original_direction_code=1;constant_compare=0;analysis_only=1",
+      "expected_recipe_summary": "bool_recipe_kind=Compare;lhs_kind=Symbol;lhs_symbol_id=1;cmp=Gt;cmp_code=3;bound_kind=SymbolRef;bound_kind_code=2;bound_i64=0;bound_symbol_id=2;haystack_symbol_id=0;needle_symbol_id=0;analysis_only=1;lowering_executed=0"
+    },
+    {
+      "row_id": "var_ge_var",
+      "compare_json": "{\"type\":\"Compare\",\"op\":\">=\",\"lhs\":{\"type\":\"Var\",\"name\":\"i\"},\"rhs\":{\"type\":\"Var\",\"name\":\"n\"}}",
+      "expected_reader_summary": "snapshot_kind=ProgramJsonCompareReaderCodeMapV1;ok=1;reason_code=0;lhs_symbol_id=1;legacy_loop_var_code=1;cmp_code=4;bound_kind_code=2;bound_i64=0;bound_symbol_id=2;original_direction_code=1;constant_compare=0;analysis_only=1",
+      "expected_recipe_summary": "bool_recipe_kind=Compare;lhs_kind=Symbol;lhs_symbol_id=1;cmp=Ge;cmp_code=4;bound_kind=SymbolRef;bound_kind_code=2;bound_i64=0;bound_symbol_id=2;haystack_symbol_id=0;needle_symbol_id=0;analysis_only=1;lowering_executed=0"
+    },
+    {
+      "row_id": "var_eq_var",
+      "compare_json": "{\"type\":\"Compare\",\"op\":\"==\",\"lhs\":{\"type\":\"Var\",\"name\":\"i\"},\"rhs\":{\"type\":\"Var\",\"name\":\"n\"}}",
+      "expected_reader_summary": "snapshot_kind=ProgramJsonCompareReaderCodeMapV1;ok=1;reason_code=0;lhs_symbol_id=1;legacy_loop_var_code=1;cmp_code=5;bound_kind_code=2;bound_i64=0;bound_symbol_id=2;original_direction_code=1;constant_compare=0;analysis_only=1",
+      "expected_recipe_summary": "bool_recipe_kind=Compare;lhs_kind=Symbol;lhs_symbol_id=1;cmp=Eq;cmp_code=5;bound_kind=SymbolRef;bound_kind_code=2;bound_i64=0;bound_symbol_id=2;haystack_symbol_id=0;needle_symbol_id=0;analysis_only=1;lowering_executed=0"
+    },
+    {
+      "row_id": "var_ne_var",
+      "compare_json": "{\"type\":\"Compare\",\"op\":\"!=\",\"lhs\":{\"type\":\"Var\",\"name\":\"i\"},\"rhs\":{\"type\":\"Var\",\"name\":\"n\"}}",
+      "expected_reader_summary": "snapshot_kind=ProgramJsonCompareReaderCodeMapV1;ok=1;reason_code=0;lhs_symbol_id=1;legacy_loop_var_code=1;cmp_code=6;bound_kind_code=2;bound_i64=0;bound_symbol_id=2;original_direction_code=1;constant_compare=0;analysis_only=1",
+      "expected_recipe_summary": "bool_recipe_kind=Compare;lhs_kind=Symbol;lhs_symbol_id=1;cmp=Ne;cmp_code=6;bound_kind=SymbolRef;bound_kind_code=2;bound_i64=0;bound_symbol_id=2;haystack_symbol_id=0;needle_symbol_id=0;analysis_only=1;lowering_executed=0"
+    }
+  ],
+  "decision": {
+    "kind": "ProgramJsonCompareReaderVarRhsBoundParityGreen",
+    "reason_token": "VarRhsBoundPublishesSymbolRefCodeMapWithoutLowering",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-COMPARE-READER-VAR-RHS-PRODUCER-ROW-SELECTION-001"
+  },
+  "claims": {
+    "compare_reader_var_rhs_bound_parity": 1,
+    "var_rhs_bound_implemented": 1,
+    "var_rhs_bound_symbol_ref": 1,
+    "row_count": 6,
+    "producer_change": 0,
+    "length_bound_support": 0,
+    "reversed_var_var_context_aware": 0,
+    "bool_recipe_lowering_executed": 0,
+    "mir_cmp_emission": 0,
+    "branch_emission": 0,
+    "basic_block_mutation": 0,
+    "value_id_allocation": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_route_authority": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  }
+}

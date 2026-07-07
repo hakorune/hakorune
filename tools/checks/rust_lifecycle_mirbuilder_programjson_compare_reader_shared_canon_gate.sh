@@ -88,7 +88,7 @@ for needle in [
     "read_var_int_compare(program_json, compare_start): MapBox",
     "ProgramJsonCompareReaderCodeMapV1",
     '"analysis_only" => 1',
-    '"bound_kind_code" => 1',
+    '"bound_kind_code" => bound_kind',
     '"constant_compare" => 0',
     "if me._token_eq(op, \"<\") == 1 { return 1 }",
     "if me._token_eq(op, \"<=\") == 1 { return 2 }",
