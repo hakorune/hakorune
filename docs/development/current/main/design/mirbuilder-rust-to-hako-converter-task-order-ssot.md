@@ -406,10 +406,10 @@ Detailed evidence lives in phase cards, fixtures, and git history.
 
 ## Active Next 3
 ```text
-landed summary: 3219 selects more DTO coverage rows; 3222 selects runtime RecipeBodies publication bridge as the next contract; 3264..3321 cond_recipe/compare chain includes BoolRecipe sidecar bridge, ProgramJSON Loop/If cond_recipe producer wiring, verifier validate-only, MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RUNTIME-DUAL-RUN-SHADOW-GUARD-001, MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-SHADOW-PARITY-EXPANDED-ROWS-001, matcher observe-only input snapshot, shared compare reader, If/Loop relational rows, BoolRecipe lowering observation/consultation, Var rhs reader parity, If/nested-If/top-level Loop Var rhs owner-direct rows, Var-rhs producer closeout, symbolic compare lowering command owner selection, intent-map symbolic command pilot/parity, RHS materialization intent pilot/parity, RHS ValueId resolution owner selection, read-only RHS ValueId resolution plan pilot/parity, actual RHS ValueId resolution design-stop, request/response ABI, LiteralI64 constant emission bridge, MIRBUILDER-COMPARE-RHS-SYMBOLREF-LOOKUP-CONTRACT-PARITY-001, MIRBUILDER-COMPARE-RHS-SYMBOLREF-LOOKUP-BRIDGE-001, MIRBUILDER-COMPARE-LOCALSSA-FINALIZE-COMPARE-BRIDGE-001, MIR Compare emission bridge, Branch design-stop, MIRBUILDER-COMPARE-BRANCH-EMISSION-BRIDGE-001, BoolRecipe-to-MIR Compare/Branch closeout, and MIRBUILDER-COMPARE-RUNTIME-ROUTE-AUTHORITY-DESIGN-STOP-001.
+landed summary: 3219 selects more DTO coverage rows; 3222 selects runtime RecipeBodies publication bridge as the next contract; 3264..3322 cond_recipe/compare chain includes BoolRecipe sidecar bridge, ProgramJSON Loop/If cond_recipe producer wiring, verifier validate-only, MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RUNTIME-DUAL-RUN-SHADOW-GUARD-001, MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-SHADOW-PARITY-EXPANDED-ROWS-001, matcher observe-only input snapshot, shared compare reader, If/Loop relational rows, BoolRecipe lowering observation/consultation, Var rhs reader parity, If/nested-If/top-level Loop Var rhs owner-direct rows, Var-rhs producer closeout, symbolic compare lowering command owner selection, intent-map symbolic command pilot/parity, RHS materialization intent pilot/parity, RHS ValueId resolution owner selection, read-only RHS ValueId resolution plan pilot/parity, actual RHS ValueId resolution design-stop, request/response ABI, LiteralI64 constant emission bridge, MIRBUILDER-COMPARE-RHS-SYMBOLREF-LOOKUP-CONTRACT-PARITY-001, MIRBUILDER-COMPARE-RHS-SYMBOLREF-LOOKUP-BRIDGE-001, MIRBUILDER-COMPARE-LOCALSSA-FINALIZE-COMPARE-BRIDGE-001, MIR Compare emission bridge, Branch design-stop, MIRBUILDER-COMPARE-BRANCH-EMISSION-BRIDGE-001, BoolRecipe-to-MIR Compare/Branch closeout, MIRBUILDER-COMPARE-RUNTIME-ROUTE-AUTHORITY-DESIGN-STOP-001, and MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RUNTIME-ROUTE-ADJACENT-SHADOW-GUARD-REFRESH-001.
 
 next active:
-  MIRBUILDER-COMPARE-RUNTIME-ROUTE-AUTHORITY-DESIGN-STOP-001; status=landed; selected runtime-adjacent ProgramJSON shadow guard before any runtime route authority switch; next=MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RUNTIME-ROUTE-ADJACENT-SHADOW-GUARD-001; status=next; unit=runtime-adjacent shadow guard; route/runtime authority=0
+  MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RUNTIME-ROUTE-ADJACENT-SHADOW-GUARD-REFRESH-001; status=landed; reconfirmed runtime-adjacent ProgramJSON shadow guard as green; next=SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001; status=next; unit=design-stop frontier; output_contract=rust-lifecycle-source-selfhost-wider-route-selection-design-stop-v0; decision=KeepSourceSelfhostStopped; reason_token=NoEligibleNativeAdoptionCandidate; next_action=DesignConsultationRequired; resume_condition=ConsultationGatedWiderRouteSelectionOrMachineDerivedRouteRepair; manual_family_selection = 0; consultation_gated_wider_route_selection = 1; machine_derived_route_repair_allowed = 1; route/runtime authority=0
 
 trigger-based AOT/MIR typing debt:
   status=parked-until-triggered; order=2999/3000/3001 landed, then 3022 queue
@@ -417,10 +417,10 @@ trigger-based AOT/MIR typing debt:
   compare, PHI dst_type, mir_call dst_type, or receiver-helper
   single-observation protection
 next_documented_task =
-  MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RUNTIME-ROUTE-ADJACENT-SHADOW-GUARD-001
+  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 
 next_after_active_3 =
-  MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RUNTIME-ROUTE-ADJACENT-SHADOW-GUARD-001 -> SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001 -> SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-007
+  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001 -> SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-007 -> SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-RESOLUTION-001
 
 follow_on_after_consume = select first BoolRecipe publication parity row only after consume gate is green
 

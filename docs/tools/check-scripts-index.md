@@ -395,6 +395,7 @@ phase-1 compatibility Program(JSON) compat execution helper.
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_var_rhs_producer_closeout_guard.sh` | Closes the first If/nested-If/top-level Loop Var rhs compare producer surface. |
 | `tools/checks/rust_lifecycle_mirbuilder_compare_boolrecipe_to_mir_compare_branch_closeout_guard.sh` | Closes the scoped BoolRecipe-to-MIR Compare/Branch bridge chain before runtime route authority design-stop. |
 | `tools/checks/rust_lifecycle_mirbuilder_compare_runtime_route_authority_design_stop_guard.sh` | Selects the runtime-adjacent ProgramJSON shadow guard before any runtime route authority switch. |
+| `tools/checks/rust_lifecycle_mirbuilder_programjson_recipematcher_runtime_route_adjacent_shadow_guard_refresh_guard.sh` | Reconfirms the runtime-adjacent ProgramJSON shadow guard before returning to Source Selfhost wider route selection. |
 
 ## Update Policy
 

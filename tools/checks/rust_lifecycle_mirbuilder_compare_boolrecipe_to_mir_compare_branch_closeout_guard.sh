@@ -81,6 +81,7 @@ need("Source Selfhost: `0`" in card, "card must keep Source Selfhost unclaimed")
 allowed_latest = [
     f'latest_card = "{token}"',
     'latest_card = "MIRBUILDER-COMPARE-RUNTIME-ROUTE-AUTHORITY-DESIGN-STOP-001"',
+    'latest_card = "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RUNTIME-ROUTE-ADJACENT-SHADOW-GUARD-REFRESH-001"',
 ]
 need(any(entry in current_state for entry in allowed_latest), "CURRENT_STATE latest card drift")
 allowed_next_tasks = [
