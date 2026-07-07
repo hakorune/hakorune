@@ -1,0 +1,78 @@
+{
+  "schema_version": 0,
+  "kind": "SourceSelfhostMachineDerivedRouteRepairAuditRefreshV1",
+  "token": "SOURCE-SELFHOST-MACHINE-DERIVED-ROUTE-REPAIR-AUDIT-REFRESH-001",
+  "output_contract": "rust-lifecycle-source-selfhost-machine-derived-route-repair-audit-refresh-v0",
+  "current_state": {
+    "latest_card": "SOURCE-SELFHOST-MACHINE-DERIVED-ROUTE-REPAIR-AUDIT-REFRESH-001",
+    "latest_card_path": "docs/development/current/main/phases/phase-296x/3323-SOURCE-SELFHOST-MACHINE-DERIVED-ROUTE-REPAIR-AUDIT-REFRESH-001.md",
+    "current_blocker_token": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+  },
+  "input_state": {
+    "previous_latest_card": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RUNTIME-ROUTE-ADJACENT-SHADOW-GUARD-REFRESH-001",
+    "design_stop_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-wider-route-selection-design-stop-v0.json",
+    "basis_011_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-wider-route-selection-basis-011-v0.json",
+    "resolution_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-wider-route-selection-resolution-v0.json"
+  },
+  "allowed_resume": [
+    "ConsultationGatedWiderRouteSelection",
+    "MachineDerivedRouteRepair"
+  ],
+  "audited_repair_fixtures": [
+    {
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-owner-edge-confidence-repair-v0.json",
+      "state": "HistoricalConsumedRepair",
+      "current_unblock_repair": 0
+    },
+    {
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-stable-deny-reason-repair-v0.json",
+      "state": "HistoricalConsumedRepair",
+      "current_unblock_repair": 0
+    },
+    {
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-missing-projection-policy-other-owner-edge-confidence-repair-v0.json",
+      "state": "HistoricalConsumedRepair",
+      "current_unblock_repair": 0
+    },
+    {
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-borrow-surface-owner-edge-confidence-repair-v0.json",
+      "state": "HistoricalConsumedRepair",
+      "current_unblock_repair": 0
+    },
+    {
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-id-scalar-domain-owner-edge-repair-v0.json",
+      "state": "HistoricalConsumedRepair",
+      "current_unblock_repair": 0
+    }
+  ],
+  "audit_summary": {
+    "audited_repair_fixture_count": 5,
+    "historical_or_consumed_repair_count": 5,
+    "current_unblock_repair_count": 0,
+    "route_matrix_concrete_inconsistency_count": 0,
+    "eligible_candidate_count": 0,
+    "candidate_pool_state": "Blocked",
+    "machine_derived_route_repair_selected": 0
+  },
+  "decision": {
+    "kind": "KeepSourceSelfhostStopped",
+    "reason_token": "NoCurrentMachineDerivedRouteRepairCandidate",
+    "selected_next_card": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "next_action": "DesignConsultationRequired"
+  },
+  "claims": {
+    "source_selfhost_claim": 0,
+    "consultation_gated_wider_route_selection": 0,
+    "machine_derived_route_repair_selected": 0,
+    "manual_family_selection": 0,
+    "manual_lane_selection": 0,
+    "route_membership_alone_as_proof": 0,
+    "coverage_percentage_as_proof": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_route_authority": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
