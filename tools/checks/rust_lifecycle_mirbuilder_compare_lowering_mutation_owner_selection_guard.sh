@@ -141,7 +141,8 @@ need(
     or 'latest_card = "MIRBUILDER-POST-RHS-VALUEID-PLAN-NEXT-SEAM-SELECTION-001"' in current_state
     or 'latest_card = "MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-VALUEID-REQUEST-ABI-001"' in current_state
     or 'latest_card = "MIRBUILDER-POST-RHS-VALUEID-REQUEST-ABI-NEXT-SEAM-SELECTION-001"' in current_state
-    or 'latest_card = "MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-LITERAL-I64-CONSTANT-EMISSION-BRIDGE-001"' in current_state,
+    or 'latest_card = "MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-LITERAL-I64-CONSTANT-EMISSION-BRIDGE-001"' in current_state
+    or 'latest_card = "MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-SYMBOLREF-LOOKUP-CONTRACT-PARITY-001"' in current_state,
     "CURRENT_STATE latest card must point to selection or a selected follow-on",
 )
 need(
