@@ -345,13 +345,13 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-HARD-AUTHORITY-PILOT-BOOLRECIPE-COMPARE-SEMANTIC-COMMAND-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3327-MIRBUILDER-HARD-AUTHORITY-PILOT-BOOLRECIPE-COMPARE-SEMANTIC-COMMAND-001.md"
-latest_card_summary = """3327 implements the first registry-selected hard
-authority pilot by fixing BoolRecipeCompareSemanticCommandBoundary as a `.hako`
-semantic command seam with AOT/EXE evidence and downstream boundary proof.
-Source Selfhost, Hako adoption, MIR mutation, ID allocation, and route/runtime
-authority remain 0."""
+latest_card = "MIRBUILDER-POST-HARD-AUTHORITY-PILOT-NEXT-SEAM-SELECTION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3328-MIRBUILDER-POST-HARD-AUTHORITY-PILOT-NEXT-SEAM-SELECTION-001.md"
+latest_card_summary = """3328 consumes the first hard-authority pilot evidence
+and selects CompareRhsMaterializationIntentBoundary as the next read-only
+hard-authority seam. The next seam is not implemented yet; Source Selfhost,
+Hako adoption, MIR mutation, ID allocation, and route/runtime authority remain
+0."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -362,6 +362,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-08: 3328 consumes the first hard-authority pilot evidence and selects CompareRhsMaterializationIntentBoundary as the next read-only hard-authority seam; the seam is not implemented yet, and Source Selfhost, Hako adoption, MIR mutation, ID allocation, and route/runtime authority remain unclaimed.",
   "2026-07-08: 3327 implements the first registry-selected hard authority pilot by fixing BoolRecipeCompareSemanticCommandBoundary as a `.hako` semantic command seam with AOT/EXE evidence and downstream boundary proof; Source Selfhost, Hako adoption, MIR mutation, ID allocation, and route/runtime authority remain unclaimed.",
   "2026-07-08: 3326 selects BoolRecipeCompareSemanticCommandBoundary as the first hard-authority pilot policy target from the registry-gated minimal path decomposition; the pilot implementation is not open yet, and Source Selfhost, MIR mutation, ID allocation, and route/runtime authority remain unclaimed.",
   "2026-07-08: 3325 decomposes the minimal path composed closure into selector-ready hard authority candidate rows and finds exactly one policy candidate, BoolRecipeCompareSemanticCommandBoundary; the pilot is not selected or implemented, and Source Selfhost remains unclaimed.",
@@ -373,5 +374,4 @@ landed_tail = [
   "2026-07-08: 3319 opens scoped Branch emission from a Compare result ValueId; route selection, runtime authority, runtime fallback, and Source Selfhost remain unclaimed.",
   "2026-07-08: 3318 selects a scoped Branch emission bridge after Compare emission; Branch emission execution, branch condition consumption, route/runtime authority, and Source Selfhost remain unclaimed.",
   "2026-07-08: 3317 opens scoped MIR Compare emission from already-finalized lhs/rhs ValueIds and publishes the Bool result type; MIR Branch emission, route/runtime authority, and Source Selfhost remain unclaimed.",
-  "2026-07-08: 3316 opens a scoped LocalSSA finalize_compare bridge for already-resolved lhs/rhs ValueIds; MIR Compare/Branch emission, Bool result publication, runtime authority, and Source Selfhost remain unclaimed.",
 ]

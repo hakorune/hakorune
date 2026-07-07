@@ -1,0 +1,71 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderPostHardAuthorityPilotNextSeamSelectionV1",
+  "token": "MIRBUILDER-POST-HARD-AUTHORITY-PILOT-NEXT-SEAM-SELECTION-001",
+  "output_contract": "rust-lifecycle-mirbuilder-post-hard-authority-pilot-next-seam-selection-v0",
+  "current_state": {
+    "latest_card": "MIRBUILDER-POST-HARD-AUTHORITY-PILOT-NEXT-SEAM-SELECTION-001",
+    "latest_card_path": "docs/development/current/main/phases/phase-296x/3328-MIRBUILDER-POST-HARD-AUTHORITY-PILOT-NEXT-SEAM-SELECTION-001.md",
+    "current_blocker_token": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+  },
+  "input_state": {
+    "previous_latest_card": "MIRBUILDER-HARD-AUTHORITY-PILOT-BOOLRECIPE-COMPARE-SEMANTIC-COMMAND-001",
+    "first_hard_authority_pilot": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-hard-authority-pilot-boolrecipe-compare-semantic-command-v0.json",
+    "rhs_materialization_intent_parity": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-compare-rhs-materialization-intent-parity-v0.json",
+    "rhs_materialization_intent_hako": "lang/src/compiler/mirbuilder/compare_rhs_materialization_intent_snapshot.hako"
+  },
+  "selected_next_seam": {
+    "candidate_id": "CompareRhsMaterializationIntentBoundary",
+    "owner_id": "CompareRhsMaterializationIntentSnapshotBox",
+    "seam_kind": "ReadOnlyRhsMaterializationIntent",
+    "input_surface": "CompareLoweringSymbolicCommandSnapshotV1",
+    "output_surface": "CompareRhsMaterializationIntentSnapshotV1",
+    "downstream_consumer": "CompareRhsValueIdResolutionPlanSnapshotBox",
+    "rust_oracle_available": 1,
+    "hako_impl_available": 1,
+    "aot_guard_available": 1,
+    "mutation_required": 0,
+    "route_selection_required": 0,
+    "runtime_switch_required": 0,
+    "source_selfhost_claim_required": 0,
+    "support_lane_projector": 0,
+    "string_only_facade": 0,
+    "eligible_as_next_hard_authority_seam": 1
+  },
+  "rejected_followons": [
+    {
+      "candidate_id": "CompareLoweringSymbolicCommandSnapshotBox",
+      "rejection_reason": "AlreadyCoveredByFirstHardAuthorityPilot"
+    },
+    {
+      "candidate_id": "RecipeMatcherObserveOnlyBoundary",
+      "rejection_reason": "TooCloseToRouteAuthorityWithoutSeparateConsultation"
+    },
+    {
+      "candidate_id": "ActualValueIdLocalSsaMirCompareBranchBridge",
+      "rejection_reason": "CrossesMutationOrAllocationBoundary"
+    }
+  ],
+  "decision": {
+    "kind": "SelectNextHardAuthoritySeam",
+    "reason_token": "CompareRhsMaterializationIntentIsDirectReadOnlyDownstreamSeam",
+    "selected_next_card": "MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-MATERIALIZATION-INTENT-001"
+  },
+  "claims": {
+    "post_hard_authority_pilot_next_seam_selected": 1,
+    "first_hard_authority_pilot_evidence_consumed": 1,
+    "compare_rhs_materialization_intent_selected": 1,
+    "next_seam_implemented": 0,
+    "hako_adopted_decision": 0,
+    "source_selfhost_claim": 0,
+    "native_seed_materialization": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_route_authority": 0,
+    "runtime_fallback": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

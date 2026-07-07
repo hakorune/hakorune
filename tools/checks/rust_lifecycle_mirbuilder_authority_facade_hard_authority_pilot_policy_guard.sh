@@ -60,6 +60,8 @@ blocker = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 candidate = "BoolRecipeCompareSemanticCommandBoundary"
 next_card = "MIRBUILDER-HARD-AUTHORITY-PILOT-BOOLRECIPE-COMPARE-SEMANTIC-COMMAND-001"
 next_card_path = "docs/development/current/main/phases/phase-296x/3327-MIRBUILDER-HARD-AUTHORITY-PILOT-BOOLRECIPE-COMPARE-SEMANTIC-COMMAND-001.md"
+follow_on_card = "MIRBUILDER-POST-HARD-AUTHORITY-PILOT-NEXT-SEAM-SELECTION-001"
+follow_on_card_path = "docs/development/current/main/phases/phase-296x/3328-MIRBUILDER-POST-HARD-AUTHORITY-PILOT-NEXT-SEAM-SELECTION-001.md"
 output_contract = "rust-lifecycle-mirbuilder-authority-facade-hard-authority-pilot-policy-v0"
 
 need(f"# 3326 - {token}" in card, "card token drift")
@@ -155,8 +157,8 @@ for key in [
 ]:
     need(claims.get(key) == 0, f"forbidden claim drift: {key}")
 
-need(state.get("latest_card") in [token, next_card], "CURRENT_STATE latest card drift")
-need(state.get("latest_card_path") in [str(card_path), next_card_path], "CURRENT_STATE latest path drift")
+need(state.get("latest_card") in [token, next_card, follow_on_card], "CURRENT_STATE latest card drift")
+need(state.get("latest_card_path") in [str(card_path), next_card_path, follow_on_card_path], "CURRENT_STATE latest path drift")
 need(state.get("current_blocker_token") == blocker, "CURRENT_STATE blocker drift")
 
 for needle in [

@@ -356,6 +356,7 @@ phase-1 compatibility Program(JSON) compat execution helper.
 | `tools/checks/rust_lifecycle_mirbuilder_minimal_path_composed_closure_native_slice_decomposition_v2_guard.sh` | Selector-ready decomposition guard for the minimal path composed closure hard-authority candidate rows. |
 | `tools/checks/rust_lifecycle_mirbuilder_authority_facade_hard_authority_pilot_policy_guard.sh` | Policy guard selecting BoolRecipeCompareSemanticCommandBoundary as the first hard-authority pilot target. |
 | `tools/checks/rust_lifecycle_mirbuilder_hard_authority_pilot_boolrecipe_compare_semantic_command_guard.sh` | Hard-authority pilot guard proving BoolRecipeCompareSemanticCommandBoundary as a `.hako` semantic command seam. |
+| `tools/checks/rust_lifecycle_mirbuilder_post_hard_authority_pilot_next_seam_selection_guard.sh` | Post-pilot selection guard choosing CompareRhsMaterializationIntentBoundary as the next read-only hard-authority seam. |
 | `tools/checks/rust_lifecycle_source_selfhost_machine_derived_route_repair_audit_refresh_guard.sh` | Refresh guard proving current checked-in repair fixtures do not expose a machine-derived Source Selfhost unblock repair. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_if_handler_result_map_contract_guard.sh` | Result-map contract guard for `IfStmtHandler.handle/5` and helper return paths. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_loop_handler_result_map_contract_guard.sh` | Result-map contract guard for `LoopStmtHandler.handle/5` and helper return paths. |
