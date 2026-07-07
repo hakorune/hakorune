@@ -1,0 +1,50 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonRecipeMatcherRejectFloorUpdateAxisSelectionV1",
+  "token": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-REJECT-FLOOR-UPDATE-AXIS-SELECTION-001",
+  "input_state": {
+    "previous_card": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-UNSUPPORTED-CONDITION-OPERATOR-REJECT-ROW-001",
+    "runtime_authority": "rust_astnode",
+    "programjson_route": "shadow_only"
+  },
+  "candidate_axes": [
+    {
+      "axis": "unsupported_update_operator",
+      "selected_next": true,
+      "reason": "Condition rejection is green. The next smallest reachable update-axis row is a structurally valid loop assignment whose Binary operator is unsupported by CanonicalLoopFacts."
+    },
+    {
+      "axis": "update_target_mismatch",
+      "selected_next": false,
+      "reason": "Still folded into unsupported_loop_update today; choose operator first, then split target-mismatch naming if needed."
+    },
+    {
+      "axis": "extra_statement_or_swapped_body_order_or_non_null_else",
+      "selected_next": false,
+      "reason": "Needs a separate body-shape policy before it becomes a reject-floor row."
+    }
+  ],
+  "selected_next": {
+    "card": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-UNSUPPORTED-UPDATE-OPERATOR-REJECT-ROW-001",
+    "row_id": "unsupported_update_operator_reject",
+    "programjson_shape_delta": {
+      "loop_update_operator": "-",
+      "expected_snapshot_reason": "unsupported_loop_update",
+      "expected_matcher_reason": "snapshot_not_ok"
+    }
+  },
+  "claims": {
+    "reject_floor_update_axis_selection": 1,
+    "selected_unsupported_update_operator_next": 1,
+    "unsupported_update_operator_reject_row_green": 0,
+    "programjson_runtime_route_authority": 0,
+    "runtime_route_switch": 0,
+    "recipe_matcher_input_authority": 0,
+    "route_selection": 0,
+    "mir_lowering": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  }
+}
