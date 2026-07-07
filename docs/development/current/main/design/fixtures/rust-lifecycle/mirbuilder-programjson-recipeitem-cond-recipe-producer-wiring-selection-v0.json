@@ -34,8 +34,8 @@
   "selected_contract": {
     "name": "ProgramJsonLoopStmtCondRecipeSidecarProducerWiringV1",
     "producer": "LoopStmtHandler",
-    "target_constructor": "RecipeItemBox.loop_item_with_cond_recipe",
-    "source_publication": "ProgramJsonBoolRecipeComparePublicationBox",
+    "source_builder": "LoopStmtHandler condition observation + BoolRecipeBox.from_numeric_compare_codes",
+    "target_attachment": "RecipeItem.cond_recipe sidecar field",
     "legacy_cond_facts_required": true,
     "cond_recipe_optional": true,
     "lowering_behavior_change": false,

@@ -12,6 +12,7 @@ using selfhost.shared.common.string_helpers as StringHelpers
 using selfhost.shared.common.box_helpers as BoxHelpers
 using lang.compiler.mirbuilder.program_json_v0_scanner_box as ProgramJsonV0ScannerBox
 using lang.compiler.mirbuilder.stmt_handlers.return_stmt_handler as ReturnStmtHandler
+using lang.compiler.mirbuilder.recipe.bool_recipe_box as BoolRecipeBox
 using lang.compiler.mirbuilder.recipe.recipe_item_box as RecipeItemBox
 
 static box LoopStmtHandler {
@@ -58,7 +59,14 @@ static box LoopStmtHandler {
     }
     local op = BoxHelpers.map_get(op_out, "value")
     local cond_kind = "VarLtInt"
-    if BoxHelpers.same_token(op, "<") != 1 {
+    local cmp_code = 0
+    if BoxHelpers.same_token(op, "<") == 1 { cmp_code = 1 }
+    if BoxHelpers.same_token(op, "<=") == 1 { cmp_code = 2 }
+    if BoxHelpers.same_token(op, ">") == 1 { cmp_code = 3 }
+    if BoxHelpers.same_token(op, ">=") == 1 { cmp_code = 4 }
+    if BoxHelpers.same_token(op, "==") == 1 { cmp_code = 5 }
+    if BoxHelpers.same_token(op, "!=") == 1 { cmp_code = 6 }
+    if cmp_code != 1 {
       cond_kind = "UnsupportedCompare"
     }
 
@@ -104,8 +112,16 @@ static box LoopStmtHandler {
       "err" => 0,
       "err_line" => "",
       "cond_kind" => cond_kind,
+      "cmp_code" => cmp_code,
       "cond_rhs_int" => BoxHelpers.map_get(rhs_out, "value")
     }
+  }
+
+  _symbol_id(name) {
+    if BoxHelpers.same_token(name, "i") == 1 { return 1 }
+    if BoxHelpers.same_token(name, "n") == 1 { return 2 }
+    if BoxHelpers.same_token(name, "count") == 1 { return 3 }
+    return 0
   }
 
   _read_loop_body_assignment_stmt(program_json, stmt_start, local_name, tag, next_idx): MapBox {
@@ -732,7 +748,11 @@ static box LoopStmtHandler {
         body_seq = RecipeItemBox.seq([first_item, second_item, body_stmt])
       }
     }
+    local cond_recipe = BoolRecipeBox.from_numeric_compare_codes(1, me._symbol_id(local_name), BoxHelpers.map_get(cond_out, "cmp_code"), 1, cond_rhs_int, 0)
     local loop_item = RecipeItemBox.loop_item(cond_facts, body_seq)
+    if BoolRecipeBox.is_valid_compare(cond_recipe) == 1 {
+      loop_item.set("cond_recipe", cond_recipe)
+    }
     return me._ok(next_idx, loop_item)
   }
 

@@ -54,8 +54,8 @@ for rejected in ["IfStmtHandlerConditionProducer", "RecipeBodiesPostHocDecoratio
 
 contract = fixture.get("selected_contract") or {}
 need(contract.get("producer") == "LoopStmtHandler", "bad producer")
-need(contract.get("target_constructor") == "RecipeItemBox.loop_item_with_cond_recipe", "bad target constructor")
-need(contract.get("source_publication") == "ProgramJsonBoolRecipeComparePublicationBox", "bad source publication")
+need(contract.get("target_attachment") == "RecipeItem.cond_recipe sidecar field", "bad target attachment")
+need(contract.get("source_builder") == "LoopStmtHandler condition observation + BoolRecipeBox.from_numeric_compare_codes", "bad source builder")
 need(contract.get("legacy_cond_facts_required") is True, "cond_facts must remain required")
 need(contract.get("cond_recipe_optional") is True, "cond_recipe must remain optional")
 need(contract.get("lowering_behavior_change") is False, "lowering behavior must not change in selection")

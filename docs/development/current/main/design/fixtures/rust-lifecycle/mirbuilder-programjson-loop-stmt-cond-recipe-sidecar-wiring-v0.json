@@ -1,0 +1,52 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonLoopStmtCondRecipeSidecarWiringV1",
+  "token": "MIRBUILDER-PROGRAMJSON-LOOP-STMT-COND-RECIPE-SIDECAR-WIRING-001",
+  "prerequisite": "MIRBUILDER-PROGRAMJSON-RECIPEITEM-COND-RECIPE-PRODUCER-WIRING-SELECTION-001",
+  "owner": "LoopStmtHandler",
+  "hako_source": "lang/src/compiler/mirbuilder/stmt_handlers/loop_stmt_handler.hako",
+  "wiring_contract": {
+    "producer": "LoopStmtHandler",
+    "source_builder": "BoolRecipeBox.from_numeric_compare_codes from LoopStmtHandler condition observation",
+    "target_attachment": "RecipeItem.cond_recipe sidecar field",
+    "legacy_cond_facts_required": true,
+    "cond_recipe_optional": true,
+    "lowering_behavior_change": false,
+    "verifier_behavior_change": false
+  },
+  "rows": [
+    {
+      "row_id": "loop_condition_le_literal_sidecar",
+      "source_program_row": "local_loop_body_if_branch_return",
+      "loop_condition_patch": {
+        "type": "Compare",
+        "op": "<=",
+        "lhs": { "type": "Var", "name": "i" },
+        "rhs": { "type": "Int", "value": 3 }
+      },
+      "expected_cond_recipe_map": 1,
+      "expected_legacy_cond_facts_map": 1
+    }
+  ],
+  "decision": {
+    "kind": "LoopStmtCondRecipeSidecarWiringGreen",
+      "reason_token": "LoopStmtHandlerAttachesBoolRecipeCompareSidecarWithoutChangingLegacyCondFacts",
+    "selected_next_card": "MIRBUILDER-RECIPEITEM-COND-RECIPE-OBSERVATION-BOUNDARY-SELECTION-001"
+  },
+  "claims": {
+    "loop_stmt_cond_recipe_sidecar_wiring": 1,
+    "recipe_item_attachment_implementation": 1,
+    "legacy_cond_facts_required": 1,
+    "cond_recipe_deep_observation": 0,
+    "if_stmt_cond_recipe_wiring": 0,
+    "recipe_matcher_input_authority": 0,
+    "bool_recipe_lowering": 0,
+    "mir_cmp_emission": 0,
+    "branch_emission": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_route_authority": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  }
+}

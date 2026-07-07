@@ -73,12 +73,22 @@ static box BoundExprBox {
 static box BoolRecipeBox {
   // cmp_code: 1=Lt, 2=Le, 3=Gt, 4=Ge, 5=Eq, 6=Ne.
   compare_symbol_bound(lhs_symbol_id, cmp_code, bound) {
+    local rhs_kind = StringHelpers.to_i64(BoxHelpers.map_get(bound, "kind_code"))
+    local rhs_i64 = StringHelpers.to_i64(BoxHelpers.map_get(bound, "i64"))
+    local rhs_symbol = StringHelpers.to_i64(BoxHelpers.map_get(bound, "symbol_id"))
+    local rhs_haystack = StringHelpers.to_i64(BoxHelpers.map_get(bound, "haystack_id"))
+    local rhs_needle = StringHelpers.to_i64(BoxHelpers.map_get(bound, "needle_id"))
     return %{
       "kind_code" => 1,
       "lhs_kind_code" => 1,
       "lhs_symbol_id" => lhs_symbol_id,
       "cmp_code" => cmp_code,
       "rhs_bound" => bound,
+      "rhs_bound_kind_code" => rhs_kind,
+      "rhs_bound_i64" => rhs_i64,
+      "rhs_bound_symbol_id" => rhs_symbol,
+      "rhs_bound_haystack_id" => rhs_haystack,
+      "rhs_bound_needle_id" => rhs_needle,
       "analysis_only" => 1,
       "lowering_executed" => 0,
       "reason_code" => 0
@@ -121,6 +131,7 @@ static box BoolRecipeBox {
     if me._i(recipe, "lhs_kind_code") != 1 { return 0 }
     if me._i(recipe, "lhs_symbol_id") <= 0 { return 0 }
     if me._cmp_supported(me._i(recipe, "cmp_code")) != 1 { return 0 }
+    if me._flat_bound_valid(recipe) == 1 { return 1 }
     return BoundExprBox.is_valid(BoxHelpers.map_get(recipe, "rhs_bound"))
   }
 
@@ -134,7 +145,7 @@ static box BoolRecipeBox {
       + ";lhs_symbol_id=" + StringHelpers.int_to_str(me._i(recipe, "lhs_symbol_id"))
       + ";cmp=" + me.cmp_name(me._i(recipe, "cmp_code"))
       + ";cmp_code=" + StringHelpers.int_to_str(me._i(recipe, "cmp_code"))
-      + ";" + BoundExprBox.summary(BoxHelpers.map_get(recipe, "rhs_bound"))
+      + ";" + me._bound_summary(recipe)
       + ";analysis_only=1"
       + ";lowering_executed=0"
   }
@@ -159,6 +170,30 @@ static box BoolRecipeBox {
   _cmp_supported(cmp_code) {
     if cmp_code >= 1 && cmp_code <= 6 { return 1 }
     return 0
+  }
+
+  _flat_bound_valid(recipe) {
+    local kind = me._i(recipe, "rhs_bound_kind_code")
+    if kind == 1 { return 1 }
+    if kind == 2 { if me._i(recipe, "rhs_bound_symbol_id") > 0 { return 1 } }
+    if kind == 3 { if me._i(recipe, "rhs_bound_haystack_id") > 0 { return 1 } }
+    if kind == 4 {
+      if me._i(recipe, "rhs_bound_haystack_id") > 0 && me._i(recipe, "rhs_bound_needle_id") > 0 { return 1 }
+    }
+    return 0
+  }
+
+  _bound_summary(recipe) {
+    if me._flat_bound_valid(recipe) != 1 {
+      return BoundExprBox.summary(BoxHelpers.map_get(recipe, "rhs_bound"))
+    }
+    local kind = me._i(recipe, "rhs_bound_kind_code")
+    return "bound_kind=" + BoundExprBox.kind_name(kind)
+      + ";bound_kind_code=" + StringHelpers.int_to_str(kind)
+      + ";bound_i64=" + StringHelpers.int_to_str(me._i(recipe, "rhs_bound_i64"))
+      + ";bound_symbol_id=" + StringHelpers.int_to_str(me._i(recipe, "rhs_bound_symbol_id"))
+      + ";haystack_symbol_id=" + StringHelpers.int_to_str(me._i(recipe, "rhs_bound_haystack_id"))
+      + ";needle_symbol_id=" + StringHelpers.int_to_str(me._i(recipe, "rhs_bound_needle_id"))
   }
 
   _i(map, key) {

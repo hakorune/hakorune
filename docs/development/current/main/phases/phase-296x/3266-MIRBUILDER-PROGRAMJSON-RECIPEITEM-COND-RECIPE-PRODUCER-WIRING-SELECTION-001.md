@@ -31,7 +31,7 @@ This keeps the producer boundary explicit:
 ```text
 ProgramJSON loop condition
   -> CanonicalLoopFacts numeric compare consume
-  -> BoolRecipeCompareV1 publication
+  -> BoolRecipeCompareV1 data vocabulary
   -> Loop RecipeItem cond_recipe sidecar
 ```
 
