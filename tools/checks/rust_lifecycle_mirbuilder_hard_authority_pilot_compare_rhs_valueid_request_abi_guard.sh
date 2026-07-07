@@ -65,6 +65,11 @@ output_contract = "rust-lifecycle-mirbuilder-hard-authority-pilot-compare-rhs-va
 blocker = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 candidate = "CompareRhsValueIdResolutionRequestAbiBoundary"
 card_rel_path = "docs/development/current/main/phases/phase-296x/3333-MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-VALUEID-REQUEST-ABI-001.md"
+follow_on_cards = {
+    token: card_rel_path,
+    "MIRBUILDER-POST-RHS-VALUEID-REQUEST-ABI-NEXT-SEAM-SELECTION-001": "docs/development/current/main/phases/phase-296x/3334-MIRBUILDER-POST-RHS-VALUEID-REQUEST-ABI-NEXT-SEAM-SELECTION-001.md",
+    "MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-LITERAL-I64-CONSTANT-EMISSION-BRIDGE-001": "docs/development/current/main/phases/phase-296x/3335-MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-LITERAL-I64-CONSTANT-EMISSION-BRIDGE-001.md",
+}
 
 need(f"# 3333 - {token}" in card, "card token drift")
 need(output_contract in card, "card output contract drift")
@@ -118,8 +123,8 @@ for key in ["hard_authority_pilot_implemented", "compare_rhs_valueid_resolution_
 for key in ["hako_adopted_decision", "source_selfhost_claim", "native_seed_materialization", "actual_rhs_valueid_resolution", "literal_constant_valueid_allocation", "constant_mir_emission", "symbol_lookup_execution", "local_ssa_finalize_compare_execution", "mir_cmp_emission", "branch_emission", "basic_block_mutation", "value_id_allocation", "mir_mutation", "id_allocation", "route_selection", "runtime_route_switch", "programjson_runtime_route_authority", "runtime_fallback", "new_backend_route", "new_abi"]:
     need(claims.get(key) == 0, f"forbidden claim drift: {key}")
 
-need(f'latest_card = "{token}"' in state, "CURRENT_STATE latest card drift")
-need(f'latest_card_path = "{card_rel_path}"' in state, "CURRENT_STATE latest path drift")
+need(any(f'latest_card = "{card}"' in state for card in follow_on_cards), "CURRENT_STATE latest card drift")
+need(any(f'latest_card_path = "{path}"' in state for path in follow_on_cards.values()), "CURRENT_STATE latest path drift")
 need(f'current_blocker_token = "{blocker}"' in state, "CURRENT_STATE blocker drift")
 
 for needle in [token, output_contract, candidate, "compare_rhs_valueid_resolution_request_abi_owner = 1", "hard_authority_pilot_implemented = 1", "actual_rhs_valueid_resolution = 0", "source_selfhost_claim = 0", blocker]:

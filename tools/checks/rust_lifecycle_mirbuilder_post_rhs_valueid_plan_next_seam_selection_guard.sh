@@ -63,6 +63,10 @@ selected_card = "MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-VALUEID-REQUEST-ABI
 selected_candidate = "CompareRhsValueIdResolutionRequestAbiBoundary"
 follow_on_card = selected_card
 follow_on_path = "docs/development/current/main/phases/phase-296x/3333-MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-VALUEID-REQUEST-ABI-001.md"
+second_follow_on_card = "MIRBUILDER-POST-RHS-VALUEID-REQUEST-ABI-NEXT-SEAM-SELECTION-001"
+second_follow_on_path = "docs/development/current/main/phases/phase-296x/3334-MIRBUILDER-POST-RHS-VALUEID-REQUEST-ABI-NEXT-SEAM-SELECTION-001.md"
+third_follow_on_card = "MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-LITERAL-I64-CONSTANT-EMISSION-BRIDGE-001"
+third_follow_on_path = "docs/development/current/main/phases/phase-296x/3335-MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-LITERAL-I64-CONSTANT-EMISSION-BRIDGE-001.md"
 
 need(f"# 3332 - {token}" in card, "card token drift")
 need(output_contract in card, "card output contract drift")
@@ -106,11 +110,11 @@ for key in ["next_seam_implemented", "hako_adopted_decision", "source_selfhost_c
     need(claims.get(key) == 0, f"forbidden claim drift: {key}")
 
 need(
-    f'latest_card = "{token}"' in state or f'latest_card = "{follow_on_card}"' in state,
+    f'latest_card = "{token}"' in state or f'latest_card = "{follow_on_card}"' in state or f'latest_card = "{second_follow_on_card}"' in state or f'latest_card = "{third_follow_on_card}"' in state,
     "CURRENT_STATE latest card drift",
 )
 need(
-    f'latest_card_path = "{card_path.as_posix()}"' in state or f'latest_card_path = "{follow_on_path}"' in state,
+    f'latest_card_path = "{card_path.as_posix()}"' in state or f'latest_card_path = "{follow_on_path}"' in state or f'latest_card_path = "{second_follow_on_path}"' in state or f'latest_card_path = "{third_follow_on_path}"' in state,
     "CURRENT_STATE latest path drift",
 )
 need(f'current_blocker_token = "{blocker}"' in state, "CURRENT_STATE blocker drift")

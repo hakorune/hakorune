@@ -1,0 +1,55 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderHardAuthorityPilotCompareRhsLiteralI64ConstantEmissionBridgeV1",
+  "token": "MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-LITERAL-I64-CONSTANT-EMISSION-BRIDGE-001",
+  "output_contract": "rust-lifecycle-mirbuilder-hard-authority-pilot-compare-rhs-literal-i64-constant-emission-bridge-v0",
+  "current_state": {
+    "previous_latest_card": "MIRBUILDER-POST-RHS-VALUEID-REQUEST-ABI-NEXT-SEAM-SELECTION-001",
+    "current_blocker_token": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+  },
+  "pilot": {
+    "candidate_id": "CompareRhsLiteralI64ConstantEmissionBridgeBoundary",
+    "owner_id": "CompareRhsConstantEmissionBridge",
+    "rust_source": "src/mir/builder/compare_rhs_valueid_resolution_bridge.rs",
+    "input_surface": "CompareRhsValueIdResolutionRequestSnapshotV1",
+    "output_surface": "CompareRhsValueIdResolutionResponseV1",
+    "mutation_scope": "ConstInstructionOnly",
+    "claim_ceiling": "scoped_mutation_hard_authority_pilot"
+  },
+  "evidence": {
+    "selected_by": "MIRBUILDER-POST-RHS-VALUEID-REQUEST-ABI-NEXT-SEAM-SELECTION-001",
+    "reused_guard": "tools/checks/rust_lifecycle_mirbuilder_compare_rhs_literal_i64_constant_emission_bridge_gate.sh",
+    "reused_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-compare-rhs-literal-i64-constant-emission-bridge-v0.json",
+    "row_id": "literal_i64_3"
+  },
+  "claims": {
+    "hard_authority_pilot_implemented": 1,
+    "compare_rhs_literal_i64_const_emission_bridge_owner": 1,
+    "actual_rhs_valueid_resolution_literal_i64": 1,
+    "literal_constant_valueid_allocation": 1,
+    "constant_mir_emission": 1,
+    "integer_type_publication": 1,
+    "mutation_performed_const_only": 1,
+    "hako_adopted_decision": 0,
+    "source_selfhost_claim": 0,
+    "native_seed_materialization": 0,
+    "actual_rhs_valueid_resolution_general": 0,
+    "symbol_ref_valueid_resolution": 0,
+    "symbol_lookup_execution": 0,
+    "local_ssa_finalize_compare_execution": 0,
+    "mir_cmp_emission": 0,
+    "branch_emission": 0,
+    "basic_block_control_flow_mutation": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_route_authority": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  },
+  "decision": {
+    "kind": "CompareRhsLiteralI64ConstEmissionHardAuthorityPilotGreen",
+    "selected_next_card": "MIRBUILDER-COMPARE-RHS-SYMBOLREF-LOOKUP-CONTRACT-CONSULTATION-001"
+  }
+}
+

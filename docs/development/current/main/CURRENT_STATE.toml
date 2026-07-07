@@ -345,13 +345,14 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-VALUEID-REQUEST-ABI-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3333-MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-VALUEID-REQUEST-ABI-001.md"
-latest_card_summary = """3333 implements CompareRhsValueIdResolutionRequestAbiBoundary
-as a `.hako` read-only request ABI hard-authority pilot. Actual RHS ValueId
-resolution, literal allocation, constant/helper emission, symbol lookup, Source
-Selfhost, Hako adoption, MIR mutation, ID allocation, and route/runtime
-authority remain 0."""
+latest_card = "MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-LITERAL-I64-CONSTANT-EMISSION-BRIDGE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3335-MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-LITERAL-I64-CONSTANT-EMISSION-BRIDGE-001.md"
+latest_card_summary = """3335 connects the selected post-request-ABI seam to
+the existing LiteralI64 const-only RHS ValueId bridge. Literal constant ValueId
+allocation, integer Const MIR emission, integer type publication, and
+const-only mutation are claimed for this scoped row; general RHS resolution,
+SymbolRef lookup, LocalSSA, MIR Compare/Branch, Source Selfhost, Hako adoption,
+and route/runtime authority remain 0."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -362,6 +363,8 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-08: 3335 connects the selected post-request-ABI seam to the existing LiteralI64 const-only RHS ValueId bridge; literal constant ValueId allocation, integer Const MIR emission, integer type publication, and const-only mutation are claimed for the scoped row, while general RHS resolution, SymbolRef lookup, LocalSSA, MIR Compare/Branch, Source Selfhost, Hako adoption, and route/runtime authority remain unclaimed.",
+  "2026-07-08: 3334 consumes the request ABI hard-authority pilot and selects CompareRhsLiteralI64ConstantEmissionBridgeBoundary as the next scoped mutation seam; the selector does not implement the seam and keeps Source Selfhost plus route/runtime authority unclaimed.",
   "2026-07-08: 3333 implements CompareRhsValueIdResolutionRequestAbiBoundary as a `.hako` read-only request ABI hard-authority pilot; actual RHS ValueId resolution, literal allocation, constant/helper emission, symbol lookup, Source Selfhost, Hako adoption, MIR mutation, ID allocation, and route/runtime authority remain unclaimed.",
   "2026-07-08: 3332 consumes the RHS ValueId resolution plan pilot evidence and selects CompareRhsValueIdResolutionRequestAbiBoundary as the next read-only hard-authority seam; the seam is not implemented in the selection card, and Source Selfhost plus route/runtime authority remain unclaimed.",
   "2026-07-08: 3331 implements CompareRhsValueIdResolutionPlanBoundary as a `.hako` read-only semantic plan hard-authority pilot; actual RHS ValueId resolution, literal allocation, constant/helper emission, symbol lookup, Source Selfhost, Hako adoption, MIR mutation, ID allocation, and route/runtime authority remain unclaimed.",
@@ -372,6 +375,4 @@ landed_tail = [
   "2026-07-08: 3326 selects BoolRecipeCompareSemanticCommandBoundary as the first hard-authority pilot policy target from the registry-gated minimal path decomposition; the pilot implementation is not open yet, and Source Selfhost, MIR mutation, ID allocation, and route/runtime authority remain unclaimed.",
   "2026-07-08: 3325 decomposes the minimal path composed closure into selector-ready hard authority candidate rows and finds exactly one policy candidate, BoolRecipeCompareSemanticCommandBoundary; the pilot is not selected or implemented, and Source Selfhost remains unclaimed.",
   "2026-07-08: 3324 registers the consultation-approved HardAuthoritySeamProofAxis as candidate selector input only and selects minimal path native slice decomposition next; Source Selfhost and route/runtime authority remain unclaimed.",
-  "2026-07-08: 3323 refreshes MachineDerivedRouteRepair evidence for the Source Selfhost wider route-selection design stop; audited historical repair fixtures do not expose a current unblock repair, current_unblock_repair_count remains 0, and Source Selfhost remains unclaimed.",
-  "2026-07-08: 3322 reconfirms the runtime-adjacent ProgramJSON shadow guard as green after Compare/Branch closeout and returns the lane to Source Selfhost wider route selection design-stop; runtime authority remains Rust ASTNode, and route selection, runtime fallback, and Source Selfhost remain unclaimed.",
 ]
