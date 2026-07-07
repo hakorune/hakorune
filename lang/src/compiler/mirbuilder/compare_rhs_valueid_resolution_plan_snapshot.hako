@@ -1,0 +1,150 @@
+// compare_rhs_valueid_resolution_plan_snapshot.hako
+//
+// Responsibility:
+// - Classify how Compare RHS materialization would later resolve to ValueId.
+// - Publish a read-only resolution plan snapshot.
+//
+// Non-responsibility:
+// - Symbol lookup, literal constant emission, ValueId allocation, LocalSSA
+//   finalize_compare, MIR Compare/Branch emission, mutation, route selection,
+//   runtime route switch, or Source Selfhost.
+
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.shared.common.box_helpers as BoxHelpers
+using lang.compiler.mirbuilder.compare_rhs_materialization_intent_snapshot as CompareRhsMaterializationIntentSnapshotBox
+
+static box CompareRhsValueIdResolutionPlanSnapshotBox {
+  _i(map, key) {
+    return StringHelpers.to_i64(BoxHelpers.map_get(map, key))
+  }
+
+  _err(reason_code): MapBox {
+    return %{
+      "ok" => 0,
+      "reason_code" => reason_code,
+      "rhs_valueid_resolution_plan_ready" => 0,
+      "rhs_materialization_kind_code" => 99,
+      "rhs_bound_kind_code" => 99,
+      "rhs_bound_i64" => 0,
+      "rhs_bound_symbol_id" => 0,
+      "resolution_plan_kind_code" => 99,
+      "literal_constant_required" => 0,
+      "symbol_lookup_required" => 0,
+      "analysis_only" => 1,
+      "rhs_value_id_resolution" => 0,
+      "literal_constant_value_id_allocation" => 0,
+      "constant_mir_emission" => 0,
+      "runtime_helper_emission" => 0,
+      "local_ssa_finalize_compare_execution" => 0,
+      "mir_cmp_emission" => 0,
+      "branch_emission" => 0,
+      "basic_block_mutation" => 0,
+      "value_id_allocation" => 0,
+      "route_selection" => 0,
+      "runtime_route_switch" => 0,
+      "source_selfhost_claim" => 0
+    }
+  }
+
+  build_plan(program_json): MapBox {
+    local intent = CompareRhsMaterializationIntentSnapshotBox.build_intent(program_json)
+    return me.build_plan_from_intent(intent)
+  }
+
+  build_plan_from_intent(intent): MapBox {
+    if intent == null || BoxHelpers.is_map(intent) != 1 { return me._err(1) }
+    if me._i(intent, "ok") != 1 { return me._err(2) }
+    if me._i(intent, "rhs_materialization_intent_ready") != 1 { return me._err(3) }
+    if me._i(intent, "analysis_only") != 1 { return me._err(4) }
+    if me._i(intent, "rhs_value_id_resolution") != 0 { return me._err(5) }
+
+    local materialization_kind = me._i(intent, "rhs_materialization_kind_code")
+    if materialization_kind == 1 {
+      return me._ok(intent, 1, 1, 0)
+    }
+    if materialization_kind == 2 {
+      return me._ok(intent, 2, 0, 1)
+    }
+    return me._err(6)
+  }
+
+  _ok(intent, plan_kind, literal_required, symbol_required): MapBox {
+    return %{
+      "ok" => 1,
+      "reason_code" => 0,
+      "rhs_valueid_resolution_plan_ready" => 1,
+      "rhs_materialization_kind_code" => me._i(intent, "rhs_materialization_kind_code"),
+      "rhs_bound_kind_code" => me._i(intent, "rhs_bound_kind_code"),
+      "rhs_bound_i64" => me._i(intent, "rhs_bound_i64"),
+      "rhs_bound_symbol_id" => me._i(intent, "rhs_bound_symbol_id"),
+      "resolution_plan_kind_code" => plan_kind,
+      "literal_constant_required" => literal_required,
+      "symbol_lookup_required" => symbol_required,
+      "analysis_only" => 1,
+      "rhs_value_id_resolution" => 0,
+      "literal_constant_value_id_allocation" => 0,
+      "constant_mir_emission" => 0,
+      "runtime_helper_emission" => 0,
+      "local_ssa_finalize_compare_execution" => 0,
+      "mir_cmp_emission" => 0,
+      "branch_emission" => 0,
+      "basic_block_mutation" => 0,
+      "value_id_allocation" => 0,
+      "route_selection" => 0,
+      "runtime_route_switch" => 0,
+      "source_selfhost_claim" => 0
+    }
+  }
+
+  plan_summary(plan) {
+    if plan == null || BoxHelpers.is_map(plan) != 1 {
+      return "snapshot_kind=CompareRhsValueIdResolutionPlanSnapshotV1;ok=0;reason=missing_plan"
+    }
+    return "snapshot_kind=CompareRhsValueIdResolutionPlanSnapshotV1"
+      + ";ok=" + StringHelpers.int_to_str(me._i(plan, "ok"))
+      + ";rhs_valueid_resolution_plan_ready=" + StringHelpers.int_to_str(me._i(plan, "rhs_valueid_resolution_plan_ready"))
+      + ";materialization_kind=" + me._materialization_kind_name(me._i(plan, "rhs_materialization_kind_code"))
+      + ";materialization_kind_code=" + StringHelpers.int_to_str(me._i(plan, "rhs_materialization_kind_code"))
+      + ";bound_kind=" + me._bound_kind_name(me._i(plan, "rhs_bound_kind_code"))
+      + ";bound_kind_code=" + StringHelpers.int_to_str(me._i(plan, "rhs_bound_kind_code"))
+      + ";bound_i64=" + StringHelpers.int_to_str(me._i(plan, "rhs_bound_i64"))
+      + ";bound_symbol_id=" + StringHelpers.int_to_str(me._i(plan, "rhs_bound_symbol_id"))
+      + ";resolution_plan_kind=" + me._plan_kind_name(me._i(plan, "resolution_plan_kind_code"))
+      + ";resolution_plan_kind_code=" + StringHelpers.int_to_str(me._i(plan, "resolution_plan_kind_code"))
+      + ";literal_constant_required=" + StringHelpers.int_to_str(me._i(plan, "literal_constant_required"))
+      + ";symbol_lookup_required=" + StringHelpers.int_to_str(me._i(plan, "symbol_lookup_required"))
+      + ";analysis_only=" + StringHelpers.int_to_str(me._i(plan, "analysis_only"))
+      + ";rhs_value_id_resolution=" + StringHelpers.int_to_str(me._i(plan, "rhs_value_id_resolution"))
+      + ";literal_constant_value_id_allocation=" + StringHelpers.int_to_str(me._i(plan, "literal_constant_value_id_allocation"))
+      + ";constant_mir_emission=" + StringHelpers.int_to_str(me._i(plan, "constant_mir_emission"))
+      + ";runtime_helper_emission=" + StringHelpers.int_to_str(me._i(plan, "runtime_helper_emission"))
+      + ";local_ssa_finalize_compare_execution=" + StringHelpers.int_to_str(me._i(plan, "local_ssa_finalize_compare_execution"))
+      + ";mir_cmp_emission=" + StringHelpers.int_to_str(me._i(plan, "mir_cmp_emission"))
+      + ";branch_emission=" + StringHelpers.int_to_str(me._i(plan, "branch_emission"))
+      + ";basic_block_mutation=" + StringHelpers.int_to_str(me._i(plan, "basic_block_mutation"))
+      + ";value_id_allocation=" + StringHelpers.int_to_str(me._i(plan, "value_id_allocation"))
+      + ";route_selection=" + StringHelpers.int_to_str(me._i(plan, "route_selection"))
+      + ";runtime_route_switch=" + StringHelpers.int_to_str(me._i(plan, "runtime_route_switch"))
+      + ";source_selfhost_claim=" + StringHelpers.int_to_str(me._i(plan, "source_selfhost_claim"))
+  }
+
+  _materialization_kind_name(kind_code) {
+    if kind_code == 1 { return "LiteralI64Intent" }
+    if kind_code == 2 { return "SymbolLookupIntent" }
+    return "Unsupported"
+  }
+
+  _bound_kind_name(kind_code) {
+    if kind_code == 1 { return "LiteralI64" }
+    if kind_code == 2 { return "SymbolRef" }
+    return "Unsupported"
+  }
+
+  _plan_kind_name(kind_code) {
+    if kind_code == 1 { return "LiteralConstantPlan" }
+    if kind_code == 2 { return "SymbolLookupPlan" }
+    return "Unsupported"
+  }
+}
+
+static box CompareRhsValueIdResolutionPlanSnapshotMain { main() { return 0 } }
