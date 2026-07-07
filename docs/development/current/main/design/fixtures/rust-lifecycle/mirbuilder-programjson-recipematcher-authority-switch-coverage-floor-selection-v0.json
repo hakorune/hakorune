@@ -1,0 +1,107 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonRecipeMatcherAuthoritySwitchCoverageFloorSelectionV1",
+  "token": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-AUTHORITY-SWITCH-COVERAGE-FLOOR-SELECTION-001",
+  "input_state": {
+    "latest_runtime_adjacent_guard": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RUNTIME-ROUTE-ADJACENT-SHADOW-GUARD-001",
+    "current_green_rows": [
+      "local_loop_body_if_branch_return",
+      "local_loop_body_if_branch_return_alt_names",
+      "local_loop_body_if_branch_return_i_wide_step",
+      "local_loop_body_if_branch_return_count_wide_step"
+    ],
+    "current_green_fields": [
+      "matched",
+      "contract_kind",
+      "has_break",
+      "has_continue",
+      "has_return"
+    ]
+  },
+  "coverage_floor_selection": {
+    "selected_kind": "accepted_matrix_then_reject_floor",
+    "accepted_floor_card": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-ACCEPTED-FLOOR-MATRIX-001",
+    "reject_floor_card": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-REJECT-FLOOR-001",
+    "limited_authority_switch_consultation_card": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-LIMITED-AUTHORITY-SWITCH-CONSULTATION-001"
+  },
+  "accepted_floor_required_axes": [
+    "current_return_only_shape",
+    "break_present",
+    "continue_present",
+    "break_and_continue_present",
+    "return_absent_decision_row",
+    "nested_loop_decision_row"
+  ],
+  "reject_floor_required_axes": [
+    "unsupported_condition_operator",
+    "unsupported_condition_shape",
+    "unsupported_update_operator",
+    "update_target_mismatch",
+    "unsupported_variable_name",
+    "malformed_verified_recipe",
+    "missing_verified_recipe",
+    "extra_statement",
+    "swapped_body_order",
+    "non_null_else_branch",
+    "no_final_return",
+    "no_in_body_return"
+  ],
+  "field_floor": {
+    "hard_authority_candidate_fields": [
+      "ok",
+      "reason_code",
+      "matched",
+      "contract_kind",
+      "has_break",
+      "has_continue",
+      "has_return"
+    ],
+    "route_adjacent_facts_floor": [
+      "has_nested_loop",
+      "loop_cond_return_in_body_present",
+      "cond_kind",
+      "loop_var",
+      "loop_bound_int",
+      "update_kind",
+      "update_target",
+      "step_int"
+    ],
+    "still_diagnostic_or_shadow_only": [
+      "route_registry_predicates",
+      "CorePlan",
+      "PlanLowerer",
+      "MIR mutation",
+      "ID allocation"
+    ]
+  },
+  "switch_preconditions": {
+    "accepted_floor_green": true,
+    "reject_floor_green": true,
+    "route_consumed_fields_named": true,
+    "programjson_may_write_plan_build_outcome_recipe_contract": false,
+    "runtime_route_switch": false,
+    "programjson_runtime_route_authority": false
+  },
+  "decision": {
+    "kind": "SelectAcceptedMatrixThenRejectFloor",
+    "reason_token": "RuntimeAuthoritySwitchRequiresAcceptedRejectAndFieldFloor",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-ACCEPTED-FLOOR-MATRIX-001"
+  },
+  "claims": {
+    "coverage_floor_selection": 1,
+    "accepted_floor_required": 1,
+    "reject_floor_required": 1,
+    "field_floor_required": 1,
+    "programjson_runtime_route_authority": 0,
+    "runtime_route_switch": 0,
+    "recipe_matcher_input_authority": 0,
+    "route_selection": 0,
+    "mir_lowering": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

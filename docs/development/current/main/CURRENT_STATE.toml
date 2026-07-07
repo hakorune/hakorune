@@ -345,12 +345,13 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "GUARD-CACHE-EMIT-EXE-AND-DIRTY-MEMO-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3235-GUARD-CACHE-EMIT-EXE-AND-DIRTY-MEMO-001.md"
-latest_card_summary = """3235 adds tools/bin/hako --emit-exe input-hash
-caching and makes opt-in dirty worktree guard result memoization include
-untracked file paths and contents. Guard semantics, ProgramJSON migration
-semantics, runtime parity semantics, and Source Selfhost remain unchanged."""
+latest_card = "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-AUTHORITY-SWITCH-COVERAGE-FLOOR-SELECTION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3236-MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-AUTHORITY-SWITCH-COVERAGE-FLOOR-SELECTION-001.md"
+latest_card_summary = """3236 selects the coverage floor required before any
+ProgramJSON RecipeMatcher authority switch: accepted matrix, reject floor, and
+route-adjacent field floor. Rust ASTNode remains runtime authority;
+ProgramJSON runtime authority, runtime route switch, route selection, lowering,
+mutation, ID allocation, fallback, and Source Selfhost remain unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -361,6 +362,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-07: 3236 selects the accepted matrix, reject floor, and route-adjacent field floor required before any ProgramJSON RecipeMatcher authority switch; runtime authority remains Rust and Source Selfhost remains unclaimed.",
   "2026-07-07: 3235 adds tools/bin/hako --emit-exe caching and dirty-worktree guard result memo support for untracked file contents; ProgramJSON migration semantics and Source Selfhost remain unchanged.",
   "2026-07-07: 3234 installs the runtime-adjacent ProgramJSON shadow guard boundary after try_build_outcome and before route registry candidate selection; Rust remains authority and runtime route switch, route selection, lowering, mutation, ID allocation, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3230 records the runtime route shadow-switch design stop after ProgramJSON RecipeMatcher shadow parity; Rust remains authority and runtime route switch, route selection, lowering, mutation, ID allocation, and Source Selfhost remain unclaimed pending consultation.",
@@ -372,5 +374,4 @@ landed_tail = [
   "2026-07-07: 3224 records the RecipeMatcher input-boundary design stop: Rust RecipeMatcher consumes CanonicalLoopFacts while ProgramJSON currently publishes RecipeBodiesPublicationSnapshotV1.",
   "2026-07-07: 3223 implements a read-only runtime RecipeBodies publication bridge with DirectAbi/map_handle parity while RecipeMatcher, route switch, lowering, mutation, ID allocation, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3222 selects the runtime RecipeBodies publication bridge as the next contract while RecipeMatcher, route switch, lowering, mutation, ID allocation, and Source Selfhost remain unclaimed.",
-  "2026-07-07: 3221 marks the expanded RecipeBodies verifier-boundary DTO coverage rows as scoped Rust ASTNode projector retire-candidates while runtime dependency removal remains unclaimed.",
 ]
