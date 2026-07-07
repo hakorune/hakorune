@@ -409,7 +409,7 @@ Detailed evidence lives in phase cards, fixtures, and git history.
 landed summary: 3264..3311 cond_recipe/compare chain includes BoolRecipe sidecar bridge, ProgramJSON Loop/If cond_recipe producer wiring, verifier validate-only, matcher observe-only input snapshot, shared compare reader, If/Loop relational rows, BoolRecipe lowering observation/consultation, Var rhs reader parity, If/nested-If/top-level Loop Var rhs owner-direct rows, Var-rhs producer closeout, symbolic compare lowering command owner selection, intent-map symbolic command pilot, symbolic command parity, RHS materialization intent pilot/parity, RHS ValueId resolution owner selection, read-only RHS ValueId resolution plan pilot/parity, actual RHS ValueId resolution design-stop, request/response ABI, and scoped LiteralI64 constant emission bridge.
 
 next active:
-  MIRBUILDER-COMPARE-RHS-LITERAL-I64-CONSTANT-EMISSION-BRIDGE-001; status=landed; LiteralI64 actual RHS ValueId resolution green via const-only emission bridge; next=MIRBUILDER-COMPARE-RHS-SYMBOLREF-LOOKUP-CONTRACT-CONSULTATION-001; status=next; unit=design-stop/consultation; fix ProgramJSON symbol_id -> Rust variable_ctx/current ValueId mapping before any SymbolRef lookup execution; LocalSSA=0; MIR Compare/Branch=0; runtime_authority=rust_astnode
+  MIRBUILDER-COMPARE-RHS-LITERAL-I64-CONSTANT-EMISSION-BRIDGE-001; status=landed; LiteralI64 actual RHS ValueId resolution green via const-only emission bridge; next=MIRBUILDER-COMPARE-RHS-SYMBOLREF-LOOKUP-CONTRACT-CONSULTATION-001; status=next; unit=design-stop/consultation; select SymbolRefResolutionContractV1 before lookup; then 3313 contract parity, 3314 no-shadow lookup bridge, 3315 LocalSSA design-stop; LocalSSA=0; MIR Compare/Branch=0; runtime_authority=rust_astnode
 
 trigger-based AOT/MIR typing debt:
   status=parked-until-triggered; order=2999/3000/3001 landed, then 3022 queue
@@ -420,7 +420,7 @@ next_documented_task =
   MIRBUILDER-COMPARE-RHS-SYMBOLREF-LOOKUP-CONTRACT-CONSULTATION-001
 
 next_after_active_3 =
-  MIRBUILDER-COMPARE-RHS-SYMBOLREF-LOOKUP-CONTRACT-CONSULTATION-001 -> MIRBUILDER-COMPARE-RHS-SYMBOLREF-LOOKUP-BRIDGE-001
+  MIRBUILDER-COMPARE-RHS-SYMBOLREF-LOOKUP-CONTRACT-CONSULTATION-001 -> MIRBUILDER-COMPARE-RHS-SYMBOLREF-LOOKUP-CONTRACT-PARITY-001 -> MIRBUILDER-COMPARE-RHS-SYMBOLREF-LOOKUP-BRIDGE-001 -> MIRBUILDER-COMPARE-LOCALSSA-FINALIZE-COMPARE-DESIGN-STOP-001
 
 follow_on_after_consume = select first BoolRecipe publication parity row only after consume gate is green
 
