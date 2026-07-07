@@ -94,6 +94,11 @@ pub(in crate::mir::builder) fn try_extract_condition_shape(
             left.as_ref(),
             right.as_ref(),
         )),
+        BinaryOperator::Equal | BinaryOperator::NotEqual => Ok(numeric_compare_shape(
+            operator,
+            left.as_ref(),
+            right.as_ref(),
+        )),
         BinaryOperator::GreaterEqual => {
             let ASTNode::Variable { name: idx_var, .. } = left.as_ref() else {
                 return Ok(numeric_compare_shape(
@@ -172,6 +177,8 @@ fn cmp_from_operator(operator: &BinaryOperator) -> Option<CmpOp> {
         BinaryOperator::LessEqual => Some(CmpOp::Le),
         BinaryOperator::Greater => Some(CmpOp::Gt),
         BinaryOperator::GreaterEqual => Some(CmpOp::Ge),
+        BinaryOperator::Equal => Some(CmpOp::Eq),
+        BinaryOperator::NotEqual => Some(CmpOp::Ne),
         _ => None,
     }
 }
@@ -182,7 +189,8 @@ fn invert_cmp(cmp: CmpOp) -> Option<CmpOp> {
         CmpOp::Le => Some(CmpOp::Ge),
         CmpOp::Gt => Some(CmpOp::Lt),
         CmpOp::Ge => Some(CmpOp::Le),
-        _ => None,
+        CmpOp::Eq => Some(CmpOp::Eq),
+        CmpOp::Ne => Some(CmpOp::Ne),
     }
 }
 
@@ -279,8 +287,77 @@ mod tests {
     }
 
     #[test]
+    fn condition_shape_accepts_var_eq_bound_var() {
+        let condition = cmp(BinaryOperator::Equal, var("i"), var("n"));
+        let shape = try_extract_condition_shape(&condition)
+            .expect("no freeze")
+            .expect("shape");
+
+        assert_eq!(
+            shape,
+            ConditionShape::VarCompareBound {
+                idx_var: "i".to_string(),
+                cmp: CmpOp::Eq,
+                bound: BoundExpr::Var("n".to_string()),
+            }
+        );
+    }
+
+    #[test]
+    fn condition_shape_accepts_var_ne_literal() {
+        let condition = cmp(BinaryOperator::NotEqual, var("i"), int(3));
+        let shape = try_extract_condition_shape(&condition)
+            .expect("no freeze")
+            .expect("shape");
+
+        assert_eq!(
+            shape,
+            ConditionShape::VarCompareBound {
+                idx_var: "i".to_string(),
+                cmp: CmpOp::Ne,
+                bound: BoundExpr::LiteralI64(3),
+            }
+        );
+    }
+
+    #[test]
+    fn condition_shape_inverts_literal_eq_and_ne_var() {
+        let eq = try_extract_condition_shape(&cmp(BinaryOperator::Equal, int(3), var("i")))
+            .expect("no freeze")
+            .expect("eq shape");
+        let ne = try_extract_condition_shape(&cmp(BinaryOperator::NotEqual, int(3), var("i")))
+            .expect("no freeze")
+            .expect("ne shape");
+
+        assert_eq!(
+            eq,
+            ConditionShape::VarCompareBound {
+                idx_var: "i".to_string(),
+                cmp: CmpOp::Eq,
+                bound: BoundExpr::LiteralI64(3),
+            }
+        );
+        assert_eq!(
+            ne,
+            ConditionShape::VarCompareBound {
+                idx_var: "i".to_string(),
+                cmp: CmpOp::Ne,
+                bound: BoundExpr::LiteralI64(3),
+            }
+        );
+    }
+
+    #[test]
     fn condition_shape_rejects_constant_numeric_compare() {
         let condition = cmp(BinaryOperator::LessEqual, int(1), int(3));
+        assert!(try_extract_condition_shape(&condition)
+            .expect("no freeze")
+            .is_none());
+    }
+
+    #[test]
+    fn condition_shape_rejects_constant_eq_compare() {
+        let condition = cmp(BinaryOperator::Equal, int(1), int(3));
         assert!(try_extract_condition_shape(&condition)
             .expect("no freeze")
             .is_none());

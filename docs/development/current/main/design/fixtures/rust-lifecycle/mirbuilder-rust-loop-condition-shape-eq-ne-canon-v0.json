@@ -1,0 +1,79 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderRustLoopConditionShapeEqNeCanonV1",
+  "token": "MIRBUILDER-RUST-LOOP-CONDITION-SHAPE-EQ-NE-CANON-001",
+  "prerequisite": "MIRBUILDER-PROGRAMJSON-LOOP-COND-RECIPE-CONSTRUCTOR-CLEANUP-001",
+  "owner": "src/mir/builder/control_flow/plan/facts/loop_condition_shape.rs",
+  "contract": {
+    "analysis_only": true,
+    "raw_ast_rewrite": false,
+    "hako_consumer_change": false,
+    "programjson_consumer_change": false,
+    "new_lowering_behavior": false
+  },
+  "rows": [
+    {
+      "row_id": "var_eq_bound_var",
+      "source_shape": "i == n",
+      "expected_shape": "VarCompareBound",
+      "expected_idx_var": "i",
+      "expected_cmp": "Eq",
+      "expected_bound_kind": "Var",
+      "expected_bound_var": "n"
+    },
+    {
+      "row_id": "var_ne_literal",
+      "source_shape": "i != 3",
+      "expected_shape": "VarCompareBound",
+      "expected_idx_var": "i",
+      "expected_cmp": "Ne",
+      "expected_bound_kind": "LiteralI64",
+      "expected_bound_i64": 3
+    },
+    {
+      "row_id": "literal_eq_var",
+      "source_shape": "3 == i",
+      "expected_shape": "VarCompareBound",
+      "expected_idx_var": "i",
+      "expected_cmp": "Eq",
+      "expected_bound_kind": "LiteralI64",
+      "expected_bound_i64": 3
+    },
+    {
+      "row_id": "literal_ne_var",
+      "source_shape": "3 != i",
+      "expected_shape": "VarCompareBound",
+      "expected_idx_var": "i",
+      "expected_cmp": "Ne",
+      "expected_bound_kind": "LiteralI64",
+      "expected_bound_i64": 3
+    },
+    {
+      "row_id": "constant_eq_compare_no_loop_var",
+      "source_shape": "1 == 3",
+      "expected_accept": false,
+      "expected_reason": "no_loop_var"
+    }
+  ],
+  "decision": {
+    "kind": "RustLoopConditionShapeEqNeCanonGreen",
+    "reason_token": "LoopConditionShapeNumericCompareCanonNowIncludesEqNe",
+    "selected_next_card": "MIRBUILDER-CONDSKELETON-IFCOND-CONSULTATION-001"
+  },
+  "claims": {
+    "rust_loop_condition_shape_eq_ne": 1,
+    "analysis_only_numeric_compare_canon": 1,
+    "hako_consumer_change": 0,
+    "programjson_consumer_change": 0,
+    "condskeleton_ifcond": 0,
+    "recipe_matcher_input_authority": 0,
+    "bool_recipe_lowering": 0,
+    "mir_cmp_emission": 0,
+    "branch_emission": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_route_authority": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  }
+}
