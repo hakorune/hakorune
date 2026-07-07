@@ -406,10 +406,10 @@ Detailed evidence lives in phase cards, fixtures, and git history.
 
 ## Active Next 3
 ```text
-landed summary: 3254..3264 moved unsupported condition handling into Rust-first numeric compare canon, mirrored ProgramJSON Compare, defined data-only BoolRecipeCompareV1, made CanonicalLoopFacts consume NumericCompare code-map fields, published a read-only BoolRecipeCompareV1, and landed MIRBUILDER-RECIPEITEM-CONDITION-SLOT-BOOL-RECIPE-BRIDGE-SELECTION-001 selecting OptionalCondRecipeSidecar as the first RecipeItem bridge
+landed summary: 3254..3265 moved unsupported condition handling into Rust-first numeric compare canon, mirrored ProgramJSON Compare, defined data-only BoolRecipeCompareV1, made CanonicalLoopFacts consume NumericCompare code-map fields, published a read-only BoolRecipeCompareV1, landed MIRBUILDER-RECIPEITEM-CONDITION-SLOT-BOOL-RECIPE-BRIDGE-SELECTION-001, then MIRBUILDER-RECIPEITEM-CONDITION-SLOT-BOOL-RECIPE-SIDECAR-BRIDGE-001
 
 next active:
-  MIRBUILDER-RECIPEITEM-CONDITION-SLOT-BOOL-RECIPE-SIDECAR-BRIDGE-001; status=next; unit=RecipeItem bridge implementation; add optional cond_recipe sidecar while keeping cond_facts required; verifier/lowering behavior_change=0; runtime_authority=rust_astnode; programjson_runtime_route_authority=0; runtime_route_switch=0
+  MIRBUILDER-PROGRAMJSON-RECIPEITEM-COND-RECIPE-PRODUCER-WIRING-SELECTION-001; status=next; unit=selection; select first ProgramJSON producer to attach cond_recipe sidecar; cond_facts remains required; lowering_change=0; runtime_authority=rust_astnode; programjson_runtime_route_authority=0; runtime_route_switch=0
 
 trigger-based AOT/MIR typing debt:
   status=parked-until-triggered; order=2999/3000/3001 landed, then 3022 queue
@@ -417,10 +417,10 @@ trigger-based AOT/MIR typing debt:
   compare, PHI dst_type, mir_call dst_type, or receiver-helper
   single-observation protection
 next_documented_task =
-  MIRBUILDER-RECIPEITEM-CONDITION-SLOT-BOOL-RECIPE-SIDECAR-BRIDGE-001
+  MIRBUILDER-PROGRAMJSON-RECIPEITEM-COND-RECIPE-PRODUCER-WIRING-SELECTION-001
 
 next_after_active_3 =
-  select first ProgramJSON producer wiring only after RecipeItem sidecar bridge is green
+  implement selected ProgramJSON cond_recipe producer wiring only after selection is green
 
 follow_on_after_consume = select first BoolRecipe publication parity row only after consume gate is green
 

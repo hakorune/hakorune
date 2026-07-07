@@ -1,0 +1,59 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderRecipeItemConditionSlotBoolRecipeSidecarBridgeV1",
+  "token": "MIRBUILDER-RECIPEITEM-CONDITION-SLOT-BOOL-RECIPE-SIDECAR-BRIDGE-001",
+  "owner": "RecipeItemBox",
+  "prerequisite": "MIRBUILDER-RECIPEITEM-CONDITION-SLOT-BOOL-RECIPE-BRIDGE-SELECTION-001",
+  "hako_source": "lang/src/compiler/mirbuilder/recipe/recipe_item_box.hako",
+  "sidecar_contract": {
+    "name": "RecipeItemOptionalCondRecipeSidecarV1",
+    "legacy_cond_facts_required": true,
+    "cond_recipe_optional": true,
+    "cond_recipe_validated_by": "BoolRecipeBox.is_valid_compare",
+    "legacy_constructors_behavior_change": false,
+    "verifier_behavior_change": false,
+    "lowering_behavior_change": false
+  },
+  "rows": [
+    {
+      "row_id": "loop_with_cond_recipe_sidecar",
+      "constructor": "loop_item_with_cond_recipe",
+      "expected_item_kind": "Loop",
+      "expected_summary": "cond_recipe_present=1;bool_recipe_kind=Compare;lhs_kind=Symbol;lhs_symbol_id=1;cmp=Le;cmp_code=2;bound_kind=LiteralI64;bound_kind_code=1;bound_i64=3;bound_symbol_id=0;haystack_symbol_id=0;needle_symbol_id=0;analysis_only=1;lowering_executed=0"
+    },
+    {
+      "row_id": "if_with_cond_recipe_sidecar",
+      "constructor": "if_item_with_cond_recipe",
+      "expected_item_kind": "If",
+      "expected_summary": "cond_recipe_present=1;bool_recipe_kind=Compare;lhs_kind=Symbol;lhs_symbol_id=1;cmp=Le;cmp_code=2;bound_kind=LiteralI64;bound_kind_code=1;bound_i64=3;bound_symbol_id=0;haystack_symbol_id=0;needle_symbol_id=0;analysis_only=1;lowering_executed=0"
+    },
+    {
+      "row_id": "legacy_loop_without_cond_recipe",
+      "constructor": "loop_item",
+      "expected_item_kind": "Loop",
+      "expected_summary": "cond_recipe_present=0;bool_recipe_kind=Unsupported"
+    }
+  ],
+  "decision": {
+    "kind": "RecipeItemConditionSlotBoolRecipeSidecarBridgeGreen",
+    "reason_token": "RecipeItemCanCarryOptionalBoolRecipeSidecarWithoutChangingCondFactsConsumers",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-RECIPEITEM-COND-RECIPE-PRODUCER-WIRING-SELECTION-001"
+  },
+  "claims": {
+    "recipeitem_cond_recipe_sidecar_bridge": 1,
+    "optional_cond_recipe_sidecar": 1,
+    "legacy_cond_facts_required": 1,
+    "recipe_item_attachment": 1,
+    "verifier_behavior_change": 0,
+    "lowering_behavior_change": 0,
+    "recipe_matcher_input_authority": 0,
+    "bool_recipe_lowering": 0,
+    "mir_cmp_emission": 0,
+    "branch_emission": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_route_authority": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  }
+}

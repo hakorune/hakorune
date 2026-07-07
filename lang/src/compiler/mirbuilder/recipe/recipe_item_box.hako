@@ -4,6 +4,7 @@
 // - Data-only representation (no lowering side effects).
 
 using selfhost.shared.common.box_helpers as BoxHelpers
+using lang.compiler.mirbuilder.recipe.bool_recipe_box as BoolRecipeBox
 
 static box RecipeItemBox {
   _array_or_empty(items) {
@@ -36,6 +37,12 @@ static box RecipeItemBox {
     }
   }
 
+  if_item_with_cond_recipe(cond_facts, cond_recipe, then_item, else_item) {
+    local item = me.if_item(cond_facts, then_item, else_item)
+    item.set("cond_recipe", me._cond_recipe_or_empty(cond_recipe))
+    return item
+  }
+
   loop_item(cond_facts, body_item) {
     if body_item == null { body_item = me.seq([]) }
     return %{
@@ -43,6 +50,12 @@ static box RecipeItemBox {
       "cond_facts" => me._map_or_empty(cond_facts),
       "body_item" => body_item
     }
+  }
+
+  loop_item_with_cond_recipe(cond_facts, cond_recipe, body_item) {
+    local item = me.loop_item(cond_facts, body_item)
+    item.set("cond_recipe", me._cond_recipe_or_empty(cond_recipe))
+    return item
   }
 
   exit_item(exit_kind, payload) {
@@ -62,6 +75,20 @@ static box RecipeItemBox {
   kind_is(item, token) {
     if item == null { return 0 }
     return BoxHelpers.same_token(BoxHelpers.map_get(item, "kind"), token)
+  }
+
+  cond_recipe_present(item) {
+    if item == null || BoxHelpers.is_map(item) != 1 { return 0 }
+    local recipe = BoxHelpers.map_get(item, "cond_recipe")
+    if BoolRecipeBox.is_valid_compare(recipe) == 1 { return 1 }
+    return 0
+  }
+
+  cond_recipe_summary(item) {
+    if me.cond_recipe_present(item) != 1 {
+      return "cond_recipe_present=0;bool_recipe_kind=Unsupported"
+    }
+    return "cond_recipe_present=1;" + BoolRecipeBox.summary(BoxHelpers.map_get(item, "cond_recipe"))
   }
 
   is_supported_kind(kind) {
@@ -107,6 +134,11 @@ static box RecipeItemBox {
     }
 
     return 0
+  }
+
+  _cond_recipe_or_empty(cond_recipe) {
+    if BoolRecipeBox.is_valid_compare(cond_recipe) == 1 { return cond_recipe }
+    return BoolRecipeBox.unsupported(1)
   }
 }
 
