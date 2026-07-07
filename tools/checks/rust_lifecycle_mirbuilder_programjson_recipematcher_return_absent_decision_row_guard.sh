@@ -118,7 +118,11 @@ for needle in [
 for needle in [token, "CONSULTATION_REQUIRED", "B_DEFER_RETURN_ABSENT_TO_ROUTE_RELEASE_CONSULTATION"]:
     if needle not in task_order:
         raise SystemExit(f"task-order missing: {needle}")
-if f'latest_card = "{token}"' not in current_state:
+allowed_latest = {
+    token,
+    "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RETURN-ABSENT-ROUTE-RELEASE-CONSULTATION-001",
+}
+if not any(f'latest_card = "{allowed}"' in current_state for allowed in allowed_latest):
     raise SystemExit("CURRENT_STATE latest card drift")
 for key in [
     "if_break_if_continue_if_return_assignment_supported=1",

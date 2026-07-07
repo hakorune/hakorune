@@ -60,7 +60,7 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  CONSULTATION_REQUIRED for MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RETURN-ABSENT-DECISION-ROW-001.
+  MIRBUILDER-PROGRAMJSON-LOOP-BODY-RETURN-ABSENT-SCAN-ONLY-DIAGNOSTIC-001.
 
 post-3180 block recipe task order:
   completed: JoinThenElse, ElseOnlyExit, ThenOnlyExit, and ExitAll are scoped
@@ -82,6 +82,7 @@ normal operating rule:
   history.
 
 latest design decision:
+  3243 records MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RETURN-ABSENT-ROUTE-RELEASE-CONSULTATION-001: B_DEFER_RETURN_ABSENT_TO_ROUTE_RELEASE_CONSULTATION is selected; next is a scan-only diagnostic, not accepted-floor.
   3242 records MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RETURN-ABSENT-DECISION-ROW-001: Return-absent accepted-floor support is deferred to route-release consultation; recommended_default=B_DEFER_RETURN_ABSENT_TO_ROUTE_RELEASE_CONSULTATION; selected_next=CONSULTATION_REQUIRED.
   3241 implements MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-BREAK-CONTINUE-PRESENT-VERIFIED-RECIPE-SUPPORT-001: exact IfBreak+IfContinue+IfReturn+Assignment BoxCount row is green; ProgramJSON remains shadow-only.
   3240 implements MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-BREAK-PRESENT-VERIFIED-RECIPE-SUPPORT-001: exact IfBreak+IfReturn+Assignment BoxCount row is green; ProgramJSON remains shadow-only.
@@ -103,8 +104,6 @@ latest design decision:
   3222 selects runtime RecipeBodies publication bridge as the next contract: MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-PUBLICATION-BRIDGE-001.
   3221 marks the expanded RecipeBodies verifier-boundary DTO coverage rows as scoped Rust ASTNode projector retire-candidates; 3220 expands coverage to two rows.
   3219 selects more DTO coverage rows after the post-verifier consultation.
-  3218 prepares the post-verifier RecipeBodies consultation; runtime
-  publication and full RecipeMatcher still require decisions.
   3208-3210 cleaned If/Loop result-map and raw array-helper AOT contracts.
   Runtime RecipeBodies publication, full RecipeMatcher, route switch, lowering,
   mutation, ID allocation, and Source Selfhost remain unclaimed.
@@ -407,10 +406,10 @@ Detailed evidence lives in phase cards, fixtures, and git history.
 ```text
 1. MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-ROUTE-SHADOW-SWITCH-CONSULTATION-002; status=landed; boundary=select B, no authority switch
 2. MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RUNTIME-ROUTE-ADJACENT-SHADOW-GUARD-001; status=landed; boundary=after try_build_outcome before registry
-3. MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RETURN-ABSENT-DECISION-ROW-001; status=landed; boundary=return-absent deferred to route-release consultation
+3. MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RETURN-ABSENT-ROUTE-RELEASE-CONSULTATION-001; status=landed; boundary=B defer selected, scan-only diagnostic queued
 
 next active:
-  CONSULTATION_REQUIRED; recommended_default=B_DEFER_RETURN_ABSENT_TO_ROUTE_RELEASE_CONSULTATION; runtime_authority=rust_astnode; programjson_runtime_route_authority=0; runtime_route_switch=0
+  MIRBUILDER-PROGRAMJSON-LOOP-BODY-RETURN-ABSENT-SCAN-ONLY-DIAGNOSTIC-001; status=next; unit=return_absent_scan_only_diagnostic; return_absent_accepted_floor=0; matcher_result_equal=0; runtime_authority=rust_astnode; programjson_runtime_route_authority=0; runtime_route_switch=0
 
 trigger-based AOT/MIR typing debt:
   status=parked-until-triggered; order=2999/3000/3001 landed, then 3022 queue
@@ -418,10 +417,10 @@ trigger-based AOT/MIR typing debt:
   compare, PHI dst_type, mir_call dst_type, or receiver-helper
   single-observation protection
 next_documented_task =
-  CONSULTATION_REQUIRED
+  MIRBUILDER-PROGRAMJSON-LOOP-BODY-RETURN-ABSENT-SCAN-ONLY-DIAGNOSTIC-001
 
 next_after_active_3 =
-  CONSULTATION_REQUIRED
+  MIRBUILDER-PROGRAMJSON-CANONICAL-LOOP-FACTS-FINAL-TOPLEVEL-RETURN-DECOUPLE-SNAPSHOT-BOUNDARY-001
 
 task discipline =
   Each ProgramJSON capability card must land real `.hako` traversal + fixture

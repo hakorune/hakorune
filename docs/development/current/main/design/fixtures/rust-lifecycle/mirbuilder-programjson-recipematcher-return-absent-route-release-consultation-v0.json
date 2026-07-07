@@ -1,0 +1,64 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonRecipeMatcherReturnAbsentRouteReleaseConsultationV1",
+  "token": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RETURN-ABSENT-ROUTE-RELEASE-CONSULTATION-001",
+  "input_state": {
+    "previous_card": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RETURN-ABSENT-DECISION-ROW-001",
+    "previous_recommended_default": "B_DEFER_RETURN_ABSENT_TO_ROUTE_RELEASE_CONSULTATION",
+    "consultation_result": "B_DEFER_RETURN_ABSENT_TO_ROUTE_RELEASE_CONSULTATION",
+    "return_absent_intersects_route_release_gating": true,
+    "final_top_level_return_is_not_loop_body_return_evidence": true
+  },
+  "decision": {
+    "kind": "SelectDeferReturnAbsentAcceptedFloor",
+    "selected_option": "B_DEFER_RETURN_ABSENT_TO_ROUTE_RELEASE_CONSULTATION",
+    "reason_token": "ReturnAbsentIsRouteReleaseSensitiveShadowEvidence",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-LOOP-BODY-RETURN-ABSENT-SCAN-ONLY-DIAGNOSTIC-001"
+  },
+  "next_sequence": [
+    {
+      "card": "MIRBUILDER-PROGRAMJSON-LOOP-BODY-RETURN-ABSENT-SCAN-ONLY-DIAGNOSTIC-001",
+      "role": "diagnostic-only separation proof",
+      "claim_return_absent_accepted_floor": 0
+    },
+    {
+      "card": "MIRBUILDER-PROGRAMJSON-CANONICAL-LOOP-FACTS-FINAL-TOPLEVEL-RETURN-DECOUPLE-SNAPSHOT-BOUNDARY-001",
+      "role": "snapshot-boundary decouple",
+      "claim_return_absent_accepted_floor": 0
+    },
+    {
+      "card": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RETURN-ABSENT-ACCEPTED-FLOOR-001",
+      "role": "accepted-floor candidate after route-release boundary is stable",
+      "requires_prior_route_release_decision": true
+    }
+  ],
+  "scan_only_diagnostic_contract": {
+    "row_shape": "Loop.body IfBreak + IfContinue + Assignment with final top-level Return",
+    "loop_body_has_break": 1,
+    "loop_body_has_continue": 1,
+    "loop_body_has_return": 0,
+    "final_top_level_return_present": 1,
+    "final_top_level_return_used_for_loop_body_has_return": 0,
+    "matcher_result_equal": 0,
+    "accepted_floor": 0
+  },
+  "claims": {
+    "route_release_consultation_resolved": 1,
+    "selected_b_defer_return_absent": 1,
+    "return_absent_scan_only_diagnostic_selected_next": 1,
+    "return_absent_green": 0,
+    "return_absent_accepted_floor": 0,
+    "matcher_result_equal": 0,
+    "programjson_runtime_route_authority": 0,
+    "runtime_route_switch": 0,
+    "recipe_matcher_input_authority": 0,
+    "route_selection": 0,
+    "mir_lowering": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}

@@ -345,15 +345,15 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RETURN-ABSENT-DECISION-ROW-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3242-MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RETURN-ABSENT-DECISION-ROW-001.md"
-latest_card_summary = """3242 records the Return-absent decision stop.
-RecipeMatcher can represent LoopWithExit has_return=false, but this shape
-intersects runtime route release gating and the current ProgramJSON snapshot
-still requires a final top-level Return. Return-absent accepted-floor support is
-deferred to route-release consultation; ProgramJSON runtime authority, runtime
-route switch, route selection, lowering, mutation, ID allocation, fallback, and
-Source Selfhost remain unclaimed."""
+latest_card = "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RETURN-ABSENT-ROUTE-RELEASE-CONSULTATION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3243-MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RETURN-ABSENT-ROUTE-RELEASE-CONSULTATION-001.md"
+latest_card_summary = """3243 resolves the Return-absent consultation by
+selecting B_DEFER_RETURN_ABSENT_TO_ROUTE_RELEASE_CONSULTATION. The selected
+next card is a scan-only diagnostic proving final top-level Return is not
+loop-body has_return evidence. Return-absent accepted-floor, matcher result
+parity, ProgramJSON runtime authority, runtime route switch, route selection,
+lowering, mutation, ID allocation, fallback, and Source Selfhost remain
+unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -364,6 +364,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-07: 3243 resolves the Return-absent consultation by selecting B defer and queues the scan-only diagnostic; accepted-floor support and runtime authority remain unclaimed.",
   "2026-07-07: 3242 records the Return-absent decision stop; accepted-floor support is deferred to route-release consultation while runtime authority remains Rust and Source Selfhost remains unclaimed.",
   "2026-07-07: 3241 implements the ProgramJSON IfBreak+IfContinue+IfReturn+Assignment exact BoxCount accepted-floor row with verified-recipe and matcher-result parity; runtime authority remains Rust and Source Selfhost remains unclaimed.",
   "2026-07-07: 3240 implements the ProgramJSON IfBreak+IfReturn+Assignment exact BoxCount accepted-floor row with verified-recipe and matcher-result parity; runtime authority remains Rust and Source Selfhost remains unclaimed.",
@@ -375,5 +376,4 @@ landed_tail = [
   "2026-07-07: 3234 installs the runtime-adjacent ProgramJSON shadow guard boundary after try_build_outcome and before route registry candidate selection; Rust remains authority and runtime route switch, route selection, lowering, mutation, ID allocation, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3230 records the runtime route shadow-switch design stop after ProgramJSON RecipeMatcher shadow parity; Rust remains authority and runtime route switch, route selection, lowering, mutation, ID allocation, and Source Selfhost remain unclaimed pending consultation.",
   "2026-07-07: 3229 proves shadow parity between the Rust ASTNode RecipeMatcher LoopWithExit oracle and ProgramJSON matcher result snapshots while RecipeMatcher authority, route selection, lowering, mutation, ID allocation, route switch, and Source Selfhost remain unclaimed.",
-  "2026-07-07: 3228 implements the minimal observe-only RecipeMatcher execution boundary over CanonicalLoopFacts MapBox snapshots while RecipeMatcher authority, route selection, lowering, mutation, ID allocation, route switch, and Source Selfhost remain unclaimed.",
 ]
