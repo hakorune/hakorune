@@ -90,6 +90,7 @@ phase-1 compatibility Program(JSON) compat execution helper.
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_if_cond_recipe_eq_behavior_preserving_gate.sh` | AOT gate proving existing If `Var == Int` rows attach `cond_recipe` while preserving legacy `cond_facts`. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_if_cond_recipe_first_non_eq_row_gate.sh` | AOT gate for the first If non-`==` row: `Var != Int` via shared compare reader and `cond_recipe`. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_loop_nested_if_cond_recipe_bridge_gate.sh` | AOT gate proving Loop-body nested If items attach `cond_recipe` through the shared compare reader. |
+| `tools/checks/rust_lifecycle_mirbuilder_programjson_loop_cond_recipe_constructor_cleanup_gate.sh` | AOT gate proving top-level Loop cond_recipe uses the dedicated constructor instead of manual sidecar mutation. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_condition_shape_retire_rust_astnode_projector_candidate_guard.sh` | Retire-candidate guard for the covered `ConditionShapeSnapshotV1` ProgramJSON traversal slice. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_context_scope_shape_scan_parity_gate.sh` | Capability-batch parity for `.hako` `ProgramJsonContextScopeShapeScanV1`. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_context_scope_shape_retire_rust_astnode_projector_candidate_guard.sh` | Retire-candidate guard for the covered `ContextScopeShapeSnapshotV1` ProgramJSON traversal slice. |

@@ -80,7 +80,11 @@ for key in [
 
 need("If cond Compare op must be '=='" in if_handler, "If handler baseline asymmetry missing")
 need("RecipeItemBox.if_item(" in if_handler, "If handler baseline RecipeItem call missing")
-need("loop_item.set(\"cond_recipe\", cond_recipe)" in loop_handler, "Loop handler baseline manual cond_recipe set missing")
+need(
+    "loop_item.set(\"cond_recipe\", cond_recipe)" in loop_handler
+    or "RecipeItemBox.loop_item_with_cond_recipe(cond_facts, cond_recipe, body_seq)" in loop_handler,
+    "Loop handler cond_recipe producer missing",
+)
 need("cmp_code >= 1 && cmp_code <= 6" in bool_recipe, "BoolRecipe six-op vocabulary missing")
 for needle in [
     "MIRBUILDER-PROGRAMJSON-COMPARE-READER-SHARED-CANON-TASK-SEQUENCE-001",

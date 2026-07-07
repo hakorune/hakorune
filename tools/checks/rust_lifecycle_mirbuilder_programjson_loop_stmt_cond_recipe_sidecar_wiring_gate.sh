@@ -70,8 +70,8 @@ for key in [
 for needle in [
     "using lang.compiler.mirbuilder.recipe.bool_recipe_box as BoolRecipeBox",
     "BoolRecipeBox.from_numeric_compare_codes",
+    "RecipeItemBox.loop_item_with_cond_recipe(cond_facts, cond_recipe, body_seq)",
     "RecipeItemBox.loop_item(cond_facts, body_seq)",
-    "loop_item.set(\"cond_recipe\", cond_recipe)",
 ]:
     need(needle in impl, f"LoopStmtHandler missing wiring token: {needle}")
 for forbidden in ["RecipeMatcherBox", "emit_mir", "route_registry", "PlanLowerer"]:

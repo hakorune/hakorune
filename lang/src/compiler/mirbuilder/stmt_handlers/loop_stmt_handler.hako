@@ -763,11 +763,10 @@ static box LoopStmtHandler {
       }
     }
     local cond_recipe = BoolRecipeBox.from_numeric_compare_codes(1, me._symbol_id(local_name), BoxHelpers.map_get(cond_out, "cmp_code"), 1, cond_rhs_int, 0)
-    local loop_item = RecipeItemBox.loop_item(cond_facts, body_seq)
     if BoolRecipeBox.is_valid_compare(cond_recipe) == 1 {
-      loop_item.set("cond_recipe", cond_recipe)
+      return me._ok(next_idx, RecipeItemBox.loop_item_with_cond_recipe(cond_facts, cond_recipe, body_seq))
     }
-    return me._ok(next_idx, loop_item)
+    return me._ok(next_idx, RecipeItemBox.loop_item(cond_facts, body_seq))
   }
 
   handle(program_json, idx, next_idx, tag, state): MapBox {
