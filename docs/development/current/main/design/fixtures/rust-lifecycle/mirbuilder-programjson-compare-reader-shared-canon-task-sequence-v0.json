@@ -1,0 +1,75 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonCompareReaderSharedCanonTaskSequenceV1",
+  "token": "MIRBUILDER-PROGRAMJSON-COMPARE-READER-SHARED-CANON-TASK-SEQUENCE-001",
+  "prerequisite": "MIRBUILDER-RECIPEMATCHER-COND-RECIPE-OBSERVE-ONLY-INPUT-SNAPSHOT-001",
+  "problem_statement": {
+    "summary": "Condition API/verifier/BoolRecipe are symmetric, but If/Loop handlers still parse raw Compare locally and diverge.",
+    "observed_asymmetry": [
+      "IfStmtHandler accepts only Var == Int and does not attach cond_recipe",
+      "LoopStmtHandler attaches top-level cond_recipe manually instead of using constructor",
+      "Loop nested If items use legacy cond_facts only and require Var < Int",
+      "Rust loop_condition_shape misses Eq/Ne even though generic_loop_canon and BoolRecipe support six comparison operators"
+    ]
+  },
+  "selected_sequence": [
+    {
+      "order": 1,
+      "card": "MIRBUILDER-PROGRAMJSON-COMPARE-READER-SHARED-CANON-001",
+      "role": "Add shared ProgramJSON Var op Int compare reader; reader-only, no consumers changed."
+    },
+    {
+      "order": 2,
+      "card": "MIRBUILDER-PROGRAMJSON-IF-COND-RECIPE-EQ-BEHAVIOR-PRESERVING-001",
+      "role": "Attach cond_recipe to existing If Var == Int rows while preserving legacy cond_facts and behavior."
+    },
+    {
+      "order": 3,
+      "card": "MIRBUILDER-PROGRAMJSON-IF-COND-RECIPE-FIRST-NON-EQ-ROW-001",
+      "role": "Add one user-visible non-Eq If condition row through the shared reader."
+    },
+    {
+      "order": 4,
+      "card": "MIRBUILDER-PROGRAMJSON-LOOP-NESTED-IF-COND-RECIPE-BRIDGE-001",
+      "role": "Attach cond_recipe to Loop-body nested If items through the same shared reader."
+    },
+    {
+      "order": 5,
+      "card": "MIRBUILDER-PROGRAMJSON-LOOP-COND-RECIPE-CONSTRUCTOR-CLEANUP-001",
+      "role": "Switch top-level Loop cond_recipe attachment to loop_item_with_cond_recipe without behavior change."
+    },
+    {
+      "order": 6,
+      "card": "MIRBUILDER-RUST-LOOP-CONDITION-SHAPE-EQ-NE-CANON-001",
+      "role": "Add Eq/Ne to Rust loop_condition_shape numeric compare canon without AST rewrite."
+    },
+    {
+      "order": 7,
+      "card": "MIRBUILDER-CONDSKELETON-IFCOND-CONSULTATION-001",
+      "role": "Consult whether If conditions should enter CondProfile/CondSkeleton or remain BoolRecipe-side only for now."
+    }
+  ],
+  "decision": {
+    "kind": "SelectSharedProgramJsonCompareReaderBeforeParityRows",
+    "reason_token": "IfLoopConditionHandlersMustShareCompareReaderBeforeExpandingRows",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-COMPARE-READER-SHARED-CANON-001"
+  },
+  "claims": {
+    "compare_reader_task_sequence_selected": 1,
+    "shared_compare_reader_implemented": 0,
+    "if_cond_recipe_attached": 0,
+    "if_compare_operator_expansion": 0,
+    "loop_nested_if_cond_recipe": 0,
+    "rust_loop_condition_shape_eq_ne": 0,
+    "condskeleton_ifcond": 0,
+    "recipe_matcher_input_authority": 0,
+    "bool_recipe_lowering": 0,
+    "mir_cmp_emission": 0,
+    "branch_emission": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_route_authority": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  }
+}

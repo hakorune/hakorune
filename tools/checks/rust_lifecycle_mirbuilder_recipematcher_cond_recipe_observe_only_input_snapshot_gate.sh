@@ -85,7 +85,7 @@ for needle in [
     need(needle in matcher, f"matcher boundary missing: {needle}")
 for needle in [
     "MIRBUILDER-RECIPEMATCHER-COND-RECIPE-OBSERVE-ONLY-INPUT-SNAPSHOT-001",
-    "MIRBUILDER-RECIPEMATCHER-COND-RECIPE-FIRST-PARITY-ROW-SELECTION-001",
+    "MIRBUILDER-PROGRAMJSON-COMPARE-READER-SHARED-CANON-TASK-SEQUENCE-001",
 ]:
     need(needle in task_order, f"task-order missing: {needle}")
 PY
