@@ -345,11 +345,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-RECIPEMATCHER-COND-RECIPE-INPUT-CONSUME-BOUNDARY-SELECTION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3272-MIRBUILDER-RECIPEMATCHER-COND-RECIPE-INPUT-CONSUME-BOUNDARY-SELECTION-001.md"
-latest_card_summary = """3272 selects an observe-only read-only snapshot
-projection as the first RecipeMatcher-adjacent `cond_recipe` boundary. Direct
-RecipeMatcher authority, lowering, route selection, runtime switch, ProgramJSON
+latest_card = "MIRBUILDER-RECIPEMATCHER-COND-RECIPE-OBSERVE-ONLY-INPUT-SNAPSHOT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3273-MIRBUILDER-RECIPEMATCHER-COND-RECIPE-OBSERVE-ONLY-INPUT-SNAPSHOT-001.md"
+latest_card_summary = """3273 projects verified RecipeItem `cond_recipe`
+into a read-only matcher-facing input snapshot. RecipeMatcher input authority,
+full matcher execution, lowering, route selection, runtime switch, ProgramJSON
 authority, fallback, and Source Selfhost remain unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
@@ -361,6 +361,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-07: 3273 projects verified RecipeItem cond_recipe into a read-only matcher-facing input snapshot; matcher authority/lowering and Source Selfhost remain unclaimed.",
   "2026-07-07: 3272 selects observe-only read-only snapshot projection as the first RecipeMatcher-adjacent cond_recipe boundary; matcher authority/lowering and Source Selfhost remain unclaimed.",
   "2026-07-07: 3271 makes RecipeVerifier validate optional RecipeItem cond_recipe sidecars while preserving port-sig counts; matcher/lowering and Source Selfhost remain unclaimed.",
   "2026-07-07: 3270 selects RecipeVerifier validate-only as the first non-diagnostic cond_recipe consumer; implementation and Source Selfhost remain unclaimed.",
@@ -372,5 +373,4 @@ landed_tail = [
   "2026-07-07: 3264 selects OptionalCondRecipeSidecar as the first RecipeItem condition-slot bridge; lowering and Source Selfhost remain unclaimed.",
   "2026-07-07: 3263 publishes a read-only BoolRecipeCompareV1 from the ProgramJSON CanonicalLoopFacts numeric-compare consume snapshot; lowering and Source Selfhost remain unclaimed.",
   "2026-07-07: 3262 makes CanonicalLoopFacts consume NumericCompare code-map fields and publish BoolRecipe-ready numeric compare fields for the covered verified snapshot row; lowering and Source Selfhost remain unclaimed.",
-  "2026-07-07: 3261 defines data-only BoolRecipeCompareV1 and BoundExpr vocabulary using resolved symbol ids and numeric cmp/bound codes; lowering and Source Selfhost remain unclaimed.",
 ]

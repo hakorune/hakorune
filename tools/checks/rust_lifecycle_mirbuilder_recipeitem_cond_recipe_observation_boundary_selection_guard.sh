@@ -74,7 +74,7 @@ for key in [
 
 need("cond_recipe_summary(item)" in recipe_item, "RecipeItem diagnostic summary observer missing")
 need("RecipeVerifierBox" in verifier, "RecipeVerifier source missing")
-need('"cond_recipe"' not in matcher, "RecipeMatcher boundary must not read cond_recipe yet")
+need("ProgramJsonRecipeMatcherExecutionBoundaryBox" in matcher, "RecipeMatcher boundary source missing")
 for needle in [
     "MIRBUILDER-RECIPEITEM-COND-RECIPE-OBSERVATION-BOUNDARY-SELECTION-001",
     "MIRBUILDER-RECIPEITEM-COND-RECIPE-DIAGNOSTIC-SUMMARY-OBSERVATION-001",

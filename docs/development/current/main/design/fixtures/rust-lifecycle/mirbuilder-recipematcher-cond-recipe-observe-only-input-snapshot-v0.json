@@ -1,0 +1,49 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderRecipeMatcherCondRecipeObserveOnlyInputSnapshotV1",
+  "token": "MIRBUILDER-RECIPEMATCHER-COND-RECIPE-OBSERVE-ONLY-INPUT-SNAPSHOT-001",
+  "prerequisite": "MIRBUILDER-RECIPEMATCHER-COND-RECIPE-INPUT-CONSUME-BOUNDARY-SELECTION-001",
+  "owner": "ProgramJsonRecipeMatcherExecutionBoundaryBox.cond_recipe_input_snapshot",
+  "snapshot_contract": {
+    "name": "CondRecipeMatcherInputSnapshotV1",
+    "input": "verified RecipeItem cond_recipe",
+    "output": "read-only matcher-facing compare snapshot",
+    "observe_only": true,
+    "recipe_matcher_input_authority": false,
+    "recipe_matcher_executed": false,
+    "full_recipe_matcher_execution": false,
+    "route_selection": false,
+    "lowering_behavior_change": false,
+    "runtime_route_switch": false
+  },
+  "rows": [
+    {
+      "row_id": "valid_loop_cond_recipe_snapshot",
+      "expected_summary": "snapshot_kind=CondRecipeMatcherInputSnapshotV1;ok=1;matcher_input_present=1;cond_recipe_present=1;bool_recipe_kind_code=1;lhs_symbol_id=1;cmp_code=2;rhs_bound_kind_code=1;rhs_bound_i64=3;rhs_bound_symbol_id=0;readonly=1;observe_only=1;recipe_matcher_executed=0;full_recipe_matcher_execution=0;route_selection=0;mir_lowering=0;runtime_route_switch=0"
+    },
+    {
+      "row_id": "missing_loop_cond_recipe_snapshot",
+      "expected_summary": "snapshot_kind=CondRecipeMatcherInputSnapshotV1;ok=0;reason=cond_recipe_missing;matcher_input_present=0;cond_recipe_present=0;bool_recipe_kind_code=0;lhs_symbol_id=0;cmp_code=0;rhs_bound_kind_code=0;rhs_bound_i64=0;rhs_bound_symbol_id=0;readonly=1;observe_only=1;recipe_matcher_executed=0;full_recipe_matcher_execution=0;route_selection=0;mir_lowering=0;runtime_route_switch=0"
+    }
+  ],
+  "decision": {
+    "kind": "CondRecipeMatcherInputSnapshotGreen",
+    "reason_token": "VerifiedCondRecipeCanBeProjectedToReadOnlyMatcherFacingSnapshot",
+    "selected_next_card": "MIRBUILDER-RECIPEMATCHER-COND-RECIPE-FIRST-PARITY-ROW-SELECTION-001"
+  },
+  "claims": {
+    "recipematcher_cond_recipe_observe_only_input_snapshot": 1,
+    "cond_recipe_matcher_input_snapshot_readonly": 1,
+    "recipe_matcher_input_authority": 0,
+    "recipe_matcher_executed": 0,
+    "full_recipe_matcher_execution": 0,
+    "bool_recipe_lowering": 0,
+    "mir_cmp_emission": 0,
+    "branch_emission": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_route_authority": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  }
+}

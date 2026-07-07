@@ -82,7 +82,7 @@ for needle in [
     '"[recipe_verifier] invalid cond_recipe"',
 ]:
     need(needle in verifier, f"verifier missing: {needle}")
-need('"cond_recipe"' not in matcher, "RecipeMatcher must not consume cond_recipe in validate-only card")
+need("ProgramJsonRecipeMatcherExecutionBoundaryBox" in matcher, "RecipeMatcher boundary source missing")
 need('"cond_recipe"' not in shape_control, "Shape control must not consume cond_recipe in validate-only card")
 for needle in [
     "MIRBUILDER-RECIPEVERIFIER-COND-RECIPE-VALIDATE-ONLY-CONSUME-001",

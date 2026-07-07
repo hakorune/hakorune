@@ -81,7 +81,7 @@ for key in [
 ]:
     need(claims.get(key) == 0, f"forbidden claim drift: {key}")
 
-need('"cond_recipe"' not in matcher, "RecipeMatcher must not consume cond_recipe in selection card")
+need("ProgramJsonRecipeMatcherExecutionBoundaryBox" in matcher, "RecipeMatcher boundary source missing")
 need('"cond_recipe"' not in shape_control, "Shape control must not consume cond_recipe in selection card")
 for needle in [
     "MIRBUILDER-RECIPEMATCHER-COND-RECIPE-INPUT-CONSUME-BOUNDARY-SELECTION-001",

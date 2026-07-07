@@ -5,6 +5,7 @@
 
 using selfhost.shared.common.string_helpers as StringHelpers
 using selfhost.shared.common.box_helpers as BoxHelpers
+using lang.compiler.mirbuilder.recipe.bool_recipe_box as BoolRecipeBox
 
 static box ProgramJsonRecipeMatcherExecutionBoundaryBox {
   _i(map, key) {
@@ -21,6 +22,68 @@ static box ProgramJsonRecipeMatcherExecutionBoundaryBox {
       "has_break" => 0,
       "has_continue" => 0,
       "has_return" => 0,
+      "observe_only" => 1,
+      "recipe_matcher_executed" => 0,
+      "full_recipe_matcher_execution" => 0,
+      "route_selection" => 0,
+      "mir_lowering" => 0,
+      "mir_mutation" => 0,
+      "id_allocation" => 0,
+      "runtime_route_switch" => 0
+    }
+  }
+
+  _cond_recipe_err(reason): MapBox {
+    return %{
+      "ok" => 0,
+      "reason_code" => me._cond_recipe_reason_code(reason),
+      "matcher_input_present" => 0,
+      "cond_recipe_present" => 0,
+      "bool_recipe_kind_code" => 0,
+      "lhs_symbol_id" => 0,
+      "cmp_code" => 0,
+      "rhs_bound_kind_code" => 0,
+      "rhs_bound_i64" => 0,
+      "rhs_bound_symbol_id" => 0,
+      "rhs_bound_haystack_id" => 0,
+      "rhs_bound_needle_id" => 0,
+      "readonly" => 1,
+      "observe_only" => 1,
+      "recipe_matcher_executed" => 0,
+      "full_recipe_matcher_execution" => 0,
+      "route_selection" => 0,
+      "mir_lowering" => 0,
+      "mir_mutation" => 0,
+      "id_allocation" => 0,
+      "runtime_route_switch" => 0
+    }
+  }
+
+  cond_recipe_input_snapshot(recipe_item): MapBox {
+    if recipe_item == null || BoxHelpers.is_map(recipe_item) != 1 {
+      return me._cond_recipe_err("missing_recipe_item")
+    }
+    local cond_recipe = BoxHelpers.map_get(recipe_item, "cond_recipe")
+    if cond_recipe == null {
+      return me._cond_recipe_err("cond_recipe_missing")
+    }
+    if BoolRecipeBox.is_valid_compare(cond_recipe) != 1 {
+      return me._cond_recipe_err("cond_recipe_invalid")
+    }
+    return %{
+      "ok" => 1,
+      "reason_code" => 0,
+      "matcher_input_present" => 1,
+      "cond_recipe_present" => 1,
+      "bool_recipe_kind_code" => 1,
+      "lhs_symbol_id" => me._i(cond_recipe, "lhs_symbol_id"),
+      "cmp_code" => me._i(cond_recipe, "cmp_code"),
+      "rhs_bound_kind_code" => me._i(cond_recipe, "rhs_bound_kind_code"),
+      "rhs_bound_i64" => me._i(cond_recipe, "rhs_bound_i64"),
+      "rhs_bound_symbol_id" => me._i(cond_recipe, "rhs_bound_symbol_id"),
+      "rhs_bound_haystack_id" => me._i(cond_recipe, "rhs_bound_haystack_id"),
+      "rhs_bound_needle_id" => me._i(cond_recipe, "rhs_bound_needle_id"),
+      "readonly" => 1,
       "observe_only" => 1,
       "recipe_matcher_executed" => 0,
       "full_recipe_matcher_execution" => 0,
@@ -96,6 +159,34 @@ static box ProgramJsonRecipeMatcherExecutionBoundaryBox {
       + ";runtime_route_switch=" + StringHelpers.int_to_str(me._i(result, "runtime_route_switch"))
   }
 
+  cond_recipe_input_summary(snapshot) {
+    if snapshot == null || BoxHelpers.is_map(snapshot) != 1 {
+      return "snapshot_kind=CondRecipeMatcherInputSnapshotV1;ok=0;reason=missing_snapshot"
+    }
+    local reason = ""
+    if me._i(snapshot, "ok") != 1 {
+      reason = ";reason=" + me._cond_recipe_reason_from_code(me._i(snapshot, "reason_code"))
+    }
+    return "snapshot_kind=CondRecipeMatcherInputSnapshotV1"
+      + ";ok=" + StringHelpers.int_to_str(me._i(snapshot, "ok"))
+      + reason
+      + ";matcher_input_present=" + StringHelpers.int_to_str(me._i(snapshot, "matcher_input_present"))
+      + ";cond_recipe_present=" + StringHelpers.int_to_str(me._i(snapshot, "cond_recipe_present"))
+      + ";bool_recipe_kind_code=" + StringHelpers.int_to_str(me._i(snapshot, "bool_recipe_kind_code"))
+      + ";lhs_symbol_id=" + StringHelpers.int_to_str(me._i(snapshot, "lhs_symbol_id"))
+      + ";cmp_code=" + StringHelpers.int_to_str(me._i(snapshot, "cmp_code"))
+      + ";rhs_bound_kind_code=" + StringHelpers.int_to_str(me._i(snapshot, "rhs_bound_kind_code"))
+      + ";rhs_bound_i64=" + StringHelpers.int_to_str(me._i(snapshot, "rhs_bound_i64"))
+      + ";rhs_bound_symbol_id=" + StringHelpers.int_to_str(me._i(snapshot, "rhs_bound_symbol_id"))
+      + ";readonly=" + StringHelpers.int_to_str(me._i(snapshot, "readonly"))
+      + ";observe_only=" + StringHelpers.int_to_str(me._i(snapshot, "observe_only"))
+      + ";recipe_matcher_executed=" + StringHelpers.int_to_str(me._i(snapshot, "recipe_matcher_executed"))
+      + ";full_recipe_matcher_execution=" + StringHelpers.int_to_str(me._i(snapshot, "full_recipe_matcher_execution"))
+      + ";route_selection=" + StringHelpers.int_to_str(me._i(snapshot, "route_selection"))
+      + ";mir_lowering=" + StringHelpers.int_to_str(me._i(snapshot, "mir_lowering"))
+      + ";runtime_route_switch=" + StringHelpers.int_to_str(me._i(snapshot, "runtime_route_switch"))
+  }
+
   _contract_kind_from_code(code) {
     if code == 1 { return "LoopWithExit" }
     return "Unsupported"
@@ -116,6 +207,20 @@ static box ProgramJsonRecipeMatcherExecutionBoundaryBox {
     if code == 3 { return "matcher_input_missing" }
     if code == 4 { return "snapshot_not_readonly" }
     if code == 5 { return "nested_loop_present" }
+    return "unknown"
+  }
+
+  _cond_recipe_reason_code(reason) {
+    if reason == "missing_recipe_item" { return 1 }
+    if reason == "cond_recipe_missing" { return 2 }
+    if reason == "cond_recipe_invalid" { return 3 }
+    return 99
+  }
+
+  _cond_recipe_reason_from_code(code) {
+    if code == 1 { return "missing_recipe_item" }
+    if code == 2 { return "cond_recipe_missing" }
+    if code == 3 { return "cond_recipe_invalid" }
     return "unknown"
   }
 }
