@@ -406,10 +406,10 @@ Detailed evidence lives in phase cards, fixtures, and git history.
 
 ## Active Next 3
 ```text
-landed summary: 3264..3316 cond_recipe/compare chain includes BoolRecipe sidecar bridge, ProgramJSON Loop/If cond_recipe producer wiring, verifier validate-only, matcher observe-only input snapshot, shared compare reader, If/Loop relational rows, BoolRecipe lowering observation/consultation, Var rhs reader parity, If/nested-If/top-level Loop Var rhs owner-direct rows, Var-rhs producer closeout, symbolic compare lowering command owner selection, intent-map symbolic command pilot/parity, RHS materialization intent pilot/parity, RHS ValueId resolution owner selection, read-only RHS ValueId resolution plan pilot/parity, actual RHS ValueId resolution design-stop, request/response ABI, LiteralI64 constant emission bridge, MIRBUILDER-COMPARE-RHS-SYMBOLREF-LOOKUP-CONTRACT-PARITY-001, MIRBUILDER-COMPARE-RHS-SYMBOLREF-LOOKUP-BRIDGE-001, LocalSSA finalize_compare design-stop, and LocalSSA finalize_compare bridge.
+landed summary: 3264..3317 cond_recipe/compare chain includes BoolRecipe sidecar bridge, ProgramJSON Loop/If cond_recipe producer wiring, verifier validate-only, matcher observe-only input snapshot, shared compare reader, If/Loop relational rows, BoolRecipe lowering observation/consultation, Var rhs reader parity, If/nested-If/top-level Loop Var rhs owner-direct rows, Var-rhs producer closeout, symbolic compare lowering command owner selection, intent-map symbolic command pilot/parity, RHS materialization intent pilot/parity, RHS ValueId resolution owner selection, read-only RHS ValueId resolution plan pilot/parity, actual RHS ValueId resolution design-stop, request/response ABI, LiteralI64 constant emission bridge, MIRBUILDER-COMPARE-RHS-SYMBOLREF-LOOKUP-CONTRACT-PARITY-001, MIRBUILDER-COMPARE-RHS-SYMBOLREF-LOOKUP-BRIDGE-001, MIRBUILDER-COMPARE-LOCALSSA-FINALIZE-COMPARE-BRIDGE-001, and MIR Compare emission bridge.
 
 next active:
-  MIRBUILDER-COMPARE-LOCALSSA-FINALIZE-COMPARE-BRIDGE-001; status=landed; called finalize_compare on already-resolved lhs/rhs ValueIds only; next=MIRBUILDER-COMPARE-MIR-COMPARE-EMISSION-BRIDGE-001; status=next; unit=Rust bridge + fixture + gate; may emit Compare from finalized operands only; Branch=0; route/runtime authority=0
+  MIRBUILDER-COMPARE-MIR-COMPARE-EMISSION-BRIDGE-001; status=landed; emitted Compare from finalized operands and published Bool result; next=MIRBUILDER-COMPARE-BRANCH-EMISSION-DESIGN-STOP-001; status=next; unit=design-stop + fixture + guard; Branch condition consumption, route/runtime authority, and Source Selfhost remain 0
 
 trigger-based AOT/MIR typing debt:
   status=parked-until-triggered; order=2999/3000/3001 landed, then 3022 queue
@@ -417,10 +417,10 @@ trigger-based AOT/MIR typing debt:
   compare, PHI dst_type, mir_call dst_type, or receiver-helper
   single-observation protection
 next_documented_task =
-  MIRBUILDER-COMPARE-MIR-COMPARE-EMISSION-BRIDGE-001
+  MIRBUILDER-COMPARE-BRANCH-EMISSION-DESIGN-STOP-001
 
 next_after_active_3 =
-  MIRBUILDER-COMPARE-MIR-COMPARE-EMISSION-BRIDGE-001 -> MIRBUILDER-COMPARE-BRANCH-EMISSION-DESIGN-STOP-001 -> MIRBUILDER-COMPARE-BRANCH-EMISSION-BRIDGE-001
+  MIRBUILDER-COMPARE-BRANCH-EMISSION-DESIGN-STOP-001 -> MIRBUILDER-COMPARE-BRANCH-EMISSION-BRIDGE-001 -> MIRBUILDER-COMPARE-BOOLRECIPE-TO-MIR-COMPARE-BRANCH-CLOSEOUT-001
 
 follow_on_after_consume = select first BoolRecipe publication parity row only after consume gate is green
 

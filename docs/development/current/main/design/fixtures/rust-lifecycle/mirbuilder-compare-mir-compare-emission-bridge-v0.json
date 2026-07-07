@@ -1,0 +1,44 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderCompareMirCompareEmissionBridgeV1",
+  "token": "MIRBUILDER-COMPARE-MIR-COMPARE-EMISSION-BRIDGE-001",
+  "owner": "CompareMirCompareEmissionBridge",
+  "rust_source": "src/mir/builder/compare_mir_compare_emission_bridge.rs",
+  "prerequisite": "MIRBUILDER-COMPARE-LOCALSSA-FINALIZE-COMPARE-BRIDGE-001",
+  "input_contract": "finalized lhs/rhs ValueIds",
+  "output_contract": "CompareMirCompareEmissionResponseV1",
+  "rows": [
+    {
+      "row_id": "finalized_literal_operands_lt_compare",
+      "op": "Lt",
+      "lhs_source": "finalized LiteralI64 ValueId",
+      "rhs_source": "finalized LiteralI64 ValueId",
+      "expected": {
+        "ok": 1,
+        "compare_result_value_id_present": 1,
+        "compare_result_valueid_allocated": 1,
+        "mir_compare_emitted": 1,
+        "bool_result_type_publication": 1,
+        "mir_branch_emitted": 0
+      }
+    }
+  ],
+  "claims": {
+    "compare_mir_compare_emission_bridge": 1,
+    "mir_compare_emission": 1,
+    "compare_result_valueid_allocated": 1,
+    "bool_result_type_publication": 1,
+    "finalized_literal_operands_lt_compare": 1,
+    "mir_branch_emission": 0,
+    "branch_condition_consumption": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_authority": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "MirCompareEmissionBridgeGreen",
+    "selected_next_card": "MIRBUILDER-COMPARE-BRANCH-EMISSION-DESIGN-STOP-001"
+  }
+}
