@@ -1,0 +1,82 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonLoopConditionNumericCompareCanonParityV1",
+  "token": "MIRBUILDER-PROGRAMJSON-LOOP-CONDITION-NUMERIC-COMPARE-CANON-PARITY-001",
+  "owner": "ProgramJsonNumericCompareCanonSnapshotBox",
+  "hako_source": "lang/src/compiler/mirbuilder/program_json_numeric_compare_canon_snapshot.hako",
+  "rust_oracle": {
+    "shape": "ConditionShape::VarCompareBound",
+    "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-rust-condition-numeric-compare-canon-authority-v0.json"
+  },
+  "rows": [
+    {
+      "row_id": "var_le_bound_var",
+      "program_json_compare": {
+        "type": "Compare",
+        "op": "<=",
+        "lhs": { "type": "Var", "name": "i" },
+        "rhs": { "type": "Var", "name": "n" }
+      },
+      "expected_summary": "snapshot_kind=NumericCompareCanonSnapshotV1;ok=1;idx_var=i;cmp=Le;bound_kind=Var;bound_i64=0;bound_var=n;original_direction_code=1;constant_compare=0;analysis_only=1"
+    },
+    {
+      "row_id": "var_le_literal",
+      "program_json_compare": {
+        "type": "Compare",
+        "op": "<=",
+        "lhs": { "type": "Var", "name": "i" },
+        "rhs": { "type": "Int", "value": 3 }
+      },
+      "expected_summary": "snapshot_kind=NumericCompareCanonSnapshotV1;ok=1;idx_var=i;cmp=Le;bound_kind=LiteralI64;bound_i64=3;bound_var=;original_direction_code=1;constant_compare=0;analysis_only=1"
+    },
+    {
+      "row_id": "literal_ge_var",
+      "program_json_compare": {
+        "type": "Compare",
+        "op": ">=",
+        "lhs": { "type": "Int", "value": 3 },
+        "rhs": { "type": "Var", "name": "i" }
+      },
+      "expected_summary": "snapshot_kind=NumericCompareCanonSnapshotV1;ok=1;idx_var=i;cmp=Le;bound_kind=LiteralI64;bound_i64=3;bound_var=;original_direction_code=2;constant_compare=0;analysis_only=1"
+    },
+    {
+      "row_id": "constant_compare_no_loop_var",
+      "program_json_compare": {
+        "type": "Compare",
+        "op": "<=",
+        "lhs": { "type": "Int", "value": 1 },
+        "rhs": { "type": "Int", "value": 3 }
+      },
+      "expected_summary": "snapshot_kind=NumericCompareCanonSnapshotV1;ok=0;reason=no_loop_var;idx_var=;cmp=Unsupported;bound_kind=Unsupported;bound_i64=0;bound_var=;original_direction_code=0;constant_compare=1;analysis_only=1"
+    }
+  ],
+  "summary": {
+    "row_count": 4,
+    "programjson_compare_to_numeric_compare_canon": 1,
+    "rust_oracle_parity_for_numeric_compare_canon": 1,
+    "analysis_only": 1,
+    "raw_programjson_rewrite": 0,
+    "canonical_loop_facts_consume": 0,
+    "bool_recipe_lowering": 0
+  },
+  "claims": {
+    "numeric_compare_canon_snapshot_v1": 1,
+    "programjson_compare_to_numeric_compare_canon": 1,
+    "rust_oracle_parity_for_numeric_compare_canon": 1,
+    "bound_expr_shared": 1,
+    "analysis_only": 1,
+    "canonical_loop_facts_consume": 0,
+    "recipe_matcher_input_authority": 0,
+    "bool_recipe_lowering": 0,
+    "mir_cmp_emission": 0,
+    "branch_emission": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_route_authority": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "ProgramJsonNumericCompareCanonParityGreen",
+    "selected_next_card": "MIRBUILDER-BOOL-RECIPE-COMPARE-BOUNDARY-DESIGN-001"
+  }
+}
