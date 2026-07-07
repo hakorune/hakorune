@@ -1,0 +1,71 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderCompareRhsActualValueIdResolutionDesignStopV1",
+  "token": "MIRBUILDER-COMPARE-RHS-ACTUAL-VALUEID-RESOLUTION-DESIGN-STOP-001",
+  "prerequisite": "MIRBUILDER-COMPARE-RHS-MATERIALIZATION-READONLY-RESOLUTION-PARITY-001",
+  "decision_context": {
+    "current_boundary": "CompareRhsValueIdResolutionPlanSnapshotV1",
+    "current_rows": ["LiteralI64", "SymbolRef"],
+    "reason": "Actual ValueId resolution is the first mutation/allocation boundary after read-only RHS plan parity"
+  },
+  "candidates": [
+    {
+      "name": "RequestResponseAbiFirst",
+      "selected": true,
+      "reason": "Fix request/response fields before opening constant emission or symbol lookup",
+      "selected_next_card": "MIRBUILDER-COMPARE-RHS-VALUEID-RESOLUTION-REQUEST-RESPONSE-ABI-001"
+    },
+    {
+      "name": "LiteralI64ConstantEmissionNow",
+      "selected": false,
+      "reason": "LiteralI64 is the first actual slice, but it should wait until response mutation flags are fixed"
+    },
+    {
+      "name": "SymbolRefLookupNow",
+      "selected": false,
+      "reason": "SymbolRef requires ProgramJSON symbol id to Rust variable context contract first"
+    },
+    {
+      "name": "RustAuthorityShadowResolutionGuard",
+      "selected": false,
+      "reason": "Useful before SymbolRef lookup, not needed before the ABI card"
+    },
+    {
+      "name": "MoveToAnotherLayer4Owner",
+      "selected": false,
+      "reason": "Would stall compare lowering before actual RHS resolution"
+    }
+  ],
+  "selected_sequence": [
+    "MIRBUILDER-COMPARE-RHS-VALUEID-RESOLUTION-REQUEST-RESPONSE-ABI-001",
+    "MIRBUILDER-COMPARE-RHS-LITERAL-I64-CONSTANT-EMISSION-BRIDGE-001",
+    "MIRBUILDER-COMPARE-RHS-SYMBOLREF-LOOKUP-CONTRACT-CONSULTATION-001",
+    "MIRBUILDER-COMPARE-RHS-SYMBOLREF-LOOKUP-BRIDGE-001",
+    "MIRBUILDER-COMPARE-LOCALSSA-FINALIZE-COMPARE-DESIGN-STOP-001"
+  ],
+  "claims": {
+    "compare_rhs_actual_valueid_resolution_design_stop": 1,
+    "request_response_abi_selected": 1,
+    "literal_i64_constant_emission_selected_now": 0,
+    "symbol_ref_lookup_selected_now": 0,
+    "rust_authority_shadow_selected_now": 0,
+    "actual_rhs_valueid_resolution": 0,
+    "literal_constant_valueid_allocation": 0,
+    "constant_mir_emission": 0,
+    "symbol_lookup_execution": 0,
+    "local_ssa_finalize_compare_execution": 0,
+    "mir_cmp_emission": 0,
+    "branch_emission": 0,
+    "basic_block_mutation": 0,
+    "value_id_allocation": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_route_authority": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "SelectCompareRhsValueIdResolutionRequestResponseAbi",
+    "selected_next_card": "MIRBUILDER-COMPARE-RHS-VALUEID-RESOLUTION-REQUEST-RESPONSE-ABI-001"
+  }
+}

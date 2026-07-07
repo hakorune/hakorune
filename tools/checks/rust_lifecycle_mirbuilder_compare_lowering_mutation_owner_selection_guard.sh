@@ -122,7 +122,8 @@ need(
     or 'latest_card = "MIRBUILDER-COMPARE-RHS-MATERIALIZATION-INTENT-PARITY-001"' in current_state
     or 'latest_card = "MIRBUILDER-COMPARE-RHS-VALUEID-RESOLUTION-OWNER-SELECTION-001"' in current_state
     or 'latest_card = "MIRBUILDER-COMPARE-RHS-MATERIALIZATION-READONLY-RESOLUTION-PILOT-001"' in current_state
-    or 'latest_card = "MIRBUILDER-COMPARE-RHS-MATERIALIZATION-READONLY-RESOLUTION-PARITY-001"' in current_state,
+    or 'latest_card = "MIRBUILDER-COMPARE-RHS-MATERIALIZATION-READONLY-RESOLUTION-PARITY-001"' in current_state
+    or 'latest_card = "MIRBUILDER-COMPARE-RHS-ACTUAL-VALUEID-RESOLUTION-DESIGN-STOP-001"' in current_state,
     "CURRENT_STATE latest card must point to selection or a selected follow-on",
 )
 need(

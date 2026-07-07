@@ -345,11 +345,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-COMPARE-RHS-MATERIALIZATION-READONLY-RESOLUTION-PARITY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3308-MIRBUILDER-COMPARE-RHS-MATERIALIZATION-READONLY-RESOLUTION-PARITY-001.md"
-latest_card_summary = """3308 proves intent-to-resolution-plan field parity
-for LiteralI64 and SymbolRef compare RHS rows. Actual RHS ValueId resolution,
-runtime materialization, MIR Compare/Branch emission, mutation, allocation,
+latest_card = "MIRBUILDER-COMPARE-RHS-ACTUAL-VALUEID-RESOLUTION-DESIGN-STOP-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3309-MIRBUILDER-COMPARE-RHS-ACTUAL-VALUEID-RESOLUTION-DESIGN-STOP-001.md"
+latest_card_summary = """3309 selects the RHS ValueId resolution
+request/response ABI before opening actual LiteralI64 constant emission.
+Actual RHS ValueId resolution, symbol lookup, LocalSSA, MIR Compare/Branch,
 runtime authority, and Source Selfhost remain unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
@@ -361,6 +361,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-07: 3309 selects the RHS ValueId resolution request/response ABI before actual LiteralI64 constant emission; actual RHS ValueId resolution, symbol lookup, LocalSSA, MIR emission, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3308 proves intent-to-resolution-plan field parity for LiteralI64 and SymbolRef compare RHS rows; actual RHS ValueId resolution, runtime materialization, MIR emission, mutation, allocation, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3307 publishes read-only RHS ValueId resolution plan snapshots for LiteralI64 and SymbolRef compare RHS rows; actual RHS ValueId resolution, runtime materialization, MIR emission, mutation, allocation, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3306 selects a read-only RHS ValueId resolution plan pilot after RHS materialization intent parity; RHS ValueId resolution, runtime materialization, MIR emission, mutation, allocation, and Source Selfhost remain unclaimed.",
@@ -372,5 +373,4 @@ landed_tail = [
   "2026-07-07: 3300 selects a read-only symbolic compare lowering command pilot after Var-rhs producer closeout; MIR emission, mutation, allocation, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3299 closes the first Var-rhs compare producer surface across top-level If, Loop nested-If, and top-level Loop owner-direct rows; MIR emission and Source Selfhost remain unclaimed.",
   "2026-07-07: 3298 opens one exact top-level Loop Var rhs cond_recipe producer row through LoopStmtHandler; legacy Loop DTO/lowering updates, MIR emission, and Source Selfhost remain unclaimed.",
-  "2026-07-07: 3297 selects an owner-direct observe-only top-level Loop Var rhs cond_recipe row next; legacy cond_rhs_int consumers, MIR emission, and Source Selfhost remain unclaimed.",
 ]
