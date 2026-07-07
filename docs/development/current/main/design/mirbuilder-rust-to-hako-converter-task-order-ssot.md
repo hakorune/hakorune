@@ -60,14 +60,14 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-SHADOW-PARITY-EXPANDED-ROWS-001
+  MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-ROUTE-SHADOW-SWITCH-CONSULTATION-002
 selected next card:
-  MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-SHADOW-PARITY-EXPANDED-ROWS-001.
+  MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-ROUTE-SHADOW-SWITCH-CONSULTATION-002.
 
 post-3180 block recipe task order:
   completed: JoinThenElse, ElseOnlyExit, ThenOnlyExit, and ExitAll are scoped
     retire-candidates.
-  current: expanded RecipeMatcher shadow parity rows next; runtime route switch remains held.
+  current: shadow-switch consultation next; runtime route switch remains held.
   design-stop trigger:
     stop before recursive RecipeBodies, full RecipeMatcher, route selection,
     MIR mutation/lowering, ID allocation, runtime route switch, or Source
@@ -83,6 +83,7 @@ normal operating rule:
   history.
 
 latest design decision:
+  3232 implements MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-SHADOW-PARITY-EXPANDED-ROWS-001: four LoopWithExit rows now match Rust oracle fields; runtime authority remains Rust.
   3231 implements MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RUNTIME-DUAL-RUN-SHADOW-GUARD-001: Rust ASTNode remains runtime authority while ProgramJSON matcher result is checked as shadow-only dual-run evidence.
   3230 worker inventory selects A_SHADOW_ONLY_DUAL_RUN_GUARD as the next task: implement a shadow-only dual-run guard before any runtime route switch.
   3230 records MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-ROUTE-SHADOW-SWITCH-DESIGN-STOP-001; recommended=A_SHADOW_ONLY_DUAL_RUN_GUARD, rejected=B_DIRECT_RUNTIME_ROUTE_SWITCH, alternative=C_MORE_DTO_OR_MATCHER_ROWS_BEFORE_SWITCH, selected_next=CONSULTATION_REQUIRED.
@@ -95,8 +96,7 @@ latest design decision:
   Layer4 input-boundary task; RecipeBodiesPublicationSnapshotV1 is not enough.
   3224 records RecipeMatcher input-boundary design stop: Rust consumes CanonicalLoopFacts, not RecipeBodiesPublicationSnapshotV1.
   3223 implements MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-PUBLICATION-BRIDGE-001.
-  3222 selects runtime RecipeBodies publication bridge as the next contract:
-  MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-PUBLICATION-BRIDGE-001.
+  3222 selects runtime RecipeBodies publication bridge as the next contract: MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-PUBLICATION-BRIDGE-001.
   3221 marks the expanded RecipeBodies verifier-boundary DTO coverage rows as scoped Rust ASTNode projector retire-candidates; 3220 expands coverage to two rows.
   3219 selects more DTO coverage rows after the post-verifier consultation.
   3218 prepares the post-verifier RecipeBodies consultation; runtime
@@ -407,13 +407,13 @@ Detailed evidence lives in phase cards, fixtures, and git history.
 
 ## Active Next 3
 ```text
-1. MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-ROUTE-SHADOW-SWITCH-DESIGN-STOP-001; status=landed; boundary=consult before runtime route switch
+1. MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RUNTIME-DUAL-RUN-SHADOW-GUARD-001; status=landed; boundary=shadow-only guard, no authority switch
 
-2. MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RUNTIME-DUAL-RUN-SHADOW-GUARD-001; status=landed; boundary=shadow-only guard, no authority switch
-3. MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-SHADOW-PARITY-EXPANDED-ROWS-001; status=next; boundary=more matcher rows, no switch
+2. MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-SHADOW-PARITY-EXPANDED-ROWS-001; status=landed; boundary=four matcher rows, no switch
+3. MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-ROUTE-SHADOW-SWITCH-CONSULTATION-002; status=next; boundary=consult before authority switch
 
 next active:
-  MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-SHADOW-PARITY-EXPANDED-ROWS-001; status=next; runtime_authority=rust_astnode; programjson_runtime_route_authority=0; runtime_route_switch=0
+  MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-ROUTE-SHADOW-SWITCH-CONSULTATION-002; status=next; runtime_authority=rust_astnode; programjson_runtime_route_authority=0; runtime_route_switch=0
 
 trigger-based AOT/MIR typing debt:
   status=parked-until-triggered; order=2999/3000/3001 landed, then 3022 queue
@@ -421,10 +421,10 @@ trigger-based AOT/MIR typing debt:
   compare, PHI dst_type, mir_call dst_type, or receiver-helper
   single-observation protection
 next_documented_task =
-  MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-SHADOW-PARITY-EXPANDED-ROWS-001
+  MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-ROUTE-SHADOW-SWITCH-CONSULTATION-002
 
 next_after_active_3 =
-  MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-ROUTE-SHADOW-SWITCH-CONSULTATION-002
+  CONSULTATION_REQUIRED
 
 task discipline =
   Each ProgramJSON capability card must land real `.hako` traversal + fixture

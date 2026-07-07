@@ -1,0 +1,150 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonRecipeMatcherShadowParityExpandedRowsV1",
+  "token": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-SHADOW-PARITY-EXPANDED-ROWS-001",
+  "input_state": {
+    "previous_card": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RUNTIME-DUAL-RUN-SHADOW-GUARD-001",
+    "shadow_parity_gate": "tools/checks/rust_lifecycle_mirbuilder_programjson_recipematcher_shadow_parity_gate.sh",
+    "dual_run_guard": "tools/checks/rust_lifecycle_mirbuilder_programjson_recipematcher_runtime_dual_run_shadow_guard.sh",
+    "snapshot_owner": "lang/src/compiler/mirbuilder/program_json_canonical_loop_facts_input_snapshot.hako",
+    "matcher_owner": "lang/src/compiler/mirbuilder/program_json_recipematcher_execution_boundary.hako"
+  },
+  "parity_contract": {
+    "name": "ProgramJsonRecipeMatcherShadowParityExpandedRowsV1",
+    "rust_oracle": "RecipeMatcher::try_match_loop -> RecipeContractKind::LoopWithExit",
+    "programjson_route": "ProgramJSON -> CanonicalLoopFacts MapBox snapshot -> RecipeMatcher boundary result",
+    "comparison": "canonical matcher result fields",
+    "row_count": 4,
+    "shadow_mode": true,
+    "runtime_authority": "Rust ASTNode route",
+    "runtime_route_switch": false,
+    "programjson_runtime_route_authority": false,
+    "route_selection": false,
+    "mir_lowering": false
+  },
+  "rows": [
+    {
+      "row_id": "local_loop_body_if_branch_return",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "body": [
+          {"type": "Local", "name": "i", "expr": {"type": "Int", "value": 0}},
+          {
+            "type": "Loop",
+            "cond": {"type": "Compare", "op": "<", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 3}},
+            "body": [
+              {"type": "If", "cond": {"type": "Compare", "op": "<", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 2}}, "then": [{"type": "Return", "expr": {"type": "Int", "value": 9}}], "else": null},
+              {"type": "Assignment", "name": "i", "expr": {"type": "Binary", "op": "+", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 1}}}
+            ]
+          },
+          {"type": "Return", "expr": {"type": "Var", "name": "i"}}
+        ]
+      },
+      "rust_astnode_route_oracle": {"matched": 1, "contract_kind": "LoopWithExit", "has_break": 0, "has_continue": 0, "has_return": 1},
+      "programjson_route_expected": {"matched": 1, "contract_kind": "LoopWithExit", "has_break": 0, "has_continue": 0, "has_return": 1}
+    },
+    {
+      "row_id": "local_loop_body_if_branch_return_alt_names",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "body": [
+          {"type": "Local", "name": "count", "expr": {"type": "Int", "value": 4}},
+          {
+            "type": "Loop",
+            "cond": {"type": "Compare", "op": "<", "lhs": {"type": "Var", "name": "count"}, "rhs": {"type": "Int", "value": 8}},
+            "body": [
+              {"type": "If", "cond": {"type": "Compare", "op": "<", "lhs": {"type": "Var", "name": "count"}, "rhs": {"type": "Int", "value": 6}}, "then": [{"type": "Return", "expr": {"type": "Int", "value": 12}}], "else": null},
+              {"type": "Assignment", "name": "count", "expr": {"type": "Binary", "op": "+", "lhs": {"type": "Var", "name": "count"}, "rhs": {"type": "Int", "value": 2}}}
+            ]
+          },
+          {"type": "Return", "expr": {"type": "Var", "name": "count"}}
+        ]
+      },
+      "rust_astnode_route_oracle": {"matched": 1, "contract_kind": "LoopWithExit", "has_break": 0, "has_continue": 0, "has_return": 1},
+      "programjson_route_expected": {"matched": 1, "contract_kind": "LoopWithExit", "has_break": 0, "has_continue": 0, "has_return": 1}
+    },
+    {
+      "row_id": "local_loop_body_if_branch_return_i_wide_step",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "body": [
+          {"type": "Local", "name": "i", "expr": {"type": "Int", "value": 1}},
+          {
+            "type": "Loop",
+            "cond": {"type": "Compare", "op": "<", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 10}},
+            "body": [
+              {"type": "If", "cond": {"type": "Compare", "op": "<", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 7}}, "then": [{"type": "Return", "expr": {"type": "Int", "value": 21}}], "else": null},
+              {"type": "Assignment", "name": "i", "expr": {"type": "Binary", "op": "+", "lhs": {"type": "Var", "name": "i"}, "rhs": {"type": "Int", "value": 3}}}
+            ]
+          },
+          {"type": "Return", "expr": {"type": "Var", "name": "i"}}
+        ]
+      },
+      "rust_astnode_route_oracle": {"matched": 1, "contract_kind": "LoopWithExit", "has_break": 0, "has_continue": 0, "has_return": 1},
+      "programjson_route_expected": {"matched": 1, "contract_kind": "LoopWithExit", "has_break": 0, "has_continue": 0, "has_return": 1}
+    },
+    {
+      "row_id": "local_loop_body_if_branch_return_count_wide_step",
+      "program_json": {
+        "version": 0,
+        "kind": "Program",
+        "body": [
+          {"type": "Local", "name": "count", "expr": {"type": "Int", "value": 2}},
+          {
+            "type": "Loop",
+            "cond": {"type": "Compare", "op": "<", "lhs": {"type": "Var", "name": "count"}, "rhs": {"type": "Int", "value": 17}},
+            "body": [
+              {"type": "If", "cond": {"type": "Compare", "op": "<", "lhs": {"type": "Var", "name": "count"}, "rhs": {"type": "Int", "value": 9}}, "then": [{"type": "Return", "expr": {"type": "Int", "value": 30}}], "else": null},
+              {"type": "Assignment", "name": "count", "expr": {"type": "Binary", "op": "+", "lhs": {"type": "Var", "name": "count"}, "rhs": {"type": "Int", "value": 5}}}
+            ]
+          },
+          {"type": "Return", "expr": {"type": "Var", "name": "count"}}
+        ]
+      },
+      "rust_astnode_route_oracle": {"matched": 1, "contract_kind": "LoopWithExit", "has_break": 0, "has_continue": 0, "has_return": 1},
+      "programjson_route_expected": {"matched": 1, "contract_kind": "LoopWithExit", "has_break": 0, "has_continue": 0, "has_return": 1}
+    }
+  ],
+  "guard_contract": {
+    "aot_required": true,
+    "vm_only_main_acceptance": false,
+    "dual_run_guard_required": true,
+    "canonical_field_compare_required": true,
+    "no_runtime_route_switch": true,
+    "no_programjson_runtime_authority": true,
+    "no_recipe_matcher_input_authority": true,
+    "no_route_selection": true,
+    "no_mir_lowering": true,
+    "no_mir_mutation": true,
+    "no_id_allocation": true,
+    "no_runtime_fallback": true
+  },
+  "decision": {
+    "kind": "RecipeMatcherShadowParityExpandedRowsGreen",
+    "reason_token": "ProgramJsonMatcherResultMatchesRustLoopWithExitOracleForExpandedRows",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-ROUTE-SHADOW-SWITCH-CONSULTATION-002"
+  },
+  "claims": {
+    "recipe_matcher_shadow_parity_expanded_rows": 1,
+    "matcher_result_equal": 1,
+    "expanded_row_count": 4,
+    "runtime_authority_remains_rust_astnode": 1,
+    "programjson_shadow_checked": 1,
+    "programjson_runtime_route_authority": 0,
+    "runtime_route_switch": 0,
+    "recipe_matcher_input_authority": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "mir_lowering": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "vm_only_proof_as_main_acceptance": 0
+  }
+}
