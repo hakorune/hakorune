@@ -345,11 +345,12 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-COMPARE-BRANCH-EMISSION-BRIDGE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3319-MIRBUILDER-COMPARE-BRANCH-EMISSION-BRIDGE-001.md"
-latest_card_summary = """3319 opens scoped Branch emission from a Compare
-result ValueId. Route selection, runtime authority, runtime fallback, and
-Source Selfhost remain unclaimed."""
+latest_card = "MIRBUILDER-COMPARE-BOOLRECIPE-TO-MIR-COMPARE-BRANCH-CLOSEOUT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3320-MIRBUILDER-COMPARE-BOOLRECIPE-TO-MIR-COMPARE-BRANCH-CLOSEOUT-001.md"
+latest_card_summary = """3320 closes the scoped BoolRecipe-to-MIR
+Compare/Branch bridge chain through RHS ValueId resolution, LocalSSA
+finalize_compare, MIR Compare emission, and Branch emission. Route selection,
+runtime authority, runtime fallback, and Source Selfhost remain unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -360,6 +361,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-08: 3320 closes the scoped BoolRecipe-to-MIR Compare/Branch bridge chain through RHS ValueId resolution, LocalSSA finalize_compare, MIR Compare emission, and Branch emission; route selection, runtime authority, runtime fallback, and Source Selfhost remain unclaimed.",
   "2026-07-08: 3319 opens scoped Branch emission from a Compare result ValueId; route selection, runtime authority, runtime fallback, and Source Selfhost remain unclaimed.",
   "2026-07-08: 3318 selects a scoped Branch emission bridge after Compare emission; Branch emission execution, branch condition consumption, route/runtime authority, and Source Selfhost remain unclaimed.",
   "2026-07-08: 3317 opens scoped MIR Compare emission from already-finalized lhs/rhs ValueIds and publishes the Bool result type; MIR Branch emission, route/runtime authority, and Source Selfhost remain unclaimed.",
@@ -371,5 +373,4 @@ landed_tail = [
   "2026-07-07: 3311 opens scoped LiteralI64 RHS ValueId resolution by emitting one integer Const through the existing emission SSOT; symbol lookup, LocalSSA, MIR Compare/Branch, runtime authority, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3310 fixes the RHS ValueId resolution request/response ABI and request snapshot before actual LiteralI64 constant emission; actual RHS ValueId resolution, symbol lookup, LocalSSA, MIR emission, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3309 selects the RHS ValueId resolution request/response ABI before actual LiteralI64 constant emission; actual RHS ValueId resolution, symbol lookup, LocalSSA, MIR emission, and Source Selfhost remain unclaimed.",
-  "2026-07-07: 3308 proves intent-to-resolution-plan field parity for LiteralI64 and SymbolRef compare RHS rows; actual RHS ValueId resolution, runtime materialization, MIR emission, mutation, allocation, and Source Selfhost remain unclaimed.",
 ]

@@ -133,7 +133,8 @@ need(
     or 'latest_card = "MIRBUILDER-COMPARE-LOCALSSA-FINALIZE-COMPARE-BRIDGE-001"' in current_state
     or 'latest_card = "MIRBUILDER-COMPARE-MIR-COMPARE-EMISSION-BRIDGE-001"' in current_state
     or 'latest_card = "MIRBUILDER-COMPARE-BRANCH-EMISSION-DESIGN-STOP-001"' in current_state
-    or 'latest_card = "MIRBUILDER-COMPARE-BRANCH-EMISSION-BRIDGE-001"' in current_state,
+    or 'latest_card = "MIRBUILDER-COMPARE-BRANCH-EMISSION-BRIDGE-001"' in current_state
+    or 'latest_card = "MIRBUILDER-COMPARE-BOOLRECIPE-TO-MIR-COMPARE-BRANCH-CLOSEOUT-001"' in current_state,
     "CURRENT_STATE latest card must point to selection or a selected follow-on",
 )
 need(
