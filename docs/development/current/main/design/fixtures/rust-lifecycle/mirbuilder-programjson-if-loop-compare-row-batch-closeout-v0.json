@@ -1,0 +1,49 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonIfLoopCompareRowBatchCloseoutV1",
+  "token": "MIRBUILDER-PROGRAMJSON-IF-LOOP-COMPARE-ROW-BATCH-CLOSEOUT-001",
+  "prerequisites": [
+    "MIRBUILDER-PROGRAMJSON-IF-COND-RECIPE-RELATIONAL-ROW-BATCH-001",
+    "MIRBUILDER-PROGRAMJSON-LOOP-NESTED-IF-COND-RECIPE-RELATIONAL-ROW-BATCH-001",
+    "MIRBUILDER-BOOL-RECIPE-COMPARE-LOWERING-EMISSION-CONSULTATION-001"
+  ],
+  "closed_surface": {
+    "name": "SharedIfLoopCompareRowBatchV1",
+    "top_level_if_rows": 4,
+    "loop_nested_if_rows": 4,
+    "operators": ["<", "<=", ">", ">="],
+    "producer_boundary": "ProgramJSON Compare -> shared reader -> BoolRecipe::Compare cond_recipe sidecar",
+    "legacy_cond_facts_preserved": true,
+    "closeout_is_docs_only": false
+  },
+  "next_boundary": {
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-COMPARE-READER-FOLLOWON-SELECTION-001",
+    "reason": "The If/Loop relational row batch is closed; select the next compare-reader follow-on axis before mutation-bearing lowering owner selection.",
+    "mutation_bearing_lowering_owner_status": "deferred"
+  },
+  "guard_contract": {
+    "must_run_if_relational_gate": true,
+    "must_run_loop_nested_if_relational_gate": true,
+    "must_run_lowering_emission_consultation_guard": true,
+    "must_keep_mir_emission_unclaimed": true,
+    "must_keep_runtime_authority_rust_astnode": true
+  },
+  "claims": {
+    "if_loop_compare_row_batch_closeout": 1,
+    "top_level_if_relational_rows_closed": 1,
+    "loop_nested_if_relational_rows_closed": 1,
+    "shared_compare_reader_used": 1,
+    "legacy_cond_facts_preserved": 1,
+    "compare_reader_followon_selection_next": 1,
+    "bool_recipe_lowering_executed": 0,
+    "mir_cmp_emission": 0,
+    "branch_emission": 0,
+    "basic_block_mutation": 0,
+    "value_id_allocation": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_route_authority": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  }
+}
