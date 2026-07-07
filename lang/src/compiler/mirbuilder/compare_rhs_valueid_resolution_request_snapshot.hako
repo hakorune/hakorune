@@ -1,0 +1,133 @@
+// compare_rhs_valueid_resolution_request_snapshot.hako
+//
+// Responsibility:
+// - Convert read-only RHS ValueId resolution plans into request snapshots.
+// - Keep the bridge ABI explicit before any actual ValueId resolution.
+//
+// Non-responsibility:
+// - Symbol lookup, literal constant emission, ValueId allocation, LocalSSA,
+//   MIR Compare/Branch emission, mutation, route selection, runtime switch,
+//   or Source Selfhost.
+
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.shared.common.box_helpers as BoxHelpers
+using lang.compiler.mirbuilder.compare_rhs_valueid_resolution_plan_snapshot as CompareRhsValueIdResolutionPlanSnapshotBox
+
+static box CompareRhsValueIdResolutionRequestSnapshotBox {
+  _i(map, key) {
+    return StringHelpers.to_i64(BoxHelpers.map_get(map, key))
+  }
+
+  _err(reason_code): MapBox {
+    return %{
+      "ok" => 0,
+      "reason_code" => reason_code,
+      "request_ready" => 0,
+      "request_kind_code" => 99,
+      "resolution_plan_kind_code" => 99,
+      "rhs_bound_kind_code" => 99,
+      "rhs_bound_i64" => 0,
+      "rhs_bound_symbol_id" => 0,
+      "readonly" => 1,
+      "actual_resolution_executed" => 0,
+      "rhs_value_id_resolution" => 0,
+      "literal_constant_value_id_allocation" => 0,
+      "constant_mir_emission" => 0,
+      "symbol_lookup_execution" => 0,
+      "local_ssa_finalize_compare_execution" => 0,
+      "mir_cmp_emission" => 0,
+      "branch_emission" => 0,
+      "basic_block_mutation" => 0,
+      "value_id_allocation" => 0,
+      "route_selection" => 0,
+      "runtime_route_switch" => 0,
+      "source_selfhost_claim" => 0
+    }
+  }
+
+  build_request(program_json): MapBox {
+    local plan = CompareRhsValueIdResolutionPlanSnapshotBox.build_plan(program_json)
+    return me.build_request_from_plan(plan)
+  }
+
+  build_request_from_plan(plan): MapBox {
+    if plan == null || BoxHelpers.is_map(plan) != 1 { return me._err(1) }
+    if me._i(plan, "ok") != 1 { return me._err(2) }
+    if me._i(plan, "rhs_valueid_resolution_plan_ready") != 1 { return me._err(3) }
+    if me._i(plan, "analysis_only") != 1 { return me._err(4) }
+    if me._i(plan, "rhs_value_id_resolution") != 0 { return me._err(5) }
+
+    local plan_kind = me._i(plan, "resolution_plan_kind_code")
+    if plan_kind == 1 {
+      return me._ok(plan, 1)
+    }
+    if plan_kind == 2 {
+      return me._ok(plan, 2)
+    }
+    return me._err(6)
+  }
+
+  _ok(plan, request_kind): MapBox {
+    return %{
+      "ok" => 1,
+      "reason_code" => 0,
+      "request_ready" => 1,
+      "request_kind_code" => request_kind,
+      "resolution_plan_kind_code" => me._i(plan, "resolution_plan_kind_code"),
+      "rhs_bound_kind_code" => me._i(plan, "rhs_bound_kind_code"),
+      "rhs_bound_i64" => me._i(plan, "rhs_bound_i64"),
+      "rhs_bound_symbol_id" => me._i(plan, "rhs_bound_symbol_id"),
+      "readonly" => 1,
+      "actual_resolution_executed" => 0,
+      "rhs_value_id_resolution" => 0,
+      "literal_constant_value_id_allocation" => 0,
+      "constant_mir_emission" => 0,
+      "symbol_lookup_execution" => 0,
+      "local_ssa_finalize_compare_execution" => 0,
+      "mir_cmp_emission" => 0,
+      "branch_emission" => 0,
+      "basic_block_mutation" => 0,
+      "value_id_allocation" => 0,
+      "route_selection" => 0,
+      "runtime_route_switch" => 0,
+      "source_selfhost_claim" => 0
+    }
+  }
+
+  request_summary(request) {
+    if request == null || BoxHelpers.is_map(request) != 1 {
+      return "snapshot_kind=CompareRhsValueIdResolutionRequestSnapshotV1;ok=0;reason=missing_request"
+    }
+    return "snapshot_kind=CompareRhsValueIdResolutionRequestSnapshotV1"
+      + ";ok=" + StringHelpers.int_to_str(me._i(request, "ok"))
+      + ";request_ready=" + StringHelpers.int_to_str(me._i(request, "request_ready"))
+      + ";request_kind=" + me._request_kind_name(me._i(request, "request_kind_code"))
+      + ";request_kind_code=" + StringHelpers.int_to_str(me._i(request, "request_kind_code"))
+      + ";resolution_plan_kind_code=" + StringHelpers.int_to_str(me._i(request, "resolution_plan_kind_code"))
+      + ";bound_kind_code=" + StringHelpers.int_to_str(me._i(request, "rhs_bound_kind_code"))
+      + ";bound_i64=" + StringHelpers.int_to_str(me._i(request, "rhs_bound_i64"))
+      + ";bound_symbol_id=" + StringHelpers.int_to_str(me._i(request, "rhs_bound_symbol_id"))
+      + ";readonly=" + StringHelpers.int_to_str(me._i(request, "readonly"))
+      + ";actual_resolution_executed=" + StringHelpers.int_to_str(me._i(request, "actual_resolution_executed"))
+      + ";rhs_value_id_resolution=" + StringHelpers.int_to_str(me._i(request, "rhs_value_id_resolution"))
+      + ";literal_constant_value_id_allocation=" + StringHelpers.int_to_str(me._i(request, "literal_constant_value_id_allocation"))
+      + ";constant_mir_emission=" + StringHelpers.int_to_str(me._i(request, "constant_mir_emission"))
+      + ";symbol_lookup_execution=" + StringHelpers.int_to_str(me._i(request, "symbol_lookup_execution"))
+      + ";local_ssa_finalize_compare_execution=" + StringHelpers.int_to_str(me._i(request, "local_ssa_finalize_compare_execution"))
+      + ";mir_cmp_emission=" + StringHelpers.int_to_str(me._i(request, "mir_cmp_emission"))
+      + ";branch_emission=" + StringHelpers.int_to_str(me._i(request, "branch_emission"))
+      + ";basic_block_mutation=" + StringHelpers.int_to_str(me._i(request, "basic_block_mutation"))
+      + ";value_id_allocation=" + StringHelpers.int_to_str(me._i(request, "value_id_allocation"))
+      + ";route_selection=" + StringHelpers.int_to_str(me._i(request, "route_selection"))
+      + ";runtime_route_switch=" + StringHelpers.int_to_str(me._i(request, "runtime_route_switch"))
+      + ";source_selfhost_claim=" + StringHelpers.int_to_str(me._i(request, "source_selfhost_claim"))
+  }
+
+  _request_kind_name(kind_code) {
+    if kind_code == 1 { return "LiteralConstantResolution" }
+    if kind_code == 2 { return "SymbolLookupResolution" }
+    return "Unsupported"
+  }
+}
+
+static box CompareRhsValueIdResolutionRequestSnapshotMain { main() { return 0 } }

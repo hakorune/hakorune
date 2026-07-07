@@ -1,0 +1,94 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderCompareRhsValueIdResolutionRequestResponseAbiV1",
+  "token": "MIRBUILDER-COMPARE-RHS-VALUEID-RESOLUTION-REQUEST-RESPONSE-ABI-001",
+  "owner": "CompareRhsValueIdResolutionRequestSnapshotBox",
+  "hako_source": "lang/src/compiler/mirbuilder/compare_rhs_valueid_resolution_request_snapshot.hako",
+  "input_contract": "CompareRhsValueIdResolutionPlanSnapshotV1",
+  "request_contract": "CompareRhsValueIdResolutionRequestSnapshotV1",
+  "response_contract": "CompareRhsValueIdResolutionResponseV1",
+  "prerequisite": "MIRBUILDER-COMPARE-RHS-ACTUAL-VALUEID-RESOLUTION-DESIGN-STOP-001",
+  "request_rows": [
+    {
+      "row_id": "request_literal_i64",
+      "plan": {
+        "ok": 1,
+        "rhs_valueid_resolution_plan_ready": 1,
+        "resolution_plan_kind_code": 1,
+        "rhs_bound_kind_code": 1,
+        "rhs_bound_i64": 3,
+        "rhs_bound_symbol_id": 0,
+        "analysis_only": 1,
+        "rhs_value_id_resolution": 0
+      },
+      "expected_request_summary": "snapshot_kind=CompareRhsValueIdResolutionRequestSnapshotV1;ok=1;request_ready=1;request_kind=LiteralConstantResolution;request_kind_code=1;resolution_plan_kind_code=1;bound_kind_code=1;bound_i64=3;bound_symbol_id=0;readonly=1;actual_resolution_executed=0;rhs_value_id_resolution=0;literal_constant_value_id_allocation=0;constant_mir_emission=0;symbol_lookup_execution=0;local_ssa_finalize_compare_execution=0;mir_cmp_emission=0;branch_emission=0;basic_block_mutation=0;value_id_allocation=0;route_selection=0;runtime_route_switch=0;source_selfhost_claim=0"
+    },
+    {
+      "row_id": "request_symbol_ref",
+      "plan": {
+        "ok": 1,
+        "rhs_valueid_resolution_plan_ready": 1,
+        "resolution_plan_kind_code": 2,
+        "rhs_bound_kind_code": 2,
+        "rhs_bound_i64": 0,
+        "rhs_bound_symbol_id": 3,
+        "analysis_only": 1,
+        "rhs_value_id_resolution": 0
+      },
+      "expected_request_summary": "snapshot_kind=CompareRhsValueIdResolutionRequestSnapshotV1;ok=1;request_ready=1;request_kind=SymbolLookupResolution;request_kind_code=2;resolution_plan_kind_code=2;bound_kind_code=2;bound_i64=0;bound_symbol_id=3;readonly=1;actual_resolution_executed=0;rhs_value_id_resolution=0;literal_constant_value_id_allocation=0;constant_mir_emission=0;symbol_lookup_execution=0;local_ssa_finalize_compare_execution=0;mir_cmp_emission=0;branch_emission=0;basic_block_mutation=0;value_id_allocation=0;route_selection=0;runtime_route_switch=0;source_selfhost_claim=0"
+    }
+  ],
+  "response_schema": {
+    "required_fields": [
+      "ok",
+      "reason_code",
+      "rhs_value_id_present",
+      "rhs_value_id",
+      "emitted_constant",
+      "constant_kind_code",
+      "constant_i64",
+      "used_symbol_lookup",
+      "symbol_id",
+      "valueid_allocated",
+      "mutation_performed",
+      "mutation_kind_code",
+      "local_ssa_finalize_compare_executed",
+      "mir_compare_emitted",
+      "mir_branch_emitted",
+      "route_selection",
+      "runtime_route_switch",
+      "programjson_runtime_authority",
+      "source_selfhost_claim"
+    ],
+    "mutation_kind_codes": {
+      "0": "None",
+      "1": "ConstInstructionOnly"
+    }
+  },
+  "claims": {
+    "compare_rhs_valueid_resolution_request_response_abi": 1,
+    "request_from_resolution_plan_snapshot": 1,
+    "response_schema_fixed": 1,
+    "literal_i64_request_shape": 1,
+    "symbol_ref_request_shape": 1,
+    "mutation_flags_explicit": 1,
+    "actual_rhs_valueid_resolution": 0,
+    "literal_constant_valueid_allocation": 0,
+    "constant_mir_emission": 0,
+    "symbol_lookup_execution": 0,
+    "local_ssa_finalize_compare_execution": 0,
+    "mir_cmp_emission": 0,
+    "branch_emission": 0,
+    "basic_block_mutation": 0,
+    "value_id_allocation": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_route_authority": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "CompareRhsValueIdResolutionRequestResponseAbiGreen",
+    "selected_next_card": "MIRBUILDER-COMPARE-RHS-LITERAL-I64-CONSTANT-EMISSION-BRIDGE-001"
+  }
+}

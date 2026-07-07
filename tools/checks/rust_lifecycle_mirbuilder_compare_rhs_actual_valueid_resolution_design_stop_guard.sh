@@ -88,9 +88,14 @@ for key in [
 allowed_latest = [
     'latest_card = "MIRBUILDER-COMPARE-RHS-MATERIALIZATION-READONLY-RESOLUTION-PARITY-001"',
     'latest_card = "MIRBUILDER-COMPARE-RHS-ACTUAL-VALUEID-RESOLUTION-DESIGN-STOP-001"',
+    'latest_card = "MIRBUILDER-COMPARE-RHS-VALUEID-RESOLUTION-REQUEST-RESPONSE-ABI-001"',
 ]
 need(any(entry in current_state for entry in allowed_latest), "CURRENT_STATE latest card must point to prerequisite or design-stop")
-need("MIRBUILDER-COMPARE-RHS-ACTUAL-VALUEID-RESOLUTION-DESIGN-STOP-001" in task_order, "task-order must name design stop")
+need(
+    "MIRBUILDER-COMPARE-RHS-ACTUAL-VALUEID-RESOLUTION-DESIGN-STOP-001" in task_order
+    or "actual RHS ValueId resolution design-stop" in task_order,
+    "task-order must retain design stop evidence",
+)
 need("MIRBUILDER-COMPARE-RHS-VALUEID-RESOLUTION-REQUEST-RESPONSE-ABI-001" in card, "card must name selected ABI next")
 need("actual RHS `ValueId` resolution: `0`" in card, "card must keep actual resolution unclaimed")
 PY
