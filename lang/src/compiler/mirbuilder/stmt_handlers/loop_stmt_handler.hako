@@ -3,6 +3,7 @@
 using selfhost.shared.common.string_helpers as StringHelpers
 using selfhost.shared.common.box_helpers as BoxHelpers
 using lang.compiler.mirbuilder.program_json_v0_scanner_box as ProgramJsonV0ScannerBox
+using lang.compiler.mirbuilder.program_json_compare_reader_box as ProgramJsonCompareReaderBox
 using lang.compiler.mirbuilder.stmt_handlers.return_stmt_handler as ReturnStmtHandler
 using lang.compiler.mirbuilder.stmt_handlers.loop_nested_if_cond_recipe_bridge_box as LoopNestedIfCondRecipeBridgeBox
 using lang.compiler.mirbuilder.stmt_handlers.loop_nested_if_cond_scan_box as LoopNestedIfCondScanBox
@@ -94,21 +95,36 @@ static box LoopStmtHandler {
       return me._err(tag, "[cap_missing/program_json_v0] Loop rhs node scan failed", next_idx)
     }
     local rhs_type = BoxHelpers.map_get(rhs_info, "type")
-    if BoxHelpers.same_token(rhs_type, "Int") != 1 {
-      return me._err(tag, "[cap_missing/expr:Int] Loop Compare rhs must be Int", next_idx)
+    if BoxHelpers.same_token(rhs_type, "Int") == 1 {
+      local rhs_out = ProgramJsonV0ScannerBox.read_int_field_in_obj_result(program_json, "value", rhs_start)
+      if BoxHelpers.result_ok(rhs_out) != 1 {
+        return me._err(tag, "[cap_missing/program_json_v0] Loop Compare rhs Int missing value", next_idx)
+      }
+      return %{
+        "err" => 0,
+        "err_line" => "",
+        "cond_kind" => cond_kind,
+        "cmp_code" => cmp_code,
+        "cond_rhs_kind_code" => 1,
+        "cond_rhs_int" => BoxHelpers.map_get(rhs_out, "value"),
+        "cond_rhs_symbol_id" => 0
+      }
     }
-    local rhs_out = ProgramJsonV0ScannerBox.read_int_field_in_obj_result(program_json, "value", rhs_start)
-    if BoxHelpers.result_ok(rhs_out) != 1 {
-      return me._err(tag, "[cap_missing/program_json_v0] Loop Compare rhs Int missing value", next_idx)
+    if BoxHelpers.same_token(rhs_type, "Var") == 1 {
+      local cond_reader = ProgramJsonCompareReaderBox.read_var_int_compare(program_json, cond_start)
+      if BoxHelpers.result_ok(cond_reader) != 1 {
+        return me._err(tag, "[cap_missing/stmt:Loop] Loop rhs Var compare reader failed", next_idx)
+      }
+      return %{
+        "err" => 0,
+        "err_line" => "",
+        "cond_kind" => cond_kind,
+        "cmp_code" => cmp_code,
+        "cond_rhs_kind_code" => 2,
+        "cond_rhs_symbol_id" => BoxHelpers.map_get(cond_reader, "bound_symbol_id")
+      }
     }
-
-    return %{
-      "err" => 0,
-      "err_line" => "",
-      "cond_kind" => cond_kind,
-      "cmp_code" => cmp_code,
-      "cond_rhs_int" => BoxHelpers.map_get(rhs_out, "value")
-    }
+    return me._err(tag, "[cap_missing/expr:Int] Loop Compare rhs must be Int or Var", next_idx)
   }
 
   _symbol_id(name) {
@@ -605,7 +621,13 @@ static box LoopStmtHandler {
     local cond_facts = new MapBox()
     cond_facts.set("cond_kind", BoxHelpers.map_get(cond_out, "cond_kind"))
     cond_facts.set("cond_var_name", local_name)
-    cond_facts.set("cond_rhs_int", cond_rhs_int)
+    local cond_rhs_kind = StringHelpers.to_i64(BoxHelpers.map_get(cond_out, "cond_rhs_kind_code"))
+    cond_facts.set("cond_rhs_kind_code", cond_rhs_kind)
+    if cond_rhs_kind == 2 {
+      cond_facts.set("cond_rhs_symbol_id", BoxHelpers.map_get(cond_out, "cond_rhs_symbol_id"))
+    } else {
+      cond_facts.set("cond_rhs_int", cond_rhs_int)
+    }
 
     local body_facts = new MapBox()
     body_facts.set("stmt_kind", "Assignment")
@@ -706,7 +728,14 @@ static box LoopStmtHandler {
         body_seq = RecipeItemBox.seq([first_item, second_item, body_stmt])
       }
     }
-    local cond_recipe = BoolRecipeBox.from_numeric_compare_codes(1, me._symbol_id(local_name), BoxHelpers.map_get(cond_out, "cmp_code"), 1, cond_rhs_int, 0)
+    local cond_recipe = BoolRecipeBox.from_numeric_compare_codes(
+      1,
+      me._symbol_id(local_name),
+      BoxHelpers.map_get(cond_out, "cmp_code"),
+      cond_rhs_kind,
+      cond_rhs_int,
+      BoxHelpers.map_get(cond_out, "cond_rhs_symbol_id")
+    )
     if BoolRecipeBox.is_valid_compare(cond_recipe) == 1 {
       return me._ok(next_idx, RecipeItemBox.loop_item_with_cond_recipe(cond_facts, cond_recipe, body_seq))
     }

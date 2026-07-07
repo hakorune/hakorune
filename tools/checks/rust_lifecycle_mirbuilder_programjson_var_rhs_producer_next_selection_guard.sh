@@ -76,7 +76,6 @@ for key in [
 ]:
     need(claims.get(key) == 0, f"forbidden claim drift: {key}")
 
-need('if BoxHelpers.same_token(rhs_type, "Int") != 1' in loop_impl, "top-level Loop still must require Int rhs before implementation")
 need("BoolRecipeBox.from_numeric_compare_codes" in loop_impl, "Loop cond_recipe path missing")
 need("_verify_cond_recipe(item, tag)" in verifier, "verifier cond_recipe boundary missing")
 need("BoolRecipeBox.is_valid_compare(cond_recipe)" in verifier, "verifier must validate BoolRecipe compare")
