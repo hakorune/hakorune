@@ -73,6 +73,7 @@ phase-1 compatibility Program(JSON) compat execution helper.
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_condition_shape_scan_parity_gate.sh` | Capability-batch parity for `.hako` `ProgramJsonConditionShapeScanV1`. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_loop_condition_numeric_compare_canon_parity_gate.sh` | ProgramJSON Compare to `NumericCompareCanonSnapshotV1` parity against the Rust `VarCompareBound` oracle. |
 | `tools/checks/rust_lifecycle_mirbuilder_bool_recipe_compare_boundary_gate.sh` | Data-only `BoolRecipeCompareV1` boundary gate using resolved symbol ids and numeric cmp/bound codes. |
+| `tools/checks/rust_lifecycle_mirbuilder_canonical_loop_facts_numeric_compare_canon_consume_gate.sh` | CanonicalLoopFacts consume gate: NumericCompare code-map rows plus verified snapshot BoolRecipe-ready fields. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_condition_shape_retire_rust_astnode_projector_candidate_guard.sh` | Retire-candidate guard for the covered `ConditionShapeSnapshotV1` ProgramJSON traversal slice. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_context_scope_shape_scan_parity_gate.sh` | Capability-batch parity for `.hako` `ProgramJsonContextScopeShapeScanV1`. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_context_scope_shape_retire_rust_astnode_projector_candidate_guard.sh` | Retire-candidate guard for the covered `ContextScopeShapeSnapshotV1` ProgramJSON traversal slice. |

@@ -7,6 +7,7 @@ using selfhost.shared.common.string_helpers as StringHelpers
 using selfhost.shared.common.box_helpers as BoxHelpers
 using lang.compiler.mirbuilder.program_json_v0_scanner_box as ProgramJsonV0ScannerBox
 using lang.compiler.mirbuilder.program_json_v0_phase_state_box as ProgramJsonV0PhaseStateBox
+using lang.compiler.mirbuilder.program_json_numeric_compare_canon_snapshot as ProgramJsonNumericCompareCanonSnapshotBox
 using lang.compiler.mirbuilder.recipe.recipe_verifier_box as RecipeVerifierBox
 
 static box ProgramJsonCanonicalLoopFactsInputSnapshotBox {
@@ -31,8 +32,17 @@ static box ProgramJsonCanonicalLoopFactsInputSnapshotBox {
       "cond_kind_code" => 0,
       "loop_var_code" => 0,
       "loop_bound_int" => 0,
+      "numeric_compare_canon_consumed" => 0,
+      "bool_recipe_compare_ready" => 0,
+      "lhs_symbol_id" => 0,
+      "cmp_code" => 0,
+      "bound_kind_code" => 99,
+      "bound_i64" => 0,
+      "bound_symbol_id" => 0,
+      "analysis_only" => 1,
       "update_kind_code" => 0,
       "update_target_code" => 0,
+      "update_target_symbol_id" => 0,
       "step_int" => 0,
       "readonly" => 1,
       "recipe_matcher_executed" => 0
@@ -56,7 +66,7 @@ static box ProgramJsonCanonicalLoopFactsInputSnapshotBox {
 
     local cond = ProgramJsonV0ScannerBox.seek_obj_field_obj_start(program_json, "cond", second)
     if cond < 0 { return me._err("missing_loop_cond") }
-    local cond_snap = me._read_var_lt_int(program_json, cond)
+    local cond_snap = me._read_numeric_compare_canon(program_json, cond)
     if me._i(cond_snap, "ok") != 1 { return me._err("unsupported_loop_cond") }
 
     local loop_body = me._array_field_start(program_json, "body", second)
@@ -93,10 +103,19 @@ static box ProgramJsonCanonicalLoopFactsInputSnapshotBox {
       "final_top_level_return_present" => final_return_present,
       "final_top_level_return_used_for_loop_body_has_return" => 0,
       "cond_kind_code" => 1,
-      "loop_var_code" => me._i(cond_snap, "var_code"),
-      "loop_bound_int" => me._i(cond_snap, "bound"),
+      "loop_var_code" => me._i(cond_snap, "legacy_loop_var_code"),
+      "loop_bound_int" => me._i(cond_snap, "bound_i64"),
+      "numeric_compare_canon_consumed" => 1,
+      "bool_recipe_compare_ready" => me._bool_recipe_compare_ready(cond_snap, update_snap),
+      "lhs_symbol_id" => me._i(cond_snap, "lhs_symbol_id"),
+      "cmp_code" => me._i(cond_snap, "cmp_code"),
+      "bound_kind_code" => me._i(cond_snap, "bound_kind_code"),
+      "bound_i64" => me._i(cond_snap, "bound_i64"),
+      "bound_symbol_id" => me._i(cond_snap, "bound_symbol_id"),
+      "analysis_only" => 1,
       "update_kind_code" => 1,
       "update_target_code" => me._i(update_snap, "target_code"),
+      "update_target_symbol_id" => me._i(update_snap, "target_symbol_id"),
       "step_int" => me._i(update_snap, "step"),
       "readonly" => 1,
       "recipe_matcher_executed" => 0
@@ -169,30 +188,35 @@ static box ProgramJsonCanonicalLoopFactsInputSnapshotBox {
     return 1
   }
 
-  _read_var_lt_int(s, cond): MapBox {
-    if me._token_eq(me._node_type(s, cond), "Compare") != 1 { return %{"ok" => 0, "var_code" => 0, "bound" => 0} }
-    if me._token_eq(me._string_field(s, "op", cond), "<") != 1 { return %{"ok" => 0, "var_code" => 0, "bound" => 0} }
-    local lhs = ProgramJsonV0ScannerBox.seek_obj_field_obj_start(s, "lhs", cond)
-    local rhs = ProgramJsonV0ScannerBox.seek_obj_field_obj_start(s, "rhs", cond)
-    if lhs < 0 || rhs < 0 { return %{"ok" => 0, "var_code" => 0, "bound" => 0} }
-    if me._token_eq(me._node_type(s, lhs), "Var") != 1 { return %{"ok" => 0, "var_code" => 0, "bound" => 0} }
-    if me._token_eq(me._node_type(s, rhs), "Int") != 1 { return %{"ok" => 0, "var_code" => 0, "bound" => 0} }
-    return %{"ok" => 1, "var_code" => me._name_code(me._string_field(s, "name", lhs)), "bound" => me._int_field(s, "value", rhs)}
+  _read_numeric_compare_canon(s, cond): MapBox {
+    local compare_json = s.substring(cond, ProgramJsonV0ScannerBox.seek_obj_end_unescaped(s, cond))
+    return ProgramJsonNumericCompareCanonSnapshotBox.build_code_map(compare_json)
   }
 
   _read_add_var_int_assignment(s, stmt): MapBox {
     local target = me._string_field(s, "name", stmt)
     local expr = ProgramJsonV0ScannerBox.seek_obj_field_obj_start(s, "expr", stmt)
-    if expr < 0 { return %{"ok" => 0, "target_code" => 0, "step" => 0} }
-    if me._token_eq(me._node_type(s, expr), "Binary") != 1 { return %{"ok" => 0, "target_code" => 0, "step" => 0} }
-    if me._token_eq(me._string_field(s, "op", expr), "+") != 1 { return %{"ok" => 0, "target_code" => 0, "step" => 0} }
+    if expr < 0 { return %{"ok" => 0, "target_code" => 0, "target_symbol_id" => 0, "step" => 0} }
+    if me._token_eq(me._node_type(s, expr), "Binary") != 1 { return %{"ok" => 0, "target_code" => 0, "target_symbol_id" => 0, "step" => 0} }
+    if me._token_eq(me._string_field(s, "op", expr), "+") != 1 { return %{"ok" => 0, "target_code" => 0, "target_symbol_id" => 0, "step" => 0} }
     local lhs = ProgramJsonV0ScannerBox.seek_obj_field_obj_start(s, "lhs", expr)
     local rhs = ProgramJsonV0ScannerBox.seek_obj_field_obj_start(s, "rhs", expr)
-    if lhs < 0 || rhs < 0 { return %{"ok" => 0, "target_code" => 0, "step" => 0} }
-    if me._token_eq(me._node_type(s, lhs), "Var") != 1 { return %{"ok" => 0, "target_code" => 0, "step" => 0} }
-    if me._token_eq(me._node_type(s, rhs), "Int") != 1 { return %{"ok" => 0, "target_code" => 0, "step" => 0} }
-    if me._token_eq(me._string_field(s, "name", lhs), target) != 1 { return %{"ok" => 0, "target_code" => 0, "step" => 0} }
-    return %{"ok" => 1, "target_code" => me._name_code(target), "step" => me._int_field(s, "value", rhs)}
+    if lhs < 0 || rhs < 0 { return %{"ok" => 0, "target_code" => 0, "target_symbol_id" => 0, "step" => 0} }
+    if me._token_eq(me._node_type(s, lhs), "Var") != 1 { return %{"ok" => 0, "target_code" => 0, "target_symbol_id" => 0, "step" => 0} }
+    if me._token_eq(me._node_type(s, rhs), "Int") != 1 { return %{"ok" => 0, "target_code" => 0, "target_symbol_id" => 0, "step" => 0} }
+    if me._token_eq(me._string_field(s, "name", lhs), target) != 1 { return %{"ok" => 0, "target_code" => 0, "target_symbol_id" => 0, "step" => 0} }
+    return %{"ok" => 1, "target_code" => me._name_code(target), "target_symbol_id" => me._symbol_id(target), "step" => me._int_field(s, "value", rhs)}
+  }
+
+  _bool_recipe_compare_ready(cond_snap, update_snap) {
+    if me._i(cond_snap, "lhs_symbol_id") <= 0 { return 0 }
+    if me._i(cond_snap, "cmp_code") <= 0 { return 0 }
+    if me._i(cond_snap, "bound_kind_code") == 2 {
+      if me._i(cond_snap, "bound_symbol_id") <= 0 { return 0 }
+    }
+    if me._i(update_snap, "target_symbol_id") <= 0 { return 0 }
+    if me._i(cond_snap, "lhs_symbol_id") != me._i(update_snap, "target_symbol_id") { return 0 }
+    return 1
   }
 
   _if_then_has_return(s, if_start) {
@@ -292,6 +316,13 @@ static box ProgramJsonCanonicalLoopFactsInputSnapshotBox {
     return "Unsupported"
   }
 
+  _symbol_id(name) {
+    if me._token_eq(name, "i") == 1 { return 1 }
+    if me._token_eq(name, "n") == 1 { return 2 }
+    if me._token_eq(name, "count") == 1 { return 3 }
+    return 0
+  }
+
   _source_from_code(code) {
     if code == 1 { return "verified_recipe" }
     return "unsupported_source"
@@ -372,6 +403,24 @@ static box ProgramJsonCanonicalLoopFactsInputSnapshotBox {
       + ";update_kind=" + me._update_kind_from_code(me._i(snapshot, "update_kind_code"))
       + ";update_target=" + me._name_from_code(me._i(snapshot, "update_target_code"))
       + ";step_int=" + StringHelpers.int_to_str(me._i(snapshot, "step_int"))
+      + ";recipe_matcher_executed=" + StringHelpers.int_to_str(me._i(snapshot, "recipe_matcher_executed"))
+  }
+
+  numeric_compare_consume_summary(snapshot) {
+    if snapshot == null || BoxHelpers.is_map(snapshot) != 1 {
+      return "snapshot_kind=CanonicalLoopFactsNumericCompareCanonConsumeV1;ok=0;reason=missing_snapshot"
+    }
+    return "snapshot_kind=CanonicalLoopFactsNumericCompareCanonConsumeV1"
+      + ";ok=" + StringHelpers.int_to_str(me._i(snapshot, "ok"))
+      + ";numeric_compare_canon_consumed=" + StringHelpers.int_to_str(me._i(snapshot, "numeric_compare_canon_consumed"))
+      + ";bool_recipe_compare_ready=" + StringHelpers.int_to_str(me._i(snapshot, "bool_recipe_compare_ready"))
+      + ";lhs_symbol_id=" + StringHelpers.int_to_str(me._i(snapshot, "lhs_symbol_id"))
+      + ";cmp_code=" + StringHelpers.int_to_str(me._i(snapshot, "cmp_code"))
+      + ";bound_kind_code=" + StringHelpers.int_to_str(me._i(snapshot, "bound_kind_code"))
+      + ";bound_i64=" + StringHelpers.int_to_str(me._i(snapshot, "bound_i64"))
+      + ";bound_symbol_id=" + StringHelpers.int_to_str(me._i(snapshot, "bound_symbol_id"))
+      + ";update_target_symbol_id=" + StringHelpers.int_to_str(me._i(snapshot, "update_target_symbol_id"))
+      + ";analysis_only=" + StringHelpers.int_to_str(me._i(snapshot, "analysis_only"))
       + ";recipe_matcher_executed=" + StringHelpers.int_to_str(me._i(snapshot, "recipe_matcher_executed"))
   }
 

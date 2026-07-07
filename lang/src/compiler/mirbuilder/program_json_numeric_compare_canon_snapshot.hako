@@ -14,6 +14,37 @@ using selfhost.shared.common.box_helpers as BoxHelpers
 using lang.compiler.mirbuilder.program_json_v0_scanner_box as ProgramJsonV0ScannerBox
 
 static box ProgramJsonNumericCompareCanonSnapshotBox {
+  build_code_map(compare_json): MapBox {
+    if compare_json == null || ("" + compare_json) == "" {
+      return me._err_map("missing_compare_json", 0)
+    }
+    compare_json = "" + compare_json
+    if me._token_eq(me._node_type_at(compare_json, 0), "Compare") != 1 {
+      return me._err_map("not_compare", 0)
+    }
+
+    local op = me._string_field_at(compare_json, "op", 0)
+    local lhs = ProgramJsonV0ScannerBox.seek_obj_field_obj_start(compare_json, "lhs", 0)
+    local rhs = ProgramJsonV0ScannerBox.seek_obj_field_obj_start(compare_json, "rhs", 0)
+    if lhs < 0 || rhs < 0 { return me._err_map("missing_operands", 0) }
+
+    local lhs_var = me._var_name(compare_json, lhs)
+    local rhs_var = me._var_name(compare_json, rhs)
+    if me._has_text(lhs_var) == 1 {
+      if me._bound_supported(compare_json, rhs) != 1 { return me._err_map("unsupported_bound", 0) }
+      return me._ok_map(lhs_var, me._cmp_code_from_name(me._cmp_name(op)), compare_json, rhs, 1)
+    }
+    if me._has_text(rhs_var) == 1 {
+      if me._bound_supported(compare_json, lhs) != 1 { return me._err_map("unsupported_bound", 0) }
+      return me._ok_map(rhs_var, me._cmp_code_from_name(me._invert_cmp_name(me._cmp_name(op))), compare_json, lhs, 2)
+    }
+
+    if me._bound_supported(compare_json, lhs) == 1 && me._bound_supported(compare_json, rhs) == 1 {
+      return me._err_map("no_loop_var", 1)
+    }
+    return me._err_map("no_loop_var", 0)
+  }
+
   build_summary(compare_json) {
     if compare_json == null || ("" + compare_json) == "" {
       return me._err("missing_compare_json", 0)
@@ -45,6 +76,23 @@ static box ProgramJsonNumericCompareCanonSnapshotBox {
     return me._err("no_loop_var", 0)
   }
 
+  code_map_summary(fields) {
+    if fields == null || BoxHelpers.is_map(fields) != 1 {
+      return "snapshot_kind=NumericCompareCanonCodeMapV1;ok=0;reason=missing_fields"
+    }
+    return "snapshot_kind=NumericCompareCanonCodeMapV1"
+      + ";ok=" + StringHelpers.int_to_str(me._map_i(fields, "ok"))
+      + ";lhs_symbol_id=" + StringHelpers.int_to_str(me._map_i(fields, "lhs_symbol_id"))
+      + ";legacy_loop_var_code=" + StringHelpers.int_to_str(me._map_i(fields, "legacy_loop_var_code"))
+      + ";cmp_code=" + StringHelpers.int_to_str(me._map_i(fields, "cmp_code"))
+      + ";bound_kind_code=" + StringHelpers.int_to_str(me._map_i(fields, "bound_kind_code"))
+      + ";bound_i64=" + StringHelpers.int_to_str(me._map_i(fields, "bound_i64"))
+      + ";bound_symbol_id=" + StringHelpers.int_to_str(me._map_i(fields, "bound_symbol_id"))
+      + ";original_direction_code=" + StringHelpers.int_to_str(me._map_i(fields, "original_direction_code"))
+      + ";constant_compare=" + StringHelpers.int_to_str(me._map_i(fields, "constant_compare"))
+      + ";analysis_only=" + StringHelpers.int_to_str(me._map_i(fields, "analysis_only"))
+  }
+
   _ok(idx_var, cmp, s, bound_start, direction_code) {
     if me._token_eq(cmp, "Unsupported") == 1 { return me._err("unsupported_operator", 0) }
     return "snapshot_kind=NumericCompareCanonSnapshotV1"
@@ -57,6 +105,24 @@ static box ProgramJsonNumericCompareCanonSnapshotBox {
       + ";original_direction_code=" + StringHelpers.int_to_str(direction_code)
       + ";constant_compare=0"
       + ";analysis_only=1"
+  }
+
+  _ok_map(idx_var, cmp_code, s, bound_start, direction_code): MapBox {
+    if cmp_code == 0 { return me._err_map("unsupported_operator", 0) }
+    local bound_kind_code = me._bound_kind_code(s, bound_start)
+    return %{
+      "ok" => 1,
+      "reason_code" => 0,
+      "lhs_symbol_id" => me._symbol_id(idx_var),
+      "legacy_loop_var_code" => me._legacy_name_code(idx_var),
+      "cmp_code" => cmp_code,
+      "bound_kind_code" => bound_kind_code,
+      "bound_i64" => me._bound_i64_value(s, bound_start),
+      "bound_symbol_id" => me._symbol_id(me._bound_var_name(s, bound_start)),
+      "original_direction_code" => direction_code,
+      "constant_compare" => 0,
+      "analysis_only" => 1
+    }
   }
 
   _err(reason, constant_compare) {
@@ -73,6 +139,22 @@ static box ProgramJsonNumericCompareCanonSnapshotBox {
       + ";analysis_only=1"
   }
 
+  _err_map(reason, constant_compare): MapBox {
+    return %{
+      "ok" => 0,
+      "reason_code" => me._reason_code(reason),
+      "lhs_symbol_id" => 0,
+      "legacy_loop_var_code" => 0,
+      "cmp_code" => 0,
+      "bound_kind_code" => 99,
+      "bound_i64" => 0,
+      "bound_symbol_id" => 0,
+      "original_direction_code" => 0,
+      "constant_compare" => constant_compare,
+      "analysis_only" => 1
+    }
+  }
+
   _bound_supported(s, obj_start) {
     local ty = me._node_type_at(s, obj_start)
     if me._token_eq(ty, "Int") == 1 { return 1 }
@@ -87,9 +169,21 @@ static box ProgramJsonNumericCompareCanonSnapshotBox {
     return "Unsupported"
   }
 
+  _bound_kind_code(s, obj_start) {
+    local ty = me._node_type_at(s, obj_start)
+    if me._token_eq(ty, "Int") == 1 { return 1 }
+    if me._token_eq(ty, "Var") == 1 { return 2 }
+    return 99
+  }
+
   _bound_i64_text(s, obj_start) {
     if me._token_eq(me._node_type_at(s, obj_start), "Int") != 1 { return "0" }
     return StringHelpers.int_to_str(me._int_field_at(s, "value", obj_start))
+  }
+
+  _bound_i64_value(s, obj_start) {
+    if me._token_eq(me._node_type_at(s, obj_start), "Int") != 1 { return 0 }
+    return me._int_field_at(s, "value", obj_start)
   }
 
   _bound_var_name(s, obj_start) {
@@ -132,6 +226,10 @@ static box ProgramJsonNumericCompareCanonSnapshotBox {
     return 0
   }
 
+  _map_i(map, key) {
+    return StringHelpers.to_i64(BoxHelpers.map_get(map, key))
+  }
+
   _cmp_name(op) {
     if me._token_eq(op, "<") == 1 { return "Lt" }
     if me._token_eq(op, "<=") == 1 { return "Le" }
@@ -150,6 +248,39 @@ static box ProgramJsonNumericCompareCanonSnapshotBox {
     if me._token_eq(cmp, "Eq") == 1 { return "Eq" }
     if me._token_eq(cmp, "Ne") == 1 { return "Ne" }
     return "Unsupported"
+  }
+
+  _cmp_code_from_name(cmp) {
+    if me._token_eq(cmp, "Lt") == 1 { return 1 }
+    if me._token_eq(cmp, "Le") == 1 { return 2 }
+    if me._token_eq(cmp, "Gt") == 1 { return 3 }
+    if me._token_eq(cmp, "Ge") == 1 { return 4 }
+    if me._token_eq(cmp, "Eq") == 1 { return 5 }
+    if me._token_eq(cmp, "Ne") == 1 { return 6 }
+    return 0
+  }
+
+  _symbol_id(name) {
+    if me._token_eq(name, "i") == 1 { return 1 }
+    if me._token_eq(name, "n") == 1 { return 2 }
+    if me._token_eq(name, "count") == 1 { return 3 }
+    return 0
+  }
+
+  _legacy_name_code(name) {
+    if me._token_eq(name, "i") == 1 { return 1 }
+    if me._token_eq(name, "count") == 1 { return 2 }
+    return 0
+  }
+
+  _reason_code(reason) {
+    if reason == "missing_compare_json" { return 1 }
+    if reason == "not_compare" { return 2 }
+    if reason == "missing_operands" { return 3 }
+    if reason == "unsupported_bound" { return 4 }
+    if reason == "no_loop_var" { return 5 }
+    if reason == "unsupported_operator" { return 6 }
+    return 99
   }
 }
 

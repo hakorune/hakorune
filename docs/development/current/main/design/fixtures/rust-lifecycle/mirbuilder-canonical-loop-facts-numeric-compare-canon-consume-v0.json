@@ -1,0 +1,98 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderCanonicalLoopFactsNumericCompareCanonConsumeV1",
+  "token": "MIRBUILDER-CANONICAL-LOOP-FACTS-NUMERIC-COMPARE-CANON-CONSUME-001",
+  "owners": {
+    "numeric_compare": "ProgramJsonNumericCompareCanonSnapshotBox",
+    "canonical_loop_facts": "ProgramJsonCanonicalLoopFactsInputSnapshotBox"
+  },
+  "code_map_rows": [
+    {
+      "row_id": "var_le_bound_var",
+      "program_json_compare": {
+        "type": "Compare",
+        "op": "<=",
+        "lhs": { "type": "Var", "name": "i" },
+        "rhs": { "type": "Var", "name": "n" }
+      },
+      "expected_code_map_summary": "snapshot_kind=NumericCompareCanonCodeMapV1;ok=1;lhs_symbol_id=1;legacy_loop_var_code=1;cmp_code=2;bound_kind_code=2;bound_i64=0;bound_symbol_id=2;original_direction_code=1;constant_compare=0;analysis_only=1"
+    },
+    {
+      "row_id": "var_le_literal",
+      "program_json_compare": {
+        "type": "Compare",
+        "op": "<=",
+        "lhs": { "type": "Var", "name": "i" },
+        "rhs": { "type": "Int", "value": 3 }
+      },
+      "expected_code_map_summary": "snapshot_kind=NumericCompareCanonCodeMapV1;ok=1;lhs_symbol_id=1;legacy_loop_var_code=1;cmp_code=2;bound_kind_code=1;bound_i64=3;bound_symbol_id=0;original_direction_code=1;constant_compare=0;analysis_only=1"
+    },
+    {
+      "row_id": "literal_ge_var",
+      "program_json_compare": {
+        "type": "Compare",
+        "op": ">=",
+        "lhs": { "type": "Int", "value": 3 },
+        "rhs": { "type": "Var", "name": "i" }
+      },
+      "expected_code_map_summary": "snapshot_kind=NumericCompareCanonCodeMapV1;ok=1;lhs_symbol_id=1;legacy_loop_var_code=1;cmp_code=2;bound_kind_code=1;bound_i64=3;bound_symbol_id=0;original_direction_code=2;constant_compare=0;analysis_only=1"
+    }
+  ],
+  "verified_snapshot_rows": [
+    {
+      "row_id": "var_le_literal",
+      "source_program_row": "local_loop_body_if_branch_return",
+      "loop_condition_patch": {
+        "type": "Compare",
+        "op": "<=",
+        "lhs": { "type": "Var", "name": "i" },
+        "rhs": { "type": "Int", "value": 3 }
+      },
+      "expected_consume_summary": "snapshot_kind=CanonicalLoopFactsNumericCompareCanonConsumeV1;ok=1;numeric_compare_canon_consumed=1;bool_recipe_compare_ready=1;lhs_symbol_id=1;cmp_code=2;bound_kind_code=1;bound_i64=3;bound_symbol_id=0;update_target_symbol_id=1;analysis_only=1;recipe_matcher_executed=0",
+      "expected_legacy_summary_contains": [
+        "snapshot_kind=ProgramJsonCanonicalLoopFactsInputSnapshotV1;ok=1",
+        ";cond_kind=VarLtInt",
+        ";loop_var=i",
+        ";loop_bound_int=3",
+        ";update_target=i",
+        ";recipe_matcher_executed=0"
+      ]
+    }
+  ],
+  "deferred_verified_snapshot_rows": [
+    {
+      "row_id": "literal_ge_var",
+      "reason": "LoopStmtHandler verified-recipe entrance currently requires lhs Var"
+    },
+    {
+      "row_id": "var_le_bound_var",
+      "reason": "LoopStmtHandler verified-recipe entrance currently requires rhs Int"
+    },
+    {
+      "row_id": "var_ge_bound_var_reversed",
+      "reason": "requires update-target context; condition-only authority must not guess loop var"
+    }
+  ],
+  "claims": {
+    "canonical_loop_facts_numeric_compare_canon_consume": 1,
+    "numeric_compare_canon_consumed": 1,
+    "bool_recipe_compare_ready_fields": 1,
+    "analysis_only": 1,
+    "raw_compare_reader_replaced_for_covered_rows": 1,
+    "global_symbol_table_authority": 0,
+    "legacy_loop_var_code_removed": 0,
+    "recipe_item_attachment": 0,
+    "recipe_matcher_input_authority": 0,
+    "bool_recipe_lowering": 0,
+    "mir_cmp_emission": 0,
+    "branch_emission": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_route_authority": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "CanonicalLoopFactsNumericCompareCanonConsumeGreen",
+    "selected_next_card": "MIRBUILDER-BOOL-RECIPE-COMPARE-PUBLICATION-PARITY-001"
+  }
+}
