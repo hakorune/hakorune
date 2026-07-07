@@ -57,6 +57,8 @@ blocker = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 follow_on_path = "docs/development/current/main/phases/phase-296x/3335-MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-LITERAL-I64-CONSTANT-EMISSION-BRIDGE-001.md"
 second_follow_on_card = "MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-SYMBOLREF-LOOKUP-CONTRACT-PARITY-001"
 second_follow_on_path = "docs/development/current/main/phases/phase-296x/3336-MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-SYMBOLREF-LOOKUP-CONTRACT-PARITY-001.md"
+third_follow_on_card = "MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-SYMBOLREF-LOOKUP-BRIDGE-001"
+third_follow_on_path = "docs/development/current/main/phases/phase-296x/3337-MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-SYMBOLREF-LOOKUP-BRIDGE-001.md"
 
 need(f"# 3334 - {token}" in card, "card token drift")
 need(output_contract in card, "card output contract drift")
@@ -96,8 +98,8 @@ for key in ["post_rhs_valueid_request_abi_next_seam_selected", "request_abi_pilo
 for key in ["next_seam_implemented", "hako_adopted_decision", "source_selfhost_claim", "native_seed_materialization", "actual_rhs_valueid_resolution_literal_i64", "literal_constant_valueid_allocation", "constant_mir_emission", "symbol_lookup_execution", "local_ssa_finalize_compare_execution", "mir_cmp_emission", "branch_emission", "basic_block_control_flow_mutation", "route_selection", "runtime_route_switch", "programjson_runtime_route_authority", "runtime_fallback", "new_backend_route", "new_abi"]:
     need(claims.get(key) == 0, f"forbidden claim drift: {key}")
 
-need(f'latest_card = "{token}"' in state or f'latest_card = "{selected_card}"' in state or f'latest_card = "{second_follow_on_card}"' in state, "CURRENT_STATE latest card drift")
-need(f'latest_card_path = "{card_path.as_posix()}"' in state or f'latest_card_path = "{follow_on_path}"' in state or f'latest_card_path = "{second_follow_on_path}"' in state, "CURRENT_STATE latest path drift")
+need(f'latest_card = "{token}"' in state or f'latest_card = "{selected_card}"' in state or f'latest_card = "{second_follow_on_card}"' in state or f'latest_card = "{third_follow_on_card}"' in state, "CURRENT_STATE latest card drift")
+need(f'latest_card_path = "{card_path.as_posix()}"' in state or f'latest_card_path = "{follow_on_path}"' in state or f'latest_card_path = "{second_follow_on_path}"' in state or f'latest_card_path = "{third_follow_on_path}"' in state, "CURRENT_STATE latest path drift")
 need(f'current_blocker_token = "{blocker}"' in state, "CURRENT_STATE blocker drift")
 
 for needle in [token, output_contract, selected_candidate, "post_rhs_valueid_request_abi_next_seam_selected = 1", "next_seam_implemented = 0", "source_selfhost_claim = 0", selected_card]:

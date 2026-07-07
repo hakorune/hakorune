@@ -145,6 +145,7 @@ allowed_latest = [
     'latest_card = "MIRBUILDER-POST-RHS-VALUEID-REQUEST-ABI-NEXT-SEAM-SELECTION-001"',
     'latest_card = "MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-LITERAL-I64-CONSTANT-EMISSION-BRIDGE-001"',
     'latest_card = "MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-SYMBOLREF-LOOKUP-CONTRACT-PARITY-001"',
+    'latest_card = "MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-SYMBOLREF-LOOKUP-BRIDGE-001"',
 ]
 need(any(entry in current_state for entry in allowed_latest), "CURRENT_STATE latest card must point to prerequisite parity or selection")
 need(

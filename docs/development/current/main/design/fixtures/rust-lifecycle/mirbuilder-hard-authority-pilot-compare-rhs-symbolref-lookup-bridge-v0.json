@@ -1,0 +1,59 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderHardAuthorityPilotCompareRhsSymbolRefLookupBridgeV1",
+  "token": "MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-SYMBOLREF-LOOKUP-BRIDGE-001",
+  "output_contract": "rust-lifecycle-mirbuilder-hard-authority-pilot-compare-rhs-symbolref-lookup-bridge-v0",
+  "current_state": {
+    "current_blocker_token": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "previous_card": "MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-SYMBOLREF-LOOKUP-CONTRACT-PARITY-001"
+  },
+  "pilot": {
+    "candidate_id": "CompareRhsSymbolRefLookupBridgeBoundary",
+    "owner_id": "CompareRhsSymbolRefLookupBridge",
+    "claim_ceiling": "scoped_mutation_free_hard_authority_pilot",
+    "input_surface": "SymbolRefResolutionContractV1",
+    "output_surface": "CompareRhsValueIdResolutionResponseV1",
+    "downstream_consumer": "CompareLocalSsaFinalizeCompare",
+    "lookup_scope": "NoShadowLocalOnly",
+    "mutation_allowed": false
+  },
+  "consumed_evidence": {
+    "contract_parity_guard": "tools/checks/rust_lifecycle_mirbuilder_hard_authority_pilot_compare_rhs_symbolref_lookup_contract_parity_guard.sh",
+    "bridge_guard": "tools/checks/rust_lifecycle_mirbuilder_compare_rhs_symbolref_lookup_bridge_gate.sh",
+    "bridge_output_contract": "rust-lifecycle-mirbuilder-compare-rhs-symbolref-lookup-bridge-v0"
+  },
+  "claims": {
+    "hard_authority_pilot_implemented": 1,
+    "compare_rhs_symbolref_lookup_bridge_owner": 1,
+    "symbol_ref_valueid_resolution_no_shadow_local": 1,
+    "symbol_lookup_execution": 1,
+    "existing_valueid_returned": 1,
+    "rhs_value_id_present": 1,
+    "rhs_value_id_nonzero": 1,
+    "contract_verified_symbol_lookup": 1,
+    "simple_local_i_lookup": 1,
+    "renamed_local_count_lookup": 1,
+    "unmapped_symbol_id_rejects": 1,
+    "symbol_ref_valueid_resolution_general": 0,
+    "shadowing_symbol_lookup": 0,
+    "current_ssa_authority": 0,
+    "local_ssa_finalize_compare": 0,
+    "valueid_allocated": 0,
+    "literal_constant_valueid_allocation": 0,
+    "constant_mir_emission": 0,
+    "mir_compare_emission": 0,
+    "mir_branch_emission": 0,
+    "basicblock_mutation": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_authority": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  },
+  "decision": {
+    "kind": "SymbolRefLookupBridgeBoundaryGreen",
+    "selected_next_card": "MIRBUILDER-COMPARE-LOCALSSA-FINALIZE-COMPARE-DESIGN-STOP-001"
+  }
+}

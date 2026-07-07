@@ -58,6 +58,8 @@ blocker = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 card_rel_path = "docs/development/current/main/phases/phase-296x/3335-MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-LITERAL-I64-CONSTANT-EMISSION-BRIDGE-001.md"
 follow_on_card = "MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-SYMBOLREF-LOOKUP-CONTRACT-PARITY-001"
 follow_on_path = "docs/development/current/main/phases/phase-296x/3336-MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-SYMBOLREF-LOOKUP-CONTRACT-PARITY-001.md"
+second_follow_on_card = "MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-SYMBOLREF-LOOKUP-BRIDGE-001"
+second_follow_on_path = "docs/development/current/main/phases/phase-296x/3337-MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-SYMBOLREF-LOOKUP-BRIDGE-001.md"
 
 need(f"# 3335 - {token}" in card, "card token drift")
 need(output_contract in card, "card output contract drift")
@@ -106,8 +108,8 @@ for key in ["hard_authority_pilot_implemented", "compare_rhs_literal_i64_const_e
 for key in ["hako_adopted_decision", "source_selfhost_claim", "native_seed_materialization", "actual_rhs_valueid_resolution_general", "symbol_ref_valueid_resolution", "symbol_lookup_execution", "local_ssa_finalize_compare_execution", "mir_cmp_emission", "branch_emission", "basic_block_control_flow_mutation", "route_selection", "runtime_route_switch", "programjson_runtime_route_authority", "runtime_fallback", "new_backend_route", "new_abi"]:
     need(claims.get(key) == 0, f"forbidden claim drift: {key}")
 
-need(f'latest_card = "{token}"' in state or f'latest_card = "{follow_on_card}"' in state, "CURRENT_STATE latest card drift")
-need(f'latest_card_path = "{card_rel_path}"' in state or f'latest_card_path = "{follow_on_path}"' in state, "CURRENT_STATE latest path drift")
+need(f'latest_card = "{token}"' in state or f'latest_card = "{follow_on_card}"' in state or f'latest_card = "{second_follow_on_card}"' in state, "CURRENT_STATE latest card drift")
+need(f'latest_card_path = "{card_rel_path}"' in state or f'latest_card_path = "{follow_on_path}"' in state or f'latest_card_path = "{second_follow_on_path}"' in state, "CURRENT_STATE latest path drift")
 need(f'current_blocker_token = "{blocker}"' in state, "CURRENT_STATE blocker drift")
 
 for needle in [token, output_contract, candidate, "compare_rhs_literal_i64_const_emission_bridge_owner = 1", "actual_rhs_valueid_resolution_literal_i64 = 1", "mutation_performed_const_only = 1", "source_selfhost_claim = 0", blocker]:

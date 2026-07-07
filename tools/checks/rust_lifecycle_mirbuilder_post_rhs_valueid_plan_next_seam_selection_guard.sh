@@ -69,6 +69,8 @@ third_follow_on_card = "MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-LITERAL-I64-
 third_follow_on_path = "docs/development/current/main/phases/phase-296x/3335-MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-LITERAL-I64-CONSTANT-EMISSION-BRIDGE-001.md"
 fourth_follow_on_card = "MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-SYMBOLREF-LOOKUP-CONTRACT-PARITY-001"
 fourth_follow_on_path = "docs/development/current/main/phases/phase-296x/3336-MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-SYMBOLREF-LOOKUP-CONTRACT-PARITY-001.md"
+fifth_follow_on_card = "MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-SYMBOLREF-LOOKUP-BRIDGE-001"
+fifth_follow_on_path = "docs/development/current/main/phases/phase-296x/3337-MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-SYMBOLREF-LOOKUP-BRIDGE-001.md"
 
 need(f"# 3332 - {token}" in card, "card token drift")
 need(output_contract in card, "card output contract drift")
@@ -112,11 +114,11 @@ for key in ["next_seam_implemented", "hako_adopted_decision", "source_selfhost_c
     need(claims.get(key) == 0, f"forbidden claim drift: {key}")
 
 need(
-    f'latest_card = "{token}"' in state or f'latest_card = "{follow_on_card}"' in state or f'latest_card = "{second_follow_on_card}"' in state or f'latest_card = "{third_follow_on_card}"' in state or f'latest_card = "{fourth_follow_on_card}"' in state,
+    f'latest_card = "{token}"' in state or f'latest_card = "{follow_on_card}"' in state or f'latest_card = "{second_follow_on_card}"' in state or f'latest_card = "{third_follow_on_card}"' in state or f'latest_card = "{fourth_follow_on_card}"' in state or f'latest_card = "{fifth_follow_on_card}"' in state,
     "CURRENT_STATE latest card drift",
 )
 need(
-    f'latest_card_path = "{card_path.as_posix()}"' in state or f'latest_card_path = "{follow_on_path}"' in state or f'latest_card_path = "{second_follow_on_path}"' in state or f'latest_card_path = "{third_follow_on_path}"' in state or f'latest_card_path = "{fourth_follow_on_path}"' in state,
+    f'latest_card_path = "{card_path.as_posix()}"' in state or f'latest_card_path = "{follow_on_path}"' in state or f'latest_card_path = "{second_follow_on_path}"' in state or f'latest_card_path = "{third_follow_on_path}"' in state or f'latest_card_path = "{fourth_follow_on_path}"' in state or f'latest_card_path = "{fifth_follow_on_path}"' in state,
     "CURRENT_STATE latest path drift",
 )
 need(f'current_blocker_token = "{blocker}"' in state, "CURRENT_STATE blocker drift")
