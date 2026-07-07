@@ -345,13 +345,13 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-AUTHORITY-SWITCH-READINESS-CONSULTATION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3251-MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-AUTHORITY-SWITCH-READINESS-CONSULTATION-001.md"
-latest_card_summary = """3251 records that ProgramJSON RecipeMatcher authority
-switch is not ready after the route-consumed field-floor parity gate. The next
-selected row is nested-loop decision consultation. ProgramJSON remains
-shadow-only; runtime authority, route switch, route selection, lowering,
-mutation, ID allocation, fallback, and Source Selfhost remain unclaimed."""
+latest_card = "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-NESTED-LOOP-DECISION-ROW-CONSULTATION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3252-MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-NESTED-LOOP-DECISION-ROW-CONSULTATION-001.md"
+latest_card_summary = """3252 selects a nested-loop reject-boundary
+implementation instead of a nested-loop accepted matcher row. ProgramJSON
+remains shadow-only; runtime authority, route switch, route selection,
+lowering, mutation, ID allocation, fallback, and Source Selfhost remain
+unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -362,6 +362,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-07: 3252 selects nested-loop reject-boundary implementation instead of a nested-loop accepted matcher row; runtime authority remains Rust and Source Selfhost remains unclaimed.",
   "2026-07-07: 3251 records authority switch is not ready after field-floor parity and selects nested-loop decision consultation next; runtime authority remains Rust and Source Selfhost remains unclaimed.",
   "2026-07-07: 3250 proves the ProgramJSON RecipeMatcher route-consumed field floor for break-present and break+continue-present accepted rows; runtime authority remains Rust and Source Selfhost remains unclaimed.",
   "2026-07-07: 3249 selects the ProgramJSON RecipeMatcher route-consumed field floor; parity and runtime authority remain unclaimed.",
@@ -373,5 +374,4 @@ landed_tail = [
   "2026-07-07: 3243 resolves the Return-absent consultation by selecting B defer and queues the scan-only diagnostic; accepted-floor support and runtime authority remain unclaimed.",
   "2026-07-07: 3242 records the Return-absent decision stop; accepted-floor support is deferred to route-release consultation while runtime authority remains Rust and Source Selfhost remains unclaimed.",
   "2026-07-07: 3241 implements the ProgramJSON IfBreak+IfContinue+IfReturn+Assignment exact BoxCount accepted-floor row with verified-recipe and matcher-result parity; runtime authority remains Rust and Source Selfhost remains unclaimed.",
-  "2026-07-07: 3240 implements the ProgramJSON IfBreak+IfReturn+Assignment exact BoxCount accepted-floor row with verified-recipe and matcher-result parity; runtime authority remains Rust and Source Selfhost remains unclaimed.",
 ]

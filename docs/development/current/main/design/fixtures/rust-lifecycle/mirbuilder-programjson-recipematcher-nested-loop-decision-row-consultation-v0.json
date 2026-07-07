@@ -1,0 +1,57 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonRecipeMatcherNestedLoopDecisionRowConsultationV1",
+  "token": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-NESTED-LOOP-DECISION-ROW-CONSULTATION-001",
+  "input_state": {
+    "previous_card": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-AUTHORITY-SWITCH-READINESS-CONSULTATION-001",
+    "prior_nested_loop_evidence": "MIRBUILDER-PROGRAMJSON-NESTED-LOOP-REJECT-RETIRE-RUST-ASTNODE-PROJECTOR-CANDIDATE-001",
+    "runtime_authority": "rust_astnode",
+    "programjson_route": "shadow_only"
+  },
+  "observations": {
+    "programjson_can_observe_nested_loop": 1,
+    "canonical_loop_facts_snapshot_publishes_has_nested_loop": 1,
+    "current_matcher_boundary_rejects_nested_loop": 0,
+    "nested_loop_should_not_be_accepted_floor": 1
+  },
+  "candidate_next_steps": [
+    {
+      "option": "A_ACCEPT_NESTED_LOOP_MATCHER_ROW",
+      "eligible": false,
+      "reason": "Nested Loop is observable but previously scoped as a reject shape before RecipeMatcher authority."
+    },
+    {
+      "option": "B_REJECT_BOUNDARY_IMPLEMENTATION",
+      "eligible": true,
+      "reason": "Close the accepted-floor decision axis by making has_nested_loop=1 fail-fast at the observe-only matcher boundary.",
+      "selected_next_card": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-NESTED-LOOP-REJECT-BOUNDARY-001"
+    },
+    {
+      "option": "C_SCAN_ONLY_DIAGNOSTIC",
+      "eligible": false,
+      "reason": "Scan-only proof already exists for the earlier nested-loop reject projector slice; the current gap is matcher-boundary rejection."
+    }
+  ],
+  "decision": {
+    "kind": "SelectNestedLoopRejectBoundary",
+    "reason_token": "NestedLoopObservableButNotAcceptedMatcherInput",
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-NESTED-LOOP-REJECT-BOUNDARY-001"
+  },
+  "claims": {
+    "nested_loop_decision_row_consultation": 1,
+    "selected_nested_loop_reject_boundary": 1,
+    "nested_loop_accepted_floor": 0,
+    "nested_loop_reject_boundary_green": 0,
+    "programjson_runtime_route_authority": 0,
+    "runtime_route_switch": 0,
+    "recipe_matcher_input_authority": 0,
+    "route_selection": 0,
+    "mir_lowering": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  }
+}
