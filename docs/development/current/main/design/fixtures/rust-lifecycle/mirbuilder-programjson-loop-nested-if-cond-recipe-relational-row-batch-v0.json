@@ -1,0 +1,60 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonLoopNestedIfCondRecipeRelationalRowBatchV1",
+  "token": "MIRBUILDER-PROGRAMJSON-LOOP-NESTED-IF-COND-RECIPE-RELATIONAL-ROW-BATCH-001",
+  "prerequisite": "MIRBUILDER-PROGRAMJSON-IF-COND-RECIPE-RELATIONAL-ROW-BATCH-001",
+  "owner": "LoopStmtHandler nested If producer",
+  "bridge_owner": "LoopNestedIfCondRecipeBridgeBox",
+  "row_scope": {
+    "shape": "Loop body nested If Compare(Var relational Int) then Return, followed by Assignment",
+    "operators": ["<", "<=", ">", ">="],
+    "legacy_cond_facts_boundary": "cond_kind is normalized by LoopNestedIfCondRecipeBridgeBox from shared reader output",
+    "top_level_loop_route_semantics_changed": false
+  },
+  "rows": [
+    {
+      "row_id": "loop_body_if_var_lt_int_then_return_assignment",
+      "program_json": "{\"version\":0,\"kind\":\"Program\",\"body\":[{\"type\":\"Local\",\"name\":\"i\",\"expr\":{\"type\":\"Int\",\"value\":0}},{\"type\":\"Loop\",\"cond\":{\"type\":\"Compare\",\"op\":\"<\",\"lhs\":{\"type\":\"Var\",\"name\":\"i\"},\"rhs\":{\"type\":\"Int\",\"value\":5}},\"body\":[{\"type\":\"If\",\"cond\":{\"type\":\"Compare\",\"op\":\"<\",\"lhs\":{\"type\":\"Var\",\"name\":\"i\"},\"rhs\":{\"type\":\"Int\",\"value\":3}},\"then\":[{\"type\":\"Return\",\"expr\":{\"type\":\"Int\",\"value\":7}}],\"else\":null},{\"type\":\"Assignment\",\"name\":\"i\",\"expr\":{\"type\":\"Binary\",\"op\":\"+\",\"lhs\":{\"type\":\"Var\",\"name\":\"i\"},\"rhs\":{\"type\":\"Int\",\"value\":1}}}]},{\"type\":\"Return\",\"expr\":{\"type\":\"Var\",\"name\":\"i\"}}]}",
+      "expected_cond_kind": "VarLtInt",
+      "expected_summary": "loop_body_if_var_lt_int_then_return_assignment:err=0;cond_kind_match=1;cond_rhs_int=3;cond_recipe_present=1;cond_recipe_present=1;bool_recipe_kind=Compare;lhs_kind=Symbol;lhs_symbol_id=1;cmp=Lt;cmp_code=1;bound_kind=LiteralI64;bound_kind_code=1;bound_i64=3;bound_symbol_id=0;haystack_symbol_id=0;needle_symbol_id=0;analysis_only=1;lowering_executed=0"
+    },
+    {
+      "row_id": "loop_body_if_var_le_int_then_return_assignment",
+      "program_json": "{\"version\":0,\"kind\":\"Program\",\"body\":[{\"type\":\"Local\",\"name\":\"i\",\"expr\":{\"type\":\"Int\",\"value\":0}},{\"type\":\"Loop\",\"cond\":{\"type\":\"Compare\",\"op\":\"<\",\"lhs\":{\"type\":\"Var\",\"name\":\"i\"},\"rhs\":{\"type\":\"Int\",\"value\":5}},\"body\":[{\"type\":\"If\",\"cond\":{\"type\":\"Compare\",\"op\":\"<=\",\"lhs\":{\"type\":\"Var\",\"name\":\"i\"},\"rhs\":{\"type\":\"Int\",\"value\":3}},\"then\":[{\"type\":\"Return\",\"expr\":{\"type\":\"Int\",\"value\":7}}],\"else\":null},{\"type\":\"Assignment\",\"name\":\"i\",\"expr\":{\"type\":\"Binary\",\"op\":\"+\",\"lhs\":{\"type\":\"Var\",\"name\":\"i\"},\"rhs\":{\"type\":\"Int\",\"value\":1}}}]},{\"type\":\"Return\",\"expr\":{\"type\":\"Var\",\"name\":\"i\"}}]}",
+      "expected_cond_kind": "VarLeInt",
+      "expected_summary": "loop_body_if_var_le_int_then_return_assignment:err=0;cond_kind_match=1;cond_rhs_int=3;cond_recipe_present=1;cond_recipe_present=1;bool_recipe_kind=Compare;lhs_kind=Symbol;lhs_symbol_id=1;cmp=Le;cmp_code=2;bound_kind=LiteralI64;bound_kind_code=1;bound_i64=3;bound_symbol_id=0;haystack_symbol_id=0;needle_symbol_id=0;analysis_only=1;lowering_executed=0"
+    },
+    {
+      "row_id": "loop_body_if_var_gt_int_then_return_assignment",
+      "program_json": "{\"version\":0,\"kind\":\"Program\",\"body\":[{\"type\":\"Local\",\"name\":\"i\",\"expr\":{\"type\":\"Int\",\"value\":0}},{\"type\":\"Loop\",\"cond\":{\"type\":\"Compare\",\"op\":\"<\",\"lhs\":{\"type\":\"Var\",\"name\":\"i\"},\"rhs\":{\"type\":\"Int\",\"value\":5}},\"body\":[{\"type\":\"If\",\"cond\":{\"type\":\"Compare\",\"op\":\">\",\"lhs\":{\"type\":\"Var\",\"name\":\"i\"},\"rhs\":{\"type\":\"Int\",\"value\":3}},\"then\":[{\"type\":\"Return\",\"expr\":{\"type\":\"Int\",\"value\":7}}],\"else\":null},{\"type\":\"Assignment\",\"name\":\"i\",\"expr\":{\"type\":\"Binary\",\"op\":\"+\",\"lhs\":{\"type\":\"Var\",\"name\":\"i\"},\"rhs\":{\"type\":\"Int\",\"value\":1}}}]},{\"type\":\"Return\",\"expr\":{\"type\":\"Var\",\"name\":\"i\"}}]}",
+      "expected_cond_kind": "VarGtInt",
+      "expected_summary": "loop_body_if_var_gt_int_then_return_assignment:err=0;cond_kind_match=1;cond_rhs_int=3;cond_recipe_present=1;cond_recipe_present=1;bool_recipe_kind=Compare;lhs_kind=Symbol;lhs_symbol_id=1;cmp=Gt;cmp_code=3;bound_kind=LiteralI64;bound_kind_code=1;bound_i64=3;bound_symbol_id=0;haystack_symbol_id=0;needle_symbol_id=0;analysis_only=1;lowering_executed=0"
+    },
+    {
+      "row_id": "loop_body_if_var_ge_int_then_return_assignment",
+      "program_json": "{\"version\":0,\"kind\":\"Program\",\"body\":[{\"type\":\"Local\",\"name\":\"i\",\"expr\":{\"type\":\"Int\",\"value\":0}},{\"type\":\"Loop\",\"cond\":{\"type\":\"Compare\",\"op\":\"<\",\"lhs\":{\"type\":\"Var\",\"name\":\"i\"},\"rhs\":{\"type\":\"Int\",\"value\":5}},\"body\":[{\"type\":\"If\",\"cond\":{\"type\":\"Compare\",\"op\":\">=\",\"lhs\":{\"type\":\"Var\",\"name\":\"i\"},\"rhs\":{\"type\":\"Int\",\"value\":3}},\"then\":[{\"type\":\"Return\",\"expr\":{\"type\":\"Int\",\"value\":7}}],\"else\":null},{\"type\":\"Assignment\",\"name\":\"i\",\"expr\":{\"type\":\"Binary\",\"op\":\"+\",\"lhs\":{\"type\":\"Var\",\"name\":\"i\"},\"rhs\":{\"type\":\"Int\",\"value\":1}}}]},{\"type\":\"Return\",\"expr\":{\"type\":\"Var\",\"name\":\"i\"}}]}",
+      "expected_cond_kind": "VarGeInt",
+      "expected_summary": "loop_body_if_var_ge_int_then_return_assignment:err=0;cond_kind_match=1;cond_rhs_int=3;cond_recipe_present=1;cond_recipe_present=1;bool_recipe_kind=Compare;lhs_kind=Symbol;lhs_symbol_id=1;cmp=Ge;cmp_code=4;bound_kind=LiteralI64;bound_kind_code=1;bound_i64=3;bound_symbol_id=0;haystack_symbol_id=0;needle_symbol_id=0;analysis_only=1;lowering_executed=0"
+    }
+  ],
+  "claims": {
+    "loop_nested_if_cond_recipe_relational_row_batch": 1,
+    "loop_nested_if_relational_rows": 4,
+    "shared_compare_reader_used": 1,
+    "legacy_cond_facts_relational": 1,
+    "top_level_loop_route_semantics_changed": 0,
+    "recipe_matcher_input_authority": 0,
+    "bool_recipe_lowering": 0,
+    "mir_cmp_emission": 0,
+    "branch_emission": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_route_authority": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "LoopNestedIfCondRecipeRelationalRowBatchGreen",
+    "selected_next_card": "MIRBUILDER-BOOL-RECIPE-COMPARE-LOWERING-EMISSION-CONSULTATION-001"
+  }
+}

@@ -345,11 +345,11 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PROGRAMJSON-IF-COND-RECIPE-RELATIONAL-ROW-BATCH-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3286-MIRBUILDER-PROGRAMJSON-IF-COND-RECIPE-RELATIONAL-ROW-BATCH-001.md"
-latest_card_summary = """3286 opens top-level If `< <= > >=` Compare rows
-through the shared reader and cond_recipe sidecar. Loop nested If expansion,
-MIR emission, runtime authority, and Source Selfhost remain unclaimed."""
+latest_card = "MIRBUILDER-PROGRAMJSON-LOOP-NESTED-IF-COND-RECIPE-RELATIONAL-ROW-BATCH-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3287-MIRBUILDER-PROGRAMJSON-LOOP-NESTED-IF-COND-RECIPE-RELATIONAL-ROW-BATCH-001.md"
+latest_card_summary = """3287 opens Loop-body nested If `< <= > >=`
+Compare rows through the shared reader and cond_recipe sidecar. MIR emission,
+runtime authority, and Source Selfhost remain unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -360,6 +360,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-07: 3287 opens Loop-body nested If < <= > >= Compare rows through shared reader and cond_recipe; MIR emission and Source Selfhost remain unclaimed.",
   "2026-07-07: 3286 opens top-level If < <= > >= Compare rows through shared reader and cond_recipe; loop nested If expansion, MIR emission, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3285 selects top-level If relational Compare rows as the next user-visible operator expansion; loop route semantics, MIR emission, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3284 projects BoolRecipe::Compare into a read-only lowering intent snapshot through AOT/EXE; MIR emission and Source Selfhost remain unclaimed.",
@@ -371,5 +372,4 @@ landed_tail = [
   "2026-07-07: 3278 attaches cond_recipe sidecars to Loop-body nested If RecipeItems through the shared compare reader; operator expansion, lowering, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3277 opens the first non-== If condition row, Var != Int, through the shared compare reader; all-six If support, lowering, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3275 adds a shared ProgramJSON Var-op-Int Compare reader with six op codes; consumers, lowering, runtime authority, and Source Selfhost remain unclaimed.",
-  "2026-07-07: 3272 selects observe-only read-only snapshot projection as the first RecipeMatcher-adjacent cond_recipe boundary; matcher authority/lowering and Source Selfhost remain unclaimed.",
 ]

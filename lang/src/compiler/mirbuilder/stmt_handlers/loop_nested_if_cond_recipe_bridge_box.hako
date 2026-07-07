@@ -12,6 +12,15 @@ using lang.compiler.mirbuilder.recipe.recipe_item_box as RecipeItemBox
 static box LoopNestedIfCondRecipeBridgeBox {
   if_item(program_json, cond_start, cond_facts, then_item, else_item): MapBox {
     local cond_reader = ProgramJsonCompareReaderBox.read_var_int_compare(program_json, cond_start)
+    if BoxHelpers.result_ok(cond_reader) == 1 {
+      local cmp = BoxHelpers.map_get(cond_reader, "cmp_code")
+      if cmp == 1 { cond_facts.set("cond_kind", "VarLtInt") }
+      if cmp == 2 { cond_facts.set("cond_kind", "VarLeInt") }
+      if cmp == 3 { cond_facts.set("cond_kind", "VarGtInt") }
+      if cmp == 4 { cond_facts.set("cond_kind", "VarGeInt") }
+      if cmp == 5 { cond_facts.set("cond_kind", "VarEqInt") }
+      if cmp == 6 { cond_facts.set("cond_kind", "VarNeInt") }
+    }
     local cond_recipe = BoolRecipeBox.from_numeric_compare_code_map(cond_reader)
     if BoolRecipeBox.is_valid_compare(cond_recipe) == 1 {
       return RecipeItemBox.if_item_with_cond_recipe(cond_facts, cond_recipe, then_item, else_item)

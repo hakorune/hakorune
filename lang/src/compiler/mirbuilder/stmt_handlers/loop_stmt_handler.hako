@@ -234,8 +234,8 @@ static box LoopStmtHandler {
       return me._err(tag, "[cap_missing/program_json_v0] Loop If Compare missing op", stmt_start)
     }
     local op = BoxHelpers.map_get(op_out, "value")
-    if BoxHelpers.same_token(op, "<") != 1 {
-      return me._err(tag, "[cap_missing/expr:Compare] Loop If cond Compare op must be '<'", stmt_start)
+    if BoxHelpers.same_token(op, "<") != 1 && BoxHelpers.same_token(op, "<=") != 1 && BoxHelpers.same_token(op, ">") != 1 && BoxHelpers.same_token(op, ">=") != 1 && BoxHelpers.same_token(op, "==") != 1 && BoxHelpers.same_token(op, "!=") != 1 {
+      return me._err(tag, "[cap_missing/expr:Compare] Loop If cond Compare op is unsupported", stmt_start)
     }
 
     local lhs_start = ProgramJsonV0ScannerBox.seek_obj_field_obj_start(program_json, "lhs", cond_start)
@@ -396,8 +396,12 @@ static box LoopStmtHandler {
       return me._err(tag, "[cap_missing/expr:Compare] Loop " + label + " If cond must be Compare", stmt_start)
     }
     local op_out = ProgramJsonV0ScannerBox.read_string_field_first_in_obj_result(program_json, "op", cond_start)
-    if BoxHelpers.result_ok(op_out) != 1 || BoxHelpers.same_token(BoxHelpers.map_get(op_out, "value"), "<") != 1 {
-      return me._err(tag, "[cap_missing/expr:Compare] Loop " + label + " If cond Compare op must be '<'", stmt_start)
+    if BoxHelpers.result_ok(op_out) != 1 {
+      return me._err(tag, "[cap_missing/expr:Compare] Loop " + label + " If cond Compare missing op", stmt_start)
+    }
+    local op = BoxHelpers.map_get(op_out, "value")
+    if BoxHelpers.same_token(op, "<") != 1 && BoxHelpers.same_token(op, "<=") != 1 && BoxHelpers.same_token(op, ">") != 1 && BoxHelpers.same_token(op, ">=") != 1 && BoxHelpers.same_token(op, "==") != 1 && BoxHelpers.same_token(op, "!=") != 1 {
+      return me._err(tag, "[cap_missing/expr:Compare] Loop " + label + " If cond Compare op is unsupported", stmt_start)
     }
     local lhs_start = ProgramJsonV0ScannerBox.seek_obj_field_obj_start(program_json, "lhs", cond_start)
     local rhs_start = ProgramJsonV0ScannerBox.seek_obj_field_obj_start(program_json, "rhs", cond_start)
