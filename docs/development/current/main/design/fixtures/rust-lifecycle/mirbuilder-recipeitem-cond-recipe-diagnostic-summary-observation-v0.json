@@ -1,0 +1,48 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderRecipeItemCondRecipeDiagnosticSummaryObservationV1",
+  "token": "MIRBUILDER-RECIPEITEM-COND-RECIPE-DIAGNOSTIC-SUMMARY-OBSERVATION-001",
+  "prerequisite": "MIRBUILDER-RECIPEITEM-COND-RECIPE-OBSERVATION-BOUNDARY-SELECTION-001",
+  "owner": "RecipeItemBox.cond_recipe_summary",
+  "observation_contract": {
+    "observer": "RecipeItemDiagnosticSummaryObserver",
+    "input": "Loop RecipeItem with optional cond_recipe sidecar",
+    "output": "stable diagnostic summary string",
+    "aot_required": true,
+    "verifier_behavior_change": false,
+    "recipe_matcher_input_authority": false,
+    "lowering_behavior_change": false
+  },
+  "rows": [
+    {
+      "row_id": "loop_condition_le_literal_diagnostic_summary",
+      "source_program_row": "local_loop_body_if_branch_return",
+      "loop_condition_patch": {
+        "type": "Compare",
+        "op": "<=",
+        "lhs": { "type": "Var", "name": "i" },
+        "rhs": { "type": "Int", "value": 3 }
+      },
+      "expected_summary": "cond_recipe_present=1;bool_recipe_kind=Compare;lhs_kind=Symbol;lhs_symbol_id=1;cmp=Le;cmp_code=2;bound_kind=LiteralI64;bound_kind_code=1;bound_i64=3;bound_symbol_id=0;haystack_symbol_id=0;needle_symbol_id=0;analysis_only=1;lowering_executed=0"
+    }
+  ],
+  "decision": {
+    "kind": "RecipeItemCondRecipeDiagnosticSummaryObservationGreen",
+    "reason_token": "RecipeItemDiagnosticObserverCanReadCondRecipeSidecarContents",
+    "selected_next_card": "MIRBUILDER-RECIPEITEM-COND-RECIPE-CONSUME-BOUNDARY-SELECTION-001"
+  },
+  "claims": {
+    "cond_recipe_diagnostic_summary_observation": 1,
+    "cond_recipe_deep_observation_implementation": 1,
+    "verifier_cond_recipe_observer": 0,
+    "recipe_matcher_input_authority": 0,
+    "bool_recipe_lowering": 0,
+    "mir_cmp_emission": 0,
+    "branch_emission": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_route_authority": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  }
+}
