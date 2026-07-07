@@ -60,9 +60,9 @@ landed evidence pointer:
   Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
 
 selected next task:
-  MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-SHADOW-PARITY-001
+  MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-ROUTE-SHADOW-SWITCH-DESIGN-STOP-001
 selected next card:
-  compare Rust ASTNode route vs ProgramJSON route matcher result snapshot; no route selection, lowering, mutation, ID allocation, or route switch.
+  design-stop for runtime route shadow switch authority; do not switch routes before consultation.
 
 post-3180 block recipe task order:
   completed: JoinThenElse, ElseOnlyExit, ThenOnlyExit, and ExitAll are scoped
@@ -84,6 +84,7 @@ normal operating rule:
   history.
 
 latest design decision:
+  3229 implements MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-SHADOW-PARITY-001: Rust ASTNode LoopWithExit oracle and ProgramJSON matcher-result snapshots match for two rows; route switch and Source Selfhost remain unclaimed.
   3228 implements MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-EXECUTION-BOUNDARY-MINIMAL-001: observe-only LoopWithExit matcher result from CanonicalLoopFacts MapBox snapshots; RecipeMatcher authority, route selection, lowering, mutation, ID allocation, route switch, and Source Selfhost remain unclaimed.
   3227 implements the CanonicalLoopFacts input snapshot MapBox publication bridge with DirectAbi/map_handle AOT parity for two verified-recipe rows; RecipeMatcher, route selection, lowering, mutation, ID allocation, route switch, and Source Selfhost remain unclaimed.
   3226 records MIRBUILDER-PROGRAMJSON-CANONICAL-LOOP-FACTS-INPUT-SNAPSHOT-AOT-BOUNDARY-DESIGN-STOP-001;
@@ -404,16 +405,15 @@ Detailed evidence lives in phase cards, fixtures, and git history.
 
 ## Active Next 3
 ```text
-1. MIRBUILDER-PROGRAMJSON-CANONICAL-LOOP-FACTS-INPUT-SNAPSHOT-MAPBOX-PUBLICATION-BRIDGE-001
-   status=landed; boundary=read-only MapBox publication bridge
+1. MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-EXECUTION-BOUNDARY-MINIMAL-001
+   status=landed; boundary=observe-only LoopWithExit matcher result
 
-2. MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-EXECUTION-BOUNDARY-MINIMAL-001
-   status=landed; boundary=observe-only LoopWithExit matcher result; no route selection/lowering
-3. MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-SHADOW-PARITY-001; status=selected; boundary=Rust ASTNode route vs ProgramJSON route matcher result parity
+2. MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-SHADOW-PARITY-001; status=landed; boundary=Rust ASTNode route vs ProgramJSON route matcher result parity
+3. MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-ROUTE-SHADOW-SWITCH-DESIGN-STOP-001; status=selected; boundary=consult before runtime route switch
 
 next active:
-  MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-SHADOW-PARITY-001
-  status=selected; boundary=shadow matcher-result parity; route selection, lowering, mutation, ID allocation, route switch, and Source Selfhost remain unclaimed
+  MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-ROUTE-SHADOW-SWITCH-DESIGN-STOP-001
+  status=selected; boundary=design-stop for runtime route switch; route selection, lowering, mutation, ID allocation, route switch, and Source Selfhost remain unclaimed
 
 trigger-based AOT/MIR typing debt:
   status=parked-until-triggered; order=2999/3000/3001 landed, then 3022 queue
@@ -421,10 +421,10 @@ trigger-based AOT/MIR typing debt:
   compare, PHI dst_type, mir_call dst_type, or receiver-helper
   single-observation protection
 next_documented_task =
-  MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-SHADOW-PARITY-001
+  MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-ROUTE-SHADOW-SWITCH-DESIGN-STOP-001
 
 next_after_active_3 =
-  MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-SHADOW-PARITY-001
+  CONSULTATION_REQUIRED
 
 task discipline =
   Each ProgramJSON capability card must land real `.hako` traversal + fixture
