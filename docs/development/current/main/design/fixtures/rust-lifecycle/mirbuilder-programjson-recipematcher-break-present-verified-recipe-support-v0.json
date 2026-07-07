@@ -1,0 +1,120 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonRecipeMatcherBreakPresentVerifiedRecipeSupportV1",
+  "token": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-BREAK-PRESENT-VERIFIED-RECIPE-SUPPORT-001",
+  "row": {
+    "row_id": "local_loop_body_if_break_if_return_assignment",
+    "program_json": {
+      "version": 0,
+      "kind": "Program",
+      "type": "Program",
+      "body": [
+        {
+          "type": "Local",
+          "name": "i",
+          "expr": {"type": "Int", "value": 0}
+        },
+        {
+          "type": "Loop",
+          "cond": {
+            "type": "Compare",
+            "op": "<",
+            "lhs": {"type": "Var", "name": "i"},
+            "rhs": {"type": "Int", "value": 4}
+          },
+          "body": [
+            {
+              "type": "If",
+              "cond": {
+                "type": "Compare",
+                "op": "<",
+                "lhs": {"type": "Var", "name": "i"},
+                "rhs": {"type": "Int", "value": 1}
+              },
+              "then": [{"type": "Break"}],
+              "else": null
+            },
+            {
+              "type": "If",
+              "cond": {
+                "type": "Compare",
+                "op": "<",
+                "lhs": {"type": "Var", "name": "i"},
+                "rhs": {"type": "Int", "value": 3}
+              },
+              "then": [{"type": "Return", "expr": {"type": "Int", "value": 9}}],
+              "else": null
+            },
+            {
+              "type": "Assignment",
+              "name": "i",
+              "expr": {
+                "type": "Binary",
+                "op": "+",
+                "lhs": {"type": "Var", "name": "i"},
+                "rhs": {"type": "Int", "value": 1}
+              }
+            }
+          ]
+        },
+        {"type": "Return", "expr": {"type": "Var", "name": "i"}}
+      ]
+    },
+    "expected_snapshot": {
+      "ok": 1,
+      "matcher_input_present": 1,
+      "source": "verified_recipe",
+      "readonly": 1,
+      "exit_has_continue": 0,
+      "exit_has_return": 1,
+      "exit_has_break": 1,
+      "has_nested_loop": 0,
+      "loop_cond_continue_with_return_present": 0,
+      "loop_cond_return_in_body_present": 0,
+      "cond_kind": "VarLtInt",
+      "loop_var": "i",
+      "loop_bound_int": 4,
+      "update_kind": "AddVarInt",
+      "update_target": "i",
+      "step_int": 1,
+      "recipe_matcher_executed": 0
+    },
+    "rust_astnode_route_oracle": {
+      "matched": 1,
+      "contract_kind": "LoopWithExit",
+      "has_break": 1,
+      "has_continue": 0,
+      "has_return": 1
+    },
+    "programjson_route_expected": {
+      "matched": 1,
+      "contract_kind": "LoopWithExit",
+      "has_break": 1,
+      "has_continue": 0,
+      "has_return": 1
+    }
+  },
+  "claims": {
+    "programjson_recipematcher_accepted_floor_break_present_row": 1,
+    "if_break_if_return_assignment_boxcount": 1,
+    "verified_recipe_three_stmt_loop_body_snapshot": 1,
+    "canonical_loop_facts_break_return_snapshot": 1,
+    "matcher_result_equal_for_break_present": 1,
+    "programjson_shadow_checked": 1,
+    "runtime_authority_remains_rust_astnode": 1,
+    "programjson_runtime_route_authority": 0,
+    "runtime_route_switch": 0,
+    "recipe_matcher_input_authority": 0,
+    "full_recipe_matcher_execution": 0,
+    "route_selection": 0,
+    "mir_lowering": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "general_loop_body_sequence_owner": 0,
+    "wider_loop_body_sequence_owner": 0
+  }
+}

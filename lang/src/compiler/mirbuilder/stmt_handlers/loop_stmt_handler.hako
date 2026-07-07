@@ -324,43 +324,51 @@ static box LoopStmtHandler {
   }
 
   _read_loop_if_then_continue(program_json, stmt_start, local_name, tag, next_idx): MapBox {
+    return me._read_loop_if_then_exit_marker(program_json, stmt_start, local_name, tag, next_idx, "Continue")
+  }
+
+  _read_loop_if_then_break(program_json, stmt_start, local_name, tag, next_idx): MapBox {
+    return me._read_loop_if_then_exit_marker(program_json, stmt_start, local_name, tag, next_idx, "Break")
+  }
+
+  _read_loop_if_then_exit_marker(program_json, stmt_start, local_name, tag, next_idx, exit_kind): MapBox {
     local stmt_info = ProgramJsonV0ScannerBox.read_node_type_at_result(program_json, stmt_start)
     if BoxHelpers.result_ok(stmt_info) != 1 {
-      return me._err(tag, "[cap_missing/program_json_v0] Loop Continue If stmt type scan failed", stmt_start)
+      return me._err(tag, "[cap_missing/program_json_v0] Loop " + exit_kind + " If stmt type scan failed", stmt_start)
     }
     if BoxHelpers.same_token(BoxHelpers.map_get(stmt_info, "type"), "If") != 1 {
-      return me._err(tag, "[cap_missing/stmt:Loop] Loop Continue first stmt must be If", stmt_start)
+      return me._err(tag, "[cap_missing/stmt:Loop] Loop " + exit_kind + " first stmt must be If", stmt_start)
     }
 
-    local cond_out = me._read_loop_if_cond_var_lt_int(program_json, stmt_start, local_name, tag, next_idx, "Continue")
+    local cond_out = me._read_loop_if_cond_var_lt_int(program_json, stmt_start, local_name, tag, next_idx, exit_kind)
     if StringHelpers.to_i64(BoxHelpers.map_get(cond_out, "err")) != 0 { return cond_out }
 
     local else_start = ProgramJsonV0ScannerBox.seek_obj_field_value_start(program_json, "else", stmt_start)
-    if else_start < 0 { return me._err(tag, "[cap_missing/program_json_v0] Loop Continue If missing else field", stmt_start) }
+    if else_start < 0 { return me._err(tag, "[cap_missing/program_json_v0] Loop " + exit_kind + " If missing else field", stmt_start) }
     else_start = StringHelpers.skip_ws(program_json, else_start)
     if BoxHelpers.same_token(program_json.substring(else_start, else_start + 4), "null") != 1 {
-      return me._err(tag, "[cap_missing/stmt:Loop] Loop Continue If else must be null", stmt_start)
+      return me._err(tag, "[cap_missing/stmt:Loop] Loop " + exit_kind + " If else must be null", stmt_start)
     }
 
     local then_key = "\"then\":["
     local p_then = StringHelpers.index_of(program_json, stmt_start, then_key)
-    if p_then < 0 { return me._err(tag, "[cap_missing/program_json_v0] Loop Continue If missing then array", stmt_start) }
+    if p_then < 0 { return me._err(tag, "[cap_missing/program_json_v0] Loop " + exit_kind + " If missing then array", stmt_start) }
     local then_start = StringHelpers.skip_ws(program_json, p_then + then_key.length())
     if BoxHelpers.same_token(ProgramJsonV0ScannerBox._read_char(program_json, then_start), "{") != 1 {
-      return me._err(tag, "[cap_missing/stmt:Loop] Loop Continue If then must contain one stmt", then_start)
+      return me._err(tag, "[cap_missing/stmt:Loop] Loop " + exit_kind + " If then must contain one stmt", then_start)
     }
     local then_stmt_info = ProgramJsonV0ScannerBox.read_node_type_at_result(program_json, then_start)
     if BoxHelpers.result_ok(then_stmt_info) != 1 {
-      return me._err(tag, "[cap_missing/program_json_v0] Loop Continue If then stmt type scan failed", then_start)
+      return me._err(tag, "[cap_missing/program_json_v0] Loop " + exit_kind + " If then stmt type scan failed", then_start)
     }
-    if BoxHelpers.same_token(BoxHelpers.map_get(then_stmt_info, "type"), "Continue") != 1 {
-      return me._err(tag, "[cap_missing/stmt:Loop] Loop Continue If then must be Continue", then_start)
+    if BoxHelpers.same_token(BoxHelpers.map_get(then_stmt_info, "type"), exit_kind) != 1 {
+      return me._err(tag, "[cap_missing/stmt:Loop] Loop " + exit_kind + " If then must be " + exit_kind, then_start)
     }
     local then_end = ProgramJsonV0ScannerBox.seek_obj_end_unescaped(program_json, then_start)
-    if then_end < 0 { return me._err(tag, "[cap_missing/program_json_v0] Loop Continue If then stmt object is invalid", then_start) }
+    if then_end < 0 { return me._err(tag, "[cap_missing/program_json_v0] Loop " + exit_kind + " If then stmt object is invalid", then_start) }
     local after_then = StringHelpers.skip_ws(program_json, then_end)
     if BoxHelpers.same_token(ProgramJsonV0ScannerBox._read_char(program_json, after_then), "]") != 1 {
-      return me._err(tag, "[cap_missing/stmt:Loop] Loop Continue If then supports exactly one Continue", after_then)
+      return me._err(tag, "[cap_missing/stmt:Loop] Loop " + exit_kind + " If then supports exactly one " + exit_kind, after_then)
     }
     return %{"err" => 0, "err_line" => "", "if_cond_rhs_int" => BoxHelpers.map_get(cond_out, "if_cond_rhs_int")}
   }
@@ -457,12 +465,17 @@ static box LoopStmtHandler {
       if third_end < 0 { return me._err(tag, "[cap_missing/program_json_v0] Loop third body stmt object is invalid", third_start) }
       local after_third = StringHelpers.skip_ws(program_json, third_end)
       if BoxHelpers.same_token(ProgramJsonV0ScannerBox._read_char(program_json, after_third), "]") != 1 {
-        return me._err(tag, "[cap_missing/stmt:Loop] Loop three-stmt body supports exactly IfContinue+IfReturn+Assignment", after_third)
+        return me._err(tag, "[cap_missing/stmt:Loop] Loop three-stmt body supports exactly IfExit+IfReturn+Assignment", after_third)
       }
-      local continue_out = me._read_loop_if_then_continue(program_json, first_start, local_name, tag, next_idx)
-      if StringHelpers.to_i64(BoxHelpers.map_get(continue_out, "err")) != 0 {
-        continue_out.set("next_idx", next_idx)
-        return continue_out
+      local first_exit_kind = "Continue"
+      local first_exit_out = me._read_loop_if_then_continue(program_json, first_start, local_name, tag, next_idx)
+      if StringHelpers.to_i64(BoxHelpers.map_get(first_exit_out, "err")) != 0 {
+        first_exit_kind = "Break"
+        first_exit_out = me._read_loop_if_then_break(program_json, first_start, local_name, tag, next_idx)
+      }
+      if StringHelpers.to_i64(BoxHelpers.map_get(first_exit_out, "err")) != 0 {
+        first_exit_out.set("next_idx", next_idx)
+        return first_exit_out
       }
       local if_out3 = me._read_loop_if_then_return_payload(program_json, second_start, local_name, tag, next_idx)
       if StringHelpers.to_i64(BoxHelpers.map_get(if_out3, "err")) != 0 {
@@ -477,10 +490,11 @@ static box LoopStmtHandler {
       return %{
         "err" => 0,
         "err_line" => "",
-        "body_kind" => "if_continue_if_return_assignment",
+        "body_kind" => "if_exit_if_return_assignment",
+        "first_exit_kind" => first_exit_kind,
         "step_int" => BoxHelpers.map_get(assign_out3, "step_int"),
         "if_cond_rhs_int" => BoxHelpers.map_get(if_out3, "if_cond_rhs_int"),
-        "continue_if_cond_rhs_int" => BoxHelpers.map_get(continue_out, "if_cond_rhs_int"),
+        "first_exit_if_cond_rhs_int" => BoxHelpers.map_get(first_exit_out, "if_cond_rhs_int"),
         "if_then_return_kind" => BoxHelpers.map_get(if_out3, "then_return_kind"),
         "if_then_retv" => BoxHelpers.map_get(if_out3, "then_retv"),
         "if_then_ret_var_name" => BoxHelpers.map_get(if_out3, "then_ret_var_name"),
@@ -575,7 +589,7 @@ static box LoopStmtHandler {
     body_stmt.set("facts", body_facts)
 
     local body_seq = RecipeItemBox.seq([body_stmt])
-    if BoxHelpers.same_token(body_kind, "if_then_assignment") == 1 || BoxHelpers.same_token(body_kind, "if_continue_if_return_assignment") == 1 {
+    if BoxHelpers.same_token(body_kind, "if_then_assignment") == 1 || BoxHelpers.same_token(body_kind, "if_exit_if_return_assignment") == 1 {
       local if_cond_facts = new MapBox()
       if_cond_facts.set("cond_kind", "VarLtInt")
       if_cond_facts.set("cond_var_name", local_name)
@@ -593,17 +607,17 @@ static box LoopStmtHandler {
         RecipeItemBox.seq([])
       )
       body_seq = RecipeItemBox.seq([if_item, body_stmt])
-      if BoxHelpers.same_token(body_kind, "if_continue_if_return_assignment") == 1 {
-        local continue_cond_facts = new MapBox()
-        continue_cond_facts.set("cond_kind", "VarLtInt")
-        continue_cond_facts.set("cond_var_name", local_name)
-        continue_cond_facts.set("cond_rhs_int", BoxHelpers.map_get(body_out, "continue_if_cond_rhs_int"))
-        local continue_item = RecipeItemBox.if_item(
-          continue_cond_facts,
-          RecipeItemBox.exit_item("Continue", %{}),
+      if BoxHelpers.same_token(body_kind, "if_exit_if_return_assignment") == 1 {
+        local first_exit_cond_facts = new MapBox()
+        first_exit_cond_facts.set("cond_kind", "VarLtInt")
+        first_exit_cond_facts.set("cond_var_name", local_name)
+        first_exit_cond_facts.set("cond_rhs_int", BoxHelpers.map_get(body_out, "first_exit_if_cond_rhs_int"))
+        local first_exit_item = RecipeItemBox.if_item(
+          first_exit_cond_facts,
+          RecipeItemBox.exit_item(BoxHelpers.map_get(body_out, "first_exit_kind"), %{}),
           RecipeItemBox.seq([])
         )
-        body_seq = RecipeItemBox.seq([continue_item, if_item, body_stmt])
+        body_seq = RecipeItemBox.seq([first_exit_item, if_item, body_stmt])
       }
     }
     local loop_item = RecipeItemBox.loop_item(cond_facts, body_seq)

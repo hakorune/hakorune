@@ -345,14 +345,14 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-PROGRAMJSON-LOOP-BODY-IFCONTINUE-IFRETURN-ASSIGNMENT-BOXCOUNT-ACCEPTED-FLOOR-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3239-MIRBUILDER-PROGRAMJSON-LOOP-BODY-IFCONTINUE-IFRETURN-ASSIGNMENT-BOXCOUNT-ACCEPTED-FLOOR-001.md"
-latest_card_summary = """3239 implements the exact Continue-present
-accepted-floor BoxCount row: Loop.body IfContinue + IfReturn + Assignment.
-The `.hako` verified-recipe path now produces a three-statement loop-body
-snapshot with has_continue=1 and loop-body has_return=1, while ProgramJSON
-runtime authority, runtime route switch, route selection, lowering, mutation,
-ID allocation, fallback, and Source Selfhost remain unclaimed."""
+latest_card = "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-BREAK-PRESENT-VERIFIED-RECIPE-SUPPORT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3240-MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-BREAK-PRESENT-VERIFIED-RECIPE-SUPPORT-001.md"
+latest_card_summary = """3240 implements the Break-present accepted-floor
+BoxCount row: Loop.body IfBreak + IfReturn + Assignment. The `.hako`
+verified-recipe path now produces a three-statement loop-body snapshot with
+has_break=1 and loop-body has_return=1, while ProgramJSON runtime authority,
+runtime route switch, route selection, lowering, mutation, ID allocation,
+fallback, and Source Selfhost remain unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -363,6 +363,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-07: 3240 implements the ProgramJSON IfBreak+IfReturn+Assignment exact BoxCount accepted-floor row with verified-recipe and matcher-result parity; runtime authority remains Rust and Source Selfhost remains unclaimed.",
   "2026-07-07: 3239 implements the ProgramJSON IfContinue+IfReturn+Assignment exact BoxCount accepted-floor row with verified-recipe and matcher-result parity; runtime authority remains Rust and Source Selfhost remains unclaimed.",
   "2026-07-07: 3238 records the Continue-present accepted-row shape design stop; final top-level Return cannot satisfy Rust loop-body has_return, so implementation pauses for consultation while runtime authority remains Rust and Source Selfhost remains unclaimed.",
   "2026-07-07: 3237 records the ProgramJSON RecipeMatcher accepted-floor matrix, keeps the four return-only rows green, marks Break/Continue rows blocked on verified-recipe producer support, and selects Continue-present support next; runtime authority remains Rust and Source Selfhost remains unclaimed.",
@@ -374,5 +375,4 @@ landed_tail = [
   "2026-07-07: 3228 implements the minimal observe-only RecipeMatcher execution boundary over CanonicalLoopFacts MapBox snapshots while RecipeMatcher authority, route selection, lowering, mutation, ID allocation, route switch, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3227 implements the CanonicalLoopFacts input snapshot MapBox publication bridge with DirectAbi/map_handle AOT parity while RecipeMatcher execution, route switch, lowering, mutation, ID allocation, and Source Selfhost remain unclaimed.",
   "2026-07-07: 3226 records the CanonicalLoopFacts input snapshot AOT boundary design stop and recommends a scoped MapBox snapshot publication bridge; RecipeMatcher execution and Source Selfhost remain unclaimed.",
-  "2026-07-07: 3225 selects ProgramJsonCanonicalLoopFactsInputSnapshotV1 as the next RecipeMatcher input-boundary task; RecipeMatcher execution, route switch, lowering, mutation, ID allocation, and Source Selfhost remain unclaimed.",
 ]
