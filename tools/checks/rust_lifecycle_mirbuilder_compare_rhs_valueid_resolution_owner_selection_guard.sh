@@ -124,6 +124,7 @@ allowed_latest = [
     'latest_card = "MIRBUILDER-COMPARE-RHS-MATERIALIZATION-INTENT-PARITY-001"',
     'latest_card = "MIRBUILDER-COMPARE-RHS-VALUEID-RESOLUTION-OWNER-SELECTION-001"',
     'latest_card = "MIRBUILDER-COMPARE-RHS-MATERIALIZATION-READONLY-RESOLUTION-PILOT-001"',
+    'latest_card = "MIRBUILDER-COMPARE-RHS-MATERIALIZATION-READONLY-RESOLUTION-PARITY-001"',
 ]
 need(any(entry in current_state for entry in allowed_latest), "CURRENT_STATE latest card must point to prerequisite parity or selection")
 need(
@@ -131,7 +132,11 @@ need(
     or "RHS ValueId resolution owner selection" in task_order,
     "task-order must retain valueid owner selection evidence",
 )
-need("MIRBUILDER-COMPARE-RHS-MATERIALIZATION-READONLY-RESOLUTION-PILOT-001" in task_order, "task-order must name selected read-only pilot")
+need(
+    "MIRBUILDER-COMPARE-RHS-MATERIALIZATION-READONLY-RESOLUTION-PILOT-001" in task_order
+    or "read-only RHS ValueId resolution plan pilot" in task_order,
+    "task-order must retain selected read-only pilot evidence",
+)
 need("CompareRhsMaterializationIntentSnapshotV1" in intent_impl, "intent owner missing")
 need("rhs_materialization_kind_code" in intent_impl, "intent owner missing materialization kind")
 need("build_comparison_op" in compare_rs and "ValueId" in compare_rs, "Rust compare owner must remain ValueId consumer")

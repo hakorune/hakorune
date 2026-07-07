@@ -1,0 +1,80 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderCompareRhsMaterializationReadonlyResolutionParityV1",
+  "token": "MIRBUILDER-COMPARE-RHS-MATERIALIZATION-READONLY-RESOLUTION-PARITY-001",
+  "prerequisite": "MIRBUILDER-COMPARE-RHS-MATERIALIZATION-READONLY-RESOLUTION-PILOT-001",
+  "owner": "CompareRhsValueIdResolutionPlanSnapshotBox",
+  "input_contract": "CompareRhsMaterializationIntentSnapshotV1",
+  "output_contract": "CompareRhsValueIdResolutionPlanSnapshotV1",
+  "rows": [
+    {
+      "row_id": "intent_literal_i64",
+      "intent": {
+        "ok": 1,
+        "rhs_materialization_intent_ready": 1,
+        "rhs_materialization_kind_code": 1,
+        "rhs_bound_kind_code": 1,
+        "rhs_bound_i64": 3,
+        "rhs_bound_symbol_id": 0,
+        "analysis_only": 1,
+        "rhs_value_id_resolution": 0
+      },
+      "expected_parity": {
+        "materialization_kind_equal": 1,
+        "rhs_bound_kind_equal": 1,
+        "rhs_bound_i64_equal": 1,
+        "rhs_bound_symbol_equal": 1,
+        "literal_constant_plan": 1,
+        "symbol_lookup_plan": 0,
+        "non_resolution_claims_preserved": 1
+      }
+    },
+    {
+      "row_id": "intent_symbol_ref",
+      "intent": {
+        "ok": 1,
+        "rhs_materialization_intent_ready": 1,
+        "rhs_materialization_kind_code": 2,
+        "rhs_bound_kind_code": 2,
+        "rhs_bound_i64": 0,
+        "rhs_bound_symbol_id": 3,
+        "analysis_only": 1,
+        "rhs_value_id_resolution": 0
+      },
+      "expected_parity": {
+        "materialization_kind_equal": 1,
+        "rhs_bound_kind_equal": 1,
+        "rhs_bound_i64_equal": 1,
+        "rhs_bound_symbol_equal": 1,
+        "literal_constant_plan": 0,
+        "symbol_lookup_plan": 1,
+        "non_resolution_claims_preserved": 1
+      }
+    }
+  ],
+  "claims": {
+    "compare_rhs_materialization_readonly_resolution_parity": 1,
+    "intent_to_resolution_plan_field_parity": 1,
+    "rhs_valueid_resolution_plan_snapshot": 1,
+    "analysis_only": 1,
+    "rhs_value_id_resolution": 0,
+    "literal_constant_value_id_allocation": 0,
+    "constant_mir_emission": 0,
+    "runtime_helper_emission": 0,
+    "local_ssa_finalize_compare_execution": 0,
+    "mir_cmp_emission": 0,
+    "branch_emission": 0,
+    "basic_block_mutation": 0,
+    "value_id_allocation": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_route_authority": 0,
+    "programjson_var_rhs_full_dispatcher_authority": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "CompareRhsMaterializationReadonlyResolutionParityGreen",
+    "selected_next_card": "MIRBUILDER-COMPARE-RHS-ACTUAL-VALUEID-RESOLUTION-DESIGN-STOP-001"
+  }
+}
