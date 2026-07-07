@@ -45,3 +45,8 @@ Allowed rows:
 ```text
 MIRBUILDER-COMPARE-LOCALSSA-FINALIZE-COMPARE-DESIGN-STOP-001
 ```
+
+## Guard
+```bash
+bash tools/checks/rust_lifecycle_mirbuilder_compare_rhs_symbolref_lookup_bridge_gate.sh
+```

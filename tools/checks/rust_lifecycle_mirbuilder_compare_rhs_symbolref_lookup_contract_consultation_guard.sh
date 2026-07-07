@@ -110,6 +110,7 @@ allowed_latest = [
     'latest_card = "MIRBUILDER-COMPARE-RHS-LITERAL-I64-CONSTANT-EMISSION-BRIDGE-001"',
     'latest_card = "MIRBUILDER-COMPARE-RHS-SYMBOLREF-LOOKUP-CONTRACT-CONSULTATION-001"',
     'latest_card = "MIRBUILDER-COMPARE-RHS-SYMBOLREF-LOOKUP-CONTRACT-PARITY-001"',
+    'latest_card = "MIRBUILDER-COMPARE-RHS-SYMBOLREF-LOOKUP-BRIDGE-001"',
 ]
 need(any(entry in current_state for entry in allowed_latest), "CURRENT_STATE latest card must point to prerequisite or 3312")
 need("B_SYMBOL_TABLE_CONTRACT_FIRST" in card, "card must record selected B")

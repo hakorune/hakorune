@@ -1,0 +1,83 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderCompareRhsSymbolRefLookupBridgeV1",
+  "token": "MIRBUILDER-COMPARE-RHS-SYMBOLREF-LOOKUP-BRIDGE-001",
+  "owner": "CompareRhsSymbolRefLookupBridge",
+  "rust_source": "src/mir/builder/compare_rhs_symbolref_lookup_bridge.rs",
+  "prerequisite": "MIRBUILDER-COMPARE-RHS-SYMBOLREF-LOOKUP-CONTRACT-PARITY-001",
+  "input_contract": "SymbolRefResolutionContractV1",
+  "response_contract": "CompareRhsValueIdResolutionResponseV1",
+  "rows": [
+    {
+      "row_id": "simple_local_i_lookup",
+      "symbol_id": 1,
+      "source_name": "i",
+      "expected_rust_variable_key": "i",
+      "expected": {
+        "ok": 1,
+        "existing_valueid_returned": 1,
+        "rhs_value_id_present": 1,
+        "rhs_value_id_nonzero": 1,
+        "used_symbol_lookup": 1,
+        "valueid_allocated": 0,
+        "mutation_performed": 0
+      }
+    },
+    {
+      "row_id": "renamed_local_count_lookup",
+      "symbol_id": 3,
+      "source_name": "count",
+      "expected_rust_variable_key": "count",
+      "expected": {
+        "ok": 1,
+        "existing_valueid_returned": 1,
+        "rhs_value_id_present": 1,
+        "rhs_value_id_nonzero": 1,
+        "used_symbol_lookup": 1,
+        "valueid_allocated": 0,
+        "mutation_performed": 0
+      }
+    },
+    {
+      "row_id": "unmapped_symbol_id_rejects",
+      "symbol_id": 99,
+      "source_name": "missing",
+      "expected_rust_variable_key": "missing",
+      "expected": {
+        "ok": 0,
+        "rhs_value_id_present": 0,
+        "used_symbol_lookup": 0
+      }
+    }
+  ],
+  "claims": {
+    "symbol_ref_valueid_resolution_no_shadow_local": 1,
+    "symbol_lookup_execution": 1,
+    "existing_valueid_returned": 1,
+    "rhs_value_id_present": 1,
+    "rhs_value_id_nonzero": 1,
+    "contract_verified_symbol_lookup": 1,
+    "simple_local_i_lookup": 1,
+    "renamed_local_count_lookup": 1,
+    "unmapped_symbol_id_rejects": 1,
+    "symbol_ref_valueid_resolution_general": 0,
+    "shadowing_symbol_lookup": 0,
+    "current_ssa_authority": 0,
+    "local_ssa_finalize_compare": 0,
+    "valueid_allocated": 0,
+    "literal_constant_valueid_allocation": 0,
+    "constant_mir_emission": 0,
+    "mir_compare_emission": 0,
+    "mir_branch_emission": 0,
+    "basicblock_mutation": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_authority": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "SymbolRefLookupBridgeGreen",
+    "selected_next_card": "MIRBUILDER-COMPARE-LOCALSSA-FINALIZE-COMPARE-DESIGN-STOP-001"
+  }
+}
