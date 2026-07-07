@@ -1,0 +1,92 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderCompareLoweringMutationOwnerSelectionV1",
+  "token": "MIRBUILDER-COMPARE-LOWERING-MUTATION-OWNER-SELECTION-001",
+  "prerequisite": "MIRBUILDER-PROGRAMJSON-VAR-RHS-PRODUCER-CLOSEOUT-001",
+  "selection_subject": "Choose the first owner after BoolRecipe Compare producer coverage, without opening MIR Compare/Branch mutation yet.",
+  "input_state": {
+    "bool_recipe_compare_lowering_intent_green": true,
+    "if_loop_compare_rows_closed": true,
+    "var_rhs_producer_surface_closed": true,
+    "legacy_loop_cond_rhs_int_consumers_exist": true,
+    "rust_compare_emission_owner_exists": true,
+    "rust_branch_emission_owner_exists": true
+  },
+  "candidates": [
+    {
+      "name": "SymbolicCompareLoweringCommandPilot",
+      "selected": true,
+      "reason": "A symbolic read-only command boundary can name operand, rhs-bound, compare-op, dst-allocation, and branch-target requirements before any BasicBlock mutation or ValueId allocation is moved.",
+      "selected_next_card": "MIRBUILDER-COMPARE-LOWERING-SYMBOLIC-COMMAND-PILOT-001"
+    },
+    {
+      "name": "EmitMirCompareNow",
+      "selected": false,
+      "reason": "Direct Compare emission would mix BoolRecipe consumption with operand ValueId resolution and destination allocation."
+    },
+    {
+      "name": "EmitMirCompareAndBranchNow",
+      "selected": false,
+      "reason": "Branch emission also needs BasicBlock target ownership and route/lowering integration."
+    },
+    {
+      "name": "SelectMutationBearingOwnerNow",
+      "selected": false,
+      "reason": "Mutation-bearing ownership is a later design boundary; this card only selects a read-only symbolic publication pilot."
+    },
+    {
+      "name": "ExternalDesignStop",
+      "selected": false,
+      "reason": "The safe next slice is non-mutating and keeps all runtime authority claims at zero."
+    }
+  ],
+  "selected_boundary": {
+    "name": "CompareLoweringSymbolicCommandSnapshotV1",
+    "input": "BoolRecipeCompareLoweringIntentSnapshotV1",
+    "output": "read-only symbolic compare lowering command snapshot",
+    "allowed_fields": [
+      "lhs_symbol_id",
+      "mir_compare_op_code",
+      "rhs_bound_kind_code",
+      "rhs_bound_i64",
+      "rhs_bound_symbol_id",
+      "dst_policy",
+      "branch_target_policy",
+      "analysis_only"
+    ],
+    "forbidden_actions": [
+      "operand ValueId resolution",
+      "rhs runtime materialization",
+      "MIR Compare emission",
+      "MIR Branch emission",
+      "BasicBlock mutation",
+      "ValueId allocation",
+      "route selection",
+      "runtime route switch",
+      "ProgramJSON runtime route authority",
+      "runtime fallback"
+    ]
+  },
+  "decision": {
+    "kind": "SelectSymbolicCompareLoweringCommandPilot",
+    "reason_token": "BoolRecipeCompareNeedsSymbolicCommandBoundaryBeforeMutationOwner",
+    "selected_next_card": "MIRBUILDER-COMPARE-LOWERING-SYMBOLIC-COMMAND-PILOT-001"
+  },
+  "claims": {
+    "compare_lowering_mutation_owner_selection": 1,
+    "symbolic_compare_lowering_command_pilot_selected": 1,
+    "mutation_bearing_owner_selected": 0,
+    "bool_recipe_lowering_executed": 0,
+    "operand_value_id_resolution": 0,
+    "rhs_runtime_materialization": 0,
+    "mir_cmp_emission": 0,
+    "branch_emission": 0,
+    "basic_block_mutation": 0,
+    "value_id_allocation": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_route_authority": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  }
+}

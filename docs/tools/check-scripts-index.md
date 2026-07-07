@@ -101,6 +101,7 @@ phase-1 compatibility Program(JSON) compat execution helper.
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_loop_nested_if_cond_recipe_relational_row_batch_gate.sh` | AOT gate opening Loop-body nested If `< <= > >=` rows through shared compare reader and `cond_recipe`. |
 | `tools/checks/rust_lifecycle_mirbuilder_bool_recipe_compare_lowering_emission_consultation_guard.sh` | Consultation guard deferring MIR Compare/Branch emission and selecting compare row batch closeout. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_if_loop_compare_row_batch_closeout_guard.sh` | Closeout guard for the shared If/Loop ProgramJSON compare row batch before lowering owner selection. |
+| `tools/checks/rust_lifecycle_mirbuilder_compare_lowering_mutation_owner_selection_guard.sh` | Selection guard choosing a read-only symbolic compare lowering command pilot before any MIR mutation or allocation. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_condition_shape_retire_rust_astnode_projector_candidate_guard.sh` | Retire-candidate guard for the covered `ConditionShapeSnapshotV1` ProgramJSON traversal slice. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_context_scope_shape_scan_parity_gate.sh` | Capability-batch parity for `.hako` `ProgramJsonContextScopeShapeScanV1`. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_context_scope_shape_retire_rust_astnode_projector_candidate_guard.sh` | Retire-candidate guard for the covered `ContextScopeShapeSnapshotV1` ProgramJSON traversal slice. |
