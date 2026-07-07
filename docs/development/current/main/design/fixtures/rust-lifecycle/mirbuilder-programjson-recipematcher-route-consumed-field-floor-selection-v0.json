@@ -1,0 +1,49 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderProgramJsonRecipeMatcherRouteConsumedFieldFloorSelectionV1",
+  "token": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-ROUTE-CONSUMED-FIELD-FLOOR-SELECTION-001",
+  "input_state": {
+    "previous_card": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-MISSING-VERIFIED-RECIPE-REJECT-ROW-001",
+    "runtime_authority": "rust_astnode",
+    "programjson_route": "shadow_only"
+  },
+  "selected_field_floor": {
+    "hard_authority_candidate_fields": [
+      "ok",
+      "reason_code",
+      "matched",
+      "contract_kind",
+      "has_break",
+      "has_continue",
+      "has_return"
+    ],
+    "route_adjacent_facts_floor": [
+      "has_nested_loop",
+      "loop_cond_return_in_body_present",
+      "cond_kind",
+      "loop_var",
+      "loop_bound_int",
+      "update_kind",
+      "update_target",
+      "step_int"
+    ]
+  },
+  "selected_next": {
+    "card": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-ROUTE-CONSUMED-FIELD-FLOOR-PARITY-001",
+    "row_source": "existing accepted-floor ProgramJSON rows",
+    "expected": "snapshot_summary and match_summary expose all selected field names with canonical values"
+  },
+  "claims": {
+    "route_consumed_field_floor_selection": 1,
+    "field_floor_parity_green": 0,
+    "programjson_runtime_route_authority": 0,
+    "runtime_route_switch": 0,
+    "recipe_matcher_input_authority": 0,
+    "route_selection": 0,
+    "mir_lowering": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  }
+}
