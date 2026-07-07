@@ -66,6 +66,11 @@ output_contract = "rust-lifecycle-mirbuilder-hard-authority-pilot-compare-rhs-va
 blocker = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 candidate = "CompareRhsValueIdResolutionPlanBoundary"
 card_rel_path = "docs/development/current/main/phases/phase-296x/3331-MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-VALUEID-RESOLUTION-PLAN-001.md"
+follow_on_cards = {
+    token: card_rel_path,
+    "MIRBUILDER-POST-RHS-VALUEID-PLAN-NEXT-SEAM-SELECTION-001": "docs/development/current/main/phases/phase-296x/3332-MIRBUILDER-POST-RHS-VALUEID-PLAN-NEXT-SEAM-SELECTION-001.md",
+    "MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-VALUEID-REQUEST-ABI-001": "docs/development/current/main/phases/phase-296x/3333-MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-VALUEID-REQUEST-ABI-001.md",
+}
 
 need(f"# 3331 - {token}" in card, "card token drift")
 need(output_contract in card, "card output contract drift")
@@ -149,8 +154,8 @@ for key in [
 ]:
     need(claims.get(key) == 0, f"forbidden claim drift: {key}")
 
-need(f'latest_card = "{token}"' in state, "CURRENT_STATE latest card drift")
-need(f'latest_card_path = "{card_rel_path}"' in state, "CURRENT_STATE latest path drift")
+need(any(f'latest_card = "{card}"' in state for card in follow_on_cards), "CURRENT_STATE latest card drift")
+need(any(f'latest_card_path = "{path}"' in state for path in follow_on_cards.values()), "CURRENT_STATE latest path drift")
 need(f'current_blocker_token = "{blocker}"' in state, "CURRENT_STATE blocker drift")
 
 for needle in [

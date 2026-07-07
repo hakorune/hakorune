@@ -1,0 +1,57 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderHardAuthorityPilotCompareRhsValueIdRequestAbiV1",
+  "token": "MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-VALUEID-REQUEST-ABI-001",
+  "output_contract": "rust-lifecycle-mirbuilder-hard-authority-pilot-compare-rhs-valueid-request-abi-v0",
+  "current_state": {
+    "latest_card": "MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-VALUEID-REQUEST-ABI-001",
+    "current_blocker_token": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+  },
+  "input_state": {
+    "previous_card": "MIRBUILDER-POST-RHS-VALUEID-PLAN-NEXT-SEAM-SELECTION-001",
+    "selection_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-post-rhs-valueid-plan-next-seam-selection-v0.json",
+    "request_abi_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-compare-rhs-valueid-resolution-request-response-abi-v0.json"
+  },
+  "pilot": {
+    "candidate_id": "CompareRhsValueIdResolutionRequestAbiBoundary",
+    "owner_id": "CompareRhsValueIdResolutionRequestSnapshotBox",
+    "seam_kind": "ReadOnlyRhsValueIdResolutionRequestAbi",
+    "input_surface": "CompareRhsValueIdResolutionPlanSnapshotV1",
+    "output_surface": "CompareRhsValueIdResolutionRequestSnapshotV1",
+    "downstream_consumer": "CompareRhsValueIdResolutionResponseV1",
+    "claim_ceiling": "scoped_hard_authority_pilot"
+  },
+  "claims": {
+    "hard_authority_pilot_implemented": 1,
+    "compare_rhs_valueid_resolution_request_abi_owner": 1,
+    "hako_request_abi_surface": 1,
+    "rust_oracle_parity": 1,
+    "aot_exe_guard": 1,
+    "downstream_boundary_present": 1,
+    "hako_adopted_decision": 0,
+    "source_selfhost_claim": 0,
+    "native_seed_materialization": 0,
+    "actual_rhs_valueid_resolution": 0,
+    "literal_constant_valueid_allocation": 0,
+    "constant_mir_emission": 0,
+    "symbol_lookup_execution": 0,
+    "local_ssa_finalize_compare_execution": 0,
+    "mir_cmp_emission": 0,
+    "branch_emission": 0,
+    "basic_block_mutation": 0,
+    "value_id_allocation": 0,
+    "mir_mutation": 0,
+    "id_allocation": 0,
+    "route_selection": 0,
+    "runtime_route_switch": 0,
+    "programjson_runtime_route_authority": 0,
+    "runtime_fallback": 0,
+    "new_backend_route": 0,
+    "new_abi": 0
+  },
+  "decision": {
+    "kind": "CompareRhsValueIdRequestAbiHardAuthorityPilotGreen",
+    "reason_token": "CompareRhsValueIdResolutionRequestAbiIsReadOnlyRequestOwner",
+    "selected_next_card": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+  }
+}

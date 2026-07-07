@@ -70,6 +70,10 @@ follow_on_card = "MIRBUILDER-POST-RHS-MATERIALIZATION-INTENT-NEXT-SEAM-SELECTION
 follow_on_card_path = "docs/development/current/main/phases/phase-296x/3330-MIRBUILDER-POST-RHS-MATERIALIZATION-INTENT-NEXT-SEAM-SELECTION-001.md"
 second_follow_on_card = "MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-VALUEID-RESOLUTION-PLAN-001"
 second_follow_on_card_path = "docs/development/current/main/phases/phase-296x/3331-MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-VALUEID-RESOLUTION-PLAN-001.md"
+third_follow_on_card = "MIRBUILDER-POST-RHS-VALUEID-PLAN-NEXT-SEAM-SELECTION-001"
+third_follow_on_card_path = "docs/development/current/main/phases/phase-296x/3332-MIRBUILDER-POST-RHS-VALUEID-PLAN-NEXT-SEAM-SELECTION-001.md"
+fourth_follow_on_card = "MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-VALUEID-REQUEST-ABI-001"
+fourth_follow_on_card_path = "docs/development/current/main/phases/phase-296x/3333-MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-VALUEID-REQUEST-ABI-001.md"
 
 need(f"# 3329 - {token}" in card, "card token drift")
 need(output_contract in card, "card output contract drift")
@@ -156,8 +160,8 @@ for key in [
 ]:
     need(claims.get(key) == 0, f"forbidden claim drift: {key}")
 
-need(state.get("latest_card") in [token, follow_on_card, second_follow_on_card], "CURRENT_STATE latest card drift")
-need(state.get("latest_card_path") in [str(card_path), follow_on_card_path, second_follow_on_card_path], "CURRENT_STATE latest path drift")
+need(state.get("latest_card") in [token, follow_on_card, second_follow_on_card, third_follow_on_card, fourth_follow_on_card], "CURRENT_STATE latest card drift")
+need(state.get("latest_card_path") in [str(card_path), follow_on_card_path, second_follow_on_card_path, third_follow_on_card_path, fourth_follow_on_card_path], "CURRENT_STATE latest path drift")
 need(state.get("current_blocker_token") == blocker, "CURRENT_STATE blocker drift")
 
 for needle in [
