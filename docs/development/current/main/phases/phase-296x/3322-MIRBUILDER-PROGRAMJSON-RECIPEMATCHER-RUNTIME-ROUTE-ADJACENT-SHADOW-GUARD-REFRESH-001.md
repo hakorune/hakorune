@@ -35,3 +35,25 @@ SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
 ```bash
 bash tools/checks/rust_lifecycle_mirbuilder_programjson_recipematcher_runtime_route_adjacent_shadow_guard_refresh_guard.sh
 ```
+
+## Closeout
+
+Guard result: green.
+
+```text
+output_contract=rust-lifecycle-mirbuilder-programjson-recipematcher-runtime-route-adjacent-shadow-guard-refresh-v0
+runtime_route_adjacent_shadow_guard_refresh=1
+runtime_route_adjacent_shadow_guard_green=1
+runtime_authority=rust_astnode
+programjson_shadow_checked_by_lifecycle_gate=1
+programjson_runtime_route_authority=0
+runtime_route_switch=0
+recipe_matcher_input_authority=0
+route_selection=0
+mir_lowering=0
+mir_mutation=0
+id_allocation=0
+runtime_fallback=0
+source_selfhost_claim=0
+selected_next_card=SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+```

@@ -345,14 +345,14 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-COMPARE-RUNTIME-ROUTE-AUTHORITY-DESIGN-STOP-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3321-MIRBUILDER-COMPARE-RUNTIME-ROUTE-AUTHORITY-DESIGN-STOP-001.md"
-latest_card_summary = """3321 keeps runtime route authority on the Rust
-ASTNode route after the Compare/Branch bridge closeout and selects the
-ProgramJSON runtime-adjacent shadow guard as the next read-only boundary.
-Direct runtime route authority switch, ProgramJSON runtime authority, route
-selection, MIR lowering/mutation authority, ID allocation, runtime fallback,
-and Source Selfhost remain unclaimed."""
+latest_card = "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RUNTIME-ROUTE-ADJACENT-SHADOW-GUARD-REFRESH-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3322-MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RUNTIME-ROUTE-ADJACENT-SHADOW-GUARD-REFRESH-001.md"
+latest_card_summary = """3322 reconfirms the runtime-adjacent ProgramJSON
+shadow guard after the Compare/Branch bridge closeout. Rust remains runtime
+authority, ProgramJSON remains shadow-only evidence, and ProgramJSON runtime
+authority, runtime route switch, recipe matcher input authority, route
+selection, MIR lowering/mutation, ID allocation, runtime fallback, and Source
+Selfhost remain unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -363,6 +363,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-08: 3322 reconfirms the runtime-adjacent ProgramJSON shadow guard after the Compare/Branch bridge closeout; Rust remains runtime authority, ProgramJSON remains shadow-only evidence, and ProgramJSON runtime authority, runtime route switch, route selection, MIR lowering/mutation, ID allocation, runtime fallback, and Source Selfhost remain unclaimed.",
   "2026-07-08: 3321 keeps runtime route authority on the Rust ASTNode route after the Compare/Branch bridge closeout and selects the ProgramJSON runtime-adjacent shadow guard as the next read-only boundary; direct runtime route authority switch, ProgramJSON runtime authority, route selection, MIR lowering/mutation authority, ID allocation, runtime fallback, and Source Selfhost remain unclaimed.",
   "2026-07-08: 3320 closes the scoped BoolRecipe-to-MIR Compare/Branch bridge chain through conditional Branch emission; RHS ValueId, LocalSSA finalize_compare, MIR Compare emission, and Branch emission bridge gates are green, while Source Selfhost, ProgramJSON runtime authority, runtime fallback, and route/runtime authority remain unclaimed.",
   "2026-07-08: 3319 runs the scoped Branch emission bridge for an already-emitted Compare result ValueId; branch condition consumption, LocalSSA branch-condition finalization, and conditional Branch terminator emission are claimed, while Source Selfhost, Hako adoption, ProgramJSON runtime authority, runtime fallback, and route/runtime authority remain unclaimed.",
@@ -374,5 +375,4 @@ landed_tail = [
   "2026-07-08: 3338 selects a guard-chain cache preflight before reopening LocalSSA finalize_compare; existing guard result memoization and Hako MIR/EXE cache wrapper guards are recorded as prerequisites, while cache implementation, dirty-cache default changes, compiler semantics, LocalSSA, MIR Compare/Branch, Source Selfhost, Hako adoption, and route/runtime authority remain unclaimed.",
   "2026-07-08: 3337 connects the no-shadow SymbolRef lookup bridge to the current hard-authority pilot chain; existing ValueId return is claimed only for contract-verified no-shadow local rows, while general SymbolRef authority, shadowing/current SSA, allocation, mutation, LocalSSA, MIR Compare/Branch, Source Selfhost, Hako adoption, and route/runtime authority remain unclaimed.",
   "2026-07-08: 3336 connects SymbolRefResolutionContractV1 read-only parity to the current hard-authority pilot chain; symbol id/name/key mapping and Rust current ValueId observation are claimed for two no-shadow rows, while actual SymbolRef lookup, ValueId return, allocation, mutation, LocalSSA, MIR Compare/Branch, Source Selfhost, Hako adoption, and route/runtime authority remain unclaimed.",
-  "2026-07-08: 3335 connects the selected post-request-ABI seam to the existing LiteralI64 const-only RHS ValueId bridge; literal constant ValueId allocation, integer Const MIR emission, integer type publication, and const-only mutation are claimed for the scoped row, while general RHS resolution, SymbolRef lookup, LocalSSA, MIR Compare/Branch, Source Selfhost, Hako adoption, and route/runtime authority remain unclaimed.",
 ]
