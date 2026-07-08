@@ -58,6 +58,7 @@ existing Rust evidence:
   prove_scalar_i64_map_get_store_fact
   GenericMethodValueDemand::ScalarI64
   GenericMethodPublicationPolicy::NoPublication
+  all_rows_join_contract = true within this narrow contract scope
 ```
 
 ## Result

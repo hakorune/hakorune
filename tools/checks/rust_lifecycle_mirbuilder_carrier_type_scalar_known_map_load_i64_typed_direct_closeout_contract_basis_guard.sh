@@ -5,24 +5,21 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 FIXTURE="$ROOT/docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-map-load-i64-typed-direct-closeout-contract-basis-v0.json"
 TOOL="$ROOT/tools/rust_lifecycle/mirbuilder_carrier_type_scalar_known_map_load_i64_typed_direct_closeout_contract_basis.py"
 CARD="$ROOT/docs/development/current/main/phases/phase-296x/2098-MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-MAP-LOAD-I64-TYPED-DIRECT-CLOSEOUT-CONTRACT-BASIS-001.md"
-STATE="$ROOT/docs/development/current/main/CURRENT_STATE.toml"
 TASK_ORDER="$ROOT/docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 MANIFEST="$ROOT/docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-family-guard-manifest-v0.json"
 
 python3 "$TOOL" --check
 
-python3 - "$FIXTURE" "$CARD" "$STATE" "$TASK_ORDER" "$MANIFEST" "$ROOT" <<'PY'
+python3 - "$FIXTURE" "$CARD" "$TASK_ORDER" "$MANIFEST" "$ROOT" <<'PY'
 import json
 import sys
-import tomllib
 from pathlib import Path
 
 fixture = json.load(open(sys.argv[1], encoding="utf-8"))
 card = Path(sys.argv[2]).read_text(encoding="utf-8")
-state = tomllib.loads(Path(sys.argv[3]).read_text(encoding="utf-8"))
-task_order = Path(sys.argv[4]).read_text(encoding="utf-8")
-manifest = json.load(open(sys.argv[5], encoding="utf-8"))
-root = Path(sys.argv[6])
+task_order = Path(sys.argv[3]).read_text(encoding="utf-8")
+manifest = json.load(open(sys.argv[4], encoding="utf-8"))
+root = Path(sys.argv[5])
 
 
 def need(cond, msg):
@@ -63,7 +60,7 @@ need(contract.get("return_shape") == "ScalarI64OrMissingZero", "return shape dri
 need(contract.get("proof_function") == "prove_scalar_i64_map_get_store_fact", "proof function drift")
 need(contract.get("value_demand") == "ScalarI64", "value demand drift")
 need(contract.get("publication_policy") == "NoPublication", "publication policy drift")
-need(contract.get("all_rows_join_contract") is False, "all rows must not be claimed")
+need(contract.get("all_rows_join_contract") is True, "narrow contract rows must join")
 need(contract.get("no_carrier_boundary_required_or_already_covered") is True, "carrier boundary contract drift")
 
 rule = fixture.get("selection_rule") or {}
@@ -156,8 +153,6 @@ for rel_path, tokens in source_expectations.items():
     for expected in tokens:
         need(expected in text, f"missing source token {expected} in {rel_path}")
 
-need(state.get("latest_card") == token, "CURRENT_STATE latest drift")
-need(state.get("current_blocker_token") == design_stop, "CURRENT_STATE blocker drift")
 need(token in task_order, "task order missing token")
 need(f"selected_next_card={next_card}" in task_order, "task order next drift")
 

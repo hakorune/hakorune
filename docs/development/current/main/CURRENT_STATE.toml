@@ -345,17 +345,18 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-MAP-LOAD-I64-TYPED-DIRECT-CLOSEOUT-CONTRACT-BASIS-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2098-MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-MAP-LOAD-I64-TYPED-DIRECT-CLOSEOUT-CONTRACT-BASIS-001.md"
-latest_card_summary = """2098 records the consultation-approved narrow
-TypedDirectCloseoutContract basis for existing MapLoadScalarI64 /
-ScalarI64OrMissingZero Rust-owner evidence. It defines only a basis candidate
-for ScalarKnownCloseoutAuthority, selects RERUN-003, and keeps
-ScalarKnownTransportAxis closeout, accepted/root authority, component-specific
-selection, concrete carrier/type axis selection, Hako adoption, runtime
-fallback, new backend/ABI, and Source Selfhost unclaimed."""
+latest_card = "MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-COMPONENT-REQUIREMENT-RERUN-003"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2099-MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-COMPONENT-REQUIREMENT-RERUN-003.md"
+latest_card_summary = """2099 reruns the seven remaining carrier/type
+component requirements after the narrow MapLoadScalarI64 typed direct closeout
+contract basis, materializes exactly one accepted component evidence source,
+selects ScalarKnownCloseoutAuthority as the only root component requirement,
+and selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-TRANSPORT-CLOSEOUT-BASIS-001.
+Concrete carrier/type axis selection, ScalarKnownTransportAxis closeout, Hako
+adoption, runtime fallback, new backend/ABI, and Source Selfhost remain
+unclaimed."""
 
-current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+current_blocker_token = "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-TRANSPORT-CLOSEOUT-BASIS-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -364,6 +365,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-08: 2099 reruns the seven remaining carrier/type component requirements after the narrow MapLoadScalarI64 typed direct closeout contract basis, materializes exactly one accepted component evidence source, selects ScalarKnownCloseoutAuthority as the only root component requirement, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-TRANSPORT-CLOSEOUT-BASIS-001, and keeps concrete carrier/type axis selection, ScalarKnownTransportAxis closeout, Hako adoption, runtime fallback, new backend/ABI, and Source Selfhost unclaimed.",
   "2026-07-08: 2098 records the consultation-approved narrow TypedDirectCloseoutContract basis for existing MapLoadScalarI64 / ScalarI64OrMissingZero Rust-owner evidence, selects MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-COMPONENT-REQUIREMENT-RERUN-003, and keeps ScalarKnownTransportAxis closeout, accepted/root authority, component-specific selection, concrete carrier/type axis selection, Hako adoption, runtime fallback, new backend/ABI, and Source Selfhost unclaimed.",
   "2026-07-08: 2086 reruns component requirement priority after the 2085 component evidence source discovery inventory, finds zero accepted component evidence sources and zero root component requirements, keeps stopped with NoCarrierTypeComponentEvidenceSourceAuthority, and returns to SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001; the parent-policy-lane machine-search chain remains parked, and component-specific selection, concrete carrier/type axis selection, Hako adoption, runtime fallback, new backend/ABI, and Source Selfhost remain unclaimed.",
   "2026-07-08: 2085 inventories non-self-signed component evidence source authority for the seven remaining carrier/type component requirements and selects RERUN-002 instead of widening into the parent-policy-lane machine-search chain; accepted evidence counts remain diagnostic only, while component-specific selection, concrete carrier/type axis selection, Hako adoption, runtime fallback, new backend/ABI, and Source Selfhost remain unclaimed.",
@@ -375,5 +377,4 @@ landed_tail = [
   "2026-07-08: 2079 defines the selector basis for the five remaining carrier/type axes after DomainObject/Id is parked, records ProductTuple, CollectionCarrier, IteratorOrBorrowType, OpaqueType, and ScalarKnown as candidates, keeps deferred parent policy lanes diagnostic-only, and selects MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-PRIORITY-RERUN-001; concrete carrier/type axis selection, Hako adoption, runtime fallback, new backend/ABI, and Source Selfhost remain unclaimed.",
   "2026-07-08: 2078 parks the DomainObject/Id lane after explicit semantic resource-domain declaration sources and stable closed-resource manifests are both absent, then selects the nearest unexhausted parent-lane basis, MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-PRIORITY-BASIS-001; concrete carrier/type axis selection, Hako adoption, runtime fallback, new backend/ABI, and Source Selfhost remain unclaimed.",
   "2026-07-08: 2077 inventories explicit semantic resource-domain declaration sources after the 2076 basis-only card, finds zero explicit semantic declaration sources and zero stable closed-resource manifests, and selects SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-008; DomainObject/Id subaxis selection remains parked, and type/source/owner/count inference, Hako adoption, runtime fallback, new backend/ABI, and Source Selfhost remain unclaimed.",
-  "2026-07-08: 2076 records the consultation-approved basis-only move after 2064, defining explicit semantic resource-domain declaration authority requirements for DomainObject/Id type-identity rows before any subaxis selection; type identity remains stable evidence only, and dependency root authority, prior closed-lane continuation, selected subaxis, Hako adoption, runtime fallback, new backend/ABI, and Source Selfhost remain unclaimed.",
 ]

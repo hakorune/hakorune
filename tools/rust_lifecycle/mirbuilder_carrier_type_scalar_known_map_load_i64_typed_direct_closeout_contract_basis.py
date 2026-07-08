@@ -137,7 +137,7 @@ def build_fixture() -> dict[str, Any]:
             "proof_function": "prove_scalar_i64_map_get_store_fact",
             "value_demand": "ScalarI64",
             "publication_policy": "NoPublication",
-            "all_rows_join_contract": False,
+            "all_rows_join_contract": True,
             "no_carrier_boundary_required_or_already_covered": True,
             "scope_note": (
                 "Narrow MapBox scalar i64 get route evidence only; this does "

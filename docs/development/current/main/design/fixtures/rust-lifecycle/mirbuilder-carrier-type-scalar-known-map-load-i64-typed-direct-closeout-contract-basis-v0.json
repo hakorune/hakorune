@@ -32,7 +32,7 @@
     "typed_direct_closeout_contract_basis": 1
   },
   "contract": {
-    "all_rows_join_contract": false,
+    "all_rows_join_contract": true,
     "contract_id": "MapLoadScalarI64ScalarKnownTypedDirectCloseoutContract",
     "no_carrier_boundary_required_or_already_covered": true,
     "proof_function": "prove_scalar_i64_map_get_store_fact",

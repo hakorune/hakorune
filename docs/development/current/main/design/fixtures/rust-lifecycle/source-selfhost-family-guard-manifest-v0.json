@@ -2023,6 +2023,13 @@
       "role": "current_queue"
     },
     {
+      "token": "MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-COMPONENT-REQUIREMENT-RERUN-003",
+      "card": "docs/development/current/main/phases/phase-296x/2099-MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-COMPONENT-REQUIREMENT-RERUN-003.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-transport-remaining-axis-component-requirement-rerun-003-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_carrier_type_transport_remaining_axis_component_requirement_rerun_003_guard.sh",
+      "role": "current_queue"
+    },
+    {
       "token": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-009",
       "card": "docs/development/current/main/phases/phase-296x/2086-SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-009.md",
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-wider-route-selection-basis-009-v0.json",
