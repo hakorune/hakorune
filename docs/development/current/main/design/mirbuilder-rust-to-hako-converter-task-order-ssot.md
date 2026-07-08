@@ -410,9 +410,9 @@ landed summary: 3219 selects more DTO coverage rows; 3222 selects runtime Recipe
 
 next active:
   MIRBUILDER-CURRENT-ACTIVE-RUST-LIFECYCLE-GUARD-RESOLVER-001; status=landed; output_contract=current-active-rust-lifecycle-guard-resolver; latest_guard_resolved = 1; current_blocker_guard_pending = 1; runnable_guard_count = 1; run_all_rust_lifecycle_guards_by_default = 0; selected_next_card=MIRBUILDER-COMPARE-PROOF-BRIDGE-PARK-OR-CONNECT-DESIGN-STOP-001; source_selfhost_claim = 0
-  MIRBUILDER-COMPARE-PROOF-BRIDGE-DELETE-001; status=landed; output_contract=rust-lifecycle-mirbuilder-compare-proof-bridge-delete; compare_proof_bridge_deleted = 1; compare_proof_bridge_deleted_file_count = 6; builder_mod_declarations_removed = 1; live_compare_path_preserved = 1; selected_next_card=MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-SHADOW-CONSUME-SET-MAPSTORE-I64-001; source_selfhost_claim = 0
   MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-SHADOW-CONSUME-SET-MAPSTORE-I64-001; status=landed; output_contract=rust-lifecycle-mirbuilder-scalar-known-fastpath-hako-shadow-consume-set-mapstore-i64; hako_artifact_fastpath_shadow_consumed = 1; rust_hako_policy_match = 1; mismatch_policy = fail_fast_guard; rust_authority_retained = 1; selected_next_card=MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-SHADOW-CONSUME-MISMATCH-GUARD-EXPANSION-001; source_selfhost_claim = 0
   MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-SHADOW-CONSUME-MISMATCH-GUARD-EXPANSION-001; status=landed; output_contract=rust-lifecycle-mirbuilder-scalar-known-fastpath-hako-shadow-consume-mismatch-guard-expansion; hako_shadow_mismatch_guard_expanded = 1; route_kind_mismatch_rejected = 1; core_op_mismatch_rejected = 1; role_mismatch_rejected = 1; rust_authority_retained = 1; selected_next_card=MIRBUILDER-BOOL-RECIPE-COMPARE-PUBLICATION-FIRST-PARITY-ROW-SELECTION-001; source_selfhost_claim = 0
+  MIRBUILDER-BOOL-RECIPE-COMPARE-PUBLICATION-FIRST-PARITY-ROW-SELECTION-001; status=landed; output_contract=rust-lifecycle-mirbuilder-bool-recipe-compare-publication-first-parity-row-selection; bool_recipe_compare_publication_first_parity_row_selected = 1; selected_row_id=var_le_literal; selection_only = 1; selected_next_card=MIRBUILDER-BOOL-RECIPE-COMPARE-PUBLICATION-FIRST-PARITY-ROW-GATE-001; source_selfhost_claim = 0
 
 trigger-based AOT/MIR typing debt:
   status=parked-until-triggered; order=2999/3000/3001 landed, then 3022 queue
@@ -420,10 +420,10 @@ trigger-based AOT/MIR typing debt:
   compare, PHI dst_type, mir_call dst_type, or receiver-helper
   single-observation protection
 next_documented_task =
-  MIRBUILDER-BOOL-RECIPE-COMPARE-PUBLICATION-FIRST-PARITY-ROW-SELECTION-001
+  MIRBUILDER-BOOL-RECIPE-COMPARE-PUBLICATION-FIRST-PARITY-ROW-GATE-001
 
 next_after_active_3 =
-  MIRBUILDER-BOOL-RECIPE-COMPARE-PUBLICATION-FIRST-PARITY-ROW-SELECTION-001
+  MIRBUILDER-BOOL-RECIPE-COMPARE-PUBLICATION-FIRST-PARITY-ROW-GATE-001
 follow_on_after_consume = select first BoolRecipe publication parity row only after consume gate is green
 
 task discipline =
