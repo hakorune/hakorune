@@ -466,7 +466,7 @@
     "worker_inventory_scope": "read_only_current_fixtures_cards_ledgers"
   },
   "provenance": {
-    "carrier_type_transport_evidence_inventory_rerun_003_hash": "54e73c2dfa26a812eb81c9f258be1e5c08dc95c59e8a19226b507b42a8ea2fcf",
+    "carrier_type_transport_evidence_inventory_rerun_003_hash": "8f3c5c3f486a6df2c8147f72d5bd494d6ec3f3882db0bd634a74e6eb06e87b4d",
     "unconverted_surface_report_hash": "610bc2b724b270c5a09615c27de40616517caab74411cd9933703871424f263e"
   },
   "schema_version": 0,

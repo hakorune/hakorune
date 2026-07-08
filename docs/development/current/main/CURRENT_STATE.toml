@@ -345,15 +345,15 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-CARRIER-TYPE-TRANSPORT-EVIDENCE-INVENTORY-RERUN-003"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2061-MIRBUILDER-CARRIER-TYPE-TRANSPORT-EVIDENCE-INVENTORY-RERUN-003.md"
-latest_card_summary = """2061 normalizes carrier/type transport evidence after
-policy inventory rerun 003, treats source return type as evidence rather than
-policy, records 944 input candidates, 814 complete evidence rows, and 130
-unclassified rows, and selects
-MIRBUILDER-CARRIER-TYPE-TRANSPORT-UNCLASSIFIED-EVIDENCE-RESOLUTION-002.
-Manual carrier selection, return-type counts as proof, runtime fallback, new
-backend/ABI, Hako adoption, and Source Selfhost remain unclaimed."""
+latest_card = "MIRBUILDER-CARRIER-TYPE-TRANSPORT-UNCLASSIFIED-EVIDENCE-RESOLUTION-002"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2062-MIRBUILDER-CARRIER-TYPE-TRANSPORT-UNCLASSIFIED-EVIDENCE-RESOLUTION-002.md"
+latest_card_summary = """2062 resolves the 130 unclassified carrier/type
+transport evidence rows into six evidence axes, selects
+DomainObjectOrIdTransportAxis by mechanical pure type-transport evidence, and
+points next to MIRBUILDER-DOMAIN-OBJECT-ID-TRANSPORT-POLICY-INVENTORY-RERUN-002.
+Manual axis/carrier selection, return-type/domain-object counts as proof,
+runtime fallback, new backend/ABI, Hako adoption, and Source Selfhost remain
+unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -364,6 +364,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-08: 2062 resolves the 130 unclassified carrier/type transport evidence rows into six evidence axes, selects DomainObjectOrIdTransportAxis by mechanical pure type-transport evidence, and points next to MIRBUILDER-DOMAIN-OBJECT-ID-TRANSPORT-POLICY-INVENTORY-RERUN-002; manual axis/carrier selection, return-type/domain-object counts as proof, runtime fallback, new backend/ABI, Hako adoption, and Source Selfhost remain unclaimed.",
   "2026-07-08: 2061 normalizes carrier/type transport evidence after policy inventory rerun 003, treats source return type as evidence rather than policy, records 944 input candidates, 814 complete evidence rows, and 130 unclassified rows, and selects MIRBUILDER-CARRIER-TYPE-TRANSPORT-UNCLASSIFIED-EVIDENCE-RESOLUTION-002; manual carrier selection, return-type counts as proof, runtime fallback, new backend/ABI, Hako adoption, and Source Selfhost remain unclaimed.",
   "2026-07-08: 2060 inventories carrier/type transport lanes after MissingProjectionPolicy V4 selected the TypeTransportMissing blocker lane, records 944 type-transport-missing items across 76 clusters, finds four eligible policy-lane families, and selects MIRBUILDER-CARRIER-TYPE-TRANSPORT-EVIDENCE-INVENTORY-RERUN-003 because multiple transport lanes require evidence inventory first; manual carrier selection, return-type counts as proof, runtime fallback, new backend/ABI, Hako adoption, and Source Selfhost remain unclaimed.",
   "2026-07-08: 2059 reclusters the fresh MissingProjectionPolicy queue after checkpoint rerun 002, proves all 1004 missing-projection items are clustered exactly once, finds no projection-policy cluster eligible, and selects MIRBUILDER-CARRIER-TYPE-TRANSPORT-POLICY-INVENTORY-RERUN-003 because type transport evidence blocks the projection-policy clusters; manual policy/lane selection, cluster/count/coverage as proof, runtime fallback, new backend/ABI, Hako adoption, and Source Selfhost remain unclaimed.",
@@ -375,5 +376,4 @@ landed_tail = [
   "2026-07-08: 3319 runs the scoped Branch emission bridge for an already-emitted Compare result ValueId; branch condition consumption, LocalSSA branch-condition finalization, and conditional Branch terminator emission are claimed, while Source Selfhost, Hako adoption, ProgramJSON runtime authority, runtime fallback, and route/runtime authority remain unclaimed.",
   "2026-07-08: 3318 stops before consuming the Compare result as a branch condition and selects MIRBUILDER-COMPARE-BRANCH-EMISSION-BRIDGE-001 as the next separate Branch emission bridge; Branch execution, branch-condition consumption, Source Selfhost, Hako adoption, ProgramJSON runtime authority, and route/runtime authority remain unclaimed.",
   "2026-07-08: 3317 runs the scoped MIR Compare emission bridge for already-finalized lhs/rhs ValueIds; Compare result ValueId allocation, MIR Compare emission, and Bool type publication are claimed, while Branch emission, branch-condition consumption, Source Selfhost, Hako adoption, and route/runtime authority remain unclaimed.",
-  "2026-07-08: 3316 runs the scoped LocalSSA finalize_compare bridge for resolved lhs/rhs ValueIds; lhs/rhs operands are finalized through the Rust LocalSSA owner, while MIR Compare, Branch, Bool publication, Source Selfhost, Hako adoption, and route/runtime authority remain unclaimed.",
 ]
