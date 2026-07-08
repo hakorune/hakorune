@@ -45,7 +45,7 @@
     "worker_inventory_scope": "read_only_current_fixtures_cards_ledgers"
   },
   "provenance": {
-    "missing_projection_policy_cluster_resolution_v4_hash": "7a4deb7949e9c260e305f32894dd4aeca64f53ef51c464abd79180c27e704527",
+    "missing_projection_policy_cluster_resolution_v4_hash": "cb3b310c4e6a76ce47d358b336d5269040f19a7f22662d3e739412917980a1e4",
     "unconverted_surface_report_hash": "610bc2b724b270c5a09615c27de40616517caab74411cd9933703871424f263e"
   },
   "schema_version": 0,
