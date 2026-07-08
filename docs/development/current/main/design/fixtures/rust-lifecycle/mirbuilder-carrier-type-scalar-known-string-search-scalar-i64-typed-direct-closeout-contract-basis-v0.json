@@ -1,0 +1,91 @@
+{
+  "claims": {
+    "basis_only": 1,
+    "direct_contract_materialized": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "manual_axis_selection": 0,
+    "manual_carrier_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "owner_name_as_proof": 0,
+    "route_membership_alone_as_proof": 0,
+    "row_count_as_proof": 0,
+    "runtime_fallback": 0,
+    "scalar_known_transport_axis_closeout": 0,
+    "source_path_as_authority": 0,
+    "source_selfhost_claim": 0,
+    "string_search_scalar_i64_typed_direct_closeout_contract_basis": 1
+  },
+  "contract": {
+    "all_rows_join_contract": true,
+    "contract_id": "StringSearchScalarI64TypedDirectCloseoutContract",
+    "core_method_lowering_tier": "WarmDirectAbi",
+    "effect_class": "read",
+    "no_carrier_boundary_required_or_already_covered": true,
+    "publication_policy": "NoPublication",
+    "return_shape": "ScalarI64",
+    "routes": [
+      {
+        "core_method_op": "StringIndexOf",
+        "method_surface": "indexOf",
+        "proof_or_policy_source": "IndexOfSurfacePolicy",
+        "route_kind": "StringIndexOf"
+      },
+      {
+        "core_method_op": "StringLastIndexOf",
+        "method_surface": "lastIndexOf",
+        "proof_or_policy_source": "LastIndexOfSurfacePolicy",
+        "route_kind": "StringLastIndexOf"
+      },
+      {
+        "core_method_op": "StringContains",
+        "method_surface": "contains",
+        "proof_or_policy_source": "ContainsSurfacePolicy",
+        "route_kind": "StringContains"
+      }
+    ],
+    "source_kind": "TypedDirectCloseoutContract",
+    "surface_id": "StringScalarI64Routes",
+    "target_axis": "ScalarKnownTransportAxis",
+    "test_anchor": "src/mir/generic_method_route_plan/tests/string_routes/search_routes.rs",
+    "value_demand": "ScalarI64"
+  },
+  "decision": {
+    "kind": "SelectStringSearchScalarI64TypedDirectCloseoutContractRerun",
+    "reason_token": "StringSearchScalarI64TypedDirectCloseoutContractBasisDefined",
+    "selected_next_card": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-STRING-SEARCH-SCALAR-I64-TYPED-DIRECT-CLOSEOUT-CONTRACT-RERUN-001"
+  },
+  "input_state": {
+    "classification_rerun": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-uncovered-surface-classification-rerun-v0.json",
+    "selected_contract_id": "StringSearchScalarI64TypedDirectCloseoutContract",
+    "selected_surface_id": "StringScalarI64Routes"
+  },
+  "kind": "MirBuilderCarrierTypeScalarKnownStringSearchScalarI64TypedDirectCloseoutContractBasisV1",
+  "provenance": {
+    "classification_rerun_hash": "f7aa1e9cca68ff9f860ef86f6aaffa1c0cb0729ab5d7cee6b857c8b995e3931b",
+    "string_source_hash": "e01cc5744cd85aaf75fbc9bc2b6573c31f37dd7cce1d5687f9ed5f7bbed9da20",
+    "string_test_hash": "e175e2b69516debde60fd96156f275ffb70444de77b4339fd7a1148ab624ec9a"
+  },
+  "schema_version": 0,
+  "selection_rule": {
+    "axis_closeout_forbidden_at_basis": true,
+    "basis_only": true,
+    "contract_materialization_requires_rerun": true,
+    "name": "StringSearchScalarI64TypedDirectCloseoutContractBasisOnlyV1",
+    "owner_name_as_proof": false,
+    "route_membership_alone_as_proof": false,
+    "row_count_as_proof": false,
+    "source_path_as_authority": false
+  },
+  "summary": {
+    "direct_contract_materialized": 0,
+    "scalar_known_transport_axis_closeout": 0,
+    "source_selfhost_claim": 0,
+    "string_search_route_count": 3,
+    "typed_direct_closeout_contract_basis": 1
+  },
+  "token": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-STRING-SEARCH-SCALAR-I64-TYPED-DIRECT-CLOSEOUT-CONTRACT-BASIS-001"
+}
