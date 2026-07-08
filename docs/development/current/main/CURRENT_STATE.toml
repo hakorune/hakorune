@@ -345,14 +345,14 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-COMPONENT-REQUIREMENT-BASIS-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2081-MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-COMPONENT-REQUIREMENT-BASIS-001.md"
-latest_card_summary = """2081 defines seven component requirements for the
-five remaining carrier/type axes after the priority rerun found no
-proof-complete axis. It records zero root component requirements and selects
-the component requirement inventory. Component-specific card selection,
-concrete carrier/type axis selection, Hako adoption, runtime fallback, new
-backend/ABI, and Source Selfhost remain unclaimed."""
+latest_card = "MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-COMPONENT-REQUIREMENT-INVENTORY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2082-MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-COMPONENT-REQUIREMENT-INVENTORY-001.md"
+latest_card_summary = """2082 inventories typed evidence for the seven
+remaining carrier/type component requirements. It finds zero accepted component
+evidence sources, zero ready requirements, zero root component requirements,
+and selects the component requirement rerun. Component-specific card
+selection, concrete carrier/type axis selection, Hako adoption, runtime
+fallback, new backend/ABI, and Source Selfhost remain unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -363,6 +363,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-08: 2082 inventories typed evidence for the seven remaining carrier/type component requirements, finds zero accepted component evidence sources, zero ready requirements, zero root component requirements, and selects MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-COMPONENT-REQUIREMENT-RERUN-001; component-specific card selection, concrete carrier/type axis selection, Hako adoption, runtime fallback, new backend/ABI, and Source Selfhost remain unclaimed.",
   "2026-07-08: 2081 defines seven component requirements for the five remaining carrier/type axes after the priority rerun found no proof-complete axis, records zero root component requirements, and selects MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-COMPONENT-REQUIREMENT-INVENTORY-001; component-specific card selection, concrete carrier/type axis selection, Hako adoption, runtime fallback, new backend/ABI, and Source Selfhost remain unclaimed.",
   "2026-07-08: 2080 applies the remaining carrier/type axis mechanical selector to the five non-DomainObject axes; all five are scope-eligible, guard-clean, and evidence-inventory complete, but zero axes have a complete proof tuple, so the result remains KeepStopped and selects MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-COMPONENT-REQUIREMENT-BASIS-001; concrete carrier/type axis selection, Hako adoption, runtime fallback, new backend/ABI, and Source Selfhost remain unclaimed.",
   "2026-07-08: 2079 defines the selector basis for the five remaining carrier/type axes after DomainObject/Id is parked, records ProductTuple, CollectionCarrier, IteratorOrBorrowType, OpaqueType, and ScalarKnown as candidates, keeps deferred parent policy lanes diagnostic-only, and selects MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-PRIORITY-RERUN-001; concrete carrier/type axis selection, Hako adoption, runtime fallback, new backend/ABI, and Source Selfhost remain unclaimed.",
@@ -374,5 +375,4 @@ landed_tail = [
   "2026-07-08: 2062 resolves the 130 unclassified carrier/type transport evidence rows into six evidence axes, selects DomainObjectOrIdTransportAxis by mechanical pure type-transport evidence, and points next to MIRBUILDER-DOMAIN-OBJECT-ID-TRANSPORT-POLICY-INVENTORY-RERUN-002; manual axis/carrier selection, return-type/domain-object counts as proof, runtime fallback, new backend/ABI, Hako adoption, and Source Selfhost remain unclaimed.",
   "2026-07-08: 2061 normalizes carrier/type transport evidence after policy inventory rerun 003, treats source return type as evidence rather than policy, records 944 input candidates, 814 complete evidence rows, and 130 unclassified rows, and selects MIRBUILDER-CARRIER-TYPE-TRANSPORT-UNCLASSIFIED-EVIDENCE-RESOLUTION-002; manual carrier selection, return-type counts as proof, runtime fallback, new backend/ABI, Hako adoption, and Source Selfhost remain unclaimed.",
   "2026-07-08: 2060 inventories carrier/type transport lanes after MissingProjectionPolicy V4 selected the TypeTransportMissing blocker lane, records 944 type-transport-missing items across 76 clusters, finds four eligible policy-lane families, and selects MIRBUILDER-CARRIER-TYPE-TRANSPORT-EVIDENCE-INVENTORY-RERUN-003 because multiple transport lanes require evidence inventory first; manual carrier selection, return-type counts as proof, runtime fallback, new backend/ABI, Hako adoption, and Source Selfhost remain unclaimed.",
-  "2026-07-08: 2059 reclusters the fresh MissingProjectionPolicy queue after checkpoint rerun 002, proves all 1004 missing-projection items are clustered exactly once, finds no projection-policy cluster eligible, and selects MIRBUILDER-CARRIER-TYPE-TRANSPORT-POLICY-INVENTORY-RERUN-003 because type transport evidence blocks the projection-policy clusters; manual policy/lane selection, cluster/count/coverage as proof, runtime fallback, new backend/ABI, Hako adoption, and Source Selfhost remain unclaimed.",
 ]
