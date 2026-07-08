@@ -38,6 +38,16 @@ root authority, prior closed-lane continuation authority, or current policy
 contract readiness. Each axis still needs explicit component requirements
 before a concrete axis can be selected.
 
+Positive claim scope:
+
+```text
+carrier_type_remaining_axis_priority_rerun = 1
+scope_eligible_axis_count = 5
+guard_clean_axis_count = 5
+proof_tuple_complete_axis_count = 0
+selection_eligible_axis_count = 0
+```
+
 ## Guard
 
 ```text
@@ -71,10 +81,19 @@ accepted_typed_dependency_edge_materialized = 0
 manual_axis_selection = 0
 manual_carrier_selection = 0
 hardcoded_carrier_axis_priority = 0
+concrete_carrier_type_axis_selection = 0
 row_count_as_proof = 0
+cluster_size_as_proof = 0
+coverage_percentage_as_proof = 0
 source_path_as_authority = 0
 owner_name_as_proof = 0
 route_membership_alone_as_proof = 0
 observed_subaxis_set_as_proof = 0
 return_type_string_mapping_as_proof = 0
+generated_artifact_as_native_edit_authority = 0
+runtime_fallback = 0
+new_backend_route = 0
+new_abi = 0
+new_python_semantic_projector = 0
+runner_semantic_owner = 0
 ```
