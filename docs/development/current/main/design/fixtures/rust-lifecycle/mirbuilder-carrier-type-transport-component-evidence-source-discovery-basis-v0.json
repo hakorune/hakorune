@@ -186,9 +186,9 @@
     "selected_component_requirement": null
   },
   "provenance": {
-    "component_requirement_basis_hash": "fd730c893a9f9b7b4ad10f37935d2dd93e19f7634174ab6c7351d9675cc17636",
-    "component_requirement_inventory_hash": "2685ee5b831148b305975ff3e69ba392779afcdd12fd45aef679b94d2986c896",
-    "component_requirement_rerun_hash": "2a16e81492efbe2f8346f5d8280fc7e685ab25ba8c81d50e6f975bd09fb56610"
+    "component_requirement_basis_hash": "a102988711d2785927cbad798b5d71662269b7faa514fb2dc9e48dc63491b845",
+    "component_requirement_inventory_hash": "d08a477bc7c4373e8e08876a62a54d772388c3adfc89ebeb57fd875655d4d1b4",
+    "component_requirement_rerun_hash": "9493e71efdaf9606008d2ac36b43eb9adad680a827c492933f57e3970ca6c760"
   },
   "schema_version": 0,
   "selector_rule": {

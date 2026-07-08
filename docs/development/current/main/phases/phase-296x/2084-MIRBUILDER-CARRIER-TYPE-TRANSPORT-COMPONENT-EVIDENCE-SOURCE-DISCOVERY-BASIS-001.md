@@ -15,6 +15,10 @@ requirement.
 This card does not select a concrete carrier/type axis or a component-specific
 card.
 
+This is the consultation-approved D-first move after 2083. It is the
+basis-only predecessor to inventorying whether existing Rust owners can provide
+accepted root authority evidence for the seven component requirements.
+
 ## Result
 
 ```text
@@ -31,6 +35,18 @@ reason:
 
 selected_next_card:
   MIRBUILDER-CARRIER-TYPE-TRANSPORT-COMPONENT-EVIDENCE-SOURCE-DISCOVERY-INVENTORY-001
+```
+
+## Claim Scope
+
+```text
+rust_owner_root_authority_inventory_basis = 1
+component_requirement_root_authority_inventory_basis = 1
+accepted_evidence_source_schema_defined = 1
+basis_only = 1
+rerun_required_before_selection = 1
+component_specific_card_selection = 0
+concrete_carrier_type_axis_selection = 0
 ```
 
 ## Allowed Source Kinds
@@ -94,10 +110,19 @@ manual_axis_selection = 0
 manual_carrier_selection = 0
 hardcoded_carrier_axis_priority = 0
 row_count_as_proof = 0
+cluster_size_as_proof = 0
+coverage_percentage_as_proof = 0
 source_path_as_authority = 0
 owner_name_as_proof = 0
 route_membership_alone_as_proof = 0
 return_type_string_mapping_as_proof = 0
 observed_subaxis_set_as_proof = 0
 self_signed_component_authority = 0
+root_component_requirement_selected = 0
+generated_artifact_as_native_edit_authority = 0
+runtime_fallback = 0
+new_backend_route = 0
+new_abi = 0
+new_python_semantic_projector = 0
+runner_semantic_owner = 0
 ```
