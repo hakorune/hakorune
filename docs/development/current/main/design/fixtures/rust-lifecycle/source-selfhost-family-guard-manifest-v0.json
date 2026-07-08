@@ -2030,6 +2030,13 @@
       "role": "current_queue"
     },
     {
+      "token": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-TRANSPORT-CLOSEOUT-BASIS-001",
+      "card": "docs/development/current/main/phases/phase-296x/2100-MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-TRANSPORT-CLOSEOUT-BASIS-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-transport-closeout-basis-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_carrier_type_scalar_known_transport_closeout_basis_guard.sh",
+      "role": "current_queue"
+    },
+    {
       "token": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-009",
       "card": "docs/development/current/main/phases/phase-296x/2086-SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-009.md",
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-wider-route-selection-basis-009-v0.json",

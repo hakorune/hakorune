@@ -1,0 +1,76 @@
+{
+  "claims": {
+    "basis_only": 1,
+    "concrete_carrier_type_axis_selection": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "manual_axis_selection": 0,
+    "manual_carrier_selection": 0,
+    "map_load_scalar_i64_typed_direct_closeout_contract_consumed": 1,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "owner_name_as_proof": 0,
+    "rerun_required_before_axis_closeout": 1,
+    "route_membership_alone_as_proof": 0,
+    "row_count_as_proof": 0,
+    "runtime_fallback": 0,
+    "scalar_known_closeout_authority_root_consumed": 1,
+    "scalar_known_transport_axis_closeout": 0,
+    "scalar_known_transport_closeout_basis": 1,
+    "source_path_as_authority": 0,
+    "source_selfhost_claim": 0
+  },
+  "closeout_basis": {
+    "accepted_contracts": [
+      {
+        "contract_id": "MapLoadScalarI64ScalarKnownTypedDirectCloseoutContract",
+        "publication_policy": "NoPublication",
+        "return_shape": "ScalarI64OrMissingZero",
+        "route_kind": "MapLoadScalarI64",
+        "source_kind": "TypedDirectCloseoutContract",
+        "value_demand": "ScalarI64"
+      }
+    ],
+    "basis_only": true,
+    "rerun_required_before_axis_closeout": true,
+    "target_axis": "ScalarKnownTransportAxis",
+    "target_requirement": "ScalarKnownCloseoutAuthority"
+  },
+  "decision": {
+    "kind": "SelectScalarKnownTransportCloseoutRerun",
+    "reason_token": "ScalarKnownTransportCloseoutBasisDefined",
+    "selected_carrier_type_axis": null,
+    "selected_component_requirement": "ScalarKnownCloseoutAuthority",
+    "selected_next_card": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-TRANSPORT-CLOSEOUT-RERUN-001"
+  },
+  "input_state": {
+    "previous_rerun": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-transport-remaining-axis-component-requirement-rerun-003-v0.json",
+    "previous_rerun_token": "MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-COMPONENT-REQUIREMENT-RERUN-003",
+    "typed_direct_closeout_contract_basis": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-map-load-i64-typed-direct-closeout-contract-basis-v0.json"
+  },
+  "kind": "MirBuilderCarrierTypeScalarKnownTransportCloseoutBasisV1",
+  "previous_state": {
+    "accepted_component_evidence_source_count": 1,
+    "root_component_requirement_count": 1,
+    "scalar_known_accepted_source_count": 1,
+    "scalar_known_root_authority_status": "Proven",
+    "selected_component_requirement": "ScalarKnownCloseoutAuthority",
+    "selected_next_card": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-TRANSPORT-CLOSEOUT-BASIS-001"
+  },
+  "provenance": {
+    "previous_rerun_hash": "2026635992adec7199a72867027b215be3422810d923846e2f83f1931f0448f1",
+    "typed_direct_closeout_contract_basis_hash": "8a68b0d2bd040776f7baaae7a22f40984f2fbdc891d95532d31e088f114f6f6f"
+  },
+  "schema_version": 0,
+  "selection_rule": {
+    "axis_closeout_forbidden_at_basis": true,
+    "basis_only": true,
+    "concrete_carrier_type_axis_selection": false,
+    "name": "ScalarKnownTransportCloseoutBasisOnlyV1",
+    "rerun_required_before_closeout": true,
+    "source_selfhost_claim": false
+  },
+  "token": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-TRANSPORT-CLOSEOUT-BASIS-001"
+}
