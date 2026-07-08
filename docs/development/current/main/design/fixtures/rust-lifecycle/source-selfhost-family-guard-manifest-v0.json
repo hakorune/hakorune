@@ -2359,6 +2359,13 @@
       "role": "current_queue"
     },
     {
+      "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-ADOPTION-CONNECTION-INVENTORY-001",
+      "card": "docs/development/current/main/phases/phase-296x/3341-MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-ADOPTION-CONNECTION-INVENTORY-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-hako-adoption-connection-inventory-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_scalar_known_fastpath_hako_adoption_connection_inventory_guard.sh",
+      "role": "current_queue"
+    },
+    {
       "token": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-009",
       "card": "docs/development/current/main/phases/phase-296x/2086-SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-009.md",
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-wider-route-selection-basis-009-v0.json",

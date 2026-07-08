@@ -345,16 +345,16 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-DIRECT-CLOSEOUT-CONTRACT-BASIS-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2146-MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-DIRECT-CLOSEOUT-CONTRACT-BASIS-001.md"
-latest_card_summary = """2146 defines the basis-only direct closeout
-contract for the adopted SetSurfacePolicy / MapStoreAny Write surface, records
-the Any write boundary as declared metadata only, selects the direct closeout
-rerun, and keeps direct closeout, WriteScalarI64Routes closeout,
-ScalarKnownTransportAxis closeout, runtime mutation authority, publication
-execution, new backend/ABI, and Source Selfhost unclaimed."""
+latest_card = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-ADOPTION-CONNECTION-INVENTORY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3341-MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-ADOPTION-CONNECTION-INVENTORY-001.md"
+latest_card_summary = """3341 inventories the ScalarKnown `.hako`
+adoption and Rust fast-path connection state, records that the adopted `.hako`
+policy classifiers are guard-executed mirrors while Rust fast-path truth still
+lives in write_routes / collection_read_routes / string_routes through
+generic_method_routes and lowering_plan/C shim, pauses the closeout chain, and
+selects connection design consultation without claiming Source Selfhost."""
 
-current_blocker_token = "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-DIRECT-CLOSEOUT-RERUN-001"
+current_blocker_token = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-CONNECTION-DESIGN-CONSULTATION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -363,6 +363,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-09: 3341 inventories ScalarKnown .hako adoption versus Rust fast-path connection, records contract_fastpath_connected=0 and hako_fastpath_runtime_connection=0, pauses the ScalarKnown Write closeout chain, selects MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-CONNECTION-DESIGN-CONSULTATION-001, and leaves Rust fast-path rewiring, .hako runtime route authority, backend lowering authority, WriteScalarI64Routes closeout, ScalarKnownTransportAxis closeout, new backend/ABI, and Source Selfhost unclaimed.",
   "2026-07-09: 2146 defines the basis-only direct closeout contract for the adopted SetSurfacePolicy / MapStoreAny Write surface, records the Any write boundary as declared metadata only, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-DIRECT-CLOSEOUT-RERUN-001, and leaves direct closeout, WriteScalarI64Routes closeout, ScalarKnownTransportAxis closeout, runtime mutation authority, publication execution, new backend/ABI, and Source Selfhost unclaimed.",
   "2026-07-09: 2145 reruns the Write Set scoped surface selector after the Set MapStoreAny .hako adoption decision, finds exactly one adopted-but-unmaterialized scoped surface for SetSurfacePolicy / MapStoreAny, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-DIRECT-CLOSEOUT-CONTRACT-BASIS-001, and leaves direct closeout, WriteScalarI64Routes closeout, ScalarKnownTransportAxis closeout, runtime mutation authority, publication execution, new backend/ABI, and Source Selfhost unclaimed.",
   "2026-07-09: 2144 adopts the Set MapStoreAny .hako classifier/policy mirror after the green one-row Rust-oracle parity gate, keeps the Any write boundary as declared metadata only, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-POST-ADOPTION-RERUN-001, and leaves direct closeout, WriteScalarI64Routes closeout, ScalarKnownTransportAxis closeout, runtime mutation authority, publication execution, new backend/ABI, and Source Selfhost unclaimed.",
@@ -374,5 +375,4 @@ landed_tail = [
   "2026-07-08: 2138 materializes the scoped SetSurfacePolicy / MapStoreI64 typed direct closeout, raises accepted scoped closeouts to six, leaves SetSurfacePolicy / MapStoreAny as the only remaining Write scoped surface, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-BOUNDARY-SELECTION-001, and keeps Any write boundary, WriteScalarI64Routes closeout, ScalarKnownTransportAxis closeout, publication execution, runtime mutation authority, runtime fallback, new backend/ABI, and Source Selfhost unclaimed.",
   "2026-07-08: 2137 defines the basis-only typed direct closeout contract for the adopted SetSurfacePolicy / MapStoreI64 Write surface, keeps MapStoreAny deferred behind the Any write boundary, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-I64-DIRECT-CLOSEOUT-RERUN-001, and leaves direct contract materialization, WriteScalarI64Routes closeout, ScalarKnownTransportAxis closeout, publication execution, runtime mutation authority, runtime fallback, new backend/ABI, and Source Selfhost unclaimed.",
   "2026-07-08: 2136 reruns the Write Set scoped surface selector after the narrow MapStoreI64 .hako adoption decision, finds exactly one adopted-but-unmaterialized scoped surface for SetSurfacePolicy / MapStoreI64, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-I64-TYPED-DIRECT-CLOSEOUT-CONTRACT-BASIS-001, keeps MapStoreAny deferred behind the Any write boundary, and leaves direct closeout, WriteScalarI64Routes closeout, ScalarKnownTransportAxis closeout, publication execution, runtime mutation authority, runtime fallback, new backend/ABI, and Source Selfhost unclaimed.",
-  "2026-07-08: 2135 adopts the Set MapStoreI64 .hako classifier/policy mirror after the green one-row Rust-oracle parity gate, scopes adoption to SetSurfacePolicy / MapStoreI64, keeps MapStoreAny deferred behind the Any write boundary, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-I64-POST-ADOPTION-RERUN-001, and leaves direct closeout, WriteScalarI64Routes closeout, ScalarKnownTransportAxis closeout, publication execution, runtime mutation authority, runtime fallback, new backend/ABI, and Source Selfhost unclaimed.",
 ]
