@@ -1,0 +1,101 @@
+{
+  "claims": {
+    "accepted_read_contract_similarity_as_proof": 0,
+    "apparent_simplicity_as_proof": 0,
+    "basis_selection_eligible_subsurface_count": 0,
+    "behavior_change": 0,
+    "hako_adopted_remaining_write_subsurface_count": 0,
+    "hako_generation": 0,
+    "manual_axis_selection": 0,
+    "manual_carrier_selection": 0,
+    "manual_subsurface_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "new_route_authority": 0,
+    "owner_name_as_proof": 0,
+    "remaining_write_subsurface_count": 2,
+    "route_count_as_proof": 0,
+    "route_membership_alone_as_proof": 0,
+    "row_count_as_proof": 0,
+    "runtime_fallback": 0,
+    "runtime_mutation_authority": 0,
+    "scalar_known_transport_axis_closeout": 0,
+    "source_path_as_authority": 0,
+    "source_selfhost_claim": 0,
+    "write_remaining_subsurface_post_push_closeout_rerun": 1,
+    "write_scalar_i64_routes_closeout": 0,
+    "write_subsurface_selected": 0
+  },
+  "decision": {
+    "kind": "KeepStopped",
+    "reason_token": "NoHakoAdoptedRemainingWriteSubsurfacePilot",
+    "recommended_consultation_topic": "WriteRemainingSubsurfaceHakoPilotSelection",
+    "selected_next_card": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "selected_subsurface": null
+  },
+  "input_state": {
+    "accepted_scoped_closeout_count": 4,
+    "remaining_write_subsurface_count": 2,
+    "write_push_surface_direct_closeout_hash": "95b3df444c898db6a353439cc9405a19ef051b849f3e14797a606245ce5b6221",
+    "write_push_surface_direct_closeout_rerun": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-write-push-surface-direct-closeout-rerun-v0.json",
+    "write_result_policy_rerun": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-write-result-policy-rerun-v0.json",
+    "write_result_policy_rerun_hash": "213f57e04e0bf957fc45d1091d6a724bfca03c85f05d03284170e7ad86e40d55"
+  },
+  "kind": "MirBuilderCarrierTypeScalarKnownWriteRemainingSubsurfacePostPushCloseoutRerunV1",
+  "remaining_subsurfaces": [
+    {
+      "basis_selection_eligible": false,
+      "blocked_by": [
+        "NoHakoAdoptedWriteSubsurfacePilot",
+        "NoConsultationApprovedNextWritePilotProofAxis"
+      ],
+      "hako_adopted": false,
+      "mutation_class": "MutatesReceiverOrContainer",
+      "normalized_result_class": "ScalarI64Result",
+      "publication_class": "NonePublication",
+      "routes": [
+        "MapDeleteAny"
+      ],
+      "subsurface_id": "DeleteSurfacePolicy"
+    },
+    {
+      "basis_selection_eligible": false,
+      "blocked_by": [
+        "NoHakoAdoptedWriteSubsurfacePilot",
+        "NoConsultationApprovedNextWritePilotProofAxis"
+      ],
+      "hako_adopted": false,
+      "mutation_class": "MutatesReceiverOrContainer",
+      "normalized_result_class": "NoneResult",
+      "publication_class": "NonePublication",
+      "routes": [
+        "MapStoreI64",
+        "MapStoreAny"
+      ],
+      "subsurface_id": "SetSurfacePolicy"
+    }
+  ],
+  "schema_version": 0,
+  "selector_rule": {
+    "accepted_read_contract_similarity_as_proof": false,
+    "apparent_simplicity_as_proof": false,
+    "if_zero_hako_adopted_remaining_subsurfaces_keep_stopped": true,
+    "manual_subsurface_selection": false,
+    "name": "WriteRemainingSubsurfacePostPushCloseoutRerunSelectorV1",
+    "next_pilot_requires_design_consultation": true,
+    "route_count_as_proof": false
+  },
+  "summary": {
+    "basis_selection_eligible_subsurface_count": 0,
+    "hako_adopted_remaining_write_subsurface_count": 0,
+    "remaining_write_subsurface_count": 2,
+    "scalar_known_transport_axis_closeout": 0,
+    "selected_write_subsurface_count": 0,
+    "source_selfhost_claim": 0,
+    "write_remaining_subsurface_post_push_closeout_rerun": 1,
+    "write_scalar_i64_routes_closeout": 0
+  },
+  "token": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-REMAINING-SUBSURFACE-POST-PUSH-CLOSEOUT-RERUN-001"
+}
