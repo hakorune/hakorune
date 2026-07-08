@@ -1,0 +1,128 @@
+{
+  "claims": {
+    "accepted_read_contract_similarity_as_proof": 0,
+    "apparent_simplicity_as_proof": 0,
+    "basis_only": 1,
+    "behavior_change": 0,
+    "hako_generation": 0,
+    "manual_subsurface_selection": 0,
+    "mapstore_any_deferred": 1,
+    "mapstore_any_hako_pilot_selected": 0,
+    "mapstore_i64_first_candidate": 1,
+    "mapstore_i64_hako_pilot_selected": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "new_route_authority": 0,
+    "owner_name_as_proof": 0,
+    "prior_hako_adopted_write_surface_metadata_coverage": 1,
+    "publication_execution": 0,
+    "rerun_or_fixture_required_before_hako_pilot": 1,
+    "route_count_as_proof": 0,
+    "route_membership_alone_as_proof": 0,
+    "runtime_fallback": 0,
+    "runtime_mutation_authority": 0,
+    "scalar_known_transport_axis_closeout": 0,
+    "set_hako_pilot_selected": 0,
+    "set_split_unnecessary": 0,
+    "set_surface_policy_remaining": 1,
+    "set_surface_typed_value_split_basis": 1,
+    "source_path_as_authority": 0,
+    "source_selfhost_claim": 0,
+    "typed_scalar_write_before_any_write": 1,
+    "write_direct_closeout_materialized": 0,
+    "write_scalar_i64_routes_closeout": 0
+  },
+  "decision": {
+    "kind": "SelectSetMapStoreI64RustOracleParityFixture",
+    "reason_token": "SetSurfaceTypedValueSplitBasisDefined",
+    "selected_next_card": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-I64-RUST-ORACLE-PARITY-FIXTURE-001"
+  },
+  "input_state": {
+    "post_delete_closeout_rerun": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-write-remaining-subsurface-post-delete-closeout-rerun-v0.json",
+    "post_delete_closeout_rerun_hash": "036e90c8588c6f3306df9e26345ebe114d8ff8137ecb441a2c0943d23540e8d9",
+    "post_delete_decision": "KeepStopped",
+    "recommended_consultation_topic": "WriteSetSurfacePolicyPilotOrSplitSelection",
+    "remaining_routes": [
+      "MapStoreI64",
+      "MapStoreAny"
+    ],
+    "remaining_subsurface": "SetSurfacePolicy"
+  },
+  "kind": "MirBuilderCarrierTypeScalarKnownWriteSetSurfaceTypedValueSplitBasisV1",
+  "proof_axis": {
+    "already_covered_by_push_delete": [
+      "MutatesReceiverOrContainerMetadata",
+      "NonePublicationMetadata"
+    ],
+    "forbidden_proof_sources": [
+      "route_count",
+      "apparent_simplicity",
+      "manual_subsurface_selection",
+      "accepted_read_contract_similarity",
+      "owner_name",
+      "source_path",
+      "route_membership_alone"
+    ],
+    "name": "PriorHakoAdoptedWriteSurfaceMetadataCoverageAndTypedScalarWriteBeforeAnyWrite",
+    "new_for_set": [
+      "NoneResultMetadata",
+      "TypedVsAnyWriteValueBoundary"
+    ],
+    "prior_hako_adopted_write_surface_metadata_coverage": true,
+    "set_surface_typed_value_boundary_split_proof_axis": true,
+    "typed_scalar_write_before_any_write": true
+  },
+  "schema_version": 0,
+  "selection_rule": {
+    "accepted_read_contract_similarity_as_proof": false,
+    "apparent_simplicity_as_proof": false,
+    "basis_only": true,
+    "manual_subsurface_selection": false,
+    "mapstore_any_hako_pilot_selection_allowed": false,
+    "mapstore_i64_hako_pilot_selection_allowed": false,
+    "name": "SetSurfaceTypedValueSplitBasisOnlyV1",
+    "owner_name_as_proof": false,
+    "rerun_or_fixture_required_before_hako_pilot": true,
+    "route_count_as_proof": false,
+    "route_membership_alone_as_proof": false,
+    "set_hako_pilot_selection_allowed": false,
+    "source_path_as_authority": false
+  },
+  "split_plan": {
+    "mapstore_any": {
+      "deferred": true,
+      "requires_any_write_boundary": true,
+      "route": "MapStoreAny",
+      "typed_scalar_write": false,
+      "write_value_boundary": "Any"
+    },
+    "mapstore_i64": {
+      "first_candidate": true,
+      "route": "MapStoreI64",
+      "scalar_known_lane_local": true,
+      "typed_scalar_write": true,
+      "write_value_boundary": "ScalarI64"
+    },
+    "surface": "SetSurfacePolicy",
+    "whole_set_hako_pilot_allowed": false
+  },
+  "summary": {
+    "basis_only": 1,
+    "mapstore_any_deferred": 1,
+    "mapstore_any_hako_pilot_selected": 0,
+    "mapstore_i64_first_candidate": 1,
+    "mapstore_i64_hako_pilot_selected": 0,
+    "prior_hako_adopted_write_surface_metadata_coverage": 1,
+    "rerun_or_fixture_required_before_hako_pilot": 1,
+    "scalar_known_transport_axis_closeout": 0,
+    "set_hako_pilot_selected": 0,
+    "set_surface_policy_remaining": 1,
+    "set_surface_typed_value_split_basis": 1,
+    "source_selfhost_claim": 0,
+    "typed_scalar_write_before_any_write": 1,
+    "write_scalar_i64_routes_closeout": 0
+  },
+  "token": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-SURFACE-TYPED-VALUE-SPLIT-BASIS-001"
+}
