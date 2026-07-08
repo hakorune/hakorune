@@ -1,0 +1,20 @@
+// write_push_surface_policy_classifier.hako - Push write-surface policy mirror
+//
+// Responsibility:
+// - mirror the Rust oracle policy row for PushSurfacePolicy / ArrayAppendAny
+// - keep mutation as metadata, not runtime mutation authority
+// - provide a narrow .hako implementation pilot before the parity gate
+//
+// Non-responsibility:
+// - WriteScalarI64Routes direct closeout
+// - ScalarKnownTransportAxis closeout
+// - HakoAdopted promotion
+// - runtime mutation, route selection, or backend lowering
+static box WritePushSurfacePolicyClassifierBox {
+  classify(route_kind) {
+    if route_kind == "ArrayAppendAny" {
+      return "array_append_any_push_surface|PushSurfacePolicy|ArrayAppendAny|ArrayPush|ColdFallback|ScalarI64Result|ScalarI64|WriteAny|NoPublication|mutate|MutatesReceiverOrContainer|classifier_policy_mirror_only"
+    }
+    return "unsupported_write_push_surface_policy"
+  }
+}
