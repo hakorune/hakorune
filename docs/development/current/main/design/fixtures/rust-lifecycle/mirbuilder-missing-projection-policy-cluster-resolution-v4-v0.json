@@ -54,7 +54,7 @@
     "worker_inventory_scope": "read_only_current_fixtures_cards_ledgers"
   },
   "provenance": {
-    "native_owner_checkpoint_rerun_hash": "a582b8d6263758b7361b8a8f6a83446a2dafa5c9013cf9594bae61a6e7b3dd40",
+    "native_owner_checkpoint_rerun_hash": "b4a2b2db447efd0412e86598402017529b9157739b8501f41a62ac3a6c098df8",
     "unconverted_surface_report_hash": "610bc2b724b270c5a09615c27de40616517caab74411cd9933703871424f263e"
   },
   "report_state": {
