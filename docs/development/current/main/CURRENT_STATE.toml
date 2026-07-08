@@ -345,18 +345,16 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-I64-HAKO-PARITY-PILOT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2133-MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-I64-HAKO-PARITY-PILOT-001.md"
-latest_card_summary = """2133 lands the narrow Set Write `.hako`
-implementation pilot for SetSurfacePolicy / MapStoreI64 as a classifier/policy
-mirror. It carries NoneResult and NonePublication as metadata, keeps
-MapStoreAny deferred behind the Any write boundary, selects the MapStoreI64
-parity gate, and keeps Hako adoption, direct closeout, WriteScalarI64Routes
-closeout, ScalarKnownTransportAxis closeout, publication execution, runtime
-mutation authority, runtime fallback, new backend/ABI, and Source Selfhost
-unclaimed."""
+latest_card = "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-I64-PARITY-GATE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2134-MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-I64-PARITY-GATE-001.md"
+latest_card_summary = """2134 proves the Set MapStoreI64 `.hako`
+classifier/policy mirror against the Rust oracle fixture with one green parity
+row. It selects the Hako adoption decision and keeps Hako adoption, direct
+closeout, WriteScalarI64Routes closeout, ScalarKnownTransportAxis closeout,
+publication execution, runtime mutation authority, Any write boundary, runtime
+fallback, new backend/ABI, and Source Selfhost unclaimed."""
 
-current_blocker_token = "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-I64-PARITY-GATE-001"
+current_blocker_token = "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-I64-HAKO-ADOPTION-DECISION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -365,6 +363,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-08: 2134 proves the Set MapStoreI64 .hako classifier/policy mirror against the Rust oracle fixture with parity_rows=1 and parity_status=green, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-I64-HAKO-ADOPTION-DECISION-001, and leaves Hako adoption, direct closeout, WriteScalarI64Routes closeout, ScalarKnownTransportAxis closeout, publication execution, runtime mutation authority, Any write boundary, runtime fallback, new backend/ABI, and Source Selfhost unclaimed.",
   "2026-07-08: 2133 lands the narrow Set Write .hako implementation pilot for SetSurfacePolicy / MapStoreI64 as a classifier/policy mirror, carries NoneResult and NonePublication as metadata, keeps MapStoreAny deferred behind the Any write boundary, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-I64-PARITY-GATE-001, and leaves Hako adoption, direct closeout, WriteScalarI64Routes closeout, ScalarKnownTransportAxis closeout, publication execution, runtime mutation authority, runtime fallback, new backend/ABI, and Source Selfhost unclaimed.",
   "2026-07-08: 2132 freezes the Rust oracle row for the first split Set Write .hako pilot, SetSurfacePolicy / MapStoreI64, carries NoneResult and NonePublication as metadata, keeps MapStoreAny deferred behind the Any write boundary, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-I64-HAKO-PARITY-PILOT-001, and leaves pilot implementation, Hako adoption, direct closeout, WriteScalarI64Routes closeout, ScalarKnownTransportAxis closeout, publication execution, runtime mutation authority, runtime fallback, new backend/ABI, and Source Selfhost unclaimed.",
   "2026-07-08: 2131 consumes the WriteSetSurfacePolicyPilotOrSplitSelection consultation by defining the basis-only SetSurfacePolicy typed value split, records MapStoreI64 as the typed scalar first candidate, defers MapStoreAny behind Any write boundary, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-I64-RUST-ORACLE-PARITY-FIXTURE-001, and leaves Set/.hako pilot selection, WriteScalarI64Routes closeout, ScalarKnownTransportAxis closeout, publication execution, runtime mutation authority, runtime fallback, new backend/ABI, and Source Selfhost unclaimed.",
@@ -376,5 +375,4 @@ landed_tail = [
   "2026-07-08: 2125 proves the Delete Write .hako classifier/policy mirror against the Rust oracle fixture for DeleteSurfacePolicy / MapDeleteAny with parity_rows=1 and parity_status=green, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-DELETE-SURFACE-HAKO-ADOPTION-DECISION-001, and leaves Hako adoption, direct closeout, WriteScalarI64Routes closeout, ScalarKnownTransportAxis closeout, publication execution, runtime mutation authority, runtime fallback, new backend/ABI, and Source Selfhost unclaimed.",
   "2026-07-08: 2124 lands the narrow Delete Write .hako implementation pilot for DeleteSurfacePolicy / MapDeleteAny as a classifier/policy mirror carrying NonePublication as metadata, verifies the source, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-DELETE-SURFACE-PARITY-GATE-001, and leaves publication execution, runtime mutation authority, direct closeout, WriteScalarI64Routes closeout, ScalarKnownTransportAxis closeout, Hako adoption, new backend/ABI, and Source Selfhost unclaimed.",
   "2026-07-08: 2123 consumes the WriteRemainingSubsurfaceHakoPilotSelection consultation by selecting DeleteSurfacePolicy / MapDeleteAny via PriorHakoAdoptedWriteSubsurfaceMinimalSemanticDelta, freezes the Delete Rust oracle fixture, treats NonePublication as metadata, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-DELETE-SURFACE-HAKO-PARITY-PILOT-001, and leaves direct closeout, WriteScalarI64Routes closeout, ScalarKnownTransportAxis closeout, runtime mutation authority, runtime fallback, new backend/ABI, and Source Selfhost unclaimed.",
-  "2026-07-08: 2122 reruns the remaining Write sub-surface selector after scoped Push closeout, finds Delete/Set still lack HakoAdopted Write sub-surface pilots, keeps stopped, returns to SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001 for WriteRemainingSubsurfaceHakoPilotSelection consultation, and leaves WriteScalarI64Routes closeout, ScalarKnownTransportAxis closeout, runtime fallback, new backend/ABI, and Source Selfhost unclaimed.",
 ]
