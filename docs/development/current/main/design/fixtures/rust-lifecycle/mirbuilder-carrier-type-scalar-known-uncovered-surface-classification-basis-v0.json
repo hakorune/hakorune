@@ -1,0 +1,217 @@
+{
+  "claims": {
+    "basis_only": 1,
+    "classification_dimensions_defined": 1,
+    "direct_contract_selection": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "manual_axis_selection": 0,
+    "manual_carrier_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "owner_name_as_proof": 0,
+    "route_membership_alone_as_proof": 0,
+    "row_count_as_proof": 0,
+    "runtime_fallback": 0,
+    "scalar_known_transport_axis_closeout": 0,
+    "scalar_known_uncovered_surface_classification_basis": 1,
+    "source_path_as_authority": 0,
+    "source_selfhost_claim": 0
+  },
+  "classification_dimensions": [
+    "surface_id",
+    "route_kind_set",
+    "method_surface",
+    "return_shape",
+    "value_demand",
+    "publication_policy",
+    "proof_or_policy_source",
+    "core_method_op",
+    "core_method_lowering_tier",
+    "effect_class",
+    "receiver_key_value_result_origin_evidence",
+    "test_anchor"
+  ],
+  "decision": {
+    "kind": "SelectScalarKnownUncoveredSurfaceClassificationRerun",
+    "reason_token": "ScalarKnownUncoveredSurfaceClassificationBasisDefined",
+    "selected_contract_id": null,
+    "selected_next_card": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-UNCOVERED-SURFACE-CLASSIFICATION-RERUN-001",
+    "selected_surface_id": null
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "previous_reason_token": "ScalarKnownTransportAxisHasUncoveredScalarSurfaces",
+    "previous_rerun": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-transport-closeout-rerun-v0.json"
+  },
+  "kind": "MirBuilderCarrierTypeScalarKnownUncoveredSurfaceClassificationBasisV1",
+  "previous_state": {
+    "scalar_known_transport_axis_closeout": 0,
+    "scoped_map_load_scalar_i64_closeout": 1,
+    "selected_next_card": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "uncovered_scalar_known_surface_count": 3
+  },
+  "provenance": {
+    "previous_rerun_hash": "520fae8e84dcc557efeeeacb6a58ec21732a755d0bcc4884de34f10ec36afbfa",
+    "source_file_hashes": [
+      {
+        "path": "src/mir/generic_method_route_plan/string_routes.rs",
+        "sha256": "e01cc5744cd85aaf75fbc9bc2b6573c31f37dd7cce1d5687f9ed5f7bbed9da20"
+      },
+      {
+        "path": "src/mir/generic_method_route_plan/collection_read_routes.rs",
+        "sha256": "57a6db955ae35c9a9295fbf5ed180ce9a39ced253d30dbda6e86c3f514006899"
+      },
+      {
+        "path": "src/mir/generic_method_route_plan/write_routes.rs",
+        "sha256": "a099f2f6b422e6e6a454d0a6e10c74bfd649155b24ba2ebc760208de5c7caa22"
+      },
+      {
+        "path": "src/mir/generic_method_route_plan/tests/string_routes/search_routes.rs",
+        "sha256": "e175e2b69516debde60fd96156f275ffb70444de77b4339fd7a1148ab624ec9a"
+      },
+      {
+        "path": "src/mir/generic_method_route_plan/tests/string_routes/len_routes.rs",
+        "sha256": "4c30f1b9e3462e212e349247030844d4c685d7b17305d5c95384eefbc586da9f"
+      },
+      {
+        "path": "src/mir/generic_method_route_plan/tests/map_set_routes/collection_routes.rs",
+        "sha256": "d88a25ca29f5dd00d8b1ea341df050e478ac2d74de0ef2d961d40e8ff8d3e100"
+      }
+    ]
+  },
+  "schema_version": 0,
+  "selection_rule": {
+    "basis_only": true,
+    "classification_rerun_required_before_contract_selection": true,
+    "direct_surface_selection_allowed": false,
+    "name": "ScalarKnownUncoveredSurfaceClassificationBasisOnlyV1",
+    "owner_name_as_proof": false,
+    "route_membership_alone_as_proof": false,
+    "row_count_as_proof": false,
+    "source_path_as_authority": false
+  },
+  "summary": {
+    "classification_basis": 1,
+    "classified_surface_count": 3,
+    "direct_contract_selection": 0,
+    "scalar_known_transport_axis_closeout": 0,
+    "source_selfhost_claim": 0
+  },
+  "surface_classes": [
+    {
+      "candidate_contract_id": "StringSearchScalarI64TypedDirectCloseoutContract",
+      "core_method_lowering_tier": "WarmDirectAbi",
+      "core_method_op": [
+        "StringIndexOf",
+        "StringLastIndexOf",
+        "StringContains"
+      ],
+      "effect_class": "read",
+      "method_surface": [
+        "indexOf",
+        "lastIndexOf",
+        "contains"
+      ],
+      "post_classification_priority_hint": "lowest_risk_candidate",
+      "proof_or_policy_source": [
+        "IndexOfSurfacePolicy",
+        "LastIndexOfSurfacePolicy",
+        "ContainsSurfacePolicy"
+      ],
+      "publication_policy": "NoPublication",
+      "return_shape": "ScalarI64",
+      "route_kind_set": [
+        "StringIndexOf",
+        "StringLastIndexOf",
+        "StringContains"
+      ],
+      "surface_id": "StringScalarI64Routes",
+      "test_anchor": "src/mir/generic_method_route_plan/tests/string_routes/search_routes.rs",
+      "value_demand": "ScalarI64"
+    },
+    {
+      "candidate_contract_id": "CollectionLenScalarI64TypedDirectCloseoutContract",
+      "core_method_lowering_tier": "WarmDirectAbi",
+      "core_method_op": [
+        "MapLen",
+        "ArrayLen",
+        "StringLen",
+        "AnyLen"
+      ],
+      "effect_class": "observe",
+      "method_surface": [
+        "len",
+        "length",
+        "count"
+      ],
+      "post_classification_priority_hint": "mixed_with_already_closed_map_load",
+      "proof_or_policy_source": [
+        "LenSurfacePolicy"
+      ],
+      "publication_policy": "NoPublication",
+      "return_shape": "ScalarI64",
+      "route_kind_set": [
+        "MapEntryCount",
+        "ArraySlotLen",
+        "StringLen",
+        "AnyLength"
+      ],
+      "surface_id": "CollectionScalarI64Routes",
+      "test_anchor": "src/mir/generic_method_route_plan/tests/string_routes/len_routes.rs",
+      "value_demand": "ScalarI64"
+    },
+    {
+      "candidate_contract_id": "WriteResultScalarI64ClassificationOnly",
+      "core_method_lowering_tier": "ColdFallbackOrWarmDirectAbiMixed",
+      "core_method_op": [
+        "ArrayPush",
+        "MapDelete",
+        "MapSet"
+      ],
+      "effect_class": "mutate",
+      "method_surface": [
+        "push",
+        "delete",
+        "set"
+      ],
+      "post_classification_priority_hint": "do_not_select_before_write_result_policy",
+      "proof_or_policy_source": [
+        "PushSurfacePolicy",
+        "DeleteSurfacePolicy",
+        "SetSurfacePolicy"
+      ],
+      "publication_policy": "MixedNoPublicationAndNone",
+      "return_shape": "ScalarI64OrNoneMixed",
+      "route_kind_set": [
+        "ArrayAppendAny",
+        "MapDeleteAny",
+        "MapStoreI64",
+        "MapStoreAny"
+      ],
+      "surface_id": "WriteScalarI64Routes",
+      "test_anchor": "src/mir/generic_method_route_plan/tests/map_set_routes/collection_routes.rs",
+      "value_demand": "WriteAny"
+    }
+  ],
+  "token": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-UNCOVERED-SURFACE-CLASSIFICATION-BASIS-001",
+  "uncovered_input_surfaces": [
+    {
+      "reason": "ScalarI64NoPublicationRouteOutsideMapLoadScalarI64Contract",
+      "source": "src/mir/generic_method_route_plan/string_routes.rs",
+      "surface_id": "StringScalarI64Routes"
+    },
+    {
+      "reason": "ScalarI64NoPublicationRouteOutsideMapLoadScalarI64Contract",
+      "source": "src/mir/generic_method_route_plan/collection_read_routes.rs",
+      "surface_id": "CollectionScalarI64Routes"
+    },
+    {
+      "reason": "ScalarI64NoPublicationRouteOutsideMapLoadScalarI64Contract",
+      "source": "src/mir/generic_method_route_plan/write_routes.rs",
+      "surface_id": "WriteScalarI64Routes"
+    }
+  ]
+}
