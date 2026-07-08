@@ -30,3 +30,21 @@ route, switch runtime authority, or claim ProgramJSON authority.
 ```bash
 bash tools/checks/rust_lifecycle_mirbuilder_compare_branch_emission_bridge_gate.sh
 ```
+
+## Closeout
+
+Guard result: green.
+
+```text
+output_contract=rust-lifecycle-mirbuilder-compare-branch-emission-bridge-v0
+compare_branch_emission_bridge=1
+branch_condition_consumption=1
+localssa_finalize_branch_cond_execution=1
+branch_emission_execution=1
+route_selection=0
+runtime_route_switch=0
+programjson_runtime_authority=0
+runtime_fallback=0
+source_selfhost_claim=0
+selected_next_card=MIRBUILDER-COMPARE-BOOLRECIPE-TO-MIR-COMPARE-BRANCH-CLOSEOUT-001
+```
