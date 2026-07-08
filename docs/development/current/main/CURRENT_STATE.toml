@@ -345,16 +345,16 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-DELETE-SURFACE-TYPED-DIRECT-CLOSEOUT-CONTRACT-BASIS-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2128-MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-DELETE-SURFACE-TYPED-DIRECT-CLOSEOUT-CONTRACT-BASIS-001.md"
-latest_card_summary = """2128 defines the basis-only typed direct closeout
-contract for the adopted DeleteSurfacePolicy / MapDeleteAny Write surface. It
-selects the Delete direct closeout rerun and keeps direct contract
-materialization, WriteScalarI64Routes closeout, ScalarKnownTransportAxis
-closeout, publication execution, runtime mutation authority, runtime fallback,
-new backend/ABI, and Source Selfhost unclaimed."""
+latest_card = "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-DELETE-SURFACE-DIRECT-CLOSEOUT-RERUN-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2129-MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-DELETE-SURFACE-DIRECT-CLOSEOUT-RERUN-001.md"
+latest_card_summary = """2129 materializes the scoped DeleteSurfacePolicy /
+MapDeleteAny typed direct closeout, raises accepted scoped closeouts to five,
+leaves SetSurfacePolicy as the only remaining Write sub-surface, selects the
+post-Delete closeout rerun, and keeps WriteScalarI64Routes closeout,
+ScalarKnownTransportAxis closeout, publication execution, runtime mutation
+authority, runtime fallback, new backend/ABI, and Source Selfhost unclaimed."""
 
-current_blocker_token = "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-DELETE-SURFACE-DIRECT-CLOSEOUT-RERUN-001"
+current_blocker_token = "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-REMAINING-SUBSURFACE-POST-DELETE-CLOSEOUT-RERUN-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -363,6 +363,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-08: 2129 materializes the scoped DeleteSurfacePolicy / MapDeleteAny typed direct closeout, raises accepted scoped closeouts to five, leaves SetSurfacePolicy as the only remaining Write sub-surface, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-REMAINING-SUBSURFACE-POST-DELETE-CLOSEOUT-RERUN-001, and keeps WriteScalarI64Routes closeout, ScalarKnownTransportAxis closeout, publication execution, runtime mutation authority, runtime fallback, new backend/ABI, and Source Selfhost unclaimed.",
   "2026-07-08: 2128 defines the basis-only typed direct closeout contract for the adopted DeleteSurfacePolicy / MapDeleteAny Write surface, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-DELETE-SURFACE-DIRECT-CLOSEOUT-RERUN-001, and leaves direct contract materialization, WriteScalarI64Routes closeout, ScalarKnownTransportAxis closeout, publication execution, runtime mutation authority, runtime fallback, new backend/ABI, and Source Selfhost unclaimed.",
   "2026-07-08: 2127 reruns the Write sub-surface selector after Delete .hako adoption, keeps already materialized Push scoped closeout ineligible, finds exactly one eligible adopted-but-unmaterialized sub-surface for DeleteSurfacePolicy / MapDeleteAny, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-DELETE-SURFACE-TYPED-DIRECT-CLOSEOUT-CONTRACT-BASIS-001, and leaves Delete direct closeout, WriteScalarI64Routes closeout, ScalarKnownTransportAxis closeout, publication execution, runtime mutation authority, runtime fallback, new backend/ABI, and Source Selfhost unclaimed.",
   "2026-07-08: 2126 adopts the Delete Write .hako classifier/policy mirror after the green one-row Rust-oracle parity gate, scopes adoption to DeleteSurfacePolicy / MapDeleteAny, retains Rust bootstrap/oracle authority, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-REMAINING-SUBSURFACE-POST-DELETE-ADOPTION-RERUN-001, and leaves direct closeout, WriteScalarI64Routes closeout, ScalarKnownTransportAxis closeout, publication execution, runtime mutation authority, runtime fallback, new backend/ABI, and Source Selfhost unclaimed.",
@@ -374,5 +375,4 @@ landed_tail = [
   "2026-07-08: 2120 defines the basis-only typed direct closeout contract for the adopted PushSurfacePolicy / ArrayAppendAny Write surface, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-PUSH-SURFACE-DIRECT-CLOSEOUT-RERUN-001, does not include Delete/Set, and leaves direct closeout materialization, WriteScalarI64Routes closeout, ScalarKnownTransportAxis closeout, runtime mutation authority, runtime fallback, new backend/ABI, and Source Selfhost unclaimed.",
   "2026-07-08: 2119 reruns Write surface selection after the PushSurfacePolicy / ArrayAppendAny .hako adoption decision, finds exactly one HakoAdopted Write subsurface pilot, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-PUSH-SURFACE-TYPED-DIRECT-CLOSEOUT-CONTRACT-BASIS-001, and leaves write direct closeout, WriteScalarI64Routes closeout, ScalarKnownTransportAxis closeout, runtime mutation authority, runtime fallback, new backend/ABI, and Source Selfhost unclaimed.",
   "2026-07-08: 2118 adopts the first narrow Write .hako parity pilot owner for PushSurfacePolicy / ArrayAppendAny after a green 1-row Rust-oracle parity gate, retains Rust bootstrap/oracle authority, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SURFACE-POST-PUSH-ADOPTION-RERUN-001, and leaves write direct closeout, WriteScalarI64Routes closeout, ScalarKnownTransportAxis closeout, runtime mutation authority, runtime fallback, new backend/ABI, and Source Selfhost unclaimed.",
-  "2026-07-08: 2117 proves the first narrow Write .hako implementation pilot against the Rust oracle fixture for PushSurfacePolicy / ArrayAppendAny, records parity_rows=1 and parity_status=green, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-PUSH-SURFACE-HAKO-ADOPTION-DECISION-001, and leaves write direct closeout, Hako adoption, ScalarKnownTransportAxis closeout, runtime mutation authority, runtime fallback, new backend/ABI, and Source Selfhost unclaimed.",
 ]
