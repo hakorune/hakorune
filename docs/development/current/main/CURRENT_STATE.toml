@@ -345,16 +345,16 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-PUSH-SURFACE-PARITY-GATE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2117-MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-PUSH-SURFACE-PARITY-GATE-001.md"
-latest_card_summary = """2117 proves the first narrow Write `.hako`
-implementation pilot against the Rust oracle fixture for PushSurfacePolicy /
-ArrayAppendAny. The parity gate is green for one row and still leaves write
-direct closeout, Hako adoption, ScalarKnownTransportAxis closeout, runtime
-mutation authority, runtime fallback, new backend/ABI, and Source Selfhost
-unclaimed."""
+latest_card = "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-PUSH-SURFACE-HAKO-ADOPTION-DECISION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2118-MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-PUSH-SURFACE-HAKO-ADOPTION-DECISION-001.md"
+latest_card_summary = """2118 adopts the first narrow Write `.hako`
+parity pilot owner for PushSurfacePolicy / ArrayAppendAny after a green 1-row
+Rust-oracle parity gate. It retains Rust bootstrap/oracle authority and keeps
+write direct closeout, WriteScalarI64Routes closeout, ScalarKnownTransportAxis
+closeout, runtime mutation authority, runtime fallback, new backend/ABI, and
+Source Selfhost unclaimed."""
 
-current_blocker_token = "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-PUSH-SURFACE-HAKO-ADOPTION-DECISION-001"
+current_blocker_token = "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SURFACE-POST-PUSH-ADOPTION-RERUN-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -363,6 +363,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-08: 2118 adopts the first narrow Write .hako parity pilot owner for PushSurfacePolicy / ArrayAppendAny after a green 1-row Rust-oracle parity gate, retains Rust bootstrap/oracle authority, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SURFACE-POST-PUSH-ADOPTION-RERUN-001, and leaves write direct closeout, WriteScalarI64Routes closeout, ScalarKnownTransportAxis closeout, runtime mutation authority, runtime fallback, new backend/ABI, and Source Selfhost unclaimed.",
   "2026-07-08: 2117 proves the first narrow Write .hako implementation pilot against the Rust oracle fixture for PushSurfacePolicy / ArrayAppendAny, records parity_rows=1 and parity_status=green, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-PUSH-SURFACE-HAKO-ADOPTION-DECISION-001, and leaves write direct closeout, Hako adoption, ScalarKnownTransportAxis closeout, runtime mutation authority, runtime fallback, new backend/ABI, and Source Selfhost unclaimed.",
   "2026-07-08: 2116 lands the first narrow Write .hako implementation pilot for PushSurfacePolicy / ArrayAppendAny as a classifier/policy mirror, verifies the Hako source, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-PUSH-SURFACE-PARITY-GATE-001, and leaves write direct closeout, Hako adoption, ScalarKnownTransportAxis closeout, runtime mutation authority, runtime fallback, new backend/ABI, and Source Selfhost unclaimed.",
   "2026-07-08: 2115 consumes the WriteSubsurfacePriorityProofAxis consultation by freezing the Rust oracle fixture for the first narrow Write .hako implementation pilot, PushSurfacePolicy / ArrayAppendAny, declares the mutation boundary as classifier metadata, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-PUSH-SURFACE-HAKO-PARITY-PILOT-001, and leaves write direct closeout, Hako adoption, ScalarKnownTransportAxis closeout, runtime fallback, new backend/ABI, and Source Selfhost unclaimed.",
@@ -374,5 +375,4 @@ landed_tail = [
   "2026-07-08: 2109 defines the basis-only CollectionLenScalarI64 typed direct closeout contract for MapEntryCount, ArraySlotLen, StringLen, and AnyLength, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-COLLECTION-LEN-SCALAR-I64-CONTRACT-RERUN-001, and keeps direct contract materialization, collection closeout readiness, ScalarKnownTransportAxis closeout, Hako adoption, runtime fallback, new backend/ABI, and Source Selfhost unclaimed.",
   "2026-07-08: 2108 reruns remaining ScalarKnown surface boundary inventory after the Rust contract boundary refactor, selects CollectionScalarI64Routes / CollectionLenScalarI64TypedDirectCloseoutContract as the exactly-one next basis, keeps WriteScalarI64Routes blocked by WriteResultPolicyRequiredBeforeDirectCloseout, and leaves direct contract materialization, collection/write closeout readiness, ScalarKnownTransportAxis closeout, Hako adoption, runtime fallback, new backend/ABI, and Source Selfhost unclaimed.",
   "2026-07-08: 2107 adds a data-only Rust ScalarKnownTypedDirectCloseoutContract boundary that repackages two accepted scoped closeouts and two remaining candidate surfaces, preserves behavior, and keeps direct contract selection, collection/write direct closeout readiness, ScalarKnownTransportAxis closeout, Hako adoption, runtime fallback, new backend/ABI, and Source Selfhost unclaimed.",
-  "2026-07-08: 2106 records the consultation-approved basis-only boundary inventory for remaining ScalarKnown CollectionScalarI64Routes and WriteScalarI64Routes, keeps direct contract selection, collection/write direct closeout readiness, ScalarKnownTransportAxis closeout, Hako adoption, runtime fallback, new backend/ABI, and Source Selfhost unclaimed, and selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-REMAINING-SURFACE-BOUNDARY-INVENTORY-RERUN-001.",
 ]
