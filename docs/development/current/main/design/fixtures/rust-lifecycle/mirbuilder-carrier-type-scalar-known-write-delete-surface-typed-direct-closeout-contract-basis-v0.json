@@ -1,0 +1,100 @@
+{
+  "claims": {
+    "basis_only": 1,
+    "behavior_change": 0,
+    "direct_contract_materialized": 0,
+    "hako_generation": 0,
+    "manual_axis_selection": 0,
+    "manual_carrier_selection": 0,
+    "manual_subsurface_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "new_route_authority": 0,
+    "owner_name_as_proof": 0,
+    "publication_execution": 0,
+    "route_count_as_proof": 0,
+    "route_membership_alone_as_proof": 0,
+    "row_count_as_proof": 0,
+    "runtime_fallback": 0,
+    "runtime_mutation_authority": 0,
+    "scalar_known_transport_axis_closeout": 0,
+    "source_path_as_authority": 0,
+    "source_selfhost_claim": 0,
+    "write_delete_direct_closeout_ready": 0,
+    "write_delete_surface_typed_direct_closeout_contract_basis": 1,
+    "write_scalar_i64_routes_closeout": 0
+  },
+  "contract": {
+    "contract_id": "WriteDeleteSurfaceTypedDirectCloseoutContract",
+    "core_method_lowering_tier": "ColdFallback",
+    "core_method_op": "MapDelete",
+    "effect_class": "mutate",
+    "hako_adopted_source": "lang/src/compiler/lib/write_delete_surface_policy_classifier.hako",
+    "hako_owner": "write_delete_surface_policy_classifier",
+    "mutation_class": "MutatesReceiverOrContainer",
+    "proof_or_policy_source": [
+      "DeleteSurfacePolicy"
+    ],
+    "publication_execution": false,
+    "publication_policy": "NonePublication",
+    "push_surface_policy_included": false,
+    "result_class": "ScalarI64Result",
+    "return_shape": "ScalarI64",
+    "route_kind_set": [
+      "MapDeleteAny"
+    ],
+    "runtime_mutation_authority": false,
+    "set_surface_policy_included": false,
+    "source_kind": "TypedDirectCloseoutContract",
+    "subsurface_id": "DeleteSurfacePolicy",
+    "surface_id": "WriteScalarI64Routes",
+    "target_axis": "ScalarKnownTransportAxis",
+    "value_demand": "WriteAny"
+  },
+  "decision": {
+    "kind": "SelectWriteDeleteSurfaceDirectCloseoutRerun",
+    "reason_token": "WriteDeleteSurfaceTypedDirectCloseoutContractBasisDefined",
+    "selected_next_card": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-DELETE-SURFACE-DIRECT-CLOSEOUT-RERUN-001"
+  },
+  "input_state": {
+    "adoption_decision": "Adopt",
+    "post_delete_adoption_rerun": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-write-remaining-subsurface-post-delete-adoption-rerun-v0.json",
+    "post_delete_adoption_rerun_hash": "d43ae50c97eedbfced41f30b5337607f281a97bd97e92c88938d39e07dd3c740",
+    "selected_next_card_from_rerun": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-DELETE-SURFACE-TYPED-DIRECT-CLOSEOUT-CONTRACT-BASIS-001",
+    "selected_write_subsurface": "DeleteSurfacePolicy",
+    "write_delete_surface_adoption_decision": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-write-delete-surface-hako-adoption-decision-v0.json",
+    "write_delete_surface_adoption_hash": "8029e3924af5cb141982e08cd09136201a124a03e0737d19ae910c51dd7540d7"
+  },
+  "kind": "MirBuilderCarrierTypeScalarKnownWriteDeleteSurfaceTypedDirectCloseoutContractBasisV1",
+  "provenance": {
+    "hako_source_hash": "24e55dd86e424e6dbf2e62f558fe7d1b60f9b3e85c5d81b767e09cffb821499f",
+    "write_source_hash": "a099f2f6b422e6e6a454d0a6e10c74bfd649155b24ba2ebc760208de5c7caa22"
+  },
+  "schema_version": 0,
+  "selection_rule": {
+    "axis_closeout_forbidden_at_basis": true,
+    "basis_only": true,
+    "contract_materialization_requires_rerun": true,
+    "name": "WriteDeleteSurfaceTypedDirectCloseoutContractBasisOnlyV1",
+    "owner_name_as_proof": false,
+    "route_count_as_proof": false,
+    "route_membership_alone_as_proof": false,
+    "row_count_as_proof": false,
+    "source_path_as_authority": false,
+    "whole_write_surface_closeout_forbidden_at_basis": true
+  },
+  "summary": {
+    "direct_contract_materialized": 0,
+    "publication_execution": 0,
+    "runtime_mutation_authority": 0,
+    "scalar_known_transport_axis_closeout": 0,
+    "source_selfhost_claim": 0,
+    "write_delete_direct_closeout_ready": 0,
+    "write_delete_route_count": 1,
+    "write_delete_surface_typed_direct_closeout_contract_basis": 1,
+    "write_scalar_i64_routes_closeout": 0
+  },
+  "token": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-DELETE-SURFACE-TYPED-DIRECT-CLOSEOUT-CONTRACT-BASIS-001"
+}
