@@ -1,0 +1,21 @@
+// write_set_mapstore_i64_policy_classifier.hako - Set MapStoreI64 policy mirror
+//
+// Responsibility:
+// - mirror the Rust oracle policy row for SetSurfacePolicy / MapStoreI64
+// - carry NoneResult, NonePublication, and mutation as metadata
+// - provide a narrow .hako implementation pilot before the parity gate
+//
+// Non-responsibility:
+// - MapStoreAny / Any write boundary
+// - WriteScalarI64Routes direct closeout
+// - ScalarKnownTransportAxis closeout
+// - HakoAdopted promotion
+// - publication execution, runtime mutation, route selection, or backend lowering
+static box WriteSetMapStoreI64PolicyClassifierBox {
+  classify(route_kind) {
+    if route_kind == "MapStoreI64" {
+      return "map_store_i64_set_surface|SetSurfacePolicy|MapStoreI64|MapSet|ColdFallback|NoneResult|None|WriteAny|ScalarI64|NonePublication|mutate|MutatesReceiverOrContainer|classifier_policy_mirror_only"
+    }
+    return "unsupported_write_set_mapstore_i64_policy"
+  }
+}
