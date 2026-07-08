@@ -345,15 +345,14 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "SOURCE-SELFHOST-POST-RERUN004-CURRENT-REENTRY-INVENTORY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3340-SOURCE-SELFHOST-POST-RERUN004-CURRENT-REENTRY-INVENTORY-001.md"
-latest_card_summary = """3340 records basis-007 as valid historical selector
-evidence already consumed by RERUN-004, prevents replaying that stale-report
-freshness repair as the current unblock, and selects
-SOURCE-SELFHOST-NATIVE-OWNER-CHECKPOINT-RERUN-002 as the next documented task.
-Route selection, ProgramJSON runtime authority, runtime switch, runtime
-fallback, native seed materialization, Hako adoption, and Source Selfhost
-remain unclaimed."""
+latest_card = "SOURCE-SELFHOST-NATIVE-OWNER-CHECKPOINT-RERUN-002"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2058-SOURCE-SELFHOST-NATIVE-OWNER-CHECKPOINT-RERUN-002.md"
+latest_card_summary = """2058 reruns the native owner checkpoint from the
+fresh RERUN-004 report, records 12 native Hako owners, selects
+MissingProjectionPolicy by evidence quality, and points next to
+MIRBUILDER-MISSING-PROJECTION-POLICY-CLUSTER-RESOLUTION-V4. Candidate count,
+coverage percentage, manual family/shape/axis selection, runtime fallback,
+new backend/ABI, Hako adoption, and Source Selfhost remain unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -364,6 +363,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-08: 2058 reruns the native owner checkpoint from the fresh RERUN-004 report, records 12 native Hako owners, selects MissingProjectionPolicy by evidence quality, and points next to MIRBUILDER-MISSING-PROJECTION-POLICY-CLUSTER-RESOLUTION-V4; candidate count, coverage percentage, manual selection, runtime fallback, new backend/ABI, Hako adoption, and Source Selfhost remain unclaimed.",
   "2026-07-08: 3340 records basis-007 as valid historical local selector evidence already consumed by RERUN-004, prevents replaying stale-report freshness repair as the current unblock, and selects SOURCE-SELFHOST-NATIVE-OWNER-CHECKPOINT-RERUN-002 next; route selection, ProgramJSON runtime authority, runtime switch, runtime fallback, native seed materialization, Hako adoption, and Source Selfhost remain unclaimed.",
   "2026-07-08: 3322 reconfirms the runtime-adjacent ProgramJSON shadow guard after the Compare/Branch bridge closeout; Rust remains runtime authority, ProgramJSON remains shadow-only evidence, and ProgramJSON runtime authority, runtime route switch, route selection, MIR lowering/mutation, ID allocation, runtime fallback, and Source Selfhost remain unclaimed.",
   "2026-07-08: 3321 keeps runtime route authority on the Rust ASTNode route after the Compare/Branch bridge closeout and selects the ProgramJSON runtime-adjacent shadow guard as the next read-only boundary; direct runtime route authority switch, ProgramJSON runtime authority, route selection, MIR lowering/mutation authority, ID allocation, runtime fallback, and Source Selfhost remain unclaimed.",
@@ -375,5 +375,4 @@ landed_tail = [
   "2026-07-08: 3315 resumes the compare lowering chain after guard-cache preflight and selects the scoped LocalSSA finalize_compare bridge before MIR Compare/Branch emission; LocalSSA execution, MIR Compare, Branch, Bool publication, Source Selfhost, Hako adoption, and route/runtime authority remain unclaimed.",
   "2026-07-08: 3339 runs a guard-chain cache preflight before resuming LocalSSA finalize_compare; guard result memoization, dirty-cache opt-in behavior, and Hako MIR/EXE cache wrapper guards are green and the LocalSSA resume target is recorded, while cache implementation, dirty-cache default changes, compiler semantics, LocalSSA, MIR Compare/Branch, Source Selfhost, Hako adoption, and route/runtime authority remain unclaimed.",
   "2026-07-08: 3338 selects a guard-chain cache preflight before reopening LocalSSA finalize_compare; existing guard result memoization and Hako MIR/EXE cache wrapper guards are recorded as prerequisites, while cache implementation, dirty-cache default changes, compiler semantics, LocalSSA, MIR Compare/Branch, Source Selfhost, Hako adoption, and route/runtime authority remain unclaimed.",
-  "2026-07-08: 3337 connects the no-shadow SymbolRef lookup bridge to the current hard-authority pilot chain; existing ValueId return is claimed only for contract-verified no-shadow local rows, while general SymbolRef authority, shadowing/current SSA, allocation, mutation, LocalSSA, MIR Compare/Branch, Source Selfhost, Hako adoption, and route/runtime authority remain unclaimed.",
 ]
