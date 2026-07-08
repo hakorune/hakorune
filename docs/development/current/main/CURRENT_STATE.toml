@@ -345,18 +345,17 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-DELETE-SURFACE-RUST-ORACLE-PARITY-FIXTURE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2123-MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-DELETE-SURFACE-RUST-ORACLE-PARITY-FIXTURE-001.md"
-latest_card_summary = """2123 consumes the
-WriteRemainingSubsurfaceHakoPilotSelection consultation by selecting
-DeleteSurfacePolicy / MapDeleteAny via
-PriorHakoAdoptedWriteSubsurfaceMinimalSemanticDelta. It freezes the Delete
-Rust oracle fixture, treats NonePublication as metadata, selects the Delete
-`.hako` parity pilot, and keeps direct closeout, WriteScalarI64Routes closeout,
-ScalarKnownTransportAxis closeout, runtime mutation authority, runtime
-fallback, new backend/ABI, and Source Selfhost unclaimed."""
+latest_card = "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-DELETE-SURFACE-HAKO-PARITY-PILOT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2124-MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-DELETE-SURFACE-HAKO-PARITY-PILOT-001.md"
+latest_card_summary = """2124 lands the narrow Delete Write `.hako`
+implementation pilot for DeleteSurfacePolicy / MapDeleteAny. The Hako source
+is a classifier/policy mirror carrying NonePublication as metadata, verifies,
+selects the Delete parity gate, and keeps publication execution, runtime
+mutation authority, direct closeout, WriteScalarI64Routes closeout,
+ScalarKnownTransportAxis closeout, Hako adoption, new backend/ABI, and Source
+Selfhost unclaimed."""
 
-current_blocker_token = "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-DELETE-SURFACE-HAKO-PARITY-PILOT-001"
+current_blocker_token = "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-DELETE-SURFACE-PARITY-GATE-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -365,6 +364,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-08: 2124 lands the narrow Delete Write .hako implementation pilot for DeleteSurfacePolicy / MapDeleteAny as a classifier/policy mirror carrying NonePublication as metadata, verifies the source, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-DELETE-SURFACE-PARITY-GATE-001, and leaves publication execution, runtime mutation authority, direct closeout, WriteScalarI64Routes closeout, ScalarKnownTransportAxis closeout, Hako adoption, new backend/ABI, and Source Selfhost unclaimed.",
   "2026-07-08: 2123 consumes the WriteRemainingSubsurfaceHakoPilotSelection consultation by selecting DeleteSurfacePolicy / MapDeleteAny via PriorHakoAdoptedWriteSubsurfaceMinimalSemanticDelta, freezes the Delete Rust oracle fixture, treats NonePublication as metadata, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-DELETE-SURFACE-HAKO-PARITY-PILOT-001, and leaves direct closeout, WriteScalarI64Routes closeout, ScalarKnownTransportAxis closeout, runtime mutation authority, runtime fallback, new backend/ABI, and Source Selfhost unclaimed.",
   "2026-07-08: 2122 reruns the remaining Write sub-surface selector after scoped Push closeout, finds Delete/Set still lack HakoAdopted Write sub-surface pilots, keeps stopped, returns to SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001 for WriteRemainingSubsurfaceHakoPilotSelection consultation, and leaves WriteScalarI64Routes closeout, ScalarKnownTransportAxis closeout, runtime fallback, new backend/ABI, and Source Selfhost unclaimed.",
   "2026-07-08: 2121 materializes the scoped WritePushSurfaceTypedDirectCloseoutContract for PushSurfacePolicy / ArrayAppendAny, increases accepted scoped closeouts to four, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-REMAINING-SUBSURFACE-POST-PUSH-CLOSEOUT-RERUN-001, and leaves Delete/Set, WriteScalarI64Routes closeout, ScalarKnownTransportAxis closeout, runtime mutation authority, runtime fallback, new backend/ABI, and Source Selfhost unclaimed.",
@@ -376,5 +376,4 @@ landed_tail = [
   "2026-07-08: 2115 consumes the WriteSubsurfacePriorityProofAxis consultation by freezing the Rust oracle fixture for the first narrow Write .hako implementation pilot, PushSurfacePolicy / ArrayAppendAny, declares the mutation boundary as classifier metadata, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-PUSH-SURFACE-HAKO-PARITY-PILOT-001, and leaves write direct closeout, Hako adoption, ScalarKnownTransportAxis closeout, runtime fallback, new backend/ABI, and Source Selfhost unclaimed.",
   "2026-07-08: 2114 reruns the Write sub-surface priority basis, finds zero complete proof tuples for Push/Delete/Set, keeps stopped, returns to SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001 for WriteSubsurfacePriorityProofAxis consultation, and leaves sub-surface selection, write direct closeout materialization, ScalarKnownTransportAxis closeout, Hako adoption, runtime fallback, new backend/ABI, and Source Selfhost unclaimed.",
   "2026-07-08: 2113 defines the basis-only Write sub-surface priority selector, records Push/Delete/Set as candidates, forbids route count, apparent simplicity, and accepted read-contract similarity as proof, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SUBSURFACE-PRIORITY-RERUN-001, and leaves sub-surface selection, write direct closeout materialization, ScalarKnownTransportAxis closeout, Hako adoption, runtime fallback, new backend/ABI, and Source Selfhost unclaimed.",
-  "2026-07-08: 2112 reruns the WriteResultPolicy basis, rejects whole-surface WriteScalarI64Routes direct closeout because Push/Delete/Set have multiple result/publication signatures, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SUBSURFACE-PRIORITY-BASIS-001, and leaves write direct closeout materialization, write_result_policy_ready, ScalarKnownTransportAxis closeout, Hako adoption, runtime fallback, new backend/ABI, and Source Selfhost unclaimed.",
 ]
