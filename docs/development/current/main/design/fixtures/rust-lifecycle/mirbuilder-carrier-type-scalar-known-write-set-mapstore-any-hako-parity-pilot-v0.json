@@ -1,0 +1,97 @@
+{
+  "claims": {
+    "any_write_boundary_declared": 1,
+    "any_write_boundary_opened": 0,
+    "behavior_change": 0,
+    "classifier_policy_mirror_only": 1,
+    "component_specific_direct_contract_materialized": 0,
+    "hako_adopted_decision": 0,
+    "hako_adoption": 0,
+    "hako_generation": 0,
+    "hako_implementation_landed": 1,
+    "hako_source_verifies": 1,
+    "mapstore_any_scope": 1,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_route_authority": 0,
+    "none_publication_metadata_reused": 1,
+    "none_result_metadata_reused": 1,
+    "parity_gate_required": 1,
+    "publication_execution": 0,
+    "runtime_fallback": 0,
+    "runtime_mutation_authority": 0,
+    "scalar_known_transport_axis_closeout": 0,
+    "set_surface_policy_scope": 1,
+    "source_selfhost_claim": 0,
+    "write_direct_closeout_materialized": 0,
+    "write_scalar_i64_routes_closeout": 0,
+    "write_set_mapstore_any_hako_parity_pilot": 1
+  },
+  "decision": {
+    "kind": "SelectWriteSetMapStoreAnyParityGate",
+    "reason_token": "WriteSetMapStoreAnyHakoParityPilotLanded",
+    "selected_next_card": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-PARITY-GATE-001"
+  },
+  "hako_implementation": {
+    "any_write_boundary_declared": true,
+    "any_write_boundary_opened": false,
+    "box": "WriteSetMapStoreAnyPolicyClassifierBox",
+    "method": "classify",
+    "publication_execution": false,
+    "role": "classifier_policy_mirror_only",
+    "runtime_mutation_authority": false,
+    "source": "lang/src/compiler/lib/write_set_mapstore_any_policy_classifier.hako",
+    "source_hash": "77e00016586d44ba582e5fd6ba6dd58d594eca4d7c595ef5979b329297bd5f3d"
+  },
+  "input_state": {
+    "rust_oracle_decision": "SelectWriteSetMapStoreAnyHakoParityPilot",
+    "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-write-set-mapstore-any-rust-oracle-v0.json",
+    "rust_oracle_hash": "aed272e6b7109f050782ffb6be5a1da49f960d7e9ce69ef33854ed1f1e771083",
+    "rust_oracle_selected_next_card": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-HAKO-PARITY-PILOT-001",
+    "rust_oracle_token": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-RUST-ORACLE-PARITY-FIXTURE-001"
+  },
+  "kind": "MirBuilderCarrierTypeScalarKnownWriteSetMapStoreAnyHakoParityPilotV1",
+  "parity_pilot_fixture": {
+    "fixture_id": "WriteSetMapStoreAnyHakoParityPilotV0",
+    "row_count": 1,
+    "rows": [
+      {
+        "case_id": "map_store_any_set_surface",
+        "expected": "map_store_any_set_surface|SetSurfacePolicy/MapStoreAny|MapStoreAny|MapSet|ColdFallback|NoneResult|None|WriteAny|Any|NonePublication|mutate|MutatesReceiverOrContainer|DeclaredMetadataOnly|classifier_policy_mirror_only",
+        "input_route_kind": "MapStoreAny"
+      }
+    ]
+  },
+  "schema_version": 0,
+  "selection_rule": {
+    "direct_closeout_materialization_allowed": false,
+    "hako_adoption_allowed": false,
+    "hako_source_landed": true,
+    "hako_source_verifies": true,
+    "name": "WriteSetMapStoreAnyHakoParityPilotImplementationOnlyV1",
+    "parity_gate_required_before_adoption": true,
+    "source_selfhost_claim_allowed": false
+  },
+  "summary": {
+    "any_write_boundary_declared": 1,
+    "any_write_boundary_opened": 0,
+    "classifier_policy_mirror_only": 1,
+    "hako_adoption": 0,
+    "hako_implementation_landed": 1,
+    "hako_source_verifies": 1,
+    "mapstore_any_scope": 1,
+    "none_publication_metadata_reused": 1,
+    "none_result_metadata_reused": 1,
+    "parity_gate_required": 1,
+    "publication_execution": 0,
+    "runtime_mutation_authority": 0,
+    "scalar_known_transport_axis_closeout": 0,
+    "set_surface_policy_scope": 1,
+    "source_selfhost_claim": 0,
+    "write_direct_closeout_materialized": 0,
+    "write_scalar_i64_routes_closeout": 0,
+    "write_set_mapstore_any_hako_parity_pilot": 1
+  },
+  "token": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-HAKO-PARITY-PILOT-001"
+}

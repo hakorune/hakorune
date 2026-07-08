@@ -1,0 +1,21 @@
+// write_set_mapstore_any_policy_classifier.hako - Set MapStoreAny policy mirror
+//
+// Responsibility:
+// - mirror the Rust oracle policy row for SetSurfacePolicy / MapStoreAny
+// - carry Any write boundary, NoneResult, NonePublication, and mutation as metadata
+// - provide a narrow .hako implementation pilot before the parity gate
+//
+// Non-responsibility:
+// - Any write runtime authority
+// - WriteScalarI64Routes direct closeout
+// - ScalarKnownTransportAxis closeout
+// - HakoAdopted promotion
+// - publication execution, runtime mutation, route selection, or backend lowering
+static box WriteSetMapStoreAnyPolicyClassifierBox {
+  classify(route_kind) {
+    if route_kind == "MapStoreAny" {
+      return "map_store_any_set_surface|SetSurfacePolicy/MapStoreAny|MapStoreAny|MapSet|ColdFallback|NoneResult|None|WriteAny|Any|NonePublication|mutate|MutatesReceiverOrContainer|DeclaredMetadataOnly|classifier_policy_mirror_only"
+    }
+    return "unsupported_write_set_mapstore_any_policy"
+  }
+}
