@@ -58,6 +58,8 @@ def read(path: Path) -> str:
 
 
 def line_count(path: Path) -> int:
+    if not path.exists():
+        return 0
     return len(read(path).splitlines())
 
 
@@ -114,13 +116,17 @@ def compare_bridge_rows() -> list[dict[str, Any]]:
     rows = []
     for path in COMPARE_BRIDGES:
         module = path.stem
+        exists = path.exists()
         rows.append(
             {
                 "path": rel(path),
+                "exists": exists,
                 "line_count": line_count(path),
                 "builder_mod_declared": f"mod {module};" in builder,
                 "production_fastpath_reference_count": comparison.count(module),
-                "classification": "proof_only_rust_bridge",
+                "classification": "deleted_proof_bridge"
+                if not exists
+                else "proof_only_rust_bridge",
             }
         )
     return rows
@@ -188,6 +194,8 @@ def build_fixture() -> dict[str, Any]:
         ]
         if path.exists()
     }
+    deleted_compare_count = len([row for row in compare_rows if not row["exists"]])
+    live_compare_count = len([row for row in compare_rows if row["exists"]])
 
     return {
         "schema_version": 0,
@@ -213,6 +221,8 @@ def build_fixture() -> dict[str, Any]:
             "artifact_reachability_classification_inventory": 1,
             "live_fastpath_owner_examples_count": len(LIVE_FASTPATH_EXAMPLES),
             "compare_proof_bridge_file_count": len(compare_rows),
+            "compare_proof_bridge_deleted_file_count": deleted_compare_count,
+            "compare_proof_bridge_live_file_count": live_compare_count,
             "compare_proof_bridge_total_lines": sum(row["line_count"] for row in compare_rows),
             "compare_proof_bridge_production_connected": 0,
             "hako_lib_compiler_reachable_count": hako_inventory["compiler_reachable_lib_count"],

@@ -40,44 +40,50 @@
     ],
     "proof_only_rust_bridge": [
       {
-        "builder_mod_declared": true,
-        "classification": "proof_only_rust_bridge",
-        "line_count": 136,
+        "builder_mod_declared": false,
+        "classification": "deleted_proof_bridge",
+        "exists": false,
+        "line_count": 0,
         "path": "src/mir/builder/compare_branch_emission_bridge.rs",
         "production_fastpath_reference_count": 0
       },
       {
-        "builder_mod_declared": true,
-        "classification": "proof_only_rust_bridge",
-        "line_count": 182,
+        "builder_mod_declared": false,
+        "classification": "deleted_proof_bridge",
+        "exists": false,
+        "line_count": 0,
         "path": "src/mir/builder/compare_localssa_finalize_compare_bridge.rs",
         "production_fastpath_reference_count": 0
       },
       {
-        "builder_mod_declared": true,
-        "classification": "proof_only_rust_bridge",
-        "line_count": 152,
+        "builder_mod_declared": false,
+        "classification": "deleted_proof_bridge",
+        "exists": false,
+        "line_count": 0,
         "path": "src/mir/builder/compare_mir_compare_emission_bridge.rs",
         "production_fastpath_reference_count": 0
       },
       {
-        "builder_mod_declared": true,
-        "classification": "proof_only_rust_bridge",
-        "line_count": 158,
+        "builder_mod_declared": false,
+        "classification": "deleted_proof_bridge",
+        "exists": false,
+        "line_count": 0,
         "path": "src/mir/builder/compare_rhs_symbolref_contract.rs",
         "production_fastpath_reference_count": 0
       },
       {
-        "builder_mod_declared": true,
-        "classification": "proof_only_rust_bridge",
-        "line_count": 186,
+        "builder_mod_declared": false,
+        "classification": "deleted_proof_bridge",
+        "exists": false,
+        "line_count": 0,
         "path": "src/mir/builder/compare_rhs_symbolref_lookup_bridge.rs",
         "production_fastpath_reference_count": 0
       },
       {
-        "builder_mod_declared": true,
-        "classification": "proof_only_rust_bridge",
-        "line_count": 160,
+        "builder_mod_declared": false,
+        "classification": "deleted_proof_bridge",
+        "exists": false,
+        "line_count": 0,
         "path": "src/mir/builder/compare_rhs_valueid_resolution_bridge.rs",
         "production_fastpath_reference_count": 0
       }
@@ -97,11 +103,11 @@
       "dev_gate_quick_rust_lifecycle_refs": 0,
       "dev_gate_rust_lifecycle_refs": 0,
       "gate_count": 327,
-      "guard_count": 718,
+      "guard_count": 720,
       "guard_rows_rust_lifecycle_refs": 0,
       "parity_gate_count": 283,
       "proof_apps_rust_lifecycle_refs": 0,
-      "script_count": 1045,
+      "script_count": 1047,
       "workflow_rust_lifecycle_refs": 0
     }
   },
@@ -128,13 +134,7 @@
   "schema_version": 0,
   "source_files": {
     "lang/src/compiler/entry/compiler.hako": "99be1a5e26090f74a258f4992a367137b728acef3240353a4624d4fe901f9818",
-    "src/mir/builder.rs": "435dce2e85863856012a0f6eefd4b59dba06f68916c5ca65d7325ed4749c9a09",
-    "src/mir/builder/compare_branch_emission_bridge.rs": "0f24ee73674dc2fb6c1403a8aa3cc61f6c377ccf58761d0633e2559ced5a5152",
-    "src/mir/builder/compare_localssa_finalize_compare_bridge.rs": "6ea7c6a5d18c1bba3b79abe9b23e3f20bb269802b474a3f4a0aeb9ff7974d9cd",
-    "src/mir/builder/compare_mir_compare_emission_bridge.rs": "4694c32750ce1c1ebbeba7095e622c106a92680b7bf485617f1880346096b943",
-    "src/mir/builder/compare_rhs_symbolref_contract.rs": "dc26c697d2da8943abb483ce1c938393866e25aaffa0bbe1d43487a916d6e1ad",
-    "src/mir/builder/compare_rhs_symbolref_lookup_bridge.rs": "8d9363abf05b4c683e14f4635a90d241dd6154d63193b02e887fb5a360ab442d",
-    "src/mir/builder/compare_rhs_valueid_resolution_bridge.rs": "f4399f396fb411ae8b06a30f21c53f4214a2a195747b0d55c9e9d064f321f9be",
+    "src/mir/builder.rs": "9b2fdf6a243d821d94b576a39bb9d83b67b3fd24500eff09fe0178792c89c991",
     "src/mir/builder/control_flow/joinir/route_entry/runtime_adjacent_shadow_guard.rs": "e86ea9c58174ff4ccd4fbfef7f809c808878dfa59febbaa1ba8bc2696055de27",
     "src/mir/builder/ops/comparison.rs": "d366098ecf1cbbac0337326aaf5b323827460a8b79f725f9e49d84a608b86191",
     "src/mir/generic_method_route_plan/collection_read_routes.rs": "57a6db955ae35c9a9295fbf5ed180ce9a39ced253d30dbda6e86c3f514006899",
@@ -150,14 +150,16 @@
   "summary": {
     "active_guard_resolver_required": 1,
     "artifact_reachability_classification_inventory": 1,
+    "compare_proof_bridge_deleted_file_count": 6,
     "compare_proof_bridge_file_count": 6,
+    "compare_proof_bridge_live_file_count": 0,
     "compare_proof_bridge_production_connected": 0,
-    "compare_proof_bridge_total_lines": 974,
+    "compare_proof_bridge_total_lines": 0,
     "hako_lib_compiler_reachable_count": 0,
     "hako_mirror_library_fastpath_connected": 0,
     "live_fastpath_owner_examples_count": 6,
     "run_all_rust_lifecycle_guards_by_default": 0,
-    "rust_lifecycle_guard_script_count": 1045,
+    "rust_lifecycle_guard_script_count": 1047,
     "source_selfhost_claim": 0
   },
   "token": "MIRBUILDER-ARTIFACT-REACHABILITY-CLASSIFICATION-INVENTORY-001"

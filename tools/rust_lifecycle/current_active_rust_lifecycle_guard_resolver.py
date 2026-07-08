@@ -22,7 +22,6 @@ FIXTURES = ROOT / "docs/development/current/main/design/fixtures/rust-lifecycle"
 OUTPUT = FIXTURES / "current-active-rust-lifecycle-guard-resolver-v0.json"
 
 TOKEN = "MIRBUILDER-CURRENT-ACTIVE-RUST-LIFECYCLE-GUARD-RESOLVER-001"
-NEXT_CARD = "MIRBUILDER-COMPARE-PROOF-BRIDGE-PARK-OR-CONNECT-DESIGN-STOP-001"
 
 
 def rel(path: Path) -> str:
@@ -89,6 +88,7 @@ def build_fixture() -> dict[str, Any]:
     latest = resolve_token(str(state["latest_card"]), state)
     blocker = resolve_token(str(state["current_blocker_token"]), state)
     runnable_guards = latest["guard_paths"] + blocker["guard_paths"]
+    selected_next = str(state["current_blocker_token"])
 
     return {
         "schema_version": 0,
@@ -120,13 +120,13 @@ def build_fixture() -> dict[str, Any]:
             "runnable_guard_count": len(runnable_guards),
             "max_default_guard_count": 3,
             "run_all_rust_lifecycle_guards_by_default": 0,
-            "selected_next_card": NEXT_CARD,
+            "selected_next_card": selected_next,
             "source_selfhost_claim": 0,
         },
         "decision": {
-            "kind": "SelectCompareProofBridgeParkOrConnectDesignStop",
-            "reason_token": "ActiveGuardResolverInstalledBeforeShadowConsume",
-            "selected_next_card": NEXT_CARD,
+            "kind": "ResolveCurrentActiveRustLifecycleGuards",
+            "reason_token": "LatestCurrentScopedGuardSet",
+            "selected_next_card": selected_next,
         },
         "claims": {
             "resolver_only": 1,
