@@ -345,17 +345,17 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-TRANSPORT-CLOSEOUT-BASIS-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2100-MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-TRANSPORT-CLOSEOUT-BASIS-001.md"
-latest_card_summary = """2100 defines the basis-only ScalarKnown transport
-closeout step after rerun-003 selected ScalarKnownCloseoutAuthority as the only
-root component requirement. It consumes the accepted MapLoadScalarI64 typed
-direct closeout contract and selects
-MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-TRANSPORT-CLOSEOUT-RERUN-001. Concrete
-carrier/type axis selection, ScalarKnownTransportAxis closeout, Hako adoption,
-runtime fallback, new backend/ABI, and Source Selfhost remain unclaimed."""
+latest_card = "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-TRANSPORT-CLOSEOUT-RERUN-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2101-MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-TRANSPORT-CLOSEOUT-RERUN-001.md"
+latest_card_summary = """2101 reruns ScalarKnown transport closeout after
+the closeout basis, records scoped MapLoadScalarI64 closeout, and keeps full
+ScalarKnownTransportAxis closeout at 0 because string, collection, and write
+scalar routes remain uncovered by the accepted typed direct closeout contract.
+The lane returns to SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001 for
+consultation; concrete carrier/type axis selection, Hako adoption, runtime
+fallback, new backend/ABI, and Source Selfhost remain unclaimed."""
 
-current_blocker_token = "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-TRANSPORT-CLOSEOUT-RERUN-001"
+current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -364,6 +364,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-08: 2101 reruns ScalarKnown transport closeout after the closeout basis, records scoped MapLoadScalarI64 closeout, keeps full ScalarKnownTransportAxis closeout at 0 because string, collection, and write scalar routes remain uncovered by the accepted typed direct closeout contract, and returns to SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001 for consultation; concrete carrier/type axis selection, Hako adoption, runtime fallback, new backend/ABI, and Source Selfhost remain unclaimed.",
   "2026-07-08: 2100 defines the basis-only ScalarKnown transport closeout step after rerun-003 selected ScalarKnownCloseoutAuthority as the only root component requirement, consumes the accepted MapLoadScalarI64 typed direct closeout contract, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-TRANSPORT-CLOSEOUT-RERUN-001, and keeps concrete carrier/type axis selection, ScalarKnownTransportAxis closeout, Hako adoption, runtime fallback, new backend/ABI, and Source Selfhost unclaimed.",
   "2026-07-08: 2099 reruns the seven remaining carrier/type component requirements after the narrow MapLoadScalarI64 typed direct closeout contract basis, materializes exactly one accepted component evidence source, selects ScalarKnownCloseoutAuthority as the only root component requirement, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-TRANSPORT-CLOSEOUT-BASIS-001, and keeps concrete carrier/type axis selection, ScalarKnownTransportAxis closeout, Hako adoption, runtime fallback, new backend/ABI, and Source Selfhost unclaimed.",
   "2026-07-08: 2098 records the consultation-approved narrow TypedDirectCloseoutContract basis for existing MapLoadScalarI64 / ScalarI64OrMissingZero Rust-owner evidence, selects MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-COMPONENT-REQUIREMENT-RERUN-003, and keeps ScalarKnownTransportAxis closeout, accepted/root authority, component-specific selection, concrete carrier/type axis selection, Hako adoption, runtime fallback, new backend/ABI, and Source Selfhost unclaimed.",
@@ -375,5 +376,4 @@ landed_tail = [
   "2026-07-08: 2081 defines seven component requirements for the five remaining carrier/type axes after the priority rerun found no proof-complete axis, records zero root component requirements, and selects MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-COMPONENT-REQUIREMENT-INVENTORY-001; component-specific card selection, concrete carrier/type axis selection, Hako adoption, runtime fallback, new backend/ABI, and Source Selfhost remain unclaimed.",
   "2026-07-08: 2080 applies the remaining carrier/type axis mechanical selector to the five non-DomainObject axes; all five are scope-eligible, guard-clean, and evidence-inventory complete, but zero axes have a complete proof tuple, so the result remains KeepStopped and selects MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-COMPONENT-REQUIREMENT-BASIS-001; concrete carrier/type axis selection, Hako adoption, runtime fallback, new backend/ABI, and Source Selfhost remain unclaimed.",
   "2026-07-08: 2079 defines the selector basis for the five remaining carrier/type axes after DomainObject/Id is parked, records ProductTuple, CollectionCarrier, IteratorOrBorrowType, OpaqueType, and ScalarKnown as candidates, keeps deferred parent policy lanes diagnostic-only, and selects MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-PRIORITY-RERUN-001; concrete carrier/type axis selection, Hako adoption, runtime fallback, new backend/ABI, and Source Selfhost remain unclaimed.",
-  "2026-07-08: 2078 parks the DomainObject/Id lane after explicit semantic resource-domain declaration sources and stable closed-resource manifests are both absent, then selects the nearest unexhausted parent-lane basis, MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-PRIORITY-BASIS-001; concrete carrier/type axis selection, Hako adoption, runtime fallback, new backend/ABI, and Source Selfhost remain unclaimed.",
 ]

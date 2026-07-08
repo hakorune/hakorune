@@ -1,0 +1,89 @@
+{
+  "accepted_scoped_closeouts": [
+    {
+      "contract_id": "MapLoadScalarI64ScalarKnownTypedDirectCloseoutContract",
+      "publication_policy": "NoPublication",
+      "return_shape": "ScalarI64OrMissingZero",
+      "route_kind": "MapLoadScalarI64",
+      "source_kind": "TypedDirectCloseoutContract",
+      "value_demand": "ScalarI64"
+    }
+  ],
+  "claims": {
+    "accepted_scoped_closeout_count": 1,
+    "concrete_carrier_type_axis_selection": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "manual_axis_selection": 0,
+    "manual_carrier_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "owner_name_as_proof": 0,
+    "route_membership_alone_as_proof": 0,
+    "row_count_as_proof": 0,
+    "runtime_fallback": 0,
+    "scalar_known_transport_axis_closeout": 0,
+    "scoped_map_load_scalar_i64_closeout": 1,
+    "source_path_as_authority": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "consultation_required": true,
+    "kind": "KeepScopedCloseout",
+    "reason_token": "ScalarKnownTransportAxisHasUncoveredScalarSurfaces",
+    "selected_carrier_type_axis": null,
+    "selected_component_requirement": "ScalarKnownCloseoutAuthority",
+    "selected_next_card": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+  },
+  "input_state": {
+    "closeout_basis": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-transport-closeout-basis-v0.json",
+    "current_target_axis": "ScalarKnownTransportAxis",
+    "current_target_requirement": "ScalarKnownCloseoutAuthority"
+  },
+  "kind": "MirBuilderCarrierTypeScalarKnownTransportCloseoutRerunV1",
+  "provenance": {
+    "closeout_basis_hash": "6b7684a8d54b427133589f79b98644afdc841ea109e33b9ba7a82198b15e06b3",
+    "source_file_hashes": [
+      {
+        "path": "src/mir/generic_method_route_plan/collection_read_routes.rs",
+        "sha256": "57a6db955ae35c9a9295fbf5ed180ce9a39ced253d30dbda6e86c3f514006899"
+      },
+      {
+        "path": "src/mir/generic_method_route_plan/string_routes.rs",
+        "sha256": "e01cc5744cd85aaf75fbc9bc2b6573c31f37dd7cce1d5687f9ed5f7bbed9da20"
+      },
+      {
+        "path": "src/mir/generic_method_route_plan/write_routes.rs",
+        "sha256": "a099f2f6b422e6e6a454d0a6e10c74bfd649155b24ba2ebc760208de5c7caa22"
+      }
+    ]
+  },
+  "schema_version": 0,
+  "summary": {
+    "accepted_scoped_closeout_count": 1,
+    "scalar_known_transport_axis_closeout": 0,
+    "scoped_map_load_scalar_i64_closeout": 1,
+    "source_selfhost_claim": 0,
+    "uncovered_scalar_known_surface_count": 3
+  },
+  "token": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-TRANSPORT-CLOSEOUT-RERUN-001",
+  "uncovered_scalar_known_surfaces": [
+    {
+      "reason": "ScalarI64NoPublicationRouteOutsideMapLoadScalarI64Contract",
+      "source": "src/mir/generic_method_route_plan/string_routes.rs",
+      "surface_id": "StringScalarI64Routes"
+    },
+    {
+      "reason": "ScalarI64NoPublicationRouteOutsideMapLoadScalarI64Contract",
+      "source": "src/mir/generic_method_route_plan/collection_read_routes.rs",
+      "surface_id": "CollectionScalarI64Routes"
+    },
+    {
+      "reason": "ScalarI64NoPublicationRouteOutsideMapLoadScalarI64Contract",
+      "source": "src/mir/generic_method_route_plan/write_routes.rs",
+      "surface_id": "WriteScalarI64Routes"
+    }
+  ]
+}
