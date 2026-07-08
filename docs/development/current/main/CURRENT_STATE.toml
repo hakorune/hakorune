@@ -345,15 +345,15 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-DOMAIN-OBJECT-ID-UNRESOLVED-SUBAXIS-PRIORITY-RESOLUTION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2064-MIRBUILDER-DOMAIN-OBJECT-ID-UNRESOLVED-SUBAXIS-PRIORITY-RESOLUTION-001.md"
-latest_card_summary = """2064 consumes the 85 unresolved non-ID DomainObject/Id
-rows from rerun 002, confirms five candidate subaxes have no machine-derived
-priority authority, keeps stopped with
-NoMachineDerivedDomainObjectIdUnresolvedSubaxisPriority, and records
-DesignConsultationRequired. Manual subaxis selection, row/owner/domain-object
-counts as proof, route membership alone, runtime fallback, new backend/ABI,
-Hako adoption, and Source Selfhost remain unclaimed."""
+latest_card = "MIRBUILDER-DOMAIN-OBJECT-ID-EXPLICIT-SEMANTIC-RESOURCE-DOMAIN-DECLARATION-BASIS-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2076-MIRBUILDER-DOMAIN-OBJECT-ID-EXPLICIT-SEMANTIC-RESOURCE-DOMAIN-DECLARATION-BASIS-001.md"
+latest_card_summary = """2076 records the consultation-approved basis-only
+move after 2064: define explicit semantic resource-domain declaration authority
+requirements for DomainObject/Id type-identity rows before any subaxis
+selection. Type identity remains stable evidence only, not resource-domain
+authority; no dependency root, prior closed-lane continuation, selected
+subaxis, Hako adoption, runtime fallback, new backend/ABI, or Source Selfhost
+claim is made."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -364,6 +364,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-08: 2076 records the consultation-approved basis-only move after 2064, defining explicit semantic resource-domain declaration authority requirements for DomainObject/Id type-identity rows before any subaxis selection; type identity remains stable evidence only, and dependency root authority, prior closed-lane continuation, selected subaxis, Hako adoption, runtime fallback, new backend/ABI, and Source Selfhost remain unclaimed.",
   "2026-07-08: 2064 consumes the 85 unresolved non-ID DomainObject/Id rows from rerun 002, confirms five candidate subaxes have no machine-derived priority authority, keeps stopped with NoMachineDerivedDomainObjectIdUnresolvedSubaxisPriority, and records DesignConsultationRequired; manual subaxis selection, row/owner/domain-object counts as proof, route membership alone, runtime fallback, new backend/ABI, Hako adoption, and Source Selfhost remain unclaimed.",
   "2026-07-08: 2063 consumes the 2062 DomainObjectOrIdTransportAxis selection, builds the full 116-row source-id ledger, partitions the 31 ID scalar rows as a previously processed closed lane with zero newly uncovered ID scalar rows, and selects MIRBUILDER-DOMAIN-OBJECT-ID-UNRESOLVED-SUBAXIS-PRIORITY-RESOLUTION-001 for the 85 unresolved non-ID domain rows; manual subaxis selection, return-type/domain object counts as proof, runtime fallback, new backend/ABI, Hako adoption, and Source Selfhost remain unclaimed.",
   "2026-07-08: 2062 resolves the 130 unclassified carrier/type transport evidence rows into six evidence axes, selects DomainObjectOrIdTransportAxis by mechanical pure type-transport evidence, and points next to MIRBUILDER-DOMAIN-OBJECT-ID-TRANSPORT-POLICY-INVENTORY-RERUN-002; manual axis/carrier selection, return-type/domain-object counts as proof, runtime fallback, new backend/ABI, Hako adoption, and Source Selfhost remain unclaimed.",
@@ -375,5 +376,4 @@ landed_tail = [
   "2026-07-08: 3322 reconfirms the runtime-adjacent ProgramJSON shadow guard after the Compare/Branch bridge closeout; Rust remains runtime authority, ProgramJSON remains shadow-only evidence, and ProgramJSON runtime authority, runtime route switch, route selection, MIR lowering/mutation, ID allocation, runtime fallback, and Source Selfhost remain unclaimed.",
   "2026-07-08: 3321 keeps runtime route authority on the Rust ASTNode route after the Compare/Branch bridge closeout and selects the ProgramJSON runtime-adjacent shadow guard as the next read-only boundary; direct runtime route authority switch, ProgramJSON runtime authority, route selection, MIR lowering/mutation authority, ID allocation, runtime fallback, and Source Selfhost remain unclaimed.",
   "2026-07-08: 3320 closes the scoped BoolRecipe-to-MIR Compare/Branch bridge chain through conditional Branch emission; RHS ValueId, LocalSSA finalize_compare, MIR Compare emission, and Branch emission bridge gates are green, while Source Selfhost, ProgramJSON runtime authority, runtime fallback, and route/runtime authority remain unclaimed.",
-  "2026-07-08: 3319 runs the scoped Branch emission bridge for an already-emitted Compare result ValueId; branch condition consumption, LocalSSA branch-condition finalization, and conditional Branch terminator emission are claimed, while Source Selfhost, Hako adoption, ProgramJSON runtime authority, runtime fallback, and route/runtime authority remain unclaimed.",
 ]
