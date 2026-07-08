@@ -413,6 +413,7 @@ phase-1 compatibility Program(JSON) compat execution helper.
 | `tools/checks/rust_lifecycle_mirbuilder_compare_boolrecipe_to_mir_compare_branch_closeout_guard.sh` | Closes the scoped BoolRecipe-to-MIR Compare/Branch bridge chain before runtime route authority design-stop. |
 | `tools/checks/rust_lifecycle_mirbuilder_compare_runtime_route_authority_design_stop_guard.sh` | Selects the runtime-adjacent ProgramJSON shadow guard before any runtime route authority switch. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_recipematcher_runtime_route_adjacent_shadow_guard_refresh_guard.sh` | Reconfirms the runtime-adjacent ProgramJSON shadow guard before returning to Source Selfhost wider route selection. |
+| `tools/checks/rust_lifecycle_source_selfhost_post_rerun004_current_reentry_inventory_guard.sh` | Current reentry inventory guard proving basis-007 is consumed by RERUN-004 and selecting the checkpoint rerun without replaying route repair. |
 
 ## Update Policy
 

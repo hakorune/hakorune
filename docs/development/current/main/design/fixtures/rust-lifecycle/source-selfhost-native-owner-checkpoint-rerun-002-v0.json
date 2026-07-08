@@ -180,7 +180,7 @@
   "output_contract": "rust-lifecycle-source-selfhost-native-owner-checkpoint-rerun-002-v0",
   "provenance": {
     "report_rerun_004_card_hash": "54340c1e0c6bf5e47595fc5b10e5b51b065dd31c34dce61e926cf6b767f83b3e",
-    "source_selfhost_family_guard_manifest_hash": "ddac11907e62c5081bc4494bad8e2ccf05556f83dd917512de4fb2c59d047b11",
+    "source_selfhost_family_guard_manifest_hash": "fa091ad4ee8b9f495a2c73f7de752f404d57e1ad16f7505ad82d1bd37742c315",
     "unconverted_surface_report_hash": "610bc2b724b270c5a09615c27de40616517caab74411cd9933703871424f263e"
   },
   "schema_version": 0,

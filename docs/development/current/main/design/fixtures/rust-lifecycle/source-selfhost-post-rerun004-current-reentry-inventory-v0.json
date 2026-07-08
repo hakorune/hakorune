@@ -1,0 +1,53 @@
+{
+  "claims": {
+    "coverage_percentage_as_proof": 0,
+    "hako_adopted_decision": 0,
+    "machine_derived_route_repair_replay": 0,
+    "manual_family_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "programjson_runtime_route_authority": 0,
+    "route_membership_alone_as_proof": 0,
+    "route_selection": 0,
+    "runtime_fallback": 0,
+    "runtime_route_switch": 0,
+    "source_selfhost_claim": 0
+  },
+  "consumed_selector": {
+    "basis_007_consumed_by_rerun_004": 1,
+    "basis_007_valid_local_mechanical_selector": 1,
+    "selected_next_card": "MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-004",
+    "status": "historical_consumed",
+    "token": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-007"
+  },
+  "decision": {
+    "kind": "SelectPostRerun004NativeOwnerCheckpointRerun",
+    "reason_token": "Basis007ConsumedByRerun004UseRecommendedCheckpointRerun",
+    "selected_next_card": "SOURCE-SELFHOST-NATIVE-OWNER-CHECKPOINT-RERUN-002"
+  },
+  "input_state": {
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "current_prerequisite": "MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RUNTIME-ROUTE-ADJACENT-SHADOW-GUARD-REFRESH-001",
+    "rerun_004_card": "docs/development/current/main/phases/phase-296x/2057-MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-004.md",
+    "source_selfhost_wider_route_selection_basis_007": "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-wider-route-selection-basis-007-v0.json"
+  },
+  "kind": "SourceSelfhostPostRerun004CurrentReentryInventoryV1",
+  "next_after_selected": "MIRBUILDER-MISSING-PROJECTION-POLICY-CLUSTER-RESOLUTION-V4",
+  "output_contract": "rust-lifecycle-source-selfhost-post-rerun004-current-reentry-inventory-v0",
+  "rerun_004": {
+    "recommended_next": "SOURCE-SELFHOST-NATIVE-OWNER-CHECKPOINT-RERUN-002",
+    "report_regenerated": 1,
+    "result": "KeepStopped",
+    "token": "MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-004"
+  },
+  "schema_version": 0,
+  "selection_rule": {
+    "basis_007_may_be_used_as_historical_evidence": true,
+    "basis_007_may_not_be_replayed_as_current_unblock": true,
+    "current_next_uses_rerun_004_recommended_next": true,
+    "manual_family_selection": false,
+    "route_membership_alone_as_proof": false
+  },
+  "token": "SOURCE-SELFHOST-POST-RERUN004-CURRENT-REENTRY-INVENTORY-001"
+}
