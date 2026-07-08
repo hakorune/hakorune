@@ -1,0 +1,135 @@
+{
+  "claims": {
+    "behavior_change": 0,
+    "collection_boundary_separated_from_map_load": 1,
+    "collection_direct_closeout_ready": 0,
+    "direct_contract_materialized": 0,
+    "direct_contract_selection": 1,
+    "hako_adopted_decision": 0,
+    "hako_adoption": 0,
+    "hako_generation": 0,
+    "manual_axis_selection": 0,
+    "manual_carrier_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "new_route_authority": 0,
+    "owner_name_as_proof": 0,
+    "remaining_surface_boundary_inventory_rerun": 1,
+    "route_membership_alone_as_proof": 0,
+    "row_count_as_proof": 0,
+    "runtime_fallback": 0,
+    "scalar_known_transport_axis_closeout": 0,
+    "source_path_as_authority": 0,
+    "source_selfhost_claim": 0,
+    "write_direct_closeout_ready": 0,
+    "write_result_policy_ready": 0
+  },
+  "decision": {
+    "kind": "SelectCollectionLenScalarI64ContractBasis",
+    "reason_token": "ExactlyOneRemainingScalarKnownSurfaceBoundaryEligible",
+    "selected_contract_id": "CollectionLenScalarI64TypedDirectCloseoutContract",
+    "selected_next_card": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-COLLECTION-LEN-SCALAR-I64-CONTRACT-BASIS-001",
+    "selected_surface_id": "CollectionScalarI64Routes"
+  },
+  "evaluated_surfaces": [
+    {
+      "blocked_by": [],
+      "candidate_contract_id": "CollectionLenScalarI64TypedDirectCloseoutContract",
+      "collection_boundary_separated_from_map_load": true,
+      "effect_class": "observe",
+      "publication_policy": "NoPublication",
+      "return_shape": "ScalarI64",
+      "route_kind_set": [
+        "MapEntryCount",
+        "ArraySlotLen",
+        "StringLen",
+        "AnyLength"
+      ],
+      "rust_boundary_status": "CandidateNeedsPolicy",
+      "selected_next_card_if_eligible": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-COLLECTION-LEN-SCALAR-I64-CONTRACT-BASIS-001",
+      "selection_eligible": true,
+      "surface_id": "CollectionScalarI64Routes",
+      "value_demand": "ScalarI64",
+      "write_result_policy_required": false
+    },
+    {
+      "blocked_by": [
+        "WriteResultPolicyRequiredBeforeDirectCloseout"
+      ],
+      "candidate_contract_id": "WriteResultScalarI64ClassificationOnly",
+      "collection_boundary_separated_from_map_load": null,
+      "effect_class": "mutate",
+      "publication_policy": "MixedNoPublicationAndNone",
+      "return_shape": "ScalarI64OrNoneMixed",
+      "route_kind_set": [
+        "ArrayAppendAny",
+        "MapDeleteAny",
+        "MapStoreI64",
+        "MapStoreAny"
+      ],
+      "rust_boundary_status": "CandidateNeedsPolicy",
+      "selected_next_card_if_eligible": null,
+      "selection_eligible": false,
+      "surface_id": "WriteScalarI64Routes",
+      "value_demand": "WriteAny",
+      "write_result_policy_required": true
+    }
+  ],
+  "input_state": {
+    "accepted_contracts": [
+      "MapLoadScalarI64ScalarKnownTypedDirectCloseoutContract",
+      "StringSearchScalarI64TypedDirectCloseoutContract"
+    ],
+    "boundary_inventory_basis": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-remaining-surface-boundary-inventory-basis-v0.json",
+    "remaining_candidate_surfaces": [
+      "CollectionScalarI64Routes",
+      "WriteScalarI64Routes"
+    ],
+    "rust_boundary_refactor": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-rust-typed-direct-closeout-contract-boundary-refactor-v0.json"
+  },
+  "kind": "MirBuilderCarrierTypeScalarKnownRemainingSurfaceBoundaryInventoryRerunV1",
+  "prior_boundary_summary": {
+    "collection_direct_closeout_ready": 0,
+    "collection_surface_inventory": 1,
+    "direct_contract_selection": 0,
+    "remaining_surface_boundary_inventory_basis": 1,
+    "remaining_surface_count": 2,
+    "scalar_known_transport_axis_closeout": 0,
+    "source_selfhost_claim": 0,
+    "write_direct_closeout_ready": 0,
+    "write_surface_inventory": 1
+  },
+  "provenance": {
+    "boundary_inventory_basis_hash": "ce46875959c6e3a68919326c47ad098b1d957bf7a05762ec69f13df77eb376a7",
+    "rust_boundary_refactor_hash": "6f56355266d4d205354355db326e62a9c4da32c54ecdf712efe603d1ef328e10",
+    "rust_boundary_source_hash": "443b1813fc70de66c90b3c76e074c5aac7542d33207dfaed7dc71755d9bd6bb0"
+  },
+  "schema_version": 0,
+  "selection_rule": {
+    "collection_requires_boundary_separated_from_map_load": true,
+    "exactly_one_selection_eligible_surface_required": true,
+    "name": "ScalarKnownRemainingSurfaceBoundaryInventoryRerunV1",
+    "owner_name_as_proof": false,
+    "route_membership_alone_as_proof": false,
+    "row_count_as_proof": false,
+    "source_path_as_authority": false,
+    "write_requires_write_result_policy": true
+  },
+  "summary": {
+    "collection_boundary_separated_from_map_load": 1,
+    "collection_direct_closeout_ready": 0,
+    "direct_contract_materialized": 0,
+    "evaluated_surface_count": 2,
+    "remaining_surface_boundary_inventory_rerun": 1,
+    "scalar_known_transport_axis_closeout": 0,
+    "selected_contract_id": "CollectionLenScalarI64TypedDirectCloseoutContract",
+    "selected_surface_id": "CollectionScalarI64Routes",
+    "selection_eligible_surface_count": 1,
+    "source_selfhost_claim": 0,
+    "write_direct_closeout_ready": 0,
+    "write_result_policy_ready": 0
+  },
+  "token": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-REMAINING-SURFACE-BOUNDARY-INVENTORY-RERUN-001"
+}
