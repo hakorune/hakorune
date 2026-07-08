@@ -1,0 +1,189 @@
+{
+  "allowed_proof_axes": {
+    "direct_contract_shape_ready": "selection proof only if the sub-surface can become a typed direct closeout contract",
+    "mutation_semantics_policy_ready": "selection proof only if mutation semantics are scoped for that sub-surface",
+    "stable_result_publication_contract": "selection proof only if the sub-surface has a stable result and publication contract",
+    "typed_value_boundary_ready": "selection proof only if typed value boundaries are ready or explicitly not required"
+  },
+  "candidate_subsurfaces": [
+    {
+      "direct_contract_shape_ready": {
+        "proof_sources": [],
+        "status": "NotEvaluatedAtBasis"
+      },
+      "future_direct_contract_split_allowed": true,
+      "mutation_class": "MutatesReceiverOrContainer",
+      "mutation_semantics_policy_ready": {
+        "proof_sources": [],
+        "status": "NotEvaluatedAtBasis"
+      },
+      "normalized_result_class": "ScalarI64Result",
+      "proof_tuple_complete": false,
+      "publication_class": "NoPublication",
+      "route_count": 1,
+      "route_count_as_proof": false,
+      "routes": [
+        "ArrayAppendAny"
+      ],
+      "scope_eligible": true,
+      "selection_eligible": false,
+      "stable_result_publication_contract": {
+        "proof_sources": [],
+        "status": "NotEvaluatedAtBasis"
+      },
+      "subsurface_id": "PushSurfacePolicy",
+      "typed_value_boundary_ready": {
+        "proof_sources": [],
+        "status": "NotEvaluatedAtBasis"
+      }
+    },
+    {
+      "direct_contract_shape_ready": {
+        "proof_sources": [],
+        "status": "NotEvaluatedAtBasis"
+      },
+      "future_direct_contract_split_allowed": true,
+      "mutation_class": "MutatesReceiverOrContainer",
+      "mutation_semantics_policy_ready": {
+        "proof_sources": [],
+        "status": "NotEvaluatedAtBasis"
+      },
+      "normalized_result_class": "ScalarI64Result",
+      "proof_tuple_complete": false,
+      "publication_class": "NonePublication",
+      "route_count": 1,
+      "route_count_as_proof": false,
+      "routes": [
+        "MapDeleteAny"
+      ],
+      "scope_eligible": true,
+      "selection_eligible": false,
+      "stable_result_publication_contract": {
+        "proof_sources": [],
+        "status": "NotEvaluatedAtBasis"
+      },
+      "subsurface_id": "DeleteSurfacePolicy",
+      "typed_value_boundary_ready": {
+        "proof_sources": [],
+        "status": "NotEvaluatedAtBasis"
+      }
+    },
+    {
+      "direct_contract_shape_ready": {
+        "proof_sources": [],
+        "status": "NotEvaluatedAtBasis"
+      },
+      "future_direct_contract_split_allowed": true,
+      "mutation_class": "MutatesReceiverOrContainer",
+      "mutation_semantics_policy_ready": {
+        "proof_sources": [],
+        "status": "NotEvaluatedAtBasis"
+      },
+      "normalized_result_class": "NoneResult",
+      "proof_tuple_complete": false,
+      "publication_class": "NonePublication",
+      "route_count": 2,
+      "route_count_as_proof": false,
+      "routes": [
+        "MapStoreI64",
+        "MapStoreAny"
+      ],
+      "scope_eligible": true,
+      "selection_eligible": false,
+      "stable_result_publication_contract": {
+        "proof_sources": [],
+        "status": "NotEvaluatedAtBasis"
+      },
+      "subsurface_id": "SetSurfacePolicy",
+      "typed_value_boundary_ready": {
+        "proof_sources": [],
+        "status": "NotEvaluatedAtBasis"
+      }
+    }
+  ],
+  "claims": {
+    "accepted_read_contract_similarity_as_proof": 0,
+    "apparent_simplicity_as_proof": 0,
+    "basis_selects_write_subsurface": 0,
+    "behavior_change": 0,
+    "component_specific_direct_contract_materialized": 0,
+    "hako_adopted_decision": 0,
+    "hako_adoption": 0,
+    "hako_generation": 0,
+    "manual_axis_selection": 0,
+    "manual_carrier_selection": 0,
+    "manual_subsurface_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "new_route_authority": 0,
+    "owner_name_as_proof": 0,
+    "route_count_as_proof": 0,
+    "route_membership_alone_as_proof": 0,
+    "runtime_fallback": 0,
+    "scalar_known_transport_axis_closeout": 0,
+    "source_path_as_authority": 0,
+    "source_selfhost_claim": 0,
+    "write_direct_closeout_materialized": 0,
+    "write_result_policy_ready": 0,
+    "write_scalar_i64_routes_closeout": 0,
+    "write_subsurface_priority_basis": 1
+  },
+  "decision": {
+    "kind": "SelectWriteSubsurfacePriorityRerun",
+    "reason_token": "WriteSubsurfacePriorityBasisDefined",
+    "selected_next_card": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SUBSURFACE-PRIORITY-RERUN-001",
+    "selected_subsurface": null
+  },
+  "input_state": {
+    "whole_direct_contract_candidate_count": 0,
+    "write_result_policy_rerun": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-write-result-policy-rerun-v0.json",
+    "write_result_policy_rerun_decision": "SelectWriteSubsurfacePriorityBasis",
+    "write_result_policy_rerun_reason_token": "MultipleWriteSubsurfacesRequirePriorityBasis",
+    "write_result_policy_rerun_selected_next_card": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SUBSURFACE-PRIORITY-BASIS-001",
+    "write_subsurface_candidate_count": 3
+  },
+  "kind": "MirBuilderCarrierTypeScalarKnownWriteSubsurfacePriorityBasisV1",
+  "provenance": {
+    "write_result_policy_rerun_hash": "213f57e04e0bf957fc45d1091d6a724bfca03c85f05d03284170e7ad86e40d55"
+  },
+  "schema_version": 0,
+  "selector_rule": {
+    "basis_selects_write_subsurface": false,
+    "forbidden_priority_sources": [
+      "route_count",
+      "owner_name",
+      "source_path",
+      "route_membership_alone",
+      "lexical_order",
+      "coverage_percentage",
+      "apparent_simplicity",
+      "accepted_read_contract_similarity",
+      "manual_subsurface_selection"
+    ],
+    "if_multiple_subsurface_proof_tuples_keep_stopped": true,
+    "if_zero_subsurface_proof_tuples_keep_stopped": true,
+    "name": "WriteSubsurfacePriorityMechanicalSelectorV1",
+    "proof_tuple_complete_requires": [
+      "scope_eligible",
+      "stable_result_publication_contract",
+      "mutation_semantics_policy_ready",
+      "direct_contract_shape_ready",
+      "typed_value_boundary_ready_or_not_required"
+    ],
+    "rerun_may_select_subsurface_only_if_exactly_one_proof_tuple_complete": true
+  },
+  "summary": {
+    "basis_selection_eligible_subsurface_count": 0,
+    "basis_selects_write_subsurface": 0,
+    "candidate_write_subsurface_count": 3,
+    "scalar_known_transport_axis_closeout": 0,
+    "source_selfhost_claim": 0,
+    "write_direct_closeout_materialized": 0,
+    "write_result_policy_ready": 0,
+    "write_scalar_i64_routes_closeout": 0,
+    "write_subsurface_priority_basis": 1
+  },
+  "token": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SUBSURFACE-PRIORITY-BASIS-001"
+}
