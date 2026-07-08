@@ -5,7 +5,6 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 FIXTURE="$ROOT/docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-collection-len-scalar-i64-contract-basis-v0.json"
 TOOL="$ROOT/tools/rust_lifecycle/mirbuilder_carrier_type_scalar_known_collection_len_scalar_i64_contract_basis.py"
 CARD="$ROOT/docs/development/current/main/phases/phase-296x/2109-MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-COLLECTION-LEN-SCALAR-I64-CONTRACT-BASIS-001.md"
-STATE="$ROOT/docs/development/current/main/CURRENT_STATE.toml"
 TASK_ORDER="$ROOT/docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 MANIFEST="$ROOT/docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-family-guard-manifest-v0.json"
 RUST_BOUNDARY="$ROOT/src/mir/generic_method_route_plan/scalar_known_typed_direct_closeout_contract.rs"
@@ -14,20 +13,18 @@ COLLECTION_TEST="$ROOT/src/mir/generic_method_route_plan/tests/string_routes/len
 
 python3 "$TOOL" --check
 
-python3 - "$FIXTURE" "$CARD" "$STATE" "$TASK_ORDER" "$MANIFEST" "$RUST_BOUNDARY" "$COLLECTION_SOURCE" "$COLLECTION_TEST" <<'PY'
+python3 - "$FIXTURE" "$CARD" "$TASK_ORDER" "$MANIFEST" "$RUST_BOUNDARY" "$COLLECTION_SOURCE" "$COLLECTION_TEST" <<'PY'
 import json
 import sys
-import tomllib
 from pathlib import Path
 
 fixture = json.load(open(sys.argv[1], encoding="utf-8"))
 card = Path(sys.argv[2]).read_text(encoding="utf-8")
-state = tomllib.loads(Path(sys.argv[3]).read_text(encoding="utf-8"))
-task_order = Path(sys.argv[4]).read_text(encoding="utf-8")
-manifest = json.load(open(sys.argv[5], encoding="utf-8"))
-rust_boundary = Path(sys.argv[6]).read_text(encoding="utf-8")
-collection_source = Path(sys.argv[7]).read_text(encoding="utf-8")
-collection_test = Path(sys.argv[8]).read_text(encoding="utf-8")
+task_order = Path(sys.argv[3]).read_text(encoding="utf-8")
+manifest = json.load(open(sys.argv[4], encoding="utf-8"))
+rust_boundary = Path(sys.argv[5]).read_text(encoding="utf-8")
+collection_source = Path(sys.argv[6]).read_text(encoding="utf-8")
+collection_test = Path(sys.argv[7]).read_text(encoding="utf-8")
 
 
 def need(cond, msg):
@@ -151,8 +148,6 @@ need(manifest_row.get("card", "").endswith("2109-MIRBUILDER-CARRIER-TYPE-SCALAR-
 need(manifest_row.get("fixture", "").endswith("mirbuilder-carrier-type-scalar-known-collection-len-scalar-i64-contract-basis-v0.json"), "manifest fixture drift")
 need(manifest_row.get("legacy_guard", "").endswith("rust_lifecycle_mirbuilder_carrier_type_scalar_known_collection_len_scalar_i64_contract_basis_guard.sh"), "manifest guard drift")
 
-need(state.get("latest_card") == token, "CURRENT_STATE latest drift")
-need(state.get("current_blocker_token") == next_card, "CURRENT_STATE blocker drift")
 need(token in task_order, "task order missing token")
 need(f"selected_next_card={next_card}" in task_order, "task order next drift")
 

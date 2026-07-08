@@ -1,0 +1,140 @@
+{
+  "accepted_scoped_closeouts": [
+    {
+      "contract_id": "MapLoadScalarI64ScalarKnownTypedDirectCloseoutContract",
+      "source": "prior_scoped_closeout",
+      "surface_id": "MapLoadScalarI64"
+    },
+    {
+      "contract_id": "StringSearchScalarI64TypedDirectCloseoutContract",
+      "core_method_lowering_tier": "WarmDirectAbi",
+      "effect_class": "read",
+      "publication_policy": "NoPublication",
+      "return_shape": "ScalarI64",
+      "routes": [
+        {
+          "core_method_op": "StringIndexOf",
+          "method_surface": "indexOf",
+          "proof_or_policy_source": "IndexOfSurfacePolicy",
+          "route_kind": "StringIndexOf"
+        },
+        {
+          "core_method_op": "StringLastIndexOf",
+          "method_surface": "lastIndexOf",
+          "proof_or_policy_source": "LastIndexOfSurfacePolicy",
+          "route_kind": "StringLastIndexOf"
+        },
+        {
+          "core_method_op": "StringContains",
+          "method_surface": "contains",
+          "proof_or_policy_source": "ContainsSurfacePolicy",
+          "route_kind": "StringContains"
+        }
+      ],
+      "surface_id": "StringScalarI64Routes",
+      "value_demand": "ScalarI64"
+    },
+    {
+      "contract_id": "CollectionLenScalarI64TypedDirectCloseoutContract",
+      "core_method_lowering_tier": "WarmDirectAbi",
+      "effect_class": "observe",
+      "proof_or_policy_source": [
+        "LenSurfacePolicy"
+      ],
+      "publication_policy": "NoPublication",
+      "return_shape": "ScalarI64",
+      "routes": [
+        "MapEntryCount",
+        "ArraySlotLen",
+        "StringLen",
+        "AnyLength"
+      ],
+      "surface_id": "CollectionScalarI64Routes",
+      "value_demand": "ScalarI64"
+    }
+  ],
+  "basis_summary": {
+    "collection_direct_closeout_ready": 0,
+    "collection_len_route_count": 4,
+    "collection_len_scalar_i64_contract_basis": 1,
+    "direct_contract_materialized": 0,
+    "scalar_known_transport_axis_closeout": 0,
+    "source_selfhost_claim": 0
+  },
+  "claims": {
+    "accepted_scoped_closeout_count": 3,
+    "behavior_change": 0,
+    "collection_len_scalar_i64_contract_materialized": 1,
+    "hako_adopted_decision": 0,
+    "hako_adoption": 0,
+    "hako_generation": 0,
+    "manual_axis_selection": 0,
+    "manual_carrier_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "new_route_authority": 0,
+    "owner_name_as_proof": 0,
+    "route_membership_alone_as_proof": 0,
+    "row_count_as_proof": 0,
+    "runtime_fallback": 0,
+    "scalar_known_transport_axis_closeout": 0,
+    "source_path_as_authority": 0,
+    "source_selfhost_claim": 0,
+    "write_result_policy_ready": 0
+  },
+  "decision": {
+    "kind": "SelectWriteResultPolicyBasis",
+    "reason_token": "CollectionLenScopedCloseoutMaterializedWritePolicyRemains",
+    "selected_next_card": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-RESULT-POLICY-BASIS-001"
+  },
+  "input_state": {
+    "collection_len_basis": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-collection-len-scalar-i64-contract-basis-v0.json",
+    "prior_string_search_rerun": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-string-search-scalar-i64-typed-direct-closeout-contract-rerun-v0.json",
+    "rust_boundary_refactor": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-rust-typed-direct-closeout-contract-boundary-refactor-v0.json",
+    "rust_candidate_surfaces": [
+      "CollectionScalarI64Routes",
+      "WriteScalarI64Routes"
+    ]
+  },
+  "kind": "MirBuilderCarrierTypeScalarKnownCollectionLenScalarI64ContractRerunV1",
+  "materialized_contract": {
+    "contract_id": "CollectionLenScalarI64TypedDirectCloseoutContract",
+    "core_method_lowering_tier": "WarmDirectAbi",
+    "effect_class": "observe",
+    "proof_or_policy_source": [
+      "LenSurfacePolicy"
+    ],
+    "publication_policy": "NoPublication",
+    "return_shape": "ScalarI64",
+    "routes": [
+      "MapEntryCount",
+      "ArraySlotLen",
+      "StringLen",
+      "AnyLength"
+    ],
+    "surface_id": "CollectionScalarI64Routes",
+    "value_demand": "ScalarI64"
+  },
+  "provenance": {
+    "collection_len_basis_hash": "2d8782a8c03f165d2fba2440d1fb0b57d3b1a2cd0189a57ef17a1ea4be2b4739",
+    "prior_string_search_rerun_hash": "5c4ae27f05ed6ecbde17468f8440b78cfcbc35dcb07cdfda1f3cb5710542692a",
+    "rust_boundary_refactor_hash": "6f56355266d4d205354355db326e62a9c4da32c54ecdf712efe603d1ef328e10"
+  },
+  "remaining_candidate_surfaces": [
+    "WriteScalarI64Routes"
+  ],
+  "schema_version": 0,
+  "summary": {
+    "accepted_scoped_closeout_count": 3,
+    "collection_len_scalar_i64_contract_materialized": 1,
+    "remaining_candidate_surface_count": 1,
+    "remaining_candidate_surface_id": "WriteScalarI64Routes",
+    "scalar_known_transport_axis_closeout": 0,
+    "source_selfhost_claim": 0,
+    "write_result_policy_ready": 0
+  },
+  "token": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-COLLECTION-LEN-SCALAR-I64-CONTRACT-RERUN-001",
+  "write_blocker": "WriteResultPolicyRequiredBeforeDirectCloseout"
+}
