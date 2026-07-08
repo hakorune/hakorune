@@ -7,17 +7,15 @@ TOOL="$ROOT/tools/rust_lifecycle/mirbuilder_carrier_type_scalar_known_write_surf
 CARD="$ROOT/docs/development/current/main/phases/phase-296x/2119-MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SURFACE-POST-PUSH-ADOPTION-RERUN-001.md"
 TASK_ORDER="$ROOT/docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 MANIFEST="$ROOT/docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-family-guard-manifest-v0.json"
-ADOPTION_GUARD="$ROOT/tools/checks/rust_lifecycle_mirbuilder_carrier_type_scalar_known_write_push_surface_hako_adoption_decision_guard.sh"
 
 source "$ROOT/tools/checks/lib/guard_common.sh"
 
 TAG="rust-lifecycle-mirbuilder-carrier-type-scalar-known-write-surface-post-push-adoption-rerun"
 
 guard_require_command "$TAG" python3
-guard_require_files "$TAG" "$FIXTURE" "$TOOL" "$CARD" "$TASK_ORDER" "$MANIFEST" "$ADOPTION_GUARD"
+guard_require_files "$TAG" "$FIXTURE" "$TOOL" "$CARD" "$TASK_ORDER" "$MANIFEST"
 
 python3 "$TOOL" --check
-bash "$ADOPTION_GUARD" >/dev/null
 
 python3 - "$FIXTURE" "$CARD" "$TASK_ORDER" "$MANIFEST" <<'PY'
 import json

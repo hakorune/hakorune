@@ -1,0 +1,163 @@
+{
+  "accepted_scoped_closeouts": [
+    {
+      "contract_id": "MapLoadScalarI64ScalarKnownTypedDirectCloseoutContract",
+      "source": "prior_scoped_closeout",
+      "surface_id": "MapLoadScalarI64"
+    },
+    {
+      "contract_id": "StringSearchScalarI64TypedDirectCloseoutContract",
+      "core_method_lowering_tier": "WarmDirectAbi",
+      "effect_class": "read",
+      "publication_policy": "NoPublication",
+      "return_shape": "ScalarI64",
+      "routes": [
+        {
+          "core_method_op": "StringIndexOf",
+          "method_surface": "indexOf",
+          "proof_or_policy_source": "IndexOfSurfacePolicy",
+          "route_kind": "StringIndexOf"
+        },
+        {
+          "core_method_op": "StringLastIndexOf",
+          "method_surface": "lastIndexOf",
+          "proof_or_policy_source": "LastIndexOfSurfacePolicy",
+          "route_kind": "StringLastIndexOf"
+        },
+        {
+          "core_method_op": "StringContains",
+          "method_surface": "contains",
+          "proof_or_policy_source": "ContainsSurfacePolicy",
+          "route_kind": "StringContains"
+        }
+      ],
+      "surface_id": "StringScalarI64Routes",
+      "value_demand": "ScalarI64"
+    },
+    {
+      "contract_id": "CollectionLenScalarI64TypedDirectCloseoutContract",
+      "core_method_lowering_tier": "WarmDirectAbi",
+      "effect_class": "observe",
+      "proof_or_policy_source": [
+        "LenSurfacePolicy"
+      ],
+      "publication_policy": "NoPublication",
+      "return_shape": "ScalarI64",
+      "routes": [
+        "MapEntryCount",
+        "ArraySlotLen",
+        "StringLen",
+        "AnyLength"
+      ],
+      "surface_id": "CollectionScalarI64Routes",
+      "value_demand": "ScalarI64"
+    },
+    {
+      "contract_id": "WritePushSurfaceTypedDirectCloseoutContract",
+      "core_method_lowering_tier": "ColdFallback",
+      "core_method_op": "ArrayPush",
+      "effect_class": "mutate",
+      "mutation_class": "MutatesReceiverOrContainer",
+      "proof_or_policy_source": [
+        "PushSurfacePolicy"
+      ],
+      "publication_policy": "NoPublication",
+      "result_class": "ScalarI64Result",
+      "return_shape": "ScalarI64",
+      "routes": [
+        "ArrayAppendAny"
+      ],
+      "runtime_mutation_authority": false,
+      "subsurface_id": "PushSurfacePolicy",
+      "surface_id": "WriteScalarI64Routes",
+      "value_demand": "WriteAny"
+    }
+  ],
+  "basis_summary": {
+    "direct_contract_materialized": 0,
+    "runtime_mutation_authority": 0,
+    "scalar_known_transport_axis_closeout": 0,
+    "source_selfhost_claim": 0,
+    "write_push_direct_closeout_ready": 0,
+    "write_push_route_count": 1,
+    "write_push_surface_typed_direct_closeout_contract_basis": 1,
+    "write_scalar_i64_routes_closeout": 0
+  },
+  "claims": {
+    "accepted_scoped_closeout_count": 4,
+    "behavior_change": 0,
+    "hako_generation": 0,
+    "manual_axis_selection": 0,
+    "manual_carrier_selection": 0,
+    "manual_subsurface_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "new_route_authority": 0,
+    "owner_name_as_proof": 0,
+    "route_count_as_proof": 0,
+    "route_membership_alone_as_proof": 0,
+    "row_count_as_proof": 0,
+    "runtime_fallback": 0,
+    "runtime_mutation_authority": 0,
+    "scalar_known_transport_axis_closeout": 0,
+    "source_path_as_authority": 0,
+    "source_selfhost_claim": 0,
+    "write_push_surface_direct_closeout_materialized": 1,
+    "write_scalar_i64_routes_closeout": 0
+  },
+  "decision": {
+    "kind": "SelectWriteRemainingSubsurfacePostPushCloseoutRerun",
+    "reason_token": "PushScopedCloseoutMaterializedDeleteSetRemain",
+    "selected_next_card": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-REMAINING-SUBSURFACE-POST-PUSH-CLOSEOUT-RERUN-001"
+  },
+  "input_state": {
+    "basis_decision": "SelectWritePushSurfaceDirectCloseoutRerun",
+    "basis_selected_next_card": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-PUSH-SURFACE-DIRECT-CLOSEOUT-RERUN-001",
+    "prior_collection_len_rerun": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-collection-len-scalar-i64-contract-rerun-v0.json",
+    "prior_collection_len_rerun_hash": "ff809852dfb69a71a4ee7bc1a94917481ef1e5d8cc22d995567f145814552b78",
+    "write_push_surface_contract_basis": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-write-push-surface-typed-direct-closeout-contract-basis-v0.json",
+    "write_push_surface_contract_basis_hash": "b970ce59a5122ffd73971bc7afc234c4595e7748e3a549c56fe790bc32163f78"
+  },
+  "kind": "MirBuilderCarrierTypeScalarKnownWritePushSurfaceDirectCloseoutRerunV1",
+  "materialized_contract": {
+    "contract_id": "WritePushSurfaceTypedDirectCloseoutContract",
+    "core_method_lowering_tier": "ColdFallback",
+    "core_method_op": "ArrayPush",
+    "effect_class": "mutate",
+    "mutation_class": "MutatesReceiverOrContainer",
+    "proof_or_policy_source": [
+      "PushSurfacePolicy"
+    ],
+    "publication_policy": "NoPublication",
+    "result_class": "ScalarI64Result",
+    "return_shape": "ScalarI64",
+    "routes": [
+      "ArrayAppendAny"
+    ],
+    "runtime_mutation_authority": false,
+    "subsurface_id": "PushSurfacePolicy",
+    "surface_id": "WriteScalarI64Routes",
+    "value_demand": "WriteAny"
+  },
+  "remaining_write_subsurface_blockers": {
+    "DeleteSurfacePolicy": "NoHakoAdoptedWriteSubsurfacePilot",
+    "SetSurfacePolicy": "NoHakoAdoptedWriteSubsurfacePilot"
+  },
+  "remaining_write_subsurfaces": [
+    "DeleteSurfacePolicy",
+    "SetSurfacePolicy"
+  ],
+  "schema_version": 0,
+  "summary": {
+    "accepted_scoped_closeout_count": 4,
+    "remaining_write_subsurface_count": 2,
+    "runtime_mutation_authority": 0,
+    "scalar_known_transport_axis_closeout": 0,
+    "source_selfhost_claim": 0,
+    "write_push_surface_direct_closeout_materialized": 1,
+    "write_scalar_i64_routes_closeout": 0
+  },
+  "token": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-PUSH-SURFACE-DIRECT-CLOSEOUT-RERUN-001"
+}

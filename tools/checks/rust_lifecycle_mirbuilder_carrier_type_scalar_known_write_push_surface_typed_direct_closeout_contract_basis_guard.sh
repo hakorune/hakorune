@@ -9,17 +9,15 @@ TASK_ORDER="$ROOT/docs/development/current/main/design/mirbuilder-rust-to-hako-c
 MANIFEST="$ROOT/docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-family-guard-manifest-v0.json"
 WRITE_SOURCE="$ROOT/src/mir/generic_method_route_plan/write_routes.rs"
 HAKO_SOURCE="$ROOT/lang/src/compiler/lib/write_push_surface_policy_classifier.hako"
-POST_PUSH_GUARD="$ROOT/tools/checks/rust_lifecycle_mirbuilder_carrier_type_scalar_known_write_surface_post_push_adoption_rerun_guard.sh"
 
 source "$ROOT/tools/checks/lib/guard_common.sh"
 
 TAG="rust-lifecycle-mirbuilder-carrier-type-scalar-known-write-push-surface-typed-direct-closeout-contract-basis"
 
 guard_require_command "$TAG" python3
-guard_require_files "$TAG" "$FIXTURE" "$TOOL" "$CARD" "$TASK_ORDER" "$MANIFEST" "$WRITE_SOURCE" "$HAKO_SOURCE" "$POST_PUSH_GUARD"
+guard_require_files "$TAG" "$FIXTURE" "$TOOL" "$CARD" "$TASK_ORDER" "$MANIFEST" "$WRITE_SOURCE" "$HAKO_SOURCE"
 
 python3 "$TOOL" --check
-bash "$POST_PUSH_GUARD" >/dev/null
 
 python3 - "$FIXTURE" "$CARD" "$TASK_ORDER" "$MANIFEST" "$WRITE_SOURCE" "$HAKO_SOURCE" <<'PY'
 import json
