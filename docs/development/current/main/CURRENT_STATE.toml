@@ -345,16 +345,16 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-UNCOVERED-SURFACE-CLASSIFICATION-BASIS-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2102-MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-UNCOVERED-SURFACE-CLASSIFICATION-BASIS-001.md"
-latest_card_summary = """2102 defines a basis-only classification for the
-three uncovered ScalarKnown surfaces after 2101: StringScalarI64Routes,
-CollectionScalarI64Routes, and WriteScalarI64Routes. It defines classification
-dimensions and candidate contract IDs, selects the classification rerun, and
-keeps direct contract selection, ScalarKnownTransportAxis closeout, Hako
-adoption, runtime fallback, new backend/ABI, and Source Selfhost unclaimed."""
+latest_card = "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-UNCOVERED-SURFACE-CLASSIFICATION-RERUN-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2103-MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-UNCOVERED-SURFACE-CLASSIFICATION-RERUN-001.md"
+latest_card_summary = """2103 reruns the ScalarKnown uncovered-surface
+classification after 2102, selects StringScalarI64Routes as the exactly-one
+next narrow surface, and selects the StringSearchScalarI64 typed direct
+closeout contract basis. The contract is not materialized yet, and
+ScalarKnownTransportAxis closeout, Hako adoption, runtime fallback, new
+backend/ABI, and Source Selfhost remain unclaimed."""
 
-current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
+current_blocker_token = "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-STRING-SEARCH-SCALAR-I64-TYPED-DIRECT-CLOSEOUT-CONTRACT-BASIS-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -363,6 +363,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-08: 2103 reruns the ScalarKnown uncovered-surface classification after 2102, selects StringScalarI64Routes as the exactly-one next narrow surface, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-STRING-SEARCH-SCALAR-I64-TYPED-DIRECT-CLOSEOUT-CONTRACT-BASIS-001, and keeps direct contract materialization, ScalarKnownTransportAxis closeout, Hako adoption, runtime fallback, new backend/ABI, and Source Selfhost unclaimed.",
   "2026-07-08: 2102 defines a basis-only classification for the three uncovered ScalarKnown surfaces after 2101, names StringScalarI64Routes, CollectionScalarI64Routes, and WriteScalarI64Routes with classification dimensions and candidate contract IDs, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-UNCOVERED-SURFACE-CLASSIFICATION-RERUN-001, and keeps direct contract selection, ScalarKnownTransportAxis closeout, Hako adoption, runtime fallback, new backend/ABI, and Source Selfhost unclaimed.",
   "2026-07-08: 2101 reruns ScalarKnown transport closeout after the closeout basis, records scoped MapLoadScalarI64 closeout, keeps full ScalarKnownTransportAxis closeout at 0 because string, collection, and write scalar routes remain uncovered by the accepted typed direct closeout contract, and returns to SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001 for consultation; concrete carrier/type axis selection, Hako adoption, runtime fallback, new backend/ABI, and Source Selfhost remain unclaimed.",
   "2026-07-08: 2100 defines the basis-only ScalarKnown transport closeout step after rerun-003 selected ScalarKnownCloseoutAuthority as the only root component requirement, consumes the accepted MapLoadScalarI64 typed direct closeout contract, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-TRANSPORT-CLOSEOUT-RERUN-001, and keeps concrete carrier/type axis selection, ScalarKnownTransportAxis closeout, Hako adoption, runtime fallback, new backend/ABI, and Source Selfhost unclaimed.",
@@ -374,5 +375,4 @@ landed_tail = [
   "2026-07-08: 2083 reruns remaining carrier/type component requirement priority after the 2082 inventory, finds zero root component requirements and zero selection-eligible component requirements, keeps stopped with NoCarrierTypeRemainingAxisRootComponentRequirement, and returns to SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001 for consultation; component-specific card selection, concrete carrier/type axis selection, Hako adoption, runtime fallback, new backend/ABI, and Source Selfhost remain unclaimed.",
   "2026-07-08: 2082 inventories typed evidence for the seven remaining carrier/type component requirements, finds zero accepted component evidence sources, zero ready requirements, zero root component requirements, and selects MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-COMPONENT-REQUIREMENT-RERUN-001; component-specific card selection, concrete carrier/type axis selection, Hako adoption, runtime fallback, new backend/ABI, and Source Selfhost remain unclaimed.",
   "2026-07-08: 2081 defines seven component requirements for the five remaining carrier/type axes after the priority rerun found no proof-complete axis, records zero root component requirements, and selects MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-COMPONENT-REQUIREMENT-INVENTORY-001; component-specific card selection, concrete carrier/type axis selection, Hako adoption, runtime fallback, new backend/ABI, and Source Selfhost remain unclaimed.",
-  "2026-07-08: 2080 applies the remaining carrier/type axis mechanical selector to the five non-DomainObject axes; all five are scope-eligible, guard-clean, and evidence-inventory complete, but zero axes have a complete proof tuple, so the result remains KeepStopped and selects MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-COMPONENT-REQUIREMENT-BASIS-001; concrete carrier/type axis selection, Hako adoption, runtime fallback, new backend/ABI, and Source Selfhost remain unclaimed.",
 ]
