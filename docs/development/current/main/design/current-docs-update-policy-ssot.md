@@ -161,6 +161,19 @@ code-facing owner and a fail-fast boundary. The next card may refine the
 implementation shape, but it must not repeat the same design consultation as a
 new task.
 
+Zero-result machine-search loop breaker:
+
+- after a design-stop consultation, at most one basis plus one inventory/rerun
+  pair may be used to check an explicit machine-derived authority source;
+- if that rerun still proves zero root authority or zero accepted evidence
+  sources, return to the design stop instead of widening into another
+  machine-search lane;
+- parked future lanes may remain documented, but `next_documented_task` must
+  not point to them until a later consultation or implementation result
+  supplies a new non-zero authority source;
+- diagnostic candidate names such as the narrowest-looking component are not
+  selection authority unless a rerun proves exactly one root.
+
 If the active blocker is the explicit design-stop frontier, treat that as a
 pause point for goal-driven execution: do not invent a fresh executable owner
 from historical mirrors, and do not use docs-only follow-ups to keep the same

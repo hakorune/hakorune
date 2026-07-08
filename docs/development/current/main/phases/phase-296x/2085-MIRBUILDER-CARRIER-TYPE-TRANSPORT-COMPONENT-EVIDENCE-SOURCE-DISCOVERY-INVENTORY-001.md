@@ -33,13 +33,26 @@ component_specific_card_selection = 0
 concrete_carrier_type_axis_selection = 0
 
 decision:
-  SelectWiderRouteSelectionBasis
+  SelectCarrierTypeRemainingAxisComponentRequirementRerun
 
 reason:
-  NoCarrierTypeComponentEvidenceSourceAuthority
+  ComponentEvidenceSourceDiscoveryInventoryRecorded
 
 selected_next_card:
-  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-009
+  MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-COMPONENT-REQUIREMENT-RERUN-002
+```
+
+## Claim Scope
+
+```text
+rust_owner_root_authority_inventory = 1
+component_requirement_root_authority_inventory = 1
+existing_rust_owner_evidence_scanned = 1
+accepted_component_evidence_source_count = diagnostic only
+root_component_requirement_count = diagnostic only
+component_specific_card_selection = 0
+concrete_carrier_type_axis_selection = 0
+rerun_required_before_selection = 1
 ```
 
 ## Guard

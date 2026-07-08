@@ -115,11 +115,11 @@
     }
   ],
   "decision": {
-    "kind": "SelectWiderRouteSelectionBasis",
-    "reason_token": "NoCarrierTypeComponentEvidenceSourceAuthority",
+    "kind": "SelectCarrierTypeRemainingAxisComponentRequirementRerun",
+    "reason_token": "ComponentEvidenceSourceDiscoveryInventoryRecorded",
     "selected_carrier_type_axis": null,
     "selected_component_requirement": null,
-    "selected_next_card": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-009"
+    "selected_next_card": "MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-COMPONENT-REQUIREMENT-RERUN-002"
   },
   "input_state": {
     "carrier_type_transport_policy_inventory_rerun_003": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-transport-policy-inventory-rerun-003-v0.json",
@@ -135,9 +135,10 @@
     "component_specific_card_selection": false,
     "concrete_carrier_type_axis_selection": false,
     "hardcoded_component_priority_forbidden": true,
-    "if_no_accepted_source_return_wider": true,
+    "if_no_accepted_source_return_wider": false,
     "name": "ComponentEvidenceSourceDiscoveryInventoryV1",
     "reads_existing_authority_sources_only": true,
+    "rerun_required_before_selection": true,
     "self_signed_component_authority_forbidden": true
   },
   "kind": "MirBuilderCarrierTypeTransportComponentEvidenceSourceDiscoveryInventoryV1",
@@ -152,10 +153,10 @@
     "unclassified_axis_resolution_present": true
   },
   "provenance": {
-    "carrier_type_transport_policy_inventory_rerun_003_hash": "2d79c7ef91b120426566ce12e89c45068cf377a29acb104d8177befc714f9ce9",
-    "carrier_type_transport_unclassified_evidence_resolution_002_hash": "a1693463c7cb3cbd03813d30afacc5a904a6b6f25dd08b032ddfd7c124c67717",
-    "component_evidence_source_discovery_basis_hash": "b687d14c09ceac0196902aff9f11ac5396611d65f4e398deb41afbeb0e5a24fd",
-    "component_requirement_rerun_hash": "2a16e81492efbe2f8346f5d8280fc7e685ab25ba8c81d50e6f975bd09fb56610"
+    "carrier_type_transport_policy_inventory_rerun_003_hash": "0dd533556afd7b099188e84c101f04a13ae4e9bbec36d5cdaa3d87bb48d83e0b",
+    "carrier_type_transport_unclassified_evidence_resolution_002_hash": "e45c0a62c47ce090ee3695a464f051e0c35181c9e1a1fa8b00e22af51ba8d7a7",
+    "component_evidence_source_discovery_basis_hash": "a8b03b28e2b6421870da7eb0523696ef7e21036fe2d0df5e90c9412c36aa64c7",
+    "component_requirement_rerun_hash": "9493e71efdaf9606008d2ac36b43eb9adad680a827c492933f57e3970ca6c760"
   },
   "schema_version": 0,
   "source_kind_rows": [

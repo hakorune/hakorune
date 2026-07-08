@@ -20,7 +20,7 @@ OUTPUT = (
 
 TOKEN = "MIRBUILDER-CARRIER-TYPE-TRANSPORT-COMPONENT-EVIDENCE-SOURCE-DISCOVERY-INVENTORY-001"
 DESIGN_STOP = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
-NEXT_CARD = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-009"
+NEXT_CARD = "MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-COMPONENT-REQUIREMENT-RERUN-002"
 
 BASIS = (
     FIXTURES
@@ -154,7 +154,8 @@ def build_fixture() -> dict[str, Any]:
             "hardcoded_component_priority_forbidden": True,
             "component_specific_card_selection": False,
             "concrete_carrier_type_axis_selection": False,
-            "if_no_accepted_source_return_wider": True,
+            "rerun_required_before_selection": True,
+            "if_no_accepted_source_return_wider": False,
         },
         "source_search_scope": [
             {
@@ -186,8 +187,8 @@ def build_fixture() -> dict[str, Any]:
             **source_counts,
         },
         "decision": {
-            "kind": "SelectWiderRouteSelectionBasis",
-            "reason_token": "NoCarrierTypeComponentEvidenceSourceAuthority",
+            "kind": "SelectCarrierTypeRemainingAxisComponentRequirementRerun",
+            "reason_token": "ComponentEvidenceSourceDiscoveryInventoryRecorded",
             "selected_carrier_type_axis": None,
             "selected_component_requirement": None,
             "selected_next_card": NEXT_CARD,

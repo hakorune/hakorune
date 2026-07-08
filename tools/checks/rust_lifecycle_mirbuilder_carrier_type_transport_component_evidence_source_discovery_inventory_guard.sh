@@ -28,7 +28,7 @@ def need(cond, msg):
 
 
 token = "MIRBUILDER-CARRIER-TYPE-TRANSPORT-COMPONENT-EVIDENCE-SOURCE-DISCOVERY-INVENTORY-001"
-next_card = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-009"
+next_card = "MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-COMPONENT-REQUIREMENT-RERUN-002"
 design_stop = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 
 need(fixture.get("kind") == "MirBuilderCarrierTypeTransportComponentEvidenceSourceDiscoveryInventoryV1", "bad kind")
@@ -57,7 +57,8 @@ need(rule.get("self_signed_component_authority_forbidden") is True, "self-signed
 need(rule.get("hardcoded_component_priority_forbidden") is True, "hardcoded rule drift")
 need(rule.get("component_specific_card_selection") is False, "component selection rule drift")
 need(rule.get("concrete_carrier_type_axis_selection") is False, "axis selection rule drift")
-need(rule.get("if_no_accepted_source_return_wider") is True, "wider fallback rule drift")
+need(rule.get("rerun_required_before_selection") is True, "rerun rule drift")
+need(rule.get("if_no_accepted_source_return_wider") is False, "wider fallback rule drift")
 
 source_rows = fixture.get("source_kind_rows") or []
 expected_sources = {
@@ -108,8 +109,8 @@ need(summary.get("component_requirement_count") == 7, "summary requirement count
 need(summary.get("allowed_source_kind_count") == 5, "summary source kind count drift")
 
 decision = fixture.get("decision") or {}
-need(decision.get("kind") == "SelectWiderRouteSelectionBasis", "decision kind drift")
-need(decision.get("reason_token") == "NoCarrierTypeComponentEvidenceSourceAuthority", "reason drift")
+need(decision.get("kind") == "SelectCarrierTypeRemainingAxisComponentRequirementRerun", "decision kind drift")
+need(decision.get("reason_token") == "ComponentEvidenceSourceDiscoveryInventoryRecorded", "reason drift")
 need(decision.get("selected_carrier_type_axis") is None, "axis must not be selected")
 need(decision.get("selected_component_requirement") is None, "component must not be selected")
 need(decision.get("selected_next_card") == next_card, "next card drift")
@@ -148,7 +149,7 @@ print("output_contract=rust-lifecycle-mirbuilder-carrier-type-transport-componen
 print("component_requirement_count=7")
 print("allowed_source_kind_count=5")
 print("accepted_component_evidence_source_count=0")
-print("decision=SelectWiderRouteSelectionBasis")
+print("decision=SelectCarrierTypeRemainingAxisComponentRequirementRerun")
 print("selected_next_card=" + next_card)
 print("source_selfhost_claim=0")
 print("summary=ok")
