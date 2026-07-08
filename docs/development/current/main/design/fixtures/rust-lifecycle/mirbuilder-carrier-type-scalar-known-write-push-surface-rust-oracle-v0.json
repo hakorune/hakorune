@@ -1,0 +1,116 @@
+{
+  "claims": {
+    "accepted_read_contract_similarity_as_proof": 0,
+    "apparent_simplicity_as_proof": 0,
+    "array_append_any_scope": 1,
+    "basis_only_or_fixture_only": 1,
+    "behavior_change": 0,
+    "component_specific_direct_contract_materialized": 0,
+    "hako_adopted_decision": 0,
+    "hako_adoption": 0,
+    "hako_generation": 0,
+    "hako_implementation_candidate": 1,
+    "manual_subsurface_selection": 0,
+    "mutate_effect_boundary_declared": 1,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_route_authority": 0,
+    "next_hako_parity_pilot_selected": 1,
+    "no_publication_observed": 1,
+    "push_surface_policy_scope": 1,
+    "route_count_as_proof": 0,
+    "runtime_fallback": 0,
+    "rust_oracle_fixture_defined": 1,
+    "scalar_known_transport_axis_closeout": 0,
+    "source_selfhost_claim": 0,
+    "stable_scalar_i64_result_observed": 1,
+    "write_direct_closeout_materialized": 0,
+    "write_push_surface_hako_implementation_candidate": 1,
+    "write_result_policy_ready": 0,
+    "write_scalar_i64_routes_closeout": 0,
+    "write_subsurface_selected": 0
+  },
+  "decision": {
+    "kind": "SelectWritePushSurfaceHakoParityPilot",
+    "reason_token": "WritePushSurfaceRustOracleFixtureDefined",
+    "selected_next_card": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-PUSH-SURFACE-HAKO-PARITY-PILOT-001"
+  },
+  "input_state": {
+    "priority_rerun_decision": "KeepStopped",
+    "priority_rerun_reason_token": "NoWriteSubsurfacePriorityProofTuple",
+    "priority_rerun_selected_next_card": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "push_candidate_blocked_by": [
+      "NoStableResultPublicationContractProof",
+      "NoMutationSemanticsPolicyReadinessProof",
+      "NoDirectContractShapeReadinessProof",
+      "NoTypedValueBoundaryReadinessProof"
+    ],
+    "recommended_consultation_topic": "WriteSubsurfacePriorityProofAxis",
+    "write_subsurface_priority_rerun": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-write-subsurface-priority-rerun-v0.json"
+  },
+  "kind": "MirBuilderCarrierTypeScalarKnownWritePushSurfaceRustOracleParityFixtureV1",
+  "mutation_boundary": {
+    "hako_implementation_mirrors_classifier_policy_decision": true,
+    "mutate_effect_boundary_declared": true,
+    "receiver_or_container_mutation_observed_as_metadata": true,
+    "runtime_mutation_authority": false
+  },
+  "oracle_fixture": {
+    "fixture_id": "WritePushSurfaceRustOracleV0",
+    "row_count": 1,
+    "rows": [
+      {
+        "case_id": "array_append_any_push_surface",
+        "core_method_lowering_tier": "ColdFallback",
+        "core_method_op": "ArrayPush",
+        "effect_class": "mutate",
+        "hako_role": "classifier_policy_mirror_only",
+        "mutation_class": "MutatesReceiverOrContainer",
+        "proof_or_policy_source": "PushSurfacePolicy",
+        "publication_policy": "NoPublication",
+        "result_class": "ScalarI64Result",
+        "return_shape": "ScalarI64",
+        "route_kind": "ArrayAppendAny",
+        "subsurface_id": "PushSurfacePolicy",
+        "value_demand": "WriteAny"
+      }
+    ]
+  },
+  "provenance": {
+    "generated_descriptor_hash": "427f5c9387c594a81a25495025966a06fa77ad97f49bd3d1204a91ffb61b1716",
+    "write_source_hash": "a099f2f6b422e6e6a454d0a6e10c74bfd649155b24ba2ebc760208de5c7caa22",
+    "write_subsurface_priority_rerun_hash": "a0e1c91d30c4cf75b173ef48667461f92a345ec01161195508978c735dd3f1ba",
+    "write_test_hash": "d88a25ca29f5dd00d8b1ea341df050e478ac2d74de0ef2d961d40e8ff8d3e100"
+  },
+  "schema_version": 0,
+  "selection_rule": {
+    "accepted_read_contract_similarity_as_proof": false,
+    "apparent_simplicity_as_proof": false,
+    "direct_closeout_materialization_allowed": false,
+    "fixture_only": true,
+    "hako_adoption_allowed": false,
+    "manual_subsurface_selection": false,
+    "name": "WritePushSurfaceHakoImplementationPilotFixtureOnlyV1",
+    "next_hako_parity_pilot_selected": true,
+    "route_count_as_proof": false
+  },
+  "summary": {
+    "array_append_any_scope": 1,
+    "basis_only_or_fixture_only": 1,
+    "hako_implementation_candidate": 1,
+    "mutate_effect_boundary_declared": 1,
+    "next_hako_parity_pilot_selected": 1,
+    "no_publication_observed": 1,
+    "push_surface_policy_scope": 1,
+    "rust_oracle_fixture_defined": 1,
+    "scalar_known_transport_axis_closeout": 0,
+    "source_selfhost_claim": 0,
+    "stable_scalar_i64_result_observed": 1,
+    "write_direct_closeout_materialized": 0,
+    "write_push_surface_hako_implementation_candidate": 1,
+    "write_result_policy_ready": 0,
+    "write_scalar_i64_routes_closeout": 0
+  },
+  "token": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-PUSH-SURFACE-RUST-ORACLE-PARITY-FIXTURE-001"
+}
