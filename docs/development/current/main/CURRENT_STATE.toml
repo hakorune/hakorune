@@ -345,16 +345,16 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-ARTIFACT-REACHABILITY-CLASSIFICATION-TASKIZATION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3343-MIRBUILDER-ARTIFACT-REACHABILITY-CLASSIFICATION-TASKIZATION-001.md"
-latest_card_summary = """3343 taskizes the post-3342 reachability review:
-classify live fast-path owners, guard/parity executable mirrors, proof-only Rust
-bridges, and unreached rust_lifecycle guards before resuming the ScalarKnown
-MapStoreI64 shadow-consumption handoff. It rejects running every rust_lifecycle
-guard by default, requires an active guard resolver, and leaves Source Selfhost
-unclaimed."""
+latest_card = "MIRBUILDER-ARTIFACT-REACHABILITY-CLASSIFICATION-INVENTORY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3344-MIRBUILDER-ARTIFACT-REACHABILITY-CLASSIFICATION-INVENTORY-001.md"
+latest_card_summary = """3344 classifies live fast-path owners, guard/parity
+executable mirrors, proof-only Rust bridge modules, and unreached rust_lifecycle
+guards. It records compare proof bridges as production-unconnected, compiler
+entry reachability into lang/src/compiler/lib as zero, rejects running every
+rust_lifecycle guard by default, and selects an active latest/current guard
+resolver before resuming ScalarKnown MapStoreI64 shadow-consumption."""
 
-current_blocker_token = "MIRBUILDER-ARTIFACT-REACHABILITY-CLASSIFICATION-INVENTORY-001"
+current_blocker_token = "MIRBUILDER-CURRENT-ACTIVE-RUST-LIFECYCLE-GUARD-RESOLVER-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -363,6 +363,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-09: 3344 classifies live fast-path owners, guard/parity executable mirrors, proof-only Rust bridge modules, and unreached rust_lifecycle guards, records compare_proof_bridge_file_count=6, compare_proof_bridge_production_connected=0, hako_lib_compiler_reachable_count=0, run_all_rust_lifecycle_guards_by_default=0, selects MIRBUILDER-CURRENT-ACTIVE-RUST-LIFECYCLE-GUARD-RESOLVER-001, and leaves bridge deletion/production connection, .hako runtime route/backend authority, all-guard CI/dev_gate execution, new backend/ABI, and Source Selfhost unclaimed.",
   "2026-07-09: 3343 taskizes the post-3342 reachability review, selects MIRBUILDER-ARTIFACT-REACHABILITY-CLASSIFICATION-INVENTORY-001 before resuming ScalarKnown MapStoreI64 shadow-consumption, requires an active latest/current scoped guard resolver instead of running every rust_lifecycle guard by default, and leaves Rust fast-path rewiring, .hako runtime route authority, backend lowering authority, all-guard CI/dev_gate execution, new backend/ABI, and Source Selfhost unclaimed.",
   "2026-07-09: 3342 consumes the ScalarKnown fast-path .hako connection consultation, selects shadow-consumption first instead of an authority switch, chooses SetSurfacePolicy / MapStoreI64 as the first surface, selects MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-SHADOW-CONSUME-SET-MAPSTORE-I64-001, and leaves .hako runtime route authority, backend lowering authority, route selection authority, runtime mutation authority, new backend/ABI, and Source Selfhost unclaimed.",
   "2026-07-09: 3341 inventories ScalarKnown .hako adoption versus Rust fast-path connection, records contract_fastpath_connected=0 and hako_fastpath_runtime_connection=0, pauses the ScalarKnown Write closeout chain, selects MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-CONNECTION-DESIGN-CONSULTATION-001, and leaves Rust fast-path rewiring, .hako runtime route authority, backend lowering authority, WriteScalarI64Routes closeout, ScalarKnownTransportAxis closeout, new backend/ABI, and Source Selfhost unclaimed.",
@@ -374,5 +375,4 @@ landed_tail = [
   "2026-07-09: 2141 freezes the Rust oracle row for the SetSurfacePolicy / MapStoreAny .hako pilot, carries the Any write boundary as declared metadata only, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-HAKO-PARITY-PILOT-001, and leaves direct closeout, WriteScalarI64Routes closeout, ScalarKnownTransportAxis closeout, runtime mutation authority, publication execution, new backend/ABI, and Source Selfhost unclaimed.",
   "2026-07-09: 2140 defines the basis-only Any write boundary for SetSurfacePolicy / MapStoreAny, declares the boundary without opening runtime mutation authority or publication execution, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-RUST-ORACLE-PARITY-FIXTURE-001, and leaves MapStoreAny .hako pilot selection, MapStoreAny direct closeout, WriteScalarI64Routes closeout, ScalarKnownTransportAxis closeout, new backend/ABI, and Source Selfhost unclaimed.",
   "2026-07-09: 2139 consumes the MapStoreAny boundary consultation, selects option B, routes to MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-WRITE-BOUNDARY-BASIS-001, and leaves Any write boundary declaration/opening, MapStoreAny .hako pilot selection, MapStoreAny direct closeout, WriteScalarI64Routes closeout, ScalarKnownTransportAxis closeout, runtime mutation authority, publication execution, new backend/ABI, and Source Selfhost unclaimed.",
-  "2026-07-08: 2138 materializes the scoped SetSurfacePolicy / MapStoreI64 typed direct closeout, raises accepted scoped closeouts to six, leaves SetSurfacePolicy / MapStoreAny as the only remaining Write scoped surface, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-BOUNDARY-SELECTION-001, and keeps Any write boundary, WriteScalarI64Routes closeout, ScalarKnownTransportAxis closeout, publication execution, runtime mutation authority, runtime fallback, new backend/ABI, and Source Selfhost unclaimed.",
 ]

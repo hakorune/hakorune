@@ -1,0 +1,164 @@
+{
+  "artifact_classes": {
+    "live_fastpath": [
+      {
+        "classification": "live_fastpath_or_route_plan_owner",
+        "exists": true,
+        "line_count": 225,
+        "path": "src/mir/generic_method_route_plan/write_routes.rs"
+      },
+      {
+        "classification": "live_fastpath_or_route_plan_owner",
+        "exists": true,
+        "line_count": 609,
+        "path": "src/mir/generic_method_route_plan/collection_read_routes.rs"
+      },
+      {
+        "classification": "live_fastpath_or_route_plan_owner",
+        "exists": true,
+        "line_count": 321,
+        "path": "src/mir/generic_method_route_plan/string_routes.rs"
+      },
+      {
+        "classification": "live_fastpath_or_route_plan_owner",
+        "exists": true,
+        "line_count": 104,
+        "path": "src/mir/route_value_type_publication.rs"
+      },
+      {
+        "classification": "live_fastpath_or_route_plan_owner",
+        "exists": true,
+        "line_count": 66,
+        "path": "src/mir/builder/control_flow/joinir/route_entry/runtime_adjacent_shadow_guard.rs"
+      },
+      {
+        "classification": "live_fastpath_or_route_plan_owner",
+        "exists": true,
+        "line_count": 396,
+        "path": "src/mir/global_call_route_plan/same_module_static_helper_contract.rs"
+      }
+    ],
+    "proof_only_rust_bridge": [
+      {
+        "builder_mod_declared": true,
+        "classification": "proof_only_rust_bridge",
+        "line_count": 136,
+        "path": "src/mir/builder/compare_branch_emission_bridge.rs",
+        "production_fastpath_reference_count": 0
+      },
+      {
+        "builder_mod_declared": true,
+        "classification": "proof_only_rust_bridge",
+        "line_count": 182,
+        "path": "src/mir/builder/compare_localssa_finalize_compare_bridge.rs",
+        "production_fastpath_reference_count": 0
+      },
+      {
+        "builder_mod_declared": true,
+        "classification": "proof_only_rust_bridge",
+        "line_count": 152,
+        "path": "src/mir/builder/compare_mir_compare_emission_bridge.rs",
+        "production_fastpath_reference_count": 0
+      },
+      {
+        "builder_mod_declared": true,
+        "classification": "proof_only_rust_bridge",
+        "line_count": 158,
+        "path": "src/mir/builder/compare_rhs_symbolref_contract.rs",
+        "production_fastpath_reference_count": 0
+      },
+      {
+        "builder_mod_declared": true,
+        "classification": "proof_only_rust_bridge",
+        "line_count": 186,
+        "path": "src/mir/builder/compare_rhs_symbolref_lookup_bridge.rs",
+        "production_fastpath_reference_count": 0
+      },
+      {
+        "builder_mod_declared": true,
+        "classification": "proof_only_rust_bridge",
+        "line_count": 160,
+        "path": "src/mir/builder/compare_rhs_valueid_resolution_bridge.rs",
+        "production_fastpath_reference_count": 0
+      }
+    ],
+    "shadow_mirror_library": {
+      "classification": "shadow_mirror_library",
+      "compiler_entry": "lang/src/compiler/entry/compiler.hako",
+      "compiler_reachable_hako_count": 40,
+      "compiler_reachable_lib_count": 0,
+      "compiler_reachable_lib_paths": [],
+      "guard_referenced_lib_hako_count": 210,
+      "lib_hako_count": 210,
+      "mirror_marked_lib_hako_count": 4
+    },
+    "unreached_guard_ecosystem": {
+      "classification": "unreached_historical_guard_set",
+      "dev_gate_quick_rust_lifecycle_refs": 0,
+      "dev_gate_rust_lifecycle_refs": 0,
+      "gate_count": 327,
+      "guard_count": 718,
+      "guard_rows_rust_lifecycle_refs": 0,
+      "parity_gate_count": 283,
+      "proof_apps_rust_lifecycle_refs": 0,
+      "script_count": 1045,
+      "workflow_rust_lifecycle_refs": 0
+    }
+  },
+  "claims": {
+    "all_rust_lifecycle_guards_in_ci": 0,
+    "all_rust_lifecycle_guards_in_dev_gate": 0,
+    "compare_bridge_deleted": 0,
+    "compare_bridge_production_connected": 0,
+    "hako_backend_lowering_authority": 0,
+    "hako_runtime_route_authority": 0,
+    "inventory_only": 1,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "runtime_fallback": 0,
+    "rust_fastpath_rewired": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "SelectActiveGuardResolverBeforeShadowConsume",
+    "reason_token": "ReachabilityMixedClosedWorldArtifacts",
+    "selected_next_card": "MIRBUILDER-CURRENT-ACTIVE-RUST-LIFECYCLE-GUARD-RESOLVER-001"
+  },
+  "kind": "MirBuilderArtifactReachabilityClassificationInventoryV1",
+  "schema_version": 0,
+  "source_files": {
+    "lang/src/compiler/entry/compiler.hako": "99be1a5e26090f74a258f4992a367137b728acef3240353a4624d4fe901f9818",
+    "src/mir/builder.rs": "435dce2e85863856012a0f6eefd4b59dba06f68916c5ca65d7325ed4749c9a09",
+    "src/mir/builder/compare_branch_emission_bridge.rs": "0f24ee73674dc2fb6c1403a8aa3cc61f6c377ccf58761d0633e2559ced5a5152",
+    "src/mir/builder/compare_localssa_finalize_compare_bridge.rs": "6ea7c6a5d18c1bba3b79abe9b23e3f20bb269802b474a3f4a0aeb9ff7974d9cd",
+    "src/mir/builder/compare_mir_compare_emission_bridge.rs": "4694c32750ce1c1ebbeba7095e622c106a92680b7bf485617f1880346096b943",
+    "src/mir/builder/compare_rhs_symbolref_contract.rs": "dc26c697d2da8943abb483ce1c938393866e25aaffa0bbe1d43487a916d6e1ad",
+    "src/mir/builder/compare_rhs_symbolref_lookup_bridge.rs": "8d9363abf05b4c683e14f4635a90d241dd6154d63193b02e887fb5a360ab442d",
+    "src/mir/builder/compare_rhs_valueid_resolution_bridge.rs": "f4399f396fb411ae8b06a30f21c53f4214a2a195747b0d55c9e9d064f321f9be",
+    "src/mir/builder/control_flow/joinir/route_entry/runtime_adjacent_shadow_guard.rs": "e86ea9c58174ff4ccd4fbfef7f809c808878dfa59febbaa1ba8bc2696055de27",
+    "src/mir/builder/ops/comparison.rs": "d366098ecf1cbbac0337326aaf5b323827460a8b79f725f9e49d84a608b86191",
+    "src/mir/generic_method_route_plan/collection_read_routes.rs": "57a6db955ae35c9a9295fbf5ed180ce9a39ced253d30dbda6e86c3f514006899",
+    "src/mir/generic_method_route_plan/string_routes.rs": "e01cc5744cd85aaf75fbc9bc2b6573c31f37dd7cce1d5687f9ed5f7bbed9da20",
+    "src/mir/generic_method_route_plan/write_routes.rs": "a099f2f6b422e6e6a454d0a6e10c74bfd649155b24ba2ebc760208de5c7caa22",
+    "src/mir/global_call_route_plan/same_module_static_helper_contract.rs": "6ccbacbb2226040e1139681a455a69a6e64a0c79ca53271963895d7a86278217",
+    "src/mir/route_value_type_publication.rs": "6eae3f926c12287307b9d50e708d2c6f4ea440b4ad9cc69ba3d2650e828ba793",
+    "tools/checks/dev_gate.sh": "34c22faf817c26119ecb18c2923abdf53dd66dd449c8c85828e171ff767c230a",
+    "tools/checks/guard_rows.toml": "1a8523d7495637c06f74ea12eff6c05e5800af642561465fc6027ddbf1e14d8b",
+    "tools/checks/lib/dev_gate_quick_steps.sh": "7ec9fdedf88ee5f7033a05ab4566a4857c8f2e7541c31d96a2326ba7f854ac85",
+    "tools/checks/proof_apps.toml": "05daed7ab4cd5d0d408c2110d6c6511264f85b67f35265a4387ae28909f7c419"
+  },
+  "summary": {
+    "active_guard_resolver_required": 1,
+    "artifact_reachability_classification_inventory": 1,
+    "compare_proof_bridge_file_count": 6,
+    "compare_proof_bridge_production_connected": 0,
+    "compare_proof_bridge_total_lines": 974,
+    "hako_lib_compiler_reachable_count": 0,
+    "hako_mirror_library_fastpath_connected": 0,
+    "live_fastpath_owner_examples_count": 6,
+    "run_all_rust_lifecycle_guards_by_default": 0,
+    "rust_lifecycle_guard_script_count": 1045,
+    "source_selfhost_claim": 0
+  },
+  "token": "MIRBUILDER-ARTIFACT-REACHABILITY-CLASSIFICATION-INVENTORY-001"
+}
