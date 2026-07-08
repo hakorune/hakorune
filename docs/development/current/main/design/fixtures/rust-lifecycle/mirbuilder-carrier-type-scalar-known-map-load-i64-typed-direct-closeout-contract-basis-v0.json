@@ -1,0 +1,109 @@
+{
+  "claims": {
+    "basis_only": 1,
+    "component_specific_card_selection": 0,
+    "concrete_carrier_type_axis_selection": 0,
+    "hako_adopted_decision": 0,
+    "hako_generation": 0,
+    "hardcoded_carrier_axis_priority": 0,
+    "manual_axis_selection": 0,
+    "manual_carrier_selection": 0,
+    "map_load_scalar_i64_existing_rust_owner_evidence": 1,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "no_publication_policy_evidence": 1,
+    "observed_subaxis_set_as_proof": 0,
+    "owner_name_as_proof": 0,
+    "rerun_required_before_component_selection": 1,
+    "return_type_string_mapping_as_proof": 0,
+    "root_component_requirement_selected": 0,
+    "route_membership_alone_as_proof": 0,
+    "row_count_as_proof": 0,
+    "runtime_fallback": 0,
+    "scalar_i64_or_missing_zero_return_shape_evidence": 1,
+    "scalar_i64_value_demand_evidence": 1,
+    "scalar_known_closeout_authority_accepted_root": 0,
+    "scalar_known_transport_axis_closeout": 0,
+    "source_path_as_authority": 0,
+    "source_selfhost_claim": 0,
+    "target_requirement_acceptance_claim": 0,
+    "typed_direct_closeout_contract_basis": 1
+  },
+  "contract": {
+    "all_rows_join_contract": false,
+    "contract_id": "MapLoadScalarI64ScalarKnownTypedDirectCloseoutContract",
+    "no_carrier_boundary_required_or_already_covered": true,
+    "proof_function": "prove_scalar_i64_map_get_store_fact",
+    "publication_policy": "NoPublication",
+    "return_shape": "ScalarI64OrMissingZero",
+    "route_kind": "MapLoadScalarI64",
+    "scope_note": "Narrow MapBox scalar i64 get route evidence only; this does not close ScalarKnownTransportAxis as a whole.",
+    "value_demand": "ScalarI64"
+  },
+  "decision": {
+    "kind": "SelectCarrierTypeRemainingAxisComponentRequirementRerun003",
+    "reason_token": "MapLoadScalarI64TypedDirectCloseoutContractBasisDefined",
+    "selected_carrier_type_axis": null,
+    "selected_component_requirement": null,
+    "selected_next_card": "MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-COMPONENT-REQUIREMENT-RERUN-003"
+  },
+  "input_state": {
+    "component_evidence_source_discovery_basis": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-transport-component-evidence-source-discovery-basis-v0.json",
+    "component_evidence_source_discovery_inventory": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-transport-component-evidence-source-discovery-inventory-v0.json",
+    "current_blocker": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "previous_rerun": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-transport-remaining-axis-component-requirement-rerun-002-v0.json",
+    "previous_rerun_token": "MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-COMPONENT-REQUIREMENT-RERUN-002"
+  },
+  "kind": "MirBuilderCarrierTypeScalarKnownMapLoadI64TypedDirectCloseoutContractBasisV1",
+  "previous_state": {
+    "accepted_component_evidence_source_count": 0,
+    "allowed_source_kind_count": 5,
+    "decision": "KeepStopped",
+    "reason_token": "NoCarrierTypeComponentEvidenceSourceAuthority",
+    "root_component_requirement_count": 0,
+    "selected_next_card": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
+    "selection_eligible_component_requirement_count": 0,
+    "source_inventory_typed_direct_closeout_contract_count": 0
+  },
+  "provenance": {
+    "component_evidence_source_discovery_basis_hash": "a8b03b28e2b6421870da7eb0523696ef7e21036fe2d0df5e90c9412c36aa64c7",
+    "component_evidence_source_discovery_inventory_hash": "90643caacaf45e3dbced8fa5f435016e900987edcc98f404ca9cc90c94f8dba8",
+    "previous_rerun_hash": "233ba2b4c561b853c36d5b8d807a56f46a09fe372b394fdcce8748e4929a987d",
+    "source_file_hashes": [
+      {
+        "path": "src/mir/generic_method_route_plan/map_set_scalar_proof.rs",
+        "sha256": "0415de5aa55bc0df754d0efc60e221f2afa752d807fb562c8f763a7f610944de"
+      },
+      {
+        "path": "src/mir/generic_method_route_plan/collection_read_routes.rs",
+        "sha256": "57a6db955ae35c9a9295fbf5ed180ce9a39ced253d30dbda6e86c3f514006899"
+      },
+      {
+        "path": "src/mir/generic_method_route_plan/tests/scalar_proof.rs",
+        "sha256": "2c9387da7198a1215792fb2b873498755c7a55461e4d58137e3257dcdf5b5334"
+      }
+    ]
+  },
+  "schema_version": 0,
+  "selection_rule": {
+    "basis_only": true,
+    "component_specific_card_selection": false,
+    "concrete_carrier_type_axis_selection": false,
+    "direct_component_selection_from_zero_root_forbidden": true,
+    "name": "MapLoadScalarI64TypedDirectCloseoutContractBasisOnlyV1",
+    "owner_name_as_proof": false,
+    "rerun_required_before_selection": true,
+    "route_membership_alone_as_proof": false,
+    "row_count_as_proof": false,
+    "source_path_as_authority": false
+  },
+  "target": {
+    "accepted_source_kind": "TypedDirectCloseoutContract",
+    "candidate_axis": "ScalarKnownTransportAxis",
+    "component_requirement": "ScalarKnownCloseoutAuthority",
+    "target_requirement_acceptance_claim": 0
+  },
+  "token": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-MAP-LOAD-I64-TYPED-DIRECT-CLOSEOUT-CONTRACT-BASIS-001"
+}
