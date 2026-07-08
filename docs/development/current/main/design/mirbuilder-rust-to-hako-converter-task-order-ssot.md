@@ -411,7 +411,7 @@ landed summary: 3219 selects more DTO coverage rows; 3222 selects runtime Recipe
 next active:
   MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-STRING-SEARCH-SCALAR-I64-TYPED-DIRECT-CLOSEOUT-CONTRACT-BASIS-001; status=landed; output_contract=rust-lifecycle-mirbuilder-carrier-type-scalar-known-string-search-scalar-i64-typed-direct-closeout-contract-basis; typed_direct_closeout_contract_basis = 1; string_search_route_count = 3; direct_contract_materialized = 0; scalar_known_transport_axis_closeout = 0; selected_next_card=MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-STRING-SEARCH-SCALAR-I64-TYPED-DIRECT-CLOSEOUT-CONTRACT-RERUN-001; source_selfhost_claim = 0
   MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-STRING-SEARCH-SCALAR-I64-TYPED-DIRECT-CLOSEOUT-CONTRACT-RERUN-001; status=design-stop; output_contract=rust-lifecycle-mirbuilder-carrier-type-scalar-known-string-search-scalar-i64-typed-direct-closeout-contract-rerun; string_search_scalar_i64_typed_direct_closeout_contract_materialized = 1; accepted_scoped_closeout_count = 2; remaining_uncovered_scalar_known_surface_count = 2; scalar_known_transport_axis_closeout = 0; selected_next_card=SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001; source_selfhost_claim = 0
-  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001; status=next-consultation; reason=CollectionScalarI64Routes and WriteScalarI64Routes remain uncovered
+  MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-REMAINING-SURFACE-BOUNDARY-INVENTORY-BASIS-001; status=landed; output_contract=rust-lifecycle-mirbuilder-carrier-type-scalar-known-remaining-surface-boundary-inventory-basis; remaining_surface_boundary_inventory_basis = 1; collection_surface_inventory = 1; write_surface_inventory = 1; direct_contract_selection = 0; selected_next_card=MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-REMAINING-SURFACE-BOUNDARY-INVENTORY-RERUN-001; source_selfhost_claim = 0
 
 trigger-based AOT/MIR typing debt:
   status=parked-until-triggered; order=2999/3000/3001 landed, then 3022 queue
@@ -419,10 +419,10 @@ trigger-based AOT/MIR typing debt:
   compare, PHI dst_type, mir_call dst_type, or receiver-helper
   single-observation protection
 next_documented_task =
-  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+  MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-REMAINING-SURFACE-BOUNDARY-INVENTORY-RERUN-001
 
 next_after_active_3 =
-  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001 -> CONSULTATION-REQUIRED
+  MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-REMAINING-SURFACE-BOUNDARY-INVENTORY-RERUN-001 -> COLLECTION-LEN-OR-WRITE-POLICY-OR-KEEP-STOPPED
 
 follow_on_after_consume = select first BoolRecipe publication parity row only after consume gate is green
 
