@@ -960,7 +960,7 @@
     "worker_inventory_scope": "read_only_current_fixtures_cards_ledgers"
   },
   "provenance": {
-    "carrier_type_transport_policy_inventory_rerun_003_hash": "2d79c7ef91b120426566ce12e89c45068cf377a29acb104d8177befc714f9ce9",
+    "carrier_type_transport_policy_inventory_rerun_003_hash": "0dd533556afd7b099188e84c101f04a13ae4e9bbec36d5cdaa3d87bb48d83e0b",
     "unconverted_surface_report_hash": "610bc2b724b270c5a09615c27de40616517caab74411cd9933703871424f263e"
   },
   "schema_version": 0,
