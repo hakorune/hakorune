@@ -412,6 +412,7 @@ next active:
   MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-DIRECT-CLOSEOUT-CONTRACT-BASIS-001; status=landed; output_contract=rust-lifecycle-mirbuilder-carrier-type-scalar-known-write-set-mapstore-any-direct-closeout-contract-basis; write_set_mapstore_any_direct_closeout_contract_basis = 1; any_write_boundary_declared = 1; direct_contract_materialized = 0; selected_next_card=MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-DIRECT-CLOSEOUT-RERUN-001; source_selfhost_claim = 0
   MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-ADOPTION-CONNECTION-INVENTORY-001; status=landed; output_contract=rust-lifecycle-mirbuilder-scalar-known-fastpath-hako-adoption-connection-inventory; contract_fastpath_connected = 0; hako_fastpath_runtime_connection = 0; closeout_chain_pause_required = 1; selected_next_card=MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-CONNECTION-DESIGN-CONSULTATION-001; source_selfhost_claim = 0
   MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-CONNECTION-DESIGN-CONSULTATION-001; status=landed; output_contract=rust-lifecycle-mirbuilder-scalar-known-fastpath-hako-connection-design-consultation; selected_connection_mechanism_shadow_consumption = 1; selected_surface=SetSurfacePolicy/MapStoreI64; rust_fastpath_authority_retained = 1; selected_next_card=MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-SHADOW-CONSUME-SET-MAPSTORE-I64-001; source_selfhost_claim = 0
+  MIRBUILDER-ARTIFACT-REACHABILITY-CLASSIFICATION-TASKIZATION-001; status=landed; artifact_reachability_review_taskized = 1; active_guard_resolver_required = 1; run_all_rust_lifecycle_guards_by_default = 0; selected_next_card=MIRBUILDER-ARTIFACT-REACHABILITY-CLASSIFICATION-INVENTORY-001; source_selfhost_claim = 0
 
 trigger-based AOT/MIR typing debt:
   status=parked-until-triggered; order=2999/3000/3001 landed, then 3022 queue
@@ -419,11 +420,10 @@ trigger-based AOT/MIR typing debt:
   compare, PHI dst_type, mir_call dst_type, or receiver-helper
   single-observation protection
 next_documented_task =
-  MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-SHADOW-CONSUME-SET-MAPSTORE-I64-001
+  MIRBUILDER-ARTIFACT-REACHABILITY-CLASSIFICATION-INVENTORY-001
 
 next_after_active_3 =
-  MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-SHADOW-CONSUME-SET-MAPSTORE-I64-001 -> SHADOW-CONSUME-MISMATCH-GUARD-EXPANSION
-
+  MIRBUILDER-CURRENT-ACTIVE-RUST-LIFECYCLE-GUARD-RESOLVER-001 -> MIRBUILDER-COMPARE-PROOF-BRIDGE-PARK-OR-CONNECT-DESIGN-STOP-001 -> MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-SHADOW-CONSUME-SET-MAPSTORE-I64-001
 follow_on_after_consume = select first BoolRecipe publication parity row only after consume gate is green
 
 task discipline =
