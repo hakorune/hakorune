@@ -183,7 +183,7 @@
     "worker_inventory_scope": "read_only_current_fixtures_cards_ledgers"
   },
   "provenance": {
-    "domain_object_id_transport_policy_inventory_rerun_002_hash": "778ca61ba57fcee9d77498ee721874f7d6fed56a3b74ad71cb6fe23de0fd3ed3"
+    "domain_object_id_transport_policy_inventory_rerun_002_hash": "13bbc982340683c1d1043fb917d362512b13217a9cad49d5aca932d589bc8ada"
   },
   "recovery": {
     "kind": "DesignConsultationRequired",
