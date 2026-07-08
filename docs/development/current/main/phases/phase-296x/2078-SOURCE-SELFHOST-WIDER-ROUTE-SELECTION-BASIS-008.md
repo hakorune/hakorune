@@ -39,6 +39,15 @@ non-self-signed authority source appears.
 The selected next card is the parent carrier/type remaining-axis priority
 basis. This card does not select a concrete carrier/type axis.
 
+Positive claim scope:
+
+```text
+domain_object_id_lane_parked = 1
+domain_object_id_subaxis_selection_eligible = 0
+post_domain_object_id_wider_selection_basis = 1
+nearest_unexhausted_parent_lane_basis_selected = 1
+```
+
 ## Guard
 
 ```text
@@ -78,14 +87,28 @@ native_seed_materialization = 0
 hako_generation = 0
 hako_adopted_decision = 0
 accepted_typed_dependency_edge_materialized = 0
+selected_domain_subaxis = null
 manual_subaxis_selection = 0
+manual_axis_selection = 0
+manual_family_selection = 0
+manual_shape_selection = 0
+manual_carrier_selection = 0
 manual_type_to_subaxis_assignment = 0
 return_type_string_to_subaxis_mapping = 0
 source_path_as_policy_authority = 0
 observed_domain_subaxis_set_as_policy_authority = 0
 row_count_as_proof = 0
+domain_object_count_as_proof = 0
+cluster_size_as_proof = 0
+coverage_percentage_as_proof = 0
 owner_name_as_proof = 0
 shape_signature_as_proof = 0
 route_membership_alone_as_proof = 0
 self_signed_taxonomy = 0
+generated_artifact_as_native_edit_authority = 0
+runtime_fallback = 0
+new_backend_route = 0
+new_abi = 0
+new_python_semantic_projector = 0
+runner_semantic_owner = 0
 ```

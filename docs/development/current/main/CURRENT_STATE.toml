@@ -345,15 +345,14 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-DOMAIN-OBJECT-ID-SEMANTIC-RESOURCE-DOMAIN-DECLARATION-INVENTORY-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2077-MIRBUILDER-DOMAIN-OBJECT-ID-SEMANTIC-RESOURCE-DOMAIN-DECLARATION-INVENTORY-001.md"
-latest_card_summary = """2077 inventories explicit semantic resource-domain
-declaration sources after the 2076 basis-only card, finds zero explicit
-semantic declaration sources and zero stable closed-resource manifests, and
-selects SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-008. DomainObject/Id
-subaxis selection remains parked; type/source/owner/count inference, Hako
-adoption, runtime fallback, new backend/ABI, and Source Selfhost remain
-unclaimed."""
+latest_card = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-008"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2078-SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-008.md"
+latest_card_summary = """2078 parks the DomainObject/Id lane after explicit
+semantic resource-domain declaration sources and stable closed-resource
+manifests are both absent, then selects the nearest unexhausted parent-lane
+basis, MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-PRIORITY-BASIS-001.
+Concrete carrier/type axis selection, Hako adoption, runtime fallback, new
+backend/ABI, and Source Selfhost remain unclaimed."""
 
 current_blocker_token = "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -364,6 +363,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-08: 2078 parks the DomainObject/Id lane after explicit semantic resource-domain declaration sources and stable closed-resource manifests are both absent, then selects the nearest unexhausted parent-lane basis, MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-PRIORITY-BASIS-001; concrete carrier/type axis selection, Hako adoption, runtime fallback, new backend/ABI, and Source Selfhost remain unclaimed.",
   "2026-07-08: 2077 inventories explicit semantic resource-domain declaration sources after the 2076 basis-only card, finds zero explicit semantic declaration sources and zero stable closed-resource manifests, and selects SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-008; DomainObject/Id subaxis selection remains parked, and type/source/owner/count inference, Hako adoption, runtime fallback, new backend/ABI, and Source Selfhost remain unclaimed.",
   "2026-07-08: 2076 records the consultation-approved basis-only move after 2064, defining explicit semantic resource-domain declaration authority requirements for DomainObject/Id type-identity rows before any subaxis selection; type identity remains stable evidence only, and dependency root authority, prior closed-lane continuation, selected subaxis, Hako adoption, runtime fallback, new backend/ABI, and Source Selfhost remain unclaimed.",
   "2026-07-08: 2064 consumes the 85 unresolved non-ID DomainObject/Id rows from rerun 002, confirms five candidate subaxes have no machine-derived priority authority, keeps stopped with NoMachineDerivedDomainObjectIdUnresolvedSubaxisPriority, and records DesignConsultationRequired; manual subaxis selection, row/owner/domain-object counts as proof, route membership alone, runtime fallback, new backend/ABI, Hako adoption, and Source Selfhost remain unclaimed.",
@@ -375,5 +375,4 @@ landed_tail = [
   "2026-07-08: 2058 reruns the native owner checkpoint from the fresh RERUN-004 report, records 12 native Hako owners, selects MissingProjectionPolicy by evidence quality, and points next to MIRBUILDER-MISSING-PROJECTION-POLICY-CLUSTER-RESOLUTION-V4; candidate count, coverage percentage, manual selection, runtime fallback, new backend/ABI, Hako adoption, and Source Selfhost remain unclaimed.",
   "2026-07-08: 3340 records basis-007 as valid historical local selector evidence already consumed by RERUN-004, prevents replaying stale-report freshness repair as the current unblock, and selects SOURCE-SELFHOST-NATIVE-OWNER-CHECKPOINT-RERUN-002 next; route selection, ProgramJSON runtime authority, runtime switch, runtime fallback, native seed materialization, Hako adoption, and Source Selfhost remain unclaimed.",
   "2026-07-08: 3322 reconfirms the runtime-adjacent ProgramJSON shadow guard after the Compare/Branch bridge closeout; Rust remains runtime authority, ProgramJSON remains shadow-only evidence, and ProgramJSON runtime authority, runtime route switch, route selection, MIR lowering/mutation, ID allocation, runtime fallback, and Source Selfhost remain unclaimed.",
-  "2026-07-08: 3321 keeps runtime route authority on the Rust ASTNode route after the Compare/Branch bridge closeout and selects the ProgramJSON runtime-adjacent shadow guard as the next read-only boundary; direct runtime route authority switch, ProgramJSON runtime authority, route selection, MIR lowering/mutation authority, ID allocation, runtime fallback, and Source Selfhost remain unclaimed.",
 ]
