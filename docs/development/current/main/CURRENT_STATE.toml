@@ -345,13 +345,14 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-CURRENT-ACTIVE-RUST-LIFECYCLE-GUARD-RESOLVER-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3345-MIRBUILDER-CURRENT-ACTIVE-RUST-LIFECYCLE-GUARD-RESOLVER-001.md"
-latest_card_summary = """3345 installs a light active rust_lifecycle guard
-resolver that reads CURRENT_STATE, resolves only latest/current guards, runs at
-most a few active guards, records the current design-stop blocker guard as
-pending, and keeps all historical rust_lifecycle guards out of default CI/dev
-gate execution."""
+latest_card = "MIRBUILDER-COMPARE-PROOF-BRIDGE-PARK-OR-CONNECT-DESIGN-STOP-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3346-MIRBUILDER-COMPARE-PROOF-BRIDGE-PARK-OR-CONNECT-DESIGN-STOP-001.md"
+latest_card_summary = """3346 opens the compare proof bridge park/connect
+design stop. The six compare proof bridge files are compiled through
+src/mir/builder.rs declarations but remain production-unconnected; live compare
+lowering still flows through ops/comparison.rs. The next decision must choose
+delete, proof-only park, or minimal production connection before any code
+change."""
 
 current_blocker_token = "MIRBUILDER-COMPARE-PROOF-BRIDGE-PARK-OR-CONNECT-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -362,6 +363,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-09: 3346 opens MIRBUILDER-COMPARE-PROOF-BRIDGE-PARK-OR-CONNECT-DESIGN-STOP-001, records the six compare proof bridge files as production-unconnected proof-only Rust code, asks whether to delete, park as proof-only, or connect a minimal subset, selects CONSULTATION_REQUIRED, and leaves bridge deletion/parking/production connection, compare behavior changes, route/runtime authority, new backend/ABI, and Source Selfhost unclaimed.",
   "2026-07-09: 3345 installs the active rust_lifecycle guard resolver, resolves only latest/current guards, records latest_guard_resolved=1, current_blocker_guard_pending=1, runnable_guard_count=1, run_all_rust_lifecycle_guards_by_default=0, selects MIRBUILDER-COMPARE-PROOF-BRIDGE-PARK-OR-CONNECT-DESIGN-STOP-001, and leaves all-guard CI/dev_gate execution, .hako runtime route authority, Rust fast-path rewiring, and Source Selfhost unclaimed.",
   "2026-07-09: 3344 classifies live fast-path owners, guard/parity executable mirrors, proof-only Rust bridge modules, and unreached rust_lifecycle guards, records compare_proof_bridge_file_count=6, compare_proof_bridge_production_connected=0, hako_lib_compiler_reachable_count=0, run_all_rust_lifecycle_guards_by_default=0, selects MIRBUILDER-CURRENT-ACTIVE-RUST-LIFECYCLE-GUARD-RESOLVER-001, and leaves bridge deletion/production connection, .hako runtime route/backend authority, all-guard CI/dev_gate execution, new backend/ABI, and Source Selfhost unclaimed.",
   "2026-07-09: 3343 taskizes the post-3342 reachability review, selects MIRBUILDER-ARTIFACT-REACHABILITY-CLASSIFICATION-INVENTORY-001 before resuming ScalarKnown MapStoreI64 shadow-consumption, requires an active latest/current scoped guard resolver instead of running every rust_lifecycle guard by default, and leaves Rust fast-path rewiring, .hako runtime route authority, backend lowering authority, all-guard CI/dev_gate execution, new backend/ABI, and Source Selfhost unclaimed.",
@@ -373,5 +375,4 @@ landed_tail = [
   "2026-07-09: 2143 proves the Set MapStoreAny .hako classifier/policy mirror against the Rust oracle fixture with parity_rows=1 and parity_status=green, keeps the Any write boundary as declared metadata only, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-HAKO-ADOPTION-DECISION-001, and leaves direct closeout, WriteScalarI64Routes closeout, ScalarKnownTransportAxis closeout, runtime mutation authority, publication execution, new backend/ABI, and Source Selfhost unclaimed.",
   "2026-07-09: 2142 lands the narrow Set Write .hako implementation pilot for SetSurfacePolicy / MapStoreAny as a classifier/policy mirror, carries the Any write boundary as declared metadata only, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-PARITY-GATE-001, and leaves Any write boundary opening, adoption, direct closeout, WriteScalarI64Routes closeout, ScalarKnownTransportAxis closeout, runtime mutation authority, publication execution, new backend/ABI, and Source Selfhost unclaimed.",
   "2026-07-09: 2141 freezes the Rust oracle row for the SetSurfacePolicy / MapStoreAny .hako pilot, carries the Any write boundary as declared metadata only, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-HAKO-PARITY-PILOT-001, and leaves direct closeout, WriteScalarI64Routes closeout, ScalarKnownTransportAxis closeout, runtime mutation authority, publication execution, new backend/ABI, and Source Selfhost unclaimed.",
-  "2026-07-09: 2140 defines the basis-only Any write boundary for SetSurfacePolicy / MapStoreAny, declares the boundary without opening runtime mutation authority or publication execution, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-RUST-ORACLE-PARITY-FIXTURE-001, and leaves MapStoreAny .hako pilot selection, MapStoreAny direct closeout, WriteScalarI64Routes closeout, ScalarKnownTransportAxis closeout, new backend/ABI, and Source Selfhost unclaimed.",
 ]
