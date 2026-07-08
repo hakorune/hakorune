@@ -73,6 +73,10 @@ fn hako_mapstore_i64_policy() -> HakoMapStoreI64Policy<'static> {
             Some(&rest[..end])
         })
         .expect("MapStoreI64 .hako policy row missing");
+    parse_hako_mapstore_i64_policy_row(row)
+}
+
+fn parse_hako_mapstore_i64_policy_row(row: &str) -> HakoMapStoreI64Policy<'_> {
     let fields: Vec<_> = row.split('|').collect();
     assert_eq!(
         fields.len(),
@@ -125,8 +129,10 @@ fn assert_hako_policy_matches_rust(policy: &HakoMapStoreI64Policy<'_>) {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use super::super::scalar_known_typed_direct_closeout_contract::ScalarKnownContractId;
+    use super::*;
+
+    const VALID_ROW: &str = "map_store_i64_set_surface|SetSurfacePolicy|MapStoreI64|MapSet|ColdFallback|NoneResult|None|WriteAny|ScalarI64|NonePublication|mutate|MutatesReceiverOrContainer|classifier_policy_mirror_only";
 
     #[test]
     fn mapstore_i64_shadow_artifact_matches_rust_fastpath_policy() {
@@ -135,5 +141,29 @@ mod tests {
             ScalarKnownContractId::WriteResultScalarI64.as_str(),
             "WriteResultScalarI64ClassificationOnly"
         );
+    }
+
+    #[test]
+    #[should_panic(expected = "assertion `left == right` failed")]
+    fn mapstore_i64_shadow_rejects_route_kind_mismatch() {
+        let row = VALID_ROW.replace("|MapStoreI64|", "|MapStoreAny|");
+        assert_hako_policy_matches_rust(&parse_hako_mapstore_i64_policy_row(&row));
+    }
+
+    #[test]
+    #[should_panic(expected = "assertion `left == right` failed")]
+    fn mapstore_i64_shadow_rejects_core_op_mismatch() {
+        let row = VALID_ROW.replace("|MapSet|", "|MapDelete|");
+        assert_hako_policy_matches_rust(&parse_hako_mapstore_i64_policy_row(&row));
+    }
+
+    #[test]
+    #[should_panic(expected = "assertion `left == right` failed")]
+    fn mapstore_i64_shadow_rejects_role_mismatch() {
+        let row = VALID_ROW.replace(
+            "|classifier_policy_mirror_only",
+            "|hako_runtime_route_authority",
+        );
+        assert_hako_policy_matches_rust(&parse_hako_mapstore_i64_policy_row(&row));
     }
 }
