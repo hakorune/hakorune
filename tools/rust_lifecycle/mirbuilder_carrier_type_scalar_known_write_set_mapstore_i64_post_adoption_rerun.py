@@ -39,12 +39,6 @@ PUSH_CLOSEOUT = (
     FIXTURES
     / "mirbuilder-carrier-type-scalar-known-write-push-surface-direct-closeout-rerun-v0.json"
 )
-DELETE_CLOSEOUT = (
-    FIXTURES
-    / "mirbuilder-carrier-type-scalar-known-write-delete-surface-direct-closeout-rerun-v0.json"
-)
-
-
 def rel(path: Path) -> str:
     return str(path.relative_to(ROOT))
 
@@ -57,15 +51,11 @@ def build_fixture() -> dict[str, Any]:
     adoption = read_json(MAPSTORE_I64_ADOPTION)
     split = read_json(SET_SPLIT_BASIS)
     push_closeout = read_json(PUSH_CLOSEOUT)
-    delete_closeout = read_json(DELETE_CLOSEOUT)
 
     adopted = adoption.get("adoption_decision") or {}
     mapstore_i64_adopted = adopted.get("hako_adopted") is True
     push_materialized = (
         push_closeout.get("claims", {}).get("write_push_surface_direct_closeout_materialized") == 1
-    )
-    delete_materialized = (
-        delete_closeout.get("claims", {}).get("write_delete_surface_direct_closeout_materialized") == 1
     )
 
     candidate_rows = [
@@ -80,10 +70,11 @@ def build_fixture() -> dict[str, Any]:
         {
             "candidate_id": "DeleteSurfacePolicy",
             "routes": ["MapDeleteAny"],
-            "hako_adopted": True,
-            "direct_closeout_materialized": delete_materialized,
+            "hako_adopted": False,
+            "direct_closeout_materialized": False,
+            "mirror_retired": True,
             "basis_selection_eligible": False,
-            "blocked_by": ["AlreadyScopedDirectCloseoutMaterialized"],
+            "blocked_by": ["DeleteSurfaceMirrorRetired"],
         },
         {
             "candidate_id": "SetSurfacePolicy/MapStoreI64",
@@ -121,8 +112,7 @@ def build_fixture() -> dict[str, Any]:
             "set_surface_typed_value_split_basis_hash": sha256_file(SET_SPLIT_BASIS),
             "write_push_surface_direct_closeout_rerun": rel(PUSH_CLOSEOUT),
             "write_push_surface_direct_closeout_hash": sha256_file(PUSH_CLOSEOUT),
-            "write_delete_surface_direct_closeout_rerun": rel(DELETE_CLOSEOUT),
-            "write_delete_surface_direct_closeout_hash": sha256_file(DELETE_CLOSEOUT),
+            "delete_surface_mirror_retired": True,
             "adoption_decision": adopted.get("decision"),
             "adopted_surface": adopted.get("adopted_surface"),
             "adopted_owner": adopted.get("adopted_owner"),

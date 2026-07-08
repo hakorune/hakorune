@@ -26,7 +26,6 @@ ROUTE_JSON = ROOT / "src/runner/mir_json_emit/route_json.rs"
 C_SHIM_MATCH = ROOT / "lang/c-abi/shims/hako_llvmc_ffi_generic_method_match.inc"
 HAKO_SOURCES = [
     ROOT / "lang/src/compiler/lib/write_push_surface_policy_classifier.hako",
-    ROOT / "lang/src/compiler/lib/write_delete_surface_policy_classifier.hako",
     ROOT / "lang/src/compiler/lib/write_set_mapstore_i64_policy_classifier.hako",
     ROOT / "lang/src/compiler/lib/write_set_mapstore_any_policy_classifier.hako",
     ROOT / "lang/src/compiler/lib/generic_method_route_fact_token_formatter.hako",

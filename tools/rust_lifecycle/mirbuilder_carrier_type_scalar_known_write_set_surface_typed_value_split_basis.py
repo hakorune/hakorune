@@ -27,57 +27,32 @@ NEXT_CARD = (
     "RUST-ORACLE-PARITY-FIXTURE-001"
 )
 
-POST_DELETE_CLOSEOUT = (
-    FIXTURES
-    / "mirbuilder-carrier-type-scalar-known-write-remaining-subsurface-post-delete-closeout-rerun-v0.json"
-)
-
-
 def rel(path: Path) -> str:
     return str(path.relative_to(ROOT))
 
 
-def read_json(path: Path) -> dict[str, Any]:
-    return json.loads(path.read_text(encoding="utf-8"))
-
-
-def set_surface(post_delete: dict[str, Any]) -> dict[str, Any]:
-    rows = post_delete.get("remaining_subsurfaces") or []
-    for row in rows:
-        if row.get("subsurface_id") == "SetSurfacePolicy":
-            return row
-    raise SystemExit("SetSurfacePolicy remaining row not found")
-
-
 def build_fixture() -> dict[str, Any]:
-    post_delete = read_json(POST_DELETE_CLOSEOUT)
-    set_row = set_surface(post_delete)
-
     return {
         "schema_version": 0,
         "kind": "MirBuilderCarrierTypeScalarKnownWriteSetSurfaceTypedValueSplitBasisV1",
         "token": TOKEN,
         "input_state": {
-            "post_delete_closeout_rerun": rel(POST_DELETE_CLOSEOUT),
-            "post_delete_closeout_rerun_hash": sha256_file(POST_DELETE_CLOSEOUT),
-            "post_delete_decision": post_delete.get("decision", {}).get("kind"),
-            "recommended_consultation_topic": post_delete.get("decision", {}).get(
-                "recommended_consultation_topic"
-            ),
-            "remaining_subsurface": set_row.get("subsurface_id"),
-            "remaining_routes": set_row.get("routes"),
+            "delete_surface_mirror_retired": True,
+            "remaining_subsurface": "SetSurfacePolicy",
+            "remaining_routes": ["MapStoreI64", "MapStoreAny"],
         },
         "proof_axis": {
             "name": "PriorHakoAdoptedWriteSurfaceMetadataCoverageAndTypedScalarWriteBeforeAnyWrite",
-            "prior_hako_adopted_write_surface_metadata_coverage": True,
+            "prior_hako_adopted_write_surface_metadata_coverage": False,
+            "delete_surface_mirror_retired": True,
             "set_surface_typed_value_boundary_split_proof_axis": True,
             "typed_scalar_write_before_any_write": True,
-            "already_covered_by_push_delete": [
+            "already_covered_by_live_or_retained_surfaces": [
                 "MutatesReceiverOrContainerMetadata",
-                "NonePublicationMetadata",
             ],
             "new_for_set": [
                 "NoneResultMetadata",
+                "NonePublicationMetadata",
                 "TypedVsAnyWriteValueBoundary",
             ],
             "forbidden_proof_sources": [
@@ -129,7 +104,7 @@ def build_fixture() -> dict[str, Any]:
             "mapstore_i64_first_candidate": 1,
             "mapstore_any_deferred": 1,
             "typed_scalar_write_before_any_write": 1,
-            "prior_hako_adopted_write_surface_metadata_coverage": 1,
+            "delete_surface_mirror_retired": 1,
             "basis_only": 1,
             "rerun_or_fixture_required_before_hako_pilot": 1,
             "set_hako_pilot_selected": 0,
@@ -150,7 +125,7 @@ def build_fixture() -> dict[str, Any]:
             "mapstore_i64_first_candidate": 1,
             "mapstore_any_deferred": 1,
             "typed_scalar_write_before_any_write": 1,
-            "prior_hako_adopted_write_surface_metadata_coverage": 1,
+            "delete_surface_mirror_retired": 1,
             "basis_only": 1,
             "rerun_or_fixture_required_before_hako_pilot": 1,
             "set_hako_pilot_selected": 0,

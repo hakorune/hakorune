@@ -15,11 +15,12 @@
     {
       "basis_selection_eligible": false,
       "blocked_by": [
-        "AlreadyScopedDirectCloseoutMaterialized"
+        "DeleteSurfaceMirrorRetired"
       ],
       "candidate_id": "DeleteSurfacePolicy",
-      "direct_closeout_materialized": true,
-      "hako_adopted": true,
+      "direct_closeout_materialized": false,
+      "hako_adopted": false,
+      "mirror_retired": true,
       "routes": [
         "MapDeleteAny"
       ]
@@ -60,7 +61,7 @@
     "basis_selection_eligible_surface_count": 1,
     "behavior_change": 0,
     "component_specific_direct_contract_materialized": 0,
-    "hako_adopted_write_scoped_surface_count": 4,
+    "hako_adopted_write_scoped_surface_count": 3,
     "hako_generation": 0,
     "manual_subsurface_selection": 0,
     "native_seed_materialization": 0,
@@ -90,13 +91,14 @@
     "adopted_owner": "write_set_mapstore_any_policy_classifier",
     "adopted_surface": "SetSurfacePolicy/MapStoreAny",
     "adoption_decision": "Adopt",
+    "delete_surface_mirror_retired": true,
     "set_surface_typed_value_split_basis": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-write-set-surface-typed-value-split-basis-v0.json",
-    "set_surface_typed_value_split_basis_hash": "629d1417d237c2db822c76666401d8ce2e8f060a2f9d564cfe3873750c73b23c",
+    "set_surface_typed_value_split_basis_hash": "9b96e3c200bc417da7a7f2420dce3e21bfe78e776a22ac38f7bafa314c690967",
     "split_proof_axis": {
-      "already_covered_by_push_delete": [
-        "MutatesReceiverOrContainerMetadata",
-        "NonePublicationMetadata"
+      "already_covered_by_live_or_retained_surfaces": [
+        "MutatesReceiverOrContainerMetadata"
       ],
+      "delete_surface_mirror_retired": true,
       "forbidden_proof_sources": [
         "route_count",
         "apparent_simplicity",
@@ -109,19 +111,18 @@
       "name": "PriorHakoAdoptedWriteSurfaceMetadataCoverageAndTypedScalarWriteBeforeAnyWrite",
       "new_for_set": [
         "NoneResultMetadata",
+        "NonePublicationMetadata",
         "TypedVsAnyWriteValueBoundary"
       ],
-      "prior_hako_adopted_write_surface_metadata_coverage": true,
+      "prior_hako_adopted_write_surface_metadata_coverage": false,
       "set_surface_typed_value_boundary_split_proof_axis": true,
       "typed_scalar_write_before_any_write": true
     },
-    "write_delete_surface_direct_closeout_hash": "f7cc8fc71f4d49ece34b5a5c198eede74e7e0e59271720240572df15cca628ce",
-    "write_delete_surface_direct_closeout_rerun": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-write-delete-surface-direct-closeout-rerun-v0.json",
     "write_push_surface_direct_closeout_hash": "95b3df444c898db6a353439cc9405a19ef051b849f3e14797a606245ce5b6221",
     "write_push_surface_direct_closeout_rerun": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-write-push-surface-direct-closeout-rerun-v0.json",
     "write_set_mapstore_any_adoption_decision": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-write-set-mapstore-any-hako-adoption-decision-v0.json",
     "write_set_mapstore_any_adoption_hash": "860b44016cca57e82eaa699dfba51ac6e7299ec0f185846ecefc39dcb1494e7b",
-    "write_set_mapstore_i64_direct_closeout_hash": "2bf97b54b989da86d03a3a7a69ec5ba48d305922f8273bb5f0470ac4fc2df096",
+    "write_set_mapstore_i64_direct_closeout_hash": "290c9147112f3744034a0573fd7aecadff715da61b822f6b56eb36983aa04f55",
     "write_set_mapstore_i64_direct_closeout_rerun": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-write-set-mapstore-i64-direct-closeout-rerun-v0.json"
   },
   "kind": "MirBuilderCarrierTypeScalarKnownWriteSetMapStoreAnyPostAdoptionRerunV1",
@@ -141,7 +142,7 @@
     "any_write_boundary_declared": 1,
     "any_write_boundary_opened": 0,
     "basis_selection_eligible_surface_count": 1,
-    "hako_adopted_write_scoped_surface_count": 4,
+    "hako_adopted_write_scoped_surface_count": 3,
     "scalar_known_transport_axis_closeout": 0,
     "selected_scoped_surface": "SetSurfacePolicy/MapStoreAny",
     "selected_scoped_surface_count": 1,

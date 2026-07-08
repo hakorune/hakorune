@@ -42,7 +42,7 @@ any_write_boundary_opened = false
 
 ```text
 write_set_mapstore_i64_direct_closeout_materialized = 1
-accepted_scoped_closeout_count = 6
+accepted_scoped_closeout_count = 1
 remaining_write_scoped_surface_count = 1
 remaining_write_scoped_surface = SetSurfacePolicy/MapStoreAny
 mapstore_any_deferred = 1

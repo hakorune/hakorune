@@ -2191,62 +2191,6 @@
       "role": "current_queue"
     },
     {
-      "token": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-DELETE-SURFACE-RUST-ORACLE-PARITY-FIXTURE-001",
-      "card": "docs/development/current/main/phases/phase-296x/2123-MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-DELETE-SURFACE-RUST-ORACLE-PARITY-FIXTURE-001.md",
-      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-write-delete-surface-rust-oracle-v0.json",
-      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_carrier_type_scalar_known_write_delete_surface_rust_oracle_parity_fixture_guard.sh",
-      "role": "current_queue"
-    },
-    {
-      "token": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-DELETE-SURFACE-HAKO-PARITY-PILOT-001",
-      "card": "docs/development/current/main/phases/phase-296x/2124-MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-DELETE-SURFACE-HAKO-PARITY-PILOT-001.md",
-      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-write-delete-surface-hako-parity-pilot-v0.json",
-      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_carrier_type_scalar_known_write_delete_surface_hako_parity_pilot_guard.sh",
-      "role": "current_queue"
-    },
-    {
-      "token": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-DELETE-SURFACE-PARITY-GATE-001",
-      "card": "docs/development/current/main/phases/phase-296x/2125-MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-DELETE-SURFACE-PARITY-GATE-001.md",
-      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-write-delete-surface-hako-parity-pilot-v0.json",
-      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_carrier_type_scalar_known_write_delete_surface_parity_gate.sh",
-      "role": "current_queue"
-    },
-    {
-      "token": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-DELETE-SURFACE-HAKO-ADOPTION-DECISION-001",
-      "card": "docs/development/current/main/phases/phase-296x/2126-MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-DELETE-SURFACE-HAKO-ADOPTION-DECISION-001.md",
-      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-write-delete-surface-hako-adoption-decision-v0.json",
-      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_carrier_type_scalar_known_write_delete_surface_hako_adoption_decision_guard.sh",
-      "role": "current_queue"
-    },
-    {
-      "token": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-REMAINING-SUBSURFACE-POST-DELETE-ADOPTION-RERUN-001",
-      "card": "docs/development/current/main/phases/phase-296x/2127-MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-REMAINING-SUBSURFACE-POST-DELETE-ADOPTION-RERUN-001.md",
-      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-write-remaining-subsurface-post-delete-adoption-rerun-v0.json",
-      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_carrier_type_scalar_known_write_remaining_subsurface_post_delete_adoption_rerun_guard.sh",
-      "role": "current_queue"
-    },
-    {
-      "token": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-DELETE-SURFACE-TYPED-DIRECT-CLOSEOUT-CONTRACT-BASIS-001",
-      "card": "docs/development/current/main/phases/phase-296x/2128-MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-DELETE-SURFACE-TYPED-DIRECT-CLOSEOUT-CONTRACT-BASIS-001.md",
-      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-write-delete-surface-typed-direct-closeout-contract-basis-v0.json",
-      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_carrier_type_scalar_known_write_delete_surface_typed_direct_closeout_contract_basis_guard.sh",
-      "role": "current_queue"
-    },
-    {
-      "token": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-DELETE-SURFACE-DIRECT-CLOSEOUT-RERUN-001",
-      "card": "docs/development/current/main/phases/phase-296x/2129-MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-DELETE-SURFACE-DIRECT-CLOSEOUT-RERUN-001.md",
-      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-write-delete-surface-direct-closeout-rerun-v0.json",
-      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_carrier_type_scalar_known_write_delete_surface_direct_closeout_rerun_guard.sh",
-      "role": "current_queue"
-    },
-    {
-      "token": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-REMAINING-SUBSURFACE-POST-DELETE-CLOSEOUT-RERUN-001",
-      "card": "docs/development/current/main/phases/phase-296x/2130-MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-REMAINING-SUBSURFACE-POST-DELETE-CLOSEOUT-RERUN-001.md",
-      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-write-remaining-subsurface-post-delete-closeout-rerun-v0.json",
-      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_carrier_type_scalar_known_write_remaining_subsurface_post_delete_closeout_rerun_guard.sh",
-      "role": "current_queue"
-    },
-    {
       "token": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-SURFACE-TYPED-VALUE-SPLIT-BASIS-001",
       "card": "docs/development/current/main/phases/phase-296x/2131-MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-SURFACE-TYPED-VALUE-SPLIT-BASIS-001.md",
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-write-set-surface-typed-value-split-basis-v0.json",
@@ -2364,6 +2308,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-hako-adoption-connection-inventory-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_scalar_known_fastpath_hako_adoption_connection_inventory_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-SCALAR-KNOWN-WRITE-DELETE-SURFACE-MIRROR-RETIRE-001",
+      "card": "docs/development/current/main/phases/phase-296x/3353-MIRBUILDER-SCALAR-KNOWN-WRITE-DELETE-SURFACE-MIRROR-RETIRE-001.md",
+      "fixture": "",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_scalar_known_write_delete_surface_mirror_retire_guard.sh",
+      "role": "current_maintenance"
     },
     {
       "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-CONNECTION-DESIGN-CONSULTATION-001",

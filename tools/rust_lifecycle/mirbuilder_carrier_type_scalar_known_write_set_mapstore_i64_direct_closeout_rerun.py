@@ -31,12 +31,6 @@ MAPSTORE_I64_BASIS = (
     FIXTURES
     / "mirbuilder-carrier-type-scalar-known-write-set-mapstore-i64-typed-direct-closeout-contract-basis-v0.json"
 )
-DELETE_CLOSEOUT = (
-    FIXTURES
-    / "mirbuilder-carrier-type-scalar-known-write-delete-surface-direct-closeout-rerun-v0.json"
-)
-
-
 def rel(path: Path) -> str:
     return str(path.relative_to(ROOT))
 
@@ -47,8 +41,6 @@ def read_json(path: Path) -> dict[str, Any]:
 
 def build_fixture() -> dict[str, Any]:
     basis = read_json(MAPSTORE_I64_BASIS)
-    delete_closeout = read_json(DELETE_CLOSEOUT)
-    prior_closeouts = delete_closeout.get("accepted_scoped_closeouts") or []
     contract = basis.get("contract") or {}
 
     mapstore_i64_contract = {
@@ -71,7 +63,7 @@ def build_fixture() -> dict[str, Any]:
         "mapstore_any_included": False,
         "any_write_boundary_opened": False,
     }
-    accepted_closeouts = prior_closeouts + [mapstore_i64_contract]
+    accepted_closeouts = [mapstore_i64_contract]
 
     return {
         "schema_version": 0,
@@ -80,8 +72,7 @@ def build_fixture() -> dict[str, Any]:
         "input_state": {
             "write_set_mapstore_i64_contract_basis": rel(MAPSTORE_I64_BASIS),
             "write_set_mapstore_i64_contract_basis_hash": sha256_file(MAPSTORE_I64_BASIS),
-            "prior_delete_closeout_rerun": rel(DELETE_CLOSEOUT),
-            "prior_delete_closeout_rerun_hash": sha256_file(DELETE_CLOSEOUT),
+            "delete_surface_mirror_retired": True,
             "basis_decision": basis.get("decision", {}).get("kind"),
             "basis_selected_next_card": basis.get("decision", {}).get("selected_next_card"),
         },

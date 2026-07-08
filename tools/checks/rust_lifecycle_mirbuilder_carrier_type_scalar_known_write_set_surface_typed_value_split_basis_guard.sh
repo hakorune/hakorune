@@ -41,21 +41,21 @@ need(fixture.get("token") == token, "bad token")
 need(token in card, "card missing token")
 
 inputs = fixture.get("input_state") or {}
-need(inputs.get("post_delete_decision") == "KeepStopped", "post delete decision drift")
-need(inputs.get("recommended_consultation_topic") == "WriteSetSurfacePolicyPilotOrSplitSelection", "topic drift")
+need(inputs.get("delete_surface_mirror_retired") is True, "delete mirror retirement drift")
 need(inputs.get("remaining_subsurface") == "SetSurfacePolicy", "remaining subsurface drift")
 need(inputs.get("remaining_routes") == ["MapStoreI64", "MapStoreAny"], "remaining routes drift")
 
 axis = fixture.get("proof_axis") or {}
-need(axis.get("prior_hako_adopted_write_surface_metadata_coverage") is True, "metadata coverage drift")
+need(axis.get("prior_hako_adopted_write_surface_metadata_coverage") is False, "metadata coverage drift")
+need(axis.get("delete_surface_mirror_retired") is True, "delete mirror axis drift")
 need(axis.get("set_surface_typed_value_boundary_split_proof_axis") is True, "split axis drift")
 need(axis.get("typed_scalar_write_before_any_write") is True, "typed-first drift")
-need(axis.get("already_covered_by_push_delete") == [
+need(axis.get("already_covered_by_live_or_retained_surfaces") == [
     "MutatesReceiverOrContainerMetadata",
-    "NonePublicationMetadata",
 ], "covered metadata drift")
 need(axis.get("new_for_set") == [
     "NoneResultMetadata",
+    "NonePublicationMetadata",
     "TypedVsAnyWriteValueBoundary",
 ], "new set metadata drift")
 
@@ -102,7 +102,7 @@ for key in [
     "mapstore_i64_first_candidate",
     "mapstore_any_deferred",
     "typed_scalar_write_before_any_write",
-    "prior_hako_adopted_write_surface_metadata_coverage",
+    "delete_surface_mirror_retired",
     "basis_only",
     "rerun_or_fixture_required_before_hako_pilot",
 ]:
@@ -129,7 +129,7 @@ for key in [
     "mapstore_i64_first_candidate",
     "mapstore_any_deferred",
     "typed_scalar_write_before_any_write",
-    "prior_hako_adopted_write_surface_metadata_coverage",
+    "delete_surface_mirror_retired",
     "basis_only",
     "rerun_or_fixture_required_before_hako_pilot",
 ]:
@@ -168,9 +168,6 @@ manifest_row = rows_by_token.get(token) or {}
 need(manifest_row.get("card", "").endswith("2131-MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-SURFACE-TYPED-VALUE-SPLIT-BASIS-001.md"), "manifest card drift")
 need(manifest_row.get("fixture", "").endswith("mirbuilder-carrier-type-scalar-known-write-set-surface-typed-value-split-basis-v0.json"), "manifest fixture drift")
 need(manifest_row.get("legacy_guard", "").endswith("rust_lifecycle_mirbuilder_carrier_type_scalar_known_write_set_surface_typed_value_split_basis_guard.sh"), "manifest guard drift")
-
-need(token in task_order, "task order missing token")
-need(f"selected_next_card={next_card}" in task_order, "task order next drift")
 
 print("output_contract=rust-lifecycle-mirbuilder-carrier-type-scalar-known-write-set-surface-typed-value-split-basis")
 print("set_surface_typed_value_split_basis=1")

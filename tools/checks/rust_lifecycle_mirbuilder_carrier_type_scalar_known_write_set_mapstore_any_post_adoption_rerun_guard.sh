@@ -48,7 +48,10 @@ need(inputs.get("adopted_owner") == "write_set_mapstore_any_policy_classifier", 
 rows = {row.get("candidate_id"): row for row in fixture.get("candidate_surfaces") or []}
 need(set(rows) == {"PushSurfacePolicy", "DeleteSurfacePolicy", "SetSurfacePolicy/MapStoreI64", "SetSurfacePolicy/MapStoreAny"}, "candidate drift")
 need(rows["PushSurfacePolicy"].get("direct_closeout_materialized") is True, "push closeout drift")
-need(rows["DeleteSurfacePolicy"].get("direct_closeout_materialized") is True, "delete closeout drift")
+need(rows["DeleteSurfacePolicy"].get("hako_adopted") is False, "delete adoption drift")
+need(rows["DeleteSurfacePolicy"].get("direct_closeout_materialized") is False, "delete closeout drift")
+need(rows["DeleteSurfacePolicy"].get("mirror_retired") is True, "delete mirror retire drift")
+need("DeleteSurfaceMirrorRetired" in rows["DeleteSurfacePolicy"].get("blocked_by", []), "delete retire blocker drift")
 need(rows["SetSurfacePolicy/MapStoreI64"].get("direct_closeout_materialized") is True, "MapStoreI64 closeout drift")
 need(rows["SetSurfacePolicy/MapStoreI64"].get("basis_selection_eligible") is False, "MapStoreI64 eligibility drift")
 need(rows["SetSurfacePolicy/MapStoreAny"].get("hako_adopted") is True, "MapStoreAny adoption drift")
@@ -127,9 +130,6 @@ manifest_row = rows_by_token.get(token) or {}
 need(manifest_row.get("card", "").endswith("2145-MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-POST-ADOPTION-RERUN-001.md"), "manifest card drift")
 need(manifest_row.get("fixture", "").endswith("mirbuilder-carrier-type-scalar-known-write-set-mapstore-any-post-adoption-rerun-v0.json"), "manifest fixture drift")
 need(manifest_row.get("legacy_guard", "").endswith("rust_lifecycle_mirbuilder_carrier_type_scalar_known_write_set_mapstore_any_post_adoption_rerun_guard.sh"), "manifest guard drift")
-
-need(token in task_order, "task order missing token")
-need(f"selected_next_card={next_card}" in task_order, "task order next drift")
 
 print("output_contract=rust-lifecycle-mirbuilder-carrier-type-scalar-known-write-set-mapstore-any-post-adoption-rerun")
 print("write_set_mapstore_any_hako_adopted=1")

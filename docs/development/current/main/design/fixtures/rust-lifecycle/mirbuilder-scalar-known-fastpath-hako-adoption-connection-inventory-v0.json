@@ -14,8 +14,8 @@
   },
   "contract_inventory": {
     "contract_table_defined": true,
-    "external_rust_reference_count": 0,
-    "fastpath_connected": false,
+    "external_rust_reference_count": 4,
+    "fastpath_connected": true,
     "module_declared_in_route_plan": true
   },
   "decision": {
@@ -29,7 +29,6 @@
     "compiler_runtime_connection_found": false,
     "hako_policy_mirror_sources": [
       "lang/src/compiler/lib/write_push_surface_policy_classifier.hako",
-      "lang/src/compiler/lib/write_delete_surface_policy_classifier.hako",
       "lang/src/compiler/lib/write_set_mapstore_i64_policy_classifier.hako",
       "lang/src/compiler/lib/write_set_mapstore_any_policy_classifier.hako",
       "lang/src/compiler/lib/generic_method_route_fact_token_formatter.hako"
@@ -80,20 +79,19 @@
   "source_files": {
     "lang/c-abi/shims/hako_llvmc_ffi_generic_method_match.inc": "33b85734b72f1f267d4f782b9d1696deba18dcb07cadacbc6f31884327493e9a",
     "lang/src/compiler/lib/generic_method_route_fact_token_formatter.hako": "db8ec5ee657101c1601632641f6e7fa13a2a160e219af7eb4306767c4f50f59c",
-    "lang/src/compiler/lib/write_delete_surface_policy_classifier.hako": "24e55dd86e424e6dbf2e62f558fe7d1b60f9b3e85c5d81b767e09cffb821499f",
     "lang/src/compiler/lib/write_push_surface_policy_classifier.hako": "ec456dac4fd8aff4efc3627e54f527354b36268b4543185ed07da2750fbdfa87",
     "lang/src/compiler/lib/write_set_mapstore_any_policy_classifier.hako": "77e00016586d44ba582e5fd6ba6dd58d594eca4d7c595ef5979b329297bd5f3d",
     "lang/src/compiler/lib/write_set_mapstore_i64_policy_classifier.hako": "1bc09769e02851c5c42a7a8287624215d9f206d5b2800e17659016a6fd177f5d",
-    "src/mir/generic_method_route_plan.rs": "fdf8b0f300d914e3c10be768f8353edf16d1126461ee535a598abbe05f99a06d",
+    "src/mir/generic_method_route_plan.rs": "a80e76573591a29cc999364fc2f654ce500fecd3c14eaae6fed2f1b7bb4cac8a",
     "src/mir/generic_method_route_plan/scalar_known_typed_direct_closeout_contract.rs": "443b1813fc70de66c90b3c76e074c5aac7542d33207dfaed7dc71755d9bd6bb0",
-    "src/mir/generic_method_route_plan/write_routes.rs": "a099f2f6b422e6e6a454d0a6e10c74bfd649155b24ba2ebc760208de5c7caa22",
+    "src/mir/generic_method_route_plan/write_routes.rs": "1c586b1fd75af17df2eba630cfdc8081568db45deff376d175c87a7e318f9d23",
     "src/mir/route_fixpoint.rs": "6d2daa143c5092089489b029e738ef5202e44a1ea413c16b5b0b8accd4e8af6d",
     "src/runner/mir_json_emit/route_json.rs": "b3dfe1dca6f5ad9b20c1ee0613088313c9f07288579a20f471e17c948f28fc2c"
   },
   "summary": {
     "closeout_chain_pause_required": 1,
-    "contract_external_rust_reference_count": 0,
-    "contract_fastpath_connected": 0,
+    "contract_external_rust_reference_count": 4,
+    "contract_fastpath_connected": 1,
     "contract_module_declared": 1,
     "hako_adopted_as_runtime_authority": 0,
     "hako_fastpath_runtime_connection": 0,

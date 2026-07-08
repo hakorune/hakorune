@@ -1,99 +1,6 @@
 {
   "accepted_scoped_closeouts": [
     {
-      "contract_id": "MapLoadScalarI64ScalarKnownTypedDirectCloseoutContract",
-      "source": "prior_scoped_closeout",
-      "surface_id": "MapLoadScalarI64"
-    },
-    {
-      "contract_id": "StringSearchScalarI64TypedDirectCloseoutContract",
-      "core_method_lowering_tier": "WarmDirectAbi",
-      "effect_class": "read",
-      "publication_policy": "NoPublication",
-      "return_shape": "ScalarI64",
-      "routes": [
-        {
-          "core_method_op": "StringIndexOf",
-          "method_surface": "indexOf",
-          "proof_or_policy_source": "IndexOfSurfacePolicy",
-          "route_kind": "StringIndexOf"
-        },
-        {
-          "core_method_op": "StringLastIndexOf",
-          "method_surface": "lastIndexOf",
-          "proof_or_policy_source": "LastIndexOfSurfacePolicy",
-          "route_kind": "StringLastIndexOf"
-        },
-        {
-          "core_method_op": "StringContains",
-          "method_surface": "contains",
-          "proof_or_policy_source": "ContainsSurfacePolicy",
-          "route_kind": "StringContains"
-        }
-      ],
-      "surface_id": "StringScalarI64Routes",
-      "value_demand": "ScalarI64"
-    },
-    {
-      "contract_id": "CollectionLenScalarI64TypedDirectCloseoutContract",
-      "core_method_lowering_tier": "WarmDirectAbi",
-      "effect_class": "observe",
-      "proof_or_policy_source": [
-        "LenSurfacePolicy"
-      ],
-      "publication_policy": "NoPublication",
-      "return_shape": "ScalarI64",
-      "routes": [
-        "MapEntryCount",
-        "ArraySlotLen",
-        "StringLen",
-        "AnyLength"
-      ],
-      "surface_id": "CollectionScalarI64Routes",
-      "value_demand": "ScalarI64"
-    },
-    {
-      "contract_id": "WritePushSurfaceTypedDirectCloseoutContract",
-      "core_method_lowering_tier": "ColdFallback",
-      "core_method_op": "ArrayPush",
-      "effect_class": "mutate",
-      "mutation_class": "MutatesReceiverOrContainer",
-      "proof_or_policy_source": [
-        "PushSurfacePolicy"
-      ],
-      "publication_policy": "NoPublication",
-      "result_class": "ScalarI64Result",
-      "return_shape": "ScalarI64",
-      "routes": [
-        "ArrayAppendAny"
-      ],
-      "runtime_mutation_authority": false,
-      "subsurface_id": "PushSurfacePolicy",
-      "surface_id": "WriteScalarI64Routes",
-      "value_demand": "WriteAny"
-    },
-    {
-      "contract_id": "WriteDeleteSurfaceTypedDirectCloseoutContract",
-      "core_method_lowering_tier": "ColdFallback",
-      "core_method_op": "MapDelete",
-      "effect_class": "mutate",
-      "mutation_class": "MutatesReceiverOrContainer",
-      "proof_or_policy_source": [
-        "DeleteSurfacePolicy"
-      ],
-      "publication_execution": false,
-      "publication_policy": "NonePublication",
-      "result_class": "ScalarI64Result",
-      "return_shape": "ScalarI64",
-      "routes": [
-        "MapDeleteAny"
-      ],
-      "runtime_mutation_authority": false,
-      "subsurface_id": "DeleteSurfacePolicy",
-      "surface_id": "WriteScalarI64Routes",
-      "value_demand": "WriteAny"
-    },
-    {
       "any_write_boundary_opened": false,
       "contract_id": "WriteSetMapStoreI64TypedDirectCloseoutContract",
       "core_method_lowering_tier": "ColdFallback",
@@ -133,7 +40,7 @@
     "write_set_mapstore_i64_typed_direct_closeout_contract_basis": 1
   },
   "claims": {
-    "accepted_scoped_closeout_count": 6,
+    "accepted_scoped_closeout_count": 1,
     "any_write_boundary_opened": 0,
     "behavior_change": 0,
     "hako_generation": 0,
@@ -167,8 +74,7 @@
   "input_state": {
     "basis_decision": "SelectWriteSetMapStoreI64DirectCloseoutRerun",
     "basis_selected_next_card": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-I64-DIRECT-CLOSEOUT-RERUN-001",
-    "prior_delete_closeout_rerun": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-write-delete-surface-direct-closeout-rerun-v0.json",
-    "prior_delete_closeout_rerun_hash": "f7cc8fc71f4d49ece34b5a5c198eede74e7e0e59271720240572df15cca628ce",
+    "delete_surface_mirror_retired": true,
     "write_set_mapstore_i64_contract_basis": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-write-set-mapstore-i64-typed-direct-closeout-contract-basis-v0.json",
     "write_set_mapstore_i64_contract_basis_hash": "09e10dd940b7556013a75c26ba4476ab9be6ce6418c4d7d4cc38fda5414d14e2"
   },
@@ -206,7 +112,7 @@
   },
   "schema_version": 0,
   "summary": {
-    "accepted_scoped_closeout_count": 6,
+    "accepted_scoped_closeout_count": 1,
     "any_write_boundary_opened": 0,
     "mapstore_any_deferred": 1,
     "publication_execution": 0,

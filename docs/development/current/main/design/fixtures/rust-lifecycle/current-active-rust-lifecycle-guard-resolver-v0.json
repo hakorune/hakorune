@@ -10,8 +10,8 @@
   },
   "current_state": {
     "current_blocker_token": "MIRBUILDER-RECIPEITEM-CONDITION-SLOT-BOOL-RECIPE-SIDECAR-BRIDGE-CURRENT-GATE-001",
-    "latest_card": "MIRBUILDER-RECIPEITEM-CONDITION-SLOT-BOOL-RECIPE-BRIDGE-SELECTION-CURRENT-001",
-    "latest_card_path": "docs/development/current/main/phases/phase-296x/3352-MIRBUILDER-RECIPEITEM-CONDITION-SLOT-BOOL-RECIPE-BRIDGE-SELECTION-CURRENT-001.md"
+    "latest_card": "MIRBUILDER-SCALAR-KNOWN-WRITE-DELETE-SURFACE-MIRROR-RETIRE-001",
+    "latest_card_path": "docs/development/current/main/phases/phase-296x/3353-MIRBUILDER-SCALAR-KNOWN-WRITE-DELETE-SURFACE-MIRROR-RETIRE-001.md"
   },
   "decision": {
     "kind": "ResolveCurrentActiveRustLifecycleGuards",
@@ -27,27 +27,27 @@
       "status": "pending_card_or_guard",
       "token": "MIRBUILDER-RECIPEITEM-CONDITION-SLOT-BOOL-RECIPE-SIDECAR-BRIDGE-CURRENT-GATE-001"
     },
-    "historical_rust_lifecycle_script_count": 1052,
+    "historical_rust_lifecycle_script_count": 1045,
     "latest": {
-      "card": "docs/development/current/main/phases/phase-296x/3352-MIRBUILDER-RECIPEITEM-CONDITION-SLOT-BOOL-RECIPE-BRIDGE-SELECTION-CURRENT-001.md",
+      "card": "docs/development/current/main/phases/phase-296x/3353-MIRBUILDER-SCALAR-KNOWN-WRITE-DELETE-SURFACE-MIRROR-RETIRE-001.md",
       "guard_count": 1,
       "guard_paths": [
-        "tools/checks/rust_lifecycle_mirbuilder_recipeitem_condition_slot_bool_recipe_bridge_selection_current_guard.sh"
+        "tools/checks/rust_lifecycle_mirbuilder_scalar_known_write_delete_surface_mirror_retire_guard.sh"
       ],
       "status": "resolved",
-      "token": "MIRBUILDER-RECIPEITEM-CONDITION-SLOT-BOOL-RECIPE-BRIDGE-SELECTION-CURRENT-001"
+      "token": "MIRBUILDER-SCALAR-KNOWN-WRITE-DELETE-SURFACE-MIRROR-RETIRE-001"
     },
     "max_default_guard_count": 3,
     "run_all_historical_guards": false,
     "runnable_guard_count": 1,
     "runnable_guard_paths": [
-      "tools/checks/rust_lifecycle_mirbuilder_recipeitem_condition_slot_bool_recipe_bridge_selection_current_guard.sh"
+      "tools/checks/rust_lifecycle_mirbuilder_scalar_known_write_delete_surface_mirror_retire_guard.sh"
     ]
   },
   "schema_version": 0,
   "source_files": {
-    "docs/development/current/main/CURRENT_STATE.toml": "d4244f032f1ade36ce18b7edc10dc76d088db9f14c7ec93c420e709f4c0598d9",
-    "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md": "b5666a4906f261d48ed5080bfc972f76a6dddc42029f946e2eb056f843809eb2"
+    "docs/development/current/main/CURRENT_STATE.toml": "e8eec9c3b6dd3f897dc875c1fe76cfebe7482959b24f4d1d2cbc876e3a6fd199",
+    "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md": "2ca8c27c7025b71b3577e043343b84226ee2e6e4ba6c36ece488713939002f8a"
   },
   "summary": {
     "current_active_guard_resolver": 1,

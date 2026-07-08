@@ -22,9 +22,9 @@ write_routes / collection_read_routes / string_routes
 ```
 
 The `scalar_known_typed_direct_closeout_contract.rs` module is declared in the
-Rust route-plan module, but the contract table is not consumed by the fast-path
-decision path. The `.hako` policy classifiers are guard-executed parity mirrors,
-not runtime route authority.
+Rust route-plan module and is now consumed by the MapStoreI64 fast-path shadow
+handoff. The remaining `.hako` policy classifiers are still not runtime route
+authority.
 
 ## Evidence
 
@@ -41,7 +41,6 @@ contract_inventory:
 
 hako_policy_mirrors:
   lang/src/compiler/lib/write_push_surface_policy_classifier.hako
-  lang/src/compiler/lib/write_delete_surface_policy_classifier.hako
   lang/src/compiler/lib/write_set_mapstore_i64_policy_classifier.hako
   lang/src/compiler/lib/write_set_mapstore_any_policy_classifier.hako
   lang/src/compiler/lib/generic_method_route_fact_token_formatter.hako
@@ -53,8 +52,8 @@ hako_policy_mirrors:
 scalar_known_fastpath_hako_adoption_connection_inventory = 1
 rust_fastpath_owner_still_write_routes = 1
 contract_module_declared = 1
-contract_external_rust_reference_count = 0
-contract_fastpath_connected = 0
+contract_external_rust_reference_count = 4
+contract_fastpath_connected = 1
 hako_policy_mirror_guard_only = 1
 hako_fastpath_runtime_connection = 0
 hako_adopted_as_runtime_authority = 0

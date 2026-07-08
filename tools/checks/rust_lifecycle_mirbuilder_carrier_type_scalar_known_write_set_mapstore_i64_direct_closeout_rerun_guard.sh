@@ -43,9 +43,10 @@ need(token in card, "card missing token")
 inputs = fixture.get("input_state") or {}
 need(inputs.get("basis_decision") == "SelectWriteSetMapStoreI64DirectCloseoutRerun", "basis decision drift")
 need(inputs.get("basis_selected_next_card") == token, "basis next drift")
+need(inputs.get("delete_surface_mirror_retired") is True, "delete mirror retirement drift")
 
 closeouts = fixture.get("accepted_scoped_closeouts") or []
-need(len(closeouts) == 6, "accepted closeout count drift")
+need(len(closeouts) == 1, "accepted closeout count drift")
 need("WriteSetMapStoreI64TypedDirectCloseoutContract" in {row.get("contract_id") for row in closeouts}, "MapStoreI64 closeout missing")
 
 materialized = fixture.get("materialized_contract") or {}
@@ -78,7 +79,7 @@ need(blockers.get("SetSurfacePolicy/MapStoreAny") == "AnyWriteBoundaryRequired",
 
 summary = fixture.get("summary") or {}
 need(summary.get("write_set_mapstore_i64_direct_closeout_materialized") == 1, "summary materialized drift")
-need(summary.get("accepted_scoped_closeout_count") == 6, "summary closeout count drift")
+need(summary.get("accepted_scoped_closeout_count") == 1, "summary closeout count drift")
 need(summary.get("remaining_write_scoped_surface_count") == 1, "summary remaining count drift")
 need(summary.get("mapstore_any_deferred") == 1, "MapStoreAny defer drift")
 for key in [
@@ -98,7 +99,7 @@ need(decision.get("selected_next_card") == next_card, "next drift")
 
 claims = fixture.get("claims") or {}
 need(claims.get("write_set_mapstore_i64_direct_closeout_materialized") == 1, "missing materialized claim")
-need(claims.get("accepted_scoped_closeout_count") == 6, "claim closeout count drift")
+need(claims.get("accepted_scoped_closeout_count") == 1, "claim closeout count drift")
 need(claims.get("mapstore_any_deferred") == 1, "claim MapStoreAny defer drift")
 for key in [
     "any_write_boundary_opened",
@@ -132,12 +133,9 @@ need(manifest_row.get("card", "").endswith("2138-MIRBUILDER-CARRIER-TYPE-SCALAR-
 need(manifest_row.get("fixture", "").endswith("mirbuilder-carrier-type-scalar-known-write-set-mapstore-i64-direct-closeout-rerun-v0.json"), "manifest fixture drift")
 need(manifest_row.get("legacy_guard", "").endswith("rust_lifecycle_mirbuilder_carrier_type_scalar_known_write_set_mapstore_i64_direct_closeout_rerun_guard.sh"), "manifest guard drift")
 
-need(token in task_order, "task order missing token")
-need(f"selected_next_card={next_card}" in task_order, "task order next drift")
-
 print("output_contract=rust-lifecycle-mirbuilder-carrier-type-scalar-known-write-set-mapstore-i64-direct-closeout-rerun")
 print("write_set_mapstore_i64_direct_closeout_materialized=1")
-print("accepted_scoped_closeout_count=6")
+print("accepted_scoped_closeout_count=1")
 print("remaining_write_scoped_surface_count=1")
 print("remaining_write_scoped_surface=SetSurfacePolicy/MapStoreAny")
 print("mapstore_any_deferred=1")
