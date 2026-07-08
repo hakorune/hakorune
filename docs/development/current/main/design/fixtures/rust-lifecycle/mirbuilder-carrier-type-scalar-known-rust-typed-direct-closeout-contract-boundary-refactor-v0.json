@@ -1,0 +1,78 @@
+{
+  "accepted_contracts": [
+    "MapLoadScalarI64ScalarKnownTypedDirectCloseoutContract",
+    "StringSearchScalarI64TypedDirectCloseoutContract"
+  ],
+  "behavior_preservation": {
+    "effect_semantics_changed": false,
+    "lowering_path_changed": false,
+    "publication_policy_semantics_changed": false,
+    "return_shape_semantics_changed": false,
+    "route_kind_semantics_changed": false,
+    "route_selection_changed": false,
+    "value_demand_semantics_changed": false
+  },
+  "claims": {
+    "behavior_change": 0,
+    "behavior_preserved": 1,
+    "collection_direct_closeout_ready": 0,
+    "direct_contract_selection": 0,
+    "existing_rust_owner_evidence_repackaged": 1,
+    "hako_adopted_decision": 0,
+    "hako_adoption": 0,
+    "hako_generation": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "new_route_authority": 0,
+    "runtime_fallback": 0,
+    "rust_contract_boundary_refactor": 1,
+    "scalar_known_transport_axis_closeout": 0,
+    "scalar_known_typed_direct_closeout_contract_boundary": 1,
+    "source_selfhost_claim": 0,
+    "write_direct_closeout_ready": 0
+  },
+  "decision": {
+    "kind": "SelectRemainingSurfaceBoundaryInventoryRerunAfterRustBoundaryRefactor",
+    "reason_token": "ScalarKnownTypedDirectCloseoutContractBoundaryRepackaged",
+    "selected_next_card": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-REMAINING-SURFACE-BOUNDARY-INVENTORY-RERUN-001"
+  },
+  "input_state": {
+    "previous_basis": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-remaining-surface-boundary-inventory-basis-v0.json",
+    "previous_selected_next_card": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-REMAINING-SURFACE-BOUNDARY-INVENTORY-RERUN-001"
+  },
+  "kind": "MirBuilderCarrierTypeScalarKnownRustTypedDirectCloseoutContractBoundaryRefactorV1",
+  "provenance": {
+    "previous_basis_hash": "ce46875959c6e3a68919326c47ad098b1d957bf7a05762ec69f13df77eb376a7",
+    "rust_boundary_source_hash": "443b1813fc70de66c90b3c76e074c5aac7542d33207dfaed7dc71755d9bd6bb0",
+    "rust_route_plan_mod_hash": "fdf8b0f300d914e3c10be768f8353edf16d1126461ee535a598abbe05f99a06d"
+  },
+  "remaining_candidate_surfaces": [
+    "CollectionScalarI64Routes",
+    "WriteScalarI64Routes"
+  ],
+  "rust_boundary": {
+    "accepted_status": "AcceptedScopedCloseout",
+    "candidate_status": "CandidateNeedsPolicy",
+    "module_registered_from": "src/mir/generic_method_route_plan.rs",
+    "source": "src/mir/generic_method_route_plan/scalar_known_typed_direct_closeout_contract.rs",
+    "status_enum": "ScalarKnownContractStatus",
+    "struct_name": "ScalarKnownTypedDirectCloseoutContract"
+  },
+  "schema_version": 0,
+  "summary": {
+    "accepted_scoped_closeout_contract_count": 2,
+    "behavior_preserved": 1,
+    "collection_direct_closeout_ready": 0,
+    "direct_contract_selection": 0,
+    "existing_rust_owner_evidence_repackaged": 1,
+    "remaining_candidate_surface_count": 2,
+    "rust_contract_boundary_refactor": 1,
+    "scalar_known_transport_axis_closeout": 0,
+    "scalar_known_typed_direct_closeout_contract_boundary": 1,
+    "source_selfhost_claim": 0,
+    "write_direct_closeout_ready": 0
+  },
+  "token": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-RUST-TYPED-DIRECT-CLOSEOUT-CONTRACT-BOUNDARY-REFACTOR-001"
+}
