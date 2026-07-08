@@ -1,0 +1,99 @@
+{
+  "boundary_basis": {
+    "any_write_boundary_opened": false,
+    "basis_id": "MapStoreAnyWriteBoundaryBasis",
+    "mapstore_any_deferred_until_boundary": true,
+    "mapstore_i64_already_scoped_closeout": true,
+    "publication_execution": false,
+    "relationship_to_scalar_known": "RemainingScopedWriteSurfaceInScalarKnownCloseoutChain",
+    "route_kind": "MapStoreAny",
+    "runtime_mutation_authority": false,
+    "subsurface_id": "SetSurfacePolicy/MapStoreAny",
+    "surface_id": "WriteScalarI64Routes",
+    "write_value_boundary": "Any"
+  },
+  "claims": {
+    "any_write_boundary_declared": 1,
+    "any_write_boundary_opened": 0,
+    "apparent_simplicity_as_proof": 0,
+    "basis_only": 1,
+    "behavior_change": 0,
+    "hako_generation": 0,
+    "hako_pilot_required_before_adoption": 1,
+    "manual_subsurface_selection": 0,
+    "mapstore_any_deferred_until_boundary": 1,
+    "mapstore_any_direct_closeout_materialized": 0,
+    "mapstore_any_hako_pilot_selected": 0,
+    "mapstore_any_write_boundary_basis": 1,
+    "mapstore_i64_already_scoped_closeout": 1,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_route_authority": 0,
+    "owner_name_as_proof": 0,
+    "publication_execution": 0,
+    "route_count_as_proof": 0,
+    "route_membership_alone_as_proof": 0,
+    "runtime_fallback": 0,
+    "runtime_mutation_authority": 0,
+    "scalar_known_transport_axis_closeout": 0,
+    "set_surface_policy_remaining": 1,
+    "source_path_as_authority": 0,
+    "source_selfhost_claim": 0,
+    "write_scalar_i64_routes_closeout": 0
+  },
+  "decision": {
+    "kind": "SelectMapStoreAnyRustOracleParityFixture",
+    "reason_token": "MapStoreAnyAnyWriteBoundaryBasisDeclared",
+    "selected_next_card": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-RUST-ORACLE-PARITY-FIXTURE-001"
+  },
+  "input_state": {
+    "boundary_selection_decision": "SelectMapStoreAnyWriteBoundaryBasis",
+    "boundary_selection_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-write-set-mapstore-any-boundary-selection-v0.json",
+    "boundary_selection_hash": "edd316bf6d39d7dfe36893c4912535bb9a1746132d0e05073bf6722a1d317797",
+    "boundary_selection_selected_next_card": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-WRITE-BOUNDARY-BASIS-001",
+    "previous_closeout_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-write-set-mapstore-i64-direct-closeout-rerun-v0.json",
+    "previous_closeout_hash": "2bf97b54b989da86d03a3a7a69ec5ba48d305922f8273bb5f0470ac4fc2df096",
+    "remaining_write_scoped_surface": "SetSurfacePolicy/MapStoreAny",
+    "remaining_write_surface_blockers": {
+      "SetSurfacePolicy/MapStoreAny": "AnyWriteBoundaryRequired"
+    }
+  },
+  "kind": "MirBuilderCarrierTypeScalarKnownWriteSetMapStoreAnyWriteBoundaryBasisV1",
+  "provenance": {
+    "write_source": "src/mir/generic_method_route_plan/write_routes.rs",
+    "write_source_hash": "a099f2f6b422e6e6a454d0a6e10c74bfd649155b24ba2ebc760208de5c7caa22"
+  },
+  "schema_version": 0,
+  "selection_rule": {
+    "apparent_simplicity_as_proof": false,
+    "basis_only": true,
+    "direct_closeout_materialization_allowed": false,
+    "hako_pilot_required_before_adoption": true,
+    "manual_subsurface_selection": false,
+    "name": "MapStoreAnyWriteBoundaryBasisOnlyV1",
+    "owner_name_as_proof": false,
+    "route_count_as_proof": false,
+    "route_membership_alone_as_proof": false,
+    "rust_oracle_fixture_required_next": true,
+    "scalar_known_transport_axis_closeout_allowed": false,
+    "source_path_as_authority": false,
+    "write_scalar_i64_routes_closeout_allowed": false
+  },
+  "summary": {
+    "any_write_boundary_declared": 1,
+    "any_write_boundary_opened": 0,
+    "basis_only": 1,
+    "hako_pilot_required_before_adoption": 1,
+    "mapstore_any_deferred_until_boundary": 1,
+    "mapstore_any_direct_closeout_materialized": 0,
+    "mapstore_any_hako_pilot_selected": 0,
+    "mapstore_any_write_boundary_basis": 1,
+    "mapstore_i64_already_scoped_closeout": 1,
+    "scalar_known_transport_axis_closeout": 0,
+    "set_surface_policy_remaining": 1,
+    "source_selfhost_claim": 0,
+    "write_scalar_i64_routes_closeout": 0
+  },
+  "token": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-WRITE-BOUNDARY-BASIS-001"
+}
