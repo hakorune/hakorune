@@ -1,0 +1,133 @@
+{
+  "claims": {
+    "accepted_read_contract_similarity_as_proof": 0,
+    "any_write_boundary_opened": 0,
+    "apparent_simplicity_as_proof": 0,
+    "behavior_change": 0,
+    "hako_adopted_decision": 0,
+    "hako_adoption": 0,
+    "hako_generation": 0,
+    "manual_subsurface_selection": 0,
+    "mapstore_any_deferred": 1,
+    "mapstore_any_hako_pilot_selected": 0,
+    "mapstore_i64_scope": 1,
+    "mutate_effect_metadata_boundary_reused": 1,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_route_authority": 0,
+    "next_hako_parity_pilot_selected": 1,
+    "none_publication_metadata_reused": 1,
+    "none_result_metadata_declared": 1,
+    "owner_name_as_proof": 0,
+    "publication_execution": 0,
+    "route_count_as_proof": 0,
+    "route_membership_alone_as_proof": 0,
+    "runtime_fallback": 0,
+    "runtime_mutation_authority": 0,
+    "rust_oracle_fixture_defined": 1,
+    "scalar_known_transport_axis_closeout": 0,
+    "set_surface_policy_scope": 1,
+    "source_path_as_authority": 0,
+    "source_selfhost_claim": 0,
+    "typed_scalar_write_before_any_write": 1,
+    "write_direct_closeout_materialized": 0,
+    "write_scalar_i64_routes_closeout": 0,
+    "write_set_mapstore_i64_hako_implementation_candidate": 1,
+    "write_subsurface_selected_for_closeout": 0
+  },
+  "decision": {
+    "kind": "SelectWriteSetMapStoreI64HakoParityPilot",
+    "reason_token": "TypedScalarWriteBeforeAnyWrite",
+    "selected_next_card": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-I64-HAKO-PARITY-PILOT-001"
+  },
+  "input_state": {
+    "basis_decision": "SelectSetMapStoreI64RustOracleParityFixture",
+    "basis_selected_next_card": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-I64-RUST-ORACLE-PARITY-FIXTURE-001",
+    "proof_axis": "PriorHakoAdoptedWriteSurfaceMetadataCoverageAndTypedScalarWriteBeforeAnyWrite",
+    "set_surface_typed_value_split_basis": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-write-set-surface-typed-value-split-basis-v0.json",
+    "set_surface_typed_value_split_basis_hash": "629d1417d237c2db822c76666401d8ce2e8f060a2f9d564cfe3873750c73b23c"
+  },
+  "kind": "MirBuilderCarrierTypeScalarKnownWriteSetMapStoreI64RustOracleParityFixtureV1",
+  "metadata_boundary": {
+    "any_write_boundary_opened": false,
+    "hako_implementation_mirrors_classifier_policy_decision": true,
+    "mutate_effect_boundary_reused": true,
+    "none_publication_metadata_reused": true,
+    "none_result_metadata_declared": true,
+    "publication_execution": false,
+    "runtime_mutation_authority": false
+  },
+  "oracle_fixture": {
+    "fixture_id": "WriteSetMapStoreI64RustOracleV0",
+    "row_count": 1,
+    "rows": [
+      {
+        "case_id": "map_store_i64_set_surface",
+        "core_method_lowering_tier": "ColdFallback",
+        "core_method_op": "MapSet",
+        "effect_class": "mutate",
+        "hako_role": "classifier_policy_mirror_only",
+        "mutation_class": "MutatesReceiverOrContainer",
+        "proof_or_policy_source": "SetSurfacePolicy",
+        "publication_policy": "NonePublication",
+        "result_class": "NoneResult",
+        "return_shape": "None",
+        "route_kind": "MapStoreI64",
+        "subsurface_id": "SetSurfacePolicy",
+        "value_demand": "WriteAny",
+        "write_value_boundary": "ScalarI64"
+      }
+    ]
+  },
+  "proof_axis": {
+    "accepted_read_contract_similarity_as_proof": false,
+    "any_write_boundary_opened": false,
+    "apparent_simplicity_as_proof": false,
+    "deferred_route": "MapStoreAny",
+    "manual_subsurface_selection": false,
+    "name": "TypedScalarWriteBeforeAnyWrite",
+    "route_count_as_proof": false,
+    "selected_route": "MapStoreI64",
+    "set_surface": "SetSurfacePolicy",
+    "typed_scalar_write": true,
+    "write_value_boundary": "ScalarI64"
+  },
+  "provenance": {
+    "generated_descriptor_hash": "427f5c9387c594a81a25495025966a06fa77ad97f49bd3d1204a91ffb61b1716",
+    "write_source_hash": "a099f2f6b422e6e6a454d0a6e10c74bfd649155b24ba2ebc760208de5c7caa22"
+  },
+  "schema_version": 0,
+  "selection_rule": {
+    "accepted_read_contract_similarity_as_proof": false,
+    "apparent_simplicity_as_proof": false,
+    "direct_closeout_materialization_allowed": false,
+    "fixture_only": true,
+    "hako_adoption_allowed": false,
+    "manual_subsurface_selection": false,
+    "mapstore_any_deferred": true,
+    "name": "WriteSetMapStoreI64HakoImplementationPilotFixtureOnlyV1",
+    "next_hako_parity_pilot_selected": true,
+    "route_count_as_proof": false
+  },
+  "summary": {
+    "any_write_boundary_opened": 0,
+    "mapstore_any_deferred": 1,
+    "mapstore_i64_scope": 1,
+    "mutate_effect_metadata_boundary_reused": 1,
+    "next_hako_parity_pilot_selected": 1,
+    "none_publication_metadata_reused": 1,
+    "none_result_metadata_declared": 1,
+    "publication_execution": 0,
+    "runtime_mutation_authority": 0,
+    "rust_oracle_fixture_defined": 1,
+    "scalar_known_transport_axis_closeout": 0,
+    "set_surface_policy_scope": 1,
+    "source_selfhost_claim": 0,
+    "typed_scalar_write_before_any_write": 1,
+    "write_direct_closeout_materialized": 0,
+    "write_scalar_i64_routes_closeout": 0,
+    "write_set_mapstore_i64_hako_implementation_candidate": 1
+  },
+  "token": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-I64-RUST-ORACLE-PARITY-FIXTURE-001"
+}
