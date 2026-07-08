@@ -2093,6 +2093,13 @@
       "role": "current_queue"
     },
     {
+      "token": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-COLLECTION-LEN-SCALAR-I64-CONTRACT-BASIS-001",
+      "card": "docs/development/current/main/phases/phase-296x/2109-MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-COLLECTION-LEN-SCALAR-I64-CONTRACT-BASIS-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-collection-len-scalar-i64-contract-basis-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_carrier_type_scalar_known_collection_len_scalar_i64_contract_basis_guard.sh",
+      "role": "current_queue"
+    },
+    {
       "token": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-009",
       "card": "docs/development/current/main/phases/phase-296x/2086-SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-009.md",
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-wider-route-selection-basis-009-v0.json",
