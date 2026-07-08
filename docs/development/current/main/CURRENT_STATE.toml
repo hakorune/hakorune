@@ -345,15 +345,15 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-BOOL-RECIPE-COMPARE-PUBLICATION-FIRST-PARITY-ROW-GATE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3351-MIRBUILDER-BOOL-RECIPE-COMPARE-PUBLICATION-FIRST-PARITY-ROW-GATE-001.md"
-latest_card_summary = """3351 runs the scoped first BoolRecipe compare
-publication parity row gate for selected_row_id=var_le_literal, proves
-publication_rows=1 and read_only_bool_recipe_compare_publication=1, and leaves
-recipe attachment, RecipeMatcher authority, lowering, MIR Compare/Branch
-emission, route/runtime authority, and Source Selfhost unclaimed."""
+latest_card = "MIRBUILDER-RECIPEITEM-CONDITION-SLOT-BOOL-RECIPE-BRIDGE-SELECTION-CURRENT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3352-MIRBUILDER-RECIPEITEM-CONDITION-SLOT-BOOL-RECIPE-BRIDGE-SELECTION-CURRENT-001.md"
+latest_card_summary = """3352 consumes the existing RecipeItem condition-slot
+BoolRecipe bridge selection in the current 335x chain, selects the optional
+cond_recipe sidecar, keeps legacy cond_facts required, and leaves recipe
+attachment, RecipeMatcher authority, lowering, MIR Compare/Branch emission,
+route/runtime authority, and Source Selfhost unclaimed."""
 
-current_blocker_token = "MIRBUILDER-RECIPEITEM-CONDITION-SLOT-BOOL-RECIPE-BRIDGE-SELECTION-001"
+current_blocker_token = "MIRBUILDER-RECIPEITEM-CONDITION-SLOT-BOOL-RECIPE-SIDECAR-BRIDGE-CURRENT-GATE-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -362,6 +362,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-09: 3352 consumes the existing RecipeItem condition-slot BoolRecipe bridge selection in the current 335x chain, records condition_slot_bridge_selection=1, selected_optional_cond_recipe_sidecar=1, selected_bridge=OptionalCondRecipeSidecar, legacy_cond_facts_required=1, cond_recipe_optional=1, selects MIRBUILDER-RECIPEITEM-CONDITION-SLOT-BOOL-RECIPE-SIDECAR-BRIDGE-CURRENT-GATE-001, and leaves recipe attachment, RecipeMatcher authority, BoolRecipe lowering, MIR Compare/Branch emission, route/runtime authority, and Source Selfhost unclaimed.",
   "2026-07-09: 3351 runs the scoped first BoolRecipe compare publication parity row gate for selected_row_id=var_le_literal, records bool_recipe_compare_publication_first_parity_row_gate=1, publication_rows=1, read_only_bool_recipe_compare_publication=1, selects MIRBUILDER-RECIPEITEM-CONDITION-SLOT-BOOL-RECIPE-BRIDGE-SELECTION-001, and leaves recipe attachment, RecipeMatcher authority, BoolRecipe lowering, MIR Compare/Branch emission, route/runtime authority, and Source Selfhost unclaimed.",
   "2026-07-09: 3350 selects the first scoped BoolRecipe compare publication parity row after the MapStoreI64 `.hako` fast-path shadow-consume gate is green, records bool_recipe_compare_publication_first_parity_row_selected=1, selected_row_id=var_le_literal, selection_only=1, selects MIRBUILDER-BOOL-RECIPE-COMPARE-PUBLICATION-FIRST-PARITY-ROW-GATE-001, and leaves parity execution, recipe attachment, RecipeMatcher authority, BoolRecipe lowering, MIR Compare/Branch emission, route/runtime authority, and Source Selfhost unclaimed.",
   "2026-07-09: 3349 expands the SetSurfacePolicy / MapStoreI64 `.hako` fast-path shadow-consume guard with explicit mismatch rows for route kind, core op, and mirror role drift, records hako_shadow_mismatch_guard_expanded=1, route_kind_mismatch_rejected=1, core_op_mismatch_rejected=1, role_mismatch_rejected=1, rust_authority_retained=1, selects MIRBUILDER-BOOL-RECIPE-COMPARE-PUBLICATION-FIRST-PARITY-ROW-SELECTION-001, and leaves route/runtime authority switches, .hako runtime/backend authority, runtime mutation/publication execution, new backend/ABI, and Source Selfhost unclaimed.",
@@ -373,5 +374,4 @@ landed_tail = [
   "2026-07-09: 3343 taskizes the post-3342 reachability review, selects MIRBUILDER-ARTIFACT-REACHABILITY-CLASSIFICATION-INVENTORY-001 before resuming ScalarKnown MapStoreI64 shadow-consumption, requires an active latest/current scoped guard resolver instead of running every rust_lifecycle guard by default, and leaves Rust fast-path rewiring, .hako runtime route authority, backend lowering authority, all-guard CI/dev_gate execution, new backend/ABI, and Source Selfhost unclaimed.",
   "2026-07-09: 3342 consumes the ScalarKnown fast-path .hako connection consultation, selects shadow-consumption first instead of an authority switch, chooses SetSurfacePolicy / MapStoreI64 as the first surface, selects MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-SHADOW-CONSUME-SET-MAPSTORE-I64-001, and leaves .hako runtime route authority, backend lowering authority, route selection authority, runtime mutation authority, new backend/ABI, and Source Selfhost unclaimed.",
   "2026-07-09: 3341 inventories ScalarKnown .hako adoption versus Rust fast-path connection, records contract_fastpath_connected=0 and hako_fastpath_runtime_connection=0, pauses the ScalarKnown Write closeout chain, selects MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-CONNECTION-DESIGN-CONSULTATION-001, and leaves Rust fast-path rewiring, .hako runtime route authority, backend lowering authority, WriteScalarI64Routes closeout, ScalarKnownTransportAxis closeout, new backend/ABI, and Source Selfhost unclaimed.",
-  "2026-07-09: 2146 defines the basis-only direct closeout contract for the adopted SetSurfacePolicy / MapStoreAny Write surface, records the Any write boundary as declared metadata only, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-DIRECT-CLOSEOUT-RERUN-001, and leaves direct closeout, WriteScalarI64Routes closeout, ScalarKnownTransportAxis closeout, runtime mutation authority, publication execution, new backend/ABI, and Source Selfhost unclaimed.",
 ]
