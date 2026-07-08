@@ -1,0 +1,151 @@
+{
+  "claims": {
+    "behavior_change": 0,
+    "component_specific_direct_contract_materialized": 0,
+    "direct_whole_write_contract_basis": 0,
+    "hako_adopted_decision": 0,
+    "hako_adoption": 0,
+    "hako_generation": 0,
+    "manual_axis_selection": 0,
+    "manual_carrier_selection": 0,
+    "manual_subsurface_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "new_route_authority": 0,
+    "owner_name_as_proof": 0,
+    "route_count_as_proof": 0,
+    "route_membership_alone_as_proof": 0,
+    "runtime_fallback": 0,
+    "scalar_known_transport_axis_closeout": 0,
+    "source_path_as_authority": 0,
+    "source_selfhost_claim": 0,
+    "write_direct_closeout_materialized": 0,
+    "write_result_policy_basis_consumed": 1,
+    "write_result_policy_ready": 0,
+    "write_result_policy_rerun": 1,
+    "write_scalar_i64_routes_closeout": 0,
+    "write_subsurface_priority_basis_selected": 1,
+    "write_subsurface_split_required": 1,
+    "write_surface_whole_direct_contract_rejected": 1
+  },
+  "decision": {
+    "kind": "SelectWriteSubsurfacePriorityBasis",
+    "reason_token": "MultipleWriteSubsurfacesRequirePriorityBasis",
+    "selected_next_card": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SUBSURFACE-PRIORITY-BASIS-001",
+    "selected_subsurface": null
+  },
+  "evaluated_policy": {
+    "normalized_signature_count": 3,
+    "normalized_signatures": [
+      "NoneResult::NonePublication::MutatesReceiverOrContainer",
+      "ScalarI64Result::NoPublication::MutatesReceiverOrContainer",
+      "ScalarI64Result::NonePublication::MutatesReceiverOrContainer"
+    ],
+    "policy_id": "WriteResultPolicyV1",
+    "route_kind_set": [
+      "ArrayAppendAny",
+      "MapDeleteAny",
+      "MapStoreI64",
+      "MapStoreAny"
+    ],
+    "subsurface_count": 3,
+    "target_surface_id": "WriteScalarI64Routes",
+    "whole_direct_contract_allowed": false,
+    "whole_direct_contract_blocked_by": [
+      "MixedReturnPublicationNotStableDirectContract",
+      "MultipleWriteSubsurfaceResultPublicationSignatures"
+    ]
+  },
+  "input_state": {
+    "basis_decision": "SelectWriteResultPolicyRerun",
+    "basis_selected_next_card": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-RESULT-POLICY-RERUN-001",
+    "basis_write_direct_closeout_materialized": 0,
+    "basis_write_result_policy_ready": 0,
+    "write_result_policy_basis": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-write-result-policy-basis-v0.json"
+  },
+  "kind": "MirBuilderCarrierTypeScalarKnownWriteResultPolicyRerunV1",
+  "priority_candidates": [
+    {
+      "blocked_by": [
+        "NoWriteSubsurfacePriorityBasis"
+      ],
+      "future_direct_contract_split_allowed": true,
+      "mutation_class": "MutatesReceiverOrContainer",
+      "normalized_result_class": "ScalarI64Result",
+      "publication_class": "NoPublication",
+      "route_count": 1,
+      "routes": [
+        "ArrayAppendAny"
+      ],
+      "selection_eligible_without_priority_basis": false,
+      "subsurface_id": "PushSurfacePolicy"
+    },
+    {
+      "blocked_by": [
+        "NoWriteSubsurfacePriorityBasis"
+      ],
+      "future_direct_contract_split_allowed": true,
+      "mutation_class": "MutatesReceiverOrContainer",
+      "normalized_result_class": "ScalarI64Result",
+      "publication_class": "NonePublication",
+      "route_count": 1,
+      "routes": [
+        "MapDeleteAny"
+      ],
+      "selection_eligible_without_priority_basis": false,
+      "subsurface_id": "DeleteSurfacePolicy"
+    },
+    {
+      "blocked_by": [
+        "NoWriteSubsurfacePriorityBasis"
+      ],
+      "future_direct_contract_split_allowed": true,
+      "mutation_class": "MutatesReceiverOrContainer",
+      "normalized_result_class": "NoneResult",
+      "publication_class": "NonePublication",
+      "route_count": 2,
+      "routes": [
+        "MapStoreI64",
+        "MapStoreAny"
+      ],
+      "selection_eligible_without_priority_basis": false,
+      "subsurface_id": "SetSurfacePolicy"
+    }
+  ],
+  "provenance": {
+    "generated_descriptor_hash": "427f5c9387c594a81a25495025966a06fa77ad97f49bd3d1204a91ffb61b1716",
+    "rust_boundary_hash": "443b1813fc70de66c90b3c76e074c5aac7542d33207dfaed7dc71755d9bd6bb0",
+    "write_result_policy_basis_hash": "0ba153a60b4ee9c26f9f5ff2b2d97ef8bede5df456a1fecd38a62b50a7fc30e8",
+    "write_source_hash": "a099f2f6b422e6e6a454d0a6e10c74bfd649155b24ba2ebc760208de5c7caa22"
+  },
+  "schema_version": 0,
+  "selector_rule": {
+    "if_multiple_subsurfaces_require_priority_basis": true,
+    "manual_subsurface_selection": false,
+    "mixed_return_publication_forbids_whole_direct_contract": true,
+    "name": "WriteResultPolicyRerunSelectorV1",
+    "owner_name_as_proof": false,
+    "route_count_as_proof": false,
+    "route_membership_alone_as_proof": false,
+    "source_path_as_authority": false,
+    "subsurface_selection_requires_priority_basis": true,
+    "whole_direct_contract_requires_single_normalized_signature": true
+  },
+  "summary": {
+    "scalar_known_transport_axis_closeout": 0,
+    "source_selfhost_claim": 0,
+    "whole_direct_contract_candidate_count": 0,
+    "write_direct_closeout_materialized": 0,
+    "write_result_policy_basis_consumed": 1,
+    "write_result_policy_ready": 0,
+    "write_result_policy_rerun": 1,
+    "write_scalar_i64_routes_closeout": 0,
+    "write_subsurface_candidate_count": 3,
+    "write_subsurface_priority_basis_selected": 1,
+    "write_subsurface_split_required": 1,
+    "write_surface_whole_direct_contract_rejected": 1
+  },
+  "token": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-RESULT-POLICY-RERUN-001"
+}
