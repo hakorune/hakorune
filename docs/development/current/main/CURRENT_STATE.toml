@@ -345,16 +345,16 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-COMPARE-PROOF-BRIDGE-DELETE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3347-MIRBUILDER-COMPARE-PROOF-BRIDGE-DELETE-001.md"
-latest_card_summary = """3347 deletes the proof-only compare bridge cluster
-from the live Rust builder module surface, removes the six bridge files and
-builder.rs module declarations, keeps live compare lowering on
-ops/comparison.rs -> ssa::local::finalize_compare -> emission::compare::emit_to,
-and returns to the ScalarKnown MapStoreI64 fast-path `.hako` shadow-consume
-handoff without claiming Source Selfhost."""
+latest_card = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-SHADOW-CONSUME-SET-MAPSTORE-I64-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3348-MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-SHADOW-CONSUME-SET-MAPSTORE-I64-001.md"
+latest_card_summary = """3348 connects the scoped SetSurfacePolicy /
+MapStoreI64 `.hako` classifier mirror to the Rust fast-path decision point as
+a shadow-consumed artifact, compares the `.hako` policy row against the Rust
+decision tuple, keeps Rust route authority retained, and leaves route/runtime
+authority switches, backend lowering authority, new backend/ABI, runtime
+fallback, and Source Selfhost unclaimed."""
 
-current_blocker_token = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-SHADOW-CONSUME-SET-MAPSTORE-I64-001"
+current_blocker_token = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-SHADOW-CONSUME-MISMATCH-GUARD-EXPANSION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -363,6 +363,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-09: 3348 connects the SetSurfacePolicy / MapStoreI64 `.hako` classifier mirror to the Rust fast-path decision point as a shadow-consumed artifact, records hako_artifact_fastpath_shadow_consumed=1, rust_hako_policy_match=1, mismatch_policy=fail_fast_guard, rust_authority_retained=1, selects MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-SHADOW-CONSUME-MISMATCH-GUARD-EXPANSION-001, and leaves route/runtime authority switches, .hako runtime/backend authority, runtime mutation/publication execution, new backend/ABI, and Source Selfhost unclaimed.",
   "2026-07-09: 3347 deletes the proof-only compare bridge cluster from the live Rust builder module surface, removes six bridge files and builder.rs module declarations, updates the reachability inventory to deleted_file_count=6, verifies live compare lowering remains on ops/comparison.rs via finalize_compare/emit_to, selects MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-SHADOW-CONSUME-SET-MAPSTORE-I64-001, and leaves route/runtime authority, .hako runtime/backend authority, new backend/ABI, and Source Selfhost unclaimed.",
   "2026-07-09: 3346 opens MIRBUILDER-COMPARE-PROOF-BRIDGE-PARK-OR-CONNECT-DESIGN-STOP-001, records the six compare proof bridge files as production-unconnected proof-only Rust code, asks whether to delete, park as proof-only, or connect a minimal subset, selects CONSULTATION_REQUIRED, and leaves bridge deletion/parking/production connection, compare behavior changes, route/runtime authority, new backend/ABI, and Source Selfhost unclaimed.",
   "2026-07-09: 3345 installs the active rust_lifecycle guard resolver, resolves only latest/current guards, records latest_guard_resolved=1, current_blocker_guard_pending=1, runnable_guard_count=1, run_all_rust_lifecycle_guards_by_default=0, selects MIRBUILDER-COMPARE-PROOF-BRIDGE-PARK-OR-CONNECT-DESIGN-STOP-001, and leaves all-guard CI/dev_gate execution, .hako runtime route authority, Rust fast-path rewiring, and Source Selfhost unclaimed.",
@@ -374,5 +375,4 @@ landed_tail = [
   "2026-07-09: 2145 reruns the Write Set scoped surface selector after the Set MapStoreAny .hako adoption decision, finds exactly one adopted-but-unmaterialized scoped surface for SetSurfacePolicy / MapStoreAny, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-DIRECT-CLOSEOUT-CONTRACT-BASIS-001, and leaves direct closeout, WriteScalarI64Routes closeout, ScalarKnownTransportAxis closeout, runtime mutation authority, publication execution, new backend/ABI, and Source Selfhost unclaimed.",
   "2026-07-09: 2144 adopts the Set MapStoreAny .hako classifier/policy mirror after the green one-row Rust-oracle parity gate, keeps the Any write boundary as declared metadata only, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-POST-ADOPTION-RERUN-001, and leaves direct closeout, WriteScalarI64Routes closeout, ScalarKnownTransportAxis closeout, runtime mutation authority, publication execution, new backend/ABI, and Source Selfhost unclaimed.",
   "2026-07-09: 2143 proves the Set MapStoreAny .hako classifier/policy mirror against the Rust oracle fixture with parity_rows=1 and parity_status=green, keeps the Any write boundary as declared metadata only, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-HAKO-ADOPTION-DECISION-001, and leaves direct closeout, WriteScalarI64Routes closeout, ScalarKnownTransportAxis closeout, runtime mutation authority, publication execution, new backend/ABI, and Source Selfhost unclaimed.",
-  "2026-07-09: 2142 lands the narrow Set Write .hako implementation pilot for SetSurfacePolicy / MapStoreAny as a classifier/policy mirror, carries the Any write boundary as declared metadata only, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-PARITY-GATE-001, and leaves Any write boundary opening, adoption, direct closeout, WriteScalarI64Routes closeout, ScalarKnownTransportAxis closeout, runtime mutation authority, publication execution, new backend/ABI, and Source Selfhost unclaimed.",
 ]

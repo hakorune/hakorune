@@ -24,6 +24,7 @@ mod map_set_scalar_proof;
 mod mir_json_routes;
 mod model;
 mod origin_inference;
+mod scalar_known_hako_shadow;
 mod scalar_known_typed_direct_closeout_contract;
 mod string_routes;
 mod write_routes;

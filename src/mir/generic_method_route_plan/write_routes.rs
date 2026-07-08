@@ -8,7 +8,7 @@ use crate::mir::{BasicBlockId, Callee, MirFunction, MirInstruction};
 
 use super::{
     generic_array_flow_origin_box_name, method_args_without_redundant_receiver,
-    FieldHandleOriginMap, GenericMethodRoute, GenericMethodRouteDecision,
+    scalar_known_hako_shadow, FieldHandleOriginMap, GenericMethodRoute, GenericMethodRouteDecision,
     GenericMethodRouteEvidence, GenericMethodRouteKind, GenericMethodRouteOperands,
     GenericMethodRouteProof, GenericMethodRouteSite, GenericMethodRouteSurface,
 };
@@ -146,12 +146,9 @@ pub(super) fn match_generic_set_route(
 
     let value_origin_box = receiver_origin_box_name(function, def_map, args[1]);
 
-    Some(GenericMethodRoute::new(
-        GenericMethodRouteSite::new(block, instruction_index),
-        GenericMethodRouteSurface::new(box_name.clone(), method.clone(), 2),
-        GenericMethodRouteEvidence::new(receiver_origin_box, Some(key_route))
-            .with_value_origin_box(value_origin_box),
-        GenericMethodRouteOperands::new(*receiver, Some(args[0]), *dst),
+    let decision = if route_kind == GenericMethodRouteKind::MapStoreI64 {
+        scalar_known_hako_shadow::mapstore_i64_shadow_consumed_decision()
+    } else {
         GenericMethodRouteDecision::new(
             route_kind,
             GenericMethodRouteProof::SetSurfacePolicy,
@@ -162,7 +159,16 @@ pub(super) fn match_generic_set_route(
             None,
             GenericMethodValueDemand::WriteAny,
             None,
-        ),
+        )
+    };
+
+    Some(GenericMethodRoute::new(
+        GenericMethodRouteSite::new(block, instruction_index),
+        GenericMethodRouteSurface::new(box_name.clone(), method.clone(), 2),
+        GenericMethodRouteEvidence::new(receiver_origin_box, Some(key_route))
+            .with_value_origin_box(value_origin_box),
+        GenericMethodRouteOperands::new(*receiver, Some(args[0]), *dst),
+        decision,
     ))
 }
 
