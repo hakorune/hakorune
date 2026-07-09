@@ -33,6 +33,12 @@ lines, so physical test separation is the unique dependency root for the
 3. Add a guard that enforces the split, the 800-line ceiling, and the existing
    scalar-known shadow tests.
 
+Guard:
+
+```text
+tools/checks/rust_lifecycle_mirbuilder_scalar_known_hako_shadow_test_split_guard.sh
+```
+
 ## Acceptance
 
 ```text
@@ -57,4 +63,16 @@ publication_execution = 0
 new_backend_route = 0
 new_abi = 0
 source_selfhost_claim = 0
+```
+
+## Result
+
+```text
+shadow_test_boxshape_split = 1
+production_behavior_changed = 0
+accepted_route_shape_changed = 0
+scalar_known_hako_shadow_source_under_800_lines = 1
+scalar_known_hako_shadow_tests = 19 passed
+selected_next_card =
+  MIRBUILDER-SCALAR-KNOWN-FASTPATH-READ-POLICY-ROW-IDENTITY-TRANSPORT-001
 ```
