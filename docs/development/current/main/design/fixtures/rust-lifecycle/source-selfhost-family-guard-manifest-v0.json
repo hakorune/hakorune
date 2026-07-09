@@ -2,7 +2,7 @@
   "schema_version": 0,
   "kind": "SourceSelfhostFamilyGuardManifestV1",
   "family_scope": "SourceSelfhost",
-  "current_blocker_token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-READ-CALLER-ORIENTATION-DESIGN-STOP-001",
+  "current_blocker_token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-SET-MAPSTORE-I64-CALLER-ORIENTATION-CONTRACT-ARTIFACT-001",
   "guard_policy": {
     "historical_row_guards_remain_callable": 1,
     "new_rows_prefer_family_guard": 1,
@@ -2893,6 +2893,13 @@
     {
       "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-CALLER-ORIENTATION-LIVE-CONSUMER-DESIGN-STOP-001",
       "card": "docs/development/current/main/phases/phase-296x/3424-MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-CALLER-ORIENTATION-LIVE-CONSUMER-DESIGN-STOP-001.md",
+      "fixture": "",
+      "legacy_guard": "tools/checks/rust_lifecycle_source_selfhost_family_guard.sh",
+      "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-SET-MAPSTORE-I64-CALLER-ORIENTATION-CONTRACT-ARTIFACT-001",
+      "card": "docs/development/current/main/phases/phase-296x/3432-MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-SET-MAPSTORE-I64-CALLER-ORIENTATION-CONTRACT-ARTIFACT-001.md",
       "fixture": "",
       "legacy_guard": "tools/checks/rust_lifecycle_source_selfhost_family_guard.sh",
       "role": "current_queue"

@@ -22,10 +22,10 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-READ-CALLER-ORIENTATION-DESIGN-STOP-001
+  MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-SET-MAPSTORE-I64-CALLER-ORIENTATION-CONTRACT-ARTIFACT-001
 
 resolved design stop:
-  MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-CALLER-ORIENTATION-LIVE-CONSUMER-DESIGN-STOP-001
+  MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-READ-CALLER-ORIENTATION-DESIGN-STOP-001
 
 selection authority:
   LocalMechanicalSelectorAuthorityV1
@@ -33,13 +33,15 @@ selection authority:
   + exact-one compiler-side assertion consumer
 
 active_packet:
-  id = READ_CALLER_ORIENTATION_ASSERTION_PACKET_V1
-  3425 = MIRBUILDER-SCALAR-KNOWN-HAKO-SHADOW-TEST-SPLIT-001
-  3426 = MIRBUILDER-SCALAR-KNOWN-FASTPATH-READ-POLICY-ROW-IDENTITY-TRANSPORT-001
-  3427 = MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-CALLER-ORIENTATION-LIVE-ASSERT-CONSUMER-001
-  3428 = MIRBUILDER-SCALAR-KNOWN-FASTPATH-STRING-CALLER-ORIENTATION-LIVE-ASSERT-CONSUMER-001
-  3429 = MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-CALLER-ORIENTATION-LIVE-ASSERT-CONSUMER-001
-  3430 = MIRBUILDER-SCALAR-KNOWN-FASTPATH-READ-CALLER-ORIENTATION-ASSERTION-CLOSEOUT-001
+  id = NON_DELETE_WRITE_CALLER_ORIENTATION_ASSERTION_PACKET_V1
+  3432 = MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-SET-MAPSTORE-I64-CALLER-ORIENTATION-CONTRACT-ARTIFACT-001
+  3433 = MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-PUSH-ARRAYAPPENDANY-CALLER-ORIENTATION-CONTRACT-ARTIFACT-001
+  3434 = MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-SET-MAPSTORE-ANY-CALLER-ORIENTATION-CONTRACT-ARTIFACT-001
+  3435 = MIRBUILDER-SCALAR-KNOWN-FASTPATH-NON-DELETE-WRITE-POLICY-ROW-IDENTITY-TRANSPORT-001
+  3436 = MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-SET-MAPSTORE-I64-CALLER-ORIENTATION-LIVE-ASSERT-CONSUMER-001
+  3437 = MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-PUSH-ARRAYAPPENDANY-CALLER-ORIENTATION-LIVE-ASSERT-CONSUMER-001
+  3438 = MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-SET-MAPSTORE-ANY-CALLER-ORIENTATION-LIVE-ASSERT-CONSUMER-001
+  3439 = MIRBUILDER-SCALAR-KNOWN-FASTPATH-NON-DELETE-WRITE-CALLER-ORIENTATION-ASSERTION-CLOSEOUT-001
 
 packet contract:
   consumer_kind = CompilerSideFailFastAssertion
@@ -47,7 +49,7 @@ packet contract:
   consumer_input = PolicyRowIdOnly
   route_kind_input = forbidden
   core_op_input = forbidden
-  receiver_domain_input = forbidden
+  mutation_effect_value_boundary_input = forbidden
   route_decision_input = forbidden
   caller_orientation_runtime_path = 0
   route_selection_authority_switch = 0
@@ -59,15 +61,14 @@ packet contract:
 stop_if:
   runtime-produced caller value required
   OR route selection required
-  OR receiver-domain semantics duplicated
+  OR mutation/effect/value-boundary semantics duplicated
   OR MIR/backend consumer required
   OR mutation/publication authority changes
   OR new ABI/backend route/fallback required
 
 next_after_packet:
-  MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-READ-CALLER-ORIENTATION-DESIGN-STOP-001
-  consult before authority-bearing caller orientation, Delete revival, or a
-  scope-limited non-Delete metadata packet; do not choose before 3430.
+  consult Pro before authority-bearing caller orientation, Delete revival,
+  ScalarKnown-wide authority, or Source Selfhost re-entry.
 
 latest design decision:
   3253 implements MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-NESTED-LOOP-REJECT-BOUNDARY-001: has_nested_loop=1 now rejects at the observe-only matcher boundary with reason=nested_loop_present.
@@ -410,8 +411,8 @@ trigger-based AOT/MIR typing debt:
   status=parked-until-triggered; order=2999/3000/3001 landed, then 3022 queue
   only when an active ProgramJSON gate hits Float Sub/Mul/Div, string relational
   compare, PHI dst_type, mir_call dst_type, or receiver-helper.
-next_documented_task = MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-READ-CALLER-ORIENTATION-DESIGN-STOP-001
-next_after_active_3 = MIRBUILDER-SCALAR-KNOWN-FASTPATH-STRING-CALLER-ORIENTATION-LIVE-ASSERT-CONSUMER-001
+next_documented_task = MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-SET-MAPSTORE-I64-CALLER-ORIENTATION-CONTRACT-ARTIFACT-001
+next_after_active_3 = MIRBUILDER-SCALAR-KNOWN-FASTPATH-NON-DELETE-WRITE-POLICY-ROW-IDENTITY-TRANSPORT-001
 follow_on_after_consume = select first BoolRecipe publication parity row only after consume gate is green
 
 task discipline =

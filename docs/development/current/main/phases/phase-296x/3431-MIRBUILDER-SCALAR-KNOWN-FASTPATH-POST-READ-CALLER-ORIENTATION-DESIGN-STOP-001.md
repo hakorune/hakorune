@@ -45,3 +45,64 @@ delete_hako_route_decision_authority_pilot = 0
 scalar_known_wide_authority = 0
 source_selfhost_claim = 0
 ```
+
+## Decision
+
+Three read-only worker inventories selected one exact mechanical continuation:
+extend the assertion-only pattern to the closed non-Delete Write set. This
+does not open a new authority boundary, so Pro consultation is deferred until
+the packet closes.
+
+```text
+selected_packet = NON_DELETE_WRITE_CALLER_ORIENTATION_ASSERTION_PACKET_V1
+consumer_input = PolicyRowIdOnly
+consumer_return = Unit
+mutation_metadata_copy = forbidden
+effect_metadata_copy = forbidden
+value_boundary_copy = forbidden
+Delete inclusion = forbidden
+```
+
+## Selected Packet
+
+```text
+3432 MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-SET-MAPSTORE-I64-CALLER-ORIENTATION-CONTRACT-ARTIFACT-001
+3433 MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-PUSH-ARRAYAPPENDANY-CALLER-ORIENTATION-CONTRACT-ARTIFACT-001
+3434 MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-SET-MAPSTORE-ANY-CALLER-ORIENTATION-CONTRACT-ARTIFACT-001
+3435 MIRBUILDER-SCALAR-KNOWN-FASTPATH-NON-DELETE-WRITE-POLICY-ROW-IDENTITY-TRANSPORT-001
+3436 MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-SET-MAPSTORE-I64-CALLER-ORIENTATION-LIVE-ASSERT-CONSUMER-001
+3437 MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-PUSH-ARRAYAPPENDANY-CALLER-ORIENTATION-LIVE-ASSERT-CONSUMER-001
+3438 MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-SET-MAPSTORE-ANY-CALLER-ORIENTATION-LIVE-ASSERT-CONSUMER-001
+3439 MIRBUILDER-SCALAR-KNOWN-FASTPATH-NON-DELETE-WRITE-CALLER-ORIENTATION-ASSERTION-CLOSEOUT-001
+```
+
+Stop if the consumer needs anything except policy row identity, if mutation or
+Any-boundary metadata must be copied into the caller contract, if Delete enters
+the closed set, or if route/runtime/backend/mutation/publication authority,
+fallback, ABI, or backend routes would change.
+
+## Deferred Pro Question
+
+After 3439, ask Pro to select the next authority-bearing boundary:
+
+```text
+Read 8 rows and non-Delete Write 3 rows now have metadata-only,
+PolicyRowIdOnly, Unit-returning fail-fast caller assertions. Delete remains a
+retired Rust-preserved route. Runtime dispatch, route selection, backend
+lowering, mutation/publication authority, ScalarKnown-wide authority, and
+Source Selfhost remain zero.
+
+Should the next step be:
+A. a MapLoad-only authority-bearing caller-orientation pilot;
+B. Delete revival from artifact + Rust oracle;
+C. a formally scoped non-Delete-wide basis;
+D. Source Selfhost freshness rerun and candidate resolution;
+E. park caller orientation?
+
+Define the proof axis, first claim allowed to become 1, required non-claims,
+whether ScalarKnown-wide includes Delete, and the fail-fast/no-fallback rule.
+```
+
+Current wider Source Selfhost evidence is candidate=0 and route-repair=0. A
+freshness-only re-entry, if selected later, begins with
+`SOURCE-SELFHOST-NATIVE-OWNER-CHECKPOINT-RERUN-003`.
