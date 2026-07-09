@@ -5,9 +5,7 @@ use crate::mir::core_method_op::{CoreMethodLoweringTier, CoreMethodOp};
 use crate::mir::generic_method_route_facts::{
     GenericMethodPublicationPolicy, GenericMethodReturnShape, GenericMethodValueDemand,
 };
-use crate::mir::generic_method_route_plan::{
-    GenericMethodRouteKind, GenericMethodRouteProof,
-};
+use crate::mir::generic_method_route_plan::{GenericMethodRouteKind, GenericMethodRouteProof};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) struct HakoMapLoadScalarI64Policy {

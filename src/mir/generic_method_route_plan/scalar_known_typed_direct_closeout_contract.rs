@@ -227,10 +227,7 @@ mod tests {
             accepted[1].contract_id.as_str(),
             "StringSearchScalarI64TypedDirectCloseoutContract"
         );
-        assert_eq!(
-            accepted[2].surface_id.as_str(),
-            "CollectionScalarI64Routes"
-        );
+        assert_eq!(accepted[2].surface_id.as_str(), "CollectionScalarI64Routes");
         assert_eq!(accepted[3].surface_id.as_str(), "WriteScalarI64Routes");
     }
 

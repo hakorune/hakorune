@@ -1,7 +1,5 @@
 use crate::mir::core_method_op::{CoreMethodLoweringTier, CoreMethodOp, CoreMethodOpCarrier};
-use crate::mir::generic_method_route_facts::{
-    receiver_origin_box_name, GenericMethodValueDemand,
-};
+use crate::mir::generic_method_route_facts::{receiver_origin_box_name, GenericMethodValueDemand};
 use crate::mir::string_corridor::StringCorridorOp;
 use crate::mir::value_origin::ValueDefMap;
 use crate::mir::{BasicBlockId, Callee, MirFunction, MirInstruction};
@@ -12,8 +10,8 @@ use super::flow_origin::{
     generic_string_receiver_origin_box_name_with_flow, GenericPureStringFlowAnalysis,
 };
 use super::{
-    method_args_without_redundant_receiver, string_corridor_method_origin_box_name,
-    scalar_known_hako_shadow, GenericMethodRoute, GenericMethodRouteDecision,
+    method_args_without_redundant_receiver, scalar_known_hako_shadow,
+    string_corridor_method_origin_box_name, GenericMethodRoute, GenericMethodRouteDecision,
     GenericMethodRouteEvidence, GenericMethodRouteKind, GenericMethodRouteOperands,
     GenericMethodRouteProof, GenericMethodRouteSite, GenericMethodRouteSurface,
 };

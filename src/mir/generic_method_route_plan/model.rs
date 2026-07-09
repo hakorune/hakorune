@@ -273,7 +273,6 @@ impl GenericMethodRouteDecision {
             publication_policy,
         }
     }
-
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
