@@ -1,0 +1,114 @@
+{
+  "basis": {
+    "authority_source": "WRITE_SET_MAPSTORE_I64_HAKO_POLICY",
+    "basis_only": true,
+    "implementation_deferred": true,
+    "mismatch_policy": "FailFast",
+    "proof_axis": [
+      "ReadSurfaceAuthorityCloseoutPrecedesWriteAuthority",
+      "TypedScalarWriteBeforeAnyWrite",
+      "PriorGeneratedTypedArtifactShadowConsumed",
+      "RustOracleCompatFailFastRetained"
+    ],
+    "route_kind": "MapStoreI64",
+    "rust_oracle_compat_checker_retained": true,
+    "selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-SET-MAPSTORE-I64-HAKO-ROUTE-DECISION-AUTHORITY-PILOT-001",
+    "surface": "SetSurfacePolicy/MapStoreI64"
+  },
+  "claims": {
+    "apparent_simplicity_as_proof": 0,
+    "arrayappend_authority": 0,
+    "backend_lowering_authority": 0,
+    "basis_only": 1,
+    "behavior_change": 0,
+    "build_rs_hako_compiler_invocation": 0,
+    "caller_orientation_runtime_path": 0,
+    "hako_generation": 0,
+    "live_hako_authority": 0,
+    "manual_surface_selection": 0,
+    "mapdelete_authority": 0,
+    "mapstore_authority": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "new_route_authority": 0,
+    "owner_name_as_proof": 0,
+    "prior_generated_typed_artifact_shadow_consumed": 1,
+    "publication_execution": 0,
+    "read_surface_authority_closeout_precedes_write_authority": 1,
+    "route_count_as_proof": 0,
+    "route_membership_alone_as_proof": 0,
+    "route_selection_authority_switch": 0,
+    "runtime_fallback": 0,
+    "runtime_mutation_authority": 0,
+    "rust_fastpath_rewired": 0,
+    "rust_oracle_compat_fail_fast_retained": 1,
+    "scalar_known_hako_runtime_route_authority": 0,
+    "scalar_known_transport_axis_authority_switch": 0,
+    "source_path_as_authority": 0,
+    "source_selfhost_claim": 0,
+    "typed_scalar_write_before_any_write": 1,
+    "write_mutation_authority": 0,
+    "write_publication_authority": 0,
+    "write_set_mapstore_i64_hako_authority_pilot_basis": 1,
+    "write_surface_authority_pilot": 0
+  },
+  "decision": {
+    "kind": "SelectWriteSetMapStoreI64RouteDecisionAuthorityPilotImplementation",
+    "reason_token": "TypedScalarWriteBoundaryBeforeAnyWrite",
+    "selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-SET-MAPSTORE-I64-HAKO-ROUTE-DECISION-AUTHORITY-PILOT-001"
+  },
+  "input_state": {
+    "design_stop_card": "docs/development/current/main/phases/phase-296x/3402-MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-SURFACE-AUTHORITY-PILOT-DESIGN-STOP-001.md",
+    "design_stop_card_hash": "e3d38c3939a572de47fc763d936d6e0853f9ce0297e9612441960338cc053654",
+    "prior_shadow_consume_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-hako-generated-typed-artifact-shadow-consume-set-mapstore-i64-v0.json",
+    "prior_shadow_consume_fixture_hash": "fbe672566c584e9d3d42cc4bef171789074383abe43941bf46f3f11f46151875",
+    "prior_shadow_consumed": 1,
+    "read_surface_authority_closeout_precedes_write_basis": true
+  },
+  "kind": "MirBuilderScalarKnownFastpathWriteSetMapStoreI64HakoAuthorityPilotBasisV1",
+  "provenance": {
+    "mapstore_i64_generated_typed_artifact": {
+      "path": "src/mir/generic_method_route_plan/generated/write_set_mapstore_i64_hako_policy.rs",
+      "sha256": "21975493831b4b080c98aeb836d6a69cbb9b3605d5a7636aed49c4653d411508"
+    },
+    "shadow_consumer": {
+      "path": "src/mir/generic_method_route_plan/scalar_known_hako_shadow.rs",
+      "sha256": "76ef8ddcac959016299205cd26e022f12786a56372807efc33db1a573a3834ff"
+    },
+    "write_routes": {
+      "path": "src/mir/generic_method_route_plan/write_routes.rs",
+      "sha256": "c64f78043676f935f8c92d0a83cc642b8d93bf27eb81da441a2400f819f23f59"
+    }
+  },
+  "schema_version": 0,
+  "summary": {
+    "basis_only": 1,
+    "mapstore_authority": 0,
+    "prior_generated_typed_artifact_shadow_consumed": 1,
+    "publication_execution": 0,
+    "runtime_mutation_authority": 0,
+    "rust_oracle_compat_fail_fast_retained": 1,
+    "scalar_known_hako_runtime_route_authority": 0,
+    "selected_surface": "SetSurfacePolicy/MapStoreI64",
+    "source_selfhost_claim": 0,
+    "typed_scalar_write_before_any_write": 1,
+    "write_set_mapstore_i64_hako_authority_pilot_basis": 1,
+    "write_surface_authority_pilot": 0
+  },
+  "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-SET-MAPSTORE-I64-HAKO-AUTHORITY-PILOT-BASIS-001",
+  "write_shape": {
+    "core_op": "MapSet",
+    "effect_class": "mutate",
+    "lowering_tier": "ColdFallback",
+    "mutation_class": "MutatesReceiverOrContainer",
+    "publication_policy": "NonePublication",
+    "result_class": "NoneResult",
+    "return_shape": "None",
+    "route_kind": "MapStoreI64",
+    "surface": "SetSurfacePolicy",
+    "value_boundary": "ScalarI64",
+    "value_demand": "WriteAny"
+  }
+}
