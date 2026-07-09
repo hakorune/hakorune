@@ -422,8 +422,8 @@ trigger-based AOT/MIR typing debt:
   status=parked-until-triggered; order=2999/3000/3001 landed, then 3022 queue
   only when an active ProgramJSON gate hits Float Sub/Mul/Div, string relational
   compare, PHI dst_type, mir_call dst_type, or receiver-helper.
-next_documented_task = MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-NARROW-CALLER-ORIENTATION-BASIS-001
-next_after_active_3 = MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-NARROW-CALLER-ORIENTATION-BASIS-001
+next_documented_task = MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-CALLER-ORIENTATION-CONTRACT-ARTIFACT-001
+next_after_active_3 = MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-CALLER-ORIENTATION-CONTRACT-ARTIFACT-001
 follow_on_after_consume = select first BoolRecipe publication parity row only after consume gate is green
 
 task discipline =

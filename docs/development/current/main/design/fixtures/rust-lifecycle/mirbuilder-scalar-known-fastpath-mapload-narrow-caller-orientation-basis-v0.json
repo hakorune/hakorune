@@ -60,7 +60,7 @@
   "decision": {
     "implementation_deferred": true,
     "kind": "AdoptMapLoadNarrowCallerOrientationBasisOnly",
-    "selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-NARROW-CALLER-ORIENTATION-BASIS-001"
+    "selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-CALLER-ORIENTATION-CONTRACT-ARTIFACT-001"
   },
   "input_state": {
     "basis_surface": "MapLoadScalarI64Routes",

@@ -32,9 +32,9 @@ def need(condition, message):
 
 
 token = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-NARROW-CALLER-ORIENTATION-BASIS-001"
+next_card = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-CALLER-ORIENTATION-CONTRACT-ARTIFACT-001"
 need(fixture.get("token") == token, "bad token")
-need(token in card and token in task_order, "token pointer drift")
-need(manifest.get("current_blocker_token") == token, "manifest current blocker drift")
+need(token in card and next_card in task_order, "task chain pointer drift")
 need(token in {row.get("token") for row in manifest.get("rows", [])}, "manifest missing token")
 
 basis = fixture.get("basis") or {}
@@ -54,6 +54,7 @@ for key in ["runtime_consumer", "backend_lowering_consumer", "mutation_consumer"
 decision = fixture.get("decision") or {}
 need(decision.get("kind") == "AdoptMapLoadNarrowCallerOrientationBasisOnly", "decision drift")
 need(decision.get("implementation_deferred") is True, "implementation must remain deferred")
+need(decision.get("selected_next_card") == next_card, "selected next card drift")
 
 claims = fixture.get("claims") or {}
 for key in [

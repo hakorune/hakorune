@@ -345,16 +345,17 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-NARROW-CALLER-ORIENTATION-BASIS-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3420-MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-NARROW-CALLER-ORIENTATION-BASIS-001.md"
-latest_card_summary = """3420 defines a MapLoadScalarI64Routes-only
-caller-orientation basis. The basis is contract metadata only and retains the
-existing scoped `.hako` route-decision authority, Rust oracle/compat checker,
-and mismatch fail-fast boundary. Caller runtime dispatch, route selection
-switch, backend lowering, mutation, publication, ScalarKnown-wide authority,
-Delete authority, and Source Selfhost remain unclaimed."""
+latest_card = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-CALLER-ORIENTATION-CONTRACT-ARTIFACT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3421-MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-CALLER-ORIENTATION-CONTRACT-ARTIFACT-001.md"
+latest_card_summary = """3421 is the active implementation task for a
+hand-authored MapLoad caller-orientation `.hako` contract and its checked-in
+generated typed Rust artifact. The contract must reference the existing policy
+row without duplicating route semantics, and no live runtime/backend consumer
+may be added. The contract and artifact are not materialized yet; caller runtime
+dispatch, route selection, lowering, mutation, publication, ScalarKnown-wide
+authority, Delete authority, and Source Selfhost remain unclaimed."""
 
-current_blocker_token = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-NARROW-CALLER-ORIENTATION-BASIS-001"
+current_blocker_token = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-CALLER-ORIENTATION-CONTRACT-ARTIFACT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
