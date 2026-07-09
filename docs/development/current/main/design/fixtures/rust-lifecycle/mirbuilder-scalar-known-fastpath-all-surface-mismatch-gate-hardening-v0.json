@@ -1,0 +1,179 @@
+{
+  "claims": {
+    "all_scalar_known_shadow_mismatch_gate_current": 1,
+    "all_surface_mismatch_gate_hardening": 1,
+    "backend_lowering_authority": 0,
+    "behavior_change": 0,
+    "build_rs_hako_compiler_invocation": 0,
+    "caller_orientation_runtime_path": 0,
+    "generated_typed_artifact_drift_check_current": 1,
+    "hako_generation": 0,
+    "hako_runtime_route_authority": 0,
+    "live_hako_authority": 0,
+    "manual_surface_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "new_route_authority": 0,
+    "owner_name_as_proof": 0,
+    "publication_execution": 0,
+    "route_count_as_proof": 0,
+    "route_membership_alone_as_proof": 0,
+    "route_selection_authority_switch": 0,
+    "row_count_as_proof": 0,
+    "runtime_fallback": 0,
+    "runtime_hako_source_text_parsing": 0,
+    "runtime_mutation_authority": 0,
+    "rust_authority_retained": 1,
+    "rust_fastpath_rewired": 0,
+    "shadow_consumer_mismatch_tests_current": 1,
+    "source_path_as_authority": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "SelectMapLoadAuthorityPilotDesignConsultation",
+    "reason_token": "AllSurfaceMismatchGateCurrentRustAuthorityRetained",
+    "selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-HAKO-AUTHORITY-PILOT-DESIGN-CONSULTATION-001"
+  },
+  "hardening": {
+    "all_scalar_known_shadow_mismatch_gate_current": true,
+    "authority_switch_deferred": true,
+    "cargo_test_filter": "scalar_known_hako_shadow",
+    "decision": "SelectAllSurfaceMismatchGateHardeningBeforeAuthorityPilot",
+    "generated_typed_artifact_drift_check_current": true,
+    "hako_runtime_route_authority": false,
+    "minimum_should_panic_mismatch_tests": 13,
+    "runtime_hako_source_text_parsing": false,
+    "runtime_source_text_parser_forbidden_tokens": [
+      "include_str!",
+      "split('|')"
+    ],
+    "rust_authority_retained": true,
+    "shadow_consumer_mismatch_tests_current": true
+  },
+  "input_state": {
+    "closeout_fastpath_connected": 1,
+    "closeout_rerun": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-connected-closeout-rerun-v0.json",
+    "closeout_rerun_hash": "a21b8e0ae2eef287ff8a3bbce2745359825b5454d838aee480ec3f606e6801e0",
+    "closeout_selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-CALLER-ORIENTATION-AUTHORITY-DESIGN-STOP-001"
+  },
+  "kind": "MirBuilderScalarKnownFastpathAllSurfaceMismatchGateHardeningV1",
+  "provenance": {
+    "collection_read_routes": {
+      "path": "src/mir/generic_method_route_plan/collection_read_routes.rs",
+      "sha256": "0fbfbb90840bf73efcd087cb6d7087659f366b759e3432d0423513ce04736a0e"
+    },
+    "shadow_consumer": {
+      "path": "src/mir/generic_method_route_plan/scalar_known_hako_shadow.rs",
+      "sha256": "56969f31d23881fcc37b393af4f48ae7a19fd7df5861ada498cfd5af981dddcb"
+    },
+    "string_routes": {
+      "path": "src/mir/generic_method_route_plan/string_routes.rs",
+      "sha256": "0c716cf6fcfbbed84094f0fac16e9cb9524a177679f7b9ccfa38630bcbf9d652"
+    },
+    "write_routes": {
+      "path": "src/mir/generic_method_route_plan/write_routes.rs",
+      "sha256": "c64f78043676f935f8c92d0a83cc642b8d93bf27eb81da441a2400f819f23f59"
+    }
+  },
+  "schema_version": 0,
+  "summary": {
+    "all_scalar_known_shadow_mismatch_gate_current": 1,
+    "all_surface_mismatch_gate_hardening": 1,
+    "connected_surface_row_count": 6,
+    "generated_typed_artifact_drift_check_current": 1,
+    "hako_runtime_route_authority": 0,
+    "runtime_hako_source_text_parsing": 0,
+    "rust_authority_retained": 1,
+    "shadow_consumer_mismatch_tests_current": 1,
+    "source_selfhost_claim": 0
+  },
+  "surfaces": [
+    {
+      "generated_artifact": "src/mir/generic_method_route_plan/generated/write_push_hako_policy.rs",
+      "generated_artifact_sha256": "59947b80367f89a72d9170bcd12a3b8a824c93a4a2e0c696e3e952008189ed69",
+      "generator": "tools/rust_lifecycle/generate_write_push_hako_policy.py",
+      "generator_sha256": "a475c8146fd9789dca324c60e558c535115bf3841d9d9b4132cf3ef45a2cd7d3",
+      "hako_source": "lang/src/compiler/lib/write_push_surface_policy_classifier.hako",
+      "hako_source_sha256": "ec456dac4fd8aff4efc3627e54f527354b36268b4543185ed07da2750fbdfa87",
+      "helper": "assert_hako_write_push_policy_matches_rust",
+      "live_call": "write_push_shadow_consumed_decision",
+      "live_route_file": "src/mir/generic_method_route_plan/write_routes.rs",
+      "live_route_file_sha256": "c64f78043676f935f8c92d0a83cc642b8d93bf27eb81da441a2400f819f23f59",
+      "route_kinds": "ArrayAppendAny",
+      "surface_id": "WriteScalarI64Routes/PushSurfacePolicy"
+    },
+    {
+      "generated_artifact": "src/mir/generic_method_route_plan/generated/write_set_mapstore_i64_hako_policy.rs",
+      "generated_artifact_sha256": "21975493831b4b080c98aeb836d6a69cbb9b3605d5a7636aed49c4653d411508",
+      "generator": "tools/rust_lifecycle/generate_write_set_mapstore_i64_hako_policy.py",
+      "generator_sha256": "4817015b3fa8a3b8def6ea706296efb6b51cf6a87b2d16cfbf3ec4e7a23d609b",
+      "hako_source": "lang/src/compiler/lib/write_set_mapstore_i64_policy_classifier.hako",
+      "hako_source_sha256": "1bc09769e02851c5c42a7a8287624215d9f206d5b2800e17659016a6fd177f5d",
+      "helper": "assert_hako_policy_matches_rust",
+      "live_call": "mapstore_i64_shadow_consumed_decision",
+      "live_route_file": "src/mir/generic_method_route_plan/write_routes.rs",
+      "live_route_file_sha256": "c64f78043676f935f8c92d0a83cc642b8d93bf27eb81da441a2400f819f23f59",
+      "route_kinds": "MapStoreI64",
+      "surface_id": "WriteScalarI64Routes/SetSurfacePolicy/MapStoreI64"
+    },
+    {
+      "generated_artifact": "src/mir/generic_method_route_plan/generated/write_set_mapstore_any_hako_policy.rs",
+      "generated_artifact_sha256": "f2bc725ca285d9a39819bd1885f3d10ef5ae5f1b412208507b7fae7a2ac0e2ff",
+      "generator": "tools/rust_lifecycle/generate_write_set_mapstore_any_hako_policy.py",
+      "generator_sha256": "7c34c04a0a567781529ac81173cdc9afc5c6ed59b171a52cb43f2d81151ed9a4",
+      "hako_source": "lang/src/compiler/lib/write_set_mapstore_any_policy_classifier.hako",
+      "hako_source_sha256": "77e00016586d44ba582e5fd6ba6dd58d594eca4d7c595ef5979b329297bd5f3d",
+      "helper": "assert_hako_mapstore_any_policy_matches_rust",
+      "live_call": "mapstore_any_shadow_consumed_decision",
+      "live_route_file": "src/mir/generic_method_route_plan/write_routes.rs",
+      "live_route_file_sha256": "c64f78043676f935f8c92d0a83cc642b8d93bf27eb81da441a2400f819f23f59",
+      "route_kinds": "MapStoreAny",
+      "surface_id": "WriteScalarI64Routes/SetSurfacePolicy/MapStoreAny"
+    },
+    {
+      "generated_artifact": "src/mir/generic_method_route_plan/generated/mapload_scalar_i64_hako_policy.rs",
+      "generated_artifact_sha256": "1febc37ea515ff79e50d8060bd7096b02631f9812e9a0661d631650cdd1fefc6",
+      "generator": "tools/rust_lifecycle/generate_mapload_scalar_i64_hako_policy.py",
+      "generator_sha256": "ab9e8aae4ad42e7cb944c43c38224c5e05e87ce3e551db753678b4b0638432ad",
+      "hako_source": "lang/src/compiler/lib/map_load_scalar_i64_policy_classifier.hako",
+      "hako_source_sha256": "3995db4122d3a87433be3d1ca92a5b685c853258f698eed10313a3c76a8a407d",
+      "helper": "assert_hako_mapload_scalar_i64_policy_matches_rust",
+      "live_call": "mapload_scalar_i64_shadow_consumed_decision",
+      "live_route_file": "src/mir/generic_method_route_plan/collection_read_routes.rs",
+      "live_route_file_sha256": "0fbfbb90840bf73efcd087cb6d7087659f366b759e3432d0423513ce04736a0e",
+      "route_kinds": "MapLoadScalarI64",
+      "surface_id": "MapLoadScalarI64Routes"
+    },
+    {
+      "generated_artifact": "src/mir/generic_method_route_plan/generated/string_search_scalar_i64_hako_policy.rs",
+      "generated_artifact_sha256": "5d6355c1dd63a31100f5aa90603e1d2aeba7edcfdf6751e3d6ee8b4142eac1bf",
+      "generator": "tools/rust_lifecycle/generate_string_search_scalar_i64_hako_policy.py",
+      "generator_sha256": "df4af080c119c3066ffe21b49d8674cf2ce813a61fb6ebbb1bfd65f687e2cd46",
+      "hako_source": "lang/src/compiler/lib/string_search_scalar_i64_policy_classifier.hako",
+      "hako_source_sha256": "f9a0e058470004aa2e9fd4f3f912cbd1ae82d8ca7b451f12b952178e82ae3c41",
+      "helper": "assert_hako_string_scalar_i64_policy_matches_rust",
+      "live_call": "string_scalar_i64_shadow_consumed_decision",
+      "live_route_file": "src/mir/generic_method_route_plan/string_routes.rs",
+      "live_route_file_sha256": "0c716cf6fcfbbed84094f0fac16e9cb9524a177679f7b9ccfa38630bcbf9d652",
+      "route_kinds": "StringIndexOf,StringLastIndexOf,StringContains",
+      "surface_id": "StringScalarI64Routes"
+    },
+    {
+      "generated_artifact": "src/mir/generic_method_route_plan/generated/collection_len_scalar_i64_hako_policy.rs",
+      "generated_artifact_sha256": "f54bc364df055fe16690ebf67db6b7c147c297987bebae42825b60722bd97167",
+      "generator": "tools/rust_lifecycle/generate_collection_len_scalar_i64_hako_policy.py",
+      "generator_sha256": "07822876a7c85cd94f8e6f775d3851530369c76be99dd5f31ad3e948a6824604",
+      "hako_source": "lang/src/compiler/lib/collection_len_scalar_i64_policy_classifier.hako",
+      "hako_source_sha256": "8bb3de9b3fd43a0f94018d8e7d8f913185875d9e056d5f99e78b9c2b4c20967e",
+      "helper": "assert_hako_collection_scalar_i64_policy_matches_rust",
+      "live_call": "collection_scalar_i64_shadow_consumed_decision",
+      "live_route_file": "src/mir/generic_method_route_plan/collection_read_routes.rs",
+      "live_route_file_sha256": "0fbfbb90840bf73efcd087cb6d7087659f366b759e3432d0423513ce04736a0e",
+      "route_kinds": "MapEntryCount,ArraySlotLen,StringLen,AnyLength",
+      "surface_id": "CollectionScalarI64Routes"
+    }
+  ],
+  "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-ALL-SURFACE-MISMATCH-GATE-HARDENING-001"
+}
