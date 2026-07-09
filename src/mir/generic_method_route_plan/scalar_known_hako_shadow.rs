@@ -291,6 +291,7 @@ pub(super) fn write_push_shadow_consumed_decision() -> GenericMethodRouteDecisio
 
 pub(super) fn write_push_hako_route_authority_pilot_decision() -> GenericMethodRouteDecision {
     let policy = WRITE_PUSH_HAKO_POLICY;
+    super::caller_orientation::assert_push_arrayappendany_policy_row(policy.policy_row_id);
     assert_write_contract_contains(GenericMethodRouteKind::ArrayAppendAny, "ArrayAppendAny");
     assert_hako_write_push_policy_matches_rust(&policy);
 

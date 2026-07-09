@@ -11,6 +11,10 @@ use super::generated::write_set_mapstore_i64_caller_orientation_contract::{
     HakoMapStoreI64CallerOrientationContract,
     WRITE_SET_MAPSTORE_I64_CALLER_ORIENTATION_CONTRACT,
 };
+use super::generated::write_push_arrayappendany_caller_orientation_contract::{
+    HakoWritePushArrayAppendAnyCallerOrientationContract,
+    WRITE_PUSH_ARRAYAPPENDANY_CALLER_ORIENTATION_CONTRACT,
+};
 
 const METADATA_ONLY: &str = "CallerOrientationContractMetadataOnly";
 const SINGLE_SURFACE: &str = "SingleSurface";
@@ -83,6 +87,27 @@ pub(super) fn assert_mapstore_i64_policy_row(policy_row_id: &str) {
 
 fn assert_mapstore_i64_contract_metadata(
     contract: &HakoMapStoreI64CallerOrientationContract,
+) {
+    assert_eq!(contract.orientation_kind, METADATA_ONLY);
+    assert_eq!(contract.scope, SINGLE_SURFACE);
+    assert_eq!(contract.runtime_consumer, FORBIDDEN);
+    assert_eq!(contract.backend_lowering_consumer, FORBIDDEN);
+    assert_eq!(contract.mutation_consumer, FORBIDDEN);
+    assert_eq!(contract.publication_consumer, FORBIDDEN);
+    assert_eq!(contract.mismatch_policy, FAIL_FAST);
+}
+
+pub(super) fn assert_push_arrayappendany_policy_row(policy_row_id: &str) {
+    let contract = WRITE_PUSH_ARRAYAPPENDANY_CALLER_ORIENTATION_CONTRACT;
+    assert_eq!(
+        contract.policy_row_id, policy_row_id,
+        "ArrayAppendAny caller-orientation policy row identity drift"
+    );
+    assert_push_arrayappendany_contract_metadata(&contract);
+}
+
+fn assert_push_arrayappendany_contract_metadata(
+    contract: &HakoWritePushArrayAppendAnyCallerOrientationContract,
 ) {
     assert_eq!(contract.orientation_kind, METADATA_ONLY);
     assert_eq!(contract.scope, SINGLE_SURFACE);
@@ -184,5 +209,24 @@ mod tests {
         let mut contract = WRITE_SET_MAPSTORE_I64_CALLER_ORIENTATION_CONTRACT;
         contract.mutation_consumer = "RuntimeConsumer";
         assert_mapstore_i64_contract_metadata(&contract);
+    }
+
+    #[test]
+    fn push_arrayappendany_assertion_accepts_existing_policy_row() {
+        assert_push_arrayappendany_policy_row("array_append_any_push_surface");
+    }
+
+    #[test]
+    #[should_panic(expected = "policy row identity drift")]
+    fn push_arrayappendany_assertion_rejects_unknown_policy_row() {
+        assert_push_arrayappendany_policy_row("unknown_policy_row");
+    }
+
+    #[test]
+    #[should_panic(expected = "assertion `left == right` failed")]
+    fn push_arrayappendany_assertion_rejects_metadata_drift() {
+        let mut contract = WRITE_PUSH_ARRAYAPPENDANY_CALLER_ORIENTATION_CONTRACT;
+        contract.publication_consumer = "RuntimeConsumer";
+        assert_push_arrayappendany_contract_metadata(&contract);
     }
 }
