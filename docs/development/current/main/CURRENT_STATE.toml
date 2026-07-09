@@ -345,17 +345,18 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-NEXT-HAKO-AUTHORITY-SURFACE-DESIGN-STOP-002"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3395-MIRBUILDER-SCALAR-KNOWN-FASTPATH-NEXT-HAKO-AUTHORITY-SURFACE-DESIGN-STOP-002.md"
-latest_card_summary = """3395 stops after scoped MapLoad and String `.hako`
-route-decision authority pilots. 3394 reran the String pilot evidence, confirmed
-String authority remains scoped with Rust as oracle / compat checker and
-fail-fast mismatch behavior, and selected this design stop to choose the next
-authority surface. ScalarKnown-wide `.hako` runtime route authority, transport
-axis authority switch, Rust fast-path rewiring, backend/lowering authority,
-caller orientation, and Source Selfhost remain unclaimed."""
+latest_card = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-HAKO-AUTHORITY-PILOT-BASIS-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3396-MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-HAKO-AUTHORITY-PILOT-BASIS-001.md"
+latest_card_summary = """3396 selects CollectionScalarI64Routes as the next
+scoped `.hako` route-decision authority pilot after MapLoad and String. It is
+basis-only: mixed receiver domains are explicitly enumerated, AnyLength / Box is
+fixed as explicit row metadata rather than wildcard selector or fallback, and
+the actual Collection authority pilot is deferred to 3397. ScalarKnown-wide
+`.hako` runtime route authority, transport axis authority switch, Rust fast-path
+rewiring, backend/lowering authority, caller orientation, and Source Selfhost
+remain unclaimed."""
 
-current_blocker_token = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-NEXT-HAKO-AUTHORITY-SURFACE-DESIGN-STOP-002"
+current_blocker_token = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-HAKO-ROUTE-DECISION-AUTHORITY-PILOT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -364,6 +365,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-09: 3396 selects CollectionScalarI64Routes as the next scoped .hako route-authority pilot after MapLoad and String, records the proof axis PriorScopedReadAuthorityContinuation + LenSurfacePolicyHomogeneousScalarI64NoPublicationObserve + ExplicitEnumeratedMixedReceiverDomainBoundary + AnyLengthBoxDomainIsExplicitRowNotWildcardSelector + GeneratedTypedArtifactMismatchGateCurrent + RustOracleCompatFailFastRetained, selects MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-HAKO-ROUTE-DECISION-AUTHORITY-PILOT-001, and leaves actual Collection authority pilot, AnyLength wildcard/global Box authority, receiver-domain authority switch/widening/projection, ScalarKnown-wide .hako runtime route authority, Rust fast-path rewiring, backend/lowering authority, caller orientation, new backend/ABI, runtime fallback, and Source Selfhost unclaimed.",
   "2026-07-09: 3395 stops after the scoped MapLoad and String .hako route-decision authority pilots and opens design consultation for the next authority surface: CollectionScalarI64Routes after a dedicated basis, read-surface authority group closeout, or returning to wider Source Selfhost route selection; ScalarKnown-wide .hako runtime route authority, transport axis authority switch, Rust fast-path rewiring, backend/lowering authority, caller orientation, new backend/ABI, runtime fallback, and Source Selfhost remain unclaimed.",
   "2026-07-09: 3394 reruns the scoped String .hako route-decision authority pilot evidence, confirms mapload_hako_route_decision_authority_pilot=1 and string_hako_route_decision_authority_pilot=1 with Rust retained as oracle / compat checker and mismatch fail-fast, selects MIRBUILDER-SCALAR-KNOWN-FASTPATH-NEXT-HAKO-AUTHORITY-SURFACE-DESIGN-STOP-002, and leaves ScalarKnown-wide .hako runtime route authority, transport axis authority switch, Rust fast-path rewiring, backend/lowering authority, caller orientation, new backend/ABI, runtime fallback, and Source Selfhost unclaimed.",
   "2026-07-09: 3393 materializes the scoped String .hako route-decision authority pilot by switching the live StringIndexOf, StringLastIndexOf, and StringContains fast paths to string_scalar_i64_hako_route_authority_pilot_decision, constructing decisions from STRING_SEARCH_SCALAR_I64_HAKO_POLICIES, retaining Rust as oracle / compat checker with mismatch fail-fast, selecting MIRBUILDER-SCALAR-KNOWN-FASTPATH-STRING-HAKO-AUTHORITY-PILOT-RERUN-001, and leaving ScalarKnown-wide .hako runtime route authority, Rust fast-path rewiring, backend/lowering authority, caller orientation, new backend/ABI, runtime fallback, and Source Selfhost unclaimed.",
@@ -375,5 +377,4 @@ landed_tail = [
   "2026-07-09: 3387 selects MapLoadScalarI64Routes as the first scoped .hako route-authority pilot candidate after all-surface mismatch gate hardening, defines the basis-only authority boundary with Rust retained as oracle / compat checker and mismatch fail-fast required, selects MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-HAKO-AUTHORITY-PILOT-BASIS-001, and leaves the actual MapLoad route-decision authority pilot, ScalarKnown-wide .hako runtime route authority, Rust fast-path rewiring, backend/lowering authority, caller orientation, new backend/ABI, runtime fallback, and Source Selfhost unclaimed.",
   "2026-07-09: 3386 hardens the all-surface ScalarKnown fast-path shadow mismatch gate after the scoped fastpath-connected closeout, verifies generated typed artifact drift checks and shadow mismatch tests as the current entry, keeps runtime .hako source text parsing absent, retains Rust route authority, selects MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-HAKO-AUTHORITY-PILOT-DESIGN-CONSULTATION-001, and leaves .hako runtime route authority, Rust fast-path rewiring, runtime mutation/publication, new backend/ABI, runtime fallback, and Source Selfhost unclaimed.",
   "2026-07-09: 3385 stops after the scoped ScalarKnown fastpath-connected shadow-consume closeout and opens design consultation for the next authority step: mismatch-gate hardening, one-surface .hako authority pilot, whole ScalarKnown caller orientation, or park/return; .hako runtime route authority, Rust fast-path rewiring, runtime mutation/publication, new backend/ABI, runtime fallback, and Source Selfhost remain unclaimed.",
-  "2026-07-09: 3384 closes out the scoped ScalarKnown fastpath-connected shadow-consume lane after all six known ScalarKnown Write and read surfaces are connected through checked-in generated typed .hako artifacts consumed at live Rust fast-path decision points, records fastpath_connected_closeout=1, keeps Rust route authority retained, selects MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-CALLER-ORIENTATION-AUTHORITY-DESIGN-STOP-001, and leaves .hako runtime route authority, Rust fast-path rewiring, runtime mutation/publication, new backend/ABI, runtime fallback, and Source Selfhost unclaimed.",
 ]
