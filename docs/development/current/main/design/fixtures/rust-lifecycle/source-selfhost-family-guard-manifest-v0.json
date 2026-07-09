@@ -2823,8 +2823,8 @@
     {
       "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-CALLER-ORIENTATION-CONTRACT-ARTIFACT-001",
       "card": "docs/development/current/main/phases/phase-296x/3421-MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-CALLER-ORIENTATION-CONTRACT-ARTIFACT-001.md",
-      "fixture": "",
-      "legacy_guard": "tools/checks/rust_lifecycle_source_selfhost_family_guard.sh",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-mapload-caller-orientation-contract-artifact-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_scalar_known_fastpath_mapload_caller_orientation_contract_artifact_guard.sh",
       "role": "current_queue"
     }
   ],

@@ -1,0 +1,17 @@
+// map_load_scalar_i64_caller_orientation_contract.hako
+//
+// Responsibility:
+// - declare caller-orientation metadata for the existing MapLoad policy row
+// - remain a single-surface, non-executable contract
+//
+// Non-responsibility:
+// - route selection, runtime dispatch, MIR emission, backend lowering
+// - mutation, publication, or ScalarKnown-wide authority
+static box MapLoadScalarI64CallerOrientationContractBox {
+  classify(policy_row_id) {
+    if policy_row_id == "map_load_scalar_i64_routes" {
+      return "map_load_scalar_i64_routes|CallerOrientationContractMetadataOnly|SingleSurface|Forbidden|Forbidden|Forbidden|Forbidden|FailFast"
+    }
+    return "unsupported_map_load_scalar_i64_caller_orientation_contract"
+  }
+}

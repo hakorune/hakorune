@@ -69,15 +69,15 @@
   "provenance": {
     "collection_read_routes": {
       "path": "src/mir/generic_method_route_plan/collection_read_routes.rs",
-      "sha256": "c515417d6a599d856d1217b86e0514e90ad63621b41b801f74b927967f1ad31c"
+      "sha256": "1e12f843f2fff82d14b2fab79619c20fd8cb4c07b9aaa717b9adc7d7bb249cf3"
     },
     "mapload_generated_typed_artifact": {
       "path": "src/mir/generic_method_route_plan/generated/mapload_scalar_i64_hako_policy.rs",
-      "sha256": "1febc37ea515ff79e50d8060bd7096b02631f9812e9a0661d631650cdd1fefc6"
+      "sha256": "8753685ebb02342de9c6468107e54aedaef9c58e328005641474fd7c96fc675d"
     },
     "shadow_consumer": {
       "path": "src/mir/generic_method_route_plan/scalar_known_hako_shadow.rs",
-      "sha256": "3d4281f844e452ef9f55e9a0105726e7f9e31a76f9c7481da325ed7eace7fd62"
+      "sha256": "f12361856df43dec41245d6ed1622eea1641a1d88cbe7fa5ce5171cfa0111af8"
     }
   },
   "schema_version": 0,
