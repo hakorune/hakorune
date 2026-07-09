@@ -1,0 +1,107 @@
+{
+  "basis": {
+    "basis_only": true,
+    "connected_surface_rows": [
+      {
+        "connected": true,
+        "connection_kind": "GeneratedTypedHakoArtifactShadowConsumed",
+        "route_kind": "MapStoreI64",
+        "subsurface_id": "SetSurfacePolicy/MapStoreI64",
+        "surface_id": "WriteScalarI64Routes"
+      }
+    ],
+    "hako_runtime_route_authority": false,
+    "known_unconnected_surface_rows": [
+      {
+        "connected": false,
+        "surface_id": "MapLoadScalarI64Routes"
+      },
+      {
+        "connected": false,
+        "surface_id": "StringScalarI64Routes"
+      },
+      {
+        "connected": false,
+        "surface_id": "CollectionScalarI64Routes"
+      },
+      {
+        "connected": false,
+        "subsurface_id": "PushSurfacePolicy",
+        "surface_id": "WriteScalarI64Routes"
+      },
+      {
+        "connected": false,
+        "subsurface_id": "SetSurfacePolicy/MapStoreAny",
+        "surface_id": "WriteScalarI64Routes"
+      }
+    ],
+    "name": "ScalarKnownFastpathConnectedCloseoutBasisV1",
+    "required_connection_kind": "CheckedInGeneratedTypedHakoArtifactShadowConsumedAtRustFastpathDecisionPoint",
+    "rerun_required_before_connected_closeout": true,
+    "runtime_source_text_parsing_allowed": false,
+    "rust_authority_retained": true,
+    "scope": "ScalarKnownTransportAxisFastpathConnection"
+  },
+  "claims": {
+    "basis_only": 1,
+    "behavior_change": 0,
+    "fastpath_connected_closeout": 0,
+    "fastpath_connected_closeout_basis": 1,
+    "generated_typed_hako_artifact_shadow_consumed": 1,
+    "hako_generation": 0,
+    "hako_runtime_route_authority": 0,
+    "manual_axis_selection": 0,
+    "manual_carrier_selection": 0,
+    "manual_subsurface_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "new_route_authority": 0,
+    "owner_name_as_proof": 0,
+    "publication_execution": 0,
+    "route_count_as_proof": 0,
+    "route_membership_alone_as_proof": 0,
+    "row_count_as_proof": 0,
+    "runtime_fallback": 0,
+    "runtime_mutation_authority": 0,
+    "rust_fastpath_rewired": 0,
+    "scalar_known_transport_axis_closeout": 1,
+    "source_path_as_authority": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "SelectFastpathConnectedCloseoutInventoryRerun",
+    "reason_token": "FastpathConnectedCloseoutBasisDefinedMapStoreI64OnlyConnected",
+    "selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-INVENTORY-RERUN-001"
+  },
+  "input_state": {
+    "bridge_plan": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-fastpath-hako-shadow-artifact-to-caller-orientation-bridge-plan-v0.json",
+    "bridge_plan_hash": "fce0f9f1b529de2155a96666a1018e2e5c58cfffb5a9eede22f9904bf5bf101a",
+    "bridge_plan_selected_path": "C_SHADOW_TYPED_ARTIFACT_FIRST_THEN_HAKO_CALLER_ORIENTATION",
+    "transport_closeout": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-transport-closeout-rerun-002-v0.json",
+    "transport_closeout_hash": "4eebe3c57adecab45791337bf71e39bae56a2cf3f1f58eb64746575bb0a98647",
+    "transport_selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-BASIS-001",
+    "typed_shadow_consume": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-hako-generated-typed-artifact-shadow-consume-set-mapstore-i64-v0.json",
+    "typed_shadow_consume_hash": "fbe672566c584e9d3d42cc4bef171789074383abe43941bf46f3f11f46151875"
+  },
+  "kind": "MirBuilderScalarKnownFastpathConnectedCloseoutBasisV1",
+  "provenance": {
+    "generated_mapstore_i64_policy_hash": "21975493831b4b080c98aeb836d6a69cbb9b3605d5a7636aed49c4653d411508",
+    "scalar_known_hako_shadow_hash": "ba8de5eaa1b363051696b1993d8f1e516f76a77e8dc4a7cda0503a83cb0cd42e",
+    "write_routes_hash": "1c586b1fd75af17df2eba630cfdc8081568db45deff376d175c87a7e318f9d23"
+  },
+  "schema_version": 0,
+  "summary": {
+    "connected_surface_row_count": 1,
+    "fastpath_connected_closeout": 0,
+    "fastpath_connected_closeout_basis": 1,
+    "generated_typed_hako_artifact_shadow_consumed": 1,
+    "hako_runtime_route_authority": 0,
+    "known_unconnected_surface_row_count": 5,
+    "rust_fastpath_rewired": 0,
+    "scalar_known_transport_axis_closeout": 1,
+    "source_selfhost_claim": 0
+  },
+  "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-BASIS-001"
+}
