@@ -345,17 +345,18 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-RECIPEITEM-COND-RECIPE-CONSUME-BOUNDARY-SELECTION-CURRENT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3359-MIRBUILDER-RECIPEITEM-COND-RECIPE-CONSUME-BOUNDARY-SELECTION-CURRENT-001.md"
-latest_card_summary = """3359 consumes the existing RecipeItem cond_recipe
-consume-boundary selection in the current 335x chain, proves the selected
-first non-diagnostic consumer remains RecipeVerifierValidateOnlyConsumer,
-selects the validate-only RecipeVerifier consume gate, and leaves the
-RecipeVerifier consume implementation, RecipeMatcher input authority,
-BoolRecipe lowering, MIR Compare/Branch emission, route/runtime authority,
-and Source Selfhost unclaimed."""
+latest_card = "MIRBUILDER-FASTPATH-HAKO-SHADOW-ARTIFACT-TO-CALLER-ORIENTATION-BRIDGE-PLAN-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3360-MIRBUILDER-FASTPATH-HAKO-SHADOW-ARTIFACT-TO-CALLER-ORIENTATION-BRIDGE-PLAN-001.md"
+latest_card_summary = """3360 records the C bridge plan for fast-path `.hako`
+connection quality: the current include_str/string-search/split shadow path is
+transitional debt, the next implementation must use a checked-in generated
+typed `.hako` artifact as Rust fast-path shadow evidence, `.hako` caller
+orientation remains the long-term target, build.rs hakorune invocation is not
+opened, Rust route authority is retained, and live `.hako` authority, route
+selection switch, backend lowering authority, runtime mutation/publication,
+new backend/ABI, runtime fallback, and Source Selfhost remain unclaimed."""
 
-current_blocker_token = "MIRBUILDER-RECIPEVERIFIER-COND-RECIPE-VALIDATE-ONLY-CONSUME-001"
+current_blocker_token = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-SHADOW-CONSUME-SET-MAPSTORE-I64-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -364,6 +365,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-09: 3360 records the C bridge plan for fast-path `.hako` connection quality, marks include_str/string-search/row.split shadow parsing as transitional debt, selects checked-in generated typed `.hako` artifact shadow consumption for SetSurfacePolicy/MapStoreI64, keeps `.hako` caller orientation as the long-term target, selects MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-SHADOW-CONSUME-SET-MAPSTORE-I64-001, and leaves build.rs hakorune invocation, live `.hako` route authority, Rust fast-path rewiring, backend lowering authority, runtime mutation/publication, new backend/ABI, runtime fallback, and Source Selfhost unclaimed.",
   "2026-07-09: 3359 consumes the existing RecipeItem cond_recipe consume-boundary selection in the current 335x chain, records cond_recipe_consume_boundary_selection_current=1, cond_recipe_consume_boundary_selection=1, selected_recipeverifier_validate_only_consumer=1, selected_consumer=RecipeVerifierValidateOnlyConsumer, selects MIRBUILDER-RECIPEVERIFIER-COND-RECIPE-VALIDATE-ONLY-CONSUME-001, and leaves the RecipeVerifier consume implementation, RecipeMatcher input authority, BoolRecipe lowering, MIR Compare/Branch emission, route/runtime authority, and Source Selfhost unclaimed.",
   "2026-07-09: 3358 consumes the existing RecipeItem cond_recipe diagnostic summary observation gate in the current 335x chain, records cond_recipe_diagnostic_summary_observation_current_gate=1, cond_recipe_diagnostic_summary_observation=1, cond_recipe_deep_observation_implementation=1, owner=RecipeItemBox.cond_recipe_summary, selects MIRBUILDER-RECIPEITEM-COND-RECIPE-CONSUME-BOUNDARY-SELECTION-001, and leaves verifier observer behavior, RecipeMatcher input authority, BoolRecipe lowering, MIR Compare/Branch emission, route/runtime authority, and Source Selfhost unclaimed.",
   "2026-07-09: 3357 consumes the existing RecipeItem cond_recipe observation-boundary selection in the current 335x chain, records cond_recipe_observation_boundary_selection_current=1, cond_recipe_observation_boundary_selection=1, selected_diagnostic_summary_observer=1, selected_observer=RecipeItemDiagnosticSummaryObserver, selects MIRBUILDER-RECIPEITEM-COND-RECIPE-DIAGNOSTIC-SUMMARY-OBSERVATION-001, and leaves deep observation implementation, verifier observer behavior, RecipeMatcher input authority, BoolRecipe lowering, MIR Compare/Branch emission, route/runtime authority, and Source Selfhost unclaimed.",
@@ -375,5 +377,4 @@ landed_tail = [
   "2026-07-09: 3346 opens MIRBUILDER-COMPARE-PROOF-BRIDGE-PARK-OR-CONNECT-DESIGN-STOP-001, records the six compare proof bridge files as production-unconnected proof-only Rust code, asks whether to delete, park as proof-only, or connect a minimal subset, selects CONSULTATION_REQUIRED, and leaves bridge deletion/parking/production connection, compare behavior changes, route/runtime authority, new backend/ABI, and Source Selfhost unclaimed.",
   "2026-07-09: 3345 installs the active rust_lifecycle guard resolver, resolves only latest/current guards, records latest_guard_resolved=1, current_blocker_guard_pending=1, runnable_guard_count=1, run_all_rust_lifecycle_guards_by_default=0, selects MIRBUILDER-COMPARE-PROOF-BRIDGE-PARK-OR-CONNECT-DESIGN-STOP-001, and leaves all-guard CI/dev_gate execution, .hako runtime route authority, Rust fast-path rewiring, and Source Selfhost unclaimed.",
   "2026-07-09: 3344 classifies live fast-path owners, guard/parity executable mirrors, proof-only Rust bridge modules, and unreached rust_lifecycle guards, records compare_proof_bridge_file_count=6, compare_proof_bridge_production_connected=0, hako_lib_compiler_reachable_count=0, run_all_rust_lifecycle_guards_by_default=0, selects MIRBUILDER-CURRENT-ACTIVE-RUST-LIFECYCLE-GUARD-RESOLVER-001, and leaves bridge deletion/production connection, .hako runtime route/backend authority, all-guard CI/dev_gate execution, new backend/ABI, and Source Selfhost unclaimed.",
-  "2026-07-09: 3343 taskizes the post-3342 reachability review, selects MIRBUILDER-ARTIFACT-REACHABILITY-CLASSIFICATION-INVENTORY-001 before resuming ScalarKnown MapStoreI64 shadow-consumption, requires an active latest/current scoped guard resolver instead of running every rust_lifecycle guard by default, and leaves Rust fast-path rewiring, .hako runtime route authority, backend lowering authority, all-guard CI/dev_gate execution, new backend/ABI, and Source Selfhost unclaimed.",
 ]

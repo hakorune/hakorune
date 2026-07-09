@@ -9,58 +9,55 @@
     "source_selfhost_claim": 0
   },
   "current_state": {
-    "current_blocker_token": "MIRBUILDER-RECIPEVERIFIER-COND-RECIPE-VALIDATE-ONLY-CONSUME-001",
-    "latest_card": "MIRBUILDER-RECIPEITEM-COND-RECIPE-CONSUME-BOUNDARY-SELECTION-CURRENT-001",
-    "latest_card_path": "docs/development/current/main/phases/phase-296x/3359-MIRBUILDER-RECIPEITEM-COND-RECIPE-CONSUME-BOUNDARY-SELECTION-CURRENT-001.md"
+    "current_blocker_token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-SHADOW-CONSUME-SET-MAPSTORE-I64-001",
+    "latest_card": "MIRBUILDER-FASTPATH-HAKO-SHADOW-ARTIFACT-TO-CALLER-ORIENTATION-BRIDGE-PLAN-001",
+    "latest_card_path": "docs/development/current/main/phases/phase-296x/3360-MIRBUILDER-FASTPATH-HAKO-SHADOW-ARTIFACT-TO-CALLER-ORIENTATION-BRIDGE-PLAN-001.md"
   },
   "decision": {
     "kind": "ResolveCurrentActiveRustLifecycleGuards",
     "reason_token": "LatestCurrentScopedGuardSet",
-    "selected_next_card": "MIRBUILDER-RECIPEVERIFIER-COND-RECIPE-VALIDATE-ONLY-CONSUME-001"
+    "selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-SHADOW-CONSUME-SET-MAPSTORE-I64-001"
   },
   "kind": "CurrentActiveRustLifecycleGuardResolverV1",
   "resolution": {
     "current_blocker": {
-      "card": "docs/development/current/main/phases/phase-296x/3271-MIRBUILDER-RECIPEVERIFIER-COND-RECIPE-VALIDATE-ONLY-CONSUME-001.md",
-      "guard_count": 1,
-      "guard_paths": [
-        "tools/checks/rust_lifecycle_mirbuilder_recipeverifier_cond_recipe_validate_only_consume_gate.sh"
-      ],
-      "status": "resolved",
-      "token": "MIRBUILDER-RECIPEVERIFIER-COND-RECIPE-VALIDATE-ONLY-CONSUME-001"
+      "card": null,
+      "guard_count": 0,
+      "guard_paths": [],
+      "status": "pending_card_or_guard",
+      "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-SHADOW-CONSUME-SET-MAPSTORE-I64-001"
     },
-    "historical_rust_lifecycle_script_count": 1051,
+    "historical_rust_lifecycle_script_count": 1052,
     "latest": {
-      "card": "docs/development/current/main/phases/phase-296x/3359-MIRBUILDER-RECIPEITEM-COND-RECIPE-CONSUME-BOUNDARY-SELECTION-CURRENT-001.md",
+      "card": "docs/development/current/main/phases/phase-296x/3360-MIRBUILDER-FASTPATH-HAKO-SHADOW-ARTIFACT-TO-CALLER-ORIENTATION-BRIDGE-PLAN-001.md",
       "guard_count": 1,
       "guard_paths": [
-        "tools/checks/rust_lifecycle_mirbuilder_recipeitem_cond_recipe_consume_boundary_selection_current_guard.sh"
+        "tools/checks/rust_lifecycle_mirbuilder_fastpath_hako_shadow_artifact_to_caller_orientation_bridge_plan_guard.sh"
       ],
       "status": "resolved",
-      "token": "MIRBUILDER-RECIPEITEM-COND-RECIPE-CONSUME-BOUNDARY-SELECTION-CURRENT-001"
+      "token": "MIRBUILDER-FASTPATH-HAKO-SHADOW-ARTIFACT-TO-CALLER-ORIENTATION-BRIDGE-PLAN-001"
     },
     "max_default_guard_count": 3,
     "run_all_historical_guards": false,
-    "runnable_guard_count": 2,
+    "runnable_guard_count": 1,
     "runnable_guard_paths": [
-      "tools/checks/rust_lifecycle_mirbuilder_recipeitem_cond_recipe_consume_boundary_selection_current_guard.sh",
-      "tools/checks/rust_lifecycle_mirbuilder_recipeverifier_cond_recipe_validate_only_consume_gate.sh"
+      "tools/checks/rust_lifecycle_mirbuilder_fastpath_hako_shadow_artifact_to_caller_orientation_bridge_plan_guard.sh"
     ]
   },
   "schema_version": 0,
   "source_files": {
-    "docs/development/current/main/CURRENT_STATE.toml": "5aca6b73c8f42c414d5d44d9a42ef61be018926134b77d70a5095fceb201bb01",
-    "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md": "7bd0ae42d9e12a8a424a10bc76a533bbc49c90325cc9e3a8d3073f4cafad08f3"
+    "docs/development/current/main/CURRENT_STATE.toml": "5ef9243eb6dfc841b75ffc79a5908966d98fc0a8ff64f6d28672e4260131598a",
+    "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md": "e205f6779160c178a4ccf59fc5ac3328ecd4cdb050feddf60292fadf806cc7e1"
   },
   "summary": {
     "current_active_guard_resolver": 1,
-    "current_blocker_guard_pending": 0,
-    "current_blocker_guard_resolved": 1,
+    "current_blocker_guard_pending": 1,
+    "current_blocker_guard_resolved": 0,
     "latest_guard_resolved": 1,
     "max_default_guard_count": 3,
     "run_all_rust_lifecycle_guards_by_default": 0,
-    "runnable_guard_count": 2,
-    "selected_next_card": "MIRBUILDER-RECIPEVERIFIER-COND-RECIPE-VALIDATE-ONLY-CONSUME-001",
+    "runnable_guard_count": 1,
+    "selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-SHADOW-CONSUME-SET-MAPSTORE-I64-001",
     "source_selfhost_claim": 0
   },
   "token": "MIRBUILDER-CURRENT-ACTIVE-RUST-LIFECYCLE-GUARD-RESOLVER-001"

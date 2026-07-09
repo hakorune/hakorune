@@ -1,0 +1,56 @@
+{
+  "schema_version": 0,
+  "kind": "MirBuilderFastpathHakoShadowArtifactToCallerOrientationBridgePlanV1",
+  "token": "MIRBUILDER-FASTPATH-HAKO-SHADOW-ARTIFACT-TO-CALLER-ORIENTATION-BRIDGE-PLAN-001",
+  "decision": {
+    "selected_path": "C_SHADOW_TYPED_ARTIFACT_FIRST_THEN_HAKO_CALLER_ORIENTATION",
+    "short_term": "RustConsumesCheckedInGeneratedTypedHakoArtifactAsShadow",
+    "long_term": "HakoCallerOrientationWithRustAsHostOracleCompatChecker",
+    "bootstrap_policy": "NoBuildRsHakoruneCompilerInvocationFirst"
+  },
+  "current_debt": {
+    "rust_source": "src/mir/generic_method_route_plan/scalar_known_hako_shadow.rs",
+    "hako_source": "lang/src/compiler/lib/write_set_mapstore_i64_policy_classifier.hako",
+    "debt_patterns": [
+      "include_str!",
+      "quoted_row_string_search",
+      "row.split('|')"
+    ],
+    "allowed_status": "shadow_validation_only",
+    "forbidden_status": [
+      "route_authority",
+      "runtime_authority",
+      "backend_lowering_authority"
+    ]
+  },
+  "generated_artifact_target": {
+    "first_surface": "SetSurfacePolicy/MapStoreI64",
+    "first_route_kind": "MapStoreI64",
+    "target_artifact_kind": "CheckedInGeneratedTypedRustArtifact",
+    "target_artifact_path": "src/mir/generic_method_route_plan/generated/write_set_mapstore_i64_hako_policy.rs",
+    "guard_mode": "regenerate_to_temp_and_diff_checked_in_artifact",
+    "runtime_build_parses_hako_source_text": false
+  },
+  "selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-SHADOW-CONSUME-SET-MAPSTORE-I64-001",
+  "claims": {
+    "fastpath_hako_shadow_artifact_to_caller_orientation_bridge_plan": 1,
+    "current_include_str_split_connection_debt_recorded": 1,
+    "selected_checked_in_generated_typed_artifact_shadow_consume": 1,
+    "selected_long_term_hako_caller_orientation": 1,
+    "build_rs_hako_compiler_invocation": 0,
+    "rust_authority_retained": 1,
+    "hako_runtime_route_authority": 0,
+    "rust_fastpath_rewired": 0,
+    "route_selection_authority_switch": 0,
+    "backend_lowering_authority": 0,
+    "runtime_mutation_authority": 0,
+    "publication_execution": 0,
+    "new_backend_route": 0,
+    "new_abi": 0,
+    "runtime_fallback": 0,
+    "live_hako_authority": 0,
+    "caller_orientation_runtime_path": 0,
+    "source_text_parsing_as_authority": 0,
+    "source_selfhost_claim": 0
+  }
+}
