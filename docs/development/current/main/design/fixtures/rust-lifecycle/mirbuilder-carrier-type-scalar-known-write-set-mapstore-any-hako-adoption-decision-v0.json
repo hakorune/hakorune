@@ -52,7 +52,7 @@
   "input_state": {
     "hako_parity_pilot_decision": "SelectWriteSetMapStoreAnyParityGate",
     "hako_parity_pilot_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-write-set-mapstore-any-hako-parity-pilot-v0.json",
-    "hako_parity_pilot_hash": "59a0ecd4f3bfb75dd1b624062d4064235c96d0066a040fbdf52acb01d42b0b67",
+    "hako_parity_pilot_hash": "11c5753abd4e982ef85692cb8a75e8a64a37c146b33dd3a50a0887f8e05d0976",
     "hako_parity_pilot_selected_next_card": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-PARITY-GATE-001",
     "hako_parity_pilot_token": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-HAKO-PARITY-PILOT-001"
   },

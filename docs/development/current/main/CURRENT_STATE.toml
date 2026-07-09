@@ -345,17 +345,17 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-HAKO-PARITY-PILOT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/2142-MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-HAKO-PARITY-PILOT-001.md"
-latest_card_summary = """2142 lands the SetSurfacePolicy / MapStoreAny
-hand-authored `.hako` classifier/policy mirror after the Any write boundary
-basis and Rust-oracle fixture are green. The card verifies the `.hako` source,
-keeps the Any write boundary as declared metadata only, selects the MapStoreAny
-parity gate, and leaves adoption, direct closeout, write route closeout,
+latest_card = "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-POST-ADOPTION-RERUN-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/2145-MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-POST-ADOPTION-RERUN-001.md"
+latest_card_summary = """2145 consumes the adopted SetSurfacePolicy /
+MapStoreAny `.hako` parity pilot, reruns the scoped Write Set selector, proves
+the remaining eligible scoped surface is MapStoreAny with Any write boundary
+still declared metadata only, selects the direct closeout contract basis, and
+leaves direct closeout materialization, WriteScalarI64Routes closeout,
 ScalarKnown closeout, runtime mutation/publication, new backend/ABI, runtime
 fallback, and Source Selfhost unclaimed."""
 
-current_blocker_token = "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-PARITY-GATE-001"
+current_blocker_token = "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-DIRECT-CLOSEOUT-CONTRACT-BASIS-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -364,6 +364,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-09: 2145 consumes the adopted SetSurfacePolicy / MapStoreAny `.hako` parity pilot, reruns the scoped Write Set selector, records write_set_mapstore_any_hako_adopted=1, basis_selection_eligible_surface_count=1, selected_scoped_surface=SetSurfacePolicy/MapStoreAny, any_write_boundary_declared=1, any_write_boundary_opened=0, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-DIRECT-CLOSEOUT-CONTRACT-BASIS-001, and leaves direct closeout materialization, WriteScalarI64Routes closeout, ScalarKnown closeout, runtime mutation/publication, new backend/ABI, runtime fallback, and Source Selfhost unclaimed.",
   "2026-07-09: 2142 lands the SetSurfacePolicy / MapStoreAny hand-authored `.hako` classifier/policy mirror after the Any write boundary basis and Rust-oracle fixture are green, records hako_implementation_landed=1, hako_source_verifies=1, any_write_boundary_declared=1, any_write_boundary_opened=0, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-PARITY-GATE-001, and leaves HakoAdoption, direct closeout, write route closeout, ScalarKnown closeout, runtime mutation/publication, new backend/ABI, runtime fallback, and Source Selfhost unclaimed.",
   "2026-07-09: 3361 replaces the SetSurfacePolicy / MapStoreI64 include_str/string-search/row.split `.hako` shadow parser with a checked-in generated typed Rust artifact, wires the Rust fast path to consume WRITE_SET_MAPSTORE_I64_HAKO_POLICY as shadow evidence, adds a generator check guard for `.hako` source drift, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-WRITE-BOUNDARY-BASIS-001, and leaves live `.hako` route authority, Rust fast-path rewiring, route selection switch, backend lowering authority, runtime mutation/publication, build.rs hakorune invocation, new backend/ABI, runtime fallback, and Source Selfhost unclaimed.",
   "2026-07-09: 3360 records the C bridge plan for fast-path `.hako` connection quality, marks include_str/string-search/row.split shadow parsing as transitional debt, selects checked-in generated typed `.hako` artifact shadow consumption for SetSurfacePolicy/MapStoreI64, keeps `.hako` caller orientation as the long-term target, selects MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-SHADOW-CONSUME-SET-MAPSTORE-I64-001, and leaves build.rs hakorune invocation, live `.hako` route authority, Rust fast-path rewiring, backend lowering authority, runtime mutation/publication, new backend/ABI, runtime fallback, and Source Selfhost unclaimed.",
@@ -375,5 +376,4 @@ landed_tail = [
   "2026-07-09: 3354 consumes the existing RecipeItem condition-slot BoolRecipe sidecar bridge gate in the current 335x chain, records recipeitem_cond_recipe_sidecar_bridge_current_gate=1, recipeitem_cond_recipe_sidecar_bridge=1, optional_cond_recipe_sidecar=1, legacy_cond_facts_required=1, recipe_item_attachment=1, selects MIRBUILDER-PROGRAMJSON-RECIPEITEM-COND-RECIPE-PRODUCER-WIRING-SELECTION-001, and leaves RecipeMatcher input authority, BoolRecipe lowering, MIR Compare/Branch emission, route/runtime authority, and Source Selfhost unclaimed.",
   "2026-07-09: 3348 connects the SetSurfacePolicy / MapStoreI64 `.hako` classifier mirror to the Rust fast-path decision point as a shadow-consumed artifact, records hako_artifact_fastpath_shadow_consumed=1, rust_hako_policy_match=1, mismatch_policy=fail_fast_guard, rust_authority_retained=1, selects MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-SHADOW-CONSUME-MISMATCH-GUARD-EXPANSION-001, and leaves route/runtime authority switches, .hako runtime/backend authority, runtime mutation/publication execution, new backend/ABI, and Source Selfhost unclaimed.",
   "2026-07-09: 3347 deletes the proof-only compare bridge cluster from the live Rust builder module surface, removes six bridge files and builder.rs module declarations, updates the reachability inventory to deleted_file_count=6, verifies live compare lowering remains on ops/comparison.rs via finalize_compare/emit_to, selects MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-SHADOW-CONSUME-SET-MAPSTORE-I64-001, and leaves route/runtime authority, .hako runtime/backend authority, new backend/ABI, and Source Selfhost unclaimed.",
-  "2026-07-09: 3346 opens MIRBUILDER-COMPARE-PROOF-BRIDGE-PARK-OR-CONNECT-DESIGN-STOP-001, records the six compare proof bridge files as production-unconnected proof-only Rust code, asks whether to delete, park as proof-only, or connect a minimal subset, selects CONSULTATION_REQUIRED, and leaves bridge deletion/parking/production connection, compare behavior changes, route/runtime authority, new backend/ABI, and Source Selfhost unclaimed.",
 ]

@@ -66,16 +66,16 @@
   "input_state": {
     "adoption_decision": "Adopt",
     "post_adoption_rerun": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-write-set-mapstore-any-post-adoption-rerun-v0.json",
-    "post_adoption_rerun_hash": "83a47e02a8ac9c83edbdfac213859ce75bc20cce26494ecbcf9b89333ae57e6b",
+    "post_adoption_rerun_hash": "4e6b06590a799c474de696071ec630a86941b91eda851f8e05f57a5012804232",
     "selected_next_card_from_rerun": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-DIRECT-CLOSEOUT-CONTRACT-BASIS-001",
     "selected_scoped_surface": "SetSurfacePolicy/MapStoreAny",
     "write_set_mapstore_any_adoption_decision": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-write-set-mapstore-any-hako-adoption-decision-v0.json",
-    "write_set_mapstore_any_adoption_hash": "860b44016cca57e82eaa699dfba51ac6e7299ec0f185846ecefc39dcb1494e7b"
+    "write_set_mapstore_any_adoption_hash": "a881a8ebb4c57cf14ceb0857899daefa41184e464e173c189924c04b12dfdab2"
   },
   "kind": "MirBuilderCarrierTypeScalarKnownWriteSetMapStoreAnyDirectCloseoutContractBasisV1",
   "provenance": {
     "hako_source_hash": "77e00016586d44ba582e5fd6ba6dd58d594eca4d7c595ef5979b329297bd5f3d",
-    "write_source_hash": "a099f2f6b422e6e6a454d0a6e10c74bfd649155b24ba2ebc760208de5c7caa22"
+    "write_source_hash": "1c586b1fd75af17df2eba630cfdc8081568db45deff376d175c87a7e318f9d23"
   },
   "schema_version": 0,
   "selection_rule": {

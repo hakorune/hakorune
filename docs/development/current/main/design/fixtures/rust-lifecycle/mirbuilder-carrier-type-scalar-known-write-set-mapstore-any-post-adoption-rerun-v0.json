@@ -121,7 +121,7 @@
     "write_push_surface_direct_closeout_hash": "95b3df444c898db6a353439cc9405a19ef051b849f3e14797a606245ce5b6221",
     "write_push_surface_direct_closeout_rerun": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-write-push-surface-direct-closeout-rerun-v0.json",
     "write_set_mapstore_any_adoption_decision": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-write-set-mapstore-any-hako-adoption-decision-v0.json",
-    "write_set_mapstore_any_adoption_hash": "860b44016cca57e82eaa699dfba51ac6e7299ec0f185846ecefc39dcb1494e7b",
+    "write_set_mapstore_any_adoption_hash": "a881a8ebb4c57cf14ceb0857899daefa41184e464e173c189924c04b12dfdab2",
     "write_set_mapstore_i64_direct_closeout_hash": "290c9147112f3744034a0573fd7aecadff715da61b822f6b56eb36983aa04f55",
     "write_set_mapstore_i64_direct_closeout_rerun": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-write-set-mapstore-i64-direct-closeout-rerun-v0.json"
   },
