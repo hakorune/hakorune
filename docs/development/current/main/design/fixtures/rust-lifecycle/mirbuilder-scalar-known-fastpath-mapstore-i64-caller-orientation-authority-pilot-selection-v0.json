@@ -1,27 +1,38 @@
 {
+  "authority_map": {
+    "caller_orientation_authority": "PolicyRowContractAcceptanceOnly",
+    "compatibility_veto": "RustOracle",
+    "decision_payload_authority": "GeneratedRustArtifactFromHako",
+    "mutation_backend_authority": "DownstreamRust",
+    "policy_row_edit_authority": "HandAuthoredHako",
+    "route_match_authority": "RustWriteRoutes"
+  },
   "claims": {
-    "any_value_boundary_not_opened": 1,
+    "any_key_boundary_not_opened": 1,
     "array_append_any_caller_authority": 0,
     "backend_lowering_authority": 0,
     "caller_orientation_runtime_path": 0,
     "delete_hako_route_decision_authority_pilot": 0,
+    "hako_decision_payload_edit_authority_retained": 1,
     "manual_surface_selection": 0,
     "mapstore_any_caller_authority": 0,
     "mapstore_i64_caller_orientation_authority_pilot": 0,
     "mapstore_i64_caller_orientation_authority_pilot_selected": 1,
-    "mapstore_i64_hako_route_decision_authority_retained": 1,
     "mapstore_i64_mismatch_fail_fast_required": 1,
-    "mapstore_i64_rust_oracle_compat_checker_retained": 1,
+    "mapstore_route_policy_key_value_boxshape_repair_required": 1,
     "mutation_boundary_declared_but_not_authorized": 1,
     "owner_name_as_proof": 0,
     "publication_execution": 0,
     "row_count_as_proof": 0,
     "runtime_fallback": 0,
     "runtime_mutation_authority": 0,
+    "rust_compatibility_veto_retained": 1,
+    "rust_route_match_authority_retained": 1,
     "scalar_known_wide_authority": 0,
     "set_surface_policy_mapstore_i64_single_row_scope": 1,
     "source_path_as_authority": 0,
-    "source_selfhost_claim": 0
+    "source_selfhost_claim": 0,
+    "stored_value_any_boundary_declared": 1
   },
   "kind": "MirBuilderScalarKnownFastpathMapStoreI64CallerOrientationAuthorityPilotSelectionV1",
   "provenance": {
@@ -48,19 +59,22 @@
   },
   "schema_version": 0,
   "selection": {
-    "any_value_boundary_opened": false,
+    "any_key_boundary_opened": false,
     "authority_scope": "policy_row_id_contract_only",
+    "boxshape_repair_required": true,
     "consultation_option": "A",
     "consumer_input": "PolicyRowIdOnly",
     "consumer_return": "Unit",
     "implementation_deferred": true,
+    "key_domain": "I64",
     "mutation_authority": false,
     "mutation_boundary": "DeclaredMetadataOnly",
     "policy_row_id": "map_store_i64_set_surface",
     "route_kind": "MapStoreI64",
-    "selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-MAPSTORE-I64-CALLER-ORIENTATION-PILOT-DESIGN-STOP-001",
-    "surface": "SetSurfacePolicy",
-    "value_boundary": "ScalarI64"
+    "selected_next_card": "MIRBUILDER-MAPSTORE-ROUTE-POLICY-KEY-VALUE-DOMAIN-BOXSHAPE-001",
+    "stored_value_any_boundary_present": true,
+    "stored_value_domain": "Any",
+    "surface": "SetSurfacePolicy"
   },
   "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPSTORE-I64-CALLER-ORIENTATION-AUTHORITY-PILOT-001"
 }

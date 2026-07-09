@@ -1,343 +1,18 @@
 # Current State SSOT
-#
-# Purpose:
-# - Keep the active lane / blocker / phase pointers in one compact file.
-# - Point to the latest card without copying landed history into every mirror.
-# - Let tools/checks/current_state_pointer_guard.sh catch stale pointers.
+# Keep live pointers compact. Detailed scope belongs in the active card.
 
 status = "Active"
-date = "2026-07-09"
+date = "2026-07-10"
 
 active_lane = "RUST-SUBSET-TO-HAKO-APP-FRONT compiler construction / selfhost app front"
-active_lane_status = """Source Selfhost is intentionally stopped at the wider
-route-selection design stop. ReturnEmission is now a narrow HakoAdopted leaf
-semantic owner, FunctionRegionStackPop is now a narrow HakoAdopted leaf
-semantic owner, SlotRegistryRelease is now a narrow HakoAdopted leaf semantic
-owner, and carrier-merge assignment is now a narrow HakoAdopted mutation-frame
-leaf semantic owner. StatementValueConstruction box field initialization is
-now a narrow HakoAdopted mutation-frame leaf semantic owner.
-StorageClassClassifier is now a narrow HakoAdopted Rust-oracle parity pilot
-owner. PlacementEffectTagFormatter is now a narrow HakoAdopted Rust-oracle
-parity pilot owner after a green 25-row `.hako` EXE parity gate. Source Selfhost remains unclaimed.
-StaticScalarFactClassifier is now a narrow HakoAdopted Rust-oracle parity
-pilot owner after a green 8-row `.hako` EXE parity gate. Source Selfhost
-remains unclaimed.
-StringCorridorNameVocabularyClassifier is now a narrow HakoAdopted
-Rust-oracle parity pilot owner after a green 18-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-SameModuleDefinitionKindFormatter is now a narrow HakoAdopted Rust-oracle
-parity pilot owner after a green 2-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-ArrayTextLoopSessionBackendSessionLoweringAllowedClassifier is now a narrow
-HakoAdopted Rust-oracle parity pilot owner after a green 7-row `.hako` EXE
-parity gate. Source Selfhost remains unclaimed.
-BuilderValueKindParameterClassifier is now a narrow HakoAdopted Rust-oracle
-parity pilot owner after a green 6-row `.hako` EXE parity gate. Source
-Selfhost remains unclaimed.
-AggLocalScalarizationInlineScalarUserBoxLocalBodyClassifier is now a narrow
-HakoAdopted Rust-oracle parity pilot owner after a green 6-row `.hako` EXE
-parity gate. Source Selfhost remains unclaimed.
-AggLocalScalarizationKindFormatter is now a narrow HakoAdopted Rust-oracle
-parity pilot owner after a green 6-row `.hako` EXE parity gate. Source Selfhost
-remains unclaimed.
-FastMemMemopKindNameFormatter is now a narrow HakoAdopted Rust-oracle parity
-pilot owner after a green 6-row `.hako` EXE parity gate. Source Selfhost
-remains unclaimed.
-FastMemLlvmOwnerRuntimeMemopKindClassifier is now a narrow HakoAdopted
-Rust-oracle parity pilot owner after a green 6-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-FastMemLlvmValueMemopKindClassifier is now a narrow HakoAdopted Rust-oracle
-parity pilot owner after a green 6-row `.hako` EXE parity gate. Source
-Selfhost remains unclaimed.
-FastMemLlvmLayoutTableMemopKindClassifier is now a narrow HakoAdopted
-Rust-oracle parity pilot owner after a green 6-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-UserBoxMethodTypeLabelFormatter is selected as the sixth narrow Rust-oracle
-parity pilot owner, has a 10-row Rust-oracle fixture, and now has a
-hand-authored `.hako` implementation with a green 10-row parity gate.
-UserBoxMethodTypeLabelFormatter is now a narrow HakoAdopted Rust-oracle parity
-pilot owner. Source Selfhost remains unclaimed.
-CoreMethodCarrierTokenFormatter is now a narrow HakoAdopted Rust-oracle parity
-pilot owner after a green 32-row `.hako` EXE parity gate. Source Selfhost
-remains unclaimed.
-GenericMethodRouteFactTokenFormatter is now a narrow HakoAdopted Rust-oracle
-parity pilot owner after a green 12-row `.hako` EXE parity gate. Source
-Selfhost remains unclaimed.
-ClosureCallShapeClassifier is now a narrow HakoAdopted Rust-oracle parity
-pilot owner after a green 4-row `.hako` EXE parity gate. Source Selfhost
-remains unclaimed.
-RegionRefSlotKindClassifier is now a narrow HakoAdopted Rust-oracle parity
-pilot owner after a green 10-row `.hako` EXE parity gate. Source Selfhost
-remains unclaimed.
-LoopRouteKindLabelFormatter is now a narrow HakoAdopted Rust-oracle parity
-pilot owner after a green 7-row `.hako` EXE parity gate. Source Selfhost
-remains unclaimed.
-ThinEntryTagFormatter is now a narrow HakoAdopted Rust-oracle parity pilot
-owner after a green 23-row `.hako` EXE parity gate. Source Selfhost remains
-unclaimed.
-ArrayTextObserverExecutorTagFormatter is now a narrow HakoAdopted Rust-oracle
-parity pilot owner after a green 11-row `.hako` EXE parity gate. Source
-Selfhost remains unclaimed.
-SumLocalAggregateLayoutTagFormatter is now a narrow HakoAdopted Rust-oracle
-parity pilot owner after a green 4-row `.hako` EXE parity gate. Source
-Selfhost remains unclaimed.
-StringKernelPlanLabelFormatter is now a narrow HakoAdopted Rust-oracle parity
-pilot owner after a green 12-row `.hako` EXE parity gate. Source Selfhost
-remains unclaimed.
-ArrayTextStateResidenceLabelFormatter is now a narrow HakoAdopted Rust-oracle
-parity pilot owner after a green 5-row `.hako` EXE parity gate. Source
-Selfhost remains unclaimed.
-ArrayTextResidenceSessionLabelFormatter is now a narrow HakoAdopted Rust-oracle
-parity pilot owner after a green 12-row `.hako` EXE parity gate. Source
-Selfhost remains unclaimed.
-SumVariantSeedLabelFormatter is now a narrow HakoAdopted Rust-oracle parity
-pilot owner after a green 16-row `.hako` EXE parity gate. Source Selfhost
-remains unclaimed.
-MirTypeLabelFormatter is now a narrow HakoAdopted Rust-oracle parity pilot
-owner after a green 13-row `.hako` EXE parity gate. Source Selfhost remains
-unclaimed.
-EffectCapabilityPlanLabelFormatter is now a narrow HakoAdopted Rust-oracle
-parity pilot owner after a green 11-row `.hako` EXE parity gate. Source
-Selfhost remains unclaimed.
-FastMemProofKindLabelFormatter is now a narrow HakoAdopted Rust-oracle parity
-pilot owner after a green 10-row `.hako` EXE parity gate. Source Selfhost
-remains unclaimed.
-ConstructorCallRouteLabelFormatter is now a narrow HakoAdopted Rust-oracle
-parity pilot owner after a green 12-row `.hako` EXE parity gate. Source
-Selfhost remains unclaimed.
-PlannerRuleLabelFormatter is now a narrow HakoAdopted Rust-oracle parity pilot
-owner after a green 42-row `.hako` EXE parity gate. Source Selfhost remains
-unclaimed.
-LoopRouteDenyReasonLabelFormatter is now a narrow HakoAdopted Rust-oracle
-parity pilot owner after a green 6-row `.hako` EXE parity gate. Source
-Selfhost remains unclaimed.
-ArrayRmwWindowProofLabelFormatter is now a narrow HakoAdopted Rust-oracle
-parity pilot owner after a green 1-row `.hako` EXE parity gate. Source
-Selfhost remains unclaimed.
-ArrayRmwAdd1LeafSeedProofLabelFormatter is now a narrow HakoAdopted
-Rust-oracle parity pilot owner after a green 1-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-ArrayGetSetMicroSeedProofLabelFormatter is now a narrow HakoAdopted
-Rust-oracle parity pilot owner after a green 1-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-ArrayStringStoreMicroSeedProofLabelFormatter is now a narrow HakoAdopted
-Rust-oracle parity pilot owner after a green 1-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-ConcatConstSuffixMicroSeedProofLabelFormatter is now a narrow HakoAdopted
-Rust-oracle parity pilot owner after a green 1-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-ArrayTextLoopCarryLenStoreProofLabelFormatter is now a narrow HakoAdopted
-Rust-oracle parity pilot owner after a green 1-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-ArrayStringLenWindowLabelFormatter is now a narrow HakoAdopted Rust-oracle
-parity pilot owner after a green 6-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-StringDirectSetWindowProofLabelFormatter is now a narrow HakoAdopted
-Rust-oracle parity pilot owner after a green 1-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-SubstringViewsMicroSeedProofLabelFormatter is now a narrow HakoAdopted
-Rust-oracle parity pilot owner after a green 1-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-UserBoxLoopMicroSeedLabelFormatter is now a narrow HakoAdopted Rust-oracle
-parity pilot owner after a green 4-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-ExactSeedBackendRouteLabelFormatter is now a narrow HakoAdopted Rust-oracle
-parity pilot owner after a green 24-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-UserBoxKnownReceiverMethodSeedLabelFormatter is now a narrow HakoAdopted
-Rust-oracle parity pilot owner after a green 14-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-UserBoxLocalScalarSeedLabelFormatter is now a narrow HakoAdopted Rust-oracle
-parity pilot owner after a green 9-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-IndexOfSearchMicroSeedLabelFormatter is now a narrow HakoAdopted Rust-oracle
-parity pilot owner after a green 8-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-ArrayTextEditLabelFormatter is now a narrow HakoAdopted Rust-oracle parity
-pilot owner after a green 4-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-StringCorridorRelationLabelFormatter is now a narrow HakoAdopted Rust-oracle
-parity pilot owner after a green 4-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-SumPlacementPathLabelFormatter is now a narrow HakoAdopted Rust-oracle parity
-pilot owner after a green 2-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-SumPlacementLabelFormatter is now a narrow HakoAdopted Rust-oracle parity pilot
-owner after a green 9-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-StringCorridorPlacementLabelFormatter is now a narrow HakoAdopted Rust-oracle
-parity pilot owner after a green 8-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-EscapeBarrierLabelFormatter is now a narrow HakoAdopted Rust-oracle parity
-pilot owner after a green 7-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-InlinePlanLabelFormatter is now a narrow HakoAdopted Rust-oracle parity pilot
-owner after a green 6-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-GenericLoopV1ShapeLabelFormatter is now a narrow HakoAdopted Rust-oracle
-parity pilot owner after a green 19-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-ArrayTextLoopSessionRejectLabelFormatter is now a narrow HakoAdopted
-Rust-oracle parity pilot owner after a green 5-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-DirectArrayAccessLabelFormatter is now a narrow HakoAdopted Rust-oracle
-parity pilot owner after a green 15-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-BoxedSumPayloadStorageLabelFormatter is now a narrow HakoAdopted Rust-oracle
-parity pilot owner after a green 3-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-GlobalCallTargetShapeLabelFormatter is now a narrow HakoAdopted Rust-oracle
-parity pilot owner after a green 4-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-UserBoxMethodPublicationStateFormatter is now a narrow HakoAdopted Rust-oracle
-parity pilot owner after a green 3-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-CopyEmitReasonLabelFormatter is now a narrow HakoAdopted Rust-oracle parity
-pilot owner after a green 4-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-FlowboxBoxKindLabelFormatter is now a narrow HakoAdopted Rust-oracle parity
-pilot owner after a green 5-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-FlowboxViaLabelFormatter is now a narrow HakoAdopted Rust-oracle parity
-pilot owner after a green 2-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-FlowboxFeatureLabelCollector is now a narrow HakoAdopted Rust-oracle parity
-pilot owner after a green 9-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-FlowboxAdoptTagFormatter is now a narrow HakoAdopted Rust-oracle parity pilot
-owner after a green 3-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-FlowboxFreezeTagFormatter is now a narrow HakoAdopted Rust-oracle parity pilot
-owner after a green 3-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-EmitGuardCalleeLabelFormatter is now a narrow HakoAdopted Rust-oracle parity
-pilot owner after a green 6-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-EmitGuardValueIdListFormatter is now a narrow HakoAdopted Rust-oracle parity
-pilot owner after a green 4-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-EmitGuardShortInstNameFormatter is now a narrow HakoAdopted Rust-oracle parity
-pilot owner after a green 10-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-IndexTargetKindFormatter is now a narrow HakoAdopted Rust-oracle parity pilot
-owner after a green 5-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-PropertyGetterMethodNameFormatter is now a narrow HakoAdopted Rust-oracle
-parity pilot owner after a green 6-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-CallTargetNameFormatter is now a narrow HakoAdopted Rust-oracle parity pilot
-owner after a green 6-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-CallTargetConstructorClassifier is now a narrow HakoAdopted Rust-oracle parity
-pilot owner after a green 6-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-Mir14InstructionNameClassifier is now a narrow HakoAdopted Rust-oracle parity
-pilot owner after a green 16-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-MemOpKindLabelFormatter is now a narrow HakoAdopted Rust-oracle parity pilot
-owner after a green 34-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-MapLookupFusionMetadataLabelFormatter is now a narrow HakoAdopted Rust-oracle
-parity pilot owner after a green 5-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-PlanFreezeTagFormatter is now a narrow HakoAdopted Rust-oracle parity pilot
-owner after a green 5-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-GlobalCallReturnContractLabelFormatter is now a narrow HakoAdopted
-Rust-oracle parity pilot owner after a green 16-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-GlobalCallDefinitionOwnerLabelFormatter is now a narrow HakoAdopted
-Rust-oracle parity pilot owner after a green 14-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-GlobalCallTargetShapeReasonLabelFormatter is now a narrow HakoAdopted
-Rust-oracle parity pilot owner after a green 15-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-GlobalCallProofJsonNameFormatter is now a narrow HakoAdopted Rust-oracle
-parity pilot owner after a green 17-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-GlobalCallProofResultOriginFormatter is now a narrow HakoAdopted Rust-oracle
-parity pilot owner after a green 17-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-GlobalCallProofDirectnessClassifier is now a narrow HakoAdopted Rust-oracle
-parity pilot owner after a green 17-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-FastMemAccessPlanKindLabelFormatter is now a narrow HakoAdopted Rust-oracle
-parity pilot owner after a green 10-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-ArrayTextObserverConsumerShapeFormatter is now a narrow HakoAdopted Rust-oracle
-parity pilot owner after a green 2-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-ArrayTextObserverArgReprKindFormatter is now a narrow HakoAdopted Rust-oracle
-parity pilot owner after a green 2-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-ArrayTextObserverArgReprConstUtf8Classifier is now a narrow HakoAdopted
-Rust-oracle parity pilot owner after a green 2-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-ArrayTextObserverProofRegionFormatter is now a narrow HakoAdopted Rust-oracle
-parity pilot owner after a green 1-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-ArrayTextObserverPublicationBoundaryFormatter is now a narrow HakoAdopted
-Rust-oracle parity pilot owner after a green 1-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-ArrayTextObserverResultReprFormatter is now a narrow HakoAdopted Rust-oracle
-parity pilot owner after a green 1-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-ArrayTextObserverRouteObserverKindFormatter is now a narrow HakoAdopted
-Rust-oracle parity pilot owner after a green 1-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-ArrayTextObserverRouteObserverArg0ReprKindFormatter is now a narrow HakoAdopted
-Rust-oracle parity pilot owner after a green 1-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-ArrayTextResidenceSessionSafeBookkeepingClassifier is now a narrow HakoAdopted
-Rust-oracle parity pilot owner after a green 5-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-CallResolutionEnvInterfaceClassifier is now a narrow HakoAdopted
-Rust-oracle parity pilot owner after a green 9-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-CalleeGuardMeCallClassifier is now a narrow HakoAdopted Rust-oracle parity
-pilot owner after a green 4-row `.hako` EXE parity gate. Source Selfhost
-remains unclaimed.
-CallLoweringConstructorNameClassifier is now a narrow HakoAdopted
-Rust-oracle parity pilot owner after a green 4-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-CallResolutionCommonlyShadowedMethodClassifier is now a narrow HakoAdopted
-Rust-oracle parity pilot owner after a green 5-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-CallResolutionExternFunctionClassifier is now a narrow HakoAdopted
-Rust-oracle parity pilot owner after a green 4-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-GenericLoopBoolLiteralConditionClassifier is now a narrow HakoAdopted
-Rust-oracle parity pilot owner after a green 3-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-SupportedValueExprClassifier is now a narrow HakoAdopted Rust-oracle parity
-pilot owner after a green 4-row `.hako` EXE parity gate. Source Selfhost
-remains unclaimed.
-SupportedBoolExprClassifier is now a narrow HakoAdopted Rust-oracle parity
-pilot owner after a green 4-row `.hako` EXE parity gate. Source Selfhost
-remains unclaimed.
-PureValueExprForGenericLoopClassifier is now a narrow HakoAdopted
-Rust-oracle parity pilot owner after a green 4-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-SupportedBoolExprForGenericLoopClassifier is now a narrow HakoAdopted
-Rust-oracle parity pilot owner after a green 3-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-DirectStepPlacementClassifier is now a narrow HakoAdopted Rust-oracle parity
-pilot owner after a green 4-row `.hako` EXE parity gate. Source Selfhost
-remains unclaimed.
-ArrayStringLenWindowEffectTagsFormatter is now a narrow HakoAdopted
-Rust-oracle parity pilot owner after a green 3-row `.hako` EXE parity gate.
-Source Selfhost remains unclaimed.
-BlockContractKindLabelFormatter is now a narrow HakoAdopted Rust-oracle
-parity pilot owner after a green 4-row `.hako` EXE parity gate. Source
-Selfhost remains unclaimed.
-Leaf parity pilot count is no longer treated as hard MirBuilder authority
-migration progress. The next MirBuilder migration slice must select a smallest
-Fact-owner or REGISTRY-rule contract with fixture-backed parity.
-Hard authority selection must run a focused Fact/Plan/Boundary inventory before
-the next implementation slice; leaf pilots are excluded from the first
-hard-authority candidate.
-EXE/AOT remains the primary
-app/selfhost validation route; VM/interpreter lanes are not semantic owners."""
+active_lane_status = """Source Selfhost remains stopped and unclaimed. MapLoad,
+String, and Collection caller-orientation pilots are green. The MapStoreI64
+selection is corrected to key_domain=I64 and stored_value_domain=Any; its pilot
+remains unimplemented. 3456 is the BoxShape-only prerequisite that introduces
+one typed policy-row SSOT, one shared validator, and independent key/value tests
+without changing route behavior or authority. After 3454 is green, caller
+orientation parks and the lane returns to focused Fact/Plan/Boundary inventory
+for the smallest Fact-owner or REGISTRY-rule hard-authority slice."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
@@ -345,15 +20,14 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPSTORE-I64-CALLER-ORIENTATION-AUTHORITY-PILOT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3454-MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPSTORE-I64-CALLER-ORIENTATION-AUTHORITY-PILOT-001.md"
-latest_card_summary = """3454 records the Pro-selected MapStoreI64-only
-caller-orientation authority pilot. It validates one ScalarI64 mutation-bearing
-metadata row with policy-row-ID-only Unit consumption while retaining the Hako
-route decision and Rust oracle veto. Runtime mutation, Any boundaries, Delete,
-wide, runtime/backend, and Source Selfhost authority remain excluded."""
+latest_card = "MIRBUILDER-MAPSTORE-ROUTE-POLICY-KEY-VALUE-DOMAIN-BOXSHAPE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3456-MIRBUILDER-MAPSTORE-ROUTE-POLICY-KEY-VALUE-DOMAIN-BOXSHAPE-001.md"
+latest_card_summary = """3456 repairs the MapStore policy shape before 3454:
+MapStoreI64 means I64 key plus Any stored value. It centralizes the typed policy
+row and validator, preserves independent Rust route matching and veto, and
+requires independent-axis tests. The caller authority pilot remains zero."""
 
-current_blocker_token = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPSTORE-I64-CALLER-ORIENTATION-AUTHORITY-PILOT-001"
+current_blocker_token = "MIRBUILDER-MAPSTORE-ROUTE-POLICY-KEY-VALUE-DOMAIN-BOXSHAPE-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -362,16 +36,10 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
-  "2026-07-10: 3454 records Pro option A and opens only the MapStoreI64 ScalarI64 mutation-metadata caller-orientation authority pilot; the consumer remains policy-row-ID-only and Unit-returning, Hako route decision and Rust oracle veto are retained, and runtime mutation/Any/Delete/wide/runtime/backend/Source Selfhost authority remain zero.",
-  "2026-07-10: 3453 slims the MirBuilder task-order from a 786-line historical ledger with a 15,727-character line to a 117-line current-only pointer with a 500-character line guard; the 3452 Write mutation design stop remains current and no authority claim changes.",
-  "2026-07-10: 3451 reruns the Collection four-row caller-orientation authority pilot with 23 caller tests and 19 shadow parity tests green; policy-row-ID-only Unit consumption, mixed receiver-domain/AnyLength-Box guards, Rust oracle veto, and all Write/Delete/wide/runtime/backend/Source Selfhost claims remain bounded.",
-  "2026-07-10: 3450 implements the Collection caller-orientation authority validator with exact four-row closed-set checks and policy-row-ID-only Unit input; receiver domains remain generated policy metadata and route decision remains in the existing Hako shadow consumer.",
-  "2026-07-10: 3449 resolves the post-String design stop mechanically with option B and queues a four-card Collection caller-orientation packet: exact four-row basis, implementation, rerun, then consultation at the mutation-bearing non-Delete Write boundary; receiver domains stay policy-owned and AnyLength/Box remains explicit non-wildcard metadata.",
-  "2026-07-10: 3447 reruns the String three-row caller-orientation authority pilot with 22 caller tests and 19 shadow parity tests green; policy-row-ID-only Unit consumption, generated policy/contract comparison, Rust oracle veto, and all runtime/backend/mutation/publication/Delete/wide/Source Selfhost claims remain bounded.",
-  "2026-07-10: 3446 implements the String caller-orientation authority validator with exact three-row closed-set checks and policy-row-ID-only Unit input; route decision remains in the existing Hako shadow consumer and Rust oracle compatibility veto remains fail-fast.",
-  "2026-07-10: 3445 resolves the post-MapLoad candidate inventory mechanically and selects the exact three-row homogeneous StringScalarI64Routes read surface for a policy-row-ID-only Unit caller-orientation authority pilot; Collection mixed receiver-domain, Write mutation, Delete, wide, runtime/backend, and Source Selfhost remain excluded, and 3446 is ready.",
-  "2026-07-10: 3444 lands the Source Selfhost family guard ledger split into a 27-row baseline active index plus explicit post-split active rows and 397 one-line history rows, freezes the v0 compatibility snapshot, and adds exact partition/current-blocker traceability guards without changing authority claims.",
-  "2026-07-10: 3442 reruns the MapLoad-only caller-orientation contract authority pilot with fresh generated artifacts, exact single-row scope, fail-fast boundary, 21 caller tests, and all runtime/backend/Delete/wide/Source Selfhost claims at zero; 3443 is now the next-proof-axis Pro consultation stop.",
-  "2026-07-10: 3441 implements the Pro-authorized MapLoad-only caller-orientation contract authority pilot, comparing generated typed policy metadata with a policy-row-ID-only Unit consumer and retaining the Rust oracle fail-fast veto; route/runtime/backend, mutation/publication, Delete, wide, and Source Selfhost authority remain unclaimed.",
-  "2026-07-10: 3440 adopts Pro option A and authorizes a MapLoad-only caller-orientation contract authority pilot keyed by policy_row_id with Unit return, generated typed policy comparison, and Rust oracle fail-fast veto; route/runtime/backend, mutation/publication, Delete, wide, and Source Selfhost authority remain unclaimed.",
+  "2026-07-10: 3456 records the MapStore key/value BoxShape repair prerequisite; 3454 stays selected but unimplemented, route behavior and authority do not move.",
+  "2026-07-10: 3454 selects the MapStoreI64 caller-orientation pilot; later review corrected I64 from stored-value domain to key domain before implementation.",
+  "2026-07-10: 3453 slims the MirBuilder task-order and adds a 500-character line guard.",
+  "2026-07-10: 3451 reruns the Collection four-row caller-orientation authority pilot green.",
+  "2026-07-10: 3447 reruns the String three-row caller-orientation authority pilot green.",
+  "2026-07-10: 3442 reruns the MapLoad single-row caller-orientation authority pilot green.",
 ]

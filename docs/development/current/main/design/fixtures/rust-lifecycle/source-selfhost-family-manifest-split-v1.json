@@ -1,6 +1,6 @@
 {
   "active_manifest": "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-family-guard-active-v1.json",
-  "active_manifest_sha256": "0659fd300bcfc421544801fdf3ee076f0802b8d9224fef07ac88de9a6d02a021",
+  "active_manifest_sha256": "8af49f3b53305558658b421f84d02685dddbbd10409b2e86589370d3b7fcba90",
   "active_roles": [
     "current_maintenance",
     "current_semantic"
@@ -13,7 +13,7 @@
     "source_selfhost_claim": 0
   },
   "counts": {
-    "active_rows": 38,
+    "active_rows": 39,
     "history_rows": 397,
     "source_rows": 424
   },

@@ -4,18 +4,18 @@
 
 Queued after a green 3454 fixture-backed rerun. Do not enter early.
 
-## Consultation Frontier
+## Exit Decision
 
-MapStoreI64 proves only that mutation metadata can remain distinct from runtime
-mutation authority. It does not prove either Any boundary.
+After a green 3454 rerun, park caller orientation. MapStoreI64 proves only that
+typed key/value and mutation metadata can remain distinct from route, runtime,
+backend, and mutation authority.
 
 ```text
-next candidates:
-  A: ArrayAppendAny, mutation + Any push boundary
-  B: MapStoreAny, mutation + Any write + map store boundary
-  C: park caller orientation and return to Source Selfhost route selection
+next action:
+  focused Fact / Plan / Boundary inventory
+  select the smallest Fact-owner or REGISTRY-rule hard-authority slice
 ```
 
-The next decision must keep Delete parked and define an explicit Any-boundary
-proof axis. Runtime mutation, publication, backend, wide, and Source Selfhost
-authority remain zero.
+Do not open ArrayAppendAny, MapStoreAny, Delete, or ScalarKnown-wide from this
+card. Runtime mutation, publication, backend, and Source Selfhost authority
+remain zero.

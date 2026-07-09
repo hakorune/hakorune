@@ -19,7 +19,7 @@ inventories, transcripts, or historical next chains.
 ## Current Blocker
 
 ```text
-MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPSTORE-I64-CALLER-ORIENTATION-AUTHORITY-PILOT-001
+MIRBUILDER-MAPSTORE-ROUTE-POLICY-KEY-VALUE-DOMAIN-BOXSHAPE-001
 ```
 
 The active token, latest card, and phase pointer are authoritative only in:
@@ -34,6 +34,7 @@ docs/development/current/main/CURRENT_STATE.toml
 MapLoad caller-orientation authority pilot = complete
 String caller-orientation authority pilot = complete
 Collection caller-orientation authority pilot = complete
+MapStoreI64 caller-orientation pilot = selected, implementation pending
 
 caller input = PolicyRowIdOnly
 caller return = Unit
@@ -45,27 +46,34 @@ Collection stays an explicitly enumerated four-row boundary. Its receiver
 domains remain generated policy metadata, not caller inputs. `AnyLength -> Box`
 is one explicit row, not wildcard or global Box authority.
 
-## Current Pilot
+## Current BoxShape Prerequisite
 
-Pro selects the first mutation-bearing caller-orientation authority slice:
+The 3454 selection merged key and stored-value domains. The corrected policy is:
 
 ```text
-surface = SetSurfacePolicy
-route_kind = MapStoreI64
-policy_row_id = map_store_i64_set_surface
-consumer_input = PolicyRowIdOnly
-consumer_return = Unit
-value_boundary = ScalarI64
-mutation_boundary = declared metadata only
+MapStoreI64: key_domain = I64, stored_value_domain = Any
+MapStoreAny: key_domain = Any, stored_value_domain = Any
 ```
 
-The generated typed `.hako` policy remains route-decision authority. The Rust
-oracle remains fail-fast compatibility veto. Caller orientation validates the
-generated row contract but may not select a route or perform mutation.
+3456 is one BoxShape-only task: introduce a typed `RoutePolicyRow` SSOT,
+generate the decision payload and caller projection from one Hako-owned row,
+retain independent Rust route matching/oracle behavior, centralize caller and
+shadow validation, and test key/value axes independently.
 
-ArrayAppendAny, MapStoreAny, Delete, wide, runtime/backend, publication, and
-Source Selfhost remain excluded. After a green fixture-backed rerun, enter
-3455 to select an explicit Any-boundary proof axis.
+After 3456 is green, resume 3454. After a green 3454 fixture-backed rerun, enter
+3455, park caller orientation, and return to focused Fact/Plan/Boundary
+inventory for the smallest Fact-owner or REGISTRY-rule hard-authority slice.
+
+## Authority Owners
+
+```text
+route matching = Rust write_routes.rs
+policy row edit source = hand-authored Hako
+decision payload = Rust artifact generated from Hako
+compatibility veto = independent Rust validator / oracle
+mutation and backend = downstream Rust
+caller orientation = policy-row contract acceptance or rejection only
+```
 
 ## Invariants
 
@@ -119,4 +127,4 @@ When a change needs detailed evidence, add it to the active card, a fixture,
 the family history JSONL, an investigation, or git history. Do not create a
 numbered card for inventory-only bookkeeping.
 
-next_documented_task = MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPSTORE-I64-CALLER-ORIENTATION-AUTHORITY-PILOT-001
+next_documented_task = MIRBUILDER-MAPSTORE-ROUTE-POLICY-KEY-VALUE-DOMAIN-BOXSHAPE-001

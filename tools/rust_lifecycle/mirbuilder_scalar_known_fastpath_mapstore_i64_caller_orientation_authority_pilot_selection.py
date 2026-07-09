@@ -13,7 +13,7 @@ from shared_family_generator import sha256_file, stable_json, write_if_changed
 ROOT = Path(__file__).resolve().parents[2]
 OUTPUT = ROOT / "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-mapstore-i64-caller-orientation-authority-pilot-selection-v0.json"
 TOKEN = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPSTORE-I64-CALLER-ORIENTATION-AUTHORITY-PILOT-001"
-NEXT_CARD = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-MAPSTORE-I64-CALLER-ORIENTATION-PILOT-DESIGN-STOP-001"
+NEXT_CARD = "MIRBUILDER-MAPSTORE-ROUTE-POLICY-KEY-VALUE-DOMAIN-BOXSHAPE-001"
 
 DESIGN_STOP = ROOT / "docs/development/current/main/phases/phase-296x/3452-MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-COLLECTION-CALLER-ORIENTATION-PILOT-DESIGN-CONSULTATION-001.md"
 POLICY = ROOT / "src/mir/generic_method_route_plan/generated/write_set_mapstore_i64_hako_policy.rs"
@@ -50,21 +50,35 @@ def build_fixture() -> dict[str, Any]:
             "authority_scope": "policy_row_id_contract_only",
             "consumer_input": "PolicyRowIdOnly",
             "consumer_return": "Unit",
-            "value_boundary": "ScalarI64",
+            "key_domain": "I64",
+            "stored_value_domain": "Any",
             "mutation_boundary": "DeclaredMetadataOnly",
             "mutation_authority": False,
-            "any_value_boundary_opened": False,
+            "any_key_boundary_opened": False,
+            "stored_value_any_boundary_present": True,
+            "boxshape_repair_required": True,
             "implementation_deferred": True,
             "selected_next_card": NEXT_CARD,
+        },
+        "authority_map": {
+            "route_match_authority": "RustWriteRoutes",
+            "policy_row_edit_authority": "HandAuthoredHako",
+            "decision_payload_authority": "GeneratedRustArtifactFromHako",
+            "compatibility_veto": "RustOracle",
+            "mutation_backend_authority": "DownstreamRust",
+            "caller_orientation_authority": "PolicyRowContractAcceptanceOnly",
         },
         "claims": {
             "mapstore_i64_caller_orientation_authority_pilot_selected": 1,
             "set_surface_policy_mapstore_i64_single_row_scope": 1,
             "mutation_boundary_declared_but_not_authorized": 1,
-            "any_value_boundary_not_opened": 1,
-            "mapstore_i64_hako_route_decision_authority_retained": 1,
-            "mapstore_i64_rust_oracle_compat_checker_retained": 1,
+            "stored_value_any_boundary_declared": 1,
+            "any_key_boundary_not_opened": 1,
+            "rust_route_match_authority_retained": 1,
+            "hako_decision_payload_edit_authority_retained": 1,
+            "rust_compatibility_veto_retained": 1,
             "mapstore_i64_mismatch_fail_fast_required": 1,
+            "mapstore_route_policy_key_value_boxshape_repair_required": 1,
             "mapstore_i64_caller_orientation_authority_pilot": 0,
             "runtime_mutation_authority": 0,
             "caller_orientation_runtime_path": 0,
