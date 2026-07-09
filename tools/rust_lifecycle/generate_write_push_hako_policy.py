@@ -76,6 +76,7 @@ use crate::mir::generic_method_route_plan::GenericMethodRouteKind;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) struct HakoWritePushPolicy {{
+    pub(crate) policy_row_id: &'static str,
     pub(crate) surface: &'static str,
     pub(crate) route_kind: GenericMethodRouteKind,
     pub(crate) core_op: CoreMethodOp,
@@ -90,6 +91,7 @@ pub(crate) struct HakoWritePushPolicy {{
 }}
 
 pub(crate) const WRITE_PUSH_HAKO_POLICY: HakoWritePushPolicy = HakoWritePushPolicy {{
+    policy_row_id: {lit(row_id)},
     surface: {lit(surface)},
     route_kind: GenericMethodRouteKind::{route_kind},
     core_op: CoreMethodOp::{core_op},

@@ -64,7 +64,7 @@
     "hako_contract_hash": "d27da900bea63c511909943ba592e94205734848f3a420c0ad77783e3a2330dd",
     "mapstore_i64_policy": "lang/src/compiler/lib/write_set_mapstore_i64_policy_classifier.hako",
     "mapstore_i64_policy_artifact": "src/mir/generic_method_route_plan/generated/write_set_mapstore_i64_hako_policy.rs",
-    "mapstore_i64_policy_artifact_hash": "21975493831b4b080c98aeb836d6a69cbb9b3605d5a7636aed49c4653d411508",
+    "mapstore_i64_policy_artifact_hash": "9afe64c6c818209012b33c0399bc09ea553f94ff7485fb63b2d1c3fe908cc8c5",
     "mapstore_i64_policy_hash": "1bc09769e02851c5c42a7a8287624215d9f206d5b2800e17659016a6fd177f5d"
   },
   "schema_version": 0,

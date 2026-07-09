@@ -7,6 +7,7 @@ use crate::mir::generic_method_route_plan::GenericMethodRouteKind;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) struct HakoWritePushPolicy {
+    pub(crate) policy_row_id: &'static str,
     pub(crate) surface: &'static str,
     pub(crate) route_kind: GenericMethodRouteKind,
     pub(crate) core_op: CoreMethodOp,
@@ -21,6 +22,7 @@ pub(crate) struct HakoWritePushPolicy {
 }
 
 pub(crate) const WRITE_PUSH_HAKO_POLICY: HakoWritePushPolicy = HakoWritePushPolicy {
+    policy_row_id: "array_append_any_push_surface",
     surface: "PushSurfacePolicy",
     route_kind: GenericMethodRouteKind::ArrayAppendAny,
     core_op: CoreMethodOp::ArrayPush,

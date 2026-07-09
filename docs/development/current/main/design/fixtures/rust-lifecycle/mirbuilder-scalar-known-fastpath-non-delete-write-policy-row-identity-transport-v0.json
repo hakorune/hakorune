@@ -1,0 +1,74 @@
+{
+  "claims": {
+    "backend_lowering_authority": 0,
+    "caller_orientation_runtime_path": 0,
+    "delete_hako_route_decision_authority_pilot": 0,
+    "exact_three_row_set_verified": 1,
+    "mapstore_any_policy_row_identity_transported": 1,
+    "mapstore_i64_policy_row_identity_transported": 1,
+    "non_delete_write_policy_row_identity_transport": 1,
+    "publication_execution": 0,
+    "push_arrayappendany_policy_row_identity_transported": 1,
+    "route_selection_authority_switch": 0,
+    "runtime_mutation_authority": 0,
+    "scalar_known_wide_authority": 0,
+    "source_selfhost_claim": 0,
+    "write_mutation_authority": 0,
+    "write_wide_authority": 0
+  },
+  "decision": {
+    "card": "docs/development/current/main/phases/phase-296x/3435-MIRBUILDER-SCALAR-KNOWN-FASTPATH-NON-DELETE-WRITE-POLICY-ROW-IDENTITY-TRANSPORT-001.md",
+    "kind": "TransportNonDeleteWritePolicyRowIdentity",
+    "next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-SET-MAPSTORE-I64-CALLER-ORIENTATION-LIVE-ASSERT-CONSUMER-001"
+  },
+  "kind": "MirBuilderScalarKnownFastpathNonDeleteWritePolicyRowIdentityTransportV1",
+  "schema_version": 0,
+  "scope": {
+    "caller_contract_semantics_copied": false,
+    "delete_included": false,
+    "row_ids": [
+      "map_store_i64_set_surface",
+      "array_append_any_push_surface",
+      "map_store_any_set_surface"
+    ]
+  },
+  "surfaces": [
+    {
+      "caller_contract_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-write-set-mapstore-i64-caller-orientation-contract-artifact-v0.json",
+      "caller_contract_fixture_hash": "5f781c652691550152b17ad64291042f983fc2c8db9974f38e87464507dde49b",
+      "generator": "tools/rust_lifecycle/generate_write_set_mapstore_i64_hako_policy.py",
+      "generator_hash": "428b6d5ca8a36f0d3291385b5e8ae4d0222e2ac3764bc8a6173cabc38a6a6090",
+      "name": "mapstore_i64",
+      "policy_row_id": "map_store_i64_set_surface",
+      "policy_source": "lang/src/compiler/lib/write_set_mapstore_i64_policy_classifier.hako",
+      "policy_source_hash": "1bc09769e02851c5c42a7a8287624215d9f206d5b2800e17659016a6fd177f5d",
+      "typed_artifact": "src/mir/generic_method_route_plan/generated/write_set_mapstore_i64_hako_policy.rs",
+      "typed_artifact_hash": "9afe64c6c818209012b33c0399bc09ea553f94ff7485fb63b2d1c3fe908cc8c5"
+    },
+    {
+      "caller_contract_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-write-push-arrayappendany-caller-orientation-contract-artifact-v0.json",
+      "caller_contract_fixture_hash": "5d798412a12c5f710494f05239bcd6f7c31e801f6fdfef115eaa9f5be1591763",
+      "generator": "tools/rust_lifecycle/generate_write_push_hako_policy.py",
+      "generator_hash": "204d479f361cf36a5928ea9eca4282a767c40ee5d0db85ce03b8c97de2eb4632",
+      "name": "push_arrayappendany",
+      "policy_row_id": "array_append_any_push_surface",
+      "policy_source": "lang/src/compiler/lib/write_push_surface_policy_classifier.hako",
+      "policy_source_hash": "ec456dac4fd8aff4efc3627e54f527354b36268b4543185ed07da2750fbdfa87",
+      "typed_artifact": "src/mir/generic_method_route_plan/generated/write_push_hako_policy.rs",
+      "typed_artifact_hash": "61133d9aa354d1620dec81d33affbceba0bbff1fe622e8e61d91d0b1495470fe"
+    },
+    {
+      "caller_contract_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-write-set-mapstore-any-caller-orientation-contract-artifact-v0.json",
+      "caller_contract_fixture_hash": "d36c59ae26c4d107af71bda1b907a032e98f787ebdd86ccf10140f4e773e5e7c",
+      "generator": "tools/rust_lifecycle/generate_write_set_mapstore_any_hako_policy.py",
+      "generator_hash": "6c0bebc6a40f9c591f5b6cff6e5de3f79a003506096955c1729862a4388bc61a",
+      "name": "mapstore_any",
+      "policy_row_id": "map_store_any_set_surface",
+      "policy_source": "lang/src/compiler/lib/write_set_mapstore_any_policy_classifier.hako",
+      "policy_source_hash": "77e00016586d44ba582e5fd6ba6dd58d594eca4d7c595ef5979b329297bd5f3d",
+      "typed_artifact": "src/mir/generic_method_route_plan/generated/write_set_mapstore_any_hako_policy.rs",
+      "typed_artifact_hash": "c219f9f4d718dcf50bea30d6ef53f6664c6d566b594c30cbbea00cc8489942f9"
+    }
+  ],
+  "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-NON-DELETE-WRITE-POLICY-ROW-IDENTITY-TRANSPORT-001"
+}

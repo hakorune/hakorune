@@ -1,0 +1,73 @@
+{
+  "claims": {
+    "any_write_boundary_copied_to_caller_contract": 0,
+    "backend_lowering_authority": 0,
+    "caller_orientation_live_consumer": 0,
+    "caller_orientation_runtime_path": 0,
+    "delete_hako_route_decision_authority_pilot": 0,
+    "effect_metadata_copied_to_caller_contract": 0,
+    "hako_runtime_route_authority": 0,
+    "mapstore_any_caller_orientation_artifact_current": 1,
+    "mapstore_any_caller_orientation_generated_typed_artifact": 1,
+    "mapstore_any_caller_orientation_hako_contract_materialized": 1,
+    "mapstore_any_caller_orientation_no_live_consumer_guard": 1,
+    "mapstore_any_caller_orientation_policy_row_reference_verified": 1,
+    "mapstore_any_hako_route_decision_authority_retained": 1,
+    "mapstore_any_mismatch_fail_fast": 1,
+    "mapstore_any_rust_oracle_compat_checker_retained": 1,
+    "mutation_metadata_copied_to_caller_contract": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "publication_execution": 0,
+    "route_selection_authority_switch": 0,
+    "runtime_fallback": 0,
+    "runtime_mutation_authority": 0,
+    "scalar_known_hako_runtime_route_authority": 0,
+    "scalar_known_wide_authority": 0,
+    "source_selfhost_claim": 0,
+    "value_boundary_copied_to_caller_contract": 0,
+    "write_mutation_authority": 0,
+    "write_wide_authority": 0
+  },
+  "contract": {
+    "backend_lowering_consumer": "Forbidden",
+    "mismatch_policy": "FailFast",
+    "mutation_consumer": "Forbidden",
+    "orientation_kind": "CallerOrientationContractMetadataOnly",
+    "policy_row_ids": [
+      "map_store_any_set_surface"
+    ],
+    "publication_consumer": "Forbidden",
+    "runtime_consumer": "Forbidden",
+    "scope": "SingleSurface"
+  },
+  "decision": {
+    "backend_lowering_consumer_registered": false,
+    "implementation_complete": true,
+    "kind": "MaterializeMapStoreAnyCallerOrientationContractArtifact",
+    "runtime_consumer_registered": false,
+    "selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-NON-DELETE-WRITE-POLICY-ROW-IDENTITY-TRANSPORT-001"
+  },
+  "input_state": {
+    "basis_surface": "SetSurfacePolicy/MapStoreAny",
+    "mapstore_any_authority_basis": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-mapstore-any-write-hako-authority-pilot-basis-v0.json",
+    "mapstore_any_authority_basis_hash": "1d7ea369a076b58d77fd021cdee9acf3664d435b9533d363fb48577b3f554ed3"
+  },
+  "kind": "MirBuilderScalarKnownFastpathWriteSetMapStoreAnyCallerOrientationContractArtifactV1",
+  "provenance": {
+    "existing_mapstore_any_oracle": "src/mir/generic_method_route_plan/scalar_known_hako_shadow.rs",
+    "existing_mapstore_any_oracle_hash": "f3d3df9349f755658c3bdcbe94866bf3eff9547a60556e29b3875dc9e09b6b6a",
+    "generated_artifact": "src/mir/generic_method_route_plan/generated/write_set_mapstore_any_caller_orientation_contract.rs",
+    "generated_artifact_hash": "efe8c0ae61e265041a985ac3ec847c1f3e75e1c0cf3cb12ebdc586b7c92dc371",
+    "generator": "tools/rust_lifecycle/generate_write_set_mapstore_any_caller_orientation_contract.py",
+    "generator_hash": "4d7f38458b3511ef6c16db1184c1d7f72c1cc3f4e6ae5c358315d4469f2c22ae",
+    "hako_contract": "lang/src/compiler/lib/write_set_mapstore_any_caller_orientation_contract.hako",
+    "hako_contract_hash": "f8f24b3c7364c81a225cc0065f1f3e3734be5e5b8b24e3248428299da63a90b0",
+    "mapstore_any_policy": "lang/src/compiler/lib/write_set_mapstore_any_policy_classifier.hako",
+    "mapstore_any_policy_artifact": "src/mir/generic_method_route_plan/generated/write_set_mapstore_any_hako_policy.rs",
+    "mapstore_any_policy_artifact_hash": "c219f9f4d718dcf50bea30d6ef53f6664c6d566b594c30cbbea00cc8489942f9",
+    "mapstore_any_policy_hash": "77e00016586d44ba582e5fd6ba6dd58d594eca4d7c595ef5979b329297bd5f3d"
+  },
+  "schema_version": 0,
+  "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-SET-MAPSTORE-ANY-CALLER-ORIENTATION-CONTRACT-ARTIFACT-001"
+}

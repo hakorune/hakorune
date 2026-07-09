@@ -64,7 +64,7 @@
     "hako_contract_hash": "fd3069f9f4892f2914050ffd50ffa7f42576769e65f212d9191c63659a9ee1a7",
     "push_policy": "lang/src/compiler/lib/write_push_surface_policy_classifier.hako",
     "push_policy_artifact": "src/mir/generic_method_route_plan/generated/write_push_hako_policy.rs",
-    "push_policy_artifact_hash": "59947b80367f89a72d9170bcd12a3b8a824c93a4a2e0c696e3e952008189ed69",
+    "push_policy_artifact_hash": "61133d9aa354d1620dec81d33affbceba0bbff1fe622e8e61d91d0b1495470fe",
     "push_policy_hash": "ec456dac4fd8aff4efc3627e54f527354b36268b4543185ed07da2750fbdfa87"
   },
   "schema_version": 0,

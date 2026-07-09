@@ -77,6 +77,7 @@ use crate::mir::generic_method_route_plan::GenericMethodRouteKind;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) struct HakoMapStoreI64Policy {{
+    pub(crate) policy_row_id: &'static str,
     pub(crate) surface: &'static str,
     pub(crate) route_kind: GenericMethodRouteKind,
     pub(crate) core_op: CoreMethodOp,
@@ -93,6 +94,7 @@ pub(crate) struct HakoMapStoreI64Policy {{
 
 pub(crate) const WRITE_SET_MAPSTORE_I64_HAKO_POLICY: HakoMapStoreI64Policy =
     HakoMapStoreI64Policy {{
+        policy_row_id: {lit(row_id)},
         surface: {lit(surface)},
         route_kind: GenericMethodRouteKind::{route_kind},
         core_op: CoreMethodOp::{core_op},
