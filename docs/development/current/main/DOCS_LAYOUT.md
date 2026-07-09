@@ -32,6 +32,9 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
   - active multi-day work cards
   - inventory / selection / smoke / parking-lot notes live here instead of
     becoming one numbered row per observation
+  - `workstreams/language-v1-convergence-current.md`
+    - active Language v1 macro-row order, acceptance gates, and selfhost resume
+      boundary; only the current macro row gets a numbered card
   - `workstreams/compiler-foundation-current.md`
     - active compiler foundation taskboard when exact-front optimization is
       paused for BoxCallable / TypeAbiCatalog / CorePlan foundation work

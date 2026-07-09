@@ -10,6 +10,7 @@ Related:
   - docs/development/current/main/design/rune-v0-contract-rollout-ssot.md
   - docs/development/current/main/design/parser-extensions-param-implements-interface-generic-ssot.md
   - docs/development/current/main/design/language-minimal-surface-task-breakdown-ssot.md
+  - docs/development/current/main/workstreams/language-v1-convergence-current.md
   - docs/reference/language/block-expressions-and-map-literals.md
   - docs/development/current/main/20-Decisions.md
 ---
@@ -134,12 +135,21 @@ Minimum stable tags (grep distance short):
 
 v1 freeze の継続条件:
 
+- `LANGV1-CONSTITUTION-001` is complete with one seven-law charter.
+- `LANGV1-SEMANTIC-KERNEL-001` is complete with one Outcome/Place model and
+  exactly-once, source-order sugar fixtures.
 - `LANGV1-GRAMMAR-001` is complete with one grammar manifest and a shared
   Rust/selfhost parser golden suite.
 - `LANGV1-TYPE-GUARANTEE-001` is complete with a site-by-site guarantee matrix
   and fixtures for every live non-metadata guarantee.
+- `LANGV1-FAILURE-OUTCOME-001` is complete with distinct Option/Result/Fault/
+  Unit semantics and explicit Compat2025 null/catch policy.
 - `LANGV1-OWNERSHIP-IDENTITY-001` has an accepted field ownership/finalization
   decision and one Box/Weak identity relation.
+- `LANGV1-CAPABILITY-EFFECT-001` verifies declared authority, observed effects,
+  and Rune promises before backend Plan consumption.
+- `LANGV1-CONFORMANCE-CLOSEOUT-001` proves VM/EXE parity and zero implicit
+  compatibility before selfhost migration resumes.
 
 - Fast gate: `./tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh` が green
 - Pinned fixtures:

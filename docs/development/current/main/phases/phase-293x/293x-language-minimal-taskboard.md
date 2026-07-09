@@ -2,7 +2,8 @@
 
 Status: Active
 Lane: `phase-293x language minimal surface lane`
-Current blocker token: `MIMAP-001 upstream source pin`
+Current blocker token: read `current_blocker_token` in
+`docs/development/current/main/CURRENT_STATE.toml`.
 
 ## Purpose
 
@@ -42,6 +43,7 @@ docs/development/current/main/design/language-minimal-surface-task-breakdown-sso
 
 - [x] `PACKED-004` source PackedArray backend fail-fast hardening
 - [x] `USES-002A` declared uses capability plan mapping
+- [ ] `LANGV1-CONSTITUTION-001` active language-v1 convergence front
 
 ## Blocked / deferred rows
 
@@ -99,9 +101,14 @@ not change source/runtime behavior.
 | `TRANS-002A` | Transition legality checker for enum-state methods. | 1-2 commits |
 | `USES-002A` | Capability checker for declared `uses` metadata. | 1-2 commits |
 | `DEL-004` | Legacy `from`/`extends` quarantine and migration naming cleanup. | 1 commit |
+| `LANGV1-CONSTITUTION-001` | Seven language laws and normative precedence. | docs-only durable policy |
+| `LANGV1-SEMANTIC-KERNEL-001` | Outcome/Place/evaluation order and compound-assignment exactly-once behavior. | decision + focused code slice |
 | `LANGV1-GRAMMAR-001` | Canonical grammar manifest plus shared Rust/selfhost golden parser conformance. | design + fixtures + parser alignment |
-| `LANGV1-TYPE-GUARANTEE-001` | Site-by-site annotation guarantee matrix and proof fixtures. | design + targeted follow-up rows |
+| `LANGV1-TYPE-GUARANTEE-001` | `: T` gradual contract, site matrix, and proof fixtures. | design + boundary commits |
+| `LANGV1-FAILURE-OUTCOME-001` | Option/Result/Fault/Unit/null/catch convergence and migration. | design + migration commits |
 | `LANGV1-OWNERSHIP-IDENTITY-001` | Decide shared/owned field finalization and unify Box/Weak identity. | design decision + runtime fixtures |
+| `LANGV1-CAPABILITY-EFFECT-001` | Verify uses budget, actual effects, and Rune obligations. | verifier + plan guard |
+| `LANGV1-CONFORMANCE-CLOSEOUT-001` | Cross-parser and VM/EXE v1 closeout before selfhost resumes. | conformance pack |
 
 ### Later / optional language surface
 

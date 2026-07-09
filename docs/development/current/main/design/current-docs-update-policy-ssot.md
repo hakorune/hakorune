@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-05-22
+Date: 2026-07-10
 Scope: current docs update policy for restart/current-lane pointers.
 Related:
   - AGENTS.md
@@ -10,6 +10,7 @@ Related:
   - docs/development/current/main/05-Restart-Quick-Resume.md
   - docs/development/current/main/10-Now.md
   - docs/development/current/main/design/allocator-provider-lightweight-doc-sync-policy-ssot.md
+  - docs/development/current/main/workstreams/language-v1-convergence-current.md
   - tools/checks/current_state_pointer_guard.sh
 ---
 
@@ -42,13 +43,14 @@ for the current lane, blocker, phase pointers, and latest card pointer.
 Current work is constrained to the active lane named by `CURRENT_STATE.toml`
 and the durable workstream card it points to. The current active buckets are:
 
-1. Source Selfhost / MirBuilder Rust-to-Hako converter task order;
-2. mimalloc migration and optimization when reopened by `CURRENT_STATE.toml`;
-3. direct memory / DirectArray language substrate when it reduces allocator
+1. Language v1 semantic convergence when selected by `CURRENT_STATE.toml`;
+2. Source Selfhost / MirBuilder Rust-to-Hako converter task order;
+3. mimalloc migration and optimization when reopened by `CURRENT_STATE.toml`;
+4. direct memory / DirectArray language substrate when it reduces allocator
    workaround pressure or clarifies future fast-path ownership;
-4. Array / representation fast paths only when selected by current perf
+5. Array / representation fast paths only when selected by current perf
    evidence or by the active direct-memory substrate workstream;
-5. docs and shell hygiene.
+6. docs and shell hygiene.
 
 These buckets are the work taxonomy. Do not open a new active lane outside
 them without updating this policy and `CURRENT_STATE.toml`.

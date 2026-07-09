@@ -1,7 +1,7 @@
 ---
 Status: SSOT
 Decision: accepted
-Date: 2026-05-14
+Date: 2026-07-10
 Scope: Task-sized backlog for the minimal Hakorune language surface.
 Related:
   - docs/development/current/main/design/language-minimal-surface-ssot.md
@@ -85,7 +85,7 @@ Retire condition:
 | Generic containers | generic type annotation metadata and arity checker complete | next substitution/semantics row deferred |
 | PackedArray | source backend fail-fast complete | no immediate PackedArray row |
 | Array / Result / Option canonical surface | docs accepted; LOCALTYPE/ENUMVAR/ARRAY/RESULT/GUARDLET rows complete | no immediate code row |
-| Language v1 convergence | three pre-freeze contract rows queued | `LANGV1-GRAMMAR-001` first |
+| Language v1 convergence | active; eight ordered macro rows | `LANGV1-CONSTITUTION-001` first |
 | Collections / automata | Map exists as ring1 visible owner; Set/FST are not Stage0/core prerequisites | `COLL-001` / `AUTO-001` docs rows, parked behind mimalloc unless blocking |
 | Uses/capability | method-level metadata capsule complete | `USES-002 capability checker` |
 | Span/view | planned later | `SPAN-001 Span API design row` |
@@ -330,9 +330,30 @@ no generic constraint solver in MVP
 ## Language v1 pre-freeze convergence packet
 
 These rows close contract drift before the selfhost language v1 surface is
-called frozen. They are queued work, not the active MirBuilder blocker. Open no
-numbered implementation card until the preceding row has produced its named
-decision or manifest.
+called frozen. The active order and executable substeps live only in:
+
+```text
+docs/development/current/main/workstreams/language-v1-convergence-current.md
+```
+
+This backlog records macro-row boundaries and summary acceptance. The
+workstream owns current detail when wording drifts. Open one numbered card for
+the current row; do not create cards for inventories, consultations, fixtures,
+or reruns.
+
+### LANGV1-CONSTITUTION-001 seven-law language charter
+
+Create one normative charter for same-syntax/same-guarantee, meaning versus
+representation, absence/failure/Fault, identity versus lifetime, exactly-once
+sugar, explicit compatibility, and fail-fast-before-effects. This row changes
+no parser or runtime behavior.
+
+### LANGV1-SEMANTIC-KERNEL-001 Outcome, Place, and evaluation law
+
+Define one `Outcome` algebra and one `Place` model. Fix source order,
+exactly-once evaluation, cleanup precedence, and guard-let NoFallthrough. The
+first implementation slice replaces compound-assignment AST cloning with one
+Place read-modify-write path and side-effecting fixtures.
 
 ### LANGV1-GRAMMAR-001 canonical grammar and dual-parser conformance
 
@@ -349,16 +370,18 @@ v1 freeze doc: previously listed try as required
 Required work:
 
 1. Create one machine-readable grammar-surface manifest. Classify every row as
-   `canonical`, `compatibility_only`, or `reserved_rejected`, including
+   `canonical`, `compatibility_only`, `reserved`, or `rejected`, including
    `guard else`, `guard ->`, `match`, `peek`, `try`, postfix `catch/cleanup`,
    `from`, and delegation syntax.
 2. Make `docs/reference/language/EBNF.md` the only canonical grammar owner;
    topic/profile/freeze docs may describe semantics or migration only.
-3. Run the same golden corpus through the Rust and selfhost parsers in default
-   and explicitly named compatibility profiles.
-4. Compare accept/reject result, stable diagnostic tag, and normalized AST or
-   Program(JSON v0) shape. Missing rows and profile drift fail fast.
-5. Migrate or quarantine live selfhost sources that require compatibility
+3. Keep `Canonical` as default and allow aliases only through explicit
+   `Compat2025`; aliases normalize immediately to canonical shape.
+4. Run the same golden corpus through the Rust and selfhost parsers in both
+   profiles and compare a shared span-free `ParseWitness`.
+5. Compare accept/reject result, stable diagnostic tag, and normalized shape.
+   Missing rows and profile drift fail fast.
+6. Migrate or quarantine live selfhost sources that require compatibility
    syntax; do not make legacy syntax canonical merely to pass the suite.
 
 Acceptance:
@@ -371,15 +394,23 @@ golden_accept_reject_parity = 1
 golden_ast_json_shape_parity = 1
 new_surface_syntax = 0
 silent_legacy_acceptance = 0
+default_profile = Canonical
+implicit_compatibility_count = 0
 ```
 
 ### LANGV1-TYPE-GUARANTEE-001 annotation guarantee matrix
 
-The language is dynamically typed and an annotation is not a general runtime
-contract. Existing narrow rows already differ: exact numeric field writes,
-record construction, typed `Array<T>` elements, and Weak fields have checks,
-while many parameter, return, local, and ordinary Box-field annotations are
-metadata or planning facts.
+Current annotations mix metadata and semantic checks. The target decision is:
+
+```text
+annotation omitted -> Any
+x: T -> gradual semantic contract T
+representation/planner hint -> MIR facts, Plan, or Rune
+```
+
+Existing narrow checks include exact numeric field writes, record construction,
+typed `Array<T>` elements, and Weak fields. Many parameter, return, local, and
+ordinary Box-field annotations remain metadata and require migration.
 
 Required work:
 
@@ -394,8 +425,9 @@ Required work:
 4. Add positive and negative fixtures for every non-metadata guarantee. A
    backend that cannot preserve a live guarantee must fail fast.
 5. Derive later implementation rows only from matrix cells whose desired v1
-   guarantee differs from current behavior; do not introduce a broad static
-   type checker under this inventory row.
+   guarantee differs from current behavior. Migrate representation-only hints
+   before activating the gradual contract; do not introduce a broad static
+   type checker under this row.
 
 Acceptance:
 
@@ -406,7 +438,18 @@ metadata_not_semantic_truth = 1
 live_guarantees_fixture_backed = 1
 unsupported_backend_fail_fast = 1
 broad_static_type_checker = 0
+annotation_semantic_contract = 1
+unannotated_value_contract = Any
+metadata_hint_spelled_as_type_annotation = 0
 ```
+
+### LANGV1-FAILURE-OUTCOME-001 absence, failure, Fault, and Unit
+
+Define `Option::None` as value absence, `Result::Err` as recoverable failure,
+`Fault` as non-implicit contract/runtime failure, and `Normal(Unit)` as a
+successful no-result computation. Classify and migrate live `null` sites by
+meaning before restricting `null` and legacy catch behavior to explicit
+`Compat2025`.
 
 ### LANGV1-OWNERSHIP-IDENTITY-001 field ownership and identity decision
 
@@ -450,12 +493,30 @@ generation_aware_identity_retained = 1
 cross_backend_lifecycle_fixture = 1
 ```
 
+### LANGV1-CAPABILITY-EFFECT-001 authority, effects, and promises
+
+Keep `uses X`, observed/transitive `EffectSummary`, and Rune contract promises
+as three distinct axes. Verify actual effects are within declared authority,
+verify promises independently, reject unknown capabilities, and allow backends
+to consume only verified Plans.
+
+### LANGV1-CONFORMANCE-CLOSEOUT-001
+
+Run dual-parser ParseWitness conformance and VM/EXE semantic packs, prove zero
+implicit compatibility, close v1 freeze, then unpark selfhost and MirBuilder
+3456.
+
 ## v1 convergence order
 
 ```text
-LANGV1-GRAMMAR-001
+LANGV1-CONSTITUTION-001
+  -> LANGV1-SEMANTIC-KERNEL-001
+  -> LANGV1-GRAMMAR-001
   -> LANGV1-TYPE-GUARANTEE-001
+  -> LANGV1-FAILURE-OUTCOME-001
   -> LANGV1-OWNERSHIP-IDENTITY-001
+  -> LANGV1-CAPABILITY-EFFECT-001
+  -> LANGV1-CONFORMANCE-CLOSEOUT-001
   -> selfhost language v1 freeze closeout
 ```
 

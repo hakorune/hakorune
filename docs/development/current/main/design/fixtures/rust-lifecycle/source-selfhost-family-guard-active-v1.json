@@ -3,7 +3,7 @@
     "current_maintenance",
     "current_semantic"
   ],
-  "current_blocker_token": "MIRBUILDER-MAPSTORE-ROUTE-POLICY-KEY-VALUE-DOMAIN-BOXSHAPE-001",
+  "current_blocker_token": "LANGV1-CONSTITUTION-001",
   "family_scope": "SourceSelfhost",
   "forbidden_claims": {
     "manual_family_selection": 0,
@@ -294,6 +294,13 @@
       "legacy_guard": "tools/checks/rust_lifecycle_source_selfhost_family_guard.sh",
       "role": "current_semantic",
       "token": "MIRBUILDER-MAPSTORE-ROUTE-POLICY-KEY-VALUE-DOMAIN-BOXSHAPE-001"
+    },
+    {
+      "card": "docs/development/current/main/phases/phase-296x/3457-LANGV1-CONSTITUTION-001.md",
+      "fixture": "",
+      "legacy_guard": "tools/checks/rust_lifecycle_source_selfhost_family_guard.sh",
+      "role": "current_semantic",
+      "token": "LANGV1-CONSTITUTION-001"
     }
   ],
   "schema_version": 1

@@ -1,6 +1,6 @@
 ---
 Status: Active
-Date: 2026-06-24
+Date: 2026-07-10
 Scope: phase-296x current docs pointers and mimalloc history index.
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -34,13 +34,17 @@ Read these first:
 
 ```text
 docs/development/current/main/CURRENT_STATE.toml
-docs/development/current/main/investigations/docs-pointer-inventory-2026-06-09.md
-docs/development/current/main/design/typed-object-exact-slot-abi-ssot.md
-docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md
+docs/development/current/main/workstreams/language-v1-convergence-current.md
+latest_card_path from CURRENT_STATE.toml
+docs/development/current/main/design/current-docs-update-policy-ssot.md
 ```
 
 The active lane, latest workstream card, latest implementation card, and
 current blocker are named by `CURRENT_STATE.toml`.
+
+Language v1 convergence currently has priority over selfhost migration. The
+MirBuilder 3456 resume point remains parked in its card and task-order SSOT;
+do not infer that it was discarded.
 
 Historical note: `MIM-PORT-FMEM-005` and `MIM-PORT-FMEM-006` are already Done.
 They are not the next active implementation row. They remain useful as narrow

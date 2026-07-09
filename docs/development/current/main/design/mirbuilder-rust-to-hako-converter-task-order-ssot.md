@@ -16,10 +16,12 @@ Related:
 This is a current-only restart entry. It must not accumulate landed cards,
 inventories, transcripts, or historical next chains.
 
-## Current Blocker
+## Parked Front
 
 ```text
-MIRBUILDER-MAPSTORE-ROUTE-POLICY-KEY-VALUE-DOMAIN-BOXSHAPE-001
+status = parked_by_language_v1_convergence
+resume = MIRBUILDER-MAPSTORE-ROUTE-POLICY-KEY-VALUE-DOMAIN-BOXSHAPE-001
+resume_after = LANGV1-CONFORMANCE-CLOSEOUT-001
 ```
 
 The active token, latest card, and phase pointer are authoritative only in:
@@ -46,7 +48,7 @@ Collection stays an explicitly enumerated four-row boundary. Its receiver
 domains remain generated policy metadata, not caller inputs. `AnyLength -> Box`
 is one explicit row, not wildcard or global Box authority.
 
-## Current BoxShape Prerequisite
+## Parked BoxShape Prerequisite
 
 The 3454 selection merged key and stored-value domains. The corrected policy is:
 
@@ -55,7 +57,8 @@ MapStoreI64: key_domain = I64, stored_value_domain = Any
 MapStoreAny: key_domain = Any, stored_value_domain = Any
 ```
 
-3456 is one BoxShape-only task: introduce a typed `RoutePolicyRow` SSOT,
+When resumed, 3456 is one BoxShape-only task: introduce a typed
+`RoutePolicyRow` SSOT,
 generate the decision payload and caller projection from one Hako-owned row,
 retain independent Rust route matching/oracle behavior, centralize caller and
 shadow validation, and test key/value axes independently.
@@ -127,4 +130,4 @@ When a change needs detailed evidence, add it to the active card, a fixture,
 the family history JSONL, an investigation, or git history. Do not create a
 numbered card for inventory-only bookkeeping.
 
-next_documented_task = MIRBUILDER-MAPSTORE-ROUTE-POLICY-KEY-VALUE-DOMAIN-BOXSHAPE-001
+parked_resume_task = MIRBUILDER-MAPSTORE-ROUTE-POLICY-KEY-VALUE-DOMAIN-BOXSHAPE-001

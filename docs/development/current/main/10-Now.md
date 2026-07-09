@@ -1,5 +1,5 @@
 Status: SSOT mirror
-Date: 2026-06-24
+Date: 2026-07-10
 Scope: one-screen current dashboard. Do not store landed history here.
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -17,12 +17,10 @@ Related:
 - workstream card: read `latest_workstream_card` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
 - blocker token: read `current_blocker_token` in `CURRENT_STATE.toml`
-- selfhost roadmap: `docs/development/current/main/design/mirbuilder-selfhost-checkpoint-roadmap-ssot.md`
-  now narrows the remaining work to family-by-family `HakoAdopted` decisions,
-  the Python SemanticProjector freeze, and consultation-gated ABI / syntax
-  boundaries.
-- ProgramJSON migration policy:
-  `docs/development/current/main/design/mirbuilder-programjson-capability-batch-migration-policy-ssot.md`
+- language-v1 workstream:
+  `docs/development/current/main/workstreams/language-v1-convergence-current.md`
+- priority: language contract before selfhost migration
+- parked resume: MirBuilder 3456 after language-v1 conformance closeout
 
 ## Rule
 

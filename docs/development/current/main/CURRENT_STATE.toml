@@ -4,30 +4,28 @@
 status = "Active"
 date = "2026-07-10"
 
-active_lane = "RUST-SUBSET-TO-HAKO-APP-FRONT compiler construction / selfhost app front"
-active_lane_status = """Source Selfhost remains stopped and unclaimed. MapLoad,
-String, and Collection caller-orientation pilots are green. The MapStoreI64
-selection is corrected to key_domain=I64 and stored_value_domain=Any; its pilot
-remains unimplemented. 3456 is the BoxShape-only prerequisite that introduces
-one typed policy-row SSOT, one shared validator, and independent key/value tests
-without changing route behavior or authority. After 3454 is green, caller
-orientation parks and the lane returns to focused Fact/Plan/Boundary inventory
-for the smallest Fact-owner or REGISTRY-rule hard-authority slice."""
+active_lane = "LANGUAGE-V1-CONVERGENCE semantic contract before selfhost migration"
+active_lane_status = """Language coherence is the active prerequisite. Source
+Selfhost and MirBuilder 3456 are parked without losing their evidence or resume
+scope. The language-v1 workstream has eight ordered macro rows and allows one
+active numbered card at a time. 3457 opens only the seven-law Constitution;
+parser, runtime, type, lifecycle, backend, capability, and selfhost behavior do
+not change in that row."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
-phase_status = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-method_anchor = "docs/development/current/main/design/hako-app-front-boundary-template-ssot.md"
-taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
-latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
+phase_status = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
+method_anchor = "docs/development/current/main/design/selfhost-language-v1-freeze-ssot.md"
+taskboard = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
+latest_workstream_card = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 
-latest_card = "MIRBUILDER-MAPSTORE-ROUTE-POLICY-KEY-VALUE-DOMAIN-BOXSHAPE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3456-MIRBUILDER-MAPSTORE-ROUTE-POLICY-KEY-VALUE-DOMAIN-BOXSHAPE-001.md"
-latest_card_summary = """3456 repairs the MapStore policy shape before 3454:
-MapStoreI64 means I64 key plus Any stored value. It centralizes the typed policy
-row and validator, preserves independent Rust route matching and veto, and
-requires independent-axis tests. The caller authority pilot remains zero."""
+latest_card = "LANGV1-CONSTITUTION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3457-LANGV1-CONSTITUTION-001.md"
+latest_card_summary = """3457 opens one docs-only durable-policy row: create
+the seven-law Hakorune language constitution, normative document precedence,
+and the accepted-Decision to conformance change protocol. It changes no parser,
+runtime, type, lifecycle, backend, capability, or selfhost behavior."""
 
-current_blocker_token = "MIRBUILDER-MAPSTORE-ROUTE-POLICY-KEY-VALUE-DOMAIN-BOXSHAPE-001"
+current_blocker_token = "LANGV1-CONSTITUTION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -36,7 +34,8 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
-  "2026-07-10: 3456 records the MapStore key/value BoxShape repair prerequisite; 3454 stays selected but unimplemented, route behavior and authority do not move.",
+  "2026-07-10: 3457 selects Language v1 convergence before selfhost migration, opens the seven-law Constitution row, and parks MirBuilder 3456 with an explicit post-closeout resume token.",
+  "2026-07-10: 3456 records the MapStore key/value BoxShape repair prerequisite; it remains ready but parked while Language v1 convergence is active.",
   "2026-07-10: 3454 selects the MapStoreI64 caller-orientation pilot; later review corrected I64 from stored-value domain to key domain before implementation.",
   "2026-07-10: 3453 slims the MirBuilder task-order and adds a 500-character line guard.",
   "2026-07-10: 3451 reruns the Collection four-row caller-orientation authority pilot green.",

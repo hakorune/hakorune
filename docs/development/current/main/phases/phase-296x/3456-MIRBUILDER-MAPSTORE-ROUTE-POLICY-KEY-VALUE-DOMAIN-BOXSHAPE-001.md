@@ -2,8 +2,12 @@
 
 ## Status
 
-Ready BoxShape prerequisite for 3454. This card changes representation and
-validation structure only. It must not add an accepted route or move authority.
+Parked while Language v1 convergence is active. Resume this ready BoxShape
+prerequisite after `LANGV1-CONFORMANCE-CLOSEOUT-001` or an explicit user
+priority change. No scope, evidence, or acceptance claim is discarded.
+
+This card changes representation and validation structure only. It must not
+add an accepted route or move authority.
 
 ## Problem
 

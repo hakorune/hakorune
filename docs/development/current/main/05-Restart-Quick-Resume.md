@@ -1,5 +1,5 @@
 Status: Active
-Date: 2026-06-09
+Date: 2026-07-10
 Scope: restart in 2-5 minutes with a thin pointer surface.
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -28,21 +28,21 @@ cargo check -q
 ## Current Lane
 
 - current-state SSOT: `docs/development/current/main/CURRENT_STATE.toml`
-- compiler foundation taskboard: `docs/development/current/main/workstreams/compiler-foundation-current.md`
+- workstream card: read `latest_workstream_card` in `CURRENT_STATE.toml`
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - active lane: read `active_lane` in `CURRENT_STATE.toml`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
 - blocker token: read `current_blocker_token` in `CURRENT_STATE.toml`
-- implementation gaps: none; read `active_lane_status` in `CURRENT_STATE.toml`
+- current scope and parked resume: read `active_lane_status` and the workstream
 
 ## Restart Notes
 
 - do not paste landed chronology into restart docs
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` out of scope
 - the current lane is the `active_lane` in `CURRENT_STATE.toml`
-- exact-front optimization is paused while the compiler foundation lane is
-  active; resume only through the return lane named by the active taskboard
+- language-v1 convergence has priority while its workstream is active;
+  selfhost/MirBuilder resumes only through the workstream closeout
 - product/app validation now uses EXE/AOT as the primary route; VM work is a
   small semantic-reference subset only
 - if the current blocker token names the explicit design-stop frontier, stop
