@@ -230,7 +230,7 @@ pub(super) fn match_generic_get_route(
                 GenericMethodRouteEvidence::new(receiver_origin_box, Some(key_route))
                     .with_result_origin_box(result_origin_box),
                 GenericMethodRouteOperands::new(*receiver, Some(args[0]), *dst),
-                scalar_known_hako_shadow::mapload_scalar_i64_shadow_consumed_decision(
+                scalar_known_hako_shadow::mapload_scalar_i64_hako_route_authority_pilot_decision(
                     scalar_fact.route_proof,
                 ),
             ));
@@ -386,7 +386,9 @@ pub(super) fn match_generic_get_route(
             GenericMethodRouteEvidence::new(receiver_origin_box, Some(key_route))
                 .with_result_origin_box(result_origin_box),
             GenericMethodRouteOperands::new(*receiver, Some(args[0]), *dst),
-            scalar_known_hako_shadow::mapload_scalar_i64_shadow_consumed_decision(proof),
+            scalar_known_hako_shadow::mapload_scalar_i64_hako_route_authority_pilot_decision(
+                proof,
+            ),
         ));
     }
 

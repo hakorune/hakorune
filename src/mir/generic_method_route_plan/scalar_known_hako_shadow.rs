@@ -25,7 +25,14 @@ use super::scalar_known_typed_direct_closeout_contract::{
 };
 use super::{GenericMethodRouteDecision, GenericMethodRouteKind, GenericMethodRouteProof};
 
+#[allow(dead_code)]
 pub(super) fn mapload_scalar_i64_shadow_consumed_decision(
+    route_proof: GenericMethodRouteProof,
+) -> GenericMethodRouteDecision {
+    mapload_scalar_i64_hako_route_authority_pilot_decision(route_proof)
+}
+
+pub(super) fn mapload_scalar_i64_hako_route_authority_pilot_decision(
     route_proof: GenericMethodRouteProof,
 ) -> GenericMethodRouteDecision {
     let policy = MAPLOAD_SCALAR_I64_HAKO_POLICY;
@@ -48,7 +55,18 @@ pub(super) fn mapload_scalar_i64_shadow_consumed_decision(
     );
     assert_hako_mapload_scalar_i64_policy_matches_rust(&policy, route_proof);
 
-    GenericMethodRouteDecision::new(
+    let hako_decision = GenericMethodRouteDecision::new(
+        policy.route_kind,
+        route_proof,
+        Some(CoreMethodOpCarrier::manifest(
+            policy.core_op,
+            policy.lowering_tier,
+        )),
+        Some(policy.return_shape),
+        policy.value_demand,
+        Some(policy.publication_policy),
+    );
+    let rust_oracle = GenericMethodRouteDecision::new(
         GenericMethodRouteKind::MapLoadScalarI64,
         route_proof,
         Some(CoreMethodOpCarrier::manifest(
@@ -58,7 +76,12 @@ pub(super) fn mapload_scalar_i64_shadow_consumed_decision(
         Some(GenericMethodReturnShape::ScalarI64OrMissingZero),
         GenericMethodValueDemand::ScalarI64,
         Some(GenericMethodPublicationPolicy::NoPublication),
-    )
+    );
+    assert_eq!(
+        hako_decision, rust_oracle,
+        "MapLoad .hako authority pilot diverged from Rust oracle"
+    );
+    hako_decision
 }
 
 pub(super) fn string_scalar_i64_shadow_consumed_decision(
@@ -457,7 +480,7 @@ mod tests {
 
     #[test]
     fn mapload_scalar_i64_shadow_artifact_matches_rust_fastpath_policy() {
-        let decision = mapload_scalar_i64_shadow_consumed_decision(
+        let decision = mapload_scalar_i64_hako_route_authority_pilot_decision(
             GenericMethodRouteProof::MapSetScalarI64SameKeyNoEscape,
         );
         assert_eq!(

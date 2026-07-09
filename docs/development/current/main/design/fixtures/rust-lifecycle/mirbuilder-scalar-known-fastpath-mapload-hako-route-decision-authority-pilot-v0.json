@@ -1,0 +1,94 @@
+{
+  "claims": {
+    "backend_lowering_authority": 0,
+    "behavior_change": 0,
+    "build_rs_hako_compiler_invocation": 0,
+    "caller_orientation_runtime_path": 0,
+    "hako_generation": 0,
+    "live_hako_authority": 0,
+    "manual_surface_selection": 0,
+    "mapload_hako_authority_result_consumed": 1,
+    "mapload_hako_route_decision_authority_pilot": 1,
+    "mapload_live_route_calls_authority_pilot": 1,
+    "mapload_mismatch_fail_fast": 1,
+    "mapload_rust_oracle_compat_checker": 1,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "new_route_authority": 0,
+    "owner_name_as_proof": 0,
+    "publication_execution": 0,
+    "route_count_as_proof": 0,
+    "route_membership_alone_as_proof": 0,
+    "route_selection_authority_switch": 0,
+    "row_count_as_proof": 0,
+    "runtime_fallback": 0,
+    "runtime_mutation_authority": 0,
+    "rust_fastpath_rewired": 0,
+    "scalar_known_hako_runtime_route_authority": 0,
+    "scalar_known_transport_axis_authority_switch": 0,
+    "source_path_as_authority": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "SelectMapLoadAuthorityPilotRerun",
+    "reason_token": "MapLoadHakoRouteDecisionAuthorityPilotMaterialized",
+    "selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-HAKO-AUTHORITY-PILOT-RERUN-001"
+  },
+  "implementation": {
+    "authority_function": "mapload_scalar_i64_hako_route_authority_pilot_decision",
+    "authority_scope": "MapLoadOnly",
+    "hako_decision_constructed_from": "MAPLOAD_SCALAR_I64_HAKO_POLICY",
+    "legacy_shadow_wrapper_retained": "mapload_scalar_i64_shadow_consumed_decision",
+    "live_route_calls_authority_function": true,
+    "mismatch_policy": "FailFast",
+    "route_kind": "MapLoadScalarI64",
+    "runtime_source_text_parsing": false,
+    "rust_oracle_compat_checker": true,
+    "rust_oracle_decision_constructed": true,
+    "surface": "MapLoadScalarI64Routes"
+  },
+  "input_state": {
+    "basis_defined": 1,
+    "basis_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-mapload-hako-authority-pilot-basis-v0.json",
+    "basis_fixture_hash": "07d0a352a8af85db312487e485c1052d53cfbf0abed1e9a742bde1a830508e75",
+    "basis_selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-HAKO-ROUTE-DECISION-AUTHORITY-PILOT-001"
+  },
+  "kind": "MirBuilderScalarKnownFastpathMaploadHakoRouteDecisionAuthorityPilotV1",
+  "mapload_shape": {
+    "allowed_proof_count": 3,
+    "core_op": "MapGet",
+    "effect_class": "read",
+    "lowering_tier": "WarmDirectAbi",
+    "proof_family": "ScalarI64MapGetStoreFact",
+    "publication_policy": "NoPublication",
+    "return_shape": "ScalarI64OrMissingZero",
+    "value_demand": "ScalarI64"
+  },
+  "provenance": {
+    "collection_read_routes": {
+      "path": "src/mir/generic_method_route_plan/collection_read_routes.rs",
+      "sha256": "c515417d6a599d856d1217b86e0514e90ad63621b41b801f74b927967f1ad31c"
+    },
+    "mapload_generated_typed_artifact": {
+      "path": "src/mir/generic_method_route_plan/generated/mapload_scalar_i64_hako_policy.rs",
+      "sha256": "1febc37ea515ff79e50d8060bd7096b02631f9812e9a0661d631650cdd1fefc6"
+    },
+    "shadow_consumer": {
+      "path": "src/mir/generic_method_route_plan/scalar_known_hako_shadow.rs",
+      "sha256": "3d4281f844e452ef9f55e9a0105726e7f9e31a76f9c7481da325ed7eace7fd62"
+    }
+  },
+  "schema_version": 0,
+  "summary": {
+    "mapload_hako_authority_result_consumed": 1,
+    "mapload_hako_route_decision_authority_pilot": 1,
+    "mapload_live_route_calls_authority_pilot": 1,
+    "mapload_mismatch_fail_fast": 1,
+    "mapload_rust_oracle_compat_checker": 1,
+    "scalar_known_hako_runtime_route_authority": 0,
+    "source_selfhost_claim": 0
+  },
+  "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-HAKO-ROUTE-DECISION-AUTHORITY-PILOT-001"
+}
