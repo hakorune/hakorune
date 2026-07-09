@@ -345,12 +345,13 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-MAPLOAD-CALLER-ORIENTATION-PILOT-DESIGN-CONSULTATION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3443-MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-MAPLOAD-CALLER-ORIENTATION-PILOT-DESIGN-CONSULTATION-001.md"
-latest_card_summary = """3443 is a design consultation stop after the green 3441
-MapLoad-only caller-orientation authority pilot and 3442 freshness rerun. No
-next proof axis is authorized yet; runtime/backend, Delete, wide, and Source
-Selfhost authority remain zero."""
+latest_card = "SOURCE-SELFHOST-FAMILY-MANIFEST-ACTIVE-HISTORY-SPLIT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3444-SOURCE-SELFHOST-FAMILY-MANIFEST-ACTIVE-HISTORY-SPLIT-001.md"
+latest_card_summary = """3444 landed the Source Selfhost family guard ledger split into a
+compact active index and append-only history JSONL while retaining the v0
+manifest as a frozen compatibility snapshot. The baseline partition is 27
+active rows plus 397 history rows; post-split active rows are explicit. The
+change does not alter compiler, runtime, backend, or Source Selfhost authority."""
 
 current_blocker_token = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-MAPLOAD-CALLER-ORIENTATION-PILOT-DESIGN-CONSULTATION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -361,6 +362,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-10: 3444 lands the Source Selfhost family guard ledger split into a 27-row baseline active index plus explicit post-split active rows and 397 one-line history rows, freezes the v0 compatibility snapshot, and adds exact partition/current-blocker traceability guards without changing authority claims.",
   "2026-07-10: 3442 reruns the MapLoad-only caller-orientation contract authority pilot with fresh generated artifacts, exact single-row scope, fail-fast boundary, 21 caller tests, and all runtime/backend/Delete/wide/Source Selfhost claims at zero; 3443 is now the next-proof-axis Pro consultation stop.",
   "2026-07-10: 3441 implements the Pro-authorized MapLoad-only caller-orientation contract authority pilot, comparing generated typed policy metadata with a policy-row-ID-only Unit consumer and retaining the Rust oracle fail-fast veto; route/runtime/backend, mutation/publication, Delete, wide, and Source Selfhost authority remain unclaimed.",
   "2026-07-10: 3440 adopts Pro option A and authorizes a MapLoad-only caller-orientation contract authority pilot keyed by policy_row_id with Unit return, generated typed policy comparison, and Rust oracle fail-fast veto; route/runtime/backend, mutation/publication, Delete, wide, and Source Selfhost authority remain unclaimed.",
@@ -372,5 +374,4 @@ landed_tail = [
   "2026-07-10: 3431 selects the exact non-Delete Write metadata/assertion packet for MapStoreI64, ArrayAppendAny, and MapStoreAny using three worker inventories, forbids mutation/effect/value-boundary copying and Delete inclusion, and defers Pro consultation until the post-3439 authority boundary.",
   "2026-07-10: 3430 closes the pre-authorized read caller-orientation assertion packet with exact MapLoad 1 + String 3 + Collection 4 live row coverage, records assertion-only Unit consumption, and stops before authority-bearing caller orientation, Write/Delete expansion, ScalarKnown-wide authority, runtime/backend/lowering, mutation/publication, or Source Selfhost.",
   "2026-07-10: 3429 extends the compiler-side caller-orientation assertion-only consumer to the exact four Collection policy rows, preserves mixed receiver-domain and AnyLength/Box ownership in the existing policy/oracle, passes nine shared assertion tests, and leaves runtime dispatch, route selection, lowering, mutation, publication, and Source Selfhost unclaimed.",
-  "2026-07-10: 3428 extends the compiler-side caller-orientation assertion-only consumer to the exact three String policy rows, preserves existing String route/oracle authority, passes six shared assertion tests, and leaves runtime dispatch, route selection, lowering, mutation, publication, and Source Selfhost unclaimed.",
 ]

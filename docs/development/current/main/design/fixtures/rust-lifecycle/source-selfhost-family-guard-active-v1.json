@@ -1,0 +1,223 @@
+{
+  "active_roles": [
+    "current_maintenance",
+    "current_semantic"
+  ],
+  "current_blocker_token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-MAPLOAD-CALLER-ORIENTATION-PILOT-DESIGN-CONSULTATION-001",
+  "family_scope": "SourceSelfhost",
+  "forbidden_claims": {
+    "manual_family_selection": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "runner_semantic_owner": 0,
+    "runtime_fallback": 0,
+    "source_selfhost_claim": 0
+  },
+  "guard_policy": {
+    "current_state_pointer_guard_owns_live_latest_card": 1,
+    "historical_row_guards_remain_callable": 1,
+    "new_rows_prefer_family_guard": 1,
+    "row_guard_latest_card_allowlists": 0
+  },
+  "kind": "SourceSelfhostFamilyGuardActiveManifestV1",
+  "rows": [
+    {
+      "card": "docs/development/current/main/phases/phase-296x/1803-SOURCE-SELFHOST-DOCS-GUARD-MAINTENANCE-REDUCTION-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-docs-guard-maintenance-reduction-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_source_selfhost_docs_guard_maintenance_reduction_guard.sh",
+      "role": "current_maintenance",
+      "token": "SOURCE-SELFHOST-DOCS-GUARD-MAINTENANCE-REDUCTION-001"
+    },
+    {
+      "card": "docs/development/current/main/phases/phase-296x/1804-MIRBUILDER-MINIMAL-PATH-MAINLINE-READINESS-GUARD-REALIGNMENT-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-minimal-path-mainline-readiness-resolution-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_minimal_path_mainline_readiness_resolver_guard.sh",
+      "role": "current_maintenance",
+      "token": "MIRBUILDER-MINIMAL-PATH-MAINLINE-READINESS-GUARD-REALIGNMENT-001"
+    },
+    {
+      "card": "docs/development/current/main/phases/phase-296x/1805-GUARD-SOURCE-SELFHOST-CURRENT-POINTER-DECOUPLE-001.md",
+      "fixture": "",
+      "legacy_guard": "",
+      "role": "current_maintenance",
+      "token": "GUARD-SOURCE-SELFHOST-CURRENT-POINTER-DECOUPLE-001"
+    },
+    {
+      "card": "docs/development/current/main/phases/phase-296x/1806-GUARD-SOURCE-SELFHOST-MANIFEST-FAMILY-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-family-guard-manifest-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_source_selfhost_family_guard.sh",
+      "role": "current_maintenance",
+      "token": "GUARD-SOURCE-SELFHOST-MANIFEST-FAMILY-001"
+    },
+    {
+      "card": "docs/development/current/main/phases/phase-296x/1807-DOCS-SOURCE-SELFHOST-COMPACT-CURRENT-STATE-001.md",
+      "fixture": "",
+      "legacy_guard": "tools/checks/current_state_pointer_guard.sh",
+      "role": "current_maintenance",
+      "token": "DOCS-SOURCE-SELFHOST-COMPACT-CURRENT-STATE-001"
+    },
+    {
+      "card": "docs/development/current/main/phases/phase-296x/1808-DOCS-SOURCE-SELFHOST-TASK-ORDER-THINNING-001.md",
+      "fixture": "",
+      "legacy_guard": "tools/checks/current_state_pointer_guard.sh",
+      "role": "current_maintenance",
+      "token": "DOCS-SOURCE-SELFHOST-TASK-ORDER-THINNING-001"
+    },
+    {
+      "card": "docs/development/current/main/phases/phase-296x/1809-DOCS-CHECK-INDEX-FAMILY-VIEW-001.md",
+      "fixture": "",
+      "legacy_guard": "tools/checks/rust_lifecycle_source_selfhost_family_guard.sh",
+      "role": "current_maintenance",
+      "token": "DOCS-CHECK-INDEX-FAMILY-VIEW-001"
+    },
+    {
+      "card": "docs/development/current/main/phases/phase-296x/3430-MIRBUILDER-SCALAR-KNOWN-FASTPATH-READ-CALLER-ORIENTATION-ASSERTION-CLOSEOUT-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-read-caller-orientation-assertion-closeout-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_scalar_known_fastpath_read_caller_orientation_assertion_closeout_guard.sh",
+      "role": "current_semantic",
+      "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-READ-CALLER-ORIENTATION-ASSERTION-CLOSEOUT-001"
+    },
+    {
+      "card": "docs/development/current/main/phases/phase-296x/3425-MIRBUILDER-SCALAR-KNOWN-HAKO-SHADOW-TEST-SPLIT-001.md",
+      "fixture": "",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_scalar_known_hako_shadow_test_split_guard.sh",
+      "role": "current_semantic",
+      "token": "MIRBUILDER-SCALAR-KNOWN-HAKO-SHADOW-TEST-SPLIT-001"
+    },
+    {
+      "card": "docs/development/current/main/phases/phase-296x/1811-MIRBUILDER-MINIMAL-PATH-COMPOSED-CLOSURE-NATIVE-SLICE-DECOMPOSITION-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-minimal-path-composed-closure-native-slice-decomposition-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_minimal_path_composed_closure_native_slice_decomposition_guard.sh",
+      "role": "current_semantic",
+      "token": "MIRBUILDER-MINIMAL-PATH-COMPOSED-CLOSURE-NATIVE-SLICE-DECOMPOSITION-001"
+    },
+    {
+      "card": "docs/development/current/main/phases/phase-296x/1812-MIRBUILDER-MINIMAL-PATH-COMPOSED-CLOSURE-NATIVE-OWNER-SEED-INVENTORY-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-minimal-path-composed-closure-native-owner-seed-inventory-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_minimal_path_composed_closure_native_owner_seed_inventory_guard.sh",
+      "role": "current_semantic",
+      "token": "MIRBUILDER-MINIMAL-PATH-COMPOSED-CLOSURE-NATIVE-OWNER-SEED-INVENTORY-001"
+    },
+    {
+      "card": "docs/development/current/main/phases/phase-296x/1813-MIRBUILDER-GENERATED-ARTIFACT-TO-NATIVE-OWNER-SEED-POLICY-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-generated-artifact-to-native-owner-seed-policy-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_generated_artifact_to_native_owner_seed_policy_guard.sh",
+      "role": "current_semantic",
+      "token": "MIRBUILDER-GENERATED-ARTIFACT-TO-NATIVE-OWNER-SEED-POLICY-001"
+    },
+    {
+      "card": "docs/development/current/main/phases/phase-296x/1814-MIRBUILDER-NATIVE-OWNER-SEED-PILOT-TARGET-SELECTION-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-native-owner-seed-pilot-target-selection-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_native_owner_seed_pilot_target_selection_guard.sh",
+      "role": "current_semantic",
+      "token": "MIRBUILDER-NATIVE-OWNER-SEED-PILOT-TARGET-SELECTION-001"
+    },
+    {
+      "card": "docs/development/current/main/phases/phase-296x/1815-MIRBUILDER-RETURN-EMISSION-HAKO-NATIVE-SOURCE-SEED-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-return-emission-hako-native-source-seed-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_return_emission_hako_native_source_seed_guard.sh",
+      "role": "current_semantic",
+      "token": "MIRBUILDER-RETURN-EMISSION-HAKO-NATIVE-SOURCE-SEED-001"
+    },
+    {
+      "card": "docs/development/current/main/phases/phase-296x/1816-MIRBUILDER-RETURN-EMISSION-HAKO-ADOPTION-DECISION-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-return-emission-hako-adoption-decision-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_return_emission_hako_adoption_decision_guard.sh",
+      "role": "current_semantic",
+      "token": "MIRBUILDER-RETURN-EMISSION-HAKO-ADOPTION-DECISION-001"
+    },
+    {
+      "card": "docs/development/current/main/phases/phase-296x/1817-MIRBUILDER-NATIVE-OWNER-SEED-PILOT-TARGET-SELECTION-002.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-native-owner-seed-pilot-target-selection-v1.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_native_owner_seed_pilot_target_selection_002_guard.sh",
+      "role": "current_semantic",
+      "token": "MIRBUILDER-NATIVE-OWNER-SEED-PILOT-TARGET-SELECTION-002"
+    },
+    {
+      "card": "docs/development/current/main/phases/phase-296x/1818-MIRBUILDER-FUNCTION-REGION-STACK-POP-HAKO-NATIVE-SOURCE-SEED-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-function-region-stack-pop-hako-native-source-seed-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_function_region_stack_pop_hako_native_source_seed_guard.sh",
+      "role": "current_semantic",
+      "token": "MIRBUILDER-FUNCTION-REGION-STACK-POP-HAKO-NATIVE-SOURCE-SEED-001"
+    },
+    {
+      "card": "docs/development/current/main/phases/phase-296x/1819-MIRBUILDER-FUNCTION-REGION-STACK-POP-HAKO-ADOPTION-DECISION-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-function-region-stack-pop-hako-adoption-decision-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_function_region_stack_pop_hako_adoption_decision_guard.sh",
+      "role": "current_semantic",
+      "token": "MIRBUILDER-FUNCTION-REGION-STACK-POP-HAKO-ADOPTION-DECISION-001"
+    },
+    {
+      "card": "docs/development/current/main/phases/phase-296x/1820-MIRBUILDER-NATIVE-OWNER-SEED-PILOT-TARGET-SELECTION-003.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-native-owner-seed-pilot-target-selection-v2.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_native_owner_seed_pilot_target_selection_003_guard.sh",
+      "role": "current_semantic",
+      "token": "MIRBUILDER-NATIVE-OWNER-SEED-PILOT-TARGET-SELECTION-003"
+    },
+    {
+      "card": "docs/development/current/main/phases/phase-296x/1821-MIRBUILDER-SLOT-REGISTRY-RELEASE-HAKO-NATIVE-SOURCE-SEED-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-slot-registry-release-hako-native-source-seed-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_slot_registry_release_hako_native_source_seed_guard.sh",
+      "role": "current_semantic",
+      "token": "MIRBUILDER-SLOT-REGISTRY-RELEASE-HAKO-NATIVE-SOURCE-SEED-001"
+    },
+    {
+      "card": "docs/development/current/main/phases/phase-296x/1822-MIRBUILDER-SLOT-REGISTRY-RELEASE-HAKO-ADOPTION-DECISION-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-slot-registry-release-hako-adoption-decision-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_slot_registry_release_hako_adoption_decision_guard.sh",
+      "role": "current_semantic",
+      "token": "MIRBUILDER-SLOT-REGISTRY-RELEASE-HAKO-ADOPTION-DECISION-001"
+    },
+    {
+      "card": "docs/development/current/main/phases/phase-296x/3353-MIRBUILDER-SCALAR-KNOWN-WRITE-DELETE-SURFACE-MIRROR-RETIRE-001.md",
+      "fixture": "",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_scalar_known_write_delete_surface_mirror_retire_guard.sh",
+      "role": "current_maintenance",
+      "token": "MIRBUILDER-SCALAR-KNOWN-WRITE-DELETE-SURFACE-MIRROR-RETIRE-001"
+    },
+    {
+      "card": "docs/development/current/main/phases/phase-296x/3423-MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-CALLER-ORIENTATION-CONTRACT-ARTIFACT-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-collection-caller-orientation-contract-artifact-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_scalar_known_fastpath_collection_caller_orientation_contract_artifact_guard.sh",
+      "role": "current_semantic",
+      "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-CALLER-ORIENTATION-CONTRACT-ARTIFACT-001"
+    },
+    {
+      "card": "docs/development/current/main/phases/phase-296x/3432-MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-SET-MAPSTORE-I64-CALLER-ORIENTATION-CONTRACT-ARTIFACT-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-write-set-mapstore-i64-caller-orientation-contract-artifact-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_scalar_known_fastpath_write_set_mapstore_i64_caller_orientation_contract_artifact_guard.sh",
+      "role": "current_semantic",
+      "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-SET-MAPSTORE-I64-CALLER-ORIENTATION-CONTRACT-ARTIFACT-001"
+    },
+    {
+      "card": "docs/development/current/main/phases/phase-296x/3436-MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-SET-MAPSTORE-I64-CALLER-ORIENTATION-LIVE-ASSERT-CONSUMER-001.md",
+      "fixture": "",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_scalar_known_fastpath_write_set_mapstore_i64_caller_orientation_live_assert_consumer_guard.sh",
+      "role": "current_semantic",
+      "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-SET-MAPSTORE-I64-CALLER-ORIENTATION-LIVE-ASSERT-CONSUMER-001"
+    },
+    {
+      "card": "docs/development/current/main/phases/phase-296x/3442-MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-CALLER-ORIENTATION-AUTHORITY-PILOT-RERUN-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-mapload-caller-orientation-authority-pilot-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_scalar_known_fastpath_mapload_caller_orientation_authority_pilot_guard.sh",
+      "role": "current_semantic",
+      "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-CALLER-ORIENTATION-AUTHORITY-PILOT-RERUN-001"
+    },
+    {
+      "card": "docs/development/current/main/phases/phase-296x/3443-MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-MAPLOAD-CALLER-ORIENTATION-PILOT-DESIGN-CONSULTATION-001.md",
+      "fixture": "",
+      "legacy_guard": "tools/checks/rust_lifecycle_source_selfhost_family_guard.sh",
+      "role": "current_semantic",
+      "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-MAPLOAD-CALLER-ORIENTATION-PILOT-DESIGN-CONSULTATION-001"
+    },
+    {
+      "card": "docs/development/current/main/phases/phase-296x/3444-SOURCE-SELFHOST-FAMILY-MANIFEST-ACTIVE-HISTORY-SPLIT-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-family-manifest-split-v1.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_source_selfhost_family_guard.sh",
+      "role": "current_semantic",
+      "token": "SOURCE-SELFHOST-FAMILY-MANIFEST-ACTIVE-HISTORY-SPLIT-001"
+    }
+  ],
+  "schema_version": 1
+}

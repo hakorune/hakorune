@@ -1,0 +1,32 @@
+{
+  "active_manifest": "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-family-guard-active-v1.json",
+  "active_manifest_sha256": "e34c3a571040d8cc5a66a61c0cbfaafb46757f12f7b03aa3a8d5949b38546aae",
+  "active_roles": [
+    "current_maintenance",
+    "current_semantic"
+  ],
+  "claims": {
+    "active_manifest_is_current_index": 1,
+    "exact_partition": 1,
+    "history_is_append_only_ledger": 1,
+    "legacy_manifest_frozen_compatibility_snapshot": 1,
+    "source_selfhost_claim": 0
+  },
+  "counts": {
+    "active_rows": 28,
+    "history_rows": 397,
+    "source_rows": 424
+  },
+  "frozen_source_manifest_sha256": "6105a66466ea598291d04bef89b42cdfc4199af5085aae7ba80d3316e62ff6a3",
+  "history_ledger": "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-family-guard-history-v1.jsonl",
+  "history_ledger_sha256": "5a38c97ff18c14692e383bcf5d09b969d2c31962de4f891ab624aae69275e33b",
+  "history_roles": [
+    "current_queue",
+    "historical_traceability"
+  ],
+  "kind": "SourceSelfhostFamilyManifestSplitV1",
+  "migration_card": "docs/development/current/main/phases/phase-296x/3444-SOURCE-SELFHOST-FAMILY-MANIFEST-ACTIVE-HISTORY-SPLIT-001.md",
+  "schema_version": 1,
+  "source_manifest": "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-family-guard-manifest-v0.json",
+  "source_manifest_sha256": "6105a66466ea598291d04bef89b42cdfc4199af5085aae7ba80d3316e62ff6a3"
+}

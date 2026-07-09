@@ -106,6 +106,7 @@ current_task
 debug_output.txt
 stats_output.txt
 *.jsonl
+!docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-family-guard-history-v1.jsonl
 *.dot
 
 # LLVM
