@@ -345,18 +345,18 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-INVENTORY-RERUN-002"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3369-MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-INVENTORY-RERUN-002.md"
-latest_card_summary = """3369 reruns the ScalarKnown fastpath-connected
-closeout inventory after the MapStoreAny generated typed artifact shadow
-handoff. It records connected_surface_row_count=2, known_unconnected_surface_row_count=4,
-selects WriteScalarI64Routes / PushSurfacePolicy as the next generated typed
-.hako artifact shadow-consume basis by prior write-route continuation, and
-leaves fastpath-connected closeout, .hako runtime route authority, Rust
-fast-path rewiring, runtime mutation/publication, new backend/ABI, runtime
-fallback, and Source Selfhost unclaimed."""
+latest_card = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-SHADOW-CONSUME-WRITE-PUSH-BASIS-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3370-MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-SHADOW-CONSUME-WRITE-PUSH-BASIS-001.md"
+latest_card_summary = """3370 defines the WriteScalarI64Routes /
+PushSurfacePolicy generated typed .hako artifact shadow-consume basis. It
+allows a checked-in generated typed artifact and fast-path shadow consumption
+as the next implementation step by prior write-route generated-artifact
+continuation, keeps the card basis-only, and leaves artifact generation,
+fastpath-connected closeout, .hako runtime route authority, Rust fast-path
+rewiring, runtime mutation/publication, new backend/ABI, runtime fallback, and
+Source Selfhost unclaimed."""
 
-current_blocker_token = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-SHADOW-CONSUME-WRITE-PUSH-BASIS-001"
+current_blocker_token = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-SHADOW-CONSUME-WRITE-PUSH-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -365,6 +365,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-09: 3370 defines the WriteScalarI64Routes/PushSurfacePolicy generated typed .hako artifact shadow-consume basis, allows checked-in generated typed artifact plus fast-path shadow consumption as the next implementation step by prior write-route generated-artifact continuation, selects MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-SHADOW-CONSUME-WRITE-PUSH-001, and leaves artifact generation, fastpath-connected closeout, .hako runtime route authority, Rust fast-path rewiring, runtime mutation/publication, new backend/ABI, runtime fallback, and Source Selfhost unclaimed.",
   "2026-07-09: 3369 reruns the ScalarKnown fastpath-connected closeout inventory after the MapStoreAny generated typed artifact shadow handoff, records connected_surface_row_count=2, known_unconnected_surface_row_count=4, selects WriteScalarI64Routes/PushSurfacePolicy as the next generated typed .hako artifact shadow-consume basis by prior write-route continuation, and leaves fastpath-connected closeout, .hako runtime route authority, Rust fast-path rewiring, runtime mutation/publication, new backend/ABI, runtime fallback, and Source Selfhost unclaimed.",
   "2026-07-09: 3368 connects SetSurfacePolicy/MapStoreAny to the live Rust fast path through a checked-in generated typed .hako artifact consumed as shadow evidence, adds the generated artifact, generator, Rust shadow consumer, and write_routes fast-path call, selects MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-INVENTORY-RERUN-002, and leaves fastpath-connected closeout, .hako runtime route authority, Rust fast-path rewiring, runtime mutation/publication, new backend/ABI, runtime fallback, and Source Selfhost unclaimed.",
   "2026-07-09: 3367 defines the SetSurfacePolicy/MapStoreAny generated typed .hako artifact shadow-consume basis, allows checked-in generated typed artifact plus fast-path shadow consumption as the next implementation step by same SetSurfacePolicy minimal delta from MapStoreI64, selects MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-SHADOW-CONSUME-SET-MAPSTORE-ANY-001, and leaves artifact generation, fastpath-connected closeout, .hako runtime route authority, Rust fast-path rewiring, runtime mutation/publication, new backend/ABI, runtime fallback, and Source Selfhost unclaimed.",
@@ -373,7 +374,6 @@ landed_tail = [
   "2026-07-09: 3364 reruns ScalarKnown transport closeout after WriteScalarI64Routes closeout, refreshes the Rust ScalarKnown contract boundary to accepted_scalar_known_surface_count=4 / uncovered_scalar_known_surface_count=0, records scalar_known_transport_axis_closeout=1, selects MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-BASIS-001, and leaves fastpath-connected closeout, .hako runtime route authority, Rust fast-path rewiring, runtime mutation/publication, new backend/ABI, runtime fallback, and Source Selfhost unclaimed.",
   "2026-07-09: 3363 consumes the WriteScalarI64Routes closeout basis and materializes scoped WriteScalarI64Routes closeout, records scoped_direct_closeout_contract_count=3 for PushSurfacePolicy / SetSurfacePolicy-MapStoreI64 / SetSurfacePolicy-MapStoreAny, keeps DeleteSurfacePolicy-MapDeleteAny as retired unconnected .hako mirror with live Rust route preserved and direct closeout materialized=0, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-TRANSPORT-CLOSEOUT-RERUN-002, and leaves ScalarKnown closeout, runtime mutation/publication, new backend/ABI, runtime fallback, and Source Selfhost unclaimed.",
   "2026-07-09: 3362 collects the WriteScalarI64Routes closeout review basis, records scoped_direct_closeout_contract_count=3 for PushSurfacePolicy / SetSurfacePolicy-MapStoreI64 / SetSurfacePolicy-MapStoreAny, records DeleteSurfacePolicy-MapDeleteAny as a retired unconnected .hako mirror with live Rust MapDeleteAny preserved, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SCALAR-I64-ROUTES-CLOSEOUT-RERUN-001, and leaves WriteScalarI64Routes closeout, ScalarKnown closeout, runtime mutation/publication, new backend/ABI, runtime fallback, and Source Selfhost unclaimed.",
-  "2026-07-09: 2147 consumes the MapStoreAny direct closeout contract basis, materializes the scoped SetSurfacePolicy / MapStoreAny direct closeout, records write_set_mapstore_any_direct_closeout_materialized=1, accepted_scoped_closeout_count=7, any_write_boundary_declared=1, any_write_boundary_opened=0, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SCALAR-I64-ROUTES-CLOSEOUT-BASIS-001, and leaves WriteScalarI64Routes closeout, ScalarKnown closeout, runtime mutation/publication, new backend/ABI, runtime fallback, and Source Selfhost unclaimed.",
   "2026-07-09: 2145 consumes the adopted SetSurfacePolicy / MapStoreAny `.hako` parity pilot, reruns the scoped Write Set selector, records write_set_mapstore_any_hako_adopted=1, basis_selection_eligible_surface_count=1, selected_scoped_surface=SetSurfacePolicy/MapStoreAny, any_write_boundary_declared=1, any_write_boundary_opened=0, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-DIRECT-CLOSEOUT-CONTRACT-BASIS-001, and leaves direct closeout materialization, WriteScalarI64Routes closeout, ScalarKnown closeout, runtime mutation/publication, new backend/ABI, runtime fallback, and Source Selfhost unclaimed.",
   "2026-07-09: 2142 lands the SetSurfacePolicy / MapStoreAny hand-authored `.hako` classifier/policy mirror after the Any write boundary basis and Rust-oracle fixture are green, records hako_implementation_landed=1, hako_source_verifies=1, any_write_boundary_declared=1, any_write_boundary_opened=0, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-PARITY-GATE-001, and leaves HakoAdoption, direct closeout, write route closeout, ScalarKnown closeout, runtime mutation/publication, new backend/ABI, runtime fallback, and Source Selfhost unclaimed.",
   "2026-07-09: 3361 replaces the SetSurfacePolicy / MapStoreI64 include_str/string-search/row.split `.hako` shadow parser with a checked-in generated typed Rust artifact, wires the Rust fast path to consume WRITE_SET_MAPSTORE_I64_HAKO_POLICY as shadow evidence, adds a generator check guard for `.hako` source drift, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-WRITE-BOUNDARY-BASIS-001, and leaves live `.hako` route authority, Rust fast-path rewiring, route selection switch, backend lowering authority, runtime mutation/publication, build.rs hakorune invocation, new backend/ABI, runtime fallback, and Source Selfhost unclaimed.",

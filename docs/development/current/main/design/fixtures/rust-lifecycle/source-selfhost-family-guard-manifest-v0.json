@@ -2469,6 +2469,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-connected-closeout-inventory-rerun-002-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_scalar_known_fastpath_connected_closeout_inventory_rerun_002_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-SHADOW-CONSUME-WRITE-PUSH-BASIS-001",
+      "card": "docs/development/current/main/phases/phase-296x/3370-MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-SHADOW-CONSUME-WRITE-PUSH-BASIS-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-hako-generated-typed-artifact-shadow-consume-write-push-basis-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_scalar_known_fastpath_hako_generated_typed_artifact_shadow_consume_write_push_basis_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {

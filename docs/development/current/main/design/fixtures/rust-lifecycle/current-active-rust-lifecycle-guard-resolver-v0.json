@@ -9,14 +9,14 @@
     "source_selfhost_claim": 0
   },
   "current_state": {
-    "current_blocker_token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-SHADOW-CONSUME-WRITE-PUSH-BASIS-001",
-    "latest_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-INVENTORY-RERUN-002",
-    "latest_card_path": "docs/development/current/main/phases/phase-296x/3369-MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-INVENTORY-RERUN-002.md"
+    "current_blocker_token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-SHADOW-CONSUME-WRITE-PUSH-001",
+    "latest_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-SHADOW-CONSUME-WRITE-PUSH-BASIS-001",
+    "latest_card_path": "docs/development/current/main/phases/phase-296x/3370-MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-SHADOW-CONSUME-WRITE-PUSH-BASIS-001.md"
   },
   "decision": {
     "kind": "ResolveCurrentActiveRustLifecycleGuards",
     "reason_token": "LatestCurrentScopedGuardSet",
-    "selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-SHADOW-CONSUME-WRITE-PUSH-BASIS-001"
+    "selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-SHADOW-CONSUME-WRITE-PUSH-001"
   },
   "kind": "CurrentActiveRustLifecycleGuardResolverV1",
   "resolution": {
@@ -25,29 +25,29 @@
       "guard_count": 0,
       "guard_paths": [],
       "status": "pending_card_or_guard",
-      "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-SHADOW-CONSUME-WRITE-PUSH-BASIS-001"
+      "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-SHADOW-CONSUME-WRITE-PUSH-001"
     },
-    "historical_rust_lifecycle_script_count": 1062,
+    "historical_rust_lifecycle_script_count": 1063,
     "latest": {
-      "card": "docs/development/current/main/phases/phase-296x/3369-MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-INVENTORY-RERUN-002.md",
+      "card": "docs/development/current/main/phases/phase-296x/3370-MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-SHADOW-CONSUME-WRITE-PUSH-BASIS-001.md",
       "guard_count": 1,
       "guard_paths": [
-        "tools/checks/rust_lifecycle_mirbuilder_scalar_known_fastpath_connected_closeout_inventory_rerun_002_guard.sh"
+        "tools/checks/rust_lifecycle_mirbuilder_scalar_known_fastpath_hako_generated_typed_artifact_shadow_consume_write_push_basis_guard.sh"
       ],
       "status": "resolved",
-      "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-INVENTORY-RERUN-002"
+      "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-SHADOW-CONSUME-WRITE-PUSH-BASIS-001"
     },
     "max_default_guard_count": 3,
     "run_all_historical_guards": false,
     "runnable_guard_count": 1,
     "runnable_guard_paths": [
-      "tools/checks/rust_lifecycle_mirbuilder_scalar_known_fastpath_connected_closeout_inventory_rerun_002_guard.sh"
+      "tools/checks/rust_lifecycle_mirbuilder_scalar_known_fastpath_hako_generated_typed_artifact_shadow_consume_write_push_basis_guard.sh"
     ]
   },
   "schema_version": 0,
   "source_files": {
-    "docs/development/current/main/CURRENT_STATE.toml": "3ff0c113510964247af478b7bf3f9306baccf8e6f980b926fc8867dd8ddf4954",
-    "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md": "59eb73f7eaf0ac12608b71158904cba265c6329ed4014af5ad0279afda2e6fab"
+    "docs/development/current/main/CURRENT_STATE.toml": "9edf5e81514a969b438da5f40974da760e8be1ebb4d04d1bd02f675a9b01d882",
+    "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md": "074553f6f54a720b1c737f7e3f3ef8342c67170ddc7d8d9237d0c3f13b4f308e"
   },
   "summary": {
     "current_active_guard_resolver": 1,
@@ -57,7 +57,7 @@
     "max_default_guard_count": 3,
     "run_all_rust_lifecycle_guards_by_default": 0,
     "runnable_guard_count": 1,
-    "selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-SHADOW-CONSUME-WRITE-PUSH-BASIS-001",
+    "selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-SHADOW-CONSUME-WRITE-PUSH-001",
     "source_selfhost_claim": 0
   },
   "token": "MIRBUILDER-CURRENT-ACTIVE-RUST-LIFECYCLE-GUARD-RESOLVER-001"
