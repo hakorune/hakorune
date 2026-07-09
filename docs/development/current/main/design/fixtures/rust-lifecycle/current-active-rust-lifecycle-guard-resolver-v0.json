@@ -9,14 +9,14 @@
     "source_selfhost_claim": 0
   },
   "current_state": {
-    "current_blocker_token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-INVENTORY-RERUN-003",
-    "latest_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-SHADOW-CONSUME-WRITE-PUSH-001",
-    "latest_card_path": "docs/development/current/main/phases/phase-296x/3371-MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-SHADOW-CONSUME-WRITE-PUSH-001.md"
+    "current_blocker_token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-READ-SURFACE-GENERATED-TYPED-ARTIFACT-SELECTION-DESIGN-CONSULTATION-001",
+    "latest_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-INVENTORY-RERUN-003",
+    "latest_card_path": "docs/development/current/main/phases/phase-296x/3372-MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-INVENTORY-RERUN-003.md"
   },
   "decision": {
     "kind": "ResolveCurrentActiveRustLifecycleGuards",
     "reason_token": "LatestCurrentScopedGuardSet",
-    "selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-INVENTORY-RERUN-003"
+    "selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-READ-SURFACE-GENERATED-TYPED-ARTIFACT-SELECTION-DESIGN-CONSULTATION-001"
   },
   "kind": "CurrentActiveRustLifecycleGuardResolverV1",
   "resolution": {
@@ -25,29 +25,29 @@
       "guard_count": 0,
       "guard_paths": [],
       "status": "pending_card_or_guard",
-      "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-INVENTORY-RERUN-003"
+      "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-READ-SURFACE-GENERATED-TYPED-ARTIFACT-SELECTION-DESIGN-CONSULTATION-001"
     },
-    "historical_rust_lifecycle_script_count": 1064,
+    "historical_rust_lifecycle_script_count": 1065,
     "latest": {
-      "card": "docs/development/current/main/phases/phase-296x/3371-MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-SHADOW-CONSUME-WRITE-PUSH-001.md",
+      "card": "docs/development/current/main/phases/phase-296x/3372-MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-INVENTORY-RERUN-003.md",
       "guard_count": 1,
       "guard_paths": [
-        "tools/checks/rust_lifecycle_mirbuilder_scalar_known_fastpath_hako_generated_typed_artifact_shadow_consume_write_push_guard.sh"
+        "tools/checks/rust_lifecycle_mirbuilder_scalar_known_fastpath_connected_closeout_inventory_rerun_003_guard.sh"
       ],
       "status": "resolved",
-      "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-SHADOW-CONSUME-WRITE-PUSH-001"
+      "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-INVENTORY-RERUN-003"
     },
     "max_default_guard_count": 3,
     "run_all_historical_guards": false,
     "runnable_guard_count": 1,
     "runnable_guard_paths": [
-      "tools/checks/rust_lifecycle_mirbuilder_scalar_known_fastpath_hako_generated_typed_artifact_shadow_consume_write_push_guard.sh"
+      "tools/checks/rust_lifecycle_mirbuilder_scalar_known_fastpath_connected_closeout_inventory_rerun_003_guard.sh"
     ]
   },
   "schema_version": 0,
   "source_files": {
-    "docs/development/current/main/CURRENT_STATE.toml": "3209c78d902f0be16ca4dd2bfcfadb18956ed45bb07c7d28bacb4507797d7920",
-    "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md": "3045bb3ff62301fa34bf7cdac4eee43f66c9c581e146500ce0f4b5ec58e463bf"
+    "docs/development/current/main/CURRENT_STATE.toml": "05d58ce4438a54e6e9c5bcbd4de341b5501faf69ac56e9b5eee4e0da7b1bf9a1",
+    "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md": "165dcf49c01811ec36743f6679a15378f0287b00d750f3b6fe29ce1478f865e6"
   },
   "summary": {
     "current_active_guard_resolver": 1,
@@ -57,7 +57,7 @@
     "max_default_guard_count": 3,
     "run_all_rust_lifecycle_guards_by_default": 0,
     "runnable_guard_count": 1,
-    "selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-INVENTORY-RERUN-003",
+    "selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-READ-SURFACE-GENERATED-TYPED-ARTIFACT-SELECTION-DESIGN-CONSULTATION-001",
     "source_selfhost_claim": 0
   },
   "token": "MIRBUILDER-CURRENT-ACTIVE-RUST-LIFECYCLE-GUARD-RESOLVER-001"
