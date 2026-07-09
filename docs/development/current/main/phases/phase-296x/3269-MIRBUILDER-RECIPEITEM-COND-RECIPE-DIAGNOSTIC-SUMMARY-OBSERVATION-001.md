@@ -25,6 +25,12 @@ Gate:
 tools/checks/rust_lifecycle_mirbuilder_recipeitem_cond_recipe_diagnostic_summary_observation_gate.sh
 ```
 
+## Guard
+
+```text
+tools/checks/rust_lifecycle_mirbuilder_recipeitem_cond_recipe_diagnostic_summary_observation_gate.sh
+```
+
 ## Claims
 
 ```text
