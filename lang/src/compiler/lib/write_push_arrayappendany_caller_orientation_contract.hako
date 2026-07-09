@@ -1,0 +1,16 @@
+// write_push_arrayappendany_caller_orientation_contract.hako
+//
+// Responsibility:
+// - declare metadata-only caller orientation for the existing ArrayAppendAny row
+// - reference the policy row ID without copying write semantics
+//
+// Non-responsibility:
+// - route selection, runtime dispatch, MIR emission, backend lowering
+// - mutation, effect, publication, or Delete authority
+static box WritePushArrayAppendAnyCallerOrientationContractBox {
+  static method rows() {
+    return [
+      "array_append_any_push_surface|CallerOrientationContractMetadataOnly|SingleSurface|Forbidden|Forbidden|Forbidden|Forbidden|FailFast"
+    ]
+  }
+}
