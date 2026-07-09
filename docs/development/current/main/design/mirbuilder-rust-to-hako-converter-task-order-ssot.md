@@ -1,786 +1,117 @@
 ---
 Status: SSOT
 Date: 2026-07-10
-Scope: MirBuilder-only Rust-to-Hako converter task order.
+Scope: MirBuilder-only Rust-to-Hako converter current task order.
 Related:
-  - docs/development/current/main/design/derived-to-native-hako-artifact-model-ssot.md
-  - docs/development/current/main/design/rust-lifecycle-projection-ssot.md
-  - docs/reference/architecture/rust-to-hako-lifecycle-projection.md
-  - docs/development/current/main/design/perf-owner-first-optimization-ssot.md
-  - docs/development/current/main/design/mirbuilder-ordering-capability-ssot.md
-  - docs/development/current/main/design/mirbuilder-selfhost-checkpoint-roadmap-ssot.md
-  - docs/development/current/main/design/rust-to-hako-converter-implementation-role-ssot.md
+  - docs/development/current/main/CURRENT_STATE.toml
+  - docs/development/current/main/design/current-docs-update-policy-ssot.md
   - docs/development/current/main/design/mirbuilder-authority-based-hako-migration-ssot.md
+  - docs/development/current/main/design/mirbuilder-selfhost-checkpoint-roadmap-ssot.md
+  - docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-family-guard-active-v1.json
+  - docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-family-guard-history-v1.jsonl
 ---
 
 # MirBuilder Rust-to-Hako Converter Task Order
 
-This file is the current task-order entry. It is not a landed-history ledger.
-Detailed historical rows live in phase cards and git history.
+This is a current-only restart entry. It must not accumulate landed cards,
+inventories, transcripts, or historical next chains.
 
-## Current Target
-
-```text
-active blocker:
-  MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-CALLER-ORIENTATION-AUTHORITY-PILOT-001
-
-resolved design stop:
-  MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-STRING-CALLER-ORIENTATION-PILOT-DESIGN-CONSULTATION-001
-
-selection authority:
-  local mechanical option B
-  + prior Collection four-row route-decision authority
-  + prior Collection policy-row-ID-only assertion consumer
-  + explicit mixed receiver-domain and AnyLength/Box guards
-
-active_packet:
-  id = COLLECTION_CALLER_ORIENTATION_AUTHORITY_PILOT_V1
-  3449 = MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-CALLER-ORIENTATION-AUTHORITY-PILOT-BASIS-001
-  3450 = MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-CALLER-ORIENTATION-AUTHORITY-PILOT-001
-  3451 = MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-CALLER-ORIENTATION-AUTHORITY-PILOT-RERUN-001
-  3452 = MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-COLLECTION-CALLER-ORIENTATION-PILOT-DESIGN-CONSULTATION-001
-
-packet contract:
-  scope = exact four-row CollectionScalarI64Routes closed set
-  authority_scope = policy_row_id_contract_only
-  consumer_input = PolicyRowIdOnly
-  consumer_return = Unit
-  receiver_domain_input = forbidden
-  anylength_box = explicit_row_not_wildcard
-  generated_typed_contract_compare = required
-  rust_oracle_compat_veto = required
-  fallback = forbidden
-  route_selection_authority_switch = 0
-  caller_orientation_runtime_path = 0
-  backend_lowering_authority = 0
-  runtime_mutation_authority = 0
-  publication_execution = 0
-  source_selfhost_claim = 0
-
-stop_if:
-  generated typed fields are insufficient for the required comparison
-  OR consumer needs route/value/effect/mutation input or non-Unit output
-  OR MIR/runtime/backend/registry consumption is required
-  OR Write/Delete/wide scope enters the card
-  OR fallback or warn-only mismatch is proposed
-
-next_after_packet:
-  design consultation at MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-COLLECTION-CALLER-ORIENTATION-PILOT-DESIGN-CONSULTATION-001 before Write mutation, Delete revival, wide, runtime/backend, or Source Selfhost promotion.
-
-latest design decision:
-  3253 implements MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-NESTED-LOOP-REJECT-BOUNDARY-001: has_nested_loop=1 now rejects at the observe-only matcher boundary with reason=nested_loop_present.
-  3252 records MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-NESTED-LOOP-DECISION-ROW-CONSULTATION-001: select nested-loop reject-boundary implementation, not a nested-loop accepted matcher row.
-  3251 records MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-AUTHORITY-SWITCH-READINESS-CONSULTATION-001: authority switch is not ready after field-floor parity; selected next is MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-NESTED-LOOP-DECISION-ROW-CONSULTATION-001.
-  3250 implements MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-ROUTE-CONSUMED-FIELD-FLOOR-PARITY-001: route-consumed field floor parity is green for break-present and break+continue-present rows; ProgramJSON remains shadow-only.
-  3249 records MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-ROUTE-CONSUMED-FIELD-FLOOR-SELECTION-001: selected hard matcher fields plus route-adjacent snapshot facts; next card is MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-ROUTE-CONSUMED-FIELD-FLOOR-PARITY-001.
-  3248 implements MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-MISSING-VERIFIED-RECIPE-REJECT-ROW-001: empty ProgramJSON rejects as verified_recipe_missing -> snapshot_not_ok with matched=0; ProgramJSON remains shadow-only.
-  3247 records MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-REJECT-FLOOR-SELECTION-001: selected first reachable reject row is malformed_or_missing_verified_recipe, next card is MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-MISSING-VERIFIED-RECIPE-REJECT-ROW-001.
-  3246 implements MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RETURN-ABSENT-ACCEPTED-FLOOR-001: exact IfBreak+IfContinue+Assignment Return-absent row is green with final top-level Return present; ProgramJSON remains shadow-only.
-  3245 implements MIRBUILDER-PROGRAMJSON-CANONICAL-LOOP-FACTS-FINAL-TOPLEVEL-RETURN-DECOUPLE-SNAPSHOT-BOUNDARY-001: snapshot-boundary decouple publishes final_top_level_return_present while loop-body exit_has_return uses loop-body scan only.
-  3244 implements MIRBUILDER-PROGRAMJSON-LOOP-BODY-RETURN-ABSENT-SCAN-ONLY-DIAGNOSTIC-001: return_absent_scan_only_diagnostic proves final top-level Return does not set loop-body has_return; accepted-floor remains 0.
-  3243 records MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RETURN-ABSENT-ROUTE-RELEASE-CONSULTATION-001: B_DEFER_RETURN_ABSENT_TO_ROUTE_RELEASE_CONSULTATION is selected; next is a scan-only diagnostic, not accepted-floor.
-  3241 implements MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-BREAK-CONTINUE-PRESENT-VERIFIED-RECIPE-SUPPORT-001: exact IfBreak+IfContinue+IfReturn+Assignment BoxCount row is green; ProgramJSON remains shadow-only.
-  3240 implements MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-BREAK-PRESENT-VERIFIED-RECIPE-SUPPORT-001: exact IfBreak+IfReturn+Assignment BoxCount row is green; ProgramJSON remains shadow-only.
-  3239 implements MIRBUILDER-PROGRAMJSON-LOOP-BODY-IFCONTINUE-IFRETURN-ASSIGNMENT-BOXCOUNT-ACCEPTED-FLOOR-001: exact IfContinue+IfReturn+Assignment BoxCount row is green; ProgramJSON remains shadow-only.
-  3238 records MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-CONTINUE-PRESENT-ROW-SHAPE-DESIGN-STOP-001: final top-level Return cannot satisfy Rust loop-body has_return; recommended_default=A_CONTINUE_PLUS_IN_BODY_RETURN_PLUS_ASSIGNMENT; selected_next=CONSULTATION_REQUIRED.
-  3237 records MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-ACCEPTED-FLOOR-MATRIX-001 after MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-AUTHORITY-SWITCH-COVERAGE-FLOOR-SELECTION-001; selected MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-CONTINUE-PRESENT-VERIFIED-RECIPE-SUPPORT-001 before 3238.
-  3232 implements MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-SHADOW-PARITY-EXPANDED-ROWS-001; 3233 keeps MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-ROUTE-SHADOW-SWITCH-CONSULTATION-002 as the no-authority-switch consultation boundary.
-  3234 implements MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RUNTIME-ROUTE-ADJACENT-SHADOW-GUARD-001 after 3233 selects B_RUNTIME_ROUTE_ADJACENT_SHADOW_GUARD; C authority switch is rejected for now.
-  3231 implements MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RUNTIME-DUAL-RUN-SHADOW-GUARD-001: Rust ASTNode remains runtime authority while ProgramJSON matcher result is checked as shadow-only dual-run evidence.
-  3230 records MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-ROUTE-SHADOW-SWITCH-DESIGN-STOP-001; recommended=A_SHADOW_ONLY_DUAL_RUN_GUARD, rejected=B_DIRECT_RUNTIME_ROUTE_SWITCH, alternative=C_MORE_DTO_OR_MATCHER_ROWS_BEFORE_SWITCH, selected_next=CONSULTATION_REQUIRED.
-  3227 implements the CanonicalLoopFacts input snapshot MapBox publication bridge with DirectAbi/map_handle AOT parity for two verified-recipe rows; RecipeMatcher, route selection, lowering, mutation, ID allocation, route switch, and Source Selfhost remain unclaimed.
-  3226 records MIRBUILDER-PROGRAMJSON-CANONICAL-LOOP-FACTS-INPUT-SNAPSHOT-AOT-BOUNDARY-DESIGN-STOP-001;
-  recommended=A_MAPBOX_SNAPSHOT_PUBLICATION_BRIDGE, alternative=B_COMPLEX_STRING_SUMMARY_AOT_ROUTE, rejected=C_VM_ONLY_TRAVERSAL_GATE; attempted MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-EXECUTION-BOUNDARY-MINIMAL-001 requires consultation; selected_next=CONSULTATION_REQUIRED.
-  3225 MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-INPUT-BOUNDARY-CONSULTATION-001 selects ProgramJsonCanonicalLoopFactsInputSnapshotV1 as the next
-  Layer4 input-boundary task; RecipeBodiesPublicationSnapshotV1 is not enough.
-  3224 records RecipeMatcher input-boundary design stop: Rust consumes CanonicalLoopFacts, not RecipeBodiesPublicationSnapshotV1.
-  3223 implements MIRBUILDER-PROGRAMJSON-RECIPEBODIES-RUNTIME-PUBLICATION-BRIDGE-001.
-  3221 marks the expanded RecipeBodies verifier-boundary DTO coverage rows as scoped retire-candidates; Runtime RecipeBodies publication, full RecipeMatcher, route switch, lowering, mutation, ID allocation, and Source Selfhost remain unclaimed.
-  Parked same-family cleanup queue: TryCleanup handler result-map, Return
-  handler result-map, RecipeItem strict constructor contract.
-  3207 marks the covered ProgramJsonRecipeBodiesLoopBodyArenaBuilderV1 row as
-  a scoped Rust ASTNode projector retire-candidate.
-  3206 implements ProgramJsonRecipeBodiesLoopBodyArenaBuilderBox and proves a
-  map-backed Loop body multi-body arena DTO for one row.
-  3205 selects Loop body multi-body RecipeBodies arena parity after the If
-  branch arena retire-candidate. 3204/3203 proved If branch arena parity.
-  3202-3194 cover If-branch, one-shape, and minimal RecipeBodies proofs.
-  3192-3123 cover prior Layer4/scanner/AOT checkpoints.
-  2997 stabilized the AOT/MIR value-type publication contract only for the
-  proven route families. 3002 remains a trigger-based debt queue for Float
-  Sub/Mul/Div, string Lt/Gt/Le/Ge policy, user-box single-observation
-  protection, scalar_i64_or_missing_zero, PHI dst_type, and mir_call dst_type.
-  Do not open those as guard-only detours unless the active ProgramJSON gate or
-  a direct AOT regression hits that route.
-  ProgramJSON migration remains capability-batch based; full projector
-  retirement is runtime route switch, not Rust bootstrap/oracle deletion.
-  HakoAdoption, full parser, MIR mutation/lowering/ID allocation, route selection, and Source Selfhost remain unclaimed.
-
-current fail-fast boundary:
-  Do not re-enter full converter route selection without new non-self-signed authority or stable input delta. The adopted pilot scopes are narrow pure owners only: classification/formatting vocabulary, tiny mutation-frame leaves, label/tag surfaces, direct step placement classification, array-string len-window effect-tags formatting, and fixture-backed parity helpers.
-  Recent adopted formatters cover Sum variants, MirType, effect/capability plans, route/proof labels, loop deny reasons, byte-boundary proof labels, array-text effect labels, len-window modes, observer region-contract effects, combined-region add-const-one classification, loop-session region-payload add-const-one classification, BasicBlock empty-state classification, BasicBlock terminated-state classification, BasicBlock sealed-state classification, ArrayTextResidenceSession safe-bookkeeping classification, call-lowering constructor-name classification, call-resolution commonly-shadowed-method classification, call-resolution extern-function classification, and call-resolution math-function classification. Metadata refresh, route collection, const emission, full AST traversal, method dispatch, string corridor fact inference, same-module definition closure collection, receiver origin resolution, key route classification, route convergence, closure callsite canonicalization, NewClosure rewrite, lowering execution, Region construction, GC retain/release, loop feature extraction, loop route classification, planner route selection, thin-entry candidate collection/selection, manifest generation, observer route derivation, region matching, combined region planning, and MirBuilder mutation remain Rust.
-  Payload-type layout binding, sum placement layout refresh, string-kernel plan construction, legality analysis, publication logic, array/text route matching, exact-shape payload construction, session derivation, executor planning, sum route matching, payload extraction, helper emission, MirType tree traversal, global-call route collection, rune profile expansion, effect/capability plan construction/verification, FastMemory fact construction/region analysis, constructor route collection/callee classification, planner order/selection, legacy observer shadow decisions, loop route candidate collection, runtime route selection, array RMW matching, array receiver proof, array RMW add1 leaf seed matching, array get/set micro seed matching, array string-store micro seed matching, concat const suffix seed matching, array text loopcarry matching, array string length window matching, string direct-set window matching, substring views micro seed matching, UserBox loop micro seed matching, exact seed backend route selection, exact seed payload route migration, UserBox known receiver method seed matching, UserBox local scalar seed matching, seed payload migration, indexOf search micro seed matching, backend action execution, array text edit matching, edit payload migration, string corridor relation detection, sum placement fact collection, objectization policy, string corridor candidate derivation, publication policy, and backend lowering remain Rust.
-  Escape use classification, operand-role policy, inline plan construction, inline shape verification, MIR metadata emission, generic-loop shape detection/resolution, loop body analysis, loop-session plan construction, region payload derivation, DirectArray plan construction/proof derivation, DirectArray lowering selection, BoxedSum ABI plan construction/site lookup, BoxedSum lowering, global-call target shape inference/route collection, lowering decision, MIR instruction traversal, receiver-origin classification, publication proof construction, LocalFastPathFact generation, publication-site MIR mutation, Copy instruction emission, dominance checks, test-only copy-emission reasons, CorePlan/Facts flowbox classification, facts-to-feature extraction, tag emission, Freeze contract, stderr write, Callee/ValueId analysis, emit-guard instruction analysis, emit-guard scope validation, index route selection, property registry state, call target resolution, MIR instruction traversal, MIR instruction display formatting, memory operation semantics, FastMem handling, function signature preparation, map lookup fusion route derivation, generic method route analysis, route selection, Freeze construction/message formatting, planner fail-fast policy, global-call target/shape/proof analysis, result-origin mapping, definition-owner inference, route collection, and proof policy remain Rust.
-
-historical route-selection decision:
-  Detailed landed route-selection rows are closed as provenance and live in phase cards, fixture guards, and git history. This task-order stays a compact pointer to the active pivot and next 3 tasks.
-## Converter Completion Task Inventory
+## Current Blocker
 
 ```text
-source_selfhost_status = Stopped
-source_selfhost_blocker = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
-
-latest_diagnostics:
-  typed_dependency_root_authority_basis = defined
-  latest_evidence_inventory_token = MIRBUILDER-DOMAIN-OBJECT-ID-TYPED-DEPENDENCY-EDGE-EVIDENCE-INVENTORY-001
-  latest_derivation_basis_token = MIRBUILDER-DOMAIN-OBJECT-ID-RETURN-TYPE-REFERENCE-EDGE-DERIVATION-BASIS-001
-  latest_taxonomy_inventory_token = MIRBUILDER-DOMAIN-OBJECT-ID-RETURN-TYPE-RESOURCE-TAXONOMY-INVENTORY-001
-  latest_taxonomy_authority_token = MIRBUILDER-DOMAIN-OBJECT-ID-RETURN-TYPE-RESOURCE-TAXONOMY-AUTHORITY-001
-  latest_registry_authority_token = MIRBUILDER-DOMAIN-OBJECT-ID-STABLE-TYPE-RESOURCE-REGISTRY-AUTHORITY-001
-  latest_explicit_declaration_basis_token = MIRBUILDER-DOMAIN-OBJECT-ID-EXPLICIT-SEMANTIC-RESOURCE-DOMAIN-DECLARATION-BASIS-001
-  latest_wider_selector_token = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-008
-  latest_remaining_axis_priority_basis_token = MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-PRIORITY-BASIS-001
-  latest_remaining_axis_priority_rerun_token = MIRBUILDER-CARRIER-TYPE-TRANSPORT-REMAINING-AXIS-PRIORITY-RERUN-001
-  latest_wider_selector_basis_010_token = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-010
-  latest_stop_token = MIRBUILDER-DOMAIN-OBJECT-ID-SEMANTIC-RESOURCE-DOMAIN-DECLARATION-INVENTORY-001
-  selector_basis_token = MIRBUILDER-DOMAIN-OBJECT-ID-TYPED-DEPENDENCY-ROOT-AUTHORITY-BASIS-001
-  previous_selector_basis_token = MIRBUILDER-DOMAIN-OBJECT-ID-SUBAXIS-MECHANICAL-SELECTION-BASIS-001
-  previous_selector_rerun_token = MIRBUILDER-DOMAIN-OBJECT-ID-UNRESOLVED-SUBAXIS-PRIORITY-RERUN-002
-  previous_ledger_token = MIRBUILDER-DOMAIN-OBJECT-ID-TRANSPORT-POLICY-INVENTORY-RERUN-002
-  previous_stop_token = MIRBUILDER-DOMAIN-OBJECT-ID-UNRESOLVED-SUBAXIS-PRIORITY-RESOLUTION-001
-  unconverted_surface_count = 1584
-  missing_projection_policy_count = 1004
-  borrow_surface_needs_policy_count = 112
-  type_transport_missing_item_count = 944
-  carrier_type_unclassified_count = 130
-  DomainObjectOrIdTransportAxis = 116
-  legacy_id_scalar_domain_rows = 31
-  unresolved_non_id_domain_rows = 85
-  unresolved_non_id_subaxis_candidate_count = 5
-  accepted_typed_dependency_edge_count = 0
-  dependency_root_candidate_count = 0
-  return_type_field_reference_candidate_count = 85
-  return_type_field_as_edge_by_itself = 0
-  distinct_return_type_count = 44
-  edge_ready_return_type_count = 0
-  return_type_resource_taxonomy_entry_count = 0
-  resolved_type_decl_ref_count = 0
-  resource_taxonomy_join_ready_count = 0
-  accepted_registry_authority_source_count = 0
-  registry_ready_row_count = 0
-  domain_object_id_lane_parked = 1
-  post_domain_object_id_eligible_lane_count = 1
-  guard_clean_candidate_count = 5
-  proof_tuple_complete_candidate_count = 0
-  selection_eligible_subaxis_count = 0
-  domain_object_id_subaxis_mechanical_selector_basis = defined
-
-completed:
-  Earlier VariableContext, bridge-policy, native-owner seed, and descriptor
-  exhaustion rows live in their phase cards and guards. This file no longer
-  expands that landed history.
-
-bridge_progression_summary:
-  post_rerun_006_basis -> unconverted_report_rerun_002 -> native_seed_rerun_007
-  -> bridge_blocked_reason_axis_resolution -> bridge_blocked_gap_cluster_resolution
-  result = selected bridge_gap::carrier_type_transport_only
-  carrier_type_transport_only_count = 23
-  mixed_borrow_carrier_type_transport_count = 1
-  invariant = no manual family/shape/axis/cluster selection, source_selfhost_claim=0
-
-result_carrier_bridge_v2_chain_result:
-  1980_to_1985 = carrier/type evidence -> ResultCarrierVerifierProjectionPolicy
-  1986_to_1988 = denied-boundary normalization kept Source Selfhost stopped
-  1989 = 12 forbidden nonclaim occurrences scoped as wider mention-only
-  1990 = BridgePolicyV2 defined; mention-only is neither evidence nor blocker
-  1991 = selected hakorune_mir_builder::direct_state_plan_refresh native seed
-  invariant = source_selfhost_claim=0, runtime_fallback=0, new backend/ABI=0
-
-bridge_policy_v2_native_owner_result:
-  direct_state_plan_refresh / record_packed_layout_refresh / typed_object_plan_refresh
-  native seeds materialized and adopted in sequence.
-  strict_candidate_selection_rerun_005:
-    already_hako_adopted_count = 3
-    bridge_eligible_remaining_count = 0
-    selected_next_card = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
-  invariant = source_selfhost_claim=0, runtime_fallback=0, new backend/ABI=0
-
-post_bridge_policy_v2_basis_003_result:
-  token = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-003
-  output_contract = rust-lifecycle-source-selfhost-wider-route-selection-basis-003-v0
-  basis_kind = PostBridgePolicyV2ExhaustionLaneSelector
-  native_owner_adoption_delta_count = 3
-  unconverted_surface_report_fresh = 0
-  decision = SelectUnconvertedSurfaceReportRerun
-  reason_token = SourceSurfaceReportStaleAfterNativeOwnerAdoption
-  selected_next_card = MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-003
-  source_selfhost_claim = 0
-
-unconverted_surface_report_rerun_003_result:
-  token = MIRBUILDER-UNCONVERTED-SURFACE-REPORT-RERUN-003
-  projection_descriptor_ledger_hash_fresh = 1
-  native_owner_adoption_ledger_hash_fresh = 1
-  native_owner_adoption_delta_count = 3
-  missing_projection_policy_count = 1384
-  borrow_policy_needed_count = 112
-  decision = KeepStopped
-  selected_next_card = SOURCE-SELFHOST-NATIVE-OWNER-CHECKPOINT-001
-  source_selfhost_claim = 0
-
-native_owner_checkpoint_result:
-  token = SOURCE-SELFHOST-NATIVE-OWNER-CHECKPOINT-001
-  native_owner_count = 11
-  missing_projection_policy_count = 1384
-  missing_projection_evidence_quality_count = 1199
-  borrow_surface_evidence_quality_count = 0
-  decision = SelectMissingProjectionPolicyClusterResolutionV2
-  selected_next_card = MIRBUILDER-MISSING-PROJECTION-POLICY-CLUSTER-RESOLUTION-V2
-  source_selfhost_claim = 0
-
-missing_projection_policy_cluster_resolution_v2_result:
-  token = MIRBUILDER-MISSING-PROJECTION-POLICY-CLUSTER-RESOLUTION-V2
-  input_candidate_count = 1384
-  selection_eligible_cluster_count = 41
-  excluded_existing_decision_cluster_count = 41
-  selectable_cluster_count = 0
-  decision = SelectProjectionDescriptorCoverageReclassification
-  selected_next_card = MIRBUILDER-PROJECTION-DESCRIPTOR-COVERAGE-RECLASSIFICATION-001
-  source_selfhost_claim = 0
-
-missing_projection_policy_cluster_resolution_v3_result:
-  token = MIRBUILDER-MISSING-PROJECTION-POLICY-CLUSTER-RESOLUTION-V3
-  input_candidate_count = 1004
-  cluster_count = 78
-  type_transport_missing_cluster_count = 76
-  selected_next_card = MIRBUILDER-CARRIER-TYPE-TRANSPORT-POLICY-INVENTORY-RERUN-002
-  source_selfhost_claim = 0
-
-carrier_type_transport_evidence_inventory_rerun_002_result:
-  token = MIRBUILDER-CARRIER-TYPE-TRANSPORT-EVIDENCE-INVENTORY-RERUN-002
-  input_candidate_count = 944
-  unclassified_evidence_count = 130
-  selected_next_card = MIRBUILDER-CARRIER-TYPE-TRANSPORT-UNCLASSIFIED-EVIDENCE-RESOLUTION-001
-  source_selfhost_claim = 0
-
-carrier_type_transport_unclassified_evidence_resolution_result:
-  token = MIRBUILDER-CARRIER-TYPE-TRANSPORT-UNCLASSIFIED-EVIDENCE-RESOLUTION-001
-  unclassified_input_count = 130
-  DomainObjectOrIdTransportAxis = 116
-  selected_next_card = MIRBUILDER-DOMAIN-OBJECT-ID-TRANSPORT-POLICY-INVENTORY-001
-  source_selfhost_claim = 0
-
-domain_object_id_transport_policy_inventory_result:
-  token = MIRBUILDER-DOMAIN-OBJECT-ID-TRANSPORT-POLICY-INVENTORY-001
-  domain_object_id_input_count = 116
-  IdScalarDomainTransportAxis = 31
-  selected_next_card = MIRBUILDER-ID-SCALAR-DOMAIN-TRANSPORT-POLICY-001
-  source_selfhost_claim = 0
-
-id_scalar_transport_chain_summary:
-  2013_to_2015 = nominal transport policy -> directability rerun -> native seed survey rerun 009
-  id_scalar_input_count = 31
-  directable_row_count = 19
-  directable_owner_edge_count = 4
-  selected_next_card = MIRBUILDER-ID-SCALAR-DOMAIN-SEED-CANDIDATE-CLUSTER-RESOLUTION-001
-  source_selfhost_claim = 0
-
-id_scalar_seed_selection_pre_basis_summary:
-  2016_to_2018 = equal clusters -> seed readiness -> owner-edge repair
-  repaired_row_count = 12
-  selected_next_card = MIRBUILDER-ID-SCALAR-DOMAIN-SEED-READINESS-RESOLUTION-002
-  source_selfhost_claim = 0
-
-id_scalar_domain_seed_readiness_resolution_002_result:
-  token = MIRBUILDER-ID-SCALAR-DOMAIN-SEED-READINESS-RESOLUTION-002
-  readiness_input_owner_edge_count = 10
-  seed_materialization_ready_count = 0
-  reason_token = NoIdScalarSeedMaterializationReadyOwnerEdgeAfterOwnerEdgeRepair
-  selected_next_card = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
-  source_selfhost_claim = 0
-
-id_scalar_seed_evidence_contract_result:
-  token = MIRBUILDER-ID-SCALAR-SEED-EVIDENCE-CONTRACT-001
-  contract_id = IdScalarSeedEvidencePacketV1
-  directability_only_is_seed_evidence = 0
-  selected_next_card = MIRBUILDER-ID-SCALAR-SEED-PACKET-CANDIDATE-SELECTION-001
-  source_selfhost_claim = 0
-
-id_scalar_source_plan_basis_chain_summary:
-  2021_to_2026 = seed packet selection -> derivability -> derivation basis -> source surfaces -> operation vocabulary -> rerun 002
-  packet_generation_candidate_count = 10
-  ambiguous_candidate_count = 4
-  source_plan_derivation_basis_defined = 1
-  required_source_surface_count = 102
-  operation_vocabulary_token_count = 28
-  unknown_operation_count = 0
-  source_plan_derivable_count = 0
-  reason_token = IdScalarSourcePlanDerivabilityRequiresScopeAndRecipeBasis
-  selected_next_card = MIRBUILDER-ID-SCALAR-SOURCE-PLAN-BASIS-COMPONENT-PRIORITY-RESOLUTION-001
-  source_selfhost_claim = 0
-
-id_scalar_owner_scope_basis_summary:
-  2027_to_2030 = owner-scope priority -> state-target root blocker -> 22 target enumeration
-  cross_owner_state_target_count = 4
-  selected_next_card = MIRBUILDER-ID-SCALAR-OWNER-SCOPE-BOUNDEDNESS-RESOLUTION-002
-  source_selfhost_claim = 0
-
-id_scalar_bounded_domain_basis_summary:
-  2031_to_2034 = bounded rerun -> seed file boundary -> IdDomainBoundary
-  owner_scope_bounded_count = 2
-  id_domain_boundary_count = 3
-  selected_next_card = MIRBUILDER-ID-SCALAR-STATE-MUTATION-FRAME-BASIS-001
-  source_selfhost_claim = 0
-
-id_scalar_state_mutation_frame_basis_result:
-  token = MIRBUILDER-ID-SCALAR-STATE-MUTATION-FRAME-BASIS-001
-  mutation_frame_count = 3
-  selected_next_card = MIRBUILDER-ID-SCALAR-ERROR-AND-DETERMINISTIC-ORDER-BASIS-001
-  source_selfhost_claim = 0
-
-id_scalar_error_and_deterministic_order_basis_result:
-  token = MIRBUILDER-ID-SCALAR-ERROR-AND-DETERMINISTIC-ORDER-BASIS-001
-  error_semantics_count = 6
-  deterministic_order_count = 3
-  selected_next_card = MIRBUILDER-ID-SCALAR-BEHAVIOR-RECIPE-EFFECT-COVERAGE-BASIS-001
-  source_selfhost_claim = 0
-
-id_scalar_behavior_recipe_effect_coverage_basis_result:
-  token = MIRBUILDER-ID-SCALAR-BEHAVIOR-RECIPE-EFFECT-COVERAGE-BASIS-001
-  effect_class_count = 6
-  selected_next_card = MIRBUILDER-ID-SCALAR-VERIFIER-INPUT-CONTRACT-BASIS-001
-  source_selfhost_claim = 0
-
-id_scalar_verifier_input_contract_basis_result:
-  token = MIRBUILDER-ID-SCALAR-VERIFIER-INPUT-CONTRACT-BASIS-001
-  input_fact_set_count = 6
-  selected_next_card = MIRBUILDER-ID-SCALAR-SOURCE-PLAN-AND-RECIPE-DERIVABILITY-RESOLUTION-003
-  source_selfhost_claim = 0
-
-id_scalar_source_plan_derivability_rerun_003_result:
-  token = MIRBUILDER-ID-SCALAR-SOURCE-PLAN-AND-RECIPE-DERIVABILITY-RESOLUTION-003
-  source_plan_derivable_count = 2
-  reason_token = MultipleEqualIdScalarSourcePlanDerivabilityCandidates
-  selected_next_card = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
-  source_selfhost_claim = 0
-
-parent_owned_subject_boundary_resolution_result:
-  token = MIRBUILDER-ID-SCALAR-PARENT-OWNED-SUBJECT-BOUNDARY-RESOLUTION-001
-  reason_token = ContextRegistryRemainsParentOwnedNotSeedEligible
-  selected_next_card = SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-007
-  source_selfhost_claim = 0
-
-placement_rule:
-  scan_unit = rust_function_or_method
-  classification_unit = semantic_owner_edge
-  native_seed_file_unit = owner_module_bounded_surface_set
-  adoption_unit = semantic_owner_or_bounded_surface_set
-  authority = derived-to-native-hako-artifact-model-ssot.md
-  rust_file_path_as_hako_authority = 0
-  one_function_one_hako_file = 0
-
-forbidden:
-  strict rule weakening as executable conversion
-  manual family / shape / axis selection
-  cluster size or coverage percentage as proof
-  generated artifact as native edit authority
-  runtime fallback, new backend route, new ABI, new Python SemanticProjector
-  Source Selfhost claim
+MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-COLLECTION-CALLER-ORIENTATION-PILOT-DESIGN-CONSULTATION-001
 ```
 
-## Evidence Pointers
-Detailed evidence lives in phase cards, fixtures, and git history.
+The active token, latest card, and phase pointer are authoritative only in:
 
-## Active Next 3
 ```text
-landed summary: 3219 selects more DTO coverage rows; 3222 selects runtime RecipeBodies publication bridge as the next contract; 3264..3339 plus 3315/3316 closes scoped BoolRecipe-to-MIR Compare/Branch, lands SOURCE-SELFHOST-EXPLICIT-AUTHORITY-REGISTRY-BASIS-001 / rust-lifecycle-source-selfhost-explicit-authority-registry-basis-v0 with HardAuthoritySeamProofAxis, keeps MIRBUILDER-COMPARE-LOWERING-SYMBOLIC-COMMAND-PILOT-001 / symbolic compare lowering command owner selection / MIRBUILDER-COMPARE-RHS-MATERIALIZATION-OWNER-SELECTION-001 / MIRBUILDER-COMPARE-RHS-VALUEID-RESOLUTION-OWNER-SELECTION-001 / MIRBUILDER-COMPARE-RHS-MATERIALIZATION-READONLY-RESOLUTION-PILOT-001 / read-only RHS ValueId resolution plan pilot / MIRBUILDER-COMPARE-RHS-ACTUAL-VALUEID-RESOLUTION-DESIGN-STOP-001 / actual RHS ValueId resolution design-stop / MIRBUILDER-POST-HARD-AUTHORITY-PILOT-NEXT-SEAM-SELECTION-001 / rust-lifecycle-mirbuilder-post-hard-authority-pilot-next-seam-selection-v0 / post_hard_authority_pilot_next_seam_selected = 1 / MIRBUILDER-POST-RHS-MATERIALIZATION-INTENT-NEXT-SEAM-SELECTION-001 / rust-lifecycle-mirbuilder-post-rhs-materialization-intent-next-seam-selection-v0 / post_rhs_materialization_intent_next_seam_selected = 1 / CompareRhsMaterializationIntentBoundary / MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-MATERIALIZATION-INTENT-001 / rust-lifecycle-mirbuilder-hard-authority-pilot-compare-rhs-materialization-intent-v0 / compare_rhs_materialization_intent_owner = 1 / MIRBUILDER-COMPARE-RHS-MATERIALIZATION-INTENT-PILOT-001 / MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-VALUEID-RESOLUTION-PLAN-001 / rust-lifecycle-mirbuilder-hard-authority-pilot-compare-rhs-valueid-resolution-plan-v0 / compare_rhs_valueid_resolution_plan_owner = 1 / rhs_value_id_resolution = 0 / CompareRhsValueIdResolutionPlanBoundary / MIRBUILDER-POST-RHS-VALUEID-PLAN-NEXT-SEAM-SELECTION-001 / rust-lifecycle-mirbuilder-post-rhs-valueid-plan-next-seam-selection-v0 / post_rhs_valueid_plan_next_seam_selected = 1 / MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-VALUEID-REQUEST-ABI-001 / rust-lifecycle-mirbuilder-hard-authority-pilot-compare-rhs-valueid-request-abi-v0 / compare_rhs_valueid_resolution_request_abi_owner = 1 / actual_rhs_valueid_resolution = 0 / CompareRhsValueIdResolutionRequestAbiBoundary / MIRBUILDER-POST-RHS-VALUEID-REQUEST-ABI-NEXT-SEAM-SELECTION-001 / rust-lifecycle-mirbuilder-post-rhs-valueid-request-abi-next-seam-selection-v0 / post_rhs_valueid_request_abi_next_seam_selected = 1 / next_seam_implemented = 0 / CompareRhsLiteralI64ConstantEmissionBridgeBoundary / MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-LITERAL-I64-CONSTANT-EMISSION-BRIDGE-001 / compare_rhs_literal_i64_const_emission_bridge_owner = 1 / actual_rhs_valueid_resolution_literal_i64 = 1 / mutation_performed_const_only = 1 / MIRBUILDER-COMPARE-RHS-SYMBOLREF-LOOKUP-CONTRACT-PARITY-001 / MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-SYMBOLREF-LOOKUP-CONTRACT-PARITY-001 / compare_rhs_symbolref_lookup_contract_parity_owner = 1 / symbol_ref_resolution_contract_v1 = 1 / symbol_lookup_execution = 0 / symbol_ref_valueid_resolution = 0 / MIRBUILDER-COMPARE-RHS-SYMBOLREF-LOOKUP-BRIDGE-001 / MIRBUILDER-HARD-AUTHORITY-PILOT-COMPARE-RHS-SYMBOLREF-LOOKUP-BRIDGE-001 / compare_rhs_symbolref_lookup_bridge_owner = 1 / symbol_ref_valueid_resolution_no_shadow_local = 1 / MIRBUILDER-GUARD-CHAIN-CACHE-THROUGHPUT-TASK-SELECTION-001 / guard_chain_cache_task_selected = 1 / MIRBUILDER-GUARD-CHAIN-CACHE-PREFLIGHT-001 / guard_chain_cache_preflight = 1 / MIRBUILDER-COMPARE-LOCALSSA-FINALIZE-COMPARE-DESIGN-STOP-001 / localssa_finalize_compare_bridge_selected = 1 / MIRBUILDER-COMPARE-LOCALSSA-FINALIZE-COMPARE-BRIDGE-001 / compare_localssa_finalize_compare_bridge = 1 / localssa_finalize_compare_execution = 1 / mir_compare_emission = 0, consultation_gated_wider_route_selection = 1, new_proof_axis_registered = 1, source_selfhost_claim = 0, and keeps route/runtime authority unclaimed.
+docs/development/current/main/CURRENT_STATE.toml
+```
 
-next active:
-  MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-SHADOW-CONSUME-SET-MAPSTORE-I64-001; status=landed; generated_typed_hako_artifact_shadow_consumed = 1; runtime_hako_source_text_parsing = 0; selected_next_card=MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-WRITE-BOUNDARY-BASIS-001; source_selfhost_claim = 0
-  MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-RUST-ORACLE-PARITY-FIXTURE-001; status=landed; rust_oracle_fixture_defined = 1; selected_next_card=MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-HAKO-PARITY-PILOT-001; source_selfhost_claim = 0
-  MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-HAKO-PARITY-PILOT-001; status=landed; hako_implementation_landed = 1; selected_next_card=MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-PARITY-GATE-001; source_selfhost_claim = 0
-  MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-PARITY-GATE-001; status=landed; parity_rows=1; selected_next_card=MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-HAKO-ADOPTION-DECISION-001; source_selfhost_claim = 0
-  MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-HAKO-ADOPTION-DECISION-001; status=landed; decision=Adopt; selected_next_card=MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-POST-ADOPTION-RERUN-001; source_selfhost_claim = 0
-  MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-POST-ADOPTION-RERUN-001; status=landed; selected_next_card=MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-DIRECT-CLOSEOUT-CONTRACT-BASIS-001; source_selfhost_claim = 0
-  MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-DIRECT-CLOSEOUT-CONTRACT-BASIS-001; status=landed; direct_contract_materialized = 0; selected_next_card=MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-DIRECT-CLOSEOUT-RERUN-001; source_selfhost_claim = 0
-  MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-DIRECT-CLOSEOUT-RERUN-001; status=landed; write_set_mapstore_any_direct_closeout_materialized = 1; selected_next_card=MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SCALAR-I64-ROUTES-CLOSEOUT-BASIS-001; source_selfhost_claim = 0
-  MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SCALAR-I64-ROUTES-CLOSEOUT-BASIS-001; status=landed; scoped_direct_closeout_contract_count = 3; delete_surface_hako_mirror_retired = 1; selected_next_card=MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SCALAR-I64-ROUTES-CLOSEOUT-RERUN-001; source_selfhost_claim = 0 / MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SCALAR-I64-ROUTES-CLOSEOUT-RERUN-001; status=landed; write_scalar_i64_routes_closeout = 1; selected_next_card=MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-TRANSPORT-CLOSEOUT-RERUN-002; source_selfhost_claim = 0 / MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-TRANSPORT-CLOSEOUT-RERUN-002; status=landed; scalar_known_transport_axis_closeout = 1; selected_next_card=MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-BASIS-001; source_selfhost_claim = 0 / MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-BASIS-001; status=landed; connected_surface_row_count = 1; selected_next_card=MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-INVENTORY-RERUN-001; source_selfhost_claim = 0 / MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-INVENTORY-RERUN-001; status=landed; connected_surface_row_count = 1; known_unconnected_surface_row_count = 5; selection_eligible_candidate_count = 1; selected_next_card=MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-SHADOW-CONSUME-SET-MAPSTORE-ANY-BASIS-001; source_selfhost_claim = 0 / MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-SHADOW-CONSUME-SET-MAPSTORE-ANY-BASIS-001; status=landed; basis_only = 1; selected_next_card=MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-SHADOW-CONSUME-SET-MAPSTORE-ANY-001; source_selfhost_claim = 0 / MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-SHADOW-CONSUME-SET-MAPSTORE-ANY-001; status=landed; generated_typed_hako_artifact_shadow_consumed = 1; selected_next_card=MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-INVENTORY-RERUN-002; source_selfhost_claim = 0 / MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-INVENTORY-RERUN-002; status=landed; connected_surface_row_count = 2; known_unconnected_surface_row_count = 4; selected_next_card=MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-SHADOW-CONSUME-WRITE-PUSH-BASIS-001; source_selfhost_claim = 0 / MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-SHADOW-CONSUME-WRITE-PUSH-BASIS-001; status=landed; basis_only = 1; selected_next_card=MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-SHADOW-CONSUME-WRITE-PUSH-001; source_selfhost_claim = 0 / MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-SHADOW-CONSUME-WRITE-PUSH-001; status=landed; generated_typed_hako_artifact_shadow_consumed = 1; selected_next_card=MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-INVENTORY-RERUN-003; source_selfhost_claim = 0 / MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-INVENTORY-RERUN-003; status=landed; connected_surface_row_count = 3; known_unconnected_surface_row_count = 3; selection_eligible_candidate_count = 0; selected_next_card=MIRBUILDER-SCALAR-KNOWN-FASTPATH-READ-SURFACE-GENERATED-TYPED-ARTIFACT-SELECTION-DESIGN-CONSULTATION-001; source_selfhost_claim = 0 / MIRBUILDER-SCALAR-KNOWN-FASTPATH-READ-SURFACE-GENERATED-TYPED-ARTIFACT-SELECTION-DESIGN-CONSULTATION-001; status=landed; mapload_scalar_i64_routes_selected_first = 1; selected_next_card=MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-BASIS-MAPLOAD-SCALAR-I64-001; source_selfhost_claim = 0 / MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-BASIS-MAPLOAD-SCALAR-I64-001; status=landed; mapload_scalar_i64_generated_typed_artifact_basis = 1; selected_next_card=MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-SHADOW-CONSUME-MAPLOAD-SCALAR-I64-001; source_selfhost_claim = 0 / MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-SHADOW-CONSUME-MAPLOAD-SCALAR-I64-001; status=landed; generated_typed_hako_artifact_shadow_consumed = 1; mapload_fastpath_shadow_consumed = 1; selected_next_card=MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-INVENTORY-RERUN-004; source_selfhost_claim = 0 / MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-INVENTORY-RERUN-004; status=landed; connected_surface_row_count = 4; known_unconnected_surface_row_count = 2; selection_eligible_candidate_count = 1; selected_next_card=MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-BASIS-STRING-SCALAR-I64-001; source_selfhost_claim = 0 / MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-BASIS-STRING-SCALAR-I64-001; status=landed; basis_only = 1; selected_next_card=MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-SHADOW-CONSUME-STRING-SCALAR-I64-001; source_selfhost_claim = 0 / MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-SHADOW-CONSUME-STRING-SCALAR-I64-001; status=landed; generated_typed_hako_artifact_shadow_consumed = 1; string_fastpath_shadow_consumed = 1; selected_next_card=MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-INVENTORY-RERUN-005; source_selfhost_claim = 0 / MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-INVENTORY-RERUN-005; status=landed; connected_surface_row_count = 5; known_unconnected_surface_row_count = 1; selection_eligible_candidate_count = 1; selected_next_card=MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-BASIS-COLLECTION-SCALAR-I64-001; source_selfhost_claim = 0 / MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-BASIS-COLLECTION-SCALAR-I64-001; status=landed; basis_only = 1; selected_next_card=MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-SHADOW-CONSUME-COLLECTION-SCALAR-I64-001; source_selfhost_claim = 0 / MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-SHADOW-CONSUME-COLLECTION-SCALAR-I64-001; status=landed; generated_typed_hako_artifact_shadow_consumed = 1; collection_fastpath_shadow_consumed = 1; read_surface_connection_complete = 1; selected_next_card=MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-INVENTORY-RERUN-006; source_selfhost_claim = 0 / MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-INVENTORY-RERUN-006; status=landed; connected_surface_row_count = 6; known_unconnected_surface_row_count = 0; all_known_scalar_known_surfaces_shadow_consumed = 1; selected_next_card=MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-ALL-SURFACES-BASIS-001; source_selfhost_claim = 0 / MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-ALL-SURFACES-BASIS-001; status=landed; fastpath_connected_closeout_all_surfaces_basis = 1; selected_next_card=MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-RERUN-001; source_selfhost_claim = 0 / MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-RERUN-001; status=landed; fastpath_connected_closeout = 1; selected_next_card=MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-CALLER-ORIENTATION-AUTHORITY-DESIGN-STOP-001; source_selfhost_claim = 0 / MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-CALLER-ORIENTATION-AUTHORITY-DESIGN-STOP-001; status=design-stop; consultation_required = 1; source_selfhost_claim = 0 / MIRBUILDER-SCALAR-KNOWN-FASTPATH-ALL-SURFACE-MISMATCH-GATE-HARDENING-001; status=landed; all_scalar_known_shadow_mismatch_gate_current = 1; selected_next_card=MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-HAKO-AUTHORITY-PILOT-DESIGN-CONSULTATION-001; source_selfhost_claim = 0 / MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-HAKO-AUTHORITY-PILOT-DESIGN-CONSULTATION-001; status=landed; mapload_hako_route_authority_pilot_basis = 1; selected_next_card=MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-HAKO-AUTHORITY-PILOT-BASIS-001; source_selfhost_claim = 0 / MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-HAKO-AUTHORITY-PILOT-BASIS-001; status=landed; mapload_hako_authority_pilot_basis = 1; selected_next_card=MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-HAKO-ROUTE-DECISION-AUTHORITY-PILOT-001; source_selfhost_claim = 0 / MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-HAKO-ROUTE-DECISION-AUTHORITY-PILOT-001; status=landed; mapload_hako_route_decision_authority_pilot = 1; selected_next_card=MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-HAKO-AUTHORITY-PILOT-RERUN-001; source_selfhost_claim = 0 / MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-HAKO-AUTHORITY-PILOT-RERUN-001; status=landed; mapload_hako_authority_pilot_rerun = 1; selected_next_card=MIRBUILDER-SCALAR-KNOWN-FASTPATH-NEXT-HAKO-AUTHORITY-SURFACE-DESIGN-STOP-001; source_selfhost_claim = 0 / MIRBUILDER-SCALAR-KNOWN-FASTPATH-NEXT-HAKO-AUTHORITY-SURFACE-DESIGN-STOP-001; status=design-stop; consultation_required = 1; source_selfhost_claim = 0 / MIRBUILDER-SCALAR-KNOWN-FASTPATH-STRING-HAKO-AUTHORITY-PILOT-BASIS-001; status=landed; string_hako_authority_pilot_basis = 1; selected_next_card=MIRBUILDER-SCALAR-KNOWN-FASTPATH-STRING-HAKO-ROUTE-DECISION-AUTHORITY-PILOT-001; source_selfhost_claim = 0 / MIRBUILDER-SCALAR-KNOWN-FASTPATH-STRING-HAKO-ROUTE-DECISION-AUTHORITY-PILOT-001; status=landed; string_hako_route_decision_authority_pilot = 1; selected_next_card=MIRBUILDER-SCALAR-KNOWN-FASTPATH-STRING-HAKO-AUTHORITY-PILOT-RERUN-001; source_selfhost_claim = 0 / MIRBUILDER-SCALAR-KNOWN-FASTPATH-STRING-HAKO-AUTHORITY-PILOT-RERUN-001; status=landed; string_hako_authority_pilot_rerun = 1; selected_next_card=MIRBUILDER-SCALAR-KNOWN-FASTPATH-NEXT-HAKO-AUTHORITY-SURFACE-DESIGN-STOP-002; source_selfhost_claim = 0 / MIRBUILDER-SCALAR-KNOWN-FASTPATH-NEXT-HAKO-AUTHORITY-SURFACE-DESIGN-STOP-002; status=design-stop; consultation_required = 1; source_selfhost_claim = 0 / MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-HAKO-AUTHORITY-PILOT-BASIS-001; status=landed; collection_hako_authority_pilot_basis = 1; selected_next_card=MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-HAKO-ROUTE-DECISION-AUTHORITY-PILOT-001; source_selfhost_claim = 0 / MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-HAKO-ROUTE-DECISION-AUTHORITY-PILOT-001; status=landed; collection_hako_route_decision_authority_pilot = 1; selected_next_card=MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-HAKO-AUTHORITY-PILOT-RERUN-001; source_selfhost_claim = 0 / MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-HAKO-AUTHORITY-PILOT-RERUN-001; status=landed; collection_hako_authority_pilot_rerun = 1; selected_next_card=MIRBUILDER-SCALAR-KNOWN-FASTPATH-READ-SURFACE-AUTHORITY-CLOSEOUT-DESIGN-STOP-001; source_selfhost_claim = 0 / MIRBUILDER-SCALAR-KNOWN-FASTPATH-READ-SURFACE-AUTHORITY-CLOSEOUT-DESIGN-STOP-001; status=design-stop; consultation_required = 1; source_selfhost_claim = 0 / MIRBUILDER-SCALAR-KNOWN-FASTPATH-READ-SURFACE-AUTHORITY-CLOSEOUT-001; status=landed; read_surface_authority_closeout = 1; closeout_only = 1; new_authority_expansion = 0; selected_next_card=MIRBUILDER-SCALAR-KNOWN-FASTPATH-READ-SURFACE-AUTHORITY-CLOSEOUT-RERUN-001; source_selfhost_claim = 0 / MIRBUILDER-SCALAR-KNOWN-FASTPATH-READ-SURFACE-AUTHORITY-CLOSEOUT-RERUN-001; status=landed; read_surface_authority_closeout_rerun = 1; selected_next_card=MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-SURFACE-AUTHORITY-PILOT-DESIGN-STOP-001; source_selfhost_claim = 0 / MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-SURFACE-AUTHORITY-PILOT-DESIGN-STOP-001; status=design-stop; consultation_required = 1; source_selfhost_claim = 0 / MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-SET-MAPSTORE-I64-HAKO-AUTHORITY-PILOT-BASIS-001; status=landed; write_set_mapstore_i64_hako_authority_pilot_basis = 1; selected_next_card=MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-SET-MAPSTORE-I64-HAKO-ROUTE-DECISION-AUTHORITY-PILOT-001; source_selfhost_claim = 0 / MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-SET-MAPSTORE-I64-HAKO-ROUTE-DECISION-AUTHORITY-PILOT-001; status=landed; write_set_mapstore_i64_hako_route_decision_authority_pilot = 1; selected_next_card=MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-SET-MAPSTORE-I64-HAKO-AUTHORITY-PILOT-RERUN-001; source_selfhost_claim = 0 / MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-SET-MAPSTORE-I64-HAKO-AUTHORITY-PILOT-RERUN-001; status=landed; write_set_mapstore_i64_hako_authority_pilot_rerun = 1; selected_next_card=MIRBUILDER-SCALAR-KNOWN-FASTPATH-NEXT-WRITE-HAKO-AUTHORITY-SURFACE-DESIGN-STOP-001; source_selfhost_claim = 0 / MIRBUILDER-SCALAR-KNOWN-FASTPATH-NEXT-WRITE-HAKO-AUTHORITY-SURFACE-DESIGN-STOP-001; status=design-stop; consultation_required = 1; source_selfhost_claim = 0 / MIRBUILDER-SCALAR-KNOWN-FASTPATH-PUSH-WRITE-HAKO-AUTHORITY-PILOT-BASIS-001; status=landed; push_write_hako_authority_pilot_basis = 1; selected_next_card=MIRBUILDER-SCALAR-KNOWN-FASTPATH-PUSH-WRITE-HAKO-ROUTE-DECISION-AUTHORITY-PILOT-001; source_selfhost_claim = 0 / MIRBUILDER-SCALAR-KNOWN-FASTPATH-PUSH-WRITE-HAKO-ROUTE-DECISION-AUTHORITY-PILOT-001; status=landed; push_hako_route_decision_authority_pilot = 1; selected_next_card=MIRBUILDER-SCALAR-KNOWN-FASTPATH-PUSH-WRITE-HAKO-AUTHORITY-PILOT-RERUN-001; source_selfhost_claim = 0 / MIRBUILDER-SCALAR-KNOWN-FASTPATH-PUSH-WRITE-HAKO-AUTHORITY-PILOT-RERUN-001; status=landed; push_write_hako_authority_pilot_rerun = 1; selected_next_card=MIRBUILDER-SCALAR-KNOWN-FASTPATH-NEXT-WRITE-HAKO-AUTHORITY-SURFACE-DESIGN-STOP-002; source_selfhost_claim = 0 / MIRBUILDER-SCALAR-KNOWN-FASTPATH-NEXT-WRITE-HAKO-AUTHORITY-SURFACE-DESIGN-STOP-002; status=design-stop; consultation_required = 1; source_selfhost_claim = 0 / MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPSTORE-ANY-WRITE-HAKO-AUTHORITY-PILOT-BASIS-001; status=landed; mapstore_any_write_hako_authority_pilot_basis = 1; selected_next_card=MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPSTORE-ANY-WRITE-HAKO-ROUTE-DECISION-AUTHORITY-PILOT-001; source_selfhost_claim = 0 / MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPSTORE-ANY-WRITE-HAKO-ROUTE-DECISION-AUTHORITY-PILOT-001; status=landed; mapstore_any_hako_route_decision_authority_pilot = 1; selected_next_card=MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPSTORE-ANY-WRITE-HAKO-AUTHORITY-PILOT-RERUN-001; source_selfhost_claim = 0 / MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPSTORE-ANY-WRITE-HAKO-AUTHORITY-PILOT-RERUN-001; status=landed; mapstore_any_write_hako_authority_pilot_rerun = 1; selected_next_card=MIRBUILDER-SCALAR-KNOWN-FASTPATH-NEXT-WRITE-HAKO-AUTHORITY-SURFACE-DESIGN-STOP-003; source_selfhost_claim = 0 / MIRBUILDER-SCALAR-KNOWN-FASTPATH-NEXT-WRITE-HAKO-AUTHORITY-SURFACE-DESIGN-STOP-003; status=design-stop; consultation_required = 1; source_selfhost_claim = 0 / MIRBUILDER-SCALAR-KNOWN-AUTHORITY-CLAIM-TAXONOMY-BASIS-001; status=landed; authority_claim_taxonomy_basis = 1; legacy_claim_names_preserved = 1; selected_next_card=MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-DELETE-SURFACE-AUTHORITY-DESIGN-STOP-001; source_selfhost_claim = 0 / MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-DELETE-SURFACE-AUTHORITY-DESIGN-STOP-001; status=design-stop; claim_taxonomy_applied = 1; delete_hako_route_decision_authority_pilot = 0; mapdeleteany_authority = 0; consultation_required = 1; source_selfhost_claim = 0 / MIRBUILDER-SCALAR-KNOWN-FASTPATH-DELETE-RETIRED-PARK-NON-DELETE-WRITE-AUTHORITY-ISLAND-CLOSEOUT-001; status=landed; non_delete_write_hako_route_decision_authority_island_closeout = 1; delete_surface_retired_special_case_parked = 1; write_surface_authority_closeout = 0; selected_next_card=MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-NON-DELETE-WRITE-AUTHORITY-ISLAND-CLOSEOUT-DESIGN-STOP-001; source_selfhost_claim = 0 / MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-NON-DELETE-WRITE-AUTHORITY-ISLAND-CLOSEOUT-DESIGN-STOP-001; status=design-stop; non_delete_write_hako_route_decision_authority_island_closeout = 1; write_surface_authority_closeout = 0; consultation_required = 1; source_selfhost_claim = 0 / MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-CALLER-ORIENTATION-AUTHORITY-DESIGN-STOP-001; status=design-stop; hako_caller_orientation_authority_design_stop = 1; all_known_scalar_known_surfaces_shadow_consumed = 1; non_delete_write_hako_route_decision_authority_island_closeout = 1; consultation_required = 1; caller_orientation_runtime_path = 0; source_selfhost_claim = 0
-trigger-based AOT/MIR typing debt:
-  status=parked-until-triggered; order=2999/3000/3001 landed, then 3022 queue
-  only when an active ProgramJSON gate hits Float Sub/Mul/Div, string relational
-  compare, PHI dst_type, mir_call dst_type, or receiver-helper.
+## Current Evidence
+
+```text
+MapLoad caller-orientation authority pilot = complete
+String caller-orientation authority pilot = complete
+Collection caller-orientation authority pilot = complete
+
+caller input = PolicyRowIdOnly
+caller return = Unit
+Rust oracle / compatibility veto = retained
+mismatch = fail-fast
+```
+
+Collection stays an explicitly enumerated four-row boundary. Its receiver
+domains remain generated policy metadata, not caller inputs. `AnyLength -> Box`
+is one explicit row, not wildcard or global Box authority.
+
+## Consultation Frontier
+
+Do not implement the next authority slice until 3452 selects one mutation-
+bearing non-Delete Write surface.
+
+```text
+A: MapStoreI64-only caller contract authority pilot
+B: ArrayAppendAny-only caller contract authority pilot
+C: MapStoreAny-only Any-write pilot
+D: full non-Delete Write three-row authority island
+E: park caller orientation and return to Source Selfhost route selection
+```
+
+The decision must define source authority, non-authority, exhaustive scope,
+mutation versus metadata boundary, fail-fast behavior, fallback prohibition,
+and promotion conditions.
+
+## Invariants
+
+```text
+caller_orientation_runtime_path = 0
+hako_runtime_route_authority = 0
+scalar_known_hako_runtime_route_authority = 0
+route_selection_authority_switch = 0
+backend_lowering_authority = 0
+runtime_mutation_authority = 0
+publication_execution = 0
+delete_hako_route_decision_authority_pilot = 0
+scalar_known_wide_authority = 0
+runtime_fallback = 0
+source_selfhost_claim = 0
+```
+
+Do not infer authority from row count, route count, owner name, source path,
+surface membership, or coverage percentage.
+
+## Historical Pointers
+
+Use these sources for landed history rather than restoring it here:
+
+```text
+phase cards:
+  docs/development/current/main/phases/phase-296x/
+
+family history ledger:
+  docs/development/current/main/design/fixtures/rust-lifecycle/
+  source-selfhost-family-guard-history-v1.jsonl
+
+frozen compatibility snapshot:
+  docs/development/current/main/design/fixtures/rust-lifecycle/
+  source-selfhost-family-guard-manifest-v0.json
+
+durable policy and migration maps:
+  docs/development/current/main/design/
+  mirbuilder-authority-based-hako-migration-ssot.md
+  mirbuilder-selfhost-checkpoint-roadmap-ssot.md
+
+exact old task-order text:
+  git log -- docs/development/current/main/design/
+  mirbuilder-rust-to-hako-converter-task-order-ssot.md
+```
+
+## Maintenance Contract
+
+Keep this document below 400 lines and each line at or below 500 characters.
+When a change needs detailed evidence, add it to the active card, a fixture,
+the family history JSONL, an investigation, or git history. Do not create a
+numbered card for inventory-only bookkeeping.
+
 next_documented_task = MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-COLLECTION-CALLER-ORIENTATION-PILOT-DESIGN-CONSULTATION-001
-next_after_active_3 = MIRBUILDER-SCALAR-KNOWN-FASTPATH-NON-DELETE-WRITE-POLICY-ROW-IDENTITY-TRANSPORT-001
-follow_on_after_consume = select first BoolRecipe publication parity row only after consume gate is green
-
-task discipline =
-  Each ProgramJSON capability card must land real `.hako` traversal + fixture
-  + AOT parity gate together; guard-only is allowed only for explicit authority-boundary dual-run stop guards.
-  Capability is the unit: one `.hako` implementation can cover N parity rows;
-  Candidate validation must check actual ProgramJSON v0 emission first; legacy
-  AST/Rust fixture names alone cannot select a capability.
-  Validation output must be a named ProgramJson*ScanV1 implementation card with
-  covered parity rows and a retire-candidate target.
-  Capability order is `.hako` implementation first, then parity, then one
-  covered retire-candidate. Do not advance via guard-only paperwork.
-  The follow-up retire-candidate card must name only the covered snapshot rows;
-  full Rust ASTNode projector retirement, HakoAdoption, ProgramJSON full parser,
-  MIR mutation, lowering, route selection, ID allocation, and Source Selfhost
-  remain unclaimed.
-  After TryCatch scan/retire, stop layer-1 expansion unless layer-4 needs it.
-  Layer-4 is structured snapshot-to-Plan/Recipe DTO construction;
-  layer-5 MIR mutation/lowering/ID allocation needs a design-stop card.
-```
-
-## Landed Converter Capability Summary
-
-```text
-ordered-map contexts, snapshots, carrier projection, scalar counters
-TypeContext value-kind / origin-map / value-type / snapshot-restore
-MetadataContext scalar/source-file, value-caller
-MetadataContext region-parent EXE/AOT
-structured loop, scalar loop carrier, explicit PHI, multi-exit PHI
-RegionObserver source-ordered read-fold and SlotMetadata output
-boxed native enum ABI and boxed enum container round trip
-mixed runtime value carrier for MapBox and ArrayBox
-generic method route descriptor SSOT and mismatch diagnostics
-generic read-fold operation decomposition
-TypeContext string literal leaf projection
-boxed-sum const payload definition index
-boxed-sum lowering facade
-C shim variant binding fact owner drain
-same-module typed-field RMW fusion plan
-same-module result-capsule reset batch fusion plan
-same-module boxed-sum handle fact owner selected
-same-module explicit boxed-sum value fact
-generic-method explicit boxed-sum result fact
-```
-
-## Direct-Lowering Policy
-
-The converter is direct-first:
-
-```text
-Rust source
-  -> lightweight body/signature facts
-  -> directability check
-  -> typed VerifiedHakoFamilyIR
-  -> shared emitter
-  -> runnable native-shaped .hako
-```
-
-The older lifecycle vocabulary may remain as provenance/guard input for
-families that already use it, but it is not the standard path for simple
-mechanical shapes.
-
-Use direct shape lowering when all are true:
-
-```text
-source body has a bounded shape
-all calls are in the allowed vocabulary
-field ownership is local to the translated box
-no returned mutable alias escapes
-no Drop / unsafe / FFI is required
-control-flow and PHI facts are explicit when present
-generated operation IR is typed before emission
-```
-
-When directness cannot be proved, emit a stable `Deny(reason)`. Do not emit
-fallback Hako, TODO bodies, null placeholder bodies, or try-Hako-then-Rust
-runtime routes.
-
-## Shape Rule Table
-
-The active rule table uses shape names, not family names.
-
-| Shape | Operation family | Status |
-| --- | --- | --- |
-| `single_ordered_map_context` | `NewOrderedMap`, `MapGetCopied`, `MapHas`, `MapLength`, `MapIsEmpty`, `MapSet`, `MapRemove`, `MapClear` | landed |
-| `owned_ordered_map_snapshot` | `CloneOwnedMap`, `ReplaceOwnedMap` | landed |
-| `multi_ordered_map_context` | `NewOrderedMap`, `AllMapsEmpty` | landed |
-| `scalar_counter_context` | `InitFieldConst`, `TakeThenSaturatingIncrementU32`, `ReturnI64` | landed |
-| `owned_map_carrier_projection` | `CarrierSnapshotFromOwnedMap`, `ExplicitCarrierSnapshotFromOwnedMap` | landed |
-| `map.optional_copy_default` | `NewMap`, `MapGetOption`, `MapSet`, `ReturnDefaultIfMissing` | landed |
-| `map.optional_immutable_atom` | `MapGetOption`, `MapSet`, `MapClear` | landed |
-| `aggregate.take_restore_with_defaults` | `MoveFieldAndResetSource`, `AssertNotConsumed`, `MarkConsumed` | landed |
-| `control.structured_loop_without_carried_state` | `StructuredLoop`, `ArrayPush`, `Assign`, `ReturnI64` | landed |
-| `control.single_scalar_loop_carrier` | `StructuredLoop`, `Assign`, `ReturnSource` | landed |
-| `control.canonical_explicit_phi` | `ExplicitPhiI64`, `ReturnSource` | landed |
-| `control.multi_carrier_exit_phi` | `ExplicitMultiExitPhiI64Array`, `ReturnSource` | landed |
-| `map.immutable_leaf_projection` | `MapGetOption` | active |
-| `borrow_use.sequence_last_copy` | `SequenceLastOption` | landed |
-| `borrow.read_fold` | map/sequence fold into owned output | landed |
-
-Do not create rules like `type_context.value_kind_map_context`; that is a
-family-specific hardcode table under another name.
-
-## Storage Access Facts
-
-`BorrowUseFacts` is Rust-specific adapter input. It is not the universal model
-for all source languages. Normalize source-specific references into
-`StorageAccessFacts` before Hako lowering:
-
-```text
-source-specific facts
-  Rust borrow / Go pointer-slice-map / C pointer
-        ↓
-StorageAccessFacts
-        ↓
-lowering decision
-```
-
-Use small orthogonal facts:
-
-```text
-carrier:
-  Value | Place | SharedHandle | Span | RawAddress
-
-access:
-  Read | ReadWrite | Atomic
-
-alias:
-  Unique | Shared | Unknown
-
-lifetime:
-  Lexical | OwnerBound | Managed | Foreign | Untracked
-
-escape:
-  None | Return | Store | ForeignRetained
-
-order:
-  Unobserved | Unspecified | SourceOrdered
-
-cleanup:
-  Trivial | Managed | ExplicitRelease | CustomDrop
-```
-
-Lowering decisions:
-
-```text
-ElideToLeafProjection
-ElideToReadFold
-FreezeOwned
-KeepSharedHandle
-MaterializeSharedCell
-MaterializeSpan
-RequireUnsafeCapability
-Deny
-```
-
-Current Rust borrow path:
-
-```text
-Rust lightweight facts
-  -> BorrowUseFacts
-  -> StorageAccessFacts
-  -> BorrowLoweringDecision
-```
-
-Future language adapters can enter directly at `StorageAccessFacts`:
-
-```text
-Go map:
-  SharedHandle(Map)
-
-Go slice:
-  Span or SliceDescriptor(backing=SharedHandle(Buffer), offset, len, cap)
-
-Go address-taken scalar:
-  SharedCell only when shared addressable mutation is required
-
-C / unsafe Rust pointer:
-  RawAddress, then RequireUnsafeCapability or Deny
-```
-
-## Hako Syntax Boundary
-
-Do not add source-language pointer syntax for this lane:
-
-```text
-no general &
-no general *
-no arrow / ->
-no general borrow lifetime syntax
-no raw pointer syntax in safe Hako
-```
-
-If a future source needs shared mutable or span semantics frequently, add a
-capability type first:
-
-```text
-SharedCell<T>
-Span<T>
-Slice<T>
-ValidatedHandle<T>
-RawPtr<T> only inside an unsafe capability boundary
-```
-
-Unsafe and foreign are separate axes:
-
-```text
-unsafe:
-  memory-safety obligation is not compiler-proved
-
-foreign:
-  ABI / external symbol / layout boundary
-```
-
-Use the stable top-level deny reason and detail fields:
-
-```text
-Deny(UnsafeOrFFI)
-  detail=RequireUnsafeCapabilityBoundary
-  detail=RawAddressRequired
-  detail=PointerArithmeticRequired
-  detail=UntrackedAliasRequired
-  detail=ForeignCallRequired
-  detail=LayoutDependentCastRequired
-  detail=ManualLifetimeRequired
-```
-
-Output from such a boundary may only be a safe value, owned aggregate, owned
-buffer, validated opaque handle, or verified box.
-
-## Stable Deny Reasons
-
-Use medium-grained reasons:
-
-```text
-UnsupportedResolvedCallTarget
-UnsupportedDirectShape
-UnsupportedTypeTransport
-UnsupportedKeyTransport
-UnsupportedOrderCapability
-NullableMapValue
-DefaultSemanticMismatch
-UnstructuredControlFlow
-LoopCarriedStateRequired
-PhiJoinRequired
-ReturnedReadBorrow
-ReturnedMutableBorrow
-CarrierSensitiveAlias
-NonTrivialDrop
-UnsafeOrFFI
-ConstructorLifecycleMismatch
-```
-
-Do not encode family names in Deny reasons.
-
-## Parked Backlog
-
-These are intentionally not part of the current task:
-
-```text
-full MirBuilder crate claim
-crate-wide generated-to-native authority cutover
-variable_map_mut raw alias
-live read-view / lease framework
-general Drop / RAII lowering
-general Option payload support
-InlineRecord / packed / SoA SlotMetadata transport
-nightly rustc adapter for easy-tier families
-runtime try-Hako-then-Rust fallback
-new Hako pointer syntax
-```
-
-## Task Hygiene Backlog
-
-Keep this lane separate from semantic converter slices:
-
-```text
-landed: guard表示の false-green 修正
-landed: current docs を thin pointer 化
-landed: task-order SSOT を active next 3 + parked index へ圧縮
-  boundary=keep task-order as pointer; detailed artifact/evidence rows belong
-  to semantic closure reports, phase cards, and git history
-landed: compiler projector helper support box v0
-  boundary=small lang/src/compiler/lib helper only (_tag/fail/require/copy);
-  first users are ReturnEmission, FunctionRegionStackPop, and
-  SlotRegistryRelease projectors; no projector framework or semantic DSL
-landed: Python semantic projector freeze reverse coverage hardening
-  boundary=reverse-enumerate tools/rust_lifecycle/*.py roles and require
-  exception tokens for new SemanticProjector files
-landed: mirbuilder_family_artifacts.py 分割
-  boundary=behavior_preserving_split_only
-landed: leaf projection validator 二重化を整理
-  boundary=one validator owns map.immutable_leaf_projection acceptance
-```
-
-## C ABI Shim Responsibility Cleanup Backlog
-
-See [c-abi-shim-responsibility-cleanup-backlog-ssot.md](./c-abi-shim-responsibility-cleanup-backlog-ssot.md) for the full P0/P1/P2 cleanup inventory.
-
-## MIR Instruction SSOT Cleanup Backlog
-
-This is a cleanup lane, not the active boxed enum ABI blocker.
-
-Accepted finding:
-
-```text
-instruction enum / backend ledger / INSTRUCTION_SET.md counts are partially
-sync-tested, but docs/reference/mir/json_v0.schema.json is not part of that
-sync contract.
-
-src/mir/contracts/backend_core_ops.rs also mixes:
-  instruction tag/cohort classification
-  per-backend support policy
-  ledger constants
-  sync tests
-
-docs/reference/mir/INSTRUCTION_SET.md and docs/reference/mir/json_v0.schema.json
-are independently maintained outputs today. They are not generated from
-src/mir/instruction.rs.
-```
-
-Task order:
-
-```text
-P1. Add JSON schema to MIR instruction SSOT sync coverage
-    - extend the existing backend_core_ops doc-sync tests or add a small
-      adjacent test module
-    - assert doc <-> ledger <-> json_v0.schema.json agree on kept JSON ops
-    - ensure VariantMake/VariantTag/VariantProject and MemOp stay schema-visible
-    - no generator
-    - no backend behavior change
-
-P2. Generate doc machine-readable rows and JSON schema from enum metadata
-    - only if instruction vocabulary starts changing frequently
-    - doc / JSON become derived outputs, not independent sources
-
-P3. Split backend_core_ops.rs owners
-    - structural instruction classification near the enum/introspection layer
-    - per-backend support policy in a policy module
-    - tests outside the mixed owner file where practical
-```
-
-Immediate recommendation:
-
-```text
-implement P1 when the current boxed enum ABI slice has a clean stopping point.
-park P2/P3 until churn justifies the extra generator/refactor machinery.
-do not block boxed enum ABI work on this cleanup backlog.
-```
-
-## Fast-Path Lowering Reminder
-
-Fast-path lowering is important for the long-term speed goal, but it is a
-backend/perf lane, not the active Rust-to-Hako converter task.
-
-Tracker:
-
-```text
-docs/development/current/main/design/perf-owner-first-optimization-ssot.md
-```
-
-Current status: accepted resolver framework; exact-AOT sweep closed with no
-fresh owner; primitive-family remains provisional; backend lowering consumer is
-the speed blocker. Parked order when perf/backend reopens: inventory consumers,
-implement the first backend fact consumer, measure, then select next owner.
-
-Do not block MirBuilder migration on this backlog. Do not add Hako syntax for
-fast paths. Backend facts must be consumed by lowering before claiming speed.
-
-## Completion Boundary
-
-MirBuilder-wide selfhost still has mutable alias, Drop, unsafe/FFI, boxed scalar
-payloads, and broader native adoption parked as explicit design stops. Do not
-hide them inside the current leaf-projection lane.

@@ -5,6 +5,7 @@ ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 TAG="current-state-pointer-guard"
 source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
 MAX_ACTIVE_DOC_LINES=1000
+MAX_TASK_ORDER_LINE_CHARS=500
 MAX_LANDED_TAIL_ROWS=12
 
 STATE_DOC="$ROOT_DIR/docs/development/current/main/CURRENT_STATE.toml"
@@ -111,6 +112,10 @@ if [[ -n "$latest_workstream_card" ]]; then
     task_order_lines="$(wc -l < "$ROOT_DIR/$latest_workstream_card" | tr -d '[:space:]')"
     if (( task_order_lines > MAX_ACTIVE_DOC_LINES )); then
       guard_fail "$TAG" "latest_workstream_card exceeds ${MAX_ACTIVE_DOC_LINES} lines: $latest_workstream_card has $task_order_lines"
+    fi
+    task_order_max_line_chars="$(awk '{ if (length($0) > max) max = length($0) } END { print max + 0 }' "$ROOT_DIR/$latest_workstream_card")"
+    if (( task_order_max_line_chars > MAX_TASK_ORDER_LINE_CHARS )); then
+      guard_fail "$TAG" "latest_workstream_card exceeds ${MAX_TASK_ORDER_LINE_CHARS} characters per line: $latest_workstream_card has $task_order_max_line_chars"
     fi
   fi
 fi

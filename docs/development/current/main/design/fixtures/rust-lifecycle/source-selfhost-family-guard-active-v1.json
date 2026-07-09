@@ -273,6 +273,13 @@
       "legacy_guard": "tools/checks/rust_lifecycle_source_selfhost_family_guard.sh",
       "role": "current_semantic",
       "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-COLLECTION-CALLER-ORIENTATION-PILOT-DESIGN-CONSULTATION-001"
+    },
+    {
+      "card": "docs/development/current/main/phases/phase-296x/3453-DOCS-MIRBUILDER-TASK-ORDER-POINTER-SLIM-001.md",
+      "fixture": "",
+      "legacy_guard": "tools/checks/current_state_pointer_guard.sh",
+      "role": "current_maintenance",
+      "token": "DOCS-MIRBUILDER-TASK-ORDER-POINTER-SLIM-001"
     }
   ],
   "schema_version": 1

@@ -117,6 +117,9 @@ limit:
   queues;
 - move landed history, full inventories, and probe transcripts into phase
   cards, fixtures, ledgers, or investigation notes;
+- keep `mirbuilder-rust-to-hako-converter-task-order-ssot.md` below 400 lines
+  and 500 characters per line; `current_state_pointer_guard.sh` enforces the
+  line-length boundary;
 - when an active markdown file grows past roughly 1000 lines, open a docs-slim
   task or archive split before adding more historical prose;
 - long archive / fixture / investigation docs may exceed that size when they

@@ -345,13 +345,13 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-CALLER-ORIENTATION-AUTHORITY-PILOT-RERUN-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3451-MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-CALLER-ORIENTATION-AUTHORITY-PILOT-RERUN-001.md"
-latest_card_summary = """3451 reruns the exact four-row Collection caller-
-orientation authority pilot with policy-row-ID-only Unit consumption, generated
-policy/contract checks, explicit mixed receiver-domain and AnyLength/Box
-guards, and the existing Rust oracle veto. The rerun is green; 3452 is the
-next design consultation stop at the mutation-bearing Write boundary."""
+latest_card = "DOCS-MIRBUILDER-TASK-ORDER-POINTER-SLIM-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3453-DOCS-MIRBUILDER-TASK-ORDER-POINTER-SLIM-001.md"
+latest_card_summary = """3453 restores the MirBuilder task-order as a
+current-only pointer, removes concatenated landed-history chains, and adds a
+500-character per-line guard. History remains in phase cards, the family
+history JSONL, fixtures, and git history. The 3452 Write mutation design stop
+remains the current blocker."""
 
 current_blocker_token = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-COLLECTION-CALLER-ORIENTATION-PILOT-DESIGN-CONSULTATION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -362,6 +362,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-10: 3453 slims the MirBuilder task-order from a 786-line historical ledger with a 15,727-character line to a 117-line current-only pointer with a 500-character line guard; the 3452 Write mutation design stop remains current and no authority claim changes.",
   "2026-07-10: 3451 reruns the Collection four-row caller-orientation authority pilot with 23 caller tests and 19 shadow parity tests green; policy-row-ID-only Unit consumption, mixed receiver-domain/AnyLength-Box guards, Rust oracle veto, and all Write/Delete/wide/runtime/backend/Source Selfhost claims remain bounded.",
   "2026-07-10: 3450 implements the Collection caller-orientation authority validator with exact four-row closed-set checks and policy-row-ID-only Unit input; receiver domains remain generated policy metadata and route decision remains in the existing Hako shadow consumer.",
   "2026-07-10: 3449 resolves the post-String design stop mechanically with option B and queues a four-card Collection caller-orientation packet: exact four-row basis, implementation, rerun, then consultation at the mutation-bearing non-Delete Write boundary; receiver domains stay policy-owned and AnyLength/Box remains explicit non-wildcard metadata.",
@@ -373,5 +374,4 @@ landed_tail = [
   "2026-07-10: 3441 implements the Pro-authorized MapLoad-only caller-orientation contract authority pilot, comparing generated typed policy metadata with a policy-row-ID-only Unit consumer and retaining the Rust oracle fail-fast veto; route/runtime/backend, mutation/publication, Delete, wide, and Source Selfhost authority remain unclaimed.",
   "2026-07-10: 3440 adopts Pro option A and authorizes a MapLoad-only caller-orientation contract authority pilot keyed by policy_row_id with Unit return, generated typed policy comparison, and Rust oracle fail-fast veto; route/runtime/backend, mutation/publication, Delete, wide, and Source Selfhost authority remain unclaimed.",
   "2026-07-10: 3439 closes the non-Delete Write caller-orientation assertion packet with exact MapStoreI64, ArrayAppendAny, and MapStoreAny live policy-row-ID-only Unit consumers; runtime, route, backend, mutation/publication, Delete, wide, and Source Selfhost claims remain unclaimed, and 3440 is now the Pro design consultation stop.",
-  "2026-07-10: 3438 connects the MapStoreAny policy lookup to a caller-orientation assertion-only Unit consumer accepting only policy row identity, with fail-fast identity/metadata and Any-write-boundary tests; route/runtime/backend, mutation/publication, Delete, wide, and Source Selfhost claims remain unclaimed.",
 ]
