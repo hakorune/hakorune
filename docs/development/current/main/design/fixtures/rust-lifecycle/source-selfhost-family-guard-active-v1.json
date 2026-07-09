@@ -3,7 +3,7 @@
     "current_maintenance",
     "current_semantic"
   ],
-  "current_blocker_token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-STRING-CALLER-ORIENTATION-PILOT-DESIGN-CONSULTATION-001",
+  "current_blocker_token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-CALLER-ORIENTATION-AUTHORITY-PILOT-001",
   "family_scope": "SourceSelfhost",
   "forbidden_claims": {
     "manual_family_selection": 0,
@@ -245,6 +245,34 @@
       "legacy_guard": "tools/checks/rust_lifecycle_source_selfhost_family_guard.sh",
       "role": "current_semantic",
       "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-STRING-CALLER-ORIENTATION-PILOT-DESIGN-CONSULTATION-001"
+    },
+    {
+      "card": "docs/development/current/main/phases/phase-296x/3449-MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-CALLER-ORIENTATION-AUTHORITY-PILOT-BASIS-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-collection-caller-orientation-authority-pilot-basis-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_source_selfhost_family_guard.sh",
+      "role": "current_semantic",
+      "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-CALLER-ORIENTATION-AUTHORITY-PILOT-BASIS-001"
+    },
+    {
+      "card": "docs/development/current/main/phases/phase-296x/3450-MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-CALLER-ORIENTATION-AUTHORITY-PILOT-001.md",
+      "fixture": "",
+      "legacy_guard": "tools/checks/rust_lifecycle_source_selfhost_family_guard.sh",
+      "role": "current_semantic",
+      "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-CALLER-ORIENTATION-AUTHORITY-PILOT-001"
+    },
+    {
+      "card": "docs/development/current/main/phases/phase-296x/3451-MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-CALLER-ORIENTATION-AUTHORITY-PILOT-RERUN-001.md",
+      "fixture": "",
+      "legacy_guard": "tools/checks/rust_lifecycle_source_selfhost_family_guard.sh",
+      "role": "current_semantic",
+      "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-CALLER-ORIENTATION-AUTHORITY-PILOT-RERUN-001"
+    },
+    {
+      "card": "docs/development/current/main/phases/phase-296x/3452-MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-COLLECTION-CALLER-ORIENTATION-PILOT-DESIGN-CONSULTATION-001.md",
+      "fixture": "",
+      "legacy_guard": "tools/checks/rust_lifecycle_source_selfhost_family_guard.sh",
+      "role": "current_semantic",
+      "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-COLLECTION-CALLER-ORIENTATION-PILOT-DESIGN-CONSULTATION-001"
     }
   ],
   "schema_version": 1

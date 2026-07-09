@@ -1,0 +1,115 @@
+{
+  "claims": {
+    "any_length_wildcard_selector": 0,
+    "backend_lowering_authority": 0,
+    "basis_only": 1,
+    "caller_orientation_runtime_path": 0,
+    "collection_anylength_box_explicit_row_retained": 1,
+    "collection_caller_orientation_authority_pilot": 0,
+    "collection_caller_orientation_authority_pilot_basis": 1,
+    "collection_exact_four_row_scope": 1,
+    "collection_hako_route_decision_authority_retained": 1,
+    "collection_mismatch_fail_fast_required": 1,
+    "collection_mixed_receiver_domain_boundary_retained": 1,
+    "collection_rust_oracle_compat_checker_retained": 1,
+    "delete_hako_route_decision_authority_pilot": 0,
+    "hako_runtime_route_authority": 0,
+    "manual_surface_selection": 0,
+    "no_new_route_authority": 1,
+    "non_delete_write_caller_orientation_authority": 0,
+    "owner_name_as_proof": 0,
+    "publication_execution": 0,
+    "receiver_domain_authority_switch": 0,
+    "receiver_domain_widening_authority": 0,
+    "row_count_as_proof": 0,
+    "runtime_box_domain_fallback": 0,
+    "runtime_fallback": 0,
+    "runtime_mutation_authority": 0,
+    "scalar_known_wide_authority": 0,
+    "source_path_as_authority": 0,
+    "source_selfhost_claim": 0
+  },
+  "consultation_boundary": {
+    "collection_requires_external_consultation": false,
+    "next_required_at": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-COLLECTION-CALLER-ORIENTATION-PILOT-DESIGN-CONSULTATION-001",
+    "reason": "NonDeleteWriteMutationAndAnyWriteBoundary",
+    "write_requires_design_selection": true
+  },
+  "kind": "MirBuilderScalarKnownFastpathCollectionCallerOrientationAuthorityPilotBasisV1",
+  "proof_axis": [
+    "PriorMapLoadAndStringCallerOrientationAuthorityContinuation",
+    "PriorCollectionFourRowRouteDecisionAuthority",
+    "PriorCollectionPolicyRowIdOnlyAssertionConsumer",
+    "ExplicitEnumeratedMixedReceiverDomainBoundary",
+    "AnyLengthBoxDomainExplicitRowNotWildcardSelector",
+    "RustOracleCompatFailFastRetained"
+  ],
+  "provenance": {
+    "caller_assertion_consumer": {
+      "path": "docs/development/current/main/phases/phase-296x/3429-MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-CALLER-ORIENTATION-LIVE-ASSERT-CONSUMER-001.md",
+      "sha256": "537f4e979b690141987b50f29f81da7ebe00e7e3f0515ff630182689876327ee"
+    },
+    "caller_assertion_decision": {
+      "path": "docs/development/current/main/phases/phase-296x/3424-MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-CALLER-ORIENTATION-LIVE-CONSUMER-DESIGN-STOP-001.md",
+      "sha256": "1333d3ac1aea7147f781364d9d9194a8dc2db406ddce6f2923c6761df2a5b996"
+    },
+    "caller_module": {
+      "path": "src/mir/generic_method_route_plan/caller_orientation.rs",
+      "sha256": "cb13d0a7e7c7c016036696ce1fcc6d77d76d90997298725cac87630f766f0d0d"
+    },
+    "design_stop": {
+      "path": "docs/development/current/main/phases/phase-296x/3448-MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-STRING-CALLER-ORIENTATION-PILOT-DESIGN-CONSULTATION-001.md",
+      "sha256": "a52ce6588c87cca8f52fa234407ba99809eb1476cb6f7320ee07ea79ad649417"
+    },
+    "generated_caller_contract": {
+      "path": "src/mir/generic_method_route_plan/generated/collection_scalar_i64_caller_orientation_contract.rs",
+      "sha256": "73e1d3ca2bc5559cd407ba97eff23ebd0eca783d3b161152a666e96c4fb24a62"
+    },
+    "generated_policy": {
+      "path": "src/mir/generic_method_route_plan/generated/collection_len_scalar_i64_hako_policy.rs",
+      "sha256": "2ba9eacae97a2ead0e4b7b88e5b9de4169ab332b9641c9cd21fa30cc6268a877"
+    },
+    "route_authority_basis": {
+      "path": "docs/development/current/main/phases/phase-296x/3396-MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-HAKO-AUTHORITY-PILOT-BASIS-001.md",
+      "sha256": "c30ea3da892cd8a55d6982638c144cb30db5ae43b368efb0f797b71e95968529"
+    },
+    "route_authority_pilot": {
+      "path": "docs/development/current/main/phases/phase-296x/3397-MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-HAKO-ROUTE-DECISION-AUTHORITY-PILOT-001.md",
+      "sha256": "217ad7226e773d8c3d9234756230df22d61376a7bf1d1712b24b4ae08185ae78"
+    },
+    "shadow_route_module": {
+      "path": "src/mir/generic_method_route_plan/scalar_known_hako_shadow.rs",
+      "sha256": "c69424625e1891e90b8ed393f66646f4496abcc1c47fad3def59f16e4a0ffa85"
+    }
+  },
+  "schema_version": 0,
+  "selection": {
+    "anylength_box_semantics": "ExplicitRowMetadataNotWildcardSelector",
+    "authority_scope": "policy_row_id_contract_only",
+    "consultation_option": "B",
+    "consumer_input": "PolicyRowIdOnly",
+    "consumer_return": "Unit",
+    "implementation_deferred": true,
+    "policy_row_ids": [
+      "collection_map_entry_count_scalar_i64_routes",
+      "collection_array_slot_len_scalar_i64_routes",
+      "collection_string_len_scalar_i64_routes",
+      "collection_any_length_scalar_i64_routes"
+    ],
+    "receiver_domain_input": "Forbidden",
+    "receiver_domains": [
+      "MapBox",
+      "ArrayBox",
+      "StringBox",
+      "Box"
+    ],
+    "surface": "CollectionScalarI64Routes",
+    "task_packet": [
+      "MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-CALLER-ORIENTATION-AUTHORITY-PILOT-BASIS-001",
+      "MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-CALLER-ORIENTATION-AUTHORITY-PILOT-001",
+      "MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-CALLER-ORIENTATION-AUTHORITY-PILOT-RERUN-001",
+      "MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-COLLECTION-CALLER-ORIENTATION-PILOT-DESIGN-CONSULTATION-001"
+    ]
+  },
+  "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-CALLER-ORIENTATION-AUTHORITY-PILOT-BASIS-001"
+}

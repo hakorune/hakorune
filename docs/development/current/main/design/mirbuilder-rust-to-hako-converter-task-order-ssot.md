@@ -22,27 +22,31 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-STRING-CALLER-ORIENTATION-PILOT-DESIGN-CONSULTATION-001
+  MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-CALLER-ORIENTATION-AUTHORITY-PILOT-001
 
 resolved design stop:
-  MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-MAPLOAD-CALLER-ORIENTATION-PILOT-DESIGN-CONSULTATION-001
+  MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-STRING-CALLER-ORIENTATION-PILOT-DESIGN-CONSULTATION-001
 
 selection authority:
-  closed candidate inventory
-  + prior MapLoad caller-orientation authority pilot
-  + homogeneous String ScalarI64/NoPublication read shape
-  + existing String Hako route decision and Rust oracle veto
+  local mechanical option B
+  + prior Collection four-row route-decision authority
+  + prior Collection policy-row-ID-only assertion consumer
+  + explicit mixed receiver-domain and AnyLength/Box guards
 
 active_packet:
-  id = STRING_CALLER_ORIENTATION_AUTHORITY_PILOT_V1
-  3446 = MIRBUILDER-SCALAR-KNOWN-FASTPATH-STRING-CALLER-ORIENTATION-AUTHORITY-PILOT-001
-  3447 = MIRBUILDER-SCALAR-KNOWN-FASTPATH-STRING-CALLER-ORIENTATION-AUTHORITY-PILOT-RERUN-001
+  id = COLLECTION_CALLER_ORIENTATION_AUTHORITY_PILOT_V1
+  3449 = MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-CALLER-ORIENTATION-AUTHORITY-PILOT-BASIS-001
+  3450 = MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-CALLER-ORIENTATION-AUTHORITY-PILOT-001
+  3451 = MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-CALLER-ORIENTATION-AUTHORITY-PILOT-RERUN-001
+  3452 = MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-COLLECTION-CALLER-ORIENTATION-PILOT-DESIGN-CONSULTATION-001
 
 packet contract:
-  scope = exact three-row StringScalarI64Routes closed set
+  scope = exact four-row CollectionScalarI64Routes closed set
   authority_scope = policy_row_id_contract_only
   consumer_input = PolicyRowIdOnly
   consumer_return = Unit
+  receiver_domain_input = forbidden
+  anylength_box = explicit_row_not_wildcard
   generated_typed_contract_compare = required
   rust_oracle_compat_veto = required
   fallback = forbidden
@@ -57,11 +61,11 @@ stop_if:
   generated typed fields are insufficient for the required comparison
   OR consumer needs route/value/effect/mutation input or non-Unit output
   OR MIR/runtime/backend/registry consumption is required
-  OR Collection/Write/Delete/wide scope enters the card
+  OR Write/Delete/wide scope enters the card
   OR fallback or warn-only mismatch is proposed
 
 next_after_packet:
-  design consultation at MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-STRING-CALLER-ORIENTATION-PILOT-DESIGN-CONSULTATION-001 before Collection mixed receiver-domain, Write mutation, Delete revival, wide, runtime/backend, or Source Selfhost promotion.
+  design consultation at MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-COLLECTION-CALLER-ORIENTATION-PILOT-DESIGN-CONSULTATION-001 before Write mutation, Delete revival, wide, runtime/backend, or Source Selfhost promotion.
 
 latest design decision:
   3253 implements MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-NESTED-LOOP-REJECT-BOUNDARY-001: has_nested_loop=1 now rejects at the observe-only matcher boundary with reason=nested_loop_present.
@@ -404,7 +408,7 @@ trigger-based AOT/MIR typing debt:
   status=parked-until-triggered; order=2999/3000/3001 landed, then 3022 queue
   only when an active ProgramJSON gate hits Float Sub/Mul/Div, string relational
   compare, PHI dst_type, mir_call dst_type, or receiver-helper.
-next_documented_task = MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-STRING-CALLER-ORIENTATION-PILOT-DESIGN-CONSULTATION-001
+next_documented_task = MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-CALLER-ORIENTATION-AUTHORITY-PILOT-001
 next_after_active_3 = MIRBUILDER-SCALAR-KNOWN-FASTPATH-NON-DELETE-WRITE-POLICY-ROW-IDENTITY-TRANSPORT-001
 follow_on_after_consume = select first BoolRecipe publication parity row only after consume gate is green
 

@@ -345,15 +345,16 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-STRING-CALLER-ORIENTATION-AUTHORITY-PILOT-RERUN-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3447-MIRBUILDER-SCALAR-KNOWN-FASTPATH-STRING-CALLER-ORIENTATION-AUTHORITY-PILOT-RERUN-001.md"
-latest_card_summary = """3447 reruns the String three-row caller-orientation
-authority pilot with policy-row-ID-only Unit consumption, generated policy and
-contract checks, and the existing Rust oracle veto. The rerun is green; 3448 is
-the next design consultation stop before Collection/Write/Delete/wide or
-runtime/backend/Source Selfhost expansion."""
+latest_card = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-CALLER-ORIENTATION-AUTHORITY-PILOT-BASIS-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3449-MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-CALLER-ORIENTATION-AUTHORITY-PILOT-BASIS-001.md"
+latest_card_summary = """3449 resolves 3448 mechanically with option B and
+selects the exact four-row Collection caller-orientation authority pilot.
+Prior route authority and assertion work already guards mixed receiver domains
+and AnyLength/Box as explicit row metadata. Cards 3450-3452 define the
+implementation, rerun, and the next real consultation at the Write mutation
+boundary."""
 
-current_blocker_token = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-STRING-CALLER-ORIENTATION-PILOT-DESIGN-CONSULTATION-001"
+current_blocker_token = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-CALLER-ORIENTATION-AUTHORITY-PILOT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -362,6 +363,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-10: 3449 resolves the post-String design stop mechanically with option B and queues a four-card Collection caller-orientation packet: exact four-row basis, implementation, rerun, then consultation at the mutation-bearing non-Delete Write boundary; receiver domains stay policy-owned and AnyLength/Box remains explicit non-wildcard metadata.",
   "2026-07-10: 3447 reruns the String three-row caller-orientation authority pilot with 22 caller tests and 19 shadow parity tests green; policy-row-ID-only Unit consumption, generated policy/contract comparison, Rust oracle veto, and all runtime/backend/mutation/publication/Delete/wide/Source Selfhost claims remain bounded.",
   "2026-07-10: 3446 implements the String caller-orientation authority validator with exact three-row closed-set checks and policy-row-ID-only Unit input; route decision remains in the existing Hako shadow consumer and Rust oracle compatibility veto remains fail-fast.",
   "2026-07-10: 3445 resolves the post-MapLoad candidate inventory mechanically and selects the exact three-row homogeneous StringScalarI64Routes read surface for a policy-row-ID-only Unit caller-orientation authority pilot; Collection mixed receiver-domain, Write mutation, Delete, wide, runtime/backend, and Source Selfhost remain excluded, and 3446 is ready.",
@@ -373,5 +375,4 @@ landed_tail = [
   "2026-07-10: 3438 connects the MapStoreAny policy lookup to a caller-orientation assertion-only Unit consumer accepting only policy row identity, with fail-fast identity/metadata and Any-write-boundary tests; route/runtime/backend, mutation/publication, Delete, wide, and Source Selfhost claims remain unclaimed.",
   "2026-07-10: 3437 connects the ArrayAppendAny policy lookup to a caller-orientation assertion-only Unit consumer accepting only policy row identity, with fail-fast identity/metadata tests; route/runtime/backend, mutation/publication, Delete, wide, and Source Selfhost claims remain unclaimed.",
   "2026-07-10: 3436 connects the MapStoreI64 policy lookup to a caller-orientation assertion-only Unit consumer accepting only policy row identity, with fail-fast identity/metadata tests; route/runtime/backend, mutation/publication, Delete, wide, and Source Selfhost claims remain unclaimed.",
-  "2026-07-10: 3435 transports exact policy row identity through the three non-Delete Write typed policy artifacts, refreshes caller-contract provenance, and guards the closed set without adding route, mutation, publication, Delete, wide, or Source Selfhost authority.",
 ]
