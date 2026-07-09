@@ -18,87 +18,55 @@ Related:
 This file is the current task-order entry. It is not a landed-history ledger.
 Detailed historical rows live in phase cards and git history.
 
-collection_caller_orientation_contract_artifact_result:
-  token = MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-CALLER-ORIENTATION-CONTRACT-ARTIFACT-001
-  status = landed
-  collection_caller_orientation_contract_artifact = 1
-  collection_exact_four_row_set = 1
-  collection_receiver_domain_policy_owned = 1
-  collection_anylength_box_explicit_row = 1
-  caller_orientation_runtime_path = 0
-  source_selfhost_claim = 0
-  selected_next_card = MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-CALLER-ORIENTATION-LIVE-CONSUMER-DESIGN-STOP-001
-
-collection_caller_orientation_live_consumer_design_stop:
-  token = MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-CALLER-ORIENTATION-LIVE-CONSUMER-DESIGN-STOP-001
-  status = design-stop
-  consultation_required = 1
-  live_consumer = 0
-  runtime_authority = 0
-  source_selfhost_claim = 0
-
 ## Current Target
 
 ```text
 active blocker:
-  SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
+  MIRBUILDER-SCALAR-KNOWN-HAKO-SHADOW-TEST-SPLIT-001
 
-current implementation task:
-  MIRBUILDER-AUTHORITY-FACADE-HARD-AUTHORITY-PILOT-POLICY-001.
-  Broad crate splitting is held. The next hard-authority slice must first cut
-  a narrow authority facade, freeze a DTO fixture, and prove `.hako` parity.
+resolved design stop:
+  MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-CALLER-ORIENTATION-LIVE-CONSUMER-DESIGN-STOP-001
 
-selected decision slice:
-  source_selfhost.adoption_plan
-    -> SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001
-    -> SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-BASIS-001
-    -> SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-RESOLUTION-001
-    -> SOURCE-SELFHOST-DOCS-GUARD-MAINTENANCE-REDUCTION-001
-    -> MIRBUILDER-MINIMAL-PATH-MAINLINE-READINESS-GUARD-REALIGNMENT-001
-    -> GUARD-SOURCE-SELFHOST-CURRENT-POINTER-DECOUPLE-001
-    -> GUARD-SOURCE-SELFHOST-MANIFEST-FAMILY-001
-    -> DOCS-SOURCE-SELFHOST-COMPACT-CURRENT-STATE-001
-    -> DOCS-SOURCE-SELFHOST-TASK-ORDER-THINNING-001
-    -> DOCS-CHECK-INDEX-FAMILY-VIEW-001
-    -> SOURCE-SELFHOST-POST-MAINTENANCE-TASK-INVENTORY-001
-    -> MIRBUILDER-MINIMAL-PATH-COMPOSED-CLOSURE-NATIVE-SLICE-DECOMPOSITION-001
-    -> MIRBUILDER-MINIMAL-PATH-COMPOSED-CLOSURE-NATIVE-OWNER-SEED-INVENTORY-001
-    -> MIRBUILDER-GENERATED-ARTIFACT-TO-NATIVE-OWNER-SEED-POLICY-001
-    -> MIRBUILDER-NATIVE-OWNER-SEED-PILOT-TARGET-SELECTION-001
+selection authority:
+  LocalMechanicalSelectorAuthorityV1
+  + three read-only worker inventories
+  + exact-one compiler-side assertion consumer
 
-selected evidence:
-  current pointers: docs/development/current/main/CURRENT_STATE.toml,
-    docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-family-guard-manifest-v0.json,
-    docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-wider-route-selection-resolution-v0.json,
-    docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-minimal-path-mainline-readiness-resolution-v0.json
-  durable policy: docs/development/current/main/design/mirbuilder-selfhost-checkpoint-roadmap-ssot.md,
-    docs/development/current/main/design/derived-to-native-hako-artifact-model-ssot.md,
-    docs/development/current/main/design/mirbuilder-authority-based-hako-migration-ssot.md
+active_packet:
+  id = READ_CALLER_ORIENTATION_ASSERTION_PACKET_V1
+  3425 = MIRBUILDER-SCALAR-KNOWN-HAKO-SHADOW-TEST-SPLIT-001
+  3426 = MIRBUILDER-SCALAR-KNOWN-FASTPATH-READ-POLICY-ROW-IDENTITY-TRANSPORT-001
+  3427 = MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-CALLER-ORIENTATION-LIVE-ASSERT-CONSUMER-001
+  3428 = MIRBUILDER-SCALAR-KNOWN-FASTPATH-STRING-CALLER-ORIENTATION-LIVE-ASSERT-CONSUMER-001
+  3429 = MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-CALLER-ORIENTATION-LIVE-ASSERT-CONSUMER-001
+  3430 = MIRBUILDER-SCALAR-KNOWN-FASTPATH-READ-CALLER-ORIENTATION-ASSERTION-CLOSEOUT-001
 
-landed evidence pointer:
-  Detailed landed rows live in the route-selection guards, adoption cards, and git history; this task-order keeps the active blocker, fail-fast boundary, and Active Next 3.
+packet contract:
+  consumer_kind = CompilerSideFailFastAssertion
+  consumer_return = Unit
+  consumer_input = PolicyRowIdOnly
+  route_kind_input = forbidden
+  core_op_input = forbidden
+  receiver_domain_input = forbidden
+  route_decision_input = forbidden
+  caller_orientation_runtime_path = 0
+  route_selection_authority_switch = 0
+  backend_lowering_authority = 0
+  runtime_mutation_authority = 0
+  publication_execution = 0
+  source_selfhost_claim = 0
 
-selected next task:
-  MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-RETURN-ABSENT-ACCEPTED-FLOOR-001.
+stop_if:
+  runtime-produced caller value required
+  OR route selection required
+  OR receiver-domain semantics duplicated
+  OR MIR/backend consumer required
+  OR mutation/publication authority changes
+  OR new ABI/backend route/fallback required
 
-post-3180 block recipe task order:
-  completed: JoinThenElse, ElseOnlyExit, ThenOnlyExit, and ExitAll are scoped
-    retire-candidates.
-  current: coverage floor selection landed; accepted floor matrix is next
-    before any authority switch.
-  design-stop trigger:
-    stop before recursive RecipeBodies, full RecipeMatcher, route selection,
-    MIR mutation/lowering, ID allocation, runtime route switch, or Source
-    Selfhost claims.
-
-normal operating rule:
-  Leaf pilot count is no longer a selfhost progress metric. Rust
-  ASTNode-to-token snapshots are temporary projection ABI only, not authority.
-  HakoAdopted Plan DTO owners cover scoped DTO/freeze surfaces only; full
-  planner outcome, recipe matching, route execution, lowering, mutation,
-  allocation, and Source Selfhost remain unclaimed.
-  Older scoped Fact/Plan/Recipe adoptions are kept in phase cards and git
-  history.
+next_after_packet:
+  consult once before authority-bearing caller orientation, Delete revival,
+  or a scope-limited non-Delete metadata packet; do not choose before 3430.
 
 latest design decision:
   3253 implements MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-NESTED-LOOP-REJECT-BOUNDARY-001: has_nested_loop=1 now rejects at the observe-only matcher boundary with reason=nested_loop_present.
@@ -441,8 +409,8 @@ trigger-based AOT/MIR typing debt:
   status=parked-until-triggered; order=2999/3000/3001 landed, then 3022 queue
   only when an active ProgramJSON gate hits Float Sub/Mul/Div, string relational
   compare, PHI dst_type, mir_call dst_type, or receiver-helper.
-next_documented_task = MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-CALLER-ORIENTATION-CONTRACT-ARTIFACT-001
-next_after_active_3 = MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-CALLER-ORIENTATION-CONTRACT-ARTIFACT-001
+next_documented_task = MIRBUILDER-SCALAR-KNOWN-HAKO-SHADOW-TEST-SPLIT-001
+next_after_active_3 = MIRBUILDER-SCALAR-KNOWN-FASTPATH-STRING-CALLER-ORIENTATION-LIVE-ASSERT-CONSUMER-001
 follow_on_after_consume = select first BoolRecipe publication parity row only after consume gate is green
 
 task discipline =

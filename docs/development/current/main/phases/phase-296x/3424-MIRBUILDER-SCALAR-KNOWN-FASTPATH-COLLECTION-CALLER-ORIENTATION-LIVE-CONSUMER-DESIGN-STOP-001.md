@@ -40,6 +40,45 @@ must not become a route selector.
 4. Does the mixed receiver-domain surface require a narrower sub-surface, or
    can the four-row contract remain one metadata-only scope?
 
+## Decision
+
+Three read-only worker inventories found one bounded implementation shape:
+
+```text
+consumer_kind = CompilerSideFailFastAssertion
+consumer_return = Unit
+consumer_input = PolicyRowIdOnly
+route_kind_input = forbidden
+core_op_input = forbidden
+receiver_domain_input = forbidden
+route_decision_input = forbidden
+```
+
+The consumer runs only after the existing policy lookup. It verifies that the
+selected policy row has the expected caller-orientation metadata and returns
+no value. It cannot select a route, emit MIR, change lowering, or carry
+receiver-domain semantics.
+
+This exact-one shape is selected under `Local Mechanical Selector Authority`.
+The six-task packet from 3425 through 3430 may proceed without another design
+consultation. Consultation reopens only after the read assertion closeout or
+when a packet stop condition fires.
+
+## Selected Packet
+
+```text
+3425 MIRBUILDER-SCALAR-KNOWN-HAKO-SHADOW-TEST-SPLIT-001
+3426 MIRBUILDER-SCALAR-KNOWN-FASTPATH-READ-POLICY-ROW-IDENTITY-TRANSPORT-001
+3427 MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-CALLER-ORIENTATION-LIVE-ASSERT-CONSUMER-001
+3428 MIRBUILDER-SCALAR-KNOWN-FASTPATH-STRING-CALLER-ORIENTATION-LIVE-ASSERT-CONSUMER-001
+3429 MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-CALLER-ORIENTATION-LIVE-ASSERT-CONSUMER-001
+3430 MIRBUILDER-SCALAR-KNOWN-FASTPATH-READ-CALLER-ORIENTATION-ASSERTION-CLOSEOUT-001
+```
+
+Stop and return to consultation if any task needs a runtime-produced value,
+route selection, receiver-domain duplication, MIR/backend consumption,
+mutation/publication authority, a new ABI/backend route, or fallback.
+
 ## Non-Claims
 
 ```text
