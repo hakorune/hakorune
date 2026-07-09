@@ -4,6 +4,9 @@ use super::generated::mapload_scalar_i64_caller_orientation_contract::{
 use super::generated::string_scalar_i64_caller_orientation_contract::{
     HakoStringCallerOrientationContract, STRING_SCALAR_I64_CALLER_ORIENTATION_CONTRACTS,
 };
+use super::generated::collection_scalar_i64_caller_orientation_contract::{
+    HakoCollectionCallerOrientationContract, COLLECTION_SCALAR_I64_CALLER_ORIENTATION_CONTRACTS,
+};
 
 const METADATA_ONLY: &str = "CallerOrientationContractMetadataOnly";
 const SINGLE_SURFACE: &str = "SingleSurface";
@@ -38,6 +41,24 @@ pub(super) fn assert_string_policy_row(policy_row_id: &str) {
 }
 
 fn assert_string_contract_metadata(contract: &HakoStringCallerOrientationContract) {
+    assert_eq!(contract.orientation_kind, METADATA_ONLY);
+    assert_eq!(contract.scope, SINGLE_SURFACE);
+    assert_eq!(contract.runtime_consumer, FORBIDDEN);
+    assert_eq!(contract.backend_lowering_consumer, FORBIDDEN);
+    assert_eq!(contract.mutation_consumer, FORBIDDEN);
+    assert_eq!(contract.publication_consumer, FORBIDDEN);
+    assert_eq!(contract.mismatch_policy, FAIL_FAST);
+}
+
+pub(super) fn assert_collection_policy_row(policy_row_id: &str) {
+    let contract = COLLECTION_SCALAR_I64_CALLER_ORIENTATION_CONTRACTS
+        .iter()
+        .find(|contract| contract.policy_row_id == policy_row_id)
+        .expect("Collection caller-orientation policy row identity drift");
+    assert_collection_contract_metadata(contract);
+}
+
+fn assert_collection_contract_metadata(contract: &HakoCollectionCallerOrientationContract) {
     assert_eq!(contract.orientation_kind, METADATA_ONLY);
     assert_eq!(contract.scope, SINGLE_SURFACE);
     assert_eq!(contract.runtime_consumer, FORBIDDEN);
@@ -93,5 +114,31 @@ mod tests {
         let mut contract = STRING_SCALAR_I64_CALLER_ORIENTATION_CONTRACTS[0];
         contract.publication_consumer = "RuntimeConsumer";
         assert_string_contract_metadata(&contract);
+    }
+
+    #[test]
+    fn collection_assertion_accepts_all_existing_policy_rows() {
+        for row_id in [
+            "collection_map_entry_count_scalar_i64_routes",
+            "collection_array_slot_len_scalar_i64_routes",
+            "collection_string_len_scalar_i64_routes",
+            "collection_any_length_scalar_i64_routes",
+        ] {
+            assert_collection_policy_row(row_id);
+        }
+    }
+
+    #[test]
+    #[should_panic(expected = "Collection caller-orientation policy row identity drift")]
+    fn collection_assertion_rejects_unknown_policy_row() {
+        assert_collection_policy_row("unknown_policy_row");
+    }
+
+    #[test]
+    #[should_panic(expected = "assertion `left == right` failed")]
+    fn collection_assertion_rejects_metadata_drift() {
+        let mut contract = COLLECTION_SCALAR_I64_CALLER_ORIENTATION_CONTRACTS[0];
+        contract.mutation_consumer = "RuntimeConsumer";
+        assert_collection_contract_metadata(&contract);
     }
 }

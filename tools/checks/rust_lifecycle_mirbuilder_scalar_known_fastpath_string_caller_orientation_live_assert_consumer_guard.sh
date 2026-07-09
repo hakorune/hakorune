@@ -48,8 +48,12 @@ for forbidden in [
     "runtime_mutation_authority", "publication_execution", "source_selfhost_claim",
 ]:
     need(forbidden not in module, f"forbidden claim leaked: {forbidden}")
-need(module.count("#[test]") == 6, "caller assertion test count drift")
-need(module.count("#[should_panic") == 4, "caller assertion rejection test count drift")
+for name in [
+    "string_assertion_accepts_all_existing_policy_rows",
+    "string_assertion_rejects_unknown_policy_row",
+    "string_assertion_rejects_metadata_drift",
+]:
+    need(f"fn {name}(" in module, f"String assertion test missing: {name}")
 need(len(module.splitlines()) < 800, "caller orientation module exceeds 800 lines")
 
 print("output_contract=rust-lifecycle-mirbuilder-scalar-known-fastpath-string-caller-orientation-live-assert-consumer")
