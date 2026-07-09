@@ -1,0 +1,14 @@
+// StringScalarI64Routes policy mirror for Rust fast-path shadow consumption.
+//
+// The Rust fast path consumes a checked-in generated typed artifact derived from
+// these rows. This source is mirror-only: it is not route authority.
+
+static box StringSearchScalarI64PolicyClassifierBox {
+  static method rows() {
+    return [
+      "string_indexof_scalar_i64_routes|StringScalarI64Routes|StringIndexOf|StringIndexOf|WarmDirectAbi|ScalarI64Result|ScalarI64|ScalarI64|NoPublication|read|IndexOfSurfacePolicy|classifier_policy_mirror_only",
+      "string_lastindexof_scalar_i64_routes|StringScalarI64Routes|StringLastIndexOf|StringLastIndexOf|WarmDirectAbi|ScalarI64Result|ScalarI64|ScalarI64|NoPublication|read|LastIndexOfSurfacePolicy|classifier_policy_mirror_only",
+      "string_contains_scalar_i64_routes|StringScalarI64Routes|StringContains|StringContains|WarmDirectAbi|ScalarI64Result|ScalarI64|ScalarI64|NoPublication|read|ContainsSurfacePolicy|classifier_policy_mirror_only"
+    ]
+  }
+}

@@ -1,7 +1,6 @@
 use crate::mir::core_method_op::{CoreMethodLoweringTier, CoreMethodOp, CoreMethodOpCarrier};
 use crate::mir::generic_method_route_facts::{
-    receiver_origin_box_name, GenericMethodPublicationPolicy, GenericMethodReturnShape,
-    GenericMethodValueDemand,
+    receiver_origin_box_name, GenericMethodValueDemand,
 };
 use crate::mir::string_corridor::StringCorridorOp;
 use crate::mir::value_origin::ValueDefMap;
@@ -14,9 +13,9 @@ use super::flow_origin::{
 };
 use super::{
     method_args_without_redundant_receiver, string_corridor_method_origin_box_name,
-    GenericMethodRoute, GenericMethodRouteDecision, GenericMethodRouteEvidence,
-    GenericMethodRouteKind, GenericMethodRouteOperands, GenericMethodRouteProof,
-    GenericMethodRouteSite, GenericMethodRouteSurface,
+    scalar_known_hako_shadow, GenericMethodRoute, GenericMethodRouteDecision,
+    GenericMethodRouteEvidence, GenericMethodRouteKind, GenericMethodRouteOperands,
+    GenericMethodRouteProof, GenericMethodRouteSite, GenericMethodRouteSurface,
 };
 
 pub(super) fn match_generic_substring_route(
@@ -179,16 +178,10 @@ pub(super) fn match_generic_indexof_route(
         GenericMethodRouteSurface::new(box_name.clone(), method.clone(), args.len()),
         GenericMethodRouteEvidence::new(receiver_origin_box, None),
         GenericMethodRouteOperands::new(*receiver, None, *dst),
-        GenericMethodRouteDecision::new(
+        scalar_known_hako_shadow::string_scalar_i64_shadow_consumed_decision(
             GenericMethodRouteKind::StringIndexOf,
             GenericMethodRouteProof::IndexOfSurfacePolicy,
-            Some(CoreMethodOpCarrier::manifest(
-                CoreMethodOp::StringIndexOf,
-                CoreMethodLoweringTier::WarmDirectAbi,
-            )),
-            Some(GenericMethodReturnShape::ScalarI64),
-            GenericMethodValueDemand::ScalarI64,
-            Some(GenericMethodPublicationPolicy::NoPublication),
+            CoreMethodOp::StringIndexOf,
         ),
     ))
 }
@@ -238,16 +231,10 @@ pub(super) fn match_generic_lastindexof_route(
         GenericMethodRouteSurface::new(box_name.clone(), method.clone(), args.len()),
         GenericMethodRouteEvidence::new(receiver_origin_box, None),
         GenericMethodRouteOperands::new(*receiver, None, *dst),
-        GenericMethodRouteDecision::new(
+        scalar_known_hako_shadow::string_scalar_i64_shadow_consumed_decision(
             GenericMethodRouteKind::StringLastIndexOf,
             GenericMethodRouteProof::LastIndexOfSurfacePolicy,
-            Some(CoreMethodOpCarrier::manifest(
-                CoreMethodOp::StringLastIndexOf,
-                CoreMethodLoweringTier::WarmDirectAbi,
-            )),
-            Some(GenericMethodReturnShape::ScalarI64),
-            GenericMethodValueDemand::ScalarI64,
-            Some(GenericMethodPublicationPolicy::NoPublication),
+            CoreMethodOp::StringLastIndexOf,
         ),
     ))
 }
@@ -306,16 +293,10 @@ pub(super) fn match_generic_contains_route(
         GenericMethodRouteSurface::new(box_name.clone(), method.clone(), 1),
         GenericMethodRouteEvidence::new(receiver_origin_box, None),
         GenericMethodRouteOperands::new(*receiver, Some(args[0]), *dst),
-        GenericMethodRouteDecision::new(
+        scalar_known_hako_shadow::string_scalar_i64_shadow_consumed_decision(
             GenericMethodRouteKind::StringContains,
             GenericMethodRouteProof::ContainsSurfacePolicy,
-            Some(CoreMethodOpCarrier::manifest(
-                CoreMethodOp::StringContains,
-                CoreMethodLoweringTier::WarmDirectAbi,
-            )),
-            Some(GenericMethodReturnShape::ScalarI64),
-            GenericMethodValueDemand::ScalarI64,
-            Some(GenericMethodPublicationPolicy::NoPublication),
+            CoreMethodOp::StringContains,
         ),
     ))
 }

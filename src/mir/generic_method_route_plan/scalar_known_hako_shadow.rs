@@ -6,6 +6,9 @@ use crate::mir::generic_method_route_facts::{
 use super::generated::mapload_scalar_i64_hako_policy::{
     HakoMapLoadScalarI64Policy, MAPLOAD_SCALAR_I64_HAKO_POLICY,
 };
+use super::generated::string_search_scalar_i64_hako_policy::{
+    HakoStringSearchScalarI64Policy, STRING_SEARCH_SCALAR_I64_HAKO_POLICIES,
+};
 use super::generated::write_push_hako_policy::{HakoWritePushPolicy, WRITE_PUSH_HAKO_POLICY};
 use super::generated::write_set_mapstore_any_hako_policy::{
     HakoMapStoreAnyPolicy, WRITE_SET_MAPSTORE_ANY_HAKO_POLICY,
@@ -50,6 +53,45 @@ pub(super) fn mapload_scalar_i64_shadow_consumed_decision(
             CoreMethodLoweringTier::WarmDirectAbi,
         )),
         Some(GenericMethodReturnShape::ScalarI64OrMissingZero),
+        GenericMethodValueDemand::ScalarI64,
+        Some(GenericMethodPublicationPolicy::NoPublication),
+    )
+}
+
+pub(super) fn string_scalar_i64_shadow_consumed_decision(
+    route_kind: GenericMethodRouteKind,
+    route_proof: GenericMethodRouteProof,
+    core_op: CoreMethodOp,
+) -> GenericMethodRouteDecision {
+    let policy = STRING_SEARCH_SCALAR_I64_HAKO_POLICIES
+        .iter()
+        .find(|policy| policy.route_kind == route_kind)
+        .expect("String .hako policy table missing Rust route kind");
+    let accepted_contract_count = accepted_scalar_known_contracts().count();
+    assert!(
+        accepted_contract_count >= 4,
+        "ScalarKnown accepted contract boundary lost prior closeouts"
+    );
+    let contract_contains_route = accepted_scalar_known_contracts().any(|contract| {
+        contract.contract_id == ScalarKnownContractId::StringSearchScalarI64
+            && contract.surface_id == ScalarKnownSurfaceId::StringScalarI64Routes
+            && contract.effect_class.as_str() == ScalarKnownEffectClass::Read.as_str()
+            && contract.route_kind_set.contains(&route_kind)
+    });
+    assert!(
+        contract_contains_route,
+        "ScalarKnown String contract no longer contains requested route"
+    );
+    assert_hako_string_scalar_i64_policy_matches_rust(policy, route_kind, route_proof, core_op);
+
+    GenericMethodRouteDecision::new(
+        route_kind,
+        route_proof,
+        Some(CoreMethodOpCarrier::manifest(
+            core_op,
+            CoreMethodLoweringTier::WarmDirectAbi,
+        )),
+        Some(GenericMethodReturnShape::ScalarI64),
         GenericMethodValueDemand::ScalarI64,
         Some(GenericMethodPublicationPolicy::NoPublication),
     )
@@ -233,6 +275,44 @@ fn assert_hako_mapload_scalar_i64_policy_matches_rust(
     assert_eq!(policy.role, "classifier_policy_mirror_only");
 }
 
+fn assert_hako_string_scalar_i64_policy_matches_rust(
+    policy: &HakoStringSearchScalarI64Policy,
+    route_kind: GenericMethodRouteKind,
+    route_proof: GenericMethodRouteProof,
+    core_op: CoreMethodOp,
+) {
+    assert_eq!(policy.surface, "StringScalarI64Routes");
+    assert_eq!(policy.route_kind, route_kind);
+    assert_eq!(policy.core_op, core_op);
+    assert_eq!(policy.lowering_tier, CoreMethodLoweringTier::WarmDirectAbi);
+    assert_eq!(policy.result_class, "ScalarI64Result");
+    assert_eq!(policy.return_shape, GenericMethodReturnShape::ScalarI64);
+    assert_eq!(
+        GenericMethodReturnShape::ScalarI64.as_metadata_name(),
+        "scalar_i64"
+    );
+    assert_eq!(
+        policy.value_demand,
+        GenericMethodValueDemand::ScalarI64,
+        "String .hako policy value demand drifted"
+    );
+    assert_eq!(
+        GenericMethodValueDemand::ScalarI64.as_metadata_name(),
+        "scalar_i64"
+    );
+    assert_eq!(
+        policy.publication_policy,
+        GenericMethodPublicationPolicy::NoPublication
+    );
+    assert_eq!(
+        GenericMethodPublicationPolicy::NoPublication.as_metadata_name(),
+        "no_publication"
+    );
+    assert_eq!(policy.effect_class, "read");
+    assert_eq!(policy.proof_or_policy_source, route_proof);
+    assert_eq!(policy.role, "classifier_policy_mirror_only");
+}
+
 fn assert_hako_policy_matches_rust(policy: &HakoMapStoreI64Policy) {
     assert_eq!(policy.surface, "SetSurfacePolicy");
     assert_eq!(policy.route_kind, GenericMethodRouteKind::MapStoreI64);
@@ -332,6 +412,48 @@ mod tests {
     }
 
     #[test]
+    fn string_scalar_i64_shadow_artifact_matches_rust_fastpath_policy() {
+        for (route_kind, route_proof, core_op) in [
+            (
+                GenericMethodRouteKind::StringIndexOf,
+                GenericMethodRouteProof::IndexOfSurfacePolicy,
+                CoreMethodOp::StringIndexOf,
+            ),
+            (
+                GenericMethodRouteKind::StringLastIndexOf,
+                GenericMethodRouteProof::LastIndexOfSurfacePolicy,
+                CoreMethodOp::StringLastIndexOf,
+            ),
+            (
+                GenericMethodRouteKind::StringContains,
+                GenericMethodRouteProof::ContainsSurfacePolicy,
+                CoreMethodOp::StringContains,
+            ),
+        ] {
+            let decision =
+                string_scalar_i64_shadow_consumed_decision(route_kind, route_proof, core_op);
+            assert_eq!(
+                decision,
+                GenericMethodRouteDecision::new(
+                    route_kind,
+                    route_proof,
+                    Some(CoreMethodOpCarrier::manifest(
+                        core_op,
+                        CoreMethodLoweringTier::WarmDirectAbi,
+                    )),
+                    Some(GenericMethodReturnShape::ScalarI64),
+                    GenericMethodValueDemand::ScalarI64,
+                    Some(GenericMethodPublicationPolicy::NoPublication),
+                )
+            );
+        }
+        assert_eq!(
+            ScalarKnownContractId::StringSearchScalarI64.as_str(),
+            "StringSearchScalarI64TypedDirectCloseoutContract"
+        );
+    }
+
+    #[test]
     fn write_push_shadow_artifact_matches_rust_fastpath_policy() {
         let _ = write_push_shadow_consumed_decision();
         assert_eq!(
@@ -382,6 +504,32 @@ mod tests {
         assert_hako_mapload_scalar_i64_policy_matches_rust(
             &policy,
             GenericMethodRouteProof::MapSetScalarI64SameKeyNoEscape,
+        );
+    }
+
+    #[test]
+    #[should_panic(expected = "assertion `left == right` failed")]
+    fn string_scalar_i64_shadow_rejects_route_kind_mismatch() {
+        let mut policy = STRING_SEARCH_SCALAR_I64_HAKO_POLICIES[0];
+        policy.route_kind = GenericMethodRouteKind::StringContains;
+        assert_hako_string_scalar_i64_policy_matches_rust(
+            &policy,
+            GenericMethodRouteKind::StringIndexOf,
+            GenericMethodRouteProof::IndexOfSurfacePolicy,
+            CoreMethodOp::StringIndexOf,
+        );
+    }
+
+    #[test]
+    #[should_panic(expected = "assertion `left == right` failed")]
+    fn string_scalar_i64_shadow_rejects_role_mismatch() {
+        let mut policy = STRING_SEARCH_SCALAR_I64_HAKO_POLICIES[0];
+        policy.role = "hako_runtime_route_authority";
+        assert_hako_string_scalar_i64_policy_matches_rust(
+            &policy,
+            GenericMethodRouteKind::StringIndexOf,
+            GenericMethodRouteProof::IndexOfSurfacePolicy,
+            CoreMethodOp::StringIndexOf,
         );
     }
 
