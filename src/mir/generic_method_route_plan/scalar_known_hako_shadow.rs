@@ -36,6 +36,7 @@ pub(super) fn mapload_scalar_i64_hako_route_authority_pilot_decision(
     route_proof: GenericMethodRouteProof,
 ) -> GenericMethodRouteDecision {
     let policy = MAPLOAD_SCALAR_I64_HAKO_POLICY;
+    super::caller_orientation::assert_mapload_policy_row(policy.policy_row_id);
     let accepted_contract_count = accepted_scalar_known_contracts().count();
     assert!(
         accepted_contract_count >= 4,
@@ -102,6 +103,7 @@ pub(super) fn string_scalar_i64_hako_route_authority_pilot_decision(
         .iter()
         .find(|policy| policy.route_kind == route_kind)
         .expect("String .hako policy table missing Rust route kind");
+    super::caller_orientation::assert_string_policy_row(policy.policy_row_id);
     let accepted_contract_count = accepted_scalar_known_contracts().count();
     assert!(
         accepted_contract_count >= 4,

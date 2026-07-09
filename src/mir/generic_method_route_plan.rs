@@ -19,6 +19,7 @@ use super::{Callee, MirFunction, MirInstruction, MirModule, ValueId};
 use std::collections::BTreeMap;
 
 mod collection_read_routes;
+mod caller_orientation;
 mod flow_origin;
 mod generated;
 mod map_set_scalar_proof;

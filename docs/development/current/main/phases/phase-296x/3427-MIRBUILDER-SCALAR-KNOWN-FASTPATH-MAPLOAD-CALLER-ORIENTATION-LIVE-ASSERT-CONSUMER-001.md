@@ -58,3 +58,17 @@ source_selfhost_claim = 0
 ```text
 tools/checks/rust_lifecycle_mirbuilder_scalar_known_fastpath_mapload_caller_orientation_live_assert_consumer_guard.sh
 ```
+
+## Result
+
+```text
+status = landed
+mapload_caller_orientation_live_assert_consumer = 1
+assertion_only = 1
+tests = 3 passed
+caller_orientation_runtime_path = 0
+route_selection_authority_switch = 0
+source_selfhost_claim = 0
+selected_next_card =
+  MIRBUILDER-SCALAR-KNOWN-FASTPATH-STRING-CALLER-ORIENTATION-LIVE-ASSERT-CONSUMER-001
+```
