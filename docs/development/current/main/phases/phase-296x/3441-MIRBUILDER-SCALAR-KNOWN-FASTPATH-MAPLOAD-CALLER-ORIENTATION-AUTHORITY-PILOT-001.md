@@ -110,5 +110,17 @@ consumption; warn-only mismatch; or any fallback attempt.
 ## Stop Boundary
 
 After this pilot, do not claim read-wide, non-Delete-wide, ScalarKnown-wide,
-Delete, runtime/backend authority, or Source Selfhost. A green pilot must first
-receive a dedicated rerun/next-proof-axis decision card.
+Delete, runtime/backend authority, or Source Selfhost. The next card is:
+
+```text
+MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-CALLER-ORIENTATION-AUTHORITY-PILOT-RERUN-001
+```
+
+A green pilot must first receive that dedicated rerun/next-proof-axis
+decision card.
+
+## Implementation Result
+
+The pilot now validates the generated MapLoad caller contract against the
+existing generated typed policy and keeps the Rust oracle as a fail-fast veto.
+The live consumer remains policy-row-ID-only and Unit-returning.

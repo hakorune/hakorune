@@ -1,6 +1,9 @@
 use super::generated::mapload_scalar_i64_caller_orientation_contract::{
     HakoMapLoadCallerOrientationContract, MAPLOAD_SCALAR_I64_CALLER_ORIENTATION_CONTRACT,
 };
+use super::generated::mapload_scalar_i64_hako_policy::{
+    HakoMapLoadScalarI64Policy, MAPLOAD_SCALAR_I64_HAKO_POLICY,
+};
 use super::generated::string_scalar_i64_caller_orientation_contract::{
     HakoStringCallerOrientationContract, STRING_SCALAR_I64_CALLER_ORIENTATION_CONTRACTS,
 };
@@ -41,6 +44,47 @@ fn assert_contract_metadata(contract: &HakoMapLoadCallerOrientationContract) {
     assert_eq!(contract.mutation_consumer, FORBIDDEN);
     assert_eq!(contract.publication_consumer, FORBIDDEN);
     assert_eq!(contract.mismatch_policy, FAIL_FAST);
+}
+
+pub(super) fn assert_mapload_authority_pilot(policy_row_id: &str) {
+    let policy = MAPLOAD_SCALAR_I64_HAKO_POLICY;
+    assert_mapload_policy_row(policy_row_id);
+    assert_eq!(
+        policy.policy_row_id, policy_row_id,
+        "MapLoad policy row identity drift"
+    );
+    assert_mapload_policy_metadata(&policy);
+}
+
+fn assert_mapload_policy_metadata(policy: &HakoMapLoadScalarI64Policy) {
+    assert_eq!(policy.surface, "MapLoadScalarI64Routes");
+    assert_eq!(
+        policy.route_kind,
+        super::GenericMethodRouteKind::MapLoadScalarI64
+    );
+    assert_eq!(
+        policy.core_op,
+        crate::mir::core_method_op::CoreMethodOp::MapGet
+    );
+    assert_eq!(
+        policy.lowering_tier,
+        crate::mir::core_method_op::CoreMethodLoweringTier::WarmDirectAbi
+    );
+    assert_eq!(
+        policy.return_shape,
+        crate::mir::generic_method_route_facts::GenericMethodReturnShape::ScalarI64OrMissingZero
+    );
+    assert_eq!(
+        policy.value_demand,
+        crate::mir::generic_method_route_facts::GenericMethodValueDemand::ScalarI64
+    );
+    assert_eq!(
+        policy.publication_policy,
+        crate::mir::generic_method_route_facts::GenericMethodPublicationPolicy::NoPublication
+    );
+    assert_eq!(policy.effect_class, "read");
+    assert_eq!(policy.proof_family, "ScalarI64MapGetStoreFact");
+    assert_eq!(policy.role, "classifier_policy_mirror_only");
 }
 
 pub(super) fn assert_string_policy_row(policy_row_id: &str) {
@@ -161,6 +205,25 @@ mod tests {
         let mut contract = MAPLOAD_SCALAR_I64_CALLER_ORIENTATION_CONTRACT;
         contract.runtime_consumer = "RuntimeConsumer";
         assert_contract_metadata(&contract);
+    }
+
+    #[test]
+    fn mapload_authority_pilot_accepts_existing_policy_row() {
+        assert_mapload_authority_pilot("map_load_scalar_i64_routes");
+    }
+
+    #[test]
+    #[should_panic(expected = "policy row identity drift")]
+    fn mapload_authority_pilot_rejects_unknown_policy_row() {
+        assert_mapload_authority_pilot("unknown_policy_row");
+    }
+
+    #[test]
+    #[should_panic(expected = "assertion `left == right` failed")]
+    fn mapload_authority_pilot_rejects_policy_metadata_drift() {
+        let mut policy = MAPLOAD_SCALAR_I64_HAKO_POLICY;
+        policy.role = "caller_selected_route_authority";
+        assert_mapload_policy_metadata(&policy);
     }
 
     #[test]

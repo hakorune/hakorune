@@ -345,15 +345,14 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-CALLER-ORIENTATION-AUTHORITY-PILOT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3441-MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-CALLER-ORIENTATION-AUTHORITY-PILOT-001.md"
-latest_card_summary = """3441 is the Pro-authorized MapLoad-only caller-orientation
-contract authority pilot. It validates the exact policy row through generated
-typed contracts with a Unit consumer and Rust oracle veto, while route,
-runtime/backend, mutation/publication, Delete, wide, and Source Selfhost
-authority remain zero."""
+latest_card = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-CALLER-ORIENTATION-AUTHORITY-PILOT-RERUN-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3442-MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-CALLER-ORIENTATION-AUTHORITY-PILOT-RERUN-001.md"
+latest_card_summary = """3442 reruns the green 3441 MapLoad-only caller-orientation
+contract authority pilot. It validates freshness and preserves the exact
+policy-row-ID-only Unit boundary before any next-proof-axis decision; runtime,
+backend, Delete, wide, and Source Selfhost authority remain zero."""
 
-current_blocker_token = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-CALLER-ORIENTATION-AUTHORITY-PILOT-001"
+current_blocker_token = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-CALLER-ORIENTATION-AUTHORITY-PILOT-RERUN-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -362,6 +361,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-10: 3441 implements the Pro-authorized MapLoad-only caller-orientation contract authority pilot, comparing generated typed policy metadata with a policy-row-ID-only Unit consumer and retaining the Rust oracle fail-fast veto; route/runtime/backend, mutation/publication, Delete, wide, and Source Selfhost authority remain unclaimed.",
   "2026-07-10: 3440 adopts Pro option A and authorizes a MapLoad-only caller-orientation contract authority pilot keyed by policy_row_id with Unit return, generated typed policy comparison, and Rust oracle fail-fast veto; route/runtime/backend, mutation/publication, Delete, wide, and Source Selfhost authority remain unclaimed.",
   "2026-07-10: 3439 closes the non-Delete Write caller-orientation assertion packet with exact MapStoreI64, ArrayAppendAny, and MapStoreAny live policy-row-ID-only Unit consumers; runtime, route, backend, mutation/publication, Delete, wide, and Source Selfhost claims remain unclaimed, and 3440 is now the Pro design consultation stop.",
   "2026-07-10: 3438 connects the MapStoreAny policy lookup to a caller-orientation assertion-only Unit consumer accepting only policy row identity, with fail-fast identity/metadata and Any-write-boundary tests; route/runtime/backend, mutation/publication, Delete, wide, and Source Selfhost claims remain unclaimed.",
@@ -373,5 +373,4 @@ landed_tail = [
   "2026-07-10: 3429 extends the compiler-side caller-orientation assertion-only consumer to the exact four Collection policy rows, preserves mixed receiver-domain and AnyLength/Box ownership in the existing policy/oracle, passes nine shared assertion tests, and leaves runtime dispatch, route selection, lowering, mutation, publication, and Source Selfhost unclaimed.",
   "2026-07-10: 3428 extends the compiler-side caller-orientation assertion-only consumer to the exact three String policy rows, preserves existing String route/oracle authority, passes six shared assertion tests, and leaves runtime dispatch, route selection, lowering, mutation, publication, and Source Selfhost unclaimed.",
   "2026-07-10: 3427 adds a MapLoad compiler-side caller-orientation assertion-only consumer after existing policy lookup, verifies row identity and metadata-only flags with three tests, returns Unit, and leaves route selection, runtime dispatch, backend/lowering, mutation, publication, and Source Selfhost unclaimed.",
-  "2026-07-10: 3426 carries policy_row_id identity metadata through the generated typed Rust artifacts for the exact MapLoad 1-row, String 3-row, and Collection 4-row read set; preserves route and receiver-domain semantics, updates freshness provenance, and leaves caller runtime, route selection, lowering, mutation, publication, and Source Selfhost unclaimed.",
 ]

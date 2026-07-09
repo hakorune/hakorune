@@ -2,7 +2,7 @@
   "schema_version": 0,
   "kind": "SourceSelfhostFamilyGuardManifestV1",
   "family_scope": "SourceSelfhost",
-  "current_blocker_token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-CALLER-ORIENTATION-AUTHORITY-PILOT-001",
+  "current_blocker_token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-CALLER-ORIENTATION-AUTHORITY-PILOT-RERUN-001",
   "guard_policy": {
     "historical_row_guards_remain_callable": 1,
     "new_rows_prefer_family_guard": 1,
@@ -78,7 +78,7 @@
       "card": "docs/development/current/main/phases/phase-296x/1810-SOURCE-SELFHOST-POST-MAINTENANCE-TASK-INVENTORY-001.md",
       "fixture": "",
       "legacy_guard": "tools/checks/rust_lifecycle_source_selfhost_family_guard.sh",
-      "role": "current_semantic"
+      "role": "current_queue"
     },
     {
       "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-READ-POLICY-ROW-IDENTITY-TRANSPORT-001",
@@ -2963,8 +2963,15 @@
     {
       "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-CALLER-ORIENTATION-AUTHORITY-PILOT-001",
       "card": "docs/development/current/main/phases/phase-296x/3441-MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-CALLER-ORIENTATION-AUTHORITY-PILOT-001.md",
-      "fixture": "",
-      "legacy_guard": "tools/checks/rust_lifecycle_source_selfhost_family_guard.sh",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-mapload-caller-orientation-authority-pilot-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_scalar_known_fastpath_mapload_caller_orientation_authority_pilot_guard.sh",
+      "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-CALLER-ORIENTATION-AUTHORITY-PILOT-RERUN-001",
+      "card": "docs/development/current/main/phases/phase-296x/3442-MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-CALLER-ORIENTATION-AUTHORITY-PILOT-RERUN-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-mapload-caller-orientation-authority-pilot-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_scalar_known_fastpath_mapload_caller_orientation_authority_pilot_guard.sh",
       "role": "current_semantic"
     }
   ],
