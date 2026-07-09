@@ -1,0 +1,128 @@
+{
+  "claims": {
+    "backend_lowering_authority": 0,
+    "caller_orientation_runtime_path": 0,
+    "closed_enumerated_non_delete_write_authority_surface_set": 1,
+    "closed_non_delete_write_surface_set": "SetSurfacePolicy_MapStoreI64__PushSurfacePolicy_ArrayAppendAny__SetSurfacePolicy_MapStoreAny",
+    "closeout_scope_non_delete_write_only": 1,
+    "coverage_percentage_as_proof": 0,
+    "delete_classifier_hako_authority": 0,
+    "delete_generated_typed_artifact_authority": 0,
+    "delete_hako_authority_result_consumed": 0,
+    "delete_hako_route_decision_authority_pilot": 0,
+    "delete_live_route_calls_authority_pilot": 0,
+    "delete_mirror_reactivated": 0,
+    "delete_shadow_consumer_authority": 0,
+    "delete_surface_direct_closeout_materialized": 0,
+    "delete_surface_hako_mirror_retired": 1,
+    "delete_surface_live_rust_route_preserved": 1,
+    "delete_surface_retired_special_case_parked": 1,
+    "generated_typed_artifact_mismatch_gate_current_for_non_delete_write": 1,
+    "manual_surface_selection": 0,
+    "mapdeleteany_authority": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "non_delete_write_hako_route_decision_authority_island_closeout": 1,
+    "owner_name_as_proof": 0,
+    "prior_scoped_non_delete_write_hako_route_decision_authority_pilots": 1,
+    "publication_execution": 0,
+    "push_arrayappendany_hako_route_decision_authority_pilot": 1,
+    "retired_delete_mirror_as_authority": 0,
+    "route_count_as_proof": 0,
+    "route_membership_alone_as_proof": 0,
+    "route_selection_authority_switch": 0,
+    "row_count_as_proof": 0,
+    "runtime_fallback": 0,
+    "runtime_mutation_authority": 0,
+    "rust_fastpath_rewired": 0,
+    "rust_oracle_compat_fail_fast_retained": 1,
+    "scalar_known_hako_runtime_route_authority": 0,
+    "scalar_known_transport_axis_authority_switch": 0,
+    "set_mapstore_any_hako_route_decision_authority_pilot": 1,
+    "set_mapstore_i64_hako_route_decision_authority_pilot": 1,
+    "source_path_as_authority": 0,
+    "source_selfhost_claim": 0,
+    "write_mutation_authority": 0,
+    "write_surface_authority_closeout": 0,
+    "write_wide_authority": 0
+  },
+  "closed_set": {
+    "closeout_scope_non_delete_write_only": true,
+    "delete_surface_excluded": true,
+    "surface_set_id": "SetSurfacePolicy_MapStoreI64__PushSurfacePolicy_ArrayAppendAny__SetSurfacePolicy_MapStoreAny",
+    "surfaces": [
+      "SetSurfacePolicy/MapStoreI64",
+      "PushSurfacePolicy/ArrayAppendAny",
+      "SetSurfacePolicy/MapStoreAny"
+    ]
+  },
+  "decision": {
+    "kind": "SelectPostNonDeleteWriteAuthorityIslandCloseoutDesignStop",
+    "reason_token": "NonDeleteWriteAuthorityIslandClosedDeleteParkedAsRetiredRustPreservedRoute",
+    "selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-NON-DELETE-WRITE-AUTHORITY-ISLAND-CLOSEOUT-DESIGN-STOP-001"
+  },
+  "input_fixtures": {
+    "push_arrayappendany_authority_pilot": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-push-write-hako-route-decision-authority-pilot-v0.json",
+      "sha256": "29de823d6c0df0d9d47faca308e3d74c17690108a1ffc545832441ed0ff643f4",
+      "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-PUSH-WRITE-HAKO-ROUTE-DECISION-AUTHORITY-PILOT-001"
+    },
+    "set_mapstore_any_authority_pilot": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-mapstore-any-write-hako-route-decision-authority-pilot-v0.json",
+      "sha256": "beeba6925315fca7c7a508bb0948dd8fb4613ab2099c9951dba815d6a4461689",
+      "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPSTORE-ANY-WRITE-HAKO-ROUTE-DECISION-AUTHORITY-PILOT-001"
+    },
+    "set_mapstore_i64_authority_pilot": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-write-set-mapstore-i64-hako-route-decision-authority-pilot-v0.json",
+      "sha256": "80be17e1b2afb602e961780ac6601b905d80fe59543c3fc631584667763b8cf5",
+      "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-SET-MAPSTORE-I64-HAKO-ROUTE-DECISION-AUTHORITY-PILOT-001"
+    }
+  },
+  "input_state": {
+    "all_surface_mismatch_gate": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-all-surface-mismatch-gate-hardening-v0.json",
+      "sha256": "5c1809a648f0f06aa1afbd89b002272d8d8248981eb0dd54bf1643b61d8ba848",
+      "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-ALL-SURFACE-MISMATCH-GATE-HARDENING-001"
+    },
+    "delete_authority_design_stop": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-write-delete-surface-authority-design-stop-v0.json",
+      "sha256": "bd9cd44cde4b278da2f7bcca7fbb12a6a61fc9e786211f02203ca656af9f4bd1",
+      "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-DELETE-SURFACE-AUTHORITY-DESIGN-STOP-001"
+    },
+    "delete_design_stop_decision": "DeleteSurfaceRetiredMirrorNeedsRevivalOrParkDecision",
+    "delete_retire_card": "docs/development/current/main/phases/phase-296x/3353-MIRBUILDER-SCALAR-KNOWN-WRITE-DELETE-SURFACE-MIRROR-RETIRE-001.md",
+    "delete_retire_card_hash": "88d7d24b088bd2c1567dec19f7b8835861a369afbb156728ee0112152dba84b7"
+  },
+  "kind": "MirBuilderScalarKnownFastpathDeleteRetiredParkNonDeleteWriteAuthorityIslandCloseoutV1",
+  "proof_axis": {
+    "closed_enumerated_non_delete_write_authority_surface_set": true,
+    "delete_surface_retired_special_case_parked": true,
+    "generated_typed_artifact_mismatch_gate_current_for_non_delete_write": true,
+    "no_write_wide_authority_claim": true,
+    "prior_scoped_non_delete_write_hako_route_decision_authority_pilots": true,
+    "rust_delete_route_preservation_guard_retained": true,
+    "rust_oracle_compat_fail_fast_retained": true
+  },
+  "provenance": {
+    "shadow_consumer": {
+      "path": "src/mir/generic_method_route_plan/scalar_known_hako_shadow.rs",
+      "sha256": "f12361856df43dec41245d6ed1622eea1641a1d88cbe7fa5ce5171cfa0111af8"
+    },
+    "write_routes": {
+      "path": "src/mir/generic_method_route_plan/write_routes.rs",
+      "sha256": "f0499957931df96aef11ea9575d1a49e2064f4ca124adeb510368899f7eb8a21"
+    }
+  },
+  "schema_version": 0,
+  "summary": {
+    "delete_surface_direct_closeout_materialized": 0,
+    "delete_surface_hako_mirror_retired": 1,
+    "delete_surface_live_rust_route_preserved": 1,
+    "delete_surface_retired_special_case_parked": 1,
+    "non_delete_write_hako_route_decision_authority_island_closeout": 1,
+    "source_selfhost_claim": 0,
+    "write_surface_authority_closeout": 0,
+    "write_wide_authority": 0
+  },
+  "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-DELETE-RETIRED-PARK-NON-DELETE-WRITE-AUTHORITY-ISLAND-CLOSEOUT-001"
+}

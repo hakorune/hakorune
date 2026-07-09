@@ -1,0 +1,53 @@
+{
+  "claims": {
+    "backend_lowering_authority": 0,
+    "caller_orientation_runtime_path": 0,
+    "delete_hako_route_decision_authority_pilot": 0,
+    "delete_surface_retired_special_case_parked": 1,
+    "mapdeleteany_authority": 0,
+    "non_delete_write_hako_route_decision_authority_island_closeout": 1,
+    "post_non_delete_write_authority_island_closeout_design_stop": 1,
+    "publication_execution": 0,
+    "route_selection_authority_switch": 0,
+    "runtime_fallback": 0,
+    "runtime_mutation_authority": 0,
+    "rust_fastpath_rewired": 0,
+    "scalar_known_hako_runtime_route_authority": 0,
+    "source_selfhost_claim": 0,
+    "write_surface_authority_closeout": 0,
+    "write_wide_authority": 0
+  },
+  "decision": {
+    "consultation_required": true,
+    "kind": "KeepStoppedForPostNonDeleteWriteAuthorityIslandCloseoutDecision",
+    "reason_token": "NonDeleteWriteIslandClosedWriteWideAndSourceSelfhostStillUnclaimed",
+    "selected_next_card": null
+  },
+  "input_state": {
+    "closeout_selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-NON-DELETE-WRITE-AUTHORITY-ISLAND-CLOSEOUT-DESIGN-STOP-001",
+    "non_delete_write_closeout": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-delete-retired-park-non-delete-write-authority-island-closeout-v0.json",
+    "non_delete_write_closeout_hash": "0a9e88ac9e598b5090c4e8847e9547568324c9cbdb364e27899a0530f80e0d16"
+  },
+  "inventory": {
+    "delete_surface_parked_as_retired_special_case": true,
+    "next_options": [
+      "ReturnToWiderSourceSelfhostRouteSelectionWithScopedEvidence",
+      "OpenDeleteRevivalBasisIfNeeded",
+      "OpenCallerOrientationAuthorityDesign"
+    ],
+    "non_delete_write_authority_island_closed": true,
+    "source_selfhost_claim": false,
+    "write_surface_authority_closeout": false
+  },
+  "kind": "MirBuilderScalarKnownFastpathPostNonDeleteWriteAuthorityIslandCloseoutDesignStopV1",
+  "schema_version": 0,
+  "summary": {
+    "delete_surface_retired_special_case_parked": 1,
+    "non_delete_write_hako_route_decision_authority_island_closeout": 1,
+    "post_non_delete_write_authority_island_closeout_design_stop": 1,
+    "source_selfhost_claim": 0,
+    "write_surface_authority_closeout": 0,
+    "write_wide_authority": 0
+  },
+  "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-NON-DELETE-WRITE-AUTHORITY-ISLAND-CLOSEOUT-DESIGN-STOP-001"
+}
