@@ -1,0 +1,104 @@
+{
+  "claims": {
+    "authority_claim_taxonomy_basis": 1,
+    "authority_semantics_changed": 0,
+    "backend_lowering_authority": 0,
+    "caller_orientation_runtime_path": 0,
+    "delete_hako_route_decision_authority_pilot": 0,
+    "legacy_claim_names_preserved": 1,
+    "legacy_claims_deleted": 0,
+    "mapdeleteany_authority": 0,
+    "new_claims_must_map_to_taxonomy": 1,
+    "publication_execution": 0,
+    "route_authority_switch": 0,
+    "runtime_fallback": 0,
+    "runtime_mutation_authority": 0,
+    "scalar_known_hako_runtime_route_authority": 0,
+    "source_selfhost_claim": 0,
+    "taxonomy_is_documentation_layer_only": 1,
+    "write_surface_authority_closeout": 0,
+    "write_wide_authority": 0
+  },
+  "decision": {
+    "kind": "SelectDeleteSurfaceAuthorityDesignStopWithTaxonomy",
+    "reason_token": "ClaimTaxonomyBasisDefinedBeforeDeleteSurfaceDecision",
+    "selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-DELETE-SURFACE-AUTHORITY-DESIGN-STOP-001"
+  },
+  "input_state": {
+    "design_stop_card": "docs/development/current/main/phases/phase-296x/3414-MIRBUILDER-SCALAR-KNOWN-FASTPATH-NEXT-WRITE-HAKO-AUTHORITY-SURFACE-DESIGN-STOP-003.md",
+    "design_stop_card_hash": "c8c2dac69845d45192ebba70cf5c5720856f217f2b4898b793bc06adac6210d2",
+    "task_order": "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md",
+    "task_order_hash": "bf047018255248bd435ac6e99bcc3a87af81ddac6a71a78c5579d272569059a1"
+  },
+  "kind": "MirBuilderScalarKnownAuthorityClaimTaxonomyBasisV1",
+  "rules": {
+    "authority_semantics_changed": false,
+    "basis_only": true,
+    "legacy_claim_deletion_allowed": false,
+    "legacy_claim_names_preserved": true,
+    "new_claims_must_map_to_taxonomy": true,
+    "route_authority_switch_allowed": false,
+    "taxonomy_is_documentation_layer_only": true
+  },
+  "schema_version": 0,
+  "summary": {
+    "authority_claim_taxonomy_basis": 1,
+    "authority_semantics_changed": 0,
+    "legacy_claim_names_preserved": 1,
+    "legacy_claims_deleted": 0,
+    "new_claims_must_map_to_taxonomy": 1,
+    "route_authority_switch": 0,
+    "source_selfhost_claim": 0,
+    "taxonomy_is_documentation_layer_only": 1
+  },
+  "taxonomy": {
+    "authority.backend.lowering": [
+      "backend_lowering_authority",
+      "new_backend_route",
+      "new_abi"
+    ],
+    "authority.caller_orientation.runtime_path": [
+      "caller_orientation_runtime_path",
+      "rust_fastpath_rewired",
+      "route_selection_authority_switch"
+    ],
+    "authority.runtime.mutation": [
+      "runtime_mutation_authority"
+    ],
+    "authority.runtime.publication": [
+      "publication_execution"
+    ],
+    "authority.scalar_known.global_route": [
+      "scalar_known_hako_runtime_route_authority",
+      "scalar_known_transport_axis_authority_switch"
+    ],
+    "authority.source_selfhost": [
+      "source_selfhost_claim"
+    ],
+    "authority.surface.delete.route_decision": [
+      "delete_hako_route_decision_authority_pilot",
+      "mapdeleteany_authority"
+    ],
+    "authority.surface.write.wide": [
+      "write_surface_authority_closeout",
+      "write_wide_authority"
+    ],
+    "proof.forbidden.counts": [
+      "route_count_as_proof",
+      "row_count_as_proof",
+      "coverage_percentage_as_proof"
+    ],
+    "proof.forbidden.location_or_name": [
+      "source_path_as_authority",
+      "owner_name_as_proof",
+      "route_membership_alone_as_proof"
+    ],
+    "proof.forbidden.manual_selection": [
+      "manual_surface_selection",
+      "manual_subsurface_selection",
+      "manual_axis_selection",
+      "manual_carrier_selection"
+    ]
+  },
+  "token": "MIRBUILDER-SCALAR-KNOWN-AUTHORITY-CLAIM-TAXONOMY-BASIS-001"
+}

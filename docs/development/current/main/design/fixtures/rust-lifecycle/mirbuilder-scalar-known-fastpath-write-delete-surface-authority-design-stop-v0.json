@@ -1,0 +1,89 @@
+{
+  "claims": {
+    "backend_lowering_authority": 0,
+    "caller_orientation_runtime_path": 0,
+    "claim_taxonomy_applied": 1,
+    "delete_generated_typed_hako_artifact_exists": 0,
+    "delete_hako_authority_helper_exists": 0,
+    "delete_hako_route_decision_authority_pilot": 0,
+    "delete_surface_authority_design_stop": 1,
+    "manual_surface_selection": 0,
+    "mapdeleteany_authority": 0,
+    "owner_name_as_proof": 0,
+    "publication_execution": 0,
+    "route_count_as_proof": 0,
+    "route_membership_alone_as_proof": 0,
+    "route_selection_authority_switch": 0,
+    "runtime_fallback": 0,
+    "runtime_mutation_authority": 0,
+    "rust_fastpath_rewired": 0,
+    "rust_map_delete_route_preserved": 1,
+    "scalar_known_hako_runtime_route_authority": 0,
+    "source_path_as_authority": 0,
+    "source_selfhost_claim": 0,
+    "write_surface_authority_closeout": 0,
+    "write_wide_authority": 0
+  },
+  "decision": {
+    "consultation_required": true,
+    "kind": "KeepStoppedForDeleteSurfaceAuthorityDecision",
+    "reason_token": "DeleteSurfaceRetiredMirrorNeedsRevivalOrParkDecision",
+    "selected_next_card": null
+  },
+  "input_state": {
+    "claim_taxonomy_basis": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-authority-claim-taxonomy-basis-v0.json",
+    "claim_taxonomy_basis_hash": "7fb86c36fb832587175ed12cabd40399b0bce63012c11fff6b029109815425e7",
+    "prior_design_stop": "docs/development/current/main/phases/phase-296x/3414-MIRBUILDER-SCALAR-KNOWN-FASTPATH-NEXT-WRITE-HAKO-AUTHORITY-SURFACE-DESIGN-STOP-003.md",
+    "prior_design_stop_hash": "c8c2dac69845d45192ebba70cf5c5720856f217f2b4898b793bc06adac6210d2",
+    "taxonomy_selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-DELETE-SURFACE-AUTHORITY-DESIGN-STOP-001"
+  },
+  "inventory": {
+    "decision_options": [
+      "RestoreDeleteGeneratedTypedArtifactViaRevivalBasis",
+      "ParkDeleteAsRetiredRustPreservedRoute",
+      "CloseoutNonDeleteWriteAuthorityIslandOnly"
+    ],
+    "delete_surface": "DeleteSurfacePolicy/MapDeleteAny",
+    "generated_typed_hako_artifact_exists": false,
+    "hako_authority_helper_exists": false,
+    "old_hako_mirror_retired": true,
+    "rust_live_route_preserved": true
+  },
+  "kind": "MirBuilderScalarKnownFastpathWriteDeleteSurfaceAuthorityDesignStopV1",
+  "provenance": {
+    "shadow_consumer": {
+      "path": "src/mir/generic_method_route_plan/scalar_known_hako_shadow.rs",
+      "sha256": "f12361856df43dec41245d6ed1622eea1641a1d88cbe7fa5ce5171cfa0111af8"
+    },
+    "write_routes": {
+      "path": "src/mir/generic_method_route_plan/write_routes.rs",
+      "sha256": "f0499957931df96aef11ea9575d1a49e2064f4ca124adeb510368899f7eb8a21"
+    }
+  },
+  "schema_version": 0,
+  "summary": {
+    "claim_taxonomy_applied": 1,
+    "delete_generated_typed_hako_artifact_exists": 0,
+    "delete_hako_authority_helper_exists": 0,
+    "delete_hako_route_decision_authority_pilot": 0,
+    "delete_surface_authority_design_stop": 1,
+    "mapdeleteany_authority": 0,
+    "rust_map_delete_route_preserved": 1,
+    "source_selfhost_claim": 0,
+    "write_surface_authority_closeout": 0
+  },
+  "taxonomy_application": {
+    "authority.backend.lowering": 0,
+    "authority.caller_orientation.runtime_path": 0,
+    "authority.runtime.mutation": 0,
+    "authority.runtime.publication": 0,
+    "authority.scalar_known.global_route": 0,
+    "authority.source_selfhost": 0,
+    "authority.surface.delete.route_decision": 0,
+    "authority.surface.write.wide": 0,
+    "proof.forbidden.counts": 0,
+    "proof.forbidden.location_or_name": 0,
+    "proof.forbidden.manual_selection": 0
+  },
+  "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-DELETE-SURFACE-AUTHORITY-DESIGN-STOP-001"
+}
