@@ -1,0 +1,140 @@
+{
+  "candidate_inventory": [
+    {
+      "axis": "A",
+      "disposition": "selected",
+      "evidence": [
+        {
+          "path": "src/mir/generic_method_route_plan/generated/string_search_scalar_i64_hako_policy.rs",
+          "sha256": "d19ce44eae2543fd8bac385004fdab57695bf4a7d82e2bf0913168147269a77d"
+        },
+        {
+          "path": "src/mir/generic_method_route_plan/generated/string_scalar_i64_caller_orientation_contract.rs",
+          "sha256": "17be2d11311f8ecb420cb34d8d474cb143e5d9c030936d7bdb02f31ea53bb728"
+        }
+      ],
+      "reason": "HomogeneousScalarI64NoPublicationReadSurface",
+      "surface": "StringScalarI64Routes"
+    },
+    {
+      "axis": "A",
+      "disposition": "deferred",
+      "evidence": [
+        {
+          "path": "src/mir/generic_method_route_plan/generated/collection_len_scalar_i64_hako_policy.rs",
+          "sha256": "2ba9eacae97a2ead0e4b7b88e5b9de4169ab332b9641c9cd21fa30cc6268a877"
+        }
+      ],
+      "reason": "MixedReceiverDomainAndAnyLengthBoxBoundary",
+      "surface": "CollectionScalarI64Routes"
+    },
+    {
+      "axis": "B",
+      "disposition": "deferred",
+      "evidence": [
+        {
+          "path": "src/mir/generic_method_route_plan/generated/write_set_mapstore_i64_hako_policy.rs",
+          "sha256": "9afe64c6c818209012b33c0399bc09ea553f94ff7485fb63b2d1c3fe908cc8c5"
+        },
+        {
+          "path": "src/mir/generic_method_route_plan/generated/write_push_hako_policy.rs",
+          "sha256": "61133d9aa354d1620dec81d33affbceba0bbff1fe622e8e61d91d0b1495470fe"
+        },
+        {
+          "path": "src/mir/generic_method_route_plan/generated/write_set_mapstore_any_hako_policy.rs",
+          "sha256": "c219f9f4d718dcf50bea30d6ef53f6664c6d566b594c30cbbea00cc8489942f9"
+        }
+      ],
+      "reason": "MutationAndAnyWriteBoundary",
+      "surface": "NonDeleteWrite"
+    },
+    {
+      "axis": "C",
+      "disposition": "rejected_for_next_slice",
+      "evidence": [],
+      "reason": "NoAuthorityBearingMultiSurfaceCallerOrientationProof",
+      "surface": "ScalarKnownWide"
+    },
+    {
+      "axis": "D",
+      "disposition": "parked",
+      "evidence": [
+        {
+          "path": "docs/development/current/main/phases/phase-296x/3353-MIRBUILDER-SCALAR-KNOWN-WRITE-DELETE-SURFACE-MIRROR-RETIRE-001.md",
+          "sha256": "88d7d24b088bd2c1567dec19f7b8835861a369afbb156728ee0112152dba84b7"
+        }
+      ],
+      "reason": "RetiredSpecialCaseRequiresSeparateRevival",
+      "surface": "DeleteSurfacePolicy"
+    },
+    {
+      "axis": "E_F",
+      "disposition": "not_selected",
+      "evidence": [],
+      "reason": "SafeReadOnlyContinuationAvailable",
+      "surface": "SourceSelfhostOrPark"
+    }
+  ],
+  "claims": {
+    "backend_lowering_authority": 0,
+    "basis_only": 1,
+    "caller_orientation_runtime_path": 0,
+    "collection_caller_orientation_authority": 0,
+    "delete_hako_route_decision_authority_pilot": 0,
+    "hako_runtime_route_authority": 0,
+    "homogeneous_scalar_i64_no_publication_read_surface": 1,
+    "manual_surface_selection": 0,
+    "no_new_route_authority": 1,
+    "non_delete_write_caller_orientation_authority": 0,
+    "owner_name_as_proof": 0,
+    "prior_scoped_mapload_caller_orientation_authority_continuation": 1,
+    "publication_execution": 0,
+    "route_count_as_proof": 0,
+    "route_membership_alone_as_proof": 0,
+    "route_selection_authority_switch": 0,
+    "row_count_as_proof": 0,
+    "runtime_fallback": 0,
+    "runtime_mutation_authority": 0,
+    "scalar_known_wide_authority": 0,
+    "source_path_as_authority": 0,
+    "source_selfhost_claim": 0,
+    "string_caller_orientation_authority_pilot": 0,
+    "string_caller_orientation_authority_pilot_basis": 1,
+    "string_exact_three_row_scope": 1,
+    "string_hako_route_decision_authority_retained": 1,
+    "string_mismatch_fail_fast_required": 1,
+    "string_rust_oracle_compat_checker_retained": 1
+  },
+  "input_state": {
+    "design_stop": {
+      "path": "docs/development/current/main/phases/phase-296x/3443-MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-MAPLOAD-CALLER-ORIENTATION-PILOT-DESIGN-CONSULTATION-001.md",
+      "sha256": "bc963b8081825d6d4e1d7e833bf3f310044710734f560e9f81f85613db479470"
+    },
+    "mapload_authority_pilot": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-mapload-caller-orientation-authority-pilot-v0.json",
+      "sha256": "bba23722704dda86f2a841e6c5f9b66e8c8fecfd841024dbe34ea534b0859be1"
+    }
+  },
+  "kind": "MirBuilderScalarKnownFastpathStringCallerOrientationAuthorityPilotBasisV1",
+  "schema_version": 0,
+  "selection": {
+    "authority_scope": "policy_row_id_contract_only",
+    "consumer_input": "PolicyRowIdOnly",
+    "consumer_return": "Unit",
+    "exhaustive_policy_row_ids": [
+      "string_indexof_scalar_i64_routes",
+      "string_lastindexof_scalar_i64_routes",
+      "string_contains_scalar_i64_routes"
+    ],
+    "implementation_deferred": true,
+    "proof_axis": [
+      "PriorScopedMapLoadCallerOrientationAuthorityContinuation",
+      "HomogeneousScalarI64NoPublicationReadSurface",
+      "ExistingStringHakoRouteDecisionAuthorityRetained",
+      "RustOracleCompatFailFastRetained"
+    ],
+    "selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-STRING-CALLER-ORIENTATION-AUTHORITY-PILOT-001",
+    "surface": "StringScalarI64Routes"
+  },
+  "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-STRING-CALLER-ORIENTATION-AUTHORITY-PILOT-BASIS-001"
+}

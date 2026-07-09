@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-07-07
+Date: 2026-07-10
 Scope: MirBuilder-only Rust-to-Hako converter task order.
 Related:
   - docs/development/current/main/design/derived-to-native-hako-artifact-model-ssot.md
@@ -22,22 +22,24 @@ Detailed historical rows live in phase cards and git history.
 
 ```text
 active blocker:
-  MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-SET-MAPSTORE-I64-CALLER-ORIENTATION-CONTRACT-ARTIFACT-001
+  MIRBUILDER-SCALAR-KNOWN-FASTPATH-STRING-CALLER-ORIENTATION-AUTHORITY-PILOT-001
 
 resolved design stop:
-  MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-NON-DELETE-WRITE-CALLER-ORIENTATION-DESIGN-CONSULTATION-001
+  MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-MAPLOAD-CALLER-ORIENTATION-PILOT-DESIGN-CONSULTATION-001
 
 selection authority:
-  Pro consultation option A
-  + exact MapLoad single-row generated typed contract
-  + existing MapLoad Hako route decision and Rust oracle veto
+  closed candidate inventory
+  + prior MapLoad caller-orientation authority pilot
+  + homogeneous String ScalarI64/NoPublication read shape
+  + existing String Hako route decision and Rust oracle veto
 
 active_packet:
-  id = MAPLOAD_CALLER_ORIENTATION_AUTHORITY_PILOT_V1
-  3441 = MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-CALLER-ORIENTATION-AUTHORITY-PILOT-001
+  id = STRING_CALLER_ORIENTATION_AUTHORITY_PILOT_V1
+  3445 = MIRBUILDER-SCALAR-KNOWN-FASTPATH-STRING-CALLER-ORIENTATION-AUTHORITY-PILOT-BASIS-001
+  3446 = MIRBUILDER-SCALAR-KNOWN-FASTPATH-STRING-CALLER-ORIENTATION-AUTHORITY-PILOT-001
 
 packet contract:
-  scope = MapLoadScalarI64Routes/map_load_scalar_i64_routes only
+  scope = exact three-row StringScalarI64Routes closed set
   authority_scope = policy_row_id_contract_only
   consumer_input = PolicyRowIdOnly
   consumer_return = Unit
@@ -55,13 +57,11 @@ stop_if:
   generated typed fields are insufficient for the required comparison
   OR consumer needs route/value/effect/mutation input or non-Unit output
   OR MIR/runtime/backend/registry consumption is required
-  OR String/Collection/Write/Delete/wide scope enters the card
+  OR Collection/Write/Delete/wide scope enters the card
   OR fallback or warn-only mismatch is proposed
 
 next_after_packet:
-  dedicated MapLoad authority-pilot rerun/next-proof-axis decision; no direct wide, Delete, runtime/backend, or Source Selfhost promotion.
-next_after_pilot:
-  consult Pro at MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-MAPLOAD-CALLER-ORIENTATION-PILOT-DESIGN-CONSULTATION-001 before selecting another caller-orientation surface, Delete revival, ScalarKnown-wide authority, or Source Selfhost re-entry.
+  dedicated String freshness rerun, then design stop before Collection mixed receiver-domain, Write mutation, Delete revival, wide, runtime/backend, or Source Selfhost promotion.
 
 latest design decision:
   3253 implements MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-NESTED-LOOP-REJECT-BOUNDARY-001: has_nested_loop=1 now rejects at the observe-only matcher boundary with reason=nested_loop_present.

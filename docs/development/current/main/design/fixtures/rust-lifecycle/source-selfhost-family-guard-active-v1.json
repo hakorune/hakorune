@@ -3,7 +3,7 @@
     "current_maintenance",
     "current_semantic"
   ],
-  "current_blocker_token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-MAPLOAD-CALLER-ORIENTATION-PILOT-DESIGN-CONSULTATION-001",
+  "current_blocker_token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-STRING-CALLER-ORIENTATION-AUTHORITY-PILOT-001",
   "family_scope": "SourceSelfhost",
   "forbidden_claims": {
     "manual_family_selection": 0,
@@ -217,6 +217,20 @@
       "legacy_guard": "tools/checks/rust_lifecycle_source_selfhost_family_guard.sh",
       "role": "current_semantic",
       "token": "SOURCE-SELFHOST-FAMILY-MANIFEST-ACTIVE-HISTORY-SPLIT-001"
+    },
+    {
+      "card": "docs/development/current/main/phases/phase-296x/3445-MIRBUILDER-SCALAR-KNOWN-FASTPATH-STRING-CALLER-ORIENTATION-AUTHORITY-PILOT-BASIS-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-string-caller-orientation-authority-pilot-basis-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_source_selfhost_family_guard.sh",
+      "role": "current_semantic",
+      "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-STRING-CALLER-ORIENTATION-AUTHORITY-PILOT-BASIS-001"
+    },
+    {
+      "card": "docs/development/current/main/phases/phase-296x/3446-MIRBUILDER-SCALAR-KNOWN-FASTPATH-STRING-CALLER-ORIENTATION-AUTHORITY-PILOT-001.md",
+      "fixture": "",
+      "legacy_guard": "tools/checks/rust_lifecycle_source_selfhost_family_guard.sh",
+      "role": "current_semantic",
+      "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-STRING-CALLER-ORIENTATION-AUTHORITY-PILOT-001"
     }
   ],
   "schema_version": 1
