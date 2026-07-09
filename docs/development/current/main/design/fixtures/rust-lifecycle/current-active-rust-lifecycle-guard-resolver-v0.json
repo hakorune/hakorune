@@ -9,58 +9,55 @@
     "source_selfhost_claim": 0
   },
   "current_state": {
-    "current_blocker_token": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-DIRECT-CLOSEOUT-CONTRACT-BASIS-001",
-    "latest_card": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-POST-ADOPTION-RERUN-001",
-    "latest_card_path": "docs/development/current/main/phases/phase-296x/2145-MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-POST-ADOPTION-RERUN-001.md"
+    "current_blocker_token": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SCALAR-I64-ROUTES-CLOSEOUT-BASIS-001",
+    "latest_card": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-DIRECT-CLOSEOUT-RERUN-001",
+    "latest_card_path": "docs/development/current/main/phases/phase-296x/2147-MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-DIRECT-CLOSEOUT-RERUN-001.md"
   },
   "decision": {
     "kind": "ResolveCurrentActiveRustLifecycleGuards",
     "reason_token": "LatestCurrentScopedGuardSet",
-    "selected_next_card": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-DIRECT-CLOSEOUT-CONTRACT-BASIS-001"
+    "selected_next_card": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SCALAR-I64-ROUTES-CLOSEOUT-BASIS-001"
   },
   "kind": "CurrentActiveRustLifecycleGuardResolverV1",
   "resolution": {
     "current_blocker": {
-      "card": "docs/development/current/main/phases/phase-296x/2146-MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-DIRECT-CLOSEOUT-CONTRACT-BASIS-001.md",
-      "guard_count": 1,
-      "guard_paths": [
-        "tools/checks/rust_lifecycle_mirbuilder_carrier_type_scalar_known_write_set_mapstore_any_direct_closeout_contract_basis_guard.sh"
-      ],
-      "status": "resolved",
-      "token": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-DIRECT-CLOSEOUT-CONTRACT-BASIS-001"
+      "card": null,
+      "guard_count": 0,
+      "guard_paths": [],
+      "status": "pending_card_or_guard",
+      "token": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SCALAR-I64-ROUTES-CLOSEOUT-BASIS-001"
     },
-    "historical_rust_lifecycle_script_count": 1053,
+    "historical_rust_lifecycle_script_count": 1054,
     "latest": {
-      "card": "docs/development/current/main/phases/phase-296x/2145-MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-POST-ADOPTION-RERUN-001.md",
+      "card": "docs/development/current/main/phases/phase-296x/2147-MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-DIRECT-CLOSEOUT-RERUN-001.md",
       "guard_count": 1,
       "guard_paths": [
-        "tools/checks/rust_lifecycle_mirbuilder_carrier_type_scalar_known_write_set_mapstore_any_post_adoption_rerun_guard.sh"
+        "tools/checks/rust_lifecycle_mirbuilder_carrier_type_scalar_known_write_set_mapstore_any_direct_closeout_rerun_guard.sh"
       ],
       "status": "resolved",
-      "token": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-POST-ADOPTION-RERUN-001"
+      "token": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-DIRECT-CLOSEOUT-RERUN-001"
     },
     "max_default_guard_count": 3,
     "run_all_historical_guards": false,
-    "runnable_guard_count": 2,
+    "runnable_guard_count": 1,
     "runnable_guard_paths": [
-      "tools/checks/rust_lifecycle_mirbuilder_carrier_type_scalar_known_write_set_mapstore_any_post_adoption_rerun_guard.sh",
-      "tools/checks/rust_lifecycle_mirbuilder_carrier_type_scalar_known_write_set_mapstore_any_direct_closeout_contract_basis_guard.sh"
+      "tools/checks/rust_lifecycle_mirbuilder_carrier_type_scalar_known_write_set_mapstore_any_direct_closeout_rerun_guard.sh"
     ]
   },
   "schema_version": 0,
   "source_files": {
-    "docs/development/current/main/CURRENT_STATE.toml": "9eb398e98252acef5b749a2d6bb3a6744ec024ec192b4a197476d70885c1fcda",
-    "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md": "fa40adbd48be8e3ffd64bd7686caeff628b06dae05bfa524e44698dc88563085"
+    "docs/development/current/main/CURRENT_STATE.toml": "524948b8b0cd731b1e8ff2c4217ca871b1c5c87bcb700acbf34f91a1741bc5aa",
+    "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md": "16052bda698965e4f51465ac889927205d8756c85c6caed90bedbe972e2f0547"
   },
   "summary": {
     "current_active_guard_resolver": 1,
-    "current_blocker_guard_pending": 0,
-    "current_blocker_guard_resolved": 1,
+    "current_blocker_guard_pending": 1,
+    "current_blocker_guard_resolved": 0,
     "latest_guard_resolved": 1,
     "max_default_guard_count": 3,
     "run_all_rust_lifecycle_guards_by_default": 0,
-    "runnable_guard_count": 2,
-    "selected_next_card": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-DIRECT-CLOSEOUT-CONTRACT-BASIS-001",
+    "runnable_guard_count": 1,
+    "selected_next_card": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SCALAR-I64-ROUTES-CLOSEOUT-BASIS-001",
     "source_selfhost_claim": 0
   },
   "token": "MIRBUILDER-CURRENT-ACTIVE-RUST-LIFECYCLE-GUARD-RESOLVER-001"
