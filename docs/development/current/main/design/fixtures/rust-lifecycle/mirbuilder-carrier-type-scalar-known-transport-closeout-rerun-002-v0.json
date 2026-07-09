@@ -1,0 +1,92 @@
+{
+  "accepted_scalar_known_surfaces": [
+    {
+      "contract_id": "MapLoadScalarI64ScalarKnownTypedDirectCloseoutContract",
+      "source": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-map-load-i64-typed-direct-closeout-contract-basis-v0.json",
+      "surface_id": "MapLoadScalarI64Routes"
+    },
+    {
+      "contract_id": "StringSearchScalarI64TypedDirectCloseoutContract",
+      "source": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-string-search-scalar-i64-typed-direct-closeout-contract-rerun-v0.json",
+      "surface_id": "StringScalarI64Routes"
+    },
+    {
+      "contract_id": "CollectionLenScalarI64TypedDirectCloseoutContract",
+      "source": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-collection-len-scalar-i64-contract-rerun-v0.json",
+      "surface_id": "CollectionScalarI64Routes"
+    },
+    {
+      "contract_id": "WriteScalarI64RoutesScopedCloseout",
+      "source": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-write-scalar-i64-routes-closeout-rerun-v0.json",
+      "surface_id": "WriteScalarI64Routes"
+    }
+  ],
+  "claims": {
+    "accepted_scalar_known_surface_count": 4,
+    "behavior_change": 0,
+    "fastpath_connected_closeout": 0,
+    "hako_generation": 0,
+    "hako_runtime_route_authority": 0,
+    "manual_axis_selection": 0,
+    "manual_carrier_selection": 0,
+    "manual_subsurface_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "new_route_authority": 0,
+    "owner_name_as_proof": 0,
+    "publication_execution": 0,
+    "route_count_as_proof": 0,
+    "route_membership_alone_as_proof": 0,
+    "row_count_as_proof": 0,
+    "runtime_fallback": 0,
+    "runtime_mutation_authority": 0,
+    "rust_boundary_status_refreshed": 1,
+    "rust_fastpath_rewired": 0,
+    "scalar_known_transport_axis_closeout": 1,
+    "source_path_as_authority": 0,
+    "source_selfhost_claim": 0,
+    "uncovered_scalar_known_surface_count": 0,
+    "write_scalar_i64_routes_closeout": 1
+  },
+  "decision": {
+    "kind": "SelectFastpathConnectedCloseoutBasis",
+    "reason_token": "ScalarKnownTransportAxisScopedCloseoutMaterializedButFastpathConnectedCloseoutStillOpen",
+    "selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-BASIS-001"
+  },
+  "input_state": {
+    "collection_len_rerun": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-collection-len-scalar-i64-contract-rerun-v0.json",
+    "collection_len_rerun_hash": "ff809852dfb69a71a4ee7bc1a94917481ef1e5d8cc22d995567f145814552b78",
+    "mapload_basis": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-map-load-i64-typed-direct-closeout-contract-basis-v0.json",
+    "mapload_basis_hash": "8a68b0d2bd040776f7baaae7a22f40984f2fbdc891d95532d31e088f114f6f6f",
+    "string_search_rerun": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-string-search-scalar-i64-typed-direct-closeout-contract-rerun-v0.json",
+    "string_search_rerun_hash": "5c4ae27f05ed6ecbde17468f8440b78cfcbc35dcb07cdfda1f3cb5710542692a",
+    "write_scalar_i64_routes_closeout_rerun": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-write-scalar-i64-routes-closeout-rerun-v0.json",
+    "write_scalar_i64_routes_closeout_rerun_hash": "aa1342389748febe3223d12e3076efa3fb08a6a6d522f6f69e2836808b2ce297",
+    "write_selected_next_card": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-TRANSPORT-CLOSEOUT-RERUN-002"
+  },
+  "kind": "MirBuilderCarrierTypeScalarKnownTransportCloseoutRerun002V1",
+  "provenance": {
+    "rust_boundary_hash": "37041c179e4164598cc1629cfb7ba44ad5a75494db2df2248cf63c76ce3cf0a7",
+    "scalar_known_hako_shadow_hash": "ba8de5eaa1b363051696b1993d8f1e516f76a77e8dc4a7cda0503a83cb0cd42e"
+  },
+  "rust_boundary_expectation": {
+    "accepted_status": "AcceptedScopedCloseout",
+    "accepted_surface_count": 4,
+    "candidate_surface_count": 0,
+    "write_contract_id": "WriteScalarI64RoutesScopedCloseout"
+  },
+  "schema_version": 0,
+  "summary": {
+    "accepted_scalar_known_surface_count": 4,
+    "fastpath_connected_closeout": 0,
+    "hako_runtime_route_authority": 0,
+    "rust_fastpath_rewired": 0,
+    "scalar_known_transport_axis_closeout": 1,
+    "source_selfhost_claim": 0,
+    "uncovered_scalar_known_surface_count": 0,
+    "write_scalar_i64_routes_closeout": 1
+  },
+  "token": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-TRANSPORT-CLOSEOUT-RERUN-002"
+}

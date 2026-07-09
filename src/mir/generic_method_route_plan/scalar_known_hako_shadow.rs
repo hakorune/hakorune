@@ -7,8 +7,7 @@ use super::generated::write_set_mapstore_i64_hako_policy::{
     HakoMapStoreI64Policy, WRITE_SET_MAPSTORE_I64_HAKO_POLICY,
 };
 use super::scalar_known_typed_direct_closeout_contract::{
-    accepted_scalar_known_contracts, candidate_scalar_known_surfaces, ScalarKnownEffectClass,
-    ScalarKnownSurfaceId,
+    accepted_scalar_known_contracts, ScalarKnownEffectClass, ScalarKnownSurfaceId,
 };
 use super::{GenericMethodRouteDecision, GenericMethodRouteKind, GenericMethodRouteProof};
 
@@ -16,11 +15,11 @@ pub(super) fn mapstore_i64_shadow_consumed_decision() -> GenericMethodRouteDecis
     let policy = WRITE_SET_MAPSTORE_I64_HAKO_POLICY;
     let accepted_contract_count = accepted_scalar_known_contracts().count();
     assert!(
-        accepted_contract_count >= 2,
+        accepted_contract_count >= 4,
         "ScalarKnown accepted contract boundary lost prior closeouts"
     );
-    let contract_contains_route = candidate_scalar_known_surfaces().any(|contract| {
-        contract.contract_id.as_str() == "WriteResultScalarI64ClassificationOnly"
+    let contract_contains_route = accepted_scalar_known_contracts().any(|contract| {
+        contract.contract_id.as_str() == "WriteScalarI64RoutesScopedCloseout"
             && contract.surface_id.as_str() == "WriteScalarI64Routes"
             && contract.surface_id == ScalarKnownSurfaceId::WriteScalarI64Routes
             && contract.effect_class.as_str() == ScalarKnownEffectClass::Mutate.as_str()
@@ -87,8 +86,8 @@ mod tests {
     fn mapstore_i64_shadow_artifact_matches_rust_fastpath_policy() {
         let _ = mapstore_i64_shadow_consumed_decision();
         assert_eq!(
-            ScalarKnownContractId::WriteResultScalarI64.as_str(),
-            "WriteResultScalarI64ClassificationOnly"
+            ScalarKnownContractId::WriteScalarI64Routes.as_str(),
+            "WriteScalarI64RoutesScopedCloseout"
         );
     }
 

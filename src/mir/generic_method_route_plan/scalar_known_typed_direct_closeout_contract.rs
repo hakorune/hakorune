@@ -10,7 +10,7 @@ pub(crate) enum ScalarKnownContractId {
     MapLoadScalarI64,
     StringSearchScalarI64,
     CollectionLenScalarI64,
-    WriteResultScalarI64,
+    WriteScalarI64Routes,
 }
 
 impl ScalarKnownContractId {
@@ -19,7 +19,7 @@ impl ScalarKnownContractId {
             Self::MapLoadScalarI64 => "MapLoadScalarI64ScalarKnownTypedDirectCloseoutContract",
             Self::StringSearchScalarI64 => "StringSearchScalarI64TypedDirectCloseoutContract",
             Self::CollectionLenScalarI64 => "CollectionLenScalarI64TypedDirectCloseoutContract",
-            Self::WriteResultScalarI64 => "WriteResultScalarI64ClassificationOnly",
+            Self::WriteScalarI64Routes => "WriteScalarI64RoutesScopedCloseout",
         }
     }
 }
@@ -169,7 +169,7 @@ pub(crate) const SCALAR_KNOWN_TYPED_DIRECT_CLOSEOUT_CONTRACTS:
     ScalarKnownTypedDirectCloseoutContract {
         contract_id: ScalarKnownContractId::CollectionLenScalarI64,
         surface_id: ScalarKnownSurfaceId::CollectionScalarI64Routes,
-        status: ScalarKnownContractStatus::CandidateNeedsPolicy,
+        status: ScalarKnownContractStatus::AcceptedScopedCloseout,
         route_kind_set: COLLECTION_LEN_SCALAR_I64_ROUTES,
         proof_or_policy_source: COLLECTION_LEN_SCALAR_I64_PROOFS,
         core_method_ops: COLLECTION_LEN_SCALAR_I64_OPS,
@@ -180,9 +180,9 @@ pub(crate) const SCALAR_KNOWN_TYPED_DIRECT_CLOSEOUT_CONTRACTS:
         effect_class: ScalarKnownEffectClass::Observe,
     },
     ScalarKnownTypedDirectCloseoutContract {
-        contract_id: ScalarKnownContractId::WriteResultScalarI64,
+        contract_id: ScalarKnownContractId::WriteScalarI64Routes,
         surface_id: ScalarKnownSurfaceId::WriteScalarI64Routes,
-        status: ScalarKnownContractStatus::CandidateNeedsPolicy,
+        status: ScalarKnownContractStatus::AcceptedScopedCloseout,
         route_kind_set: WRITE_RESULT_SCALAR_I64_ROUTES,
         proof_or_policy_source: WRITE_RESULT_SCALAR_I64_PROOFS,
         core_method_ops: WRITE_RESULT_SCALAR_I64_OPS,
@@ -213,12 +213,12 @@ mod tests {
     use super::*;
 
     #[test]
-    fn scalar_known_contract_boundary_keeps_two_accepted_and_two_candidates() {
+    fn scalar_known_contract_boundary_keeps_all_surfaces_accepted_after_write_closeout() {
         let accepted: Vec<_> = accepted_scalar_known_contracts().collect();
         let candidates: Vec<_> = candidate_scalar_known_surfaces().collect();
 
-        assert_eq!(accepted.len(), 2);
-        assert_eq!(candidates.len(), 2);
+        assert_eq!(accepted.len(), 4);
+        assert!(candidates.is_empty());
         assert_eq!(
             accepted[0].contract_id.as_str(),
             "MapLoadScalarI64ScalarKnownTypedDirectCloseoutContract"
@@ -228,10 +228,10 @@ mod tests {
             "StringSearchScalarI64TypedDirectCloseoutContract"
         );
         assert_eq!(
-            candidates[0].surface_id.as_str(),
+            accepted[2].surface_id.as_str(),
             "CollectionScalarI64Routes"
         );
-        assert_eq!(candidates[1].surface_id.as_str(), "WriteScalarI64Routes");
+        assert_eq!(accepted[3].surface_id.as_str(), "WriteScalarI64Routes");
     }
 
     #[test]
@@ -250,7 +250,7 @@ mod tests {
         );
         assert_eq!(string_search.effect_class.as_str(), "read");
 
-        let write = candidate_scalar_known_surfaces()
+        let write = accepted_scalar_known_contracts()
             .find(|contract| contract.surface_id == ScalarKnownSurfaceId::WriteScalarI64Routes)
             .expect("write candidate");
         assert_eq!(write.value_demand, GenericMethodValueDemand::WriteAny);
