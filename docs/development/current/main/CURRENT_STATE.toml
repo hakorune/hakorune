@@ -345,15 +345,15 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "DOCS-MIRBUILDER-TASK-ORDER-POINTER-SLIM-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3453-DOCS-MIRBUILDER-TASK-ORDER-POINTER-SLIM-001.md"
-latest_card_summary = """3453 restores the MirBuilder task-order as a
-current-only pointer, removes concatenated landed-history chains, and adds a
-500-character per-line guard. History remains in phase cards, the family
-history JSONL, fixtures, and git history. The 3452 Write mutation design stop
-remains the current blocker."""
+latest_card = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPSTORE-I64-CALLER-ORIENTATION-AUTHORITY-PILOT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3454-MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPSTORE-I64-CALLER-ORIENTATION-AUTHORITY-PILOT-001.md"
+latest_card_summary = """3454 records the Pro-selected MapStoreI64-only
+caller-orientation authority pilot. It validates one ScalarI64 mutation-bearing
+metadata row with policy-row-ID-only Unit consumption while retaining the Hako
+route decision and Rust oracle veto. Runtime mutation, Any boundaries, Delete,
+wide, runtime/backend, and Source Selfhost authority remain excluded."""
 
-current_blocker_token = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-COLLECTION-CALLER-ORIENTATION-PILOT-DESIGN-CONSULTATION-001"
+current_blocker_token = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPSTORE-I64-CALLER-ORIENTATION-AUTHORITY-PILOT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -362,6 +362,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-10: 3454 records Pro option A and opens only the MapStoreI64 ScalarI64 mutation-metadata caller-orientation authority pilot; the consumer remains policy-row-ID-only and Unit-returning, Hako route decision and Rust oracle veto are retained, and runtime mutation/Any/Delete/wide/runtime/backend/Source Selfhost authority remain zero.",
   "2026-07-10: 3453 slims the MirBuilder task-order from a 786-line historical ledger with a 15,727-character line to a 117-line current-only pointer with a 500-character line guard; the 3452 Write mutation design stop remains current and no authority claim changes.",
   "2026-07-10: 3451 reruns the Collection four-row caller-orientation authority pilot with 23 caller tests and 19 shadow parity tests green; policy-row-ID-only Unit consumption, mixed receiver-domain/AnyLength-Box guards, Rust oracle veto, and all Write/Delete/wide/runtime/backend/Source Selfhost claims remain bounded.",
   "2026-07-10: 3450 implements the Collection caller-orientation authority validator with exact four-row closed-set checks and policy-row-ID-only Unit input; receiver domains remain generated policy metadata and route decision remains in the existing Hako shadow consumer.",
@@ -373,5 +374,4 @@ landed_tail = [
   "2026-07-10: 3442 reruns the MapLoad-only caller-orientation contract authority pilot with fresh generated artifacts, exact single-row scope, fail-fast boundary, 21 caller tests, and all runtime/backend/Delete/wide/Source Selfhost claims at zero; 3443 is now the next-proof-axis Pro consultation stop.",
   "2026-07-10: 3441 implements the Pro-authorized MapLoad-only caller-orientation contract authority pilot, comparing generated typed policy metadata with a policy-row-ID-only Unit consumer and retaining the Rust oracle fail-fast veto; route/runtime/backend, mutation/publication, Delete, wide, and Source Selfhost authority remain unclaimed.",
   "2026-07-10: 3440 adopts Pro option A and authorizes a MapLoad-only caller-orientation contract authority pilot keyed by policy_row_id with Unit return, generated typed policy comparison, and Rust oracle fail-fast veto; route/runtime/backend, mutation/publication, Delete, wide, and Source Selfhost authority remain unclaimed.",
-  "2026-07-10: 3439 closes the non-Delete Write caller-orientation assertion packet with exact MapStoreI64, ArrayAppendAny, and MapStoreAny live policy-row-ID-only Unit consumers; runtime, route, backend, mutation/publication, Delete, wide, and Source Selfhost claims remain unclaimed, and 3440 is now the Pro design consultation stop.",
 ]

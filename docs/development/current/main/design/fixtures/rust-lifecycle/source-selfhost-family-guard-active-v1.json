@@ -3,7 +3,7 @@
     "current_maintenance",
     "current_semantic"
   ],
-  "current_blocker_token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-COLLECTION-CALLER-ORIENTATION-PILOT-DESIGN-CONSULTATION-001",
+  "current_blocker_token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPSTORE-I64-CALLER-ORIENTATION-AUTHORITY-PILOT-001",
   "family_scope": "SourceSelfhost",
   "forbidden_claims": {
     "manual_family_selection": 0,
@@ -280,6 +280,13 @@
       "legacy_guard": "tools/checks/current_state_pointer_guard.sh",
       "role": "current_maintenance",
       "token": "DOCS-MIRBUILDER-TASK-ORDER-POINTER-SLIM-001"
+    },
+    {
+      "card": "docs/development/current/main/phases/phase-296x/3454-MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPSTORE-I64-CALLER-ORIENTATION-AUTHORITY-PILOT-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-mapstore-i64-caller-orientation-authority-pilot-selection-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_source_selfhost_family_guard.sh",
+      "role": "current_semantic",
+      "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPSTORE-I64-CALLER-ORIENTATION-AUTHORITY-PILOT-001"
     }
   ],
   "schema_version": 1

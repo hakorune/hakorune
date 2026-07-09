@@ -19,7 +19,7 @@ inventories, transcripts, or historical next chains.
 ## Current Blocker
 
 ```text
-MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-COLLECTION-CALLER-ORIENTATION-PILOT-DESIGN-CONSULTATION-001
+MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPSTORE-I64-CALLER-ORIENTATION-AUTHORITY-PILOT-001
 ```
 
 The active token, latest card, and phase pointer are authoritative only in:
@@ -45,22 +45,27 @@ Collection stays an explicitly enumerated four-row boundary. Its receiver
 domains remain generated policy metadata, not caller inputs. `AnyLength -> Box`
 is one explicit row, not wildcard or global Box authority.
 
-## Consultation Frontier
+## Current Pilot
 
-Do not implement the next authority slice until 3452 selects one mutation-
-bearing non-Delete Write surface.
+Pro selects the first mutation-bearing caller-orientation authority slice:
 
 ```text
-A: MapStoreI64-only caller contract authority pilot
-B: ArrayAppendAny-only caller contract authority pilot
-C: MapStoreAny-only Any-write pilot
-D: full non-Delete Write three-row authority island
-E: park caller orientation and return to Source Selfhost route selection
+surface = SetSurfacePolicy
+route_kind = MapStoreI64
+policy_row_id = map_store_i64_set_surface
+consumer_input = PolicyRowIdOnly
+consumer_return = Unit
+value_boundary = ScalarI64
+mutation_boundary = declared metadata only
 ```
 
-The decision must define source authority, non-authority, exhaustive scope,
-mutation versus metadata boundary, fail-fast behavior, fallback prohibition,
-and promotion conditions.
+The generated typed `.hako` policy remains route-decision authority. The Rust
+oracle remains fail-fast compatibility veto. Caller orientation validates the
+generated row contract but may not select a route or perform mutation.
+
+ArrayAppendAny, MapStoreAny, Delete, wide, runtime/backend, publication, and
+Source Selfhost remain excluded. After a green fixture-backed rerun, enter
+3455 to select an explicit Any-boundary proof axis.
 
 ## Invariants
 
@@ -114,4 +119,4 @@ When a change needs detailed evidence, add it to the active card, a fixture,
 the family history JSONL, an investigation, or git history. Do not create a
 numbered card for inventory-only bookkeeping.
 
-next_documented_task = MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-COLLECTION-CALLER-ORIENTATION-PILOT-DESIGN-CONSULTATION-001
+next_documented_task = MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPSTORE-I64-CALLER-ORIENTATION-AUTHORITY-PILOT-001
