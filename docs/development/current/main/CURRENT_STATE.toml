@@ -345,18 +345,19 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-BASIS-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3365-MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-BASIS-001.md"
-latest_card_summary = """3365 defines the ScalarKnown fastpath-connected
-closeout basis after scoped transport closeout. It records SetSurfacePolicy /
-MapStoreI64 as the only checked-in generated typed .hako artifact currently
-shadow-consumed by the Rust fast path, lists the remaining unconnected
-ScalarKnown surfaces, selects the fastpath-connected closeout inventory rerun,
-and leaves fastpath-connected closeout, .hako runtime route authority, Rust
-fast-path rewiring, runtime mutation/publication, new backend/ABI, runtime
-fallback, and Source Selfhost unclaimed."""
+latest_card = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-INVENTORY-RERUN-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3366-MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-INVENTORY-RERUN-001.md"
+latest_card_summary = """3366 reruns the ScalarKnown fastpath-connected
+closeout inventory after the 3365 basis. It records one connected surface row
+for WriteScalarI64Routes / SetSurfacePolicy / MapStoreI64, five known
+unconnected surface rows, selects WriteScalarI64Routes / SetSurfacePolicy /
+MapStoreAny as the next generated typed .hako artifact shadow-consume basis by
+same SetSurfacePolicy minimal delta, and leaves fastpath-connected closeout,
+.hako runtime route authority, Rust fast-path rewiring, runtime
+mutation/publication, new backend/ABI, runtime fallback, and Source Selfhost
+unclaimed."""
 
-current_blocker_token = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-INVENTORY-RERUN-001"
+current_blocker_token = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-SHADOW-CONSUME-SET-MAPSTORE-ANY-BASIS-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -365,6 +366,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-09: 3366 reruns the ScalarKnown fastpath-connected closeout inventory after the 3365 basis, records connected_surface_row_count=1 for WriteScalarI64Routes/SetSurfacePolicy-MapStoreI64, known_unconnected_surface_row_count=5, selects WriteScalarI64Routes/SetSurfacePolicy-MapStoreAny as the next generated typed .hako artifact shadow-consume basis by same SetSurfacePolicy minimal delta, and leaves fastpath-connected closeout, .hako runtime route authority, Rust fast-path rewiring, runtime mutation/publication, new backend/ABI, runtime fallback, and Source Selfhost unclaimed.",
   "2026-07-09: 3365 defines the ScalarKnown fastpath-connected closeout basis, records scalar_known_transport_axis_closeout=1, generated_typed_hako_artifact_shadow_consumed=1, connected_surface_row_count=1 for WriteScalarI64Routes/SetSurfacePolicy-MapStoreI64, known_unconnected_surface_row_count=5, selects MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-INVENTORY-RERUN-001, and leaves fastpath-connected closeout, .hako runtime route authority, Rust fast-path rewiring, runtime mutation/publication, new backend/ABI, runtime fallback, and Source Selfhost unclaimed.",
   "2026-07-09: 3364 reruns ScalarKnown transport closeout after WriteScalarI64Routes closeout, refreshes the Rust ScalarKnown contract boundary to accepted_scalar_known_surface_count=4 / uncovered_scalar_known_surface_count=0, records scalar_known_transport_axis_closeout=1, selects MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-BASIS-001, and leaves fastpath-connected closeout, .hako runtime route authority, Rust fast-path rewiring, runtime mutation/publication, new backend/ABI, runtime fallback, and Source Selfhost unclaimed.",
   "2026-07-09: 3363 consumes the WriteScalarI64Routes closeout basis and materializes scoped WriteScalarI64Routes closeout, records scoped_direct_closeout_contract_count=3 for PushSurfacePolicy / SetSurfacePolicy-MapStoreI64 / SetSurfacePolicy-MapStoreAny, keeps DeleteSurfacePolicy-MapDeleteAny as retired unconnected .hako mirror with live Rust route preserved and direct closeout materialized=0, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-TRANSPORT-CLOSEOUT-RERUN-002, and leaves ScalarKnown closeout, runtime mutation/publication, new backend/ABI, runtime fallback, and Source Selfhost unclaimed.",
@@ -376,5 +378,4 @@ landed_tail = [
   "2026-07-09: 3360 records the C bridge plan for fast-path `.hako` connection quality, marks include_str/string-search/row.split shadow parsing as transitional debt, selects checked-in generated typed `.hako` artifact shadow consumption for SetSurfacePolicy/MapStoreI64, keeps `.hako` caller orientation as the long-term target, selects MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-SHADOW-CONSUME-SET-MAPSTORE-I64-001, and leaves build.rs hakorune invocation, live `.hako` route authority, Rust fast-path rewiring, backend lowering authority, runtime mutation/publication, new backend/ABI, runtime fallback, and Source Selfhost unclaimed.",
   "2026-07-09: 3359 consumes the existing RecipeItem cond_recipe consume-boundary selection in the current 335x chain, records cond_recipe_consume_boundary_selection_current=1, cond_recipe_consume_boundary_selection=1, selected_recipeverifier_validate_only_consumer=1, selected_consumer=RecipeVerifierValidateOnlyConsumer, selects MIRBUILDER-RECIPEVERIFIER-COND-RECIPE-VALIDATE-ONLY-CONSUME-001, and leaves the RecipeVerifier consume implementation, RecipeMatcher input authority, BoolRecipe lowering, MIR Compare/Branch emission, route/runtime authority, and Source Selfhost unclaimed.",
   "2026-07-09: 3358 consumes the existing RecipeItem cond_recipe diagnostic summary observation gate in the current 335x chain, records cond_recipe_diagnostic_summary_observation_current_gate=1, cond_recipe_diagnostic_summary_observation=1, cond_recipe_deep_observation_implementation=1, owner=RecipeItemBox.cond_recipe_summary, selects MIRBUILDER-RECIPEITEM-COND-RECIPE-CONSUME-BOUNDARY-SELECTION-001, and leaves verifier observer behavior, RecipeMatcher input authority, BoolRecipe lowering, MIR Compare/Branch emission, route/runtime authority, and Source Selfhost unclaimed.",
-  "2026-07-09: 3357 consumes the existing RecipeItem cond_recipe observation-boundary selection in the current 335x chain, records cond_recipe_observation_boundary_selection_current=1, cond_recipe_observation_boundary_selection=1, selected_diagnostic_summary_observer=1, selected_observer=RecipeItemDiagnosticSummaryObserver, selects MIRBUILDER-RECIPEITEM-COND-RECIPE-DIAGNOSTIC-SUMMARY-OBSERVATION-001, and leaves deep observation implementation, verifier observer behavior, RecipeMatcher input authority, BoolRecipe lowering, MIR Compare/Branch emission, route/runtime authority, and Source Selfhost unclaimed.",
 ]

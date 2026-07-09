@@ -2441,6 +2441,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-connected-closeout-basis-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_scalar_known_fastpath_connected_closeout_basis_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-INVENTORY-RERUN-001",
+      "card": "docs/development/current/main/phases/phase-296x/3366-MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-INVENTORY-RERUN-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-connected-closeout-inventory-rerun-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_scalar_known_fastpath_connected_closeout_inventory_rerun_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {

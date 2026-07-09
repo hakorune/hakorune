@@ -1,0 +1,111 @@
+{
+  "claims": {
+    "behavior_change": 0,
+    "fastpath_connected_closeout": 0,
+    "fastpath_connected_closeout_inventory_rerun": 1,
+    "hako_generation": 0,
+    "hako_runtime_route_authority": 0,
+    "manual_axis_selection": 0,
+    "manual_carrier_selection": 0,
+    "manual_subsurface_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "new_route_authority": 0,
+    "owner_name_as_proof": 0,
+    "publication_execution": 0,
+    "route_count_as_proof": 0,
+    "route_membership_alone_as_proof": 0,
+    "row_count_as_proof": 0,
+    "runtime_fallback": 0,
+    "runtime_mutation_authority": 0,
+    "rust_fastpath_rewired": 0,
+    "selection_eligible_candidate_count": 1,
+    "source_path_as_authority": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "SelectMapStoreAnyGeneratedTypedArtifactShadowConsumeBasis",
+    "reason_token": "PriorMapStoreI64GeneratedTypedArtifactSameSetSurfacePolicyMinimalDelta",
+    "selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-SHADOW-CONSUME-SET-MAPSTORE-ANY-BASIS-001"
+  },
+  "input_state": {
+    "basis_decision": "SelectFastpathConnectedCloseoutInventoryRerun",
+    "basis_selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-INVENTORY-RERUN-001",
+    "fastpath_connected_closeout_basis": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-connected-closeout-basis-v0.json",
+    "fastpath_connected_closeout_basis_hash": "689f4445895ab32fd035cddf1a5569dd29a9f477691fbe33d557f3ef6d1f6759"
+  },
+  "inventory": {
+    "connected_surface_row_count": 1,
+    "connected_surface_rows": [
+      {
+        "connected": true,
+        "connection_kind": "GeneratedTypedHakoArtifactShadowConsumed",
+        "route_kind": "MapStoreI64",
+        "subsurface_id": "SetSurfacePolicy/MapStoreI64",
+        "surface_id": "WriteScalarI64Routes"
+      }
+    ],
+    "known_unconnected_surface_row_count": 5,
+    "known_unconnected_surface_rows": [
+      {
+        "connected": false,
+        "surface_id": "MapLoadScalarI64Routes"
+      },
+      {
+        "connected": false,
+        "surface_id": "StringScalarI64Routes"
+      },
+      {
+        "connected": false,
+        "surface_id": "CollectionScalarI64Routes"
+      },
+      {
+        "connected": false,
+        "subsurface_id": "PushSurfacePolicy",
+        "surface_id": "WriteScalarI64Routes"
+      },
+      {
+        "connected": false,
+        "subsurface_id": "SetSurfacePolicy/MapStoreAny",
+        "surface_id": "WriteScalarI64Routes"
+      }
+    ],
+    "selected_candidate": {
+      "reason": "MapStoreAny shares SetSurfacePolicy with the already connected MapStoreI64 handoff and has .hako parity/adoption/scoped closeout evidence.",
+      "route_kind": "MapStoreAny",
+      "selection_kind": "SameSetSurfacePolicyGeneratedTypedArtifactShadowConsume",
+      "subsurface_id": "SetSurfacePolicy/MapStoreAny",
+      "surface_id": "WriteScalarI64Routes"
+    },
+    "selection_eligible_candidate_count": 1,
+    "selection_rule": {
+      "hako_runtime_authority_switch": false,
+      "manual_surface_selection": false,
+      "name": "PriorGeneratedTypedArtifactSameSetSurfacePolicyMinimalDeltaV1",
+      "route_count_as_proof": false
+    }
+  },
+  "kind": "MirBuilderScalarKnownFastpathConnectedCloseoutInventoryRerunV1",
+  "provenance": {
+    "mapstore_any_hako_source": "lang/src/compiler/lib/write_set_mapstore_any_policy_classifier.hako",
+    "mapstore_any_hako_source_hash": "77e00016586d44ba582e5fd6ba6dd58d594eca4d7c595ef5979b329297bd5f3d",
+    "mapstore_i64_generated_artifact": "src/mir/generic_method_route_plan/generated/write_set_mapstore_i64_hako_policy.rs",
+    "mapstore_i64_generated_artifact_hash": "21975493831b4b080c98aeb836d6a69cbb9b3605d5a7636aed49c4653d411508",
+    "write_routes_hash": "1c586b1fd75af17df2eba630cfdc8081568db45deff376d175c87a7e318f9d23"
+  },
+  "schema_version": 0,
+  "summary": {
+    "connected_surface_row_count": 1,
+    "fastpath_connected_closeout": 0,
+    "fastpath_connected_closeout_inventory_rerun": 1,
+    "hako_runtime_route_authority": 0,
+    "known_unconnected_surface_row_count": 5,
+    "rust_fastpath_rewired": 0,
+    "selected_surface": "WriteScalarI64Routes/SetSurfacePolicy/MapStoreAny",
+    "selection_eligible_candidate_count": 1,
+    "source_selfhost_claim": 0
+  },
+  "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-INVENTORY-RERUN-001"
+}
