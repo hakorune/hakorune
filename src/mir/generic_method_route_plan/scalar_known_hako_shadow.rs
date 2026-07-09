@@ -3,6 +3,7 @@ use crate::mir::generic_method_route_facts::{
     GenericMethodPublicationPolicy, GenericMethodReturnShape, GenericMethodValueDemand,
 };
 
+use super::generated::write_push_hako_policy::{HakoWritePushPolicy, WRITE_PUSH_HAKO_POLICY};
 use super::generated::write_set_mapstore_any_hako_policy::{
     HakoMapStoreAnyPolicy, WRITE_SET_MAPSTORE_ANY_HAKO_POLICY,
 };
@@ -49,6 +50,41 @@ pub(super) fn mapstore_i64_shadow_consumed_decision() -> GenericMethodRouteDecis
     )
 }
 
+pub(super) fn write_push_shadow_consumed_decision() -> GenericMethodRouteDecision {
+    let policy = WRITE_PUSH_HAKO_POLICY;
+    let accepted_contract_count = accepted_scalar_known_contracts().count();
+    assert!(
+        accepted_contract_count >= 4,
+        "ScalarKnown accepted contract boundary lost prior closeouts"
+    );
+    let contract_contains_route = accepted_scalar_known_contracts().any(|contract| {
+        contract.contract_id.as_str() == "WriteScalarI64RoutesScopedCloseout"
+            && contract.surface_id.as_str() == "WriteScalarI64Routes"
+            && contract.surface_id == ScalarKnownSurfaceId::WriteScalarI64Routes
+            && contract.effect_class.as_str() == ScalarKnownEffectClass::Mutate.as_str()
+            && contract
+                .route_kind_set
+                .contains(&GenericMethodRouteKind::ArrayAppendAny)
+    });
+    assert!(
+        contract_contains_route,
+        "ScalarKnown Write contract no longer contains ArrayAppendAny"
+    );
+    assert_hako_write_push_policy_matches_rust(&policy);
+
+    GenericMethodRouteDecision::new(
+        GenericMethodRouteKind::ArrayAppendAny,
+        GenericMethodRouteProof::PushSurfacePolicy,
+        Some(CoreMethodOpCarrier::manifest(
+            CoreMethodOp::ArrayPush,
+            CoreMethodLoweringTier::ColdFallback,
+        )),
+        Some(GenericMethodReturnShape::ScalarI64),
+        GenericMethodValueDemand::WriteAny,
+        Some(GenericMethodPublicationPolicy::NoPublication),
+    )
+}
+
 pub(super) fn mapstore_any_shadow_consumed_decision() -> GenericMethodRouteDecision {
     let policy = WRITE_SET_MAPSTORE_ANY_HAKO_POLICY;
     let accepted_contract_count = accepted_scalar_known_contracts().count();
@@ -82,6 +118,36 @@ pub(super) fn mapstore_any_shadow_consumed_decision() -> GenericMethodRouteDecis
         GenericMethodValueDemand::WriteAny,
         None,
     )
+}
+
+fn assert_hako_write_push_policy_matches_rust(policy: &HakoWritePushPolicy) {
+    assert_eq!(policy.surface, "PushSurfacePolicy");
+    assert_eq!(policy.route_kind, GenericMethodRouteKind::ArrayAppendAny);
+    assert_eq!(policy.core_op, CoreMethodOp::ArrayPush);
+    assert_eq!(policy.lowering_tier, CoreMethodLoweringTier::ColdFallback);
+    assert_eq!(policy.result_class, "ScalarI64Result");
+    assert_eq!(policy.return_shape, "ScalarI64");
+    assert_eq!(
+        GenericMethodReturnShape::ScalarI64.as_metadata_name(),
+        "scalar_i64"
+    );
+    assert_eq!(
+        policy.value_demand,
+        GenericMethodValueDemand::WriteAny,
+        "Write Push .hako policy value demand drifted"
+    );
+    assert_eq!(
+        GenericMethodValueDemand::WriteAny.as_metadata_name(),
+        "write_any"
+    );
+    assert_eq!(policy.publication_policy, "NoPublication");
+    assert_eq!(
+        GenericMethodPublicationPolicy::NoPublication.as_metadata_name(),
+        "no_publication"
+    );
+    assert_eq!(policy.effect_class, "mutate");
+    assert_eq!(policy.mutation_class, "MutatesReceiverOrContainer");
+    assert_eq!(policy.role, "classifier_policy_mirror_only");
 }
 
 fn assert_hako_policy_matches_rust(policy: &HakoMapStoreI64Policy) {
@@ -158,6 +224,15 @@ mod tests {
     }
 
     #[test]
+    fn write_push_shadow_artifact_matches_rust_fastpath_policy() {
+        let _ = write_push_shadow_consumed_decision();
+        assert_eq!(
+            ScalarKnownContractId::WriteScalarI64Routes.as_str(),
+            "WriteScalarI64RoutesScopedCloseout"
+        );
+    }
+
+    #[test]
     fn mapstore_any_shadow_artifact_matches_rust_fastpath_policy() {
         let _ = mapstore_any_shadow_consumed_decision();
         assert_eq!(
@@ -188,6 +263,22 @@ mod tests {
         let mut policy = WRITE_SET_MAPSTORE_I64_HAKO_POLICY;
         policy.role = "hako_runtime_route_authority";
         assert_hako_policy_matches_rust(&policy);
+    }
+
+    #[test]
+    #[should_panic(expected = "assertion `left == right` failed")]
+    fn write_push_shadow_rejects_publication_mismatch() {
+        let mut policy = WRITE_PUSH_HAKO_POLICY;
+        policy.publication_policy = "RuntimePublication";
+        assert_hako_write_push_policy_matches_rust(&policy);
+    }
+
+    #[test]
+    #[should_panic(expected = "assertion `left == right` failed")]
+    fn write_push_shadow_rejects_role_mismatch() {
+        let mut policy = WRITE_PUSH_HAKO_POLICY;
+        policy.role = "hako_runtime_route_authority";
+        assert_hako_write_push_policy_matches_rust(&policy);
     }
 
     #[test]

@@ -75,17 +75,7 @@ pub(super) fn match_generic_push_route(
         GenericMethodRouteEvidence::new(receiver_origin_box, None)
             .with_value_origin_box(value_origin_box),
         GenericMethodRouteOperands::new(*receiver, None, *dst),
-        GenericMethodRouteDecision::new(
-            GenericMethodRouteKind::ArrayAppendAny,
-            GenericMethodRouteProof::PushSurfacePolicy,
-            Some(CoreMethodOpCarrier::manifest(
-                CoreMethodOp::ArrayPush,
-                CoreMethodLoweringTier::ColdFallback,
-            )),
-            Some(GenericMethodReturnShape::ScalarI64),
-            GenericMethodValueDemand::WriteAny,
-            Some(crate::mir::generic_method_route_facts::GenericMethodPublicationPolicy::NoPublication),
-        ),
+        scalar_known_hako_shadow::write_push_shadow_consumed_decision(),
     ))
 }
 
