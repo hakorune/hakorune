@@ -1,0 +1,113 @@
+{
+  "claims": {
+    "arrayappend_authority": 0,
+    "backend_authority": 0,
+    "backend_lowering_authority": 0,
+    "caller_orientation_runtime_path": 0,
+    "closeout_only": 1,
+    "collection_anylength_box_domain_guard_retained": 1,
+    "collection_hako_route_decision_authority_pilot": 1,
+    "collection_mixed_receiver_domain_guard_retained": 1,
+    "coverage_percentage_as_proof": 0,
+    "generated_typed_artifact_mismatch_gate_current": 1,
+    "homogeneous_scalar_i64_no_publication_observe_read_surface": 1,
+    "manual_surface_selection": 0,
+    "mapdelete_authority": 0,
+    "mapload_hako_route_decision_authority_pilot": 1,
+    "mapstore_authority": 0,
+    "new_abi": 0,
+    "new_authority_expansion": 0,
+    "new_backend_route": 0,
+    "owner_name_as_proof": 0,
+    "prior_scoped_hako_route_decision_authority_pilots_rerun_green": 1,
+    "publication_execution": 0,
+    "read_surface_authority_closeout": 1,
+    "route_count_as_proof": 0,
+    "route_membership_alone_as_proof": 0,
+    "route_selection_authority_switch": 0,
+    "row_count_as_proof": 0,
+    "runtime_fallback": 0,
+    "runtime_mutation_authority": 0,
+    "rust_fastpath_rewired": 0,
+    "rust_oracle_compat_fail_fast_retained": 1,
+    "scalar_known_hako_runtime_route_authority": 0,
+    "scalar_known_transport_axis_authority_switch": 0,
+    "source_path_as_authority": 0,
+    "source_selfhost_claim": 0,
+    "source_selfhost_route_selection": 0,
+    "string_hako_route_decision_authority_pilot": 1,
+    "wider_source_route_authority": 0,
+    "write_mutation_authority": 0,
+    "write_mutation_surface_explicitly_excluded": 1,
+    "write_publication_authority": 0,
+    "write_surface_authority_pilot": 0
+  },
+  "closed_set": {
+    "closed_enumerated_read_authority_surface_set": true,
+    "surface_set_id": "MapLoadScalarI64Routes_StringScalarI64Routes_CollectionScalarI64Routes",
+    "surfaces": [
+      "MapLoadScalarI64Routes",
+      "StringScalarI64Routes",
+      "CollectionScalarI64Routes"
+    ],
+    "write_mutation_surface_explicitly_excluded": true
+  },
+  "decision": {
+    "kind": "SelectReadSurfaceAuthorityCloseoutRerun",
+    "reason_token": "ReadSurfaceAuthorityIslandClosedNoNewAuthorityExpansion",
+    "selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-READ-SURFACE-AUTHORITY-CLOSEOUT-RERUN-001"
+  },
+  "input_fixtures": {
+    "collection_authority_pilot": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-collection-hako-route-decision-authority-pilot-v0.json",
+      "sha256": "caaf6924c3c6853af80e9b85755948c18352872152ffbff62a6682d677e3d00f",
+      "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-HAKO-ROUTE-DECISION-AUTHORITY-PILOT-001"
+    },
+    "mapload_authority_pilot": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-mapload-hako-route-decision-authority-pilot-v0.json",
+      "sha256": "b6d13a0d60ca36447389521ef2cc5da7efa81b6dfc245b4b8a5cff544b8d255f",
+      "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-HAKO-ROUTE-DECISION-AUTHORITY-PILOT-001"
+    },
+    "string_authority_pilot": {
+      "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-string-hako-route-decision-authority-pilot-v0.json",
+      "sha256": "f1a15124441292bab87594c08c0a13e67c4ef857f065291b11eb6b631b713e67",
+      "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-STRING-HAKO-ROUTE-DECISION-AUTHORITY-PILOT-001"
+    }
+  },
+  "input_state": {
+    "read_surface_authority_closeout_design_required": 1,
+    "rerun_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-collection-hako-authority-pilot-rerun-v0.json",
+    "rerun_fixture_hash": "65e3fa1f0e33f084977babb2bfe073a43a30873392ea164b06ff333fbedfc54d",
+    "rerun_selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-READ-SURFACE-AUTHORITY-CLOSEOUT-DESIGN-STOP-001"
+  },
+  "kind": "MirBuilderScalarKnownFastpathReadSurfaceAuthorityCloseoutV1",
+  "proof_axis": {
+    "closed_enumerated_read_authority_surface_set": true,
+    "collection_anylength_box_domain_guard_retained": true,
+    "collection_mixed_receiver_domain_guard_retained": true,
+    "generated_typed_artifact_mismatch_gate_current": true,
+    "homogeneous_scalar_i64_no_publication_observe_read_surface": true,
+    "prior_scoped_hako_route_decision_authority_pilots_rerun_green": true,
+    "rust_oracle_compat_fail_fast_retained": true,
+    "write_mutation_surface_explicitly_excluded": true
+  },
+  "schema_version": 0,
+  "summary": {
+    "closed_read_surface_set": "MapLoadScalarI64Routes_StringScalarI64Routes_CollectionScalarI64Routes",
+    "closeout_only": 1,
+    "collection_anylength_box_domain_guard_retained": 1,
+    "collection_hako_route_decision_authority_pilot": 1,
+    "collection_mixed_receiver_domain_guard_retained": 1,
+    "generated_typed_artifact_mismatch_gate_current": 1,
+    "homogeneous_scalar_i64_no_publication_observe_read_surface": 1,
+    "mapload_hako_route_decision_authority_pilot": 1,
+    "new_authority_expansion": 0,
+    "prior_scoped_hako_route_decision_authority_pilots_rerun_green": 1,
+    "read_surface_authority_closeout": 1,
+    "rust_oracle_compat_fail_fast_retained": 1,
+    "source_selfhost_claim": 0,
+    "string_hako_route_decision_authority_pilot": 1,
+    "write_mutation_surface_explicitly_excluded": 1
+  },
+  "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-READ-SURFACE-AUTHORITY-CLOSEOUT-001"
+}

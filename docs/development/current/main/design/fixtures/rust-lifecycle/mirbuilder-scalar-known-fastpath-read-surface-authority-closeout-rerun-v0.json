@@ -1,0 +1,55 @@
+{
+  "claims": {
+    "backend_lowering_authority": 0,
+    "caller_orientation_runtime_path": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "publication_execution": 0,
+    "read_surface_authority_closeout": 1,
+    "read_surface_authority_closeout_rerun": 1,
+    "route_selection_authority_switch": 0,
+    "runtime_fallback": 0,
+    "runtime_mutation_authority": 0,
+    "rust_fastpath_rewired": 0,
+    "scalar_known_hako_runtime_route_authority": 0,
+    "scalar_known_transport_axis_authority_switch": 0,
+    "source_selfhost_claim": 0,
+    "write_mutation_authority": 0,
+    "write_publication_authority": 0,
+    "write_surface_authority_pilot": 0,
+    "write_surface_authority_pilot_design_required": 1
+  },
+  "decision": {
+    "kind": "KeepStoppedForWriteSurfaceAuthorityPilotDesign",
+    "reason_token": "ReadSurfaceAuthorityCloseoutCompleteWriteMutationAuthorityStillConsultationGated",
+    "selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-SURFACE-AUTHORITY-PILOT-DESIGN-STOP-001"
+  },
+  "input_state": {
+    "closeout_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-read-surface-authority-closeout-v0.json",
+    "closeout_fixture_hash": "759e8713e5cbbc3e349dc949700a0041eb5b99e3f33819236e49d3c001bc0958",
+    "closeout_selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-READ-SURFACE-AUTHORITY-CLOSEOUT-RERUN-001",
+    "read_surface_authority_closeout": 1
+  },
+  "kind": "MirBuilderScalarKnownFastpathReadSurfaceAuthorityCloseoutRerunV1",
+  "rerun": {
+    "closed_read_surface_set": [
+      "MapLoadScalarI64Routes",
+      "StringScalarI64Routes",
+      "CollectionScalarI64Routes"
+    ],
+    "next_step_requires_write_surface_design_consultation": true,
+    "read_surface_authority_closeout": true,
+    "scalar_known_hako_runtime_route_authority": false,
+    "write_surface_authority_pilot": false
+  },
+  "schema_version": 0,
+  "summary": {
+    "read_surface_authority_closeout": 1,
+    "read_surface_authority_closeout_rerun": 1,
+    "scalar_known_hako_runtime_route_authority": 0,
+    "source_selfhost_claim": 0,
+    "write_surface_authority_pilot": 0,
+    "write_surface_authority_pilot_design_required": 1
+  },
+  "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-READ-SURFACE-AUTHORITY-CLOSEOUT-RERUN-001"
+}
