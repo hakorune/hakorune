@@ -1,0 +1,70 @@
+{
+  "claims": {
+    "backend_lowering_authority": 0,
+    "build_rs_hako_compiler_invocation": 0,
+    "caller_orientation_runtime_path": 0,
+    "collection_anylength_box_domain_guarded": 1,
+    "collection_hako_authority_pilot_rerun": 1,
+    "collection_hako_route_decision_authority_pilot": 1,
+    "collection_mixed_receiver_domain_guarded": 1,
+    "live_hako_authority": 0,
+    "mapload_hako_route_decision_authority_pilot": 1,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "publication_execution": 0,
+    "read_surface_authority_closeout": 0,
+    "read_surface_authority_closeout_design_required": 1,
+    "route_selection_authority_switch": 0,
+    "runtime_fallback": 0,
+    "runtime_mutation_authority": 0,
+    "rust_fastpath_rewired": 0,
+    "scalar_known_hako_runtime_route_authority": 0,
+    "scalar_known_transport_axis_authority_switch": 0,
+    "source_selfhost_claim": 0,
+    "string_hako_route_decision_authority_pilot": 1
+  },
+  "decision": {
+    "kind": "KeepStoppedForReadSurfaceAuthorityCloseoutDesign",
+    "reason_token": "AllReadSurfacesScopedAuthorityPilotsCompleteCloseoutStillConsultationGated",
+    "selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-READ-SURFACE-AUTHORITY-CLOSEOUT-DESIGN-STOP-001"
+  },
+  "input_state": {
+    "collection_hako_route_decision_authority_pilot": 1,
+    "pilot_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-collection-hako-route-decision-authority-pilot-v0.json",
+    "pilot_fixture_hash": "caaf6924c3c6853af80e9b85755948c18352872152ffbff62a6682d677e3d00f",
+    "pilot_selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-HAKO-AUTHORITY-PILOT-RERUN-001"
+  },
+  "kind": "MirBuilderScalarKnownFastpathCollectionHakoAuthorityPilotRerunV1",
+  "provenance": {
+    "collection_routes": {
+      "path": "src/mir/generic_method_route_plan/collection_read_routes.rs",
+      "sha256": "1e12f843f2fff82d14b2fab79619c20fd8cb4c07b9aaa717b9adc7d7bb249cf3"
+    },
+    "shadow_consumer": {
+      "path": "src/mir/generic_method_route_plan/scalar_known_hako_shadow.rs",
+      "sha256": "76ef8ddcac959016299205cd26e022f12786a56372807efc33db1a573a3834ff"
+    }
+  },
+  "rerun": {
+    "collection_anylength_box_domain_guarded": true,
+    "collection_hako_route_decision_authority_pilot": true,
+    "collection_mixed_receiver_domain_guarded": true,
+    "mapload_hako_route_decision_authority_pilot": true,
+    "next_authority_step_requires_design_consultation": true,
+    "scalar_known_hako_runtime_route_authority": false,
+    "string_hako_route_decision_authority_pilot": true
+  },
+  "schema_version": 0,
+  "summary": {
+    "collection_anylength_box_domain_guarded": 1,
+    "collection_hako_authority_pilot_rerun": 1,
+    "collection_hako_route_decision_authority_pilot": 1,
+    "collection_mixed_receiver_domain_guarded": 1,
+    "mapload_hako_route_decision_authority_pilot": 1,
+    "read_surface_authority_closeout_design_required": 1,
+    "scalar_known_hako_runtime_route_authority": 0,
+    "source_selfhost_claim": 0,
+    "string_hako_route_decision_authority_pilot": 1
+  },
+  "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-HAKO-AUTHORITY-PILOT-RERUN-001"
+}

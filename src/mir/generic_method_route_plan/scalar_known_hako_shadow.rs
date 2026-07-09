@@ -148,9 +148,18 @@ pub(super) fn string_scalar_i64_hako_route_authority_pilot_decision(
     hako_decision
 }
 
+#[allow(dead_code)]
 pub(super) fn collection_scalar_i64_shadow_consumed_decision(
     route_kind: GenericMethodRouteKind,
     core_op: CoreMethodOp,
+) -> GenericMethodRouteDecision {
+    collection_scalar_i64_hako_route_authority_pilot_decision(route_kind, core_op, None)
+}
+
+pub(super) fn collection_scalar_i64_hako_route_authority_pilot_decision(
+    route_kind: GenericMethodRouteKind,
+    core_op: CoreMethodOp,
+    receiver_domain: Option<&str>,
 ) -> GenericMethodRouteDecision {
     let policy = COLLECTION_LEN_SCALAR_I64_HAKO_POLICIES
         .iter()
@@ -172,8 +181,31 @@ pub(super) fn collection_scalar_i64_shadow_consumed_decision(
         "ScalarKnown Collection contract no longer contains requested route"
     );
     assert_hako_collection_scalar_i64_policy_matches_rust(policy, route_kind, core_op);
+    if let Some(receiver_domain) = receiver_domain {
+        assert_eq!(
+            policy.receiver_domain, receiver_domain,
+            "Collection .hako authority pilot receiver domain diverged from Rust oracle"
+        );
+    }
+    if route_kind == GenericMethodRouteKind::AnyLength {
+        assert_eq!(
+            policy.receiver_domain, "Box",
+            "AnyLength must remain an explicit Box metadata row"
+        );
+    }
 
-    GenericMethodRouteDecision::new(
+    let hako_decision = GenericMethodRouteDecision::new(
+        policy.route_kind,
+        policy.proof_or_policy_source,
+        Some(CoreMethodOpCarrier::manifest(
+            policy.core_op,
+            policy.lowering_tier,
+        )),
+        Some(policy.return_shape),
+        policy.value_demand,
+        Some(policy.publication_policy),
+    );
+    let rust_oracle = GenericMethodRouteDecision::new(
         route_kind,
         GenericMethodRouteProof::LenSurfacePolicy,
         Some(CoreMethodOpCarrier::manifest(
@@ -183,7 +215,12 @@ pub(super) fn collection_scalar_i64_shadow_consumed_decision(
         Some(GenericMethodReturnShape::ScalarI64),
         GenericMethodValueDemand::ScalarI64,
         Some(GenericMethodPublicationPolicy::NoPublication),
-    )
+    );
+    assert_eq!(
+        hako_decision, rust_oracle,
+        "Collection .hako authority pilot diverged from Rust oracle"
+    );
+    hako_decision
 }
 
 pub(super) fn mapstore_i64_shadow_consumed_decision() -> GenericMethodRouteDecision {

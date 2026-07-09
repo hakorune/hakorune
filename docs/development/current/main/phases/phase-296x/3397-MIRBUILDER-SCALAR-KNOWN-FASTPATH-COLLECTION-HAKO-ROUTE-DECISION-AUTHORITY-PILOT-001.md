@@ -11,8 +11,7 @@ MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-HAKO-ROUTE-DECISION-AUTHORITY-PILOT-
 Materialize the scoped `.hako` route-decision authority pilot for
 CollectionScalarI64Routes.
 
-This is the selected next implementation card from 3396. It is not claimed by
-3396.
+This is the selected implementation card from 3396.
 
 ## Expected Scope
 
@@ -49,17 +48,47 @@ mismatch policy:
 6. Do not add runtime fallback.
 ```
 
-## Non-Claims Until Implemented
+## Result
 
 ```text
-collection_hako_route_decision_authority_pilot = 0
-collection_hako_authority_result_consumed = 0
-collection_live_route_calls_authority_pilot = 0
+collection_hako_route_decision_authority_pilot = 1
+collection_hako_authority_result_consumed = 1
+collection_rust_oracle_compat_checker = 1
+collection_mismatch_fail_fast = 1
+collection_live_route_calls_authority_pilot = 1
+collection_mixed_receiver_domain_guarded = 1
+collection_anylength_box_domain_guarded = 1
+```
+
+## Decision
+
+```text
+decision:
+  SelectCollectionAuthorityPilotRerun
+
+reason_token:
+  CollectionHakoRouteDecisionAuthorityPilotMaterialized
+
+selected_next_card:
+  MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-HAKO-AUTHORITY-PILOT-RERUN-001
+```
+
+## Non-Claims
+
+```text
 collection_anylength_global_box_authority = 0
 receiver_domain_authority_switch = 0
 receiver_domain_widening_authority = 0
+receiver_domain_projection = 0
 any_length_wildcard_selector = 0
 runtime_box_domain_fallback = 0
 scalar_known_hako_runtime_route_authority = 0
 source_selfhost_claim = 0
+```
+
+## Guard
+
+```text
+tools/checks/
+  rust_lifecycle_mirbuilder_scalar_known_fastpath_collection_hako_route_decision_authority_pilot_guard.sh
 ```

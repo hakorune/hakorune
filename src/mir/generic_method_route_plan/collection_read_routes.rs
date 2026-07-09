@@ -12,9 +12,9 @@ use super::{
     generic_array_flow_origin_box_name, generic_pure_string_value_origin_box_name,
     method_args_without_redundant_receiver, mir_json_routes, prove_scalar_i64_map_get_store_fact,
     scalar_known_hako_shadow, string_corridor_method_origin_box_name, CollectionElementOriginMap,
-    FieldHandleOriginMap, GenericMethodRoute, GenericMethodRouteDecision, GenericMethodRouteEvidence,
-    GenericMethodRouteKind, GenericMethodRouteOperands, GenericMethodRouteProof,
-    GenericMethodRouteSite, GenericMethodRouteSurface,
+    FieldHandleOriginMap, GenericMethodRoute, GenericMethodRouteDecision,
+    GenericMethodRouteEvidence, GenericMethodRouteKind, GenericMethodRouteOperands,
+    GenericMethodRouteProof, GenericMethodRouteSite, GenericMethodRouteSurface,
 };
 
 pub(super) fn match_generic_has_route(
@@ -386,9 +386,7 @@ pub(super) fn match_generic_get_route(
             GenericMethodRouteEvidence::new(receiver_origin_box, Some(key_route))
                 .with_result_origin_box(result_origin_box),
             GenericMethodRouteOperands::new(*receiver, Some(args[0]), *dst),
-            scalar_known_hako_shadow::mapload_scalar_i64_hako_route_authority_pilot_decision(
-                proof,
-            ),
+            scalar_known_hako_shadow::mapload_scalar_i64_hako_route_authority_pilot_decision(proof),
         ));
     }
 
@@ -464,12 +462,28 @@ pub(super) fn match_generic_len_route(
             string_corridor_method_origin_box_name(function, *dst, StringCorridorOp::StrLen)
         })
         .or_else(|| len_surface_origin_box_name(box_name).map(str::to_string));
-    let (route_kind, core_op) =
+    let (route_kind, core_op, receiver_domain) =
         match len_surface_origin_box_name(box_name).or(receiver_origin_box.as_deref()) {
-            Some("MapBox") => (GenericMethodRouteKind::MapEntryCount, CoreMethodOp::MapLen),
-            Some("ArrayBox") => (GenericMethodRouteKind::ArraySlotLen, CoreMethodOp::ArrayLen),
-            Some("StringBox") => (GenericMethodRouteKind::StringLen, CoreMethodOp::StringLen),
-            Some("Box") => (GenericMethodRouteKind::AnyLength, CoreMethodOp::AnyLen),
+            Some("MapBox") => (
+                GenericMethodRouteKind::MapEntryCount,
+                CoreMethodOp::MapLen,
+                "MapBox",
+            ),
+            Some("ArrayBox") => (
+                GenericMethodRouteKind::ArraySlotLen,
+                CoreMethodOp::ArrayLen,
+                "ArrayBox",
+            ),
+            Some("StringBox") => (
+                GenericMethodRouteKind::StringLen,
+                CoreMethodOp::StringLen,
+                "StringBox",
+            ),
+            Some("Box") => (
+                GenericMethodRouteKind::AnyLength,
+                CoreMethodOp::AnyLen,
+                "Box",
+            ),
             _ => return None,
         };
 
@@ -478,9 +492,10 @@ pub(super) fn match_generic_len_route(
         GenericMethodRouteSurface::new(box_name.clone(), method.clone(), args.len()),
         GenericMethodRouteEvidence::new(receiver_origin_box, None),
         GenericMethodRouteOperands::new(*receiver, None, *dst),
-        scalar_known_hako_shadow::collection_scalar_i64_shadow_consumed_decision(
+        scalar_known_hako_shadow::collection_scalar_i64_hako_route_authority_pilot_decision(
             route_kind,
             core_op,
+            Some(receiver_domain),
         ),
     ))
 }
