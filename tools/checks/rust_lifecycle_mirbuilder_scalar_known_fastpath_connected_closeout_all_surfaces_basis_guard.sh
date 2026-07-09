@@ -73,7 +73,7 @@ for key in ["runtime_authority_switch_allowed", "row_count_alone_as_proof", "rou
 
 for needle in [
     "mapstore_i64_shadow_consumed_decision",
-    "mapstore_any_shadow_consumed_decision",
+    "mapstore_any_hako_route_authority_pilot_decision",
     "write_push_shadow_consumed_decision",
     "mapload_scalar_i64_shadow_consumed_decision",
     "string_scalar_i64_shadow_consumed_decision",

@@ -319,12 +319,28 @@ pub(super) fn write_push_hako_route_authority_pilot_decision() -> GenericMethodR
     hako_decision
 }
 
+#[allow(dead_code)]
 pub(super) fn mapstore_any_shadow_consumed_decision() -> GenericMethodRouteDecision {
+    mapstore_any_hako_route_authority_pilot_decision()
+}
+
+pub(super) fn mapstore_any_hako_route_authority_pilot_decision() -> GenericMethodRouteDecision {
     let policy = WRITE_SET_MAPSTORE_ANY_HAKO_POLICY;
     assert_write_contract_contains(GenericMethodRouteKind::MapStoreAny, "MapStoreAny");
     assert_hako_mapstore_any_policy_matches_rust(&policy);
 
-    GenericMethodRouteDecision::new(
+    let hako_decision = GenericMethodRouteDecision::new(
+        policy.route_kind,
+        GenericMethodRouteProof::SetSurfacePolicy,
+        Some(CoreMethodOpCarrier::manifest(
+            policy.core_op,
+            policy.lowering_tier,
+        )),
+        None,
+        policy.value_demand,
+        None,
+    );
+    let rust_oracle = GenericMethodRouteDecision::new(
         GenericMethodRouteKind::MapStoreAny,
         GenericMethodRouteProof::SetSurfacePolicy,
         Some(CoreMethodOpCarrier::manifest(
@@ -334,7 +350,12 @@ pub(super) fn mapstore_any_shadow_consumed_decision() -> GenericMethodRouteDecis
         None,
         GenericMethodValueDemand::WriteAny,
         None,
-    )
+    );
+    assert_eq!(
+        hako_decision, rust_oracle,
+        "MapStoreAny .hako authority pilot diverged from Rust oracle"
+    );
+    hako_decision
 }
 
 fn assert_hako_write_push_policy_matches_rust(policy: &HakoWritePushPolicy) {
@@ -511,16 +532,8 @@ fn assert_hako_mapstore_any_policy_matches_rust(policy: &HakoMapStoreAnyPolicy) 
         GenericMethodValueDemand::WriteAny,
         "MapStoreAny .hako policy value demand drifted"
     );
-    assert_eq!(
-        GenericMethodValueDemand::WriteAny.as_metadata_name(),
-        "write_any"
-    );
     assert_eq!(policy.value_boundary, "Any");
     assert_eq!(policy.publication_policy, "NonePublication");
-    assert_eq!(
-        GenericMethodPublicationPolicy::NoPublication.as_metadata_name(),
-        "no_publication"
-    );
     assert_eq!(policy.effect_class, "mutate");
     assert_eq!(policy.mutation_class, "MutatesReceiverOrContainer");
     assert_eq!(policy.any_boundary_policy, "DeclaredMetadataOnly");

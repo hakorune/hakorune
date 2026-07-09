@@ -53,7 +53,7 @@
   },
   "input_state": {
     "all_surfaces_basis": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-connected-closeout-all-surfaces-basis-v0.json",
-    "all_surfaces_basis_hash": "135fdafffee5b76c0562793fd3a2325f303daa899642cfa0918d5c2f0d29d60a",
+    "all_surfaces_basis_hash": "a72d8cfcebb1ef4bd13028984fcad86af09b8aac932afce61c0082bd311d5f41",
     "basis_selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-RERUN-001",
     "bridge_plan": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-fastpath-hako-shadow-artifact-to-caller-orientation-bridge-plan-v0.json",
     "bridge_plan_hash": "fce0f9f1b529de2155a96666a1018e2e5c58cfffb5a9eede22f9904bf5bf101a",
@@ -62,7 +62,7 @@
   "kind": "MirBuilderScalarKnownFastpathConnectedCloseoutRerunV1",
   "provenance": {
     "shadow_consumer": "src/mir/generic_method_route_plan/scalar_known_hako_shadow.rs",
-    "shadow_consumer_hash": "56969f31d23881fcc37b393af4f48ae7a19fd7df5861ada498cfd5af981dddcb"
+    "shadow_consumer_hash": "f12361856df43dec41245d6ed1622eea1641a1d88cbe7fa5ce5171cfa0111af8"
   },
   "schema_version": 0,
   "summary": {

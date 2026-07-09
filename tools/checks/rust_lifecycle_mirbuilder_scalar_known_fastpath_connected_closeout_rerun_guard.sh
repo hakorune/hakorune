@@ -59,7 +59,7 @@ need(closeout.get("caller_orientation_requires_design_consultation") is True, "d
 
 for needle in [
     "mapstore_i64_shadow_consumed_decision",
-    "mapstore_any_shadow_consumed_decision",
+    "mapstore_any_hako_route_authority_pilot_decision",
     "write_push_shadow_consumed_decision",
     "mapload_scalar_i64_shadow_consumed_decision",
     "string_scalar_i64_shadow_consumed_decision",

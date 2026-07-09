@@ -122,13 +122,13 @@
   "kind": "MirBuilderScalarKnownFastpathConnectedCloseoutAllSurfacesBasisV1",
   "provenance": {
     "collection_read_routes": "src/mir/generic_method_route_plan/collection_read_routes.rs",
-    "collection_read_routes_hash": "0fbfbb90840bf73efcd087cb6d7087659f366b759e3432d0423513ce04736a0e",
+    "collection_read_routes_hash": "1e12f843f2fff82d14b2fab79619c20fd8cb4c07b9aaa717b9adc7d7bb249cf3",
     "shadow_consumer": "src/mir/generic_method_route_plan/scalar_known_hako_shadow.rs",
-    "shadow_consumer_hash": "56969f31d23881fcc37b393af4f48ae7a19fd7df5861ada498cfd5af981dddcb",
+    "shadow_consumer_hash": "f12361856df43dec41245d6ed1622eea1641a1d88cbe7fa5ce5171cfa0111af8",
     "string_routes": "src/mir/generic_method_route_plan/string_routes.rs",
-    "string_routes_hash": "0c716cf6fcfbbed84094f0fac16e9cb9524a177679f7b9ccfa38630bcbf9d652",
+    "string_routes_hash": "1cddcd3ee2472d54964c29730450c1bce43549c10cbd49b3fe4b0ab099ee0271",
     "write_routes": "src/mir/generic_method_route_plan/write_routes.rs",
-    "write_routes_hash": "c64f78043676f935f8c92d0a83cc642b8d93bf27eb81da441a2400f819f23f59"
+    "write_routes_hash": "f0499957931df96aef11ea9575d1a49e2064f4ca124adeb510368899f7eb8a21"
   },
   "schema_version": 0,
   "summary": {

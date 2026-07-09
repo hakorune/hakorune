@@ -55,26 +55,26 @@
   "input_state": {
     "closeout_fastpath_connected": 1,
     "closeout_rerun": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-connected-closeout-rerun-v0.json",
-    "closeout_rerun_hash": "a21b8e0ae2eef287ff8a3bbce2745359825b5454d838aee480ec3f606e6801e0",
+    "closeout_rerun_hash": "c46e8abbe2b6c0b570fbdbd1ceb2567eefb8ff7a652c6f08753e414c6b7422b6",
     "closeout_selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-CALLER-ORIENTATION-AUTHORITY-DESIGN-STOP-001"
   },
   "kind": "MirBuilderScalarKnownFastpathAllSurfaceMismatchGateHardeningV1",
   "provenance": {
     "collection_read_routes": {
       "path": "src/mir/generic_method_route_plan/collection_read_routes.rs",
-      "sha256": "0fbfbb90840bf73efcd087cb6d7087659f366b759e3432d0423513ce04736a0e"
+      "sha256": "1e12f843f2fff82d14b2fab79619c20fd8cb4c07b9aaa717b9adc7d7bb249cf3"
     },
     "shadow_consumer": {
       "path": "src/mir/generic_method_route_plan/scalar_known_hako_shadow.rs",
-      "sha256": "56969f31d23881fcc37b393af4f48ae7a19fd7df5861ada498cfd5af981dddcb"
+      "sha256": "f12361856df43dec41245d6ed1622eea1641a1d88cbe7fa5ce5171cfa0111af8"
     },
     "string_routes": {
       "path": "src/mir/generic_method_route_plan/string_routes.rs",
-      "sha256": "0c716cf6fcfbbed84094f0fac16e9cb9524a177679f7b9ccfa38630bcbf9d652"
+      "sha256": "1cddcd3ee2472d54964c29730450c1bce43549c10cbd49b3fe4b0ab099ee0271"
     },
     "write_routes": {
       "path": "src/mir/generic_method_route_plan/write_routes.rs",
-      "sha256": "c64f78043676f935f8c92d0a83cc642b8d93bf27eb81da441a2400f819f23f59"
+      "sha256": "f0499957931df96aef11ea9575d1a49e2064f4ca124adeb510368899f7eb8a21"
     }
   },
   "schema_version": 0,
@@ -98,9 +98,9 @@
       "hako_source": "lang/src/compiler/lib/write_push_surface_policy_classifier.hako",
       "hako_source_sha256": "ec456dac4fd8aff4efc3627e54f527354b36268b4543185ed07da2750fbdfa87",
       "helper": "assert_hako_write_push_policy_matches_rust",
-      "live_call": "write_push_shadow_consumed_decision",
+      "live_call": "write_push_hako_route_authority_pilot_decision",
       "live_route_file": "src/mir/generic_method_route_plan/write_routes.rs",
-      "live_route_file_sha256": "c64f78043676f935f8c92d0a83cc642b8d93bf27eb81da441a2400f819f23f59",
+      "live_route_file_sha256": "f0499957931df96aef11ea9575d1a49e2064f4ca124adeb510368899f7eb8a21",
       "route_kinds": "ArrayAppendAny",
       "surface_id": "WriteScalarI64Routes/PushSurfacePolicy"
     },
@@ -112,9 +112,9 @@
       "hako_source": "lang/src/compiler/lib/write_set_mapstore_i64_policy_classifier.hako",
       "hako_source_sha256": "1bc09769e02851c5c42a7a8287624215d9f206d5b2800e17659016a6fd177f5d",
       "helper": "assert_hako_policy_matches_rust",
-      "live_call": "mapstore_i64_shadow_consumed_decision",
+      "live_call": "mapstore_i64_hako_route_authority_pilot_decision",
       "live_route_file": "src/mir/generic_method_route_plan/write_routes.rs",
-      "live_route_file_sha256": "c64f78043676f935f8c92d0a83cc642b8d93bf27eb81da441a2400f819f23f59",
+      "live_route_file_sha256": "f0499957931df96aef11ea9575d1a49e2064f4ca124adeb510368899f7eb8a21",
       "route_kinds": "MapStoreI64",
       "surface_id": "WriteScalarI64Routes/SetSurfacePolicy/MapStoreI64"
     },
@@ -126,9 +126,9 @@
       "hako_source": "lang/src/compiler/lib/write_set_mapstore_any_policy_classifier.hako",
       "hako_source_sha256": "77e00016586d44ba582e5fd6ba6dd58d594eca4d7c595ef5979b329297bd5f3d",
       "helper": "assert_hako_mapstore_any_policy_matches_rust",
-      "live_call": "mapstore_any_shadow_consumed_decision",
+      "live_call": "mapstore_any_hako_route_authority_pilot_decision",
       "live_route_file": "src/mir/generic_method_route_plan/write_routes.rs",
-      "live_route_file_sha256": "c64f78043676f935f8c92d0a83cc642b8d93bf27eb81da441a2400f819f23f59",
+      "live_route_file_sha256": "f0499957931df96aef11ea9575d1a49e2064f4ca124adeb510368899f7eb8a21",
       "route_kinds": "MapStoreAny",
       "surface_id": "WriteScalarI64Routes/SetSurfacePolicy/MapStoreAny"
     },
@@ -140,9 +140,9 @@
       "hako_source": "lang/src/compiler/lib/map_load_scalar_i64_policy_classifier.hako",
       "hako_source_sha256": "3995db4122d3a87433be3d1ca92a5b685c853258f698eed10313a3c76a8a407d",
       "helper": "assert_hako_mapload_scalar_i64_policy_matches_rust",
-      "live_call": "mapload_scalar_i64_shadow_consumed_decision",
+      "live_call": "mapload_scalar_i64_hako_route_authority_pilot_decision",
       "live_route_file": "src/mir/generic_method_route_plan/collection_read_routes.rs",
-      "live_route_file_sha256": "0fbfbb90840bf73efcd087cb6d7087659f366b759e3432d0423513ce04736a0e",
+      "live_route_file_sha256": "1e12f843f2fff82d14b2fab79619c20fd8cb4c07b9aaa717b9adc7d7bb249cf3",
       "route_kinds": "MapLoadScalarI64",
       "surface_id": "MapLoadScalarI64Routes"
     },
@@ -154,9 +154,9 @@
       "hako_source": "lang/src/compiler/lib/string_search_scalar_i64_policy_classifier.hako",
       "hako_source_sha256": "f9a0e058470004aa2e9fd4f3f912cbd1ae82d8ca7b451f12b952178e82ae3c41",
       "helper": "assert_hako_string_scalar_i64_policy_matches_rust",
-      "live_call": "string_scalar_i64_shadow_consumed_decision",
+      "live_call": "string_scalar_i64_hako_route_authority_pilot_decision",
       "live_route_file": "src/mir/generic_method_route_plan/string_routes.rs",
-      "live_route_file_sha256": "0c716cf6fcfbbed84094f0fac16e9cb9524a177679f7b9ccfa38630bcbf9d652",
+      "live_route_file_sha256": "1cddcd3ee2472d54964c29730450c1bce43549c10cbd49b3fe4b0ab099ee0271",
       "route_kinds": "StringIndexOf,StringLastIndexOf,StringContains",
       "surface_id": "StringScalarI64Routes"
     },
@@ -168,9 +168,9 @@
       "hako_source": "lang/src/compiler/lib/collection_len_scalar_i64_policy_classifier.hako",
       "hako_source_sha256": "8bb3de9b3fd43a0f94018d8e7d8f913185875d9e056d5f99e78b9c2b4c20967e",
       "helper": "assert_hako_collection_scalar_i64_policy_matches_rust",
-      "live_call": "collection_scalar_i64_shadow_consumed_decision",
+      "live_call": "collection_scalar_i64_hako_route_authority_pilot_decision",
       "live_route_file": "src/mir/generic_method_route_plan/collection_read_routes.rs",
-      "live_route_file_sha256": "0fbfbb90840bf73efcd087cb6d7087659f366b759e3432d0423513ce04736a0e",
+      "live_route_file_sha256": "1e12f843f2fff82d14b2fab79619c20fd8cb4c07b9aaa717b9adc7d7bb249cf3",
       "route_kinds": "MapEntryCount,ArraySlotLen,StringLen,AnyLength",
       "surface_id": "CollectionScalarI64Routes"
     }

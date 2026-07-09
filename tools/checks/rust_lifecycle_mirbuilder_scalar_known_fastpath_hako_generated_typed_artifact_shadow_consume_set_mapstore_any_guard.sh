@@ -149,8 +149,16 @@ for needle in [
 ]:
     need(needle in shadow_rs, f"runtime typed artifact consumer missing: {needle}")
 
-need("scalar_known_hako_shadow::mapstore_any_shadow_consumed_decision()" in write_routes, "fast path does not consume MapStoreAny shadow decision")
-need("scalar_known_hako_shadow::mapstore_i64_shadow_consumed_decision()" in write_routes, "prior MapStoreI64 shadow connection lost")
+need(
+    "scalar_known_hako_shadow::mapstore_any_shadow_consumed_decision()" in write_routes
+    or "scalar_known_hako_shadow::mapstore_any_hako_route_authority_pilot_decision()" in write_routes,
+    "fast path does not consume MapStoreAny generated typed artifact decision",
+)
+need(
+    "scalar_known_hako_shadow::mapstore_i64_shadow_consumed_decision()" in write_routes
+    or "scalar_known_hako_shadow::mapstore_i64_hako_route_authority_pilot_decision()" in write_routes,
+    "prior MapStoreI64 generated typed artifact connection lost",
+)
 need("map_store_any_set_surface|SetSurfacePolicy/MapStoreAny|MapStoreAny" in hako_policy, "hako source row missing")
 
 rows_by_token = {row.get("token"): row for row in manifest.get("rows") or []}

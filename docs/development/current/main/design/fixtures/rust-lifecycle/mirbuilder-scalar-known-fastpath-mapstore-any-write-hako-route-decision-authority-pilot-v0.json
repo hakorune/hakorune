@@ -1,0 +1,69 @@
+{
+  "claims": {
+    "any_write_boundary_runtime_authority": 0,
+    "mapdeleteany_authority": 0,
+    "mapstore_any_any_boundary_metadata_only": 1,
+    "mapstore_any_hako_authority_result_consumed": 1,
+    "mapstore_any_hako_route_decision_authority_pilot": 1,
+    "mapstore_any_live_route_calls_authority_pilot": 1,
+    "mapstore_any_mismatch_fail_fast": 1,
+    "mapstore_any_rust_oracle_compat_checker": 1,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "publication_execution": 0,
+    "runtime_fallback": 0,
+    "runtime_mutation_authority": 0,
+    "source_selfhost_claim": 0,
+    "write_surface_authority_closeout": 0,
+    "write_wide_authority": 0
+  },
+  "decision": {
+    "kind": "SelectMapStoreAnyWriteAuthorityPilotRerun",
+    "reason_token": "MapStoreAnyWriteHakoRouteDecisionAuthorityPilotMaterialized",
+    "selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPSTORE-ANY-WRITE-HAKO-AUTHORITY-PILOT-RERUN-001"
+  },
+  "implementation": {
+    "authority_function": "mapstore_any_hako_route_authority_pilot_decision",
+    "authority_scope": "SetSurfacePolicyMapStoreAnyOnly",
+    "hako_decision_constructed_from": "WRITE_SET_MAPSTORE_ANY_HAKO_POLICY",
+    "legacy_shadow_wrapper_retained": "mapstore_any_shadow_consumed_decision",
+    "live_route_calls_authority_function": true,
+    "mismatch_policy": "FailFast",
+    "route_kind": "MapStoreAny",
+    "rust_oracle_compat_checker": true,
+    "surface": "SetSurfacePolicy/MapStoreAny"
+  },
+  "input_state": {
+    "basis_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-mapstore-any-write-hako-authority-pilot-basis-v0.json",
+    "basis_fixture_hash": "1d7ea369a076b58d77fd021cdee9acf3664d435b9533d363fb48577b3f554ed3",
+    "basis_selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPSTORE-ANY-WRITE-HAKO-ROUTE-DECISION-AUTHORITY-PILOT-001"
+  },
+  "kind": "MirBuilderScalarKnownFastpathMapStoreAnyWriteHakoRouteDecisionAuthorityPilotV1",
+  "provenance": {
+    "mapstore_any_generated_typed_artifact": {
+      "path": "src/mir/generic_method_route_plan/generated/write_set_mapstore_any_hako_policy.rs",
+      "sha256": "f2bc725ca285d9a39819bd1885f3d10ef5ae5f1b412208507b7fae7a2ac0e2ff"
+    },
+    "shadow_consumer": {
+      "path": "src/mir/generic_method_route_plan/scalar_known_hako_shadow.rs",
+      "sha256": "f12361856df43dec41245d6ed1622eea1641a1d88cbe7fa5ce5171cfa0111af8"
+    },
+    "write_routes": {
+      "path": "src/mir/generic_method_route_plan/write_routes.rs",
+      "sha256": "f0499957931df96aef11ea9575d1a49e2064f4ca124adeb510368899f7eb8a21"
+    }
+  },
+  "schema_version": 0,
+  "summary": {
+    "any_write_boundary_runtime_authority": 0,
+    "mapstore_any_any_boundary_metadata_only": 1,
+    "mapstore_any_hako_authority_result_consumed": 1,
+    "mapstore_any_hako_route_decision_authority_pilot": 1,
+    "mapstore_any_live_route_calls_authority_pilot": 1,
+    "mapstore_any_mismatch_fail_fast": 1,
+    "mapstore_any_rust_oracle_compat_checker": 1,
+    "runtime_mutation_authority": 0,
+    "source_selfhost_claim": 0
+  },
+  "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPSTORE-ANY-WRITE-HAKO-ROUTE-DECISION-AUTHORITY-PILOT-001"
+}
