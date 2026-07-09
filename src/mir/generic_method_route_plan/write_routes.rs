@@ -138,7 +138,7 @@ pub(super) fn match_generic_set_route(
 
     let decision = match route_kind {
         GenericMethodRouteKind::MapStoreI64 => {
-            scalar_known_hako_shadow::mapstore_i64_shadow_consumed_decision()
+            scalar_known_hako_shadow::mapstore_i64_hako_route_authority_pilot_decision()
         }
         GenericMethodRouteKind::MapStoreAny => {
             scalar_known_hako_shadow::mapstore_any_shadow_consumed_decision()

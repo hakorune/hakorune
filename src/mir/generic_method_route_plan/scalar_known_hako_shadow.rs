@@ -223,7 +223,12 @@ pub(super) fn collection_scalar_i64_hako_route_authority_pilot_decision(
     hako_decision
 }
 
+#[allow(dead_code)]
 pub(super) fn mapstore_i64_shadow_consumed_decision() -> GenericMethodRouteDecision {
+    mapstore_i64_hako_route_authority_pilot_decision()
+}
+
+pub(super) fn mapstore_i64_hako_route_authority_pilot_decision() -> GenericMethodRouteDecision {
     let policy = WRITE_SET_MAPSTORE_I64_HAKO_POLICY;
     let accepted_contract_count = accepted_scalar_known_contracts().count();
     assert!(
@@ -245,7 +250,18 @@ pub(super) fn mapstore_i64_shadow_consumed_decision() -> GenericMethodRouteDecis
     );
     assert_hako_policy_matches_rust(&policy);
 
-    GenericMethodRouteDecision::new(
+    let hako_decision = GenericMethodRouteDecision::new(
+        policy.route_kind,
+        GenericMethodRouteProof::SetSurfacePolicy,
+        Some(CoreMethodOpCarrier::manifest(
+            policy.core_op,
+            policy.lowering_tier,
+        )),
+        None,
+        policy.value_demand,
+        None,
+    );
+    let rust_oracle = GenericMethodRouteDecision::new(
         GenericMethodRouteKind::MapStoreI64,
         GenericMethodRouteProof::SetSurfacePolicy,
         Some(CoreMethodOpCarrier::manifest(
@@ -255,7 +271,12 @@ pub(super) fn mapstore_i64_shadow_consumed_decision() -> GenericMethodRouteDecis
         None,
         GenericMethodValueDemand::WriteAny,
         None,
-    )
+    );
+    assert_eq!(
+        hako_decision, rust_oracle,
+        "MapStoreI64 .hako authority pilot diverged from Rust oracle"
+    );
+    hako_decision
 }
 
 pub(super) fn write_push_shadow_consumed_decision() -> GenericMethodRouteDecision {
@@ -475,10 +496,6 @@ fn assert_hako_policy_matches_rust(policy: &HakoMapStoreI64Policy) {
     assert_eq!(policy.result_class, "NoneResult");
     assert_eq!(policy.return_shape, "None");
     assert_eq!(
-        GenericMethodReturnShape::ScalarI64.as_metadata_name(),
-        "scalar_i64"
-    );
-    assert_eq!(
         policy.value_demand,
         GenericMethodValueDemand::WriteAny,
         "MapStoreI64 .hako policy value demand drifted"
@@ -489,10 +506,6 @@ fn assert_hako_policy_matches_rust(policy: &HakoMapStoreI64Policy) {
     );
     assert_eq!(policy.value_boundary, "ScalarI64");
     assert_eq!(policy.publication_policy, "NonePublication");
-    assert_eq!(
-        GenericMethodPublicationPolicy::NoPublication.as_metadata_name(),
-        "no_publication"
-    );
     assert_eq!(policy.effect_class, "mutate");
     assert_eq!(policy.mutation_class, "MutatesReceiverOrContainer");
     assert_eq!(policy.role, "classifier_policy_mirror_only");

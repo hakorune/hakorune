@@ -2,7 +2,7 @@
   "schema_version": 0,
   "kind": "SourceSelfhostFamilyGuardManifestV1",
   "family_scope": "SourceSelfhost",
-  "current_blocker_token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-SET-MAPSTORE-I64-HAKO-ROUTE-DECISION-AUTHORITY-PILOT-001",
+  "current_blocker_token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-NEXT-WRITE-HAKO-AUTHORITY-SURFACE-DESIGN-STOP-001",
   "guard_policy": {
     "historical_row_guards_remain_callable": 1,
     "new_rows_prefer_family_guard": 1,
@@ -2704,6 +2704,20 @@
     {
       "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-SET-MAPSTORE-I64-HAKO-ROUTE-DECISION-AUTHORITY-PILOT-001",
       "card": "docs/development/current/main/phases/phase-296x/3404-MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-SET-MAPSTORE-I64-HAKO-ROUTE-DECISION-AUTHORITY-PILOT-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-write-set-mapstore-i64-hako-route-decision-authority-pilot-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_scalar_known_fastpath_write_set_mapstore_i64_hako_route_decision_authority_pilot_guard.sh",
+      "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-SET-MAPSTORE-I64-HAKO-AUTHORITY-PILOT-RERUN-001",
+      "card": "docs/development/current/main/phases/phase-296x/3405-MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-SET-MAPSTORE-I64-HAKO-AUTHORITY-PILOT-RERUN-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-write-set-mapstore-i64-hako-authority-pilot-rerun-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_scalar_known_fastpath_write_set_mapstore_i64_hako_authority_pilot_rerun_guard.sh",
+      "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-NEXT-WRITE-HAKO-AUTHORITY-SURFACE-DESIGN-STOP-001",
+      "card": "docs/development/current/main/phases/phase-296x/3406-MIRBUILDER-SCALAR-KNOWN-FASTPATH-NEXT-WRITE-HAKO-AUTHORITY-SURFACE-DESIGN-STOP-001.md",
       "fixture": "",
       "legacy_guard": "",
       "role": "current_queue"

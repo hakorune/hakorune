@@ -48,14 +48,39 @@ still Rust-owned:
 7. Do not add runtime fallback.
 ```
 
-## Non-Claims Until Implemented
+## Result
 
 ```text
-write_set_mapstore_i64_hako_route_decision_authority_pilot = 0
+write_set_mapstore_i64_hako_route_decision_authority_pilot = 1
+write_set_mapstore_i64_hako_authority_result_consumed = 1
+write_set_mapstore_i64_rust_oracle_compat_checker = 1
+write_set_mapstore_i64_mismatch_fail_fast = 1
+write_set_mapstore_i64_live_route_calls_authority_pilot = 1
+
 write_surface_authority_pilot = 0
 mapstore_authority = 0
 runtime_mutation_authority = 0
 publication_execution = 0
 scalar_known_hako_runtime_route_authority = 0
 source_selfhost_claim = 0
+```
+
+## Decision
+
+```text
+decision:
+  SelectWriteSetMapStoreI64AuthorityPilotRerun
+
+reason_token:
+  WriteSetMapStoreI64HakoRouteDecisionAuthorityPilotMaterialized
+
+selected_next_card:
+  MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-SET-MAPSTORE-I64-HAKO-AUTHORITY-PILOT-RERUN-001
+```
+
+## Guard
+
+```text
+tools/checks/
+  rust_lifecycle_mirbuilder_scalar_known_fastpath_write_set_mapstore_i64_hako_route_decision_authority_pilot_guard.sh
 ```
