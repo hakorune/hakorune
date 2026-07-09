@@ -331,6 +331,7 @@ pub(super) fn mapstore_any_shadow_consumed_decision() -> GenericMethodRouteDecis
 
 pub(super) fn mapstore_any_hako_route_authority_pilot_decision() -> GenericMethodRouteDecision {
     let policy = WRITE_SET_MAPSTORE_ANY_HAKO_POLICY;
+    super::caller_orientation::assert_mapstore_any_policy_row(policy.policy_row_id);
     assert_write_contract_contains(GenericMethodRouteKind::MapStoreAny, "MapStoreAny");
     assert_hako_mapstore_any_policy_matches_rust(&policy);
 

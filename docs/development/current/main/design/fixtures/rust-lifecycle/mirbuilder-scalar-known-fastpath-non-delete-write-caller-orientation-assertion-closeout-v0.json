@@ -1,0 +1,62 @@
+{
+  "claims": {
+    "all_three_non_delete_write_rows_live_asserted": 1,
+    "assertion_only": 1,
+    "backend_lowering_authority": 0,
+    "caller_orientation_runtime_path": 0,
+    "caller_runtime_dispatch_authority": 0,
+    "delete_hako_route_decision_authority_pilot": 0,
+    "hako_runtime_route_authority": 0,
+    "mapstore_any_live_assertion": 1,
+    "mapstore_i64_live_assertion": 1,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "non_delete_write_caller_orientation_assertion_closeout": 1,
+    "publication_execution": 0,
+    "push_arrayappendany_live_assertion": 1,
+    "route_selection_authority_switch": 0,
+    "runtime_mutation_authority": 0,
+    "scalar_known_hako_runtime_route_authority": 0,
+    "scalar_known_wide_authority": 0,
+    "source_selfhost_claim": 0,
+    "write_mutation_authority": 0,
+    "write_wide_authority": 0
+  },
+  "decision": {
+    "consumer_input": "PolicyRowIdOnly",
+    "consumer_return": "Unit",
+    "implementation_complete": true,
+    "kind": "CloseoutNonDeleteWriteCallerOrientationAssertionCoverage",
+    "live_consumer_kind": "CompilerSideFailFastAssertion",
+    "selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-NON-DELETE-WRITE-CALLER-ORIENTATION-DESIGN-CONSULTATION-001"
+  },
+  "kind": "MirBuilderScalarKnownFastpathNonDeleteWriteCallerOrientationAssertionCloseoutV1",
+  "provenance": {
+    "caller_orientation_module": "src/mir/generic_method_route_plan/caller_orientation.rs",
+    "caller_orientation_module_hash": "62a355a48a34fd1f8fae69c771229f48339377322a57676c2ab66854c3e825dc",
+    "shadow_route_module": "src/mir/generic_method_route_plan/scalar_known_hako_shadow.rs",
+    "shadow_route_module_hash": "8c9b4c841a49cb9c04e30ea75d3647d4cd99c19ff5cf24391cddebacf94e6c50"
+  },
+  "rows": [
+    {
+      "consumer": "assertion_only",
+      "policy_row_id": "map_store_i64_set_surface",
+      "policy_surface": "SetSurfacePolicy",
+      "surface": "MapStoreI64"
+    },
+    {
+      "consumer": "assertion_only",
+      "policy_row_id": "array_append_any_push_surface",
+      "policy_surface": "PushSurfacePolicy",
+      "surface": "ArrayAppendAny"
+    },
+    {
+      "consumer": "assertion_only",
+      "policy_row_id": "map_store_any_set_surface",
+      "policy_surface": "SetSurfacePolicy/MapStoreAny",
+      "surface": "MapStoreAny"
+    }
+  ],
+  "schema_version": 0,
+  "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-NON-DELETE-WRITE-CALLER-ORIENTATION-ASSERTION-CLOSEOUT-001"
+}
