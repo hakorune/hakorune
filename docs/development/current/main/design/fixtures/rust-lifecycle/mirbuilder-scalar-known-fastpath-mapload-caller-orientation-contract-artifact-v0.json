@@ -41,7 +41,8 @@
     "backend_lowering_consumer_registered": false,
     "implementation_complete": true,
     "kind": "MaterializeMapLoadCallerOrientationContractArtifact",
-    "runtime_consumer_registered": false
+    "runtime_consumer_registered": false,
+    "selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-STRING-CALLER-ORIENTATION-CONTRACT-ARTIFACT-001"
   },
   "input_state": {
     "basis": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-mapload-narrow-caller-orientation-basis-v0.json",

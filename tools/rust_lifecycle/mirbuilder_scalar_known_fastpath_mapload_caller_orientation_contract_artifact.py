@@ -15,6 +15,7 @@ ROOT = Path(__file__).resolve().parents[2]
 FIXTURES = ROOT / "docs/development/current/main/design/fixtures/rust-lifecycle"
 OUTPUT = FIXTURES / "mirbuilder-scalar-known-fastpath-mapload-caller-orientation-contract-artifact-v0.json"
 TOKEN = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-CALLER-ORIENTATION-CONTRACT-ARTIFACT-001"
+NEXT_CARD = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-STRING-CALLER-ORIENTATION-CONTRACT-ARTIFACT-001"
 BASIS = FIXTURES / "mirbuilder-scalar-known-fastpath-mapload-narrow-caller-orientation-basis-v0.json"
 CONTRACT = ROOT / "lang/src/compiler/lib/map_load_scalar_i64_caller_orientation_contract.hako"
 POLICY = ROOT / "lang/src/compiler/lib/map_load_scalar_i64_policy_classifier.hako"
@@ -72,6 +73,7 @@ def build_fixture() -> dict[str, Any]:
             "runtime_consumer_registered": False,
             "backend_lowering_consumer_registered": False,
             "implementation_complete": True,
+            "selected_next_card": NEXT_CARD,
         },
         "claims": {
             "mapload_caller_orientation_hako_contract_materialized": 1,
