@@ -54,3 +54,25 @@ no_new_route_authority = 1
 
 All runtime, backend, mutation, publication, Delete, wide, fallback, and Source
 Selfhost claims remain zero.
+
+## Implementation Result
+
+The live caller validator now accepts only `policy_row_id`, resolves the exact
+generated three-row String contract set, checks the generated policy metadata,
+and returns `Unit`. The existing String `.hako` route decision and Rust oracle
+compatibility veto remain in `scalar_known_hako_shadow.rs`.
+
+```text
+string_caller_orientation_authority_pilot = 1
+string_caller_orientation_authority_scope = policy_row_id_contract_only
+string_caller_orientation_consumer_unit_only = 1
+string_exact_three_row_scope = 1
+string_hako_route_decision_authority_retained = 1
+string_rust_oracle_compat_checker_retained = 1
+string_mismatch_fail_fast = 1
+no_new_route_authority = 1
+```
+
+The implementation has no route selector, ValueId/MIR emission, runtime or
+backend consumer, mutation/publication path, fallback, Delete, wide, or Source
+Selfhost authority.

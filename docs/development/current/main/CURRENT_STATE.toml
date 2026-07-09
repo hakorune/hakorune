@@ -345,15 +345,15 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-STRING-CALLER-ORIENTATION-AUTHORITY-PILOT-BASIS-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3445-MIRBUILDER-SCALAR-KNOWN-FASTPATH-STRING-CALLER-ORIENTATION-AUTHORITY-PILOT-BASIS-001.md"
-latest_card_summary = """3445 inventories every post-MapLoad proof axis and
-selects the exact three-row StringScalarI64Routes caller-orientation contract
-authority pilot. Collection mixed receiver-domain, Write mutation, Delete
-revival, ScalarKnown-wide, runtime/backend, and Source Selfhost remain outside
-the task. 3446 is the ready implementation blocker."""
+latest_card = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-STRING-CALLER-ORIENTATION-AUTHORITY-PILOT-RERUN-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3447-MIRBUILDER-SCALAR-KNOWN-FASTPATH-STRING-CALLER-ORIENTATION-AUTHORITY-PILOT-RERUN-001.md"
+latest_card_summary = """3447 reruns the String three-row caller-orientation
+authority pilot with policy-row-ID-only Unit consumption, generated policy and
+contract checks, and the existing Rust oracle veto. The rerun is green; 3448 is
+the next design consultation stop before Collection/Write/Delete/wide or
+runtime/backend/Source Selfhost expansion."""
 
-current_blocker_token = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-STRING-CALLER-ORIENTATION-AUTHORITY-PILOT-001"
+current_blocker_token = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-STRING-CALLER-ORIENTATION-PILOT-DESIGN-CONSULTATION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -362,6 +362,8 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-10: 3447 reruns the String three-row caller-orientation authority pilot with 22 caller tests and 19 shadow parity tests green; policy-row-ID-only Unit consumption, generated policy/contract comparison, Rust oracle veto, and all runtime/backend/mutation/publication/Delete/wide/Source Selfhost claims remain bounded.",
+  "2026-07-10: 3446 implements the String caller-orientation authority validator with exact three-row closed-set checks and policy-row-ID-only Unit input; route decision remains in the existing Hako shadow consumer and Rust oracle compatibility veto remains fail-fast.",
   "2026-07-10: 3445 resolves the post-MapLoad candidate inventory mechanically and selects the exact three-row homogeneous StringScalarI64Routes read surface for a policy-row-ID-only Unit caller-orientation authority pilot; Collection mixed receiver-domain, Write mutation, Delete, wide, runtime/backend, and Source Selfhost remain excluded, and 3446 is ready.",
   "2026-07-10: 3444 lands the Source Selfhost family guard ledger split into a 27-row baseline active index plus explicit post-split active rows and 397 one-line history rows, freezes the v0 compatibility snapshot, and adds exact partition/current-blocker traceability guards without changing authority claims.",
   "2026-07-10: 3442 reruns the MapLoad-only caller-orientation contract authority pilot with fresh generated artifacts, exact single-row scope, fail-fast boundary, 21 caller tests, and all runtime/backend/Delete/wide/Source Selfhost claims at zero; 3443 is now the next-proof-axis Pro consultation stop.",
@@ -372,6 +374,4 @@ landed_tail = [
   "2026-07-10: 3437 connects the ArrayAppendAny policy lookup to a caller-orientation assertion-only Unit consumer accepting only policy row identity, with fail-fast identity/metadata tests; route/runtime/backend, mutation/publication, Delete, wide, and Source Selfhost claims remain unclaimed.",
   "2026-07-10: 3436 connects the MapStoreI64 policy lookup to a caller-orientation assertion-only Unit consumer accepting only policy row identity, with fail-fast identity/metadata tests; route/runtime/backend, mutation/publication, Delete, wide, and Source Selfhost claims remain unclaimed.",
   "2026-07-10: 3435 transports exact policy row identity through the three non-Delete Write typed policy artifacts, refreshes caller-contract provenance, and guards the closed set without adding route, mutation, publication, Delete, wide, or Source Selfhost authority.",
-  "2026-07-10: 3431 selects the exact non-Delete Write metadata/assertion packet for MapStoreI64, ArrayAppendAny, and MapStoreAny using three worker inventories, forbids mutation/effect/value-boundary copying and Delete inclusion, and defers Pro consultation until the post-3439 authority boundary.",
-  "2026-07-10: 3430 closes the pre-authorized read caller-orientation assertion packet with exact MapLoad 1 + String 3 + Collection 4 live row coverage, records assertion-only Unit consumption, and stops before authority-bearing caller orientation, Write/Delete expansion, ScalarKnown-wide authority, runtime/backend/lowering, mutation/publication, or Source Selfhost.",
 ]

@@ -1,3 +1,6 @@
+use super::generated::collection_scalar_i64_caller_orientation_contract::{
+    HakoCollectionCallerOrientationContract, COLLECTION_SCALAR_I64_CALLER_ORIENTATION_CONTRACTS,
+};
 use super::generated::mapload_scalar_i64_caller_orientation_contract::{
     HakoMapLoadCallerOrientationContract, MAPLOAD_SCALAR_I64_CALLER_ORIENTATION_CONTRACT,
 };
@@ -7,12 +10,8 @@ use super::generated::mapload_scalar_i64_hako_policy::{
 use super::generated::string_scalar_i64_caller_orientation_contract::{
     HakoStringCallerOrientationContract, STRING_SCALAR_I64_CALLER_ORIENTATION_CONTRACTS,
 };
-use super::generated::collection_scalar_i64_caller_orientation_contract::{
-    HakoCollectionCallerOrientationContract, COLLECTION_SCALAR_I64_CALLER_ORIENTATION_CONTRACTS,
-};
-use super::generated::write_set_mapstore_i64_caller_orientation_contract::{
-    HakoMapStoreI64CallerOrientationContract,
-    WRITE_SET_MAPSTORE_I64_CALLER_ORIENTATION_CONTRACT,
+use super::generated::string_search_scalar_i64_hako_policy::{
+    HakoStringSearchScalarI64Policy, STRING_SEARCH_SCALAR_I64_HAKO_POLICIES,
 };
 use super::generated::write_push_arrayappendany_caller_orientation_contract::{
     HakoWritePushArrayAppendAnyCallerOrientationContract,
@@ -20,6 +19,9 @@ use super::generated::write_push_arrayappendany_caller_orientation_contract::{
 };
 use super::generated::write_set_mapstore_any_caller_orientation_contract::{
     HakoMapStoreAnyCallerOrientationContract, WRITE_SET_MAPSTORE_ANY_CALLER_ORIENTATION_CONTRACT,
+};
+use super::generated::write_set_mapstore_i64_caller_orientation_contract::{
+    HakoMapStoreI64CallerOrientationContract, WRITE_SET_MAPSTORE_I64_CALLER_ORIENTATION_CONTRACT,
 };
 
 const METADATA_ONLY: &str = "CallerOrientationContractMetadataOnly";
@@ -87,12 +89,72 @@ fn assert_mapload_policy_metadata(policy: &HakoMapLoadScalarI64Policy) {
     assert_eq!(policy.role, "classifier_policy_mirror_only");
 }
 
-pub(super) fn assert_string_policy_row(policy_row_id: &str) {
+pub(super) fn assert_string_authority_pilot(policy_row_id: &str) {
+    const EXPECTED_ROW_IDS: [&str; 3] = [
+        "string_indexof_scalar_i64_routes",
+        "string_lastindexof_scalar_i64_routes",
+        "string_contains_scalar_i64_routes",
+    ];
+
+    assert_eq!(
+        STRING_SEARCH_SCALAR_I64_HAKO_POLICIES.len(),
+        EXPECTED_ROW_IDS.len(),
+        "String caller-orientation policy set size drift"
+    );
+    assert_eq!(
+        STRING_SCALAR_I64_CALLER_ORIENTATION_CONTRACTS.len(),
+        EXPECTED_ROW_IDS.len(),
+        "String caller-orientation contract set size drift"
+    );
+
+    for expected_row_id in EXPECTED_ROW_IDS {
+        let contract = STRING_SCALAR_I64_CALLER_ORIENTATION_CONTRACTS
+            .iter()
+            .find(|contract| contract.policy_row_id == expected_row_id)
+            .expect("String caller-orientation contract row missing");
+        assert_string_contract_metadata(contract);
+
+        let policy = STRING_SEARCH_SCALAR_I64_HAKO_POLICIES
+            .iter()
+            .find(|policy| policy.policy_row_id == expected_row_id)
+            .expect("String caller-orientation policy row missing");
+        assert_string_policy_metadata(policy);
+        assert_eq!(contract.policy_row_id, policy.policy_row_id);
+    }
+
+    let policy = STRING_SEARCH_SCALAR_I64_HAKO_POLICIES
+        .iter()
+        .find(|policy| policy.policy_row_id == policy_row_id)
+        .expect("String caller-orientation policy row identity drift");
     let contract = STRING_SCALAR_I64_CALLER_ORIENTATION_CONTRACTS
         .iter()
         .find(|contract| contract.policy_row_id == policy_row_id)
         .expect("String caller-orientation policy row identity drift");
     assert_string_contract_metadata(contract);
+    assert_string_policy_metadata(policy);
+}
+
+fn assert_string_policy_metadata(policy: &HakoStringSearchScalarI64Policy) {
+    assert_eq!(policy.surface, "StringScalarI64Routes");
+    assert_eq!(
+        policy.lowering_tier,
+        super::super::core_method_op::CoreMethodLoweringTier::WarmDirectAbi
+    );
+    assert_eq!(policy.result_class, "ScalarI64Result");
+    assert_eq!(
+        policy.return_shape,
+        super::super::generic_method_route_facts::GenericMethodReturnShape::ScalarI64
+    );
+    assert_eq!(
+        policy.value_demand,
+        super::super::generic_method_route_facts::GenericMethodValueDemand::ScalarI64
+    );
+    assert_eq!(
+        policy.publication_policy,
+        super::super::generic_method_route_facts::GenericMethodPublicationPolicy::NoPublication
+    );
+    assert_eq!(policy.effect_class, "read");
+    assert_eq!(policy.role, "classifier_policy_mirror_only");
 }
 
 fn assert_string_contract_metadata(contract: &HakoStringCallerOrientationContract) {
@@ -132,9 +194,7 @@ pub(super) fn assert_mapstore_i64_policy_row(policy_row_id: &str) {
     assert_mapstore_i64_contract_metadata(&contract);
 }
 
-fn assert_mapstore_i64_contract_metadata(
-    contract: &HakoMapStoreI64CallerOrientationContract,
-) {
+fn assert_mapstore_i64_contract_metadata(contract: &HakoMapStoreI64CallerOrientationContract) {
     assert_eq!(contract.orientation_kind, METADATA_ONLY);
     assert_eq!(contract.scope, SINGLE_SURFACE);
     assert_eq!(contract.runtime_consumer, FORBIDDEN);
@@ -227,28 +287,32 @@ mod tests {
     }
 
     #[test]
-    fn string_assertion_accepts_all_existing_policy_rows() {
-        for row_id in [
-            "string_indexof_scalar_i64_routes",
-            "string_lastindexof_scalar_i64_routes",
-            "string_contains_scalar_i64_routes",
-        ] {
-            assert_string_policy_row(row_id);
-        }
-    }
-
-    #[test]
-    #[should_panic(expected = "String caller-orientation policy row identity drift")]
-    fn string_assertion_rejects_unknown_policy_row() {
-        assert_string_policy_row("unknown_policy_row");
-    }
-
-    #[test]
     #[should_panic(expected = "assertion `left == right` failed")]
     fn string_assertion_rejects_metadata_drift() {
         let mut contract = STRING_SCALAR_I64_CALLER_ORIENTATION_CONTRACTS[0];
         contract.publication_consumer = "RuntimeConsumer";
         assert_string_contract_metadata(&contract);
+    }
+
+    #[test]
+    fn string_authority_pilot_accepts_exact_policy_set() {
+        for policy in STRING_SEARCH_SCALAR_I64_HAKO_POLICIES {
+            assert_string_authority_pilot(policy.policy_row_id);
+        }
+    }
+
+    #[test]
+    #[should_panic(expected = "policy row identity drift")]
+    fn string_authority_pilot_rejects_unknown_policy_row() {
+        assert_string_authority_pilot("unknown_policy_row");
+    }
+
+    #[test]
+    #[should_panic(expected = "assertion `left == right` failed")]
+    fn string_authority_pilot_rejects_policy_metadata_drift() {
+        let mut policy = STRING_SEARCH_SCALAR_I64_HAKO_POLICIES[0];
+        policy.role = "caller_selected_route_authority";
+        assert_string_policy_metadata(&policy);
     }
 
     #[test]
