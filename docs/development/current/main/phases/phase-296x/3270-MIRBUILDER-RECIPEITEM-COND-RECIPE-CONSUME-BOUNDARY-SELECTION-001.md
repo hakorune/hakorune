@@ -40,6 +40,12 @@ Gate:
 tools/checks/rust_lifecycle_mirbuilder_recipeitem_cond_recipe_consume_boundary_selection_guard.sh
 ```
 
+## Guard
+
+```text
+tools/checks/rust_lifecycle_mirbuilder_recipeitem_cond_recipe_consume_boundary_selection_guard.sh
+```
+
 ## Claims
 
 ```text
