@@ -1,0 +1,117 @@
+{
+  "candidate_assessment": [
+    {
+      "allowed_existing_proofs": [
+        "MapSetScalarI64SameKeyNoEscape",
+        "MapSetScalarI64DominatesNoEscape",
+        "MapSetScalarI64CoveredDynamicI64KeyNoEscape"
+      ],
+      "core_op_family": [
+        "MapGet"
+      ],
+      "effect_class": "read",
+      "proof_family": "ScalarI64MapGetStoreFact",
+      "publication_policy": "NoPublication",
+      "return_shape": "ScalarI64OrMissingZero",
+      "route_kind_family": [
+        "MapLoadScalarI64"
+      ],
+      "selected_first": true,
+      "selection_reason": "Narrowest read generated artifact family that mirrors an existing scalar-map proof branch without broadening authority.",
+      "surface_id": "MapLoadScalarI64Routes",
+      "value_demand": "ScalarI64"
+    },
+    {
+      "blocked_by": [
+        "ThreeRouteKindsAndThreeCoreOpsBeforeFirstReadArtifact"
+      ],
+      "selected_first": false,
+      "surface_id": "StringScalarI64Routes"
+    },
+    {
+      "blocked_by": [
+        "MixedReceiverDomainFamiliesAndObserveEffectBeforeFirstReadArtifact"
+      ],
+      "selected_first": false,
+      "surface_id": "CollectionScalarI64Routes"
+    }
+  ],
+  "claims": {
+    "backend_lowering_authority": 0,
+    "basis_only": 1,
+    "build_rs_hako_compiler_invocation": 0,
+    "caller_orientation_runtime_path": 0,
+    "fastpath_connected_closeout": 0,
+    "generated_typed_hako_artifact_created": 0,
+    "hako_runtime_route_authority": 0,
+    "implementation_deferred_to_next_card": 1,
+    "live_hako_authority": 0,
+    "manual_surface_selection": 0,
+    "mapload_fastpath_shadow_consumed": 0,
+    "mapload_generated_artifact_basis_selected": 1,
+    "mapload_scalar_i64_routes_selected_first": 1,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "owner_name_as_proof": 0,
+    "publication_execution": 0,
+    "read_surface_connection_complete": 0,
+    "read_surface_generated_artifact_minimality_axis": 1,
+    "read_surface_generated_typed_artifact_selection_consultation": 1,
+    "route_count_as_proof": 0,
+    "route_membership_alone_as_proof": 0,
+    "route_selection_authority_switch": 0,
+    "runtime_fallback": 0,
+    "runtime_mutation_authority": 0,
+    "rust_fastpath_rewired": 0,
+    "source_path_as_authority": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "SelectMapLoadScalarI64RoutesFirst",
+    "reason_token": "ReadSurfaceGeneratedArtifactMinimalityAxis",
+    "selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-BASIS-MAPLOAD-SCALAR-I64-001"
+  },
+  "input_state": {
+    "connected_closeout_inventory_rerun_003": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-connected-closeout-inventory-rerun-003-v0.json",
+    "connected_closeout_inventory_rerun_003_hash": "6b6b14d90aead54bb60625b8f03be2149e160fbf87ccefed65f8b15912e9be30",
+    "rerun_003_decision": "KeepStoppedDesignConsultationRequired",
+    "rerun_003_reason": "NoMechanicalReadSurfaceGeneratedTypedArtifactPriority"
+  },
+  "kind": "MirBuilderScalarKnownFastpathReadSurfaceGeneratedTypedArtifactSelectionDesignConsultationV1",
+  "proof_axis": {
+    "artifact_shape_complexity": true,
+    "live_decision_insertion_locality": true,
+    "manual_surface_selection": false,
+    "name": "ReadSurfaceGeneratedArtifactMinimalityAxis",
+    "owner_name_as_proof": false,
+    "policy_homogeneity": true,
+    "route_count_as_proof": false,
+    "route_membership_alone_as_proof": false,
+    "semantic_authority_non_broadening": true,
+    "source_path_as_authority": false
+  },
+  "provenance": {
+    "collection_read_routes": "src/mir/generic_method_route_plan/collection_read_routes.rs",
+    "collection_read_routes_hash": "57a6db955ae35c9a9295fbf5ed180ce9a39ced253d30dbda6e86c3f514006899",
+    "scalar_known_contract": "src/mir/generic_method_route_plan/scalar_known_typed_direct_closeout_contract.rs",
+    "scalar_known_contract_hash": "37041c179e4164598cc1629cfb7ba44ad5a75494db2df2248cf63c76ce3cf0a7",
+    "string_routes": "src/mir/generic_method_route_plan/string_routes.rs",
+    "string_routes_hash": "e01cc5744cd85aaf75fbc9bc2b6573c31f37dd7cce1d5687f9ed5f7bbed9da20"
+  },
+  "schema_version": 0,
+  "summary": {
+    "basis_only": 1,
+    "fastpath_connected_closeout": 0,
+    "generated_typed_hako_artifact_created": 0,
+    "hako_runtime_route_authority": 0,
+    "implementation_deferred_to_next_card": 1,
+    "mapload_fastpath_shadow_consumed": 0,
+    "mapload_generated_artifact_basis_selected": 1,
+    "mapload_scalar_i64_routes_selected_first": 1,
+    "read_surface_generated_artifact_minimality_axis": 1,
+    "read_surface_generated_typed_artifact_selection_consultation": 1,
+    "rust_fastpath_rewired": 0,
+    "source_selfhost_claim": 0
+  },
+  "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-READ-SURFACE-GENERATED-TYPED-ARTIFACT-SELECTION-DESIGN-CONSULTATION-001"
+}
