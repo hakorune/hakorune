@@ -345,16 +345,16 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-SET-MAPSTORE-I64-CALLER-ORIENTATION-CONTRACT-ARTIFACT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3432-MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-SET-MAPSTORE-I64-CALLER-ORIENTATION-CONTRACT-ARTIFACT-001.md"
-latest_card_summary = """3432 is the first code-facing task in the pre-authorized
+latest_card = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-PUSH-ARRAYAPPENDANY-CALLER-ORIENTATION-CONTRACT-ARTIFACT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3433-MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-PUSH-ARRAYAPPENDANY-CALLER-ORIENTATION-CONTRACT-ARTIFACT-001.md"
+latest_card_summary = """3433 is the second code-facing task in the pre-authorized
 3432..3439 non-Delete Write caller-orientation assertion packet. Materialize a
-MapStoreI64 metadata-only contract using only the existing policy row ID;
-mutation/effect/value-boundary semantics remain policy-owned, and all runtime,
-route, backend, mutation/publication, Delete, wide, and Source Selfhost claims
-remain zero."""
+Push/ArrayAppendAny metadata-only contract using only the existing policy row
+ID; mutation/effect/value-boundary semantics remain policy-owned, and all
+runtime, route, backend, mutation/publication, Delete, wide, and Source
+Selfhost claims remain zero."""
 
-current_blocker_token = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-SET-MAPSTORE-I64-CALLER-ORIENTATION-CONTRACT-ARTIFACT-001"
+current_blocker_token = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-PUSH-ARRAYAPPENDANY-CALLER-ORIENTATION-CONTRACT-ARTIFACT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -363,6 +363,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-10: 3432 materializes the MapStoreI64 metadata-only caller-orientation contract artifact with exact row identity, freshness, no-live-consumer, and no-mutation-copy guards; existing Hako route/oracle authority remains intact and Write mutation, runtime, Delete, wide, and Source Selfhost claims remain unclaimed.",
   "2026-07-10: 3431 selects the exact non-Delete Write metadata/assertion packet for MapStoreI64, ArrayAppendAny, and MapStoreAny using three worker inventories, forbids mutation/effect/value-boundary copying and Delete inclusion, and defers Pro consultation until the post-3439 authority boundary.",
   "2026-07-10: 3430 closes the pre-authorized read caller-orientation assertion packet with exact MapLoad 1 + String 3 + Collection 4 live row coverage, records assertion-only Unit consumption, and stops before authority-bearing caller orientation, Write/Delete expansion, ScalarKnown-wide authority, runtime/backend/lowering, mutation/publication, or Source Selfhost.",
   "2026-07-10: 3429 extends the compiler-side caller-orientation assertion-only consumer to the exact four Collection policy rows, preserves mixed receiver-domain and AnyLength/Box ownership in the existing policy/oracle, passes nine shared assertion tests, and leaves runtime dispatch, route selection, lowering, mutation, publication, and Source Selfhost unclaimed.",
@@ -374,5 +375,4 @@ landed_tail = [
   "2026-07-10: 3423 materializes the CollectionScalarI64Routes caller-orientation `.hako` contract and checked-in generated typed Rust artifact for the exact four existing policy rows, preserves receiver-domain and explicit AnyLength/Box ownership in the existing policy/oracle, and leaves live consumer, runtime dispatch, route selection, lowering, mutation, publication, ScalarKnown-wide authority, Delete authority, and Source Selfhost unclaimed.",
   "2026-07-10: 3422 materializes a StringScalarI64Routes caller-orientation .hako contract and checked-in generated typed Rust artifact for the three homogeneous String policy rows, adds exact row-set and no-live-consumer guards, and leaves runtime dispatch, route selection, lowering, mutation, publication, Collection expansion, ScalarKnown-wide authority, Delete authority, and Source Selfhost unclaimed.",
   "2026-07-10: 3421 materializes a MapLoad-only caller-orientation .hako contract and checked-in generated typed Rust artifact, references the existing policy row without duplicating route semantics, and adds a no-live-consumer guard while runtime dispatch, route selection, lowering, mutation, publication, ScalarKnown-wide authority, Delete authority, and Source Selfhost remain unclaimed.",
-  "2026-07-10: 3420 adopts a MapLoadScalarI64Routes-only narrow caller-orientation basis as contract metadata, retains the existing .hako route-decision authority and Rust oracle fail-fast boundary, and leaves caller runtime dispatch, route selection switching, backend/lowering, mutation, publication, ScalarKnown-wide authority, Delete authority, and Source Selfhost unclaimed.",
 ]

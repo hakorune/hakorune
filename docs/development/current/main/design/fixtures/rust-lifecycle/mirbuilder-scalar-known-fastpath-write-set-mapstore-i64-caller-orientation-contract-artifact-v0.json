@@ -1,0 +1,72 @@
+{
+  "claims": {
+    "backend_lowering_authority": 0,
+    "caller_orientation_live_consumer": 0,
+    "caller_orientation_runtime_path": 0,
+    "delete_hako_route_decision_authority_pilot": 0,
+    "effect_metadata_copied_to_caller_contract": 0,
+    "hako_runtime_route_authority": 0,
+    "mapstore_i64_caller_orientation_artifact_current": 1,
+    "mapstore_i64_caller_orientation_generated_typed_artifact": 1,
+    "mapstore_i64_caller_orientation_hako_contract_materialized": 1,
+    "mapstore_i64_caller_orientation_no_live_consumer_guard": 1,
+    "mapstore_i64_caller_orientation_policy_row_reference_verified": 1,
+    "mapstore_i64_hako_route_decision_authority_retained": 1,
+    "mapstore_i64_mismatch_fail_fast": 1,
+    "mapstore_i64_rust_oracle_compat_checker_retained": 1,
+    "mutation_metadata_copied_to_caller_contract": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "publication_execution": 0,
+    "route_selection_authority_switch": 0,
+    "runtime_fallback": 0,
+    "runtime_mutation_authority": 0,
+    "scalar_known_hako_runtime_route_authority": 0,
+    "scalar_known_wide_authority": 0,
+    "source_selfhost_claim": 0,
+    "value_boundary_copied_to_caller_contract": 0,
+    "write_mutation_authority": 0,
+    "write_wide_authority": 0
+  },
+  "contract": {
+    "backend_lowering_consumer": "Forbidden",
+    "mismatch_policy": "FailFast",
+    "mutation_consumer": "Forbidden",
+    "orientation_kind": "CallerOrientationContractMetadataOnly",
+    "policy_row_ids": [
+      "map_store_i64_set_surface"
+    ],
+    "publication_consumer": "Forbidden",
+    "runtime_consumer": "Forbidden",
+    "scope": "SingleSurface"
+  },
+  "decision": {
+    "backend_lowering_consumer_registered": false,
+    "implementation_complete": true,
+    "kind": "MaterializeMapStoreI64CallerOrientationContractArtifact",
+    "runtime_consumer_registered": false,
+    "selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-PUSH-ARRAYAPPENDANY-CALLER-ORIENTATION-CONTRACT-ARTIFACT-001"
+  },
+  "input_state": {
+    "basis_surface": "SetSurfacePolicy/MapStoreI64",
+    "mapstore_i64_authority_basis": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-write-set-mapstore-i64-hako-authority-pilot-basis-v0.json",
+    "mapstore_i64_authority_basis_hash": "511f8db227bdfcb6aab677c9612a7517b8cccd18f95f23038488d5dd947f4a68"
+  },
+  "kind": "MirBuilderScalarKnownFastpathWriteSetMapStoreI64CallerOrientationContractArtifactV1",
+  "provenance": {
+    "existing_mapstore_i64_oracle": "src/mir/generic_method_route_plan/scalar_known_hako_shadow.rs",
+    "existing_mapstore_i64_oracle_hash": "f3d3df9349f755658c3bdcbe94866bf3eff9547a60556e29b3875dc9e09b6b6a",
+    "generated_artifact": "src/mir/generic_method_route_plan/generated/write_set_mapstore_i64_caller_orientation_contract.rs",
+    "generated_artifact_hash": "19134440813d88a790900768df04661442da365f1285f0d7cf7af6a1c020cef3",
+    "generator": "tools/rust_lifecycle/generate_write_set_mapstore_i64_caller_orientation_contract.py",
+    "generator_hash": "d53e2170f676b33399a88d05e5e64ce2274a263016584ce23cd5d8c2183e3024",
+    "hako_contract": "lang/src/compiler/lib/write_set_mapstore_i64_caller_orientation_contract.hako",
+    "hako_contract_hash": "d27da900bea63c511909943ba592e94205734848f3a420c0ad77783e3a2330dd",
+    "mapstore_i64_policy": "lang/src/compiler/lib/write_set_mapstore_i64_policy_classifier.hako",
+    "mapstore_i64_policy_artifact": "src/mir/generic_method_route_plan/generated/write_set_mapstore_i64_hako_policy.rs",
+    "mapstore_i64_policy_artifact_hash": "21975493831b4b080c98aeb836d6a69cbb9b3605d5a7636aed49c4653d411508",
+    "mapstore_i64_policy_hash": "1bc09769e02851c5c42a7a8287624215d9f206d5b2800e17659016a6fd177f5d"
+  },
+  "schema_version": 0,
+  "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-SET-MAPSTORE-I64-CALLER-ORIENTATION-CONTRACT-ARTIFACT-001"
+}

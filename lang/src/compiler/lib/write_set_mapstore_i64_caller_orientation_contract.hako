@@ -1,0 +1,16 @@
+// write_set_mapstore_i64_caller_orientation_contract.hako
+//
+// Responsibility:
+// - declare metadata-only caller orientation for the existing MapStoreI64 row
+// - reference the policy row ID without copying write semantics
+//
+// Non-responsibility:
+// - route selection, runtime dispatch, MIR emission, backend lowering
+// - mutation, effect, value-boundary, publication, or Delete authority
+static box WriteSetMapStoreI64CallerOrientationContractBox {
+  static method rows() {
+    return [
+      "map_store_i64_set_surface|CallerOrientationContractMetadataOnly|SingleSurface|Forbidden|Forbidden|Forbidden|Forbidden|FailFast"
+    ]
+  }
+}
