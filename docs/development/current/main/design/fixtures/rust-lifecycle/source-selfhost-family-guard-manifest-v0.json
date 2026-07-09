@@ -2448,6 +2448,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-connected-closeout-inventory-rerun-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_scalar_known_fastpath_connected_closeout_inventory_rerun_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-SHADOW-CONSUME-SET-MAPSTORE-ANY-BASIS-001",
+      "card": "docs/development/current/main/phases/phase-296x/3367-MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-SHADOW-CONSUME-SET-MAPSTORE-ANY-BASIS-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-hako-generated-typed-artifact-shadow-consume-set-mapstore-any-basis-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_scalar_known_fastpath_hako_generated_typed_artifact_shadow_consume_set_mapstore_any_basis_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {
