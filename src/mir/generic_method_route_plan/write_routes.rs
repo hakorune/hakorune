@@ -146,10 +146,14 @@ pub(super) fn match_generic_set_route(
 
     let value_origin_box = receiver_origin_box_name(function, def_map, args[1]);
 
-    let decision = if route_kind == GenericMethodRouteKind::MapStoreI64 {
-        scalar_known_hako_shadow::mapstore_i64_shadow_consumed_decision()
-    } else {
-        GenericMethodRouteDecision::new(
+    let decision = match route_kind {
+        GenericMethodRouteKind::MapStoreI64 => {
+            scalar_known_hako_shadow::mapstore_i64_shadow_consumed_decision()
+        }
+        GenericMethodRouteKind::MapStoreAny => {
+            scalar_known_hako_shadow::mapstore_any_shadow_consumed_decision()
+        }
+        _ => GenericMethodRouteDecision::new(
             route_kind,
             GenericMethodRouteProof::SetSurfacePolicy,
             Some(CoreMethodOpCarrier::manifest(
@@ -159,7 +163,7 @@ pub(super) fn match_generic_set_route(
             None,
             GenericMethodValueDemand::WriteAny,
             None,
-        )
+        ),
     };
 
     Some(GenericMethodRoute::new(
