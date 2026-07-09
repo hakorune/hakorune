@@ -9,48 +9,48 @@
     "source_selfhost_claim": 0
   },
   "current_state": {
-    "current_blocker_token": "MIRBUILDER-RECIPEITEM-COND-RECIPE-CONSUME-BOUNDARY-SELECTION-001",
-    "latest_card": "MIRBUILDER-RECIPEITEM-COND-RECIPE-DIAGNOSTIC-SUMMARY-OBSERVATION-CURRENT-GATE-001",
-    "latest_card_path": "docs/development/current/main/phases/phase-296x/3358-MIRBUILDER-RECIPEITEM-COND-RECIPE-DIAGNOSTIC-SUMMARY-OBSERVATION-CURRENT-GATE-001.md"
+    "current_blocker_token": "MIRBUILDER-RECIPEVERIFIER-COND-RECIPE-VALIDATE-ONLY-CONSUME-001",
+    "latest_card": "MIRBUILDER-RECIPEITEM-COND-RECIPE-CONSUME-BOUNDARY-SELECTION-CURRENT-001",
+    "latest_card_path": "docs/development/current/main/phases/phase-296x/3359-MIRBUILDER-RECIPEITEM-COND-RECIPE-CONSUME-BOUNDARY-SELECTION-CURRENT-001.md"
   },
   "decision": {
     "kind": "ResolveCurrentActiveRustLifecycleGuards",
     "reason_token": "LatestCurrentScopedGuardSet",
-    "selected_next_card": "MIRBUILDER-RECIPEITEM-COND-RECIPE-CONSUME-BOUNDARY-SELECTION-001"
+    "selected_next_card": "MIRBUILDER-RECIPEVERIFIER-COND-RECIPE-VALIDATE-ONLY-CONSUME-001"
   },
   "kind": "CurrentActiveRustLifecycleGuardResolverV1",
   "resolution": {
     "current_blocker": {
-      "card": "docs/development/current/main/phases/phase-296x/3270-MIRBUILDER-RECIPEITEM-COND-RECIPE-CONSUME-BOUNDARY-SELECTION-001.md",
+      "card": "docs/development/current/main/phases/phase-296x/3271-MIRBUILDER-RECIPEVERIFIER-COND-RECIPE-VALIDATE-ONLY-CONSUME-001.md",
       "guard_count": 1,
       "guard_paths": [
-        "tools/checks/rust_lifecycle_mirbuilder_recipeitem_cond_recipe_consume_boundary_selection_guard.sh"
+        "tools/checks/rust_lifecycle_mirbuilder_recipeverifier_cond_recipe_validate_only_consume_gate.sh"
       ],
       "status": "resolved",
-      "token": "MIRBUILDER-RECIPEITEM-COND-RECIPE-CONSUME-BOUNDARY-SELECTION-001"
+      "token": "MIRBUILDER-RECIPEVERIFIER-COND-RECIPE-VALIDATE-ONLY-CONSUME-001"
     },
-    "historical_rust_lifecycle_script_count": 1050,
+    "historical_rust_lifecycle_script_count": 1051,
     "latest": {
-      "card": "docs/development/current/main/phases/phase-296x/3358-MIRBUILDER-RECIPEITEM-COND-RECIPE-DIAGNOSTIC-SUMMARY-OBSERVATION-CURRENT-GATE-001.md",
+      "card": "docs/development/current/main/phases/phase-296x/3359-MIRBUILDER-RECIPEITEM-COND-RECIPE-CONSUME-BOUNDARY-SELECTION-CURRENT-001.md",
       "guard_count": 1,
       "guard_paths": [
-        "tools/checks/rust_lifecycle_mirbuilder_recipeitem_cond_recipe_diagnostic_summary_observation_current_guard.sh"
+        "tools/checks/rust_lifecycle_mirbuilder_recipeitem_cond_recipe_consume_boundary_selection_current_guard.sh"
       ],
       "status": "resolved",
-      "token": "MIRBUILDER-RECIPEITEM-COND-RECIPE-DIAGNOSTIC-SUMMARY-OBSERVATION-CURRENT-GATE-001"
+      "token": "MIRBUILDER-RECIPEITEM-COND-RECIPE-CONSUME-BOUNDARY-SELECTION-CURRENT-001"
     },
     "max_default_guard_count": 3,
     "run_all_historical_guards": false,
     "runnable_guard_count": 2,
     "runnable_guard_paths": [
-      "tools/checks/rust_lifecycle_mirbuilder_recipeitem_cond_recipe_diagnostic_summary_observation_current_guard.sh",
-      "tools/checks/rust_lifecycle_mirbuilder_recipeitem_cond_recipe_consume_boundary_selection_guard.sh"
+      "tools/checks/rust_lifecycle_mirbuilder_recipeitem_cond_recipe_consume_boundary_selection_current_guard.sh",
+      "tools/checks/rust_lifecycle_mirbuilder_recipeverifier_cond_recipe_validate_only_consume_gate.sh"
     ]
   },
   "schema_version": 0,
   "source_files": {
-    "docs/development/current/main/CURRENT_STATE.toml": "bd20e4baeeeee34d92b6abd11af5ca3485ffd1fc73da2698bc533c75ff4fd666",
-    "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md": "906dc19a9931cac790f7472f07ea484c8ce04da6cdf6f0407c87ee0b13daa470"
+    "docs/development/current/main/CURRENT_STATE.toml": "5aca6b73c8f42c414d5d44d9a42ef61be018926134b77d70a5095fceb201bb01",
+    "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md": "7bd0ae42d9e12a8a424a10bc76a533bbc49c90325cc9e3a8d3073f4cafad08f3"
   },
   "summary": {
     "current_active_guard_resolver": 1,
@@ -60,7 +60,7 @@
     "max_default_guard_count": 3,
     "run_all_rust_lifecycle_guards_by_default": 0,
     "runnable_guard_count": 2,
-    "selected_next_card": "MIRBUILDER-RECIPEITEM-COND-RECIPE-CONSUME-BOUNDARY-SELECTION-001",
+    "selected_next_card": "MIRBUILDER-RECIPEVERIFIER-COND-RECIPE-VALIDATE-ONLY-CONSUME-001",
     "source_selfhost_claim": 0
   },
   "token": "MIRBUILDER-CURRENT-ACTIVE-RUST-LIFECYCLE-GUARD-RESOLVER-001"

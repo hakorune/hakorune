@@ -415,14 +415,15 @@ next active:
   MIRBUILDER-PROGRAMJSON-LOOP-STMT-COND-RECIPE-SIDECAR-WIRING-001; status=landed; loop_stmt_cond_recipe_sidecar_wiring = 1; recipe_item_attachment_implementation = 1; legacy_cond_facts_required = 1; selected_next_card=MIRBUILDER-RECIPEITEM-COND-RECIPE-OBSERVATION-BOUNDARY-SELECTION-001; source_selfhost_claim = 0
   MIRBUILDER-RECIPEITEM-COND-RECIPE-OBSERVATION-BOUNDARY-SELECTION-001; status=landed; selected_next_card=MIRBUILDER-RECIPEITEM-COND-RECIPE-DIAGNOSTIC-SUMMARY-OBSERVATION-001; source_selfhost_claim = 0
   MIRBUILDER-RECIPEITEM-COND-RECIPE-DIAGNOSTIC-SUMMARY-OBSERVATION-001; status=landed; cond_recipe_diagnostic_summary_observation = 1; cond_recipe_deep_observation_implementation = 1; selected_next_card=MIRBUILDER-RECIPEITEM-COND-RECIPE-CONSUME-BOUNDARY-SELECTION-001; source_selfhost_claim = 0
-  MIRBUILDER-RECIPEITEM-COND-RECIPE-DIAGNOSTIC-SUMMARY-OBSERVATION-CURRENT-GATE-001; status=landed; output_contract=rust-lifecycle-mirbuilder-recipeitem-cond-recipe-diagnostic-summary-observation-current-gate; cond_recipe_diagnostic_summary_observation_current_gate = 1; cond_recipe_deep_observation_implementation = 1; selected_next_card=MIRBUILDER-RECIPEITEM-COND-RECIPE-CONSUME-BOUNDARY-SELECTION-001; source_selfhost_claim = 0
   MIRBUILDER-RECIPEITEM-COND-RECIPE-CONSUME-BOUNDARY-SELECTION-001; status=landed; selected_next_card=MIRBUILDER-RECIPEVERIFIER-COND-RECIPE-VALIDATE-ONLY-CONSUME-001; source_selfhost_claim = 0
+  MIRBUILDER-RECIPEITEM-COND-RECIPE-CONSUME-BOUNDARY-SELECTION-CURRENT-001; status=landed; output_contract=rust-lifecycle-mirbuilder-recipeitem-cond-recipe-consume-boundary-selection-current; cond_recipe_consume_boundary_selection_current = 1; selected_recipeverifier_validate_only_consumer = 1; selected_next_card=MIRBUILDER-RECIPEVERIFIER-COND-RECIPE-VALIDATE-ONLY-CONSUME-001; source_selfhost_claim = 0
+  MIRBUILDER-RECIPEVERIFIER-COND-RECIPE-VALIDATE-ONLY-CONSUME-001; status=landed; recipeverifier_cond_recipe_validate_only_consume = 1; malformed_cond_recipe_rejected = 1; selected_next_card=MIRBUILDER-RECIPEMATCHER-COND-RECIPE-INPUT-CONSUME-BOUNDARY-SELECTION-001; source_selfhost_claim = 0
 trigger-based AOT/MIR typing debt:
   status=parked-until-triggered; order=2999/3000/3001 landed, then 3022 queue
   only when an active ProgramJSON gate hits Float Sub/Mul/Div, string relational
   compare, PHI dst_type, mir_call dst_type, or receiver-helper.
-next_documented_task = MIRBUILDER-RECIPEITEM-COND-RECIPE-CONSUME-BOUNDARY-SELECTION-001
-next_after_active_3 = MIRBUILDER-RECIPEITEM-COND-RECIPE-CONSUME-BOUNDARY-SELECTION-001
+next_documented_task = MIRBUILDER-RECIPEVERIFIER-COND-RECIPE-VALIDATE-ONLY-CONSUME-001
+next_after_active_3 = MIRBUILDER-RECIPEVERIFIER-COND-RECIPE-VALIDATE-ONLY-CONSUME-001
 follow_on_after_consume = select first BoolRecipe publication parity row only after consume gate is green
 
 task discipline =
