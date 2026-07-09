@@ -1,0 +1,15 @@
+// CollectionScalarI64Routes policy mirror for Rust fast-path shadow consumption.
+//
+// The Rust fast path consumes a checked-in generated typed artifact derived from
+// these rows. This source is mirror-only: it is not route authority.
+
+static box CollectionLenScalarI64PolicyClassifierBox {
+  static method rows() {
+    return [
+      "collection_map_entry_count_scalar_i64_routes|CollectionScalarI64Routes|MapEntryCount|MapLen|MapBox|WarmDirectAbi|ScalarI64Result|ScalarI64|ScalarI64|NoPublication|observe|LenSurfacePolicy|classifier_policy_mirror_only",
+      "collection_array_slot_len_scalar_i64_routes|CollectionScalarI64Routes|ArraySlotLen|ArrayLen|ArrayBox|WarmDirectAbi|ScalarI64Result|ScalarI64|ScalarI64|NoPublication|observe|LenSurfacePolicy|classifier_policy_mirror_only",
+      "collection_string_len_scalar_i64_routes|CollectionScalarI64Routes|StringLen|StringLen|StringBox|WarmDirectAbi|ScalarI64Result|ScalarI64|ScalarI64|NoPublication|observe|LenSurfacePolicy|classifier_policy_mirror_only",
+      "collection_any_length_scalar_i64_routes|CollectionScalarI64Routes|AnyLength|AnyLen|Box|WarmDirectAbi|ScalarI64Result|ScalarI64|ScalarI64|NoPublication|observe|LenSurfacePolicy|classifier_policy_mirror_only"
+    ]
+  }
+}

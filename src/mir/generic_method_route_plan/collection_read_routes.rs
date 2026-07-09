@@ -476,16 +476,9 @@ pub(super) fn match_generic_len_route(
         GenericMethodRouteSurface::new(box_name.clone(), method.clone(), args.len()),
         GenericMethodRouteEvidence::new(receiver_origin_box, None),
         GenericMethodRouteOperands::new(*receiver, None, *dst),
-        GenericMethodRouteDecision::new(
+        scalar_known_hako_shadow::collection_scalar_i64_shadow_consumed_decision(
             route_kind,
-            GenericMethodRouteProof::LenSurfacePolicy,
-            Some(CoreMethodOpCarrier::manifest(
-                core_op,
-                CoreMethodLoweringTier::WarmDirectAbi,
-            )),
-            Some(GenericMethodReturnShape::ScalarI64),
-            GenericMethodValueDemand::ScalarI64,
-            Some(GenericMethodPublicationPolicy::NoPublication),
+            core_op,
         ),
     ))
 }

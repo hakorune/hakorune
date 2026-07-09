@@ -3,6 +3,9 @@ use crate::mir::generic_method_route_facts::{
     GenericMethodPublicationPolicy, GenericMethodReturnShape, GenericMethodValueDemand,
 };
 
+use super::generated::collection_len_scalar_i64_hako_policy::{
+    HakoCollectionLenScalarI64Policy, COLLECTION_LEN_SCALAR_I64_HAKO_POLICIES,
+};
 use super::generated::mapload_scalar_i64_hako_policy::{
     HakoMapLoadScalarI64Policy, MAPLOAD_SCALAR_I64_HAKO_POLICY,
 };
@@ -87,6 +90,44 @@ pub(super) fn string_scalar_i64_shadow_consumed_decision(
     GenericMethodRouteDecision::new(
         route_kind,
         route_proof,
+        Some(CoreMethodOpCarrier::manifest(
+            core_op,
+            CoreMethodLoweringTier::WarmDirectAbi,
+        )),
+        Some(GenericMethodReturnShape::ScalarI64),
+        GenericMethodValueDemand::ScalarI64,
+        Some(GenericMethodPublicationPolicy::NoPublication),
+    )
+}
+
+pub(super) fn collection_scalar_i64_shadow_consumed_decision(
+    route_kind: GenericMethodRouteKind,
+    core_op: CoreMethodOp,
+) -> GenericMethodRouteDecision {
+    let policy = COLLECTION_LEN_SCALAR_I64_HAKO_POLICIES
+        .iter()
+        .find(|policy| policy.route_kind == route_kind)
+        .expect("Collection .hako policy table missing Rust route kind");
+    let accepted_contract_count = accepted_scalar_known_contracts().count();
+    assert!(
+        accepted_contract_count >= 4,
+        "ScalarKnown accepted contract boundary lost prior closeouts"
+    );
+    let contract_contains_route = accepted_scalar_known_contracts().any(|contract| {
+        contract.contract_id == ScalarKnownContractId::CollectionLenScalarI64
+            && contract.surface_id == ScalarKnownSurfaceId::CollectionScalarI64Routes
+            && contract.effect_class.as_str() == ScalarKnownEffectClass::Observe.as_str()
+            && contract.route_kind_set.contains(&route_kind)
+    });
+    assert!(
+        contract_contains_route,
+        "ScalarKnown Collection contract no longer contains requested route"
+    );
+    assert_hako_collection_scalar_i64_policy_matches_rust(policy, route_kind, core_op);
+
+    GenericMethodRouteDecision::new(
+        route_kind,
+        GenericMethodRouteProof::LenSurfacePolicy,
         Some(CoreMethodOpCarrier::manifest(
             core_op,
             CoreMethodLoweringTier::WarmDirectAbi,
@@ -313,6 +354,34 @@ fn assert_hako_string_scalar_i64_policy_matches_rust(
     assert_eq!(policy.role, "classifier_policy_mirror_only");
 }
 
+fn assert_hako_collection_scalar_i64_policy_matches_rust(
+    policy: &HakoCollectionLenScalarI64Policy,
+    route_kind: GenericMethodRouteKind,
+    core_op: CoreMethodOp,
+) {
+    assert_eq!(policy.surface, "CollectionScalarI64Routes");
+    assert_eq!(policy.route_kind, route_kind);
+    assert_eq!(policy.core_op, core_op);
+    assert_eq!(policy.lowering_tier, CoreMethodLoweringTier::WarmDirectAbi);
+    assert_eq!(policy.result_class, "ScalarI64Result");
+    assert_eq!(policy.return_shape, GenericMethodReturnShape::ScalarI64);
+    assert_eq!(
+        policy.value_demand,
+        GenericMethodValueDemand::ScalarI64,
+        "Collection .hako policy value demand drifted"
+    );
+    assert_eq!(
+        policy.publication_policy,
+        GenericMethodPublicationPolicy::NoPublication
+    );
+    assert_eq!(policy.effect_class, "observe");
+    assert_eq!(
+        policy.proof_or_policy_source,
+        GenericMethodRouteProof::LenSurfacePolicy
+    );
+    assert_eq!(policy.role, "classifier_policy_mirror_only");
+}
+
 fn assert_hako_policy_matches_rust(policy: &HakoMapStoreI64Policy) {
     assert_eq!(policy.surface, "SetSurfacePolicy");
     assert_eq!(policy.route_kind, GenericMethodRouteKind::MapStoreI64);
@@ -454,6 +523,36 @@ mod tests {
     }
 
     #[test]
+    fn collection_scalar_i64_shadow_artifact_matches_rust_fastpath_policy() {
+        for (route_kind, core_op) in [
+            (GenericMethodRouteKind::MapEntryCount, CoreMethodOp::MapLen),
+            (GenericMethodRouteKind::ArraySlotLen, CoreMethodOp::ArrayLen),
+            (GenericMethodRouteKind::StringLen, CoreMethodOp::StringLen),
+            (GenericMethodRouteKind::AnyLength, CoreMethodOp::AnyLen),
+        ] {
+            let decision = collection_scalar_i64_shadow_consumed_decision(route_kind, core_op);
+            assert_eq!(
+                decision,
+                GenericMethodRouteDecision::new(
+                    route_kind,
+                    GenericMethodRouteProof::LenSurfacePolicy,
+                    Some(CoreMethodOpCarrier::manifest(
+                        core_op,
+                        CoreMethodLoweringTier::WarmDirectAbi,
+                    )),
+                    Some(GenericMethodReturnShape::ScalarI64),
+                    GenericMethodValueDemand::ScalarI64,
+                    Some(GenericMethodPublicationPolicy::NoPublication),
+                )
+            );
+        }
+        assert_eq!(
+            ScalarKnownContractId::CollectionLenScalarI64.as_str(),
+            "CollectionLenScalarI64TypedDirectCloseoutContract"
+        );
+    }
+
+    #[test]
     fn write_push_shadow_artifact_matches_rust_fastpath_policy() {
         let _ = write_push_shadow_consumed_decision();
         assert_eq!(
@@ -530,6 +629,30 @@ mod tests {
             GenericMethodRouteKind::StringIndexOf,
             GenericMethodRouteProof::IndexOfSurfacePolicy,
             CoreMethodOp::StringIndexOf,
+        );
+    }
+
+    #[test]
+    #[should_panic(expected = "assertion `left == right` failed")]
+    fn collection_scalar_i64_shadow_rejects_core_op_mismatch() {
+        let mut policy = COLLECTION_LEN_SCALAR_I64_HAKO_POLICIES[0];
+        policy.core_op = CoreMethodOp::AnyLen;
+        assert_hako_collection_scalar_i64_policy_matches_rust(
+            &policy,
+            GenericMethodRouteKind::MapEntryCount,
+            CoreMethodOp::MapLen,
+        );
+    }
+
+    #[test]
+    #[should_panic(expected = "assertion `left == right` failed")]
+    fn collection_scalar_i64_shadow_rejects_role_mismatch() {
+        let mut policy = COLLECTION_LEN_SCALAR_I64_HAKO_POLICIES[0];
+        policy.role = "hako_runtime_route_authority";
+        assert_hako_collection_scalar_i64_policy_matches_rust(
+            &policy,
+            GenericMethodRouteKind::MapEntryCount,
+            CoreMethodOp::MapLen,
         );
     }
 
