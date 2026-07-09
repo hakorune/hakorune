@@ -345,17 +345,17 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-STRING-CALLER-ORIENTATION-CONTRACT-ARTIFACT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3422-MIRBUILDER-SCALAR-KNOWN-FASTPATH-STRING-CALLER-ORIENTATION-CONTRACT-ARTIFACT-001.md"
-latest_card_summary = """3422 materializes a StringScalarI64Routes
-caller-orientation `.hako` contract and checked-in generated typed Rust
-artifact for exactly the three homogeneous String policy rows. A guard verifies
-the row set and rejects every live consumer. Runtime dispatch, route selection,
-lowering, mutation, publication, Collection expansion, ScalarKnown-wide
-authority, Delete authority, and Source Selfhost remain unclaimed; Collection
-caller orientation now requires a separate mixed-domain design consultation."""
+latest_card = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-CALLER-ORIENTATION-CONTRACT-ARTIFACT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3423-MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-CALLER-ORIENTATION-CONTRACT-ARTIFACT-001.md"
+latest_card_summary = """3423 is the active implementation task for a
+CollectionScalarI64Routes caller-orientation `.hako` contract and generated
+typed Rust artifact. It must reference the exact four-row Collection policy set,
+while receiver domains and the explicit AnyLength/Box boundary remain owned by
+the existing route policy. No live consumer, runtime dispatch, route selection,
+lowering, mutation, publication, ScalarKnown-wide authority, Delete authority,
+or Source Selfhost claim is opened."""
 
-current_blocker_token = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-STRING-CALLER-ORIENTATION-CONTRACT-ARTIFACT-001"
+current_blocker_token = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-CALLER-ORIENTATION-CONTRACT-ARTIFACT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

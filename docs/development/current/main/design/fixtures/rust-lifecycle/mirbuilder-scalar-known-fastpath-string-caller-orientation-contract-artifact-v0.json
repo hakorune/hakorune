@@ -41,7 +41,8 @@
     "backend_lowering_consumer_registered": false,
     "implementation_complete": true,
     "kind": "MaterializeStringCallerOrientationContractArtifact",
-    "runtime_consumer_registered": false
+    "runtime_consumer_registered": false,
+    "selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-CALLER-ORIENTATION-CONTRACT-ARTIFACT-001"
   },
   "input_state": {
     "basis_surface": "StringScalarI64Routes",

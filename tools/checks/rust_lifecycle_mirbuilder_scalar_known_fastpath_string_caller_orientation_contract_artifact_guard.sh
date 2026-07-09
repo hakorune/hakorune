@@ -15,12 +15,13 @@ POLICY_ARTIFACT="$ROOT/src/mir/generic_method_route_plan/generated/string_search
 GENERATED_MOD="$ROOT/src/mir/generic_method_route_plan/generated/mod.rs"
 GENERATOR="$ROOT/tools/rust_lifecycle/generate_string_scalar_i64_caller_orientation_contract.py"
 SHADOW="$ROOT/src/mir/generic_method_route_plan/scalar_known_hako_shadow.rs"
+TASK_ORDER="$ROOT/docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 MANIFEST="$ROOT/docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-family-guard-manifest-v0.json"
 
 guard_require_command "$TAG" python3
 guard_require_command "$TAG" diff
 guard_require_files "$TAG" "$FIXTURE" "$TOOL" "$CARD" "$CONTRACT" "$POLICY" "$ARTIFACT" \
-  "$POLICY_ARTIFACT" "$GENERATED_MOD" "$GENERATOR" "$SHADOW" "$MANIFEST"
+  "$POLICY_ARTIFACT" "$GENERATED_MOD" "$GENERATOR" "$SHADOW" "$TASK_ORDER" "$MANIFEST"
 
 python3 "$TOOL" --check
 TMP="$(mktemp)"
@@ -28,7 +29,7 @@ trap 'rm -f "$TMP"' EXIT
 python3 "$GENERATOR" > "$TMP"
 diff -u "$ARTIFACT" "$TMP"
 
-python3 - "$ROOT" "$FIXTURE" "$CARD" "$CONTRACT" "$POLICY" "$ARTIFACT" "$POLICY_ARTIFACT" "$GENERATED_MOD" "$SHADOW" "$MANIFEST" <<'PY'
+python3 - "$ROOT" "$FIXTURE" "$CARD" "$CONTRACT" "$POLICY" "$ARTIFACT" "$POLICY_ARTIFACT" "$GENERATED_MOD" "$SHADOW" "$TASK_ORDER" "$MANIFEST" <<'PY'
 import json
 import sys
 from pathlib import Path
@@ -43,7 +44,8 @@ artifact = artifact_path.read_text(encoding="utf-8")
 policy_artifact = Path(sys.argv[7]).read_text(encoding="utf-8")
 generated_mod = Path(sys.argv[8]).read_text(encoding="utf-8")
 shadow = Path(sys.argv[9]).read_text(encoding="utf-8")
-manifest = json.loads(Path(sys.argv[10]).read_text(encoding="utf-8"))
+task_order = Path(sys.argv[10]).read_text(encoding="utf-8")
+manifest = json.loads(Path(sys.argv[11]).read_text(encoding="utf-8"))
 
 
 def need(condition, message):
@@ -52,10 +54,12 @@ def need(condition, message):
 
 
 token = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-STRING-CALLER-ORIENTATION-CONTRACT-ARTIFACT-001"
+next_card = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-CALLER-ORIENTATION-CONTRACT-ARTIFACT-001"
 need(fixture.get("token") == token, "token drift")
 need(token in card, "card token drift")
-need(manifest.get("current_blocker_token") == token, "manifest current blocker drift")
 need(token in {row.get("token") for row in manifest.get("rows", [])}, "manifest token missing")
+need((fixture.get("decision") or {}).get("selected_next_card") == next_card, "selected next card drift")
+need(next_card in task_order, "task chain pointer drift")
 
 row_ids = [
     "string_indexof_scalar_i64_routes",
