@@ -345,16 +345,17 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-RECIPEITEM-CONDITION-SLOT-BOOL-RECIPE-SIDECAR-BRIDGE-CURRENT-GATE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3354-MIRBUILDER-RECIPEITEM-CONDITION-SLOT-BOOL-RECIPE-SIDECAR-BRIDGE-CURRENT-GATE-001.md"
-latest_card_summary = """3354 consumes the existing RecipeItem condition-slot
-BoolRecipe sidecar bridge gate in the current 335x chain, proves the optional
-cond_recipe sidecar remains green while legacy cond_facts remains required,
-selects the ProgramJSON RecipeItem cond_recipe producer wiring selection, and
-leaves RecipeMatcher input authority, BoolRecipe lowering, MIR Compare/Branch
-emission, route/runtime authority, and Source Selfhost unclaimed."""
+latest_card = "MIRBUILDER-PROGRAMJSON-RECIPEITEM-COND-RECIPE-PRODUCER-WIRING-SELECTION-CURRENT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3355-MIRBUILDER-PROGRAMJSON-RECIPEITEM-COND-RECIPE-PRODUCER-WIRING-SELECTION-CURRENT-001.md"
+latest_card_summary = """3355 consumes the existing ProgramJSON RecipeItem
+cond_recipe producer wiring selection in the current 335x chain, proves the
+selected producer remains LoopStmtHandlerLoopConditionProducer, selects the
+LoopStmt condition-recipe sidecar wiring task, and leaves RecipeItem
+attachment implementation, IfStmt wiring, post-hoc decoration, RecipeMatcher
+input authority, BoolRecipe lowering, MIR Compare/Branch emission,
+route/runtime authority, and Source Selfhost unclaimed."""
 
-current_blocker_token = "MIRBUILDER-PROGRAMJSON-RECIPEITEM-COND-RECIPE-PRODUCER-WIRING-SELECTION-001"
+current_blocker_token = "MIRBUILDER-PROGRAMJSON-LOOP-STMT-COND-RECIPE-SIDECAR-WIRING-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -363,11 +364,11 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-09: 3355 consumes the existing ProgramJSON RecipeItem cond_recipe producer wiring selection in the current 335x chain, records cond_recipe_producer_wiring_selection_current=1, cond_recipe_producer_wiring_selection=1, selected_loop_stmt_handler_cond_recipe_producer=1, selected_producer=LoopStmtHandlerLoopConditionProducer, selects MIRBUILDER-PROGRAMJSON-LOOP-STMT-COND-RECIPE-SIDECAR-WIRING-001, and leaves RecipeItem attachment implementation, IfStmt wiring, post-hoc decoration, RecipeMatcher input authority, BoolRecipe lowering, MIR Compare/Branch emission, route/runtime authority, and Source Selfhost unclaimed.",
   "2026-07-09: 3354 consumes the existing RecipeItem condition-slot BoolRecipe sidecar bridge gate in the current 335x chain, records recipeitem_cond_recipe_sidecar_bridge_current_gate=1, recipeitem_cond_recipe_sidecar_bridge=1, optional_cond_recipe_sidecar=1, legacy_cond_facts_required=1, recipe_item_attachment=1, selects MIRBUILDER-PROGRAMJSON-RECIPEITEM-COND-RECIPE-PRODUCER-WIRING-SELECTION-001, and leaves RecipeMatcher input authority, BoolRecipe lowering, MIR Compare/Branch emission, route/runtime authority, and Source Selfhost unclaimed.",
   "2026-07-09: 3353 retires the unconnected DeleteSurfacePolicy / MapDeleteAny `.hako` mirror chain, deletes the dedicated DeleteSurface lifecycle artifacts, removes their source-selfhost family manifest rows, preserves the live Rust MapDeleteAny route and runtime semantics, selects MIRBUILDER-RECIPEITEM-CONDITION-SLOT-BOOL-RECIPE-SIDECAR-BRIDGE-CURRENT-GATE-001, and leaves runtime behavior changes, WriteScalarI64Routes closeout, ScalarKnownTransportAxis closeout, Hako runtime/backend authority, new backend/ABI, and Source Selfhost unclaimed.",
   "2026-07-09: 3352 consumes the existing RecipeItem condition-slot BoolRecipe bridge selection in the current 335x chain, records condition_slot_bridge_selection=1, selected_optional_cond_recipe_sidecar=1, selected_bridge=OptionalCondRecipeSidecar, legacy_cond_facts_required=1, cond_recipe_optional=1, selects MIRBUILDER-RECIPEITEM-CONDITION-SLOT-BOOL-RECIPE-SIDECAR-BRIDGE-CURRENT-GATE-001, and leaves recipe attachment, RecipeMatcher authority, BoolRecipe lowering, MIR Compare/Branch emission, route/runtime authority, and Source Selfhost unclaimed.",
   "2026-07-09: 3351 runs the scoped first BoolRecipe compare publication parity row gate for selected_row_id=var_le_literal, records bool_recipe_compare_publication_first_parity_row_gate=1, publication_rows=1, read_only_bool_recipe_compare_publication=1, selects MIRBUILDER-RECIPEITEM-CONDITION-SLOT-BOOL-RECIPE-BRIDGE-SELECTION-001, and leaves recipe attachment, RecipeMatcher authority, BoolRecipe lowering, MIR Compare/Branch emission, route/runtime authority, and Source Selfhost unclaimed.",
-  "2026-07-09: 3350 selects the first scoped BoolRecipe compare publication parity row after the MapStoreI64 `.hako` fast-path shadow-consume gate is green, records bool_recipe_compare_publication_first_parity_row_selected=1, selected_row_id=var_le_literal, selection_only=1, selects MIRBUILDER-BOOL-RECIPE-COMPARE-PUBLICATION-FIRST-PARITY-ROW-GATE-001, and leaves parity execution, recipe attachment, RecipeMatcher authority, BoolRecipe lowering, MIR Compare/Branch emission, route/runtime authority, and Source Selfhost unclaimed.",
   "2026-07-09: 3349 expands the SetSurfacePolicy / MapStoreI64 `.hako` fast-path shadow-consume guard with explicit mismatch rows for route kind, core op, and mirror role drift, records hako_shadow_mismatch_guard_expanded=1, route_kind_mismatch_rejected=1, core_op_mismatch_rejected=1, role_mismatch_rejected=1, rust_authority_retained=1, selects MIRBUILDER-BOOL-RECIPE-COMPARE-PUBLICATION-FIRST-PARITY-ROW-SELECTION-001, and leaves route/runtime authority switches, .hako runtime/backend authority, runtime mutation/publication execution, new backend/ABI, and Source Selfhost unclaimed.",
   "2026-07-09: 3348 connects the SetSurfacePolicy / MapStoreI64 `.hako` classifier mirror to the Rust fast-path decision point as a shadow-consumed artifact, records hako_artifact_fastpath_shadow_consumed=1, rust_hako_policy_match=1, mismatch_policy=fail_fast_guard, rust_authority_retained=1, selects MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-SHADOW-CONSUME-MISMATCH-GUARD-EXPANSION-001, and leaves route/runtime authority switches, .hako runtime/backend authority, runtime mutation/publication execution, new backend/ABI, and Source Selfhost unclaimed.",
   "2026-07-09: 3347 deletes the proof-only compare bridge cluster from the live Rust builder module surface, removes six bridge files and builder.rs module declarations, updates the reachability inventory to deleted_file_count=6, verifies live compare lowering remains on ops/comparison.rs via finalize_compare/emit_to, selects MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-SHADOW-CONSUME-SET-MAPSTORE-I64-001, and leaves route/runtime authority, .hako runtime/backend authority, new backend/ABI, and Source Selfhost unclaimed.",

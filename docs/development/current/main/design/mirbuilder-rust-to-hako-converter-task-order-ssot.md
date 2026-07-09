@@ -411,19 +411,19 @@ landed summary: 3219 selects more DTO coverage rows; 3222 selects runtime Recipe
 next active:
   MIRBUILDER-RECIPEITEM-CONDITION-SLOT-BOOL-RECIPE-SIDECAR-BRIDGE-001; status=landed; selected_next_card=MIRBUILDER-PROGRAMJSON-RECIPEITEM-COND-RECIPE-PRODUCER-WIRING-SELECTION-001; source_selfhost_claim = 0
   MIRBUILDER-RECIPEITEM-CONDITION-SLOT-BOOL-RECIPE-BRIDGE-SELECTION-001; status=landed; selected_next_card=MIRBUILDER-RECIPEITEM-CONDITION-SLOT-BOOL-RECIPE-SIDECAR-BRIDGE-001; source_selfhost_claim = 0
-  MIRBUILDER-SCALAR-KNOWN-WRITE-DELETE-SURFACE-MIRROR-RETIRE-001; status=landed; output_contract=rust-lifecycle-mirbuilder-scalar-known-write-delete-surface-mirror-retire; delete_surface_hako_mirror_retired = 1; delete_surface_lifecycle_artifacts_deleted = 1; delete_surface_manifest_rows_removed = 1; rust_map_delete_route_preserved = 1; selected_next_card=MIRBUILDER-RECIPEITEM-CONDITION-SLOT-BOOL-RECIPE-SIDECAR-BRIDGE-CURRENT-GATE-001; source_selfhost_claim = 0
-  MIRBUILDER-RECIPEITEM-CONDITION-SLOT-BOOL-RECIPE-SIDECAR-BRIDGE-CURRENT-GATE-001; status=landed; output_contract=rust-lifecycle-mirbuilder-recipeitem-condition-slot-bool-recipe-sidecar-bridge-current-gate; recipeitem_cond_recipe_sidecar_bridge_current_gate = 1; optional_cond_recipe_sidecar = 1; legacy_cond_facts_required = 1; recipe_item_attachment = 1; selected_next_card=MIRBUILDER-PROGRAMJSON-RECIPEITEM-COND-RECIPE-PRODUCER-WIRING-SELECTION-001; source_selfhost_claim = 0
+  MIRBUILDER-PROGRAMJSON-RECIPEITEM-COND-RECIPE-PRODUCER-WIRING-SELECTION-001; status=landed; selected_producer=LoopStmtHandlerLoopConditionProducer; selected_next_card=MIRBUILDER-PROGRAMJSON-LOOP-STMT-COND-RECIPE-SIDECAR-WIRING-001; source_selfhost_claim = 0
+  MIRBUILDER-PROGRAMJSON-RECIPEITEM-COND-RECIPE-PRODUCER-WIRING-SELECTION-CURRENT-001; status=landed; output_contract=rust-lifecycle-mirbuilder-programjson-recipeitem-cond-recipe-producer-wiring-selection-current; cond_recipe_producer_wiring_selection_current = 1; selected_loop_stmt_handler_cond_recipe_producer = 1; selected_next_card=MIRBUILDER-PROGRAMJSON-LOOP-STMT-COND-RECIPE-SIDECAR-WIRING-001; source_selfhost_claim = 0
+  MIRBUILDER-PROGRAMJSON-LOOP-STMT-COND-RECIPE-SIDECAR-WIRING-001; status=landed; loop_stmt_cond_recipe_sidecar_wiring = 1; recipe_item_attachment_implementation = 1; legacy_cond_facts_required = 1; selected_next_card=MIRBUILDER-RECIPEITEM-COND-RECIPE-OBSERVATION-BOUNDARY-SELECTION-001; source_selfhost_claim = 0
+  MIRBUILDER-RECIPEITEM-COND-RECIPE-OBSERVATION-BOUNDARY-SELECTION-001; status=landed; selected_next_card=MIRBUILDER-RECIPEITEM-COND-RECIPE-DIAGNOSTIC-SUMMARY-OBSERVATION-001; source_selfhost_claim = 0
 
 trigger-based AOT/MIR typing debt:
   status=parked-until-triggered; order=2999/3000/3001 landed, then 3022 queue
   only when an active ProgramJSON gate hits Float Sub/Mul/Div, string relational
-  compare, PHI dst_type, mir_call dst_type, or receiver-helper
-  single-observation protection
+  compare, PHI dst_type, mir_call dst_type, or receiver-helper.
 next_documented_task =
-  MIRBUILDER-PROGRAMJSON-RECIPEITEM-COND-RECIPE-PRODUCER-WIRING-SELECTION-001
-
+  MIRBUILDER-PROGRAMJSON-LOOP-STMT-COND-RECIPE-SIDECAR-WIRING-001
 next_after_active_3 =
-  MIRBUILDER-PROGRAMJSON-RECIPEITEM-COND-RECIPE-PRODUCER-WIRING-SELECTION-001
+  MIRBUILDER-PROGRAMJSON-LOOP-STMT-COND-RECIPE-SIDECAR-WIRING-001
 follow_on_after_consume = select first BoolRecipe publication parity row only after consume gate is green
 
 task discipline =

@@ -42,6 +42,12 @@ Gate:
 tools/checks/rust_lifecycle_mirbuilder_programjson_loop_stmt_cond_recipe_sidecar_wiring_gate.sh
 ```
 
+## Guard
+
+```text
+tools/checks/rust_lifecycle_mirbuilder_programjson_loop_stmt_cond_recipe_sidecar_wiring_gate.sh
+```
+
 ## Claims
 
 ```text

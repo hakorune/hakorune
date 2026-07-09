@@ -9,55 +9,58 @@
     "source_selfhost_claim": 0
   },
   "current_state": {
-    "current_blocker_token": "MIRBUILDER-PROGRAMJSON-RECIPEITEM-COND-RECIPE-PRODUCER-WIRING-SELECTION-001",
-    "latest_card": "MIRBUILDER-RECIPEITEM-CONDITION-SLOT-BOOL-RECIPE-SIDECAR-BRIDGE-CURRENT-GATE-001",
-    "latest_card_path": "docs/development/current/main/phases/phase-296x/3354-MIRBUILDER-RECIPEITEM-CONDITION-SLOT-BOOL-RECIPE-SIDECAR-BRIDGE-CURRENT-GATE-001.md"
+    "current_blocker_token": "MIRBUILDER-PROGRAMJSON-LOOP-STMT-COND-RECIPE-SIDECAR-WIRING-001",
+    "latest_card": "MIRBUILDER-PROGRAMJSON-RECIPEITEM-COND-RECIPE-PRODUCER-WIRING-SELECTION-CURRENT-001",
+    "latest_card_path": "docs/development/current/main/phases/phase-296x/3355-MIRBUILDER-PROGRAMJSON-RECIPEITEM-COND-RECIPE-PRODUCER-WIRING-SELECTION-CURRENT-001.md"
   },
   "decision": {
     "kind": "ResolveCurrentActiveRustLifecycleGuards",
     "reason_token": "LatestCurrentScopedGuardSet",
-    "selected_next_card": "MIRBUILDER-PROGRAMJSON-RECIPEITEM-COND-RECIPE-PRODUCER-WIRING-SELECTION-001"
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-LOOP-STMT-COND-RECIPE-SIDECAR-WIRING-001"
   },
   "kind": "CurrentActiveRustLifecycleGuardResolverV1",
   "resolution": {
     "current_blocker": {
-      "card": "docs/development/current/main/phases/phase-296x/3266-MIRBUILDER-PROGRAMJSON-RECIPEITEM-COND-RECIPE-PRODUCER-WIRING-SELECTION-001.md",
-      "guard_count": 0,
-      "guard_paths": [],
-      "status": "pending_card_or_guard",
-      "token": "MIRBUILDER-PROGRAMJSON-RECIPEITEM-COND-RECIPE-PRODUCER-WIRING-SELECTION-001"
-    },
-    "historical_rust_lifecycle_script_count": 1046,
-    "latest": {
-      "card": "docs/development/current/main/phases/phase-296x/3354-MIRBUILDER-RECIPEITEM-CONDITION-SLOT-BOOL-RECIPE-SIDECAR-BRIDGE-CURRENT-GATE-001.md",
+      "card": "docs/development/current/main/phases/phase-296x/3267-MIRBUILDER-PROGRAMJSON-LOOP-STMT-COND-RECIPE-SIDECAR-WIRING-001.md",
       "guard_count": 1,
       "guard_paths": [
-        "tools/checks/rust_lifecycle_mirbuilder_recipeitem_condition_slot_bool_recipe_sidecar_bridge_current_gate.sh"
+        "tools/checks/rust_lifecycle_mirbuilder_programjson_loop_stmt_cond_recipe_sidecar_wiring_gate.sh"
       ],
       "status": "resolved",
-      "token": "MIRBUILDER-RECIPEITEM-CONDITION-SLOT-BOOL-RECIPE-SIDECAR-BRIDGE-CURRENT-GATE-001"
+      "token": "MIRBUILDER-PROGRAMJSON-LOOP-STMT-COND-RECIPE-SIDECAR-WIRING-001"
+    },
+    "historical_rust_lifecycle_script_count": 1047,
+    "latest": {
+      "card": "docs/development/current/main/phases/phase-296x/3355-MIRBUILDER-PROGRAMJSON-RECIPEITEM-COND-RECIPE-PRODUCER-WIRING-SELECTION-CURRENT-001.md",
+      "guard_count": 1,
+      "guard_paths": [
+        "tools/checks/rust_lifecycle_mirbuilder_programjson_recipeitem_cond_recipe_producer_wiring_selection_current_guard.sh"
+      ],
+      "status": "resolved",
+      "token": "MIRBUILDER-PROGRAMJSON-RECIPEITEM-COND-RECIPE-PRODUCER-WIRING-SELECTION-CURRENT-001"
     },
     "max_default_guard_count": 3,
     "run_all_historical_guards": false,
-    "runnable_guard_count": 1,
+    "runnable_guard_count": 2,
     "runnable_guard_paths": [
-      "tools/checks/rust_lifecycle_mirbuilder_recipeitem_condition_slot_bool_recipe_sidecar_bridge_current_gate.sh"
+      "tools/checks/rust_lifecycle_mirbuilder_programjson_recipeitem_cond_recipe_producer_wiring_selection_current_guard.sh",
+      "tools/checks/rust_lifecycle_mirbuilder_programjson_loop_stmt_cond_recipe_sidecar_wiring_gate.sh"
     ]
   },
   "schema_version": 0,
   "source_files": {
-    "docs/development/current/main/CURRENT_STATE.toml": "3c49ec8813350ba2ccd5e81ed7e31d43a018f556801fca3abb1e2ebff81a269f",
-    "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md": "6df942d9d9bfbedf56474f0010bb9d3419393201baae875f4c92dc87f400821e"
+    "docs/development/current/main/CURRENT_STATE.toml": "df38af0f870c6b019116664eda434861708bfc8e3b78efa4cddad201c6c51629",
+    "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md": "dac49730c52d9cf0c9e4a4d7ac54defbc573df2585d2135b2d40adc2b988ad61"
   },
   "summary": {
     "current_active_guard_resolver": 1,
-    "current_blocker_guard_pending": 1,
-    "current_blocker_guard_resolved": 0,
+    "current_blocker_guard_pending": 0,
+    "current_blocker_guard_resolved": 1,
     "latest_guard_resolved": 1,
     "max_default_guard_count": 3,
     "run_all_rust_lifecycle_guards_by_default": 0,
-    "runnable_guard_count": 1,
-    "selected_next_card": "MIRBUILDER-PROGRAMJSON-RECIPEITEM-COND-RECIPE-PRODUCER-WIRING-SELECTION-001",
+    "runnable_guard_count": 2,
+    "selected_next_card": "MIRBUILDER-PROGRAMJSON-LOOP-STMT-COND-RECIPE-SIDECAR-WIRING-001",
     "source_selfhost_claim": 0
   },
   "token": "MIRBUILDER-CURRENT-ACTIVE-RUST-LIFECYCLE-GUARD-RESOLVER-001"
