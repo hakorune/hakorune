@@ -7,6 +7,10 @@ use super::generated::string_scalar_i64_caller_orientation_contract::{
 use super::generated::collection_scalar_i64_caller_orientation_contract::{
     HakoCollectionCallerOrientationContract, COLLECTION_SCALAR_I64_CALLER_ORIENTATION_CONTRACTS,
 };
+use super::generated::write_set_mapstore_i64_caller_orientation_contract::{
+    HakoMapStoreI64CallerOrientationContract,
+    WRITE_SET_MAPSTORE_I64_CALLER_ORIENTATION_CONTRACT,
+};
 
 const METADATA_ONLY: &str = "CallerOrientationContractMetadataOnly";
 const SINGLE_SURFACE: &str = "SingleSurface";
@@ -59,6 +63,27 @@ pub(super) fn assert_collection_policy_row(policy_row_id: &str) {
 }
 
 fn assert_collection_contract_metadata(contract: &HakoCollectionCallerOrientationContract) {
+    assert_eq!(contract.orientation_kind, METADATA_ONLY);
+    assert_eq!(contract.scope, SINGLE_SURFACE);
+    assert_eq!(contract.runtime_consumer, FORBIDDEN);
+    assert_eq!(contract.backend_lowering_consumer, FORBIDDEN);
+    assert_eq!(contract.mutation_consumer, FORBIDDEN);
+    assert_eq!(contract.publication_consumer, FORBIDDEN);
+    assert_eq!(contract.mismatch_policy, FAIL_FAST);
+}
+
+pub(super) fn assert_mapstore_i64_policy_row(policy_row_id: &str) {
+    let contract = WRITE_SET_MAPSTORE_I64_CALLER_ORIENTATION_CONTRACT;
+    assert_eq!(
+        contract.policy_row_id, policy_row_id,
+        "MapStoreI64 caller-orientation policy row identity drift"
+    );
+    assert_mapstore_i64_contract_metadata(&contract);
+}
+
+fn assert_mapstore_i64_contract_metadata(
+    contract: &HakoMapStoreI64CallerOrientationContract,
+) {
     assert_eq!(contract.orientation_kind, METADATA_ONLY);
     assert_eq!(contract.scope, SINGLE_SURFACE);
     assert_eq!(contract.runtime_consumer, FORBIDDEN);
@@ -140,5 +165,24 @@ mod tests {
         let mut contract = COLLECTION_SCALAR_I64_CALLER_ORIENTATION_CONTRACTS[0];
         contract.mutation_consumer = "RuntimeConsumer";
         assert_collection_contract_metadata(&contract);
+    }
+
+    #[test]
+    fn mapstore_i64_assertion_accepts_existing_policy_row() {
+        assert_mapstore_i64_policy_row("map_store_i64_set_surface");
+    }
+
+    #[test]
+    #[should_panic(expected = "policy row identity drift")]
+    fn mapstore_i64_assertion_rejects_unknown_policy_row() {
+        assert_mapstore_i64_policy_row("unknown_policy_row");
+    }
+
+    #[test]
+    #[should_panic(expected = "assertion `left == right` failed")]
+    fn mapstore_i64_assertion_rejects_metadata_drift() {
+        let mut contract = WRITE_SET_MAPSTORE_I64_CALLER_ORIENTATION_CONTRACT;
+        contract.mutation_consumer = "RuntimeConsumer";
+        assert_mapstore_i64_contract_metadata(&contract);
     }
 }

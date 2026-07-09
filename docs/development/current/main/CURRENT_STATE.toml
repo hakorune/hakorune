@@ -345,14 +345,14 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-SET-MAPSTORE-I64-CALLER-ORIENTATION-LIVE-ASSERT-CONSUMER-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3436-MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-SET-MAPSTORE-I64-CALLER-ORIENTATION-LIVE-ASSERT-CONSUMER-001.md"
-latest_card_summary = """3436 connects the existing MapStoreI64 policy lookup to a
+latest_card = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-PUSH-ARRAYAPPENDANY-CALLER-ORIENTATION-LIVE-ASSERT-CONSUMER-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3437-MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-PUSH-ARRAYAPPENDANY-CALLER-ORIENTATION-LIVE-ASSERT-CONSUMER-001.md"
+latest_card_summary = """3437 connects the existing ArrayAppendAny policy lookup to a
 compiler-side caller-orientation assertion-only consumer that accepts only the
 transported policy row ID and returns Unit. Route/runtime/backend,
 mutation/publication, Delete, wide, and Source Selfhost claims remain zero."""
 
-current_blocker_token = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-SET-MAPSTORE-I64-CALLER-ORIENTATION-LIVE-ASSERT-CONSUMER-001"
+current_blocker_token = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-PUSH-ARRAYAPPENDANY-CALLER-ORIENTATION-LIVE-ASSERT-CONSUMER-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -361,9 +361,9 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-10: 3436 connects the MapStoreI64 policy lookup to a caller-orientation assertion-only Unit consumer accepting only policy row identity, with fail-fast identity/metadata tests; route/runtime/backend, mutation/publication, Delete, wide, and Source Selfhost claims remain unclaimed.",
   "2026-07-10: 3435 transports exact policy row identity through the three non-Delete Write typed policy artifacts, refreshes caller-contract provenance, and guards the closed set without adding route, mutation, publication, Delete, wide, or Source Selfhost authority.",
   "2026-07-10: 3434 materializes the MapStoreAny metadata-only caller-orientation contract artifact with exact row identity, freshness, no-live-consumer, no-mutation-copy, and Any-write-boundary non-copy guards; existing Hako route/oracle authority remains intact and Write mutation, runtime, Delete, wide, and Source Selfhost claims remain unclaimed.",
-  "2026-07-10: 3433 materializes the ArrayAppendAny metadata-only caller-orientation contract artifact with exact row identity, freshness, no-live-consumer, and no-mutation-copy guards; existing Hako route/oracle authority remains intact and Write mutation, runtime, Delete, wide, and Source Selfhost claims remain unclaimed.",
   "2026-07-10: 3432 materializes the MapStoreI64 metadata-only caller-orientation contract artifact with exact row identity, freshness, no-live-consumer, and no-mutation-copy guards; existing Hako route/oracle authority remains intact and Write mutation, runtime, Delete, wide, and Source Selfhost claims remain unclaimed.",
   "2026-07-10: 3431 selects the exact non-Delete Write metadata/assertion packet for MapStoreI64, ArrayAppendAny, and MapStoreAny using three worker inventories, forbids mutation/effect/value-boundary copying and Delete inclusion, and defers Pro consultation until the post-3439 authority boundary.",
   "2026-07-10: 3430 closes the pre-authorized read caller-orientation assertion packet with exact MapLoad 1 + String 3 + Collection 4 live row coverage, records assertion-only Unit consumption, and stops before authority-bearing caller orientation, Write/Delete expansion, ScalarKnown-wide authority, runtime/backend/lowering, mutation/publication, or Source Selfhost.",

@@ -233,6 +233,7 @@ pub(super) fn mapstore_i64_shadow_consumed_decision() -> GenericMethodRouteDecis
 
 pub(super) fn mapstore_i64_hako_route_authority_pilot_decision() -> GenericMethodRouteDecision {
     let policy = WRITE_SET_MAPSTORE_I64_HAKO_POLICY;
+    super::caller_orientation::assert_mapstore_i64_policy_row(policy.policy_row_id);
     assert_write_contract_contains(GenericMethodRouteKind::MapStoreI64, "MapStoreI64");
     assert_hako_policy_matches_rust(&policy);
 
