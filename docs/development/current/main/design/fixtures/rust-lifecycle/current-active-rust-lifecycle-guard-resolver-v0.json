@@ -9,14 +9,14 @@
     "source_selfhost_claim": 0
   },
   "current_state": {
-    "current_blocker_token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-BASIS-MAPLOAD-SCALAR-I64-001",
-    "latest_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-READ-SURFACE-GENERATED-TYPED-ARTIFACT-SELECTION-DESIGN-CONSULTATION-001",
-    "latest_card_path": "docs/development/current/main/phases/phase-296x/3373-MIRBUILDER-SCALAR-KNOWN-FASTPATH-READ-SURFACE-GENERATED-TYPED-ARTIFACT-SELECTION-DESIGN-CONSULTATION-001.md"
+    "current_blocker_token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-SHADOW-CONSUME-MAPLOAD-SCALAR-I64-001",
+    "latest_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-BASIS-MAPLOAD-SCALAR-I64-001",
+    "latest_card_path": "docs/development/current/main/phases/phase-296x/3374-MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-BASIS-MAPLOAD-SCALAR-I64-001.md"
   },
   "decision": {
     "kind": "ResolveCurrentActiveRustLifecycleGuards",
     "reason_token": "LatestCurrentScopedGuardSet",
-    "selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-BASIS-MAPLOAD-SCALAR-I64-001"
+    "selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-SHADOW-CONSUME-MAPLOAD-SCALAR-I64-001"
   },
   "kind": "CurrentActiveRustLifecycleGuardResolverV1",
   "resolution": {
@@ -25,29 +25,29 @@
       "guard_count": 0,
       "guard_paths": [],
       "status": "pending_card_or_guard",
-      "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-BASIS-MAPLOAD-SCALAR-I64-001"
+      "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-SHADOW-CONSUME-MAPLOAD-SCALAR-I64-001"
     },
-    "historical_rust_lifecycle_script_count": 1066,
+    "historical_rust_lifecycle_script_count": 1067,
     "latest": {
-      "card": "docs/development/current/main/phases/phase-296x/3373-MIRBUILDER-SCALAR-KNOWN-FASTPATH-READ-SURFACE-GENERATED-TYPED-ARTIFACT-SELECTION-DESIGN-CONSULTATION-001.md",
+      "card": "docs/development/current/main/phases/phase-296x/3374-MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-BASIS-MAPLOAD-SCALAR-I64-001.md",
       "guard_count": 1,
       "guard_paths": [
-        "tools/checks/rust_lifecycle_mirbuilder_scalar_known_fastpath_read_surface_generated_typed_artifact_selection_design_consultation_guard.sh"
+        "tools/checks/rust_lifecycle_mirbuilder_scalar_known_fastpath_hako_generated_typed_artifact_basis_mapload_scalar_i64_guard.sh"
       ],
       "status": "resolved",
-      "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-READ-SURFACE-GENERATED-TYPED-ARTIFACT-SELECTION-DESIGN-CONSULTATION-001"
+      "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-BASIS-MAPLOAD-SCALAR-I64-001"
     },
     "max_default_guard_count": 3,
     "run_all_historical_guards": false,
     "runnable_guard_count": 1,
     "runnable_guard_paths": [
-      "tools/checks/rust_lifecycle_mirbuilder_scalar_known_fastpath_read_surface_generated_typed_artifact_selection_design_consultation_guard.sh"
+      "tools/checks/rust_lifecycle_mirbuilder_scalar_known_fastpath_hako_generated_typed_artifact_basis_mapload_scalar_i64_guard.sh"
     ]
   },
   "schema_version": 0,
   "source_files": {
-    "docs/development/current/main/CURRENT_STATE.toml": "f7e4e41e8b3840753da148a3e77254ceea2de4c957f9b61876f9998358cf3424",
-    "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md": "f1f184969586575165e571621f4481c7d2a5a8c9d9bb2fa723e25bf33985c418"
+    "docs/development/current/main/CURRENT_STATE.toml": "94c076664165d9a1f101ef4c607f15092aeb735442479f5c948f480b8b2c7c40",
+    "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md": "4227c39cbcd048f24c4e2c61f9b9d520036a36fbac555fd8f607e24cda333203"
   },
   "summary": {
     "current_active_guard_resolver": 1,
@@ -57,7 +57,7 @@
     "max_default_guard_count": 3,
     "run_all_rust_lifecycle_guards_by_default": 0,
     "runnable_guard_count": 1,
-    "selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-BASIS-MAPLOAD-SCALAR-I64-001",
+    "selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-SHADOW-CONSUME-MAPLOAD-SCALAR-I64-001",
     "source_selfhost_claim": 0
   },
   "token": "MIRBUILDER-CURRENT-ACTIVE-RUST-LIFECYCLE-GUARD-RESOLVER-001"

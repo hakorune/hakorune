@@ -2497,6 +2497,13 @@
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-read-surface-generated-typed-artifact-selection-design-consultation-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_scalar_known_fastpath_read_surface_generated_typed_artifact_selection_design_consultation_guard.sh",
       "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-BASIS-MAPLOAD-SCALAR-I64-001",
+      "card": "docs/development/current/main/phases/phase-296x/3374-MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-BASIS-MAPLOAD-SCALAR-I64-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-hako-generated-typed-artifact-basis-mapload-scalar-i64-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_scalar_known_fastpath_hako_generated_typed_artifact_basis_mapload_scalar_i64_guard.sh",
+      "role": "current_queue"
     }
   ],
   "forbidden_claims": {

@@ -1,0 +1,69 @@
+{
+  "basis": {
+    "allowed_existing_proofs": [
+      "MapSetScalarI64SameKeyNoEscape",
+      "MapSetScalarI64DominatesNoEscape",
+      "MapSetScalarI64CoveredDynamicI64KeyNoEscape"
+    ],
+    "build_rs_hako_compiler_invocation_allowed": false,
+    "core_op": "MapGet",
+    "effect_class": "read",
+    "fastpath_connection_allowed_next": true,
+    "generated_artifact_allowed_next": true,
+    "lowering_tier": "WarmDirectAbi",
+    "next_mechanism": "CheckedInGeneratedTypedHakoArtifactShadowConsume",
+    "proof_family": "ScalarI64MapGetStoreFact",
+    "publication_policy": "NoPublication",
+    "return_shape": "ScalarI64OrMissingZero",
+    "route_kind": "MapLoadScalarI64",
+    "runtime_authority": "RustRetained",
+    "runtime_hako_source_text_parsing_allowed": false,
+    "surface": "MapLoadScalarI64Routes",
+    "value_demand": "ScalarI64"
+  },
+  "claims": {
+    "backend_lowering_authority": 0,
+    "basis_only": 1,
+    "build_rs_hako_compiler_invocation": 0,
+    "caller_orientation_runtime_path": 0,
+    "checked_in_generated_typed_artifact_allowed_next": 1,
+    "fastpath_connected_closeout": 0,
+    "fastpath_shadow_consume_allowed_next": 1,
+    "generated_typed_hako_artifact_created": 0,
+    "generated_typed_hako_artifact_shadow_consumed": 0,
+    "hako_runtime_route_authority": 0,
+    "live_hako_authority": 0,
+    "mapload_fastpath_shadow_consumed": 0,
+    "mapload_scalar_i64_generated_typed_artifact_basis": 1,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "publication_execution": 0,
+    "read_surface_connection_complete": 0,
+    "route_selection_authority_switch": 0,
+    "runtime_fallback": 0,
+    "runtime_hako_source_text_parsing": 0,
+    "runtime_mutation_authority": 0,
+    "rust_fastpath_rewired": 0,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "kind": "SelectMapLoadScalarI64GeneratedTypedArtifactShadowConsumeImplementation",
+    "selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-SHADOW-CONSUME-MAPLOAD-SCALAR-I64-001"
+  },
+  "input_state": {
+    "selection_consultation": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-read-surface-generated-typed-artifact-selection-design-consultation-v0.json",
+    "selection_consultation_hash": "aba304314bdeb0802e452df24f5b5664e69adbca36baec013440c98500ff875f",
+    "selection_decision": "SelectMapLoadScalarI64RoutesFirst",
+    "selection_reason": "ReadSurfaceGeneratedArtifactMinimalityAxis",
+    "selection_selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-BASIS-MAPLOAD-SCALAR-I64-001"
+  },
+  "kind": "MirBuilderScalarKnownFastpathHakoGeneratedTypedArtifactBasisMaploadScalarI64V1",
+  "provenance": {
+    "collection_read_routes": "src/mir/generic_method_route_plan/collection_read_routes.rs",
+    "collection_read_routes_hash": "57a6db955ae35c9a9295fbf5ed180ce9a39ced253d30dbda6e86c3f514006899",
+    "scalar_known_contract": "src/mir/generic_method_route_plan/scalar_known_typed_direct_closeout_contract.rs",
+    "scalar_known_contract_hash": "37041c179e4164598cc1629cfb7ba44ad5a75494db2df2248cf63c76ce3cf0a7"
+  },
+  "schema_version": 0,
+  "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-BASIS-MAPLOAD-SCALAR-I64-001"
+}
