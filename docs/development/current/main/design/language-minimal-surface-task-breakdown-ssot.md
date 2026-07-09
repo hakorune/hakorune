@@ -85,6 +85,7 @@ Retire condition:
 | Generic containers | generic type annotation metadata and arity checker complete | next substitution/semantics row deferred |
 | PackedArray | source backend fail-fast complete | no immediate PackedArray row |
 | Array / Result / Option canonical surface | docs accepted; LOCALTYPE/ENUMVAR/ARRAY/RESULT/GUARDLET rows complete | no immediate code row |
+| Language v1 convergence | three pre-freeze contract rows queued | `LANGV1-GRAMMAR-001` first |
 | Collections / automata | Map exists as ring1 visible owner; Set/FST are not Stage0/core prerequisites | `COLL-001` / `AUTO-001` docs rows, parked behind mimalloc unless blocking |
 | Uses/capability | method-level metadata capsule complete | `USES-002 capability checker` |
 | Span/view | planned later | `SPAN-001 Span API design row` |
@@ -324,6 +325,138 @@ Stop lines:
 no silent Boxed fallback for PackedArray
 no Stage0 PackedArray planner
 no generic constraint solver in MVP
+```
+
+## Language v1 pre-freeze convergence packet
+
+These rows close contract drift before the selfhost language v1 surface is
+called frozen. They are queued work, not the active MirBuilder blocker. Open no
+numbered implementation card until the preceding row has produced its named
+decision or manifest.
+
+### LANGV1-GRAMMAR-001 canonical grammar and dual-parser conformance
+
+Current evidence is split:
+
+```text
+canonical EBNF: guard expr else, match; no try/from/peek surface row
+legacy topic page: guard cond ->
+Rust parser: guard else; try is compatibility-gated; from still parses
+selfhost parser: try and peek parser boxes remain live
+v1 freeze doc: previously listed try as required
+```
+
+Required work:
+
+1. Create one machine-readable grammar-surface manifest. Classify every row as
+   `canonical`, `compatibility_only`, or `reserved_rejected`, including
+   `guard else`, `guard ->`, `match`, `peek`, `try`, postfix `catch/cleanup`,
+   `from`, and delegation syntax.
+2. Make `docs/reference/language/EBNF.md` the only canonical grammar owner;
+   topic/profile/freeze docs may describe semantics or migration only.
+3. Run the same golden corpus through the Rust and selfhost parsers in default
+   and explicitly named compatibility profiles.
+4. Compare accept/reject result, stable diagnostic tag, and normalized AST or
+   Program(JSON v0) shape. Missing rows and profile drift fail fast.
+5. Migrate or quarantine live selfhost sources that require compatibility
+   syntax; do not make legacy syntax canonical merely to pass the suite.
+
+Acceptance:
+
+```text
+canonical_grammar_owner_count = 1
+default_parser_conformance = 1
+compatibility_profile_explicit = 1
+golden_accept_reject_parity = 1
+golden_ast_json_shape_parity = 1
+new_surface_syntax = 0
+silent_legacy_acceptance = 0
+```
+
+### LANGV1-TYPE-GUARANTEE-001 annotation guarantee matrix
+
+The language is dynamically typed and an annotation is not a general runtime
+contract. Existing narrow rows already differ: exact numeric field writes,
+record construction, typed `Array<T>` elements, and Weak fields have checks,
+while many parameter, return, local, and ordinary Box-field annotations are
+metadata or planning facts.
+
+Required work:
+
+1. Publish one matrix with rows for parameter, return, local, Box field, record
+   field, static table element, ordinary collection element, typed `Array<T>`
+   element, and Weak field.
+2. For each row record parser transport, compile-time check, MIR verifier,
+   runtime check, backend support, failure tag, and unsupported-backend policy.
+3. Classify each guarantee as `metadata_only`, `compile_time`, `mir_verified`,
+   `runtime_checked`, or an explicit combination. Never use `typed` alone as a
+   proof claim.
+4. Add positive and negative fixtures for every non-metadata guarantee. A
+   backend that cannot preserve a live guarantee must fail fast.
+5. Derive later implementation rows only from matrix cells whose desired v1
+   guarantee differs from current behavior; do not introduce a broad static
+   type checker under this inventory row.
+
+Acceptance:
+
+```text
+annotation_site_set_closed = 1
+guarantee_kind_explicit_per_site = 1
+metadata_not_semantic_truth = 1
+live_guarantees_fixture_backed = 1
+unsupported_backend_fail_fast = 1
+broad_static_type_checker = 0
+```
+
+### LANGV1-OWNERSHIP-IDENTITY-001 field ownership and identity decision
+
+The accepted `BoxIdentity` contract is representation-only. The language
+lifecycle text still says strong-owned fields cascade `fini()`, but ordinary
+strong fields can share the same object and no source distinction currently
+identifies an exclusive owner.
+
+Required decision:
+
+1. Choose whether v1 ordinary strong fields are shared and never implicitly
+   cascade child `fini()`, or introduce an explicit owned-field category whose
+   exclusivity and transfer rules justify cascade finalization.
+2. Define overwrite, parent `fini()`, alias escape, cycle, partial `birth`
+   failure, and repeated-finalization behavior for every field ownership kind.
+3. Use one identity relation for strong Box values, WeakRef tokens, host
+   handles, Dead objects, and future reused slots. `BoxIdentity(handle,
+   generation)` is the durable contract; current `Arc::ptr_eq` is only the
+   current storage projection.
+4. Define WeakRef equality and weak-to-strong upgrade against that identity,
+   including Dead/Freed behavior and generation mismatch.
+5. Add VM/runtime fixtures and backend fail-fast coverage before changing
+   cascade behavior or adding syntax.
+
+Provisional v1-safe candidate, not yet a decision:
+
+```text
+ordinary strong field = shared
+implicit cascade fini through ordinary strong field = forbidden
+explicit owned field syntax = reserved until exclusivity can be enforced
+```
+
+Acceptance:
+
+```text
+field_ownership_kinds_closed = 1
+cascade_fini_owner_explicit = 1
+shared_alias_not_implicitly_finalized = 1
+box_weak_identity_relation_count = 1
+generation_aware_identity_retained = 1
+cross_backend_lifecycle_fixture = 1
+```
+
+## v1 convergence order
+
+```text
+LANGV1-GRAMMAR-001
+  -> LANGV1-TYPE-GUARANTEE-001
+  -> LANGV1-OWNERSHIP-IDENTITY-001
+  -> selfhost language v1 freeze closeout
 ```
 
 ## Const, capability, Span/view, module, and proof tasks

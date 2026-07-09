@@ -99,6 +99,9 @@ not change source/runtime behavior.
 | `TRANS-002A` | Transition legality checker for enum-state methods. | 1-2 commits |
 | `USES-002A` | Capability checker for declared `uses` metadata. | 1-2 commits |
 | `DEL-004` | Legacy `from`/`extends` quarantine and migration naming cleanup. | 1 commit |
+| `LANGV1-GRAMMAR-001` | Canonical grammar manifest plus shared Rust/selfhost golden parser conformance. | design + fixtures + parser alignment |
+| `LANGV1-TYPE-GUARANTEE-001` | Site-by-site annotation guarantee matrix and proof fixtures. | design + targeted follow-up rows |
+| `LANGV1-OWNERSHIP-IDENTITY-001` | Decide shared/owned field finalization and unify Box/Weak identity. | design decision + runtime fixtures |
 
 ### Later / optional language surface
 

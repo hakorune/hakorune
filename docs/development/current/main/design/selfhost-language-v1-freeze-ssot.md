@@ -9,6 +9,7 @@ Related:
   - docs/development/current/main/design/optimization-hints-contracts-intrinsic-ssot.md
   - docs/development/current/main/design/rune-v0-contract-rollout-ssot.md
   - docs/development/current/main/design/parser-extensions-param-implements-interface-generic-ssot.md
+  - docs/development/current/main/design/language-minimal-surface-task-breakdown-ssot.md
   - docs/reference/language/block-expressions-and-map-literals.md
   - docs/development/current/main/20-Decisions.md
 ---
@@ -49,7 +50,9 @@ v1 とは、次を “互換破壊しない” と約束する範囲:
 - assignment (`x = expr`, `obj.field = expr`, `arr[idx] = expr`)
 - `if (...) { ... } else { ... }`（括弧は当面 permissive）
 - `loop(cond) { ... }` と `loop(true) { ... }`（selfhost compiler が使用）
-- `try { ... } catch (e) { ... } cleanup { ... }`（Stage‑3 exceptions; Bridge は Result‑mode で pin）
+- failure handling / cleanup surface is a pre-freeze conformance row. Legacy
+  `try` may exist behind compatibility routes, but it is not a canonical v1
+  requirement until `LANGV1-GRAMMAR-001` resolves parser and document drift.
 - `break` / `continue` / `return`
 - `print(expr)`
 
@@ -130,6 +133,13 @@ Minimum stable tags (grep distance short):
 ## Gates / Acceptance
 
 v1 freeze の継続条件:
+
+- `LANGV1-GRAMMAR-001` is complete with one grammar manifest and a shared
+  Rust/selfhost parser golden suite.
+- `LANGV1-TYPE-GUARANTEE-001` is complete with a site-by-site guarantee matrix
+  and fixtures for every live non-metadata guarantee.
+- `LANGV1-OWNERSHIP-IDENTITY-001` has an accepted field ownership/finalization
+  decision and one Box/Weak identity relation.
 
 - Fast gate: `./tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh` が green
 - Pinned fixtures:
