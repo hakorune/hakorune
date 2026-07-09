@@ -230,24 +230,7 @@ pub(super) fn mapstore_i64_shadow_consumed_decision() -> GenericMethodRouteDecis
 
 pub(super) fn mapstore_i64_hako_route_authority_pilot_decision() -> GenericMethodRouteDecision {
     let policy = WRITE_SET_MAPSTORE_I64_HAKO_POLICY;
-    let accepted_contract_count = accepted_scalar_known_contracts().count();
-    assert!(
-        accepted_contract_count >= 4,
-        "ScalarKnown accepted contract boundary lost prior closeouts"
-    );
-    let contract_contains_route = accepted_scalar_known_contracts().any(|contract| {
-        contract.contract_id.as_str() == "WriteScalarI64RoutesScopedCloseout"
-            && contract.surface_id.as_str() == "WriteScalarI64Routes"
-            && contract.surface_id == ScalarKnownSurfaceId::WriteScalarI64Routes
-            && contract.effect_class.as_str() == ScalarKnownEffectClass::Mutate.as_str()
-            && contract
-                .route_kind_set
-                .contains(&GenericMethodRouteKind::MapStoreI64)
-    });
-    assert!(
-        contract_contains_route,
-        "ScalarKnown Write contract no longer contains MapStoreI64"
-    );
+    assert_write_contract_contains(GenericMethodRouteKind::MapStoreI64, "MapStoreI64");
     assert_hako_policy_matches_rust(&policy);
 
     let hako_decision = GenericMethodRouteDecision::new(
@@ -279,29 +262,46 @@ pub(super) fn mapstore_i64_hako_route_authority_pilot_decision() -> GenericMetho
     hako_decision
 }
 
-pub(super) fn write_push_shadow_consumed_decision() -> GenericMethodRouteDecision {
-    let policy = WRITE_PUSH_HAKO_POLICY;
-    let accepted_contract_count = accepted_scalar_known_contracts().count();
+fn assert_write_contract_contains(route_kind: GenericMethodRouteKind, label: &str) {
     assert!(
-        accepted_contract_count >= 4,
+        accepted_scalar_known_contracts().count() >= 4,
         "ScalarKnown accepted contract boundary lost prior closeouts"
     );
-    let contract_contains_route = accepted_scalar_known_contracts().any(|contract| {
+    let contains_route = accepted_scalar_known_contracts().any(|contract| {
         contract.contract_id.as_str() == "WriteScalarI64RoutesScopedCloseout"
             && contract.surface_id.as_str() == "WriteScalarI64Routes"
             && contract.surface_id == ScalarKnownSurfaceId::WriteScalarI64Routes
             && contract.effect_class.as_str() == ScalarKnownEffectClass::Mutate.as_str()
-            && contract
-                .route_kind_set
-                .contains(&GenericMethodRouteKind::ArrayAppendAny)
+            && contract.route_kind_set.contains(&route_kind)
     });
     assert!(
-        contract_contains_route,
-        "ScalarKnown Write contract no longer contains ArrayAppendAny"
+        contains_route,
+        "ScalarKnown Write contract no longer contains {label}"
     );
+}
+
+#[allow(dead_code)]
+pub(super) fn write_push_shadow_consumed_decision() -> GenericMethodRouteDecision {
+    write_push_hako_route_authority_pilot_decision()
+}
+
+pub(super) fn write_push_hako_route_authority_pilot_decision() -> GenericMethodRouteDecision {
+    let policy = WRITE_PUSH_HAKO_POLICY;
+    assert_write_contract_contains(GenericMethodRouteKind::ArrayAppendAny, "ArrayAppendAny");
     assert_hako_write_push_policy_matches_rust(&policy);
 
-    GenericMethodRouteDecision::new(
+    let hako_decision = GenericMethodRouteDecision::new(
+        policy.route_kind,
+        GenericMethodRouteProof::PushSurfacePolicy,
+        Some(CoreMethodOpCarrier::manifest(
+            policy.core_op,
+            policy.lowering_tier,
+        )),
+        Some(GenericMethodReturnShape::ScalarI64),
+        policy.value_demand,
+        Some(GenericMethodPublicationPolicy::NoPublication),
+    );
+    let rust_oracle = GenericMethodRouteDecision::new(
         GenericMethodRouteKind::ArrayAppendAny,
         GenericMethodRouteProof::PushSurfacePolicy,
         Some(CoreMethodOpCarrier::manifest(
@@ -311,29 +311,17 @@ pub(super) fn write_push_shadow_consumed_decision() -> GenericMethodRouteDecisio
         Some(GenericMethodReturnShape::ScalarI64),
         GenericMethodValueDemand::WriteAny,
         Some(GenericMethodPublicationPolicy::NoPublication),
-    )
+    );
+    assert_eq!(
+        hako_decision, rust_oracle,
+        "Push .hako authority pilot diverged from Rust oracle"
+    );
+    hako_decision
 }
 
 pub(super) fn mapstore_any_shadow_consumed_decision() -> GenericMethodRouteDecision {
     let policy = WRITE_SET_MAPSTORE_ANY_HAKO_POLICY;
-    let accepted_contract_count = accepted_scalar_known_contracts().count();
-    assert!(
-        accepted_contract_count >= 4,
-        "ScalarKnown accepted contract boundary lost prior closeouts"
-    );
-    let contract_contains_route = accepted_scalar_known_contracts().any(|contract| {
-        contract.contract_id.as_str() == "WriteScalarI64RoutesScopedCloseout"
-            && contract.surface_id.as_str() == "WriteScalarI64Routes"
-            && contract.surface_id == ScalarKnownSurfaceId::WriteScalarI64Routes
-            && contract.effect_class.as_str() == ScalarKnownEffectClass::Mutate.as_str()
-            && contract
-                .route_kind_set
-                .contains(&GenericMethodRouteKind::MapStoreAny)
-    });
-    assert!(
-        contract_contains_route,
-        "ScalarKnown Write contract no longer contains MapStoreAny"
-    );
+    assert_write_contract_contains(GenericMethodRouteKind::MapStoreAny, "MapStoreAny");
     assert_hako_mapstore_any_policy_matches_rust(&policy);
 
     GenericMethodRouteDecision::new(

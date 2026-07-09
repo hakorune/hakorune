@@ -1,0 +1,102 @@
+{
+  "claims": {
+    "any_write_boundary_opened": 0,
+    "backend_lowering_authority": 0,
+    "caller_orientation_runtime_path": 0,
+    "mapdeleteany_authority": 0,
+    "mapstoreany_authority": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "owner_name_as_proof": 0,
+    "publication_execution": 0,
+    "push_generated_typed_artifact_consumed": 1,
+    "push_hako_authority_result_consumed": 1,
+    "push_hako_route_decision_authority_pilot": 1,
+    "push_live_route_calls_authority_pilot": 1,
+    "push_mismatch_fail_fast": 1,
+    "push_mutation_metadata_only": 1,
+    "push_no_any_write_boundary_opened": 1,
+    "push_publication_execution_not_transferred": 1,
+    "push_runtime_mutation_authority_not_transferred": 1,
+    "push_rust_oracle_compat_checker": 1,
+    "route_count_as_proof": 0,
+    "route_membership_alone_as_proof": 0,
+    "route_selection_authority_switch": 0,
+    "runtime_fallback": 0,
+    "runtime_mutation_authority": 0,
+    "rust_fastpath_rewired": 0,
+    "scalar_known_hako_runtime_route_authority": 0,
+    "scalar_known_transport_axis_authority_switch": 0,
+    "source_path_as_authority": 0,
+    "source_selfhost_claim": 0,
+    "write_surface_authority_closeout": 0,
+    "write_wide_authority": 0
+  },
+  "decision": {
+    "kind": "SelectPushWriteAuthorityPilotRerun",
+    "reason_token": "PushWriteHakoRouteDecisionAuthorityPilotMaterialized",
+    "selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-PUSH-WRITE-HAKO-AUTHORITY-PILOT-RERUN-001"
+  },
+  "implementation": {
+    "authority_function": "write_push_hako_route_authority_pilot_decision",
+    "authority_scope": "PushSurfacePolicyArrayAppendAnyOnly",
+    "hako_decision_constructed_from": "WRITE_PUSH_HAKO_POLICY",
+    "legacy_shadow_wrapper_retained": "write_push_shadow_consumed_decision",
+    "live_route_calls_authority_function": true,
+    "mismatch_policy": "FailFast",
+    "route_kind": "ArrayAppendAny",
+    "runtime_source_text_parsing": false,
+    "rust_oracle_compat_checker": true,
+    "rust_oracle_decision_constructed": true,
+    "surface": "PushSurfacePolicy"
+  },
+  "input_state": {
+    "basis_defined": 1,
+    "basis_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-push-write-hako-authority-pilot-basis-v0.json",
+    "basis_fixture_hash": "460cb94737e6ea1785116da47a874a254e0ad7d4e241b57306882cbcc826d70f",
+    "basis_selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-PUSH-WRITE-HAKO-ROUTE-DECISION-AUTHORITY-PILOT-001"
+  },
+  "kind": "MirBuilderScalarKnownFastpathPushWriteHakoRouteDecisionAuthorityPilotV1",
+  "provenance": {
+    "push_generated_typed_artifact": {
+      "path": "src/mir/generic_method_route_plan/generated/write_push_hako_policy.rs",
+      "sha256": "59947b80367f89a72d9170bcd12a3b8a824c93a4a2e0c696e3e952008189ed69"
+    },
+    "shadow_consumer": {
+      "path": "src/mir/generic_method_route_plan/scalar_known_hako_shadow.rs",
+      "sha256": "2500c3f57057777383056647eed1f014713014fd24ed56ed8b3894fea98b6bba"
+    },
+    "write_routes": {
+      "path": "src/mir/generic_method_route_plan/write_routes.rs",
+      "sha256": "a8eacda688b7e281da4515dec4b97b8c05cc00308baf6e97382bf654b068ccce"
+    }
+  },
+  "schema_version": 0,
+  "summary": {
+    "publication_execution": 0,
+    "push_generated_typed_artifact_consumed": 1,
+    "push_hako_authority_result_consumed": 1,
+    "push_hako_route_decision_authority_pilot": 1,
+    "push_live_route_calls_authority_pilot": 1,
+    "push_mismatch_fail_fast": 1,
+    "push_mutation_metadata_only": 1,
+    "push_no_any_write_boundary_opened": 1,
+    "push_publication_execution_not_transferred": 1,
+    "push_runtime_mutation_authority_not_transferred": 1,
+    "push_rust_oracle_compat_checker": 1,
+    "runtime_mutation_authority": 0,
+    "source_selfhost_claim": 0,
+    "write_wide_authority": 0
+  },
+  "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-PUSH-WRITE-HAKO-ROUTE-DECISION-AUTHORITY-PILOT-001",
+  "write_shape": {
+    "any_write_boundary_opened": false,
+    "core_op": "ArrayPush",
+    "lowering_tier": "ColdFallback",
+    "mutation_authority": "metadata_only",
+    "publication_policy": "NoPublication",
+    "return_shape": "ScalarI64",
+    "route_kind": "ArrayAppendAny",
+    "surface": "PushSurfacePolicy"
+  }
+}

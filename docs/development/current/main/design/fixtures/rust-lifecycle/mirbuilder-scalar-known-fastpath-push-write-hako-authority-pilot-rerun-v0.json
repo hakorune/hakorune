@@ -1,0 +1,65 @@
+{
+  "claims": {
+    "any_write_boundary_opened": 0,
+    "mapdeleteany_authority": 0,
+    "mapstoreany_authority": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "next_write_authority_surface_design_required": 1,
+    "publication_execution": 0,
+    "push_hako_route_decision_authority_pilot": 1,
+    "push_mutation_metadata_only": 1,
+    "push_no_any_write_boundary_opened": 1,
+    "push_write_hako_authority_pilot_rerun": 1,
+    "runtime_fallback": 0,
+    "runtime_mutation_authority": 0,
+    "scalar_known_hako_runtime_route_authority": 0,
+    "source_selfhost_claim": 0,
+    "write_set_mapstore_i64_hako_route_decision_authority_pilot": 1,
+    "write_surface_authority_closeout": 0,
+    "write_wide_authority": 0
+  },
+  "decision": {
+    "kind": "KeepStoppedForNextWriteAuthoritySurfaceDesign",
+    "reason_token": "SecondWriteScopedAuthorityPilotCompleteRemainingWriteSurfaceSelectionConsultationGated",
+    "selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-NEXT-WRITE-HAKO-AUTHORITY-SURFACE-DESIGN-STOP-002"
+  },
+  "input_state": {
+    "pilot_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-push-write-hako-route-decision-authority-pilot-v0.json",
+    "pilot_fixture_hash": "29de823d6c0df0d9d47faca308e3d74c17690108a1ffc545832441ed0ff643f4",
+    "pilot_selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-PUSH-WRITE-HAKO-AUTHORITY-PILOT-RERUN-001",
+    "push_hako_route_decision_authority_pilot": 1
+  },
+  "kind": "MirBuilderScalarKnownFastpathPushWriteHakoAuthorityPilotRerunV1",
+  "provenance": {
+    "shadow_consumer": {
+      "path": "src/mir/generic_method_route_plan/scalar_known_hako_shadow.rs",
+      "sha256": "2500c3f57057777383056647eed1f014713014fd24ed56ed8b3894fea98b6bba"
+    },
+    "write_routes": {
+      "path": "src/mir/generic_method_route_plan/write_routes.rs",
+      "sha256": "a8eacda688b7e281da4515dec4b97b8c05cc00308baf6e97382bf654b068ccce"
+    }
+  },
+  "rerun": {
+    "push_hako_route_decision_authority_pilot": true,
+    "push_mutation_metadata_only": true,
+    "push_no_any_write_boundary_opened": true,
+    "read_surface_authority_closeout": true,
+    "remaining_write_authority_surfaces_require_design": true,
+    "write_set_mapstore_i64_hako_route_decision_authority_pilot": true
+  },
+  "schema_version": 0,
+  "summary": {
+    "next_write_authority_surface_design_required": 1,
+    "publication_execution": 0,
+    "push_hako_route_decision_authority_pilot": 1,
+    "push_mutation_metadata_only": 1,
+    "push_no_any_write_boundary_opened": 1,
+    "push_write_hako_authority_pilot_rerun": 1,
+    "runtime_mutation_authority": 0,
+    "source_selfhost_claim": 0,
+    "write_set_mapstore_i64_hako_route_decision_authority_pilot": 1
+  },
+  "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-PUSH-WRITE-HAKO-AUTHORITY-PILOT-RERUN-001"
+}

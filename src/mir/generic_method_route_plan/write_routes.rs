@@ -75,7 +75,7 @@ pub(super) fn match_generic_push_route(
         GenericMethodRouteEvidence::new(receiver_origin_box, None)
             .with_value_origin_box(value_origin_box),
         GenericMethodRouteOperands::new(*receiver, None, *dst),
-        scalar_known_hako_shadow::write_push_shadow_consumed_decision(),
+        scalar_known_hako_shadow::write_push_hako_route_authority_pilot_decision(),
     ))
 }
 
