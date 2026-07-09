@@ -43,7 +43,7 @@
     "basis_decision": "SelectMapStoreAnyRustOracleParityFixture",
     "basis_selected_next_card": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-RUST-ORACLE-PARITY-FIXTURE-001",
     "mapstore_any_write_boundary_basis": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-write-set-mapstore-any-write-boundary-basis-v0.json",
-    "mapstore_any_write_boundary_basis_hash": "52cbbbf4751252afe324cf557e8abede94ed8fb5a84ea7aabd43cba14bd78317"
+    "mapstore_any_write_boundary_basis_hash": "938856e81c86a8013ba443734836a8588ea4b7e7ea7eadec7a8cc0ff04f8ab20"
   },
   "kind": "MirBuilderCarrierTypeScalarKnownWriteSetMapStoreAnyRustOracleParityFixtureV1",
   "metadata_boundary": {
@@ -81,7 +81,7 @@
   },
   "provenance": {
     "generated_descriptor_hash": "427f5c9387c594a81a25495025966a06fa77ad97f49bd3d1204a91ffb61b1716",
-    "write_source_hash": "a099f2f6b422e6e6a454d0a6e10c74bfd649155b24ba2ebc760208de5c7caa22"
+    "write_source_hash": "1c586b1fd75af17df2eba630cfdc8081568db45deff376d175c87a7e318f9d23"
   },
   "schema_version": 0,
   "selection_rule": {

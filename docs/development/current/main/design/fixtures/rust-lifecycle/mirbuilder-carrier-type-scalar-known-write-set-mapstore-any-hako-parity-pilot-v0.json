@@ -47,7 +47,7 @@
   "input_state": {
     "rust_oracle_decision": "SelectWriteSetMapStoreAnyHakoParityPilot",
     "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-write-set-mapstore-any-rust-oracle-v0.json",
-    "rust_oracle_hash": "aed272e6b7109f050782ffb6be5a1da49f960d7e9ce69ef33854ed1f1e771083",
+    "rust_oracle_hash": "086b68b9049b42ba01b0aa2c3ea45e32a25f0dd9fb7c48c9e2db842397210749",
     "rust_oracle_selected_next_card": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-HAKO-PARITY-PILOT-001",
     "rust_oracle_token": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-RUST-ORACLE-PARITY-FIXTURE-001"
   },
