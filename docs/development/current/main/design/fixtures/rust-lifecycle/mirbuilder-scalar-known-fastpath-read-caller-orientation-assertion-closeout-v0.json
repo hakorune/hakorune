@@ -1,0 +1,95 @@
+{
+  "claims": {
+    "all_eight_read_rows_live_asserted": 1,
+    "any_length_wildcard_selector": 0,
+    "assertion_only": 1,
+    "backend_lowering_authority": 0,
+    "caller_orientation_runtime_path": 0,
+    "caller_runtime_dispatch_authority": 0,
+    "collection_four_row_live_assertion": 1,
+    "delete_hako_route_decision_authority_pilot": 0,
+    "hako_runtime_route_authority": 0,
+    "mapload_live_assertion": 1,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "publication_execution": 0,
+    "read_caller_orientation_assertion_closeout": 1,
+    "receiver_domain_authority_switch": 0,
+    "receiver_domain_widening_authority": 0,
+    "route_selection_authority_switch": 0,
+    "runtime_box_domain_fallback": 0,
+    "runtime_mutation_authority": 0,
+    "scalar_known_hako_runtime_route_authority": 0,
+    "scalar_known_wide_authority": 0,
+    "source_selfhost_claim": 0,
+    "string_three_row_live_assertion": 1,
+    "write_caller_orientation_contract": 0
+  },
+  "decision": {
+    "consumer_input": "PolicyRowIdOnly",
+    "consumer_return": "Unit",
+    "implementation_complete": true,
+    "kind": "CloseoutReadCallerOrientationAssertionCoverage",
+    "live_consumer_kind": "CompilerSideFailFastAssertion",
+    "selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-READ-CALLER-ORIENTATION-DESIGN-STOP-001"
+  },
+  "kind": "MirBuilderScalarKnownFastpathReadCallerOrientationAssertionCloseoutV1",
+  "provenance": {
+    "caller_orientation_module": "src/mir/generic_method_route_plan/caller_orientation.rs",
+    "caller_orientation_module_hash": "b31b9c6d3f17d330281f28b6a0282a9fd3f1726759e7d6aa006f431f02d9774e",
+    "shadow_route_module": "src/mir/generic_method_route_plan/scalar_known_hako_shadow.rs",
+    "shadow_route_module_hash": "f3d3df9349f755658c3bdcbe94866bf3eff9547a60556e29b3875dc9e09b6b6a"
+  },
+  "rows": [
+    {
+      "consumer": "assertion_only",
+      "policy_row_id": "map_load_scalar_i64_routes",
+      "policy_surface": "MapLoadScalarI64Routes",
+      "surface": "MapLoad"
+    },
+    {
+      "consumer": "assertion_only",
+      "policy_row_id": "string_indexof_scalar_i64_routes",
+      "policy_surface": "StringScalarI64Routes",
+      "surface": "String"
+    },
+    {
+      "consumer": "assertion_only",
+      "policy_row_id": "string_lastindexof_scalar_i64_routes",
+      "policy_surface": "StringScalarI64Routes",
+      "surface": "String"
+    },
+    {
+      "consumer": "assertion_only",
+      "policy_row_id": "string_contains_scalar_i64_routes",
+      "policy_surface": "StringScalarI64Routes",
+      "surface": "String"
+    },
+    {
+      "consumer": "assertion_only",
+      "policy_row_id": "collection_map_entry_count_scalar_i64_routes",
+      "policy_surface": "CollectionScalarI64Routes",
+      "surface": "Collection"
+    },
+    {
+      "consumer": "assertion_only",
+      "policy_row_id": "collection_array_slot_len_scalar_i64_routes",
+      "policy_surface": "CollectionScalarI64Routes",
+      "surface": "Collection"
+    },
+    {
+      "consumer": "assertion_only",
+      "policy_row_id": "collection_string_len_scalar_i64_routes",
+      "policy_surface": "CollectionScalarI64Routes",
+      "surface": "Collection"
+    },
+    {
+      "consumer": "assertion_only",
+      "policy_row_id": "collection_any_length_scalar_i64_routes",
+      "policy_surface": "CollectionScalarI64Routes",
+      "surface": "Collection"
+    }
+  ],
+  "schema_version": 0,
+  "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-READ-CALLER-ORIENTATION-ASSERTION-CLOSEOUT-001"
+}

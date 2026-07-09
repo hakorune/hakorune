@@ -345,15 +345,16 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-READ-CALLER-ORIENTATION-ASSERTION-CLOSEOUT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3430-MIRBUILDER-SCALAR-KNOWN-FASTPATH-READ-CALLER-ORIENTATION-ASSERTION-CLOSEOUT-001.md"
-latest_card_summary = """3430 is the code-facing closeout for the pre-authorized
-read caller-orientation assertion packet. Prove exact live assertion coverage
-for MapLoad 1 + String 3 + Collection 4 rows, excluding Write/Delete, then stop
-before authority-bearing caller orientation, Write expansion, Delete revival,
-ScalarKnown-wide claims, or Source Selfhost."""
+latest_card = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-READ-CALLER-ORIENTATION-DESIGN-STOP-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3431-MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-READ-CALLER-ORIENTATION-DESIGN-STOP-001.md"
+latest_card_summary = """3431 is the genuine design boundary after 3430's
+read caller-orientation assertion closeout. Decide whether to remain
+assertion-only, open non-Delete Write metadata, revive Delete, or return to
+wider Source Selfhost route selection. Authority-bearing caller orientation,
+runtime/backend/lowering, mutation/publication, ScalarKnown-wide authority, and
+Source Selfhost remain unclaimed."""
 
-current_blocker_token = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-READ-CALLER-ORIENTATION-ASSERTION-CLOSEOUT-001"
+current_blocker_token = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-READ-CALLER-ORIENTATION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -362,6 +363,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-10: 3430 closes the pre-authorized read caller-orientation assertion packet with exact MapLoad 1 + String 3 + Collection 4 live row coverage, records assertion-only Unit consumption, and stops before authority-bearing caller orientation, Write/Delete expansion, ScalarKnown-wide authority, runtime/backend/lowering, mutation/publication, or Source Selfhost.",
   "2026-07-10: 3429 extends the compiler-side caller-orientation assertion-only consumer to the exact four Collection policy rows, preserves mixed receiver-domain and AnyLength/Box ownership in the existing policy/oracle, passes nine shared assertion tests, and leaves runtime dispatch, route selection, lowering, mutation, publication, and Source Selfhost unclaimed.",
   "2026-07-10: 3428 extends the compiler-side caller-orientation assertion-only consumer to the exact three String policy rows, preserves existing String route/oracle authority, passes six shared assertion tests, and leaves runtime dispatch, route selection, lowering, mutation, publication, and Source Selfhost unclaimed.",
   "2026-07-10: 3427 adds a MapLoad compiler-side caller-orientation assertion-only consumer after existing policy lookup, verifies row identity and metadata-only flags with three tests, returns Unit, and leaves route selection, runtime dispatch, backend/lowering, mutation, publication, and Source Selfhost unclaimed.",
@@ -373,5 +375,4 @@ landed_tail = [
   "2026-07-10: 3421 materializes a MapLoad-only caller-orientation .hako contract and checked-in generated typed Rust artifact, references the existing policy row without duplicating route semantics, and adds a no-live-consumer guard while runtime dispatch, route selection, lowering, mutation, publication, ScalarKnown-wide authority, Delete authority, and Source Selfhost remain unclaimed.",
   "2026-07-10: 3420 adopts a MapLoadScalarI64Routes-only narrow caller-orientation basis as contract metadata, retains the existing .hako route-decision authority and Rust oracle fail-fast boundary, and leaves caller runtime dispatch, route selection switching, backend/lowering, mutation, publication, ScalarKnown-wide authority, Delete authority, and Source Selfhost unclaimed.",
   "2026-07-10: 3419 re-enters the .hako caller-orientation authority design stop from current ScalarKnown evidence: all known fast-path surfaces are shadow-consumed, the non-Delete Write authority island is closed, DeleteSurfacePolicy / MapDeleteAny is parked, and caller-orientation runtime path, ScalarKnown-wide .hako runtime route authority, Rust fast-path rewiring, backend/lowering authority, runtime mutation authority, publication execution, Delete authority, and Source Selfhost remain unclaimed.",
-  "2026-07-10: 3418 stops after non-Delete Write .hako route-decision authority island closeout, records DeleteSurfacePolicy / MapDeleteAny as a retired Rust-preserved parked route, and leaves Write-wide authority, Delete authority, runtime mutation authority, publication execution, runtime fallback, and Source Selfhost unclaimed.",
 ]

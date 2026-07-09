@@ -47,3 +47,20 @@ Those are the next genuine design boundary.
 ```text
 tools/checks/rust_lifecycle_mirbuilder_scalar_known_fastpath_read_caller_orientation_assertion_closeout_guard.sh
 ```
+
+## Result
+
+```text
+status = landed
+read_caller_orientation_assertion_closeout = 1
+all_eight_read_rows_live_asserted = 1
+tests = 9 passed
+runtime_dispatch = 0
+route_selection_authority_switch = 0
+write_caller_orientation_contract = 0
+delete_hako_route_decision_authority_pilot = 0
+scalar_known_wide_authority = 0
+source_selfhost_claim = 0
+selected_next_card =
+  MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-READ-CALLER-ORIENTATION-DESIGN-STOP-001
+```
