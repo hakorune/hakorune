@@ -2,7 +2,7 @@
   "schema_version": 0,
   "kind": "SourceSelfhostFamilyGuardManifestV1",
   "family_scope": "SourceSelfhost",
-  "current_blocker_token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-NON-DELETE-WRITE-AUTHORITY-ISLAND-CLOSEOUT-DESIGN-STOP-001",
+  "current_blocker_token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-CALLER-ORIENTATION-AUTHORITY-DESIGN-STOP-001",
   "guard_policy": {
     "historical_row_guards_remain_callable": 1,
     "new_rows_prefer_family_guard": 1,
@@ -2804,6 +2804,13 @@
       "card": "docs/development/current/main/phases/phase-296x/3418-MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-NON-DELETE-WRITE-AUTHORITY-ISLAND-CLOSEOUT-DESIGN-STOP-001.md",
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-post-non-delete-write-authority-island-closeout-design-stop-v0.json",
       "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_scalar_known_fastpath_post_non_delete_write_authority_island_closeout_design_stop_guard.sh",
+      "role": "current_queue"
+    },
+    {
+      "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-CALLER-ORIENTATION-AUTHORITY-DESIGN-STOP-001",
+      "card": "docs/development/current/main/phases/phase-296x/3419-MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-CALLER-ORIENTATION-AUTHORITY-DESIGN-STOP-001.md",
+      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-hako-caller-orientation-authority-design-stop-v0.json",
+      "legacy_guard": "tools/checks/rust_lifecycle_mirbuilder_scalar_known_fastpath_hako_caller_orientation_authority_design_stop_guard.sh",
       "role": "current_queue"
     }
   ],
