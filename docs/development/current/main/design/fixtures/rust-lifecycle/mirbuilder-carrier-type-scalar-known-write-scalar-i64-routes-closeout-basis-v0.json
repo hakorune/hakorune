@@ -1,0 +1,171 @@
+{
+  "claims": {
+    "basis_only": 1,
+    "behavior_change": 0,
+    "delete_surface_direct_closeout_materialized": 0,
+    "delete_surface_hako_mirror_retired": 1,
+    "hako_generation": 0,
+    "manual_axis_selection": 0,
+    "manual_carrier_selection": 0,
+    "manual_subsurface_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "new_route_authority": 0,
+    "owner_name_as_proof": 0,
+    "publication_execution": 0,
+    "route_count_as_proof": 0,
+    "route_membership_alone_as_proof": 0,
+    "row_count_as_proof": 0,
+    "runtime_fallback": 0,
+    "runtime_mutation_authority": 0,
+    "rust_map_delete_route_preserved": 1,
+    "scalar_known_transport_axis_closeout": 0,
+    "scoped_direct_closeout_contract_count": 3,
+    "source_path_as_authority": 0,
+    "source_selfhost_claim": 0,
+    "write_scalar_i64_routes_closeout": 0,
+    "write_scalar_i64_routes_closeout_basis": 1,
+    "write_scalar_i64_routes_closeout_ready_for_rerun": 1
+  },
+  "decision": {
+    "kind": "SelectWriteScalarI64RoutesCloseoutRerun",
+    "reason_token": "ScopedWriteContractsAndDeleteRetireTreatmentCollectedForCloseoutReview",
+    "selected_next_card": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SCALAR-I64-ROUTES-CLOSEOUT-RERUN-001"
+  },
+  "input_state": {
+    "delete_surface_mirror_retire_card": "docs/development/current/main/phases/phase-296x/3353-MIRBUILDER-SCALAR-KNOWN-WRITE-DELETE-SURFACE-MIRROR-RETIRE-001.md",
+    "delete_surface_mirror_retire_card_hash": "88d7d24b088bd2c1567dec19f7b8835861a369afbb156728ee0112152dba84b7",
+    "delete_surface_mirror_retire_guard": "tools/checks/rust_lifecycle_mirbuilder_scalar_known_write_delete_surface_mirror_retire_guard.sh",
+    "delete_surface_mirror_retire_guard_hash": "472818830707386f83924736b945aedaa2e4c62aaf39198272fa5d0d46842f9f",
+    "mapstore_any_selected_next": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SCALAR-I64-ROUTES-CLOSEOUT-BASIS-001",
+    "write_push_surface_closeout": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-write-push-surface-direct-closeout-rerun-v0.json",
+    "write_push_surface_closeout_hash": "95b3df444c898db6a353439cc9405a19ef051b849f3e14797a606245ce5b6221",
+    "write_set_mapstore_any_closeout": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-write-set-mapstore-any-direct-closeout-rerun-v0.json",
+    "write_set_mapstore_any_closeout_hash": "0c5b178938ad78494f93a935827f7d169ff2a777afbdff7c484f36923ae3c2b3",
+    "write_set_mapstore_i64_closeout": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-write-set-mapstore-i64-direct-closeout-rerun-v0.json",
+    "write_set_mapstore_i64_closeout_hash": "290c9147112f3744034a0573fd7aecadff715da61b822f6b56eb36983aa04f55",
+    "write_source": "src/mir/generic_method_route_plan/write_routes.rs",
+    "write_source_hash": "1c586b1fd75af17df2eba630cfdc8081568db45deff376d175c87a7e318f9d23"
+  },
+  "kind": "MirBuilderCarrierTypeScalarKnownWriteScalarI64RoutesCloseoutBasisV1",
+  "schema_version": 0,
+  "selection_rule": {
+    "axis_closeout_forbidden_at_basis": true,
+    "basis_only": true,
+    "delete_retire_does_not_count_as_hako_direct_closeout": true,
+    "delete_retire_treatment_must_remain_explicit": true,
+    "name": "WriteScalarI64RoutesCloseoutBasisOnlyV1",
+    "owner_name_as_proof": false,
+    "route_count_as_proof": false,
+    "route_membership_alone_as_proof": false,
+    "row_count_as_proof": false,
+    "source_path_as_authority": false,
+    "write_surface_closeout_requires_rerun": true
+  },
+  "summary": {
+    "delete_surface_direct_closeout_materialized": 0,
+    "delete_surface_hako_mirror_retired": 1,
+    "publication_execution": 0,
+    "push_surface_direct_closeout_materialized": 1,
+    "runtime_mutation_authority": 0,
+    "rust_map_delete_route_preserved": 1,
+    "scalar_known_transport_axis_closeout": 0,
+    "scoped_direct_closeout_contract_count": 3,
+    "set_mapstore_any_direct_closeout_materialized": 1,
+    "set_mapstore_i64_direct_closeout_materialized": 1,
+    "source_selfhost_claim": 0,
+    "write_scalar_i64_routes_closeout": 0,
+    "write_scalar_i64_routes_closeout_basis": 1,
+    "write_scalar_i64_routes_closeout_ready_for_rerun": 1
+  },
+  "token": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SCALAR-I64-ROUTES-CLOSEOUT-BASIS-001",
+  "write_surface_review": {
+    "delete_surface_policy": {
+      "closeout_treatment": "RetiredUnconnectedMirrorLiveRustRoutePreserved",
+      "direct_closeout_materialized": false,
+      "hako_mirror_retired": true,
+      "lifecycle_artifacts_deleted": true,
+      "rust_map_delete_route_preserved": true,
+      "subsurface_id": "DeleteSurfacePolicy/MapDeleteAny"
+    },
+    "ready_for_rerun": true,
+    "rerun_required_before_write_surface_closeout": true,
+    "scoped_direct_closeout_contract_count": 3,
+    "scoped_direct_closeout_contracts": [
+      {
+        "contract_id": "WritePushSurfaceTypedDirectCloseoutContract",
+        "core_method_lowering_tier": "ColdFallback",
+        "core_method_op": "ArrayPush",
+        "effect_class": "mutate",
+        "mutation_class": "MutatesReceiverOrContainer",
+        "proof_or_policy_source": [
+          "PushSurfacePolicy"
+        ],
+        "publication_policy": "NoPublication",
+        "result_class": "ScalarI64Result",
+        "return_shape": "ScalarI64",
+        "routes": [
+          "ArrayAppendAny"
+        ],
+        "runtime_mutation_authority": false,
+        "subsurface_id": "PushSurfacePolicy",
+        "surface_id": "WriteScalarI64Routes",
+        "value_demand": "WriteAny"
+      },
+      {
+        "any_write_boundary_opened": false,
+        "contract_id": "WriteSetMapStoreI64TypedDirectCloseoutContract",
+        "core_method_lowering_tier": "ColdFallback",
+        "core_method_op": "MapSet",
+        "effect_class": "mutate",
+        "mapstore_any_included": false,
+        "mutation_class": "MutatesReceiverOrContainer",
+        "proof_or_policy_source": [
+          "SetSurfacePolicy",
+          "TypedScalarWriteBeforeAnyWrite"
+        ],
+        "publication_execution": false,
+        "publication_policy": "NonePublication",
+        "result_class": "NoneResult",
+        "return_shape": "None",
+        "routes": [
+          "MapStoreI64"
+        ],
+        "runtime_mutation_authority": false,
+        "subsurface_id": "SetSurfacePolicy/MapStoreI64",
+        "surface_id": "WriteScalarI64Routes",
+        "value_demand": "WriteAny",
+        "write_value_boundary": "ScalarI64"
+      },
+      {
+        "any_write_boundary_declared": true,
+        "any_write_boundary_opened": false,
+        "contract_id": "WriteSetMapStoreAnyDirectCloseoutContract",
+        "core_method_lowering_tier": "ColdFallback",
+        "core_method_op": "MapSet",
+        "effect_class": "mutate",
+        "mapstore_any_included": true,
+        "mutation_class": "MutatesReceiverOrContainer",
+        "proof_or_policy_source": [
+          "SetSurfacePolicy",
+          "AnyWriteBoundaryDeclared"
+        ],
+        "publication_execution": false,
+        "publication_policy": "NonePublication",
+        "result_class": "NoneResult",
+        "return_shape": "None",
+        "routes": [
+          "MapStoreAny"
+        ],
+        "runtime_mutation_authority": false,
+        "subsurface_id": "SetSurfacePolicy/MapStoreAny",
+        "surface_id": "WriteScalarI64Routes",
+        "value_demand": "WriteAny",
+        "write_value_boundary": "Any"
+      }
+    ],
+    "surface_id": "WriteScalarI64Routes"
+  }
+}
