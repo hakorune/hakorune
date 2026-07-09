@@ -1,0 +1,68 @@
+{
+  "claims": {
+    "backend_lowering_authority": 0,
+    "caller_orientation_runtime_path": 0,
+    "caller_runtime_dispatch_authority": 0,
+    "collection_caller_orientation_authority": 0,
+    "delete_hako_route_decision_authority_pilot": 0,
+    "hako_runtime_route_authority": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "publication_execution": 0,
+    "route_selection_authority_switch": 0,
+    "runtime_fallback": 0,
+    "runtime_mutation_authority": 0,
+    "scalar_known_hako_runtime_route_authority": 0,
+    "source_selfhost_claim": 0,
+    "string_caller_orientation_artifact_current": 1,
+    "string_caller_orientation_generated_typed_artifact": 1,
+    "string_caller_orientation_hako_contract_materialized": 1,
+    "string_caller_orientation_no_live_consumer_guard": 1,
+    "string_caller_orientation_policy_row_set_verified": 1,
+    "string_hako_route_decision_authority_retained": 1,
+    "string_mismatch_fail_fast": 1,
+    "string_rust_oracle_compat_checker_retained": 1
+  },
+  "contract": {
+    "backend_lowering_consumer": "Forbidden",
+    "mismatch_policy": "FailFast",
+    "mutation_consumer": "Forbidden",
+    "orientation_kind": "CallerOrientationContractMetadataOnly",
+    "policy_row_ids": [
+      "string_indexof_scalar_i64_routes",
+      "string_lastindexof_scalar_i64_routes",
+      "string_contains_scalar_i64_routes"
+    ],
+    "publication_consumer": "Forbidden",
+    "runtime_consumer": "Forbidden",
+    "scope": "SingleSurface"
+  },
+  "decision": {
+    "backend_lowering_consumer_registered": false,
+    "implementation_complete": true,
+    "kind": "MaterializeStringCallerOrientationContractArtifact",
+    "runtime_consumer_registered": false
+  },
+  "input_state": {
+    "basis_surface": "StringScalarI64Routes",
+    "string_authority_basis": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-string-hako-authority-pilot-basis-v0.json",
+    "string_authority_basis_hash": "1a04d647cdff977ba89c974a7b3c4bb36975a9147801c7fb7bd1fed290ff6204"
+  },
+  "kind": "MirBuilderScalarKnownFastpathStringCallerOrientationContractArtifactV1",
+  "provenance": {
+    "existing_string_oracle": "src/mir/generic_method_route_plan/scalar_known_hako_shadow.rs",
+    "existing_string_oracle_hash": "f12361856df43dec41245d6ed1622eea1641a1d88cbe7fa5ce5171cfa0111af8",
+    "generated_artifact": "src/mir/generic_method_route_plan/generated/string_scalar_i64_caller_orientation_contract.rs",
+    "generated_artifact_hash": "17be2d11311f8ecb420cb34d8d474cb143e5d9c030936d7bdb02f31ea53bb728",
+    "generator": "tools/rust_lifecycle/generate_string_scalar_i64_caller_orientation_contract.py",
+    "generator_hash": "3574adb02714eaf399bad6416c537d519637a0739daa7994239c285580827001",
+    "hako_contract": "lang/src/compiler/lib/string_scalar_i64_caller_orientation_contract.hako",
+    "hako_contract_hash": "17fba879d58c6a25df3d854789f35c75d6227888cf29143d8c50c70d8afefd3c",
+    "string_policy": "lang/src/compiler/lib/string_search_scalar_i64_policy_classifier.hako",
+    "string_policy_artifact": "src/mir/generic_method_route_plan/generated/string_search_scalar_i64_hako_policy.rs",
+    "string_policy_artifact_hash": "5badeefca81ee6ab56fc51d90c7dc7f96af03a708fcca8ebe7dd50c190aad14c",
+    "string_policy_hash": "f9a0e058470004aa2e9fd4f3f912cbd1ae82d8ca7b451f12b952178e82ae3c41"
+  },
+  "schema_version": 0,
+  "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-STRING-CALLER-ORIENTATION-CONTRACT-ARTIFACT-001"
+}

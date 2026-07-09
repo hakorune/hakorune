@@ -347,12 +347,13 @@ latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-t
 
 latest_card = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-STRING-CALLER-ORIENTATION-CONTRACT-ARTIFACT-001"
 latest_card_path = "docs/development/current/main/phases/phase-296x/3422-MIRBUILDER-SCALAR-KNOWN-FASTPATH-STRING-CALLER-ORIENTATION-CONTRACT-ARTIFACT-001.md"
-latest_card_summary = """3422 is the active implementation task for a
-StringScalarI64Routes caller-orientation `.hako` contract and checked-in
-generated typed Rust artifact. It must reference exactly the three existing
-homogeneous String policy rows and add no live consumer. Runtime dispatch, route
-selection, lowering, mutation, publication, Collection expansion, ScalarKnown-
-wide authority, Delete authority, and Source Selfhost remain unclaimed."""
+latest_card_summary = """3422 materializes a StringScalarI64Routes
+caller-orientation `.hako` contract and checked-in generated typed Rust
+artifact for exactly the three homogeneous String policy rows. A guard verifies
+the row set and rejects every live consumer. Runtime dispatch, route selection,
+lowering, mutation, publication, Collection expansion, ScalarKnown-wide
+authority, Delete authority, and Source Selfhost remain unclaimed; Collection
+caller orientation now requires a separate mixed-domain design consultation."""
 
 current_blocker_token = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-STRING-CALLER-ORIENTATION-CONTRACT-ARTIFACT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -363,6 +364,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-10: 3422 materializes a StringScalarI64Routes caller-orientation .hako contract and checked-in generated typed Rust artifact for the three homogeneous String policy rows, adds exact row-set and no-live-consumer guards, and leaves runtime dispatch, route selection, lowering, mutation, publication, Collection expansion, ScalarKnown-wide authority, Delete authority, and Source Selfhost unclaimed.",
   "2026-07-10: 3421 materializes a MapLoad-only caller-orientation .hako contract and checked-in generated typed Rust artifact, references the existing policy row without duplicating route semantics, and adds a no-live-consumer guard while runtime dispatch, route selection, lowering, mutation, publication, ScalarKnown-wide authority, Delete authority, and Source Selfhost remain unclaimed.",
   "2026-07-10: 3420 adopts a MapLoadScalarI64Routes-only narrow caller-orientation basis as contract metadata, retains the existing .hako route-decision authority and Rust oracle fail-fast boundary, and leaves caller runtime dispatch, route selection switching, backend/lowering, mutation, publication, ScalarKnown-wide authority, Delete authority, and Source Selfhost unclaimed.",
   "2026-07-10: 3419 re-enters the .hako caller-orientation authority design stop from current ScalarKnown evidence: all known fast-path surfaces are shadow-consumed, the non-Delete Write authority island is closed, DeleteSurfacePolicy / MapDeleteAny is parked, and caller-orientation runtime path, ScalarKnown-wide .hako runtime route authority, Rust fast-path rewiring, backend/lowering authority, runtime mutation authority, publication execution, Delete authority, and Source Selfhost remain unclaimed.",
@@ -374,5 +376,4 @@ landed_tail = [
   "2026-07-10: 3413 reruns the scoped MapStoreAny Write .hako route-decision authority pilot evidence, confirms mapstore_any_hako_route_decision_authority_pilot=1 with Any boundary metadata-only, selects MIRBUILDER-SCALAR-KNOWN-FASTPATH-NEXT-WRITE-HAKO-AUTHORITY-SURFACE-DESIGN-STOP-003, and leaves Delete authority, Write-wide authority, runtime mutation authority, publication execution, runtime fallback, and Source Selfhost unclaimed.",
   "2026-07-10: 3412 materializes the scoped SetSurfacePolicy / MapStoreAny Write .hako route-decision authority pilot by switching the live MapStoreAny route to mapstore_any_hako_route_authority_pilot_decision, constructing the route decision from WRITE_SET_MAPSTORE_ANY_HAKO_POLICY, retaining Rust as oracle / compat checker with mismatch fail-fast, keeping AnyWriteBoundary runtime authority closed, selecting MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPSTORE-ANY-WRITE-HAKO-AUTHORITY-PILOT-RERUN-001, and leaving Write-wide authority, runtime mutation authority, publication execution, runtime fallback, and Source Selfhost unclaimed.",
   "2026-07-10: 3411 selects SetSurfacePolicy / MapStoreAny as the third scoped Write .hako route-decision authority pilot using PriorScopedWriteAuthorityPilotsMapStoreI64AndPush + ExistingGeneratedTypedArtifactShadowConsumed + AnyWriteBoundaryDeclaredButRuntimeAuthorityNotOpened + SetSurfacePolicyContinuationAfterMapStoreI64 + RustOracleCompatFailFastRetained, selects MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPSTORE-ANY-WRITE-HAKO-ROUTE-DECISION-AUTHORITY-PILOT-001, and leaves actual MapStoreAny authority, AnyWriteBoundary runtime authority, Write-wide authority, and Source Selfhost unclaimed.",
-  "2026-07-09: 3410 stops after the second scoped Write .hako route-decision authority pilot and opens design consultation for the next Write authority surface; Write-wide authority, MapStoreAny authority, MapDeleteAny authority, AnyWriteBoundary authority, runtime mutation authority, publication execution, ScalarKnown-wide .hako runtime route authority, Rust fast-path rewiring, backend/lowering authority, caller orientation, new backend/ABI, runtime fallback, and Source Selfhost remain unclaimed.",
 ]

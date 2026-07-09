@@ -1,0 +1,18 @@
+// string_scalar_i64_caller_orientation_contract.hako
+//
+// Responsibility:
+// - declare metadata-only caller orientation for the homogeneous String rows
+// - reference existing policy row IDs without copying route semantics
+//
+// Non-responsibility:
+// - route selection, runtime dispatch, MIR emission, backend lowering
+// - mutation, publication, or Collection/Write authority
+static box StringScalarI64CallerOrientationContractBox {
+  static method rows() {
+    return [
+      "string_indexof_scalar_i64_routes|CallerOrientationContractMetadataOnly|SingleSurface|Forbidden|Forbidden|Forbidden|Forbidden|FailFast",
+      "string_lastindexof_scalar_i64_routes|CallerOrientationContractMetadataOnly|SingleSurface|Forbidden|Forbidden|Forbidden|Forbidden|FailFast",
+      "string_contains_scalar_i64_routes|CallerOrientationContractMetadataOnly|SingleSurface|Forbidden|Forbidden|Forbidden|Forbidden|FailFast"
+    ]
+  }
+}
