@@ -414,16 +414,16 @@ next active:
   MIRBUILDER-PROGRAMJSON-RECIPEITEM-COND-RECIPE-PRODUCER-WIRING-SELECTION-001; status=landed; selected_producer=LoopStmtHandlerLoopConditionProducer; selected_next_card=MIRBUILDER-PROGRAMJSON-LOOP-STMT-COND-RECIPE-SIDECAR-WIRING-001; source_selfhost_claim = 0
   MIRBUILDER-PROGRAMJSON-RECIPEITEM-COND-RECIPE-PRODUCER-WIRING-SELECTION-CURRENT-001; status=landed; output_contract=rust-lifecycle-mirbuilder-programjson-recipeitem-cond-recipe-producer-wiring-selection-current; cond_recipe_producer_wiring_selection_current = 1; selected_loop_stmt_handler_cond_recipe_producer = 1; selected_next_card=MIRBUILDER-PROGRAMJSON-LOOP-STMT-COND-RECIPE-SIDECAR-WIRING-001; source_selfhost_claim = 0
   MIRBUILDER-PROGRAMJSON-LOOP-STMT-COND-RECIPE-SIDECAR-WIRING-001; status=landed; loop_stmt_cond_recipe_sidecar_wiring = 1; recipe_item_attachment_implementation = 1; legacy_cond_facts_required = 1; selected_next_card=MIRBUILDER-RECIPEITEM-COND-RECIPE-OBSERVATION-BOUNDARY-SELECTION-001; source_selfhost_claim = 0
+  MIRBUILDER-PROGRAMJSON-LOOP-STMT-COND-RECIPE-SIDECAR-WIRING-CURRENT-GATE-001; status=landed; output_contract=rust-lifecycle-mirbuilder-programjson-loop-stmt-cond-recipe-sidecar-wiring-current-gate; loop_stmt_cond_recipe_sidecar_wiring_current_gate = 1; recipe_item_attachment_implementation = 1; legacy_cond_facts_required = 1; selected_next_card=MIRBUILDER-RECIPEITEM-COND-RECIPE-OBSERVATION-BOUNDARY-SELECTION-001; source_selfhost_claim = 0
   MIRBUILDER-RECIPEITEM-COND-RECIPE-OBSERVATION-BOUNDARY-SELECTION-001; status=landed; selected_next_card=MIRBUILDER-RECIPEITEM-COND-RECIPE-DIAGNOSTIC-SUMMARY-OBSERVATION-001; source_selfhost_claim = 0
-
 trigger-based AOT/MIR typing debt:
   status=parked-until-triggered; order=2999/3000/3001 landed, then 3022 queue
   only when an active ProgramJSON gate hits Float Sub/Mul/Div, string relational
   compare, PHI dst_type, mir_call dst_type, or receiver-helper.
 next_documented_task =
-  MIRBUILDER-PROGRAMJSON-LOOP-STMT-COND-RECIPE-SIDECAR-WIRING-001
+  MIRBUILDER-RECIPEITEM-COND-RECIPE-OBSERVATION-BOUNDARY-SELECTION-001
 next_after_active_3 =
-  MIRBUILDER-PROGRAMJSON-LOOP-STMT-COND-RECIPE-SIDECAR-WIRING-001
+  MIRBUILDER-RECIPEITEM-COND-RECIPE-OBSERVATION-BOUNDARY-SELECTION-001
 follow_on_after_consume = select first BoolRecipe publication parity row only after consume gate is green
 
 task discipline =
