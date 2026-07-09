@@ -9,55 +9,51 @@
     "source_selfhost_claim": 0
   },
   "current_state": {
-    "current_blocker_token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-ALL-SURFACES-BASIS-001",
-    "latest_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-INVENTORY-RERUN-006",
-    "latest_card_path": "docs/development/current/main/phases/phase-296x/3382-MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-INVENTORY-RERUN-006.md"
+    "current_blocker_token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-CALLER-ORIENTATION-AUTHORITY-DESIGN-STOP-001",
+    "latest_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-CALLER-ORIENTATION-AUTHORITY-DESIGN-STOP-001",
+    "latest_card_path": "docs/development/current/main/phases/phase-296x/3385-MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-CALLER-ORIENTATION-AUTHORITY-DESIGN-STOP-001.md"
   },
   "decision": {
     "kind": "ResolveCurrentActiveRustLifecycleGuards",
     "reason_token": "LatestCurrentScopedGuardSet",
-    "selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-ALL-SURFACES-BASIS-001"
+    "selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-CALLER-ORIENTATION-AUTHORITY-DESIGN-STOP-001"
   },
   "kind": "CurrentActiveRustLifecycleGuardResolverV1",
   "resolution": {
     "current_blocker": {
-      "card": null,
+      "card": "docs/development/current/main/phases/phase-296x/3385-MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-CALLER-ORIENTATION-AUTHORITY-DESIGN-STOP-001.md",
       "guard_count": 0,
       "guard_paths": [],
       "status": "pending_card_or_guard",
-      "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-ALL-SURFACES-BASIS-001"
+      "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-CALLER-ORIENTATION-AUTHORITY-DESIGN-STOP-001"
     },
-    "historical_rust_lifecycle_script_count": 1075,
+    "historical_rust_lifecycle_script_count": 1077,
     "latest": {
-      "card": "docs/development/current/main/phases/phase-296x/3382-MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-INVENTORY-RERUN-006.md",
-      "guard_count": 1,
-      "guard_paths": [
-        "tools/checks/rust_lifecycle_mirbuilder_scalar_known_fastpath_connected_closeout_inventory_rerun_006_guard.sh"
-      ],
-      "status": "resolved",
-      "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-INVENTORY-RERUN-006"
+      "card": "docs/development/current/main/phases/phase-296x/3385-MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-CALLER-ORIENTATION-AUTHORITY-DESIGN-STOP-001.md",
+      "guard_count": 0,
+      "guard_paths": [],
+      "status": "pending_card_or_guard",
+      "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-CALLER-ORIENTATION-AUTHORITY-DESIGN-STOP-001"
     },
     "max_default_guard_count": 3,
     "run_all_historical_guards": false,
-    "runnable_guard_count": 1,
-    "runnable_guard_paths": [
-      "tools/checks/rust_lifecycle_mirbuilder_scalar_known_fastpath_connected_closeout_inventory_rerun_006_guard.sh"
-    ]
+    "runnable_guard_count": 0,
+    "runnable_guard_paths": []
   },
   "schema_version": 0,
   "source_files": {
-    "docs/development/current/main/CURRENT_STATE.toml": "5ba497bb64b15035c8caaffcc696804d14d73dcda33fdd0b8fb5ec051613721b",
-    "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md": "ed31429b5b41013326df7e1191e6a48dda99b6294b1f261b78c34f5ee9e6de3f"
+    "docs/development/current/main/CURRENT_STATE.toml": "01f629647eae199455ca30e9f5760d896068072d19620acbce43ffda8238e7ad",
+    "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md": "60a173a45afdd65e83195ff5952a84b81c10f23f11c0b32b59759f3c216dc515"
   },
   "summary": {
     "current_active_guard_resolver": 1,
     "current_blocker_guard_pending": 1,
     "current_blocker_guard_resolved": 0,
-    "latest_guard_resolved": 1,
+    "latest_guard_resolved": 0,
     "max_default_guard_count": 3,
     "run_all_rust_lifecycle_guards_by_default": 0,
-    "runnable_guard_count": 1,
-    "selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-ALL-SURFACES-BASIS-001",
+    "runnable_guard_count": 0,
+    "selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-CALLER-ORIENTATION-AUTHORITY-DESIGN-STOP-001",
     "source_selfhost_claim": 0
   },
   "token": "MIRBUILDER-CURRENT-ACTIVE-RUST-LIFECYCLE-GUARD-RESOLVER-001"
