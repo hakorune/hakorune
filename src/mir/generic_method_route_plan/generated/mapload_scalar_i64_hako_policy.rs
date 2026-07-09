@@ -5,10 +5,13 @@ use crate::mir::core_method_op::{CoreMethodLoweringTier, CoreMethodOp};
 use crate::mir::generic_method_route_facts::{
     GenericMethodPublicationPolicy, GenericMethodReturnShape, GenericMethodValueDemand,
 };
-use crate::mir::generic_method_route_plan::{GenericMethodRouteKind, GenericMethodRouteProof};
+use crate::mir::generic_method_route_plan::{
+    GenericMethodRouteKind, GenericMethodRouteProof,
+};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) struct HakoMapLoadScalarI64Policy {
+    pub(crate) policy_row_id: &'static str,
     pub(crate) surface: &'static str,
     pub(crate) route_kind: GenericMethodRouteKind,
     pub(crate) core_op: CoreMethodOp,
@@ -31,6 +34,7 @@ pub(crate) const MAPLOAD_SCALAR_I64_ALLOWED_PROOFS: &[GenericMethodRouteProof] =
 
 pub(crate) const MAPLOAD_SCALAR_I64_HAKO_POLICY: HakoMapLoadScalarI64Policy =
     HakoMapLoadScalarI64Policy {
+        policy_row_id: "map_load_scalar_i64_routes",
         surface: "MapLoadScalarI64Routes",
         route_kind: GenericMethodRouteKind::MapLoadScalarI64,
         core_op: CoreMethodOp::MapGet,

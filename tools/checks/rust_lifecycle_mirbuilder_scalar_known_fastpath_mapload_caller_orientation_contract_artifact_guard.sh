@@ -71,7 +71,9 @@ expected = {
 }
 need((fixture.get("contract") or {}) == expected, "fixture contract drift")
 need((fixture.get("decision") or {}).get("selected_next_card") == next_card, "selected next card drift")
-need(next_card in task_order, "task chain pointer drift")
+next_rows = {row.get("token"): row for row in manifest.get("rows", [])}
+need(next_card in next_rows, "next card manifest pointer drift")
+need((root / next_rows[next_card]["card"]).exists(), "next card file missing")
 for value in expected.values():
     need(value in contract and value in artifact, f"contract value missing: {value}")
 need("map_load_scalar_i64_routes|MapLoadScalarI64Routes|MapLoadScalarI64" in policy, "policy row missing")

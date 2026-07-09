@@ -52,7 +52,7 @@
   "kind": "MirBuilderScalarKnownFastpathStringCallerOrientationContractArtifactV1",
   "provenance": {
     "existing_string_oracle": "src/mir/generic_method_route_plan/scalar_known_hako_shadow.rs",
-    "existing_string_oracle_hash": "f12361856df43dec41245d6ed1622eea1641a1d88cbe7fa5ce5171cfa0111af8",
+    "existing_string_oracle_hash": "0cf1f456ecfa18aba185d73256a8f0ba5600b46169ea1488354f20e7f70c0bcc",
     "generated_artifact": "src/mir/generic_method_route_plan/generated/string_scalar_i64_caller_orientation_contract.rs",
     "generated_artifact_hash": "17be2d11311f8ecb420cb34d8d474cb143e5d9c030936d7bdb02f31ea53bb728",
     "generator": "tools/rust_lifecycle/generate_string_scalar_i64_caller_orientation_contract.py",
@@ -61,7 +61,7 @@
     "hako_contract_hash": "17fba879d58c6a25df3d854789f35c75d6227888cf29143d8c50c70d8afefd3c",
     "string_policy": "lang/src/compiler/lib/string_search_scalar_i64_policy_classifier.hako",
     "string_policy_artifact": "src/mir/generic_method_route_plan/generated/string_search_scalar_i64_hako_policy.rs",
-    "string_policy_artifact_hash": "5badeefca81ee6ab56fc51d90c7dc7f96af03a708fcca8ebe7dd50c190aad14c",
+    "string_policy_artifact_hash": "d19ce44eae2543fd8bac385004fdab57695bf4a7d82e2bf0913168147269a77d",
     "string_policy_hash": "f9a0e058470004aa2e9fd4f3f912cbd1ae82d8ca7b451f12b952178e82ae3c41"
   },
   "schema_version": 0,

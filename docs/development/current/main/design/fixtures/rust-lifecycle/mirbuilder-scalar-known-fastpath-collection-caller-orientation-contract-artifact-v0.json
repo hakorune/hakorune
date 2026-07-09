@@ -58,10 +58,10 @@
   "provenance": {
     "collection_policy": "lang/src/compiler/lib/collection_len_scalar_i64_policy_classifier.hako",
     "collection_policy_artifact": "src/mir/generic_method_route_plan/generated/collection_len_scalar_i64_hako_policy.rs",
-    "collection_policy_artifact_hash": "629a11b03447fa6f57d4679f48878fa2d1742d4c9017bb07221d34c3d783baf6",
+    "collection_policy_artifact_hash": "2ba9eacae97a2ead0e4b7b88e5b9de4169ab332b9641c9cd21fa30cc6268a877",
     "collection_policy_hash": "8bb3de9b3fd43a0f94018d8e7d8f913185875d9e056d5f99e78b9c2b4c20967e",
     "existing_collection_oracle": "src/mir/generic_method_route_plan/scalar_known_hako_shadow.rs",
-    "existing_collection_oracle_hash": "f12361856df43dec41245d6ed1622eea1641a1d88cbe7fa5ce5171cfa0111af8",
+    "existing_collection_oracle_hash": "0cf1f456ecfa18aba185d73256a8f0ba5600b46169ea1488354f20e7f70c0bcc",
     "generated_artifact": "src/mir/generic_method_route_plan/generated/collection_scalar_i64_caller_orientation_contract.rs",
     "generated_artifact_hash": "73e1d3ca2bc5559cd407ba97eff23ebd0eca783d3b161152a666e96c4fb24a62",
     "generator": "tools/rust_lifecycle/generate_collection_scalar_i64_caller_orientation_contract.py",

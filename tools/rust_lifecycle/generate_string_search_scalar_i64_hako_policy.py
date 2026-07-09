@@ -67,7 +67,7 @@ def render(rows: list[list[str]]) -> str:
     rendered_rows = []
     for fields in rows:
         (
-            _row_id,
+            row_id,
             surface,
             route_kind,
             core_op,
@@ -82,6 +82,7 @@ def render(rows: list[list[str]]) -> str:
         ) = fields
         rendered_rows.append(
             f"""    HakoStringSearchScalarI64Policy {{
+        policy_row_id: {lit(row_id)},
         surface: {lit(surface)},
         route_kind: GenericMethodRouteKind::{route_kind},
         core_op: CoreMethodOp::{core_op},
@@ -109,6 +110,7 @@ use crate::mir::generic_method_route_plan::{{
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) struct HakoStringSearchScalarI64Policy {{
+    pub(crate) policy_row_id: &'static str,
     pub(crate) surface: &'static str,
     pub(crate) route_kind: GenericMethodRouteKind,
     pub(crate) core_op: CoreMethodOp,

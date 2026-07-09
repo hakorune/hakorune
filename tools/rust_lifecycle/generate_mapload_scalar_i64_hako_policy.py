@@ -87,6 +87,7 @@ use crate::mir::generic_method_route_plan::{{
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) struct HakoMapLoadScalarI64Policy {{
+    pub(crate) policy_row_id: &'static str,
     pub(crate) surface: &'static str,
     pub(crate) route_kind: GenericMethodRouteKind,
     pub(crate) core_op: CoreMethodOp,
@@ -107,6 +108,7 @@ pub(crate) const MAPLOAD_SCALAR_I64_ALLOWED_PROOFS: &[GenericMethodRouteProof] =
 
 pub(crate) const MAPLOAD_SCALAR_I64_HAKO_POLICY: HakoMapLoadScalarI64Policy =
     HakoMapLoadScalarI64Policy {{
+        policy_row_id: {lit(row_id)},
         surface: {lit(surface)},
         route_kind: GenericMethodRouteKind::{route_kind},
         core_op: CoreMethodOp::{core_op},

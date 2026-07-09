@@ -345,16 +345,14 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-SCALAR-KNOWN-HAKO-SHADOW-TEST-SPLIT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3425-MIRBUILDER-SCALAR-KNOWN-HAKO-SHADOW-TEST-SPLIT-001.md"
-latest_card_summary = """3425 is the first code-facing task in the pre-authorized
-3425..3430 read caller-orientation packet. It physically separates the test
-module from the 797-line scalar_known_hako_shadow.rs before row-ID transport
-and assertion-only consumers are added. Production behavior, route authority,
-runtime dispatch, lowering, mutation, publication, and Source Selfhost remain
-unchanged."""
+latest_card = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-CALLER-ORIENTATION-LIVE-ASSERT-CONSUMER-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3427-MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-CALLER-ORIENTATION-LIVE-ASSERT-CONSUMER-001.md"
+latest_card_summary = """3427 adds the first compiler-side caller-orientation
+assertion consumer for MapLoad. It observes only the generated policy row ID
+and metadata-only flags after the existing policy lookup, returns Unit, and
+must not select routes or affect runtime/backend/lowering authority."""
 
-current_blocker_token = "MIRBUILDER-SCALAR-KNOWN-HAKO-SHADOW-TEST-SPLIT-001"
+current_blocker_token = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-CALLER-ORIENTATION-LIVE-ASSERT-CONSUMER-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -363,6 +361,8 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-10: 3426 carries policy_row_id identity metadata through the generated typed Rust artifacts for the exact MapLoad 1-row, String 3-row, and Collection 4-row read set; preserves route and receiver-domain semantics, updates freshness provenance, and leaves caller runtime, route selection, lowering, mutation, publication, and Source Selfhost unclaimed.",
+  "2026-07-10: 3425 splits the scalar_known_hako_shadow test module into a dedicated source, keeps production behavior and accepted route shapes unchanged, adds a 800-line guard, and passes all 19 scalar shadow tests; caller-orientation runtime path, route selection, backend/lowering, mutation, publication, and Source Selfhost remain unclaimed.",
   "2026-07-10: 3424 resolves the Collection live-consumer design stop with a worker-inventoried compiler-side fail-fast assertion shape that accepts only policy row IDs and returns Unit, pre-authorizes the 3425..3430 read caller-orientation packet, and keeps route/runtime/backend/mutation/publication authority and Source Selfhost unclaimed.",
   "2026-07-10: 3423 materializes the CollectionScalarI64Routes caller-orientation `.hako` contract and checked-in generated typed Rust artifact for the exact four existing policy rows, preserves receiver-domain and explicit AnyLength/Box ownership in the existing policy/oracle, and leaves live consumer, runtime dispatch, route selection, lowering, mutation, publication, ScalarKnown-wide authority, Delete authority, and Source Selfhost unclaimed.",
   "2026-07-10: 3422 materializes a StringScalarI64Routes caller-orientation .hako contract and checked-in generated typed Rust artifact for the three homogeneous String policy rows, adds exact row-set and no-live-consumer guards, and leaves runtime dispatch, route selection, lowering, mutation, publication, Collection expansion, ScalarKnown-wide authority, Delete authority, and Source Selfhost unclaimed.",
@@ -373,6 +373,4 @@ landed_tail = [
   "2026-07-10: 3417 parks DeleteSurfacePolicy / MapDeleteAny as a retired Rust-preserved route and closes only the non-Delete Write .hako route-decision authority island for SetSurfacePolicy / MapStoreI64, PushSurfacePolicy / ArrayAppendAny, and SetSurfacePolicy / MapStoreAny; write_surface_authority_closeout, write_wide_authority, Delete authority, runtime mutation authority, publication execution, runtime fallback, and Source Selfhost remain unclaimed.",
   "2026-07-10: 3416 applies the ScalarKnown authority claim taxonomy to the DeleteSurfacePolicy / MapDeleteAny design stop, confirms the live Rust MapDeleteAny route is preserved while no generated typed Delete .hako artifact or Delete authority helper exists, and leaves Delete authority, Write-wide authority, runtime mutation authority, publication execution, runtime fallback, and Source Selfhost unclaimed.",
   "2026-07-10: 3415 defines the ScalarKnown authority claim taxonomy as a documentation/audit layer, preserves legacy claim names, requires new claim names to map to taxonomy categories, selects MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-DELETE-SURFACE-AUTHORITY-DESIGN-STOP-001, and changes no authority semantics.",
-  "2026-07-10: 3414 stops after the third scoped Write .hako route-decision authority pilot and opens design consultation for DeleteSurfacePolicy / MapDeleteAny vs current non-Delete Write authority island closeout; Delete authority, Write-wide authority, runtime mutation authority, publication execution, runtime fallback, and Source Selfhost remain unclaimed.",
-  "2026-07-10: 3413 reruns the scoped MapStoreAny Write .hako route-decision authority pilot evidence, confirms mapstore_any_hako_route_decision_authority_pilot=1 with Any boundary metadata-only, selects MIRBUILDER-SCALAR-KNOWN-FASTPATH-NEXT-WRITE-HAKO-AUTHORITY-SURFACE-DESIGN-STOP-003, and leaves Delete authority, Write-wide authority, runtime mutation authority, publication execution, runtime fallback, and Source Selfhost unclaimed.",
 ]

@@ -59,7 +59,9 @@ need(fixture.get("token") == token, "token drift")
 need(token in card, "card token drift")
 need(token in {row.get("token") for row in manifest.get("rows", [])}, "manifest token missing")
 need((fixture.get("decision") or {}).get("selected_next_card") == next_card, "selected next card drift")
-need(next_card in task_order, "task chain pointer drift")
+next_rows = {row.get("token"): row for row in manifest.get("rows", [])}
+need(next_card in next_rows, "next card manifest pointer drift")
+need((root / next_rows[next_card]["card"]).exists(), "next card file missing")
 
 row_ids = [
     "string_indexof_scalar_i64_routes",

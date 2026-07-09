@@ -5,10 +5,13 @@ use crate::mir::core_method_op::{CoreMethodLoweringTier, CoreMethodOp};
 use crate::mir::generic_method_route_facts::{
     GenericMethodPublicationPolicy, GenericMethodReturnShape, GenericMethodValueDemand,
 };
-use crate::mir::generic_method_route_plan::{GenericMethodRouteKind, GenericMethodRouteProof};
+use crate::mir::generic_method_route_plan::{
+    GenericMethodRouteKind, GenericMethodRouteProof,
+};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) struct HakoStringSearchScalarI64Policy {
+    pub(crate) policy_row_id: &'static str,
     pub(crate) surface: &'static str,
     pub(crate) route_kind: GenericMethodRouteKind,
     pub(crate) core_op: CoreMethodOp,
@@ -24,6 +27,7 @@ pub(crate) struct HakoStringSearchScalarI64Policy {
 
 pub(crate) const STRING_SEARCH_SCALAR_I64_HAKO_POLICIES: &[HakoStringSearchScalarI64Policy] = &[
     HakoStringSearchScalarI64Policy {
+        policy_row_id: "string_indexof_scalar_i64_routes",
         surface: "StringScalarI64Routes",
         route_kind: GenericMethodRouteKind::StringIndexOf,
         core_op: CoreMethodOp::StringIndexOf,
@@ -37,6 +41,7 @@ pub(crate) const STRING_SEARCH_SCALAR_I64_HAKO_POLICIES: &[HakoStringSearchScala
         role: "classifier_policy_mirror_only",
     },
     HakoStringSearchScalarI64Policy {
+        policy_row_id: "string_lastindexof_scalar_i64_routes",
         surface: "StringScalarI64Routes",
         route_kind: GenericMethodRouteKind::StringLastIndexOf,
         core_op: CoreMethodOp::StringLastIndexOf,
@@ -50,6 +55,7 @@ pub(crate) const STRING_SEARCH_SCALAR_I64_HAKO_POLICIES: &[HakoStringSearchScala
         role: "classifier_policy_mirror_only",
     },
     HakoStringSearchScalarI64Policy {
+        policy_row_id: "string_contains_scalar_i64_routes",
         surface: "StringScalarI64Routes",
         route_kind: GenericMethodRouteKind::StringContains,
         core_op: CoreMethodOp::StringContains,

@@ -52,7 +52,7 @@
   "kind": "MirBuilderScalarKnownFastpathMaploadCallerOrientationContractArtifactV1",
   "provenance": {
     "existing_mapload_oracle": "src/mir/generic_method_route_plan/scalar_known_hako_shadow.rs",
-    "existing_mapload_oracle_hash": "f12361856df43dec41245d6ed1622eea1641a1d88cbe7fa5ce5171cfa0111af8",
+    "existing_mapload_oracle_hash": "0cf1f456ecfa18aba185d73256a8f0ba5600b46169ea1488354f20e7f70c0bcc",
     "generated_artifact": "src/mir/generic_method_route_plan/generated/mapload_scalar_i64_caller_orientation_contract.rs",
     "generated_artifact_hash": "78f2604f3496257de23fff388b026d90e4d6c70c6b9df29da4b754c63497fcfe",
     "generator": "tools/rust_lifecycle/generate_mapload_scalar_i64_caller_orientation_contract.py",
@@ -61,7 +61,7 @@
     "hako_contract_hash": "b28d6e17efa18ae07902cbb5856bc5df7305e2daa91b7f1e7c3555ac2aea5a8c",
     "mapload_policy": "lang/src/compiler/lib/map_load_scalar_i64_policy_classifier.hako",
     "mapload_policy_artifact": "src/mir/generic_method_route_plan/generated/mapload_scalar_i64_hako_policy.rs",
-    "mapload_policy_artifact_hash": "8753685ebb02342de9c6468107e54aedaef9c58e328005641474fd7c96fc675d",
+    "mapload_policy_artifact_hash": "ffe690c516de482af284b24e5d2805ede25c91eb54cdadc5c99d8e2dce392e06",
     "mapload_policy_hash": "3995db4122d3a87433be3d1ca92a5b685c853258f698eed10313a3c76a8a407d"
   },
   "schema_version": 0,

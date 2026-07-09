@@ -5,10 +5,13 @@ use crate::mir::core_method_op::{CoreMethodLoweringTier, CoreMethodOp};
 use crate::mir::generic_method_route_facts::{
     GenericMethodPublicationPolicy, GenericMethodReturnShape, GenericMethodValueDemand,
 };
-use crate::mir::generic_method_route_plan::{GenericMethodRouteKind, GenericMethodRouteProof};
+use crate::mir::generic_method_route_plan::{
+    GenericMethodRouteKind, GenericMethodRouteProof,
+};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) struct HakoCollectionLenScalarI64Policy {
+    pub(crate) policy_row_id: &'static str,
     pub(crate) surface: &'static str,
     pub(crate) route_kind: GenericMethodRouteKind,
     pub(crate) core_op: CoreMethodOp,
@@ -25,6 +28,7 @@ pub(crate) struct HakoCollectionLenScalarI64Policy {
 
 pub(crate) const COLLECTION_LEN_SCALAR_I64_HAKO_POLICIES: &[HakoCollectionLenScalarI64Policy] = &[
     HakoCollectionLenScalarI64Policy {
+        policy_row_id: "collection_map_entry_count_scalar_i64_routes",
         surface: "CollectionScalarI64Routes",
         route_kind: GenericMethodRouteKind::MapEntryCount,
         core_op: CoreMethodOp::MapLen,
@@ -39,6 +43,7 @@ pub(crate) const COLLECTION_LEN_SCALAR_I64_HAKO_POLICIES: &[HakoCollectionLenSca
         role: "classifier_policy_mirror_only",
     },
     HakoCollectionLenScalarI64Policy {
+        policy_row_id: "collection_array_slot_len_scalar_i64_routes",
         surface: "CollectionScalarI64Routes",
         route_kind: GenericMethodRouteKind::ArraySlotLen,
         core_op: CoreMethodOp::ArrayLen,
@@ -53,6 +58,7 @@ pub(crate) const COLLECTION_LEN_SCALAR_I64_HAKO_POLICIES: &[HakoCollectionLenSca
         role: "classifier_policy_mirror_only",
     },
     HakoCollectionLenScalarI64Policy {
+        policy_row_id: "collection_string_len_scalar_i64_routes",
         surface: "CollectionScalarI64Routes",
         route_kind: GenericMethodRouteKind::StringLen,
         core_op: CoreMethodOp::StringLen,
@@ -67,6 +73,7 @@ pub(crate) const COLLECTION_LEN_SCALAR_I64_HAKO_POLICIES: &[HakoCollectionLenSca
         role: "classifier_policy_mirror_only",
     },
     HakoCollectionLenScalarI64Policy {
+        policy_row_id: "collection_any_length_scalar_i64_routes",
         surface: "CollectionScalarI64Routes",
         route_kind: GenericMethodRouteKind::AnyLength,
         core_op: CoreMethodOp::AnyLen,
