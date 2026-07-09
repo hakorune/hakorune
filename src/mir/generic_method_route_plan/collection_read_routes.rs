@@ -11,8 +11,8 @@ use super::origin_inference::generic_collection_element_origin_box_name;
 use super::{
     generic_array_flow_origin_box_name, generic_pure_string_value_origin_box_name,
     method_args_without_redundant_receiver, mir_json_routes, prove_scalar_i64_map_get_store_fact,
-    string_corridor_method_origin_box_name, CollectionElementOriginMap, FieldHandleOriginMap,
-    GenericMethodRoute, GenericMethodRouteDecision, GenericMethodRouteEvidence,
+    scalar_known_hako_shadow, string_corridor_method_origin_box_name, CollectionElementOriginMap,
+    FieldHandleOriginMap, GenericMethodRoute, GenericMethodRouteDecision, GenericMethodRouteEvidence,
     GenericMethodRouteKind, GenericMethodRouteOperands, GenericMethodRouteProof,
     GenericMethodRouteSite, GenericMethodRouteSurface,
 };
@@ -230,16 +230,8 @@ pub(super) fn match_generic_get_route(
                 GenericMethodRouteEvidence::new(receiver_origin_box, Some(key_route))
                     .with_result_origin_box(result_origin_box),
                 GenericMethodRouteOperands::new(*receiver, Some(args[0]), *dst),
-                GenericMethodRouteDecision::new(
-                    GenericMethodRouteKind::MapLoadScalarI64,
+                scalar_known_hako_shadow::mapload_scalar_i64_shadow_consumed_decision(
                     scalar_fact.route_proof,
-                    Some(CoreMethodOpCarrier::manifest(
-                        CoreMethodOp::MapGet,
-                        CoreMethodLoweringTier::WarmDirectAbi,
-                    )),
-                    Some(GenericMethodReturnShape::ScalarI64OrMissingZero),
-                    GenericMethodValueDemand::ScalarI64,
-                    Some(GenericMethodPublicationPolicy::NoPublication),
                 ),
             ));
         }
@@ -386,6 +378,17 @@ pub(super) fn match_generic_get_route(
                 Some(GenericMethodPublicationPolicy::RuntimeDataFacade),
             )
         };
+
+    if route_kind == GenericMethodRouteKind::MapLoadScalarI64 {
+        return Some(GenericMethodRoute::new(
+            GenericMethodRouteSite::new(block, instruction_index),
+            GenericMethodRouteSurface::new(box_name.clone(), method.clone(), 1),
+            GenericMethodRouteEvidence::new(receiver_origin_box, Some(key_route))
+                .with_result_origin_box(result_origin_box),
+            GenericMethodRouteOperands::new(*receiver, Some(args[0]), *dst),
+            scalar_known_hako_shadow::mapload_scalar_i64_shadow_consumed_decision(proof),
+        ));
+    }
 
     Some(GenericMethodRoute::new(
         GenericMethodRouteSite::new(block, instruction_index),

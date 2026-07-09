@@ -1,0 +1,20 @@
+// map_load_scalar_i64_policy_classifier.hako - MapLoadScalarI64 policy mirror
+//
+// Responsibility:
+// - mirror the Rust oracle policy row for MapLoadScalarI64Routes
+// - carry the existing scalar-map proof family as metadata
+// - provide a narrow .hako policy source for generated typed shadow consume
+//
+// Non-responsibility:
+// - proving scalar-map facts
+// - read surface closeout
+// - fastpath-connected closeout
+// - Hako runtime route authority, route selection, or backend lowering
+static box MapLoadScalarI64PolicyClassifierBox {
+  classify(route_kind) {
+    if route_kind == "MapLoadScalarI64" {
+      return "map_load_scalar_i64_routes|MapLoadScalarI64Routes|MapLoadScalarI64|MapGet|WarmDirectAbi|ScalarI64OrMissingZeroResult|ScalarI64OrMissingZero|ScalarI64|NoPublication|read|ScalarI64MapGetStoreFact|MapSetScalarI64SameKeyNoEscape,MapSetScalarI64DominatesNoEscape,MapSetScalarI64CoveredDynamicI64KeyNoEscape|classifier_policy_mirror_only"
+    }
+    return "unsupported_map_load_scalar_i64_policy"
+  }
+}
