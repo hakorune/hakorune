@@ -1,0 +1,108 @@
+{
+  "claims": {
+    "authority_switch_implementation_deferred": 1,
+    "backend_lowering_authority": 0,
+    "basis_only": 1,
+    "behavior_change": 0,
+    "build_rs_hako_compiler_invocation": 0,
+    "caller_orientation_runtime_path": 0,
+    "hako_generated_typed_artifact_authority_candidate": 1,
+    "hako_generation": 0,
+    "live_hako_authority": 0,
+    "manual_surface_selection": 0,
+    "mapload_hako_route_authority_pilot_basis": 1,
+    "mapload_hako_route_decision_authority_pilot": 0,
+    "mismatch_fail_fast_required": 1,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "new_route_authority": 0,
+    "owner_name_as_proof": 0,
+    "publication_execution": 0,
+    "route_count_as_proof": 0,
+    "route_membership_alone_as_proof": 0,
+    "route_selection_authority_switch": 0,
+    "row_count_as_proof": 0,
+    "runtime_fallback": 0,
+    "runtime_mutation_authority": 0,
+    "rust_fastpath_rewired": 0,
+    "rust_oracle_compat_checker_retained": 1,
+    "scalar_known_hako_runtime_route_authority": 0,
+    "scalar_known_transport_axis_authority_switch": 0,
+    "selected_route_kind_mapload_scalar_i64": 1,
+    "selected_surface_mapload_scalar_i64_routes": 1,
+    "source_path_as_authority": 0,
+    "source_selfhost_claim": 0
+  },
+  "consultation_decision": {
+    "authority_candidate": "CheckedInGeneratedTypedHakoArtifactResult",
+    "authority_switch_implementation_deferred": true,
+    "basis_only": true,
+    "decision": "SelectMapLoadHakoAuthorityPilotBasis",
+    "mismatch_policy": "FailFastRequired",
+    "rust_role": "OracleCompatCheckerRetained",
+    "selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-HAKO-AUTHORITY-PILOT-BASIS-001",
+    "selected_route_kind": "MapLoadScalarI64",
+    "selected_surface": "MapLoadScalarI64Routes"
+  },
+  "decision": {
+    "kind": "SelectMapLoadHakoAuthorityPilotBasis",
+    "reason_token": "MapLoadIsSmallestReadNoPublicationAuthorityPilotSurface",
+    "selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-HAKO-AUTHORITY-PILOT-BASIS-001"
+  },
+  "input_state": {
+    "all_scalar_known_shadow_mismatch_gate_current": 1,
+    "hako_runtime_route_authority": 0,
+    "hardening_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-all-surface-mismatch-gate-hardening-v0.json",
+    "hardening_fixture_hash": "33cce1f7a2a213c37f8245216f6b0a69f6eb8b49dd8046981c4c6704880a4895",
+    "hardening_selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-HAKO-AUTHORITY-PILOT-DESIGN-CONSULTATION-001",
+    "rust_authority_retained": 1
+  },
+  "kind": "MirBuilderScalarKnownFastpathMaploadHakoAuthorityPilotDesignConsultationV1",
+  "mapload_scope": {
+    "allowed_proof_count": 3,
+    "collection_surface_deferred": true,
+    "core_op": "MapGet",
+    "effect_class": "read",
+    "lowering_tier": "WarmDirectAbi",
+    "proof_family": "ScalarI64MapGetStoreFact",
+    "publication_policy": "NoPublication",
+    "return_shape": "ScalarI64OrMissingZero",
+    "string_surface_deferred": true,
+    "value_demand": "ScalarI64",
+    "write_surface_deferred": true
+  },
+  "provenance": {
+    "collection_read_routes": {
+      "path": "src/mir/generic_method_route_plan/collection_read_routes.rs",
+      "sha256": "0fbfbb90840bf73efcd087cb6d7087659f366b759e3432d0423513ce04736a0e"
+    },
+    "mapload_generated_typed_artifact": {
+      "path": "src/mir/generic_method_route_plan/generated/mapload_scalar_i64_hako_policy.rs",
+      "sha256": "1febc37ea515ff79e50d8060bd7096b02631f9812e9a0661d631650cdd1fefc6"
+    },
+    "mapload_hako_source": {
+      "path": "lang/src/compiler/lib/map_load_scalar_i64_policy_classifier.hako",
+      "sha256": "3995db4122d3a87433be3d1ca92a5b685c853258f698eed10313a3c76a8a407d"
+    },
+    "shadow_consumer": {
+      "path": "src/mir/generic_method_route_plan/scalar_known_hako_shadow.rs",
+      "sha256": "56969f31d23881fcc37b393af4f48ae7a19fd7df5861ada498cfd5af981dddcb"
+    }
+  },
+  "schema_version": 0,
+  "summary": {
+    "authority_switch_implementation_deferred": 1,
+    "basis_only": 1,
+    "hako_generated_typed_artifact_authority_candidate": 1,
+    "mapload_hako_route_authority_pilot_basis": 1,
+    "mapload_hako_route_decision_authority_pilot": 0,
+    "mismatch_fail_fast_required": 1,
+    "rust_oracle_compat_checker_retained": 1,
+    "scalar_known_hako_runtime_route_authority": 0,
+    "selected_surface_mapload_scalar_i64_routes": 1,
+    "source_selfhost_claim": 0
+  },
+  "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-HAKO-AUTHORITY-PILOT-DESIGN-CONSULTATION-001"
+}
