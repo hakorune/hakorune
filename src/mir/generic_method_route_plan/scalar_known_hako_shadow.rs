@@ -167,7 +167,7 @@ pub(super) fn collection_scalar_i64_hako_route_authority_pilot_decision(
         .iter()
         .find(|policy| policy.route_kind == route_kind)
         .expect("Collection .hako policy table missing Rust route kind");
-    super::caller_orientation::assert_collection_policy_row(policy.policy_row_id);
+    super::caller_orientation::assert_collection_authority_pilot(policy.policy_row_id);
     let accepted_contract_count = accepted_scalar_known_contracts().count();
     assert!(
         accepted_contract_count >= 4,

@@ -1,3 +1,6 @@
+use super::generated::collection_len_scalar_i64_hako_policy::{
+    HakoCollectionLenScalarI64Policy, COLLECTION_LEN_SCALAR_I64_HAKO_POLICIES,
+};
 use super::generated::collection_scalar_i64_caller_orientation_contract::{
     HakoCollectionCallerOrientationContract, COLLECTION_SCALAR_I64_CALLER_ORIENTATION_CONTRACTS,
 };
@@ -167,12 +170,55 @@ fn assert_string_contract_metadata(contract: &HakoStringCallerOrientationContrac
     assert_eq!(contract.mismatch_policy, FAIL_FAST);
 }
 
-pub(super) fn assert_collection_policy_row(policy_row_id: &str) {
+pub(super) fn assert_collection_authority_pilot(policy_row_id: &str) {
+    const EXPECTED_ROWS: [(&str, &str); 4] = [
+        ("collection_map_entry_count_scalar_i64_routes", "MapBox"),
+        ("collection_array_slot_len_scalar_i64_routes", "ArrayBox"),
+        ("collection_string_len_scalar_i64_routes", "StringBox"),
+        ("collection_any_length_scalar_i64_routes", "Box"),
+    ];
+
+    assert_eq!(
+        COLLECTION_LEN_SCALAR_I64_HAKO_POLICIES.len(),
+        EXPECTED_ROWS.len(),
+        "Collection caller-orientation policy set size drift"
+    );
+    assert_eq!(
+        COLLECTION_SCALAR_I64_CALLER_ORIENTATION_CONTRACTS.len(),
+        EXPECTED_ROWS.len(),
+        "Collection caller-orientation contract set size drift"
+    );
+
+    for (expected_row_id, expected_receiver_domain) in EXPECTED_ROWS {
+        let contract = COLLECTION_SCALAR_I64_CALLER_ORIENTATION_CONTRACTS
+            .iter()
+            .find(|contract| contract.policy_row_id == expected_row_id)
+            .expect("Collection caller-orientation contract row missing");
+        assert_collection_contract_metadata(contract);
+
+        let policy = COLLECTION_LEN_SCALAR_I64_HAKO_POLICIES
+            .iter()
+            .find(|policy| policy.policy_row_id == expected_row_id)
+            .expect("Collection caller-orientation policy row missing");
+        assert_collection_policy_metadata(policy, expected_receiver_domain);
+        assert_eq!(contract.policy_row_id, policy.policy_row_id);
+    }
+
+    let policy = COLLECTION_LEN_SCALAR_I64_HAKO_POLICIES
+        .iter()
+        .find(|policy| policy.policy_row_id == policy_row_id)
+        .expect("Collection caller-orientation policy row identity drift");
     let contract = COLLECTION_SCALAR_I64_CALLER_ORIENTATION_CONTRACTS
         .iter()
         .find(|contract| contract.policy_row_id == policy_row_id)
         .expect("Collection caller-orientation policy row identity drift");
     assert_collection_contract_metadata(contract);
+    let expected_receiver_domain = EXPECTED_ROWS
+        .iter()
+        .find(|(expected_row_id, _)| *expected_row_id == policy_row_id)
+        .map(|(_, receiver_domain)| *receiver_domain)
+        .expect("Collection caller-orientation policy row identity drift");
+    assert_collection_policy_metadata(policy, expected_receiver_domain);
 }
 
 fn assert_collection_contract_metadata(contract: &HakoCollectionCallerOrientationContract) {
@@ -183,6 +229,37 @@ fn assert_collection_contract_metadata(contract: &HakoCollectionCallerOrientatio
     assert_eq!(contract.mutation_consumer, FORBIDDEN);
     assert_eq!(contract.publication_consumer, FORBIDDEN);
     assert_eq!(contract.mismatch_policy, FAIL_FAST);
+}
+
+fn assert_collection_policy_metadata(
+    policy: &HakoCollectionLenScalarI64Policy,
+    expected_receiver_domain: &str,
+) {
+    assert_eq!(policy.surface, "CollectionScalarI64Routes");
+    assert_eq!(policy.receiver_domain, expected_receiver_domain);
+    assert_eq!(
+        policy.lowering_tier,
+        super::super::core_method_op::CoreMethodLoweringTier::WarmDirectAbi
+    );
+    assert_eq!(policy.result_class, "ScalarI64Result");
+    assert_eq!(
+        policy.return_shape,
+        super::super::generic_method_route_facts::GenericMethodReturnShape::ScalarI64
+    );
+    assert_eq!(
+        policy.value_demand,
+        super::super::generic_method_route_facts::GenericMethodValueDemand::ScalarI64
+    );
+    assert_eq!(
+        policy.publication_policy,
+        super::super::generic_method_route_facts::GenericMethodPublicationPolicy::NoPublication
+    );
+    assert_eq!(policy.effect_class, "observe");
+    assert_eq!(
+        policy.proof_or_policy_source,
+        super::GenericMethodRouteProof::LenSurfacePolicy
+    );
+    assert_eq!(policy.role, "classifier_policy_mirror_only");
 }
 
 pub(super) fn assert_mapstore_i64_policy_row(policy_row_id: &str) {
@@ -316,29 +393,32 @@ mod tests {
     }
 
     #[test]
-    fn collection_assertion_accepts_all_existing_policy_rows() {
-        for row_id in [
-            "collection_map_entry_count_scalar_i64_routes",
-            "collection_array_slot_len_scalar_i64_routes",
-            "collection_string_len_scalar_i64_routes",
-            "collection_any_length_scalar_i64_routes",
-        ] {
-            assert_collection_policy_row(row_id);
+    fn collection_authority_pilot_accepts_exact_policy_set() {
+        for policy in COLLECTION_LEN_SCALAR_I64_HAKO_POLICIES {
+            assert_collection_authority_pilot(policy.policy_row_id);
         }
     }
 
     #[test]
-    #[should_panic(expected = "Collection caller-orientation policy row identity drift")]
-    fn collection_assertion_rejects_unknown_policy_row() {
-        assert_collection_policy_row("unknown_policy_row");
+    #[should_panic(expected = "policy row identity drift")]
+    fn collection_authority_pilot_rejects_unknown_policy_row() {
+        assert_collection_authority_pilot("unknown_policy_row");
     }
 
     #[test]
     #[should_panic(expected = "assertion `left == right` failed")]
-    fn collection_assertion_rejects_metadata_drift() {
-        let mut contract = COLLECTION_SCALAR_I64_CALLER_ORIENTATION_CONTRACTS[0];
-        contract.mutation_consumer = "RuntimeConsumer";
-        assert_collection_contract_metadata(&contract);
+    fn collection_authority_pilot_rejects_receiver_domain_drift() {
+        let mut policy = COLLECTION_LEN_SCALAR_I64_HAKO_POLICIES[0];
+        policy.receiver_domain = "Box";
+        assert_collection_policy_metadata(&policy, "MapBox");
+    }
+
+    #[test]
+    #[should_panic(expected = "assertion `left == right` failed")]
+    fn collection_authority_pilot_rejects_policy_metadata_drift() {
+        let mut policy = COLLECTION_LEN_SCALAR_I64_HAKO_POLICIES[0];
+        policy.role = "caller_selected_route_authority";
+        assert_collection_policy_metadata(&policy, "MapBox");
     }
 
     #[test]

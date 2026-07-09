@@ -43,3 +43,24 @@ no_new_route_authority = 1
 
 All runtime/backend/mutation/publication/Write/Delete/wide/fallback/Source
 Selfhost claims remain zero.
+
+## Implementation Result
+
+The live Collection validator now accepts only `policy_row_id`, resolves the
+exact four generated contract rows, validates their generated policy metadata,
+and returns `Unit`. Receiver domains are checked inside the generated policy
+boundary; they are not caller inputs. The existing Collection route decision
+and Rust oracle comparison remain the authority/veto path.
+
+```text
+collection_caller_orientation_authority_pilot = 1
+collection_caller_orientation_authority_scope = policy_row_id_contract_only
+collection_caller_orientation_consumer_unit_only = 1
+collection_exact_four_row_scope = 1
+collection_mixed_receiver_domain_guarded = 1
+collection_anylength_box_explicit_row_guarded = 1
+collection_hako_route_decision_authority_retained = 1
+collection_rust_oracle_compat_checker_retained = 1
+collection_mismatch_fail_fast = 1
+no_new_route_authority = 1
+```
