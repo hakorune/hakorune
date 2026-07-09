@@ -1,0 +1,100 @@
+{
+  "claims": {
+    "backend_lowering_authority": 0,
+    "behavior_change": 0,
+    "build_rs_hako_compiler_invocation": 0,
+    "caller_orientation_runtime_path": 0,
+    "hako_generation": 0,
+    "live_hako_authority": 0,
+    "manual_surface_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "new_route_authority": 0,
+    "owner_name_as_proof": 0,
+    "publication_execution": 0,
+    "route_count_as_proof": 0,
+    "route_membership_alone_as_proof": 0,
+    "route_selection_authority_switch": 0,
+    "row_count_as_proof": 0,
+    "runtime_fallback": 0,
+    "runtime_mutation_authority": 0,
+    "rust_fastpath_rewired": 0,
+    "scalar_known_hako_runtime_route_authority": 0,
+    "scalar_known_transport_axis_authority_switch": 0,
+    "source_path_as_authority": 0,
+    "source_selfhost_claim": 0,
+    "string_hako_authority_result_consumed": 1,
+    "string_hako_route_decision_authority_pilot": 1,
+    "string_live_route_calls_authority_pilot": 1,
+    "string_mismatch_fail_fast": 1,
+    "string_rust_oracle_compat_checker": 1
+  },
+  "decision": {
+    "kind": "SelectStringAuthorityPilotRerun",
+    "reason_token": "StringHakoRouteDecisionAuthorityPilotMaterialized",
+    "selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-STRING-HAKO-AUTHORITY-PILOT-RERUN-001"
+  },
+  "implementation": {
+    "authority_function": "string_scalar_i64_hako_route_authority_pilot_decision",
+    "authority_scope": "StringScalarI64RoutesOnly",
+    "hako_decision_constructed_from": "STRING_SEARCH_SCALAR_I64_HAKO_POLICIES",
+    "legacy_shadow_wrapper_retained": "string_scalar_i64_shadow_consumed_decision",
+    "live_route_calls_authority_function": true,
+    "mismatch_policy": "FailFast",
+    "route_kind_family": [
+      "StringIndexOf",
+      "StringLastIndexOf",
+      "StringContains"
+    ],
+    "runtime_source_text_parsing": false,
+    "rust_oracle_compat_checker": true,
+    "rust_oracle_decision_constructed": true,
+    "surface": "StringScalarI64Routes"
+  },
+  "input_state": {
+    "basis_defined": 1,
+    "basis_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-string-hako-authority-pilot-basis-v0.json",
+    "basis_fixture_hash": "1a04d647cdff977ba89c974a7b3c4bb36975a9147801c7fb7bd1fed290ff6204",
+    "basis_selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-STRING-HAKO-ROUTE-DECISION-AUTHORITY-PILOT-001"
+  },
+  "kind": "MirBuilderScalarKnownFastpathStringHakoRouteDecisionAuthorityPilotV1",
+  "provenance": {
+    "shadow_consumer": {
+      "path": "src/mir/generic_method_route_plan/scalar_known_hako_shadow.rs",
+      "sha256": "dc4edcdd79b410d062d5481e1ecb4ee7eb28097fe9750281e6df2f880ded0f88"
+    },
+    "string_generated_typed_artifact": {
+      "path": "src/mir/generic_method_route_plan/generated/string_search_scalar_i64_hako_policy.rs",
+      "sha256": "5d6355c1dd63a31100f5aa90603e1d2aeba7edcfdf6751e3d6ee8b4142eac1bf"
+    },
+    "string_routes": {
+      "path": "src/mir/generic_method_route_plan/string_routes.rs",
+      "sha256": "1cddcd3ee2472d54964c29730450c1bce43549c10cbd49b3fe4b0ab099ee0271"
+    }
+  },
+  "schema_version": 0,
+  "string_shape": {
+    "core_ops": [
+      "StringIndexOf",
+      "StringLastIndexOf",
+      "StringContains"
+    ],
+    "effect_class": "read",
+    "lowering_tier": "WarmDirectAbi",
+    "publication_policy": "NoPublication",
+    "return_shape": "ScalarI64",
+    "value_demand": "ScalarI64"
+  },
+  "summary": {
+    "scalar_known_hako_runtime_route_authority": 0,
+    "source_selfhost_claim": 0,
+    "string_hako_authority_result_consumed": 1,
+    "string_hako_route_decision_authority_pilot": 1,
+    "string_live_route_calls_authority_pilot": 1,
+    "string_mismatch_fail_fast": 1,
+    "string_rust_oracle_compat_checker": 1
+  },
+  "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-STRING-HAKO-ROUTE-DECISION-AUTHORITY-PILOT-001"
+}

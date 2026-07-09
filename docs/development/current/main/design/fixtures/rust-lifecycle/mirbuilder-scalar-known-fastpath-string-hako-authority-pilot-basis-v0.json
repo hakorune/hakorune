@@ -1,0 +1,103 @@
+{
+  "basis": {
+    "authority_source": "STRING_SEARCH_SCALAR_I64_HAKO_POLICIES",
+    "basis_only": true,
+    "implementation_deferred": true,
+    "mismatch_policy": "FailFast",
+    "proof_axis": [
+      "PriorScopedReadAuthorityContinuation",
+      "HomogeneousScalarI64NoPublicationReadSurface",
+      "RustOracleCompatFailFastRetained"
+    ],
+    "route_kind_family": [
+      "StringIndexOf",
+      "StringLastIndexOf",
+      "StringContains"
+    ],
+    "rust_oracle_compat_checker_retained": true,
+    "selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-STRING-HAKO-ROUTE-DECISION-AUTHORITY-PILOT-001",
+    "surface": "StringScalarI64Routes"
+  },
+  "claims": {
+    "apparent_simplicity_as_proof": 0,
+    "backend_lowering_authority": 0,
+    "basis_only": 1,
+    "behavior_change": 0,
+    "build_rs_hako_compiler_invocation": 0,
+    "caller_orientation_runtime_path": 0,
+    "hako_generation": 0,
+    "homogeneous_scalar_i64_no_publication_read_surface": 1,
+    "live_hako_authority": 0,
+    "manual_surface_selection": 0,
+    "mismatch_fail_fast_required": 1,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "new_route_authority": 0,
+    "owner_name_as_proof": 0,
+    "prior_scoped_read_authority_continuation": 1,
+    "publication_execution": 0,
+    "route_count_as_proof": 0,
+    "route_membership_alone_as_proof": 0,
+    "route_selection_authority_switch": 0,
+    "row_count_as_proof": 0,
+    "runtime_fallback": 0,
+    "runtime_mutation_authority": 0,
+    "rust_fastpath_rewired": 0,
+    "rust_oracle_compat_checker_retained": 1,
+    "scalar_known_hako_runtime_route_authority": 0,
+    "scalar_known_transport_axis_authority_switch": 0,
+    "source_path_as_authority": 0,
+    "source_selfhost_claim": 0,
+    "string_hako_authority_pilot_basis": 1,
+    "string_hako_route_decision_authority_pilot": 0
+  },
+  "decision": {
+    "kind": "SelectStringRouteDecisionAuthorityPilotImplementation",
+    "reason_token": "StringHomogeneousScalarI64NoPublicationReadSurface",
+    "selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-STRING-HAKO-ROUTE-DECISION-AUTHORITY-PILOT-001"
+  },
+  "input_state": {
+    "design_stop_card": "docs/development/current/main/phases/phase-296x/3391-MIRBUILDER-SCALAR-KNOWN-FASTPATH-NEXT-HAKO-AUTHORITY-SURFACE-DESIGN-STOP-001.md",
+    "design_stop_card_hash": "02f5599ae5114e6f09749a98dcde6ac67b87a61f8fb67f97a138e8216aaccbb7",
+    "mapload_authority_pilot_precedes_string_basis": true
+  },
+  "kind": "MirBuilderScalarKnownFastpathStringHakoAuthorityPilotBasisV1",
+  "provenance": {
+    "shadow_consumer": {
+      "path": "src/mir/generic_method_route_plan/scalar_known_hako_shadow.rs",
+      "sha256": "dc4edcdd79b410d062d5481e1ecb4ee7eb28097fe9750281e6df2f880ded0f88"
+    },
+    "string_generated_typed_artifact": {
+      "path": "src/mir/generic_method_route_plan/generated/string_search_scalar_i64_hako_policy.rs",
+      "sha256": "5d6355c1dd63a31100f5aa90603e1d2aeba7edcfdf6751e3d6ee8b4142eac1bf"
+    },
+    "string_routes": {
+      "path": "src/mir/generic_method_route_plan/string_routes.rs",
+      "sha256": "1cddcd3ee2472d54964c29730450c1bce43549c10cbd49b3fe4b0ab099ee0271"
+    }
+  },
+  "schema_version": 0,
+  "string_shape": {
+    "effect_class": "read",
+    "lowering_tier": "WarmDirectAbi",
+    "publication_policy": "NoPublication",
+    "receiver_domain_family": "String",
+    "return_shape": "ScalarI64",
+    "value_demand": "ScalarI64"
+  },
+  "summary": {
+    "basis_only": 1,
+    "homogeneous_scalar_i64_no_publication_read_surface": 1,
+    "mismatch_fail_fast_required": 1,
+    "prior_scoped_read_authority_continuation": 1,
+    "rust_oracle_compat_checker_retained": 1,
+    "scalar_known_hako_runtime_route_authority": 0,
+    "selected_surface": "StringScalarI64Routes",
+    "source_selfhost_claim": 0,
+    "string_hako_authority_pilot_basis": 1,
+    "string_hako_route_decision_authority_pilot": 0
+  },
+  "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-STRING-HAKO-AUTHORITY-PILOT-BASIS-001"
+}

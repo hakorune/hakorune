@@ -178,7 +178,7 @@ pub(super) fn match_generic_indexof_route(
         GenericMethodRouteSurface::new(box_name.clone(), method.clone(), args.len()),
         GenericMethodRouteEvidence::new(receiver_origin_box, None),
         GenericMethodRouteOperands::new(*receiver, None, *dst),
-        scalar_known_hako_shadow::string_scalar_i64_shadow_consumed_decision(
+        scalar_known_hako_shadow::string_scalar_i64_hako_route_authority_pilot_decision(
             GenericMethodRouteKind::StringIndexOf,
             GenericMethodRouteProof::IndexOfSurfacePolicy,
             CoreMethodOp::StringIndexOf,
@@ -231,7 +231,7 @@ pub(super) fn match_generic_lastindexof_route(
         GenericMethodRouteSurface::new(box_name.clone(), method.clone(), args.len()),
         GenericMethodRouteEvidence::new(receiver_origin_box, None),
         GenericMethodRouteOperands::new(*receiver, None, *dst),
-        scalar_known_hako_shadow::string_scalar_i64_shadow_consumed_decision(
+        scalar_known_hako_shadow::string_scalar_i64_hako_route_authority_pilot_decision(
             GenericMethodRouteKind::StringLastIndexOf,
             GenericMethodRouteProof::LastIndexOfSurfacePolicy,
             CoreMethodOp::StringLastIndexOf,
@@ -293,7 +293,7 @@ pub(super) fn match_generic_contains_route(
         GenericMethodRouteSurface::new(box_name.clone(), method.clone(), 1),
         GenericMethodRouteEvidence::new(receiver_origin_box, None),
         GenericMethodRouteOperands::new(*receiver, Some(args[0]), *dst),
-        scalar_known_hako_shadow::string_scalar_i64_shadow_consumed_decision(
+        scalar_known_hako_shadow::string_scalar_i64_hako_route_authority_pilot_decision(
             GenericMethodRouteKind::StringContains,
             GenericMethodRouteProof::ContainsSurfacePolicy,
             CoreMethodOp::StringContains,
