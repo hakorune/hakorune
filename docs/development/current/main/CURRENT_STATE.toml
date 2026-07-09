@@ -345,17 +345,17 @@ method_anchor = "docs/development/current/main/design/hako-app-front-boundary-te
 taskboard = "docs/development/current/main/phases/phase-296x/296x-90-mimalloc-benchmark-taskboard.md"
 latest_workstream_card = "docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 
-latest_card = "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SCALAR-I64-ROUTES-CLOSEOUT-BASIS-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3362-MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SCALAR-I64-ROUTES-CLOSEOUT-BASIS-001.md"
-latest_card_summary = """3362 collects the WriteScalarI64Routes closeout
-review basis after Push, Set/MapStoreI64, and Set/MapStoreAny scoped direct
-closeouts are materialized. It records DeleteSurfacePolicy / MapDeleteAny as a
-retired unconnected .hako mirror with the live Rust route preserved, selects
-the WriteScalarI64Routes closeout rerun, and leaves WriteScalarI64Routes
-closeout, ScalarKnown closeout, runtime mutation/publication, new backend/ABI,
-runtime fallback, and Source Selfhost unclaimed."""
+latest_card = "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SCALAR-I64-ROUTES-CLOSEOUT-RERUN-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3363-MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SCALAR-I64-ROUTES-CLOSEOUT-RERUN-001.md"
+latest_card_summary = """3363 materializes the scoped
+WriteScalarI64Routes closeout after Push, Set/MapStoreI64, and Set/MapStoreAny
+scoped direct closeouts are green. DeleteSurfacePolicy / MapDeleteAny remains a
+retired unconnected .hako mirror with the live Rust route preserved and does
+not count as a .hako direct closeout. ScalarKnown closeout, runtime
+mutation/publication, new backend/ABI, runtime fallback, and Source Selfhost
+remain unclaimed."""
 
-current_blocker_token = "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SCALAR-I64-ROUTES-CLOSEOUT-RERUN-001"
+current_blocker_token = "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-TRANSPORT-CLOSEOUT-RERUN-002"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -364,6 +364,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-09: 3363 consumes the WriteScalarI64Routes closeout basis and materializes scoped WriteScalarI64Routes closeout, records scoped_direct_closeout_contract_count=3 for PushSurfacePolicy / SetSurfacePolicy-MapStoreI64 / SetSurfacePolicy-MapStoreAny, keeps DeleteSurfacePolicy-MapDeleteAny as retired unconnected .hako mirror with live Rust route preserved and direct closeout materialized=0, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-TRANSPORT-CLOSEOUT-RERUN-002, and leaves ScalarKnown closeout, runtime mutation/publication, new backend/ABI, runtime fallback, and Source Selfhost unclaimed.",
   "2026-07-09: 3362 collects the WriteScalarI64Routes closeout review basis, records scoped_direct_closeout_contract_count=3 for PushSurfacePolicy / SetSurfacePolicy-MapStoreI64 / SetSurfacePolicy-MapStoreAny, records DeleteSurfacePolicy-MapDeleteAny as a retired unconnected .hako mirror with live Rust MapDeleteAny preserved, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SCALAR-I64-ROUTES-CLOSEOUT-RERUN-001, and leaves WriteScalarI64Routes closeout, ScalarKnown closeout, runtime mutation/publication, new backend/ABI, runtime fallback, and Source Selfhost unclaimed.",
   "2026-07-09: 2147 consumes the MapStoreAny direct closeout contract basis, materializes the scoped SetSurfacePolicy / MapStoreAny direct closeout, records write_set_mapstore_any_direct_closeout_materialized=1, accepted_scoped_closeout_count=7, any_write_boundary_declared=1, any_write_boundary_opened=0, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SCALAR-I64-ROUTES-CLOSEOUT-BASIS-001, and leaves WriteScalarI64Routes closeout, ScalarKnown closeout, runtime mutation/publication, new backend/ABI, runtime fallback, and Source Selfhost unclaimed.",
   "2026-07-09: 2145 consumes the adopted SetSurfacePolicy / MapStoreAny `.hako` parity pilot, reruns the scoped Write Set selector, records write_set_mapstore_any_hako_adopted=1, basis_selection_eligible_surface_count=1, selected_scoped_surface=SetSurfacePolicy/MapStoreAny, any_write_boundary_declared=1, any_write_boundary_opened=0, selects MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-DIRECT-CLOSEOUT-CONTRACT-BASIS-001, and leaves direct closeout materialization, WriteScalarI64Routes closeout, ScalarKnown closeout, runtime mutation/publication, new backend/ABI, runtime fallback, and Source Selfhost unclaimed.",
@@ -375,5 +376,4 @@ landed_tail = [
   "2026-07-09: 3357 consumes the existing RecipeItem cond_recipe observation-boundary selection in the current 335x chain, records cond_recipe_observation_boundary_selection_current=1, cond_recipe_observation_boundary_selection=1, selected_diagnostic_summary_observer=1, selected_observer=RecipeItemDiagnosticSummaryObserver, selects MIRBUILDER-RECIPEITEM-COND-RECIPE-DIAGNOSTIC-SUMMARY-OBSERVATION-001, and leaves deep observation implementation, verifier observer behavior, RecipeMatcher input authority, BoolRecipe lowering, MIR Compare/Branch emission, route/runtime authority, and Source Selfhost unclaimed.",
   "2026-07-09: 3356 consumes the existing ProgramJSON LoopStmt condition-recipe sidecar wiring gate in the current 335x chain, records loop_stmt_cond_recipe_sidecar_wiring_current_gate=1, loop_stmt_cond_recipe_sidecar_wiring=1, recipe_item_attachment_implementation=1, legacy_cond_facts_required=1, selects MIRBUILDER-RECIPEITEM-COND-RECIPE-OBSERVATION-BOUNDARY-SELECTION-001, and leaves deep observation, IfStmt wiring, RecipeMatcher input authority, BoolRecipe lowering, MIR Compare/Branch emission, route/runtime authority, and Source Selfhost unclaimed.",
   "2026-07-09: 3355 consumes the existing ProgramJSON RecipeItem cond_recipe producer wiring selection in the current 335x chain, records cond_recipe_producer_wiring_selection_current=1, cond_recipe_producer_wiring_selection=1, selected_loop_stmt_handler_cond_recipe_producer=1, selected_producer=LoopStmtHandlerLoopConditionProducer, selects MIRBUILDER-PROGRAMJSON-LOOP-STMT-COND-RECIPE-SIDECAR-WIRING-001, and leaves RecipeItem attachment implementation, IfStmt wiring, post-hoc decoration, RecipeMatcher input authority, BoolRecipe lowering, MIR Compare/Branch emission, route/runtime authority, and Source Selfhost unclaimed.",
-  "2026-07-09: 3354 consumes the existing RecipeItem condition-slot BoolRecipe sidecar bridge gate in the current 335x chain, records recipeitem_cond_recipe_sidecar_bridge_current_gate=1, recipeitem_cond_recipe_sidecar_bridge=1, optional_cond_recipe_sidecar=1, legacy_cond_facts_required=1, recipe_item_attachment=1, selects MIRBUILDER-PROGRAMJSON-RECIPEITEM-COND-RECIPE-PRODUCER-WIRING-SELECTION-001, and leaves RecipeMatcher input authority, BoolRecipe lowering, MIR Compare/Branch emission, route/runtime authority, and Source Selfhost unclaimed.",
 ]
