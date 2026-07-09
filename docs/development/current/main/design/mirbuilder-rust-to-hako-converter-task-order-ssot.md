@@ -25,49 +25,41 @@ active blocker:
   MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-SET-MAPSTORE-I64-CALLER-ORIENTATION-CONTRACT-ARTIFACT-001
 
 resolved design stop:
-  MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-READ-CALLER-ORIENTATION-DESIGN-STOP-001
+  MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-NON-DELETE-WRITE-CALLER-ORIENTATION-DESIGN-CONSULTATION-001
 
 selection authority:
-  LocalMechanicalSelectorAuthorityV1
-  + three read-only worker inventories
-  + exact-one compiler-side assertion consumer
+  Pro consultation option A
+  + exact MapLoad single-row generated typed contract
+  + existing MapLoad Hako route decision and Rust oracle veto
 
 active_packet:
-  id = NON_DELETE_WRITE_CALLER_ORIENTATION_ASSERTION_PACKET_V1
-  3432 = MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-SET-MAPSTORE-I64-CALLER-ORIENTATION-CONTRACT-ARTIFACT-001
-  3433 = MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-PUSH-ARRAYAPPENDANY-CALLER-ORIENTATION-CONTRACT-ARTIFACT-001
-  3434 = MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-SET-MAPSTORE-ANY-CALLER-ORIENTATION-CONTRACT-ARTIFACT-001
-  3435 = MIRBUILDER-SCALAR-KNOWN-FASTPATH-NON-DELETE-WRITE-POLICY-ROW-IDENTITY-TRANSPORT-001
-  3436 = MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-SET-MAPSTORE-I64-CALLER-ORIENTATION-LIVE-ASSERT-CONSUMER-001
-  3437 = MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-PUSH-ARRAYAPPENDANY-CALLER-ORIENTATION-LIVE-ASSERT-CONSUMER-001
-  3438 = MIRBUILDER-SCALAR-KNOWN-FASTPATH-WRITE-SET-MAPSTORE-ANY-CALLER-ORIENTATION-LIVE-ASSERT-CONSUMER-001
-  3439 = MIRBUILDER-SCALAR-KNOWN-FASTPATH-NON-DELETE-WRITE-CALLER-ORIENTATION-ASSERTION-CLOSEOUT-001
+  id = MAPLOAD_CALLER_ORIENTATION_AUTHORITY_PILOT_V1
+  3441 = MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-CALLER-ORIENTATION-AUTHORITY-PILOT-001
 
 packet contract:
-  consumer_kind = CompilerSideFailFastAssertion
-  consumer_return = Unit
+  scope = MapLoadScalarI64Routes/map_load_scalar_i64_routes only
+  authority_scope = policy_row_id_contract_only
   consumer_input = PolicyRowIdOnly
-  route_kind_input = forbidden
-  core_op_input = forbidden
-  mutation_effect_value_boundary_input = forbidden
-  route_decision_input = forbidden
-  caller_orientation_runtime_path = 0
+  consumer_return = Unit
+  generated_typed_contract_compare = required
+  rust_oracle_compat_veto = required
+  fallback = forbidden
   route_selection_authority_switch = 0
+  caller_orientation_runtime_path = 0
   backend_lowering_authority = 0
   runtime_mutation_authority = 0
   publication_execution = 0
   source_selfhost_claim = 0
 
 stop_if:
-  runtime-produced caller value required
-  OR route selection required
-  OR mutation/effect/value-boundary semantics duplicated
-  OR MIR/backend consumer required
-  OR mutation/publication authority changes
-  OR new ABI/backend route/fallback required
+  generated typed fields are insufficient for the required comparison
+  OR consumer needs route/value/effect/mutation input or non-Unit output
+  OR MIR/runtime/backend/registry consumption is required
+  OR String/Collection/Write/Delete/wide scope enters the card
+  OR fallback or warn-only mismatch is proposed
 
 next_after_packet:
-  consult Pro at MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-NON-DELETE-WRITE-CALLER-ORIENTATION-DESIGN-CONSULTATION-001 before authority-bearing caller orientation, Delete revival, ScalarKnown-wide authority, or Source Selfhost re-entry.
+  dedicated MapLoad authority-pilot rerun/next-proof-axis decision; no direct wide, Delete, runtime/backend, or Source Selfhost promotion.
 
 latest design decision:
   3253 implements MIRBUILDER-PROGRAMJSON-RECIPEMATCHER-NESTED-LOOP-REJECT-BOUNDARY-001: has_nested_loop=1 now rejects at the observe-only matcher boundary with reason=nested_loop_present.
@@ -410,7 +402,7 @@ trigger-based AOT/MIR typing debt:
   status=parked-until-triggered; order=2999/3000/3001 landed, then 3022 queue
   only when an active ProgramJSON gate hits Float Sub/Mul/Div, string relational
   compare, PHI dst_type, mir_call dst_type, or receiver-helper.
-next_documented_task = MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-NON-DELETE-WRITE-CALLER-ORIENTATION-DESIGN-CONSULTATION-001
+next_documented_task = MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-CALLER-ORIENTATION-AUTHORITY-PILOT-001
 next_after_active_3 = MIRBUILDER-SCALAR-KNOWN-FASTPATH-NON-DELETE-WRITE-POLICY-ROW-IDENTITY-TRANSPORT-001
 follow_on_after_consume = select first BoolRecipe publication parity row only after consume gate is green
 

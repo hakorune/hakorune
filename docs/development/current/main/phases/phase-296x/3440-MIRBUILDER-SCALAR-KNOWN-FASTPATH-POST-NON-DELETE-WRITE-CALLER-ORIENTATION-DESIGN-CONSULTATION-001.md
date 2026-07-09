@@ -35,3 +35,33 @@ exhaustive surface set, and the fail-fast boundary. Until that answer exists,
 `backend_lowering_authority`, `runtime_mutation_authority`,
 `publication_execution`, `delete_hako_route_decision_authority_pilot`,
 `scalar_known_wide_authority`, and `source_selfhost_claim` remain `0`.
+
+## Decision
+
+Adopt option A. The first authority-bearing caller-orientation pilot is
+MapLoadScalarI64Routes only.
+
+```text
+selected_next_card = MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPLOAD-CALLER-ORIENTATION-AUTHORITY-PILOT-001
+authority_scope = policy_row_id_contract_only
+consumer_input = PolicyRowIdOnly
+consumer_return = Unit
+single_surface_mapload_scope = 1
+no_new_route_authority = 1
+```
+
+The caller-orientation authority validates that the supplied row identity
+resolves to the generated typed MapLoad caller contract and matches the
+existing MapLoad policy/oracle metadata. It does not choose a route, emit MIR,
+allocate a ValueId, dispatch runtime code, lower backend code, mutate state, or
+execute publication.
+
+The exhaustive pilot set is exactly one row:
+
+```text
+MapLoadScalarI64Routes / MapLoadScalarI64 / map_load_scalar_i64_routes
+```
+
+Read eight-row and non-Delete Write three-row assertion closeouts remain
+background evidence only. String, Collection, Write, Delete, ScalarKnown-wide,
+and Source Selfhost are excluded from the authority scope.
