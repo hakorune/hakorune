@@ -1,0 +1,160 @@
+{
+  "claims": {
+    "behavior_change": 0,
+    "fastpath_connected_closeout": 0,
+    "fastpath_connected_closeout_inventory_rerun_005": 1,
+    "hako_generation": 0,
+    "hako_runtime_route_authority": 0,
+    "manual_axis_selection": 0,
+    "manual_carrier_selection": 0,
+    "manual_subsurface_selection": 0,
+    "manual_surface_selection": 0,
+    "native_seed_materialization": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "new_python_semantic_projector": 0,
+    "new_route_authority": 0,
+    "owner_name_as_proof": 0,
+    "publication_execution": 0,
+    "read_homogeneous_surface_connection_complete": 1,
+    "read_surface_connection_complete": 0,
+    "route_count_as_proof": 0,
+    "route_membership_alone_as_proof": 0,
+    "row_count_as_proof": 0,
+    "runtime_fallback": 0,
+    "runtime_mutation_authority": 0,
+    "rust_fastpath_rewired": 0,
+    "selection_eligible_candidate_count": 1,
+    "source_path_as_authority": 0,
+    "source_selfhost_claim": 0,
+    "write_surface_connection_complete": 1
+  },
+  "decision": {
+    "kind": "SelectCollectionScalarI64GeneratedTypedArtifactBasis",
+    "reason_token": "RemainingAcceptedScalarKnownReadSurfaceAfterHomogeneousReadPilots",
+    "selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-HAKO-GENERATED-TYPED-ARTIFACT-BASIS-COLLECTION-SCALAR-I64-001"
+  },
+  "input_state": {
+    "mapload_decision": "GeneratedTypedHakoArtifactShadowConsume",
+    "mapload_shadow_consume": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-hako-generated-typed-artifact-shadow-consume-mapload-scalar-i64-v0.json",
+    "mapload_shadow_consume_hash": "a56ec663ff418e733b7439062b736a2653120b2be6105576861a71b6bbfb5d92",
+    "mapstore_any_decision": "GeneratedTypedHakoArtifactShadowConsume",
+    "mapstore_any_shadow_consume": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-hako-generated-typed-artifact-shadow-consume-set-mapstore-any-v0.json",
+    "mapstore_any_shadow_consume_hash": "4c9eb9c40d856aff6d0a4af99f58d9e71efdcb945b36c64687129b347ac9435f",
+    "mapstore_i64_decision": "GeneratedTypedHakoArtifactShadowConsume",
+    "mapstore_i64_shadow_consume": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-hako-generated-typed-artifact-shadow-consume-set-mapstore-i64-v0.json",
+    "mapstore_i64_shadow_consume_hash": "fbe672566c584e9d3d42cc4bef171789074383abe43941bf46f3f11f46151875",
+    "string_decision": "SelectConnectedCloseoutInventoryRerun005",
+    "string_shadow_consume": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-hako-generated-typed-artifact-shadow-consume-string-scalar-i64-v0.json",
+    "string_shadow_consume_hash": "ac2822e50ec298d38a89438f6d81fc9fc53e87a28dbcc45051403697beaf523b",
+    "write_push_decision": "GeneratedTypedHakoArtifactShadowConsume",
+    "write_push_shadow_consume": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-hako-generated-typed-artifact-shadow-consume-write-push-v0.json",
+    "write_push_shadow_consume_hash": "b4f7a50b8c8774f9bea9f21f49b035a6ce076b900401a184624414a0c395aa31"
+  },
+  "inventory": {
+    "connected_surface_row_count": 5,
+    "connected_surface_rows": [
+      {
+        "connected": true,
+        "connection_kind": "GeneratedTypedHakoArtifactShadowConsumed",
+        "route_kind": "MapStoreI64",
+        "subsurface_id": "SetSurfacePolicy/MapStoreI64",
+        "surface_id": "WriteScalarI64Routes"
+      },
+      {
+        "connected": true,
+        "connection_kind": "GeneratedTypedHakoArtifactShadowConsumed",
+        "route_kind": "MapStoreAny",
+        "subsurface_id": "SetSurfacePolicy/MapStoreAny",
+        "surface_id": "WriteScalarI64Routes"
+      },
+      {
+        "connected": true,
+        "connection_kind": "GeneratedTypedHakoArtifactShadowConsumed",
+        "route_kind": "ArrayAppendAny",
+        "subsurface_id": "PushSurfacePolicy",
+        "surface_id": "WriteScalarI64Routes"
+      },
+      {
+        "connected": true,
+        "connection_kind": "GeneratedTypedHakoArtifactShadowConsumed",
+        "route_kind": "MapLoadScalarI64",
+        "surface_id": "MapLoadScalarI64Routes"
+      },
+      {
+        "connected": true,
+        "connection_kind": "GeneratedTypedHakoArtifactShadowConsumed",
+        "route_kind_family": [
+          "StringIndexOf",
+          "StringLastIndexOf",
+          "StringContains"
+        ],
+        "surface_id": "StringScalarI64Routes"
+      }
+    ],
+    "known_unconnected_surface_row_count": 1,
+    "known_unconnected_surface_rows": [
+      {
+        "blocked_by": [
+          "NoCheckedInGeneratedTypedHakoPolicyArtifact"
+        ],
+        "connected": false,
+        "surface_id": "CollectionScalarI64Routes"
+      }
+    ],
+    "read_homogeneous_surface_connection_complete": true,
+    "read_surface_connection_complete": false,
+    "selected_candidate": {
+      "reason": "Collection is the remaining accepted ScalarKnown read/observe surface after Write, MapLoad, and String generated typed artifact shadow handoffs.",
+      "route_kind_family": [
+        "MapEntryCount",
+        "ArraySlotLen",
+        "StringLen",
+        "AnyLength"
+      ],
+      "selection_kind": "RemainingAcceptedScalarKnownReadSurfaceAfterHomogeneousReadPilots",
+      "surface_id": "CollectionScalarI64Routes"
+    },
+    "selection_eligible_candidate_count": 1,
+    "selection_rule": {
+      "hako_runtime_authority_switch": false,
+      "manual_surface_selection": false,
+      "name": "RemainingAcceptedScalarKnownReadSurfaceAfterHomogeneousReadPilotsV1",
+      "owner_name_as_proof": false,
+      "prior_mapload_shadow_consumed": true,
+      "prior_string_shadow_consumed": true,
+      "route_count_as_proof": false,
+      "source_path_as_authority": false
+    },
+    "write_surface_connection_complete": true
+  },
+  "kind": "MirBuilderScalarKnownFastpathConnectedCloseoutInventoryRerun005V1",
+  "provenance": {
+    "absent_read_generated_artifacts": [
+      "src/mir/generic_method_route_plan/generated/collection_len_scalar_i64_hako_policy.rs"
+    ],
+    "absent_read_policy_sources": [
+      "lang/src/compiler/lib/collection_len_scalar_i64_policy_classifier.hako"
+    ],
+    "collection_read_routes_hash": "23af06e49be28f89f3dd20a4025cdf8aafda1d9200999fbb59c7ee2287476867",
+    "scalar_known_contract_hash": "37041c179e4164598cc1629cfb7ba44ad5a75494db2df2248cf63c76ce3cf0a7",
+    "string_routes_hash": "0c716cf6fcfbbed84094f0fac16e9cb9524a177679f7b9ccfa38630bcbf9d652",
+    "write_routes_hash": "c64f78043676f935f8c92d0a83cc642b8d93bf27eb81da441a2400f819f23f59"
+  },
+  "schema_version": 0,
+  "summary": {
+    "connected_surface_row_count": 5,
+    "fastpath_connected_closeout": 0,
+    "fastpath_connected_closeout_inventory_rerun_005": 1,
+    "hako_runtime_route_authority": 0,
+    "known_unconnected_surface_row_count": 1,
+    "read_homogeneous_surface_connection_complete": 1,
+    "read_surface_connection_complete": 0,
+    "rust_fastpath_rewired": 0,
+    "selected_surface": "CollectionScalarI64Routes",
+    "selection_eligible_candidate_count": 1,
+    "source_selfhost_claim": 0,
+    "write_surface_connection_complete": 1
+  },
+  "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-INVENTORY-RERUN-005"
+}
