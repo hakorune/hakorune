@@ -53,7 +53,7 @@
     "boundary_selection_hash": "edd316bf6d39d7dfe36893c4912535bb9a1746132d0e05073bf6722a1d317797",
     "boundary_selection_selected_next_card": "MIRBUILDER-CARRIER-TYPE-SCALAR-KNOWN-WRITE-SET-MAPSTORE-ANY-WRITE-BOUNDARY-BASIS-001",
     "previous_closeout_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-carrier-type-scalar-known-write-set-mapstore-i64-direct-closeout-rerun-v0.json",
-    "previous_closeout_hash": "2bf97b54b989da86d03a3a7a69ec5ba48d305922f8273bb5f0470ac4fc2df096",
+    "previous_closeout_hash": "290c9147112f3744034a0573fd7aecadff715da61b822f6b56eb36983aa04f55",
     "remaining_write_scoped_surface": "SetSurfacePolicy/MapStoreAny",
     "remaining_write_surface_blockers": {
       "SetSurfacePolicy/MapStoreAny": "AnyWriteBoundaryRequired"
@@ -62,7 +62,7 @@
   "kind": "MirBuilderCarrierTypeScalarKnownWriteSetMapStoreAnyWriteBoundaryBasisV1",
   "provenance": {
     "write_source": "src/mir/generic_method_route_plan/write_routes.rs",
-    "write_source_hash": "a099f2f6b422e6e6a454d0a6e10c74bfd649155b24ba2ebc760208de5c7caa22"
+    "write_source_hash": "1c586b1fd75af17df2eba630cfdc8081568db45deff376d175c87a7e318f9d23"
   },
   "schema_version": 0,
   "selection_rule": {
