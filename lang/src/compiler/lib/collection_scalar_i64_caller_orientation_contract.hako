@@ -1,0 +1,19 @@
+// collection_scalar_i64_caller_orientation_contract.hako
+//
+// Responsibility:
+// - declare metadata-only caller orientation for the closed Collection rows
+// - reference existing policy row IDs without copying route semantics
+//
+// Non-responsibility:
+// - route selection, runtime dispatch, MIR emission, backend lowering
+// - receiver-domain selection, mutation, publication, or Write authority
+static box CollectionScalarI64CallerOrientationContractBox {
+  static method rows() {
+    return [
+      "collection_map_entry_count_scalar_i64_routes|CallerOrientationContractMetadataOnly|SingleSurface|Forbidden|Forbidden|Forbidden|Forbidden|FailFast",
+      "collection_array_slot_len_scalar_i64_routes|CallerOrientationContractMetadataOnly|SingleSurface|Forbidden|Forbidden|Forbidden|Forbidden|FailFast",
+      "collection_string_len_scalar_i64_routes|CallerOrientationContractMetadataOnly|SingleSurface|Forbidden|Forbidden|Forbidden|Forbidden|FailFast",
+      "collection_any_length_scalar_i64_routes|CallerOrientationContractMetadataOnly|SingleSurface|Forbidden|Forbidden|Forbidden|Forbidden|FailFast"
+    ]
+  }
+}

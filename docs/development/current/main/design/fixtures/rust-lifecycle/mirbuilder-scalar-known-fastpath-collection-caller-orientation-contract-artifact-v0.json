@@ -1,0 +1,74 @@
+{
+  "claims": {
+    "any_length_wildcard_selector": 0,
+    "backend_lowering_authority": 0,
+    "caller_orientation_runtime_path": 0,
+    "caller_runtime_dispatch_authority": 0,
+    "collection_caller_orientation_artifact_current": 1,
+    "collection_caller_orientation_generated_typed_artifact": 1,
+    "collection_caller_orientation_hako_contract_materialized": 1,
+    "collection_caller_orientation_no_live_consumer_guard": 1,
+    "collection_caller_orientation_policy_row_set_verified": 1,
+    "collection_hako_route_decision_authority_retained": 1,
+    "collection_mismatch_fail_fast": 1,
+    "collection_rust_oracle_compat_checker_retained": 1,
+    "collection_to_scalar_known_wide_authority": 0,
+    "delete_hako_route_decision_authority_pilot": 0,
+    "hako_runtime_route_authority": 0,
+    "new_abi": 0,
+    "new_backend_route": 0,
+    "publication_execution": 0,
+    "receiver_domain_authority_switch": 0,
+    "receiver_domain_widening_authority": 0,
+    "route_selection_authority_switch": 0,
+    "runtime_box_domain_fallback": 0,
+    "runtime_fallback": 0,
+    "runtime_mutation_authority": 0,
+    "scalar_known_hako_runtime_route_authority": 0,
+    "source_selfhost_claim": 0
+  },
+  "contract": {
+    "backend_lowering_consumer": "Forbidden",
+    "mismatch_policy": "FailFast",
+    "mutation_consumer": "Forbidden",
+    "orientation_kind": "CallerOrientationContractMetadataOnly",
+    "policy_row_ids": [
+      "collection_map_entry_count_scalar_i64_routes",
+      "collection_array_slot_len_scalar_i64_routes",
+      "collection_string_len_scalar_i64_routes",
+      "collection_any_length_scalar_i64_routes"
+    ],
+    "publication_consumer": "Forbidden",
+    "runtime_consumer": "Forbidden",
+    "scope": "SingleSurface"
+  },
+  "decision": {
+    "backend_lowering_consumer_registered": false,
+    "implementation_complete": true,
+    "kind": "MaterializeCollectionCallerOrientationContractArtifact",
+    "runtime_consumer_registered": false,
+    "selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-CALLER-ORIENTATION-LIVE-CONSUMER-DESIGN-STOP-001"
+  },
+  "input_state": {
+    "basis_surface": "CollectionScalarI64Routes",
+    "collection_authority_basis": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-collection-hako-authority-pilot-basis-v0.json",
+    "collection_authority_basis_hash": "728f0c8daad56f20dc3336f54f1db7c8cbfb9d38018a6a9743cf308bdae97bcd"
+  },
+  "kind": "MirBuilderScalarKnownFastpathCollectionCallerOrientationContractArtifactV1",
+  "provenance": {
+    "collection_policy": "lang/src/compiler/lib/collection_len_scalar_i64_policy_classifier.hako",
+    "collection_policy_artifact": "src/mir/generic_method_route_plan/generated/collection_len_scalar_i64_hako_policy.rs",
+    "collection_policy_artifact_hash": "629a11b03447fa6f57d4679f48878fa2d1742d4c9017bb07221d34c3d783baf6",
+    "collection_policy_hash": "8bb3de9b3fd43a0f94018d8e7d8f913185875d9e056d5f99e78b9c2b4c20967e",
+    "existing_collection_oracle": "src/mir/generic_method_route_plan/scalar_known_hako_shadow.rs",
+    "existing_collection_oracle_hash": "f12361856df43dec41245d6ed1622eea1641a1d88cbe7fa5ce5171cfa0111af8",
+    "generated_artifact": "src/mir/generic_method_route_plan/generated/collection_scalar_i64_caller_orientation_contract.rs",
+    "generated_artifact_hash": "73e1d3ca2bc5559cd407ba97eff23ebd0eca783d3b161152a666e96c4fb24a62",
+    "generator": "tools/rust_lifecycle/generate_collection_scalar_i64_caller_orientation_contract.py",
+    "generator_hash": "c1dd52d8c1e43a9cfc21d138011bb7a92865f1212a02da61940b71668e8d016b",
+    "hako_contract": "lang/src/compiler/lib/collection_scalar_i64_caller_orientation_contract.hako",
+    "hako_contract_hash": "cfa817bd4cd72952bcf6ee4980e15da4cdf8eb46009baeb8dcd507c7ce5b2cbf"
+  },
+  "schema_version": 0,
+  "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-CALLER-ORIENTATION-CONTRACT-ARTIFACT-001"
+}

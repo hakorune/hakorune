@@ -18,6 +18,25 @@ Related:
 This file is the current task-order entry. It is not a landed-history ledger.
 Detailed historical rows live in phase cards and git history.
 
+collection_caller_orientation_contract_artifact_result:
+  token = MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-CALLER-ORIENTATION-CONTRACT-ARTIFACT-001
+  status = landed
+  collection_caller_orientation_contract_artifact = 1
+  collection_exact_four_row_set = 1
+  collection_receiver_domain_policy_owned = 1
+  collection_anylength_box_explicit_row = 1
+  caller_orientation_runtime_path = 0
+  source_selfhost_claim = 0
+  selected_next_card = MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-CALLER-ORIENTATION-LIVE-CONSUMER-DESIGN-STOP-001
+
+collection_caller_orientation_live_consumer_design_stop:
+  token = MIRBUILDER-SCALAR-KNOWN-FASTPATH-COLLECTION-CALLER-ORIENTATION-LIVE-CONSUMER-DESIGN-STOP-001
+  status = design-stop
+  consultation_required = 1
+  live_consumer = 0
+  runtime_authority = 0
+  source_selfhost_claim = 0
+
 ## Current Target
 
 ```text

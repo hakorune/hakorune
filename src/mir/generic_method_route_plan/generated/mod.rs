@@ -1,4 +1,5 @@
 pub(super) mod collection_len_scalar_i64_hako_policy;
+pub(super) mod collection_scalar_i64_caller_orientation_contract;
 pub(super) mod mapload_scalar_i64_caller_orientation_contract;
 pub(super) mod mapload_scalar_i64_hako_policy;
 pub(super) mod string_scalar_i64_caller_orientation_contract;
