@@ -36,7 +36,7 @@ static box LLVMBranchInstructionBox {
   batch_branch(self, branch_list) {
     local results = []
     local i = 0
-    while i < branch_list.length() {
+    loop i < branch_list.length() {
       local branch = branch_list[i]
       local json = me.lower_branch(self, branch.cond, branch.then_block, branch.else_block)
       results.push(json)

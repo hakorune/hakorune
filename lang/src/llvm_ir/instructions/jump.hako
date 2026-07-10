@@ -45,7 +45,7 @@ static box LLVMJumpInstructionBox {
   batch_jump(self, jump_list) {
     local results = []
     local i = 0
-    while i < jump_list.length() {
+    loop i < jump_list.length() {
       local jump = jump_list[i]
       local json = me.lower_jump(self, jump.target)
       results.push(json)

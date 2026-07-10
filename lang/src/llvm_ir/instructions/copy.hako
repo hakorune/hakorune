@@ -40,7 +40,7 @@ static box LLVMCopyInstructionBox {
   batch_copy(copy_list) {
     local results = []
     local i = 0
-    while i < copy_list.length() {
+    loop i < copy_list.length() {
       local copy = copy_list[i]
       local json = me.lower_copy(copy.dst, copy.src)
       results.push(json)

@@ -110,7 +110,7 @@ static box AotPrepBox {
     if vid == "" { return false }
     local needle = "\"dst\":" + vid
     local pos = JsonFragBox.index_of_from(json, needle, 0)
-    while pos >= 0 {
+    loop pos >= 0 {
       local start = json.substring(0, pos).lastIndexOf("{")
       if start < 0 { break }
       local end = AotPrepBox._seek_object_end(json, start)
@@ -136,7 +136,7 @@ static box AotPrepBox {
     if AotPrepBox._is_const_vid(json, vid) { return true }
     local needle = "\"dst\":" + vid
     local pos = JsonFragBox.index_of_from(json, needle, 0)
-    while pos >= 0 {
+    loop pos >= 0 {
       local start = json.substring(0, pos).lastIndexOf("{")
       if start < 0 { break }
       local end = AotPrepBox._seek_object_end(json, start)

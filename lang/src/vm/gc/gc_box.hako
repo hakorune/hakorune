@@ -6,7 +6,6 @@ static box GcBox {
   metrics: GcMetrics.GcMetricsBox
 
   birth() {
-    from Box.birth()
     me.metrics = new GcMetrics.GcMetricsBox()
   }
 

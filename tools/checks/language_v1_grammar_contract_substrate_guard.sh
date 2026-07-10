@@ -115,6 +115,7 @@ python3 -m unittest \
   tools.language_v1.test_full_gate \
   tools.language_v1.test_hako_adapter_health \
   tools.language_v1.test_hako_corpus_batch \
+  tools.language_v1.test_source_migration_report \
   tools.language_v1.test_witness_projection
 
 cargo build -q --features vm-reference --bin hakorune
@@ -144,7 +145,11 @@ rg -q 'parser/hako_adapter_timeout' "$observation" \
 if [ "${LANGV1_GRAMMAR_FULL:-0}" = "1" ] \
   || [ "${LANGV1_HAKO_PROFILE_FULL:-0}" = "1" ]; then
   full_report="$(mktemp)"
-  trap 'rm -f "$health_a" "$health_b" "$observation" "$full_report"' EXIT
+  migration_report="$(mktemp)"
+  trap 'rm -f "$health_a" "$health_b" "$observation" "$full_report" "$migration_report"' EXIT
+  python3 tools/language_v1/source_migration_report.py \
+    --output "$migration_report" \
+    || guard_fail "Canonical-owned Hako source still contains rejected grammar"
   python3 tools/language_v1/grammar_contract_full_gate.py \
     --bin target/debug/hakorune \
     --hako-timeout-sec 180 \

@@ -57,7 +57,7 @@ static box AotPrepLoopHoistBox {
         }
       }
       local folded = true
-      while folded {
+      loop folded {
         folded = false
         local i1 = 0
         loop(true) {

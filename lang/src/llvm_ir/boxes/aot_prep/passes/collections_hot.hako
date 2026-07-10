@@ -308,7 +308,7 @@ static box AotPrepCollectionsHotBox {
     local needle = "\"dst\":" + vid
     local pos = JsonFragBox.index_of_from(text, needle, block_lb)
     local last = -1
-    while pos >= 0 && pos < k { last = pos; pos = JsonFragBox.index_of_from(text, needle, pos + 1) }
+    loop pos >= 0 && pos < k { last = pos; pos = JsonFragBox.index_of_from(text, needle, pos + 1) }
     if last < 0 { return "" }
     local os = text.substring(0, last).lastIndexOf("{")
     if os < 0 { return "" }
@@ -351,7 +351,7 @@ static box AotPrepCollectionsHotBox {
     local needle = "\"dst\":" + vid
     local pos = JsonFragBox.index_of_from(text, needle, block_lb)
     local last = -1
-    while pos >= 0 && pos < k { last = pos; pos = JsonFragBox.index_of_from(text, needle, pos + 1) }
+    loop pos >= 0 && pos < k { last = pos; pos = JsonFragBox.index_of_from(text, needle, pos + 1) }
     if last < 0 { return 0 }
     local os = text.substring(0, last).lastIndexOf("{")
     if os < 0 { return 0 }
@@ -374,7 +374,7 @@ static box AotPrepCollectionsHotBox {
     if recv_vid == "" { return "" }
     local slice = text.substring(block_lb, k)
     local p = slice.lastIndexOf("\"op\":\"boxcall\"")
-    while p >= 0 {
+    loop p >= 0 {
       local abs = block_lb + p
       local os = text.substring(0, abs).lastIndexOf("{")
       if os < 0 { break }
@@ -401,7 +401,7 @@ static box AotPrepCollectionsHotBox {
     if recv_vid == "" { return "" }
     local slice = text.substring(block_lb, k)
     local p = slice.lastIndexOf("\"op\":\"boxcall\"")
-    while p >= 0 {
+    loop p >= 0 {
       local abs = block_lb + p
       local os = text.substring(0, abs).lastIndexOf("{")
       if os < 0 { break }

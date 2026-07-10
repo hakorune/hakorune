@@ -10,7 +10,8 @@ Status
 
 Principles
 - No generational/incremental logic in v0.
+- Static facade constructors initialize only their own fields. They do not use
+  the legacy `from Box.birth()` compatibility transport.
 - Safepoints: call boundaries / loop back‑edges / before long I/O waits.
 - Triggers: live_bytes growth (>80% since last sweep) or +4MB.
 - Observability: `HAKO_GC_TRACE=1` for timings and survivor counts.
-

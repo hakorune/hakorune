@@ -6,7 +6,6 @@ static box GcMetricsBox {
   total_freed: IntegerBox
 
   birth() {
-    from Box.birth()
     me.total_allocations = 0
     me.total_collections = 0
     me.total_freed = 0
@@ -24,4 +23,3 @@ static box GcMetricsBox {
     // tracing is gated by HAKO_GC_TRACE; printing is deferred to VM hook
   }
 }
-

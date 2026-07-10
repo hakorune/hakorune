@@ -7,7 +7,6 @@ static box GcRuntime {
   gc: Gc.GcBox
 
   birth() {
-    from Box.birth()
     me.gc = new Gc.GcBox()
   }
 

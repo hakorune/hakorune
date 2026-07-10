@@ -3,10 +3,10 @@
 ## Status
 
 Active implementation series after 3477 accepts all remaining grammar and
-registry-structure decisions. Series A, the recursive witness schema, and the
-Series C loop family are complete. Live recursive projection for both parsers
-is next. The declaration conformance owner is accepted as a parser-owned,
-non-semantic ProgramJSON evidence sidecar.
+registry-structure decisions. Series A-C and full recursive conformance are
+complete. The generated support matrix and registry-keyed Canonical source
+migration report are green. Series D now has only the bounded differential
+composition gate and final closeout audit remaining.
 
 Decision: accepted by 3477.
 Declaration sidecar decision: accepted by post-loop design consultation.
@@ -654,6 +654,7 @@ hako_declaration_conformance = 1
 remaining_registry_rows_implemented = 1
 remaining_surface_parser_behavior_changed = 1
 parser_support_evidence_generated = 1
+canonical_source_migration_evidence_generated = 1
 recursive_parse_witness = 1
 ```
 
@@ -707,7 +708,7 @@ Close that drift before declaration expansion, in this order:
 4. add remaining weak/record/literal/construction rows = complete
 5. generate support and migration evidence
    - full support matrix = complete
-   - canonical source migration report = next
+   - canonical source migration report = complete
 6. run bounded recursive differential composition
 7. evaluate LANGV1-GRAMMAR-001 closeout
 ```
