@@ -23,8 +23,7 @@ row_id = "guard_expr_else"
 profile = "Canonical"
 source = "guard ready else { return unit }"
 accepted = true
-normalized_kind = "GuardElse"
-normalized_children = ["Condition", "NoFallthroughElse"]
+normalized_form = { kind = "GuardElse", children = [{ kind = "Condition", children = [] }, { kind = "NoFallthroughElse", children = [] }] }
 stable_reject_tag = ""
 
 [[fixtures]]
@@ -33,8 +32,7 @@ row_id = "guard_expr_else"
 profile = "Compat2025"
 source = "guard ready else { return unit }"
 accepted = true
-normalized_kind = "GuardElse"
-normalized_children = ["Condition", "NoFallthroughElse"]
+normalized_form = { kind = "GuardElse", children = [{ kind = "Condition", children = [] }, { kind = "NoFallthroughElse", children = [] }] }
 stable_reject_tag = ""
 
 [[fixtures]]
@@ -43,8 +41,7 @@ row_id = "guard_expr_else"
 profile = "Canonical"
 source = "guard ready"
 accepted = false
-normalized_kind = ""
-normalized_children = []
+normalized_form = { kind = "", children = [] }
 stable_reject_tag = "parser/guard_expected_canonical"
 
 [[fixtures]]
@@ -53,8 +50,7 @@ row_id = "guard_let_else"
 profile = "Canonical"
 source = "guard let value = maybe else { return unit }"
 accepted = true
-normalized_kind = "GuardLetElse"
-normalized_children = ["Pattern", "Expr", "NoFallthroughElse"]
+normalized_form = { kind = "GuardLetElse", children = [{ kind = "Pattern", children = [] }, { kind = "Expr", children = [] }, { kind = "NoFallthroughElse", children = [] }] }
 stable_reject_tag = ""
 
 [[fixtures]]
@@ -63,8 +59,7 @@ row_id = "guard_let_else"
 profile = "Compat2025"
 source = "guard let value = maybe else { return unit }"
 accepted = true
-normalized_kind = "GuardLetElse"
-normalized_children = ["Pattern", "Expr", "NoFallthroughElse"]
+normalized_form = { kind = "GuardLetElse", children = [{ kind = "Pattern", children = [] }, { kind = "Expr", children = [] }, { kind = "NoFallthroughElse", children = [] }] }
 stable_reject_tag = ""
 
 [[fixtures]]
@@ -73,8 +68,7 @@ row_id = "guard_let_else"
 profile = "Canonical"
 source = "guard let value = maybe else { print(\"missing\") }"
 accepted = false
-normalized_kind = ""
-normalized_children = []
+normalized_form = { kind = "", children = [] }
 stable_reject_tag = "parser/guard_let_no_fallthrough_required"
 
 [[fixtures]]
@@ -83,8 +77,7 @@ row_id = "postfix_catch"
 profile = "Canonical"
 source = "work() catch { recover() }"
 accepted = true
-normalized_kind = "PostfixCatch"
-normalized_children = ["Body", "CatchHandler"]
+normalized_form = { kind = "PostfixCatch", children = [{ kind = "Body", children = [] }, { kind = "CatchHandler", children = [] }] }
 stable_reject_tag = ""
 
 [[fixtures]]
@@ -93,8 +86,7 @@ row_id = "postfix_catch"
 profile = "Compat2025"
 source = "work() catch { recover() }"
 accepted = true
-normalized_kind = "PostfixCatch"
-normalized_children = ["Body", "CatchHandler"]
+normalized_form = { kind = "PostfixCatch", children = [{ kind = "Body", children = [] }, { kind = "CatchHandler", children = [] }] }
 stable_reject_tag = ""
 
 [[fixtures]]
@@ -103,8 +95,7 @@ row_id = "postfix_catch"
 profile = "Canonical"
 source = "work() catch"
 accepted = false
-normalized_kind = ""
-normalized_children = []
+normalized_form = { kind = "", children = [] }
 stable_reject_tag = "parser/guard_expected_canonical"
 
 [[fixtures]]
@@ -113,8 +104,7 @@ row_id = "postfix_cleanup"
 profile = "Canonical"
 source = "work() cleanup { close() }"
 accepted = true
-normalized_kind = "PostfixCleanup"
-normalized_children = ["Body", "CleanupBody"]
+normalized_form = { kind = "PostfixCleanup", children = [{ kind = "Body", children = [] }, { kind = "CleanupBody", children = [] }] }
 stable_reject_tag = ""
 
 [[fixtures]]
@@ -123,8 +113,7 @@ row_id = "postfix_cleanup"
 profile = "Compat2025"
 source = "work() cleanup { close() }"
 accepted = true
-normalized_kind = "PostfixCleanup"
-normalized_children = ["Body", "CleanupBody"]
+normalized_form = { kind = "PostfixCleanup", children = [{ kind = "Body", children = [] }, { kind = "CleanupBody", children = [] }] }
 stable_reject_tag = ""
 
 [[fixtures]]
@@ -133,8 +122,7 @@ row_id = "postfix_cleanup"
 profile = "Canonical"
 source = "work() cleanup"
 accepted = false
-normalized_kind = ""
-normalized_children = []
+normalized_form = { kind = "", children = [] }
 stable_reject_tag = "parser/guard_expected_canonical"
 
 [[fixtures]]
@@ -143,8 +131,7 @@ row_id = "fini"
 profile = "Canonical"
 source = "fini { close() }"
 accepted = true
-normalized_kind = "Fini"
-normalized_children = ["CleanupBody"]
+normalized_form = { kind = "Fini", children = [{ kind = "CleanupBody", children = [] }] }
 stable_reject_tag = ""
 
 [[fixtures]]
@@ -153,8 +140,7 @@ row_id = "fini"
 profile = "Compat2025"
 source = "fini { close() }"
 accepted = true
-normalized_kind = "Fini"
-normalized_children = ["CleanupBody"]
+normalized_form = { kind = "Fini", children = [{ kind = "CleanupBody", children = [] }] }
 stable_reject_tag = ""
 
 [[fixtures]]
@@ -163,8 +149,7 @@ row_id = "fini"
 profile = "Canonical"
 source = "fini"
 accepted = false
-normalized_kind = ""
-normalized_children = []
+normalized_form = { kind = "", children = [] }
 stable_reject_tag = "parser/guard_expected_canonical"
 
 [[fixtures]]
@@ -173,8 +158,7 @@ row_id = "try_statement"
 profile = "Canonical"
 source = "try { work() } catch { recover() }"
 accepted = false
-normalized_kind = ""
-normalized_children = []
+normalized_form = { kind = "", children = [] }
 stable_reject_tag = "parser/try_reserved"
 
 [[fixtures]]
@@ -183,8 +167,7 @@ row_id = "try_statement"
 profile = "Compat2025"
 source = "try { work() } catch () { recover() } cleanup { close() }"
 accepted = true
-normalized_kind = "PostfixCatchCleanup"
-normalized_children = ["Body", "CatchHandler", "CleanupBody"]
+normalized_form = { kind = "PostfixCatchCleanup", children = [{ kind = "Body", children = [] }, { kind = "CatchHandler", children = [] }, { kind = "CleanupBody", children = [] }] }
 stable_reject_tag = ""
 
 [[fixtures]]
@@ -193,8 +176,7 @@ row_id = "try_statement"
 profile = "Compat2025"
 source = "try { work() } catch (Legacy) { recover() }"
 accepted = false
-normalized_kind = ""
-normalized_children = []
+normalized_form = { kind = "", children = [] }
 stable_reject_tag = "parser/try_compat_not_normalizable"
 
 [[fixtures]]
@@ -203,8 +185,7 @@ row_id = "match"
 profile = "Canonical"
 source = "match none { Some(x) => x, _ => 0 }"
 accepted = true
-normalized_kind = "Match"
-normalized_children = ["Scrutinee", "OrderedArms"]
+normalized_form = { kind = "Match", children = [{ kind = "Scrutinee", children = [] }, { kind = "OrderedArms", children = [{ kind = "MatchArm", children = [{ kind = "Pattern", children = [] }, { kind = "ArmBody", children = [] }] }] }] }
 stable_reject_tag = ""
 hako_inventory_id = "option"
 
@@ -214,8 +195,7 @@ row_id = "match"
 profile = "Compat2025"
 source = "match none { Some(x) => x, _ => 0 }"
 accepted = true
-normalized_kind = "Match"
-normalized_children = ["Scrutinee", "OrderedArms"]
+normalized_form = { kind = "Match", children = [{ kind = "Scrutinee", children = [] }, { kind = "OrderedArms", children = [{ kind = "MatchArm", children = [{ kind = "Pattern", children = [] }, { kind = "ArmBody", children = [] }] }] }] }
 stable_reject_tag = ""
 hako_inventory_id = "option"
 
@@ -225,8 +205,7 @@ row_id = "match"
 profile = "Canonical"
 source = "match none { }"
 accepted = false
-normalized_kind = ""
-normalized_children = []
+normalized_form = { kind = "", children = [] }
 stable_reject_tag = "parser/match_expected_canonical"
 hako_inventory_id = "option"
 
@@ -236,8 +215,7 @@ row_id = "match"
 profile = "Canonical"
 source = "match none { Ready(x) => x, Idle => 0 }"
 accepted = true
-normalized_kind = "Match"
-normalized_children = ["Scrutinee", "OrderedArms"]
+normalized_form = { kind = "Match", children = [{ kind = "Scrutinee", children = [] }, { kind = "OrderedArms", children = [] }] }
 stable_reject_tag = ""
 hako_inventory_id = "probe_state"
 
@@ -247,8 +225,7 @@ row_id = "match"
 profile = "Canonical"
 source = "match none { Some(x) x }"
 accepted = false
-normalized_kind = ""
-normalized_children = []
+normalized_form = { kind = "", children = [] }
 stable_reject_tag = "parser/match_expected_canonical"
 hako_inventory_id = "option"
 
@@ -258,8 +235,7 @@ row_id = "match"
 profile = "Canonical"
 source = "match none { Ready(x) => x, _ => 0 }"
 accepted = true
-normalized_kind = "Match"
-normalized_children = ["Scrutinee", "OrderedArms"]
+normalized_form = { kind = "Match", children = [{ kind = "Scrutinee", children = [] }, { kind = "OrderedArms", children = [] }] }
 stable_reject_tag = ""
 hako_inventory_id = "probe_state"
 
@@ -269,8 +245,7 @@ row_id = "match"
 profile = "Canonical"
 source = "match value { Ready(x) => x, Idle => 0 }"
 accepted = true
-normalized_kind = "Match"
-normalized_children = ["Scrutinee", "OrderedArms"]
+normalized_form = { kind = "Match", children = [{ kind = "Scrutinee", children = [] }, { kind = "OrderedArms", children = [] }] }
 stable_reject_tag = ""
 hako_inventory_id = "probe_state"
 hako_expected_scrutinee_kind = "Var"
@@ -281,8 +256,7 @@ row_id = "match"
 profile = "Canonical"
 source = "match getState() { Ready(x) => x, Idle => 0 }"
 accepted = true
-normalized_kind = "Match"
-normalized_children = ["Scrutinee", "OrderedArms"]
+normalized_form = { kind = "Match", children = [{ kind = "Scrutinee", children = [] }, { kind = "OrderedArms", children = [] }] }
 stable_reject_tag = ""
 hako_inventory_id = "probe_state"
 hako_expected_scrutinee_kind = "Call"
@@ -293,8 +267,7 @@ row_id = "match"
 profile = "Canonical"
 source = "match obj.field { Ready(x) => x, Idle => 0 }"
 accepted = true
-normalized_kind = "Match"
-normalized_children = ["Scrutinee", "OrderedArms"]
+normalized_form = { kind = "Match", children = [{ kind = "Scrutinee", children = [] }, { kind = "OrderedArms", children = [] }] }
 stable_reject_tag = ""
 hako_inventory_id = "probe_state"
 hako_expected_scrutinee_kind = "Field"
@@ -305,8 +278,7 @@ row_id = "match"
 profile = "Canonical"
 source = "match (Value { field: 1 }) { Ready(x) => x, Idle => 0 }"
 accepted = true
-normalized_kind = "Match"
-normalized_children = ["Scrutinee", "OrderedArms"]
+normalized_form = { kind = "Match", children = [{ kind = "Scrutinee", children = [] }, { kind = "OrderedArms", children = [] }] }
 stable_reject_tag = ""
 hako_inventory_id = "probe_state"
 hako_expected_scrutinee_kind = "RecordLiteral"
@@ -317,8 +289,7 @@ row_id = "match"
 profile = "Canonical"
 source = "match none { Ready(x) => x }"
 accepted = false
-normalized_kind = ""
-normalized_children = []
+normalized_form = { kind = "", children = [] }
 stable_reject_tag = "parser/hako_enum_match_non_exhaustive"
 hako_inventory_id = "probe_state"
 
@@ -328,8 +299,7 @@ row_id = "match"
 profile = "Canonical"
 source = "match none { Ready(x) => x, Ready(y) => y, Idle => 0 }"
 accepted = false
-normalized_kind = ""
-normalized_children = []
+normalized_form = { kind = "", children = [] }
 stable_reject_tag = "parser/hako_enum_match_duplicate_variant"
 hako_inventory_id = "probe_state"
 
@@ -339,8 +309,7 @@ row_id = "match"
 profile = "Canonical"
 source = "match none { Ready(x) => x, Idle(y) => y }"
 accepted = false
-normalized_kind = ""
-normalized_children = []
+normalized_form = { kind = "", children = [] }
 stable_reject_tag = "parser/hako_enum_match_unit_binding"
 hako_inventory_id = "probe_state"
 
@@ -350,8 +319,7 @@ row_id = "match"
 profile = "Canonical"
 source = "match none { Some(x) => x"
 accepted = false
-normalized_kind = ""
-normalized_children = []
+normalized_form = { kind = "", children = [] }
 stable_reject_tag = "parser/match_expected_canonical"
 hako_inventory_id = "option"
 
@@ -361,8 +329,7 @@ row_id = "peek"
 profile = "Canonical"
 source = "peek none { Some(x) => x, _ => 0 }"
 accepted = false
-normalized_kind = ""
-normalized_children = []
+normalized_form = { kind = "", children = [] }
 stable_reject_tag = "parser/peek_legacy_replaced_by_match"
 hako_inventory_id = "option"
 
@@ -372,8 +339,7 @@ row_id = "peek"
 profile = "Compat2025"
 source = "peek none { Some(x) => x, _ => 0 }"
 accepted = true
-normalized_kind = "Match"
-normalized_children = ["Scrutinee", "OrderedArms"]
+normalized_form = { kind = "Match", children = [{ kind = "Scrutinee", children = [] }, { kind = "OrderedArms", children = [] }] }
 stable_reject_tag = ""
 hako_inventory_id = "option"
 hako_equivalent_fixture_id = "match_compat"
@@ -384,8 +350,7 @@ row_id = "peek"
 profile = "Compat2025"
 source = "peek none { observe x => x }"
 accepted = false
-normalized_kind = ""
-normalized_children = []
+normalized_form = { kind = "", children = [] }
 stable_reject_tag = "parser/peek_compat_not_normalizable"
 hako_inventory_id = "option"
 
@@ -395,8 +360,7 @@ row_id = "delegate_exposes"
 profile = "Canonical"
 source = "delegate child exposes { read, write }"
 accepted = true
-normalized_kind = "DelegateExposes"
-normalized_children = ["Field", "ExposedMembers"]
+normalized_form = { kind = "DelegateExposes", children = [{ kind = "Field", children = [] }, { kind = "ExposedMembers", children = [] }] }
 stable_reject_tag = ""
 
 [[fixtures]]
@@ -405,8 +369,7 @@ row_id = "delegate_exposes"
 profile = "Compat2025"
 source = "delegate child exposes { read, write }"
 accepted = true
-normalized_kind = "DelegateExposes"
-normalized_children = ["Field", "ExposedMembers"]
+normalized_form = { kind = "DelegateExposes", children = [{ kind = "Field", children = [] }, { kind = "ExposedMembers", children = [] }] }
 stable_reject_tag = ""
 
 [[fixtures]]
@@ -415,8 +378,7 @@ row_id = "delegate_exposes"
 profile = "Canonical"
 source = "delegate child exposes"
 accepted = false
-normalized_kind = ""
-normalized_children = []
+normalized_form = { kind = "", children = [] }
 stable_reject_tag = "parser/guard_expected_canonical"
 
 [[fixtures]]
@@ -425,8 +387,7 @@ row_id = "box_from_inheritance"
 profile = "Canonical"
 source = "box Child from Parent { }"
 accepted = false
-normalized_kind = ""
-normalized_children = []
+normalized_form = { kind = "", children = [] }
 stable_reject_tag = "parser/from_inheritance_legacy"
 
 [[fixtures]]
@@ -435,8 +396,7 @@ row_id = "box_from_inheritance"
 profile = "Compat2025"
 source = "box Child from Parent { }"
 accepted = true
-normalized_kind = "CompatibilityTransport"
-normalized_children = []
+normalized_form = { kind = "CompatibilityTransport", children = [] }
 stable_reject_tag = ""
 migration_transport_ref = "migration-transport/box-from-inheritance/v0"
 
@@ -446,8 +406,7 @@ row_id = "box_from_inheritance"
 profile = "Compat2025"
 source = "box Child from Parent { }"
 accepted = false
-normalized_kind = ""
-normalized_children = []
+normalized_form = { kind = "", children = [] }
 stable_reject_tag = "parser/from_compat_transport_only"
 
 [[fixtures]]
@@ -456,8 +415,7 @@ row_id = "from_super_call"
 profile = "Canonical"
 source = "from Parent.method()"
 accepted = false
-normalized_kind = ""
-normalized_children = []
+normalized_form = { kind = "", children = [] }
 stable_reject_tag = "parser/from_call_legacy"
 
 [[fixtures]]
@@ -466,8 +424,7 @@ row_id = "from_super_call"
 profile = "Compat2025"
 source = "from Parent.method()"
 accepted = true
-normalized_kind = "CompatibilityTransport"
-normalized_children = []
+normalized_form = { kind = "CompatibilityTransport", children = [] }
 stable_reject_tag = ""
 migration_transport_ref = "migration-transport/from-call/v0"
 
@@ -477,6 +434,5 @@ row_id = "from_super_call"
 profile = "Compat2025"
 source = "from Parent.method()"
 accepted = false
-normalized_kind = ""
-normalized_children = []
+normalized_form = { kind = "", children = [] }
 stable_reject_tag = "parser/from_compat_transport_only"

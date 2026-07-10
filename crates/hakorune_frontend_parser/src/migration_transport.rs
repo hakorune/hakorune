@@ -156,7 +156,14 @@ mod tests {
             bundle.transport.transport_kind,
             MigrationTransportKind::BoxFromInheritance
         );
-        assert_eq!(bundle.witness.normalized_kind, "CompatibilityTransport");
+        assert_eq!(
+            bundle
+                .witness
+                .normalized_form
+                .as_ref()
+                .map(|form| form.kind.as_str()),
+            Some("CompatibilityTransport")
+        );
         assert_eq!(
             bundle.witness.migration_transport_ref.as_deref(),
             Some(bundle.transport.transport_id.as_str())

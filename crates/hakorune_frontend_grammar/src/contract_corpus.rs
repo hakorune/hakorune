@@ -1,6 +1,6 @@
 //! Shared fixture corpus for Language v1 grammar-contract conformance.
 
-use crate::contract::{GrammarProfile, ParseWitness};
+use crate::contract::{GrammarProfile, NormalizedSyntaxNode, ParseWitness};
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct GrammarContractFixture {
@@ -28,18 +28,39 @@ fn optional_string(value: &toml::value::Table, field: &str) -> Option<String> {
         .map(str::to_owned)
 }
 
-fn strings(value: &toml::value::Table, field: &str) -> Vec<String> {
-    value
-        .get(field)
+fn normalized_form(value: &toml::value::Table) -> Option<NormalizedSyntaxNode> {
+    let form = value
+        .get("normalized_form")
+        .and_then(toml::Value::as_table)
+        .unwrap_or_else(|| panic!("grammar fixture missing normalized_form"));
+    normalized_node(form)
+}
+
+fn normalized_node(form: &toml::value::Table) -> Option<NormalizedSyntaxNode> {
+    let kind = string(form, "kind");
+    let children = form
+        .get("children")
         .and_then(toml::Value::as_array)
-        .unwrap_or_else(|| panic!("grammar fixture missing array field `{field}`"))
+        .unwrap_or_else(|| panic!("grammar normalized_form missing children"))
         .iter()
-        .map(|item| {
-            item.as_str()
-                .expect("grammar fixture array must be strings")
-                .to_owned()
+        .map(|child| {
+            normalized_node(
+                child
+                    .as_table()
+                    .expect("grammar normalized_form child must be a table"),
+            )
+            .expect("normalized_form child cannot be empty")
         })
-        .collect()
+        .collect::<Vec<_>>();
+    if kind.is_empty() {
+        assert!(
+            children.is_empty(),
+            "empty normalized_form cannot have children"
+        );
+        None
+    } else {
+        Some(NormalizedSyntaxNode::branch(kind, children))
+    }
 }
 
 fn profile(value: &str) -> GrammarProfile {
@@ -65,23 +86,24 @@ pub fn shared_corpus() -> Vec<GrammarContractFixture> {
                 .as_bool()
                 .expect("grammar fixture accepted boolean");
             let expected = if accepted {
-                if string(value, "normalized_kind") == "CompatibilityTransport" {
+                let normalized_form = normalized_form(value)
+                    .expect("accepted grammar fixture requires normalized_form");
+                if normalized_form.kind == "CompatibilityTransport" {
                     let transport_ref = optional_string(value, "migration_transport_ref")
                         .expect("compatibility transport fixture requires migration transport ref");
                     assert!(
-                        strings(value, "normalized_children").is_empty(),
+                        normalized_form.children.is_empty(),
                         "compatibility transport fixture must not expose semantic children"
                     );
                     ParseWitness::accepted_transport(row_id.clone(), profile, transport_ref)
                 } else {
-                    ParseWitness::accepted(
-                        row_id.clone(),
-                        profile,
-                        string(value, "normalized_kind"),
-                        strings(value, "normalized_children"),
-                    )
+                    ParseWitness::accepted(row_id.clone(), profile, normalized_form)
                 }
             } else {
+                assert!(
+                    normalized_form(value).is_none(),
+                    "rejected grammar fixture cannot expose normalized_form"
+                );
                 ParseWitness::rejected(row_id.clone(), profile, string(value, "stable_reject_tag"))
             };
             GrammarContractFixture {

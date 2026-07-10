@@ -42,6 +42,25 @@ root hakorune build = green
 language_v1_grammar_contract_substrate_guard = green
 ```
 
+### Series B - Complete
+
+```text
+authority support fields:
+  rust_support / hako_support removed
+
+recursive witness owner:
+  NormalizedSyntaxNode { kind, children }
+
+fixture schema:
+  normalized_form recursive inline tree
+
+comparison:
+  strict whole-tree equality; nested drift unit test green
+
+support matrix:
+  deferred to Series D execution output after both adapters cover the expanded rows
+```
+
 ## Objective
 
 Close `LANGV1-GRAMMAR-001` through one structural series that:

@@ -54,10 +54,14 @@ def rust_observation(binary: pathlib.Path, fixture: dict[str, Any]) -> dict[str,
             check=False,
         )
     if completed.returncode == 0:
-        return {"accepted": True, "normalized_kind": "ImplementationAccepted", "stable_reject_tag": ""}
+        return {
+            "accepted": True,
+            "normalized_form": {"kind": "ImplementationAccepted", "children": []},
+            "stable_reject_tag": "",
+        }
     return {
         "accepted": False,
-        "normalized_kind": "",
+        "normalized_form": None,
         "stable_reject_tag": reject_tag(completed.stderr),
     }
 
@@ -87,10 +91,14 @@ def hako_observation(
         environment=environment,
     )
     if result.status == "ok":
-        return {"accepted": True, "normalized_kind": "ImplementationAccepted", "stable_reject_tag": ""}
+        return {
+            "accepted": True,
+            "normalized_form": {"kind": "ImplementationAccepted", "children": []},
+            "stable_reject_tag": "",
+        }
     return {
         "accepted": False,
-        "normalized_kind": "",
+        "normalized_form": None,
         "stable_reject_tag": result.stable_reject_tag,
     }
 
@@ -119,7 +127,7 @@ def main() -> int:
                 "profile": fixture["profile"],
                 "expected": {
                     "accepted": fixture["accepted"],
-                    "normalized_kind": fixture["normalized_kind"],
+                    "normalized_form": fixture["normalized_form"],
                     "stable_reject_tag": fixture["stable_reject_tag"],
                 },
                 "rust": rust_observation(args.bin, fixture),

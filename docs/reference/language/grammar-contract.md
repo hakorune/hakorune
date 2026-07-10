@@ -110,14 +110,15 @@ execution, never a field in the authority source.
 row_id
 profile
 accepted
-normalized_kind
-normalized_children
+normalized_form = recursive parser-neutral syntax tree
 stable_reject_tag
 ```
 
 Witnesses exclude spans, source paths, parser-internal node names, and test
-counts. `accepted = true` on a compatibility transport row means syntactic
-migration transport only; `normalized_kind = CompatibilityTransport` prevents
+counts. The typed form recursively carries only normalized node kinds and
+children; its canonical serialization is comparison evidence, not an AST dump.
+`accepted = true` on a compatibility transport row means syntactic migration
+transport only; `normalized_form.kind = CompatibilityTransport` prevents
 semantic admission.
 
 Rust and Hako adapters are independent projections into this witness. Neither

@@ -58,12 +58,36 @@ pub struct GrammarContractRow {
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
+pub struct NormalizedSyntaxNode {
+    pub kind: String,
+    pub children: Vec<NormalizedSyntaxNode>,
+}
+
+impl NormalizedSyntaxNode {
+    pub fn leaf(kind: impl Into<String>) -> Self {
+        Self {
+            kind: kind.into(),
+            children: Vec::new(),
+        }
+    }
+
+    pub fn branch(
+        kind: impl Into<String>,
+        children: impl IntoIterator<Item = NormalizedSyntaxNode>,
+    ) -> Self {
+        Self {
+            kind: kind.into(),
+            children: children.into_iter().collect(),
+        }
+    }
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct ParseWitness {
     pub row_id: String,
     pub profile: GrammarProfile,
     pub accepted: bool,
-    pub normalized_kind: String,
-    pub normalized_children: Vec<String>,
+    pub normalized_form: Option<NormalizedSyntaxNode>,
     pub stable_reject_tag: String,
     pub migration_transport_ref: Option<String>,
 }
@@ -72,15 +96,13 @@ impl ParseWitness {
     pub fn accepted(
         row_id: impl Into<String>,
         profile: GrammarProfile,
-        normalized_kind: impl Into<String>,
-        normalized_children: impl IntoIterator<Item = impl Into<String>>,
+        normalized_form: NormalizedSyntaxNode,
     ) -> Self {
         Self {
             row_id: row_id.into(),
             profile,
             accepted: true,
-            normalized_kind: normalized_kind.into(),
-            normalized_children: normalized_children.into_iter().map(Into::into).collect(),
+            normalized_form: Some(normalized_form),
             stable_reject_tag: String::new(),
             migration_transport_ref: None,
         }
@@ -95,8 +117,7 @@ impl ParseWitness {
             row_id: row_id.into(),
             profile,
             accepted: false,
-            normalized_kind: String::new(),
-            normalized_children: Vec::new(),
+            normalized_form: None,
             stable_reject_tag: stable_reject_tag.into(),
             migration_transport_ref: None,
         }
@@ -111,8 +132,7 @@ impl ParseWitness {
             row_id: row_id.into(),
             profile,
             accepted: true,
-            normalized_kind: "CompatibilityTransport".to_string(),
-            normalized_children: Vec::new(),
+            normalized_form: Some(NormalizedSyntaxNode::leaf("CompatibilityTransport")),
             stable_reject_tag: String::new(),
             migration_transport_ref: Some(transport_ref.into()),
         }
@@ -188,14 +208,9 @@ pub fn compare_witnesses(
     if expected.accepted != observed.accepted {
         return Err(WitnessComparisonError::WitnessDrift { field: "accepted" });
     }
-    if expected.normalized_kind != observed.normalized_kind {
+    if expected.normalized_form != observed.normalized_form {
         return Err(WitnessComparisonError::WitnessDrift {
-            field: "normalized_kind",
-        });
-    }
-    if expected.normalized_children != observed.normalized_children {
-        return Err(WitnessComparisonError::WitnessDrift {
-            field: "normalized_children",
+            field: "normalized_form",
         });
     }
     if !expected.accepted && expected.stable_reject_tag.is_empty() {
@@ -289,19 +304,56 @@ mod tests {
         let expected = ParseWitness::accepted(
             "try_statement",
             GrammarProfile::Canonical,
-            "PostfixCatch",
-            ["Body"],
+            NormalizedSyntaxNode::branch("PostfixCatch", [NormalizedSyntaxNode::leaf("Body")]),
         );
         let observed = ParseWitness::accepted(
             "try_statement",
             GrammarProfile::Canonical,
-            "TryCatch",
-            ["Body"],
+            NormalizedSyntaxNode::branch("TryCatch", [NormalizedSyntaxNode::leaf("Body")]),
         );
         assert_eq!(
             compare_witnesses(Some(&row()), Some(&expected), Some(&observed)),
             Err(WitnessComparisonError::WitnessDrift {
-                field: "normalized_kind"
+                field: "normalized_form"
+            })
+        );
+    }
+
+    #[test]
+    fn comparator_rejects_nested_normalized_form_drift() {
+        let expected = ParseWitness::accepted(
+            "try_statement",
+            GrammarProfile::Canonical,
+            NormalizedSyntaxNode::branch(
+                "Match",
+                [NormalizedSyntaxNode::branch(
+                    "OrderedArms",
+                    [NormalizedSyntaxNode::branch(
+                        "MatchArm",
+                        [NormalizedSyntaxNode::leaf("Pattern")],
+                    )],
+                )],
+            ),
+        );
+        let observed = ParseWitness::accepted(
+            "try_statement",
+            GrammarProfile::Canonical,
+            NormalizedSyntaxNode::branch(
+                "Match",
+                [NormalizedSyntaxNode::branch(
+                    "OrderedArms",
+                    [NormalizedSyntaxNode::branch(
+                        "MatchArm",
+                        [NormalizedSyntaxNode::leaf("ArmBody")],
+                    )],
+                )],
+            ),
+        );
+
+        assert_eq!(
+            compare_witnesses(Some(&row()), Some(&expected), Some(&observed)),
+            Err(WitnessComparisonError::WitnessDrift {
+                field: "normalized_form"
             })
         );
     }
