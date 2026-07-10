@@ -209,8 +209,8 @@ evaluated-Place slice. Grammar work advances through
 
 ### 2. LANGV1-GRAMMAR-001
 
-Status: contract basis accepted as 3460; substrate implementation active as
-3461.
+Status: contract basis accepted as 3460; substrate landed as 3461; Rust
+grammar-profile owner consultation active as 3462.
 
 Deliverables:
 
