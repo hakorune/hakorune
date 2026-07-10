@@ -5,10 +5,11 @@
 Active implementation series after 3477 accepts all remaining grammar and
 registry-structure decisions. Series A, the recursive witness schema, and the
 Series C loop family are complete. Live recursive projection for both parsers
-is next. The remaining declaration conformance boundary requires an owner
-decision before declaration rows are implemented.
+is next. The declaration conformance owner is accepted as a parser-owned,
+non-semantic ProgramJSON evidence sidecar.
 
 Decision: accepted by 3477.
+Declaration sidecar decision: accepted by post-loop design consultation.
 
 Implementation: in progress.
 
@@ -52,7 +53,7 @@ authority support fields:
   rust_support / hako_support removed
 
 recursive witness owner:
-  NormalizedSyntaxNode { kind, children }
+  NormalizedSyntaxNode { kind, value?, children }
 
 fixture schema:
   normalized_form recursive inline tree
@@ -111,6 +112,7 @@ no raw ProgramJSON equality as cross-parser proof
 rejected rows carry no normalized form
 missing projection kind fails parser/witness_missing
 nested difference fails parser/witness_drift
+identifier/type/value drift fails parser/witness_drift
 ```
 
 First close the projection vocabulary for the current registered rows. Only
@@ -159,7 +161,7 @@ Hako evidence:
 `break` and `continue` outside a loop remain context-verifier rules. They are
 not fixture aliases on the grammar row contracts.
 
-### Series C Declaration Conformance Boundary - Decision Required
+### Series C Declaration Conformance Boundary - Accepted
 
 The Hako grammar adapter owns statement and expression parsing only. A direct
 observation of `record User { id: i64 }` currently fails with
@@ -175,12 +177,77 @@ weak_visibility_field
 weak_legacy_init_field
 ```
 
+Decision B is accepted:
+
+```text
+ProgramJSON.body
+  = existing semantic parser evidence
+
+ProgramJSON.parser_evidence.declarations
+  = parser-owned grammar evidence only
+  = external ParseWitness adapter input only
+  = never a semantic/MIR/runtime/backend input
+```
+
+Structure:
+
+```text
+lang/src/compiler/parser/decl/README.md
+lang/src/compiler/parser/decl/parser_declaration_box.hako
+lang/src/compiler/parser/decl/parser_record_declaration_box.hako
+lang/src/compiler/parser/decl/parser_box_weak_field_box.hako
+
+ParserProgramBox
+  -> declaration-head dispatch before statement/expression fallback
+  -> append sidecar evidence from the same parse invocation
+  -> do not append declarations to ProgramJSON.body
+```
+
+`ParserDeclarationBox` owns declaration dispatch and profile gating. Record
+and box-weak-field parsing are separate subparsers. The Hako profile gate
+consumes a generated projection of `language-v1-registry.toml`; do not create
+another hand-maintained spelling/status table.
+
+Minimum sidecar row:
+
+```text
+row_id
+profile
+accepted
+normalized_form = { kind, value?, children }
+stable_reject_tag
+semantic_publication_allowed = false
+mir_lowering_allowed = false
+runtime_allowed = false
+backend_allowed = false
+```
+
+The optional parser-neutral `value` is required where identifier, type, field,
+visibility, or literal identity is part of conformance. It must not carry
+spans, source paths, parser class/node names, MIR ids, ValueIds, handles, or
+backend descriptors.
+
+First declaration scope:
+
+```text
+record_declaration
+weak_stored_field
+weak_visibility_field
+weak_legacy_init_field
+```
+
+Profile contracts:
+
+```text
+weak_stored_field = canonical in both profiles
+weak_visibility_field = Canonical reject; Compat2025 alias
+weak_legacy_init_field = Canonical reject; Compat2025 alias
+```
+
 Do not add adapter-local source scanning, a `CompatibilityTransport` AST node,
-or fixture-specific acceptance to hide this gap. The next decision must choose
-one parser-owned declaration boundary that produces parser-neutral evidence
-without entering semantic lowering. Record literals, record updates, weak
-unary expressions, primitive literals, arrays, maps, and construction remain
-separate Series C surfaces after that decision.
+fixture-specific acceptance, or declaration entries in semantic body. Record
+literals, record updates, weak unary expressions, primitive literals, arrays,
+maps, and construction remain separate Series C surfaces.
 
 ### Remaining Ordered Checkpoints
 
@@ -188,7 +255,7 @@ Keep these checkpoints inside 3478; do not create spelling-specific cards:
 
 ```text
 1. live recursive projection for the current registered corpus
-2. Hako declaration evidence owner decision and structural parser box
+2. Hako declaration sidecar structure + generated profile projection
 3. remaining weak/record/literal/construction rows + both parser migrations
 4. generated support matrix + canonical source migration report
 5. bounded grammar-aware differential composition gate
@@ -289,6 +356,7 @@ parser-neutral form:
 ```text
 NormalizedSyntaxNode {
   kind
+  value?
   children: [NormalizedSyntaxNode]
 }
 ```
@@ -467,6 +535,14 @@ parser/typed_integer_suffix_rust_evidence_only
 parser/while_legacy_replaced_by_loop_condition
 parser/while_compat_not_normalizable
 parser/weak_paren_call_rejected
+parser/hako_declaration_sidecar_missing
+parser/hako_declaration_sidecar_malformed
+parser/hako_declaration_sidecar_in_semantic_body_forbidden
+parser/hako_declaration_head_fallback_forbidden
+parser/hako_record_declaration_misrouted_to_literal
+parser/hako_declaration_evidence_to_mir_forbidden
+parser/hako_declaration_evidence_to_runtime_forbidden
+parser/hako_declaration_evidence_to_backend_forbidden
 ```
 
 ## Forbidden Designs
@@ -520,11 +596,17 @@ language_v1_grammar_closeout = 1
 ```text
 grammar_registry_implemented = 0
 remaining_registry_rows_implemented = 0
-parser_behavior_changed = 0
-compat2025_acceptance_changed = 0
+remaining_surface_parser_behavior_changed = 0
+declaration_sidecar_implemented = 0
+hako_declaration_conformance = 0
 recursive_parse_witness = 0
 bounded_differential_composition_gate = 0
 language_v1_grammar_closeout = 0
+semantic_body_record_declaration = 0
+semantic_body_box_declaration = 0
+declaration_sidecar_to_mir = 0
+declaration_sidecar_to_runtime = 0
+declaration_sidecar_to_backend = 0
 type_contract_activation = 0
 failure_model_change = 0
 ownership_policy_change = 0
@@ -534,4 +616,8 @@ selfhost_claim = 0
 
 ## Next
 
-Start Series A. Do not add remaining rows to the contradictory combined TOML.
+Implement Series C0 live recursive projection for the current registered
+corpus. Keep Rust and Hako projection implementations independent, add
+optional node values to the typed/corpus schema, and replace
+`ImplementationAccepted`/raw-ProgramJSON equivalence with strict recursive
+witness comparison before adding declaration or other remaining surface rows.
