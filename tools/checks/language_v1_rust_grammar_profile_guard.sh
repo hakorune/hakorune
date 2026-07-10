@@ -8,6 +8,8 @@ TAG="language-v1-rust-grammar-profile"
 BIN="target/debug/hakorune"
 NORMAL="tools/language_v1/fixtures/try_compat_normalizable.hako"
 NON_NORMAL="tools/language_v1/fixtures/try_compat_not_normalizable.hako"
+PEEK_NORMAL="tools/language_v1/fixtures/peek_compat_normalizable.hako"
+PEEK_NON_NORMAL="tools/language_v1/fixtures/peek_compat_not_normalizable.hako"
 AST_JSON="$(mktemp)"
 OUT="$(mktemp)"
 ERR="$(mktemp)"
@@ -51,5 +53,18 @@ if NYASH_FEATURES=no-try-compat "$BIN" --emit-ast-json "$AST_JSON" "$NORMAL" >"$
   fail "legacy env selected a non-Canonical profile"
 fi
 rg -q 'parser/try_reserved' "$ERR" || fail "legacy env changed Canonical rejection"
+
+if "$BIN" --emit-ast-json "$AST_JSON" "$PEEK_NORMAL" >"$OUT" 2>"$ERR"; then
+  fail "Canonical accepted legacy peek"
+fi
+rg -q 'parser/peek_legacy_replaced_by_match' "$ERR" || fail "Canonical peek tag missing"
+
+"$BIN" --grammar-profile compat2025 --emit-ast-json "$AST_JSON" "$PEEK_NORMAL" >"$OUT" 2>"$ERR" \
+  || fail "Compat2025 rejected normalizable peek"
+
+if "$BIN" --grammar-profile compat2025 --emit-ast-json "$AST_JSON" "$PEEK_NON_NORMAL" >"$OUT" 2>"$ERR"; then
+  fail "Compat2025 accepted non-normalizable peek"
+fi
+rg -q 'parser/peek_compat_not_normalizable' "$ERR" || fail "Compat2025 peek tag missing"
 
 echo "[$TAG] OK"

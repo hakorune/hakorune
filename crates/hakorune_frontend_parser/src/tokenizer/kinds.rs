@@ -25,6 +25,7 @@ pub enum TokenType {
     SINGLETON,
     NEW,
     MATCH,
+    PEEK,
     IF,
     ELSE,
     GUARD,

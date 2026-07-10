@@ -141,6 +141,23 @@ impl NyashParser {
         if self.match_token(&TokenType::MATCH) {
             return self.expr_parse_match();
         }
+        if self.match_token(&TokenType::PEEK) {
+            let line = self.current_token().line;
+            if self.build_config.grammar_profile
+                == hakorune_frontend_parser::parser::GrammarProfile::Canonical
+            {
+                return Err(ParseError::UnexpectedToken {
+                    found: TokenType::PEEK,
+                    expected: "[freeze:contract][parser/peek_legacy_replaced_by_match] use match in Canonical".to_string(),
+                    line,
+                });
+            }
+            return self.expr_parse_match().map_err(|_| ParseError::UnexpectedToken {
+                found: TokenType::PEEK,
+                expected: "[freeze:contract][parser/peek_compat_not_normalizable] Compat2025 peek must match the canonical Match grammar".to_string(),
+                line,
+            });
+        }
         if self.match_token(&TokenType::MINUS) {
             self.advance(); // consume '-'
             let operand = self.parse_unary()?; // 再帰的に単項演算をパース

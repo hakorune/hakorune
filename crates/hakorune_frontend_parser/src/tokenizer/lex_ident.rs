@@ -26,6 +26,7 @@ impl NyashTokenizer {
             "singleton" => TokenType::SINGLETON,
             "new" => TokenType::NEW,
             "match" => TokenType::MATCH,
+            "peek" => TokenType::PEEK,
             "if" => TokenType::IF,
             "else" => TokenType::ELSE,
             "guard" => TokenType::GUARD,

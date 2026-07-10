@@ -54,3 +54,31 @@ fn profile_plumbing_does_not_change_match_or_from_baselines() {
         assert!(parse_with_profile(from_source, profile).is_ok());
     }
 }
+
+#[test]
+fn peek_is_canonical_reject_and_compat2025_match_alias() {
+    let peek_source = "local x = peek 1 { 1 => 2, _ => 0 }";
+    let canonical_error = format!(
+        "{:?}",
+        parse_with_profile(peek_source, GrammarProfile::Canonical).unwrap_err()
+    );
+    assert!(canonical_error.contains("[parser/peek_legacy_replaced_by_match]"));
+
+    let match_source = "local x = match 1 { 1 => 2, _ => 0 }";
+    let peek_ast = parse_with_profile(peek_source, GrammarProfile::Compat2025).unwrap();
+    let match_ast = parse_with_profile(match_source, GrammarProfile::Compat2025).unwrap();
+    assert_eq!(
+        nyash_rust::r#macro::ast_json::ast_to_json_roundtrip(&peek_ast),
+        nyash_rust::r#macro::ast_json::ast_to_json_roundtrip(&match_ast)
+    );
+}
+
+#[test]
+fn compat2025_peek_rejects_non_match_shape_without_fallback() {
+    let source = "local x = peek 1 { 1 => }";
+    let error = format!(
+        "{:?}",
+        parse_with_profile(source, GrammarProfile::Compat2025).unwrap_err()
+    );
+    assert!(error.contains("[parser/peek_compat_not_normalizable]"));
+}
