@@ -94,6 +94,125 @@ existing carrier refresh helpers:
 This inventory is an implementation starting point, not authority. The first
 task must identify public entrances structurally before editing consumers.
 
+## Execution Slices
+
+Keep these slices in this card. Each slice must build and keep the previously
+landed focused gates green; do not create inventory-only or rerun-only cards.
+
+### S1 - Facade and validated boundary token
+
+```text
+scope:
+  typed ContractRefreshBoundary vocabulary
+  one refresh_and_validate_for_boundary facade
+  deterministic rebuild and four-family validation
+  validated boundary token/view that cannot be forged by ordinary consumers
+
+tests:
+  all four carrier families rebuild
+  missing/drifted carrier is repaired only inside the owner
+  active carrier missing after owner completion fails
+
+non-scope:
+  consumer rewiring
+  representation policy changes
+```
+
+### S2 - Consumer convergence
+
+```text
+scope:
+  verifier entry
+  MIR JSON entry
+  VM execution entry
+  backend capability preflight
+  direct tool/provider entry
+
+rule:
+  each public path obtains the validated boundary token once
+  downstream helpers consume it or a facade-owned validated module
+  no consumer-local refresh or fixture carrier synthesis
+
+proof:
+  while_expected.hako direct typed-return reproduction is green
+  bypass negatives fail with stable owner tags
+```
+
+### S3 - Representation authority audit
+
+```text
+classify every relevant consumer as exactly one of:
+  semantic_contract_carrier
+  derived_representation_fact
+  explicit_plan_input
+  migration_debt
+
+families:
+  source declared type metadata
+  FunctionSignature / MirType
+  exact-numeric value/return facts
+  storage and layout metadata
+  Plan and Rune inputs
+
+rule:
+  classification is by owner/API responsibility, never by function name or
+  current successful behavior
+```
+
+### S4 - Ledger split and closeout
+
+```text
+scope:
+  add one mutable type-contract status ledger
+  remove mutable backend/activation status from normative types.md
+  retain normative meaning and links in types.md
+  run focused contract suites and current pointer guard
+
+closeout gate:
+  consumer bypass count = 0
+  representation debt queue is explicit
+  exact-numeric island is ready for T4 audit
+```
+
+## Post-3489 Task Gates
+
+Do not materialize these as numbered cards until the preceding gate closes.
+
+```text
+T4 exact-numeric island closeout:
+  audit Box field + parameter + return + local owner completeness
+  prove shared runtime checker semantics and per-site timing remain distinct
+  prove unsupported backends reject every active carrier before effects
+  activate no new type family
+
+T5 next-family consultation:
+  compare record construction/update and typed Array<T> element boundaries
+  require a named producer, mutation/construction owner, runtime consumer,
+  MIR JSON carrier, backend capability, and negative fixture set
+  select exactly one family; do not infer selection from matrix row names
+
+Failure/Outcome after Type Guarantee:
+  decide null / void / Option::None terminal relation
+  classify local default, WeakRef upgrade, and Missing/Void/Null boxes by meaning
+  migrate source/API uses before changing literal_null profile
+
+Coercion/Equality after Failure/Outcome:
+  close truthiness, compatibility equality, String concatenation, and typed
+  type-test surfaces under Canonical vs explicit Compat2025
+
+Ownership/Identity after coercion:
+  remove ordinary-field implicit cascade fini
+  replace prose escape policy with one ownership-operation vocabulary
+
+Capability/Effect then v1 closeout:
+  verify uses / observed effects / Rune obligations independently
+  run full parser + VM/EXE conformance before unparked selfhost migration
+```
+
+The nested-loop feature-product decomposition and route-family authority
+promotion remain parked compiler BoxShape work. They do not preempt this
+language lane without an explicit priority decision.
+
 ## Stable Fail-Fast Tags
 
 ```text

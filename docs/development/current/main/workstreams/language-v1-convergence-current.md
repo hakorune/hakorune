@@ -351,9 +351,14 @@ T3 active:
 T4 after representation audit:
   exact-numeric annotation-island closeout
   parameter + return + Box field + local owner/exhaustiveness audit
+  shared value-check semantics, distinct boundary timing
+  all active carriers covered by unsupported-backend pre-effect rejection
+  no new type-family activation
 
 T5 next type family decision:
   choose record construction or typed Array element contract from evidence
+  require producer + owner + runtime consumer + JSON carrier + backend gate
+  select exactly one family in a design consultation after T4
   do not open FFI/backend lowering or all-types activation implicitly
 ```
 
