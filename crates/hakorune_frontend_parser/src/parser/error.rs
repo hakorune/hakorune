@@ -1,9 +1,27 @@
 use crate::tokenizer::{TokenType, TokenizeError};
+use crate::{migration_transport::MigrationTransportKind, parser::GrammarProfile};
 use thiserror::Error;
 
 /// Parser error vocabulary.
 #[derive(Error, Debug)]
 pub enum ParseError {
+    #[error(
+        "[freeze:contract][{stable_reject_tag}] transport-only {transport_kind:?} under {profile:?} at line {line}"
+    )]
+    TransportOnly {
+        row_id: &'static str,
+        profile: GrammarProfile,
+        transport_kind: MigrationTransportKind,
+        stable_reject_tag: &'static str,
+        line: usize,
+    },
+
+    #[error("[freeze:contract][{stable_reject_tag}] migration transport rejected at line {line}")]
+    MigrationTransport {
+        stable_reject_tag: &'static str,
+        line: usize,
+    },
+
     #[error("Unexpected token {found:?}, expected {expected} at line {line}")]
     UnexpectedToken {
         found: TokenType,

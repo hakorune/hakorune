@@ -51,6 +51,7 @@ pub struct ParseWitness {
     pub normalized_kind: String,
     pub normalized_children: Vec<String>,
     pub stable_reject_tag: String,
+    pub migration_transport_ref: Option<String>,
 }
 
 impl ParseWitness {
@@ -67,6 +68,7 @@ impl ParseWitness {
             normalized_kind: normalized_kind.into(),
             normalized_children: normalized_children.into_iter().map(Into::into).collect(),
             stable_reject_tag: String::new(),
+            migration_transport_ref: None,
         }
     }
 
@@ -82,6 +84,23 @@ impl ParseWitness {
             normalized_kind: String::new(),
             normalized_children: Vec::new(),
             stable_reject_tag: stable_reject_tag.into(),
+            migration_transport_ref: None,
+        }
+    }
+
+    pub fn accepted_transport(
+        row_id: impl Into<String>,
+        profile: GrammarProfile,
+        transport_ref: impl Into<String>,
+    ) -> Self {
+        Self {
+            row_id: row_id.into(),
+            profile,
+            accepted: true,
+            normalized_kind: "CompatibilityTransport".to_string(),
+            normalized_children: Vec::new(),
+            stable_reject_tag: String::new(),
+            migration_transport_ref: Some(transport_ref.into()),
         }
     }
 }
@@ -157,6 +176,11 @@ pub fn compare_witnesses(
     if expected.stable_reject_tag != observed.stable_reject_tag {
         return Err(WitnessComparisonError::WitnessDrift {
             field: "stable_reject_tag",
+        });
+    }
+    if expected.migration_transport_ref != observed.migration_transport_ref {
+        return Err(WitnessComparisonError::WitnessDrift {
+            field: "migration_transport_ref",
         });
     }
     Ok(())

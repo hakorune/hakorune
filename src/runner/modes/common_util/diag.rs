@@ -74,6 +74,9 @@ pub fn print_parse_error_with_context(filename: &str, src: &str, err: &ParseErro
 
 fn extract_line_col(err: &ParseError) -> (Option<usize>, Option<usize>) {
     match err {
+        ParseError::TransportOnly { line, .. } | ParseError::MigrationTransport { line, .. } => {
+            (Some(*line), None)
+        }
         ParseError::UnexpectedToken { line, .. } => (Some(*line), None),
         ParseError::UnexpectedEOF => (None, None),
         ParseError::InvalidExpression { line } => (Some(*line), None),

@@ -232,6 +232,7 @@ impl NyashParser {
 
     /// from構文をパース: from Parent.method(arguments)
     pub(super) fn parse_from_call(&mut self) -> Result<ASTNode, ParseError> {
+        crate::parser::from_transport_boundary::reject_legacy_from_before_ast(self)?;
         self.advance(); // consume 'from'
 
         // Parent名を取得

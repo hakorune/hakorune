@@ -1,0 +1,1 @@
+box Child from Parent { local x = 1 }

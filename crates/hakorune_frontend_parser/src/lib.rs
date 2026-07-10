@@ -16,6 +16,7 @@ pub mod frontend_env;
 pub mod frontend_host;
 pub mod frontend_log;
 pub mod grammar;
+pub mod migration_transport;
 pub mod parser;
 pub mod tokenizer;
 

@@ -2,8 +2,8 @@
 
 ## Status
 
-Active implementation card. Implement the accepted 3465 migration transport
-boundary for both Rust `from` forms without publishing semantic AST.
+Complete. The accepted 3465 migration transport boundary now covers both Rust
+`from` forms without publishing semantic AST.
 
 ## Structural Scope
 
@@ -136,12 +136,40 @@ selfhost_claim = 0
 
 ## Verification
 
-Add focused unit tests and extend the reusable Rust grammar-profile guard when
-the code owners land. Run `cargo check`, the grammar substrate guard, and the
-current-state pointer guard. Keep every new source file below 800 lines.
+Completed:
+
+```text
+cargo test -p hakorune-frontend-grammar
+cargo test -p hakorune-frontend-parser
+cargo test --test parser_grammar_profile
+bash tools/checks/language_v1_rust_grammar_profile_guard.sh
+bash tools/checks/language_v1_grammar_contract_substrate_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+The shared corpus now requires a `migration_transport_ref` for each accepted
+CompatibilityTransport witness. The two new Rust source modules are 177 and
+55 lines, respectively; all new source remains below 800 lines.
+
+## Closeout
+
+```text
+from_compat_transport_boundary_implemented = 1
+migration_transport_record_implemented = 1
+compat2025_from_migration_adapter_implemented = 1
+compat2025_from_semantic_transport_only_error_implemented = 1
+canonical_from_rejects_implemented = 1
+source_box_from_extends_publication = 0
+source_from_call_ast_publication = 0
+compat_transport_ast_node_count = 0
+option_sugar_changed = 0
+hako_parser_behavior_changed = 0
+runtime_backend_behavior_changed = 0
+```
 
 ## Next
 
-After the implementation is green, rerun the shared migration/semantic fixture
-matrix inside this card and close Rust from migration without a form-specific
-rerun card.
+Rust from migration closes without a form-specific rerun card. The next owner
+is `LANGV1-HAKO-GRAMMAR-PROFILE-WITNESS-DESIGN-STOP-001`; do not alter Hako
+parser acceptance before that profile and witness boundary is decided.

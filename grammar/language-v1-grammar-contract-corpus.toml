@@ -288,8 +288,9 @@ profile = "Compat2025"
 source = "box Child from Parent { }"
 accepted = true
 normalized_kind = "CompatibilityTransport"
-normalized_children = ["FromInheritance"]
+normalized_children = []
 stable_reject_tag = ""
+migration_transport_ref = "migration-transport/box-from-inheritance/v0"
 
 [[fixtures]]
 fixture_id = "box_from_inheritance_semantic_entry_reject"
@@ -309,7 +310,7 @@ source = "from Parent.method()"
 accepted = false
 normalized_kind = ""
 normalized_children = []
-stable_reject_tag = "parser/from_super_call_legacy"
+stable_reject_tag = "parser/from_call_legacy"
 
 [[fixtures]]
 fixture_id = "from_super_call_compat_transport"
@@ -318,8 +319,9 @@ profile = "Compat2025"
 source = "from Parent.method()"
 accepted = true
 normalized_kind = "CompatibilityTransport"
-normalized_children = ["FromSuperCall"]
+normalized_children = []
 stable_reject_tag = ""
+migration_transport_ref = "migration-transport/from-call/v0"
 
 [[fixtures]]
 fixture_id = "from_super_call_semantic_entry_reject"

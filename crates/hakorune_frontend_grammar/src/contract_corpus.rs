@@ -21,6 +21,13 @@ fn string(value: &toml::value::Table, field: &str) -> String {
         .to_owned()
 }
 
+fn optional_string(value: &toml::value::Table, field: &str) -> Option<String> {
+    value
+        .get(field)
+        .and_then(toml::Value::as_str)
+        .map(str::to_owned)
+}
+
 fn strings(value: &toml::value::Table, field: &str) -> Vec<String> {
     value
         .get(field)
@@ -58,12 +65,22 @@ pub fn shared_corpus() -> Vec<GrammarContractFixture> {
                 .as_bool()
                 .expect("grammar fixture accepted boolean");
             let expected = if accepted {
-                ParseWitness::accepted(
-                    row_id.clone(),
-                    profile,
-                    string(value, "normalized_kind"),
-                    strings(value, "normalized_children"),
-                )
+                if string(value, "normalized_kind") == "CompatibilityTransport" {
+                    let transport_ref = optional_string(value, "migration_transport_ref")
+                        .expect("compatibility transport fixture requires migration transport ref");
+                    assert!(
+                        strings(value, "normalized_children").is_empty(),
+                        "compatibility transport fixture must not expose semantic children"
+                    );
+                    ParseWitness::accepted_transport(row_id.clone(), profile, transport_ref)
+                } else {
+                    ParseWitness::accepted(
+                        row_id.clone(),
+                        profile,
+                        string(value, "normalized_kind"),
+                        strings(value, "normalized_children"),
+                    )
+                }
             } else {
                 ParseWitness::rejected(row_id.clone(), profile, string(value, "stable_reject_tag"))
             };

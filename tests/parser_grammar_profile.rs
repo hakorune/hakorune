@@ -1,4 +1,7 @@
-use nyash_rust::parser::{GrammarProfile, NyashParser, ParserBuildConfig};
+use nyash_rust::parser::{
+    parse_migration_transport_with_config, GrammarProfile, MigrationTransportKind, NyashParser,
+    ParseError, ParserBuildConfig,
+};
 use nyash_rust::tokenizer::NyashTokenizer;
 
 fn parse_with_profile(
@@ -46,12 +49,110 @@ fn compat2025_accepts_only_the_closed_try_subset() {
 }
 
 #[test]
-fn profile_plumbing_does_not_change_match_or_from_baselines() {
+fn profile_plumbing_preserves_canonical_match() {
     let match_source = "local x = match 1 { 1 => 2, _ => 0 }";
-    let from_source = "from Parent.method()";
     for profile in [GrammarProfile::Canonical, GrammarProfile::Compat2025] {
         assert!(parse_with_profile(match_source, profile).is_ok());
-        assert!(parse_with_profile(from_source, profile).is_ok());
+    }
+}
+
+#[test]
+fn canonical_rejects_each_legacy_from_surface_before_ast_publication() {
+    for (source, tag) in [
+        ("box Child from Parent {}", "parser/from_inheritance_legacy"),
+        ("from Parent.method()", "parser/from_call_legacy"),
+    ] {
+        for result in [
+            NyashParser::parse_from_string(source),
+            parse_with_profile(source, GrammarProfile::Canonical),
+        ] {
+            let error = format!("{:?}", result.expect_err("legacy from must reject"));
+            assert!(error.contains(tag), "{error}");
+        }
+    }
+}
+
+#[test]
+fn compat2025_semantic_parser_stops_from_before_ast_publication() {
+    for (source, expected_kind) in [
+        (
+            "box Child from Parent {}",
+            MigrationTransportKind::BoxFromInheritance,
+        ),
+        ("from Parent.method()", MigrationTransportKind::FromCall),
+    ] {
+        let error = parse_with_profile(source, GrammarProfile::Compat2025)
+            .expect_err("transport-only syntax must not publish semantic AST");
+        match error {
+            ParseError::TransportOnly {
+                profile,
+                transport_kind,
+                stable_reject_tag,
+                ..
+            } => {
+                assert_eq!(profile, GrammarProfile::Compat2025);
+                assert_eq!(transport_kind, expected_kind);
+                assert_eq!(stable_reject_tag, "parser/from_compat_transport_only");
+            }
+            other => panic!("expected transport-only error, got {other:?}"),
+        }
+    }
+}
+
+#[test]
+fn compat2025_migration_adapter_emits_span_free_transport_evidence() {
+    let config = ParserBuildConfig {
+        grammar_profile: GrammarProfile::Compat2025,
+        ..ParserBuildConfig::default()
+    };
+    for (source, expected_kind) in [
+        (
+            "box Child from Parent {}",
+            MigrationTransportKind::BoxFromInheritance,
+        ),
+        ("from Parent.method()", MigrationTransportKind::FromCall),
+    ] {
+        let bundle = parse_migration_transport_with_config(source, config.clone())
+            .expect("closed legacy form must emit migration evidence");
+        assert_eq!(bundle.transport.transport_kind, expected_kind);
+        assert_eq!(bundle.witness.normalized_kind, "CompatibilityTransport");
+        assert_eq!(
+            bundle.witness.migration_transport_ref.as_deref(),
+            Some(bundle.transport.transport_id.as_str())
+        );
+        assert!(!bundle.transport.semantic_entry_allowed);
+        assert!(!bundle.transport.ast_publication_allowed);
+        assert!(!bundle.transport.mir_lowering_allowed);
+        assert!(!bundle.transport.runtime_lowering_allowed);
+        assert!(!bundle.transport.backend_lowering_allowed);
+    }
+}
+
+#[test]
+fn malformed_legacy_from_forms_fail_fast_instead_of_falling_back() {
+    for source in [
+        "box Child from Parent { local x = 1 }",
+        "from Parent.method(1)",
+    ] {
+        let error = format!(
+            "{:?}",
+            parse_with_profile(source, GrammarProfile::Compat2025)
+                .expect_err("non-closed legacy form must reject")
+        );
+        assert!(
+            error.contains("parser/from_transport_not_closed_form"),
+            "{error}"
+        );
+    }
+}
+
+#[test]
+fn option_sugar_keeps_its_internal_from_call_representation() {
+    for source in ["local x = none", "local x = some 1"] {
+        assert!(
+            parse_with_profile(source, GrammarProfile::Canonical).is_ok(),
+            "Option sugar must not enter the source from transport boundary: {source}"
+        );
     }
 }
 

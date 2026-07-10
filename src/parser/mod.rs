@@ -30,6 +30,7 @@ pub mod entry_sugar; // helper to parse with sugar level
 mod expr;
 mod expr_cursor; // TokenCursorを使用した式パーサー（実験的）
 mod expressions;
+mod from_transport_boundary;
 mod items;
 mod lifecycle;
 pub(crate) mod log;
@@ -102,6 +103,10 @@ macro_rules! debug_fuel {
 
 // Two-phase parser structures are no longer needed - simplified to direct parsing
 
+pub use hakorune_frontend_parser::migration_transport::{
+    parse_migration_transport_with_config, MigrationTransport, MigrationTransportBundle,
+    MigrationTransportKind,
+};
 pub use hakorune_frontend_parser::parser::ParseError;
 
 /// Nyashパーサー - トークン列をASTに変換

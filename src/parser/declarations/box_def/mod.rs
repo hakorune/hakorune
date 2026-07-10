@@ -30,6 +30,7 @@ pub fn parse_box_declaration(p: &mut NyashParser) -> Result<ASTNode, ParseError>
             line: p.current_token().line,
         });
     }
+    crate::parser::from_transport_boundary::reject_legacy_from_before_ast(p)?;
     p.advance(); // consume BOX or FLOW
     parse_box_declaration_after_box_keyword(p, false)
 }

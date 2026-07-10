@@ -126,7 +126,7 @@ parser/try_compat_not_normalizable
 parser/peek_legacy_replaced_by_match
 parser/peek_compat_not_normalizable
 parser/from_inheritance_legacy
-parser/from_super_call_legacy
+parser/from_call_legacy
 parser/from_compat_transport_only
 parser/guard_expected_canonical
 parser/guard_let_no_fallthrough_required
