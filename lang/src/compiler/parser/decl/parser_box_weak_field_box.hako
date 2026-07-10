@@ -1,0 +1,98 @@
+// Box weak-field grammar evidence. No Box declaration is published semantically.
+
+using lang.compiler.parser.scan.parser_string_utils_box as ParserStringUtilsBox
+
+static box ParserBoxWeakFieldBox {
+  parse_or_null(src, i, ctx) {
+    local j = ctx.skip_ws(src, i + 3)
+    local box_pair = ctx.read_ident2(src, j)
+    local box_at = box_pair.lastIndexOf("@")
+    local box_name = box_pair.substring(0, box_at)
+    j = ctx.skip_ws(src, ParserStringUtilsBox.to_int(box_pair.substring(box_at + 1, box_pair.length())))
+    if box_name == "" || src.substring(j, j + 1) != "{" { return null }
+    j = ctx.skip_ws(src, j + 1)
+
+    local row_id = ""
+    local visibility = "Default"
+    local field_name = ""
+    local type_name = ""
+    if ctx.starts_with_kw(src, j, "weak") == 1 {
+      row_id = "weak_stored_field"
+      local parsed = me._parse_field(src, j + 4, ctx)
+      local first_at = parsed.indexOf("@")
+      local second_at = parsed.indexOf("@", first_at + 1)
+      field_name = parsed.substring(0, first_at)
+      type_name = parsed.substring(first_at + 1, second_at)
+      j = ParserStringUtilsBox.to_int(parsed.substring(second_at + 1, parsed.length()))
+    } else if ctx.starts_with_kw(src, j, "public") == 1 || ctx.starts_with_kw(src, j, "private") == 1 {
+      if ctx.starts_with_kw(src, j, "public") == 1 {
+        visibility = "Public"
+        j = ctx.skip_ws(src, j + 6)
+      } else {
+        visibility = "Private"
+        j = ctx.skip_ws(src, j + 7)
+      }
+      if ctx.starts_with_kw(src, j, "weak") != 1 { return null }
+      row_id = "weak_visibility_field"
+      local parsed = me._parse_field(src, j + 4, ctx)
+      local first_at = parsed.indexOf("@")
+      local second_at = parsed.indexOf("@", first_at + 1)
+      field_name = parsed.substring(0, first_at)
+      type_name = parsed.substring(first_at + 1, second_at)
+      j = ParserStringUtilsBox.to_int(parsed.substring(second_at + 1, parsed.length()))
+    } else if ctx.starts_with_kw(src, j, "init") == 1 {
+      row_id = "weak_legacy_init_field"
+      j = ctx.skip_ws(src, j + 4)
+      if src.substring(j, j + 1) != "{" { return me._fail(src, ctx, "legacy weak init requires a block") }
+      j = ctx.skip_ws(src, j + 1)
+      if ctx.starts_with_kw(src, j, "weak") != 1 { return null }
+      local parsed = me._parse_field(src, j + 4, ctx)
+      local first_at = parsed.indexOf("@")
+      local second_at = parsed.indexOf("@", first_at + 1)
+      field_name = parsed.substring(0, first_at)
+      type_name = parsed.substring(first_at + 1, second_at)
+      j = ctx.skip_ws(src, ParserStringUtilsBox.to_int(parsed.substring(second_at + 1, parsed.length())))
+      if src.substring(j, j + 1) != "}" { return me._fail(src, ctx, "legacy weak init block is malformed") }
+      j = j + 1
+    } else {
+      return null
+    }
+
+    if field_name == "" { return me._fail(src, ctx, "weak field name is missing") }
+    j = ctx.skip_ws(src, j)
+    if src.substring(j, j + 1) != "}" { return me._fail(src, ctx, "weak field box must close after the evidence row") }
+    j = j + 1
+    ctx.gpos_set(j)
+    local children = me._value_node("Identifier", field_name)
+    if type_name != "" { children = children + "," + me._value_node("TypeRef", type_name) }
+    children = children + "," + me._value_node("Visibility", visibility)
+    local form = "{\"kind\":\"WeakStoredField\",\"children\":["
+    form = form + me._value_node("BoxName", box_name) + ","
+    form = form + "{\"kind\":\"WeakField\",\"children\":[" + children + "]}]}"
+    return row_id + "@" + form + "@" + ctx.i2s(j)
+  }
+
+  _parse_field(src, i, ctx) {
+    local pair = ctx.read_ident2(src, ctx.skip_ws(src, i))
+    local at = pair.lastIndexOf("@")
+    local name = pair.substring(0, at)
+    local j = ctx.skip_ws(src, ParserStringUtilsBox.to_int(pair.substring(at + 1, pair.length())))
+    local type_name = ""
+    if src.substring(j, j + 1) == ":" {
+      local type_pair = ctx.read_ident2(src, ctx.skip_ws(src, j + 1))
+      local type_at = type_pair.lastIndexOf("@")
+      type_name = type_pair.substring(0, type_at)
+      j = ParserStringUtilsBox.to_int(type_pair.substring(type_at + 1, type_pair.length()))
+    }
+    return name + "@" + type_name + "@" + ctx.i2s(j)
+  }
+
+  _value_node(kind, value) {
+    return "{\"kind\":\"" + kind + "\",\"value\":\"" + value + "\",\"children\":[]}"
+  }
+
+  _fail(src, ctx, message) {
+    ctx.gpos_set(src.length())
+    return ctx.freeze_contract("parser/hako_declaration_sidecar_malformed", message)
+  }
+}

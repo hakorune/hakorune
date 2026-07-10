@@ -238,6 +238,58 @@ class WitnessProjectionTests(unittest.TestCase):
         projected = project_rust_normalized_form("weak_visibility_field", weak)
         self.assertEqual(projected["children"][1]["children"][-1]["value"], "Public")
 
+    def test_hako_declaration_projection_is_sidecar_only(self) -> None:
+        normalized_form = {
+            "kind": "RecordDeclaration",
+            "children": [
+                {"kind": "Identifier", "value": "User", "children": []},
+                {
+                    "kind": "RecordFieldList",
+                    "children": [
+                        {
+                            "kind": "RecordField",
+                            "children": [
+                                {"kind": "Identifier", "value": "id", "children": []},
+                                {"kind": "TypeRef", "value": "i64", "children": []},
+                            ],
+                        }
+                    ],
+                },
+            ],
+        }
+        program = {
+            "body": [],
+            "parser_evidence": {
+                "semantic_publication": False,
+                "mir_lowering_allowed": False,
+                "runtime_allowed": False,
+                "backend_allowed": False,
+                "declarations": [
+                    {
+                        "row_id": "record_declaration",
+                        "accepted": True,
+                        "semantic_publication_allowed": False,
+                        "mir_lowering_allowed": False,
+                        "runtime_allowed": False,
+                        "backend_allowed": False,
+                        "normalized_form": normalized_form,
+                    }
+                ],
+            },
+        }
+        self.assertEqual(
+            project_hako_normalized_form("record_declaration", program),
+            normalized_form,
+        )
+
+        program["body"] = [{"type": "RecordDeclaration"}]
+        with self.assertRaises(HakoProjectionError):
+            project_hako_normalized_form("record_declaration", program)
+        program["body"] = []
+        normalized_form["source_span"] = [0, 1]
+        with self.assertRaises(HakoProjectionError):
+            project_hako_normalized_form("record_declaration", program)
+
     def test_hako_loop_rejects_record_literal_condition(self) -> None:
         malformed = {
             "body": [

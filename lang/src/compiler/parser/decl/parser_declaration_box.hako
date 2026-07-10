@@ -1,0 +1,62 @@
+// Declaration evidence coordinator and generated profile-gate consumer.
+
+using lang.compiler.parser.generated.grammar_contract_projection as GrammarContractProjection
+using lang.compiler.parser.decl.parser_record_declaration_box as ParserRecordDeclarationBox
+using lang.compiler.parser.decl.parser_box_weak_field_box as ParserBoxWeakFieldBox
+
+static box ParserDeclarationBox {
+  parse_or_null(src, i, ctx) {
+    local row_id = ""
+    local form_and_pos = null
+    if ctx.starts_with_kw(src, i, "record") == 1 {
+      row_id = "record_declaration"
+      form_and_pos = ParserRecordDeclarationBox.parse(src, i, ctx)
+    } else if ctx.starts_with_kw(src, i, "box") == 1 {
+      local weak_result = ParserBoxWeakFieldBox.parse_or_null(src, i, ctx)
+      if weak_result == null { return null }
+      if weak_result.indexOf("[freeze:contract]") == 0 { return weak_result }
+      local row_at = weak_result.indexOf("@")
+      row_id = weak_result.substring(0, row_at)
+      form_and_pos = weak_result.substring(row_at + 1, weak_result.length())
+    } else {
+      return null
+    }
+    if form_and_pos.indexOf("[freeze:contract]") == 0 { return form_and_pos }
+
+    local profile = me._profile(ctx)
+    local status = GrammarContractProjection.status(row_id, profile)
+    if status == "missing" || status == "parser/profile_mismatch" {
+      ctx.gpos_set(src.length())
+      return ctx.freeze_contract("parser/registry_row_missing", "declaration grammar row is missing")
+    }
+    if status == "rejected" || status == "reserved" {
+      local tag = GrammarContractProjection.stable_reject_tag(row_id, profile)
+      ctx.gpos_set(src.length())
+      return ctx.freeze_contract(tag, "declaration spelling is rejected by this profile")
+    }
+
+    local at = form_and_pos.lastIndexOf("@")
+    if at < 0 {
+      ctx.gpos_set(src.length())
+      return ctx.freeze_contract("parser/hako_declaration_sidecar_malformed", "declaration evidence position is missing")
+    }
+    local form = form_and_pos.substring(0, at)
+    local pos = form_and_pos.substring(at + 1, form_and_pos.length())
+    local evidence = "{\"row_id\":\"" + row_id + "\",\"profile\":\"" + me._profile_name(profile) + "\""
+    evidence = evidence + ",\"accepted\":true,\"normalized_form\":" + form
+    evidence = evidence + ",\"stable_reject_tag\":\"\""
+    evidence = evidence + ",\"semantic_publication_allowed\":false"
+    evidence = evidence + ",\"mir_lowering_allowed\":false,\"runtime_allowed\":false,\"backend_allowed\":false}"
+    return evidence + "@" + pos
+  }
+
+  _profile(ctx) {
+    if ctx.grammar_profile_is_compat2025() == 1 { return "compat2025" }
+    return "canonical"
+  }
+
+  _profile_name(profile) {
+    if profile == "compat2025" { return "Compat2025" }
+    return "Canonical"
+  }
+}

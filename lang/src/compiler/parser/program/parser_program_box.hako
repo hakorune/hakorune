@@ -1,5 +1,6 @@
 using lang.compiler.parser.scan.parser_string_utils_box
 using lang.compiler.parser.rune.rune_contract_box as RuneContractBox
+using lang.compiler.parser.decl.parser_declaration_box as ParserDeclarationBox
 
 static box ParserProgramBox {
   parse(src, ctx) {
@@ -64,6 +65,8 @@ static box ParserProgramBox {
     local first = 1
     local static_data = "["
     local static_first = 1
+    local declaration_evidence = "["
+    local declaration_first = 1
     local cont_prog = 1
     local guard_prog = 0
     local max_prog = 0
@@ -94,7 +97,30 @@ static box ParserProgramBox {
       }
 
       local skip_statement_parse = 0
-      local static_row = ctx.parse_static_const_table_decl(src, i)
+      local declaration_row = ParserDeclarationBox.parse_or_null(src, i, ctx)
+      if declaration_row != null {
+        if ParserStringUtilsBox.starts_with("" + declaration_row, 0, "[freeze:contract]") == 1 {
+          env.set("HAKO_STAGEB_PARSER_DEPTH", "0")
+          return "" + declaration_row
+        }
+        local declaration_at = declaration_row.lastIndexOf("@")
+        if declaration_at < 0 {
+          env.set("HAKO_STAGEB_PARSER_DEPTH", "0")
+          return ctx.freeze_contract("parser/hako_declaration_sidecar_malformed", "declaration evidence position is missing")
+        }
+        local evidence = declaration_row.substring(0, declaration_at)
+        i = ctx.to_int(declaration_row.substring(declaration_at + 1, declaration_row.length()))
+        if declaration_first == 1 {
+          declaration_evidence = declaration_evidence + evidence
+          declaration_first = 0
+        } else {
+          declaration_evidence = declaration_evidence + "," + evidence
+        }
+        skip_statement_parse = 1
+      }
+
+      local static_row = null
+      if skip_statement_parse == 0 { static_row = ctx.parse_static_const_table_decl(src, i) }
       if static_row != null {
         if ParserStringUtilsBox.starts_with("" + static_row, 0, "[freeze:contract]") == 1 {
           env.set("HAKO_STAGEB_PARSER_DEPTH", "0")
@@ -186,6 +212,7 @@ static box ParserProgramBox {
 
     body = body + "]"
     static_data = static_data + "]"
+    declaration_evidence = declaration_evidence + "]"
     if ctx.consume_runes_json() != "[]" {
       env.set("HAKO_STAGEB_PARSER_DEPTH", "0")
       return RuneContractBox.invalid_placement_tag("statement")
@@ -196,6 +223,9 @@ static box ParserProgramBox {
     env.set("HAKO_STAGEB_PARSER_DEPTH", "0")
     local enum_decls = ctx.get_enum_inventory_json()
     if enum_decls == null || enum_decls == "" { enum_decls = "[]" }
-    return "{\"version\":0,\"kind\":\"Program\",\"body\":" + body + ",\"enum_decls\":" + enum_decls + ",\"static_data_plans\":" + static_data + "}"
+    local parser_evidence = "{\"version\":1,\"evidence_kind\":\"declaration_sidecar\",\"semantic_publication\":false"
+    parser_evidence = parser_evidence + ",\"mir_lowering_allowed\":false,\"runtime_allowed\":false,\"backend_allowed\":false"
+    parser_evidence = parser_evidence + ",\"declarations\":" + declaration_evidence + "}"
+    return "{\"version\":0,\"kind\":\"Program\",\"body\":" + body + ",\"enum_decls\":" + enum_decls + ",\"static_data_plans\":" + static_data + ",\"parser_evidence\":" + parser_evidence + "}"
   }
 }

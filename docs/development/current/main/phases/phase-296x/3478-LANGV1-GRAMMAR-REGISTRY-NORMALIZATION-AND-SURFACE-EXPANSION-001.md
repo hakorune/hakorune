@@ -141,7 +141,9 @@ match stable tags = parser-neutral duplicate/unit-binding/non-exhaustive owner
 raw Hako ProgramJSON equivalence = retired in favor of recursive witness parity
 declaration registry first scope = record + three weak rows registered
 declaration Rust profile/evidence = 9 fixtures green
-declaration Hako sidecar = pending next series commit
+declaration Hako sidecar = 4-row strict recursive batch green
+generated Hako registry projection = freshness-guarded
+identifier scanner digit tail = parser utility SSOT; `i64` recursive value green
 ```
 
 Full inventory exposed pre-existing corpus/parser drift that the shallow gate
@@ -190,7 +192,7 @@ Hako evidence:
 `break` and `continue` outside a loop remain context-verifier rules. They are
 not fixture aliases on the grammar row contracts.
 
-### Series C Declaration Conformance Boundary - Accepted
+### Series C Declaration Conformance Boundary - Complete
 
 The Hako grammar adapter owns statement and expression parsing only. A direct
 observation of `record User { id: i64 }` currently fails with
@@ -217,6 +219,24 @@ ProgramJSON.parser_evidence.declarations
   = external ParseWitness adapter input only
   = never a semantic/MIR/runtime/backend input
 ```
+
+Implementation evidence:
+
+```text
+record_declaration = Canonical/Compat accepted; malformed stable reject
+weak_stored_field = Canonical/Compat accepted
+weak_visibility_field = Canonical reject; Compat alias accepted
+weak_legacy_init_field = Canonical reject; Compat alias accepted
+Hako declaration batch = 9/9 strict recursive witness green
+semantic body declaration publication = 0
+MIR/runtime/backend sidecar consumption = 0
+```
+
+The accepted record fixture exposed a shared scanner bug rather than a
+loop-PHI failure: `ParserIdentScanBox` compared the Bool result of the generic
+`StringHelpers.is_digit` with integer `1`, truncating `i64` to `i`. The scanner
+now consumes the parser-owned numeric predicate contract, so identifier-tail
+classification has one owner and no type-name special case.
 
 Structure:
 
@@ -622,12 +642,22 @@ language_v1_grammar_closeout = 1
 
 ## Current Non-Claims
 
+Current scoped claims:
+
+```text
+declaration_sidecar_implemented = 1
+hako_declaration_conformance = 1
+```
+
+The conformance claim is limited to the four declaration rows named above.
+It does not close the remaining grammar surface or Language v1 grammar.
+
+Current non-claims:
+
 ```text
 grammar_registry_implemented = 0
 remaining_registry_rows_implemented = 0
 remaining_surface_parser_behavior_changed = 0
-declaration_sidecar_implemented = 0
-hako_declaration_conformance = 0
 recursive_parse_witness = 0
 bounded_differential_composition_gate = 0
 language_v1_grammar_closeout = 0
@@ -659,7 +689,7 @@ Close that drift before declaration expansion, in this order:
    - NoFallthrough structural conformance rejection = complete
    - match/peek exhaustiveness and recursive drift = complete
 
-2. add the parser-owned declaration evidence sidecar
+2. add the parser-owned declaration evidence sidecar = complete
    - record declaration
    - direct weak stored field
    - Compat2025 weak visibility/init aliases

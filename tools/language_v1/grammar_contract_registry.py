@@ -28,7 +28,10 @@ class NormalizationMode(str, Enum):
 class GrammarRegistryRow:
     row_id: str
     profile: str
+    status: str
     normalization_mode: NormalizationMode
+    normalized_shape: str
+    stable_reject_tag: str
     positive_fixture_ids: tuple[str, ...]
     negative_fixture_ids: tuple[str, ...]
 
@@ -83,15 +86,18 @@ def load_registry_rows(path: pathlib.Path = REGISTRY) -> tuple[GrammarRegistryRo
                 raise ValueError(
                     f"grammar registry row {row_id} has invalid {profile_key} normalization mode"
                 ) from error
-            _string(contract, "status")
-            _string(contract, "normalized_shape")
+            status = _string(contract, "status")
+            normalized_shape = _string(contract, "normalized_shape")
             _string(contract, "semantic_owner")
-            _string(contract, "stable_reject_tag")
+            stable_reject_tag = _string(contract, "stable_reject_tag")
             rows.append(
                 GrammarRegistryRow(
                     row_id=row_id,
                     profile=profile,
+                    status=status,
                     normalization_mode=normalization_mode,
+                    normalized_shape=normalized_shape,
+                    stable_reject_tag=stable_reject_tag,
                     positive_fixture_ids=_strings(contract, "positive_fixture_ids"),
                     negative_fixture_ids=_strings(contract, "negative_fixture_ids"),
                 )

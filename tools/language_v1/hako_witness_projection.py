@@ -156,6 +156,54 @@ def _delegate(program: dict[str, Any]) -> dict[str, Any]:
     )
 
 
+def _declaration_node(value: Any) -> dict[str, Any]:
+    node = _object(value, "Hako declaration normalized node must be an object")
+    if set(node) - {"kind", "value", "children"}:
+        raise HakoProjectionError("Hako declaration node exposes internal fields")
+    kind = node.get("kind")
+    children = node.get("children")
+    if not isinstance(kind, str) or not isinstance(children, list):
+        raise HakoProjectionError("Hako declaration node is malformed")
+    if "value" in node and not isinstance(node["value"], str):
+        raise HakoProjectionError("Hako declaration node value must be a string")
+    return _node(
+        kind,
+        value=node.get("value"),
+        children=[_declaration_node(child) for child in children],
+    )
+
+
+def _declaration(program: dict[str, Any], row_id: str) -> dict[str, Any]:
+    if program.get("body") != []:
+        raise HakoProjectionError("Hako declaration leaked into semantic body")
+    sidecar = _object(
+        program.get("parser_evidence"), "Hako declaration sidecar is missing"
+    )
+    for field in (
+        "semantic_publication",
+        "mir_lowering_allowed",
+        "runtime_allowed",
+        "backend_allowed",
+    ):
+        if sidecar.get(field) is not False:
+            raise HakoProjectionError(f"Hako declaration sidecar permits {field}")
+    declarations = sidecar.get("declarations")
+    if not isinstance(declarations, list) or len(declarations) != 1:
+        raise HakoProjectionError("Hako declaration sidecar requires one evidence row")
+    evidence = _object(declarations[0], "Hako declaration evidence is malformed")
+    if evidence.get("row_id") != row_id or evidence.get("accepted") is not True:
+        raise HakoProjectionError("Hako declaration row identity drifted")
+    for field in (
+        "semantic_publication_allowed",
+        "mir_lowering_allowed",
+        "runtime_allowed",
+        "backend_allowed",
+    ):
+        if evidence.get(field) is not False:
+            raise HakoProjectionError(f"Hako declaration evidence permits {field}")
+    return _declaration_node(evidence.get("normalized_form"))
+
+
 def _loop(program: dict[str, Any], row_id: str) -> dict[str, Any]:
     statement = _single_body(program)
     if row_id == "loop_range":
@@ -212,6 +260,13 @@ def project_hako_normalized_form(row_id: str, program: Any) -> dict[str, Any]:
         return _match(program)
     if row_id == "delegate_exposes":
         return _delegate(program)
+    if row_id in {
+        "record_declaration",
+        "weak_stored_field",
+        "weak_visibility_field",
+        "weak_legacy_init_field",
+    }:
+        return _declaration(program, row_id)
     if row_id in {
         "while_loop_condition",
         "loop_infinite",

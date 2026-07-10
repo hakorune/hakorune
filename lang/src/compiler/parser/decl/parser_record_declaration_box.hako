@@ -1,0 +1,67 @@
+// Record declaration grammar evidence. No semantic declaration is published.
+
+using lang.compiler.parser.scan.parser_string_utils_box as ParserStringUtilsBox
+
+static box ParserRecordDeclarationBox {
+  parse(src, i, ctx) {
+    local j = ctx.skip_ws(src, i + 6)
+    local name_start = j
+    local name_pair = ctx.read_ident2(src, name_start)
+    local name_at = name_pair.lastIndexOf("@")
+    local record_name = name_pair.substring(0, name_at)
+    j = ctx.skip_ws(src, name_start + record_name.length())
+    if record_name == "" || src.substring(j, j + 1) != "{" {
+      return me._fail(src, ctx, "record name or opening brace is invalid")
+    }
+    j = j + 1
+    local fields = "["
+    local field_count = 0
+    loop(true) {
+      j = ctx.skip_ws(src, j)
+      if src.substring(j, j + 1) == "}" { j = j + 1 break }
+      local field_start = j
+      local field_pair = ctx.read_ident2(src, field_start)
+      local field_at = field_pair.lastIndexOf("@")
+      local field_name = field_pair.substring(0, field_at)
+      j = ctx.skip_ws(src, field_start + field_name.length())
+      if field_name == "" || src.substring(j, j + 1) != ":" {
+        return me._fail(src, ctx, "record field requires name: TypeRef")
+      }
+      local type_start = ctx.skip_ws(src, j + 1)
+      local type_pair = ctx.read_ident2(src, type_start)
+      local type_at = type_pair.lastIndexOf("@")
+      local type_name = type_pair.substring(0, type_at)
+      j = ctx.skip_ws(src, type_start + type_name.length())
+      if type_name == "" {
+        return me._fail(src, ctx, "record field type is missing")
+      }
+      if field_count > 0 { fields = fields + "," }
+      fields = fields + me._field_node(field_name, type_name)
+      field_count = field_count + 1
+      if src.substring(j, j + 1) == "," { j = j + 1 }
+    }
+    if field_count == 0 {
+      return me._fail(src, ctx, "record declaration requires a field")
+    }
+    fields = fields + "]"
+    ctx.gpos_set(j)
+    local form = "{\"kind\":\"RecordDeclaration\",\"children\":["
+    form = form + me._value_node("Identifier", record_name) + ","
+    form = form + "{\"kind\":\"RecordFieldList\",\"children\":" + fields + "}]}"
+    return form + "@" + ctx.i2s(j)
+  }
+
+  _field_node(name, type_name) {
+    return "{\"kind\":\"RecordField\",\"children\":[" +
+      me._value_node("Identifier", name) + "," + me._value_node("TypeRef", type_name) + "]}"
+  }
+
+  _value_node(kind, value) {
+    return "{\"kind\":\"" + kind + "\",\"value\":\"" + value + "\",\"children\":[]}"
+  }
+
+  _fail(src, ctx, message) {
+    ctx.gpos_set(src.length())
+    return ctx.freeze_contract("parser/record_field_syntax_invalid", message)
+  }
+}

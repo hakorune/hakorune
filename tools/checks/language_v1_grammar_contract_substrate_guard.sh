@@ -19,6 +19,8 @@ test -f grammar/language-v1-grammar-contract-corpus/foundation.toml \
   || guard_fail "foundation corpus fragment missing"
 test -f tools/language_v1/grammar_contract_hako_adapter.hako || guard_fail "Hako adapter missing"
 test -f tools/language_v1/grammar_contract_drift_report.py || guard_fail "drift report missing"
+test -f lang/src/compiler/parser/generated/grammar_contract_projection.hako \
+  || guard_fail "generated Hako grammar projection missing"
 test ! -e lang/src/compiler/parser/expr/parser_peek_box.hako \
   || guard_fail "retired ParserPeekBox source returned"
 if rg -q 'ParserPeekBox|parser_peek_box' lang/src/compiler --glob '*.hako' --glob '*.toml'; then
@@ -29,6 +31,9 @@ test "$(wc -l < lang/src/compiler/parser/parser_box.hako)" -lt 800 \
 test "$(wc -l < lang/src/compiler/parser/program/parser_program_box.hako)" -lt 800 \
   || guard_fail "ParserProgramBox exceeded the 800-line source boundary"
 for parser_source in \
+  lang/src/compiler/parser/decl/parser_declaration_box.hako \
+  lang/src/compiler/parser/decl/parser_record_declaration_box.hako \
+  lang/src/compiler/parser/decl/parser_box_weak_field_box.hako \
   lang/src/compiler/parser/expr/parser_expr_box.hako \
   lang/src/compiler/parser/expr/parser_expr_context_box.hako \
   lang/src/compiler/parser/expr/parser_expr_precedence_box.hako \
@@ -99,6 +104,8 @@ if rg -q 'hako_inventory(_id)?' grammar/language-v1-grammar-contract-corpus.toml
 fi
 
 python3 tools/language_v1/grammar_contract_drift_report.py --help >/dev/null
+python3 tools/language_v1/generate_hako_grammar_contract.py --check \
+  || guard_fail "generated Hako grammar projection is stale"
 python3 -m unittest \
   tools.language_v1.test_hako_adapter_health \
   tools.language_v1.test_hako_corpus_batch \
@@ -141,6 +148,14 @@ if [ "${LANGV1_HAKO_PROFILE_FULL:-0}" = "1" ]; then
     --fixture-id peek_canonical_reject \
     --fixture-id peek_compat_normalizable \
     --fixture-id peek_compat_not_normalizable \
+    --include-registry-row-fixtures record_declaration Canonical \
+    --include-registry-row-fixtures record_declaration Compat2025 \
+    --include-registry-row-fixtures weak_stored_field Canonical \
+    --include-registry-row-fixtures weak_stored_field Compat2025 \
+    --include-registry-row-fixtures weak_visibility_field Canonical \
+    --include-registry-row-fixtures weak_visibility_field Compat2025 \
+    --include-registry-row-fixtures weak_legacy_init_field Canonical \
+    --include-registry-row-fixtures weak_legacy_init_field Compat2025 \
     --include-registry-transport-exclusions \
     --timeout-sec 180 >"$batch_report" \
     || guard_fail "Hako compile-once grammar corpus batch failed"
