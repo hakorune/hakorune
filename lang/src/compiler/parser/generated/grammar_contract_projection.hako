@@ -138,6 +138,71 @@ static box GrammarContractProjection {
       if profile == "compat2025" { return "rejected" }
       return "parser/profile_mismatch"
     }
+    if row_id == "weak_unary_expr" {
+      if profile == "canonical" { return "canonical" }
+      if profile == "compat2025" { return "canonical" }
+      return "parser/profile_mismatch"
+    }
+    if row_id == "weak_paren_expr" {
+      if profile == "canonical" { return "rejected" }
+      if profile == "compat2025" { return "rejected" }
+      return "parser/profile_mismatch"
+    }
+    if row_id == "record_literal" {
+      if profile == "canonical" { return "canonical" }
+      if profile == "compat2025" { return "canonical" }
+      return "parser/profile_mismatch"
+    }
+    if row_id == "record_with_update" {
+      if profile == "canonical" { return "canonical" }
+      if profile == "compat2025" { return "canonical" }
+      return "parser/profile_mismatch"
+    }
+    if row_id == "literal_integer" {
+      if profile == "canonical" { return "canonical" }
+      if profile == "compat2025" { return "canonical" }
+      return "parser/profile_mismatch"
+    }
+    if row_id == "literal_float" {
+      if profile == "canonical" { return "canonical" }
+      if profile == "compat2025" { return "canonical" }
+      return "parser/profile_mismatch"
+    }
+    if row_id == "literal_string" {
+      if profile == "canonical" { return "canonical" }
+      if profile == "compat2025" { return "canonical" }
+      return "parser/profile_mismatch"
+    }
+    if row_id == "literal_bool" {
+      if profile == "canonical" { return "canonical" }
+      if profile == "compat2025" { return "canonical" }
+      return "parser/profile_mismatch"
+    }
+    if row_id == "literal_null" {
+      if profile == "canonical" { return "canonical" }
+      if profile == "compat2025" { return "canonical" }
+      return "parser/profile_mismatch"
+    }
+    if row_id == "literal_void" {
+      if profile == "canonical" { return "canonical" }
+      if profile == "compat2025" { return "canonical" }
+      return "parser/profile_mismatch"
+    }
+    if row_id == "array_literal" {
+      if profile == "canonical" { return "canonical" }
+      if profile == "compat2025" { return "canonical" }
+      return "parser/profile_mismatch"
+    }
+    if row_id == "map_literal_legacy_brace_colon" {
+      if profile == "canonical" { return "rejected" }
+      if profile == "compat2025" { return "rejected" }
+      return "parser/profile_mismatch"
+    }
+    if row_id == "construction_new_box" {
+      if profile == "canonical" { return "canonical" }
+      if profile == "compat2025" { return "canonical" }
+      return "parser/profile_mismatch"
+    }
     return "missing"
   }
 
@@ -277,6 +342,71 @@ static box GrammarContractProjection {
       if profile == "compat2025" { return "" }
       return "parser/profile_mismatch"
     }
+    if row_id == "weak_unary_expr" {
+      if profile == "canonical" { return "WeakExpr" }
+      if profile == "compat2025" { return "WeakExpr" }
+      return "parser/profile_mismatch"
+    }
+    if row_id == "weak_paren_expr" {
+      if profile == "canonical" { return "" }
+      if profile == "compat2025" { return "" }
+      return "parser/profile_mismatch"
+    }
+    if row_id == "record_literal" {
+      if profile == "canonical" { return "RecordLiteral" }
+      if profile == "compat2025" { return "RecordLiteral" }
+      return "parser/profile_mismatch"
+    }
+    if row_id == "record_with_update" {
+      if profile == "canonical" { return "RecordWithUpdate" }
+      if profile == "compat2025" { return "RecordWithUpdate" }
+      return "parser/profile_mismatch"
+    }
+    if row_id == "literal_integer" {
+      if profile == "canonical" { return "IntegerLiteral" }
+      if profile == "compat2025" { return "IntegerLiteral" }
+      return "parser/profile_mismatch"
+    }
+    if row_id == "literal_float" {
+      if profile == "canonical" { return "FloatLiteral" }
+      if profile == "compat2025" { return "FloatLiteral" }
+      return "parser/profile_mismatch"
+    }
+    if row_id == "literal_string" {
+      if profile == "canonical" { return "StringLiteral" }
+      if profile == "compat2025" { return "StringLiteral" }
+      return "parser/profile_mismatch"
+    }
+    if row_id == "literal_bool" {
+      if profile == "canonical" { return "BoolLiteral" }
+      if profile == "compat2025" { return "BoolLiteral" }
+      return "parser/profile_mismatch"
+    }
+    if row_id == "literal_null" {
+      if profile == "canonical" { return "NullLiteral" }
+      if profile == "compat2025" { return "NullLiteral" }
+      return "parser/profile_mismatch"
+    }
+    if row_id == "literal_void" {
+      if profile == "canonical" { return "VoidLiteral" }
+      if profile == "compat2025" { return "VoidLiteral" }
+      return "parser/profile_mismatch"
+    }
+    if row_id == "array_literal" {
+      if profile == "canonical" { return "ArrayLiteral" }
+      if profile == "compat2025" { return "ArrayLiteral" }
+      return "parser/profile_mismatch"
+    }
+    if row_id == "map_literal_legacy_brace_colon" {
+      if profile == "canonical" { return "" }
+      if profile == "compat2025" { return "" }
+      return "parser/profile_mismatch"
+    }
+    if row_id == "construction_new_box" {
+      if profile == "canonical" { return "NewBoxExpression" }
+      if profile == "compat2025" { return "NewBoxExpression" }
+      return "parser/profile_mismatch"
+    }
     return ""
   }
 
@@ -414,6 +544,71 @@ static box GrammarContractProjection {
     if row_id == "until_loop" {
       if profile == "canonical" { return "parser/until_loop_noncanonical" }
       if profile == "compat2025" { return "parser/until_loop_noncanonical" }
+      return "parser/profile_mismatch"
+    }
+    if row_id == "weak_unary_expr" {
+      if profile == "canonical" { return "" }
+      if profile == "compat2025" { return "" }
+      return "parser/profile_mismatch"
+    }
+    if row_id == "weak_paren_expr" {
+      if profile == "canonical" { return "parser/weak_paren_call_rejected" }
+      if profile == "compat2025" { return "parser/weak_paren_call_rejected" }
+      return "parser/profile_mismatch"
+    }
+    if row_id == "record_literal" {
+      if profile == "canonical" { return "" }
+      if profile == "compat2025" { return "" }
+      return "parser/profile_mismatch"
+    }
+    if row_id == "record_with_update" {
+      if profile == "canonical" { return "" }
+      if profile == "compat2025" { return "" }
+      return "parser/profile_mismatch"
+    }
+    if row_id == "literal_integer" {
+      if profile == "canonical" { return "" }
+      if profile == "compat2025" { return "" }
+      return "parser/profile_mismatch"
+    }
+    if row_id == "literal_float" {
+      if profile == "canonical" { return "" }
+      if profile == "compat2025" { return "" }
+      return "parser/profile_mismatch"
+    }
+    if row_id == "literal_string" {
+      if profile == "canonical" { return "" }
+      if profile == "compat2025" { return "" }
+      return "parser/profile_mismatch"
+    }
+    if row_id == "literal_bool" {
+      if profile == "canonical" { return "" }
+      if profile == "compat2025" { return "" }
+      return "parser/profile_mismatch"
+    }
+    if row_id == "literal_null" {
+      if profile == "canonical" { return "" }
+      if profile == "compat2025" { return "" }
+      return "parser/profile_mismatch"
+    }
+    if row_id == "literal_void" {
+      if profile == "canonical" { return "" }
+      if profile == "compat2025" { return "" }
+      return "parser/profile_mismatch"
+    }
+    if row_id == "array_literal" {
+      if profile == "canonical" { return "" }
+      if profile == "compat2025" { return "" }
+      return "parser/profile_mismatch"
+    }
+    if row_id == "map_literal_legacy_brace_colon" {
+      if profile == "canonical" { return "parser/map_literal_legacy_rejected" }
+      if profile == "compat2025" { return "parser/map_literal_legacy_rejected" }
+      return "parser/profile_mismatch"
+    }
+    if row_id == "construction_new_box" {
+      if profile == "canonical" { return "" }
+      if profile == "compat2025" { return "" }
       return "parser/profile_mismatch"
     }
     return "parser/registry_row_missing"

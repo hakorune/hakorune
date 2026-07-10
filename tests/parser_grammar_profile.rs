@@ -240,3 +240,37 @@ fn percent_brace_map_literal_is_profile_independent() {
         );
     }
 }
+
+#[test]
+fn remaining_expression_surfaces_follow_the_v1_profile_contract() {
+    for profile in [GrammarProfile::Canonical, GrammarProfile::Compat2025] {
+        for source in [
+            "weak value",
+            "User { id: 1 }",
+            "user with { id: 2 }",
+            "42",
+            "1.5",
+            "\"hello\"",
+            "true",
+            "null",
+            "void",
+            "[1, 2]",
+            "new User()",
+        ] {
+            assert!(
+                parse_with_profile(source, profile).is_ok(),
+                "{profile:?} must accept {source}"
+            );
+        }
+        for (source, stable_tag) in [
+            ("weak(value)", "parser/weak_paren_call_rejected"),
+            (
+                "local value = {\"key\": 1}",
+                "parser/map_literal_legacy_rejected",
+            ),
+        ] {
+            let error = format!("{:?}", parse_with_profile(source, profile).unwrap_err());
+            assert!(error.contains(stable_tag), "{source}: {error}");
+        }
+    }
+}

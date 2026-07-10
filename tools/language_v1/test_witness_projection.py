@@ -290,6 +290,59 @@ class WitnessProjectionTests(unittest.TestCase):
         with self.assertRaises(HakoProjectionError):
             project_hako_normalized_form("record_declaration", program)
 
+    def test_remaining_expression_projection_is_deep_and_parser_neutral(self) -> None:
+        expected = {
+            "kind": "RecordWithUpdate",
+            "children": [
+                {"kind": "Variable", "value": "user", "children": []},
+                {
+                    "kind": "RecordFieldList",
+                    "children": [
+                        {
+                            "kind": "RecordField",
+                            "children": [
+                                {"kind": "Identifier", "value": "id", "children": []},
+                                {"kind": "IntegerLiteral", "value": "2", "children": []},
+                            ],
+                        }
+                    ],
+                },
+            ],
+        }
+        rust = {
+            "statements": [
+                {
+                    "kind": "RecordUpdate",
+                    "base": {"kind": "Variable", "name": "user"},
+                    "updates": [
+                        {
+                            "name": "id",
+                            "value": {"kind": "Literal", "type": "Int", "value": 2},
+                        }
+                    ],
+                }
+            ]
+        }
+        hako = {
+            "body": [
+                {
+                    "type": "Expr",
+                    "expr": {
+                        "type": "RecordUpdate",
+                        "base": {"type": "Var", "name": "user"},
+                        "updates": [
+                            {"name": "id", "value": {"type": "Int", "value": 2}}
+                        ],
+                    },
+                }
+            ]
+        }
+        self.assertEqual(project_rust_normalized_form("record_with_update", rust), expected)
+        self.assertEqual(project_hako_normalized_form("record_with_update", hako), expected)
+
+        rust["statements"][0]["updates"][0]["value"]["value"] = 3
+        self.assertNotEqual(project_rust_normalized_form("record_with_update", rust), expected)
+
     def test_hako_loop_rejects_record_literal_condition(self) -> None:
         malformed = {
             "body": [

@@ -17,6 +17,8 @@ test ! -e grammar/unified-grammar.toml \
 test -f grammar/language-v1-grammar-contract-corpus.toml || guard_fail "corpus manifest missing"
 test -f grammar/language-v1-grammar-contract-corpus/foundation.toml \
   || guard_fail "foundation corpus fragment missing"
+test -f grammar/language-v1-grammar-contract-corpus/remaining-surfaces.toml \
+  || guard_fail "remaining-surface corpus fragment missing"
 test -f tools/language_v1/grammar_contract_hako_adapter.hako || guard_fail "Hako adapter missing"
 test -f tools/language_v1/grammar_contract_drift_report.py || guard_fail "drift report missing"
 test -f lang/src/compiler/parser/generated/grammar_contract_projection.hako \
@@ -35,6 +37,7 @@ for parser_source in \
   lang/src/compiler/parser/decl/parser_delegate_exposes_box.hako \
   lang/src/compiler/parser/decl/parser_record_declaration_box.hako \
   lang/src/compiler/parser/decl/parser_box_weak_field_box.hako \
+  lang/src/compiler/parser/generated/grammar_contract_projection.hako \
   lang/src/compiler/parser/expr/parser_expr_box.hako \
   lang/src/compiler/parser/expr/parser_expr_context_box.hako \
   lang/src/compiler/parser/expr/parser_expr_precedence_box.hako \
@@ -159,6 +162,32 @@ if [ "${LANGV1_HAKO_PROFILE_FULL:-0}" = "1" ]; then
     --include-registry-row-fixtures weak_visibility_field Compat2025 \
     --include-registry-row-fixtures weak_legacy_init_field Canonical \
     --include-registry-row-fixtures weak_legacy_init_field Compat2025 \
+    --include-registry-row-fixtures weak_unary_expr Canonical \
+    --include-registry-row-fixtures weak_unary_expr Compat2025 \
+    --include-registry-row-fixtures weak_paren_expr Canonical \
+    --include-registry-row-fixtures weak_paren_expr Compat2025 \
+    --include-registry-row-fixtures record_literal Canonical \
+    --include-registry-row-fixtures record_literal Compat2025 \
+    --include-registry-row-fixtures record_with_update Canonical \
+    --include-registry-row-fixtures record_with_update Compat2025 \
+    --include-registry-row-fixtures literal_integer Canonical \
+    --include-registry-row-fixtures literal_integer Compat2025 \
+    --include-registry-row-fixtures literal_float Canonical \
+    --include-registry-row-fixtures literal_float Compat2025 \
+    --include-registry-row-fixtures literal_string Canonical \
+    --include-registry-row-fixtures literal_string Compat2025 \
+    --include-registry-row-fixtures literal_bool Canonical \
+    --include-registry-row-fixtures literal_bool Compat2025 \
+    --include-registry-row-fixtures literal_null Canonical \
+    --include-registry-row-fixtures literal_null Compat2025 \
+    --include-registry-row-fixtures literal_void Canonical \
+    --include-registry-row-fixtures literal_void Compat2025 \
+    --include-registry-row-fixtures array_literal Canonical \
+    --include-registry-row-fixtures array_literal Compat2025 \
+    --include-registry-row-fixtures map_literal_legacy_brace_colon Canonical \
+    --include-registry-row-fixtures map_literal_legacy_brace_colon Compat2025 \
+    --include-registry-row-fixtures construction_new_box Canonical \
+    --include-registry-row-fixtures construction_new_box Compat2025 \
     --include-registry-transport-exclusions \
     --timeout-sec 180 >"$batch_report" \
     || guard_fail "Hako compile-once grammar corpus batch failed"

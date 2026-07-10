@@ -461,3 +461,107 @@ spelling_id = "until_loop"
 production = "until expr block"
 canonical = { status = "rejected", normalization_mode = "none", normalized_shape = "", semantic_owner = "grammar-contract", stable_reject_tag = "parser/until_loop_noncanonical", positive_fixture_ids = [], negative_fixture_ids = ["until_loop_canonical_reject"] }
 compat2025 = { status = "rejected", normalization_mode = "none", normalized_shape = "", semantic_owner = "grammar-contract", stable_reject_tag = "parser/until_loop_noncanonical", positive_fixture_ids = [], negative_fixture_ids = ["until_loop_compat_reject"] }
+
+[[rows]]
+row_id = "weak_unary_expr"
+family = "weak"
+spelling_id = "weak_unary_expr"
+production = "weak expression"
+canonical = { status = "canonical", normalization_mode = "canonical_shape", normalized_shape = "WeakExpr", semantic_owner = "semantic-kernel", stable_reject_tag = "", positive_fixture_ids = ["weak_unary_expr_canonical"], negative_fixture_ids = [] }
+compat2025 = { status = "canonical", normalization_mode = "canonical_shape", normalized_shape = "WeakExpr", semantic_owner = "semantic-kernel", stable_reject_tag = "", positive_fixture_ids = ["weak_unary_expr_compat"], negative_fixture_ids = [] }
+
+[[rows]]
+row_id = "weak_paren_expr"
+family = "weak"
+spelling_id = "weak_paren_expr"
+production = "weak parenthesized-call spelling"
+canonical = { status = "rejected", normalization_mode = "none", normalized_shape = "", semantic_owner = "semantic-kernel", stable_reject_tag = "parser/weak_paren_call_rejected", positive_fixture_ids = [], negative_fixture_ids = ["weak_paren_expr_canonical_reject"] }
+compat2025 = { status = "rejected", normalization_mode = "none", normalized_shape = "", semantic_owner = "semantic-kernel", stable_reject_tag = "parser/weak_paren_call_rejected", positive_fixture_ids = [], negative_fixture_ids = ["weak_paren_expr_compat_reject"] }
+
+[[rows]]
+row_id = "record_literal"
+family = "record"
+spelling_id = "record_literal"
+production = "record-name record-field-block"
+canonical = { status = "canonical", normalization_mode = "canonical_shape", normalized_shape = "RecordLiteral", semantic_owner = "record", stable_reject_tag = "", positive_fixture_ids = ["record_literal_canonical"], negative_fixture_ids = [] }
+compat2025 = { status = "canonical", normalization_mode = "canonical_shape", normalized_shape = "RecordLiteral", semantic_owner = "record", stable_reject_tag = "", positive_fixture_ids = ["record_literal_compat"], negative_fixture_ids = [] }
+
+[[rows]]
+row_id = "record_with_update"
+family = "record"
+spelling_id = "record_with_update"
+production = "expression with record-field-block"
+canonical = { status = "canonical", normalization_mode = "canonical_shape", normalized_shape = "RecordWithUpdate", semantic_owner = "record", stable_reject_tag = "", positive_fixture_ids = ["record_with_update_canonical"], negative_fixture_ids = [] }
+compat2025 = { status = "canonical", normalization_mode = "canonical_shape", normalized_shape = "RecordWithUpdate", semantic_owner = "record", stable_reject_tag = "", positive_fixture_ids = ["record_with_update_compat"], negative_fixture_ids = [] }
+
+[[rows]]
+row_id = "literal_integer"
+family = "literal"
+spelling_id = "literal_integer"
+production = "integer literal"
+canonical = { status = "canonical", normalization_mode = "canonical_shape", normalized_shape = "IntegerLiteral", semantic_owner = "literal", stable_reject_tag = "", positive_fixture_ids = ["literal_integer_canonical"], negative_fixture_ids = [] }
+compat2025 = { status = "canonical", normalization_mode = "canonical_shape", normalized_shape = "IntegerLiteral", semantic_owner = "literal", stable_reject_tag = "", positive_fixture_ids = ["literal_integer_compat"], negative_fixture_ids = [] }
+
+[[rows]]
+row_id = "literal_float"
+family = "literal"
+spelling_id = "literal_float"
+production = "float literal"
+canonical = { status = "canonical", normalization_mode = "canonical_shape", normalized_shape = "FloatLiteral", semantic_owner = "literal", stable_reject_tag = "", positive_fixture_ids = ["literal_float_canonical"], negative_fixture_ids = [] }
+compat2025 = { status = "canonical", normalization_mode = "canonical_shape", normalized_shape = "FloatLiteral", semantic_owner = "literal", stable_reject_tag = "", positive_fixture_ids = ["literal_float_compat"], negative_fixture_ids = [] }
+
+[[rows]]
+row_id = "literal_string"
+family = "literal"
+spelling_id = "literal_string"
+production = "string literal"
+canonical = { status = "canonical", normalization_mode = "canonical_shape", normalized_shape = "StringLiteral", semantic_owner = "literal", stable_reject_tag = "", positive_fixture_ids = ["literal_string_canonical"], negative_fixture_ids = [] }
+compat2025 = { status = "canonical", normalization_mode = "canonical_shape", normalized_shape = "StringLiteral", semantic_owner = "literal", stable_reject_tag = "", positive_fixture_ids = ["literal_string_compat"], negative_fixture_ids = [] }
+
+[[rows]]
+row_id = "literal_bool"
+family = "literal"
+spelling_id = "literal_bool"
+production = "boolean literal"
+canonical = { status = "canonical", normalization_mode = "canonical_shape", normalized_shape = "BoolLiteral", semantic_owner = "literal", stable_reject_tag = "", positive_fixture_ids = ["literal_bool_canonical"], negative_fixture_ids = [] }
+compat2025 = { status = "canonical", normalization_mode = "canonical_shape", normalized_shape = "BoolLiteral", semantic_owner = "literal", stable_reject_tag = "", positive_fixture_ids = ["literal_bool_compat"], negative_fixture_ids = [] }
+
+[[rows]]
+row_id = "literal_null"
+family = "literal"
+spelling_id = "literal_null"
+production = "null literal"
+canonical = { status = "canonical", normalization_mode = "canonical_shape", normalized_shape = "NullLiteral", semantic_owner = "literal", stable_reject_tag = "", positive_fixture_ids = ["literal_null_canonical"], negative_fixture_ids = [] }
+compat2025 = { status = "canonical", normalization_mode = "canonical_shape", normalized_shape = "NullLiteral", semantic_owner = "literal", stable_reject_tag = "", positive_fixture_ids = ["literal_null_compat"], negative_fixture_ids = [] }
+
+[[rows]]
+row_id = "literal_void"
+family = "literal"
+spelling_id = "literal_void"
+production = "void literal"
+canonical = { status = "canonical", normalization_mode = "canonical_shape", normalized_shape = "VoidLiteral", semantic_owner = "literal", stable_reject_tag = "", positive_fixture_ids = ["literal_void_canonical"], negative_fixture_ids = [] }
+compat2025 = { status = "canonical", normalization_mode = "canonical_shape", normalized_shape = "VoidLiteral", semantic_owner = "literal", stable_reject_tag = "", positive_fixture_ids = ["literal_void_compat"], negative_fixture_ids = [] }
+
+[[rows]]
+row_id = "array_literal"
+family = "literal"
+spelling_id = "array_literal"
+production = "array literal"
+canonical = { status = "canonical", normalization_mode = "canonical_shape", normalized_shape = "ArrayLiteral", semantic_owner = "literal", stable_reject_tag = "", positive_fixture_ids = ["array_literal_canonical"], negative_fixture_ids = [] }
+compat2025 = { status = "canonical", normalization_mode = "canonical_shape", normalized_shape = "ArrayLiteral", semantic_owner = "literal", stable_reject_tag = "", positive_fixture_ids = ["array_literal_compat"], negative_fixture_ids = [] }
+
+[[rows]]
+row_id = "map_literal_legacy_brace_colon"
+family = "literal"
+spelling_id = "map_literal_legacy_brace_colon"
+production = "legacy brace-colon map literal"
+canonical = { status = "rejected", normalization_mode = "none", normalized_shape = "", semantic_owner = "literal", stable_reject_tag = "parser/map_literal_legacy_rejected", positive_fixture_ids = [], negative_fixture_ids = ["map_literal_legacy_canonical_reject"] }
+compat2025 = { status = "rejected", normalization_mode = "none", normalized_shape = "", semantic_owner = "literal", stable_reject_tag = "parser/map_literal_legacy_rejected", positive_fixture_ids = [], negative_fixture_ids = ["map_literal_legacy_compat_reject"] }
+
+[[rows]]
+row_id = "construction_new_box"
+family = "construction"
+spelling_id = "construction_new_box"
+production = "new box expression"
+canonical = { status = "canonical", normalization_mode = "canonical_shape", normalized_shape = "NewBoxExpression", semantic_owner = "construction", stable_reject_tag = "", positive_fixture_ids = ["construction_new_box_canonical"], negative_fixture_ids = [] }
+compat2025 = { status = "canonical", normalization_mode = "canonical_shape", normalized_shape = "NewBoxExpression", semantic_owner = "construction", stable_reject_tag = "", positive_fixture_ids = ["construction_new_box_compat"], negative_fixture_ids = [] }

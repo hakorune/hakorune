@@ -49,6 +49,100 @@ def _single_statement(program: dict[str, Any]) -> dict[str, Any]:
     return semantic_statements[0]
 
 
+def _scalar_text(value: Any, detail: str) -> str:
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    if isinstance(value, (int, float, str)):
+        return str(value)
+    raise RustProjectionError(detail)
+
+
+def _expression_node(expression: Any) -> dict[str, Any]:
+    expression = _require_dict(expression, "Rust expression evidence must be an object")
+    kind = expression.get("kind")
+    if kind == "Literal":
+        literal_type = expression.get("type")
+        normalized_kind = {
+            "Int": "IntegerLiteral",
+            "Float": "FloatLiteral",
+            "String": "StringLiteral",
+            "Bool": "BoolLiteral",
+            "Null": "NullLiteral",
+            "Void": "VoidLiteral",
+        }.get(literal_type)
+        if normalized_kind is None:
+            raise RustProjectionError("Rust literal kind is unsupported")
+        if literal_type in {"Null", "Void"}:
+            return _node(normalized_kind)
+        return _node(
+            normalized_kind,
+            value=_scalar_text(expression.get("value"), "Rust literal value is missing"),
+        )
+    if kind == "Variable":
+        name = expression.get("name")
+        if not isinstance(name, str):
+            raise RustProjectionError("Rust variable name is missing")
+        return _node("Variable", value=name)
+    if kind == "RecordLiteral":
+        record_type = expression.get("record_type")
+        if not isinstance(record_type, str):
+            raise RustProjectionError("Rust record literal type is missing")
+        return _node(
+            "RecordLiteral",
+            children=[
+                _node("TypeRef", value=record_type),
+                _record_field_list(expression.get("fields")),
+            ],
+        )
+    if kind == "RecordUpdate":
+        return _node(
+            "RecordWithUpdate",
+            children=[
+                _expression_node(expression.get("base")),
+                _record_field_list(expression.get("updates")),
+            ],
+        )
+    if kind == "Array":
+        elements = expression.get("elements")
+        if not isinstance(elements, list):
+            raise RustProjectionError("Rust array elements are missing")
+        return _node("ArrayLiteral", children=[_expression_node(item) for item in elements])
+    if kind == "New":
+        box_name = expression.get("box_name")
+        arguments = expression.get("args")
+        if not isinstance(box_name, str) or not isinstance(arguments, list):
+            raise RustProjectionError("Rust new-box evidence is incomplete")
+        return _node(
+            "NewBoxExpression",
+            children=[
+                _node("TypeRef", value=box_name),
+                _node("Arguments", children=[_expression_node(item) for item in arguments]),
+            ],
+        )
+    raise RustProjectionError(f"Rust expression projection is missing: {kind}")
+
+
+def _record_field_list(value: Any) -> dict[str, Any]:
+    if not isinstance(value, list):
+        raise RustProjectionError("Rust record field list is missing")
+    fields = []
+    for item in value:
+        item = _require_dict(item, "Rust record field must be an object")
+        name = item.get("name")
+        if not isinstance(name, str):
+            raise RustProjectionError("Rust record field name is missing")
+        fields.append(
+            _node(
+                "RecordField",
+                children=[
+                    _node("Identifier", value=name),
+                    _expression_node(item.get("value")),
+                ],
+            )
+        )
+    return _node("RecordFieldList", children=fields)
+
+
 def _loop_body(statement: dict[str, Any]) -> dict[str, Any]:
     body = statement.get("body")
     if not isinstance(body, list):
@@ -283,6 +377,15 @@ def _map_literal(program: dict[str, Any]) -> dict[str, Any]:
     return _node("MapLiteral", children=[_node("StringKey"), _node("IntegerLiteral")])
 
 
+def _remaining_expression(program: dict[str, Any], row_id: str) -> dict[str, Any]:
+    expression = _single_statement(program)
+    if row_id == "weak_unary_expr":
+        if expression.get("kind") != "UnaryOp" or expression.get("op") != "weak":
+            raise RustProjectionError("Rust weak unary evidence is missing")
+        return _node("WeakExpr", children=[_expression_node(expression.get("operand"))])
+    return _expression_node(expression)
+
+
 def project_rust_normalized_form(row_id: str, program: Any) -> dict[str, Any]:
     program = _require_dict(program, "Rust AST program must be an object")
     if row_id == "guard_expr_else":
@@ -314,4 +417,18 @@ def project_rust_normalized_form(row_id: str, program: Any) -> dict[str, Any]:
         return _loop(program, row_id)
     if row_id == "map_literal_percent_brace":
         return _map_literal(program)
+    if row_id in {
+        "weak_unary_expr",
+        "record_literal",
+        "record_with_update",
+        "literal_integer",
+        "literal_float",
+        "literal_string",
+        "literal_bool",
+        "literal_null",
+        "literal_void",
+        "array_literal",
+        "construction_new_box",
+    }:
+        return _remaining_expression(program, row_id)
     raise RustProjectionError(f"Rust grammar row projection is missing: {row_id}")

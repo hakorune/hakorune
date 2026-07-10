@@ -40,6 +40,105 @@ def _single_body(program: dict[str, Any]) -> dict[str, Any]:
     return _object(body[0], "Hako body item must be an object")
 
 
+def _scalar_text(value: Any, detail: str) -> str:
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    if isinstance(value, (int, float, str)):
+        return str(value)
+    raise HakoProjectionError(detail)
+
+
+def _expression(program: dict[str, Any]) -> dict[str, Any]:
+    statement = _single_body(program)
+    return _object(
+        statement.get("expr") if statement.get("type") == "Expr" else statement,
+        "Hako expression evidence is missing",
+    )
+
+
+def _expression_node(expression: Any) -> dict[str, Any]:
+    expression = _object(expression, "Hako expression evidence must be an object")
+    expression_type = expression.get("type")
+    normalized_kind = {
+        "Int": "IntegerLiteral",
+        "Float": "FloatLiteral",
+        "Str": "StringLiteral",
+        "Bool": "BoolLiteral",
+        "Null": "NullLiteral",
+        "Void": "VoidLiteral",
+    }.get(expression_type)
+    if normalized_kind is not None:
+        if expression_type in {"Null", "Void"}:
+            return _node(normalized_kind)
+        return _node(
+            normalized_kind,
+            value=_scalar_text(expression.get("value"), "Hako literal value is missing"),
+        )
+    if expression_type == "Var":
+        name = expression.get("name")
+        if not isinstance(name, str):
+            raise HakoProjectionError("Hako variable name is missing")
+        return _node("Variable", value=name)
+    if expression_type == "RecordLiteral":
+        record_type = expression.get("record")
+        if not isinstance(record_type, str):
+            raise HakoProjectionError("Hako record literal type is missing")
+        return _node(
+            "RecordLiteral",
+            children=[
+                _node("TypeRef", value=record_type),
+                _record_field_list(expression.get("fields")),
+            ],
+        )
+    if expression_type == "RecordUpdate":
+        return _node(
+            "RecordWithUpdate",
+            children=[
+                _expression_node(expression.get("base")),
+                _record_field_list(expression.get("updates")),
+            ],
+        )
+    if expression_type == "Call" and expression.get("name") == "array.of":
+        arguments = expression.get("args")
+        if not isinstance(arguments, list):
+            raise HakoProjectionError("Hako array arguments are missing")
+        return _node("ArrayLiteral", children=[_expression_node(item) for item in arguments])
+    if expression_type == "New":
+        box_name = expression.get("class")
+        arguments = expression.get("args")
+        if not isinstance(box_name, str) or not isinstance(arguments, list):
+            raise HakoProjectionError("Hako new-box evidence is incomplete")
+        return _node(
+            "NewBoxExpression",
+            children=[
+                _node("TypeRef", value=box_name),
+                _node("Arguments", children=[_expression_node(item) for item in arguments]),
+            ],
+        )
+    raise HakoProjectionError(f"Hako expression projection is missing: {expression_type}")
+
+
+def _record_field_list(value: Any) -> dict[str, Any]:
+    if not isinstance(value, list):
+        raise HakoProjectionError("Hako record field list is missing")
+    fields = []
+    for item in value:
+        item = _object(item, "Hako record field must be an object")
+        name = item.get("name")
+        if not isinstance(name, str):
+            raise HakoProjectionError("Hako record field name is missing")
+        fields.append(
+            _node(
+                "RecordField",
+                children=[
+                    _node("Identifier", value=name),
+                    _expression_node(item.get("value")),
+                ],
+            )
+        )
+    return _node("RecordFieldList", children=fields)
+
+
 def _loop_body(statement: dict[str, Any]) -> dict[str, Any]:
     body = statement.get("body")
     if not isinstance(body, list):
@@ -238,6 +337,15 @@ def _map_literal(program: dict[str, Any]) -> dict[str, Any]:
     return _node("MapLiteral", children=[_node("StringKey"), _node("IntegerLiteral")])
 
 
+def _remaining_expression(program: dict[str, Any], row_id: str) -> dict[str, Any]:
+    expression = _expression(program)
+    if row_id == "weak_unary_expr":
+        if expression.get("type") != "Unary" or expression.get("op") != "weak":
+            raise HakoProjectionError("Hako weak unary evidence is missing")
+        return _node("WeakExpr", children=[_expression_node(expression.get("operand"))])
+    return _expression_node(expression)
+
+
 def project_hako_normalized_form(row_id: str, program: Any) -> dict[str, Any]:
     program = _object(program, "Hako ProgramJSON must be an object")
     if row_id == "guard_expr_else":
@@ -267,4 +375,18 @@ def project_hako_normalized_form(row_id: str, program: Any) -> dict[str, Any]:
         return _loop(program, row_id)
     if row_id == "map_literal_percent_brace":
         return _map_literal(program)
+    if row_id in {
+        "weak_unary_expr",
+        "record_literal",
+        "record_with_update",
+        "literal_integer",
+        "literal_float",
+        "literal_string",
+        "literal_bool",
+        "literal_null",
+        "literal_void",
+        "array_literal",
+        "construction_new_box",
+    }:
+        return _remaining_expression(program, row_id)
     raise HakoProjectionError(f"Hako grammar row projection is missing: {row_id}")

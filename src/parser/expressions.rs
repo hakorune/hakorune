@@ -204,6 +204,12 @@ impl NyashParser {
                             // Phase 285W-Syntax-0.1: Reject weak(...) function call syntax
             if self.match_token(&TokenType::LPAREN) {
                 let line = self.current_token().line;
+                crate::parser::grammar_contract::require_semantic_entry(
+                    "weak_paren_expr",
+                    self.build_config.grammar_profile,
+                    self.current_token().token_type.clone(),
+                    line,
+                )?;
                 return Err(ParseError::UnexpectedToken {
                     found: TokenType::LPAREN,
                     expected:

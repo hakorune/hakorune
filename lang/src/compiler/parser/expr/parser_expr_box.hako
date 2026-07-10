@@ -198,6 +198,11 @@ static box ParserExprBox {
       return "{\"type\":\"Null\"}"
     }
 
+    if ctx.starts_with_kw(src, j, "void") == 1 {
+      ctx.gpos_set(j + 4)
+      return "{\"type\":\"Void\"}"
+    }
+
     if ctx.starts_with_kw(src, j, "none") == 1 {
       ctx.gpos_set(j + 4)
       return "{\"type\":\"EnumCtor\",\"enum\":\"Option\",\"variant\":\"None\",\"args\":[]}"
@@ -308,8 +313,11 @@ static box ParserExprBox {
         q = q + 1  // skip closing quote
         q = ctx.skip_ws(src, q)
         if src.substring(q, q+1) == ":" {
-          // Legacy map literal detected - return error
-          return "{\"type\":\"Error\",\"message\":\"Legacy map literal {\\\"key\\\": value} is no longer supported. Use %{\\\"key\\\" => value} instead.\"}"
+          ctx.gpos_set(src.length())
+          return ctx.freeze_contract(
+            "parser/map_literal_legacy_rejected",
+            "legacy brace-colon map literal is not Language v1"
+          )
         }
       }
       // Parse as BlockExpr

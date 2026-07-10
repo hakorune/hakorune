@@ -1,0 +1,235 @@
+# Remaining Language v1 expression, literal, and construction surfaces.
+
+[[fixtures]]
+fixture_id = "weak_unary_expr_canonical"
+row_id = "weak_unary_expr"
+profile = "Canonical"
+source = "weak value"
+accepted = true
+normalized_form = { kind = "WeakExpr", children = [{ kind = "Variable", value = "value", children = [] }] }
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "weak_unary_expr_compat"
+row_id = "weak_unary_expr"
+profile = "Compat2025"
+source = "weak value"
+accepted = true
+normalized_form = { kind = "WeakExpr", children = [{ kind = "Variable", value = "value", children = [] }] }
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "weak_paren_expr_canonical_reject"
+row_id = "weak_paren_expr"
+profile = "Canonical"
+source = "weak(value)"
+accepted = false
+normalized_form = { kind = "", children = [] }
+stable_reject_tag = "parser/weak_paren_call_rejected"
+
+[[fixtures]]
+fixture_id = "weak_paren_expr_compat_reject"
+row_id = "weak_paren_expr"
+profile = "Compat2025"
+source = "weak(value)"
+accepted = false
+normalized_form = { kind = "", children = [] }
+stable_reject_tag = "parser/weak_paren_call_rejected"
+
+[[fixtures]]
+fixture_id = "record_literal_canonical"
+row_id = "record_literal"
+profile = "Canonical"
+source = "User { id: 1 }"
+accepted = true
+normalized_form = { kind = "RecordLiteral", children = [{ kind = "TypeRef", value = "User", children = [] }, { kind = "RecordFieldList", children = [{ kind = "RecordField", children = [{ kind = "Identifier", value = "id", children = [] }, { kind = "IntegerLiteral", value = "1", children = [] }] }] }] }
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "record_literal_compat"
+row_id = "record_literal"
+profile = "Compat2025"
+source = "User { id: 1 }"
+accepted = true
+normalized_form = { kind = "RecordLiteral", children = [{ kind = "TypeRef", value = "User", children = [] }, { kind = "RecordFieldList", children = [{ kind = "RecordField", children = [{ kind = "Identifier", value = "id", children = [] }, { kind = "IntegerLiteral", value = "1", children = [] }] }] }] }
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "record_with_update_canonical"
+row_id = "record_with_update"
+profile = "Canonical"
+source = "user with { id: 2 }"
+accepted = true
+normalized_form = { kind = "RecordWithUpdate", children = [{ kind = "Variable", value = "user", children = [] }, { kind = "RecordFieldList", children = [{ kind = "RecordField", children = [{ kind = "Identifier", value = "id", children = [] }, { kind = "IntegerLiteral", value = "2", children = [] }] }] }] }
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "record_with_update_compat"
+row_id = "record_with_update"
+profile = "Compat2025"
+source = "user with { id: 2 }"
+accepted = true
+normalized_form = { kind = "RecordWithUpdate", children = [{ kind = "Variable", value = "user", children = [] }, { kind = "RecordFieldList", children = [{ kind = "RecordField", children = [{ kind = "Identifier", value = "id", children = [] }, { kind = "IntegerLiteral", value = "2", children = [] }] }] }] }
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "literal_integer_canonical"
+row_id = "literal_integer"
+profile = "Canonical"
+source = "42"
+accepted = true
+normalized_form = { kind = "IntegerLiteral", value = "42", children = [] }
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "literal_integer_compat"
+row_id = "literal_integer"
+profile = "Compat2025"
+source = "42"
+accepted = true
+normalized_form = { kind = "IntegerLiteral", value = "42", children = [] }
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "literal_float_canonical"
+row_id = "literal_float"
+profile = "Canonical"
+source = "1.5"
+accepted = true
+normalized_form = { kind = "FloatLiteral", value = "1.5", children = [] }
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "literal_float_compat"
+row_id = "literal_float"
+profile = "Compat2025"
+source = "1.5"
+accepted = true
+normalized_form = { kind = "FloatLiteral", value = "1.5", children = [] }
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "literal_string_canonical"
+row_id = "literal_string"
+profile = "Canonical"
+source = '"hello"'
+accepted = true
+normalized_form = { kind = "StringLiteral", value = "hello", children = [] }
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "literal_string_compat"
+row_id = "literal_string"
+profile = "Compat2025"
+source = '"hello"'
+accepted = true
+normalized_form = { kind = "StringLiteral", value = "hello", children = [] }
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "literal_bool_canonical"
+row_id = "literal_bool"
+profile = "Canonical"
+source = "true"
+accepted = true
+normalized_form = { kind = "BoolLiteral", value = "true", children = [] }
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "literal_bool_compat"
+row_id = "literal_bool"
+profile = "Compat2025"
+source = "true"
+accepted = true
+normalized_form = { kind = "BoolLiteral", value = "true", children = [] }
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "literal_null_canonical"
+row_id = "literal_null"
+profile = "Canonical"
+source = "null"
+accepted = true
+normalized_form = { kind = "NullLiteral", children = [] }
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "literal_null_compat"
+row_id = "literal_null"
+profile = "Compat2025"
+source = "null"
+accepted = true
+normalized_form = { kind = "NullLiteral", children = [] }
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "literal_void_canonical"
+row_id = "literal_void"
+profile = "Canonical"
+source = "void"
+accepted = true
+normalized_form = { kind = "VoidLiteral", children = [] }
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "literal_void_compat"
+row_id = "literal_void"
+profile = "Compat2025"
+source = "void"
+accepted = true
+normalized_form = { kind = "VoidLiteral", children = [] }
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "array_literal_canonical"
+row_id = "array_literal"
+profile = "Canonical"
+source = "[1, 2]"
+accepted = true
+normalized_form = { kind = "ArrayLiteral", children = [{ kind = "IntegerLiteral", value = "1", children = [] }, { kind = "IntegerLiteral", value = "2", children = [] }] }
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "array_literal_compat"
+row_id = "array_literal"
+profile = "Compat2025"
+source = "[1, 2]"
+accepted = true
+normalized_form = { kind = "ArrayLiteral", children = [{ kind = "IntegerLiteral", value = "1", children = [] }, { kind = "IntegerLiteral", value = "2", children = [] }] }
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "map_literal_legacy_canonical_reject"
+row_id = "map_literal_legacy_brace_colon"
+profile = "Canonical"
+source = 'local value = {"key": 1}'
+accepted = false
+normalized_form = { kind = "", children = [] }
+stable_reject_tag = "parser/map_literal_legacy_rejected"
+
+[[fixtures]]
+fixture_id = "map_literal_legacy_compat_reject"
+row_id = "map_literal_legacy_brace_colon"
+profile = "Compat2025"
+source = 'local value = {"key": 1}'
+accepted = false
+normalized_form = { kind = "", children = [] }
+stable_reject_tag = "parser/map_literal_legacy_rejected"
+
+[[fixtures]]
+fixture_id = "construction_new_box_canonical"
+row_id = "construction_new_box"
+profile = "Canonical"
+source = "new User()"
+accepted = true
+normalized_form = { kind = "NewBoxExpression", children = [{ kind = "TypeRef", value = "User", children = [] }, { kind = "Arguments", children = [] }] }
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "construction_new_box_compat"
+row_id = "construction_new_box"
+profile = "Compat2025"
+source = "new User()"
+accepted = true
+normalized_form = { kind = "NewBoxExpression", children = [{ kind = "TypeRef", value = "User", children = [] }, { kind = "Arguments", children = [] }] }
+stable_reject_tag = ""

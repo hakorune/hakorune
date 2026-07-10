@@ -145,6 +145,9 @@ declaration Hako sidecar = 4-row strict recursive batch green
 delegate declaration sidecar = Canonical/Compat/missing-block batch green
 generated Hako registry projection = freshness-guarded
 identifier scanner digit tail = parser utility SSOT; `i64` recursive value green
+remaining expression/literal/construction registry = 13 rows implemented
+remaining surface recursive corpus = Rust 26/26 and Hako 26/26 green
+remaining surface full compile-once gate = green
 ```
 
 Full inventory exposed pre-existing corpus/parser drift that the shallow gate
@@ -425,7 +428,7 @@ compare recursive form strictly
 remove shallow child-list owner in the same series
 ```
 
-## Series C - Remaining Surface Rows
+## Series C - Remaining Surface Rows - Complete
 
 ### Loop Family
 
@@ -632,7 +635,6 @@ source files remain below 800 lines
 
 ```text
 grammar_registry_implemented = 1
-remaining_registry_rows_implemented = 1
 profile_source_deduplicated = 1
 parser_support_evidence_generated = 1
 recursive_parse_witness = 1
@@ -648,17 +650,19 @@ Current scoped claims:
 ```text
 declaration_sidecar_implemented = 1
 hako_declaration_conformance = 1
+remaining_registry_rows_implemented = 1
+remaining_surface_parser_behavior_changed = 1
 ```
 
-The conformance claim is limited to the four declaration rows named above.
-It does not close the remaining grammar surface or Language v1 grammar.
+The declaration conformance claim is limited to the four declaration rows
+named above. The remaining-surface claims cover the 13 rows and 26 fixtures in
+`remaining-surfaces.toml`. They do not close full recursive conformance or
+Language v1 grammar.
 
 Current non-claims:
 
 ```text
 grammar_registry_implemented = 0
-remaining_registry_rows_implemented = 0
-remaining_surface_parser_behavior_changed = 0
 recursive_parse_witness = 0
 bounded_differential_composition_gate = 0
 language_v1_grammar_closeout = 0
@@ -698,7 +702,7 @@ Close that drift before declaration expansion, in this order:
 
 3. close delegate Rust/Hako drift through the same declaration evidence owner = complete
 
-4. add remaining weak/record/literal/construction rows
+4. add remaining weak/record/literal/construction rows = complete
 5. generate support and migration evidence
 6. run bounded recursive differential composition
 7. evaluate LANGV1-GRAMMAR-001 closeout

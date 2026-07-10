@@ -74,6 +74,12 @@ impl NyashParser {
                 // Check for legacy map literal {"key": value} - provide helpful error
                 if self.peek_is_legacy_map_literal() {
                     let line = self.current_token().line;
+                    crate::parser::grammar_contract::require_semantic_entry(
+                        "map_literal_legacy_brace_colon",
+                        self.build_config.grammar_profile,
+                        self.current_token().token_type.clone(),
+                        line,
+                    )?;
                     return Err(ParseError::UnexpectedToken {
                         found: self.current_token().token_type.clone(),
                         expected: "Legacy map literal `{\"key\": value}` is no longer supported. Use `%{\"key\" => value}` instead.".to_string(),

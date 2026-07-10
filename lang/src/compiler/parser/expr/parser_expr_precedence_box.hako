@@ -1,6 +1,18 @@
 static box ParserExprPrecedenceBox {
   parse_unary2(src, i, ctx, expr_context) {
     local j = ctx.skip_ws(src, i)
+    if ctx.starts_with_kw(src, j, "weak") == 1 {
+      local operand_start = ctx.skip_ws(src, j + 4)
+      if src.substring(operand_start, operand_start + 1) == "(" {
+        ctx.gpos_set(src.length())
+        return ctx.freeze_contract(
+          "parser/weak_paren_call_rejected",
+          "use weak expr instead of weak(expr)"
+        )
+      }
+      local operand = me.parse_unary2(src, operand_start, ctx, expr_context)
+      return "{\"type\":\"Unary\",\"op\":\"weak\",\"operand\":" + operand + "}"
+    }
     if src.substring(j, j + 1) == "-" {
       local rhs = ctx.parse_factor_in_context2(src, j + 1, expr_context)
       j = ctx.gpos_get()
