@@ -31,6 +31,7 @@ fn return_prelude_scopebox_keeps_locals_scoped_and_outer_assignments_visible() {
         &mut builder,
         vec!["outer".to_string()],
         vec![Some(Box::new(lit_int(0)))],
+        Vec::new(),
     )
     .expect("declare outer");
 
@@ -78,4 +79,53 @@ fn return_prelude_scopebox_keeps_locals_scoped_and_outer_assignments_visible() {
     );
 
     builder.exit_function_for_test();
+}
+
+#[test]
+fn coreplan_typed_local_uses_contract_write_and_binding_owner() {
+    let mut builder = MirBuilder::new();
+    builder.enter_function_for_test("coreplan_typed_local".to_string());
+    let _scope = LexicalScopeGuard::new(&mut builder);
+    let mut bindings = BTreeMap::new();
+    let stmt = ASTNode::Local {
+        variables: vec!["count".to_string()],
+        initial_values: vec![Some(Box::new(lit_int(1)))],
+        declared_type_names: vec![Some("u8".to_string())],
+        span: span(),
+    };
+
+    let plans = lower_return_prelude_stmt(
+        &mut builder,
+        &mut bindings,
+        &BTreeMap::new(),
+        None,
+        &stmt,
+        "coreplan_typed_local",
+    )
+    .unwrap();
+
+    let slot = crate::mir::LocalSlotId::from(builder.binding_ctx.lookup("count").unwrap());
+    assert!(plans.iter().any(|plan| matches!(
+        plan,
+        CorePlan::Effect(CoreEffectPlan::LocalContractWrite {
+            local_slot_id,
+            write_kind: crate::mir::function::LocalContractWriteKind::Init,
+            ..
+        }) if *local_slot_id == slot
+    )));
+    assert_eq!(
+        bindings.get("count"),
+        builder.variable_ctx.variable_map.get("count")
+    );
+    assert_eq!(
+        builder
+            .scope_ctx
+            .current_function
+            .as_ref()
+            .unwrap()
+            .metadata
+            .local_slot_contracts[0]
+            .local_slot_id,
+        slot
+    );
 }

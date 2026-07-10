@@ -61,7 +61,9 @@ pub(in crate::mir::builder) fn build_local_statement(
     builder: &mut MirBuilder,
     variables: Vec<String>,
     initial_values: Vec<Option<Box<ASTNode>>>,
+    declared_type_names: Vec<Option<String>>,
 ) -> Result<ValueId, String> {
+    preflight_exact_numeric_local_initializers(&variables, &initial_values, &declared_type_names)?;
     if crate::config::env::builder_loopform_debug() {
         crate::mir::builder::control_flow::joinir::trace::trace().stderr_if(
             &format!(
@@ -93,7 +95,37 @@ pub(in crate::mir::builder) fn build_local_statement(
         evaluated_values.push(value_id);
     }
 
-    build_local_statement_from_values(builder, variables, evaluated_values)
+    build_local_statement_from_values_with_types(
+        builder,
+        variables,
+        evaluated_values,
+        declared_type_names,
+    )
+}
+
+fn preflight_exact_numeric_local_initializers(
+    variables: &[String],
+    initial_values: &[Option<Box<ASTNode>>],
+    declared_type_names: &[Option<String>],
+) -> Result<(), String> {
+    for (index, name) in variables.iter().enumerate() {
+        let declared_type = declared_type_names
+            .get(index)
+            .and_then(|value| value.as_deref());
+        if crate::mir::type_contracts::local_slot::is_exact_numeric_local_type(declared_type)
+            && initial_values
+                .get(index)
+                .and_then(|value| value.as_ref())
+                .is_none()
+        {
+            return Err(format!(
+                "[type/local_contract_uninitialized_forbidden] name={} declared_type={}",
+                name,
+                declared_type.unwrap_or("<missing>")
+            ));
+        }
+    }
+    Ok(())
 }
 
 /// Build local variable declaration from already-evaluated initializer values.
@@ -105,6 +137,15 @@ pub(in crate::mir::builder) fn build_local_statement_from_values(
     builder: &mut MirBuilder,
     variables: Vec<String>,
     initial_values: Vec<ValueId>,
+) -> Result<ValueId, String> {
+    build_local_statement_from_values_with_types(builder, variables, initial_values, Vec::new())
+}
+
+pub(in crate::mir::builder) fn build_local_statement_from_values_with_types(
+    builder: &mut MirBuilder,
+    variables: Vec<String>,
+    initial_values: Vec<ValueId>,
+    declared_type_names: Vec<Option<String>>,
 ) -> Result<ValueId, String> {
     let mut last_value = None;
     for (index, var_name) in variables.iter().enumerate() {
@@ -127,10 +168,34 @@ pub(in crate::mir::builder) fn build_local_statement_from_values(
             );
         }
 
-        builder.emit_instruction(crate::mir::MirInstruction::Copy {
-            dst: var_id,
-            src: init_val,
-        })?;
+        let declared_type_name = declared_type_names
+            .get(index)
+            .and_then(|value| value.as_deref());
+        let exact_contract =
+            crate::mir::type_contracts::local_slot::is_exact_numeric_local_type(declared_type_name);
+        let local_slot_id = builder.declare_local_in_current_scope(var_name, var_id)?;
+        if exact_contract {
+            let function = builder.scope_ctx.current_function.as_mut().ok_or_else(|| {
+                "[type/local_contract_carrier_missing] function=<none>".to_string()
+            })?;
+            crate::mir::type_contracts::local_slot::register_local_slot_contract(
+                function,
+                local_slot_id,
+                var_name,
+                declared_type_name.expect("exact local has declared type"),
+            )?;
+            builder.emit_instruction(crate::mir::MirInstruction::LocalContractWrite {
+                dst: var_id,
+                src: init_val,
+                local_slot_id,
+                write_kind: crate::mir::function::LocalContractWriteKind::Init,
+            })?;
+        } else {
+            builder.emit_instruction(crate::mir::MirInstruction::Copy {
+                dst: var_id,
+                src: init_val,
+            })?;
+        }
         crate::mir::builder::metadata::propagate::propagate(builder, init_val, var_id);
         builder
             .comp_ctx
@@ -145,7 +210,6 @@ pub(in crate::mir::builder) fn build_local_statement_from_values(
                 true,
             );
         }
-        builder.declare_local_in_current_scope(var_name, var_id)?;
         if let Some(reg) = builder.comp_ctx.current_slot_registry.as_mut() {
             let ty = builder.type_ctx.value_types.get(&var_id).cloned();
             reg.ensure_slot(&var_name, ty);
@@ -262,4 +326,83 @@ pub(in crate::mir::builder) fn build_me_expression(
          Hint: Enable NYASH_TRACE_VARMAP=1 to trace variable_map changes.",
         function_context, static_box_context
     ))
+}
+
+#[cfg(test)]
+mod local_contract_tests {
+    use super::*;
+    use crate::ast::{LiteralValue, Span};
+    use crate::mir::builder::vars::lexical_scope::LexicalScopeGuard;
+    use crate::mir::function::LocalContractWriteKind;
+    use crate::mir::MirInstruction;
+
+    fn integer(value: i64) -> ASTNode {
+        ASTNode::Literal {
+            value: LiteralValue::Integer(value),
+            span: Span::unknown(),
+        }
+    }
+
+    #[test]
+    fn typed_local_init_and_reassignment_share_one_slot() {
+        let mut builder = MirBuilder::new();
+        builder.enter_function_for_test("typed_local".to_string());
+        let _scope = LexicalScopeGuard::new(&mut builder);
+        build_local_statement(
+            &mut builder,
+            vec!["x".to_string()],
+            vec![Some(Box::new(integer(1)))],
+            vec![Some("u8".to_string())],
+        )
+        .unwrap();
+        let slot = crate::mir::LocalSlotId::from(builder.binding_ctx.lookup("x").unwrap());
+        let rhs = builder.build_expression(integer(2)).unwrap();
+        builder
+            .build_assignment_from_value("x".to_string(), rhs)
+            .unwrap();
+
+        let function = builder.scope_ctx.current_function.as_ref().unwrap();
+        assert_eq!(function.metadata.local_slot_contracts.len(), 1);
+        assert_eq!(
+            function.metadata.local_slot_contracts[0].local_slot_id,
+            slot
+        );
+        let writes = function
+            .blocks
+            .values()
+            .flat_map(|block| block.instructions.iter())
+            .filter_map(|instruction| match instruction {
+                MirInstruction::LocalContractWrite {
+                    local_slot_id,
+                    write_kind,
+                    ..
+                } => Some((*local_slot_id, *write_kind)),
+                _ => None,
+            })
+            .collect::<Vec<_>>();
+        assert_eq!(
+            writes,
+            vec![
+                (slot, LocalContractWriteKind::Init),
+                (slot, LocalContractWriteKind::Reassign),
+            ]
+        );
+    }
+
+    #[test]
+    fn exact_local_without_initializer_rejects_before_lowering() {
+        let mut builder = MirBuilder::new();
+        builder.enter_function_for_test("typed_local_uninitialized".to_string());
+        let _scope = LexicalScopeGuard::new(&mut builder);
+        let error = build_local_statement(
+            &mut builder,
+            vec!["x".to_string()],
+            vec![None],
+            vec![Some("i64".to_string())],
+        )
+        .unwrap_err();
+        assert!(error.contains("[type/local_contract_uninitialized_forbidden]"));
+        assert!(!builder.variable_ctx.variable_map.contains_key("x"));
+        assert!(!builder.binding_ctx.contains("x"));
+    }
 }

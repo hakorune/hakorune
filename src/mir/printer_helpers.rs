@@ -424,6 +424,19 @@ pub fn format_instruction(
             format!("{} copy {}", format_dst(dst, types), src)
         }
 
+        MirInstruction::LocalContractWrite {
+            dst,
+            src,
+            local_slot_id,
+            write_kind,
+        } => format!(
+            "{} local.contract.write {} slot={:?} kind={:?}",
+            format_dst(dst, types),
+            src,
+            local_slot_id,
+            write_kind
+        ),
+
         MirInstruction::Debug { value, message } => {
             format!("debug {} \"{}\"", value, message)
         }

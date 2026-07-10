@@ -9,7 +9,10 @@ use super::fastmem::{
 };
 use super::object_metadata::RecordStateFieldAccessPlan;
 use super::types::ReturnExitContract;
-use super::types::{ExactNumericRuntimeCheckContract, MirParamDecl, ParameterEntryContract};
+use super::types::{
+    ExactNumericRuntimeCheckContract, LocalIdentityEvidence, LocalSlotContract, MirParamDecl,
+    ParameterEntryContract,
+};
 use crate::mir::{
     agg_local_scalarization::AggLocalScalarizationRoute,
     array_getset_micro_seed_plan::ArrayGetSetMicroSeedRoute,
@@ -573,6 +576,12 @@ pub struct FunctionMetadata {
     /// Executable return-exit semantic contract rebuilt from declaration
     /// evidence during semantic refresh.
     pub return_exit_contract: Option<ReturnExitContract>,
+
+    /// Executable exact-numeric contracts keyed by lexical LocalSlotId.
+    pub local_slot_contracts: Vec<LocalSlotContract>,
+
+    /// Rebuilt checked-write provenance for PHI/loop local publications.
+    pub local_identity_evidence: Vec<LocalIdentityEvidence>,
 
     /// MIR-owned exact numeric facts attached to values after field reads and
     /// conservative copy/control-merge propagation.

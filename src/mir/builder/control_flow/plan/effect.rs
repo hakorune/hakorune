@@ -1,5 +1,5 @@
 use super::exit::CoreExitPlan;
-use crate::mir::{BinaryOp, CompareOp, ConstValue, EffectMask, MirType, ValueId};
+use crate::mir::{BinaryOp, CompareOp, ConstValue, EffectMask, LocalSlotId, MirType, ValueId};
 
 /// Phase 273 P1: Effect plan (side effects already lowered to ValueId)
 ///
@@ -128,4 +128,11 @@ pub(in crate::mir::builder) enum CoreEffectPlan {
     /// for outer PHI merge. This is not a workaround but the canonical solution
     /// for the 3-path problem (short-circuit creates 3 paths, joins expects 2 states).
     Copy { dst: ValueId, src: ValueId },
+
+    LocalContractWrite {
+        dst: ValueId,
+        src: ValueId,
+        local_slot_id: LocalSlotId,
+        write_kind: crate::mir::function::LocalContractWriteKind,
+    },
 }

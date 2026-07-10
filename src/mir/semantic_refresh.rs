@@ -203,6 +203,7 @@ pub fn refresh_function_semantic_metadata(
 ) {
     refresh_function_parameter_entry_contracts(function);
     refresh_function_return_exit_contract(function);
+    crate::mir::type_contracts::local_slot::refresh_function_local_identity_evidence(function);
     refresh_function_source_and_fact_metadata(function, module_metadata);
     refresh_function_placement_metadata(function, module_metadata);
     refresh_function_pre_fixpoint_routes(function, module_metadata);

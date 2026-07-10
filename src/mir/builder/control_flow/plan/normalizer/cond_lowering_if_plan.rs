@@ -549,6 +549,7 @@ fn effect_defines_value(effect: &CoreEffectPlan) -> bool {
         | CoreEffectPlan::Select { .. }
         | CoreEffectPlan::Const { .. }
         | CoreEffectPlan::Copy { .. }
+        | CoreEffectPlan::LocalContractWrite { .. }
         | CoreEffectPlan::FieldGet { .. } => true,
         CoreEffectPlan::FieldSet { .. }
         | CoreEffectPlan::ExitIf { .. }

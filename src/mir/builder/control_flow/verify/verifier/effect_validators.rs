@@ -199,6 +199,10 @@ pub(super) fn verify_effect(
             primitives::verify_value_id_basic(*dst, depth, "Copy.dst")?;
             primitives::verify_value_id_basic(*src, depth, "Copy.src")?;
         }
+        CoreEffectPlan::LocalContractWrite { dst, src, .. } => {
+            primitives::verify_value_id_basic(*dst, depth, "LocalContractWrite.dst")?;
+            primitives::verify_value_id_basic(*src, depth, "LocalContractWrite.src")?;
+        }
         CoreEffectPlan::ExitIf { cond, exit } => {
             if loop_depth == 0 {
                 return Err(primitives::err(

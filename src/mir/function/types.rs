@@ -97,6 +97,31 @@ pub struct ReturnExitContract {
     pub owner: ReturnExitContractOwner,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LocalContractWriteKind {
+    Init,
+    Reassign,
+}
+
+/// Executable semantic contract for one lexical local slot.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LocalSlotContract {
+    pub contract_id: String,
+    pub local_slot_id: crate::mir::LocalSlotId,
+    pub diagnostic_source_name: String,
+    pub declared_type_name: String,
+    pub runtime_check_required: bool,
+    pub proof_elision_allowed: bool,
+    pub backend_capability_required: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub struct LocalIdentityEvidence {
+    pub local_slot_id: crate::mir::LocalSlotId,
+    pub merge_value_id: ValueId,
+    pub incoming_values: Vec<ValueId>,
+}
+
 /// A MIR function in SSA form
 #[derive(Debug, Clone)]
 pub struct MirFunction {

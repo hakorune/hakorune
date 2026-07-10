@@ -153,7 +153,8 @@ fn collect_defined_values_from_effect(effect: &CoreEffectPlan, out: &mut BTreeSe
         | CoreEffectPlan::Compare { dst, .. }
         | CoreEffectPlan::Select { dst, .. }
         | CoreEffectPlan::Const { dst, .. }
-        | CoreEffectPlan::Copy { dst, .. } => {
+        | CoreEffectPlan::Copy { dst, .. }
+        | CoreEffectPlan::LocalContractWrite { dst, .. } => {
             out.insert(*dst);
         }
         CoreEffectPlan::IfEffect {

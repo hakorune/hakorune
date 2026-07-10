@@ -2,8 +2,8 @@
 
 ## Status
 
-Active semantic implementation card. Decisions are inherited from 3485 and
-the identity prerequisite is complete in 3486.
+Complete. Decisions are inherited from 3485 and the identity prerequisite is
+complete in 3486.
 
 Decision: accepted.
 
@@ -118,3 +118,49 @@ changed_production_source_over_800_lines = 0
 Do not widen the accepted type family, add an Uninitialized runtime state,
 teach non-VM backends to lower the operation, or begin the representation-only
 `:T` audit in this card.
+
+## Closeout Evidence
+
+```text
+typed carrier:
+  FunctionMetadata.local_slot_contracts[]
+  FunctionMetadata.local_identity_evidence
+
+canonical write boundary:
+  LocalContractWrite { dst, src, local_slot_id, write_kind }
+  effect class = CONTROL, so optimization cannot erase the runtime check
+
+producer coverage:
+  ordinary local init/reassignment
+  CorePlan local init/reassignment
+  exact-numeric uninitialized local rejected before lowering
+
+identity proof:
+  LocalSlotId wraps the existing BindingId
+  shadowing allocates a distinct slot
+  branch PHI and loop carry rebuild checked-write provenance
+
+consumer boundary:
+  Rust MIR interpreter checks before destination publication
+  MIR JSON exports typed carrier, operation, and identity evidence
+  non-VM backends reject through central capability preflight
+
+instruction diet:
+  canonical MIR operations = 36
+  total vocabulary rows = 52
+  LocalContractWrite is transport-visible but not LLVM-lowerable
+```
+
+Focused builder, VM, carrier-drift, PHI/loop, optimizer, JSON, backend-gate,
+and parameter-regression tests are green. `cargo check --all-targets
+--features vm-reference`, the release `hakorune` build, JSON schema parsing,
+the local contract fixture, and the current-state pointer guard are green.
+Changed and new Rust source files remain below 800 lines.
+
+The repository-wide quick gate currently stops before this card's tests at an
+unrelated existing Hako parser naming guard:
+`parser_control_box.hako missing required naming token: syntax-3 path`. The
+existing typed-return fixture also exposes a pre-existing direct-verifier
+refresh-order gap: `count_to/1` has a declared `i64` return but reaches the
+verifier without its return carrier. Neither issue is bypassed or repaired in
+this local-contract card; the carrier ordering question moves to 3488.

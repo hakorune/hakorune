@@ -364,6 +364,7 @@ mod tests {
                 &mut builder,
                 vec!["x".to_string()],
                 vec![Some(Box::new(lit_int(0)))],
+                Vec::new(),
             )
             .expect("declare x");
 

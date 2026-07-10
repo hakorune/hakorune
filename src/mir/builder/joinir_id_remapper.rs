@@ -134,7 +134,7 @@ impl JoinIrIdRemapper {
                 vals.extend(inputs.iter().map(|(_, v)| *v));
                 vals
             }
-            Copy { dst, src } => vec![*dst, *src],
+            Copy { dst, src } | LocalContractWrite { dst, src, .. } => vec![*dst, *src],
             NewBox { dst, args, .. } => {
                 let mut vals = vec![*dst];
                 vals.extend(args.iter().copied());
@@ -363,6 +363,17 @@ impl JoinIrIdRemapper {
             Copy { dst, src } => Copy {
                 dst: remap(*dst),
                 src: remap(*src),
+            },
+            LocalContractWrite {
+                dst,
+                src,
+                local_slot_id,
+                write_kind,
+            } => LocalContractWrite {
+                dst: remap(*dst),
+                src: remap(*src),
+                local_slot_id: *local_slot_id,
+                write_kind: *write_kind,
             },
             NewBox {
                 dst,

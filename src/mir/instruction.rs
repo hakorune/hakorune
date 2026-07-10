@@ -418,6 +418,14 @@ pub enum MirInstruction {
     /// `%dst = copy %src`
     Copy { dst: ValueId, src: ValueId },
 
+    /// Check an exact-numeric local contract, then publish `%dst = %src`.
+    LocalContractWrite {
+        dst: ValueId,
+        src: ValueId,
+        local_slot_id: crate::mir::LocalSlotId,
+        write_kind: crate::mir::function::LocalContractWriteKind,
+    },
+
     /// Debug/introspection instruction
     /// `debug %value "message"`
     Debug { value: ValueId, message: String },

@@ -10,6 +10,7 @@ mod exact_numeric;
 mod fastmem_metadata;
 mod helpers;
 mod io;
+mod local_contracts;
 mod metadata;
 mod metadata_seed;
 mod order;

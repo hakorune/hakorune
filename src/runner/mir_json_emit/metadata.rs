@@ -3,6 +3,7 @@ use super::array_metadata::insert_array_metadata_json;
 use super::core_metadata::insert_core_metadata_json;
 use super::exact_numeric::insert_exact_numeric_metadata_json;
 use super::fastmem_metadata::insert_fastmem_metadata_json;
+use super::local_contracts::insert_local_contract_metadata_json;
 use super::metadata_seed::{
     build_concat_const_suffix_micro_seed_route_json, build_exact_seed_backend_route_json,
     build_substring_views_micro_seed_route_json, build_sum_variant_project_seed_route_json,
@@ -469,6 +470,7 @@ pub(super) fn build_function_metadata_json(f: &MirFunction) -> serde_json::Value
         insert_exact_numeric_metadata_json(obj, metadata);
         insert_parameter_contract_metadata_json(obj, metadata);
         insert_return_contract_metadata_json(obj, metadata);
+        insert_local_contract_metadata_json(obj, metadata);
         insert_route_metadata_json(obj, f, metadata);
     }
     if let serde_json::Value::Object(obj) = &mut metadata_json {

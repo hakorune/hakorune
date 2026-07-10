@@ -296,6 +296,15 @@ fn find_unremapped_value_id_effect(
                 .copied()
                 .map(|new| (*src, new, "Effect::Copy.src"))
         }
+        CoreEffectPlan::LocalContractWrite { dst, src, .. } => {
+            if let Some(&new) = value_map.get(dst) {
+                return Some((*dst, new, "Effect::LocalContractWrite.dst"));
+            }
+            value_map
+                .get(src)
+                .copied()
+                .map(|new| (*src, new, "Effect::LocalContractWrite.src"))
+        }
         CoreEffectPlan::BinOp { dst, lhs, rhs, .. } => {
             if let Some(&new) = value_map.get(dst) {
                 return Some((*dst, new, "Effect::BinOp.dst"));

@@ -19,8 +19,11 @@ pub(in crate::mir::builder) fn lower_assignment_stmt(
 ) -> Result<(Option<(String, ValueId)>, Vec<CoreEffectPlan>), String> {
     match target {
         ASTNode::Variable { name, .. } => {
-            let (value_id, effects) =
+            let (value_id, mut effects) =
                 PlanNormalizer::lower_value_ast(value, builder, phi_bindings)?;
+            let (value_id, contract_effect) =
+                local_contract_reassignment_effect(builder, name, value_id)?;
+            effects.extend(contract_effect);
             Ok((Some((name.clone(), value_id)), effects))
         }
         ASTNode::FieldAccess { object, field, .. } => {
@@ -61,6 +64,36 @@ pub(in crate::mir::builder) fn lower_assignment_stmt(
         }
         _ => Err(format!("{error_prefix}: unsupported assignment target")),
     }
+}
+
+pub(in crate::mir::builder) fn local_contract_reassignment_effect(
+    builder: &mut MirBuilder,
+    name: &str,
+    src: ValueId,
+) -> Result<(ValueId, Option<CoreEffectPlan>), String> {
+    let Some(binding_id) = builder.binding_ctx.lookup(name) else {
+        return Ok((src, None));
+    };
+    let local_slot_id = crate::mir::LocalSlotId::from(binding_id);
+    let has_contract = builder
+        .scope_ctx
+        .current_function
+        .as_ref()
+        .and_then(|function| {
+            crate::mir::type_contracts::local_slot::local_slot_contract(function, local_slot_id)
+        })
+        .is_some();
+    if !has_contract {
+        return Ok((src, None));
+    }
+    let dst = builder.next_value_id();
+    let effect = CoreEffectPlan::LocalContractWrite {
+        dst,
+        src,
+        local_slot_id,
+        write_kind: crate::mir::function::LocalContractWriteKind::Reassign,
+    };
+    Ok((dst, Some(effect)))
 }
 
 pub(in crate::mir::builder) fn lower_assignment_value(

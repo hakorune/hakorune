@@ -15,7 +15,8 @@ pub(crate) fn enforce_mir_backend_supported(
     )?;
     crate::mir::return_exit_backend_capability::enforce_return_exit_backend_supported(
         module, backend,
-    )
+    )?;
+    crate::mir::local_slot_backend_capability::enforce_local_slot_backend_supported(module, backend)
 }
 
 #[cfg(test)]

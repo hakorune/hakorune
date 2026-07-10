@@ -45,8 +45,9 @@ pub use object_metadata::{
 };
 pub use types::{
     ClosureBodyId, ExactNumericRuntimeCheckContract, ExactNumericRuntimeCheckContractKind,
-    FunctionSignature, FunctionStats, MirEnumDecl, MirEnumVariantDecl, MirFunction, MirModule,
-    MirParamDecl, ModuleMetadata, ModuleStats, ParameterEntryContract, ParameterEntryContractKind,
+    FunctionSignature, FunctionStats, LocalContractWriteKind, LocalIdentityEvidence,
+    LocalSlotContract, MirEnumDecl, MirEnumVariantDecl, MirFunction, MirModule, MirParamDecl,
+    ModuleMetadata, ModuleStats, ParameterEntryContract, ParameterEntryContractKind,
     ReturnExitContract, ReturnExitContractKind, ReturnExitContractOwner, ReturnExitVoidPolicy,
     StaticDataPlan,
 };

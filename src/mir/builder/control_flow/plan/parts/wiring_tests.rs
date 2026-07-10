@@ -66,6 +66,7 @@ mod tests {
             &mut builder,
             vec!["outer".to_string()],
             vec![Some(Box::new(lit_int(0)))],
+            Vec::new(),
         )
         .expect("declare outer");
         let outer_binding_id = builder
@@ -165,6 +166,7 @@ mod tests {
             &mut builder,
             vec!["sum".to_string()],
             vec![Some(Box::new(lit_int(0)))],
+            Vec::new(),
         )
         .expect("declare sum");
 

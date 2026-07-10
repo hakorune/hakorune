@@ -1,6 +1,6 @@
 use super::super::{MirInterpreter, VMError, VMValue};
 use crate::mir::BasicBlock;
-use crate::mir::{BasicBlockId, MirInstruction, WeakRefOp};
+use crate::mir::{BasicBlockId, MirFunction, MirInstruction, WeakRefOp};
 
 pub(crate) enum BlockOutcome {
     Return(VMValue),
@@ -11,7 +11,11 @@ pub(crate) enum BlockOutcome {
 }
 
 impl MirInterpreter {
-    pub(crate) fn execute_block_instructions(&mut self, block: &BasicBlock) -> Result<(), VMError> {
+    pub(crate) fn execute_block_instructions(
+        &mut self,
+        function: &MirFunction,
+        block: &BasicBlock,
+    ) -> Result<(), VMError> {
         // Hot path: when diagnostics are fully off, skip per-inst tracing/stat branches.
         if !self.vm_capture_last_inst_enabled
             && !self.joinir_debug_enabled
@@ -71,6 +75,12 @@ impl MirInterpreter {
                         }
                     }
                     MirInstruction::Copy { dst, src } => self.handle_copy(*dst, *src)?,
+                    MirInstruction::LocalContractWrite {
+                        dst,
+                        src,
+                        local_slot_id,
+                        ..
+                    } => self.execute_local_contract_write(function, *dst, *src, *local_slot_id)?,
                     MirInstruction::Load { dst, ptr } => self.handle_load(*dst, *ptr)?,
                     MirInstruction::StaticDataLoad {
                         dst,
@@ -180,7 +190,17 @@ impl MirInterpreter {
                     continue;
                 }
             }
-            self.execute_instruction(inst)?;
+            if let MirInstruction::LocalContractWrite {
+                dst,
+                src,
+                local_slot_id,
+                ..
+            } = inst
+            {
+                self.execute_local_contract_write(function, *dst, *src, *local_slot_id)?;
+            } else {
+                self.execute_instruction(inst)?;
+            }
         }
         Ok(())
     }

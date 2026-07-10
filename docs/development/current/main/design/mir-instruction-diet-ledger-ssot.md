@@ -26,7 +26,7 @@ Related:
 分類根拠は以下3点のみを使う。
 
 1. Enum実体
-   `src/mir/instruction.rs`（35 kept variants）
+   `src/mir/instruction.rs`（36 kept variants）
 2. Backend contract allowlist
    `src/mir/contracts/backend_core_ops.rs`
 3. Legacy rewrite / reject policy
@@ -36,6 +36,12 @@ Related:
 5. MIR JSON validator schema
    `docs/reference/mir/json_v0.schema.json`
 
+MIR JSON transport and LLVM lowering are not identical sets.
+`MIR_JSON_TRANSPORT_ONLY_OPS` carries typed operations such as
+`local_contract_write` for inspection/migration while the central backend
+capability gate rejects execution; these rows must not be added to
+`LLVM_SUPPORTED_JSON_OPS` until a real consumer exists.
+
 ## Current Contract Snapshot (2026-06-23)
 
 `backend_core_ops` と `INSTRUCTION_SET.md` の機械可読countが現状の
@@ -43,10 +49,10 @@ Related:
 
 | Cohort | Count |
 |---|---:|
-| kept | 35 |
+| kept | 36 |
 | lowered-away | 0 |
 | removed | 16 |
-| vocabulary | 51 |
+| vocabulary | 52 |
 
 運用注記（2026-03）:
 - `Catch/Throw` は語彙としては kept だが、selfhost/mainline の日常 lane では `NYASH_TRY_RESULT_MODE=1` に pin して legacy MIR `Catch/Throw` 実行を使わない。
@@ -54,7 +60,7 @@ Related:
 
 ## Ledger Decision (accepted)
 
-### kept (35)
+### kept (36)
 
 The authoritative list is
 `src/mir/contracts/backend_core_ops.rs::MIR_INSTRUCTION_KEPT_TAGS`.
@@ -180,9 +186,9 @@ git diff --check
 
 ## Acceptance Criteria
 
-1. `MirInstruction` 35語彙 + `removed` 16語彙が `kept/lowered-away/removed` のいずれか1つに属する。
+1. `MirInstruction` 36語彙 + `removed` 16語彙が `kept/lowered-away/removed` のいずれか1つに属する。
 2. `MIR_INSTRUCTION_LOWERED_AWAY_TAGS` は空配列である。
-3. `instruction_diet_ledger_counts_match_ssot` が `kept=35/lowered-away=0/removed=16/vocabulary=51` を固定する。
+3. `instruction_diet_ledger_counts_match_ssot` が `kept=36/lowered-away=0/removed=16/vocabulary=52` を固定する。
 4. `check_no_legacy_ops` が独自matchを持たず `lowered_away_tag` を参照する。
 5. `src`/`tests` に `MirInstruction::ArrayGet|ArraySet|RefGet|RefSet` 参照が存在しない。
 6. `mir_no_lowered_away_emitters.sh` が PASS する。

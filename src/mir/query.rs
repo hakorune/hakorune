@@ -57,7 +57,7 @@ impl<'m> MirQuery for MirQueryBox<'m> {
         use MirInstruction::*;
         match inst {
             Const { .. } => Vec::new(),
-            Copy { src, .. } => vec![*src],
+            Copy { src, .. } | LocalContractWrite { src, .. } => vec![*src],
             UnaryOp { operand, .. } => vec![*operand],
             BinOp { lhs, rhs, .. } | Compare { lhs, rhs, .. } => {
                 vec![*lhs, *rhs]
@@ -148,6 +148,7 @@ impl<'m> MirQuery for MirQueryBox<'m> {
             | NewClosure { dst, .. }
             | Await { dst, .. }
             | Copy { dst, .. }
+            | LocalContractWrite { dst, .. }
             | Select { dst, .. } => vec![*dst], // Copy writes to dst, Select writes to dst
             // No writes
             Store { .. }

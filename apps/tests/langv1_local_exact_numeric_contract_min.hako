@@ -1,0 +1,9 @@
+static box Main {
+  main() {
+    local count: i64 = 0
+    loop (count < 3) {
+      count = count + 1
+    }
+    return count
+  }
+}

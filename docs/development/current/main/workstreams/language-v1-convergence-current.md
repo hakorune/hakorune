@@ -290,7 +290,8 @@ Status: design accepted as 3479; exact-numeric Box field first slice complete
 as 3480; parameter-entry contract complete as 3482; return-exit design accepted
 as 3483; return-exit implementation complete as 3484; local exact-numeric
 owner/boundary consultation accepted as 3485; BindingId prerequisite complete
-as 3486; exact-numeric local semantic implementation active as 3487.
+as 3486; exact-numeric local semantic implementation complete as 3487; the
+representation/contract-refresh owner consultation is active as 3488.
 
 Target contract:
 
@@ -333,12 +334,14 @@ T2a complete:
   LocalSlotId wrapper, one declaration API, CorePlan/snapshot parity
   LocalContractWrite / contract activation = 0
 
-T2b active:
+T2b complete:
   3487 LocalContractWrite exact-numeric semantic implementation
   init/reassignment + U1 + PHI/loop evidence + JSON/backend boundary
   no broad static checker; one LocalSlotContractOwner
 
-T3 after local closeout:
+T3 active:
+  3488 representation-hint and contract-refresh design stop
+  select one refresh-and-validate owner before verifier/JSON/runtime/backend
   representation-only :T consumer audit and migration queue
   remove direct storage/layout/planner authority from source annotations
   split types.md normative semantics from implementation-status ledger

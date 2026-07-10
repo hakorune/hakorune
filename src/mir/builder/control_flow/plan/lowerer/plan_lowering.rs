@@ -254,6 +254,7 @@ fn effect_defined_value(effect: &CoreEffectPlan) -> Option<(ValueId, &'static st
         CoreEffectPlan::Select { dst, .. } => Some((*dst, "Select")),
         CoreEffectPlan::Const { dst, .. } => Some((*dst, "Const")),
         CoreEffectPlan::Copy { dst, .. } => Some((*dst, "Copy")),
+        CoreEffectPlan::LocalContractWrite { dst, .. } => Some((*dst, "LocalContractWrite")),
         CoreEffectPlan::FieldSet { .. }
         | CoreEffectPlan::ExitIf { .. }
         | CoreEffectPlan::IfEffect { .. } => None,

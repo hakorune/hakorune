@@ -28,6 +28,38 @@ use super::var_map_scope::{
     with_scopebox_binding_boundary,
 };
 
+fn append_local_contract_init(
+    builder: &mut MirBuilder,
+    name: &str,
+    declared_type_name: Option<&str>,
+    src: ValueId,
+    plans: &mut Vec<LoweredRecipe>,
+) -> Result<ValueId, String> {
+    if !crate::mir::type_contracts::local_slot::is_exact_numeric_local_type(declared_type_name) {
+        return Ok(src);
+    }
+    let dst = builder.next_value_id();
+    let slot = builder.declare_local_in_current_scope(name, dst)?;
+    let function = builder
+        .scope_ctx
+        .current_function
+        .as_mut()
+        .ok_or_else(|| "[type/local_contract_carrier_missing] function=<none>".to_string())?;
+    crate::mir::type_contracts::local_slot::register_local_slot_contract(
+        function,
+        slot,
+        name,
+        declared_type_name.expect("exact local has declared type"),
+    )?;
+    plans.push(CorePlan::Effect(CoreEffectPlan::LocalContractWrite {
+        dst,
+        src,
+        local_slot_id: slot,
+        write_kind: crate::mir::function::LocalContractWriteKind::Init,
+    }));
+    Ok(dst)
+}
+
 fn lower_if_join_non_exit_shape(
     builder: &mut MirBuilder,
     branch_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
@@ -254,7 +286,7 @@ pub(in crate::mir::builder) fn lower_return_prelude_stmt(
         ASTNode::Assignment { target, value, .. } => {
             if let ASTNode::Variable { name, .. } = target.as_ref() {
                 if value_has_blockexpr_prelude_loop(value) {
-                    let (value_id, plans) = lower_value_with_blockexpr_loop_prelude_stmt(
+                    let (value_id, mut plans) = lower_value_with_blockexpr_loop_prelude_stmt(
                         builder,
                         branch_bindings,
                         carrier_step_phis,
@@ -262,6 +294,13 @@ pub(in crate::mir::builder) fn lower_return_prelude_stmt(
                         value,
                         error_prefix,
                     )?;
+                    let (value_id, contract_effect) =
+                        loop_body_lowering::local_contract_reassignment_effect(
+                            builder, name, value_id,
+                        )?;
+                    if let Some(effect) = contract_effect {
+                        plans.push(CorePlan::Effect(effect));
+                    }
                     publish_defined_binding(builder, branch_bindings, name.clone(), value_id);
                     return Ok(plans);
                 }
@@ -275,18 +314,38 @@ pub(in crate::mir::builder) fn lower_return_prelude_stmt(
                 error_prefix,
             )?;
             debug_log_stmt_binop_lit3(builder, &effects, "assignment");
+            let plans = effects_to_plans(effects);
             if let Some((name, value_id)) = binding {
                 publish_defined_binding(builder, branch_bindings, name, value_id);
             }
-            Ok(effects_to_plans(effects))
+            Ok(plans)
         }
         ASTNode::Local {
             variables,
             initial_values,
+            declared_type_names,
             ..
         } => {
             if variables.len() != initial_values.len() {
                 return Err(format!("{error_prefix}: local init arity mismatch"));
+            }
+            for (index, name) in variables.iter().enumerate() {
+                let declared_type = declared_type_names
+                    .get(index)
+                    .and_then(|value| value.as_deref());
+                if crate::mir::type_contracts::local_slot::is_exact_numeric_local_type(
+                    declared_type,
+                ) && initial_values
+                    .get(index)
+                    .and_then(|value| value.as_ref())
+                    .is_none()
+                {
+                    return Err(format!(
+                        "[type/local_contract_uninitialized_forbidden] name={} declared_type={}",
+                        name,
+                        declared_type.unwrap_or("<missing>")
+                    ));
+                }
             }
             if initial_values
                 .iter()
@@ -294,7 +353,8 @@ pub(in crate::mir::builder) fn lower_return_prelude_stmt(
                 .any(|value| value_has_blockexpr_prelude_loop(value))
             {
                 let mut plans = Vec::new();
-                for (name, init) in variables.iter().zip(initial_values.iter()) {
+                for (index, (name, init)) in variables.iter().zip(initial_values.iter()).enumerate()
+                {
                     let init_node = loop_body_lowering::local_init_node_or_null(init.as_ref());
                     let (value_id, mut init_plans) = lower_value_with_blockexpr_loop_prelude_stmt(
                         builder,
@@ -305,7 +365,23 @@ pub(in crate::mir::builder) fn lower_return_prelude_stmt(
                         error_prefix,
                     )?;
                     plans.append(&mut init_plans);
-                    publish_declared_binding(builder, branch_bindings, name.clone(), value_id)?;
+                    let declared_type = declared_type_names
+                        .get(index)
+                        .and_then(|value| value.as_deref());
+                    if crate::mir::type_contracts::local_slot::is_exact_numeric_local_type(
+                        declared_type,
+                    ) {
+                        let value_id = append_local_contract_init(
+                            builder,
+                            name,
+                            declared_type,
+                            value_id,
+                            &mut plans,
+                        )?;
+                        branch_bindings.insert(name.clone(), value_id);
+                    } else {
+                        publish_declared_binding(builder, branch_bindings, name.clone(), value_id)?;
+                    }
                 }
                 return Ok(plans);
             }
@@ -318,10 +394,27 @@ pub(in crate::mir::builder) fn lower_return_prelude_stmt(
                 error_prefix,
             )?;
             debug_log_stmt_binop_lit3(builder, &effects, "local");
-            for (name, value_id) in inits {
-                publish_declared_binding(builder, branch_bindings, name, value_id)?;
+            let mut plans = effects_to_plans(effects);
+            for (index, (name, value_id)) in inits.into_iter().enumerate() {
+                let declared_type = declared_type_names
+                    .get(index)
+                    .and_then(|value| value.as_deref());
+                if crate::mir::type_contracts::local_slot::is_exact_numeric_local_type(
+                    declared_type,
+                ) {
+                    let value_id = append_local_contract_init(
+                        builder,
+                        &name,
+                        declared_type,
+                        value_id,
+                        &mut plans,
+                    )?;
+                    branch_bindings.insert(name, value_id);
+                } else {
+                    publish_declared_binding(builder, branch_bindings, name, value_id)?;
+                }
             }
-            Ok(effects_to_plans(effects))
+            Ok(plans)
         }
         ASTNode::MethodCall { .. } => {
             let effects = loop_body_lowering::lower_method_call_stmt(

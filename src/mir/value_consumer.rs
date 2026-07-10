@@ -67,6 +67,7 @@ fn value_consumer_used_values(inst: &MirInstruction) -> Vec<ValueId> {
         | MirInstruction::StaticDataLoad { index: operand, .. }
         | MirInstruction::TypeOp { value: operand, .. }
         | MirInstruction::Copy { src: operand, .. }
+        | MirInstruction::LocalContractWrite { src: operand, .. }
         | MirInstruction::Debug { value: operand, .. }
         | MirInstruction::VariantTag { value: operand, .. }
         | MirInstruction::VariantProject { value: operand, .. } => vec![*operand],

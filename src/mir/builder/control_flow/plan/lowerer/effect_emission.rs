@@ -311,6 +311,19 @@ impl super::PlanLowerer {
                     src: src_local,
                 })?;
             }
+            CoreEffectPlan::LocalContractWrite {
+                dst,
+                src,
+                local_slot_id,
+                write_kind,
+            } => {
+                builder.emit_instruction(MirInstruction::LocalContractWrite {
+                    dst: *dst,
+                    src: *src,
+                    local_slot_id: *local_slot_id,
+                    write_kind: *write_kind,
+                })?;
+            }
         }
         Ok(())
     }

@@ -210,6 +210,7 @@ impl MirBuilder {
         var_name: String,
         value_id: ValueId,
     ) -> Result<ValueId, String> {
+        vars::assignment_resolver::AssignmentResolverBox::ensure_declared(self, &var_name)?;
         // Removed: [build_expression:GHOST_v36_result] observation (PHI issue resolved)
 
         // Step 5-5-E: FIX variable map corruption bug
@@ -232,6 +233,34 @@ impl MirBuilder {
         // causing stale references after LoopForm transformation renumbers blocks.
         // Result: VM would try to read undefined ValueIds (e.g., ValueId(270) at bb303).
         if !var_name.starts_with("__pin$") {
+            let local_slot_id = self
+                .binding_ctx
+                .lookup(&var_name)
+                .map(crate::mir::LocalSlotId::from);
+            let local_contract = local_slot_id.and_then(|slot| {
+                self.scope_ctx
+                    .current_function
+                    .as_ref()
+                    .and_then(|function| {
+                        crate::mir::type_contracts::local_slot::local_slot_contract(function, slot)
+                            .cloned()
+                    })
+            });
+            let published_value =
+                if let (Some(local_slot_id), Some(_contract)) = (local_slot_id, local_contract) {
+                    let dst = self.next_value_id();
+                    self.emit_instruction(MirInstruction::LocalContractWrite {
+                        dst,
+                        src: value_id,
+                        local_slot_id,
+                        write_kind: crate::mir::function::LocalContractWriteKind::Reassign,
+                    })?;
+                    crate::mir::builder::metadata::propagate::propagate(self, value_id, dst);
+                    dst
+                } else {
+                    value_id
+                };
+
             // Phase 287: Release strong references for previous value BEFORE updating variable_map
             // This ensures "alive until overwrite, then dropped" semantics
             // ⚠️ Termination guard: don't emit after return/throw
@@ -245,10 +274,11 @@ impl MirBuilder {
             // In SSA form, each assignment creates a new value
             self.variable_ctx
                 .variable_map
-                .insert(var_name.clone(), value_id);
+                .insert(var_name.clone(), published_value);
 
             // Removed: [build_assignment:GHOST_v36_assigned] observation (PHI issue resolved)
             // Removed: [build_assignment:index_of_trace] observation (PHI issue resolved)
+            return Ok(published_value);
         }
 
         Ok(value_id)

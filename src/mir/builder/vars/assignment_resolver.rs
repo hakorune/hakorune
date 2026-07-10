@@ -23,7 +23,9 @@ impl AssignmentResolverBox {
         }
 
         if builder.variable_ctx.variable_map.contains_key(var_name) {
-            return if builder.binding_ctx.contains(var_name) {
+            return if builder.binding_ctx.contains(var_name)
+                || builder.scope_ctx.function_param_names.contains(var_name)
+            {
                 Ok(())
             } else {
                 Err(format!(
@@ -75,5 +77,21 @@ mod tests {
             .insert("x".to_string(), ValueId::new(2));
 
         assert_eq!(builder.binding_ctx.lookup("x"), Some(BindingId::new(3)));
+    }
+
+    #[test]
+    fn function_parameters_use_their_entry_identity_lane() {
+        let mut builder = MirBuilder::new();
+        builder
+            .variable_ctx
+            .variable_map
+            .insert("arg".to_string(), ValueId::new(0));
+        builder
+            .scope_ctx
+            .function_param_names
+            .insert("arg".to_string());
+
+        assert!(AssignmentResolverBox::ensure_declared(&builder, "arg").is_ok());
+        assert!(!builder.binding_ctx.contains("arg"));
     }
 }

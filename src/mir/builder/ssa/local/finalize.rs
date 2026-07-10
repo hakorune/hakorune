@@ -10,6 +10,7 @@ fn def_inst_kind(inst: &MirInstruction) -> &'static str {
         MirInstruction::UnaryOp { .. } => "UnaryOp",
         MirInstruction::Compare { .. } => "Compare",
         MirInstruction::Copy { .. } => "Copy",
+        MirInstruction::LocalContractWrite { .. } => "LocalContractWrite",
         MirInstruction::FieldGet { .. } => "FieldGet",
         MirInstruction::FieldSet { .. } => "FieldSet",
         MirInstruction::VariantMake { .. } => "VariantMake",

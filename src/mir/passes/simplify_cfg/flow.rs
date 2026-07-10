@@ -427,6 +427,7 @@ fn rewrite_value_uses_in_instruction(instruction: &mut MirInstruction, from: Val
         | MirInstruction::VariantProject { value: operand, .. }
         | MirInstruction::TypeOp { value: operand, .. }
         | MirInstruction::Copy { src: operand, .. }
+        | MirInstruction::LocalContractWrite { src: operand, .. }
         | MirInstruction::Debug { value: operand, .. }
         | MirInstruction::Throw {
             exception: operand, ..

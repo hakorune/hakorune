@@ -123,6 +123,9 @@ fn collect_effect_definitions(effect: &CoreEffectPlan, defs: &mut BTreeSet<Value
         CoreEffectPlan::Copy { dst, .. } => {
             defs.insert(*dst);
         }
+        CoreEffectPlan::LocalContractWrite { dst, .. } => {
+            defs.insert(*dst);
+        }
         CoreEffectPlan::FieldSet { .. }
         | CoreEffectPlan::ExitIf { .. }
         | CoreEffectPlan::IfEffect { .. } => {} // No dst

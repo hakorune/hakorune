@@ -25,6 +25,7 @@ pub fn instruction_tag(inst: &MirInstruction) -> &'static str {
         MirInstruction::NewBox { .. } => "NewBox",
         MirInstruction::TypeOp { .. } => "TypeOp",
         MirInstruction::Copy { .. } => "Copy",
+        MirInstruction::LocalContractWrite { .. } => "LocalContractWrite",
         MirInstruction::Debug { .. } => "Debug",
         MirInstruction::KeepAlive { .. } => "KeepAlive",
         MirInstruction::ReleaseStrong { .. } => "ReleaseStrong",
@@ -58,6 +59,7 @@ pub const MIR_INSTRUCTION_KEPT_TAGS: &[&str] = &[
     "Compare",
     "Const",
     "Copy",
+    "LocalContractWrite",
     "Debug",
     "FutureNew",
     "FutureSet",
@@ -123,6 +125,7 @@ pub fn instruction_diet_cohort(inst: &MirInstruction) -> InstructionDietCohort {
         | MirInstruction::StaticDataLoad { .. }
         | MirInstruction::Const { .. }
         | MirInstruction::Copy { .. }
+        | MirInstruction::LocalContractWrite { .. }
         | MirInstruction::Debug { .. }
         | MirInstruction::FutureNew { .. }
         | MirInstruction::FutureSet { .. }
@@ -197,6 +200,7 @@ pub fn is_supported_mir_json_instruction(inst: &MirInstruction) -> bool {
     matches!(
         inst,
         MirInstruction::Copy { .. }
+            | MirInstruction::LocalContractWrite { .. }
             | MirInstruction::UnaryOp { .. }
             | MirInstruction::Const { .. }
             | MirInstruction::TypeOp { .. }
@@ -250,6 +254,7 @@ pub fn is_supported_vm_instruction(inst: &MirInstruction) -> bool {
             | MirInstruction::StaticDataLoad { .. }
             | MirInstruction::TypeOp { .. }
             | MirInstruction::Copy { .. }
+            | MirInstruction::LocalContractWrite { .. }
             | MirInstruction::FieldGet { .. }
             | MirInstruction::FieldSet { .. }
             | MirInstruction::VariantMake { .. }
@@ -300,6 +305,7 @@ pub fn llvm_json_ops_for_instruction(inst: &MirInstruction) -> &'static [&'stati
         MirInstruction::NewBox { .. } => &["newbox"],
         MirInstruction::TypeOp { .. } => &["typeop"],
         MirInstruction::Copy { .. } => &["copy"],
+        MirInstruction::LocalContractWrite { .. } => &[],
         MirInstruction::KeepAlive { .. } => &["keepalive"],
         MirInstruction::ReleaseStrong { .. } => &["release_strong"],
         MirInstruction::Safepoint => &["safepoint"],
@@ -360,6 +366,10 @@ pub const LLVM_SUPPORTED_JSON_OPS: &[&str] = &[
     "while",
     "memop",
 ];
+
+/// MIR JSON operations retained for typed transport but deliberately rejected
+/// by LLVM/backend lowering until their capability owner is implemented.
+pub const MIR_JSON_TRANSPORT_ONLY_OPS: &[&str] = &["local_contract_write"];
 
 /// Canonical LLVM JSON opcode allowlist (Python lowerer frontend contract).
 pub fn is_supported_llvm_json_op(op: &str) -> bool {
@@ -651,10 +661,10 @@ mod tests {
 
     #[test]
     fn instruction_diet_ledger_counts_match_ssot() {
-        assert_eq!(MIR_INSTRUCTION_KEPT_TAGS.len(), 35);
+        assert_eq!(MIR_INSTRUCTION_KEPT_TAGS.len(), 36);
         assert_eq!(MIR_INSTRUCTION_LOWERED_AWAY_TAGS.len(), 0);
         assert_eq!(MIR_INSTRUCTION_REMOVED_TAGS.len(), 16);
-        assert_eq!(MIR_INSTRUCTION_VOCABULARY_COUNT, 51);
+        assert_eq!(MIR_INSTRUCTION_VOCABULARY_COUNT, 52);
     }
 
     #[test]
@@ -680,14 +690,19 @@ mod tests {
     }
 
     #[test]
-    fn mir_json_schema_op_enum_matches_backend_opcode_allowlist() {
+    fn mir_json_schema_op_enum_matches_lowerable_and_transport_only_ops() {
         let schema = read_json_schema();
         let schema_ops = schema_instruction_op_enum(&schema);
-        let backend_ops: BTreeSet<_> = LLVM_SUPPORTED_JSON_OPS.iter().copied().collect();
+        let expected_ops: BTreeSet<_> = LLVM_SUPPORTED_JSON_OPS
+            .iter()
+            .chain(MIR_JSON_TRANSPORT_ONLY_OPS.iter())
+            .copied()
+            .collect();
         assert_eq!(
-            schema_ops, backend_ops,
-            "MIR JSON schema op enum must stay synced with LLVM_SUPPORTED_JSON_OPS"
+            schema_ops, expected_ops,
+            "MIR JSON schema op enum must cover lowerable and explicit transport-only ops"
         );
+        assert!(!is_supported_llvm_json_op("local_contract_write"));
     }
 
     #[test]

@@ -43,6 +43,9 @@ impl MirInstruction {
             | MirInstruction::Select { .. }
             | MirInstruction::KeepAlive { .. } => EffectMask::PURE,
 
+            // Runtime contract validation may reject execution.
+            MirInstruction::LocalContractWrite { .. } => EffectMask::CONTROL,
+
             // Memory operations
             MirInstruction::Load { .. }
             | MirInstruction::StaticDataLoad { .. }
@@ -114,6 +117,7 @@ impl MirInstruction {
             | MirInstruction::NewBox { dst, .. }
             | MirInstruction::TypeOp { dst, .. }
             | MirInstruction::Copy { dst, .. }
+            | MirInstruction::LocalContractWrite { dst, .. }
             | MirInstruction::RefNew { dst, .. }
             | MirInstruction::WeakRef { dst, .. }
             | MirInstruction::FutureNew { dst, .. }
@@ -208,6 +212,7 @@ impl MirInstruction {
             | MirInstruction::StaticDataLoad { index: operand, .. }
             | MirInstruction::TypeOp { value: operand, .. }
             | MirInstruction::Copy { src: operand, .. }
+            | MirInstruction::LocalContractWrite { src: operand, .. }
             | MirInstruction::Debug { value: operand, .. } => vec![*operand],
 
             MirInstruction::BinOp { lhs, rhs, .. }

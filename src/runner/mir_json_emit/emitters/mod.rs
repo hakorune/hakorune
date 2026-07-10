@@ -89,6 +89,21 @@ fn emit_instruction(
 
     match inst {
         I::Copy { dst, src } => Ok(basic::emit_copy(dst, src)),
+        I::LocalContractWrite {
+            dst,
+            src,
+            local_slot_id,
+            write_kind,
+        } => Ok(serde_json::json!({
+            "op": "local_contract_write",
+            "dst": dst.as_u32(),
+            "src": src.as_u32(),
+            "local_slot_id": local_slot_id.binding_id().raw(),
+            "write_kind": match write_kind {
+                crate::mir::function::LocalContractWriteKind::Init => "init",
+                crate::mir::function::LocalContractWriteKind::Reassign => "reassign",
+            },
+        })),
         I::UnaryOp { dst, op, operand } => Ok(basic::emit_unary_op(dst, op, operand)),
         I::Const { dst, value } => Ok(basic::emit_const(dst, value)),
         I::StaticDataLoad {

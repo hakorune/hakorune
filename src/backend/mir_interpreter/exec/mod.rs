@@ -11,6 +11,7 @@ mod block;
 mod diagnostics;
 mod exact_numeric_ops;
 mod exact_numeric_value_checker;
+mod local_contracts;
 mod numeric_contracts;
 mod parameter_contracts;
 mod phi;
@@ -98,6 +99,10 @@ impl MirInterpreter {
             .validate_function_entry_contracts(func, arg_vals)
             .and_then(|_| {
                 crate::mir::verification::return_outcome::check_return_outcomes(func)
+                    .map_err(|error| self.err_invalid(error))
+            })
+            .and_then(|_| {
+                crate::mir::type_contracts::local_slot::validate_local_slot_contracts(func)
                     .map_err(|error| self.err_invalid(error))
             });
         if let Err(error) = contract_preflight {
@@ -231,7 +236,7 @@ impl MirInterpreter {
             }
 
             self.apply_phi_nodes(block, last_pred)?;
-            if let Err(e) = self.execute_block_instructions(block) {
+            if let Err(e) = self.execute_block_instructions(func, block) {
                 if self.trace_enabled() {
                     let ring0 = crate::runtime::get_global_ring0();
                     ring0.log.debug(&format!(

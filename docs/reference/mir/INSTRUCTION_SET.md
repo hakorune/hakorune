@@ -23,10 +23,10 @@ Primary implementation pointers:
 
 以下の行は CI/テストで参照する契約値（編集時は実装と同時更新）。
 
-DOC_SYNC_MIR_KEPT_COUNT=35
+DOC_SYNC_MIR_KEPT_COUNT=36
 DOC_SYNC_MIR_LOWERED_AWAY_COUNT=0
 DOC_SYNC_MIR_REMOVED_COUNT=16
-DOC_SYNC_MIR_VOCABULARY_COUNT=51
+DOC_SYNC_MIR_VOCABULARY_COUNT=52
 DOC_SYNC_MIR14_COUNT=13
 DOC_SYNC_CORE26_COUNT=26
 
@@ -53,6 +53,9 @@ Transition Note
   executable truth; LLVM lowering must consume verified layout/table plans and
   must not infer offsets, table representation, alignment, or bounds.
   allocator-owner TLS runtime MemOps remain closed until a dedicated owner row.
+- LANGV1 local exact-numeric contract: `LocalContractWrite` is the canonical
+  check-then-publish operation. It is executable only where the backend
+  capability gate names a typed consumer; unsupported backends fail-fast.
 
 ## Canonical Enum Op Lane (kept vocabulary; Core profile out-of-count)
 
@@ -60,7 +63,7 @@ Transition Note
 - VariantTag
 - VariantProject
 
-## Current Kept Vocabulary（35）
+## Current Kept Vocabulary（36）
 
 This is the current executable kept vocabulary from
 `src/mir/contracts/backend_core_ops.rs::MIR_INSTRUCTION_KEPT_TAGS`.
@@ -71,6 +74,7 @@ allowlists are being updated.
 
 - Const
 - Copy
+- LocalContractWrite
 - Load
 - StaticDataLoad
 - Store

@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Active"
+status = "Active design consultation"
 date = "2026-07-11"
 
 active_lane = "LANGUAGE-V1-CONVERGENCE semantic contract before selfhost migration"
@@ -22,8 +22,10 @@ return owner, typed carrier, Void/fallthrough veto, and VM-only first slice.
 VM exit check, MIR JSON, and backend preflight. 3485 accepts existing BindingId
 wrapped as LocalSlotId, explicit LocalContractWrite, checked-edge PHI/loop
 identity, U1 uninitialized rejection, and VM-only first support. 3486 closes
-the behavior-preserving BindingId owner/bypass prerequisite. 3487 activates
-the narrow exact-numeric local write contract."""
+the behavior-preserving BindingId owner/bypass prerequisite. 3487 closes the
+narrow exact-numeric local write contract, PHI/loop identity evidence, MIR
+JSON, VM owner, and backend preflight. 3488 stops for one contract-refresh
+owner and the representation-only :T derivation boundary."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
@@ -31,15 +33,14 @@ method_anchor = "docs/development/current/main/design/selfhost-language-v1-freez
 taskboard = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 
-latest_card = "LANGV1-LOCAL-EXACT-NUMERIC-CONTRACT-IMPLEMENTATION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3487-LANGV1-LOCAL-EXACT-NUMERIC-CONTRACT-IMPLEMENTATION-001.md"
-latest_card_summary = """3486 closes the single BindingId/LocalSlotId owner,
-atomic declaration API, paired snapshot, CorePlan local routing, and ScopeBox
-identity restoration. 3487 owns LocalContractWrite, exact-numeric local
-init/reassignment, U1, PHI/loop evidence, MIR JSON, VM checks, and backend
-preflight."""
+latest_card = "LANGV1-REPRESENTATION-HINT-AND-CONTRACT-REFRESH-DESIGN-STOP-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3488-LANGV1-REPRESENTATION-HINT-AND-CONTRACT-REFRESH-DESIGN-STOP-001.md"
+latest_card_summary = """3487 closes LocalContractWrite, exact-numeric local
+init/reassignment, U1, PHI/loop checked-write evidence, MIR JSON, VM checks,
+and unsupported-backend preflight. 3488 selects one carrier refresh owner and
+the one-way source-contract to representation-fact boundary before more code."""
 
-current_blocker_token = "LANGV1-LOCAL-EXACT-NUMERIC-CONTRACT-IMPLEMENTATION-001"
+current_blocker_token = "LANGV1-REPRESENTATION-HINT-AND-CONTRACT-REFRESH-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -48,6 +49,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-11: 3487 closes exact-numeric local init/reassignment, U1, PHI/loop evidence, MIR JSON, VM checks, and backend preflight; 3488 opens the representation and carrier-refresh design stop.",
   "2026-07-11: 3486 closes LocalSlotId(BindingId), the atomic declaration API, value/binding snapshots, CorePlan local routing, and ScopeBox identity restoration; 3487 opens exact-numeric local contract activation.",
   "2026-07-11: 3485 accepts LocalSlotId(BindingId), canonical LocalContractWrite, checked-edge PHI/loop identity, U1, and VM-only scope; 3486 opens the behavior-preserving binding-owner prerequisite.",
   "2026-07-11: 3484 closes exact-numeric final-return carrier, verifier, VM owner, MIR JSON, and backend preflight; 3485 opens the local-slot identity/write-boundary design stop.",
@@ -59,5 +61,4 @@ landed_tail = [
   "2026-07-10: 3478 closes LANGV1-GRAMMAR-001 with 106/106 corpus fixtures, zero Canonical source debt, and bounded differential composition; 3479 opens type-guarantee design consultation.",
   "2026-07-10: 3477 accepts loop/weak/record/literal contracts plus registry normalization and recursive conformance; 3478 opens one implementation series.",
   "2026-07-10: 3477 opens one consolidated design stop after 3476 proves that the green 22-row grammar corpus still omits required loop, weak, record, and literal surfaces.",
-  "2026-07-10: 3476 centralizes selected test environment state under panic-safe ScopedTestConfig, classifies five route failures as fresh-process baseline drift, and advances to the grammar closeout audit in the same card.",
 ]

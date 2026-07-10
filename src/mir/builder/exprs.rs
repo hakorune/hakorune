@@ -115,12 +115,14 @@ impl super::MirBuilder {
             ASTNode::Local {
                 variables,
                 initial_values,
+                declared_type_names,
                 ..
             } => Ok(StatementSurfaceDispatch::Lowered(
                 super::stmts::variable_stmt::build_local_statement(
                     self,
                     variables.clone(),
                     initial_values.clone(),
+                    declared_type_names.clone(),
                 )?,
             )),
             ASTNode::Outbox { variables, .. } => Ok(StatementSurfaceDispatch::Lowered(
