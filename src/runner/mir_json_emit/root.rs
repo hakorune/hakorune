@@ -52,6 +52,7 @@ pub(super) fn build_mir_json_root(
     let mut export_functions = Vec::new();
     for (name, f) in ordered_harness_functions(module) {
         crate::mir::type_contracts::parameter_entry::validate_parameter_entry_contracts(f)?;
+        crate::mir::type_contracts::return_exit::validate_return_exit_contract(f)?;
         let boxed_sum_site_plans =
             crate::mir::boxed_sum_abi_plan::build_function_boxed_sum_site_plan_map(
                 f,

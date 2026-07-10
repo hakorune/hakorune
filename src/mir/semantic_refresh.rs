@@ -90,6 +90,7 @@ use super::{
     substring_views_micro_seed_plan::refresh_function_substring_views_micro_seed_route,
     sum_placement::refresh_function_sum_placement_facts_with_def_map,
     type_contracts::parameter_entry::refresh_function_parameter_entry_contracts,
+    type_contracts::return_exit::refresh_function_return_exit_contract,
     typed_object_plan::{
         refresh_module_typed_object_field_value_types, refresh_module_typed_object_plans,
     },
@@ -201,6 +202,7 @@ pub fn refresh_function_semantic_metadata(
     module_metadata: &ModuleMetadata,
 ) {
     refresh_function_parameter_entry_contracts(function);
+    refresh_function_return_exit_contract(function);
     refresh_function_source_and_fact_metadata(function, module_metadata);
     refresh_function_placement_metadata(function, module_metadata);
     refresh_function_pre_fixpoint_routes(function, module_metadata);

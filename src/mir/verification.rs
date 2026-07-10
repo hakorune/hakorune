@@ -29,6 +29,7 @@ mod inline_required;
 mod legacy;
 mod module_metadata;
 mod numeric_substrate;
+pub(crate) mod return_outcome;
 mod rune_contracts;
 mod ssa;
 mod string_kernel;
@@ -212,6 +213,15 @@ impl MirVerifier {
 
         // 3. Check control flow integrity
         collect_errors!(local_errors, self.verify_control_flow(function));
+
+        // Active non-void return contracts require a final value on every
+        // reachable terminating return/fallthrough path.
+        if let Err(reason) = return_outcome::check_return_outcomes(function) {
+            local_errors.push(VerificationError::ControlFlowError {
+                block: function.entry_block,
+                reason,
+            });
+        }
 
         // Phase 257 P1-1: PHI predecessor validation
         collect_errors!(local_errors, cfg::check_phi_predecessors(function));

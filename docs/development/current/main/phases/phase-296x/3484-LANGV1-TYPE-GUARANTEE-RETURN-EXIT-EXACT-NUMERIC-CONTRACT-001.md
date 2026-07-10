@@ -2,12 +2,12 @@
 
 ## Status
 
-Active substantive implementation card after 3483 accepts the final-callee
-return owner, typed carrier, Void/fallthrough policy, and backend boundary.
+Complete. The final-callee return owner, typed carrier, Void/fallthrough veto,
+MIR JSON transport, and backend boundary are implemented and verified.
 
 Decision: accepted by 3483.
 
-Implementation: required.
+Implementation: complete.
 
 ```text
 docs_only_closeout = forbidden
@@ -242,3 +242,33 @@ After this card closes, do not immediately activate locals. Open one local
 exact-numeric design stop that inventories initialization, reassignment, PHI,
 loop-carried values, Any refinement, and proof invalidation. The durable queue
 is recorded in the Language v1 workstream, not as pre-created numbered cards.
+
+## Closeout Evidence
+
+```text
+FunctionMetadata.return_exit_contract = implemented
+FunctionReturnContractOwner = central BlockOutcome::Return branch
+ReturnOutcomeVerifier = reachable CFG, Return(None), fallthrough
+shared exact-numeric checker = parameter + return subordinate owner
+MIR JSON typed carrier = implemented
+backend capability = VM only; PyVM/LLVM/AOT/Wasm reject
+runtime check elision = 0
+caller authority = 0
+```
+
+Focused verification:
+
+```text
+type-contract matrix/carrier tests: 11 green
+parameter-entry regression tests: 8 green
+return VM direct/nested/recursive/reroute/cleanup tests: 9 green
+return outcome verifier tests: 2 green
+MIR JSON return carrier tests: 2 green
+return backend capability tests: 2 green
+shared backend capability tests: 2 green
+cargo check --all-targets --features vm-reference: green
+cargo build --release --bin hakorune: green
+changed production source over 800 lines: 0
+```
+
+Next: 3485 local exact-numeric contract design stop.

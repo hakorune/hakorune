@@ -47,5 +47,6 @@ pub use types::{
     ClosureBodyId, ExactNumericRuntimeCheckContract, ExactNumericRuntimeCheckContractKind,
     FunctionSignature, FunctionStats, MirEnumDecl, MirEnumVariantDecl, MirFunction, MirModule,
     MirParamDecl, ModuleMetadata, ModuleStats, ParameterEntryContract, ParameterEntryContractKind,
+    ReturnExitContract, ReturnExitContractKind, ReturnExitContractOwner, ReturnExitVoidPolicy,
     StaticDataPlan,
 };

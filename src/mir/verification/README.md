@@ -37,6 +37,7 @@ optional_dev:
   return-block purity
 
 semantic_contracts:
+  active non-void return outcome existence
   string kernel plans
   rune contracts
   required inline plans

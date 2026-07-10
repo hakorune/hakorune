@@ -83,10 +83,10 @@ pub(crate) const GUARANTEE_MATRIX: [GuaranteeMatrixRow; 11] = [
     },
     GuaranteeMatrixRow {
         site: AnnotationSite::ReturnExit,
-        current: GuaranteeClass::MetadataOnlyNonGuarantee,
+        current: GuaranteeClass::RuntimeCheckedContract,
         target: GuaranteeClass::VerifiedRuntimeGuardedContract,
         owner: EnforcementOwner::FunctionReturnContract,
-        activation: ActivationScope::Transitional,
+        activation: ActivationScope::ExactNumericFirstSlice,
         unsupported_backend: UnsupportedBackendPolicy::RejectBeforeEffects,
     },
     GuaranteeMatrixRow {
@@ -178,6 +178,14 @@ pub(crate) fn exact_numeric_parameter_entry_contract_is_active() -> bool {
         && row.unsupported_backend == UnsupportedBackendPolicy::RejectBeforeEffects
 }
 
+pub(crate) fn exact_numeric_return_exit_contract_is_active() -> bool {
+    let row = guarantee_for(AnnotationSite::ReturnExit);
+    row.current == GuaranteeClass::RuntimeCheckedContract
+        && row.owner == EnforcementOwner::FunctionReturnContract
+        && row.activation == ActivationScope::ExactNumericFirstSlice
+        && row.unsupported_backend == UnsupportedBackendPolicy::RejectBeforeEffects
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -198,12 +206,12 @@ mod tests {
     }
 
     #[test]
-    fn exact_numeric_box_field_and_parameter_entry_are_active_slices() {
+    fn exact_numeric_box_field_entry_and_return_are_active_slices() {
         let rows: Vec<_> = GUARANTEE_MATRIX
             .iter()
             .filter(|row| row.activation == ActivationScope::ExactNumericFirstSlice)
             .collect();
-        assert_eq!(rows.len(), 2);
+        assert_eq!(rows.len(), 3);
         assert!(rows.iter().any(|row| {
             row.site == AnnotationSite::BoxFieldWrite
                 && row.owner == EnforcementOwner::ExactNumericBoxFieldContract
@@ -212,10 +220,15 @@ mod tests {
             row.site == AnnotationSite::ParameterEntry
                 && row.owner == EnforcementOwner::FunctionEntryContract
         }));
+        assert!(rows.iter().any(|row| {
+            row.site == AnnotationSite::ReturnExit
+                && row.owner == EnforcementOwner::FunctionReturnContract
+        }));
         assert!(rows.iter().all(|row| {
             row.unsupported_backend == UnsupportedBackendPolicy::RejectBeforeEffects
         }));
         assert!(exact_numeric_parameter_entry_contract_is_active());
+        assert!(exact_numeric_return_exit_contract_is_active());
     }
 
     #[test]

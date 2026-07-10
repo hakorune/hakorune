@@ -64,6 +64,39 @@ pub struct ParameterEntryContract {
     pub backend_capability_required: String,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ReturnExitContractKind {
+    ExactNumeric,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ReturnExitVoidPolicy {
+    RejectVoid,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ReturnExitContractOwner {
+    FunctionReturnContract,
+}
+
+/// Executable semantic contract for one explicit source return annotation.
+///
+/// Function ownership supplies identity and refresh freshness. Return operands
+/// deliberately stay out of this carrier because the final runtime outcome is
+/// the only value checked by the exit owner.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ReturnExitContract {
+    pub contract_id: String,
+    pub declared_type_name: String,
+    pub contract_kind: ReturnExitContractKind,
+    pub void_policy: ReturnExitVoidPolicy,
+    pub runtime_check_required: bool,
+    pub proof_elision_allowed: bool,
+    pub backend_capability_required: String,
+    pub source_return_annotation_present: bool,
+    pub owner: ReturnExitContractOwner,
+}
+
 /// A MIR function in SSA form
 #[derive(Debug, Clone)]
 pub struct MirFunction {

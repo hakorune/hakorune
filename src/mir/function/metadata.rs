@@ -8,6 +8,7 @@ use super::fastmem::{
     FastMemRegionMetadata, FastMemRemoteOwnerFact, FastMemSameOwnerFact, FastMemTableLengthFact,
 };
 use super::object_metadata::RecordStateFieldAccessPlan;
+use super::types::ReturnExitContract;
 use super::types::{ExactNumericRuntimeCheckContract, MirParamDecl, ParameterEntryContract};
 use crate::mir::{
     agg_local_scalarization::AggLocalScalarizationRoute,
@@ -568,6 +569,10 @@ pub struct FunctionMetadata {
     /// Source-level declared return annotation carried into MIR without
     /// forcing `FunctionSignature.return_type`.
     pub declared_return_type_name: Option<String>,
+
+    /// Executable return-exit semantic contract rebuilt from declaration
+    /// evidence during semantic refresh.
+    pub return_exit_contract: Option<ReturnExitContract>,
 
     /// MIR-owned exact numeric facts attached to values after field reads and
     /// conservative copy/control-merge propagation.

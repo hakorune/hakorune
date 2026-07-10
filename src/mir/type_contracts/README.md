@@ -7,8 +7,12 @@ not parse source syntax, select storage layouts, or lower backend operations.
 
 - `guarantee_matrix.rs` is the closed annotation-site matrix.
 - `proof.rs` defines verifier-backed proof records for activated slices.
-- Site-specific classifiers remain with their existing semantic owner. The
-  first owner is `mir/exact_numeric_field_contracts.rs`.
+- `parameter_entry.rs` owns typed final-callee entry carriers and drift checks.
+- `return_exit.rs` owns typed final-outcome carriers and drift checks.
+- Site-specific timing stays with its boundary owner. Shared exact-numeric
+  value/range checking is subordinate and cannot infer a contract.
+- Exact-numeric field writes remain owned by
+  `mir/exact_numeric_field_contracts.rs`.
 - Runtime and backend consumers may validate or enforce an activated contract;
   they do not infer contracts from source spelling or representation metadata.
 

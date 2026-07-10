@@ -1,9 +1,6 @@
 use super::super::{MirInterpreter, VMError, VMValue};
+use super::exact_numeric_value_checker::validate_exact_numeric_runtime_value;
 use crate::mir::function::ParameterEntryContractKind;
-use crate::mir::numeric_substrate::{
-    exact_numeric_const_from_i128, exact_numeric_mir_type_from_declared_name,
-    exact_numeric_value_from_dynamic_integer, ExactNumericConversionError, NumericTarget,
-};
 use crate::mir::type_contracts::parameter_entry::validate_parameter_entry_contracts;
 use crate::mir::MirFunction;
 
@@ -54,42 +51,9 @@ impl MirInterpreter {
         contract: &crate::mir::function::ParameterEntryContract,
         argument: &VMValue,
     ) -> Result<(), VMError> {
-        let Some(exact_type) = exact_numeric_mir_type_from_declared_name(
-            Some(contract.declared_type_name.as_str()),
-            NumericTarget::host(),
-        ) else {
-            return Err(self.parameter_contract_violation(
-                function,
-                contract,
-                argument,
-                "unknown-exact-type",
-            ));
-        };
-
-        let result = match argument {
-            VMValue::Integer(value) => {
-                exact_numeric_value_from_dynamic_integer(*value, &exact_type).map(|_| ())
-            }
-            VMValue::ExactNumeric(value) if value.source_name == exact_type.source_name => {
-                exact_numeric_const_from_i128(value.value, &exact_type).map(|_| ())
-            }
-            _ => {
-                return Err(self.parameter_contract_violation(
-                    function,
-                    contract,
-                    argument,
-                    "runtime-type-mismatch",
-                ));
-            }
-        };
-
-        result.map_err(|error| {
-            let reason = match error {
-                ExactNumericConversionError::NegativeToUnsigned { .. } => "negative-to-unsigned",
-                ExactNumericConversionError::OutOfRange { .. } => "out-of-range",
-            };
-            self.parameter_contract_violation(function, contract, argument, reason)
-        })
+        validate_exact_numeric_runtime_value(argument, &contract.declared_type_name).map_err(
+            |reason| self.parameter_contract_violation(function, contract, argument, reason),
+        )
     }
 
     fn parameter_contract_violation(

@@ -10,14 +10,23 @@ use super::utils::stepbudget;
 mod block;
 mod diagnostics;
 mod exact_numeric_ops;
+mod exact_numeric_value_checker;
 mod numeric_contracts;
 mod parameter_contracts;
 mod phi;
+mod return_contracts;
 mod trace;
 
 pub(crate) use block::BlockOutcome;
 
 impl MirInterpreter {
+    fn leave_function_call(&mut self, trace_stack: bool) {
+        if trace_stack {
+            self.call_stack.pop();
+        }
+        self.call_depth = self.call_depth.saturating_sub(1);
+    }
+
     fn build_block_table<'a>(func: &'a MirFunction) -> Vec<Option<&'a BasicBlock>> {
         let max_id = func
             .blocks
@@ -85,7 +94,16 @@ impl MirInterpreter {
             self.call_depth = self.call_depth.saturating_sub(1);
             return r;
         }
-        self.validate_function_entry_contracts(func, arg_vals)?;
+        let contract_preflight = self
+            .validate_function_entry_contracts(func, arg_vals)
+            .and_then(|_| {
+                crate::mir::verification::return_outcome::check_return_outcomes(func)
+                    .map_err(|error| self.err_invalid(error))
+            });
+        if let Err(error) = contract_preflight {
+            self.leave_function_call(trace_stack);
+            return Err(error);
+        }
         let saved_regs = mem::take(&mut self.regs);
         let saved_fast_slots = mem::take(&mut self.reg_fast_slots);
         let saved_aliases = mem::take(&mut self.reg_copy_aliases);
@@ -251,6 +269,7 @@ impl MirInterpreter {
 
             match outcome {
                 BlockOutcome::Return(result) => {
+                    let contract_result = self.validate_function_return_contract(func, &result);
                     crate::runtime::leak_tracker::observe_temps(self.strong_temp_root_count());
                     crate::runtime::leak_tracker::observe_heap_fields(
                         self.strong_heap_field_root_count(),
@@ -261,11 +280,8 @@ impl MirInterpreter {
                     self.reg_copy_aliases = saved_aliases;
                     self.reg_i64_cache = saved_i64_cache;
                     self.reg_bool_cache = saved_bool_cache;
-                    if trace_stack {
-                        self.call_stack.pop();
-                    }
-                    self.call_depth = self.call_depth.saturating_sub(1);
-                    return Ok(result);
+                    self.leave_function_call(trace_stack);
+                    return contract_result.map(|_| result);
                 }
                 BlockOutcome::Next {
                     target,

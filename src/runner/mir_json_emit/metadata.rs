@@ -13,6 +13,7 @@ use super::placement_effect::build_placement_effect_routes_json;
 use super::plan_metadata::insert_plan_metadata_json;
 use super::plans::build_string_kernel_plan_json;
 use super::proof_envelope::build_proof_envelopes_json;
+use super::return_contracts::insert_return_contract_metadata_json;
 use super::route_metadata::insert_route_metadata_json;
 use crate::mir::MirFunction;
 use serde_json::json;
@@ -467,6 +468,7 @@ pub(super) fn build_function_metadata_json(f: &MirFunction) -> serde_json::Value
         insert_array_metadata_json(obj, metadata);
         insert_exact_numeric_metadata_json(obj, metadata);
         insert_parameter_contract_metadata_json(obj, metadata);
+        insert_return_contract_metadata_json(obj, metadata);
         insert_route_metadata_json(obj, f, metadata);
     }
     if let serde_json::Value::Object(obj) = &mut metadata_json {

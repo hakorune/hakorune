@@ -12,6 +12,9 @@ pub(crate) fn enforce_mir_backend_supported(
     )?;
     crate::mir::parameter_entry_backend_capability::enforce_parameter_entry_backend_supported(
         module, backend,
+    )?;
+    crate::mir::return_exit_backend_capability::enforce_return_exit_backend_supported(
+        module, backend,
     )
 }
 

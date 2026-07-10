@@ -18,6 +18,7 @@ mod placement_effect;
 mod plan_metadata;
 mod plans;
 mod proof_envelope;
+mod return_contracts;
 mod root;
 mod route_json;
 mod route_metadata;

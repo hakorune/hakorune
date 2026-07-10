@@ -288,7 +288,8 @@ Next: `LANGV1-TYPE-GUARANTEE-001`.
 
 Status: design accepted as 3479; exact-numeric Box field first slice complete
 as 3480; parameter-entry contract complete as 3482; return-exit design accepted
-as 3483; return-exit implementation active as 3484.
+as 3483; return-exit implementation complete as 3484; local exact-numeric
+owner/boundary consultation active as 3485.
 
 Target contract:
 
@@ -318,11 +319,11 @@ Deliverables:
 Current executable queue:
 
 ```text
-T0 active:
+T0 complete:
   3484 exact-numeric return-exit implementation
 
-T1 after 3484 closeout:
-  local exact-numeric contract design stop
+T1 active:
+  3485 local exact-numeric contract design stop
   inventory init/reassignment/PHI/loop/Any/proof invalidation
 
 T2 after local decision:

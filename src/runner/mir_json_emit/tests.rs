@@ -21,6 +21,7 @@ mod ordering;
 mod parameter_contracts;
 mod placement;
 mod proof_envelopes;
+mod return_contracts;
 mod string_corridor;
 mod string_direct_set_routes;
 mod thin_entry;
