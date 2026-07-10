@@ -2,9 +2,42 @@
 
 ## Status
 
-Design consultation stop. 3463 and 3464 complete the Rust typed profile,
-statement-try, and peek seams. Do not change either Rust `from` surface until
-the transport representation and semantic-entry boundary are accepted.
+Decision accepted. 3463 and 3464 complete the Rust typed profile,
+statement-try, and peek seams. Implementation is authorized only by 3466.
+
+## Accepted Decision
+
+Adopt A: a separate migration-only transport adapter.
+
+```text
+transport representation = distinct MigrationTransport record
+grammar evidence = span-free ParseWitness referencing the transport record
+semantic parser result = AST or typed ParseError::TransportOnly
+CompatibilityTransport AST node = forbidden
+Compat2025 source-from semantic AST success = forbidden
+Option Some/None internal representation = unchanged
+```
+
+Canonical semantic parsing rejects the two source forms with their
+form-specific tags. Compat2025 semantic parsing recognizes a closed transport
+form but fails before AST publication with
+`parser/from_compat_transport_only`. Only the migration adapter may return
+accepted transport evidence.
+
+Accepted decision claims:
+
+```text
+from_compat_transport_owner_decision = separate_migration_transport_adapter
+from_compat_transport_adapter_required = 1
+migration_transport_record_required = 1
+parse_witness_references_migration_transport = 1
+canonical_box_from_reject_required = 1
+canonical_from_call_reject_required = 1
+compat2025_from_semantic_entry_transport_only_error_required = 1
+compat_transport_ast_forbidden = 1
+from_semantic_lowering_forbidden = 1
+option_sugar_unchanged_required = 1
+```
 
 ## Contract
 
@@ -130,5 +163,5 @@ selfhost_claim = 0
 
 ## Next
 
-After consultation, open one code-facing transport-boundary implementation
-card. Do not split box-from and from-call into separate design/rerun cards.
+3466 implements one code-facing transport boundary for both forms. Do not
+split box-from and from-call into separate design/rerun cards.
