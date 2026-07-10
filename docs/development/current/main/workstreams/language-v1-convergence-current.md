@@ -286,7 +286,8 @@ Next: `LANGV1-TYPE-GUARANTEE-001`.
 
 ### 3. LANGV1-TYPE-GUARANTEE-001
 
-Status: active design consultation as 3479 after Grammar closeout.
+Status: design accepted as 3479; exact-numeric Box field first slice active as
+3480.
 
 Target contract:
 

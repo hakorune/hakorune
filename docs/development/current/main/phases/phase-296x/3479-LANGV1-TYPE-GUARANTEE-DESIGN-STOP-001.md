@@ -2,11 +2,11 @@
 
 ## Status
 
-Active design consultation after `LANGV1-GRAMMAR-001` closes in 3478.
+Complete design consultation after `LANGV1-GRAMMAR-001` closes in 3478.
 
-Decision: required before implementation.
+Decision: accepted.
 
-Implementation: stopped.
+Implementation: delegated to 3480.
 
 ## Objective
 
@@ -23,6 +23,48 @@ representation/planner hint -> MIR facts, Plan, or Rune; never : T
 
 This card decides the matrix and first implementation slice. It does not
 activate checks.
+
+## Accepted Decision
+
+```text
+Canonical x: T = eventual gradual semantic contract T at every site
+permanent metadata-only annotation site = forbidden
+metadata_only_non_guarantee = explicit transitional state only
+representation/storage/planner/Rune fact = non-contract axis
+```
+
+Guarantee class and enforcement owner are separate axes:
+
+```text
+guarantee class:
+  any_default
+  metadata_only_non_guarantee
+  runtime_checked_contract
+  verifier_proven_contract
+  verified_runtime_guarded_contract
+  unsupported_failfast
+  representation_fact_non_contract
+
+enforcement owner:
+  none
+  runtime_check
+  verifier_proof
+  verifier_proof_plus_runtime_audit
+  backend_capability_preflight
+  semantic_reject
+```
+
+The first implementation slice is the existing exact-numeric Box field write
+boundary. Its single owner remains
+`src/mir/exact_numeric_field_contracts.rs`; do not create a parallel owner just
+to match a design label. Existing verifier, VM runtime-check, MIR JSON, and
+backend-capability consumers remain subordinate projections.
+
+Proof freshness for this first slice is structural and re-derived: semantic
+refresh rebuilds proof/check decisions from the current function body,
+declaration metadata, `FieldSet` site key, and value producer. Do not add fake
+CFG/SSA epochs or hashes that the current compiler does not own. A future
+cross-refresh proof cache must open a separate freshness decision.
 
 ## Current Evidence To Inventory
 
@@ -138,6 +180,13 @@ not create inventory-only, fixture-only, or rerun-only numbered cards.
 type_guarantee_design_consultation_open = 1
 annotation_site_set_closed_for_consultation = 1
 grammar_closeout_retained = 1
+type_guarantee_design_decision = 1
+all_colon_annotations_eventual_gradual_contract = 1
+permanent_metadata_only_annotations_rejected = 1
+guarantee_vocabulary_decided = 1
+single_check_owner_matrix_decided = 1
+representation_hint_split_decided = 1
+first_slice_box_field_exact_numeric_selected = 1
 ```
 
 ## Non-Claims
@@ -161,6 +210,5 @@ selfhost_claim = 0
 
 ## Stop Rule
 
-Do not edit parser, MIR, runtime, backend, or type-checking behavior until this
-consultation accepts the matrix vocabulary, owner map, fail-fast boundary, and
-first implementation slice.
+Implementation may proceed only through 3480's exact-numeric Box field slice.
+All other annotation sites remain explicit non-claims.
