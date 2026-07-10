@@ -2,8 +2,8 @@
 
 ## Status
 
-Active implementation card. Add the accepted explicit per-invocation Hako
-grammar-profile facade and migrate statement `try` only.
+Complete. The accepted explicit per-invocation Hako grammar-profile facade now
+owns statement `try` migration.
 
 ## Structural Scope
 
@@ -93,12 +93,42 @@ selfhost_claim = 0
 
 ## Verification
 
-Run focused facade/try fixtures through the bounded adapter, then run the
-adapter-health tests, reusable Language v1 grammar guard, grammar substrate
-guard, current-state pointer guard, and `git diff --check`. Keep every new
-source file below 800 lines.
+Completed:
+
+```text
+python3 -m unittest tools.language_v1.test_hako_adapter_health
+bash tools/checks/language_v1_grammar_contract_substrate_guard.sh
+LANGV1_HAKO_PROFILE_FULL=1 bash tools/checks/language_v1_grammar_contract_substrate_guard.sh
+bash tools/checks/language_v1_rust_grammar_profile_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+The full matrix proves Canonical rejection, explicit Compat2025 closed-set
+acceptance, typed-catch rejection, and `NYASH_FEATURES=no-try-compat` having no
+profile authority. Each full Hako observation completed within the named
+90-second bound. Unconditional nested-statement diagnostics were restored to
+the existing `NYASH_PARSER_TRACE=1` gate so stdout remains one envelope.
+
+All new source files are below 800 lines. `parser_box.hako` was already above
+the cap before this card; this slice adds only the profile mode field and three
+small accessors and does not mix a broad BoxShape split into grammar behavior.
+
+## Closeout
+
+```text
+hako_grammar_profile_facade_implemented = 1
+hako_profile_per_parse_invocation = 1
+hako_canonical_default = 1
+hako_compat2025_explicit_only = 1
+hako_statement_try_profile_seam = 1
+hako_try_mismatch_fail_fast = 1
+hako_implicit_compat_retry = 0
+hako_env_profile_authority = 0
+hako_parse_witness_conformance = 0
+```
 
 ## Next
 
-After this card is green, migrate Hako `peek` as the closed Compat2025 alias to
-canonical `Match`. Keep Hako `from` evidence deferred.
+3470 migrates Hako `peek` as the closed Compat2025 alias to canonical `Match`.
+Keep Hako `from` evidence deferred.

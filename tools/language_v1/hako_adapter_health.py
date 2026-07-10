@@ -52,6 +52,17 @@ def _single_json_object(stdout: str) -> AdapterProcessResult:
             return AdapterProcessResult(
                 "error", "parser/hako_raw_json_as_authority_forbidden"
             )
+        if payload.get("status") == "error":
+            tag = payload.get("stable_reject_tag")
+            if not isinstance(tag, str) or not tag.startswith("parser/"):
+                return AdapterProcessResult(
+                    "error", "parser/hako_adapter_malformed_output"
+                )
+            return AdapterProcessResult("error", tag)
+        if payload.get("status") != "ok" or not isinstance(payload.get("program"), dict):
+            return AdapterProcessResult(
+                "error", "parser/hako_adapter_malformed_output"
+            )
     return AdapterProcessResult("ok", "")
 
 
@@ -108,14 +119,19 @@ def health_envelope(
     }
 
 
-def probe_command(binary: pathlib.Path, probe_kind: str) -> list[str] | None:
+def probe_command(
+    binary: pathlib.Path, probe_kind: str, profile: str
+) -> list[str] | None:
     entry = {
         "health": HEALTH_PROBE,
         "observation": GRAMMAR_ADAPTER,
     }.get(probe_kind)
     if entry is None:
         return None
-    return [str(binary), "--backend", "vm", str(entry)]
+    command = [str(binary), "--backend", "vm", str(entry)]
+    if probe_kind == "observation":
+        command.extend(["--", "--grammar-profile", profile])
+    return command
 
 
 def run_health_probe(
@@ -123,10 +139,11 @@ def run_health_probe(
     binary: pathlib.Path,
     probe_kind: str,
     source: str,
+    profile: str = "canonical",
     timeout_seconds: float,
     environment: Mapping[str, str] | None = None,
 ) -> dict[str, Any]:
-    command = probe_command(binary, probe_kind)
+    command = probe_command(binary, probe_kind, profile)
     if command is None:
         result = AdapterProcessResult("error", "parser/hako_adapter_probe_unknown")
         return health_envelope(probe_kind=probe_kind, result=result, deterministic=True)
@@ -161,6 +178,7 @@ def main() -> int:
     parser.add_argument("--bin", type=pathlib.Path, default=ROOT / "target/debug/hakorune")
     parser.add_argument("--probe", default="health")
     parser.add_argument("--source", default="local x = 1")
+    parser.add_argument("--profile", default="canonical")
     parser.add_argument(
         "--timeout-sec", type=float, default=DEFAULT_HAKO_ADAPTER_TIMEOUT_SECONDS
     )
@@ -176,6 +194,7 @@ def main() -> int:
             binary=args.bin,
             probe_kind=args.probe,
             source=args.source,
+            profile=args.profile,
             timeout_seconds=args.timeout_sec,
         )
     print(json.dumps(envelope, sort_keys=True, separators=(",", ":")))

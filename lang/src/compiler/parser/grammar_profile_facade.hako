@@ -1,0 +1,23 @@
+// Explicit per-invocation grammar-profile owner for the Hako parser.
+// Environment variables never select this profile.
+
+using lang.compiler.parser.parser_box as ParserBox
+
+static box HakoGrammarProfileFacade {
+  profile_mode(profile) {
+    local value = "" + profile
+    if value == "canonical" { return 0 }
+    if value == "compat2025" { return 1 }
+    return -1
+  }
+
+  parse_with_profile(source, profile) {
+    local mode = me.profile_mode(profile)
+    if mode < 0 {
+      return "[freeze:contract][parser/hako_profile_unknown] unknown Hako grammar profile"
+    }
+    local parser = new ParserBox()
+    parser.grammar_profile_mode_set(mode)
+    return parser.parse_program2(source)
+  }
+}

@@ -68,6 +68,8 @@ static box ParserExceptionBox {
   parse_try_tail(src, j, stmt_start, ctx, try_json) {
     local catches_json = "["
     local catch_first = 1
+    local catch_count = 0
+    local compat_try = ctx.grammar_profile_is_compat2025()
 
     // zero or more catch - MirBuilder-friendly
     loop(true) {
@@ -76,33 +78,53 @@ static box ParserExceptionBox {
       if ctx.starts_with_kw(src, j, "catch") != 1 { break }
 
       {
+        catch_count = catch_count + 1
+        if compat_try == 1 && catch_count > 1 {
+          ctx.gpos_set(j)
+          return "[freeze:contract][parser/hako_try_compat_not_normalizable] Compat2025 try allows at most one catch"
+        }
         j = j + 5
         j = ctx.skip_ws(src, j)
         local catch_type = null
         local catch_param = null
 
-        if src.substring(j, j+1) == "(" {
+        if compat_try == 1 {
+          if src.substring(j, j+1) != "(" {
+            ctx.gpos_set(j)
+            return "[freeze:contract][parser/hako_try_compat_not_normalizable] Compat2025 try requires catch ()"
+          }
           j = j + 1
           j = ctx.skip_ws(src, j)
-
-          // optional type + name
-          if ctx.is_alpha(src.substring(j, j+1)) {
-            local id1 = ctx.read_ident2(src, j)
-            local at1 = id1.lastIndexOf("@")
-            catch_type = id1.substring(0, at1)
-            j = ctx.to_int(id1.substring(at1+1, id1.length()))
-            j = ctx.skip_ws(src, j)
+          if src.substring(j, j+1) != ")" {
+            ctx.gpos_set(j)
+            return "[freeze:contract][parser/hako_try_compat_not_normalizable] Compat2025 try requires empty catch ()"
           }
-
-          if ctx.is_alpha(src.substring(j, j+1)) {
-            local id2 = ctx.read_ident2(src, j)
-            local at2 = id2.lastIndexOf("@")
-            catch_param = id2.substring(0, at2)
-            j = ctx.to_int(id2.substring(at2+1, id2.length()))
+          j = j + 1
+          j = ctx.skip_ws(src, j)
+        } else {
+          if src.substring(j, j+1) == "(" {
+            j = j + 1
             j = ctx.skip_ws(src, j)
-          }
 
-          if src.substring(j, j+1) == ")" { j = j + 1 }
+            // optional type + name
+            if ctx.is_alpha(src.substring(j, j+1)) {
+              local id1 = ctx.read_ident2(src, j)
+              local at1 = id1.lastIndexOf("@")
+              catch_type = id1.substring(0, at1)
+              j = ctx.to_int(id1.substring(at1+1, id1.length()))
+              j = ctx.skip_ws(src, j)
+            }
+
+            if ctx.is_alpha(src.substring(j, j+1)) {
+              local id2 = ctx.read_ident2(src, j)
+              local at2 = id2.lastIndexOf("@")
+              catch_param = id2.substring(0, at2)
+              j = ctx.to_int(id2.substring(at2+1, id2.length()))
+              j = ctx.skip_ws(src, j)
+            }
+
+            if src.substring(j, j+1) == ")" { j = j + 1 }
+          }
         }
 
         j = ctx.skip_ws(src, j)
@@ -112,7 +134,7 @@ static box ParserExceptionBox {
         local atc = c_res.lastIndexOf("@")
         j = ctx.to_int(c_res.substring(atc+1, c_res.length()))
 
-        if ctx.stage3_enabled() == 1 {
+        if compat_try == 1 || ctx.stage3_enabled() == 1 {
           local entry = "{"
           local wrote = 0
 
@@ -156,7 +178,12 @@ static box ParserExceptionBox {
       finally_json = f_res.substring(0, atf)
     }
 
-    if ctx.stage3_enabled() == 1 {
+    if compat_try == 1 && catch_count == 0 && finally_json == null {
+      ctx.gpos_set(j)
+      return "[freeze:contract][parser/hako_try_compat_not_normalizable] Compat2025 try requires catch () or cleanup"
+    }
+
+    if compat_try == 1 || ctx.stage3_enabled() == 1 {
       if j <= stmt_start {
         if j < src.length() { j = j + 1 } else { j = src.length() }
       }

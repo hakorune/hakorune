@@ -18,6 +18,13 @@ rg -q '\[\[language_v1_grammar_contract\.rows\]\]' grammar/unified-grammar.toml 
 rg -q 'CompatibilityTransport' docs/reference/language/grammar-contract.md || guard_fail "transport boundary missing"
 rg -q 'ParseWitness' crates/hakorune_frontend_grammar/src/contract.rs || guard_fail "witness type missing"
 rg -q 'compare_witnesses' crates/hakorune_frontend_grammar/src/contract.rs || guard_fail "comparator missing"
+rg -q 'HakoGrammarProfileFacade' lang/src/compiler/parser/grammar_profile_facade.hako \
+  || guard_fail "Hako grammar profile facade missing"
+rg -q 'parser/hako_try_reserved' lang/src/compiler/parser/stmt/parser_stmt_box/core.hako \
+  || guard_fail "Hako Canonical try guard missing"
+rg -q 'parser/hako_try_compat_not_normalizable' \
+  lang/src/compiler/parser/stmt/parser_exception_box.hako \
+  || guard_fail "Hako Compat2025 try closed-set guard missing"
 
 python3 tools/language_v1/grammar_contract_drift_report.py --help >/dev/null
 python3 -m unittest tools.language_v1.test_hako_adapter_health
@@ -45,6 +52,37 @@ if python3 tools/language_v1/hako_adapter_health.py \
 fi
 rg -q 'parser/hako_adapter_timeout' "$observation" \
   || guard_fail "Hako adapter observation timeout tag missing"
+
+if [ "${LANGV1_HAKO_PROFILE_FULL:-0}" = "1" ]; then
+  canonical_try="$(mktemp)"
+  compat_try="$(mktemp)"
+  nonnormal_try="$(mktemp)"
+  trap 'rm -f "$health_a" "$health_b" "$observation" "$canonical_try" "$compat_try" "$nonnormal_try"' EXIT
+
+  if python3 tools/language_v1/hako_adapter_health.py \
+    --bin target/debug/hakorune --probe observation --profile canonical \
+    --source 'try { local x = 1 } catch () { local y = 2 }' \
+    --timeout-sec 90 >"$canonical_try"; then
+    guard_fail "Canonical Hako profile accepted statement try"
+  fi
+  rg -q 'parser/hako_try_reserved' "$canonical_try" \
+    || guard_fail "Canonical Hako try reject tag missing"
+
+  NYASH_FEATURES=no-try-compat python3 tools/language_v1/hako_adapter_health.py \
+    --bin target/debug/hakorune --probe observation --profile compat2025 \
+    --source 'try { local x = 1 } catch () { local y = 2 } cleanup { local z = 3 }' \
+    --timeout-sec 90 >"$compat_try" \
+    || guard_fail "explicit Compat2025 Hako try was not accepted"
+
+  if python3 tools/language_v1/hako_adapter_health.py \
+    --bin target/debug/hakorune --probe observation --profile compat2025 \
+    --source 'try { local x = 1 } catch (Legacy) { local y = 2 }' \
+    --timeout-sec 90 >"$nonnormal_try"; then
+    guard_fail "Compat2025 Hako accepted non-normalizable try"
+  fi
+  rg -q 'parser/hako_try_compat_not_normalizable' "$nonnormal_try" \
+    || guard_fail "Compat2025 Hako try closed-set reject tag missing"
+fi
 cargo test -q -p hakorune-frontend-grammar
 
 echo "[language-v1-grammar-contract-substrate] OK"

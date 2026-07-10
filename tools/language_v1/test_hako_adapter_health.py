@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import os
+import pathlib
 import subprocess
 import sys
 import unittest
@@ -12,6 +13,7 @@ from tools.language_v1.hako_adapter_health import (
     AdapterProcessResult,
     compare_repeated_results,
     health_envelope,
+    probe_command,
     run_adapter_process,
 )
 
@@ -21,6 +23,13 @@ def python_command(source: str) -> list[str]:
 
 
 class HakoAdapterHealthTests(unittest.TestCase):
+    def test_observation_command_carries_explicit_profile_argument(self) -> None:
+        command = probe_command(pathlib.Path("hakorune"), "observation", "compat2025")
+        self.assertIsNotNone(command)
+        self.assertEqual(
+            command[-3:], ["--", "--grammar-profile", "compat2025"]
+        )
+
     def test_single_json_object_is_accepted(self) -> None:
         result = run_adapter_process(
             python_command('print("{\\\"status\\\":\\\"ok\\\"}")'),
@@ -69,6 +78,18 @@ class HakoAdapterHealthTests(unittest.TestCase):
             authority.stable_reject_tag,
             "parser/hako_raw_json_as_authority_forbidden",
         )
+
+    def test_raw_evidence_propagates_stable_parser_rejection(self) -> None:
+        rejected = run_adapter_process(
+            python_command(
+                'print("{\\\"schema\\\":\\\"language-v1-hako-raw-evidence-v0\\\",'
+                '\\\"status\\\":\\\"error\\\",\\\"stable_reject_tag\\\":'
+                '\\\"parser/hako_try_reserved\\\",\\\"deterministic\\\":true,'
+                '\\\"raw_program_json_authority\\\":false}")'
+            ),
+            timeout_seconds=1.0,
+        )
+        self.assertEqual(rejected.stable_reject_tag, "parser/hako_try_reserved")
 
     def test_process_error_and_timeout_are_stable(self) -> None:
         process_error = run_adapter_process(

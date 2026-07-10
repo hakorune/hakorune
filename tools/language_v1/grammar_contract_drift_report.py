@@ -74,8 +74,20 @@ def hako_observation(
     binary: pathlib.Path, fixture: dict[str, Any], timeout_seconds: float
 ) -> dict[str, Any]:
     environment = os.environ | {"HAKO_GRAMMAR_CONTRACT_SOURCE": fixture["source"]}
+    profile = {
+        "Canonical": "canonical",
+        "Compat2025": "compat2025",
+    }[fixture["profile"]]
     result = run_adapter_process(
-        [str(binary), "--backend", "vm", str(HAKO_ADAPTER)],
+        [
+            str(binary),
+            "--backend",
+            "vm",
+            str(HAKO_ADAPTER),
+            "--",
+            "--grammar-profile",
+            profile,
+        ],
         timeout_seconds=timeout_seconds,
         environment=environment,
     )
@@ -123,6 +135,7 @@ def main() -> int:
         binary=args.bin,
         probe_kind="health",
         source="",
+        profile="canonical",
         timeout_seconds=args.hako_timeout_sec,
     )
     payload = json.dumps(

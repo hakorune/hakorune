@@ -20,7 +20,10 @@ static box ParserStmtCoreBox {
     {
       local depth = env.get("HAKO_STAGEB_STMT_DEPTH")
       if depth != null && ("" + depth) != "0" {
-        print("[stageb/recursion] ParserStmtBox.parse recursion detected")
+        local trace = env.get("NYASH_PARSER_TRACE")
+        if trace != null && ("" + trace) == "1" {
+          print("[stageb/recursion] ParserStmtBox.parse recursion detected")
+        }
         // Allow re-entry: reset depth to 1 and continue（ドロップしない）
         env.set("HAKO_STAGEB_STMT_DEPTH", "1")
       } else {
@@ -227,6 +230,11 @@ static box ParserStmtCoreBox {
     }
 
     if ctx.starts_with_kw(src, j, "try") == 1 {
+      if ctx.grammar_profile_is_compat2025() != 1 {
+        ctx.gpos_set(src.length())
+        env.set("HAKO_STAGEB_STMT_DEPTH", "0")
+        return "[freeze:contract][parser/hako_try_reserved] statement try requires explicit Compat2025"
+      }
       {
         local tr = env.get("NYASH_PARSER_TRACE")
         if tr != null && ("" + tr) == "1" {
