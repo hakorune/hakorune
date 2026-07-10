@@ -2,8 +2,8 @@
 
 ## Status
 
-Active implementation card. Migrate Hako `peek` as a closed Compat2025 alias
-to the existing canonical `Match` parser shape.
+Complete. Hako `peek` is a closed Compat2025 alias to the existing canonical
+`Match` parser shape.
 
 ## Structural Scope
 
@@ -14,9 +14,11 @@ raw normalized shape -> canonical EnumMatch implementation evidence
 ParserPeekBox legacy JSON -> not published by this route
 ```
 
-Do not duplicate Match parsing. Split the existing Match entry into a thin
-keyword wrapper plus one shared post-keyword parser body, then route Compat2025
-`peek` to that body.
+Match parsing remains one body and one public parser entry. The entry consumes
+either the canonical five-character `match` keyword or the explicit Compat2025
+four-character `peek` alias before entering the existing body. A separate
+post-keyword helper was rejected because it expanded the Hako compiler call
+graph and stalled the existing EnumMatch probe.
 
 ## Ordered Work
 
@@ -70,12 +72,24 @@ selfhost_claim = 0
 
 ## Verification
 
-Run focused match/peek fixtures through the bounded adapter, then run the
-adapter-health tests, reusable Language v1 grammar guard, current-state pointer
-guard, and `git diff --check`. Keep every new source file below 800 lines.
+Verified on 2026-07-10:
+
+```text
+python3 -m unittest tools.language_v1.test_hako_adapter_health
+Canonical peek -> parser/hako_peek_canonical_rejected
+Compat2025 peek -> raw_program_digest 137c666d...ba0dc0
+Compat2025 match -> raw_program_digest 137c666d...ba0dc0
+Compat2025 observe-only peek -> parser/hako_peek_compat_not_normalizable
+```
+
+The reusable guard owns the quick structural checks and an opt-in sequential
+full profile matrix. Full Hako probes are deliberately sequential because each
+independent selfhost parse takes about 72-74 seconds on this host.
+
+The work also closes an expression-boundary bug: local declarations now
+propagate `[freeze:contract]` before constructing Program JSON. The legacy
+behavior embedded the rejection token inside malformed JSON.
 
 ## Next
 
-After Hako peek is green, rerun scoped Rust/Hako witness inventory and decide
-whether grammar conformance can formally exclude the still-missing Hako `from`
-transport evidence or requires a dedicated transport decision.
+3471 is the scoped Hako `from` transport conformance design stop.

@@ -18,8 +18,9 @@ accepts a separate migration transport adapter. 3466 completes both Rust from
 forms without semantic AST publication. 3467 accepts a profile-bearing Hako
 adapter facade and external witness projection. 3468 completes bounded adapter
 health. 3469 completes the Hako profile facade plus statement-try seam. 3470
-opens Hako peek-to-Match compatibility alias only; from/runtime/backend/selfhost
-remain closed."""
+completes the Hako peek-to-Match compatibility alias. 3471 stops on whether
+Hako from transport is formally excluded from parser conformance or requires
+a separate migration-only adapter; runtime/backend/selfhost remain closed."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
@@ -27,13 +28,13 @@ method_anchor = "docs/development/current/main/design/selfhost-language-v1-freez
 taskboard = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 
-latest_card = "LANGV1-HAKO-PEEK-COMPAT-MATCH-ALIAS-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3470-LANGV1-HAKO-PEEK-COMPAT-MATCH-ALIAS-001.md"
-latest_card_summary = """3470 routes explicit Compat2025 Hako peek through
-the existing canonical Match parser body while Canonical rejects before legacy
-Peek JSON publication. Hako from remains deferred."""
+latest_card = "LANGV1-HAKO-FROM-TRANSPORT-CONFORMANCE-DESIGN-STOP-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3471-LANGV1-HAKO-FROM-TRANSPORT-CONFORMANCE-DESIGN-STOP-001.md"
+latest_card_summary = """3470 completes lossless Hako peek-to-Match aliasing.
+3471 asks whether compatibility transport is excluded from Hako parser
+conformance or requires a separate Hako migration-only adapter."""
 
-current_blocker_token = "LANGV1-HAKO-PEEK-COMPAT-MATCH-ALIAS-001"
+current_blocker_token = "LANGV1-HAKO-FROM-TRANSPORT-CONFORMANCE-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -42,6 +43,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-10: 3470 completes the Hako peek-to-Match Compat2025 alias; 3471 opens the Hako from transport conformance design stop.",
   "2026-07-10: 3466 completes one Rust from transport boundary: closed Compat2025 evidence uses a distinct MigrationTransport record while semantic parsing fails before AST publication.",
   "2026-07-10: 3468 completes bounded Hako adapter health; 3469 lands the explicit profile/try seam and 3470 opens the peek-to-Match alias.",
   "2026-07-10: 3465 records the Rust from transport-only design stop after 3464 lands lossless Compat2025 peek-to-Match normalization.",
@@ -53,5 +55,4 @@ landed_tail = [
   "2026-07-10: 3460 opens the canonical grammar design consultation after 3459 completes evaluated-Place compound assignment with parser, MIR, and VM-reference evidence.",
   "2026-07-10: 3459 completes evaluated-Place compound assignment for Local, Field, and Index; known unsupported index stores fail before index evaluation and store.",
   "2026-07-10: 3459 opens the evaluated-Place compound-assignment implementation slice after 3458 accepts the five-Outcome Semantic Kernel.",
-  "2026-07-10: 3458 opens the Semantic Kernel design consultation stop after 3457 lands the seven-law language constitution; Outcome/Place/cleanup/Fault/guard-let decisions are required before implementation.",
 ]

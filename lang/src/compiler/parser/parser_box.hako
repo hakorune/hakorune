@@ -361,6 +361,11 @@ box ParserBox {
     return 0
   }
 
+  set_enum_inventory_json(inventory_json) {
+    me.enum_inventory_json = inventory_json
+    return 0
+  }
+
   get_enum_inventory_json() {
     return me.enum_inventory_json
   }

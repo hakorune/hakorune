@@ -34,6 +34,9 @@ static box ParserStmtLocalBox {
         local ahead = src.substring(j, j + 1)
         if ahead != "}" && ahead != ";" {
           expr_json = ctx.parse_expr2(src, j)
+          if StringHelpers.starts_with(expr_json, 0, "[freeze:contract]") == 1 {
+            return expr_json
+          }
           j = ctx.gpos_get()
         }
       }

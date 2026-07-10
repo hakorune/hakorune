@@ -5,7 +5,6 @@
 
 using sh_core as StringHelpers  // Required: using chain resolution not implemented
 using lang.compiler.parser.scan.parser_number_scan_box
-using lang.compiler.parser.expr.parser_peek_box
 using lang.compiler.parser.expr.parser_match_box
 using lang.compiler.parser.expr.parser_literal_box
 
@@ -176,10 +175,17 @@ static box ParserExprBox {
       return "{\"type\":\"EnumCtor\",\"enum\":\"Option\",\"variant\":\"Some\",\"args\":[" + payload + "]}"
     }
 
-    // Peek expression: delegate to ParserPeekBox
+    // Compat2025 alias: parse `peek` through the canonical Match body.
     if ctx.starts_with_kw(src, j, "peek") == 1 {
-      j = j + 4
-      return ParserPeekBox.parse(src, j, ctx)
+      if ctx.grammar_profile_is_compat2025() != 1 {
+        ctx.gpos_set(src.length())
+        return "[freeze:contract][parser/hako_peek_canonical_rejected] peek requires explicit Compat2025"
+      }
+      local normalized = ParserMatchBox.parse(src, j, ctx)
+      if normalized.indexOf("{\"type\":\"Error\"") == 0 {
+        return "[freeze:contract][parser/hako_peek_compat_not_normalizable] peek must normalize to canonical Match"
+      }
+      return normalized
     }
 
     if ctx.starts_with_kw(src, j, "match") == 1 {

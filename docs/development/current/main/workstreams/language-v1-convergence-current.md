@@ -215,7 +215,8 @@ landed as 3463; Rust peek Compat2025 alias landed as 3464; Rust from
 transport-only decision accepted as 3465; Rust from transport boundary landed
 as 3466; Hako profile/witness ownership is accepted as 3467; adapter health
 lands as 3468; explicit Hako profile facade plus statement-try lands as 3469;
-Hako peek-to-Match alias is active as 3470 while from remains closed.
+Hako peek-to-Match alias lands as 3470. The Hako from transport conformance
+scope is stopped for design consultation as 3471.
 
 Deliverables:
 

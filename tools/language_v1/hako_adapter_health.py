@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 from dataclasses import dataclass
+import hashlib
 import json
 import os
 import pathlib
@@ -23,11 +24,13 @@ HEALTH_SCHEMA = "language-v1-hako-adapter-health-v0"
 class AdapterProcessResult:
     status: str
     stable_reject_tag: str
+    raw_program_digest: str = ""
 
     def normalized(self) -> dict[str, str]:
         return {
             "status": self.status,
             "stable_reject_tag": self.stable_reject_tag,
+            "raw_program_digest": self.raw_program_digest,
         }
 
 
@@ -63,6 +66,11 @@ def _single_json_object(stdout: str) -> AdapterProcessResult:
             return AdapterProcessResult(
                 "error", "parser/hako_adapter_malformed_output"
             )
+        canonical_program = json.dumps(
+            payload["program"], sort_keys=True, separators=(",", ":")
+        )
+        digest = hashlib.sha256(canonical_program.encode("utf-8")).hexdigest()
+        return AdapterProcessResult("ok", "", digest)
     return AdapterProcessResult("ok", "")
 
 
@@ -106,7 +114,7 @@ def compare_repeated_results(
 def health_envelope(
     *, probe_kind: str, result: AdapterProcessResult, deterministic: bool
 ) -> dict[str, Any]:
-    return {
+    envelope = {
         "schema": HEALTH_SCHEMA,
         "adapter_kind": "hako_grammar_contract_adapter",
         "probe_kind": probe_kind,
@@ -117,6 +125,9 @@ def health_envelope(
         "raw_program_json_authority": False,
         "parse_witness_conformance": False,
     }
+    if result.raw_program_digest:
+        envelope["raw_program_digest"] = result.raw_program_digest
+    return envelope
 
 
 def probe_command(

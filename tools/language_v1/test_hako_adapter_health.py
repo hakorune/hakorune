@@ -91,6 +91,23 @@ class HakoAdapterHealthTests(unittest.TestCase):
         )
         self.assertEqual(rejected.stable_reject_tag, "parser/hako_try_reserved")
 
+    def test_raw_program_digest_is_stable_and_non_authoritative(self) -> None:
+        source = (
+            'print("{\\\"schema\\\":\\\"language-v1-hako-raw-evidence-v0\\\",'
+            '\\\"status\\\":\\\"ok\\\",\\\"stable_reject_tag\\\":\\\"\\\",'
+            '\\\"deterministic\\\":true,\\\"raw_program_json_authority\\\":false,'
+            '\\\"program\\\":{\\\"kind\\\":\\\"Program\\\",\\\"body\\\":[]}}")'
+        )
+        first = run_adapter_process(python_command(source), timeout_seconds=1.0)
+        second = run_adapter_process(python_command(source), timeout_seconds=1.0)
+        self.assertEqual(first.raw_program_digest, second.raw_program_digest)
+        self.assertEqual(len(first.raw_program_digest), 64)
+        envelope = health_envelope(
+            probe_kind="observation", result=first, deterministic=True
+        )
+        self.assertEqual(envelope["raw_program_digest"], first.raw_program_digest)
+        self.assertFalse(envelope["raw_program_json_authority"])
+
     def test_process_error_and_timeout_are_stable(self) -> None:
         process_error = run_adapter_process(
             python_command("raise SystemExit(3)"), timeout_seconds=1.0
