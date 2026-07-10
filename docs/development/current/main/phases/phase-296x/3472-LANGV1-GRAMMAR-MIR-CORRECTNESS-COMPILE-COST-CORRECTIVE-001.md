@@ -5,7 +5,11 @@
 Active corrective card. Repair the correctness and compile-cost prerequisites
 found after 3470 before resuming the parked 3471 transport consultation.
 
-Progress: Slice 1 complete. Slices 2-6 remain ordered and active.
+Progress: Slice 1 complete. Slice 2 correctness WIP is parked at
+`stash@{0}` because its strict Match control-flow delta makes release MIR
+compilation exceed 60 seconds and debug compilation exceed 120 seconds. The
+card temporarily enters Slice 4 BoxShape diagnosis; resume Slice 2 only after
+the compile-scaling owner is fixed and the stash reapplies cleanly.
 
 ## Problem Statement
 
