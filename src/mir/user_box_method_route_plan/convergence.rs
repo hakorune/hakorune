@@ -15,8 +15,9 @@ use super::{
 };
 use crate::mir::MirModule;
 
-pub(super) fn refresh_module_user_box_method_routes_fixpoint(module: &mut MirModule) {
+pub(super) fn refresh_module_user_box_method_routes_fixpoint(module: &mut MirModule) -> bool {
     let typed_plan_type_ids = typed_plan_type_ids(module);
+    let mut changed_any = false;
     for _ in 0..iteration_budget(module) {
         let before = snapshot_routes(module);
         let empty_field_return_hints = UserBoxFieldReturnHints::new();
@@ -65,17 +66,19 @@ pub(super) fn refresh_module_user_box_method_routes_fixpoint(module: &mut MirMod
         );
         let route_changed = routes_changed(module, &before);
 
-        if !(value_type_changed
+        let changed = value_type_changed
             || field_get_value_type_changed
             || route_result_value_type_changed
             || generic_result_value_type_changed
             || propagated_value_type_changed
             || route_value_type_changed
-            || route_changed)
-        {
+            || route_changed;
+        changed_any |= changed;
+        if !changed {
             break;
         }
     }
+    changed_any
 }
 
 fn iteration_budget(module: &MirModule) -> usize {

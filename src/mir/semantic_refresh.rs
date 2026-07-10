@@ -236,24 +236,34 @@ pub fn refresh_function_fastmem_region_emitted_counts(function: &mut MirFunction
 
 /// Refresh MIR semantic metadata for the whole module.
 pub fn refresh_module_semantic_metadata(module: &mut MirModule) {
+    let stage_start = std::time::Instant::now();
     refresh_module_layout_and_decl_plans(module);
+    super::compile_timing::trace_stage("semantic.layout_and_decl", stage_start.elapsed());
     let module_metadata = module.metadata.clone();
+    let stage_start = std::time::Instant::now();
     refresh_all_functions_semantic_metadata(module, &module_metadata);
+    super::compile_timing::trace_stage("semantic.all_functions", stage_start.elapsed());
     // Seed carrier-API result origins before route convergence so the API
     // bodies themselves can lower nested ArrayBox reads without widening.
+    let stage_start = std::time::Instant::now();
     refresh_module_carrier_api_ordered_map_get_result_origins(module);
     refresh_module_route_convergence(module);
+    super::compile_timing::trace_stage("semantic.route_convergence", stage_start.elapsed());
     // Reassert focused carrier-data map result origins before the post-fixpoint
     // consumer refresh so caller-side OrderedMapBox.get reads keep the ArrayBox
     // result origin when route metadata is rebuilt.
+    let stage_start = std::time::Instant::now();
     refresh_module_ordered_map_get_result_origins(module);
     refresh_function_post_fixpoint_consumers(module, &module_metadata);
+    super::compile_timing::trace_stage("semantic.post_fixpoint", stage_start.elapsed());
     // Post-fixpoint consumers may rebuild route metadata again, so reassert the
     // focused carrier-data result origins one last time before contract checks.
+    let stage_start = std::time::Instant::now();
     refresh_module_carrier_api_ordered_map_get_result_origins(module);
     refresh_module_ordered_map_get_result_origins(module);
     refresh_module_contracts_and_exact_numeric(module);
     refresh_module_value_representation_facts(module);
+    super::compile_timing::trace_stage("semantic.contracts", stage_start.elapsed());
 }
 
 /// Refresh declaration-derived record/packed layout rows.

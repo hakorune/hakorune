@@ -377,7 +377,9 @@ impl super::MirBuilder {
         // before return type inference. This avoids "impossible" debug panics when the builder
         // emitted a value-producing instruction without annotating its dst type.
         type_hint_providers::annotate_missing_result_types_from_calls_and_await(
-            self, &function, &module,
+            &mut self.type_ctx,
+            &function,
+            &module,
         );
 
         // Phase 131-9: Update function metadata with corrected types

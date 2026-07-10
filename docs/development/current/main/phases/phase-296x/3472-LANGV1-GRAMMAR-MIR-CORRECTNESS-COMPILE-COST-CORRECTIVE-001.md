@@ -5,11 +5,14 @@
 Active corrective card. Repair the correctness and compile-cost prerequisites
 found after 3470 before resuming the parked 3471 transport consultation.
 
-Progress: Slice 1 complete. Slice 2 correctness WIP is parked at
-`stash@{0}` because its strict Match control-flow delta makes release MIR
-compilation exceed 60 seconds and debug compilation exceed 120 seconds. The
-card temporarily enters Slice 4 BoxShape diagnosis; resume Slice 2 only after
-the compile-scaling owner is fixed and the stash reapplies cleanly.
+Progress: Slice 1 complete. Slice 2 correctness WIP is parked under the named
+stash `wip/3472-slice2 match strictness blocked by MIR compile scaling` because
+its strict Match control-flow delta makes release MIR compilation exceed 60
+seconds and debug compilation exceed 120 seconds. Slice 4 has identified and
+removed the per-function full-module clone, added compiler-owned timing, and
+rejected an isolated dynamic-loop pathology. The dominant remaining cost is
+semantic route convergence on the merged parser module. Resume Slice 2 after
+the Slice 4 keeper commit reapplies cleanly.
 
 ## Problem Statement
 
@@ -111,6 +114,31 @@ compile_scaling_fixture = 1
 dynamic_loop_bound_pathology_reproduced_or_rejected = 1
 ```
 
+Evidence:
+
+```text
+adapter merged source = 166895 bytes / 27 static boxes / 259 functions
+debug AST-to-MIR before clone removal = 78.40 seconds
+debug AST-to-MIR after clone removal and convergence no-change stop = 70.58 seconds
+VM execution = about 0.07 seconds
+
+50/100/250 synthetic method fixture = 67/79/126 milliseconds
+literal/dynamic isolated loop fixture = 54/55 milliseconds
+isolated dynamic-loop pathology = rejected
+
+dominant merged-module stage = semantic route convergence
+first semantic refresh outer iterations = 4
+post-canonicalization refresh outer iterations = 2 after no-change stop
+```
+
+The convergence stop consumes the existing changed facts from the global-call
+and user-box route families. It does not add a route heuristic or a
+fixture-specific shortcut. Five directly affected route tests are already red
+with the same values at the clean pre-Slice-4 HEAD, so they are recorded as
+baseline debt rather than treated as evidence for this change. The broad
+`cargo test --lib` suite also has process-global test-state contamination; its
+parallel and serial results are not a clean Slice 4 oracle.
+
 ### Slice 5 - Corpus-driven batched conformance
 
 Make the shared corpus the fixture SSOT. Compile the Hako adapter once per
@@ -147,6 +175,8 @@ language_v1_grammar_closeout = 0
 selfhost_claim = 0
 new_route_authority = 0
 runtime_backend_fallback = 0
+full_lib_test_isolation_closeout = 0
+semantic_route_convergence_closeout = 0
 ```
 
 ## Next

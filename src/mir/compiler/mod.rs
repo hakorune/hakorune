@@ -8,6 +8,7 @@ use super::semantic_refresh::{
 };
 use super::verification::MirVerifier;
 use super::verification_types::VerificationError;
+use std::time::Instant;
 
 /// MIR compilation result
 #[derive(Debug, Clone)]
@@ -85,16 +86,22 @@ impl MirCompiler {
         }
 
         // Convert AST to MIR using builder
+        let stage_start = Instant::now();
         let mut module = self.builder.build_module(ast)?;
+        super::compile_timing::trace_stage("build_module", stage_start.elapsed());
 
         // Builder attaches declaration runes before each function body is fully
         // lowered. Refresh once after module build so optimizer consumers see
         // body-dependent rune facts such as verified required InlinePlan.
+        let stage_start = Instant::now();
         super::rune_plan_refresh::refresh_module_rune_plans(&mut module);
+        super::compile_timing::trace_stage("rune_refresh", stage_start.elapsed());
 
         if self.optimize {
+            let stage_start = Instant::now();
             let mut optimizer = MirOptimizer::new();
             let stats = optimizer.optimize_module(&mut module);
+            super::compile_timing::trace_stage("optimize", stage_start.elapsed());
             if (crate::config::env::opt_diag_fail() || crate::config::env::opt_diag_forbid_legacy())
                 && stats.diagnostics_reported > 0
             {
@@ -105,26 +112,41 @@ impl MirCompiler {
             }
         }
 
+        let stage_start = Instant::now();
         super::exact_numeric_field_contracts::refresh_module_exact_numeric_runtime_check_contracts(
             &mut module,
         );
         for function in module.functions.values_mut() {
             refresh_function_fastmem_region_emitted_counts(function);
         }
+        super::compile_timing::trace_stage("pre_verify_refresh", stage_start.elapsed());
 
         // Verify the generated MIR
+        let stage_start = Instant::now();
         let verification_result = self.verifier.verify_module(&module);
+        super::compile_timing::trace_stage("verify", stage_start.elapsed());
 
         // Phase 29y.1: RC insertion pass (skeleton - no-op for now)
         // Runs after optimization and verification, before backend codegen
+        let stage_start = Instant::now();
         let _rc_stats = insert_rc_instructions(&mut module);
+        super::compile_timing::trace_stage("rc_insert", stage_start.elapsed());
+        let stage_start = Instant::now();
         refresh_module_semantic_metadata(&mut module);
+        super::compile_timing::trace_stage("semantic_refresh", stage_start.elapsed());
+        let stage_start = Instant::now();
         let canonicalized = super::passes::callsite_canonicalize::canonicalize_for_site(
             &mut module,
             super::passes::callsite_canonicalize::CallsiteCanonicalizeScheduleSite::MirCompilerPostRc,
         );
+        super::compile_timing::trace_stage("canonicalize", stage_start.elapsed());
         if canonicalized > 0 {
+            let stage_start = Instant::now();
             refresh_module_semantic_metadata(&mut module);
+            super::compile_timing::trace_stage(
+                "semantic_refresh_after_canonicalize",
+                stage_start.elapsed(),
+            );
         }
 
         Ok(MirCompileResult {

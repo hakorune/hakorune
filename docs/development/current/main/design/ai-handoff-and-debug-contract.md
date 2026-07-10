@@ -214,6 +214,12 @@ Prefer stable, structured tags over ad-hoc `eprintln!`:
 - PHI helper fail-fast: `[freeze:contract][builder/phi_insert_without_function_context] dst=%<...>`
 - Lexical scope fail-fast (strict/dev+planner_required): `[freeze:contract][lexical_scope/unbalanced_pop] fn=<...> depth=<...> action=<pop|clear>`
 - Selfhost timing (summary log): `[diag/selfhost] stageb_secs=<n> timeout_secs=<n>` / `[diag/selfhost] run_secs=<n> timeout_secs=<n>`
+- MIR compile stage timing: `[mir-compile/timing] stage=<name> elapsed_ms=<n>`
+  (`NYASH_MIR_COMPILE_TRACE=1`, default OFF; stable stages are
+  `build_module`, `rune_refresh`, `optimize`, `pre_verify_refresh`, `verify`,
+  `rc_insert`, `semantic_refresh`, `canonicalize`, and
+  `semantic_refresh_after_canonicalize`. Semantic-refresh sub-stages use the
+  `semantic.*` prefix.)
 - VM runtime error (stderr, single-line; quiet-exit path): `[vm/error] <message>` (newlines are escaped as `\\n`)
 - Optional GC mode diagnostics (dev/diagnostic only; metrics ON): `[gc/optional:mode] mode=<...> collect_sp=<...> collect_alloc=<...>`
 - Thread substrate spawn fail-fast: `[freeze:contract][thread/spawn_failed] spawn_task_after fallback failed: <message>`

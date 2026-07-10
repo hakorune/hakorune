@@ -12,7 +12,7 @@
 //! Critical Constraint:
 //! Must execute BEFORE phi_type_inference (type annotation prerequisite)
 
-use super::MirBuilder;
+use super::type_context::TypeContext;
 use crate::mir::{MirFunction, MirModule, MirType};
 
 /// Annotate missing result types from Call/Await instructions
@@ -27,11 +27,11 @@ use crate::mir::{MirFunction, MirModule, MirType};
 /// - `Call(Method/Extern/Value/etc)`: register explicit Unknown
 ///
 /// # Arguments
-/// - `builder`: MirBuilder with type_ctx for registration
+/// - `type_ctx`: type registration state for the function being finalized
 /// - `function`: Function to scan for instructions
 /// - `module`: Module for function signature lookup
 pub(super) fn annotate_missing_result_types_from_calls_and_await(
-    builder: &mut MirBuilder,
+    type_ctx: &mut TypeContext,
     function: &MirFunction,
     module: &MirModule,
 ) {
@@ -42,21 +42,21 @@ pub(super) fn annotate_missing_result_types_from_calls_and_await(
         for inst in bb.instructions.iter() {
             match inst {
                 MirInstruction::Await { dst, future } => {
-                    if builder.type_ctx.value_types.contains_key(dst) {
+                    if type_ctx.value_types.contains_key(dst) {
                         continue;
                     }
-                    let inferred = match builder.type_ctx.value_types.get(future) {
+                    let inferred = match type_ctx.value_types.get(future) {
                         Some(MirType::Future(inner)) => (**inner).clone(),
                         _ => MirType::Unknown,
                     };
-                    builder.type_ctx.value_types.insert(*dst, inferred);
+                    type_ctx.value_types.insert(*dst, inferred);
                 }
                 MirInstruction::Call {
                     dst: Some(dst),
                     callee,
                     ..
                 } => {
-                    if builder.type_ctx.value_types.contains_key(dst) {
+                    if type_ctx.value_types.contains_key(dst) {
                         continue;
                     }
                     let inferred = match callee {
@@ -66,25 +66,19 @@ pub(super) fn annotate_missing_result_types_from_calls_and_await(
                                 .get(name)
                                 .map(|f| f.signature.return_type.clone())
                                 .or_else(|| {
-                                    crate::mir::builder::types::annotation::annotate_from_function(
-                                        builder, *dst, name,
-                                    );
-                                    builder.type_ctx.value_types.get(dst).cloned()
+                                    crate::mir::builder::types::annotation::infer_return_type(name)
                                 })
                                 .unwrap_or(MirType::Unknown),
                             Callee::Constructor { box_type } => {
                                 let ret = MirType::Box(box_type.clone());
-                                builder
-                                    .type_ctx
-                                    .value_origin_newbox
-                                    .insert(*dst, box_type.clone());
+                                type_ctx.value_origin_newbox.insert(*dst, box_type.clone());
                                 ret
                             }
                             _ => MirType::Unknown,
                         },
                         None => MirType::Unknown,
                     };
-                    builder.type_ctx.value_types.insert(*dst, inferred);
+                    type_ctx.value_types.insert(*dst, inferred);
                 }
                 _ => {}
             }

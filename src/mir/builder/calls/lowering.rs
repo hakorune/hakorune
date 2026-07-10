@@ -202,11 +202,11 @@ impl MirBuilder {
         }
 
         if let (Some(function), Some(module)) = (
-            self.scope_ctx.current_function.as_ref().cloned(),
-            self.current_module.as_ref().cloned(),
+            self.scope_ctx.current_function.as_ref(),
+            self.current_module.as_ref(),
         ) {
             crate::mir::builder::type_hint_providers::annotate_missing_result_types_from_calls_and_await(
-                self, &function, &module,
+                &mut self.type_ctx, function, module,
             );
         }
 

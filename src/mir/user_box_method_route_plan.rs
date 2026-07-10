@@ -414,8 +414,8 @@ impl UserBoxMethodRoute {
     }
 }
 
-pub fn refresh_module_user_box_method_routes(module: &mut MirModule) {
-    convergence::refresh_module_user_box_method_routes_fixpoint(module);
+pub fn refresh_module_user_box_method_routes(module: &mut MirModule) -> bool {
+    convergence::refresh_module_user_box_method_routes_fixpoint(module)
 }
 
 pub fn refresh_function_user_box_method_routes(function: &mut MirFunction) {

@@ -95,7 +95,7 @@ fn string_or_void_sentinel_return_type_candidate(return_type: &MirType) -> bool 
     ) || matches!(return_type, MirType::Box(name) if name == "StringBox")
 }
 
-pub fn refresh_module_global_call_routes(module: &mut MirModule) {
+pub fn refresh_module_global_call_routes(module: &mut MirModule) -> bool {
     let typed_plan_type_ids = module
         .metadata
         .typed_object_plans
@@ -103,6 +103,7 @@ pub fn refresh_module_global_call_routes(module: &mut MirModule) {
         .map(|plan| (plan.box_name.clone(), plan.type_id))
         .collect::<BTreeMap<_, _>>();
     let mut string_return_profiles = GenericStringReturnProfileCache::default();
+    let mut changed_any = false;
     for _ in 0..GLOBAL_CALL_REFRESH_LOCAL_ITERATIONS {
         let before = module
             .functions
@@ -122,14 +123,16 @@ pub fn refresh_module_global_call_routes(module: &mut MirModule) {
                 routes != &function.metadata.global_call_routes
             })
         });
-        if !(route_changed
+        let changed = route_changed
             || param_value_type_changed
             || result_value_type_changed
-            || propagated_value_type_changed)
-        {
+            || propagated_value_type_changed;
+        changed_any |= changed;
+        if !changed {
             break;
         }
     }
+    changed_any
 }
 
 pub fn refresh_function_global_call_routes(function: &mut MirFunction) {
