@@ -322,12 +322,19 @@ Current executable queue:
 T0 complete:
   3484 exact-numeric return-exit implementation
 
-T1 active:
+T1 complete:
   3485 local exact-numeric contract design stop
   inventory init/reassignment/PHI/loop/Any/proof invalidation
+  BindingId/LocalSlotId + W1 + U1 + VM-only decision accepted
 
-T2 after local decision:
-  one local exact-numeric implementation card
+T2a active:
+  3486 behavior-preserving local BindingId owner completion
+  LocalSlotId wrapper, one declaration API, CorePlan/snapshot parity
+  LocalContractWrite / contract activation = 0
+
+T2b after 3486 closeout:
+  one LocalContractWrite exact-numeric semantic implementation card
+  init/reassignment + U1 + PHI/loop evidence + JSON/backend boundary
   no broad static checker; one LocalSlotContractOwner
 
 T3 after local closeout:

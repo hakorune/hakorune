@@ -2,9 +2,11 @@
 
 ## Status
 
-Active design consultation stop after 3484 closes exact-numeric return exit.
+Complete design consultation. The Pro review accepts the existing BindingId
+identity, explicit LocalContractWrite, checked-edge PHI/loop law, U1
+uninitialized rejection, typed carriers, and VM-only first support.
 
-Decision: required before parser, MIR, VM, or backend behavior changes.
+Decision: accepted.
 
 ```text
 implementation_before_decision = forbidden
@@ -248,7 +250,10 @@ Do not include all local types, optional/uninitialized semantics beyond the
 accepted decision, FFI, closure captures, backend lowering, broad inference,
 or a broad static checker.
 
-## Non-Claims
+## Pre-Decision Non-Claims
+
+These values describe the state before the accepted consultation response;
+the later Decision Claims supersede only the named design decisions.
 
 ```text
 local_contract_activation = 0
@@ -264,10 +269,11 @@ runtime_backend_fallback = 0
 selfhost_claim = 0
 ```
 
-## Stop Rule
+## Consultation Stop (satisfied)
 
-Stop here and request design review. Do not implement until A-E, fail-fast
-ownership, first backend set, and minimum slice are accepted.
+This card stopped here and requested design review. The accepted response below
+satisfies A-E, fail-fast ownership, first backend set, and minimum scope.
+Implementation begins only through the ordered follow-up cards.
 
 ## Worker Inventory Rerun
 
@@ -523,3 +529,214 @@ minimum implementation slice and fixture matrix
 claims/non-claims
 conditions for proceeding to representation-only :T audit
 ```
+
+## Accepted Decision
+
+### Identity
+
+```text
+lexical truth = existing BindingId
+public contract-domain wrapper = LocalSlotId(BindingId)
+LocalSlotId allocator = forbidden
+BindingId remains the only allocator
+source/ProgramJSON/macro AST do not persist compiler-local IDs
+MIR declaration boundary allocates identity in declaration order
+```
+
+`LocalSlotContract` stores only `LocalSlotId`. It must not also persist a raw
+`BindingId` field, because the wrapper already contains that truth. A read-only
+accessor may expose the inner ID to internal lowering code.
+
+Every accepted local declaration goes through one declaration API. Every
+assignment/publication resolves the already allocated identity. CorePlan,
+branch, snapshot, PHI, and loop routes may not update `variable_map` while
+silently losing or inventing binding identity.
+
+### Write operation and order
+
+W1 is accepted:
+
+```text
+LocalContractWrite {
+  write_id
+  dst
+  src
+  local_slot_id
+  write_kind = Init | Reassign
+}
+
+Eval RHS exactly once
+-> exact-numeric runtime check
+-> publish fresh dst as the slot's current ValueId
+```
+
+`LocalContractWrite` remains visible contract-aware canonical MIR in the first
+semantic slice. It is not Copy metadata and cannot be silently lowered to Copy
+before a backend proves the capability. Future supported backends may lower it
+to check + Copy after verification.
+
+### PHI and loop law
+
+```text
+every source init/reassignment crosses LocalContractWrite
+reachable incoming checked writes for one slot -> no duplicate PHI check
+unchecked reachable incoming edge -> verifier fail-fast
+unreachable incoming edge -> no obligation
+reassignment/backedge retains one LocalSlotId
+shadow declaration allocates a new LocalSlotId wrapper over new BindingId
+break/continue/JoinIR remap carries explicit identity-preservation evidence
+```
+
+PHI and LoopCarry records are identity/edge-completeness evidence, not
+`LocalWriteContract` rows and not new source writes.
+
+### Uninitialized local
+
+U1 is accepted for the first exact-numeric slice:
+
+```text
+local x: T without initializer, T = non-optional exact numeric
+  -> type/local_contract_uninitialized_forbidden before effects
+```
+
+The current Null/Void default remains unchanged for unannotated locals.
+Explicit Uninitialized state and definite-assignment semantics are future
+decisions, not hidden first-slice behavior.
+
+### Carriers
+
+```text
+FunctionMetadata.local_slot_contracts: Vec<LocalSlotContract>
+
+LocalSlotContract:
+  contract_id
+  local_slot_id
+  diagnostic_source_name
+  declared_type_name
+  contract_kind = ExactNumeric
+  runtime_check_required = true
+  proof_elision_allowed = false
+  backend_capability_required = local_slot_exact_numeric
+
+LocalWriteContract (derived/rebuilt):
+  local_slot_id
+  operation_id
+  dst
+  src
+  write_kind = Init | Reassign
+
+PhiLocalIdentityEvidence / LoopCarryIdentityEvidence:
+  local_slot_id
+  current CFG values and reachable edges
+  checked source write operation IDs
+```
+
+Operation identity is function-local and durable across CFG movement. The
+implementation may use a typed `(LocalSlotId, write_ordinal)` identity or an
+equivalent function-owned ID. It must not duplicate function identity inside
+every row. Semantic refresh rebuilds inventories from current declarations,
+operations, and CFG and compares exact equality; do not invent independent
+CFG/SSA epoch counters unless the pipeline first exposes one canonical epoch
+owner. Clone/remap must preserve the write ID or emit verified remap evidence.
+
+### Backend and transport
+
+```text
+Rust MIR interpreter = first supported runtime consumer
+PyVM / LLVM / AOT / Wasm = central pre-effect capability rejection
+MIR JSON = typed slot contracts + LocalContractWrite + identity evidence
+runtime/backend fallback = 0
+Copy/name/ValueId/MirType/value facts as contract proof = forbidden
+```
+
+### Stable tags
+
+```text
+type/local_contract_carrier_missing
+type/local_contract_carrier_drift
+type/local_contract_duplicate_slot
+type/local_contract_write_site_missing
+type/local_contract_write_site_drift
+type/local_contract_violation
+type/local_contract_uninitialized_forbidden
+type/local_contract_check_after_publication_forbidden
+type/local_contract_name_authority_forbidden
+type/local_contract_value_id_authority_forbidden
+type/local_contract_mir_type_as_proof_forbidden
+type/local_contract_value_fact_as_proof_forbidden
+type/local_contract_proof_stale
+type/local_contract_binding_missing
+type/local_contract_binding_duplicate
+type/local_contract_binding_ctx_bypass_forbidden
+type/local_contract_binding_remap_drift
+type/local_contract_phi_unchecked_incoming
+type/local_contract_phi_binding_mismatch
+type/local_contract_loop_carrier_binding_mismatch
+type/local_contract_copy_metadata_authority_forbidden
+type/local_contract_lazy_read_check_forbidden
+type/backend_local_contract_capability_missing
+type/backend_local_contract_silent_drop
+```
+
+Define each string once in its owner. Diagnostics may include the source name,
+but names never select a slot or prove a contract.
+
+## Ordered Code Slices
+
+Repository Lego rules prohibit mixing the prerequisite BoxShape cleanup with
+semantic activation in one refactor series. Therefore the accepted minimum
+implementation is materialized in two code-facing slices:
+
+```text
+3486 BoxShape prerequisite:
+  LocalSlotId wrapper over BindingId
+  one declaration/binding identity API
+  normal/CorePlan/branch/snapshot scope parity
+  missing identity fail-fast
+  accepted syntax/runtime behavior unchanged
+  LocalContractWrite activation = 0
+
+next semantic slice after 3486 green:
+  FunctionMetadata.local_slot_contracts
+  canonical LocalContractWrite
+  exact numeric init/reassignment checks
+  U1 rejection
+  PHI/loop identity evidence
+  MIR JSON
+  VM support and non-VM preflight rejection
+```
+
+Do not pre-create the second numbered card. Open it only after 3486 proves all
+accepted local declaration routes have one BindingId owner.
+
+## Decision Claims
+
+```text
+local_slot_identity_decided = 1
+local_slot_identity_owner = BindingId
+local_slot_identity_wrapper = LocalSlotId_BindingId
+second_local_slot_allocator = 0
+local_write_boundary_decided = 1
+local_write_boundary_owner = LocalContractWrite
+local_uninitialized_policy = RejectNonOptionalExactWithoutInitializer
+local_phi_loop_policy_decided = 1
+local_carrier_schema_decided = 1
+```
+
+Implementation non-claims remain:
+
+```text
+local_exact_numeric_contract_activation = 0
+local_contract_vm_supported = 0
+local_contract_mir_json_carrier = 0
+local_proof_elision = 0
+all_local_types_activated = 0
+closure_capture_contract = 0
+ffi_contract_activation = 0
+backend_contract_lowering = 0
+broad_static_type_checker = 0
+runtime_backend_fallback = 0
+selfhost_claim = 0
+```
+
+Next: 3486 local binding identity owner prerequisite.
