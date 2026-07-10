@@ -179,6 +179,11 @@ Rejected bypasses:
 - `nested_loop_depth1_break_continue_pure` は break/continue を含む depth=1 の nested loop を単独受理する（call無し、末尾continueを許可）。
 - `nested_loop_depth1_no_break_or_continue` は break/continue を含まない depth=1 の nested loop を単独受理する（call stmt を含む場合のみ）。
 - `nested_loop_depth1_no_break_or_continue_pure` は break/continue と call を含まない depth=1 の nested loop を単独受理する。
+- 上記4本は同じ depth=1 skeleton に対する `has_call` ×
+  `has_break_or_continue` の feature product であり、“同型2回目” の
+  lego 化 trigger を満たした。次の BoxShape 候補では4 planner 名を増やさず、
+  `NestedLoopDepth1Skeleton + FeatureSet` の1 ownerへ縮退する。Language v1
+  convergence 中は parked とし、受理形追加・release default変更と混ぜない。
 - Phase 29bv targets (SSOT): scan/split normalizer cleanup (`normalizer/pattern_scan_with_init.rs`, `normalizer/pattern_split_scan.rs`; 入口: `docs/development/current/main/phases/archive/phase-29bv/README.md`)。
 
 ## Decomposition candidates (planned cleanup)

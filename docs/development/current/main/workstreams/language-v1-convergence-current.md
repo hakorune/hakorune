@@ -333,6 +333,8 @@ T2 after local decision:
 T3 after local closeout:
   representation-only :T consumer audit and migration queue
   remove direct storage/layout/planner authority from source annotations
+  split types.md normative semantics from implementation-status ledger
+  keep generated/current support status outside the normative type law
 
 T4 after representation audit:
   exact-numeric annotation-island closeout
@@ -355,9 +357,58 @@ annotation_site_set_closed = 1
 contract_check_owner_count_per_boundary = 1
 metadata_hint_spelled_as_type_annotation = 0
 unsupported_backend_fail_fast_before_effect = 1
+normative_type_law_status_ledger_separated = 1
 ```
 
 Next: `LANGV1-FAILURE-OUTCOME-001`.
+
+Fable5 review routing (2026-07-11):
+
+```text
+already owned by Failure/Outcome:
+  null / void / Option::None terminal relation
+  local-without-initializer default migration
+  failed WeakRef upgrade result migration
+  grammar literal_null Canonical -> Compat2025 decision and source migration
+
+new semantic row after Failure/Outcome:
+  truthiness, compatibility equality, broad String concatenation, type tests
+
+already owned by Ownership/Identity:
+  ordinary strong-field cascade fini removal
+  identity/lifetime split
+
+parked compiler BoxShape, not Language-v1 blockers:
+  nested-loop depth1 feature-product decomposition
+  route-family graph shadow -> authority promotion
+```
+
+Parked compiler follow-up contracts:
+
+```text
+nested-loop depth1 decomposition:
+  owner = plan/REGISTRY.md + coreplan skeleton/feature SSOT
+  trigger = four feature-product planners already exist
+  shape = one NestedLoopDepth1Skeleton + typed FeatureSet
+  accepted-shape expansion = 0
+  release-default change = 0
+
+route-family convergence promotion:
+  owner = route_dependency_graph + route_fixpoint facade
+  prerequisite = fresh current-corpus shadow/full-refresh parity
+  prerequisite = deterministic dirty worklist and zero stale metadata reads
+  prerequisite = measured recompute reduction without semantic drift
+  next step = one authority-switch design card, not an optimization patch
+  helper-name cache / fixture cache / wall-clock termination = forbidden
+```
+
+Neither compiler follow-up may preempt the current Language v1 blocker without
+an explicit lane-priority decision.
+
+The current registry already classifies `literal_null` as Canonical in both
+profiles. Moving it to Compat2025 therefore overturns an accepted 3477/3478
+decision and must happen only through the Failure/Outcome decision plus source
+migration; it is not a grammar typo cleanup.
 
 ### 4. LANGV1-FAILURE-OUTCOME-001
 
@@ -386,6 +437,15 @@ Deliverables:
 5. Migrate by meaning to Option, Result, Unit, or explicit FFI carrier. Do not
    globally replace text.
 6. Keep `null` available only under explicit `Compat2025` after migration.
+7. Explicitly classify and migrate `local x` default initialization,
+   `WeakRef.weak_to_strong()` failure, `NullBox`, `VoidBox`, `MissingBox`, and
+   dropped-WeakRef observations. No runtime representation may silently define
+   the source absence relation.
+8. Change the `literal_null` registry profile only after Canonical source and
+   API fixtures no longer rely on it. Canonical rejection must not retry the
+   compatibility profile.
+9. Publish one VM/EXE matrix for Unit, Option::None, Result::Err, Fault,
+   foreign null, and Compat2025 null, including cleanup precedence.
 
 Acceptance:
 
@@ -396,13 +456,98 @@ unit_fault_nofallthrough_distinct = 1
 canonical_null_surface = 0
 compat2025_null_surface = 1
 catchable_fault_set_closed = 1
+local_default_absence_owner_count = 1
+weak_upgrade_absence_owner_count = 1
+```
+
+Next: `LANGV1-COERCION-EQUALITY-COMPAT-001`.
+
+### 4A. LANGV1-COERCION-EQUALITY-COMPAT-001
+
+Status: design decision required after Failure/Outcome.
+
+Purpose: remove dynamic-language compatibility residue from Canonical
+truthiness, equality, concatenation, and type tests without silently changing
+the already accepted runtime rules.
+
+Decision surface:
+
+```text
+truthiness Canonical candidate set:
+  Bool only
+  or Bool + Integer
+
+Compat2025 candidates:
+  Float truthiness
+  String / StringBox truthiness
+
+canonical equality:
+  primitive same-kind plus accepted numeric relation
+  Box equality follows BoxIdentity
+  absence follows the landed Failure/Outcome relation
+
+compatibility equality candidates:
+  Void == NullBox / VoidBox / MissingBox
+  dropped WeakRef == Void
+
+canonical concatenation candidate:
+  String + String only
+
+compatibility concatenation candidate:
+  String + any implicit toString coercion
+
+canonical type test:
+  typed type-reference surface, exact spelling selected by consultation
+
+compatibility type test candidate:
+  x.is("TypeName") / x.as("TypeName")
+```
+
+Deliverables:
+
+1. Define one closed profile-aware semantic matrix for truthiness, equality,
+   concatenation, and type test/cast. Grammar acceptance alone is not semantic
+   authority; decide one semantic compatibility registry or equivalent SSOT.
+2. Select the Canonical truthiness set explicitly. Treat the current
+   Bool/Integer/ExactNumeric/Float/String behavior as implementation evidence,
+   not an automatic v1 decision.
+3. Remove compatibility equality from the Canonical relation. Inventory
+   `Void`, `NullBox`, `VoidBox`, `MissingBox`, dropped WeakRef, and pointer
+   identity together so absence and identity are not mixed.
+4. Decide whether Canonical concatenation is `String + String` only. Any broad
+   implicit stringify rule retained for migration must require explicit
+   Compat2025 and reject Void/Fault. Inventory both operand orders in VM
+   `eval_binop`, `StringBox` dynamic-add dispatch, and the generic `AddBox`
+   stringify fallback; none may independently define Canonical semantics.
+5. Replace stringly typed `x.is("TypeName")` / `x.as("TypeName")` with a
+   type-reference-based Canonical surface. Typos and unsupported backend paths
+   fail before user effects; string spellings remain compatibility-only if
+   retained.
+6. Generate positive/negative/profile fixtures for independent parsers where
+   syntax changes, plus VM and EXE semantic fixtures. Do not use environment
+   flags or Canonical-to-Compat retry.
+7. Inventory source migration before changing defaults. Selfhost usage is
+   migration evidence, not authority to keep a rule Canonical.
+
+Acceptance:
+
+```text
+truthiness_semantic_owner_count = 1
+truthiness_canonical_value_set_closed = 1
+implicit_string_truthiness_canonical = 0
+compatibility_equality_in_canonical = 0
+box_equality_uses_identity_relation = 1
+broad_string_concat_canonical = 0
+string_type_name_test_canonical = 0
+semantic_compatibility_requires_explicit_profile = 1
+runtime_backend_fallback = 0
 ```
 
 Next: `LANGV1-OWNERSHIP-IDENTITY-001`.
 
 ### 5. LANGV1-OWNERSHIP-IDENTITY-001
 
-Status: design decision required after Failure Outcome.
+Status: design decision required after Coercion/Equality compatibility.
 
 Target laws:
 
@@ -429,6 +574,14 @@ Deliverables:
    one generation-aware `BoxIdentity(ObjectHandle, generation)` relation.
 6. Add VM/runtime and EXE fixtures for aliases, weak upgrade, Dead/Freed tokens,
    generation mismatch, repeated fini, and parent/child finalization.
+7. Replace prose-only escape rules with one closed ownership-operation
+   vocabulary covering local bind/share, assignment, argument/return/outbox,
+   strong-field publication, weak acquisition/upgrade, explicit fini, and
+   runtime reclamation. Each operation names whether identity is shared,
+   authority transfers, or no ownership change occurs.
+8. Verifier/runtime/backend consume the same operation relation. They must not
+   infer ownership transfer from variable names, field strength, reference
+   counts, or cleanup placement independently.
 
 Acceptance:
 
@@ -439,6 +592,8 @@ ordinary_field_implicit_cascade_fini = 0
 box_identity_relation_count = 1
 weak_identity_relation_count = 1
 owned_surface_enabled = 0
+ownership_operation_relation_count = 1
+prose_only_escape_authority = 0
 ```
 
 Next: `LANGV1-CAPABILITY-EFFECT-001`.
