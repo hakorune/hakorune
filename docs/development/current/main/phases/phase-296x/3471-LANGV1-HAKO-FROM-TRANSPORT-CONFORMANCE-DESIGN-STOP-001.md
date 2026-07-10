@@ -94,6 +94,109 @@ The consultation must fix:
 5. The minimum code slice, fixture matrix, fail-fast boundary, and closeout
    conditions for `LANGV1-GRAMMAR-001`.
 
+## Consolidated Consultation Packet
+
+Treat the following as four independent decisions. Do not combine their code
+changes merely because they are reviewed in one consultation.
+
+### Decision A - Hako compatibility transport
+
+Choose A or B from the primary decision question above. Specify:
+
+1. the exact conformance inclusion/exclusion law;
+2. the Hako semantic-parser behavior in Canonical and Compat2025;
+3. stable reject tags and, if B, the migration-only output schema;
+4. the smallest code-facing slice and closeout fixture matrix;
+5. why no transport record can enter AST, MIR, runtime, or backend semantics.
+
+### Decision B - Match/record delimiter ambiguity
+
+Current evidence:
+
+```text
+match value { Ready(x) => x, Idle => 0 }
+```
+
+The Hako expression parser currently sees `value {` first as a record literal.
+3472 made malformed record fields fail-fast, but did not silently reinterpret
+the source as Match. Canonical Match is intended to accept a general
+scrutinee expression, so the ambiguity still needs an explicit owner.
+
+Compare at least these options:
+
+```text
+A. explicit delimiter-aware expression context passed by Match
+B. declared-record inventory gates record-literal recognition
+C. a canonical syntax restriction/change such as required parentheses
+```
+
+Select the design that preserves one expression grammar, exactly-once source
+evaluation, and no source slicing/reparse fallback. Specify the parser API,
+authority source, fail-fast tags, positive/negative fixtures, and unsupported
+backend rule. A language syntax change requires an accepted specification
+decision before implementation.
+
+### Decision C - MIR compile convergence cost
+
+Current measurements:
+
+```text
+merged parser module = about 166895 bytes / 27 static boxes / 259 functions
+VM execution = about 0.07 seconds
+full 16-row compile-once grammar guard after 3472 = about 34 seconds
+dominant compile owner = semantic route convergence
+first semantic refresh outer iterations = 4
+post-canonicalization semantic refresh outer iterations = 2
+50/100/250 isolated methods = about 67/79/126 milliseconds
+```
+
+Determine whether the next BoxShape should use:
+
+```text
+A. changed-function worklist convergence
+B. explicit route-family dependency graph
+C. scoped post-canonicalization invalidation
+D. retain full refresh and optimize one measured route family first
+```
+
+Specify the single convergence owner, invalidation proof, deterministic
+termination proof, and a regression guard that is more stable than wall-clock
+time alone. Do not authorize helper-name shortcuts, fixture-specific caches,
+stale metadata, lower iteration limits without convergence proof, or semantic
+fallback.
+
+### Decision D - process-global test isolation
+
+Current baseline evidence:
+
+```text
+cargo test --lib parallel = 3540 passed / 56 failed / 32 ignored
+cargo test --lib serial = 3551 passed / 45 failed / 32 ignored
+five directly affected route tests fail with the same values on pre-3472 HEAD
+parser feature gates, plugin loader state, and MIR strictness controls appear
+in unrelated failures from the same process
+```
+
+Choose an isolation boundary among scoped config injection, subprocess-owned
+environment tests, or another explicit owner. A global lock may be used only
+if its ownership and cleanup guarantees are proven. Specify how to distinguish
+real baseline expectation drift from environment contamination, and define the
+first cleanup slice without changing production defaults merely to make tests
+green.
+
+## Ordered Follow-up Tasks
+
+```text
+1. accept Decision A and implement exactly one Hako from-transport slice
+2. accept Decision B and close Match/record delimiter ownership
+3. accept Decision C and implement one measured MIR convergence BoxShape
+4. accept Decision D and implement one process-state isolation boundary
+5. rerun the shared grammar corpus and evaluate LANGV1-GRAMMAR-001 closeout
+```
+
+Each implementation remains a separate commit scope. No inventory-only,
+fixture-only, or rerun-only numbered cards are allowed.
+
 ## Non-Claims
 
 ```text
@@ -105,9 +208,14 @@ compat_transport_ast_authorized = 0
 from_semantic_lowering = 0
 runtime_backend_changes = 0
 selfhost_claim = 0
+match_record_ambiguity_resolved = 0
+mir_compile_convergence_closeout = 0
+full_lib_test_isolation_closeout = 0
 ```
 
 ## Stop Rule
 
-Resume this card after 3472 closeout. The A/B decision remains required before
-any Hako `from` implementation.
+This is the current stop. The Decision A A/B answer remains required before any
+Hako `from` implementation. After the consolidated answer lands, update this
+card with the accepted decisions and point directly to the selected code-facing
+owner; do not open a second consultation-only card for the same questions.

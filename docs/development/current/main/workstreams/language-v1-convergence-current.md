@@ -251,6 +251,21 @@ shared_parser_implementation_count = 0
 parse_witness_conformance = 1
 ```
 
+Post-3472 ordered follow-up queue:
+
+```text
+Q0 active: 3471 Hako compatibility-transport A/B consultation
+Q1 pending: implement the accepted Hako transport/exclusion boundary
+Q2 pending: Match scrutinee vs record-literal delimiter ownership
+Q3 pending: measured MIR semantic-convergence BoxShape
+Q4 pending: process-global parser/MIR test isolation
+Q5 pending: full grammar corpus rerun and LANGV1-GRAMMAR-001 closeout check
+```
+
+Q2-Q4 may be reviewed in the same consultation packet, but their code deltas
+must remain separate. Do not create inventory-only or rerun-only numbered
+cards for this queue.
+
 Next: `LANGV1-TYPE-GUARANTEE-001`.
 
 ### 3. LANGV1-TYPE-GUARANTEE-001
