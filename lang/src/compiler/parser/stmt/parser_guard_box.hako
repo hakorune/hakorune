@@ -8,11 +8,7 @@ static box ParserGuardBox {
   parse(src, i, stmt_start, ctx) {
     local j = ctx.skip_ws(src, i + 5)
     if ctx.starts_with_kw(src, j, "let") == 1 {
-      ctx.gpos_set(src.length())
-      return ctx.freeze_contract(
-        "parser/hako_guard_let_not_implemented",
-        "guard let requires the qualified-variant parser owner"
-      )
+      return me._parse_let(src, j + 3, stmt_start, ctx)
     }
 
     local condition = ctx.parse_expr2(src, j)
@@ -53,5 +49,75 @@ static box ParserGuardBox {
 
     ctx.gpos_set(j)
     return "{\"type\":\"If\",\"cond\":" + condition + ",\"then\":[],\"else\":" + else_body + "}"
+  }
+
+  _parse_let(src, i, stmt_start, ctx) {
+    local enum_pair = ctx.read_ident2(src, ctx.skip_ws(src, i))
+    local enum_at = enum_pair.lastIndexOf("@")
+    local enum_name = enum_pair.substring(0, enum_at)
+    local j = ctx.to_int(enum_pair.substring(enum_at + 1, enum_pair.length()))
+    if enum_name == "" || src.substring(j, j + 2) != "::" {
+      return me._fail(src, ctx, "parser/guard_expected_canonical", "guard let requires Type::Variant(binding)")
+    }
+
+    local variant_pair = ctx.read_ident2(src, j + 2)
+    local variant_at = variant_pair.lastIndexOf("@")
+    local variant_name = variant_pair.substring(0, variant_at)
+    j = ctx.skip_ws(src, ctx.to_int(variant_pair.substring(variant_at + 1, variant_pair.length())))
+    if variant_name == "" || src.substring(j, j + 1) != "(" {
+      return me._fail(src, ctx, "parser/guard_expected_canonical", "guard let variant requires one binding")
+    }
+
+    local binding_pair = ctx.read_ident2(src, ctx.skip_ws(src, j + 1))
+    local binding_at = binding_pair.lastIndexOf("@")
+    local binding_name = binding_pair.substring(0, binding_at)
+    j = ctx.skip_ws(src, ctx.to_int(binding_pair.substring(binding_at + 1, binding_pair.length())))
+    if binding_name == "" || src.substring(j, j + 1) != ")" {
+      return me._fail(src, ctx, "parser/guard_expected_canonical", "guard let binding is malformed")
+    }
+    j = ctx.skip_ws(src, j + 1)
+    if src.substring(j, j + 1) != "=" {
+      return me._fail(src, ctx, "parser/guard_expected_canonical", "guard let requires equals")
+    }
+    if ctx.enum_variant_exists(enum_name, variant_name) != 1 || ctx.enum_variant_is_unit(enum_name, variant_name) == 1 {
+      return me._fail(src, ctx, "parser/guard_expected_canonical", "guard let requires a known single-payload variant")
+    }
+
+    local scrutinee = ctx.parse_expr2(src, ctx.skip_ws(src, j + 1))
+    j = ctx.skip_ws(src, ctx.gpos_get())
+    if ctx.starts_with_kw(src, j, "else") != 1 {
+      return me._fail(src, ctx, "parser/guard_expected_canonical", "guard let requires else")
+    }
+    local block_result = ctx.parse_block2(src, ctx.skip_ws(src, j + 4))
+    if ParserStringUtilsBox.starts_with("" + block_result, 0, "[freeze:contract]") == 1 {
+      local fail_at = block_result.lastIndexOf("@")
+      if fail_at >= 0 { return block_result.substring(0, fail_at) }
+      return block_result
+    }
+    local at = block_result.lastIndexOf("@")
+    if at < 0 {
+      return me._fail(src, ctx, "parser/guard_expected_canonical", "guard let else block is malformed")
+    }
+    local else_body = block_result.substring(0, at)
+    j = ctx.to_int(block_result.substring(at + 1, block_result.length()))
+    if j <= stmt_start {
+      return me._fail(src, ctx, "parser/guard_expected_canonical", "guard let parser did not advance")
+    }
+
+    local temp_name = "__hako_guard_let_subject_" + ctx.i2s(stmt_start)
+    local temp_var = "{\"type\":\"Var\",\"name\":\"" + temp_name + "\"}"
+    local fail_match = "{\"type\":\"EnumMatch\",\"enum\":\"" + enum_name + "\",\"scrutinee\":" + temp_var
+    fail_match = fail_match + ",\"arms\":[{\"variant\":\"" + variant_name + "\",\"expr\":{\"type\":\"Bool\",\"value\":false}}],\"else\":{\"type\":\"Bool\",\"value\":true}}"
+    local bind_match = "{\"type\":\"EnumMatch\",\"enum\":\"" + enum_name + "\",\"scrutinee\":" + temp_var
+    bind_match = bind_match + ",\"arms\":[{\"variant\":\"" + variant_name + "\",\"bind\":\"" + binding_name + "\",\"expr\":{\"type\":\"Var\",\"name\":\"" + binding_name + "\"}}],\"else\":{\"type\":\"Null\"}}"
+    ctx.gpos_set(j)
+    return "{\"type\":\"Local\",\"name\":\"" + temp_name + "\",\"expr\":" + scrutinee + "}," +
+      "{\"type\":\"If\",\"cond\":" + fail_match + ",\"then\":" + else_body + "}," +
+      "{\"type\":\"Local\",\"name\":\"" + binding_name + "\",\"expr\":" + bind_match + "}"
+  }
+
+  _fail(src, ctx, tag, message) {
+    ctx.gpos_set(src.length())
+    return ctx.freeze_contract(tag, message)
   }
 }

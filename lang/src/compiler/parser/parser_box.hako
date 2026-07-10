@@ -398,6 +398,10 @@ box ParserBox {
     return ParserEnumInventoryBox.variant_is_unit(me.enum_inventory_json, enum_name, variant_name)
   }
 
+  enum_variant_exists(enum_name, variant_name) {
+    return ParserEnumInventoryBox.variant_exists(me.enum_inventory_json, enum_name, variant_name)
+  }
+
   match_arm_names_are_unique(arm_names_json) {
     return ParserEnumInventoryBox.match_arm_names_are_unique(arm_names_json)
   }

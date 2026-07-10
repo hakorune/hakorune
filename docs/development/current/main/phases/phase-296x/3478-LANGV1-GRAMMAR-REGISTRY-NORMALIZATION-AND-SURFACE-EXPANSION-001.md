@@ -130,6 +130,11 @@ strict Hako loop/map recursive batch = 7 green
 loop block-head delimiter drift = fixed through one expression context owner
 strict Hako postfix/try recursive batch = 6 green
 legacy try normalization is explicit and does not constrain canonical postfix
+Hako guard expression recursive batch = Canonical/Compat/missing-else green
+guard-let corpus = accepted qualified-variant production
+shared parser inventory = one corpus input projected independently per adapter
+guard-let recursive batch = Canonical/Compat/NoFallthrough rejection green
+Rust ScopeBox AST JSON evidence = roundtrip-preserved
 ```
 
 Full inventory exposed pre-existing corpus/parser drift that the shallow gate
@@ -642,12 +647,11 @@ Close that drift before declaration expansion, in this order:
 
 ```text
 1. finish current registered control surfaces
-   - Hako guard expression / guard-let owner
-   - correct guard-let corpus to the accepted qualified-variant production
-   - replace the Hako-only enum inventory input with one shared parser inventory
-     consumed independently by both adapters
-   - preserve NoFallthrough as a semantic contract
-   - delegate/match Rust-Hako drift after guard
+   - guard expression / guard-let = complete
+   - shared parser inventory = complete
+   - NoFallthrough structural conformance rejection = complete
+   - correct match fixture/exhaustiveness drift
+   - close delegate Rust/Hako drift
 
 2. add the parser-owned declaration evidence sidecar
    - record declaration
@@ -661,6 +665,6 @@ Close that drift before declaration expansion, in this order:
 6. evaluate LANGV1-GRAMMAR-001 closeout
 ```
 
-Do not weaken recursive comparison, preserve the invalid generic guard-let
-fixture, or make parser behavior match a fixture by special case. The EBNF
-qualified-variant production is the guard-let source authority.
+Do not weaken recursive comparison or make parser behavior match a fixture by
+special case. The EBNF qualified-variant production is the guard-let source
+authority.

@@ -48,28 +48,31 @@ stable_reject_tag = "parser/guard_expected_canonical"
 fixture_id = "guard_let_else_canonical"
 row_id = "guard_let_else"
 profile = "Canonical"
-source = "guard let value = maybe else { return unit }"
+source = "guard let Option::Some(value) = maybe else { return unit }"
 accepted = true
 normalized_form = { kind = "GuardLetElse", children = [{ kind = "Pattern", children = [] }, { kind = "Expr", children = [] }, { kind = "NoFallthroughElse", children = [] }] }
 stable_reject_tag = ""
+parser_inventory_id = "option"
 
 [[fixtures]]
 fixture_id = "guard_let_else_compat"
 row_id = "guard_let_else"
 profile = "Compat2025"
-source = "guard let value = maybe else { return unit }"
+source = "guard let Option::Some(value) = maybe else { return unit }"
 accepted = true
 normalized_form = { kind = "GuardLetElse", children = [{ kind = "Pattern", children = [] }, { kind = "Expr", children = [] }, { kind = "NoFallthroughElse", children = [] }] }
 stable_reject_tag = ""
+parser_inventory_id = "option"
 
 [[fixtures]]
 fixture_id = "guard_let_else_fallthrough"
 row_id = "guard_let_else"
 profile = "Canonical"
-source = "guard let value = maybe else { print(\"missing\") }"
+source = "guard let Option::Some(value) = maybe else { print(\"missing\") }"
 accepted = false
 normalized_form = { kind = "", children = [] }
 stable_reject_tag = "parser/guard_let_no_fallthrough_required"
+parser_inventory_id = "option"
 
 [[fixtures]]
 fixture_id = "postfix_catch_canonical"

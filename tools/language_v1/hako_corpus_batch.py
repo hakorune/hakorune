@@ -193,13 +193,15 @@ def compare_batch(
         )
         actual_normalized_form = None
         projection_error = ""
-        if expected_status == "ok" and isinstance(observation, dict):
+        if actual_status == "ok" and isinstance(observation, dict):
             try:
                 actual_normalized_form = project_hako_normalized_form(
                     fixture["row_id"], observation.get("program")
                 )
-            except HakoProjectionError:
-                projection_error = "parser/witness_missing"
+            except HakoProjectionError as error:
+                projection_error = error.stable_reject_tag
+                actual_status = "error"
+                actual_tag = error.stable_reject_tag
         row_ok = (
             isinstance(observation, dict)
             and observation.get("schema") == "language-v1-hako-raw-evidence-v0"

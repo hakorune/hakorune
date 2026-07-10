@@ -9,6 +9,11 @@ from typing import Any
 class HakoProjectionError(ValueError):
     stable_reject_tag = "parser/witness_missing"
 
+    def __init__(self, detail: str, stable_reject_tag: str | None = None) -> None:
+        super().__init__(detail)
+        if stable_reject_tag is not None:
+            self.stable_reject_tag = stable_reject_tag
+
 
 def _node(
     kind: str,
@@ -68,9 +73,32 @@ def _guard_expr(program: dict[str, Any]) -> dict[str, Any]:
 
 
 def _guard_let(program: dict[str, Any]) -> dict[str, Any]:
-    statement = _single_body(program)
-    if statement.get("type") != "GuardLet":
-        raise HakoProjectionError("Hako guard let shape is missing")
+    body = program.get("body")
+    if not isinstance(body, list) or len(body) != 3:
+        raise HakoProjectionError("Hako guard let requires Local/If/Local")
+    subject = _object(body[0], "Hako guard let subject is missing")
+    guard = _object(body[1], "Hako guard let branch is missing")
+    binding = _object(body[2], "Hako guard let binding is missing")
+    if subject.get("type") != "Local" or guard.get("type") != "If" or binding.get("type") != "Local":
+        raise HakoProjectionError("Hako guard let shape is invalid")
+    condition = _object(guard.get("cond"), "Hako guard let condition is missing")
+    binding_expr = _object(binding.get("expr"), "Hako guard let binding expression is missing")
+    if condition.get("type") != "EnumMatch" or binding_expr.get("type") != "EnumMatch":
+        raise HakoProjectionError("Hako guard let requires EnumMatch evidence")
+    then_body = guard.get("then")
+    if not isinstance(then_body, list) or not then_body:
+        raise HakoProjectionError(
+            "Hako guard let else may fall through",
+            "parser/guard_let_no_fallthrough_required",
+        )
+    final_kind = _object(
+        then_body[-1], "Hako guard let else item must be an object"
+    ).get("type")
+    if final_kind not in {"Return", "Break", "Continue", "Fault"}:
+        raise HakoProjectionError(
+            "Hako guard let else may fall through",
+            "parser/guard_let_no_fallthrough_required",
+        )
     return _node(
         "GuardLetElse",
         children=[_node("Pattern"), _node("Expr"), _node("NoFallthroughElse")],

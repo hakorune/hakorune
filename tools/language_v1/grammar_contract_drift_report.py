@@ -75,9 +75,12 @@ def rust_observation(binary: pathlib.Path, fixture: dict[str, Any]) -> dict[str,
                 fixture["row_id"], ast_payload
             )
             projection_error = ""
-        except RustProjectionError:
-            normalized_form = None
-            projection_error = "parser/witness_missing"
+        except RustProjectionError as error:
+            return {
+                "accepted": False,
+                "normalized_form": None,
+                "stable_reject_tag": error.stable_reject_tag,
+            }
         return {
             "accepted": True,
             "normalized_form": normalized_form,
@@ -128,9 +131,12 @@ def hako_observation(
                 fixture["row_id"], payload.get("program")
             )
             projection_error = ""
-        except HakoProjectionError:
-            normalized_form = None
-            projection_error = "parser/witness_missing"
+        except HakoProjectionError as error:
+            return {
+                "accepted": False,
+                "normalized_form": None,
+                "stable_reject_tag": error.stable_reject_tag,
+            }
         return {
             "accepted": True,
             "normalized_form": normalized_form,

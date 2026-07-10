@@ -135,6 +135,56 @@ class WitnessProjectionTests(unittest.TestCase):
         with self.assertRaises(HakoProjectionError):
             project_hako_normalized_form("guard_expr_else", fallthrough)
 
+    def test_guard_let_projects_independently_and_rejects_fallthrough(self) -> None:
+        rust = {
+            "statements": [
+                {
+                    "kind": "ScopeBox",
+                    "body": [
+                        {"kind": "Local"},
+                        {"kind": "If", "then": [{"kind": "Return"}]},
+                        {"kind": "Local"},
+                    ],
+                }
+            ]
+        }
+        hako = {
+            "body": [
+                {"type": "Local"},
+                {
+                    "type": "If",
+                    "cond": {"type": "EnumMatch"},
+                    "then": [{"type": "Return"}],
+                },
+                {"type": "Local", "expr": {"type": "EnumMatch"}},
+            ]
+        }
+        expected = {
+            "kind": "GuardLetElse",
+            "children": [
+                {"kind": "Pattern", "children": []},
+                {"kind": "Expr", "children": []},
+                {"kind": "NoFallthroughElse", "children": []},
+            ],
+        }
+        self.assertEqual(project_rust_normalized_form("guard_let_else", rust), expected)
+        self.assertEqual(project_hako_normalized_form("guard_let_else", hako), expected)
+
+        rust["statements"][0]["body"][1]["then"] = [{"kind": "FunctionCall"}]
+        hako["body"][1]["then"] = [{"type": "Expr"}]
+        with self.assertRaises(RustProjectionError) as rust_error:
+            project_rust_normalized_form("guard_let_else", rust)
+        with self.assertRaises(HakoProjectionError) as hako_error:
+            project_hako_normalized_form("guard_let_else", hako)
+        self.assertEqual(
+            rust_error.exception.stable_reject_tag,
+            "parser/guard_let_no_fallthrough_required",
+        )
+        self.assertEqual(
+            hako_error.exception.stable_reject_tag,
+            "parser/guard_let_no_fallthrough_required",
+        )
+
     def test_hako_loop_rejects_record_literal_condition(self) -> None:
         malformed = {
             "body": [

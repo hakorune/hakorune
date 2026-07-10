@@ -9,6 +9,11 @@ from typing import Any
 class RustProjectionError(ValueError):
     stable_reject_tag = "parser/witness_missing"
 
+    def __init__(self, detail: str, stable_reject_tag: str | None = None) -> None:
+        super().__init__(detail)
+        if stable_reject_tag is not None:
+            self.stable_reject_tag = stable_reject_tag
+
 
 def _node(
     kind: str,
@@ -77,6 +82,24 @@ def _guard_let(program: dict[str, Any]) -> dict[str, Any]:
     statement = _single_statement(program)
     if statement.get("kind") != "ScopeBox":
         raise RustProjectionError("guard let did not produce its scoped binding shape")
+    body = statement.get("body")
+    if not isinstance(body, list) or len(body) != 3:
+        raise RustProjectionError("guard let scope requires Local/If/Local")
+    guard = _require_dict(body[1], "guard let branch is missing")
+    then_body = guard.get("then")
+    if guard.get("kind") != "If" or not isinstance(then_body, list) or not then_body:
+        raise RustProjectionError(
+            "guard let else may fall through",
+            "parser/guard_let_no_fallthrough_required",
+        )
+    final_kind = _require_dict(
+        then_body[-1], "guard let else item must be an object"
+    ).get("kind")
+    if final_kind not in {"Return", "Break", "Continue", "Fault"}:
+        raise RustProjectionError(
+            "guard let else may fall through",
+            "parser/guard_let_no_fallthrough_required",
+        )
     return _node(
         "GuardLetElse",
         children=[_node("Pattern"), _node("Expr"), _node("NoFallthroughElse")],
