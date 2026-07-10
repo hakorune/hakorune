@@ -30,9 +30,18 @@ def _require_dict(value: Any, detail: str) -> dict[str, Any]:
 
 def _single_statement(program: dict[str, Any]) -> dict[str, Any]:
     statements = program.get("statements")
-    if not isinstance(statements, list) or len(statements) != 1:
+    if not isinstance(statements, list):
+        raise RustProjectionError("Rust grammar witness statements are missing")
+    semantic_statements = [
+        statement
+        for statement in statements
+        if isinstance(statement, dict)
+        and statement.get("kind")
+        not in {"EnumDeclaration", "BrandDeclaration", "TypeAliasDeclaration"}
+    ]
+    if len(semantic_statements) != 1:
         raise RustProjectionError("Rust grammar witness requires one statement")
-    return _require_dict(statements[0], "Rust statement must be an object")
+    return semantic_statements[0]
 
 
 def _loop_body(statement: dict[str, Any]) -> dict[str, Any]:

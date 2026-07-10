@@ -644,6 +644,8 @@ Close that drift before declaration expansion, in this order:
 1. finish current registered control surfaces
    - Hako guard expression / guard-let owner
    - correct guard-let corpus to the accepted qualified-variant production
+   - replace the Hako-only enum inventory input with one shared parser inventory
+     consumed independently by both adapters
    - preserve NoFallthrough as a semantic contract
    - delegate/match Rust-Hako drift after guard
 

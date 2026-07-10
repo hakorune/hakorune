@@ -91,9 +91,12 @@ for tag in \
   rg -q "$tag" lang/src/compiler/parser/expr/parser_match_box.hako \
     || guard_fail "Hako EnumMatch publication guard missing: $tag"
 done
-rg -q 'hako_inventory_id = "option"' grammar/language-v1-grammar-contract-corpus.toml \
-  || rg -q 'hako_inventory_id = "option"' grammar/language-v1-grammar-contract-corpus \
+rg -q 'parser_inventory_id = "option"' grammar/language-v1-grammar-contract-corpus.toml \
+  || rg -q 'parser_inventory_id = "option"' grammar/language-v1-grammar-contract-corpus \
   || guard_fail "shared Option inventory context missing"
+if rg -q 'hako_inventory(_id)?' grammar/language-v1-grammar-contract-corpus.toml grammar/language-v1-grammar-contract-corpus; then
+  guard_fail "Hako-only grammar inventory ownership must not return"
+fi
 
 python3 tools/language_v1/grammar_contract_drift_report.py --help >/dev/null
 python3 -m unittest \

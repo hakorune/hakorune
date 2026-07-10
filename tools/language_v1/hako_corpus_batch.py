@@ -134,7 +134,7 @@ def batch_environment(
         environment[f"{prefix}SOURCE_{index}"] = fixture["source"]
         environment[f"{prefix}PROFILE_{index}"] = fixture["profile"].lower()
         environment[f"{prefix}INVENTORY_JSON_{index}"] = fixture.get(
-            "hako_inventory_json", "[]"
+            "parser_inventory_json", "[]"
         )
     return environment
 

@@ -47,7 +47,10 @@ def rust_observation(binary: pathlib.Path, fixture: dict[str, Any]) -> dict[str,
         root = pathlib.Path(temp_dir)
         source = root / "fixture.hako"
         ast = root / "ast.json"
-        source.write_text(fixture["source"], encoding="utf-8")
+        source.write_text(
+            fixture.get("parser_inventory_source", "") + fixture["source"],
+            encoding="utf-8",
+        )
         completed = subprocess.run(
             [
                 str(binary),
@@ -93,7 +96,7 @@ def hako_observation(
 ) -> dict[str, Any]:
     environment = os.environ | {"HAKO_GRAMMAR_CONTRACT_SOURCE": fixture["source"]}
     environment["HAKO_GRAMMAR_CONTRACT_INVENTORY_JSON"] = fixture.get(
-        "hako_inventory_json", "[]"
+        "parser_inventory_json", "[]"
     )
     profile = {
         "Canonical": "canonical",

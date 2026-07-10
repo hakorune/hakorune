@@ -1,7 +1,7 @@
 # Shared Language v1 grammar-contract fixture corpus.
 # These fixtures express contract expectations, not current parser authority.
 
-[hako_inventory.option]
+[parser_inventory.option]
 enums = [
   { name = "Option", type_parameters = ["T"], variants = [
     { name = "None" },
@@ -9,7 +9,7 @@ enums = [
   ] },
 ]
 
-[hako_inventory.probe_state]
+[parser_inventory.probe_state]
 enums = [
   { name = "ProbeState", type_parameters = ["T"], variants = [
     { name = "Idle" },
@@ -187,7 +187,7 @@ source = "match none { Some(x) => x, _ => 0 }"
 accepted = true
 normalized_form = { kind = "Match", children = [{ kind = "Scrutinee", children = [] }, { kind = "OrderedArms", children = [{ kind = "MatchArm", children = [{ kind = "Pattern", children = [] }, { kind = "ArmBody", children = [] }] }] }] }
 stable_reject_tag = ""
-hako_inventory_id = "option"
+parser_inventory_id = "option"
 
 [[fixtures]]
 fixture_id = "match_compat"
@@ -197,7 +197,7 @@ source = "match none { Some(x) => x, _ => 0 }"
 accepted = true
 normalized_form = { kind = "Match", children = [{ kind = "Scrutinee", children = [] }, { kind = "OrderedArms", children = [{ kind = "MatchArm", children = [{ kind = "Pattern", children = [] }, { kind = "ArmBody", children = [] }] }] }] }
 stable_reject_tag = ""
-hako_inventory_id = "option"
+parser_inventory_id = "option"
 
 [[fixtures]]
 fixture_id = "match_missing_arm"
@@ -207,7 +207,7 @@ source = "match none { }"
 accepted = false
 normalized_form = { kind = "", children = [] }
 stable_reject_tag = "parser/match_expected_canonical"
-hako_inventory_id = "option"
+parser_inventory_id = "option"
 
 [[fixtures]]
 fixture_id = "match_user_enum_canonical"
@@ -217,7 +217,7 @@ source = "match none { Ready(x) => x, Idle => 0 }"
 accepted = true
 normalized_form = { kind = "Match", children = [{ kind = "Scrutinee", children = [] }, { kind = "OrderedArms", children = [] }] }
 stable_reject_tag = ""
-hako_inventory_id = "probe_state"
+parser_inventory_id = "probe_state"
 
 [[fixtures]]
 fixture_id = "match_missing_arrow"
@@ -227,7 +227,7 @@ source = "match none { Some(x) x }"
 accepted = false
 normalized_form = { kind = "", children = [] }
 stable_reject_tag = "parser/match_expected_canonical"
-hako_inventory_id = "option"
+parser_inventory_id = "option"
 
 [[fixtures]]
 fixture_id = "match_user_enum_wildcard_canonical"
@@ -237,7 +237,7 @@ source = "match none { Ready(x) => x, _ => 0 }"
 accepted = true
 normalized_form = { kind = "Match", children = [{ kind = "Scrutinee", children = [] }, { kind = "OrderedArms", children = [] }] }
 stable_reject_tag = ""
-hako_inventory_id = "probe_state"
+parser_inventory_id = "probe_state"
 
 [[fixtures]]
 fixture_id = "match_name_scrutinee_canonical"
@@ -247,7 +247,7 @@ source = "match value { Ready(x) => x, Idle => 0 }"
 accepted = true
 normalized_form = { kind = "Match", children = [{ kind = "Scrutinee", children = [] }, { kind = "OrderedArms", children = [] }] }
 stable_reject_tag = ""
-hako_inventory_id = "probe_state"
+parser_inventory_id = "probe_state"
 hako_expected_scrutinee_kind = "Var"
 
 [[fixtures]]
@@ -258,7 +258,7 @@ source = "match getState() { Ready(x) => x, Idle => 0 }"
 accepted = true
 normalized_form = { kind = "Match", children = [{ kind = "Scrutinee", children = [] }, { kind = "OrderedArms", children = [] }] }
 stable_reject_tag = ""
-hako_inventory_id = "probe_state"
+parser_inventory_id = "probe_state"
 hako_expected_scrutinee_kind = "Call"
 
 [[fixtures]]
@@ -269,7 +269,7 @@ source = "match obj.field { Ready(x) => x, Idle => 0 }"
 accepted = true
 normalized_form = { kind = "Match", children = [{ kind = "Scrutinee", children = [] }, { kind = "OrderedArms", children = [] }] }
 stable_reject_tag = ""
-hako_inventory_id = "probe_state"
+parser_inventory_id = "probe_state"
 hako_expected_scrutinee_kind = "Field"
 
 [[fixtures]]
@@ -280,7 +280,7 @@ source = "match (Value { field: 1 }) { Ready(x) => x, Idle => 0 }"
 accepted = true
 normalized_form = { kind = "Match", children = [{ kind = "Scrutinee", children = [] }, { kind = "OrderedArms", children = [] }] }
 stable_reject_tag = ""
-hako_inventory_id = "probe_state"
+parser_inventory_id = "probe_state"
 hako_expected_scrutinee_kind = "RecordLiteral"
 
 [[fixtures]]
@@ -291,7 +291,7 @@ source = "match none { Ready(x) => x }"
 accepted = false
 normalized_form = { kind = "", children = [] }
 stable_reject_tag = "parser/hako_enum_match_non_exhaustive"
-hako_inventory_id = "probe_state"
+parser_inventory_id = "probe_state"
 
 [[fixtures]]
 fixture_id = "match_user_enum_duplicate_variant"
@@ -301,7 +301,7 @@ source = "match none { Ready(x) => x, Ready(y) => y, Idle => 0 }"
 accepted = false
 normalized_form = { kind = "", children = [] }
 stable_reject_tag = "parser/hako_enum_match_duplicate_variant"
-hako_inventory_id = "probe_state"
+parser_inventory_id = "probe_state"
 
 [[fixtures]]
 fixture_id = "match_user_enum_unit_binding"
@@ -311,7 +311,7 @@ source = "match none { Ready(x) => x, Idle(y) => y }"
 accepted = false
 normalized_form = { kind = "", children = [] }
 stable_reject_tag = "parser/hako_enum_match_unit_binding"
-hako_inventory_id = "probe_state"
+parser_inventory_id = "probe_state"
 
 [[fixtures]]
 fixture_id = "match_missing_close"
@@ -321,7 +321,7 @@ source = "match none { Some(x) => x"
 accepted = false
 normalized_form = { kind = "", children = [] }
 stable_reject_tag = "parser/match_expected_canonical"
-hako_inventory_id = "option"
+parser_inventory_id = "option"
 
 [[fixtures]]
 fixture_id = "peek_canonical_reject"
@@ -331,7 +331,7 @@ source = "peek none { Some(x) => x, _ => 0 }"
 accepted = false
 normalized_form = { kind = "", children = [] }
 stable_reject_tag = "parser/peek_legacy_replaced_by_match"
-hako_inventory_id = "option"
+parser_inventory_id = "option"
 
 [[fixtures]]
 fixture_id = "peek_compat_normalizable"
@@ -341,7 +341,7 @@ source = "peek none { Some(x) => x, _ => 0 }"
 accepted = true
 normalized_form = { kind = "Match", children = [{ kind = "Scrutinee", children = [] }, { kind = "OrderedArms", children = [] }] }
 stable_reject_tag = ""
-hako_inventory_id = "option"
+parser_inventory_id = "option"
 hako_equivalent_fixture_id = "match_compat"
 
 [[fixtures]]
@@ -352,7 +352,7 @@ source = "peek none { observe x => x }"
 accepted = false
 normalized_form = { kind = "", children = [] }
 stable_reject_tag = "parser/peek_compat_not_normalizable"
-hako_inventory_id = "option"
+parser_inventory_id = "option"
 
 [[fixtures]]
 fixture_id = "delegate_exposes_canonical"

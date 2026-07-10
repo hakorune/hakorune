@@ -18,7 +18,8 @@ from tools.language_v1.hako_adapter_health import (
 )
 from tools.language_v1.grammar_contract_corpus import (
     fixtures_by_id,
-    inventory_json_by_id,
+    parser_inventory_json_by_id,
+    parser_inventory_source_by_id,
 )
 
 
@@ -27,17 +28,18 @@ def python_command(source: str) -> list[str]:
 
 
 class HakoAdapterHealthTests(unittest.TestCase):
-    def test_corpus_inventory_context_is_shared_by_match_fixtures(self) -> None:
+    def test_corpus_inventory_context_is_shared_by_both_parser_adapters(self) -> None:
         fixtures = fixtures_by_id()
-        option_inventory = inventory_json_by_id("option")
+        option_inventory = parser_inventory_json_by_id("option")
         self.assertIn('"name":"Option"', option_inventory)
         self.assertEqual(
-            fixtures["match_canonical"]["hako_inventory_json"], option_inventory
+            fixtures["match_canonical"]["parser_inventory_json"], option_inventory
         )
         self.assertIn(
             '"name":"ProbeState"',
-            fixtures["match_user_enum_canonical"]["hako_inventory_json"],
+            fixtures["match_user_enum_canonical"]["parser_inventory_json"],
         )
+        self.assertIn("enum Option<T>", parser_inventory_source_by_id("option"))
         self.assertEqual(
             fixtures["match_user_enum_non_exhaustive"]["stable_reject_tag"],
             "parser/hako_enum_match_non_exhaustive",

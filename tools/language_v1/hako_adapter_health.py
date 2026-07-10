@@ -13,9 +13,9 @@ import subprocess
 from typing import Any, Mapping, Sequence
 
 if __package__:
-    from .grammar_contract_corpus import inventory_json_by_id
+    from .grammar_contract_corpus import parser_inventory_json_by_id
 else:
-    from grammar_contract_corpus import inventory_json_by_id
+    from grammar_contract_corpus import parser_inventory_json_by_id
 
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
@@ -230,7 +230,7 @@ def main() -> int:
     )
     args = parser.parse_args()
     try:
-        inventory_json = args.inventory_json or inventory_json_by_id(args.inventory_id)
+        inventory_json = args.inventory_json or parser_inventory_json_by_id(args.inventory_id)
     except KeyError:
         envelope = health_envelope(
             probe_kind=args.probe,
