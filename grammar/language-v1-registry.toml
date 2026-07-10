@@ -269,3 +269,99 @@ semantic_owner = "none"
 stable_reject_tag = "parser/from_compat_transport_only"
 positive_fixture_ids = ["from_super_call_compat_transport"]
 negative_fixture_ids = ["from_super_call_semantic_entry_reject"]
+
+[[rows]]
+row_id = "while_loop_condition"
+family = "loop"
+spelling_id = "while_loop_condition"
+production = "while expr block"
+canonical = { status = "rejected", normalization_mode = "none", normalized_shape = "", semantic_owner = "grammar-contract", stable_reject_tag = "parser/while_legacy_replaced_by_loop_condition", positive_fixture_ids = [], negative_fixture_ids = ["while_loop_condition_canonical_reject"] }
+compat2025 = { status = "compatibility_only", normalization_mode = "compatibility_alias", normalized_shape = "LoopCondition", semantic_owner = "semantic-kernel", stable_reject_tag = "parser/while_compat_not_normalizable", positive_fixture_ids = ["while_loop_condition_compat"], negative_fixture_ids = ["while_loop_condition_compat_not_normalizable"] }
+
+[[rows]]
+row_id = "typed_integer_suffix"
+family = "literal"
+spelling_id = "typed_integer_suffix"
+production = "integer type_suffix"
+canonical = { status = "rejected", normalization_mode = "none", normalized_shape = "", semantic_owner = "grammar-contract", stable_reject_tag = "parser/typed_integer_suffix_rust_evidence_only", positive_fixture_ids = [], negative_fixture_ids = ["typed_integer_suffix_canonical_reject"] }
+compat2025 = { status = "rejected", normalization_mode = "none", normalized_shape = "", semantic_owner = "grammar-contract", stable_reject_tag = "parser/typed_integer_suffix_rust_evidence_only", positive_fixture_ids = [], negative_fixture_ids = ["typed_integer_suffix_compat_reject"] }
+
+[[rows]]
+row_id = "map_literal_percent_brace"
+family = "literal"
+spelling_id = "map_literal_percent_brace"
+production = "percent_brace string_key map literal"
+canonical = { status = "canonical", normalization_mode = "canonical_shape", normalized_shape = "MapLiteral", semantic_owner = "literal", stable_reject_tag = "", positive_fixture_ids = ["map_literal_percent_brace_canonical"], negative_fixture_ids = [] }
+compat2025 = { status = "canonical", normalization_mode = "canonical_shape", normalized_shape = "MapLiteral", semantic_owner = "literal", stable_reject_tag = "", positive_fixture_ids = ["map_literal_percent_brace_compat"], negative_fixture_ids = [] }
+
+[[rows]]
+row_id = "loop_infinite"
+family = "loop"
+spelling_id = "loop_infinite"
+production = "loop block"
+canonical = { status = "canonical", normalization_mode = "canonical_shape", normalized_shape = "LoopInfinite", semantic_owner = "semantic-kernel", stable_reject_tag = "", positive_fixture_ids = ["loop_infinite_canonical"], negative_fixture_ids = [] }
+compat2025 = { status = "canonical", normalization_mode = "canonical_shape", normalized_shape = "LoopInfinite", semantic_owner = "semantic-kernel", stable_reject_tag = "", positive_fixture_ids = ["loop_infinite_compat"], negative_fixture_ids = [] }
+
+[[rows]]
+row_id = "loop_condition"
+family = "loop"
+spelling_id = "loop_condition"
+production = "loop expr block"
+canonical = { status = "canonical", normalization_mode = "canonical_shape", normalized_shape = "LoopCondition", semantic_owner = "semantic-kernel", stable_reject_tag = "", positive_fixture_ids = ["loop_condition_canonical"], negative_fixture_ids = [] }
+compat2025 = { status = "canonical", normalization_mode = "canonical_shape", normalized_shape = "LoopCondition", semantic_owner = "semantic-kernel", stable_reject_tag = "", positive_fixture_ids = ["loop_condition_compat"], negative_fixture_ids = [] }
+
+[[rows]]
+row_id = "loop_range"
+family = "loop"
+spelling_id = "loop_range"
+production = "loop identifier in expr range expr block"
+canonical = { status = "canonical", normalization_mode = "canonical_shape", normalized_shape = "LoopRange", semantic_owner = "semantic-kernel", stable_reject_tag = "", positive_fixture_ids = ["loop_range_canonical"], negative_fixture_ids = ["loop_range_missing_end"] }
+compat2025 = { status = "canonical", normalization_mode = "canonical_shape", normalized_shape = "LoopRange", semantic_owner = "semantic-kernel", stable_reject_tag = "", positive_fixture_ids = ["loop_range_compat"], negative_fixture_ids = ["loop_range_missing_end_compat"] }
+
+[[rows]]
+row_id = "break_statement"
+family = "loop"
+spelling_id = "break_statement"
+production = "break"
+canonical = { status = "canonical", normalization_mode = "canonical_shape", normalized_shape = "Break", semantic_owner = "semantic-kernel", stable_reject_tag = "", positive_fixture_ids = ["break_statement_canonical"], negative_fixture_ids = [] }
+compat2025 = { status = "canonical", normalization_mode = "canonical_shape", normalized_shape = "Break", semantic_owner = "semantic-kernel", stable_reject_tag = "", positive_fixture_ids = ["break_statement_compat"], negative_fixture_ids = [] }
+
+[[rows]]
+row_id = "continue_statement"
+family = "loop"
+spelling_id = "continue_statement"
+production = "continue"
+canonical = { status = "canonical", normalization_mode = "canonical_shape", normalized_shape = "Continue", semantic_owner = "semantic-kernel", stable_reject_tag = "", positive_fixture_ids = ["continue_statement_canonical"], negative_fixture_ids = [] }
+compat2025 = { status = "canonical", normalization_mode = "canonical_shape", normalized_shape = "Continue", semantic_owner = "semantic-kernel", stable_reject_tag = "", positive_fixture_ids = ["continue_statement_compat"], negative_fixture_ids = [] }
+
+[[rows]]
+row_id = "for_loop"
+family = "loop"
+spelling_id = "for_loop"
+production = "for legacy_loop"
+canonical = { status = "rejected", normalization_mode = "none", normalized_shape = "", semantic_owner = "grammar-contract", stable_reject_tag = "parser/for_loop_noncanonical", positive_fixture_ids = [], negative_fixture_ids = ["for_loop_canonical_reject"] }
+compat2025 = { status = "rejected", normalization_mode = "none", normalized_shape = "", semantic_owner = "grammar-contract", stable_reject_tag = "parser/for_loop_noncanonical", positive_fixture_ids = [], negative_fixture_ids = ["for_loop_compat_reject"] }
+
+[[rows]]
+row_id = "do_while_loop"
+family = "loop"
+spelling_id = "do_while_loop"
+production = "do block while expr"
+canonical = { status = "rejected", normalization_mode = "none", normalized_shape = "", semantic_owner = "grammar-contract", stable_reject_tag = "parser/do_while_noncanonical", positive_fixture_ids = [], negative_fixture_ids = ["do_while_loop_canonical_reject"] }
+compat2025 = { status = "rejected", normalization_mode = "none", normalized_shape = "", semantic_owner = "grammar-contract", stable_reject_tag = "parser/do_while_noncanonical", positive_fixture_ids = [], negative_fixture_ids = ["do_while_loop_compat_reject"] }
+
+[[rows]]
+row_id = "repeat_loop"
+family = "loop"
+spelling_id = "repeat_loop"
+production = "repeat block"
+canonical = { status = "rejected", normalization_mode = "none", normalized_shape = "", semantic_owner = "grammar-contract", stable_reject_tag = "parser/repeat_loop_noncanonical", positive_fixture_ids = [], negative_fixture_ids = ["repeat_loop_canonical_reject"] }
+compat2025 = { status = "rejected", normalization_mode = "none", normalized_shape = "", semantic_owner = "grammar-contract", stable_reject_tag = "parser/repeat_loop_noncanonical", positive_fixture_ids = [], negative_fixture_ids = ["repeat_loop_compat_reject"] }
+
+[[rows]]
+row_id = "until_loop"
+family = "loop"
+spelling_id = "until_loop"
+production = "until expr block"
+canonical = { status = "rejected", normalization_mode = "none", normalized_shape = "", semantic_owner = "grammar-contract", stable_reject_tag = "parser/until_loop_noncanonical", positive_fixture_ids = [], negative_fixture_ids = ["until_loop_canonical_reject"] }
+compat2025 = { status = "rejected", normalization_mode = "none", normalized_shape = "", semantic_owner = "grammar-contract", stable_reject_tag = "parser/until_loop_noncanonical", positive_fixture_ids = [], negative_fixture_ids = ["until_loop_compat_reject"] }

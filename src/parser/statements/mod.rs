@@ -325,6 +325,9 @@ impl NyashParser {
             | TokenType::GUARD
             | TokenType::WHILE
             | TokenType::FOR
+            | TokenType::DO
+            | TokenType::REPEAT
+            | TokenType::UNTIL
             | TokenType::LOOP
             | TokenType::BREAK
             | TokenType::CONTINUE

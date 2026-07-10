@@ -64,9 +64,12 @@ impl NyashTokenizer {
             "using" => TokenType::USING,
             "and" => TokenType::AND,
             "or" => TokenType::OR,
-            // Stage-3 loop keywords (gated below)
+            // Grammar-contract loop spellings are profile-owned by the parser.
             "while" => TokenType::WHILE,
             "for" => TokenType::FOR,
+            "do" => TokenType::DO,
+            "repeat" => TokenType::REPEAT,
+            "until" => TokenType::UNTIL,
             "in" => TokenType::IN,
             "true" => TokenType::TRUE,
             "false" => TokenType::FALSE,
@@ -88,9 +91,6 @@ impl NyashTokenizer {
                     | TokenType::CATCH
                     | TokenType::FINI
                     | TokenType::THROW
-                    | TokenType::WHILE
-                    | TokenType::FOR
-                    | TokenType::IN
             );
             if is_stage3 {
                 if env::tok_trace() {
@@ -111,9 +111,6 @@ impl NyashTokenizer {
                         | TokenType::CATCH
                         | TokenType::FINI
                         | TokenType::THROW
-                        | TokenType::WHILE
-                        | TokenType::FOR
-                        | TokenType::IN
                 );
                 if is_stage3 {
                     log::debug(&format!(

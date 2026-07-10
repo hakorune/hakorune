@@ -115,7 +115,14 @@ fn compat2025_migration_adapter_emits_span_free_transport_evidence() {
         let bundle = parse_migration_transport_with_config(source, config.clone())
             .expect("closed legacy form must emit migration evidence");
         assert_eq!(bundle.transport.transport_kind, expected_kind);
-        assert_eq!(bundle.witness.normalized_kind, "CompatibilityTransport");
+        assert_eq!(
+            bundle
+                .witness
+                .normalized_form
+                .as_ref()
+                .map(|form| form.kind.as_str()),
+            Some("CompatibilityTransport")
+        );
         assert_eq!(
             bundle.witness.migration_transport_ref.as_deref(),
             Some(bundle.transport.transport_id.as_str())
@@ -182,4 +189,54 @@ fn compat2025_peek_rejects_non_match_shape_without_fallback() {
         parse_with_profile(source, GrammarProfile::Compat2025).unwrap_err()
     );
     assert!(error.contains("[parser/peek_compat_not_normalizable]"));
+}
+
+#[test]
+fn while_is_explicit_compat2025_alias() {
+    let source = "while ready { break }";
+    let canonical_error = format!(
+        "{:?}",
+        parse_with_profile(source, GrammarProfile::Canonical).unwrap_err()
+    );
+    assert!(
+        canonical_error.contains("parser/while_legacy_replaced_by_loop_condition"),
+        "{canonical_error}"
+    );
+    assert!(parse_with_profile(source, GrammarProfile::Compat2025).is_ok());
+}
+
+#[test]
+fn noncanonical_loop_spellings_reject_in_every_profile() {
+    for (source, stable_tag) in [
+        ("for item in 0..1 { break }", "parser/for_loop_noncanonical"),
+        ("do { break } while ready", "parser/do_while_noncanonical"),
+        ("repeat { break }", "parser/repeat_loop_noncanonical"),
+        ("until ready { break }", "parser/until_loop_noncanonical"),
+    ] {
+        for profile in [GrammarProfile::Canonical, GrammarProfile::Compat2025] {
+            let error = format!("{:?}", parse_with_profile(source, profile).unwrap_err());
+            assert!(error.contains(stable_tag), "{source}: {error}");
+        }
+    }
+}
+
+#[test]
+fn typed_integer_suffix_is_not_a_language_v1_surface() {
+    for profile in [GrammarProfile::Canonical, GrammarProfile::Compat2025] {
+        let error = format!("{:?}", parse_with_profile("1usize", profile).unwrap_err());
+        assert!(
+            error.contains("parser/typed_integer_suffix_rust_evidence_only"),
+            "{error}"
+        );
+    }
+}
+
+#[test]
+fn percent_brace_map_literal_is_profile_independent() {
+    for profile in [GrammarProfile::Canonical, GrammarProfile::Compat2025] {
+        assert!(
+            parse_with_profile("%{\"key\" => 1}", profile).is_ok(),
+            "map literal must not depend on ambient syntax-sugar state"
+        );
+    }
 }

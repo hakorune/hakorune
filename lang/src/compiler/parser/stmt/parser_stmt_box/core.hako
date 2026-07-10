@@ -174,23 +174,44 @@ static box ParserStmtCoreBox {
     }
 
     if ctx.starts_with_kw(src, j, "loop") == 1 {
-      // Guard: require an actual loop header `loop (...)` (keyword boundary is not enough).
-      // This prevents false positives like `loop_depth_before = 0` inside mode-B compatibility compiler code.
-      local k_loop = j + 4
-      k_loop = ParserStringUtilsBox.skip_ws(src, k_loop)
-      if k_loop >= src.length() || src.substring(k_loop, k_loop+1) != "(" {
-        // Not a loop statement; fall through to assignment / expr.
-      } else {
-        {
-          local tr = env.get("NYASH_PARSER_TRACE")
-          if tr != null && ("" + tr) == "1" {
-            print("[parser/stmt] kind=loop j=" + ("" + j))
-          }
+      {
+        local tr = env.get("NYASH_PARSER_TRACE")
+        if tr != null && ("" + tr) == "1" {
+          print("[parser/stmt] kind=loop j=" + ("" + j))
         }
-        local out_loop = ParserControlBox.parse_loop(src, j, stmt_start, ctx)
-        env.set("HAKO_STAGEB_STMT_DEPTH", "0")
-        return out_loop
       }
+      local out_loop = ParserControlBox.parse_loop(src, j, stmt_start, ctx)
+      env.set("HAKO_STAGEB_STMT_DEPTH", "0")
+      return out_loop
+    }
+
+    if ctx.starts_with_kw(src, j, "while") == 1 {
+      if ctx.grammar_profile_is_compat2025() != 1 {
+        ctx.gpos_set(src.length())
+        env.set("HAKO_STAGEB_STMT_DEPTH", "0")
+        return ctx.freeze_contract(
+          "parser/while_legacy_replaced_by_loop_condition",
+          "while requires explicit Compat2025"
+        )
+      }
+      local while_head = ctx.skip_ws(src, j + 5)
+      if while_head >= src.length() || src.substring(while_head, while_head+1) == "{" {
+        ctx.gpos_set(src.length())
+        env.set("HAKO_STAGEB_STMT_DEPTH", "0")
+        return ctx.freeze_contract(
+          "parser/while_compat_not_normalizable",
+          "while requires a condition before its body"
+        )
+      }
+      local out_while = ParserControlBox.parse_loop(src, j, stmt_start, ctx)
+      env.set("HAKO_STAGEB_STMT_DEPTH", "0")
+      return out_while
+    }
+
+    if ctx.starts_with_kw(src, j, "for") == 1 || ctx.starts_with_kw(src, j, "do") == 1 || ctx.starts_with_kw(src, j, "repeat") == 1 || ctx.starts_with_kw(src, j, "until") == 1 {
+      local out_legacy_loop = ParserControlBox.reject_noncanonical_loop(src, j, stmt_start, ctx)
+      env.set("HAKO_STAGEB_STMT_DEPTH", "0")
+      return out_legacy_loop
     }
 
     if ctx.starts_with_kw(src, j, "break") == 1 {

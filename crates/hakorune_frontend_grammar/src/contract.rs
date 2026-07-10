@@ -364,8 +364,7 @@ mod tests {
             .iter()
             .map(|row| (row.row_id, row.profile))
             .collect::<BTreeSet<_>>();
-        assert_eq!(LANGUAGE_V1_GRAMMAR_CONTRACT_ROWS.len(), 22);
-        assert_eq!(pairs.len(), 22);
+        assert_eq!(pairs.len(), LANGUAGE_V1_GRAMMAR_CONTRACT_ROWS.len());
         for row_id in [
             "guard_expr_else",
             "guard_let_else",

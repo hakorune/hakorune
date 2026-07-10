@@ -17,15 +17,21 @@ use crate::tokenizer::TokenType;
 impl NyashParser {
     /// Parse control flow statement dispatch
     pub(super) fn parse_control_flow_statement(&mut self) -> Result<ASTNode, ParseError> {
-        let stage3 = Self::is_stage3_enabled();
-
         match &self.current_token().token_type {
             TokenType::IF => self.parse_if(),
             TokenType::GUARD => self.parse_guard_else(),
-            // Stage-3 while compatibility routes through the canonical loop parser.
-            TokenType::WHILE if stage3 => self.parse_loop(),
-            // Stage-3 legacy for-range compatibility. Canonical surface is loop i in a..b.
-            TokenType::FOR if stage3 => self.parse_legacy_for_range_stage3(),
+            TokenType::WHILE => {
+                crate::parser::grammar_contract::require_semantic_entry(
+                    "while_loop_condition",
+                    self.build_config.grammar_profile,
+                    TokenType::WHILE,
+                    self.current_token().line,
+                )?;
+                self.parse_loop()
+            }
+            TokenType::FOR | TokenType::DO | TokenType::REPEAT | TokenType::UNTIL => {
+                self.reject_noncanonical_loop()
+            }
             // Legacy loop
             TokenType::LOOP => self.parse_loop(),
             TokenType::BREAK => self.parse_break(),
@@ -37,6 +43,22 @@ impl NyashParser {
                 line: self.current_token().line,
             }),
         }
+    }
+
+    fn reject_noncanonical_loop(&self) -> Result<ASTNode, ParseError> {
+        let (found, stable_tag) = match &self.current_token().token_type {
+            TokenType::FOR => (TokenType::FOR, "parser/for_loop_noncanonical"),
+            TokenType::DO => (TokenType::DO, "parser/do_while_noncanonical"),
+            TokenType::REPEAT => (TokenType::REPEAT, "parser/repeat_loop_noncanonical"),
+            TokenType::UNTIL => (TokenType::UNTIL, "parser/until_loop_noncanonical"),
+            _ => unreachable!("control-flow dispatcher only calls this for legacy loop tokens"),
+        };
+
+        Err(ParseError::UnexpectedToken {
+            found,
+            expected: format!("[freeze:contract][{stable_tag}] use canonical loop forms"),
+            line: self.current_token().line,
+        })
     }
 
     /// Parse if statement: if (condition) { body } else if ... else { body }
@@ -422,38 +444,6 @@ impl NyashParser {
         self.consume(TokenType::RANGE)?;
         let end = Box::new(self.expr_parse_term()?);
         Ok((var_name, start, end))
-    }
-
-    /// Stage-3 legacy for-range compatibility parser.
-    ///
-    /// Canonical Hakorune source uses `loop i in start..end { ... }`. This
-    /// parser branch keeps older `for i in start..end { ... }` input readable
-    /// and routes it through the same range-header metadata shape. It must not
-    /// grow independent lowering semantics.
-    fn parse_legacy_for_range_stage3(&mut self) -> Result<ASTNode, ParseError> {
-        // Normalize cursor at statement start
-        if super::helpers::cursor_enabled() {
-            let mut cursor = TokenCursor::new(&self.tokens);
-            cursor.set_position(self.current);
-            cursor.with_stmt_mode(|c| c.skip_newlines());
-            self.current = cursor.position();
-        }
-        // consume 'for'
-        self.advance();
-        let (var_name, start, end) = self.parse_range_header("for range index identifier")?;
-        let body = self.parse_block_statements()?;
-        Ok(ASTNode::LoopRange {
-            var_name,
-            start,
-            end,
-            body,
-            span: Span::unknown(),
-        })
-    }
-
-    /// Helper: env-gated Stage-3 enable check.
-    fn is_stage3_enabled() -> bool {
-        crate::parser::env::parser_stage3_enabled()
     }
 
     /// Parse break statement

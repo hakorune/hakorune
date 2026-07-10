@@ -100,6 +100,12 @@ static box ParserExprBox {
     local pos = i
     if at >= 0 { pos = ctx.to_int(pair.substring(at+1, pair.length())) }
     ctx.gpos_set(pos)
+    if json.indexOf("\"declared_type\"") >= 0 {
+      return ctx.freeze_contract(
+        "parser/typed_integer_suffix_rust_evidence_only",
+        "typed integer suffixes are not a Language v1 surface"
+      )
+    }
     return json
   }
 

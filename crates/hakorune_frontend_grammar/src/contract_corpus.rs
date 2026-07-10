@@ -11,9 +11,10 @@ pub struct GrammarContractFixture {
     pub expected: ParseWitness,
 }
 
-const CORPUS_FRAGMENTS: &[&str] = &[include_str!(
-    "../../../grammar/language-v1-grammar-contract-corpus/foundation.toml"
-)];
+const CORPUS_FRAGMENTS: &[&str] = &[
+    include_str!("../../../grammar/language-v1-grammar-contract-corpus/foundation.toml"),
+    include_str!("../../../grammar/language-v1-grammar-contract-corpus/profile-boundaries.toml"),
+];
 
 fn string(value: &toml::value::Table, field: &str) -> String {
     value

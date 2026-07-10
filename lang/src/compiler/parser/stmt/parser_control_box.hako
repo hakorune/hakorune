@@ -212,7 +212,7 @@ static box ParserControlBox {
     return "{\"type\":\"EnumMatch\",\"enum\":\"Option\",\"scrutinee\":{\"type\":\"Var\",\"name\":\"" + subject_name + "\"},\"arms\":[{\"variant\":\"Some\",\"bind\":\"" + binding_name + "\",\"expr\":{\"type\":\"Var\",\"name\":\"" + binding_name + "\"}},{\"variant\":\"None\",\"expr\":{\"type\":\"Null\"}}]}"
   }
 
-  // Parse: loop(cond) { ... }
+  // Parse canonical loop forms and the Compat2025 while-condition alias.
   // Dev tracing: set HAKO_PARSER_TRACE_LOOP=1 to enable debug prints
   parse_loop(src, i, stmt_start, ctx) {
     local loop_depth_before = 0
@@ -227,8 +227,72 @@ static box ParserControlBox {
     }
 
     local trace = 0  // dev-only (disabled in mode-B compatibility runtime: no env API here)
-    local j = i + 4  // skip "loop"
+    local is_while_compat = 0
+    if ctx.starts_with_kw(src, i, "while") == 1 { is_while_compat = 1 }
+    local j = i + 4
+    if is_while_compat == 1 { j = i + 5 }
     j = ctx.skip_ws(src, j)
+
+    if is_while_compat == 0 && src.substring(j, j+1) == "{" {
+      local infinite_body_res = me.parse_block(src, j, ctx)
+      if ParserStringUtilsBox.starts_with("" + infinite_body_res, 0, "[freeze:contract]") == 1 {
+        ctx.gpos_set(src.length())
+        return infinite_body_res
+      }
+      local infinite_at = infinite_body_res.lastIndexOf("@")
+      local infinite_body = infinite_body_res.substring(0, infinite_at)
+      local infinite_pos = ctx.to_int(infinite_body_res.substring(infinite_at + 1, infinite_body_res.length()))
+      ctx.gpos_set(infinite_pos)
+      env.set("HAKO_STAGEB_LOOP_DEPTH", StringHelpers.int_to_str(loop_depth_before))
+      return "{\"type\":\"Loop\",\"cond\":{\"type\":\"Bool\",\"value\":true},\"body\":" + infinite_body + "}"
+    }
+
+    if is_while_compat == 0 {
+      local range_name_pair = ctx.read_ident2(src, j)
+      local range_name_at = range_name_pair.lastIndexOf("@")
+      if range_name_at >= 0 {
+        local range_name = range_name_pair.substring(0, range_name_at)
+        local range_j = ctx.to_int(range_name_pair.substring(range_name_at + 1, range_name_pair.length()))
+        range_j = ctx.skip_ws(src, range_j)
+        if range_name != "" && ctx.starts_with_kw(src, range_j, "in") == 1 {
+          range_j = ctx.skip_ws(src, range_j + 2)
+          local range_start = ctx.parse_expr2(src, range_j)
+          range_j = ctx.skip_ws(src, ctx.gpos_get())
+          if src.substring(range_j, range_j + 2) != ".." {
+            ctx.gpos_set(src.length())
+            env.set("HAKO_STAGEB_LOOP_DEPTH", StringHelpers.int_to_str(loop_depth_before))
+            return ctx.freeze_contract(
+              "parser/loop_range_expected",
+              "loop range requires start..end"
+            )
+          }
+          range_j = ctx.skip_ws(src, range_j + 2)
+          if range_j >= src.length() || src.substring(range_j, range_j + 1) == "{" {
+            ctx.gpos_set(src.length())
+            env.set("HAKO_STAGEB_LOOP_DEPTH", StringHelpers.int_to_str(loop_depth_before))
+            return ctx.freeze_contract(
+              "parser/loop_range_expected",
+              "loop range requires an end expression before its body"
+            )
+          }
+          local range_end = ctx.parse_expr2(src, range_j)
+          range_j = ctx.skip_ws(src, ctx.gpos_get())
+          local range_body_res = me.parse_block(src, range_j, ctx)
+          if ParserStringUtilsBox.starts_with("" + range_body_res, 0, "[freeze:contract]") == 1 {
+            ctx.gpos_set(src.length())
+            env.set("HAKO_STAGEB_LOOP_DEPTH", StringHelpers.int_to_str(loop_depth_before))
+            return range_body_res
+          }
+          local range_body_at = range_body_res.lastIndexOf("@")
+          local range_body = range_body_res.substring(0, range_body_at)
+          local range_pos = ctx.to_int(range_body_res.substring(range_body_at + 1, range_body_res.length()))
+          ctx.gpos_set(range_pos)
+          env.set("HAKO_STAGEB_LOOP_DEPTH", StringHelpers.int_to_str(loop_depth_before))
+          return "{\"type\":\"LoopRange\",\"var_name\":\"" + ctx.esc_json(range_name) + "\",\"start\":" + range_start + ",\"end\":" + range_end + ",\"body\":" + range_body + "}"
+        }
+      }
+    }
+
     if src.substring(j, j+1) == "(" { j = j + 1 }
 
     if trace == 1 { print("[parser/loop:trace] after 'loop(' j=" + ctx.i2s(j) + " ch='" + src.substring(j,j+1) + "'") }
@@ -338,7 +402,7 @@ static box ParserControlBox {
     return "{\"type\":\"Loop\",\"cond\":" + cond + ",\"body\":" + body_json + "}"
   }
 
-  // Parse: break -> {type:"Break"} (syntax-3) or no-op
+  // Parse canonical break.
   parse_break(src, i, stmt_start, ctx) {
     {
       local depth = env.get("HAKO_STAGEB_BREAK_DEPTH")
@@ -350,26 +414,16 @@ static box ParserControlBox {
     }
     local j = i + 5  // skip "break"
 
-    if ctx.stage3_enabled() == 1 {
-      j = ctx.skip_ws(src, j)
-      if j <= stmt_start {
-        if j < src.length() { j = j + 1 } else { j = src.length() }
-      }
-      ctx.gpos_set(j)
-      // Reset recursion guard before returning (syntax-3 path)
-      env.set("HAKO_STAGEB_BREAK_DEPTH", "0")
-      return "{\"type\":\"Break\"}"
-    }
-
+    j = ctx.skip_ws(src, j)
     if j <= stmt_start {
       if j < src.length() { j = j + 1 } else { j = src.length() }
     }
     ctx.gpos_set(j)
     env.set("HAKO_STAGEB_BREAK_DEPTH", "0")
-    return "{\"type\":\"Expr\",\"expr\":{\"type\":\"Int\",\"value\":0}}"
+    return "{\"type\":\"Break\"}"
   }
 
-  // Parse: continue -> {type:"Continue"} (syntax-3) or no-op
+  // Parse canonical continue.
   parse_continue(src, i, stmt_start, ctx) {
     {
       local depth = env.get("HAKO_STAGEB_CONTINUE_DEPTH")
@@ -381,23 +435,23 @@ static box ParserControlBox {
     }
     local j = i + 8  // skip "continue"
 
-    if ctx.stage3_enabled() == 1 {
-      j = ctx.skip_ws(src, j)
-      if j <= stmt_start {
-        if j < src.length() { j = j + 1 } else { j = src.length() }
-      }
-      ctx.gpos_set(j)
-      // Reset recursion guard before returning (syntax-3 path)
-      env.set("HAKO_STAGEB_CONTINUE_DEPTH", "0")
-      return "{\"type\":\"Continue\"}"
-    }
-
+    j = ctx.skip_ws(src, j)
     if j <= stmt_start {
       if j < src.length() { j = j + 1 } else { j = src.length() }
     }
     ctx.gpos_set(j)
     env.set("HAKO_STAGEB_CONTINUE_DEPTH", "0")
-    return "{\"type\":\"Expr\",\"expr\":{\"type\":\"Int\",\"value\":0}}"
+    return "{\"type\":\"Continue\"}"
+  }
+
+  // Reject legacy loop spellings at the shared control-flow boundary.
+  reject_noncanonical_loop(src, i, stmt_start, ctx) {
+    local stable_tag = "parser/for_loop_noncanonical"
+    if ctx.starts_with_kw(src, i, "do") == 1 { stable_tag = "parser/do_while_noncanonical" }
+    if ctx.starts_with_kw(src, i, "repeat") == 1 { stable_tag = "parser/repeat_loop_noncanonical" }
+    if ctx.starts_with_kw(src, i, "until") == 1 { stable_tag = "parser/until_loop_noncanonical" }
+    ctx.gpos_set(src.length())
+    return ctx.freeze_contract(stable_tag, "use canonical loop forms")
   }
 
   // Parse: { stmt1; stmt2; ... }

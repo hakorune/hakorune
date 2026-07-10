@@ -23,10 +23,6 @@ pub(crate) fn deprecate_this_enabled() -> bool {
     std::env::var("NYASH_DEPRECATE_THIS").ok().as_deref() == Some("1")
 }
 
-pub(crate) fn enable_map_literal() -> bool {
-    std::env::var("NYASH_ENABLE_MAP_LITERAL").ok().as_deref() == Some("1")
-}
-
 pub(crate) fn force_sugar_enabled() -> bool {
     std::env::var("NYASH_FORCE_SUGAR").ok().as_deref() == Some("1")
 }

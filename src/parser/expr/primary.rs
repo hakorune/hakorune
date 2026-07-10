@@ -29,18 +29,6 @@ impl NyashParser {
                 })
             }
             TokenType::PercentLBrace => {
-                let sugar_on = crate::parser::sugar_gate::is_enabled()
-                    || crate::parser::env::enable_map_literal();
-                if !sugar_on {
-                    let line = self.current_token().line;
-                    return Err(ParseError::UnexpectedToken {
-                        found: self.current_token().token_type.clone(),
-                        expected:
-                            "enable NYASH_SYNTAX_SUGAR_LEVEL=basic|full or NYASH_ENABLE_MAP_LITERAL=1"
-                                .to_string(),
-                        line,
-                    });
-                }
                 self.advance();
                 let mut entries: Vec<(String, ASTNode)> = Vec::new();
                 while !self.match_token(&TokenType::RBRACE) && !self.is_at_end() {
@@ -120,6 +108,12 @@ impl NyashParser {
                 let column = self.current_token().column;
                 let value = *n;
                 let declared_type_name = declared_type_name.clone();
+                crate::parser::grammar_contract::require_semantic_entry(
+                    "typed_integer_suffix",
+                    self.build_config.grammar_profile,
+                    self.current_token().token_type.clone(),
+                    line,
+                )?;
                 self.advance();
                 Ok(ASTNode::Literal {
                     value: LiteralValue::TypedInteger {

@@ -1,0 +1,244 @@
+# Profile-sensitive fixture rows for the Language v1 grammar contract.
+
+[[fixtures]]
+fixture_id = "while_loop_condition_canonical_reject"
+row_id = "while_loop_condition"
+profile = "Canonical"
+source = "while ready { break }"
+accepted = false
+normalized_form = { kind = "", children = [] }
+stable_reject_tag = "parser/while_legacy_replaced_by_loop_condition"
+
+[[fixtures]]
+fixture_id = "while_loop_condition_compat"
+row_id = "while_loop_condition"
+profile = "Compat2025"
+source = "while ready { break }"
+accepted = true
+normalized_form = { kind = "LoopCondition", children = [{ kind = "Condition", children = [] }, { kind = "LoopBody", children = [{ kind = "Break", children = [] }] }] }
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "loop_infinite_canonical"
+row_id = "loop_infinite"
+profile = "Canonical"
+source = "loop { break }"
+accepted = true
+normalized_form = { kind = "LoopInfinite", children = [{ kind = "LoopBody", children = [{ kind = "Break", children = [] }] }] }
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "loop_infinite_compat"
+row_id = "loop_infinite"
+profile = "Compat2025"
+source = "loop { break }"
+accepted = true
+normalized_form = { kind = "LoopInfinite", children = [{ kind = "LoopBody", children = [{ kind = "Break", children = [] }] }] }
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "loop_condition_canonical"
+row_id = "loop_condition"
+profile = "Canonical"
+source = "loop ready { continue }"
+accepted = true
+normalized_form = { kind = "LoopCondition", children = [{ kind = "Condition", children = [] }, { kind = "LoopBody", children = [{ kind = "Continue", children = [] }] }] }
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "loop_condition_compat"
+row_id = "loop_condition"
+profile = "Compat2025"
+source = "loop ready { continue }"
+accepted = true
+normalized_form = { kind = "LoopCondition", children = [{ kind = "Condition", children = [] }, { kind = "LoopBody", children = [{ kind = "Continue", children = [] }] }] }
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "loop_range_canonical"
+row_id = "loop_range"
+profile = "Canonical"
+source = "loop i in 0..10 { break }"
+accepted = true
+normalized_form = { kind = "LoopRange", children = [{ kind = "RangeIndex", children = [] }, { kind = "RangeStart", children = [] }, { kind = "RangeEnd", children = [] }, { kind = "LoopBody", children = [{ kind = "Break", children = [] }] }] }
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "loop_range_compat"
+row_id = "loop_range"
+profile = "Compat2025"
+source = "loop i in 0..10 { break }"
+accepted = true
+normalized_form = { kind = "LoopRange", children = [{ kind = "RangeIndex", children = [] }, { kind = "RangeStart", children = [] }, { kind = "RangeEnd", children = [] }, { kind = "LoopBody", children = [{ kind = "Break", children = [] }] }] }
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "loop_range_missing_end"
+row_id = "loop_range"
+profile = "Canonical"
+source = "loop i in 0.. { break }"
+accepted = false
+normalized_form = { kind = "", children = [] }
+stable_reject_tag = "parser/loop_range_expected"
+
+[[fixtures]]
+fixture_id = "loop_range_missing_end_compat"
+row_id = "loop_range"
+profile = "Compat2025"
+source = "loop i in 0.. { break }"
+accepted = false
+normalized_form = { kind = "", children = [] }
+stable_reject_tag = "parser/loop_range_expected"
+
+[[fixtures]]
+fixture_id = "break_statement_canonical"
+row_id = "break_statement"
+profile = "Canonical"
+source = "loop { break }"
+accepted = true
+normalized_form = { kind = "LoopInfinite", children = [{ kind = "LoopBody", children = [{ kind = "Break", children = [] }] }] }
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "break_statement_compat"
+row_id = "break_statement"
+profile = "Compat2025"
+source = "loop { break }"
+accepted = true
+normalized_form = { kind = "LoopInfinite", children = [{ kind = "LoopBody", children = [{ kind = "Break", children = [] }] }] }
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "continue_statement_canonical"
+row_id = "continue_statement"
+profile = "Canonical"
+source = "loop { continue }"
+accepted = true
+normalized_form = { kind = "LoopInfinite", children = [{ kind = "LoopBody", children = [{ kind = "Continue", children = [] }] }] }
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "continue_statement_compat"
+row_id = "continue_statement"
+profile = "Compat2025"
+source = "loop { continue }"
+accepted = true
+normalized_form = { kind = "LoopInfinite", children = [{ kind = "LoopBody", children = [{ kind = "Continue", children = [] }] }] }
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "while_loop_condition_compat_not_normalizable"
+row_id = "while_loop_condition"
+profile = "Compat2025"
+source = "while { break }"
+accepted = false
+normalized_form = { kind = "", children = [] }
+stable_reject_tag = "parser/while_compat_not_normalizable"
+
+[[fixtures]]
+fixture_id = "typed_integer_suffix_canonical_reject"
+row_id = "typed_integer_suffix"
+profile = "Canonical"
+source = "1usize"
+accepted = false
+normalized_form = { kind = "", children = [] }
+stable_reject_tag = "parser/typed_integer_suffix_rust_evidence_only"
+
+[[fixtures]]
+fixture_id = "typed_integer_suffix_compat_reject"
+row_id = "typed_integer_suffix"
+profile = "Compat2025"
+source = "1usize"
+accepted = false
+normalized_form = { kind = "", children = [] }
+stable_reject_tag = "parser/typed_integer_suffix_rust_evidence_only"
+
+[[fixtures]]
+fixture_id = "map_literal_percent_brace_canonical"
+row_id = "map_literal_percent_brace"
+profile = "Canonical"
+source = "%{\"key\" => 1}"
+accepted = true
+normalized_form = { kind = "MapLiteral", children = [{ kind = "StringKey", children = [] }, { kind = "IntegerLiteral", children = [] }] }
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "map_literal_percent_brace_compat"
+row_id = "map_literal_percent_brace"
+profile = "Compat2025"
+source = "%{\"key\" => 1}"
+accepted = true
+normalized_form = { kind = "MapLiteral", children = [{ kind = "StringKey", children = [] }, { kind = "IntegerLiteral", children = [] }] }
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "for_loop_canonical_reject"
+row_id = "for_loop"
+profile = "Canonical"
+source = "for item in 0..1 { break }"
+accepted = false
+normalized_form = { kind = "", children = [] }
+stable_reject_tag = "parser/for_loop_noncanonical"
+
+[[fixtures]]
+fixture_id = "for_loop_compat_reject"
+row_id = "for_loop"
+profile = "Compat2025"
+source = "for item in 0..1 { break }"
+accepted = false
+normalized_form = { kind = "", children = [] }
+stable_reject_tag = "parser/for_loop_noncanonical"
+
+[[fixtures]]
+fixture_id = "do_while_loop_canonical_reject"
+row_id = "do_while_loop"
+profile = "Canonical"
+source = "do { break } while ready"
+accepted = false
+normalized_form = { kind = "", children = [] }
+stable_reject_tag = "parser/do_while_noncanonical"
+
+[[fixtures]]
+fixture_id = "do_while_loop_compat_reject"
+row_id = "do_while_loop"
+profile = "Compat2025"
+source = "do { break } while ready"
+accepted = false
+normalized_form = { kind = "", children = [] }
+stable_reject_tag = "parser/do_while_noncanonical"
+
+[[fixtures]]
+fixture_id = "repeat_loop_canonical_reject"
+row_id = "repeat_loop"
+profile = "Canonical"
+source = "repeat { break }"
+accepted = false
+normalized_form = { kind = "", children = [] }
+stable_reject_tag = "parser/repeat_loop_noncanonical"
+
+[[fixtures]]
+fixture_id = "repeat_loop_compat_reject"
+row_id = "repeat_loop"
+profile = "Compat2025"
+source = "repeat { break }"
+accepted = false
+normalized_form = { kind = "", children = [] }
+stable_reject_tag = "parser/repeat_loop_noncanonical"
+
+[[fixtures]]
+fixture_id = "until_loop_canonical_reject"
+row_id = "until_loop"
+profile = "Canonical"
+source = "until ready { break }"
+accepted = false
+normalized_form = { kind = "", children = [] }
+stable_reject_tag = "parser/until_loop_noncanonical"
+
+[[fixtures]]
+fixture_id = "until_loop_compat_reject"
+row_id = "until_loop"
+profile = "Compat2025"
+source = "until ready { break }"
+accepted = false
+normalized_form = { kind = "", children = [] }
+stable_reject_tag = "parser/until_loop_noncanonical"

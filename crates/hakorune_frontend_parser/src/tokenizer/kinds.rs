@@ -61,9 +61,13 @@ pub enum TokenType {
     WEAK,
     USING,
     IMPORT,
-    // Stage-3 keywords (env-gated)
+    // Grammar-contract loop spellings. Profile selection happens in the parser,
+    // never through tokenizer environment gates.
     WHILE,
     FOR,
+    DO,
+    REPEAT,
+    UNTIL,
     IN,
 
     // 演算子

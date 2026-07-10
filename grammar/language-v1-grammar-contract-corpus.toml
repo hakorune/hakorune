@@ -4,4 +4,5 @@
 version = 1
 fragments = [
   "grammar/language-v1-grammar-contract-corpus/foundation.toml",
+  "grammar/language-v1-grammar-contract-corpus/profile-boundaries.toml",
 ]

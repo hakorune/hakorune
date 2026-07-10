@@ -3,7 +3,9 @@
 ## Status
 
 Active implementation series after 3477 accepts all remaining grammar and
-registry-structure decisions. Series A is complete; Series B is next.
+registry-structure decisions. Series A/B and the Series C loop family are
+complete. The remaining declaration conformance boundary requires an owner
+decision before implementation continues.
 
 Decision: accepted by 3477.
 
@@ -75,8 +77,55 @@ loader behavior:
 
 size boundary:
   foundation fragment remains below 800 lines
-  remaining-surface fixtures will live in a separate fragment
+remaining-surface fixtures will live in a separate fragment
 ```
+
+### Series C Loop Family - Complete
+
+```text
+canonical loop forms:
+  LoopInfinite, LoopCondition, LoopRange, Break, Continue
+
+Compat2025 alias:
+  while condition block -> LoopCondition
+
+rejected in both profiles:
+  for, do-while, repeat, until
+
+profile authority:
+  Rust tokenizer no longer lets the Stage3 environment gate rewrite
+  loop-profile spellings into identifiers
+
+Hako evidence:
+  one compile-once, 12-row canonical/Compat loop batch = green
+  one compile-once, 8-row legacy-loop rejection batch = green
+```
+
+`break` and `continue` outside a loop remain context-verifier rules. They are
+not fixture aliases on the grammar row contracts.
+
+### Series C Declaration Conformance Boundary - Decision Required
+
+The Hako grammar adapter owns statement and expression parsing only. A direct
+observation of `record User { id: i64 }` currently fails with
+`parser/hako_record_fields_expected_canonical`: the source is routed through
+the record-literal expression owner because no declaration parser owner exists.
+
+This blocks strict Hako conformance for these accepted rows:
+
+```text
+record_declaration
+weak_stored_field
+weak_visibility_field
+weak_legacy_init_field
+```
+
+Do not add adapter-local source scanning, a `CompatibilityTransport` AST node,
+or fixture-specific acceptance to hide this gap. The next decision must choose
+one parser-owned declaration boundary that produces parser-neutral evidence
+without entering semantic lowering. Record literals, record updates, weak
+unary expressions, primitive literals, arrays, maps, and construction remain
+separate Series C surfaces after that decision.
 
 ## Objective
 
