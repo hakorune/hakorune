@@ -56,6 +56,7 @@ fn numeric_param_function() -> MirFunction {
     function.metadata.declared_param_decls = vec![MirParamDecl {
         name: "size".to_string(),
         declared_type_name: Some("usize".to_string()),
+        implicit_receiver: false,
     }];
     function.metadata.declared_return_type_name = Some("u64".to_string());
     function

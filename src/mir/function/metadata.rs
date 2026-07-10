@@ -8,7 +8,7 @@ use super::fastmem::{
     FastMemRegionMetadata, FastMemRemoteOwnerFact, FastMemSameOwnerFact, FastMemTableLengthFact,
 };
 use super::object_metadata::RecordStateFieldAccessPlan;
-use super::types::{ExactNumericRuntimeCheckContract, MirParamDecl};
+use super::types::{ExactNumericRuntimeCheckContract, MirParamDecl, ParameterEntryContract};
 use crate::mir::{
     agg_local_scalarization::AggLocalScalarizationRoute,
     array_getset_micro_seed_plan::ArrayGetSetMicroSeedRoute,
@@ -556,9 +556,14 @@ pub struct FunctionMetadata {
     /// the helper-specific ladder.
     pub exact_seed_backend_route: Option<ExactSeedBackendRoute>,
 
-    /// Source-level declared parameter metadata carried into MIR without
-    /// changing the callable ABI or `MirType` lane.
+    /// Source-level declared parameter evidence. The builder separately
+    /// projects annotations into callable representation facts; this evidence
+    /// is not runtime-value proof.
     pub declared_param_decls: Vec<MirParamDecl>,
+
+    /// Executable parameter-entry semantic contracts rebuilt from declaration
+    /// evidence during semantic refresh.
+    pub parameter_entry_contracts: Vec<ParameterEntryContract>,
 
     /// Source-level declared return annotation carried into MIR without
     /// forcing `FunctionSignature.return_type`.

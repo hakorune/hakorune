@@ -13,6 +13,7 @@ mod io;
 mod metadata;
 mod metadata_seed;
 mod order;
+mod parameter_contracts;
 mod placement_effect;
 mod plan_metadata;
 mod plans;

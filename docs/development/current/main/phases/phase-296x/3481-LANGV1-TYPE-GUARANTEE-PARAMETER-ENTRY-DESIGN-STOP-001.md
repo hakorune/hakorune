@@ -5,9 +5,74 @@
 Active design consultation after the exact-numeric Box field first slice
 closes in 3480.
 
-Decision: required before implementation.
+Decision: accepted.
 
-Implementation: stopped.
+Implementation: delegated to 3482.
+
+## Accepted Decision
+
+```text
+owner = FunctionEntryContractOwner
+check_target = final callee
+order = final callee resolution -> exact arity -> contract -> bind -> body
+first_subset = explicit exact-numeric source parameters
+carrier = FunctionMetadata.parameter_entry_contracts[]
+implicit_me = excluded
+runtime_check_elision = forbidden
+first_supported_backend = MIR interpreter VM only
+extern_ffi = excluded
+closure_runtime_arguments = excluded by the existing strict gate
+caller_authority = forbidden
+```
+
+Functions with at least one active parameter-entry contract require exact
+arity across their complete formal parameter list. Unannotated functions keep
+their current legacy arity behavior during this narrow migration slice.
+
+`FunctionSignature.params`, `MirType`, `declared_param_decls`, caller facts,
+and `exact_numeric_value_facts` are not proof that an incoming runtime value
+satisfies the contract. `MirType` may remain a derived representation fact,
+but its projection must be structurally separated from semantic contract-row
+construction and the stale metadata comment must be corrected.
+
+The current method router may retain its recursive final-callee execution
+shape. The authoritative check runs only after `pre_exec_reroute` declines to
+reroute, so a rerouted MIR function reaches its own entry owner before binding
+or body effects. Do not check the original non-executed function metadata.
+
+## Accepted Carrier
+
+```text
+ParameterEntryContract {
+  contract_id
+  formal_parameter_index
+  source_parameter_index
+  parameter_value_id
+  source_parameter_name
+  declared_type_name
+  contract_kind = ExactNumeric
+  implicit_receiver = false
+  runtime_check_required = true
+  proof_elision_allowed = false
+  backend_capability_required = parameter_entry_exact_numeric
+}
+```
+
+Function identity and freshness come from the owning `MirFunction` and its
+normal semantic-refresh lifecycle. Do not copy a function name or fabricate an
+epoch into every row unless implementation evidence proves that the owner
+boundary cannot validate freshness without it.
+
+## Accepted Backend Boundary
+
+The first implementation supports the Rust MIR interpreter only. PyVM, LLVM,
+AOT, and Wasm reject modules carrying active parameter-entry contracts through
+the central MIR backend capability gate until each has a typed carrier
+consumer. VM success is not fallback authority.
+
+The LLVM Python `_seed_hakocli_args_array_fact` helper is migration debt and a
+future retirement target. It is neither a contract source nor an allowed
+consumer for this slice, and no new parameter behavior may be added to it.
 
 ## Objective
 
@@ -79,7 +144,8 @@ B. caller-side argument checks
 C. park parameter activation and move to return exit
 ```
 
-Candidate A is structurally preferred, but not accepted by this card.
+Consultation accepted Candidate A. The executable task is
+`3482-LANGV1-TYPE-GUARANTEE-PARAMETER-ENTRY-EXACT-NUMERIC-CONTRACT-001`.
 
 ## Required Fail-Fast Boundary
 
@@ -124,6 +190,6 @@ selfhost_claim = 0
 
 ## Stop Rule
 
-Do not edit VM entry, MIR call lowering, MIR JSON, or backend parameter ABI
-until this consultation accepts one owner, carrier, subset, fail-fast boundary,
-and first implementation slice.
+Satisfied by the accepted decision above. Implementation may proceed only
+inside 3482's exact-numeric entry scope; return/local/FFI/closure-runtime-arg
+contracts and backend parameter ABI lowering remain stopped.

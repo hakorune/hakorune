@@ -2,6 +2,7 @@ use crate::backend::mir_interpreter::MirInterpreter;
 use crate::backend::vm_types::VMValue;
 use crate::mir::exact_numeric_value_facts::refresh_module_exact_numeric_value_facts;
 use crate::mir::function::MirParamDecl;
+use crate::mir::type_contracts::parameter_entry::refresh_function_parameter_entry_contracts;
 use crate::mir::{
     BasicBlockId, BinaryOp, CompareOp, EffectMask, FunctionSignature, MirFunction, MirInstruction,
     MirModule, MirType,
@@ -23,10 +24,12 @@ fn module_with_exact_numeric_arithmetic_route(declared_type_name: &str, op: Bina
         MirParamDecl {
             name: "lhs".to_string(),
             declared_type_name: Some(declared_type_name.to_string()),
+            implicit_receiver: false,
         },
         MirParamDecl {
             name: "rhs".to_string(),
             declared_type_name: Some(declared_type_name.to_string()),
+            implicit_receiver: false,
         },
     ];
 
@@ -41,6 +44,9 @@ fn module_with_exact_numeric_arithmetic_route(declared_type_name: &str, op: Bina
 
     let mut module = MirModule::new("vm_exact_numeric_add_test".to_string());
     module.add_function(function);
+    refresh_function_parameter_entry_contracts(
+        module.functions.get_mut("Main.arithmetic/2").unwrap(),
+    );
     refresh_module_exact_numeric_value_facts(&mut module);
     let route_count = module
         .functions
@@ -70,10 +76,12 @@ fn module_with_chained_exact_numeric_add_route(declared_type_name: &str) -> MirM
         MirParamDecl {
             name: "lhs".to_string(),
             declared_type_name: Some(declared_type_name.to_string()),
+            implicit_receiver: false,
         },
         MirParamDecl {
             name: "rhs".to_string(),
             declared_type_name: Some(declared_type_name.to_string()),
+            implicit_receiver: false,
         },
     ];
 
@@ -96,6 +104,9 @@ fn module_with_chained_exact_numeric_add_route(declared_type_name: &str) -> MirM
 
     let mut module = MirModule::new("vm_exact_numeric_chained_add_test".to_string());
     module.add_function(function);
+    refresh_function_parameter_entry_contracts(
+        module.functions.get_mut("Main.chained_add/2").unwrap(),
+    );
     refresh_module_exact_numeric_value_facts(&mut module);
     let route_count = module
         .functions
@@ -134,10 +145,12 @@ fn module_with_exact_numeric_compare_route(declared_type_name: &str, op: Compare
         MirParamDecl {
             name: "lhs".to_string(),
             declared_type_name: Some(declared_type_name.to_string()),
+            implicit_receiver: false,
         },
         MirParamDecl {
             name: "rhs".to_string(),
             declared_type_name: Some(declared_type_name.to_string()),
+            implicit_receiver: false,
         },
     ];
 
@@ -154,6 +167,7 @@ fn module_with_exact_numeric_compare_route(declared_type_name: &str, op: Compare
     let mut module = MirModule::new("exact_numeric_vm_reference_test".to_string());
     module.add_function(function);
 
+    refresh_function_parameter_entry_contracts(module.functions.get_mut("Main.compare/2").unwrap());
     refresh_module_exact_numeric_value_facts(&mut module);
     let route_count = module
         .functions
@@ -185,10 +199,12 @@ fn module_with_exact_numeric_shift_route(declared_type_name: &str) -> MirModule 
         MirParamDecl {
             name: "lhs".to_string(),
             declared_type_name: Some(declared_type_name.to_string()),
+            implicit_receiver: false,
         },
         MirParamDecl {
             name: "rhs".to_string(),
             declared_type_name: None,
+            implicit_receiver: false,
         },
     ];
 
@@ -205,6 +221,7 @@ fn module_with_exact_numeric_shift_route(declared_type_name: &str) -> MirModule 
 
     let mut module = MirModule::new("exact_numeric_vm_shift_reference_test".to_string());
     module.add_function(function);
+    refresh_function_parameter_entry_contracts(module.functions.get_mut("Main.shift/2").unwrap());
     refresh_module_exact_numeric_value_facts(&mut module);
     let route_count = module
         .functions
@@ -253,7 +270,7 @@ fn vm_reference_executes_exact_usize_sub_route() {
 }
 
 #[test]
-fn vm_reference_rejects_negative_usize_add_operand() {
+fn vm_reference_rejects_negative_usize_at_parameter_entry_before_add() {
     let module = module_with_exact_numeric_arithmetic_route("usize", BinaryOp::Add);
     let mut vm = MirInterpreter::new();
 
@@ -265,7 +282,9 @@ fn vm_reference_rejects_negative_usize_add_operand() {
         )
         .expect_err("negative usize operand must fail before generic i64 add");
 
-    assert!(error.to_string().contains("[vm/exact_numeric_op_range]"));
+    assert!(error
+        .to_string()
+        .contains("[type/parameter_contract_violation]"));
     assert!(error.to_string().contains("negative-to-unsigned"));
 }
 
@@ -350,7 +369,7 @@ fn vm_reference_executes_exact_usize_compare_route() {
 }
 
 #[test]
-fn vm_reference_rejects_negative_usize_compare_operand() {
+fn vm_reference_rejects_negative_usize_at_parameter_entry_before_compare() {
     let module = module_with_exact_numeric_compare_route("usize", CompareOp::Lt);
     let mut vm = MirInterpreter::new();
 
@@ -362,7 +381,9 @@ fn vm_reference_rejects_negative_usize_compare_operand() {
         )
         .expect_err("negative usize compare operand must fail before generic i64 compare");
 
-    assert!(error.to_string().contains("[vm/exact_numeric_op_range]"));
+    assert!(error
+        .to_string()
+        .contains("[type/parameter_contract_violation]"));
 }
 
 #[test]

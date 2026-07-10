@@ -84,6 +84,7 @@ fn mir_param_decls_from_source(params: &[String], param_decls: &[ParamDecl]) -> 
         .map(|decl| MirParamDecl {
             name: decl.name.clone(),
             declared_type_name: decl.declared_type_name.clone(),
+            implicit_receiver: false,
         })
         .collect()
 }
@@ -97,6 +98,7 @@ fn mir_method_param_decls_from_source(
     decls.push(MirParamDecl {
         name: "me".to_string(),
         declared_type_name: None,
+        implicit_receiver: true,
     });
     decls.extend(mir_param_decls_from_source(params, param_decls));
     decls

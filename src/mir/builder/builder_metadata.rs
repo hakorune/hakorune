@@ -82,27 +82,37 @@ impl MirBuilder {
         declared_return_type_name: Option<String>,
     ) {
         if let Some(function) = self.scope_ctx.current_function.as_mut() {
-            for (index, decl) in declared_param_decls.iter().enumerate() {
-                let Some(param_type) = decl
-                    .declared_type_name
-                    .as_deref()
-                    .map(source_type_name_to_mir)
-                else {
-                    continue;
-                };
-                if index < function.signature.params.len() {
-                    function.signature.params[index] = param_type;
-                }
-            }
-            if let Some(return_type) = declared_return_type_name
-                .as_deref()
-                .map(source_type_name_to_mir)
-            {
-                function.signature.return_type = return_type;
-            }
             function.metadata.declared_param_decls = declared_param_decls;
             function.metadata.declared_return_type_name = declared_return_type_name;
+            project_declared_signature_representation(function);
         }
+    }
+}
+
+/// Project source annotations into the existing callable representation lane.
+///
+/// This projection is not semantic contract proof. Executable parameter-entry
+/// truth is rebuilt separately as typed `ParameterEntryContract` rows.
+fn project_declared_signature_representation(function: &mut MirFunction) {
+    for (index, decl) in function.metadata.declared_param_decls.iter().enumerate() {
+        let Some(param_type) = decl
+            .declared_type_name
+            .as_deref()
+            .map(source_type_name_to_mir)
+        else {
+            continue;
+        };
+        if index < function.signature.params.len() {
+            function.signature.params[index] = param_type;
+        }
+    }
+    if let Some(return_type) = function
+        .metadata
+        .declared_return_type_name
+        .as_deref()
+        .map(source_type_name_to_mir)
+    {
+        function.signature.return_type = return_type;
     }
 }
 

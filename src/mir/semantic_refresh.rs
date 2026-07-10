@@ -89,6 +89,7 @@ use super::{
     string_dead_text_region_plan::refresh_function_string_dead_text_region_plans_with_def_map,
     substring_views_micro_seed_plan::refresh_function_substring_views_micro_seed_route,
     sum_placement::refresh_function_sum_placement_facts_with_def_map,
+    type_contracts::parameter_entry::refresh_function_parameter_entry_contracts,
     typed_object_plan::{
         refresh_module_typed_object_field_value_types, refresh_module_typed_object_plans,
     },
@@ -199,6 +200,7 @@ pub fn refresh_function_semantic_metadata(
     function: &mut MirFunction,
     module_metadata: &ModuleMetadata,
 ) {
+    refresh_function_parameter_entry_contracts(function);
     refresh_function_source_and_fact_metadata(function, module_metadata);
     refresh_function_placement_metadata(function, module_metadata);
     refresh_function_pre_fixpoint_routes(function, module_metadata);

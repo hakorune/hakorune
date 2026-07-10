@@ -36,6 +36,32 @@ pub struct FunctionSignature {
 pub struct MirParamDecl {
     pub name: String,
     pub declared_type_name: Option<String>,
+    pub implicit_receiver: bool,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ParameterEntryContractKind {
+    ExactNumeric,
+}
+
+/// Executable semantic contract for one explicit source parameter.
+///
+/// Function ownership supplies function identity and refresh freshness. The
+/// row carries both call-boundary position and callee-body ValueId so entry
+/// validation cannot silently drift from register binding.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ParameterEntryContract {
+    pub contract_id: String,
+    pub formal_parameter_index: usize,
+    pub source_parameter_index: usize,
+    pub parameter_value_id: ValueId,
+    pub source_parameter_name: String,
+    pub declared_type_name: String,
+    pub contract_kind: ParameterEntryContractKind,
+    pub implicit_receiver: bool,
+    pub runtime_check_required: bool,
+    pub proof_elision_allowed: bool,
+    pub backend_capability_required: String,
 }
 
 /// A MIR function in SSA form

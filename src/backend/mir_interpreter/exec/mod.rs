@@ -11,6 +11,7 @@ mod block;
 mod diagnostics;
 mod exact_numeric_ops;
 mod numeric_contracts;
+mod parameter_contracts;
 mod phi;
 mod trace;
 
@@ -84,6 +85,7 @@ impl MirInterpreter {
             self.call_depth = self.call_depth.saturating_sub(1);
             return r;
         }
+        self.validate_function_entry_contracts(func, arg_vals)?;
         let saved_regs = mem::take(&mut self.regs);
         let saved_fast_slots = mem::take(&mut self.reg_fast_slots);
         let saved_aliases = mem::take(&mut self.reg_copy_aliases);

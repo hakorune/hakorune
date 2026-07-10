@@ -9,6 +9,9 @@ pub(crate) fn enforce_mir_backend_supported(
     )?;
     crate::mir::array_record_backend_capability::enforce_array_record_backend_supported(
         module, backend,
+    )?;
+    crate::mir::parameter_entry_backend_capability::enforce_parameter_entry_backend_supported(
+        module, backend,
     )
 }
 

@@ -18,6 +18,7 @@ mod global_call_routes;
 mod map_lookup_fusion_routes;
 mod map_repr_plans;
 mod ordering;
+mod parameter_contracts;
 mod placement;
 mod proof_envelopes;
 mod string_corridor;

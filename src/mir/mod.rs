@@ -86,6 +86,7 @@ pub mod naming; // Static box / entry naming rules（NamingBox）
 pub(crate) mod numeric_substrate; // fixed-width/pointer-sized numeric type-name vocabulary
 pub mod optimizer;
 pub mod ordered_map_origin_plan; // focused OrderedMapBox get result-origin publication
+pub(crate) mod parameter_entry_backend_capability; // exact-numeric parameter-entry backend gate
 pub mod policies; // shared routing policies (SSOT)
 pub mod range_index_fact; // canonical loop range-index facts for fast-path consumers
 pub mod route_decision; // planner-owned fastpath-preferred selected route outcomes
