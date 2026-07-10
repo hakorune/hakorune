@@ -248,8 +248,9 @@ pub use placement_effect::{
 };
 pub use printer::MirPrinter;
 pub use semantic_refresh::{
-    refresh_function_semantic_metadata, refresh_function_string_corridor_metadata,
-    refresh_module_semantic_metadata,
+    refresh_and_validate_for_boundary, refresh_function_semantic_metadata,
+    refresh_function_string_corridor_metadata, refresh_module_semantic_metadata,
+    ContractCarrierSummary, ContractRefreshBoundary, RefreshedContractBundle,
 };
 pub use spanned_instruction::SpannedInstruction;
 pub use storage_class::{refresh_function_storage_class_facts, refresh_module_storage_class_facts};

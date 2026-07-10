@@ -99,6 +99,15 @@ task must identify public entrances structurally before editing consumers.
 Keep these slices in this card. Each slice must build and keep the previously
 landed focused gates green; do not create inventory-only or rerun-only cards.
 
+Progress:
+
+```text
+S1 facade and validated boundary token = complete
+S2 consumer convergence = active
+S3 representation authority audit = pending
+S4 ledger split and closeout = pending
+```
+
 ### S1 - Facade and validated boundary token
 
 ```text

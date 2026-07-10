@@ -102,6 +102,13 @@ use super::{
     MirFunction, MirInstruction, MirModule,
 };
 
+mod contracts;
+
+pub use contracts::{
+    refresh_and_validate_for_boundary, ContractCarrierSummary, ContractRefreshBoundary,
+    RefreshedContractBundle,
+};
+
 /// Refresh the current string-corridor metadata stack for one function.
 ///
 /// This is the narrow function-local entry point used by string-corridor
