@@ -142,6 +142,7 @@ raw Hako ProgramJSON equivalence = retired in favor of recursive witness parity
 declaration registry first scope = record + three weak rows registered
 declaration Rust profile/evidence = 9 fixtures green
 declaration Hako sidecar = 4-row strict recursive batch green
+delegate declaration sidecar = Canonical/Compat/missing-block batch green
 generated Hako registry projection = freshness-guarded
 identifier scanner digit tail = parser utility SSOT; `i64` recursive value green
 ```
@@ -695,7 +696,7 @@ Close that drift before declaration expansion, in this order:
    - Compat2025 weak visibility/init aliases
    - no semantic-body, MIR, runtime, or backend publication
 
-3. close delegate Rust/Hako drift through the same declaration evidence owner
+3. close delegate Rust/Hako drift through the same declaration evidence owner = complete
 
 4. add remaining weak/record/literal/construction rows
 5. generate support and migration evidence

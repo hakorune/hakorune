@@ -1,0 +1,54 @@
+// Delegate declaration grammar evidence. No forwarding methods are published.
+
+using lang.compiler.parser.scan.parser_string_utils_box as ParserStringUtilsBox
+
+static box ParserDelegateExposesBox {
+  parse(src, i, ctx) {
+    local j = ctx.skip_ws(src, i + 8)
+    local field_pair = ctx.read_ident2(src, j)
+    local field_at = field_pair.lastIndexOf("@")
+    local field_name = field_pair.substring(0, field_at)
+    j = ctx.skip_ws(src, ParserStringUtilsBox.to_int(field_pair.substring(field_at + 1, field_pair.length())))
+    if field_name == "" || ctx.starts_with_kw(src, j, "exposes") != 1 {
+      return me._fail(src, ctx, "delegate field and exposes keyword are required")
+    }
+    j = ctx.skip_ws(src, j + 7)
+    if src.substring(j, j + 1) != "{" {
+      return me._fail(src, ctx, "delegate exposes block is required")
+    }
+    j = ctx.skip_ws(src, j + 1)
+    local member_count = 0
+    loop(true) {
+      if src.substring(j, j + 1) == "}" { j = j + 1 break }
+      local member_pair = ctx.read_ident2(src, j)
+      local member_at = member_pair.lastIndexOf("@")
+      local member_name = member_pair.substring(0, member_at)
+      if member_name == "" { return me._fail(src, ctx, "delegate member is missing") }
+      j = ctx.skip_ws(src, ParserStringUtilsBox.to_int(member_pair.substring(member_at + 1, member_pair.length())))
+      if ctx.starts_with_kw(src, j, "as") == 1 {
+        local alias_pair = ctx.read_ident2(src, ctx.skip_ws(src, j + 2))
+        local alias_at = alias_pair.lastIndexOf("@")
+        local alias_name = alias_pair.substring(0, alias_at)
+        if alias_name == "" { return me._fail(src, ctx, "delegate alias is missing") }
+        j = ctx.skip_ws(src, ParserStringUtilsBox.to_int(alias_pair.substring(alias_at + 1, alias_pair.length())))
+      }
+      member_count = member_count + 1
+      if src.substring(j, j + 1) == "," {
+        j = ctx.skip_ws(src, j + 1)
+      } else if src.substring(j, j + 1) != "}" {
+        return me._fail(src, ctx, "delegate member separator is invalid")
+      }
+    }
+    if member_count == 0 { return me._fail(src, ctx, "delegate exposes list is empty") }
+    ctx.gpos_set(j)
+    local form = "{\"kind\":\"DelegateExposes\",\"children\":["
+    form = form + "{\"kind\":\"Field\",\"children\":[]},"
+    form = form + "{\"kind\":\"ExposedMembers\",\"children\":[]}]}"
+    return form + "@" + ctx.i2s(j)
+  }
+
+  _fail(src, ctx, message) {
+    ctx.gpos_set(src.length())
+    return ctx.freeze_contract("parser/guard_expected_canonical", message)
+  }
+}

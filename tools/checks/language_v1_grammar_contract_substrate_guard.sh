@@ -32,6 +32,7 @@ test "$(wc -l < lang/src/compiler/parser/program/parser_program_box.hako)" -lt 8
   || guard_fail "ParserProgramBox exceeded the 800-line source boundary"
 for parser_source in \
   lang/src/compiler/parser/decl/parser_declaration_box.hako \
+  lang/src/compiler/parser/decl/parser_delegate_exposes_box.hako \
   lang/src/compiler/parser/decl/parser_record_declaration_box.hako \
   lang/src/compiler/parser/decl/parser_box_weak_field_box.hako \
   lang/src/compiler/parser/expr/parser_expr_box.hako \
@@ -148,6 +149,8 @@ if [ "${LANGV1_HAKO_PROFILE_FULL:-0}" = "1" ]; then
     --fixture-id peek_canonical_reject \
     --fixture-id peek_compat_normalizable \
     --fixture-id peek_compat_not_normalizable \
+    --include-registry-row-fixtures delegate_exposes Canonical \
+    --include-registry-row-fixtures delegate_exposes Compat2025 \
     --include-registry-row-fixtures record_declaration Canonical \
     --include-registry-row-fixtures record_declaration Compat2025 \
     --include-registry-row-fixtures weak_stored_field Canonical \

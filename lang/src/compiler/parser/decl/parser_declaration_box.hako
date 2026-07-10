@@ -1,6 +1,7 @@
 // Declaration evidence coordinator and generated profile-gate consumer.
 
 using lang.compiler.parser.generated.grammar_contract_projection as GrammarContractProjection
+using lang.compiler.parser.decl.parser_delegate_exposes_box as ParserDelegateExposesBox
 using lang.compiler.parser.decl.parser_record_declaration_box as ParserRecordDeclarationBox
 using lang.compiler.parser.decl.parser_box_weak_field_box as ParserBoxWeakFieldBox
 
@@ -8,7 +9,10 @@ static box ParserDeclarationBox {
   parse_or_null(src, i, ctx) {
     local row_id = ""
     local form_and_pos = null
-    if ctx.starts_with_kw(src, i, "record") == 1 {
+    if ctx.starts_with_kw(src, i, "delegate") == 1 {
+      row_id = "delegate_exposes"
+      form_and_pos = ParserDelegateExposesBox.parse(src, i, ctx)
+    } else if ctx.starts_with_kw(src, i, "record") == 1 {
       row_id = "record_declaration"
       form_and_pos = ParserRecordDeclarationBox.parse(src, i, ctx)
     } else if ctx.starts_with_kw(src, i, "box") == 1 {

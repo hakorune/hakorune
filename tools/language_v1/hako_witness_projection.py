@@ -146,16 +146,6 @@ def _match(program: dict[str, Any]) -> dict[str, Any]:
     )
 
 
-def _delegate(program: dict[str, Any]) -> dict[str, Any]:
-    statement = _single_body(program)
-    if statement.get("type") != "DelegateExposes":
-        raise HakoProjectionError("Hako delegate evidence shape is missing")
-    return _node(
-        "DelegateExposes",
-        children=[_node("Field"), _node("ExposedMembers")],
-    )
-
-
 def _declaration_node(value: Any) -> dict[str, Any]:
     node = _object(value, "Hako declaration normalized node must be an object")
     if set(node) - {"kind", "value", "children"}:
@@ -258,9 +248,8 @@ def project_hako_normalized_form(row_id: str, program: Any) -> dict[str, Any]:
         return _try_shape(program, row_id)
     if row_id in {"match", "peek"}:
         return _match(program)
-    if row_id == "delegate_exposes":
-        return _delegate(program)
     if row_id in {
+        "delegate_exposes",
         "record_declaration",
         "weak_stored_field",
         "weak_visibility_field",
