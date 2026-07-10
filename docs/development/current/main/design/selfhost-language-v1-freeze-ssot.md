@@ -11,11 +11,16 @@ Related:
   - docs/development/current/main/design/parser-extensions-param-implements-interface-generic-ssot.md
   - docs/development/current/main/design/language-minimal-surface-task-breakdown-ssot.md
   - docs/development/current/main/workstreams/language-v1-convergence-current.md
+  - docs/reference/language/semantic-contract-charter.md
   - docs/reference/language/block-expressions-and-map-literals.md
   - docs/development/current/main/20-Decisions.md
 ---
 
 # Selfhost Language v1 Freeze (SSOT)
+
+Language v1 is governed by the accepted semantic contract charter. The next
+semantic-kernel row is a design consultation stop; this freeze SSOT does not
+authorize implementation before that decision.
 
 ## Goal
 
@@ -135,7 +140,7 @@ Minimum stable tags (grep distance short):
 
 v1 freeze の継続条件:
 
-- `LANGV1-CONSTITUTION-001` is complete with one seven-law charter.
+- `LANGV1-CONSTITUTION-001` is complete as 3457 with one seven-law charter.
 - `LANGV1-SEMANTIC-KERNEL-001` is complete with one Outcome/Place model and
   exactly-once, source-order sugar fixtures.
 - `LANGV1-GRAMMAR-001` is complete with one grammar manifest and a shared

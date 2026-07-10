@@ -70,10 +70,10 @@ Every row in this workstream must preserve these laws:
 
 ```text
 language laws:
-  docs/reference/language/semantic-contract-charter.md
+  docs/reference/language/semantic-contract-charter.md (accepted)
 
 semantic kernel:
-  docs/reference/language/semantic-kernel.md
+  docs/reference/language/semantic-kernel.md (future after 3458 decision)
 
 canonical grammar:
   grammar registry -> generated EBNF/support views
@@ -94,8 +94,8 @@ product proof:
   EXE/AOT plus fail-fast backend preflight
 ```
 
-The two new reference paths above are deliverables, not current truth until
-their owning rows land.
+The charter is current truth. The semantic-kernel reference path is a future
+deliverable and has no authority until its owning row lands.
 
 ## Confirmed Starting Gaps
 
@@ -130,7 +130,7 @@ authority. Rerun mutable counts when their owning row starts.
 
 ### 0. LANGV1-CONSTITUTION-001
 
-Status: current, docs-only durable policy.
+Status: landed as 3457.
 
 Deliverables:
 
@@ -152,11 +152,11 @@ compatibility_requires_explicit_profile = 1
 runtime_behavior_changed = 0
 ```
 
-Next: `LANGV1-SEMANTIC-KERNEL-001`.
+Next: `LANGV1-SEMANTIC-KERNEL-DESIGN-STOP-001`.
 
 ### 1. LANGV1-SEMANTIC-KERNEL-001
 
-Status: queued after Constitution.
+Status: current design consultation as 3458. No implementation may start.
 
 Decision surface:
 
@@ -431,7 +431,7 @@ selfhost_migration_unparked = 1
 ## Current Front
 
 ```text
-current = LANGV1-CONSTITUTION-001
-next = LANGV1-SEMANTIC-KERNEL-001
+current = LANGV1-SEMANTIC-KERNEL-DESIGN-STOP-001
+next = accepted semantic-kernel decision
 parked_resume = MIRBUILDER-MAPSTORE-ROUTE-POLICY-KEY-VALUE-DOMAIN-BOXSHAPE-001
 ```

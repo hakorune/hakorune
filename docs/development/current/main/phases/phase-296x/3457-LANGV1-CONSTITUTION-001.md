@@ -54,7 +54,26 @@ After this constitution is accepted and linked from the language index and v1
 freeze SSOT, advance the same workstream to:
 
 ```text
-LANGV1-SEMANTIC-KERNEL-001
+LANGV1-SEMANTIC-KERNEL-DESIGN-STOP-001
 ```
 
 Do not create inventory, rerun, or consultation cards between these rows.
+
+## Completion
+
+The charter now exists at
+`docs/reference/language/semantic-contract-charter.md` and is linked from the
+language index and v1 freeze SSOT.
+
+```text
+language_constitution_owner_count = 1
+constitutional_law_count = 7
+normative_precedence_defined = 1
+language_change_protocol_defined = 1
+compatibility_requires_explicit_profile = 1
+unsupported_fails_before_effect = 1
+parser_behavior_changed = 0
+runtime_behavior_changed = 0
+backend_behavior_changed = 0
+selfhost_claim = 0
+```

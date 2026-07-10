@@ -43,7 +43,8 @@ docs/development/current/main/design/language-minimal-surface-task-breakdown-sso
 
 - [x] `PACKED-004` source PackedArray backend fail-fast hardening
 - [x] `USES-002A` declared uses capability plan mapping
-- [ ] `LANGV1-CONSTITUTION-001` active language-v1 convergence front
+- [x] `LANGV1-CONSTITUTION-001` seven-law charter complete as 3457
+- [ ] `LANGV1-SEMANTIC-KERNEL-DESIGN-STOP-001` active language-v1 front
 
 ## Blocked / deferred rows
 

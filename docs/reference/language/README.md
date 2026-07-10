@@ -4,6 +4,7 @@ This is the entry point for the current Hakorune language reference.
 
 Current canonical surface:
 
+- Semantic contract charter: reference/language/semantic-contract-charter.md
 - Minimal surface policy: development/current/main/design/language-minimal-surface-ssot.md
 - Grammar and accepted rows: reference/language/EBNF.md
 - Bootstrap / phase-1 usable surface profiles: see the profile manual below.
@@ -19,6 +20,8 @@ Current canonical surface:
 - Concurrency / Thread Boundary: reference/concurrency/semantics.md,
   reference/concurrency/boundary-model.md, and reference/runtime/threading.md
 - Delegation and no-inheritance rule: reference/language/field-visibility-and-delegation.md
+- Language v1 execution order:
+  development/current/main/workstreams/language-v1-convergence-current.md
 
 Historical references:
 

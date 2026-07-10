@@ -17,6 +17,10 @@ Private Canonical Path: `docs/private/development/current/main/20-Decisions.md`
 - selfhost mirbuilder migration 中は Rust builder に新しい source-aware lowering / shape intelligence を増やさず、canonical MIR / MIR-to-MIR / backend optimization を継続しながら `.hako` builder authority を先に進める。
 - backend lane vocabulary (`llvmlite`, `ny-llvmc`, `native`) は stage2-aot-fast-lane-crossing-inventory.md と llvm-harness.md を正本にする。
 - current active lane / blocker / latest-card pointer は `CURRENT_STATE.toml` を正本にする。`CURRENT_TASK.md` と thin mirrors は必要時だけそこへ誘導する。
+- Language v1 semantic coherence now precedes selfhost migration. The public
+  seven-law contract is `docs/reference/language/semantic-contract-charter.md`;
+  Semantic Kernel implementation remains stopped at its explicit consultation
+  frontier.
 - minimal MirBuilder execution path frontier review resolves the design stop to `MIRBUILDER-FUNCTION-REGION-STACK-POP-DERIVED-HAKO-ARTIFACT-001`; the older MirModule gap is already closed on current `public-main`.
 - the current selfhost roadmap now narrows the remaining work to family-by-family `HakoAdopted` decisions, Python SemanticProjector freeze, and consultation-gated ABI / syntax boundaries.
 - `stage2-mainline` への entry task pack は `stage2plus-entry-and-first-optimization-wave-task-pack-ssot.md` を正本にする。

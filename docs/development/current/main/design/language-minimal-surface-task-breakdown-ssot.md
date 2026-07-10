@@ -85,7 +85,7 @@ Retire condition:
 | Generic containers | generic type annotation metadata and arity checker complete | next substitution/semantics row deferred |
 | PackedArray | source backend fail-fast complete | no immediate PackedArray row |
 | Array / Result / Option canonical surface | docs accepted; LOCALTYPE/ENUMVAR/ARRAY/RESULT/GUARDLET rows complete | no immediate code row |
-| Language v1 convergence | active; eight ordered macro rows | `LANGV1-CONSTITUTION-001` first |
+| Language v1 convergence | Constitution landed; Semantic Kernel consultation active | `LANGV1-SEMANTIC-KERNEL-DESIGN-STOP-001` |
 | Collections / automata | Map exists as ring1 visible owner; Set/FST are not Stage0/core prerequisites | `COLL-001` / `AUTO-001` docs rows, parked behind mimalloc unless blocking |
 | Uses/capability | method-level metadata capsule complete | `USES-002 capability checker` |
 | Span/view | planned later | `SPAN-001 Span API design row` |
@@ -346,14 +346,16 @@ or reruns.
 Create one normative charter for same-syntax/same-guarantee, meaning versus
 representation, absence/failure/Fault, identity versus lifetime, exactly-once
 sugar, explicit compatibility, and fail-fast-before-effects. This row changes
-no parser or runtime behavior.
+no parser or runtime behavior. Complete as 3457.
 
 ### LANGV1-SEMANTIC-KERNEL-001 Outcome, Place, and evaluation law
 
 Define one `Outcome` algebra and one `Place` model. Fix source order,
 exactly-once evaluation, cleanup precedence, and guard-let NoFallthrough. The
 first implementation slice replaces compound-assignment AST cloning with one
-Place read-modify-write path and side-effecting fixtures.
+Place read-modify-write path and side-effecting fixtures. Current action is
+`LANGV1-SEMANTIC-KERNEL-DESIGN-STOP-001`; no code starts before an
+accepted kernel decision.
 
 ### LANGV1-GRAMMAR-001 canonical grammar and dual-parser conformance
 

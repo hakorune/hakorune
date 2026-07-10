@@ -20,3 +20,5 @@ bash tools/checks/current_state_pointer_guard.sh
 Run heavier gates only when the active card requires them. Current scope,
 acceptance, parked items, and non-claims belong in the active card and the
 workstream SSOT, not this pointer.
+
+When `current_blocker_token` contains `DESIGN-STOP`, do not invent a new executable owner from historical mirrors. To keep the goal open until the frontier names a concrete next owner, wait at the frontier.

@@ -8,9 +8,9 @@ active_lane = "LANGUAGE-V1-CONVERGENCE semantic contract before selfhost migrati
 active_lane_status = """Language coherence is the active prerequisite. Source
 Selfhost and MirBuilder 3456 are parked without losing their evidence or resume
 scope. The language-v1 workstream has eight ordered macro rows and allows one
-active numbered card at a time. 3457 opens only the seven-law Constitution;
-parser, runtime, type, lifecycle, backend, capability, and selfhost behavior do
-not change in that row."""
+active numbered card at a time. 3457 lands the seven-law Constitution. 3458 is
+the Semantic Kernel design consultation stop; parser, MIR, runtime, verifier,
+backend, capability, and selfhost implementation remain unchanged."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
@@ -18,14 +18,14 @@ method_anchor = "docs/development/current/main/design/selfhost-language-v1-freez
 taskboard = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 
-latest_card = "LANGV1-CONSTITUTION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3457-LANGV1-CONSTITUTION-001.md"
-latest_card_summary = """3457 opens one docs-only durable-policy row: create
-the seven-law Hakorune language constitution, normative document precedence,
-and the accepted-Decision to conformance change protocol. It changes no parser,
-runtime, type, lifecycle, backend, capability, or selfhost behavior."""
+latest_card = "LANGV1-SEMANTIC-KERNEL-DESIGN-STOP-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3458-LANGV1-SEMANTIC-KERNEL-DESIGN-STOP-001.md"
+latest_card_summary = """3458 stops for an explicit Semantic Kernel decision:
+Outcome, evaluated Place, source-order compound assignment, cleanup precedence,
+Fault catchability, and guard-let NoFallthrough. No implementation is
+authorized until the decision is accepted."""
 
-current_blocker_token = "LANGV1-CONSTITUTION-001"
+current_blocker_token = "LANGV1-SEMANTIC-KERNEL-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -34,7 +34,8 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
-  "2026-07-10: 3457 selects Language v1 convergence before selfhost migration, opens the seven-law Constitution row, and parks MirBuilder 3456 with an explicit post-closeout resume token.",
+  "2026-07-10: 3458 opens the Semantic Kernel design consultation stop after 3457 lands the seven-law language constitution; Outcome/Place/cleanup/Fault/guard-let decisions are required before implementation.",
+  "2026-07-10: 3457 selects Language v1 convergence before selfhost migration, lands the seven-law Constitution, and parks MirBuilder 3456 with an explicit post-closeout resume token.",
   "2026-07-10: 3456 records the MapStore key/value BoxShape repair prerequisite; it remains ready but parked while Language v1 convergence is active.",
   "2026-07-10: 3454 selects the MapStoreI64 caller-orientation pilot; later review corrected I64 from stored-value domain to key domain before implementation.",
   "2026-07-10: 3453 slims the MirBuilder task-order and adds a 500-character line guard.",
