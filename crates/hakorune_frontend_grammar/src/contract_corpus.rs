@@ -11,10 +11,7 @@ pub struct GrammarContractFixture {
     pub expected: ParseWitness,
 }
 
-const CORPUS_FRAGMENTS: &[&str] = &[
-    include_str!("../../../grammar/language-v1-grammar-contract-corpus/foundation.toml"),
-    include_str!("../../../grammar/language-v1-grammar-contract-corpus/profile-boundaries.toml"),
-];
+use crate::generated_corpus_fragments::LANGUAGE_V1_GRAMMAR_CORPUS_FRAGMENTS;
 
 fn string(value: &toml::value::Table, field: &str) -> String {
     value
@@ -79,7 +76,7 @@ fn profile(value: &str) -> GrammarProfile {
 }
 
 pub fn shared_corpus() -> Vec<GrammarContractFixture> {
-    CORPUS_FRAGMENTS
+    LANGUAGE_V1_GRAMMAR_CORPUS_FRAGMENTS
         .iter()
         .flat_map(|fragment| {
             let document: toml::Value = fragment

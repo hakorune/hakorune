@@ -17,6 +17,10 @@ pub mod generated_contract {
     include!(concat!(env!("OUT_DIR"), "/generated_contract.rs"));
 }
 
+pub mod generated_corpus_fragments {
+    include!(concat!(env!("OUT_DIR"), "/generated_corpus_fragments.rs"));
+}
+
 // Generated tables from the named legacy codegen input.
 pub mod generated;
 pub use generated::*;

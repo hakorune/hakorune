@@ -139,6 +139,9 @@ known-enum wildcard = explicit non-exhaustive rejection in both parsers
 match/peek recursive corpus = 17 fixtures green in one Hako batch
 match stable tags = parser-neutral duplicate/unit-binding/non-exhaustive owner
 raw Hako ProgramJSON equivalence = retired in favor of recursive witness parity
+declaration registry first scope = record + three weak rows registered
+declaration Rust profile/evidence = 9 fixtures green
+declaration Hako sidecar = pending next series commit
 ```
 
 Full inventory exposed pre-existing corpus/parser drift that the shallow gate
@@ -655,7 +658,6 @@ Close that drift before declaration expansion, in this order:
    - shared parser inventory = complete
    - NoFallthrough structural conformance rejection = complete
    - match/peek exhaustiveness and recursive drift = complete
-   - close delegate Rust/Hako drift
 
 2. add the parser-owned declaration evidence sidecar
    - record declaration
@@ -663,10 +665,12 @@ Close that drift before declaration expansion, in this order:
    - Compat2025 weak visibility/init aliases
    - no semantic-body, MIR, runtime, or backend publication
 
-3. add remaining weak/record/literal/construction rows
-4. generate support and migration evidence
-5. run bounded recursive differential composition
-6. evaluate LANGV1-GRAMMAR-001 closeout
+3. close delegate Rust/Hako drift through the same declaration evidence owner
+
+4. add remaining weak/record/literal/construction rows
+5. generate support and migration evidence
+6. run bounded recursive differential composition
+7. evaluate LANGV1-GRAMMAR-001 closeout
 ```
 
 Do not weaken recursive comparison or make parser behavior match a fixture by

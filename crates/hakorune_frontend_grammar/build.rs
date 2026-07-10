@@ -109,6 +109,33 @@ fn emit_rows(content: &str) -> String {
     generated
 }
 
+fn emit_corpus_fragments(manifest_dir: &std::path::Path) -> String {
+    let manifest_path = manifest_dir.join("../../grammar/language-v1-grammar-contract-corpus.toml");
+    println!("cargo:rerun-if-changed={}", manifest_path.display());
+    let manifest_text = fs::read_to_string(&manifest_path).expect("read grammar corpus manifest");
+    let manifest: toml::Value = manifest_text
+        .parse()
+        .expect("parse grammar corpus manifest");
+    let fragments = manifest
+        .get("fragments")
+        .and_then(toml::Value::as_array)
+        .expect("grammar corpus manifest fragments");
+    let mut generated =
+        String::from("pub static LANGUAGE_V1_GRAMMAR_CORPUS_FRAGMENTS: &[&str] = &[\n");
+    for fragment in fragments {
+        let relative = fragment
+            .as_str()
+            .expect("grammar corpus fragment path must be a string");
+        let path = manifest_dir.join("../../").join(relative);
+        println!("cargo:rerun-if-changed={}", path.display());
+        let content = fs::read_to_string(&path)
+            .unwrap_or_else(|error| panic!("read grammar corpus fragment {relative}: {error}"));
+        generated.push_str(&format!("    {content:?},\n"));
+    }
+    generated.push_str("];\n");
+    generated
+}
+
 fn main() {
     let manifest_dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR").expect("manifest dir"));
     let grammar = manifest_dir.join("../../grammar/language-v1-registry.toml");
@@ -117,4 +144,9 @@ fn main() {
     let out_dir = PathBuf::from(env::var("OUT_DIR").expect("OUT_DIR"));
     fs::write(out_dir.join("generated_contract.rs"), emit_rows(&content))
         .expect("write generated grammar contract projection");
+    fs::write(
+        out_dir.join("generated_corpus_fragments.rs"),
+        emit_corpus_fragments(&manifest_dir),
+    )
+    .expect("write generated grammar corpus projection");
 }

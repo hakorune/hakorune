@@ -294,6 +294,12 @@ pub(crate) fn parse_box_member_body(
 
         if p.match_token(&TokenType::WEAK) {
             p.ensure_no_pending_runes("weak field")?;
+            crate::parser::grammar_contract::require_semantic_entry(
+                "weak_stored_field",
+                p.build_config.grammar_profile,
+                p.current_token().token_type.clone(),
+                p.current_token().line,
+            )?;
             p.advance();
             if let TokenType::IDENTIFIER(field_name) = &p.current_token().token_type {
                 let field_name = field_name.clone();

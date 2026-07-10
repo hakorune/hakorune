@@ -222,6 +222,12 @@ pub(crate) fn try_parse_visibility_block_or_single(
     }
     // Phase 285A1.4: Sugar syntax - public weak parent, private weak parent
     if p.match_token(&TokenType::WEAK) {
+        crate::parser::grammar_contract::require_semantic_entry(
+            "weak_visibility_field",
+            p.build_config.grammar_profile,
+            p.current_token().token_type.clone(),
+            p.current_token().line,
+        )?;
         p.advance(); // consume WEAK only
 
         // Read field name (reuse existing pattern)
@@ -353,6 +359,12 @@ pub(crate) fn parse_init_block_if_any(
             break;
         }
         let is_weak = if p.match_token(&TokenType::WEAK) {
+            crate::parser::grammar_contract::require_semantic_entry(
+                "weak_legacy_init_field",
+                p.build_config.grammar_profile,
+                p.current_token().token_type.clone(),
+                p.current_token().line,
+            )?;
             p.advance();
             true
         } else {

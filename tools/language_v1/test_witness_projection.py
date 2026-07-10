@@ -185,6 +185,59 @@ class WitnessProjectionTests(unittest.TestCase):
             "parser/guard_let_no_fallthrough_required",
         )
 
+    def test_rust_declaration_projection_preserves_contract_values(self) -> None:
+        record = {
+            "statements": [
+                {
+                    "kind": "BoxDeclaration",
+                    "is_record": True,
+                    "name": "User",
+                    "field_decls": [
+                        {"name": "id", "declared_type": "i64", "is_weak": False}
+                    ],
+                }
+            ]
+        }
+        self.assertEqual(
+            project_rust_normalized_form("record_declaration", record),
+            {
+                "kind": "RecordDeclaration",
+                "children": [
+                    {"kind": "Identifier", "value": "User", "children": []},
+                    {
+                        "kind": "RecordFieldList",
+                        "children": [
+                            {
+                                "kind": "RecordField",
+                                "children": [
+                                    {"kind": "Identifier", "value": "id", "children": []},
+                                    {"kind": "TypeRef", "value": "i64", "children": []},
+                                ],
+                            }
+                        ],
+                    },
+                ],
+            },
+        )
+
+        weak = {
+            "statements": [
+                {
+                    "kind": "BoxDeclaration",
+                    "name": "User",
+                    "weak_fields": ["parent"],
+                    "init_fields": [],
+                    "public_fields": ["parent"],
+                    "private_fields": [],
+                    "field_decls": [
+                        {"name": "parent", "declared_type": "User", "is_weak": True}
+                    ],
+                }
+            ]
+        }
+        projected = project_rust_normalized_form("weak_visibility_field", weak)
+        self.assertEqual(projected["children"][1]["children"][-1]["value"], "Public")
+
     def test_hako_loop_rejects_record_literal_condition(self) -> None:
         malformed = {
             "body": [

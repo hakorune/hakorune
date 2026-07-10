@@ -83,7 +83,14 @@ pub(crate) fn parse_record_declaration(p: &mut NyashParser) -> Result<ASTNode, P
         };
         let field_name = field_name.clone();
         p.advance();
-        p.consume(TokenType::COLON)?;
+        if !p.match_token(&TokenType::COLON) {
+            return Err(ParseError::GrammarContract {
+                stable_reject_tag: "parser/record_field_syntax_invalid",
+                detail: "record field requires `name: Type`".to_string(),
+                line: p.current_token().line,
+            });
+        }
+        p.advance();
         let declared_type_name =
             crate::parser::common::type_refs::parse_type_ref_text(p, "record field type")?;
 

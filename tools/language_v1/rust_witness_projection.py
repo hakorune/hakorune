@@ -160,6 +160,93 @@ def _delegate(program: dict[str, Any]) -> dict[str, Any]:
     )
 
 
+def _record_declaration(program: dict[str, Any]) -> dict[str, Any]:
+    statement = _single_statement(program)
+    if statement.get("kind") != "BoxDeclaration" or statement.get("is_record") is not True:
+        raise RustProjectionError("record declaration evidence is missing")
+    name = statement.get("name")
+    fields = statement.get("field_decls")
+    if not isinstance(name, str) or not isinstance(fields, list) or not fields:
+        raise RustProjectionError("record declaration metadata is incomplete")
+    normalized_fields = []
+    for field in fields:
+        field = _require_dict(field, "record field metadata must be an object")
+        field_name = field.get("name")
+        type_name = field.get("declared_type")
+        if not isinstance(field_name, str) or not isinstance(type_name, str):
+            raise RustProjectionError("record field requires identifier and type")
+        normalized_fields.append(
+            _node(
+                "RecordField",
+                children=[
+                    _node("Identifier", value=field_name),
+                    _node("TypeRef", value=type_name),
+                ],
+            )
+        )
+    return _node(
+        "RecordDeclaration",
+        children=[
+            _node("Identifier", value=name),
+            _node("RecordFieldList", children=normalized_fields),
+        ],
+    )
+
+
+def _weak_field(program: dict[str, Any], row_id: str) -> dict[str, Any]:
+    statement = _single_statement(program)
+    if statement.get("kind") != "BoxDeclaration":
+        raise RustProjectionError("weak field requires box declaration evidence")
+    box_name = statement.get("name")
+    weak_fields = statement.get("weak_fields")
+    if not isinstance(box_name, str) or not isinstance(weak_fields, list) or len(weak_fields) != 1:
+        raise RustProjectionError("weak field metadata is incomplete")
+    field_name = weak_fields[0]
+    if not isinstance(field_name, str):
+        raise RustProjectionError("weak field name is missing")
+
+    init_fields = statement.get("init_fields")
+    if row_id == "weak_legacy_init_field":
+        if not isinstance(init_fields, list) or field_name not in init_fields:
+            raise RustProjectionError("legacy init weak field evidence is missing")
+    elif isinstance(init_fields, list) and field_name in init_fields:
+        raise RustProjectionError("direct weak field unexpectedly used init syntax")
+
+    public_fields = statement.get("public_fields")
+    private_fields = statement.get("private_fields")
+    visibility = "Default"
+    if isinstance(public_fields, list) and field_name in public_fields:
+        visibility = "Public"
+    elif isinstance(private_fields, list) and field_name in private_fields:
+        visibility = "Private"
+    if row_id == "weak_visibility_field" and visibility == "Default":
+        raise RustProjectionError("weak visibility evidence is missing")
+    if row_id != "weak_visibility_field" and visibility != "Default":
+        raise RustProjectionError("unexpected weak visibility evidence")
+
+    children = [_node("Identifier", value=field_name)]
+    field_decls = statement.get("field_decls")
+    if isinstance(field_decls, list):
+        declaration = next(
+            (
+                field
+                for field in field_decls
+                if isinstance(field, dict) and field.get("name") == field_name
+            ),
+            None,
+        )
+        if isinstance(declaration, dict) and isinstance(declaration.get("declared_type"), str):
+            children.append(_node("TypeRef", value=declaration["declared_type"]))
+    children.append(_node("Visibility", value=visibility))
+    return _node(
+        "WeakStoredField",
+        children=[
+            _node("BoxName", value=box_name),
+            _node("WeakField", children=children),
+        ],
+    )
+
+
 def _loop(program: dict[str, Any], row_id: str) -> dict[str, Any]:
     statement = _single_statement(program)
     if row_id == "loop_range":
@@ -208,6 +295,14 @@ def project_rust_normalized_form(row_id: str, program: Any) -> dict[str, Any]:
         return _match(program)
     if row_id == "delegate_exposes":
         return _delegate(program)
+    if row_id == "record_declaration":
+        return _record_declaration(program)
+    if row_id in {
+        "weak_stored_field",
+        "weak_visibility_field",
+        "weak_legacy_init_field",
+    }:
+        return _weak_field(program, row_id)
     if row_id in {
         "while_loop_condition",
         "loop_infinite",

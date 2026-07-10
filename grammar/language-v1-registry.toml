@@ -223,6 +223,102 @@ positive_fixture_ids = ["delegate_exposes_compat"]
 negative_fixture_ids = ["delegate_exposes_missing_block"]
 
 [[rows]]
+row_id = "record_declaration"
+family = "record"
+spelling_id = "record_declaration"
+production = "record name fields"
+
+[rows.canonical]
+status = "canonical"
+normalization_mode = "canonical_shape"
+normalized_shape = "RecordDeclaration"
+semantic_owner = "semantic-kernel"
+stable_reject_tag = ""
+positive_fixture_ids = ["record_declaration_canonical"]
+negative_fixture_ids = ["record_declaration_malformed"]
+
+[rows.compat2025]
+status = "canonical"
+normalization_mode = "canonical_shape"
+normalized_shape = "RecordDeclaration"
+semantic_owner = "semantic-kernel"
+stable_reject_tag = ""
+positive_fixture_ids = ["record_declaration_compat"]
+negative_fixture_ids = ["record_declaration_malformed"]
+
+[[rows]]
+row_id = "weak_stored_field"
+family = "weak"
+spelling_id = "weak_stored_field"
+production = "box member weak field"
+
+[rows.canonical]
+status = "canonical"
+normalization_mode = "canonical_shape"
+normalized_shape = "WeakStoredField"
+semantic_owner = "semantic-kernel"
+stable_reject_tag = ""
+positive_fixture_ids = ["weak_stored_field_canonical"]
+negative_fixture_ids = []
+
+[rows.compat2025]
+status = "canonical"
+normalization_mode = "canonical_shape"
+normalized_shape = "WeakStoredField"
+semantic_owner = "semantic-kernel"
+stable_reject_tag = ""
+positive_fixture_ids = ["weak_stored_field_compat"]
+negative_fixture_ids = []
+
+[[rows]]
+row_id = "weak_visibility_field"
+family = "weak"
+spelling_id = "weak_visibility_field"
+production = "box member visibility weak field"
+
+[rows.canonical]
+status = "rejected"
+normalization_mode = "none"
+normalized_shape = ""
+semantic_owner = "semantic-kernel"
+stable_reject_tag = "parser/weak_visibility_sugar_requires_compat2025"
+positive_fixture_ids = []
+negative_fixture_ids = ["weak_visibility_field_canonical_reject"]
+
+[rows.compat2025]
+status = "compatibility_only"
+normalization_mode = "compatibility_alias"
+normalized_shape = "WeakStoredField"
+semantic_owner = "semantic-kernel"
+stable_reject_tag = ""
+positive_fixture_ids = ["weak_visibility_field_compat"]
+negative_fixture_ids = []
+
+[[rows]]
+row_id = "weak_legacy_init_field"
+family = "weak"
+spelling_id = "weak_legacy_init_field"
+production = "box init weak field"
+
+[rows.canonical]
+status = "rejected"
+normalization_mode = "none"
+normalized_shape = ""
+semantic_owner = "semantic-kernel"
+stable_reject_tag = "parser/weak_init_field_legacy"
+positive_fixture_ids = []
+negative_fixture_ids = ["weak_legacy_init_field_canonical_reject"]
+
+[rows.compat2025]
+status = "compatibility_only"
+normalization_mode = "compatibility_alias"
+normalized_shape = "WeakStoredField"
+semantic_owner = "semantic-kernel"
+stable_reject_tag = ""
+positive_fixture_ids = ["weak_legacy_init_field_compat"]
+negative_fixture_ids = []
+
+[[rows]]
 row_id = "box_from_inheritance"
 family = "delegation"
 spelling_id = "box_from_inheritance"

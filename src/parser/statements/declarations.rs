@@ -23,6 +23,12 @@ impl NyashParser {
         match &self.current_token().token_type {
             TokenType::BOX => crate::parser::declarations::box_def::parse_box_declaration(self),
             TokenType::RECORD => {
+                crate::parser::grammar_contract::require_semantic_entry(
+                    "record_declaration",
+                    self.build_config.grammar_profile,
+                    self.current_token().token_type.clone(),
+                    self.current_token().line,
+                )?;
                 crate::parser::declarations::box_def::parse_record_declaration(self)
             }
             TokenType::ENUM => crate::parser::declarations::enum_def::parse_enum_declaration(self),

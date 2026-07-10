@@ -1,0 +1,83 @@
+# Language v1 declaration grammar fixtures.
+# Declaration evidence is parser-owned and never a MIR/runtime/backend input.
+
+[[fixtures]]
+fixture_id = "record_declaration_canonical"
+row_id = "record_declaration"
+profile = "Canonical"
+source = "record User { id: i64 }"
+accepted = true
+normalized_form = { kind = "RecordDeclaration", children = [{ kind = "Identifier", value = "User", children = [] }, { kind = "RecordFieldList", children = [{ kind = "RecordField", children = [{ kind = "Identifier", value = "id", children = [] }, { kind = "TypeRef", value = "i64", children = [] }] }] }] }
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "record_declaration_compat"
+row_id = "record_declaration"
+profile = "Compat2025"
+source = "record User { id: i64 }"
+accepted = true
+normalized_form = { kind = "RecordDeclaration", children = [{ kind = "Identifier", value = "User", children = [] }, { kind = "RecordFieldList", children = [{ kind = "RecordField", children = [{ kind = "Identifier", value = "id", children = [] }, { kind = "TypeRef", value = "i64", children = [] }] }] }] }
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "record_declaration_malformed"
+row_id = "record_declaration"
+profile = "Canonical"
+source = "record User { id }"
+accepted = false
+normalized_form = { kind = "", children = [] }
+stable_reject_tag = "parser/record_field_syntax_invalid"
+
+[[fixtures]]
+fixture_id = "weak_stored_field_canonical"
+row_id = "weak_stored_field"
+profile = "Canonical"
+source = "box User { weak parent: User }"
+accepted = true
+normalized_form = { kind = "WeakStoredField", children = [{ kind = "BoxName", value = "User", children = [] }, { kind = "WeakField", children = [{ kind = "Identifier", value = "parent", children = [] }, { kind = "TypeRef", value = "User", children = [] }, { kind = "Visibility", value = "Default", children = [] }] }] }
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "weak_stored_field_compat"
+row_id = "weak_stored_field"
+profile = "Compat2025"
+source = "box User { weak parent: User }"
+accepted = true
+normalized_form = { kind = "WeakStoredField", children = [{ kind = "BoxName", value = "User", children = [] }, { kind = "WeakField", children = [{ kind = "Identifier", value = "parent", children = [] }, { kind = "TypeRef", value = "User", children = [] }, { kind = "Visibility", value = "Default", children = [] }] }] }
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "weak_visibility_field_canonical_reject"
+row_id = "weak_visibility_field"
+profile = "Canonical"
+source = "box User { public weak parent: User }"
+accepted = false
+normalized_form = { kind = "", children = [] }
+stable_reject_tag = "parser/weak_visibility_sugar_requires_compat2025"
+
+[[fixtures]]
+fixture_id = "weak_visibility_field_compat"
+row_id = "weak_visibility_field"
+profile = "Compat2025"
+source = "box User { public weak parent: User }"
+accepted = true
+normalized_form = { kind = "WeakStoredField", children = [{ kind = "BoxName", value = "User", children = [] }, { kind = "WeakField", children = [{ kind = "Identifier", value = "parent", children = [] }, { kind = "TypeRef", value = "User", children = [] }, { kind = "Visibility", value = "Public", children = [] }] }] }
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "weak_legacy_init_field_canonical_reject"
+row_id = "weak_legacy_init_field"
+profile = "Canonical"
+source = "box User { init { weak parent } }"
+accepted = false
+normalized_form = { kind = "", children = [] }
+stable_reject_tag = "parser/weak_init_field_legacy"
+
+[[fixtures]]
+fixture_id = "weak_legacy_init_field_compat"
+row_id = "weak_legacy_init_field"
+profile = "Compat2025"
+source = "box User { init { weak parent } }"
+accepted = true
+normalized_form = { kind = "WeakStoredField", children = [{ kind = "BoxName", value = "User", children = [] }, { kind = "WeakField", children = [{ kind = "Identifier", value = "parent", children = [] }, { kind = "Visibility", value = "Default", children = [] }] }] }
+stable_reject_tag = ""
