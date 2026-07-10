@@ -26,10 +26,10 @@ explicit exclusion of CompatibilityTransport rows from Hako semantic-parser
 conformance. 3474 completes delimiter-aware Match scrutinee parsing and closes
 the record-brace/field-access parser gaps it exposes. 3475 completes the typed
 route-family dependency graph shadow and proves deterministic full-refresh
-parity without an authority switch. 3476 is active at scoped process-state test
-isolation; its implementation is complete and the full Language v1 grammar
-closeout evaluation is active in the same card. Runtime/backend/selfhost remain
-closed."""
+parity without an authority switch. 3476 completes scoped process-state test
+isolation and disproves grammar closeout because loops, weak, records, and
+current literals are absent from the registry. 3477 is the consolidated
+remaining-surface contract design stop. Runtime/backend/selfhost remain closed."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
@@ -37,14 +37,14 @@ method_anchor = "docs/development/current/main/design/selfhost-language-v1-freez
 taskboard = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 
-latest_card = "TEST-PROCESS-STATE-SCOPED-CONFIG-OWNER-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3476-TEST-PROCESS-STATE-SCOPED-CONFIG-OWNER-001.md"
-latest_card_summary = """3476 completes ScopedTestConfig, process-state
-snapshots, panic-safe restoration, and fresh-process classification of five
-route failures as baseline drift. Q5 now evaluates LANGV1-GRAMMAR-001 closeout
-without a rerun-only card."""
+latest_card = "LANGV1-GRAMMAR-REMAINING-SURFACE-CONTRACT-DESIGN-STOP-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3477-LANGV1-GRAMMAR-REMAINING-SURFACE-CONTRACT-DESIGN-STOP-001.md"
+latest_card_summary = """3477 records that the green 22-row corpus is not
+exhaustive and asks one consolidated decision for loop compatibility, weak
+spellings, record rows, and the closed literal set before one implementation
+card expands the registry and both parser witnesses."""
 
-current_blocker_token = "TEST-PROCESS-STATE-SCOPED-CONFIG-OWNER-001"
+current_blocker_token = "LANGV1-GRAMMAR-REMAINING-SURFACE-CONTRACT-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -53,6 +53,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-10: 3477 opens one consolidated design stop after 3476 proves that the green 22-row grammar corpus still omits required loop, weak, record, and literal surfaces.",
   "2026-07-10: 3476 centralizes selected test environment state under panic-safe ScopedTestConfig, classifies five route failures as fresh-process baseline drift, and advances to the grammar closeout audit in the same card.",
   "2026-07-10: 3475 adds an eight-family typed convergence graph, deterministic invalidation closure, full-refresh trace parity, and compile-scaling shadow guards without switching authority; 3476 opens scoped test config isolation.",
   "2026-07-10: 3474 closes delimiter-aware Match scrutinee parsing with Var/Call/Field/RecordLiteral fixtures and fixes record closing-brace position retention; 3475 opens route-family graph shadowing.",
@@ -64,5 +65,4 @@ landed_tail = [
   "2026-07-10: 3464 opens the Rust peek Compat2025 alias after 3463 lands typed profile plumbing and the statement-try seam; from transport remains deferred.",
   "2026-07-10: 3463 opens typed Rust grammar-profile plumbing plus the statement-try seam after 3462 accepts ParserBuildConfig ownership, API/CLI explicit Compat2025, and legacy-env conflict-only retention.",
   "2026-07-10: 3462 records the Rust grammar-profile owner design stop after 3461 reveals that ParserBuildConfig arrives after tokenization and legacy try/from acceptance has no profile boundary.",
-  "2026-07-10: 3461 lands one grammar registry, generated typed rows, ParseWitness, shared corpus, independent adapters, strict comparator, and deterministic current-drift report without parser behavior change.",
 ]

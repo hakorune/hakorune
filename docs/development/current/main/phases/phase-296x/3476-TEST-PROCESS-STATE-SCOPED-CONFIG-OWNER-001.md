@@ -2,8 +2,10 @@
 
 ## Status
 
-Implementation complete; Language v1 grammar closeout evaluation is active in
-this same card after 3475 closes route-family graph shadowing.
+Complete. The Language v1 grammar closeout evaluation proves that the current
+22-row registry is not exhaustive: loops, weak surfaces, records, and current
+literal surfaces required by `LANGV1-GRAMMAR-001` are still absent. 3477 owns
+the resulting consolidated grammar-surface decision stop.
 
 Decision: accepted by 3471 Decision D.
 
@@ -196,5 +198,8 @@ selfhost_claim = 0
 
 ## Next
 
-The scoped owner is green. Rerun the full grammar corpus and evaluate
-`LANGV1-GRAMMAR-001` closeout here without creating a rerun-only numbered card.
+The scoped owner and full current grammar corpus are green. Do not claim
+`LANGV1-GRAMMAR-001` closeout from that green corpus: it covers 22 rows across
+11 spellings, while the workstream explicitly requires loops, weak, records,
+and current literal surfaces too. Continue at 3477 and classify those missing
+families before extending the registry.

@@ -267,7 +267,11 @@ Q3 complete: 3475 MIR-CONVERGENCE-ROUTE-FAMILY-GRAPH-SHADOW-001
 Q4 complete: 3476 TEST-PROCESS-STATE-SCOPED-CONFIG-OWNER-001
   owner = scoped config injection
   subprocess execution = classification oracle only
-Q5 active in 3476: full grammar corpus rerun and LANGV1-GRAMMAR-001 closeout check
+Q5 audit complete in 3476:
+  current 22-row corpus = green
+  LANGV1-GRAMMAR-001 closeout = disproved by missing loops/weak/records/literals
+Q5 decision active in 3477:
+  classify remaining surfaces, then use one registry/corpus/adapter implementation card
 ```
 
 Q2-Q4 may be reviewed in the same consultation packet, but their code deltas
