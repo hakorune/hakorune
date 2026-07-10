@@ -226,6 +226,18 @@ pub fn ast_to_json(ast: &ASTNode) -> Value {
                 "expr": ast_to_json(&value),  // JoinIR expects "expr"
             })
         }
+        ASTNode::CompoundAssignment {
+            target,
+            operator,
+            value,
+            ..
+        } => json!({
+            "kind": "CompoundAssignment",
+            "type": "CompoundAssignment",
+            "target": ast_to_json(&target),
+            "op": shared::bin_to_str(&operator),
+            "value": ast_to_json(&value),
+        }),
         // Phase 54: Local with JoinIR-compatible fields
         ASTNode::Local {
             variables,

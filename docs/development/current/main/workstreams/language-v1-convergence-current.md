@@ -156,8 +156,7 @@ Next: `LANGV1-EVALUATED-PLACE-COMPOUND-ASSIGN-001`.
 
 ### 1. LANGV1-SEMANTIC-KERNEL-001
 
-Status: decision accepted as 3458; evaluated-Place implementation active as
-3459.
+Status: complete through 3459. Grammar decision consultation active as 3460.
 
 Decision surface:
 
@@ -203,8 +202,8 @@ compound_assignment_ast_clone = 0
 guard_else_no_fallthrough = 1
 ```
 
-Current implementation: `LANGV1-EVALUATED-PLACE-COMPOUND-ASSIGN-001`.
-Advance to `LANGV1-GRAMMAR-001` only after this semantic slice closes.
+Closeout: `LANGV1-EVALUATED-PLACE-COMPOUND-ASSIGN-001` implements the
+evaluated-Place slice. Advance only to `LANGV1-GRAMMAR-DESIGN-STOP-001`.
 
 ### 2. LANGV1-GRAMMAR-001
 
@@ -433,7 +432,7 @@ selfhost_migration_unparked = 1
 ## Current Front
 
 ```text
-current = LANGV1-EVALUATED-PLACE-COMPOUND-ASSIGN-001
-next = evaluated Place compound-assignment evidence
+current = LANGV1-GRAMMAR-DESIGN-STOP-001
+next = grammar contract decision
 parked_resume = MIRBUILDER-MAPSTORE-ROUTE-POLICY-KEY-VALUE-DOMAIN-BOXSHAPE-001
 ```

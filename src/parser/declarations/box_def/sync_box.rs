@@ -67,7 +67,8 @@ fn first_wait_like_in_node(node: &ASTNode) -> Option<&'static str> {
         ASTNode::ContextScope { value, body, .. } => {
             first_wait_like_in_node(value).or_else(|| first_wait_like_in_body(body))
         }
-        ASTNode::Assignment { target, value, .. } => {
+        ASTNode::Assignment { target, value, .. }
+        | ASTNode::CompoundAssignment { target, value, .. } => {
             first_wait_like_in_node(target).or_else(|| first_wait_like_in_node(value))
         }
         ASTNode::Print { expression, .. }

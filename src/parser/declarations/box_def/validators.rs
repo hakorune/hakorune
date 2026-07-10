@@ -146,7 +146,8 @@ fn ast_collect_me_fields(nodes: &[ASTNode]) -> std::collections::HashSet<String>
                 scan_node(value, out);
                 scan_body(body, out);
             }
-            ASTNode::Assignment { target, value, .. } => {
+            ASTNode::Assignment { target, value, .. }
+            | ASTNode::CompoundAssignment { target, value, .. } => {
                 scan_node(target, out);
                 scan_node(value, out);
             }

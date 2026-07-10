@@ -142,8 +142,8 @@ Minimum stable tags (grep distance short):
 v1 freeze の継続条件:
 
 - `LANGV1-CONSTITUTION-001` is complete as 3457 with one seven-law charter.
-- `LANGV1-SEMANTIC-KERNEL-001` is complete with one Outcome/Place model and
-  exactly-once, source-order sugar fixtures.
+- `LANGV1-SEMANTIC-KERNEL-001` is complete through 3459 with one Outcome/Place
+  model and exactly-once, source-order compound-assignment fixtures.
 - `LANGV1-GRAMMAR-001` is complete with one grammar manifest and a shared
   Rust/selfhost parser golden suite.
 - `LANGV1-TYPE-GUARANTEE-001` is complete with a site-by-site guarantee matrix

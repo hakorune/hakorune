@@ -30,6 +30,17 @@ fn rewrite(ast: ASTNode) -> ASTNode {
             value: Box::new(rewrite(*value)),
             span,
         },
+        ASTNode::CompoundAssignment {
+            target,
+            operator,
+            value,
+            span,
+        } => ASTNode::CompoundAssignment {
+            target: Box::new(rewrite(*target)),
+            operator,
+            value: Box::new(rewrite(*value)),
+            span,
+        },
         ASTNode::BinaryOp {
             operator,
             left,

@@ -5,7 +5,7 @@ use crate::mir::instruction::MemOpKind;
 use super::{EffectMask, MirInstruction, MirType, ValueId};
 
 impl super::MirBuilder {
-    fn infer_index_target_class(&self, target_val: ValueId) -> Option<String> {
+    pub(super) fn infer_index_target_class(&self, target_val: ValueId) -> Option<String> {
         if let Some(cls) = self.type_ctx.value_origin_newbox.get(&target_val) {
             return Some(cls.clone());
         }

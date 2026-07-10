@@ -392,16 +392,10 @@ impl NyashParser {
             // 左辺が代入可能な形式かチェック
             match &expr {
                 ASTNode::Variable { .. } | ASTNode::FieldAccess { .. } | ASTNode::Index { .. } => {
-                    let left_clone = expr.clone();
-                    let value = ASTNode::BinaryOp {
-                        operator: op,
-                        left: Box::new(left_clone),
-                        right: Box::new(rhs),
-                        span: Span::unknown(),
-                    };
-                    Ok(ASTNode::Assignment {
+                    Ok(ASTNode::CompoundAssignment {
                         target: Box::new(expr),
-                        value: Box::new(value),
+                        operator: op,
+                        value: Box::new(rhs),
                         span: Span::unknown(),
                     })
                 }

@@ -11,6 +11,13 @@ impl ASTNode {
             ASTNode::Assignment { target, .. } => {
                 format!("Assignment(target: {})", target.info())
             }
+            ASTNode::CompoundAssignment {
+                target, operator, ..
+            } => format!(
+                "CompoundAssignment(target: {}, operator: {})",
+                target.info(),
+                operator
+            ),
             ASTNode::Print { .. } => "Print".to_string(),
             ASTNode::If { .. } => "If".to_string(),
             ASTNode::Loop {

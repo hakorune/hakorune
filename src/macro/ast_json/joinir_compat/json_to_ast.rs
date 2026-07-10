@@ -125,6 +125,12 @@ pub(crate) fn json_to_ast(v: &Value) -> Option<ASTNode> {
             value: Box::new(json_to_ast(v.get("value")?)?),
             span: Span::unknown(),
         },
+        "CompoundAssignment" => ASTNode::CompoundAssignment {
+            target: Box::new(json_to_ast(v.get("target")?)?),
+            operator: str_to_bin(v.get("op")?.as_str()?)?,
+            value: Box::new(json_to_ast(v.get("value")?)?),
+            span: Span::unknown(),
+        },
         "Local" => {
             let vars: Vec<String> = v
                 .get("variables")?

@@ -4,6 +4,8 @@ pub mod mir_box_new_field_initializer;
 pub mod mir_brand_constructor;
 #[path = "../mir_breakfinder_ssa.rs"]
 pub mod mir_breakfinder_ssa;
+#[path = "../mir_compound_assignment_evaluated_place.rs"]
+pub mod mir_compound_assignment_evaluated_place;
 #[cfg(feature = "legacy-tests")]
 #[path = "../mir_controlflow_extras.rs"]
 pub mod mir_controlflow_extras;

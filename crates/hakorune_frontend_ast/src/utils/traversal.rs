@@ -32,6 +32,10 @@ impl ASTNode {
                 visitor(target);
                 visitor(value);
             }
+            ASTNode::CompoundAssignment { target, value, .. } => {
+                visitor(target);
+                visitor(value);
+            }
             ASTNode::Print { expression, .. }
             | ASTNode::Nowait { expression, .. }
             | ASTNode::AwaitExpression { expression, .. }

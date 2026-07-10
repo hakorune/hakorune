@@ -117,6 +117,17 @@ pub enum ASTNode {
         span: Span,
     },
 
+    /// Compound assignment: target op= value.
+    ///
+    /// This remains distinct from Assignment(BinaryOp(...)) so lowering can
+    /// evaluate the target once into a semantic Place.
+    CompoundAssignment {
+        target: Box<ASTNode>,
+        operator: BinaryOperator,
+        value: Box<ASTNode>,
+        span: Span,
+    },
+
     /// print文: print(expression)
     Print {
         expression: Box<ASTNode>,

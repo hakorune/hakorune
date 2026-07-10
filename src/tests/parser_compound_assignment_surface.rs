@@ -1,4 +1,4 @@
-use crate::ast::{ASTNode, BinaryOperator};
+use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
 use crate::parser::NyashParser;
 
 fn c199_source() -> &'static str {
@@ -25,11 +25,11 @@ static box Main {
 "#
 }
 
-fn collect_assignments<'a>(node: &'a ASTNode, out: &mut Vec<&'a ASTNode>) {
-    if matches!(node, ASTNode::Assignment { .. }) {
+fn collect_compound_assignments<'a>(node: &'a ASTNode, out: &mut Vec<&'a ASTNode>) {
+    if matches!(node, ASTNode::CompoundAssignment { .. }) {
         out.push(node);
     }
-    node.for_each_child(&mut |child| collect_assignments(child, out));
+    node.for_each_child(&mut |child| collect_compound_assignments(child, out));
 }
 
 #[test]
@@ -37,63 +37,48 @@ fn c199_compound_assignment_parses_default_surface() {
     crate::tests::helpers::env::with_env_var("NYASH_SYNTAX_SUGAR_LEVEL", "basic", || {
         let ast = NyashParser::parse_from_string(c199_source()).expect("C199 parse");
         let mut assignments = Vec::new();
-        collect_assignments(&ast, &mut assignments);
+        collect_compound_assignments(&ast, &mut assignments);
 
         assert!(
             assignments.iter().any(|assignment| matches!(
                 assignment,
-                ASTNode::Assignment {
+                ASTNode::CompoundAssignment {
                     target,
+                    operator: BinaryOperator::Add,
                     value,
                     ..
                 } if matches!(target.as_ref(), ASTNode::Variable { name, .. } if name == "x")
-                    && matches!(
-                        value.as_ref(),
-                        ASTNode::BinaryOp {
-                            operator: BinaryOperator::Add,
-                            ..
-                        }
-                    )
+                    && matches!(value.as_ref(), ASTNode::Literal { .. })
             )),
-            "local += should lower to Assignment(BinaryOp::Add)"
+            "local += should preserve a CompoundAssignment"
         );
 
         assert!(
             assignments.iter().any(|assignment| matches!(
                 assignment,
-                ASTNode::Assignment {
+                ASTNode::CompoundAssignment {
                     target,
+                    operator: BinaryOperator::Multiply,
                     value,
                     ..
                 } if matches!(target.as_ref(), ASTNode::FieldAccess { field, .. } if field == "value")
-                    && matches!(
-                        value.as_ref(),
-                        ASTNode::BinaryOp {
-                            operator: BinaryOperator::Multiply,
-                            ..
-                        }
-                    )
+                    && matches!(value.as_ref(), ASTNode::Variable { name, .. } if name == "x")
             )),
-            "field *= should lower to Assignment(BinaryOp::Multiply)"
+            "field *= should preserve a CompoundAssignment"
         );
 
         assert!(
             assignments.iter().any(|assignment| matches!(
                 assignment,
-                ASTNode::Assignment {
+                ASTNode::CompoundAssignment {
                     target,
+                    operator: BinaryOperator::Add,
                     value,
                     ..
                 } if matches!(target.as_ref(), ASTNode::Index { .. })
-                    && matches!(
-                        value.as_ref(),
-                        ASTNode::BinaryOp {
-                            operator: BinaryOperator::Add,
-                            ..
-                        }
-                    )
+                    && matches!(value.as_ref(), ASTNode::FieldAccess { field, .. } if field == "value")
             )),
-            "index += should lower to Assignment(BinaryOp::Add)"
+            "index += should preserve a CompoundAssignment"
         );
     });
 }
@@ -113,5 +98,55 @@ static box Main {
 "#,
         )
         .expect_err("compound assignment should reject when syntax sugar is disabled");
+    });
+}
+
+#[test]
+fn compound_assignment_keeps_side_effecting_place_once() {
+    crate::tests::helpers::env::with_env_var("NYASH_SYNTAX_SUGAR_LEVEL", "basic", || {
+        let ast = NyashParser::parse_from_string(
+            r#"
+static box Main {
+    main(args) {
+        array()[next_index()] += make_value()
+    }
+}
+"#,
+        )
+        .expect("parse side-effecting compound assignment");
+        let mut assignments = Vec::new();
+        collect_compound_assignments(&ast, &mut assignments);
+        assert_eq!(assignments.len(), 1);
+
+        let ASTNode::CompoundAssignment { target, value, .. } = assignments[0] else {
+            unreachable!("collector only returns compound assignments");
+        };
+        let ASTNode::Index { target, index, .. } = target.as_ref() else {
+            panic!("expected index Place target");
+        };
+        assert!(matches!(target.as_ref(), ASTNode::FunctionCall { name, .. } if name == "array"));
+        assert!(
+            matches!(index.as_ref(), ASTNode::FunctionCall { name, .. } if name == "next_index")
+        );
+        assert!(
+            matches!(value.as_ref(), ASTNode::FunctionCall { name, .. } if name == "make_value")
+        );
+
+        let simple = ASTNode::CompoundAssignment {
+            target: Box::new(ASTNode::Variable {
+                name: "x".to_string(),
+                span: Span::unknown(),
+            }),
+            operator: BinaryOperator::Add,
+            value: Box::new(ASTNode::Literal {
+                value: LiteralValue::Integer(1),
+                span: Span::unknown(),
+            }),
+            span: Span::unknown(),
+        };
+        let json = crate::r#macro::ast_json::ast_to_json_roundtrip(&simple);
+        let restored =
+            crate::r#macro::ast_json::json_to_ast(&json).expect("roundtrip compound assignment");
+        assert_eq!(restored, simple);
     });
 }

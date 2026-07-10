@@ -30,6 +30,7 @@ pub(super) fn ast_kind_name(ast: &ASTNode) -> &'static str {
     match ast {
         ASTNode::Program { .. } => "Program",
         ASTNode::Assignment { .. } => "Assignment",
+        ASTNode::CompoundAssignment { .. } => "CompoundAssignment",
         ASTNode::Print { .. } => "Print",
         ASTNode::If { .. } => "If",
         ASTNode::Loop { .. } => "Loop",

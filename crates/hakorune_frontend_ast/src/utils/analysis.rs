@@ -105,6 +105,9 @@ impl ASTNode {
                 ASTNode::Assignment { target, value, .. } => {
                     contains(target, loop_depth) || contains(value, loop_depth)
                 }
+                ASTNode::CompoundAssignment { target, value, .. } => {
+                    contains(target, loop_depth) || contains(value, loop_depth)
+                }
                 ASTNode::Print { expression, .. } => contains(expression, loop_depth),
                 ASTNode::If {
                     condition,

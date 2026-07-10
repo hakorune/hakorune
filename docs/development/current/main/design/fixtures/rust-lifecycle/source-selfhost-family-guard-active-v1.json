@@ -3,7 +3,7 @@
     "current_maintenance",
     "current_semantic"
   ],
-  "current_blocker_token": "LANGV1-EVALUATED-PLACE-COMPOUND-ASSIGN-001",
+  "current_blocker_token": "LANGV1-GRAMMAR-DESIGN-STOP-001",
   "family_scope": "SourceSelfhost",
   "forbidden_claims": {
     "manual_family_selection": 0,
@@ -315,6 +315,13 @@
       "legacy_guard": "tools/checks/rust_lifecycle_source_selfhost_family_guard.sh",
       "role": "current_semantic",
       "token": "LANGV1-EVALUATED-PLACE-COMPOUND-ASSIGN-001"
+    },
+    {
+      "card": "docs/development/current/main/phases/phase-296x/3460-LANGV1-GRAMMAR-DESIGN-STOP-001.md",
+      "fixture": "",
+      "legacy_guard": "tools/checks/rust_lifecycle_source_selfhost_family_guard.sh",
+      "role": "current_semantic",
+      "token": "LANGV1-GRAMMAR-DESIGN-STOP-001"
     }
   ],
   "schema_version": 1

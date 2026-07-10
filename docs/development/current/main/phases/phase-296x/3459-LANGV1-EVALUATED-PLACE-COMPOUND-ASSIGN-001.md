@@ -2,8 +2,8 @@
 
 ## Status
 
-Active implementation card. This is one semantic slice: evaluated-Place
-compound assignment. Do not implement the remaining semantic-kernel rows here.
+Complete. This card implemented one semantic slice: evaluated-Place compound
+assignment. The next grammar decision is stopped by 3460.
 
 ## Decision
 
@@ -77,8 +77,14 @@ source_evaluation_order_fixed = 1
 unsupported_store_fails_before_store = 1
 ```
 
+## Closeout
+
+The parser preserves one compound-assignment target; MIR evaluates that target
+into Local, Field, or Index once; and focused parser/MIR/VM-reference tests
+prove source order and fail-fast behavior. AST JSON preserves the explicit
+compound-assignment shape.
+
 ## Next
 
-Finish this card with the narrow parser/MIR/runtime evidence required by the
-active implementation. Do not open a rerun card. The next macro-row decision
-is selected only after this acceptance closes.
+`LANGV1-GRAMMAR-DESIGN-STOP-001` is the next active blocker. Do not implement
+grammar changes until its decision is accepted.

@@ -6,6 +6,7 @@ impl ASTNode {
         match self {
             ASTNode::Program { .. } => "Program",
             ASTNode::Assignment { .. } => "Assignment",
+            ASTNode::CompoundAssignment { .. } => "CompoundAssignment",
             ASTNode::Print { .. } => "Print",
             ASTNode::If { .. } => "If",
             ASTNode::Loop { .. } => "Loop",

@@ -94,6 +94,12 @@ impl AstOwnershipAnalyzer {
                 self.analyze_node(value, current_scope, false)?;
             }
 
+            ASTNode::CompoundAssignment { target, value, .. } => {
+                self.analyze_node(target, current_scope, false)?;
+                self.record_assignment_target(target, current_scope)?;
+                self.analyze_node(value, current_scope, false)?;
+            }
+
             ASTNode::GroupedAssignmentExpr { lhs, rhs, .. } => {
                 let binding = self.resolve_binding(lhs).ok_or_else(|| {
                     format!("AstOwnershipAnalyzer: write to undefined var '{}'", lhs)

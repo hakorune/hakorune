@@ -98,6 +98,14 @@ impl super::MirBuilder {
                     self.build_assignment_statement_expression(stmt)?,
                 ))
             }
+            ASTNode::CompoundAssignment {
+                target,
+                operator,
+                value,
+                ..
+            } => Ok(StatementSurfaceDispatch::Lowered(
+                self.build_compound_assignment_statement(*target, operator, *value)?,
+            )),
             node @ ASTNode::Return { .. } => {
                 let stmt = ReturnStmt::try_from(node).expect("ASTNode::Return must convert");
                 Ok(StatementSurfaceDispatch::Lowered(
