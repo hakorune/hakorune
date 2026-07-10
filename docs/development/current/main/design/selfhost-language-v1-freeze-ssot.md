@@ -13,6 +13,7 @@ Related:
   - docs/development/current/main/workstreams/language-v1-convergence-current.md
   - docs/reference/language/semantic-contract-charter.md
   - docs/reference/language/semantic-kernel.md
+  - docs/reference/language/grammar-contract.md
   - docs/reference/language/block-expressions-and-map-literals.md
   - docs/development/current/main/20-Decisions.md
 ---

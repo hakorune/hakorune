@@ -2,9 +2,8 @@
 
 ## Status
 
-Design consultation stop. Do not change parser implementations, grammar
-registry generation, compatibility acceptance, or backend behavior from this
-card.
+Decision accepted. This card records the consultation closeout; implementation
+is authorized only by `LANGV1-GRAMMAR-CONTRACT-SUBSTRATE-001`.
 
 ## Established Basis
 
@@ -12,21 +11,21 @@ card.
 uses an evaluated Place and has source-order, fail-fast, and VM-reference
 evidence. The next macro row is canonical grammar and dual-parser conformance.
 
-## Decision Required
+## Accepted Decision
 
-Choose the grammar-contract basis before implementation:
+`LANGV1-GRAMMAR-CONTRACT-BASIS-001` is accepted:
 
 ```text
-registry row schema
-canonical / compatibility_only / reserved / rejected status
-Canonical default and explicit Compat2025 boundary
-ParseWitness fields and Rust/Hako comparison boundary
-initial closed surface inventory and stable reject tags
+Canonical profile = target default
+Compat2025 = explicit opt-in only
+registry row + profile = grammar authority
+normalization_mode distinguishes alias, transport, and rejection
+span-free ParseWitness = parser conformance boundary
+four drift families = first closed implementation slice
 ```
 
-The decision must resolve the current `guard`, `try`, `peek`, and `from`
-document/parser drift without treating one parser's present behavior as
-language authority.
+The durable status table, schemas, reject tags, authority boundary, and rollout
+order live in `docs/reference/language/grammar-contract.md`.
 
 ## Drift Inventory
 
@@ -195,3 +194,8 @@ rust_hako_parser_behavior_changed = 0
 type_contract_activation = 0
 selfhost_claim = 0
 ```
+
+## Next
+
+`LANGV1-GRAMMAR-CONTRACT-SUBSTRATE-001` builds registry/witness/corpus/adapters
+only. Parser acceptance migration remains deferred.

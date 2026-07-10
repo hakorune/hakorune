@@ -10,6 +10,7 @@ Related:
 
 - `docs/development/current/main/workstreams/language-v1-convergence-current.md`
 - `docs/reference/language/semantic-kernel.md`
+- `docs/reference/language/grammar-contract.md`
 - `docs/development/current/main/design/selfhost-language-v1-freeze-ssot.md`
 - `docs/reference/language/EBNF.md`
 - `docs/reference/language/types.md`
@@ -63,8 +64,10 @@ The following order resolves conflicts.
 1. This charter owns cross-cutting laws and the change protocol only.
 2. `semantic-kernel.md` owns evaluation, Outcome, Place, cleanup, and sugar
    equivalence for Canonical v1.
-3. `EBNF.md` owns canonical grammar. The future grammar registry may generate
-   EBNF/support views but must not generate parser implementations.
+3. `grammar-contract.md` owns profiles, row status, normalization, and parser
+   conformance. `EBNF.md` remains the canonical production view until generated
+   from the admitted registry rows. Registry generation never generates parser
+   implementations.
 4. Topic SSOTs own their declared semantics: `types.md`, `lifecycle.md`,
    `scope-exit-semantics.md`, `option.md`, and other named topic owners.
 5. Stage profiles and generated support views report acceptance/support; they
@@ -118,7 +121,7 @@ sugar row must use the semantic-kernel contract once it is available.
 ```text
 charter = active and normative
 semantic kernel = accepted; evaluated-Place implementation active
-grammar registry = queued
+grammar contract = accepted; substrate implementation active
 type contract activation = queued
 failure/null migration = queued
 ownership/lifecycle behavior change = queued

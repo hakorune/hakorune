@@ -10,8 +10,9 @@ Selfhost and MirBuilder 3456 are parked without losing their evidence or resume
 scope. The language-v1 workstream has eight ordered macro rows and allows one
 active numbered card at a time. 3457 lands the seven-law Constitution; 3458
 accepts the Semantic Kernel; and 3459 completes evaluated-Place compound
-assignment. 3460 stops for the canonical grammar decision; parser, runtime,
-verifier, backend, capability, and selfhost implementation remain unchanged."""
+assignment. 3460 accepts the canonical grammar contract. 3461 builds only the
+registry, ParseWitness, shared corpus, independent adapters, and comparator;
+parser acceptance, runtime, backend, and selfhost behavior remain unchanged."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
@@ -19,13 +20,13 @@ method_anchor = "docs/development/current/main/design/selfhost-language-v1-freez
 taskboard = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 
-latest_card = "LANGV1-GRAMMAR-DESIGN-STOP-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3460-LANGV1-GRAMMAR-DESIGN-STOP-001.md"
-latest_card_summary = """3460 stops for the canonical grammar contract:
-registry schema, compatibility boundary, ParseWitness, and the initial closed
-surface inventory. No parser or backend implementation is authorized."""
+latest_card = "LANGV1-GRAMMAR-CONTRACT-SUBSTRATE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3461-LANGV1-GRAMMAR-CONTRACT-SUBSTRATE-001.md"
+latest_card_summary = """3461 implements the four-family grammar-contract
+observation substrate: one registry source, typed rows, span-free witnesses,
+shared corpus, independent adapters, and strict drift comparison."""
 
-current_blocker_token = "LANGV1-GRAMMAR-DESIGN-STOP-001"
+current_blocker_token = "LANGV1-GRAMMAR-CONTRACT-SUBSTRATE-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -34,6 +35,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-10: 3461 opens the four-family grammar-contract substrate after 3460 accepts Canonical default, explicit Compat2025, normalization modes, and span-free ParseWitness.",
   "2026-07-10: 3460 opens the canonical grammar design consultation after 3459 completes evaluated-Place compound assignment with parser, MIR, and VM-reference evidence.",
   "2026-07-10: 3459 completes evaluated-Place compound assignment for Local, Field, and Index; known unsupported index stores fail before index evaluation and store.",
   "2026-07-10: 3459 opens the evaluated-Place compound-assignment implementation slice after 3458 accepts the five-Outcome Semantic Kernel.",

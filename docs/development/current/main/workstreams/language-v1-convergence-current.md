@@ -76,6 +76,7 @@ semantic kernel:
   docs/reference/language/semantic-kernel.md (accepted)
 
 canonical grammar:
+  docs/reference/language/grammar-contract.md (accepted)
   grammar registry -> generated EBNF/support views
 
 parser implementation:
@@ -203,11 +204,13 @@ guard_else_no_fallthrough = 1
 ```
 
 Closeout: `LANGV1-EVALUATED-PLACE-COMPOUND-ASSIGN-001` implements the
-evaluated-Place slice. Advance only to `LANGV1-GRAMMAR-DESIGN-STOP-001`.
+evaluated-Place slice. Grammar work advances through
+`LANGV1-GRAMMAR-CONTRACT-SUBSTRATE-001`.
 
 ### 2. LANGV1-GRAMMAR-001
 
-Status: queued after Semantic Kernel.
+Status: contract basis accepted as 3460; substrate implementation active as
+3461.
 
 Deliverables:
 
@@ -432,7 +435,7 @@ selfhost_migration_unparked = 1
 ## Current Front
 
 ```text
-current = LANGV1-GRAMMAR-DESIGN-STOP-001
-next = grammar contract decision
+current = LANGV1-GRAMMAR-CONTRACT-SUBSTRATE-001
+next = registry, witness, corpus, adapters, and comparator
 parked_resume = MIRBUILDER-MAPSTORE-ROUTE-POLICY-KEY-VALUE-DOMAIN-BOXSHAPE-001
 ```
