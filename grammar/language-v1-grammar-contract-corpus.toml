@@ -1,0 +1,332 @@
+# Shared Language v1 grammar-contract fixture corpus.
+# These fixtures express contract expectations, not current parser authority.
+
+[[fixtures]]
+fixture_id = "guard_expr_else_canonical"
+row_id = "guard_expr_else"
+profile = "Canonical"
+source = "guard ready else { return unit }"
+accepted = true
+normalized_kind = "GuardElse"
+normalized_children = ["Condition", "NoFallthroughElse"]
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "guard_expr_else_compat"
+row_id = "guard_expr_else"
+profile = "Compat2025"
+source = "guard ready else { return unit }"
+accepted = true
+normalized_kind = "GuardElse"
+normalized_children = ["Condition", "NoFallthroughElse"]
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "guard_expr_else_missing_else"
+row_id = "guard_expr_else"
+profile = "Canonical"
+source = "guard ready"
+accepted = false
+normalized_kind = ""
+normalized_children = []
+stable_reject_tag = "parser/guard_expected_canonical"
+
+[[fixtures]]
+fixture_id = "guard_let_else_canonical"
+row_id = "guard_let_else"
+profile = "Canonical"
+source = "guard let value = maybe else { return unit }"
+accepted = true
+normalized_kind = "GuardLetElse"
+normalized_children = ["Pattern", "Expr", "NoFallthroughElse"]
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "guard_let_else_compat"
+row_id = "guard_let_else"
+profile = "Compat2025"
+source = "guard let value = maybe else { return unit }"
+accepted = true
+normalized_kind = "GuardLetElse"
+normalized_children = ["Pattern", "Expr", "NoFallthroughElse"]
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "guard_let_else_fallthrough"
+row_id = "guard_let_else"
+profile = "Canonical"
+source = "guard let value = maybe else { print(\"missing\") }"
+accepted = false
+normalized_kind = ""
+normalized_children = []
+stable_reject_tag = "parser/guard_let_no_fallthrough_required"
+
+[[fixtures]]
+fixture_id = "postfix_catch_canonical"
+row_id = "postfix_catch"
+profile = "Canonical"
+source = "work() catch { recover() }"
+accepted = true
+normalized_kind = "PostfixCatch"
+normalized_children = ["Body", "CatchHandler"]
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "postfix_catch_compat"
+row_id = "postfix_catch"
+profile = "Compat2025"
+source = "work() catch { recover() }"
+accepted = true
+normalized_kind = "PostfixCatch"
+normalized_children = ["Body", "CatchHandler"]
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "postfix_catch_missing_handler"
+row_id = "postfix_catch"
+profile = "Canonical"
+source = "work() catch"
+accepted = false
+normalized_kind = ""
+normalized_children = []
+stable_reject_tag = "parser/guard_expected_canonical"
+
+[[fixtures]]
+fixture_id = "postfix_cleanup_canonical"
+row_id = "postfix_cleanup"
+profile = "Canonical"
+source = "work() cleanup { close() }"
+accepted = true
+normalized_kind = "PostfixCleanup"
+normalized_children = ["Body", "CleanupBody"]
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "postfix_cleanup_compat"
+row_id = "postfix_cleanup"
+profile = "Compat2025"
+source = "work() cleanup { close() }"
+accepted = true
+normalized_kind = "PostfixCleanup"
+normalized_children = ["Body", "CleanupBody"]
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "postfix_cleanup_missing_handler"
+row_id = "postfix_cleanup"
+profile = "Canonical"
+source = "work() cleanup"
+accepted = false
+normalized_kind = ""
+normalized_children = []
+stable_reject_tag = "parser/guard_expected_canonical"
+
+[[fixtures]]
+fixture_id = "fini_canonical"
+row_id = "fini"
+profile = "Canonical"
+source = "fini { close() }"
+accepted = true
+normalized_kind = "Fini"
+normalized_children = ["CleanupBody"]
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "fini_compat"
+row_id = "fini"
+profile = "Compat2025"
+source = "fini { close() }"
+accepted = true
+normalized_kind = "Fini"
+normalized_children = ["CleanupBody"]
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "fini_missing_block"
+row_id = "fini"
+profile = "Canonical"
+source = "fini"
+accepted = false
+normalized_kind = ""
+normalized_children = []
+stable_reject_tag = "parser/guard_expected_canonical"
+
+[[fixtures]]
+fixture_id = "try_statement_canonical_reject"
+row_id = "try_statement"
+profile = "Canonical"
+source = "try { work() } catch { recover() }"
+accepted = false
+normalized_kind = ""
+normalized_children = []
+stable_reject_tag = "parser/try_reserved"
+
+[[fixtures]]
+fixture_id = "try_statement_compat_normalizable"
+row_id = "try_statement"
+profile = "Compat2025"
+source = "try { work() } catch { recover() } cleanup { close() }"
+accepted = true
+normalized_kind = "PostfixCatchCleanup"
+normalized_children = ["Body", "CatchHandler", "CleanupBody"]
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "try_statement_compat_not_normalizable"
+row_id = "try_statement"
+profile = "Compat2025"
+source = "try { work() } catch (Legacy) { recover() }"
+accepted = false
+normalized_kind = ""
+normalized_children = []
+stable_reject_tag = "parser/try_compat_not_normalizable"
+
+[[fixtures]]
+fixture_id = "match_canonical"
+row_id = "match"
+profile = "Canonical"
+source = "match value { Some(x) => x, _ => 0 }"
+accepted = true
+normalized_kind = "Match"
+normalized_children = ["Scrutinee", "OrderedArms"]
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "match_compat"
+row_id = "match"
+profile = "Compat2025"
+source = "match value { Some(x) => x, _ => 0 }"
+accepted = true
+normalized_kind = "Match"
+normalized_children = ["Scrutinee", "OrderedArms"]
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "match_missing_arm"
+row_id = "match"
+profile = "Canonical"
+source = "match value { }"
+accepted = false
+normalized_kind = ""
+normalized_children = []
+stable_reject_tag = "parser/guard_expected_canonical"
+
+[[fixtures]]
+fixture_id = "peek_canonical_reject"
+row_id = "peek"
+profile = "Canonical"
+source = "peek value { Some(x) => x, _ => 0 }"
+accepted = false
+normalized_kind = ""
+normalized_children = []
+stable_reject_tag = "parser/peek_legacy_replaced_by_match"
+
+[[fixtures]]
+fixture_id = "peek_compat_normalizable"
+row_id = "peek"
+profile = "Compat2025"
+source = "peek value { Some(x) => x, _ => 0 }"
+accepted = true
+normalized_kind = "Match"
+normalized_children = ["Scrutinee", "OrderedArms"]
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "peek_compat_not_normalizable"
+row_id = "peek"
+profile = "Compat2025"
+source = "peek value { observe x => x }"
+accepted = false
+normalized_kind = ""
+normalized_children = []
+stable_reject_tag = "parser/peek_compat_not_normalizable"
+
+[[fixtures]]
+fixture_id = "delegate_exposes_canonical"
+row_id = "delegate_exposes"
+profile = "Canonical"
+source = "delegate child exposes { read, write }"
+accepted = true
+normalized_kind = "DelegateExposes"
+normalized_children = ["Field", "ExposedMembers"]
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "delegate_exposes_compat"
+row_id = "delegate_exposes"
+profile = "Compat2025"
+source = "delegate child exposes { read, write }"
+accepted = true
+normalized_kind = "DelegateExposes"
+normalized_children = ["Field", "ExposedMembers"]
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "delegate_exposes_missing_block"
+row_id = "delegate_exposes"
+profile = "Canonical"
+source = "delegate child exposes"
+accepted = false
+normalized_kind = ""
+normalized_children = []
+stable_reject_tag = "parser/guard_expected_canonical"
+
+[[fixtures]]
+fixture_id = "box_from_inheritance_canonical_reject"
+row_id = "box_from_inheritance"
+profile = "Canonical"
+source = "box Child from Parent { }"
+accepted = false
+normalized_kind = ""
+normalized_children = []
+stable_reject_tag = "parser/from_inheritance_legacy"
+
+[[fixtures]]
+fixture_id = "box_from_inheritance_compat_transport"
+row_id = "box_from_inheritance"
+profile = "Compat2025"
+source = "box Child from Parent { }"
+accepted = true
+normalized_kind = "CompatibilityTransport"
+normalized_children = ["FromInheritance"]
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "box_from_inheritance_semantic_entry_reject"
+row_id = "box_from_inheritance"
+profile = "Compat2025"
+source = "box Child from Parent { }"
+accepted = false
+normalized_kind = ""
+normalized_children = []
+stable_reject_tag = "parser/from_compat_transport_only"
+
+[[fixtures]]
+fixture_id = "from_super_call_canonical_reject"
+row_id = "from_super_call"
+profile = "Canonical"
+source = "from Parent.method()"
+accepted = false
+normalized_kind = ""
+normalized_children = []
+stable_reject_tag = "parser/from_super_call_legacy"
+
+[[fixtures]]
+fixture_id = "from_super_call_compat_transport"
+row_id = "from_super_call"
+profile = "Compat2025"
+source = "from Parent.method()"
+accepted = true
+normalized_kind = "CompatibilityTransport"
+normalized_children = ["FromSuperCall"]
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "from_super_call_semantic_entry_reject"
+row_id = "from_super_call"
+profile = "Compat2025"
+source = "from Parent.method()"
+accepted = false
+normalized_kind = ""
+normalized_children = []
+stable_reject_tag = "parser/from_compat_transport_only"

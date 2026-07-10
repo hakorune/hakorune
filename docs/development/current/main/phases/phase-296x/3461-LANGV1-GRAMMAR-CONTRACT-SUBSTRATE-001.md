@@ -79,8 +79,16 @@ current_drift_report_deterministic = 1
 parser_behavior_changed = 0
 ```
 
-Required commands and exact focused tests are added to this card when their
-owners land. Do not create rerun cards.
+Required verification:
+
+```bash
+bash tools/checks/language_v1_grammar_contract_substrate_guard.sh
+python3 tools/language_v1/grammar_contract_drift_report.py --bin target/debug/hakorune --hako-timeout-sec 1
+```
+
+The report records current Rust/Hako evidence only. A Hako adapter timeout is
+reported as `parser/hako_adapter_timeout`; it is not converted into acceptance
+or replaced with the Rust parser. Do not create rerun cards.
 
 ## Fail-Fast Boundary
 

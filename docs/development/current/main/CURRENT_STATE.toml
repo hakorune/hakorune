@@ -24,7 +24,8 @@ latest_card = "LANGV1-GRAMMAR-CONTRACT-SUBSTRATE-001"
 latest_card_path = "docs/development/current/main/phases/phase-296x/3461-LANGV1-GRAMMAR-CONTRACT-SUBSTRATE-001.md"
 latest_card_summary = """3461 implements the four-family grammar-contract
 observation substrate: one registry source, typed rows, span-free witnesses,
-shared corpus, independent adapters, and strict drift comparison."""
+shared corpus, independent adapters, and a deterministic current-drift report.
+Parser acceptance, runtime, backend, and selfhost behavior remain unchanged."""
 
 current_blocker_token = "LANGV1-GRAMMAR-CONTRACT-SUBSTRATE-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

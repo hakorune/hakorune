@@ -47,6 +47,7 @@ Do not add a dedicated shell guard for every inventory or selection row.
 | `tools/checks/run_row_guard.sh` | Manifest-backed row guard runner using `tools/checks/guard_rows.toml` and `tools/checks/lib/manifest_runner.py`. |
 | `tools/checks/run_proof_app.sh` | Manifest-backed proof app runner using `tools/checks/proof_apps.toml` and `tools/checks/lib/manifest_runner.py`. |
 | `tools/checks/k2_wide_allocator_gate.sh` | Reusable allocator/mimalloc/provider proof group entry for allocator-wide checks. |
+| `tools/checks/language_v1_grammar_contract_substrate_guard.sh` | Language v1 grammar-contract substrate: one registry, typed projection, shared corpus, and strict witness comparator. |
 
 Naming compatibility notes kept here for `naming_charter_guard.sh`:
 phase-1 compatibility selfhost sources;

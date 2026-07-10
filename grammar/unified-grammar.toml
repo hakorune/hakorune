@@ -274,3 +274,363 @@ max_pattern_length = 200
 json = true
 prompt_txt = true
 training_jsonl = true
+
+# =============================================================================
+# Language v1 Grammar Contract
+# =============================================================================
+#
+# This is the sole physical registry source for the Language v1 contract.
+# Existing keyword and syntax tables above are legacy parser inputs and remain
+# behavior-preserving until the parser migration cards explicitly replace them.
+
+[[language_v1_grammar_contract.rows]]
+row_id = "guard_expr_else"
+family = "guard"
+spelling_id = "guard_expr_else"
+profile = "Canonical"
+status = "canonical"
+production = "guard expr else block"
+normalization_mode = "canonical_shape"
+normalized_shape = "GuardElse"
+semantic_owner = "semantic-kernel"
+stable_reject_tag = ""
+rust_support = "accepted"
+hako_support = "missing"
+positive_fixture_ids = ["guard_expr_else_canonical"]
+negative_fixture_ids = ["guard_expr_else_missing_else"]
+
+[[language_v1_grammar_contract.rows]]
+row_id = "guard_expr_else"
+family = "guard"
+spelling_id = "guard_expr_else"
+profile = "Compat2025"
+status = "canonical"
+production = "guard expr else block"
+normalization_mode = "canonical_shape"
+normalized_shape = "GuardElse"
+semantic_owner = "semantic-kernel"
+stable_reject_tag = ""
+rust_support = "accepted"
+hako_support = "missing"
+positive_fixture_ids = ["guard_expr_else_compat"]
+negative_fixture_ids = ["guard_expr_else_missing_else"]
+
+[[language_v1_grammar_contract.rows]]
+row_id = "guard_let_else"
+family = "guard"
+spelling_id = "guard_let_else"
+profile = "Canonical"
+status = "canonical"
+production = "guard let pattern = expr else block"
+normalization_mode = "canonical_shape"
+normalized_shape = "GuardLetElse"
+semantic_owner = "semantic-kernel"
+stable_reject_tag = ""
+rust_support = "accepted"
+hako_support = "missing"
+positive_fixture_ids = ["guard_let_else_canonical"]
+negative_fixture_ids = ["guard_let_else_fallthrough"]
+
+[[language_v1_grammar_contract.rows]]
+row_id = "guard_let_else"
+family = "guard"
+spelling_id = "guard_let_else"
+profile = "Compat2025"
+status = "canonical"
+production = "guard let pattern = expr else block"
+normalization_mode = "canonical_shape"
+normalized_shape = "GuardLetElse"
+semantic_owner = "semantic-kernel"
+stable_reject_tag = ""
+rust_support = "accepted"
+hako_support = "missing"
+positive_fixture_ids = ["guard_let_else_compat"]
+negative_fixture_ids = ["guard_let_else_fallthrough"]
+
+[[language_v1_grammar_contract.rows]]
+row_id = "postfix_catch"
+family = "exception"
+spelling_id = "postfix_catch"
+profile = "Canonical"
+status = "canonical"
+production = "expr catch block"
+normalization_mode = "canonical_shape"
+normalized_shape = "PostfixCatch"
+semantic_owner = "semantic-kernel"
+stable_reject_tag = ""
+rust_support = "missing"
+hako_support = "stage3_evidence"
+positive_fixture_ids = ["postfix_catch_canonical"]
+negative_fixture_ids = ["postfix_catch_missing_handler"]
+
+[[language_v1_grammar_contract.rows]]
+row_id = "postfix_catch"
+family = "exception"
+spelling_id = "postfix_catch"
+profile = "Compat2025"
+status = "canonical"
+production = "expr catch block"
+normalization_mode = "canonical_shape"
+normalized_shape = "PostfixCatch"
+semantic_owner = "semantic-kernel"
+stable_reject_tag = ""
+rust_support = "missing"
+hako_support = "stage3_evidence"
+positive_fixture_ids = ["postfix_catch_compat"]
+negative_fixture_ids = ["postfix_catch_missing_handler"]
+
+[[language_v1_grammar_contract.rows]]
+row_id = "postfix_cleanup"
+family = "exception"
+spelling_id = "postfix_cleanup"
+profile = "Canonical"
+status = "canonical"
+production = "expr cleanup block"
+normalization_mode = "canonical_shape"
+normalized_shape = "PostfixCleanup"
+semantic_owner = "semantic-kernel"
+stable_reject_tag = ""
+rust_support = "missing"
+hako_support = "stage3_evidence"
+positive_fixture_ids = ["postfix_cleanup_canonical"]
+negative_fixture_ids = ["postfix_cleanup_missing_handler"]
+
+[[language_v1_grammar_contract.rows]]
+row_id = "postfix_cleanup"
+family = "exception"
+spelling_id = "postfix_cleanup"
+profile = "Compat2025"
+status = "canonical"
+production = "expr cleanup block"
+normalization_mode = "canonical_shape"
+normalized_shape = "PostfixCleanup"
+semantic_owner = "semantic-kernel"
+stable_reject_tag = ""
+rust_support = "missing"
+hako_support = "stage3_evidence"
+positive_fixture_ids = ["postfix_cleanup_compat"]
+negative_fixture_ids = ["postfix_cleanup_missing_handler"]
+
+[[language_v1_grammar_contract.rows]]
+row_id = "fini"
+family = "exception"
+spelling_id = "fini"
+profile = "Canonical"
+status = "canonical"
+production = "fini block"
+normalization_mode = "canonical_shape"
+normalized_shape = "Fini"
+semantic_owner = "semantic-kernel"
+stable_reject_tag = ""
+rust_support = "accepted"
+hako_support = "missing"
+positive_fixture_ids = ["fini_canonical"]
+negative_fixture_ids = ["fini_missing_block"]
+
+[[language_v1_grammar_contract.rows]]
+row_id = "fini"
+family = "exception"
+spelling_id = "fini"
+profile = "Compat2025"
+status = "canonical"
+production = "fini block"
+normalization_mode = "canonical_shape"
+normalized_shape = "Fini"
+semantic_owner = "semantic-kernel"
+stable_reject_tag = ""
+rust_support = "accepted"
+hako_support = "missing"
+positive_fixture_ids = ["fini_compat"]
+negative_fixture_ids = ["fini_missing_block"]
+
+[[language_v1_grammar_contract.rows]]
+row_id = "try_statement"
+family = "exception"
+spelling_id = "try_statement"
+profile = "Canonical"
+status = "reserved"
+production = "try block catch block"
+normalization_mode = "none"
+normalized_shape = ""
+semantic_owner = "grammar-contract"
+stable_reject_tag = "parser/try_reserved"
+rust_support = "accepted_by_legacy_default"
+hako_support = "accepted_by_legacy_default"
+positive_fixture_ids = []
+negative_fixture_ids = ["try_statement_canonical_reject"]
+
+[[language_v1_grammar_contract.rows]]
+row_id = "try_statement"
+family = "exception"
+spelling_id = "try_statement"
+profile = "Compat2025"
+status = "compatibility_only"
+production = "try block catch block"
+normalization_mode = "compatibility_alias"
+normalized_shape = "PostfixCatchCleanup"
+semantic_owner = "semantic-kernel"
+stable_reject_tag = "parser/try_compat_not_normalizable"
+rust_support = "accepted_by_legacy_default"
+hako_support = "accepted_by_legacy_default"
+positive_fixture_ids = ["try_statement_compat_normalizable"]
+negative_fixture_ids = ["try_statement_compat_not_normalizable"]
+
+[[language_v1_grammar_contract.rows]]
+row_id = "match"
+family = "match"
+spelling_id = "match"
+profile = "Canonical"
+status = "canonical"
+production = "match expr arms"
+normalization_mode = "canonical_shape"
+normalized_shape = "Match"
+semantic_owner = "semantic-kernel"
+stable_reject_tag = ""
+rust_support = "accepted"
+hako_support = "accepted"
+positive_fixture_ids = ["match_canonical"]
+negative_fixture_ids = ["match_missing_arm"]
+
+[[language_v1_grammar_contract.rows]]
+row_id = "match"
+family = "match"
+spelling_id = "match"
+profile = "Compat2025"
+status = "canonical"
+production = "match expr arms"
+normalization_mode = "canonical_shape"
+normalized_shape = "Match"
+semantic_owner = "semantic-kernel"
+stable_reject_tag = ""
+rust_support = "accepted"
+hako_support = "accepted"
+positive_fixture_ids = ["match_compat"]
+negative_fixture_ids = ["match_missing_arm"]
+
+[[language_v1_grammar_contract.rows]]
+row_id = "peek"
+family = "match"
+spelling_id = "peek"
+profile = "Canonical"
+status = "rejected"
+production = "peek expr arms"
+normalization_mode = "none"
+normalized_shape = ""
+semantic_owner = "grammar-contract"
+stable_reject_tag = "parser/peek_legacy_replaced_by_match"
+rust_support = "missing"
+hako_support = "accepted_by_legacy_default"
+positive_fixture_ids = []
+negative_fixture_ids = ["peek_canonical_reject"]
+
+[[language_v1_grammar_contract.rows]]
+row_id = "peek"
+family = "match"
+spelling_id = "peek"
+profile = "Compat2025"
+status = "compatibility_only"
+production = "peek expr arms"
+normalization_mode = "compatibility_alias"
+normalized_shape = "Match"
+semantic_owner = "semantic-kernel"
+stable_reject_tag = "parser/peek_compat_not_normalizable"
+rust_support = "missing"
+hako_support = "accepted_by_legacy_default"
+positive_fixture_ids = ["peek_compat_normalizable"]
+negative_fixture_ids = ["peek_compat_not_normalizable"]
+
+[[language_v1_grammar_contract.rows]]
+row_id = "delegate_exposes"
+family = "delegation"
+spelling_id = "delegate_exposes"
+profile = "Canonical"
+status = "canonical"
+production = "delegate field exposes block"
+normalization_mode = "canonical_shape"
+normalized_shape = "DelegateExposes"
+semantic_owner = "delegation"
+stable_reject_tag = ""
+rust_support = "accepted"
+hako_support = "missing"
+positive_fixture_ids = ["delegate_exposes_canonical"]
+negative_fixture_ids = ["delegate_exposes_missing_block"]
+
+[[language_v1_grammar_contract.rows]]
+row_id = "delegate_exposes"
+family = "delegation"
+spelling_id = "delegate_exposes"
+profile = "Compat2025"
+status = "canonical"
+production = "delegate field exposes block"
+normalization_mode = "canonical_shape"
+normalized_shape = "DelegateExposes"
+semantic_owner = "delegation"
+stable_reject_tag = ""
+rust_support = "accepted"
+hako_support = "missing"
+positive_fixture_ids = ["delegate_exposes_compat"]
+negative_fixture_ids = ["delegate_exposes_missing_block"]
+
+[[language_v1_grammar_contract.rows]]
+row_id = "box_from_inheritance"
+family = "delegation"
+spelling_id = "box_from_inheritance"
+profile = "Canonical"
+status = "rejected"
+production = "box child from parent block"
+normalization_mode = "none"
+normalized_shape = ""
+semantic_owner = "grammar-contract"
+stable_reject_tag = "parser/from_inheritance_legacy"
+rust_support = "accepted_by_legacy_default"
+hako_support = "missing"
+positive_fixture_ids = []
+negative_fixture_ids = ["box_from_inheritance_canonical_reject"]
+
+[[language_v1_grammar_contract.rows]]
+row_id = "box_from_inheritance"
+family = "delegation"
+spelling_id = "box_from_inheritance"
+profile = "Compat2025"
+status = "compatibility_only"
+production = "box child from parent block"
+normalization_mode = "compatibility_transport"
+normalized_shape = "CompatibilityTransport"
+semantic_owner = "none"
+stable_reject_tag = "parser/from_compat_transport_only"
+rust_support = "accepted_by_legacy_default"
+hako_support = "missing"
+positive_fixture_ids = ["box_from_inheritance_compat_transport"]
+negative_fixture_ids = ["box_from_inheritance_semantic_entry_reject"]
+
+[[language_v1_grammar_contract.rows]]
+row_id = "from_super_call"
+family = "delegation"
+spelling_id = "from_super_call"
+profile = "Canonical"
+status = "rejected"
+production = "from parent method call"
+normalization_mode = "none"
+normalized_shape = ""
+semantic_owner = "grammar-contract"
+stable_reject_tag = "parser/from_super_call_legacy"
+rust_support = "accepted_by_legacy_default"
+hako_support = "missing"
+positive_fixture_ids = []
+negative_fixture_ids = ["from_super_call_canonical_reject"]
+
+[[language_v1_grammar_contract.rows]]
+row_id = "from_super_call"
+family = "delegation"
+spelling_id = "from_super_call"
+profile = "Compat2025"
+status = "compatibility_only"
+production = "from parent method call"
+normalization_mode = "compatibility_transport"
+normalized_shape = "CompatibilityTransport"
+semantic_owner = "none"
+stable_reject_tag = "parser/from_compat_transport_only"
+rust_support = "accepted_by_legacy_default"
+hako_support = "missing"
+positive_fixture_ids = ["from_super_call_compat_transport"]
+negative_fixture_ids = ["from_super_call_semantic_entry_reject"]

@@ -1,0 +1,18 @@
+// grammar_contract_hako_adapter.hako
+//
+// Independent evidence adapter for the selfhost parser. It intentionally uses
+// ParserBox directly and returns its Program(JSON) text without Rust AST reuse.
+
+using lang.compiler.parser.parser_box as ParserBox
+
+static box Main {
+  method main(args) {
+    local source = env.get("HAKO_GRAMMAR_CONTRACT_SOURCE")
+    if source == null {
+      print("[grammar-contract/hako-adapter] HAKO_GRAMMAR_CONTRACT_SOURCE required")
+      return 2
+    }
+    print(ParserBox.parse_program2(source))
+    return 0
+  }
+}
