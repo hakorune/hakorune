@@ -2,10 +2,10 @@
 
 ## Status
 
-Active design consultation stop. Do not change parser, MIR, verifier, backend,
-or runtime behavior until the owner and ordering decisions below are accepted.
+Complete design consultation. Parser, MIR, verifier, backend, and runtime
+behavior remain unchanged by this card; implementation is owned by 3489.
 
-Decision: pending.
+Decision: accepted.
 
 ## Objective
 
@@ -37,27 +37,38 @@ Implementation behavior is evidence, not semantic authority. This card does
 not reopen the accepted meaning that canonical `x: T` is an eventual gradual
 semantic contract.
 
-## Decisions Required
+## Accepted Decisions
 
 ### A. Contract refresh owner and order
 
-Choose one owner that deterministically rebuilds and validates Box-field,
-parameter-entry, return-exit, and local-slot carriers before every verifier,
-MIR JSON, runtime, and backend capability boundary.
+`semantic_refresh` is the sole rebuild/validation owner. Verifier, MIR JSON,
+VM, backend preflight, and direct tool/test entry points must use one
+`refresh_and_validate_for_boundary` facade.
 
-Questions:
+The owner may deterministically rebuild carriers from source-owned declaration
+metadata. After refresh, every active exact-numeric contract must have a fresh,
+complete carrier or fail-fast. No consumer may synthesize its own carrier.
 
-1. Is `semantic_refresh` the sole owner, with all public consumers required to
-   enter through a refresh-and-validate facade?
-2. Which epochs/fingerprints prove a carrier is fresh after CFG/SSA rewrites?
-3. Should missing active carriers always fail, or may the owner rebuild them
-   from source-owned declaration metadata at that boundary?
-4. How are direct unit-test and tool entry points prevented from bypassing the
-   same owner without fixture-specific setup?
+Ordering is fixed:
+
+```text
+source-owned declaration metadata
+-> semantic_refresh rebuilds all active carrier families
+-> completeness/freshness/drift validation
+-> semantic consumer
+-> derived representation projection
+-> export, execution, or backend lowering
+```
+
+The first implementation uses structural freshness: deterministic rebuilt
+carrier equality plus the current MIR/CFG/SSA/BindingId-derived inventories.
+It must not introduce a parallel epoch allocator merely to satisfy this card.
+If durable epochs are required by an existing rewrite boundary, they remain
+owned by that boundary and are projected into the validation result.
 
 ### B. Representation derivation boundary
 
-Choose a one-way projection:
+The one-way projection is accepted:
 
 ```text
 source :T -> TypeContractSpec -> semantic carrier
@@ -65,15 +76,14 @@ semantic carrier + verifier facts -> MirType / storage / layout facts
 explicit plan input -> PlanHint / RuneHint
 ```
 
-Questions:
+`FunctionSignature`, `MirType`, storage/layout metadata, and exact-numeric
+facts may remain derived representation facts. They cannot prove a semantic
+contract or rebuild a missing carrier. Plan/Rune hints require explicit plan
+input and cannot be inferred directly from source `:T`.
 
-1. Which current consumers use source annotations directly as representation,
-   storage, planner, or Rune authority?
-2. Which projections remain valid derived facts, and which must be retired?
-3. What fail-fast guard prevents MirType or exact-numeric facts from becoming
-   semantic contract proof?
-4. How should normative `types.md` semantics be separated from mutable
-   implementation-status inventory without duplicating truth?
+Normative meaning remains in `docs/reference/language/types.md`. Mutable owner,
+backend capability, and migration state move to one development status ledger
+that references normative row/owner IDs rather than restating semantics.
 
 ## Source Authority
 
@@ -125,17 +135,12 @@ unsupported backend -> fail before effects
 No lazy repair after execution starts, no VM/backend fallback, no by-name
 carrier synthesis, and no environment-selected contract activation.
 
-## Minimum Implementation Slice After Acceptance
+## Selected Implementation Slice
 
 One BoxShape card only:
 
-1. Introduce or select one refresh-and-validate facade.
-2. Route direct verifier, MIR JSON, VM, and backend-preflight entries through it.
-3. Add freshness/drift guards for the four active exact-numeric carrier families.
-4. Fix the typed-return direct-verifier reproduction structurally.
-5. Produce a checked representation-consumer inventory and move mutable status
-   out of normative type law without changing source semantics.
-6. Add focused bypass, stale-carrier, and representation-as-proof negatives.
+Owned by
+`3489-LANGV1-REPRESENTATION-HINT-AND-CONTRACT-REFRESH-OWNER-001`.
 
 Do not activate a new type family, add backend lowering, widen proof elision,
 or introduce a broad static type checker in that slice.
@@ -143,7 +148,13 @@ or introduce a broad static type checker in that slice.
 ## Explicit Non-Claims
 
 ```text
-contract_refresh_owner_decided = 0
+contract_refresh_owner_decided = semantic_refresh
+refresh_and_validate_facade_required = 1
+representation_derivation_boundary_decided = 1
+representation_fact_as_semantic_proof_forbidden = 1
+source_type_to_plan_rune_direct_authority_forbidden = 1
+types_status_ledger_split_decided = 1
+contract_refresh_owner_implemented = 0
 representation_audit_complete = 0
 types_status_ledger_split = 0
 new_type_family_activation = 0
@@ -154,8 +165,8 @@ runtime_backend_fallback = 0
 selfhost_claim = 0
 ```
 
-## Consultation Stop
+## Closeout
 
-Return with the selected owner, exact ordering, freshness schema, forbidden
-bypasses, fixture matrix, and minimum implementation boundary. Do not edit code
-from this card before that decision is accepted.
+The owner, ordering, deterministic rebuild policy, representation boundary,
+forbidden bypasses, and minimum implementation scope are accepted. Proceed to
+3489 without opening a second refresh owner or a new type-family activation.

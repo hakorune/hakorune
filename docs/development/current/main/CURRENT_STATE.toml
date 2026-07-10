@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Active design consultation"
+status = "Active"
 date = "2026-07-11"
 
 active_lane = "LANGUAGE-V1-CONVERGENCE semantic contract before selfhost migration"
@@ -24,8 +24,10 @@ wrapped as LocalSlotId, explicit LocalContractWrite, checked-edge PHI/loop
 identity, U1 uninitialized rejection, and VM-only first support. 3486 closes
 the behavior-preserving BindingId owner/bypass prerequisite. 3487 closes the
 narrow exact-numeric local write contract, PHI/loop identity evidence, MIR
-JSON, VM owner, and backend preflight. 3488 stops for one contract-refresh
-owner and the representation-only :T derivation boundary."""
+JSON, VM owner, and backend preflight. 3488 accepts semantic_refresh as the
+single contract carrier owner and fixes the one-way source-contract to
+representation-fact boundary. 3489 implements the facade and closes consumer
+bypasses without activating a new type family."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
@@ -33,14 +35,14 @@ method_anchor = "docs/development/current/main/design/selfhost-language-v1-freez
 taskboard = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 
-latest_card = "LANGV1-REPRESENTATION-HINT-AND-CONTRACT-REFRESH-DESIGN-STOP-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3488-LANGV1-REPRESENTATION-HINT-AND-CONTRACT-REFRESH-DESIGN-STOP-001.md"
-latest_card_summary = """3487 closes LocalContractWrite, exact-numeric local
-init/reassignment, U1, PHI/loop checked-write evidence, MIR JSON, VM checks,
-and unsupported-backend preflight. 3488 selects one carrier refresh owner and
-the one-way source-contract to representation-fact boundary before more code."""
+latest_card = "LANGV1-REPRESENTATION-HINT-AND-CONTRACT-REFRESH-OWNER-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3489-LANGV1-REPRESENTATION-HINT-AND-CONTRACT-REFRESH-OWNER-001.md"
+latest_card_summary = """3488 accepts semantic_refresh as the sole carrier
+refresh owner, deterministic rebuild before every public consumer, and the
+one-way semantic-contract to derived-representation boundary. 3489 implements
+the facade, bypass guards, representation audit, and mutable status ledger."""
 
-current_blocker_token = "LANGV1-REPRESENTATION-HINT-AND-CONTRACT-REFRESH-DESIGN-STOP-001"
+current_blocker_token = "LANGV1-REPRESENTATION-HINT-AND-CONTRACT-REFRESH-OWNER-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -49,9 +51,9 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-11: 3488 accepts semantic_refresh as the sole carrier refresh owner and the one-way representation boundary; 3489 opens the BoxShape implementation.",
   "2026-07-11: 3487 closes exact-numeric local init/reassignment, U1, PHI/loop evidence, MIR JSON, VM checks, and backend preflight; 3488 opens the representation and carrier-refresh design stop.",
   "2026-07-11: 3486 closes LocalSlotId(BindingId), the atomic declaration API, value/binding snapshots, CorePlan local routing, and ScopeBox identity restoration; 3487 opens exact-numeric local contract activation.",
-  "2026-07-11: 3485 accepts LocalSlotId(BindingId), canonical LocalContractWrite, checked-edge PHI/loop identity, U1, and VM-only scope; 3486 opens the behavior-preserving binding-owner prerequisite.",
   "2026-07-11: 3484 closes exact-numeric final-return carrier, verifier, VM owner, MIR JSON, and backend preflight; 3485 opens the local-slot identity/write-boundary design stop.",
   "2026-07-11: 3483 accepts FunctionReturnContractOwner, ReturnOutcomeVerifier, RejectVoid/fallthrough, and VM-only exact-numeric return scope; 3484 opens substantive implementation.",
   "2026-07-11: 3482 closes exact-numeric final-callee parameter entry with typed carrier, exact arity, VM checks, MIR JSON, and non-VM preflight; 3483 opens return-exit design consultation.",

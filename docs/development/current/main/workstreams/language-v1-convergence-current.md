@@ -291,7 +291,8 @@ as 3480; parameter-entry contract complete as 3482; return-exit design accepted
 as 3483; return-exit implementation complete as 3484; local exact-numeric
 owner/boundary consultation accepted as 3485; BindingId prerequisite complete
 as 3486; exact-numeric local semantic implementation complete as 3487; the
-representation/contract-refresh owner consultation is active as 3488.
+representation/contract-refresh owner decision is accepted as 3488; the
+single-owner BoxShape implementation is active as 3489.
 
 Target contract:
 
@@ -340,8 +341,8 @@ T2b complete:
   no broad static checker; one LocalSlotContractOwner
 
 T3 active:
-  3488 representation-hint and contract-refresh design stop
-  select one refresh-and-validate owner before verifier/JSON/runtime/backend
+  3488 accepts semantic_refresh as the sole refresh-and-validate owner
+  3489 routes verifier/JSON/VM/backend/tool boundaries through that owner
   representation-only :T consumer audit and migration queue
   remove direct storage/layout/planner authority from source annotations
   split types.md normative semantics from implementation-status ledger
