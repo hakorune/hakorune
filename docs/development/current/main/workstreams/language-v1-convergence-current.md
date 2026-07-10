@@ -95,11 +95,10 @@ product proof:
   EXE/AOT plus fail-fast backend preflight
 ```
 
-The charter, semantic kernel, and grammar contract are current truth. Card 3472
-closes Hako grammar correctness, ProgramJSON/MIR support, compile-cost,
-corpus-runner, and source-layout prerequisites. Card 3471 accepts four
-independent follow-up decisions, and 3473 is the active code-facing Hako
-compatibility-transport exclusion slice.
+The charter, semantic kernel, and grammar contract are current truth. Card 3478
+closes the grammar registry, dual-parser recursive corpus, Canonical source
+migration, and bounded differential composition. Type guarantee design is the
+active macro row.
 
 ## Confirmed Starting Gaps
 
@@ -212,7 +211,7 @@ evaluated-Place slice. Grammar work advances through
 
 ### 2. LANGV1-GRAMMAR-001
 
-Status: contract basis accepted as 3460; substrate landed as 3461; Rust
+Status: complete through 3478. Contract basis accepted as 3460; substrate landed as 3461; Rust
 grammar-profile owner accepted as 3462; profile plumbing plus statement-try
 landed as 3463; Rust peek Compat2025 alias landed as 3464; Rust from
 transport-only decision accepted as 3465; Rust from transport boundary landed
@@ -272,8 +271,11 @@ Q5 audit complete in 3476:
   LANGV1-GRAMMAR-001 closeout = disproved by missing loops/weak/records/literals
 Q5 decision complete in 3477:
   remaining surfaces and registry normalization contract accepted
-Q5 implementation active in 3478:
+Q5 implementation complete in 3478:
   one registry/corpus/adapter refactor-and-expansion series
+  106/106 recursive corpus green
+  bounded differential composition green
+  Canonical rejected source occurrences = 0
 ```
 
 Q2-Q4 may be reviewed in the same consultation packet, but their code deltas
@@ -284,7 +286,7 @@ Next: `LANGV1-TYPE-GUARANTEE-001`.
 
 ### 3. LANGV1-TYPE-GUARANTEE-001
 
-Status: design decision required after Grammar.
+Status: active design consultation as 3479 after Grammar closeout.
 
 Target contract:
 

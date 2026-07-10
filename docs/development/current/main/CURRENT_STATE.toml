@@ -5,34 +5,14 @@ status = "Active"
 date = "2026-07-10"
 
 active_lane = "LANGUAGE-V1-CONVERGENCE semantic contract before selfhost migration"
-active_lane_status = """Language coherence is the active prerequisite. Source
-Selfhost and MirBuilder 3456 are parked without losing their evidence or resume
-scope. The language-v1 workstream has eight ordered macro rows and allows one
-active numbered card at a time. 3457 lands the seven-law Constitution; 3458
-accepts the Semantic Kernel; 3459 completes evaluated-Place compound
-assignment; 3460 accepts the canonical grammar contract; and 3461 lands its
-registry/witness/corpus/adapter substrate. 3462 accepts ParserBuildConfig as
-the typed profile owner, and 3463 lands profile plumbing plus the statement
-try seam, and 3464 migrates Rust peek as a Compat2025 alias to Match. 3465
-accepts a separate migration transport adapter. 3466 completes both Rust from
-forms without semantic AST publication. 3467 accepts a profile-bearing Hako
-adapter facade and external witness projection. 3468 completes bounded adapter
-health. 3469 completes the Hako profile facade plus statement-try seam. 3470
-completes the Hako peek-to-Match compatibility alias. 3472 closes parser
-contract-result, Match/inventory/MIR support, compile scaling, corpus runner,
-and source layout prerequisites. 3471's Hako from transport consultation is
-complete with four accepted decisions. 3473 completes registry-derived
-explicit exclusion of CompatibilityTransport rows from Hako semantic-parser
-conformance. 3474 completes delimiter-aware Match scrutinee parsing and closes
-the record-brace/field-access parser gaps it exposes. 3475 completes the typed
-route-family dependency graph shadow and proves deterministic full-refresh
-parity without an authority switch. 3476 completes scoped process-state test
-isolation and disproves grammar closeout because loops, weak, records, and
-current literals are absent from the registry. 3477 accepts the remaining
-surface and registry normalization contract, including canonical percent-brace
-map literals based on live selfhost evidence. 3478 is the single active
-registry/corpus/adapter refactor-and-expansion series. Runtime/backend/selfhost
-remain closed."""
+active_lane_status = """Language coherence remains the prerequisite; Source
+Selfhost and MirBuilder 3456 stay parked. 3478 closes LANGV1-GRAMMAR-001 with
+one physical registry, two independent recursive parser witnesses, 106/106
+corpus fixtures, zero Canonical-rejected spellings under lang/src, and bounded
+differential composition. 3479 opens the ordered type-guarantee design stop.
+No type-contract, runtime, backend, or selfhost behavior may change before the
+site matrix, check owners, proof-elision rule, and first implementation slice
+are accepted."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
@@ -40,15 +20,14 @@ method_anchor = "docs/development/current/main/design/selfhost-language-v1-freez
 taskboard = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 
-latest_card = "LANGV1-GRAMMAR-REGISTRY-NORMALIZATION-AND-SURFACE-EXPANSION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3478-LANGV1-GRAMMAR-REGISTRY-NORMALIZATION-AND-SURFACE-EXPANSION-001.md"
-latest_card_summary = """3478 owns one Refactor Series Mode implementation:
-split v1 authority from legacy codegen input, normalize profile contracts,
-generate parser-support evidence, add all remaining surfaces, migrate to a
-recursive witness, run bounded milestone differential conformance, and evaluate
-LANGV1-GRAMMAR-001 closeout."""
+latest_card = "LANGV1-TYPE-GUARANTEE-DESIGN-STOP-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3479-LANGV1-TYPE-GUARANTEE-DESIGN-STOP-001.md"
+latest_card_summary = """3479 is the post-grammar type-guarantee design stop:
+close the annotation-site matrix, one check owner per boundary, verifier-backed
+runtime-check elision, unsupported-backend fail-fast, representation-hint
+migration, and the first code-facing slice before activating contracts."""
 
-current_blocker_token = "LANGV1-GRAMMAR-REGISTRY-NORMALIZATION-AND-SURFACE-EXPANSION-001"
+current_blocker_token = "LANGV1-TYPE-GUARANTEE-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -57,6 +36,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-10: 3478 closes LANGV1-GRAMMAR-001 with 106/106 corpus fixtures, zero Canonical source debt, and bounded differential composition; 3479 opens type-guarantee design consultation.",
   "2026-07-10: 3477 accepts loop/weak/record/literal contracts plus registry normalization and recursive conformance; 3478 opens one implementation series.",
   "2026-07-10: 3477 opens one consolidated design stop after 3476 proves that the green 22-row grammar corpus still omits required loop, weak, record, and literal surfaces.",
   "2026-07-10: 3476 centralizes selected test environment state under panic-safe ScopedTestConfig, classifies five route failures as fresh-process baseline drift, and advances to the grammar closeout audit in the same card.",
@@ -68,5 +48,4 @@ landed_tail = [
   "2026-07-10: 3470 completes the Hako peek-to-Match Compat2025 alias; 3471 opens the Hako from transport conformance design stop.",
   "2026-07-10: 3466 completes one Rust from transport boundary: closed Compat2025 evidence uses a distinct MigrationTransport record while semantic parsing fails before AST publication.",
   "2026-07-10: 3464 opens the Rust peek Compat2025 alias after 3463 lands typed profile plumbing and the statement-try seam; from transport remains deferred.",
-  "2026-07-10: 3463 opens typed Rust grammar-profile plumbing plus the statement-try seam after 3462 accepts ParserBuildConfig ownership, API/CLI explicit Compat2025, and legacy-env conflict-only retention.",
 ]

@@ -282,6 +282,49 @@ def report_without_adapter(
     }
 
 
+def run_hako_fixtures(
+    binary: pathlib.Path,
+    fixture_ids: list[str],
+    fixtures: list[dict[str, Any]],
+    *,
+    timeout_seconds: float,
+    excluded_rows: list[dict[str, Any]] | None = None,
+    total_fixture_count: int | None = None,
+) -> dict[str, Any]:
+    command = probe_command(binary, "observation", "canonical")
+    if command is None:
+        raise AssertionError("observation command must exist")
+    command.append("--batch")
+    result = run_adapter_json_process(
+        command,
+        timeout_seconds=timeout_seconds,
+        environment=batch_environment(fixtures),
+    )
+    excluded_rows = [] if excluded_rows is None else excluded_rows
+    if result.payload is None:
+        return {
+            "schema": REPORT_SCHEMA,
+            "status": "error",
+            "adapter_process_count": 1,
+            "fixture_count": (
+                len(fixtures) + len(excluded_rows)
+                if total_fixture_count is None
+                else total_fixture_count
+            ),
+            "adapter_fixture_count": len(fixtures),
+            "excluded_fixture_count": len(excluded_rows),
+            "rows": excluded_rows,
+            "failures": [{"fixture_id": "", "reason": result.stable_reject_tag}],
+        }
+    return compare_batch(
+        fixture_ids,
+        fixtures,
+        result.payload,
+        excluded_rows=excluded_rows,
+        total_fixture_count=total_fixture_count,
+    )
+
+
 def run_hako_fixture_ids(
     binary: pathlib.Path,
     fixture_ids: list[str],
@@ -322,30 +365,11 @@ def run_hako_fixture_ids(
             fixture_count=len(fixtures),
         )
 
-    command = probe_command(binary, "observation", "canonical")
-    if command is None:
-        raise AssertionError("observation command must exist")
-    command.append("--batch")
-    result = run_adapter_json_process(
-        command,
-        timeout_seconds=timeout_seconds,
-        environment=batch_environment(included_fixtures),
-    )
-    if result.payload is None:
-        return {
-            "schema": REPORT_SCHEMA,
-            "status": "error",
-            "adapter_process_count": 1,
-            "fixture_count": len(fixtures),
-            "adapter_fixture_count": len(included_fixtures),
-            "excluded_fixture_count": len(excluded_rows),
-            "rows": excluded_rows,
-            "failures": [{"fixture_id": "", "reason": result.stable_reject_tag}],
-        }
-    return compare_batch(
+    return run_hako_fixtures(
+        binary,
         included_ids,
         included_fixtures,
-        result.payload,
+        timeout_seconds=timeout_seconds,
         excluded_rows=excluded_rows,
         total_fixture_count=len(fixtures),
     )

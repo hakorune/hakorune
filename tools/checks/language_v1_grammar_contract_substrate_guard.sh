@@ -113,6 +113,7 @@ python3 tools/language_v1/generate_hako_grammar_contract.py --check \
   || guard_fail "generated Hako grammar projection is stale"
 python3 -m unittest \
   tools.language_v1.test_full_gate \
+  tools.language_v1.test_grammar_contract_differential \
   tools.language_v1.test_hako_adapter_health \
   tools.language_v1.test_hako_corpus_batch \
   tools.language_v1.test_source_migration_report \
@@ -166,6 +167,11 @@ report = json.loads(pathlib.Path(sys.argv[1]).read_text(encoding="utf-8"))
 assert report["status"] == "ok"
 assert report["fixture_count"] == len(all_registry_fixture_ids())
 assert report["hako"]["adapter_process_count"] == 1
+assert report["differential"]["status"] == "ok"
+assert report["differential"]["seed"] == 3478
+assert report["differential"]["max_depth"] == 2
+assert report["differential"]["case_count"] == 12
+assert report["differential"]["hako_adapter_process_count"] == 1
 assert report["rust"]["status"] == "ok"
 assert report["hako"]["status"] == "ok"
 assert all(row["status"] != "drift" for row in report["support_matrix"])

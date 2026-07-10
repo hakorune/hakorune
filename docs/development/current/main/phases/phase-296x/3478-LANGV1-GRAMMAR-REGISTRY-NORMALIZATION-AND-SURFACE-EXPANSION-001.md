@@ -2,16 +2,15 @@
 
 ## Status
 
-Active implementation series after 3477 accepts all remaining grammar and
-registry-structure decisions. Series A-C and full recursive conformance are
-complete. The generated support matrix and registry-keyed Canonical source
-migration report are green. Series D now has only the bounded differential
-composition gate and final closeout audit remaining.
+Complete implementation series after 3477 accepts all remaining grammar and
+registry-structure decisions. Series A-D, full recursive conformance, the
+generated support matrix, the registry-keyed Canonical source migration
+report, and bounded differential composition are green.
 
 Decision: accepted by 3477.
 Declaration sidecar decision: accepted by post-loop design consultation.
 
-Implementation: in progress.
+Implementation: complete.
 
 ## Progress
 
@@ -559,6 +558,21 @@ milestone/full grammar gate = composition enabled
 Do not use wall-clock as semantic success. Record adapter cost separately so a
 future performance card can optimize the measured owner.
 
+Closeout evidence:
+
+```text
+registry fixtures = 106/106 green
+Rust support = 78 profile rows supported + 2 migration-transport owned
+Hako support = 78 profile rows supported + 2 explicitly excluded
+Canonical rejected source occurrences under lang/src = 0
+canonical percent-brace map evidence = 498 occurrences / 63 files
+differential seed = 3478
+differential max depth = 2
+differential case count = 12
+differential Hako adapter processes = 1
+differential recursive witness drift = 0
+```
+
 ## Canonical Source Migration Evidence
 
 Initial inventory is migration evidence, not grammar authority:
@@ -634,7 +648,7 @@ git diff --check
 source files remain below 800 lines
 ```
 
-## Claims After Green Closeout Only
+## Closeout Claims
 
 ```text
 grammar_registry_implemented = 1
@@ -656,6 +670,10 @@ remaining_surface_parser_behavior_changed = 1
 parser_support_evidence_generated = 1
 canonical_source_migration_evidence_generated = 1
 recursive_parse_witness = 1
+grammar_registry_implemented = 1
+bounded_differential_composition_gate = 1
+current_corpus_exhaustive = 1
+language_v1_grammar_closeout = 1
 ```
 
 The declaration conformance claim is limited to the four declaration rows
@@ -666,9 +684,6 @@ Language v1 grammar.
 Current non-claims:
 
 ```text
-grammar_registry_implemented = 0
-bounded_differential_composition_gate = 0
-language_v1_grammar_closeout = 0
 semantic_body_record_declaration = 0
 semantic_body_box_declaration = 0
 declaration_sidecar_to_mir = 0
@@ -683,36 +698,7 @@ selfhost_claim = 0
 
 ## Next
 
-Series C0 infrastructure is landed: Rust and Hako now have independent live
-recursive projectors, normalized nodes carry optional values, and the Hako
-compile-once batch compares projected forms strictly. The strict gate exposed
-pre-existing parser/corpus drift which the former shallow acceptance check hid.
-
-Close that drift before declaration expansion, in this order:
-
-```text
-1. finish current registered control surfaces
-   - guard expression / guard-let = complete
-   - shared parser inventory = complete
-   - NoFallthrough structural conformance rejection = complete
-   - match/peek exhaustiveness and recursive drift = complete
-
-2. add the parser-owned declaration evidence sidecar = complete
-   - record declaration
-   - direct weak stored field
-   - Compat2025 weak visibility/init aliases
-   - no semantic-body, MIR, runtime, or backend publication
-
-3. close delegate Rust/Hako drift through the same declaration evidence owner = complete
-
-4. add remaining weak/record/literal/construction rows = complete
-5. generate support and migration evidence
-   - full support matrix = complete
-   - canonical source migration report = complete
-6. run bounded recursive differential composition
-7. evaluate LANGV1-GRAMMAR-001 closeout
-```
-
-Do not weaken recursive comparison or make parser behavior match a fixture by
-special case. The EBNF qualified-variant production is the guard-let source
-authority.
+Advance to `3479-LANGV1-TYPE-GUARANTEE-DESIGN-STOP-001`. Grammar is now an
+input contract for that row, not an open implementation lane. Do not activate
+type contracts, runtime checks, or backend behavior before the type guarantee
+matrix decision is accepted.

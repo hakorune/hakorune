@@ -10,6 +10,12 @@ import pathlib
 from typing import Any
 
 if __package__:
+    from .grammar_contract_differential import (
+        DEFAULT_CASE_COUNT,
+        DEFAULT_MAX_DEPTH,
+        DEFAULT_SEED,
+        build_report as differential_report,
+    )
     from .grammar_contract_corpus import fixtures_by_id
     from .grammar_contract_registry import (
         NormalizationMode,
@@ -19,6 +25,12 @@ if __package__:
     from .hako_corpus_batch import run_hako_fixture_ids
     from .rust_parser_adapter import observe_rust_fixture
 else:
+    from grammar_contract_differential import (
+        DEFAULT_CASE_COUNT,
+        DEFAULT_MAX_DEPTH,
+        DEFAULT_SEED,
+        build_report as differential_report,
+    )
     from grammar_contract_corpus import fixtures_by_id
     from grammar_contract_registry import (
         NormalizationMode,
@@ -136,6 +148,9 @@ def build_report(
     binary: pathlib.Path,
     *,
     hako_timeout_seconds: float,
+    differential_seed: int = DEFAULT_SEED,
+    differential_max_depth: int = DEFAULT_MAX_DEPTH,
+    differential_case_count: int = DEFAULT_CASE_COUNT,
 ) -> dict[str, Any]:
     fixture_ids = list(all_registry_fixture_ids())
     fixtures = fixtures_by_id()
@@ -151,9 +166,20 @@ def build_report(
         fixture_ids,
         timeout_seconds=hako_timeout_seconds,
     )
+    differential = differential_report(
+        binary,
+        seed=differential_seed,
+        max_depth=differential_max_depth,
+        case_count=differential_case_count,
+        hako_timeout_seconds=hako_timeout_seconds,
+    )
     failures = [
         *({"parser": "Rust", **failure} for failure in rust["failures"]),
         *({"parser": "Hako", **failure} for failure in hako["failures"]),
+        *(
+            {"parser": "Differential", **failure}
+            for failure in differential["failures"]
+        ),
     ]
     return {
         "schema": REPORT_SCHEMA,
@@ -161,6 +187,7 @@ def build_report(
         "fixture_count": len(fixture_ids),
         "rust": rust,
         "hako": hako,
+        "differential": differential,
         "support_matrix": support_matrix(rust["rows"], hako["rows"]),
         "failures": failures,
     }
@@ -170,11 +197,20 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--bin", type=pathlib.Path, default=ROOT / "target/debug/hakorune")
     parser.add_argument("--hako-timeout-sec", type=float, default=180.0)
+    parser.add_argument("--differential-seed", type=int, default=DEFAULT_SEED)
+    parser.add_argument("--differential-max-depth", type=int, default=DEFAULT_MAX_DEPTH)
+    parser.add_argument("--differential-case-count", type=int, default=DEFAULT_CASE_COUNT)
     parser.add_argument("--output", type=pathlib.Path)
     args = parser.parse_args()
     if not args.bin.is_file():
         parser.error(f"binary is missing: {args.bin}")
-    report = build_report(args.bin, hako_timeout_seconds=args.hako_timeout_sec)
+    report = build_report(
+        args.bin,
+        hako_timeout_seconds=args.hako_timeout_sec,
+        differential_seed=args.differential_seed,
+        differential_max_depth=args.differential_max_depth,
+        differential_case_count=args.differential_case_count,
+    )
     payload = json.dumps(report, sort_keys=True, separators=(",", ":")) + "\n"
     if args.output:
         args.output.write_text(payload, encoding="utf-8")
