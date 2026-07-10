@@ -386,6 +386,18 @@ box ParserBox {
     return ParserEnumInventoryBox.variant_is_unit(me.enum_inventory_json, enum_name, variant_name)
   }
 
+  match_arm_names_are_unique(arm_names_json) {
+    return ParserEnumInventoryBox.match_arm_names_are_unique(arm_names_json)
+  }
+
+  match_is_exhaustive(enum_name, arm_names_json) {
+    return ParserEnumInventoryBox.match_is_exhaustive(me.enum_inventory_json, enum_name, arm_names_json)
+  }
+
+  match_unit_bindings_are_valid(enum_name, arms_json) {
+    return ParserEnumInventoryBox.match_unit_bindings_are_valid(me.enum_inventory_json, enum_name, arms_json)
+  }
+
   // === Delegation to ParserExprBox ===
   parse_expr2(src, i) {
     return ParserExprBox.parse_expr2(src, i, me)
@@ -956,7 +968,9 @@ box ParserBox {
       print("[parser/trace:program2] done pos=" + ("" + i) + " len=" + ("" + n))
     }
     env.set("HAKO_STAGEB_PARSER_DEPTH", "0")
-    return "{\"version\":0,\"kind\":\"Program\",\"body\":" + body + ",\"static_data_plans\":" + static_data + "}"
+    local enum_decls = me.enum_inventory_json
+    if enum_decls == null || enum_decls == "" { enum_decls = "[]" }
+    return "{\"version\":0,\"kind\":\"Program\",\"body\":" + body + ",\"enum_decls\":" + enum_decls + ",\"static_data_plans\":" + static_data + "}"
   }
 }
 

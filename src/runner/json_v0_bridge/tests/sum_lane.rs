@@ -78,6 +78,104 @@ fn parse_json_v0_to_module_lowers_enum_match_to_variant_tag_and_project() {
 }
 
 #[test]
+fn parse_json_v0_to_module_lowers_hako_user_enum_match_shape() {
+    let json = json!({
+        "version": 0,
+        "kind": "Program",
+        "enum_decls": [
+            {
+                "name": "ProbeState",
+                "type_parameters": ["T"],
+                "variants": [
+                    { "name": "Idle", "payload_type": null },
+                    { "name": "Ready", "payload_type": "T" }
+                ]
+            }
+        ],
+        "body": [
+            {
+                "type": "Local",
+                "name": "state",
+                "expr": { "type": "Null" }
+            },
+            {
+                "type": "Return",
+                "expr": {
+                    "type": "EnumMatch",
+                    "enum": "ProbeState",
+                    "scrutinee": { "type": "Var", "name": "state" },
+                    "arms": [
+                        {
+                            "variant": "Ready",
+                            "bind": "value",
+                            "expr": { "type": "Var", "name": "value" }
+                        },
+                        {
+                            "variant": "Idle",
+                            "expr": { "type": "Int", "value": 0 }
+                        }
+                    ]
+                }
+            }
+        ]
+    })
+    .to_string();
+
+    let module = parse_json_v0_to_module(&json).expect("Hako user enum match lowers");
+    let insts = main_instructions(&module);
+    assert!(insts.iter().any(|inst| matches!(
+        inst,
+        MirInstruction::VariantProject {
+            enum_name,
+            variant,
+            ..
+        } if enum_name == "ProbeState" && variant == "Ready"
+    )));
+    assert!(insts
+        .iter()
+        .any(|inst| matches!(inst, MirInstruction::Phi { .. })));
+}
+
+#[test]
+fn parse_json_v0_to_module_rejects_non_exhaustive_hako_enum_match_shape() {
+    let json = json!({
+        "version": 0,
+        "kind": "Program",
+        "enum_decls": [
+            {
+                "name": "ProbeState",
+                "type_parameters": ["T"],
+                "variants": [
+                    { "name": "Idle", "payload_type": null },
+                    { "name": "Ready", "payload_type": "T" }
+                ]
+            }
+        ],
+        "body": [
+            {
+                "type": "Return",
+                "expr": {
+                    "type": "EnumMatch",
+                    "enum": "ProbeState",
+                    "scrutinee": { "type": "Null" },
+                    "arms": [
+                        {
+                            "variant": "Ready",
+                            "bind": "value",
+                            "expr": { "type": "Var", "name": "value" }
+                        }
+                    ]
+                }
+            }
+        ]
+    })
+    .to_string();
+
+    let error = parse_json_v0_to_module(&json).expect_err("non-exhaustive match rejects");
+    assert!(error.contains("[freeze:contract][json_v0][enum_match] non-exhaustive"));
+}
+
+#[test]
 fn parse_json_v0_to_module_lowers_record_enum_payload_through_hidden_box() {
     let payload_box = "__NyVariantPayload_Token_Ident";
     let json = json!({

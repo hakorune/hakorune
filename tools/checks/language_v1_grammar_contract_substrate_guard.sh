@@ -44,6 +44,15 @@ fi
 rg -F -q 'set_enum_inventory_json(inventory_json)' \
   lang/src/compiler/parser/grammar_profile_facade.hako \
   || guard_fail "Hako grammar facade does not consume generic inventory context"
+rg -F -q '\"enum_decls\":' lang/src/compiler/parser/parser_box.hako \
+  || guard_fail "Hako ProgramJSON does not publish the invocation enum inventory"
+for tag in \
+  parser/hako_enum_match_duplicate_variant \
+  parser/hako_enum_match_non_exhaustive \
+  parser/hako_enum_match_unit_binding; do
+  rg -q "$tag" lang/src/compiler/parser/expr/parser_match_box.hako \
+    || guard_fail "Hako EnumMatch publication guard missing: $tag"
+done
 rg -q 'hako_inventory_id = "option"' grammar/language-v1-grammar-contract-corpus.toml \
   || guard_fail "shared Option inventory context missing"
 

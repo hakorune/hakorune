@@ -104,7 +104,7 @@ static box ParserEnumInventoryBox {
       local close = me._find_matching_delim(text, open, "{", "}")
       if close < 0 { break }
       local enum_obj = text.substring(open, close + 1)
-      if me._enum_contains_all_variants(enum_obj, arm_names_json) == 1 {
+      if me._enum_accepts_arm_subset(enum_obj, arm_names_json) == 1 {
         found = me._json_string_field(enum_obj, "name")
         found_count = found_count + 1
       }
@@ -154,6 +154,69 @@ static box ParserEnumInventoryBox {
       i = close + 1
     }
     return null
+  }
+
+  match_arm_names_are_unique(arm_names_json) {
+    local names = "" + arm_names_json
+    local n = names.length()
+    local i = 0
+    local seen = 0
+    loop(i < n) {
+      local q1 = StringHelpers.index_of(names, i, "\"")
+      if q1 < 0 { break }
+      local q2 = StringHelpers.index_of(names, q1 + 1, "\"")
+      if q2 < 0 { return 0 }
+      local name = names.substring(q1 + 1, q2)
+      if name == "" { return 0 }
+      if StringHelpers.index_of(names, q2 + 1, "\"" + name + "\"") >= 0 { return 0 }
+      seen = seen + 1
+      i = q2 + 1
+    }
+    if seen == 0 { return 0 }
+    return 1
+  }
+
+  match_is_exhaustive(inventory_json, enum_name, arm_names_json) {
+    local enum_obj = me._find_enum_object(inventory_json, enum_name)
+    if enum_obj == "" { return 0 }
+    local variants_json = me._variants_array(enum_obj)
+    if variants_json == "" { return 0 }
+    local names = "" + arm_names_json
+    local n = variants_json.length()
+    local i = 0
+    local expected = 0
+    loop(i < n) {
+      local open = StringHelpers.index_of(variants_json, i, "{")
+      if open < 0 { break }
+      local close = me._find_matching_delim(variants_json, open, "{", "}")
+      if close < 0 { return 0 }
+      local variant_obj = variants_json.substring(open, close + 1)
+      local name = me._json_string_field(variant_obj, "name")
+      if name == "" { return 0 }
+      if StringHelpers.index_of(names, 0, "\"" + name + "\"") < 0 { return 0 }
+      expected = expected + 1
+      i = close + 1
+    }
+    if expected == 0 { return 0 }
+    return 1
+  }
+
+  match_unit_bindings_are_valid(inventory_json, enum_name, arms_json) {
+    local arms = "" + arms_json
+    local n = arms.length()
+    local i = 0
+    loop(i < n) {
+      local open = StringHelpers.index_of(arms, i, "{")
+      if open < 0 { break }
+      local close = me._find_matching_delim(arms, open, "{", "}")
+      if close < 0 { return 0 }
+      local arm_obj = arms.substring(open, close + 1)
+      local variant = me._json_string_field(arm_obj, "variant")
+      local binding = me._json_string_field(arm_obj, "bind")
+      if binding != "" && me.variant_is_unit(inventory_json, enum_name, variant) == 1 { return 0 }
+      i = close + 1
+    }
+    return 1
   }
 
   _scan_enum_decl(source, idx) {
@@ -260,7 +323,7 @@ static box ParserEnumInventoryBox {
     return out + "]"
   }
 
-  _enum_contains_all_variants(enum_obj, arm_names_json) {
+  _enum_accepts_arm_subset(enum_obj, arm_names_json) {
     local variants_json = me._variants_array(enum_obj)
     if variants_json == "" { return 0 }
     local names = "" + arm_names_json

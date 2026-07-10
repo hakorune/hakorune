@@ -253,6 +253,50 @@ stable_reject_tag = "parser/match_expected_canonical"
 hako_inventory_id = "option"
 
 [[fixtures]]
+fixture_id = "match_user_enum_wildcard_canonical"
+row_id = "match"
+profile = "Canonical"
+source = "match none { Ready(x) => x, _ => 0 }"
+accepted = true
+normalized_kind = "Match"
+normalized_children = ["Scrutinee", "OrderedArms"]
+stable_reject_tag = ""
+hako_inventory_id = "probe_state"
+
+[[fixtures]]
+fixture_id = "match_user_enum_non_exhaustive"
+row_id = "match"
+profile = "Canonical"
+source = "match none { Ready(x) => x }"
+accepted = false
+normalized_kind = ""
+normalized_children = []
+stable_reject_tag = "parser/hako_enum_match_non_exhaustive"
+hako_inventory_id = "probe_state"
+
+[[fixtures]]
+fixture_id = "match_user_enum_duplicate_variant"
+row_id = "match"
+profile = "Canonical"
+source = "match none { Ready(x) => x, Ready(y) => y, Idle => 0 }"
+accepted = false
+normalized_kind = ""
+normalized_children = []
+stable_reject_tag = "parser/hako_enum_match_duplicate_variant"
+hako_inventory_id = "probe_state"
+
+[[fixtures]]
+fixture_id = "match_user_enum_unit_binding"
+row_id = "match"
+profile = "Canonical"
+source = "match none { Ready(x) => x, Idle(y) => y }"
+accepted = false
+normalized_kind = ""
+normalized_children = []
+stable_reject_tag = "parser/hako_enum_match_unit_binding"
+hako_inventory_id = "probe_state"
+
+[[fixtures]]
 fixture_id = "match_missing_close"
 row_id = "match"
 profile = "Canonical"

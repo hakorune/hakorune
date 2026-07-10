@@ -5,11 +5,12 @@
 Active corrective card. Repair the correctness and compile-cost prerequisites
 found after 3470 before resuming the parked 3471 transport consultation.
 
-Progress: Slices 1, 2, and 4 are complete. Slice 2 resumed cleanly after the
-Slice 4 keeper and now has a non-Option user-enum success probe plus a strict
-missing-arrow rejection probe. The dominant remaining execution cost is still
-the one-time semantic route convergence on the merged parser module. Continue
-with Slice 3; Slice 5 owns compile-once corpus execution.
+Progress: Slices 1 through 4 are complete. Slice 3 publishes the invocation
+enum inventory into ProgramJSON and closes duplicate, non-exhaustive, and unit
+binding gaps before publication while retaining the Rust JSON v0 bridge veto.
+The dominant remaining execution cost is still the one-time semantic route
+convergence on the merged parser module. Continue with Slice 5 compile-once
+corpus execution.
 
 ## Problem Statement
 
@@ -113,6 +114,35 @@ Acceptance:
 programjson_mir_match_support_matrix = 1
 parser_accept_mir_silent_gap = 0
 runtime_fallback = 0
+```
+
+Support matrix:
+
+| ProgramJSON EnumMatch shape | Publication / lowering contract |
+| --- | --- |
+| missing enum inventory | reject before MIR with `json_v0/enum_match` |
+| zero arms | reject in Hako parser and JSON v0 bridge |
+| unknown or duplicate variant | reject before ProgramJSON publication |
+| unit variant with payload binding | reject before ProgramJSON publication; bridge retains veto |
+| non-exhaustive arms without wildcard else | reject before ProgramJSON publication; bridge retains veto |
+| exhaustive unit/payload arms without else | publish `enum_decls`; lower through VariantTag/VariantProject/PHI |
+| known subset with wildcard else | publish `enum_decls`; lower through the same sum-op owner |
+| unsupported scrutinee or arm expression | JSON v0 expression owner rejects; no fallback |
+| identifier scrutinee followed by arm brace | parser ambiguity remains deferred; no silent record-literal retry |
+
+The parser invocation inventory is the only publication source for
+`enum_decls`. The grammar facade, corpus runner, and MIR bridge must not rebuild
+or special-case Option rows.
+
+Evidence:
+
+```text
+Hako ProgramJSON enum_decls = ProbeState
+Hako ProgramJSON expression type = EnumMatch
+Hako ProgramJSON arm variants = Ready,Idle
+Hako non-exhaustive publication = parser/hako_enum_match_non_exhaustive
+Rust JSON v0 sum-lane tests = 8 green
+runtime fallback = absent
 ```
 
 ### Slice 4 - MIR compile-cost BoxShape

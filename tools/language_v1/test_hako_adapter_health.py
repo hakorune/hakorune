@@ -38,6 +38,10 @@ class HakoAdapterHealthTests(unittest.TestCase):
             '"name":"ProbeState"',
             fixtures["match_user_enum_canonical"]["hako_inventory_json"],
         )
+        self.assertEqual(
+            fixtures["match_user_enum_non_exhaustive"]["stable_reject_tag"],
+            "parser/hako_enum_match_non_exhaustive",
+        )
 
     def test_observation_command_carries_explicit_profile_argument(self) -> None:
         command = probe_command(pathlib.Path("hakorune"), "observation", "compat2025")
