@@ -81,7 +81,7 @@ static box ParserExceptionBox {
         catch_count = catch_count + 1
         if compat_try == 1 && catch_count > 1 {
           ctx.gpos_set(j)
-          return "[freeze:contract][parser/hako_try_compat_not_normalizable] Compat2025 try allows at most one catch"
+          return "[freeze:contract][parser/try_compat_not_normalizable] Compat2025 try allows at most one catch"
         }
         j = j + 5
         j = ctx.skip_ws(src, j)
@@ -91,13 +91,13 @@ static box ParserExceptionBox {
         if compat_try == 1 {
           if src.substring(j, j+1) != "(" {
             ctx.gpos_set(j)
-            return "[freeze:contract][parser/hako_try_compat_not_normalizable] Compat2025 try requires catch ()"
+            return "[freeze:contract][parser/try_compat_not_normalizable] Compat2025 try requires catch ()"
           }
           j = j + 1
           j = ctx.skip_ws(src, j)
           if src.substring(j, j+1) != ")" {
             ctx.gpos_set(j)
-            return "[freeze:contract][parser/hako_try_compat_not_normalizable] Compat2025 try requires empty catch ()"
+            return "[freeze:contract][parser/try_compat_not_normalizable] Compat2025 try requires empty catch ()"
           }
           j = j + 1
           j = ctx.skip_ws(src, j)
@@ -180,7 +180,7 @@ static box ParserExceptionBox {
 
     if compat_try == 1 && catch_count == 0 && finally_json == null {
       ctx.gpos_set(j)
-      return "[freeze:contract][parser/hako_try_compat_not_normalizable] Compat2025 try requires catch () or cleanup"
+      return "[freeze:contract][parser/try_compat_not_normalizable] Compat2025 try requires catch () or cleanup"
     }
 
     if compat_try == 1 || ctx.stage3_enabled() == 1 {

@@ -4,18 +4,13 @@
 // ParserBox directly and returns its Program(JSON) text without Rust AST reuse.
 
 using lang.compiler.parser.grammar_profile_facade as HakoGrammarProfileFacade
+using selfhost.shared.common.string_helpers as StringHelpers
 
 static box Main {
   method main(args) {
-    local source = env.get("HAKO_GRAMMAR_CONTRACT_SOURCE")
-    if source == null {
-      print("[grammar-contract/hako-adapter] HAKO_GRAMMAR_CONTRACT_SOURCE required")
-      return 2
-    }
     local profile = "canonical"
-    local inventory_json = env.get("HAKO_GRAMMAR_CONTRACT_INVENTORY_JSON")
-    if inventory_json == null { inventory_json = "[]" }
     local profile_error = ""
+    local batch = 0
     local i = 0
     if args != null {
       loop(i < args.length()) {
@@ -28,22 +23,73 @@ static box Main {
             i = i + 1
           }
         }
+        if token == "--batch" { batch = 1 }
         i = i + 1
       }
     }
+    if batch == 1 { return me._run_batch() }
+
+    local source = env.get("HAKO_GRAMMAR_CONTRACT_SOURCE")
+    if source == null {
+      print("[grammar-contract/hako-adapter] HAKO_GRAMMAR_CONTRACT_SOURCE required")
+      return 2
+    }
+    local inventory_json = env.get("HAKO_GRAMMAR_CONTRACT_INVENTORY_JSON")
+    if inventory_json == null { inventory_json = "[]" }
     if profile_error == "" {
       if HakoGrammarProfileFacade.profile_mode(profile) < 0 {
         profile_error = "parser/hako_profile_unknown"
       }
     }
     if profile_error != "" {
-      local error_envelope = "{\"schema\":\"language-v1-hako-raw-evidence-v0\""
-      error_envelope = error_envelope + ",\"status\":\"error\""
-      error_envelope = error_envelope + ",\"stable_reject_tag\":\"" + profile_error + "\""
-      error_envelope = error_envelope + ",\"deterministic\":true"
-      error_envelope = error_envelope + ",\"raw_program_json_authority\":false}"
-      print(error_envelope)
+      print(me._error_envelope(profile_error, "true"))
       return 0
+    }
+    print(me._observe(source, profile, inventory_json))
+    return 0
+  }
+
+  _run_batch() {
+    local count_raw = env.get("HAKO_GRAMMAR_CONTRACT_BATCH_COUNT")
+    if count_raw == null {
+      print(me._batch_error("parser/hako_adapter_batch_count_missing"))
+      return 0
+    }
+    local count = StringHelpers.to_i64("" + count_raw)
+    if count <= 0 {
+      print(me._batch_error("parser/hako_adapter_batch_count_invalid"))
+      return 0
+    }
+    local observations = "["
+    local i = 0
+    loop(i < count) {
+      local suffix = "" + i
+      local source = env.get("HAKO_GRAMMAR_CONTRACT_BATCH_SOURCE_" + suffix)
+      local profile = env.get("HAKO_GRAMMAR_CONTRACT_BATCH_PROFILE_" + suffix)
+      local inventory_json = env.get("HAKO_GRAMMAR_CONTRACT_BATCH_INVENTORY_JSON_" + suffix)
+      if profile == null { profile = "canonical" }
+      if inventory_json == null { inventory_json = "[]" }
+      local observation = ""
+      if source == null {
+        observation = me._error_envelope("parser/hako_adapter_batch_case_missing", "true")
+      } else {
+        observation = me._observe(source, "" + profile, "" + inventory_json)
+      }
+      if i > 0 { observations = observations + "," }
+      observations = observations + observation
+      i = i + 1
+    }
+    observations = observations + "]"
+    local out = "{\"schema\":\"language-v1-hako-raw-evidence-batch-v0\""
+    out = out + ",\"raw_program_json_authority\":false"
+    out = out + ",\"observations\":" + observations + "}"
+    print(out)
+    return 0
+  }
+
+  _observe(source, profile, inventory_json) {
+    if HakoGrammarProfileFacade.profile_mode(profile) < 0 {
+      return me._error_envelope("parser/hako_profile_unknown", "true")
     }
     env.set("HAKO_STAGEB_PARSER_DEPTH", "0")
     env.set("HAKO_STAGEB_STMT_DEPTH", "0")
@@ -58,12 +104,7 @@ static box Main {
       local close = rest.indexOf("]")
       local stable_tag = "parser/hako_profile_mismatch"
       if close >= 0 { stable_tag = rest.substring(0, close) }
-      local rejected = "{\"schema\":\"language-v1-hako-raw-evidence-v0\""
-      rejected = rejected + ",\"status\":\"error\",\"stable_reject_tag\":\"" + stable_tag + "\""
-      rejected = rejected + ",\"deterministic\":" + deterministic
-      rejected = rejected + ",\"raw_program_json_authority\":false}"
-      print(rejected)
-      return 0
+      return me._error_envelope(stable_tag, deterministic)
     }
     local envelope = "{\"schema\":\"language-v1-hako-raw-evidence-v0\""
     envelope = envelope + ",\"status\":\"ok\",\"stable_reject_tag\":\"\""
@@ -71,7 +112,19 @@ static box Main {
     envelope = envelope + ",\"deterministic\":" + deterministic
     envelope = envelope + ",\"raw_program_json_authority\":false"
     envelope = envelope + ",\"program\":" + first + "}"
-    print(envelope)
-    return 0
+    return envelope
+  }
+
+  _error_envelope(stable_tag, deterministic) {
+    local out = "{\"schema\":\"language-v1-hako-raw-evidence-v0\""
+    out = out + ",\"status\":\"error\",\"stable_reject_tag\":\"" + stable_tag + "\""
+    out = out + ",\"deterministic\":" + deterministic
+    out = out + ",\"raw_program_json_authority\":false}"
+    return out
+  }
+
+  _batch_error(stable_tag) {
+    local observation = me._error_envelope(stable_tag, "true")
+    return "{\"schema\":\"language-v1-hako-raw-evidence-batch-v0\",\"raw_program_json_authority\":false,\"observations\":[" + observation + "]}"
   }
 }

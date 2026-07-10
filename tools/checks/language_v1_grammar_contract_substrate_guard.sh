@@ -20,9 +20,9 @@ rg -q 'ParseWitness' crates/hakorune_frontend_grammar/src/contract.rs || guard_f
 rg -q 'compare_witnesses' crates/hakorune_frontend_grammar/src/contract.rs || guard_fail "comparator missing"
 rg -q 'HakoGrammarProfileFacade' lang/src/compiler/parser/grammar_profile_facade.hako \
   || guard_fail "Hako grammar profile facade missing"
-rg -q 'parser/hako_try_reserved' lang/src/compiler/parser/stmt/parser_stmt_box/core.hako \
+rg -q 'parser/try_reserved' lang/src/compiler/parser/stmt/parser_stmt_box/core.hako \
   || guard_fail "Hako Canonical try guard missing"
-rg -q 'parser/hako_try_compat_not_normalizable' \
+rg -q 'parser/try_compat_not_normalizable' \
   lang/src/compiler/parser/stmt/parser_exception_box.hako \
   || guard_fail "Hako Compat2025 try closed-set guard missing"
 rg -q 'parser/peek_legacy_replaced_by_match' \
@@ -57,7 +57,9 @@ rg -q 'hako_inventory_id = "option"' grammar/language-v1-grammar-contract-corpus
   || guard_fail "shared Option inventory context missing"
 
 python3 tools/language_v1/grammar_contract_drift_report.py --help >/dev/null
-python3 -m unittest tools.language_v1.test_hako_adapter_health
+python3 -m unittest \
+  tools.language_v1.test_hako_adapter_health \
+  tools.language_v1.test_hako_corpus_batch
 
 cargo build -q --features vm-reference --bin hakorune
 health_a="$(mktemp)"
@@ -84,75 +86,32 @@ rg -q 'parser/hako_adapter_timeout' "$observation" \
   || guard_fail "Hako adapter observation timeout tag missing"
 
 if [ "${LANGV1_HAKO_PROFILE_FULL:-0}" = "1" ]; then
-  canonical_try="$(mktemp)"
-  compat_try="$(mktemp)"
-  nonnormal_try="$(mktemp)"
-  canonical_peek="$(mktemp)"
-  compat_peek="$(mktemp)"
-  compat_match="$(mktemp)"
-  nonnormal_peek="$(mktemp)"
-  trap 'rm -f "$health_a" "$health_b" "$observation" "$canonical_try" "$compat_try" "$nonnormal_try" "$canonical_peek" "$compat_peek" "$compat_match" "$nonnormal_peek"' EXIT
-
-  if python3 tools/language_v1/hako_adapter_health.py \
-    --bin target/debug/hakorune --probe observation --profile canonical \
-    --source 'try { local x = 1 } catch () { local y = 2 }' \
-    --timeout-sec 90 >"$canonical_try"; then
-    guard_fail "Canonical Hako profile accepted statement try"
-  fi
-  rg -q 'parser/hako_try_reserved' "$canonical_try" \
-    || guard_fail "Canonical Hako try reject tag missing"
-
-  NYASH_FEATURES=no-try-compat python3 tools/language_v1/hako_adapter_health.py \
-    --bin target/debug/hakorune --probe observation --profile compat2025 \
-    --source 'try { local x = 1 } catch () { local y = 2 } cleanup { local z = 3 }' \
-    --timeout-sec 90 >"$compat_try" \
-    || guard_fail "explicit Compat2025 Hako try was not accepted"
-
-  if python3 tools/language_v1/hako_adapter_health.py \
-    --bin target/debug/hakorune --probe observation --profile compat2025 \
-    --source 'try { local x = 1 } catch (Legacy) { local y = 2 }' \
-    --timeout-sec 90 >"$nonnormal_try"; then
-    guard_fail "Compat2025 Hako accepted non-normalizable try"
-  fi
-  rg -q 'parser/hako_try_compat_not_normalizable' "$nonnormal_try" \
-    || guard_fail "Compat2025 Hako try closed-set reject tag missing"
-
-  if python3 tools/language_v1/hako_adapter_health.py \
-    --bin target/debug/hakorune --probe observation --profile canonical \
-    --inventory-id option \
-    --source 'return peek none { None => 0 }' \
-    --timeout-sec 90 >"$canonical_peek"; then
-    guard_fail "Canonical Hako profile accepted peek"
-  fi
-  rg -q 'parser/peek_legacy_replaced_by_match' "$canonical_peek" \
-    || guard_fail "Canonical Hako peek reject tag missing"
-
-  python3 tools/language_v1/hako_adapter_health.py \
-    --bin target/debug/hakorune --probe observation --profile compat2025 \
-    --inventory-id option \
-    --source 'local x = peek none { None => 0 }' \
-    --timeout-sec 90 >"$compat_peek" \
-    || guard_fail "normalizable Compat2025 Hako peek was not accepted"
-  python3 tools/language_v1/hako_adapter_health.py \
-    --bin target/debug/hakorune --probe observation --profile compat2025 \
-    --inventory-id option \
-    --source 'local x = match none { None => 0 }' \
-    --timeout-sec 90 >"$compat_match" \
-    || guard_fail "canonical Hako match control fixture was not accepted"
-  peek_digest="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["raw_program_digest"])' "$compat_peek")"
-  match_digest="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["raw_program_digest"])' "$compat_match")"
-  test "$peek_digest" = "$match_digest" \
-    || guard_fail "Compat2025 peek did not normalize to canonical Match shape"
-
-  if python3 tools/language_v1/hako_adapter_health.py \
-    --bin target/debug/hakorune --probe observation --profile compat2025 \
-    --inventory-id option \
-    --source 'local x = peek none { observe x => x }' \
-    --timeout-sec 90 >"$nonnormal_peek"; then
-    guard_fail "Compat2025 Hako accepted non-normalizable peek"
-  fi
-  rg -q 'parser/peek_compat_not_normalizable' "$nonnormal_peek" \
-    || guard_fail "Compat2025 Hako peek closed-set reject tag missing"
+  batch_report="$(mktemp)"
+  trap 'rm -f "$health_a" "$health_b" "$observation" "$batch_report"' EXIT
+  python3 tools/language_v1/hako_corpus_batch.py \
+    --bin target/debug/hakorune \
+    --fixture-id try_statement_canonical_reject \
+    --fixture-id try_statement_compat_normalizable \
+    --fixture-id try_statement_compat_not_normalizable \
+    --fixture-id match_canonical \
+    --fixture-id match_compat \
+    --fixture-id match_missing_arm \
+    --fixture-id match_user_enum_canonical \
+    --fixture-id match_missing_arrow \
+    --fixture-id match_user_enum_wildcard_canonical \
+    --fixture-id match_user_enum_non_exhaustive \
+    --fixture-id match_user_enum_duplicate_variant \
+    --fixture-id match_user_enum_unit_binding \
+    --fixture-id match_missing_close \
+    --fixture-id peek_canonical_reject \
+    --fixture-id peek_compat_normalizable \
+    --fixture-id peek_compat_not_normalizable \
+    --timeout-sec 180 >"$batch_report" \
+    || guard_fail "Hako compile-once grammar corpus batch failed"
+  rg -q '"adapter_process_count":1' "$batch_report" \
+    || guard_fail "Hako grammar corpus did not use one adapter process"
+  rg -q '"status":"ok"' "$batch_report" \
+    || guard_fail "Hako grammar corpus batch report is not green"
 fi
 cargo test -q -p hakorune-frontend-grammar
 

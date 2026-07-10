@@ -5,12 +5,10 @@
 Active corrective card. Repair the correctness and compile-cost prerequisites
 found after 3470 before resuming the parked 3471 transport consultation.
 
-Progress: Slices 1 through 4 are complete. Slice 3 publishes the invocation
-enum inventory into ProgramJSON and closes duplicate, non-exhaustive, and unit
-binding gaps before publication while retaining the Rust JSON v0 bridge veto.
-The dominant remaining execution cost is still the one-time semantic route
-convergence on the merged parser module. Continue with Slice 5 compile-once
-corpus execution.
+Progress: Slices 1 through 5 are complete. Slice 5 runs 16 selected shared
+corpus rows through one adapter process and one merged-parser compile while
+retaining exact status/tag and normalized-program comparison. The remaining
+work is Slice 6 structural cleanup.
 
 ## Problem Statement
 
@@ -198,6 +196,19 @@ Acceptance:
 grammar_fixture_ssot_count = 1
 hako_adapter_compile_per_fixture = 0
 quick_guard_runs_full_matrix = 0
+```
+
+Implementation and evidence:
+
+```text
+batch input owner = shared corpus projection
+single/batch observation owner = Main._observe
+selected full-profile fixtures = 16
+adapter process count = 1
+full profile guard wall time = about 80 seconds
+quick guard full matrix = disabled unless LANGV1_HAKO_PROFILE_FULL=1
+source rewrite = absent
+reject-tag translation = absent
 ```
 
 ### Slice 6 - Structural cleanup

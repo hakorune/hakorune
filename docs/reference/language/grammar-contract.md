@@ -117,6 +117,15 @@ semantic admission.
 Rust and Hako adapters are independent projections into this witness. Neither
 adapter nor its source AST/JSON is grammar authority.
 
+### Hako corpus execution
+
+The Hako adapter may execute multiple shared-corpus rows in one process so the
+merged parser module is compiled once. Batch rows carry explicit profile,
+source, and inventory context by index and reuse the same single-row observation
+function. The batch runner may select rows, but it must not rewrite source,
+translate reject tags, or own grammar expectations; those remain in the shared
+corpus. Batched raw ProgramJSON remains non-authority evidence.
+
 ## Stable Reject Tags
 
 ```text

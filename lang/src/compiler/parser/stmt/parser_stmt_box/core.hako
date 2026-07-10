@@ -233,7 +233,7 @@ static box ParserStmtCoreBox {
       if ctx.grammar_profile_is_compat2025() != 1 {
         ctx.gpos_set(src.length())
         env.set("HAKO_STAGEB_STMT_DEPTH", "0")
-        return "[freeze:contract][parser/hako_try_reserved] statement try requires explicit Compat2025"
+        return "[freeze:contract][parser/try_reserved] statement try requires explicit Compat2025"
       }
       {
         local tr = env.get("NYASH_PARSER_TRACE")

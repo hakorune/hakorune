@@ -201,7 +201,7 @@ stable_reject_tag = "parser/try_compat_not_normalizable"
 fixture_id = "match_canonical"
 row_id = "match"
 profile = "Canonical"
-source = "match value { Some(x) => x, _ => 0 }"
+source = "match none { Some(x) => x, _ => 0 }"
 accepted = true
 normalized_kind = "Match"
 normalized_children = ["Scrutinee", "OrderedArms"]
@@ -212,7 +212,7 @@ hako_inventory_id = "option"
 fixture_id = "match_compat"
 row_id = "match"
 profile = "Compat2025"
-source = "match value { Some(x) => x, _ => 0 }"
+source = "match none { Some(x) => x, _ => 0 }"
 accepted = true
 normalized_kind = "Match"
 normalized_children = ["Scrutinee", "OrderedArms"]
@@ -223,7 +223,7 @@ hako_inventory_id = "option"
 fixture_id = "match_missing_arm"
 row_id = "match"
 profile = "Canonical"
-source = "match value { }"
+source = "match none { }"
 accepted = false
 normalized_kind = ""
 normalized_children = []
@@ -245,7 +245,7 @@ hako_inventory_id = "probe_state"
 fixture_id = "match_missing_arrow"
 row_id = "match"
 profile = "Canonical"
-source = "match value { Some(x) x }"
+source = "match none { Some(x) x }"
 accepted = false
 normalized_kind = ""
 normalized_children = []
@@ -300,7 +300,7 @@ hako_inventory_id = "probe_state"
 fixture_id = "match_missing_close"
 row_id = "match"
 profile = "Canonical"
-source = "match value { Some(x) => x"
+source = "match none { Some(x) => x"
 accepted = false
 normalized_kind = ""
 normalized_children = []
@@ -311,7 +311,7 @@ hako_inventory_id = "option"
 fixture_id = "peek_canonical_reject"
 row_id = "peek"
 profile = "Canonical"
-source = "peek value { Some(x) => x, _ => 0 }"
+source = "peek none { Some(x) => x, _ => 0 }"
 accepted = false
 normalized_kind = ""
 normalized_children = []
@@ -322,18 +322,19 @@ hako_inventory_id = "option"
 fixture_id = "peek_compat_normalizable"
 row_id = "peek"
 profile = "Compat2025"
-source = "peek value { Some(x) => x, _ => 0 }"
+source = "peek none { Some(x) => x, _ => 0 }"
 accepted = true
 normalized_kind = "Match"
 normalized_children = ["Scrutinee", "OrderedArms"]
 stable_reject_tag = ""
 hako_inventory_id = "option"
+hako_equivalent_fixture_id = "match_compat"
 
 [[fixtures]]
 fixture_id = "peek_compat_not_normalizable"
 row_id = "peek"
 profile = "Compat2025"
-source = "peek value { observe x => x }"
+source = "peek none { observe x => x }"
 accepted = false
 normalized_kind = ""
 normalized_children = []

@@ -39,18 +39,30 @@ class AdapterProcessResult:
         }
 
 
-def _single_json_object(stdout: str) -> AdapterProcessResult:
+@dataclass(frozen=True)
+class AdapterJsonProcessResult:
+    payload: dict[str, Any] | None
+    stable_reject_tag: str = ""
+
+
+def _single_json_payload(stdout: str) -> AdapterJsonProcessResult:
     lines = [line.strip() for line in stdout.splitlines() if line.strip()]
     if not lines:
-        return AdapterProcessResult("error", "parser/hako_adapter_no_output")
+        return AdapterJsonProcessResult(None, "parser/hako_adapter_no_output")
     if len(lines) != 1:
-        return AdapterProcessResult("error", "parser/hako_adapter_stdout_contaminated")
+        return AdapterJsonProcessResult(
+            None, "parser/hako_adapter_stdout_contaminated"
+        )
     try:
         payload = json.loads(lines[0])
     except json.JSONDecodeError:
-        return AdapterProcessResult("error", "parser/hako_adapter_malformed_output")
+        return AdapterJsonProcessResult(None, "parser/hako_adapter_malformed_output")
     if not isinstance(payload, dict):
-        return AdapterProcessResult("error", "parser/hako_adapter_malformed_output")
+        return AdapterJsonProcessResult(None, "parser/hako_adapter_malformed_output")
+    return AdapterJsonProcessResult(payload)
+
+
+def _evidence_result(payload: dict[str, Any]) -> AdapterProcessResult:
     if payload.get("schema") == "language-v1-hako-raw-evidence-v0":
         if payload.get("deterministic") is not True:
             return AdapterProcessResult(
@@ -79,12 +91,12 @@ def _single_json_object(stdout: str) -> AdapterProcessResult:
     return AdapterProcessResult("ok", "")
 
 
-def run_adapter_process(
+def run_adapter_json_process(
     command: Sequence[str],
     *,
     timeout_seconds: float,
     environment: Mapping[str, str] | None = None,
-) -> AdapterProcessResult:
+) -> AdapterJsonProcessResult:
     if timeout_seconds <= 0:
         raise ValueError("timeout_seconds must be positive")
     try:
@@ -98,12 +110,26 @@ def run_adapter_process(
             check=False,
         )
     except subprocess.TimeoutExpired:
-        return AdapterProcessResult("error", "parser/hako_adapter_timeout")
+        return AdapterJsonProcessResult(None, "parser/hako_adapter_timeout")
     except OSError:
-        return AdapterProcessResult("error", "parser/hako_adapter_process_error")
+        return AdapterJsonProcessResult(None, "parser/hako_adapter_process_error")
     if completed.returncode != 0:
-        return AdapterProcessResult("error", "parser/hako_adapter_process_error")
-    return _single_json_object(completed.stdout)
+        return AdapterJsonProcessResult(None, "parser/hako_adapter_process_error")
+    return _single_json_payload(completed.stdout)
+
+
+def run_adapter_process(
+    command: Sequence[str],
+    *,
+    timeout_seconds: float,
+    environment: Mapping[str, str] | None = None,
+) -> AdapterProcessResult:
+    result = run_adapter_json_process(
+        command, timeout_seconds=timeout_seconds, environment=environment
+    )
+    if result.payload is None:
+        return AdapterProcessResult("error", result.stable_reject_tag)
+    return _evidence_result(result.payload)
 
 
 def compare_repeated_results(
