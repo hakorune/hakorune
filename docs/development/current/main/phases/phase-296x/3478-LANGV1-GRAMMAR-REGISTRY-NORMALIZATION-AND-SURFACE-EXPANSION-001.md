@@ -3,9 +3,10 @@
 ## Status
 
 Active implementation series after 3477 accepts all remaining grammar and
-registry-structure decisions. Series A/B and the Series C loop family are
-complete. The remaining declaration conformance boundary requires an owner
-decision before implementation continues.
+registry-structure decisions. Series A, the recursive witness schema, and the
+Series C loop family are complete. Live recursive projection for both parsers
+is next. The remaining declaration conformance boundary requires an owner
+decision before declaration rows are implemented.
 
 Decision: accepted by 3477.
 
@@ -44,7 +45,7 @@ root hakorune build = green
 language_v1_grammar_contract_substrate_guard = green
 ```
 
-### Series B - Complete
+### Series B Schema - Complete; Live Projection - Pending
 
 ```text
 authority support fields:
@@ -62,6 +63,60 @@ comparison:
 support matrix:
   deferred to Series D execution output after both adapters cover the expanded rows
 ```
+
+The schema and comparator are complete, but live conformance is not deep yet:
+
+```text
+Rust drift observation on accepted input:
+  normalized_form = ImplementationAccepted leaf
+
+Hako drift observation on accepted input:
+  normalized_form = ImplementationAccepted leaf
+
+Hako compile-once batch comparison:
+  status + reject tag + optional scrutinee kind
+  equivalent fixture pairs compare raw ProgramJSON only
+```
+
+Raw ProgramJSON equality proves Hako-internal equivalence only. It does not
+prove that the two independent parsers project the same recursive canonical
+form. Do not describe either live adapter as recursive-conformant yet.
+
+### Series C0 Live Recursive Witness Projection - Next
+
+Implement two independent projections against the already-shared schema:
+
+```text
+Rust AST evidence
+  -> Rust-owned recursive NormalizedSyntaxNode projection
+
+Hako raw ProgramJSON evidence
+  -> Hako-adapter-owned recursive NormalizedSyntaxNode projection
+
+shared authority
+  -> row/profile/expected recursive form from the corpus
+
+strict gate
+  -> expected == Rust projection == Hako projection
+```
+
+Rules:
+
+```text
+no shared parser/projection implementation
+no fixture-id-specific result table
+no copying expected normalized_form into observed output
+no parser-internal node names in the public witness
+no raw ProgramJSON equality as cross-parser proof
+rejected rows carry no normalized form
+missing projection kind fails parser/witness_missing
+nested difference fails parser/witness_drift
+```
+
+First close the projection vocabulary for the current registered rows. Only
+then add the remaining weak/record/literal/construction rows and their new
+projection kinds. This keeps the Series D composition runner from amplifying a
+shallow comparison.
 
 ### Series C Preparation - Complete
 
@@ -126,6 +181,23 @@ one parser-owned declaration boundary that produces parser-neutral evidence
 without entering semantic lowering. Record literals, record updates, weak
 unary expressions, primitive literals, arrays, maps, and construction remain
 separate Series C surfaces after that decision.
+
+### Remaining Ordered Checkpoints
+
+Keep these checkpoints inside 3478; do not create spelling-specific cards:
+
+```text
+1. live recursive projection for the current registered corpus
+2. Hako declaration evidence owner decision and structural parser box
+3. remaining weak/record/literal/construction rows + both parser migrations
+4. generated support matrix + canonical source migration report
+5. bounded grammar-aware differential composition gate
+6. LANGV1-GRAMMAR-001 closeout audit
+```
+
+Recommended commit boundaries are projection, remaining surfaces, and final
+conformance/closeout. A declaration structure-only commit is allowed before
+remaining surfaces when the accepted owner requires new modules.
 
 ## Objective
 
