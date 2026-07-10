@@ -46,6 +46,11 @@ static box ParserExceptionBox {
     j = j + 4  // skip "fini"
     j = ctx.skip_ws(src, j)
 
+    if src.substring(j, j + 1) != "{" {
+      ctx.gpos_set(src.length())
+      return ctx.freeze_contract("parser/guard_expected_canonical", "fini block is required")
+    }
+
     local fini_res = ctx.parse_block2(src, j)
     local at_f = fini_res.lastIndexOf("@")
     local fini_json = "[]"
@@ -133,6 +138,16 @@ static box ParserExceptionBox {
         j = ctx.skip_ws(src, j)
 
         // catch body
+        if src.substring(j, j + 1) != "{" {
+          ctx.gpos_set(src.length())
+          if compat_try == 1 {
+            return ctx.freeze_contract(
+              "parser/try_compat_not_normalizable",
+              "Compat2025 catch block is required"
+            )
+          }
+          return ctx.freeze_contract("parser/guard_expected_canonical", "catch block is required")
+        }
         local c_res = ctx.parse_block2(src, j)
         local atc = c_res.lastIndexOf("@")
         j = ctx.to_int(c_res.substring(atc+1, c_res.length()))
@@ -175,6 +190,16 @@ static box ParserExceptionBox {
     if ctx.starts_with_kw(src, j, "cleanup") == 1 {
       j = j + 7
       j = ctx.skip_ws(src, j)
+      if src.substring(j, j + 1) != "{" {
+        ctx.gpos_set(src.length())
+        if compat_try == 1 {
+          return ctx.freeze_contract(
+            "parser/try_compat_not_normalizable",
+            "Compat2025 cleanup block is required"
+          )
+        }
+        return ctx.freeze_contract("parser/guard_expected_canonical", "cleanup block is required")
+      }
       local f_res = ctx.parse_block2(src, j)
       local atf = f_res.lastIndexOf("@")
       j = ctx.to_int(f_res.substring(atf+1, f_res.length()))
