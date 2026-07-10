@@ -128,7 +128,9 @@ impl NyashParser {
         if !self.match_token(&TokenType::ELSE) {
             return Err(ParseError::UnexpectedToken {
                 found: self.current_token().token_type.clone(),
-                expected: "else after guard condition".to_string(),
+                expected:
+                    "[freeze:contract][parser/guard_expected_canonical] else after guard condition"
+                        .to_string(),
                 line: self.current_token().line,
             });
         }
@@ -347,6 +349,13 @@ impl NyashParser {
         self.advance(); // consume 'loop' or Stage-3 compatibility 'while'
 
         if is_while_compat {
+            if self.match_token(&TokenType::LBRACE) {
+                return Err(ParseError::UnexpectedToken {
+                    found: self.current_token().token_type.clone(),
+                    expected: "[freeze:contract][parser/while_compat_not_normalizable] while requires a condition".to_string(),
+                    line: self.current_token().line,
+                });
+            }
             let condition = Box::new(self.parse_expression()?);
             let body = self.parse_block_statements()?;
             return Ok(ASTNode::Loop {
@@ -442,6 +451,13 @@ impl NyashParser {
         self.consume(TokenType::IN)?;
         let start = Box::new(self.expr_parse_term()?);
         self.consume(TokenType::RANGE)?;
+        if self.match_token(&TokenType::LBRACE) || self.is_at_end() {
+            return Err(ParseError::UnexpectedToken {
+                found: self.current_token().token_type.clone(),
+                expected: "[freeze:contract][parser/loop_range_expected] loop range end expression is required".to_string(),
+                line: self.current_token().line,
+            });
+        }
         let end = Box::new(self.expr_parse_term()?);
         Ok((var_name, start, end))
     }

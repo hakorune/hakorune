@@ -38,6 +38,7 @@ for parser_source in \
   lang/src/compiler/parser/decl/parser_record_declaration_box.hako \
   lang/src/compiler/parser/decl/parser_box_weak_field_box.hako \
   lang/src/compiler/parser/generated/grammar_contract_projection.hako \
+  lang/src/compiler/parser/legacy/parser_from_reject_box.hako \
   lang/src/compiler/parser/expr/parser_expr_box.hako \
   lang/src/compiler/parser/expr/parser_expr_context_box.hako \
   lang/src/compiler/parser/expr/parser_expr_precedence_box.hako \
@@ -111,6 +112,7 @@ python3 tools/language_v1/grammar_contract_drift_report.py --help >/dev/null
 python3 tools/language_v1/generate_hako_grammar_contract.py --check \
   || guard_fail "generated Hako grammar projection is stale"
 python3 -m unittest \
+  tools.language_v1.test_full_gate \
   tools.language_v1.test_hako_adapter_health \
   tools.language_v1.test_hako_corpus_batch \
   tools.language_v1.test_witness_projection
@@ -139,85 +141,34 @@ fi
 rg -q 'parser/hako_adapter_timeout' "$observation" \
   || guard_fail "Hako adapter observation timeout tag missing"
 
-if [ "${LANGV1_HAKO_PROFILE_FULL:-0}" = "1" ]; then
-  batch_report="$(mktemp)"
-  trap 'rm -f "$health_a" "$health_b" "$observation" "$batch_report"' EXIT
-  python3 tools/language_v1/hako_corpus_batch.py \
+if [ "${LANGV1_GRAMMAR_FULL:-0}" = "1" ] \
+  || [ "${LANGV1_HAKO_PROFILE_FULL:-0}" = "1" ]; then
+  full_report="$(mktemp)"
+  trap 'rm -f "$health_a" "$health_b" "$observation" "$full_report"' EXIT
+  python3 tools/language_v1/grammar_contract_full_gate.py \
     --bin target/debug/hakorune \
-    --fixture-id try_statement_canonical_reject \
-    --fixture-id try_statement_compat_normalizable \
-    --fixture-id try_statement_compat_not_normalizable \
-    --include-registry-row-fixtures match Canonical \
-    --include-registry-row-fixtures match Compat2025 \
-    --fixture-id peek_canonical_reject \
-    --fixture-id peek_compat_normalizable \
-    --fixture-id peek_compat_not_normalizable \
-    --include-registry-row-fixtures delegate_exposes Canonical \
-    --include-registry-row-fixtures delegate_exposes Compat2025 \
-    --include-registry-row-fixtures record_declaration Canonical \
-    --include-registry-row-fixtures record_declaration Compat2025 \
-    --include-registry-row-fixtures weak_stored_field Canonical \
-    --include-registry-row-fixtures weak_stored_field Compat2025 \
-    --include-registry-row-fixtures weak_visibility_field Canonical \
-    --include-registry-row-fixtures weak_visibility_field Compat2025 \
-    --include-registry-row-fixtures weak_legacy_init_field Canonical \
-    --include-registry-row-fixtures weak_legacy_init_field Compat2025 \
-    --include-registry-row-fixtures weak_unary_expr Canonical \
-    --include-registry-row-fixtures weak_unary_expr Compat2025 \
-    --include-registry-row-fixtures weak_paren_expr Canonical \
-    --include-registry-row-fixtures weak_paren_expr Compat2025 \
-    --include-registry-row-fixtures record_literal Canonical \
-    --include-registry-row-fixtures record_literal Compat2025 \
-    --include-registry-row-fixtures record_with_update Canonical \
-    --include-registry-row-fixtures record_with_update Compat2025 \
-    --include-registry-row-fixtures literal_integer Canonical \
-    --include-registry-row-fixtures literal_integer Compat2025 \
-    --include-registry-row-fixtures literal_float Canonical \
-    --include-registry-row-fixtures literal_float Compat2025 \
-    --include-registry-row-fixtures literal_string Canonical \
-    --include-registry-row-fixtures literal_string Compat2025 \
-    --include-registry-row-fixtures literal_bool Canonical \
-    --include-registry-row-fixtures literal_bool Compat2025 \
-    --include-registry-row-fixtures literal_null Canonical \
-    --include-registry-row-fixtures literal_null Compat2025 \
-    --include-registry-row-fixtures literal_void Canonical \
-    --include-registry-row-fixtures literal_void Compat2025 \
-    --include-registry-row-fixtures array_literal Canonical \
-    --include-registry-row-fixtures array_literal Compat2025 \
-    --include-registry-row-fixtures map_literal_legacy_brace_colon Canonical \
-    --include-registry-row-fixtures map_literal_legacy_brace_colon Compat2025 \
-    --include-registry-row-fixtures construction_new_box Canonical \
-    --include-registry-row-fixtures construction_new_box Compat2025 \
-    --include-registry-transport-exclusions \
-    --timeout-sec 180 >"$batch_report" \
-    || guard_fail "Hako compile-once grammar corpus batch failed"
-  rg -q '"adapter_process_count":1' "$batch_report" \
-    || guard_fail "Hako grammar corpus did not use one adapter process"
-  rg -q '"status":"ok"' "$batch_report" \
-    || guard_fail "Hako grammar corpus batch report is not green"
-  if ! python3 - "$batch_report" <<'PY'
+    --hako-timeout-sec 180 \
+    --output "$full_report" \
+    || guard_fail "full Rust/Hako grammar conformance failed"
+  if ! python3 - "$full_report" <<'PY'
 import json
 import pathlib
 import sys
 
-from tools.language_v1.grammar_contract_registry import (
-    HAKO_TRANSPORT_EXCLUSION_TAG,
-    RUST_MIGRATION_TRANSPORT_OWNER,
-    hako_transport_fixture_ids,
-)
+from tools.language_v1.grammar_contract_registry import all_registry_fixture_ids
 
 report = json.loads(pathlib.Path(sys.argv[1]).read_text(encoding="utf-8"))
-expected_ids = set(hako_transport_fixture_ids())
-excluded = [row for row in report["rows"] if row["row_status"] == "excluded"]
-assert {row["fixture_id"] for row in excluded} == expected_ids
-assert report["excluded_fixture_count"] == len(expected_ids)
-assert report["adapter_fixture_count"] + len(expected_ids) == report["fixture_count"]
-assert all(row["stable_reject_tag"] == HAKO_TRANSPORT_EXCLUSION_TAG for row in excluded)
-assert all(row["transport_owner"] == RUST_MIGRATION_TRANSPORT_OWNER for row in excluded)
-assert all(row["hako_adapter_invoked"] is False for row in excluded)
+assert report["status"] == "ok"
+assert report["fixture_count"] == len(all_registry_fixture_ids())
+assert report["hako"]["adapter_process_count"] == 1
+assert report["rust"]["status"] == "ok"
+assert report["hako"]["status"] == "ok"
+assert all(row["status"] != "drift" for row in report["support_matrix"])
+assert sum(row["status"] == "explicitly_excluded" for row in report["support_matrix"]) == 2
+assert sum(row["status"] == "migration_transport_owned" for row in report["support_matrix"]) == 2
 PY
   then
-    guard_fail "Hako compatibility-transport exclusion report drifted"
+    guard_fail "generated grammar support matrix drifted"
   fi
 fi
 cargo test -q -p hakorune-frontend-grammar

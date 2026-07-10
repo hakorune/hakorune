@@ -360,7 +360,7 @@ parser_inventory_id = "option"
 fixture_id = "delegate_exposes_canonical"
 row_id = "delegate_exposes"
 profile = "Canonical"
-source = "delegate child exposes { read, write }"
+source = "box Parent { child: Child delegate child exposes { read, write } }"
 accepted = true
 normalized_form = { kind = "DelegateExposes", children = [{ kind = "Field", children = [] }, { kind = "ExposedMembers", children = [] }] }
 stable_reject_tag = ""
@@ -369,7 +369,7 @@ stable_reject_tag = ""
 fixture_id = "delegate_exposes_compat"
 row_id = "delegate_exposes"
 profile = "Compat2025"
-source = "delegate child exposes { read, write }"
+source = "box Parent { child: Child delegate child exposes { read, write } }"
 accepted = true
 normalized_form = { kind = "DelegateExposes", children = [{ kind = "Field", children = [] }, { kind = "ExposedMembers", children = [] }] }
 stable_reject_tag = ""
@@ -378,7 +378,7 @@ stable_reject_tag = ""
 fixture_id = "delegate_exposes_missing_block"
 row_id = "delegate_exposes"
 profile = "Canonical"
-source = "delegate child exposes"
+source = "box Parent { child: Child delegate child exposes }"
 accepted = false
 normalized_form = { kind = "", children = [] }
 stable_reject_tag = "parser/guard_expected_canonical"

@@ -274,3 +274,24 @@ fn remaining_expression_surfaces_follow_the_v1_profile_contract() {
         }
     }
 }
+
+#[test]
+fn grammar_evidence_api_stops_before_delegate_semantic_lowering() {
+    let source = "box Parent { child: Child delegate child exposes { read, write } }";
+    let ast = NyashParser::parse_grammar_evidence_from_string_with_build_config(
+        source,
+        ParserBuildConfig::default(),
+    )
+    .expect("grammar evidence must retain delegate declaration metadata");
+    let json = nyash_rust::r#macro::ast_json::ast_to_json_roundtrip(&ast);
+    assert_eq!(
+        json["statements"][0]["delegates"].as_array().unwrap().len(),
+        1
+    );
+
+    assert!(
+        NyashParser::parse_from_string_with_build_config(source, ParserBuildConfig::default(),)
+            .is_err(),
+        "normal semantic parsing must still run delegate lowering"
+    );
+}

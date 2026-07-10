@@ -15,6 +15,7 @@ if __package__:
         GrammarRegistryRow,
         HAKO_TRANSPORT_EXCLUSION_TAG,
         RUST_MIGRATION_TRANSPORT_OWNER,
+        all_registry_fixture_ids,
         fixture_ids_for_row,
         hako_transport_fixture_ids,
         registry_rows_by_key,
@@ -30,6 +31,7 @@ else:
         GrammarRegistryRow,
         HAKO_TRANSPORT_EXCLUSION_TAG,
         RUST_MIGRATION_TRANSPORT_OWNER,
+        all_registry_fixture_ids,
         fixture_ids_for_row,
         hako_transport_fixture_ids,
         registry_rows_by_key,
@@ -280,40 +282,19 @@ def report_without_adapter(
     }
 
 
-def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--bin", type=pathlib.Path, default=ROOT / "target/debug/hakorune")
-    parser.add_argument("--fixture-id", action="append", default=[])
-    parser.add_argument(
-        "--include-registry-row-fixtures",
-        action="append",
-        nargs=2,
-        metavar=("ROW_ID", "PROFILE"),
-        default=[],
-    )
-    parser.add_argument("--include-registry-transport-exclusions", action="store_true")
-    parser.add_argument("--timeout-sec", type=float, default=180.0)
-    args = parser.parse_args()
-
-    fixture_ids = list(args.fixture_id)
-    try:
-        for row_id, profile in args.include_registry_row_fixtures:
-            for fixture_id in fixture_ids_for_row(row_id, profile):
-                if fixture_id not in fixture_ids:
-                    fixture_ids.append(fixture_id)
-    except KeyError as error:
-        parser.error(f"unknown grammar registry row: {error.args[0]}")
-    if args.include_registry_transport_exclusions:
-        for fixture_id in hako_transport_fixture_ids():
-            if fixture_id not in fixture_ids:
-                fixture_ids.append(fixture_id)
+def run_hako_fixture_ids(
+    binary: pathlib.Path,
+    fixture_ids: list[str],
+    *,
+    timeout_seconds: float,
+) -> dict[str, Any]:
     corpus = fixtures_by_id()
     try:
         if not fixture_ids:
             raise KeyError("")
         fixtures = [corpus[fixture_id] for fixture_id in fixture_ids]
     except KeyError as error:
-        report = {
+        return {
             "schema": REPORT_SCHEMA,
             "status": "error",
             "adapter_process_count": 0,
@@ -328,8 +309,6 @@ def main() -> int:
                 }
             ],
         }
-        print(json.dumps(report, sort_keys=True, separators=(",", ":")))
-        return 2
 
     selection = select_hako_semantic_fixtures(fixture_ids, fixtures)
     included_ids = selection["included_ids"]
@@ -337,25 +316,23 @@ def main() -> int:
     excluded_rows = selection["excluded_rows"]
     selection_failures = selection["failures"]
     if selection_failures or not included_fixtures:
-        report = report_without_adapter(
+        return report_without_adapter(
             excluded_rows,
             selection_failures,
             fixture_count=len(fixtures),
         )
-        print(json.dumps(report, sort_keys=True, separators=(",", ":")))
-        return 0 if report["status"] == "ok" else 2
 
-    command = probe_command(args.bin, "observation", "canonical")
+    command = probe_command(binary, "observation", "canonical")
     if command is None:
         raise AssertionError("observation command must exist")
     command.append("--batch")
     result = run_adapter_json_process(
         command,
-        timeout_seconds=args.timeout_sec,
+        timeout_seconds=timeout_seconds,
         environment=batch_environment(included_fixtures),
     )
     if result.payload is None:
-        report = {
+        return {
             "schema": REPORT_SCHEMA,
             "status": "error",
             "adapter_process_count": 1,
@@ -363,18 +340,54 @@ def main() -> int:
             "adapter_fixture_count": len(included_fixtures),
             "excluded_fixture_count": len(excluded_rows),
             "rows": excluded_rows,
-            "failures": [
-                {"fixture_id": "", "reason": result.stable_reject_tag}
-            ],
+            "failures": [{"fixture_id": "", "reason": result.stable_reject_tag}],
         }
-    else:
-        report = compare_batch(
-            included_ids,
-            included_fixtures,
-            result.payload,
-            excluded_rows=excluded_rows,
-            total_fixture_count=len(fixtures),
-        )
+    return compare_batch(
+        included_ids,
+        included_fixtures,
+        result.payload,
+        excluded_rows=excluded_rows,
+        total_fixture_count=len(fixtures),
+    )
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--bin", type=pathlib.Path, default=ROOT / "target/debug/hakorune")
+    parser.add_argument("--fixture-id", action="append", default=[])
+    parser.add_argument(
+        "--include-registry-row-fixtures",
+        action="append",
+        nargs=2,
+        metavar=("ROW_ID", "PROFILE"),
+        default=[],
+    )
+    parser.add_argument("--include-registry-transport-exclusions", action="store_true")
+    parser.add_argument("--include-all-registry-fixtures", action="store_true")
+    parser.add_argument("--timeout-sec", type=float, default=180.0)
+    args = parser.parse_args()
+
+    fixture_ids = list(args.fixture_id)
+    if args.include_all_registry_fixtures:
+        for fixture_id in all_registry_fixture_ids():
+            if fixture_id not in fixture_ids:
+                fixture_ids.append(fixture_id)
+    try:
+        for row_id, profile in args.include_registry_row_fixtures:
+            for fixture_id in fixture_ids_for_row(row_id, profile):
+                if fixture_id not in fixture_ids:
+                    fixture_ids.append(fixture_id)
+    except KeyError as error:
+        parser.error(f"unknown grammar registry row: {error.args[0]}")
+    if args.include_registry_transport_exclusions:
+        for fixture_id in hako_transport_fixture_ids():
+            if fixture_id not in fixture_ids:
+                fixture_ids.append(fixture_id)
+    report = run_hako_fixture_ids(
+        args.bin,
+        fixture_ids,
+        timeout_seconds=args.timeout_sec,
+    )
     print(json.dumps(report, sort_keys=True, separators=(",", ":")))
     return 0 if report["status"] == "ok" else 2
 

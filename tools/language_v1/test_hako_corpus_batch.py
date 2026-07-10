@@ -13,6 +13,7 @@ from tools.language_v1.hako_corpus_batch import (
 from tools.language_v1.grammar_contract_registry import (
     HAKO_TRANSPORT_EXCLUSION_TAG,
     RUST_MIGRATION_TRANSPORT_OWNER,
+    all_registry_fixture_ids,
     fixture_ids_for_row,
     hako_transport_fixture_ids,
     registry_rows_by_key,
@@ -20,6 +21,11 @@ from tools.language_v1.grammar_contract_registry import (
 
 
 class HakoCorpusBatchTests(unittest.TestCase):
+    def test_all_registry_fixture_ids_are_unique_and_complete(self) -> None:
+        fixture_ids = all_registry_fixture_ids()
+        self.assertEqual(len(fixture_ids), len(set(fixture_ids)))
+        self.assertEqual(set(fixture_ids), set(fixtures_by_id()))
+
     def test_batch_environment_projects_corpus_rows_by_index(self) -> None:
         corpus = fixtures_by_id()
         rows = [

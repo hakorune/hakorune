@@ -129,6 +129,19 @@ def hako_transport_fixture_ids(
     return tuple(fixture_ids)
 
 
+def all_registry_fixture_ids(
+    rows: Iterable[GrammarRegistryRow] | None = None,
+) -> tuple[str, ...]:
+    fixture_ids: list[str] = []
+    seen: set[str] = set()
+    for row in load_registry_rows() if rows is None else rows:
+        for fixture_id in row.fixture_ids:
+            if fixture_id not in seen:
+                fixture_ids.append(fixture_id)
+                seen.add(fixture_id)
+    return tuple(fixture_ids)
+
+
 def fixture_ids_for_row(
     row_id: str,
     profile: str,

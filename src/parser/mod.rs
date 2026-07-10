@@ -199,6 +199,30 @@ impl NyashParser {
         fuel: Option<usize>,
         build_config: ParserBuildConfig,
     ) -> Result<ASTNode, ParseError> {
+        let ast = Self::parse_grammar_evidence_from_string_with_fuel_and_build_config(
+            input,
+            fuel,
+            build_config,
+        )?;
+        delegate_lowering::lower_delegate_exposes(ast)
+    }
+
+    pub fn parse_grammar_evidence_from_string_with_build_config(
+        input: impl Into<String>,
+        build_config: ParserBuildConfig,
+    ) -> Result<ASTNode, ParseError> {
+        Self::parse_grammar_evidence_from_string_with_fuel_and_build_config(
+            input,
+            Some(100_000),
+            build_config,
+        )
+    }
+
+    fn parse_grammar_evidence_from_string_with_fuel_and_build_config(
+        input: impl Into<String>,
+        fuel: Option<usize>,
+        build_config: ParserBuildConfig,
+    ) -> Result<ASTNode, ParseError> {
         let input_s: String = input.into();
         let pre = normalize_logical_ops(&input_s);
         let mut tokenizer = crate::tokenizer::NyashTokenizer::with_grammar_profile(
@@ -221,7 +245,8 @@ impl NyashParser {
         let mut parser = Self::new(tokens);
         parser.debug_fuel = fuel;
         parser.build_config = build_config;
-        parser.parse()
+        let ast = parser.parse_program()?;
+        parser.prune_build_gate_program(ast)
     }
 
     pub fn parse_from_string_with_build_config_and_explain_report(

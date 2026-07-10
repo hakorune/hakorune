@@ -145,6 +145,15 @@ impl NyashParser {
     pub(super) fn parse_fini_block(&mut self) -> Result<Vec<ASTNode>, ParseError> {
         let fini_line = self.current_token().line;
         self.consume(TokenType::FINI)?;
+        if !self.match_token(&TokenType::LBRACE) {
+            return Err(ParseError::UnexpectedToken {
+                found: self.current_token().token_type.clone(),
+                expected:
+                    "[freeze:contract][parser/guard_expected_canonical] fini block is required"
+                        .to_string(),
+                line: self.current_token().line,
+            });
+        }
         let body = self.parse_block_statements()?;
         Self::validate_fini_body(&body, fini_line)?;
         Ok(body)

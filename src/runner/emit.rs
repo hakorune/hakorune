@@ -30,6 +30,43 @@ impl NyashRunner {
         }
 
         // Emit AST JSON and exit (direct Rust parser route).
+        if let Some(path) = groups.emit.emit_parser_evidence_ast_json.as_ref() {
+            let Some(file) = groups.input.file.as_ref() else {
+                eprintln!("❌ --emit-parser-evidence-ast-json requires an input file");
+                std::process::exit(1);
+            };
+            let code = match std::fs::read_to_string(file) {
+                Ok(code) => code,
+                Err(error) => {
+                    eprintln!("❌ Error reading file {}: {}", file, error);
+                    std::process::exit(1);
+                }
+            };
+            let build_config = crate::parser::ParserBuildConfig {
+                grammar_profile: groups.parser.grammar_profile,
+                ..crate::parser::ParserBuildConfig::default()
+            };
+            let ast = match crate::parser::NyashParser::parse_grammar_evidence_from_string_with_build_config(
+                code.as_str(),
+                build_config,
+            ) {
+                Ok(ast) => ast,
+                Err(error) => {
+                    crate::runner::modes::common_util::diag::print_parse_error_with_context(
+                        file, &code, &error,
+                    );
+                    std::process::exit(1);
+                }
+            };
+            let payload = crate::r#macro::ast_json::ast_to_json_roundtrip(&ast);
+            if let Err(error) = std::fs::write(path, payload.to_string()) {
+                eprintln!("❌ parser evidence AST JSON write error: {}", error);
+                std::process::exit(1);
+            }
+            std::process::exit(0);
+        }
+
+        // Emit AST JSON and exit (direct Rust parser route).
         if let Some(path) = groups.emit.emit_ast_json.as_ref() {
             let Some(file) = groups.input.file.as_ref() else {
                 eprintln!("❌ --emit-ast-json requires an input file");

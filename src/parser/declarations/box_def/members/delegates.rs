@@ -45,6 +45,13 @@ pub(crate) fn parse_delegate_decl(p: &mut NyashParser) -> Result<DelegateDecl, P
         });
     }
     p.advance(); // contextual `exposes`
+    if !p.match_token(&TokenType::LBRACE) {
+        return Err(ParseError::UnexpectedToken {
+            found: p.current_token().token_type.clone(),
+            expected: "[freeze:contract][parser/guard_expected_canonical] delegate exposes block is required".to_string(),
+            line: p.current_token().line,
+        });
+    }
     p.consume(TokenType::LBRACE)?;
 
     let mut exposes = Vec::new();

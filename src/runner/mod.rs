@@ -157,6 +157,7 @@ impl NyashRunner {
                 || groups.emit.emit_mir_json_minimal.is_some()
                 || groups.emit.emit_mir_json.is_some()
                 || groups.emit.emit_ast_json.is_some()
+                || groups.emit.emit_parser_evidence_ast_json.is_some()
                 || program_json_entry::emit_program_json_v0_requested(&groups));
         if !skip_stage1_stub {
             if let Some(code) = self.maybe_run_stage1_cli_stub(&groups) {

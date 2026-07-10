@@ -1,0 +1,32 @@
+// Legacy `from` recognition for semantic-parser rejection only.
+
+using lang.compiler.parser.scan.parser_string_utils_box as ParserStringUtilsBox
+
+static box ParserFromRejectBox {
+  reject_box_from_or_null(src, i, ctx) {
+    if ctx.starts_with_kw(src, i, "box") != 1 { return null }
+    local name_pair = ctx.read_ident2(src, ctx.skip_ws(src, i + 3))
+    local name_at = name_pair.lastIndexOf("@")
+    local box_name = name_pair.substring(0, name_at)
+    if box_name == "" { return null }
+    local j = ctx.skip_ws(src, ParserStringUtilsBox.to_int(name_pair.substring(name_at + 1, name_pair.length())))
+    if ctx.starts_with_kw(src, j, "from") != 1 { return null }
+    return me._reject(src, ctx, "parser/from_inheritance_legacy")
+  }
+
+  reject_from_call_or_null(src, i, ctx) {
+    if ctx.starts_with_kw(src, i, "from") != 1 { return null }
+    return me._reject(src, ctx, "parser/from_call_legacy")
+  }
+
+  _reject(src, ctx, canonical_tag) {
+    ctx.gpos_set(src.length())
+    if ctx.grammar_profile_is_compat2025() == 1 {
+      return ctx.freeze_contract(
+        "parser/from_compat_transport_only",
+        "legacy from syntax is migration transport only"
+      )
+    }
+    return ctx.freeze_contract(canonical_tag, "legacy from syntax is not canonical")
+  }
+}

@@ -117,6 +117,7 @@ pub fn build_command() -> Command {
                 ]),
         )
         .arg(Arg::new("emit-ast-json").long("emit-ast-json").value_name("FILE").help("Emit AST JSON to file and exit (direct Rust parser route)"))
+        .arg(Arg::new("emit-parser-evidence-ast-json").long("emit-parser-evidence-ast-json").value_name("FILE").help("Emit pre-semantic-lowering parser AST JSON for grammar conformance and exit"))
         .arg(Arg::new("emit-program-json").long("emit-program-json").value_name("FILE").help("[Deprecated] Alias of --emit-ast-json (historical misname; not Program(JSON v0))"))
         .arg(Arg::new("emit-program-json-v0").long("emit-program-json-v0").value_name("FILE").help("[Compat-only, retire-target boundary] Emit Program(JSON v0) to file and exit for explicit compat/probe work; prefer --hako-emit-mir-json or --emit-mir-json for day-to-day routes"))
         .arg(
@@ -384,6 +385,9 @@ pub fn from_matches(matches: &ArgMatches) -> CliConfig {
             .get_one::<String>("emit-ast-json")
             .cloned()
             .or_else(|| matches.get_one::<String>("emit-program-json").cloned()),
+        emit_parser_evidence_ast_json: matches
+            .get_one::<String>("emit-parser-evidence-ast-json")
+            .cloned(),
         emit_program_json_v0: matches.get_one::<String>("emit-program-json-v0").cloned(),
         hako_emit_mir_json: hako_emit_mir_path.is_some(),
         hako_run: matches.get_flag("hako-run"),

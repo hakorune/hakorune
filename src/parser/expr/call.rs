@@ -35,6 +35,13 @@ impl NyashParser {
                     } else {
                         (None, None)
                     };
+                    if !self.match_token(&TokenType::LBRACE) {
+                        return Err(ParseError::UnexpectedToken {
+                            found: self.current_token().token_type.clone(),
+                            expected: "[freeze:contract][parser/guard_expected_canonical] postfix catch block is required".to_string(),
+                            line: self.current_token().line,
+                        });
+                    }
                     let catch_body = self.parse_block_statements()?;
                     catch_clauses.push(CatchClause {
                         exception_type,
@@ -45,6 +52,13 @@ impl NyashParser {
                 }
                 let finally_body = if self.match_token(&TokenType::CLEANUP) {
                     self.advance(); // consume 'cleanup'
+                    if !self.match_token(&TokenType::LBRACE) {
+                        return Err(ParseError::UnexpectedToken {
+                            found: self.current_token().token_type.clone(),
+                            expected: "[freeze:contract][parser/guard_expected_canonical] postfix cleanup block is required".to_string(),
+                            line: self.current_token().line,
+                        });
+                    }
                     Some(self.parse_block_statements()?)
                 } else {
                     None

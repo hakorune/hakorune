@@ -60,6 +60,7 @@ pub struct EmitConfig {
     pub emit_mir_json_minimal: Option<String>,
     pub emit_wat: Option<String>,
     pub emit_ast_json: Option<String>,
+    pub emit_parser_evidence_ast_json: Option<String>,
     pub emit_program_json_v0: Option<String>,
     pub hako_emit_mir_json: bool,
     pub hako_run: bool,

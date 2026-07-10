@@ -9,6 +9,7 @@ using lang.compiler.parser.expr.parser_match_box
 using lang.compiler.parser.expr.parser_literal_box
 using lang.compiler.parser.expr.parser_expr_context_box
 using lang.compiler.parser.expr.parser_expr_precedence_box
+using lang.compiler.parser.legacy.parser_from_reject_box as ParserFromRejectBox
 
 static box ParserExprBox {
   parse_record_fields2(src, i, ctx) {
@@ -182,6 +183,9 @@ static box ParserExprBox {
       ctx.gpos_set(j)
       return "{\"type\":\"Int\",\"value\":0}"
     }
+
+    local from_reject = ParserFromRejectBox.reject_from_call_or_null(src, j, ctx)
+    if from_reject != null { return from_reject }
 
     if ctx.starts_with_kw(src, j, "true") == 1 {
       ctx.gpos_set(j + 4)

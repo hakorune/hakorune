@@ -11,8 +11,6 @@ import argparse
 import json
 import os
 import pathlib
-import subprocess
-import tempfile
 from typing import Any
 
 from hako_adapter_health import (
@@ -22,7 +20,7 @@ from hako_adapter_health import (
 )
 from grammar_contract_corpus import fixtures_by_id
 from hako_witness_projection import HakoProjectionError, project_hako_normalized_form
-from rust_witness_projection import RustProjectionError, project_rust_normalized_form
+from rust_parser_adapter import observe_rust_fixture
 
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
@@ -33,65 +31,6 @@ PROBE_FIXTURE_IDS = (
     "match_canonical",
     "from_super_call_canonical_reject",
 )
-
-
-def reject_tag(stderr: str) -> str:
-    for token in stderr.replace("[", " ").replace("]", " ").split():
-        if token.startswith("parser/"):
-            return token.rstrip(".,:;")
-    return "parser/implementation_rejected"
-
-
-def rust_observation(binary: pathlib.Path, fixture: dict[str, Any]) -> dict[str, Any]:
-    with tempfile.TemporaryDirectory(prefix="grammar-contract-rust-") as temp_dir:
-        root = pathlib.Path(temp_dir)
-        source = root / "fixture.hako"
-        ast = root / "ast.json"
-        source.write_text(
-            fixture.get("parser_inventory_source", "") + fixture["source"],
-            encoding="utf-8",
-        )
-        completed = subprocess.run(
-            [
-                str(binary),
-                "--emit-ast-json",
-                str(ast),
-                *(
-                    ["--grammar-profile", "compat2025"]
-                    if fixture["profile"] == "Compat2025"
-                    else []
-                ),
-                str(source),
-            ],
-            cwd=ROOT,
-            text=True,
-            capture_output=True,
-            check=False,
-        )
-        ast_payload = json.loads(ast.read_text(encoding="utf-8")) if completed.returncode == 0 else None
-    if completed.returncode == 0:
-        try:
-            normalized_form = project_rust_normalized_form(
-                fixture["row_id"], ast_payload
-            )
-            projection_error = ""
-        except RustProjectionError as error:
-            return {
-                "accepted": False,
-                "normalized_form": None,
-                "stable_reject_tag": error.stable_reject_tag,
-            }
-        return {
-            "accepted": True,
-            "normalized_form": normalized_form,
-            "stable_reject_tag": "",
-            "projection_error": projection_error,
-        }
-    return {
-        "accepted": False,
-        "normalized_form": None,
-        "stable_reject_tag": reject_tag(completed.stderr),
-    }
 
 
 def hako_observation(
@@ -179,7 +118,7 @@ def main() -> int:
                     "normalized_form": fixture["normalized_form"],
                     "stable_reject_tag": fixture["stable_reject_tag"],
                 },
-                "rust": rust_observation(args.bin, fixture),
+                "rust": observe_rust_fixture(args.bin, fixture),
                 "hako": hako_observation(args.bin, fixture, args.hako_timeout_sec),
             }
         )
