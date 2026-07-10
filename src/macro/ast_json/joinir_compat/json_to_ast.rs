@@ -159,6 +159,15 @@ pub(crate) fn json_to_ast(v: &Value) -> Option<ASTNode> {
                 span: Span::unknown(),
             }
         }
+        "ScopeBox" => ASTNode::ScopeBox {
+            body: v
+                .get("body")?
+                .as_array()?
+                .iter()
+                .filter_map(json_to_ast)
+                .collect(),
+            span: Span::unknown(),
+        },
         "If" => ASTNode::If {
             condition: Box::new(json_to_ast(v.get("condition")?)?),
             then_body: v

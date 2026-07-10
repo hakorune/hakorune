@@ -45,6 +45,15 @@ pub fn json_to_ast(v: &Value) -> Option<ASTNode> {
             tail_expr: Box::new(json_to_ast(v.get("tail_expr")?)?),
             span: Span::unknown(),
         },
+        "ScopeBox" => ASTNode::ScopeBox {
+            body: v
+                .get("body")?
+                .as_array()?
+                .iter()
+                .filter_map(json_to_ast)
+                .collect(),
+            span: Span::unknown(),
+        },
         "BoxDeclaration" => {
             let methods = v
                 .get("methods")?
@@ -701,4 +710,23 @@ pub fn json_to_ast(v: &Value) -> Option<ASTNode> {
         }
         _ => return None,
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn scope_box_is_not_erased_by_ast_json_roundtrip() {
+        let scope = ASTNode::ScopeBox {
+            body: Vec::new(),
+            span: Span::unknown(),
+        };
+
+        let json = ast_to_json_roundtrip(&scope);
+        assert_eq!(json["kind"], "ScopeBox");
+        assert!(
+            matches!(json_to_ast(&json), Some(ASTNode::ScopeBox { body, .. }) if body.is_empty())
+        );
+    }
 }

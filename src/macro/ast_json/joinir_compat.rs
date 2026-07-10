@@ -22,6 +22,10 @@ pub fn ast_to_json(ast: &ASTNode) -> Value {
             "prelude_stmts": prelude_stmts.into_iter().map(|s| ast_to_json(&s)).collect::<Vec<_>>(),
             "tail_expr": ast_to_json(&tail_expr),
         }),
+        ASTNode::ScopeBox { body, .. } => json!({
+            "kind": "ScopeBox",
+            "body": body.into_iter().map(|s| ast_to_json(&s)).collect::<Vec<_>>()
+        }),
         ASTNode::BoxDeclaration {
             name,
             fields,
