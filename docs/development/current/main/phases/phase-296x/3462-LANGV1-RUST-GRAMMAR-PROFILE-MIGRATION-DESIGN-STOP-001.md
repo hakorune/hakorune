@@ -2,9 +2,42 @@
 
 ## Status
 
-Design consultation stop. 3461 is complete and pushed as `88b9601d5c`.
-Do not change Rust parser acceptance until this profile-owner decision is
-accepted.
+Decision accepted. 3461 is complete and pushed as `88b9601d5c`. Implementation
+is authorized only by 3463.
+
+## Accepted Decision
+
+```text
+grammar profile owner = ParserBuildConfig
+profile transport = public parser API plus CLI
+default profile = Canonical
+Compat2025 = explicit opt-in only
+NYASH_FEATURES=no-try-compat = no grammar authority
+legacy env retention = temporary explicit-profile conflict detection only
+first implementation slice = profile plumbing plus statement try
+```
+
+The tokenizer and parser receive the same typed `GrammarProfile`. Neither
+layer reads environment state or infers a profile independently. Canonical
+rejection never retries Compat2025.
+
+An explicit profile combined with legacy `NYASH_FEATURES=no-try-compat` fails
+with `parser/profile_legacy_env_conflict`. Without an explicit profile,
+Canonical remains the default and the legacy feature does not select or alter
+the profile.
+
+Allowed decision claims:
+
+```text
+grammar_profile_owner_parser_build_config = 1
+compat2025_public_parser_api_entry_required = 1
+compat2025_cli_entry_required = 1
+legacy_nyash_features_no_try_compat_not_profile_authority = 1
+legacy_no_try_compat_conflict_boundary_required = 1
+first_code_slice_try_only = 1
+peek_from_migration_deferred = 1
+hako_migration_deferred = 1
+```
 
 ## Established State
 
@@ -170,5 +203,5 @@ selfhost_claim = 0
 
 ## Next
 
-After an accepted profile-owner decision, implement one Rust profile plumbing
-and `try` seam card. Do not create spelling-specific rerun cards.
+3463 implements one Rust profile plumbing and `try` seam card. Do not create
+spelling-specific rerun cards.

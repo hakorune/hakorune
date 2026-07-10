@@ -11,9 +11,9 @@ scope. The language-v1 workstream has eight ordered macro rows and allows one
 active numbered card at a time. 3457 lands the seven-law Constitution; 3458
 accepts the Semantic Kernel; 3459 completes evaluated-Place compound
 assignment; 3460 accepts the canonical grammar contract; and 3461 lands its
-registry/witness/corpus/adapter substrate. 3462 is a Rust grammar-profile
-owner design stop: parser acceptance, runtime, backend, and selfhost behavior
-remain unchanged until the profile transport is selected."""
+registry/witness/corpus/adapter substrate. 3462 accepts ParserBuildConfig as
+the typed profile owner. 3463 implements profile plumbing plus the statement
+try seam only; peek/from, Hako, runtime, backend, and selfhost remain closed."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
@@ -21,15 +21,14 @@ method_anchor = "docs/development/current/main/design/selfhost-language-v1-freez
 taskboard = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 
-latest_card = "LANGV1-RUST-GRAMMAR-PROFILE-MIGRATION-DESIGN-STOP-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3462-LANGV1-RUST-GRAMMAR-PROFILE-MIGRATION-DESIGN-STOP-001.md"
-latest_card_summary = """3462 records the required Rust grammar-profile owner
-decision. ParserBuildConfig currently reaches NyashParser only after
-tokenization, while legacy try/from acceptance has no single profile boundary.
-No parser behavior changes are authorized until consultation selects the
-typed profile transport and first migration seam."""
+latest_card = "LANGV1-RUST-GRAMMAR-PROFILE-TRY-SEAM-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3463-LANGV1-RUST-GRAMMAR-PROFILE-TRY-SEAM-001.md"
+latest_card_summary = """3463 implements the accepted typed profile transport:
+ParserBuildConfig owns GrammarProfile, the public parser API and CLI select it,
+Canonical is default, and statement try is the only migrated legacy spelling.
+The legacy no-try-compat feature is conflict evidence, not profile authority."""
 
-current_blocker_token = "LANGV1-RUST-GRAMMAR-PROFILE-MIGRATION-DESIGN-STOP-001"
+current_blocker_token = "LANGV1-RUST-GRAMMAR-PROFILE-TRY-SEAM-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -38,6 +37,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-10: 3463 opens typed Rust grammar-profile plumbing plus the statement-try seam after 3462 accepts ParserBuildConfig ownership, API/CLI explicit Compat2025, and legacy-env conflict-only retention.",
   "2026-07-10: 3462 records the Rust grammar-profile owner design stop after 3461 reveals that ParserBuildConfig arrives after tokenization and legacy try/from acceptance has no profile boundary.",
   "2026-07-10: 3461 lands one grammar registry, generated typed rows, ParseWitness, shared corpus, independent adapters, strict comparator, and deterministic current-drift report without parser behavior change.",
   "2026-07-10: 3461 opens the four-family grammar-contract substrate after 3460 accepts Canonical default, explicit Compat2025, normalization modes, and span-free ParseWitness.",
@@ -49,5 +49,4 @@ landed_tail = [
   "2026-07-10: 3456 records the MapStore key/value BoxShape repair prerequisite; it remains ready but parked while Language v1 convergence is active.",
   "2026-07-10: 3454 selects the MapStoreI64 caller-orientation pilot; later review corrected I64 from stored-value domain to key domain before implementation.",
   "2026-07-10: 3453 slims the MirBuilder task-order and adds a 500-character line guard.",
-  "2026-07-10: 3451 reruns the Collection four-row caller-orientation authority pilot green.",
 ]
