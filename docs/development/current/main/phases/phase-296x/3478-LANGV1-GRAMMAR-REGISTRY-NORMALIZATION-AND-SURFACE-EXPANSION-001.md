@@ -128,6 +128,8 @@ optional normalized node value = implemented
 independent Rust/Hako projector unit tests = green
 strict Hako loop/map recursive batch = 7 green
 loop block-head delimiter drift = fixed through one expression context owner
+strict Hako postfix/try recursive batch = 6 green
+legacy try normalization is explicit and does not constrain canonical postfix
 ```
 
 Full inventory exposed pre-existing corpus/parser drift that the shallow gate

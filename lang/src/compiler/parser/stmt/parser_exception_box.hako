@@ -65,11 +65,14 @@ static box ParserExceptionBox {
   // Inputs:
   // - try_json: block JSON array (from parse_block2)
   // - j: cursor right after the body block
-  parse_try_tail(src, j, stmt_start, ctx, try_json) {
+  parse_try_tail(src, j, stmt_start, ctx, try_json, emit_try, enforce_legacy_try) {
     local catches_json = "["
     local catch_first = 1
     local catch_count = 0
-    local compat_try = ctx.grammar_profile_is_compat2025()
+    local compat_try = 0
+    if enforce_legacy_try == 1 && ctx.grammar_profile_is_compat2025() == 1 {
+      compat_try = 1
+    }
 
     // zero or more catch - MirBuilder-friendly
     loop(true) {
@@ -134,7 +137,7 @@ static box ParserExceptionBox {
         local atc = c_res.lastIndexOf("@")
         j = ctx.to_int(c_res.substring(atc+1, c_res.length()))
 
-        if compat_try == 1 || ctx.stage3_enabled() == 1 {
+        if emit_try == 1 {
           local entry = "{"
           local wrote = 0
 
@@ -183,7 +186,7 @@ static box ParserExceptionBox {
       return "[freeze:contract][parser/try_compat_not_normalizable] Compat2025 try requires catch () or cleanup"
     }
 
-    if compat_try == 1 || ctx.stage3_enabled() == 1 {
+    if emit_try == 1 {
       if j <= stmt_start {
         if j < src.length() { j = j + 1 } else { j = src.length() }
       }
@@ -211,7 +214,7 @@ static box ParserExceptionBox {
     local at_t = try_res.lastIndexOf("@")
     local try_json = try_res.substring(0, at_t)
     j = ctx.to_int(try_res.substring(at_t+1, try_res.length()))
-    return me.parse_try_tail(src, j, stmt_start, ctx, try_json)
+    return me.parse_try_tail(src, j, stmt_start, ctx, try_json, 1, 1)
   }
 
   // Parse: { ... } (catch ...)? (cleanup ...)?  -> Try node (syntax-3)
@@ -230,6 +233,17 @@ static box ParserExceptionBox {
         return ""
       }
     }
-    return me.parse_try_tail(src, j, stmt_start, ctx, try_json)
+    return me.parse_try_tail(src, j, stmt_start, ctx, try_json, 1, 0)
+  }
+
+  // Attach canonical postfix catch/cleanup to one already-parsed expression.
+  // The caller owns expression evaluation and passes the cursor after it.
+  parse_expr_postfix_or_null(src, j, stmt_start, ctx, expr_json) {
+    local tail_j = ctx.skip_ws(src, j)
+    if ctx.starts_with_kw(src, tail_j, "catch") != 1 {
+      if ctx.starts_with_kw(src, tail_j, "cleanup") != 1 { return null }
+    }
+    local try_json = "[{\"type\":\"Expr\",\"expr\":" + expr_json + "}]"
+    return me.parse_try_tail(src, tail_j, stmt_start, ctx, try_json, 1, 0)
   }
 }

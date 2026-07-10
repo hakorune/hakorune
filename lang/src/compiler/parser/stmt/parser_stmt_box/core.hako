@@ -399,6 +399,11 @@ static box ParserStmtCoreBox {
     local expr_start = j
     local e = ctx.parse_expr2(src, j)
     j = ctx.gpos_get()
+    local postfix = ParserExceptionBox.parse_expr_postfix_or_null(src, j, stmt_start, ctx, e)
+    if postfix != null {
+      env.set("HAKO_STAGEB_STMT_DEPTH", "0")
+      return postfix
+    }
     if j <= expr_start {
       if j < src.length() { j = j + 1 } else { j = src.length() }
     }
