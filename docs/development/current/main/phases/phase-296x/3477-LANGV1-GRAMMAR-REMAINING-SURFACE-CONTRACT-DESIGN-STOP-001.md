@@ -2,10 +2,65 @@
 
 ## Status
 
-Active design consultation stop after the 3476 closeout audit disproves
+Complete design consultation after the 3476 closeout audit disproves
 `LANGV1-GRAMMAR-001` completion.
 
-Decision: consultation required before registry or parser changes.
+Decision: accepted. 3478 owns the single code-facing refactor and expansion
+series.
+
+## Accepted Decision
+
+```text
+A - loops:
+  loop infinite / condition / range, break, continue = canonical
+  while = Canonical rejected, Compat2025 alias to LoopCondition
+  for / do-while / repeat / until = rejected in both profiles
+
+B - weak:
+  weak expr = canonical
+  weak(expr) = rejected in both profiles
+  direct weak stored field = canonical
+  visibility weak sugar = Canonical rejected / Compat2025 alias
+  init { weak field } = Canonical rejected / Compat2025 alias
+
+C - records:
+  declaration / literal / with-update = canonical
+  Stage1 field/type restrictions remain semantic-verifier authority
+
+D - literals and construction:
+  integer / float / string / bool / null / void = canonical
+  typed integer suffix = rejected in both profiles; Rust behavior is evidence
+  array literal = canonical; typed-context restriction is Stage1 authority
+  percent-brace map literal = canonical
+  legacy brace-colon map literal = rejected
+  new box expression = canonical construction family
+
+E - registry representation:
+  split v1 authority from legacy build input
+  one source row owns two validated profile contracts
+  generated projections may expand to per-profile rows
+  parser support is generated corpus evidence, not authority input
+
+F - conformance depth:
+  recursive typed parser-neutral witness is required before grammar closeout
+  bounded deterministic differential composition is a milestone/full gate
+```
+
+The external review proposed rejecting map literals in both profiles because
+Rust acceptance is environment-gated. Local source evidence disproves that as
+a viable v1 boundary:
+
+```text
+percent-brace map literal occurrences in lang/src = 513
+files in lang/src using the spelling = 65
+Hako parser acceptance = unconditional
+Rust parser acceptance = legacy environment/sugar gate
+```
+
+The canonical source spelling is `%{"key" => value}`. The fix is to remove
+ambient environment authority from the Rust parser, not to invalidate the
+selfhost compiler's pervasive data-construction surface. Legacy
+`{"key": value}` remains rejected.
 
 ## Closeout Audit
 
@@ -285,15 +340,14 @@ wall-clock budget is measured separately from semantic pass/fail
 Because current Hako corpus compilation is material, the consultation must set
 whether this is a quick gate, milestone gate, or post-closeout hardening gate.
 
-## Required Decisions
+## Resolved Decisions
 
 ### A - Loop compatibility boundary
 
-Choose whether `while` is:
+Selected:
 
 ```text
 A1. Canonical rejected and Compat2025 compatibility alias to loop condition
-A2. rejected in both profiles
 ```
 
 `for`, `do-while`, `repeat`, and `until` remain rejected unless a separate
@@ -302,7 +356,7 @@ loop-condition, loop-range, break, and continue.
 
 ### B - Weak spelling decomposition
 
-Fix separate rows and statuses for:
+Selected separate rows and statuses for:
 
 ```text
 weak unary expression
@@ -317,7 +371,7 @@ only decides spelling, profile, normalized shape, and stable reject tags.
 
 ### C - Record grammar boundary
 
-Confirm whether these are three canonical rows under both profiles:
+Confirmed as three canonical rows under both profiles:
 
 ```text
 record declaration
@@ -331,14 +385,14 @@ set restrictions outside parser authority.
 
 ### D - Closed literal set
 
-Define the exact v1 registry set. At minimum decide independently:
+The exact v1 registry set is fixed as follows:
 
 ```text
 primitive literals: integer / float / string / bool / null / void
-typed integer suffixes: canonical, Compat2025-only, or Rust evidence only
+typed integer suffixes: rejected; current Rust acceptance is evidence only
 array literal: canonical syntax with Stage1 typed-context restriction
-map literal: canonical, Compat2025-only, or rejected
-new box expression: literal family or construction family
+percent-brace map literal: canonical; legacy brace-colon spelling rejected
+new box expression: canonical construction family
 ```
 
 No environment variable may select a grammar profile or silently admit a
@@ -346,7 +400,7 @@ literal spelling.
 
 ### E - Registry representation migration
 
-Confirm the following structural migration before row expansion:
+Accepted structural migration before row expansion:
 
 ```text
 1. split the Language v1 authority from the live legacy codegen input
@@ -362,17 +416,14 @@ Specify the legacy root-build consumer retirement condition. Do not keep
 
 ### F - Witness depth and generated composition gate
 
-Decide:
+Selected:
 
 ```text
 F1. recursive parser-neutral witness is required before grammar closeout
-F2. shallow witness may close grammar, recursive witness is immediate hardening
 
 and
 
-G1. bounded differential composition runs in the quick gate
 G2. bounded differential composition runs only at milestone/full gate
-G3. defer it until measured adapter cost is reduced
 ```
 
 Any selected generator must be deterministic, bounded, reproducible, and must
@@ -441,16 +492,19 @@ profile_source_deduplication_required = 1
 parser_support_evidence_generation_required = 1
 recursive_witness_decision_required = 1
 bounded_differential_gate_decision_required = 1
+loop_compatibility_decided = 1
+weak_spelling_contract_decided = 1
+record_registry_contract_decided = 1
+literal_registry_contract_decided = 1
+registry_representation_decided = 1
+recursive_witness_required_before_closeout = 1
+bounded_differential_milestone_gate_decided = 1
 ```
 
 ## Non-Claims
 
 ```text
 remaining_registry_rows_implemented = 0
-loop_compatibility_decided = 0
-weak_spelling_contract_decided = 0
-record_registry_contract_decided = 0
-literal_registry_contract_decided = 0
 registry_representation_migrated = 0
 parser_support_fields_removed_from_authority = 0
 recursive_parse_witness = 0
@@ -464,6 +518,6 @@ selfhost_claim = 0
 
 ## Stop Rule
 
-Do not edit the registry or parser acceptance until A-F are answered together.
-The next step after consultation must be the single code-facing implementation
-card above, not another basis/inventory/rerun card.
+Resolved. Proceed to 3478 as the single code-facing implementation series. Do
+not open another basis, inventory, fixture-only, spelling-only, or rerun-only
+card.
