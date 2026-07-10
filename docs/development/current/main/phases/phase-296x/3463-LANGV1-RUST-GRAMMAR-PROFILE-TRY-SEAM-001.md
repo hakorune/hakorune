@@ -112,8 +112,14 @@ selfhost_claim = 0
 
 ## Verification
 
-Add exact focused tests and a reusable grammar-profile guard in this card when
-their code owners land. Keep every new source file below 800 lines.
+```bash
+bash tools/checks/language_v1_rust_grammar_profile_guard.sh
+cargo check
+bash tools/checks/language_v1_grammar_contract_substrate_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+```
+
+Keep every new source file below 800 lines.
 
 ## Next
 

@@ -73,6 +73,7 @@ pub struct ParserPipeConfig {
     pub ny_parser_pipe: bool,
     pub json_file: Option<String>,
     pub mir_json_file: Option<String>,
+    pub grammar_profile: hakorune_frontend_parser::parser::GrammarProfile,
 }
 
 #[derive(Debug, Clone)]

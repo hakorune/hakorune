@@ -46,7 +46,7 @@ impl NyashRunner {
                 }
             };
 
-            let ast = match crate::parser::NyashParser::parse_from_string(&code) {
+            let ast = match self.parse_source(&code) {
                 Ok(ast) => ast,
                 Err(e) => {
                     crate::runner::modes::common_util::diag::print_parse_error_with_context(

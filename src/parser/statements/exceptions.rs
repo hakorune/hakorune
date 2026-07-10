@@ -66,10 +66,12 @@ impl NyashParser {
 
     /// Parse try-catch statement
     pub(super) fn parse_try_catch(&mut self) -> Result<ASTNode, ParseError> {
-        if !crate::parser::env::parser_try_compat_enabled() {
+        if self.build_config.grammar_profile
+            == hakorune_frontend_parser::parser::GrammarProfile::Canonical
+        {
             return Err(ParseError::UnexpectedToken {
                 found: self.current_token().token_type.clone(),
-                expected: "[freeze:contract][parser/try_reserved] 'try' is legacy/prohibited; use postfix catch/cleanup or enable compatibility only during migration".to_string(),
+                expected: "[freeze:contract][parser/try_reserved] statement 'try' requires explicit Compat2025".to_string(),
                 line: self.current_token().line,
             });
         }
@@ -101,6 +103,19 @@ impl NyashParser {
         } else {
             None
         };
+
+        let normalizable = catch_clauses.len() <= 1
+            && catch_clauses
+                .iter()
+                .all(|clause| clause.exception_type.is_none() && clause.variable_name.is_none())
+            && (!catch_clauses.is_empty() || finally_body.is_some());
+        if !normalizable {
+            return Err(ParseError::UnexpectedToken {
+                found: TokenType::TRY,
+                expected: "[freeze:contract][parser/try_compat_not_normalizable] Compat2025 try allows at most one catch () and optional cleanup".to_string(),
+                line: self.current_token().line,
+            });
+        }
 
         Ok(ASTNode::TryCatch {
             try_body,

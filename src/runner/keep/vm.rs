@@ -1,5 +1,5 @@
 use super::super::NyashRunner;
-use nyash_rust::{ast::ASTNode, mir::MirCompiler, parser::NyashParser};
+use nyash_rust::{ast::ASTNode, mir::MirCompiler};
 use std::{fs, process};
 
 impl NyashRunner {
@@ -149,7 +149,7 @@ impl NyashRunner {
                 code_final.len()
             ));
         }
-        let ast_combined = match NyashParser::parse_from_string(&code_final) {
+        let ast_combined = match self.parse_source(&code_final) {
             Ok(ast) => ast,
             Err(e) => {
                 crate::runner::modes::common_util::diag::print_parse_error_with_context(

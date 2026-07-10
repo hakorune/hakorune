@@ -1,7 +1,6 @@
 use super::{temp_seed, VmHakoErr, VM_HAKO_PHASE};
 use crate::mir::{MirCompiler, MirModule};
 use crate::runner::NyashRunner;
-use nyash_rust::parser::NyashParser;
 use std::collections::HashMap;
 
 pub(super) fn compile_source_to_mir_json_v0(
@@ -12,7 +11,7 @@ pub(super) fn compile_source_to_mir_json_v0(
     let (prepared_source, using_imports) =
         prepare_vm_hako_source_and_imports(runner, filename, code)?;
 
-    let ast = match NyashParser::parse_from_string(&prepared_source) {
+    let ast = match runner.parse_source(&prepared_source) {
         Ok(ast) => ast,
         Err(e) => {
             crate::runner::modes::common_util::diag::print_parse_error_with_context(

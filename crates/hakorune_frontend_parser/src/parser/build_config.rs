@@ -1,5 +1,7 @@
 use std::collections::BTreeSet;
 
+pub use hakorune_frontend_grammar::contract::GrammarProfile;
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum BuildMode {
     Test,
@@ -9,6 +11,7 @@ pub enum BuildMode {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ParserBuildConfig {
+    pub grammar_profile: GrammarProfile,
     pub mode: BuildMode,
     pub known_features: BTreeSet<String>,
     pub enabled_features: BTreeSet<String>,
@@ -20,6 +23,7 @@ pub struct ParserBuildConfig {
 impl Default for ParserBuildConfig {
     fn default() -> Self {
         Self {
+            grammar_profile: GrammarProfile::Canonical,
             mode: BuildMode::Release,
             known_features: BTreeSet::new(),
             enabled_features: BTreeSet::new(),
@@ -27,5 +31,18 @@ impl Default for ParserBuildConfig {
             target_arch: std::env::consts::ARCH.to_string(),
             backend_kind: "unknown".to_string(),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn grammar_profile_defaults_to_canonical() {
+        assert_eq!(
+            ParserBuildConfig::default().grammar_profile,
+            GrammarProfile::Canonical
+        );
     }
 }

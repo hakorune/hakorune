@@ -74,7 +74,7 @@ fn enforce_wasm_route_policy_scope_for_emit_wat() {
 impl NyashRunner {
     #[cfg(feature = "wasm-backend")]
     fn parse_ast_for_wasm_emit(&self, filename: &str, code: &str) -> nyash_rust::ast::ASTNode {
-        let ast = match NyashParser::parse_from_string(code) {
+        let ast = match self.parse_source(code) {
             Ok(ast) => ast,
             Err(e) => {
                 crate::runner::modes::common_util::diag::print_parse_error_with_context(

@@ -6,8 +6,8 @@
 //! - the `vm-hako` reference/conformance lane
 
 use super::super::NyashRunner;
+use crate::mir::MirCompiler;
 use crate::runtime::get_global_ring0;
-use crate::{mir::MirCompiler, parser::NyashParser};
 use std::{fs, process};
 
 impl NyashRunner {
@@ -109,7 +109,7 @@ impl NyashRunner {
         );
 
         // Parse main code
-        let main_ast = match NyashParser::parse_from_string(&code2) {
+        let main_ast = match self.parse_source(&code2) {
             Ok(ast) => ast,
             Err(e) => {
                 crate::runner::modes::common_util::diag::print_parse_error_with_context(

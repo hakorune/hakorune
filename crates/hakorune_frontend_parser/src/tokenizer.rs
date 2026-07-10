@@ -18,4 +18,5 @@ pub struct NyashTokenizer {
     pub(crate) position: usize,
     pub(crate) line: usize,
     pub(crate) column: usize,
+    pub(crate) grammar_profile: crate::parser::GrammarProfile,
 }

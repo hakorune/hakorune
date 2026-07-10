@@ -1,8 +1,5 @@
 use super::super::NyashRunner;
-use nyash_rust::{
-    mir::{MirCompiler, MirPrinter},
-    parser::NyashParser,
-};
+use nyash_rust::mir::{MirCompiler, MirPrinter};
 use std::{fs, process};
 
 impl NyashRunner {
@@ -27,7 +24,7 @@ impl NyashRunner {
                 }
             };
 
-        let ast = match NyashParser::parse_from_string(&prepared.code) {
+        let ast = match self.parse_source(&prepared.code) {
             Ok(ast) => ast,
             Err(e) => {
                 crate::runner::modes::common_util::diag::print_parse_error_with_context(
@@ -143,7 +140,7 @@ impl NyashRunner {
             }
         };
 
-        let ast = match NyashParser::parse_from_string(&prepared) {
+        let ast = match self.parse_source(&prepared) {
             Ok(ast) => ast,
             Err(e) => {
                 crate::runner::modes::common_util::diag::print_parse_error_with_context(

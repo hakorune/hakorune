@@ -14,7 +14,7 @@ pub mod lifecycle;
 pub mod metadata;
 pub mod sugar;
 pub use build_cfg::BuildGateExplainReport;
-pub use build_config::{BuildMode, ParserBuildConfig};
+pub use build_config::{BuildMode, GrammarProfile, ParserBuildConfig};
 pub use cursor::{NewlineMode, TokenCursor};
 pub use error::ParseError;
 pub use expr_cursor::ExprParserWithCursor;

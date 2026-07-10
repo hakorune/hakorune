@@ -1,9 +1,7 @@
 use super::super::NyashRunner;
 use crate::runner::json_v0_bridge;
-#[cfg(not(feature = "interpreter-legacy"))]
-use nyash_rust::parser::NyashParser;
 #[cfg(feature = "interpreter-legacy")]
-use nyash_rust::{interpreter::NyashInterpreter, parser::NyashParser};
+use nyash_rust::interpreter::NyashInterpreter;
 // Use the library crate's plugin init module rather than the bin crate root
 use crate::cli_v;
 use crate::runner::pipeline::resolve_using_target;
@@ -110,7 +108,7 @@ impl NyashRunner {
             groups.debug.debug_fuel
         ));
         let main_ast =
-            match NyashParser::parse_from_string_with_fuel(code_ref, groups.debug.debug_fuel) {
+            match self.parse_source_with_fuel(code_ref, groups.debug.debug_fuel) {
                 Ok(ast) => {
                     get_global_ring0()
                         .log
@@ -256,7 +254,6 @@ impl NyashRunner {
         }
     }
 }
-
 #[cfg(not(feature = "interpreter-legacy"))]
 impl NyashRunner {
     /// Interpreter backend is disabled in default builds.

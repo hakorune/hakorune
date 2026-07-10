@@ -11,36 +11,6 @@ fn env_flag(var: &str) -> Option<bool> {
     })
 }
 
-fn nyash_features_list() -> Option<Vec<String>> {
-    let raw = std::env::var("NYASH_FEATURES").ok()?;
-    let list: Vec<String> = raw
-        .split(',')
-        .filter_map(|item| {
-            let item = item.trim();
-            if item.is_empty() {
-                None
-            } else {
-                Some(item.to_ascii_lowercase())
-            }
-        })
-        .collect();
-    if list.is_empty() {
-        None
-    } else {
-        Some(list)
-    }
-}
-
-fn feature_enabled<const N: usize>(targets: [&str; N]) -> bool {
-    let Some(list) = nyash_features_list() else {
-        return false;
-    };
-    list.into_iter().any(|item| {
-        let normalized = item.replace(['-', '_'], "");
-        targets.iter().any(|target| normalized == *target)
-    })
-}
-
 pub(crate) fn block_postfix_catch() -> bool {
     crate::frontend_env::block_postfix_catch()
 }
@@ -138,10 +108,6 @@ pub(crate) fn parser_trace_blocks() -> bool {
 
 pub(crate) fn parser_token_cursor_enabled() -> bool {
     env_flag("NYASH_PARSER_TOKEN_CURSOR").unwrap_or(false)
-}
-
-pub(crate) fn parser_try_compat_enabled() -> bool {
-    !feature_enabled(["notrycompat"])
 }
 
 pub(crate) fn syntax_sugar_level_raw() -> Option<String> {

@@ -15,13 +15,26 @@ impl NyashTokenizer {
 
     /// 新しいトークナイザーを作成
     pub fn new(input: impl Into<String>) -> Self {
+        Self::with_grammar_profile(input, crate::parser::GrammarProfile::Canonical)
+    }
+
+    /// Create a tokenizer for one explicit grammar profile.
+    pub fn with_grammar_profile(
+        input: impl Into<String>,
+        grammar_profile: crate::parser::GrammarProfile,
+    ) -> Self {
         let input_string = input.into();
         Self {
             input: input_string.chars().collect(),
             position: 0,
             line: 1,
             column: 1,
+            grammar_profile,
         }
+    }
+
+    pub fn grammar_profile(&self) -> crate::parser::GrammarProfile {
+        self.grammar_profile
     }
 
     /// 完全なトークナイズを実行

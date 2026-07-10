@@ -76,6 +76,8 @@ pub struct CliConfig {
     pub ny_parser_pipe: bool,
     pub json_file: Option<String>,
     pub mir_json_file: Option<String>,
+    pub grammar_profile: hakorune_frontend_parser::parser::GrammarProfile,
+    pub grammar_profile_explicit: bool,
     pub gc_mode: Option<String>,
     pub build_path: Option<String>,
     pub build_app: Option<String>,
@@ -195,6 +197,7 @@ impl CliConfig {
                 ny_parser_pipe: self.ny_parser_pipe,
                 json_file: self.json_file.clone(),
                 mir_json_file: self.mir_json_file.clone(),
+                grammar_profile: self.grammar_profile,
             },
             gc_mode: self.gc_mode.clone(),
             compile_wasm: self.compile_wasm,
@@ -254,6 +257,8 @@ impl Default for CliConfig {
             ny_parser_pipe: false,
             json_file: None,
             mir_json_file: None,
+            grammar_profile: hakorune_frontend_parser::parser::GrammarProfile::Canonical,
+            grammar_profile_explicit: false,
             build_path: None,
             build_app: None,
             build_out: None,
@@ -302,6 +307,30 @@ impl Default for CliConfig {
 }
 
 pub const CLI_ALLOCATOR_DIAGNOSTIC_CONFLICT: &str = "[allocator-diagnostic/cli-conflicting-modes]";
+pub const GRAMMAR_PROFILE_LEGACY_ENV_CONFLICT: &str =
+    "[freeze:contract][parser/profile_legacy_env_conflict]";
+
+pub fn maybe_reject_grammar_profile_legacy_env_conflict(config: &CliConfig) -> Option<i32> {
+    if !config.grammar_profile_explicit {
+        return None;
+    }
+    let has_legacy_feature = std::env::var("NYASH_FEATURES")
+        .ok()
+        .map(|raw| {
+            raw.split(',').any(|item| {
+                item.trim().to_ascii_lowercase().replace(['-', '_'], "") == "notrycompat"
+            })
+        })
+        .unwrap_or(false);
+    if !has_legacy_feature {
+        return None;
+    }
+    eprintln!(
+        "{} explicit grammar profile conflicts with retired no-try-compat feature",
+        GRAMMAR_PROFILE_LEGACY_ENV_CONFLICT
+    );
+    Some(2)
+}
 
 pub fn maybe_reject_allocator_diagnostic_conflicts(config: &CliConfig) -> Option<i32> {
     let modes = allocator_diagnostic_modes(config);
@@ -366,6 +395,56 @@ mod tests {
         let config = CliConfig::default();
         assert_eq!(config.backend, "interpreter");
         assert_eq!(config.iterations, 10);
+        assert_eq!(
+            config.grammar_profile,
+            hakorune_frontend_parser::parser::GrammarProfile::Canonical
+        );
+        assert!(!config.grammar_profile_explicit);
+    }
+
+    #[test]
+    fn cli_accepts_explicit_compat2025_profile() {
+        let matches = args::build_command()
+            .try_get_matches_from(["hakorune", "--grammar-profile", "compat2025"])
+            .unwrap();
+        let config = args::from_matches(&matches);
+        assert_eq!(
+            config.grammar_profile,
+            hakorune_frontend_parser::parser::GrammarProfile::Compat2025
+        );
+        assert!(config.grammar_profile_explicit);
+    }
+
+    #[test]
+    fn cli_rejects_unknown_grammar_profile_with_stable_tag() {
+        let error = args::build_command()
+            .try_get_matches_from(["hakorune", "--grammar-profile", "future"])
+            .unwrap_err();
+        assert!(error.to_string().contains("[parser/profile_unknown]"));
+    }
+
+    #[test]
+    fn explicit_profile_conflicts_with_legacy_no_try_feature() {
+        crate::test_support::with_env_vars(&[("NYASH_FEATURES", Some("no-try-compat"))], || {
+            let config = CliConfig {
+                grammar_profile_explicit: true,
+                ..CliConfig::default()
+            };
+            assert_eq!(
+                maybe_reject_grammar_profile_legacy_env_conflict(&config),
+                Some(2)
+            );
+        });
+    }
+
+    #[test]
+    fn implicit_canonical_ignores_legacy_no_try_feature_as_profile_authority() {
+        crate::test_support::with_env_vars(&[("NYASH_FEATURES", Some("no-try-compat"))], || {
+            assert_eq!(
+                maybe_reject_grammar_profile_legacy_env_conflict(&CliConfig::default()),
+                None
+            );
+        });
     }
 
     #[test]

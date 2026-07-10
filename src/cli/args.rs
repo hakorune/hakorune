@@ -3,6 +3,18 @@ use super::CliConfig;
 use clap::{Arg, ArgMatches, Command};
 use serde_json;
 
+fn parse_grammar_profile(
+    value: &str,
+) -> Result<hakorune_frontend_parser::parser::GrammarProfile, String> {
+    match value {
+        "canonical" => Ok(hakorune_frontend_parser::parser::GrammarProfile::Canonical),
+        "compat2025" => Ok(hakorune_frontend_parser::parser::GrammarProfile::Compat2025),
+        _ => Err(format!(
+            "[freeze:contract][parser/profile_unknown] unsupported grammar profile `{value}`"
+        )),
+    }
+}
+
 pub fn parse() -> CliConfig {
     let argv: Vec<String> = std::env::args().collect();
     if let Some(pos) = argv.iter().position(|s| s == "--") {
@@ -48,6 +60,13 @@ pub fn build_command() -> Command {
         .about("🦀 Hakorune Programming Language - Everything is Box in Rust! 🦀")
         .arg(Arg::new("dev").long("dev").help("Enable development defaults (AST using ON; Operator Boxes observe; safe diagnostics)").action(clap::ArgAction::SetTrue))
         .arg(Arg::new("file").help("Hakorune file to execute").value_name("FILE").index(1))
+        .arg(
+            Arg::new("grammar-profile")
+                .long("grammar-profile")
+                .value_name("{canonical|compat2025}")
+                .value_parser(clap::builder::ValueParser::new(parse_grammar_profile))
+                .help("Select the explicit source grammar profile"),
+        )
         .arg(Arg::new("macro-expand-child").long("macro-expand-child").value_name("FILE").help("Macro sandbox child: read AST JSON v0 from stdin, expand using Hakorune macro file, write AST JSON v0 to stdout (PoC)"))
         .arg(Arg::new("dump-ast").long("dump-ast").help("Dump parsed AST and exit").action(clap::ArgAction::SetTrue))
         .arg(Arg::new("macro-preexpand").long("macro-preexpand").help("Enable selfhost macro pre-expand").action(clap::ArgAction::SetTrue))
@@ -295,6 +314,9 @@ pub fn from_matches(matches: &ArgMatches) -> CliConfig {
         std::env::set_var("NYASH_NY_COMPILER_CHILD_ARGS", a);
     }
     let hako_emit_mir_path = matches.get_one::<String>("hako-emit-mir-json").cloned();
+    let grammar_profile = matches
+        .get_one::<hakorune_frontend_parser::parser::GrammarProfile>("grammar-profile")
+        .copied();
     let cfg = CliConfig {
         file: matches.get_one::<String>("file").cloned(),
         debug_fuel: parse_debug_fuel(matches.get_one::<String>("debug-fuel").unwrap()),
@@ -343,6 +365,9 @@ pub fn from_matches(matches: &ArgMatches) -> CliConfig {
         ny_parser_pipe: matches.get_flag("ny-parser-pipe"),
         json_file: matches.get_one::<String>("json-file").cloned(),
         mir_json_file: matches.get_one::<String>("mir-json-file").cloned(),
+        grammar_profile: grammar_profile
+            .unwrap_or(hakorune_frontend_parser::parser::GrammarProfile::Canonical),
+        grammar_profile_explicit: grammar_profile.is_some(),
         build_path: matches.get_one::<String>("build").cloned(),
         build_app: matches.get_one::<String>("build-app").cloned(),
         build_out: matches.get_one::<String>("build-out").cloned(),

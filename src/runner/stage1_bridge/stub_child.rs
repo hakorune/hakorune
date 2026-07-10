@@ -281,6 +281,7 @@ mod tests {
                 ny_parser_pipe: false,
                 json_file: None,
                 mir_json_file: None,
+                grammar_profile: hakorune_frontend_parser::parser::GrammarProfile::Canonical,
             },
             gc_mode: None,
             compile_wasm: false,

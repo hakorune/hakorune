@@ -27,7 +27,8 @@ fn compile_mir_binary_only_direct(
     let code = std::fs::read_to_string(&source)
         .map_err(|error| format!("read error: {}: {}", source, error))?;
 
-    let ast = crate::parser::NyashParser::parse_from_string(&code)
+    let ast = runner
+        .parse_source(&code)
         .map_err(|error| format!("parse error: {}", error))?;
     let ast = crate::r#macro::maybe_expand_and_dump(&ast, false);
 

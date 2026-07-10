@@ -51,7 +51,9 @@ fn is_sugar_enabled() -> bool {
 }
 
 pub use build_cfg::BuildGateExplainReport;
-pub use hakorune_frontend_parser::parser::{BuildMode, ParserBuildConfig, ParserMetadata};
+pub use hakorune_frontend_parser::parser::{
+    BuildMode, GrammarProfile, ParserBuildConfig, ParserMetadata,
+};
 
 // ===== 🔥 Debug Macros =====
 
@@ -193,7 +195,10 @@ impl NyashParser {
     ) -> Result<ASTNode, ParseError> {
         let input_s: String = input.into();
         let pre = normalize_logical_ops(&input_s);
-        let mut tokenizer = crate::tokenizer::NyashTokenizer::new(pre);
+        let mut tokenizer = crate::tokenizer::NyashTokenizer::with_grammar_profile(
+            pre,
+            build_config.grammar_profile,
+        );
         let tokens = tokenizer.tokenize()?;
 
         for tok in &tokens {
@@ -231,7 +236,10 @@ impl NyashParser {
     ) -> Result<(ASTNode, BuildGateExplainReport), ParseError> {
         let input_s: String = input.into();
         let pre = normalize_logical_ops(&input_s);
-        let mut tokenizer = crate::tokenizer::NyashTokenizer::new(pre);
+        let mut tokenizer = crate::tokenizer::NyashTokenizer::with_grammar_profile(
+            pre,
+            build_config.grammar_profile,
+        );
         let tokens = tokenizer.tokenize()?;
 
         for tok in &tokens {

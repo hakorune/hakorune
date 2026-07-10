@@ -74,6 +74,37 @@ impl NyashRunner {
         Self { config }
     }
 
+    pub(crate) fn parser_build_config(
+        &self,
+    ) -> hakorune_frontend_parser::parser::ParserBuildConfig {
+        let mut config = hakorune_frontend_parser::parser::ParserBuildConfig::default();
+        config.grammar_profile = self.config.grammar_profile;
+        config
+    }
+
+    pub(crate) fn parse_source(
+        &self,
+        source: impl Into<String>,
+    ) -> Result<crate::ast::ASTNode, crate::parser::ParseError> {
+        crate::parser::NyashParser::parse_from_string_with_build_config(
+            source,
+            self.parser_build_config(),
+        )
+    }
+
+    #[cfg(feature = "interpreter-legacy")]
+    pub(crate) fn parse_source_with_fuel(
+        &self,
+        source: impl Into<String>,
+        fuel: Option<usize>,
+    ) -> Result<crate::ast::ASTNode, crate::parser::ParseError> {
+        crate::parser::NyashParser::parse_from_string_with_fuel_and_build_config(
+            source,
+            fuel,
+            self.parser_build_config(),
+        )
+    }
+
     /// Run Nyash based on the configuration
     pub fn run(&self) {
         // New behavior-preserving delegator

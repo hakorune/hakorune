@@ -20,6 +20,8 @@ use std::rc::Rc;
 pub(super) struct ReplRunnerBox {
     /// Phase 288.1: Rc<RefCell<>> で保持（clone は Rc のみ、中身は永続化）
     session: Rc<RefCell<ReplSessionBox>>,
+    #[cfg(feature = "vm-reference")]
+    grammar_profile: hakorune_frontend_parser::parser::GrammarProfile,
     /// REPL mode での内部ログ抑制フラグ
     /// verbose が false の場合に true（REPL 専用）
     #[cfg(feature = "vm-reference")]
@@ -35,6 +37,8 @@ impl ReplRunnerBox {
         Self {
             // Phase 288.1: Rc<RefCell<>> で初期化（即座に生成）
             session: Rc::new(RefCell::new(ReplSessionBox::new())),
+            #[cfg(feature = "vm-reference")]
+            grammar_profile: _config.grammar_profile,
             #[cfg(feature = "vm-reference")]
             quiet_internal_logs,
         }
@@ -115,8 +119,10 @@ impl ReplRunnerBox {
 
         // Parse (minimal wrapper for REPL context - use Main for VM entry point)
         let code = format!("static box Main {{ main() {{ {} }} }}", line);
-        let ast =
-            NyashParser::parse_from_string(&code).map_err(|e| format!("Parse error: {}", e))?;
+        let mut parser_config = hakorune_frontend_parser::parser::ParserBuildConfig::default();
+        parser_config.grammar_profile = self.grammar_profile;
+        let ast = NyashParser::parse_from_string_with_build_config(&code, parser_config)
+            .map_err(|e| format!("Parse error: {}", e))?;
 
         // Phase 288.1: Check if wrapper AST is a pure expression (for auto-display)
         use super::ast_rewriter::ReplAstRewriter;

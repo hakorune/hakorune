@@ -159,7 +159,6 @@ fn compile_program_json_v0_imports_bundle(
     runner: &NyashRunner,
     targets: &[String],
 ) -> Result<crate::mir::MirModule, String> {
-    use crate::parser::NyashParser;
     use crate::runner::modes::common_util::resolve::prelude_manager::PreludeManagerBox;
     use crate::runner::modes::common_util::resolve::strip::resolve_prelude_paths_profiled;
     use crate::using::resolver::resolve_using_target_common;
@@ -280,7 +279,8 @@ fn compile_program_json_v0_imports_bundle(
                 })?
         };
 
-        let ast = NyashParser::parse_from_string(&merged.merged_content)
+        let ast = runner
+            .parse_source(&merged.merged_content)
             .map_err(|error| format!("[freeze:contract][json_v0/imports] parse: {error}"))?;
         let ast = crate::r#macro::maybe_expand_and_dump(&ast, false);
 

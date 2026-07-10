@@ -1,5 +1,5 @@
 use super::super::NyashRunner;
-use nyash_rust::{parser::NyashParser, mir::MirCompiler, backend::MirInterpreter, runtime::{NyashRuntime, NyashRuntimeBuilder}, box_factory::{SharedState, user_defined::UserDefinedBoxFactory}};
+use nyash_rust::{mir::MirCompiler, backend::MirInterpreter, runtime::{NyashRuntime, NyashRuntimeBuilder}, box_factory::{SharedState, user_defined::UserDefinedBoxFactory}};
 use std::{fs, process};
 use std::sync::Arc;
 
@@ -25,7 +25,7 @@ impl NyashRunner {
         };
 
         // Parse to AST
-        let ast = match NyashParser::parse_from_string(&prepared.code) {
+        let ast = match self.parse_source(&prepared.code) {
             Ok(ast) => ast,
             Err(e) => {
                 crate::runner::modes::common_util::diag::print_parse_error_with_context(

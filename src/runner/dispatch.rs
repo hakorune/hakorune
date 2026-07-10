@@ -3,7 +3,6 @@
  */
 
 use super::*;
-use nyash_rust::parser::NyashParser;
 use std::{fs, process};
 
 /// Thin file dispatcher: select backend and delegate to mode executors
@@ -86,7 +85,7 @@ pub(crate) fn execute_file_with_backend(runner: &NyashRunner, filename: &str) {
                 process::exit(1);
             }
         };
-        let ast = match NyashParser::parse_from_string(&code) {
+        let ast = match runner.parse_source(&code) {
             Ok(ast) => ast,
             Err(e) => {
                 crate::runner::modes::common_util::diag::print_parse_error_with_context(
@@ -115,7 +114,7 @@ pub(crate) fn execute_file_with_backend(runner: &NyashRunner, filename: &str) {
                 process::exit(1);
             }
         };
-        let ast = match NyashParser::parse_from_string(&code) {
+        let ast = match runner.parse_source(&code) {
             Ok(ast) => ast,
             Err(e) => {
                 crate::runner::modes::common_util::diag::print_parse_error_with_context(

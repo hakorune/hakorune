@@ -1,4 +1,4 @@
-use nyash_rust::parser::NyashParser;
+use nyash_rust::parser::{GrammarProfile, NyashParser, ParserBuildConfig};
 use nyash_rust::test_support::with_env_vars;
 
 fn ensure_ring0_initialized_for_alias_warning() {
@@ -27,15 +27,24 @@ fn with_stage3_env<F: FnOnce()>(
     );
 }
 
+fn parse_compat2025(
+    code: &str,
+) -> Result<nyash_rust::ast::ASTNode, nyash_rust::parser::ParseError> {
+    let config = ParserBuildConfig {
+        grammar_profile: GrammarProfile::Compat2025,
+        ..ParserBuildConfig::default()
+    };
+    NyashParser::parse_from_string_with_build_config(code, config)
+}
+
 #[test]
-fn stage3_default_enabled_accepts_try_and_rejects_throw() {
+fn canonical_default_rejects_try_and_throw() {
     with_stage3_env(None, None, None, || {
         let code_try = "try { local x = 1 } catch () { }";
         let res_try = NyashParser::parse_from_string(code_try);
         assert!(
-            res_try.is_ok(),
-            "try should parse when Stage-3 is default-enabled: {:?}",
-            res_try.err()
+            format!("{:?}", res_try.err()).contains("[parser/try_reserved]"),
+            "Canonical default must reject statement try"
         );
 
         let code_throw = "throw 1";
@@ -94,7 +103,7 @@ fn no_try_compat_feature_rejects_try_with_freeze_tag() {
         let res_try = NyashParser::parse_from_string(code_try);
         assert!(
             res_try.is_err(),
-            "try should be rejected with no-try-compat"
+            "Canonical should reject independently of no-try-compat"
         );
         let err = format!("{:?}", res_try.err());
         assert!(
@@ -106,7 +115,7 @@ fn no_try_compat_feature_rejects_try_with_freeze_tag() {
 }
 
 #[test]
-fn stage3_enabled_accepts_try_catch_variants() {
+fn compat2025_accepts_only_normalizable_try_shape() {
     with_stage3_env(Some("stage3"), None, None, || {
         // (Type var)
         let code1 = r#"
@@ -114,21 +123,30 @@ fn stage3_enabled_accepts_try_catch_variants() {
             catch (Error e) { local b = 2 }
             cleanup { local z = 3 }
         "#;
-        assert!(NyashParser::parse_from_string(code1).is_ok());
+        let err1 = format!("{:?}", parse_compat2025(code1).err());
+        assert!(err1.contains("[parser/try_compat_not_normalizable]"));
 
         // (var) only
         let code2 = r#"
             try { local a = 1 }
             catch (e) { local b = 2 }
         "#;
-        assert!(NyashParser::parse_from_string(code2).is_ok());
+        let err2 = format!("{:?}", parse_compat2025(code2).err());
+        assert!(err2.contains("[parser/try_compat_not_normalizable]"));
 
         // () empty
         let code3 = r#"
             try { local a = 1 }
             catch () { local b = 2 }
         "#;
-        assert!(NyashParser::parse_from_string(code3).is_ok());
+        assert!(parse_compat2025(code3).is_ok());
+
+        let code4 = r#"
+            try { local a = 1 }
+            catch () { local b = 2 }
+            cleanup { local z = 3 }
+        "#;
+        assert!(parse_compat2025(code4).is_ok());
     });
 }
 
@@ -140,7 +158,7 @@ fn stage3_rejects_finally_alias_keyword() {
             catch () { local b = 2 }
             finally { local z = 3 }
         "#;
-        let res = NyashParser::parse_from_string(code);
+        let res = parse_compat2025(code);
         assert!(
             res.is_err(),
             "finally must be rejected; use cleanup: {:?}",

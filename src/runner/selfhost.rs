@@ -7,7 +7,7 @@
  */
 
 use super::*;
-use nyash_rust::{mir::MirCompiler, parser::NyashParser};
+use nyash_rust::mir::MirCompiler;
 
 // ============================================================================
 // Selfhost pipeline helpers
@@ -109,7 +109,7 @@ impl NyashRunner {
                     "[ny-compiler] selfhost macro pre-expand: engaging (mode={:?})",
                     preenv
                 );
-                match NyashParser::parse_from_string(prepared.prepared_code.as_str()) {
+                match self.parse_source(prepared.prepared_code.as_str()) {
                     Ok(ast0) => {
                         let ast = crate::r#macro::maybe_expand_and_dump(&ast0, false);
                         // Compile to MIR and execute on the unified runtime path.
