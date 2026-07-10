@@ -5,9 +5,64 @@
 Active design consultation after 3482 closes the exact-numeric parameter-entry
 contract.
 
-Decision: required before implementation.
+Decision: accepted.
 
-Implementation: stopped.
+Implementation: delegated to 3484.
+
+## Accepted Decision
+
+```text
+owner = FunctionReturnContractOwner
+runtime veto = ReturnOutcomeVerifier
+check target = final callee BlockOutcome::Return(value)
+order = body + cleanup CFG -> final Return -> contract -> frame restore -> publication
+first subset = explicit exact-numeric source return annotations
+carrier = FunctionMetadata.return_exit_contract
+void policy = RejectVoid
+runtime check elision = forbidden
+first supported backend = Rust MIR interpreter only
+extern_ffi = excluded
+closure runtime invocation = excluded
+caller authority = forbidden
+```
+
+Cleanup is already represented as MIR CFG. The return owner does not
+reinterpret cleanup: it validates the one final `BlockOutcome::Return` after
+cleanup has run. Fault/VM error wins and skips return-value validation.
+
+Active exact-numeric return contracts reject `Return(None)`, `VMValue::Void`,
+explicit `return void`, reachable fallthrough, and reachable unterminated
+blocks. Runtime values are checked by the same subordinate exact-numeric value
+checker as parameter entry, while entry and return ownership remain separate.
+
+## Accepted Carrier
+
+```text
+ReturnExitContract {
+  contract_id
+  declared_type_name
+  contract_kind = ExactNumeric
+  void_policy = RejectVoid
+  runtime_check_required = true
+  proof_elision_allowed = false
+  backend_capability_required = return_exit_exact_numeric
+  source_return_annotation_present = true
+  owner = FunctionReturnContractOwner
+}
+```
+
+Function identity and freshness belong to the owning `MirFunction` and normal
+semantic-refresh lifecycle. Do not copy Return operand ValueIds into the
+function-level carrier. `FunctionSignature.return_type`, `MirType`,
+`declared_return_type_name`, and `exact_numeric_return_fact` remain evidence or
+representation facts, never runtime-result proof.
+
+## Accepted Backend Boundary
+
+The first implementation supports the Rust MIR interpreter only. PyVM, LLVM,
+AOT, and Wasm reject active return-exit carriers through the central backend
+capability gate until a typed consumer exists. LLVM zero/null completion and
+return type adjustment are migration debt, not authority or fallback.
 
 ## Objective
 
@@ -80,7 +135,8 @@ C. caller-side result checks
 D. park return activation and move to locals
 ```
 
-Candidate A is structurally preferred but not accepted by this card.
+Consultation accepted Candidate A. The executable task is
+`3484-LANGV1-TYPE-GUARANTEE-RETURN-EXIT-EXACT-NUMERIC-CONTRACT-001`.
 
 ## Required Fail-Fast Boundary
 
@@ -114,7 +170,6 @@ selfhost_claim = 0
 
 ## Stop Rule
 
-Do not edit Return execution, cleanup outcome handling, call-result
-publication, MIR JSON return metadata, or backend return ABI until this
-consultation accepts one owner, carrier, subset, ordering, and fail-fast
-boundary.
+Satisfied by the accepted decision above. Implementation may proceed only in
+3484's exact-numeric return scope; local contracts, FFI/closure results,
+proof-elision, and product-backend return lowering remain stopped.

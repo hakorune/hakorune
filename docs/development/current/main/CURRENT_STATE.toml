@@ -16,8 +16,10 @@ existing exact-numeric Box field owner as the first slice. 3480 closes the
 preflight boundary. 3481 accepts FunctionEntryContractOwner, a typed
 exact-numeric parameter carrier, final-callee checks, and VM-only first-slice
 support. 3482 closes that carrier, final-callee VM entry check, MIR JSON
-transport, and unsupported-backend preflight. 3483 stops at exact-numeric
-return-exit owner/carrier design."""
+transport, and unsupported-backend preflight. 3483 accepts the final-callee
+return owner, typed carrier, Void/fallthrough veto, and VM-only first slice.
+3484 implements the return carrier, shared value checker, final-outcome
+verifier, VM exit check, MIR JSON, and backend preflight."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
@@ -25,14 +27,14 @@ method_anchor = "docs/development/current/main/design/selfhost-language-v1-freez
 taskboard = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 
-latest_card = "LANGV1-TYPE-GUARANTEE-RETURN-EXIT-DESIGN-STOP-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3483-LANGV1-TYPE-GUARANTEE-RETURN-EXIT-DESIGN-STOP-001.md"
-latest_card_summary = """3483 selects one exact-numeric return-exit owner and
-typed carrier across final outcome/cleanup, caller publication, MIR JSON, and
-backend preflight. Implementation is stopped until the owner, void/fallthrough
-policy, carrier, subset, and fail-fast order are accepted."""
+latest_card = "LANGV1-TYPE-GUARANTEE-RETURN-EXIT-EXACT-NUMERIC-CONTRACT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3484-LANGV1-TYPE-GUARANTEE-RETURN-EXIT-EXACT-NUMERIC-CONTRACT-001.md"
+latest_card_summary = """3484 implements one final-callee exact-numeric return
+contract: typed FunctionMetadata carrier, reachable-outcome verifier, shared
+numeric value checker, central VM exit check before publication, MIR JSON
+transport, and non-VM backend fail-fast."""
 
-current_blocker_token = "LANGV1-TYPE-GUARANTEE-RETURN-EXIT-DESIGN-STOP-001"
+current_blocker_token = "LANGV1-TYPE-GUARANTEE-RETURN-EXIT-EXACT-NUMERIC-CONTRACT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -41,6 +43,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-11: 3483 accepts FunctionReturnContractOwner, ReturnOutcomeVerifier, RejectVoid/fallthrough, and VM-only exact-numeric return scope; 3484 opens substantive implementation.",
   "2026-07-11: 3482 closes exact-numeric final-callee parameter entry with typed carrier, exact arity, VM checks, MIR JSON, and non-VM preflight; 3483 opens return-exit design consultation.",
   "2026-07-11: 3481 accepts final-callee FunctionEntryContractOwner and VM-only exact-numeric parameter scope; 3482 opens the substantive carrier/runtime/MIR-JSON/backend-preflight implementation.",
   "2026-07-11: 3480 closes the 11-site guarantee matrix and exact-numeric Box field proof/runtime/backend contract; 3481 opens parameter-entry carrier design consultation.",
@@ -52,5 +55,4 @@ landed_tail = [
   "2026-07-10: 3475 adds an eight-family typed convergence graph, deterministic invalidation closure, full-refresh trace parity, and compile-scaling shadow guards without switching authority; 3476 opens scoped test config isolation.",
   "2026-07-10: 3474 closes delimiter-aware Match scrutinee parsing with Var/Call/Field/RecordLiteral fixtures and fixes record closing-brace position retention; 3475 opens route-family graph shadowing.",
   "2026-07-10: 3473 explicitly excludes registry-derived CompatibilityTransport rows from Hako semantic conformance without invoking the Hako adapter; 3474 opens delimiter-aware Match scrutinee parsing.",
-  "2026-07-10: 3471 accepts Hako transport exclusion, delimiter-aware Match context, route-family convergence graph ownership, and scoped test-config ownership; 3473 opens the first code-facing exclusion slice.",
 ]

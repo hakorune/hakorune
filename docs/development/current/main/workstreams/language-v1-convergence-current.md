@@ -287,8 +287,8 @@ Next: `LANGV1-TYPE-GUARANTEE-001`.
 ### 3. LANGV1-TYPE-GUARANTEE-001
 
 Status: design accepted as 3479; exact-numeric Box field first slice complete
-as 3480; parameter-entry contract complete as 3482; return-exit carrier design
-active as 3483.
+as 3480; parameter-entry contract complete as 3482; return-exit design accepted
+as 3483; return-exit implementation active as 3484.
 
 Target contract:
 
@@ -314,6 +314,36 @@ Deliverables:
    hints before enabling the contract by default.
 6. Land boundaries in this order within the same macro row: locals and params,
    returns, Box fields, records, arrays/collections, FFI/backend preflight.
+
+Current executable queue:
+
+```text
+T0 active:
+  3484 exact-numeric return-exit implementation
+
+T1 after 3484 closeout:
+  local exact-numeric contract design stop
+  inventory init/reassignment/PHI/loop/Any/proof invalidation
+
+T2 after local decision:
+  one local exact-numeric implementation card
+  no broad static checker; one LocalSlotContractOwner
+
+T3 after local closeout:
+  representation-only :T consumer audit and migration queue
+  remove direct storage/layout/planner authority from source annotations
+
+T4 after representation audit:
+  exact-numeric annotation-island closeout
+  parameter + return + Box field + local owner/exhaustiveness audit
+
+T5 next type family decision:
+  choose record construction or typed Array element contract from evidence
+  do not open FFI/backend lowering or all-types activation implicitly
+```
+
+Do not create inventory-only, fixture-only, or rerun-only numbered cards for
+T1-T5. Materialize only the currently selected design or implementation card.
 
 Acceptance:
 
