@@ -2,10 +2,10 @@
 
 ## Status
 
-Parked design consultation stop while 3472 repairs the parser/MIR correctness
-and compile-cost prerequisites. Do not implement Hako `from` acceptance,
-transport, semantic lowering, or grammar closeout until this scope decision is
-accepted.
+Active design consultation stop after 3472 closes the parser/MIR correctness,
+compile-cost, corpus-runner, and source-layout prerequisites. Do not implement
+Hako `from` acceptance, transport, semantic lowering, or grammar closeout until
+this scope decision is accepted.
 
 ## Current Evidence
 
@@ -19,6 +19,8 @@ Hako:
   explicit per-call GrammarProfile facade -> landed
   statement try profile seam -> landed
   peek -> Match compatibility alias -> landed
+  compile-once 16-row grammar corpus batch -> green
+  ParserProgramBox orchestration owner -> landed
   box-from/from-call transport evidence -> missing
 
 Registry:

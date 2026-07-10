@@ -18,10 +18,10 @@ accepts a separate migration transport adapter. 3466 completes both Rust from
 forms without semantic AST publication. 3467 accepts a profile-bearing Hako
 adapter facade and external witness projection. 3468 completes bounded adapter
 health. 3469 completes the Hako profile facade plus statement-try seam. 3470
-completes the Hako peek-to-Match compatibility alias. 3471's Hako from
-transport consultation is parked while 3472 repairs parser contract-result,
-Match/inventory/MIR support, compile scaling, corpus runner, and source layout
-prerequisites. Runtime/backend/selfhost remain closed."""
+completes the Hako peek-to-Match compatibility alias. 3472 closes parser
+contract-result, Match/inventory/MIR support, compile scaling, corpus runner,
+and source layout prerequisites. 3471's Hako from transport consultation is
+active again. Runtime/backend/selfhost remain closed."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
@@ -31,11 +31,12 @@ latest_workstream_card = "docs/development/current/main/workstreams/language-v1-
 
 latest_card = "LANGV1-GRAMMAR-MIR-CORRECTNESS-COMPILE-COST-CORRECTIVE-001"
 latest_card_path = "docs/development/current/main/phases/phase-296x/3472-LANGV1-GRAMMAR-MIR-CORRECTNESS-COMPILE-COST-CORRECTIVE-001.md"
-latest_card_summary = """3472 is one ordered corrective card for parser
+latest_card_summary = """3472 completes one ordered corrective card for parser
 contract errors, Match/inventory/MIR support, MIR compile scaling, corpus-driven
-batch execution, and source/current-pointer cleanup. 3471 remains parked."""
+batch execution, and source/current-pointer cleanup. 3471 resumes as the active
+design consultation stop."""
 
-current_blocker_token = "LANGV1-GRAMMAR-MIR-CORRECTNESS-COMPILE-COST-CORRECTIVE-001"
+current_blocker_token = "LANGV1-HAKO-FROM-TRANSPORT-CONFORMANCE-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -44,6 +45,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-10: 3472 closes parser contract propagation, strict Match/inventory and ProgramJSON/MIR gaps, MIR compile-cost instrumentation, compile-once corpus execution, and parser source layout; 3471 resumes at design consultation.",
   "2026-07-10: 3470 completes the Hako peek-to-Match Compat2025 alias; 3471 opens the Hako from transport conformance design stop.",
   "2026-07-10: 3466 completes one Rust from transport boundary: closed Compat2025 evidence uses a distinct MigrationTransport record while semantic parsing fails before AST publication.",
   "2026-07-10: 3468 completes bounded Hako adapter health; 3469 lands the explicit profile/try seam and 3470 opens the peek-to-Match alias.",
@@ -55,5 +57,4 @@ landed_tail = [
   "2026-07-10: 3461 opens the four-family grammar-contract substrate after 3460 accepts Canonical default, explicit Compat2025, normalization modes, and span-free ParseWitness.",
   "2026-07-10: 3460 opens the canonical grammar design consultation after 3459 completes evaluated-Place compound assignment with parser, MIR, and VM-reference evidence.",
   "2026-07-10: 3459 completes evaluated-Place compound assignment for Local, Field, and Index; known unsupported index stores fail before index evaluation and store.",
-  "2026-07-10: 3459 opens the evaluated-Place compound-assignment implementation slice after 3458 accepts the five-Outcome Semantic Kernel.",
 ]

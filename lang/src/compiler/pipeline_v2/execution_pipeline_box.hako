@@ -7,7 +7,6 @@ using lang.compiler.parser.scan.parser_number_scan_box
 using lang.compiler.parser.scan.parser_string_scan_box
 using "lang.compiler.parser.using.using_collector_box"
 using lang.compiler.parser.expr.parser_expr_box
-using lang.compiler.parser.expr.parser_peek_box
 using lang.compiler.parser.expr.parser_literal_box
 using lang.compiler.parser.stmt.parser_stmt_box
 using lang.compiler.parser.stmt.parser_control_box

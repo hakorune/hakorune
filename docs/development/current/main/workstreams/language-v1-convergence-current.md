@@ -95,8 +95,10 @@ product proof:
   EXE/AOT plus fail-fast backend preflight
 ```
 
-The charter and semantic kernel are current truth. The active card implements
-only the evaluated-Place compound-assignment slice of that kernel.
+The charter, semantic kernel, and grammar contract are current truth. The
+active 3472 corrective card closes Hako grammar correctness, ProgramJSON/MIR
+support, compile-cost, corpus-runner, and source-layout prerequisites before
+the parked 3471 transport consultation resumes.
 
 ## Confirmed Starting Gaps
 
@@ -215,9 +217,10 @@ landed as 3463; Rust peek Compat2025 alias landed as 3464; Rust from
 transport-only decision accepted as 3465; Rust from transport boundary landed
 as 3466; Hako profile/witness ownership is accepted as 3467; adapter health
 lands as 3468; explicit Hako profile facade plus statement-try lands as 3469;
-Hako peek-to-Match alias lands as 3470. The Hako from transport conformance
-scope is parked as 3471 while the ordered parser/MIR corrective card 3472
-repairs its correctness, compile-cost, fixture, and source-layout prerequisites.
+Hako peek-to-Match alias lands as 3470. The ordered parser/MIR corrective card
+3472 closes its correctness, compile-cost, fixture, and source-layout
+prerequisites. The Hako from transport conformance scope resumes at the 3471
+design consultation stop.
 
 Deliverables:
 

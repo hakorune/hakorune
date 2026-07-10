@@ -2,13 +2,11 @@
 
 ## Status
 
-Active corrective card. Repair the correctness and compile-cost prerequisites
-found after 3470 before resuming the parked 3471 transport consultation.
+Complete corrective card. The parser/MIR correctness, compile-cost, corpus
+runner, and source-layout prerequisites found after 3470 are closed. Resume
+3471 at its design consultation stop.
 
-Progress: Slices 1 through 5 are complete. Slice 5 runs 16 selected shared
-corpus rows through one adapter process and one merged-parser compile while
-retaining exact status/tag and normalized-program comparison. The remaining
-work is Slice 6 structural cleanup.
+Progress: all six slices are complete.
 
 ## Problem Statement
 
@@ -205,7 +203,8 @@ batch input owner = shared corpus projection
 single/batch observation owner = Main._observe
 selected full-profile fixtures = 16
 adapter process count = 1
-full profile guard wall time = about 80 seconds
+full profile guard wall time = about 34 seconds after Slice 6
+pre-Slice-6 batch wall time = about 80 seconds
 quick guard full matrix = disabled unless LANGV1_HAKO_PROFILE_FULL=1
 source rewrite = absent
 reject-tag translation = absent
@@ -216,6 +215,18 @@ reject-tag translation = absent
 Split `ParserBox` below 800 lines without changing acceptance, remove the stale
 workstream current token, and give `ParserPeekBox` an explicit retirement gate:
 zero live imports, replacement corpus green, and canonical Match parity green.
+
+Implementation and evidence:
+
+```text
+ParserBox facade = 775 lines
+ParserProgramBox orchestration owner = 201 lines
+ParserBox public ProgramJSON entry count = 1
+ParserPeekBox source/import/export count = 0
+embedded module snapshot = refreshed from hako_module.toml
+stale workstream active-card text = removed
+full 16-row profile batch after split = green
+```
 
 ## Verification
 

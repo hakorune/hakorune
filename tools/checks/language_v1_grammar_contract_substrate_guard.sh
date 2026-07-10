@@ -13,6 +13,18 @@ test -f grammar/unified-grammar.toml || guard_fail "physical registry missing"
 test -f grammar/language-v1-grammar-contract-corpus.toml || guard_fail "shared corpus missing"
 test -f tools/language_v1/grammar_contract_hako_adapter.hako || guard_fail "Hako adapter missing"
 test -f tools/language_v1/grammar_contract_drift_report.py || guard_fail "drift report missing"
+test ! -e lang/src/compiler/parser/expr/parser_peek_box.hako \
+  || guard_fail "retired ParserPeekBox source returned"
+if rg -q 'ParserPeekBox|parser_peek_box' lang/src/compiler --glob '*.hako' --glob '*.toml'; then
+  guard_fail "retired ParserPeekBox still has a live import or export"
+fi
+test "$(wc -l < lang/src/compiler/parser/parser_box.hako)" -lt 800 \
+  || guard_fail "ParserBox facade exceeded the 800-line source boundary"
+test "$(wc -l < lang/src/compiler/parser/program/parser_program_box.hako)" -lt 800 \
+  || guard_fail "ParserProgramBox exceeded the 800-line source boundary"
+rg -q 'hako_equivalent_fixture_id = "match_compat"' \
+  grammar/language-v1-grammar-contract-corpus.toml \
+  || guard_fail "peek-to-Match replacement parity fixture missing"
 
 rg -q '\[\[language_v1_grammar_contract\.rows\]\]' grammar/unified-grammar.toml || guard_fail "v1 rows missing"
 rg -q 'CompatibilityTransport' docs/reference/language/grammar-contract.md || guard_fail "transport boundary missing"
@@ -44,7 +56,7 @@ fi
 rg -F -q 'set_enum_inventory_json(inventory_json)' \
   lang/src/compiler/parser/grammar_profile_facade.hako \
   || guard_fail "Hako grammar facade does not consume generic inventory context"
-rg -F -q '\"enum_decls\":' lang/src/compiler/parser/parser_box.hako \
+rg -F -q '\"enum_decls\":' lang/src/compiler/parser/program/parser_program_box.hako \
   || guard_fail "Hako ProgramJSON does not publish the invocation enum inventory"
 for tag in \
   parser/hako_enum_match_duplicate_variant \

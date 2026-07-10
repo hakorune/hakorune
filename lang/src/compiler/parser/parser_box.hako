@@ -13,6 +13,7 @@ using lang.compiler.parser.enum.parser_enum_inventory_box
 using lang.compiler.parser.stmt.parser_stmt_box
 using lang.compiler.parser.stmt.parser_control_box
 using lang.compiler.parser.rune.rune_contract_box as RuneContractBox
+using lang.compiler.parser.program.parser_program_box
 
 box ParserBox {
   gpos
@@ -49,6 +50,17 @@ box ParserBox {
   freeze_contract(stable_tag, message) {
     local error = "[freeze:contract][" + stable_tag + "] " + message
     if me.contract_error == null { me.contract_error = error }
+    return error
+  }
+
+  contract_error_reset() {
+    me.contract_error = null
+    return 0
+  }
+
+  contract_error_take() {
+    local error = me.contract_error
+    me.contract_error = null
     return error
   }
 
@@ -752,225 +764,7 @@ box ParserBox {
 
   // === Top-level program parser ===
   parse_program2(src) {
-    me.contract_error = null
-    // Dev-only: guaranteed direct marker before any env operations
-    {
-      local marker_enabled = env.get("HAKO_STAGEB_TRACE")
-      if marker_enabled != null && ("" + marker_enabled) == "1" {
-        print("[stageb/trace] ParserBox.parse_program2:entry")
-      }
-    }
-
-    // Shallow recursion guard for mode-B compatibility / selfhost callers:
-    // prevent accidental self-recursion in ParserBox.parse_program2.
-    {
-      local depth = env.get("HAKO_STAGEB_PARSER_DEPTH")
-      if depth != null && ("" + depth) != "0" {
-        print("[stageb/recursion] ParserBox.parse_program2 recursion detected")
-        // Fail-fast: return an empty Program(JSON) so caller can detect failure.
-        return "{\"version\":0,\"kind\":\"Program\",\"body\":[]}"
-      }
-      env.set("HAKO_STAGEB_PARSER_DEPTH", "1")
-    }
-
-    // Dev-only: marker before trace_enabled() call
-    {
-      local marker_enabled = env.get("HAKO_STAGEB_TRACE")
-      if marker_enabled != null && ("" + marker_enabled) == "1" {
-        print("[stageb/trace] ParserBox.parse_program2:before_trace_enabled")
-      }
-    }
-
-    local trace = me.trace_enabled()
-
-    // Dev-only: marker after trace_enabled() call
-    {
-      local marker_enabled = env.get("HAKO_STAGEB_TRACE")
-      if marker_enabled != null && ("" + marker_enabled) == "1" {
-        print("[stageb/trace] ParserBox.parse_program2:after_trace_enabled trace=" + ("" + trace))
-      }
-    }
-
-    // Inline skip_ws to avoid VM bug: method-with-loop called from within loop
-    local i = 0
-    local n = src.length()
-
-    // Dev-only: marker before src.length() operations
-    {
-      local marker_enabled = env.get("HAKO_STAGEB_TRACE")
-      if marker_enabled != null && ("" + marker_enabled) == "1" {
-        print("[stageb/trace] ParserBox.parse_program2:got_src_length n=" + ("" + n))
-      }
-    }
-
-    if trace == 1 {
-      print("[parser/trace:program2] start len=" + ("" + n) + " stage3=" + ("" + me.stage3))
-    }
-    if i < n {
-      i = ParserStringUtilsBox.skip_ws(src, i)
-    }
-
-    // Dev-only: marker before main loop
-    {
-      local marker_enabled = env.get("HAKO_STAGEB_TRACE")
-      if marker_enabled != null && ("" + marker_enabled) == "1" {
-        print("[stageb/trace] ParserBox.parse_program2:before_main_loop i=" + ("" + i))
-      }
-    }
-
-    local body = "["
-    local first = 1
-    local static_data = "["
-    local static_first = 1
-    local cont_prog = 1
-
-    // Dev-only program-level progress guard (Phase 25.1c):
-    // - Enabled when HAKO_PARSER_PROG_MAX > 0
-    // - Protects mode-B compatibility/selfhost callers from infinite top-level loops on malformed input
-    local guard_prog = 0
-    local max_prog = 0
-    {
-      local m = env.get("HAKO_PARSER_PROG_MAX")
-      if m != null {
-        local mv = ParserStringUtilsBox.to_int(m)
-        if mv > 0 { max_prog = mv }
-      }
-    }
-
-    loop(cont_prog == 1) {
-      // ===== 1) WS SKIP (inline, simple structure) =====
-      i = ParserStringUtilsBox.skip_ws(src, i)
-
-      // ===== 2) EOF/GUARD CHECK (early exit) =====
-      if i >= n {
-        cont_prog = 0
-        break
-      }
-
-      if max_prog > 0 {
-        guard_prog = guard_prog + 1
-        if guard_prog > max_prog {
-          if trace == 1 {
-            print("[parser/program2:guard] max iteration reached at pos=" + ("" + i))
-          }
-          cont_prog = 0
-          break
-        }
-      }
-
-      // ===== 3) SOURCE-LEVEL METADATA DECLS =====
-      local skip_statement_parse = 0
-      local static_row = me.parse_static_const_table_decl(src, i)
-      if static_row != null {
-        if ParserStringUtilsBox.starts_with("" + static_row, 0, "[freeze:contract]") == 1 {
-          env.set("HAKO_STAGEB_PARSER_DEPTH", "0")
-          return "" + static_row
-        }
-        i = me.gpos_get()
-        local static_semis = 1
-        loop(static_semis == 1) {
-          i = ParserStringUtilsBox.skip_ws(src, i)
-          if i < n && src.substring(i, i+1) == ";" {
-            i = i + 1
-          } else {
-            static_semis = 0
-          }
-        }
-        local pending_static_runes = me.consume_runes_json()
-        if pending_static_runes != "[]" {
-          env.set("HAKO_STAGEB_PARSER_DEPTH", "0")
-          return RuneContractBox.invalid_placement_tag("static const")
-        }
-        if static_first == 1 {
-          static_data = static_data + static_row
-          static_first = 0
-        } else {
-          static_data = static_data + "," + static_row
-        }
-        skip_statement_parse = 1
-      }
-
-      if skip_statement_parse == 0 {
-        // ===== 4) PARSE_STMT2 + GPOS_GET (unconditional execution) =====
-        local start_i = i
-        local s = me.parse_stmt2(src, i)
-        i = me.gpos_get()
-
-        if me.contract_error != null {
-          local expression_error = me.contract_error
-          me.contract_error = null
-          env.set("HAKO_STAGEB_PARSER_DEPTH", "0")
-          return expression_error
-        }
-
-        if ParserStringUtilsBox.starts_with("" + s, 0, "[freeze:contract]") == 1 {
-          env.set("HAKO_STAGEB_PARSER_DEPTH", "0")
-          return "" + s
-        }
-
-        // ===== 5) PROGRESS GUARD (ensure i always advances) =====
-        if i <= start_i {
-          if trace == 1 {
-            print("[parser/trace:program2] progress-guard bump i from " + ("" + start_i) + " to " + ("" + (start_i + 1)))
-          }
-          i = start_i + 1
-          if i > n { i = n }
-          me.gpos_set(i)
-        }
-
-        // ===== 6) TRACE (simplified, at end) =====
-        if trace == 1 {
-          print("[parser/trace:program2] i=" + ("" + i) + " stmt_len=" + ("" + s.length()) + " guard=" + ("" + guard_prog))
-        }
-
-        // ===== 7) CONSUME OPTIONAL SEMICOLONS - MirBuilder-friendly =====
-        loop(true) {
-          i = ParserStringUtilsBox.skip_ws(src, i)
-
-          if i < n && src.substring(i, i+1) == ";" {
-            i = i + 1
-            continue
-          }
-
-          break
-        }
-
-        // ===== 8) EMIT STATEMENT =====
-        local pending_runes = me.consume_runes_json()
-        if pending_runes != "[]" {
-          env.set("HAKO_STAGEB_PARSER_DEPTH", "0")
-          return RuneContractBox.invalid_placement_tag("statement")
-        }
-        if s.length() > 0 {
-          if first == 1 {
-            if trace == 1 {
-              print("[parser/trace:program2] emit-first stmt_len=" + ("" + s.length()))
-            }
-            body = body + s
-            first = 0
-          } else {
-            if trace == 1 {
-              print("[parser/trace:program2] emit stmt_len=" + ("" + s.length()))
-            }
-            body = body + "," + s
-          }
-        }
-      }
-    }
-
-    body = body + "]"
-    static_data = static_data + "]"
-    if me.consume_runes_json() != "[]" {
-      env.set("HAKO_STAGEB_PARSER_DEPTH", "0")
-      return RuneContractBox.invalid_placement_tag("statement")
-    }
-    if trace == 1 {
-      print("[parser/trace:program2] done pos=" + ("" + i) + " len=" + ("" + n))
-    }
-    env.set("HAKO_STAGEB_PARSER_DEPTH", "0")
-    local enum_decls = me.enum_inventory_json
-    if enum_decls == null || enum_decls == "" { enum_decls = "[]" }
-    return "{\"version\":0,\"kind\":\"Program\",\"body\":" + body + ",\"enum_decls\":" + enum_decls + ",\"static_data_plans\":" + static_data + "}"
+    return ParserProgramBox.parse(src, me)
   }
 }
 
