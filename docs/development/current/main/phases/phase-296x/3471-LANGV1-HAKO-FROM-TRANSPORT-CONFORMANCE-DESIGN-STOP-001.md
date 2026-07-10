@@ -2,10 +2,29 @@
 
 ## Status
 
-Active design consultation stop after 3472 closes the parser/MIR correctness,
-compile-cost, corpus-runner, and source-layout prerequisites. Do not implement
-Hako `from` acceptance, transport, semantic lowering, or grammar closeout until
-this scope decision is accepted.
+Complete design consultation after 3472 closes the parser/MIR correctness,
+compile-cost, corpus-runner, and source-layout prerequisites.
+
+Decision: accepted.
+
+```text
+Decision A:
+  Hako semantic-parser conformance explicitly excludes
+  CompatibilityTransport rows. Rust migration tooling remains the only
+  transport producer.
+
+Decision B:
+  Match owns delimiter disambiguation through an explicit delimiter-aware
+  expression context.
+
+Decision C:
+  The route-family dependency graph is the single MIR convergence owner.
+  Changed-function worklists and local invalidation are mechanisms beneath it.
+
+Decision D:
+  Scoped config injection is the single process-state test-isolation owner.
+  Subprocess execution is a classification oracle, not the owner.
+```
 
 ## Current Evidence
 
@@ -187,10 +206,10 @@ green.
 ## Ordered Follow-up Tasks
 
 ```text
-1. accept Decision A and implement exactly one Hako from-transport slice
-2. accept Decision B and close Match/record delimiter ownership
-3. accept Decision C and implement one measured MIR convergence BoxShape
-4. accept Decision D and implement one process-state isolation boundary
+1. 3473: implement explicit Hako compatibility-transport exclusion
+2. implement delimiter-aware Match/record expression ownership
+3. implement the route-family dependency graph in shadow mode
+4. implement one scoped process-state config boundary
 5. rerun the shared grammar corpus and evaluate LANGV1-GRAMMAR-001 closeout
 ```
 
@@ -215,7 +234,6 @@ full_lib_test_isolation_closeout = 0
 
 ## Stop Rule
 
-This is the current stop. The Decision A A/B answer remains required before any
-Hako `from` implementation. After the consolidated answer lands, update this
-card with the accepted decisions and point directly to the selected code-facing
-owner; do not open a second consultation-only card for the same questions.
+Resolved. Proceed to 3473 and then follow the ordered code-facing queue in the
+language-v1 workstream. Do not open a second consultation-only card for these
+decisions.

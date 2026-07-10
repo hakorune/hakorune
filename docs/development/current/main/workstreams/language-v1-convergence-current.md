@@ -95,10 +95,11 @@ product proof:
   EXE/AOT plus fail-fast backend preflight
 ```
 
-The charter, semantic kernel, and grammar contract are current truth. The
-active 3472 corrective card closes Hako grammar correctness, ProgramJSON/MIR
-support, compile-cost, corpus-runner, and source-layout prerequisites before
-the parked 3471 transport consultation resumes.
+The charter, semantic kernel, and grammar contract are current truth. Card 3472
+closes Hako grammar correctness, ProgramJSON/MIR support, compile-cost,
+corpus-runner, and source-layout prerequisites. Card 3471 accepts four
+independent follow-up decisions, and 3473 is the active code-facing Hako
+compatibility-transport exclusion slice.
 
 ## Confirmed Starting Gaps
 
@@ -219,8 +220,10 @@ as 3466; Hako profile/witness ownership is accepted as 3467; adapter health
 lands as 3468; explicit Hako profile facade plus statement-try lands as 3469;
 Hako peek-to-Match alias lands as 3470. The ordered parser/MIR corrective card
 3472 closes its correctness, compile-cost, fixture, and source-layout
-prerequisites. The Hako from transport conformance scope resumes at the 3471
-design consultation stop.
+prerequisites. Card 3471 accepts explicit Hako compatibility-transport
+exclusion, delimiter-aware Match context, route-family convergence graph
+ownership, and scoped test-config ownership. Card 3473 opens the first
+code-facing slice.
 
 Deliverables:
 
@@ -254,11 +257,16 @@ parse_witness_conformance = 1
 Post-3472 ordered follow-up queue:
 
 ```text
-Q0 active: 3471 Hako compatibility-transport A/B consultation
-Q1 pending: implement the accepted Hako transport/exclusion boundary
-Q2 pending: Match scrutinee vs record-literal delimiter ownership
-Q3 pending: measured MIR semantic-convergence BoxShape
-Q4 pending: process-global parser/MIR test isolation
+Q0 complete: 3471 accepts Decisions A-D
+Q1 active: 3473 Hako CompatibilityTransport explicit exclusion
+Q2 accepted pending: LANGV1-HAKO-MATCH-RECORD-DELIMITER-OWNER-001
+  owner = delimiter-aware ExprContext / MatchScrutineeStopsBeforeTopLevelBrace
+Q3 accepted pending: MIR-CONVERGENCE-ROUTE-FAMILY-GRAPH-SHADOW-001
+  owner = route-family dependency graph
+  changed-function worklist and local invalidation = subordinate mechanisms
+Q4 accepted pending: TEST-PROCESS-STATE-SCOPED-CONFIG-OWNER-001
+  owner = scoped config injection
+  subprocess execution = classification oracle only
 Q5 pending: full grammar corpus rerun and LANGV1-GRAMMAR-001 closeout check
 ```
 
