@@ -15,8 +15,9 @@ registry/witness/corpus/adapter substrate. 3462 accepts ParserBuildConfig as
 the typed profile owner, and 3463 lands profile plumbing plus the statement
 try seam, and 3464 migrates Rust peek as a Compat2025 alias to Match. 3465
 accepts a separate migration transport adapter. 3466 completes both Rust from
-forms without semantic AST publication. 3467 is the Hako grammar-profile and
-ParseWitness design stop; Hako/runtime/backend/selfhost remain closed."""
+forms without semantic AST publication. 3467 accepts a profile-bearing Hako
+adapter facade and external witness projection. 3468 opens adapter health only;
+Hako acceptance/runtime/backend/selfhost remain closed."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
@@ -24,13 +25,13 @@ method_anchor = "docs/development/current/main/design/selfhost-language-v1-freez
 taskboard = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 
-latest_card = "LANGV1-HAKO-GRAMMAR-PROFILE-WITNESS-DESIGN-STOP-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3467-LANGV1-HAKO-GRAMMAR-PROFILE-WITNESS-DESIGN-STOP-001.md"
-latest_card_summary = """3467 pauses before Hako parser changes. It requires
-an accepted explicit Hako GrammarProfile owner and span-free ParseWitness
-boundary; current raw Program(JSON) evidence is not language authority."""
+latest_card = "LANGV1-HAKO-GRAMMAR-ADAPTER-HEALTH-BOUNDARY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3468-LANGV1-HAKO-GRAMMAR-ADAPTER-HEALTH-BOUNDARY-001.md"
+latest_card_summary = """3468 restores bounded deterministic Hako grammar
+adapter execution and a one-envelope stdout contract. It changes no Hako
+grammar acceptance and makes no ParseWitness conformance claim."""
 
-current_blocker_token = "LANGV1-HAKO-GRAMMAR-PROFILE-WITNESS-DESIGN-STOP-001"
+current_blocker_token = "LANGV1-HAKO-GRAMMAR-ADAPTER-HEALTH-BOUNDARY-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -40,7 +41,7 @@ optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
   "2026-07-10: 3466 completes one Rust from transport boundary: closed Compat2025 evidence uses a distinct MigrationTransport record while semantic parsing fails before AST publication.",
-  "2026-07-10: 3467 opens the Hako grammar-profile and ParseWitness design stop after Rust profile seams cover try, peek, and both from forms.",
+  "2026-07-10: 3467 accepts a profile-bearing Hako adapter facade and external witness projection; 3468 opens bounded deterministic adapter health only.",
   "2026-07-10: 3465 records the Rust from transport-only design stop after 3464 lands lossless Compat2025 peek-to-Match normalization.",
   "2026-07-10: 3464 opens the Rust peek Compat2025 alias after 3463 lands typed profile plumbing and the statement-try seam; from transport remains deferred.",
   "2026-07-10: 3463 opens typed Rust grammar-profile plumbing plus the statement-try seam after 3462 accepts ParserBuildConfig ownership, API/CLI explicit Compat2025, and legacy-env conflict-only retention.",
