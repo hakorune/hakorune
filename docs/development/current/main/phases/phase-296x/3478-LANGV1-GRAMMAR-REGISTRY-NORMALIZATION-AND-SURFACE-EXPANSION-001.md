@@ -61,6 +61,23 @@ support matrix:
   deferred to Series D execution output after both adapters cover the expanded rows
 ```
 
+### Series C Preparation - Complete
+
+```text
+shared corpus manifest:
+  grammar/language-v1-grammar-contract-corpus.toml
+
+foundation fragment:
+  grammar/language-v1-grammar-contract-corpus/foundation.toml
+
+loader behavior:
+  Rust and Python merge ordered fragments into one logical fixture set
+
+size boundary:
+  foundation fragment remains below 800 lines
+  remaining-surface fixtures will live in a separate fragment
+```
+
 ## Objective
 
 Close `LANGV1-GRAMMAR-001` through one structural series that:

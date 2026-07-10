@@ -11,7 +11,9 @@ pub struct GrammarContractFixture {
     pub expected: ParseWitness,
 }
 
-const CORPUS: &str = include_str!("../../../grammar/language-v1-grammar-contract-corpus.toml");
+const CORPUS_FRAGMENTS: &[&str] = &[include_str!(
+    "../../../grammar/language-v1-grammar-contract-corpus/foundation.toml"
+)];
 
 fn string(value: &toml::value::Table, field: &str) -> String {
     value
@@ -72,47 +74,60 @@ fn profile(value: &str) -> GrammarProfile {
 }
 
 pub fn shared_corpus() -> Vec<GrammarContractFixture> {
-    let document: toml::Value = CORPUS.parse().expect("parse grammar contract corpus");
-    document["fixtures"]
-        .as_array()
-        .expect("grammar contract corpus fixtures")
+    CORPUS_FRAGMENTS
         .iter()
-        .map(|value| {
-            let value = value.as_table().expect("grammar contract fixture table");
-            let fixture_id = string(value, "fixture_id");
-            let row_id = string(value, "row_id");
-            let profile = profile(&string(value, "profile"));
-            let accepted = value["accepted"]
-                .as_bool()
-                .expect("grammar fixture accepted boolean");
-            let expected = if accepted {
-                let normalized_form = normalized_form(value)
-                    .expect("accepted grammar fixture requires normalized_form");
-                if normalized_form.kind == "CompatibilityTransport" {
-                    let transport_ref = optional_string(value, "migration_transport_ref")
-                        .expect("compatibility transport fixture requires migration transport ref");
-                    assert!(
-                        normalized_form.children.is_empty(),
-                        "compatibility transport fixture must not expose semantic children"
-                    );
-                    ParseWitness::accepted_transport(row_id.clone(), profile, transport_ref)
-                } else {
-                    ParseWitness::accepted(row_id.clone(), profile, normalized_form)
-                }
-            } else {
-                assert!(
-                    normalized_form(value).is_none(),
-                    "rejected grammar fixture cannot expose normalized_form"
-                );
-                ParseWitness::rejected(row_id.clone(), profile, string(value, "stable_reject_tag"))
-            };
-            GrammarContractFixture {
-                fixture_id,
-                row_id,
-                profile,
-                source: string(value, "source"),
-                expected,
-            }
+        .flat_map(|fragment| {
+            let document: toml::Value = fragment
+                .parse()
+                .expect("parse grammar contract corpus fragment");
+            document["fixtures"]
+                .as_array()
+                .expect("grammar contract corpus fixtures")
+                .iter()
+                .map(|value| {
+                    let value = value.as_table().expect("grammar contract fixture table");
+                    let fixture_id = string(value, "fixture_id");
+                    let row_id = string(value, "row_id");
+                    let profile = profile(&string(value, "profile"));
+                    let accepted = value["accepted"]
+                        .as_bool()
+                        .expect("grammar fixture accepted boolean");
+                    let expected = if accepted {
+                        let normalized_form = normalized_form(value)
+                            .expect("accepted grammar fixture requires normalized_form");
+                        if normalized_form.kind == "CompatibilityTransport" {
+                            let transport_ref = optional_string(value, "migration_transport_ref")
+                                .expect(
+                                "compatibility transport fixture requires migration transport ref",
+                            );
+                            assert!(
+                                normalized_form.children.is_empty(),
+                                "compatibility transport fixture must not expose semantic children"
+                            );
+                            ParseWitness::accepted_transport(row_id.clone(), profile, transport_ref)
+                        } else {
+                            ParseWitness::accepted(row_id.clone(), profile, normalized_form)
+                        }
+                    } else {
+                        assert!(
+                            normalized_form(value).is_none(),
+                            "rejected grammar fixture cannot expose normalized_form"
+                        );
+                        ParseWitness::rejected(
+                            row_id.clone(),
+                            profile,
+                            string(value, "stable_reject_tag"),
+                        )
+                    };
+                    GrammarContractFixture {
+                        fixture_id,
+                        row_id,
+                        profile,
+                        source: string(value, "source"),
+                        expected,
+                    }
+                })
+                .collect::<Vec<_>>()
         })
         .collect()
 }

@@ -14,7 +14,9 @@ test -f grammar/legacy/nyash-v1.1-codegen-input.toml \
   || guard_fail "legacy codegen input missing"
 test ! -e grammar/unified-grammar.toml \
   || guard_fail "ambiguous unified grammar path returned"
-test -f grammar/language-v1-grammar-contract-corpus.toml || guard_fail "shared corpus missing"
+test -f grammar/language-v1-grammar-contract-corpus.toml || guard_fail "corpus manifest missing"
+test -f grammar/language-v1-grammar-contract-corpus/foundation.toml \
+  || guard_fail "foundation corpus fragment missing"
 test -f tools/language_v1/grammar_contract_hako_adapter.hako || guard_fail "Hako adapter missing"
 test -f tools/language_v1/grammar_contract_drift_report.py || guard_fail "drift report missing"
 test ! -e lang/src/compiler/parser/expr/parser_peek_box.hako \
@@ -35,7 +37,7 @@ for parser_source in \
     || guard_fail "$parser_source exceeded the 800-line source boundary"
 done
 rg -q 'hako_equivalent_fixture_id = "match_compat"' \
-  grammar/language-v1-grammar-contract-corpus.toml \
+  grammar/language-v1-grammar-contract-corpus \
   || guard_fail "peek-to-Match replacement parity fixture missing"
 
 rg -q '\[\[rows\]\]' grammar/language-v1-registry.toml || guard_fail "v1 rows missing"
@@ -90,6 +92,7 @@ for tag in \
     || guard_fail "Hako EnumMatch publication guard missing: $tag"
 done
 rg -q 'hako_inventory_id = "option"' grammar/language-v1-grammar-contract-corpus.toml \
+  || rg -q 'hako_inventory_id = "option"' grammar/language-v1-grammar-contract-corpus \
   || guard_fail "shared Option inventory context missing"
 
 python3 tools/language_v1/grammar_contract_drift_report.py --help >/dev/null

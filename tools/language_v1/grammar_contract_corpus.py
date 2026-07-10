@@ -16,7 +16,26 @@ CORPUS = ROOT / "grammar/language-v1-grammar-contract-corpus.toml"
 
 def load_corpus() -> dict[str, Any]:
     with CORPUS.open("rb") as handle:
-        return tomllib.load(handle)
+        manifest = tomllib.load(handle)
+    fragments = manifest.get("fragments")
+    if not isinstance(fragments, list) or not all(isinstance(path, str) for path in fragments):
+        raise ValueError("grammar contract corpus manifest has invalid fragments")
+
+    merged: dict[str, Any] = {"hako_inventory": {}, "fixtures": []}
+    for relative_path in fragments:
+        fragment_path = ROOT / relative_path
+        with fragment_path.open("rb") as handle:
+            fragment = tomllib.load(handle)
+        inventories = fragment.get("hako_inventory", {})
+        fixtures = fragment.get("fixtures", [])
+        if not isinstance(inventories, dict) or not isinstance(fixtures, list):
+            raise ValueError(f"grammar contract corpus fragment is invalid: {relative_path}")
+        overlap = set(merged["hako_inventory"]).intersection(inventories)
+        if overlap:
+            raise ValueError(f"duplicate Hako inventory in corpus fragments: {sorted(overlap)}")
+        merged["hako_inventory"].update(inventories)
+        merged["fixtures"].extend(fixtures)
+    return merged
 
 
 def inventory_json_by_id(inventory_id: str) -> str:
