@@ -1,6 +1,22 @@
 # Shared Language v1 grammar-contract fixture corpus.
 # These fixtures express contract expectations, not current parser authority.
 
+[hako_inventory.option]
+enums = [
+  { name = "Option", type_parameters = ["T"], variants = [
+    { name = "None" },
+    { name = "Some", payload_type = "T" },
+  ] },
+]
+
+[hako_inventory.probe_state]
+enums = [
+  { name = "ProbeState", type_parameters = ["T"], variants = [
+    { name = "Idle" },
+    { name = "Ready", payload_type = "T" },
+  ] },
+]
+
 [[fixtures]]
 fixture_id = "guard_expr_else_canonical"
 row_id = "guard_expr_else"
@@ -190,6 +206,7 @@ accepted = true
 normalized_kind = "Match"
 normalized_children = ["Scrutinee", "OrderedArms"]
 stable_reject_tag = ""
+hako_inventory_id = "option"
 
 [[fixtures]]
 fixture_id = "match_compat"
@@ -200,6 +217,7 @@ accepted = true
 normalized_kind = "Match"
 normalized_children = ["Scrutinee", "OrderedArms"]
 stable_reject_tag = ""
+hako_inventory_id = "option"
 
 [[fixtures]]
 fixture_id = "match_missing_arm"
@@ -209,7 +227,41 @@ source = "match value { }"
 accepted = false
 normalized_kind = ""
 normalized_children = []
-stable_reject_tag = "parser/guard_expected_canonical"
+stable_reject_tag = "parser/match_expected_canonical"
+hako_inventory_id = "option"
+
+[[fixtures]]
+fixture_id = "match_user_enum_canonical"
+row_id = "match"
+profile = "Canonical"
+source = "match none { Ready(x) => x, Idle => 0 }"
+accepted = true
+normalized_kind = "Match"
+normalized_children = ["Scrutinee", "OrderedArms"]
+stable_reject_tag = ""
+hako_inventory_id = "probe_state"
+
+[[fixtures]]
+fixture_id = "match_missing_arrow"
+row_id = "match"
+profile = "Canonical"
+source = "match value { Some(x) x }"
+accepted = false
+normalized_kind = ""
+normalized_children = []
+stable_reject_tag = "parser/match_expected_canonical"
+hako_inventory_id = "option"
+
+[[fixtures]]
+fixture_id = "match_missing_close"
+row_id = "match"
+profile = "Canonical"
+source = "match value { Some(x) => x"
+accepted = false
+normalized_kind = ""
+normalized_children = []
+stable_reject_tag = "parser/match_expected_canonical"
+hako_inventory_id = "option"
 
 [[fixtures]]
 fixture_id = "peek_canonical_reject"
@@ -220,6 +272,7 @@ accepted = false
 normalized_kind = ""
 normalized_children = []
 stable_reject_tag = "parser/peek_legacy_replaced_by_match"
+hako_inventory_id = "option"
 
 [[fixtures]]
 fixture_id = "peek_compat_normalizable"
@@ -230,6 +283,7 @@ accepted = true
 normalized_kind = "Match"
 normalized_children = ["Scrutinee", "OrderedArms"]
 stable_reject_tag = ""
+hako_inventory_id = "option"
 
 [[fixtures]]
 fixture_id = "peek_compat_not_normalizable"
@@ -240,6 +294,7 @@ accepted = false
 normalized_kind = ""
 normalized_children = []
 stable_reject_tag = "parser/peek_compat_not_normalizable"
+hako_inventory_id = "option"
 
 [[fixtures]]
 fixture_id = "delegate_exposes_canonical"

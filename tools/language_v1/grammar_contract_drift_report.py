@@ -15,17 +15,15 @@ import subprocess
 import tempfile
 from typing import Any
 
-import tomllib
-
 from hako_adapter_health import (
     DEFAULT_HAKO_ADAPTER_TIMEOUT_SECONDS,
     run_adapter_process,
     run_health_probe,
 )
+from grammar_contract_corpus import fixtures_by_id
 
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
-CORPUS = ROOT / "grammar/language-v1-grammar-contract-corpus.toml"
 HAKO_ADAPTER = ROOT / "tools/language_v1/grammar_contract_hako_adapter.hako"
 PROBE_FIXTURE_IDS = (
     "guard_expr_else_canonical",
@@ -33,12 +31,6 @@ PROBE_FIXTURE_IDS = (
     "match_canonical",
     "from_super_call_canonical_reject",
 )
-
-
-def fixtures_by_id() -> dict[str, dict[str, Any]]:
-    with CORPUS.open("rb") as handle:
-        fixtures = tomllib.load(handle)["fixtures"]
-    return {fixture["fixture_id"]: fixture for fixture in fixtures}
 
 
 def reject_tag(stderr: str) -> str:
@@ -74,6 +66,9 @@ def hako_observation(
     binary: pathlib.Path, fixture: dict[str, Any], timeout_seconds: float
 ) -> dict[str, Any]:
     environment = os.environ | {"HAKO_GRAMMAR_CONTRACT_SOURCE": fixture["source"]}
+    environment["HAKO_GRAMMAR_CONTRACT_INVENTORY_JSON"] = fixture.get(
+        "hako_inventory_json", "[]"
+    )
     profile = {
         "Canonical": "canonical",
         "Compat2025": "compat2025",

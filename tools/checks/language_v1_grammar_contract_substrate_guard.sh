@@ -25,15 +25,27 @@ rg -q 'parser/hako_try_reserved' lang/src/compiler/parser/stmt/parser_stmt_box/c
 rg -q 'parser/hako_try_compat_not_normalizable' \
   lang/src/compiler/parser/stmt/parser_exception_box.hako \
   || guard_fail "Hako Compat2025 try closed-set guard missing"
-rg -q 'parser/hako_peek_canonical_rejected' \
+rg -q 'parser/peek_legacy_replaced_by_match' \
   lang/src/compiler/parser/expr/parser_expr_box.hako \
   || guard_fail "Hako Canonical peek guard missing"
-rg -q 'parser/hako_peek_compat_not_normalizable' \
+rg -q 'parser/peek_compat_not_normalizable' \
   lang/src/compiler/parser/expr/parser_expr_box.hako \
   || guard_fail "Hako Compat2025 peek normalization guard missing"
+rg -q 'parser/hako_record_fields_expected_canonical' \
+  lang/src/compiler/parser/expr/parser_expr_box.hako \
+  || guard_fail "Hako record-field progress fail-fast guard missing"
 if rg -q 'ParserPeekBox\.parse' lang/src/compiler/parser/expr/parser_expr_box.hako; then
   guard_fail "legacy Hako Peek JSON route is still live"
 fi
+if rg -q 'option_inventory|\"name\":\"Option\"' \
+  lang/src/compiler/parser/grammar_profile_facade.hako; then
+  guard_fail "Hako grammar facade still owns an Option-specific inventory"
+fi
+rg -F -q 'set_enum_inventory_json(inventory_json)' \
+  lang/src/compiler/parser/grammar_profile_facade.hako \
+  || guard_fail "Hako grammar facade does not consume generic inventory context"
+rg -q 'hako_inventory_id = "option"' grammar/language-v1-grammar-contract-corpus.toml \
+  || guard_fail "shared Option inventory context missing"
 
 python3 tools/language_v1/grammar_contract_drift_report.py --help >/dev/null
 python3 -m unittest tools.language_v1.test_hako_adapter_health
@@ -98,20 +110,23 @@ if [ "${LANGV1_HAKO_PROFILE_FULL:-0}" = "1" ]; then
 
   if python3 tools/language_v1/hako_adapter_health.py \
     --bin target/debug/hakorune --probe observation --profile canonical \
+    --inventory-id option \
     --source 'return peek none { None => 0 }' \
     --timeout-sec 90 >"$canonical_peek"; then
     guard_fail "Canonical Hako profile accepted peek"
   fi
-  rg -q 'parser/hako_peek_canonical_rejected' "$canonical_peek" \
+  rg -q 'parser/peek_legacy_replaced_by_match' "$canonical_peek" \
     || guard_fail "Canonical Hako peek reject tag missing"
 
   python3 tools/language_v1/hako_adapter_health.py \
     --bin target/debug/hakorune --probe observation --profile compat2025 \
+    --inventory-id option \
     --source 'local x = peek none { None => 0 }' \
     --timeout-sec 90 >"$compat_peek" \
     || guard_fail "normalizable Compat2025 Hako peek was not accepted"
   python3 tools/language_v1/hako_adapter_health.py \
     --bin target/debug/hakorune --probe observation --profile compat2025 \
+    --inventory-id option \
     --source 'local x = match none { None => 0 }' \
     --timeout-sec 90 >"$compat_match" \
     || guard_fail "canonical Hako match control fixture was not accepted"
@@ -122,11 +137,12 @@ if [ "${LANGV1_HAKO_PROFILE_FULL:-0}" = "1" ]; then
 
   if python3 tools/language_v1/hako_adapter_health.py \
     --bin target/debug/hakorune --probe observation --profile compat2025 \
+    --inventory-id option \
     --source 'local x = peek none { observe x => x }' \
     --timeout-sec 90 >"$nonnormal_peek"; then
     guard_fail "Compat2025 Hako accepted non-normalizable peek"
   fi
-  rg -q 'parser/hako_peek_compat_not_normalizable' "$nonnormal_peek" \
+  rg -q 'parser/peek_compat_not_normalizable' "$nonnormal_peek" \
     || guard_fail "Compat2025 Hako peek closed-set reject tag missing"
 fi
 cargo test -q -p hakorune-frontend-grammar

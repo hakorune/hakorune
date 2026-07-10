@@ -13,6 +13,8 @@ static box Main {
       return 2
     }
     local profile = "canonical"
+    local inventory_json = env.get("HAKO_GRAMMAR_CONTRACT_INVENTORY_JSON")
+    if inventory_json == null { inventory_json = "[]" }
     local profile_error = ""
     local i = 0
     if args != null {
@@ -45,10 +47,10 @@ static box Main {
     }
     env.set("HAKO_STAGEB_PARSER_DEPTH", "0")
     env.set("HAKO_STAGEB_STMT_DEPTH", "0")
-    local first = HakoGrammarProfileFacade.parse_with_profile(source, profile)
+    local first = HakoGrammarProfileFacade.parse_with_profile(source, profile, inventory_json)
     env.set("HAKO_STAGEB_PARSER_DEPTH", "0")
     env.set("HAKO_STAGEB_STMT_DEPTH", "0")
-    local second = HakoGrammarProfileFacade.parse_with_profile(source, profile)
+    local second = HakoGrammarProfileFacade.parse_with_profile(source, profile, inventory_json)
     local deterministic = "false"
     if first == second { deterministic = "true" }
     if first.indexOf("[freeze:contract][") == 0 {

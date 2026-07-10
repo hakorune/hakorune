@@ -5,14 +5,11 @@
 Active corrective card. Repair the correctness and compile-cost prerequisites
 found after 3470 before resuming the parked 3471 transport consultation.
 
-Progress: Slice 1 complete. Slice 2 correctness WIP is parked under the named
-stash `wip/3472-slice2 match strictness blocked by MIR compile scaling` because
-its strict Match control-flow delta makes release MIR compilation exceed 60
-seconds and debug compilation exceed 120 seconds. Slice 4 has identified and
-removed the per-function full-module clone, added compiler-owned timing, and
-rejected an isolated dynamic-loop pathology. The dominant remaining cost is
-semantic route convergence on the merged parser module. Resume Slice 2 after
-the Slice 4 keeper commit reapplies cleanly.
+Progress: Slices 1, 2, and 4 are complete. Slice 2 resumed cleanly after the
+Slice 4 keeper and now has a non-Option user-enum success probe plus a strict
+missing-arrow rejection probe. The dominant remaining execution cost is still
+the one-time semantic route convergence on the merged parser module. Continue
+with Slice 3; Slice 5 owns compile-once corpus execution.
 
 ## Problem Statement
 
@@ -66,7 +63,15 @@ malformed_program_json_on_contract_error = 0
 Implementation: `ParserBox.freeze_contract` owns the first expression contract
 error for a parse invocation. `parse_program2` consumes that latch before any
 statement JSON publication. The formerly broken `return peek` case now returns
-`parser/hako_peek_canonical_rejected` as a structured adapter rejection.
+`parser/peek_legacy_replaced_by_match` as a structured adapter rejection.
+
+During Slice 2 validation, `match value { ... }` exposed a pre-existing
+unbounded record-field parser path: the identifier scrutinee consumed the arm
+brace as a record literal, then an empty field name made no cursor progress.
+The record-field owner now fail-fast rejects an empty identifier, missing
+separator/close, non-progressing value, and exhausted arm budget through one
+contract latch. The general identifier-scrutinee/record-literal ambiguity is
+not silently resolved here; it remains an explicit Slice 3 support-matrix row.
 
 ### Slice 2 - Match grammar strictness and inventory
 
@@ -82,6 +87,18 @@ match_required_token_fail_fast = 1
 match_cursor_progress_guard = 1
 profile_facade_option_inventory_hardcode = 0
 source_enum_inventory_owner_count = 1
+```
+
+Evidence:
+
+```text
+ProbeState inventory + canonical Match = green in 71.76 seconds
+missing-arrow Match = parser/match_expected_canonical in 70.82 seconds
+record-field non-progress owner = ParserExprBox.parse_record_fields2/3
+record-field diagnostic step boundary = HAKO_VM_MAX_STEPS=5000
+quick grammar guard = green
+frontend grammar tests = 12 green
+Hako adapter health tests = 12 green
 ```
 
 ### Slice 3 - ProgramJSON to MIR support matrix

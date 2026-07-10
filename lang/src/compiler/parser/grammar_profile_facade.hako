@@ -11,17 +11,14 @@ static box HakoGrammarProfileFacade {
     return -1
   }
 
-  parse_with_profile(source, profile) {
+  parse_with_profile(source, profile, inventory_json) {
     local mode = me.profile_mode(profile)
     if mode < 0 {
       return "[freeze:contract][parser/hako_profile_unknown] unknown Hako grammar profile"
     }
     local parser = new ParserBox()
     parser.grammar_profile_mode_set(mode)
-    local option_inventory = "[{\"name\":\"Option\",\"type_parameters\":[\"T\"]"
-    option_inventory = option_inventory + ",\"variants\":[{\"name\":\"None\",\"payload_type\":null}"
-    option_inventory = option_inventory + ",{\"name\":\"Some\",\"payload_type\":\"T\"}]}]"
-    parser.set_enum_inventory_json(option_inventory)
+    parser.set_enum_inventory_json(inventory_json)
     return parser.parse_program2(source)
   }
 }

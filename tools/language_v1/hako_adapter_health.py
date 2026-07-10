@@ -12,6 +12,11 @@ import pathlib
 import subprocess
 from typing import Any, Mapping, Sequence
 
+if __package__:
+    from .grammar_contract_corpus import inventory_json_by_id
+else:
+    from grammar_contract_corpus import inventory_json_by_id
+
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 HEALTH_PROBE = ROOT / "tools/language_v1/grammar_contract_hako_health_probe.hako"
@@ -152,6 +157,7 @@ def run_health_probe(
     source: str,
     profile: str = "canonical",
     timeout_seconds: float,
+    inventory_json: str = "[]",
     environment: Mapping[str, str] | None = None,
 ) -> dict[str, Any]:
     command = probe_command(binary, probe_kind, profile)
@@ -161,6 +167,7 @@ def run_health_probe(
     child_environment = dict(os.environ if environment is None else environment)
     if probe_kind == "observation":
         child_environment["HAKO_GRAMMAR_CONTRACT_SOURCE"] = source
+        child_environment["HAKO_GRAMMAR_CONTRACT_INVENTORY_JSON"] = inventory_json
     first = run_adapter_process(
         command, timeout_seconds=timeout_seconds, environment=child_environment
     )
@@ -190,10 +197,24 @@ def main() -> int:
     parser.add_argument("--probe", default="health")
     parser.add_argument("--source", default="local x = 1")
     parser.add_argument("--profile", default="canonical")
+    parser.add_argument("--inventory-json", default="")
+    parser.add_argument("--inventory-id", default="")
     parser.add_argument(
         "--timeout-sec", type=float, default=DEFAULT_HAKO_ADAPTER_TIMEOUT_SECONDS
     )
     args = parser.parse_args()
+    try:
+        inventory_json = args.inventory_json or inventory_json_by_id(args.inventory_id)
+    except KeyError:
+        envelope = health_envelope(
+            probe_kind=args.probe,
+            result=AdapterProcessResult(
+                "error", "parser/hako_inventory_context_unknown"
+            ),
+            deterministic=True,
+        )
+        print(json.dumps(envelope, sort_keys=True, separators=(",", ":")))
+        return 2
     if not args.bin.is_file():
         envelope = health_envelope(
             probe_kind=args.probe,
@@ -207,6 +228,7 @@ def main() -> int:
             source=args.source,
             profile=args.profile,
             timeout_seconds=args.timeout_sec,
+            inventory_json=inventory_json,
         )
     print(json.dumps(envelope, sort_keys=True, separators=(",", ":")))
     return 0 if envelope["status"] == "ok" else 2

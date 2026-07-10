@@ -5,6 +5,8 @@ static box ParserMatchBox {
       j = j + 5
     } else if ctx.starts_with_kw(src, j, "peek") == 1 {
       j = j + 4
+    } else {
+      return me._error("expected match or peek keyword")
     }
     local n = src.length()
     j = ctx.skip_ws(src, j)
@@ -12,12 +14,16 @@ static box ParserMatchBox {
     local scrutinee = ctx.parse_expr2(src, j)
     j = ctx.gpos_get()
     j = ctx.skip_ws(src, j)
-    if j < n && src.substring(j, j + 1) == "{" { j = j + 1 }
+    if j >= n || src.substring(j, j + 1) != "{" {
+      return me._error("expected opening brace")
+    }
+    j = j + 1
 
     local arms_json = "["
     local arm_count = 0
     local arm_names_json = "["
     local arm_name_count = 0
+    local total_arm_count = 0
     local else_json = null
     local loop_guard = 0
     local max = 200000
@@ -31,12 +37,17 @@ static box ParserMatchBox {
       if src.substring(j, j + 1) == "_" {
         j = j + 1
         j = ctx.skip_ws(src, j)
-        if j + 1 < n && src.substring(j, j + 2) == "=>" { j = j + 2 }
+        if j + 1 >= n || src.substring(j, j + 2) != "=>" {
+          return me._error("expected arrow after wildcard arm")
+        }
+        j = j + 2
         j = ctx.skip_ws(src, j)
         local body = me._parse_arm_body(src, j, ctx)
         local at_else = body.lastIndexOf("@")
         else_json = body.substring(0, at_else)
         j = ctx.to_int(body.substring(at_else + 1, body.length()))
+        if j < 0 { return me._error("unterminated wildcard arm body") }
+        total_arm_count = total_arm_count + 1
       } else {
         local head = me._parse_named_head(src, j, ctx)
         local at1 = head.indexOf("@")
@@ -44,13 +55,18 @@ static box ParserMatchBox {
         local variant = head.substring(0, at1)
         local binding = head.substring(at1 + 1, at2)
         j = ctx.to_int(head.substring(at2 + 1, head.length()))
+        if variant == "" || j < 0 { return me._error("invalid named arm") }
         j = ctx.skip_ws(src, j)
-        if j + 1 < n && src.substring(j, j + 2) == "=>" { j = j + 2 }
+        if j + 1 >= n || src.substring(j, j + 2) != "=>" {
+          return me._error("expected arrow after named arm")
+        }
+        j = j + 2
         j = ctx.skip_ws(src, j)
         local body = me._parse_arm_body(src, j, ctx)
         local at_body = body.lastIndexOf("@")
         local expr_json = body.substring(0, at_body)
         j = ctx.to_int(body.substring(at_body + 1, body.length()))
+        if j < 0 { return me._error("unterminated named arm body") }
 
         if arm_count > 0 { arms_json = arms_json + "," }
         arms_json = arms_json + "{\"variant\":\"" + variant + "\""
@@ -59,6 +75,7 @@ static box ParserMatchBox {
         }
         arms_json = arms_json + ",\"expr\":" + expr_json + "}"
         arm_count = arm_count + 1
+        total_arm_count = total_arm_count + 1
 
         if arm_name_count > 0 { arm_names_json = arm_names_json + "," }
         arm_names_json = arm_names_json + "\"" + variant + "\""
@@ -73,7 +90,12 @@ static box ParserMatchBox {
       loop_guard = loop_guard + 1
     }
 
-    if j < n && src.substring(j, j + 1) == "}" { j = j + 1 }
+    if loop_guard >= max { return me._error("match arm limit exceeded") }
+    if total_arm_count == 0 { return me._error("match requires at least one arm") }
+    if j >= n || src.substring(j, j + 1) != "}" {
+      return me._error("expected closing brace")
+    }
+    j = j + 1
     ctx.gpos_set(j)
 
     arm_names_json = arm_names_json + "]"
@@ -106,7 +128,7 @@ static box ParserMatchBox {
       binding = bindp.substring(0, at_bind)
       j = ctx.to_int(bindp.substring(at_bind + 1, bindp.length()))
       j = ctx.skip_ws(src, j)
-      if j < src.length() && src.substring(j, j + 1) == ")" { j = j + 1 }
+      if j < src.length() && src.substring(j, j + 1) == ")" { j = j + 1 } else { return variant + "@@-1" }
     }
     return variant + "@" + binding + "@" + ctx.i2s(j)
   }
@@ -120,11 +142,15 @@ static box ParserMatchBox {
       expr_json = ctx.parse_expr2(src, j)
       j = ctx.gpos_get()
       j = ctx.skip_ws(src, j)
-      if j < src.length() && src.substring(j, j + 1) == "}" { j = j + 1 }
+      if j < src.length() && src.substring(j, j + 1) == "}" { j = j + 1 } else { return expr_json + "@-1" }
     } else {
       expr_json = ctx.parse_expr2(src, j)
       j = ctx.gpos_get()
     }
     return expr_json + "@" + ctx.i2s(j)
+  }
+
+  _error(message) {
+    return "{\"type\":\"Error\",\"message\":\"" + message + "\"}"
   }
 }

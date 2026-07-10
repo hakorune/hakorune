@@ -125,6 +125,8 @@ parser/try_reserved
 parser/try_compat_not_normalizable
 parser/peek_legacy_replaced_by_match
 parser/peek_compat_not_normalizable
+parser/match_expected_canonical
+parser/hako_record_fields_expected_canonical
 parser/from_inheritance_legacy
 parser/from_call_legacy
 parser/from_compat_transport_only

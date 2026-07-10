@@ -16,6 +16,10 @@ from tools.language_v1.hako_adapter_health import (
     probe_command,
     run_adapter_process,
 )
+from tools.language_v1.grammar_contract_corpus import (
+    fixtures_by_id,
+    inventory_json_by_id,
+)
 
 
 def python_command(source: str) -> list[str]:
@@ -23,6 +27,18 @@ def python_command(source: str) -> list[str]:
 
 
 class HakoAdapterHealthTests(unittest.TestCase):
+    def test_corpus_inventory_context_is_shared_by_match_fixtures(self) -> None:
+        fixtures = fixtures_by_id()
+        option_inventory = inventory_json_by_id("option")
+        self.assertIn('"name":"Option"', option_inventory)
+        self.assertEqual(
+            fixtures["match_canonical"]["hako_inventory_json"], option_inventory
+        )
+        self.assertIn(
+            '"name":"ProbeState"',
+            fixtures["match_user_enum_canonical"]["hako_inventory_json"],
+        )
+
     def test_observation_command_carries_explicit_profile_argument(self) -> None:
         command = probe_command(pathlib.Path("hakorune"), "observation", "compat2025")
         self.assertIsNotNone(command)
