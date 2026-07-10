@@ -105,13 +105,13 @@ static box ParserMatchBox {
       return "{\"type\":\"Error\",\"message\":\"unsupported match surface\"}"
     }
     if ctx.match_arm_names_are_unique(arm_names_json) != 1 {
-      return me._contract_error(ctx, "parser/hako_enum_match_duplicate_variant", "enum match variants must be unique")
+      return me._contract_error(ctx, "parser/enum_match_duplicate_variant", "enum match variants must be unique")
     }
-    if else_json == null && ctx.match_is_exhaustive(enum_name, arm_names_json) != 1 {
-      return me._contract_error(ctx, "parser/hako_enum_match_non_exhaustive", "enum match without wildcard else must be exhaustive")
+    if ctx.match_is_exhaustive(enum_name, arm_names_json) != 1 {
+      return me._contract_error(ctx, "parser/enum_match_non_exhaustive", "known enum match must name every variant")
     }
     if ctx.match_unit_bindings_are_valid(enum_name, arms_json) != 1 {
-      return me._contract_error(ctx, "parser/hako_enum_match_unit_binding", "unit enum variant cannot bind a payload")
+      return me._contract_error(ctx, "parser/enum_match_unit_binding", "unit enum variant cannot bind a payload")
     }
 
     local out = "{\"type\":\"EnumMatch\",\"enum\":\"" + enum_name + "\",\"scrutinee\":" + scrutinee + ",\"arms\":" + arms_json

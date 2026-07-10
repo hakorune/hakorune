@@ -50,30 +50,9 @@ impl NyashParser {
             return false;
         };
         arms.iter().all(|arm| match arm {
-            ParsedMatchArm::Named {
-                name,
-                binding,
-                record_bindings,
-                tuple_bindings,
-                ..
-            } => variants
-                .iter()
-                .find(|variant| variant.name == *name)
-                .map(|variant| match (record_bindings, tuple_bindings, binding) {
-                    (Some(_), None, None) => variant.is_record_payload(),
-                    (None, Some(tuple_bindings), None) => {
-                        variant.is_multi_payload_tuple()
-                            && tuple_bindings.len() == variant.payload_arity()
-                    }
-                    (None, None, Some(_)) => {
-                        !variant.is_record_payload()
-                            && !variant.is_multi_payload_tuple()
-                            && variant.payload_arity() == 1
-                    }
-                    (None, None, None) => !variant.has_payload(),
-                    _ => false,
-                })
-                .unwrap_or(false),
+            ParsedMatchArm::Named { name, .. } => {
+                variants.iter().any(|variant| variant.name == *name)
+            }
             ParsedMatchArm::Default { .. } => true,
             ParsedMatchArm::Lit { .. } => false,
         })
@@ -156,7 +135,8 @@ impl NyashParser {
                             line,
                         )?;
                         if !covered_variants.insert(name.clone()) {
-                            return Err(ParseError::InvalidMatchPattern {
+                            return Err(ParseError::GrammarContract {
+                                stable_reject_tag: "parser/enum_match_duplicate_variant",
                                 detail: format!(
                                     "duplicate enum variant arm `{}` in match for `{}`",
                                     name, enum_name
@@ -190,7 +170,8 @@ impl NyashParser {
                             line,
                         )?;
                         if !covered_variants.insert(name.clone()) {
-                            return Err(ParseError::InvalidMatchPattern {
+                            return Err(ParseError::GrammarContract {
+                                stable_reject_tag: "parser/enum_match_duplicate_variant",
                                 detail: format!(
                                     "duplicate enum variant arm `{}` in match for `{}`",
                                     name, enum_name
@@ -237,10 +218,15 @@ impl NyashParser {
                                 name, enum_name
                             )
                         };
-                        return Err(ParseError::InvalidMatchPattern { detail, line });
+                        return Err(ParseError::GrammarContract {
+                            stable_reject_tag: "parser/enum_match_unit_binding",
+                            detail,
+                            line,
+                        });
                     }
                     if !covered_variants.insert(name.clone()) {
-                        return Err(ParseError::InvalidMatchPattern {
+                        return Err(ParseError::GrammarContract {
+                            stable_reject_tag: "parser/enum_match_duplicate_variant",
                             detail: format!(
                                 "duplicate enum variant arm `{}` in match for `{}`",
                                 name, enum_name
@@ -310,7 +296,8 @@ impl NyashParser {
             } else {
                 ""
             };
-            return Err(ParseError::InvalidMatchPattern {
+            return Err(ParseError::GrammarContract {
+                stable_reject_tag: "parser/enum_match_non_exhaustive",
                 detail: format!(
                     "{}non-exhaustive enum match for `{}`; missing variant(s): {}{}",
                     prefix, enum_name, missing_variants, suffix

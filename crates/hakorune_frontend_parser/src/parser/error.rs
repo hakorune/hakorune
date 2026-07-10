@@ -44,6 +44,13 @@ pub enum ParseError {
     #[error("Invalid match pattern: {detail} at line {line}")]
     InvalidMatchPattern { detail: String, line: usize },
 
+    #[error("[freeze:contract][{stable_reject_tag}] {detail} at line {line}")]
+    GrammarContract {
+        stable_reject_tag: &'static str,
+        detail: String,
+        line: usize,
+    },
+
     #[error("Unsupported identifier '{name}' at line {line}")]
     UnsupportedIdentifier { name: String, line: usize },
 

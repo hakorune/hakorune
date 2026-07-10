@@ -83,7 +83,9 @@ fn extract_line_col(err: &ParseError) -> (Option<usize>, Option<usize>) {
         ParseError::InvalidStatement { line } => (Some(*line), None),
         ParseError::BuildCfg { line, .. } => (Some(*line), None),
         ParseError::DelegateLowering { line, .. } => (Some(*line), None),
-        ParseError::InvalidMatchPattern { line, .. } => (Some(*line), None),
+        ParseError::InvalidMatchPattern { line, .. } | ParseError::GrammarContract { line, .. } => {
+            (Some(*line), None)
+        }
         ParseError::UnsupportedIdentifier { line, .. } => (Some(*line), None),
         ParseError::CircularDependency { .. } => (None, None),
         ParseError::InfiniteLoop { line, .. } => (Some(*line), None),

@@ -78,7 +78,7 @@ impl NyashParser {
                         line: self.current_token().line,
                     });
                 }
-                self.consume(TokenType::FatArrow)?;
+                self.consume_match_arrow()?;
                 let body = self.parse_match_arm_body()?;
                 arms_any.push(ParsedMatchArm::Default {
                     body,
@@ -93,7 +93,7 @@ impl NyashParser {
                 } else {
                     None
                 };
-                self.consume(TokenType::FatArrow)?;
+                self.consume_match_arrow()?;
                 let body = self.parse_match_arm_body()?;
                 arms_any.push(ParsedMatchArm::Named {
                     name,
@@ -116,7 +116,7 @@ impl NyashParser {
                 } else {
                     None
                 };
-                self.consume(TokenType::FatArrow)?;
+                self.consume_match_arrow()?;
                 let body = self.parse_match_arm_body()?;
                 arms_any.push(ParsedMatchArm::Lit {
                     lits,
@@ -131,7 +131,14 @@ impl NyashParser {
             }
         }
 
-        self.consume(TokenType::RBRACE)?;
+        if arms_any.is_empty() || !self.match_token(&TokenType::RBRACE) {
+            return Err(ParseError::GrammarContract {
+                stable_reject_tag: "parser/match_expected_canonical",
+                detail: "match requires a closed non-empty arm block".to_string(),
+                line: self.current_token().line,
+            });
+        }
+        self.advance();
 
         if let Some(enum_name) = self.resolve_known_enum_match(&scrutinee, &arms_any) {
             return self.build_known_enum_match_ast(scrutinee, enum_name, arms_any);
@@ -339,5 +346,17 @@ impl NyashParser {
             statements: vec![scr_local, else_node],
             span: Span::unknown(),
         })
+    }
+
+    fn consume_match_arrow(&mut self) -> Result<(), ParseError> {
+        if !self.match_token(&TokenType::FatArrow) {
+            return Err(ParseError::GrammarContract {
+                stable_reject_tag: "parser/match_expected_canonical",
+                detail: "match arm requires `=>`".to_string(),
+                line: self.current_token().line,
+            });
+        }
+        self.advance();
+        Ok(())
     }
 }

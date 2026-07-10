@@ -135,6 +135,10 @@ guard-let corpus = accepted qualified-variant production
 shared parser inventory = one corpus input projected independently per adapter
 guard-let recursive batch = Canonical/Compat/NoFallthrough rejection green
 Rust ScopeBox AST JSON evidence = roundtrip-preserved
+known-enum wildcard = explicit non-exhaustive rejection in both parsers
+match/peek recursive corpus = 17 fixtures green in one Hako batch
+match stable tags = parser-neutral duplicate/unit-binding/non-exhaustive owner
+raw Hako ProgramJSON equivalence = retired in favor of recursive witness parity
 ```
 
 Full inventory exposed pre-existing corpus/parser drift that the shallow gate
@@ -650,7 +654,7 @@ Close that drift before declaration expansion, in this order:
    - guard expression / guard-let = complete
    - shared parser inventory = complete
    - NoFallthrough structural conformance rejection = complete
-   - correct match fixture/exhaustiveness drift
+   - match/peek exhaustiveness and recursive drift = complete
    - close delegate Rust/Hako drift
 
 2. add the parser-owned declaration evidence sidecar

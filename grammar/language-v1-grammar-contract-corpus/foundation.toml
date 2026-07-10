@@ -186,9 +186,9 @@ stable_reject_tag = "parser/try_compat_not_normalizable"
 fixture_id = "match_canonical"
 row_id = "match"
 profile = "Canonical"
-source = "match none { Some(x) => x, _ => 0 }"
+source = "match none { Some(x) => x, None => 0 }"
 accepted = true
-normalized_form = { kind = "Match", children = [{ kind = "Scrutinee", children = [] }, { kind = "OrderedArms", children = [{ kind = "MatchArm", children = [{ kind = "Pattern", children = [] }, { kind = "ArmBody", children = [] }] }] }] }
+normalized_form = { kind = "Match", children = [{ kind = "Scrutinee", children = [] }, { kind = "OrderedArms", children = [{ kind = "MatchArm", children = [{ kind = "Pattern", children = [] }, { kind = "ArmBody", children = [] }] }, { kind = "MatchArm", children = [{ kind = "Pattern", children = [] }, { kind = "ArmBody", children = [] }] }] }] }
 stable_reject_tag = ""
 parser_inventory_id = "option"
 
@@ -196,9 +196,9 @@ parser_inventory_id = "option"
 fixture_id = "match_compat"
 row_id = "match"
 profile = "Compat2025"
-source = "match none { Some(x) => x, _ => 0 }"
+source = "match none { Some(x) => x, None => 0 }"
 accepted = true
-normalized_form = { kind = "Match", children = [{ kind = "Scrutinee", children = [] }, { kind = "OrderedArms", children = [{ kind = "MatchArm", children = [{ kind = "Pattern", children = [] }, { kind = "ArmBody", children = [] }] }] }] }
+normalized_form = { kind = "Match", children = [{ kind = "Scrutinee", children = [] }, { kind = "OrderedArms", children = [{ kind = "MatchArm", children = [{ kind = "Pattern", children = [] }, { kind = "ArmBody", children = [] }] }, { kind = "MatchArm", children = [{ kind = "Pattern", children = [] }, { kind = "ArmBody", children = [] }] }] }] }
 stable_reject_tag = ""
 parser_inventory_id = "option"
 
@@ -218,7 +218,7 @@ row_id = "match"
 profile = "Canonical"
 source = "match none { Ready(x) => x, Idle => 0 }"
 accepted = true
-normalized_form = { kind = "Match", children = [{ kind = "Scrutinee", children = [] }, { kind = "OrderedArms", children = [] }] }
+normalized_form = { kind = "Match", children = [{ kind = "Scrutinee", children = [] }, { kind = "OrderedArms", children = [{ kind = "MatchArm", children = [{ kind = "Pattern", children = [] }, { kind = "ArmBody", children = [] }] }, { kind = "MatchArm", children = [{ kind = "Pattern", children = [] }, { kind = "ArmBody", children = [] }] }] }] }
 stable_reject_tag = ""
 parser_inventory_id = "probe_state"
 
@@ -237,9 +237,9 @@ fixture_id = "match_user_enum_wildcard_canonical"
 row_id = "match"
 profile = "Canonical"
 source = "match none { Ready(x) => x, _ => 0 }"
-accepted = true
-normalized_form = { kind = "Match", children = [{ kind = "Scrutinee", children = [] }, { kind = "OrderedArms", children = [] }] }
-stable_reject_tag = ""
+accepted = false
+normalized_form = { kind = "", children = [] }
+stable_reject_tag = "parser/enum_match_non_exhaustive"
 parser_inventory_id = "probe_state"
 
 [[fixtures]]
@@ -248,7 +248,7 @@ row_id = "match"
 profile = "Canonical"
 source = "match value { Ready(x) => x, Idle => 0 }"
 accepted = true
-normalized_form = { kind = "Match", children = [{ kind = "Scrutinee", children = [] }, { kind = "OrderedArms", children = [] }] }
+normalized_form = { kind = "Match", children = [{ kind = "Scrutinee", children = [] }, { kind = "OrderedArms", children = [{ kind = "MatchArm", children = [{ kind = "Pattern", children = [] }, { kind = "ArmBody", children = [] }] }, { kind = "MatchArm", children = [{ kind = "Pattern", children = [] }, { kind = "ArmBody", children = [] }] }] }] }
 stable_reject_tag = ""
 parser_inventory_id = "probe_state"
 hako_expected_scrutinee_kind = "Var"
@@ -259,7 +259,7 @@ row_id = "match"
 profile = "Canonical"
 source = "match getState() { Ready(x) => x, Idle => 0 }"
 accepted = true
-normalized_form = { kind = "Match", children = [{ kind = "Scrutinee", children = [] }, { kind = "OrderedArms", children = [] }] }
+normalized_form = { kind = "Match", children = [{ kind = "Scrutinee", children = [] }, { kind = "OrderedArms", children = [{ kind = "MatchArm", children = [{ kind = "Pattern", children = [] }, { kind = "ArmBody", children = [] }] }, { kind = "MatchArm", children = [{ kind = "Pattern", children = [] }, { kind = "ArmBody", children = [] }] }] }] }
 stable_reject_tag = ""
 parser_inventory_id = "probe_state"
 hako_expected_scrutinee_kind = "Call"
@@ -270,7 +270,7 @@ row_id = "match"
 profile = "Canonical"
 source = "match obj.field { Ready(x) => x, Idle => 0 }"
 accepted = true
-normalized_form = { kind = "Match", children = [{ kind = "Scrutinee", children = [] }, { kind = "OrderedArms", children = [] }] }
+normalized_form = { kind = "Match", children = [{ kind = "Scrutinee", children = [] }, { kind = "OrderedArms", children = [{ kind = "MatchArm", children = [{ kind = "Pattern", children = [] }, { kind = "ArmBody", children = [] }] }, { kind = "MatchArm", children = [{ kind = "Pattern", children = [] }, { kind = "ArmBody", children = [] }] }] }] }
 stable_reject_tag = ""
 parser_inventory_id = "probe_state"
 hako_expected_scrutinee_kind = "Field"
@@ -281,7 +281,7 @@ row_id = "match"
 profile = "Canonical"
 source = "match (Value { field: 1 }) { Ready(x) => x, Idle => 0 }"
 accepted = true
-normalized_form = { kind = "Match", children = [{ kind = "Scrutinee", children = [] }, { kind = "OrderedArms", children = [] }] }
+normalized_form = { kind = "Match", children = [{ kind = "Scrutinee", children = [] }, { kind = "OrderedArms", children = [{ kind = "MatchArm", children = [{ kind = "Pattern", children = [] }, { kind = "ArmBody", children = [] }] }, { kind = "MatchArm", children = [{ kind = "Pattern", children = [] }, { kind = "ArmBody", children = [] }] }] }] }
 stable_reject_tag = ""
 parser_inventory_id = "probe_state"
 hako_expected_scrutinee_kind = "RecordLiteral"
@@ -293,7 +293,7 @@ profile = "Canonical"
 source = "match none { Ready(x) => x }"
 accepted = false
 normalized_form = { kind = "", children = [] }
-stable_reject_tag = "parser/hako_enum_match_non_exhaustive"
+stable_reject_tag = "parser/enum_match_non_exhaustive"
 parser_inventory_id = "probe_state"
 
 [[fixtures]]
@@ -303,7 +303,7 @@ profile = "Canonical"
 source = "match none { Ready(x) => x, Ready(y) => y, Idle => 0 }"
 accepted = false
 normalized_form = { kind = "", children = [] }
-stable_reject_tag = "parser/hako_enum_match_duplicate_variant"
+stable_reject_tag = "parser/enum_match_duplicate_variant"
 parser_inventory_id = "probe_state"
 
 [[fixtures]]
@@ -313,7 +313,7 @@ profile = "Canonical"
 source = "match none { Ready(x) => x, Idle(y) => y }"
 accepted = false
 normalized_form = { kind = "", children = [] }
-stable_reject_tag = "parser/hako_enum_match_unit_binding"
+stable_reject_tag = "parser/enum_match_unit_binding"
 parser_inventory_id = "probe_state"
 
 [[fixtures]]
@@ -330,7 +330,7 @@ parser_inventory_id = "option"
 fixture_id = "peek_canonical_reject"
 row_id = "peek"
 profile = "Canonical"
-source = "peek none { Some(x) => x, _ => 0 }"
+source = "peek none { Some(x) => x, None => 0 }"
 accepted = false
 normalized_form = { kind = "", children = [] }
 stable_reject_tag = "parser/peek_legacy_replaced_by_match"
@@ -340,12 +340,11 @@ parser_inventory_id = "option"
 fixture_id = "peek_compat_normalizable"
 row_id = "peek"
 profile = "Compat2025"
-source = "peek none { Some(x) => x, _ => 0 }"
+source = "peek none { Some(x) => x, None => 0 }"
 accepted = true
-normalized_form = { kind = "Match", children = [{ kind = "Scrutinee", children = [] }, { kind = "OrderedArms", children = [] }] }
+normalized_form = { kind = "Match", children = [{ kind = "Scrutinee", children = [] }, { kind = "OrderedArms", children = [{ kind = "MatchArm", children = [{ kind = "Pattern", children = [] }, { kind = "ArmBody", children = [] }] }, { kind = "MatchArm", children = [{ kind = "Pattern", children = [] }, { kind = "ArmBody", children = [] }] }] }] }
 stable_reject_tag = ""
 parser_inventory_id = "option"
-hako_equivalent_fixture_id = "match_compat"
 
 [[fixtures]]
 fixture_id = "peek_compat_not_normalizable"

@@ -143,9 +143,9 @@ parser/peek_legacy_replaced_by_match
 parser/peek_compat_not_normalizable
 parser/match_expected_canonical
 parser/hako_record_fields_expected_canonical
-parser/hako_enum_match_duplicate_variant
-parser/hako_enum_match_non_exhaustive
-parser/hako_enum_match_unit_binding
+parser/enum_match_duplicate_variant
+parser/enum_match_non_exhaustive
+parser/enum_match_unit_binding
 parser/from_inheritance_legacy
 parser/from_call_legacy
 parser/from_compat_transport_only

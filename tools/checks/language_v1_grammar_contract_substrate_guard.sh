@@ -36,9 +36,9 @@ for parser_source in \
   test "$(wc -l < "$parser_source")" -lt 800 \
     || guard_fail "$parser_source exceeded the 800-line source boundary"
 done
-rg -q 'hako_equivalent_fixture_id = "match_compat"' \
-  grammar/language-v1-grammar-contract-corpus \
-  || guard_fail "peek-to-Match replacement parity fixture missing"
+if rg -q 'hako_equivalent_fixture_id' grammar/language-v1-grammar-contract-corpus; then
+  guard_fail "raw Hako ProgramJSON equivalence must not replace recursive witness parity"
+fi
 
 rg -q '\[\[rows\]\]' grammar/language-v1-registry.toml || guard_fail "v1 rows missing"
 rg -q '\[rows\.canonical\]' grammar/language-v1-registry.toml \
@@ -85,9 +85,9 @@ rg -F -q 'set_enum_inventory_json(inventory_json)' \
 rg -F -q '\"enum_decls\":' lang/src/compiler/parser/program/parser_program_box.hako \
   || guard_fail "Hako ProgramJSON does not publish the invocation enum inventory"
 for tag in \
-  parser/hako_enum_match_duplicate_variant \
-  parser/hako_enum_match_non_exhaustive \
-  parser/hako_enum_match_unit_binding; do
+  parser/enum_match_duplicate_variant \
+  parser/enum_match_non_exhaustive \
+  parser/enum_match_unit_binding; do
   rg -q "$tag" lang/src/compiler/parser/expr/parser_match_box.hako \
     || guard_fail "Hako EnumMatch publication guard missing: $tag"
 done

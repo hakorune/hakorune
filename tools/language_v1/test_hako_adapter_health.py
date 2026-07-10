@@ -42,7 +42,7 @@ class HakoAdapterHealthTests(unittest.TestCase):
         self.assertIn("enum Option<T>", parser_inventory_source_by_id("option"))
         self.assertEqual(
             fixtures["match_user_enum_non_exhaustive"]["stable_reject_tag"],
-            "parser/hako_enum_match_non_exhaustive",
+            "parser/enum_match_non_exhaustive",
         )
 
     def test_observation_command_carries_explicit_profile_argument(self) -> None:

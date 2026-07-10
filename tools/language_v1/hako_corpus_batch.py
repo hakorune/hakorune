@@ -173,7 +173,6 @@ def compare_batch(
         )
 
     rows = []
-    observation_by_id: dict[str, dict[str, Any]] = {}
     for fixture_id, fixture, observation in zip(
         fixture_ids, fixtures, observations, strict=False
     ):
@@ -225,8 +224,6 @@ def compare_batch(
                     "reason": "parser/hako_witness_projection_drift",
                 }
             )
-        if isinstance(observation, dict):
-            observation_by_id[fixture_id] = observation
         rows.append(
             {
                 "fixture_id": fixture_id,
@@ -246,20 +243,6 @@ def compare_batch(
                 "ok": row_ok,
             }
         )
-
-    for fixture_id, fixture in zip(fixture_ids, fixtures, strict=False):
-        equivalent_id = fixture.get("hako_equivalent_fixture_id")
-        if not equivalent_id:
-            continue
-        left = observation_by_id.get(fixture_id, {}).get("program")
-        right = observation_by_id.get(equivalent_id, {}).get("program")
-        if not isinstance(left, dict) or left != right:
-            failures.append(
-                {
-                    "fixture_id": fixture_id,
-                    "reason": "parser/hako_normalized_program_drift",
-                }
-            )
 
     excluded_rows = [] if excluded_rows is None else excluded_rows
     rows.extend(excluded_rows)

@@ -62,7 +62,10 @@ class HakoCorpusBatchTests(unittest.TestCase):
                                 "expr": {
                                     "type": "EnumMatch",
                                     "scrutinee": {"type": "Var", "name": "state"},
-                                    "arms": [],
+                                    "arms": [
+                                        {"variant": "Some", "expr": {"type": "Var"}},
+                                        {"variant": "None", "expr": {"type": "Int"}},
+                                    ],
                                 },
                             }
                         ],
@@ -71,7 +74,7 @@ class HakoCorpusBatchTests(unittest.TestCase):
                 {
                     "schema": "language-v1-hako-raw-evidence-v0",
                     "status": "error",
-                    "stable_reject_tag": "parser/hako_enum_match_non_exhaustive",
+                    "stable_reject_tag": "parser/enum_match_non_exhaustive",
                     "deterministic": True,
                     "raw_program_json_authority": False,
                 },
@@ -81,11 +84,11 @@ class HakoCorpusBatchTests(unittest.TestCase):
         self.assertEqual(report["status"], "ok")
         self.assertEqual(report["adapter_process_count"], 1)
 
-    def test_corpus_declares_peek_match_program_equivalence(self) -> None:
+    def test_corpus_declares_peek_match_normalized_equivalence(self) -> None:
         corpus = fixtures_by_id()
         self.assertEqual(
-            corpus["peek_compat_normalizable"]["hako_equivalent_fixture_id"],
-            "match_compat",
+            corpus["peek_compat_normalizable"]["normalized_form"],
+            corpus["match_compat"]["normalized_form"],
         )
 
     def test_transport_exclusion_is_derived_from_registry_rows(self) -> None:
