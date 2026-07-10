@@ -2,8 +2,8 @@
 
 ## Status
 
-Active implementation card. Apply the accepted 3462 profile-owner decision to
-the Rust parser and migrate statement `try` only.
+Complete. `27f9cf6458` applies the accepted 3462 profile-owner decision to the
+Rust parser and migrates statement `try` only.
 
 ## Structural Scope
 
@@ -123,5 +123,5 @@ Keep every new source file below 800 lines.
 
 ## Next
 
-After all acceptance rows are green, use the same Rust migration card family
-to select the next legacy spelling. Do not create a try-specific rerun card.
+All acceptance rows are green. 3464 uses the same Rust migration family for
+the `peek` compatibility alias. No try-specific rerun card is needed.
