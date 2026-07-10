@@ -2,9 +2,11 @@
 
 ## Status
 
-Active code-facing implementation card after 3471 accepts Decision A.
+Complete code-facing implementation card after 3471 accepts Decision A.
 
 Decision: accepted.
+
+Implementation: complete.
 
 ## Selected Contract
 
@@ -110,6 +112,27 @@ from_semantic_lowering = 0
 docs_only_closeout = forbidden
 code_or_artifact_delta_required = 1
 ```
+
+Implemented evidence:
+
+```text
+typed Rust conformance scope owner:
+  crates/hakorune_frontend_grammar/src/contract.rs
+
+typed Python registry projection:
+  tools/language_v1/grammar_contract_registry.py
+
+explicit execution/exclusion partition and report:
+  tools/language_v1/hako_corpus_batch.py
+
+unit and full-corpus enforcement:
+  tools/language_v1/test_hako_corpus_batch.py
+  tools/checks/language_v1_grammar_contract_substrate_guard.sh
+```
+
+The full corpus retains one Hako adapter process for semantic rows and reports
+all registry-derived transport fixtures as excluded with
+`hako_adapter_invoked = false`. An exclusion-only run starts no Hako process.
 
 Verification:
 

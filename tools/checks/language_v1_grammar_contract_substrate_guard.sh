@@ -118,12 +118,37 @@ if [ "${LANGV1_HAKO_PROFILE_FULL:-0}" = "1" ]; then
     --fixture-id peek_canonical_reject \
     --fixture-id peek_compat_normalizable \
     --fixture-id peek_compat_not_normalizable \
+    --include-registry-transport-exclusions \
     --timeout-sec 180 >"$batch_report" \
     || guard_fail "Hako compile-once grammar corpus batch failed"
   rg -q '"adapter_process_count":1' "$batch_report" \
     || guard_fail "Hako grammar corpus did not use one adapter process"
   rg -q '"status":"ok"' "$batch_report" \
     || guard_fail "Hako grammar corpus batch report is not green"
+  if ! python3 - "$batch_report" <<'PY'
+import json
+import pathlib
+import sys
+
+from tools.language_v1.grammar_contract_registry import (
+    HAKO_TRANSPORT_EXCLUSION_TAG,
+    RUST_MIGRATION_TRANSPORT_OWNER,
+    hako_transport_fixture_ids,
+)
+
+report = json.loads(pathlib.Path(sys.argv[1]).read_text(encoding="utf-8"))
+expected_ids = set(hako_transport_fixture_ids())
+excluded = [row for row in report["rows"] if row["row_status"] == "excluded"]
+assert {row["fixture_id"] for row in excluded} == expected_ids
+assert report["excluded_fixture_count"] == len(expected_ids)
+assert report["adapter_fixture_count"] + len(expected_ids) == report["fixture_count"]
+assert all(row["stable_reject_tag"] == HAKO_TRANSPORT_EXCLUSION_TAG for row in excluded)
+assert all(row["transport_owner"] == RUST_MIGRATION_TRANSPORT_OWNER for row in excluded)
+assert all(row["hako_adapter_invoked"] is False for row in excluded)
+PY
+  then
+    guard_fail "Hako compatibility-transport exclusion report drifted"
+  fi
 fi
 cargo test -q -p hakorune-frontend-grammar
 

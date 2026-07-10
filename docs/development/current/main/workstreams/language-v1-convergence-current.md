@@ -258,8 +258,8 @@ Post-3472 ordered follow-up queue:
 
 ```text
 Q0 complete: 3471 accepts Decisions A-D
-Q1 active: 3473 Hako CompatibilityTransport explicit exclusion
-Q2 accepted pending: LANGV1-HAKO-MATCH-RECORD-DELIMITER-OWNER-001
+Q1 complete: 3473 Hako CompatibilityTransport explicit exclusion
+Q2 active: 3474 LANGV1-HAKO-MATCH-RECORD-DELIMITER-OWNER-001
   owner = delimiter-aware ExprContext / MatchScrutineeStopsBeforeTopLevelBrace
 Q3 accepted pending: MIR-CONVERGENCE-ROUTE-FAMILY-GRAPH-SHADOW-001
   owner = route-family dependency graph

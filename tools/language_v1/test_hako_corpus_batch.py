@@ -7,6 +7,14 @@ from tools.language_v1.hako_corpus_batch import (
     BATCH_SCHEMA,
     batch_environment,
     compare_batch,
+    report_without_adapter,
+    select_hako_semantic_fixtures,
+)
+from tools.language_v1.grammar_contract_registry import (
+    HAKO_TRANSPORT_EXCLUSION_TAG,
+    RUST_MIGRATION_TRANSPORT_OWNER,
+    hako_transport_fixture_ids,
+    registry_rows_by_key,
 )
 
 
@@ -64,6 +72,83 @@ class HakoCorpusBatchTests(unittest.TestCase):
         self.assertEqual(
             corpus["peek_compat_normalizable"]["hako_equivalent_fixture_id"],
             "match_compat",
+        )
+
+    def test_transport_exclusion_is_derived_from_registry_rows(self) -> None:
+        corpus = fixtures_by_id()
+        transport_ids = list(hako_transport_fixture_ids())
+        fixtures = [corpus[fixture_id] for fixture_id in transport_ids]
+
+        selection = select_hako_semantic_fixtures(transport_ids, fixtures)
+
+        self.assertEqual(selection["included_ids"], [])
+        self.assertEqual(selection["failures"], [])
+        self.assertEqual(
+            {row["fixture_id"] for row in selection["excluded_rows"]},
+            set(transport_ids),
+        )
+        self.assertTrue(
+            all(
+                row["stable_reject_tag"] == HAKO_TRANSPORT_EXCLUSION_TAG
+                and row["transport_owner"] == RUST_MIGRATION_TRANSPORT_OWNER
+                and row["hako_adapter_invoked"] is False
+                for row in selection["excluded_rows"]
+            )
+        )
+
+    def test_transport_rows_never_enter_batch_environment(self) -> None:
+        corpus = fixtures_by_id()
+        fixture_ids = [
+            "match_canonical",
+            *hako_transport_fixture_ids(),
+        ]
+        fixtures = [corpus[fixture_id] for fixture_id in fixture_ids]
+        selection = select_hako_semantic_fixtures(fixture_ids, fixtures)
+
+        environment = batch_environment(selection["included_fixtures"], base={})
+
+        self.assertEqual(selection["included_ids"], ["match_canonical"])
+        self.assertEqual(environment["HAKO_GRAMMAR_CONTRACT_BATCH_COUNT"], "1")
+        self.assertNotIn("box Child from Parent", environment.values())
+        self.assertNotIn("from Parent.method()", environment.values())
+
+    def test_exclusion_only_report_is_explicit_and_process_free(self) -> None:
+        corpus = fixtures_by_id()
+        transport_ids = list(hako_transport_fixture_ids())
+        selection = select_hako_semantic_fixtures(
+            transport_ids,
+            [corpus[fixture_id] for fixture_id in transport_ids],
+        )
+
+        report = report_without_adapter(
+            selection["excluded_rows"],
+            selection["failures"],
+            fixture_count=len(transport_ids),
+        )
+
+        self.assertEqual(report["status"], "ok")
+        self.assertEqual(report["adapter_process_count"], 0)
+        self.assertEqual(report["adapter_fixture_count"], 0)
+        self.assertEqual(report["excluded_fixture_count"], len(transport_ids))
+
+    def test_selection_distinguishes_missing_row_from_profile_drift(self) -> None:
+        corpus = fixtures_by_id()
+        fixture = dict(corpus["match_canonical"])
+        registry = registry_rows_by_key()
+
+        fixture["profile"] = "UnknownProfile"
+        profile_drift = select_hako_semantic_fixtures(
+            ["match_canonical"], [fixture], registry=registry
+        )
+        missing_row = select_hako_semantic_fixtures(
+            ["match_canonical"], [fixture], registry={}
+        )
+
+        self.assertEqual(
+            profile_drift["failures"][0]["reason"], "parser/profile_mismatch"
+        )
+        self.assertEqual(
+            missing_row["failures"][0]["reason"], "parser/registry_row_missing"
         )
 
 

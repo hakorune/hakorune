@@ -26,6 +26,22 @@ pub enum NormalizationMode {
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum ConformanceParticipant {
+    HakoSemanticParser,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum TransportOwner {
+    RustMigrationToolingOnly,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum ConformanceScope {
+    Required,
+    ExplicitlyExcluded { transport_owner: TransportOwner },
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct GrammarContractRow {
     pub row_id: &'static str,
     pub family: &'static str,
@@ -132,6 +148,20 @@ pub fn find_row(row_id: &str, profile: GrammarProfile) -> Option<&'static Gramma
     crate::generated_contract::LANGUAGE_V1_GRAMMAR_CONTRACT_ROWS
         .iter()
         .find(|row| row.row_id == row_id && row.profile == profile)
+}
+
+pub fn conformance_scope(
+    row: &GrammarContractRow,
+    participant: ConformanceParticipant,
+) -> ConformanceScope {
+    match (participant, row.normalization_mode) {
+        (ConformanceParticipant::HakoSemanticParser, NormalizationMode::CompatibilityTransport) => {
+            ConformanceScope::ExplicitlyExcluded {
+                transport_owner: TransportOwner::RustMigrationToolingOnly,
+            }
+        }
+        _ => ConformanceScope::Required,
+    }
 }
 
 pub fn require_canonical_semantic_entry(
@@ -316,5 +346,46 @@ mod tests {
             error.stable_reject_tag(),
             "parser/from_compat_transport_only"
         );
+    }
+
+    #[test]
+    fn hako_semantic_conformance_explicitly_excludes_only_transport_rows() {
+        let scopes = LANGUAGE_V1_GRAMMAR_CONTRACT_ROWS
+            .iter()
+            .map(|row| {
+                (
+                    row,
+                    conformance_scope(row, ConformanceParticipant::HakoSemanticParser),
+                )
+            })
+            .collect::<Vec<_>>();
+        let excluded = scopes
+            .iter()
+            .filter(|(_, scope)| matches!(scope, ConformanceScope::ExplicitlyExcluded { .. }))
+            .collect::<Vec<_>>();
+        let transport_row_count = LANGUAGE_V1_GRAMMAR_CONTRACT_ROWS
+            .iter()
+            .filter(|row| row.normalization_mode == NormalizationMode::CompatibilityTransport)
+            .count();
+
+        assert!(transport_row_count > 0);
+        assert_eq!(excluded.len(), transport_row_count);
+        for (row, scope) in excluded {
+            assert_eq!(row.profile, GrammarProfile::Compat2025);
+            assert_eq!(
+                row.normalization_mode,
+                NormalizationMode::CompatibilityTransport
+            );
+            assert_eq!(
+                *scope,
+                ConformanceScope::ExplicitlyExcluded {
+                    transport_owner: TransportOwner::RustMigrationToolingOnly,
+                }
+            );
+        }
+        assert!(scopes.iter().all(|(row, scope)| {
+            row.normalization_mode == NormalizationMode::CompatibilityTransport
+                || *scope == ConformanceScope::Required
+        }));
     }
 }
