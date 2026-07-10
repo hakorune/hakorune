@@ -13,8 +13,9 @@ accepts the Semantic Kernel; 3459 completes evaluated-Place compound
 assignment; 3460 accepts the canonical grammar contract; and 3461 lands its
 registry/witness/corpus/adapter substrate. 3462 accepts ParserBuildConfig as
 the typed profile owner, and 3463 lands profile plumbing plus the statement
-try seam. 3464 migrates Rust peek as a Compat2025 alias to Match; from, Hako,
-runtime, backend, and selfhost remain closed."""
+try seam, and 3464 migrates Rust peek as a Compat2025 alias to Match. 3465 is
+the Rust from transport-only design stop; Hako, runtime, backend, and selfhost
+remain closed."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
@@ -22,14 +23,14 @@ method_anchor = "docs/development/current/main/design/selfhost-language-v1-freez
 taskboard = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 
-latest_card = "LANGV1-RUST-GRAMMAR-PEEK-COMPAT-ALIAS-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3464-LANGV1-RUST-GRAMMAR-PEEK-COMPAT-ALIAS-001.md"
-latest_card_summary = """3464 adds the narrow Rust peek profile seam:
-Canonical rejects the legacy spelling and explicit Compat2025 routes the
-closed lossless subset directly through the existing Match parser. From and
-Hako migration remain deferred."""
+latest_card = "LANGV1-RUST-FROM-COMPAT-TRANSPORT-DESIGN-STOP-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3465-LANGV1-RUST-FROM-COMPAT-TRANSPORT-DESIGN-STOP-001.md"
+latest_card_summary = """3465 stops before Rust from migration because the
+accepted Compat2025 status is transport-only while current box-from and
+from-call parsing immediately publishes semantic AST. A transport result owner
+must be selected before either acceptance route changes."""
 
-current_blocker_token = "LANGV1-RUST-GRAMMAR-PEEK-COMPAT-ALIAS-001"
+current_blocker_token = "LANGV1-RUST-FROM-COMPAT-TRANSPORT-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -38,6 +39,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-10: 3465 records the Rust from transport-only design stop after 3464 lands lossless Compat2025 peek-to-Match normalization.",
   "2026-07-10: 3464 opens the Rust peek Compat2025 alias after 3463 lands typed profile plumbing and the statement-try seam; from transport remains deferred.",
   "2026-07-10: 3463 opens typed Rust grammar-profile plumbing plus the statement-try seam after 3462 accepts ParserBuildConfig ownership, API/CLI explicit Compat2025, and legacy-env conflict-only retention.",
   "2026-07-10: 3462 records the Rust grammar-profile owner design stop after 3461 reveals that ParserBuildConfig arrives after tokenization and legacy try/from acceptance has no profile boundary.",
@@ -49,5 +51,4 @@ landed_tail = [
   "2026-07-10: 3458 opens the Semantic Kernel design consultation stop after 3457 lands the seven-law language constitution; Outcome/Place/cleanup/Fault/guard-let decisions are required before implementation.",
   "2026-07-10: 3457 selects Language v1 convergence before selfhost migration, lands the seven-law Constitution, and parks MirBuilder 3456 with an explicit post-closeout resume token.",
   "2026-07-10: 3456 records the MapStore key/value BoxShape repair prerequisite; it remains ready but parked while Language v1 convergence is active.",
-  "2026-07-10: 3454 selects the MapStoreI64 caller-orientation pilot; later review corrected I64 from stored-value domain to key domain before implementation.",
 ]

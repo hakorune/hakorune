@@ -211,7 +211,8 @@ evaluated-Place slice. Grammar work advances through
 
 Status: contract basis accepted as 3460; substrate landed as 3461; Rust
 grammar-profile owner accepted as 3462; profile plumbing plus statement-try
-landed as 3463; Rust peek Compat2025 alias active as 3464.
+landed as 3463; Rust peek Compat2025 alias landed as 3464; Rust from
+transport-only consultation active as 3465.
 
 Deliverables:
 

@@ -2,8 +2,8 @@
 
 ## Status
 
-Active implementation card. Migrate Rust `peek` under the typed grammar
-profile without changing `from`, Hako, runtime, backend, or selfhost behavior.
+Complete. `2c9561d4c5` migrates Rust `peek` under the typed grammar profile
+without changing `from`, Hako, runtime, backend, or selfhost behavior.
 
 ## Inventory
 
@@ -66,5 +66,5 @@ bash tools/checks/current_state_pointer_guard.sh
 
 ## Next
 
-After green, stop at the Rust `from` transport-only design boundary. Do not
-reuse the live semantic `FromCall`/inheritance AST as compatibility transport.
+Green. 3465 is the Rust `from` transport-only design boundary. Do not reuse
+the live semantic `FromCall`/inheritance AST as compatibility transport.
