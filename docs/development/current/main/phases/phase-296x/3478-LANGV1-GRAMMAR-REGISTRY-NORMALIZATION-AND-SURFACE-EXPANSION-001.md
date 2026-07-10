@@ -46,7 +46,7 @@ root hakorune build = green
 language_v1_grammar_contract_substrate_guard = green
 ```
 
-### Series B Schema - Complete; Live Projection - Pending
+### Series B Schema - Complete; Live Projection - In Progress
 
 ```text
 authority support fields:
@@ -65,25 +65,26 @@ support matrix:
   deferred to Series D execution output after both adapters cover the expanded rows
 ```
 
-The schema and comparator are complete, but live conformance is not deep yet:
+The schema and comparator are complete. The live projection foundation is now
+active:
 
 ```text
-Rust drift observation on accepted input:
-  normalized_form = ImplementationAccepted leaf
+Rust observation:
+  AST JSON -> Rust-owned row projector -> recursive normalized_form
 
-Hako drift observation on accepted input:
-  normalized_form = ImplementationAccepted leaf
+Hako observation:
+  ProgramJSON -> Hako-owned row projector -> recursive normalized_form
 
 Hako compile-once batch comparison:
-  status + reject tag + optional scrutinee kind
-  equivalent fixture pairs compare raw ProgramJSON only
+  expected normalized_form == observed recursive projection
 ```
 
-Raw ProgramJSON equality proves Hako-internal equivalence only. It does not
-prove that the two independent parsers project the same recursive canonical
-form. Do not describe either live adapter as recursive-conformant yet.
+The old `ImplementationAccepted` leaf has been removed from the drift report.
+Raw ProgramJSON equality remains optional Hako-internal evidence and is not
+cross-parser proof. Full live recursive conformance is still a non-claim until
+all current registered fixtures pass.
 
-### Series C0 Live Recursive Witness Projection - Next
+### Series C0 Live Recursive Witness Projection - In Progress
 
 Implement two independent projections against the already-shared schema:
 
@@ -119,6 +120,20 @@ First close the projection vocabulary for the current registered rows. Only
 then add the remaining weak/record/literal/construction rows and their new
 projection kinds. This keeps the Series D composition runner from amplifying a
 shallow comparison.
+
+Current focused evidence:
+
+```text
+optional normalized node value = implemented
+independent Rust/Hako projector unit tests = green
+strict Hako loop/map recursive batch = 7 green
+loop block-head delimiter drift = fixed through one expression context owner
+```
+
+Full inventory exposed pre-existing corpus/parser drift that the shallow gate
+did not detect: 16 Hako and 27 Rust accept/tag mismatches across the current
+non-transport fixtures. These are corrective inputs for C0, not reasons to
+weaken or bypass recursive comparison.
 
 ### Series C Preparation - Complete
 

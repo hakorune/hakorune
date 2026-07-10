@@ -14,6 +14,24 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 CORPUS = ROOT / "grammar/language-v1-grammar-contract-corpus.toml"
 
 
+def _validate_normalized_node(node: Any, *, allow_empty: bool) -> None:
+    if not isinstance(node, dict):
+        raise ValueError("grammar normalized_form node must be a table")
+    if set(node) - {"kind", "value", "children"}:
+        raise ValueError("grammar normalized_form contains unsupported fields")
+    kind = node.get("kind")
+    value = node.get("value")
+    children = node.get("children")
+    if not isinstance(kind, str) or not isinstance(children, list):
+        raise ValueError("grammar normalized_form requires kind and children")
+    if value is not None and not isinstance(value, str):
+        raise ValueError("grammar normalized_form value must be a string")
+    if not kind and (not allow_empty or value is not None or children):
+        raise ValueError("empty grammar normalized_form cannot carry data")
+    for child in children:
+        _validate_normalized_node(child, allow_empty=False)
+
+
 def load_corpus() -> dict[str, Any]:
     with CORPUS.open("rb") as handle:
         manifest = tomllib.load(handle)
@@ -61,6 +79,7 @@ def fixtures_by_id() -> dict[str, dict[str, Any]]:
     fixtures: dict[str, dict[str, Any]] = {}
     for raw_fixture in corpus["fixtures"]:
         fixture = dict(raw_fixture)
+        _validate_normalized_node(fixture.get("normalized_form"), allow_empty=True)
         inventory_id = fixture.get("hako_inventory_id")
         if inventory_id:
             fixture["hako_inventory_json"] = inventory_json_by_id(inventory_id)

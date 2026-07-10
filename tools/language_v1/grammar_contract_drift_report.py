@@ -17,10 +17,12 @@ from typing import Any
 
 from hako_adapter_health import (
     DEFAULT_HAKO_ADAPTER_TIMEOUT_SECONDS,
-    run_adapter_process,
+    run_adapter_json_process,
     run_health_probe,
 )
 from grammar_contract_corpus import fixtures_by_id
+from hako_witness_projection import HakoProjectionError, project_hako_normalized_form
+from rust_witness_projection import RustProjectionError, project_rust_normalized_form
 
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
@@ -47,17 +49,37 @@ def rust_observation(binary: pathlib.Path, fixture: dict[str, Any]) -> dict[str,
         ast = root / "ast.json"
         source.write_text(fixture["source"], encoding="utf-8")
         completed = subprocess.run(
-            [str(binary), "--emit-ast-json", str(ast), str(source)],
+            [
+                str(binary),
+                "--emit-ast-json",
+                str(ast),
+                *(
+                    ["--grammar-profile", "compat2025"]
+                    if fixture["profile"] == "Compat2025"
+                    else []
+                ),
+                str(source),
+            ],
             cwd=ROOT,
             text=True,
             capture_output=True,
             check=False,
         )
+        ast_payload = json.loads(ast.read_text(encoding="utf-8")) if completed.returncode == 0 else None
     if completed.returncode == 0:
+        try:
+            normalized_form = project_rust_normalized_form(
+                fixture["row_id"], ast_payload
+            )
+            projection_error = ""
+        except RustProjectionError:
+            normalized_form = None
+            projection_error = "parser/witness_missing"
         return {
             "accepted": True,
-            "normalized_form": {"kind": "ImplementationAccepted", "children": []},
+            "normalized_form": normalized_form,
             "stable_reject_tag": "",
+            "projection_error": projection_error,
         }
     return {
         "accepted": False,
@@ -77,7 +99,7 @@ def hako_observation(
         "Canonical": "canonical",
         "Compat2025": "compat2025",
     }[fixture["profile"]]
-    result = run_adapter_process(
+    result = run_adapter_json_process(
         [
             str(binary),
             "--backend",
@@ -90,16 +112,34 @@ def hako_observation(
         timeout_seconds=timeout_seconds,
         environment=environment,
     )
-    if result.status == "ok":
+    if result.payload is None:
+        return {
+            "accepted": False,
+            "normalized_form": None,
+            "stable_reject_tag": result.stable_reject_tag,
+        }
+    payload = result.payload
+    if payload.get("status") == "ok":
+        try:
+            normalized_form = project_hako_normalized_form(
+                fixture["row_id"], payload.get("program")
+            )
+            projection_error = ""
+        except HakoProjectionError:
+            normalized_form = None
+            projection_error = "parser/witness_missing"
         return {
             "accepted": True,
-            "normalized_form": {"kind": "ImplementationAccepted", "children": []},
+            "normalized_form": normalized_form,
             "stable_reject_tag": "",
+            "projection_error": projection_error,
         }
     return {
         "accepted": False,
         "normalized_form": None,
-        "stable_reject_tag": result.stable_reject_tag,
+        "stable_reject_tag": payload.get(
+            "stable_reject_tag", "parser/hako_adapter_malformed_output"
+        ),
     }
 
 

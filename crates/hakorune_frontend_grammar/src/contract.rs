@@ -60,6 +60,7 @@ pub struct GrammarContractRow {
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct NormalizedSyntaxNode {
     pub kind: String,
+    pub value: Option<String>,
     pub children: Vec<NormalizedSyntaxNode>,
 }
 
@@ -67,6 +68,15 @@ impl NormalizedSyntaxNode {
     pub fn leaf(kind: impl Into<String>) -> Self {
         Self {
             kind: kind.into(),
+            value: None,
+            children: Vec::new(),
+        }
+    }
+
+    pub fn valued(kind: impl Into<String>, value: impl Into<String>) -> Self {
+        Self {
+            kind: kind.into(),
+            value: Some(value.into()),
             children: Vec::new(),
         }
     }
@@ -77,6 +87,19 @@ impl NormalizedSyntaxNode {
     ) -> Self {
         Self {
             kind: kind.into(),
+            value: None,
+            children: children.into_iter().collect(),
+        }
+    }
+
+    pub fn valued_branch(
+        kind: impl Into<String>,
+        value: impl Into<String>,
+        children: impl IntoIterator<Item = NormalizedSyntaxNode>,
+    ) -> Self {
+        Self {
+            kind: kind.into(),
+            value: Some(value.into()),
             children: children.into_iter().collect(),
         }
     }
@@ -348,6 +371,27 @@ mod tests {
                     )],
                 )],
             ),
+        );
+
+        assert_eq!(
+            compare_witnesses(Some(&row()), Some(&expected), Some(&observed)),
+            Err(WitnessComparisonError::WitnessDrift {
+                field: "normalized_form"
+            })
+        );
+    }
+
+    #[test]
+    fn comparator_rejects_normalized_value_drift() {
+        let expected = ParseWitness::accepted(
+            "try_statement",
+            GrammarProfile::Canonical,
+            NormalizedSyntaxNode::valued("Identifier", "left"),
+        );
+        let observed = ParseWitness::accepted(
+            "try_statement",
+            GrammarProfile::Canonical,
+            NormalizedSyntaxNode::valued("Identifier", "right"),
         );
 
         assert_eq!(

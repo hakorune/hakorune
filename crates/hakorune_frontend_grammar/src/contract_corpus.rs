@@ -41,6 +41,7 @@ fn normalized_form(value: &toml::value::Table) -> Option<NormalizedSyntaxNode> {
 
 fn normalized_node(form: &toml::value::Table) -> Option<NormalizedSyntaxNode> {
     let kind = string(form, "kind");
+    let value = optional_string(form, "value");
     let children = form
         .get("children")
         .and_then(toml::Value::as_array)
@@ -57,12 +58,15 @@ fn normalized_node(form: &toml::value::Table) -> Option<NormalizedSyntaxNode> {
         .collect::<Vec<_>>();
     if kind.is_empty() {
         assert!(
-            children.is_empty(),
-            "empty normalized_form cannot have children"
+            children.is_empty() && value.is_none(),
+            "empty normalized_form cannot have value or children"
         );
         None
     } else {
-        Some(NormalizedSyntaxNode::branch(kind, children))
+        Some(match value {
+            Some(value) => NormalizedSyntaxNode::valued_branch(kind, value, children),
+            None => NormalizedSyntaxNode::branch(kind, children),
+        })
     }
 }
 

@@ -566,9 +566,9 @@ static box ParserExprBox {
     )
   }
 
-  parse_match_scrutinee2(src, i, ctx) {
+  parse_block_delimited_head2(src, i, ctx) {
     return ParserExprPrecedenceBox.parse_expr2(
-      src, i, ctx, ParserExprContextBox.match_scrutinee()
+      src, i, ctx, ParserExprContextBox.block_delimited_head()
     )
   }
   parse_args2(src, i, ctx) {

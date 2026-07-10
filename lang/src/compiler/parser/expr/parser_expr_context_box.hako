@@ -3,13 +3,13 @@ static box ParserExprContextBox {
     return "GeneralExpression"
   }
 
-  match_scrutinee() {
-    return "MatchScrutineeStopsBeforeTopLevelBrace"
+  block_delimited_head() {
+    return "BlockDelimitedHeadStopsBeforeTopLevelBrace"
   }
 
   record_literal_allowed(expr_context) {
     if expr_context == me.general() { return 1 }
-    if expr_context == me.match_scrutinee() { return 0 }
+    if expr_context == me.block_delimited_head() { return 0 }
     return 0
   }
 }

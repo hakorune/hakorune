@@ -53,7 +53,20 @@ class HakoCorpusBatchTests(unittest.TestCase):
                     "stable_reject_tag": "",
                     "deterministic": True,
                     "raw_program_json_authority": False,
-                    "program": {"version": 0, "kind": "Program", "body": []},
+                    "program": {
+                        "version": 0,
+                        "kind": "Program",
+                        "body": [
+                            {
+                                "type": "Expr",
+                                "expr": {
+                                    "type": "EnumMatch",
+                                    "scrutinee": {"type": "Var", "name": "state"},
+                                    "arms": [],
+                                },
+                            }
+                        ],
+                    },
                 },
                 {
                     "schema": "language-v1-hako-raw-evidence-v0",

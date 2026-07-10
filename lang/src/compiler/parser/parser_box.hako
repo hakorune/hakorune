@@ -419,8 +419,8 @@ box ParserBox {
     return ParserExprBox.parse_factor_in_context2(src, i, me, expr_context)
   }
 
-  parse_match_scrutinee2(src, i) {
-    return ParserExprBox.parse_match_scrutinee2(src, i, me)
+  parse_block_delimited_head2(src, i) {
+    return ParserExprBox.parse_block_delimited_head2(src, i, me)
   }
 
   // === Delegation to ParserStmtBox ===

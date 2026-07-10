@@ -260,7 +260,7 @@ Post-3472 ordered follow-up queue:
 Q0 complete: 3471 accepts Decisions A-D
 Q1 complete: 3473 Hako CompatibilityTransport explicit exclusion
 Q2 complete: 3474 LANGV1-HAKO-MATCH-RECORD-DELIMITER-OWNER-001
-  owner = delimiter-aware ExprContext / MatchScrutineeStopsBeforeTopLevelBrace
+  owner = delimiter-aware ExprContext / BlockDelimitedHeadStopsBeforeTopLevelBrace
 Q3 complete: 3475 MIR-CONVERGENCE-ROUTE-FAMILY-GRAPH-SHADOW-001
   owner = route-family dependency graph
   changed-function worklist and local invalidation = subordinate mechanisms

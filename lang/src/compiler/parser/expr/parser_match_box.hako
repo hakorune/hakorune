@@ -11,7 +11,7 @@ static box ParserMatchBox {
     local n = src.length()
     j = ctx.skip_ws(src, j)
 
-    local scrutinee = ctx.parse_match_scrutinee2(src, j)
+    local scrutinee = ctx.parse_block_delimited_head2(src, j)
     j = ctx.gpos_get()
     j = ctx.skip_ws(src, j)
     if j >= n || src.substring(j, j + 1) != "{" {

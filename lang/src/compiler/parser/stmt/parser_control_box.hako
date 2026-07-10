@@ -319,7 +319,7 @@ static box ParserControlBox {
       // Root cause: MIR PHI insertion or register allocation bug in nested loop contexts.
       // See: tools/smokes/v2/profiles/quick/core/phase2100/stageb_parser_loop_json_canary_vm.sh
       local j_wa = j_before_cond
-      cond = ctx.parse_expr2(src, j_wa)
+      cond = ctx.parse_block_delimited_head2(src, j_wa)
       j = ctx.gpos_get()
       local j_after_cond = j
       if trace == 1 { print("[parser/loop:trace] cond_json=" + cond) }
@@ -348,7 +348,7 @@ static box ParserControlBox {
       }
     } else {
       // Route B: Simple path (NestedIfMerge generates correct PHI)
-      cond = ctx.parse_expr2(src, j)
+      cond = ctx.parse_block_delimited_head2(src, j)
       j = ctx.gpos_get()
       if trace == 1 { print("[parser/loop:trace] Route B cond_json=" + cond) }
     }

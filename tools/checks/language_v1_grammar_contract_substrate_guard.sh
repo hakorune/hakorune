@@ -64,9 +64,9 @@ rg -q 'parser/peek_compat_not_normalizable' \
 rg -q 'parser/hako_record_fields_expected_canonical' \
   lang/src/compiler/parser/expr/parser_expr_box.hako \
   || guard_fail "Hako record-field progress fail-fast guard missing"
-rg -q 'parse_match_scrutinee2' lang/src/compiler/parser/expr/parser_match_box.hako \
+rg -q 'parse_block_delimited_head2' lang/src/compiler/parser/expr/parser_match_box.hako \
   || guard_fail "Hako Match parser does not own its scrutinee delimiter context"
-rg -q 'MatchScrutineeStopsBeforeTopLevelBrace' \
+rg -q 'BlockDelimitedHeadStopsBeforeTopLevelBrace' \
   lang/src/compiler/parser/expr/parser_expr_context_box.hako \
   || guard_fail "Hako Match scrutinee context policy missing"
 rg -F -q 'record_literal_allowed(expr_context)' \
@@ -98,7 +98,8 @@ rg -q 'hako_inventory_id = "option"' grammar/language-v1-grammar-contract-corpus
 python3 tools/language_v1/grammar_contract_drift_report.py --help >/dev/null
 python3 -m unittest \
   tools.language_v1.test_hako_adapter_health \
-  tools.language_v1.test_hako_corpus_batch
+  tools.language_v1.test_hako_corpus_batch \
+  tools.language_v1.test_witness_projection
 
 cargo build -q --features vm-reference --bin hakorune
 health_a="$(mktemp)"

@@ -20,6 +20,10 @@ if __package__:
         registry_rows_by_key,
     )
     from .hako_adapter_health import probe_command, run_adapter_json_process
+    from .hako_witness_projection import (
+        HakoProjectionError,
+        project_hako_normalized_form,
+    )
 else:
     from grammar_contract_corpus import fixtures_by_id
     from grammar_contract_registry import (
@@ -31,6 +35,10 @@ else:
         registry_rows_by_key,
     )
     from hako_adapter_health import probe_command, run_adapter_json_process
+    from hako_witness_projection import (
+        HakoProjectionError,
+        project_hako_normalized_form,
+    )
 
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
@@ -183,6 +191,15 @@ def compare_batch(
             if isinstance(observation, dict) and expected_scrutinee_kind
             else ""
         )
+        actual_normalized_form = None
+        projection_error = ""
+        if expected_status == "ok" and isinstance(observation, dict):
+            try:
+                actual_normalized_form = project_hako_normalized_form(
+                    fixture["row_id"], observation.get("program")
+                )
+            except HakoProjectionError:
+                projection_error = "parser/witness_missing"
         row_ok = (
             isinstance(observation, dict)
             and observation.get("schema") == "language-v1-hako-raw-evidence-v0"
@@ -192,7 +209,11 @@ def compare_batch(
             and actual_tag == expected_tag
         )
         if expected_status == "ok":
-            row_ok = row_ok and isinstance(observation.get("program"), dict)
+            row_ok = (
+                row_ok
+                and isinstance(observation.get("program"), dict)
+                and actual_normalized_form == fixture["normalized_form"]
+            )
         if expected_scrutinee_kind:
             row_ok = row_ok and actual_scrutinee_kind == expected_scrutinee_kind
         if not row_ok:
@@ -216,6 +237,9 @@ def compare_batch(
                 "actual_tag": actual_tag,
                 "expected_scrutinee_kind": expected_scrutinee_kind,
                 "actual_scrutinee_kind": actual_scrutinee_kind,
+                "expected_normalized_form": fixture["normalized_form"],
+                "actual_normalized_form": actual_normalized_form,
+                "projection_error": projection_error,
                 "hako_adapter_invoked": True,
                 "ok": row_ok,
             }
