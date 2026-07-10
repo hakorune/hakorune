@@ -98,7 +98,7 @@ if [ "${LANGV1_HAKO_PROFILE_FULL:-0}" = "1" ]; then
 
   if python3 tools/language_v1/hako_adapter_health.py \
     --bin target/debug/hakorune --probe observation --profile canonical \
-    --source 'local x = peek none { None => 0 }' \
+    --source 'return peek none { None => 0 }' \
     --timeout-sec 90 >"$canonical_peek"; then
     guard_fail "Canonical Hako profile accepted peek"
   fi

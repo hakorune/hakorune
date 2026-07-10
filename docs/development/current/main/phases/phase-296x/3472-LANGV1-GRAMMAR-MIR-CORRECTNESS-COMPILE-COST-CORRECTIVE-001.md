@@ -5,6 +5,8 @@
 Active corrective card. Repair the correctness and compile-cost prerequisites
 found after 3470 before resuming the parked 3471 transport consultation.
 
+Progress: Slice 1 complete. Slices 2-6 remain ordered and active.
+
 ## Problem Statement
 
 ```text
@@ -53,6 +55,11 @@ expression_contract_result_owner_count = 1
 statement_context_specific_freeze_embedding = 0
 malformed_program_json_on_contract_error = 0
 ```
+
+Implementation: `ParserBox.freeze_contract` owns the first expression contract
+error for a parse invocation. `parse_program2` consumes that latch before any
+statement JSON publication. The formerly broken `return peek` case now returns
+`parser/hako_peek_canonical_rejected` as a structured adapter rejection.
 
 ### Slice 2 - Match grammar strictness and inventory
 

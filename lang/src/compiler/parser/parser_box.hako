@@ -20,6 +20,7 @@ box ParserBox {
   externs_json
   runes_json
   enum_inventory_json
+  contract_error
   stage3
   grammar_profile_mode
 
@@ -29,6 +30,7 @@ box ParserBox {
     me.externs_json = "[]"
     me.runes_json = "[]"
     me.enum_inventory_json = "[]"
+    me.contract_error = null
     me.stage3 = 0
     me.grammar_profile_mode = 0
     return 0
@@ -42,6 +44,12 @@ box ParserBox {
   grammar_profile_is_compat2025() {
     if me.grammar_profile_mode == 1 { return 1 }
     return 0
+  }
+
+  freeze_contract(stable_tag, message) {
+    local error = "[freeze:contract][" + stable_tag + "] " + message
+    if me.contract_error == null { me.contract_error = error }
+    return error
   }
 
   stage3_enable(flag) {
@@ -732,6 +740,7 @@ box ParserBox {
 
   // === Top-level program parser ===
   parse_program2(src) {
+    me.contract_error = null
     // Dev-only: guaranteed direct marker before any env operations
     {
       local marker_enabled = env.get("HAKO_STAGEB_TRACE")
@@ -874,6 +883,13 @@ box ParserBox {
         local start_i = i
         local s = me.parse_stmt2(src, i)
         i = me.gpos_get()
+
+        if me.contract_error != null {
+          local expression_error = me.contract_error
+          me.contract_error = null
+          env.set("HAKO_STAGEB_PARSER_DEPTH", "0")
+          return expression_error
+        }
 
         if ParserStringUtilsBox.starts_with("" + s, 0, "[freeze:contract]") == 1 {
           env.set("HAKO_STAGEB_PARSER_DEPTH", "0")

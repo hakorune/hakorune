@@ -3,8 +3,6 @@
 // This keeps the statement parser split intact while preserving the common
 // `local name = expr` lowering shape.
 
-using sh_core as StringHelpers
-
 static box ParserStmtLocalBox {
   method parse_or_null(src, i, stmt_start, ctx) {
     local j = i
@@ -34,9 +32,6 @@ static box ParserStmtLocalBox {
         local ahead = src.substring(j, j + 1)
         if ahead != "}" && ahead != ";" {
           expr_json = ctx.parse_expr2(src, j)
-          if StringHelpers.starts_with(expr_json, 0, "[freeze:contract]") == 1 {
-            return expr_json
-          }
           j = ctx.gpos_get()
         }
       }
