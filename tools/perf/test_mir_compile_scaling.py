@@ -2,7 +2,12 @@
 
 import unittest
 
-from tools.perf.mir_compile_scaling import TIMING_RE, loop_source, method_source
+from tools.perf.mir_compile_scaling import (
+    TIMING_RE,
+    loop_source,
+    method_source,
+    shadow_contract_error,
+)
 
 
 class MirCompileScalingTests(unittest.TestCase):
@@ -27,6 +32,24 @@ class MirCompileScalingTests(unittest.TestCase):
         self.assertEqual(
             [(match.group(1), match.group(2)) for match in TIMING_RE.finditer(text)],
             [("build_module", "42"), ("semantic.route.outer_iterations", "2")],
+        )
+
+    def test_shadow_contract_requires_nonempty_deterministic_parity_rows(self) -> None:
+        valid = {
+            "semantic.route.shadow.dirty_functions": 0,
+            "semantic.route.shadow.recomputed_functions": 50,
+            "semantic.route.shadow.unchanged_function_recomputes": 50,
+            "semantic.route.shadow.family_recomputes": 17,
+            "semantic.route.shadow.dependency_edges": 12,
+            "semantic.route.shadow.worklist_hash": 42,
+            "semantic.route.shadow.parity_mismatches": 0,
+        }
+        self.assertEqual(shadow_contract_error(valid), "")
+        self.assertTrue(shadow_contract_error({}).startswith("missing:"))
+        invalid = dict(valid)
+        invalid["semantic.route.shadow.parity_mismatches"] = 1
+        self.assertEqual(
+            shadow_contract_error(invalid), "full_refresh_parity_mismatch"
         )
 
 

@@ -2,10 +2,12 @@
 
 ## Status
 
-Active code-facing BoxShape card after 3474 closes Match/record delimiter
+Complete code-facing BoxShape card after 3474 closes Match/record delimiter
 ownership.
 
 Decision: accepted by 3471 Decision C.
+
+Implementation: complete.
 
 ## Selected Contract
 
@@ -136,6 +138,44 @@ fixture_cache_count = 0
 source_over_800_lines = 0
 docs_only_closeout = forbidden
 ```
+
+Implemented evidence:
+
+```text
+typed graph owner:
+  src/mir/route_dependency_graph.rs
+
+retained execution owner with shadow trace:
+  src/mir/route_fixpoint.rs
+
+route family count = 8
+dependency edge count = 12
+full refresh authority retained = 1
+parity mismatch count = 0
+
+50/100/250 method probes:
+  deterministic worklist hash = 16134699973845251250
+  shadow contract error = empty
+
+merged grammar adapter first refresh:
+  function count = 298
+  dirty function count = 0
+  unchanged function recompute count = 298
+  outer iterations = 4
+  family recomputes = 23
+
+merged grammar adapter post-canonicalization refresh:
+  function count = 298
+  dirty function count = 0
+  unchanged function recompute count = 298
+  outer iterations = 2
+  family recomputes = 19
+```
+
+The graph models deterministic family closure and sorted opaque function
+worklists. Function names are identities only and cannot select affected
+families. This card intentionally does not switch execution authority or claim
+compile-time reduction.
 
 Verification must include focused graph/unit tests, existing semantic refresh
 tests, MIR compile-scaling tests, a measured grammar-adapter compile trace, the

@@ -17,6 +17,35 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 TIMING_RE = re.compile(
     r"\[mir-compile/timing\] stage=([^ ]+) (?:elapsed_ms|count)=([0-9]+)"
 )
+SHADOW_STAGE_KEYS = {
+    "semantic.route.shadow.dirty_functions",
+    "semantic.route.shadow.recomputed_functions",
+    "semantic.route.shadow.unchanged_function_recomputes",
+    "semantic.route.shadow.family_recomputes",
+    "semantic.route.shadow.dependency_edges",
+    "semantic.route.shadow.worklist_hash",
+    "semantic.route.shadow.parity_mismatches",
+}
+
+
+def shadow_contract_error(stages: dict[str, int]) -> str:
+    missing = sorted(SHADOW_STAGE_KEYS.difference(stages))
+    if missing:
+        return "missing:" + ",".join(missing)
+    if stages["semantic.route.shadow.family_recomputes"] <= 0:
+        return "empty_family_recomputes"
+    if stages["semantic.route.shadow.dependency_edges"] <= 0:
+        return "empty_dependency_edges"
+    if stages["semantic.route.shadow.worklist_hash"] <= 0:
+        return "empty_worklist_hash"
+    dirty = stages["semantic.route.shadow.dirty_functions"]
+    recomputed = stages["semantic.route.shadow.recomputed_functions"]
+    unchanged = stages["semantic.route.shadow.unchanged_function_recomputes"]
+    if recomputed < dirty or unchanged != recomputed - dirty:
+        return "function_recompute_accounting_mismatch"
+    if stages["semantic.route.shadow.parity_mismatches"] != 0:
+        return "full_refresh_parity_mismatch"
+    return ""
 
 
 def method_source(method_count: int) -> str:
@@ -64,10 +93,12 @@ def run_probe(binary: pathlib.Path, source: str, timeout_seconds: float) -> dict
         match.group(1): int(match.group(2))
         for match in TIMING_RE.finditer(completed.stderr)
     }
+    shadow_error = shadow_contract_error(timings)
     return {
-        "status": "ok" if completed.returncode == 0 else "error",
+        "status": "ok" if completed.returncode == 0 and not shadow_error else "error",
         "elapsed_ms": int((time.monotonic() - started) * 1000),
         "stages": timings,
+        "shadow_contract_error": shadow_error,
     }
 
 

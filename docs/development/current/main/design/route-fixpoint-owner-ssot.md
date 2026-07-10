@@ -20,6 +20,17 @@ It is invoked by:
 src/mir/semantic_refresh.rs
 ```
 
+Its typed dependency shadow is:
+
+```text
+src/mir/route_dependency_graph.rs
+```
+
+The graph owns family dependency vocabulary, deterministic invalidation
+closure, and full-refresh trace parity. It does not execute refreshes or select
+route acceptance. `route_fixpoint.rs` remains the execution authority until a
+separate accepted authority-switch decision.
+
 ## Owned Inputs
 
 RouteFixpoint may coordinate these module-level route families:
@@ -51,6 +62,11 @@ RouteFixpoint does not create a second MIR dialect.
 
 - The semantic refresh orchestrator calls RouteFixpoint once.
 - RouteFixpoint owns the bounded module-level route convergence sequence.
+- RouteDependencyGraph must cover every invoked route family and every declared
+  edge must appear in dependency order somewhere in the retained full-refresh
+  trace.
+- Cyclic family dependencies are represented as deterministic closure, not
+  hidden by helper order or lower iteration limits.
 - Family-specific planners keep their local materialization rules.
 - Backend consumers continue to read `lowering_plan`.
 - Pure-first preflight continues to read existing route metadata.

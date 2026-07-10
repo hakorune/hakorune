@@ -24,8 +24,10 @@ and source layout prerequisites. 3471's Hako from transport consultation is
 complete with four accepted decisions. 3473 completes registry-derived
 explicit exclusion of CompatibilityTransport rows from Hako semantic-parser
 conformance. 3474 completes delimiter-aware Match scrutinee parsing and closes
-the record-brace/field-access parser gaps it exposes. 3475 is active at the
-route-family dependency graph shadow. Runtime/backend/selfhost remain closed."""
+the record-brace/field-access parser gaps it exposes. 3475 completes the typed
+route-family dependency graph shadow and proves deterministic full-refresh
+parity without an authority switch. 3476 is active at scoped process-state test
+isolation. Runtime/backend/selfhost remain closed."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
@@ -33,14 +35,14 @@ method_anchor = "docs/development/current/main/design/selfhost-language-v1-freez
 taskboard = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 
-latest_card = "MIR-CONVERGENCE-ROUTE-FAMILY-GRAPH-SHADOW-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3475-MIR-CONVERGENCE-ROUTE-FAMILY-GRAPH-SHADOW-001.md"
-latest_card_summary = """3475 introduces a typed route-family dependency graph
-as a shadow-only convergence owner. Existing full refresh remains authoritative;
-the graph must prove deterministic worklists and full-refresh parity without
-helper-name shortcuts, fixture caches, stale metadata, or fallback."""
+latest_card = "TEST-PROCESS-STATE-SCOPED-CONFIG-OWNER-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3476-TEST-PROCESS-STATE-SCOPED-CONFIG-OWNER-001.md"
+latest_card_summary = """3476 introduces scoped config injection as the single
+test-isolation owner. Fresh subprocesses classify baseline drift versus leaked
+same-process state; production defaults, test ordering, and runtime/backend
+behavior do not change."""
 
-current_blocker_token = "MIR-CONVERGENCE-ROUTE-FAMILY-GRAPH-SHADOW-001"
+current_blocker_token = "TEST-PROCESS-STATE-SCOPED-CONFIG-OWNER-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -49,6 +51,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-10: 3475 adds an eight-family typed convergence graph, deterministic invalidation closure, full-refresh trace parity, and compile-scaling shadow guards without switching authority; 3476 opens scoped test config isolation.",
   "2026-07-10: 3474 closes delimiter-aware Match scrutinee parsing with Var/Call/Field/RecordLiteral fixtures and fixes record closing-brace position retention; 3475 opens route-family graph shadowing.",
   "2026-07-10: 3473 explicitly excludes registry-derived CompatibilityTransport rows from Hako semantic conformance without invoking the Hako adapter; 3474 opens delimiter-aware Match scrutinee parsing.",
   "2026-07-10: 3471 accepts Hako transport exclusion, delimiter-aware Match context, route-family convergence graph ownership, and scoped test-config ownership; 3473 opens the first code-facing exclusion slice.",
@@ -56,7 +59,6 @@ landed_tail = [
   "2026-07-10: 3470 completes the Hako peek-to-Match Compat2025 alias; 3471 opens the Hako from transport conformance design stop.",
   "2026-07-10: 3466 completes one Rust from transport boundary: closed Compat2025 evidence uses a distinct MigrationTransport record while semantic parsing fails before AST publication.",
   "2026-07-10: 3468 completes bounded Hako adapter health; 3469 lands the explicit profile/try seam and 3470 opens the peek-to-Match alias.",
-  "2026-07-10: 3465 records the Rust from transport-only design stop after 3464 lands lossless Compat2025 peek-to-Match normalization.",
   "2026-07-10: 3464 opens the Rust peek Compat2025 alias after 3463 lands typed profile plumbing and the statement-try seam; from transport remains deferred.",
   "2026-07-10: 3463 opens typed Rust grammar-profile plumbing plus the statement-try seam after 3462 accepts ParserBuildConfig ownership, API/CLI explicit Compat2025, and legacy-env conflict-only retention.",
   "2026-07-10: 3462 records the Rust grammar-profile owner design stop after 3461 reveals that ParserBuildConfig arrives after tokenization and legacy try/from acceptance has no profile boundary.",
