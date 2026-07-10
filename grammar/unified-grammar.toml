@@ -488,7 +488,7 @@ semantic_owner = "semantic-kernel"
 stable_reject_tag = ""
 rust_support = "accepted"
 hako_support = "accepted"
-positive_fixture_ids = ["match_canonical", "match_user_enum_canonical", "match_user_enum_wildcard_canonical"]
+positive_fixture_ids = ["match_canonical", "match_user_enum_canonical", "match_user_enum_wildcard_canonical", "match_name_scrutinee_canonical", "match_call_scrutinee_canonical", "match_field_scrutinee_canonical", "match_parenthesized_record_scrutinee_canonical"]
 negative_fixture_ids = ["match_missing_arm", "match_missing_arrow", "match_missing_close", "match_user_enum_non_exhaustive", "match_user_enum_duplicate_variant", "match_user_enum_unit_binding"]
 
 [[language_v1_grammar_contract.rows]]

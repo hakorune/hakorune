@@ -7,6 +7,8 @@ using sh_core as StringHelpers  // Required: using chain resolution not implemen
 using lang.compiler.parser.scan.parser_number_scan_box
 using lang.compiler.parser.expr.parser_match_box
 using lang.compiler.parser.expr.parser_literal_box
+using lang.compiler.parser.expr.parser_expr_context_box
+using lang.compiler.parser.expr.parser_expr_precedence_box
 
 static box ParserExprBox {
   parse_record_fields2(src, i, ctx) {
@@ -20,8 +22,7 @@ static box ParserExprBox {
       j = ctx.skip_ws(src, j)
       if j >= n { return me._record_fields_error(src, ctx, "expected closing brace") }
       if src.substring(j, j+1) == "}" {
-        j = j + 1
-        break
+        return out + "]@" + ctx.i2s(j + 1)
       }
 
       local iteration_start = j
@@ -63,8 +64,7 @@ static box ParserExprBox {
       return me._record_fields_error(src, ctx, "record field limit exceeded")
     }
 
-    out = out + "]"
-    return out + "@" + ctx.i2s(j)
+    return me._record_fields_error(src, ctx, "record fields ended without closing brace")
   }
 
   _record_fields_error(src, ctx, message) {
@@ -167,6 +167,10 @@ static box ParserExprBox {
   }
 
   parse_factor2(src, i, ctx) {
+    return me.parse_factor_in_context2(src, i, ctx, ParserExprContextBox.general())
+  }
+
+  parse_factor_in_context2(src, i, ctx, expr_context) {
     local j = ctx.skip_ws(src, i)
     if j >= src.length() {
       ctx.gpos_set(j)
@@ -194,7 +198,7 @@ static box ParserExprBox {
     }
 
     if ctx.starts_with_kw(src, j, "some") == 1 {
-      local payload = ParserExprBox.parse_expr2(src, j + 4, ctx)
+      local payload = ParserExprPrecedenceBox.parse_expr2(src, j + 4, ctx, expr_context)
       return "{\"type\":\"EnumCtor\",\"enum\":\"Option\",\"variant\":\"Some\",\"args\":[" + payload + "]}"
     }
 
@@ -399,7 +403,7 @@ static box ParserExprBox {
       }
 
       k = ctx.skip_ws(src, k)
-      if k < src.length() && src.substring(k, k+1) == "{" {
+      if k < src.length() && src.substring(k, k+1) == "{" && ParserExprContextBox.record_literal_allowed(expr_context) == 1 {
         local rec_pair = ParserExprBox.parse_record_literal2(name, src, k, ctx)
         local rec_at = rec_pair.lastIndexOf("@")
         local node_record = rec_pair.substring(0, rec_at)
@@ -453,28 +457,32 @@ static box ParserExprBox {
             local mname = midp.substring(0, at3)
             k = ctx.to_int(midp.substring(at3+1, midp.length()))
             k = ctx.skip_ws(src, k)
-            if src.substring(k, k+1) == "(" { k = k + 1 }
-            local args2 = ParserExprBox.parse_args2(src, k, ctx)
-            local at4 = args2.lastIndexOf("@")
-            local args_json2 = args2.substring(0, at4)
-            k = ctx.to_int(args2.substring(at4+1, args2.length()))
-            k = ctx.skip_ws(src, k)
-            if src.substring(k, k+1) == ")" { k = k + 1 }
+            if src.substring(k, k+1) == "(" {
+              k = k + 1
+              local args2 = ParserExprBox.parse_args2(src, k, ctx)
+              local at4 = args2.lastIndexOf("@")
+              local args_json2 = args2.substring(0, at4)
+              k = ctx.to_int(args2.substring(at4+1, args2.length()))
+              k = ctx.skip_ws(src, k)
+              if src.substring(k, k+1) == ")" { k = k + 1 }
 
-            // Phase 173-2: Check if receiver is a using alias (static box call)
-            local is_static = 0
-            if node.indexOf("\"type\":\"Var\"") >= 0 {
-              if ctx.is_using_alias(name) == 1 {
-                is_static = 1
+              // Phase 173-2: Check if receiver is a using alias (static box call)
+              local is_static = 0
+              if node.indexOf("\"type\":\"Var\"") >= 0 {
+                if ctx.is_using_alias(name) == 1 {
+                  is_static = 1
+                }
               }
-            }
 
-            // Build Method node with is_static_box_call flag
-            node = "{\"type\":\"Method\",\"recv\":" + node + ",\"method\":\"" + mname + "\",\"args\":" + args_json2
-            if is_static == 1 {
-              node = node + ",\"is_static_box_call\":true"
+              // Build Method node with is_static_box_call flag
+              node = "{\"type\":\"Method\",\"recv\":" + node + ",\"method\":\"" + mname + "\",\"args\":" + args_json2
+              if is_static == 1 {
+                node = node + ",\"is_static_box_call\":true"
+              }
+              node = node + "}"
+            } else {
+              node = "{\"type\":\"Field\",\"recv\":" + node + ",\"field\":\"" + ctx.esc_json(mname) + "\"}"
             }
-            node = node + "}"
             handled = handled + 1
           }
 
@@ -499,205 +507,64 @@ static box ParserExprBox {
   }
 
   parse_unary2(src, i, ctx) {
-    local j = ctx.skip_ws(src, i)
-    if src.substring(j, j+1) == "-" {
-      local rhs = ParserExprBox.parse_factor2(src, j + 1, ctx)
-      j = ctx.gpos_get()
-      local zero = "{\"type\":\"Int\",\"value\":0}"
-      ctx.gpos_set(j)
-      return "{\"type\":\"Binary\",\"op\":\"-\",\"lhs\":" + zero + ",\"rhs\":" + rhs + "}"
-    }
-    return ParserExprBox.parse_factor2(src, j, ctx)
+    return ParserExprPrecedenceBox.parse_unary2(
+      src, i, ctx, ParserExprContextBox.general()
+    )
   }
 
   parse_term2(src, i, ctx) {
-    local lhs = ParserExprBox.parse_unary2(src, i, ctx)
-    local j = ctx.gpos_get()
-
-    // MirBuilder-friendly: explicit continue/break instead of flag
-    loop(true) {
-      j = ctx.skip_ws(src, j)
-      if j >= src.length() { break }
-
-      local op = src.substring(j, j+1)
-      if op != "*" && op != "/" && op != "%" { break }
-
-      local rhs = ParserExprBox.parse_unary2(src, j+1, ctx)
-      j = ctx.gpos_get()
-      lhs = "{\"type\":\"Binary\",\"op\":\"" + op + "\",\"lhs\":" + lhs + ",\"rhs\":" + rhs + "}"
-    }
-
-    ctx.gpos_set(j)
-    return lhs
+    return ParserExprPrecedenceBox.parse_term2(
+      src, i, ctx, ParserExprContextBox.general()
+    )
   }
 
   parse_shift2(src, i, ctx) {
-    local lhs = ParserExprBox.parse_term2(src, i, ctx)
-    local j = ctx.gpos_get()
-
-    loop(true) {
-      j = ctx.skip_ws(src, j)
-      if j >= src.length() { break }
-
-      local op = src.substring(j, j+2)
-      if op != "<<" && op != ">>" { break }
-
-      local rhs = ParserExprBox.parse_term2(src, j+2, ctx)
-      j = ctx.gpos_get()
-      lhs = "{\"type\":\"Binary\",\"op\":\"" + op + "\",\"lhs\":" + lhs + ",\"rhs\":" + rhs + "}"
-    }
-
-    ctx.gpos_set(j)
-    return lhs
+    return ParserExprPrecedenceBox.parse_shift2(
+      src, i, ctx, ParserExprContextBox.general()
+    )
   }
 
   parse_sum2(src, i, ctx) {
-    local lhs = ParserExprBox.parse_shift2(src, i, ctx)
-    local j = ctx.gpos_get()
-
-    // MirBuilder-friendly: explicit continue/break instead of flag
-    loop(true) {
-      j = ctx.skip_ws(src, j)
-      if j >= src.length() { break }
-
-      local op = src.substring(j, j+1)
-      if op != "+" && op != "-" { break }
-
-      local rhs = ParserExprBox.parse_shift2(src, j+1, ctx)
-      j = ctx.gpos_get()
-      lhs = "{\"type\":\"Binary\",\"op\":\"" + op + "\",\"lhs\":" + lhs + ",\"rhs\":" + rhs + "}"
-    }
-
-    ctx.gpos_set(j)
-    return lhs
+    return ParserExprPrecedenceBox.parse_sum2(
+      src, i, ctx, ParserExprContextBox.general()
+    )
   }
 
   parse_compare2(src, i, ctx) {
-    local lhs = ParserExprBox.parse_sum2(src, i, ctx)
-    local j = ctx.gpos_get()
-    j = ctx.skip_ws(src, j)
-    local two = src.substring(j, j+2)
-    local one = src.substring(j, j+1)
-    local op = ""
-
-    if two == "==" || two == "!=" || two == "<=" || two == ">=" {
-      op = two
-      j = j + 2
-    } else {
-      if one == "<" || one == ">" {
-        op = one
-        j = j + 1
-      }
-    }
-
-    if op == "" {
-      ctx.gpos_set(j)
-      return lhs
-    }
-
-    local rhs = ParserExprBox.parse_sum2(src, j, ctx)
-    j = ctx.gpos_get()
-    ctx.gpos_set(j)
-    return "{\"type\":\"Compare\",\"op\":\"" + op + "\",\"lhs\":" + lhs + ",\"rhs\":" + rhs + "}"
+    return ParserExprPrecedenceBox.parse_compare2(
+      src, i, ctx, ParserExprContextBox.general()
+    )
   }
 
   parse_bitand2(src, i, ctx) {
-    local lhs = ParserExprBox.parse_compare2(src, i, ctx)
-    local j = ctx.gpos_get()
-
-    loop(true) {
-      j = ctx.skip_ws(src, j)
-      if j >= src.length() { break }
-
-      local two = src.substring(j, j+2)
-      local op = src.substring(j, j+1)
-      if op != "&" || two == "&&" { break }
-
-      local rhs = ParserExprBox.parse_compare2(src, j+1, ctx)
-      j = ctx.gpos_get()
-      lhs = "{\"type\":\"Binary\",\"op\":\"&\",\"lhs\":" + lhs + ",\"rhs\":" + rhs + "}"
-    }
-
-    ctx.gpos_set(j)
-    return lhs
+    return ParserExprPrecedenceBox.parse_bitand2(
+      src, i, ctx, ParserExprContextBox.general()
+    )
   }
 
   parse_bitxor2(src, i, ctx) {
-    local lhs = ParserExprBox.parse_bitand2(src, i, ctx)
-    local j = ctx.gpos_get()
-
-    loop(true) {
-      j = ctx.skip_ws(src, j)
-      if j >= src.length() { break }
-
-      local op = src.substring(j, j+1)
-      if op != "^" { break }
-
-      local rhs = ParserExprBox.parse_bitand2(src, j+1, ctx)
-      j = ctx.gpos_get()
-      lhs = "{\"type\":\"Binary\",\"op\":\"^\",\"lhs\":" + lhs + ",\"rhs\":" + rhs + "}"
-    }
-
-    ctx.gpos_set(j)
-    return lhs
+    return ParserExprPrecedenceBox.parse_bitxor2(
+      src, i, ctx, ParserExprContextBox.general()
+    )
   }
 
   parse_bitor2(src, i, ctx) {
-    local lhs = ParserExprBox.parse_bitxor2(src, i, ctx)
-    local j = ctx.gpos_get()
-
-    loop(true) {
-      j = ctx.skip_ws(src, j)
-      if j >= src.length() { break }
-
-      local two = src.substring(j, j+2)
-      local op = src.substring(j, j+1)
-      if op != "|" || two == "||" { break }
-
-      local rhs = ParserExprBox.parse_bitxor2(src, j+1, ctx)
-      j = ctx.gpos_get()
-      lhs = "{\"type\":\"Binary\",\"op\":\"|\",\"lhs\":" + lhs + ",\"rhs\":" + rhs + "}"
-    }
-
-    ctx.gpos_set(j)
-    return lhs
+    return ParserExprPrecedenceBox.parse_bitor2(
+      src, i, ctx, ParserExprContextBox.general()
+    )
   }
 
   parse_expr2(src, i, ctx) {
-    local lhs = ParserExprBox.parse_bitor2(src, i, ctx)
-    local j = ctx.gpos_get()
-
-    // MirBuilder-friendly: explicit continue/break instead of flag
-    loop(true) {
-      j = ctx.skip_ws(src, j)
-      local two = src.substring(j, j+2)
-      if two != "&&" && two != "||" { break }
-
-      local rhs = ParserExprBox.parse_bitor2(src, j+2, ctx)
-      j = ctx.gpos_get()
-      lhs = "{\"type\":\"Logical\",\"op\":\"" + two + "\",\"lhs\":" + lhs + ",\"rhs\":" + rhs + "}"
-    }
-
-    j = ctx.skip_ws(src, j)
-    if src.substring(j, j+1) == "?" {
-      j = j + 1
-      j = ctx.skip_ws(src, j)
-      local then_expr = ParserExprBox.parse_expr2(src, j, ctx)
-      j = ctx.gpos_get()
-      j = ctx.skip_ws(src, j)
-      if src.substring(j, j+1) == ":" { j = j + 1 }
-      j = ctx.skip_ws(src, j)
-      local else_expr = ParserExprBox.parse_expr2(src, j, ctx)
-      j = ctx.gpos_get()
-      if else_expr.length() == 0 { else_expr = "{\"type\":\"Int\",\"value\":0}" }
-      ctx.gpos_set(j)
-      return "{\"type\":\"Ternary\",\"cond\":" + lhs + ",\"then\":" + then_expr + ",\"else\":" + else_expr + "}"
-    }
-
-    ctx.gpos_set(j)
-    return lhs
+    return ParserExprPrecedenceBox.parse_expr2(
+      src, i, ctx, ParserExprContextBox.general()
+    )
   }
 
+  parse_match_scrutinee2(src, i, ctx) {
+    return ParserExprPrecedenceBox.parse_expr2(
+      src, i, ctx, ParserExprContextBox.match_scrutinee()
+    )
+  }
   parse_args2(src, i, ctx) {
     local j = ctx.skip_ws(src, i)
     local n = src.length()

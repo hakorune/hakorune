@@ -2,10 +2,12 @@
 
 ## Status
 
-Active code-facing implementation card after 3473 closes explicit Hako
+Complete code-facing implementation card after 3473 closes explicit Hako
 compatibility-transport exclusion.
 
 Decision: accepted by 3471 Decision B.
+
+Implementation: complete.
 
 ## Selected Contract
 
@@ -110,6 +112,32 @@ ast_rewrite_disambiguation = 0
 parser_source_over_800_lines = 0
 docs_only_closeout = forbidden
 ```
+
+Implemented evidence:
+
+```text
+expression context owner:
+  lang/src/compiler/parser/expr/parser_expr_context_box.hako
+
+context-preserving precedence owner:
+  lang/src/compiler/parser/expr/parser_expr_precedence_box.hako
+
+Match-owned context entry:
+  ParserMatchBox -> ParserBox.parse_match_scrutinee2
+
+record literal delimiter consumption:
+  parse_record_fields2 returns the closing-brace position directly
+
+field scrutinee support:
+  obj.field -> ProgramJSON Field { recv, field }
+
+registry-driven fixture expansion:
+  hako_corpus_batch.py --include-registry-row-fixtures
+```
+
+The full corpus verifies `Var`, `Call`, `Field`, and parenthesized
+`RecordLiteral` scrutinee shapes. `ParserExprBox` is reduced from 736 to 603
+lines; the context and precedence owners are 15 and 197 lines.
 
 Verification must include focused Hako parser unit/corpus fixtures, the shared
 grammar substrate guard in normal and full modes, the current-state pointer

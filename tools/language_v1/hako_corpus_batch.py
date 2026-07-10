@@ -15,6 +15,7 @@ if __package__:
         GrammarRegistryRow,
         HAKO_TRANSPORT_EXCLUSION_TAG,
         RUST_MIGRATION_TRANSPORT_OWNER,
+        fixture_ids_for_row,
         hako_transport_fixture_ids,
         registry_rows_by_key,
     )
@@ -25,6 +26,7 @@ else:
         GrammarRegistryRow,
         HAKO_TRANSPORT_EXCLUSION_TAG,
         RUST_MIGRATION_TRANSPORT_OWNER,
+        fixture_ids_for_row,
         hako_transport_fixture_ids,
         registry_rows_by_key,
     )
@@ -34,6 +36,23 @@ else:
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 BATCH_SCHEMA = "language-v1-hako-raw-evidence-batch-v0"
 REPORT_SCHEMA = "language-v1-hako-corpus-batch-report-v0"
+
+
+def _match_scrutinee_kind(observation: dict[str, Any]) -> str:
+    program = observation.get("program")
+    if not isinstance(program, dict):
+        return ""
+    body = program.get("body")
+    if not isinstance(body, list) or not body or not isinstance(body[0], dict):
+        return ""
+    expression = body[0].get("expr")
+    if not isinstance(expression, dict) or expression.get("type") != "EnumMatch":
+        return ""
+    scrutinee = expression.get("scrutinee")
+    if not isinstance(scrutinee, dict):
+        return ""
+    kind = scrutinee.get("type")
+    return kind if isinstance(kind, str) else ""
 
 
 def select_hako_semantic_fixtures(
@@ -158,6 +177,12 @@ def compare_batch(
         )
         expected_status = "ok" if fixture["accepted"] else "error"
         expected_tag = fixture["stable_reject_tag"]
+        expected_scrutinee_kind = fixture.get("hako_expected_scrutinee_kind", "")
+        actual_scrutinee_kind = (
+            _match_scrutinee_kind(observation)
+            if isinstance(observation, dict) and expected_scrutinee_kind
+            else ""
+        )
         row_ok = (
             isinstance(observation, dict)
             and observation.get("schema") == "language-v1-hako-raw-evidence-v0"
@@ -168,6 +193,8 @@ def compare_batch(
         )
         if expected_status == "ok":
             row_ok = row_ok and isinstance(observation.get("program"), dict)
+        if expected_scrutinee_kind:
+            row_ok = row_ok and actual_scrutinee_kind == expected_scrutinee_kind
         if not row_ok:
             failures.append(
                 {
@@ -187,6 +214,8 @@ def compare_batch(
                 "actual_status": actual_status,
                 "expected_tag": expected_tag,
                 "actual_tag": actual_tag,
+                "expected_scrutinee_kind": expected_scrutinee_kind,
+                "actual_scrutinee_kind": actual_scrutinee_kind,
                 "hako_adapter_invoked": True,
                 "ok": row_ok,
             }
@@ -246,11 +275,25 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--bin", type=pathlib.Path, default=ROOT / "target/debug/hakorune")
     parser.add_argument("--fixture-id", action="append", default=[])
+    parser.add_argument(
+        "--include-registry-row-fixtures",
+        action="append",
+        nargs=2,
+        metavar=("ROW_ID", "PROFILE"),
+        default=[],
+    )
     parser.add_argument("--include-registry-transport-exclusions", action="store_true")
     parser.add_argument("--timeout-sec", type=float, default=180.0)
     args = parser.parse_args()
 
     fixture_ids = list(args.fixture_id)
+    try:
+        for row_id, profile in args.include_registry_row_fixtures:
+            for fixture_id in fixture_ids_for_row(row_id, profile):
+                if fixture_id not in fixture_ids:
+                    fixture_ids.append(fixture_id)
+    except KeyError as error:
+        parser.error(f"unknown grammar registry row: {error.args[0]}")
     if args.include_registry_transport_exclusions:
         for fixture_id in hako_transport_fixture_ids():
             if fixture_id not in fixture_ids:

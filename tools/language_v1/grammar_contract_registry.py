@@ -101,3 +101,14 @@ def hako_transport_fixture_ids(
     if len(fixture_ids) != len(set(fixture_ids)):
         raise ValueError("transport fixture belongs to multiple registry rows")
     return tuple(fixture_ids)
+
+
+def fixture_ids_for_row(
+    row_id: str,
+    profile: str,
+    rows: Iterable[GrammarRegistryRow] | None = None,
+) -> tuple[str, ...]:
+    row = registry_rows_by_key(rows).get((row_id, profile))
+    if row is None:
+        raise KeyError((row_id, profile))
+    return row.fixture_ids

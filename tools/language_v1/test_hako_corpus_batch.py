@@ -13,6 +13,7 @@ from tools.language_v1.hako_corpus_batch import (
 from tools.language_v1.grammar_contract_registry import (
     HAKO_TRANSPORT_EXCLUSION_TAG,
     RUST_MIGRATION_TRANSPORT_OWNER,
+    fixture_ids_for_row,
     hako_transport_fixture_ids,
     registry_rows_by_key,
 )
@@ -149,6 +150,42 @@ class HakoCorpusBatchTests(unittest.TestCase):
         )
         self.assertEqual(
             missing_row["failures"][0]["reason"], "parser/registry_row_missing"
+        )
+
+    def test_match_row_expansion_and_scrutinee_shape_are_registry_driven(self) -> None:
+        corpus = fixtures_by_id()
+        fixture_id = "match_name_scrutinee_canonical"
+        self.assertIn(fixture_id, fixture_ids_for_row("match", "Canonical"))
+        fixture = corpus[fixture_id]
+        payload = {
+            "schema": BATCH_SCHEMA,
+            "raw_program_json_authority": False,
+            "observations": [
+                {
+                    "schema": "language-v1-hako-raw-evidence-v0",
+                    "status": "ok",
+                    "stable_reject_tag": "",
+                    "deterministic": True,
+                    "raw_program_json_authority": False,
+                    "program": {
+                        "body": [
+                            {
+                                "expr": {
+                                    "type": "EnumMatch",
+                                    "scrutinee": {"type": "RecordLiteral"},
+                                }
+                            }
+                        ]
+                    },
+                }
+            ],
+        }
+
+        report = compare_batch([fixture_id], [fixture], payload)
+
+        self.assertEqual(report["status"], "error")
+        self.assertEqual(
+            report["failures"][0]["reason"], "parser/hako_witness_projection_drift"
         )
 
 

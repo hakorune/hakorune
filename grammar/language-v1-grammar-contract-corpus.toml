@@ -264,6 +264,54 @@ stable_reject_tag = ""
 hako_inventory_id = "probe_state"
 
 [[fixtures]]
+fixture_id = "match_name_scrutinee_canonical"
+row_id = "match"
+profile = "Canonical"
+source = "match value { Ready(x) => x, Idle => 0 }"
+accepted = true
+normalized_kind = "Match"
+normalized_children = ["Scrutinee", "OrderedArms"]
+stable_reject_tag = ""
+hako_inventory_id = "probe_state"
+hako_expected_scrutinee_kind = "Var"
+
+[[fixtures]]
+fixture_id = "match_call_scrutinee_canonical"
+row_id = "match"
+profile = "Canonical"
+source = "match getState() { Ready(x) => x, Idle => 0 }"
+accepted = true
+normalized_kind = "Match"
+normalized_children = ["Scrutinee", "OrderedArms"]
+stable_reject_tag = ""
+hako_inventory_id = "probe_state"
+hako_expected_scrutinee_kind = "Call"
+
+[[fixtures]]
+fixture_id = "match_field_scrutinee_canonical"
+row_id = "match"
+profile = "Canonical"
+source = "match obj.field { Ready(x) => x, Idle => 0 }"
+accepted = true
+normalized_kind = "Match"
+normalized_children = ["Scrutinee", "OrderedArms"]
+stable_reject_tag = ""
+hako_inventory_id = "probe_state"
+hako_expected_scrutinee_kind = "Field"
+
+[[fixtures]]
+fixture_id = "match_parenthesized_record_scrutinee_canonical"
+row_id = "match"
+profile = "Canonical"
+source = "match (Value { field: 1 }) { Ready(x) => x, Idle => 0 }"
+accepted = true
+normalized_kind = "Match"
+normalized_children = ["Scrutinee", "OrderedArms"]
+stable_reject_tag = ""
+hako_inventory_id = "probe_state"
+hako_expected_scrutinee_kind = "RecordLiteral"
+
+[[fixtures]]
 fixture_id = "match_user_enum_non_exhaustive"
 row_id = "match"
 profile = "Canonical"

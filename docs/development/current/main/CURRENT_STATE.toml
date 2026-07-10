@@ -23,8 +23,9 @@ contract-result, Match/inventory/MIR support, compile scaling, corpus runner,
 and source layout prerequisites. 3471's Hako from transport consultation is
 complete with four accepted decisions. 3473 completes registry-derived
 explicit exclusion of CompatibilityTransport rows from Hako semantic-parser
-conformance. 3474 is active at the delimiter-aware Match scrutinee expression
-context. Runtime/backend/selfhost remain closed."""
+conformance. 3474 completes delimiter-aware Match scrutinee parsing and closes
+the record-brace/field-access parser gaps it exposes. 3475 is active at the
+route-family dependency graph shadow. Runtime/backend/selfhost remain closed."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
@@ -32,14 +33,14 @@ method_anchor = "docs/development/current/main/design/selfhost-language-v1-freez
 taskboard = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 
-latest_card = "LANGV1-HAKO-MATCH-RECORD-DELIMITER-OWNER-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3474-LANGV1-HAKO-MATCH-RECORD-DELIMITER-OWNER-001.md"
-latest_card_summary = """3474 gives ParserMatchBox delimiter ownership through
-an explicit Match-scrutinee expression context. General record literals remain
-valid; source slicing, reparse, inventory gates, name heuristics, and AST
-rewrite disambiguation remain forbidden."""
+latest_card = "MIR-CONVERGENCE-ROUTE-FAMILY-GRAPH-SHADOW-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3475-MIR-CONVERGENCE-ROUTE-FAMILY-GRAPH-SHADOW-001.md"
+latest_card_summary = """3475 introduces a typed route-family dependency graph
+as a shadow-only convergence owner. Existing full refresh remains authoritative;
+the graph must prove deterministic worklists and full-refresh parity without
+helper-name shortcuts, fixture caches, stale metadata, or fallback."""
 
-current_blocker_token = "LANGV1-HAKO-MATCH-RECORD-DELIMITER-OWNER-001"
+current_blocker_token = "MIR-CONVERGENCE-ROUTE-FAMILY-GRAPH-SHADOW-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -48,6 +49,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-10: 3474 closes delimiter-aware Match scrutinee parsing with Var/Call/Field/RecordLiteral fixtures and fixes record closing-brace position retention; 3475 opens route-family graph shadowing.",
   "2026-07-10: 3473 explicitly excludes registry-derived CompatibilityTransport rows from Hako semantic conformance without invoking the Hako adapter; 3474 opens delimiter-aware Match scrutinee parsing.",
   "2026-07-10: 3471 accepts Hako transport exclusion, delimiter-aware Match context, route-family convergence graph ownership, and scoped test-config ownership; 3473 opens the first code-facing exclusion slice.",
   "2026-07-10: 3472 closes parser contract propagation, strict Match/inventory and ProgramJSON/MIR gaps, MIR compile-cost instrumentation, compile-once corpus execution, and parser source layout; 3471 resumes at design consultation.",
@@ -59,5 +61,4 @@ landed_tail = [
   "2026-07-10: 3463 opens typed Rust grammar-profile plumbing plus the statement-try seam after 3462 accepts ParserBuildConfig ownership, API/CLI explicit Compat2025, and legacy-env conflict-only retention.",
   "2026-07-10: 3462 records the Rust grammar-profile owner design stop after 3461 reveals that ParserBuildConfig arrives after tokenization and legacy try/from acceptance has no profile boundary.",
   "2026-07-10: 3461 lands one grammar registry, generated typed rows, ParseWitness, shared corpus, independent adapters, strict comparator, and deterministic current-drift report without parser behavior change.",
-  "2026-07-10: 3461 opens the four-family grammar-contract substrate after 3460 accepts Canonical default, explicit Compat2025, normalization modes, and span-free ParseWitness.",
 ]

@@ -22,6 +22,14 @@ test "$(wc -l < lang/src/compiler/parser/parser_box.hako)" -lt 800 \
   || guard_fail "ParserBox facade exceeded the 800-line source boundary"
 test "$(wc -l < lang/src/compiler/parser/program/parser_program_box.hako)" -lt 800 \
   || guard_fail "ParserProgramBox exceeded the 800-line source boundary"
+for parser_source in \
+  lang/src/compiler/parser/expr/parser_expr_box.hako \
+  lang/src/compiler/parser/expr/parser_expr_context_box.hako \
+  lang/src/compiler/parser/expr/parser_expr_precedence_box.hako \
+  lang/src/compiler/parser/expr/parser_match_box.hako; do
+  test "$(wc -l < "$parser_source")" -lt 800 \
+    || guard_fail "$parser_source exceeded the 800-line source boundary"
+done
 rg -q 'hako_equivalent_fixture_id = "match_compat"' \
   grammar/language-v1-grammar-contract-corpus.toml \
   || guard_fail "peek-to-Match replacement parity fixture missing"
@@ -46,6 +54,14 @@ rg -q 'parser/peek_compat_not_normalizable' \
 rg -q 'parser/hako_record_fields_expected_canonical' \
   lang/src/compiler/parser/expr/parser_expr_box.hako \
   || guard_fail "Hako record-field progress fail-fast guard missing"
+rg -q 'parse_match_scrutinee2' lang/src/compiler/parser/expr/parser_match_box.hako \
+  || guard_fail "Hako Match parser does not own its scrutinee delimiter context"
+rg -q 'MatchScrutineeStopsBeforeTopLevelBrace' \
+  lang/src/compiler/parser/expr/parser_expr_context_box.hako \
+  || guard_fail "Hako Match scrutinee context policy missing"
+rg -F -q 'record_literal_allowed(expr_context)' \
+  lang/src/compiler/parser/expr/parser_expr_box.hako \
+  || guard_fail "Hako record literal does not consume explicit expression context"
 if rg -q 'ParserPeekBox\.parse' lang/src/compiler/parser/expr/parser_expr_box.hako; then
   guard_fail "legacy Hako Peek JSON route is still live"
 fi
@@ -105,16 +121,8 @@ if [ "${LANGV1_HAKO_PROFILE_FULL:-0}" = "1" ]; then
     --fixture-id try_statement_canonical_reject \
     --fixture-id try_statement_compat_normalizable \
     --fixture-id try_statement_compat_not_normalizable \
-    --fixture-id match_canonical \
-    --fixture-id match_compat \
-    --fixture-id match_missing_arm \
-    --fixture-id match_user_enum_canonical \
-    --fixture-id match_missing_arrow \
-    --fixture-id match_user_enum_wildcard_canonical \
-    --fixture-id match_user_enum_non_exhaustive \
-    --fixture-id match_user_enum_duplicate_variant \
-    --fixture-id match_user_enum_unit_binding \
-    --fixture-id match_missing_close \
+    --include-registry-row-fixtures match Canonical \
+    --include-registry-row-fixtures match Compat2025 \
     --fixture-id peek_canonical_reject \
     --fixture-id peek_compat_normalizable \
     --fixture-id peek_compat_not_normalizable \

@@ -1,0 +1,15 @@
+static box ParserExprContextBox {
+  general() {
+    return "GeneralExpression"
+  }
+
+  match_scrutinee() {
+    return "MatchScrutineeStopsBeforeTopLevelBrace"
+  }
+
+  record_literal_allowed(expr_context) {
+    if expr_context == me.general() { return 1 }
+    if expr_context == me.match_scrutinee() { return 0 }
+    return 0
+  }
+}
