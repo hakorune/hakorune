@@ -633,8 +633,32 @@ selfhost_claim = 0
 
 ## Next
 
-Implement Series C0 live recursive projection for the current registered
-corpus. Keep Rust and Hako projection implementations independent, add
-optional node values to the typed/corpus schema, and replace
-`ImplementationAccepted`/raw-ProgramJSON equivalence with strict recursive
-witness comparison before adding declaration or other remaining surface rows.
+Series C0 infrastructure is landed: Rust and Hako now have independent live
+recursive projectors, normalized nodes carry optional values, and the Hako
+compile-once batch compares projected forms strictly. The strict gate exposed
+pre-existing parser/corpus drift which the former shallow acceptance check hid.
+
+Close that drift before declaration expansion, in this order:
+
+```text
+1. finish current registered control surfaces
+   - Hako guard expression / guard-let owner
+   - correct guard-let corpus to the accepted qualified-variant production
+   - preserve NoFallthrough as a semantic contract
+   - delegate/match Rust-Hako drift after guard
+
+2. add the parser-owned declaration evidence sidecar
+   - record declaration
+   - direct weak stored field
+   - Compat2025 weak visibility/init aliases
+   - no semantic-body, MIR, runtime, or backend publication
+
+3. add remaining weak/record/literal/construction rows
+4. generate support and migration evidence
+5. run bounded recursive differential composition
+6. evaluate LANGV1-GRAMMAR-001 closeout
+```
+
+Do not weaken recursive comparison, preserve the invalid generic guard-let
+fixture, or make parser behavior match a fixture by special case. The EBNF
+qualified-variant production is the guard-let source authority.

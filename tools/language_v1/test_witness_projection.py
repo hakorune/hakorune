@@ -100,6 +100,41 @@ class WitnessProjectionTests(unittest.TestCase):
         self.assertEqual(project_rust_normalized_form("postfix_cleanup", rust), expected)
         self.assertEqual(project_hako_normalized_form("postfix_cleanup", hako), expected)
 
+    def test_hako_guard_requires_structural_no_fallthrough(self) -> None:
+        accepted = {
+            "body": [
+                {
+                    "type": "If",
+                    "cond": {"type": "Var", "name": "ready"},
+                    "then": [],
+                    "else": [{"type": "Return", "expr": {"type": "Unit"}}],
+                }
+            ]
+        }
+        expected = {
+            "kind": "GuardElse",
+            "children": [
+                {"kind": "Condition", "children": []},
+                {"kind": "NoFallthroughElse", "children": []},
+            ],
+        }
+        self.assertEqual(
+            project_hako_normalized_form("guard_expr_else", accepted), expected
+        )
+
+        fallthrough = {
+            "body": [
+                {
+                    "type": "If",
+                    "cond": {"type": "Var", "name": "ready"},
+                    "then": [],
+                    "else": [{"type": "Expr", "expr": {"type": "Int", "value": 1}}],
+                }
+            ]
+        }
+        with self.assertRaises(HakoProjectionError):
+            project_hako_normalized_form("guard_expr_else", fallthrough)
+
     def test_hako_loop_rejects_record_literal_condition(self) -> None:
         malformed = {
             "body": [

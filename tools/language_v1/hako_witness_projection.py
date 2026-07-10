@@ -52,6 +52,15 @@ def _guard_expr(program: dict[str, Any]) -> dict[str, Any]:
     statement = _single_body(program)
     if statement.get("type") != "If":
         raise HakoProjectionError("Hako guard expression did not produce If")
+    then_body = statement.get("then")
+    else_body = statement.get("else")
+    if then_body != [] or not isinstance(else_body, list) or not else_body:
+        raise HakoProjectionError("Hako guard expression branch shape is invalid")
+    final_kind = _object(
+        else_body[-1], "Hako guard else item must be an object"
+    ).get("type")
+    if final_kind not in {"Return", "Break", "Continue", "Fault"}:
+        raise HakoProjectionError("Hako guard else may fall through")
     return _node(
         "GuardElse",
         children=[_node("Condition"), _node("NoFallthroughElse")],

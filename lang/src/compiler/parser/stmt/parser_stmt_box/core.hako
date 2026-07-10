@@ -5,6 +5,7 @@
 using sh_core as StringHelpers  // Required: using chain resolution not implemented
 using lang.compiler.parser.stmt.parser_control_box
 using lang.compiler.parser.stmt.parser_exception_box
+using lang.compiler.parser.stmt.parser_guard_box
 using lang.compiler.parser.scan.parser_string_utils_box as ParserStringUtilsBox
 
 using lang.compiler.parser.stmt.parser_stmt_box.annotations as ParserStmtAnnotationBox
@@ -161,6 +162,12 @@ static box ParserStmtCoreBox {
     }
 
     // Delegate to specialized boxes
+    if ctx.starts_with_kw(src, j, "guard") == 1 {
+      local out_guard = ParserGuardBox.parse(src, j, stmt_start, ctx)
+      env.set("HAKO_STAGEB_STMT_DEPTH", "0")
+      return out_guard
+    }
+
     if ctx.starts_with_kw(src, j, "if") == 1 {
       {
         local tr = env.get("NYASH_PARSER_TRACE")
