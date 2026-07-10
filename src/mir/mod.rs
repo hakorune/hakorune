@@ -175,7 +175,7 @@ pub mod verification_types; // extracted error types // Optimization subpasses (
 pub use basic_block::{BasicBlock, EdgeArgs};
 pub use builder::MirBuilder;
 pub use compiler::{MirCompileResult, MirCompiler};
-pub use hakorune_mir_core::{BasicBlockId, BindingId};
+pub use hakorune_mir_core::{BasicBlockId, BindingId, LocalSlotId};
 
 // Public facade exports: core MIR surfaces and refresh orchestration entry
 // points only. Semantic metadata vocabulary stays in owner modules.

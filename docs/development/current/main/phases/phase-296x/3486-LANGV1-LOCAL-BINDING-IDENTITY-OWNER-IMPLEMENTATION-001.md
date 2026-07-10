@@ -2,10 +2,12 @@
 
 ## Status
 
-Active code-facing BoxShape prerequisite after 3485 accepts BindingId as the
+Complete code-facing BoxShape prerequisite after 3485 accepts BindingId as the
 single local-slot identity owner.
 
 Decision: accepted by 3485.
+
+Implementation: complete on 2026-07-11.
 
 ```text
 docs_only_closeout = forbidden
@@ -205,3 +207,19 @@ git diff --check
 Only after every acceptance item is green, open one semantic implementation
 card for `LocalContractWrite`, exact-numeric init/reassignment, U1 rejection,
 PHI/loop evidence, MIR JSON, VM support, and non-VM backend preflight.
+
+## Closeout Evidence
+
+```text
+LocalSlotId(BindingId) wrapper = green; no allocator added
+single declaration API returns LocalSlotId = green
+LocalBindingStateSnapshot value/binding parity = green
+CorePlan ASTNode::Local declaration routing = green
+ScopeBox lexical identity restoration = green
+assignment missing-identity guard = green
+focused identity/CorePlan tests = green
+cargo check --all-targets --features vm-reference = green
+cargo build --release --bin hakorune = green
+current-state pointer guard = green
+changed production source over 800 lines = 0
+```

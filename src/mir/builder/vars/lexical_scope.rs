@@ -1,5 +1,11 @@
-use crate::mir::{BindingId, ValueId};
+use crate::mir::{BindingId, LocalSlotId, ValueId};
 use std::collections::{BTreeMap, BTreeSet};
+
+/// Atomic snapshot of the current SSA publication and lexical identity views.
+pub(in crate::mir::builder) struct LocalBindingStateSnapshot {
+    variable_map: BTreeMap<String, ValueId>,
+    binding_context: hakorune_mir_builder::BindingContext,
+}
 
 #[derive(Debug, Default, Clone)]
 pub(in crate::mir::builder) struct LexicalScopeFrame {
@@ -36,6 +42,23 @@ impl Drop for LexicalScopeGuard {
 }
 
 impl super::super::MirBuilder {
+    pub(in crate::mir::builder) fn snapshot_local_binding_state(
+        &self,
+    ) -> LocalBindingStateSnapshot {
+        LocalBindingStateSnapshot {
+            variable_map: self.variable_ctx.variable_map.clone(),
+            binding_context: self.binding_ctx.snapshot(),
+        }
+    }
+
+    pub(in crate::mir::builder) fn restore_local_binding_state(
+        &mut self,
+        snapshot: LocalBindingStateSnapshot,
+    ) {
+        self.variable_ctx.variable_map = snapshot.variable_map;
+        self.binding_ctx.restore(snapshot.binding_context);
+    }
+
     pub(in crate::mir::builder) fn push_lexical_scope(&mut self) {
         // Phase 2-4: scope_ctx is the lexical-scope stack SSOT.
         self.scope_ctx.push_lexical_scope();
@@ -108,7 +131,7 @@ impl super::super::MirBuilder {
         &mut self,
         name: &str,
         value: ValueId,
-    ) -> Result<(), String> {
+    ) -> Result<LocalSlotId, String> {
         let func_name = self
             .scope_ctx
             .current_function
@@ -147,6 +170,60 @@ impl super::super::MirBuilder {
         // Phase 2-5: binding_ctx is the binding-id SSOT.
         self.binding_ctx.insert(name.to_string(), binding_id);
 
-        Ok(())
+        Ok(LocalSlotId::from(binding_id))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::mir::builder::MirBuilder;
+
+    #[test]
+    fn declaration_and_shadowing_use_one_binding_allocator() {
+        let mut builder = MirBuilder::new();
+        builder.push_lexical_scope();
+        let outer = builder
+            .declare_local_in_current_scope("x", ValueId::new(1))
+            .expect("outer declaration");
+
+        builder.push_lexical_scope();
+        let inner = builder
+            .declare_local_in_current_scope("x", ValueId::new(2))
+            .expect("inner declaration");
+        assert_ne!(inner, outer);
+        assert_eq!(builder.binding_ctx.lookup("x"), Some(inner.binding_id()));
+
+        builder.pop_lexical_scope();
+        assert_eq!(builder.binding_ctx.lookup("x"), Some(outer.binding_id()));
+        assert_eq!(
+            builder.variable_ctx.variable_map.get("x"),
+            Some(&ValueId::new(1))
+        );
+        builder.pop_lexical_scope();
+    }
+
+    #[test]
+    fn local_binding_snapshot_restores_values_and_identity_together() {
+        let mut builder = MirBuilder::new();
+        builder.push_lexical_scope();
+        let slot = builder
+            .declare_local_in_current_scope("x", ValueId::new(1))
+            .expect("declaration");
+        let snapshot = builder.snapshot_local_binding_state();
+
+        builder
+            .variable_ctx
+            .variable_map
+            .insert("x".to_string(), ValueId::new(2));
+        builder.binding_ctx.remove("x");
+        builder.restore_local_binding_state(snapshot);
+
+        assert_eq!(
+            builder.variable_ctx.variable_map.get("x"),
+            Some(&ValueId::new(1))
+        );
+        assert_eq!(builder.binding_ctx.lookup("x"), Some(slot.binding_id()));
+        builder.pop_lexical_scope();
     }
 }

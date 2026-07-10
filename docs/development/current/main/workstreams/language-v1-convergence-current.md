@@ -289,7 +289,8 @@ Next: `LANGV1-TYPE-GUARANTEE-001`.
 Status: design accepted as 3479; exact-numeric Box field first slice complete
 as 3480; parameter-entry contract complete as 3482; return-exit design accepted
 as 3483; return-exit implementation complete as 3484; local exact-numeric
-owner/boundary consultation active as 3485.
+owner/boundary consultation accepted as 3485; BindingId prerequisite complete
+as 3486; exact-numeric local semantic implementation active as 3487.
 
 Target contract:
 
@@ -327,13 +328,13 @@ T1 complete:
   inventory init/reassignment/PHI/loop/Any/proof invalidation
   BindingId/LocalSlotId + W1 + U1 + VM-only decision accepted
 
-T2a active:
+T2a complete:
   3486 behavior-preserving local BindingId owner completion
   LocalSlotId wrapper, one declaration API, CorePlan/snapshot parity
   LocalContractWrite / contract activation = 0
 
-T2b after 3486 closeout:
-  one LocalContractWrite exact-numeric semantic implementation card
+T2b active:
+  3487 LocalContractWrite exact-numeric semantic implementation
   init/reassignment + U1 + PHI/loop evidence + JSON/backend boundary
   no broad static checker; one LocalSlotContractOwner
 

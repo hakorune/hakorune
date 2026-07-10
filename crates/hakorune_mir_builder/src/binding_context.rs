@@ -90,6 +90,16 @@ impl BindingContext {
     pub fn clear_for_function_entry(&mut self) {
         self.binding_map.clear();
     }
+
+    /// Capture the complete lexical binding state for a temporary lowering path.
+    pub fn snapshot(&self) -> Self {
+        self.clone()
+    }
+
+    /// Restore a snapshot captured at the same lowering boundary.
+    pub fn restore(&mut self, snapshot: Self) {
+        *self = snapshot;
+    }
 }
 
 #[cfg(test)]
@@ -131,5 +141,18 @@ mod tests {
         assert_eq!(ctx.len(), 2);
         assert_eq!(ctx.binding_map.get("a"), Some(&BindingId::new(1)));
         assert_eq!(ctx.binding_map.get("b"), Some(&BindingId::new(2)));
+    }
+
+    #[test]
+    fn snapshot_restore_keeps_lexical_identity_atomic() {
+        let mut ctx = BindingContext::new();
+        ctx.insert("outer".to_string(), BindingId::new(1));
+        let snapshot = ctx.snapshot();
+
+        ctx.insert("inner".to_string(), BindingId::new(2));
+        ctx.restore(snapshot);
+
+        assert_eq!(ctx.lookup("outer"), Some(BindingId::new(1)));
+        assert_eq!(ctx.lookup("inner"), None);
     }
 }

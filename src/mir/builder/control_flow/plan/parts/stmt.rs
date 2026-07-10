@@ -24,7 +24,8 @@ use super::stmt_shape::{
     stmt_has_loop_stmt_recursive, tail_is_exit, value_has_blockexpr_prelude_loop,
 };
 use super::var_map_scope::{
-    publish_defined_binding, reseal_branch_bindings, with_scopebox_binding_boundary,
+    publish_declared_binding, publish_defined_binding, reseal_branch_bindings,
+    with_scopebox_binding_boundary,
 };
 
 fn lower_if_join_non_exit_shape(
@@ -304,7 +305,7 @@ pub(in crate::mir::builder) fn lower_return_prelude_stmt(
                         error_prefix,
                     )?;
                     plans.append(&mut init_plans);
-                    publish_defined_binding(builder, branch_bindings, name.clone(), value_id);
+                    publish_declared_binding(builder, branch_bindings, name.clone(), value_id)?;
                 }
                 return Ok(plans);
             }
@@ -318,7 +319,7 @@ pub(in crate::mir::builder) fn lower_return_prelude_stmt(
             )?;
             debug_log_stmt_binop_lit3(builder, &effects, "local");
             for (name, value_id) in inits {
-                publish_defined_binding(builder, branch_bindings, name, value_id);
+                publish_declared_binding(builder, branch_bindings, name, value_id)?;
             }
             Ok(effects_to_plans(effects))
         }

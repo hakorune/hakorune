@@ -2,6 +2,7 @@ pub mod basic_block_id;
 pub mod binding_id;
 pub mod control_ids;
 pub mod effect;
+pub mod local_slot_id;
 pub mod types;
 pub mod value_id;
 pub mod value_kind;
@@ -10,6 +11,7 @@ pub use basic_block_id::{BasicBlockId, BasicBlockIdGenerator};
 pub use binding_id::BindingId;
 pub use control_ids::{ContinueEdgeId, ExitEdgeId, LoopId};
 pub use effect::{Effect, EffectMask};
+pub use local_slot_id::LocalSlotId;
 pub use types::{
     BarrierOp, BinaryOp, CompareOp, ConstValue, MirType, TypeOpKind, UnaryOp, WeakRefOp,
 };

@@ -68,6 +68,10 @@ mod tests {
             vec![Some(Box::new(lit_int(0)))],
         )
         .expect("declare outer");
+        let outer_binding_id = builder
+            .binding_ctx
+            .lookup("outer")
+            .expect("outer BindingId");
 
         let mut current_bindings: BTreeMap<String, crate::mir::ValueId> =
             builder.variable_ctx.variable_map.clone();
@@ -132,6 +136,16 @@ mod tests {
         assert!(
             !builder.variable_ctx.variable_map.contains_key("tmp"),
             "ScopeBox local must not leak into builder variable_map"
+        );
+        assert_eq!(
+            builder.binding_ctx.lookup("tmp"),
+            None,
+            "ScopeBox local must not leak into BindingContext"
+        );
+        assert_eq!(
+            builder.binding_ctx.lookup("outer"),
+            Some(outer_binding_id),
+            "assignment must preserve the outer lexical identity"
         );
         assert!(
             current_bindings.contains_key("outer"),

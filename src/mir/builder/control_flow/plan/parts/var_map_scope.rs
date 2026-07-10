@@ -3,7 +3,7 @@ use crate::mir::builder::MirBuilder;
 use crate::mir::ValueId;
 use std::collections::{BTreeMap, BTreeSet};
 
-/// Run `f` with a saved variable_map snapshot and always restore afterward.
+/// Run `f` with saved value and lexical-binding snapshots and restore both.
 ///
 /// This keeps branch-local lowering failures from leaking partially-mutated
 /// bindings into outer lowering paths.
@@ -24,18 +24,17 @@ pub(in crate::mir::builder::control_flow::plan) fn with_saved_variable_map_typed
 where
     F: FnOnce(&mut MirBuilder) -> Result<T, E>,
 {
-    let saved = builder.variable_ctx.variable_map.clone();
+    let saved = builder.snapshot_local_binding_state();
     let result = f(builder);
-    builder.variable_ctx.variable_map = saved;
+    builder.restore_local_binding_state(saved);
     result
 }
 
 /// Run `f` inside a lexical ScopeBox boundary.
 ///
-/// Plan lowering updates both `branch_bindings` and `builder.variable_map`
-/// directly, bypassing the normal Rust `LexicalScopeGuard`. This helper keeps
-/// that route honest: names declared in the ScopeBox do not escape, while
-/// assignments to preexisting outer names may escape.
+/// ScopeBox lowering uses the same lexical scope stack as ordinary lowering.
+/// Names declared in the ScopeBox do not escape, while assignments to
+/// preexisting outer names may escape through `branch_bindings`.
 pub(super) fn with_scopebox_binding_boundary<T, F>(
     builder: &mut MirBuilder,
     branch_bindings: &mut BTreeMap<String, ValueId>,
@@ -50,7 +49,9 @@ where
     let scope_locals = collect_scope_local_vars(body);
 
     let mut scoped_bindings = branch_bindings.clone();
+    builder.push_lexical_scope();
     let result = f(builder, &mut scoped_bindings);
+    builder.pop_lexical_scope();
 
     builder.variable_ctx.variable_map = pre_builder_map.clone();
     *branch_bindings = pre_bindings.clone();
@@ -90,6 +91,18 @@ pub(in crate::mir::builder::control_flow::plan) fn publish_defined_binding(
 ) {
     branch_bindings.insert(name.clone(), value_id);
     publish_emission_cache(builder, name, value_id);
+}
+
+/// Publish a new lexical declaration through the single BindingId owner.
+pub(in crate::mir::builder::control_flow::plan) fn publish_declared_binding(
+    builder: &mut MirBuilder,
+    branch_bindings: &mut BTreeMap<String, ValueId>,
+    name: String,
+    value_id: ValueId,
+) -> Result<crate::mir::LocalSlotId, String> {
+    let local_slot_id = builder.declare_local_in_current_scope(&name, value_id)?;
+    branch_bindings.insert(name, value_id);
+    Ok(local_slot_id)
 }
 
 /// Re-seal the builder emission cache from the logical branch bindings.

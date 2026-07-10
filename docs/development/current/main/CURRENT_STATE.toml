@@ -21,8 +21,9 @@ return owner, typed carrier, Void/fallthrough veto, and VM-only first slice.
 3484 closes the return carrier, shared value checker, final-outcome verifier,
 VM exit check, MIR JSON, and backend preflight. 3485 accepts existing BindingId
 wrapped as LocalSlotId, explicit LocalContractWrite, checked-edge PHI/loop
-identity, U1 uninitialized rejection, and VM-only first support. 3486 first
-closes the behavior-preserving BindingId owner/bypass prerequisite."""
+identity, U1 uninitialized rejection, and VM-only first support. 3486 closes
+the behavior-preserving BindingId owner/bypass prerequisite. 3487 activates
+the narrow exact-numeric local write contract."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
@@ -30,14 +31,15 @@ method_anchor = "docs/development/current/main/design/selfhost-language-v1-freez
 taskboard = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 
-latest_card = "LANGV1-LOCAL-BINDING-IDENTITY-OWNER-IMPLEMENTATION-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3486-LANGV1-LOCAL-BINDING-IDENTITY-OWNER-IMPLEMENTATION-001.md"
-latest_card_summary = """3485 accepts BindingId as the sole allocator behind a
-LocalSlotId wrapper and selects explicit LocalContractWrite. 3486 is the
-behavior-preserving prerequisite: one declaration identity API plus complete
-normal/CorePlan/branch/snapshot BindingContext coverage before activation."""
+latest_card = "LANGV1-LOCAL-EXACT-NUMERIC-CONTRACT-IMPLEMENTATION-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3487-LANGV1-LOCAL-EXACT-NUMERIC-CONTRACT-IMPLEMENTATION-001.md"
+latest_card_summary = """3486 closes the single BindingId/LocalSlotId owner,
+atomic declaration API, paired snapshot, CorePlan local routing, and ScopeBox
+identity restoration. 3487 owns LocalContractWrite, exact-numeric local
+init/reassignment, U1, PHI/loop evidence, MIR JSON, VM checks, and backend
+preflight."""
 
-current_blocker_token = "LANGV1-LOCAL-BINDING-IDENTITY-OWNER-IMPLEMENTATION-001"
+current_blocker_token = "LANGV1-LOCAL-EXACT-NUMERIC-CONTRACT-IMPLEMENTATION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -46,6 +48,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-11: 3486 closes LocalSlotId(BindingId), the atomic declaration API, value/binding snapshots, CorePlan local routing, and ScopeBox identity restoration; 3487 opens exact-numeric local contract activation.",
   "2026-07-11: 3485 accepts LocalSlotId(BindingId), canonical LocalContractWrite, checked-edge PHI/loop identity, U1, and VM-only scope; 3486 opens the behavior-preserving binding-owner prerequisite.",
   "2026-07-11: 3484 closes exact-numeric final-return carrier, verifier, VM owner, MIR JSON, and backend preflight; 3485 opens the local-slot identity/write-boundary design stop.",
   "2026-07-11: 3483 accepts FunctionReturnContractOwner, ReturnOutcomeVerifier, RejectVoid/fallthrough, and VM-only exact-numeric return scope; 3484 opens substantive implementation.",
@@ -57,5 +60,4 @@ landed_tail = [
   "2026-07-10: 3477 accepts loop/weak/record/literal contracts plus registry normalization and recursive conformance; 3478 opens one implementation series.",
   "2026-07-10: 3477 opens one consolidated design stop after 3476 proves that the green 22-row grammar corpus still omits required loop, weak, record, and literal surfaces.",
   "2026-07-10: 3476 centralizes selected test environment state under panic-safe ScopedTestConfig, classifies five route failures as fresh-process baseline drift, and advances to the grammar closeout audit in the same card.",
-  "2026-07-10: 3475 adds an eight-family typed convergence graph, deterministic invalidation closure, full-refresh trace parity, and compile-scaling shadow guards without switching authority; 3476 opens scoped test config isolation.",
 ]
