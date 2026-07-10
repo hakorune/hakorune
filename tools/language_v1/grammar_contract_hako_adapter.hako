@@ -12,7 +12,21 @@ static box Main {
       print("[grammar-contract/hako-adapter] HAKO_GRAMMAR_CONTRACT_SOURCE required")
       return 2
     }
-    print(ParserBox.parse_program2(source))
+    env.set("HAKO_STAGEB_PARSER_DEPTH", "0")
+    env.set("HAKO_STAGEB_STMT_DEPTH", "0")
+    local first_parser = new ParserBox()
+    local first = first_parser.parse_program2(source)
+    env.set("HAKO_STAGEB_PARSER_DEPTH", "0")
+    env.set("HAKO_STAGEB_STMT_DEPTH", "0")
+    local second_parser = new ParserBox()
+    local second = second_parser.parse_program2(source)
+    local deterministic = "false"
+    if first == second { deterministic = "true" }
+    local envelope = "{\"schema\":\"language-v1-hako-raw-evidence-v0\""
+    envelope = envelope + ",\"deterministic\":" + deterministic
+    envelope = envelope + ",\"raw_program_json_authority\":false"
+    envelope = envelope + ",\"program\":" + first + "}"
+    print(envelope)
     return 0
   }
 }

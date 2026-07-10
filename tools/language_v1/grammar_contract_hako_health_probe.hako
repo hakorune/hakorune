@@ -1,0 +1,9 @@
+// Minimal process-health probe for the independent Hako grammar adapter.
+// This file intentionally imports no parser implementation.
+
+static box Main {
+  method main(args) {
+    print("{\"schema\":\"language-v1-hako-health-probe-v0\",\"status\":\"ok\"}")
+    return 0
+  }
+}

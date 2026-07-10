@@ -2,8 +2,8 @@
 
 ## Status
 
-Active implementation card. Restore bounded deterministic Hako grammar-adapter
-execution before any Hako grammar-profile or acceptance change.
+Complete. Hako grammar-adapter execution now has a bounded deterministic
+process boundary before any Hako grammar-profile or acceptance change.
 
 ## Structural Scope
 
@@ -129,13 +129,43 @@ selfhost_claim = 0
 
 ## Verification
 
-Run the focused adapter-health tests, the reusable Language v1 grammar guard,
-the grammar substrate guard, the current-state pointer guard, and
-`git diff --check`. Record the named timeout used by the focused tests.
+Completed:
+
+```text
+python3 -m unittest tools.language_v1.test_hako_adapter_health
+bash tools/checks/language_v1_grammar_contract_substrate_guard.sh
+bash tools/checks/language_v1_rust_grammar_profile_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+The reusable guard uses a two-second process-health bound and a 0.1-second
+timeout fault probe. Full current-parser observations use the named 90-second
+bound. Both `local x = 1` and `local =` completed under that bound with a
+deterministic non-authority envelope. The malformed source result is raw
+implementation evidence, not a grammar-acceptance claim.
+
+The full source adapter requires roughly 72 seconds because its independent
+Hako parser import is compiled for each process. AOT reuse was rejected by the
+existing backend with `unsupported pure shape`; no backend fallback was added.
+All new source files are below 800 lines; the largest is 186 lines.
+
+## Closeout
+
+```text
+hako_adapter_health_boundary_implemented = 1
+hako_adapter_bounded_execution = 1
+hako_adapter_deterministic_output = 1
+hako_adapter_timeout_fail_fast = 1
+hako_adapter_stdout_contract = one_json_envelope
+hako_raw_program_json_non_authority = 1
+hako_parser_acceptance_changed = 0
+hako_profile_activation = 0
+hako_parse_witness_conformance = 0
+```
 
 ## Next
 
-Only after this health matrix is green may the same grammar macro row open a
-profile-bearing facade plus statement-try seam. `peek` follows after that.
-Both Hako `from` forms remain missing evidence until a later accepted transport
-decision.
+3469 opens one profile-bearing facade plus statement-try seam. `peek` follows
+after that. Both Hako `from` forms remain missing evidence until a later
+accepted transport decision.
