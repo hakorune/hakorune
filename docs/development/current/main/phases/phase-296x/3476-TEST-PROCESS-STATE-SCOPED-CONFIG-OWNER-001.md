@@ -2,9 +2,12 @@
 
 ## Status
 
-Active code-facing BoxShape card after 3475 closes route-family graph shadowing.
+Implementation complete; Language v1 grammar closeout evaluation is active in
+this same card after 3475 closes route-family graph shadowing.
 
 Decision: accepted by 3471 Decision D.
+
+Implementation: complete.
 
 ## Selected Contract
 
@@ -126,6 +129,56 @@ source_over_800_lines = 0
 docs_only_closeout = forbidden
 ```
 
+Implemented evidence:
+
+```text
+single root test owner:
+  src/test_support.rs::ScopedTestConfig
+
+snapshot/drift owner:
+  ProcessStateSnapshot / ProcessStateDrift
+
+stable leak tag:
+  test/env_contamination_detected
+
+scope restoration tests:
+  absent value = green
+  existing value = green
+  panic unwind = green
+  follow-on scope after poisoned panic = green
+
+first always-on migrated family:
+  src/tests/mir_locals_ssa.rs
+
+additional legacy family migrated:
+  mir_funcscanner_skip_ws / mir_funcscanner_skip_ws_min
+
+direct env writes in migrated files = 0
+ScopedTestConfig source lines = 192
+production default changes = 0
+```
+
+Fresh subprocess baseline classification:
+
+```text
+global_call_route_plan:
+  refresh_module_global_call_routes_accepts_map_handle_child_field_get_string_body
+  refresh_module_global_call_routes_rejects_arbitrary_unknown_map_return_as_box_type_inspector
+  refresh_module_global_call_routes_rejects_non_static_array_factory
+
+user_box_method_route_plan:
+  refresh_module_user_box_method_routes_accepts_loop_carried_nullable_object_return
+  refresh_module_user_box_method_routes_refines_void_placeholder_object_route_result
+
+classification:
+  all five fail in fresh processes with the pre-3472 values
+  -> test/baseline_expectation_drift
+```
+
+`mir_locals_copy_instructions_emitted` also retains an unrelated baseline test
+bug: it treats `%1` reuse in different functions as one SSA namespace. This
+card does not change that expectation merely to make the suite green.
+
 Verification must include focused snapshot/scoped-config tests, the classified
 route-test matrix in fresh and same-process modes, relevant parser/plugin/MIR
 tests, the current-state pointer guard, and `git diff --check`.
@@ -143,5 +196,5 @@ selfhost_claim = 0
 
 ## Next
 
-After this scoped owner is green, rerun the full grammar corpus and evaluate
-`LANGV1-GRAMMAR-001` closeout without creating a rerun-only numbered card.
+The scoped owner is green. Rerun the full grammar corpus and evaluate
+`LANGV1-GRAMMAR-001` closeout here without creating a rerun-only numbered card.
