@@ -3,11 +3,44 @@
 ## Status
 
 Active implementation series after 3477 accepts all remaining grammar and
-registry-structure decisions.
+registry-structure decisions. Series A is complete; Series B is next.
 
 Decision: accepted by 3477.
 
-Implementation: pending.
+Implementation: in progress.
+
+## Progress
+
+### Series A - Complete
+
+```text
+Language v1 authority:
+  grammar/language-v1-registry.toml
+
+legacy root-build input:
+  grammar/legacy/nyash-v1.1-codegen-input.toml
+
+ambiguous grammar/unified-grammar.toml:
+  removed
+
+source schema:
+  one spelling row with canonical + compat2025 required contracts
+
+generated projections:
+  preserve existing (row_id, profile) consumer API
+
+parser support fields:
+  removed from authority rows
+```
+
+Verification:
+
+```text
+Python registry/corpus tests = green
+frontend grammar crate tests = green
+root hakorune build = green
+language_v1_grammar_contract_substrate_guard = green
+```
 
 ## Objective
 

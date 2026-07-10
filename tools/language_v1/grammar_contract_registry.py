@@ -12,7 +12,7 @@ import tomllib
 
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
-REGISTRY = ROOT / "grammar/unified-grammar.toml"
+REGISTRY = ROOT / "grammar/language-v1-registry.toml"
 HAKO_TRANSPORT_EXCLUSION_TAG = "parser/hako_transport_row_excluded"
 RUST_MIGRATION_TRANSPORT_OWNER = "RustMigrationToolingOnly"
 
@@ -48,10 +48,25 @@ def _strings(row: dict[str, Any], field: str) -> tuple[str, ...]:
     return tuple(values)
 
 
+def _string(row: dict[str, Any], field: str) -> str:
+    value = row.get(field)
+    if not isinstance(value, str):
+        raise ValueError(f"grammar registry row has invalid {field}")
+    return value
+
+
+def _profile_contract(source_row: dict[str, Any], profile_key: str) -> dict[str, Any]:
+    value = source_row.get(profile_key)
+    if not isinstance(value, dict):
+        row_id = _string(source_row, "row_id")
+        raise ValueError(f"grammar registry row {row_id} missing {profile_key} contract")
+    return value
+
+
 def load_registry_rows(path: pathlib.Path = REGISTRY) -> tuple[GrammarRegistryRow, ...]:
     with path.open("rb") as handle:
         document = tomllib.load(handle)
-    raw_rows = document.get("language_v1_grammar_contract", {}).get("rows")
+    raw_rows = document.get("rows")
     if not isinstance(raw_rows, list):
         raise ValueError("grammar registry rows are missing")
 
@@ -59,23 +74,28 @@ def load_registry_rows(path: pathlib.Path = REGISTRY) -> tuple[GrammarRegistryRo
     for raw_row in raw_rows:
         if not isinstance(raw_row, dict):
             raise ValueError("grammar registry row must be a table")
-        try:
-            row_id = raw_row["row_id"]
-            profile = raw_row["profile"]
-            normalization_mode = NormalizationMode(raw_row["normalization_mode"])
-        except KeyError as error:
-            raise ValueError(f"grammar registry row missing {error.args[0]}") from error
-        if not all(isinstance(value, str) for value in (row_id, profile)):
-            raise ValueError("grammar registry row identity fields must be strings")
-        rows.append(
-            GrammarRegistryRow(
-                row_id=row_id,
-                profile=profile,
-                normalization_mode=normalization_mode,
-                positive_fixture_ids=_strings(raw_row, "positive_fixture_ids"),
-                negative_fixture_ids=_strings(raw_row, "negative_fixture_ids"),
+        row_id = _string(raw_row, "row_id")
+        for profile_key, profile in (("canonical", "Canonical"), ("compat2025", "Compat2025")):
+            contract = _profile_contract(raw_row, profile_key)
+            try:
+                normalization_mode = NormalizationMode(_string(contract, "normalization_mode"))
+            except ValueError as error:
+                raise ValueError(
+                    f"grammar registry row {row_id} has invalid {profile_key} normalization mode"
+                ) from error
+            _string(contract, "status")
+            _string(contract, "normalized_shape")
+            _string(contract, "semantic_owner")
+            _string(contract, "stable_reject_tag")
+            rows.append(
+                GrammarRegistryRow(
+                    row_id=row_id,
+                    profile=profile,
+                    normalization_mode=normalization_mode,
+                    positive_fixture_ids=_strings(contract, "positive_fixture_ids"),
+                    negative_fixture_ids=_strings(contract, "negative_fixture_ids"),
+                )
             )
-        )
     return tuple(rows)
 
 

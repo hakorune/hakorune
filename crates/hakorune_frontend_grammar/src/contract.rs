@@ -53,8 +53,6 @@ pub struct GrammarContractRow {
     pub normalized_shape: &'static str,
     pub semantic_owner: &'static str,
     pub stable_reject_tag: &'static str,
-    pub rust_support: &'static str,
-    pub hako_support: &'static str,
     pub positive_fixture_ids: &'static [&'static str],
     pub negative_fixture_ids: &'static [&'static str],
 }
@@ -235,8 +233,6 @@ mod tests {
             normalized_shape: "",
             semantic_owner: "grammar-contract",
             stable_reject_tag: "parser/try_reserved",
-            rust_support: "evidence",
-            hako_support: "evidence",
             positive_fixture_ids: &[],
             negative_fixture_ids: &["try_canonical_reject"],
         }

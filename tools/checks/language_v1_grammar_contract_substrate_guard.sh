@@ -9,7 +9,11 @@ guard_fail() {
   exit 1
 }
 
-test -f grammar/unified-grammar.toml || guard_fail "physical registry missing"
+test -f grammar/language-v1-registry.toml || guard_fail "Language v1 registry missing"
+test -f grammar/legacy/nyash-v1.1-codegen-input.toml \
+  || guard_fail "legacy codegen input missing"
+test ! -e grammar/unified-grammar.toml \
+  || guard_fail "ambiguous unified grammar path returned"
 test -f grammar/language-v1-grammar-contract-corpus.toml || guard_fail "shared corpus missing"
 test -f tools/language_v1/grammar_contract_hako_adapter.hako || guard_fail "Hako adapter missing"
 test -f tools/language_v1/grammar_contract_drift_report.py || guard_fail "drift report missing"
@@ -34,7 +38,11 @@ rg -q 'hako_equivalent_fixture_id = "match_compat"' \
   grammar/language-v1-grammar-contract-corpus.toml \
   || guard_fail "peek-to-Match replacement parity fixture missing"
 
-rg -q '\[\[language_v1_grammar_contract\.rows\]\]' grammar/unified-grammar.toml || guard_fail "v1 rows missing"
+rg -q '\[\[rows\]\]' grammar/language-v1-registry.toml || guard_fail "v1 rows missing"
+rg -q '\[rows\.canonical\]' grammar/language-v1-registry.toml \
+  || guard_fail "Canonical profile contracts missing"
+rg -q '\[rows\.compat2025\]' grammar/language-v1-registry.toml \
+  || guard_fail "Compat2025 profile contracts missing"
 rg -q 'CompatibilityTransport' docs/reference/language/grammar-contract.md || guard_fail "transport boundary missing"
 rg -q 'ParseWitness' crates/hakorune_frontend_grammar/src/contract.rs || guard_fail "witness type missing"
 rg -q 'compare_witnesses' crates/hakorune_frontend_grammar/src/contract.rs || guard_fail "comparator missing"

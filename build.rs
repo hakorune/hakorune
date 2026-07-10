@@ -71,8 +71,7 @@ fn push_static_str_slice(code: &mut String, name: &str, items: &[String]) {
 fn main() {
     // Path to grammar spec
     let manifest_dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
-    let grammar_dir = manifest_dir.join("grammar");
-    let grammar_file = grammar_dir.join("unified-grammar.toml");
+    let grammar_file = manifest_dir.join("grammar/legacy/nyash-v1.1-codegen-input.toml");
 
     // Ensure output dir exists
     let out_dir = manifest_dir
@@ -82,47 +81,12 @@ fn main() {
     fs::create_dir_all(&out_dir).ok();
     let out_file = out_dir.join("generated.rs");
 
-    // If grammar file is missing, create a minimal one
-    if !grammar_file.exists() {
-        fs::create_dir_all(&grammar_dir).ok();
-        let minimal = r#"
-[keywords.me]
-token = "ME"
-
-[keywords.from]
-token = "FROM"
-
-[keywords.loop]
-token = "LOOP"
-
-[operators.add]
-symbol = "+"
-coercion_strategy = "string_priority"
-type_rules = [
-  { left = "String", right = "String", result = "String", action = "concat" },
-  { left = "String", right = "Integer", result = "String", action = "concat" },
-  { left = "Integer", right = "String", result = "String", action = "concat" },
-  { left = "String", right = "Bool", result = "String", action = "concat" },
-  { left = "Bool", right = "String", result = "String", action = "concat" },
-  { left = "String", right = "Other", result = "String", action = "concat" },
-  { left = "Other", right = "String", result = "String", action = "concat" },
-  { left = "Integer", right = "Integer", result = "Integer", action = "add_i64" },
-  { left = "Float", right = "Float", result = "Float", action = "add_f64" }
-]
-"#;
-        fs::write(&grammar_file, minimal).expect("write minimal unified-grammar.toml");
-        println!(
-            "cargo:warning=Created minimal grammar at {}",
-            grammar_file.display()
-        );
-    }
-
     // Read and very light parse: collect
     // - keywords.<name>.token
     // - operators.{add,sub,mul,div}.{coercion_strategy,type_rules}
     // - syntax.statements.allow = [..]
     // - syntax.expressions.allow_binops = [..]
-    let content = fs::read_to_string(&grammar_file).expect("read unified-grammar.toml");
+    let content = fs::read_to_string(&grammar_file).expect("read legacy grammar codegen input");
 
     // Naive line scan to avoid build-deps; supports lines like: [keywords.xxx] then token = "YYY"
     let mut current_key: Option<String> = None;
@@ -458,7 +422,7 @@ type_rules = [
 
     // Generate Rust code
     let mut code = String::new();
-    code.push_str("// Auto-generated from grammar/unified-grammar.toml\n");
+    code.push_str("// Auto-generated from grammar/legacy/nyash-v1.1-codegen-input.toml\n");
     code.push_str("pub static KEYWORDS: &[(&str, &str)] = &[\n");
     for (k, t) in &entries {
         code.push_str(&format!("    (\"{}\", \"{}\"),\n", k, t));

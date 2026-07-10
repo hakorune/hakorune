@@ -1,0 +1,271 @@
+# Hakorune Language v1 grammar registry.
+#
+# This is the only grammar authority for Language v1. The legacy keyword,
+# operator, and training input consumed by the root build script lives in
+# grammar/legacy/nyash-v1.1-codegen-input.toml and is explicitly non-authority.
+
+version = 1
+
+[[rows]]
+row_id = "guard_expr_else"
+family = "guard"
+spelling_id = "guard_expr_else"
+production = "guard expr else block"
+
+[rows.canonical]
+status = "canonical"
+normalization_mode = "canonical_shape"
+normalized_shape = "GuardElse"
+semantic_owner = "semantic-kernel"
+stable_reject_tag = ""
+positive_fixture_ids = ["guard_expr_else_canonical"]
+negative_fixture_ids = ["guard_expr_else_missing_else"]
+
+[rows.compat2025]
+status = "canonical"
+normalization_mode = "canonical_shape"
+normalized_shape = "GuardElse"
+semantic_owner = "semantic-kernel"
+stable_reject_tag = ""
+positive_fixture_ids = ["guard_expr_else_compat"]
+negative_fixture_ids = ["guard_expr_else_missing_else"]
+
+[[rows]]
+row_id = "guard_let_else"
+family = "guard"
+spelling_id = "guard_let_else"
+production = "guard let pattern = expr else block"
+
+[rows.canonical]
+status = "canonical"
+normalization_mode = "canonical_shape"
+normalized_shape = "GuardLetElse"
+semantic_owner = "semantic-kernel"
+stable_reject_tag = ""
+positive_fixture_ids = ["guard_let_else_canonical"]
+negative_fixture_ids = ["guard_let_else_fallthrough"]
+
+[rows.compat2025]
+status = "canonical"
+normalization_mode = "canonical_shape"
+normalized_shape = "GuardLetElse"
+semantic_owner = "semantic-kernel"
+stable_reject_tag = ""
+positive_fixture_ids = ["guard_let_else_compat"]
+negative_fixture_ids = ["guard_let_else_fallthrough"]
+
+[[rows]]
+row_id = "postfix_catch"
+family = "exception"
+spelling_id = "postfix_catch"
+production = "expr catch block"
+
+[rows.canonical]
+status = "canonical"
+normalization_mode = "canonical_shape"
+normalized_shape = "PostfixCatch"
+semantic_owner = "semantic-kernel"
+stable_reject_tag = ""
+positive_fixture_ids = ["postfix_catch_canonical"]
+negative_fixture_ids = ["postfix_catch_missing_handler"]
+
+[rows.compat2025]
+status = "canonical"
+normalization_mode = "canonical_shape"
+normalized_shape = "PostfixCatch"
+semantic_owner = "semantic-kernel"
+stable_reject_tag = ""
+positive_fixture_ids = ["postfix_catch_compat"]
+negative_fixture_ids = ["postfix_catch_missing_handler"]
+
+[[rows]]
+row_id = "postfix_cleanup"
+family = "exception"
+spelling_id = "postfix_cleanup"
+production = "expr cleanup block"
+
+[rows.canonical]
+status = "canonical"
+normalization_mode = "canonical_shape"
+normalized_shape = "PostfixCleanup"
+semantic_owner = "semantic-kernel"
+stable_reject_tag = ""
+positive_fixture_ids = ["postfix_cleanup_canonical"]
+negative_fixture_ids = ["postfix_cleanup_missing_handler"]
+
+[rows.compat2025]
+status = "canonical"
+normalization_mode = "canonical_shape"
+normalized_shape = "PostfixCleanup"
+semantic_owner = "semantic-kernel"
+stable_reject_tag = ""
+positive_fixture_ids = ["postfix_cleanup_compat"]
+negative_fixture_ids = ["postfix_cleanup_missing_handler"]
+
+[[rows]]
+row_id = "fini"
+family = "exception"
+spelling_id = "fini"
+production = "fini block"
+
+[rows.canonical]
+status = "canonical"
+normalization_mode = "canonical_shape"
+normalized_shape = "Fini"
+semantic_owner = "semantic-kernel"
+stable_reject_tag = ""
+positive_fixture_ids = ["fini_canonical"]
+negative_fixture_ids = ["fini_missing_block"]
+
+[rows.compat2025]
+status = "canonical"
+normalization_mode = "canonical_shape"
+normalized_shape = "Fini"
+semantic_owner = "semantic-kernel"
+stable_reject_tag = ""
+positive_fixture_ids = ["fini_compat"]
+negative_fixture_ids = ["fini_missing_block"]
+
+[[rows]]
+row_id = "try_statement"
+family = "exception"
+spelling_id = "try_statement"
+production = "try block catch block"
+
+[rows.canonical]
+status = "reserved"
+normalization_mode = "none"
+normalized_shape = ""
+semantic_owner = "grammar-contract"
+stable_reject_tag = "parser/try_reserved"
+positive_fixture_ids = []
+negative_fixture_ids = ["try_statement_canonical_reject"]
+
+[rows.compat2025]
+status = "compatibility_only"
+normalization_mode = "compatibility_alias"
+normalized_shape = "PostfixCatchCleanup"
+semantic_owner = "semantic-kernel"
+stable_reject_tag = "parser/try_compat_not_normalizable"
+positive_fixture_ids = ["try_statement_compat_normalizable"]
+negative_fixture_ids = ["try_statement_compat_not_normalizable"]
+
+[[rows]]
+row_id = "match"
+family = "match"
+spelling_id = "match"
+production = "match expr arms"
+
+[rows.canonical]
+status = "canonical"
+normalization_mode = "canonical_shape"
+normalized_shape = "Match"
+semantic_owner = "semantic-kernel"
+stable_reject_tag = ""
+positive_fixture_ids = ["match_canonical", "match_user_enum_canonical", "match_user_enum_wildcard_canonical", "match_name_scrutinee_canonical", "match_call_scrutinee_canonical", "match_field_scrutinee_canonical", "match_parenthesized_record_scrutinee_canonical"]
+negative_fixture_ids = ["match_missing_arm", "match_missing_arrow", "match_missing_close", "match_user_enum_non_exhaustive", "match_user_enum_duplicate_variant", "match_user_enum_unit_binding"]
+
+[rows.compat2025]
+status = "canonical"
+normalization_mode = "canonical_shape"
+normalized_shape = "Match"
+semantic_owner = "semantic-kernel"
+stable_reject_tag = ""
+positive_fixture_ids = ["match_compat"]
+negative_fixture_ids = ["match_missing_arm", "match_missing_arrow", "match_missing_close", "match_user_enum_non_exhaustive", "match_user_enum_duplicate_variant", "match_user_enum_unit_binding"]
+
+[[rows]]
+row_id = "peek"
+family = "match"
+spelling_id = "peek"
+production = "peek expr arms"
+
+[rows.canonical]
+status = "rejected"
+normalization_mode = "none"
+normalized_shape = ""
+semantic_owner = "grammar-contract"
+stable_reject_tag = "parser/peek_legacy_replaced_by_match"
+positive_fixture_ids = []
+negative_fixture_ids = ["peek_canonical_reject"]
+
+[rows.compat2025]
+status = "compatibility_only"
+normalization_mode = "compatibility_alias"
+normalized_shape = "Match"
+semantic_owner = "semantic-kernel"
+stable_reject_tag = "parser/peek_compat_not_normalizable"
+positive_fixture_ids = ["peek_compat_normalizable"]
+negative_fixture_ids = ["peek_compat_not_normalizable"]
+
+[[rows]]
+row_id = "delegate_exposes"
+family = "delegation"
+spelling_id = "delegate_exposes"
+production = "delegate field exposes block"
+
+[rows.canonical]
+status = "canonical"
+normalization_mode = "canonical_shape"
+normalized_shape = "DelegateExposes"
+semantic_owner = "delegation"
+stable_reject_tag = ""
+positive_fixture_ids = ["delegate_exposes_canonical"]
+negative_fixture_ids = ["delegate_exposes_missing_block"]
+
+[rows.compat2025]
+status = "canonical"
+normalization_mode = "canonical_shape"
+normalized_shape = "DelegateExposes"
+semantic_owner = "delegation"
+stable_reject_tag = ""
+positive_fixture_ids = ["delegate_exposes_compat"]
+negative_fixture_ids = ["delegate_exposes_missing_block"]
+
+[[rows]]
+row_id = "box_from_inheritance"
+family = "delegation"
+spelling_id = "box_from_inheritance"
+production = "box child from parent block"
+
+[rows.canonical]
+status = "rejected"
+normalization_mode = "none"
+normalized_shape = ""
+semantic_owner = "grammar-contract"
+stable_reject_tag = "parser/from_inheritance_legacy"
+positive_fixture_ids = []
+negative_fixture_ids = ["box_from_inheritance_canonical_reject"]
+
+[rows.compat2025]
+status = "compatibility_only"
+normalization_mode = "compatibility_transport"
+normalized_shape = "CompatibilityTransport"
+semantic_owner = "none"
+stable_reject_tag = "parser/from_compat_transport_only"
+positive_fixture_ids = ["box_from_inheritance_compat_transport"]
+negative_fixture_ids = ["box_from_inheritance_semantic_entry_reject"]
+
+[[rows]]
+row_id = "from_super_call"
+family = "delegation"
+spelling_id = "from_super_call"
+production = "from parent method call"
+
+[rows.canonical]
+status = "rejected"
+normalization_mode = "none"
+normalized_shape = ""
+semantic_owner = "grammar-contract"
+stable_reject_tag = "parser/from_call_legacy"
+positive_fixture_ids = []
+negative_fixture_ids = ["from_super_call_canonical_reject"]
+
+[rows.compat2025]
+status = "compatibility_only"
+normalization_mode = "compatibility_transport"
+normalized_shape = "CompatibilityTransport"
+semantic_owner = "none"
+stable_reject_tag = "parser/from_compat_transport_only"
+positive_fixture_ids = ["from_super_call_compat_transport"]
+negative_fixture_ids = ["from_super_call_semantic_entry_reject"]

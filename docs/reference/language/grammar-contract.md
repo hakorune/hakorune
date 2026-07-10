@@ -10,7 +10,8 @@ Related:
 - `docs/reference/language/semantic-contract-charter.md`
 - `docs/reference/language/semantic-kernel.md`
 - `docs/reference/language/EBNF.md`
-- `grammar/unified-grammar.toml`
+- `grammar/language-v1-registry.toml`
+- `grammar/legacy/nyash-v1.1-codegen-input.toml`
 - `docs/development/current/main/workstreams/language-v1-convergence-current.md`
 
 ## Contract Basis
@@ -74,29 +75,34 @@ explicit delegation. Both remain transport-only in Compat2025.
 
 ## Registry Row
 
-The physical source remains `grammar/unified-grammar.toml`; do not introduce a
-parallel grammar registry. Its Language v1 row schema is:
+The physical Language v1 source is `grammar/language-v1-registry.toml`. The
+legacy codegen input is a separate non-authority file at
+`grammar/legacy/nyash-v1.1-codegen-input.toml`; it must not carry v1 contract
+rows. A source row owns both fixed profile contracts:
 
 ```text
 row_id
 family
 spelling_id
-profile
-status = canonical | compatibility_only | reserved | rejected
 production
-normalization_mode
-normalized_shape
-semantic_owner
-stable_reject_tag
-rust_support
-hako_support
-positive_fixture_ids
-negative_fixture_ids
+
+canonical:
+  status = canonical | compatibility_only | reserved | rejected
+  normalization_mode
+  normalized_shape
+  semantic_owner
+  stable_reject_tag
+  positive_fixture_ids
+  negative_fixture_ids
+
+compat2025:
+  same required fields
 ```
 
-The existing legacy keyword/training tables are migration input, not v1
-authority. They remain behavior-preserving until their consumers move to the
-new rows, then retire under an explicit removal condition.
+The loader rejects a source row missing either profile contract. Generated
+Rust/Python projections expand the source row into `(row_id, profile)` entries
+for consumer compatibility. Parser support is corpus evidence generated after
+execution, never a field in the authority source.
 
 ## ParseWitness
 
@@ -163,7 +169,7 @@ Authority:
 cross-cutting law = semantic-contract-charter.md
 evaluation law = semantic-kernel.md
 grammar contract = this document
-structured grammar rows = grammar/unified-grammar.toml after row admission
+structured grammar rows = grammar/language-v1-registry.toml after row admission
 canonical production view = EBNF.md
 ```
 

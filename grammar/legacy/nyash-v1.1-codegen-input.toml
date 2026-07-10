@@ -1,5 +1,9 @@
 
-# Nyash Unified Grammar v1.1 - Phase 11.9 AI協働革命対応版
+# Legacy Nyash v1.1 codegen input.
+#
+# This file is consumed only by the root build script while legacy keyword and
+# operator generation remains live. It is not Language v1 grammar authority.
+# See grammar/language-v1-registry.toml for the active grammar contract.
 version = "1.1"
 language = "nyash"
 

@@ -1,4 +1,4 @@
-// Auto-generated from grammar/unified-grammar.toml
+// Auto-generated from grammar/legacy/nyash-v1.1-codegen-input.toml
 pub static KEYWORDS: &[(&str, &str)] = &[
     ("me", "ME"),
     ("from", "FROM"),

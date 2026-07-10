@@ -41,13 +41,11 @@ fn variant(kind: &str, value: &str) -> &'static str {
 fn emit_rows(content: &str) -> String {
     let document: toml::Value = content
         .parse()
-        .expect("parse grammar/unified-grammar.toml for Language v1 contract rows");
+        .expect("parse grammar/language-v1-registry.toml");
     let rows = document
-        .get("language_v1_grammar_contract")
-        .and_then(toml::Value::as_table)
-        .and_then(|table| table.get("rows"))
+        .get("rows")
         .and_then(toml::Value::as_array)
-        .expect("missing [[language_v1_grammar_contract.rows]]");
+        .expect("missing [[rows]] in Language v1 registry");
 
     let mut generated = String::from(
         "use crate::contract::{GrammarContractRow, GrammarProfile, GrammarStatus, NormalizationMode};\n\n",
@@ -55,45 +53,57 @@ fn emit_rows(content: &str) -> String {
     generated
         .push_str("pub static LANGUAGE_V1_GRAMMAR_CONTRACT_ROWS: &[GrammarContractRow] = &[\n");
     for value in rows {
-        let row = value
+        let source_row = value
             .as_table()
-            .expect("grammar contract row must be a TOML table");
-        generated.push_str("    GrammarContractRow {\n");
-        for field in [
-            "row_id",
-            "family",
-            "spelling_id",
-            "production",
-            "normalized_shape",
-            "semantic_owner",
-            "stable_reject_tag",
-            "rust_support",
-            "hako_support",
-        ] {
+            .expect("Language v1 source row must be a TOML table");
+        for (profile_key, profile_name) in
+            [("canonical", "Canonical"), ("compat2025", "Compat2025")]
+        {
+            let profile_contract = source_row
+                .get(profile_key)
+                .and_then(toml::Value::as_table)
+                .unwrap_or_else(|| {
+                    panic!(
+                        "Language v1 source row `{}` missing required {profile_key} contract",
+                        string_field(source_row, "row_id")
+                    )
+                });
+            generated.push_str("    GrammarContractRow {\n");
+            for field in ["row_id", "family", "spelling_id", "production"] {
+                generated.push_str(&format!(
+                    "        {field}: {:?},\n",
+                    string_field(source_row, field)
+                ));
+            }
             generated.push_str(&format!(
-                "        {field}: {:?},\n",
-                string_field(row, field)
+                "        profile: {},\n",
+                variant("profile", profile_name)
             ));
+            for (field, kind) in [
+                ("status", "status"),
+                ("normalization_mode", "normalization_mode"),
+            ] {
+                generated.push_str(&format!(
+                    "        {field}: {},\n",
+                    variant(kind, string_field(profile_contract, field))
+                ));
+            }
+            for field in ["normalized_shape", "semantic_owner", "stable_reject_tag"] {
+                generated.push_str(&format!(
+                    "        {field}: {:?},\n",
+                    string_field(profile_contract, field)
+                ));
+            }
+            for field in ["positive_fixture_ids", "negative_fixture_ids"] {
+                let values = string_list(profile_contract, field)
+                    .iter()
+                    .map(|value| format!("{value:?}"))
+                    .collect::<Vec<_>>()
+                    .join(", ");
+                generated.push_str(&format!("        {field}: &[{values}],\n"));
+            }
+            generated.push_str("    },\n");
         }
-        for (field, kind) in [
-            ("profile", "profile"),
-            ("status", "status"),
-            ("normalization_mode", "normalization_mode"),
-        ] {
-            generated.push_str(&format!(
-                "        {field}: {},\n",
-                variant(kind, string_field(row, field))
-            ));
-        }
-        for field in ["positive_fixture_ids", "negative_fixture_ids"] {
-            let values = string_list(row, field)
-                .iter()
-                .map(|value| format!("{value:?}"))
-                .collect::<Vec<_>>()
-                .join(", ");
-            generated.push_str(&format!("        {field}: &[{values}],\n"));
-        }
-        generated.push_str("    },\n");
     }
     generated.push_str("];\n");
     generated
@@ -101,9 +111,9 @@ fn emit_rows(content: &str) -> String {
 
 fn main() {
     let manifest_dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR").expect("manifest dir"));
-    let grammar = manifest_dir.join("../../grammar/unified-grammar.toml");
+    let grammar = manifest_dir.join("../../grammar/language-v1-registry.toml");
     println!("cargo:rerun-if-changed={}", grammar.display());
-    let content = fs::read_to_string(&grammar).expect("read unified grammar registry");
+    let content = fs::read_to_string(&grammar).expect("read Language v1 grammar registry");
     let out_dir = PathBuf::from(env::var("OUT_DIR").expect("OUT_DIR"));
     fs::write(out_dir.join("generated_contract.rs"), emit_rows(&content))
         .expect("write generated grammar contract projection");
