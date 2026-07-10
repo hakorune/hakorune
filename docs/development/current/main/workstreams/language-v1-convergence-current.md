@@ -216,7 +216,8 @@ transport-only decision accepted as 3465; Rust from transport boundary landed
 as 3466; Hako profile/witness ownership is accepted as 3467; adapter health
 lands as 3468; explicit Hako profile facade plus statement-try lands as 3469;
 Hako peek-to-Match alias lands as 3470. The Hako from transport conformance
-scope is stopped for design consultation as 3471.
+scope is parked as 3471 while the ordered parser/MIR corrective card 3472
+repairs its correctness, compile-cost, fixture, and source-layout prerequisites.
 
 Deliverables:
 
@@ -440,8 +441,6 @@ selfhost_migration_unparked = 1
 
 ## Current Front
 
-```text
-current = LANGV1-GRAMMAR-CONTRACT-SUBSTRATE-001
-next = registry, witness, corpus, adapters, and comparator
-parked_resume = MIRBUILDER-MAPSTORE-ROUTE-POLICY-KEY-VALUE-DOMAIN-BOXSHAPE-001
-```
+The live front is owned only by `CURRENT_STATE.toml`. Do not duplicate a card
+token here. The parked MirBuilder resume remains recorded by the current-state
+lane status and the language-v1 closeout row.

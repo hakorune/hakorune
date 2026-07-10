@@ -2,8 +2,10 @@
 
 ## Status
 
-Design consultation stop. Do not implement Hako `from` acceptance, transport,
-semantic lowering, or grammar closeout until this scope decision is accepted.
+Parked design consultation stop while 3472 repairs the parser/MIR correctness
+and compile-cost prerequisites. Do not implement Hako `from` acceptance,
+transport, semantic lowering, or grammar closeout until this scope decision is
+accepted.
 
 ## Current Evidence
 
@@ -105,5 +107,5 @@ selfhost_claim = 0
 
 ## Stop Rule
 
-Keep the worktree clean and stop goal-driven implementation here after 3470
-verification, commit, and push. Resume only from an accepted A/B decision.
+Resume this card after 3472 closeout. The A/B decision remains required before
+any Hako `from` implementation.

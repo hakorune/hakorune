@@ -18,9 +18,10 @@ accepts a separate migration transport adapter. 3466 completes both Rust from
 forms without semantic AST publication. 3467 accepts a profile-bearing Hako
 adapter facade and external witness projection. 3468 completes bounded adapter
 health. 3469 completes the Hako profile facade plus statement-try seam. 3470
-completes the Hako peek-to-Match compatibility alias. 3471 stops on whether
-Hako from transport is formally excluded from parser conformance or requires
-a separate migration-only adapter; runtime/backend/selfhost remain closed."""
+completes the Hako peek-to-Match compatibility alias. 3471's Hako from
+transport consultation is parked while 3472 repairs parser contract-result,
+Match/inventory/MIR support, compile scaling, corpus runner, and source layout
+prerequisites. Runtime/backend/selfhost remain closed."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
@@ -28,13 +29,13 @@ method_anchor = "docs/development/current/main/design/selfhost-language-v1-freez
 taskboard = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 
-latest_card = "LANGV1-HAKO-FROM-TRANSPORT-CONFORMANCE-DESIGN-STOP-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3471-LANGV1-HAKO-FROM-TRANSPORT-CONFORMANCE-DESIGN-STOP-001.md"
-latest_card_summary = """3470 completes lossless Hako peek-to-Match aliasing.
-3471 asks whether compatibility transport is excluded from Hako parser
-conformance or requires a separate Hako migration-only adapter."""
+latest_card = "LANGV1-GRAMMAR-MIR-CORRECTNESS-COMPILE-COST-CORRECTIVE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3472-LANGV1-GRAMMAR-MIR-CORRECTNESS-COMPILE-COST-CORRECTIVE-001.md"
+latest_card_summary = """3472 is one ordered corrective card for parser
+contract errors, Match/inventory/MIR support, MIR compile scaling, corpus-driven
+batch execution, and source/current-pointer cleanup. 3471 remains parked."""
 
-current_blocker_token = "LANGV1-HAKO-FROM-TRANSPORT-CONFORMANCE-DESIGN-STOP-001"
+current_blocker_token = "LANGV1-GRAMMAR-MIR-CORRECTNESS-COMPILE-COST-CORRECTIVE-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
