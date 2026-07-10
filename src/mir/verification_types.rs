@@ -126,6 +126,18 @@ pub enum VerificationError {
         producer: String,
         reason: String,
     },
+    /// Exact numeric field assignment is statically valid but the current MIR
+    /// does not carry the verifier proof required to elide its runtime check.
+    ExactNumericContractProofMissing {
+        function: String,
+        block: BasicBlockId,
+        instruction_index: usize,
+        box_name: String,
+        field: String,
+        declared_type_name: String,
+        value: ValueId,
+        reason: String,
+    },
     /// hako_alloc metadata row invariant violation before allocator rows may
     /// consume packed metadata facts.
     HakoAllocMetadataInvariantViolation {
@@ -400,6 +412,29 @@ impl std::fmt::Display for VerificationError {
                     declared_type_name,
                     value,
                     producer,
+                    reason
+                )
+            }
+            VerificationError::ExactNumericContractProofMissing {
+                function,
+                block,
+                instruction_index,
+                box_name,
+                field,
+                declared_type_name,
+                value,
+                reason,
+            } => {
+                write!(
+                    f,
+                    "[mir/verify:type_contract_proof_missing] function={} at block {} instruction {} field={}.{} declared_type={} value={} reason={}",
+                    function,
+                    block,
+                    instruction_index,
+                    box_name,
+                    field,
+                    declared_type_name,
+                    value,
                     reason
                 )
             }

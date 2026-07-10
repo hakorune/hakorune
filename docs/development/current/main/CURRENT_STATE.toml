@@ -11,9 +11,11 @@ one physical registry, two independent recursive parser witnesses, 106/106
 corpus fixtures, zero Canonical-rejected spellings under lang/src, and bounded
 differential composition. 3479 accepts one eventual semantic meaning for every
 canonical :T site, a two-axis guarantee/enforcement vocabulary, and the
-existing exact-numeric Box field owner as the first slice. 3480 materializes
-the 11-site matrix and adopts that existing narrow contract without widening
-locals, parameters, returns, FFI, backend lowering, or selfhost authority."""
+existing exact-numeric Box field owner as the first slice. 3480 closes the
+11-site matrix, structural proof, dynamic type/range check, and backend
+preflight boundary. 3481 stops at parameter-entry carrier design because
+declared parameter metadata has no accepted VM/MIR-JSON/backend contract owner
+yet."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
@@ -21,15 +23,15 @@ method_anchor = "docs/development/current/main/design/selfhost-language-v1-freez
 taskboard = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 
-latest_card = "LANGV1-TYPE-GUARANTEE-BOX-FIELD-EXACT-NUMERIC-CONTRACT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3480-LANGV1-TYPE-GUARANTEE-BOX-FIELD-EXACT-NUMERIC-CONTRACT-001.md"
-latest_card_summary = """3480 owns one substantive first type-guarantee slice:
-materialize the closed site matrix, classify exact-numeric Box field writes as
-verifier-proven/runtime-checked/rejected through the existing SSOT, retain VM
-check-before-store and centralized unsupported-backend preflight, and keep all
-other annotation sites inactive."""
+latest_card = "LANGV1-TYPE-GUARANTEE-PARAMETER-ENTRY-DESIGN-STOP-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3481-LANGV1-TYPE-GUARANTEE-PARAMETER-ENTRY-DESIGN-STOP-001.md"
+latest_card_summary = """3481 decides one parameter-entry contract owner and
+carrier across VM entry, MIR JSON, and backend preflight. Current ParamDecl and
+MirType metadata remain evidence only; implementation is stopped until the
+exact subset, implicit-me rule, proof/elision policy, and fail-fast boundary
+are accepted."""
 
-current_blocker_token = "LANGV1-TYPE-GUARANTEE-BOX-FIELD-EXACT-NUMERIC-CONTRACT-001"
+current_blocker_token = "LANGV1-TYPE-GUARANTEE-PARAMETER-ENTRY-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -38,6 +40,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-11: 3480 closes the 11-site guarantee matrix and exact-numeric Box field proof/runtime/backend contract; 3481 opens parameter-entry carrier design consultation.",
   "2026-07-11: 3479 accepts the type-guarantee matrix vocabulary and selects the existing exact-numeric Box field contract owner; 3480 opens the first substantive slice.",
   "2026-07-10: 3478 closes LANGV1-GRAMMAR-001 with 106/106 corpus fixtures, zero Canonical source debt, and bounded differential composition; 3479 opens type-guarantee design consultation.",
   "2026-07-10: 3477 accepts loop/weak/record/literal contracts plus registry normalization and recursive conformance; 3478 opens one implementation series.",
@@ -49,5 +52,4 @@ landed_tail = [
   "2026-07-10: 3471 accepts Hako transport exclusion, delimiter-aware Match context, route-family convergence graph ownership, and scoped test-config ownership; 3473 opens the first code-facing exclusion slice.",
   "2026-07-10: 3472 closes parser contract propagation, strict Match/inventory and ProgramJSON/MIR gaps, MIR compile-cost instrumentation, compile-once corpus execution, and parser source layout; 3471 resumes at design consultation.",
   "2026-07-10: 3470 completes the Hako peek-to-Match Compat2025 alias; 3471 opens the Hako from transport conformance design stop.",
-  "2026-07-10: 3466 completes one Rust from transport boundary: closed Compat2025 evidence uses a distinct MigrationTransport record while semantic parsing fails before AST publication.",
 ]

@@ -50,6 +50,18 @@ fn verification_error_from_finding(
                 reason: site.reason,
             }
         }
+        ExactNumericFieldAssignmentFinding::VerifierProofMissing(site) => {
+            VerificationError::ExactNumericContractProofMissing {
+                function: site.proof.function,
+                block: site.proof.block,
+                instruction_index: site.proof.instruction_index,
+                box_name: site.box_name,
+                field: site.proof.field,
+                declared_type_name: site.proof.expected_type,
+                value: site.proof.value,
+                reason: site.reason,
+            }
+        }
     }
 }
 
@@ -211,7 +223,9 @@ mod tests {
         function
     }
 
-    fn field_set_param_value_function_with_runtime_check_contract() -> MirFunction {
+    fn field_set_param_value_function_with_runtime_check_contract(
+        declared_type_name: &str,
+    ) -> MirFunction {
         let mut function = field_set_param_value_function();
         function
             .metadata
@@ -221,7 +235,7 @@ mod tests {
                 instruction_index: 1,
                 field: "capacity".to_string(),
                 value: ValueId::new(0),
-                declared_type_name: "usize".to_string(),
+                declared_type_name: declared_type_name.to_string(),
                 kind: ExactNumericRuntimeCheckContractKind::DynamicIntegerRange,
             });
         function
@@ -414,7 +428,7 @@ mod tests {
                 ..
             } if declared_type_name == "usize"
                 && producer == "param"
-                && reason == "dynamic-integer-range-check-required"
+                && reason == "dynamic-type-and-range-check-required"
         ));
     }
 
@@ -432,7 +446,7 @@ mod tests {
                 ..
             } if declared_type_name == "usize"
                 && producer == "binop"
-                && reason == "dynamic-integer-range-check-required"
+                && reason == "dynamic-type-and-range-check-required"
         ));
     }
 
@@ -450,7 +464,7 @@ mod tests {
                 ..
             } if declared_type_name == "usize"
                 && producer == "call"
-                && reason == "dynamic-integer-range-check-required"
+                && reason == "dynamic-type-and-range-check-required"
         ));
     }
 
@@ -458,7 +472,7 @@ mod tests {
     fn accepts_dynamic_param_assignment_to_usize_field_with_runtime_check_contract() {
         let module = module_with_numeric_field(
             "usize",
-            field_set_param_value_function_with_runtime_check_contract(),
+            field_set_param_value_function_with_runtime_check_contract("usize"),
         );
 
         assert!(check_exact_numeric_field_assignments(&module).is_ok());
@@ -483,16 +497,64 @@ mod tests {
     }
 
     #[test]
-    fn accepts_dynamic_param_assignment_to_i64_field_without_range_gap() {
+    fn rejects_dynamic_param_assignment_to_i64_field_until_type_check_exists() {
         let module = module_with_numeric_field("i64", field_set_param_value_function());
+        let errors = check_exact_numeric_field_assignments(&module).unwrap_err();
+
+        assert!(matches!(
+            &errors[0],
+            VerificationError::ExactNumericDynamicCheckRequired {
+                declared_type_name,
+                producer,
+                reason,
+                ..
+            } if declared_type_name == "i64"
+                && producer == "param"
+                && reason == "dynamic-type-check-required"
+        ));
+    }
+
+    #[test]
+    fn accepts_dynamic_param_assignment_to_i64_field_with_type_check_contract() {
+        let module = module_with_numeric_field(
+            "i64",
+            field_set_param_value_function_with_runtime_check_contract("i64"),
+        );
 
         assert!(check_exact_numeric_field_assignments(&module).is_ok());
     }
 
     #[test]
-    fn accepts_in_range_const_assignment_to_numeric_field() {
+    fn rejects_in_range_const_assignment_until_verifier_proof_exists() {
         let module = module_with_numeric_field("usize", field_set_function(42));
+        let errors = check_exact_numeric_field_assignments(&module).unwrap_err();
+
+        assert!(matches!(
+            &errors[0],
+            VerificationError::ExactNumericContractProofMissing {
+                declared_type_name,
+                reason,
+                ..
+            } if declared_type_name == "usize" && reason == "verifier-proof-missing"
+        ));
+    }
+
+    #[test]
+    fn accepts_in_range_const_assignment_after_semantic_refresh_proves_it() {
+        let mut module = module_with_numeric_field("usize", field_set_function(42));
+        crate::mir::exact_numeric_field_contracts::refresh_module_exact_numeric_runtime_check_contracts(
+            &mut module,
+        );
 
         assert!(check_exact_numeric_field_assignments(&module).is_ok());
+        assert_eq!(
+            module
+                .get_function("main")
+                .unwrap()
+                .metadata
+                .exact_numeric_field_contract_proofs
+                .len(),
+            1
+        );
     }
 }

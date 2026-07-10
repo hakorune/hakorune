@@ -67,6 +67,7 @@ use crate::mir::{
     sum_variant_tag_seed_plan::SumVariantTagSeedRoute,
     thin_entry::ThinEntryCandidate,
     thin_entry_selection::ThinEntrySelection,
+    type_contracts::proof::TypeContractProof,
     user_box_method_publication::UserBoxMethodPublicationClassification,
     user_box_method_route_plan::UserBoxMethodRoute,
     userbox_known_receiver_method_seed_plan::UserBoxKnownReceiverMethodSeedRoute,
@@ -615,4 +616,8 @@ pub struct FunctionMetadata {
     /// it is written into an exact numeric field. This is metadata only until
     /// runtime-check lowering consumes it.
     pub exact_numeric_runtime_check_contracts: Vec<ExactNumericRuntimeCheckContract>,
+
+    /// Verifier-backed exact-numeric field proofs rebuilt from the current MIR
+    /// during semantic refresh. These are contract evidence, not storage facts.
+    pub exact_numeric_field_contract_proofs: Vec<TypeContractProof>,
 }

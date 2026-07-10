@@ -176,13 +176,19 @@ static box Main {
 }
 
 #[test]
-fn compile_publishes_exact_numeric_const_fact_from_literal_suffix() {
+fn compile_publishes_exact_numeric_box_field_proof_from_ordinary_literal() {
     let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
     let ast = NyashParser::parse_from_string(
         r#"
+box Page {
+  capacity: usize = 0
+}
+
 static box Main {
   main() {
-    return 7usize
+    local page = new Page()
+    page.capacity = 7
+    return 0
   }
 }
 "#,
@@ -190,50 +196,50 @@ static box Main {
     .expect("parse");
     let mut compiler = MirCompiler::with_options(false);
     let result = compiler.compile(ast).expect("compile");
-    let function = result
+    let proof = result
         .module
         .functions
         .values()
-        .find(|function| !function.metadata.exact_numeric_const_facts.is_empty())
-        .expect("function with exact numeric const fact");
-    let (value_id, const_fact) = function
-        .metadata
-        .exact_numeric_const_facts
-        .iter()
+        .flat_map(|function| function.metadata.exact_numeric_field_contract_proofs.iter())
         .next()
-        .expect("exact numeric const fact");
+        .expect("exact numeric Box field proof");
 
-    assert_eq!(const_fact.declared_type_name, "usize");
-    assert_eq!(const_fact.value, 7);
+    assert_eq!(proof.field, "capacity");
+    assert_eq!(proof.expected_type, "usize");
     assert_eq!(
-        function.metadata.exact_numeric_value_facts.get(value_id),
-        Some(
-            &crate::mir::exact_numeric_value_facts::ExactNumericValueFact {
-                declared_type_name: "usize".to_string(),
-                source: ExactNumericValueFactSource::Const { value: 7 },
-            }
-        )
+        proof.proof_kind,
+        crate::mir::type_contracts::proof::TypeContractProofKind::ExactNumericConstantInRange
     );
 }
 
 #[test]
-fn compile_rejects_out_of_range_literal_suffix() {
+fn compile_rejects_out_of_range_ordinary_literal_at_exact_numeric_box_field() {
     let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
     let ast = NyashParser::parse_from_string(
         r#"
+box ByteCell {
+  value: u8 = 0
+}
+
 static box Main {
   main() {
-    return 256u8
+    local cell = new ByteCell()
+    cell.value = 256
+    return 0
   }
 }
 "#,
     )
     .expect("parse");
     let mut compiler = MirCompiler::with_options(false);
-    let err = compiler.compile(ast).expect_err("compile should reject");
+    let result = compiler.compile(ast).expect("MIR build should complete");
+    let errors = result
+        .verification_result
+        .expect_err("verifier should reject before execution");
+    let err = errors[0].to_string();
 
     assert!(
-        err.contains("[exact-numeric-literal/out-of-range]"),
+        err.contains("[mir/verify:numeric_range]"),
         "unexpected error: {}",
         err
     );

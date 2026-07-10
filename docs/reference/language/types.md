@@ -23,6 +23,40 @@ Coercion SSOT status:
 - `local` declares a variable; **re-assignment is allowed** (single keyword policy).
 - There is currently no static type checker. Some parts of MIR carry **type facts** as metadata for optimization / routing, not for semantics.
 
+### Language v1 annotation guarantee matrix
+
+Decision: accepted. First implementation slice: exact-numeric Box field
+writes.
+
+Canonical `x: T` has one eventual meaning: the value must satisfy semantic
+contract `T` at the site's boundary. A metadata-only annotation is an explicit
+transitional non-guarantee, not a second meaning for `: T`. Representation,
+storage, planner, and Rune facts remain separate axes.
+
+The executable matrix is
+`src/mir/type_contracts/guarantee_matrix.rs`. Current status:
+
+| Site | Current guarantee | Activation |
+| --- | --- | --- |
+| local initialization/reassignment | metadata-only non-guarantee | transitional |
+| parameter entry | metadata-only non-guarantee | transitional |
+| return exit | metadata-only non-guarantee | transitional |
+| Box field write | verifier proof or runtime guard | exact-numeric fields only |
+| record construction/update | verifier-proven narrow contract | existing narrow |
+| static table element | verifier-proven narrow contract | existing narrow |
+| ordinary collection element | `Any` default | active dynamic default |
+| typed `Array<T>` element | runtime-checked narrow contract | existing narrow |
+| Weak field | verifier-proven narrow contract | existing narrow |
+| FFI ingress/egress | metadata-only non-guarantee | transitional |
+| backend preservation | capability preflight | representation boundary |
+
+For the first slice, a statically known exact-numeric field value receives a
+structural `TypeContractProof`. Dynamic values, including values arriving
+through a parameter typed as MIR `Integer`, receive a runtime type/range check;
+parameter annotations are not yet proof. Semantic refresh clears and rebuilds
+both proof and runtime-check records from the current MIR site key. Unsupported
+backends reject before execution rather than falling back to VM behavior.
+
 ### Record vs Box
 
 Hakorune keeps `record` and `box` as separate source surfaces.
@@ -102,10 +136,10 @@ Current live semantics are intentionally narrow:
 
 - The parser treats these as ordinary `TYPE_REF` identifiers when they appear
   in annotations.
-- Decimal integer literal suffixes for these names are accepted on the Rust
-  parser front, for example `0usize`, `1u8`, and `42i64`. They are range-checked
-  against exact numeric metadata and preserved as typed integer literal
-  metadata, but the emitted runtime value still uses `Integer(i64)`.
+- Decimal integer literal suffixes such as `0usize`, `1u8`, and `42i64` are
+  historical Rust-parser evidence only and are rejected by both Language v1
+  grammar profiles. Exact numeric contracts come from declaration annotations
+  plus ordinary literals or dynamic values; suffix spelling is not authority.
 - Runtime values still execute on the current dynamic `Integer(i64)` lane.
 - The current `>>` operator in that lane is signed i64 arithmetic right shift.
 - Typed-object EXE storage planning preserves these names as exact numeric
@@ -128,11 +162,12 @@ Current live semantics are intentionally narrow:
   signedness/width distinctly from `MirType::Integer`. It is not attached to
   runtime values yet.
 - Exact numeric constant metadata and dynamic `Integer(i64)` conversion helpers
-  range-check against signedness and resolved width. Typed integer literal
-  suffixes publish MIR exact const facts after the same range checks. The MIR
-  verifier uses these checks for statically known writes to exact numeric declared fields.
-  The verifier also rejects unchecked dynamic writes to exact numeric fields
-  whose range does not cover every possible dynamic `Integer(i64)` value.
+  range-check against signedness and resolved width. Builder-owned exact const
+  facts may still exist for imported/historical AST evidence, but canonical
+  source does not create them through literal suffixes. The MIR verifier checks
+  statically known writes using a structural proof and rejects every unchecked
+  dynamic exact-numeric field write. Even `i64` needs a runtime type check when
+  the incoming boundary has no active parameter/local proof.
   Function metadata can carry a `DynamicIntegerRange` runtime-check contract
   for those dynamic field writes. MIR semantic refresh attaches those contracts
   for real exact numeric `FieldSet` producers after optimization and before

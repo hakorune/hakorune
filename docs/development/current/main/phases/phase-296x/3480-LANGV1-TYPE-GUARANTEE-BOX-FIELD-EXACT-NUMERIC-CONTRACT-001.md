@@ -2,12 +2,57 @@
 
 ## Status
 
-Active substantive implementation card after 3479 accepts the type-guarantee
+Complete substantive implementation card after 3479 accepts the type-guarantee
 matrix vocabulary and selects the exact-numeric Box field boundary.
 
 Decision: accepted by 3479.
 
-Implementation: in progress.
+Implementation: complete.
+
+## Progress
+
+```text
+typed 11-site guarantee matrix = implemented
+permanent metadata-only target rows = 0
+first-slice owner = existing exact_numeric_field_contracts.rs
+structural TypeContractProof = implemented
+semantic-refresh proof/check rebuild = implemented
+dynamic i64 field type check = implemented
+static range violation before execution = retained
+VM check before FieldSet = retained
+central backend preflight = retained
+source files over 800 lines = 0
+```
+
+The former inline tests in `exact_numeric_field_contracts.rs` moved to
+`exact_numeric_field_contracts/tests.rs` so the owner remains below the source
+size boundary.
+
+The full unfiltered lib suite currently reports 3560 pass / 54 fail / 32
+ignored. Those failures are pre-existing global-state and post-grammar legacy
+expectation families and are not used as a green claim for this card. The
+focused acceptance suite below is the required proof.
+
+During focused compilation, two stale `EmitConfig` test constructors missing
+the already-landed parser-evidence field were repaired with `None`; this does
+not change production defaults.
+
+## Stable Boundaries
+
+```text
+missing verifier proof:
+  [mir/verify:type_contract_proof_missing]
+
+dynamic check missing:
+  [mir/verify:numeric_dynamic_check_required]
+
+runtime type/range violation:
+  [vm/numeric_dynamic_range_type]
+  [vm/numeric_dynamic_range]
+
+unsupported backend:
+  [freeze:contract][exact-numeric/runtime-check-unsupported-backend]
+```
 
 ## Objective
 
@@ -143,6 +188,28 @@ unsupported_backend_fail_fast = 1
 vm_fallback_for_exe_aot = 0
 source_files_over_800_lines = 0
 ```
+
+## Closeout Claims
+
+```text
+guarantee_matrix_accepted = 1
+guarantee_matrix_site_count = 11
+box_field_exact_numeric_contract_activation = 1
+box_field_contract_owner_count = 1
+structural_type_contract_proof = 1
+semantic_refresh_proof_rebuild = 1
+dynamic_i64_field_runtime_type_check = 1
+runtime_check_before_store = 1
+unsupported_backend_fail_fast = 1
+vm_fallback_for_exe_aot = 0
+```
+
+## Next
+
+Advance to `3481-LANGV1-TYPE-GUARANTEE-PARAMETER-ENTRY-DESIGN-STOP-001`.
+Parameter annotations reach MIR metadata, but no accepted VM/backend contract
+carrier exists yet. Do not infer parameter guarantees from `MirType` or
+caller-side metadata.
 
 ## Verification
 

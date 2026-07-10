@@ -286,8 +286,8 @@ Next: `LANGV1-TYPE-GUARANTEE-001`.
 
 ### 3. LANGV1-TYPE-GUARANTEE-001
 
-Status: design accepted as 3479; exact-numeric Box field first slice active as
-3480.
+Status: design accepted as 3479; exact-numeric Box field first slice complete
+as 3480; parameter-entry carrier design active as 3481.
 
 Target contract:
 

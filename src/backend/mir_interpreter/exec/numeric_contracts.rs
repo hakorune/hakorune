@@ -244,6 +244,24 @@ mod tests {
     }
 
     #[test]
+    fn vm_rejects_non_integer_dynamic_value_for_i64_contract() {
+        let module = module_with_runtime_check_contract("i64");
+        let mut vm = MirInterpreter::new();
+
+        let error = vm
+            .execute_function_with_args(
+                &module,
+                "Main.main/1",
+                &[VMValue::String("oops".to_string())],
+            )
+            .expect_err("i64 field contract must reject a dynamic string before store");
+
+        assert!(error
+            .to_string()
+            .contains("[vm/numeric_dynamic_range_type]"));
+    }
+
+    #[test]
     fn vm_rejects_out_of_range_dynamic_integer_for_u8_contract() {
         let module = module_with_runtime_check_contract("u8");
         let mut vm = MirInterpreter::new();

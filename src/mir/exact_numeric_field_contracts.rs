@@ -6,6 +6,10 @@ use crate::mir::numeric_substrate::{
     exact_numeric_type_requires_dynamic_integer_range_check,
     exact_numeric_value_from_dynamic_integer, ExactNumericMirType, NumericTarget,
 };
+use crate::mir::type_contracts::guarantee_matrix::exact_numeric_box_field_contract_is_active;
+use crate::mir::type_contracts::proof::{
+    TypeContractProof, TypeContractProofKind, TypeContractSiteKind,
+};
 use crate::mir::{
     BasicBlockId, ConstValue, MirFunction, MirInstruction, MirModule, MirType, ValueId,
 };
@@ -18,6 +22,7 @@ pub(crate) const EXACT_NUMERIC_RUNTIME_CHECK_UNSUPPORTED_BACKEND_TAG: &str =
 pub(crate) enum ExactNumericFieldAssignmentFinding {
     RangeViolation(ExactNumericRangeViolationSite),
     DynamicCheckRequired(ExactNumericDynamicCheckSite),
+    VerifierProofMissing(ExactNumericVerifierProofMissingSite),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -47,6 +52,22 @@ pub(crate) struct ExactNumericDynamicCheckSite {
     pub reason: String,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct ExactNumericVerifierProofMissingSite {
+    pub proof: TypeContractProof,
+    pub box_name: String,
+    pub reason: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum ExactNumericFieldContractDisposition {
+    VerifierProven(TypeContractProof),
+    VerifierProofRequired(ExactNumericVerifierProofMissingSite),
+    RuntimeChecked(ExactNumericDynamicCheckSite),
+    RuntimeCheckRequired(ExactNumericDynamicCheckSite),
+    SemanticReject(ExactNumericRangeViolationSite),
+}
+
 #[derive(Debug, Clone)]
 enum ObjectDef {
     Box(String),
@@ -71,57 +92,88 @@ enum ValueProducer {
 pub(crate) fn collect_exact_numeric_field_assignment_findings(
     module: &MirModule,
 ) -> Vec<ExactNumericFieldAssignmentFinding> {
+    collect_exact_numeric_field_contract_dispositions(module)
+        .into_iter()
+        .filter_map(|disposition| match disposition {
+            ExactNumericFieldContractDisposition::VerifierProofRequired(site) => Some(
+                ExactNumericFieldAssignmentFinding::VerifierProofMissing(site),
+            ),
+            ExactNumericFieldContractDisposition::RuntimeCheckRequired(site) => Some(
+                ExactNumericFieldAssignmentFinding::DynamicCheckRequired(site),
+            ),
+            ExactNumericFieldContractDisposition::SemanticReject(site) => {
+                Some(ExactNumericFieldAssignmentFinding::RangeViolation(site))
+            }
+            ExactNumericFieldContractDisposition::VerifierProven(_)
+            | ExactNumericFieldContractDisposition::RuntimeChecked(_) => None,
+        })
+        .collect()
+}
+
+pub(crate) fn collect_exact_numeric_field_contract_dispositions(
+    module: &MirModule,
+) -> Vec<ExactNumericFieldContractDisposition> {
     let fields = exact_numeric_field_decls(module);
     if fields.is_empty() {
         return Vec::new();
     }
 
-    let mut findings = Vec::new();
+    let mut dispositions = Vec::new();
     for function in module.functions.values() {
-        collect_function_findings(function, &fields, &mut findings);
+        collect_function_dispositions(function, &fields, &mut dispositions);
     }
-    findings
+    dispositions
 }
 
 pub(crate) fn refresh_module_exact_numeric_runtime_check_contracts(
     module: &mut MirModule,
 ) -> usize {
-    let dynamic_sites: Vec<ExactNumericDynamicCheckSite> =
-        collect_exact_numeric_field_assignment_findings(module)
-            .into_iter()
-            .filter_map(|finding| match finding {
-                ExactNumericFieldAssignmentFinding::DynamicCheckRequired(site) => Some(site),
-                ExactNumericFieldAssignmentFinding::RangeViolation(_) => None,
-            })
-            .collect();
-
-    let mut inserted = 0usize;
-    for site in dynamic_sites {
-        let Some(function) = module.functions.get_mut(&site.function) else {
-            continue;
-        };
-        if has_runtime_check_contract(
-            function,
-            site.block,
-            site.instruction_index,
-            &site.field,
-            site.value,
-            &site.declared_type_name,
-        ) {
-            continue;
-        }
+    for function in module.functions.values_mut() {
         function
             .metadata
             .exact_numeric_runtime_check_contracts
-            .push(ExactNumericRuntimeCheckContract {
-                block: site.block,
-                instruction_index: site.instruction_index,
-                field: site.field,
-                value: site.value,
-                declared_type_name: site.declared_type_name,
-                kind: ExactNumericRuntimeCheckContractKind::DynamicIntegerRange,
-            });
-        inserted += 1;
+            .clear();
+        function
+            .metadata
+            .exact_numeric_field_contract_proofs
+            .clear();
+    }
+
+    let dispositions = collect_exact_numeric_field_contract_dispositions(module);
+
+    let mut inserted = 0usize;
+    for disposition in dispositions {
+        match disposition {
+            ExactNumericFieldContractDisposition::VerifierProofRequired(site) => {
+                let Some(function) = module.functions.get_mut(&site.proof.function) else {
+                    continue;
+                };
+                function
+                    .metadata
+                    .exact_numeric_field_contract_proofs
+                    .push(site.proof);
+            }
+            ExactNumericFieldContractDisposition::RuntimeCheckRequired(site) => {
+                let Some(function) = module.functions.get_mut(&site.function) else {
+                    continue;
+                };
+                function
+                    .metadata
+                    .exact_numeric_runtime_check_contracts
+                    .push(ExactNumericRuntimeCheckContract {
+                        block: site.block,
+                        instruction_index: site.instruction_index,
+                        field: site.field,
+                        value: site.value,
+                        declared_type_name: site.declared_type_name,
+                        kind: ExactNumericRuntimeCheckContractKind::DynamicIntegerRange,
+                    });
+                inserted += 1;
+            }
+            ExactNumericFieldContractDisposition::VerifierProven(_)
+            | ExactNumericFieldContractDisposition::RuntimeChecked(_)
+            | ExactNumericFieldContractDisposition::SemanticReject(_) => {}
+        }
     }
     inserted
 }
@@ -169,6 +221,9 @@ fn exact_numeric_field_decls(
     module: &MirModule,
 ) -> BTreeMap<(String, String), ExactNumericMirType> {
     let mut fields = BTreeMap::new();
+    if !exact_numeric_box_field_contract_is_active() {
+        return fields;
+    }
     let target = NumericTarget::host();
 
     for (box_name, decls) in &module.metadata.user_box_field_decls {
@@ -185,10 +240,10 @@ fn exact_numeric_field_decls(
     fields
 }
 
-fn collect_function_findings(
+fn collect_function_dispositions(
     function: &MirFunction,
     fields: &BTreeMap<(String, String), ExactNumericMirType>,
-    findings: &mut Vec<ExactNumericFieldAssignmentFinding>,
+    dispositions: &mut Vec<ExactNumericFieldContractDisposition>,
 ) {
     let object_defs = collect_object_defs(function);
     let integer_defs = collect_integer_defs(function);
@@ -215,7 +270,7 @@ fn collect_function_findings(
                     if let Err(error) = exact_numeric_value_from_dynamic_integer(integer_value, ty)
                     {
                         let range = ty.kind.value_range();
-                        findings.push(ExactNumericFieldAssignmentFinding::RangeViolation(
+                        dispositions.push(ExactNumericFieldContractDisposition::SemanticReject(
                             ExactNumericRangeViolationSite {
                                 function: function.signature.name.clone(),
                                 block: *block,
@@ -229,37 +284,104 @@ fn collect_function_findings(
                                 reason: exact_numeric_conversion_reason(error),
                             },
                         ));
-                    }
-                }
-                None => {
-                    if exact_numeric_type_requires_dynamic_integer_range_check(ty)
-                        && !has_runtime_check_contract(
+                    } else {
+                        let proof = exact_numeric_constant_proof(
                             function,
                             *block,
                             instruction_index,
                             field,
                             *value,
                             &ty.source_name,
-                        )
-                    {
-                        findings.push(ExactNumericFieldAssignmentFinding::DynamicCheckRequired(
-                            ExactNumericDynamicCheckSite {
-                                function: function.signature.name.clone(),
-                                block: *block,
-                                instruction_index,
-                                box_name,
-                                field: field.clone(),
-                                declared_type_name: ty.source_name.clone(),
-                                value: *value,
-                                producer: resolve_value_producer_label(*value, &value_producers),
-                                reason: "dynamic-integer-range-check-required".to_string(),
-                            },
-                        ));
+                        );
+                        if has_verifier_proof(function, &proof) {
+                            dispositions
+                                .push(ExactNumericFieldContractDisposition::VerifierProven(proof));
+                        } else {
+                            dispositions.push(
+                                ExactNumericFieldContractDisposition::VerifierProofRequired(
+                                    ExactNumericVerifierProofMissingSite {
+                                        proof,
+                                        box_name,
+                                        reason: "verifier-proof-missing".to_string(),
+                                    },
+                                ),
+                            );
+                        }
+                    }
+                }
+                None => {
+                    let site = ExactNumericDynamicCheckSite {
+                        function: function.signature.name.clone(),
+                        block: *block,
+                        instruction_index,
+                        box_name,
+                        field: field.clone(),
+                        declared_type_name: ty.source_name.clone(),
+                        value: *value,
+                        producer: resolve_value_producer_label(*value, &value_producers),
+                        reason: if exact_numeric_type_requires_dynamic_integer_range_check(ty) {
+                            "dynamic-type-and-range-check-required".to_string()
+                        } else {
+                            "dynamic-type-check-required".to_string()
+                        },
+                    };
+                    if has_runtime_check_contract(
+                        function,
+                        *block,
+                        instruction_index,
+                        field,
+                        *value,
+                        &ty.source_name,
+                    ) {
+                        dispositions
+                            .push(ExactNumericFieldContractDisposition::RuntimeChecked(site));
+                    } else {
+                        dispositions.push(
+                            ExactNumericFieldContractDisposition::RuntimeCheckRequired(site),
+                        );
                     }
                 }
             }
         }
     }
+}
+
+fn exact_numeric_constant_proof(
+    function: &MirFunction,
+    block: BasicBlockId,
+    instruction_index: usize,
+    field: &str,
+    value: ValueId,
+    expected_type: &str,
+) -> TypeContractProof {
+    TypeContractProof {
+        site_kind: TypeContractSiteKind::BoxFieldWrite,
+        function: function.signature.name.clone(),
+        block,
+        instruction_index,
+        field: field.to_string(),
+        value,
+        expected_type: expected_type.to_string(),
+        proof_kind: TypeContractProofKind::ExactNumericConstantInRange,
+    }
+}
+
+fn has_verifier_proof(function: &MirFunction, expected: &TypeContractProof) -> bool {
+    function
+        .metadata
+        .exact_numeric_field_contract_proofs
+        .iter()
+        .any(|proof| {
+            proof.proof_kind == expected.proof_kind
+                && proof.matches_box_field_site(
+                    &expected.function,
+                    expected.block,
+                    expected.instruction_index,
+                    &expected.field,
+                    expected.value,
+                    &expected.expected_type,
+                )
+        })
 }
 
 fn has_runtime_check_contract(
@@ -479,151 +601,4 @@ fn exact_numeric_conversion_reason(
 }
 
 #[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::mir::{EffectMask, FunctionSignature, MirFunction, MirModule, UserBoxFieldDecl};
-
-    fn module_with_numeric_field(declared_type_name: &str, function: MirFunction) -> MirModule {
-        let mut module = MirModule::new("test".to_string());
-        module.metadata.user_box_field_decls.insert(
-            "Page".to_string(),
-            vec![UserBoxFieldDecl {
-                name: "capacity".to_string(),
-                declared_type_name: Some(declared_type_name.to_string()),
-                is_weak: false,
-            }],
-        );
-        module.add_function(function);
-        module
-    }
-
-    fn field_set_param_value_function() -> MirFunction {
-        let signature = FunctionSignature {
-            name: "main".to_string(),
-            params: vec![MirType::Integer],
-            return_type: MirType::Void,
-            effects: EffectMask::PURE,
-        };
-        let entry = BasicBlockId::new(0);
-        let mut function = MirFunction::new(signature, entry);
-        let value_param = function.params[0];
-        let object = function.next_value_id();
-
-        let block = function.get_block_mut(entry).unwrap();
-        block.add_instruction(MirInstruction::NewBox {
-            dst: object,
-            box_type: "Page".to_string(),
-            args: vec![],
-        });
-        block.add_instruction(MirInstruction::FieldSet {
-            base: object,
-            field: "capacity".to_string(),
-            value: value_param,
-            declared_type: Some(MirType::Integer),
-        });
-        block.add_instruction(MirInstruction::Return { value: None });
-
-        function
-    }
-
-    #[test]
-    fn attaches_dynamic_integer_range_contract_for_usize_field_param_write() {
-        let mut module = module_with_numeric_field("usize", field_set_param_value_function());
-
-        assert_eq!(
-            refresh_module_exact_numeric_runtime_check_contracts(&mut module),
-            1
-        );
-
-        let function = module.get_function("main").unwrap();
-        assert_eq!(
-            function
-                .metadata
-                .exact_numeric_runtime_check_contracts
-                .len(),
-            1
-        );
-        let contract = &function.metadata.exact_numeric_runtime_check_contracts[0];
-        assert_eq!(contract.block, BasicBlockId::new(0));
-        assert_eq!(contract.instruction_index, 1);
-        assert_eq!(contract.field, "capacity");
-        assert_eq!(contract.value, ValueId::new(0));
-        assert_eq!(contract.declared_type_name, "usize");
-        assert_eq!(
-            contract.kind,
-            ExactNumericRuntimeCheckContractKind::DynamicIntegerRange
-        );
-    }
-
-    #[test]
-    fn does_not_attach_contract_when_dynamic_i64_field_covers_integer_lane() {
-        let mut module = module_with_numeric_field("i64", field_set_param_value_function());
-
-        assert_eq!(
-            refresh_module_exact_numeric_runtime_check_contracts(&mut module),
-            0
-        );
-
-        let function = module.get_function("main").unwrap();
-        assert!(function
-            .metadata
-            .exact_numeric_runtime_check_contracts
-            .is_empty());
-    }
-
-    #[test]
-    fn does_not_duplicate_existing_dynamic_integer_range_contract() {
-        let mut module = module_with_numeric_field("usize", field_set_param_value_function());
-
-        assert_eq!(
-            refresh_module_exact_numeric_runtime_check_contracts(&mut module),
-            1
-        );
-        assert_eq!(
-            refresh_module_exact_numeric_runtime_check_contracts(&mut module),
-            0
-        );
-
-        let function = module.get_function("main").unwrap();
-        assert_eq!(
-            function
-                .metadata
-                .exact_numeric_runtime_check_contracts
-                .len(),
-            1
-        );
-    }
-
-    #[test]
-    fn unsupported_backend_guard_allows_module_without_runtime_check_contracts() {
-        let module = module_with_numeric_field("i64", field_set_param_value_function());
-
-        assert!(enforce_exact_numeric_runtime_checks_supported(&module, "wasm").is_ok());
-    }
-
-    #[test]
-    fn unsupported_backend_guard_rejects_dynamic_range_contracts() {
-        let mut module = module_with_numeric_field("usize", field_set_param_value_function());
-        assert_eq!(
-            refresh_module_exact_numeric_runtime_check_contracts(&mut module),
-            1
-        );
-
-        let err = enforce_exact_numeric_runtime_checks_supported(&module, "wasm").unwrap_err();
-
-        assert!(err.contains(EXACT_NUMERIC_RUNTIME_CHECK_UNSUPPORTED_BACKEND_TAG));
-        assert!(err.contains("backend=wasm"));
-        assert!(err.contains("contracts=1"));
-    }
-
-    #[test]
-    fn backend_guard_accepts_ny_llvmc_exe_runtime_check_lowering() {
-        let mut module = module_with_numeric_field("usize", field_set_param_value_function());
-        assert_eq!(
-            refresh_module_exact_numeric_runtime_check_contracts(&mut module),
-            1
-        );
-
-        assert!(enforce_exact_numeric_runtime_checks_supported(&module, "ny-llvmc-exe").is_ok());
-    }
-}
+mod tests;
