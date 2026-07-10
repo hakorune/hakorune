@@ -40,9 +40,10 @@ latest_workstream_card = "docs/development/current/main/workstreams/language-v1-
 latest_card = "LANGV1-GRAMMAR-REMAINING-SURFACE-CONTRACT-DESIGN-STOP-001"
 latest_card_path = "docs/development/current/main/phases/phase-296x/3477-LANGV1-GRAMMAR-REMAINING-SURFACE-CONTRACT-DESIGN-STOP-001.md"
 latest_card_summary = """3477 records that the green 22-row corpus is not
-exhaustive and asks one consolidated decision for loop compatibility, weak
-spellings, record rows, and the closed literal set before one implementation
-card expands the registry and both parser witnesses."""
+exhaustive and asks one consolidated decision for remaining surfaces plus a
+physical registry split, profile-source deduplication, generated parser-support
+evidence, recursive witness depth, and a bounded differential composition gate
+before one implementation series expands and closes the grammar contract."""
 
 current_blocker_token = "LANGV1-GRAMMAR-REMAINING-SURFACE-CONTRACT-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

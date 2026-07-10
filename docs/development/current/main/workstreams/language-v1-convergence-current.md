@@ -271,7 +271,8 @@ Q5 audit complete in 3476:
   current 22-row corpus = green
   LANGV1-GRAMMAR-001 closeout = disproved by missing loops/weak/records/literals
 Q5 decision active in 3477:
-  classify remaining surfaces, then use one registry/corpus/adapter implementation card
+  classify remaining surfaces and normalize the registry representation
+  then use one registry/corpus/adapter refactor-and-expansion series
 ```
 
 Q2-Q4 may be reviewed in the same consultation packet, but their code deltas
