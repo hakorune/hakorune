@@ -12,15 +12,16 @@ Related:
   - docs/development/current/main/design/language-minimal-surface-task-breakdown-ssot.md
   - docs/development/current/main/workstreams/language-v1-convergence-current.md
   - docs/reference/language/semantic-contract-charter.md
+  - docs/reference/language/semantic-kernel.md
   - docs/reference/language/block-expressions-and-map-literals.md
   - docs/development/current/main/20-Decisions.md
 ---
 
 # Selfhost Language v1 Freeze (SSOT)
 
-Language v1 is governed by the accepted semantic contract charter. The next
-semantic-kernel row is a design consultation stop; this freeze SSOT does not
-authorize implementation before that decision.
+Language v1 is governed by the accepted semantic contract charter and semantic
+kernel. The active evaluated-Place card is the only authorized kernel
+implementation slice.
 
 ## Goal
 

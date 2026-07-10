@@ -9,6 +9,7 @@ protocol for Hakorune language v1.
 Related:
 
 - `docs/development/current/main/workstreams/language-v1-convergence-current.md`
+- `docs/reference/language/semantic-kernel.md`
 - `docs/development/current/main/design/selfhost-language-v1-freeze-ssot.md`
 - `docs/reference/language/EBNF.md`
 - `docs/reference/language/types.md`
@@ -60,8 +61,8 @@ macro row lands.
 The following order resolves conflicts.
 
 1. This charter owns cross-cutting laws and the change protocol only.
-2. `semantic-kernel.md` will own evaluation, Outcome, Place, cleanup, and
-   sugar equivalence once `LANGV1-SEMANTIC-KERNEL-001` is accepted.
+2. `semantic-kernel.md` owns evaluation, Outcome, Place, cleanup, and sugar
+   equivalence for Canonical v1.
 3. `EBNF.md` owns canonical grammar. The future grammar registry may generate
    EBNF/support views but must not generate parser implementations.
 4. Topic SSOTs own their declared semantics: `types.md`, `lifecycle.md`,
@@ -74,9 +75,9 @@ The following order resolves conflicts.
 7. Historical, archive, investigation, and compatibility notes have no
    canonical authority.
 
-Until `semantic-kernel.md` exists, topic SSOTs remain the semantic authority
-under this charter. The charter does not retroactively settle their open
-contradictions.
+Topic SSOTs retain ownership outside the semantic-kernel scope. A conflict with
+the kernel is resolved by this precedence order, not by current implementation
+behavior.
 
 ## Compatibility Contract
 
@@ -116,7 +117,7 @@ sugar row must use the semantic-kernel contract once it is available.
 
 ```text
 charter = active and normative
-semantic kernel = design consultation next
+semantic kernel = accepted; evaluated-Place implementation active
 grammar registry = queued
 type contract activation = queued
 failure/null migration = queued

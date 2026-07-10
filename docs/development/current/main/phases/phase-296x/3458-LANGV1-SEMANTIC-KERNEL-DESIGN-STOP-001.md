@@ -2,8 +2,8 @@
 
 ## Status
 
-Design consultation stop. Do not implement parser, MIR, runtime, verifier, or
-backend changes from this card.
+Decision accepted. This card records the consultation closeout; implementation
+is authorized only by `LANGV1-EVALUATED-PLACE-COMPOUND-ASSIGN-001`.
 
 ## Established Basis
 
@@ -12,7 +12,7 @@ exposes a concrete current risk: compound assignment clones an lvalue AST into
 both the assignment target and read expression. Index and field receiver
 sub-expressions can therefore be evaluated more than once.
 
-## Decision Required
+## Accepted Decision
 
 Choose the Language v1 semantic kernel for:
 
@@ -30,32 +30,17 @@ Place:
   Index(base_once, index_once)
 ```
 
-The decision must answer all of these before implementation:
+Decision A is accepted and is now normative in
+`docs/reference/language/semantic-kernel.md`:
 
-1. Exact source-order for compound assignment: Place evaluation, old-value
-   read, RHS evaluation, operator application, store.
-2. Whether `Fault` can be caught, and cleanup precedence when body and cleanup
-   both produce non-Normal outcomes.
-3. Whether `Break`/`Continue` need labels or depth in the v1 kernel.
-4. `guard let ... else` rule: require `NoFallthrough` outcome rather than a
-   broad static `Never` type, or choose a different contract.
-5. Canonical normal form boundary: semantic operations over values/Places,
-   rather than AST text rewriting.
-
-## Candidate Decisions
-
-```text
-A: five-Outcome kernel + Place + NoFallthrough
-   Fault is non-catchable in Canonical mode; cleanup runs and a cleanup Fault
-   wins after required remaining cleanup.
-
-B: five-Outcome kernel + Place + explicit catchable Fault subset
-   Requires a closed Fault taxonomy and catch boundary in this same decision.
-
-C: defer Outcome/Fault distinction and fix compound assignment locally
-   Rejected unless the Constitution is amended: it leaves evaluation and
-   cleanup semantics without one owner.
-```
+1. Compound assignment is `EvalPlace -> ReadPlace -> EvalRhs -> Apply ->
+   WritePlace`.
+2. Canonical `Fault` is non-catchable; cleanup always runs and the first
+   cleanup Fault wins after remaining cleanup runs.
+3. `Break` and `Continue` target the nearest loop; labels/depth are deferred.
+4. `guard let ... else` requires `NoFallthrough`, not a public `Never` type.
+5. Canonical normal form uses semantic Value/Place/Outcome operations, not AST
+   text rewriting.
 
 ## Source Authority
 
@@ -88,7 +73,7 @@ no AST text substitution as semantic proof
 no runtime/backend fallback for an unmodeled Outcome
 ```
 
-## Implementation Slice After Decision
+## Authorized Implementation Slice
 
 One semantic slice only:
 
@@ -102,10 +87,11 @@ unsupported backend rejects before store
 ## Non-Claims
 
 ```text
+semantic_kernel_decision_accepted = 1
+compound_assignment_implementation_authorized = 1
 semantic_kernel_implemented = 0
 compound_assignment_fix = 0
-fault_taxonomy_finalized = 0
-catch_policy_finalized = 0
+canonical_fault_catchable = 0
 type_contract_activation = 0
 null_migration = 0
 ownership_policy_change = 0

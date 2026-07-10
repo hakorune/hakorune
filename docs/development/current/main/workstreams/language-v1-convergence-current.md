@@ -73,7 +73,7 @@ language laws:
   docs/reference/language/semantic-contract-charter.md (accepted)
 
 semantic kernel:
-  docs/reference/language/semantic-kernel.md (future after 3458 decision)
+  docs/reference/language/semantic-kernel.md (accepted)
 
 canonical grammar:
   grammar registry -> generated EBNF/support views
@@ -94,8 +94,8 @@ product proof:
   EXE/AOT plus fail-fast backend preflight
 ```
 
-The charter is current truth. The semantic-kernel reference path is a future
-deliverable and has no authority until its owning row lands.
+The charter and semantic kernel are current truth. The active card implements
+only the evaluated-Place compound-assignment slice of that kernel.
 
 ## Confirmed Starting Gaps
 
@@ -152,11 +152,12 @@ compatibility_requires_explicit_profile = 1
 runtime_behavior_changed = 0
 ```
 
-Next: `LANGV1-SEMANTIC-KERNEL-DESIGN-STOP-001`.
+Next: `LANGV1-EVALUATED-PLACE-COMPOUND-ASSIGN-001`.
 
 ### 1. LANGV1-SEMANTIC-KERNEL-001
 
-Status: current design consultation as 3458. No implementation may start.
+Status: decision accepted as 3458; evaluated-Place implementation active as
+3459.
 
 Decision surface:
 
@@ -202,7 +203,8 @@ compound_assignment_ast_clone = 0
 guard_else_no_fallthrough = 1
 ```
 
-Next: `LANGV1-GRAMMAR-001`.
+Current implementation: `LANGV1-EVALUATED-PLACE-COMPOUND-ASSIGN-001`.
+Advance to `LANGV1-GRAMMAR-001` only after this semantic slice closes.
 
 ### 2. LANGV1-GRAMMAR-001
 
@@ -431,7 +433,7 @@ selfhost_migration_unparked = 1
 ## Current Front
 
 ```text
-current = LANGV1-SEMANTIC-KERNEL-DESIGN-STOP-001
-next = accepted semantic-kernel decision
+current = LANGV1-EVALUATED-PLACE-COMPOUND-ASSIGN-001
+next = evaluated Place compound-assignment evidence
 parked_resume = MIRBUILDER-MAPSTORE-ROUTE-POLICY-KEY-VALUE-DOMAIN-BOXSHAPE-001
 ```
