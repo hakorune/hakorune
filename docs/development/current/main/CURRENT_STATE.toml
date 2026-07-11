@@ -43,8 +43,9 @@ seven-type exact-numeric subset, one-lock mutation, VM-only support, and no
 check elision. 3499 closes all seven source boundaries, atomic state adoption,
 checked mutation, one VM consumer, JSON transport, and non-VM fail-fast. 3500
 accepts A + W1 + S1 + R1 with an atomic owner and thin VM-reference adapter.
-3501 corrects WeakRef token equality and Dead/Freed upgrade law before Weak
-field storage activation."""
+3501 closes WeakRef token equality and Dead/Freed upgrade law. 3502 now owns
+source Weak field specs, declaration-indexed slots, explicit writes, refresh,
+runtime convergence, JSON, and backend fail-fast."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
@@ -52,13 +53,13 @@ method_anchor = "docs/development/current/main/design/selfhost-language-v1-freez
 taskboard = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 
-latest_card = "LANGV1-WEAKREF-VALUE-LAW-CORRECTIVE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3501-LANGV1-WEAKREF-VALUE-LAW-CORRECTIVE-001.md"
-latest_card_summary = """3501 corrects WeakRef stable target-token equality,
-Dead/Freed upgrade behavior, and WeakRef.Load input law without activating Weak
-field contracts or widening the retired VM product lane."""
+latest_card = "LANGV1-WEAK-FIELD-CONTRACT-OWNER-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3502-LANGV1-WEAK-FIELD-CONTRACT-OWNER-001.md"
+latest_card_summary = """3502 implements the accepted WeakFieldContractOwner,
+explicit WeakFieldWrite, declaration-indexed weak slots, alias-complete runtime
+enforcement, refreshed transport, and non-VM backend fail-fast."""
 
-current_blocker_token = "LANGV1-WEAKREF-VALUE-LAW-CORRECTIVE-001"
+current_blocker_token = "LANGV1-WEAK-FIELD-CONTRACT-OWNER-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -67,6 +68,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-11: 3501 closes stable WeakRef token equality, logical Dead/Freed upgrade, strict WeakRef.Load, and keeps Weak field activation at zero; 3502 becomes active.",
   "2026-07-11: 3500 accepts WeakFieldContractOwner + WeakFieldWrite + declaration-indexed weak slots + unified-absence reads; 3501 opens the prerequisite WeakRef value-law corrective.",
   "2026-07-11: 3499 closes seven-boundary typed Array exact-numeric state contracts; 3500 opens Weak field contract design.",
   "2026-07-11: 3498 accepts annotation-only invariant typed Array state contracts and VM-only exact-numeric scope; 3499 becomes active.",
@@ -78,5 +80,4 @@ landed_tail = [
   "2026-07-11: 3492 closes one function-entry BindingId owner, assignment exception retirement, source fixtures, FULL 12/12 parity, and changed-path gate coupling; 3493 becomes active.",
   "2026-07-11: 3491 selects record construction/update under RecordValueContractOwner; 3493 is queued behind the active 3492 FULL-gate prerequisite.",
   "2026-07-11: FULL differential composition exposes an instance-parameter BindingId gap; 3492 opens a stop-the-line identity corrective before 3491 resumes.",
-  "2026-07-11: 3490 closes the four-owner exact-numeric island and shared runtime checker; 3491 opens record-vs-typed-Array type-family selection.",
 ]

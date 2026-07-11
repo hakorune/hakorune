@@ -2,8 +2,8 @@
 
 ## Status
 
-Active implementation card. This lifecycle value-law corrective is a hard
-prerequisite for Weak field contract activation.
+Done. The lifecycle value-law corrective is green and the Weak field contract
+prerequisite is closed.
 
 ## Goal
 
@@ -108,4 +108,27 @@ selfhost_claim = 0
 
 ```text
 3502 - LANGV1-WEAK-FIELD-CONTRACT-OWNER-001
+```
+
+## Closeout
+
+```text
+weakref_target_token_owner = runtime::weak_ref_value
+same_dead_target_equality = 1
+different_dead_target_equality = 0
+dead_weakref_equals_void = 0
+logical_dead_upgrade_returns_void = 1
+weakref_load_void_total_case = 1
+weakref_load_nonweak_reject = 1
+weak_field_contract_activation = 0
+vm_product_route_widened = 0
+```
+
+Validation:
+
+```text
+cargo test --features vm-reference weak_load --no-fail-fast
+cargo test --features vm-reference weak_ref --no-fail-fast
+cargo test --features vm-reference \
+  eq_vm_uses_weak_target_tokens_after_drop --no-fail-fast
 ```

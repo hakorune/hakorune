@@ -191,13 +191,8 @@ impl PartialEq for VMValue {
             (VMValue::Void, VMValue::Void) => true,
             (VMValue::Future(_), VMValue::Future(_)) => false,
             (VMValue::BoxRef(_), VMValue::BoxRef(_)) => false,
-            // Phase 285A0: WeakBox equality (compare by pointer if both alive)
             (VMValue::WeakBox(a), VMValue::WeakBox(b)) => {
-                match (a.upgrade(), b.upgrade()) {
-                    (Some(arc_a), Some(arc_b)) => Arc::ptr_eq(&arc_a, &arc_b),
-                    (None, None) => true, // Both dropped
-                    _ => false,
-                }
+                crate::runtime::weak_ref_value::target_token_eq(a, b)
             }
             _ => false,
         }
@@ -229,8 +224,7 @@ impl VMValue {
             VMValue::Void => Box::new(VoidBox::new()),
             VMValue::BoxRef(arc_box) => arc_box.share_box(),
             VMValue::WeakBox(weak) => {
-                // Upgrade or return void if dropped
-                if let Some(arc) = weak.upgrade() {
+                if let Some(arc) = crate::runtime::weak_ref_value::upgrade_usable_target(weak) {
                     arc.share_box()
                 } else {
                     Box::new(VoidBox::new())
@@ -251,10 +245,10 @@ impl VMValue {
             VMValue::Void => "void".to_string(),
             VMValue::BoxRef(arc_box) => arc_box.to_string_box().value,
             VMValue::WeakBox(weak) => {
-                if weak.upgrade().is_some() {
+                if crate::runtime::weak_ref_value::upgrade_usable_target(weak).is_some() {
                     "WeakRef(alive)".to_string()
                 } else {
-                    "WeakRef(dropped)".to_string()
+                    "WeakRef(dead)".to_string()
                 }
             }
         }
@@ -270,12 +264,15 @@ impl VMValue {
     }
 
     /// Phase 285A0: Upgrade a weak reference to a strong BoxRef
-    /// Returns Some(BoxRef) if target is alive, None if dropped
+    /// Returns Some(BoxRef) only while the target is logically usable.
+    /// Void remains a total empty-slot composition case; other inputs reject.
     pub fn upgrade_weak(&self) -> Option<VMValue> {
         match self {
-            VMValue::WeakBox(weak) => weak.upgrade().map(VMValue::BoxRef),
-            // Non-weak values: return self (already strong)
-            _ => Some(self.clone()),
+            VMValue::WeakBox(weak) => {
+                crate::runtime::weak_ref_value::upgrade_usable_target(weak).map(VMValue::BoxRef)
+            }
+            VMValue::Void => Some(VMValue::Void),
+            _ => None,
         }
     }
 

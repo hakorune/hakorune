@@ -243,14 +243,8 @@ impl PartialEq for NyashValue {
             (NyashValue::Map(a), NyashValue::Map(b)) => Arc::ptr_eq(a, b),
             (NyashValue::Box(a), NyashValue::Box(b)) => Arc::ptr_eq(a, b),
 
-            // Weak reference equality
             (NyashValue::WeakBox(a), NyashValue::WeakBox(b)) => {
-                // Compare if they point to the same object (if both still alive)
-                match (a.upgrade(), b.upgrade()) {
-                    (Some(arc_a), Some(arc_b)) => Arc::ptr_eq(&arc_a, &arc_b),
-                    (None, None) => true, // Both dropped, consider equal
-                    _ => false,           // One dropped, one alive
-                }
+                crate::runtime::weak_ref_value::target_token_eq(a, b)
             }
 
             // WeakBox vs Box comparison (upgrade weak, then compare)

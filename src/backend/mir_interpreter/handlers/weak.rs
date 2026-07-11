@@ -51,9 +51,91 @@ impl MirInterpreter {
         weak_ref: ValueId,
     ) -> Result<(), VMError> {
         let weak_value = self.reg_load(weak_ref)?;
-        // upgrade_weak() が None を返した場合は Void（null）
-        let result = weak_value.upgrade_weak().unwrap_or(VMValue::Void);
+        let result = match weak_value {
+            VMValue::WeakBox(_) => weak_value.upgrade_weak().unwrap_or(VMValue::Void),
+            VMValue::Void => VMValue::Void,
+            other => {
+                return Err(self.err_invalid(format!(
+                    "{} actual={:?}",
+                    crate::runtime::weak_ref_value::WEAKREF_LOAD_INVALID_INPUT_TAG,
+                    other
+                )))
+            }
+        };
         self.write_reg(dst, result);
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::box_trait::NyashBox;
+    use std::collections::HashMap;
+    use std::sync::Arc;
+
+    #[test]
+    fn weak_load_keeps_void_total_case() {
+        let mut vm = MirInterpreter::new();
+        let source = ValueId::new(1);
+        let result = ValueId::new(2);
+        vm.regs.insert(source, VMValue::Void);
+
+        vm.handle_weak_load(result, source)
+            .expect("Void should load");
+
+        assert_eq!(vm.regs.get(&result), Some(&VMValue::Void));
+    }
+
+    #[test]
+    fn weak_load_rejects_non_weak_values() {
+        let mut vm = MirInterpreter::new();
+        let source = ValueId::new(1);
+        vm.regs.insert(source, VMValue::Integer(42));
+
+        let error = vm
+            .handle_weak_load(ValueId::new(2), source)
+            .expect_err("Integer must not pass WeakRef.Load");
+
+        assert!(error
+            .to_string()
+            .contains(crate::runtime::weak_ref_value::WEAKREF_LOAD_INVALID_INPUT_TAG));
+    }
+
+    #[test]
+    fn weak_load_rejects_strong_box_values() {
+        let mut vm = MirInterpreter::new();
+        let source = ValueId::new(1);
+        let strong: Arc<dyn NyashBox> = Arc::new(crate::box_trait::IntegerBox::new(42));
+        vm.regs.insert(source, VMValue::BoxRef(strong));
+
+        let error = vm
+            .handle_weak_load(ValueId::new(2), source)
+            .expect_err("strong BoxRef must not pass WeakRef.Load");
+
+        assert!(error
+            .to_string()
+            .contains(crate::runtime::weak_ref_value::WEAKREF_LOAD_INVALID_INPUT_TAG));
+    }
+
+    #[test]
+    fn weak_load_rejects_logically_finalized_target() {
+        let instance = Arc::new(crate::instance_v2::InstanceBox::from_declaration(
+            "FinalizedTarget".to_string(),
+            Vec::new(),
+            HashMap::new(),
+        ));
+        let target: Arc<dyn NyashBox> = instance.clone();
+        let weak = Arc::downgrade(&target);
+        instance.fini().expect("fini should succeed");
+
+        let mut vm = MirInterpreter::new();
+        let source = ValueId::new(1);
+        let result = ValueId::new(2);
+        vm.regs.insert(source, VMValue::WeakBox(weak));
+        vm.handle_weak_load(result, source)
+            .expect("dead upgrade should return Void");
+
+        assert_eq!(vm.regs.get(&result), Some(&VMValue::Void));
     }
 }

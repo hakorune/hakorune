@@ -65,6 +65,7 @@ pub mod unified_registry;
 // Phase 285LLVM-1: WeakRef Handle レジストリ（bit 63 = 1）
 // Phase 12: TypeId→TypeBox 解決（雛形） / env.modules minimal registry
 pub mod weak_handles;
+pub mod weak_ref_value;
 
 #[cfg(test)]
 mod tests;

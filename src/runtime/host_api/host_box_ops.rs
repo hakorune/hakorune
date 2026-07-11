@@ -17,10 +17,12 @@ fn vmvalue_to_box(value: VMValue) -> Box<dyn NyashBox> {
         VMValue::String(s) => Box::new(crate::box_trait::StringBox::new(s)),
         VMValue::BoxRef(b) => b.share_box(),
         VMValue::Future(future_box) => Box::new(future_box),
-        VMValue::WeakBox(weak_box) => match weak_box.upgrade() {
-            Some(strong_ref) => strong_ref.share_box(),
-            None => Box::new(VoidBox::new()),
-        },
+        VMValue::WeakBox(weak_box) => {
+            match crate::runtime::weak_ref_value::upgrade_usable_target(&weak_box) {
+                Some(strong_ref) => strong_ref.share_box(),
+                None => Box::new(VoidBox::new()),
+            }
+        }
         VMValue::Void => Box::new(VoidBox::new()),
     }
 }

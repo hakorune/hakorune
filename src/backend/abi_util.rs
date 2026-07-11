@@ -85,16 +85,7 @@ pub fn eq_vm(a: &VMValue, b: &VMValue) -> bool {
                     .downcast_ref::<crate::boxes::missing_box::MissingBox>()
                     .is_some()
         }
-        // Phase 285A0: WeakBox equality
-        (WeakBox(wa), WeakBox(wb)) => {
-            match (wa.upgrade(), wb.upgrade()) {
-                (Some(arc_a), Some(arc_b)) => Arc::ptr_eq(&arc_a, &arc_b),
-                (None, None) => true, // Both dropped
-                _ => false,
-            }
-        }
-        // WeakBox == Void when dropped
-        (WeakBox(w), Void) | (Void, WeakBox(w)) => w.upgrade().is_none(),
+        (WeakBox(wa), WeakBox(wb)) => crate::runtime::weak_ref_value::target_token_eq(wa, wb),
         _ => false,
     }
 }
@@ -109,6 +100,7 @@ pub fn tag_of_vm(v: &VMValue) -> &'static str {
 mod tests {
     use super::*;
     use crate::backend::vm_types::ExactNumericRuntimeValue;
+    use crate::box_trait::NyashBox;
 
     #[test]
     fn eq_vm_accepts_exact_numeric_and_dynamic_integer_same_value() {
@@ -118,5 +110,21 @@ mod tests {
         assert!(eq_vm(&exact, &dynamic));
         assert!(eq_vm(&dynamic, &exact));
         assert!(!eq_vm(&exact, &VMValue::Integer(63)));
+    }
+
+    #[test]
+    fn eq_vm_uses_weak_target_tokens_after_drop() {
+        let first: Arc<dyn NyashBox> = Arc::new(IntegerBox::new(1));
+        let second: Arc<dyn NyashBox> = Arc::new(IntegerBox::new(2));
+        let first_weak = Arc::downgrade(&first);
+        let first_alias = Arc::downgrade(&first);
+        let second_weak = Arc::downgrade(&second);
+        drop(first);
+        drop(second);
+
+        let first = VMValue::WeakBox(first_weak);
+        assert!(eq_vm(&first, &VMValue::WeakBox(first_alias)));
+        assert!(!eq_vm(&first, &VMValue::WeakBox(second_weak)));
+        assert!(!eq_vm(&first, &VMValue::Void));
     }
 }
