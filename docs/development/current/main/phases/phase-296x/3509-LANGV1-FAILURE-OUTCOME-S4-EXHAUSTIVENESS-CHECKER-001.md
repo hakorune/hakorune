@@ -58,3 +58,16 @@ git diff --check
 If a guard would need to choose a semantic class or owner for a pending row,
 stop at a focused design consultation. The checker may reject or preserve
 pending; it may not guess.
+
+## Implementation Closeout
+
+The checker and mutation tests are landed. The clean inventory report is:
+
+```text
+result = pass
+missing_argument_zero.pending = 0
+semantic_activation = 0
+```
+
+The next slice is the S5 conflict ledger closeout. It remains documentation
+and query tooling only; no semantic activation is implied.

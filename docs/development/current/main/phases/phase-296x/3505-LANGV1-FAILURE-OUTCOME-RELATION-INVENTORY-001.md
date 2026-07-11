@@ -16,8 +16,8 @@ S1_source_evidence_queue = complete
 S1_semantic_classification = complete
 S2_runtime_provider_inventory = complete
 S3_control_flow_inventory = complete
-S4_exhaustiveness_checker = implementation_in_progress
-S5_conflict_ledger_closeout = pending
+S4_exhaustiveness_checker = complete
+S5_conflict_ledger_closeout = implementation_in_progress
 ```
 
 The accepted owner-boundary consultation is recorded in
@@ -25,9 +25,10 @@ The accepted owner-boundary consultation is recorded in
 The accepted S2 source-owner decision opened
 `3507-LANGV1-FAILURE-OUTCOME-S2-PROJECTION-BINDING-001` as the projection
 binding implementation slice; that slice is complete.
-The S2 runtime/provider inventory, projection binding, and S3 control-flow
-evidence inventory are complete. The next active slice is
-`docs/development/current/main/phases/phase-296x/3509-LANGV1-FAILURE-OUTCOME-S4-EXHAUSTIVENESS-CHECKER-001.md`.
+The S2 runtime/provider inventory, projection binding, S3 control-flow
+evidence inventory, and S4 exhaustiveness checker are complete. The next
+active slice is
+`docs/development/current/main/phases/phase-296x/3510-LANGV1-FAILURE-OUTCOME-S5-CONFLICT-LEDGER-CLOSEOUT-001.md`.
 S1 graph artifacts are the identity source; S2 changes inventory
 tooling/manifests only and runtime activation remains zero.
 
@@ -306,12 +307,13 @@ not independently establish semantic ownership.
 ## Next Task
 
 ```text
-LANGV1-FAILURE-OUTCOME-S4-EXHAUSTIVENESS-CHECKER-001
+LANGV1-FAILURE-OUTCOME-S5-CONFLICT-LEDGER-CLOSEOUT-001
 ```
 
-Run one deterministic checker over the landed Failure/Outcome manifests. The
-slice may add only guard/report tooling; it may not change parser/runtime
-behavior. Any semantic owner ambiguity remains a focused consultation stop.
+Make the known Failure/Outcome contradictions queryable and run the complete
+inventory closeout gates. The slice may add only docs/report tooling; it may
+not change parser/runtime behavior. Any semantic owner ambiguity remains a
+focused design consultation stop.
 
 ## Post-Foundation Queued Follow-Up
 

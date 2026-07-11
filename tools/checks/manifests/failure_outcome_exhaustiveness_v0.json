@@ -1,0 +1,18 @@
+{
+  "errors": [],
+  "missing_argument_zero": {
+    "baseline": 0,
+    "pending": 0,
+    "previous": 0
+  },
+  "result": "pass",
+  "schema_version": 0,
+  "semantic_activation": 0,
+  "source_manifests": [
+    "tools/checks/manifests/failure_outcome_semantic_site_graph_v0.json",
+    "tools/checks/manifests/failure_outcome_projection_binding_v0.json",
+    "tools/checks/manifests/failure_outcome_runtime_provider_inventory_v0.json",
+    "tools/checks/manifests/failure_outcome_control_flow_inventory_v0.json"
+  ],
+  "status": "failure_outcome_exhaustiveness"
+}

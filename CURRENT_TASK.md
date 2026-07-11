@@ -26,9 +26,10 @@ When `current_blocker_token` contains `DESIGN-STOP`, do not invent a new executa
 ## Handoff
 
 The accepted Failure/Outcome owner-boundary consultation, S1 semantic-site
-graph, S2 projection binding, S2 runtime/provider evidence inventory, and S3
-control-flow evidence inventory are complete. The next task is
-`LANGV1-FAILURE-OUTCOME-S4-EXHAUSTIVENESS-CHECKER-001`. Read
-`docs/development/current/main/phases/phase-296x/3509-LANGV1-FAILURE-OUTCOME-S4-EXHAUSTIVENESS-CHECKER-001.md`.
+graph, S2 projection binding, S2 runtime/provider evidence inventory, S3
+control-flow evidence inventory, and S4 exhaustiveness checker are complete.
+The next task is
+`LANGV1-FAILURE-OUTCOME-S5-CONFLICT-LEDGER-CLOSEOUT-001`. Read
+`docs/development/current/main/phases/phase-296x/3510-LANGV1-FAILURE-OUTCOME-S5-CONFLICT-LEDGER-CLOSEOUT-001.md`.
 This remains inventory-only: semantic activation and runtime behavior stay at
 zero.
