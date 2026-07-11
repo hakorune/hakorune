@@ -53,8 +53,30 @@ candidate status = closed
 tracked external reference = 0
 ```
 
+The shared `phase_card_path` resolver owns live/archive lookup. Phase 293x
+keeps its bucketed archive compatibility wrapper; phase 296x resolves its
+existing flat `archive/` layout.
+
 Each batch stops on any unresolved reference, pointer drift, docs-slim failure,
 or `dev_gate quick` failure. Only the current batch is reverted.
+
+## H1 Batch Ledger
+
+```text
+batch-001:
+  moved = 200
+  phase_direct = 2123 -> 1923
+  phase_archive = 1425 -> 1625
+  inventory_strict = green
+  current_state_pointer_guard = green
+  docs_slim_archive_policy_guard = green
+  dev_gate_quick = green
+
+next:
+  H1-BATCH-002
+  maximum = 200
+  source = regenerated archive_candidates
+```
 
 ## Non-Claims
 

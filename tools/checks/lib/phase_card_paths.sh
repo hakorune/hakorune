@@ -1,6 +1,51 @@
 #!/usr/bin/env bash
 # phase_card_paths.sh - helpers for phase card path lookup during archive moves.
 
+phase_card_path() {
+  local phase="$1"
+  local filename="$2"
+  local phase_dir="docs/development/current/main/phases/phase-$phase"
+  local live_path="$phase_dir/$filename"
+
+  if [[ -f "$live_path" ]]; then
+    echo "$live_path"
+    return 0
+  fi
+
+  if [[ "$phase" == "293x" ]]; then
+    local bucket
+    if ! bucket="$(phase293x_card_bucket "$filename")"; then
+      return 1
+    fi
+    local bucketed_path="$phase_dir/archive/cards/$bucket/$filename"
+    if [[ -f "$bucketed_path" ]]; then
+      echo "$bucketed_path"
+      return 0
+    fi
+  fi
+
+  local archive_path="$phase_dir/archive/$filename"
+  if [[ -f "$archive_path" ]]; then
+    echo "$archive_path"
+    return 0
+  fi
+
+  return 1
+}
+
+guard_require_phase_card() {
+  local tag="$1"
+  local phase="$2"
+  local filename="$3"
+  local path
+
+  if ! path="$(phase_card_path "$phase" "$filename")"; then
+    guard_fail "$tag" "phase-$phase card not found in live root or archive: $filename"
+  fi
+
+  echo "$path"
+}
+
 phase293x_card_bucket() {
   local filename="$1"
   local number="${filename#293x-}"
@@ -30,36 +75,11 @@ phase293x_card_bucket() {
 
 phase293x_card_path() {
   local filename="$1"
-  local phase_dir="docs/development/current/main/phases/phase-293x"
-  local live_path="$phase_dir/$filename"
-
-  if [[ -f "$live_path" ]]; then
-    echo "$live_path"
-    return 0
-  fi
-
-  local bucket
-  if ! bucket="$(phase293x_card_bucket "$filename")"; then
-    return 1
-  fi
-
-  local archive_path="$phase_dir/archive/cards/$bucket/$filename"
-  if [[ -f "$archive_path" ]]; then
-    echo "$archive_path"
-    return 0
-  fi
-
-  return 1
+  phase_card_path "293x" "$filename"
 }
 
 guard_require_phase293x_card() {
   local tag="$1"
   local filename="$2"
-  local path
-
-  if ! path="$(phase293x_card_path "$filename")"; then
-    guard_fail "$tag" "phase-293x card not found in live root or archive: $filename"
-  fi
-
-  echo "$path"
+  guard_require_phase_card "$tag" "293x" "$filename"
 }
