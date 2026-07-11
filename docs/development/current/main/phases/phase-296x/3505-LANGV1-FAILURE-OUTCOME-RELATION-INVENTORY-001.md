@@ -2,8 +2,9 @@
 
 ## Status
 
-Parked implementation task. It may start only after the repository artifact
-lifecycle C2 blocker is resolved. This card changes no parser, grammar
+Active implementation task. Repository artifact lifecycle C2 classification is
+resolved for the deterministic rows; 77 consultation rows remain
+warning-unregistered and C3 movement is deferred. This card changes no parser, grammar
 profile, MIR operation, runtime value carrier, VM behavior, cleanup behavior,
 or backend lowering.
 

@@ -1696,18 +1696,18 @@
         "whole_phase_unreachable": false
       }
     ],
-    "reachable_count": 4943,
-    "root_count": 3665,
+    "reachable_count": 4938,
+    "root_count": 3663,
     "root_policy": "active-entry+phase296x-direct+design-authority+reference+src-tools",
     "root_seed_counts": {
       "active_phase_296x_direct": 1032,
-      "current_pointer": 4,
+      "current_pointer": 3,
       "design_authority": 257,
       "fixed_current_entry": 4,
       "reference_src_tools": 3042
     },
-    "unreachable_count": 3335,
-    "unreachable_pending_count": 1738,
+    "unreachable_count": 3340,
+    "unreachable_pending_count": 1743,
     "whole_phase_unreachable": [],
     "whole_phase_unreachable_count": 0,
     "whole_phase_unreachable_files": 0
@@ -3376,10 +3376,10 @@
         "total_files": 159
       },
       {
-        "current_pointer": false,
+        "current_pointer": true,
         "direct_files": 1032,
         "eligible_for_whole_phase_archive": false,
-        "external_reference_count": 1376,
+        "external_reference_count": 1377,
         "phase": "phase-296x",
         "status": "other_or_missing",
         "status_source": "docs/development/current/main/phases/phase-296x/STATUS.md",

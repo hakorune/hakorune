@@ -8,9 +8,11 @@ Owner: current-docs-archive-policy-ssot.md
 
 ## Priority
 
-Repository artifact cleanup temporarily precedes the parked 3504
-Failure/Outcome design consultation. No language, parser, runtime, or backend
-semantics change in this workstream.
+Repository artifact C2 classification is now 91% complete. The remaining 77
+design files stay warning-unregistered for focused consultation, and C3
+supersession movement has not started. The active language lane is the
+3505 Failure/Outcome relation inventory; no language, parser, runtime, or
+backend semantics change is authorized by the cleanup workstream.
 
 ```text
 parked_next:

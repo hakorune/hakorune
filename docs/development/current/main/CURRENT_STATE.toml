@@ -2,9 +2,9 @@
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
 status = "Active implementation workstream"
-date = "2026-07-11"
+date = "2026-07-12"
 
-active_lane = "REPOSITORY-ARTIFACT-LIFECYCLE cleanup before Failure/Outcome"
+active_lane = "LANGV1-FAILURE-OUTCOME relation inventory"
 active_lane_status = """Language coherence remains the prerequisite; Source
 Selfhost and MirBuilder 3456 stay parked. 3478 closes LANGV1-GRAMMAR-001 with
 one physical registry, two independent recursive parser witnesses, 106/106
@@ -50,26 +50,25 @@ defer product lowering or name one carrier-aware product backend consumer;
 the VM remains a narrow semantic-reference adapter, not a product fallback.
 3503 accepts defer_with_failfast with declaration-level product rejection and
 no capability activation. 3504 accepts relation/spec plus exhaustive
-inventory-only Failure/Outcome design; 3505 remains parked while repository
-artifact lifecycle C2 review runs."""
+inventory-only Failure/Outcome design. Repository artifact C2 classification
+is 91% complete with 77 warning-unregistered consultation rows; no physical
+move was started. 3505 is now the active next slice."""
 
-active_phase = "docs/development/current/main/workstreams/repository-artifact-lifecycle-current.md"
-phase_status = "docs/development/current/main/workstreams/repository-artifact-lifecycle-current.md"
+active_phase = "docs/development/current/main/phases/phase-296x/3505-LANGV1-FAILURE-OUTCOME-RELATION-INVENTORY-001.md"
+phase_status = "docs/development/current/main/phases/phase-296x/3505-LANGV1-FAILURE-OUTCOME-RELATION-INVENTORY-001.md"
 method_anchor = "docs/development/current/main/design/current-docs-archive-policy-ssot.md"
-taskboard = "docs/development/current/main/workstreams/repository-artifact-lifecycle-current.md"
-latest_workstream_card = "docs/development/current/main/workstreams/repository-artifact-lifecycle-current.md"
+taskboard = "docs/development/current/main/phases/phase-296x/3505-LANGV1-FAILURE-OUTCOME-RELATION-INVENTORY-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/3505-LANGV1-FAILURE-OUTCOME-RELATION-INVENTORY-001.md"
 
-latest_card = "repository-artifact-lifecycle-h3-design-classification-consultation"
-latest_card_path = "docs/development/current/main/investigations/repository-artifact-lifecycle-h3-design-classification-consultation.md"
-latest_card_summary = """The residual sidecar-ownership stop is resolved:
-Q1-Q4 accepted multi-base and missing-base closeouts as independent
-status-ledger rows and the blocked-substrate matrix as severable. The full
-hako-alloc-segment classification landed: 67 new rows (20 supporting, 47
-status-ledger) and 80 owned sidecars register all 147 remaining family files.
-The design registry holds 194 rows with unregistered lowered to 568. Next is
-the following C2 owner family or the C3 supersession review."""
+latest_card = "3505-LANGV1-FAILURE-OUTCOME-RELATION-INVENTORY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3505-LANGV1-FAILURE-OUTCOME-RELATION-INVENTORY-001.md"
+latest_card_summary = """3505 is active after repository artifact C2 cleanup.
+The design registry has 653 rows and 119 owned sidecars; 77 files remain
+warning-unregistered for focused consultation. C3 supersession movement is
+not started. The active slice changes no parser, grammar, MIR, runtime, VM,
+cleanup, or backend behavior."""
 
-current_blocker_token = "REPOSITORY-ARTIFACT-LIFECYCLE-H3-C2-NEXT-FAMILY-SELECTION"
+current_blocker_token = "LANGV1-FAILURE-OUTCOME-RELATION-INVENTORY-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

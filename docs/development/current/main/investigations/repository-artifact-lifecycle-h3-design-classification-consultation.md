@@ -1,8 +1,8 @@
 ---
-Status: Active implementation workstream (hako-alloc-segment family)
-Date: 2026-07-11
+Status: C2 cleanup handoff complete; 3505 active
+Date: 2026-07-12
 Owner: repository-artifact-lifecycle-current.md
-Decision: C1 accepted; C2 hako-alloc-segment design accepted; residual sidecar ownership Q1-Q4 accepted and landed
+Decision: C1/C2 accepted; 77 residual consultation rows deferred; 3505 handoff active
 ---
 
 # H3 Design Registry Classification Consultation
@@ -394,10 +394,10 @@ roles.
 ```text
 design_registry_complete = 0
 design_registry_decided = 1
-unregistered_design_files = 732
+unregistered_design_files = 77
 h3_c2_hako_alloc_segment_design_accepted = 1
 hako_alloc_segment_semantic_subfamily_count = 4
-hako_alloc_segment_all_individual_roles_reviewed = 0
+hako_alloc_segment_all_individual_roles_reviewed = 1
 hako_alloc_segment_new_authority_document = 0
 hako_alloc_segment_superseded_assignment = 0
 hako_alloc_segment_physical_move = 0
@@ -407,6 +407,28 @@ strict_design_registry_guard = 0
 failure_outcome_design_accepted = 1
 selfhost_claim = 0
 ```
+
+## C2 Global Closeout and Handoff
+
+The distributed classification pass is complete for all rows that had a
+deterministic owner-family or accepted local decision. Current evidence is:
+
+```text
+registered_rows = 653
+owned_sidecars = 119
+unregistered_warning_rows = 77
+unregistered_baseline = 77
+registry_violations = 0
+physical_move = 0
+c3_supersession_review = not_started
+```
+
+The 77 remaining rows are deliberately retained as warning-unregistered
+consultation buckets. They include the ExitBranch double-SSOT decision, eight
+multi-family authority-parent questions covering 35 files, and individual
+supersession/authority questions. This cleanup lane is therefore paused at a
+safe boundary, and the accepted 3505 relation/spec inventory is the next
+active slice.
 
 ## C2 Singleton M-Z Residual Consultation List
 
