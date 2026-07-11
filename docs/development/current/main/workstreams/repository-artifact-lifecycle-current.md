@@ -46,8 +46,8 @@ weak_upgrade_target = Option::Some_or_None
 foreign_null = boundary_only
 compat_null = Compat2025_only
 
-3505_status = parked
-3505_start_condition = repository artifact lifecycle C2 blocker resolved
+3505_status = active
+3505_start_condition = repository artifact lifecycle C2 deterministic classification resolved; 77 consultation rows deferred
 3505_behavior_change = 0
 ```
 

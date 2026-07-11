@@ -78,6 +78,85 @@ Canonical literal_null
 Canonical postfix_catch vs catchable Fault set = 0
 ```
 
+## Execution Taskboard
+
+The first slice is split into behavior-preserving documentation and tooling
+boxes. No box below may change a parser profile, runtime carrier, VM result, or
+backend lowering.
+
+```text
+S0 relation SSOT:
+  create one normative relation document and record precedence/ownership
+
+S1 source inventory:
+  add one deterministic machine-readable inventory generator and manifest
+  cover source null/Void/Option/Result/Catch spellings and profile metadata
+
+S2 runtime/provider inventory:
+  cover VMValue/ConstValue conversions, Weak upgrade, null-like boxes,
+  extern/provider status, zero/missing-result synthesis, and FFI boundaries
+
+S3 control-flow inventory:
+  cover local defaults, Return/Unit, Fault, cleanup precedence, catchability,
+  and top-level outcome normalization without changing behavior
+
+S4 exhaustiveness guard:
+  reject duplicate site_id, missing owner/class, unknown class, implicit
+  conversion, Unit/absence conflation, and missing foreign-null policy
+
+S5 conflict ledger and closeout:
+  make the known contradictions queryable, run all gates, and prepare the
+  next design stop; activation remains disabled
+```
+
+### Worker Inventory Baseline
+
+The initial read-only scan is evidence for queue construction, not semantic
+classification. Current counts over `src` and `docs/reference` are:
+
+```text
+VMValue::Void = 144 hits / 46 files
+ConstValue::Null = 50 hits / 43 files
+ConstValue::Void = 125 hits / 75 files
+weak_to_strong = 29 hits / 9 files
+MissingBox = 22 hits / 11 files
+postfix_catch = 22 hits / 12 files
+env.get = 130 hits / 49 files
+env.file.read = 8 hits / 6 files
+env.now_ms = 22 hits / 8 files
+Option::None = 22 hits / 7 files
+Result::Err = 19 hits / 7 files
+```
+
+The generator must retain source location and evidence kind so these counts
+cannot be mistaken for unique semantic sites. Tests, compatibility adapters,
+and historical docs require explicit layer/profile rows rather than blind
+token deduplication.
+
+### Stable Inventory Schema
+
+The machine-readable row is the only classification input to S4:
+
+```text
+site_id
+layer
+surface_or_symbol
+source_path
+line
+current_carrier
+semantic_class
+target_carrier
+owner
+profile
+migration_action
+backend_policy
+evidence_kind
+evidence
+```
+
+`semantic_class`, `owner`, `target_carrier`, and `backend_policy` are closed
+enums. Free-form text is diagnostic evidence only.
+
 ## Explicit Non-Scope
 
 ```text
@@ -105,6 +184,21 @@ Canonical null and catch registry rows remain unchanged
 all existing fast gates remain green
 ```
 
+## Acceptance Commands
+
+```text
+python3 tools/docs/failure_outcome_site_inventory.py --check --strict
+bash tools/checks/current_state_pointer_guard.sh
+bash tools/checks/docs_slim_001_archive_policy_guard.sh
+bash tools/checks/dev_gate.sh quick
+git diff --check
+```
+
+The first implementation commit may add only the relation document,
+inventory generator/manifest, checker, and conflict ledger. It must not alter
+`src/parser`, `src/backend`, `src/mir`, `VMValue`, `ConstValue`, or grammar
+profile behavior.
+
 ## Claims
 
 ```text
@@ -117,3 +211,24 @@ weak_upgrade_option_activation = 0
 uninitialized_local_activation = 0
 catch_profile_change = 0
 ```
+
+Implementation claims remain zero until the corresponding artifact and gate
+exist:
+
+```text
+failure_outcome_relation_spec_implemented = 0
+failure_outcome_site_inventory_implemented = 0
+failure_outcome_exhaustiveness_checker_implemented = 0
+failure_outcome_conflict_ledger_complete = 0
+```
+
+## Next Design Stop
+
+After S0-S5 are green, stop before any semantic migration at:
+
+```text
+LANGV1-FAILURE-OUTCOME-ACTIVATION-DESIGN-STOP-001
+```
+
+That stop must decide the first activated relation boundary and its backend
+fail-fast policy. It must not be opened by the inventory card itself.
