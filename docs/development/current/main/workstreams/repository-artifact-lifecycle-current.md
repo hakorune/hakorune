@@ -134,8 +134,21 @@ and phase-local status evidence all prove it inactive. Ambiguous phases remain
 in place for review.
 
 ```text
-next = H2-INACTIVE-PHASE-INVENTORY
+phase_directories = 392
+strict_inactive_candidates = 87
+strict_inactive_candidate_files = 238
+largest_candidate = phase-292x (31 files)
 whole_phase_move_started = 0
+
+excluded_large_phases:
+  phase-293x = local status unresolved + 759 external reference files
+  phase-291x = active_like + 14 external reference files
+  phase-29cv = active_like + 5 external reference files
+  phase-294x = local status unresolved + 80 external reference files
+  phase-295x = active_like + 137 external reference files
+  phase-29cc = closed + 90 external reference files
+
+next = H2-INACTIVE-PHASE-BATCH-001
 ```
 
 ## Non-Claims
