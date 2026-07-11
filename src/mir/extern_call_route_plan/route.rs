@@ -3,6 +3,7 @@ use super::route_spec::{
     classify_extern_call_route, is_hostbridge_extern_invoke_symbol, ExternCallRouteKind,
 };
 use crate::mir::route_value_type_publication::route_return_shape_value_type;
+use std::collections::BTreeSet;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct ExternCallRouteSite {
@@ -135,14 +136,25 @@ impl ExternCallRoute {
 
 pub(super) fn refresh_function_extern_call_routes(function: &mut MirFunction) {
     let mut routes = Vec::new();
+    let used_values = function
+        .blocks
+        .values()
+        .flat_map(|block| {
+            block
+                .instructions
+                .iter()
+                .chain(block.terminator.iter())
+                .flat_map(|instruction| instruction.used_values())
+        })
+        .collect::<BTreeSet<_>>();
     let mut block_ids = function.blocks.keys().copied().collect::<Vec<_>>();
     block_ids.sort_by_key(|id| id.as_u32());
 
     for block_id in block_ids {
-        let Some(block) = function.blocks.get(&block_id) else {
+        let Some(block) = function.blocks.get_mut(&block_id) else {
             continue;
         };
-        for (instruction_index, instruction) in block.instructions.iter().enumerate() {
+        for (instruction_index, instruction) in block.instructions.iter_mut().enumerate() {
             let MirInstruction::Call {
                 dst,
                 callee: Some(callee),
@@ -153,15 +165,22 @@ pub(super) fn refresh_function_extern_call_routes(function: &mut MirFunction) {
                 continue;
             };
             let name = match callee {
-                Callee::Extern(name) => name,
+                Callee::Extern(name) => name.as_str(),
                 Callee::Global(name) if is_hostbridge_extern_invoke_symbol(name, args.len()) => {
-                    name
+                    name.as_str()
                 }
                 _ => continue,
             };
             let Some(kind) = classify_extern_call_route(name, args.len()) else {
                 continue;
             };
+            if kind == ExternCallRouteKind::HakoMemFree {
+                if let Some(result) = *dst {
+                    if !used_values.contains(&result) {
+                        *dst = None;
+                    }
+                }
+            }
             if dst.is_none() && !kind.accepts_void_result() {
                 continue;
             }
@@ -287,6 +306,7 @@ mod tests {
         assert_eq!(route.bridge_encoding(), Some("void_sentinel_i64_zero"));
         assert_eq!(route.semantic_result_policy(), Some("NoPayload"));
         assert_eq!(route.value_use_policy(), Some("StatementOnly"));
+        assert_eq!(route.result_value_opt(), None);
         assert_eq!(function.metadata.value_types.get(&ValueId::new(2)), None);
     }
 
@@ -297,6 +317,13 @@ mod tests {
             vec![ValueId::new(1)],
             Some(ValueId::new(2)),
         );
+        function
+            .blocks
+            .get_mut(&BasicBlockId::new(0))
+            .expect("test block")
+            .set_terminator(MirInstruction::Return {
+                value: Some(ValueId::new(2)),
+            });
         refresh_function_extern_call_routes(&mut function);
         let mut module = MirModule::new("hako_mem_free_result_use".to_string());
         module.add_function(function);

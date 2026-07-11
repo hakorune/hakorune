@@ -1,7 +1,7 @@
       enum MirCallExternEmitBehavior {
         HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_CALL = 0,
         HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_NATIVE_PTR_RETURN_I64,
-        HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_NATIVE_PTR_ARG_VOID_ZERO,
+        HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_NATIVE_PTR_ARG_VOID,
         HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_NATIVE_PTR1_I64_ARG_RETURN_I64,
         HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_NATIVE_PTR3_I64_I64_ARG_RETURN_I64,
         HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_NATIVE_PTR2_I64_ARG_CALL,
@@ -152,14 +152,14 @@
            "HakoMemFree",
            "extern.hako_mem.free",
            "hako_mem_free",
-           "void_sentinel_i64_zero",
-           "scalar_i64",
+           "c_void",
+           "no_payload",
            1,
            0,
            0,
            0,
            "mir_call_hako_mem_free_emit",
-           HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_NATIVE_PTR_ARG_VOID_ZERO},
+           HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_NATIVE_PTR_ARG_VOID},
           {"extern.hako_atomic.slot_cas_i64",
            "HakoAtomicSlotCasI64",
            "extern.hako_atomic.slot_cas_i64",
@@ -572,9 +572,9 @@
           return 1;
         }
         if (rule->behavior ==
-            HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_NATIVE_PTR_ARG_VOID_ZERO) {
+            HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_NATIVE_PTR_ARG_VOID) {
           char ptr_ref[64];
-          if (argc != 1) return -1;
+          if (dst || view.has_result_value || argc != 1) return -1;
           if (!materialize_direct_global_call_arg_if_needed(f, actual_args[0])) {
             return -1;
           }
@@ -591,9 +591,6 @@
               rule->symbol,
               bid,
               ii);
-          fprintf(f, "  %%r%lld = add i64 0, 0\n", dst);
-          set_type(dst, T_I64);
-          put_const(dst, 0);
           trace_lowering_plan_entry_hit(entry, rule->trace_consumer);
           return 1;
         }

@@ -152,7 +152,11 @@ def classify_plan(fn_name: str, plan: dict[str, Any]) -> dict[str, str] | None:
         )
 
     if source in {"global_call_routes", "user_box_method_routes"}:
-        if plan.get("target_exists") is False:
+        builtin_print = (
+            source == "global_call_routes"
+            and callee == "print"
+        )
+        if plan.get("target_exists") is False and not builtin_print:
             return failure(
                 fn_name,
                 site,

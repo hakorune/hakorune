@@ -43,7 +43,7 @@ integer result remains a separate API contract.
 ```text
 contract_id = extern-outcome:hako-mem-free:v1
 route_id = extern.hako_mem.free
-source_site = runtime.hako_mem.hako_mem_free.success
+source_site = runtime_backend.extern.hako_mem_free.success
 success_outcome = Unit
 result_policy = NoPayload
 value_use_policy = StatementOnly
@@ -62,16 +62,17 @@ value_type_publication = PublishNothing
 S0_contract_row = complete
 S1_route_separation = complete
 S2_result_use_convergence = complete
-S3_one_supported_backend = pending
+S3_one_supported_backend = complete
 S4_preflight_and_fixtures = pending
 S5_activation = 0
 ```
 
 S0/S1 provide the machine-readable outcome contract, expose
 `CVoid`/`NoPayload` separately from the optional sentinel encoding, and stop
-the route from publishing `MirType::Integer`. S2 now rejects a valid
-`hako_mem_free` result destination at the contract boundary before effects;
-statement calls with `dst=None` remain accepted.
+the route from publishing `MirType::Integer`. S2 canonicalizes an unused
+temporary destination to `dst=None` and rejects a genuinely used result at the
+contract boundary before effects. S3 now has one LLVM/object consumer that
+emits only the native C-void call; VM/Wasm/legacy consumers remain unsupported.
 
 ### S0 — Contract row
 
@@ -96,6 +97,8 @@ statement calls with `dst=None` remain accepted.
 
 - Support exactly one MIR -> LLVM/object `hako_mem_free` consumer.
 - Emit one native C-void call and no result store.
+- Keep `void_sentinel_i64_zero` out of the route contract and remove the old
+  zero-materializing emitter branch.
 - Rust reference VM, Wasm, legacy LLVM harness, PyVM, and unknown backends
   fail before effects; no fallback is permitted.
 
@@ -211,7 +214,8 @@ selfhost_claim = 0
 ```bash
 python3 tools/docs/failure_outcome_exhaustiveness.py --check
 python3 tools/docs/failure_outcome_conflict_ledger.py --check
-# card-specific implementation and fixture gates: add before S1-S5 closeout
+bash tools/checks/k2_wide_hako_mem_extern_pure_first_guard.sh
+# S4 adds the remaining positive/negative matrix before S5 closeout.
 bash tools/checks/current_state_pointer_guard.sh
 bash tools/checks/dev_gate.sh quick
 git diff --check

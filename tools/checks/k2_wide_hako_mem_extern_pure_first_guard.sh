@@ -58,8 +58,8 @@ want_alloc = (
 want_free = (
     "extern.hako_mem.free",
     "hako_mem_free",
-    "void_sentinel_i64_zero",
-    "scalar_i64",
+    "c_void",
+    "no_payload",
 )
 if want_alloc not in seen:
     raise SystemExit("missing hako_mem_alloc extern route")

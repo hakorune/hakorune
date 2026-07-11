@@ -42,8 +42,8 @@ cargo check -q
 - read `docs/development/current/main/phases/phase-296x/3511-LANGV1-FAILURE-OUTCOME-UNIT-NORESULT-HAKO-MEM-FREE-001.md`
   before editing; preserve one-way source-site to projection binding
 - activation remains zero until S0-S4 are green; no global Void/Null migration
-- S0/S1 route metadata separation is allowed; runtime effects and backend
-  consumer support remain unchanged until their named slices
+- S0-S3 route separation, result-use convergence, and the single LLVM/object
+  consumer are complete; continue with S4 preflight/fixture work
 
 - do not paste landed chronology into restart docs
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` out of scope
