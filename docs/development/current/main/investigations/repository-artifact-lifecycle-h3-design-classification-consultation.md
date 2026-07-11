@@ -165,6 +165,12 @@ two closeout documents are owned sidecars. The registry now has 123 rows and
 five owned sidecars, with 153 rows remaining. The next explicit review slice
 is local-free.
 
+The clear local-free chain is now also classified: candidate and apply-plan
+rows are `status-ledger`, while page-apply and integration are `supporting`;
+their two closeouts are owned sidecars. The registry now has 127 rows and
+seven owned sidecars, with 147 rows remaining. The reuse closeout lacking a
+current direct base row stays unclassified until its owner is explicit.
+
 ## Minimum Next Slice
 
 ```text

@@ -591,6 +591,30 @@ deterministic inventory of modeled tokens. Neither row opens real allocation,
 arena residence, raw pointers, segment maps, bitmap/OSVM, threads, providers,
 or backend matchers.
 
+S3 local-free chain review closeout:
+
+```text
+reviewed_base_rows = 9
+status_ledger_rows = 3
+supporting_rows = 6
+owned_sidecars = 7
+registered_rows = 127
+unregistered_current = 715
+unregistered_baseline = 732
+precedence_cycle_count = 0
+authority_rows_added = 0
+superseded_assignment = 0
+physical_move = 0
+projection_rows_remaining = 147
+next = local-free/reuse residual review
+```
+
+The candidate ledger and apply plan are deterministic status ledgers. The
+page-model apply and integration rows are bounded supporting composition
+surfaces, with their closeout documents owned as sidecars. The reuse closeout
+without a current direct base row remains unclassified rather than becoming an
+orphan sidecar.
+
 ## Non-Claims
 
 ```text

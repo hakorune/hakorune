@@ -510,6 +510,54 @@ superseded_by = ""
 retire_when = "modeled allocation ledger is replaced by an explicit durable inventory owner and its closeout sidecar retires"
 
 [[documents]]
+path = "hako-alloc-segment-allocation-modeled-local-free-candidate-ledger-ssot.md"
+role = "status-ledger"
+owner = "mimalloc-hako-port-implementation-plan-ssot.md"
+precedence_parent = "mimalloc-hako-port-implementation-plan-ssot.md"
+classification_basis = "C2-S3:hako-alloc-segment/local-free; deterministic candidate ledger with page/free-list mutation explicitly closed"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "local-free candidate inventory is replaced explicitly and dependent apply rows are reparented"
+
+[[documents]]
+path = "hako-alloc-segment-allocation-modeled-local-free-apply-plan-ssot.md"
+role = "status-ledger"
+owner = "mimalloc-hako-port-implementation-plan-ssot.md"
+precedence_parent = "hako-alloc-segment-allocation-modeled-local-free-candidate-ledger-ssot.md"
+classification_basis = "C2-S3:hako-alloc-segment/local-free; deterministic apply-plan ledger with page mutation explicitly closed"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "local-free apply-plan inventory is replaced explicitly and page-apply dependents are reparented"
+
+[[documents]]
+path = "hako-alloc-segment-allocation-modeled-local-free-page-apply-ssot.md"
+role = "supporting"
+owner = "mimalloc-hako-port-implementation-plan-ssot.md"
+precedence_parent = "hako-alloc-segment-allocation-modeled-local-free-apply-plan-ssot.md"
+classification_basis = "C2-S3:hako-alloc-segment/local-free; bounded page-model pilot with existing page owner"
+sidecars = [
+  "hako-alloc-segment-allocation-modeled-local-free-page-apply-closeout-ssot.md",
+]
+supersedes = []
+superseded_by = ""
+retire_when = "page-model apply pilot is replaced explicitly and its closeout sidecar retires with it"
+
+[[documents]]
+path = "hako-alloc-segment-allocation-modeled-local-free-integration-ssot.md"
+role = "supporting"
+owner = "mimalloc-hako-port-implementation-plan-ssot.md"
+precedence_parent = "hako-alloc-segment-allocation-modeled-local-free-page-apply-ssot.md"
+classification_basis = "C2-S3:hako-alloc-segment/local-free; composition boundary over existing scalar owners"
+sidecars = [
+  "hako-alloc-segment-allocation-modeled-local-free-integration-closeout-ssot.md",
+]
+supersedes = []
+superseded_by = ""
+retire_when = "local-free composition is replaced explicitly and its closeout sidecar retires with it"
+
+[[documents]]
 path = "hako-alloc-policy-state-contract-ssot.md"
 role = "authority"
 owner = "INDEX.md"

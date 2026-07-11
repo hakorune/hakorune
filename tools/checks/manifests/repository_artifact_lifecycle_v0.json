@@ -1315,7 +1315,7 @@
         },
         {
           "family_key": "hako-alloc-segment",
-          "file_count": 153,
+          "file_count": 147,
           "review_status": "pending"
         },
         {
@@ -2552,8 +2552,8 @@
     "direct_files": 849,
     "markdown_files": 828,
     "non_markdown_files": 21,
-    "owned_sidecar_count": 5,
-    "registered_count": 123,
+    "owned_sidecar_count": 7,
+    "registered_count": 127,
     "registry_mode": "warning",
     "seed_reference_counts": {
       "AGENTS.md": 14,
@@ -2872,12 +2872,6 @@
       "hako-alloc-segment-allocation-modeled-ledger-release-ssot.md",
       "hako-alloc-segment-allocation-modeled-ledger-released-token-recycle-closeout-ssot.md",
       "hako-alloc-segment-allocation-modeled-ledger-released-token-recycle-ssot.md",
-      "hako-alloc-segment-allocation-modeled-local-free-apply-plan-ssot.md",
-      "hako-alloc-segment-allocation-modeled-local-free-candidate-ledger-ssot.md",
-      "hako-alloc-segment-allocation-modeled-local-free-integration-closeout-ssot.md",
-      "hako-alloc-segment-allocation-modeled-local-free-integration-ssot.md",
-      "hako-alloc-segment-allocation-modeled-local-free-page-apply-closeout-ssot.md",
-      "hako-alloc-segment-allocation-modeled-local-free-page-apply-ssot.md",
       "hako-alloc-segment-allocation-modeled-local-free-reuse-closeout-ssot.md",
       "hako-alloc-segment-allocation-modeled-local-free-reuse-ledger-closeout-ssot.md",
       "hako-alloc-segment-allocation-modeled-local-free-reuse-ledger-release-applied-recycle-closeout-ssot.md",
@@ -3291,7 +3285,7 @@
       "vm-known-limitations-ssot.md"
     ],
     "unregistered_baseline": 732,
-    "unregistered_count": 721,
+    "unregistered_count": 715,
     "unseeded_count": 688,
     "violations": []
   },
