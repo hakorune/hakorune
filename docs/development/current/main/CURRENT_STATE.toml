@@ -29,10 +29,10 @@ single contract carrier owner and fixes the one-way source-contract to
 representation-fact boundary. 3489 closes the facade, consumer bypass guards,
 representation inventory, and mutable status ledger. 3490 audits the four
 active exact-numeric boundaries. 3490 closes the four-owner island and shared
-runtime value checker. 3491 stops to select record construction/update or typed
-Array element as the only next contract family. The FULL grammar gate exposes
-an instance-method parameter BindingId gap, so 3492 fixes the single identity
-owner and gate coupling before 3491 resumes."""
+runtime value checker. 3491 selects record construction/update under one
+RecordValueContractOwner and queues 3493. The FULL grammar gate exposes an
+instance-method parameter BindingId gap, so 3492 fixes the single identity
+owner and gate coupling before record implementation starts."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
@@ -46,7 +46,7 @@ latest_card_summary = """The FULL grammar differential batch fails before
 Hako witness projection because instance parameter reassignment lacks a
 BindingId. 3492 unifies static/instance/receiver parameter identity, retires
 assignment exceptions, adds the missing fixture, and couples sensitive changes
-to the FULL gate before returning to 3491."""
+to the FULL gate before activating queued 3493."""
 
 current_blocker_token = "LANGV1-PARAMETER-BINDING-IDENTITY-CORRECTIVE-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -57,6 +57,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-11: 3491 selects record construction/update under RecordValueContractOwner; 3493 is queued behind the active 3492 FULL-gate prerequisite.",
   "2026-07-11: FULL differential composition exposes an instance-parameter BindingId gap; 3492 opens a stop-the-line identity corrective before 3491 resumes.",
   "2026-07-11: 3490 closes the four-owner exact-numeric island and shared runtime checker; 3491 opens record-vs-typed-Array type-family selection.",
   "2026-07-11: 3489 closes the semantic_refresh facade, public consumer convergence, representation inventory, and types status-ledger split; 3490 opens exact-numeric island closeout.",
@@ -68,5 +69,4 @@ landed_tail = [
   "2026-07-11: 3480 closes the 11-site guarantee matrix and exact-numeric Box field proof/runtime/backend contract; 3481 opens parameter-entry carrier design consultation.",
   "2026-07-11: 3479 accepts the type-guarantee matrix vocabulary and selects the existing exact-numeric Box field contract owner; 3480 opens the first substantive slice.",
   "2026-07-10: 3478 closes LANGV1-GRAMMAR-001 with 106/106 corpus fixtures, zero Canonical source debt, and bounded differential composition; 3479 opens type-guarantee design consultation.",
-  "2026-07-10: 3477 accepts loop/weak/record/literal contracts plus registry normalization and recursive conformance; 3478 opens one implementation series.",
 ]
