@@ -27,9 +27,10 @@ When `current_blocker_token` contains `DESIGN-STOP`, do not invent a new executa
 
 The accepted Failure/Outcome owner-boundary consultation, S1 semantic-site
 graph, S2 projection binding, S2 runtime/provider evidence inventory, S3
-control-flow evidence inventory, and S4 exhaustiveness checker are complete.
-The next task is
-`LANGV1-FAILURE-OUTCOME-S5-CONFLICT-LEDGER-CLOSEOUT-001`. Read
+control-flow evidence inventory, S4 exhaustiveness checker, and S5 conflict
+ledger are complete. The current frontier is the separate activation design
+stop; do not select or implement a semantic slice from this pointer.
+Read
 `docs/development/current/main/phases/phase-296x/3510-LANGV1-FAILURE-OUTCOME-S5-CONFLICT-LEDGER-CLOSEOUT-001.md`.
 This remains inventory-only: semantic activation and runtime behavior stay at
 zero.

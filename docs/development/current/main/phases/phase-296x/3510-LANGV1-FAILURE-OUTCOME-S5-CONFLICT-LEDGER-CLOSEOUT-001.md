@@ -55,3 +55,16 @@ git diff --check
 After the ledger is complete, stop before selecting the first semantic
 activation boundary. Any choice among Unit, absence, Err, Fault, CompatNull,
 or ForeignNull requires a separate design consultation.
+
+## Implementation Closeout
+
+The conflict ledger is complete and intentionally unresolved:
+
+```text
+conflicts = 8
+status = pending_consultation
+semantic_activation = 0
+```
+
+The next frontier is the separate activation design stop. No semantic slice
+is selected by this closeout.

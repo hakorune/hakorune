@@ -38,7 +38,7 @@ cargo check -q
 
 ## Restart Notes
 
-- handoff frontier: `LANGV1-FAILURE-OUTCOME-S5-CONFLICT-LEDGER-CLOSEOUT-001`
+- handoff frontier: `DESIGN-STOP:LANGV1-FAILURE-OUTCOME-ACTIVATION-DESIGN-STOP-001`
 - read `docs/development/current/main/phases/phase-296x/3510-LANGV1-FAILURE-OUTCOME-S5-CONFLICT-LEDGER-CLOSEOUT-001.md`
   before editing; preserve one-way source-site to projection binding and keep
   semantic activation at zero

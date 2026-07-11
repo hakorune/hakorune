@@ -71,6 +71,8 @@ python3 tools/docs/failure_outcome_control_flow_inventory.py --write
 python3 tools/docs/failure_outcome_control_flow_inventory.py --check
 python3 tools/docs/failure_outcome_exhaustiveness.py --write
 python3 tools/docs/failure_outcome_exhaustiveness.py --check
+python3 tools/docs/failure_outcome_conflict_ledger.py --write
+python3 tools/docs/failure_outcome_conflict_ledger.py --check
 ```
 
 The manifest scans `src` and `docs/reference` for named null-like and
@@ -99,3 +101,7 @@ The exhaustiveness checker is the single guard/report entrypoint for the
 landed manifests. It validates closed site-id vocabulary, classified-site
 completeness, projection boundaries, compatibility profiles, and monotonic
 `missing_argument_zero` counts without classifying pending rows.
+
+The conflict ledger keeps the eight known contradictions queryable while all
+rows remain `pending_consultation`; it is the final inventory boundary before
+the separate activation design stop.

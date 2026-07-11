@@ -17,7 +17,7 @@ S1_semantic_classification = complete
 S2_runtime_provider_inventory = complete
 S3_control_flow_inventory = complete
 S4_exhaustiveness_checker = complete
-S5_conflict_ledger_closeout = implementation_in_progress
+S5_conflict_ledger_closeout = complete
 ```
 
 The accepted owner-boundary consultation is recorded in
@@ -28,6 +28,7 @@ binding implementation slice; that slice is complete.
 The S2 runtime/provider inventory, projection binding, S3 control-flow
 evidence inventory, and S4 exhaustiveness checker are complete. The next
 active slice is
+the activation design stop after the completed
 `docs/development/current/main/phases/phase-296x/3510-LANGV1-FAILURE-OUTCOME-S5-CONFLICT-LEDGER-CLOSEOUT-001.md`.
 S1 graph artifacts are the identity source; S2 changes inventory
 tooling/manifests only and runtime activation remains zero.

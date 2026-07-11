@@ -1,0 +1,98 @@
+{
+  "allowed_statuses": [
+    "pending_consultation"
+  ],
+  "conflicts": [
+    {
+      "conflict_id": "null_vs_void",
+      "conflict_kind": "carrier_alias",
+      "current_observation": "inventory evidence is present; semantic owner is unresolved",
+      "evidence_refs": [
+        "docs/reference/language/failure-outcome-relations.md:35:relation_contract"
+      ],
+      "next_decision": "activation design must choose distinct semantic owners",
+      "semantic_activation": 0,
+      "status": "pending_consultation"
+    },
+    {
+      "conflict_id": "local_default_null",
+      "conflict_kind": "control_flow_owner",
+      "current_observation": "inventory evidence is present; semantic owner is unresolved",
+      "evidence_refs": [
+        "control.local_default.src/mir/builder/stmts/variable_stmt.rs:144:uninitialized_local"
+      ],
+      "next_decision": "activation design must choose local default contract",
+      "semantic_activation": 0,
+      "status": "pending_consultation"
+    },
+    {
+      "conflict_id": "weak_upgrade_to_void",
+      "conflict_kind": "boundary_mapping",
+      "current_observation": "inventory evidence is present; semantic owner is unresolved",
+      "evidence_refs": [
+        "runtime.ffi_boundary.crates/nyash_kernel/src/ffi/weak.rs:58:c_abi_function"
+      ],
+      "next_decision": "activation design must choose optional absence mapping",
+      "semantic_activation": 0,
+      "status": "pending_consultation"
+    },
+    {
+      "conflict_id": "env_missing_or_error_to_void",
+      "conflict_kind": "provider_contract",
+      "current_observation": "inventory evidence is present; semantic owner is unresolved",
+      "evidence_refs": [
+        "runtime.provider_status.src/backend/mir_interpreter/handlers/externals.rs:222:provider_missing_fallback"
+      ],
+      "next_decision": "activation design must split provider outcomes",
+      "semantic_activation": 0,
+      "status": "pending_consultation"
+    },
+    {
+      "conflict_id": "clock_failure_to_zero",
+      "conflict_kind": "projection_collision",
+      "current_observation": "inventory evidence is present; semantic owner is unresolved",
+      "evidence_refs": [
+        "src/backend/mir_interpreter/handlers/calls/global.rs:158:env.now_ms"
+      ],
+      "next_decision": "activation design must prove zero collision policy",
+      "semantic_activation": 0,
+      "status": "pending_consultation"
+    },
+    {
+      "conflict_id": "missing_box_void_compatibility",
+      "conflict_kind": "compatibility_profile",
+      "current_observation": "inventory evidence is present; semantic owner is unresolved",
+      "evidence_refs": [
+        "docs/reference/language/types.md:416:MissingBox"
+      ],
+      "next_decision": "activation design must name Compat2025 profile",
+      "semantic_activation": 0,
+      "status": "pending_consultation"
+    },
+    {
+      "conflict_id": "canonical_literal_null",
+      "conflict_kind": "language_profile",
+      "current_observation": "inventory evidence is present; semantic owner is unresolved",
+      "evidence_refs": [
+        "docs/development/current/main/workstreams/language-v1-convergence-current.md:414:language_profile"
+      ],
+      "next_decision": "activation design must decide canonical null profile",
+      "semantic_activation": 0,
+      "status": "pending_consultation"
+    },
+    {
+      "conflict_id": "postfix_catch_vs_fault",
+      "conflict_kind": "catchability",
+      "current_observation": "inventory evidence is present; semantic owner is unresolved",
+      "evidence_refs": [
+        "docs/reference/constraints.md:46:postfix_catch"
+      ],
+      "next_decision": "activation design must close catchable Fault set",
+      "semantic_activation": 0,
+      "status": "pending_consultation"
+    }
+  ],
+  "schema_version": 0,
+  "semantic_activation": 0,
+  "status": "failure_outcome_conflict_ledger"
+}
