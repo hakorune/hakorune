@@ -120,7 +120,9 @@ S3 control-flow inventory:
 
 S4 exhaustiveness guard:
   reject duplicate site_id, missing owner/class, unknown class, implicit
-  conversion, Unit/absence conflation, and missing foreign-null policy
+  conversion, Unit/absence conflation, missing foreign-null policy, invalid
+  four-segment site_id grammar, missing compatibility profile, and increasing
+  missing_argument_zero pending count
 
 S5 conflict ledger and closeout:
   make the known contradictions queryable, run all gates, and prepare the
@@ -153,14 +155,28 @@ token deduplication.
 
 ### Stable Inventory Schema
 
-The machine-readable row is the only classification input to S4:
+Evidence occurrences and semantic sites have separate identities. The current
+line/token queue is evidence only; S1 must not promote its location-shaped key
+to semantic ownership.
+
+Evidence occurrence row:
+
+```text
+evidence_id
+source_path
+line
+token
+evidence_kind
+```
+
+Semantic site row:
 
 ```text
 site_id
 layer
-surface_or_symbol
-source_path
-line
+owner_domain
+operation
+outcome_branch
 current_carrier
 semantic_class
 target_carrier
@@ -168,12 +184,26 @@ owner
 profile
 migration_action
 backend_policy
-evidence_kind
-evidence
+evidence_refs
+projects_site?
 ```
 
+`site_id` is exactly four dot-separated lower-snake-case segments:
+
+```text
+<layer>.<owner-domain>.<operation>.<outcome-branch>
+```
+
+The generator owns the declared vocabulary for all four segments and rejects
+unknown symbols, wrong segment counts, and source-location-shaped IDs.
 `semantic_class`, `owner`, `target_carrier`, and `backend_policy` are closed
-enums. Free-form text is diagnostic evidence only.
+enums. Free-form text is diagnostic evidence only. A `compatibility_only` site
+must have an explicit profile.
+
+Pending `missing_argument_zero` rows must be counted in the manifest and
+compared with the previous/baseline count. The guard rejects an increase; an
+unchanged count after a classification batch becomes a focused consultation
+stop rather than an indefinite pending queue.
 
 ## Explicit Non-Scope
 
@@ -197,6 +227,9 @@ relation/spec has one owner and explicit precedence
 all live null-like sites have exactly one class
 all sites have exactly one owner and target carrier
 duplicate/unclassified rows fail deterministically
+semantic site IDs are closed four-segment identities
+compatibility_only rows always name an explicit profile
+missing_argument_zero pending count is visible and non-increasing
 known conflict ledger is complete
 Canonical null and catch registry rows remain unchanged
 all existing fast gates remain green
@@ -206,6 +239,8 @@ all existing fast gates remain green
 
 ```text
 python3 tools/docs/failure_outcome_site_inventory.py --check --strict
+python3 tools/docs/failure_outcome_semantic_site_graph.py --check
+python3 -m unittest tools/docs/test_failure_outcome_semantic_site_graph.py
 bash tools/checks/current_state_pointer_guard.sh
 bash tools/checks/docs_slim_001_archive_policy_guard.sh
 bash tools/checks/dev_gate.sh quick
@@ -232,6 +267,24 @@ deterministic 602-row evidence queue over `src` and `docs/reference`. The rows
 retain source location and evidence kind, but semantic fields remain pending;
 this is intentional and does not claim exhaustive semantic classification.
 
+## S1 Semantic Site Graph Progress
+
+`tools/docs/failure_outcome_semantic_site_graph.py` now projects the evidence
+queue into the line-independent graph
+`tools/checks/manifests/failure_outcome_semantic_site_graph_v0.json`:
+
+```text
+evidence_occurrences = 602
+semantic_sites = 54
+boundary_projection_sites = 10
+pending_sites = 52
+missing_argument_zero_pending = 2
+semantic_activation = 0
+```
+
+The graph retains unresolved owner/class/target fields as pending. It does
+not claim semantic migration or runtime carrier activation.
+
 The first classification batches cover 55 explicit rows:
 
 ```text
@@ -248,13 +301,28 @@ not independently establish semantic ownership.
 ## Next Task
 
 ```text
-LANGV1-FAILURE-OUTCOME-S1-SEMANTIC-CLASSIFICATION-001
+LANGV1-FAILURE-OUTCOME-S1-SEMANTIC-SITE-GRAPH-001
 ```
 
 Classify the 602 evidence rows in deterministic batches. A batch may add only
 classification data and evidence links; it may not change parser/runtime
 behavior. Any site whose owner or target carrier is ambiguous must become a
 focused consultation stop rather than receiving a heuristic classification.
+
+## Post-Foundation Queued Follow-Up
+
+```text
+3506 - LANGV1-FAILURE-OUTCOME-SEMANTIC-UNIFICATION-001
+```
+
+This is a queued parent task, not the current blocker. It may become active
+only after 3505 S0-S5 are green and
+`LANGV1-FAILURE-OUTCOME-ACTIVATION-DESIGN-STOP-001` accepts the first
+activated boundary. Its implementation must be split into one code-facing
+semantic slice per owner; it must not become a global `void` replacement.
+
+See the task card:
+`docs/development/current/main/phases/phase-296x/3506-LANGV1-FAILURE-OUTCOME-SEMANTIC-UNIFICATION-001.md`.
 
 ## Claims
 
@@ -276,7 +344,7 @@ exist:
 failure_outcome_relation_spec_implemented = 1
 failure_outcome_evidence_queue_implemented = 1
 failure_outcome_reference_classification_implemented = 1
-failure_outcome_site_inventory_implemented = 0
+failure_outcome_site_inventory_implemented = 1
 failure_outcome_semantic_classification_complete = 0
 failure_outcome_exhaustiveness_checker_implemented = 0
 failure_outcome_conflict_ledger_complete = 0
@@ -289,6 +357,9 @@ After S0-S5 are green, stop before any semantic migration at:
 ```text
 LANGV1-FAILURE-OUTCOME-ACTIVATION-DESIGN-STOP-001
 ```
+
+The queued 3506 task remains inactive until this stop names the first
+semantic owner, carrier, fixture boundary, and unsupported-backend policy.
 
 That stop must decide the first activated relation boundary and its backend
 fail-fast policy. It must not be opened by the inventory card itself.

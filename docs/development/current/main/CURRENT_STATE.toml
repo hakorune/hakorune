@@ -63,10 +63,13 @@ latest_workstream_card = "docs/development/current/main/phases/phase-296x/3505-L
 latest_card = "failure-outcome-s1-semantic-site-graph"
 latest_card_path = "docs/development/current/main/investigations/failure-outcome-s1-semantic-site-graph.md"
 latest_card_summary = """3505 is active after repository artifact C2 cleanup.
-The normative relation SSOT and 602-row evidence queue are landed; 55 explicit
-reference/provider rows are classified and 547 implementation/test rows remain
-pending. The VMValue::Void owner-boundary consultation is accepted; the active
-next task is the line-independent semantic operation/outcome site graph.
+The normative relation SSOT and 602-row evidence queue are landed; the
+line-independent semantic site graph now contains 54 sites over those
+occurrences, with 10 explicit projections and 52 pending sites. 55 explicit
+reference/provider rows remain classified in the evidence queue while
+semantic ownership stays pending. The VMValue::Void owner-boundary
+consultation is accepted; the active task is the semantic operation/outcome
+site graph.
 The design registry has 653 rows
 and 119 owned sidecars; 77 files remain
 warning-unregistered for focused consultation. C3 supersession movement is

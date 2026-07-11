@@ -1483,6 +1483,9 @@ NAMING_DIFF_ALLOWED_PATHS=(
   # Failure/Outcome evidence inventory quotes existing source paths and stage
   # labels; it does not introduce a new stage vocabulary term.
   "tools/checks/manifests/failure_outcome_site_inventory_v0.json"
+  # Semantic-site graph quotes the same existing evidence paths and stage
+  # labels; it does not introduce a new stage vocabulary term.
+  "tools/checks/manifests/failure_outcome_semantic_site_graph_v0.json"
   # Design registry membership rows quote existing filenames; they do not
   # introduce a new stage vocabulary term.
   "docs/development/current/main/design/INDEX.md"

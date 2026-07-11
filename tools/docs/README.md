@@ -61,9 +61,14 @@ evidence queue:
 ```bash
 python3 tools/docs/failure_outcome_site_inventory.py --write
 python3 tools/docs/failure_outcome_site_inventory.py --check --strict
+python3 tools/docs/failure_outcome_semantic_site_graph.py --write
+python3 tools/docs/failure_outcome_semantic_site_graph.py --check
 ```
 
 The manifest scans `src` and `docs/reference` for named null-like and
 outcome-related evidence. It records locations without inferring semantic
-class, owner, or target carrier. Pending rows are expected until the S4
-exhaustiveness checker accepts a classified inventory.
+class, owner, or target carrier. The semantic-site graph keeps those evidence
+occurrences as `evidence_refs`, adds line-independent operation/outcome sites,
+and rejects invalid four-segment IDs, missing compatibility profiles, and
+increasing `missing_argument_zero` pending counts. Pending rows are expected
+until the S4 exhaustiveness checker accepts a classified inventory.
