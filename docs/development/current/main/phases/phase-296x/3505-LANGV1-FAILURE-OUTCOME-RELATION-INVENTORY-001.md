@@ -226,13 +226,14 @@ deterministic 602-row evidence queue over `src` and `docs/reference`. The rows
 retain source location and evidence kind, but semantic fields remain pending;
 this is intentional and does not claim exhaustive semantic classification.
 
-The first classification batch covers 50 explicit reference rows:
+The first classification batches cover 55 explicit rows:
 
 ```text
-optional_absence = 29 (Option::None)
-recoverable_failure = 21 (Result::Err)
-pending_rows = 552
-runtime_or_parser_inference = 0
+optional_absence = 31
+recoverable_failure = 24
+pending_rows = 547
+runtime_direct_provider_rows = 5
+parser_or_test_inference = 0
 ```
 
 Implementation evidence and test expectations remain pending because they do

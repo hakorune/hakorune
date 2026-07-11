@@ -63,8 +63,8 @@ latest_workstream_card = "docs/development/current/main/phases/phase-296x/3505-L
 latest_card = "3505-LANGV1-FAILURE-OUTCOME-RELATION-INVENTORY-001"
 latest_card_path = "docs/development/current/main/phases/phase-296x/3505-LANGV1-FAILURE-OUTCOME-RELATION-INVENTORY-001.md"
 latest_card_summary = """3505 is active after repository artifact C2 cleanup.
-The normative relation SSOT and 602-row evidence queue are landed; 50 explicit
-reference rows are classified and 552 implementation/test rows remain pending.
+The normative relation SSOT and 602-row evidence queue are landed; 55 explicit
+reference/provider rows are classified and 547 implementation/test rows remain pending.
 The design registry has 653 rows
 and 119 owned sidecars; 77 files remain
 warning-unregistered for focused consultation. C3 supersession movement is

@@ -48,6 +48,30 @@ REFERENCE_DEFAULTS = {
     },
 }
 
+RUNTIME_DIRECT_DEFAULTS = {
+    "env.get": {
+        "semantic_class": "optional_absence",
+        "target_carrier": "Option::None",
+        "owner": "RuntimeDirectExternOwner",
+        "migration_action": "api_change",
+        "backend_policy": "reference_only",
+    },
+    "env.file.read": {
+        "semantic_class": "recoverable_failure",
+        "target_carrier": "Result::Err",
+        "owner": "RuntimeDirectExternOwner",
+        "migration_action": "api_change",
+        "backend_policy": "reference_only",
+    },
+    "env.now_ms": {
+        "semantic_class": "recoverable_failure",
+        "target_carrier": "Result::Err",
+        "owner": "RuntimeDirectExternOwner",
+        "migration_action": "api_change",
+        "backend_policy": "reference_only",
+    },
+}
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
@@ -101,6 +125,25 @@ def current_carrier(token: str) -> str:
     return token
 
 
+def classification_defaults(
+    path: Path, layer: str, token: str, evidence: str
+) -> dict[str, str]:
+    defaults = REFERENCE_DEFAULTS.get((layer, token))
+    if defaults:
+        return defaults
+    if path.as_posix().endswith("runtime_direct.rs"):
+        if token == "VMValue::Void" and evidence in {
+            "None => VMValue::Void,",
+            "Err(_) => VMValue::Void,",
+        }:
+            return RUNTIME_DIRECT_DEFAULTS[
+                "env.get" if evidence.startswith("None") else "env.file.read"
+            ]
+        if token in RUNTIME_DIRECT_DEFAULTS and evidence.endswith('=> {'):
+            return RUNTIME_DIRECT_DEFAULTS[token]
+    return {}
+
+
 def evidence_rows() -> list[dict[str, object]]:
     rows: list[dict[str, object]] = []
     for path in tracked_text_files():
@@ -111,7 +154,10 @@ def evidence_rows() -> list[dict[str, object]]:
                 if token not in line:
                     continue
                 site_id = f"{relative}:{line_number}:{token}"
-                defaults = REFERENCE_DEFAULTS.get((layer_for(path), token), {})
+                evidence = line.strip()
+                defaults = classification_defaults(
+                    path, layer_for(path), token, evidence
+                )
                 rows.append(
                     {
                         "site_id": site_id,
@@ -127,7 +173,7 @@ def evidence_rows() -> list[dict[str, object]]:
                         "migration_action": defaults.get("migration_action", ""),
                         "backend_policy": defaults.get("backend_policy", ""),
                         "evidence_kind": evidence_kind,
-                        "evidence": line.strip(),
+                        "evidence": evidence,
                         "review_status": "classified" if defaults else "pending",
                         "classification_source": "reference_relation_default"
                         if defaults
