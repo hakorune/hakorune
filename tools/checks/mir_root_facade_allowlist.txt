@@ -6,6 +6,9 @@
 # One exported symbol per line. Additions must be justified by a phase card:
 # - core MIR model type / compiler facade, or
 # - refresh orchestration entry point.
+ArrayElementWriteKind
+ArrayWriteProducerKind
+ArrayWriteSiteId
 BarrierOp
 BasicBlock
 BasicBlockId
@@ -14,6 +17,7 @@ BindingId
 Callee
 ClosureBodyId
 CompareOp
+ContractRefreshBoundary
 ConstValue
 EdgeArgs
 Effect
@@ -31,15 +35,18 @@ MirOptimizer
 MirPrinter
 MirType
 MirVerifier
+LocalSlotId
 SpannedInstruction
 TypeOpKind
 UnaryOp
 UserBoxFieldDecl
 ValueId
 VerificationError
+WeakFieldWriteSiteId
 WeakRefOp
 derive_string_kernel_plan
 infer_string_kernel_text_consumer
+refresh_and_validate_for_boundary
 refresh_function_agg_local_scalarization_routes
 refresh_function_array_getset_micro_seed_route
 refresh_function_array_rmw_add1_leaf_seed_route
@@ -118,3 +125,4 @@ refresh_module_userbox_known_receiver_method_seed_routes
 refresh_module_userbox_local_scalar_seed_routes
 refresh_module_userbox_loop_micro_seed_routes
 refresh_module_value_consumer_facts
+refresh_owned_for_boundary

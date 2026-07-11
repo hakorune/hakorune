@@ -5,6 +5,45 @@
 Active design consultation stop. Do not change backend lowering, runtime
 support, selfhost claims, or capability flags before this decision is accepted.
 
+## Review Corrective Queue
+
+Fable5 review found two pre-existing issues while this stop is active:
+
+```text
+R1 stop-the-line gate repair:
+  naming_charter_guard pinned the deleted literal comment "syntax-3 path"
+  after canonical break/continue replaced that compatibility branch.
+  Remove the obsolete literal requirement; do not restore a false comment.
+  Run naming guard from the Language v1 FULL sensitive-path gate so the
+  grammar and dev-gate lanes cannot remain split.
+
+R2 queued semantic corrective:
+  untyped legacy field read returned through a method can panic at
+  phi_type_inference.rs instead of producing a stable structured rejection.
+  Queue LANGV1-UNTYPED-FIELD-PHI-FAILFAST-CORRECTIVE-001 after this design
+  decision. It requires a checked-in fixture, a Result-bearing owner boundary,
+  one stable type/* tag, and zero Rust panic/fallback-to-Unknown behavior.
+```
+
+R1 changes guard wiring only and does not answer the product-backend decision.
+R2 is not implemented inside this design-stop card.
+
+The first full `dev_gate quick` rerun also exposed MIR-root allowlist drift from
+the earlier contract-family cards. The corrective keeps operation IDs/kinds
+and refresh orchestration at the root, removes carrier bundle re-exports, and
+records the classification in the MIR facade SSOT. This is gate convergence,
+not product-backend implementation.
+
+Corrective evidence:
+
+```text
+naming_charter_guard = green
+MIR root facade/import guards = green; exports=120
+dev_gate quick = green
+LANGV1_GRAMMAR_FULL = naming green + 38/38 + 15/15 green
+product backend behavior changed = 0
+```
+
 ## Closed Basis
 
 3501 and 3502 already close the language/runtime-reference law:

@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Language-sensitive changes must also preserve the repository naming charter.
+# This closes the historical split where the grammar lane stayed green while
+# dev_gate quick had already detected stale parser terminology.
+bash tools/checks/naming_charter_guard.sh
+
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$ROOT_DIR"
 

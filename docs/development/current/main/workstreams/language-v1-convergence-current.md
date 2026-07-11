@@ -367,6 +367,13 @@ T5 complete through reference semantics:
 T6 design stop:
   3503 select defer-with-failfast or one carrier-aware product backend
   VM remains semantic-reference only and cannot satisfy product parity
+  stop-the-line gate repair removes the obsolete syntax-3 comment token and
+  joins naming_charter_guard to the Language v1 FULL sensitive-path gate
+
+Queued residue after the 3503 decision:
+  LANGV1-UNTYPED-FIELD-PHI-FAILFAST-CORRECTIVE-001
+  replace debug panic/release Unknown fallback with one Result-bearing owner,
+  stable type/* rejection, and an untyped-field method-return fixture
   all active carriers covered by unsupported-backend pre-effect rejection
   no new type-family activation
 

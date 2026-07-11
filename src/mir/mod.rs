@@ -258,8 +258,7 @@ pub use printer::MirPrinter;
 pub use semantic_refresh::{
     refresh_and_validate_for_boundary, refresh_function_semantic_metadata,
     refresh_function_string_corridor_metadata, refresh_module_semantic_metadata,
-    refresh_owned_for_boundary, ContractCarrierSummary, ContractRefreshBoundary,
-    OwnedRefreshedContractBundle, RefreshedContractBundle,
+    refresh_owned_for_boundary, ContractRefreshBoundary,
 };
 pub use spanned_instruction::SpannedInstruction;
 pub use storage_class::{refresh_function_storage_class_facts, refresh_module_storage_class_facts};

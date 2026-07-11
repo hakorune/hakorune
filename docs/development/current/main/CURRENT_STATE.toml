@@ -70,6 +70,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-11: Fable5 stop-the-line review closes obsolete parser comment-token guards, moves program-parser naming ownership, joins naming to the Language v1 FULL gate, and restores dev_gate quick plus FULL grammar green; 3503 remains the active design stop.",
   "2026-07-11: 3502 closes WeakFieldContractOwner, explicit writes, declaration-indexed slots, dynamic alias enforcement, refreshed JSON, VM reference checks, and non-VM fail-fast; 3503 opens product-backend selection.",
   "2026-07-11: 3501 closes stable WeakRef token equality, logical Dead/Freed upgrade, strict WeakRef.Load, and keeps Weak field activation at zero; 3502 becomes active.",
   "2026-07-11: 3500 accepts WeakFieldContractOwner + WeakFieldWrite + declaration-indexed weak slots + unified-absence reads; 3501 opens the prerequisite WeakRef value-law corrective.",
@@ -81,5 +82,4 @@ landed_tail = [
   "2026-07-11: 3494 selects Static Table readonly U16 contract closeout without new activation; 3495 becomes active.",
   "2026-07-11: 3493 closes record construction/update exact-numeric contracts, semantic refresh, VM checks, MIR JSON, and unsupported-backend preflight; 3494 opens the next-family design stop.",
   "2026-07-11: 3492 closes one function-entry BindingId owner, assignment exception retirement, source fixtures, FULL 12/12 parity, and changed-path gate coupling; 3493 becomes active.",
-  "2026-07-11: FULL differential composition exposes an instance-parameter BindingId gap; 3492 opens a stop-the-line identity corrective before 3491 resumes.",
 ]

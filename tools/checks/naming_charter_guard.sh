@@ -75,6 +75,7 @@ HH_BUILD_README="$ROOT_DIR/lang/src/compiler/build/README.md"
 HH_BUILD_BUNDLE_FACADE="$ROOT_DIR/lang/src/compiler/build/build_bundle_facade_box.hako"
 HH_MIRBUILDER_README="$ROOT_DIR/lang/src/compiler/mirbuilder/README.md"
 HH_PARSER_BOX="$ROOT_DIR/lang/src/compiler/parser/parser_box.hako"
+HH_PARSER_PROGRAM_BOX="$ROOT_DIR/lang/src/compiler/parser/program/parser_program_box.hako"
 HH_PARSER_EXPR_BOX="$ROOT_DIR/lang/src/compiler/parser/expr/parser_expr_box.hako"
 HH_PARSER_NUMBER_SCAN="$ROOT_DIR/lang/src/compiler/parser/scan/parser_number_scan_box.hako"
 HH_PARSER_RUNE_CONTRACT="$ROOT_DIR/lang/src/compiler/parser/rune/rune_contract_box.hako"
@@ -1183,12 +1184,12 @@ require_fixed "mode-A bridge callers" "$HH_MIRBUILDER_README"
 require_fixed "mode-B compatibility Program(JSON v0)" "$HH_MIRBUILDER_README"
 require_fixed "mode-B compatibility MIR emitter can stall" "$HH_PARSER_CONTROL_BOX"
 require_fixed "disabled in mode-B compatibility runtime" "$HH_PARSER_CONTROL_BOX"
-require_fixed "syntax-3 path" "$HH_PARSER_CONTROL_BOX"
+# Canonical break/continue replaced the former syntax-3-only early-return path.
+# Grammar/profile ownership is checked by the Language v1 registry gate; this
+# naming guard must not pin a deleted parser branch through comment text.
 require_fixed "mode-B compatibility/selfhost safety valve" "$HH_PARSER_STMT_CORE"
-require_fixed "mode-B compatibility compiler code" "$HH_PARSER_STMT_CORE"
 require_fixed "syntax-3: try-less postfix handler path" "$HH_PARSER_STMT_CORE"
-require_fixed "mode-B compatibility / selfhost callers" "$HH_PARSER_BOX"
-require_fixed "mode-B compatibility/selfhost callers" "$HH_PARSER_BOX"
+require_fixed "mode-B compatibility / selfhost callers" "$HH_PARSER_PROGRAM_BOX"
 require_fixed "syntax-3 only" "$HH_PARSER_BOX"
 require_fixed "mode-B compatibility VM quirks" "$HH_PARSER_CONTROL_BOX"
 require_fixed "Required by mode-B compatibility fixtures" "$HH_PARSER_EXPR_BOX"
@@ -1202,6 +1203,7 @@ if rg -n 'Stage-B adapter|Live Stage-B bundle entry|Stage-A bridge callers|Stage
   "$HH_PARSER_CONTROL_BOX" \
   "$HH_PARSER_STMT_CORE" \
   "$HH_PARSER_BOX" \
+  "$HH_PARSER_PROGRAM_BOX" \
   "$HH_PARSER_EXCEPTION_BOX" \
   "$HH_PARSER_EXPR_BOX" \
   "$HH_PARSER_RUNE_CONTRACT" \

@@ -114,3 +114,9 @@ Expected shape:
 Phase 291x pruned the major semantic metadata root exports through the
 root-export cleanup cards. The remaining MIR root surface should be treated as
 a facade, not a semantic metadata catalog.
+
+The Language v1 review corrective at card 3503 classifies explicit Array/Weak
+write operation enums and IDs plus `LocalSlotId` as core MIR model vocabulary.
+`ContractRefreshBoundary` and the two refresh-and-validate functions are
+orchestration facade entries. Carrier summaries and refreshed bundle types stay
+owned by `mir::semantic_refresh` and are not re-exported from the MIR root.
