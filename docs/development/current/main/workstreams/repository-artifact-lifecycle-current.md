@@ -315,7 +315,16 @@ batch-001-dedicated-large-cluster:
   docs_slim_archive_policy_guard = green
   dev_gate_quick = green
 
-next = H2-TRACE-PARTIAL-PHASE-BATCH-002
+batch-002:
+  moved_files = 200
+  repository_paths_rewritten = 227
+  current_documents = 9607 -> 9407
+  remaining_files = 1131
+  remaining_clusters = 998
+  largest_remaining_cluster = 15
+  all_gates = green
+
+next = H2-TRACE-PARTIAL-PHASE-BATCH-003
 maximum_files = 200
 ```
 

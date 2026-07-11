@@ -3,8 +3,8 @@
     "checks": 3261,
     "design_direct": 849,
     "docs": 12281,
-    "docs_development_archive": 1258,
-    "docs_development_current": 9607,
+    "docs_development_archive": 1458,
+    "docs_development_current": 9407,
     "main_direct": 168,
     "phase_296x_archive": 2517,
     "phase_296x_direct": 1031,
@@ -885,247 +885,11 @@
   },
   "document_reachability": {
     "ambiguous_basename_count": 19,
-    "document_count": 9607,
+    "document_count": 9407,
     "partial_phase_unreachable": {
       "archive_target_collision_count": 0,
-      "cluster_count": 1007,
+      "cluster_count": 998,
       "clusters": [
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-291x/291x-163-maphas-emit-kind-mirror-prune-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-164-metadata-absent-has-fallback-contract-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-209-runtime-data-map-has-metadata-fixture-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-210-runtime-data-map-has-dispatch-fixture-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-211-runtime-data-has-compat-contract-design-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-223-generic-has-route-no-growth-guard-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-224-generic-has-dead-array-route-cleanup-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-225-generic-has-dead-value-demand-helper-cleanup-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-226-generic-has-metadata-output-thinning-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-227-route-policy-metadata-path-dead-surface-read-cleanup-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-228-generic-lowering-unused-plan-alias-cleanup-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-229-dead-array-has-need-flag-cleanup-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-230-dead-runtime-array-has-route-flag-cleanup-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-233-generic-get-metadata-output-thinning-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-241-mapbox-has-route-policy-prune-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-244-mir-call-has-surface-review-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-256-mir-call-arraybox-receiver-surface-prune-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-257-mir-call-mapbox-receiver-surface-review-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-258-mir-call-runtime-data-receiver-surface-prune-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-259-mir-call-mapbox-has-need-prune-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-260-mir-call-need-dead-surface-fallback-prune-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-261-has-family-no-safe-prune-review-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-268-arrayhas-core-method-carrier-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-269-arraybox-has-route-fallback-prune-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-270-runtime-data-has-route-fallback-prune-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-271-generic-has-emit-kind-fallback-prune-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-272-mir-call-maphas-surface-fallback-closeout-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-273-runtime-data-has-declare-need-flag-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-274-docs-smoke-operating-simplification-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-275-remaining-cleanup-inventory-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-286-mir-call-maphas-residual-seam-cleanup-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-287-mir-call-maphas-sentinel-retirement-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-288-post-inc-zero-rebaseline-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-289-mir-call-route-policy-owner-audit-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-290-mir-call-route-policy-export-retirement-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-291-mir-call-need-policy-owner-audit-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-292-mir-call-need-policy-export-retirement-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-293-mir-call-surface-policy-owner-audit-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-294-mir-call-surface-policy-export-retirement-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-295-runtime-meta-live-table-inventory-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-296-runtime-meta-using-support-owner-audit-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-297-runtime-meta-using-support-export-retirement-card.md"
-          ],
-          "file_count": 42
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-291x/291x-489-map-lookup-fusion-root-export-prune-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-490-exact-seed-backend-route-field-boundary-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-491-concat-const-suffix-route-field-boundary-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-492-array-string-store-route-field-boundary-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-493-array-rmw-add1-leaf-route-field-boundary-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-494-array-getset-micro-route-field-boundary-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-495-substring-views-micro-route-field-boundary-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-496-sum-variant-tag-route-field-boundary-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-497-sum-variant-project-route-field-boundary-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-498-userbox-local-scalar-route-field-boundary-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-499-userbox-loop-micro-route-field-boundary-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-500-userbox-known-receiver-method-route-field-boundary-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-501-indexof-search-micro-route-field-boundary-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-502-string-direct-set-window-route-field-boundary-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-503-array-rmw-window-route-field-boundary-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-504-array-string-len-window-route-field-boundary-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-505-array-text-loopcarry-route-field-boundary-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-506-array-text-edit-route-field-boundary-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-507-array-text-combined-region-route-field-boundary-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-508-array-text-residence-session-route-field-boundary-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-509-array-text-observer-route-field-boundary-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-510-array-text-observer-executor-contract-field-boundary-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-511-array-text-residence-executor-region-mapping-field-boundary-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-512-array-text-combined-region-vocabulary-boundary-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-513-array-text-state-residence-route-contract-field-boundary-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-514-array-text-state-residence-payload-field-boundary-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-515-array-text-observer-contract-root-export-prune-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-516-array-text-state-residence-root-export-prune-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-517-array-text-route-root-export-prune-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-518-json-helper-route-root-export-prune-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-519-sum-variant-seed-root-export-prune-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-520-userbox-seed-root-export-prune-card.md"
-          ],
-          "file_count": 32
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-294x/294x-135-HAKO-ALLOC-USIZE-PRESENTATION-CHAIN-MINI-HANDOFF.md",
-            "docs/development/current/main/phases/phase-294x/294x-136-HAKO-ALLOC-USIZE-C-MIMALLOC-RESULT-PRESENTATION-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-PILOT-COUNTER-SELECTION.md",
-            "docs/development/current/main/phases/phase-294x/294x-137-HAKO-ALLOC-USIZE-C-MIMALLOC-RESULT-PRESENTATION-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-PILOT-COUNTERS.md",
-            "docs/development/current/main/phases/phase-294x/294x-138-HAKO-ALLOC-USIZE-C-MIMALLOC-RESULT-PRESENTATION-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-PILOT-COUNTER-SELECTION.md",
-            "docs/development/current/main/phases/phase-294x/294x-139-HAKO-ALLOC-USIZE-C-MIMALLOC-RESULT-PRESENTATION-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-PILOT-COUNTERS.md",
-            "docs/development/current/main/phases/phase-294x/294x-140-HAKO-ALLOC-USIZE-C-MIMALLOC-RESULT-PRESENTATION-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-PILOT-COUNTER-SELECTION.md",
-            "docs/development/current/main/phases/phase-294x/294x-141-HAKO-ALLOC-USIZE-C-MIMALLOC-RESULT-PRESENTATION-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-PILOT-COUNTERS.md",
-            "docs/development/current/main/phases/phase-294x/294x-142-HAKO-ALLOC-USIZE-C-MIMALLOC-RESULT-PRESENTATION-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-PILOT-COUNTER-SELECTION.md",
-            "docs/development/current/main/phases/phase-294x/294x-143-HAKO-ALLOC-USIZE-C-MIMALLOC-RESULT-PRESENTATION-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-PILOT-COUNTERS.md",
-            "docs/development/current/main/phases/phase-294x/294x-144-HAKO-ALLOC-USIZE-C-MIMALLOC-RESULT-PRESENTATION-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-PILOT-COUNTER-SELECTION.md",
-            "docs/development/current/main/phases/phase-294x/294x-145-HAKO-ALLOC-USIZE-C-MIMALLOC-RESULT-PRESENTATION-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-PILOT-COUNTERS.md",
-            "docs/development/current/main/phases/phase-294x/294x-146-HAKO-ALLOC-USIZE-C-MIMALLOC-RESULT-PRESENTATION-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-PILOT-COUNTER-SELECTION.md",
-            "docs/development/current/main/phases/phase-294x/294x-147-HAKO-ALLOC-USIZE-C-MIMALLOC-RESULT-PRESENTATION-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-PILOT-COUNTERS.md",
-            "docs/development/current/main/phases/phase-294x/294x-148-HAKO-ALLOC-USIZE-C-MIMALLOC-RESULT-PRESENTATION-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-PILOT-COUNTER-SELECTION.md",
-            "docs/development/current/main/phases/phase-294x/294x-149-HAKO-ALLOC-USIZE-C-MIMALLOC-RESULT-PRESENTATION-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-EXTENSION-FOLLOW-ON-PILOT-COUNTERS.md",
-            "docs/development/current/main/phases/phase-294x/294x-150-HAKO-ALLOC-USIZE-C-MIMALLOC-RESULT-PRESENTATION-ONLY-EXTENSION-PILOT-COUNTER-SELECTION.md",
-            "docs/development/current/main/phases/phase-294x/294x-151-HAKO-ALLOC-USIZE-C-MIMALLOC-RESULT-PRESENTATION-ONLY-EXTENSION-PILOT-COUNTERS.md",
-            "docs/development/current/main/phases/phase-294x/294x-152-HAKO-ALLOC-USIZE-C-MIMALLOC-RESULT-PRESENTATION-ONLY-EXTENSION-PILOT-COUNT-AND-BYTE-PAYLOAD-SELECTION.md",
-            "docs/development/current/main/phases/phase-294x/294x-153-HAKO-ALLOC-USIZE-C-MIMALLOC-RESULT-PRESENTATION-ONLY-EXTENSION-PILOT-COUNT-AND-BYTE-PAYLOADS.md",
-            "docs/development/current/main/phases/phase-294x/294x-154-HAKO-ALLOC-USIZE-C-MIMALLOC-RESULT-PRESENTATION-ONLY-EXTENSION-PILOT-REPORT-METADATA-AND-EVIDENCE-STATUS-SELECTION.md",
-            "docs/development/current/main/phases/phase-294x/294x-155-HAKO-ALLOC-USIZE-C-MIMALLOC-RESULT-PRESENTATION-ONLY-EXTENSION-PILOT-REPORT-METADATA-AND-EVIDENCE-STATUS-FIELDS.md",
-            "docs/development/current/main/phases/phase-294x/294x-156-HAKO-ALLOC-USIZE-C-MIMALLOC-RESULT-PRESENTATION-ONLY-EXTENSION-PILOT-PERFORMANCE-CONCLUSION-MEMORY-CONCLUSION-REPEATED-BENCHMARK-PROCESS-REPLACEMENT-EVIDENCE-SELECTION.md",
-            "docs/development/current/main/phases/phase-294x/294x-157-HAKO-ALLOC-USIZE-C-MIMALLOC-RESULT-PRESENTATION-ONLY-EXTENSION-PILOT-PERFORMANCE-CONCLUSION-MEMORY-CONCLUSION-REPEATED-BENCHMARK-PROCESS-REPLACEMENT-EVIDENCE-FIELDS.md",
-            "docs/development/current/main/phases/phase-294x/294x-158-HAKO-ALLOC-USIZE-C-MIMALLOC-RESULT-PRESENTATION-ONLY-EXTENSION-PILOT-LATER-HOOK-PROVIDER-GLOBAL-ALLOCATOR-EVIDENCE-SELECTION.md",
-            "docs/development/current/main/phases/phase-294x/294x-159-HAKO-ALLOC-USIZE-C-MIMALLOC-RESULT-PRESENTATION-ONLY-EXTENSION-PILOT-LATER-HOOK-PROVIDER-GLOBAL-ALLOCATOR-EVIDENCE-FIELDS.md",
-            "docs/development/current/main/phases/phase-294x/294x-160-HAKO-ALLOC-USIZE-C-MIMALLOC-RESULT-PRESENTATION-ONLY-EXTENSION-PILOT-CLOSEOUT.md"
-          ],
-          "file_count": 26
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-291x/291x-203-runtime-data-array-push-carrier-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-204-push-emit-kind-mirror-prune-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-205-push-route-surface-mirror-prune-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-206-len-boundary-metadata-fixtures-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-207-len-emit-kind-mirror-prune-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-208-len-route-surface-mirror-prune-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-212-string-indexof-coremethod-carrier-design-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-213-substring-boundary-metadata-fixtures-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-214-substring-emit-kind-mirror-prune-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-215-substring-route-surface-mirror-prune-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-217-string-indexof-carrier-consumer-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-218-indexof-line-boundary-route-fixture-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-219-indexof-route-surface-mirror-prune-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-220-stringbox-receiver-surface-prune-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-221-method-surface-dead-branch-cleanup-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-222-string-receiver-family-dead-vocabulary-cleanup-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-242-len-route-metadata-consumer-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-243-push-route-metadata-consumer-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-245-len-route-prune-review-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-246-push-route-prune-review-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-262-len-route-bname-fallback-prune-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-263-push-arraybox-route-fallback-prune-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-267-runtime-data-push-route-fallback-prune-card.md"
-          ],
-          "file_count": 23
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-291x/291x-316-current-pointer-thinning-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-317-joinir-simple-while-main-gate-inventory-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-318-joinir-simple-while-main-gate-helper-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-319-joinir-casea-update-summary-name-only-inventory-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-320-joinir-casea-update-summary-name-only-prune-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-321-joinir-casea-carrier-count-heuristic-inventory-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-322-joinir-casea-carrier-count-heuristic-prune-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-323-joinir-loop-update-index-name-heuristic-inventory-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-324-joinir-loop-update-rhs-first-classification-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-325-joinir-loop-update-nested-scope-inventory-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-326-joinir-loop-update-nested-scope-prune-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-327-joinir-loop-update-multi-assignment-inventory-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-328-joinir-loop-update-all-rhs-classification-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-329-joinir-loop-update-assignment-value-traversal-inventory-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-330-joinir-loop-update-assignment-value-traversal-prune-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-331-joinir-loop-update-summary-helper-split-inventory-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-332-joinir-loop-update-summary-helper-split-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-333-joinir-loop-update-stale-docs-inventory-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-334-joinir-loop-update-doc-comment-contract-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-335-joinir-loop-update-caller-surface-inventory-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-336-joinir-loop-update-reserved-field-prune-card.md"
-          ],
-          "file_count": 21
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P73-LOWERING-PLAN-CONSUMER-VIEW-SSOT.md",
-            "docs/development/current/main/phases/phase-29cv/P74-LOWERING-PLAN-EMIT-KIND-VIEW-SSOT.md",
-            "docs/development/current/main/phases/phase-29cv/P75-LOWERING-PLAN-MAPLEN-DIRECTABI-CONSUME.md",
-            "docs/development/current/main/phases/phase-29cv/P76-LOWERING-PLAN-ARRAYLEN-DIRECTABI-CONSUME.md",
-            "docs/development/current/main/phases/phase-29cv/P77-LOWERING-PLAN-STRINGLEN-DIRECTABI-CONSUME.md",
-            "docs/development/current/main/phases/phase-29cv/P78-LOWERING-PLAN-ARRAYGET-DIRECTABI-CONSUME.md",
-            "docs/development/current/main/phases/phase-29cv/P79-LOWERING-PLAN-DIRECTABI-MAPGET-LOCK.md",
-            "docs/development/current/main/phases/phase-29cv/P80-LOWERING-PLAN-MAPGET-DIRECTABI-CONSUME.md",
-            "docs/development/current/main/phases/phase-29cv/P81-LOWERING-PLAN-NEED-KIND-TABLE-SSOT.md",
-            "docs/development/current/main/phases/phase-29cv/P82-LOWERING-PLAN-ARRAYHAS-DIRECTABI-CONSUME.md",
-            "docs/development/current/main/phases/phase-29cv/P83-LOWERING-PLAN-ARRAYPUSH-COLDRUNTIME-CONSUME.md",
-            "docs/development/current/main/phases/phase-29cv/P84-LOWERING-PLAN-ROUTE-KIND-TABLE-SSOT.md",
-            "docs/development/current/main/phases/phase-29cv/P85-LOWERING-PLAN-MAPSET-COLDRUNTIME-CONSUME.md",
-            "docs/development/current/main/phases/phase-29cv/P86-RUNTIME-DATA-DISPATCH-E2E-SMOKE-ROUTE-LOCK.md",
-            "docs/development/current/main/phases/phase-29cv/P87-LOWERING-PLAN-SET-ROUTE-TABLE-SSOT.md",
-            "docs/development/current/main/phases/phase-29cv/P88-LOWERING-PLAN-ARRAYSET-I64-COLDRUNTIME-CONSUME.md",
-            "docs/development/current/main/phases/phase-29cv/P89-LOWERING-PLAN-ARRAYSET-HANDLE-COLDRUNTIME-CONSUME.md",
-            "docs/development/current/main/phases/phase-29cv/P90-LOWERING-PLAN-SET-ROUTE-VALUE-SHAPE-GUARD.md",
-            "docs/development/current/main/phases/phase-29cv/P91-LOWERING-PLAN-ARRAYSET-STRING-COLDRUNTIME-CONSUME.md"
-          ],
-          "file_count": 19
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-291x/291x-575-plan-compat-residue-inventory-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-577-unused-plan-facts-wrapper-prune-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-578-small-plan-facts-owner-path-migration-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-579-plan-extractors-common-helpers-owner-migration-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-580-plan-canon-cond-block-view-owner-migration-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-581-ssa-exit-binding-plan-wrapper-prune-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-582-recipes-composer-compat-prune-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-583-lower-planner-compat-inventory-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-584-edgecfg-facade-boundary-review-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-585-legacy-v0-boundary-inventory-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-586-loop-collect-using-entries-wrapper-prune-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-587-loop-bundle-resolver-wrapper-prune-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-588-loop-scan-phi-vars-recipe-seam-review-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-589-nested-loop-recipe-owner-path-migration-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-619-lower-edgecfg-reexport-prune-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-620-broad-plan-facts-migration-boundary-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-635-current-task-order-closeout-card.md"
-          ],
-          "file_count": 17
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-291x/291x-300-runtime-meta-root-closeout-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-301-post-runtime-meta-cleanup-inventory-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-302-joinir-if-target-exact-allowlist-ssot-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-303-joinir-if-target-prefix-policy-inventory-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-304-joinir-if-target-prefix-helper-split-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-305-joinir-type-hint-prefix-policy-inventory-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-306-joinir-type-hint-family-table-split-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-307-generic-type-resolver-p3c-candidate-helper-audit-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-308-generic-type-resolver-p3c-candidate-helper-retirement-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-309-joinir-residual-name-policy-inventory-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-310-joinir-frontend-route-descriptor-table-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-311-joinir-casea-name-policy-inventory-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-312-joinir-casea-target-descriptor-table-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-313-joinir-casea-fallback-dispatch-descriptor-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-314-joinir-casea-context-label-inventory-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-315-joinir-casea-context-label-helper-card.md"
-          ],
-          "file_count": 16
-        },
         {
           "documents": [
             "docs/development/current/main/phases/phase-294x/294x-172-HAKO-ALLOC-USIZE-PAGE-SOURCE-ATTACH-REPORT-MIRROR-COUNTER-SELECTION.md",
@@ -1229,15 +993,6 @@
             "docs/development/current/main/phases/phase-29cv/P99-HAKO-CAPI-PURE-ALIAS-WARNING.md"
           ],
           "file_count": 5
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-291x/291x-235-runtime-data-get-boundary-smoke-repair-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-237-array-string-get-metadata-fixture-sweep-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-238-array-string-indexof-observer-fixture-repair-card.md",
-            "docs/development/current/main/phases/phase-291x/291x-239-array-string-len-substring-fixture-repair-card.md"
-          ],
-          "file_count": 4
         },
         {
           "documents": [
@@ -7257,7 +7012,7 @@
           "file_count": 1
         }
       ],
-      "file_count": 1331,
+      "file_count": 1131,
       "phase_count": 41,
       "reachable_incoming_edge_count": 0
     },
@@ -7666,8 +7421,8 @@
       {
         "phase": "phase-291x",
         "reachable_files": 224,
-        "total_files": 696,
-        "unreachable_files": 472,
+        "total_files": 541,
+        "unreachable_files": 317,
         "whole_phase_unreachable": false
       },
       {
@@ -7680,8 +7435,8 @@
       {
         "phase": "phase-294x",
         "reachable_files": 163,
-        "total_files": 297,
-        "unreachable_files": 134,
+        "total_files": 271,
+        "unreachable_files": 108,
         "whole_phase_unreachable": false
       },
       {
@@ -7925,8 +7680,8 @@
       {
         "phase": "phase-29cv",
         "reachable_files": 5,
-        "total_files": 157,
-        "unreachable_files": 152,
+        "total_files": 138,
+        "unreachable_files": 133,
         "whole_phase_unreachable": false
       },
       {
@@ -8024,7 +7779,7 @@
       "fixed_current_entry": 4,
       "reference_src_tools": 3042
     },
-    "unreachable_count": 4702,
+    "unreachable_count": 4502,
     "whole_phase_unreachable": [],
     "whole_phase_unreachable_count": 0,
     "whole_phase_unreachable_files": 0
@@ -9075,8 +8830,8 @@
     }
   },
   "phase_directories": {
-    "archived_phase_count": 288,
-    "archived_phase_files": 1258,
+    "archived_phase_count": 289,
+    "archived_phase_files": 1458,
     "inactive_candidate_count": 0,
     "inactive_candidates": [],
     "phase_count": 107,
@@ -9653,13 +9408,13 @@
       },
       {
         "current_pointer": false,
-        "direct_files": 696,
+        "direct_files": 541,
         "eligible_for_whole_phase_archive": false,
-        "external_reference_count": 12,
+        "external_reference_count": 11,
         "phase": "phase-291x",
         "status": "active_like",
         "status_source": "docs/development/current/main/phases/phase-291x/README.md",
-        "total_files": 696
+        "total_files": 541
       },
       {
         "current_pointer": false,
@@ -9673,13 +9428,13 @@
       },
       {
         "current_pointer": false,
-        "direct_files": 297,
+        "direct_files": 271,
         "eligible_for_whole_phase_archive": false,
         "external_reference_count": 80,
         "phase": "phase-294x",
         "status": "other_or_missing",
         "status_source": "docs/development/current/main/phases/phase-294x/README.md",
-        "total_files": 297
+        "total_files": 271
       },
       {
         "current_pointer": false,
@@ -10023,13 +9778,13 @@
       },
       {
         "current_pointer": false,
-        "direct_files": 157,
+        "direct_files": 138,
         "eligible_for_whole_phase_archive": false,
         "external_reference_count": 4,
         "phase": "phase-29cv",
         "status": "active_like",
         "status_source": "docs/development/current/main/phases/phase-29cv/README.md",
-        "total_files": 157
+        "total_files": 138
       },
       {
         "current_pointer": false,

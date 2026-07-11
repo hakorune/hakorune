@@ -7,9 +7,9 @@ Related:
   - docs/development/current/main/design/typed-object-exact-slot-abi-ssot.md
   - docs/development/current/main/design/helper-boundary-policy-ssot.md
   - docs/development/current/main/design/perf-owner-first-optimization-ssot.md
-  - docs/development/current/main/phases/phase-291x/291x-508-array-text-residence-session-route-field-boundary-card.md
-  - docs/development/current/main/phases/phase-291x/291x-509-array-text-observer-route-field-boundary-card.md
-  - docs/development/current/main/phases/phase-291x/291x-517-array-text-route-root-export-prune-card.md
+  - docs/development/archive/phases/phase-291x/291x-508-array-text-residence-session-route-field-boundary-card.md
+  - docs/development/archive/phases/phase-291x/291x-509-array-text-observer-route-field-boundary-card.md
+  - docs/development/archive/phases/phase-291x/291x-517-array-text-route-root-export-prune-card.md
 ---
 
 # Array Text Session Route SSOT
