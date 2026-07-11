@@ -25,6 +25,7 @@ pub mod core_method_aliases; // Phase 29ab: Core method alias SSOT
 pub mod core_services; // Phase 91: CoreServices trait 定義
 pub mod deprecations;
 pub mod extern_registry; // ExternCall (env.*) 登録・診断用レジストリ
+pub(crate) mod exact_numeric_contract;
 pub mod gc;
 pub mod gc_controller;
 pub mod gc_mode;

@@ -10,16 +10,14 @@ impl ArrayBox {
         Self::new_with_storage(ArrayStorage::Boxed(elements))
     }
 
-    pub(super) fn new_with_inline_i64_elements(values: Vec<i64>) -> Self {
-        Self::new_with_storage(ArrayStorage::InlineI64(values))
-    }
-
-    pub(super) fn new_with_inline_bool_elements(values: Vec<bool>) -> Self {
-        Self::new_with_storage(ArrayStorage::InlineBool(values))
-    }
-
-    pub(super) fn new_with_inline_f64_elements(values: Vec<f64>) -> Self {
-        Self::new_with_storage(ArrayStorage::InlineF64(values))
+    pub(super) fn new_with_storage_and_contract(
+        storage: ArrayStorage,
+        contract: Option<crate::typed_array_contract_spec::ArrayElementContractSpec>,
+    ) -> Self {
+        Self {
+            items: Arc::new(ArrayStateCell::new_with_contract(storage, contract)),
+            base: BoxBase::new(),
+        }
     }
 
     pub(in crate::boxes::array) fn new_with_inline_record_storage(
@@ -35,10 +33,6 @@ impl ArrayBox {
     ) -> Option<Self> {
         let storage = ArrayInlineRecordStorage::from_i64_columns(layout_id, values_by_column)?;
         Some(Self::new_with_inline_record_storage(storage))
-    }
-
-    pub(super) fn new_with_text_elements(values: Vec<String>) -> Self {
-        Self::new_with_storage(ArrayStorage::Text(Self::text_cells_from_strings(values)))
     }
 
     #[inline(always)]

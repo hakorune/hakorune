@@ -1,8 +1,5 @@
 use super::super::VMValue;
-use crate::mir::numeric_substrate::{
-    exact_numeric_const_from_i128, exact_numeric_mir_type_from_declared_name,
-    exact_numeric_value_from_dynamic_integer, ExactNumericConversionError, NumericTarget,
-};
+use crate::runtime::exact_numeric_contract::{validate_dynamic_integer, validate_exact_integer};
 
 /// Shared subordinate value/type/range checker for exact-numeric contracts.
 /// Boundary owners remain responsible for timing, carrier validation, and tags.
@@ -10,26 +7,13 @@ pub(super) fn validate_exact_numeric_runtime_value(
     value: &VMValue,
     declared_type_name: &str,
 ) -> Result<(), &'static str> {
-    let Some(exact_type) =
-        exact_numeric_mir_type_from_declared_name(Some(declared_type_name), NumericTarget::host())
-    else {
-        return Err("unknown-exact-type");
-    };
-
-    let result = match value {
-        VMValue::Integer(value) => {
-            exact_numeric_value_from_dynamic_integer(*value, &exact_type).map(|_| ())
-        }
-        VMValue::ExactNumeric(value) if value.source_name == exact_type.source_name => {
-            exact_numeric_const_from_i128(value.value, &exact_type).map(|_| ())
+    match value {
+        VMValue::Integer(value) => validate_dynamic_integer(*value, declared_type_name),
+        VMValue::ExactNumeric(value) => {
+            validate_exact_integer(value.value, value.source_name, declared_type_name)
         }
         _ => return Err("runtime-type-mismatch"),
-    };
-
-    result.map_err(|error| match error {
-        ExactNumericConversionError::NegativeToUnsigned { .. } => "negative-to-unsigned",
-        ExactNumericConversionError::OutOfRange { .. } => "out-of-range",
-    })
+    }
 }
 
 #[cfg(test)]
