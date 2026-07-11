@@ -10,7 +10,7 @@ pub(super) fn validate_exact_numeric_runtime_value(
     match value {
         VMValue::Integer(value) => validate_dynamic_integer(*value, declared_type_name),
         VMValue::ExactNumeric(value) => {
-            validate_exact_integer(value.value, value.source_name, declared_type_name)
+            validate_exact_integer(value.value, &value.source_name, declared_type_name)
         }
         _ => return Err("runtime-type-mismatch"),
     }

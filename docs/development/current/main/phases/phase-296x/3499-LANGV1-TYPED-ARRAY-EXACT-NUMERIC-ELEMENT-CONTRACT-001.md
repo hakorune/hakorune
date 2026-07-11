@@ -2,7 +2,26 @@
 
 ## Status
 
-Active substantive implementation card. Decision: accepted by 3498.
+Complete. Decision: accepted by 3498 and implemented on 2026-07-11.
+
+Closeout evidence:
+
+```text
+typed_array_contract_owner_count = 1
+typed_array_supported_element_spec_count = 7
+typed_array_all_source_boundary_count = 7
+typed_array_runtime_consumer_count = 1
+typed_array_raw_mutation_bypass_count = 0
+typed_array_runtime_check_elision = 0
+typed_array_non_vm_backend_failfast = 1
+unannotated_array_element_contract = AnyDefault
+changed_production_source_over_800_lines = 0
+
+cargo check --all-targets --features vm-reference = green
+focused source/runtime/backend/projection tests = green
+language_v1_grammar_contract_substrate_guard = green
+LANGV1_GRAMMAR_FULL=1 language_v1_grammar_contract_substrate_guard = green
+```
 
 ## Objective
 

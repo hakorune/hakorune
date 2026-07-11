@@ -12,6 +12,72 @@ pub(crate) const STALE_CARRIER_TAG: &str = "[type/typed_array_contract_stale_car
 pub(crate) const SOURCE_DRIFT_TAG: &str = "[type/typed_array_contract_source_drift]";
 pub(crate) const STATE_CONFLICT_TAG: &str = "[type/typed_array_contract_state_conflict]";
 
+pub(crate) fn register_instruction_source(
+    function: &mut MirFunction,
+    boundary: TypedArrayContractBoundary,
+    source_identity: crate::mir::function::TypedArrayContractSourceIdentity,
+    value: ValueId,
+    declared_type: Option<&str>,
+    discriminator: &str,
+) -> Result<Option<String>, String> {
+    let Some(declared_type) = declared_type else {
+        return Ok(None);
+    };
+    let Some(element_spec) = parse_annotation(declared_type)? else {
+        return Ok(None);
+    };
+    let contract_id = format!("typed-array:{discriminator}");
+    function
+        .metadata
+        .typed_array_contract_sources
+        .push(TypedArrayContractSource {
+            contract_id: contract_id.clone(),
+            boundary,
+            source_identity,
+            boundary_value: TypedArrayBoundaryValue::Value(value),
+            element_spec,
+        });
+    Ok(Some(contract_id))
+}
+
+pub(crate) fn register_source_with_id(
+    function: &mut MirFunction,
+    contract_id: String,
+    boundary: TypedArrayContractBoundary,
+    source_identity: crate::mir::function::TypedArrayContractSourceIdentity,
+    value: ValueId,
+    element_spec: crate::typed_array_contract_spec::ArrayElementContractSpec,
+) {
+    function
+        .metadata
+        .typed_array_contract_sources
+        .push(TypedArrayContractSource {
+            contract_id,
+            boundary,
+            source_identity,
+            boundary_value: TypedArrayBoundaryValue::Value(value),
+            element_spec,
+        });
+}
+
+pub(crate) fn local_slot_spec(
+    function: &MirFunction,
+    slot: crate::mir::LocalSlotId,
+) -> Option<crate::typed_array_contract_spec::ArrayElementContractSpec> {
+    function
+        .metadata
+        .typed_array_contract_sources
+        .iter()
+        .find_map(|source| match source.source_identity {
+            crate::mir::function::TypedArrayContractSourceIdentity::LocalSlot(source_slot)
+                if source_slot == slot =>
+            {
+                Some(source.element_spec)
+            }
+            _ => None,
+        })
+}
+
 pub(crate) fn refresh_source_rows(function: &mut MirFunction) -> Result<(), String> {
     function
         .metadata

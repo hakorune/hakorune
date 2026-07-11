@@ -529,6 +529,37 @@ impl MirBuilder {
         base: Option<ValueId>,
         field_values: Vec<RecordLocalFieldValue>,
     ) -> Result<ValueId, String> {
+        for (field_index, field_value) in field_values.iter().enumerate() {
+            let function = self.scope_ctx.current_function.as_mut().ok_or_else(|| {
+                "[type/typed_array_contract_carrier_missing] function=<none>".to_string()
+            })?;
+            let typed_contract =
+                crate::mir::type_contracts::typed_array::register_instruction_source(
+                    function,
+                    match boundary {
+                        RecordValueBoundaryKind::Construct => {
+                            crate::mir::function::TypedArrayContractBoundary::RecordConstruct
+                        }
+                        RecordValueBoundaryKind::WithUpdate => {
+                            crate::mir::function::TypedArrayContractBoundary::RecordWithUpdate
+                        }
+                    },
+                    crate::mir::function::TypedArrayContractSourceIdentity::RecordField {
+                        schema_fingerprint: fingerprint.clone(),
+                        field_index,
+                        update: boundary == RecordValueBoundaryKind::WithUpdate,
+                    },
+                    field_value.value,
+                    field_value.declared_type_name.as_deref(),
+                    &format!("record:{}:{}", contract_id, field_index),
+                )?;
+            if let Some(contract_id) = typed_contract {
+                self.emit_instruction(MirInstruction::ArrayStateContractClaim {
+                    contract_id,
+                    array: field_value.value,
+                })?;
+            }
+        }
         self.emit_instruction(MirInstruction::RecordValuePublish {
             dst,
             contract_id,

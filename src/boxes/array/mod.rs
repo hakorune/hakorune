@@ -18,7 +18,7 @@ mod inline_record_plan_probe;
 #[cfg(test)]
 mod inline_record_probe;
 mod ops;
-mod runtime_contract;
+pub(crate) mod runtime_contract;
 mod storage;
 mod surface_catalog;
 #[cfg(test)]

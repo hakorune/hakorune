@@ -264,6 +264,7 @@ pub fn is_supported_vm_instruction(inst: &MirInstruction) -> bool {
         inst,
         MirInstruction::Const { .. }
             | MirInstruction::ArrayElementWrite { .. }
+            | MirInstruction::ArrayStateContractClaim { .. }
             | MirInstruction::NewBox { .. }
             | MirInstruction::BinOp { .. }
             | MirInstruction::UnaryOp { .. }

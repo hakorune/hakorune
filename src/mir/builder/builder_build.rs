@@ -246,6 +246,42 @@ impl MirBuilder {
                             .cloned()
                     })
             });
+            let typed_array_spec = local_slot_id.and_then(|slot| {
+                self.scope_ctx
+                    .current_function
+                    .as_ref()
+                    .and_then(|function| {
+                        crate::mir::type_contracts::typed_array::local_slot_spec(function, slot)
+                    })
+            });
+            if let (Some(local_slot_id), Some(spec)) = (local_slot_id, typed_array_spec) {
+                let contract_id = format!(
+                    "typed-array:local:{}:reassign:{}",
+                    local_slot_id.binding_id().raw(),
+                    value_id.as_u32()
+                );
+                let function = self.scope_ctx.current_function.as_mut().ok_or_else(|| {
+                    "[type/typed_array_contract_carrier_missing] function=<none>".to_string()
+                })?;
+                function.metadata.typed_array_contract_sources.push(
+                    crate::mir::function::TypedArrayContractSource {
+                        contract_id: contract_id.clone(),
+                        boundary: crate::mir::function::TypedArrayContractBoundary::LocalReassign,
+                        source_identity:
+                            crate::mir::function::TypedArrayContractSourceIdentity::LocalSlot(
+                                local_slot_id,
+                            ),
+                        boundary_value: crate::mir::function::TypedArrayBoundaryValue::Value(
+                            value_id,
+                        ),
+                        element_spec: spec,
+                    },
+                );
+                self.emit_instruction(MirInstruction::ArrayStateContractClaim {
+                    contract_id,
+                    array: value_id,
+                })?;
+            }
             let published_value =
                 if let (Some(local_slot_id), Some(_contract)) = (local_slot_id, local_contract) {
                     let dst = self.next_value_id();

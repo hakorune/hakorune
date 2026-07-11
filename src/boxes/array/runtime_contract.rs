@@ -24,6 +24,14 @@ impl ArrayBox {
         Ok(())
     }
 
+    pub(crate) fn validate_element_for_active_contract(
+        &self,
+        value: &dyn crate::box_trait::NyashBox,
+    ) -> Result<(), &'static str> {
+        let payload = self.items.state.read();
+        validate_boxed_element(payload.element_contract, value)
+    }
+
     #[cfg(test)]
     pub(crate) fn active_element_contract(&self) -> Option<ArrayElementContractSpec> {
         self.items.element_contract()

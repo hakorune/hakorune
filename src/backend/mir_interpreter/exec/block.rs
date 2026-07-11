@@ -95,6 +95,9 @@ impl MirInterpreter {
                     MirInstruction::RecordValuePublish {
                         dst, contract_id, ..
                     } => self.execute_record_value_publish(function, contract_id, *dst)?,
+                    MirInstruction::ArrayStateContractClaim { contract_id, array } => {
+                        self.execute_typed_array_claim_instruction(function, contract_id, *array)?
+                    }
                     MirInstruction::Load { dst, ptr } => self.handle_load(*dst, *ptr)?,
                     MirInstruction::StaticDataLoad {
                         dst,
@@ -240,6 +243,8 @@ impl MirInterpreter {
             } = inst
             {
                 self.execute_record_value_publish(function, contract_id, *dst)?;
+            } else if let MirInstruction::ArrayStateContractClaim { contract_id, array } = inst {
+                self.execute_typed_array_claim_instruction(function, contract_id, *array)?;
             } else {
                 self.execute_instruction(inst)?;
             }

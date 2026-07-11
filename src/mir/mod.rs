@@ -159,6 +159,7 @@ pub mod sum_variant_tag_seed_plan; // MIR-owned route plan for temporary Sum var
 pub mod thin_entry; // thin-entry inventory for known local routes
 pub mod thin_entry_selection; // manifest-driven thin-entry selection pilot
 pub mod type_propagation; // Phase 279 P0: SSOT type propagation pipeline
+pub(crate) mod typed_array_backend_capability;
 pub mod typed_object_plan; // MIR-owned typed user-object layout plans for EXE lowering
 pub mod user_box_method_publication; // report-only publication classifier for user-box method fastpath candidates
 pub mod user_box_method_route_plan; // MIR-owned route plans for typed user-box method calls

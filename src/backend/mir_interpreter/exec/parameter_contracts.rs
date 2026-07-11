@@ -19,7 +19,16 @@ impl MirInterpreter {
     ) -> Result<(), VMError> {
         validate_parameter_entry_contracts(function).map_err(|error| self.err_invalid(error))?;
         let contracts = &function.metadata.parameter_entry_contracts;
-        if contracts.is_empty() {
+        let typed_contracts =
+            function
+                .metadata
+                .typed_array_element_contracts
+                .iter()
+                .any(|contract| {
+                    contract.boundary
+                        == crate::mir::function::TypedArrayContractBoundary::ParameterEntry
+                });
+        if contracts.is_empty() && !typed_contracts {
             return Ok(());
         }
 
@@ -42,6 +51,7 @@ impl MirInterpreter {
                 }
             }
         }
+        self.validate_typed_array_parameters(function, arguments)?;
         Ok(())
     }
 

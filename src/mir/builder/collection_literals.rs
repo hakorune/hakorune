@@ -11,6 +11,24 @@ impl super::MirBuilder {
         &mut self,
         elements: Vec<ASTNode>,
     ) -> Result<ValueId, String> {
+        self.build_array_literal_with_contract(elements, None)
+            .map(|(value, _)| value)
+    }
+
+    pub(super) fn build_typed_array_literal(
+        &mut self,
+        elements: Vec<ASTNode>,
+    ) -> Result<(ValueId, String), String> {
+        let (value, contract_id) =
+            self.build_array_literal_with_contract(elements, Some("local-literal"))?;
+        Ok((value, contract_id.expect("typed literal emits contract ID")))
+    }
+
+    fn build_array_literal_with_contract(
+        &mut self,
+        elements: Vec<ASTNode>,
+        contract_prefix: Option<&str>,
+    ) -> Result<(ValueId, Option<String>), String> {
         let arr_id = self.next_value_id();
         self.emit_instruction(MirInstruction::NewBox {
             dst: arr_id,
@@ -36,6 +54,14 @@ impl super::MirBuilder {
             arr_id,
             &MirType::Box("ArrayBox".to_string()),
         );
+        let contract_id =
+            contract_prefix.map(|prefix| format!("typed-array:{prefix}:{}", arr_id.0));
+        if let Some(contract_id) = contract_id.as_ref() {
+            self.emit_instruction(MirInstruction::ArrayStateContractClaim {
+                contract_id: contract_id.clone(),
+                array: arr_id,
+            })?;
+        }
 
         let mut element_types = Vec::new();
         for element in elements {
@@ -62,7 +88,7 @@ impl super::MirBuilder {
             arr_id,
             &element_types,
         );
-        Ok(arr_id)
+        Ok((arr_id, contract_id))
     }
 
     pub(super) fn build_map_literal(

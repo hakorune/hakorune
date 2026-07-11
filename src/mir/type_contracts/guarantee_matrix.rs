@@ -123,10 +123,10 @@ pub(crate) const GUARANTEE_MATRIX: [GuaranteeMatrixRow; 11] = [
     },
     GuaranteeMatrixRow {
         site: AnnotationSite::TypedArrayElement,
-        current: GuaranteeClass::MetadataOnlyNonGuarantee,
+        current: GuaranteeClass::RuntimeCheckedContract,
         target: GuaranteeClass::VerifiedRuntimeGuardedContract,
         owner: EnforcementOwner::TypedArrayElementContract,
-        activation: ActivationScope::Transitional,
+        activation: ActivationScope::ExactNumericFirstSlice,
         unsupported_backend: UnsupportedBackendPolicy::RejectBeforeEffects,
     },
     GuaranteeMatrixRow {
@@ -219,7 +219,7 @@ mod tests {
             .iter()
             .filter(|row| row.activation == ActivationScope::ExactNumericFirstSlice)
             .collect();
-        assert_eq!(rows.len(), 5);
+        assert_eq!(rows.len(), 6);
         assert!(rows.iter().any(|row| {
             row.site == AnnotationSite::BoxFieldWrite
                 && row.owner == EnforcementOwner::ExactNumericBoxFieldContract
@@ -239,6 +239,11 @@ mod tests {
         assert!(rows.iter().any(|row| {
             row.site == AnnotationSite::RecordConstruction
                 && row.owner == EnforcementOwner::RecordValueContract
+        }));
+        assert!(rows.iter().any(|row| {
+            row.site == AnnotationSite::TypedArrayElement
+                && row.owner == EnforcementOwner::TypedArrayElementContract
+                && row.current == GuaranteeClass::RuntimeCheckedContract
         }));
         assert!(rows.iter().all(|row| {
             row.unsupported_backend == UnsupportedBackendPolicy::RejectBeforeEffects

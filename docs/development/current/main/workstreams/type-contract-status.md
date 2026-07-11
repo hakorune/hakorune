@@ -33,7 +33,7 @@ must reject before effects.
 | --- | --- | --- |
 | static table element | readonly U16 closeout in progress | `StaticTableElementContractOwner` |
 | ordinary collection element | `Any` dynamic default | no typed activation |
-| typed `Array<T>` element | transitional metadata-only; seven-type exact-numeric source spec selected, semantic carrier inactive | `TypedArrayElementContractOwner` in 3499 |
+| typed `Array<T>` element | seven-type exact-numeric state contract active on the reference VM | `TypedArrayElementContractOwner` |
 | Weak field | builder-local `MirType` check; semantic carrier incomplete | ownership/absence row also constrains semantics |
 | FFI ingress/egress | transitional non-guarantee | dedicated FFI boundary decision |
 | backend preservation | capability preflight | representation boundary only |
@@ -60,7 +60,7 @@ consumer is already migrated.
 | Family | Source contract | Single owner | Semantic refresh | VM consumer | Backend preflight |
 | --- | --- | --- | --- | --- | --- |
 | static table readonly U16 | complete | complete | complete | complete | complete |
-| typed `Array<T>` | exact-numeric annotation spec selected | owner selected, not implemented | incomplete | runtime methods only | incomplete |
+| typed `Array<T>` | complete for seven exact-numeric spellings | complete | complete | complete | complete; unsupported backends reject |
 | Weak field | declaration flag only | builder-local only | incomplete | weak operations only | incomplete |
 | FFI | incomplete | incomplete | incomplete | provider-specific | incomplete |
 
@@ -77,8 +77,8 @@ D3:
   keep MirType route users conservative and prohibit semantic-proof promotion
 
 D4:
-  keep typed Array inactive through 3499 S1-S4; activate only after all source
-  boundaries, state claims, runtime guards, and backend vetoes close in S5
+  typed Array exact-numeric first slice closed in 3499; keep u64, pointer-sized,
+  nested, alias, non-numeric, and non-VM support inactive
 ```
 
 The null/void/Option relation, truthiness, equality compatibility, ownership,
@@ -93,6 +93,7 @@ not redefined by this ledger.
 | refresh facade | `src/mir/semantic_refresh/contracts.rs` |
 | record value contract | `src/mir/type_contracts/record_value.rs` |
 | static table contract | `src/mir/type_contracts/static_table.rs` |
+| typed Array contract | `src/mir/type_contracts/typed_array.rs`, `src/boxes/array/runtime_contract.rs` |
 | runtime type tags/specs | `src/backend/runtime_type_tag.rs`, `src/backend/runtime_type_spec.rs` |
 | VM truthiness/equality | `src/backend/abi_util.rs` |
 | MIR binary operations | `src/backend/mir_interpreter/helpers.rs` |

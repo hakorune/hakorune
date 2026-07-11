@@ -214,6 +214,36 @@ impl super::MirBuilder {
             )?;
         }
 
+        if let Some((box_name, field_index, declared_name)) =
+            self.declared_field_contract_identity(object_value, &field)
+        {
+            let function = self.scope_ctx.current_function.as_mut().ok_or_else(|| {
+                "[type/typed_array_contract_carrier_missing] function=<none>".to_string()
+            })?;
+            let contract_id = crate::mir::type_contracts::typed_array::register_instruction_source(
+                function,
+                crate::mir::function::TypedArrayContractBoundary::BoxFieldWrite,
+                crate::mir::function::TypedArrayContractSourceIdentity::BoxField {
+                    box_name,
+                    field_index,
+                },
+                value_result,
+                declared_name.as_deref(),
+                &format!(
+                    "box-field:{}:{}:{}",
+                    object_value.as_u32(),
+                    field,
+                    value_result.as_u32()
+                ),
+            )?;
+            if let Some(contract_id) = contract_id {
+                self.emit_instruction(crate::mir::MirInstruction::ArrayStateContractClaim {
+                    contract_id,
+                    array: value_result,
+                })?;
+            }
+        }
+
         if let Some(region) = region {
             self.emit_fastmem_memop(
                 region,

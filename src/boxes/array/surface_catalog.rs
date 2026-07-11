@@ -273,21 +273,39 @@ pub enum ArraySurfaceInvokeResult {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct ArraySurfaceInvokeError {
-    pub method: ArrayMethodId,
-    pub expected: usize,
-    pub actual: usize,
+pub enum ArraySurfaceInvokeError {
+    Arity {
+        method: ArrayMethodId,
+        expected: usize,
+        actual: usize,
+    },
+    ElementContract {
+        method: ArrayMethodId,
+        reason: &'static str,
+    },
 }
 
 impl fmt::Display for ArraySurfaceInvokeError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-            "ArrayBox.{} expects {} args, got {}",
-            self.method.canonical_name(),
-            self.expected,
-            self.actual
-        )
+        match self {
+            Self::Arity {
+                method,
+                expected,
+                actual,
+            } => write!(
+                f,
+                "ArrayBox.{} expects {} args, got {}",
+                method.canonical_name(),
+                expected,
+                actual
+            ),
+            Self::ElementContract { method, reason } => write!(
+                f,
+                "[type/typed_array_contract_element_runtime_mismatch] method={} reason={}",
+                method.canonical_name(),
+                reason
+            ),
+        }
     }
 }
 
@@ -300,7 +318,7 @@ impl ArrayBox {
         let expected = method.arity();
         let actual = args.len();
         if actual != expected {
-            return Err(ArraySurfaceInvokeError {
+            return Err(ArraySurfaceInvokeError::Arity {
                 method,
                 expected,
                 actual,
@@ -317,11 +335,27 @@ impl ArrayBox {
             ArrayMethodId::Set => {
                 let index = args.next().expect("validated ArrayBox.set index");
                 let value = args.next().expect("validated ArrayBox.set value");
+                if index
+                    .as_any()
+                    .downcast_ref::<crate::box_trait::IntegerBox>()
+                    .is_some()
+                {
+                    self.validate_element_for_active_contract(value.as_ref())
+                        .map_err(|reason| ArraySurfaceInvokeError::ElementContract {
+                            method,
+                            reason,
+                        })?;
+                }
                 let _ = self.set(index, value);
                 ArraySurfaceInvokeResult::Void
             }
             ArrayMethodId::Push => {
                 let value = args.next().expect("validated ArrayBox.push value");
+                self.validate_element_for_active_contract(value.as_ref())
+                    .map_err(|reason| ArraySurfaceInvokeError::ElementContract {
+                        method,
+                        reason,
+                    })?;
                 let _ = self.push(value);
                 ArraySurfaceInvokeResult::Void
             }
@@ -356,6 +390,17 @@ impl ArrayBox {
             ArrayMethodId::Insert => {
                 let index = args.next().expect("validated ArrayBox.insert index");
                 let value = args.next().expect("validated ArrayBox.insert value");
+                if index
+                    .as_any()
+                    .downcast_ref::<crate::box_trait::IntegerBox>()
+                    .is_some()
+                {
+                    self.validate_element_for_active_contract(value.as_ref())
+                        .map_err(|reason| ArraySurfaceInvokeError::ElementContract {
+                            method,
+                            reason,
+                        })?;
+                }
                 let _ = self.insert(index, value);
                 ArraySurfaceInvokeResult::Void
             }

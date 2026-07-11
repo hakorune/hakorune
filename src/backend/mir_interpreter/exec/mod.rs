@@ -18,6 +18,7 @@ mod phi;
 mod record_contracts;
 mod return_contracts;
 mod trace;
+mod typed_array_contracts;
 
 pub(crate) use block::BlockOutcome;
 
@@ -276,6 +277,8 @@ impl MirInterpreter {
             match outcome {
                 BlockOutcome::Return(result) => {
                     let contract_result = self.validate_function_return_contract(func, &result);
+                    let contract_result = contract_result
+                        .and_then(|_| self.validate_typed_array_return(func, &result));
                     crate::runtime::leak_tracker::observe_temps(self.strong_temp_root_count());
                     crate::runtime::leak_tracker::observe_heap_fields(
                         self.strong_heap_field_root_count(),

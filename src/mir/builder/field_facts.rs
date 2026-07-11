@@ -7,6 +7,28 @@
 use super::ValueId;
 
 impl super::MirBuilder {
+    pub(super) fn declared_field_contract_identity(
+        &self,
+        object_value: ValueId,
+        field: &str,
+    ) -> Option<(String, usize, Option<String>)> {
+        let box_name = self
+            .type_ctx
+            .value_origin_newbox
+            .get(&object_value)?
+            .clone();
+        let fields = self.comp_ctx.user_box_field_decls.get(&box_name)?;
+        let (field_index, declaration) = fields
+            .iter()
+            .enumerate()
+            .find(|(_, declaration)| declaration.name == field)?;
+        Some((
+            box_name,
+            field_index,
+            declaration.declared_type_name.clone(),
+        ))
+    }
+
     pub(super) fn declared_field_type_for_value(
         &self,
         object_value: ValueId,

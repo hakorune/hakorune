@@ -75,10 +75,24 @@ pub(in crate::mir::builder) fn build_local_statement(
         );
     }
     let mut evaluated_values = Vec::with_capacity(variables.len());
+    let mut preclaimed_arrays = Vec::with_capacity(variables.len());
     for (i, _var_name) in variables.iter().enumerate() {
+        let typed_spec = declared_type_names
+            .get(i)
+            .and_then(|value| value.as_deref())
+            .map(crate::typed_array_contract_spec::parse_annotation)
+            .transpose()?
+            .flatten();
+        let mut preclaimed = None;
         let value_id = if i < initial_values.len() && initial_values[i].is_some() {
             let init_expr = initial_values[i].as_ref().unwrap();
             match init_expr.as_ref() {
+                ASTNode::ArrayLiteral { elements, .. } if typed_spec.is_some() => {
+                    let (value, contract_id) =
+                        builder.build_typed_array_literal(elements.clone())?;
+                    preclaimed = Some((contract_id, typed_spec.expect("guarded typed spec")));
+                    value
+                }
                 ASTNode::New {
                     class, arguments, ..
                 } if builder.is_record_constructor_class(class) => {
@@ -93,13 +107,15 @@ pub(in crate::mir::builder) fn build_local_statement(
             crate::mir::builder::emission::constant::emit_null(builder)?
         };
         evaluated_values.push(value_id);
+        preclaimed_arrays.push(preclaimed);
     }
 
-    build_local_statement_from_values_with_types(
+    build_local_statement_from_values_with_types_and_preclaims(
         builder,
         variables,
         evaluated_values,
         declared_type_names,
+        preclaimed_arrays,
     )
 }
 
@@ -112,7 +128,13 @@ fn preflight_exact_numeric_local_initializers(
         let declared_type = declared_type_names
             .get(index)
             .and_then(|value| value.as_deref());
-        if crate::mir::type_contracts::local_slot::is_exact_numeric_local_type(declared_type)
+        let typed_array = declared_type
+            .map(crate::typed_array_contract_spec::parse_annotation)
+            .transpose()?
+            .flatten()
+            .is_some();
+        if (crate::mir::type_contracts::local_slot::is_exact_numeric_local_type(declared_type)
+            || typed_array)
             && initial_values
                 .get(index)
                 .and_then(|value| value.as_ref())
@@ -147,6 +169,27 @@ pub(in crate::mir::builder) fn build_local_statement_from_values_with_types(
     initial_values: Vec<ValueId>,
     declared_type_names: Vec<Option<String>>,
 ) -> Result<ValueId, String> {
+    build_local_statement_from_values_with_types_and_preclaims(
+        builder,
+        variables,
+        initial_values,
+        declared_type_names,
+        Vec::new(),
+    )
+}
+
+fn build_local_statement_from_values_with_types_and_preclaims(
+    builder: &mut MirBuilder,
+    variables: Vec<String>,
+    initial_values: Vec<ValueId>,
+    declared_type_names: Vec<Option<String>>,
+    preclaimed_arrays: Vec<
+        Option<(
+            String,
+            crate::typed_array_contract_spec::ArrayElementContractSpec,
+        )>,
+    >,
+) -> Result<ValueId, String> {
     let mut last_value = None;
     for (index, var_name) in variables.iter().enumerate() {
         let Some(init_val) = initial_values.get(index).copied() else {
@@ -174,6 +217,11 @@ pub(in crate::mir::builder) fn build_local_statement_from_values_with_types(
         let exact_contract =
             crate::mir::type_contracts::local_slot::is_exact_numeric_local_type(declared_type_name);
         let local_slot_id = builder.declare_local_in_current_scope(var_name, var_id)?;
+        let typed_array_contract = declared_type_name
+            .map(crate::typed_array_contract_spec::parse_annotation)
+            .transpose()?
+            .flatten()
+            .is_some();
         if exact_contract {
             let function = builder.scope_ctx.current_function.as_mut().ok_or_else(|| {
                 "[type/local_contract_carrier_missing] function=<none>".to_string()
@@ -189,6 +237,49 @@ pub(in crate::mir::builder) fn build_local_statement_from_values_with_types(
                 src: init_val,
                 local_slot_id,
                 write_kind: crate::mir::function::LocalContractWriteKind::Init,
+            })?;
+        } else if typed_array_contract {
+            let function = builder.scope_ctx.current_function.as_mut().ok_or_else(|| {
+                "[type/typed_array_contract_carrier_missing] function=<none>".to_string()
+            })?;
+            if let Some((contract_id, element_spec)) =
+                preclaimed_arrays.get(index).and_then(|entry| entry.clone())
+            {
+                crate::mir::type_contracts::typed_array::register_source_with_id(
+                    function,
+                    contract_id,
+                    crate::mir::function::TypedArrayContractBoundary::LocalInit,
+                    crate::mir::function::TypedArrayContractSourceIdentity::LocalSlot(
+                        local_slot_id,
+                    ),
+                    init_val,
+                    element_spec,
+                );
+            } else {
+                let contract_id =
+                    crate::mir::type_contracts::typed_array::register_instruction_source(
+                        function,
+                        crate::mir::function::TypedArrayContractBoundary::LocalInit,
+                        crate::mir::function::TypedArrayContractSourceIdentity::LocalSlot(
+                            local_slot_id,
+                        ),
+                        init_val,
+                        declared_type_name,
+                        &format!(
+                            "local:{}:init:{}",
+                            local_slot_id.binding_id().raw(),
+                            var_id.as_u32()
+                        ),
+                    )?
+                    .expect("typed Array local has a source contract");
+                builder.emit_instruction(crate::mir::MirInstruction::ArrayStateContractClaim {
+                    contract_id,
+                    array: init_val,
+                })?;
+            }
+            builder.emit_instruction(crate::mir::MirInstruction::Copy {
+                dst: var_id,
+                src: init_val,
             })?;
         } else {
             builder.emit_instruction(crate::mir::MirInstruction::Copy {
@@ -404,5 +495,82 @@ mod local_contract_tests {
         assert!(error.contains("[type/local_contract_uninitialized_forbidden]"));
         assert!(!builder.variable_ctx.variable_map.contains_key("x"));
         assert!(!builder.binding_ctx.contains("x"));
+    }
+
+    #[test]
+    fn typed_array_literal_claim_precedes_appends_and_reassignment_reuses_slot_identity() {
+        let mut builder = MirBuilder::new();
+        builder.enter_function_for_test("typed_array_local".to_string());
+        let _scope = LexicalScopeGuard::new(&mut builder);
+        let literal = ASTNode::ArrayLiteral {
+            elements: vec![integer(1), integer(2)],
+            span: Span::unknown(),
+        };
+        build_local_statement(
+            &mut builder,
+            vec!["xs".to_string()],
+            vec![Some(Box::new(literal))],
+            vec![Some("Array<u8>".to_string())],
+        )
+        .unwrap();
+        let slot = crate::mir::LocalSlotId::from(builder.binding_ctx.lookup("xs").unwrap());
+
+        let replacement = builder
+            .build_expression(ASTNode::ArrayLiteral {
+                elements: vec![integer(3)],
+                span: Span::unknown(),
+            })
+            .unwrap();
+        builder
+            .build_assignment_from_value("xs".to_string(), replacement)
+            .unwrap();
+
+        let function = builder.scope_ctx.current_function.as_ref().unwrap();
+        let instructions = function
+            .blocks
+            .values()
+            .flat_map(|block| block.instructions.iter())
+            .collect::<Vec<_>>();
+        let first_claim = instructions
+            .iter()
+            .position(|instruction| {
+                matches!(instruction, MirInstruction::ArrayStateContractClaim { .. })
+            })
+            .unwrap();
+        let first_append = instructions
+            .iter()
+            .position(|instruction| {
+                matches!(
+                    instruction,
+                    MirInstruction::ArrayElementWrite {
+                        kind: crate::mir::ArrayElementWriteKind::LiteralAppend,
+                        ..
+                    }
+                )
+            })
+            .unwrap();
+        assert!(first_claim < first_append);
+
+        let local_sources = function
+            .metadata
+            .typed_array_contract_sources
+            .iter()
+            .filter_map(|source| match source.source_identity {
+                crate::mir::function::TypedArrayContractSourceIdentity::LocalSlot(source_slot) => {
+                    Some((source.boundary, source_slot))
+                }
+                _ => None,
+            })
+            .collect::<Vec<_>>();
+        assert_eq!(local_sources.len(), 2);
+        assert!(local_sources
+            .iter()
+            .all(|(_, source_slot)| *source_slot == slot));
+        assert!(local_sources.iter().any(|(boundary, _)| {
+            *boundary == crate::mir::function::TypedArrayContractBoundary::LocalInit
+        }));
+        assert!(local_sources.iter().any(|(boundary, _)| {
+            *boundary == crate::mir::function::TypedArrayContractBoundary::LocalReassign
+        }));
     }
 }

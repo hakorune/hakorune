@@ -28,6 +28,8 @@ pub(crate) const OVERLAPPING_ROUTES_TAG: &str = "[mir/array_write/overlapping_se
 pub(crate) const PROJECTION_DRIFT_TAG: &str = "[mir/array_write/projection_drift]";
 pub(crate) const BACKEND_UNSUPPORTED_TAG: &str = "[mir/array_write/backend_unsupported]";
 pub(crate) const RAW_RUNTIME_BYPASS_TAG: &str = "[mir/array_write/raw_runtime_bypass]";
+pub(crate) const TYPED_ARRAY_LEGACY_PROJECTION_FORBIDDEN_TAG: &str =
+    "[type/typed_array_contract_legacy_projection_forbidden]";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum ArrayElementWriteBackendMode {
@@ -252,6 +254,12 @@ fn validate_covered_site(
 /// learned the V1 operation. Callers must run semantic refresh and backend
 /// preflight before using the returned clone.
 pub(crate) fn project_module_to_legacy_calls(module: &MirModule) -> Result<MirModule, String> {
+    if module.functions.values().any(|function| {
+        !function.metadata.typed_array_contract_sources.is_empty()
+            || !function.metadata.typed_array_element_contracts.is_empty()
+    }) {
+        return Err(TYPED_ARRAY_LEGACY_PROJECTION_FORBIDDEN_TAG.to_string());
+    }
     let mut projected = module.clone();
     for function in projected.functions.values_mut() {
         validate_function_array_write_witnesses(function)?;
@@ -344,12 +352,16 @@ fn rebuild(
             _ => None,
         })
         .collect::<BTreeSet<_>>();
-    claim_values.extend(function.metadata.typed_array_contract_sources.iter().filter_map(
-        |source| match source.boundary_value {
-            crate::mir::function::TypedArrayBoundaryValue::Value(value) => Some(value),
-            crate::mir::function::TypedArrayBoundaryValue::FinalReturn => None,
-        },
-    ));
+    claim_values.extend(
+        function
+            .metadata
+            .typed_array_contract_sources
+            .iter()
+            .filter_map(|source| match source.boundary_value {
+                crate::mir::function::TypedArrayBoundaryValue::Value(value) => Some(value),
+                crate::mir::function::TypedArrayBoundaryValue::FinalReturn => None,
+            }),
+    );
     for value in claim_values {
         let term_id = ArrayStateTermId(terms.len() as u32);
         terms.push(ArrayStateTerm {
@@ -536,5 +548,39 @@ mod tests {
             module.functions["main"].blocks[&BasicBlockId::new(0)].instructions[0],
             MirInstruction::ArrayElementWrite { .. }
         ));
+    }
+
+    #[test]
+    fn typed_array_contract_vetoes_legacy_call_projection() {
+        let mut function = MirFunction::new(
+            FunctionSignature {
+                name: "typed".to_string(),
+                params: vec![MirType::Unknown],
+                return_type: MirType::Void,
+                effects: EffectMask::WRITE,
+            },
+            BasicBlockId::new(0),
+        );
+        function
+            .metadata
+            .typed_array_contract_sources
+            .push(crate::mir::function::TypedArrayContractSource {
+                contract_id: "typed-array:parameter:0".to_string(),
+                boundary: crate::mir::function::TypedArrayContractBoundary::ParameterEntry,
+                source_identity:
+                    crate::mir::function::TypedArrayContractSourceIdentity::Parameter {
+                        formal_index: 0,
+                    },
+                boundary_value: crate::mir::function::TypedArrayBoundaryValue::Value(
+                    ValueId::new(0),
+                ),
+                element_spec: crate::typed_array_contract_spec::ArrayElementContractSpec {
+                    element: crate::typed_array_contract_spec::ExactArrayElementType::U8,
+                },
+            });
+        let mut module = MirModule::new("typed-projection".to_string());
+        module.add_function(function);
+        let error = project_module_to_legacy_calls(&module).unwrap_err();
+        assert_eq!(error, TYPED_ARRAY_LEGACY_PROJECTION_FORBIDDEN_TAG);
     }
 }
