@@ -2,7 +2,7 @@
 Status: Design consultation stop
 Date: 2026-07-12
 Owner: 3505-LANGV1-FAILURE-OUTCOME-RELATION-INVENTORY-001
-Decision: pending
+Decision: accepted
 ---
 
 # Failure/Outcome S1 `VMValue::Void` Owner Design Stop
@@ -86,3 +86,36 @@ owner or file-wide default is allowed.
 Decide the site granularity and owner split only. Do not activate Unit,
 Option::None, Result::Err, Fault, Weak upgrade, or null migration in this
 consultation.
+
+## Accepted Decision
+
+```text
+inventory semantic unit = semantic operation outcome branch
+token occurrence = evidence only
+file = never a semantic owner
+VMValue::Void = current-carrier evidence only
+generic write_void helper = evidence/projection only
+new internal-sentinel semantic class = no
+missing register canonical branch = contract_fault
+missing register tolerate branch = compatibility_only
+compatibility equality/boxing = independent compatibility_only sites
+Wasm/LLVM zero projections = separate backend-projection sites
+foreign_null = declared FFI nullable boundary only
+runtime activation = 0
+```
+
+Backend and bridge projections must carry `projects_site`; they may not invent
+semantic meaning from a zero/null bit pattern. Provider-missing branches are
+`contract_fault` unless an explicit API contract maps them to `Result::Err`.
+Weak upgrade dead/freed branches are optional-absence candidates, not
+compatibility rows.
+
+## Next Task
+
+```text
+LANGV1-FAILURE-OUTCOME-S1-SEMANTIC-SITE-GRAPH-001
+```
+
+The next task changes inventory tooling and manifests only. It does not change
+parser profiles, MIR, `VMValue`, `ConstValue`, runtime behavior, cleanup, or
+backend lowering.

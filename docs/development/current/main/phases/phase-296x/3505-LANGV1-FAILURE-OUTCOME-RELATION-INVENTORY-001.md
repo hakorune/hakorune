@@ -13,12 +13,18 @@ Current progress:
 ```text
 S0_relation_ssot = complete
 S1_source_evidence_queue = complete
-S1_semantic_classification = in_progress
+S1_semantic_classification = semantic_site_graph_in_progress
 S2_runtime_provider_inventory = pending
 S3_control_flow_inventory = pending
 S4_exhaustiveness_checker = pending
 S5_conflict_ledger_closeout = pending
 ```
+
+The accepted owner-boundary consultation is recorded in
+`docs/development/current/main/investigations/failure-outcome-s1-vmvalue-void-owner-design-stop.md`.
+The active S1 task is
+`docs/development/current/main/investigations/failure-outcome-s1-semantic-site-graph.md`.
+It changes inventory tooling/manifests only; runtime activation remains zero.
 
 ## Decision
 
