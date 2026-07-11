@@ -60,12 +60,12 @@ latest_workstream_card = "docs/development/current/main/workstreams/repository-a
 
 latest_card = "INDEX"
 latest_card_path = "docs/development/current/main/design/INDEX.md"
-latest_card_summary = """H3 accepts an explicit closed design registry. INDEX
-is the sole design-root membership/precedence owner; README is navigation-only.
-Warning rollout begins with five rows and an unregistered no-growth baseline
-of 844 before tracing reachability reopens H2 cluster inventory."""
+latest_card_summary = """H3 lands the explicit design registry warning owner.
+Tracing reachability now replaces reference count as H2 archive authority and
+finds 198 wholly unreachable phases totaling 517 files in 189 SCC clusters.
+Partial phases and unregistered design files remain protected."""
 
-current_blocker_token = "REPOSITORY-ARTIFACT-LIFECYCLE-H2-TRACE-ROOT-REACHABILITY-INVENTORY"
+current_blocker_token = "REPOSITORY-ARTIFACT-LIFECYCLE-H2-TRACE-WHOLE-PHASE-BATCH-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

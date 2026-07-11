@@ -210,6 +210,37 @@ strict_mode = 0
 next = H2-TRACE-ROOT-REACHABILITY-INVENTORY
 ```
 
+## H2 Tracing Reachability
+
+Reference counts remain diagnostic only. Archive eligibility now uses
+reachability from the accepted active root set.
+
+```text
+current_documents = 10627
+root_documents = 3529
+reachable_documents = 4905
+unreachable_documents = 5722
+
+whole_phase_unreachable = 198
+whole_phase_unreachable_files = 517
+phase_scc_clusters = 189
+ambiguous_basenames = 26
+
+root_policy:
+  CURRENT_STATE/current entry pointers
+  phase-296x direct files
+  INDEX authority rows
+  docs/reference
+  AGENTS/CLAUDE/root README/CURRENT_TASK
+  src/tools document references
+
+generated_inventory_is_root = 0
+design_unregistered_move_allowed = 0
+partial_phase_move_allowed = 0
+
+next = H2-TRACE-WHOLE-PHASE-BATCH-001
+```
+
 ## Non-Claims
 
 ```text

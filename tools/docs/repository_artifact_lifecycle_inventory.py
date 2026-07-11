@@ -4,7 +4,9 @@
 from __future__ import annotations
 
 import argparse
+from collections import deque
 import json
+import posixpath
 import re
 import subprocess
 import sys
@@ -24,6 +26,11 @@ DESIGN_FILE_TOKEN = re.compile(
 PHASE_PATH_TOKEN = re.compile(
     r"docs/development/current/main/phases/(phase-[A-Za-z0-9-]+)/"
 )
+CURRENT_DOC_PATH_TOKEN = re.compile(
+    r"(?<![A-Za-z0-9_.-])"
+    r"(docs/development/current/[A-Za-z0-9_./-]+\.(?:md|toml))"
+)
+MARKDOWN_LINK = re.compile(r"\[[^\]]*\]\(([^)\s#?]+)")
 STATUS_LINE = re.compile(r"(?im)^(?:##\s*)?Status\s*:?\s*(.+)$")
 CLOSED_WORDS = ("complete", "closed", "landed", "historical", "superseded")
 ACTIVE_WORDS = ("active", "implementation", "design consultation")
@@ -86,6 +93,244 @@ def repository_files() -> list[str]:
     )
 
 
+def readable_text(relative: str) -> str | None:
+    path = ROOT / relative
+    try:
+        if not path.is_file() or path.stat().st_size > 2_000_000:
+            return None
+        data = path.read_bytes()
+    except OSError:
+        return None
+    if b"\0" in data:
+        return None
+    return data.decode("utf-8", errors="ignore")
+
+
+def resolve_document_references(
+    source: str,
+    text: str,
+    documents: set[str],
+    unique_basenames: dict[str, str],
+) -> set[str]:
+    resolved = {
+        target for target in CURRENT_DOC_PATH_TOKEN.findall(text) if target in documents
+    }
+    source_parent = posixpath.dirname(source)
+    for raw_target in MARKDOWN_LINK.findall(text):
+        target = raw_target.strip("<>")
+        if target.startswith("/"):
+            target = target[1:]
+        elif not target.startswith("docs/"):
+            target = posixpath.normpath(posixpath.join(source_parent, target))
+        if target in documents:
+            resolved.add(target)
+    for basename in MARKDOWN_TOKEN.findall(text):
+        target = unique_basenames.get(basename)
+        if target:
+            resolved.add(target)
+    return resolved
+
+
+def strongly_connected_phase_clusters(
+    candidates: set[str], edges: dict[str, set[str]], phase_files: dict[str, int]
+) -> list[dict[str, object]]:
+    index = 0
+    indices: dict[str, int] = {}
+    lowlinks: dict[str, int] = {}
+    stack: list[str] = []
+    on_stack: set[str] = set()
+    components: list[list[str]] = []
+
+    def visit(node: str) -> None:
+        nonlocal index
+        indices[node] = index
+        lowlinks[node] = index
+        index += 1
+        stack.append(node)
+        on_stack.add(node)
+        for target in sorted(edges.get(node, set()) & candidates):
+            if target not in indices:
+                visit(target)
+                lowlinks[node] = min(lowlinks[node], lowlinks[target])
+            elif target in on_stack:
+                lowlinks[node] = min(lowlinks[node], indices[target])
+        if lowlinks[node] != indices[node]:
+            return
+        component: list[str] = []
+        while stack:
+            member = stack.pop()
+            on_stack.remove(member)
+            component.append(member)
+            if member == node:
+                break
+        components.append(sorted(component))
+
+    for candidate in sorted(candidates):
+        if candidate not in indices:
+            visit(candidate)
+    return [
+        {
+            "phases": component,
+            "phase_count": len(component),
+            "file_count": sum(phase_files[phase] for phase in component),
+        }
+        for component in sorted(components, key=lambda value: (-len(value), value))
+    ]
+
+
+def document_reachability_inventory(
+    repository_paths: list[str], current_paths: set[str]
+) -> dict[str, object]:
+    current_prefix = "docs/development/current/"
+    documents = {path for path in repository_paths if path.startswith(current_prefix)}
+    basename_groups: dict[str, list[str]] = {}
+    for document in documents:
+        basename_groups.setdefault(posixpath.basename(document), []).append(document)
+    unique_basenames = {
+        basename: paths[0] for basename, paths in basename_groups.items() if len(paths) == 1
+    }
+    graph: dict[str, set[str]] = {document: set() for document in documents}
+    text_cache: dict[str, str] = {}
+    for document in documents:
+        text = readable_text(document)
+        if text is not None:
+            text_cache[document] = text
+            graph[document] = resolve_document_references(
+                document, text, documents, unique_basenames
+            )
+
+    pointer_roots = {
+        path
+        for path in current_paths
+        if path in documents
+    }
+    fixed_current_roots = {
+        "docs/development/current/main/CURRENT_STATE.toml",
+        "docs/development/current/main/05-Restart-Quick-Resume.md",
+        "docs/development/current/main/10-Now.md",
+        "docs/development/current/main/DOCS_LAYOUT.md",
+    }
+    fixed_roots = fixed_current_roots & documents
+    active_phase_prefix = "docs/development/current/main/phases/phase-296x/"
+    active_phase_roots = {
+        path
+        for path in documents
+        if path.startswith(active_phase_prefix)
+        and "/" not in path[len(active_phase_prefix) :]
+    }
+    registry, _ = read_design_registry(
+        {
+            path.name
+            for path in DESIGN_INDEX.parent.iterdir()
+            if path.is_file()
+        }
+    )
+    design_authority_roots: set[str] = set()
+    for row in registry["documents"]:
+        if row["role"] == "authority":
+            target = f"docs/development/current/main/design/{row['path']}"
+            if target in documents:
+                design_authority_roots.add(target)
+
+    external_root_sources = {
+        path
+        for path in repository_paths
+        if path in {"AGENTS.md", "CLAUDE.md", "README.md", "CURRENT_TASK.md"}
+        or path.startswith("docs/reference/")
+        or path.startswith("src/")
+        or path.startswith("tools/")
+    }
+    external_root_sources.discard(DEFAULT_OUTPUT.relative_to(ROOT).as_posix())
+    external_reference_roots: set[str] = set()
+    for source in external_root_sources:
+        text = readable_text(source)
+        if text is not None:
+            external_reference_roots.update(
+                resolve_document_references(source, text, documents, unique_basenames)
+            )
+
+    root_seeds = {
+        "current_pointer": pointer_roots,
+        "fixed_current_entry": fixed_roots,
+        "active_phase_296x_direct": active_phase_roots,
+        "design_authority": design_authority_roots,
+        "reference_src_tools": external_reference_roots,
+    }
+    roots = set().union(*root_seeds.values())
+
+    reachable = set(roots)
+    queue = deque(sorted(roots))
+    while queue:
+        source = queue.popleft()
+        for target in graph.get(source, set()):
+            if target not in reachable:
+                reachable.add(target)
+                queue.append(target)
+    unreachable = documents - reachable
+
+    phase_prefix = "docs/development/current/main/phases/"
+    phase_documents: dict[str, set[str]] = {}
+    for document in documents:
+        if document.startswith(phase_prefix):
+            remainder = document[len(phase_prefix) :]
+            phase_name = remainder.split("/", 1)[0]
+            if phase_name.startswith("phase-"):
+                phase_documents.setdefault(phase_name, set()).add(document)
+    phase_edges: dict[str, set[str]] = {phase: set() for phase in phase_documents}
+    document_phase = {
+        document: phase
+        for phase, members in phase_documents.items()
+        for document in members
+    }
+    for source, targets in graph.items():
+        source_phase = document_phase.get(source)
+        if not source_phase:
+            continue
+        phase_edges[source_phase].update(
+            target_phase
+            for target in targets
+            if (target_phase := document_phase.get(target)) and target_phase != source_phase
+        )
+    unreachable_phases = {
+        phase
+        for phase, members in phase_documents.items()
+        if phase != "phase-296x" and not (members & reachable)
+    }
+    phase_files = {phase: len(members) for phase, members in phase_documents.items()}
+    phase_rows = [
+        {
+            "phase": phase,
+            "total_files": len(members),
+            "reachable_files": len(members & reachable),
+            "unreachable_files": len(members - reachable),
+            "whole_phase_unreachable": phase in unreachable_phases,
+        }
+        for phase, members in sorted(phase_documents.items())
+    ]
+    clusters = strongly_connected_phase_clusters(
+        unreachable_phases, phase_edges, phase_files
+    )
+    return {
+        "document_count": len(documents),
+        "root_count": len(roots),
+        "root_seed_counts": {
+            name: len(paths) for name, paths in root_seeds.items()
+        },
+        "reachable_count": len(reachable),
+        "unreachable_count": len(unreachable),
+        "whole_phase_unreachable_count": len(unreachable_phases),
+        "whole_phase_unreachable_files": sum(
+            phase_files[phase] for phase in unreachable_phases
+        ),
+        "whole_phase_unreachable": sorted(unreachable_phases),
+        "phase_cluster_count": len(clusters),
+        "phase_clusters": clusters,
+        "phase_rows": phase_rows,
+        "ambiguous_basename_count": sum(
+            len(paths) > 1 for paths in basename_groups.values()
+        ),
+        "root_policy": "active-entry+phase296x-direct+design-authority+reference+src-tools",
+    }
 def tracked_references(
     repository_paths: list[str], phase_names: set[str]
 ) -> tuple[dict[str, set[str]], dict[str, set[str]]]:
@@ -373,6 +618,9 @@ def build_inventory() -> dict[str, object]:
             "rows": phase_rows,
         },
         "design_registry": design_registry_inventory(),
+        "document_reachability": document_reachability_inventory(
+            repository_paths, current_paths
+        ),
     }
 
 
