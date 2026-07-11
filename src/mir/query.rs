@@ -64,6 +64,17 @@ impl<'m> MirQuery for MirQueryBox<'m> {
                 values.extend(fields.iter().copied());
                 values
             }
+            ArrayElementWrite {
+                receiver,
+                index,
+                value,
+                ..
+            } => {
+                let mut values = vec![*receiver];
+                values.extend(index.iter().copied());
+                values.push(*value);
+                values
+            }
             UnaryOp { operand, .. } => vec![*operand],
             BinOp { lhs, rhs, .. } | Compare { lhs, rhs, .. } => {
                 vec![*lhs, *rhs]
@@ -145,6 +156,7 @@ impl<'m> MirQuery for MirQueryBox<'m> {
             | Load { dst, .. }
             | StaticDataLoad { dst, .. }
             | MemOp { dst: Some(dst), .. }
+            | ArrayElementWrite { dst: Some(dst), .. }
             | Call { dst: Some(dst), .. }
             | Phi { dst, .. }
             | NewBox { dst, .. }

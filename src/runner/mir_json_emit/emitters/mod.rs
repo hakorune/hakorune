@@ -1,3 +1,4 @@
+mod array_write;
 mod basic;
 mod calls;
 mod control_flow;
@@ -252,6 +253,16 @@ fn emit_instruction(
             effects,
         } => Ok(fastmem::emit_memop(
             region, kind, dst, operands, access, effects,
+        )),
+        I::ArrayElementWrite {
+            site_id,
+            dst,
+            kind,
+            receiver,
+            index,
+            value,
+        } => Ok(array_write::emit(
+            *site_id, *dst, *kind, *receiver, *index, *value,
         )),
         I::Call {
             dst,

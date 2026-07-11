@@ -62,6 +62,17 @@ fn record_instruction_uses(
 fn value_consumer_used_values(inst: &MirInstruction) -> Vec<ValueId> {
     match inst {
         MirInstruction::Const { .. } | MirInstruction::Safepoint => Vec::new(),
+        MirInstruction::ArrayElementWrite {
+            receiver,
+            index,
+            value,
+            ..
+        } => {
+            let mut values = vec![*receiver];
+            values.extend(index.iter().copied());
+            values.push(*value);
+            values
+        }
         MirInstruction::UnaryOp { operand, .. }
         | MirInstruction::Load { ptr: operand, .. }
         | MirInstruction::StaticDataLoad { index: operand, .. }

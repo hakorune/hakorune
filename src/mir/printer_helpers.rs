@@ -73,6 +73,31 @@ pub fn format_instruction(
             format!("store {} -> {}", value, ptr)
         }
 
+        MirInstruction::ArrayElementWrite {
+            site_id,
+            dst,
+            kind,
+            receiver,
+            index,
+            value,
+        } => {
+            let dst = dst
+                .map(|dst| format!("{} ", format_dst(&dst, types)))
+                .unwrap_or_default();
+            let index = index
+                .map(|index| format!(", index={}", index))
+                .unwrap_or_default();
+            format!(
+                "{}array.write #{} {} receiver={}{} value={}",
+                dst,
+                site_id.0,
+                kind.as_str(),
+                receiver,
+                index,
+                value
+            )
+        }
+
         MirInstruction::MemOp {
             region,
             kind,

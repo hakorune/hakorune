@@ -10,6 +10,7 @@ pub fn instruction_tag(inst: &MirInstruction) -> &'static str {
         MirInstruction::FieldGet { .. } => "FieldGet",
         MirInstruction::FieldSet { .. } => "FieldSet",
         MirInstruction::StaticDataLoad { .. } => "StaticDataLoad",
+        MirInstruction::ArrayElementWrite { .. } => "ArrayElementWrite",
         MirInstruction::VariantMake { .. } => "VariantMake",
         MirInstruction::VariantTag { .. } => "VariantTag",
         MirInstruction::VariantProject { .. } => "VariantProject",
@@ -53,6 +54,7 @@ pub enum InstructionDietCohort {
 
 pub const MIR_INSTRUCTION_KEPT_TAGS: &[&str] = &[
     "Await",
+    "ArrayElementWrite",
     "Barrier",
     "BinOp",
     "Branch",
@@ -120,6 +122,7 @@ pub const MIR_INSTRUCTION_VOCABULARY_COUNT: usize = MIR_INSTRUCTION_KEPT_TAGS.le
 pub fn instruction_diet_cohort(inst: &MirInstruction) -> InstructionDietCohort {
     match inst {
         MirInstruction::Await { .. }
+        | MirInstruction::ArrayElementWrite { .. }
         | MirInstruction::Barrier { .. }
         | MirInstruction::BinOp { .. }
         | MirInstruction::Branch { .. }
@@ -206,6 +209,7 @@ pub fn is_supported_mir_json_instruction(inst: &MirInstruction) -> bool {
     matches!(
         inst,
         MirInstruction::Copy { .. }
+            | MirInstruction::ArrayElementWrite { .. }
             | MirInstruction::LocalContractWrite { .. }
             | MirInstruction::RecordFieldContractCheck { .. }
             | MirInstruction::RecordValuePublish { .. }
@@ -302,6 +306,7 @@ pub fn llvm_json_ops_for_instruction(inst: &MirInstruction) -> &'static [&'stati
         MirInstruction::UnaryOp { .. } => &["unop"],
         MirInstruction::Compare { .. } => &["compare"],
         MirInstruction::StaticDataLoad { .. } => &["static_data_load"],
+        MirInstruction::ArrayElementWrite { .. } => &["array_element_write"],
         MirInstruction::FieldGet { .. } => &["field_get"],
         MirInstruction::FieldSet { .. } => &["field_set"],
         MirInstruction::VariantMake { .. } => &["variant_make"],
@@ -677,10 +682,10 @@ mod tests {
 
     #[test]
     fn instruction_diet_ledger_counts_match_ssot() {
-        assert_eq!(MIR_INSTRUCTION_KEPT_TAGS.len(), 38);
+        assert_eq!(MIR_INSTRUCTION_KEPT_TAGS.len(), 39);
         assert_eq!(MIR_INSTRUCTION_LOWERED_AWAY_TAGS.len(), 0);
         assert_eq!(MIR_INSTRUCTION_REMOVED_TAGS.len(), 16);
-        assert_eq!(MIR_INSTRUCTION_VOCABULARY_COUNT, 54);
+        assert_eq!(MIR_INSTRUCTION_VOCABULARY_COUNT, 55);
     }
 
     #[test]

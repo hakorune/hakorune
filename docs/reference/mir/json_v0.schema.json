@@ -94,6 +94,7 @@
           "type": "string",
           "enum": [
             "barrier",
+            "array_element_write",
             "binop",
             "boxcall",
             "branch",

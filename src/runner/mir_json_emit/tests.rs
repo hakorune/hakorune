@@ -4,6 +4,7 @@ use crate::mir::{
 };
 
 mod array_routes;
+mod array_write;
 mod constructor_call_routes;
 mod debug;
 mod decl_values;

@@ -28,6 +28,35 @@ impl FastMemRegionId {
     }
 }
 
+/// Function-local identity for one canonical Array mutation site.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub struct ArrayWriteSiteId(pub u32);
+
+impl ArrayWriteSiteId {
+    pub const fn new(id: u32) -> Self {
+        Self(id)
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub enum ArrayElementWriteKind {
+    LiteralAppend,
+    Push,
+    Set,
+    Insert,
+}
+
+impl ArrayElementWriteKind {
+    pub const fn as_str(self) -> &'static str {
+        match self {
+            Self::LiteralAppend => "literal_append",
+            Self::Push => "push",
+            Self::Set => "set",
+            Self::Insert => "insert",
+        }
+    }
+}
+
 /// Symbolic access ids preserved by FastMemory MemOps.
 ///
 /// These ids are not executable truth. MIRBuilder records them so verifier /
@@ -257,6 +286,16 @@ pub enum MirInstruction {
     /// Store to memory/variable
     /// `store %value -> %ptr`
     Store { value: ValueId, ptr: ValueId },
+
+    /// Canonical Array mutation boundary. Typed element contracts are separate.
+    ArrayElementWrite {
+        site_id: ArrayWriteSiteId,
+        dst: Option<ValueId>,
+        kind: ArrayElementWriteKind,
+        receiver: ValueId,
+        index: Option<ValueId>,
+        value: ValueId,
+    },
 
     /// Contract-bound fast memory dialect operation.
     ///

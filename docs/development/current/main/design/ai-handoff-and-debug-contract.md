@@ -228,6 +228,10 @@ Prefer stable, structured tags over ad-hoc `eprintln!`:
 - Runtime route acceptance sentinel (selfhost pipeline acceptance log, not a positive smoke assertion): `[contract][runtime-route][accepted=mir-json] route=stage-a source=<...> lane=<direct|compat-program-to-mir|compat-rust-json-v0-bridge>`
 - Runtime execution-path observability (dev/verbose plugin init): `[runtime/exec-path] plugin_loader_backend=<enabled|stub> plugin_exec_mode=<...> box_factory_policy=<...>`
 - Runtime route direct-v0 guard fail-fast: `[freeze:contract][runtime-route/direct-v0-bridge-disabled] route=stage-a source=<...> lane=direct-v0-bridge status=retired`
+- Array write convergence fail-fast family (3497; stable, no default logging):
+  `[mir/array_write/<unclassified_surface|residual_call|invalid_shape|identity_missing|identity_drift|representation_as_identity|planner_bypass|covered_site_drift|overlapping_selected_routes|projection_drift|backend_unsupported|raw_runtime_bypass>]`.
+  Diagnostics may append `site_id`, `kind`, function, block, and operand fields;
+  the stable tag is owned by `src/mir/array_element_write.rs`.
 - Runtime route parser-flag removal contract: `--parser ny` is removed at CLI boundary (clap reject), and `NYASH_USE_NY_PARSER=1` is legacy no-op.
 - LLVM hot trace summary (perf/dev only): `[llvm/hot] fn=<...> binop_total=<n> binop_mod=<n> compare_total=<n> compare_keep_i1=<n> compare_to_i64=<n> call_total=<n> resolve_local_hit_binop=<n> resolve_global_hit_binop=<n> resolve_fallback_binop=<n> resolve_local_hit_compare=<n> resolve_global_hit_compare=<n> resolve_fallback_compare=<n> resolve_local_hit_call=<n> resolve_global_hit_call=<n> resolve_fallback_call=<n>`
 - Emit route verifier fail-fast (strict/dev emit paths): `[freeze:contract][emit-mir/direct-verify] route=<vm|mir> errors=<n>` + `[emit-mir/direct-verify] route=<vm|mir> detail=<...>`

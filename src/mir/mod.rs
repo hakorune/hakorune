@@ -12,6 +12,7 @@ pub mod agg_local_scalarization; // generic agg_local scalarization owner seam f
 pub mod analysis; // analysis-only views (no AST rewrite)
 #[cfg(feature = "aot-plan-import")]
 pub mod aot_plan_import;
+pub(crate) mod array_element_write; // canonical Array mutation owner
 pub mod array_getset_micro_seed_plan; // MIR-owned route plan for temporary array get/set micro seed bridge
 pub(crate) mod array_receiver_proof; // shared RuntimeDataBox -> ArrayBox receiver proof
 pub mod array_record_autouse_eligibility; // MIR-owned eligibility metadata for future packed ArrayBox auto-use
@@ -239,7 +240,7 @@ pub use function::{
 pub use generic_method_route_plan::{
     refresh_function_generic_method_routes, refresh_module_generic_method_routes,
 };
-pub use instruction::MirInstruction;
+pub use instruction::{ArrayElementWriteKind, ArrayWriteSiteId, MirInstruction};
 pub use map_lookup_fusion_plan::{
     refresh_function_map_lookup_fusion_routes, refresh_module_map_lookup_fusion_routes,
 };

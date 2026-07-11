@@ -20,6 +20,7 @@ fn def_inst_kind(inst: &MirInstruction) -> &'static str {
         MirInstruction::VariantProject { .. } => "VariantProject",
         MirInstruction::Load { .. } => "Load",
         MirInstruction::StaticDataLoad { .. } => "StaticDataLoad",
+        MirInstruction::ArrayElementWrite { .. } => "ArrayElementWrite",
         MirInstruction::Store { .. } => "Store",
         MirInstruction::MemOp { .. } => "MemOp",
         MirInstruction::Call { .. } => "Call",

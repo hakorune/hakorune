@@ -52,7 +52,9 @@ impl MirInstruction {
             MirInstruction::Load { .. }
             | MirInstruction::StaticDataLoad { .. }
             | MirInstruction::FieldGet { .. } => EffectMask::READ,
-            MirInstruction::Store { .. } | MirInstruction::FieldSet { .. } => EffectMask::WRITE,
+            MirInstruction::Store { .. }
+            | MirInstruction::FieldSet { .. }
+            | MirInstruction::ArrayElementWrite { .. } => EffectMask::WRITE,
 
             // Phase 287: Reference lifecycle
             MirInstruction::ReleaseStrong { .. } => EffectMask::WRITE,
@@ -129,6 +131,7 @@ impl MirInstruction {
             MirInstruction::NewClosure { dst, .. } => Some(*dst),
 
             MirInstruction::Call { dst, .. } => *dst,
+            MirInstruction::ArrayElementWrite { dst, .. } => *dst,
             MirInstruction::MemOp { dst, .. } => *dst,
 
             MirInstruction::Store { .. }
@@ -210,6 +213,18 @@ impl MirInstruction {
         }
         match self {
             MirInstruction::Const { .. } | MirInstruction::Jump { .. } => Vec::new(),
+
+            MirInstruction::ArrayElementWrite {
+                receiver,
+                index,
+                value,
+                ..
+            } => {
+                let mut values = vec![*receiver];
+                values.extend(index.iter().copied());
+                values.push(*value);
+                values
+            }
 
             MirInstruction::UnaryOp { operand, .. }
             | MirInstruction::Load { ptr: operand, .. }

@@ -23,10 +23,10 @@ Primary implementation pointers:
 
 以下の行は CI/テストで参照する契約値（編集時は実装と同時更新）。
 
-DOC_SYNC_MIR_KEPT_COUNT=38
+DOC_SYNC_MIR_KEPT_COUNT=39
 DOC_SYNC_MIR_LOWERED_AWAY_COUNT=0
 DOC_SYNC_MIR_REMOVED_COUNT=16
-DOC_SYNC_MIR_VOCABULARY_COUNT=54
+DOC_SYNC_MIR_VOCABULARY_COUNT=55
 DOC_SYNC_MIR14_COUNT=13
 DOC_SYNC_CORE26_COUNT=26
 
@@ -63,7 +63,7 @@ Transition Note
 - VariantTag
 - VariantProject
 
-## Current Kept Vocabulary（36）
+## Current Kept Vocabulary（39）
 
 This is the current executable kept vocabulary from
 `src/mir/contracts/backend_core_ops.rs::MIR_INSTRUCTION_KEPT_TAGS`.
@@ -74,6 +74,7 @@ allowlists are being updated.
 
 - Const
 - Copy
+- ArrayElementWrite
 - LocalContractWrite
 - RecordFieldContractCheck
 - RecordValuePublish

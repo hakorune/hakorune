@@ -73,6 +73,20 @@ impl JoinIrIdRemapper {
             Load { dst, ptr } => vec![*dst, *ptr],
             StaticDataLoad { dst, index, .. } => vec![*dst, *index],
             Store { value, ptr } => vec![*value, *ptr],
+            ArrayElementWrite {
+                dst,
+                receiver,
+                index,
+                value,
+                ..
+            } => {
+                let mut vals = Vec::new();
+                vals.extend(dst.iter().copied());
+                vals.push(*receiver);
+                vals.extend(index.iter().copied());
+                vals.push(*value);
+                vals
+            }
             MemOp { dst, operands, .. } => {
                 let mut vals = Vec::new();
                 vals.extend(dst.iter().copied());
@@ -279,6 +293,21 @@ impl JoinIrIdRemapper {
             Store { value, ptr } => Store {
                 value: remap(*value),
                 ptr: remap(*ptr),
+            },
+            ArrayElementWrite {
+                site_id,
+                dst,
+                kind,
+                receiver,
+                index,
+                value,
+            } => ArrayElementWrite {
+                site_id: *site_id,
+                dst: dst.map(|value| remap(value)),
+                kind: *kind,
+                receiver: remap(*receiver),
+                index: index.map(|value| remap(value)),
+                value: remap(*value),
             },
             MemOp {
                 region,
