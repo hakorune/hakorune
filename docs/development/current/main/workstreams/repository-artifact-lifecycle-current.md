@@ -419,6 +419,26 @@ multiple_authorities_require_explicit_precedence = 1
 physical_move_requires_reference_closure = 1
 ```
 
+## H3 C2 First Family Stop
+
+The first queued family, `hako-alloc-segment`, is not classifiable by a
+single safe rule. It contains allocation, arena-backing, segment-map, and
+lifecycle rows with mixed explicit status values. No registry row or physical
+move is allowed until its authority spine and subfamily boundaries are
+reviewed.
+
+```text
+family = hako-alloc-segment
+unregistered_files = 163
+status_counts = SSOT:64, accepted:21, active:69, mimap_active:9
+external_incoming_references = 0
+internal_family_references = present
+authority_spine = unresolved
+role_assignment = none
+physical_move = forbidden
+next = focused consultation for hako-alloc-segment
+```
+
 ## Non-Claims
 
 ```text

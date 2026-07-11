@@ -1,8 +1,8 @@
 ---
-Status: Active design consultation stop (C2 owner-family review)
+Status: Active design consultation stop (hako-alloc-segment family)
 Date: 2026-07-11
 Owner: repository-artifact-lifecycle-current.md
-Decision: C1 accepted; C2 pending
+Decision: C1 accepted; C2 first-family review pending
 ---
 
 # H3 Design Registry Classification Consultation
@@ -63,6 +63,38 @@ singleton_family_count = 356
 largest_family = hako-alloc-segment:163
 role_assignment = none
 ```
+
+## C2 First Family Review: hako-alloc-segment
+
+This family is stopped for focused consultation rather than heuristic
+classification. It is isolated from external direct-design references, but
+its internal graph contains many row-to-row links and its documents do not
+declare one common authority owner.
+
+```text
+family_files = 163
+status_counts = SSOT:64, accepted:21, active:69, mimap_active:9
+filename_markers = ledger:98, closeout:64, diagnostics:29, bridge:27
+body_markers = model_only:27, guard_only:16, proof_only:6
+external_incoming_references = 0
+authority_spine = unresolved
+role_assignment = none
+physical_move = forbidden
+```
+
+Questions for this family:
+
+1. Is `hako-alloc-segment` one owner family, or must allocation,
+   arena-backing, segment-map, and lifecycle become separate families?
+2. Which registered authority, if any, is the precedence parent for the
+   family: `hako-alloc-policy-state-contract-ssot.md`, the mimalloc
+   port boundary, or a new family authority?
+3. Which accepted `SSOT` rows are normative owners, and which are
+   supporting/status-ledger evidence despite their historical `SSOT` label?
+4. May closeout/diagnostic/ledger rows be classified after explicit
+   content review, or do they require a family-owned supersession map?
+5. If the family is isolated, may its closed subclusters move together only
+   after `superseded_by` and internal-link closure are recorded?
 
 The complete family summary is generated in the repository lifecycle
 manifest. C2 must review an authority spine, precedence parent, and

@@ -61,11 +61,11 @@ latest_workstream_card = "docs/development/current/main/workstreams/repository-a
 latest_card = "repository-artifact-lifecycle-h3-design-classification-consultation"
 latest_card_path = "docs/development/current/main/investigations/repository-artifact-lifecycle-h3-design-classification-consultation.md"
 latest_card_summary = """C1 is accepted: 112 direct design files were classified
-from explicit README section evidence and registered with per-row basis. C2
-now has a deterministic pending queue of 393 prefix families (37 multi-file,
-356 singleton); roles and physical moves remain unassigned."""
+from explicit README section evidence. C2 queue review reached the largest
+hako-alloc-segment family: 163 mixed allocation/arena/map/lifecycle rows need
+focused authority-spine consultation; no role or physical move is assigned."""
 
-current_blocker_token = "REPOSITORY-ARTIFACT-LIFECYCLE-H3-DESIGN-REGISTRY-C2-OWNER-FAMILY-REVIEW"
+current_blocker_token = "REPOSITORY-ARTIFACT-LIFECYCLE-H3-DESIGN-REGISTRY-C2-HAKO-ALLOC-SEGMENT-CONSULTATION"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
