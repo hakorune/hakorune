@@ -31,7 +31,7 @@ active_joinir_smokes:
 docs_and_current_readmes:
   lang/src/compiler/mirbuilder/README.md
   docs/development/current/main/phases/phase-29bq/29bq-114-hako-cleanup-integration-prep-lane.md
-  docs/development/current/main/phases/phase-29cv/P101-PROGRAM-JSON-V0-CAPSULE-CALLER-INVENTORY.md
+  docs/development/archive/phases/phase-29cv/P101-PROGRAM-JSON-V0-CAPSULE-CALLER-INVENTORY.md
 ```
 
 ## Redirect Order

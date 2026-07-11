@@ -297,6 +297,28 @@ The partial relocation owner is
 whole-phase link rewrite implementation and refuses reachable incoming edges,
 archive collisions, dirty worktrees, and split weak components.
 
+## H2 Partial-Phase Batch Ledger
+
+```text
+batch-001-dedicated-large-cluster:
+  moved_files = 503
+  markdown_links_rewritten = 0
+  repository_paths_rewritten = 669
+  current_documents = 10110 -> 9607
+  remaining_files = 1331
+  remaining_clusters = 1007
+  largest_remaining_cluster = 42
+  reachable_incoming_edges = 0
+  archive_target_collisions = 0
+  inventory_strict = green
+  current_state_pointer_guard = green
+  docs_slim_archive_policy_guard = green
+  dev_gate_quick = green
+
+next = H2-TRACE-PARTIAL-PHASE-BATCH-002
+maximum_files = 200
+```
+
 ## Non-Claims
 
 ```text
