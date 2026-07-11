@@ -1,4 +1,4 @@
-use crate::mir::{BasicBlockId, ValueId};
+use crate::mir::{ArrayWriteSiteId, BasicBlockId, ValueId};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) enum ArrayTextEditKind {
@@ -62,6 +62,7 @@ pub struct ArrayTextEditRoute {
     pub(super) block: BasicBlockId,
     pub(super) get_instruction_index: usize,
     pub(super) set_instruction_index: usize,
+    pub(super) array_write_site_id: ArrayWriteSiteId,
     pub(super) array_value: ValueId,
     pub(super) destination_array_value: ValueId,
     pub(super) index_value: ValueId,
@@ -90,6 +91,10 @@ impl ArrayTextEditRoute {
 
     pub fn set_instruction_index(&self) -> usize {
         self.set_instruction_index
+    }
+
+    pub fn array_write_site_id(&self) -> ArrayWriteSiteId {
+        self.array_write_site_id
     }
 
     pub fn array_value(&self) -> ValueId {

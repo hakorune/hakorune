@@ -14,6 +14,12 @@ pub(super) fn check_contract_carrier_invariants(
     for function in module.functions.values() {
         collect_carrier_error(
             &mut errors,
+            "array_element_write_witnesses",
+            "ArrayElementWriteOwner",
+            crate::mir::array_element_write::validate_function_array_write_witnesses(function),
+        );
+        collect_carrier_error(
+            &mut errors,
             "parameter_entry_contracts",
             "FunctionEntryContractOwner",
             crate::mir::type_contracts::parameter_entry::validate_parameter_entry_contracts(

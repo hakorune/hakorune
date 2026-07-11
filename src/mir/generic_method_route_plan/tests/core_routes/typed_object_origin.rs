@@ -42,7 +42,14 @@ fn records_runtime_data_set_from_declared_direct_array_i64_field_origin() {
         dst: ValueId::new(4),
         src: ValueId::new(3),
     });
-    block.add_instruction(method_call(None, "RuntimeDataBox", "set", 4, vec![1, 2]));
+    block.add_instruction(array_write(
+        1,
+        None,
+        crate::mir::ArrayElementWriteKind::Set,
+        4,
+        Some(1),
+        2,
+    ));
     block.set_terminator(MirInstruction::Return { value: None });
     reset.add_block(block);
     module.add_function(reset);
@@ -53,7 +60,7 @@ fn records_runtime_data_set_from_declared_direct_array_i64_field_origin() {
     assert_eq!(reset.metadata.generic_method_routes.len(), 1);
     let route = &reset.metadata.generic_method_routes[0];
     assert_eq!(route.route_id(), "generic_method.set");
-    assert_eq!(route.box_name(), "RuntimeDataBox");
+    assert_eq!(route.box_name(), "DirectArrayI64");
     assert_eq!(route.method(), "set");
     assert_eq!(route.receiver_origin_box(), Some("DirectArrayI64"));
     assert_eq!(route.route_kind(), GenericMethodRouteKind::ArrayStoreAny);

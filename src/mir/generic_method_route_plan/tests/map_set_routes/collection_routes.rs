@@ -7,7 +7,14 @@ fn records_direct_array_push_core_method_route() {
         .blocks
         .get_mut(&BasicBlockId::new(0))
         .expect("entry");
-    block.add_instruction(method_call(Some(4), "ArrayBox", "push", 1, vec![2]));
+    block.add_instruction(array_write(
+        1,
+        Some(4),
+        crate::mir::ArrayElementWriteKind::Push,
+        1,
+        None,
+        2,
+    ));
 
     refresh_function_generic_method_routes(&mut function);
 
@@ -50,17 +57,24 @@ fn records_box_push_as_dynamic_array_append_route() {
         dst: ValueId::new(2),
         src: ValueId::new(1),
     });
-    block.add_instruction(method_call(Some(5), "Box", "push", 2, vec![1, 3]));
+    block.add_instruction(array_write(
+        1,
+        Some(5),
+        crate::mir::ArrayElementWriteKind::Push,
+        2,
+        None,
+        3,
+    ));
 
     refresh_function_generic_method_routes(&mut function);
 
     assert_eq!(function.metadata.generic_method_routes.len(), 1);
     let route = &function.metadata.generic_method_routes[0];
     assert_eq!(route.route_id(), "generic_method.push");
-    assert_eq!(route.box_name(), "Box");
+    assert_eq!(route.box_name(), "ArrayBox");
     assert_eq!(route.method(), "push");
-    assert_eq!(route.arity(), 2);
-    assert_eq!(route.receiver_origin_box(), None);
+    assert_eq!(route.arity(), 1);
+    assert_eq!(route.receiver_origin_box(), Some("ArrayBox"));
     assert_eq!(route.route_kind(), GenericMethodRouteKind::ArrayAppendAny);
     assert_eq!(route.proof(), GenericMethodRouteProof::PushSurfacePolicy);
     let core_method = route.core_method().expect("Box ArrayPush carrier");
@@ -96,14 +110,21 @@ fn records_runtime_data_arraybox_push_through_copy_as_cold_core_method_route() {
         dst: ValueId::new(2),
         src: ValueId::new(1),
     });
-    block.add_instruction(method_call(Some(4), "RuntimeDataBox", "push", 2, vec![3]));
+    block.add_instruction(array_write(
+        1,
+        Some(4),
+        crate::mir::ArrayElementWriteKind::Push,
+        2,
+        None,
+        3,
+    ));
 
     refresh_function_generic_method_routes(&mut function);
 
     assert_eq!(function.metadata.generic_method_routes.len(), 1);
     let route = &function.metadata.generic_method_routes[0];
     assert_eq!(route.route_id(), "generic_method.push");
-    assert_eq!(route.box_name(), "RuntimeDataBox");
+    assert_eq!(route.box_name(), "ArrayBox");
     assert_eq!(route.method(), "push");
     assert_eq!(route.receiver_origin_box(), Some("ArrayBox"));
     assert_eq!(route.route_kind(), GenericMethodRouteKind::ArrayAppendAny);
@@ -180,7 +201,14 @@ fn records_runtime_data_arraybox_push_through_phi_flow_as_cold_core_method_route
         ],
         type_hint: Some(MirType::Box("ArrayBox".to_string())),
     });
-    merge_block.add_instruction(method_call(Some(6), "RuntimeDataBox", "push", 4, vec![5]));
+    merge_block.add_instruction(array_write(
+        1,
+        Some(6),
+        crate::mir::ArrayElementWriteKind::Push,
+        4,
+        None,
+        5,
+    ));
     function.blocks.insert(BasicBlockId::new(1), then_block);
     function.blocks.insert(BasicBlockId::new(2), else_block);
     function.blocks.insert(BasicBlockId::new(3), merge_block);
@@ -190,7 +218,7 @@ fn records_runtime_data_arraybox_push_through_phi_flow_as_cold_core_method_route
     assert_eq!(function.metadata.generic_method_routes.len(), 1);
     let route = &function.metadata.generic_method_routes[0];
     assert_eq!(route.route_id(), "generic_method.push");
-    assert_eq!(route.box_name(), "RuntimeDataBox");
+    assert_eq!(route.box_name(), "ArrayBox");
     assert_eq!(route.method(), "push");
     assert_eq!(route.receiver_origin_box(), Some("ArrayBox"));
     assert_eq!(route.route_kind(), GenericMethodRouteKind::ArrayAppendAny);
@@ -251,7 +279,14 @@ fn records_direct_array_and_map_set_core_method_routes() {
         dst: ValueId::new(1),
         value: crate::mir::ConstValue::Integer(0),
     });
-    block.add_instruction(method_call(Some(5), "ArrayBox", "set", 2, vec![1, 3]));
+    block.add_instruction(array_write(
+        1,
+        Some(5),
+        crate::mir::ArrayElementWriteKind::Set,
+        2,
+        Some(1),
+        3,
+    ));
     block.add_instruction(method_call(Some(6), "MapBox", "set", 4, vec![1, 3]));
 
     refresh_function_generic_method_routes(&mut function);

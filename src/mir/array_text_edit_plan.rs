@@ -12,6 +12,7 @@
 
 use std::collections::HashMap;
 
+use super::array_receiver_proof::match_array_set_call;
 use super::string_corridor_recognizer::{match_len_call, match_substring_call};
 use super::value_origin::{build_value_def_map, resolve_value_origin, ValueDefMap};
 use super::{
@@ -222,28 +223,6 @@ fn match_add_either(
                 && same_root(function, def_map, *actual_rhs, lhs)) =>
         {
             Some(*dst)
-        }
-        _ => None,
-    }
-}
-
-fn match_set_call(inst: &MirInstruction) -> Option<(ValueId, ValueId, ValueId)> {
-    match inst {
-        MirInstruction::Call {
-            callee:
-                Some(Callee::Method {
-                    box_name,
-                    method,
-                    receiver: Some(receiver),
-                    ..
-                }),
-            args,
-            ..
-        } if args.len() == 2
-            && method == "set"
-            && matches!(box_name.as_str(), "RuntimeDataBox" | "ArrayBox") =>
-        {
-            Some((*receiver, args[0], args[1]))
         }
         _ => None,
     }
@@ -594,7 +573,8 @@ fn match_lenhalf_insert_mid_same_slot_route(
         get_instruction_index,
         source_value,
     )?;
-    let (set_array, set_index, set_value) = match_set_call(instructions.get(matched.cursor)?)?;
+    let set = match_array_set_call(instructions.get(matched.cursor)?)?;
+    let (set_array, set_index, set_value) = (set.array_value, set.index_value, set.input_value);
     if !same_root(function, def_map, set_array, array_value)
         || !same_root(function, def_map, set_index, index_value)
         || !same_root(function, def_map, set_value, matched.result_value)
@@ -613,6 +593,7 @@ fn match_lenhalf_insert_mid_same_slot_route(
         block: block_id,
         get_instruction_index,
         set_instruction_index,
+        array_write_site_id: set.site_id,
         array_value: root(function, def_map, array_value),
         destination_array_value: root(function, def_map, array_value),
         index_value: root(function, def_map, index_value),
@@ -651,7 +632,8 @@ fn match_lenhalf_insert_mid_dest_slot_len_only_route(
         source_value,
     )?;
 
-    let (set_array, set_index, set_value) = match_set_call(instructions.get(matched.cursor)?)?;
+    let set = match_array_set_call(instructions.get(matched.cursor)?)?;
+    let (set_array, set_index, set_value) = (set.array_value, set.index_value, set.input_value);
     if same_root(function, def_map, set_array, array_value)
         || !same_root(function, def_map, set_index, index_value)
         || !same_root(function, def_map, set_value, matched.result_value)
@@ -688,6 +670,7 @@ fn match_lenhalf_insert_mid_dest_slot_len_only_route(
         block: block_id,
         get_instruction_index,
         set_instruction_index,
+        array_write_site_id: set.site_id,
         array_value: root(function, def_map, array_value),
         destination_array_value: root(function, def_map, set_array),
         index_value: root(function, def_map, index_value),

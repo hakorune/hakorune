@@ -23,7 +23,7 @@ fn refresh_records_release_known_live_stores_as_caller_precondition_plans() {
         dst: ValueId::new(10),
         value: ConstValue::Integer(0),
     });
-    block.add_instruction(method_call(Some(6), "ArrayBox", "set", 3, vec![1, 10]));
+    block.add_instruction(array_set(1, Some(6), 3, 1, 10));
     block.add_instruction(MirInstruction::FieldGet {
         dst: ValueId::new(11),
         base: ValueId::new(0),
@@ -36,7 +36,7 @@ fn refresh_records_release_known_live_stores_as_caller_precondition_plans() {
         field: "local_free".to_string(),
         declared_type: Some(MirType::Box("ArrayBox".to_string())),
     });
-    block.add_instruction(method_call(Some(15), "ArrayBox", "set", 12, vec![11, 1]));
+    block.add_instruction(array_set(2, Some(15), 12, 11, 1));
 
     refresh_direct_array_plans(&mut function);
 

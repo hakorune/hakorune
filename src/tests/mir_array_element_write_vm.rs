@@ -37,6 +37,7 @@ fn vm_array_element_write_delegates_to_array_surface() {
             ArrayWriteSiteId::new(0),
             None,
             ArrayElementWriteKind::Push,
+            crate::mir::ArrayWriteProducerKind::MethodCall,
             ValueId::new(0),
             None,
             ValueId::new(1),

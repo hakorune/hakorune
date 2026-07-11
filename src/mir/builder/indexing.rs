@@ -66,6 +66,21 @@ impl super::MirBuilder {
 
         match class_hint.as_deref() {
             Some("ArrayBox") => {
+                if let Some(value_id) = store_value {
+                    self.emit_array_element_write(
+                        None,
+                        crate::mir::ArrayElementWriteKind::Set,
+                        if access_kind == "compound_store" {
+                            crate::mir::ArrayWriteProducerKind::CompoundIndexAssignment
+                        } else {
+                            crate::mir::ArrayWriteProducerKind::IndexAssignment
+                        },
+                        target_val,
+                        Some(index_val),
+                        value_id,
+                    )?;
+                    return Ok(value_id);
+                }
                 let dst = if store_value.is_some() {
                     None
                 } else {

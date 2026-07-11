@@ -32,6 +32,18 @@ fn method_call(
     }
 }
 
+fn array_set(site: u32, dst: Option<u32>, receiver: u32, index: u32, value: u32) -> MirInstruction {
+    MirInstruction::ArrayElementWrite {
+        site_id: crate::mir::ArrayWriteSiteId::new(site),
+        dst: dst.map(ValueId::new),
+        kind: crate::mir::ArrayElementWriteKind::Set,
+        producer: crate::mir::ArrayWriteProducerKind::LegacyCanonicalized,
+        receiver: ValueId::new(receiver),
+        index: Some(ValueId::new(index)),
+        value: ValueId::new(value),
+    }
+}
+
 #[test]
 fn build_mir_json_root_emits_range_index_facts() {
     let mut function = make_function("main", true);
@@ -182,7 +194,7 @@ fn build_mir_json_root_emits_direct_array_access_plans() {
         .get_mut(&BasicBlockId::new(0))
         .expect("entry");
     block.add_instruction(method_call(Some(5), "ArrayBox", "get", 2, vec![1]));
-    block.add_instruction(method_call(Some(6), "ArrayBox", "set", 2, vec![1, 3]));
+    block.add_instruction(array_set(1, Some(6), 2, 1, 3));
 
     crate::mir::generic_method_route_plan::refresh_function_generic_method_routes(&mut function);
     crate::mir::direct_array_access_plan::refresh_function_direct_array_access_plans(&mut function);

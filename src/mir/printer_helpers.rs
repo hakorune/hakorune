@@ -80,6 +80,7 @@ pub fn format_instruction(
             receiver,
             index,
             value,
+            ..
         } => {
             let dst = dst
                 .map(|dst| format!("{} ", format_dst(&dst, types)))

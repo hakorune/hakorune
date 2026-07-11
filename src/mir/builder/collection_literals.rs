@@ -2,6 +2,7 @@ use crate::ast::ASTNode;
 use crate::mir::builder::observe::types as type_trace;
 use crate::mir::definitions::call_unified::TypeCertainty;
 use crate::mir::ssot::method_call::runtime_method_call;
+use crate::mir::{ArrayElementWriteKind, ArrayWriteProducerKind};
 
 use super::{EffectMask, MirInstruction, MirType, ValueId};
 
@@ -45,15 +46,14 @@ impl super::MirBuilder {
                     .get(&value)
                     .map(|box_name| MirType::Box(box_name.clone()))
             });
-            self.emit_instruction(runtime_method_call(
+            self.emit_array_element_write(
                 None,
+                ArrayElementWriteKind::LiteralAppend,
+                ArrayWriteProducerKind::Literal,
                 arr_id,
-                "ArrayBox",
-                "push",
-                vec![value],
-                EffectMask::MUT,
-                TypeCertainty::Known,
-            ))?;
+                None,
+                value,
+            )?;
             element_types.push(element_type);
         }
 

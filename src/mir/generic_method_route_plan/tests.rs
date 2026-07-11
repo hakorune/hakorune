@@ -27,6 +27,25 @@ fn method_call(
     }
 }
 
+fn array_write(
+    site: u32,
+    dst: Option<u32>,
+    kind: crate::mir::ArrayElementWriteKind,
+    receiver: u32,
+    index: Option<u32>,
+    value: u32,
+) -> MirInstruction {
+    MirInstruction::ArrayElementWrite {
+        site_id: crate::mir::ArrayWriteSiteId::new(site),
+        dst: dst.map(ValueId::new),
+        kind,
+        producer: crate::mir::ArrayWriteProducerKind::LegacyCanonicalized,
+        receiver: ValueId::new(receiver),
+        index: index.map(ValueId::new),
+        value: ValueId::new(value),
+    }
+}
+
 fn make_function() -> MirFunction {
     MirFunction::new(
         FunctionSignature {

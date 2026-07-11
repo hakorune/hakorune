@@ -8,8 +8,8 @@
  */
 
 use super::{
-    array_rmw_window_plan::ArrayRmwWindowProof, BasicBlock, BasicBlockId, BinaryOp, Callee,
-    CompareOp, ConstValue, MirFunction, MirInstruction, MirModule, ValueId,
+    array_rmw_window_plan::ArrayRmwWindowProof, ArrayElementWriteKind, BasicBlock, BasicBlockId,
+    BinaryOp, Callee, CompareOp, ConstValue, MirFunction, MirInstruction, MirModule, ValueId,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -172,8 +172,8 @@ fn match_array_getset_micro_seed_route(
     }
 
     let b2 = interesting(blocks[2])?;
-    expect_ops(&b2, &["mir_call", "const", "binop", "jump"])?;
-    if !method_call_is(b2[0], &["RuntimeDataBox"], "push", 1)
+    expect_ops(&b2, &["array_write", "const", "binop", "jump"])?;
+    if !array_write_is(b2[0], ArrayElementWriteKind::Push)
         || const_i64(b2[1])? != 1
         || !binop_is(b2[2], BinaryOp::Add)
     {
@@ -199,7 +199,15 @@ fn match_array_getset_micro_seed_route(
     expect_ops(
         &b5,
         &[
-            "const", "binop", "mir_call", "const", "binop", "mir_call", "binop", "const", "binop",
+            "const",
+            "binop",
+            "mir_call",
+            "const",
+            "binop",
+            "array_write",
+            "binop",
+            "const",
+            "binop",
             "jump",
         ],
     )?;
@@ -208,7 +216,7 @@ fn match_array_getset_micro_seed_route(
         || !method_call_is(b5[2], &["RuntimeDataBox"], "get", 1)
         || const_i64(b5[3])? != 1
         || !binop_is(b5[4], BinaryOp::Add)
-        || !method_call_is(b5[5], &["RuntimeDataBox"], "set", 2)
+        || !array_write_is(b5[5], ArrayElementWriteKind::Set)
         || !binop_is(b5[6], BinaryOp::Add)
         || const_i64(b5[7])? != 1
         || !binop_is(b5[8], BinaryOp::Add)
@@ -288,6 +296,7 @@ fn op_name(inst: &MirInstruction) -> &'static str {
         MirInstruction::BinOp { .. } => "binop",
         MirInstruction::Compare { .. } => "compare",
         MirInstruction::Call { .. } => "mir_call",
+        MirInstruction::ArrayElementWrite { .. } => "array_write",
         MirInstruction::Branch { .. } => "branch",
         MirInstruction::Jump { .. } => "jump",
         MirInstruction::Return { .. } => "ret",
@@ -363,6 +372,10 @@ fn method_call_is(
         }
         _ => false,
     }
+}
+
+fn array_write_is(inst: &MirInstruction, expected: ArrayElementWriteKind) -> bool {
+    matches!(inst, MirInstruction::ArrayElementWrite { kind, .. } if *kind == expected)
 }
 
 #[cfg(test)]
@@ -459,7 +472,7 @@ mod tests {
             &mut function,
             19,
             vec![
-                method_call(None, "RuntimeDataBox", "push", 21, vec![ValueId::new(20)]),
+                array_write(1, ArrayElementWriteKind::Push, 21, None, 20),
                 const_i(24, 1),
                 binop(10, BinaryOp::Add),
             ],
@@ -503,13 +516,7 @@ mod tests {
                 ),
                 const_i(61, 1),
                 binop(59, BinaryOp::Add),
-                method_call(
-                    None,
-                    "RuntimeDataBox",
-                    "set",
-                    55,
-                    vec![ValueId::new(51), ValueId::new(59)],
-                ),
+                array_write(2, ArrayElementWriteKind::Set, 55, Some(51), 59),
                 binop(39, BinaryOp::Add),
                 const_i(68, 1),
                 binop(30, BinaryOp::Add),
@@ -601,6 +608,24 @@ mod tests {
             }),
             args,
             effects: EffectMask::PURE,
+        }
+    }
+
+    fn array_write(
+        site: u32,
+        kind: ArrayElementWriteKind,
+        receiver: u32,
+        index: Option<u32>,
+        value: u32,
+    ) -> MirInstruction {
+        MirInstruction::ArrayElementWrite {
+            site_id: crate::mir::ArrayWriteSiteId::new(site),
+            dst: None,
+            kind,
+            producer: crate::mir::ArrayWriteProducerKind::LegacyCanonicalized,
+            receiver: ValueId::new(receiver),
+            index: index.map(ValueId::new),
+            value: ValueId::new(value),
         }
     }
 

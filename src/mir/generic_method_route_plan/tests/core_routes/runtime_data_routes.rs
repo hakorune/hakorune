@@ -241,14 +241,21 @@ fn records_runtime_data_arraybox_push_as_cold_core_method_route() {
         dst: ValueId::new(2),
         value: crate::mir::ConstValue::Integer(7),
     });
-    block.add_instruction(method_call(Some(3), "RuntimeDataBox", "push", 1, vec![2]));
+    block.add_instruction(array_write(
+        1,
+        Some(3),
+        crate::mir::ArrayElementWriteKind::Push,
+        1,
+        None,
+        2,
+    ));
 
     refresh_function_generic_method_routes(&mut function);
 
     assert_eq!(function.metadata.generic_method_routes.len(), 1);
     let route = &function.metadata.generic_method_routes[0];
     assert_eq!(route.route_id(), "generic_method.push");
-    assert_eq!(route.box_name(), "RuntimeDataBox");
+    assert_eq!(route.box_name(), "ArrayBox");
     assert_eq!(route.method(), "push");
     assert_eq!(route.receiver_origin_box(), Some("ArrayBox"));
     assert_eq!(route.key_route(), None);

@@ -8,8 +8,8 @@
  */
 
 use super::{
-    definitions::Callee, BasicBlock, BasicBlockId, BinaryOp, CompareOp, ConstValue, MirFunction,
-    MirInstruction, MirModule,
+    definitions::Callee, ArrayElementWriteKind, BasicBlock, BasicBlockId, BinaryOp, CompareOp,
+    ConstValue, MirFunction, MirInstruction, MirModule,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -142,11 +142,11 @@ fn match_array_string_store_micro_seed_route(
     }
 
     let b2 = interesting(blocks[2])?;
-    expect_ops(&b2, &["const", "mir_call", "const", "binop", "jump"])?;
+    expect_ops(&b2, &["const", "array_write", "const", "binop", "jump"])?;
     if const_string(b2[0])? != seed {
         return None;
     }
-    if !method_call_is(b2[1], &["RuntimeDataBox"], "push", 1) {
+    if !array_write_is(b2[1], ArrayElementWriteKind::Push) {
         return None;
     }
     if const_i64(b2[2])? != 1 || !binop_is(b2[3], BinaryOp::Add) {
@@ -172,8 +172,20 @@ fn match_array_string_store_micro_seed_route(
     expect_ops(
         &b5,
         &[
-            "const", "binop", "const", "binop", "mir_call", "mir_call", "binop", "const",
-            "mir_call", "const", "const", "binop", "mir_call", "jump",
+            "const",
+            "binop",
+            "const",
+            "binop",
+            "array_write",
+            "mir_call",
+            "binop",
+            "const",
+            "mir_call",
+            "const",
+            "const",
+            "binop",
+            "mir_call",
+            "jump",
         ],
     )?;
     if const_i64(b5[0])? != size || !binop_is(b5[1], BinaryOp::Mod) {
@@ -183,7 +195,7 @@ fn match_array_string_store_micro_seed_route(
     if suffix != "xy" || !binop_is(b5[3], BinaryOp::Add) {
         return None;
     }
-    if !method_call_is(b5[4], &["RuntimeDataBox", "StringBox"], "set", 2) {
+    if !array_write_is(b5[4], ArrayElementWriteKind::Set) {
         return None;
     }
     if !method_call_is(b5[5], &["RuntimeDataBox", "StringBox"], "length", 0) {
@@ -269,6 +281,7 @@ fn op_name(inst: &MirInstruction) -> &'static str {
         MirInstruction::BinOp { .. } => "binop",
         MirInstruction::Compare { .. } => "compare",
         MirInstruction::Call { .. } => "mir_call",
+        MirInstruction::ArrayElementWrite { .. } => "array_write",
         MirInstruction::Branch { .. } => "branch",
         MirInstruction::Jump { .. } => "jump",
         MirInstruction::Return { .. } => "ret",
@@ -331,6 +344,10 @@ fn method_call_is(
         }
         _ => false,
     }
+}
+
+fn array_write_is(inst: &MirInstruction, expected: ArrayElementWriteKind) -> bool {
+    matches!(inst, MirInstruction::ArrayElementWrite { kind, .. } if *kind == expected)
 }
 
 #[cfg(test)]
@@ -435,7 +452,7 @@ mod tests {
             19,
             vec![
                 const_s(23, "line-seed-abcdef"),
-                method_call(None, "RuntimeDataBox", "push", 24, vec![ValueId::new(22)]),
+                array_write(1, ArrayElementWriteKind::Push, 24, None, 22),
                 const_i(28, 1),
                 binop(12, BinaryOp::Add),
             ],
@@ -473,13 +490,7 @@ mod tests {
                 binop(65, BinaryOp::Mod),
                 const_s(71, "xy"),
                 binop(69, BinaryOp::Add),
-                method_call(
-                    None,
-                    "RuntimeDataBox",
-                    "set",
-                    72,
-                    vec![ValueId::new(65), ValueId::new(69)],
-                ),
+                array_write(2, ArrayElementWriteKind::Set, 72, Some(65), 69),
                 method_call(Some(45), "RuntimeDataBox", "length", 75, vec![]),
                 binop(47, BinaryOp::Add),
                 const_s(81, "line-seed-abcdef"),
@@ -591,6 +602,24 @@ mod tests {
             }),
             args,
             effects: EffectMask::IO,
+        }
+    }
+
+    fn array_write(
+        site: u32,
+        kind: ArrayElementWriteKind,
+        receiver: u32,
+        index: Option<u32>,
+        value: u32,
+    ) -> MirInstruction {
+        MirInstruction::ArrayElementWrite {
+            site_id: crate::mir::ArrayWriteSiteId::new(site),
+            dst: None,
+            kind,
+            producer: crate::mir::ArrayWriteProducerKind::LegacyCanonicalized,
+            receiver: ValueId::new(receiver),
+            index: index.map(ValueId::new),
+            value: ValueId::new(value),
         }
     }
 

@@ -258,11 +258,12 @@ fn emit_instruction(
             site_id,
             dst,
             kind,
+            producer,
             receiver,
             index,
             value,
         } => Ok(array_write::emit(
-            *site_id, *dst, *kind, *receiver, *index, *value,
+            *site_id, *dst, *kind, *producer, *receiver, *index, *value,
         )),
         I::Call {
             dst,

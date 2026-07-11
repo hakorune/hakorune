@@ -2,7 +2,42 @@
 
 ## Status
 
-Active implementation card. Decision: accepted scope from 3496.
+Complete. Decision: accepted scope from 3496 and implemented in one
+behavior-preserving refactor series.
+
+## Closeout
+
+```text
+array_element_write_owner_count = 1
+known_array_write_residual_call_count = 0
+planner_raw_array_write_method_match_count = 0
+array_write_vm_consumer_count = 1
+array_write_legacy_projection_owner_count = 1
+array_write_identity_witness_complete = 1
+share_preserves_array_state_identity = 1
+deep_clone_preserves_array_state_identity = 0
+typed_array_contract_activation = 0
+changed_production_source_over_800_lines = 0
+```
+
+Known source writes and exact imported `ArrayBox` calls converge before
+planner observation. Generic/direct/RMW/text/micro-seed routes carry typed
+site evidence, semantic refresh checks operand parity, VM consumes V1
+directly, and legacy backends receive only owner-validated projection.
+
+Verification:
+
+```text
+cargo check --all-targets = green
+focused Array owner/planner/VM/JSON/compiler tests = green
+language_v1_grammar_contract_substrate_guard = 38/38 green
+LANGV1_GRAMMAR_FULL=1 language_v1_grammar_contract_substrate_guard = green
+git diff --check = green
+```
+
+The unscoped parallel `cargo test --lib` baseline remains unsuitable as a
+card gate because process-global profile/plugin tests interfere. Focused
+families and the explicit FULL grammar gate are the closeout authority.
 
 ## Objective
 

@@ -14,7 +14,7 @@ fn refresh_records_range_index_store_as_branchless_proved_unchecked_plan() {
         value: ConstValue::Integer(0),
     });
     let body = function.blocks.get_mut(&body_bb).expect("body");
-    body.add_instruction(method_call(Some(6), "ArrayBox", "set", 2, vec![4, 3]));
+    body.add_instruction(array_set(1, Some(6), 2, 4, 3));
     add_unit_range_loop_fact(&mut function, body_bb);
 
     crate::mir::generic_method_route_plan::refresh_function_generic_method_routes(&mut function);
@@ -75,7 +75,7 @@ fn refresh_keeps_range_index_store_checked_without_extent_proof() {
         value: ConstValue::Integer(0),
     });
     let body = function.blocks.get_mut(&body_bb).expect("body");
-    body.add_instruction(method_call(Some(6), "ArrayBox", "set", 2, vec![4, 3]));
+    body.add_instruction(array_set(1, Some(6), 2, 4, 3));
     add_unit_range_loop_fact(&mut function, body_bb);
 
     refresh_direct_array_plans(&mut function);

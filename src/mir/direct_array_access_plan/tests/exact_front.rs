@@ -12,7 +12,7 @@ fn refresh_records_checked_load_and_store_plans_from_array_routes() {
         value: ConstValue::Integer(0),
     });
     block.add_instruction(method_call(Some(5), "ArrayBox", "get", 2, vec![1]));
-    block.add_instruction(method_call(Some(6), "ArrayBox", "set", 2, vec![1, 3]));
+    block.add_instruction(array_set(1, Some(6), 2, 1, 3));
 
     refresh_direct_array_plans(&mut function);
 
@@ -63,7 +63,7 @@ fn refresh_records_checked_load_and_store_plans_from_direct_array_i64_routes() {
         value: ConstValue::Integer(0),
     });
     block.add_instruction(method_call(Some(5), "DirectArrayI64", "get", 2, vec![1]));
-    block.add_instruction(method_call(Some(6), "DirectArrayI64", "set", 2, vec![1, 3]));
+    block.add_instruction(array_set(1, Some(6), 2, 1, 3));
 
     refresh_direct_array_plans(&mut function);
 

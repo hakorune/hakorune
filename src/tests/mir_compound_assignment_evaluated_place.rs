@@ -42,7 +42,9 @@ static box Main {
         .find("field.get")
         .map(|offset| array_get + 1 + offset)
         .expect("index RHS field read");
-    let array_set = printed.find("ArrayBox.set").expect("index store");
+    let array_set = printed
+        .find("array.write #1 set")
+        .expect("canonical index store");
     let compound_field_set = printed.rfind("field.set").expect("field store");
 
     assert!(
@@ -67,7 +69,7 @@ static box Main {
         "index reads once"
     );
     assert_eq!(
-        printed.matches("ArrayBox.set").count(),
+        printed.matches("array.write #1 set").count(),
         1,
         "index stores once"
     );

@@ -18,8 +18,8 @@ use super::BasicBlockId;
 use super::{Callee, MirFunction, MirInstruction, MirModule, ValueId};
 use std::collections::BTreeMap;
 
-mod collection_read_routes;
 mod caller_orientation;
+mod collection_read_routes;
 mod flow_origin;
 mod generated;
 mod map_set_scalar_proof;
@@ -125,6 +125,26 @@ fn refresh_function_generic_method_routes_with_context(
         };
         for (instruction_index, inst) in block.instructions.iter().enumerate() {
             let route = match inst {
+                MirInstruction::ArrayElementWrite { kind, .. } => match kind {
+                    super::ArrayElementWriteKind::LiteralAppend
+                    | super::ArrayElementWriteKind::Push => match_generic_push_route(
+                        function,
+                        &def_map,
+                        field_handle_origins,
+                        block_id,
+                        instruction_index,
+                        inst,
+                    ),
+                    super::ArrayElementWriteKind::Set => match_generic_set_route(
+                        function,
+                        &def_map,
+                        field_handle_origins,
+                        block_id,
+                        instruction_index,
+                        inst,
+                    ),
+                    super::ArrayElementWriteKind::Insert => None,
+                },
                 MirInstruction::Call {
                     callee: Some(Callee::Method { method, .. }),
                     ..

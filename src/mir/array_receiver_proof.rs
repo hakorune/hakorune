@@ -8,7 +8,9 @@
 
 use super::definitions::Callee;
 use super::value_origin::{resolve_value_origin, ValueDefMap};
-use super::{MirFunction, MirInstruction, MirType, ValueId};
+use super::{
+    ArrayElementWriteKind, ArrayWriteSiteId, MirFunction, MirInstruction, MirType, ValueId,
+};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) struct ArrayGetCall<'a> {
@@ -20,6 +22,7 @@ pub(crate) struct ArrayGetCall<'a> {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) struct ArraySetCall {
+    pub site_id: ArrayWriteSiteId,
     pub array_value: ValueId,
     pub index_value: ValueId,
     pub input_value: ValueId,
@@ -68,26 +71,19 @@ pub(crate) fn match_array_get_call(inst: &MirInstruction) -> Option<ArrayGetCall
 
 pub(crate) fn match_array_set_call(inst: &MirInstruction) -> Option<ArraySetCall> {
     match inst {
-        MirInstruction::Call {
-            callee:
-                Some(Callee::Method {
-                    box_name,
-                    method,
-                    receiver: Some(receiver),
-                    ..
-                }),
-            args,
+        MirInstruction::ArrayElementWrite {
+            site_id,
+            kind: ArrayElementWriteKind::Set,
+            receiver,
+            index: Some(index),
+            value,
             ..
-        } if args.len() == 2
-            && method == "set"
-            && matches!(box_name.as_str(), "ArrayBox" | "RuntimeDataBox") =>
-        {
-            Some(ArraySetCall {
-                array_value: *receiver,
-                index_value: args[0],
-                input_value: args[1],
-            })
-        }
+        } => Some(ArraySetCall {
+            site_id: *site_id,
+            array_value: *receiver,
+            index_value: *index,
+            input_value: *value,
+        }),
         _ => None,
     }
 }

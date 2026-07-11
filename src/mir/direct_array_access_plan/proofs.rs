@@ -323,6 +323,11 @@ pub(super) fn array_store_value_arg(
     let def_map = build_value_def_map(function);
     let key_origin = resolve_value_origin(function, &def_map, key_value);
     match block.instructions.get(instruction_index)? {
+        MirInstruction::ArrayElementWrite {
+            index: Some(index),
+            value,
+            ..
+        } if resolve_value_origin(function, &def_map, *index) == key_origin => Some(*value),
         MirInstruction::Call { args, .. } => args
             .iter()
             .position(|arg| resolve_value_origin(function, &def_map, *arg) == key_origin)

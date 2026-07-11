@@ -388,6 +388,7 @@ pub const LLVM_SUPPORTED_JSON_OPS: &[&str] = &[
 /// MIR JSON operations retained for typed transport but deliberately rejected
 /// by LLVM/backend lowering until their capability owner is implemented.
 pub const MIR_JSON_TRANSPORT_ONLY_OPS: &[&str] = &[
+    "array_element_write",
     "local_contract_write",
     "record_field_contract_check",
     "record_value_publish",

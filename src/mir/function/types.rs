@@ -160,6 +160,35 @@ pub struct RecordValueContract {
     pub backend_capability_required: String,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub struct ArrayStateTermId(pub u32);
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ArrayStateTermKind {
+    Fresh { allocation_site: ValueId },
+    SameAs { source: ValueId },
+    Select { inputs: Vec<ValueId> },
+    DynamicBoundary { value: ValueId },
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ArrayStateTerm {
+    pub term_id: ArrayStateTermId,
+    pub value: ValueId,
+    pub kind: ArrayStateTermKind,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ArrayElementWriteWitness {
+    pub site_id: crate::mir::ArrayWriteSiteId,
+    pub kind: crate::mir::ArrayElementWriteKind,
+    pub producer: crate::mir::ArrayWriteProducerKind,
+    pub receiver: ValueId,
+    pub index: Option<ValueId>,
+    pub value: ValueId,
+    pub state_term: ArrayStateTermId,
+}
+
 /// A MIR function in SSA form
 #[derive(Debug, Clone)]
 pub struct MirFunction {

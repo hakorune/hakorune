@@ -147,6 +147,9 @@ impl super::super::MirBuilder {
                 &observed_callee,
                 &observed_args,
             );
+            if self.try_emit_known_array_method_write(dst, box_val, &method, &args)? {
+                return Ok(());
+            }
         }
         if bx_name == "MapBox" {
             let box_kind = crate::mir::builder::calls::call_unified::classify_box_kind(&bx_name);

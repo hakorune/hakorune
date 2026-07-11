@@ -8,6 +8,7 @@ use super::fastmem::{
     FastMemRegionMetadata, FastMemRemoteOwnerFact, FastMemSameOwnerFact, FastMemTableLengthFact,
 };
 use super::object_metadata::RecordStateFieldAccessPlan;
+use super::types::{ArrayElementWriteWitness, ArrayStateTerm};
 use super::types::{
     ExactNumericRuntimeCheckContract, LocalIdentityEvidence, LocalSlotContract, MirParamDecl,
     ParameterEntryContract,
@@ -586,6 +587,10 @@ pub struct FunctionMetadata {
     /// Record construction/update semantic contracts rebuilt by
     /// `semantic_refresh` from canonical record operations.
     pub record_value_contracts: Vec<RecordValueContract>,
+
+    /// Rebuilt behavior/identity evidence for canonical Array writes.
+    pub array_element_write_witnesses: Vec<ArrayElementWriteWitness>,
+    pub array_state_terms: Vec<ArrayStateTerm>,
 
     /// MIR-owned exact numeric facts attached to values after field reads and
     /// conservative copy/control-merge propagation.

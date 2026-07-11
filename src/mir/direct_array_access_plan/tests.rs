@@ -50,6 +50,18 @@ fn method_call(
     }
 }
 
+fn array_set(site: u32, dst: Option<u32>, receiver: u32, index: u32, value: u32) -> MirInstruction {
+    MirInstruction::ArrayElementWrite {
+        site_id: crate::mir::ArrayWriteSiteId::new(site),
+        dst: dst.map(ValueId::new),
+        kind: crate::mir::ArrayElementWriteKind::Set,
+        producer: crate::mir::ArrayWriteProducerKind::LegacyCanonicalized,
+        receiver: ValueId::new(receiver),
+        index: Some(ValueId::new(index)),
+        value: ValueId::new(value),
+    }
+}
+
 fn refresh_direct_array_plans(function: &mut MirFunction) {
     crate::mir::generic_method_route_plan::refresh_function_generic_method_routes(function);
     refresh_function_range_index_facts(function);

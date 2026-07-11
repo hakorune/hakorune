@@ -24,6 +24,7 @@ fn explicit_array_write_is_observable_in_mir_json() {
                 ArrayWriteSiteId::new(7),
                 Some(ValueId::new(3)),
                 ArrayElementWriteKind::Set,
+                crate::mir::ArrayWriteProducerKind::IndexAssignment,
                 ValueId::new(0),
                 Some(ValueId::new(1)),
                 ValueId::new(2),
@@ -42,4 +43,10 @@ fn explicit_array_write_is_observable_in_mir_json() {
     assert_eq!(instruction["index"], 1);
     assert_eq!(instruction["value"], 2);
     assert_eq!(instruction["dst"], 3);
+    let metadata = &root["functions"][0]["metadata"];
+    assert_eq!(metadata["array_element_write_witnesses"][0]["site_id"], 7);
+    assert_eq!(
+        metadata["array_state_terms"][0]["relation"]["kind"],
+        "dynamic_boundary"
+    );
 }

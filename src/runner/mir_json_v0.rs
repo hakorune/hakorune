@@ -5,6 +5,8 @@ use crate::mir::{
 };
 use serde_json::Value;
 
+#[path = "mir_json_v0/array_write.rs"]
+mod array_write;
 #[path = "mir_json_v0/call.rs"]
 mod call;
 #[path = "mir_json_v0/helpers.rs"]
@@ -13,6 +15,7 @@ mod helpers;
 #[path = "mir_json_v0/tests.rs"]
 mod tests;
 
+use array_write::parse_array_element_write;
 use call::*;
 use helpers::*;
 
@@ -168,6 +171,13 @@ pub fn parse_mir_v0_to_module(json: &str) -> Result<MirModule, String> {
                             index: ValueId::new(index),
                         });
                         max_value_id = max_value_id.max(dst + 1);
+                    }
+                    "array_element_write" => {
+                        let instruction = parse_array_element_write(inst)?;
+                        if let Some(dst) = instruction.dst_value() {
+                            max_value_id = max_value_id.max(dst.as_u32() + 1);
+                        }
+                        block_ref.add_instruction(instruction);
                     }
                     "array_get" => {
                         let dst = require_u64(inst, "dst", "array_get dst")? as u32;

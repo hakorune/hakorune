@@ -12,7 +12,8 @@ use super::array_receiver_proof::{
 };
 use super::value_origin::{build_value_def_map, ValueDefMap};
 use super::{
-    BasicBlock, BasicBlockId, BinaryOp, ConstValue, MirFunction, MirInstruction, MirModule, ValueId,
+    ArrayWriteSiteId, BasicBlock, BasicBlockId, BinaryOp, ConstValue, MirFunction, MirInstruction,
+    MirModule, ValueId,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -38,6 +39,7 @@ pub struct ArrayRmwWindowRoute {
     const_value: ValueId,
     result_value: ValueId,
     set_instruction_index: usize,
+    array_write_site_id: ArrayWriteSiteId,
     skip_instruction_indices: Vec<usize>,
     proof: ArrayRmwWindowProof,
 }
@@ -73,6 +75,10 @@ impl ArrayRmwWindowRoute {
 
     pub fn set_instruction_index(&self) -> usize {
         self.set_instruction_index
+    }
+
+    pub fn array_write_site_id(&self) -> ArrayWriteSiteId {
+        self.array_write_site_id
     }
 
     pub fn skip_instruction_indices(&self) -> &[usize] {
@@ -275,6 +281,7 @@ fn match_add1_same_slot_set_route(
         const_value,
         result_value,
         set_instruction_index,
+        array_write_site_id: set_call.site_id,
         skip_instruction_indices: skip,
         proof: ArrayRmwWindowProof::ArrayGetAdd1SetSameSlot,
     })
@@ -294,6 +301,7 @@ pub(crate) mod test_support {
             const_value: ValueId::new(13),
             result_value: ValueId::new(14),
             set_instruction_index: 6,
+            array_write_site_id: ArrayWriteSiteId::new(1),
             skip_instruction_indices: vec![4, 5, 6],
             proof: ArrayRmwWindowProof::ArrayGetAdd1SetSameSlot,
         }
@@ -309,6 +317,7 @@ pub(crate) mod test_support {
             const_value: ValueId::new(55),
             result_value: ValueId::new(53),
             set_instruction_index: 13,
+            array_write_site_id: ArrayWriteSiteId::new(1),
             skip_instruction_indices: vec![9, 10, 11, 12, 13],
             proof: ArrayRmwWindowProof::ArrayGetAdd1SetSameSlot,
         }
@@ -324,6 +333,7 @@ pub(crate) mod test_support {
             const_value: ValueId::new(61),
             result_value: ValueId::new(59),
             set_instruction_index: 12,
+            array_write_site_id: ArrayWriteSiteId::new(1),
             skip_instruction_indices: vec![8, 9, 10, 11, 12],
             proof: ArrayRmwWindowProof::ArrayGetAdd1SetSameSlot,
         }
@@ -482,13 +492,16 @@ mod tests {
     }
 
     fn array_set(box_name: &str, array: u32, index: u32, value: u32) -> MirInstruction {
-        method_call(
-            None,
-            box_name,
-            "set",
-            array,
-            vec![ValueId::new(index), ValueId::new(value)],
-        )
+        let _ = box_name;
+        MirInstruction::ArrayElementWrite {
+            site_id: ArrayWriteSiteId::new(1),
+            dst: None,
+            kind: crate::mir::ArrayElementWriteKind::Set,
+            producer: crate::mir::ArrayWriteProducerKind::LegacyCanonicalized,
+            receiver: ValueId::new(array),
+            index: Some(ValueId::new(index)),
+            value: ValueId::new(value),
+        }
     }
 
     fn method_call(

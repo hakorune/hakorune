@@ -4,7 +4,7 @@ use crate::mir::generic_method_route_facts::{
     GenericMethodKeyRoute, GenericMethodPublicationPolicy, GenericMethodReturnShape,
     GenericMethodValueDemand,
 };
-use crate::mir::{BasicBlockId, ValueId};
+use crate::mir::{ArrayWriteSiteId, BasicBlockId, ValueId};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum GenericMethodRouteKind {
@@ -282,6 +282,7 @@ pub struct GenericMethodRoute {
     evidence: GenericMethodRouteEvidence,
     operands: GenericMethodRouteOperands,
     decision: GenericMethodRouteDecision,
+    array_write_site_id: Option<ArrayWriteSiteId>,
 }
 
 impl GenericMethodRoute {
@@ -298,7 +299,17 @@ impl GenericMethodRoute {
             evidence,
             operands,
             decision,
+            array_write_site_id: None,
         }
+    }
+
+    pub(crate) fn with_array_write_site_id(mut self, site_id: ArrayWriteSiteId) -> Self {
+        self.array_write_site_id = Some(site_id);
+        self
+    }
+
+    pub fn array_write_site_id(&self) -> Option<ArrayWriteSiteId> {
+        self.array_write_site_id
     }
 
     pub fn box_name(&self) -> &str {

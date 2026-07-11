@@ -42,7 +42,7 @@ fn refresh_records_stack_top_pop_load_and_store_as_branchless_proved_unchecked_p
         rhs: ValueId::new(12),
     });
     body.add_instruction(method_call(Some(14), "ArrayBox", "get", 3, vec![13]));
-    body.add_instruction(method_call(Some(15), "ArrayBox", "set", 4, vec![14, 5]));
+    body.add_instruction(array_set(1, Some(15), 4, 14, 5));
 
     refresh_direct_array_plans(&mut function);
 

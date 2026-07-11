@@ -386,10 +386,10 @@ fn test_lowering_boxcall_array_push() {
     let mut compiler = MirCompiler::new();
     let result = compiler.compile(ast).expect("compile should succeed");
     let dump = MirPrinter::new().print_module(&result.module);
-    // Expect a BoxCall to push (printer formats as `call <box>.<method>(...)`)
+    // Known Array writes converge before downstream planners observe MIR.
     assert!(
-        dump.contains(".push("),
-        "Expected BoxCall to .push(...). Got:\n{}",
+        dump.contains("array.write #0 push"),
+        "Expected canonical ArrayElementWrite push. Got:\n{}",
         dump
     );
 }

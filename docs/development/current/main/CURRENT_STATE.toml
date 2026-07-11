@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Active implementation"
+status = "Active design consultation"
 date = "2026-07-11"
 
 active_lane = "LANGUAGE-V1-CONVERGENCE semantic contract before selfhost migration"
@@ -36,8 +36,9 @@ grammar parity. 3493 closes the record carrier, VM owner, MIR JSON, and
 unsupported-backend gate. 3494 selects Static Table readonly U16 contract
 closeout without new semantic activation. 3495 closes its source spec, derived
 plan, refreshed carrier, VM consumer, and backend preflight. 3496 accepts
-explicit ArrayElementWrite and shared-state identity. 3497 implements the
-behavior-preserving convergence series before Typed Array."""
+explicit ArrayElementWrite and shared-state identity. 3497 closes producer,
+planner, VM, JSON, backend projection, and shared-state convergence. 3498 now
+selects the source-owned Typed Array element-contract law before activation."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
@@ -45,13 +46,13 @@ method_anchor = "docs/development/current/main/design/selfhost-language-v1-freez
 taskboard = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 
-latest_card = "ARRAY-ELEMENT-WRITE-BOUNDARY-OWNER-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3497-ARRAY-ELEMENT-WRITE-BOUNDARY-OWNER-001.md"
-latest_card_summary = """3497 converges literal, method, index, compound, and
-legacy Array writes onto explicit ArrayElementWrite with shared-state identity,
-planner site references, VM consumption, and validated backend projection."""
+latest_card = "LANGV1-TYPED-ARRAY-ELEMENT-CONTRACT-DESIGN-STOP-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3498-LANGV1-TYPED-ARRAY-ELEMENT-CONTRACT-DESIGN-STOP-001.md"
+latest_card_summary = """3498 decides the explicit source owner, state-attached
+carrier, exact-numeric first subset, check/publication order, VM consumer, and
+unsupported-backend policy for typed Array elements."""
 
-current_blocker_token = "ARRAY-ELEMENT-WRITE-BOUNDARY-OWNER-001"
+current_blocker_token = "LANGV1-TYPED-ARRAY-ELEMENT-CONTRACT-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -60,6 +61,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-11: 3497 closes explicit Array write producer/planner/VM/JSON/projection convergence and shared-state identity; 3498 opens Typed Array element-contract design.",
   "2026-07-11: 3496 accepts explicit ArrayElementWrite, ArrayElementWriteOwner, and shared mutable-state identity; 3497 becomes active.",
   "2026-07-11: 3495 closes readonly U16 Static Table source spec, derived plan, refreshed carrier, VM/JSON consumers, and backend preflight; 3496 opens Array write-owner design.",
   "2026-07-11: 3494 selects Static Table readonly U16 contract closeout without new activation; 3495 becomes active.",
@@ -71,5 +73,4 @@ landed_tail = [
   "2026-07-11: 3489 closes the semantic_refresh facade, public consumer convergence, representation inventory, and types status-ledger split; 3490 opens exact-numeric island closeout.",
   "2026-07-11: 3486 closes LocalSlotId(BindingId), the atomic declaration API, value/binding snapshots, CorePlan local routing, and ScopeBox identity restoration; 3487 opens exact-numeric local contract activation.",
   "2026-07-11: 3484 closes exact-numeric final-return carrier, verifier, VM owner, MIR JSON, and backend preflight; 3485 opens the local-slot identity/write-boundary design stop.",
-  "2026-07-11: 3483 accepts FunctionReturnContractOwner, ReturnOutcomeVerifier, RejectVoid/fallthrough, and VM-only exact-numeric return scope; 3484 opens substantive implementation.",
 ]

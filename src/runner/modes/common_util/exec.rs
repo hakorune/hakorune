@@ -296,6 +296,8 @@ pub fn ny_llvmc_emit_exe_lib(
     let mut backend_ready = module.clone();
     crate::mir::semantic_refresh::refresh_module_semantic_metadata(&mut backend_ready);
     crate::mir::backend_capability::enforce_mir_backend_supported(&backend_ready, "ny-llvmc-exe")?;
+    let backend_ready =
+        crate::mir::array_element_write::project_module_to_legacy_calls(&backend_ready)?;
     emit_json_and_run_ny_llvmc_emit_exe(
         |json_path| {
             crate::runner::mir_json_emit::emit_mir_json_for_harness(&backend_ready, json_path)
@@ -313,8 +315,9 @@ pub fn llvmlite_emit_obj_lib(
     obj_out: &str,
 ) -> Result<(), String> {
     crate::mir::backend_capability::enforce_mir_backend_supported(module, "llvmlite-obj")?;
+    let backend_ready = crate::mir::array_element_write::project_module_to_legacy_calls(module)?;
     let json_path = prepare_llvmlite_emit_json_path();
-    crate::runner::mir_json_emit::emit_mir_json_for_harness(module, &json_path)
+    crate::runner::mir_json_emit::emit_mir_json_for_harness(&backend_ready, &json_path)
         .map_err(|e| format!("MIR JSON emit error: {}", e))?;
 
     let result = (|| {
@@ -345,8 +348,9 @@ pub fn ny_llvmc_emit_obj_lib(
     obj_out: &str,
 ) -> Result<(), String> {
     crate::mir::backend_capability::enforce_mir_backend_supported(module, "ny-llvmc-obj")?;
+    let backend_ready = crate::mir::array_element_write::project_module_to_legacy_calls(module)?;
     let json_path = prepare_ny_llvmc_emit_json_path();
-    crate::runner::mir_json_emit::emit_mir_json_for_harness(module, &json_path)
+    crate::runner::mir_json_emit::emit_mir_json_for_harness(&backend_ready, &json_path)
         .map_err(|e| format!("MIR JSON emit error: {}", e))?;
     let result = run_ny_llvmc_emit_obj(&json_path, obj_out);
     let _ = std::fs::remove_file(&json_path);
@@ -363,6 +367,8 @@ pub fn ny_llvmc_emit_exe_bin(
     let mut backend_ready = module.clone();
     crate::mir::semantic_refresh::refresh_module_semantic_metadata(&mut backend_ready);
     crate::mir::backend_capability::enforce_mir_backend_supported(&backend_ready, "ny-llvmc-exe")?;
+    let backend_ready =
+        crate::mir::array_element_write::project_module_to_legacy_calls(&backend_ready)?;
     emit_json_and_run_ny_llvmc_emit_exe(
         |json_path| {
             crate::runner::mir_json_emit::emit_mir_json_for_harness_bin(&backend_ready, json_path)

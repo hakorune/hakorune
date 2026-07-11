@@ -180,14 +180,16 @@ fn substring_call(dst: u32, receiver: u32, start: u32, end: u32) -> MirInstructi
     )
 }
 
-fn array_set(_marker: u32, array: u32, index: u32, value: u32) -> MirInstruction {
-    method_call(
-        None,
-        "RuntimeDataBox",
-        "set",
-        array,
-        vec![ValueId::new(index), ValueId::new(value)],
-    )
+fn array_set(marker: u32, array: u32, index: u32, value: u32) -> MirInstruction {
+    MirInstruction::ArrayElementWrite {
+        site_id: crate::mir::ArrayWriteSiteId::new(marker),
+        dst: None,
+        kind: crate::mir::ArrayElementWriteKind::Set,
+        producer: crate::mir::ArrayWriteProducerKind::LegacyCanonicalized,
+        receiver: ValueId::new(array),
+        index: Some(ValueId::new(index)),
+        value: ValueId::new(value),
+    }
 }
 
 fn method_call(

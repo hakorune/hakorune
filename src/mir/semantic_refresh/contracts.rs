@@ -21,6 +21,7 @@ pub struct ContractCarrierSummary {
     pub local_slots: usize,
     pub record_values: usize,
     pub static_tables: usize,
+    pub array_writes: usize,
 }
 
 impl ContractCarrierSummary {
@@ -31,6 +32,7 @@ impl ContractCarrierSummary {
             + self.local_slots
             + self.record_values
             + self.static_tables
+            + self.array_writes
     }
 }
 
@@ -96,6 +98,10 @@ pub fn refresh_and_validate_for_boundary(
 fn refresh_active_contract_carriers(module: &mut MirModule) -> Result<(), String> {
     let record_decls = module.metadata.record_decls.clone();
     for function in module.functions.values_mut() {
+        crate::mir::array_element_write::canonicalize_legacy_array_write_calls(function)
+            .map_err(|reason| carrier_validation_error("array_write", function, reason))?;
+        crate::mir::array_element_write::refresh_function_array_write_witnesses(function)
+            .map_err(|reason| carrier_validation_error("array_write", function, reason))?;
         crate::mir::type_contracts::parameter_entry::refresh_function_parameter_entry_contracts(
             function,
         );
@@ -136,6 +142,8 @@ fn validate_refreshed_contracts(module: &MirModule) -> Result<(), String> {
     validate_box_field_contracts(module)?;
     crate::mir::type_contracts::static_table::validate_static_table_contracts(module)?;
     for function in module.functions.values() {
+        crate::mir::array_element_write::validate_function_array_write_witnesses(function)
+            .map_err(|reason| carrier_validation_error("array_write", function, reason))?;
         crate::mir::type_contracts::parameter_entry::validate_parameter_entry_contracts(function)
             .map_err(|reason| carrier_validation_error("parameter_entry", function, reason))?;
         crate::mir::type_contracts::return_exit::validate_return_exit_contract(function)
@@ -211,6 +219,11 @@ fn collect_carrier_summary(module: &MirModule) -> ContractCarrierSummary {
             .map(|function| function.metadata.record_value_contracts.len())
             .sum(),
         static_tables: module.metadata.verified_static_table_contracts.len(),
+        array_writes: module
+            .functions
+            .values()
+            .map(|function| function.metadata.array_element_write_witnesses.len())
+            .sum(),
     }
 }
 

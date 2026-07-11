@@ -240,7 +240,9 @@ pub use function::{
 pub use generic_method_route_plan::{
     refresh_function_generic_method_routes, refresh_module_generic_method_routes,
 };
-pub use instruction::{ArrayElementWriteKind, ArrayWriteSiteId, MirInstruction};
+pub use instruction::{
+    ArrayElementWriteKind, ArrayWriteProducerKind, ArrayWriteSiteId, MirInstruction,
+};
 pub use map_lookup_fusion_plan::{
     refresh_function_map_lookup_fusion_routes, refresh_module_map_lookup_fusion_routes,
 };

@@ -268,6 +268,23 @@ impl UnifiedCallEmitterBox {
         if let Callee::Method {
             box_name,
             method,
+            receiver: Some(receiver),
+            ..
+        } = &callee
+        {
+            if box_name == "ArrayBox" {
+                super::super::types::array_element::observe_array_write_call(
+                    builder, &callee, &args,
+                );
+                if builder.try_emit_known_array_method_write(dst, *receiver, method, &args)? {
+                    return Ok(());
+                }
+            }
+        }
+
+        if let Callee::Method {
+            box_name,
+            method,
             certainty,
             ..
         } = &callee

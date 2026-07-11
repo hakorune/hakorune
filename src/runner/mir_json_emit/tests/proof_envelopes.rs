@@ -39,7 +39,15 @@ fn build_mir_json_root_emits_direct_array_proof_envelopes() {
         .get_mut(&BasicBlockId::new(0))
         .expect("entry");
     block.add_instruction(method_call(Some(5), "ArrayBox", "get", 2, vec![1]));
-    block.add_instruction(method_call(Some(6), "ArrayBox", "set", 2, vec![1, 3]));
+    block.add_instruction(MirInstruction::ArrayElementWrite {
+        site_id: crate::mir::ArrayWriteSiteId::new(1),
+        dst: Some(ValueId::new(6)),
+        kind: crate::mir::ArrayElementWriteKind::Set,
+        producer: crate::mir::ArrayWriteProducerKind::LegacyCanonicalized,
+        receiver: ValueId::new(2),
+        index: Some(ValueId::new(1)),
+        value: ValueId::new(3),
+    });
 
     crate::mir::generic_method_route_plan::refresh_function_generic_method_routes(&mut function);
     refresh_function_direct_array_access_plans(&mut function);

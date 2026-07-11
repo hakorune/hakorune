@@ -46,6 +46,27 @@ pub enum ArrayElementWriteKind {
     Insert,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub enum ArrayWriteProducerKind {
+    Literal,
+    MethodCall,
+    IndexAssignment,
+    CompoundIndexAssignment,
+    LegacyCanonicalized,
+}
+
+impl ArrayWriteProducerKind {
+    pub const fn as_str(self) -> &'static str {
+        match self {
+            Self::Literal => "literal",
+            Self::MethodCall => "method_call",
+            Self::IndexAssignment => "index_assignment",
+            Self::CompoundIndexAssignment => "compound_index_assignment",
+            Self::LegacyCanonicalized => "legacy_canonicalized",
+        }
+    }
+}
+
 impl ArrayElementWriteKind {
     pub const fn as_str(self) -> &'static str {
         match self {
@@ -292,6 +313,7 @@ pub enum MirInstruction {
         site_id: ArrayWriteSiteId,
         dst: Option<ValueId>,
         kind: ArrayElementWriteKind,
+        producer: ArrayWriteProducerKind,
         receiver: ValueId,
         index: Option<ValueId>,
         value: ValueId,

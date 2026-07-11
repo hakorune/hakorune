@@ -313,13 +313,15 @@ fn array_get(dst: u32, box_name: &str, array: u32, index: u32) -> MirInstruction
 }
 
 fn array_set(array: u32, index: u32, value: u32) -> MirInstruction {
-    method_call(
-        None,
-        "RuntimeDataBox",
-        "set",
-        array,
-        vec![ValueId::new(index), ValueId::new(value)],
-    )
+    MirInstruction::ArrayElementWrite {
+        site_id: crate::mir::ArrayWriteSiteId::new(1),
+        dst: None,
+        kind: crate::mir::ArrayElementWriteKind::Set,
+        producer: crate::mir::ArrayWriteProducerKind::LegacyCanonicalized,
+        receiver: ValueId::new(array),
+        index: Some(ValueId::new(index)),
+        value: ValueId::new(value),
+    }
 }
 
 fn binop(dst: u32, op: BinaryOp, lhs: u32, rhs: u32) -> MirInstruction {
