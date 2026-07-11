@@ -61,13 +61,15 @@ latest_workstream_card = "docs/development/current/main/workstreams/repository-a
 
 latest_card = "repository-artifact-lifecycle-h3-design-classification-consultation"
 latest_card_path = "docs/development/current/main/investigations/repository-artifact-lifecycle-h3-design-classification-consultation.md"
-latest_card_summary = """C2 S3 reviewed lifecycle/membership, allocation
-readiness, modeled consume/ledger, and the clear local-free chain: nine base
-rows were registered and seven closeout documents are owned sidecars. The
-remaining 147 rows now hit a residual sidecar-ownership design stop because
-some closeouts span multiple bases or lack a current direct base."""
+latest_card_summary = """The residual sidecar-ownership stop is resolved:
+Q1-Q4 accepted multi-base and missing-base closeouts as independent
+status-ledger rows and the blocked-substrate matrix as severable. The full
+hako-alloc-segment classification landed: 67 new rows (20 supporting, 47
+status-ledger) and 80 owned sidecars register all 147 remaining family files.
+The design registry holds 194 rows with unregistered lowered to 568. Next is
+the following C2 owner family or the C3 supersession review."""
 
-current_blocker_token = "REPOSITORY-ARTIFACT-LIFECYCLE-H3-C2-HAKO-ALLOC-SEGMENT-S3-RESIDUAL-SIDECAR-OWNERSHIP-DESIGN-STOP"
+current_blocker_token = "REPOSITORY-ARTIFACT-LIFECYCLE-H3-C2-NEXT-FAMILY-SELECTION"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

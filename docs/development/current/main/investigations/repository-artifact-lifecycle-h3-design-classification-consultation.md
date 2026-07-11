@@ -2,7 +2,7 @@
 Status: Active implementation workstream (hako-alloc-segment family)
 Date: 2026-07-11
 Owner: repository-artifact-lifecycle-current.md
-Decision: C1 accepted; C2 hako-alloc-segment design accepted
+Decision: C1 accepted; C2 hako-alloc-segment design accepted; residual sidecar ownership Q1-Q4 accepted and landed
 ---
 
 # H3 Design Registry Classification Consultation
@@ -280,6 +280,39 @@ After Q1-Q4 are answered, land one focused batch only: either the approved
 registry relation/ownership representation or the blocked-substrate matrix
 row. Re-run strict inventory and pointer/docs guards before selecting the next
 local-free or arena/map review slice.
+
+### Accepted Decisions (Q1-Q4) And Landing
+
+```text
+Q1 = no group/closeout relation; multi-base closeouts are independent
+     status-ledger rows whose classification_basis names the closed MIMAP set
+     (scalar-lane MIMAP-107A/109A/111A; map-readiness MIMAP-149A/151A/153A —
+     the second multi-base closeout was found during full content review)
+Q2 = no absorption into an unrelated owner; the four reuse closeouts are
+     independent status-ledger rows whose classification_basis records that
+     their direct base rows (MIMAP-126A/130A/134A/138A) are absent from the
+     design root
+Q3 = blocked-substrate matrix registered independently as status-ledger under
+     mimalloc-hako-port-implementation-plan-ssot.md
+Q4 = confirmed: no umbrella authority, no filename-derived role rule; every
+     row was confirmed against its body MIMAP statement
+```
+
+Landing evidence (single batch, full remaining family):
+
+```text
+rows_added = 67 (supporting:20, status-ledger:47)
+owned_sidecars_added = 80 (76 stem-paired + 4 resolved by MIMAP close statements)
+registered_count = 127 -> 194
+owned_sidecar_count = 7 -> 87
+unregistered = 715 -> 568
+unregistered_baseline = 732 -> 568
+registry_violations = 0
+strict inventory check = green
+current pointer guard = green
+hako_alloc_segment_family_remaining = 0
+physical_move = 0 (C3 unchanged)
+```
 
 ## Minimum Next Slice
 
