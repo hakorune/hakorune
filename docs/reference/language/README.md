@@ -16,6 +16,7 @@ Current canonical surface:
   development/current/main/design/record-box-two-surface-one-substrate-ssot.md,
   and development/current/main/design/object-storage-plan-boundary-ssot.md
 - Option / Result enum prelude: reference/language/option.md
+- Failure/Outcome relations: reference/language/failure-outcome-relations.md
 - Rune declaration metadata: reference/language/runes.md
 - Build conditional `gate`: reference/language/build-conditional-gate.md
 - Low-level language surface: reference/language/low-level-capabilities.md

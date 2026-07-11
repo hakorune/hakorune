@@ -52,3 +52,18 @@ The generated manifest records body evidence, subfamily candidates, and role
 hints only. It deliberately leaves `owner`, `precedence_parent`, and
 `sidecar_owner` empty. It is a review queue, never an authority or role
 assignment mechanism.
+
+## Failure/Outcome Evidence Queue
+
+Use `tools/docs/failure_outcome_site_inventory.py` for the 3505 first-stage
+evidence queue:
+
+```bash
+python3 tools/docs/failure_outcome_site_inventory.py --write
+python3 tools/docs/failure_outcome_site_inventory.py --check --strict
+```
+
+The manifest scans `src` and `docs/reference` for named null-like and
+outcome-related evidence. It records locations without inferring semantic
+class, owner, or target carrier. Pending rows are expected until the S4
+exhaustiveness checker accepts a classified inventory.

@@ -8,6 +8,18 @@ warning-unregistered and C3 movement is deferred. This card changes no parser, g
 profile, MIR operation, runtime value carrier, VM behavior, cleanup behavior,
 or backend lowering.
 
+Current progress:
+
+```text
+S0_relation_ssot = complete
+S1_source_evidence_queue = complete
+S1_semantic_classification = pending
+S2_runtime_provider_inventory = pending
+S3_control_flow_inventory = pending
+S4_exhaustiveness_checker = pending
+S5_conflict_ledger_closeout = pending
+```
+
 ## Decision
 
 `3504` accepted Candidate A:
@@ -199,6 +211,21 @@ inventory generator/manifest, checker, and conflict ledger. It must not alter
 `src/parser`, `src/backend`, `src/mir`, `VMValue`, `ConstValue`, or grammar
 profile behavior.
 
+## S0 Closeout
+
+`docs/reference/language/failure-outcome-relations.md` is now the normative
+relation document for this card. It records the accepted 3504 vocabulary,
+forbidden implicit conversions, cleanup/control outcomes, foreign boundary
+policy, and activation flags without changing existing behavior.
+
+## S1 Evidence Queue Closeout
+
+`tools/docs/failure_outcome_site_inventory.py` and
+`tools/checks/manifests/failure_outcome_site_inventory_v0.json` now provide a
+deterministic 602-row evidence queue over `src` and `docs/reference`. The rows
+retain source location and evidence kind, but semantic fields remain pending;
+this is intentional and does not claim exhaustive semantic classification.
+
 ## Claims
 
 ```text
@@ -216,8 +243,10 @@ Implementation claims remain zero until the corresponding artifact and gate
 exist:
 
 ```text
-failure_outcome_relation_spec_implemented = 0
+failure_outcome_relation_spec_implemented = 1
+failure_outcome_evidence_queue_implemented = 1
 failure_outcome_site_inventory_implemented = 0
+failure_outcome_semantic_classification_complete = 0
 failure_outcome_exhaustiveness_checker_implemented = 0
 failure_outcome_conflict_ledger_complete = 0
 ```
