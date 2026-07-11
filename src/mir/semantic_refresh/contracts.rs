@@ -151,6 +151,7 @@ pub fn refresh_owned_for_boundary(
 }
 
 fn validate_refreshed_contracts(module: &MirModule) -> Result<(), String> {
+    crate::mir::extern_call_route_plan::validate_semantic_outcome_routes(module)?;
     crate::mir::type_contracts::weak_field::validate_module_specs(module)?;
     validate_box_field_contracts(module)?;
     crate::mir::type_contracts::static_table::validate_static_table_contracts(module)?;

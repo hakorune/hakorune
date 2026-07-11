@@ -219,7 +219,7 @@ fn publish_value_type(function: &mut MirFunction, value: ValueId, ty: MirType) -
 mod tests {
     use super::*;
     use crate::mir::{
-        BasicBlock, ConstValue, EffectMask, FunctionSignature, MirInstruction, MirType,
+        BasicBlock, ConstValue, EffectMask, FunctionSignature, MirInstruction, MirModule, MirType,
     };
 
     fn function_with_extern_call(
@@ -288,6 +288,34 @@ mod tests {
         assert_eq!(route.semantic_result_policy(), Some("NoPayload"));
         assert_eq!(route.value_use_policy(), Some("StatementOnly"));
         assert_eq!(function.metadata.value_types.get(&ValueId::new(2)), None);
+    }
+
+    #[test]
+    fn hako_mem_free_result_use_is_rejected_at_contract_boundary() {
+        let mut function = function_with_extern_call(
+            "hako_mem_free/1",
+            vec![ValueId::new(1)],
+            Some(ValueId::new(2)),
+        );
+        refresh_function_extern_call_routes(&mut function);
+        let mut module = MirModule::new("hako_mem_free_result_use".to_string());
+        module.add_function(function);
+        let error = crate::mir::extern_call_route_plan::validate_semantic_outcome_routes(&module)
+            .expect_err("direct hako_mem_free result use must reject");
+        assert!(error.contains("[failure/outcome_unit_result_value_present]"));
+        assert!(error.contains("result_value=%2"));
+    }
+
+    #[test]
+    fn hako_mem_free_statement_route_passes_result_use_guard() {
+        let mut function =
+            function_with_extern_call("hako_mem_free/1", vec![ValueId::new(1)], None);
+        refresh_function_extern_call_routes(&mut function);
+        let mut module = MirModule::new("hako_mem_free_statement".to_string());
+        module.add_function(function);
+        assert!(
+            crate::mir::extern_call_route_plan::validate_semantic_outcome_routes(&module).is_ok()
+        );
     }
 
     #[test]

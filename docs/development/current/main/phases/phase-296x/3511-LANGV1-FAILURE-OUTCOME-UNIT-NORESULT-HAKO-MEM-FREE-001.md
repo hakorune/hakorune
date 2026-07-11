@@ -61,16 +61,17 @@ value_type_publication = PublishNothing
 ```text
 S0_contract_row = complete
 S1_route_separation = complete
-S2_result_use_convergence = pending
+S2_result_use_convergence = complete
 S3_one_supported_backend = pending
 S4_preflight_and_fixtures = pending
 S5_activation = 0
 ```
 
-S0/S1 currently provide the machine-readable outcome contract, expose
+S0/S1 provide the machine-readable outcome contract, expose
 `CVoid`/`NoPayload` separately from the optional sentinel encoding, and stop
-the route from publishing `MirType::Integer`. Direct result-use rejection and
-backend support remain unimplemented until the next slices.
+the route from publishing `MirType::Integer`. S2 now rejects a valid
+`hako_mem_free` result destination at the contract boundary before effects;
+statement calls with `dst=None` remain accepted.
 
 ### S0 — Contract row
 

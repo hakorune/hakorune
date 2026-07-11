@@ -70,7 +70,8 @@ occurrences, with 10 explicit projections and 52 pending sites. 55 explicit
 reference/provider rows remain classified in the evidence queue while
 semantic ownership stays pending. The VMValue::Void owner-boundary and S2
 projection-source consultations are accepted; S1 through S5 are complete and
-the accepted first activation slice is 3511 hako_mem_free Unit/no-result.
+the accepted first activation slice is 3511 hako_mem_free Unit/no-result;
+S0-S2 are complete and S3 LLVM/object consumer work is next.
 The design registry has 653 rows
 and 119 owned sidecars; 77 files remain
 warning-unregistered for focused consultation. C3 supersession movement is
