@@ -1056,97 +1056,11 @@
     }
   },
   "phase_directories": {
-    "inactive_candidate_count": 87,
-    "inactive_candidates": [
-      "phase-130",
-      "phase-139",
-      "phase-140",
-      "phase-141",
-      "phase-188.1",
-      "phase-188.3",
-      "phase-189x",
-      "phase-190x",
-      "phase-191x",
-      "phase-192x",
-      "phase-193x",
-      "phase-194x",
-      "phase-195x",
-      "phase-196x",
-      "phase-197x",
-      "phase-198x",
-      "phase-199x",
-      "phase-200x",
-      "phase-201x",
-      "phase-202x",
-      "phase-203x",
-      "phase-204x",
-      "phase-205x",
-      "phase-206x",
-      "phase-207x",
-      "phase-208x",
-      "phase-209x",
-      "phase-211x",
-      "phase-212x",
-      "phase-213x",
-      "phase-214x",
-      "phase-215x",
-      "phase-216x",
-      "phase-217x",
-      "phase-218x",
-      "phase-219x",
-      "phase-220x",
-      "phase-221x",
-      "phase-222x",
-      "phase-223x",
-      "phase-224x",
-      "phase-225x",
-      "phase-226x",
-      "phase-228x",
-      "phase-229x",
-      "phase-230x",
-      "phase-242x",
-      "phase-244x",
-      "phase-245x",
-      "phase-246x",
-      "phase-247x",
-      "phase-248x",
-      "phase-249x",
-      "phase-250x",
-      "phase-251x",
-      "phase-252",
-      "phase-252x",
-      "phase-253",
-      "phase-253x",
-      "phase-254x",
-      "phase-255x",
-      "phase-256x",
-      "phase-257x",
-      "phase-258x",
-      "phase-259",
-      "phase-259x",
-      "phase-264x",
-      "phase-265x",
-      "phase-266",
-      "phase-267",
-      "phase-277x",
-      "phase-283",
-      "phase-292x",
-      "phase-29bl",
-      "phase-29bm",
-      "phase-29bt",
-      "phase-29bu",
-      "phase-29bv",
-      "phase-29bw",
-      "phase-29cn",
-      "phase-29cs",
-      "phase-29cu",
-      "phase-37x",
-      "phase-46x",
-      "phase-47x",
-      "phase-89x",
-      "phase-92x"
-    ],
-    "phase_count": 392,
+    "archived_phase_count": 87,
+    "archived_phase_files": 238,
+    "inactive_candidate_count": 0,
+    "inactive_candidates": [],
+    "phase_count": 305,
     "rows": [
       {
         "current_pointer": false,
@@ -1580,16 +1494,6 @@
       },
       {
         "current_pointer": false,
-        "direct_files": 1,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-130",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-130/README.md",
-        "total_files": 1
-      },
-      {
-        "current_pointer": false,
         "direct_files": 3,
         "eligible_for_whole_phase_archive": false,
         "external_reference_count": 0,
@@ -1740,16 +1644,6 @@
       },
       {
         "current_pointer": false,
-        "direct_files": 1,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-139",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-139/README.md",
-        "total_files": 1
-      },
-      {
-        "current_pointer": false,
         "direct_files": 3,
         "eligible_for_whole_phase_archive": false,
         "external_reference_count": 0,
@@ -1760,16 +1654,6 @@
       },
       {
         "current_pointer": false,
-        "direct_files": 1,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-140",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-140/README.md",
-        "total_files": 1
-      },
-      {
-        "current_pointer": false,
         "direct_files": 3,
         "eligible_for_whole_phase_archive": false,
         "external_reference_count": 0,
@@ -1777,16 +1661,6 @@
         "status": "other_or_missing",
         "status_source": "docs/development/current/main/phases/phase-140x/README.md",
         "total_files": 3
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 1,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-141",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-141/README.md",
-        "total_files": 1
       },
       {
         "current_pointer": false,
@@ -2331,16 +2205,6 @@
       {
         "current_pointer": false,
         "direct_files": 1,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-188.1",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-188.1/README.md",
-        "total_files": 1
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 1,
         "eligible_for_whole_phase_archive": false,
         "external_reference_count": 0,
         "phase": "phase-188.2",
@@ -2351,231 +2215,11 @@
       {
         "current_pointer": false,
         "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-188.3",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-188.3/README.md",
-        "total_files": 3
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 3,
         "eligible_for_whole_phase_archive": false,
         "external_reference_count": 0,
         "phase": "phase-188x",
         "status": "other_or_missing",
         "status_source": "docs/development/current/main/phases/phase-188x/README.md",
-        "total_files": 3
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-189x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-189x/README.md",
-        "total_files": 3
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-190x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-190x/README.md",
-        "total_files": 3
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-191x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-191x/README.md",
-        "total_files": 3
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 2,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-192x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-192x/README.md",
-        "total_files": 2
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-193x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-193x/README.md",
-        "total_files": 3
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-194x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-194x/README.md",
-        "total_files": 3
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-195x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-195x/README.md",
-        "total_files": 3
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-196x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-196x/README.md",
-        "total_files": 3
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-197x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-197x/README.md",
-        "total_files": 3
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-198x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-198x/README.md",
-        "total_files": 3
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-199x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-199x/README.md",
-        "total_files": 3
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-200x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-200x/README.md",
-        "total_files": 3
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-201x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-201x/README.md",
-        "total_files": 3
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-202x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-202x/README.md",
-        "total_files": 3
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-203x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-203x/README.md",
-        "total_files": 3
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-204x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-204x/README.md",
-        "total_files": 3
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-205x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-205x/README.md",
-        "total_files": 3
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-206x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-206x/README.md",
-        "total_files": 3
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-207x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-207x/README.md",
-        "total_files": 3
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-208x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-208x/README.md",
-        "total_files": 3
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-209x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-209x/README.md",
         "total_files": 3
       },
       {
@@ -2600,96 +2244,6 @@
       },
       {
         "current_pointer": false,
-        "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-211x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-211x/README.md",
-        "total_files": 3
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-212x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-212x/README.md",
-        "total_files": 3
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-213x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-213x/README.md",
-        "total_files": 3
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-214x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-214x/README.md",
-        "total_files": 3
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-215x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-215x/README.md",
-        "total_files": 3
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-216x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-216x/README.md",
-        "total_files": 3
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-217x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-217x/README.md",
-        "total_files": 3
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-218x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-218x/README.md",
-        "total_files": 3
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-219x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-219x/README.md",
-        "total_files": 3
-      },
-      {
-        "current_pointer": false,
         "direct_files": 1,
         "eligible_for_whole_phase_archive": false,
         "external_reference_count": 0,
@@ -2701,191 +2255,11 @@
       {
         "current_pointer": false,
         "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-220x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-220x/README.md",
-        "total_files": 3
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-221x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-221x/README.md",
-        "total_files": 3
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-222x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-222x/README.md",
-        "total_files": 3
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-223x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-223x/README.md",
-        "total_files": 3
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-224x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-224x/README.md",
-        "total_files": 3
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-225x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-225x/README.md",
-        "total_files": 3
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-226x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-226x/README.md",
-        "total_files": 3
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 3,
         "eligible_for_whole_phase_archive": false,
         "external_reference_count": 1,
         "phase": "phase-227x",
         "status": "closed",
         "status_source": "docs/development/current/main/phases/phase-227x/README.md",
-        "total_files": 3
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-228x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-228x/README.md",
-        "total_files": 3
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-229x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-229x/README.md",
-        "total_files": 3
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 1,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-230x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-230x/README.md",
-        "total_files": 1
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-242x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-242x/README.md",
-        "total_files": 3
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-244x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-244x/README.md",
-        "total_files": 3
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-245x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-245x/README.md",
-        "total_files": 3
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-246x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-246x/README.md",
-        "total_files": 3
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-247x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-247x/README.md",
-        "total_files": 3
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-248x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-248x/README.md",
-        "total_files": 3
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-249x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-249x/README.md",
-        "total_files": 3
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-250x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-250x/README.md",
         "total_files": 3
       },
       {
@@ -2900,56 +2274,6 @@
       },
       {
         "current_pointer": false,
-        "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-251x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-251x/README.md",
-        "total_files": 3
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 1,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-252",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-252/README.md",
-        "total_files": 1
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-252x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-252x/README.md",
-        "total_files": 3
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 1,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-253",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-253/README.md",
-        "total_files": 1
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-253x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-253x/README.md",
-        "total_files": 3
-      },
-      {
-        "current_pointer": false,
         "direct_files": 1,
         "eligible_for_whole_phase_archive": false,
         "external_reference_count": 2,
@@ -2957,16 +2281,6 @@
         "status": "closed",
         "status_source": "docs/development/current/main/phases/phase-254/README.md",
         "total_files": 1
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-254x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-254x/README.md",
-        "total_files": 3
       },
       {
         "current_pointer": false,
@@ -2980,32 +2294,12 @@
       },
       {
         "current_pointer": false,
-        "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-255x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-255x/README.md",
-        "total_files": 3
-      },
-      {
-        "current_pointer": false,
         "direct_files": 1,
         "eligible_for_whole_phase_archive": false,
         "external_reference_count": 1,
         "phase": "phase-256",
         "status": "closed",
         "status_source": "docs/development/current/main/phases/phase-256/README.md",
-        "total_files": 1
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 1,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-256x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-256x/README.md",
         "total_files": 1
       },
       {
@@ -3021,51 +2315,11 @@
       {
         "current_pointer": false,
         "direct_files": 1,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-257x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-257x/README.md",
-        "total_files": 1
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 1,
         "eligible_for_whole_phase_archive": false,
         "external_reference_count": 2,
         "phase": "phase-258",
         "status": "closed",
         "status_source": "docs/development/current/main/phases/phase-258/README.md",
-        "total_files": 1
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 1,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-258x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-258x/README.md",
-        "total_files": 1
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 1,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-259",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-259/README.md",
-        "total_files": 1
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 1,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-259x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-259x/README.md",
         "total_files": 1
       },
       {
@@ -3140,16 +2394,6 @@
       },
       {
         "current_pointer": false,
-        "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-264x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-264x/README.md",
-        "total_files": 3
-      },
-      {
-        "current_pointer": false,
         "direct_files": 1,
         "eligible_for_whole_phase_archive": false,
         "external_reference_count": 1,
@@ -3161,42 +2405,12 @@
       {
         "current_pointer": false,
         "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-265x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-265x/README.md",
-        "total_files": 3
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 1,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-266",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-266/README.md",
-        "total_files": 1
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 3,
         "eligible_for_whole_phase_archive": false,
         "external_reference_count": 1,
         "phase": "phase-266x",
         "status": "closed",
         "status_source": "docs/development/current/main/phases/phase-266x/README.md",
         "total_files": 3
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 1,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-267",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-267/README.md",
-        "total_files": 1
       },
       {
         "current_pointer": false,
@@ -3391,16 +2605,6 @@
       {
         "current_pointer": false,
         "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-277x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-277x/README.md",
-        "total_files": 3
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 3,
         "eligible_for_whole_phase_archive": false,
         "external_reference_count": 3,
         "phase": "phase-278",
@@ -3446,16 +2650,6 @@
         "phase": "phase-282",
         "status": "closed",
         "status_source": "docs/development/current/main/phases/phase-282/README.md",
-        "total_files": 1
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 1,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-283",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-283/README.md",
         "total_files": 1
       },
       {
@@ -3537,16 +2731,6 @@
         "status": "active_like",
         "status_source": "docs/development/current/main/phases/phase-291x/README.md",
         "total_files": 706
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 31,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-292x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-292x/README.md",
-        "total_files": 31
       },
       {
         "current_pointer": false,
@@ -3961,26 +3145,6 @@
       {
         "current_pointer": false,
         "direct_files": 1,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-29bl",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-29bl/README.md",
-        "total_files": 1
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 1,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-29bm",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-29bm/README.md",
-        "total_files": 1
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 1,
         "eligible_for_whole_phase_archive": false,
         "external_reference_count": 2,
         "phase": "phase-29bn",
@@ -4036,46 +3200,6 @@
         "phase": "phase-29bs",
         "status": "closed",
         "status_source": "docs/development/current/main/phases/phase-29bs/README.md",
-        "total_files": 1
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 1,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-29bt",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-29bt/README.md",
-        "total_files": 1
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 1,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-29bu",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-29bu/README.md",
-        "total_files": 1
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 1,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-29bv",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-29bv/README.md",
-        "total_files": 1
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 1,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-29bw",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-29bw/README.md",
         "total_files": 1
       },
       {
@@ -4211,16 +3335,6 @@
       {
         "current_pointer": false,
         "direct_files": 1,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-29cn",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-29cn/README.md",
-        "total_files": 1
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 1,
         "eligible_for_whole_phase_archive": false,
         "external_reference_count": 1,
         "phase": "phase-29co",
@@ -4261,31 +3375,11 @@
       {
         "current_pointer": false,
         "direct_files": 1,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-29cs",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-29cs/README.md",
-        "total_files": 1
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 1,
         "eligible_for_whole_phase_archive": false,
         "external_reference_count": 15,
         "phase": "phase-29ct",
         "status": "other_or_missing",
         "status_source": "docs/development/current/main/phases/phase-29ct/README.md",
-        "total_files": 1
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 1,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-29cu",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-29cu/README.md",
         "total_files": 1
       },
       {
@@ -4401,16 +3495,6 @@
       {
         "current_pointer": false,
         "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-37x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-37x/README.md",
-        "total_files": 3
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 3,
         "eligible_for_whole_phase_archive": false,
         "external_reference_count": 1,
         "phase": "phase-38x",
@@ -4486,26 +3570,6 @@
         "phase": "phase-45x",
         "status": "closed",
         "status_source": "docs/development/current/main/phases/phase-45x/README.md",
-        "total_files": 3
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-46x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-46x/README.md",
-        "total_files": 3
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-47x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-47x/README.md",
         "total_files": 3
       },
       {
@@ -4921,16 +3985,6 @@
       {
         "current_pointer": false,
         "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-89x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-89x/README.md",
-        "total_files": 3
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 3,
         "eligible_for_whole_phase_archive": false,
         "external_reference_count": 2,
         "phase": "phase-90x",
@@ -4967,16 +4021,6 @@
         "status": "other_or_missing",
         "status_source": "docs/development/current/main/phases/phase-92/README.md",
         "total_files": 4
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 3,
-        "eligible_for_whole_phase_archive": true,
-        "external_reference_count": 0,
-        "phase": "phase-92x",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-92x/README.md",
-        "total_files": 3
       },
       {
         "current_pointer": false,

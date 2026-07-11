@@ -133,6 +133,14 @@ def build_inventory() -> dict[str, object]:
         and len(parts := relative.split("/")) > 6
         and parts[5].startswith("phase-")
     }
+    archived_phase_prefix = "docs/development/archive/phases/"
+    archived_phase_names = {
+        parts[4]
+        for relative in repository_paths
+        if relative.startswith(archived_phase_prefix)
+        and len(parts := relative.split("/")) > 5
+        and parts[4].startswith("phase-")
+    }
     markdown_references, phase_references = tracked_references(
         repository_paths, phase_names
     )
@@ -228,6 +236,8 @@ def build_inventory() -> dict[str, object]:
             "phase_count": len(phase_rows),
             "inactive_candidate_count": len(inactive_phase_candidates),
             "inactive_candidates": inactive_phase_candidates,
+            "archived_phase_count": len(archived_phase_names),
+            "archived_phase_files": under(archived_phase_prefix),
             "rows": phase_rows,
         },
     }
