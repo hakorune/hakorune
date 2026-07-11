@@ -1,6 +1,6 @@
 {
   "family": "hako-alloc-segment",
-  "input_unregistered_count": 163,
+  "input_unregistered_count": 159,
   "physical_move": 0,
   "role_assignment": "none",
   "rows": [
@@ -4029,78 +4029,6 @@
     {
       "classification_basis": "body evidence queue only; reviewer decision required",
       "owner": "",
-      "path": "hako-alloc-segment-lifecycle-scalar-state-closeout-ssot.md",
-      "precedence_parent": "",
-      "review_status": "pending",
-      "role_hints": {
-        "sidecar-candidate": [
-          "closeout"
-        ]
-      },
-      "sidecar_owner": "",
-      "subfamily_candidate": "segment-lifecycle-and-membership",
-      "subfamily_evidence": {
-        "segment-allocation-and-local-reuse": [
-          "segment allocation"
-        ],
-        "segment-arena-backing-and-residence": [
-          "arena backing",
-          "pointer residence",
-          "bitmap",
-          "backing"
-        ],
-        "segment-lifecycle-and-membership": [
-          "segment lifecycle",
-          "lifecycle scalar",
-          "segment state"
-        ],
-        "segment-map-and-release": [
-          "segment map",
-          "release"
-        ]
-      }
-    },
-    {
-      "classification_basis": "body evidence queue only; reviewer decision required",
-      "owner": "",
-      "path": "hako-alloc-segment-lifecycle-scalar-state-ssot.md",
-      "precedence_parent": "",
-      "review_status": "pending",
-      "role_hints": {
-        "status-ledger-candidate": [
-          "inventory"
-        ],
-        "supporting-candidate": [
-          "proof-only"
-        ]
-      },
-      "sidecar_owner": "",
-      "subfamily_candidate": "segment-lifecycle-and-membership",
-      "subfamily_evidence": {
-        "segment-allocation-and-local-reuse": [
-          "segment allocation"
-        ],
-        "segment-arena-backing-and-residence": [
-          "arena backing",
-          "pointer residence",
-          "bitmap",
-          "backing"
-        ],
-        "segment-lifecycle-and-membership": [
-          "segment lifecycle",
-          "lifecycle scalar",
-          "segment state",
-          "state vocabulary",
-          "transition"
-        ],
-        "segment-map-and-release": [
-          "release"
-        ]
-      }
-    },
-    {
-      "classification_basis": "body evidence queue only; reviewer decision required",
-      "owner": "",
       "path": "hako-alloc-segment-map-accepted-readiness-modeled-consume-ledger-ssot.md",
       "precedence_parent": "",
       "review_status": "pending",
@@ -5949,74 +5877,6 @@
           "segment map",
           "segment-map",
           "lookup"
-        ]
-      }
-    },
-    {
-      "classification_basis": "body evidence queue only; reviewer decision required",
-      "owner": "",
-      "path": "hako-alloc-segment-page-membership-scalar-closeout-ssot.md",
-      "precedence_parent": "",
-      "review_status": "pending",
-      "role_hints": {
-        "sidecar-candidate": [
-          "closeout"
-        ]
-      },
-      "sidecar_owner": "",
-      "subfamily_candidate": "segment-lifecycle-and-membership",
-      "subfamily_evidence": {
-        "segment-allocation-and-local-reuse": [
-          "segment allocation"
-        ],
-        "segment-arena-backing-and-residence": [
-          "arena backing",
-          "pointer residence",
-          "bitmap",
-          "backing"
-        ],
-        "segment-lifecycle-and-membership": [
-          "page membership"
-        ],
-        "segment-map-and-release": [
-          "segment map",
-          "segment-map",
-          "release"
-        ]
-      }
-    },
-    {
-      "classification_basis": "body evidence queue only; reviewer decision required",
-      "owner": "",
-      "path": "hako-alloc-segment-page-membership-scalar-ssot.md",
-      "precedence_parent": "",
-      "review_status": "pending",
-      "role_hints": {
-        "supporting-candidate": [
-          "proof-only"
-        ]
-      },
-      "sidecar_owner": "",
-      "subfamily_candidate": "segment-lifecycle-and-membership",
-      "subfamily_evidence": {
-        "segment-allocation-and-local-reuse": [
-          "segment allocation"
-        ],
-        "segment-arena-backing-and-residence": [
-          "arena backing",
-          "pointer residence",
-          "bitmap",
-          "backing"
-        ],
-        "segment-lifecycle-and-membership": [
-          "page membership",
-          "segment state"
-        ],
-        "segment-map-and-release": [
-          "segment map",
-          "segment-map",
-          "lookup",
-          "release"
         ]
       }
     }

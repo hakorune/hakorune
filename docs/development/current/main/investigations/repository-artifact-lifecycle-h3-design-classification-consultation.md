@@ -11,9 +11,9 @@ Decision: C1 accepted; C2 hako-alloc-segment design accepted
 
 ```text
 design direct files = 849
-registered rows = 5
-unregistered files = 844
-warning baseline = 844
+registered rows = 120
+unregistered files = 727
+warning baseline = 732
 registry violations = 0
 
 accepted roles:
@@ -132,15 +132,30 @@ candidates, model/ledger/readiness rows are status-ledger candidates,
 diagnostic/closeout rows are sidecar candidates only after one-base review,
 and bridge rows remain individual supporting review candidates.
 
-S1 is complete: the existing authority chain is represented in `INDEX.md`,
-the lifecycle blueprint is registered as its child authority, and no new
-authority document was created. The remaining 163 rows are now the S2 content
-review projection.
+S1 was complete at the start of this review: the existing authority chain was
+represented in `INDEX.md`, the lifecycle blueprint was registered as its child
+authority, and no new authority document was created. The initial 163 rows
+were then projected for S2 content review.
 
 The S2 projection is generated at
-`tools/checks/manifests/hako_alloc_segment_family_projection_v0.json` for all
-163 rows. It contains body evidence and role hints only; owner, precedence,
-and sidecar fields remain empty until explicit review.
+`tools/checks/manifests/hako_alloc_segment_family_projection_v0.json` for the
+159 remaining rows. It contains body evidence and role hints only; owner,
+precedence, and sidecar fields remain empty until explicit review.
+
+## C2 S3 Lifecycle/Membership Review
+
+The first content-review slice is complete. Two proof-only supporting rows were
+registered under `mimalloc-lifecycle-rewrite-blueprint-ssot.md`:
+
+```text
+hako-alloc-segment-lifecycle-scalar-state-ssot.md
+hako-alloc-segment-page-membership-scalar-ssot.md
+```
+
+Their guard-only closeout documents are owned sidecars. No new authority was
+created, and neither superseded assignment nor physical movement was made.
+The remaining queue is 159 rows; the next explicit review slice is
+allocation/local-reuse.
 
 ## Minimum Next Slice
 

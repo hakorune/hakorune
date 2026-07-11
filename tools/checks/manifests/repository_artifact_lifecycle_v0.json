@@ -1315,7 +1315,7 @@
         },
         {
           "family_key": "hako-alloc-segment",
-          "file_count": 163,
+          "file_count": 159,
           "review_status": "pending"
         },
         {
@@ -2552,8 +2552,8 @@
     "direct_files": 849,
     "markdown_files": 828,
     "non_markdown_files": 21,
-    "owned_sidecar_count": 0,
-    "registered_count": 118,
+    "owned_sidecar_count": 2,
+    "registered_count": 120,
     "registry_mode": "warning",
     "seed_reference_counts": {
       "AGENTS.md": 14,
@@ -2978,8 +2978,6 @@
       "hako-alloc-segment-arena-backing-requirement-matrix-ssot.md",
       "hako-alloc-segment-arena-bitmap-inventory-closeout-ssot.md",
       "hako-alloc-segment-arena-bitmap-inventory-ssot.md",
-      "hako-alloc-segment-lifecycle-scalar-state-closeout-ssot.md",
-      "hako-alloc-segment-lifecycle-scalar-state-ssot.md",
       "hako-alloc-segment-map-accepted-readiness-modeled-consume-ledger-ssot.md",
       "hako-alloc-segment-map-local-free-apply-plan-bridge-closeout-ssot.md",
       "hako-alloc-segment-map-local-free-apply-plan-bridge-ssot.md",
@@ -3027,8 +3025,6 @@
       "hako-alloc-segment-map-released-span-local-free-candidate-bridge-closeout-ssot.md",
       "hako-alloc-segment-map-released-span-local-free-candidate-bridge-ssot.md",
       "hako-alloc-segment-map-scalar-lookup-boundary-inventory-ssot.md",
-      "hako-alloc-segment-page-membership-scalar-closeout-ssot.md",
-      "hako-alloc-segment-page-membership-scalar-ssot.md",
       "hako-alloc-thread-heap-owner-inventory-ssot.md",
       "hako-alloc-wide-report-argument-cleanup-ssot.md",
       "hako-alloc-worker-tls-pilot-ssot.md",
@@ -3301,7 +3297,7 @@
       "vm-known-limitations-ssot.md"
     ],
     "unregistered_baseline": 732,
-    "unregistered_count": 731,
+    "unregistered_count": 727,
     "unseeded_count": 688,
     "violations": []
   },

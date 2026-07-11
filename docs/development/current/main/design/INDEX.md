@@ -445,6 +445,32 @@ superseded_by = ""
 retire_when = "owner-family review explicitly replaces this authority"
 
 [[documents]]
+path = "hako-alloc-segment-lifecycle-scalar-state-ssot.md"
+role = "supporting"
+owner = "mimalloc-lifecycle-rewrite-blueprint-ssot.md"
+precedence_parent = "mimalloc-lifecycle-rewrite-blueprint-ssot.md"
+classification_basis = "C2-S3:hako-alloc-segment/lifecycle; proof-only scalar state and explicit inactive stop lines"
+sidecars = [
+  "hako-alloc-segment-lifecycle-scalar-state-closeout-ssot.md",
+]
+supersedes = []
+superseded_by = ""
+retire_when = "lifecycle scalar proof is explicitly replaced and its closeout sidecar retires with it"
+
+[[documents]]
+path = "hako-alloc-segment-page-membership-scalar-ssot.md"
+role = "supporting"
+owner = "mimalloc-lifecycle-rewrite-blueprint-ssot.md"
+precedence_parent = "mimalloc-lifecycle-rewrite-blueprint-ssot.md"
+classification_basis = "C2-S3:hako-alloc-segment/lifecycle; proof-only page membership relation and explicit inactive stop lines"
+sidecars = [
+  "hako-alloc-segment-page-membership-scalar-closeout-ssot.md",
+]
+supersedes = []
+superseded_by = ""
+retire_when = "page membership proof is explicitly replaced and its closeout sidecar retires with it"
+
+[[documents]]
 path = "hako-alloc-policy-state-contract-ssot.md"
 role = "authority"
 owner = "INDEX.md"

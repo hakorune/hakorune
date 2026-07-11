@@ -524,6 +524,28 @@ next = explicit content review before S3 registry landing
 `supporting`, `status-ledger`, and `sidecar` remain review outcomes, not
 filename-derived assignments. Bridge rows require individual review.
 
+S3 lifecycle/membership review closeout:
+
+```text
+reviewed_base_rows = 2
+supporting_rows = 2
+owned_sidecars = 2
+registered_rows = 120
+unregistered_current = 727
+unregistered_baseline = 732
+precedence_cycle_count = 0
+authority_rows_added = 0
+superseded_assignment = 0
+physical_move = 0
+projection_rows_remaining = 159
+next = allocation/local-reuse explicit content review
+```
+
+The reviewed base rows are the proof-only lifecycle scalar and page-membership
+scalar contracts. Their closeout documents are guard-only and are owned as
+sidecars by the corresponding base row. No allocator behavior, arena backing,
+segment-map mutation, or backend capability is activated by this review.
+
 ## Non-Claims
 
 ```text
