@@ -49,7 +49,7 @@ bash -n \
   tools/archive/manual-smokes/selfhost_json_guard_smoke.sh \
   tools/archive/manual-smokes/selfhost_parser_json_smoke.sh \
   tools/archive/manual-smokes/ny_stage2_new_method_smoke.sh
-! rg -g '!docs/development/current/main/phases/phase-29cv/P43-ARCHIVE-STALE-PHASE132-VM-JSON-PROOFS.md' --fixed-strings \
+! rg -g '!docs/development/archive/phases/phase-29cv/P43-ARCHIVE-STALE-PHASE132-VM-JSON-PROOFS.md' --fixed-strings \
   -e 'tools/selfhost_json_guard_smoke.sh' \
   -e 'tools/selfhost_parser_json_smoke.sh' \
   -e 'tools/ny_stage2_new_method_smoke.sh' \

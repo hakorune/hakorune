@@ -23,7 +23,7 @@ This does not change any smoke route or accepted shape.
 ## Acceptance
 
 ```bash
-! rg --fixed-strings 'tools/selfhost/gen_v1_from_provider_min.sh' tools src docs/development/current/main --glob '!docs/development/current/main/phases/phase-29cv/P20-DELETE-DUP-PROVIDER-MIN-HELPER.md'
+! rg --fixed-strings 'tools/selfhost/gen_v1_from_provider_min.sh' tools src docs/development/current/main --glob '!docs/development/archive/phases/phase-29cv/P20-DELETE-DUP-PROVIDER-MIN-HELPER.md'
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```

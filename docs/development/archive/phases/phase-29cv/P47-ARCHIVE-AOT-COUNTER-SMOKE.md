@@ -33,7 +33,7 @@ archive target.
 
 ```bash
 bash -n tools/archive/manual-smokes/aot_counter_smoke.sh
-! rg -g '!docs/development/current/main/phases/phase-29cv/P47-ARCHIVE-AOT-COUNTER-SMOKE.md' --fixed-strings 'tools/aot_counter_smoke.sh' docs/development/current/main docs/development/testing tools src lang Makefile dev README.md README.ja.md
+! rg -g '!docs/development/archive/phases/phase-29cv/P47-ARCHIVE-AOT-COUNTER-SMOKE.md' --fixed-strings 'tools/aot_counter_smoke.sh' docs/development/current/main docs/development/testing tools src lang Makefile dev README.md README.ja.md
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```

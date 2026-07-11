@@ -2,9 +2,9 @@
   "counts": {
     "checks": 3261,
     "design_direct": 849,
-    "docs": 12281,
-    "docs_development_archive": 2458,
-    "docs_development_current": 8407,
+    "docs": 12282,
+    "docs_development_archive": 2589,
+    "docs_development_current": 8277,
     "main_direct": 168,
     "phase_296x_archive": 2517,
     "phase_296x_direct": 1031,
@@ -22,7 +22,7 @@
     "registry_mode": "warning",
     "seed_reference_counts": {
       "AGENTS.md": 14,
-      "docs/development/current/main/CURRENT_STATE.toml": 3,
+      "docs/development/current/main/CURRENT_STATE.toml": 2,
       "docs/development/current/main/DOCS_LAYOUT.md": 52,
       "docs/development/current/main/design/README.md": 123
     },
@@ -884,801 +884,14 @@
     "violations": []
   },
   "document_reachability": {
-    "ambiguous_basename_count": 17,
-    "document_count": 8407,
+    "ambiguous_basename_count": 15,
+    "document_count": 8277,
     "partial_phase_unreachable": {
       "archive_target_collision_count": 0,
-      "cluster_count": 131,
-      "clusters": [
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29aq/P3-SPLIT-SUBSET-EXPANSION-INSTRUCTIONS.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29aq/P4-TRIM-COVERAGE-SUBSET-INSTRUCTIONS.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29aq/P5-STDLIB-DERIVED-STRING-HELPERS-INSTRUCTIONS.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29aq/P6-ESCAPE-SUBSET-FEASIBILITY-INSTRUCTIONS.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29aq/P7-PARSE_INTEGER-VARIANTS-INSTRUCTIONS.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29aq/P8-IS_INTEGER-UNSUPPORTED-SSOT-INSTRUCTIONS.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29ar/P1-EXITIFRETURN-MINIMAL-INSTRUCTIONS.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29ar/P2-RELEASE-ADOPT-IS_INTEGER-INSTRUCTIONS.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29ar/P3-CLOSEOUT-INSTRUCTIONS.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29bq/29bq-117-arraybox-birth-harness-blocker.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29bq/29bq-118-legacy-lowerer-removal-lane.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29bq/29bq-session-updates-2026-02-08.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29ci/P10-PHASE2043-DELEGATE-SMOKE-FALLBACK-RETIRE.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29ci/P11-PARSER-DUAL-ROUTE-AST-MIGRATION.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P0-POST-EXE-DIRECT-KEEPER-INVENTORY.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P1-STAGEB-ARTIFACT-ROUTE-PREDICATE.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P10-RETIRE-MIR-ARTIFACT-COMBO.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P11-INLINE-STAGEB-ARTIFACT-DISPATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P12-KEEPER-BUCKET-REFRESH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P13-RETIRE-SELFHOST-BUILD-STAGEB-ARTIFACT.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P14-STAGEB-PROGRAM-JSON-CAPTURE-SSOT.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P146-C-ABI-GENERIC-PURE-VIEW-BOUNDARY-CLEANUP.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P15-SOURCE-ROUTE-PROBE-LABELS.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P16-ARCHIVE-LEGACY-STAGE1-ROOT-HELPERS.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P17-STAGEB-HELPERS-CAPTURE-SSOT.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P18-STAGEB-LOOP-CANARY-CAPTURE-FIX.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P19-STAGEB-SHAPE-CANARY-CAPTURE-SSOT.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P2-SELFHOST-BARE-STAGEB-ROUTE-RETIRE.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P20-DELETE-DUP-PROVIDER-MIN-HELPER.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P21-ARCHIVE-NY-SELFHOST-INLINE-HELPER.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P22-ARCHIVE-LEGACY-ROOT-COMPAT-SMOKES.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P23-ARCHIVE-STAGEB-LOOPSSA-DEBUG-HARNESSES.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P3-SELFHOST-RUN-KEEPER-HELPER-SPLIT.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P345A-STAGE0-SHAPE-INVENTORY-LOCK.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P346A-STAGE0-SHAPE-INVENTORY-GUARD.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P349A-PHASE29CH-RAW-DIRECT-PROBE-ARCHIVE.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P355A-PHASE29CK-PREPERF-PROBE-ARCHIVE.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P356A-PHASE29CK-SMALL-ENTRY-PROBE-ARCHIVE.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P357A-PHASE29CI-VERIFY-PROBE-ARCHIVE.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P358A-PHASE216217-NORMALIZATION-CANARY-ARCHIVE.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P359A-DEV-SUGAR-PREEXPAND-INVOKE-CONTRACT.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P360A-LEGACY-DEV-UTILITY-ARCHIVE.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P361A-LANG-INCLUDE-GUARD-PROMOTION.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P362A-MIRBUILDER-DEV-ENV-SHELL-ARCHIVE.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P363A-TOOLS-DEV-SURFACE-INVENTORY-GUARD.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P364A-DEV-GUARD-PROMOTION.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P365A-PHASE29CA-DIRECT-VERIFY-GUARD-PROMOTION.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P366A-BUG-ORIGIN-TRIAGE-ARCHIVE.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P367A-CARGO-CHECK-SAFE-PROMOTION.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P368A-HAKORUNE-EMIT-MIR-DIRECT-CALLER-GUARD.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P369A-SELFHOST-EXE-STAGEB-LAZY-BRIDGE-SOURCE.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P370A-PROGRAM-JSON-V0-COMPAT-CALLER-GUARD.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P371A-STAGEB-HELPERS-LAZY-CAPTURE-SOURCE.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P381AZ-JSONFRAG-NORMALIZER-CAPSULE-RETIRE.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P381BB-VM-REFERENCE-LANE-SEPARATION.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P381CF-GLOBAL-CALL-MODULE-GENERIC-SSOT.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P381CG-GLOBAL-CALL-RESULT-ORIGIN-METADATA.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P381CH-GLOBAL-CALL-DEFINITION-OWNER-METADATA.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P381CI-GLOBAL-CALL-RETIRED-C-VIEW-PRUNE.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P381CJ-LOWERING-PLAN-METADATA-AND-EMITTER-NAME-SSOT.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P381CK-GLOBAL-CALL-PRIMITIVE-OWNER-METADATA.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P381CL-MODULE-GENERIC-MIR-JSON-ARRAY-ITEM-VIEW-HELPER.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P381CM-MODULE-GENERIC-MIR-JSON-MAP-FIELD-VIEW-HELPER.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P381CN-MODULE-GENERIC-STRING-SCALAR-VIEW-HELPER.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P381CO-MODULE-GENERIC-RECEIVER-METHOD-VIEW-HELPER.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P381FA-MIR-CALL-TABLE-DRIVEN-SHIMS.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P381FB-SAME-MODULE-EXTERN-RESULT-CONTRACT.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P381FC-BUILD-SCAN-SRC-EXTERN-CANONICALIZE.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P381FD-BUILDBOX-ROUTE-FACT.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P381FF-BUILDBOX-CANONICALIZE-COMPAT-ONLY.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P381FG-RUNTIME-HELPER-BOUNDARY-WORDING.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P381FJ-BUILDBOX-WRAPPER-BLOCKER-REFRESH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P381FK-BUILDBOX-EMIT-WRAPPER-COLLAPSE.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P381FL-BUILDBOX-PARSE-WRAPPER-COLLAPSE.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P381FM-BUILDFRAGMENT-ENRICH-WRAPPER-COLLAPSE.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P381FO-IMPORTS-INJECT-WRAPPER-COLLAPSE.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P381FP-IMPORTS-DEAD-WRAPPERS-PRUNE.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P381FQ-DEFS-IMPORTS-WRAPPER-COLLAPSE.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P381FR-BUILD-BUNDLE-PUBLIC-SEAM-CLEANUP.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P381FS-IMPORTS-OWNER-CLEANUP.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P381FT-ENUM-DECLS-OWNER-CLEANUP.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P381FU-DEFS-TEXT-FRAGMENT-SEAM.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P381FV-DEFS-METHOD-BODY-PARSE-PROGRAM-SEAM.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P381FW-BUILDFRAGMENT-DEAD-DEFS-BUILDERS-PRUNE.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P381FX-DEFS-METHOD-BODY-PROGRAM-NAME-CLEANUP.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P381FZ-GENERIC-STRING-OR-VOID-SENTINEL-PLUMBING.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P381GA-PATTERN-UTIL-PROBE-CONTRACT-HELPER.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P381GB-BOX-TYPE-INSPECTOR-CONTRACT-HELPER.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P381GN-STAGE1-EMIT-PROGRAM-GUARD-QUICK-GATE.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P381GO-GLOBAL-CALL-OVERRIDE-VISIBILITY-CLEANUP.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P381GP-SMOKES-RUN-QUICK-SHIM-CLEANUP.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P381GQ-JSON-I64-FIELD-READER-DEDUP.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P381GR-JOINIR-TEST-SURFACE-IMPORT-GATING.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P381GS-CALLSITE-CANONICALIZE-DEAD-NULL-SENTINEL-HELPER.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P381GT-JOINIR-LOWERING-TEST-HELPER-GATING.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P381GU-JOINIR-RETURN-COLLECTOR-TEST-SURFACE-GATING.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P381GV-JOINIR-VM-BRIDGE-OLD-LANE-GATING.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P381GW-SAME-MODULE-FUNCTION-REGISTRY-HELPER.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P381GX-COLLECTION-CORE-MAPBOX-ARCHIVE-DELETE-WAVE.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P381GY-APP1-ARCHIVE-DELETE-WAVE.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P381GZ-HAKO-CHECK-JOINIR-ARCHIVE-DELETE.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P381HA-SAME-MODULE-FUNCTION-FIND-HELPER.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P381HB-BOX-TYPE-INSPECTOR-SIGNATURE-CONTRACT-HELPER.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P381HC-VM-HAKO-SINGLETON-ARCHIVE-DELETE-WAVE.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P381HD-VM-HAKO-MAPBOX-NEWBOX-ARCHIVE-DELETE.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P381HE-VM-HAKO-ARGS-ARCHIVE-DELETE.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P381HF-VM-HAKO-MAPBOX-REMNANT-ARCHIVE-DELETE.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P381HG-SAME-MODULE-DEFINITION-EMIT-HELPERS.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P381HH-STAGE1-EMIT-OVERRIDE-RETIRE.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P381HI-SELFHOST-STAGEB-OOB-ARCHIVE-DELETE.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P4-DIRECT-MIR-RUN-LOADER-BLOCKER.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P43-ARCHIVE-STALE-PHASE132-VM-JSON-PROOFS.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P47-ARCHIVE-AOT-COUNTER-SMOKE.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P5-STAGEB-HELPER-EMIT-COMMON.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P51-ARCHIVE-UNREFERENCED-DEV-MANUAL-HELPERS.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P54-AOT-LEFTOVER-OWNER-CLASSIFICATION.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P55-NATIVE-LLVM-BUILDER-CAPSULE-CLASSIFICATION.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P56-PHI-TRACE-PROBES-DEBUG-CAPSULE.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P58-SMOKE-SHORTCUT-OWNER-SORT.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P59-SELFHOST-READ-TMP-DEV-SMOKE-ARCHIVE.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P6-DIRECT-MIR-RUN-LOADER-PROOF.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P60-SELFHOST-IDENTITY-CHECK-OWNER-CLASSIFICATION.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P66-RUST-PUBLIC-DELETE-LAST-SURFACE-SPLIT.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P69-LOWERING-PLAN-JSON-V0-SSOT.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P7-RUN-ROUTE-DOC-FMT-CLEANUP.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P8-RETIRE-PROGRAM-JSON-RUN-COMBO.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P9-RETIRE-PROGRAM-JSON-EXE-COMBO.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P92-LOWERING-PLAN-STRINGSUBSTRING-DIRECTABI-CONSUME.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P94-LOWERING-PLAN-MAPHAS-ANY-DIRECTABI-CONSUME.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29cv/P95-LOWERING-PLAN-GENERIC-EMIT-KIND-TABLE-SSOT.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29x/29x-84-current-task-runtime-milestone-archive.md"
-          ],
-          "file_count": 1
-        }
-      ],
-      "file_count": 131,
-      "phase_count": 6,
+      "cluster_count": 0,
+      "clusters": [],
+      "file_count": 0,
+      "phase_count": 0,
       "reachable_incoming_edge_count": 0
     },
     "phase_cluster_count": 0,
@@ -2170,15 +1383,15 @@
       {
         "phase": "phase-29aq",
         "reachable_files": 1,
-        "total_files": 7,
-        "unreachable_files": 6,
+        "total_files": 1,
+        "unreachable_files": 0,
         "whole_phase_unreachable": false
       },
       {
         "phase": "phase-29ar",
         "reachable_files": 1,
-        "total_files": 4,
-        "unreachable_files": 3,
+        "total_files": 1,
+        "unreachable_files": 0,
         "whole_phase_unreachable": false
       },
       {
@@ -2233,8 +1446,8 @@
       {
         "phase": "phase-29bq",
         "reachable_files": 29,
-        "total_files": 32,
-        "unreachable_files": 3,
+        "total_files": 29,
+        "unreachable_files": 0,
         "whole_phase_unreachable": false
       },
       {
@@ -2289,8 +1502,8 @@
       {
         "phase": "phase-29ci",
         "reachable_files": 11,
-        "total_files": 13,
-        "unreachable_files": 2,
+        "total_files": 11,
+        "unreachable_files": 0,
         "whole_phase_unreachable": false
       },
       {
@@ -2345,15 +1558,15 @@
       {
         "phase": "phase-29cv",
         "reachable_files": 5,
-        "total_files": 121,
-        "unreachable_files": 116,
+        "total_files": 5,
+        "unreachable_files": 0,
         "whole_phase_unreachable": false
       },
       {
         "phase": "phase-29x",
         "reachable_files": 58,
-        "total_files": 59,
-        "unreachable_files": 1,
+        "total_files": 58,
+        "unreachable_files": 0,
         "whole_phase_unreachable": false
       },
       {
@@ -2434,8 +1647,8 @@
         "whole_phase_unreachable": false
       }
     ],
-    "reachable_count": 4905,
-    "root_count": 3529,
+    "reachable_count": 4908,
+    "root_count": 3530,
     "root_policy": "active-entry+phase296x-direct+design-authority+reference+src-tools",
     "root_seed_counts": {
       "active_phase_296x_direct": 1031,
@@ -2444,7 +1657,7 @@
       "fixed_current_entry": 4,
       "reference_src_tools": 3042
     },
-    "unreachable_count": 3502,
+    "unreachable_count": 3369,
     "whole_phase_unreachable": [],
     "whole_phase_unreachable_count": 0,
     "whole_phase_unreachable_files": 0
@@ -3495,8 +2708,8 @@
     }
   },
   "phase_directories": {
-    "archived_phase_count": 323,
-    "archived_phase_files": 2458,
+    "archived_phase_count": 326,
+    "archived_phase_files": 2589,
     "inactive_candidate_count": 0,
     "inactive_candidates": [],
     "phase_count": 107,
@@ -4193,23 +3406,23 @@
       },
       {
         "current_pointer": false,
-        "direct_files": 7,
+        "direct_files": 1,
         "eligible_for_whole_phase_archive": false,
         "external_reference_count": 1,
         "phase": "phase-29aq",
         "status": "closed",
         "status_source": "docs/development/current/main/phases/phase-29aq/README.md",
-        "total_files": 7
+        "total_files": 1
       },
       {
         "current_pointer": false,
-        "direct_files": 4,
+        "direct_files": 1,
         "eligible_for_whole_phase_archive": false,
         "external_reference_count": 1,
         "phase": "phase-29ar",
         "status": "closed",
         "status_source": "docs/development/current/main/phases/phase-29ar/README.md",
-        "total_files": 4
+        "total_files": 1
       },
       {
         "current_pointer": false,
@@ -4283,13 +3496,13 @@
       },
       {
         "current_pointer": false,
-        "direct_files": 32,
+        "direct_files": 29,
         "eligible_for_whole_phase_archive": false,
         "external_reference_count": 33,
         "phase": "phase-29bq",
         "status": "active_like",
         "status_source": "docs/development/current/main/phases/phase-29bq/README.md",
-        "total_files": 32
+        "total_files": 29
       },
       {
         "current_pointer": false,
@@ -4363,13 +3576,13 @@
       },
       {
         "current_pointer": false,
-        "direct_files": 13,
+        "direct_files": 11,
         "eligible_for_whole_phase_archive": false,
         "external_reference_count": 15,
         "phase": "phase-29ci",
         "status": "closed",
         "status_source": "docs/development/current/main/phases/phase-29ci/README.md",
-        "total_files": 13
+        "total_files": 11
       },
       {
         "current_pointer": false,
@@ -4443,23 +3656,23 @@
       },
       {
         "current_pointer": false,
-        "direct_files": 121,
+        "direct_files": 5,
         "eligible_for_whole_phase_archive": false,
         "external_reference_count": 4,
         "phase": "phase-29cv",
         "status": "active_like",
         "status_source": "docs/development/current/main/phases/phase-29cv/README.md",
-        "total_files": 121
+        "total_files": 5
       },
       {
         "current_pointer": false,
-        "direct_files": 59,
+        "direct_files": 58,
         "eligible_for_whole_phase_archive": false,
         "external_reference_count": 34,
         "phase": "phase-29x",
         "status": "active_like",
         "status_source": "docs/development/current/main/phases/phase-29x/README.md",
-        "total_files": 59
+        "total_files": 58
       },
       {
         "current_pointer": false,

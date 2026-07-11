@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Active implementation workstream"
+status = "Active design consultation stop"
 date = "2026-07-11"
 
 active_lane = "REPOSITORY-ARTIFACT-LIFECYCLE cleanup before Failure/Outcome"
@@ -58,15 +58,14 @@ method_anchor = "docs/development/current/main/design/current-docs-archive-polic
 taskboard = "docs/development/current/main/workstreams/repository-artifact-lifecycle-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/repository-artifact-lifecycle-current.md"
 
-latest_card = "INDEX"
-latest_card_path = "docs/development/current/main/design/INDEX.md"
-latest_card_summary = """H3 lands the explicit design registry warning owner.
-Tracing reachability replaces reference counts as H2 archive authority. The
-first tracing batch moved 198 wholly unreachable phases and 517 files while
-preserving valid links. Partial-phase inventory now finds 1834 unreachable
-files in 1008 weakly connected clusters with zero reachable incoming edges."""
+latest_card = "repository-artifact-lifecycle-h3-design-classification-consultation"
+latest_card_path = "docs/development/current/main/investigations/repository-artifact-lifecycle-h3-design-classification-consultation.md"
+latest_card_summary = """Rooted tracing archive is complete: 2351 phase files
+moved from current to archive with valid-link preservation, reducing current
+documents from 10627 to 8276. H3 now stops for reviewed role classification of
+844 unregistered design files; heuristic role assignment remains forbidden."""
 
-current_blocker_token = "REPOSITORY-ARTIFACT-LIFECYCLE-H2-TRACE-PARTIAL-PHASE-BATCH-008-FINAL"
+current_blocker_token = "REPOSITORY-ARTIFACT-LIFECYCLE-H3-DESIGN-REGISTRY-CLASSIFICATION-DESIGN-STOP"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

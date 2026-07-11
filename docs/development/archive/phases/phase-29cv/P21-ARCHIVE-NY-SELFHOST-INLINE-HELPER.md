@@ -25,7 +25,7 @@ This preserves historical evidence without keeping a live root entry point.
 
 ```bash
 bash -n tools/archive/legacy-selfhost/engineering/ny_selfhost_inline.sh
-! rg --fixed-strings 'tools/ny_selfhost_inline.sh' tools src docs/development/current/main --glob '!docs/development/current/main/phases/phase-29cv/P21-ARCHIVE-NY-SELFHOST-INLINE-HELPER.md'
+! rg --fixed-strings 'tools/ny_selfhost_inline.sh' tools src docs/development/current/main --glob '!docs/development/archive/phases/phase-29cv/P21-ARCHIVE-NY-SELFHOST-INLINE-HELPER.md'
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```

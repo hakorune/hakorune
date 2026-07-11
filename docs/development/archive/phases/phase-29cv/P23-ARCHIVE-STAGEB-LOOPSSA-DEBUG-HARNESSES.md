@@ -21,8 +21,8 @@ This does not change Stage-B, LoopSSA, or Program(JSON v0) behavior.
 ```bash
 bash -n tools/archive/legacy-selfhost/engineering/test_stageb_min.sh
 bash -n tools/archive/legacy-selfhost/engineering/stageb_loopssa_debug.sh
-! rg --fixed-strings 'tools/test_stageb_min.sh' tools src lang docs/development/current/main --glob '!docs/development/current/main/phases/phase-29cv/P23-ARCHIVE-STAGEB-LOOPSSA-DEBUG-HARNESSES.md'
-! rg --fixed-strings 'tools/stageb_loopssa_debug.sh' tools src lang docs/development/current/main --glob '!docs/development/current/main/phases/phase-29cv/P23-ARCHIVE-STAGEB-LOOPSSA-DEBUG-HARNESSES.md'
+! rg --fixed-strings 'tools/test_stageb_min.sh' tools src lang docs/development/current/main --glob '!docs/development/archive/phases/phase-29cv/P23-ARCHIVE-STAGEB-LOOPSSA-DEBUG-HARNESSES.md'
+! rg --fixed-strings 'tools/stageb_loopssa_debug.sh' tools src lang docs/development/current/main --glob '!docs/development/archive/phases/phase-29cv/P23-ARCHIVE-STAGEB-LOOPSSA-DEBUG-HARNESSES.md'
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```

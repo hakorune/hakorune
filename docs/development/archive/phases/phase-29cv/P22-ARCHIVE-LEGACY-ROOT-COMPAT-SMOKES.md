@@ -32,10 +32,10 @@ bash -n tools/archive/legacy-selfhost/engineering/test_stageb_using.sh
 bash -n tools/archive/legacy-selfhost/engineering/selfhost_compiler_smoke.sh
 bash -n tools/archive/legacy-selfhost/engineering/ny_selfhost_using_smoke.sh
 bash -n tools/archive/manual-smokes/apps_tri_backend_smoke.sh
-! rg --fixed-strings 'tools/test_stageb_using.sh' tools src docs/development/current/main --glob '!docs/development/current/main/investigations/**' --glob '!docs/development/current/main/phases/phase-29cv/P22-ARCHIVE-LEGACY-ROOT-COMPAT-SMOKES.md'
-! rg --fixed-strings 'tools/selfhost_compiler_smoke.sh' tools src docs/development/current/main --glob '!docs/development/current/main/investigations/**' --glob '!docs/development/current/main/phases/phase-29cv/P22-ARCHIVE-LEGACY-ROOT-COMPAT-SMOKES.md'
-! rg --fixed-strings 'tools/ny_selfhost_using_smoke.sh' tools src docs/development/current/main --glob '!docs/development/current/main/investigations/**' --glob '!docs/development/current/main/phases/phase-29cv/P22-ARCHIVE-LEGACY-ROOT-COMPAT-SMOKES.md'
-! rg --fixed-strings 'tools/apps_tri_backend_smoke.sh' tools src docs/development/current/main --glob '!docs/development/current/main/investigations/**' --glob '!docs/development/current/main/phases/phase-29cv/P22-ARCHIVE-LEGACY-ROOT-COMPAT-SMOKES.md'
+! rg --fixed-strings 'tools/test_stageb_using.sh' tools src docs/development/current/main --glob '!docs/development/current/main/investigations/**' --glob '!docs/development/archive/phases/phase-29cv/P22-ARCHIVE-LEGACY-ROOT-COMPAT-SMOKES.md'
+! rg --fixed-strings 'tools/selfhost_compiler_smoke.sh' tools src docs/development/current/main --glob '!docs/development/current/main/investigations/**' --glob '!docs/development/archive/phases/phase-29cv/P22-ARCHIVE-LEGACY-ROOT-COMPAT-SMOKES.md'
+! rg --fixed-strings 'tools/ny_selfhost_using_smoke.sh' tools src docs/development/current/main --glob '!docs/development/current/main/investigations/**' --glob '!docs/development/archive/phases/phase-29cv/P22-ARCHIVE-LEGACY-ROOT-COMPAT-SMOKES.md'
+! rg --fixed-strings 'tools/apps_tri_backend_smoke.sh' tools src docs/development/current/main --glob '!docs/development/current/main/investigations/**' --glob '!docs/development/archive/phases/phase-29cv/P22-ARCHIVE-LEGACY-ROOT-COMPAT-SMOKES.md'
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```

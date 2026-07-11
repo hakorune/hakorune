@@ -334,8 +334,34 @@ batch-003:
   largest_remaining_cluster = 2
   all_gates = green
 
-next = H2-TRACE-PARTIAL-PHASE-BATCH-004
-maximum_files = 200
+batches-004-through-007:
+  moved_files = 800
+  batch_size = 200 each
+  all_gates = green
+
+batch-008-final:
+  moved_files = 131
+  repository_paths_rewritten = 14
+  current_documents = 8407 -> 8276
+  remaining_files = 0
+  remaining_clusters = 0
+  reachable_incoming_edges = 0
+  archive_target_collisions = 0
+  all_gates = green
+
+partial_phase_closeout:
+  moved_files = 1834
+  current_documents = 10110 -> 8276
+  candidate_drain = complete
+
+tracing_closeout:
+  whole_phase_files = 517
+  partial_phase_files = 1834
+  total_moved_files = 2351
+  current_documents = 10627 -> 8276
+  repository_total_files = unchanged_by_design
+
+next = H3-DESIGN-REGISTRY-CLASSIFICATION-DESIGN-STOP
 ```
 
 ## Non-Claims

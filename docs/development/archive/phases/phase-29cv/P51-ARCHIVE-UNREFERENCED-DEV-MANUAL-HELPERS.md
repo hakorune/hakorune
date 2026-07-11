@@ -39,7 +39,7 @@ archived manual helper by name.
 bash -n tools/archive/manual-tools/dev_numeric_core_prep.sh
 python3 -m py_compile tools/archive/manual-tools/using_combine.py
 test -f tools/archive/manual-tools/egui_win_smoke.ps1
-! rg -g '!docs/development/current/main/phases/phase-29cv/P51-ARCHIVE-UNREFERENCED-DEV-MANUAL-HELPERS.md' --fixed-strings \
+! rg -g '!docs/development/archive/phases/phase-29cv/P51-ARCHIVE-UNREFERENCED-DEV-MANUAL-HELPERS.md' --fixed-strings \
   -e 'tools/dev_numeric_core_prep.sh' \
   -e 'tools/egui_win_smoke.ps1' \
   -e 'tools/using_combine.py' \
