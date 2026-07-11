@@ -286,3 +286,13 @@ LANGV1-FAILURE-OUTCOME-ACTIVATION-DESIGN-STOP-001
 
 That stop must decide the first activated relation boundary and its backend
 fail-fast policy. It must not be opened by the inventory card itself.
+
+## Current Design Stop
+
+```text
+LANGV1-FAILURE-OUTCOME-S1-VMVALUE-VOID-OWNER-DESIGN-STOP
+```
+
+The `VMValue::Void` cluster is intentionally held pending until site
+granularity and owner boundaries are decided. See the focused consultation
+document in `docs/development/current/main/investigations/`.
