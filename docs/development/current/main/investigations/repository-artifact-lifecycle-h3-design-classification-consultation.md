@@ -454,3 +454,50 @@ Registered with a tentative role, flagged borderline (3 + sidecar owner):
 
 No physical move, no supersession execution, and no baseline change beyond the
 reviewed batch (568 -> 395) were made in this slice.
+
+## A-L Singleton Residual Consultation List
+
+The a..l singleton batch (C2-singleton-al) landed 156 rows
+(authority:32, supporting:66, status-ledger:52, superseded:6). The two
+base-absent closeouts (`hako-alloc-backend-matcher-no-growth-closeout-ssot.md`,
+`hako-alloc-execution-seam-summary-closeout-ssot.md`) were registered as
+independent status-ledger rows per the accepted Q2 precedent. Six files stay
+warning-unregistered pending consultation:
+
+```text
+1. exitbranch-ssot.md AND exit-branch-feature-ssot.md
+   Two active SSOTs both defining the CorePlan "ExitBranch" feature (one framed
+   compiler-cleanliness/BoxShape, one framed exit-carrying branch
+   commonization). Owner is undecided; registering both as supporting would
+   duplicate the feature's truth. Which is the owner row, and does the other
+   become superseded or an owned sidecar?
+
+2. collection-raw-substrate-contract-ssot.md
+   Title is contract-shaped (authority candidate) but Status is provisional and
+   the body mixes a boundary contract with a collection-owner cutover
+   first-order ledger. Authority vs supporting (under
+   raw-array-substrate-ssot.md) vs status-ledger?
+
+3. hakorune-naming-and-rename-task-order-ssot.md
+   Mixes a guard-enforced naming charter (authority; naming_charter_guard.sh)
+   with a nyash->hakorune rename task order (status-ledger). Register whole doc
+   as authority, or require a content split first? Its child inventory
+   (hakorune-stage-term-existing-name-migration-inventory.md) was registered
+   with provisional parent INDEX.md until this is decided.
+
+4. boxbase-new-external-consultation-question.md
+   Consultation paired 1:1 with box-identity-view-allocation-design-note.md
+   (itself supporting, not an authority base). Independent supporting row, or
+   owned sidecar of a non-authority base — which does the one-owner sidecar
+   law prefer here?
+
+5. joinir-pattern-selection-shadow-ssot.md
+   Status retired (2026-03-05, commit 0df74eaa5); the shadow modules were
+   removed and there is no successor document (planner trace moved to code
+   `trace_try_take_planner`). superseded_by has no document target: is a code
+   reference acceptable, or does it stay warning-unregistered until C3?
+```
+
+No physical move, no new authority beyond the reviewed
+`allocator-replacement-hook-boundary-ssot.md` spine, and no baseline change
+beyond the exact landed count (395 -> 239).

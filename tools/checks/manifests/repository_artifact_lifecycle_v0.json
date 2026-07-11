@@ -584,21 +584,6 @@
       "basis": "deterministic three-token filename prefix queue only",
       "families": [
         {
-          "family_key": "abi-export-inventory",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "abi-export-manifest",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "ai-plan-review",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
           "family_key": "allocator-hook-activation",
           "file_count": 5,
           "review_status": "pending"
@@ -624,21 +609,6 @@
           "review_status": "pending"
         },
         {
-          "family_key": "allocator-provider-boundary",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "allocator-provider-combined",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "allocator-provider-current",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
           "family_key": "allocator-provider-debug",
           "file_count": 2,
           "review_status": "pending"
@@ -654,16 +624,6 @@
           "review_status": "pending"
         },
         {
-          "family_key": "allocator-provider-implementation",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "allocator-provider-lightweight",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
           "family_key": "allocator-provider-manifest",
           "file_count": 4,
           "review_status": "pending"
@@ -674,18 +634,8 @@
           "review_status": "pending"
         },
         {
-          "family_key": "allocator-provider-post",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
           "family_key": "allocator-provider-proof",
           "file_count": 7,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "allocator-provider-readiness",
-          "file_count": 1,
           "review_status": "pending"
         },
         {
@@ -699,11 +649,6 @@
           "review_status": "pending"
         },
         {
-          "family_key": "allocator-provider-runtime",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
           "family_key": "allocator-provider-selected",
           "file_count": 2,
           "review_status": "pending"
@@ -714,322 +659,12 @@
           "review_status": "pending"
         },
         {
-          "family_key": "allocator-replacement-hook",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "arc-retirement-and",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "arc-retirement-family",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "array-lane-extension",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "array-map-owner",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "array-repr-ssot",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "array-result-option",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "array-runtime-single",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "array-text-session",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "arraybox-json-v0",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "ast-cleanup-before",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "backend-legacy-preservation",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "backend-owner-cutover",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "backend-recipe-route",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "balanced-depth-scan",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "birth-placement-ssot",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "block-expr-b3",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "block-expressions-and",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "box-callable-registry",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "box-identity-view",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "box-object-model",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
           "family_key": "boxbase-new-external",
           "file_count": 1,
           "review_status": "pending"
         },
         {
-          "family_key": "boxcount-new-box",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "brand-constructor-unwrap",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "brand-mismatch-checker",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "brand-parser-capsule",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "build-crate-split",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "build-lane-separation",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "c-abi-shim",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "canonical-lowering-visibility",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "capsule-value-result",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "cfg-aware-typed",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "cleanupwrap-cleanup-region",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
           "family_key": "collection-raw-substrate",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "collection-set-map",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "compiler-cleanup-sidecar",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "compiler-object-final",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "concat3-array-store",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "concurrency-async-pre",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "concurrency-boundary-migration",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "cond-block-view",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "condblockview-desugar-consult",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "condition-binding-promoted",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "condition-binding-resolution",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "condprofile-migration-plan",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "condprofile-ssot",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "contract-region-v0",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "contract-syntax-metadata",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "control-tree-nested",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "coreloop-composer-single",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "coreloop-composer-v0",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "coreloop-exitmap-composition",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "coreloop-generic-loop",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "coreloop-loopframe-v1",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "coreloop-stepmode-inline",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "coreplan-compat-normalizer",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "coreplan-flowbox-interface",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "coreplan-general-loop",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "coreplan-migration-done",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "coreplan-migration-roadmap",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "coreplan-purity-stage1",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "coreplan-purity-stage2",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "coreplan-shadow-adopt",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "coreplan-unknown-loop",
           "file_count": 1,
           "review_status": "pending"
         },
@@ -1044,108 +679,13 @@
           "review_status": "pending"
         },
         {
-          "family_key": "de-rust-kernel",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "de-rust-lane",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "de-rust-master",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "de-rust-runtime",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "de-rust-scope",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "de-rust-stage",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "de-rust-zero",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "declared-uses-capability",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "delegation-exposes-lowering",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
           "family_key": "delegation-legacy-status",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "delegation-no-inheritance",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "delegation-parser-capsule",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "derived-to-native",
           "file_count": 1,
           "review_status": "pending"
         },
         {
           "family_key": "direct-slot-lease",
           "file_count": 2,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "domainplan-residue-ssot",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "domainplan-thinning-ssot",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "effect-classification-ssot",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "entry-name-map",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "enum-sum-and",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "environment-variables-inventory",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "executable-trim-route",
-          "file_count": 1,
           "review_status": "pending"
         },
         {
@@ -1159,138 +699,13 @@
           "review_status": "pending"
         },
         {
-          "family_key": "exitkind-cleanup-effect",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "exitkind-unwind-reservation",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "fastmem-layout-table",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "fastmem-source-syntax",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "fastmem-verified-direct",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "fastpath-eligibility-resolver",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "feature-helper-boundary",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "flowbox-adopt-tag",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "flowbox-fallback-observability",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "flowbox-observability-tags",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "flowbox-tag-coverage",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "frontend-owner-proof",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "generic-arity-checker",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "generic-loop-v1",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "generic-memory-dce",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "generic-type-annotation",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "guard-let-pattern",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "guard-manifest-migration",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
           "family_key": "hako-alloc-allocator",
           "file_count": 52,
           "review_status": "pending"
         },
         {
-          "family_key": "hako-alloc-atomic",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "hako-alloc-backend",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "hako-alloc-execution",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "hako-alloc-hook",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
           "family_key": "hako-alloc-host",
           "file_count": 5,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "hako-alloc-optional",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "hako-alloc-options",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "hako-alloc-osvm",
-          "file_count": 1,
           "review_status": "pending"
         },
         {
@@ -1309,112 +724,7 @@
           "review_status": "pending"
         },
         {
-          "family_key": "hako-alloc-remote",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "hako-alloc-thread",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "hako-alloc-wide",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "hako-alloc-worker",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "hako-app-front",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "hako-check-mir",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "hako-inspect-scope",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "hako-lifecycle-emitter",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "hako-lifecycle-plan",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "hako-lifecycle-resolver",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "hako-lifecycle-verifier",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "hako-mimalloc-performance",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "hako-mirbuilder-migration",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "hako-module-cache",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "hako-optimization-toolbox",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "hako-thread-substrate",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
           "family_key": "hakorune-naming-and",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "hakorune-provider-package",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "hakorune-stage-term",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "handle-cache-metal",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "if-then-condition",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "joinir-observation-layer",
           "file_count": 1,
           "review_status": "pending"
         },
@@ -1424,98 +734,8 @@
           "review_status": "pending"
         },
         {
-          "family_key": "joinir-plan-frag",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "joinir-planner-required",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "joinir-port-task",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "json-v0-bridge",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "json-v0-route",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "kernel-authority-cutover",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "kernel-observability-and",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "kilo-meso-benchmark",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "known-enum-underscore",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "language-feature-implementation",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "language-minimal-lane",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
           "family_key": "language-minimal-surface",
           "file_count": 2,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "local-type-annotation",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "loop-cleanup-before",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "loop-cond-break",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "loop-range-parser",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "loop-range-stage1",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "loop-route-detection",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "lowering-plan-json",
-          "file_count": 1,
           "review_status": "pending"
         },
         {
@@ -1674,16 +894,16 @@
           "review_status": "pending"
         }
       ],
-      "family_count": 218,
+      "family_count": 62,
       "multi_file_family_count": 36,
       "role_assignment": "none",
-      "singleton_family_count": 182
+      "singleton_family_count": 26
     },
     "direct_files": 849,
     "markdown_files": 828,
     "non_markdown_files": 21,
     "owned_sidecar_count": 88,
-    "registered_count": 366,
+    "registered_count": 522,
     "registry_mode": "warning",
     "seed_reference_counts": {
       "AGENTS.md": 14,
@@ -1698,10 +918,6 @@
       "other_or_missing": 690
     },
     "unregistered": [
-      "COREPLAN_GENERAL_LOOP_DECOMPOSITION_INQUIRY.md",
-      "abi-export-inventory.md",
-      "abi-export-manifest-v0.toml",
-      "ai-plan-review-checklist-ssot.md",
       "allocator-hook-activation-preflight-shape-ssot.md",
       "allocator-hook-activation-preflight-ssot.md",
       "allocator-hook-activation-proof-ssot.md",
@@ -1731,17 +947,12 @@
       "allocator-provider-activation-safety-diagnostic-report-ssot.md",
       "allocator-provider-activation-safety-gate-ssot.md",
       "allocator-provider-activation-safety-gate-v0.toml",
-      "allocator-provider-boundary-v0-ssot.md",
-      "allocator-provider-combined-dry-run-ssot.md",
-      "allocator-provider-current-task-breakdown-ssot.md",
       "allocator-provider-debug-guarded-proof-ssot.md",
       "allocator-provider-debug-guarded-proof-v0.toml",
       "allocator-provider-diagnostic-helper-cleanup-ssot.md",
       "allocator-provider-diagnostic-inactive-actions-ssot.md",
       "allocator-provider-hako-model-proof-ssot.md",
       "allocator-provider-hako-model-proof-v0.toml",
-      "allocator-provider-implementation-family-selection-future-ssot.md",
-      "allocator-provider-lightweight-doc-sync-policy-ssot.md",
       "allocator-provider-manifest-cli-surface-ssot.md",
       "allocator-provider-manifest-diagnostic-parser-ssot.md",
       "allocator-provider-manifest-v0-ssot.md",
@@ -1750,7 +961,6 @@
       "allocator-provider-native-mimalloc-proof-v0.toml",
       "allocator-provider-native-system-proof-ssot.md",
       "allocator-provider-native-system-proof-v0.toml",
-      "allocator-provider-post-m101-implementation-ladder-ssot.md",
       "allocator-provider-proof-bundle-consumption-cli-surface-ssot.md",
       "allocator-provider-proof-bundle-consumption-diagnostic-report-ssot.md",
       "allocator-provider-proof-bundle-consumption-entry-contract-ssot.md",
@@ -1758,7 +968,6 @@
       "allocator-provider-proof-bundle-consumption-ssot.md",
       "allocator-provider-proof-bundle-consumption-v0.toml",
       "allocator-provider-proof-consumption-failfast-entry-ssot.md",
-      "allocator-provider-readiness-preflight-ssot.md",
       "allocator-provider-registry-boundary-ssot.md",
       "allocator-provider-registry-snapshot-cli-surface-ssot.md",
       "allocator-provider-registry-snapshot-diagnostic-report-ssot.md",
@@ -1766,124 +975,25 @@
       "allocator-provider-registry-snapshot-v0.toml",
       "allocator-provider-rollback-preflight-ssot.md",
       "allocator-provider-rollback-preflight-v0.toml",
-      "allocator-provider-runtime-diagnostic-module-boundaries-ssot.md",
       "allocator-provider-selected-provider-precondition-ssot.md",
       "allocator-provider-selected-provider-proof-validation-ssot.md",
       "allocator-provider-selection-decision-cli-surface-ssot.md",
       "allocator-provider-selection-decision-diagnostic-report-ssot.md",
       "allocator-provider-selection-decision-ssot.md",
       "allocator-provider-selection-decision-v0.toml",
-      "allocator-replacement-hook-boundary-ssot.md",
-      "arc-retirement-and-ownership-substrate-ssot.md",
-      "arc-retirement-family-gate-and-first-family-ssot.md",
-      "array-lane-extension-roadmap-ssot.md",
-      "array-map-owner-and-ring-cutover-ssot.md",
-      "array-repr-ssot.md",
-      "array-result-option-canonical-surface-ssot.md",
-      "array-runtime-single-thread-store-backend-ssot.md",
-      "array-text-session-route-ssot.md",
-      "arraybox-json-v0-backend-guard-ssot.md",
-      "ast-cleanup-before-localtype-ssot.md",
-      "backend-legacy-preservation-and-archive-ssot.md",
-      "backend-owner-cutover-ssot.md",
-      "backend-recipe-route-profile-ssot.md",
-      "balanced-depth-scan-analysis-view-ssot.md",
-      "birth-placement-ssot.md",
-      "block-expr-b3-sugar-decision.md",
-      "block-expressions-and-condition-blocks-ssot.md",
-      "box-callable-registry-ssot.md",
-      "box-identity-view-allocation-design-note.md",
-      "box-object-model-replacement-map-ssot.md",
       "boxbase-new-external-consultation-question.md",
-      "boxcount-new-box-addition-checklist-ssot.md",
-      "brand-constructor-unwrap-policy-ssot.md",
-      "brand-mismatch-checker-ssot.md",
-      "brand-parser-capsule-ssot.md",
-      "build-crate-split-plan-ssot.md",
-      "build-lane-separation-ssot.md",
-      "c-abi-shim-responsibility-cleanup-backlog-ssot.md",
-      "canonical-lowering-visibility-ssot.md",
-      "capsule-value-result-contract-ssot.md",
-      "cfg-aware-typed-field-residence-ssot.md",
-      "cleanupwrap-cleanup-region-boundary-ssot.md",
       "collection-raw-substrate-contract-ssot.md",
-      "collection-set-map-fst-task-breakdown-ssot.md",
-      "compiler-cleanup-sidecar-task-breakdown-ssot.md",
-      "compiler-object-final-shape-ssot.md",
-      "concat3-array-store-placement-window-ssot.md",
-      "concurrency-async-pre-selfhost-ssot.md",
-      "concurrency-boundary-migration-taskboard-ssot.md",
-      "cond-block-view-prelude-ssot.md",
-      "condblockview-desugar-consult.md",
-      "condition-binding-promoted-identity-proof-probe.md",
-      "condition-binding-resolution-rewrite-design.md",
-      "condprofile-migration-plan-ssot.md",
-      "condprofile-ssot.md",
-      "contract-region-v0-ssot.md",
-      "contract-syntax-metadata-capsule-ssot.md",
-      "control-tree-nested-loop-depth-ssot.md",
-      "coreloop-composer-single-entry-ssot.md",
-      "coreloop-composer-v0-v1-boundary-ssot.md",
-      "coreloop-exitmap-composition-ssot.md",
-      "coreloop-generic-loop-v0-ssot.md",
-      "coreloop-loopframe-v1-ssot.md",
-      "coreloop-stepmode-inline-in-body-ssot.md",
-      "coreplan-compat-normalizer-legoization-ssot.md",
-      "coreplan-flowbox-interface-ssot.md",
-      "coreplan-migration-done-criteria-ssot.md",
-      "coreplan-migration-roadmap-ssot.md",
-      "coreplan-purity-stage1-ssot.md",
-      "coreplan-purity-stage2-ssot.md",
-      "coreplan-shadow-adopt-tag-coverage-ssot.md",
-      "coreplan-unknown-loop-strategy-ssot.md",
       "de-rust-backend-zero-boundary-lock-ssot.md",
       "de-rust-backend-zero-fixed-order-and-buildability-ssot.md",
       "de-rust-backend-zero-provisional-inventory-ssot.md",
       "de-rust-full-rust-zero-remaining-rust-inventory-ssot.md",
       "de-rust-full-rust-zero-remaining-rust-task-pack-ssot.md",
       "de-rust-full-rust-zero-roadmap-ssot.md",
-      "de-rust-kernel-authority-cutover-ssot.md",
-      "de-rust-lane-map-ssot.md",
-      "de-rust-master-task-map-ssot.md",
-      "de-rust-runtime-meaning-decision-red-inventory-ssot.md",
-      "de-rust-scope-decision-ssot.md",
-      "de-rust-stage-and-owner-axis-ssot.md",
-      "de-rust-zero-buildability-contract-ssot.md",
-      "declared-uses-capability-plan-mapping-ssot.md",
-      "delegation-exposes-lowering-ssot.md",
       "delegation-legacy-status-reconcile-ssot.md",
-      "delegation-no-inheritance-ssot.md",
-      "delegation-parser-capsule-ssot.md",
-      "derived-to-native-hako-artifact-model-ssot.md",
       "direct-slot-lease-addressable-slot-bridge-ssot.md",
       "direct-slot-lease-guard-surface-ssot.md",
-      "domainplan-residue-ssot.md",
-      "domainplan-thinning-ssot.md",
-      "effect-classification-ssot.md",
-      "entry-name-map-ssot.md",
-      "enum-sum-and-generic-surface-ssot.md",
-      "environment-variables-inventory-ssot.md",
-      "executable-trim-route-lowering-implementation-design.md",
       "exit-branch-feature-ssot.md",
       "exitbranch-ssot.md",
-      "exitkind-cleanup-effect-contract-ssot.md",
-      "exitkind-unwind-reservation-ssot.md",
-      "fastmem-layout-table-contract-v0-ssot.md",
-      "fastmem-source-syntax-smoke-taxonomy-ssot.md",
-      "fastmem-verified-direct-default-retirement-ssot.md",
-      "fastpath-eligibility-resolver-ssot.md",
-      "feature-helper-boundary-ssot.md",
-      "flowbox-adopt-tag-migration-ssot.md",
-      "flowbox-fallback-observability-ssot.md",
-      "flowbox-observability-tags-ssot.md",
-      "flowbox-tag-coverage-map-ssot.md",
-      "frontend-owner-proof-index.md",
-      "generic-arity-checker-ssot.md",
-      "generic-loop-v1-shape-ssot.md",
-      "generic-memory-dce-observer-owner-contract-ssot.md",
-      "generic-type-annotation-metadata-capsule-ssot.md",
-      "guard-let-pattern-sugar-ssot.md",
-      "guard-manifest-migration-ssot.md",
       "hako-alloc-allocator-comparison-baseline-closeout-ssot.md",
       "hako-alloc-allocator-comparison-baseline-diagnostics-ssot.md",
       "hako-alloc-allocator-comparison-baseline-inventory-ssot.md",
@@ -1936,18 +1046,11 @@
       "hako-alloc-allocator-comparison-workload-matrix-closeout-ssot.md",
       "hako-alloc-allocator-comparison-workload-matrix-diagnostics-ssot.md",
       "hako-alloc-allocator-comparison-workload-matrix-inventory-ssot.md",
-      "hako-alloc-atomic-bitmap-pilot-ssot.md",
-      "hako-alloc-backend-matcher-no-growth-closeout-ssot.md",
-      "hako-alloc-execution-seam-summary-closeout-ssot.md",
-      "hako-alloc-hook-install-preflight-plan-ssot.md",
       "hako-alloc-host-replacement-backend-matcher-no-growth-closeout-ssot.md",
       "hako-alloc-host-replacement-blocked-state-diagnostics-ssot.md",
       "hako-alloc-host-replacement-explicit-preflight-inventory-ssot.md",
       "hako-alloc-host-replacement-optional-ladder-plan-ssot.md",
       "hako-alloc-host-replacement-preflight-closeout-ssot.md",
-      "hako-alloc-optional-process-allocator-replacement-proposal-ssot.md",
-      "hako-alloc-options-inventory-ssot.md",
-      "hako-alloc-osvm-page-source-pilot-ssot.md",
       "hako-alloc-provider-activation-dry-run-unsupported-behavior-ssot.md",
       "hako-alloc-provider-activation-explicit-input-contract-ssot.md",
       "hako-alloc-provider-activation-first-pattern-plan-ssot.md",
@@ -1995,49 +1098,10 @@
       "hako-alloc-reclaim-scheduler-request-ledger-ssot.md",
       "hako-alloc-reclaim-scheduler-request-marker-ssot.md",
       "hako-alloc-reclaim-scheduler-scalar-lane-closeout-ssot.md",
-      "hako-alloc-remote-free-retry-bound-ssot.md",
-      "hako-alloc-thread-heap-owner-inventory-ssot.md",
-      "hako-alloc-wide-report-argument-cleanup-ssot.md",
-      "hako-alloc-worker-tls-pilot-ssot.md",
-      "hako-app-front-boundary-template-ssot.md",
-      "hako-check-mir-observation-boundary-ssot.md",
-      "hako-inspect-scope-dump-ssot.md",
-      "hako-lifecycle-emitter-probe-v0.md",
-      "hako-lifecycle-plan-vocab-v0.md",
-      "hako-lifecycle-resolver-readonly-skeleton.md",
-      "hako-lifecycle-verifier-result-vocab-v0.md",
-      "hako-mimalloc-performance-parity-ssot.md",
-      "hako-mirbuilder-migration-phase0-entry-contract-ssot.md",
-      "hako-module-cache-build-ssot.md",
-      "hako-optimization-toolbox-usability-ssot.md",
-      "hako-thread-substrate-boundary-ssot.md",
       "hakorune-naming-and-rename-task-order-ssot.md",
-      "hakorune-provider-package-abi-v1-future-ssot.md",
-      "hakorune-stage-term-existing-name-migration-inventory.md",
-      "handle-cache-metal-helper-contract-ssot.md",
-      "if-then-condition-block-consult.md",
-      "joinir-observation-layer-ssot.md",
       "joinir-pattern-selection-shadow-ssot.md",
-      "joinir-plan-frag-ssot.md",
-      "joinir-planner-required-gates-ssot.md",
-      "joinir-port-task-pack-ssot.md",
-      "json-v0-bridge-lowering-split-ssot.md",
-      "json-v0-route-map-ssot.md",
-      "kernel-authority-cutover-external-consultation-question.md",
-      "kernel-observability-and-two-stage-pilot-ssot.md",
-      "kilo-meso-benchmark-ladder-ssot.md",
-      "known-enum-underscore-exhaustiveness-ssot.md",
-      "language-feature-implementation-order-ssot.md",
-      "language-minimal-lane-switch-after-m215-ssot.md",
       "language-minimal-surface-ssot.md",
       "language-minimal-surface-task-breakdown-ssot.md",
-      "local-type-annotation-metadata-capsule-ssot.md",
-      "loop-cleanup-before-packedarray-ssot.md",
-      "loop-cond-break-continue-ssot.md",
-      "loop-range-parser-capsule-ssot.md",
-      "loop-range-stage1-route-ssot.md",
-      "loop-route-detection-physical-path-retirement-ssot.md",
-      "lowering-plan-json-v0-ssot.md",
       "map-literal-eviction-and-blockexpr-roadmap-ssot.md",
       "mapbox-proof-bearing-route-ssot.md",
       "match-branchn-skeleton-ssot.md",
@@ -2094,8 +1158,8 @@
       "trim-route-lowering-proof-update.md",
       "trim-route-lowering-readiness-integration-inventory.md"
     ],
-    "unregistered_baseline": 395,
-    "unregistered_count": 395,
+    "unregistered_baseline": 239,
+    "unregistered_count": 239,
     "unseeded_count": 688,
     "violations": []
   },
@@ -2864,18 +1928,18 @@
         "whole_phase_unreachable": false
       }
     ],
-    "reachable_count": 4923,
-    "root_count": 3644,
+    "reachable_count": 4943,
+    "root_count": 3665,
     "root_policy": "active-entry+phase296x-direct+design-authority+reference+src-tools",
     "root_seed_counts": {
       "active_phase_296x_direct": 1032,
       "current_pointer": 4,
-      "design_authority": 221,
+      "design_authority": 253,
       "fixed_current_entry": 4,
       "reference_src_tools": 3042
     },
-    "unreachable_count": 3355,
-    "unreachable_pending_count": 1758,
+    "unreachable_count": 3335,
+    "unreachable_pending_count": 1738,
     "whole_phase_unreachable": [],
     "whole_phase_unreachable_count": 0,
     "whole_phase_unreachable_files": 0
