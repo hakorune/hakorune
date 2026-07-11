@@ -32,5 +32,7 @@ ledger are complete. The current frontier is the separate activation design
 stop; do not select or implement a semantic slice from this pointer.
 Read
 `docs/development/current/main/phases/phase-296x/3510-LANGV1-FAILURE-OUTCOME-S5-CONFLICT-LEDGER-CLOSEOUT-001.md`.
+The read-only candidate inventory for the consultation is
+`docs/development/current/main/investigations/failure-outcome-activation-candidate-inventory.md`.
 This remains inventory-only: semantic activation and runtime behavior stay at
 zero.

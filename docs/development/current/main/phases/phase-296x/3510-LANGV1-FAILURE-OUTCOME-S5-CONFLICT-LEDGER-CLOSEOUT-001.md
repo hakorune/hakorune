@@ -68,3 +68,7 @@ semantic_activation = 0
 
 The next frontier is the separate activation design stop. No semantic slice
 is selected by this closeout.
+
+Consultation input:
+
+`docs/development/current/main/investigations/failure-outcome-activation-candidate-inventory.md`
