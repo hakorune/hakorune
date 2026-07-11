@@ -63,6 +63,8 @@ python3 tools/docs/failure_outcome_site_inventory.py --write
 python3 tools/docs/failure_outcome_site_inventory.py --check --strict
 python3 tools/docs/failure_outcome_semantic_site_graph.py --write
 python3 tools/docs/failure_outcome_semantic_site_graph.py --check
+python3 tools/docs/failure_outcome_projection_binding.py --write
+python3 tools/docs/failure_outcome_projection_binding.py --check
 ```
 
 The manifest scans `src` and `docs/reference` for named null-like and
@@ -72,3 +74,7 @@ occurrences as `evidence_refs`, adds line-independent operation/outcome sites,
 and rejects invalid four-segment IDs, missing compatibility profiles, and
 increasing `missing_argument_zero` pending counts. Pending rows are expected
 until the S4 exhaustiveness checker accepts a classified inventory.
+
+The projection-binding manifest keeps classified operation sites separate from
+one-way backend bindings and pending boundary observations. It never treats a
+zero/null encoding or a shared VM carrier as semantic authority.

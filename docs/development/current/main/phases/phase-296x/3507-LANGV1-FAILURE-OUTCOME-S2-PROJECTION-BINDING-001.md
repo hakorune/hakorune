@@ -138,6 +138,17 @@ backend support widening = 0
 selfhost claim = 0
 ```
 
+## Commands
+
+```text
+python3 tools/docs/failure_outcome_site_inventory.py --check --strict
+python3 tools/docs/failure_outcome_semantic_site_graph.py --check
+python3 tools/docs/failure_outcome_projection_binding.py --check
+python3 -m unittest tools/docs/test_failure_outcome_projection_binding.py
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
 ## Stop Boundary
 
 If `hako_mem_free` lacks one complete API/consumer/collision evidence chain, or

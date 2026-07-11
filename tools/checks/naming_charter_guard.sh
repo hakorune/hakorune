@@ -1486,6 +1486,9 @@ NAMING_DIFF_ALLOWED_PATHS=(
   # Semantic-site graph quotes the same existing evidence paths and stage
   # labels; it does not introduce a new stage vocabulary term.
   "tools/checks/manifests/failure_outcome_semantic_site_graph_v0.json"
+  # Projection binding inventory quotes existing source paths and stage labels;
+  # it does not introduce a new stage vocabulary term.
+  "tools/checks/manifests/failure_outcome_projection_binding_v0.json"
   # Design registry membership rows quote existing filenames; they do not
   # introduce a new stage vocabulary term.
   "docs/development/current/main/design/INDEX.md"
