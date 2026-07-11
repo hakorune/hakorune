@@ -28,7 +28,7 @@ binding implementation slice; that slice is complete.
 The S2 runtime/provider inventory, projection binding, S3 control-flow
 evidence inventory, and S4 exhaustiveness checker are complete. The next
 active slice is
-the activation design stop after the completed
+the accepted first activation slice after the completed
 `docs/development/current/main/phases/phase-296x/3510-LANGV1-FAILURE-OUTCOME-S5-CONFLICT-LEDGER-CLOSEOUT-001.md`.
 S1 graph artifacts are the identity source; S2 changes inventory
 tooling/manifests only and runtime activation remains zero.

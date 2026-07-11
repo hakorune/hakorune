@@ -72,3 +72,7 @@ is selected by this closeout.
 Consultation input:
 
 `docs/development/current/main/investigations/failure-outcome-activation-candidate-inventory.md`
+
+The consultation accepted the narrow first implementation card:
+
+`docs/development/current/main/phases/phase-296x/3511-LANGV1-FAILURE-OUTCOME-UNIT-NORESULT-HAKO-MEM-FREE-001.md`

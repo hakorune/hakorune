@@ -52,7 +52,8 @@ the VM remains a narrow semantic-reference adapter, not a product fallback.
 no capability activation. 3504 accepts relation/spec plus exhaustive
 inventory-only Failure/Outcome design. Repository artifact C2 classification
 is 91% complete with 77 warning-unregistered consultation rows; no physical
-move was started. 3505 is now the active next slice."""
+move was started. 3505 S0-S5 is complete; 3511 is the active first semantic
+activation slice."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/3505-LANGV1-FAILURE-OUTCOME-RELATION-INVENTORY-001.md"
 phase_status = "docs/development/current/main/phases/phase-296x/3505-LANGV1-FAILURE-OUTCOME-RELATION-INVENTORY-001.md"
@@ -60,8 +61,8 @@ method_anchor = "docs/development/current/main/design/current-docs-archive-polic
 taskboard = "docs/development/current/main/phases/phase-296x/3505-LANGV1-FAILURE-OUTCOME-RELATION-INVENTORY-001.md"
 latest_workstream_card = "docs/development/current/main/phases/phase-296x/3505-LANGV1-FAILURE-OUTCOME-RELATION-INVENTORY-001.md"
 
-latest_card = "3510-LANGV1-FAILURE-OUTCOME-S5-CONFLICT-LEDGER-CLOSEOUT-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3510-LANGV1-FAILURE-OUTCOME-S5-CONFLICT-LEDGER-CLOSEOUT-001.md"
+latest_card = "3511-LANGV1-FAILURE-OUTCOME-UNIT-NORESULT-HAKO-MEM-FREE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3511-LANGV1-FAILURE-OUTCOME-UNIT-NORESULT-HAKO-MEM-FREE-001.md"
 latest_card_summary = """3505 is active after repository artifact C2 cleanup.
 The normative relation SSOT and 602-row evidence queue are landed; the
 line-independent semantic site graph now contains 54 sites over those
@@ -69,14 +70,14 @@ occurrences, with 10 explicit projections and 52 pending sites. 55 explicit
 reference/provider rows remain classified in the evidence queue while
 semantic ownership stays pending. The VMValue::Void owner-boundary and S2
 projection-source consultations are accepted; S1 through S5 are complete and
-the activation design stop is the next frontier.
+the accepted first activation slice is 3511 hako_mem_free Unit/no-result.
 The design registry has 653 rows
 and 119 owned sidecars; 77 files remain
 warning-unregistered for focused consultation. C3 supersession movement is
 not started. The active slice changes no parser, grammar, MIR, runtime, VM,
 cleanup, or backend behavior."""
 
-current_blocker_token = "DESIGN-STOP:LANGV1-FAILURE-OUTCOME-ACTIVATION-DESIGN-STOP-001"
+current_blocker_token = "LANGV1-FAILURE-OUTCOME-UNIT-NORESULT-HAKO-MEM-FREE-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

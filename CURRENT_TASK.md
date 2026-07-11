@@ -28,11 +28,10 @@ When `current_blocker_token` contains `DESIGN-STOP`, do not invent a new executa
 The accepted Failure/Outcome owner-boundary consultation, S1 semantic-site
 graph, S2 projection binding, S2 runtime/provider evidence inventory, S3
 control-flow evidence inventory, S4 exhaustiveness checker, and S5 conflict
-ledger are complete. The current frontier is the separate activation design
-stop; do not select or implement a semantic slice from this pointer.
-Read
-`docs/development/current/main/phases/phase-296x/3510-LANGV1-FAILURE-OUTCOME-S5-CONFLICT-LEDGER-CLOSEOUT-001.md`.
-The read-only candidate inventory for the consultation is
-`docs/development/current/main/investigations/failure-outcome-activation-candidate-inventory.md`.
+ledger are complete. The first activation design is accepted and taskized as
+`LANGV1-FAILURE-OUTCOME-UNIT-NORESULT-HAKO-MEM-FREE-001`. Read
+`docs/development/current/main/phases/phase-296x/3511-LANGV1-FAILURE-OUTCOME-UNIT-NORESULT-HAKO-MEM-FREE-001.md`.
+Implementation must remain limited to this one route and must keep activation
+at zero until the card's S0-S4 gates are green.
 This remains inventory-only: semantic activation and runtime behavior stay at
 zero.
