@@ -18,6 +18,8 @@ LOOPRANGE_GUARD="tools/checks/k2_wide_looprange_ast_rename_guard.sh"
 WHILE_GUARD="tools/checks/k2_wide_loopclean_while_parser_facade_guard.sh"
 STMT_GUARD="tools/checks/k2_wide_clean_stage1_lowering_stmt_split_guard.sh"
 SELF_SCRIPT="tools/checks/docs_slim_001_archive_policy_guard.sh"
+ARTIFACT_INVENTORY="tools/docs/repository_artifact_lifecycle_inventory.py"
+ARTIFACT_MANIFEST="tools/checks/manifests/repository_artifact_lifecycle_v0.json"
 
 echo "[$TAG] running DOCS-SLIM-001 archive policy guard"
 
@@ -35,6 +37,8 @@ guard_require_files \
   "$LOOPRANGE_GUARD" \
   "$WHILE_GUARD" \
   "$STMT_GUARD" \
+  "$ARTIFACT_INVENTORY" \
+  "$ARTIFACT_MANIFEST" \
   "$SELF_SCRIPT"
 guard_require_exec_files "$TAG" "$SELF_SCRIPT"
 
@@ -84,5 +88,7 @@ if rg -n 'LOOPCLEAN-006|CLEAN-STAGE1-LOWERING-002' "$MIMAP_TASKBOARD" >/tmp/docs
   exit 1
 fi
 rm -f /tmp/docs_slim_guard_hits.$$
+
+python3 "$ARTIFACT_INVENTORY" --check
 
 echo "[$TAG] ok landed_tail=$tail_count"

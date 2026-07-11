@@ -1,10 +1,10 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Active design consultation stop"
+status = "Active implementation workstream"
 date = "2026-07-11"
 
-active_lane = "LANGUAGE-V1-CONVERGENCE semantic contract before selfhost migration"
+active_lane = "REPOSITORY-ARTIFACT-LIFECYCLE cleanup before Failure/Outcome"
 active_lane_status = """Language coherence remains the prerequisite; Source
 Selfhost and MirBuilder 3456 stay parked. 3478 closes LANGV1-GRAMMAR-001 with
 one physical registry, two independent recursive parser witnesses, 106/106
@@ -49,22 +49,22 @@ runtime convergence, JSON, and backend fail-fast. 3503 now selects whether to
 defer product lowering or name one carrier-aware product backend consumer;
 the VM remains a narrow semantic-reference adapter, not a product fallback.
 3503 accepts defer_with_failfast with declaration-level product rejection and
-no capability activation. 3504 now owns the Failure/Outcome decision across
-Unit, Option/Result, Fault, null migration, catch, cleanup, and foreign null."""
+no capability activation. 3504 owns the next Failure/Outcome decision but is
+temporarily parked while repository artifact lifecycle H0-H1 runs first."""
 
-active_phase = "docs/development/current/main/phases/phase-296x/README.md"
-phase_status = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
-method_anchor = "docs/development/current/main/design/selfhost-language-v1-freeze-ssot.md"
-taskboard = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
-latest_workstream_card = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
+active_phase = "docs/development/current/main/workstreams/repository-artifact-lifecycle-current.md"
+phase_status = "docs/development/current/main/workstreams/repository-artifact-lifecycle-current.md"
+method_anchor = "docs/development/current/main/design/current-docs-archive-policy-ssot.md"
+taskboard = "docs/development/current/main/workstreams/repository-artifact-lifecycle-current.md"
+latest_workstream_card = "docs/development/current/main/workstreams/repository-artifact-lifecycle-current.md"
 
-latest_card = "LANGV1-FAILURE-OUTCOME-DESIGN-STOP-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3504-LANGV1-FAILURE-OUTCOME-DESIGN-STOP-001.md"
-latest_card_summary = """3504 decides the closed relation among Unit,
-Option::None, Result::Err, Fault, foreign null, and Compat2025 null plus the
-local-default, weak-upgrade, catch, cleanup, and migration ownership laws."""
+latest_card = "repository-artifact-lifecycle-current"
+latest_card_path = "docs/development/current/main/workstreams/repository-artifact-lifecycle-current.md"
+latest_card_summary = """H0 builds one deterministic artifact inventory and
+warning guard; H1 then archives closed unreferenced phase-296x cards in bounded
+batches before returning to parked 3504 Failure/Outcome consultation."""
 
-current_blocker_token = "LANGV1-FAILURE-OUTCOME-DESIGN-STOP-001"
+current_blocker_token = "REPOSITORY-ARTIFACT-LIFECYCLE-H0-INVENTORY"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
