@@ -7,7 +7,8 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
 
 - 入口（読む順序）と、詳細（設計図/調査/Phaseログ）を分離して迷子を防ぐ。
 - “Phase 文書が増えても” SSOT が埋もれないようにする。
-- 大規模移動はしない（リンク切れ回避）。以後の追加分から秩序を作る。
+- 大規模移動はmanifestと参照closureなしには行わない。archive policyの
+  bounded batch/resolver/stub手順を満たす場合だけ物理整理を進める。
 
 ## Current Ownership Contract
 
@@ -96,6 +97,8 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
     converter / adoption-plan, and stages the `nyash` -> `hakorune` migration
 - `design/current-docs-archive-policy-ssot.md`
   - archive buckets, landed ledger, and current-doc slimming contract
+  - repository artifact lifecycle baseline, bounded archive batches, design
+    registry, and check-script retirement task order
 - `design/mir-cleanup-policy-ssot.md`
   - BoxShape-only MIR cleanup policy; keeps cleanup work separate from
     acceptance-shape, optimizer, and perf keeper changes

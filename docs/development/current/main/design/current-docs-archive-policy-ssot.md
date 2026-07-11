@@ -74,6 +74,111 @@ Keep a forwarding stub at the old path only when a current doc, guard, or script
 still references the old path. If no tracked current reference exists, the
 archive ledger is enough.
 
+## Repository Artifact Lifecycle Consolidation (2026-07-11)
+
+The file-count problem is historical artifact retention, not source-code
+module granularity. Measured baseline:
+
+```text
+docs files = 16,534
+tools files = 8,620
+src files = 3,314
+phase-296x direct files = 2,123
+phase-296x archive files = 1,425
+design direct files = 848
+main direct files = 169
+tools/checks files = 3,265
+docs/private files = 4,251
+
+phase-296x direct card sample:
+  cards excluding README/STATUS/hygiene = 2,120
+  status classified closed = 1,330
+  externally referenced by tracked files = 788
+  unreferenced archive candidates = 1,332
+```
+
+Counts are inventory evidence, not permission to move or delete files. In
+particular, the 788 referenced cards disprove a review-free mass move.
+
+Do not add more numbered `DOCS-SLIM-*` cards. The existing 001-027 history is
+consolidated into one artifact-lifecycle refactor series with these ordered
+steps:
+
+### H0 - Baseline and warning-only guard
+
+- extend an existing docs-slim/current-state guard; do not add a new `.sh`;
+- report direct-card, direct-design, current-phase, and check-script counts;
+- derive active paths from `CURRENT_STATE.toml`, active workstreams, and active
+  card references;
+- warning only at the measured baseline; hard limits are chosen after shrink;
+- store machine-readable candidate/referenced sets in one manifest, not one
+  file per row.
+
+### H1 - phase-296x card archive batches
+
+- generalize `tools/checks/lib/phase_card_paths.sh` from phase-293x to a
+  phase-scoped resolver before moving referenced cards;
+- archive unreferenced, closed cards first;
+- keep the active card, active references, README, STATUS, and hygiene rule;
+- use batches of at most 200 physical moves per commit;
+- after every batch run pointer, link/reference, docs-slim, and `dev_gate quick`;
+- no full duplicate at the old path; create a forwarding stub only when a live
+  tracked reference cannot yet use the resolver.
+
+### H2 - inactive phase directory archive
+
+- derive the active phase closure from current pointers and tracked live docs;
+- move only phases outside that closure;
+- archive to `docs/development/archive/phases/` in bounded batches;
+- preserve a compact phase index/stub where live navigation still requires the
+  old path;
+- do not claim that `git log --follow` prevents link or guard breakage.
+
+### H3 - design authority registry
+
+- use the existing `design/README.md` as the registry; do not create a second
+  `INDEX.md` truth;
+- classify each direct design file as authority, active navigation, candidate,
+  superseded, or archive;
+- move unregistered/superseded files only after inbound-reference inventory;
+- introduce warning mode first, then require every direct design file to have
+  one registry classification;
+- target 50-100 authority/navigation entries is a review estimate, not a guard
+  constant.
+
+### H4 - check-script convergence and retirement
+
+- build one caller/owner inventory from dev-gate groups, manifests, CI,
+  check-script index, docs, and direct shell callers;
+- card archival alone never proves a guard is obsolete;
+- keep reusable behavior guards, but move repeated row assertions into
+  `manifest_runner.py` manifests;
+- delete a script only when active caller count is zero, durable proof ownership
+  has moved, and parity tests cover the manifest replacement;
+- retire the corresponding check-index row in the same commit.
+
+### H5 - lifecycle enforcement
+
+- update card closeout to require archive/retain-with-retire_when plus guard
+  retirement review;
+- switch warning counts to hard no-growth limits only after H1-H4 establish a
+  clean baseline;
+- hard guards use active-reference closure, not an arbitrary "latest 20" rule;
+- keep one-card-one-file and one-owner-per-guard; do not merge history into a
+  giant ledger.
+
+`docs/private` retention is a separate final sweep. It must not preempt current
+navigation cleanup and requires an explicit private-data retention decision.
+
+Series rollback rule:
+
+```text
+any unresolved tracked reference, guard failure, or pointer drift:
+  stop the series
+  revert only the current bounded move batch
+  update the resolver/manifest before continuing
+```
+
 ## Ledger Rule
 
 Long landed history belongs in a ledger, not in current mirrors.
