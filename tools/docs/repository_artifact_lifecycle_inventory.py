@@ -14,6 +14,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_OUTPUT = ROOT / "tools/checks/manifests/repository_artifact_lifecycle_v0.json"
+DESIGN_INDEX = ROOT / "docs/development/current/main/design/INDEX.md"
 PHASE = ROOT / "docs/development/current/main/phases/phase-296x"
 EXCLUDED_CARD_NAMES = {"README.md", "STATUS.md", "CARD-HYGIENE-RULE.md"}
 MARKDOWN_TOKEN = re.compile(r"(?<![A-Za-z0-9_.-])([A-Za-z0-9_.-]+\.md)")
@@ -26,6 +27,18 @@ PHASE_PATH_TOKEN = re.compile(
 STATUS_LINE = re.compile(r"(?im)^(?:##\s*)?Status\s*:?\s*(.+)$")
 CLOSED_WORDS = ("complete", "closed", "landed", "historical", "superseded")
 ACTIVE_WORDS = ("active", "implementation", "design consultation")
+DESIGN_ROLES = {
+    "authority",
+    "navigation",
+    "supporting",
+    "status-ledger",
+    "superseded",
+}
+DESIGN_REGISTRY_BLOCK = re.compile(
+    r"<!-- design-registry-v0:begin -->\s*```toml\s*(.*?)\s*```\s*"
+    r"<!-- design-registry-v0:end -->",
+    re.DOTALL,
+)
 
 
 def parse_args() -> argparse.Namespace:
@@ -132,6 +145,21 @@ def design_registry_inventory() -> dict[str, object]:
     status_counts = {"closed": 0, "active_like": 0, "other_or_missing": 0}
     for name in markdown_files:
         status_counts[card_status(design_dir / name)] += 1
+    registry, violations = read_design_registry(direct_files)
+    registered = {row["path"] for row in registry["documents"]}
+    sidecars = {
+        sidecar
+        for row in registry["documents"]
+        for sidecar in row.get("sidecars", [])
+    }
+    unregistered = sorted(direct_files - registered - sidecars)
+    baseline = registry["unregistered_baseline"]
+    if len(unregistered) > baseline:
+        violations.append(
+            f"unregistered design files grew: {len(unregistered)} > {baseline}"
+        )
+    if registry["mode"] == "strict" and unregistered:
+        violations.append("strict design registry has unregistered files")
     return {
         "direct_files": len(direct_files),
         "markdown_files": len(markdown_files),
@@ -140,8 +168,77 @@ def design_registry_inventory() -> dict[str, object]:
         "seed_union_count": len(seed_union),
         "unseeded_count": len(direct_files - seed_union),
         "status_counts": status_counts,
-        "authority_registry_decided": False,
+        "authority_registry_decided": True,
+        "registry_mode": registry["mode"],
+        "registered_count": len(registered),
+        "owned_sidecar_count": len(sidecars),
+        "unregistered_count": len(unregistered),
+        "unregistered_baseline": baseline,
+        "unregistered": unregistered,
+        "violations": violations,
     }
+
+
+def read_design_registry(
+    direct_files: set[str],
+) -> tuple[dict[str, object], list[str]]:
+    violations: list[str] = []
+    if not DESIGN_INDEX.is_file():
+        return {"mode": "warning", "unregistered_baseline": 0, "documents": []}, [
+            "design registry INDEX.md is missing"
+        ]
+    match = DESIGN_REGISTRY_BLOCK.search(DESIGN_INDEX.read_text(encoding="utf-8"))
+    if not match:
+        return {"mode": "warning", "unregistered_baseline": 0, "documents": []}, [
+            "design registry typed block is missing"
+        ]
+    registry = tomllib.loads(match.group(1))
+    if registry.get("schema_version") != 0:
+        violations.append("design registry schema_version must be 0")
+    if registry.get("mode") not in {"warning", "strict"}:
+        violations.append("design registry mode must be warning or strict")
+    rows = registry.get("documents", [])
+    paths = [row.get("path", "") for row in rows]
+    if len(paths) != len(set(paths)):
+        violations.append("design registry contains duplicate paths")
+    sidecar_owners: dict[str, str] = {}
+    row_by_path = {row.get("path", ""): row for row in rows}
+    for row in rows:
+        path = row.get("path", "")
+        role = row.get("role", "")
+        if path not in direct_files:
+            violations.append(f"registered design file is missing: {path}")
+        if role not in DESIGN_ROLES:
+            violations.append(f"invalid design role for {path}: {role}")
+        if not row.get("owner"):
+            violations.append(f"design row owner is missing: {path}")
+        if not row.get("retire_when"):
+            violations.append(f"design row retire_when is missing: {path}")
+        if role == "superseded" and not row.get("superseded_by"):
+            violations.append(f"superseded_by is required: {path}")
+        for sidecar in row.get("sidecars", []):
+            if sidecar not in direct_files:
+                violations.append(f"design sidecar is missing: {path} -> {sidecar}")
+            if sidecar in row_by_path:
+                violations.append(f"design sidecar also has a document row: {sidecar}")
+            previous_owner = sidecar_owners.setdefault(sidecar, path)
+            if previous_owner != path:
+                violations.append(
+                    f"design sidecar has multiple owners: {sidecar}"
+                )
+    for path in paths:
+        seen: set[str] = set()
+        current = path
+        while current in row_by_path:
+            if current in seen:
+                violations.append(f"design precedence cycle includes: {current}")
+                break
+            seen.add(current)
+            current = row_by_path[current].get("precedence_parent", "")
+    readme = (DESIGN_INDEX.parent / "README.md").read_text(encoding="utf-8")
+    if "INDEX.md" not in readme or "navigation-only" not in readme:
+        violations.append("design README must identify INDEX.md and navigation-only role")
+    return registry, violations
 
 
 def card_status(path: Path) -> str:
@@ -286,7 +383,13 @@ def serialized(value: dict[str, object]) -> str:
 def main() -> int:
     args = parse_args()
     output = args.output if args.output.is_absolute() else ROOT / args.output
-    actual = serialized(build_inventory())
+    inventory = build_inventory()
+    registry_violations = inventory["design_registry"]["violations"]
+    if registry_violations:
+        for violation in registry_violations:
+            print(f"[repository-artifact-lifecycle] ERROR: {violation}", file=sys.stderr)
+        return 1
+    actual = serialized(inventory)
     if args.write:
         output.parent.mkdir(parents=True, exist_ok=True)
         output.write_text(actual, encoding="utf-8")

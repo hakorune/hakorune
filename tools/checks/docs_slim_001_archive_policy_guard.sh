@@ -20,6 +20,7 @@ STMT_GUARD="tools/checks/k2_wide_clean_stage1_lowering_stmt_split_guard.sh"
 SELF_SCRIPT="tools/checks/docs_slim_001_archive_policy_guard.sh"
 ARTIFACT_INVENTORY="tools/docs/repository_artifact_lifecycle_inventory.py"
 ARTIFACT_MANIFEST="tools/checks/manifests/repository_artifact_lifecycle_v0.json"
+DESIGN_REGISTRY="docs/development/current/main/design/INDEX.md"
 
 echo "[$TAG] running DOCS-SLIM-001 archive policy guard"
 
@@ -39,6 +40,7 @@ guard_require_files \
   "$STMT_GUARD" \
   "$ARTIFACT_INVENTORY" \
   "$ARTIFACT_MANIFEST" \
+  "$DESIGN_REGISTRY" \
   "$SELF_SCRIPT"
 guard_require_exec_files "$TAG" "$SELF_SCRIPT"
 
@@ -90,5 +92,7 @@ fi
 rm -f /tmp/docs_slim_guard_hits.$$
 
 python3 "$ARTIFACT_INVENTORY" --check
+guard_expect_in_file "$TAG" 'design-registry-v0:begin' "$DESIGN_REGISTRY" "typed design registry must exist"
+guard_expect_in_file "$TAG" 'mode = "warning"' "$DESIGN_REGISTRY" "design registry rollout must remain explicit"
 
 echo "[$TAG] ok landed_tail=$tail_count"

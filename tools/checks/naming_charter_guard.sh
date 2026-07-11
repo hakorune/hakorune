@@ -1477,6 +1477,9 @@ NAMING_DIFF_ALLOWED_PATHS=(
   "tools/checks/stage1_program_json_compat_caller_guard.sh"
   "docs/development/selfhosting/quickstart.md"
   "docs/development/current/main/DOCS_LAYOUT.md"
+  # Generated inventory quotes historical filenames; it does not introduce
+  # source or documentation vocabulary.
+  "tools/checks/manifests/repository_artifact_lifecycle_v0.json"
   "docs/tools/check-scripts-index.md"
   "tools/checks/naming_charter_guard.sh"
   "tools/checks/lib/dev_gate_quick_steps.sh"

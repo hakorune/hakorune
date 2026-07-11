@@ -188,6 +188,28 @@ design_registry_decided = 0
 design_file_move_started = 0
 ```
 
+## H3 Accepted Landing
+
+Candidate A is accepted. `design/INDEX.md` now owns typed membership and
+precedence rows. The warning rollout starts with five explicit rows and a
+no-growth backlog baseline.
+
+```text
+registry_mode = warning
+registered_rows = 5
+owned_sidecars = 0
+unregistered_baseline = 844
+unregistered_current = 844
+precedence_cycle_count = 0
+registry_violation_count = 0
+
+README_role = navigation-only
+seed_union_is_authority = 0
+strict_mode = 0
+
+next = H2-TRACE-ROOT-REACHABILITY-INVENTORY
+```
+
 ## Non-Claims
 
 ```text

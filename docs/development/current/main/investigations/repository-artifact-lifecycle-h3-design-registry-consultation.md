@@ -1,8 +1,8 @@
 ---
-Status: Active design consultation stop
+Status: Accepted
 Date: 2026-07-11
 Owner: repository-artifact-lifecycle-current.md
-Decision: pending
+Decision: accepted (Candidate A)
 ---
 
 # H3 Design Authority Registry Consultation
@@ -117,6 +117,29 @@ registry disposition.
    against INDEX.md rather than independently curated?
 ```
 
+## Accepted Answers
+
+```text
+1. INDEX.md is the sole design-root membership and precedence owner.
+   The language charter remains the normative language-law owner.
+
+2. All five roles stay inside the registry:
+     authority
+     navigation
+     supporting
+     status-ledger
+     superseded
+
+3. Every direct design file must have a row before strict mode.
+   Sidecars are owned through the parent row.
+
+4. Rollout is warning-first. Unregistered count may decrease but must not grow.
+
+5. Physical supersession requires superseded_by plus reference closure.
+
+6. README is navigation-only and must be generated or checked against INDEX.
+```
+
 ## Minimum Implementation After Acceptance
 
 ```text
@@ -132,7 +155,7 @@ registry disposition.
 ## Non-Claims
 
 ```text
-design_registry_decided = 0
+design_registry_decided = 1
 design_registry_complete = 0
 seed_union_is_authority = 0
 unseeded_documents_superseded = 0
@@ -141,4 +164,3 @@ strict_design_registry_guard = 0
 failure_outcome_design_accepted = 0
 selfhost_claim = 0
 ```
-

@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Active design consultation stop"
+status = "Active implementation workstream"
 date = "2026-07-11"
 
 active_lane = "REPOSITORY-ARTIFACT-LIFECYCLE cleanup before Failure/Outcome"
@@ -58,14 +58,14 @@ method_anchor = "docs/development/current/main/design/current-docs-archive-polic
 taskboard = "docs/development/current/main/workstreams/repository-artifact-lifecycle-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/repository-artifact-lifecycle-current.md"
 
-latest_card = "repository-artifact-lifecycle-h3-design-registry-consultation"
-latest_card_path = "docs/development/current/main/investigations/repository-artifact-lifecycle-h3-design-registry-consultation.md"
-latest_card_summary = """H1 and H2 mechanical archive work is closed. H3
-measured 848 design files, a 160-file seed pointer union, and 688 unseeded
-files. Authority membership and precedence now require consultation before any
-design document move or strict registry guard."""
+latest_card = "INDEX"
+latest_card_path = "docs/development/current/main/design/INDEX.md"
+latest_card_summary = """H3 accepts an explicit closed design registry. INDEX
+is the sole design-root membership/precedence owner; README is navigation-only.
+Warning rollout begins with five rows and an unregistered no-growth baseline
+of 844 before tracing reachability reopens H2 cluster inventory."""
 
-current_blocker_token = "REPOSITORY-ARTIFACT-LIFECYCLE-H3-DESIGN-AUTHORITY-REGISTRY-DESIGN-STOP"
+current_blocker_token = "REPOSITORY-ARTIFACT-LIFECYCLE-H2-TRACE-ROOT-REACHABILITY-INVENTORY"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
