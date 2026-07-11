@@ -2,11 +2,10 @@
 
 ## Status
 
-Active design consultation stop. Do not change parser, MIR, VM, backend, or
-runtime behavior until one remaining family has a source-owned contract and a
-single enforcement owner.
+Complete. Static Table readonly `u16[]` contract closeout is selected. This is
+not a new semantic activation.
 
-Decision: pending.
+Decision: accepted.
 
 ## Objective
 
@@ -211,6 +210,35 @@ Static table is the cheapest closeout audit. Typed Array is the strongest next
 semantic expansion but requires the explicit A1 BoxShape prerequisite. Weak
 field should follow the absence/null decision or explicitly prove that its
 first slice does not depend on that decision.
+
+## Accepted Selection
+
+```text
+selected_next_family = static_table_contract_closeout
+new_semantic_activation = 0
+implementation_card = LANGV1-STATIC-TABLE-CONTRACT-CLOSEOUT-001
+```
+
+No candidate currently satisfies every completion dimension. Static Table is
+the closest because its source declaration, readonly plan, load operation,
+module verifier, and VM consumer already exist. The implementation card closes
+the missing single owner, refreshed carrier, and central backend preflight.
+
+Static Table, ordinary collections, and typed arrays remain separate semantic
+families. Typed Array is the next expansion candidate only after
+`ARRAY-ELEMENT-WRITE-BOUNDARY-OWNER-001` converges literal/push/set/insert
+without activating a contract.
+
+## Accepted Claims
+
+```text
+next_type_family_selected = 1
+selected_next_type_family = static_table_contract_closeout
+static_table_closeout_design_accepted = 1
+typed_array_selected = 0
+weak_field_selected = 0
+ffi_selected = 0
+```
 
 ## Non-Claims
 

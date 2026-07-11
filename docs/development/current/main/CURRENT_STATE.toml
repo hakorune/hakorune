@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Active design consultation"
+status = "Active implementation"
 date = "2026-07-11"
 
 active_lane = "LANGUAGE-V1-CONVERGENCE semantic contract before selfhost migration"
@@ -33,8 +33,9 @@ runtime value checker. 3491 selects record construction/update under one
 RecordValueContractOwner. 3492 closes the instance-method parameter BindingId
 gap, retires string-based assignment exceptions, and restores FULL 12/12
 grammar parity. 3493 closes the record carrier, VM owner, MIR JSON, and
-unsupported-backend gate. 3494 now selects at most one remaining type-contract
-family from source-owned contract and write-boundary evidence."""
+unsupported-backend gate. 3494 selects Static Table readonly U16 contract
+closeout without new semantic activation. 3495 now closes its source spec,
+derived plan, refreshed carrier, VM consumer, and backend preflight."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
@@ -42,13 +43,13 @@ method_anchor = "docs/development/current/main/design/selfhost-language-v1-freez
 taskboard = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 
-latest_card = "LANGV1-POST-RECORD-TYPE-FAMILY-SELECTION-DESIGN-STOP-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3494-LANGV1-POST-RECORD-TYPE-FAMILY-SELECTION-DESIGN-STOP-001.md"
-latest_card_summary = """3494 is the post-record design stop. It inventories
-remaining source-owned type contracts and selects at most one family with one
-write owner, one carrier, one VM consumer, and one backend capability gate."""
+latest_card = "LANGV1-STATIC-TABLE-CONTRACT-CLOSEOUT-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3495-LANGV1-STATIC-TABLE-CONTRACT-CLOSEOUT-001.md"
+latest_card_summary = """3495 closes the existing readonly U16 Static Table
+contract under one source spec, derived plan, semantic-refresh carrier, VM
+consumer, MIR JSON transport, and central backend capability."""
 
-current_blocker_token = "LANGV1-POST-RECORD-TYPE-FAMILY-SELECTION-DESIGN-STOP-001"
+current_blocker_token = "LANGV1-STATIC-TABLE-CONTRACT-CLOSEOUT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -57,6 +58,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-11: 3494 selects Static Table readonly U16 contract closeout without new activation; 3495 becomes active.",
   "2026-07-11: 3493 closes record construction/update exact-numeric contracts, semantic refresh, VM checks, MIR JSON, and unsupported-backend preflight; 3494 opens the next-family design stop.",
   "2026-07-11: 3492 closes one function-entry BindingId owner, assignment exception retirement, source fixtures, FULL 12/12 parity, and changed-path gate coupling; 3493 becomes active.",
   "2026-07-11: 3491 selects record construction/update under RecordValueContractOwner; 3493 is queued behind the active 3492 FULL-gate prerequisite.",
@@ -68,5 +70,4 @@ landed_tail = [
   "2026-07-11: 3483 accepts FunctionReturnContractOwner, ReturnOutcomeVerifier, RejectVoid/fallthrough, and VM-only exact-numeric return scope; 3484 opens substantive implementation.",
   "2026-07-11: 3482 closes exact-numeric final-callee parameter entry with typed carrier, exact arity, VM checks, MIR JSON, and non-VM preflight; 3483 opens return-exit design consultation.",
   "2026-07-11: 3481 accepts final-callee FunctionEntryContractOwner and VM-only exact-numeric parameter scope; 3482 opens the substantive carrier/runtime/MIR-JSON/backend-preflight implementation.",
-  "2026-07-11: 3480 closes the 11-site guarantee matrix and exact-numeric Box field proof/runtime/backend contract; 3481 opens parameter-entry carrier design consultation.",
 ]
