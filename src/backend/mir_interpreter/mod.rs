@@ -50,6 +50,7 @@ pub struct MirInterpreter {
     // Typed authority lives upstream in `field_decls`; this map remains for
     // legacy runtime consumers and old payload compatibility.
     pub(super) user_box_field_decls: FxHashMap<String, Vec<String>>,
+    pub(super) user_box_typed_field_decls: FxHashMap<String, Vec<crate::mir::UserBoxFieldDecl>>,
     pub(super) enum_decls: BTreeMap<String, crate::mir::MirEnumDecl>,
     pub(super) static_data_plans: Vec<crate::mir::function::StaticDataPlan>,
     // Trace context (dev-only; enabled with NYASH_VM_TRACE=1)
@@ -135,6 +136,7 @@ impl MirInterpreter {
             functions: BTreeMap::new(),
             cur_fn: None,
             user_box_field_decls: FxHashMap::default(),
+            user_box_typed_field_decls: FxHashMap::default(),
             enum_decls: BTreeMap::new(),
             static_data_plans: Vec::new(),
             last_block: None,
@@ -358,6 +360,12 @@ impl MirInterpreter {
         self.functions = module.functions.clone();
         self.refresh_operator_box_flags();
         self.user_box_field_decls = module.metadata.user_box_decls.clone().into_iter().collect();
+        self.user_box_typed_field_decls = module
+            .metadata
+            .user_box_field_decls
+            .clone()
+            .into_iter()
+            .collect();
         self.enum_decls = module.metadata.enum_decls.clone();
         self.static_data_plans = module.metadata.static_data_plans.clone();
 
@@ -482,10 +490,30 @@ impl MirInterpreter {
         func_name: &str,
         args: &[VMValue],
     ) -> Result<VMValue, VMError> {
+        let refreshed = crate::mir::semantic_refresh::refresh_owned_for_boundary(
+            module,
+            crate::mir::ContractRefreshBoundary::VmExecution,
+        )
+        .map_err(VMError::InvalidInstruction)?;
+        self.execute_refreshed_function_with_args(refreshed.module(), func_name, args)
+    }
+
+    fn execute_refreshed_function_with_args(
+        &mut self,
+        module: &MirModule,
+        func_name: &str,
+        args: &[VMValue],
+    ) -> Result<VMValue, VMError> {
         // Snapshot functions for call resolution
         self.functions = module.functions.clone();
         self.refresh_operator_box_flags();
         self.user_box_field_decls = module.metadata.user_box_decls.clone().into_iter().collect();
+        self.user_box_typed_field_decls = module
+            .metadata
+            .user_box_field_decls
+            .clone()
+            .into_iter()
+            .collect();
         self.enum_decls = module.metadata.enum_decls.clone();
         self.static_data_plans = module.metadata.static_data_plans.clone();
 

@@ -17,6 +17,33 @@ pub struct UserBoxFieldDecl {
     pub is_weak: bool,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub struct WeakFieldId {
+    pub box_schema_fingerprint: String,
+    pub field_index: u32,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub struct WeakFieldContractSpec {
+    pub contract_id: String,
+    pub weak_field_id: WeakFieldId,
+    pub diagnostic_box_name: String,
+    pub diagnostic_field_name: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct WeakFieldWriteContract {
+    pub site_id: crate::mir::WeakFieldWriteSiteId,
+    pub contract_id: String,
+    pub base_value_id: crate::mir::ValueId,
+    pub value_id: crate::mir::ValueId,
+    pub box_schema_fingerprint: String,
+    pub field_index: u32,
+    pub runtime_check_required: bool,
+    pub proof_elision_allowed: bool,
+    pub backend_capability_required: String,
+}
+
 /// Declared record inventory carried separately from ordinary user boxes.
 ///
 /// Records are identity-free aggregate contracts. Keeping them out of

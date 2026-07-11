@@ -200,6 +200,19 @@ fn emit_instruction(
             declared_type,
             exact_numeric_runtime_check_for_field_set(func, block, instruction_index, field, value),
         )),
+        I::WeakFieldWrite {
+            site_id,
+            contract_id,
+            base,
+            field_index,
+            value,
+        } => Ok(fields::emit_weak_field_write(
+            site_id,
+            contract_id,
+            base,
+            *field_index,
+            value,
+        )),
         I::VariantMake {
             dst,
             enum_name,

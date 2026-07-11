@@ -2,8 +2,8 @@
 
 ## Status
 
-Active implementation card. Design authority is the accepted decision in
-3500; 3501 closes the required WeakRef value law.
+Complete. Design authority is the accepted decision in 3500; 3501 closes the
+required WeakRef value law.
 
 ## Goal
 
@@ -122,4 +122,22 @@ After closeout, stop for:
 
 ```text
 3503 - LANGV1-WEAK-FIELD-PRODUCT-BACKEND-SELECTION-DESIGN-STOP-001
+```
+
+## Closeout Evidence
+
+```text
+source owner = UserBoxFieldDecl.is_weak -> WeakFieldContractSpec
+write owner = WeakFieldWrite + WeakFieldWriteContract
+runtime owner = WeakFieldRuntime -> declaration-indexed WeakSlotState
+ordinary storage bypass = rejected
+dynamic alias write = runtime layout enforced
+MIR JSON = refreshed spec + carrier + explicit operation
+backend = Rust reference VM only; all other targets reject before effects
+runtime check elision = 0
+legacy FieldSet + Barrier projection = 0
+focused weak-field tests = 13/13 green
+cargo check --features vm-reference = green
+current_state_pointer_guard = green
+LANGV1_GRAMMAR_FULL = 38/38 + 15/15 green
 ```

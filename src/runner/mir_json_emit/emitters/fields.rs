@@ -14,6 +14,23 @@ fn emit_declared_type_json(ty: &Option<MirType>) -> serde_json::Value {
     }
 }
 
+pub(crate) fn emit_weak_field_write(
+    site_id: &crate::mir::WeakFieldWriteSiteId,
+    contract_id: &str,
+    base: &ValueId,
+    field_index: u32,
+    value: &ValueId,
+) -> serde_json::Value {
+    json!({
+        "op": "weak_field_write",
+        "site_id": site_id.0,
+        "contract_id": contract_id,
+        "box": base.as_u32(),
+        "field_index": field_index,
+        "value": value.as_u32(),
+    })
+}
+
 pub(crate) fn emit_field_get(
     dst: &ValueId,
     base: &ValueId,

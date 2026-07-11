@@ -98,6 +98,20 @@ impl MirInterpreter {
                     MirInstruction::ArrayStateContractClaim { contract_id, array } => {
                         self.execute_typed_array_claim_instruction(function, contract_id, *array)?
                     }
+                    MirInstruction::WeakFieldWrite {
+                        site_id,
+                        contract_id,
+                        base,
+                        field_index,
+                        value,
+                    } => self.execute_weak_field_write(
+                        function,
+                        *site_id,
+                        contract_id,
+                        *base,
+                        *field_index,
+                        *value,
+                    )?,
                     MirInstruction::Load { dst, ptr } => self.handle_load(*dst, *ptr)?,
                     MirInstruction::StaticDataLoad {
                         dst,
@@ -245,6 +259,22 @@ impl MirInterpreter {
                 self.execute_record_value_publish(function, contract_id, *dst)?;
             } else if let MirInstruction::ArrayStateContractClaim { contract_id, array } = inst {
                 self.execute_typed_array_claim_instruction(function, contract_id, *array)?;
+            } else if let MirInstruction::WeakFieldWrite {
+                site_id,
+                contract_id,
+                base,
+                field_index,
+                value,
+            } = inst
+            {
+                self.execute_weak_field_write(
+                    function,
+                    *site_id,
+                    contract_id,
+                    *base,
+                    *field_index,
+                    *value,
+                )?;
             } else {
                 self.execute_instruction(inst)?;
             }

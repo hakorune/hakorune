@@ -186,6 +186,17 @@ pub fn format_instruction(
             format!("field.set {}.{} = {}{}", base, field, value, type_suffix)
         }
 
+        MirInstruction::WeakFieldWrite {
+            site_id,
+            contract_id,
+            base,
+            field_index,
+            value,
+        } => format!(
+            "weak_field.write site={} contract={} base={} field_index={} value={}",
+            site_id.0, contract_id, base, field_index, value
+        ),
+
         MirInstruction::VariantMake {
             dst,
             enum_name,

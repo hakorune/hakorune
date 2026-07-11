@@ -18,6 +18,14 @@ pub fn parse_ok_with_unified_members(src: &str) -> ASTNode {
     crate::tests::helpers::env::with_env_var("NYASH_ENABLE_UNIFIED_MEMBERS", "1", || parse_ok(src))
 }
 
+pub fn parse_ok_compat_with_unified_members(src: &str) -> ASTNode {
+    crate::tests::helpers::env::with_env_var("NYASH_ENABLE_UNIFIED_MEMBERS", "1", || {
+        let mut config = crate::parser::ParserBuildConfig::default();
+        config.grammar_profile = crate::parser::GrammarProfile::Compat2025;
+        NyashParser::parse_from_string_with_build_config(src, config).expect("compat parse ok")
+    })
+}
+
 pub fn parse_err_with_unified_members(src: &str) {
     crate::tests::helpers::env::with_env_var("NYASH_ENABLE_UNIFIED_MEMBERS", "1", || {
         NyashParser::parse_from_string(src).expect_err("parse should fail");

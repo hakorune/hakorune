@@ -39,6 +39,15 @@ impl ArrayWriteSiteId {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub struct WeakFieldWriteSiteId(pub u32);
+
+impl WeakFieldWriteSiteId {
+    pub const fn new(id: u32) -> Self {
+        Self(id)
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum ArrayElementWriteKind {
     LiteralAppend,
     Push,
@@ -321,10 +330,7 @@ pub enum MirInstruction {
 
     /// Publication boundary that monotonically claims an Array state contract.
     /// The source spec lives in function metadata and is addressed by id.
-    ArrayStateContractClaim {
-        contract_id: String,
-        array: ValueId,
-    },
+    ArrayStateContractClaim { contract_id: String, array: ValueId },
 
     /// Contract-bound fast memory dialect operation.
     ///
@@ -355,6 +361,15 @@ pub enum MirInstruction {
         field: String,
         value: ValueId,
         declared_type: Option<MirType>,
+    },
+
+    /// Canonical checked publication into a declared Weak field slot.
+    WeakFieldWrite {
+        site_id: WeakFieldWriteSiteId,
+        contract_id: String,
+        base: ValueId,
+        field_index: u32,
+        value: ValueId,
     },
 
     // === Variant Operations ===

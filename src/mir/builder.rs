@@ -80,8 +80,8 @@ mod field_facts; // Field/property receiver facts and declared-type helpers
 mod fields; // field access/assignment lowering split
 mod if_form;
 mod indexing; // indexing expression/assignment lowering
-mod weak_field_validator; // Phase 285A1: Weak field contract validator
-                          // Phase 29bq+: sealing 層中立化
+mod weak_field_write;
+// Phase 29bq+: sealing 層中立化
 use control_flow::edgecfg::api::FragEmitSession;
 mod declaration_indexer; // Phase 29bq+: Declaration indexing (user boxes, static methods)
 mod declaration_order; // Deterministic box-member traversal owner

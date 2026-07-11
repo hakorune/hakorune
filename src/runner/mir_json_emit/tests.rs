@@ -30,6 +30,7 @@ mod string_corridor;
 mod string_direct_set_routes;
 mod thin_entry;
 mod typed_object_exact_slot_routes;
+mod weak_field_contracts;
 
 fn make_function(name: &str, is_entry_point: bool) -> MirFunction {
     let signature = FunctionSignature {

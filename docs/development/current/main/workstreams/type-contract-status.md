@@ -34,7 +34,7 @@ must reject before effects.
 | static table element | readonly U16 closeout in progress | `StaticTableElementContractOwner` |
 | ordinary collection element | `Any` dynamic default | no typed activation |
 | typed `Array<T>` element | seven-type exact-numeric state contract active on the reference VM | `TypedArrayElementContractOwner` |
-| Weak field | builder-local `MirType` check; semantic carrier incomplete | ownership/absence row also constrains semantics |
+| Weak field | runtime checked through a declaration-indexed weak slot | `WeakFieldContractOwner`; product backend remains deferred |
 | FFI ingress/egress | transitional non-guarantee | dedicated FFI boundary decision |
 | backend preservation | capability preflight | representation boundary only |
 
@@ -61,7 +61,7 @@ consumer is already migrated.
 | --- | --- | --- | --- | --- | --- |
 | static table readonly U16 | complete | complete | complete | complete | complete |
 | typed `Array<T>` | complete for seven exact-numeric spellings | complete | complete | complete | complete; unsupported backends reject |
-| Weak field | declaration flag only | builder-local only | incomplete | weak operations only | incomplete |
+| Weak field | complete | complete | complete | complete | complete; unsupported backends reject |
 | FFI | incomplete | incomplete | incomplete | provider-specific | incomplete |
 
 ## Known Debt Queue
@@ -94,6 +94,7 @@ not redefined by this ledger.
 | record value contract | `src/mir/type_contracts/record_value.rs` |
 | static table contract | `src/mir/type_contracts/static_table.rs` |
 | typed Array contract | `src/mir/type_contracts/typed_array.rs`, `src/boxes/array/runtime_contract.rs` |
+| Weak field contract | `src/mir/type_contracts/weak_field.rs`, `src/runtime/weak_field.rs` |
 | runtime type tags/specs | `src/backend/runtime_type_tag.rs`, `src/backend/runtime_type_spec.rs` |
 | VM truthiness/equality | `src/backend/abi_util.rs` |
 | MIR binary operations | `src/backend/mir_interpreter/helpers.rs` |

@@ -465,6 +465,10 @@ fn rewrite_value_uses_in_instruction(instruction: &mut MirInstruction, from: Val
             rewrite_value_use(base, from, to);
             rewrite_value_use(value, from, to);
         }
+        MirInstruction::WeakFieldWrite { base, value, .. } => {
+            rewrite_value_use(base, from, to);
+            rewrite_value_use(value, from, to);
+        }
         MirInstruction::VariantMake { payload, .. } => {
             if let Some(payload) = payload {
                 rewrite_value_use(payload, from, to);

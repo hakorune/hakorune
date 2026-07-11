@@ -39,6 +39,9 @@ fn enforce_refreshed_mir_backend_supported(
     crate::mir::typed_array_backend_capability::enforce_typed_array_backend_supported(
         module, backend,
     )?;
+    crate::mir::weak_field_backend_capability::enforce_weak_field_backend_supported(
+        module, backend,
+    )?;
     crate::mir::array_element_write::enforce_backend_supported(module, backend)
 }
 

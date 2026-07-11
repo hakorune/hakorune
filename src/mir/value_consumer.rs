@@ -94,6 +94,7 @@ fn value_consumer_used_values(inst: &MirInstruction) -> Vec<ValueId> {
         MirInstruction::MemOp { operands, .. } => operands.clone(),
         MirInstruction::FieldGet { base, .. } => vec![*base],
         MirInstruction::FieldSet { base, value, .. } => vec![*base, *value],
+        MirInstruction::WeakFieldWrite { base, value, .. } => vec![*base, *value],
         MirInstruction::VariantMake { payload, .. } => payload.iter().copied().collect(),
         MirInstruction::Call { func, args, .. } => {
             let mut used = Vec::with_capacity(1 + args.len());

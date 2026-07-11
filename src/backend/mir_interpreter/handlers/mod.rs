@@ -124,6 +124,11 @@ impl MirInterpreter {
                     )));
                 }
             }
+            MirInstruction::WeakFieldWrite { .. } => {
+                return Err(self.err_invalid(
+                    "[type/weak_field_contract_refresh_bypass] detached instruction execution",
+                ));
+            }
             MirInstruction::VariantMake {
                 dst,
                 enum_name,

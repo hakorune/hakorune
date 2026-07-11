@@ -3,7 +3,7 @@
 //! Phase 285A1: WeakRef type tracking (even in pure mode)
 //! Barrier operations for memory ordering.
 
-use crate::mir::{BarrierOp, WeakRefOp};
+use crate::mir::WeakRefOp;
 
 impl super::super::MirBuilder {
     pub(in crate::mir::builder) fn emit_weak_new(
@@ -45,25 +45,5 @@ impl super::super::MirBuilder {
             value: weak_ref,
         })?;
         Ok(dst)
-    }
-
-    pub(in crate::mir::builder) fn emit_barrier_read(
-        &mut self,
-        ptr: super::super::ValueId,
-    ) -> Result<(), String> {
-        self.emit_instruction(super::super::MirInstruction::Barrier {
-            op: BarrierOp::Read,
-            ptr,
-        })
-    }
-
-    pub(in crate::mir::builder) fn emit_barrier_write(
-        &mut self,
-        ptr: super::super::ValueId,
-    ) -> Result<(), String> {
-        self.emit_instruction(super::super::MirInstruction::Barrier {
-            op: BarrierOp::Write,
-            ptr,
-        })
     }
 }

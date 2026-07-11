@@ -46,6 +46,7 @@ pub struct InstanceBox {
     field_lookup_cache: Arc<Mutex<Option<(String, NyashValue)>>>,
     init_field_order: Vec<String>,
     weak_fields_union: std::collections::HashSet<String>,
+    declared_weak_fields: Arc<crate::runtime::weak_field::DeclaredWeakFieldStore>,
     in_finalization: Arc<Mutex<bool>>,
 }
 
@@ -64,6 +65,7 @@ impl Clone for InstanceBox {
             field_lookup_cache: Arc::clone(&self.field_lookup_cache),
             init_field_order: self.init_field_order.clone(),
             weak_fields_union: self.weak_fields_union.clone(),
+            declared_weak_fields: Arc::clone(&self.declared_weak_fields),
             in_finalization: Arc::clone(&self.in_finalization),
         }
     }
@@ -72,6 +74,7 @@ impl Clone for InstanceBox {
 impl InstanceBox {
     /// 🎯 統一コンストラクタ - すべてのBox型対応
     pub fn from_any_box(class_name: String, inner: Box<dyn NyashBox>) -> Self {
+        let schema_fingerprint = format!("runtime-builtin:{class_name}");
         Self {
             class_name,
             fields_ng: Arc::new(Mutex::new(HashMap::new())),
@@ -85,6 +88,14 @@ impl InstanceBox {
             field_lookup_cache: Arc::new(Mutex::new(None)),
             init_field_order: Vec::new(),
             weak_fields_union: std::collections::HashSet::new(),
+            declared_weak_fields: Arc::new(
+                crate::runtime::weak_field::DeclaredWeakFieldStore::new(Arc::new(
+                    crate::runtime::weak_field::DeclaredFieldLayout::new(
+                        schema_fingerprint,
+                        Vec::new(),
+                    ),
+                )),
+            ),
             in_finalization: Arc::new(Mutex::new(false)),
         }
     }
@@ -95,16 +106,41 @@ impl InstanceBox {
         fields: Vec<String>,
         methods: HashMap<String, ASTNode>,
     ) -> Self {
+        let schema_fingerprint = format!("runtime-names-only:{class_name}");
+        Self::from_typed_declaration(
+            class_name,
+            fields.into_iter().map(|field| (field, false)).collect(),
+            schema_fingerprint,
+            methods,
+        )
+    }
+
+    pub fn from_typed_declaration(
+        class_name: String,
+        fields: Vec<(String, bool)>,
+        schema_fingerprint: String,
+        methods: HashMap<String, ASTNode>,
+    ) -> Self {
         // Invalidate caches for this class since methods layout may change between runs
         crate::runtime::cache_versions::bump_version(&format!("BoxRef:{}", class_name));
+        let layout = Arc::new(crate::runtime::weak_field::DeclaredFieldLayout::new(
+            schema_fingerprint,
+            fields.clone(),
+        ));
+        let field_names = fields
+            .iter()
+            .map(|(name, _)| name.clone())
+            .collect::<Vec<_>>();
         let mut field_map = HashMap::new();
         // Value fields are initialized in `fields_ng`; box-valued fields populate
         // `box_fields` only when a real handle is assigned.
-        for field in &fields {
-            field_map.insert(field.clone(), NyashValue::Null);
+        for (field, is_weak) in &fields {
+            if !is_weak {
+                field_map.insert(field.clone(), NyashValue::Null);
+            }
         }
         let declared_field_index = Arc::new(
-            fields
+            field_names
                 .iter()
                 .enumerate()
                 .map(|(idx, field)| (field.clone(), idx))
@@ -120,10 +156,16 @@ impl InstanceBox {
             finalized: Arc::new(Mutex::new(false)),
             box_fields: Arc::new(Mutex::new(HashMap::new())),
             declared_field_index,
-            declared_field_values: Arc::new(Mutex::new(vec![NyashValue::Null; fields.len()])),
+            declared_field_values: Arc::new(Mutex::new(vec![NyashValue::Null; field_names.len()])),
             field_lookup_cache: Arc::new(Mutex::new(None)),
-            init_field_order: fields,
-            weak_fields_union: std::collections::HashSet::new(),
+            init_field_order: field_names,
+            weak_fields_union: fields
+                .iter()
+                .filter_map(|(name, is_weak)| is_weak.then_some(name.clone()))
+                .collect(),
+            declared_weak_fields: Arc::new(
+                crate::runtime::weak_field::DeclaredWeakFieldStore::new(layout),
+            ),
             in_finalization: Arc::new(Mutex::new(false)),
         }
     }
@@ -141,15 +183,49 @@ impl InstanceBox {
         init_field_order: Vec<String>,
         weak_fields: Vec<String>,
     ) -> Self {
-        let mut instance = Self::from_declaration(class_name, fields, methods);
+        let weak_set = weak_fields
+            .iter()
+            .cloned()
+            .collect::<std::collections::HashSet<_>>();
+        let mut instance = Self::from_typed_declaration(
+            class_name.clone(),
+            fields
+                .into_iter()
+                .map(|field| {
+                    let is_weak = weak_set.contains(&field);
+                    (field, is_weak)
+                })
+                .collect(),
+            format!("runtime-legacy-weak:{class_name}"),
+            methods,
+        );
         // レガシー互換：init順序とweak fieldsを設定
         instance.init_field_order = init_field_order;
         instance.weak_fields_union = weak_fields.into_iter().collect();
         instance
     }
 
+    pub fn declared_weak_fields(&self) -> &Arc<crate::runtime::weak_field::DeclaredWeakFieldStore> {
+        &self.declared_weak_fields
+    }
+
     /// 🎯 統一フィールドアクセス（NyashValue版）
     pub fn get_field_ng(&self, field_name: &str) -> Option<NyashValue> {
+        if self
+            .declared_weak_fields
+            .layout()
+            .field_index(field_name)
+            .is_some_and(|index| {
+                self.declared_weak_fields
+                    .layout()
+                    .field(index)
+                    .is_some_and(|field| {
+                        field.kind == crate::runtime::weak_field::DeclaredFieldKind::Weak
+                    })
+            })
+        {
+            return None;
+        }
         if let Some(&idx) = self.declared_field_index.get(field_name) {
             if let Some(value) = self.declared_field_values.lock().unwrap().get(idx).cloned() {
                 *self.field_lookup_cache.lock().unwrap() =
@@ -178,6 +254,23 @@ impl InstanceBox {
 
     /// 🎯 統一フィールド設定（NyashValue版）
     pub fn set_field_ng(&self, field_name: String, value: NyashValue) -> Result<(), String> {
+        if self
+            .declared_weak_fields
+            .layout()
+            .field_index(&field_name)
+            .is_some_and(|index| {
+                self.declared_weak_fields
+                    .layout()
+                    .field(index)
+                    .is_some_and(|field| {
+                        field.kind == crate::runtime::weak_field::DeclaredFieldKind::Weak
+                    })
+            })
+        {
+            return Err(format!(
+                "[type/weak_field_contract_runtime_bypass] field={field_name}"
+            ));
+        }
         if let Some(&idx) = self.declared_field_index.get(field_name.as_str()) {
             if let Some(slot) = self.declared_field_values.lock().unwrap().get_mut(idx) {
                 *slot = value.clone();
@@ -242,6 +335,7 @@ impl InstanceBox {
         self.fields_ng.lock().unwrap().clear();
         self.box_fields.lock().unwrap().clear();
         self.declared_field_values.lock().unwrap().clear();
+        self.declared_weak_fields.clear_all();
         self.invalidate_field_lookup_cache();
 
         *finalized = true;
@@ -262,6 +356,13 @@ impl InstanceBox {
 
     pub fn field_names(&self) -> Vec<String> {
         let mut name_set = std::collections::BTreeSet::new();
+        name_set.extend(
+            self.declared_weak_fields
+                .layout()
+                .fields
+                .iter()
+                .map(|field| field.diagnostic_name.clone()),
+        );
         name_set.extend(self.fields_ng.lock().unwrap().keys().cloned());
         name_set.extend(self.box_fields.lock().unwrap().keys().cloned());
         let mut names: Vec<_> = name_set.into_iter().collect();
@@ -337,6 +438,7 @@ impl NyashBox for InstanceBox {
             field_lookup_cache: Arc::clone(&self.field_lookup_cache),
             init_field_order: self.init_field_order.clone(),
             weak_fields_union: self.weak_fields_union.clone(),
+            declared_weak_fields: Arc::clone(&self.declared_weak_fields),
             in_finalization: Arc::clone(&self.in_finalization),
         })
     }
@@ -437,6 +539,23 @@ mod tests {
             instance.get_field_ng("value"),
             Some(NyashValue::Integer(42))
         ));
+    }
+
+    #[test]
+    fn declared_weak_field_rejects_ordinary_storage_bypass() {
+        let instance = InstanceBox::from_typed_declaration(
+            "Node".to_string(),
+            vec![("parent".to_string(), true), ("value".to_string(), false)],
+            "node-schema".to_string(),
+            HashMap::new(),
+        );
+
+        let error = instance
+            .set_field_ng("parent".to_string(), NyashValue::Null)
+            .expect_err("weak fields must not enter ordinary storage");
+        assert!(error.contains("[type/weak_field_contract_runtime_bypass]"));
+        assert_eq!(instance.get_field_ng("parent"), None);
+        assert!(instance.field_names().contains(&"parent".to_string()));
     }
 
     // Box-valued field test（identity-preserving path）.

@@ -13,8 +13,8 @@ mod function_impl;
 mod metadata;
 mod module_impl;
 mod object_metadata;
-mod types;
 mod typed_array_contract;
+mod types;
 
 #[cfg(test)]
 mod tests;
@@ -34,11 +34,6 @@ pub use fastmem::{
     FastMemSameOwnerProofKind, FastMemTableLengthFact, FastMemTableLengthPolicyKind,
 };
 pub use metadata::FunctionMetadata;
-pub use typed_array_contract::{
-    TypedArrayBoundaryValue, TypedArrayContractBoundary, TypedArrayContractDisposition,
-    TypedArrayContractSource, TypedArrayContractSourceIdentity, TypedArrayElementContract,
-    TYPED_ARRAY_EXACT_NUMERIC_CAPABILITY,
-};
 pub use object_metadata::{
     ArrayRecordAutoUseEligibilityPlan, ArrayRecordMaterializationBoundaryPlan,
     ArrayRecordPackedAutoUsePilotPlan, ArrayRecordStorageColumnPlan, ArrayRecordStoragePlan,
@@ -47,7 +42,12 @@ pub use object_metadata::{
     RecordStateFieldAccessPlan, RecordStateResidenceFieldPlan, RecordStateResidencePlan,
     RecordStateResidenceRejectedFieldPlan, SourcePackedArrayAutoUsePilotPlan,
     SourcePackedArrayDirectReadConsumptionPlan, TypedObjectFieldPlan, TypedObjectFieldStorage,
-    TypedObjectPlan, UserBoxFieldDecl,
+    TypedObjectPlan, UserBoxFieldDecl, WeakFieldContractSpec, WeakFieldId, WeakFieldWriteContract,
+};
+pub use typed_array_contract::{
+    TypedArrayBoundaryValue, TypedArrayContractBoundary, TypedArrayContractDisposition,
+    TypedArrayContractSource, TypedArrayContractSourceIdentity, TypedArrayElementContract,
+    TYPED_ARRAY_EXACT_NUMERIC_CAPABILITY,
 };
 pub use types::{
     ArrayElementWriteWitness, ArrayStateTerm, ArrayStateTermId, ArrayStateTermKind, ClosureBodyId,

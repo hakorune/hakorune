@@ -17,8 +17,9 @@ use super::plans::build_string_kernel_plan_json;
 use super::proof_envelope::build_proof_envelopes_json;
 use super::record_contracts::insert_record_contract_metadata_json;
 use super::return_contracts::insert_return_contract_metadata_json;
-use super::typed_array_contracts::insert_typed_array_contract_metadata_json;
 use super::route_metadata::insert_route_metadata_json;
+use super::typed_array_contracts::insert_typed_array_contract_metadata_json;
+use super::weak_field_contracts::insert_weak_field_contract_metadata_json;
 use crate::mir::MirFunction;
 use serde_json::json;
 
@@ -472,6 +473,7 @@ pub(super) fn build_function_metadata_json(f: &MirFunction) -> serde_json::Value
         insert_array_metadata_json(obj, metadata);
         insert_array_write_metadata_json(obj, f);
         insert_typed_array_contract_metadata_json(obj, f);
+        insert_weak_field_contract_metadata_json(obj, f);
         insert_exact_numeric_metadata_json(obj, metadata);
         insert_parameter_contract_metadata_json(obj, metadata);
         insert_return_contract_metadata_json(obj, metadata);

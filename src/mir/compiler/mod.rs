@@ -114,10 +114,8 @@ impl MirCompiler {
 
         let stage_start = Instant::now();
         {
-            let _contracts = refresh_and_validate_for_boundary(
-                &mut module,
-                ContractRefreshBoundary::Verifier,
-            )?;
+            let _contracts =
+                refresh_and_validate_for_boundary(&mut module, ContractRefreshBoundary::Verifier)?;
         }
         super::compile_timing::trace_stage("pre_verify_refresh", stage_start.elapsed());
 

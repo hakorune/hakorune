@@ -51,6 +51,25 @@ pub(super) fn collect_sorted_user_box_decl_values(
         .collect()
 }
 
+pub(super) fn collect_weak_field_contract_spec_values(
+    module: &crate::mir::MirModule,
+) -> Vec<serde_json::Value> {
+    module
+        .metadata
+        .weak_field_contract_specs
+        .iter()
+        .map(|spec| {
+            json!({
+                "contract_id": spec.contract_id,
+                "box_schema_fingerprint": spec.weak_field_id.box_schema_fingerprint,
+                "field_index": spec.weak_field_id.field_index,
+                "diagnostic_box_name": spec.diagnostic_box_name,
+                "diagnostic_field_name": spec.diagnostic_field_name,
+            })
+        })
+        .collect()
+}
+
 pub(super) fn collect_sorted_record_decl_values(
     module: &crate::mir::MirModule,
 ) -> Vec<serde_json::Value> {

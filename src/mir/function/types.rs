@@ -5,6 +5,7 @@ use super::object_metadata::{
     HakoAllocAlignedSmallPackedStorePilotPlan, HakoAllocHugePagePackedStorePilotPlan, RecordDecl,
     RecordLayoutPlan, RecordStateResidencePlan, SourcePackedArrayAutoUsePilotPlan,
     SourcePackedArrayDirectReadConsumptionPlan, TypedObjectPlan, UserBoxFieldDecl,
+    WeakFieldContractSpec,
 };
 use crate::mir::{BasicBlock, BasicBlockId, ConstValue, EffectMask, MirType, ValueId};
 use std::collections::{BTreeMap, HashMap, HashSet};
@@ -301,6 +302,9 @@ pub struct ModuleMetadata {
     /// Typed field declarations for user-defined boxes.
     /// This stays parallel to `user_box_decls` so names-only compatibility remains intact.
     pub user_box_field_decls: HashMap<String, Vec<UserBoxFieldDecl>>,
+
+    /// Source-owned Weak field contracts rebuilt from typed box declarations.
+    pub weak_field_contract_specs: Vec<WeakFieldContractSpec>,
 
     /// Record declarations stay in their own lane until record lowering rows
     /// explicitly consume them.

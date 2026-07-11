@@ -4,7 +4,6 @@ use std::io::Write;
 mod agg_local;
 mod array_metadata;
 mod array_write;
-mod typed_array_contracts;
 mod core_metadata;
 mod decls;
 mod emitters;
@@ -28,6 +27,8 @@ mod route_json;
 mod route_metadata;
 #[cfg(test)]
 mod tests;
+mod typed_array_contracts;
+mod weak_field_contracts;
 
 #[cfg(test)]
 use decls::{

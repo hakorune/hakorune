@@ -132,24 +132,6 @@ impl super::MirBuilder {
 
         self.publish_field_result_origin(field_val, object_value, &field);
 
-        // If the loaded field result has a known box origin and its requested
-        // field is weak, keep WeakRef (+ optional barrier). This must only
-        // consume already-published origin facts; re-lowering nested field
-        // receiver ASTs here would duplicate semantic calls.
-        let inferred_class = self.type_ctx.value_origin_newbox.get(&field_val).cloned();
-        if let Some(class_name) = inferred_class {
-            if self.is_weak_field_on_result_class(&class_name, &field) {
-                let dst = field_val;
-                super::weak_field_validator::WeakFieldValidatorBox::annotate_read_result(
-                    &mut self.type_ctx,
-                    dst,
-                );
-
-                let _ = self.emit_barrier_read(dst);
-                return Ok(dst);
-            }
-        }
-
         Ok(field_val)
     }
 
@@ -202,17 +184,8 @@ impl super::MirBuilder {
         )?;
         let declared_type = self.declared_field_type_for_value(object_value, &field);
 
-        // Phase 285A1: If field is weak, enforce type contract (3 allowed cases)
-        // Delegated to WeakFieldValidatorBox
-        if let Some(class_name) = self.is_weak_field_on_base(object_value, &field) {
-            // Phase 285A1: Strict type check (delegated to validator)
-            let value_type = self.type_ctx.value_types.get(&value_result);
-            super::weak_field_validator::WeakFieldValidatorBox::validate_assignment(
-                value_type,
-                &class_name,
-                &field,
-            )?;
-        }
+        let is_known_weak =
+            self.emit_known_weak_field_write(region, object_value, &field, value_result)?;
 
         if let Some((box_name, field_index, declared_name)) =
             self.declared_field_contract_identity(object_value, &field)
@@ -244,7 +217,9 @@ impl super::MirBuilder {
             }
         }
 
-        if let Some(region) = region {
+        if is_known_weak {
+            // WeakFieldWrite owns validation, publication, and bookkeeping.
+        } else if let Some(region) = region {
             self.emit_fastmem_memop(
                 region,
                 crate::mir::instruction::MemOpKind::FieldStore,
@@ -259,11 +234,6 @@ impl super::MirBuilder {
                 value: value_result,
                 declared_type,
             })?;
-        }
-
-        // Write barrier if weak field
-        if self.is_weak_field_on_base(object_value, &field).is_some() {
-            let _ = self.emit_barrier_write(value_result);
         }
 
         // Record origin class for this field value if known

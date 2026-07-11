@@ -7,14 +7,14 @@ use super::fastmem::{
     FastMemFreeHeadNonEmptyFact, FastMemIndexAccessSite, FastMemLocalFreeNonEmptyFact,
     FastMemRegionMetadata, FastMemRemoteOwnerFact, FastMemSameOwnerFact, FastMemTableLengthFact,
 };
-use super::object_metadata::RecordStateFieldAccessPlan;
+use super::object_metadata::{RecordStateFieldAccessPlan, WeakFieldWriteContract};
+use super::typed_array_contract::{TypedArrayContractSource, TypedArrayElementContract};
 use super::types::{ArrayElementWriteWitness, ArrayStateTerm};
 use super::types::{
     ExactNumericRuntimeCheckContract, LocalIdentityEvidence, LocalSlotContract, MirParamDecl,
     ParameterEntryContract,
 };
 use super::types::{RecordValueContract, ReturnExitContract};
-use super::typed_array_contract::{TypedArrayContractSource, TypedArrayElementContract};
 use crate::mir::{
     agg_local_scalarization::AggLocalScalarizationRoute,
     array_getset_micro_seed_plan::ArrayGetSetMicroSeedRoute,
@@ -596,6 +596,9 @@ pub struct FunctionMetadata {
     /// Source claims and semantic-refresh carriers for invariant Typed Arrays.
     pub typed_array_contract_sources: Vec<TypedArrayContractSource>,
     pub typed_array_element_contracts: Vec<TypedArrayElementContract>,
+
+    /// Refreshed checked publications into declaration-indexed Weak slots.
+    pub weak_field_write_contracts: Vec<WeakFieldWriteContract>,
 
     /// MIR-owned exact numeric facts attached to values after field reads and
     /// conservative copy/control-merge propagation.

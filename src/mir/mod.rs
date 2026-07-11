@@ -172,7 +172,8 @@ pub mod value_kind; // Phase 26-A: ValueId型安全化
 pub mod value_origin; // generic copy-root / alias-root owner (SSOT)
 pub mod value_representation_fact; // per-value runtime representation facts
 pub mod verification;
-pub mod verification_types; // extracted error types // Optimization subpasses (e.g., type_hints) // Phase 25.1f: Loop/If 共通ビュー（ControlForm）
+pub mod verification_types;
+pub(crate) mod weak_field_backend_capability; // extracted error types // Optimization subpasses (e.g., type_hints) // Phase 25.1f: Loop/If 共通ビュー（ControlForm）
 
 // MIR root facade exports. Keep this surface aligned with
 // docs/development/current/main/design/mir-root-facade-contract-ssot.md and
@@ -243,6 +244,7 @@ pub use generic_method_route_plan::{
 };
 pub use instruction::{
     ArrayElementWriteKind, ArrayWriteProducerKind, ArrayWriteSiteId, MirInstruction,
+    WeakFieldWriteSiteId,
 };
 pub use map_lookup_fusion_plan::{
     refresh_function_map_lookup_fusion_routes, refresh_module_map_lookup_fusion_routes,

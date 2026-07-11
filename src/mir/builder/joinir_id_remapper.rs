@@ -96,6 +96,7 @@ impl JoinIrIdRemapper {
             }
             FieldGet { dst, base, .. } => vec![*dst, *base],
             FieldSet { base, value, .. } => vec![*base, *value],
+            WeakFieldWrite { base, value, .. } => vec![*base, *value],
             VariantMake { dst, payload, .. } => {
                 let mut vals = vec![*dst];
                 vals.extend(payload.iter().copied());
@@ -352,6 +353,19 @@ impl JoinIrIdRemapper {
                 field: field.clone(),
                 value: remap(*value),
                 declared_type: declared_type.clone(),
+            },
+            WeakFieldWrite {
+                site_id,
+                contract_id,
+                base,
+                field_index,
+                value,
+            } => WeakFieldWrite {
+                site_id: *site_id,
+                contract_id: contract_id.clone(),
+                base: remap(*base),
+                field_index: *field_index,
+                value: remap(*value),
             },
             VariantMake {
                 dst,

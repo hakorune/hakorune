@@ -93,9 +93,31 @@ impl MirInterpreter {
         // - We must still allow NewBox for user-defined boxes even when plugins are disabled.
         if let Some(fields) = self.user_box_field_decls.get(box_type).cloned() {
             let argv = self.load_args_as_boxes(args)?;
-            let mut instance = crate::instance_v2::InstanceBox::from_declaration(
+            let typed_fields = self
+                .user_box_typed_field_decls
+                .get(box_type)
+                .cloned()
+                .unwrap_or_else(|| {
+                    fields
+                        .iter()
+                        .map(|name| crate::mir::UserBoxFieldDecl {
+                            name: name.clone(),
+                            declared_type_name: None,
+                            is_weak: false,
+                        })
+                        .collect()
+                });
+            let fingerprint = crate::mir::type_contracts::weak_field::box_schema_fingerprint(
+                box_type,
+                &typed_fields,
+            );
+            let mut instance = crate::instance_v2::InstanceBox::from_typed_declaration(
                 box_type.to_string(),
-                fields,
+                typed_fields
+                    .into_iter()
+                    .map(|field| (field.name, field.is_weak))
+                    .collect(),
+                fingerprint,
                 std::collections::HashMap::new(),
             );
             let _ = instance.init(&argv);

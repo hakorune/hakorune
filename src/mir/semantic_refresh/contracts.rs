@@ -23,6 +23,7 @@ pub struct ContractCarrierSummary {
     pub static_tables: usize,
     pub array_writes: usize,
     pub typed_arrays: usize,
+    pub weak_fields: usize,
 }
 
 impl ContractCarrierSummary {
@@ -35,6 +36,7 @@ impl ContractCarrierSummary {
             + self.static_tables
             + self.array_writes
             + self.typed_arrays
+            + self.weak_fields
     }
 }
 
@@ -98,8 +100,12 @@ pub fn refresh_and_validate_for_boundary(
 }
 
 fn refresh_active_contract_carriers(module: &mut MirModule) -> Result<(), String> {
+    crate::mir::type_contracts::weak_field::refresh_module_specs(module)?;
+    let weak_specs = module.metadata.weak_field_contract_specs.clone();
     let record_decls = module.metadata.record_decls.clone();
     for function in module.functions.values_mut() {
+        crate::mir::type_contracts::weak_field::canonicalize_function(function, &weak_specs)?;
+        crate::mir::type_contracts::weak_field::refresh_function(function, &weak_specs)?;
         crate::mir::type_contracts::typed_array::refresh_source_rows(function)
             .map_err(|reason| carrier_validation_error("typed_array", function, reason))?;
         crate::mir::array_element_write::canonicalize_legacy_array_write_calls(function)
@@ -145,9 +151,14 @@ pub fn refresh_owned_for_boundary(
 }
 
 fn validate_refreshed_contracts(module: &MirModule) -> Result<(), String> {
+    crate::mir::type_contracts::weak_field::validate_module_specs(module)?;
     validate_box_field_contracts(module)?;
     crate::mir::type_contracts::static_table::validate_static_table_contracts(module)?;
     for function in module.functions.values() {
+        crate::mir::type_contracts::weak_field::validate_function(
+            function,
+            &module.metadata.weak_field_contract_specs,
+        )?;
         crate::mir::array_element_write::validate_function_array_write_witnesses(function)
             .map_err(|reason| carrier_validation_error("array_write", function, reason))?;
         crate::mir::type_contracts::typed_array::validate_function(function)
@@ -237,6 +248,7 @@ fn collect_carrier_summary(module: &MirModule) -> ContractCarrierSummary {
             .values()
             .map(|function| function.metadata.typed_array_element_contracts.len())
             .sum(),
+        weak_fields: module.metadata.weak_field_contract_specs.len(),
     }
 }
 

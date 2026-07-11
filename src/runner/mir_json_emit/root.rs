@@ -13,6 +13,7 @@ use super::decls::{
     collect_source_packed_array_direct_read_consumption_plan_values,
     collect_static_data_plan_values, collect_static_table_contract_spec_values,
     collect_typed_object_plan_values, collect_verified_static_table_contract_values,
+    collect_weak_field_contract_spec_values,
 };
 use super::emitters;
 use super::helpers;
@@ -168,6 +169,10 @@ pub(super) fn build_mir_json_root(
         (
             "user_box_decls",
             json!(collect_sorted_user_box_decl_values(module)),
+        ),
+        (
+            "weak_field_contract_specs",
+            json!(collect_weak_field_contract_spec_values(module)),
         ),
         (
             "record_decls",

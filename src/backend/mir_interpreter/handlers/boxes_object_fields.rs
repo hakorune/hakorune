@@ -121,6 +121,19 @@ pub(super) fn try_handle_object_fields(
                     .as_any()
                     .downcast_ref::<crate::instance_v2::InstanceBox>()
                 {
+                    if let Some(slot) =
+                        crate::runtime::weak_field::WeakFieldRuntime::read_dynamic(inst, &fname)
+                            .map_err(|reason| this.err_invalid(reason))?
+                    {
+                        let value = match slot {
+                            crate::runtime::weak_field::WeakSlotState::Empty => VMValue::Void,
+                            crate::runtime::weak_field::WeakSlotState::Occupied(weak) => {
+                                VMValue::WeakBox(weak)
+                            }
+                        };
+                        this.write_result(dst, value);
+                        return Ok(true);
+                    }
                     if std::env::var("NYASH_VM_TRACE").ok().as_deref() == Some("1") {
                         crate::runtime::get_global_ring0().log.debug(&format!(
                             "[vm-trace] getField instance class={}",
@@ -483,6 +496,22 @@ pub(super) fn try_handle_object_fields(
                     .as_any()
                     .downcast_ref::<crate::instance_v2::InstanceBox>()
                 {
+                    if inst
+                        .declared_weak_fields()
+                        .layout()
+                        .field_index(&fname)
+                        .and_then(|index| inst.declared_weak_fields().layout().field(index))
+                        .is_some_and(|field| {
+                            field.kind == crate::runtime::weak_field::DeclaredFieldKind::Weak
+                        })
+                    {
+                        let slot = this.weak_slot_value(args[1])?;
+                        crate::runtime::weak_field::WeakFieldRuntime::write_dynamic(
+                            inst, &fname, slot,
+                        )
+                        .map_err(|reason| this.err_invalid(reason))?;
+                        return Ok(true);
+                    }
                     // Primitives → 内部保存
                     if matches!(
                         valv,

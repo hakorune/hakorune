@@ -83,6 +83,7 @@ impl<'m> MirQuery for MirQueryBox<'m> {
             TypeOp { value, .. } => vec![*value],
             FieldGet { base, .. } => vec![*base],
             FieldSet { base, value, .. } => vec![*base, *value],
+            WeakFieldWrite { base, value, .. } => vec![*base, *value],
             VariantMake { payload, .. } => payload.iter().copied().collect(),
             VariantTag { value, .. } | VariantProject { value, .. } => vec![*value],
             Load { ptr, .. } => vec![*ptr],

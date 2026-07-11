@@ -54,6 +54,7 @@ impl MirInstruction {
             | MirInstruction::FieldGet { .. } => EffectMask::READ,
             MirInstruction::Store { .. }
             | MirInstruction::FieldSet { .. }
+            | MirInstruction::WeakFieldWrite { .. }
             | MirInstruction::ArrayElementWrite { .. }
             | MirInstruction::ArrayStateContractClaim { .. } => EffectMask::WRITE,
 
@@ -137,6 +138,7 @@ impl MirInstruction {
 
             MirInstruction::Store { .. }
             | MirInstruction::FieldSet { .. }
+            | MirInstruction::WeakFieldWrite { .. }
             | MirInstruction::Branch { .. }
             | MirInstruction::Jump { .. }
             | MirInstruction::Return { .. }
@@ -249,6 +251,7 @@ impl MirInstruction {
 
             MirInstruction::FieldGet { base, .. } => vec![*base],
             MirInstruction::FieldSet { base, value, .. } => vec![*base, *value],
+            MirInstruction::WeakFieldWrite { base, value, .. } => vec![*base, *value],
             MirInstruction::VariantMake { payload, .. } => payload.iter().copied().collect(),
             MirInstruction::VariantTag { value, .. }
             | MirInstruction::VariantProject { value, .. } => {

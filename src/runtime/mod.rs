@@ -24,8 +24,8 @@ pub mod core_box_ids; // Phase 87: CoreBoxId/CoreMethodId 型安全enum
 pub mod core_method_aliases; // Phase 29ab: Core method alias SSOT
 pub mod core_services; // Phase 91: CoreServices trait 定義
 pub mod deprecations;
-pub mod extern_registry; // ExternCall (env.*) 登録・診断用レジストリ
 pub(crate) mod exact_numeric_contract;
+pub mod extern_registry; // ExternCall (env.*) 登録・診断用レジストリ
 pub mod gc;
 pub mod gc_controller;
 pub mod gc_mode;
@@ -64,6 +64,7 @@ pub mod type_registry;
 pub mod unified_registry;
 // Phase 285LLVM-1: WeakRef Handle レジストリ（bit 63 = 1）
 // Phase 12: TypeId→TypeBox 解決（雛形） / env.modules minimal registry
+pub mod weak_field;
 pub mod weak_handles;
 pub mod weak_ref_value;
 

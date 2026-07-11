@@ -9,6 +9,7 @@ pub fn instruction_tag(inst: &MirInstruction) -> &'static str {
         MirInstruction::Compare { .. } => "Compare",
         MirInstruction::FieldGet { .. } => "FieldGet",
         MirInstruction::FieldSet { .. } => "FieldSet",
+        MirInstruction::WeakFieldWrite { .. } => "WeakFieldWrite",
         MirInstruction::StaticDataLoad { .. } => "StaticDataLoad",
         MirInstruction::ArrayElementWrite { .. } => "ArrayElementWrite",
         MirInstruction::ArrayStateContractClaim { .. } => "ArrayStateContractClaim",
@@ -73,6 +74,7 @@ pub const MIR_INSTRUCTION_KEPT_TAGS: &[&str] = &[
     "FutureSet",
     "FieldGet",
     "FieldSet",
+    "WeakFieldWrite",
     "VariantMake",
     "VariantTag",
     "VariantProject",
@@ -143,6 +145,7 @@ pub fn instruction_diet_cohort(inst: &MirInstruction) -> InstructionDietCohort {
         | MirInstruction::FutureSet { .. }
         | MirInstruction::FieldGet { .. }
         | MirInstruction::FieldSet { .. }
+        | MirInstruction::WeakFieldWrite { .. }
         | MirInstruction::VariantMake { .. }
         | MirInstruction::VariantTag { .. }
         | MirInstruction::VariantProject { .. }
@@ -227,6 +230,7 @@ pub fn is_supported_mir_json_instruction(inst: &MirInstruction) -> bool {
             | MirInstruction::Select { .. }
             | MirInstruction::FieldGet { .. }
             | MirInstruction::FieldSet { .. }
+            | MirInstruction::WeakFieldWrite { .. }
             | MirInstruction::VariantMake { .. }
             | MirInstruction::VariantTag { .. }
             | MirInstruction::VariantProject { .. }
@@ -316,6 +320,7 @@ pub fn llvm_json_ops_for_instruction(inst: &MirInstruction) -> &'static [&'stati
         MirInstruction::ArrayStateContractClaim { .. } => &[],
         MirInstruction::FieldGet { .. } => &["field_get"],
         MirInstruction::FieldSet { .. } => &["field_set"],
+        MirInstruction::WeakFieldWrite { .. } => &["weak_field_write"],
         MirInstruction::VariantMake { .. } => &["variant_make"],
         MirInstruction::VariantTag { .. } => &["variant_tag"],
         MirInstruction::VariantProject { .. } => &["variant_project"],

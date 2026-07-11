@@ -131,8 +131,8 @@ pub(crate) const GUARANTEE_MATRIX: [GuaranteeMatrixRow; 11] = [
     },
     GuaranteeMatrixRow {
         site: AnnotationSite::WeakField,
-        current: GuaranteeClass::VerifierProvenContract,
-        target: GuaranteeClass::VerifierProvenContract,
+        current: GuaranteeClass::RuntimeCheckedContract,
+        target: GuaranteeClass::VerifiedRuntimeGuardedContract,
         owner: EnforcementOwner::WeakFieldContract,
         activation: ActivationScope::ExistingNarrow,
         unsupported_backend: UnsupportedBackendPolicy::RejectBeforeEffects,

@@ -19,6 +19,8 @@ mod record_contracts;
 mod return_contracts;
 mod trace;
 mod typed_array_contracts;
+#[cfg(test)]
+mod weak_field_contracts;
 
 pub(crate) use block::BlockOutcome;
 

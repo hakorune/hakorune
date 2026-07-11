@@ -97,27 +97,4 @@ impl super::MirBuilder {
         self.comp_ctx
             .property_getter_method_name(&class_name, field)
     }
-
-    pub(super) fn is_weak_field_on_base(
-        &self,
-        object_value: ValueId,
-        field: &str,
-    ) -> Option<String> {
-        let class_name = self
-            .type_ctx
-            .value_origin_newbox
-            .get(&object_value)?
-            .clone();
-        self.comp_ctx
-            .weak_fields_by_box
-            .get(&class_name)
-            .and_then(|weak_set| weak_set.contains(field).then_some(class_name))
-    }
-
-    pub(super) fn is_weak_field_on_result_class(&self, class_name: &str, field: &str) -> bool {
-        self.comp_ctx
-            .weak_fields_by_box
-            .get(class_name)
-            .is_some_and(|weak_set| weak_set.contains(field))
-    }
 }

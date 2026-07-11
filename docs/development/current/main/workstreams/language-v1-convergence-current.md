@@ -292,7 +292,9 @@ as 3483; return-exit implementation complete as 3484; local exact-numeric
 owner/boundary consultation accepted as 3485; BindingId prerequisite complete
 as 3486; exact-numeric local semantic implementation complete as 3487; the
 representation/contract-refresh owner decision is accepted as 3488; the
-single-owner BoxShape implementation is active as 3489.
+single-owner BoxShape implementation is complete as 3489. Record, static table,
+typed Array, and Weak field slices are complete through 3502; 3503 is the
+active product-backend selection stop for Weak fields.
 
 Target contract:
 
@@ -353,6 +355,18 @@ T4 complete:
   exact-numeric annotation-island closeout
   parameter + return + Box field + local owner/exhaustiveness audit
   shared value-check semantics, distinct boundary timing
+
+T5 complete through reference semantics:
+  3493 record construction/update contract
+  3495 readonly U16 static-table closeout
+  3497 ArrayElementWrite convergence
+  3499 typed Array exact-numeric state contract
+  3501 WeakRef value-law corrective
+  3502 WeakFieldContractOwner and VM reference consumer
+
+T6 design stop:
+  3503 select defer-with-failfast or one carrier-aware product backend
+  VM remains semantic-reference only and cannot satisfy product parity
   all active carriers covered by unsupported-backend pre-effect rejection
   no new type-family activation
 

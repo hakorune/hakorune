@@ -1,6 +1,7 @@
 use crate::ast::ASTNode;
 use crate::tests::helpers::parser::{
-    find_box, parse_err_with_unified_members, parse_ok_with_unified_members,
+    find_box, parse_err_with_unified_members, parse_ok_compat_with_unified_members,
+    parse_ok_with_unified_members,
 };
 
 #[test]
@@ -37,7 +38,7 @@ box Node {
 
 #[test]
 fn public_weak_field_tracks_visibility_and_weak_metadata() {
-    let ast = parse_ok_with_unified_members(
+    let ast = parse_ok_compat_with_unified_members(
         r#"
 box Node {
   public weak parent: Node
