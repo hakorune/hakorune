@@ -2,8 +2,96 @@
 
 ## Status
 
-Active design consultation stop. Do not change parser, MIR, runtime, backend,
-or acceptance behavior until the questions below are accepted.
+Decision: accepted. The selected design is A + W1 + S1 + R1 with one atomic
+runtime owner and a Rust VM semantic-reference consumer only.
+
+Implementation remains stopped until the WeakRef value-law corrective in the
+task order below closes. Do not combine lifecycle-value correction and Weak
+field activation in one implementation commit.
+
+## Accepted Decision
+
+```text
+semantic owner:
+  WeakFieldContractOwner
+canonical write:
+  WeakFieldWrite
+runtime storage:
+  InstanceBox-owned declaration-indexed WeakSlotState
+empty read:
+  unified absence
+accepted write values:
+  WeakRef or unified absence
+runtime order:
+  resolve declaration identity -> validate runtime value -> publish weak slot
+  -> infallible lifecycle/barrier bookkeeping
+alias law:
+  runtime InstanceBox declaration layout always re-resolves and enforces
+first backend:
+  Rust VM semantic-reference adapter only
+grammar:
+  direct weak field Canonical; visibility/init aliases Compat2025-only
+runtime check elision:
+  forbidden
+```
+
+Lifecycle remains the owner of target token, Alive/Dead/Freed, upgrade, and
+WeakRef equality. `WeakFieldContractOwner` consumes those laws but does not own
+the ownership kernel.
+
+## VM Retirement Boundary
+
+The Rust VM has retired from the product/default mainline, not from the small
+semantic-reference subset. The implementation may add only the minimum
+adapter needed to observe the accepted language law.
+
+```text
+allowed:
+  backend-neutral WeakFieldRuntime owner
+  InstanceBox declaration-indexed weak-slot storage
+  thin vm-reference dispatch from WeakFieldWrite to that owner
+  focused semantic-reference fixtures
+
+forbidden:
+  new VM product route or fallback
+  VM CLI, runner, optimizer, or fast-path widening
+  VM-specific weak storage policy
+  generic obj_fields expansion
+  new proof-only VM smoke families
+  claiming VM success as product/backend completion
+```
+
+EXE/AOT remains product proof. Until a later backend card implements the same
+typed carrier and runtime law, active Weak field contracts fail backend
+preflight before effects. No VM fallback is allowed.
+
+## Implementation Task Order
+
+The consultation response proposed one large 3501. It contains two different
+semantic owners and is split to preserve the one-owner-per-card rule.
+
+```text
+3501 - LANGV1-WEAKREF-VALUE-LAW-CORRECTIVE-001
+  owner: lifecycle / WeakRef value law
+  scope: target-token equality, Dead/Freed upgrade, strict WeakRef.Load
+  non-claim: weak_field_contract_activation = 0
+
+3502 - LANGV1-WEAK-FIELD-CONTRACT-OWNER-001
+  owner: WeakFieldContractOwner
+  prerequisite: 3501 green
+  scope:
+    source spec and schema fingerprint
+    declaration-indexed WeakSlotState
+    WeakFieldWrite and refreshed carrier
+    alias-complete backend-neutral runtime owner
+    thin vm-reference adapter and MIR JSON
+    non-VM backend fail-fast
+
+3503 - LANGV1-WEAK-FIELD-PRODUCT-BACKEND-SELECTION-DESIGN-STOP-001
+  prerequisite: 3502 closeout
+  purpose: select the first EXE/AOT consumer
+  guard: existing LLVM WeakRef handles do not prove Weak field contracts
+```
 
 ## Trigger
 
