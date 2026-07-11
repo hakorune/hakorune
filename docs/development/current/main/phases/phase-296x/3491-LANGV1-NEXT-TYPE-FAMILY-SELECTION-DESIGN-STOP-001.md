@@ -2,8 +2,9 @@
 
 ## Status
 
-Active design consultation stop. Do not activate record or typed-Array
-contracts until this decision is accepted.
+Pending design consultation stop behind 3492 parameter BindingId corrective.
+Do not activate record or typed-Array contracts until this decision is
+accepted and the prerequisite FULL gate is green.
 
 Decision: pending.
 

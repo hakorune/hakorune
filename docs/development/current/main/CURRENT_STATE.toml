@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Active design consultation"
+status = "Active corrective prerequisite"
 date = "2026-07-11"
 
 active_lane = "LANGUAGE-V1-CONVERGENCE semantic contract before selfhost migration"
@@ -30,7 +30,9 @@ representation-fact boundary. 3489 closes the facade, consumer bypass guards,
 representation inventory, and mutable status ledger. 3490 audits the four
 active exact-numeric boundaries. 3490 closes the four-owner island and shared
 runtime value checker. 3491 stops to select record construction/update or typed
-Array element as the only next contract family."""
+Array element as the only next contract family. The FULL grammar gate exposes
+an instance-method parameter BindingId gap, so 3492 fixes the single identity
+owner and gate coupling before 3491 resumes."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/README.md"
 phase_status = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
@@ -38,14 +40,15 @@ method_anchor = "docs/development/current/main/design/selfhost-language-v1-freez
 taskboard = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 
-latest_card = "LANGV1-NEXT-TYPE-FAMILY-SELECTION-DESIGN-STOP-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3491-LANGV1-NEXT-TYPE-FAMILY-SELECTION-DESIGN-STOP-001.md"
-latest_card_summary = """3490 closes the four exact-numeric owners, shared
-runtime checker, refresh boundary, and backend fail-fast matrix. 3491 selects
-exactly one next family between record construction/update and typed Array
-elements; record is the evidence-backed recommendation."""
+latest_card = "LANGV1-PARAMETER-BINDING-IDENTITY-CORRECTIVE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3492-LANGV1-PARAMETER-BINDING-IDENTITY-CORRECTIVE-001.md"
+latest_card_summary = """The FULL grammar differential batch fails before
+Hako witness projection because instance parameter reassignment lacks a
+BindingId. 3492 unifies static/instance/receiver parameter identity, retires
+assignment exceptions, adds the missing fixture, and couples sensitive changes
+to the FULL gate before returning to 3491."""
 
-current_blocker_token = "LANGV1-NEXT-TYPE-FAMILY-SELECTION-DESIGN-STOP-001"
+current_blocker_token = "LANGV1-PARAMETER-BINDING-IDENTITY-CORRECTIVE-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -54,9 +57,9 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-11: FULL differential composition exposes an instance-parameter BindingId gap; 3492 opens a stop-the-line identity corrective before 3491 resumes.",
   "2026-07-11: 3490 closes the four-owner exact-numeric island and shared runtime checker; 3491 opens record-vs-typed-Array type-family selection.",
   "2026-07-11: 3489 closes the semantic_refresh facade, public consumer convergence, representation inventory, and types status-ledger split; 3490 opens exact-numeric island closeout.",
-  "2026-07-11: 3488 accepts semantic_refresh as the sole carrier refresh owner and the one-way representation boundary; 3489 opens the BoxShape implementation.",
   "2026-07-11: 3486 closes LocalSlotId(BindingId), the atomic declaration API, value/binding snapshots, CorePlan local routing, and ScopeBox identity restoration; 3487 opens exact-numeric local contract activation.",
   "2026-07-11: 3484 closes exact-numeric final-return carrier, verifier, VM owner, MIR JSON, and backend preflight; 3485 opens the local-slot identity/write-boundary design stop.",
   "2026-07-11: 3483 accepts FunctionReturnContractOwner, ReturnOutcomeVerifier, RejectVoid/fallthrough, and VM-only exact-numeric return scope; 3484 opens substantive implementation.",

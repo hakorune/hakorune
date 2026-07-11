@@ -358,6 +358,8 @@ T4 complete:
 
 T5 active:
   3491 record construction/update vs typed Array element design stop
+  3492 stop-the-line parameter BindingId corrective precedes the decision
+  FULL differential batch must return 12/12 before 3491 resumes
   choose record construction or typed Array element contract from evidence
   require producer + owner + runtime consumer + JSON carrier + backend gate
   select exactly one family in a design consultation after T4
