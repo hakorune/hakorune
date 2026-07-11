@@ -13,7 +13,7 @@ Current progress:
 ```text
 S0_relation_ssot = complete
 S1_source_evidence_queue = complete
-S1_semantic_classification = pending
+S1_semantic_classification = in_progress
 S2_runtime_provider_inventory = pending
 S3_control_flow_inventory = pending
 S4_exhaustiveness_checker = pending
@@ -226,6 +226,18 @@ deterministic 602-row evidence queue over `src` and `docs/reference`. The rows
 retain source location and evidence kind, but semantic fields remain pending;
 this is intentional and does not claim exhaustive semantic classification.
 
+The first classification batch covers 50 explicit reference rows:
+
+```text
+optional_absence = 29 (Option::None)
+recoverable_failure = 21 (Result::Err)
+pending_rows = 552
+runtime_or_parser_inference = 0
+```
+
+Implementation evidence and test expectations remain pending because they do
+not independently establish semantic ownership.
+
 ## Next Task
 
 ```text
@@ -256,6 +268,7 @@ exist:
 ```text
 failure_outcome_relation_spec_implemented = 1
 failure_outcome_evidence_queue_implemented = 1
+failure_outcome_reference_classification_implemented = 1
 failure_outcome_site_inventory_implemented = 0
 failure_outcome_semantic_classification_complete = 0
 failure_outcome_exhaustiveness_checker_implemented = 0

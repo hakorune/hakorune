@@ -49,6 +49,7 @@
   "rows": [
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "- Null\u306fVM\u5185\u90e8\u3067Void\u306b\u6298\u308a\u305f\u305f\u307f\uff08`Const Null \u2192 VMValue::Void`\uff09\u3002",
       "evidence_kind": "runtime_value_carrier",
@@ -66,6 +67,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "weak_to_strong",
       "evidence": "- **WeakRef\uff08WeakBox\uff09** - \u5f31\u53c2\u7167\uff08\u89b3\u6e2c\u306f `weak_to_strong()`\u3002\u8a00\u8a9eSSOT: `docs/reference/language/lifecycle.md`\uff09",
       "evidence_kind": "weak_upgrade_surface",
@@ -83,6 +85,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "weak_to_strong",
       "evidence": "- **\u89b3\u6e2c\u306fweak_to_strong**: \u53c2\u7167\u5148\u304c Dead/Freed \u306e\u5834\u5408\u3001`weak_to_strong()` \u306f `null` \u3092\u8fd4\u3059",
       "evidence_kind": "weak_upgrade_surface",
@@ -100,6 +103,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "weak_to_strong",
       "evidence": "// 3) weak\u53c2\u7167\u306f weak_to_strong() \u3067\u89b3\u6e2c\u3057\u3001\u5931\u52b9\u6642\u306f null\uff08=void/none\uff09\u3092\u8fd4\u3059",
       "evidence_kind": "weak_upgrade_surface",
@@ -117,6 +121,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "postfix_catch",
       "evidence": "- Tests (v2): see `tools/smokes/v2` and `src/tests/parser_expr_postfix_catch.rs` (legacy paths removed)",
       "evidence_kind": "catch_profile_surface",
@@ -133,75 +138,80 @@
       "target_carrier": ""
     },
     {
-      "backend_policy": "",
+      "backend_policy": "reference_only",
+      "classification_source": "reference_relation_default",
       "current_carrier": "Option::None",
       "evidence": "RESULT-001. They use qualified constructors such as `Option::None` and",
       "evidence_kind": "option_constructor",
       "layer": "reference",
       "line": 258,
-      "migration_action": "",
-      "owner": "",
+      "migration_action": "relation_only",
+      "owner": "OptionValueOwner",
       "profile": "canonical",
-      "review_status": "pending",
-      "semantic_class": "",
+      "review_status": "classified",
+      "semantic_class": "optional_absence",
       "site_id": "docs/reference/language/EBNF.md:258:Option::None",
       "source_path": "docs/reference/language/EBNF.md",
       "surface_or_symbol": "Option::None",
-      "target_carrier": ""
+      "target_carrier": "Option::None"
     },
     {
-      "backend_policy": "",
+      "backend_policy": "reference_only",
+      "classification_source": "reference_relation_default",
       "current_carrier": "Result::Err",
       "evidence": "local r: Result<Handle, AllocError> = Result::Err(AllocError::ZeroSize)",
       "evidence_kind": "result_constructor",
       "layer": "reference",
       "line": 678,
-      "migration_action": "",
-      "owner": "",
+      "migration_action": "relation_only",
+      "owner": "ResultValueOwner",
       "profile": "canonical",
-      "review_status": "pending",
-      "semantic_class": "",
+      "review_status": "classified",
+      "semantic_class": "recoverable_failure",
       "site_id": "docs/reference/language/EBNF.md:678:Result::Err",
       "source_path": "docs/reference/language/EBNF.md",
       "surface_or_symbol": "Result::Err",
-      "target_carrier": ""
+      "target_carrier": "Result::Err"
     },
     {
-      "backend_policy": "",
+      "backend_policy": "reference_only",
+      "classification_source": "reference_relation_default",
       "current_carrier": "Option::None",
       "evidence": "Option::None",
       "evidence_kind": "option_constructor",
       "layer": "reference",
       "line": 711,
-      "migration_action": "",
-      "owner": "",
+      "migration_action": "relation_only",
+      "owner": "OptionValueOwner",
       "profile": "canonical",
-      "review_status": "pending",
-      "semantic_class": "",
+      "review_status": "classified",
+      "semantic_class": "optional_absence",
       "site_id": "docs/reference/language/EBNF.md:711:Option::None",
       "source_path": "docs/reference/language/EBNF.md",
       "surface_or_symbol": "Option::None",
-      "target_carrier": ""
+      "target_carrier": "Option::None"
     },
     {
-      "backend_policy": "",
+      "backend_policy": "reference_only",
+      "classification_source": "reference_relation_default",
       "current_carrier": "Result::Err",
       "evidence": "Result::Err(reason)",
       "evidence_kind": "result_constructor",
       "layer": "reference",
       "line": 713,
-      "migration_action": "",
-      "owner": "",
+      "migration_action": "relation_only",
+      "owner": "ResultValueOwner",
       "profile": "canonical",
-      "review_status": "pending",
-      "semantic_class": "",
+      "review_status": "classified",
+      "semantic_class": "recoverable_failure",
       "site_id": "docs/reference/language/EBNF.md:713:Result::Err",
       "source_path": "docs/reference/language/EBNF.md",
       "surface_or_symbol": "Result::Err",
-      "target_carrier": ""
+      "target_carrier": "Result::Err"
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "postfix_catch",
       "evidence": "postfix_catch      := primary_expr 'catch' ( '(' ( IDENT IDENT | IDENT )? ')' )? block",
       "evidence_kind": "catch_profile_surface",
@@ -218,517 +228,548 @@
       "target_carrier": ""
     },
     {
-      "backend_policy": "",
+      "backend_policy": "reference_only",
+      "classification_source": "reference_relation_default",
       "current_carrier": "Result::Err",
       "evidence": "# current: Result::Ok(...) / Result::Err(...) + guard / match",
       "evidence_kind": "result_constructor",
       "layer": "reference",
       "line": 392,
-      "migration_action": "",
-      "owner": "",
+      "migration_action": "relation_only",
+      "owner": "ResultValueOwner",
       "profile": "canonical",
-      "review_status": "pending",
-      "semantic_class": "",
+      "review_status": "classified",
+      "semantic_class": "recoverable_failure",
       "site_id": "docs/reference/language/LANGUAGE_REFERENCE_2025.md:392:Result::Err",
       "source_path": "docs/reference/language/LANGUAGE_REFERENCE_2025.md",
       "surface_or_symbol": "Result::Err",
-      "target_carrier": ""
+      "target_carrier": "Result::Err"
     },
     {
-      "backend_policy": "",
+      "backend_policy": "reference_only",
+      "classification_source": "reference_relation_default",
       "current_carrier": "Result::Err",
       "evidence": "surface is `Result<T,E>` with `Result::Ok(...)` / `Result::Err(...)`.",
       "evidence_kind": "result_constructor",
       "layer": "reference",
       "line": 928,
-      "migration_action": "",
-      "owner": "",
+      "migration_action": "relation_only",
+      "owner": "ResultValueOwner",
       "profile": "canonical",
-      "review_status": "pending",
-      "semantic_class": "",
+      "review_status": "classified",
+      "semantic_class": "recoverable_failure",
       "site_id": "docs/reference/language/LANGUAGE_REFERENCE_2025.md:928:Result::Err",
       "source_path": "docs/reference/language/LANGUAGE_REFERENCE_2025.md",
       "surface_or_symbol": "Result::Err",
-      "target_carrier": ""
+      "target_carrier": "Result::Err"
     },
     {
-      "backend_policy": "",
+      "backend_policy": "reference_only",
+      "classification_source": "reference_relation_default",
       "current_carrier": "Option::None",
       "evidence": "`Fault` is not catchable in Canonical v1. `Result::Err` and `Option::None`",
       "evidence_kind": "option_constructor",
       "layer": "reference",
       "line": 115,
-      "migration_action": "",
-      "owner": "",
+      "migration_action": "relation_only",
+      "owner": "OptionValueOwner",
       "profile": "canonical",
-      "review_status": "pending",
-      "semantic_class": "",
+      "review_status": "classified",
+      "semantic_class": "optional_absence",
       "site_id": "docs/reference/language/failure-outcome-relations.md:115:Option::None",
       "source_path": "docs/reference/language/failure-outcome-relations.md",
       "surface_or_symbol": "Option::None",
-      "target_carrier": ""
+      "target_carrier": "Option::None"
     },
     {
-      "backend_policy": "",
+      "backend_policy": "reference_only",
+      "classification_source": "reference_relation_default",
       "current_carrier": "Result::Err",
       "evidence": "`Fault` is not catchable in Canonical v1. `Result::Err` and `Option::None`",
       "evidence_kind": "result_constructor",
       "layer": "reference",
       "line": 115,
-      "migration_action": "",
-      "owner": "",
+      "migration_action": "relation_only",
+      "owner": "ResultValueOwner",
       "profile": "canonical",
-      "review_status": "pending",
-      "semantic_class": "",
+      "review_status": "classified",
+      "semantic_class": "recoverable_failure",
       "site_id": "docs/reference/language/failure-outcome-relations.md:115:Result::Err",
       "source_path": "docs/reference/language/failure-outcome-relations.md",
       "surface_or_symbol": "Result::Err",
-      "target_carrier": ""
+      "target_carrier": "Result::Err"
     },
     {
-      "backend_policy": "",
+      "backend_policy": "reference_only",
+      "classification_source": "reference_relation_default",
       "current_carrier": "Option::None",
       "evidence": "dead/freed target  -> Option::None",
       "evidence_kind": "option_constructor",
       "layer": "reference",
       "line": 140,
-      "migration_action": "",
-      "owner": "",
+      "migration_action": "relation_only",
+      "owner": "OptionValueOwner",
       "profile": "canonical",
-      "review_status": "pending",
-      "semantic_class": "",
+      "review_status": "classified",
+      "semantic_class": "optional_absence",
       "site_id": "docs/reference/language/failure-outcome-relations.md:140:Option::None",
       "source_path": "docs/reference/language/failure-outcome-relations.md",
       "surface_or_symbol": "Option::None",
-      "target_carrier": ""
+      "target_carrier": "Option::None"
     },
     {
-      "backend_policy": "",
+      "backend_policy": "reference_only",
+      "classification_source": "reference_relation_default",
       "current_carrier": "Option::None",
       "evidence": "empty weak slot    -> Option::None",
       "evidence_kind": "option_constructor",
       "layer": "reference",
       "line": 141,
-      "migration_action": "",
-      "owner": "",
+      "migration_action": "relation_only",
+      "owner": "OptionValueOwner",
       "profile": "canonical",
-      "review_status": "pending",
-      "semantic_class": "",
+      "review_status": "classified",
+      "semantic_class": "optional_absence",
       "site_id": "docs/reference/language/failure-outcome-relations.md:141:Option::None",
       "source_path": "docs/reference/language/failure-outcome-relations.md",
       "surface_or_symbol": "Option::None",
-      "target_carrier": ""
+      "target_carrier": "Option::None"
     },
     {
-      "backend_policy": "",
+      "backend_policy": "reference_only",
+      "classification_source": "reference_relation_default",
       "current_carrier": "Option::None",
       "evidence": "Option::None:",
       "evidence_kind": "option_constructor",
       "layer": "reference",
       "line": 17,
-      "migration_action": "",
-      "owner": "",
+      "migration_action": "relation_only",
+      "owner": "OptionValueOwner",
       "profile": "canonical",
-      "review_status": "pending",
-      "semantic_class": "",
+      "review_status": "classified",
+      "semantic_class": "optional_absence",
       "site_id": "docs/reference/language/failure-outcome-relations.md:17:Option::None",
       "source_path": "docs/reference/language/failure-outcome-relations.md",
       "surface_or_symbol": "Option::None",
-      "target_carrier": ""
+      "target_carrier": "Option::None"
     },
     {
-      "backend_policy": "",
+      "backend_policy": "reference_only",
+      "classification_source": "reference_relation_default",
       "current_carrier": "Result::Err",
       "evidence": "Result::Err(E):",
       "evidence_kind": "result_constructor",
       "layer": "reference",
       "line": 26,
-      "migration_action": "",
-      "owner": "",
+      "migration_action": "relation_only",
+      "owner": "ResultValueOwner",
       "profile": "canonical",
-      "review_status": "pending",
-      "semantic_class": "",
+      "review_status": "classified",
+      "semantic_class": "recoverable_failure",
       "site_id": "docs/reference/language/failure-outcome-relations.md:26:Result::Err",
       "source_path": "docs/reference/language/failure-outcome-relations.md",
       "surface_or_symbol": "Result::Err",
-      "target_carrier": ""
+      "target_carrier": "Result::Err"
     },
     {
-      "backend_policy": "",
+      "backend_policy": "reference_only",
+      "classification_source": "reference_relation_default",
       "current_carrier": "Option::None",
       "evidence": "The canonical source spelling for `Unit` is `void`. `Option::None` and",
       "evidence_kind": "option_constructor",
       "layer": "reference",
       "line": 34,
-      "migration_action": "",
-      "owner": "",
+      "migration_action": "relation_only",
+      "owner": "OptionValueOwner",
       "profile": "canonical",
-      "review_status": "pending",
-      "semantic_class": "",
+      "review_status": "classified",
+      "semantic_class": "optional_absence",
       "site_id": "docs/reference/language/failure-outcome-relations.md:34:Option::None",
       "source_path": "docs/reference/language/failure-outcome-relations.md",
       "surface_or_symbol": "Option::None",
-      "target_carrier": ""
+      "target_carrier": "Option::None"
     },
     {
-      "backend_policy": "",
+      "backend_policy": "reference_only",
+      "classification_source": "reference_relation_default",
       "current_carrier": "Result::Err",
       "evidence": "`Result::Err` are distinct enum values; neither is an alias for `void`, `null`,",
       "evidence_kind": "result_constructor",
       "layer": "reference",
       "line": 35,
-      "migration_action": "",
-      "owner": "",
+      "migration_action": "relation_only",
+      "owner": "ResultValueOwner",
       "profile": "canonical",
-      "review_status": "pending",
-      "semantic_class": "",
+      "review_status": "classified",
+      "semantic_class": "recoverable_failure",
       "site_id": "docs/reference/language/failure-outcome-relations.md:35:Result::Err",
       "source_path": "docs/reference/language/failure-outcome-relations.md",
       "surface_or_symbol": "Result::Err",
-      "target_carrier": ""
+      "target_carrier": "Result::Err"
     },
     {
-      "backend_policy": "",
+      "backend_policy": "reference_only",
+      "classification_source": "reference_relation_default",
       "current_carrier": "Option::None",
       "evidence": "| successful no-result | `Unit` / `void` | `Option::None`, `Result::Err`, `Fault` |",
       "evidence_kind": "option_constructor",
       "layer": "reference",
       "line": 68,
-      "migration_action": "",
-      "owner": "",
+      "migration_action": "relation_only",
+      "owner": "OptionValueOwner",
       "profile": "canonical",
-      "review_status": "pending",
-      "semantic_class": "",
+      "review_status": "classified",
+      "semantic_class": "optional_absence",
       "site_id": "docs/reference/language/failure-outcome-relations.md:68:Option::None",
       "source_path": "docs/reference/language/failure-outcome-relations.md",
       "surface_or_symbol": "Option::None",
-      "target_carrier": ""
+      "target_carrier": "Option::None"
     },
     {
-      "backend_policy": "",
+      "backend_policy": "reference_only",
+      "classification_source": "reference_relation_default",
       "current_carrier": "Result::Err",
       "evidence": "| successful no-result | `Unit` / `void` | `Option::None`, `Result::Err`, `Fault` |",
       "evidence_kind": "result_constructor",
       "layer": "reference",
       "line": 68,
-      "migration_action": "",
-      "owner": "",
+      "migration_action": "relation_only",
+      "owner": "ResultValueOwner",
       "profile": "canonical",
-      "review_status": "pending",
-      "semantic_class": "",
+      "review_status": "classified",
+      "semantic_class": "recoverable_failure",
       "site_id": "docs/reference/language/failure-outcome-relations.md:68:Result::Err",
       "source_path": "docs/reference/language/failure-outcome-relations.md",
       "surface_or_symbol": "Result::Err",
-      "target_carrier": ""
+      "target_carrier": "Result::Err"
     },
     {
-      "backend_policy": "",
+      "backend_policy": "reference_only",
+      "classification_source": "reference_relation_default",
       "current_carrier": "Option::None",
       "evidence": "| optional absence | `Option::None` | `Unit`, `Result::Err`, `Fault` |",
       "evidence_kind": "option_constructor",
       "layer": "reference",
       "line": 69,
-      "migration_action": "",
-      "owner": "",
+      "migration_action": "relation_only",
+      "owner": "OptionValueOwner",
       "profile": "canonical",
-      "review_status": "pending",
-      "semantic_class": "",
+      "review_status": "classified",
+      "semantic_class": "optional_absence",
       "site_id": "docs/reference/language/failure-outcome-relations.md:69:Option::None",
       "source_path": "docs/reference/language/failure-outcome-relations.md",
       "surface_or_symbol": "Option::None",
-      "target_carrier": ""
+      "target_carrier": "Option::None"
     },
     {
-      "backend_policy": "",
+      "backend_policy": "reference_only",
+      "classification_source": "reference_relation_default",
       "current_carrier": "Result::Err",
       "evidence": "| optional absence | `Option::None` | `Unit`, `Result::Err`, `Fault` |",
       "evidence_kind": "result_constructor",
       "layer": "reference",
       "line": 69,
-      "migration_action": "",
-      "owner": "",
+      "migration_action": "relation_only",
+      "owner": "ResultValueOwner",
       "profile": "canonical",
-      "review_status": "pending",
-      "semantic_class": "",
+      "review_status": "classified",
+      "semantic_class": "recoverable_failure",
       "site_id": "docs/reference/language/failure-outcome-relations.md:69:Result::Err",
       "source_path": "docs/reference/language/failure-outcome-relations.md",
       "surface_or_symbol": "Result::Err",
-      "target_carrier": ""
+      "target_carrier": "Result::Err"
     },
     {
-      "backend_policy": "",
+      "backend_policy": "reference_only",
+      "classification_source": "reference_relation_default",
       "current_carrier": "Option::None",
       "evidence": "| optional presence | `Option::Some(T)` | `Unit`, `Option::None` |",
       "evidence_kind": "option_constructor",
       "layer": "reference",
       "line": 70,
-      "migration_action": "",
-      "owner": "",
+      "migration_action": "relation_only",
+      "owner": "OptionValueOwner",
       "profile": "canonical",
-      "review_status": "pending",
-      "semantic_class": "",
+      "review_status": "classified",
+      "semantic_class": "optional_absence",
       "site_id": "docs/reference/language/failure-outcome-relations.md:70:Option::None",
       "source_path": "docs/reference/language/failure-outcome-relations.md",
       "surface_or_symbol": "Option::None",
-      "target_carrier": ""
+      "target_carrier": "Option::None"
     },
     {
-      "backend_policy": "",
+      "backend_policy": "reference_only",
+      "classification_source": "reference_relation_default",
       "current_carrier": "Option::None",
       "evidence": "| recoverable failure | `Result::Err(E)` | `Option::None`, `Fault`, `Unit` |",
       "evidence_kind": "option_constructor",
       "layer": "reference",
       "line": 71,
-      "migration_action": "",
-      "owner": "",
+      "migration_action": "relation_only",
+      "owner": "OptionValueOwner",
       "profile": "canonical",
-      "review_status": "pending",
-      "semantic_class": "",
+      "review_status": "classified",
+      "semantic_class": "optional_absence",
       "site_id": "docs/reference/language/failure-outcome-relations.md:71:Option::None",
       "source_path": "docs/reference/language/failure-outcome-relations.md",
       "surface_or_symbol": "Option::None",
-      "target_carrier": ""
+      "target_carrier": "Option::None"
     },
     {
-      "backend_policy": "",
+      "backend_policy": "reference_only",
+      "classification_source": "reference_relation_default",
       "current_carrier": "Result::Err",
       "evidence": "| recoverable failure | `Result::Err(E)` | `Option::None`, `Fault`, `Unit` |",
       "evidence_kind": "result_constructor",
       "layer": "reference",
       "line": 71,
-      "migration_action": "",
-      "owner": "",
+      "migration_action": "relation_only",
+      "owner": "ResultValueOwner",
       "profile": "canonical",
-      "review_status": "pending",
-      "semantic_class": "",
+      "review_status": "classified",
+      "semantic_class": "recoverable_failure",
       "site_id": "docs/reference/language/failure-outcome-relations.md:71:Result::Err",
       "source_path": "docs/reference/language/failure-outcome-relations.md",
       "surface_or_symbol": "Result::Err",
-      "target_carrier": ""
+      "target_carrier": "Result::Err"
     },
     {
-      "backend_policy": "",
+      "backend_policy": "reference_only",
+      "classification_source": "reference_relation_default",
       "current_carrier": "Result::Err",
       "evidence": "| successful value result | `Result::Ok(T)` | `Unit`, `Result::Err` |",
       "evidence_kind": "result_constructor",
       "layer": "reference",
       "line": 72,
-      "migration_action": "",
-      "owner": "",
+      "migration_action": "relation_only",
+      "owner": "ResultValueOwner",
       "profile": "canonical",
-      "review_status": "pending",
-      "semantic_class": "",
+      "review_status": "classified",
+      "semantic_class": "recoverable_failure",
       "site_id": "docs/reference/language/failure-outcome-relations.md:72:Result::Err",
       "source_path": "docs/reference/language/failure-outcome-relations.md",
       "surface_or_symbol": "Result::Err",
-      "target_carrier": ""
+      "target_carrier": "Result::Err"
     },
     {
-      "backend_policy": "",
+      "backend_policy": "reference_only",
+      "classification_source": "reference_relation_default",
       "current_carrier": "Option::None",
       "evidence": "| foreign null observation | `ForeignNull` | `Unit`, `Option::None`, `CompatNull` |",
       "evidence_kind": "option_constructor",
       "layer": "reference",
       "line": 75,
-      "migration_action": "",
-      "owner": "",
+      "migration_action": "relation_only",
+      "owner": "OptionValueOwner",
       "profile": "canonical",
-      "review_status": "pending",
-      "semantic_class": "",
+      "review_status": "classified",
+      "semantic_class": "optional_absence",
       "site_id": "docs/reference/language/failure-outcome-relations.md:75:Option::None",
       "source_path": "docs/reference/language/failure-outcome-relations.md",
       "surface_or_symbol": "Option::None",
-      "target_carrier": ""
+      "target_carrier": "Option::None"
     },
     {
-      "backend_policy": "",
+      "backend_policy": "reference_only",
+      "classification_source": "reference_relation_default",
       "current_carrier": "Option::None",
       "evidence": "| compatibility null | `CompatNull` | canonical `Unit`, `Option::None` |",
       "evidence_kind": "option_constructor",
       "layer": "reference",
       "line": 76,
-      "migration_action": "",
-      "owner": "",
+      "migration_action": "relation_only",
+      "owner": "OptionValueOwner",
       "profile": "canonical",
-      "review_status": "pending",
-      "semantic_class": "",
+      "review_status": "classified",
+      "semantic_class": "optional_absence",
       "site_id": "docs/reference/language/failure-outcome-relations.md:76:Option::None",
       "source_path": "docs/reference/language/failure-outcome-relations.md",
       "surface_or_symbol": "Option::None",
-      "target_carrier": ""
+      "target_carrier": "Option::None"
     },
     {
-      "backend_policy": "",
+      "backend_policy": "reference_only",
+      "classification_source": "reference_relation_default",
       "current_carrier": "Result::Err",
       "evidence": "Fault -> Result::Err",
       "evidence_kind": "result_constructor",
       "layer": "reference",
       "line": 84,
-      "migration_action": "",
-      "owner": "",
+      "migration_action": "relation_only",
+      "owner": "ResultValueOwner",
       "profile": "canonical",
-      "review_status": "pending",
-      "semantic_class": "",
+      "review_status": "classified",
+      "semantic_class": "recoverable_failure",
       "site_id": "docs/reference/language/failure-outcome-relations.md:84:Result::Err",
       "source_path": "docs/reference/language/failure-outcome-relations.md",
       "surface_or_symbol": "Result::Err",
-      "target_carrier": ""
+      "target_carrier": "Result::Err"
     },
     {
-      "backend_policy": "",
+      "backend_policy": "reference_only",
+      "classification_source": "reference_relation_default",
       "current_carrier": "Option::None",
       "evidence": "Fault -> Option::None",
       "evidence_kind": "option_constructor",
       "layer": "reference",
       "line": 85,
-      "migration_action": "",
-      "owner": "",
+      "migration_action": "relation_only",
+      "owner": "OptionValueOwner",
       "profile": "canonical",
-      "review_status": "pending",
-      "semantic_class": "",
+      "review_status": "classified",
+      "semantic_class": "optional_absence",
       "site_id": "docs/reference/language/failure-outcome-relations.md:85:Option::None",
       "source_path": "docs/reference/language/failure-outcome-relations.md",
       "surface_or_symbol": "Option::None",
-      "target_carrier": ""
+      "target_carrier": "Option::None"
     },
     {
-      "backend_policy": "",
+      "backend_policy": "reference_only",
+      "classification_source": "reference_relation_default",
       "current_carrier": "Result::Err",
       "evidence": "Result::Err -> Fault",
       "evidence_kind": "result_constructor",
       "layer": "reference",
       "line": 87,
-      "migration_action": "",
-      "owner": "",
+      "migration_action": "relation_only",
+      "owner": "ResultValueOwner",
       "profile": "canonical",
-      "review_status": "pending",
-      "semantic_class": "",
+      "review_status": "classified",
+      "semantic_class": "recoverable_failure",
       "site_id": "docs/reference/language/failure-outcome-relations.md:87:Result::Err",
       "source_path": "docs/reference/language/failure-outcome-relations.md",
       "surface_or_symbol": "Result::Err",
-      "target_carrier": ""
+      "target_carrier": "Result::Err"
     },
     {
-      "backend_policy": "",
+      "backend_policy": "reference_only",
+      "classification_source": "reference_relation_default",
       "current_carrier": "Option::None",
       "evidence": "Result::Err -> Option::None",
       "evidence_kind": "option_constructor",
       "layer": "reference",
       "line": 88,
-      "migration_action": "",
-      "owner": "",
+      "migration_action": "relation_only",
+      "owner": "OptionValueOwner",
       "profile": "canonical",
-      "review_status": "pending",
-      "semantic_class": "",
+      "review_status": "classified",
+      "semantic_class": "optional_absence",
       "site_id": "docs/reference/language/failure-outcome-relations.md:88:Option::None",
       "source_path": "docs/reference/language/failure-outcome-relations.md",
       "surface_or_symbol": "Option::None",
-      "target_carrier": ""
+      "target_carrier": "Option::None"
     },
     {
-      "backend_policy": "",
+      "backend_policy": "reference_only",
+      "classification_source": "reference_relation_default",
       "current_carrier": "Result::Err",
       "evidence": "Result::Err -> Option::None",
       "evidence_kind": "result_constructor",
       "layer": "reference",
       "line": 88,
-      "migration_action": "",
-      "owner": "",
+      "migration_action": "relation_only",
+      "owner": "ResultValueOwner",
       "profile": "canonical",
-      "review_status": "pending",
-      "semantic_class": "",
+      "review_status": "classified",
+      "semantic_class": "recoverable_failure",
       "site_id": "docs/reference/language/failure-outcome-relations.md:88:Result::Err",
       "source_path": "docs/reference/language/failure-outcome-relations.md",
       "surface_or_symbol": "Result::Err",
-      "target_carrier": ""
+      "target_carrier": "Result::Err"
     },
     {
-      "backend_policy": "",
+      "backend_policy": "reference_only",
+      "classification_source": "reference_relation_default",
       "current_carrier": "Option::None",
       "evidence": "Option::None -> Unit",
       "evidence_kind": "option_constructor",
       "layer": "reference",
       "line": 89,
-      "migration_action": "",
-      "owner": "",
+      "migration_action": "relation_only",
+      "owner": "OptionValueOwner",
       "profile": "canonical",
-      "review_status": "pending",
-      "semantic_class": "",
+      "review_status": "classified",
+      "semantic_class": "optional_absence",
       "site_id": "docs/reference/language/failure-outcome-relations.md:89:Option::None",
       "source_path": "docs/reference/language/failure-outcome-relations.md",
       "surface_or_symbol": "Option::None",
-      "target_carrier": ""
+      "target_carrier": "Option::None"
     },
     {
-      "backend_policy": "",
+      "backend_policy": "reference_only",
+      "classification_source": "reference_relation_default",
       "current_carrier": "Option::None",
       "evidence": "Unit -> Option::None",
       "evidence_kind": "option_constructor",
       "layer": "reference",
       "line": 90,
-      "migration_action": "",
-      "owner": "",
+      "migration_action": "relation_only",
+      "owner": "OptionValueOwner",
       "profile": "canonical",
-      "review_status": "pending",
-      "semantic_class": "",
+      "review_status": "classified",
+      "semantic_class": "optional_absence",
       "site_id": "docs/reference/language/failure-outcome-relations.md:90:Option::None",
       "source_path": "docs/reference/language/failure-outcome-relations.md",
       "surface_or_symbol": "Option::None",
-      "target_carrier": ""
+      "target_carrier": "Option::None"
     },
     {
-      "backend_policy": "",
+      "backend_policy": "reference_only",
+      "classification_source": "reference_relation_default",
       "current_carrier": "Option::None",
       "evidence": "backend zero/null/missing payload -> Option::None",
       "evidence_kind": "option_constructor",
       "layer": "reference",
       "line": 92,
-      "migration_action": "",
-      "owner": "",
+      "migration_action": "relation_only",
+      "owner": "OptionValueOwner",
       "profile": "canonical",
-      "review_status": "pending",
-      "semantic_class": "",
+      "review_status": "classified",
+      "semantic_class": "optional_absence",
       "site_id": "docs/reference/language/failure-outcome-relations.md:92:Option::None",
       "source_path": "docs/reference/language/failure-outcome-relations.md",
       "surface_or_symbol": "Option::None",
-      "target_carrier": ""
+      "target_carrier": "Option::None"
     },
     {
-      "backend_policy": "",
+      "backend_policy": "reference_only",
+      "classification_source": "reference_relation_default",
       "current_carrier": "Option::None",
       "evidence": "foreign nullable success + native null -> Option::None",
       "evidence_kind": "option_constructor",
       "layer": "reference",
       "line": 98,
-      "migration_action": "",
-      "owner": "",
+      "migration_action": "relation_only",
+      "owner": "OptionValueOwner",
       "profile": "canonical",
-      "review_status": "pending",
-      "semantic_class": "",
+      "review_status": "classified",
+      "semantic_class": "optional_absence",
       "site_id": "docs/reference/language/failure-outcome-relations.md:98:Option::None",
       "source_path": "docs/reference/language/failure-outcome-relations.md",
       "surface_or_symbol": "Option::None",
-      "target_carrier": ""
+      "target_carrier": "Option::None"
     },
     {
-      "backend_policy": "",
+      "backend_policy": "reference_only",
+      "classification_source": "reference_relation_default",
       "current_carrier": "Result::Err",
       "evidence": "foreign error status + declared result mapping -> Result::Err",
       "evidence_kind": "result_constructor",
       "layer": "reference",
       "line": 99,
-      "migration_action": "",
-      "owner": "",
+      "migration_action": "relation_only",
+      "owner": "ResultValueOwner",
       "profile": "canonical",
-      "review_status": "pending",
-      "semantic_class": "",
+      "review_status": "classified",
+      "semantic_class": "recoverable_failure",
       "site_id": "docs/reference/language/failure-outcome-relations.md:99:Result::Err",
       "source_path": "docs/reference/language/failure-outcome-relations.md",
       "surface_or_symbol": "Result::Err",
-      "target_carrier": ""
+      "target_carrier": "Result::Err"
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "weak_to_strong",
       "evidence": "- Weak-to-strong conversion (may fail): `weak_to_strong()`.",
       "evidence_kind": "weak_upgrade_surface",
@@ -746,6 +787,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "weak_to_strong",
       "evidence": "- `weakRef.weak_to_strong()` returns the target box if it is usable, otherwise `null` (none).",
       "evidence_kind": "weak_upgrade_surface",
@@ -763,6 +805,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "weak_to_strong",
       "evidence": "local x = w.weak_to_strong()",
       "evidence_kind": "weak_upgrade_surface",
@@ -780,6 +823,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "weak_to_strong",
       "evidence": "- They require a runtime liveness mechanism (e.g., an `Rc/Weak`-style control block) so that \u201cweak_to_strong\u201d can succeed/fail safely.",
       "evidence_kind": "weak_upgrade_surface",
@@ -797,6 +841,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "weak_to_strong",
       "evidence": "| WeakRef (`weak <expr>`, `weak_to_strong()`) | \u2705 | \u2705 LLVM harness (Phase 285LLVM-1.4) | \u274c unsupported |",
       "evidence_kind": "weak_upgrade_surface",
@@ -814,6 +859,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "weak_to_strong",
       "evidence": "- **WeakRef** (Phase 285A0+): VM backend fully supports `weak <expr>` and `weak_to_strong()`. LLVM harness also supports this surface as of Phase 285LLVM-1.4.",
       "evidence_kind": "weak_upgrade_surface",
@@ -831,6 +877,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "weak_to_strong",
       "evidence": "WeakRef behavior (weak_to_strong must fail safely):",
       "evidence_kind": "weak_upgrade_surface",
@@ -848,6 +895,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "weak_to_strong",
       "evidence": "local y = w.weak_to_strong()",
       "evidence_kind": "weak_upgrade_surface",
@@ -864,245 +912,260 @@
       "target_carrier": ""
     },
     {
-      "backend_policy": "",
+      "backend_policy": "reference_only",
+      "classification_source": "reference_relation_default",
       "current_carrier": "Option::None",
       "evidence": "`Option::Some` / `Result::Ok` / `Result::Err` require one payload. `Option::None`",
       "evidence_kind": "option_constructor",
       "layer": "reference",
       "line": 102,
-      "migration_action": "",
-      "owner": "",
+      "migration_action": "relation_only",
+      "owner": "OptionValueOwner",
       "profile": "canonical",
-      "review_status": "pending",
-      "semantic_class": "",
+      "review_status": "classified",
+      "semantic_class": "optional_absence",
       "site_id": "docs/reference/language/option.md:102:Option::None",
       "source_path": "docs/reference/language/option.md",
       "surface_or_symbol": "Option::None",
-      "target_carrier": ""
+      "target_carrier": "Option::None"
     },
     {
-      "backend_policy": "",
+      "backend_policy": "reference_only",
+      "classification_source": "reference_relation_default",
       "current_carrier": "Result::Err",
       "evidence": "`Option::Some` / `Result::Ok` / `Result::Err` require one payload. `Option::None`",
       "evidence_kind": "result_constructor",
       "layer": "reference",
       "line": 102,
-      "migration_action": "",
-      "owner": "",
+      "migration_action": "relation_only",
+      "owner": "ResultValueOwner",
       "profile": "canonical",
-      "review_status": "pending",
-      "semantic_class": "",
+      "review_status": "classified",
+      "semantic_class": "recoverable_failure",
       "site_id": "docs/reference/language/option.md:102:Result::Err",
       "source_path": "docs/reference/language/option.md",
       "surface_or_symbol": "Result::Err",
-      "target_carrier": ""
+      "target_carrier": "Result::Err"
     },
     {
-      "backend_policy": "",
+      "backend_policy": "reference_only",
+      "classification_source": "reference_relation_default",
       "current_carrier": "Result::Err",
       "evidence": "initializers such as `local err = Result::Err(\"bad\")` and",
       "evidence_kind": "result_constructor",
       "layer": "reference",
       "line": 108,
-      "migration_action": "",
-      "owner": "",
+      "migration_action": "relation_only",
+      "owner": "ResultValueOwner",
       "profile": "canonical",
-      "review_status": "pending",
-      "semantic_class": "",
+      "review_status": "classified",
+      "semantic_class": "recoverable_failure",
       "site_id": "docs/reference/language/option.md:108:Result::Err",
       "source_path": "docs/reference/language/option.md",
       "surface_or_symbol": "Result::Err",
-      "target_carrier": ""
+      "target_carrier": "Result::Err"
     },
     {
-      "backend_policy": "",
+      "backend_policy": "reference_only",
+      "classification_source": "reference_relation_default",
       "current_carrier": "Option::None",
       "evidence": "`local empty = Option::None` fail with `[enum/expected-type][prelude]`.",
       "evidence_kind": "option_constructor",
       "layer": "reference",
       "line": 109,
-      "migration_action": "",
-      "owner": "",
+      "migration_action": "relation_only",
+      "owner": "OptionValueOwner",
       "profile": "canonical",
-      "review_status": "pending",
-      "semantic_class": "",
+      "review_status": "classified",
+      "semantic_class": "optional_absence",
       "site_id": "docs/reference/language/option.md:109:Option::None",
       "source_path": "docs/reference/language/option.md",
       "surface_or_symbol": "Option::None",
-      "target_carrier": ""
+      "target_carrier": "Option::None"
     },
     {
-      "backend_policy": "",
+      "backend_policy": "reference_only",
+      "classification_source": "reference_relation_default",
       "current_carrier": "Option::None",
       "evidence": "- `Option::None` is not `null`.",
       "evidence_kind": "option_constructor",
       "layer": "reference",
       "line": 113,
-      "migration_action": "",
-      "owner": "",
+      "migration_action": "relation_only",
+      "owner": "OptionValueOwner",
       "profile": "canonical",
-      "review_status": "pending",
-      "semantic_class": "",
+      "review_status": "classified",
+      "semantic_class": "optional_absence",
       "site_id": "docs/reference/language/option.md:113:Option::None",
       "source_path": "docs/reference/language/option.md",
       "surface_or_symbol": "Option::None",
-      "target_carrier": ""
+      "target_carrier": "Option::None"
     },
     {
-      "backend_policy": "",
+      "backend_policy": "reference_only",
+      "classification_source": "reference_relation_default",
       "current_carrier": "Option::None",
       "evidence": "- do not compare `Option::None` with `null` as a substitute for matching",
       "evidence_kind": "option_constructor",
       "layer": "reference",
       "line": 131,
-      "migration_action": "",
-      "owner": "",
+      "migration_action": "relation_only",
+      "owner": "OptionValueOwner",
       "profile": "canonical",
-      "review_status": "pending",
-      "semantic_class": "",
+      "review_status": "classified",
+      "semantic_class": "optional_absence",
       "site_id": "docs/reference/language/option.md:131:Option::None",
       "source_path": "docs/reference/language/option.md",
       "surface_or_symbol": "Option::None",
-      "target_carrier": ""
+      "target_carrier": "Option::None"
     },
     {
-      "backend_policy": "",
+      "backend_policy": "reference_only",
+      "classification_source": "reference_relation_default",
       "current_carrier": "Option::None",
       "evidence": "explicit `Option::Some(...)`, `Option::None`, and `match`.",
       "evidence_kind": "option_constructor",
       "layer": "reference",
       "line": 163,
-      "migration_action": "",
-      "owner": "",
+      "migration_action": "relation_only",
+      "owner": "OptionValueOwner",
       "profile": "canonical",
-      "review_status": "pending",
-      "semantic_class": "",
+      "review_status": "classified",
+      "semantic_class": "optional_absence",
       "site_id": "docs/reference/language/option.md:163:Option::None",
       "source_path": "docs/reference/language/option.md",
       "surface_or_symbol": "Option::None",
-      "target_carrier": ""
+      "target_carrier": "Option::None"
     },
     {
-      "backend_policy": "",
+      "backend_policy": "reference_only",
+      "classification_source": "reference_relation_default",
       "current_carrier": "Option::None",
       "evidence": "local b: Option<i64> = Option::None",
       "evidence_kind": "option_constructor",
       "layer": "reference",
       "line": 62,
-      "migration_action": "",
-      "owner": "",
+      "migration_action": "relation_only",
+      "owner": "OptionValueOwner",
       "profile": "canonical",
-      "review_status": "pending",
-      "semantic_class": "",
+      "review_status": "classified",
+      "semantic_class": "optional_absence",
       "site_id": "docs/reference/language/option.md:62:Option::None",
       "source_path": "docs/reference/language/option.md",
       "surface_or_symbol": "Option::None",
-      "target_carrier": ""
+      "target_carrier": "Option::None"
     },
     {
-      "backend_policy": "",
+      "backend_policy": "reference_only",
+      "classification_source": "reference_relation_default",
       "current_carrier": "Result::Err",
       "evidence": "local err: Result<i64, String> = Result::Err(\"bad\")",
       "evidence_kind": "result_constructor",
       "layer": "reference",
       "line": 64,
-      "migration_action": "",
-      "owner": "",
+      "migration_action": "relation_only",
+      "owner": "ResultValueOwner",
       "profile": "canonical",
-      "review_status": "pending",
-      "semantic_class": "",
+      "review_status": "classified",
+      "semantic_class": "recoverable_failure",
       "site_id": "docs/reference/language/option.md:64:Result::Err",
       "source_path": "docs/reference/language/option.md",
       "surface_or_symbol": "Result::Err",
-      "target_carrier": ""
+      "target_carrier": "Result::Err"
     },
     {
-      "backend_policy": "",
+      "backend_policy": "reference_only",
+      "classification_source": "reference_relation_default",
       "current_carrier": "Result::Err",
       "evidence": "return Result::Err(\"bad\")",
       "evidence_kind": "result_constructor",
       "layer": "reference",
       "line": 89,
-      "migration_action": "",
-      "owner": "",
+      "migration_action": "relation_only",
+      "owner": "ResultValueOwner",
       "profile": "canonical",
-      "review_status": "pending",
-      "semantic_class": "",
+      "review_status": "classified",
+      "semantic_class": "recoverable_failure",
       "site_id": "docs/reference/language/option.md:89:Result::Err",
       "source_path": "docs/reference/language/option.md",
       "surface_or_symbol": "Result::Err",
-      "target_carrier": ""
+      "target_carrier": "Result::Err"
     },
     {
-      "backend_policy": "",
+      "backend_policy": "reference_only",
+      "classification_source": "reference_relation_default",
       "current_carrier": "Option::None",
       "evidence": "such as `Option::None` or `Result::Err`.",
       "evidence_kind": "option_constructor",
       "layer": "reference",
       "line": 99,
-      "migration_action": "",
-      "owner": "",
+      "migration_action": "relation_only",
+      "owner": "OptionValueOwner",
       "profile": "canonical",
-      "review_status": "pending",
-      "semantic_class": "",
+      "review_status": "classified",
+      "semantic_class": "optional_absence",
       "site_id": "docs/reference/language/option.md:99:Option::None",
       "source_path": "docs/reference/language/option.md",
       "surface_or_symbol": "Option::None",
-      "target_carrier": ""
+      "target_carrier": "Option::None"
     },
     {
-      "backend_policy": "",
+      "backend_policy": "reference_only",
+      "classification_source": "reference_relation_default",
       "current_carrier": "Result::Err",
       "evidence": "such as `Option::None` or `Result::Err`.",
       "evidence_kind": "result_constructor",
       "layer": "reference",
       "line": 99,
-      "migration_action": "",
-      "owner": "",
+      "migration_action": "relation_only",
+      "owner": "ResultValueOwner",
       "profile": "canonical",
-      "review_status": "pending",
-      "semantic_class": "",
+      "review_status": "classified",
+      "semantic_class": "recoverable_failure",
       "site_id": "docs/reference/language/option.md:99:Result::Err",
       "source_path": "docs/reference/language/option.md",
       "surface_or_symbol": "Result::Err",
-      "target_carrier": ""
+      "target_carrier": "Result::Err"
     },
     {
-      "backend_policy": "",
+      "backend_policy": "reference_only",
+      "classification_source": "reference_relation_default",
       "current_carrier": "Option::None",
       "evidence": "- `local opt: Option<T> = Option::Some(v)` / `Option::None`",
       "evidence_kind": "option_constructor",
       "layer": "reference",
       "line": 92,
-      "migration_action": "",
-      "owner": "",
+      "migration_action": "relation_only",
+      "owner": "OptionValueOwner",
       "profile": "canonical",
-      "review_status": "pending",
-      "semantic_class": "",
+      "review_status": "classified",
+      "semantic_class": "optional_absence",
       "site_id": "docs/reference/language/quick-reference.md:92:Option::None",
       "source_path": "docs/reference/language/quick-reference.md",
       "surface_or_symbol": "Option::None",
-      "target_carrier": ""
+      "target_carrier": "Option::None"
     },
     {
-      "backend_policy": "",
+      "backend_policy": "reference_only",
+      "classification_source": "reference_relation_default",
       "current_carrier": "Result::Err",
       "evidence": "- `local res: Result<T,E> = Result::Ok(v)` / `Result::Err(e)`",
       "evidence_kind": "result_constructor",
       "layer": "reference",
       "line": 93,
-      "migration_action": "",
-      "owner": "",
+      "migration_action": "relation_only",
+      "owner": "ResultValueOwner",
       "profile": "canonical",
-      "review_status": "pending",
-      "semantic_class": "",
+      "review_status": "classified",
+      "semantic_class": "recoverable_failure",
       "site_id": "docs/reference/language/quick-reference.md:93:Result::Err",
       "source_path": "docs/reference/language/quick-reference.md",
       "surface_or_symbol": "Result::Err",
-      "target_carrier": ""
+      "target_carrier": "Result::Err"
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "weak_to_strong",
       "evidence": "- `WeakRef.weak_to_strong()` returns `null` on failure (i.e., `void` / none).",
       "evidence_kind": "weak_upgrade_surface",
@@ -1119,41 +1182,44 @@
       "target_carrier": ""
     },
     {
-      "backend_policy": "",
+      "backend_policy": "reference_only",
+      "classification_source": "reference_relation_default",
       "current_carrier": "Option::None",
       "evidence": "- constructors use `Type::Variant`, for example `Option::None` and",
       "evidence_kind": "option_constructor",
       "layer": "reference",
       "line": 317,
-      "migration_action": "",
-      "owner": "",
+      "migration_action": "relation_only",
+      "owner": "OptionValueOwner",
       "profile": "canonical",
-      "review_status": "pending",
-      "semantic_class": "",
+      "review_status": "classified",
+      "semantic_class": "optional_absence",
       "site_id": "docs/reference/language/types.md:317:Option::None",
       "source_path": "docs/reference/language/types.md",
       "surface_or_symbol": "Option::None",
-      "target_carrier": ""
+      "target_carrier": "Option::None"
     },
     {
-      "backend_policy": "",
+      "backend_policy": "reference_only",
+      "classification_source": "reference_relation_default",
       "current_carrier": "Option::None",
       "evidence": "- `Option::None` is not `null`.",
       "evidence_kind": "option_constructor",
       "layer": "reference",
       "line": 322,
-      "migration_action": "",
-      "owner": "",
+      "migration_action": "relation_only",
+      "owner": "OptionValueOwner",
       "profile": "canonical",
-      "review_status": "pending",
-      "semantic_class": "",
+      "review_status": "classified",
+      "semantic_class": "optional_absence",
       "site_id": "docs/reference/language/types.md:322:Option::None",
       "source_path": "docs/reference/language/types.md",
       "surface_or_symbol": "Option::None",
-      "target_carrier": ""
+      "target_carrier": "Option::None"
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "BoxRef(MissingBox)",
       "evidence": "- `Void` is treated as equal to `BoxRef(VoidBox)` and `BoxRef(MissingBox)` for backward compatibility.",
       "evidence_kind": "null_like_box",
@@ -1171,6 +1237,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "weak_to_strong",
       "evidence": "\u3053\u308c\u3089\u306f \u201c\u6700\u9069\u5316\u306e\u305f\u3081\u306e\u5bff\u547d\u201d \u3067\u306f\u306a\u304f\u3001\u8a00\u8a9e\u306e binding scope / explicit drop \u3068 weak \u89b3\u6e2c\uff08`weak_to_strong()`\uff09\u306e\u6574\u5408\u3092\u4fdd\u3064\u305f\u3081\u306e\u547d\u4ee4\u3002",
       "evidence_kind": "weak_upgrade_surface",
@@ -1188,6 +1255,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "weak_to_strong",
       "evidence": "local c = parent.child_weak.weak_to_strong()",
       "evidence_kind": "weak_upgrade_surface",
@@ -1205,6 +1273,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "assert!(!eq_vm(&first, &VMValue::Void));",
       "evidence_kind": "runtime_value_carrier",
@@ -1222,6 +1291,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "VMValue::Void => Err(\"Void in boolean context\".to_string()),",
       "evidence_kind": "runtime_value_carrier",
@@ -1239,6 +1309,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "BoxRef(MissingBox)",
       "evidence": "// Treat BoxRef(NullBox/VoidBox/MissingBox) as equal to runtime Void for compatibility.",
       "evidence_kind": "null_like_box",
@@ -1256,6 +1327,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "BoxRef(MissingBox)",
       "evidence": ".downcast_ref::<crate::boxes::missing_box::MissingBox>()",
       "evidence_kind": "null_like_box",
@@ -1273,6 +1345,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "BoxRef(MissingBox)",
       "evidence": ".downcast_ref::<crate::boxes::missing_box::MissingBox>()",
       "evidence_kind": "null_like_box",
@@ -1290,6 +1363,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "VMValue::Void",
       "evidence_kind": "runtime_value_carrier",
@@ -1307,6 +1381,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "let v = args.get(i).cloned().unwrap_or(VMValue::Void);",
       "evidence_kind": "runtime_value_carrier",
@@ -1324,6 +1399,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "self.write_reg(*pid, VMValue::Void);",
       "evidence_kind": "runtime_value_carrier",
@@ -1341,6 +1417,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "assert!(matches!(value, VMValue::Void));",
       "evidence_kind": "runtime_value_carrier",
@@ -1358,6 +1435,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "let v = VMValue::Void;",
       "evidence_kind": "runtime_value_carrier",
@@ -1375,6 +1453,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "Ok(VMValue::Void)",
       "evidence_kind": "runtime_value_carrier",
@@ -1392,6 +1471,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "self.write_reg(dst, VMValue::Void);",
       "evidence_kind": "runtime_value_carrier",
@@ -1409,6 +1489,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "&& matches!(value, VMValue::Void)",
       "evidence_kind": "runtime_value_carrier",
@@ -1426,6 +1507,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": ".validate_function_return_contract(&function, &VMValue::Void)",
       "evidence_kind": "runtime_value_carrier",
@@ -1443,6 +1525,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": ".validate_function_return_contract(&function, &VMValue::Void)",
       "evidence_kind": "runtime_value_carrier",
@@ -1460,6 +1543,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: crate::mir::ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -1477,6 +1561,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "assert_eq!(result, VMValue::Void);",
       "evidence_kind": "runtime_value_carrier",
@@ -1494,6 +1579,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Null",
       "evidence": "ConstValue::Null | ConstValue::Void => VMValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -1511,6 +1597,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "ConstValue::Null | ConstValue::Void => VMValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -1528,6 +1615,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "ConstValue::Null | ConstValue::Void => VMValue::Void,",
       "evidence_kind": "runtime_value_carrier",
@@ -1545,6 +1633,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "self.write_reg(dst, VMValue::Void);",
       "evidence_kind": "runtime_value_carrier",
@@ -1562,6 +1651,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "let recv = this.reg_load(box_val).unwrap_or(VMValue::Void);",
       "evidence_kind": "runtime_value_carrier",
@@ -1579,6 +1669,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "VMValue::Void => \"Void\".to_string(),",
       "evidence_kind": "runtime_value_carrier",
@@ -1596,6 +1687,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "VMValue::Void => {",
       "evidence_kind": "runtime_value_carrier",
@@ -1613,6 +1705,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "if let VMValue::Void = this.reg_load(box_val)? {",
       "evidence_kind": "runtime_value_carrier",
@@ -1630,6 +1723,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "let cls = match this.reg_load(box_val).unwrap_or(VMValue::Void) {",
       "evidence_kind": "runtime_value_carrier",
@@ -1647,6 +1741,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "VMValue::Void => \"<Void>\".to_string(),",
       "evidence_kind": "runtime_value_carrier",
@@ -1664,6 +1759,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "let recv = this.reg_load(box_val).unwrap_or(VMValue::Void);",
       "evidence_kind": "runtime_value_carrier",
@@ -1681,6 +1777,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "VMValue::Void => \"Void\".to_string(),",
       "evidence_kind": "runtime_value_carrier",
@@ -1698,6 +1795,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "interp.reg_load(dst_id).unwrap_or(VMValue::Void),",
       "evidence_kind": "runtime_value_carrier",
@@ -1715,6 +1813,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "interp.reg_load(dst_id).unwrap_or(VMValue::Void),",
       "evidence_kind": "runtime_value_carrier",
@@ -1732,6 +1831,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "if matches!(recv_vm, VMValue::Void) {",
       "evidence_kind": "runtime_value_carrier",
@@ -1749,6 +1849,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "if matches!(recv_vm, VMValue::Void) {",
       "evidence_kind": "runtime_value_carrier",
@@ -1766,6 +1867,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "Ok(VMValue::Void) => \"Void\".to_string(),",
       "evidence_kind": "runtime_value_carrier",
@@ -1783,6 +1885,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "crate::runtime::weak_field::WeakSlotState::Empty => VMValue::Void,",
       "evidence_kind": "runtime_value_carrier",
@@ -1800,6 +1903,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "VMValue::Void => \"Void\",",
       "evidence_kind": "runtime_value_carrier",
@@ -1817,6 +1921,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "let mut v = this.get_object_field(key, &fname).unwrap_or(VMValue::Void);",
       "evidence_kind": "runtime_value_carrier",
@@ -1834,6 +1939,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "if let VMValue::Void = v {",
       "evidence_kind": "runtime_value_carrier",
@@ -1851,6 +1957,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "if matches!(v, VMValue::Void) {",
       "evidence_kind": "runtime_value_carrier",
@@ -1868,6 +1975,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "VMValue::Void => \"Void\",",
       "evidence_kind": "runtime_value_carrier",
@@ -1885,6 +1993,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "let cls = match this.reg_load(actual_box_val).unwrap_or(VMValue::Void) {",
       "evidence_kind": "runtime_value_carrier",
@@ -1902,6 +2011,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "VMValue::Void => \"Void\",",
       "evidence_kind": "runtime_value_carrier",
@@ -1919,6 +2029,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "let cls = match this.reg_load(actual_box_val).unwrap_or(VMValue::Void) {",
       "evidence_kind": "runtime_value_carrier",
@@ -1936,6 +2047,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "| VMValue::Void",
       "evidence_kind": "runtime_value_carrier",
@@ -1953,6 +2065,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "interp.reg_load(dst_id).unwrap_or(VMValue::Void).to_string(),",
       "evidence_kind": "runtime_value_carrier",
@@ -1970,6 +2083,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "interp.reg_load(dst_id).unwrap_or(VMValue::Void).to_string(),",
       "evidence_kind": "runtime_value_carrier",
@@ -1987,6 +2101,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "\"push\" => Some(VMValue::Void),",
       "evidence_kind": "runtime_value_carrier",
@@ -2004,6 +2119,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "- `externs.rs` is the runtime SSOT for provider dispatch. Global calls that are extern-like should delegate here (e.g., `env.get`).",
       "evidence_kind": "provider_optional_or_missing",
@@ -2021,6 +2137,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "- Arity suffix normalization: names like `env.get/1` are accepted and normalized to `env.get` before dispatch (both in Global and ExternCall paths).",
       "evidence_kind": "provider_optional_or_missing",
@@ -2038,6 +2155,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "VMValue::Void => println!(\"null\"),",
       "evidence_kind": "runtime_value_carrier",
@@ -2055,6 +2173,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "Ok(VMValue::Void)",
       "evidence_kind": "runtime_value_carrier",
@@ -2072,6 +2191,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "// Normalize arity suffix (e.g., \"env.get/1\" -> \"env.get\")",
       "evidence_kind": "provider_optional_or_missing",
@@ -2089,6 +2209,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "Ok(VMValue::Void)",
       "evidence_kind": "runtime_value_carrier",
@@ -2106,6 +2227,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": ".map(|_| VMValue::Void)",
       "evidence_kind": "runtime_value_carrier",
@@ -2123,6 +2245,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "return Ok(VMValue::Void);",
       "evidence_kind": "runtime_value_carrier",
@@ -2140,6 +2263,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "\"env.get\" => {",
       "evidence_kind": "provider_optional_or_missing",
@@ -2157,6 +2281,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "// Route env.get global to extern handler",
       "evidence_kind": "provider_optional_or_missing",
@@ -2174,6 +2299,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "return self.execute_extern_function(\"env.get\", args);",
       "evidence_kind": "provider_optional_or_missing",
@@ -2191,6 +2317,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.file.read",
       "evidence": "\"env.file.read\" => {",
       "evidence_kind": "provider_failure_surface",
@@ -2208,6 +2335,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.file.read",
       "evidence": "return self.execute_extern_function(\"env.file.read\", args);",
       "evidence_kind": "provider_failure_surface",
@@ -2225,6 +2353,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.now_ms",
       "evidence": "\"env.now_ms\" => {",
       "evidence_kind": "provider_failure_surface",
@@ -2242,6 +2371,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.now_ms",
       "evidence": "// Route env.now_ms global to extern handler",
       "evidence_kind": "provider_failure_surface",
@@ -2259,6 +2389,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.now_ms",
       "evidence": "return self.execute_extern_function(\"env.now_ms\", args);",
       "evidence_kind": "provider_failure_surface",
@@ -2276,6 +2407,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "Ok(VMValue::Void)",
       "evidence_kind": "runtime_value_carrier",
@@ -2293,6 +2425,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "return Ok(VMValue::Void);",
       "evidence_kind": "runtime_value_carrier",
@@ -2310,6 +2443,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "return Ok(VMValue::Void);",
       "evidence_kind": "runtime_value_carrier",
@@ -2327,6 +2461,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "VMValue::Void => \"Void\",",
       "evidence_kind": "runtime_value_carrier",
@@ -2344,6 +2479,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "ArraySurfaceInvokeResult::Void => VMValue::Void,",
       "evidence_kind": "runtime_value_carrier",
@@ -2361,6 +2497,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "Ok(None) => return Ok(VMValue::Void),",
       "evidence_kind": "runtime_value_carrier",
@@ -2378,6 +2515,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "let exists = out.is_some_and(|v| !matches!(v, VMValue::Void));",
       "evidence_kind": "runtime_value_carrier",
@@ -2395,6 +2533,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "return Ok(VMValue::Void);",
       "evidence_kind": "runtime_value_carrier",
@@ -2412,6 +2551,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "return Ok(VMValue::Void);",
       "evidence_kind": "runtime_value_carrier",
@@ -2429,6 +2569,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "return Ok(VMValue::Void);",
       "evidence_kind": "runtime_value_carrier",
@@ -2446,6 +2587,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "return Ok(VMValue::Void);",
       "evidence_kind": "runtime_value_carrier",
@@ -2463,6 +2605,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "assert_eq!(cleared, VMValue::Void);",
       "evidence_kind": "runtime_value_carrier",
@@ -2480,6 +2623,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "self.write_reg(d, VMValue::Void);",
       "evidence_kind": "runtime_value_carrier",
@@ -2497,6 +2641,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "Err(_) => VMValue::Void,",
       "evidence_kind": "runtime_value_carrier",
@@ -2514,6 +2659,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "Ok(None) => Ok(VMValue::Void),",
       "evidence_kind": "runtime_value_carrier",
@@ -2531,6 +2677,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "Err(_) => Ok(VMValue::Void),",
       "evidence_kind": "runtime_value_carrier",
@@ -2548,6 +2695,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.file.read",
       "evidence": "Err(self.err_invalid(\"extern_invoke env.file.read expects 1 arg\"))",
       "evidence_kind": "provider_failure_surface",
@@ -2565,6 +2713,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "| \"env.get\"",
       "evidence_kind": "provider_optional_or_missing",
@@ -2582,6 +2731,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.file.read",
       "evidence": "| \"env.file.read\"",
       "evidence_kind": "provider_failure_surface",
@@ -2599,6 +2749,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.now_ms",
       "evidence": "| \"env.now_ms\"",
       "evidence_kind": "provider_failure_surface",
@@ -2616,6 +2767,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "Ok(None) => Ok(VMValue::Void),",
       "evidence_kind": "runtime_value_carrier",
@@ -2633,6 +2785,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "Ok(VMValue::Void)",
       "evidence_kind": "runtime_value_carrier",
@@ -2650,6 +2803,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "\"env.get\" => {",
       "evidence_kind": "provider_optional_or_missing",
@@ -2667,6 +2821,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "return Err(ErrorBuilder::arg_count_mismatch(\"env.get\", 1, args.len()));",
       "evidence_kind": "provider_optional_or_missing",
@@ -2684,6 +2839,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "None => VMValue::Void,",
       "evidence_kind": "runtime_value_carrier",
@@ -2701,6 +2857,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.file.read",
       "evidence": "\"env.file.read\" => {",
       "evidence_kind": "provider_failure_surface",
@@ -2718,6 +2875,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.file.read",
       "evidence": "\"env.file.read\",",
       "evidence_kind": "provider_failure_surface",
@@ -2735,6 +2893,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "Err(_) => VMValue::Void,",
       "evidence_kind": "runtime_value_carrier",
@@ -2752,6 +2911,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.now_ms",
       "evidence": "\"env.now_ms\" => {",
       "evidence_kind": "provider_failure_surface",
@@ -2769,6 +2929,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.now_ms",
       "evidence": "\"env.now_ms\",",
       "evidence_kind": "provider_failure_surface",
@@ -2786,6 +2947,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "VMValue::Void => String::new(),",
       "evidence_kind": "runtime_value_carrier",
@@ -2803,6 +2965,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "Ok(VMValue::Void)",
       "evidence_kind": "runtime_value_carrier",
@@ -2820,6 +2983,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "VMValue::Void => println!(\"null\"),",
       "evidence_kind": "runtime_value_carrier",
@@ -2837,6 +3001,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "Ok(VMValue::Void)",
       "evidence_kind": "runtime_value_carrier",
@@ -2854,6 +3019,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "VMValue::Void => eprintln!(\"[warn] null\"),",
       "evidence_kind": "runtime_value_carrier",
@@ -2871,6 +3037,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "Ok(VMValue::Void)",
       "evidence_kind": "runtime_value_carrier",
@@ -2888,6 +3055,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "VMValue::Void => eprintln!(\"[error] null\"),",
       "evidence_kind": "runtime_value_carrier",
@@ -2905,6 +3073,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "\"env.get\",",
       "evidence_kind": "provider_optional_or_missing",
@@ -2922,6 +3091,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.now_ms",
       "evidence": "\"env.now_ms\",",
       "evidence_kind": "provider_failure_surface",
@@ -2939,6 +3109,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": ".unwrap_or(Ok(VMValue::Void))?;",
       "evidence_kind": "runtime_value_carrier",
@@ -2956,6 +3127,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": ".unwrap_or(Ok(VMValue::Void))?;",
       "evidence_kind": "runtime_value_carrier",
@@ -2973,6 +3145,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": ".unwrap_or(Ok(VMValue::Void))?;",
       "evidence_kind": "runtime_value_carrier",
@@ -2990,6 +3163,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": ".unwrap_or(Ok(VMValue::Void))?;",
       "evidence_kind": "runtime_value_carrier",
@@ -3007,6 +3181,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": ".unwrap_or(Ok(VMValue::Void))?;",
       "evidence_kind": "runtime_value_carrier",
@@ -3024,6 +3199,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "if let Some(provider_res) = self.extern_provider_dispatch(\"env.get\", args) {",
       "evidence_kind": "provider_optional_or_missing",
@@ -3041,6 +3217,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "VMValue::Void",
       "evidence_kind": "runtime_value_carrier",
@@ -3058,6 +3235,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.file.read",
       "evidence": ".extern_provider_dispatch(\"env.file.read\", args)",
       "evidence_kind": "provider_failure_surface",
@@ -3075,6 +3253,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": ".unwrap_or(Ok(VMValue::Void))?;",
       "evidence_kind": "runtime_value_carrier",
@@ -3092,6 +3271,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "VMValue::Void => {",
       "evidence_kind": "runtime_value_carrier",
@@ -3109,6 +3289,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "let v = self.mem.get(&ptr).cloned().unwrap_or(VMValue::Void);",
       "evidence_kind": "runtime_value_carrier",
@@ -3126,6 +3307,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "VMValue::Void => true,",
       "evidence_kind": "runtime_value_carrier",
@@ -3143,6 +3325,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "Some(vm.reg_load(out_tmp).unwrap_or(VMValue::Void))",
       "evidence_kind": "runtime_value_carrier",
@@ -3160,6 +3343,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "VMValue::WeakBox(_) => weak_value.upgrade_weak().unwrap_or(VMValue::Void),",
       "evidence_kind": "runtime_value_carrier",
@@ -3177,6 +3361,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "VMValue::Void => VMValue::Void,",
       "evidence_kind": "runtime_value_carrier",
@@ -3194,6 +3379,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "vm.regs.insert(source, VMValue::Void);",
       "evidence_kind": "runtime_value_carrier",
@@ -3211,6 +3397,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "assert_eq!(vm.regs.get(&result), Some(&VMValue::Void));",
       "evidence_kind": "runtime_value_carrier",
@@ -3228,6 +3415,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "assert_eq!(vm.regs.get(&result), Some(&VMValue::Void));",
       "evidence_kind": "runtime_value_carrier",
@@ -3245,6 +3433,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "VMValue::Void => Ok(crate::runtime::weak_field::WeakSlotState::Empty),",
       "evidence_kind": "runtime_value_carrier",
@@ -3262,6 +3451,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "weak_to_strong",
       "evidence": "//! - `w.weak_to_strong()` \u2192 WeakRef(Load): WeakRef \u304b\u3089 BoxRef \u3078\u30a2\u30c3\u30d7\u30b0\u30ec\u30fc\u30c9\uff08\u5931\u6557\u6642\u306f null/Void\uff09",
       "evidence_kind": "weak_upgrade_surface",
@@ -3279,6 +3469,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "VMValue::Void => \"void\",",
       "evidence_kind": "runtime_value_carrier",
@@ -3296,6 +3487,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "BoxRef(MissingBox)",
       "evidence": ".downcast_ref::<crate::boxes::missing_box::MissingBox>()",
       "evidence_kind": "null_like_box",
@@ -3313,6 +3505,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "return Ok(VMValue::Void);",
       "evidence_kind": "runtime_value_carrier",
@@ -3330,6 +3523,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "// Dev-time: normalize BoxRef(VoidBox) \u2192 VMValue::Void when tolerance is enabled or in --dev mode.",
       "evidence_kind": "runtime_value_carrier",
@@ -3347,6 +3541,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "return VMValue::Void;",
       "evidence_kind": "runtime_value_carrier",
@@ -3364,6 +3559,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "(Add, VMValue::Void, Integer(y)) | (Add, Integer(y), VMValue::Void) if tolerate => {",
       "evidence_kind": "runtime_value_carrier",
@@ -3381,6 +3577,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "(Add, VMValue::Void, Float(y)) | (Add, Float(y), VMValue::Void) if tolerate => Float(y),",
       "evidence_kind": "runtime_value_carrier",
@@ -3398,6 +3595,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "(Add, String(s), VMValue::Void) | (Add, VMValue::Void, String(s)) if tolerate => {",
       "evidence_kind": "runtime_value_carrier",
@@ -3415,6 +3613,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "(Sub, Integer(x), VMValue::Void) if tolerate => Integer(x),",
       "evidence_kind": "runtime_value_carrier",
@@ -3432,6 +3631,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "(Sub, VMValue::Void, Integer(y)) if tolerate => Integer(0 - y),",
       "evidence_kind": "runtime_value_carrier",
@@ -3449,6 +3649,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "(Add, String(_), VMValue::Void) | (Add, VMValue::Void, String(_)) => {",
       "evidence_kind": "runtime_value_carrier",
@@ -3466,6 +3667,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "// Dev-time: normalize BoxRef(VoidBox) \u2192 VMValue::Void when tolerance is enabled or in --dev.",
       "evidence_kind": "runtime_value_carrier",
@@ -3483,6 +3685,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "return VMValue::Void;",
       "evidence_kind": "runtime_value_carrier",
@@ -3500,6 +3703,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "(VMValue::Void, VMValue::Integer(_)) => (Integer(0), b.clone()),",
       "evidence_kind": "runtime_value_carrier",
@@ -3517,6 +3721,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "(VMValue::Integer(_), VMValue::Void) => (a.clone(), Integer(0)),",
       "evidence_kind": "runtime_value_carrier",
@@ -3534,6 +3739,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "(VMValue::Void, VMValue::Float(_)) => (Float(0.0), b.clone()),",
       "evidence_kind": "runtime_value_carrier",
@@ -3551,6 +3757,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "(VMValue::Float(_), VMValue::Void) => (a.clone(), Float(0.0)),",
       "evidence_kind": "runtime_value_carrier",
@@ -3568,6 +3775,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "(VMValue::Void, VMValue::String(_)) => (String(StdString::new()), b.clone()),",
       "evidence_kind": "runtime_value_carrier",
@@ -3585,6 +3793,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "(VMValue::String(_), VMValue::Void) => (a.clone(), String(StdString::new())),",
       "evidence_kind": "runtime_value_carrier",
@@ -3602,6 +3811,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "(VMValue::Void, _) => (Integer(0), b.clone()),",
       "evidence_kind": "runtime_value_carrier",
@@ -3619,6 +3829,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "(_, VMValue::Void) => (a.clone(), Integer(0)),",
       "evidence_kind": "runtime_value_carrier",
@@ -3636,6 +3847,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "(VMValue::Void, VMValue::Integer(_)) => (Integer(0), b2.clone()),",
       "evidence_kind": "runtime_value_carrier",
@@ -3653,6 +3865,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "(VMValue::Integer(_), VMValue::Void) => (a2.clone(), Integer(0)),",
       "evidence_kind": "runtime_value_carrier",
@@ -3670,6 +3883,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "(VMValue::Void, VMValue::Float(_)) => (Float(0.0), b2.clone()),",
       "evidence_kind": "runtime_value_carrier",
@@ -3687,6 +3901,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "(VMValue::Float(_), VMValue::Void) => (a2.clone(), Float(0.0)),",
       "evidence_kind": "runtime_value_carrier",
@@ -3704,6 +3919,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "let result = self.take_reg(dst_id).unwrap_or(VMValue::Void);",
       "evidence_kind": "runtime_value_carrier",
@@ -3721,6 +3937,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "vm_args.push(super::vm_types::VMValue::Void);",
       "evidence_kind": "runtime_value_carrier",
@@ -3738,6 +3955,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "BoxRef(MissingBox)",
       "evidence": ".downcast_ref::<crate::boxes::missing_box::MissingBox>()",
       "evidence_kind": "null_like_box",
@@ -3755,6 +3973,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "BoxRef(MissingBox)",
       "evidence": ".downcast_ref::<crate::boxes::missing_box::MissingBox>()",
       "evidence_kind": "null_like_box",
@@ -3772,6 +3991,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "VMValue::Void => (\"Void\", \"\".to_string(), None),",
       "evidence_kind": "runtime_value_carrier",
@@ -3789,6 +4009,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "VMValue::Void => \"Void\",",
       "evidence_kind": "runtime_value_carrier",
@@ -3806,6 +4027,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "VMValue::Void => \"Void\",",
       "evidence_kind": "runtime_value_carrier",
@@ -3823,6 +4045,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "self.write_reg(d, VMValue::Void);",
       "evidence_kind": "runtime_value_carrier",
@@ -3840,6 +4063,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "/// - \"env.get/1\" -> \"env.get\"",
       "evidence_kind": "provider_optional_or_missing",
@@ -3857,6 +4081,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "VMValue::Void => name == \"VoidBox\" || name == \"NullBox\",",
       "evidence_kind": "runtime_value_carrier",
@@ -3874,6 +4099,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "VMValue::Void => true,",
       "evidence_kind": "runtime_value_carrier",
@@ -3891,6 +4117,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "BoxRef(MissingBox)",
       "evidence": ".downcast_ref::<crate::boxes::missing_box::MissingBox>()",
       "evidence_kind": "null_like_box",
@@ -3908,6 +4135,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "VMValue::Void => RuntimeTypeTag::Void,",
       "evidence_kind": "runtime_value_carrier",
@@ -3925,6 +4153,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "VMValue::Void => write!(f, \"Void\"),",
       "evidence_kind": "runtime_value_carrier",
@@ -3942,6 +4171,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "(VMValue::Void, VMValue::Void) => true,",
       "evidence_kind": "runtime_value_carrier",
@@ -3959,6 +4189,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "VMValue::Void => Box::new(VoidBox::new()),",
       "evidence_kind": "runtime_value_carrier",
@@ -3976,6 +4207,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "VMValue::Void => \"void\".to_string(),",
       "evidence_kind": "runtime_value_carrier",
@@ -3993,6 +4225,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "VMValue::Void => Some(VMValue::Void),",
       "evidence_kind": "runtime_value_carrier",
@@ -4010,6 +4243,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "VMValue::Void => Ok(false),",
       "evidence_kind": "runtime_value_carrier",
@@ -4027,6 +4261,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "VMValue::Void",
       "evidence_kind": "runtime_value_carrier",
@@ -4044,6 +4279,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Null",
       "evidence": "ConstValue::Null => VMValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -4061,6 +4297,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "ConstValue::Null => VMValue::Void,",
       "evidence_kind": "runtime_value_carrier",
@@ -4078,6 +4315,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "ConstValue::Void => VMValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -4095,6 +4333,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "ConstValue::Void => VMValue::Void,",
       "evidence_kind": "runtime_value_carrier",
@@ -4112,6 +4351,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Null",
       "evidence": "ConstValue::Null | ConstValue::Void => \"i32.const 0\".to_string(),",
       "evidence_kind": "mir_constant_carrier",
@@ -4129,6 +4369,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "ConstValue::Null | ConstValue::Void => \"i32.const 0\".to_string(),",
       "evidence_kind": "mir_constant_carrier",
@@ -4146,6 +4387,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Null",
       "evidence": "value: ConstValue::Null,",
       "evidence_kind": "mir_constant_carrier",
@@ -4163,6 +4405,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Null",
       "evidence": "value: ConstValue::Null,",
       "evidence_kind": "mir_constant_carrier",
@@ -4180,6 +4423,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Null",
       "evidence": "value: ConstValue::Null,",
       "evidence_kind": "mir_constant_carrier",
@@ -4197,6 +4441,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "BoxRef(MissingBox)",
       "evidence": "let seeded = seed_typebox_by_name(&mut registry, \"MissingBox\");",
       "evidence_kind": "null_like_box",
@@ -4214,6 +4459,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "BoxRef(MissingBox)",
       "evidence": "\"MissingBox\",",
       "evidence_kind": "null_like_box",
@@ -4231,6 +4477,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "BoxRef(MissingBox)",
       "evidence": "pub struct MissingBox {",
       "evidence_kind": "null_like_box",
@@ -4248,6 +4495,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "BoxRef(MissingBox)",
       "evidence": "impl MissingBox {",
       "evidence_kind": "null_like_box",
@@ -4265,6 +4513,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "BoxRef(MissingBox)",
       "evidence": "/*! \u2753 MissingBox \u2014 \u6b20\u640d/\u672a\u8a2d\u5b9a\u306e\u5024\u3092\u8868\u3059 Box\uff08Null \u3068\u533a\u5225\uff09",
       "evidence_kind": "null_like_box",
@@ -4282,6 +4531,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "BoxRef(MissingBox)",
       "evidence": "impl BoxCore for MissingBox {",
       "evidence_kind": "null_like_box",
@@ -4299,6 +4549,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "BoxRef(MissingBox)",
       "evidence": "impl NyashBox for MissingBox {",
       "evidence_kind": "null_like_box",
@@ -4316,6 +4567,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "BoxRef(MissingBox)",
       "evidence": "\"MissingBox\"",
       "evidence_kind": "null_like_box",
@@ -4333,6 +4585,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "BoxRef(MissingBox)",
       "evidence": "BoolBox::new(other.as_any().downcast_ref::<MissingBox>().is_some())",
       "evidence_kind": "null_like_box",
@@ -4350,6 +4603,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "BoxRef(MissingBox)",
       "evidence": "impl Display for MissingBox {",
       "evidence_kind": "null_like_box",
@@ -4367,6 +4621,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "BoxRef(MissingBox)",
       "evidence": "pub use missing_box::MissingBox;",
       "evidence_kind": "null_like_box",
@@ -4384,6 +4639,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "BoxRef(MissingBox)",
       "evidence": "/// Enable NullBox/MissingBox observation path (no behavior change by default).",
       "evidence_kind": "null_like_box",
@@ -4401,6 +4657,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "postfix_catch",
       "evidence": "pub fn block_postfix_catch() -> bool {",
       "evidence_kind": "catch_profile_surface",
@@ -4418,6 +4675,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "postfix_catch",
       "evidence": "pub fn expr_postfix_catch() -> bool {",
       "evidence_kind": "catch_profile_surface",
@@ -4435,6 +4693,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "let value = env.get(\"test\");",
       "evidence_kind": "provider_optional_or_missing",
@@ -4452,6 +4711,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "postfix_catch",
       "evidence": "pub(crate) fn block_postfix_catch() -> bool {",
       "evidence_kind": "catch_profile_surface",
@@ -4469,6 +4729,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "postfix_catch",
       "evidence": "pub(crate) fn expr_postfix_catch() -> bool {",
       "evidence_kind": "catch_profile_surface",
@@ -4486,6 +4747,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "let input = r#\"{\"functions\":[{\"blocks\":[{\"instructions\":[{\"op\":\"externcall\",\"func\":\"env.get\",\"args\":[1],\"dst\":2}]}]}]}\"#;",
       "evidence_kind": "provider_optional_or_missing",
@@ -4503,6 +4765,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "assert_eq!(inst[\"func\"].as_str(), Some(\"env.get\"));",
       "evidence_kind": "provider_optional_or_missing",
@@ -4520,6 +4783,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "if n == \"env.get\":",
       "evidence_kind": "provider_optional_or_missing",
@@ -4537,6 +4801,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "return \"nyash.env.get\"",
       "evidence_kind": "provider_optional_or_missing",
@@ -4554,6 +4819,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.now_ms",
       "evidence": "if n == \"env.now_ms\":",
       "evidence_kind": "provider_failure_surface",
@@ -4571,6 +4837,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.now_ms",
       "evidence": "return \"nyash.env.now_ms\"",
       "evidence_kind": "provider_failure_surface",
@@ -4588,6 +4855,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "# env.get returns StringBox handle (or null). Mark as stringish so",
       "evidence_kind": "provider_optional_or_missing",
@@ -4605,6 +4873,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "if llvm_name == \"nyash.env.get\" and resolver is not None:",
       "evidence_kind": "provider_optional_or_missing",
@@ -4622,6 +4891,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "\"nyash.env.get\": (i64, [i64]),",
       "evidence_kind": "provider_optional_or_missing",
@@ -4639,6 +4909,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.now_ms",
       "evidence": "\"nyash.env.now_ms\": (i64, []),",
       "evidence_kind": "provider_failure_surface",
@@ -4656,6 +4927,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "weak_to_strong",
       "evidence": "# Call nyrt_weak_to_strong",
       "evidence_kind": "weak_upgrade_surface",
@@ -4673,6 +4945,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "weak_to_strong",
       "evidence": "strong_handle = builder.call(nyrt_weak_to_strong, [weak_handle], name=f\"strong_{dst_vid}\")",
       "evidence_kind": "weak_upgrade_surface",
@@ -4690,6 +4963,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "weak_to_strong",
       "evidence": "LLVM IR: %20 = call i64 @nyrt_weak_to_strong(i64 %10)",
       "evidence_kind": "weak_upgrade_surface",
@@ -4707,6 +4981,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "weak_to_strong",
       "evidence": "# Get or declare nyrt_weak_to_strong function",
       "evidence_kind": "weak_upgrade_surface",
@@ -4724,6 +4999,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "weak_to_strong",
       "evidence": "nyrt_weak_to_strong = None",
       "evidence_kind": "weak_upgrade_surface",
@@ -4741,6 +5017,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "weak_to_strong",
       "evidence": "if f.name == \"nyrt_weak_to_strong\":",
       "evidence_kind": "weak_upgrade_surface",
@@ -4758,6 +5035,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "weak_to_strong",
       "evidence": "nyrt_weak_to_strong = f",
       "evidence_kind": "weak_upgrade_surface",
@@ -4775,6 +5053,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "weak_to_strong",
       "evidence": "if not nyrt_weak_to_strong:",
       "evidence_kind": "weak_upgrade_surface",
@@ -4792,6 +5071,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "weak_to_strong",
       "evidence": "# Declare: i64 @nyrt_weak_to_strong(i64 weak_handle)",
       "evidence_kind": "weak_upgrade_surface",
@@ -4809,6 +5089,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "weak_to_strong",
       "evidence": "nyrt_weak_to_strong = ir.Function(module, func_type, name=\"nyrt_weak_to_strong\")",
       "evidence_kind": "weak_upgrade_surface",
@@ -4826,6 +5107,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "&ConstValue::Void",
       "evidence_kind": "mir_constant_carrier",
@@ -4843,6 +5125,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -4860,6 +5143,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Null",
       "evidence": "LiteralValue::Null => Ok(ConstValue::Null),",
       "evidence_kind": "mir_constant_carrier",
@@ -4877,6 +5161,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "LiteralValue::Void => Ok(ConstValue::Void),",
       "evidence_kind": "mir_constant_carrier",
@@ -4894,6 +5179,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Null",
       "evidence": "LiteralValue::Null => (ConstValue::Null, MirType::Unknown),",
       "evidence_kind": "mir_constant_carrier",
@@ -4911,6 +5197,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "LiteralValue::Void => (ConstValue::Void, MirType::Void),",
       "evidence_kind": "mir_constant_carrier",
@@ -4928,6 +5215,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Null",
       "evidence": "value: ConstValue::Null,",
       "evidence_kind": "mir_constant_carrier",
@@ -4945,6 +5233,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -4962,6 +5251,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "weak_to_strong",
       "evidence": "// Phase 285A0.1: WeakRef.weak_to_strong() \u2192 WeakRef(Load)",
       "evidence_kind": "weak_upgrade_surface",
@@ -4979,6 +5269,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "weak_to_strong",
       "evidence": "// SSOT: docs/reference/language/lifecycle.md:179 - weak_to_strong() returns Box | null",
       "evidence_kind": "weak_upgrade_surface",
@@ -4996,6 +5287,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "weak_to_strong",
       "evidence": "if method == \"weak_to_strong\" && arguments.is_empty() {",
       "evidence_kind": "weak_upgrade_surface",
@@ -5013,6 +5305,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "weak_to_strong",
       "evidence": "return Err(\"WeakRef uses weak_to_strong(), not upgrade()\".to_string());",
       "evidence_kind": "weak_upgrade_surface",
@@ -5030,6 +5323,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Null",
       "evidence": "AstLit::Void => ConstValue::Null, // JoinIR uses Null instead of Void",
       "evidence_kind": "mir_constant_carrier",
@@ -5047,6 +5341,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Null",
       "evidence": "AstLit::Null => ConstValue::Null,",
       "evidence_kind": "mir_constant_carrier",
@@ -5064,6 +5359,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "ASTNode::Variable { name, .. } => match env.get(name).copied() {",
       "evidence_kind": "provider_optional_or_missing",
@@ -5081,6 +5377,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "ASTNode::Variable { name, .. } => Ok(env.get(name).copied()),",
       "evidence_kind": "provider_optional_or_missing",
@@ -5098,6 +5395,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "ASTNode::Variable { name, .. } => Ok(env.get(name).copied()),",
       "evidence_kind": "provider_optional_or_missing",
@@ -5115,6 +5413,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "ASTNode::Variable { name, .. } => Ok(env.get(name).copied()),",
       "evidence_kind": "provider_optional_or_missing",
@@ -5132,6 +5431,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "assert_eq!(env.get(\"x\"), Some(&ValueId(10)));",
       "evidence_kind": "provider_optional_or_missing",
@@ -5149,6 +5449,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "assert_eq!(env.get(\"y\"), Some(&ValueId(20)));",
       "evidence_kind": "provider_optional_or_missing",
@@ -5166,6 +5467,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "if let Some(&vid) = env.get(name) {",
       "evidence_kind": "provider_optional_or_missing",
@@ -5183,6 +5485,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "let lhs_vid = env.get(&lhs_var).copied().ok_or_else(|| {",
       "evidence_kind": "provider_optional_or_missing",
@@ -5200,6 +5503,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "let lhs_vid = env.get(&lhs_var).copied().ok_or_else(|| {",
       "evidence_kind": "provider_optional_or_missing",
@@ -5217,6 +5521,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "let src_vid = env.get(name).copied().ok_or_else(|| {",
       "evidence_kind": "provider_optional_or_missing",
@@ -5234,6 +5539,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "function_with_extern_call(\"env.get/1\", vec![ValueId::new(1)], Some(ValueId::new(2)));",
       "evidence_kind": "provider_optional_or_missing",
@@ -5251,6 +5557,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "route_id: \"extern.env.get\",",
       "evidence_kind": "provider_optional_or_missing",
@@ -5268,6 +5575,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "symbol: \"nyash.env.get\",",
       "evidence_kind": "provider_optional_or_missing",
@@ -5285,6 +5593,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "aliases: &[\"env.get\"],",
       "evidence_kind": "provider_optional_or_missing",
@@ -5302,6 +5611,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.now_ms",
       "evidence": "route_id: \"extern.env.now_ms\",",
       "evidence_kind": "provider_failure_surface",
@@ -5319,6 +5629,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.now_ms",
       "evidence": "symbol: \"nyash.env.now_ms\",",
       "evidence_kind": "provider_failure_surface",
@@ -5336,6 +5647,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.now_ms",
       "evidence": "aliases: &[\"env.now_ms\"],",
       "evidence_kind": "provider_failure_surface",
@@ -5353,6 +5665,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "assert_eq!(route.route_id(), \"extern.env.get\");",
       "evidence_kind": "provider_optional_or_missing",
@@ -5370,6 +5683,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "assert_eq!(route.symbol(), \"nyash.env.get\");",
       "evidence_kind": "provider_optional_or_missing",
@@ -5387,6 +5701,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "assert_eq!(route.source_symbol(), \"env.get/1\");",
       "evidence_kind": "provider_optional_or_missing",
@@ -5404,6 +5719,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "make_function_with_call(\"env.get/1\", vec![ValueId::new(1)], Some(ValueId::new(2)));",
       "evidence_kind": "provider_optional_or_missing",
@@ -5421,6 +5737,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "let mut missing_arg = make_function_with_call(\"env.get/1\", vec![], Some(ValueId::new(2)));",
       "evidence_kind": "provider_optional_or_missing",
@@ -5438,6 +5755,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "let mut missing_dst = make_function_with_call(\"env.get/1\", vec![ValueId::new(1)], None);",
       "evidence_kind": "provider_optional_or_missing",
@@ -5455,6 +5773,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -5472,6 +5791,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Null",
       "evidence": "value: ConstValue::Null | ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -5489,6 +5809,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Null | ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -5506,6 +5827,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Null",
       "evidence": "ConstValue::Null | ConstValue::Void => InspectorValueClass::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -5523,6 +5845,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "ConstValue::Null | ConstValue::Void => InspectorValueClass::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -5540,6 +5863,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Null",
       "evidence": "ConstValue::Null | ConstValue::Void => self.void_sentinel_const = true,",
       "evidence_kind": "mir_constant_carrier",
@@ -5557,6 +5881,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "ConstValue::Null | ConstValue::Void => self.void_sentinel_const = true,",
       "evidence_kind": "mir_constant_carrier",
@@ -5574,6 +5899,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Null",
       "evidence": "ConstValue::Null | ConstValue::Void => GenericI64ValueClass::VoidSentinel,",
       "evidence_kind": "mir_constant_carrier",
@@ -5591,6 +5917,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "ConstValue::Null | ConstValue::Void => GenericI64ValueClass::VoidSentinel,",
       "evidence_kind": "mir_constant_carrier",
@@ -5608,6 +5935,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Null",
       "evidence": "ConstValue::Null | ConstValue::Void => {",
       "evidence_kind": "mir_constant_carrier",
@@ -5625,6 +5953,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "ConstValue::Null | ConstValue::Void => {",
       "evidence_kind": "mir_constant_carrier",
@@ -5642,6 +5971,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Null",
       "evidence": "value: ConstValue::Null | ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -5659,6 +5989,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Null | ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -5676,6 +6007,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Null",
       "evidence": "ConstValue::Null | ConstValue::Void => self.void_sentinel_const = true,",
       "evidence_kind": "mir_constant_carrier",
@@ -5693,6 +6025,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "ConstValue::Null | ConstValue::Void => self.void_sentinel_const = true,",
       "evidence_kind": "mir_constant_carrier",
@@ -5710,6 +6043,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Null",
       "evidence": "| ConstValue::Null",
       "evidence_kind": "mir_constant_carrier",
@@ -5727,6 +6061,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "| ConstValue::Void => MirSchemaValueClass::Scalar,",
       "evidence_kind": "mir_constant_carrier",
@@ -5744,6 +6079,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Null",
       "evidence": "ConstValue::Null | ConstValue::Void => self.void_sentinel_const = true,",
       "evidence_kind": "mir_constant_carrier",
@@ -5761,6 +6097,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "ConstValue::Null | ConstValue::Void => self.void_sentinel_const = true,",
       "evidence_kind": "mir_constant_carrier",
@@ -5778,6 +6115,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Null",
       "evidence": "value: ConstValue::Null | ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -5795,6 +6133,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Null | ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -5812,6 +6151,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "ConstValue::Void => Some(GlobalCallReturnContract::VoidSentinelI64Zero),",
       "evidence_kind": "mir_constant_carrier",
@@ -5829,6 +6169,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Null",
       "evidence": "ConstValue::Null => Some(GlobalCallReturnContract::MixedRuntimeI64OrHandle),",
       "evidence_kind": "mir_constant_carrier",
@@ -5846,6 +6187,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -5863,6 +6205,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -5880,6 +6223,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -5897,6 +6241,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -5914,6 +6259,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -5931,6 +6277,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -5948,6 +6295,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -5965,6 +6313,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "callee: Some(Callee::Extern(\"env.get\".to_string())),",
       "evidence_kind": "provider_optional_or_missing",
@@ -5982,6 +6331,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -5999,6 +6349,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -6016,6 +6367,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -6033,6 +6385,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -6050,6 +6403,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -6067,6 +6421,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -6084,6 +6439,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -6101,6 +6457,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -6118,6 +6475,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -6135,6 +6493,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -6152,6 +6511,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Null",
       "evidence": "value: ConstValue::Null,",
       "evidence_kind": "mir_constant_carrier",
@@ -6169,6 +6529,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -6186,6 +6547,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Null",
       "evidence": "value: ConstValue::Null,",
       "evidence_kind": "mir_constant_carrier",
@@ -6203,6 +6565,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -6220,6 +6583,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -6237,6 +6601,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -6254,6 +6619,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -6271,6 +6637,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -6288,6 +6655,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -6305,6 +6673,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -6322,6 +6691,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -6339,6 +6709,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "callee: Some(Callee::Extern(\"env.get\".to_string())),",
       "evidence_kind": "provider_optional_or_missing",
@@ -6356,6 +6727,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -6373,6 +6745,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -6390,6 +6763,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -6407,6 +6781,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -6424,6 +6799,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -6441,6 +6817,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -6458,6 +6835,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -6475,6 +6853,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -6492,6 +6871,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -6509,6 +6889,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -6526,6 +6907,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -6543,6 +6925,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -6560,6 +6943,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -6577,6 +6961,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -6594,6 +6979,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -6611,6 +6997,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -6628,6 +7015,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -6645,6 +7033,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -6662,6 +7051,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -6679,6 +7069,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -6696,6 +7087,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -6713,6 +7105,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -6730,6 +7123,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -6747,6 +7141,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -6764,6 +7159,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -6781,6 +7177,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -6798,6 +7195,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -6815,6 +7213,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -6832,6 +7231,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -6849,6 +7249,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -6866,6 +7267,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -6883,6 +7285,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -6900,6 +7303,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -6917,6 +7321,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -6934,6 +7339,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -6951,6 +7357,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -6968,6 +7375,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -6985,6 +7393,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -7002,6 +7411,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -7019,6 +7429,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -7036,6 +7447,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Null",
       "evidence": "ConstValue::Integer(_) | ConstValue::Bool(_) | ConstValue::Void | ConstValue::Null",
       "evidence_kind": "mir_constant_carrier",
@@ -7053,6 +7465,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "ConstValue::Integer(_) | ConstValue::Bool(_) | ConstValue::Void | ConstValue::Null",
       "evidence_kind": "mir_constant_carrier",
@@ -7070,6 +7483,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Null",
       "evidence": "value: ConstValue::Void | ConstValue::Null,",
       "evidence_kind": "mir_constant_carrier",
@@ -7087,6 +7501,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void | ConstValue::Null,",
       "evidence_kind": "mir_constant_carrier",
@@ -7104,6 +7519,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Null",
       "evidence": "value: ConstValue::Null,",
       "evidence_kind": "mir_constant_carrier",
@@ -7121,6 +7537,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Null",
       "evidence": "ConstValue::Null => {",
       "evidence_kind": "mir_constant_carrier",
@@ -7138,6 +7555,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "ConstValue::Void => MirType::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -7155,6 +7573,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Null",
       "evidence": "ConstValue::Null => MirType::Unknown, // Null \u306f Unknown \u3068\u3057\u3066\u6271\u3046",
       "evidence_kind": "mir_constant_carrier",
@@ -7172,6 +7591,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "assert_eq!(env.get(\"i\"), Some(ValueId(0)));",
       "evidence_kind": "provider_optional_or_missing",
@@ -7189,6 +7609,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "assert_eq!(env.get(\"i\"), Some(ValueId(0)));",
       "evidence_kind": "provider_optional_or_missing",
@@ -7206,6 +7627,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "assert_eq!(env.get(\"start\"), Some(ValueId(1)));",
       "evidence_kind": "provider_optional_or_missing",
@@ -7223,6 +7645,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "assert_eq!(env.get(\"end\"), Some(ValueId(2)));",
       "evidence_kind": "provider_optional_or_missing",
@@ -7240,6 +7663,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "assert_eq!(env.get(\"nonexistent\"), None);",
       "evidence_kind": "provider_optional_or_missing",
@@ -7257,6 +7681,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "if let Some(value_id) = env.get(name) {",
       "evidence_kind": "provider_optional_or_missing",
@@ -7274,6 +7699,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "if let Some(value_id) = body_env.get(name) {",
       "evidence_kind": "provider_optional_or_missing",
@@ -7291,6 +7717,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "if let Some(value_id) = env.get(name) {",
       "evidence_kind": "provider_optional_or_missing",
@@ -7308,6 +7735,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "if let Some(value_id) = body_env.get(name) {",
       "evidence_kind": "provider_optional_or_missing",
@@ -7325,6 +7753,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "assert_eq!(env.get(\"temp\"), Some(ValueId(5)));",
       "evidence_kind": "provider_optional_or_missing",
@@ -7342,6 +7771,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "assert_eq!(env.get(\"temp\"), Some(ValueId(5)));",
       "evidence_kind": "provider_optional_or_missing",
@@ -7359,6 +7789,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "assert_eq!(env.get(\"digit\"), Some(ValueId(6)));",
       "evidence_kind": "provider_optional_or_missing",
@@ -7376,6 +7807,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "assert_eq!(env.get(\"ch\"), Some(ValueId(7)));",
       "evidence_kind": "provider_optional_or_missing",
@@ -7393,6 +7825,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "assert_eq!(env.get(\"nonexistent\"), None);",
       "evidence_kind": "provider_optional_or_missing",
@@ -7410,6 +7843,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "assert_eq!(env.get(\"temp\"), Some(ValueId(5)));",
       "evidence_kind": "provider_optional_or_missing",
@@ -7427,6 +7861,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "assert_eq!(env.get(\"digit\"), Some(ValueId(6)));",
       "evidence_kind": "provider_optional_or_missing",
@@ -7444,6 +7879,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "assert_eq!(env.get(\"temp\"), Some(ValueId(10)));",
       "evidence_kind": "provider_optional_or_missing",
@@ -7461,6 +7897,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "/// assert_eq!(env.get(\"temp\"), Some(ValueId(5)));",
       "evidence_kind": "provider_optional_or_missing",
@@ -7478,6 +7915,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "/// assert!(env.get(\"digit_pos\").is_some());",
       "evidence_kind": "provider_optional_or_missing",
@@ -7495,6 +7933,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "if env.get(var_name).is_some() {",
       "evidence_kind": "provider_optional_or_missing",
@@ -7512,6 +7951,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "let vid = self.cond_env.get(name).ok_or_else(|| {",
       "evidence_kind": "provider_optional_or_missing",
@@ -7529,6 +7969,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "if let Some(vid) = cond_env.get(name) {",
       "evidence_kind": "provider_optional_or_missing",
@@ -7546,6 +7987,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "} else if let Some(vid) = body_local_env.get(name) {",
       "evidence_kind": "provider_optional_or_missing",
@@ -7563,6 +8005,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "assert_eq!(env.get(\"pos\"), Some(ValueId(10)));",
       "evidence_kind": "provider_optional_or_missing",
@@ -7580,6 +8023,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "assert_eq!(env.get(\"temp\"), Some(ValueId(100)));",
       "evidence_kind": "provider_optional_or_missing",
@@ -7597,6 +8041,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "// Test that env.get() correctly identifies existing variables",
       "evidence_kind": "provider_optional_or_missing",
@@ -7614,6 +8059,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "if env.get(\"temp\").is_some() {",
       "evidence_kind": "provider_optional_or_missing",
@@ -7631,6 +8077,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "assert_eq!(env.get(\"temp\"), Some(ValueId(999)));",
       "evidence_kind": "provider_optional_or_missing",
@@ -7648,6 +8095,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "/// let recv_val = env.get(\"s\").unwrap();",
       "evidence_kind": "provider_optional_or_missing",
@@ -7665,6 +8113,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "if let Some(vid) = self.body_local_env.get(name) {",
       "evidence_kind": "provider_optional_or_missing",
@@ -7682,6 +8131,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "} else if let Some(vid) = self.cond_env.get(name) {",
       "evidence_kind": "provider_optional_or_missing",
@@ -7699,6 +8149,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "if let Some(id) = self.condition_env.get(name) {",
       "evidence_kind": "provider_optional_or_missing",
@@ -7716,6 +8167,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "if let Some(id) = env.get(name) {",
       "evidence_kind": "provider_optional_or_missing",
@@ -7733,6 +8185,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "return self.condition_env.get(name);",
       "evidence_kind": "provider_optional_or_missing",
@@ -7750,6 +8203,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "/// - JoinValue::Unit   \u2194 VMValue::Void",
       "evidence_kind": "runtime_value_carrier",
@@ -7767,6 +8221,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "JoinValue::Unit => crate::backend::VMValue::Void,",
       "evidence_kind": "runtime_value_carrier",
@@ -7784,6 +8239,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "JoinValue::Unit => crate::backend::VMValue::Void,",
       "evidence_kind": "runtime_value_carrier",
@@ -7801,6 +8257,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "crate::backend::VMValue::Void => Ok(JoinValue::Unit),",
       "evidence_kind": "runtime_value_carrier",
@@ -7818,6 +8275,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "assert!(matches!(vm_val, crate::backend::VMValue::Void));",
       "evidence_kind": "runtime_value_carrier",
@@ -7835,6 +8293,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "let vm_void = crate::backend::VMValue::Void;",
       "evidence_kind": "runtime_value_carrier",
@@ -7852,6 +8311,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Null",
       "evidence": "ConstValue::Null => JoinValue::Unit,",
       "evidence_kind": "mir_constant_carrier",
@@ -7869,6 +8329,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Null",
       "evidence": "ConstValue::Null => MirConstValue::Null,",
       "evidence_kind": "mir_constant_carrier",
@@ -7886,6 +8347,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "ConstValue::Void => Some(MirType::Void),",
       "evidence_kind": "mir_constant_carrier",
@@ -7903,6 +8365,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "assert!(env.get(\"digits\").is_some());",
       "evidence_kind": "provider_optional_or_missing",
@@ -7920,6 +8383,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "let var = env.get(\"digits\").unwrap();",
       "evidence_kind": "provider_optional_or_missing",
@@ -7937,6 +8401,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "assert!(env.get(\"s\").is_some());",
       "evidence_kind": "provider_optional_or_missing",
@@ -7954,6 +8419,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "let var = env.get(\"s\").unwrap();",
       "evidence_kind": "provider_optional_or_missing",
@@ -7971,6 +8437,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "assert!(env.get(\"len\").is_some());",
       "evidence_kind": "provider_optional_or_missing",
@@ -7988,6 +8455,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "assert!(env.get(\"s\").is_some());",
       "evidence_kind": "provider_optional_or_missing",
@@ -8005,6 +8473,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "assert!(env.get(\"digits\").is_some());",
       "evidence_kind": "provider_optional_or_missing",
@@ -8022,6 +8491,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "assert!(env.get(\"len\").is_some());",
       "evidence_kind": "provider_optional_or_missing",
@@ -8039,6 +8509,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "let var = env.get(\"len\").unwrap();",
       "evidence_kind": "provider_optional_or_missing",
@@ -8056,6 +8527,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "assert!(env.get(\"digits\").is_none());",
       "evidence_kind": "provider_optional_or_missing",
@@ -8073,6 +8545,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "let var = env.get(\"digits\").unwrap();",
       "evidence_kind": "provider_optional_or_missing",
@@ -8090,6 +8563,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "assert!(env.get(\"digits\").is_some());",
       "evidence_kind": "provider_optional_or_missing",
@@ -8107,6 +8581,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "assert!(env.get(\"table\").is_some());",
       "evidence_kind": "provider_optional_or_missing",
@@ -8124,6 +8599,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "assert!(env.get(\"nonexistent\").is_none());",
       "evidence_kind": "provider_optional_or_missing",
@@ -8141,6 +8617,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "let var = env.get(\"x\").unwrap();",
       "evidence_kind": "provider_optional_or_missing",
@@ -8158,6 +8635,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "let var = env.get(\"s\").unwrap();",
       "evidence_kind": "provider_optional_or_missing",
@@ -8175,6 +8653,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: crate::mir::ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -8192,6 +8671,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Null",
       "evidence": "value: ConstValue::Null,",
       "evidence_kind": "mir_constant_carrier",
@@ -8209,6 +8689,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Null",
       "evidence": "value: ConstValue::Null,",
       "evidence_kind": "mir_constant_carrier",
@@ -8226,6 +8707,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Null",
       "evidence": "value: ConstValue::Null,",
       "evidence_kind": "mir_constant_carrier",
@@ -8243,6 +8725,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Null",
       "evidence": "ConstValue::Null | ConstValue::Void => None,",
       "evidence_kind": "mir_constant_carrier",
@@ -8260,6 +8743,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "ConstValue::Null | ConstValue::Void => None,",
       "evidence_kind": "mir_constant_carrier",
@@ -8277,6 +8761,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "| ConstValue::Void",
       "evidence_kind": "mir_constant_carrier",
@@ -8294,6 +8779,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Null",
       "evidence": "| ConstValue::Null",
       "evidence_kind": "mir_constant_carrier",
@@ -8311,6 +8797,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -8328,6 +8815,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Null",
       "evidence": "ConstValue::Null | ConstValue::Void | ConstValue::Float(_) => None,",
       "evidence_kind": "mir_constant_carrier",
@@ -8345,6 +8833,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "ConstValue::Null | ConstValue::Void | ConstValue::Float(_) => None,",
       "evidence_kind": "mir_constant_carrier",
@@ -8362,6 +8851,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Null",
       "evidence": "value: ConstValue::Null | ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -8379,6 +8869,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Null | ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -8396,6 +8887,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Null",
       "evidence": "ConstValue::Null | ConstValue::Void => Some(ValueClass::VoidSentinel),",
       "evidence_kind": "mir_constant_carrier",
@@ -8413,6 +8905,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "ConstValue::Null | ConstValue::Void => Some(ValueClass::VoidSentinel),",
       "evidence_kind": "mir_constant_carrier",
@@ -8430,6 +8923,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Null",
       "evidence": "value: ConstValue::Null | ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -8447,6 +8941,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Null | ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -8464,6 +8959,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -8481,6 +8977,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -8498,6 +8995,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -8515,6 +9013,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -8532,6 +9031,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Null",
       "evidence": "value: ConstValue::Null,",
       "evidence_kind": "mir_constant_carrier",
@@ -8549,6 +9049,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Null",
       "evidence": "value: ConstValue::Null,",
       "evidence_kind": "mir_constant_carrier",
@@ -8566,6 +9067,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Null",
       "evidence": "value: ConstValue::Null,",
       "evidence_kind": "mir_constant_carrier",
@@ -8583,6 +9085,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -8600,6 +9103,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -8617,6 +9121,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -8634,6 +9139,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: crate::mir::ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -8651,6 +9157,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "postfix_catch",
       "evidence": "pub(crate) fn block_postfix_catch() -> bool {",
       "evidence_kind": "catch_profile_surface",
@@ -8668,6 +9175,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "postfix_catch",
       "evidence": "crate::frontend_env::block_postfix_catch()",
       "evidence_kind": "catch_profile_surface",
@@ -8685,6 +9193,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "postfix_catch",
       "evidence": "pub(crate) fn expr_postfix_catch() -> bool {",
       "evidence_kind": "catch_profile_surface",
@@ -8702,6 +9211,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "postfix_catch",
       "evidence": "crate::frontend_env::expr_postfix_catch()",
       "evidence_kind": "catch_profile_surface",
@@ -8719,6 +9229,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "postfix_catch",
       "evidence": "if crate::parser::env::expr_postfix_catch()",
       "evidence_kind": "catch_profile_surface",
@@ -8736,6 +9247,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "postfix_catch",
       "evidence": "pub(super) fn parse_postfix_catch_cleanup_error(&mut self) -> Result<ASTNode, ParseError> {",
       "evidence_kind": "catch_profile_surface",
@@ -8753,6 +9265,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "postfix_catch",
       "evidence": "TokenType::CATCH | TokenType::CLEANUP => self.parse_postfix_catch_cleanup_error(),",
       "evidence_kind": "catch_profile_surface",
@@ -8770,6 +9283,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "postfix_catch",
       "evidence": "if crate::parser::env::block_postfix_catch()",
       "evidence_kind": "catch_profile_surface",
@@ -8787,6 +9301,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Null",
       "evidence": "value: ConstValue::Null,",
       "evidence_kind": "mir_constant_carrier",
@@ -8804,6 +9319,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -8821,6 +9337,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -8838,6 +9355,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Null",
       "evidence": "value: ConstValue::Null,",
       "evidence_kind": "mir_constant_carrier",
@@ -8855,6 +9373,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "let mut module = test_module_with_call_name(\"env.get/1\");",
       "evidence_kind": "provider_optional_or_missing",
@@ -8872,6 +9391,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "} if name == \"env.get\"",
       "evidence_kind": "provider_optional_or_missing",
@@ -8889,6 +9409,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "\"void\" => Ok(ConstValue::Void),",
       "evidence_kind": "mir_constant_carrier",
@@ -8906,6 +9427,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Null",
       "evidence": "ConstValue::Null | ConstValue::Void => {",
       "evidence_kind": "mir_constant_carrier",
@@ -8923,6 +9445,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "ConstValue::Null | ConstValue::Void => {",
       "evidence_kind": "mir_constant_carrier",
@@ -8940,6 +9463,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.now_ms",
       "evidence": "assert_eq!(route[\"symbol\"], \"nyash.env.now_ms\");",
       "evidence_kind": "provider_failure_surface",
@@ -8957,6 +9481,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.now_ms",
       "evidence": "assert_eq!(plan[\"source_route_id\"], \"extern.env.now_ms\");",
       "evidence_kind": "provider_failure_surface",
@@ -8974,6 +9499,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.now_ms",
       "evidence": "assert_eq!(plan[\"source_symbol\"], \"env.now_ms/0\");",
       "evidence_kind": "provider_failure_surface",
@@ -8991,6 +9517,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.now_ms",
       "evidence": "assert_eq!(plan[\"symbol\"], \"nyash.env.now_ms\");",
       "evidence_kind": "provider_failure_surface",
@@ -9008,6 +9535,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "\"env.get/1\",",
       "evidence_kind": "provider_optional_or_missing",
@@ -9025,6 +9553,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "assert_eq!(route[\"route_id\"], \"extern.env.get\");",
       "evidence_kind": "provider_optional_or_missing",
@@ -9042,6 +9571,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "assert_eq!(route[\"source_symbol\"], \"env.get/1\");",
       "evidence_kind": "provider_optional_or_missing",
@@ -9059,6 +9589,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "assert_eq!(route[\"symbol\"], \"nyash.env.get\");",
       "evidence_kind": "provider_optional_or_missing",
@@ -9076,6 +9607,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "assert_eq!(plan[\"source_route_id\"], \"extern.env.get\");",
       "evidence_kind": "provider_optional_or_missing",
@@ -9093,6 +9625,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "assert_eq!(plan[\"source_symbol\"], \"env.get/1\");",
       "evidence_kind": "provider_optional_or_missing",
@@ -9110,6 +9643,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "assert_eq!(plan[\"symbol\"], \"nyash.env.get\");",
       "evidence_kind": "provider_optional_or_missing",
@@ -9127,6 +9661,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "assert_eq!(plan[\"route_kind\"], \"extern.env.get\");",
       "evidence_kind": "provider_optional_or_missing",
@@ -9144,6 +9679,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.now_ms",
       "evidence": "callee: Some(Callee::Extern(\"env.now_ms/0\".to_string())),",
       "evidence_kind": "provider_failure_surface",
@@ -9161,6 +9697,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.now_ms",
       "evidence": "assert_eq!(route[\"route_id\"], \"extern.env.now_ms\");",
       "evidence_kind": "provider_failure_surface",
@@ -9178,6 +9715,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.now_ms",
       "evidence": "assert_eq!(route[\"source_symbol\"], \"env.now_ms/0\");",
       "evidence_kind": "provider_failure_surface",
@@ -9195,6 +9733,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -9212,6 +9751,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -9229,6 +9769,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "callee: Some(Callee::Extern(\"env.get/1\".to_string())),",
       "evidence_kind": "provider_optional_or_missing",
@@ -9246,6 +9787,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -9263,6 +9805,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -9280,6 +9823,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -9297,6 +9841,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Null",
       "evidence": "value: ConstValue::Null,",
       "evidence_kind": "mir_constant_carrier",
@@ -9314,6 +9859,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -9331,6 +9877,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -9348,6 +9895,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -9365,6 +9913,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -9382,6 +9931,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -9399,6 +9949,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -9416,6 +9967,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Void",
       "evidence": "value: crate::mir::ConstValue::Void,",
       "evidence_kind": "mir_constant_carrier",
@@ -9433,6 +9985,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "postfix_catch",
       "evidence": "if name_l == \"postfix_catch\" {",
       "evidence_kind": "catch_profile_surface",
@@ -9450,6 +10003,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "/// - Accept subset (S0 + S1a + S1b + S1c + S1d method-call(id 1-int) bridge + S1e direct boxcall(id 1-int) contract + S1f call-bridge optimize-on contract + S2a externcall(print 1-int) + S2b compare-origin bool(0/1) print + S2c externcall-only vm execution + S2d externcall(env.get/1) + S2e full legacy mir_call(print) withdrawal + S2f compare(!=) + S3a safepoint + S3b keepalive + S3c release_strong + S4a debug + S4b select + S4c barrier + S5a load + S5b store + S5c phi + S5d typeop + S5e weakref + S5f ref_new + S5g future_new + S5h future_set + S5i await + S5k array_get + S5l array_set)",
       "evidence_kind": "provider_optional_or_missing",
@@ -9467,6 +10021,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "ExternCallRouteKind::EnvGet => \"env.get\",",
       "evidence_kind": "provider_optional_or_missing",
@@ -9484,6 +10039,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "ExternCallRouteKind::EnvGet => \"env.get\",",
       "evidence_kind": "provider_optional_or_missing",
@@ -9501,6 +10057,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "externcall(\"env.get/1\", vec![1], Some(2)),",
       "evidence_kind": "provider_optional_or_missing",
@@ -9518,6 +10075,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "vec![externcall(\"env.get/1\", vec![], Some(2))],",
       "evidence_kind": "provider_optional_or_missing",
@@ -9535,6 +10093,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "\"externcall(env.get:args!=1)\",",
       "evidence_kind": "provider_optional_or_missing",
@@ -9552,6 +10111,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "vec![externcall(\"nyash.env.get/1\", vec![1], Some(2))],",
       "evidence_kind": "provider_optional_or_missing",
@@ -9569,6 +10129,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "\"externcall(func:nyash.env.get/1)\",",
       "evidence_kind": "provider_optional_or_missing",
@@ -9586,6 +10147,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "VMValue::Void => String::new(), // Void \u306f\u8868\u793a\u3057\u306a\u3044",
       "evidence_kind": "runtime_value_carrier",
@@ -9603,6 +10165,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "VMValue::Void => String::new(),",
       "evidence_kind": "runtime_value_carrier",
@@ -9620,6 +10183,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "BoxRef(MissingBox)",
       "evidence": "/// MissingBox - \u6b20\u640d\u5024",
       "evidence_kind": "null_like_box",
@@ -9637,6 +10201,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "BoxRef(MissingBox)",
       "evidence": "Missing => \"MissingBox\",",
       "evidence_kind": "null_like_box",
@@ -9654,6 +10219,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "VMValue::Void => Box::new(VoidBox::new()),",
       "evidence_kind": "runtime_value_carrier",
@@ -9671,6 +10237,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "VMValue::Void => None,",
       "evidence_kind": "runtime_value_carrier",
@@ -9688,6 +10255,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "VMValue::Void",
       "evidence": "VMValue::Void",
       "evidence_kind": "runtime_value_carrier",
@@ -9705,6 +10273,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "ASTNode::Variable { name, .. } => Ok(env.get(name)),",
       "evidence_kind": "provider_optional_or_missing",
@@ -9722,6 +10291,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "Option::None",
       "evidence": "local x = Option::None",
       "evidence_kind": "option_constructor",
@@ -9739,6 +10309,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "Option::None",
       "evidence": "local empty: Option<i64> = Option::None",
       "evidence_kind": "option_constructor",
@@ -9756,6 +10327,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "Result::Err",
       "evidence": "local err: Result<i64, String> = Result::Err(\"bad\")",
       "evidence_kind": "result_constructor",
@@ -9773,6 +10345,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "Option::None",
       "evidence": "local x = Option::None(1)",
       "evidence_kind": "option_constructor",
@@ -9790,6 +10363,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "Option::None",
       "evidence": ".expect_err(\"Option::None extra payload should fail fast\");",
       "evidence_kind": "option_constructor",
@@ -9807,6 +10381,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "Option::None",
       "evidence": "error.contains(\"Option::None expects 0 payload arg(s), got 1\"),",
       "evidence_kind": "option_constructor",
@@ -9824,6 +10399,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "Result::Err",
       "evidence": "local x = Result::Err()",
       "evidence_kind": "result_constructor",
@@ -9841,6 +10417,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "Result::Err",
       "evidence": ".expect_err(\"Result::Err missing payload should fail fast\");",
       "evidence_kind": "result_constructor",
@@ -9858,6 +10435,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "Result::Err",
       "evidence": "error.contains(\"Result::Err expects 1 payload arg(s), got 0\"),",
       "evidence_kind": "result_constructor",
@@ -9875,6 +10453,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "Option::None",
       "evidence": "assert!(error.contains(\"Option::None\"), \"{error}\");",
       "evidence_kind": "option_constructor",
@@ -9892,6 +10471,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "Result::Err",
       "evidence": "assert!(error.contains(\"Result::Err\"), \"{error}\");",
       "evidence_kind": "result_constructor",
@@ -9909,6 +10489,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "Result::Err",
       "evidence": "local value = Result::Err(\"bad\")",
       "evidence_kind": "result_constructor",
@@ -9926,6 +10507,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "Result::Err",
       "evidence": "assert!(error.contains(\"Result::Err\"), \"{error}\");",
       "evidence_kind": "result_constructor",
@@ -9943,6 +10525,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "Result::Err",
       "evidence": "error.contains(\"local value: Result<T,E> = Result::Err(...)\"),",
       "evidence_kind": "result_constructor",
@@ -9960,6 +10543,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "Option::None",
       "evidence": "local value = Option::None",
       "evidence_kind": "option_constructor",
@@ -9977,6 +10561,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "Option::None",
       "evidence": "assert!(error.contains(\"Option::None\"), \"{error}\");",
       "evidence_kind": "option_constructor",
@@ -9994,6 +10579,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "Option::None",
       "evidence": "error.contains(\"local value: Option<T> = Option::None\"),",
       "evidence_kind": "option_constructor",
@@ -10011,6 +10597,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "ConstValue::Null",
       "evidence": "value: ConstValue::Null,",
       "evidence_kind": "mir_constant_carrier",
@@ -10028,6 +10615,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "Result::Err",
       "evidence": "return Result::Err(7)",
       "evidence_kind": "result_constructor",
@@ -10045,6 +10633,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "local p = env.get(\"HAKO_PROGRAM_JSON_FILE\")",
       "evidence_kind": "provider_optional_or_missing",
@@ -10062,6 +10651,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "local src = env.get(\"STAGE1_SOURCE\")",
       "evidence_kind": "provider_optional_or_missing",
@@ -10079,6 +10669,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "postfix_catch",
       "evidence": "#[path = \"../parser_expr_postfix_catch.rs\"]",
       "evidence_kind": "catch_profile_surface",
@@ -10096,6 +10687,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "postfix_catch",
       "evidence": "pub mod parser_expr_postfix_catch;",
       "evidence_kind": "catch_profile_surface",
@@ -10113,6 +10705,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "postfix_catch",
       "evidence": "#[path = \"../parser_block_postfix_catch.rs\"]",
       "evidence_kind": "catch_profile_surface",
@@ -10130,6 +10723,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "postfix_catch",
       "evidence": "pub mod parser_block_postfix_catch;",
       "evidence_kind": "catch_profile_surface",
@@ -10147,6 +10741,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "postfix_catch",
       "evidence": "fn block_postfix_catch_basic() {",
       "evidence_kind": "catch_profile_surface",
@@ -10164,6 +10759,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "Option::None",
       "evidence": "local value = Option::None",
       "evidence_kind": "option_constructor",
@@ -10181,6 +10777,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "postfix_catch",
       "evidence": "fn expr_postfix_catch_on_method_chain() {",
       "evidence_kind": "catch_profile_surface",
@@ -10198,6 +10795,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "postfix_catch",
       "evidence": "fn expr_postfix_catch_basic() {",
       "evidence_kind": "catch_profile_surface",
@@ -10215,6 +10813,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "if env.get(\"NYASH_USE_STAGE1_CLI\") != \"1\" { return 97 }",
       "evidence_kind": "provider_optional_or_missing",
@@ -10232,6 +10831,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "if env.get(\"STAGE1_EMIT_PROGRAM_JSON\") == \"1\" { return 0 }",
       "evidence_kind": "provider_optional_or_missing",
@@ -10249,6 +10849,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "if env.get(\"STAGE1_EMIT_MIR_JSON\") == \"1\" { return 0 }",
       "evidence_kind": "provider_optional_or_missing",
@@ -10266,6 +10867,7 @@
     },
     {
       "backend_policy": "",
+      "classification_source": "pending_review",
       "current_carrier": "env.get",
       "evidence": "if env.get(\"STAGE1_SOURCE\") == null || env.get(\"STAGE1_SOURCE\") == \"\" { return 96 }",
       "evidence_kind": "provider_optional_or_missing",

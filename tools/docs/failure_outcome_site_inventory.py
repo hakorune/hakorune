@@ -31,6 +31,23 @@ EVIDENCE_QUERIES = (
     ("Result::Err", "result_constructor"),
 )
 
+REFERENCE_DEFAULTS = {
+    ("reference", "Option::None"): {
+        "semantic_class": "optional_absence",
+        "target_carrier": "Option::None",
+        "owner": "OptionValueOwner",
+        "migration_action": "relation_only",
+        "backend_policy": "reference_only",
+    },
+    ("reference", "Result::Err"): {
+        "semantic_class": "recoverable_failure",
+        "target_carrier": "Result::Err",
+        "owner": "ResultValueOwner",
+        "migration_action": "relation_only",
+        "backend_policy": "reference_only",
+    },
+}
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
@@ -94,6 +111,7 @@ def evidence_rows() -> list[dict[str, object]]:
                 if token not in line:
                     continue
                 site_id = f"{relative}:{line_number}:{token}"
+                defaults = REFERENCE_DEFAULTS.get((layer_for(path), token), {})
                 rows.append(
                     {
                         "site_id": site_id,
@@ -102,15 +120,18 @@ def evidence_rows() -> list[dict[str, object]]:
                         "source_path": relative,
                         "line": line_number,
                         "current_carrier": current_carrier(token),
-                        "semantic_class": "",
-                        "target_carrier": "",
-                        "owner": "",
+                        "semantic_class": defaults.get("semantic_class", ""),
+                        "target_carrier": defaults.get("target_carrier", ""),
+                        "owner": defaults.get("owner", ""),
                         "profile": "canonical" if layer_for(path) == "reference" else "implementation",
-                        "migration_action": "",
-                        "backend_policy": "",
+                        "migration_action": defaults.get("migration_action", ""),
+                        "backend_policy": defaults.get("backend_policy", ""),
                         "evidence_kind": evidence_kind,
                         "evidence": line.strip(),
-                        "review_status": "pending",
+                        "review_status": "classified" if defaults else "pending",
+                        "classification_source": "reference_relation_default"
+                        if defaults
+                        else "pending_review",
                     }
                 )
     return sorted(rows, key=lambda row: row["site_id"])
