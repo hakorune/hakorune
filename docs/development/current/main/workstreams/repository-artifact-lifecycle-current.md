@@ -25,7 +25,7 @@ active_order:
   H5 lifecycle enforcement
 ```
 
-## Current Slice
+## H0 Inventory Owner
 
 H0 creates one deterministic inventory generator and one manifest. It derives
 archive candidates from card status plus tracked references, including links
@@ -108,10 +108,34 @@ batch-005:
   docs_slim_archive_policy_guard = green
   dev_gate_quick = green
 
-next:
-  H1-BATCH-006-FINAL
-  maximum = 200
-  source = regenerated archive_candidates
+batch-006-final:
+  moved = 92
+  phase_direct = 1123 -> 1031
+  phase_archive = 2425 -> 2517
+  archive_candidate_count = 0
+  protected_referenced = 851
+  protected_needs_review = 177
+  inventory_strict = green
+  current_state_pointer_guard = green
+  docs_slim_archive_policy_guard = green
+  dev_gate_quick = green
+
+H1 closeout:
+  total_moved = 1092
+  closed_unreferenced_candidate_drain = complete
+  broad_phase_296x_archive_complete = 0
+```
+
+## Current Slice
+
+H2 inventories phase directories outside the active phase before any whole
+phase move. A phase is eligible only when current pointers, tracked references,
+and phase-local status evidence all prove it inactive. Ambiguous phases remain
+in place for review.
+
+```text
+next = H2-INACTIVE-PHASE-INVENTORY
+whole_phase_move_started = 0
 ```
 
 ## Non-Claims
