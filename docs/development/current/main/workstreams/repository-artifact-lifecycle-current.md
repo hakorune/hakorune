@@ -546,6 +546,28 @@ scalar contracts. Their closeout documents are guard-only and are owned as
 sidecars by the corresponding base row. No allocator behavior, arena backing,
 segment-map mutation, or backend capability is activated by this review.
 
+S3 allocation-readiness review closeout:
+
+```text
+reviewed_base_rows = 3
+supporting_rows = 3
+owned_sidecars = 3
+registered_rows = 121
+unregistered_current = 725
+unregistered_baseline = 732
+precedence_cycle_count = 0
+authority_rows_added = 0
+superseded_assignment = 0
+physical_move = 0
+projection_rows_remaining = 157
+next = modeled-consume/local-free explicit content review
+```
+
+The allocation-readiness scalar is proof-only and keeps real allocation/free,
+arena backing, raw pointer residence, segment-map lookup, bitmap/OSVM,
+threads, providers, and backend matchers inactive. Its guard-only closeout is
+the third owned sidecar; modeled consume and local-free rows remain unclassified.
+
 ## Non-Claims
 
 ```text

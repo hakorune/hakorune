@@ -157,6 +157,12 @@ created, and neither superseded assignment nor physical movement was made.
 The remaining queue is 159 rows; the next explicit review slice is
 allocation/local-reuse.
 
+The allocation-readiness scalar is also reviewed in this S3 pass as a
+proof-only supporting row under `mimalloc-hako-port-implementation-plan-ssot.md`.
+Its guard-only closeout is an owned sidecar. The registry now has 121 rows and
+three owned sidecars; 157 rows remain unclassified. Modeled consume and
+local-free documents are intentionally left for the next explicit review.
+
 ## Minimum Next Slice
 
 ```text

@@ -471,6 +471,19 @@ superseded_by = ""
 retire_when = "page membership proof is explicitly replaced and its closeout sidecar retires with it"
 
 [[documents]]
+path = "hako-alloc-segment-allocation-readiness-scalar-ssot.md"
+role = "supporting"
+owner = "mimalloc-hako-port-implementation-plan-ssot.md"
+precedence_parent = "mimalloc-hako-port-implementation-plan-ssot.md"
+classification_basis = "C2-S3:hako-alloc-segment/allocation-local-reuse; proof-only readiness and explicit inactive substrate boundaries"
+sidecars = [
+  "hako-alloc-segment-allocation-readiness-scalar-closeout-ssot.md",
+]
+supersedes = []
+superseded_by = ""
+retire_when = "allocation readiness proof is explicitly replaced and its closeout sidecar retires with it"
+
+[[documents]]
 path = "hako-alloc-policy-state-contract-ssot.md"
 role = "authority"
 owner = "INDEX.md"

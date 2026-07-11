@@ -1,6 +1,6 @@
 {
   "family": "hako-alloc-segment",
-  "input_unregistered_count": 159,
+  "input_unregistered_count": 157,
   "physical_move": 0,
   "role_assignment": "none",
   "rows": [
@@ -827,78 +827,6 @@
           "mutation",
           "release",
           "recycle"
-        ]
-      }
-    },
-    {
-      "classification_basis": "body evidence queue only; reviewer decision required",
-      "owner": "",
-      "path": "hako-alloc-segment-allocation-readiness-scalar-closeout-ssot.md",
-      "precedence_parent": "",
-      "review_status": "pending",
-      "role_hints": {
-        "sidecar-candidate": [
-          "closeout"
-        ],
-        "status-ledger-candidate": [
-          "readiness"
-        ]
-      },
-      "sidecar_owner": "",
-      "subfamily_candidate": "segment-allocation-and-local-reuse",
-      "subfamily_evidence": {
-        "segment-allocation-and-local-reuse": [
-          "segment allocation",
-          "allocation readiness"
-        ],
-        "segment-arena-backing-and-residence": [
-          "arena backing",
-          "pointer residence",
-          "bitmap",
-          "backing"
-        ],
-        "segment-map-and-release": [
-          "segment-map",
-          "lookup",
-          "release"
-        ]
-      }
-    },
-    {
-      "classification_basis": "body evidence queue only; reviewer decision required",
-      "owner": "",
-      "path": "hako-alloc-segment-allocation-readiness-scalar-ssot.md",
-      "precedence_parent": "",
-      "review_status": "pending",
-      "role_hints": {
-        "status-ledger-candidate": [
-          "readiness"
-        ],
-        "supporting-candidate": [
-          "proof-only"
-        ]
-      },
-      "sidecar_owner": "",
-      "subfamily_candidate": "segment-allocation-and-local-reuse",
-      "subfamily_evidence": {
-        "segment-allocation-and-local-reuse": [
-          "segment allocation",
-          "allocation readiness"
-        ],
-        "segment-arena-backing-and-residence": [
-          "arena backing",
-          "pointer residence",
-          "bitmap",
-          "backing"
-        ],
-        "segment-lifecycle-and-membership": [
-          "segment state"
-        ],
-        "segment-map-and-release": [
-          "segment map",
-          "segment-map",
-          "lookup",
-          "release"
         ]
       }
     },
