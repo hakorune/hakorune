@@ -4,7 +4,7 @@ Scope: CorePlan — unknown loop acceptance by composition (generic loop v0)
 Related:
 - docs/development/current/main/design/coreplan-unknown-loop-strategy-ssot.md
 - docs/development/current/main/design/coreloop-generic-loop-v0-ssot.md
-- docs/development/current/main/phases/phase-29bg/README.md
+- docs/development/archive/phases/phase-29bg/README.md
 - docs/development/current/main/phases/phase-29ae/README.md
 ---
 
@@ -60,7 +60,7 @@ Related:
 
 ## Instructions
 
-- P0: `docs/development/current/main/phases/phase-29ca/P0-GENERIC-LOOP-V0-INSTRUCTIONS.md`
-- P2: `docs/development/current/main/phases/phase-29ca/P2-SELFHOST-HAKO_CHECK-BRINGUP-INSTRUCTIONS.md`
-- P3: `docs/development/current/main/phases/phase-29ca/P3-GENERIC-LOOP-V0_1-CONTINUE-INSTRUCTIONS.md`
-- P4: `docs/development/current/main/phases/phase-29ca/P4-CLOSEOUT-INSTRUCTIONS.md`
+- P0: `docs/development/archive/phases/phase-29ca/P0-GENERIC-LOOP-V0-INSTRUCTIONS.md`
+- P2: `docs/development/archive/phases/phase-29ca/P2-SELFHOST-HAKO_CHECK-BRINGUP-INSTRUCTIONS.md`
+- P3: `docs/development/archive/phases/phase-29ca/P3-GENERIC-LOOP-V0_1-CONTINUE-INSTRUCTIONS.md`
+- P4: `docs/development/archive/phases/phase-29ca/P4-CLOSEOUT-INSTRUCTIONS.md`

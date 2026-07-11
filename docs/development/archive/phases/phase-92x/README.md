@@ -7,7 +7,7 @@ Related:
   - docs/development/current/main/05-Restart-Quick-Resume.md
   - docs/development/current/main/10-Now.md
   - docs/development/current/main/15-Workstream-Map.md
-  - docs/development/current/main/phases/phase-91x/README.md
+  - docs/development/archive/phases/phase-91x/README.md
   - lang/src/runner/README.md
 ---
 

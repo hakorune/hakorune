@@ -440,7 +440,7 @@ file.fini()  // explicit resource boundary
 - [BID-FFI v1 実装仕様書](./bid-ffi-v1-actual-specification.md)
 - [Phase 9.78a VM Plugin Integration](../../予定/native-plan/issues/phase_9_78a_vm_plugin_integration.md)
 - [Phase 9.78a 深層分析](../../予定/native-plan/issues/phase_9_78a_vm_plugin_integration_deep_analysis.md)
- - [nyash.toml v2.1: BoxRef仕様](../plugin-system/nyash-toml-v2_1-spec.md)
+ - [nyash.toml v2.1: BoxRef仕様](nyash-toml-v2_1-spec.md)
 
 ### 付録: 引数エンコード（v2.1 追加）
 - TLVタグ: 1=Bool, 2=I32, 3=I64, 4=F32, 5=F64, 6=String, 7=Bytes, 8=Handle(BoxRef)

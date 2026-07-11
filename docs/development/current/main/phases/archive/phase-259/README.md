@@ -2,7 +2,7 @@ Status: ✅ P0 Complete
 Scope: `StringUtils.is_integer/1`（nested-if + loop）を JoinIR で受理して `--profile quick` を進める。
 Related:
 - Now: `docs/development/current/main/10-Now.md`
-- Phase 258: `docs/development/current/main/phases/phase-258/README.md`
+- Phase 258: `docs/development/archive/phases/phase-258/README.md`
 - Design goal: `docs/development/current/main/design/join-explicit-cfg-construction.md`
 
 # Phase 259: `StringUtils.is_integer/1` (nested-if + loop)

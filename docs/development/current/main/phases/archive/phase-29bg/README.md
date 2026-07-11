@@ -2,7 +2,7 @@
 Status: Complete
 Scope: Selfhost entry — hako_check (a.k.a. hack_check) bringup
 Related:
-- docs/development/current/main/phases/phase-29bf/SELFHOST_HANDOFF.md
+- docs/development/archive/phases/phase-29bf/SELFHOST_HANDOFF.md
 - docs/development/current/main/design/selfhost-coreplan-unblocking-policy.md
 - docs/development/current/main/design/selfhost-tools-loopless-subset-ssot.md
 - docs/development/current/main/design/COREPLAN_GENERAL_LOOP_DECOMPOSITION_INQUIRY.md
@@ -32,9 +32,9 @@ Related:
 
 ## Instructions
 
-- P0: `docs/development/current/main/phases/phase-29bg/P0-RUN-HAKO_CHECK-GATE-INSTRUCTIONS.md`
-- P1: `docs/development/current/main/phases/phase-29bg/P1-UNBLOCK-HAKO_CHECK-STRINGHELPERS-LOOPS-INSTRUCTIONS.md`
-- P2: `docs/development/current/main/phases/phase-29bg/P2-MAKE-HAKO_CHECK-LOOPLESS-INSTRUCTIONS.md`
+- P0: `docs/development/archive/phases/phase-29bg/P0-RUN-HAKO_CHECK-GATE-INSTRUCTIONS.md`
+- P1: `docs/development/archive/phases/phase-29bg/P1-UNBLOCK-HAKO_CHECK-STRINGHELPERS-LOOPS-INSTRUCTIONS.md`
+- P2: `docs/development/archive/phases/phase-29bg/P2-MAKE-HAKO_CHECK-LOOPLESS-INSTRUCTIONS.md`
 
 ## Gate (SSOT)
 

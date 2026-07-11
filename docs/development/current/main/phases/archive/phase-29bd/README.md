@@ -28,9 +28,9 @@ strict/dev で fallback を 0 に収束させるため、Ok(None)/unsupported/un
 
 ## Instructions
 
-- P0: `docs/development/current/main/phases/phase-29bd/P0-INVENTORY-OKNONE-UNSUPPORTED-INSTRUCTIONS.md`
-- P1: `docs/development/current/main/phases/phase-29bd/P1-CONVERGE-STRICTDEV-FALLBACK-INSTRUCTIONS.md`
-- P2: `docs/development/current/main/phases/phase-29bd/P2-CLOSEOUT-INSTRUCTIONS.md`
+- P0: `docs/development/archive/phases/phase-29bd/P0-INVENTORY-OKNONE-UNSUPPORTED-INSTRUCTIONS.md`
+- P1: `docs/development/archive/phases/phase-29bd/P1-CONVERGE-STRICTDEV-FALLBACK-INSTRUCTIONS.md`
+- P2: `docs/development/archive/phases/phase-29bd/P2-CLOSEOUT-INSTRUCTIONS.md`
 
 ## Inventory (P0)
 

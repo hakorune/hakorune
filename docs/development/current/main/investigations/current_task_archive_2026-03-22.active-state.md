@@ -15,7 +15,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - `0rust` buildability contract の Next は `docs/development/current/main/design/de-rust-zero-buildability-contract-ssot.md` を単一正本に固定する。
 - `stage0/stage1/stage2+` と `owner/substrate` の軸分離は `docs/development/current/main/design/de-rust-stage-and-owner-axis-ssot.md` を単一正本に固定する。
 - backend-zero fixed order / buildability gate の Next は `docs/development/current/main/design/de-rust-backend-zero-fixed-order-and-buildability-ssot.md` を単一正本に固定する。
-- repo physical cleanup / BoxShape cleanup の Next は `docs/development/current/main/phases/phase-29cr/README.md` を単一正本に固定する。P0 root hygiene の first batch は landed（root scratch/docs archive move + `*.err` / `*.backup*` ignore）で、次は P1 `CURRENT_TASK` slim。
+- repo physical cleanup / BoxShape cleanup の Next は `docs/development/archive/phases/phase-29cr/README.md` を単一正本に固定する。P0 root hygiene の first batch は landed（root scratch/docs archive move + `*.err` / `*.backup*` ignore）で、次は P1 `CURRENT_TASK` slim。
 - stage axis: `stage0` Rust bootstrap keep / `stage1` proof / `stage2+` daily mainline
 - owner axis practical end-state: `.hako` owns kernel meaning/policy/control, Rust stays bootstrap/recovery/raw substrate, and LLVM remains the primary backend substrate
 

@@ -225,19 +225,19 @@ Pattern9 (AccumConstLoop) を Plan/Frag SSOT に移行完了。PHI 2本（loop_v
 - Phase 141 P1.5: known intrinsic registry + available_inputs 3-source merge + diagnostics（DONE）
   - `docs/development/current/main/phases/archive/phase-141/README.md`
 - Phase 142-loopstmt P0: 正規化単位を statement（loop 1個）へ寄せる（DONE）
-  - `docs/development/current/main/phases/phase-142-loopstmt/README.md`
+  - `docs/development/archive/phases/phase-142-loopstmt/README.md`
 - Phase 142-loopstmt P1: LLVM EXE smoke（同 fixture）を追加（DONE）
-  - `docs/development/current/main/phases/phase-142-loopstmt/README.md`
+  - `docs/development/archive/phases/phase-142-loopstmt/README.md`
 - Phase 141 P2+: Call/MethodCall（effects + typing）を分離して段階投入
   - Historical context: `docs/development/current/main/investigations/joinir-generalization-study.md`
 - Phase 143-loopvocab P0/P1: loop 内 if/break/continue の語彙追加（DONE）
-  - `docs/development/current/main/phases/phase-143-loopvocab/README.md`
+  - `docs/development/archive/phases/phase-143-loopvocab/README.md`
 - Phase 143-loopvocab P2: else 対称化（B-C / C-B）（DONE）
-  - `docs/development/current/main/phases/phase-143-loopvocab/README.md`
+  - `docs/development/archive/phases/phase-143-loopvocab/README.md`
 - Phase 145-anf P0/P1/P2: ANF（impure hoist + 再帰的線形化）（DONE）
-  - `docs/development/current/main/phases/phase-145-anf/README.md`
+  - `docs/development/archive/phases/phase-145-anf/README.md`
 - Phase 146（in progress）: Loop/If 条件式へ ANF を横展開（順序固定と診断）
-  - `docs/development/current/main/phases/phase-146/README.md`
+  - `docs/development/archive/phases/phase-146/README.md`
 
 ## Resolved (historical)
 

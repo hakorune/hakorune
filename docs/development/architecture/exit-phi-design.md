@@ -206,7 +206,7 @@ Pattern 1 Minimal:
 
 ## References
 
-- Phase 132 実装ログ: `docs/development/current/main/phases/phase-132/`
+- Phase 132 実装ログ: `docs/development/archive/phases/phase-132/`
 - Boundary アーキテクチャ: `docs/development/architecture/phase-33-modularization.md`
 - JoinIR 全体設計: `docs/development/current/main/joinir-architecture-overview.md`
 

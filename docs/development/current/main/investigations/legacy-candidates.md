@@ -145,7 +145,7 @@ Phase 256+ で特定された、将来削除可能な legacy コード候補を�
 
 ## 参考リンク
 
-- Phase 256 P1.7 設計: [phase-256/README.md](../phases/phase-256/README.md)
+- Phase 256 P1.7 設計: [phase-256/README.md](../../../archive/phases/phase-256/README.md)
 - JoinIR 設計マップ: [design/joinir-design-map.md](../design/joinir-design-map.md)
 - JoinIR アーキテクチャ: [joinir-architecture-overview.md](../joinir-architecture-overview.md)
 

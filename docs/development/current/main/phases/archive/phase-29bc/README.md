@@ -31,9 +31,9 @@ Related:
 
 ## Instructions
 
-- P0: `docs/development/current/main/phases/phase-29bc/P0-COMPOSER-API-SSOT-INSTRUCTIONS.md`
-- P1: `docs/development/current/main/phases/phase-29bc/P1-COMPOSER-CLEANUP-INSTRUCTIONS.md`
-- P2: `docs/development/current/main/phases/phase-29bc/P2-CLOSEOUT-INSTRUCTIONS.md`
+- P0: `docs/development/archive/phases/phase-29bc/P0-COMPOSER-API-SSOT-INSTRUCTIONS.md`
+- P1: `docs/development/archive/phases/phase-29bc/P1-COMPOSER-CLEANUP-INSTRUCTIONS.md`
+- P2: `docs/development/archive/phases/phase-29bc/P2-CLOSEOUT-INSTRUCTIONS.md`
 
 ## Gate (SSOT)
 

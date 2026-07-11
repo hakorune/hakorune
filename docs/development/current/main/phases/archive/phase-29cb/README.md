@@ -4,7 +4,7 @@ Scope: CorePlan — generic loop v0.2 (in-body step normalization)
 Related:
 - docs/development/current/main/design/coreloop-generic-loop-v0-ssot.md
 - docs/development/current/main/design/coreplan-unknown-loop-strategy-ssot.md
-- docs/development/current/main/phases/phase-29ca/README.md
+- docs/development/archive/phases/phase-29ca/README.md
 - docs/development/current/main/phases/phase-29ae/README.md
 ---
 
@@ -60,5 +60,5 @@ generic loop v0.1 が受理できない “途中 step” を、CorePlan の語�
 
 ## Instructions
 
-- P0: `docs/development/current/main/phases/phase-29cb/P0-INBODY-STEP-NORMALIZATION-INSTRUCTIONS.md`
-- P1: `docs/development/current/main/phases/phase-29cb/P1-INBODY-STEP-NORMALIZATION-IMPLEMENTATION-INSTRUCTIONS.md`
+- P0: `docs/development/archive/phases/phase-29cb/P0-INBODY-STEP-NORMALIZATION-INSTRUCTIONS.md`
+- P1: `docs/development/archive/phases/phase-29cb/P1-INBODY-STEP-NORMALIZATION-IMPLEMENTATION-INSTRUCTIONS.md`

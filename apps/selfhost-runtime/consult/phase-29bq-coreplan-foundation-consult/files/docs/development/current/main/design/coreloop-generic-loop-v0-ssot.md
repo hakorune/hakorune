@@ -75,7 +75,7 @@ generic_loop_v0 は “ループ変数が左辺に現れる” 等の形依存�
 現状の v0 は「loop body は effect-only」を前提とし、loop を “構造部品” として積みにくい。
 これを解消して CorePlan を整理するため、v1 では次を予定する（設計相談で合意済み、実装は別フェーズで段階投入する）:
 
-- Implementation SSOT: `docs/development/current/main/phases/phase-29bs/README.md`
+- Implementation SSOT: `docs/development/archive/phases/phase-29bs/README.md`
 - `Loop.body` が `CorePlan`（木）を持てるようにする（`Seq/If/Loop` をネスト可能にする）
 - `Break/Continue` は `depth`（最内=1）を持つ形へ解決する（将来のラベルは freeze で depth へ解決し、by-name を残さない）
 - Lowerer は loop frame stack（break/continue の target をスタックで解決）で lowering する

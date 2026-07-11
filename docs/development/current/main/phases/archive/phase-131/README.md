@@ -178,7 +178,7 @@ Expected contract for fixture: exit code `1` (return value)
 
 ### Step 0: Documentation
 
-- ✅ Create `docs/development/current/main/phases/phase-131/README.md`
+- ✅ Create `docs/development/archive/phases/phase-131/README.md`
 - ✅ Update `docs/development/current/main/10-Now.md` Next section
 
 ### Step 1: Fixtures + Smokes
@@ -310,6 +310,6 @@ Phase 131 P2 provides:
 
 ### Design Notes (historical)
 
-- `docs/development/current/main/phases/phase-131/p1.5-root-cause-summary.md`
-- `docs/development/current/main/phases/phase-131/p1.5-option-b-analysis.md`
-- `docs/development/current/main/phases/phase-131/p1.5-implementation-guide.md`
+- `docs/development/archive/phases/phase-131/p1.5-root-cause-summary.md`
+- `docs/development/archive/phases/phase-131/p1.5-option-b-analysis.md`
+- `docs/development/archive/phases/phase-131/p1.5-implementation-guide.md`

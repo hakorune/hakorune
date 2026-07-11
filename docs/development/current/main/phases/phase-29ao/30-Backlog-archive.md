@@ -22,31 +22,31 @@ Related:
   - 入口: `docs/development/current/main/phases/phase-29af/README.md`
 
 - **Phase 29ag（✅ COMPLETE）: JoinIR merge SSOT unification**
-  - 入口: `docs/development/current/main/phases/phase-29ag/README.md`
+  - 入口: `docs/development/archive/phases/phase-29ag/README.md`
 
 - **Phase 29ah（✅ COMPLETE）: JoinIR regression pack expansion（real-world coverage）**
-  - 入口: `docs/development/current/main/phases/phase-29ah/README.md`
+  - 入口: `docs/development/archive/phases/phase-29ah/README.md`
 
 - **Phase 29aj（candidate）: PlannerOutcome observability SSOT**
-  - 入口: `docs/development/current/main/phases/phase-29aj/README.md`
+  - 入口: `docs/development/archive/phases/phase-29aj/README.md`
   - 状況: P0/P1/P2/P3/P4/P5/P6/P7/P8/P9/P10 ✅ 完了
   - Next: Phase 29aj P11（TBD）
   - 運用: integration filter で phase143_* は回さない（JoinIR 回帰は phase29ae pack のみ）
   - 運用: phase286_pattern9_* は legacy pack (SKIP) を使う
 
 - **Phase 29ak（candidate）: PlanRuleOrder SSOT + PlannerContext plumbing**
-  - 入口: `docs/development/current/main/phases/phase-29ak/README.md`
+  - 入口: `docs/development/archive/phases/phase-29ak/README.md`
   - 状況: P0/P1/P2/P3/P4/P5 ✅ 完了
   - Next: None（phase-29al へ）
 
 - **Phase 29al（candidate）: CorePlan composition hardening (docs-first)**
-  - 入口: `docs/development/current/main/phases/phase-29al/README.md`
+  - 入口: `docs/development/archive/phases/phase-29al/README.md`
   - 状況: P0/P1/P2/P3 ✅ 完了（docs-only）
   - Next: P4（unwind を含む ExitKind 拡張: design only）
   - 道筋 SSOT: `docs/development/current/main/design/coreplan-migration-roadmap-ssot.md`
 
 - **Phase 29am（✅ COMPLETE）: CorePlan Step-A implementation (lowerer/verifier)**
-  - 入口: `docs/development/current/main/phases/phase-29am/README.md`
+  - 入口: `docs/development/archive/phases/phase-29am/README.md`
   - 状況: P0/P1/P2/P3 ✅ 完了
   - Next: Phase 29an
   - Gate: `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh`
@@ -59,29 +59,29 @@ Related:
   - 入口: `docs/development/current/main/phases/phase-29ae/README.md`
 
 - **Phase 29ad（✅ COMPLETE）: Naming SSOT for Pattern6/7 fixtures**
-  - 入口: `docs/development/current/main/phases/phase-29ad/README.md`
+  - 入口: `docs/development/archive/phases/phase-29ad/README.md`
 
 - **Phase 29ac（✅ COMPLETE）: De-freeze Pattern6/7**
-  - 入口: `docs/development/current/main/phases/phase-29ac/README.md`
+  - 入口: `docs/development/archive/phases/phase-29ac/README.md`
 
 - **Phase 29ab（✅ COMPLETE）: JoinIR completion triage**
-  - 入口: `docs/development/current/main/phases/phase-29ab/README.md`
+  - 入口: `docs/development/archive/phases/phase-29ab/README.md`
 
 - **Phase 288（✅ P0–P3 + 288.1 complete）: REPL mode**
-  - 入口: `docs/development/current/main/phases/phase-288/README.md`
+  - 入口: `docs/development/archive/phases/phase-288/README.md`
   - SSOT: `docs/reference/language/repl.md`
   - 次: Phase 288.2+（任意）: REPL UX improvements（history / multiline / load 等）
 
 - **Phase 287（✅ COMPLETE）: Developer Hygiene（意味論不変）**
   - 状況: P0–P9 ✅ 完了（big files / facade / SSOT / docs guard / closeout）
   - 成果: merge/mod.rs (1,555→1,053行), ast_feature_extractor (1,148→135行), plan.rs (741→120行)
-  - 入口: `docs/development/current/main/phases/phase-287/README.md`
+  - 入口: `docs/development/archive/phases/phase-287/README.md`
 
 - **Phase 284（✅ COMPLETE）: Return as ExitKind SSOT（patternに散らさない）**
   - 目的: `return` を “pattern最適化の個別実装” にせず、`ExitKind` と `compose::*` / `emit_frag()` に収束させる
   - ねらい: 移行期間中の「二重ルール」「検出の穴」を減らし、将来の pattern 増殖を防ぐ
   - 入口: `docs/development/current/main/phases/archive/phase-284/README.md`
-  - P0（docs-only）: `docs/development/current/main/phases/phase-284/P0-INSTRUCTIONS.md`
+  - P0（docs-only）: `docs/development/archive/phases/phase-284/P0-INSTRUCTIONS.md`
   - SSOT:
     - Composition: `src/mir/builder/control_flow/edgecfg/api/compose/mod.rs`
     - Terminator emission: `emit_frag()`（`src/mir/builder/control_flow/edgecfg/api/emit.rs`）
@@ -171,10 +171,10 @@ Related:
     - JoinIR line 共通入口: `src/mir/builder/control_flow/joinir/patterns/conversion_pipeline.rs`
 
 - （✅ done）**Phase 282**: Router shrinkage + detection SSOT + extractor refactor
-  - 完了: `docs/development/current/main/phases/phase-282/README.md`
+  - 完了: `docs/development/archive/phases/phase-282/README.md`
 
 （✅ done）**Phase 279 P0**: Type propagation pipeline SSOT 統一（lifecycle / JoinIR / LLVM の二重化解消）
-  - 完了: `docs/development/current/main/phases/phase-279/README.md`
+  - 完了: `docs/development/archive/phases/phase-279/README.md`
 
 - **Phase 272（✅ complete）: Pattern6/7 を Frag+emit_frag へ吸収（段階適用）**
   - 目的: scan系 loop の CFG 構築を `Frag/ExitKind` 合成へ寄せ、pattern列挙の増殖を止める
@@ -183,17 +183,17 @@ Related:
   - 詳細: `phases/phase-272/README.md`
 
 - （✅ done）**Phase 273**: Plan line SSOT（Pattern6/7）
-  - 完了: `docs/development/current/main/phases/phase-273/README.md`
+  - 完了: `docs/development/archive/phases/phase-273/README.md`
 
 - （✅ done）**Phase 280**: Frag composition SSOT positioning
   - 完了: `docs/development/current/main/phases/phase-280/README.md`
 
 - （✅ done）**Phase 281**: compose adoption（Pattern6/7, P0–P3）
-  - 完了: `docs/development/current/main/phases/phase-281/README.md`
+  - 完了: `docs/development/archive/phases/phase-281/README.md`
 
 - （✅ done）**Phase 277/278**: PHI strict + env var 収束
-  - 完了: `docs/development/current/main/phases/phase-277/README.md`
-  - 完了: `docs/development/current/main/phases/phase-278/README.md`
+  - 完了: `docs/development/archive/phases/phase-277/README.md`
+  - 完了: `docs/development/archive/phases/phase-278/README.md`
 
 
 - **Phase 274（active, design-first）: Type SSOT Alignment（local + dynamic runtime）**

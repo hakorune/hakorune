@@ -200,4 +200,4 @@ This ensures PHIs are included in `vmap_cur` when lowering their defining block.
 
 ## Related Documents
 - [Phase 131-3 LLVM Lowering Inventory](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phase131-3-llvm-lowering-inventory.md)
-- [Phase 132 Summary](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-132/README.md)
+- [Phase 132 Summary](/home/tomoaki/git/hakorune-selfhost/docs/development/archive/phases/phase-132/README.md)

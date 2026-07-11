@@ -6,7 +6,7 @@ Related:
 - docs/development/current/main/30-Backlog.md
 - docs/development/current/main/design/coreplan-migration-roadmap-ssot.md
 - docs/development/current/main/design/joinir-planner-required-gates-ssot.md
-- docs/development/current/main/phases/phase-29bp/README.md
+- docs/development/archive/phases/phase-29bp/README.md
 ---
 
 # Phase 29bq: planner-required → selfhost entry wiring

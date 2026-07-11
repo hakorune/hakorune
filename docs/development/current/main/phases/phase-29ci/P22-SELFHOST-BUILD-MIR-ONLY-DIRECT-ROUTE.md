@@ -5,7 +5,7 @@ Date: 2026-04-30
 Scope: let `tools/selfhost/selfhost_build.sh --mir <file>` use its direct MIR owner without first materializing Program(JSON v0) when no Stage-B artifact/debug output is requested.
 Related:
   - docs/development/current/main/phases/phase-29ci/P21-PROGRAM-JSON-V0-INVENTORY-WORDING-SYNC.md
-  - docs/development/current/main/phases/phase-39x/39x-90-stage0-vm-gate-thinning-ssot.md
+  - docs/development/archive/phases/phase-39x/39x-90-stage0-vm-gate-thinning-ssot.md
   - tools/selfhost/README.md
   - tools/selfhost/selfhost_build.sh
 ---

@@ -33,9 +33,9 @@ Stage-3 では **DomainPlan 経由の合成（PlanNormalizer::normalize(domain_p
 
 ## Instructions
 
-- P0: `docs/development/current/main/phases/phase-29be/P0-INVENTORY-DOMAINPLAN-FREE-GATE-INSTRUCTIONS.md`
-- P1: `docs/development/current/main/phases/phase-29be/P1-REMOVE-DOMAINPLAN-NORMALIZE-IN-COMPOSER-INSTRUCTIONS.md`
-- P2: `docs/development/current/main/phases/phase-29be/P2-NO-LOWER_VIA_PLAN-IN-GATE-INSTRUCTIONS.md`
+- P0: `docs/development/archive/phases/phase-29be/P0-INVENTORY-DOMAINPLAN-FREE-GATE-INSTRUCTIONS.md`
+- P1: `docs/development/archive/phases/phase-29be/P1-REMOVE-DOMAINPLAN-NORMALIZE-IN-COMPOSER-INSTRUCTIONS.md`
+- P2: `docs/development/archive/phases/phase-29be/P2-NO-LOWER_VIA_PLAN-IN-GATE-INSTRUCTIONS.md`
 
 ## Inventory (P0)
 

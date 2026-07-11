@@ -31,9 +31,9 @@ as the long-term final form, without changing release behavior.
 
 ## Instructions
 
-- P0: `docs/development/current/main/phases/phase-29at/P0-BRANCHN-SKELETON-RESERVATION-INSTRUCTIONS.md`
-- P1: `docs/development/current/main/phases/phase-29at/P1-BRANCHN-COREPLAN-SCAFFOLD-INSTRUCTIONS.md`
-- P2: `docs/development/current/main/phases/phase-29at/P2-BRANCHN-LOWERER-INSTRUCTIONS.md`
-- P3: `docs/development/current/main/phases/phase-29at/P3-MATCH-RETURN-MIN-SUBSET-INSTRUCTIONS.md`
-- P4: `docs/development/current/main/phases/phase-29at/P4-MATCH-RETURN-RELEASE-ADOPT-INSTRUCTIONS.md`
-- P5: `docs/development/current/main/phases/phase-29at/P5-CLOSEOUT-INSTRUCTIONS.md`
+- P0: `docs/development/archive/phases/phase-29at/P0-BRANCHN-SKELETON-RESERVATION-INSTRUCTIONS.md`
+- P1: `docs/development/archive/phases/phase-29at/P1-BRANCHN-COREPLAN-SCAFFOLD-INSTRUCTIONS.md`
+- P2: `docs/development/archive/phases/phase-29at/P2-BRANCHN-LOWERER-INSTRUCTIONS.md`
+- P3: `docs/development/archive/phases/phase-29at/P3-MATCH-RETURN-MIN-SUBSET-INSTRUCTIONS.md`
+- P4: `docs/development/archive/phases/phase-29at/P4-MATCH-RETURN-RELEASE-ADOPT-INSTRUCTIONS.md`
+- P5: `docs/development/archive/phases/phase-29at/P5-CLOSEOUT-INSTRUCTIONS.md`

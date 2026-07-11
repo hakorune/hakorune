@@ -2,7 +2,7 @@ Status: Completed
 Scope: Phase 252 (JoinIR LoopBreak 条件: `this.methodcall(...)` 対応 + policy SSOT)
 Related:
 - docs/development/current/main/10-Now.md
-- docs/development/current/main/phases/phase-251/README.md
+- docs/development/archive/phases/phase-251/README.md
 
 # Phase 252: LoopBreak 条件の `this.methodcall(...)` 対応
 

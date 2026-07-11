@@ -4,7 +4,7 @@ Decision: accepted
 Date: 2026-05-01
 Scope: archive stale phase-132x root proof wrappers that are no longer active gates.
 Related:
-  - docs/development/current/main/phases/phase-132x/README.md
+  - docs/development/archive/phases/phase-132x/README.md
   - docs/development/current/main/phases/phase-29ci/P0-PROGRAM-JSON-V0-CONSUMER-INVENTORY.md
   - tools/archive/manual-smokes/README.md
 ---

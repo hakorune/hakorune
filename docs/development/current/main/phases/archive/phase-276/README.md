@@ -10,8 +10,8 @@ Scope (P0):
 - Make “PHI type mismatch” more visible (fail-fast friendly diagnostics).
 
 Docs:
-- Instructions: `docs/development/current/main/phases/phase-276/P0-INSTRUCTIONS.md`
-- Completion: `docs/development/current/main/phases/phase-276/P0-COMPLETION.md`
+- Instructions: `docs/development/archive/phases/phase-276/P0-INSTRUCTIONS.md`
+- Completion: `docs/development/archive/phases/phase-276/P0-COMPLETION.md`
 
 Note (important):
 - The “two pipelines / order drift” root cause is tracked separately as **Phase 279** (pipeline SSOT unification).

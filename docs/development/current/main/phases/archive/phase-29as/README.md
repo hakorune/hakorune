@@ -26,10 +26,10 @@ release logs unchanged.
 
 ## Instructions
 
-- P0: `docs/development/current/main/phases/phase-29as/P0-COREPLAN-PURITY-STAGE1-SSOT-INSTRUCTIONS.md`
-- P1: `docs/development/current/main/phases/phase-29as/P1-FALLBACK-VISIBILITY-INSTRUCTIONS.md`
-- P2: `docs/development/current/main/phases/phase-29as/P2-PURITY-GATE-SMOKE-INSTRUCTIONS.md`
-- P3: `docs/development/current/main/phases/phase-29as/P3-CLOSEOUT-INSTRUCTIONS.md`
+- P0: `docs/development/archive/phases/phase-29as/P0-COREPLAN-PURITY-STAGE1-SSOT-INSTRUCTIONS.md`
+- P1: `docs/development/archive/phases/phase-29as/P1-FALLBACK-VISIBILITY-INSTRUCTIONS.md`
+- P2: `docs/development/archive/phases/phase-29as/P2-PURITY-GATE-SMOKE-INSTRUCTIONS.md`
+- P3: `docs/development/archive/phases/phase-29as/P3-CLOSEOUT-INSTRUCTIONS.md`
 
 ## Next (planned)
 

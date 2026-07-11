@@ -439,7 +439,7 @@
       - `docs/tools/README.md`（tools quick entry 導線）
   52. [done] APP-PERF-01: chip8 kernel の real-app crosslang baseline を追加
     - 目的: VM / LLVM-AOT / C / Python の4系統を同一ロジックで比較できる最小契約を固定
-    - 指示書: `docs/development/current/main/phases/phase-21.5/APP-PERF-01-CHIP8-CROSSLANG-INSTRUCTIONS.md`
+    - 指示書: `docs/development/archive/phases/phase-21.5/APP-PERF-01-CHIP8-CROSSLANG-INSTRUCTIONS.md`
     - 実装:
       - `bench_chip8_kernel_small.{hako,c,py}`（同一ロジック）
       - `tools/perf/bench_compare_c_py_vs_hako.sh`（4-way summary）
@@ -491,7 +491,7 @@
       - `tools/perf/bench_crosslang_apps_bundle.sh`（unified harness）
       - `phase21_5_perf_apps_crosslang_bundle_contract_vm.sh`（契約スモーク）
       - `PERF_GATE_APPS_CROSSLANG_BUNDLE_CHECK` optional 配線（gate/bundle）
-      - 指示書: `docs/development/current/main/phases/phase-21.5/APP-PERF-03-CROSSLANG-APPS-BUNDLE-INSTRUCTIONS.md`
+      - 指示書: `docs/development/archive/phases/phase-21.5/APP-PERF-03-CROSSLANG-APPS-BUNDLE-INSTRUCTIONS.md`
     - 受け入れ:
       - `tools/perf/bench_crosslang_apps_bundle.sh 1 1 1 1` 緑
       - `bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_apps_crosslang_bundle_contract_vm.sh` 緑

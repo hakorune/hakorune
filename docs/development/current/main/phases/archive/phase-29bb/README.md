@@ -33,11 +33,11 @@ CorePlan 合成の入口（CoreLoopComposer）を **feature-driven の単一入�
 
 ## Instructions
 
-- P0: `docs/development/current/main/phases/phase-29bb/P0-CORELOOP-COMPOSER-SINGLE-ENTRY-SSOT-INSTRUCTIONS.md`
-- P1: `docs/development/current/main/phases/phase-29bb/P1-IMPLEMENT-SINGLE-ENTRY-INSTRUCTIONS.md`
-- P2: `docs/development/current/main/phases/phase-29bb/P2-SHADOW_ADOPT-USE-SINGLE-ENTRY-INSTRUCTIONS.md`
-- P3: `docs/development/current/main/phases/phase-29bb/P3-CLOSEOUT-INSTRUCTIONS.md`
-- P2: `docs/development/current/main/phases/phase-29bb/P2-SHADOW_ADOPT-USE-SINGLE-ENTRY-INSTRUCTIONS.md`
+- P0: `docs/development/archive/phases/phase-29bb/P0-CORELOOP-COMPOSER-SINGLE-ENTRY-SSOT-INSTRUCTIONS.md`
+- P1: `docs/development/archive/phases/phase-29bb/P1-IMPLEMENT-SINGLE-ENTRY-INSTRUCTIONS.md`
+- P2: `docs/development/archive/phases/phase-29bb/P2-SHADOW_ADOPT-USE-SINGLE-ENTRY-INSTRUCTIONS.md`
+- P3: `docs/development/archive/phases/phase-29bb/P3-CLOSEOUT-INSTRUCTIONS.md`
+- P2: `docs/development/archive/phases/phase-29bb/P2-SHADOW_ADOPT-USE-SINGLE-ENTRY-INSTRUCTIONS.md`
 
 ## Gate (SSOT)
 

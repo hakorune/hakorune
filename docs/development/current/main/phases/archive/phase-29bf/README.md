@@ -5,7 +5,7 @@ Related:
 - docs/development/current/main/design/coreplan-migration-done-criteria-ssot.md
 - docs/development/current/main/design/coreplan-migration-roadmap-ssot.md
 - docs/development/current/main/phases/phase-29ae/README.md
-- docs/development/current/main/phases/phase-29be/README.md
+- docs/development/archive/phases/phase-29be/README.md
 ---
 
 # Phase 29bf: CorePlan migration finalization（Done SSOT + selfhost handoff）
@@ -28,9 +28,9 @@ CorePlan 移行が SSOT の Done criteria を満たしていることを “手�
 
 ## Instructions
 
-- P0: `docs/development/current/main/phases/phase-29bf/P0-DONE-CRITERIA-VERIFICATION-INSTRUCTIONS.md`
-- P1: `docs/development/current/main/phases/phase-29bf/P1-SELFHOST-HANDOFF-INSTRUCTIONS.md`
-- P2: `docs/development/current/main/phases/phase-29bf/P2-CLOSEOUT-INSTRUCTIONS.md`
+- P0: `docs/development/archive/phases/phase-29bf/P0-DONE-CRITERIA-VERIFICATION-INSTRUCTIONS.md`
+- P1: `docs/development/archive/phases/phase-29bf/P1-SELFHOST-HANDOFF-INSTRUCTIONS.md`
+- P2: `docs/development/archive/phases/phase-29bf/P2-CLOSEOUT-INSTRUCTIONS.md`
 
 ## Gate (SSOT)
 

@@ -127,10 +127,10 @@ AOT ランタイム（nyrt）は `ny_main()` の返り値が **raw i64** か **h
 
 ## Instructions
 
-- P0 Claude Code: `docs/development/current/main/phases/phase-273/P0-CLAUDE.md`
-- P1 Claude Code: `docs/development/current/main/phases/phase-273/P1-CLAUDE.md`
-- P2 Completion: `docs/development/current/main/phases/phase-273/P2-COMPLETION.md`
-- P3 Claude Code: `docs/development/current/main/phases/phase-273/P3-CLAUDE.md`
+- P0 Claude Code: `docs/development/archive/phases/phase-273/P0-CLAUDE.md`
+- P1 Claude Code: `docs/development/archive/phases/phase-273/P1-CLAUDE.md`
+- P2 Completion: `docs/development/archive/phases/phase-273/P2-COMPLETION.md`
+- P3 Claude Code: `docs/development/archive/phases/phase-273/P3-CLAUDE.md`
 
 ## P3 完了 (2025-12-23)
 

@@ -344,7 +344,7 @@ Next: Phase 29ao P37（TBD）
 
 **2025-12-29: Phase 29aj P9 完了** ✅
 - 目的: phase286_pattern9_frag_poc を legacy pack (SKIP) に隔離して SSOT を固定
-- 実装: `tools/smokes/v2/profiles/archive/joinir/phase286_pattern9_legacy_pack.sh` / `docs/development/current/main/phases/phase-29aj/README.md` / `docs/development/current/main/phases/phase-29ae/README.md`
+- 実装: `tools/smokes/v2/profiles/archive/joinir/phase286_pattern9_legacy_pack.sh` / `docs/development/archive/phases/phase-29aj/README.md` / `docs/development/current/main/phases/phase-29ae/README.md`
 - 検証: `./tools/smokes/v2/run.sh --profile quick` / `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh` / `./tools/smokes/v2/profiles/archive/joinir/phase286_pattern9_legacy_pack.sh` (SKIP)
 
 **2025-12-29: Phase 29aj P8 完了** ✅
@@ -359,7 +359,7 @@ Next: Phase 29ao P37（TBD）
 
 **2025-12-29: Phase 29aj P6 完了** ✅
 - 目的: JoinIR 回帰の integration gate を phase29ae pack に固定し、phase143_* を隔離
-- 実装: `tools/smokes/v2/profiles/archive/joinir/phase143_legacy_pack.sh` / `docs/development/current/main/phases/phase-29aj/README.md` / `docs/development/current/main/phases/phase-29ae/README.md`
+- 実装: `tools/smokes/v2/profiles/archive/joinir/phase143_legacy_pack.sh` / `docs/development/archive/phases/phase-29aj/README.md` / `docs/development/current/main/phases/phase-29ae/README.md`
 - 検証: `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh` / `./tools/smokes/v2/profiles/archive/joinir/phase143_legacy_pack.sh` (SKIP)
 
 **2025-12-29: Phase 29aj P5 完了** ✅
@@ -434,13 +434,13 @@ Next: Phase 29ao P37（TBD）
 
 **2025-12-29: Phase 29ag P1 完了** ✅
 - 目的: coordinator の ValueId(idx) 前提を撤去し、boundary.join_inputs を SSOT 化（仕様不変）
-- 入口: `docs/development/current/main/phases/phase-29ag/README.md`
+- 入口: `docs/development/archive/phases/phase-29ag/README.md`
 - 検証: `cargo build --release` / `./tools/smokes/v2/run.sh --profile quick` / `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh` PASS
 - 回帰パック: `phase263_pattern2_*` を追加済み
 
 **2025-12-29: Phase 29ah P0 完了** ✅
 - 目的: JoinIR 回帰パックに real-world Pattern2（Phase 263）を追加（仕様不変）
-- 入口: `docs/development/current/main/phases/phase-29ah/README.md`
+- 入口: `docs/development/archive/phases/phase-29ah/README.md`
 - 回帰パック: `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh`
 
 **2025-12-29: Phase 29af P5 完了** ✅
@@ -483,11 +483,11 @@ Next: Phase 29ao P37（TBD）
 
 **2025-12-28: Phase 29ad 完了** ✅
 - 目的: Pattern6/7 fixture/smoke の命名規約を SSOT 化し、variant 名を明示して迷いを消す
-- 入口: `docs/development/current/main/phases/phase-29ad/README.md`
+- 入口: `docs/development/archive/phases/phase-29ad/README.md`
 
 **2025-12-28: Phase 29ac 完了** ✅
 - 目的: Pattern6/7 の near-miss（freeze固定）を、契約維持のまま PASS へ倒す（silent fallback禁止）
-- 入口: `docs/development/current/main/phases/phase-29ac/README.md`
+- 入口: `docs/development/archive/phases/phase-29ac/README.md`
 - 結果: reverse/matchscan は `phase29ab_pattern6_*` を OK 化、split-scan は near-miss OK fixture（`phase29ab_pattern7_splitscan_nearmiss_ok_min`）を追加
 
 **2025-12-28: Phase 29ab P1 完了** ✅
@@ -543,7 +543,7 @@ Next: Phase 29ao P37（TBD）
 
 **2025-12-28: Phase 29ab P9 完了** ✅
 - 目的: Phase 29ab closeout（入口SSOTの集約）
-- 入口: `docs/development/current/main/phases/phase-29ab/README.md`
+- 入口: `docs/development/archive/phases/phase-29ab/README.md`
 
 **2025-12-28: Phase 29aa P5 完了** ✅
 - 目的: Return block が複数 predecessor のとき、incoming state が完全一致する場合のみ ReturnCleanup を成立させる
@@ -602,7 +602,7 @@ Next: Phase 29ao P37（TBD）
 **2025-12-27: Phase 287 完了** ✅
 - P0-P9完了（big files modularization / facade pattern / SSOT establishment / closeout）
 - 検証: quick 154/154 PASS維持、意味論不変
-- 入口: `docs/development/current/main/phases/phase-287/README.md`
+- 入口: `docs/development/archive/phases/phase-287/README.md`
 
 **2025-12-27: Phase 188.3 完了** ✅
 - Pattern6（NestedLoopMinimal）: `apps/tests/phase1883_nested_minimal.hako` が RC=9
@@ -615,56 +615,56 @@ Next: Phase 29ao P37（TBD）
 - `merge/mod.rs` を modularize（1,555 → 1,053 lines）
 - SSOT: `boundary.loop_header_func_name` 優先、`boundary.continuation_func_ids` で除外、`MAIN` 明示除外
 - 検証: Pattern6 RC=9 / quick 154 PASS / 恒常ログ増加なし
-- 入口: `docs/development/current/main/phases/phase-287/P0-BIGFILES-REFACTORING-INSTRUCTIONS.md`
+- 入口: `docs/development/archive/phases/phase-287/P0-BIGFILES-REFACTORING-INSTRUCTIONS.md`
 
 **2025-12-27: Phase 287 P1 完了** ✅
 - `ast_feature_extractor.rs` を facade 化（1,148 → 135 lines）
 - `pattern_recognizers/`（8 modules）へ分割（1 module = 1 質問）
 - 検証: Build 0 errors / Pattern6 RC=9 / quick 154 PASS / 恒常ログ増加なし
-- 入口: `docs/development/current/main/phases/phase-287/P1-AST_FEATURE_EXTRACTOR-INSTRUCTIONS.md`
-- 次の指示書（P2）: `docs/development/current/main/phases/phase-287/P2-CONTRACT_CHECKS-MODULARIZATION-INSTRUCTIONS.md`（完了）
+- 入口: `docs/development/archive/phases/phase-287/P1-AST_FEATURE_EXTRACTOR-INSTRUCTIONS.md`
+- 次の指示書（P2）: `docs/development/archive/phases/phase-287/P2-CONTRACT_CHECKS-MODULARIZATION-INSTRUCTIONS.md`（完了）
 
 **2025-12-27: Phase 287 P2 完了** ✅
 - `contract_checks.rs` を facade 化し、`contract_checks/` 配下へ契約単位で分割（1 module = 1 contract）
 - 検証: Build 0 errors / Pattern6 RC=9 / quick 154 PASS / 恒常ログ増加なし
-- 入口: `docs/development/current/main/phases/phase-287/P2-CONTRACT_CHECKS-MODULARIZATION-INSTRUCTIONS.md`
-- 次の指示書（P3）: `docs/development/current/main/phases/phase-287/P3-INSTRUCTION_REWRITER-MODULARIZATION-INSTRUCTIONS.md`（完了）
+- 入口: `docs/development/archive/phases/phase-287/P2-CONTRACT_CHECKS-MODULARIZATION-INSTRUCTIONS.md`
+- 次の指示書（P3）: `docs/development/archive/phases/phase-287/P3-INSTRUCTION_REWRITER-MODULARIZATION-INSTRUCTIONS.md`（完了）
 
 **2025-12-27: Phase 287 P3 完了** ✅
 - `instruction_rewriter.rs` を stage 単位へ物理分割（Scan/Plan/Apply）し、facade（orchestrator）へ縮退（意味論不変）
 - 検証: Build 0 errors / quick 154 PASS / 恒常ログ増加なし
-- 入口: `docs/development/current/main/phases/phase-287/P3-INSTRUCTION_REWRITER-MODULARIZATION-INSTRUCTIONS.md`
-- 次の指示書（P4）: `docs/development/current/main/phases/phase-287/P4-PLAN_STAGE-MODULARIZATION-INSTRUCTIONS.md`（完了）
+- 入口: `docs/development/archive/phases/phase-287/P3-INSTRUCTION_REWRITER-MODULARIZATION-INSTRUCTIONS.md`
+- 次の指示書（P4）: `docs/development/archive/phases/phase-287/P4-PLAN_STAGE-MODULARIZATION-INSTRUCTIONS.md`（完了）
 
 **2025-12-27: Phase 287 P4 完了** ✅
 - `rewriter/stages/plan.rs` を facade 化し、`rewriter/stages/plan/` 配下へ責務単位で分割（意味論不変）
 - 検証: Build 0 errors / quick 154 PASS / 恒常ログ増加なし
-- 入口: `docs/development/current/main/phases/phase-287/P4-PLAN_STAGE-MODULARIZATION-INSTRUCTIONS.md`
-- 次の指示書（P5）: `docs/development/current/main/phases/phase-287/P5-STAGES-VISIBILITY-FACADE-INSTRUCTIONS.md`（完了）
+- 入口: `docs/development/archive/phases/phase-287/P4-PLAN_STAGE-MODULARIZATION-INSTRUCTIONS.md`
+- 次の指示書（P5）: `docs/development/archive/phases/phase-287/P5-STAGES-VISIBILITY-FACADE-INSTRUCTIONS.md`（完了）
 
 **2025-12-27: Phase 287 P5 完了** ✅
 - `stages/mod.rs` を facade にして stage 関数を re-export（単一入口化）
 - 検証: Build 0 errors / quick 154 PASS / 恒常ログ増加なし
-- 入口: `docs/development/current/main/phases/phase-287/P5-STAGES-VISIBILITY-FACADE-INSTRUCTIONS.md`
-- 次の指示書（P6）: `docs/development/current/main/phases/phase-287/P6-SCAN_PLAN-INTEGRATION-INSTRUCTIONS.md`（完了）
+- 入口: `docs/development/archive/phases/phase-287/P5-STAGES-VISIBILITY-FACADE-INSTRUCTIONS.md`
+- 次の指示書（P6）: `docs/development/archive/phases/phase-287/P6-SCAN_PLAN-INTEGRATION-INSTRUCTIONS.md`（完了）
 
 **2025-12-27: Phase 287 P6 完了** ✅
 - Scan stage を削除し、pipeline を 2-stage（Plan→Apply）へ単純化（意味論不変）
 - 検証: quick 154 PASS
-- 入口: `docs/development/current/main/phases/phase-287/P6-SCAN_PLAN-INTEGRATION-INSTRUCTIONS.md`
-- 次の指示書（P7）: `docs/development/current/main/phases/phase-287/P7-REWRITER-BOX-SCAFFOLDING-CLEANUP-INSTRUCTIONS.md`（完了）
+- 入口: `docs/development/archive/phases/phase-287/P6-SCAN_PLAN-INTEGRATION-INSTRUCTIONS.md`
+- 次の指示書（P7）: `docs/development/archive/phases/phase-287/P7-REWRITER-BOX-SCAFFOLDING-CLEANUP-INSTRUCTIONS.md`（完了）
 
 **2025-12-27: Phase 287 P7 完了** ✅
 - `rewriter/` の未使用 Box 雛形を削除し、SSOT を `rewriter/stages/*` に寄せた（意味論不変）
 - 検証: Build 0 errors / quick 154 PASS / 恒常ログ増加なし
-- 入口: `docs/development/current/main/phases/phase-287/P7-REWRITER-BOX-SCAFFOLDING-CLEANUP-INSTRUCTIONS.md`
-- 次の指示書（P8）: `docs/development/current/main/phases/phase-287/P8-REWRITER-README-GUARD-INSTRUCTIONS.md`
+- 入口: `docs/development/archive/phases/phase-287/P7-REWRITER-BOX-SCAFFOLDING-CLEANUP-INSTRUCTIONS.md`
+- 次の指示書（P8）: `docs/development/archive/phases/phase-287/P8-REWRITER-README-GUARD-INSTRUCTIONS.md`
 
 **2025-12-27: Phase 287 P8 完了** ✅
 - `rewriter/README.md` を追加し、責務境界と SSOT（Plan→Apply）を明文化（docs-only）
 - 検証: cargo check / quick PASS
 - 入口: `src/mir/builder/control_flow/joinir/merge/rewriter/README.md`
-- 次の指示書（P9）: `docs/development/current/main/phases/phase-287/P9-PHASE-CLOSEOUT-INSTRUCTIONS.md`
+- 次の指示書（P9）: `docs/development/archive/phases/phase-287/P9-PHASE-CLOSEOUT-INSTRUCTIONS.md`
 
 **2025-12-27: Phase 188.2 完了** ✅
 - StepTreeの `max_loop_depth` を SSOT に採用（Option A）
@@ -758,7 +758,7 @@ Next: Phase 29ao P37（TBD）
 
 **次のステップ**:
 1. **Phase 287（P9）**: Phase closeout（docs-only）
-   - 指示書: `docs/development/current/main/phases/phase-287/P9-PHASE-CLOSEOUT-INSTRUCTIONS.md`
+   - 指示書: `docs/development/archive/phases/phase-287/P9-PHASE-CLOSEOUT-INSTRUCTIONS.md`
 2. （post self-host / docs-first）**Phase 29y**: MIR lifecycle vocab freeze（RC/weak/ABI）
    - 相談パケット: `docs/development/current/main/investigations/phase-29y-mir-lifecycle-vocab-consult.md`
 3. （future design, separate phase）Plan 生成の正規化（相談パケット）
@@ -769,7 +769,7 @@ Next: Phase 29ao P37（TBD）
 ### 2025-12-25: Phase 288.1（REPL Session Persistence + Auto-Display）
 
 - ✅ **Phase 288.1完了**: REPL variable persistence + expression auto-display
-  - 詳細: `docs/development/current/main/phases/phase-288/README.md`
+  - 詳細: `docs/development/archive/phases/phase-288/README.md`
   - 実装方式: AST Rewrite + ExternCall Bridge
   - 達成内容:
     - ✅ AST Rewriter 実装（~430行、`src/runner/repl/ast_rewriter.rs`）
@@ -803,16 +803,16 @@ Next: Phase 29ao P37（TBD）
 ### 2025-12-23
 
 - Phase 283（bugfix）: JoinIR if-condition remap fix: `docs/development/current/main/phases/archive/phase-283/README.md`
-- Phase 282（Router shrinkage + extraction-based migration + extractor refactor P0–P9a）: `docs/development/current/main/phases/phase-282/README.md`
+- Phase 282（Router shrinkage + extraction-based migration + extractor refactor P0–P9a）: `docs/development/archive/phases/phase-282/README.md`
 - Phase 280（Frag composition SSOT positioning）: `docs/development/current/main/phases/phase-280/README.md`
-- Phase 281（Pattern6/7 compose adoption, P0–P3）: `docs/development/current/main/phases/phase-281/README.md`
-- Phase 273（Plan line SSOT）: `docs/development/current/main/phases/phase-273/README.md`
+- Phase 281（Pattern6/7 compose adoption, P0–P3）: `docs/development/archive/phases/phase-281/README.md`
+- Phase 273（Plan line SSOT）: `docs/development/archive/phases/phase-273/README.md`
 - Phase 275 P0（A1/B2/C2 coercion SSOT）: `docs/development/current/main/phases/phase-275/README.md`
-- Phase 276 P0（quick wins / type_helper SSOT）: `docs/development/current/main/phases/phase-276/README.md`
-- Phase 277 P1（PHI strict fail-fast）: `docs/development/current/main/phases/phase-277/README.md`
-- Phase 277 P2（PHI env var 統合）: `docs/development/current/main/phases/phase-277/README.md`
-- Phase 278 P0（deprecated PHI env vars removal）: `docs/development/current/main/phases/phase-278/README.md`
-- Phase 279 P0（type propagation pipeline SSOT unification）: `docs/development/current/main/phases/phase-279/README.md`
+- Phase 276 P0（quick wins / type_helper SSOT）: `docs/development/archive/phases/phase-276/README.md`
+- Phase 277 P1（PHI strict fail-fast）: `docs/development/archive/phases/phase-277/README.md`
+- Phase 277 P2（PHI env var 統合）: `docs/development/archive/phases/phase-277/README.md`
+- Phase 278 P0（deprecated PHI env vars removal）: `docs/development/archive/phases/phase-278/README.md`
+- Phase 279 P0（type propagation pipeline SSOT unification）: `docs/development/archive/phases/phase-279/README.md`
 
 ---
 
@@ -869,7 +869,7 @@ Next: Phase 29ao P37（TBD）
 ## 2025-12-22: Phase 276（P0）— Quick Win 改善（型取得SSOT化） ✅
 
 - 目的: Phase 275 P0 完了後の堅牢性改善（デバッグコード削減・型取得ロジックSSOT化・警告強化）
-- 完了ドキュメント: `docs/development/current/main/phases/phase-276/P0-COMPLETION.md`
+- 完了ドキュメント: `docs/development/archive/phases/phase-276/P0-COMPLETION.md`
 - 達成内容:
   - ✅ デバッグスタックトレース削除（wiring.py）
   - ✅ box_from_f64 使用確認（削除可能と判断）
@@ -898,7 +898,7 @@ Next: Phase 29ao P37（TBD）
 - 現状、型伝播/PHI 型解決の順序が経路により異なり、同一 fixture が別ルートで壊れ得る（実質 "2本のコンパイラ"）。
 - 対処（SSOT, short-term）: Phase 276 P0 で型取得ロジックをSSOT化（部分対応）
 - 根治（SSOT, long-term）: Phase 279 で type propagation pipeline の入口/順序を完全統一
-- 予定: `docs/development/current/main/phases/phase-279/README.md`
+- 予定: `docs/development/archive/phases/phase-279/README.md`
 
 ## 2025-12-22：Phase 274（P1）— TypeOp（is/as）を Rust VM で実行可能にする ✅
 
@@ -944,14 +944,14 @@ Next: Phase 29ao P37（TBD）
 
 - 完了: header に `i_current = phi [i_init, preheader], [i_next, step_bb]` を入れて SSA を閉じ、header/body/step の参照を `i_current` に統一
 - 検証: `tools/smokes/v2/profiles/integration/apps/archive/phase269_p0_pattern8_frag_vm.sh` PASS（+ 回帰 `phase259_p0_is_integer_vm` PASS）
-- 詳細: `docs/development/current/main/phases/phase-269/README.md`
+- 詳細: `docs/development/archive/phases/phase-269/README.md`
 
 ## 2025-12-21：Phase 270（P0+P1）— JoinIR-only minimal loop SSOT ✅
 
 - 目的: `loop(i < 3)` + `sum=sum+i` + `i=i+1` を JoinIR 経路で通すことを fixture/smoke で固定
 - 結果: Pattern1 は test-only stub のため不適合 → Pattern9（AccumConstLoop）を橋渡しとして追加し、fixture は exit=3 で PASS
 - 制約: `cf_loop` は JoinIR-only（非JoinIR loop 経路や env-var 分岐は追加しない）
-- 詳細: `docs/development/current/main/phases/phase-270/README.md`
+- 詳細: `docs/development/archive/phases/phase-270/README.md`
 
 ## 2025-12-21：Phase 269 P1（Pattern8 EdgeCFG lowering）✅
 
@@ -965,7 +965,7 @@ Next: Phase 29ao P37（TBD）
 - ✅ early-exit `return false` は Return wire、`return true` は loop 後 AST に任せる
 - ✅ Pattern8 lower は当面 `emit_void(builder)`（loop-statement 扱い）
 
-**詳細**: `docs/development/current/main/phases/phase-269/README.md`
+**詳細**: `docs/development/archive/phases/phase-269/README.md`
 
 ## 2025-12-21：Phase 269 P1.1（call_method return type）— 署名SSOTで型注釈 ✅
 
@@ -1076,7 +1076,7 @@ Next: Phase 29ao P37（TBD）
 - Phase 266: wires を MIR terminator に落とす（PoC: emit_wires）✅
 - Phase 267: NormalizedShadow/JoinIR への適用 + Pattern6/7/8 を Frag 化 + Branch 生成
 
-**詳細**: `docs/development/current/main/phases/phase-265/` + `docs/development/current/main/design/edgecfg-fragments.md`
+**詳細**: `docs/development/archive/phases/phase-265/` + `docs/development/current/main/design/edgecfg-fragments.md`
 
 ## 2025-12-21：Phase 263 P0.2（Pattern2 promotion API SSOT）✅
 
@@ -1093,7 +1093,7 @@ Next: Phase 29ao P37（TBD）
 - **Commits**:
   - `abdb860e7`（P0.1）: PromoteDecision 導入（Option 揺れの撤去）
   - `e17902a44`（P0.2）: `pattern2/api/` で入口SSOT物理固定
-- **詳細**: `docs/development/current/main/phases/phase-263/README.md`
+- **詳細**: `docs/development/archive/phases/phase-263/README.md`
 
 ## 2025-12-21：Phase 264 P0（EdgeCFG Fragment 入口作成）✅
 
@@ -1113,7 +1113,7 @@ Next: Phase 29ao P37（TBD）
 - Phase 265: Pattern8 を Frag 合成に移行（最小適用）
 - Phase 266: Pattern6/7 への展開（再利用確認）
 
-**詳細**: `docs/development/current/main/phases/phase-264/README.md` + `docs/development/current/main/design/edgecfg-fragments.md`
+**詳細**: `docs/development/archive/phases/phase-264/README.md` + `docs/development/current/main/design/edgecfg-fragments.md`
 
 ## 2025-12-21：Phase 265 P0（compose/verify 最小実装）✅
 
@@ -1131,7 +1131,7 @@ Next: Phase 29ao P37（TBD）
 - Phase 265 P1: 配線ロジック実装 + Pattern8適用
 - Phase 265 P2: seq/if_ 実装（pattern番号分岐削減の見通し）
 
-**詳細**: `docs/development/current/main/phases/phase-265/README.md`
+**詳細**: `docs/development/archive/phases/phase-265/README.md`
 
 ## 2025-12-21：Phase 265 P1（compose 配線ロジック実装）✅
 
@@ -1156,7 +1156,7 @@ Next: Phase 29ao P37（TBD）
 - Phase 265 P2: seq/if_ 実装（順次合成・条件分岐合成）
 - Phase 266: JoinIR-VM Bridge 改修後、NormalizedShadow への適用
 
-**詳細**: `docs/development/current/main/phases/phase-265/README.md`
+**詳細**: `docs/development/archive/phases/phase-265/README.md`
 
 ## Next (planned)
 
@@ -1268,17 +1268,17 @@ Phase 263（Pattern2 LoopBodyLocal “seg”）が片付いたら、Pattern2 の
 
 ## 2025-12-20：Phase 258（index_of_string/2 dynamic window scan）✅
 
-- Phase 258 README: `docs/development/current/main/phases/phase-258/README.md`
+- Phase 258 README: `docs/development/archive/phases/phase-258/README.md`
 - Result: `index_of_string/2` を JoinIR で受理し、quick の first FAIL を `is_integer/1` へ進めた
 
 ## 2025-12-20：Phase 257（Pattern6 reverse scan + PHI/CFG stabilization）✅
 
-- Phase 257 README: `docs/development/current/main/phases/phase-257/README.md`
+- Phase 257 README: `docs/development/archive/phases/phase-257/README.md`
 - Result: `last_index_of/2` を Pattern6（reverse scan）で受理し、PHI predecessor mismatch を fail-fast + 自動補正で根治
 
 ## 2025-12-19：Phase 146/147 完了 ✅
 
-- Phase 146 README: `docs/development/current/main/phases/phase-146/README.md`
+- Phase 146 README: `docs/development/archive/phases/phase-146/README.md`
 - Fixtures:
   - `apps/tests/phase146_p0_if_cond_unified_min.hako`（P0: pure cond, expected exit 7）
   - `apps/tests/phase146_p1_if_cond_intrinsic_min.hako`（P1: `s.length() == 3`, expected exit 7）
@@ -1293,7 +1293,7 @@ Phase 263（Pattern2 LoopBodyLocal “seg”）が片付いたら、Pattern2 の
 
 ## 2025-12-19：Phase 251 Fix（JoinIR 条件変数抽出 / デバッグ出力整理）✅
 
-- Phase 251 README: `docs/development/current/main/phases/phase-251/README.md`
+- Phase 251 README: `docs/development/archive/phases/phase-251/README.md`
 - Fix:
   - `collect_variables_recursive()` を拡張し、`MethodCall/FieldAccess/Index/Call` の基底変数を ConditionEnv に登録できるようにした
   - `loop_with_if_phi_if_sum.rs` の無条件 `eprintln!` を `is_joinir_debug()` ガードに移した（デフォルトは clean output）
@@ -1310,14 +1310,14 @@ Phase 263（Pattern2 LoopBodyLocal “seg”）が片付いたら、Pattern2 の
 
 ## 2025-12-19：Phase 255（Multi-param loop wiring）✅
 
-- Phase 255 README: `docs/development/current/main/phases/phase-255/README.md`
+- Phase 255 README: `docs/development/archive/phases/phase-255/README.md`
 - Status:
   - Pattern6/index_of が VM/LLVM で PASS
   - `loop_invariants` を導入して ConditionOnly 誤用を根治
 
 ## 2025-12-19：Phase 256（StringUtils.split/2 可変 step ループ）✅
 
-- Phase 256 README: `docs/development/current/main/phases/phase-256/README.md`
+- Phase 256 README: `docs/development/archive/phases/phase-256/README.md`
 - Status:
   - `StringUtils.split/2` は VM `--verify` / integration smoke まで PASS
   - `--profile quick` の最初の FAIL は Phase 257（`StringUtils.last_index_of/2`）へ移動
@@ -1337,7 +1337,7 @@ Phase 263（Pattern2 LoopBodyLocal “seg”）が片付いたら、Pattern2 の
 
 ## 2025-12-20：Phase 257（last_index_of early return loop）🔜
 
-- Phase 257 README: `docs/development/current/main/phases/phase-257/README.md`
+- Phase 257 README: `docs/development/archive/phases/phase-257/README.md`
 - Goal: `StringUtils.last_index_of/2` を JoinIR で受理し、`--profile quick` を緑に戻す
   - Investigation（最小再現/論点）: `docs/development/current/main/investigations/phase-257-last-index-of-loop-shape.md`
   - Status: Pattern6 reverse scan + PHI/CFG 安定化は完了（最初の FAIL は次へ移動）
@@ -1345,7 +1345,7 @@ Phase 263（Pattern2 LoopBodyLocal “seg”）が片付いたら、Pattern2 の
 
 ## 2025-12-20：Phase 258（is_integer nested-if + loop）🔜
 
-- Phase 258 README: `docs/development/current/main/phases/phase-258/README.md`
+- Phase 258 README: `docs/development/archive/phases/phase-258/README.md`
   - Status: `index_of_string/2` を対象（dynamic window scan）
 
 ## 2025-12-20：Phase 259（is_integer nested-if + loop）🔜
@@ -1354,7 +1354,7 @@ Phase 263（Pattern2 LoopBodyLocal “seg”）が片付いたら、Pattern2 の
 
 ## 2025-12-19：Phase 254（index_of loop pattern）✅ 完了（Blocked by Phase 255）
 
-- Phase 254 README: `docs/development/current/main/phases/phase-254/README.md`
+- Phase 254 README: `docs/development/archive/phases/phase-254/README.md`
 - Status: **Pattern 6 実装完了、ただし実行失敗（Phase 255 で unblock）**
 - 完了項目:
   - ✅ Pattern 6 DetectorBox 実装（`Pattern6_ScanWithInit MATCHED`）
@@ -1376,7 +1376,7 @@ Phase 263（Pattern2 LoopBodyLocal “seg”）が片付いたら、Pattern2 の
 ## 2025-12-19：Phase 145-anf P0/P1/P2 完了 ✅
 
 - SSOT docs:
-  - `docs/development/current/main/phases/phase-145-anf/README.md`
+  - `docs/development/archive/phases/phase-145-anf/README.md`
   - `docs/development/current/main/phases/phase-144-anf/INSTRUCTIONS.md`
 - 実装 SSOT:
   - `src/mir/control_tree/normalized_shadow/anf/`
@@ -1467,7 +1467,7 @@ Phase 263（Pattern2 LoopBodyLocal “seg”）が片付いたら、Pattern2 の
   - LLVM EXE: `tools/smokes/v2/profiles/integration/apps/archive/phase143_loop_true_if_break_llvm_exe.sh` ✅ PASS
 - Regression: Phase 131-142 green（no regressions）
 - 統計: +400 lines（loop_true_if_break_continue.rs）, 0 change to existing code
-- 入口: `docs/development/current/main/phases/phase-143-loopvocab/README.md`
+- 入口: `docs/development/archive/phases/phase-143-loopvocab/README.md`
 
 ## 2025-12-19：Phase 142-loopstmt P0 完了 ✅
 
@@ -1491,7 +1491,7 @@ Phase 263（Pattern2 LoopBodyLocal “seg”）が片付いたら、Pattern2 の
   - Unit tests: ✅ 10/10 passed
   - Regression: ✅ Phase 131, 141 green
 - 統計: -38 lines net (code reduction success!)
-- 入口: `docs/development/current/main/phases/phase-142-loopstmt/README.md`
+- 入口: `docs/development/archive/phases/phase-142-loopstmt/README.md`
 
 ⚠️ **Note**: Phase 142 (Canonicalizer Pattern Extension) とは別物。SSOT 衝突回避のため phase-142-loopstmt として独立管理。
 
@@ -1616,7 +1616,7 @@ Phase 263（Pattern2 LoopBodyLocal “seg”）が片付いたら、Pattern2 の
 - 設計判断（Approach A 採用）:
   - 直接拡張（boxification なし）、変更スコープ小
   - post_if_post_k.rs は未変更（責任分離）
-- 入口: `docs/development/current/main/phases/phase-137/README.md`
+- 入口: `docs/development/archive/phases/phase-137/README.md`
 
 ---
 
@@ -1641,7 +1641,7 @@ Phase 263（Pattern2 LoopBodyLocal “seg”）が片付いたら、Pattern2 の
 - Regression:
   - Phase 131: 2/2 PASS
   - Phase 135: 2/2 PASS
-- 入口: `docs/development/current/main/phases/phase-136/README.md`
+- 入口: `docs/development/archive/phases/phase-136/README.md`
 
 ---
 
@@ -1694,7 +1694,7 @@ Phase 263（Pattern2 LoopBodyLocal “seg”）が片付いたら、Pattern2 の
   - `phase133_loop_true_break_once_post_multi_add_llvm_exe.sh` PASS
 - Regression: Phase 132/131/97 維持確認（全 PASS）
 - Unit tests: 1176/1176 PASS
-- 入口: `docs/development/current/main/phases/phase-133/README.md`
+- 入口: `docs/development/archive/phases/phase-133/README.md`
 
 ## 2025-12-18：Phase 130 完了 ✅
 
@@ -1752,7 +1752,7 @@ Phase 263（Pattern2 LoopBodyLocal “seg”）が片付いたら、Pattern2 の
   - `bash tools/smokes/v2/profiles/integration/apps/archive/phase132_loop_true_break_once_post_add_vm.sh`
   - `bash tools/smokes/v2/profiles/integration/apps/archive/phase132_loop_true_break_once_post_add_llvm_exe.sh`
 - 回帰: Phase 131/97 維持確認（全 PASS）
-- 入口: `docs/development/current/main/phases/phase-132/README.md`
+- 入口: `docs/development/archive/phases/phase-132/README.md`
 
 ## 2025-12-18：Phase 131 P2 完了 ✅
 
@@ -1765,7 +1765,7 @@ Phase 263（Pattern2 LoopBodyLocal “seg”）が片付いたら、Pattern2 の
   - `bash tools/smokes/v2/profiles/integration/apps/archive/phase131_loop_true_break_once_vm.sh`
   - `bash tools/smokes/v2/profiles/integration/apps/archive/phase131_loop_true_break_once_llvm_exe.sh`
 - 環境: WSL の一時的な EXDEV（`Invalid cross-device link`）は `wsl --shutdown` 再起動で解消、上記 + `phase97_next_non_ws_llvm_exe.sh` まで PASS
-- 入口: `docs/development/current/main/phases/phase-131/README.md`
+- 入口: `docs/development/archive/phases/phase-131/README.md`
 
 ## 2025-12-18：Phase 127 完了 ✅
 
@@ -2077,16 +2077,16 @@ Phase 263（Pattern2 LoopBodyLocal “seg”）が片付いたら、Pattern2 の
 - Phase 133: promoted carrier（Trim）の `join_id` 解決を SSOT に寄せて修正（smoke は compile-only）。
 - Phase 134: plugin loader best-effort loading を導入（決定的順序 + failure 集約 + 継続）。
 - Phase 135: ConditionLoweringBox が allocator SSOT を無視して ValueId 衝突を起こす問題を根治。
-  - 詳細: `docs/development/current/main/phases/phase-135/README.md`
+  - 詳細: `docs/development/archive/phases/phase-135/README.md`
 - Phase 136: MirBuilder の Context 分割を完了し、状態の SSOT を Context に一本化。
-  - 詳細: `docs/development/current/main/phases/phase-136/README.md`
+  - 詳細: `docs/development/archive/phases/phase-136/README.md`
 
 ## 2025‑12‑16：Phase 137‑141（短報）
 
 - Loop Canonicalizer（前処理 SSOT）は Phase 141 まで完了（既定挙動は不変、dev-only 観測/strict parity あり）。
   - 設計 SSOT: `docs/development/current/main/design/loop-canonicalizer.md`
   - 実装: `src/mir/loop_canonicalizer/mod.rs`（+ 観測: `src/mir/builder/control_flow/joinir/routing.rs`）
-  - Phase 記録: `docs/development/current/main/phases/phase-137/README.md`
+  - Phase 記録: `docs/development/archive/phases/phase-137/README.md`
 
 ## 2025‑12‑16：Phase 92（短報）
 

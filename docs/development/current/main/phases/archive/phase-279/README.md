@@ -17,9 +17,9 @@ SSOT references:
 - Backlog entry: `docs/development/current/main/30-Backlog.md`
 
 Implementation guide:
-- `docs/development/current/main/phases/phase-279/P0-INSTRUCTIONS.md`
+- `docs/development/archive/phases/phase-279/P0-INSTRUCTIONS.md`
 - Claude Code instructions:
-  - `docs/development/current/main/phases/phase-279/P0-CLAUDE.md`
+  - `docs/development/archive/phases/phase-279/P0-CLAUDE.md`
 
 Non-goals:
 - new language features (no Union/Any)
@@ -78,11 +78,11 @@ This is the **single source of truth** for type propagation. All routes MUST cal
 - Modified: `src/mir/mod.rs` - Add type_propagation module export
 - Modified: `src/mir/builder/lifecycle.rs` - Replace with SSOT call (~400 lines removed)
 - Modified: `src/mir/join_ir_vm_bridge/joinir_function_converter.rs` - Replace with SSOT call (~100 lines removed)
-- Modified: `docs/development/current/main/phases/phase-279/README.md` - Document SSOT entry
+- Modified: `docs/development/archive/phases/phase-279/README.md` - Document SSOT entry
 
 **Code reduction**:
 - Removed ~500 lines of duplicate BinOp re-propagation logic
 - Consolidated 2 implementations into 1 SSOT
 
 **Completion**:
-- `docs/development/current/main/phases/phase-279/P0-COMPLETION.md` - Completion record
+- `docs/development/archive/phases/phase-279/P0-COMPLETION.md` - Completion record

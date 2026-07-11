@@ -10,7 +10,7 @@ Goal:
 
 - Frag/emit SSOT: `docs/development/current/main/design/edgecfg-fragments.md`
 - Composition SSOT: `src/mir/builder/control_flow/edgecfg/api/compose/mod.rs`
-- Plan line SSOT（ScanWithInit / SplitScan; historical labels: `6/7`）: `docs/development/current/main/phases/phase-273/README.md`
+- Plan line SSOT（ScanWithInit / SplitScan; historical labels: `6/7`）: `docs/development/archive/phases/phase-273/README.md`
 - Phase 280（positioning）: `docs/development/current/main/phases/phase-280/README.md`
 
 ## P0 完了（SplitScan; historical label: `7`）
@@ -21,7 +21,7 @@ P0 では、SplitScan route（historical label: `7`）の “body の cond_match
 - 方針: 最小差分（header/step は手組みのまま、body だけ compose へ）
 - 受け入れ: VM/LLVM smoke が同じ exit code で PASS
 
-完了メモ: `docs/development/current/main/phases/phase-281/P0-COMPLETION.md`
+完了メモ: `docs/development/archive/phases/phase-281/P0-COMPLETION.md`
 
 ## P1: ScanWithInit 正規形 + cleanup()設計
 

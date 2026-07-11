@@ -18,7 +18,7 @@
 
 ## Gate (SSOT)
 
-- Loopless subset gate (P2): `./tools/hako_check_loopless_gate.sh` (SSOT: `docs/development/current/main/phases/phase-29bg/P2-MAKE-HAKO_CHECK-LOOPLESS-INSTRUCTIONS.md`)
+- Loopless subset gate (P2): `./tools/hako_check_loopless_gate.sh` (SSOT: `docs/development/archive/phases/phase-29bg/P2-MAKE-HAKO_CHECK-LOOPLESS-INSTRUCTIONS.md`)
 - P3 default entry: `./tools/hako_check_loopless_gate.sh`
 - Integration gate: `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh`
 - Phase 29bs fast iteration gate: `./tools/smokes/v2/profiles/integration/joinir/phase29bs_fast_gate_vm.sh`

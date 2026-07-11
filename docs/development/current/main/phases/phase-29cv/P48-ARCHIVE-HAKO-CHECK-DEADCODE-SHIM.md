@@ -6,7 +6,7 @@ Scope: drain and archive the top-level hako_check deadcode smoke compatibility s
 Related:
   - tools/hako_check/README.md
   - tools/hako_check/deadcode_smoke.sh
-  - docs/development/current/main/phases/phase-38x/38x-90-cleanup-archive-sweep-ssot.md
+  - docs/development/archive/phases/phase-38x/38x-90-cleanup-archive-sweep-ssot.md
 ---
 
 # P48 Archive Hako Check Deadcode Shim

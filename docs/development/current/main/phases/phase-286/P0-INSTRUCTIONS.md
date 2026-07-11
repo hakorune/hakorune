@@ -18,8 +18,8 @@
 
 ## SSOTリンク
 
-- Router（SSOT=extract / safety valve）: `docs/development/current/main/phases/phase-282/README.md`
+- Router（SSOT=extract / safety valve）: `docs/development/archive/phases/phase-282/README.md`
 - Frag/compose/emit SSOT: `docs/development/current/main/design/edgecfg-fragments.md`
 - JoinIR line 共通入口: `src/mir/builder/control_flow/joinir/patterns/conversion_pipeline.rs`
-- Plan line SSOT: `docs/development/current/main/phases/phase-273/README.md`
+- Plan line SSOT: `docs/development/archive/phases/phase-273/README.md`
 

@@ -27,6 +27,6 @@ while keeping release output unchanged.
 
 ## Instructions
 
-- P1: `docs/development/current/main/phases/phase-29av/P1-FLOWBOX-TAGS-IMPLEMENTATION-INSTRUCTIONS.md`
-- P2: `docs/development/current/main/phases/phase-29av/P2-FLOWBOX-TAGS-GATE-SMOKE-INSTRUCTIONS.md`
-- P3: `docs/development/current/main/phases/phase-29av/P3-CLOSEOUT-INSTRUCTIONS.md`
+- P1: `docs/development/archive/phases/phase-29av/P1-FLOWBOX-TAGS-IMPLEMENTATION-INSTRUCTIONS.md`
+- P2: `docs/development/archive/phases/phase-29av/P2-FLOWBOX-TAGS-GATE-SMOKE-INSTRUCTIONS.md`
+- P3: `docs/development/archive/phases/phase-29av/P3-CLOSEOUT-INSTRUCTIONS.md`

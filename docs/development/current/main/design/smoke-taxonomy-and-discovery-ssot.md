@@ -4,7 +4,7 @@ Scope: smoke profile taxonomy and discovery rules
 Decision: accepted
 Related:
 - CURRENT_TASK.md
-- docs/development/current/main/phases/phase-29cq/README.md
+- docs/development/archive/phases/phase-29cq/README.md
 - tools/smokes/v2/run.sh
 - tools/checks/smoke_inventory_report.sh
 - docs/tools/check-scripts-index.md

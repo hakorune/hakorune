@@ -26,9 +26,9 @@ release 既定挙動・恒常ログは不変。
 
 ## Instructions
 
-- P0: `docs/development/current/main/phases/phase-29ba/P0-FLOWBOX-FALLBACK-OBSERVABILITY-SSOT-INSTRUCTIONS.md`
-- P1: `docs/development/current/main/phases/phase-29ba/P1-CONVERGE-FALLBACK-TO-FLOWBOX-FREEZE-INSTRUCTIONS.md`
-- P2: `docs/development/current/main/phases/phase-29ba/P2-CLOSEOUT-INSTRUCTIONS.md`
+- P0: `docs/development/archive/phases/phase-29ba/P0-FLOWBOX-FALLBACK-OBSERVABILITY-SSOT-INSTRUCTIONS.md`
+- P1: `docs/development/archive/phases/phase-29ba/P1-CONVERGE-FALLBACK-TO-FLOWBOX-FREEZE-INSTRUCTIONS.md`
+- P2: `docs/development/archive/phases/phase-29ba/P2-CLOSEOUT-INSTRUCTIONS.md`
 
 ## Gate (SSOT)
 

@@ -8,9 +8,9 @@ Related:
   - docs/development/current/main/10-Now.md
   - docs/development/current/main/15-Workstream-Map.md
   - docs/development/current/main/phases/README.md
-  - docs/development/current/main/phases/phase-45x/README.md
-  - docs/development/current/main/phases/phase-45x/45x-90-vm-residual-cleanup-ssot.md
-  - docs/development/current/main/phases/phase-45x/45x-91-task-board.md
+  - docs/development/archive/phases/phase-45x/README.md
+  - docs/development/archive/phases/phase-45x/45x-90-vm-residual-cleanup-ssot.md
+  - docs/development/archive/phases/phase-45x/45x-91-task-board.md
 ---
 
 # Phase 46x: Next Source Lane Selection

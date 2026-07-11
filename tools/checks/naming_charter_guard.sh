@@ -1523,7 +1523,9 @@ check_added_stage_terms_in_diff() {
       next
     }
     /^\+\+\+ / { next }
-    /^\+/ && !allowed && /(^|[^A-Za-z0-9_])(Stage-[A-Za-z0-9_-]+|Stage[0-9]+|stage[0-9]+|stage-[A-Za-z0-9_-]+)/ {
+    # Archive relocation rewrites historical filenames in otherwise unchanged
+    # evidence. An archive path is not a new source/document vocabulary term.
+    /^\+/ && !allowed && !/docs\/development\/archive\/phases\// && /(^|[^A-Za-z0-9_])(Stage-[A-Za-z0-9_-]+|Stage[0-9]+|stage[0-9]+|stage-[A-Za-z0-9_-]+)/ {
       print
       found = 1
     }

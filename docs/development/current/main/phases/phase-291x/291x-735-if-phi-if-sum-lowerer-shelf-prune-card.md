@@ -10,8 +10,8 @@ Lane: phase-291x CoreBox surface contract cleanup
 - `src/mir/join_ir/lowering/loop_with_if_phi_if_sum/*`
 - `src/mir/join_ir/lowering/condition_pattern.rs`
 - `docs/development/current/main/design/compiler-task-map-ssot.md`
-- `docs/development/current/main/phases/phase-251/README.md`
-- `docs/development/current/main/phases/phase-264/README.md`
+- `docs/development/archive/phases/phase-251/README.md`
+- `docs/development/archive/phases/phase-264/README.md`
 - `docs/development/current/main/phases/phase-291x/291x-725-if-phi-loopform-stub-prune-card.md`
 - `docs/development/current/main/phases/phase-291x/291x-727-loopform-route-router-shelf-prune-card.md`
 - `docs/development/current/main/CURRENT_STATE.toml`

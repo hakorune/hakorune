@@ -3,7 +3,7 @@ Scope: Phase 254 (`--profile quick` 回帰: JoinIR 未対応 loop パターン�
 Related:
 - docs/development/current/main/10-Now.md
 - docs/development/current/main/phases/archive/phase-253/README.md
-- docs/development/current/main/phases/phase-255/README.md (次フェーズ: multi-param loop wiring)
+- docs/development/archive/phases/phase-255/README.md (次フェーズ: multi-param loop wiring)
 
 # Phase 254: `StringUtils.index_of/2` の loop shape を JoinIR で受理する
 
@@ -153,7 +153,7 @@ index_of(s, ch) {
 
 ### 次フェーズ（Phase 255）
 
-詳細: [docs/development/current/main/phases/phase-255/README.md](phase-255/README.md)
+詳細: [docs/development/archive/phases/phase-255/README.md](phase-255/README.md)
 
 課題:
 - Multi-param loop の boundary/PHI/wiring を SSOT 化

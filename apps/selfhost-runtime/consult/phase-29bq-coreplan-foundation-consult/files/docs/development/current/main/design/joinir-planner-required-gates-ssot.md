@@ -3,7 +3,7 @@ Status: SSOT
 Scope: planner-required gate の入口・TSV 契約・allow_rc の扱いを 1 枚に固定する
 Related:
 - docs/development/current/main/10-Now.md
-- docs/development/current/main/phases/phase-29bp/README.md
+- docs/development/archive/phases/phase-29bp/README.md
 - tools/smokes/v2/profiles/integration/joinir/planner_required_cases.tsv
 - tools/smokes/v2/profiles/integration/joinir/phase29bp_planner_required_dev_gate_v4_vm.sh
 - tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh

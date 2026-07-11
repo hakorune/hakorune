@@ -1,7 +1,7 @@
 Status: Active  
 Scope: `json_lint_vm / StringUtils.last_index_of/2` の最初の FAIL を、最小の再現と論点で固定する。  
 Related:
-- Phase 257 SSOT: `docs/development/current/main/phases/phase-257/README.md`
+- Phase 257 SSOT: `docs/development/archive/phases/phase-257/README.md`
 - Design goal: `docs/development/current/main/design/join-explicit-cfg-construction.md`
 
 # Phase 257 Investigation: `last_index_of/2` loop shape

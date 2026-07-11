@@ -553,6 +553,8 @@ def build_inventory() -> dict[str, object]:
 
     counts = {
         "docs": under("docs/"),
+        "docs_development_current": under("docs/development/current/"),
+        "docs_development_archive": under("docs/development/archive/"),
         "tools": under("tools/"),
         "src": under("src/"),
         "phase_296x_direct": direct(

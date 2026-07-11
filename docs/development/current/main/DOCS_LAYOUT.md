@@ -317,9 +317,9 @@ Rule:
 Phase ごとの記録・完了サマリ・実装チェックリストを置く。
 
 - 推奨構造:
-  - `docs/development/current/main/phases/phase-131/`
-  - `docs/development/current/main/phases/phase-131/131-03-llvm-lowering-inventory.md`
-  - `docs/development/current/main/phases/phase-131/131-11-case-c-summary.md`
+  - `docs/development/archive/phases/phase-131/`
+  - `docs/development/archive/phases/phase-131/131-03-llvm-lowering-inventory.md`
+  - `docs/development/archive/phases/phase-131/131-11-case-c-summary.md`
 
 ### `docs/development/current/main/phases/archive/`（historical phase fronts）
 
@@ -389,7 +389,7 @@ Related:
 # Moved
 
 Status: Historical
-Moved to: docs/development/current/main/phases/phase-131/131-03-llvm-lowering-inventory.md
+Moved to: docs/development/archive/phases/phase-131/131-03-llvm-lowering-inventory.md
 ```
 
 ## 命名（推奨）

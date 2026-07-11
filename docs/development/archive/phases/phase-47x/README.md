@@ -8,9 +8,9 @@ Related:
   - docs/development/current/main/10-Now.md
   - docs/development/current/main/15-Workstream-Map.md
   - docs/development/current/main/phases/README.md
-  - docs/development/current/main/phases/phase-48x/README.md
-  - docs/development/current/main/phases/phase-48x/48x-90-smoke-source-cleanup-ssot.md
-  - docs/development/current/main/phases/phase-48x/48x-91-task-board.md
+  - docs/development/archive/phases/phase-48x/README.md
+  - docs/development/archive/phases/phase-48x/48x-90-smoke-source-cleanup-ssot.md
+  - docs/development/archive/phases/phase-48x/48x-91-task-board.md
 ---
 
 # Phase 47x: Stage0/Runtime Direct-Core Finalization

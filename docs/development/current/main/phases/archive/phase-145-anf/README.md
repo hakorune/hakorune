@@ -34,7 +34,7 @@ Phase 145 P0 implements the skeleton for ANF (A-Normal Form) transformation in N
 5. `README.md` (~100 lines) - Module architecture documentation
 
 **Documentation**:
-6. `docs/development/current/main/phases/phase-145-anf/README.md` (this file)
+6. `docs/development/archive/phases/phase-145-anf/README.md` (this file)
 
 ### Files Modified (3)
 

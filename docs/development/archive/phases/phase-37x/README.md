@@ -8,7 +8,7 @@ Related:
   - docs/development/current/main/05-Restart-Quick-Resume.md
   - docs/development/current/main/10-Now.md
   - docs/development/current/main/15-Workstream-Map.md
-  - docs/development/current/main/phases/phase-36x/README.md
+  - docs/development/archive/phases/phase-36x/README.md
   - docs/development/current/main/phases/phase-37x/37x-90-bootstrap-owner-split-ssot.md
   - docs/development/current/main/phases/phase-37x/37x-91-task-board.md
 ---

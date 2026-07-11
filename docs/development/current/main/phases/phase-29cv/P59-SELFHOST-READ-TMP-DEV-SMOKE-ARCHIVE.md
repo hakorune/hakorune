@@ -6,7 +6,7 @@ Scope: archive the retired selfhost read-tmp manual smoke.
 Related:
   - tools/ROOT_SURFACE.md
   - tools/archive/manual-smokes/README.md
-  - docs/development/current/main/phases/phase-132x/README.md
+  - docs/development/archive/phases/phase-132x/README.md
   - docs/development/current/main/design/tool-entrypoint-lifecycle-ssot.md
 ---
 

@@ -22,5 +22,5 @@ This phase is docs-first and must not change release behavior.
 
 ## Instructions
 
-- P0: `docs/development/current/main/phases/phase-29au/P0-UNWIND-RESERVATION-SSOT-INSTRUCTIONS.md`
-- P1: `docs/development/current/main/phases/phase-29au/P1-CLOSEOUT-INSTRUCTIONS.md`
+- P0: `docs/development/archive/phases/phase-29au/P0-UNWIND-RESERVATION-SSOT-INSTRUCTIONS.md`
+- P1: `docs/development/archive/phases/phase-29au/P1-CLOSEOUT-INSTRUCTIONS.md`

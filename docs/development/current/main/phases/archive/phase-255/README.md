@@ -2,7 +2,7 @@ Status: Completed
 Scope: Phase 255 (scan_with_init multi-param loop wiring/PHI 対応; historical numbered label: `6`)
 Related:
 - docs/development/current/main/10-Now.md
-- docs/development/current/main/phases/phase-254/README.md
+- docs/development/archive/phases/phase-254/README.md
 
 # Phase 255: Multi-param loop の boundary/PHI/wiring を SSOT 化する
 

@@ -2,7 +2,7 @@
 Status: Complete
 Scope: ExitKind::Unwind integration design (docs-first; no behavior change)
 Related:
-- docs/development/current/main/phases/phase-29au/README.md
+- docs/development/archive/phases/phase-29au/README.md
 - docs/development/current/main/design/exitkind-unwind-reservation-ssot.md
 - docs/development/current/main/design/exitkind-cleanup-effect-contract-ssot.md
 - docs/development/current/main/design/effect-classification-ssot.md
@@ -32,9 +32,9 @@ Goal: ExitKind::Unwind（予約済み）を、cleanup/effect/FlowBox の契約�
 
 ## Instructions
 
-- P0: `docs/development/current/main/phases/phase-29ay/P0-UNWIND-INTEGRATION-SSOT-INSTRUCTIONS.md`
- - P1: `docs/development/current/main/phases/phase-29ay/P1-UNWIND-NOOP-CODE-INTEGRATION-INSTRUCTIONS.md`
- - P2: `docs/development/current/main/phases/phase-29ay/P2-CLOSEOUT-INSTRUCTIONS.md`
+- P0: `docs/development/archive/phases/phase-29ay/P0-UNWIND-INTEGRATION-SSOT-INSTRUCTIONS.md`
+ - P1: `docs/development/archive/phases/phase-29ay/P1-UNWIND-NOOP-CODE-INTEGRATION-INSTRUCTIONS.md`
+ - P2: `docs/development/archive/phases/phase-29ay/P2-CLOSEOUT-INSTRUCTIONS.md`
 ## Gate (SSOT)
 
 - `./tools/smokes/v2/run.sh --profile quick`

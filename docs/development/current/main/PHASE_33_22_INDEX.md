@@ -169,7 +169,7 @@ cargo test --release
 ### アーキテクチャドキュメント
 
 - [JoinIR Architecture Overview](joinir-architecture-overview.md)
-- [Phase 33 Modularization](../../../development/architecture/phase-33-modularization.md)
+- [Phase 33 Modularization](../../architecture/phase-33-modularization.md)
 
 ---
 

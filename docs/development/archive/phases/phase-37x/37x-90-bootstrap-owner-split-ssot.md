@@ -9,7 +9,7 @@ Related:
   - docs/development/current/main/15-Workstream-Map.md
   - docs/development/current/main/phases/phase-37x/README.md
   - docs/development/current/main/phases/phase-37x/37x-91-task-board.md
-  - docs/development/current/main/phases/phase-36x/README.md
+  - docs/development/archive/phases/phase-36x/README.md
 ---
 
 # 37x-90 Bootstrap Owner Split

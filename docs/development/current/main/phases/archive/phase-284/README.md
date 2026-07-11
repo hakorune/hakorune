@@ -12,7 +12,7 @@ Status: P1 Complete (2025-12-23)
 - Frag/ExitKind 設計: `docs/development/current/main/design/edgecfg-fragments.md`
 - Composition API: `src/mir/builder/control_flow/edgecfg/api/compose/mod.rs`
 - Terminator emission: `src/mir/builder/control_flow/edgecfg/api/emit.rs`（`emit_frag()`）
-- Router SSOT（SSOT=extract / safety valve）: `docs/development/current/main/phases/phase-282/README.md`
+- Router SSOT（SSOT=extract / safety valve）: `docs/development/archive/phases/phase-282/README.md`
 
 ## Problem（移行期間の弱さ）
 

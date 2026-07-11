@@ -12,63 +12,63 @@ Phase 287 は「開発導線の整備（意味論不変）」を優先して、�
 
 `merge/mod.rs` を modularize（意味論不変）し、SSOT（boundary-first / continuation SSOT）を強化した。
 
-- 入口: `docs/development/current/main/phases/phase-287/P0-BIGFILES-REFACTORING-INSTRUCTIONS.md`
+- 入口: `docs/development/archive/phases/phase-287/P0-BIGFILES-REFACTORING-INSTRUCTIONS.md`
 
 ## 2025-12-27 Update: AST Feature Extractor modularization（P1）✅
 
 `ast_feature_extractor.rs` を facade にして、`pattern_recognizers/` 配下へ recognizer 単位で分割した（意味論不変）。
 
-- 入口: `docs/development/current/main/phases/phase-287/P1-AST_FEATURE_EXTRACTOR-INSTRUCTIONS.md`
-- 次（P2）: `docs/development/current/main/phases/phase-287/P2-CONTRACT_CHECKS-MODULARIZATION-INSTRUCTIONS.md`（完了）
+- 入口: `docs/development/archive/phases/phase-287/P1-AST_FEATURE_EXTRACTOR-INSTRUCTIONS.md`
+- 次（P2）: `docs/development/archive/phases/phase-287/P2-CONTRACT_CHECKS-MODULARIZATION-INSTRUCTIONS.md`（完了）
 
 ---
 
 ## 2025-12-27 Update: Contract Checks modularization（P2）✅
 
 - `contract_checks.rs` を facade 化して、契約検証を “1 module = 1 契約” に分割した（意味論不変）。
-  - 指示書: `docs/development/current/main/phases/phase-287/P2-CONTRACT_CHECKS-MODULARIZATION-INSTRUCTIONS.md`
+  - 指示書: `docs/development/archive/phases/phase-287/P2-CONTRACT_CHECKS-MODULARIZATION-INSTRUCTIONS.md`
 
 ---
 
 ## 2025-12-27 Update: Instruction Rewriter stage split（P3）✅
 
 - `merge/instruction_rewriter.rs` を “Scan/Plan/Apply” の stage 単位に分割し、facade（orchestrator）へ縮退した（意味論不変）。
-  - 指示書: `docs/development/current/main/phases/phase-287/P3-INSTRUCTION_REWRITER-MODULARIZATION-INSTRUCTIONS.md`
+  - 指示書: `docs/development/archive/phases/phase-287/P3-INSTRUCTION_REWRITER-MODULARIZATION-INSTRUCTIONS.md`
 
 ---
 
 ## 2025-12-27 Update: Plan stage modularization（P4）✅
 
 - `rewriter/stages/plan.rs` を facade 化し、`rewriter/stages/plan/` 配下へ責務単位で分割した（意味論不変）。
-  - 指示書: `docs/development/current/main/phases/phase-287/P4-PLAN_STAGE-MODULARIZATION-INSTRUCTIONS.md`
+  - 指示書: `docs/development/archive/phases/phase-287/P4-PLAN_STAGE-MODULARIZATION-INSTRUCTIONS.md`
 
 ---
 
 ## 2025-12-27 Update: Stages facade（P5）✅
 
 - pipeline 関数（scan/plan/apply）を `stages/mod.rs` から re-export し、呼び出し側 import を単一入口へ統一した（意味論不変）。
-  - 指示書: `docs/development/current/main/phases/phase-287/P5-STAGES-VISIBILITY-FACADE-INSTRUCTIONS.md`
+  - 指示書: `docs/development/archive/phases/phase-287/P5-STAGES-VISIBILITY-FACADE-INSTRUCTIONS.md`
 
 ---
 
 ## 2025-12-27 Update: Remove scan stage（P6）✅
 
 - Scan stage を削除し、pipeline を 2-stage（Plan→Apply）へ単純化した（意味論不変）。
-  - 指示書: `docs/development/current/main/phases/phase-287/P6-SCAN_PLAN-INTEGRATION-INSTRUCTIONS.md`
+  - 指示書: `docs/development/archive/phases/phase-287/P6-SCAN_PLAN-INTEGRATION-INSTRUCTIONS.md`
 
 ---
 
 ## 2025-12-27 Update: Rewriter scaffolding cleanup（P7）✅
 
 - pipeline の古い scaffolding（`apply_box.rs` / `parameter_binding_box.rs` / `tail_call_detector_box.rs`）を削除し、SSOT を `rewriter/stages/*` に寄せた（意味論不変）。
-  - 指示書: `docs/development/current/main/phases/phase-287/P7-REWRITER-BOX-SCAFFOLDING-CLEANUP-INSTRUCTIONS.md`
+  - 指示書: `docs/development/archive/phases/phase-287/P7-REWRITER-BOX-SCAFFOLDING-CLEANUP-INSTRUCTIONS.md`
 
 ---
 
 ## 2025-12-27 Update: Rewriter README / guard（P8）✅
 
 - `rewriter/README.md` を追加し、責務境界と SSOT（Plan→Apply）を明文化した（docs-only）。
-  - 指示書: `docs/development/current/main/phases/phase-287/P8-REWRITER-README-GUARD-INSTRUCTIONS.md`
+  - 指示書: `docs/development/archive/phases/phase-287/P8-REWRITER-README-GUARD-INSTRUCTIONS.md`
   - 成果物: `src/mir/builder/control_flow/joinir/merge/rewriter/README.md`
 
 ---
@@ -76,7 +76,7 @@ Phase 287 は「開発導線の整備（意味論不変）」を優先して、�
 ## 2025-12-27 Update: Phase closeout（P9）✅
 
 - Phase 287 完了状態を docs に反映し、Now/Backlog を次フェーズへ切り替えた（docs-only）。
-  - 指示書: `docs/development/current/main/phases/phase-287/P9-PHASE-CLOSEOUT-INSTRUCTIONS.md`
+  - 指示書: `docs/development/archive/phases/phase-287/P9-PHASE-CLOSEOUT-INSTRUCTIONS.md`
 
 ---
 
@@ -104,8 +104,8 @@ Phase 287 は「開発導線の整備（意味論不変）」を優先して、�
 
 ### Legacy docs（smoke quick）
 
-- P1（legacy）: quick 軽量化（~45s 目標）: `docs/development/current/main/phases/phase-287/P1-INSTRUCTIONS.md`
-- P2（legacy, optional）: quick をさらに 45s へ寄せる: `docs/development/current/main/phases/phase-287/P2-INSTRUCTIONS.md`
+- P1（legacy）: quick 軽量化（~45s 目標）: `docs/development/archive/phases/phase-287/P1-INSTRUCTIONS.md`
+- P2（legacy, optional）: quick をさらに 45s へ寄せる: `docs/development/archive/phases/phase-287/P2-INSTRUCTIONS.md`
 
 ## Phase 286 完了作業（historical）
 

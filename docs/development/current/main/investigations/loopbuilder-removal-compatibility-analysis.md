@@ -589,7 +589,7 @@ The removal of LoopBuilder forces **explicit failures** rather than **silent fal
 - **Phase 186**: `docs/private/roadmap2/phases/phase-186-loopbuilder-freeze/README.md`
 - **Phase 187**: `docs/private/roadmap2/phases/phase-180-joinir-unification-before-selfhost/README.md#8-phase-187`
 - **Phase 188**: `docs/private/roadmap2/phases/phase-188-joinir-loop-pattern-expansion/README.md`
-- **Phase 264**: `docs/development/current/main/phases/phase-264/README.md`
+- **Phase 264**: `docs/development/archive/phases/phase-264/README.md`
 
 ### Source Files
 

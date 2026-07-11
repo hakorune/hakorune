@@ -36,6 +36,6 @@ Goal: strict/dev の fallback を棚卸しして境界を SSOT 化し、次の�
 
 ## Instructions
 
-- P1: `docs/development/current/main/phases/phase-29ax/P1-INVENTORY-REMAINING-FALLBACKS-INSTRUCTIONS.md`
-- P2: `docs/development/current/main/phases/phase-29ax/P2-STABILIZE-PURITY-GATE-ENV-INSTRUCTIONS.md`
-- P3: `docs/development/current/main/phases/phase-29ax/P3-CLOSEOUT-INSTRUCTIONS.md`
+- P1: `docs/development/archive/phases/phase-29ax/P1-INVENTORY-REMAINING-FALLBACKS-INSTRUCTIONS.md`
+- P2: `docs/development/archive/phases/phase-29ax/P2-STABILIZE-PURITY-GATE-ENV-INSTRUCTIONS.md`
+- P3: `docs/development/archive/phases/phase-29ax/P3-CLOSEOUT-INSTRUCTIONS.md`

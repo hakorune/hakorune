@@ -423,7 +423,7 @@ The following route shapes are rejected with explicit error messages:
 
 ### Files to Modify
 
-1. `docs/development/current/main/phases/phase-142/README.md` - Contract documentation
+1. `docs/development/archive/phases/phase-142/README.md` - Contract documentation
 2. representative historical selfhost E2E fixture token for parse_string lowering (new at the time)
 3. `src/mir/join_ir/lowering/loop_routes/with_continue.rs` - current lowerer extension surface
    - same historical continue-analysis lane as above (legacy basename tokens omitted here to reduce noise)
