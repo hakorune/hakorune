@@ -23,10 +23,10 @@ Primary implementation pointers:
 
 以下の行は CI/テストで参照する契約値（編集時は実装と同時更新）。
 
-DOC_SYNC_MIR_KEPT_COUNT=36
+DOC_SYNC_MIR_KEPT_COUNT=38
 DOC_SYNC_MIR_LOWERED_AWAY_COUNT=0
 DOC_SYNC_MIR_REMOVED_COUNT=16
-DOC_SYNC_MIR_VOCABULARY_COUNT=52
+DOC_SYNC_MIR_VOCABULARY_COUNT=54
 DOC_SYNC_MIR14_COUNT=13
 DOC_SYNC_CORE26_COUNT=26
 
@@ -75,6 +75,8 @@ allowlists are being updated.
 - Const
 - Copy
 - LocalContractWrite
+- RecordFieldContractCheck
+- RecordValuePublish
 - Load
 - StaticDataLoad
 - Store

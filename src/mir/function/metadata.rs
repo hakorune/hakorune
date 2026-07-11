@@ -8,11 +8,11 @@ use super::fastmem::{
     FastMemRegionMetadata, FastMemRemoteOwnerFact, FastMemSameOwnerFact, FastMemTableLengthFact,
 };
 use super::object_metadata::RecordStateFieldAccessPlan;
-use super::types::ReturnExitContract;
 use super::types::{
     ExactNumericRuntimeCheckContract, LocalIdentityEvidence, LocalSlotContract, MirParamDecl,
     ParameterEntryContract,
 };
+use super::types::{RecordValueContract, ReturnExitContract};
 use crate::mir::{
     agg_local_scalarization::AggLocalScalarizationRoute,
     array_getset_micro_seed_plan::ArrayGetSetMicroSeedRoute,
@@ -582,6 +582,10 @@ pub struct FunctionMetadata {
 
     /// Rebuilt checked-write provenance for PHI/loop local publications.
     pub local_identity_evidence: Vec<LocalIdentityEvidence>,
+
+    /// Record construction/update semantic contracts rebuilt by
+    /// `semantic_refresh` from canonical record operations.
+    pub record_value_contracts: Vec<RecordValueContract>,
 
     /// MIR-owned exact numeric facts attached to values after field reads and
     /// conservative copy/control-merge propagation.

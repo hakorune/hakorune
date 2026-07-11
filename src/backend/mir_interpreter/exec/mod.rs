@@ -15,6 +15,7 @@ mod local_contracts;
 mod numeric_contracts;
 mod parameter_contracts;
 mod phi;
+mod record_contracts;
 mod return_contracts;
 mod trace;
 

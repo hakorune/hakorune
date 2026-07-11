@@ -44,7 +44,9 @@ impl MirInstruction {
             | MirInstruction::KeepAlive { .. } => EffectMask::PURE,
 
             // Runtime contract validation may reject execution.
-            MirInstruction::LocalContractWrite { .. } => EffectMask::CONTROL,
+            MirInstruction::LocalContractWrite { .. }
+            | MirInstruction::RecordFieldContractCheck { .. }
+            | MirInstruction::RecordValuePublish { .. } => EffectMask::CONTROL,
 
             // Memory operations
             MirInstruction::Load { .. }
@@ -118,6 +120,7 @@ impl MirInstruction {
             | MirInstruction::TypeOp { dst, .. }
             | MirInstruction::Copy { dst, .. }
             | MirInstruction::LocalContractWrite { dst, .. }
+            | MirInstruction::RecordValuePublish { dst, .. }
             | MirInstruction::RefNew { dst, .. }
             | MirInstruction::WeakRef { dst, .. }
             | MirInstruction::FutureNew { dst, .. }
@@ -139,6 +142,7 @@ impl MirInstruction {
             | MirInstruction::Throw { .. }
             | MirInstruction::Barrier { .. }
             | MirInstruction::FutureSet { .. }
+            | MirInstruction::RecordFieldContractCheck { .. }
             | MirInstruction::Safepoint => None,
 
             MirInstruction::Catch {
@@ -213,6 +217,7 @@ impl MirInstruction {
             | MirInstruction::TypeOp { value: operand, .. }
             | MirInstruction::Copy { src: operand, .. }
             | MirInstruction::LocalContractWrite { src: operand, .. }
+            | MirInstruction::RecordFieldContractCheck { value: operand, .. }
             | MirInstruction::Debug { value: operand, .. } => vec![*operand],
 
             MirInstruction::BinOp { lhs, rhs, .. }
@@ -261,6 +266,12 @@ impl MirInstruction {
             }
 
             MirInstruction::NewBox { args, .. } => args.clone(),
+
+            MirInstruction::RecordValuePublish { base, fields, .. } => {
+                let mut values = base.iter().copied().collect::<Vec<_>>();
+                values.extend(fields.iter().copied());
+                values
+            }
 
             MirInstruction::Phi { inputs, .. } => inputs.iter().map(|(_, value)| *value).collect(),
 

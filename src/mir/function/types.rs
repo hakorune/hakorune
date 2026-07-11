@@ -122,6 +122,44 @@ pub struct LocalIdentityEvidence {
     pub incoming_values: Vec<ValueId>,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum RecordValueBoundaryKind {
+    Construct,
+    WithUpdate,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum RecordContractDisposition {
+    AnyDefault,
+    RuntimeCheckedContract,
+    VerifierProvenContract { proof_id: String },
+    UnsupportedFailFast,
+}
+
+/// One active record-field semantic contract at a value publication site.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RecordFieldValueContract {
+    pub field_index: usize,
+    pub diagnostic_field_name: String,
+    pub value_id: ValueId,
+    pub declared_type_name: String,
+    pub disposition: RecordContractDisposition,
+}
+
+/// Function-owned record construction/update contract rebuilt from semantic
+/// operations and the module's source-owned RecordDecl inventory.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RecordValueContract {
+    pub contract_id: String,
+    pub boundary: RecordValueBoundaryKind,
+    pub diagnostic_record_name: String,
+    pub schema_fingerprint: String,
+    pub dst_value_id: ValueId,
+    pub base_value_id: Option<ValueId>,
+    pub fields: Vec<RecordFieldValueContract>,
+    pub backend_capability_required: String,
+}
+
 /// A MIR function in SSA form
 #[derive(Debug, Clone)]
 pub struct MirFunction {

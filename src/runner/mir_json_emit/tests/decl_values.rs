@@ -168,6 +168,7 @@ fn collect_sorted_record_decl_values_preserves_record_lane() {
                     is_weak: false,
                 },
             ],
+            default_field_names: Vec::new(),
         },
     );
     module

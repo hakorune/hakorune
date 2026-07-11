@@ -426,6 +426,25 @@ pub enum MirInstruction {
         write_kind: crate::mir::function::LocalContractWriteKind,
     },
 
+    /// Check one active field contract immediately after its expression.
+    RecordFieldContractCheck {
+        contract_id: String,
+        schema_fingerprint: String,
+        field_index: u32,
+        value: ValueId,
+    },
+
+    /// Publish a scalarized record value after every active field check.
+    RecordValuePublish {
+        dst: ValueId,
+        contract_id: String,
+        boundary: crate::mir::function::RecordValueBoundaryKind,
+        diagnostic_record_name: String,
+        schema_fingerprint: String,
+        base: Option<ValueId>,
+        fields: Vec<ValueId>,
+    },
+
     /// Debug/introspection instruction
     /// `debug %value "message"`
     Debug { value: ValueId, message: String },

@@ -89,6 +89,7 @@ pub mod ordered_map_origin_plan; // focused OrderedMapBox get result-origin publ
 pub(crate) mod parameter_entry_backend_capability; // exact-numeric parameter-entry backend gate
 pub mod policies; // shared routing policies (SSOT)
 pub mod range_index_fact; // canonical loop range-index facts for fast-path consumers
+pub(crate) mod record_value_backend_capability; // record construction/update contract backend gate
 pub(crate) mod return_exit_backend_capability; // exact-numeric return-exit backend gate
 pub mod route_decision; // planner-owned fastpath-preferred selected route outcomes
 pub mod same_module_definition_plan; // MIR-owned same-module definition closure for C AOT

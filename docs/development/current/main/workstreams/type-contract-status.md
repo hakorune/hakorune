@@ -20,6 +20,7 @@ of `x: T`; normative type semantics remain in `docs/reference/language/types.md`
 | parameter entry | runtime checked | `FunctionEntryContractOwner` | final callee, before binding/effects |
 | return exit | runtime checked | `FunctionReturnContractOwner` | final outcome, before caller publication |
 | local init/reassignment | runtime checked | `LocalSlotContractOwner` | `LocalContractWrite`, before publication |
+| record construction/update | exact-numeric fields runtime checked | `RecordValueContractOwner` | field check before `RecordValuePublish` |
 
 All four families are rebuilt and validated by
 `semantic_refresh::refresh_and_validate_for_boundary`. Runtime-check elision is
@@ -30,7 +31,6 @@ must reject before effects.
 
 | Site | State | Next owner decision |
 | --- | --- | --- |
-| record construction/update | existing narrow verifier contract | compare against typed Array after exact-numeric closeout |
 | static table element | existing narrow verifier contract | retain current closed table row |
 | ordinary collection element | `Any` dynamic default | no typed activation |
 | typed `Array<T>` element | existing narrow runtime contract | candidate next family |
@@ -68,7 +68,8 @@ D3:
   keep MirType route users conservative and prohibit semantic-proof promotion
 
 D4:
-  select exactly one next family: record construction or typed Array element
+  record selected; keep typed Array inactive until a source-owned element
+  contract and one element-write owner are identified
 ```
 
 The null/void/Option relation, truthiness, equality compatibility, ownership,
@@ -81,6 +82,7 @@ not redefined by this ledger.
 | --- | --- |
 | guarantee matrix | `src/mir/type_contracts/guarantee_matrix.rs` |
 | refresh facade | `src/mir/semantic_refresh/contracts.rs` |
+| record value contract | `src/mir/type_contracts/record_value.rs` |
 | runtime type tags/specs | `src/backend/runtime_type_tag.rs`, `src/backend/runtime_type_spec.rs` |
 | VM truthiness/equality | `src/backend/abi_util.rs` |
 | MIR binary operations | `src/backend/mir_interpreter/helpers.rs` |

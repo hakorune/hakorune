@@ -8,8 +8,9 @@
 use crate::ast::ASTNode;
 use crate::mir::builder::compilation_context::RecordLocalFieldValue;
 use crate::mir::builder::MirBuilder;
-use crate::mir::ValueId;
-use std::collections::BTreeMap;
+use crate::mir::function::{RecordDecl, RecordValueBoundaryKind};
+use crate::mir::{MirInstruction, UserBoxFieldDecl, ValueId};
+use std::collections::{BTreeMap, BTreeSet};
 
 impl MirBuilder {
     pub(in crate::mir::builder) fn is_record_constructor_class(&self, class: &str) -> bool {
@@ -23,35 +24,48 @@ impl MirBuilder {
     ) -> Result<ValueId, String> {
         let Some(decl) = self.comp_ctx.record_decls.get(&class).cloned() else {
             return Err(format!(
-                "[record-construction/unknown-record] record={}",
+                "[type/record_contract_unknown_record] record={}",
                 class
             ));
         };
         if !decl.type_parameters.is_empty() {
             return Err(format!(
-                "[record-construction/generic-unsupported] record={}",
+                "[type/record_contract_generic_unsupported] record={}",
                 class
             ));
         }
         if arguments.len() != decl.fields.len() {
             return Err(format!(
-                "[record-construction/arity-mismatch] record={} expected={} actual={}",
+                "[type/record_contract_constructor_arity_mismatch] record={} expected={} actual={}",
                 class,
                 decl.fields.len(),
                 arguments.len()
             ));
         }
 
+        let (dst, contract_id, fingerprint) = self.begin_record_value_contract(&decl);
         let mut field_values = Vec::with_capacity(decl.fields.len());
-        for (field, argument) in decl.fields.iter().zip(arguments.into_iter()) {
-            field_values.push(self.build_record_local_field_value(
-                field.name.clone(),
-                field.declared_type_name.clone(),
+        for (field_index, (field, argument)) in
+            decl.fields.iter().zip(arguments.into_iter()).enumerate()
+        {
+            field_values.push(self.build_checked_record_field_value(
+                field_index,
+                field,
                 argument,
+                &contract_id,
+                &fingerprint,
             )?);
         }
 
-        self.register_record_local_fields(class, field_values)
+        self.publish_record_local_fields(
+            dst,
+            contract_id,
+            RecordValueBoundaryKind::Construct,
+            class,
+            fingerprint,
+            None,
+            field_values,
+        )
     }
 
     pub(in crate::mir::builder) fn build_record_literal_value(
@@ -61,60 +75,112 @@ impl MirBuilder {
     ) -> Result<ValueId, String> {
         let Some(decl) = self.comp_ctx.record_decls.get(&record_type_name).cloned() else {
             return Err(format!(
-                "[record-literal/unknown-record] record={}",
+                "[type/record_contract_unknown_record] record={}",
                 record_type_name
             ));
         };
         if !decl.type_parameters.is_empty() {
             return Err(format!(
-                "[record-literal/generic-unsupported] record={}",
+                "[type/record_contract_generic_unsupported] record={}",
                 record_type_name
             ));
         }
 
-        let mut by_name = BTreeMap::new();
-        for (field_name, expr) in fields {
-            if by_name.insert(field_name.clone(), expr).is_some() {
+        let declared_names = decl
+            .fields
+            .iter()
+            .map(|field| field.name.as_str())
+            .collect::<BTreeSet<_>>();
+        let mut seen = BTreeSet::new();
+        for (field_name, _) in &fields {
+            if !seen.insert(field_name.as_str()) {
                 return Err(format!(
-                    "[record-literal/duplicate-field] record={} field={}",
+                    "[type/record_contract_duplicate_field] record={} field={}",
+                    record_type_name, field_name
+                ));
+            }
+            if !declared_names.contains(field_name.as_str()) {
+                return Err(format!(
+                    "[type/record_contract_unknown_field] record={} field={}",
                     record_type_name, field_name
                 ));
             }
         }
-
-        let mut field_values = Vec::with_capacity(decl.fields.len());
         for field in &decl.fields {
-            let expr = if let Some(expr) = by_name.remove(&field.name) {
-                expr
-            } else if let Some(default_expr) = self
+            if !seen.contains(field.name.as_str())
+                && !decl.default_field_names.contains(&field.name)
+            {
+                return Err(format!(
+                    "[type/record_contract_missing_required_field] record={} field={}",
+                    record_type_name, field.name
+                ));
+            }
+        }
+
+        let (dst, contract_id, fingerprint) = self.begin_record_value_contract(&decl);
+        let mut by_name = BTreeMap::new();
+        // Explicit source expressions retain source order.
+        for (field_name, expr) in fields {
+            let field_index = decl
+                .fields
+                .iter()
+                .position(|field| field.name == field_name)
+                .expect("record field set preflight");
+            let field = &decl.fields[field_index];
+            let value = self.build_checked_record_field_value(
+                field_index,
+                field,
+                expr,
+                &contract_id,
+                &fingerprint,
+            )?;
+            by_name.insert(field_name, value);
+        }
+        // Missing defaults retain declaration order.
+        for (field_index, field) in decl.fields.iter().enumerate() {
+            if by_name.contains_key(&field.name) {
+                continue;
+            }
+            let default_expr = self
                 .comp_ctx
                 .record_field_defaults
                 .get(&record_type_name)
                 .and_then(|defaults| defaults.get(&field.name))
                 .cloned()
-            {
-                default_expr
-            } else {
-                return Err(format!(
-                    "[record-literal/missing-field] record={} field={}",
-                    record_type_name, field.name
-                ));
-            };
-            field_values.push(self.build_record_local_field_value(
-                field.name.clone(),
-                field.declared_type_name.clone(),
-                expr,
-            )?);
+                .ok_or_else(|| {
+                    format!(
+                        "[type/record_contract_source_drift] record={} field={} default=missing",
+                        record_type_name, field.name
+                    )
+                })?;
+            let value = self.build_checked_record_field_value(
+                field_index,
+                field,
+                default_expr,
+                &contract_id,
+                &fingerprint,
+            )?;
+            by_name.insert(field.name.clone(), value);
         }
 
-        if let Some((field_name, _)) = by_name.into_iter().next() {
-            return Err(format!(
-                "[record-literal/unknown-field] record={} field={}",
-                record_type_name, field_name
-            ));
-        }
-
-        self.register_record_local_fields(record_type_name, field_values)
+        let field_values = decl
+            .fields
+            .iter()
+            .map(|field| {
+                by_name
+                    .remove(&field.name)
+                    .expect("complete record preflight")
+            })
+            .collect();
+        self.publish_record_local_fields(
+            dst,
+            contract_id,
+            RecordValueBoundaryKind::Construct,
+            record_type_name,
+            fingerprint,
+            None,
+            field_values,
+        )
     }
 
     pub(in crate::mir::builder) fn build_record_update_value(
@@ -122,45 +188,115 @@ impl MirBuilder {
         base: ASTNode,
         updates: Vec<(String, ASTNode)>,
     ) -> Result<ValueId, String> {
-        let base_value = self.build_record_value_base(base)?;
-        let Some(record) = self.comp_ctx.record_local_value(base_value).cloned() else {
-            return Err(format!(
-                "[record-update/base-not-record] value={}",
-                base_value.as_u32()
-            ));
-        };
-
-        let mut by_name = BTreeMap::new();
-        for (field_name, expr) in updates {
-            if by_name.insert(field_name.clone(), expr).is_some() {
+        let expected_record_name = self.record_name_for_value_base(&base).ok_or_else(|| {
+            "[type/record_contract_update_base_mismatch] expected=record-local-value".to_string()
+        })?;
+        let decl = self
+            .comp_ctx
+            .record_decls
+            .get(&expected_record_name)
+            .cloned()
+            .ok_or_else(|| {
+                format!(
+                    "[type/record_contract_unknown_record] record={}",
+                    expected_record_name
+                )
+            })?;
+        let declared_names = decl
+            .fields
+            .iter()
+            .map(|field| field.name.as_str())
+            .collect::<BTreeSet<_>>();
+        let mut seen = BTreeSet::new();
+        for (field_name, _) in &updates {
+            if !seen.insert(field_name.as_str()) {
                 return Err(format!(
-                    "[record-update/duplicate-field] record={} field={}",
-                    record.record_name, field_name
+                    "[type/record_contract_duplicate_field] record={} field={}",
+                    expected_record_name, field_name
+                ));
+            }
+            if !declared_names.contains(field_name.as_str()) {
+                return Err(format!(
+                    "[type/record_contract_unknown_field] record={} field={}",
+                    expected_record_name, field_name
                 ));
             }
         }
 
-        let mut field_values = Vec::with_capacity(record.fields.len());
-        for field in record.fields {
-            if let Some(expr) = by_name.remove(&field.name) {
-                field_values.push(self.build_record_local_field_value(
-                    field.name,
-                    field.declared_type_name,
-                    expr,
-                )?);
-            } else {
-                field_values.push(field);
-            }
-        }
-
-        if let Some((field_name, _)) = by_name.into_iter().next() {
+        let (dst, contract_id, fingerprint) = self.begin_record_value_contract(&decl);
+        let base_value = self.build_record_value_base(base)?;
+        let Some(record) = self.comp_ctx.record_local_value(base_value).cloned() else {
             return Err(format!(
-                "[record-update/unknown-field] record={} field={}",
-                record.record_name, field_name
+                "[type/record_contract_update_base_mismatch] value={}",
+                base_value.as_u32()
+            ));
+        };
+        if record.record_name != expected_record_name {
+            return Err(format!(
+                "[type/record_contract_update_base_mismatch] expected={} actual={}",
+                expected_record_name, record.record_name
             ));
         }
 
-        self.register_record_local_fields(record.record_name, field_values)
+        let update_names = updates
+            .iter()
+            .map(|(name, _)| name.as_str())
+            .collect::<BTreeSet<_>>();
+        let mut by_name = record
+            .fields
+            .into_iter()
+            .map(|field| (field.name.clone(), field))
+            .collect::<BTreeMap<_, _>>();
+        // Unchanged final fields are checked before update expression effects.
+        for (field_index, field) in decl.fields.iter().enumerate() {
+            if !update_names.contains(field.name.as_str()) {
+                let value = by_name
+                    .get(&field.name)
+                    .expect("record schema preflight")
+                    .value;
+                self.emit_record_field_contract_check(
+                    field_index,
+                    field,
+                    value,
+                    &contract_id,
+                    &fingerprint,
+                )?;
+            }
+        }
+        for (field_name, expr) in updates {
+            let field_index = decl
+                .fields
+                .iter()
+                .position(|field| field.name == field_name)
+                .expect("update field preflight");
+            let value = self.build_checked_record_field_value(
+                field_index,
+                &decl.fields[field_index],
+                expr,
+                &contract_id,
+                &fingerprint,
+            )?;
+            by_name.insert(field_name, value);
+        }
+
+        let field_values = decl
+            .fields
+            .iter()
+            .map(|field| {
+                by_name
+                    .remove(&field.name)
+                    .expect("record schema preflight")
+            })
+            .collect();
+        self.publish_record_local_fields(
+            dst,
+            contract_id,
+            RecordValueBoundaryKind::WithUpdate,
+            expected_record_name,
+            fingerprint,
+            Some(base_value),
+            field_values,
+        )
     }
 
     pub(in crate::mir::builder) fn fail_if_record_value_escape_by_name(
@@ -293,6 +429,25 @@ impl MirBuilder {
         }
     }
 
+    fn record_name_for_value_base(&self, base: &ASTNode) -> Option<String> {
+        match base {
+            ASTNode::Variable { name, .. } => self
+                .variable_ctx
+                .variable_map
+                .get(name)
+                .and_then(|value| self.comp_ctx.record_local_value(*value))
+                .map(|record| record.record_name.clone()),
+            ASTNode::New { class, .. } if self.is_record_constructor_class(class) => {
+                Some(class.clone())
+            }
+            ASTNode::RecordLiteral {
+                record_type_name, ..
+            } => Some(record_type_name.clone()),
+            ASTNode::RecordUpdate { base, .. } => self.record_name_for_value_base(base),
+            _ => None,
+        }
+    }
+
     fn lower_record_field_read_from_value(
         &mut self,
         value: ValueId,
@@ -318,28 +473,73 @@ impl MirBuilder {
         Ok(Some(field_value.value))
     }
 
-    fn build_record_local_field_value(
+    fn begin_record_value_contract(&mut self, decl: &RecordDecl) -> (ValueId, String, String) {
+        let dst = self.next_value_id();
+        let contract_id = format!("record-value:{}", dst.as_u32());
+        let fingerprint = crate::mir::type_contracts::record_value::record_schema_fingerprint(decl);
+        (dst, contract_id, fingerprint)
+    }
+
+    fn build_checked_record_field_value(
         &mut self,
-        name: String,
-        declared_type_name: Option<String>,
+        field_index: usize,
+        field: &UserBoxFieldDecl,
         expr: ASTNode,
+        contract_id: &str,
+        fingerprint: &str,
     ) -> Result<RecordLocalFieldValue, String> {
         let value = self.build_expression(expr)?;
+        self.emit_record_field_contract_check(field_index, field, value, contract_id, fingerprint)?;
         Ok(RecordLocalFieldValue {
-            name,
-            declared_type_name,
+            name: field.name.clone(),
+            declared_type_name: field.declared_type_name.clone(),
             value,
         })
     }
 
-    fn register_record_local_fields(
+    fn emit_record_field_contract_check(
         &mut self,
+        field_index: usize,
+        field: &UserBoxFieldDecl,
+        value: ValueId,
+        contract_id: &str,
+        fingerprint: &str,
+    ) -> Result<(), String> {
+        if !crate::mir::type_contracts::record_value::is_active_record_field_type(
+            field.declared_type_name.as_deref(),
+        ) {
+            return Ok(());
+        }
+        self.emit_instruction(MirInstruction::RecordFieldContractCheck {
+            contract_id: contract_id.to_string(),
+            schema_fingerprint: fingerprint.to_string(),
+            field_index: field_index as u32,
+            value,
+        })
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    fn publish_record_local_fields(
+        &mut self,
+        dst: ValueId,
+        contract_id: String,
+        boundary: RecordValueBoundaryKind,
         record_name: String,
+        fingerprint: String,
+        base: Option<ValueId>,
         field_values: Vec<RecordLocalFieldValue>,
     ) -> Result<ValueId, String> {
-        let placeholder = crate::mir::builder::emission::constant::emit_void(self)?;
+        self.emit_instruction(MirInstruction::RecordValuePublish {
+            dst,
+            contract_id,
+            boundary,
+            diagnostic_record_name: record_name.clone(),
+            schema_fingerprint: fingerprint,
+            base,
+            fields: field_values.iter().map(|field| field.value).collect(),
+        })?;
         self.comp_ctx
-            .register_record_local_value(placeholder, record_name, field_values);
-        Ok(placeholder)
+            .register_record_local_value(dst, record_name, field_values);
+        Ok(dst)
     }
 }

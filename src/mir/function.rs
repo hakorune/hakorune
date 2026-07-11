@@ -48,6 +48,7 @@ pub use types::{
     FunctionSignature, FunctionStats, LocalContractWriteKind, LocalIdentityEvidence,
     LocalSlotContract, MirEnumDecl, MirEnumVariantDecl, MirFunction, MirModule, MirParamDecl,
     ModuleMetadata, ModuleStats, ParameterEntryContract, ParameterEntryContractKind,
-    ReturnExitContract, ReturnExitContractKind, ReturnExitContractOwner, ReturnExitVoidPolicy,
-    StaticDataPlan,
+    RecordContractDisposition, RecordFieldValueContract, RecordValueBoundaryKind,
+    RecordValueContract, ReturnExitContract, ReturnExitContractKind, ReturnExitContractOwner,
+    ReturnExitVoidPolicy, StaticDataPlan,
 };

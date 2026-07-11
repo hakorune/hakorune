@@ -86,12 +86,19 @@ impl CompilationContext {
                 is_weak: decl.is_weak,
             })
             .collect();
+        let mut default_field_names = field_decls
+            .iter()
+            .filter(|decl| decl.default_value.is_some())
+            .map(|decl| decl.name.clone())
+            .collect::<Vec<_>>();
+        default_field_names.sort();
         self.record_decls.insert(
             name.clone(),
             RecordDecl {
                 name: name.clone(),
                 type_parameters,
                 fields,
+                default_field_names,
             },
         );
         let defaults = field_decls

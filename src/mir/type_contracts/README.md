@@ -9,6 +9,9 @@ not parse source syntax, select storage layouts, or lower backend operations.
 - `proof.rs` defines verifier-backed proof records for activated slices.
 - `parameter_entry.rs` owns typed final-callee entry carriers and drift checks.
 - `return_exit.rs` owns typed final-outcome carriers and drift checks.
+- `record_value.rs` owns record schema projection and construction/update
+  carrier rebuild/validation. Builder, VM, JSON, and backend gates consume this
+  owner instead of deriving contracts from record layout.
 - Site-specific timing stays with its boundary owner. Shared exact-numeric
   value/range checking is subordinate and cannot infer a contract.
 - Exact-numeric field writes remain owned by

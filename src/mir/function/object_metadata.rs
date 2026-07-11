@@ -27,4 +27,6 @@ pub struct RecordDecl {
     pub name: String,
     pub type_parameters: Vec<String>,
     pub fields: Vec<UserBoxFieldDecl>,
+    /// Field names with source-owned defaults. Values remain builder-local AST.
+    pub default_field_names: Vec<String>,
 }

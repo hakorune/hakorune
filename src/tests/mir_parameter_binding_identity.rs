@@ -30,6 +30,8 @@ static box Main {
     flag = false
     return flag
   }
+
+  main() { return 0 }
 }
 "#,
     );

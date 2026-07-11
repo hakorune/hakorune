@@ -243,6 +243,7 @@ pub(super) fn lower_program(
                             is_weak: field.is_weak,
                         })
                         .collect(),
+                    default_field_names: Vec::new(),
                 },
             )
         })

@@ -30,7 +30,7 @@ pub(crate) enum EnforcementOwner {
     FunctionEntryContract,
     FunctionReturnContract,
     ExactNumericBoxFieldContract,
-    RecordConstructionContract,
+    RecordValueContract,
     StaticTableElementContract,
     CollectionElementContract,
     TypedArrayElementContract,
@@ -99,10 +99,10 @@ pub(crate) const GUARANTEE_MATRIX: [GuaranteeMatrixRow; 11] = [
     },
     GuaranteeMatrixRow {
         site: AnnotationSite::RecordConstruction,
-        current: GuaranteeClass::VerifierProvenContract,
-        target: GuaranteeClass::VerifierProvenContract,
-        owner: EnforcementOwner::RecordConstructionContract,
-        activation: ActivationScope::ExistingNarrow,
+        current: GuaranteeClass::RuntimeCheckedContract,
+        target: GuaranteeClass::VerifiedRuntimeGuardedContract,
+        owner: EnforcementOwner::RecordValueContract,
+        activation: ActivationScope::ExactNumericFirstSlice,
         unsupported_backend: UnsupportedBackendPolicy::RejectBeforeEffects,
     },
     GuaranteeMatrixRow {
@@ -214,12 +214,12 @@ mod tests {
     }
 
     #[test]
-    fn exact_numeric_box_field_entry_return_and_local_are_active_slices() {
+    fn exact_numeric_boundary_families_are_active_slices() {
         let rows: Vec<_> = GUARANTEE_MATRIX
             .iter()
             .filter(|row| row.activation == ActivationScope::ExactNumericFirstSlice)
             .collect();
-        assert_eq!(rows.len(), 4);
+        assert_eq!(rows.len(), 5);
         assert!(rows.iter().any(|row| {
             row.site == AnnotationSite::BoxFieldWrite
                 && row.owner == EnforcementOwner::ExactNumericBoxFieldContract
@@ -235,6 +235,10 @@ mod tests {
         assert!(rows.iter().any(|row| {
             row.site == AnnotationSite::LocalSlot
                 && row.owner == EnforcementOwner::LocalSlotContract
+        }));
+        assert!(rows.iter().any(|row| {
+            row.site == AnnotationSite::RecordConstruction
+                && row.owner == EnforcementOwner::RecordValueContract
         }));
         assert!(rows.iter().all(|row| {
             row.unsupported_backend == UnsupportedBackendPolicy::RejectBeforeEffects

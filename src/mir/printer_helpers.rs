@@ -437,6 +437,30 @@ pub fn format_instruction(
             write_kind
         ),
 
+        MirInstruction::RecordFieldContractCheck {
+            contract_id,
+            field_index,
+            value,
+            ..
+        } => format!(
+            "record.contract.check {} field={} value={}",
+            contract_id, field_index, value
+        ),
+
+        MirInstruction::RecordValuePublish {
+            dst,
+            contract_id,
+            boundary,
+            fields,
+            ..
+        } => format!(
+            "{} record.value.publish {} boundary={:?} fields={:?}",
+            format_dst(dst, types),
+            contract_id,
+            boundary,
+            fields
+        ),
+
         MirInstruction::Debug { value, message } => {
             format!("debug {} \"{}\"", value, message)
         }

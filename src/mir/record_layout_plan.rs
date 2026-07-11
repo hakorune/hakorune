@@ -85,6 +85,7 @@ mod tests {
                         is_weak: false,
                     },
                 ],
+                default_field_names: Vec::new(),
             },
         );
 
@@ -113,6 +114,7 @@ mod tests {
                     declared_type_name: Some("T".to_string()),
                     is_weak: false,
                 }],
+                default_field_names: Vec::new(),
             },
         );
         module.metadata.record_decls.insert(
@@ -125,6 +127,7 @@ mod tests {
                     declared_type_name: Some("i64".to_string()),
                     is_weak: true,
                 }],
+                default_field_names: Vec::new(),
             },
         );
 

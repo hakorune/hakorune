@@ -19,11 +19,16 @@ pub struct ContractCarrierSummary {
     pub parameter_entries: usize,
     pub return_exits: usize,
     pub local_slots: usize,
+    pub record_values: usize,
 }
 
 impl ContractCarrierSummary {
     pub fn total(self) -> usize {
-        self.box_field_writes + self.parameter_entries + self.return_exits + self.local_slots
+        self.box_field_writes
+            + self.parameter_entries
+            + self.return_exits
+            + self.local_slots
+            + self.record_values
     }
 }
 
@@ -76,7 +81,7 @@ pub fn refresh_and_validate_for_boundary(
     module: &mut MirModule,
     boundary: ContractRefreshBoundary,
 ) -> Result<RefreshedContractBundle<'_>, String> {
-    refresh_active_contract_carriers(module);
+    refresh_active_contract_carriers(module)?;
     validate_refreshed_contracts(module)?;
     let carriers = collect_carrier_summary(module);
     Ok(RefreshedContractBundle {
@@ -86,17 +91,26 @@ pub fn refresh_and_validate_for_boundary(
     })
 }
 
-fn refresh_active_contract_carriers(module: &mut MirModule) {
+fn refresh_active_contract_carriers(module: &mut MirModule) -> Result<(), String> {
+    let record_decls = module.metadata.record_decls.clone();
     for function in module.functions.values_mut() {
         crate::mir::type_contracts::parameter_entry::refresh_function_parameter_entry_contracts(
             function,
         );
         crate::mir::type_contracts::return_exit::refresh_function_return_exit_contract(function);
         crate::mir::type_contracts::local_slot::refresh_function_local_identity_evidence(function);
+        // Rebuild from canonical operations plus module-owned declaration truth.
+        // Validation below reports the same stable family boundary on failure.
+        crate::mir::type_contracts::record_value::refresh_function_record_value_contracts(
+            function,
+            &record_decls,
+        )
+        .map_err(|reason| carrier_validation_error("record_value", function, reason))?;
     }
     crate::mir::exact_numeric_field_contracts::refresh_module_exact_numeric_runtime_check_contracts(
         module,
     );
+    Ok(())
 }
 
 /// Compatibility bridge for immutable public APIs. The cloned module is
@@ -124,6 +138,11 @@ fn validate_refreshed_contracts(module: &MirModule) -> Result<(), String> {
             .map_err(|reason| carrier_validation_error("return_exit", function, reason))?;
         crate::mir::type_contracts::local_slot::validate_local_slot_contracts(function)
             .map_err(|reason| carrier_validation_error("local_slot", function, reason))?;
+        crate::mir::type_contracts::record_value::validate_record_value_contracts(
+            function,
+            &module.metadata.record_decls,
+        )
+        .map_err(|reason| carrier_validation_error("record_value", function, reason))?;
     }
     Ok(())
 }
@@ -181,6 +200,11 @@ fn collect_carrier_summary(module: &MirModule) -> ContractCarrierSummary {
             .functions
             .values()
             .map(|function| function.metadata.local_slot_contracts.len())
+            .sum(),
+        record_values: module
+            .functions
+            .values()
+            .map(|function| function.metadata.record_value_contracts.len())
             .sum(),
     }
 }

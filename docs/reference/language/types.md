@@ -96,6 +96,14 @@ box Counter {
 local moved = point with { x: point.x + 1 }
 ```
 
+Record field annotations are semantic contracts at both construction and
+`with` replacement boundaries. Explicit field expressions evaluate exactly
+once in source order; missing defaults evaluate exactly once in declaration
+order. Each active field contract is checked immediately after its final value
+is produced, and the record value is published only after all checks pass.
+`with` produces a replacement and never mutates its base value. Storage layout,
+`MirType`, and packed-record plans cannot prove these contracts.
+
 Ordinary boxes do not support `with` copy/update semantics.
 
 Design SSOT:

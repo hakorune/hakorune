@@ -81,6 +81,20 @@ impl MirInterpreter {
                         local_slot_id,
                         ..
                     } => self.execute_local_contract_write(function, *dst, *src, *local_slot_id)?,
+                    MirInstruction::RecordFieldContractCheck {
+                        contract_id,
+                        field_index,
+                        value,
+                        ..
+                    } => self.execute_record_field_contract_check(
+                        function,
+                        contract_id,
+                        *field_index as usize,
+                        *value,
+                    )?,
+                    MirInstruction::RecordValuePublish {
+                        dst, contract_id, ..
+                    } => self.execute_record_value_publish(function, contract_id, *dst)?,
                     MirInstruction::Load { dst, ptr } => self.handle_load(*dst, *ptr)?,
                     MirInstruction::StaticDataLoad {
                         dst,
@@ -198,6 +212,24 @@ impl MirInterpreter {
             } = inst
             {
                 self.execute_local_contract_write(function, *dst, *src, *local_slot_id)?;
+            } else if let MirInstruction::RecordFieldContractCheck {
+                contract_id,
+                field_index,
+                value,
+                ..
+            } = inst
+            {
+                self.execute_record_field_contract_check(
+                    function,
+                    contract_id,
+                    *field_index as usize,
+                    *value,
+                )?;
+            } else if let MirInstruction::RecordValuePublish {
+                dst, contract_id, ..
+            } = inst
+            {
+                self.execute_record_value_publish(function, contract_id, *dst)?;
             } else {
                 self.execute_instruction(inst)?;
             }

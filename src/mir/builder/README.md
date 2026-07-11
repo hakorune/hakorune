@@ -30,6 +30,10 @@ Builder core owns:
 - lexical scope / binding / local state through Context owners.
 - source span / diagnostic provenance.
 - actual MIR block assembly after a route has been selected.
+- `record_values.rs` owns record preflight, exactly-once field evaluation, and
+  `RecordFieldContractCheck` / `RecordValuePublish` emission. Declaration and
+  schema policy stays in `mir/type_contracts/record_value.rs`; VM, JSON, and
+  backend capability policy must not move into the builder.
 
 FlowPlanner owns:
 

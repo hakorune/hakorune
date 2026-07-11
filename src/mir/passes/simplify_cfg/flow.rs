@@ -428,6 +428,7 @@ fn rewrite_value_uses_in_instruction(instruction: &mut MirInstruction, from: Val
         | MirInstruction::TypeOp { value: operand, .. }
         | MirInstruction::Copy { src: operand, .. }
         | MirInstruction::LocalContractWrite { src: operand, .. }
+        | MirInstruction::RecordFieldContractCheck { value: operand, .. }
         | MirInstruction::Debug { value: operand, .. }
         | MirInstruction::Throw {
             exception: operand, ..
@@ -521,6 +522,14 @@ fn rewrite_value_uses_in_instruction(instruction: &mut MirInstruction, from: Val
         MirInstruction::NewBox { args, .. } => {
             for arg in args {
                 rewrite_value_use(arg, from, to);
+            }
+        }
+        MirInstruction::RecordValuePublish { base, fields, .. } => {
+            if let Some(base) = base {
+                rewrite_value_use(base, from, to);
+            }
+            for field in fields {
+                rewrite_value_use(field, from, to);
             }
         }
         MirInstruction::KeepAlive { values } | MirInstruction::ReleaseStrong { values } => {

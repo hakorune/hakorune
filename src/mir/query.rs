@@ -58,6 +58,12 @@ impl<'m> MirQuery for MirQueryBox<'m> {
         match inst {
             Const { .. } => Vec::new(),
             Copy { src, .. } | LocalContractWrite { src, .. } => vec![*src],
+            RecordFieldContractCheck { value, .. } => vec![*value],
+            RecordValuePublish { base, fields, .. } => {
+                let mut values = base.iter().copied().collect::<Vec<_>>();
+                values.extend(fields.iter().copied());
+                values
+            }
             UnaryOp { operand, .. } => vec![*operand],
             BinOp { lhs, rhs, .. } | Compare { lhs, rhs, .. } => {
                 vec![*lhs, *rhs]
@@ -149,6 +155,7 @@ impl<'m> MirQuery for MirQueryBox<'m> {
             | Await { dst, .. }
             | Copy { dst, .. }
             | LocalContractWrite { dst, .. }
+            | RecordValuePublish { dst, .. }
             | Select { dst, .. } => vec![*dst], // Copy writes to dst, Select writes to dst
             // No writes
             Store { .. }
@@ -163,6 +170,7 @@ impl<'m> MirQuery for MirQueryBox<'m> {
             | Catch { .. }
             | Barrier { .. }
             | FutureSet { .. }
+            | RecordFieldContractCheck { .. }
             | Safepoint => Vec::new(),
             _ => Vec::new(),
         }

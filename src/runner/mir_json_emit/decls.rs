@@ -68,6 +68,7 @@ pub(super) fn collect_sorted_record_decl_values(
                     "declared_type": field.declared_type_name,
                     "is_weak": field.is_weak,
                     "field_index": index,
+                    "has_default": decl.default_field_names.contains(&field.name),
                 })).collect::<Vec<_>>(),
             })
         })

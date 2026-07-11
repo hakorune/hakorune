@@ -135,6 +135,15 @@ impl JoinIrIdRemapper {
                 vals
             }
             Copy { dst, src } | LocalContractWrite { dst, src, .. } => vec![*dst, *src],
+            RecordFieldContractCheck { value, .. } => vec![*value],
+            RecordValuePublish {
+                dst, base, fields, ..
+            } => {
+                let mut values = vec![*dst];
+                values.extend(base.iter().copied());
+                values.extend(fields.iter().copied());
+                values
+            }
             NewBox { dst, args, .. } => {
                 let mut vals = vec![*dst];
                 vals.extend(args.iter().copied());
@@ -374,6 +383,34 @@ impl JoinIrIdRemapper {
                 src: remap(*src),
                 local_slot_id: *local_slot_id,
                 write_kind: *write_kind,
+            },
+            RecordFieldContractCheck {
+                contract_id,
+                schema_fingerprint,
+                field_index,
+                value,
+            } => RecordFieldContractCheck {
+                contract_id: contract_id.clone(),
+                schema_fingerprint: schema_fingerprint.clone(),
+                field_index: *field_index,
+                value: remap(*value),
+            },
+            RecordValuePublish {
+                dst,
+                contract_id,
+                boundary,
+                diagnostic_record_name,
+                schema_fingerprint,
+                base,
+                fields,
+            } => RecordValuePublish {
+                dst: remap(*dst),
+                contract_id: contract_id.clone(),
+                boundary: *boundary,
+                diagnostic_record_name: diagnostic_record_name.clone(),
+                schema_fingerprint: schema_fingerprint.clone(),
+                base: base.map(remap),
+                fields: fields.iter().copied().map(remap).collect(),
             },
             NewBox {
                 dst,

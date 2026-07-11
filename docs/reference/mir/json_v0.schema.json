@@ -104,6 +104,8 @@
             "jump",
             "keepalive",
             "local_contract_write",
+            "record_field_contract_check",
+            "record_value_publish",
             "memop",
             "mir_call",
             "newbox",

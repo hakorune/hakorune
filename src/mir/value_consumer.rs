@@ -68,6 +68,7 @@ fn value_consumer_used_values(inst: &MirInstruction) -> Vec<ValueId> {
         | MirInstruction::TypeOp { value: operand, .. }
         | MirInstruction::Copy { src: operand, .. }
         | MirInstruction::LocalContractWrite { src: operand, .. }
+        | MirInstruction::RecordFieldContractCheck { value: operand, .. }
         | MirInstruction::Debug { value: operand, .. }
         | MirInstruction::VariantTag { value: operand, .. }
         | MirInstruction::VariantProject { value: operand, .. } => vec![*operand],
@@ -110,6 +111,11 @@ fn value_consumer_used_values(inst: &MirInstruction) -> Vec<ValueId> {
             .unwrap_or_default(),
         MirInstruction::Return { value, .. } => value.iter().copied().collect(),
         MirInstruction::NewBox { args, .. } => args.clone(),
+        MirInstruction::RecordValuePublish { base, fields, .. } => {
+            let mut used = base.iter().copied().collect::<Vec<_>>();
+            used.extend(fields.iter().copied());
+            used
+        }
         MirInstruction::KeepAlive { values } => values.clone(),
         MirInstruction::ReleaseStrong { values } => values.clone(),
         MirInstruction::Throw { exception, .. } => vec![*exception],
