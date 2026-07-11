@@ -2,11 +2,10 @@
 
 ## Status
 
-Active design consultation stop. Do not change Array acceptance, MIR
-vocabulary, runtime methods, planner lowering, or type-contract activation
-until the write owner and identity law are accepted.
+Complete. Explicit `ArrayElementWrite`, `ArrayElementWriteOwner`, and shared
+mutable-state `ArrayStateIdentity` are accepted.
 
-Decision: pending.
+Decision: accepted.
 
 ## Objective
 
@@ -122,4 +121,52 @@ new_array_acceptance = 0
 backend_array_lowering = 0
 runtime_backend_fallback = 0
 selfhost_claim = 0
+```
+
+## Accepted Decision
+
+```text
+canonical operation = MirInstruction::ArrayElementWrite
+element write owner = ArrayElementWriteOwner
+runtime mutation identity = ArrayStateIdentity
+write kinds = LiteralAppend | Push | Set | Insert
+generic Call sidecar selected = 0
+typed Array<T> contract activation = 0
+```
+
+The owner scope also includes `array[index] = value` and the final write of
+`array[index] op= value`. Planner scope means planner-recognized or
+planner-replaced writes; planners consume write kind/site identity rather than
+rediscovering raw method strings.
+
+Runtime identity belongs to the shared mutable Array state cell. Ordinary
+aliases and `share_box()` preserve it; deep clone creates a fresh identity.
+ValueId, BindingId, Box ID, raw pointer, `MirType::Array`, and storage variant
+are not identity authority.
+
+## Accepted Evaluation Law
+
+```text
+LiteralAppend: allocate -> birth -> each value once in source order -> write
+Push: receiver -> value -> write -> Void publication
+Set/Insert: receiver -> index -> value -> write -> Void publication
+Index assignment: receiver -> index -> value -> Set write
+Compound index: receiver -> index -> old read -> RHS -> operation -> Set write
+```
+
+Runtime overwrite, append-at-end, bounds, insert-shift, and storage-promotion
+semantics remain unchanged.
+
+## Accepted Claims
+
+```text
+array_element_write_owner_decided = 1
+array_identity_contract_decided = 1
+canonical_array_element_write_operation_selected = 1
+literal_append_uses_array_element_write = 1
+index_assignment_in_owner_scope = 1
+compound_index_write_in_owner_scope = 1
+generic_call_sidecar_selected = 0
+array_element_write_owner_implemented = 0
+typed_array_contract_activation = 0
 ```
