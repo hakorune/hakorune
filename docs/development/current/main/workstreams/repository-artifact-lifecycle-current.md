@@ -407,6 +407,12 @@ until an authority spine, precedence parent, and retirement condition are
 reviewed for that family. Ambiguous families stop for a focused consultation.
 
 ```text
+c2_queue_basis = deterministic three-token filename prefix queue only
+c2_family_count = 393
+c2_multi_file_family_count = 37
+c2_singleton_family_count = 356
+c2_largest_family = hako-alloc-segment:163
+c2_role_assignment = none
 owner_family_role_heuristic = forbidden
 one_authority_spine_default = 1
 multiple_authorities_require_explicit_precedence = 1

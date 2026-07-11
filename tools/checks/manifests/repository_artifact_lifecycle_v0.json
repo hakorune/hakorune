@@ -580,6 +580,1980 @@
         }
       ]
     },
+    "c2_owner_family_queue": {
+      "basis": "deterministic three-token filename prefix queue only",
+      "families": [
+        {
+          "family_key": "abi-export-inventory",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "abi-export-manifest",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "ai-plan-review",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "allocator-hook-activation",
+          "file_count": 5,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "allocator-hook-dry",
+          "file_count": 3,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "allocator-hook-plan",
+          "file_count": 2,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "allocator-hook-runtime",
+          "file_count": 2,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "allocator-provider-activation",
+          "file_count": 17,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "allocator-provider-boundary",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "allocator-provider-combined",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "allocator-provider-current",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "allocator-provider-debug",
+          "file_count": 2,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "allocator-provider-diagnostic",
+          "file_count": 2,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "allocator-provider-hako",
+          "file_count": 2,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "allocator-provider-implementation",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "allocator-provider-lightweight",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "allocator-provider-manifest",
+          "file_count": 4,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "allocator-provider-native",
+          "file_count": 4,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "allocator-provider-post",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "allocator-provider-proof",
+          "file_count": 7,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "allocator-provider-readiness",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "allocator-provider-registry",
+          "file_count": 5,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "allocator-provider-rollback",
+          "file_count": 2,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "allocator-provider-runtime",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "allocator-provider-selected",
+          "file_count": 2,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "allocator-provider-selection",
+          "file_count": 4,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "allocator-replacement-hook",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "arc-retirement-and",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "arc-retirement-family",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "array-lane-extension",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "array-map-owner",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "array-repr-ssot",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "array-result-option",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "array-runtime-single",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "array-text-session",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "arraybox-json-v0",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "ast-cleanup-before",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "backend-legacy-preservation",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "backend-owner-cutover",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "backend-recipe-route",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "balanced-depth-scan",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "birth-placement-ssot",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "block-expr-b3",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "block-expressions-and",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "box-callable-registry",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "box-identity-view",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "box-object-model",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "boxbase-new-external",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "boxcount-new-box",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "brand-constructor-unwrap",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "brand-mismatch-checker",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "brand-parser-capsule",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "build-crate-split",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "build-lane-separation",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "c-abi-shim",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "canonical-lowering-visibility",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "capsule-value-result",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "cfg-aware-typed",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "cleanupwrap-cleanup-region",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "collection-raw-substrate",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "collection-set-map",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "compiler-cleanup-sidecar",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "compiler-object-final",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "concat3-array-store",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "concurrency-async-pre",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "concurrency-boundary-migration",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "cond-block-view",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "condblockview-desugar-consult",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "condition-binding-promoted",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "condition-binding-resolution",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "condprofile-migration-plan",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "condprofile-ssot",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "contract-region-v0",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "contract-syntax-metadata",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "control-tree-nested",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "coreloop-composer-single",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "coreloop-composer-v0",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "coreloop-exitmap-composition",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "coreloop-generic-loop",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "coreloop-loopframe-v1",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "coreloop-stepmode-inline",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "coreplan-compat-normalizer",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "coreplan-flowbox-interface",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "coreplan-general-loop",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "coreplan-migration-done",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "coreplan-migration-roadmap",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "coreplan-purity-stage1",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "coreplan-purity-stage2",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "coreplan-shadow-adopt",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "coreplan-unknown-loop",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "de-rust-backend",
+          "file_count": 3,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "de-rust-full",
+          "file_count": 3,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "de-rust-kernel",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "de-rust-lane",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "de-rust-master",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "de-rust-runtime",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "de-rust-scope",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "de-rust-stage",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "de-rust-zero",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "declared-uses-capability",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "delegation-exposes-lowering",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "delegation-legacy-status",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "delegation-no-inheritance",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "delegation-parser-capsule",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "derived-to-native",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "direct-slot-lease",
+          "file_count": 2,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "domainplan-residue-ssot",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "domainplan-thinning-ssot",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "effect-classification-ssot",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "entry-name-map",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "enum-sum-and",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "environment-variables-inventory",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "executable-trim-route",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "exit-branch-feature",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "exitbranch-ssot",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "exitkind-cleanup-effect",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "exitkind-unwind-reservation",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "fastmem-layout-table",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "fastmem-source-syntax",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "fastmem-verified-direct",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "fastpath-eligibility-resolver",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "feature-helper-boundary",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "flowbox-adopt-tag",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "flowbox-fallback-observability",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "flowbox-observability-tags",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "flowbox-tag-coverage",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "frontend-owner-proof",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "generic-arity-checker",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "generic-loop-v1",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "generic-memory-dce",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "generic-type-annotation",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "guard-let-pattern",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "guard-manifest-migration",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "hako-alloc-allocator",
+          "file_count": 52,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "hako-alloc-atomic",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "hako-alloc-backend",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "hako-alloc-execution",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "hako-alloc-hook",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "hako-alloc-host",
+          "file_count": 5,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "hako-alloc-optional",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "hako-alloc-options",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "hako-alloc-osvm",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "hako-alloc-provider",
+          "file_count": 24,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "hako-alloc-real",
+          "file_count": 5,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "hako-alloc-reclaim",
+          "file_count": 18,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "hako-alloc-remote",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "hako-alloc-segment",
+          "file_count": 163,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "hako-alloc-thread",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "hako-alloc-wide",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "hako-alloc-worker",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "hako-app-front",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "hako-check-mir",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "hako-inspect-scope",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "hako-lifecycle-emitter",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "hako-lifecycle-plan",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "hako-lifecycle-resolver",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "hako-lifecycle-verifier",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "hako-mimalloc-performance",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "hako-mirbuilder-migration",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "hako-module-cache",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "hako-optimization-toolbox",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "hako-thread-substrate",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "hakorune-naming-and",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "hakorune-provider-package",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "hakorune-stage-term",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "handle-cache-metal",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "if-then-condition",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "joinir-observation-layer",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "joinir-pattern-selection",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "joinir-plan-frag",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "joinir-planner-required",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "joinir-port-task",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "json-v0-bridge",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "json-v0-route",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "kernel-authority-cutover",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "kernel-observability-and",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "kilo-meso-benchmark",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "known-enum-underscore",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "language-feature-implementation",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "language-minimal-lane",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "language-minimal-surface",
+          "file_count": 2,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "local-type-annotation",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "loop-cleanup-before",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "loop-cond-break",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "loop-range-parser",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "loop-range-stage1",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "loop-route-detection",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "lowering-plan-json",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "map-literal-eviction",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "mapbox-proof-bearing",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "match-branchn-skeleton",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "mimalloc-allocator-first",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "mimalloc-backend-acceptance",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "mimalloc-benchmark-dll",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "mimalloc-benchmark-route",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "mimalloc-blueprint-lane",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "mimalloc-comparison-execution",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "mimalloc-concurrency-substrate",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "mimalloc-facade-huge",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "mimalloc-facade-known",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "mimalloc-facade-lifecycle",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "mimalloc-facade-object",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "mimalloc-first-executable",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "mimalloc-hako-port",
+          "file_count": 2,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "mimalloc-hakorune-blueprint",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "mimalloc-hakorune-brand",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "mimalloc-hakorune-capability",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "mimalloc-hakorune-joint",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "mimalloc-hakorune-lifecycle",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "mimalloc-hakorune-record",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "mimalloc-lifecycle-integration",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "mimalloc-lifecycle-rewrite",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "mimalloc-migration-closeout",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "mimalloc-next-row",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "mimalloc-object-lifecycle",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "mimalloc-osvm-fast",
+          "file_count": 2,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "mimalloc-osvm-release",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "mimalloc-page-free",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "mimalloc-page-queue",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "mimalloc-port-remaining",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "mimalloc-post-huge",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "mimalloc-post-m215",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "mimalloc-replacement-front",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "mimalloc-row-validation",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "mimalloc-secure-entropy",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "mimalloc-size-class",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "mimalloc-substrate-representation",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "mir-array-slot",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "mir-builder-diet",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "mir-cleanup-policy",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "mir-commonality-taxonomy",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "mir-crate-split",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "mir-fastmem-memop",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "mir-proof-envelope",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "mir-root-facade",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "mirbuilder-authority-based",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "mirbuilder-ordering-capability",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "mirbuilder-programjson-capability",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "mirbuilder-rust-to",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "mirbuilder-selfhost-checkpoint",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "nested-argument-single",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "nyash-kernel-semantic",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "nyrt-startup-env",
+          "file_count": 8,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "object-handle-box",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "object-storage-plan",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "observer-control-dce",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "optimization-hints-contracts",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "optimization-layer-roadmap",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "optimization-tag-flow",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "ordered-map-box",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "parser-extensions-param",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "pattern-naming-migration",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "pattern-p5b-escape",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "pattern6-7-contracts",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "perf-optimization-method",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "perf-owner-first",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "perf-userbox-link",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "phi-carrier-join",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "phi-carrier-lifecycle",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "pinned-typed-object",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "plan-dir-shallowing",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "plan-mod-layout",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "plan-reject-handoff",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "planfrag-freeze-taxonomy",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "planfrag-ssot-registry",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "plugin-loadset-linking",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "post-m213-next",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "post-phi-final",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "post-store-observer",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "private-doc-boundary",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "promoted-body-locals",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "promoted-carrier-identity",
+          "file_count": 2,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "promoted-name-resolution",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "provider-abi-shim",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "provider-abi-v1",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "provider-package-artifact",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "provider-runtime-load",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "pure-first-acceptance",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "pure-first-mir",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "purge-lifecycle-ladder",
+          "file_count": 2,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "pyvm-retreat-ssot",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "random-capability-failfast",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "random-capability-preflight",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "rc-gc-alignment",
+          "file_count": 5,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "recipe-file-naming",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "recipe-first-entry",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "recipe-first-migration",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "recipe-scope-effect",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "reclaim-execution-preflight",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "record-box-two",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "record-construction-ergonomics",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "record-construction-read",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "record-ergonomics-expansion",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "record-literal-parser",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "record-local-scalarization",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "record-with-update",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "rep-mir-string",
+          "file_count": 2,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "repo-physical-structure",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "representation-direct-lowering",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "representation-direct-storage",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "result-capsule-value",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "result-option-expected",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "result-option-missing",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "result-option-payload",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "result-option-prelude",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "retained-boundary-and",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "return-in-loop",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "return-proof-vocabulary",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "ring1-core-provider",
+          "file_count": 2,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "route-fixpoint-owner",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "route-physical-path",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "rune-and-stage2plus",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "rune-v0-contract",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "rune-v1-metadata",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "runtime-decl-manifest",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "runtime-decl-return",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "runtime-gc-policy",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "rust-lifecycle-context",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "rust-lifecycle-facts",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "rust-lifecycle-projection",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "rust-to-hako",
+          "file_count": 3,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "rustc-semir-adapter",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "rustc-semir-binding",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "rustc-semir-internal",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "scope-manager-condition",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "selfhost-authority-facade",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "selfhost-bootstrap-route",
+          "file_count": 2,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "selfhost-compiler-structure",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "selfhost-coreplan-unblocking",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "selfhost-family-artifact",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "selfhost-g1-mir",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "selfhost-language-v1",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "selfhost-mir-object",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "selfhost-program-json",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "selfhost-stageb-json",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "selfhost-tools-loopless",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "semantic-optimization-authority",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "short-circuit-joins",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "smoke-taxonomy-and",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "source-packed-array",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "source-selfhost-family",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "source-selfhost-runner",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "source-selfhost-wider",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "span-no-escape",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "stage0-cleanup-catch",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "stage0-stage1-feature",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "stage2-aot-fast",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "stage2-aot-native",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "stage2-collection-substrate",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "stage2-string-route",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "stage2plus-entry-and",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "standalone-exe-route",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "static-data-manifest",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "strict-nested-loop",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "string-birth-placement",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "string-birth-sink",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "string-hot-corridor",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "string-semantic-value",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "string-transient-lifecycle",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "string-value-model",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "substring-concat-len",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "substring-view-materialize",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "task-lane-reconciliation",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "tool-entrypoint-lifecycle",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "transient-string-chain",
+          "file_count": 2,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "transient-text-pieces",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "transition-metadata-capsule",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "trim-helper-carrier",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "trim-route-lowering",
+          "file_count": 4,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "type-abi-box",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "type-abi-catalog",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "type-abi-naming",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "type-abi-route",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "type-abi-view",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "type-alias-parser",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "typed-array-element",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "typed-array-inference",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "typed-array-literal",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "typed-array-method",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "typed-numeric-memory",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "typed-object-exact",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "unwind-cleanup-effect",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "userbox-nullable-object",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "uses-metadata-capsule",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "usize-semantic-foundation",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "value-corridor-generic",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "valueflow-blockparams-ssot",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "variable-context-carrier",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "variable-context-lifecycle",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "variable-context-returned",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "verified-recipe-port",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "vm-active-lane",
+          "file_count": 1,
+          "review_status": "pending"
+        },
+        {
+          "family_key": "vm-known-limitations",
+          "file_count": 1,
+          "review_status": "pending"
+        }
+      ],
+      "family_count": 393,
+      "multi_file_family_count": 37,
+      "role_assignment": "none",
+      "singleton_family_count": 356
+    },
     "direct_files": 849,
     "markdown_files": 828,
     "non_markdown_files": 21,

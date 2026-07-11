@@ -49,6 +49,26 @@ C2 is now the active stop: remaining files are grouped by explicit owner
 family, and ambiguous families require a focused consultation before a role
 or physical move is assigned.
 
+## C2 Deterministic Queue
+
+The inventory now exposes a review queue only. It groups each remaining
+unregistered direct file by a case-folded three-token filename prefix. This
+is a scheduling key, not an owner claim and not a role assignment.
+
+```text
+queue_basis = deterministic three-token filename prefix queue only
+family_count = 393
+multi_file_family_count = 37
+singleton_family_count = 356
+largest_family = hako-alloc-segment:163
+role_assignment = none
+```
+
+The complete family summary is generated in the repository lifecycle
+manifest. C2 must review an authority spine, precedence parent, and
+retirement condition for each family; a family without a clear spine stops
+for a focused consultation.
+
 ## Proposed Classification Order
 
 ```text

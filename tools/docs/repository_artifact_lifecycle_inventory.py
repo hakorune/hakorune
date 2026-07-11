@@ -498,6 +498,7 @@ def design_registry_inventory() -> dict[str, object]:
             "row_count": len(c1_rows),
             "rows": sorted(c1_rows, key=lambda row: row["path"]),
         },
+        "c2_owner_family_queue": c2_owner_family_queue(unregistered),
         "violations": violations,
     }
 
@@ -575,6 +576,35 @@ def card_status(path: Path) -> str:
     if any(word in status for word in ACTIVE_WORDS):
         return "active_like"
     return "other_or_missing"
+
+
+def c2_owner_family_queue(unregistered: list[str]) -> dict[str, object]:
+    groups: dict[str, list[str]] = {}
+    for path in unregistered:
+        stem = Path(path).stem
+        tokens = [token for token in re.split(r"[-_]+", stem) if token]
+        family = "-".join(tokens[:3]).lower() if tokens else stem.lower()
+        groups.setdefault(family, []).append(path)
+    families = [
+        {
+            "family_key": family,
+            "file_count": len(paths),
+            "review_status": "pending",
+        }
+        for family, paths in sorted(groups.items())
+    ]
+    return {
+        "basis": "deterministic three-token filename prefix queue only",
+        "role_assignment": "none",
+        "family_count": len(families),
+        "multi_file_family_count": sum(
+            1 for family in families if family["file_count"] > 1
+        ),
+        "singleton_family_count": sum(
+            1 for family in families if family["file_count"] == 1
+        ),
+        "families": families,
+    }
 
 
 def build_inventory() -> dict[str, object]:
