@@ -6,6 +6,9 @@
   "additionalProperties": true,
   "properties": {
     "schema_version": { "type": ["integer", "string" ] },
+    "static_table_contract_specs": { "type": "array" },
+    "static_data_plans": { "type": "array" },
+    "verified_static_table_contracts": { "type": "array" },
     "functions": {
       "oneOf": [
         { "$ref": "#/definitions/functionList" },

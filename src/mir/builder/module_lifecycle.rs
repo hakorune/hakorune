@@ -114,8 +114,13 @@ impl super::MirBuilder {
         // Phase A: collect declarations in one pass (symbols available to lowering)
         declaration_indexer::index_declarations(self, &snapshot);
         if let Some(module) = self.current_module.as_mut() {
-            module.metadata.static_data_plans =
-                crate::mir::static_data_plan::collect_static_data_plans_from_ast(&snapshot);
+            let specs = crate::mir::static_data_plan::collect_static_table_specs_from_ast(
+                &module.name,
+                &snapshot,
+            )?;
+            let plans = crate::mir::static_data_plan::static_data_plans_from_specs(&specs);
+            module.metadata.static_table_contract_specs = specs;
+            module.metadata.static_data_plans = plans;
         }
 
         // Decide root mode (App vs Script) once per module based on presence of static box Main.main

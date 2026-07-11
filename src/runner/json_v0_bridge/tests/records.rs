@@ -63,6 +63,13 @@ fn parse_json_v0_to_module_preserves_static_data_plans() {
                 "values": [8, 16, 24, 32]
             }
         ],
+        "static_table_contract_specs": [
+            {
+                "declaration_name": "SIZE_CLASS",
+                "element": "u16",
+                "values": [8, 16, 24, 32]
+            }
+        ],
         "body": [
             {
                 "type": "Return",
@@ -74,6 +81,7 @@ fn parse_json_v0_to_module_preserves_static_data_plans() {
 
     let module = parse_json_v0_to_module(&json).expect("module");
     let plans = &module.metadata.static_data_plans;
+    let specs = &module.metadata.static_table_contract_specs;
 
     assert_eq!(plans.len(), 1);
     assert_eq!(plans[0].source_name, "SIZE_CLASS");
@@ -83,6 +91,9 @@ fn parse_json_v0_to_module_preserves_static_data_plans() {
     assert_eq!(plans[0].linkage, "private");
     assert!(plans[0].unnamed_addr);
     assert_eq!(plans[0].values, vec![8, 16, 24, 32]);
+    assert_eq!(specs.len(), 1);
+    assert_eq!(specs[0].table_id.declaration_name, "SIZE_CLASS");
+    assert_eq!(specs[0].values, vec![8, 16, 24, 32]);
 }
 
 #[test]

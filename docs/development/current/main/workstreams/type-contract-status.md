@@ -22,7 +22,7 @@ of `x: T`; normative type semantics remain in `docs/reference/language/types.md`
 | local init/reassignment | runtime checked | `LocalSlotContractOwner` | `LocalContractWrite`, before publication |
 | record construction/update | exact-numeric fields runtime checked | `RecordValueContractOwner` | field check before `RecordValuePublish` |
 
-All four families are rebuilt and validated by
+All five families are rebuilt and validated by
 `semantic_refresh::refresh_and_validate_for_boundary`. Runtime-check elision is
 not active for parameter, return, or local contracts. Unsupported backends
 must reject before effects.
@@ -31,10 +31,10 @@ must reject before effects.
 
 | Site | State | Next owner decision |
 | --- | --- | --- |
-| static table element | existing narrow verifier contract | retain current closed table row |
+| static table element | readonly U16 closeout in progress | `StaticTableElementContractOwner` |
 | ordinary collection element | `Any` dynamic default | no typed activation |
-| typed `Array<T>` element | existing narrow runtime contract | candidate next family |
-| Weak field | existing narrow verifier contract | ownership row also constrains semantics |
+| typed `Array<T>` element | representation inference only; semantic carrier inactive | write-owner convergence first |
+| Weak field | builder-local `MirType` check; semantic carrier incomplete | ownership/absence row also constrains semantics |
 | FFI ingress/egress | transitional non-guarantee | dedicated FFI boundary decision |
 | backend preservation | capability preflight | representation boundary only |
 
@@ -55,6 +55,15 @@ consumer is already migrated.
 | Rune plans | explicit plan input | rune refresh/verification owners | source `:T` cannot synthesize Rune authority |
 | backend layouts | derived representation fact | backend capability/layout owners | cannot satisfy a missing semantic carrier |
 
+## Carrier Completeness
+
+| Family | Source contract | Single owner | Semantic refresh | VM consumer | Backend preflight |
+| --- | --- | --- | --- | --- | --- |
+| static table readonly U16 | complete | complete | complete | complete | complete |
+| typed `Array<T>` | incomplete | incomplete | incomplete | runtime methods only | incomplete |
+| Weak field | declaration flag only | builder-local only | incomplete | weak operations only | incomplete |
+| FFI | incomplete | incomplete | incomplete | provider-specific | incomplete |
+
 ## Known Debt Queue
 
 ```text
@@ -68,8 +77,8 @@ D3:
   keep MirType route users conservative and prohibit semantic-proof promotion
 
 D4:
-  record selected; keep typed Array inactive until a source-owned element
-  contract and one element-write owner are identified
+  keep typed Array inactive until ArrayElementWrite convergence lands and a
+  source-owned element contract is selected
 ```
 
 The null/void/Option relation, truthiness, equality compatibility, ownership,
@@ -83,6 +92,7 @@ not redefined by this ledger.
 | guarantee matrix | `src/mir/type_contracts/guarantee_matrix.rs` |
 | refresh facade | `src/mir/semantic_refresh/contracts.rs` |
 | record value contract | `src/mir/type_contracts/record_value.rs` |
+| static table contract | `src/mir/type_contracts/static_table.rs` |
 | runtime type tags/specs | `src/backend/runtime_type_tag.rs`, `src/backend/runtime_type_spec.rs` |
 | VM truthiness/equality | `src/backend/abi_util.rs` |
 | MIR binary operations | `src/backend/mir_interpreter/helpers.rs` |

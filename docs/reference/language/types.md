@@ -218,7 +218,10 @@ Accepted first-row contract:
 - Values must evaluate to the `0..65535` range.
 - Initializer elements may use integer literals, unary `-`, parentheses, and
   `+`, `-`, `*`, `/`, `%`, `<<`, `>>`, `&`, `|`, `^`.
-- The declaration lowers to MIR module metadata `static_data_plans`.
+- The declaration publishes a source-owned Static Table contract spec. MIR
+  `static_data_plans` are a derived readonly representation of that spec.
+- Semantic refresh must prove that the source spec, derived plan, and every
+  `StaticDataLoad` agree before verifier, JSON, VM, or backend consumption.
 - `NAME[index]` reads from a declared static const table and lowers to MIR
   `StaticDataLoad`.
 - Static table reads return current-lane `Integer(i64)` values by zero-extending

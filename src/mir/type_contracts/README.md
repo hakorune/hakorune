@@ -12,6 +12,9 @@ not parse source syntax, select storage layouts, or lower backend operations.
 - `record_value.rs` owns record schema projection and construction/update
   carrier rebuild/validation. Builder, VM, JSON, and backend gates consume this
   owner instead of deriving contracts from record layout.
+- `static_table.rs` owns readonly U16 source-spec, derived-plan, and load-site
+  conformance. Parser, verifier, VM, JSON, and backends do not synthesize a
+  contract from `StaticDataPlan`.
 - Site-specific timing stays with its boundary owner. Shared exact-numeric
   value/range checking is subordinate and cannot infer a contract.
 - Exact-numeric field writes remain owned by

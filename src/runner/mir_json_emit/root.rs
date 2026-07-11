@@ -11,7 +11,8 @@ use super::decls::{
     collect_sorted_record_decl_values, collect_sorted_user_box_decl_values,
     collect_source_packed_array_autouse_pilot_plan_values,
     collect_source_packed_array_direct_read_consumption_plan_values,
-    collect_static_data_plan_values, collect_typed_object_plan_values,
+    collect_static_data_plan_values, collect_static_table_contract_spec_values,
+    collect_typed_object_plan_values, collect_verified_static_table_contract_values,
 };
 use super::emitters;
 use super::helpers;
@@ -232,8 +233,16 @@ pub(super) fn build_mir_json_root(
             )),
         ),
         (
+            "static_table_contract_specs",
+            json!(collect_static_table_contract_spec_values(module)),
+        ),
+        (
             "static_data_plans",
             json!(collect_static_data_plan_values(module)),
+        ),
+        (
+            "verified_static_table_contracts",
+            json!(collect_verified_static_table_contract_values(module)),
         ),
         ("enum_decls", json!(collect_sorted_enum_decl_values(module))),
         (

@@ -26,6 +26,8 @@ pub fn parse_mir_v0_to_module(json: &str) -> Result<MirModule, String> {
         .ok_or_else(|| "JSON missing functions array".to_string())?;
 
     let mut module = MirModule::new("mir_json_v0".to_string());
+    module.metadata.static_table_contract_specs =
+        parse_static_table_contract_specs(&module.name, value.get("static_table_contract_specs"))?;
     module.metadata.static_data_plans = parse_static_data_plans(value.get("static_data_plans"))?;
 
     for func in functions {
@@ -674,4 +676,64 @@ fn parse_static_data_plans(
         });
     }
     Ok(out)
+}
+
+fn parse_static_table_contract_specs(
+    module_name: &str,
+    value: Option<&Value>,
+) -> Result<Vec<crate::mir::function::StaticTableContractSpec>, String> {
+    let Some(value) = value else {
+        return Ok(Vec::new());
+    };
+    let rows = value
+        .as_array()
+        .ok_or_else(|| "static_table_contract_specs must be an array".to_string())?;
+    rows.iter()
+        .map(|row| {
+            let row_module = row
+                .get("module_name")
+                .and_then(Value::as_str)
+                .ok_or_else(|| "static table spec missing module_name".to_string())?;
+            if row_module != module_name {
+                return Err("static table spec module_name drift".to_string());
+            }
+            let declaration_name = row
+                .get("declaration_name")
+                .and_then(Value::as_str)
+                .ok_or_else(|| "static table spec missing declaration_name".to_string())?
+                .to_string();
+            let element = row
+                .get("element")
+                .and_then(Value::as_str)
+                .ok_or_else(|| "static table spec missing element".to_string())?;
+            if element != "u16" {
+                return Err("static table spec supports only u16".to_string());
+            }
+            let values = row
+                .get("values")
+                .and_then(Value::as_array)
+                .ok_or_else(|| "static table spec missing values".to_string())?
+                .iter()
+                .map(|value| {
+                    value
+                        .as_u64()
+                        .and_then(|value| u16::try_from(value).ok())
+                        .ok_or_else(|| "static table spec value outside u16".to_string())
+                })
+                .collect::<Result<Vec<_>, _>>()?;
+            Ok(crate::mir::function::StaticTableContractSpec {
+                table_id: crate::mir::function::StaticTableId {
+                    module_name: row_module.to_string(),
+                    declaration_name: declaration_name.clone(),
+                },
+                diagnostic_name: row
+                    .get("diagnostic_name")
+                    .and_then(Value::as_str)
+                    .unwrap_or(&declaration_name)
+                    .to_string(),
+                element: crate::mir::function::StaticElementType::U16,
+                values,
+            })
+        })
+        .collect()
 }

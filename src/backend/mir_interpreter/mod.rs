@@ -344,6 +344,14 @@ impl MirInterpreter {
         &mut self,
         module: &MirModule,
     ) -> Result<Box<dyn NyashBox>, VMError> {
+        crate::mir::type_contracts::static_table::validate_static_table_contracts(module).map_err(
+            |reason| {
+                VMError::InvalidInstruction(format!(
+                    "[type/static_table_contract_refresh_bypass] {}",
+                    reason
+                ))
+            },
+        )?;
         crate::runtime::leak_tracker::reset_observed_roots();
 
         // Snapshot functions for call resolution

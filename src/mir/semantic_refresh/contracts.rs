@@ -20,6 +20,7 @@ pub struct ContractCarrierSummary {
     pub return_exits: usize,
     pub local_slots: usize,
     pub record_values: usize,
+    pub static_tables: usize,
 }
 
 impl ContractCarrierSummary {
@@ -29,6 +30,7 @@ impl ContractCarrierSummary {
             + self.return_exits
             + self.local_slots
             + self.record_values
+            + self.static_tables
     }
 }
 
@@ -110,6 +112,7 @@ fn refresh_active_contract_carriers(module: &mut MirModule) -> Result<(), String
     crate::mir::exact_numeric_field_contracts::refresh_module_exact_numeric_runtime_check_contracts(
         module,
     );
+    crate::mir::type_contracts::static_table::refresh_module_static_table_contracts(module)?;
     Ok(())
 }
 
@@ -131,6 +134,7 @@ pub fn refresh_owned_for_boundary(
 
 fn validate_refreshed_contracts(module: &MirModule) -> Result<(), String> {
     validate_box_field_contracts(module)?;
+    crate::mir::type_contracts::static_table::validate_static_table_contracts(module)?;
     for function in module.functions.values() {
         crate::mir::type_contracts::parameter_entry::validate_parameter_entry_contracts(function)
             .map_err(|reason| carrier_validation_error("parameter_entry", function, reason))?;
@@ -206,6 +210,7 @@ fn collect_carrier_summary(module: &MirModule) -> ContractCarrierSummary {
             .values()
             .map(|function| function.metadata.record_value_contracts.len())
             .sum(),
+        static_tables: module.metadata.verified_static_table_contracts.len(),
     }
 }
 

@@ -138,6 +138,7 @@ pub mod semantic_refresh; // MIR semantic metadata refresh owner (SSOT)
 pub mod slot_registry; // Phase 9.79b.1: method slot resolution (IDs)
 mod spanned_instruction;
 pub mod static_data_plan; // MIR-owned static readonly table rows for backend emission
+pub(crate) mod static_table_backend_capability;
 pub mod storage_class; // primitive / user-box storage-class inventory + refresh helper
 pub mod string_corridor; // string canonical corridor facts + refresh helper
 pub(crate) mod string_corridor_compat; // compat semantic recovery quarantined from canonical facts

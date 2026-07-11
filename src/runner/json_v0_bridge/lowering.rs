@@ -1,4 +1,7 @@
-use super::ast::{EnumDeclV0, ProgramV0, RecordDeclV0, StaticDataPlanV0, StmtV0, UserBoxDeclV0};
+use super::ast::{
+    EnumDeclV0, ProgramV0, RecordDeclV0, StaticDataPlanV0, StaticTableContractSpecV0, StmtV0,
+    UserBoxDeclV0,
+};
 use crate::mir::function::RecordDecl;
 use crate::mir::{
     BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirModule, MirType, ValueId,
@@ -273,6 +276,11 @@ pub(super) fn lower_program(
         .iter()
         .map(static_data_plan_from_json_v0)
         .collect();
+    module.metadata.static_table_contract_specs = prog
+        .static_table_contract_specs
+        .iter()
+        .map(|row| static_table_contract_spec_from_json_v0(&module.name, row))
+        .collect::<Result<Vec<_>, _>>()?;
     crate::mir::semantic_refresh::refresh_module_record_and_packed_layout_plans(&mut module);
     program::lower_main_body(&mut module, &prog.body, &env)?;
     if let Some(entry_def) = prog
@@ -301,6 +309,27 @@ fn static_data_plan_from_json_v0(row: &StaticDataPlanV0) -> crate::mir::function
         unnamed_addr: row.unnamed_addr,
         values: row.values.clone(),
     }
+}
+
+fn static_table_contract_spec_from_json_v0(
+    module_name: &str,
+    row: &StaticTableContractSpecV0,
+) -> Result<crate::mir::function::StaticTableContractSpec, String> {
+    if row.element != "u16" {
+        return Err(format!(
+            "[static-const/unsupported-element] {} element={}",
+            row.declaration_name, row.element
+        ));
+    }
+    Ok(crate::mir::function::StaticTableContractSpec {
+        table_id: crate::mir::function::StaticTableId {
+            module_name: module_name.to_string(),
+            declaration_name: row.declaration_name.clone(),
+        },
+        diagnostic_name: row.declaration_name.clone(),
+        element: crate::mir::function::StaticElementType::U16,
+        values: row.values.clone(),
+    })
 }
 
 pub(super) fn maybe_dump_mir(module: &MirModule) {

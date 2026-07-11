@@ -24,6 +24,7 @@ mod placement;
 mod proof_envelopes;
 mod record_contracts;
 mod return_contracts;
+mod static_table_contracts;
 mod string_corridor;
 mod string_direct_set_routes;
 mod thin_entry;

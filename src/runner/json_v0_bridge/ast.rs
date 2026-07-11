@@ -21,6 +21,8 @@ pub(super) struct ProgramV0 {
     pub(super) enum_decls: Vec<EnumDeclV0>,
     #[serde(default)]
     pub(super) static_data_plans: Vec<StaticDataPlanV0>,
+    #[serde(default)]
+    pub(super) static_table_contract_specs: Vec<StaticTableContractSpecV0>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone, Default)]
@@ -198,6 +200,14 @@ pub(super) struct StaticDataPlanV0 {
     pub(super) unnamed_addr: bool,
     #[serde(default)]
     pub(super) values: Vec<u64>,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub(super) struct StaticTableContractSpecV0 {
+    pub(super) declaration_name: String,
+    pub(super) element: String,
+    #[serde(default)]
+    pub(super) values: Vec<u16>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]

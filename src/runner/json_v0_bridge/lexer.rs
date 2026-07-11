@@ -192,6 +192,7 @@ pub(super) fn parse_source_v0_to_json(input: &str) -> Result<String, String> {
         record_decls: vec![],
         enum_decls: vec![],
         static_data_plans: vec![],
+        static_table_contract_specs: vec![],
     };
     serde_json::to_string(&prog).map_err(|e| e.to_string())
 }

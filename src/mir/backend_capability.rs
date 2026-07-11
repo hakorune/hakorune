@@ -32,6 +32,9 @@ fn enforce_refreshed_mir_backend_supported(
     )?;
     crate::mir::record_value_backend_capability::enforce_record_value_backend_supported(
         module, backend,
+    )?;
+    crate::mir::static_table_backend_capability::enforce_static_table_backend_supported(
+        module, backend,
     )
 }
 

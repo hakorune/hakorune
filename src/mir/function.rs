@@ -50,5 +50,6 @@ pub use types::{
     ModuleMetadata, ModuleStats, ParameterEntryContract, ParameterEntryContractKind,
     RecordContractDisposition, RecordFieldValueContract, RecordValueBoundaryKind,
     RecordValueContract, ReturnExitContract, ReturnExitContractKind, ReturnExitContractOwner,
-    ReturnExitVoidPolicy, StaticDataPlan,
+    ReturnExitVoidPolicy, StaticDataPlan, StaticElementType, StaticTableContractProof,
+    StaticTableContractSpec, StaticTableId, VerifiedStaticTableContract,
 };

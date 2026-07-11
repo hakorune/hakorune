@@ -4,3 +4,4 @@ pub(crate) mod parameter_entry;
 pub(crate) mod proof;
 pub(crate) mod record_value;
 pub(crate) mod return_exit;
+pub(crate) mod static_table;

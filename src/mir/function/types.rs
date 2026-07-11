@@ -321,6 +321,12 @@ pub struct ModuleMetadata {
     /// MIR owns this row shape; backend emitters only serialize rows.
     pub static_data_plans: Vec<StaticDataPlan>,
 
+    /// Source-owned readonly table contracts. Plans are derived from these rows.
+    pub static_table_contract_specs: Vec<StaticTableContractSpec>,
+
+    /// Rebuilt proof that source specs, plans, and load sites agree.
+    pub verified_static_table_contracts: Vec<VerifiedStaticTableContract>,
+
     /// Declared enum inventory for canonical sum lowering and runtime/codegen handoff.
     pub enum_decls: BTreeMap<String, MirEnumDecl>,
 
@@ -345,6 +351,47 @@ pub struct StaticDataPlan {
     pub linkage: String,
     pub unnamed_addr: bool,
     pub values: Vec<u64>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub struct StaticTableId {
+    pub module_name: String,
+    pub declaration_name: String,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum StaticElementType {
+    U16,
+}
+
+impl StaticElementType {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::U16 => "u16",
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct StaticTableContractSpec {
+    pub table_id: StaticTableId,
+    pub diagnostic_name: String,
+    pub element: StaticElementType,
+    pub values: Vec<u16>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum StaticTableContractProof {
+    SourceSpecAndPlanStructurallyMatch,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct VerifiedStaticTableContract {
+    pub table_id: StaticTableId,
+    pub element: StaticElementType,
+    pub len: u32,
+    pub plan_symbol: String,
+    pub proof: StaticTableContractProof,
 }
 
 /// Module statistics

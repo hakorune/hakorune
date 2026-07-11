@@ -120,6 +120,9 @@ static box Main {
     let plans = root["static_data_plans"]
         .as_array()
         .expect("static_data_plans array");
+    let specs = root["static_table_contract_specs"]
+        .as_array()
+        .expect("static_table_contract_specs array");
 
     assert_eq!(plans.len(), 1);
     assert_eq!(plans[0]["source_name"], "SIZE_CLASS");
@@ -129,6 +132,10 @@ static box Main {
     assert_eq!(plans[0]["linkage"], "private");
     assert_eq!(plans[0]["unnamed_addr"], true);
     assert_eq!(plans[0]["values"], serde_json::json!([16, 24, 32, 33]));
+    assert_eq!(specs.len(), 1);
+    assert_eq!(specs[0]["declaration_name"], "SIZE_CLASS");
+    assert_eq!(specs[0]["element"], "u16");
+    assert_eq!(specs[0]["values"], serde_json::json!([16, 24, 32, 33]));
 }
 
 #[test]

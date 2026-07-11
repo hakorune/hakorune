@@ -5,6 +5,12 @@ pub(super) fn check_contract_carrier_invariants(
     module: &MirModule,
 ) -> Result<(), Vec<VerificationError>> {
     let mut errors = Vec::new();
+    collect_carrier_error(
+        &mut errors,
+        "verified_static_table_contracts",
+        "StaticTableElementContractOwner",
+        crate::mir::type_contracts::static_table::validate_static_table_contracts(module),
+    );
     for function in module.functions.values() {
         collect_carrier_error(
             &mut errors,

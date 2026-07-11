@@ -4,11 +4,16 @@
 //! rows and must not rediscover source syntax or table semantics.
 
 use crate::ast::ASTNode;
-use crate::mir::function::StaticDataPlan;
+use crate::mir::function::{
+    StaticDataPlan, StaticElementType, StaticTableContractSpec, StaticTableId,
+};
 
-pub fn collect_static_data_plans_from_ast(ast: &ASTNode) -> Vec<StaticDataPlan> {
+pub fn collect_static_table_specs_from_ast(
+    module_name: &str,
+    ast: &ASTNode,
+) -> Result<Vec<StaticTableContractSpec>, String> {
     let ASTNode::Program { statements, .. } = ast else {
-        return Vec::new();
+        return Ok(Vec::new());
     };
 
     statements
@@ -23,21 +28,60 @@ pub fn collect_static_data_plans_from_ast(ast: &ASTNode) -> Vec<StaticDataPlan> 
             else {
                 return None;
             };
-            Some(static_const_table_plan(name, element_type, values))
+            Some(static_table_contract_spec(
+                module_name,
+                name,
+                element_type,
+                values,
+            ))
         })
         .collect()
 }
 
-pub fn static_const_table_plan(name: &str, element_type: &str, values: &[u64]) -> StaticDataPlan {
+fn static_table_contract_spec(
+    module_name: &str,
+    name: &str,
+    element_type: &str,
+    values: &[u64],
+) -> Result<StaticTableContractSpec, String> {
+    if element_type != "u16" {
+        return Err(format!(
+            "[static-const/unsupported-element] {} element={}",
+            name, element_type
+        ));
+    }
+    let values = values
+        .iter()
+        .map(|value| {
+            u16::try_from(*value)
+                .map_err(|_| format!("[static-const/value-out-of-range] {} value={}", name, value))
+        })
+        .collect::<Result<Vec<_>, _>>()?;
+    Ok(StaticTableContractSpec {
+        table_id: StaticTableId {
+            module_name: module_name.to_string(),
+            declaration_name: name.to_string(),
+        },
+        diagnostic_name: name.to_string(),
+        element: StaticElementType::U16,
+        values,
+    })
+}
+
+pub fn static_data_plan_from_spec(spec: &StaticTableContractSpec) -> StaticDataPlan {
     StaticDataPlan {
-        source_name: name.to_string(),
-        symbol: format!(".hako.static.{}", name),
-        element: element_type.to_string(),
-        align: static_data_alignment(element_type),
+        source_name: spec.table_id.declaration_name.clone(),
+        symbol: format!(".hako.static.{}", spec.table_id.declaration_name),
+        element: spec.element.as_str().to_string(),
+        align: 2,
         linkage: "private".to_string(),
         unnamed_addr: true,
-        values: values.to_vec(),
+        values: spec.values.iter().map(|value| u64::from(*value)).collect(),
     }
+}
+
+pub fn static_data_plans_from_specs(specs: &[StaticTableContractSpec]) -> Vec<StaticDataPlan> {
+    specs.iter().map(static_data_plan_from_spec).collect()
 }
 
 pub fn find_static_data_plan<'a>(
@@ -45,14 +89,4 @@ pub fn find_static_data_plan<'a>(
     source_name: &str,
 ) -> Option<&'a StaticDataPlan> {
     plans.iter().find(|plan| plan.source_name == source_name)
-}
-
-fn static_data_alignment(element_type: &str) -> u32 {
-    match element_type {
-        "u8" => 1,
-        "u16" => 2,
-        "u32" => 4,
-        "u64" => 8,
-        _ => 1,
-    }
 }

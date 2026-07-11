@@ -674,3 +674,42 @@ pub(super) fn collect_static_data_plan_values(
         })
         .collect()
 }
+
+pub(super) fn collect_static_table_contract_spec_values(
+    module: &crate::mir::MirModule,
+) -> Vec<serde_json::Value> {
+    module
+        .metadata
+        .static_table_contract_specs
+        .iter()
+        .map(|spec| {
+            json!({
+                "module_name": spec.table_id.module_name,
+                "declaration_name": spec.table_id.declaration_name,
+                "diagnostic_name": spec.diagnostic_name,
+                "element": spec.element.as_str(),
+                "values": spec.values,
+            })
+        })
+        .collect()
+}
+
+pub(super) fn collect_verified_static_table_contract_values(
+    module: &crate::mir::MirModule,
+) -> Vec<serde_json::Value> {
+    module
+        .metadata
+        .verified_static_table_contracts
+        .iter()
+        .map(|contract| {
+            json!({
+                "module_name": contract.table_id.module_name,
+                "declaration_name": contract.table_id.declaration_name,
+                "element": contract.element.as_str(),
+                "len": contract.len,
+                "plan_symbol": contract.plan_symbol,
+                "proof": "source_spec_and_plan_structurally_match",
+            })
+        })
+        .collect()
+}

@@ -144,6 +144,10 @@ fn ast_to_program_json_v0_with_imports(
             "static_data_plans".to_string(),
             serde_json::Value::Array(static_data_plans),
         );
+        object.insert(
+            "static_table_contract_specs".to_string(),
+            serde_json::Value::Array(collect_static_table_contract_specs(ast)),
+        );
     }
     if !imports.is_empty() {
         let object = program
@@ -453,6 +457,31 @@ fn collect_static_data_plans(ast: &ASTNode) -> Vec<serde_json::Value> {
                 "align": static_data_alignment(element_type),
                 "linkage": "private",
                 "unnamed_addr": true,
+                "values": values,
+            }))
+        })
+        .collect()
+}
+
+fn collect_static_table_contract_specs(ast: &ASTNode) -> Vec<serde_json::Value> {
+    let ASTNode::Program { statements, .. } = ast else {
+        return Vec::new();
+    };
+    statements
+        .iter()
+        .filter_map(|statement| {
+            let ASTNode::StaticConstTable {
+                name,
+                element_type,
+                values,
+                ..
+            } = statement
+            else {
+                return None;
+            };
+            Some(serde_json::json!({
+                "declaration_name": name,
+                "element": element_type,
                 "values": values,
             }))
         })
