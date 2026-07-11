@@ -2,13 +2,32 @@
   "counts": {
     "checks": 3261,
     "design_direct": 848,
-    "docs": 12279,
+    "docs": 12280,
     "main_direct": 168,
     "phase_296x_archive": 2517,
     "phase_296x_direct": 1031,
     "private": 0,
     "src": 3046,
     "tools": 6822
+  },
+  "design_registry": {
+    "authority_registry_decided": false,
+    "direct_files": 848,
+    "markdown_files": 827,
+    "non_markdown_files": 21,
+    "seed_reference_counts": {
+      "AGENTS.md": 14,
+      "docs/development/current/main/CURRENT_STATE.toml": 2,
+      "docs/development/current/main/DOCS_LAYOUT.md": 52,
+      "docs/development/current/main/design/README.md": 122
+    },
+    "seed_union_count": 160,
+    "status_counts": {
+      "active_like": 127,
+      "closed": 11,
+      "other_or_missing": 689
+    },
+    "unseeded_count": 688
   },
   "inventory": "repository-artifact-lifecycle-v0",
   "phase_296x": {

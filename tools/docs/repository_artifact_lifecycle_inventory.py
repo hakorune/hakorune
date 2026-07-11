@@ -17,6 +17,9 @@ DEFAULT_OUTPUT = ROOT / "tools/checks/manifests/repository_artifact_lifecycle_v0
 PHASE = ROOT / "docs/development/current/main/phases/phase-296x"
 EXCLUDED_CARD_NAMES = {"README.md", "STATUS.md", "CARD-HYGIENE-RULE.md"}
 MARKDOWN_TOKEN = re.compile(r"(?<![A-Za-z0-9_.-])([A-Za-z0-9_.-]+\.md)")
+DESIGN_FILE_TOKEN = re.compile(
+    r"(?<![A-Za-z0-9_.-])([A-Za-z0-9_.-]+\.(?:md|toml))"
+)
 PHASE_PATH_TOKEN = re.compile(
     r"docs/development/current/main/phases/(phase-[A-Za-z0-9-]+)/"
 )
@@ -107,6 +110,38 @@ def phase_status(phase_name: str) -> tuple[str, str | None]:
         if path.is_file():
             return card_status(path), path.relative_to(ROOT).as_posix()
     return "other_or_missing", None
+
+
+def design_registry_inventory() -> dict[str, object]:
+    design_dir = ROOT / "docs/development/current/main/design"
+    direct_files = {path.name for path in design_dir.iterdir() if path.is_file()}
+    markdown_files = {name for name in direct_files if name.endswith(".md")}
+    seed_paths = (
+        design_dir / "README.md",
+        ROOT / "docs/development/current/main/DOCS_LAYOUT.md",
+        ROOT / "AGENTS.md",
+        ROOT / "docs/development/current/main/CURRENT_STATE.toml",
+    )
+    seed_counts: dict[str, int] = {}
+    seed_union: set[str] = set()
+    for path in seed_paths:
+        names = set(DESIGN_FILE_TOKEN.findall(path.read_text(encoding="utf-8")))
+        names &= direct_files
+        seed_counts[path.relative_to(ROOT).as_posix()] = len(names)
+        seed_union.update(names)
+    status_counts = {"closed": 0, "active_like": 0, "other_or_missing": 0}
+    for name in markdown_files:
+        status_counts[card_status(design_dir / name)] += 1
+    return {
+        "direct_files": len(direct_files),
+        "markdown_files": len(markdown_files),
+        "non_markdown_files": len(direct_files - markdown_files),
+        "seed_reference_counts": seed_counts,
+        "seed_union_count": len(seed_union),
+        "unseeded_count": len(direct_files - seed_union),
+        "status_counts": status_counts,
+        "authority_registry_decided": False,
+    }
 
 
 def card_status(path: Path) -> str:
@@ -240,6 +275,7 @@ def build_inventory() -> dict[str, object]:
             "archived_phase_files": under(archived_phase_prefix),
             "rows": phase_rows,
         },
+        "design_registry": design_registry_inventory(),
     }
 
 

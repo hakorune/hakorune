@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Active implementation workstream"
+status = "Active design consultation stop"
 date = "2026-07-11"
 
 active_lane = "REPOSITORY-ARTIFACT-LIFECYCLE cleanup before Failure/Outcome"
@@ -58,14 +58,14 @@ method_anchor = "docs/development/current/main/design/current-docs-archive-polic
 taskboard = "docs/development/current/main/workstreams/repository-artifact-lifecycle-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/repository-artifact-lifecycle-current.md"
 
-latest_card = "repository-artifact-lifecycle-current"
-latest_card_path = "docs/development/current/main/workstreams/repository-artifact-lifecycle-current.md"
-latest_card_summary = """H0 owns deterministic artifact inventory. H1 archived
-1092 closed unreferenced phase-296x cards. H2 archived 87 closed unreferenced
-whole phases totaling 238 files while protecting stale or referenced phases.
-H3 now inventories the design authority registry boundary."""
+latest_card = "repository-artifact-lifecycle-h3-design-registry-consultation"
+latest_card_path = "docs/development/current/main/investigations/repository-artifact-lifecycle-h3-design-registry-consultation.md"
+latest_card_summary = """H1 and H2 mechanical archive work is closed. H3
+measured 848 design files, a 160-file seed pointer union, and 688 unseeded
+files. Authority membership and precedence now require consultation before any
+design document move or strict registry guard."""
 
-current_blocker_token = "REPOSITORY-ARTIFACT-LIFECYCLE-H3-DESIGN-AUTHORITY-REGISTRY-INVENTORY"
+current_blocker_token = "REPOSITORY-ARTIFACT-LIFECYCLE-H3-DESIGN-AUTHORITY-REGISTRY-DESIGN-STOP"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

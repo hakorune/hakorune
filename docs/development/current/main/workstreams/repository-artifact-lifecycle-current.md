@@ -169,6 +169,25 @@ all_historical_phase_archive_complete = 0
 next = H3-DESIGN-AUTHORITY-REGISTRY-INVENTORY
 ```
 
+## H3 Design Stop
+
+The machine inventory is complete, but authority selection is not mechanical.
+The active consultation packet is:
+
+`docs/development/current/main/investigations/repository-artifact-lifecycle-h3-design-registry-consultation.md`
+
+```text
+design direct files = 848
+seed pointer union = 160
+unseeded files = 688
+usable closed status = 11
+usable active-like status = 127
+status unresolved = 689
+
+design_registry_decided = 0
+design_file_move_started = 0
+```
+
 ## Non-Claims
 
 ```text
