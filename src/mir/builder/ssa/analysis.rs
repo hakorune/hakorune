@@ -65,6 +65,7 @@ pub(crate) fn def_inst_kind(inst: &MirInstruction) -> &'static str {
         MirInstruction::Load { .. } => "Load",
         MirInstruction::StaticDataLoad { .. } => "StaticDataLoad",
         MirInstruction::ArrayElementWrite { .. } => "ArrayElementWrite",
+        MirInstruction::ArrayStateContractClaim { .. } => "ArrayStateContractClaim",
         MirInstruction::Store { .. } => "Store",
         MirInstruction::MemOp { .. } => "MemOp",
         MirInstruction::Call { .. } => "Call",

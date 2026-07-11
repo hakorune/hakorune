@@ -55,6 +55,7 @@ pub(super) fn build_mir_json_root(
         crate::mir::type_contracts::parameter_entry::validate_parameter_entry_contracts(f)?;
         crate::mir::type_contracts::return_exit::validate_return_exit_contract(f)?;
         crate::mir::type_contracts::local_slot::validate_local_slot_contracts(f)?;
+        crate::mir::type_contracts::typed_array::validate_function(f)?;
         let boxed_sum_site_plans =
             crate::mir::boxed_sum_abi_plan::build_function_boxed_sum_site_plan_map(
                 f,

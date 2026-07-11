@@ -14,6 +14,7 @@ use super::types::{
     ParameterEntryContract,
 };
 use super::types::{RecordValueContract, ReturnExitContract};
+use super::typed_array_contract::{TypedArrayContractSource, TypedArrayElementContract};
 use crate::mir::{
     agg_local_scalarization::AggLocalScalarizationRoute,
     array_getset_micro_seed_plan::ArrayGetSetMicroSeedRoute,
@@ -591,6 +592,10 @@ pub struct FunctionMetadata {
     /// Rebuilt behavior/identity evidence for canonical Array writes.
     pub array_element_write_witnesses: Vec<ArrayElementWriteWitness>,
     pub array_state_terms: Vec<ArrayStateTerm>,
+
+    /// Source claims and semantic-refresh carriers for invariant Typed Arrays.
+    pub typed_array_contract_sources: Vec<TypedArrayContractSource>,
+    pub typed_array_element_contracts: Vec<TypedArrayElementContract>,
 
     /// MIR-owned exact numeric facts attached to values after field reads and
     /// conservative copy/control-merge propagation.

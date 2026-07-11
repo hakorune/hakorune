@@ -99,6 +99,10 @@ pub fn format_instruction(
             )
         }
 
+        MirInstruction::ArrayStateContractClaim { contract_id, array } => {
+            format!("array.contract.claim {} array={}", contract_id, array)
+        }
+
         MirInstruction::MemOp {
             region,
             kind,

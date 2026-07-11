@@ -89,6 +89,11 @@ fn emit_instruction(
     }
 
     match inst {
+        I::ArrayStateContractClaim { contract_id, array } => Ok(serde_json::json!({
+            "op": "array_state_contract_claim",
+            "contract_id": contract_id,
+            "array": array.as_u32(),
+        })),
         I::Copy { dst, src } => Ok(basic::emit_copy(dst, src)),
         I::LocalContractWrite {
             dst,

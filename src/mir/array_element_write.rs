@@ -335,6 +335,30 @@ fn rebuild(
     let mut seen_sites = BTreeSet::new();
     let mut term_by_value = BTreeMap::new();
     let mut terms = Vec::new();
+    let mut claim_values = function
+        .blocks
+        .values()
+        .flat_map(|block| block.instructions.iter())
+        .filter_map(|instruction| match instruction {
+            MirInstruction::ArrayStateContractClaim { array, .. } => Some(*array),
+            _ => None,
+        })
+        .collect::<BTreeSet<_>>();
+    claim_values.extend(function.metadata.typed_array_contract_sources.iter().filter_map(
+        |source| match source.boundary_value {
+            crate::mir::function::TypedArrayBoundaryValue::Value(value) => Some(value),
+            crate::mir::function::TypedArrayBoundaryValue::FinalReturn => None,
+        },
+    ));
+    for value in claim_values {
+        let term_id = ArrayStateTermId(terms.len() as u32);
+        terms.push(ArrayStateTerm {
+            term_id,
+            value,
+            kind: classify_state_term(value, &definitions),
+        });
+        term_by_value.insert(value, term_id);
+    }
     let mut witnesses = Vec::with_capacity(writes.len());
     for (site_id, kind, producer, receiver, index, value) in writes {
         if !seen_sites.insert(site_id) {

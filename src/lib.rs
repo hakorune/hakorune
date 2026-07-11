@@ -55,7 +55,7 @@ pub mod tokenizer;
 pub mod type_abi;
 #[path = "core/type_box.rs"]
 pub mod type_box; // TypeBox system (arithmetic moved from box_trait.rs)
-pub(crate) mod typed_array_contract_spec;
+pub mod typed_array_contract_spec;
 
 #[path = "core/value.rs"]
 pub mod value;

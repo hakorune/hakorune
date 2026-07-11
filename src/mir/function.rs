@@ -14,6 +14,7 @@ mod metadata;
 mod module_impl;
 mod object_metadata;
 mod types;
+mod typed_array_contract;
 
 #[cfg(test)]
 mod tests;
@@ -33,6 +34,11 @@ pub use fastmem::{
     FastMemSameOwnerProofKind, FastMemTableLengthFact, FastMemTableLengthPolicyKind,
 };
 pub use metadata::FunctionMetadata;
+pub use typed_array_contract::{
+    TypedArrayBoundaryValue, TypedArrayContractBoundary, TypedArrayContractDisposition,
+    TypedArrayContractSource, TypedArrayContractSourceIdentity, TypedArrayElementContract,
+    TYPED_ARRAY_EXACT_NUMERIC_CAPABILITY,
+};
 pub use object_metadata::{
     ArrayRecordAutoUseEligibilityPlan, ArrayRecordMaterializationBoundaryPlan,
     ArrayRecordPackedAutoUsePilotPlan, ArrayRecordStorageColumnPlan, ArrayRecordStoragePlan,

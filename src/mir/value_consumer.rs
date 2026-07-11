@@ -73,6 +73,7 @@ fn value_consumer_used_values(inst: &MirInstruction) -> Vec<ValueId> {
             values.push(*value);
             values
         }
+        MirInstruction::ArrayStateContractClaim { array, .. } => vec![*array],
         MirInstruction::UnaryOp { operand, .. }
         | MirInstruction::Load { ptr: operand, .. }
         | MirInstruction::StaticDataLoad { index: operand, .. }

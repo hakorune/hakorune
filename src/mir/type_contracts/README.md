@@ -10,6 +10,7 @@ not parse source syntax, select storage layouts, or lower backend operations.
 - `parameter_entry.rs` owns typed final-callee entry carriers and drift checks.
 - `return_exit.rs` owns typed final-outcome carriers and drift checks.
 - `record_value.rs` owns record schema projection and construction/update
+- `typed_array.rs` owns explicit `Array<T>` state-contract carrier refresh.
   carrier rebuild/validation. Builder, VM, JSON, and backend gates consume this
   owner instead of deriving contracts from record layout.
 - `static_table.rs` owns readonly U16 source-spec, derived-plan, and load-site

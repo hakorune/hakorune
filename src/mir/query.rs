@@ -75,6 +75,7 @@ impl<'m> MirQuery for MirQueryBox<'m> {
                 values.push(*value);
                 values
             }
+            ArrayStateContractClaim { array, .. } => vec![*array],
             UnaryOp { operand, .. } => vec![*operand],
             BinOp { lhs, rhs, .. } | Compare { lhs, rhs, .. } => {
                 vec![*lhs, *rhs]

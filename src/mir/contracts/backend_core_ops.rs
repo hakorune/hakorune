@@ -11,6 +11,7 @@ pub fn instruction_tag(inst: &MirInstruction) -> &'static str {
         MirInstruction::FieldSet { .. } => "FieldSet",
         MirInstruction::StaticDataLoad { .. } => "StaticDataLoad",
         MirInstruction::ArrayElementWrite { .. } => "ArrayElementWrite",
+        MirInstruction::ArrayStateContractClaim { .. } => "ArrayStateContractClaim",
         MirInstruction::VariantMake { .. } => "VariantMake",
         MirInstruction::VariantTag { .. } => "VariantTag",
         MirInstruction::VariantProject { .. } => "VariantProject",
@@ -55,6 +56,7 @@ pub enum InstructionDietCohort {
 pub const MIR_INSTRUCTION_KEPT_TAGS: &[&str] = &[
     "Await",
     "ArrayElementWrite",
+    "ArrayStateContractClaim",
     "Barrier",
     "BinOp",
     "Branch",
@@ -123,6 +125,7 @@ pub fn instruction_diet_cohort(inst: &MirInstruction) -> InstructionDietCohort {
     match inst {
         MirInstruction::Await { .. }
         | MirInstruction::ArrayElementWrite { .. }
+        | MirInstruction::ArrayStateContractClaim { .. }
         | MirInstruction::Barrier { .. }
         | MirInstruction::BinOp { .. }
         | MirInstruction::Branch { .. }
@@ -210,6 +213,7 @@ pub fn is_supported_mir_json_instruction(inst: &MirInstruction) -> bool {
         inst,
         MirInstruction::Copy { .. }
             | MirInstruction::ArrayElementWrite { .. }
+            | MirInstruction::ArrayStateContractClaim { .. }
             | MirInstruction::LocalContractWrite { .. }
             | MirInstruction::RecordFieldContractCheck { .. }
             | MirInstruction::RecordValuePublish { .. }
@@ -308,6 +312,7 @@ pub fn llvm_json_ops_for_instruction(inst: &MirInstruction) -> &'static [&'stati
         MirInstruction::Compare { .. } => &["compare"],
         MirInstruction::StaticDataLoad { .. } => &["static_data_load"],
         MirInstruction::ArrayElementWrite { .. } => &["array_element_write"],
+        MirInstruction::ArrayStateContractClaim { .. } => &[],
         MirInstruction::FieldGet { .. } => &["field_get"],
         MirInstruction::FieldSet { .. } => &["field_set"],
         MirInstruction::VariantMake { .. } => &["variant_make"],
@@ -388,6 +393,7 @@ pub const LLVM_SUPPORTED_JSON_OPS: &[&str] = &[
 /// MIR JSON operations retained for typed transport but deliberately rejected
 /// by LLVM/backend lowering until their capability owner is implemented.
 pub const MIR_JSON_TRANSPORT_ONLY_OPS: &[&str] = &[
+    "array_state_contract_claim",
     "array_element_write",
     "local_contract_write",
     "record_field_contract_check",
@@ -684,10 +690,10 @@ mod tests {
 
     #[test]
     fn instruction_diet_ledger_counts_match_ssot() {
-        assert_eq!(MIR_INSTRUCTION_KEPT_TAGS.len(), 39);
+        assert_eq!(MIR_INSTRUCTION_KEPT_TAGS.len(), 40);
         assert_eq!(MIR_INSTRUCTION_LOWERED_AWAY_TAGS.len(), 0);
         assert_eq!(MIR_INSTRUCTION_REMOVED_TAGS.len(), 16);
-        assert_eq!(MIR_INSTRUCTION_VOCABULARY_COUNT, 55);
+        assert_eq!(MIR_INSTRUCTION_VOCABULARY_COUNT, 56);
     }
 
     #[test]

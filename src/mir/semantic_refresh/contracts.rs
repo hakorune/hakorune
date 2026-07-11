@@ -22,6 +22,7 @@ pub struct ContractCarrierSummary {
     pub record_values: usize,
     pub static_tables: usize,
     pub array_writes: usize,
+    pub typed_arrays: usize,
 }
 
 impl ContractCarrierSummary {
@@ -33,6 +34,7 @@ impl ContractCarrierSummary {
             + self.record_values
             + self.static_tables
             + self.array_writes
+            + self.typed_arrays
     }
 }
 
@@ -98,10 +100,14 @@ pub fn refresh_and_validate_for_boundary(
 fn refresh_active_contract_carriers(module: &mut MirModule) -> Result<(), String> {
     let record_decls = module.metadata.record_decls.clone();
     for function in module.functions.values_mut() {
+        crate::mir::type_contracts::typed_array::refresh_source_rows(function)
+            .map_err(|reason| carrier_validation_error("typed_array", function, reason))?;
         crate::mir::array_element_write::canonicalize_legacy_array_write_calls(function)
             .map_err(|reason| carrier_validation_error("array_write", function, reason))?;
         crate::mir::array_element_write::refresh_function_array_write_witnesses(function)
             .map_err(|reason| carrier_validation_error("array_write", function, reason))?;
+        crate::mir::type_contracts::typed_array::refresh_function(function)
+            .map_err(|reason| carrier_validation_error("typed_array", function, reason))?;
         crate::mir::type_contracts::parameter_entry::refresh_function_parameter_entry_contracts(
             function,
         );
@@ -144,6 +150,8 @@ fn validate_refreshed_contracts(module: &MirModule) -> Result<(), String> {
     for function in module.functions.values() {
         crate::mir::array_element_write::validate_function_array_write_witnesses(function)
             .map_err(|reason| carrier_validation_error("array_write", function, reason))?;
+        crate::mir::type_contracts::typed_array::validate_function(function)
+            .map_err(|reason| carrier_validation_error("typed_array", function, reason))?;
         crate::mir::type_contracts::parameter_entry::validate_parameter_entry_contracts(function)
             .map_err(|reason| carrier_validation_error("parameter_entry", function, reason))?;
         crate::mir::type_contracts::return_exit::validate_return_exit_contract(function)
@@ -223,6 +231,11 @@ fn collect_carrier_summary(module: &MirModule) -> ContractCarrierSummary {
             .functions
             .values()
             .map(|function| function.metadata.array_element_write_witnesses.len())
+            .sum(),
+        typed_arrays: module
+            .functions
+            .values()
+            .map(|function| function.metadata.typed_array_element_contracts.len())
             .sum(),
     }
 }

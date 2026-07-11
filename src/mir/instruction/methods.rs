@@ -54,7 +54,8 @@ impl MirInstruction {
             | MirInstruction::FieldGet { .. } => EffectMask::READ,
             MirInstruction::Store { .. }
             | MirInstruction::FieldSet { .. }
-            | MirInstruction::ArrayElementWrite { .. } => EffectMask::WRITE,
+            | MirInstruction::ArrayElementWrite { .. }
+            | MirInstruction::ArrayStateContractClaim { .. } => EffectMask::WRITE,
 
             // Phase 287: Reference lifecycle
             MirInstruction::ReleaseStrong { .. } => EffectMask::WRITE,
@@ -146,6 +147,7 @@ impl MirInstruction {
             | MirInstruction::Barrier { .. }
             | MirInstruction::FutureSet { .. }
             | MirInstruction::RecordFieldContractCheck { .. }
+            | MirInstruction::ArrayStateContractClaim { .. }
             | MirInstruction::Safepoint => None,
 
             MirInstruction::Catch {
@@ -213,6 +215,8 @@ impl MirInstruction {
         }
         match self {
             MirInstruction::Const { .. } | MirInstruction::Jump { .. } => Vec::new(),
+
+            MirInstruction::ArrayStateContractClaim { array, .. } => vec![*array],
 
             MirInstruction::ArrayElementWrite {
                 receiver,

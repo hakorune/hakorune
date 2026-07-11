@@ -319,6 +319,13 @@ pub enum MirInstruction {
         value: ValueId,
     },
 
+    /// Publication boundary that monotonically claims an Array state contract.
+    /// The source spec lives in function metadata and is addressed by id.
+    ArrayStateContractClaim {
+        contract_id: String,
+        array: ValueId,
+    },
+
     /// Contract-bound fast memory dialect operation.
     ///
     /// `region` points to side-table FastMemRegion metadata. The instruction

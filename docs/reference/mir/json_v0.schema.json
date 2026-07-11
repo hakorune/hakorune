@@ -95,6 +95,7 @@
           "enum": [
             "barrier",
             "array_element_write",
+            "array_state_contract_claim",
             "binop",
             "boxcall",
             "branch",

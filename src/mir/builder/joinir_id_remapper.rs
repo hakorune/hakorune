@@ -87,6 +87,7 @@ impl JoinIrIdRemapper {
                 vals.push(*value);
                 vals
             }
+            ArrayStateContractClaim { array, .. } => vec![*array],
             MemOp { dst, operands, .. } => {
                 let mut vals = Vec::new();
                 vals.extend(dst.iter().copied());
@@ -310,6 +311,10 @@ impl JoinIrIdRemapper {
                 receiver: remap(*receiver),
                 index: index.map(|value| remap(value)),
                 value: remap(*value),
+            },
+            ArrayStateContractClaim { contract_id, array } => ArrayStateContractClaim {
+                contract_id: contract_id.clone(),
+                array: remap(*array),
             },
             MemOp {
                 region,

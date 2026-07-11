@@ -4,12 +4,11 @@
 //! activation, state attachment, and mutation checks land in later 3499
 //! series steps. `MirType`, homogeneous literals, and storage are not inputs.
 
-pub(crate) const UNSUPPORTED_SPELLING_TAG: &str =
-    "[type/typed_array_contract_unsupported_spelling]";
-pub(crate) const UNSUPPORTED_ELEMENT_TAG: &str = "[type/typed_array_contract_unsupported_element]";
+pub const UNSUPPORTED_SPELLING_TAG: &str = "[type/typed_array_contract_unsupported_spelling]";
+pub const UNSUPPORTED_ELEMENT_TAG: &str = "[type/typed_array_contract_unsupported_element]";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub(crate) enum ExactArrayElementType {
+pub enum ExactArrayElementType {
     I8,
     I16,
     I32,
@@ -20,7 +19,7 @@ pub(crate) enum ExactArrayElementType {
 }
 
 impl ExactArrayElementType {
-    pub(crate) const fn source_name(self) -> &'static str {
+    pub const fn source_name(self) -> &'static str {
         match self {
             Self::I8 => "i8",
             Self::I16 => "i16",
@@ -47,13 +46,13 @@ impl ExactArrayElementType {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub(crate) struct ArrayElementContractSpec {
+pub struct ArrayElementContractSpec {
     pub element: ExactArrayElementType,
 }
 
 /// Classifies one annotation. `Ok(None)` means it is not a Typed Array source
 /// site. Array-like but non-canonical spellings fail instead of falling back.
-pub(crate) fn parse_annotation(
+pub fn parse_annotation(
     declared_type_name: &str,
 ) -> Result<Option<ArrayElementContractSpec>, String> {
     let source = declared_type_name.trim();
@@ -79,7 +78,7 @@ pub(crate) fn parse_annotation(
     Ok(Some(ArrayElementContractSpec { element }))
 }
 
-pub(crate) fn reject_constructor_type_arguments(
+pub fn reject_constructor_type_arguments(
     class_name: &str,
     has_type_arguments: bool,
 ) -> Result<(), String> {
