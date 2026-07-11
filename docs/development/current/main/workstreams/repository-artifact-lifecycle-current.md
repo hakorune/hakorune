@@ -99,8 +99,17 @@ batch-004:
   docs_slim_archive_policy_guard = green
   dev_gate_quick = green
 
+batch-005:
+  moved = 200
+  phase_direct = 1323 -> 1123
+  phase_archive = 2225 -> 2425
+  inventory_strict = green
+  current_state_pointer_guard = green
+  docs_slim_archive_policy_guard = green
+  dev_gate_quick = green
+
 next:
-  H1-BATCH-005
+  H1-BATCH-006-FINAL
   maximum = 200
   source = regenerated archive_candidates
 ```
