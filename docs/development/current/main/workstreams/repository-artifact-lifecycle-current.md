@@ -241,6 +241,12 @@ partial_phase_move_allowed = 0
 next = H2-TRACE-WHOLE-PHASE-BATCH-001
 ```
 
+The relocation owner is
+`tools/docs/archive_unreachable_phase_clusters.py`. It preserves every local
+Markdown link that resolved before the move, rewrites repository-absolute
+phase paths, requires a clean worktree, and regenerates the inventory after
+application.
+
 ## Non-Claims
 
 ```text
