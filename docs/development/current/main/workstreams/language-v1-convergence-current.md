@@ -364,8 +364,9 @@ T5 complete through reference semantics:
   3501 WeakRef value-law corrective
   3502 WeakFieldContractOwner and VM reference consumer
 
-T6 design stop:
-  3503 select defer-with-failfast or one carrier-aware product backend
+T6 complete:
+  3503 selects defer-with-failfast; no product backend or helper ABI selected
+  declaration-level capability rejects read-only and dynamic-only obligations
   VM remains semantic-reference only and cannot satisfy product parity
   stop-the-line gate repair removes the obsolete syntax-3 comment token and
   joins naming_charter_guard to the Language v1 FULL sensitive-path gate
@@ -453,7 +454,7 @@ migration; it is not a grammar typo cleanup.
 
 ### 4. LANGV1-FAILURE-OUTCOME-001
 
-Status: design decision required after Type Guarantee.
+Status: active design decision as 3504 after Type Guarantee closeout.
 
 Target vocabulary:
 

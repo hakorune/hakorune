@@ -2,8 +2,16 @@
 
 ## Status
 
-Active design consultation stop. Do not change backend lowering, runtime
-support, selfhost claims, or capability flags before this decision is accepted.
+Complete. Decision: accepted.
+
+```text
+selected_direction = defer_with_failfast
+product_weak_field_backend_selected = 0
+product_weak_field_backend_supported = 0
+supported_semantic_reference_consumer = mir-interpreter
+VM_product_backend = 0
+next_language_row = LANGV1-FAILURE-OUTCOME-001
+```
 
 ## Review Corrective Queue
 
@@ -151,3 +159,21 @@ runtime_backend_fallback = 0
 ownership_kernel_activation = 0
 selfhost_claim = 0
 ```
+
+## Closeout Evidence
+
+```text
+module obligation owner = weak_field_contract_specs
+declaration-only module rejects every product backend = 1
+dynamic-alias-only module rejects every product backend = 1
+plain module remains outside Weak capability gate = 1
+reference VM support remains green = 1
+runtime code changed = 0
+backend lowering changed = 0
+capability activation changed = 0
+fallback added = 0
+```
+
+Future reopen requires a concrete selfhost/application/conformance blocker.
+The first candidate is `ny-llvmc EXE/OBJ` with a validated helper ABI, but no
+backend or ABI is selected by this card.
