@@ -1,6 +1,6 @@
 {
   "family": "hako-alloc-segment",
-  "input_unregistered_count": 157,
+  "input_unregistered_count": 153,
   "physical_move": 0,
   "role_assignment": "none",
   "rows": [
@@ -40,100 +40,6 @@
         "segment-map-and-release": [
           "segment-map",
           "lookup"
-        ]
-      }
-    },
-    {
-      "classification_basis": "body evidence queue only; reviewer decision required",
-      "owner": "",
-      "path": "hako-alloc-segment-allocation-modeled-consume-closeout-ssot.md",
-      "precedence_parent": "",
-      "review_status": "pending",
-      "role_hints": {
-        "sidecar-candidate": [
-          "closeout"
-        ]
-      },
-      "sidecar_owner": "",
-      "subfamily_candidate": "segment-allocation-and-local-reuse",
-      "subfamily_evidence": {
-        "segment-allocation-and-local-reuse": [
-          "segment allocation",
-          "modeled consume"
-        ],
-        "segment-arena-backing-and-residence": [
-          "arena backing",
-          "pointer residence",
-          "bitmap",
-          "backing"
-        ],
-        "segment-map-and-release": [
-          "segment-map",
-          "lookup",
-          "release"
-        ]
-      }
-    },
-    {
-      "classification_basis": "body evidence queue only; reviewer decision required",
-      "owner": "",
-      "path": "hako-alloc-segment-allocation-modeled-consume-ssot.md",
-      "precedence_parent": "",
-      "review_status": "pending",
-      "role_hints": {
-        "status-ledger-candidate": [
-          "readiness"
-        ]
-      },
-      "sidecar_owner": "",
-      "subfamily_candidate": "segment-allocation-and-local-reuse",
-      "subfamily_evidence": {
-        "segment-allocation-and-local-reuse": [
-          "segment allocation",
-          "modeled consume"
-        ],
-        "segment-arena-backing-and-residence": [
-          "arena backing",
-          "pointer residence",
-          "bitmap",
-          "backing"
-        ],
-        "segment-map-and-release": [
-          "segment-map",
-          "lookup"
-        ]
-      }
-    },
-    {
-      "classification_basis": "body evidence queue only; reviewer decision required",
-      "owner": "",
-      "path": "hako-alloc-segment-allocation-modeled-ledger-closeout-ssot.md",
-      "precedence_parent": "",
-      "review_status": "pending",
-      "role_hints": {
-        "sidecar-candidate": [
-          "closeout"
-        ],
-        "status-ledger-candidate": [
-          "ledger"
-        ]
-      },
-      "sidecar_owner": "",
-      "subfamily_candidate": "segment-allocation-and-local-reuse",
-      "subfamily_evidence": {
-        "segment-allocation-and-local-reuse": [
-          "segment allocation"
-        ],
-        "segment-arena-backing-and-residence": [
-          "arena backing",
-          "pointer residence",
-          "bitmap",
-          "backing"
-        ],
-        "segment-map-and-release": [
-          "segment-map",
-          "lookup",
-          "release"
         ]
       }
     },
@@ -298,36 +204,6 @@
           "lookup",
           "release",
           "recycle"
-        ]
-      }
-    },
-    {
-      "classification_basis": "body evidence queue only; reviewer decision required",
-      "owner": "",
-      "path": "hako-alloc-segment-allocation-modeled-ledger-ssot.md",
-      "precedence_parent": "",
-      "review_status": "pending",
-      "role_hints": {
-        "status-ledger-candidate": [
-          "ledger"
-        ]
-      },
-      "sidecar_owner": "",
-      "subfamily_candidate": "segment-allocation-and-local-reuse",
-      "subfamily_evidence": {
-        "segment-allocation-and-local-reuse": [
-          "segment allocation",
-          "modeled consume"
-        ],
-        "segment-arena-backing-and-residence": [
-          "arena backing",
-          "pointer residence",
-          "bitmap",
-          "backing"
-        ],
-        "segment-map-and-release": [
-          "segment-map",
-          "lookup"
         ]
       }
     },

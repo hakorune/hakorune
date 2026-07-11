@@ -61,13 +61,13 @@ latest_workstream_card = "docs/development/current/main/workstreams/repository-a
 
 latest_card = "repository-artifact-lifecycle-h3-design-classification-consultation"
 latest_card_path = "docs/development/current/main/investigations/repository-artifact-lifecycle-h3-design-classification-consultation.md"
-latest_card_summary = """C2 S3 reviewed the lifecycle/membership and
-allocation-readiness slices: three proof-only supporting rows were registered
-and their three closeout documents became owned sidecars. The remaining 157
-hako-alloc-segment rows stay in the explicit review queue; superseded
-assignment and physical movement remain disabled."""
+latest_card_summary = """C2 S3 reviewed lifecycle/membership, allocation
+readiness, modeled consume, and modeled ledger slices: five base rows were
+registered and their five closeout documents became owned sidecars. The
+remaining 153 hako-alloc-segment rows stay in the explicit review queue;
+superseded assignment and physical movement remain disabled."""
 
-current_blocker_token = "REPOSITORY-ARTIFACT-LIFECYCLE-H3-C2-HAKO-ALLOC-SEGMENT-S3-MODELED-CONSUME-LOCAL-FREE-REVIEW"
+current_blocker_token = "REPOSITORY-ARTIFACT-LIFECYCLE-H3-C2-HAKO-ALLOC-SEGMENT-S3-LOCAL-FREE-REVIEW"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

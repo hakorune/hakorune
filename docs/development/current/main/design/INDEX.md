@@ -484,6 +484,32 @@ superseded_by = ""
 retire_when = "allocation readiness proof is explicitly replaced and its closeout sidecar retires with it"
 
 [[documents]]
+path = "hako-alloc-segment-allocation-modeled-consume-ssot.md"
+role = "supporting"
+owner = "mimalloc-hako-port-implementation-plan-ssot.md"
+precedence_parent = "mimalloc-hako-port-implementation-plan-ssot.md"
+classification_basis = "C2-S3:hako-alloc-segment/allocation-local-reuse; scalar modeled consume proof with real allocation explicitly closed"
+sidecars = [
+  "hako-alloc-segment-allocation-modeled-consume-closeout-ssot.md",
+]
+supersedes = []
+superseded_by = ""
+retire_when = "modeled consume proof is explicitly replaced and its closeout sidecar retires with it"
+
+[[documents]]
+path = "hako-alloc-segment-allocation-modeled-ledger-ssot.md"
+role = "status-ledger"
+owner = "mimalloc-hako-port-implementation-plan-ssot.md"
+precedence_parent = "hako-alloc-segment-allocation-modeled-consume-ssot.md"
+classification_basis = "C2-S3:hako-alloc-segment/allocation-local-reuse; deterministic modeled allocation ledger, not execution authority"
+sidecars = [
+  "hako-alloc-segment-allocation-modeled-ledger-closeout-ssot.md",
+]
+supersedes = []
+superseded_by = ""
+retire_when = "modeled allocation ledger is replaced by an explicit durable inventory owner and its closeout sidecar retires"
+
+[[documents]]
 path = "hako-alloc-policy-state-contract-ssot.md"
 role = "authority"
 owner = "INDEX.md"

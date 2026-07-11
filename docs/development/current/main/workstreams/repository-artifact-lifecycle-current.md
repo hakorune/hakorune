@@ -568,6 +568,29 @@ arena backing, raw pointer residence, segment-map lookup, bitmap/OSVM,
 threads, providers, and backend matchers inactive. Its guard-only closeout is
 the third owned sidecar; modeled consume and local-free rows remain unclassified.
 
+S3 modeled-consume/ledger review closeout:
+
+```text
+reviewed_base_rows = 5
+supporting_rows = 4
+status_ledger_rows = 1
+owned_sidecars = 5
+registered_rows = 123
+unregistered_current = 721
+unregistered_baseline = 732
+precedence_cycle_count = 0
+authority_rows_added = 0
+superseded_assignment = 0
+physical_move = 0
+projection_rows_remaining = 153
+next = local-free explicit content review
+```
+
+Modeled consume remains a scalar proof route, and modeled ledger remains a
+deterministic inventory of modeled tokens. Neither row opens real allocation,
+arena residence, raw pointers, segment maps, bitmap/OSVM, threads, providers,
+or backend matchers.
+
 ## Non-Claims
 
 ```text

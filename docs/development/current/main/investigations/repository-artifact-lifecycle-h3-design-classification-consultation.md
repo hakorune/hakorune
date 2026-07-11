@@ -159,9 +159,11 @@ allocation/local-reuse.
 
 The allocation-readiness scalar is also reviewed in this S3 pass as a
 proof-only supporting row under `mimalloc-hako-port-implementation-plan-ssot.md`.
-Its guard-only closeout is an owned sidecar. The registry now has 121 rows and
-three owned sidecars; 157 rows remain unclassified. Modeled consume and
-local-free documents are intentionally left for the next explicit review.
+Its guard-only closeout is an owned sidecar. The modeled-consume row is
+classified as `supporting`, while the modeled ledger is `status-ledger`; their
+two closeout documents are owned sidecars. The registry now has 123 rows and
+five owned sidecars, with 153 rows remaining. The next explicit review slice
+is local-free.
 
 ## Minimum Next Slice
 
