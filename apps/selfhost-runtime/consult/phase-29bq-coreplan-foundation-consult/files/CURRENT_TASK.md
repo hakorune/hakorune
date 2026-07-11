@@ -5,7 +5,7 @@ Scope: Repo root の旧リンク互換。現行の入口は `docs/development/cu
 
 - Now: `docs/development/current/main/10-Now.md`
 - Backlog: `docs/development/current/main/30-Backlog.md`
-- Archive（過去ログ）: `docs/development/current/main/phases/phase-29ao/CURRENT_TASK-archive.md`
+- Archive（過去ログ）: `docs/development/archive/phases/phase-29ao/CURRENT_TASK-archive.md`
 
 ## Stop-the-line memo (Phase 29br)
 

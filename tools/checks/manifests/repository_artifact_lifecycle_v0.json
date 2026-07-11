@@ -3,8 +3,8 @@
     "checks": 3261,
     "design_direct": 849,
     "docs": 12281,
-    "docs_development_archive": 2258,
-    "docs_development_current": 8607,
+    "docs_development_archive": 2458,
+    "docs_development_current": 8407,
     "main_direct": 168,
     "phase_296x_archive": 2517,
     "phase_296x_direct": 1031,
@@ -884,1212 +884,12 @@
     "violations": []
   },
   "document_reachability": {
-    "ambiguous_basename_count": 18,
-    "document_count": 8607,
+    "ambiguous_basename_count": 17,
+    "document_count": 8407,
     "partial_phase_unreachable": {
       "archive_target_collision_count": 0,
-      "cluster_count": 331,
+      "cluster_count": 131,
       "clusters": [
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-836-HAKO-ALLOC-USIZE-FIELD-GROUP-028-RESIDENCE-ARENA-BINDING-GEOMETRY-COUNT-PAGE-SIZE-MIGRATION.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-837-HAKO-ALLOC-USIZE-FIELD-GROUP-029-RESIDENCE-ARENA-BINDING-GEOMETRY-COUNT-PAGE-SIZE-CLOSEOUT.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-838-HAKO-ALLOC-USIZE-FIELD-GROUP-030-REQUIREMENT-MATRIX-GEOMETRY-COUNT-PAGE-SIZE-MIGRATION.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-839-HAKO-ALLOC-USIZE-FIELD-GROUP-031-REQUIREMENT-MATRIX-GEOMETRY-COUNT-PAGE-SIZE-CLOSEOUT.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-840-HAKO-ALLOC-USIZE-FIELD-GROUP-032-READINESS-GEOMETRY-COUNT-PAGE-SIZE-MIGRATION.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-841-HAKO-ALLOC-USIZE-FIELD-GROUP-033-READINESS-GEOMETRY-COUNT-PAGE-SIZE-CLOSEOUT.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-842-HAKO-ALLOC-USIZE-FIELD-GROUP-034-NEXT-FIELD-GROUP-SELECTION.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-843-HAKO-ALLOC-USIZE-FIELD-GROUP-035-SEGMENT-MAP-CONSUME-LEDGER-BLOCK-COUNT-MIGRATION.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-844-HAKO-ALLOC-USIZE-FIELD-GROUP-036-SEGMENT-MAP-CONSUME-LEDGER-BLOCK-COUNT-CLOSEOUT.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-845-HAKO-ALLOC-USIZE-FIELD-GROUP-037-SEGMENT-MAP-CONSUME-LEDGER-RELEASE-BLOCK-COUNT-MIGRATION.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-846-HAKO-ALLOC-USIZE-FIELD-GROUP-038-SEGMENT-MAP-CONSUME-LEDGER-RELEASE-BLOCK-COUNT-CLOSEOUT.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-847-HAKO-ALLOC-USIZE-FIELD-GROUP-039-NEXT-FIELD-GROUP-SELECTION.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-848-HAKO-ALLOC-USIZE-FIELD-GROUP-040-LOCAL-FREE-REUSE-LEDGER-COUNT-MIGRATION.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-849-HAKO-ALLOC-USIZE-FIELD-GROUP-041-LOCAL-FREE-REUSE-LEDGER-COUNT-CLOSEOUT.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-850-HAKO-ALLOC-USIZE-FIELD-GROUP-042-NEXT-FIELD-GROUP-SELECTION.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-851-HAKO-ALLOC-USIZE-FIELD-GROUP-043-LOCAL-FREE-REUSE-LEDGER-RELEASE-APPLY-COUNT-MIGRATION.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-852-HAKO-ALLOC-USIZE-FIELD-GROUP-044-LOCAL-FREE-REUSE-LEDGER-RELEASE-APPLY-COUNT-CLOSEOUT.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-853-HAKO-ALLOC-USIZE-FIELD-GROUP-045-LOCAL-FREE-REUSE-LEDGER-RELEASE-APPLY-PRIMARY-COUNTER-MIGRATION.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-854-HAKO-ALLOC-USIZE-FIELD-GROUP-046-LOCAL-FREE-REUSE-LEDGER-RELEASE-APPLY-PRIMARY-COUNTER-CLOSEOUT.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-855-HAKO-ALLOC-USIZE-FIELD-GROUP-047-LOCAL-FREE-REUSE-LEDGER-RELEASE-APPLY-SHAPE-LOOKUP-REJECT-COUNTER-MIGRATION.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-856-HAKO-ALLOC-USIZE-FIELD-GROUP-048-LOCAL-FREE-REUSE-LEDGER-RELEASE-APPLY-SHAPE-LOOKUP-REJECT-COUNTER-CLOSEOUT.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-857-HAKO-ALLOC-USIZE-FIELD-GROUP-049-LOCAL-FREE-REUSE-LEDGER-RELEASE-APPLY-EXECUTION-CAPABILITY-REJECT-COUNTER-MIGRATION.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-858-HAKO-ALLOC-USIZE-FIELD-GROUP-050-LOCAL-FREE-REUSE-LEDGER-RELEASE-APPLY-EXECUTION-CAPABILITY-REJECT-COUNTER-CLOSEOUT.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-859-HAKO-ALLOC-REPORT-RECORD-006-LOCAL-FREE-REUSE-LEDGER-RELEASE-APPLY-REPORTFIELDS-PILOT.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-860-HAKO-ALLOC-REPORT-RECORD-007-LOCAL-FREE-REUSE-LEDGER-RELEASE-APPLY-REPORTFIELDS-CLOSEOUT.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-861-RECORD-VALUE-HELPER-001-LOCAL-REPORTFIELDS-HELPER-ARGUMENT-SCALARIZATION.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-862-HAKO-ALLOC-REPORT-RECORD-008-POST-HELPER-SCALARIZATION-ROW-SELECTION.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-863-HAKO-ALLOC-REPORT-RECORD-009-ALLOCATION-LEDGER-RELEASE-CANDIDATE-REPORTFIELDS-HELPER-SCALARIZATION-PILOT.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-864-HAKO-ALLOC-REPORT-RECORD-010-REPORTFIELDS-HELPER-SCALARIZATION-CLOSEOUT.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-865-HAKO-ALLOC-REPORT-RECORD-011-POST-HELPER-SCALARIZATION-CLOSEOUT-ROW-SELECTION.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-866-HAKO-ALLOC-REPORT-RECORD-012-RELEASE-CANDIDATE-DIAGNOSTIC-REPORTFIELDS-HELPER-SCALARIZATION-PILOT.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-867-HAKO-ALLOC-REPORT-RECORD-013-RELEASE-CANDIDATE-DIAGNOSTIC-REPORTFIELDS-HELPER-SCALARIZATION-CLOSEOUT.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-868-RECORD-LOCAL-SCALARIZATION-SSOT-001-BOUNDARY-AND-STOP-LINES.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-869-HAKO-ALLOC-REPORT-RECORD-014-POST-RECORD-LOCAL-SCALARIZATION-SSOT-ROW-SELECTION.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-870-HAKO-ALLOC-REPORT-RECORD-015-ALLOCATION-LEDGER-DIAGNOSTIC-REPORTFIELDS-HELPER-SCALARIZATION-PILOT.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-871-HAKO-ALLOC-REPORT-RECORD-016-ALLOCATION-LEDGER-DIAGNOSTIC-REPORTFIELDS-HELPER-SCALARIZATION-CLOSEOUT.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-872-HAKO-ALLOC-REPORT-RECORD-017-POST-ALLOCATION-LEDGER-DIAGNOSTIC-REPORTFIELDS-HELPER-SCALARIZATION-CLOSEOUT-ROW-SELECTION.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-873-HAKO-ALLOC-REPORT-RECORD-018-ALLOCATION-APPLY-DIAGNOSTIC-REPORTFIELDS-HELPER-SCALARIZATION-PILOT.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-874-HAKO-ALLOC-REPORT-RECORD-019-ALLOCATION-APPLY-DIAGNOSTIC-REPORTFIELDS-HELPER-SCALARIZATION-CLOSEOUT.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-875-HAKO-ALLOC-REPORT-RECORD-020-POST-ALLOCATION-APPLY-DIAGNOSTIC-REPORTFIELDS-HELPER-SCALARIZATION-CLOSEOUT-ROW-SELECTION.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-876-HAKO-ALLOC-REPORT-RECORD-021-ALLOCATION-PLAN-DIAGNOSTIC-REPORTFIELDS-HELPER-SCALARIZATION-PILOT.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-877-HAKO-ALLOC-REPORT-RECORD-022-ALLOCATION-PLAN-DIAGNOSTIC-REPORTFIELDS-HELPER-SCALARIZATION-CLOSEOUT.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-878-HAKO-ALLOC-REPORT-RECORD-023-POST-ALLOCATION-PLAN-DIAGNOSTIC-REPORTFIELDS-HELPER-SCALARIZATION-CLOSEOUT-ROW-SELECTION.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-879-HAKO-ALLOC-REPORT-RECORD-024-SOURCE-ACCOUNTING-DIAGNOSTIC-REPORTFIELDS-HELPER-SCALARIZATION-PILOT.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-880-HAKO-ALLOC-REPORT-RECORD-025-SOURCE-ACCOUNTING-DIAGNOSTIC-REPORTFIELDS-HELPER-SCALARIZATION-CLOSEOUT.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-881-HAKO-ALLOC-REPORT-RECORD-026-POST-SOURCE-ACCOUNTING-DIAGNOSTIC-REPORTFIELDS-HELPER-SCALARIZATION-CLOSEOUT-ROW-SELECTION.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-882-HAKO-ALLOC-REPORT-RECORD-027-LOCAL-FREE-INTEGRATION-REPORTFIELDS-HELPER-SCALARIZATION-PILOT.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-883-HAKO-ALLOC-REPORT-RECORD-028-LOCAL-FREE-INTEGRATION-REPORTFIELDS-HELPER-SCALARIZATION-CLOSEOUT.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-884-HAKO-ALLOC-REPORT-RECORD-029-BOUNDED-PURGE-SCHEDULER-REPORTFIELDS-HELPER-SCALARIZATION-PILOT.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-885-HAKO-ALLOC-REPORT-RECORD-030-BOUNDED-PURGE-SCHEDULER-REPORTFIELDS-HELPER-SCALARIZATION-CLOSEOUT.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-912-CHECKS-ALLOCATOR-GATE-FAMILY-SPLIT.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-913-CHECKS-DEV-GATE-ALLOCATOR-LIST-DEDUP.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-914-CHECKS-ALLOCATOR-PROVIDER-SUBFAMILY-SPLIT.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-915-CHECKS-PROOF-APPS-MANIFEST-INCLUDE-PILOT.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-916-CHECKS-PROOF-APPS-MANIFEST-FAMILY-SPLIT.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-917-CHECKS-GUARD-ROWS-MANIFEST-FAMILY-SPLIT.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-918-CHECKS-PROOF-APPS-MANIFEST-FAMILY-SPLIT-2.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-919-CHECKS-PROOF-APPS-MANIFEST-FAMILY-SPLIT-3.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-920-CHECKS-PROOF-APPS-MANIFEST-FAMILY-SPLIT-4.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-921-CHECKS-ALLOCATOR-RELEASE-CANDIDATE-GUARD-HELPER-SPLIT.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-922-HAKO-ALLOC-LOCAL-FREE-REUSE-LEDGER-RELEASE-APPLY-HELPER-SPLIT.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-923-HAKO-ALLOC-MODELED-LEDGER-REPORT-HELPER-SPLIT.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-966-STAGE0-CLEANUP-CATCH-BOUNDARY.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/293x-THREAD-SLEEP-001-BOX-SLEEP-THREADAPI-ROUTE.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-293x/archive/README.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-294x/294x-00-USIZE-SEMANTIC-PHASE-LOCK.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-294x/294x-01-TARGET-WIDTH-NUMERIC-KIND-SSOT.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-294x/294x-02-PARSER-METADATA-PRESERVATION.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-294x/294x-03-AST-PROGRAM-JSON-NUMERIC-METADATA.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-294x/294x-04-MIR-EXACT-NUMERIC-TYPE-MODEL.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-294x/294x-05-EXACT-NUMERIC-CONSTANTS-CONVERSIONS.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-294x/294x-06-VERIFIER-NUMERIC-FIELD-RANGE-FAILFAST.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-294x/294x-06b-DYNAMIC-NUMERIC-FIELD-WRITE-GUARD.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-294x/294x-06c-RUNTIME-CHECK-CONTRACT-METADATA.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-294x/294x-06d-VM-DYNAMIC-RANGE-CHECK-EXECUTION.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-294x/294x-06e-DYNAMIC-RANGE-CONTRACT-REFRESH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-294x/294x-06f-BACKEND-RUNTIME-CHECK-CONTRACT-FAILFAST.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-294x/294x-07-CHECKED-ARITHMETIC-POLICY.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-294x/294x-08-UNSIGNED-COMPARE-LOGICAL-SHIFT-POLICY.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-294x/294x-09-PHI-SELECT-NUMERIC-UNIFICATION-POLICY.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-294x/294x-09a-VM-REFERENCE-EXECUTOR-BOUNDARY.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-294x/294x-09b-EXACT-NUMERIC-VALUE-FACTS-V0.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-294x/294x-09c-EXACT-NUMERIC-SIGNATURE-FACTS-V0.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-294x/294x-09d-EXACT-NUMERIC-ADD-ROUTE-FACTS-V0.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-294x/294x-10f-VM-EXACT-NUMERIC-RUNTIME-VALUE.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-294x/294x-12-TYPED-OBJECT-EXACT-NUMERIC-STORAGE.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-294x/294x-13-BACKEND-EXACT-NUMERIC-CAPABILITY-FAILFAST.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-294x/294x-14-LOW-LEVEL-CAPABILITY-USIZE-VARIANTS.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-294x/294x-14a-LOW-LEVEL-BYTE-LENGTH-USIZE-FACADES.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-294x/294x-15-RAW-LAYOUT-POINTER-SIZED-FIELDS.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-294x/294x-16-HAKO-ALLOC-NUMERIC-FIELD-INVENTORY.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-100-MIMALLOC-COMPARISON-SEGMENT-MAP-CONSUME-LEDGER-RELEASE-GUARD-MANIFEST-ALIGNMENT-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-101-MIMALLOC-COMPARISON-HUGE-OSVM-SLICE-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-102-MIMALLOC-PRE-REALLOC-RELEASE-INVARIANT-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-103-MIMALLOC-PAGE-SOURCE-UNRESERVE-ADAPTER-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-104-MIMALLOC-REMOTE-FREE-POLICY-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-105-MIMALLOC-COMPARISON-C-MIMALLOC-EXPLICIT-RUNNER-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-106-MIMALLOC-COMPARISON-C-MIMALLOC-RESULT-PRESENTATION-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-107-MIMALLOC-ABANDONED-RECLAIM-INVENTORY-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-108-MIMALLOC-FACADE-PAGE-SOURCE-FRESH-PAGE-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-109-MIMALLOC-SEGMENT-ARENA-BACKING-SOURCE-ACCOUNTING-DIAGNOSTICS-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-110-ALLOCATOR-RECORD-CONSTRUCTION-READ-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-111-SEGMENT-ARENA-BACKING-REQUIREMENT-MATRIX-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-113-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-INTENT-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-114-M172-PAGE-MAP-BACKED-RELEASE-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-115-M296A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-APPLIED-RECYCLE-SECOND-RELEASE-DIAGNOSTIC-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-116-M293A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-APPLIED-RECYCLE-DIAGNOSTICS-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-117-M285A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-INTENT-DIAGNOSTICS-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-118-M277A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-DIAGNOSTICS-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-119-M281A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-CANDIDATE-DIAGNOSTICS-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-120-M289A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-APPLY-DIAGNOSTICS-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-121-M288A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-APPLY-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-122-M301A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-RECYCLE-LIFECYCLE-CONTINUATION-BRIDGE-DIAGNOSTICS-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-124-M174-REALLOC-SAME-CLASS-NO-MOVE-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-125-M176-REALLOC-NEGATIVE-MATRIX-FAILURE-CONTRACT-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-126-MIMAP-034A-FACADE-HUGE-UNRESERVE-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-127-MIMAP-130A-SEGMENT-ALLOCATION-MODELED-LOCAL-FREE-REUSE-LEDGER-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-128-MIMAP-292A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-APPLIED-RECYCLE-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-129-MIMAP-094A-SEGMENT-ALLOCATION-MODELED-LEDGER-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-130-MIMAP-196A-SEGMENT-MAP-LOCAL-FREE-REUSE-LEDGER-RELEASE-BRIDGE-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-131-M212-BOUNDED-PURGE-DECOMMIT-SCHEDULER-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-132-M195-BOUNDED-DECOMMIT-EXECUTION-POLICY-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-133-M191-HAKO-ALLOC-STATS-SURFACE-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-134-M119A-SEGMENT-ALLOCATION-MODELED-LOCAL-FREE-INTEGRATION-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-135-M097A-SEGMENT-ALLOCATION-MODELED-LEDGER-RELEASE-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-136-M115A-SEGMENT-ALLOCATION-MODELED-LOCAL-FREE-PAGE-MODEL-APPLY-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-137-M100A-SEGMENT-ALLOCATION-MODELED-LEDGER-RELEASED-TOKEN-RECYCLE-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-138-M188A-M200A-M204A-SEGMENT-MAP-LOCAL-FREE-REUSE-BRIDGE-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-139-M224A-M228A-M229A-SEGMENT-MAP-LOCAL-FREE-REUSE-LEDGER-LIFECYCLE-KEYED-RELEASE-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-140-M212A-M220A-M216A-SEGMENT-MAP-LOCAL-FREE-REUSE-LEDGER-LIFECYCLE-TOKEN-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-141-M304A-M305A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-RECYCLE-CONTINUATION-APPLICATION-BRIDGE-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-142-M164A-M168A-SEGMENT-MAP-MODELED-CONSUME-LEDGER-RELEASED-TOKEN-SPAN-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-143-M42-M43-REMOTE-FREE-POLICY-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-144-M175-REALLOC-ALLOC-COPY-RELEASE-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-145-MIMAP-TLS-001-WORKER-TLS-CACHE-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-146-M211-PURGE-CANDIDATE-POLICY-INVENTORY-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-147-M208-HEAP-REUSE-PRIORITY-POLICY-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-148-MIMAP-149A-SEGMENT-ALLOCATION-BLOCKED-SUBSTRATE-MATRIX-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-149-M192A-SEGMENT-MAP-LOCAL-FREE-REUSE-LEDGER-BRIDGE-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-150-MIMAP-018A-FACADE-STATS-SNAPSHOT-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-151-MIMAP-153A-SEGMENT-MAP-LOOKUP-GUARDED-READINESS-COMPOSITION-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-152-MIMAP-REMOTE-001-REMOTE-FREE-ABANDONED-OWNER-POLICY-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-153-MIMAP-273A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-APPLY-DIAGNOSTICS-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-154-MIMAP-260A-SEGMENT-ARENA-BACKING-MODELED-SOURCE-BRIDGE-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-155-MIMAP-269A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-PLAN-DIAGNOSTICS-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-156-MIMAP-268A-AND-MIMAP-272A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-PLAN-AND-APPLY-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-157-MIMAP-436A-AND-MIMAP-437A-ALLOCATOR-COMPARISON-BENCHMARK-EXECUTION-PREFLIGHT-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-158-MIMAP-440A-AND-MIMAP-441A-ALLOCATOR-COMPARISON-CONTROLLED-BENCHMARK-EXECUTION-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-159-MIMAP-024A-AND-MIMAP-025A-FACADE-HUGE-RELEASE-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-160-MIMAP-184A-SEGMENT-MAP-LOCAL-FREE-INTEGRATION-BRIDGE-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-161-MIMAP-042A-AND-MIMAP-043A-OSVM-FAST-PATH-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-162-MIMAP-252A-SEGMENT-ARENA-BACKING-MODELED-RESIDENCE-ARENA-BINDING-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-163-MIMAP-232A-SOURCE-LIFECYCLE-KEYED-RELEASE-APPLY-RECYCLE-CONTINUATION-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-164-MIMAP-045A-OSVM-FAST-PATH-UNRESERVE-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-165-MIMAP-051A-RECLAIM-OWNER-TRANSFER-CONTRACT-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-166-MIMAP-074A-RECLAIM-SCHEDULER-REQUEST-LEDGER-ROUNDTRIP-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-167-M215-THREAD-HEAP-OWNER-INVENTORY-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-168-MIMAP-236A-SEGMENT-ARENA-BACKING-READINESS-INVENTORY-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-169-M49-ALLOCATOR-OSVM-PAGE-SOURCE-POLICY-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-170-MIMAP-057A-RECLAIM-REMOTE-FREE-DRAIN-EXECUTION-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-171-MIMAP-256A-SEGMENT-ARENA-BACKING-MODELED-ARENA-SLOT-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-172-MIMAP-068A-RECLAIM-SCHEDULER-REQUEST-LEDGER-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-173-MIMAP-151A-SEGMENT-MAP-SCALAR-LOOKUP-BOUNDARY-INVENTORY-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-174-MIMAP-088A-SEGMENT-ALLOCATION-READINESS-SCALAR-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-175-MIMAP-012-OBJECT-LIFECYCLE-QUEUE-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-176-M36-TLS-POINTER-REMOTE-FREE-COMPOSITION-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-177-MIMAP-WORKER-001-INTERNAL-WORKER-IDENTITY-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-178-M167-MIMALLOC-ALLOC-FAST-PATH-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-179-MIMAP-085A-SEGMENT-PAGE-MEMBERSHIP-SCALAR-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-180-MIMAP-082A-SEGMENT-LIFECYCLE-SCALAR-STATE-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-181-MIMAP-019A-AND-MIMAP-064A-PURGE-POLICY-ROUTE-AND-REQUEST-MARKER-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-182-MIMAP-055A-AND-MIMAP-056A-RECLAIM-OWNER-TRANSFER-AND-REMOTE-FREE-DRAIN-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-183-MIMAP-308A-AND-MIMAP-309A-SEGMENT-ARENA-BACKING-MODELED-ALLOCATION-LEDGER-RELEASE-RECYCLE-APPLIED-STATE-SUMMARY-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-184-MIMAP-091A-SEGMENT-ALLOCATION-MODELED-CONSUME-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-185-M209-LIFECYCLE-STATS-OBSERVER-SURFACE-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-186-MIMAP-180A-SEGMENT-MAP-LOCAL-FREE-PAGE-APPLY-BRIDGE-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-89-MIMALLOC-COMPARISON-HAKO-RECORD-ERGONOMICS-BATCH-CLEANUP.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-91-MIMALLOC-COMPARISON-ALLOCATOR-PROVIDER-GUARD-THIN-WRAP-CLEANUP.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-92-MIMALLOC-COMPARISON-THICK-GUARD-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-93-MIMALLOC-COMPARISON-MIMALLOC-FACADE-HUGE-GUARD-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-94-MIMALLOC-COMPARISON-MIMALLOC-FACADE-HUGE-PAGE-MODEL-DECOMMIT-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-95-MIMALLOC-COMPARISON-MIMALLOC-REMOTE-FREE-GUARD-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-96-MIMALLOC-COMPARISON-MIMALLOC-FACADE-HUGE-FAILFAST-GUARD-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-97-MIMALLOC-COMPARISON-LOCAL-FREE-REUSE-LEDGER-RELEASE-APPLY-RECYCLE-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-98-MIMALLOC-COMPARISON-SEGMENT-MAP-ACCEPTED-READINESS-CONSUME-LEDGER-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-295x/295x-99-MIMALLOC-COMPARISON-FACADE-HUGE-PAGE-SOURCE-DECOMMIT-FAILFAST-THIN-WRAP-BATCH.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29af/P1-BOUNDARY-HYGIENE-CONTRACT-CHECKS-INSTRUCTIONS.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29af/P4-LAYOUT-CONSISTENCY-CONTRACT-INSTRUCTIONS.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29af/P5-CLOSEOUT-INSTRUCTIONS.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29an/P15-CLOSEOUT-INSTRUCTIONS.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29ao/10-Now-archive.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29ao/CURRENT_TASK-archive.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29ap/P10-NESTED-MINIMAL-COREPLAN-SUBSET-INSTRUCTIONS.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29ap/P11-NESTED-MINIMAL-RELEASE-ADOPT-INSTRUCTIONS.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29ap/P2-PATTERN1-STDLIB-TO_LOWER-SUBSET-INSTRUCTIONS.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29ap/P3-PATTERN1-STDLIB-JOIN-SUBSET-INSTRUCTIONS.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29ap/P7-PATTERN9-LEGACY-REMOVAL-DECISION-INSTRUCTIONS.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29ap/P9-PATTERN6-NESTED-MINIMAL-MIGRATION-INSTRUCTIONS.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29aq/P1-INDEXOF-PARSEINT-SPLIT-SUBSET-INSTRUCTIONS.md"
-          ],
-          "file_count": 1
-        },
-        {
-          "documents": [
-            "docs/development/current/main/phases/phase-29aq/P2-INDEXOFSTRING-TOUPPER-SUBSET-INSTRUCTIONS.md"
-          ],
-          "file_count": 1
-        },
         {
           "documents": [
             "docs/development/current/main/phases/phase-29aq/P3-SPLIT-SUBSET-EXPANSION-INSTRUCTIONS.md"
@@ -2877,8 +1677,8 @@
           "file_count": 1
         }
       ],
-      "file_count": 331,
-      "phase_count": 13,
+      "file_count": 131,
+      "phase_count": 6,
       "reachable_incoming_edge_count": 0
     },
     "phase_cluster_count": 0,
@@ -3293,22 +2093,22 @@
       {
         "phase": "phase-293x",
         "reachable_files": 878,
-        "total_files": 943,
-        "unreachable_files": 65,
+        "total_files": 878,
+        "unreachable_files": 0,
         "whole_phase_unreachable": false
       },
       {
         "phase": "phase-294x",
         "reachable_files": 163,
-        "total_files": 189,
-        "unreachable_files": 26,
+        "total_files": 163,
+        "unreachable_files": 0,
         "whole_phase_unreachable": false
       },
       {
         "phase": "phase-295x",
         "reachable_files": 159,
-        "total_files": 254,
-        "unreachable_files": 95,
+        "total_files": 159,
+        "unreachable_files": 0,
         "whole_phase_unreachable": false
       },
       {
@@ -3335,8 +2135,8 @@
       {
         "phase": "phase-29af",
         "reachable_files": 2,
-        "total_files": 5,
-        "unreachable_files": 3,
+        "total_files": 2,
+        "unreachable_files": 0,
         "whole_phase_unreachable": false
       },
       {
@@ -3349,29 +2149,29 @@
       {
         "phase": "phase-29an",
         "reachable_files": 16,
-        "total_files": 17,
-        "unreachable_files": 1,
+        "total_files": 16,
+        "unreachable_files": 0,
         "whole_phase_unreachable": false
       },
       {
         "phase": "phase-29ao",
         "reachable_files": 46,
-        "total_files": 48,
-        "unreachable_files": 2,
+        "total_files": 46,
+        "unreachable_files": 0,
         "whole_phase_unreachable": false
       },
       {
         "phase": "phase-29ap",
         "reachable_files": 1,
-        "total_files": 7,
-        "unreachable_files": 6,
+        "total_files": 1,
+        "unreachable_files": 0,
         "whole_phase_unreachable": false
       },
       {
         "phase": "phase-29aq",
         "reachable_files": 1,
-        "total_files": 9,
-        "unreachable_files": 8,
+        "total_files": 7,
+        "unreachable_files": 6,
         "whole_phase_unreachable": false
       },
       {
@@ -3644,7 +2444,7 @@
       "fixed_current_entry": 4,
       "reference_src_tools": 3042
     },
-    "unreachable_count": 3702,
+    "unreachable_count": 3502,
     "whole_phase_unreachable": [],
     "whole_phase_unreachable_count": 0,
     "whole_phase_unreachable_files": 0
@@ -4695,8 +3495,8 @@
     }
   },
   "phase_directories": {
-    "archived_phase_count": 318,
-    "archived_phase_files": 2258,
+    "archived_phase_count": 323,
+    "archived_phase_files": 2458,
     "inactive_candidate_count": 0,
     "inactive_candidates": [],
     "phase_count": 107,
@@ -5283,33 +4083,33 @@
       },
       {
         "current_pointer": false,
-        "direct_files": 940,
+        "direct_files": 876,
         "eligible_for_whole_phase_archive": false,
         "external_reference_count": 759,
         "phase": "phase-293x",
         "status": "other_or_missing",
         "status_source": "docs/development/current/main/phases/phase-293x/README.md",
-        "total_files": 943
+        "total_files": 878
       },
       {
         "current_pointer": false,
-        "direct_files": 189,
+        "direct_files": 163,
         "eligible_for_whole_phase_archive": false,
-        "external_reference_count": 80,
+        "external_reference_count": 79,
         "phase": "phase-294x",
         "status": "other_or_missing",
         "status_source": "docs/development/current/main/phases/phase-294x/README.md",
-        "total_files": 189
+        "total_files": 163
       },
       {
         "current_pointer": false,
-        "direct_files": 254,
+        "direct_files": 159,
         "eligible_for_whole_phase_archive": false,
         "external_reference_count": 137,
         "phase": "phase-295x",
         "status": "active_like",
         "status_source": "docs/development/current/main/phases/phase-295x/README.md",
-        "total_files": 254
+        "total_files": 159
       },
       {
         "current_pointer": false,
@@ -5343,13 +4143,13 @@
       },
       {
         "current_pointer": false,
-        "direct_files": 5,
+        "direct_files": 2,
         "eligible_for_whole_phase_archive": false,
         "external_reference_count": 3,
         "phase": "phase-29af",
         "status": "closed",
         "status_source": "docs/development/current/main/phases/phase-29af/README.md",
-        "total_files": 5
+        "total_files": 2
       },
       {
         "current_pointer": false,
@@ -5363,43 +4163,43 @@
       },
       {
         "current_pointer": false,
-        "direct_files": 17,
+        "direct_files": 16,
         "eligible_for_whole_phase_archive": false,
         "external_reference_count": 6,
         "phase": "phase-29an",
         "status": "closed",
         "status_source": "docs/development/current/main/phases/phase-29an/README.md",
-        "total_files": 17
+        "total_files": 16
       },
       {
         "current_pointer": false,
-        "direct_files": 48,
+        "direct_files": 46,
         "eligible_for_whole_phase_archive": false,
-        "external_reference_count": 6,
+        "external_reference_count": 4,
         "phase": "phase-29ao",
         "status": "closed",
         "status_source": "docs/development/current/main/phases/phase-29ao/README.md",
-        "total_files": 48
+        "total_files": 46
+      },
+      {
+        "current_pointer": false,
+        "direct_files": 1,
+        "eligible_for_whole_phase_archive": false,
+        "external_reference_count": 1,
+        "phase": "phase-29ap",
+        "status": "closed",
+        "status_source": "docs/development/current/main/phases/phase-29ap/README.md",
+        "total_files": 1
       },
       {
         "current_pointer": false,
         "direct_files": 7,
         "eligible_for_whole_phase_archive": false,
         "external_reference_count": 1,
-        "phase": "phase-29ap",
-        "status": "closed",
-        "status_source": "docs/development/current/main/phases/phase-29ap/README.md",
-        "total_files": 7
-      },
-      {
-        "current_pointer": false,
-        "direct_files": 9,
-        "eligible_for_whole_phase_archive": false,
-        "external_reference_count": 1,
         "phase": "phase-29aq",
         "status": "closed",
         "status_source": "docs/development/current/main/phases/phase-29aq/README.md",
-        "total_files": 9
+        "total_files": 7
       },
       {
         "current_pointer": false,

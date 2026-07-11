@@ -4,7 +4,7 @@ Status: SSOT
 Date: 2026-05-19
 Scope: stored numeric fields under `lang/src/hako_alloc/memory/`.
 Related:
-- `docs/development/current/main/phases/phase-294x/294x-16-HAKO-ALLOC-NUMERIC-FIELD-INVENTORY.md`
+- `docs/development/archive/phases/phase-294x/294x-16-HAKO-ALLOC-NUMERIC-FIELD-INVENTORY.md`
 - `docs/development/current/main/design/usize-semantic-foundation-ssot.md`
 
 ## Decision

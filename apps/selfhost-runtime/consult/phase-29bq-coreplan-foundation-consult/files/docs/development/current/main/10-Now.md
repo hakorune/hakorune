@@ -45,4 +45,4 @@
 ## Pointers
 
 - CorePlan 移行道筋 SSOT: `docs/development/current/main/design/coreplan-migration-roadmap-ssot.md`
-- 旧ログ（肥大化防止のためアーカイブ）: `docs/development/current/main/phases/phase-29ao/10-Now-archive.md`
+- 旧ログ（肥大化防止のためアーカイブ）: `docs/development/archive/phases/phase-29ao/10-Now-archive.md`
