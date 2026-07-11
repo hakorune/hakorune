@@ -14,11 +14,577 @@
   },
   "design_registry": {
     "authority_registry_decided": true,
+    "c1_review": {
+      "basis": "explicit README section evidence",
+      "row_count": 112,
+      "rows": [
+        {
+          "classification_basis": "README:Diagnostics / Contracts\uff08\u5165\u53e3\uff09",
+          "path": "ai-handoff-and-debug-contract.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "artifact-policy-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:Read First Now",
+          "path": "atomic-tls-gc-truthful-native-seam-inventory.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:Diagnostics / Contracts\uff08\u5165\u53e3\uff09",
+          "path": "auto-specialize-box-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:Diagnostics / Contracts\uff08\u5165\u53e3\uff09",
+          "path": "builder-emit-facade-visibility-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:Diagnostics / Contracts\uff08\u5165\u53e3\uff09",
+          "path": "code-retirement-history-policy-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "compiler-cleanliness-campaign-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "compiler-expressivity-first-policy.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "compiler-pipeline-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "compiler-pipeline-thinning-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "compiler-task-map-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "condition-observation-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:Diagnostics / Contracts\uff08\u5165\u53e3\uff09",
+          "path": "constructor-birth-new-lifecycle-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "control-tree.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:Diagnostics / Contracts\uff08\u5165\u53e3\uff09",
+          "path": "copy-emission-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "coreloop-continue-target-slot-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "coreplan-skeleton-feature-model.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:Diagnostics / Contracts\uff08\u5165\u53e3\uff09",
+          "path": "current-optimization-mechanisms-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "de-rust-compiler-thin-rust-roadmap-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "de-rust-post-g1-runtime-plan-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "edgecfg-fragments.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "exception-cleanup-async.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "execution-lanes-and-axis-separation-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "execution-lanes-legacy-retirement-inventory-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "execution-lanes-migration-task-pack-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "feature-helper-cross-pipeline-map.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:Current Kernel Replacement Docs",
+          "path": "final-metal-split-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:Diagnostics / Contracts\uff08\u5165\u53e3\uff09",
+          "path": "fini-cleanup-execution-contract-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:Read First Now",
+          "path": "gc-tls-atomic-capability-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "generic-case-a-trim-thinning-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "generic-loop-v1-acceptance-by-recipe-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "hako-alloc-mimalloc-port-identity-boundary-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:Read First Now",
+          "path": "hako-alloc-policy-state-contract-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "hako-fullstack-host-abi-completion-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "hako-host-facade-contract-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:Diagnostics / Contracts\uff08\u5165\u53e3\uff09",
+          "path": "hako-mirbuilder-load-store-minimal-contract-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "hako-option-null-no-match-policy-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "hako-runtime-c-abi-cutover-order-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "hakoruneup-release-distribution-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:Diagnostics / Contracts\uff08\u5165\u53e3\uff09",
+          "path": "helper-boundary-policy-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:Read First Now",
+          "path": "hotline-core-method-contract-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "inline-boundary-builder-thinning-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:Read First Now",
+          "path": "inline-plan-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "join-explicit-cfg-construction.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "joinir-design-map.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "joinir-extension-dual-route-contract-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:Diagnostics / Contracts\uff08\u5165\u53e3\uff09",
+          "path": "joinir-frontend-legacy-fixture-key-retirement-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:Retirement / Inventory Supporting Docs",
+          "path": "joinir-legacy-fixture-pin-inventory-ssot.md",
+          "role": "supporting"
+        },
+        {
+          "classification_basis": "README:Retirement / Inventory Supporting Docs",
+          "path": "joinir-smoke-legacy-stem-retirement-ssot.md",
+          "role": "supporting"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "joinir-target-lowerer-thinning-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:Read First Now",
+          "path": "kernel-implementation-phase-plan-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:Read First Now",
+          "path": "kernel-replacement-axis-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "lego-composability-policy.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:Diagnostics / Contracts\uff08\u5165\u53e3\uff09",
+          "path": "lifecycle-typed-value-language-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:Diagnostics / Contracts\uff08\u5165\u53e3\uff09",
+          "path": "llvm-line-ownership-and-boundary-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "local-patch-prevention-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "loop-body-local-init-thinning-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "loop-canonicalizer.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "loop-update-analyzer-thinning-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:Read First Now",
+          "path": "mimalloc-capability-taskboard-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "mimalloc-hako-port-implementation-plan-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:Read First Now",
+          "path": "minimal-capability-modules-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:Read First Now",
+          "path": "minimum-verifier-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:Diagnostics / Contracts\uff08\u5165\u53e3\uff09",
+          "path": "mir-callsite-retire-lane-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:Diagnostics / Contracts\uff08\u5165\u53e3\uff09",
+          "path": "mir-canonical-callsite-lane-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:Diagnostics / Contracts\uff08\u5165\u53e3\uff09",
+          "path": "mir-diagnostics-contract-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:Diagnostics / Contracts\uff08\u5165\u53e3\uff09",
+          "path": "mir-instruction-diet-ledger-ssot.md",
+          "role": "status-ledger"
+        },
+        {
+          "classification_basis": "README:Diagnostics / Contracts\uff08\u5165\u53e3\uff09",
+          "path": "mir-vm-llvm-instruction-contract-fix-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:Diagnostics / Contracts\uff08\u5165\u53e3\uff09",
+          "path": "normalized-dev-removal-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "normalized-expr-lowering.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:Diagnostics / Contracts\uff08\u5165\u53e3\uff09",
+          "path": "optimization-portability-classification-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:Diagnostics / Contracts\uff08\u5165\u53e3\uff09",
+          "path": "optimization-ssot-string-helper-density.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:Diagnostics / Contracts\uff08\u5165\u53e3\uff09",
+          "path": "optimization-task-card-os-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "phi-input-strategy-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "phi-lifecycle-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:Diagnostics / Contracts\uff08\u5165\u53e3\uff09",
+          "path": "plan-lowering-entry-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "planner-entry-guards-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:Read First Now",
+          "path": "primitive-family-and-user-box-fast-path-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:Read First Now",
+          "path": "raw-array-substrate-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:Read First Now",
+          "path": "raw-map-substrate-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "raw-map-truthful-native-seam-inventory.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "recipe-first-entry-contract-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "recipe-tree-and-parts-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:Diagnostics / Contracts\uff08\u5165\u53e3\uff09",
+          "path": "record-and-packed-array-lowering-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "repl-mir-interpreter-interactive-session-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "return-proof-vocabulary-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:Read First Now",
+          "path": "rune-profile-effect-capability-plan-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:Read First Now",
+          "path": "runtime-hot-lane-optimization-patterns-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "rust-kernel-export-surface-strata-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:Diagnostics / Contracts\uff08\u5165\u53e3\uff09",
+          "path": "scope-exit-surface-cleanup-canonicalization-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "selfhost-lift-boundary-and-task-order-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "selfhost-parser-mirbuilder-migration-order-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:Diagnostics / Contracts\uff08\u5165\u53e3\uff09",
+          "path": "selfhost-smoke-retirement-inventory-ssot.md",
+          "role": "status-ledger"
+        },
+        {
+          "classification_basis": "README:Diagnostics / Contracts\uff08\u5165\u53e3\uff09",
+          "path": "stage0-llvm-line-shape-inventory-ssot.md",
+          "role": "status-ledger"
+        },
+        {
+          "classification_basis": "README:Diagnostics / Contracts\uff08\u5165\u53e3\uff09",
+          "path": "stage1-mir-authority-boundary-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:Diagnostics / Contracts\uff08\u5165\u53e3\uff09",
+          "path": "stage1-mir-dialect-contract-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "stage2-aot-core-proof-vocabulary-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "stage2-aot-native-thin-path-design-note.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "stage2-fast-leaf-manifest-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "stage2-hako-owner-vs-inc-thin-shim-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "stage2-optimization-debug-bundle-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "stage2-selfhost-and-hako-alloc-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:Read First Now",
+          "path": "static-const-table-syntax-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:Read First Now",
+          "path": "string-canonical-mir-corridor-and-placement-pass-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:Read First Now",
+          "path": "substrate-capability-ladder-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "thread-and-tls-capability-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "type-system-policy-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "user-method-policy-thinning-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "value-repr-and-abi-manifest-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:Diagnostics / Contracts\uff08\u5165\u53e3\uff09",
+          "path": "vm-fallback-lane-separation-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:Diagnostics / Contracts\uff08\u5165\u53e3\uff09",
+          "path": "vm-hako-array-shim-contract-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
+          "path": "wasm-hako-only-output-roadmap-ssot.md",
+          "role": "authority"
+        }
+      ]
+    },
     "direct_files": 849,
     "markdown_files": 828,
     "non_markdown_files": 21,
     "owned_sidecar_count": 0,
-    "registered_count": 5,
+    "registered_count": 117,
     "registry_mode": "warning",
     "seed_reference_counts": {
       "AGENTS.md": 14,
@@ -36,7 +602,6 @@
       "COREPLAN_GENERAL_LOOP_DECOMPOSITION_INQUIRY.md",
       "abi-export-inventory.md",
       "abi-export-manifest-v0.toml",
-      "ai-handoff-and-debug-contract.md",
       "ai-plan-review-checklist-ssot.md",
       "allocator-hook-activation-preflight-shape-ssot.md",
       "allocator-hook-activation-preflight-ssot.md",
@@ -119,10 +684,7 @@
       "array-runtime-single-thread-store-backend-ssot.md",
       "array-text-session-route-ssot.md",
       "arraybox-json-v0-backend-guard-ssot.md",
-      "artifact-policy-ssot.md",
       "ast-cleanup-before-localtype-ssot.md",
-      "atomic-tls-gc-truthful-native-seam-inventory.md",
-      "auto-specialize-box-ssot.md",
       "backend-legacy-preservation-and-archive-ssot.md",
       "backend-owner-cutover-ssot.md",
       "backend-recipe-route-profile-ssot.md",
@@ -140,22 +702,15 @@
       "brand-parser-capsule-ssot.md",
       "build-crate-split-plan-ssot.md",
       "build-lane-separation-ssot.md",
-      "builder-emit-facade-visibility-ssot.md",
       "c-abi-shim-responsibility-cleanup-backlog-ssot.md",
       "canonical-lowering-visibility-ssot.md",
       "capsule-value-result-contract-ssot.md",
       "cfg-aware-typed-field-residence-ssot.md",
       "cleanupwrap-cleanup-region-boundary-ssot.md",
-      "code-retirement-history-policy-ssot.md",
       "collection-raw-substrate-contract-ssot.md",
       "collection-set-map-fst-task-breakdown-ssot.md",
-      "compiler-cleanliness-campaign-ssot.md",
       "compiler-cleanup-sidecar-task-breakdown-ssot.md",
-      "compiler-expressivity-first-policy.md",
       "compiler-object-final-shape-ssot.md",
-      "compiler-pipeline-ssot.md",
-      "compiler-pipeline-thinning-ssot.md",
-      "compiler-task-map-ssot.md",
       "concat3-array-store-placement-window-ssot.md",
       "concurrency-async-pre-selfhost-ssot.md",
       "concurrency-boundary-migration-taskboard-ssot.md",
@@ -163,18 +718,13 @@
       "condblockview-desugar-consult.md",
       "condition-binding-promoted-identity-proof-probe.md",
       "condition-binding-resolution-rewrite-design.md",
-      "condition-observation-ssot.md",
       "condprofile-migration-plan-ssot.md",
       "condprofile-ssot.md",
-      "constructor-birth-new-lifecycle-ssot.md",
       "contract-region-v0-ssot.md",
       "contract-syntax-metadata-capsule-ssot.md",
       "control-tree-nested-loop-depth-ssot.md",
-      "control-tree.md",
-      "copy-emission-ssot.md",
       "coreloop-composer-single-entry-ssot.md",
       "coreloop-composer-v0-v1-boundary-ssot.md",
-      "coreloop-continue-target-slot-ssot.md",
       "coreloop-exitmap-composition-ssot.md",
       "coreloop-generic-loop-v0-ssot.md",
       "coreloop-loopframe-v1-ssot.md",
@@ -186,20 +736,16 @@
       "coreplan-purity-stage1-ssot.md",
       "coreplan-purity-stage2-ssot.md",
       "coreplan-shadow-adopt-tag-coverage-ssot.md",
-      "coreplan-skeleton-feature-model.md",
       "coreplan-unknown-loop-strategy-ssot.md",
-      "current-optimization-mechanisms-ssot.md",
       "de-rust-backend-zero-boundary-lock-ssot.md",
       "de-rust-backend-zero-fixed-order-and-buildability-ssot.md",
       "de-rust-backend-zero-provisional-inventory-ssot.md",
-      "de-rust-compiler-thin-rust-roadmap-ssot.md",
       "de-rust-full-rust-zero-remaining-rust-inventory-ssot.md",
       "de-rust-full-rust-zero-remaining-rust-task-pack-ssot.md",
       "de-rust-full-rust-zero-roadmap-ssot.md",
       "de-rust-kernel-authority-cutover-ssot.md",
       "de-rust-lane-map-ssot.md",
       "de-rust-master-task-map-ssot.md",
-      "de-rust-post-g1-runtime-plan-ssot.md",
       "de-rust-runtime-meaning-decision-red-inventory-ssot.md",
       "de-rust-scope-decision-ssot.md",
       "de-rust-stage-and-owner-axis-ssot.md",
@@ -214,16 +760,11 @@
       "direct-slot-lease-guard-surface-ssot.md",
       "domainplan-residue-ssot.md",
       "domainplan-thinning-ssot.md",
-      "edgecfg-fragments.md",
       "effect-classification-ssot.md",
       "entry-name-map-ssot.md",
       "enum-sum-and-generic-surface-ssot.md",
       "environment-variables-inventory-ssot.md",
-      "exception-cleanup-async.md",
       "executable-trim-route-lowering-implementation-design.md",
-      "execution-lanes-and-axis-separation-ssot.md",
-      "execution-lanes-legacy-retirement-inventory-ssot.md",
-      "execution-lanes-migration-task-pack-ssot.md",
       "exit-branch-feature-ssot.md",
       "exitbranch-ssot.md",
       "exitkind-cleanup-effect-contract-ssot.md",
@@ -233,18 +774,12 @@
       "fastmem-verified-direct-default-retirement-ssot.md",
       "fastpath-eligibility-resolver-ssot.md",
       "feature-helper-boundary-ssot.md",
-      "feature-helper-cross-pipeline-map.md",
-      "final-metal-split-ssot.md",
-      "fini-cleanup-execution-contract-ssot.md",
       "flowbox-adopt-tag-migration-ssot.md",
       "flowbox-fallback-observability-ssot.md",
       "flowbox-observability-tags-ssot.md",
       "flowbox-tag-coverage-map-ssot.md",
       "frontend-owner-proof-index.md",
-      "gc-tls-atomic-capability-ssot.md",
       "generic-arity-checker-ssot.md",
-      "generic-case-a-trim-thinning-ssot.md",
-      "generic-loop-v1-acceptance-by-recipe-ssot.md",
       "generic-loop-v1-shape-ssot.md",
       "generic-memory-dce-observer-owner-contract-ssot.md",
       "generic-type-annotation-metadata-capsule-ssot.md",
@@ -311,11 +846,9 @@
       "hako-alloc-host-replacement-explicit-preflight-inventory-ssot.md",
       "hako-alloc-host-replacement-optional-ladder-plan-ssot.md",
       "hako-alloc-host-replacement-preflight-closeout-ssot.md",
-      "hako-alloc-mimalloc-port-identity-boundary-ssot.md",
       "hako-alloc-optional-process-allocator-replacement-proposal-ssot.md",
       "hako-alloc-options-inventory-ssot.md",
       "hako-alloc-osvm-page-source-pilot-ssot.md",
-      "hako-alloc-policy-state-contract-ssot.md",
       "hako-alloc-provider-activation-dry-run-unsupported-behavior-ssot.md",
       "hako-alloc-provider-activation-explicit-input-contract-ssot.md",
       "hako-alloc-provider-activation-first-pattern-plan-ssot.md",
@@ -532,68 +1065,42 @@
       "hako-alloc-worker-tls-pilot-ssot.md",
       "hako-app-front-boundary-template-ssot.md",
       "hako-check-mir-observation-boundary-ssot.md",
-      "hako-fullstack-host-abi-completion-ssot.md",
-      "hako-host-facade-contract-ssot.md",
       "hako-inspect-scope-dump-ssot.md",
       "hako-lifecycle-emitter-probe-v0.md",
       "hako-lifecycle-plan-vocab-v0.md",
       "hako-lifecycle-resolver-readonly-skeleton.md",
       "hako-lifecycle-verifier-result-vocab-v0.md",
       "hako-mimalloc-performance-parity-ssot.md",
-      "hako-mirbuilder-load-store-minimal-contract-ssot.md",
       "hako-mirbuilder-migration-phase0-entry-contract-ssot.md",
       "hako-module-cache-build-ssot.md",
       "hako-optimization-toolbox-usability-ssot.md",
-      "hako-option-null-no-match-policy-ssot.md",
-      "hako-runtime-c-abi-cutover-order-ssot.md",
       "hako-thread-substrate-boundary-ssot.md",
       "hakorune-naming-and-rename-task-order-ssot.md",
       "hakorune-provider-package-abi-v1-future-ssot.md",
       "hakorune-stage-term-existing-name-migration-inventory.md",
-      "hakoruneup-release-distribution-ssot.md",
       "handle-cache-metal-helper-contract-ssot.md",
-      "helper-boundary-policy-ssot.md",
-      "hotline-core-method-contract-ssot.md",
       "if-then-condition-block-consult.md",
-      "inline-boundary-builder-thinning-ssot.md",
-      "inline-plan-ssot.md",
-      "join-explicit-cfg-construction.md",
-      "joinir-design-map.md",
-      "joinir-extension-dual-route-contract-ssot.md",
-      "joinir-frontend-legacy-fixture-key-retirement-ssot.md",
-      "joinir-legacy-fixture-pin-inventory-ssot.md",
       "joinir-observation-layer-ssot.md",
       "joinir-pattern-selection-shadow-ssot.md",
       "joinir-plan-frag-ssot.md",
       "joinir-planner-required-gates-ssot.md",
       "joinir-port-task-pack-ssot.md",
-      "joinir-smoke-legacy-stem-retirement-ssot.md",
-      "joinir-target-lowerer-thinning-ssot.md",
       "json-v0-bridge-lowering-split-ssot.md",
       "json-v0-route-map-ssot.md",
       "kernel-authority-cutover-external-consultation-question.md",
-      "kernel-implementation-phase-plan-ssot.md",
       "kernel-observability-and-two-stage-pilot-ssot.md",
-      "kernel-replacement-axis-ssot.md",
       "kilo-meso-benchmark-ladder-ssot.md",
       "known-enum-underscore-exhaustiveness-ssot.md",
       "language-feature-implementation-order-ssot.md",
       "language-minimal-lane-switch-after-m215-ssot.md",
       "language-minimal-surface-ssot.md",
       "language-minimal-surface-task-breakdown-ssot.md",
-      "lego-composability-policy.md",
-      "lifecycle-typed-value-language-ssot.md",
-      "llvm-line-ownership-and-boundary-ssot.md",
-      "local-patch-prevention-ssot.md",
       "local-type-annotation-metadata-capsule-ssot.md",
-      "loop-body-local-init-thinning-ssot.md",
-      "loop-canonicalizer.md",
       "loop-cleanup-before-packedarray-ssot.md",
       "loop-cond-break-continue-ssot.md",
       "loop-range-parser-capsule-ssot.md",
       "loop-range-stage1-route-ssot.md",
       "loop-route-detection-physical-path-retirement-ssot.md",
-      "loop-update-analyzer-thinning-ssot.md",
       "lowering-plan-json-v0-ssot.md",
       "map-literal-eviction-and-blockexpr-roadmap-ssot.md",
       "mapbox-proof-bearing-route-ssot.md",
@@ -603,7 +1110,6 @@
       "mimalloc-benchmark-dll-roadmap-ssot.md",
       "mimalloc-benchmark-route-taxonomy-ssot.md",
       "mimalloc-blueprint-lane-close-criteria-ssot.md",
-      "mimalloc-capability-taskboard-ssot.md",
       "mimalloc-comparison-execution-ssot.md",
       "mimalloc-concurrency-substrate-boundary-ssot.md",
       "mimalloc-facade-huge-backing-set-helper-ssot.md",
@@ -612,7 +1118,6 @@
       "mimalloc-facade-object-lifecycle-queue-ssot.md",
       "mimalloc-first-executable-slice-ssot.md",
       "mimalloc-hako-port-capability-gap-inventory-ssot.md",
-      "mimalloc-hako-port-implementation-plan-ssot.md",
       "mimalloc-hako-port-purpose-ssot.md",
       "mimalloc-hakorune-blueprint-task-breakdown-ssot.md",
       "mimalloc-hakorune-brand-type-vocabulary-ssot.md",
@@ -638,29 +1143,20 @@
       "mimalloc-secure-entropy-inventory-ssot.md",
       "mimalloc-size-class-bin-pilot-ssot.md",
       "mimalloc-substrate-representation-gap-ledger-ssot.md",
-      "minimal-capability-modules-ssot.md",
-      "minimum-verifier-ssot.md",
       "mir-array-slot-residence-ssot.md",
       "mir-builder-diet-flowplanner-boundary-ssot.md",
-      "mir-callsite-retire-lane-ssot.md",
-      "mir-canonical-callsite-lane-ssot.md",
       "mir-cleanup-policy-ssot.md",
       "mir-commonality-taxonomy-ssot.md",
       "mir-crate-split-prep-ssot.md",
-      "mir-diagnostics-contract-ssot.md",
       "mir-fastmem-memop-dialect-ssot.md",
-      "mir-instruction-diet-ledger-ssot.md",
       "mir-proof-envelope-v0-ssot.md",
       "mir-root-facade-contract-ssot.md",
-      "mir-vm-llvm-instruction-contract-fix-ssot.md",
       "mirbuilder-authority-based-hako-migration-ssot.md",
       "mirbuilder-ordering-capability-ssot.md",
       "mirbuilder-programjson-capability-batch-migration-policy-ssot.md",
       "mirbuilder-rust-to-hako-converter-task-order-ssot.md",
       "mirbuilder-selfhost-checkpoint-roadmap-ssot.md",
       "nested-argument-single-evaluation-ssot.md",
-      "normalized-dev-removal-ssot.md",
-      "normalized-expr-lowering.md",
       "nyash-kernel-semantic-owner-ssot.md",
       "nyrt-startup-env-centralization-priority-ssot.md",
       "nyrt-startup-env-p0-centralization-ssot.md",
@@ -675,10 +1171,7 @@
       "observer-control-dce-owner-contract-ssot.md",
       "optimization-hints-contracts-intrinsic-ssot.md",
       "optimization-layer-roadmap-ssot.md",
-      "optimization-portability-classification-ssot.md",
-      "optimization-ssot-string-helper-density.md",
       "optimization-tag-flow-ssot.md",
-      "optimization-task-card-os-ssot.md",
       "ordered-map-box-boundary-ssot.md",
       "parser-extensions-param-implements-interface-generic-ssot.md",
       "pattern-naming-migration-ssot.md",
@@ -689,21 +1182,16 @@
       "perf-userbox-link-startup-attribution-ssot.md",
       "phi-carrier-join-id-vocabulary-decision.md",
       "phi-carrier-lifecycle-consumer-inventory.md",
-      "phi-input-strategy-ssot.md",
-      "phi-lifecycle-ssot.md",
       "pinned-typed-object-arena-ssot.md",
       "plan-dir-shallowing-ssot.md",
-      "plan-lowering-entry-ssot.md",
       "plan-mod-layout-ssot.md",
       "plan-reject-handoff-gap-taxonomy-ssot.md",
       "planfrag-freeze-taxonomy.md",
       "planfrag-ssot-registry.md",
-      "planner-entry-guards-ssot.md",
       "plugin-loadset-linking-ssot.md",
       "post-m213-next-lane-selection-ssot.md",
       "post-phi-final-form-ssot.md",
       "post-store-observer-facts-ssot.md",
-      "primitive-family-and-user-box-fast-path-ssot.md",
       "private-doc-boundary-migration-ssot.md",
       "promoted-body-locals-lifecycle-inventory.md",
       "promoted-carrier-identity-join-id-design-inventory.md",
@@ -720,9 +1208,6 @@
       "pyvm-retreat-ssot.md",
       "random-capability-failfast-ssot.md",
       "random-capability-preflight-ssot.md",
-      "raw-array-substrate-ssot.md",
-      "raw-map-substrate-ssot.md",
-      "raw-map-truthful-native-seam-inventory.md",
       "rc-gc-alignment-g1-lifecycle-parity-ssot.md",
       "rc-gc-alignment-g2-fast-milestone-gate-ssot.md",
       "rc-gc-alignment-g3-cycle-explicit-drop-ssot.md",
@@ -730,12 +1215,9 @@
       "rc-gc-alignment-g5-gc-mode-semantics-invariance-ssot.md",
       "recipe-file-naming-unification-ssot.md",
       "recipe-first-entry-contract-history.md",
-      "recipe-first-entry-contract-ssot.md",
       "recipe-first-migration-phased-plan-proposal.md",
       "recipe-scope-effect-policy-ssot.md",
-      "recipe-tree-and-parts-ssot.md",
       "reclaim-execution-preflight-ssot.md",
-      "record-and-packed-array-lowering-ssot.md",
       "record-box-two-surface-one-substrate-ssot.md",
       "record-construction-ergonomics-ssot.md",
       "record-construction-read-lowering-ssot.md",
@@ -745,7 +1227,6 @@
       "record-with-update-lowering-ssot.md",
       "rep-mir-string-birth-map-inventory.md",
       "rep-mir-string-lowering-ssot.md",
-      "repl-mir-interpreter-interactive-session-ssot.md",
       "repo-physical-structure-cleanup-ssot.md",
       "representation-direct-lowering-ssot.md",
       "representation-direct-storage-substrate-ssot.md",
@@ -756,21 +1237,17 @@
       "result-option-prelude-diagnostics-ssot.md",
       "retained-boundary-and-birth-placement-ssot.md",
       "return-in-loop-minimal-ssot.md",
-      "return-proof-vocabulary-ssot.md",
       "return-proof-vocabulary-v0.toml",
       "ring1-core-provider-promotion-template-ssot.md",
       "ring1-core-provider-scope-ssot.md",
       "route-fixpoint-owner-ssot.md",
       "route-physical-path-legacy-lane-ssot.md",
       "rune-and-stage2plus-final-shape-ssot.md",
-      "rune-profile-effect-capability-plan-ssot.md",
       "rune-v0-contract-rollout-ssot.md",
       "rune-v1-metadata-unification-ssot.md",
       "runtime-decl-manifest-v0.toml",
       "runtime-decl-return-proof-fixture-v0.toml",
       "runtime-gc-policy-and-order-ssot.md",
-      "runtime-hot-lane-optimization-patterns-ssot.md",
-      "rust-kernel-export-surface-strata-ssot.md",
       "rust-lifecycle-context-facts-adapter-inventory.md",
       "rust-lifecycle-facts-vocab-v0.md",
       "rust-lifecycle-projection-ssot.md",
@@ -780,7 +1257,6 @@
       "rustc-semir-adapter-tool-preflight-contract.md",
       "rustc-semir-binding-context-adapter-harness-design.md",
       "rustc-semir-internal-adapter-boundary.md",
-      "scope-exit-surface-cleanup-canonicalization-ssot.md",
       "scope-manager-condition-binding-adapter-wiring-design.md",
       "selfhost-authority-facade-compat-inventory-ssot.md",
       "selfhost-bootstrap-route-evidence-and-legacy-lanes.md",
@@ -790,11 +1266,8 @@
       "selfhost-family-artifact-route-seam-ssot.md",
       "selfhost-g1-mir-compare-policy-ssot.md",
       "selfhost-language-v1-freeze-ssot.md",
-      "selfhost-lift-boundary-and-task-order-ssot.md",
       "selfhost-mir-object-metadata-ssot.md",
-      "selfhost-parser-mirbuilder-migration-order-ssot.md",
       "selfhost-program-json-boundary-vocabulary-ssot.md",
-      "selfhost-smoke-retirement-inventory-ssot.md",
       "selfhost-stageb-json-streaming-design.md",
       "selfhost-tools-loopless-subset-ssot.md",
       "semantic-optimization-authority-ssot.md",
@@ -806,37 +1279,24 @@
       "source-selfhost-wider-route-selection-basis-ssot.md",
       "span-no-escape-ssot.md",
       "stage0-cleanup-catch-boundary-ssot.md",
-      "stage0-llvm-line-shape-inventory-ssot.md",
       "stage0-stage1-feature-responsibility-split-ssot.md",
-      "stage1-mir-authority-boundary-ssot.md",
-      "stage1-mir-dialect-contract-ssot.md",
-      "stage2-aot-core-proof-vocabulary-ssot.md",
       "stage2-aot-fast-lane-crossing-inventory.md",
       "stage2-aot-native-external-consultation-question.md",
-      "stage2-aot-native-thin-path-design-note.md",
       "stage2-collection-substrate-cleanup-ssot.md",
-      "stage2-fast-leaf-manifest-ssot.md",
-      "stage2-hako-owner-vs-inc-thin-shim-ssot.md",
-      "stage2-optimization-debug-bundle-ssot.md",
-      "stage2-selfhost-and-hako-alloc-ssot.md",
       "stage2-string-route-split-plan.md",
       "stage2plus-entry-and-first-optimization-wave-task-pack-ssot.md",
       "standalone-exe-route-contract-ssot.md",
-      "static-const-table-syntax-ssot.md",
       "static-data-manifest-v0.toml",
       "strict-nested-loop-guard-ssot.md",
       "string-birth-placement-ssot.md",
       "string-birth-sink-ssot.md",
-      "string-canonical-mir-corridor-and-placement-pass-ssot.md",
       "string-hot-corridor-runtime-carrier-ssot.md",
       "string-semantic-value-and-publication-boundary-ssot.md",
       "string-transient-lifecycle-ssot.md",
       "string-value-model-phased-rollout-ssot.md",
-      "substrate-capability-ladder-ssot.md",
       "substring-concat-len-closed-form-lowering-ssot.md",
       "substring-view-materialize-boundary-ssot.md",
       "task-lane-reconciliation-ssot.md",
-      "thread-and-tls-capability-ssot.md",
       "tool-entrypoint-lifecycle-ssot.md",
       "transient-string-chain-boxless-wave-ssot.md",
       "transient-string-chain-external-consultation-question.md",
@@ -853,7 +1313,6 @@
       "type-abi-route-descriptor-plane-ssot.md",
       "type-abi-view-and-plan-stamp-ssot.md",
       "type-alias-parser-capsule-ssot.md",
-      "type-system-policy-ssot.md",
       "typed-array-element-checks-ssot.md",
       "typed-array-inference-failfast-ssot.md",
       "typed-array-literal-context-ssot.md",
@@ -861,25 +1320,20 @@
       "typed-numeric-memory-substrate-task-order-ssot.md",
       "typed-object-exact-slot-abi-ssot.md",
       "unwind-cleanup-effect-integration-ssot.md",
-      "user-method-policy-thinning-ssot.md",
       "userbox-nullable-object-return-ssot.md",
       "uses-metadata-capsule-ssot.md",
       "usize-semantic-foundation-ssot.md",
       "value-corridor-generic-optimization-contract.md",
-      "value-repr-and-abi-manifest-ssot.md",
       "valueflow-blockparams-ssot.md",
       "variable-context-carrier-phi-lifecycle-inventory.md",
       "variable-context-lifecycle-gap-inventory.md",
       "variable-context-returned-borrow-boundary-inventory.md",
       "verified-recipe-port-sig-ssot.md",
       "vm-active-lane-retirement-ssot.md",
-      "vm-fallback-lane-separation-ssot.md",
-      "vm-hako-array-shim-contract-ssot.md",
-      "vm-known-limitations-ssot.md",
-      "wasm-hako-only-output-roadmap-ssot.md"
+      "vm-known-limitations-ssot.md"
     ],
-    "unregistered_baseline": 844,
-    "unregistered_count": 844,
+    "unregistered_baseline": 732,
+    "unregistered_count": 732,
     "unseeded_count": 688,
     "violations": []
   },
@@ -1648,12 +2102,12 @@
       }
     ],
     "reachable_count": 4908,
-    "root_count": 3530,
+    "root_count": 3592,
     "root_policy": "active-entry+phase296x-direct+design-authority+reference+src-tools",
     "root_seed_counts": {
       "active_phase_296x_direct": 1031,
       "current_pointer": 4,
-      "design_authority": 4,
+      "design_authority": 111,
       "fixed_current_entry": 4,
       "reference_src_tools": 3042
     },

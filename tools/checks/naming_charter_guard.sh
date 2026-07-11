@@ -1480,6 +1480,9 @@ NAMING_DIFF_ALLOWED_PATHS=(
   # Generated inventory quotes historical filenames; it does not introduce
   # source or documentation vocabulary.
   "tools/checks/manifests/repository_artifact_lifecycle_v0.json"
+  # Design registry membership rows quote existing filenames; they do not
+  # introduce a new stage vocabulary term.
+  "docs/development/current/main/design/INDEX.md"
   "docs/tools/check-scripts-index.md"
   "tools/checks/naming_charter_guard.sh"
   "tools/checks/lib/dev_gate_quick_steps.sh"

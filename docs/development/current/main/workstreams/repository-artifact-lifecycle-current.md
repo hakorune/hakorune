@@ -364,6 +364,55 @@ tracing_closeout:
 next = H3-DESIGN-REGISTRY-CLASSIFICATION-DESIGN-STOP
 ```
 
+## H3 C1 Closeout
+
+C1 classifies only direct design files explicitly named by the checked
+README sections. The registry records the evidence section in
+`classification_basis`; filename suffixes, status text, and reference
+popularity do not assign a role. No design file moved in this slice.
+
+```text
+c1_review_basis = explicit README section evidence
+c1_review_rows = 112
+c1_role_counts:
+  authority = 107
+  supporting = 2
+  status-ledger = 3
+
+registered_rows = 117
+owned_sidecars = 0
+unregistered_baseline = 732
+unregistered_current = 732
+precedence_cycle_count = 0
+registry_violation_count = 0
+
+current_documents = 8277
+whole_phase_unreachable = 0
+partial_phase_unreachable = 0
+design_file_move_started = 0
+
+inventory_strict = green
+current_state_pointer_guard = green
+docs_slim_archive_policy_guard = green
+dev_gate_quick = green
+
+next = H3-C2-OWNER-FAMILY-REVIEW-DESIGN-STOP
+```
+
+## H3 C2 Boundary
+
+C2 reviews the remaining 732 direct design files by explicit owner family.
+The queue may be generated deterministically, but a role is not assigned
+until an authority spine, precedence parent, and retirement condition are
+reviewed for that family. Ambiguous families stop for a focused consultation.
+
+```text
+owner_family_role_heuristic = forbidden
+one_authority_spine_default = 1
+multiple_authorities_require_explicit_precedence = 1
+physical_move_requires_reference_closure = 1
+```
+
 ## Non-Claims
 
 ```text
@@ -371,6 +420,9 @@ strict_inactive_phase_candidate_drain_complete = 1
 all_historical_phase_archive_complete = 0
 phase_296x_archive_complete = 0
 design_registry_complete = 0
+design_registry_decided = 1
+heuristic_role_assignment = 0
+design_file_move_started = 0
 check_script_retirement_complete = 0
 docs_private_retention_decided = 0
 failure_outcome_design_accepted = 0

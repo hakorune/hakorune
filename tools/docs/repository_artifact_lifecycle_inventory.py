@@ -469,6 +469,15 @@ def design_registry_inventory() -> dict[str, object]:
         )
     if registry["mode"] == "strict" and unregistered:
         violations.append("strict design registry has unregistered files")
+    c1_rows = [
+        {
+            "path": row["path"],
+            "role": row["role"],
+            "classification_basis": row["classification_basis"],
+        }
+        for row in registry["documents"]
+        if row.get("classification_basis", "").startswith("README:")
+    ]
     return {
         "direct_files": len(direct_files),
         "markdown_files": len(markdown_files),
@@ -484,6 +493,11 @@ def design_registry_inventory() -> dict[str, object]:
         "unregistered_count": len(unregistered),
         "unregistered_baseline": baseline,
         "unregistered": unregistered,
+        "c1_review": {
+            "basis": "explicit README section evidence",
+            "row_count": len(c1_rows),
+            "rows": sorted(c1_rows, key=lambda row: row["path"]),
+        },
         "violations": violations,
     }
 
