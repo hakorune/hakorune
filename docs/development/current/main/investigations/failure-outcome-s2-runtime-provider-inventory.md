@@ -113,3 +113,26 @@ LANGV1-FAILURE-OUTCOME-S2-PROJECTION-BINDING-001
 
 See
 `docs/development/current/main/phases/phase-296x/3507-LANGV1-FAILURE-OUTCOME-S2-PROJECTION-BINDING-001.md`.
+
+## Implementation Closeout
+
+The accepted projection policy is now followed by the read-only runtime/provider
+manifest:
+
+```text
+tools/docs/failure_outcome_runtime_provider_inventory.py
+tools/checks/manifests/failure_outcome_runtime_provider_inventory_v0.json
+```
+
+The manifest contains deterministic rows for all six evidence families. Known
+`hako_mem_free` evidence links to the explicit operation site; unresolved
+runtime/provider evidence stays `Pending` with a closed reason. Provider
+missing-result fallbacks remain `ProviderContractMissing`, and semantic
+activation remains zero.
+
+Acceptance command:
+
+```bash
+python3 tools/docs/failure_outcome_runtime_provider_inventory.py --check
+python3 -m unittest tools/docs/test_failure_outcome_runtime_provider_inventory.py
+```

@@ -14,8 +14,8 @@ Current progress:
 S0_relation_ssot = complete
 S1_source_evidence_queue = complete
 S1_semantic_classification = complete
-S2_runtime_provider_inventory = implementation_in_progress
-S3_control_flow_inventory = pending
+S2_runtime_provider_inventory = complete
+S3_control_flow_inventory = implementation_in_progress
 S4_exhaustiveness_checker = pending
 S5_conflict_ledger_closeout = pending
 ```
@@ -25,8 +25,9 @@ The accepted owner-boundary consultation is recorded in
 The accepted S2 source-owner decision opens
 `3507-LANGV1-FAILURE-OUTCOME-S2-PROJECTION-BINDING-001` as the active
 implementation slice.
-The active S2 task is
-`docs/development/current/main/investigations/failure-outcome-s2-runtime-provider-inventory.md`.
+The S2 runtime/provider inventory and projection binding are complete. The
+next active slice is
+`docs/development/current/main/phases/phase-296x/3508-LANGV1-FAILURE-OUTCOME-S3-CONTROL-FLOW-INVENTORY-001.md`.
 S1 graph artifacts are the identity source; S2 changes inventory
 tooling/manifests only and runtime activation remains zero.
 
@@ -305,13 +306,14 @@ not independently establish semantic ownership.
 ## Next Task
 
 ```text
-LANGV1-FAILURE-OUTCOME-S1-SEMANTIC-SITE-GRAPH-001
+LANGV1-FAILURE-OUTCOME-S3-CONTROL-FLOW-INVENTORY-001
 ```
 
-Classify the 602 evidence rows in deterministic batches. A batch may add only
-classification data and evidence links; it may not change parser/runtime
-behavior. Any site whose owner or target carrier is ambiguous must become a
-focused consultation stop rather than receiving a heuristic classification.
+Inventory control-flow evidence in deterministic batches. The slice may add
+only evidence rows and explicit links; it may not change parser/runtime
+behavior. Any cleanup or catchability relation whose owner is ambiguous must
+become a focused consultation stop rather than receiving a heuristic
+classification.
 
 ## Post-Foundation Queued Follow-Up
 

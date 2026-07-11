@@ -25,9 +25,10 @@ When `current_blocker_token` contains `DESIGN-STOP`, do not invent a new executa
 
 ## Handoff
 
-The accepted Failure/Outcome owner-boundary consultation and S1 semantic-site
-graph are complete. S2 projection source policy is accepted; the next task is
-`LANGV1-FAILURE-OUTCOME-S2-PROJECTION-BINDING-001`. Read
-`docs/development/current/main/phases/phase-296x/3507-LANGV1-FAILURE-OUTCOME-S2-PROJECTION-BINDING-001.md`.
+The accepted Failure/Outcome owner-boundary consultation, S1 semantic-site
+graph, S2 projection binding, and S2 runtime/provider evidence inventory are
+complete. The next task is
+`LANGV1-FAILURE-OUTCOME-S3-CONTROL-FLOW-INVENTORY-001`. Read
+`docs/development/current/main/phases/phase-296x/3508-LANGV1-FAILURE-OUTCOME-S3-CONTROL-FLOW-INVENTORY-001.md`.
 This remains inventory-only: semantic activation and runtime behavior stay at
 zero.
