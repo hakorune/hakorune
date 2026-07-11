@@ -171,6 +171,29 @@ their two closeouts are owned sidecars. The registry now has 127 rows and
 seven owned sidecars, with 147 rows remaining. The reuse closeout lacking a
 current direct base row stays unclassified until its owner is explicit.
 
+## C2 Residual Sidecar Ownership Design Stop
+
+Further classification is intentionally stopped. The scalar-lane closeout
+claims closure for multiple base rows, so assigning it as a sidecar to any one
+base would falsify ownership. The local-free reuse closeouts refer to MIMAP
+rows whose direct base documents are not present in the current design root,
+so registering them as sidecars would create orphan ownership. No new
+authority document is proposed.
+
+Consultation questions:
+
+```text
+1. Should the multi-base scalar-lane closeout remain an unregistered grouped
+   closeout, or should the registry gain an explicit group/closeout relation?
+2. Should reuse closeouts remain unregistered until their base documents are
+   restored/registered, or should an existing owner row absorb them?
+3. May the blocked-substrate matrix be registered independently as a
+   status-ledger row while the closeout ownership stop remains open?
+```
+
+Until these questions are answered, superseded assignment, physical movement,
+and baseline lowering remain disabled.
+
 ## Minimum Next Slice
 
 ```text

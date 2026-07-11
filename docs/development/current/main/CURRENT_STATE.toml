@@ -64,10 +64,10 @@ latest_card_path = "docs/development/current/main/investigations/repository-arti
 latest_card_summary = """C2 S3 reviewed lifecycle/membership, allocation
 readiness, modeled consume/ledger, and the clear local-free chain: nine base
 rows were registered and seven closeout documents are owned sidecars. The
-remaining 147 hako-alloc-segment rows stay in the explicit review queue;
-superseded assignment and physical movement remain disabled."""
+remaining 147 rows now hit a residual sidecar-ownership design stop because
+some closeouts span multiple bases or lack a current direct base."""
 
-current_blocker_token = "REPOSITORY-ARTIFACT-LIFECYCLE-H3-C2-HAKO-ALLOC-SEGMENT-S3-LOCAL-FREE-REUSE-REVIEW"
+current_blocker_token = "REPOSITORY-ARTIFACT-LIFECYCLE-H3-C2-HAKO-ALLOC-SEGMENT-S3-RESIDUAL-SIDECAR-OWNERSHIP-DESIGN-STOP"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

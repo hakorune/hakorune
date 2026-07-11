@@ -615,6 +615,26 @@ surfaces, with their closeout documents owned as sidecars. The reuse closeout
 without a current direct base row remains unclassified rather than becoming an
 orphan sidecar.
 
+## C2 Residual Sidecar Ownership Design Stop
+
+The remaining local-free/reuse rows cannot be classified mechanically under
+the accepted registry schema. `hako-alloc-segment-allocation-modeled-local-free-
+scalar-lane-closeout-ssot.md` closes multiple base rows, while the reuse
+closeouts reference MIMAP rows whose direct base documents are not present in
+the current design registry. The single-owner sidecar rule and orphan-sidecar
+guard therefore require consultation before further registry landing.
+
+```text
+design_stop = residual_sidecar_ownership
+remaining_projection_rows = 147
+candidate_multi_base_closeout = 1
+candidate_orphan_closeouts = 2
+new_authority_document = 0
+superseded_assignment = 0
+physical_move = 0
+next = focused consultation on grouped closeout ownership
+```
+
 ## Non-Claims
 
 ```text
