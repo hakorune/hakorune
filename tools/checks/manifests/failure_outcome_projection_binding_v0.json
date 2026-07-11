@@ -112,15 +112,31 @@
       "token": "route_id"
     },
     {
-      "evidence": "return_shape: \"void_sentinel_i64_zero\",",
-      "evidence_id": "src/mir/extern_call_route_plan/route_spec.rs:434:projection_encoding",
-      "evidence_kind": "projection_encoding",
+      "evidence": "return_shape: \"c_void\",",
+      "evidence_id": "src/mir/extern_call_route_plan/route_spec.rs:434:abi_return_shape",
+      "evidence_kind": "abi_return_shape",
       "line": 434,
       "source_path": "src/mir/extern_call_route_plan/route_spec.rs",
+      "token": "abi_return_shape"
+    },
+    {
+      "evidence": "value_demand: \"no_payload\",",
+      "evidence_id": "src/mir/extern_call_route_plan/route_spec.rs:435:semantic_result_policy",
+      "evidence_kind": "semantic_result_policy",
+      "line": 435,
+      "source_path": "src/mir/extern_call_route_plan/route_spec.rs",
+      "token": "semantic_result_policy"
+    },
+    {
+      "evidence": "(self.kind == ExternCallRouteKind::HakoMemFree).then_some(\"void_sentinel_i64_zero\")",
+      "evidence_id": "src/mir/extern_call_route_plan/route.rs:113:projection_encoding",
+      "evidence_kind": "projection_encoding",
+      "line": 113,
+      "source_path": "src/mir/extern_call_route_plan/route.rs",
       "token": "projection_encoding"
     },
     {
-      "evidence": "assert_eq!(route.return_shape(), \"void_sentinel_i64_zero\");",
+      "evidence": "assert_eq!(route.return_shape(), \"c_void\");",
       "evidence_id": "src/mir/extern_call_route_plan/tests/hako_mem.rs:56:consumer_contract",
       "evidence_kind": "consumer_contract",
       "line": 56,
@@ -241,7 +257,9 @@
         "docs/reference/runtime/substrate-capabilities.md:143:public_api_contract",
         "docs/reference/runtime/substrate-capabilities.md:157:null_policy",
         "src/mir/extern_call_route_plan/route_spec.rs:427:route_id",
-        "src/mir/extern_call_route_plan/route_spec.rs:434:projection_encoding",
+        "src/mir/extern_call_route_plan/route_spec.rs:434:abi_return_shape",
+        "src/mir/extern_call_route_plan/route_spec.rs:435:semantic_result_policy",
+        "src/mir/extern_call_route_plan/route.rs:113:projection_encoding",
         "src/mir/extern_call_route_plan/tests/hako_mem.rs:56:consumer_contract",
         "crates/nyash_kernel/src/exports/mem.rs:85:producer_implementation"
       ],
@@ -274,7 +292,9 @@
         "docs/reference/runtime/substrate-capabilities.md:143:public_api_contract",
         "docs/reference/runtime/substrate-capabilities.md:157:null_policy",
         "src/mir/extern_call_route_plan/route_spec.rs:427:route_id",
-        "src/mir/extern_call_route_plan/route_spec.rs:434:projection_encoding",
+        "src/mir/extern_call_route_plan/route_spec.rs:434:abi_return_shape",
+        "src/mir/extern_call_route_plan/route_spec.rs:435:semantic_result_policy",
+        "src/mir/extern_call_route_plan/route.rs:113:projection_encoding",
         "src/mir/extern_call_route_plan/tests/hako_mem.rs:56:consumer_contract",
         "crates/nyash_kernel/src/exports/mem.rs:85:producer_implementation"
       ],

@@ -106,6 +106,28 @@ impl ExternCallRoute {
     pub fn value_demand(&self) -> &'static str {
         self.kind.value_demand()
     }
+    pub fn abi_return_shape(&self) -> &'static str {
+        self.kind.return_shape()
+    }
+    pub fn bridge_encoding(&self) -> Option<&'static str> {
+        (self.kind == ExternCallRouteKind::HakoMemFree).then_some("void_sentinel_i64_zero")
+    }
+    pub fn semantic_result_policy(&self) -> Option<&'static str> {
+        crate::mir::extern_call_route_plan::extern_outcome_spec(self.kind).map(|spec| {
+            match spec.result_policy {
+                crate::mir::extern_call_route_plan::ExternResultPolicy::NoPayload => "NoPayload",
+            }
+        })
+    }
+    pub fn value_use_policy(&self) -> Option<&'static str> {
+        crate::mir::extern_call_route_plan::extern_outcome_spec(self.kind).map(|spec| {
+            match spec.value_use_policy {
+                crate::mir::extern_call_route_plan::ExternValueUsePolicy::StatementOnly => {
+                    "StatementOnly"
+                }
+            }
+        })
+    }
     pub fn effect_tags(&self) -> &'static [&'static str] {
         self.kind.effect_tags()
     }
@@ -250,6 +272,22 @@ mod tests {
             scalar_function.metadata.value_types.get(&ValueId::new(3)),
             Some(&MirType::Integer)
         );
+    }
+
+    #[test]
+    fn hako_mem_free_no_payload_does_not_publish_integer_type() {
+        let mut function = function_with_extern_call(
+            "hako_mem_free/1",
+            vec![ValueId::new(1)],
+            Some(ValueId::new(2)),
+        );
+        refresh_function_extern_call_routes(&mut function);
+        let route = &function.metadata.extern_call_routes[0];
+        assert_eq!(route.abi_return_shape(), "c_void");
+        assert_eq!(route.bridge_encoding(), Some("void_sentinel_i64_zero"));
+        assert_eq!(route.semantic_result_policy(), Some("NoPayload"));
+        assert_eq!(route.value_use_policy(), Some("StatementOnly"));
+        assert_eq!(function.metadata.value_types.get(&ValueId::new(2)), None);
     }
 
     #[test]

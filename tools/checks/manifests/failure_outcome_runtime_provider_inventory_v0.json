@@ -1970,6 +1970,42 @@
       "token": "nullable_boundary"
     },
     {
+      "evidence": "assert_eq!(route.abi_return_shape(), \"c_void\");",
+      "evidence_kind": "foreign_pointer",
+      "family": "ffi_boundary",
+      "line": 286,
+      "pending_reason": "BoundaryKindPending",
+      "resolution": "Pending",
+      "runtime_evidence_id": "runtime.ffi_boundary.src/mir/extern_call_route_plan/route.rs:286:foreign_pointer",
+      "site_ref": null,
+      "source_path": "src/mir/extern_call_route_plan/route.rs",
+      "token": "foreign_pointer"
+    },
+    {
+      "evidence": "return_shape: \"c_void\",",
+      "evidence_kind": "foreign_pointer",
+      "family": "ffi_boundary",
+      "line": 434,
+      "pending_reason": "BoundaryKindPending",
+      "resolution": "Pending",
+      "runtime_evidence_id": "runtime.ffi_boundary.src/mir/extern_call_route_plan/route_spec.rs:434:foreign_pointer",
+      "site_ref": null,
+      "source_path": "src/mir/extern_call_route_plan/route_spec.rs",
+      "token": "foreign_pointer"
+    },
+    {
+      "evidence": "assert_eq!(route.return_shape(), \"c_void\");",
+      "evidence_kind": "foreign_pointer",
+      "family": "ffi_boundary",
+      "line": 56,
+      "pending_reason": "BoundaryKindPending",
+      "resolution": "Pending",
+      "runtime_evidence_id": "runtime.ffi_boundary.src/mir/extern_call_route_plan/tests/hako_mem.rs:56:foreign_pointer",
+      "site_ref": null,
+      "source_path": "src/mir/extern_call_route_plan/tests/hako_mem.rs",
+      "token": "foreign_pointer"
+    },
+    {
       "evidence": "ConstValue::Null | ConstValue::Void => VMValue::Void,",
       "evidence_kind": "null_or_void_projection",
       "family": "missing_result_synthesis",
@@ -2102,25 +2138,37 @@
       "token": "wasm_i32_zero"
     },
     {
-      "evidence": "return_shape: \"void_sentinel_i64_zero\",",
+      "evidence": "(self.kind == ExternCallRouteKind::HakoMemFree).then_some(\"void_sentinel_i64_zero\")",
       "evidence_kind": "void_sentinel_i64_zero",
       "family": "missing_result_synthesis",
-      "line": 434,
+      "line": 113,
       "pending_reason": "S1SiteReferenceMissing",
       "resolution": "Pending",
-      "runtime_evidence_id": "runtime.missing_result_synthesis.src/mir/extern_call_route_plan/route_spec.rs:434:void_sentinel_i64_zero",
+      "runtime_evidence_id": "runtime.missing_result_synthesis.src/mir/extern_call_route_plan/route.rs:113:void_sentinel_i64_zero",
       "site_ref": null,
-      "source_path": "src/mir/extern_call_route_plan/route_spec.rs",
+      "source_path": "src/mir/extern_call_route_plan/route.rs",
       "token": "void_sentinel_i64_zero"
     },
     {
-      "evidence": "assert_eq!(route.return_shape(), \"void_sentinel_i64_zero\");",
+      "evidence": "assert_eq!(route.bridge_encoding(), Some(\"void_sentinel_i64_zero\"));",
       "evidence_kind": "void_sentinel_i64_zero",
       "family": "missing_result_synthesis",
-      "line": 56,
+      "line": 287,
       "pending_reason": "S1SiteReferenceMissing",
       "resolution": "Pending",
-      "runtime_evidence_id": "runtime.missing_result_synthesis.src/mir/extern_call_route_plan/tests/hako_mem.rs:56:void_sentinel_i64_zero",
+      "runtime_evidence_id": "runtime.missing_result_synthesis.src/mir/extern_call_route_plan/route.rs:287:void_sentinel_i64_zero",
+      "site_ref": null,
+      "source_path": "src/mir/extern_call_route_plan/route.rs",
+      "token": "void_sentinel_i64_zero"
+    },
+    {
+      "evidence": "assert_eq!(route.bridge_encoding(), Some(\"void_sentinel_i64_zero\"));",
+      "evidence_kind": "void_sentinel_i64_zero",
+      "family": "missing_result_synthesis",
+      "line": 58,
+      "pending_reason": "S1SiteReferenceMissing",
+      "resolution": "Pending",
+      "runtime_evidence_id": "runtime.missing_result_synthesis.src/mir/extern_call_route_plan/tests/hako_mem.rs:58:void_sentinel_i64_zero",
       "site_ref": null,
       "source_path": "src/mir/extern_call_route_plan/tests/hako_mem.rs",
       "token": "void_sentinel_i64_zero"

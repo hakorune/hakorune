@@ -53,7 +53,10 @@ fn refresh_function_extern_call_routes_records_hako_mem_free_route() {
     assert_eq!(route.value_value(), None);
     assert_eq!(route.result_value(), ValueId::new(2));
     assert_eq!(route.arity(), 1);
-    assert_eq!(route.return_shape(), "void_sentinel_i64_zero");
-    assert_eq!(route.value_demand(), "scalar_i64");
+    assert_eq!(route.return_shape(), "c_void");
+    assert_eq!(route.value_demand(), "no_payload");
+    assert_eq!(route.bridge_encoding(), Some("void_sentinel_i64_zero"));
+    assert_eq!(route.semantic_result_policy(), Some("NoPayload"));
+    assert_eq!(route.value_use_policy(), Some("StatementOnly"));
     assert_eq!(route.effect_tags(), &["hako.mem.free"]);
 }

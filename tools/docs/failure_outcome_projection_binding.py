@@ -93,12 +93,22 @@ def hako_mem_free_evidence() -> list[dict[str, Any]]:
         ),
         anchor(
             "src/mir/extern_call_route_plan/route_spec.rs",
-            'return_shape: "void_sentinel_i64_zero"',
+            'return_shape: "c_void"',
+            "abi_return_shape",
+        ),
+        anchor(
+            "src/mir/extern_call_route_plan/route_spec.rs",
+            'value_demand: "no_payload"',
+            "semantic_result_policy",
+        ),
+        anchor(
+            "src/mir/extern_call_route_plan/route.rs",
+            'then_some("void_sentinel_i64_zero")',
             "projection_encoding",
         ),
         anchor(
             "src/mir/extern_call_route_plan/tests/hako_mem.rs",
-            'assert_eq!(route.return_shape(), "void_sentinel_i64_zero")',
+            'assert_eq!(route.return_shape(), "c_void")',
             "consumer_contract",
         ),
         anchor(

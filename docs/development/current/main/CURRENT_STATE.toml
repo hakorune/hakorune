@@ -74,8 +74,9 @@ the accepted first activation slice is 3511 hako_mem_free Unit/no-result.
 The design registry has 653 rows
 and 119 owned sidecars; 77 files remain
 warning-unregistered for focused consultation. C3 supersession movement is
-not started. The active slice changes no parser, grammar, MIR, runtime, VM,
-cleanup, or backend behavior."""
+not started. The active S0/S1 slice changes only extern route metadata and
+publication facts; runtime effects, backend consumer support, and activation
+remain unchanged."""
 
 current_blocker_token = "LANGV1-FAILURE-OUTCOME-UNIT-NORESULT-HAKO-MEM-FREE-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

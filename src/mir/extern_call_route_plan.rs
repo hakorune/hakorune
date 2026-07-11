@@ -6,10 +6,15 @@
  * explicit plan instead of classifying raw `env.*` strings in the C shim.
  */
 
+mod outcome_contract;
 mod refresh;
 mod route;
 mod route_spec;
 
+pub use outcome_contract::{
+    extern_outcome_spec, ExternOutcomeSpec, ExternResultPolicy, ExternSuccessOutcome,
+    ExternValueUsePolicy, HAKO_MEM_FREE_OUTCOME,
+};
 pub use route::{ExternCallRoute, ExternCallRouteSite};
 pub use route_spec::{
     classify_extern_call_route, extern_call_route_specs, is_hostbridge_extern_invoke_symbol,
