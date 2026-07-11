@@ -75,6 +75,29 @@ fn audit_i64(
     Ok(())
 }
 
+pub(super) fn validate_boxed_element(
+    contract: Option<ArrayElementContractSpec>,
+    value: &dyn crate::box_trait::NyashBox,
+) -> Result<(), &'static str> {
+    let Some(contract) = contract else {
+        return Ok(());
+    };
+    let Some(integer) = value.as_i64_fast() else {
+        return Err("runtime-type-mismatch");
+    };
+    validate_dynamic_integer(integer, contract.element.source_name())
+}
+
+pub(super) fn validate_i64_element(
+    contract: Option<ArrayElementContractSpec>,
+    value: i64,
+) -> Result<(), &'static str> {
+    let Some(contract) = contract else {
+        return Ok(());
+    };
+    validate_dynamic_integer(value, contract.element.source_name())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -145,5 +168,25 @@ mod tests {
         let sliced = sliced.as_any().downcast_ref::<ArrayBox>().unwrap();
         assert_ne!(array.state_identity(), sliced.state_identity());
         assert_eq!(sliced.active_element_contract(), Some(u8_spec));
+    }
+
+    #[test]
+    fn contracted_raw_mutations_check_before_commit() {
+        let array = ArrayBox::new();
+        array
+            .claim_element_contract(spec(ExactArrayElementType::U8))
+            .unwrap();
+
+        assert_eq!(array.slot_append_box_raw(Box::new(IntegerBox::new(255))), 1);
+        assert_eq!(
+            array.slot_append_box_raw(Box::new(IntegerBox::new(256))),
+            -1
+        );
+        assert_eq!(array.len(), 1);
+
+        assert!(!array.slot_store_i64_raw(0, 256));
+        assert!(!array.slot_insert_box_raw(0, Box::new(IntegerBox::new(-1))));
+        assert_eq!(array.slot_rmw_add1_i64_raw(0), None);
+        assert_eq!(array.slot_load_i64_raw(0), Some(255));
     }
 }

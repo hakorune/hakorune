@@ -24,10 +24,19 @@ impl ArrayBox {
             return false;
         }
         let idx = idx as usize;
-        let mut items = self.items.write();
-        if matches!(&*items, ArrayStorage::InlineRecord(_)) {
+        let mut state = self.items.state.write();
+        if idx > state.storage.len() || matches!(&state.storage, ArrayStorage::InlineRecord(_)) {
             return false;
         }
+        if super::super::runtime_contract::validate_boxed_element(
+            state.element_contract,
+            value.as_ref(),
+        )
+        .is_err()
+        {
+            return false;
+        }
+        let mut items = &mut state.storage;
         if let Some(text_value) = value.as_str_fast() {
             if let ArrayStorage::Text(values) = &mut *items {
                 let text_value = text_value.to_owned();
@@ -104,10 +113,16 @@ impl ArrayBox {
             return false;
         }
         let idx = idx as usize;
-        let mut items = self.items.write();
-        if matches!(&*items, ArrayStorage::InlineRecord(_)) {
+        let mut state = self.items.state.write();
+        if idx > state.storage.len() || matches!(&state.storage, ArrayStorage::InlineRecord(_)) {
             return false;
         }
+        if super::super::runtime_contract::validate_i64_element(state.element_contract, value)
+            .is_err()
+        {
+            return false;
+        }
+        let mut items = &mut state.storage;
         if let Some(values) = Self::ensure_inline_i64(&mut items) {
             if idx < values.len() {
                 values[idx] = value;
@@ -152,10 +167,14 @@ impl ArrayBox {
             return false;
         }
         let idx = idx as usize;
-        let mut items = self.items.write();
-        if matches!(&*items, ArrayStorage::InlineRecord(_)) {
+        let mut state = self.items.state.write();
+        if idx > state.storage.len() || matches!(&state.storage, ArrayStorage::InlineRecord(_)) {
             return false;
         }
+        if state.element_contract.is_some() {
+            return false;
+        }
+        let mut items = &mut state.storage;
         if let Some(values) = Self::ensure_inline_bool(&mut items) {
             if idx < values.len() {
                 values[idx] = value;
@@ -196,10 +215,14 @@ impl ArrayBox {
             return false;
         }
         let idx = idx as usize;
-        let mut items = self.items.write();
-        if matches!(&*items, ArrayStorage::InlineRecord(_)) {
+        let mut state = self.items.state.write();
+        if idx > state.storage.len() || matches!(&state.storage, ArrayStorage::InlineRecord(_)) {
             return false;
         }
+        if state.element_contract.is_some() {
+            return false;
+        }
+        let mut items = &mut state.storage;
         if let Some(values) = Self::ensure_inline_f64(&mut items) {
             if idx < values.len() {
                 values[idx] = value;
@@ -241,22 +264,29 @@ impl ArrayBox {
             return None;
         }
         let idx = idx as usize;
-        let mut items = self.items.write();
-        if matches!(&*items, ArrayStorage::InlineRecord(_)) {
+        let mut state = self.items.state.write();
+        if matches!(&state.storage, ArrayStorage::InlineRecord(_)) {
             return None;
         }
+        let contract = state.element_contract;
+        let mut items = &mut state.storage;
         if let Some(values) = Self::ensure_inline_i64(&mut items) {
             let slot = values.get_mut(idx)?;
-            *slot = slot.checked_add(1)?;
+            let next = slot.checked_add(1)?;
+            super::super::runtime_contract::validate_i64_element(contract, next).ok()?;
+            *slot = next;
             return Some(*slot);
         }
         let boxed = Self::ensure_boxed(&mut items);
         let item = boxed.get_mut(idx)?;
         if let Some(slot) = item.i64_slot_mut() {
-            *slot += 1;
+            let next = slot.checked_add(1)?;
+            super::super::runtime_contract::validate_i64_element(contract, next).ok()?;
+            *slot = next;
             return Some(*slot);
         }
         let next = item.as_i64_fast()?.checked_add(1)?;
+        super::super::runtime_contract::validate_i64_element(contract, next).ok()?;
         *item = Box::new(IntegerBox::new(next));
         Some(next)
     }

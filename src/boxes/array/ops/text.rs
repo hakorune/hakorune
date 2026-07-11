@@ -95,7 +95,9 @@ impl ArrayBox {
             return false;
         }
         let idx = idx as usize;
-        let mut items = self.items.write();
+        let Some(mut items) = self.items.write_uncontracted() else {
+            return false;
+        };
         if let Some(values) = Self::ensure_text(&mut items) {
             if idx < values.len() {
                 values[idx] = ArrayTextCell::from(value);
@@ -231,7 +233,7 @@ impl ArrayBox {
             return None;
         }
         let idx = idx as usize;
-        let mut items = self.items.write();
+        let mut items = self.items.write_uncontracted()?;
         ArrayTextSlotSession::new(&mut items, ArrayTextSlotSessionMode::ResidentOnly)
             .update(idx, f)
             .map(|(out, _kind)| out)
@@ -245,7 +247,7 @@ impl ArrayBox {
             return None;
         }
         let idx = idx as usize;
-        let mut items = self.items.write();
+        let mut items = self.items.write_uncontracted()?;
         ArrayTextSlotSession::new(&mut items, ArrayTextSlotSessionMode::Compatible)
             .update(idx, f)
             .map(|(out, _kind)| out)
@@ -263,7 +265,7 @@ impl ArrayBox {
             return None;
         }
         let idx = idx as usize;
-        let mut items = self.items.write();
+        let mut items = self.items.write_uncontracted()?;
         ArrayTextSlotSession::new(&mut items, ArrayTextSlotSessionMode::Compatible)
             .update(idx, f)
             .map(|(out, kind)| {
@@ -283,7 +285,7 @@ impl ArrayBox {
             return None;
         }
         let idx = idx as usize;
-        let mut items = self.items.write();
+        let mut items = self.items.write_uncontracted()?;
 
         if let ArrayStorage::Boxed(boxed) = &*items {
             if let Some(values) = Self::try_text_values(boxed) {
@@ -324,7 +326,7 @@ impl ArrayBox {
             return Some(0);
         }
         let row_modulus_mask = row_modulus.is_power_of_two().then_some(row_modulus - 1);
-        let mut items = self.items.write();
+        let mut items = self.items.write_uncontracted()?;
 
         if let ArrayStorage::Boxed(boxed) = &*items {
             if let Some(values) = Self::try_text_values(boxed) {
@@ -375,7 +377,7 @@ impl ArrayBox {
         if loop_bound == 0 {
             return Some(0);
         }
-        let mut items = self.items.write();
+        let mut items = self.items.write_uncontracted()?;
 
         if let ArrayStorage::Boxed(boxed) = &*items {
             if let Some(values) = Self::try_text_values(boxed) {
@@ -442,7 +444,7 @@ impl ArrayBox {
         let loop_bound = usize::try_from(loop_bound).ok()?;
         let row_modulus = usize::try_from(row_modulus).ok()?;
         let row_modulus_mask = row_modulus.is_power_of_two().then_some(row_modulus - 1);
-        let mut items = self.items.write();
+        let mut items = self.items.write_uncontracted()?;
 
         if let ArrayStorage::Boxed(boxed) = &*items {
             if let Some(values) = Self::try_text_values(boxed) {
@@ -577,7 +579,7 @@ impl ArrayBox {
             .is_power_of_two()
             .then_some(observer_period - 1);
         let needle4 = ArrayTextCell::four_byte_literal_word(needle);
-        let mut items = self.items.write();
+        let mut items = self.items.write_uncontracted()?;
 
         if let ArrayStorage::Boxed(boxed) = &*items {
             if let Some(values) = Self::try_text_values(boxed) {

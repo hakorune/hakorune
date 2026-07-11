@@ -64,7 +64,10 @@ impl ArrayBox {
 
     #[inline(always)]
     pub fn with_items_write<R>(&self, f: impl FnOnce(&mut Vec<Box<dyn NyashBox>>) -> R) -> R {
-        let mut items = self.items.write();
+        let mut items = self
+            .items
+            .write_uncontracted()
+            .expect("[type/typed_array_contract_runtime_bypass]");
         let boxed = Self::ensure_boxed(&mut items);
         f(boxed)
     }

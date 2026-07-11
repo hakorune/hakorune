@@ -79,6 +79,14 @@ impl ArrayStateCell {
         RwLockWriteGuard::map(self.state.write(), |payload| &mut payload.storage)
     }
 
+    fn write_uncontracted(&self) -> Option<MappedRwLockWriteGuard<'_, ArrayStorage>> {
+        let state = self.state.write();
+        if state.element_contract.is_some() {
+            return None;
+        }
+        Some(RwLockWriteGuard::map(state, |payload| &mut payload.storage))
+    }
+
     fn element_contract(
         &self,
     ) -> Option<crate::typed_array_contract_spec::ArrayElementContractSpec> {

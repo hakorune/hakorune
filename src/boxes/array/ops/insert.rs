@@ -32,16 +32,25 @@ impl ArrayBox {
             return false;
         }
         let idx = idx as usize;
-        let mut items = self.items.write();
-        if idx > items.len() {
+        let mut state = self.items.state.write();
+        if idx > state.storage.len() {
             if Self::oob_strict_enabled() {
                 crate::runtime::observe::mark_oob();
             }
             return false;
         }
-        if matches!(&*items, ArrayStorage::InlineRecord(_)) {
+        if matches!(&state.storage, ArrayStorage::InlineRecord(_)) {
             return false;
         }
+        if super::super::runtime_contract::validate_boxed_element(
+            state.element_contract,
+            value.as_ref(),
+        )
+        .is_err()
+        {
+            return false;
+        }
+        let mut items = &mut state.storage;
 
         if let Some(text_value) = value.as_str_fast() {
             if let ArrayStorage::Text(values) = &mut *items {

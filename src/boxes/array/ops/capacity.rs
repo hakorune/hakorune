@@ -20,10 +20,19 @@ impl ArrayBox {
     /// Raw append helper for substrate/plugin routes.
     /// Visible `push()` semantics stay above this seam.
     pub fn slot_append_box_raw(&self, item: Box<dyn NyashBox>) -> i64 {
-        let mut items = self.items.write();
-        if matches!(&*items, ArrayStorage::InlineRecord(_)) {
+        let mut state = self.items.state.write();
+        if matches!(&state.storage, ArrayStorage::InlineRecord(_)) {
             return -1;
         }
+        if super::super::runtime_contract::validate_boxed_element(
+            state.element_contract,
+            item.as_ref(),
+        )
+        .is_err()
+        {
+            return -1;
+        }
+        let mut items = &mut state.storage;
         // F1: Auto-promote to InlineI64 when pushing an i64 value into
         // an empty or InlineI64-compatible array. Avoids Boxed/visible method dispatch.
         if let Some(val) = item.as_i64_fast() {
