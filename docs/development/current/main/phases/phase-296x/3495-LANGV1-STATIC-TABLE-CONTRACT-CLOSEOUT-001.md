@@ -2,7 +2,8 @@
 
 ## Status
 
-Active implementation card.
+Complete. The readonly U16 Static Table contract is closed under one refreshed
+owner. Commit: `c7d4b3e348`.
 
 Decision: accepted implementation scope from 3494.
 
@@ -171,3 +172,22 @@ After closeout, the next semantic expansion candidate is Typed `Array<T>`.
 Its mandatory behavior-preserving prerequisite is
 `ARRAY-ELEMENT-WRITE-BOUNDARY-OWNER-001`; do not combine that BoxShape work
 with typed-array contract activation.
+
+## Closeout Evidence
+
+```text
+cargo check --all-targets -q = green
+Static Table owner tests = 5/5 green
+Static Table backend capability tests = 1/1 green
+Static Table MIR JSON carrier tests = 1/1 green
+Static const parser tests = 6/6 green
+Static Table VM E2E tests = 3/3 green
+ProgramJSON source spec/plan transport tests = green
+module metadata verifier tests = 5/5 green
+LANGV1_GRAMMAR_FULL = final guard OK; 15/15 final-stage tests green
+changed production source files >= 800 lines = 0
+```
+
+The broad `cargo test static` name filter also selects an unrelated existing
+global-call route expectation test. That test fails identically in isolation
+and is not claimed green by this card.
