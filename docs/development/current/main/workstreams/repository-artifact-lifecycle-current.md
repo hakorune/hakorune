@@ -324,7 +324,17 @@ batch-002:
   largest_remaining_cluster = 15
   all_gates = green
 
-next = H2-TRACE-PARTIAL-PHASE-BATCH-003
+batch-003:
+  moved_files = 200
+  markdown_links_rewritten = 12
+  repository_paths_rewritten = 144
+  current_documents = 9407 -> 9207
+  remaining_files = 931
+  remaining_clusters = 928
+  largest_remaining_cluster = 2
+  all_gates = green
+
+next = H2-TRACE-PARTIAL-PHASE-BATCH-004
 maximum_files = 200
 ```
 

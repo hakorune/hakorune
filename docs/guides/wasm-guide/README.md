@@ -37,18 +37,18 @@ Role note:
 - **[WSM-G2-min2 実装ロック](../../development/current/main/phases/phase-29cc/29cc-135-wsm-g2-min2-headless-run-lock-ssot.md)** - headless chromium autorun smoke と `dev_gate.sh wasm-demo-g2` 追加による自動検証ロック。
 - **[WSM-G2-min3 実装ロック](../../development/current/main/phases/phase-29cc/29cc-136-wsm-g2-min3-guide-alignment-lock-ssot.md)** - guide/quickstart の運用入口一本化（現行導線と履歴資料の分離）を固定した記録。
 - **[WSM-G3-min1 台帳ロック](../../development/current/main/phases/phase-29cc/29cc-137-wsm-g3-min1-gap-inventory-lock-ssot.md)** - canvas/enhanced demo で必要な API ギャップを優先順で固定した台帳。
-- **[WSM-G3-min2 実装ロック](../../development/current/main/phases/phase-29cc/29cc-138-wsm-g3-min2-canvas-clear-lock-ssot.md)** - `env.canvas.clear` の contract/import/binding/gate を固定した記録。
-- **[WSM-G3-min3 実装ロック](../../development/current/main/phases/phase-29cc/29cc-139-wsm-g3-min3-canvas-strokerect-lock-ssot.md)** - `env.canvas.strokeRect` の contract/import/binding/gate を固定した記録。
-- **[WSM-G3-min4 実装ロック](../../development/current/main/phases/phase-29cc/29cc-140-wsm-g3-min4-canvas-beginpath-lock-ssot.md)** - `env.canvas.beginPath` の contract/import/binding/gate を固定した記録。
-- **[WSM-G3-min5 実装ロック](../../development/current/main/phases/phase-29cc/29cc-141-wsm-g3-min5-canvas-arc-lock-ssot.md)** - `env.canvas.arc` の contract/import/binding/gate を固定した記録。
-- **[WSM-G3-min6 実装ロック](../../development/current/main/phases/phase-29cc/29cc-142-wsm-g3-min6-canvas-fill-lock-ssot.md)** - `env.canvas.fill` の contract/import/binding/gate を固定した記録。
-- **[WSM-G3-min7 実装ロック](../../development/current/main/phases/phase-29cc/29cc-143-wsm-g3-min7-canvas-stroke-lock-ssot.md)** - `env.canvas.stroke` の contract/import/binding/gate を固定した記録。
-- **[WSM-G3-min8 実装ロック](../../development/current/main/phases/phase-29cc/29cc-144-wsm-g3-min8-canvas-setfillstyle-lock-ssot.md)** - `env.canvas.setFillStyle` の contract/import/binding/gate を固定した記録。
-- **[WSM-G3-min9 実装ロック](../../development/current/main/phases/phase-29cc/29cc-145-wsm-g3-min9-canvas-setstrokestyle-lock-ssot.md)** - `env.canvas.setStrokeStyle` の contract/import/binding/gate を固定した記録。
-- **[WSM-G3-min10 実装ロック](../../development/current/main/phases/phase-29cc/29cc-146-wsm-g3-min10-canvas-setlinewidth-lock-ssot.md)** - `env.canvas.setLineWidth` の contract/import/binding/gate を固定した記録。
-- **[WSM-G3-min11 設計ロック](../../development/current/main/phases/phase-29cc/29cc-147-wsm-g3-min11-fillcircle-drawline-gap-lock-ssot.md)** - `fillCircle -> drawLine` の固定順を docs-first でロックした記録。
-- **[WSM-G3-min12 実装ロック](../../development/current/main/phases/phase-29cc/29cc-148-wsm-g3-min12-canvas-fillcircle-lock-ssot.md)** - `env.canvas.fillCircle` の contract/import/binding/gate を固定した記録。
-- **[WSM-G3-min13 実装ロック](../../development/current/main/phases/phase-29cc/29cc-149-wsm-g3-min13-canvas-drawline-lock-ssot.md)** - `env.canvas.drawLine` の contract/import/binding/gate を固定した記録。
+- **[WSM-G3-min2 実装ロック](../../development/archive/phases/phase-29cc/29cc-138-wsm-g3-min2-canvas-clear-lock-ssot.md)** - `env.canvas.clear` の contract/import/binding/gate を固定した記録。
+- **[WSM-G3-min3 実装ロック](../../development/archive/phases/phase-29cc/29cc-139-wsm-g3-min3-canvas-strokerect-lock-ssot.md)** - `env.canvas.strokeRect` の contract/import/binding/gate を固定した記録。
+- **[WSM-G3-min4 実装ロック](../../development/archive/phases/phase-29cc/29cc-140-wsm-g3-min4-canvas-beginpath-lock-ssot.md)** - `env.canvas.beginPath` の contract/import/binding/gate を固定した記録。
+- **[WSM-G3-min5 実装ロック](../../development/archive/phases/phase-29cc/29cc-141-wsm-g3-min5-canvas-arc-lock-ssot.md)** - `env.canvas.arc` の contract/import/binding/gate を固定した記録。
+- **[WSM-G3-min6 実装ロック](../../development/archive/phases/phase-29cc/29cc-142-wsm-g3-min6-canvas-fill-lock-ssot.md)** - `env.canvas.fill` の contract/import/binding/gate を固定した記録。
+- **[WSM-G3-min7 実装ロック](../../development/archive/phases/phase-29cc/29cc-143-wsm-g3-min7-canvas-stroke-lock-ssot.md)** - `env.canvas.stroke` の contract/import/binding/gate を固定した記録。
+- **[WSM-G3-min8 実装ロック](../../development/archive/phases/phase-29cc/29cc-144-wsm-g3-min8-canvas-setfillstyle-lock-ssot.md)** - `env.canvas.setFillStyle` の contract/import/binding/gate を固定した記録。
+- **[WSM-G3-min9 実装ロック](../../development/archive/phases/phase-29cc/29cc-145-wsm-g3-min9-canvas-setstrokestyle-lock-ssot.md)** - `env.canvas.setStrokeStyle` の contract/import/binding/gate を固定した記録。
+- **[WSM-G3-min10 実装ロック](../../development/archive/phases/phase-29cc/29cc-146-wsm-g3-min10-canvas-setlinewidth-lock-ssot.md)** - `env.canvas.setLineWidth` の contract/import/binding/gate を固定した記録。
+- **[WSM-G3-min11 設計ロック](../../development/archive/phases/phase-29cc/29cc-147-wsm-g3-min11-fillcircle-drawline-gap-lock-ssot.md)** - `fillCircle -> drawLine` の固定順を docs-first でロックした記録。
+- **[WSM-G3-min12 実装ロック](../../development/archive/phases/phase-29cc/29cc-148-wsm-g3-min12-canvas-fillcircle-lock-ssot.md)** - `env.canvas.fillCircle` の contract/import/binding/gate を固定した記録。
+- **[WSM-G3-min13 実装ロック](../../development/archive/phases/phase-29cc/29cc-149-wsm-g3-min13-canvas-drawline-lock-ssot.md)** - `env.canvas.drawLine` の contract/import/binding/gate を固定した記録。
 - **[WSM-P1-min1 実装ロック](../../development/current/main/phases/phase-29cc/29cc-150-wsm-p1-min1-emit-wat-cli-lock-ssot.md)** - `--emit-wat` CLI 入口を固定した記録。
 - **[WSM-P1-min2 実装ロック](../../development/current/main/phases/phase-29cc/29cc-151-wsm-p1-min2-wat-parity-lock-ssot.md)** - fixture単位の WAT parity（direct vs `--emit-wat`）を固定した記録。
 - **[WSM-P2-min1 実装ロック](../../development/current/main/phases/phase-29cc/29cc-152-wsm-p2-min1-wat2wasm-bridge-lock-ssot.md)** - `wat2wasm` bridge（normal/boundary/error）を固定した記録。

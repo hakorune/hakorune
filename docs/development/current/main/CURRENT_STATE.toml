@@ -66,7 +66,7 @@ first tracing batch moved 198 wholly unreachable phases and 517 files while
 preserving valid links. Partial-phase inventory now finds 1834 unreachable
 files in 1008 weakly connected clusters with zero reachable incoming edges."""
 
-current_blocker_token = "REPOSITORY-ARTIFACT-LIFECYCLE-H2-TRACE-PARTIAL-PHASE-BATCH-003"
+current_blocker_token = "REPOSITORY-ARTIFACT-LIFECYCLE-H2-TRACE-PARTIAL-PHASE-BATCH-004"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
