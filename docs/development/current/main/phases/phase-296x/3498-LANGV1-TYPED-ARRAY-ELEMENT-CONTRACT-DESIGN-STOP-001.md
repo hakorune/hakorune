@@ -2,8 +2,51 @@
 
 ## Status
 
-Active design consultation stop. Do not change source acceptance, MIR
-contracts, runtime checks, or backend capability before this decision closes.
+Complete design consultation. Decision: accepted. Implementation is owned by
+3499 and must keep activation at zero until the final series step.
+
+## Accepted Decision
+
+```text
+family = TypedArrayExactNumericElementContract
+semantic_owner = TypedArrayElementContractOwner
+source_authority = canonical Array<T> annotations only
+constructor_type_argument_authority = 0
+runtime_attachment = ArrayStateIdentity
+write_boundary = existing ArrayElementWrite
+runtime_consumer = TypedArrayElementContractRuntime
+backend_capability = typed_array_exact_numeric_state_guard_v1
+runtime_check_elision = 0
+unannotated_array_element_contract = AnyDefault
+```
+
+`ArrayElementWriteOwner` continues to own mutation vocabulary, evaluation
+order, planner coverage, and execution routing. The new owner alone owns
+source element specs, state claims/conflicts, refreshed carriers, and runtime
+invariants.
+
+The first subset is closed to `i8/i16/i32/i64/u8/u16/u32`. `u64`, pointer
+sized, non-numeric, nested, and alias element types remain unsupported.
+
+The contract attaches monotonically to shared mutable state:
+
+```text
+Uncontracted -> Contracted(T) = audit then attach
+Contracted(T) -> Contracted(T) = idempotent
+Contracted(T) -> Contracted(U) = reject when T != U
+Contracted(T) -> Uncontracted = forbidden
+```
+
+Aliases/share preserve state and contract. Deep clone/slice create fresh state
+and copy the contract spec. Claim audit, element check, and mutation use one
+state lock; no split-lock TOCTOU is permitted.
+
+The consultation also confirms two S1 correctives:
+
+- unannotated canonical Array literals remain ordinary `AnyDefault`; EBNF
+  text claiming all untyped `[]` fail-fast is stale;
+- the guarantee matrix must report Typed Array as transitional metadata-only
+  until 3499 closeout, not as a live runtime-checked contract.
 
 ## Trigger
 
