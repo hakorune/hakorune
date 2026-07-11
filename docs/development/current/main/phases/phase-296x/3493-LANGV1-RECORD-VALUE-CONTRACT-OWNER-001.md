@@ -2,8 +2,8 @@
 
 ## Status
 
-Active implementation card. The 3492 prerequisite and FULL grammar gate are
-green.
+Complete. The record construction/update contract is active for the narrow
+exact-numeric VM slice. Commit: `7386bc614a`.
 
 Decision: accepted implementation scope from 3491.
 
@@ -173,3 +173,20 @@ selfhost_claim = 0
 After closeout, re-audit the remaining type-family queue from current source
 evidence. Typed `Array<T>` still requires a source-owned element contract and
 one element-write owner; `MirType`, route, or storage evidence is insufficient.
+
+## Closeout Evidence
+
+```text
+cargo check --all-targets -q = green
+focused record construction/update VM fixtures = green
+semantic_refresh record carrier fixtures = green
+MIR JSON record carrier fixtures = green
+backend capability fixtures = green
+LANGV1_GRAMMAR_FULL sensitive-path gate = 12/12 green
+changed production source files >= 800 lines = 0
+```
+
+The broad library suite still contains pre-existing process-global state and
+legacy expectation failures. This card does not claim that unrelated baseline
+green. `tools/checks/dev_gate.sh quick` also remains blocked by the existing
+`parser_control_box.hako` naming-token guard.
