@@ -222,6 +222,6 @@ hako_alloc_segment_physical_move = 0
 heuristic_role_assignment = 0
 design_file_move_started = 0
 strict_design_registry_guard = 0
-failure_outcome_design_accepted = 0
+failure_outcome_design_accepted = 1
 selfhost_claim = 0
 ```
