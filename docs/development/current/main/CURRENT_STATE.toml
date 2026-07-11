@@ -64,7 +64,7 @@ latest_card_summary = """H0 builds one deterministic artifact inventory and
 warning guard; H1 then archives closed unreferenced phase-296x cards in bounded
 batches before returning to parked 3504 Failure/Outcome consultation."""
 
-current_blocker_token = "REPOSITORY-ARTIFACT-LIFECYCLE-H1-BATCH-004"
+current_blocker_token = "REPOSITORY-ARTIFACT-LIFECYCLE-H1-BATCH-005"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
