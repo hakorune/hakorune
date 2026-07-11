@@ -38,10 +38,10 @@ cargo check -q
 
 ## Restart Notes
 
-- handoff frontier: `LANGV1-FAILURE-OUTCOME-S2-RUNTIME-PROVIDER-INVENTORY-001`
+- handoff frontier: `LANGV1-FAILURE-OUTCOME-S2-RUNTIME-PROVIDER-PROJECTION-SOURCE-DESIGN-STOP-001`
 - read `docs/development/current/main/investigations/failure-outcome-s2-runtime-provider-inventory.md`
-  before editing; preserve the S1 evidence/site graph and inventory runtime
-  provider boundaries without semantic activation
+  before editing; this is a source-owner consultation stop, so do not invent
+  a projection owner or start S2 implementation
 - no parser, MIR, VMValue, runtime, cleanup, or backend behavior changes in
   this slice
 

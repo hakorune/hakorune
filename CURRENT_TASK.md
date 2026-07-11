@@ -26,8 +26,9 @@ When `current_blocker_token` contains `DESIGN-STOP`, do not invent a new executa
 ## Handoff
 
 The accepted Failure/Outcome owner-boundary consultation and S1 semantic-site
-graph are complete. The next task is
-`LANGV1-FAILURE-OUTCOME-S2-RUNTIME-PROVIDER-INVENTORY-001`; read
+graph are complete. S2 has reached the explicit source-owner design stop
+`LANGV1-FAILURE-OUTCOME-S2-RUNTIME-PROVIDER-PROJECTION-SOURCE-DESIGN-STOP-001`;
+read
 `docs/development/current/main/investigations/failure-outcome-s2-runtime-provider-inventory.md`.
-This is inventory-tooling work only: preserve evidence, inventory runtime and
-provider boundaries, and keep runtime activation at zero.
+Do not invent a projection owner or implement the S2 manifest until this
+consultation is resolved; runtime activation remains zero.

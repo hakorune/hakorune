@@ -1,8 +1,8 @@
 ---
-Status: Active task
+Status: Design consultation stop
 Date: 2026-07-12
 Owner: 3505-LANGV1-FAILURE-OUTCOME-RELATION-INVENTORY-001
-Decision: accepted inventory-only slice
+Decision: pending source-owner consultation
 ---
 
 # LANGV1-FAILURE-OUTCOME-S2-RUNTIME-PROVIDER-INVENTORY-001
@@ -71,9 +71,39 @@ bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
 
+## Design Consultation Stop
+
+The read-only worker inventory found runtime/provider evidence that cannot be
+linked to one S1 source semantic site without choosing an owner policy:
+
+```text
+Wasm i32.const 0 projections = 9
+void_sentinel_i64_zero route projections = 16
+extern missing-result unwrap_or(Ok(VMValue::Void)) = 6
+NullBox/VoidBox/MissingBox runtime surfaces = 201
+FFI/provider boundary candidates = 74
+```
+
+The direct Wasm zero and route-level sentinel rows have no line-independent S1
+source site. Assigning them to `VMValue::Void`, `ConstValue::Null`, a backend
+route, or an operation owner would be a semantic authority choice, not
+inventory. S2 therefore stops before writing a runtime/provider manifest.
+
+The consultation must decide:
+
+```text
+source authority for backend zero/null projections
+whether route-level sentinel rows project an operation site or a carrier site
+how FFI/provider status rows name their boundary owner
+whether an unresolved projection is pending or a strict guard failure
+```
+
+Non-authority evidence includes source file, current carrier, numeric zero,
+helper name, route name, and VM agreement alone. Runtime activation remains
+zero.
+
 ## Next Stop
 
-After the runtime/provider inventory is green, continue S3 control-flow
-inventory. If one runtime/provider owner must be selected rather than merely
-inventoried, stop at a focused consultation; do not activate a carrier from
-this task.
+Resume S2 only after the consultation names one source owner and the
+fail-fast/pending boundary. Do not continue to S3 or activate a carrier from
+this task while that decision is open.
