@@ -22,6 +22,7 @@ ARTIFACT_INVENTORY="tools/docs/repository_artifact_lifecycle_inventory.py"
 ARTIFACT_MANIFEST="tools/checks/manifests/repository_artifact_lifecycle_v0.json"
 DESIGN_REGISTRY="docs/development/current/main/design/INDEX.md"
 PHASE_RELOCATOR="tools/docs/archive_unreachable_phase_clusters.py"
+PARTIAL_PHASE_RELOCATOR="tools/docs/archive_unreachable_partial_phase_clusters.py"
 
 echo "[$TAG] running DOCS-SLIM-001 archive policy guard"
 
@@ -43,6 +44,7 @@ guard_require_files \
   "$ARTIFACT_MANIFEST" \
   "$DESIGN_REGISTRY" \
   "$PHASE_RELOCATOR" \
+  "$PARTIAL_PHASE_RELOCATOR" \
   "$SELF_SCRIPT"
 guard_require_exec_files "$TAG" "$SELF_SCRIPT"
 
@@ -97,5 +99,6 @@ python3 "$ARTIFACT_INVENTORY" --check
 guard_expect_in_file "$TAG" 'design-registry-v0:begin' "$DESIGN_REGISTRY" "typed design registry must exist"
 guard_expect_in_file "$TAG" 'mode = "warning"' "$DESIGN_REGISTRY" "design registry rollout must remain explicit"
 guard_expect_in_file "$TAG" 'ensure_clean_worktree' "$PHASE_RELOCATOR" "phase relocation must require a clean worktree"
+guard_expect_in_file "$TAG" 'reachable_incoming_edge_count' "$PARTIAL_PHASE_RELOCATOR" "partial relocation must reject reachable incoming edges"
 
 echo "[$TAG] ok landed_tail=$tail_count"

@@ -292,6 +292,11 @@ design_unregistered = excluded
 next = H2-TRACE-PARTIAL-PHASE-RELOCATOR-001
 ```
 
+The partial relocation owner is
+`tools/docs/archive_unreachable_partial_phase_clusters.py`. It shares the
+whole-phase link rewrite implementation and refuses reachable incoming edges,
+archive collisions, dirty worktrees, and split weak components.
+
 ## Non-Claims
 
 ```text
