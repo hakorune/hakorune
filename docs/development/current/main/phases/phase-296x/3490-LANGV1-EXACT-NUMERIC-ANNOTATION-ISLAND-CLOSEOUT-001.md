@@ -2,7 +2,7 @@
 
 ## Status
 
-Active closeout audit. This card adds no type family and changes no source
+Complete closeout audit. This card adds no type family and changes no source
 semantics.
 
 Decision: accepted audit scope.
@@ -71,3 +71,32 @@ changed_production_source_over_800_lines = 0
 After this audit is green, open one design consultation selecting exactly one
 next family: record construction/update or typed `Array<T>` element. Do not
 implement either family before that decision.
+
+## Closeout Evidence
+
+```text
+active exact-numeric sites:
+  Box field, parameter entry, return exit, local slot = 4
+
+single refresh owner:
+  semantic_refresh contract facade
+
+single runtime value-check vocabulary:
+  exact_numeric_value_checker
+  Box-field dynamic checks converged onto the same checker in this card
+
+distinct timing owners:
+  field publication
+  final-callee entry
+  final-outcome exit
+  BindingId local publication
+
+backend boundary:
+  central backend capability gate
+  per-family typed capability reports
+  unsupported target rejects before effects
+```
+
+Guarantee-matrix, field/parameter/return/local runtime checks, refresh facade,
+direct verifier guard, backend capability, MIR JSON, and all-target checks are
+green. No representation fact is accepted as a semantic contract proof.

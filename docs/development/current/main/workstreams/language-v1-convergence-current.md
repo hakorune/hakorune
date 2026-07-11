@@ -348,7 +348,7 @@ T3 complete:
   split types.md normative semantics from implementation-status ledger
   keep generated/current support status outside the normative type law
 
-T4 active:
+T4 complete:
   3490 exact-numeric annotation-island closeout audit
   exact-numeric annotation-island closeout
   parameter + return + Box field + local owner/exhaustiveness audit
@@ -356,7 +356,8 @@ T4 active:
   all active carriers covered by unsupported-backend pre-effect rejection
   no new type-family activation
 
-T5 next type family decision:
+T5 active:
+  3491 record construction/update vs typed Array element design stop
   choose record construction or typed Array element contract from evidence
   require producer + owner + runtime consumer + JSON carrier + backend gate
   select exactly one family in a design consultation after T4

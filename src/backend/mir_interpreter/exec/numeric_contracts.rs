@@ -1,10 +1,8 @@
 use super::super::{MirInterpreter, VMError};
+use super::exact_numeric_value_checker::validate_exact_numeric_runtime_value;
 use crate::backend::VMValue;
 use crate::mir::function::ExactNumericRuntimeCheckContractKind;
-use crate::mir::numeric_substrate::{
-    exact_numeric_const_from_i128, exact_numeric_mir_type_from_declared_name,
-    exact_numeric_value_from_dynamic_integer, ExactNumericConversionError, NumericTarget,
-};
+use crate::mir::numeric_substrate::{exact_numeric_mir_type_from_declared_name, NumericTarget};
 use crate::mir::{BasicBlockId, ValueId};
 
 impl MirInterpreter {
@@ -24,57 +22,49 @@ impl MirInterpreter {
             return Ok(());
         };
 
-        let Some(ty) = exact_numeric_mir_type_from_declared_name(
-            Some(declared_type_name.as_str()),
-            NumericTarget::host(),
-        ) else {
-            return Err(self.err_invalid(format!(
-                "[vm/numeric_dynamic_range_contract_invalid] declared_type={}",
-                declared_type_name
-            )));
-        };
-
         let vm_value = self.reg_load(value)?;
-        match vm_value {
-            VMValue::Integer(integer) => {
-                exact_numeric_value_from_dynamic_integer(integer, &ty).map_err(|error| {
-                    let range = ty.kind.value_range();
-                    let reason = match error {
-                        ExactNumericConversionError::NegativeToUnsigned { .. } => {
-                            "negative-to-unsigned"
-                        }
-                        ExactNumericConversionError::OutOfRange { .. } => "out-of-range",
-                    };
-                    self.err_invalid(format!(
-                        "[vm/numeric_dynamic_range] field={} declared_type={} value={} range={}..={} reason={}",
-                        field, declared_type_name, integer, range.min, range.max, reason
-                    ))
-                })?;
-            }
-            VMValue::ExactNumeric(exact) if exact.source_name == ty.source_name => {
-                exact_numeric_const_from_i128(exact.value, &ty).map_err(|error| {
-                    let range = ty.kind.value_range();
-                    let reason = match error {
-                        ExactNumericConversionError::NegativeToUnsigned { .. } => {
-                            "negative-to-unsigned"
-                        }
-                        ExactNumericConversionError::OutOfRange { .. } => "out-of-range",
-                    };
-                    self.err_invalid(format!(
-                        "[vm/numeric_dynamic_range] field={} declared_type={} value={} range={}..={} reason={}",
-                        field, declared_type_name, exact.value, range.min, range.max, reason
-                    ))
-                })?;
-            }
-            other => {
-                return Err(self.err_invalid(format!(
-                    "[vm/numeric_dynamic_range_type] field={} declared_type={} value={} actual={:?}",
-                    field, declared_type_name, value, other
-                )));
-            }
-        }
+        validate_exact_numeric_runtime_value(&vm_value, &declared_type_name).map_err(|reason| {
+            self.exact_numeric_field_contract_error(
+                field,
+                value,
+                &declared_type_name,
+                &vm_value,
+                reason,
+            )
+        })?;
 
         Ok(())
+    }
+
+    fn exact_numeric_field_contract_error(
+        &self,
+        field: &str,
+        value: ValueId,
+        declared_type_name: &str,
+        actual: &VMValue,
+        reason: &str,
+    ) -> VMError {
+        if reason == "unknown-exact-type" {
+            return self.err_invalid(format!(
+                "[vm/numeric_dynamic_range_contract_invalid] declared_type={}",
+                declared_type_name
+            ));
+        }
+        if reason == "runtime-type-mismatch" {
+            return self.err_invalid(format!(
+                "[vm/numeric_dynamic_range_type] field={} declared_type={} value={} actual={:?}",
+                field, declared_type_name, value, actual
+            ));
+        }
+        let range = exact_numeric_mir_type_from_declared_name(
+            Some(declared_type_name),
+            NumericTarget::host(),
+        )
+        .map(|ty| ty.kind.value_range());
+        self.err_invalid(format!(
+            "[vm/numeric_dynamic_range] field={} declared_type={} actual={:?} range={:?} reason={}",
+            field, declared_type_name, actual, range, reason
+        ))
     }
 
     fn exact_numeric_runtime_check_contract_declared_type(
