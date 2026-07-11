@@ -2,7 +2,7 @@
 
 ## Status
 
-Active BoxShape implementation card. Decisions are inherited from 3488.
+Complete BoxShape implementation card. Decisions are inherited from 3488.
 
 Decision: accepted.
 
@@ -103,9 +103,9 @@ Progress:
 
 ```text
 S1 facade and validated boundary token = complete
-S2 consumer convergence = active
-S3 representation authority audit = pending
-S4 ledger split and closeout = pending
+S2 consumer convergence = complete
+S3 representation authority audit = complete
+S4 ledger split and closeout = complete
 ```
 
 ### S1 - Facade and validated boundary token
@@ -306,3 +306,36 @@ changed_production_source_over_800_lines = 0
 Do not activate records, arrays, FFI, optional locals, new proof elision, or
 non-VM contract lowering. Do not change null/void/Option semantics. Finish the
 single refresh owner and representation audit before opening the next type row.
+
+## Closeout Evidence
+
+```text
+refresh owner:
+  semantic_refresh::refresh_and_validate_for_boundary
+  borrowed and owned validated bundles
+
+consumer convergence:
+  MirCompiler verifier boundary
+  MIR JSON public emit boundary
+  Rust MIR interpreter execution boundary
+  central backend capability boundary
+  direct verifier stale-carrier guard
+
+carrier families:
+  Box field
+  parameter entry
+  return exit
+  local slot/write/identity
+
+ordering reproduction:
+  while_expected.hako direct --verify = green
+
+representation boundary:
+  normative types.md separated from mutable type-contract-status ledger
+  MirType/facts/layout/Plan/Rune consumers classified by owner role
+```
+
+Focused refresh, verifier, guarantee-matrix, four carrier-family, backend,
+and MIR JSON tests are green. The MIR JSON suite is 109/109 green,
+`cargo check --all-targets --features vm-reference` and the release `hakorune`
+build are green, and changed production Rust files remain below 800 lines.

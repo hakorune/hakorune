@@ -1,7 +1,5 @@
 use crate::mir::MirModule;
 
-use super::refresh_module_semantic_metadata;
-
 pub const CONTRACT_REFRESH_REBUILD_FAILED_TAG: &str = "[type/contract_refresh_rebuild_failed]";
 pub const CONTRACT_CARRIER_MISSING_AFTER_REFRESH_TAG: &str =
     "[type/contract_carrier_missing_after_refresh]";
@@ -38,6 +36,26 @@ pub struct RefreshedContractBundle<'a> {
     carriers: ContractCarrierSummary,
 }
 
+pub struct OwnedRefreshedContractBundle {
+    module: MirModule,
+    boundary: ContractRefreshBoundary,
+    carriers: ContractCarrierSummary,
+}
+
+impl OwnedRefreshedContractBundle {
+    pub fn module(&self) -> &MirModule {
+        &self.module
+    }
+
+    pub fn boundary(&self) -> ContractRefreshBoundary {
+        self.boundary
+    }
+
+    pub fn carriers(&self) -> ContractCarrierSummary {
+        self.carriers
+    }
+}
+
 impl<'a> RefreshedContractBundle<'a> {
     pub fn module(&self) -> &'a MirModule {
         self.module
@@ -58,11 +76,40 @@ pub fn refresh_and_validate_for_boundary(
     module: &mut MirModule,
     boundary: ContractRefreshBoundary,
 ) -> Result<RefreshedContractBundle<'_>, String> {
-    refresh_module_semantic_metadata(module);
+    refresh_active_contract_carriers(module);
     validate_refreshed_contracts(module)?;
     let carriers = collect_carrier_summary(module);
     Ok(RefreshedContractBundle {
         module,
+        boundary,
+        carriers,
+    })
+}
+
+fn refresh_active_contract_carriers(module: &mut MirModule) {
+    for function in module.functions.values_mut() {
+        crate::mir::type_contracts::parameter_entry::refresh_function_parameter_entry_contracts(
+            function,
+        );
+        crate::mir::type_contracts::return_exit::refresh_function_return_exit_contract(function);
+        crate::mir::type_contracts::local_slot::refresh_function_local_identity_evidence(function);
+    }
+    crate::mir::exact_numeric_field_contracts::refresh_module_exact_numeric_runtime_check_contracts(
+        module,
+    );
+}
+
+/// Compatibility bridge for immutable public APIs. The cloned module is
+/// refreshed by the same owner and remains owned by the returned bundle.
+pub fn refresh_owned_for_boundary(
+    module: &MirModule,
+    boundary: ContractRefreshBoundary,
+) -> Result<OwnedRefreshedContractBundle, String> {
+    let mut refreshed = module.clone();
+    let bundle = refresh_and_validate_for_boundary(&mut refreshed, boundary)?;
+    let carriers = bundle.carriers();
+    Ok(OwnedRefreshedContractBundle {
+        module: refreshed,
         boundary,
         carriers,
     })

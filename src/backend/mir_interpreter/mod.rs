@@ -332,6 +332,18 @@ impl MirInterpreter {
 
     /// Execute module entry (main) and return boxed result
     pub fn execute_module(&mut self, module: &MirModule) -> Result<Box<dyn NyashBox>, VMError> {
+        let refreshed = crate::mir::semantic_refresh::refresh_owned_for_boundary(
+            module,
+            crate::mir::ContractRefreshBoundary::VmExecution,
+        )
+        .map_err(VMError::InvalidInstruction)?;
+        self.execute_refreshed_module(refreshed.module())
+    }
+
+    fn execute_refreshed_module(
+        &mut self,
+        module: &MirModule,
+    ) -> Result<Box<dyn NyashBox>, VMError> {
         crate::runtime::leak_tracker::reset_observed_roots();
 
         // Snapshot functions for call resolution

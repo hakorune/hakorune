@@ -4,6 +4,17 @@ pub(crate) fn enforce_mir_backend_supported(
     module: &MirModule,
     backend: &str,
 ) -> Result<(), String> {
+    let refreshed = crate::mir::semantic_refresh::refresh_owned_for_boundary(
+        module,
+        crate::mir::ContractRefreshBoundary::BackendPreflight,
+    )?;
+    enforce_refreshed_mir_backend_supported(refreshed.module(), backend)
+}
+
+fn enforce_refreshed_mir_backend_supported(
+    module: &MirModule,
+    backend: &str,
+) -> Result<(), String> {
     crate::mir::exact_numeric_backend_capability::enforce_exact_numeric_backend_supported(
         module, backend,
     )?;

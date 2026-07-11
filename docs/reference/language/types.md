@@ -1,15 +1,15 @@
 # Type System (SSOT)
 
-Status: Draft / active (2025-12)
-Decision: accepted (責務分離完了、挙動変更なし)
-- Note: Decision: accepted は Phase 15 の責務分離（挙動不変）の受理。仕様全体は Status: Draft/active として継続更新する。
-- 受理条件達成: phase29bq_fast_gate_vm.sh + phase29bp_planner_required_dev_gate_v4_vm.sh + phase29ae_regression_pack_vm.sh 全緑
-- T2/T4/T5 完了: RuntimeTypeTag（入口分類）、RuntimeTypeSpec（意味論SSOT）、MirType完全遮断
+Status: Draft / active
+Decision: accepted normative type-law owner
 
-This document defines the **current, executable** type semantics of Nyash/Hakorune.
-Implementation is currently anchored to the Rust VM (`src/backend/mir_interpreter/*`).
+Mutable implementation, carrier, backend-capability, and migration status is
+tracked separately in
+`docs/development/current/main/workstreams/type-contract-status.md`.
 
-If another backend differs from this document, treat it as a bug unless explicitly noted.
+This document defines normative type semantics for Nyash/Hakorune. A backend
+that cannot preserve an active semantic contract must reject before effects;
+successful execution on another backend is not fallback authority.
 
 Coercion SSOT status:
 - Decisions: `docs/development/current/main/phases/phase-274/P3-DECISIONS.md`
@@ -25,37 +25,21 @@ Coercion SSOT status:
 
 ### Language v1 annotation guarantee matrix
 
-Decision: accepted. First implementation slice: exact-numeric Box field
-writes.
+Decision: accepted.
 
 Canonical `x: T` has one eventual meaning: the value must satisfy semantic
 contract `T` at the site's boundary. A metadata-only annotation is an explicit
 transitional non-guarantee, not a second meaning for `: T`. Representation,
 storage, planner, and Rune facts remain separate axes.
 
-The executable matrix is
-`src/mir/type_contracts/guarantee_matrix.rs`. Current status:
+The closed annotation-site vocabulary and implementation projection live in
+`src/mir/type_contracts/guarantee_matrix.rs`. Their mutable activation status
+belongs to the type-contract status ledger, not this normative document.
 
-| Site | Current guarantee | Activation |
-| --- | --- | --- |
-| local initialization/reassignment | metadata-only non-guarantee | transitional |
-| parameter entry | metadata-only non-guarantee | transitional |
-| return exit | metadata-only non-guarantee | transitional |
-| Box field write | verifier proof or runtime guard | exact-numeric fields only |
-| record construction/update | verifier-proven narrow contract | existing narrow |
-| static table element | verifier-proven narrow contract | existing narrow |
-| ordinary collection element | `Any` default | active dynamic default |
-| typed `Array<T>` element | runtime-checked narrow contract | existing narrow |
-| Weak field | verifier-proven narrow contract | existing narrow |
-| FFI ingress/egress | metadata-only non-guarantee | transitional |
-| backend preservation | capability preflight | representation boundary |
-
-For the first slice, a statically known exact-numeric field value receives a
-structural `TypeContractProof`. Dynamic values, including values arriving
-through a parameter typed as MIR `Integer`, receive a runtime type/range check;
-parameter annotations are not yet proof. Semantic refresh clears and rebuilds
-both proof and runtime-check records from the current MIR site key. Unsupported
-backends reject before execution rather than falling back to VM behavior.
+At every active site, enforcement is either a runtime check or a fresh
+verifier-backed proof. `MirType`, storage/layout metadata, route facts, and
+Plan/Rune hints are not semantic proof. Unsupported backends reject before
+execution rather than falling back to another backend.
 
 ### Record vs Box
 
@@ -219,7 +203,7 @@ static const SIZE_CLASS: u16[] = [
 ]
 ```
 
-Current status:
+Accepted first-row contract:
 
 - Rust parser and `.hako` parser accept the first `u16[]` declaration shape.
 - The only accepted element type is `u16`.
@@ -339,11 +323,15 @@ Design SSOT:
 ## 2. Variables and Re-assignment
 
 - `local x` / `local x = expr` introduces a mutable local variable.
-- `local x` is treated as `local x = null` (i.e., a `Void` value) unless an initializer is provided.
+- An active non-optional exact contract requires an initializer. The general
+  unannotated-local absence rule is decided by the Failure/Outcome row.
 - Re-assignment is always allowed: `x = expr`.
 - “Immutable locals” (let/const) are not part of the language today; they can be introduced later as lint/strict checks without changing core semantics.
 
-Note: Field type annotations like `field: TypeBox` exist in syntax, but are currently **not enforced** as a type contract (metadata for planner/optimizer/verifier). Stored field initializers (`field = expr` / `field: TypeBox = expr`) run as constructor prologue assignments before the user `birth` body — see `docs/reference/language/lifecycle.md`.
+Stored field initializers (`field = expr` / `field: TypeBox = expr`) run as
+constructor prologue assignments before the user `birth` body. An active field
+annotation is a semantic contract, while storage and planner projections remain
+derived facts. See `docs/reference/language/lifecycle.md`.
 
 ---
 
@@ -452,32 +440,8 @@ If you need semantics, define it at the runtime layer (VM) and then optionally o
 
 ---
 
-## 7. Implementation Anchors (SSOT)
+## 7. Implementation Navigation
 
-このセクションは「意味論の真実」を実装しているファイルを列挙する。
-新しい実装が追加されたらここに追記する（仕様SSOT の分岐を増やさない）。
-
-### 7.1 意味論の実装（正しい形）
-
-| 機能 | ファイル | 関数 | 状態 |
-|------|----------|------|------|
-| truthiness | `src/backend/abi_util.rs` | `to_bool_vm` | ✅ VMValue 直接 |
-| equality | `src/backend/abi_util.rs` | `eq_vm` | ✅ VMValue 直接 |
-| type tag | `src/backend/runtime_type_tag.rs` | `tag_from_vmvalue`, `tag_to_str` | ✅ VMValue 直接 |
-| type tag (shim) | `src/backend/abi_util.rs` | `tag_of_vm` | ✅ runtime_type_tag.rs 経由 |
-| binary ops | `src/backend/mir_interpreter/helpers.rs` | `eval_binop`, `eval_cmp` | ✅ VMValue 直接 |
-| arithmetic | `src/backend/mir_interpreter/handlers/arithmetic.rs` | `handle_binop` | ✅ VMValue 直接 |
-| is/as type match | `src/backend/runtime_type_spec.rs` | `matches_spec`, `spec_from_mir_type` | ✅ MirType 遮断済み |
-
-### 7.2 移設対象（意味論リーク）
-
-| 機能 | 現在のファイル | 問題 | 移設先 |
-|------|---------------|------|--------|
-| (なし) | - | - | Phase 15 T4 で完了 |
-
-### 7.3 Phase 15 で追加済み
-
-| 機能 | ファイル | 説明 |
-|------|----------|------|
-| RuntimeTypeTag | `src/backend/runtime_type_tag.rs` | ✅ 実行時の型タグ enum（VMValue から抽出） |
-| RuntimeTypeSpec | `src/backend/runtime_type_spec.rs` | ✅ 意味論 SSOT（type_ops.rs から移設済み） |
+Mutable implementation anchors and migration debt are listed in
+`docs/development/current/main/workstreams/type-contract-status.md`. Those
+paths are navigation evidence and do not override this type law.

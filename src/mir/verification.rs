@@ -21,6 +21,7 @@ macro_rules! collect_errors {
 mod awaits;
 mod barrier;
 mod cfg;
+mod contract_carriers;
 mod dom;
 mod fastmem;
 mod hako_alloc_metadata;
@@ -63,6 +64,10 @@ impl MirVerifier {
         collect_errors!(
             self.errors,
             module_metadata::check_module_metadata_invariants(module)
+        );
+        collect_errors!(
+            self.errors,
+            contract_carriers::check_contract_carrier_invariants(module)
         );
         collect_errors!(
             self.errors,

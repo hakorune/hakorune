@@ -105,8 +105,8 @@ use super::{
 mod contracts;
 
 pub use contracts::{
-    refresh_and_validate_for_boundary, ContractCarrierSummary, ContractRefreshBoundary,
-    RefreshedContractBundle,
+    refresh_and_validate_for_boundary, refresh_owned_for_boundary, ContractCarrierSummary,
+    ContractRefreshBoundary, OwnedRefreshedContractBundle, RefreshedContractBundle,
 };
 
 /// Refresh the current string-corridor metadata stack for one function.

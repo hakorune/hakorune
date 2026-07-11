@@ -214,12 +214,12 @@ mod tests {
     }
 
     #[test]
-    fn exact_numeric_box_field_entry_and_return_are_active_slices() {
+    fn exact_numeric_box_field_entry_return_and_local_are_active_slices() {
         let rows: Vec<_> = GUARANTEE_MATRIX
             .iter()
             .filter(|row| row.activation == ActivationScope::ExactNumericFirstSlice)
             .collect();
-        assert_eq!(rows.len(), 3);
+        assert_eq!(rows.len(), 4);
         assert!(rows.iter().any(|row| {
             row.site == AnnotationSite::BoxFieldWrite
                 && row.owner == EnforcementOwner::ExactNumericBoxFieldContract
@@ -232,11 +232,16 @@ mod tests {
             row.site == AnnotationSite::ReturnExit
                 && row.owner == EnforcementOwner::FunctionReturnContract
         }));
+        assert!(rows.iter().any(|row| {
+            row.site == AnnotationSite::LocalSlot
+                && row.owner == EnforcementOwner::LocalSlotContract
+        }));
         assert!(rows.iter().all(|row| {
             row.unsupported_backend == UnsupportedBackendPolicy::RejectBeforeEffects
         }));
         assert!(exact_numeric_parameter_entry_contract_is_active());
         assert!(exact_numeric_return_exit_contract_is_active());
+        assert!(exact_numeric_local_slot_contract_is_active());
     }
 
     #[test]

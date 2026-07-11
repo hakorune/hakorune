@@ -340,7 +340,7 @@ T2b complete:
   init/reassignment + U1 + PHI/loop evidence + JSON/backend boundary
   no broad static checker; one LocalSlotContractOwner
 
-T3 active:
+T3 complete:
   3488 accepts semantic_refresh as the sole refresh-and-validate owner
   3489 routes verifier/JSON/VM/backend/tool boundaries through that owner
   representation-only :T consumer audit and migration queue
@@ -348,7 +348,8 @@ T3 active:
   split types.md normative semantics from implementation-status ledger
   keep generated/current support status outside the normative type law
 
-T4 after representation audit:
+T4 active:
+  3490 exact-numeric annotation-island closeout audit
   exact-numeric annotation-island closeout
   parameter + return + Box field + local owner/exhaustiveness audit
   shared value-check semantics, distinct boundary timing

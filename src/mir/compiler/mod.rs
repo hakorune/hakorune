@@ -4,7 +4,7 @@ use super::optimizer::MirOptimizer;
 use super::passes::rc_insertion::insert_rc_instructions;
 use super::printer::MirPrinter;
 use super::semantic_refresh::{
-    refresh_function_fastmem_region_emitted_counts, refresh_module_semantic_metadata,
+    refresh_and_validate_for_boundary, refresh_module_semantic_metadata, ContractRefreshBoundary,
 };
 use super::verification::MirVerifier;
 use super::verification_types::VerificationError;
@@ -113,11 +113,11 @@ impl MirCompiler {
         }
 
         let stage_start = Instant::now();
-        super::exact_numeric_field_contracts::refresh_module_exact_numeric_runtime_check_contracts(
-            &mut module,
-        );
-        for function in module.functions.values_mut() {
-            refresh_function_fastmem_region_emitted_counts(function);
+        {
+            let _contracts = refresh_and_validate_for_boundary(
+                &mut module,
+                ContractRefreshBoundary::Verifier,
+            )?;
         }
         super::compile_timing::trace_stage("pre_verify_refresh", stage_start.elapsed());
 
