@@ -73,3 +73,21 @@ If a control-flow row requires choosing whether an existing `Void` carrier is
 `Unit`, absence, `Err`, or `Fault`, stop at a focused design consultation.
 Evidence location, current carrier, and green execution are not semantic
 authority.
+
+## Implementation Closeout
+
+The deterministic control-flow evidence manifest is now landed:
+
+```text
+rows = 637
+local_default = 7
+return_unit = 387
+fault_and_throw = 37
+cleanup_precedence = 116
+catchability = 60
+top_level_normalization = 30
+semantic_activation = 0
+```
+
+All rows remain pending with closed reasons. The next slice is the S4
+exhaustiveness checker; no control-flow behavior was changed.

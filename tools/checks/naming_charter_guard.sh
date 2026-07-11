@@ -1490,6 +1490,7 @@ NAMING_DIFF_ALLOWED_PATHS=(
   # it does not introduce a new stage vocabulary term.
   "tools/checks/manifests/failure_outcome_projection_binding_v0.json"
   "tools/checks/manifests/failure_outcome_runtime_provider_inventory_v0.json"
+  "tools/checks/manifests/failure_outcome_control_flow_inventory_v0.json"
   # Design registry membership rows quote existing filenames; they do not
   # introduce a new stage vocabulary term.
   "docs/development/current/main/design/INDEX.md"

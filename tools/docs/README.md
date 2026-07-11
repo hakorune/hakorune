@@ -67,6 +67,8 @@ python3 tools/docs/failure_outcome_projection_binding.py --write
 python3 tools/docs/failure_outcome_projection_binding.py --check
 python3 tools/docs/failure_outcome_runtime_provider_inventory.py --write
 python3 tools/docs/failure_outcome_runtime_provider_inventory.py --check
+python3 tools/docs/failure_outcome_control_flow_inventory.py --write
+python3 tools/docs/failure_outcome_control_flow_inventory.py --check
 ```
 
 The manifest scans `src` and `docs/reference` for named null-like and
@@ -85,3 +87,8 @@ The runtime/provider manifest records six evidence families with stable source
 locations. It links only explicitly known sites; all other rows remain pending
 with a closed reason. It is an evidence inventory, not provider activation or
 runtime classification.
+
+The control-flow manifest records local-default, return, fault/throw,
+cleanup, catchability, and top-level-normalization evidence. These rows remain
+pending until a later owner decision; the manifest does not classify control
+flow or activate cleanup/catch behavior.
