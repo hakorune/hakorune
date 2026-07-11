@@ -1,3 +1,6 @@
+#[cfg(feature = "vm-reference")]
+#[path = "../mir_array_element_write_vm.rs"]
+pub mod mir_array_element_write_vm;
 #[path = "../mir_box_new_field_initializer.rs"]
 pub mod mir_box_new_field_initializer;
 #[path = "../mir_brand_constructor.rs"]

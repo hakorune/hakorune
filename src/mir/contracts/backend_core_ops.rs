@@ -259,6 +259,7 @@ pub fn is_supported_vm_instruction(inst: &MirInstruction) -> bool {
     matches!(
         inst,
         MirInstruction::Const { .. }
+            | MirInstruction::ArrayElementWrite { .. }
             | MirInstruction::NewBox { .. }
             | MirInstruction::BinOp { .. }
             | MirInstruction::UnaryOp { .. }

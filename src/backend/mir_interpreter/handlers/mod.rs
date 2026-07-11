@@ -12,6 +12,7 @@ macro_rules! trace_dispatch {
 }
 
 mod arithmetic;
+mod array_write;
 mod boxcall_dispatch;
 mod boxcall_prelude;
 mod boxes;
@@ -75,6 +76,14 @@ impl MirInterpreter {
                 ..
             } => self.handle_static_data_load(*dst, source_name, symbol, element, *len, *index)?,
             MirInstruction::Store { ptr, value } => self.handle_store(*ptr, *value)?,
+            MirInstruction::ArrayElementWrite {
+                dst,
+                kind,
+                receiver,
+                index,
+                value,
+                ..
+            } => self.execute_array_element_write(*dst, *kind, *receiver, *index, *value)?,
             MirInstruction::FieldGet {
                 dst, base, field, ..
             } => {

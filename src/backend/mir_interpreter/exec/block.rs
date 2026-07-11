@@ -113,6 +113,16 @@ impl MirInterpreter {
                         *index,
                     )?,
                     MirInstruction::Store { ptr, value } => self.handle_store(*ptr, *value)?,
+                    MirInstruction::ArrayElementWrite {
+                        dst,
+                        kind,
+                        receiver,
+                        index,
+                        value,
+                        ..
+                    } => {
+                        self.execute_array_element_write(*dst, *kind, *receiver, *index, *value)?
+                    }
                     MirInstruction::TypeOp { dst, op, value, ty } => {
                         self.handle_type_op(*dst, *op, *value, ty)?
                     }

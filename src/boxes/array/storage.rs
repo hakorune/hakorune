@@ -202,7 +202,7 @@ impl ArrayBox {
 
     pub(super) fn new_with_storage(storage: ArrayStorage) -> Self {
         ArrayBox {
-            items: Arc::new(RwLock::new(storage)),
+            items: Arc::new(ArrayStateCell::new(storage)),
             base: BoxBase::new(),
         }
     }

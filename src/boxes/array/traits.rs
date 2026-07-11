@@ -18,7 +18,7 @@ impl Clone for ArrayBox {
         };
 
         ArrayBox {
-            items: Arc::new(RwLock::new(cloned_items)),
+            items: Arc::new(ArrayStateCell::new(cloned_items)),
             base: BoxBase::new(),
         }
     }

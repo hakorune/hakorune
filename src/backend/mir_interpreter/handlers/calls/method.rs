@@ -391,7 +391,7 @@ impl MirInterpreter {
         }
     }
 
-    pub(super) fn execute_method_callee(
+    pub(in crate::backend::mir_interpreter) fn execute_method_callee(
         &mut self,
         box_name: &str,
         method: &str,
