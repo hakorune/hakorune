@@ -38,10 +38,10 @@ cargo check -q
 
 ## Restart Notes
 
-- handoff frontier: `LANGV1-FAILURE-OUTCOME-S1-SEMANTIC-SITE-GRAPH-001`
-- read `docs/development/current/main/investigations/failure-outcome-s1-semantic-site-graph.md`
-  before editing; preserve evidence occurrences and build semantic sites by
-  operation/outcome branch
+- handoff frontier: `LANGV1-FAILURE-OUTCOME-S2-RUNTIME-PROVIDER-INVENTORY-001`
+- read `docs/development/current/main/investigations/failure-outcome-s2-runtime-provider-inventory.md`
+  before editing; preserve the S1 evidence/site graph and inventory runtime
+  provider boundaries without semantic activation
 - no parser, MIR, VMValue, runtime, cleanup, or backend behavior changes in
   this slice
 
