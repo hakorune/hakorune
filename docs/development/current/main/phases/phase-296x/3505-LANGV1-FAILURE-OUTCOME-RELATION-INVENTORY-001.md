@@ -226,6 +226,17 @@ deterministic 602-row evidence queue over `src` and `docs/reference`. The rows
 retain source location and evidence kind, but semantic fields remain pending;
 this is intentional and does not claim exhaustive semantic classification.
 
+## Next Task
+
+```text
+LANGV1-FAILURE-OUTCOME-S1-SEMANTIC-CLASSIFICATION-001
+```
+
+Classify the 602 evidence rows in deterministic batches. A batch may add only
+classification data and evidence links; it may not change parser/runtime
+behavior. Any site whose owner or target carrier is ambiguous must become a
+focused consultation stop rather than receiving a heuristic classification.
+
 ## Claims
 
 ```text

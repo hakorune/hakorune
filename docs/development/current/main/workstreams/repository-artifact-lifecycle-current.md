@@ -50,7 +50,7 @@ compat_null = Compat2025_only
 3505_start_condition = repository artifact lifecycle C2 deterministic classification resolved; 77 consultation rows deferred
 3505_s0_relation_ssot = complete
 3505_s1_evidence_queue = complete
-3505_s1_next = classify evidence rows and add exhaustive ownership fields
+3505_s1_next = LANGV1-FAILURE-OUTCOME-S1-SEMANTIC-CLASSIFICATION-001
 3505_behavior_change = 0
 ```
 
