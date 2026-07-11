@@ -445,11 +445,10 @@ physical_move_requires_reference_closure = 1
 
 ## H3 C2 First Family Stop
 
-The first queued family, `hako-alloc-segment`, is not classifiable by a
-single safe rule. It contains allocation, arena-backing, segment-map, and
-lifecycle rows with mixed explicit status values. No registry row or physical
-move is allowed until its authority spine and subfamily boundaries are
-reviewed.
+The first queued family, `hako-alloc-segment`, is now accepted as four
+semantic subfamilies. The queue prefix remains scheduling-only. Individual
+roles still require explicit content review, and no physical movement starts
+in this slice.
 
 ```text
 family = hako-alloc-segment
@@ -460,8 +459,45 @@ internal_family_references = present
 authority_spine = unresolved
 role_assignment = none
 physical_move = forbidden
-next = focused consultation for hako-alloc-segment
+next = H3-C2-HAKO-ALLOC-SEGMENT-FAMILY-CLASSIFICATION
 ```
+
+## H3 C2 Accepted Family Design
+
+```text
+semantic_subfamilies:
+  segment-lifecycle-and-membership
+  segment-allocation-and-local-reuse
+  segment-arena-backing-and-residence
+  segment-map-and-release
+
+new_family_authority_document = 0
+historical_ssot_suffix_implies_authority = 0
+authority_spine = existing allocator authority chain
+lifecycle_blueprint_registration = prerequisite
+role_assignment = explicit content review only
+superseded_assignment = 0
+physical_move = 0
+```
+
+## H3 C2 Family Classification Task
+
+```text
+task = H3-C2-HAKO-ALLOC-SEGMENT-FAMILY-CLASSIFICATION
+scope = all 163 hako-alloc-segment rows
+
+S1 = establish authority/precedence chain
+S2 = generate subfamily and proposed-role review projection
+S3 = land reviewed registry rows and unique sidecars
+S4 = lower baseline only after full batch is green
+S5 = run cycle/orphan/reference/pointer/docs-slim/dev-gate guards
+
+superseded_rows = 0
+physical_moves = 0
+```
+
+`supporting`, `status-ledger`, and `sidecar` remain review outcomes, not
+filename-derived assignments. Bridge rows require individual review.
 
 ## Non-Claims
 

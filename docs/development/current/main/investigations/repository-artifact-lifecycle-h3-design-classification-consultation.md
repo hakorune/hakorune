@@ -1,8 +1,8 @@
 ---
-Status: Active design consultation stop (hako-alloc-segment family)
+Status: Active implementation workstream (hako-alloc-segment family)
 Date: 2026-07-11
 Owner: repository-artifact-lifecycle-current.md
-Decision: C1 accepted; C2 first-family review pending
+Decision: C1 accepted; C2 hako-alloc-segment design accepted
 ---
 
 # H3 Design Registry Classification Consultation
@@ -66,10 +66,10 @@ role_assignment = none
 
 ## C2 First Family Review: hako-alloc-segment
 
-This family is stopped for focused consultation rather than heuristic
-classification. It is isolated from external direct-design references, but
-its internal graph contains many row-to-row links and its documents do not
-declare one common authority owner.
+The design consultation is accepted. This family is a deterministic queue
+family only, not a semantic owner family. It is isolated from external
+direct-design references, but its internal graph contains many row-to-row
+links and its documents require explicit content review.
 
 ```text
 family_files = 163
@@ -100,6 +100,52 @@ The complete family summary is generated in the repository lifecycle
 manifest. C2 must review an authority spine, precedence parent, and
 retirement condition for each family; a family without a clear spine stops
 for a focused consultation.
+
+## Accepted C2 Design
+
+```text
+semantic_subfamilies:
+  segment-lifecycle-and-membership
+  segment-allocation-and-local-reuse
+  segment-arena-backing-and-residence
+  segment-map-and-release
+
+new_family_authority_document = 0
+historical_ssot_suffix_implies_authority = 0
+c2_superseded_assignment = 0
+c2_physical_move = 0
+```
+
+Authority remains anchored in the existing chain:
+
+```text
+INDEX.md
+  -> hako-alloc-policy-state-contract-ssot.md
+  -> hako-alloc-mimalloc-port-identity-boundary-ssot.md
+  -> mimalloc-hako-port-implementation-plan-ssot.md
+  -> mimalloc-lifecycle-rewrite-blueprint-ssot.md
+```
+
+The lifecycle blueprint is an existing authority candidate to register;
+no umbrella authority document is created. Proof/pilot rows are supporting
+candidates, model/ledger/readiness rows are status-ledger candidates,
+diagnostic/closeout rows are sidecar candidates only after one-base review,
+and bridge rows remain individual supporting review candidates.
+
+## Minimum Next Slice
+
+```text
+H3-C2-HAKO-ALLOC-SEGMENT-FAMILY-CLASSIFICATION
+
+S1 authority spine and existing authority registration
+S2 explicit subfamily/content review projection for all 163 rows
+S3 registry rows and sidecar ownership landing
+S4 exact baseline update only after the batch is review-green
+S5 cycle/orphan/reference/pointer/docs-slim/dev-gate guards
+```
+
+No role is assigned from filename suffix or historical SSOT header alone.
+Superseded assignment and physical movement remain C3 work.
 
 ## Proposed Classification Order
 
@@ -167,6 +213,12 @@ roles.
 design_registry_complete = 0
 design_registry_decided = 1
 unregistered_design_files = 732
+h3_c2_hako_alloc_segment_design_accepted = 1
+hako_alloc_segment_semantic_subfamily_count = 4
+hako_alloc_segment_all_individual_roles_reviewed = 0
+hako_alloc_segment_new_authority_document = 0
+hako_alloc_segment_superseded_assignment = 0
+hako_alloc_segment_physical_move = 0
 heuristic_role_assignment = 0
 design_file_move_started = 0
 strict_design_registry_guard = 0

@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Active design consultation stop"
+status = "Active implementation workstream"
 date = "2026-07-11"
 
 active_lane = "REPOSITORY-ARTIFACT-LIFECYCLE cleanup before Failure/Outcome"
@@ -61,12 +61,12 @@ latest_workstream_card = "docs/development/current/main/workstreams/repository-a
 
 latest_card = "repository-artifact-lifecycle-h3-design-classification-consultation"
 latest_card_path = "docs/development/current/main/investigations/repository-artifact-lifecycle-h3-design-classification-consultation.md"
-latest_card_summary = """C1 is accepted: 112 direct design files were classified
-from explicit README section evidence. C2 queue review reached the largest
-hako-alloc-segment family: 163 mixed allocation/arena/map/lifecycle rows need
-focused authority-spine consultation; no role or physical move is assigned."""
+latest_card_summary = """C1 is accepted and C2 design is now accepted for the
+largest hako-alloc-segment family. Its 163 rows are split into four semantic
+subfamilies under existing allocator authority; S1-S5 content review is next,
+with no superseded assignment or physical move."""
 
-current_blocker_token = "REPOSITORY-ARTIFACT-LIFECYCLE-H3-DESIGN-REGISTRY-C2-HAKO-ALLOC-SEGMENT-CONSULTATION"
+current_blocker_token = "REPOSITORY-ARTIFACT-LIFECYCLE-H3-C2-HAKO-ALLOC-SEGMENT-FAMILY-CLASSIFICATION"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
