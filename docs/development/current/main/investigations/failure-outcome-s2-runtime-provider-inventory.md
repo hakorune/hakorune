@@ -1,8 +1,8 @@
 ---
-Status: Design consultation stop
+Status: Accepted design handoff
 Date: 2026-07-12
 Owner: 3505-LANGV1-FAILURE-OUTCOME-RELATION-INVENTORY-001
-Decision: pending source-owner consultation
+Decision: accepted projection binding policy
 ---
 
 # LANGV1-FAILURE-OUTCOME-S2-RUNTIME-PROVIDER-INVENTORY-001
@@ -104,6 +104,12 @@ zero.
 
 ## Next Stop
 
-Resume S2 only after the consultation names one source owner and the
-fail-fast/pending boundary. Do not continue to S3 or activate a carrier from
-this task while that decision is open.
+The consultation accepted the source/representation split and opened the
+minimum implementation task:
+
+```text
+LANGV1-FAILURE-OUTCOME-S2-PROJECTION-BINDING-001
+```
+
+See
+`docs/development/current/main/phases/phase-296x/3507-LANGV1-FAILURE-OUTCOME-S2-PROJECTION-BINDING-001.md`.

@@ -38,10 +38,10 @@ cargo check -q
 
 ## Restart Notes
 
-- handoff frontier: `LANGV1-FAILURE-OUTCOME-S2-RUNTIME-PROVIDER-PROJECTION-SOURCE-DESIGN-STOP-001`
-- read `docs/development/current/main/investigations/failure-outcome-s2-runtime-provider-inventory.md`
-  before editing; this is a source-owner consultation stop, so do not invent
-  a projection owner or start S2 implementation
+- handoff frontier: `LANGV1-FAILURE-OUTCOME-S2-PROJECTION-BINDING-001`
+- read `docs/development/current/main/phases/phase-296x/3507-LANGV1-FAILURE-OUTCOME-S2-PROJECTION-BINDING-001.md`
+  before editing; preserve one-way source-site to projection binding and keep
+  semantic activation at zero
 - no parser, MIR, VMValue, runtime, cleanup, or backend behavior changes in
   this slice
 

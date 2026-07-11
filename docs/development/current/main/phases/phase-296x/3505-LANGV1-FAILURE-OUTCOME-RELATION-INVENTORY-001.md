@@ -14,7 +14,7 @@ Current progress:
 S0_relation_ssot = complete
 S1_source_evidence_queue = complete
 S1_semantic_classification = complete
-S2_runtime_provider_inventory = design_stop
+S2_runtime_provider_inventory = implementation_in_progress
 S3_control_flow_inventory = pending
 S4_exhaustiveness_checker = pending
 S5_conflict_ledger_closeout = pending
@@ -22,9 +22,9 @@ S5_conflict_ledger_closeout = pending
 
 The accepted owner-boundary consultation is recorded in
 `docs/development/current/main/investigations/failure-outcome-s1-vmvalue-void-owner-design-stop.md`.
-The active S2 frontier is
-`LANGV1-FAILURE-OUTCOME-S2-RUNTIME-PROVIDER-PROJECTION-SOURCE-DESIGN-STOP-001`;
-direct backend projections have no unique S1 source owner.
+The accepted S2 source-owner decision opens
+`3507-LANGV1-FAILURE-OUTCOME-S2-PROJECTION-BINDING-001` as the active
+implementation slice.
 The active S2 task is
 `docs/development/current/main/investigations/failure-outcome-s2-runtime-provider-inventory.md`.
 S1 graph artifacts are the identity source; S2 changes inventory
